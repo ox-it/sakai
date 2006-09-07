@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+  <hibernate-mapping package="org.sakaiproject.hierarchy.model">
+      
+      <class name="org.sakaiproject.hierarchy.model.Hierarchy"
+          table="hierarchy_nodes" 
+          optimistic-lock="version"> 
+          <id name="id" unsaved-value="null" type="string" >
+              <column name="id" length="36" not-null="true"/>
+              <generator class="uuid.hex" />
+          </id>
+          <version name="version" type="timestamp" unsaved-value="null"/>
+          
+          <!--  the children of this node -->
+          <set name="children" cascade="save-update" lazy="true" >
+         	<key column="parent_id" not-null="false"/>
+         	<one-to-many class="org.sakaiproject.hierarchy.model.Hierarchy"/>
+      	  </set>              
+      	 <!-- the properties of this node -->
+          <set name="properties" cascade="all" lazy="true" >
+         	<key column="node_id" not-null="false"/>
+         	<one-to-many class="org.sakaiproject.hierarchy.model.HierarchyProperty"/>
+      	  </set>            
+      	  
+      	  <!--  the parent of this node, other end of children link -->
+      	  <many-to-one
+        			name="parent"
+        			column="parent_id"
+        			not-null="false"
+        			class="org.sakaiproject.hierarchy.model.Hierarchy"
+        			/>
+      	    
+          <!-- node id, SHA1 hash of name -->
+          <property 
+              name="nodeid" 
+              column="nodeid" 
+              not-null="true" 
+              index="inodeid" 
+              type="string" 
+              unique="true" 
+              length="36" />
+          <!--  full name == absolute path of the node -->
+          <property 
+              name="name" 
+              column="name" 
+              not-null="true" 
+              type="string" 
+              unique="false" 
+              length="4000" />
+          <!--  security realm of the node, inheritance is implimented like this -->
+          <property 
+              name="realm" 
+              column="realm" 
+              not-null="true" 
+              type="string" 
+              unique="false" 
+              length="4000" />
+      </class>
+
+      <class name="org.sakaiproject.hierarchy.model.HierarchyProperty"
+          table="hierarchy_property" 
+          optimistic-lock="version">
+          <id name="id" unsaved-value="null" type="string" >
+              <column name="id" length="36" not-null="true"/>
+              <generator class="uuid.hex" />
+          </id>
+          <version name="version" type="timestamp" unsaved-value="null"/>
+          <!-- this is the resource string -->
+      	  <many-to-one
+        			name="node"
+        			column="node_id"
+        			not-null="false"
+         			class="org.sakaiproject.hierarchy.model.Hierarchy"
+        			/>
+        			
+          <property 
+              name="name" 
+              column="name" 
+              not-null="true" 
+              index="iparent" 
+              type="string" 
+              unique="false" 
+              length="64" />
+          <property 
+              name="propvalue" 
+              column="propvalue" 
+              not-null="true" 
+              type="string"  
+              unique="false" 
+              length="254" />
+      </class>
+      
+  </hibernate-mapping>
+  

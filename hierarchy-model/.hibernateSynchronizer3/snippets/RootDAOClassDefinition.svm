@@ -1,0 +1,6 @@
+:Modified=true
+:Description=
+-
+//CustomRootDAOClassDefinition
+
+public abstract class _RootDAO extends ${class.AbsoluteBaseRootDAOClassName} {

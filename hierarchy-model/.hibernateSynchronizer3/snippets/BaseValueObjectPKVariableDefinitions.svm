@@ -1,0 +1,10 @@
+:Modified=true
+:Description=
+-
+// BaseValueObjectPKVariableDefintions
+
+	protected int hashCode = Integer.MIN_VALUE;
+
+#foreach ($prop in $class.Id.Properties)
+	private ${prop.AbsoluteSignatureClassName} ${prop.VarName};
+#end

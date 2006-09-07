@@ -1,0 +1,15 @@
+:Modified=true
+:Description=
+-
+#if ($prop.get("field-description", true))
+	/**
+$!{prop.getJavaDoc("field-description", "	 ")}
+	 */
+#elseif ($prop.Column)
+	/**
+	 * Return the value associated with the column: ${prop.Column}
+	 */
+#end
+	$!{prop.ScopeGet} ${prop.AbsoluteSignatureClassName} ${prop.GetterName} () {
+		return ${prop.VarName};
+	}

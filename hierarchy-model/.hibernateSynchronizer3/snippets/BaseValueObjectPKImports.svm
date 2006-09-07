@@ -1,0 +1,6 @@
+:Modified=true
+:Description=
+-
+// BaseValueObjectPKImports
+
+import java.io.Serializable;

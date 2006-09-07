@@ -1,0 +1,6 @@
+:Modified=true
+:Description=
+-
+// CustomDAOImports
+
+import ${class.AbsoluteBaseDAOClassName};

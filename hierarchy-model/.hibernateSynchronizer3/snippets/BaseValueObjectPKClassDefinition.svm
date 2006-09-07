@@ -1,0 +1,6 @@
+:Modified=true
+:Description=
+-
+//BaseValieObjectPKClassDefinition
+
+public abstract class Base${class.Id.Property.ClassName} implements Serializable {

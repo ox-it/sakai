@@ -1,0 +1,19 @@
+:Modified=true
+:Description=
+-
+//BaseValueObjectClassComments
+
+#if ($class.get("class-description", true))
+/**
+$!class.getJavaDoc("class-description")
+ */
+#else
+/**
+ * This is an object that contains data related to the $!{class.TableName} table.
+ * Do not modify this class because it will be overwritten if the configuration file
+ * related to this class is modified.
+ *
+ * @hibernate.class
+ *  table="$!{class.TableName}"
+ */
+#end

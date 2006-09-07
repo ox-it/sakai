@@ -1,0 +1,51 @@
+:Modified=true
+:Description=
+-
+
+// CustomBaseDAOActionMethods
+
+    /**
+	 * Persist the given transient instance, first assigning a generated identifier. (Or using the current value
+	 * of the identifier property if the assigned generator is used.) 
+	 * @param ${class.VarName} a transient instance of a persistent class 
+	 * @return the class identifier
+	 */
+	public ${class.ParentRoot.Id.Property.ObjectClass} save(${class.AbsoluteValueObjectSignatureClassName} ${class.VarName})
+#if ($exceptionClass)
+		throws ${exceptionClass} {
+#else
+	{
+#end
+		return (${class.ParentRoot.Id.Property.ObjectClass}) super.save(${class.VarName});
+	}
+
+	/**
+	 * Either save() or update() the given instance, depending upon the value of its identifier property. By default
+	 * the instance is always saved. This behaviour may be adjusted by specifying an unsaved-value attribute of the
+	 * identifier property mapping. 
+	 * @param ${class.VarName} a transient instance containing new or updated state 
+	 */
+	public void saveOrUpdate(${class.AbsoluteValueObjectSignatureClassName} ${class.VarName})
+#if ($exceptionClass)
+		throws ${exceptionClass} {
+#else
+	{
+#end
+		super.saveOrUpdate(${class.VarName});
+	}
+
+
+	/**
+	 * Update the persistent state associated with the given identifier. An exception is thrown if there is a persistent
+	 * instance with the same identifier in the current session.
+	 * @param ${class.VarName} a transient instance containing updated state
+	 */
+	public void update(${class.AbsoluteValueObjectSignatureClassName} ${class.VarName}) 
+#if ($exceptionClass)
+		throws ${exceptionClass} {
+#else
+	{
+#end
+		super.update(${class.VarName});
+	}
+	

@@ -1,0 +1,8 @@
+:Modified=true
+:Description=
+-
+// CustomBaseDAOClassConstructors
+
+	public ${class.BaseDAOClassName} () {}
+	
+	

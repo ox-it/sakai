@@ -1,0 +1,128 @@
+:Modified=true
+:Description=
+-
+//BaseValueObjectEqualityMethods
+
+/*
+#if ($class.Id || $class.AlternateKeys.size() > 0)
+#if ($class.Id.hasExternalClass())
+	public boolean equals (Object obj) {
+		if (null == obj) return false;
+		if (!(obj instanceof ${class.AbsoluteValueObjectSignatureClassName})) return false;
+		else {
+			${class.AbsoluteValueObjectSignatureClassName} $!{class.VarName} = (${class.AbsoluteValueObjectSignatureClassName}) obj;
+#if ($class.AlternateKeys.size() == 0)
+#if ($class.Id.Property.isPrimitive())
+			return (this.${class.Id.Property.GetterName}() == $!{class.VarName}.${class.Id.Property.GetterName}());
+#else
+			if (null == this.${class.Id.Property.GetterName}() || null == $!{class.VarName}.${class.Id.Property.GetterName}()) return false;
+			else return (this.${class.Id.Property.GetterName}().equals($!{class.VarName}.${class.Id.Property.GetterName}()));
+#end
+#else
+			boolean isEqual = true;
+#foreach ($prop in $class.AlternateKeys)
+#if ($prop.isPrimitive())
+			isEqual = isEqual && (this.${prop.GetterName}() == $!{class.VarName}.${prop.GetterName}());
+#else
+			if (null == this.${prop.GetterName}() || null == $!{class.VarName}.${prop.GetterName}()) return false;
+			else isEqual = isEqual && (this.${prop.GetterName}().equals($!{class.VarName}.${prop.GetterName}()));
+#end
+#end
+			return isEqual;
+#end
+		}
+	}
+#else
+	public boolean equals (Object obj) {
+		if (null == obj) return false;
+		if (!(obj instanceof ${class.AbsoluteValueObjectSignatureClassName})) return false;
+		else {
+			${class.AbsoluteValueObjectSignatureClassName} $!{class.VarName} = (${class.AbsoluteValueObjectSignatureClassName}) obj;
+#foreach ($prop in $class.Id.Properties)
+#if ($prop.isPrimitive())
+			if (this.${prop.GetterName}() != $!{class.VarName}.${prop.GetterName}()) {
+				return false;
+			}
+#else
+			if (null != this.${prop.GetterName}() && null != $!{class.VarName}.${prop.GetterName}()) {
+				if (!this.${prop.GetterName}().equals($!{class.VarName}.${prop.GetterName}())) {
+					return false;
+				}
+			}
+			else {
+				return false;
+			}
+#end
+#end
+#if ($class.Id.Properties.size() > 0)
+			return true;
+#else
+			return super.equals(obj);
+#end
+		}
+	}
+#end
+#end
+
+#if ($class.Id || $class.AlternateKeys.size() > 0)
+#if ($class.Id.hasExternalClass())
+	public int hashCode () {
+		if (Integer.MIN_VALUE == this.hashCode) {
+#if ($class.AlternateKeys.size() == 0)
+#if ($class.Id.Property.isPrimitive())
+			return (int) this.${class.Id.Property.GetterName}();
+#else
+			if (null == this.${class.Id.Property.GetterName}()) return super.hashCode();
+			else {
+				String hashStr = this.getClass().getName() + ":" + this.${class.Id.Property.GetterName}().hashCode();
+				this.hashCode = hashStr.hashCode();
+			}
+#end
+#else
+			StringBuilder hashStr = new StringBuilder();
+			hashStr.append(this.getClass().getName() + ":");
+#foreach ($prop in $class.AlternateKeys)
+#if ($prop.isPrimitive())
+			hashStr.append(new ${prop.ObjectClass}(this.${prop.GetterName}()).toString() + ":");
+#else
+			if (null == this.${prop.GetterName}()) return super.hashCode();
+			else hashStr.append(this.${prop.GetterName}().toString() + ":");
+#end
+#end
+			this.hashCode = hashStr.toString().hashCode();
+#end
+		}
+		return this.hashCode;
+	}
+#else
+	public int hashCode () {
+		if (Integer.MIN_VALUE == this.hashCode) {
+			StringBuilder sb = new StringBuilder();
+#foreach ($prop in $class.Id.Properties)
+#if ($prop.isPrimitive())
+			sb.append(new $!{prop.ObjectClass}(this.${prop.GetterName}()).hashCode());
+			sb.append(":");
+#else
+			if (null != this.${prop.GetterName}()) {
+				sb.append(this.${prop.GetterName}().hashCode());
+				sb.append(":");
+			}
+			else {
+				return super.hashCode();
+			}
+#end
+#end
+			this.hashCode = sb.toString().hashCode();
+		}
+		return this.hashCode;
+	}
+#end
+#end
+*/
+
+	public int compareTo(Object obj) {
+		int hashCmp = hashCode()-obj.hashCode();
+		if ( hashCmp == 0 ) return 0;
+		if ( hashCmp < 0 ) return -1;
+		return 1;
+	}

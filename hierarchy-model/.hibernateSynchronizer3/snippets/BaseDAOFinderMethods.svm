@@ -1,0 +1,71 @@
+:Modified=true
+:Description=
+-
+//CustomBaseDAOFinderMethods
+
+
+#if ($class.ParentRoot.Id)
+	public ${class.AbsoluteValueObjectSignatureClassName} load(${class.ParentRoot.Id.Property.AbsoluteSignatureClassName} key)
+#if ($exceptionClass)
+		throws ${exceptionClass} {
+#else
+	{
+#end
+#if ($class.ParentRoot.Id.Property.isPrimitive())
+		return (${class.AbsoluteValueObjectSignatureClassName}) load(getReferenceClass(), new ${class.ParentRoot.Id.Property.ObjectClass}(key));
+#else
+		return (${class.AbsoluteValueObjectSignatureClassName}) load(getReferenceClass(), key);
+#end
+	}
+#end
+
+
+
+#if ($class.ParentRoot.Id)
+	public ${class.AbsoluteValueObjectSignatureClassName} get(${class.ParentRoot.Id.Property.AbsoluteSignatureClassName} key)
+#if ($exceptionClass)
+		throws ${exceptionClass} {
+#else
+	{
+#end
+#if ($class.ParentRoot.Id.Property.isPrimitive())
+		return (${class.AbsoluteValueObjectSignatureClassName}) get(getReferenceClass(), new ${class.ParentRoot.Id.Property.ObjectClass}(key));
+#else
+		return (${class.AbsoluteValueObjectSignatureClassName}) get(getReferenceClass(), key);
+#end
+	}
+#end
+
+
+
+#if ($class.ParentRoot.Id)
+	public java.util.List loadAll()
+#if ($exceptionClass)
+		throws ${exceptionClass} {
+#else
+	{
+#end
+		return loadAll(getReferenceClass());
+	}
+#end
+
+
+
+#foreach ($prop in $class.AllProperties)
+#if ($prop.FinderMethod)
+
+	public java.util.List $prop.FinderMethod (${prop.AbsoluteSignatureClassName} ${prop.VarName}) {
+		return findFiltered ("$!{prop.Name}", ${prop.VarName}).list();
+	}
+#end
+#end
+
+/* Generic methods */
+
+	/**
+	 * Return all objects related to the implementation of this DAO with no filter.
+	 */
+	public java.util.List findAll () {
+		return super.loadAll(getReferenceClass());
+	}
+

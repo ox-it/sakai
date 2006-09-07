@@ -1,0 +1,144 @@
+:Modified=true
+:Description=
+-
+//BaseValueObjectConstructor
+
+	// constructors
+	public ${class.BaseValueObjectClassName} () {
+		initialize();
+	}
+#set ($root = $class.ParentRoot)
+#if ($class.isSubclass())
+#if ($root.Id)
+
+	/**
+	 * Constructor for primary key
+	 */
+#if ($root.Id.hasExternalClass())
+	public ${class.BaseValueObjectClassName} (${root.Id.Property.AbsoluteSignatureClassName} ${root.Id.Property.VarName}) {
+		super(${root.Id.Property.VarName});
+	}
+#else
+	public ${class.BaseValueObjectClassName} (
+#set ($countT = 1)
+#foreach ($prop in $root.Id.Properties)
+		${prop.AbsoluteSignatureClassName} ${prop.VarName}#if ($countT < $root.Id.Properties.size()),
+#end
+#set ($countT = $countT + 1)
+#end) {
+
+		super (
+#set ($countT = 1)
+#foreach ($prop in $root.Id.Properties)
+			${prop.VarName}#if ($countT < $root.Id.Properties.size()),
+#end
+#set ($countT = $countT + 1)
+#end);
+	}
+#end
+#end
+#if ($root.RequiredFields.size() > 0)
+
+	/**
+	 * Constructor for required fields
+	 */
+	public ${class.BaseValueObjectClassName} (
+#if ($root.Id)
+#if ($root.Id.hasExternalClass())
+		${root.Id.Property.AbsoluteSignatureClassName} ${root.Id.Property.VarName},
+#else
+#foreach ($prop in $root.Id.Properties)
+		${prop.AbsoluteSignatureClassName} ${prop.VarName},
+#end
+#end
+#end
+#set ($countT = 1)
+#foreach ($prop in $root.RequiredFields)
+		$prop.AbsoluteSignatureClassName $prop.VarName#if ($countT < $root.RequiredFields.size()),
+#end
+#set ($countT = $countT + 1)
+#end) {
+
+		super (
+#if ($root.Id)
+#if ($root.Id.hasExternalClass())
+			${root.Id.Property.VarName},
+#else
+#foreach ($prop in $root.Id.Properties)
+			${prop.VarName},
+#end
+#end
+#end
+#set ($countT = 1)
+#foreach ($prop in $root.RequiredFields)
+			${prop.VarName}#if ($countT < $root.RequiredFields.size()),
+#end
+#set ($countT = $countT + 1)
+#end);
+	}
+#end
+#else
+#if ($root.Id)
+
+	/**
+	 * Constructor for primary key
+	 */
+#if ($root.Id.hasExternalClass())
+	public ${root.BaseValueObjectClassName} (${root.Id.Property.AbsoluteSignatureClassName} ${root.Id.Property.VarName}) {
+		this.${root.Id.Property.SetterName}(${root.Id.Property.VarName});
+		initialize();
+	}
+#else
+	public ${class.BaseValueObjectClassName} (
+#set ($countT = 1)
+#foreach ($prop in $root.Id.Properties)
+		${prop.AbsoluteSignatureClassName} ${prop.VarName}#if ($countT < $root.Id.Properties.size()),
+#end
+#set ($countT = $countT + 1)		
+#end) {
+
+#foreach ($prop in $root.Id.Properties)
+		this.${prop.SetterName}(${prop.VarName});
+#end
+		initialize();
+	}
+#end
+#end
+#if ($root.RequiredFields.size() > 0)
+
+	/**
+	 * Constructor for required fields
+	 */
+	public ${root.BaseValueObjectClassName} (
+#if ($root.Id && $class.Id.hasExternalClass())
+		${root.Id.Property.AbsoluteSignatureClassName} ${root.Id.Property.VarName},
+#else
+#foreach ($prop in $root.Id.Properties)
+		${prop.AbsoluteSignatureClassName} ${prop.VarName},
+#end
+#end
+#set ($countT = 1)
+#foreach ($prop in $root.RequiredFields)
+		$prop.AbsoluteSignatureClassName $prop.VarName#if ($countT < $root.RequiredFields.size()),
+#end
+#set ($countT = $countT + 1)
+#end) {
+
+#if ($root.Id && $class.Id.hasExternalClass())
+		this.${root.Id.Property.SetterName}(${root.Id.Property.VarName});
+#else
+#foreach ($prop in $root.Id.Properties)
+		this.${prop.SetterName}(${prop.VarName});
+#end
+#end
+#foreach ($prop in $root.RequiredFields)
+		this.${prop.SetterName}(${prop.VarName});
+#end
+		initialize();
+	}
+#end
+#end
+#if (!$class.isSubclass())
+
+	protected void initialize () {}
+#end

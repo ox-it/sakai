@@ -1,0 +1,12 @@
+:Modified=true
+:Description=
+-
+// BaseValieObjectPKGetterSetter
+
+#foreach ($prop in $class.Id.Properties)
+
+$snippet.c_Getter
+
+$snippet.c_Setter
+$snippet.c_CustomProperties
+#end

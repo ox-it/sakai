@@ -1,0 +1,10 @@
+:Modified=true
+:Description=
+-
+// BaseValueObjectImports
+
+import java.io.Serializable;
+#if ($class.hasProxy())
+
+import $class.AbsoluteProxyClassName;
+#end

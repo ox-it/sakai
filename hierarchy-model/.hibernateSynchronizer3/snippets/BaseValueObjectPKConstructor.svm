@@ -1,0 +1,19 @@
+:Modified=true
+:Description=
+-
+// BaseValueObjectPKConstructor
+
+	public Base${class.Id.Property.ClassName} () {}
+	
+	public Base${class.Id.Property.ClassName} (
+#set ($countT = 1)
+#foreach ($prop in $class.Id.Properties)
+		${prop.AbsoluteSignatureClassName} ${prop.VarName}#if ($countT < $class.Id.Properties.size()),
+#end
+#set ($countT = $countT + 1)
+#end) {
+
+#foreach ($prop in $class.Id.Properties)
+		this.${prop.SetterName}(${prop.VarName});
+#end
+	}
