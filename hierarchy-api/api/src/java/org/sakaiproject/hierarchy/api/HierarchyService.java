@@ -2,8 +2,8 @@ package org.sakaiproject.hierarchy.api;
 
 import java.util.List;
 
-import org.sakaiproject.hierarchy.model.api.Hierarchy;
-import org.sakaiproject.hierarchy.model.api.HierarchyProperty;
+import org.sakaiproject.hierarchy.api.model.Hierarchy;
+import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
 
 public interface HierarchyService
 {
