@@ -46,6 +46,14 @@
     
   </bean> 
   
+  <bean id="org.sakaiproject.hierarchy.api.HierarchyService.test"
+    class="org.sakaiproject.hierarchy.impl.HierarchyServiceTest" 
+    init-method="init" >
+    <property name="hierarchyService"><ref bean="org.sakaiproject.hierarchy.api.HierarchyService" /></property>
+     
+    
+    
+  </bean> 
 
 
 

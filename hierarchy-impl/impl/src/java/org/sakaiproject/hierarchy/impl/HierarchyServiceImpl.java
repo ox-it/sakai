@@ -7,8 +7,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.hierarchy.api.HierarchyService;
 import org.sakaiproject.hierarchy.api.dao.HierarchyDAO;
-import org.sakaiproject.hierarchy.model.api.Hierarchy;
-import org.sakaiproject.hierarchy.model.api.HierarchyProperty;
+import org.sakaiproject.hierarchy.api.model.Hierarchy;
+import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
 
 public class HierarchyServiceImpl implements HierarchyService
 {
@@ -82,9 +82,7 @@ public class HierarchyServiceImpl implements HierarchyService
 	public List getRootNodes()
 	{
 
-		String parentNodePath = "";
-		String parentNodeId = hash(parentNodePath);
-		return hierarchyDao.findHierarchyByParentNodeId(parentNodeId);
+		return hierarchyDao.findHierarchyRoots();
 	}
 
 	private static char[] encode = { '0', '1', '2', '3', '4', '5', '6', '7',
@@ -103,8 +101,8 @@ public class HierarchyServiceImpl implements HierarchyService
 		char[] c = new char[b.length * 2];
 		for (int i = 0; i < b.length; i++)
 		{
-			c[i * 2] = encode[b[i] % 16];
-			c[i * 2 + 1] = encode[b[i] / 16];
+			c[i * 2] = encode[b[i]&0x0f];
+			c[i * 2 + 1] = encode[(b[i]>>4)&0x0f];
 		}
 		return new String(c);
 	}
