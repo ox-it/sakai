@@ -1,8 +1,0 @@
-:Modified=true
-:Description=
--
-// CustomBaseValueObjectToString
-
-	public String toString () {
-		return super.toString();
-	}

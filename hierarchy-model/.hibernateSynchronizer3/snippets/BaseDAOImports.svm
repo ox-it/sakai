@@ -1,5 +1,0 @@
-:Modified=true
-:Description=The import statements for the base DAO
--
-//BaseDAOImports
-//import ${class.DAOPackage}.${class.DAOClassName};

@@ -1,9 +1,0 @@
-:Modified=true
-:Description=
--
-// CustomBaseDAOQueryNames
-
-	// query name references
-#foreach ($query in $class.Queries)
-	public static final String QUERY_${query.StaticName} = "${query.Name}";
-#end

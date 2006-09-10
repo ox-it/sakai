@@ -1,9 +1,0 @@
-:Modified=true
-:Description=
--
-// Custom BaseValueObjectStaticProperties
-
-	public static String REF = "$!{class.ValueObjectClassName}";
-#foreach ($prop in $class.AllProperties)
-	public static String PROP_${prop.StaticName} = "$!{prop.Name}";
-#end

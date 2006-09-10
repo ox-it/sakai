@@ -1,6 +1,0 @@
-:Modified=true
-:Description=
--
-// CustomBaseDAODefinition
-
-public abstract class ${class.BaseDAOClassName} extends ${class.AbsoluteRootDAOClassName} {

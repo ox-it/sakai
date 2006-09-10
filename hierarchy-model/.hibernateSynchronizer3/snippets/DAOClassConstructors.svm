@@ -1,7 +1,0 @@
-:Modified=true
-:Description=
--
-//CustomDAOClassConstructor
-
-	public ${class.DAOClassName} () {}
-	
