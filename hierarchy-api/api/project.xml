@@ -48,37 +48,5 @@
     </resources>
   </build>
   <dependencies>
-      <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-hierarchy-model</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-<dependency>
-      <groupId>${sakai.hibernate.groupId}</groupId>
-      <artifactId>${sakai.hibernate.artifactId}</artifactId>
-      <version>${sakai.hibernate.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.artifactId}</artifactId>
-      <version>${sakai.spring.version}</version>
-      <type>jar</type>
-    </dependency>
-  
-<!--
-      <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-entity-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-        <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-event-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
--->
-     </dependencies>
+  </dependencies>
 </project>

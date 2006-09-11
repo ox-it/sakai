@@ -23,18 +23,16 @@
  **********************************************************************************/
 -->
 <beans>
-<!-- CustomSpringCustomConfig -->
-
-<!-- CustomSpringDatasourceConfig -->
-
-
-<!-- CustomSpringHibernateConfig -->
-
-
-<!-- Custom SpringFactoryConfig -->
-   <!-- Transaction Proxy for HierarchyDAO -->
   
   
+  <bean id="org.sakaiproject.hierarchy.api.HierarchyService.test"
+    class="org.sakaiproject.hierarchy.impl.HierarchyServiceTest" 
+    init-method="init" >
+    <property name="hierarchyService"><ref bean="org.sakaiproject.hierarchy.api.HierarchyService" /></property>
+     
+    
+    
+  </bean> 
 
 <!-- the service -->
   <bean id="org.sakaiproject.hierarchy.api.HierarchyService"
@@ -46,29 +44,14 @@
     
   </bean> 
   
-  <bean id="org.sakaiproject.hierarchy.api.HierarchyService.test"
-    class="org.sakaiproject.hierarchy.impl.HierarchyServiceTest" 
+
+  <bean id="org.sakaiproject.hierarchy.api.dao.HierarchyDAO"
+    class="org.sakaiproject.hierarchy.impl.model.dao.HierarchyDAO" 
     init-method="init" >
-    <property name="hierarchyService"><ref bean="org.sakaiproject.hierarchy.api.HierarchyService" /></property>
-     
-    
-    
+    <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService" /></property>
+    <property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager" /></property>
   </bean> 
 
 
-
-<!-- Inject the hello hbm into the global session factory -->
-   <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.hello"
-    class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
-        
-    <property name="mappingResources">
-      <list>
-        <value>org/sakaiproject/hierarchy/model/hierarchy.hbm.xml</value>
-      </list>
-    </property>
-  </bean>
-
-
-  <import resource="classpath:org/sakaiproject/hierarchy/model/model-context.xml" /> 
 
 </beans>

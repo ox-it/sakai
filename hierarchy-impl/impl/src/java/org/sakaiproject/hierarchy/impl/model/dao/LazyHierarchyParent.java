@@ -1,9 +1,11 @@
 package org.sakaiproject.hierarchy.impl.model.dao;
 
-import org.sakaiproject.hierarchy.model.Hierarchy;
+import org.sakaiproject.hierarchy.api.model.Hierarchy;
+import org.sakaiproject.hierarchy.impl.HierarchyImpl;
+
 
 public class LazyHierarchyParent extends
-		Hierarchy
+		HierarchyImpl
 {
 	private String lazyId = null;
 	private HierarchyDAO dao = null;
@@ -20,7 +22,7 @@ public class LazyHierarchyParent extends
 	{
 		if (!loaded)
 		{
-			Hierarchy h = (Hierarchy) dao.findHierarchyByNodeId(lazyId);
+			Hierarchy h = (Hierarchy) dao.findHierarchyById(lazyId);
 			loaded = true; // this potentially non thread safe until the
 			// copy is complete
 			this.copy(h);

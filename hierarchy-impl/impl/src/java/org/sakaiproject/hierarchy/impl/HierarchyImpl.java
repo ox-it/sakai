@@ -1,10 +1,11 @@
-package org.sakaiproject.hierarchy.model.base;
+package org.sakaiproject.hierarchy.impl;
 
 // BaseValueObjectImports
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
@@ -21,8 +22,16 @@ import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
  */
 
 // BaseValueObjectClassDefinitions
-public abstract class BaseHierarchy implements Serializable, Comparable
+public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 {
+
+	private static final long serialVersionUID = 1L;
+
+
+	protected void load()
+	{
+		// this is not a proxy so dont load anything
+	}
 
 	// Custom BaseValueObjectStaticProperties
 
@@ -34,27 +43,28 @@ public abstract class BaseHierarchy implements Serializable, Comparable
 
 	public static String PROP_PARENT = "parent";
 
-	public static String PROP_NAME = "name";
-
+	public static String PROP_NAME = "path";
+	
+	public static String PROP_PATH_HASH = "pathhash";
+	
 	public static String PROP_ID = "id";
 	
-	protected abstract void load();
 	
-	protected void copy(BaseHierarchy source) {
-		this.setChildren(source.getChildren());
+	protected void copy(Hierarchy source) {
 		this.setId(source.getId());
-		this.setName(source.getName());
-		this.setNodeid(source.getNodeid());
+		this.setPath(source.getPath());
+		this.setPathHash(source.getPathHash());
 		this.setParent(source.getParent());
-		this.setProperties(source.getProperties());
 		this.setRealm(source.getRealm());
 		this.setVersion(source.getVersion());
+		this.setChildren(source.getChildren());
+		this.setProperties(source.getProperties());
 	}
 
 	// BaseValueObjectConstructor
 
 	// constructors
-	public BaseHierarchy()
+	public HierarchyImpl()
 	{
 		initialize();
 	}
@@ -62,7 +72,7 @@ public abstract class BaseHierarchy implements Serializable, Comparable
 	/**
 	 * Constructor for primary key
 	 */
-	public BaseHierarchy(String id)
+	public HierarchyImpl(String id)
 	{
 		this.setId(id);
 		initialize();
@@ -71,12 +81,12 @@ public abstract class BaseHierarchy implements Serializable, Comparable
 	/**
 	 * Constructor for required fields
 	 */
-	public BaseHierarchy(String id, String nodeid, String name, String realm)
+	public HierarchyImpl(String id, String pathhash, String path, String realm)
 	{
 
 		this.setId(id);
-		this.setNodeid(nodeid);
-		this.setName(name);
+		this.setPathHash(pathhash);
+		this.setPath(path);
 		this.setRealm(realm);
 		initialize();
 	}
@@ -95,19 +105,21 @@ public abstract class BaseHierarchy implements Serializable, Comparable
 	Date version;
 
 	// fields
-	private String nodeid;
+	private String pathhash;
 
-	private String name;
+	private String path;
 
 	private String realm;
 
 	// many to one
-	private Hierarchy parent;
+	private Hierarchy parent = null;
 
 	// collections
-	private Map children;
+	private Map children = new HashMap();
 
-	private Map properties;
+	private Map properties = new HashMap();
+
+	private boolean modified = false;
 
 	// BaseValueObjectGetterIdGetterSetter
 
@@ -129,6 +141,7 @@ public abstract class BaseHierarchy implements Serializable, Comparable
 	 */
 	public void setId(String id)
 	{
+		modified = true;
 		this.id = id;
 		this.hashCode = Integer.MIN_VALUE;
 	}
@@ -151,15 +164,16 @@ public abstract class BaseHierarchy implements Serializable, Comparable
 	 */
 	public void setVersion(Date version)
 	{
+		modified = true;
 		this.version = version;
 	}
 
 	/**
 	 * Return the value associated with the column: nodeid
 	 */
-	public java.lang.String getNodeid()
+	public java.lang.String getPathHash()
 	{
-		return nodeid;
+		return pathhash;
 	}
 
 	/**
@@ -168,17 +182,18 @@ public abstract class BaseHierarchy implements Serializable, Comparable
 	 * @param nodeid
 	 *        the nodeid value
 	 */
-	public void setNodeid(String nodeid)
+	public void setPathHash(String pathhash)
 	{
-		this.nodeid = nodeid;
+		modified = true;
+		this.pathhash = pathhash;
 	}
 
 	/**
 	 * Return the value associated with the column: name
 	 */
-	public String getName()
+	public String getPath()
 	{
-		return name;
+		return path;
 	}
 
 	/**
@@ -187,9 +202,10 @@ public abstract class BaseHierarchy implements Serializable, Comparable
 	 * @param name
 	 *        the name value
 	 */
-	public void setName(String name)
+	public void setPath(String path)
 	{
-		this.name = name;
+		modified = true;
+		this.path = path;
 	}
 
 	/**
@@ -208,6 +224,7 @@ public abstract class BaseHierarchy implements Serializable, Comparable
 	 */
 	public void setRealm(String realm)
 	{
+		modified = true;
 		this.realm = realm;
 	}
 
@@ -227,7 +244,8 @@ public abstract class BaseHierarchy implements Serializable, Comparable
 	 */
 	public void setParent(Hierarchy parent)
 	{
-		this.parent = (org.sakaiproject.hierarchy.model.Hierarchy) parent;
+		modified = true;
+		this.parent = parent;
 	}
 
 	/**
@@ -246,13 +264,20 @@ public abstract class BaseHierarchy implements Serializable, Comparable
 	 */
 	public void setChildren(Map children)
 	{
+		modified = true;
 		this.children = children;
+		for ( Iterator i = this.children.values().iterator(); i.hasNext(); ) {
+			Hierarchy h = (Hierarchy) i.next();
+			h.setParent(this);
+		}
 	}
 
 	public void addTochildren(Hierarchy hierarchy)
 	{
+		modified = true;
 		if (null == getChildren()) setChildren(new HashMap());
-		getChildren().put(hierarchy.getName(),hierarchy);
+		getChildren().put(hierarchy.getPath(),hierarchy);
+		hierarchy.setParent(this);
 	}
 
 	/**
@@ -271,13 +296,20 @@ public abstract class BaseHierarchy implements Serializable, Comparable
 	 */
 	public void setProperties(Map properties)
 	{
+		modified = true;
 		this.properties = properties;
+		for ( Iterator i = this.properties.values().iterator(); i.hasNext(); ) {
+			HierarchyProperty h = (HierarchyProperty) i.next();
+			h.setNode(this);
+		}
 	}
 
 	public void addToproperties(HierarchyProperty hierarchyProperty)
 	{
+		modified = true;
 		if (null == getProperties()) setProperties(new HashMap());
 		getProperties().put(hierarchyProperty.getName(),hierarchyProperty);
+		hierarchyProperty.setNode(this);
 	}
 
 	// BaseValueObjectEqualityMethods
@@ -321,6 +353,12 @@ public abstract class BaseHierarchy implements Serializable, Comparable
 		return (HierarchyProperty) properties.get(name);
 	}
 
+	public void setModified(boolean modified ) {
+		this.modified  = modified;
+	}
+	public boolean isModified() {
+		return modified;
+	}
 
 	// BaseValueObjectCustomContents
 }

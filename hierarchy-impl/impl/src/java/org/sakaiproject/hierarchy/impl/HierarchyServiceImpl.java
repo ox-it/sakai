@@ -104,7 +104,9 @@ public class HierarchyServiceImpl implements HierarchyService
 			c[i * 2] = encode[b[i]&0x0f];
 			c[i * 2 + 1] = encode[(b[i]>>4)&0x0f];
 		}
-		return new String(c);
+		String encoded =  new String(c);
+		log.debug("Encoded "+nodePath+" as "+encoded);
+		return encoded;
 	}
 
 
@@ -112,30 +114,30 @@ public class HierarchyServiceImpl implements HierarchyService
 
 	public Hierarchy getNode(String nodePath)
 	{
-		String nodeId = hash(nodePath);
-		return hierarchyDao.findHierarchyByNodeId(nodeId);
+		String pathHash = hash(nodePath);
+		return hierarchyDao.findHierarchyByPathHash(pathHash);
 	}
 
 
 	public void save(Hierarchy hierachy) {
-		hierarchyDao.saveOrUpdate((org.sakaiproject.hierarchy.model.Hierarchy) hierachy);
+		hierarchyDao.saveOrUpdate( hierachy);
 	}
 
 
 	public void deleteNode(Hierarchy hierachy) 
 	{
-		hierarchyDao.delete((org.sakaiproject.hierarchy.model.Hierarchy)hierachy);
+		hierarchyDao.delete(hierachy);
 	}
 	
 	public Hierarchy newHierarchy(String nodePath) {
-		org.sakaiproject.hierarchy.model.Hierarchy h = new org.sakaiproject.hierarchy.model.Hierarchy();
-		String nodeId = hash(nodePath);
-		h.setNodeid(nodeId);
-		h.setName(nodePath);
+		HierarchyImpl h = new HierarchyImpl();
+		String pathhash = hash(nodePath);
+		h.setPathHash(pathhash);
+		h.setPath(nodePath);
 		return h;
 	}
 	public HierarchyProperty newHierachyProperty() {
-		return new org.sakaiproject.hierarchy.model.HierarchyProperty();
+		return new HierarchyPropertyImpl();
 	}
 
 }

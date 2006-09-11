@@ -1,5 +1,6 @@
 package org.sakaiproject.hierarchy.impl.model.dao;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -23,7 +24,9 @@ public class LazyHierarchyProperties extends MapProxy
 	{
 		if (target == null)
 		{
+			
 			List l = dao.findHierarchyProperties(owner);
+			target = new HashMap();
 			for (Iterator i = l.iterator(); i.hasNext();)
 			{
 				HierarchyProperty hp = (HierarchyProperty) i.next();

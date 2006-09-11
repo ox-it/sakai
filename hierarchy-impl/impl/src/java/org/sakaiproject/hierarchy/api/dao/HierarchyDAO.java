@@ -3,49 +3,38 @@ package org.sakaiproject.hierarchy.api.dao;
 import java.util.List;
 
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
+import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
 
 
 
 //import java.io.Serializable;
 
 public interface HierarchyDAO {
-	public Hierarchy get(String key) throws org.springframework.dao.DataAccessException;
 
-	public Hierarchy load(String key) throws org.springframework.dao.DataAccessException;
-
-	public java.util.List findAll ();
 
 
 	/**
-	 * Persist the given transient instance, first assigning a generated identifier. (Or using the current value
-	 * of the identifier property if the assigned generator is used.) 
-	 * @param hierarchy a transient instance of a persistent class 
-	 * @return the class identifier
+	 * The hierarchy node is saved, depending on its Id, if the Id is null, then the id is assigned
+	 * and a new item is saved, otherwise the item is update by id.
 	 */
-	public String save(Hierarchy hierarchy) throws org.springframework.dao.DataAccessException;
-
+	public void saveOrUpdate(Hierarchy hierarchy);
 	/**
-	 * Either save() or update() the given instance, depending upon the value of its identifier property. By default
-	 * the instance is always saved. This behaviour may be adjusted by specifying an unsaved-value attribute of the
-	 * identifier property mapping. 
-	 * @param hierarchy a transient instance containing new or updated state 
+	 * The hierarchy property node is saved, depending on its Id, if the Id is null, then the id is assigned
+	 * and a new item is saved, otherwise the item is update by id.
 	 */
-	public void saveOrUpdate(Hierarchy hierarchy) throws org.springframework.dao.DataAccessException;
 
-	/**
-	 * Update the persistent state associated with the given identifier. An exception is thrown if there is a persistent
-	 * instance with the same identifier in the current session.
-	 * @param hierarchy a transient instance containing updated state
-	 */
-	public void update(Hierarchy hierarchy) throws org.springframework.dao.DataAccessException;
+	public void saveOrUpdate(HierarchyProperty hierarchy);
 
 
 	/**
-	 * The node
+	 * Find and loac hte hierachy using the SHA1 node ID as the key
 	 * @param nodeId
 	 * @return
 	 */
-	public Hierarchy findHierarchyByNodeId(String nodeId);
+	Hierarchy findHierarchyByPathHash(String pathHash);
+	
+	
+	public Hierarchy findHierarchyById(String nodeId);
 
 
 	/**
@@ -54,8 +43,31 @@ public interface HierarchyDAO {
 	 * @param hierarchy the instance to be removed
 	 */
 	public void delete(Hierarchy hierachy);
+	public void delete(HierarchyProperty hierarchy);
+	
+	
 
+	/**
+	 * Locate root nodes in the datasore, these are nodes that dont have parents.
+	 * @return
+	 */
 	public List findHierarchyRoots();
+
+	/**
+	 * Using a hierarchy node find its properties.
+	 * @param owner
+	 * @return
+	 */
+	public List findHierarchyProperties(Hierarchy owner);
+
+	/**
+	 * Find nodes with the same parent as supplied. Effectively this is a list of children of the 
+	 * parent node.
+	 * @param parent
+	 * @return
+	 */
+	public List findHierarchyByParent(Hierarchy parent);
+
 
 
 }

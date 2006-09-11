@@ -3,6 +3,8 @@
  */
 package org.sakaiproject.hierarchy.api.model;
 
+import java.util.Date;
+
 /**
  * @author ieb
  */
@@ -34,5 +36,30 @@ public interface HierarchyProperty
 	 *        the propvalue value
 	 */
 	void setPropvalue(String propvalue);
+
+	String getId();
+	
+	Hierarchy getNode();
+
+	/** 
+	 * Has the hierarchy been modified.
+	 * @return
+	 */
+	boolean isModified();
+	
+
+	/**
+	 * set the modified flag
+	 * @param b
+	 */
+	void setModified(boolean b);
+
+	Date getVersion();
+
+	void setId(String string);
+
+	void setVersion(Date object);
+
+	void setNode(Hierarchy node);
 
 }

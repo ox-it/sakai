@@ -8,7 +8,6 @@ public abstract class MapProxy implements Map
 {
 	protected abstract void load();
 	protected Map target = null;
-	protected Map original = null;
 	public int size()
 	{
 		load();
@@ -46,23 +45,28 @@ public abstract class MapProxy implements Map
 	}
 	public void putAll(Map arg0)
 	{
+		load();
 		target.putAll(arg0);			
 	}
 	public void clear()
 	{
+		load();
 		target.clear();
 		
 	}
 	public Set keySet()
 	{
+		load();
 		return target.keySet();
 	}
 	public Collection values()
 	{
+		load();
 		return target.values();
 	}
 	public Set entrySet()
 	{
+		load();
 		return target.entrySet();
 	}
 

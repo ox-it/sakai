@@ -1,4 +1,4 @@
-package org.sakaiproject.hierarchy.model.base;
+package org.sakaiproject.hierarchy.impl;
 
 // BaseValueObjectImports
 
@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
+import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
 
 //BaseValueObjectClassComments
 
@@ -18,7 +19,7 @@ import org.sakaiproject.hierarchy.api.model.Hierarchy;
  */
 
 // BaseValueObjectClassDefinitions
-public abstract class BaseHierarchyProperty implements Serializable, Comparable
+public class HierarchyPropertyImpl implements Serializable, Comparable, HierarchyProperty
 {
 
 	// Custom BaseValueObjectStaticProperties
@@ -36,7 +37,7 @@ public abstract class BaseHierarchyProperty implements Serializable, Comparable
 	// BaseValueObjectConstructor
 
 	// constructors
-	public BaseHierarchyProperty()
+	public HierarchyPropertyImpl()
 	{
 		initialize();
 	}
@@ -44,7 +45,7 @@ public abstract class BaseHierarchyProperty implements Serializable, Comparable
 	/**
 	 * Constructor for primary key
 	 */
-	public BaseHierarchyProperty(java.lang.String id)
+	public HierarchyPropertyImpl(java.lang.String id)
 	{
 		this.setId(id);
 		initialize();
@@ -53,7 +54,7 @@ public abstract class BaseHierarchyProperty implements Serializable, Comparable
 	/**
 	 * Constructor for required fields
 	 */
-	public BaseHierarchyProperty(java.lang.String id, java.lang.String name,
+	public HierarchyPropertyImpl(java.lang.String id, java.lang.String name,
 			java.lang.String propvalue)
 	{
 
@@ -82,7 +83,9 @@ public abstract class BaseHierarchyProperty implements Serializable, Comparable
 	private String propvalue;
 
 	// many to one
-	private org.sakaiproject.hierarchy.model.Hierarchy node;
+	private Hierarchy node;
+
+	private boolean modified = false;
 
 	// BaseValueObjectGetterIdGetterSetter
 
@@ -104,6 +107,7 @@ public abstract class BaseHierarchyProperty implements Serializable, Comparable
 	 */
 	public void setId(String id)
 	{
+		modified = true;
 		this.id = id;
 		this.hashCode = Integer.MIN_VALUE;
 	}
@@ -126,6 +130,7 @@ public abstract class BaseHierarchyProperty implements Serializable, Comparable
 	 */
 	public void setVersion(Date version)
 	{
+		modified = true;
 		this.version = version;
 	}
 
@@ -145,6 +150,7 @@ public abstract class BaseHierarchyProperty implements Serializable, Comparable
 	 */
 	public void setName(String name)
 	{
+		modified = true;
 		this.name = name;
 	}
 
@@ -164,6 +170,7 @@ public abstract class BaseHierarchyProperty implements Serializable, Comparable
 	 */
 	public void setPropvalue(String propvalue)
 	{
+		modified = true;
 		this.propvalue = propvalue;
 	}
 
@@ -183,7 +190,8 @@ public abstract class BaseHierarchyProperty implements Serializable, Comparable
 	 */
 	public void setNode(Hierarchy node)
 	{
-		this.node = (org.sakaiproject.hierarchy.model.Hierarchy) node;
+		modified = true;
+		this.node =  node;
 	}
 
 	// BaseValueObjectEqualityMethods
@@ -215,6 +223,12 @@ public abstract class BaseHierarchyProperty implements Serializable, Comparable
 	public String toString()
 	{
 		return super.toString();
+	}
+	public void setModified(boolean modified ) {
+		this.modified = modified;
+	}
+	public boolean isModified() {
+		return modified ;
 	}
 
 	// BaseValueObjectCustomContents

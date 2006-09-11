@@ -3,6 +3,7 @@
  */
 package org.sakaiproject.hierarchy.api.model;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -13,7 +14,7 @@ public interface Hierarchy
 	/**
 	 * Return the value associated with the column: name
 	 */
-	String getName();
+	String getPath();
 
 	/**
 	 * Return the value associated with the column: parent_id
@@ -76,5 +77,25 @@ public interface Hierarchy
 	HierarchyProperty getProperty(String string);
 
 	String getId();
+
+	/** 
+	 * set the modified flag that controls saving operations
+	 * @param b
+	 */
+	void setModified(boolean b);
+
+	/**
+	 * Has the hierarchy been modified
+	 * @return
+	 */
+	boolean isModified();
+
+	String getPathHash();
+
+	Date getVersion();
+
+	void setVersion(Date date);
+
+	void setId(String string);
 
 }

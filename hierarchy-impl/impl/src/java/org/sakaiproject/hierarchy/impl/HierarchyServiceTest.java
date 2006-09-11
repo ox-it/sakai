@@ -27,7 +27,7 @@ public class HierarchyServiceTest
 			hierarchyService.save(h);
 
 			h = hierarchyService.getNode(testRoot);
-			assertEquals("Root node check ", h.getName(), testRoot);
+			assertEquals("Root node check ", h.getPath(), testRoot);
 			checkNodes(h);
 			hierarchyService.deleteNode(h);
 			log.warn("Spring Injected Test Sucessfull..... but plesae remove in production ");
@@ -44,18 +44,18 @@ public class HierarchyServiceTest
 	{
 		for (int i = 0; i < 10; i++)
 		{
-			String testPath = h.getName() + "/" + i;
+			String testPath = h.getPath() + "/" + i;
 			Hierarchy child1 = h.getChild(testPath);
-			assertNotNull("Missing node path " + testPath, child1);
+			assertNotNull("Missing node path  " + testPath, child1);
 			assertEquals("Path name is not correct ", testPath, child1
-					.getName());
+					.getPath());
 			HierarchyProperty hp = child1.getProperty("propertyA" + i);
-			assertNotNull("No property A node found ", hp);
-			assertEquals("Property value of Prop A is ", "propertyvalueA" + i,
+			assertNotNull("No property "+testPath+"/propertyA"+i+" node found ", hp);
+			assertEquals("Property value of "+testPath+"/propertyA"+i+" is ", "propertyvalueA" + i,
 					hp.getPropvalue());
 			hp = child1.getProperty("propertyB" + i);
-			assertNotNull("No property B node found ", hp);
-			assertEquals("Property value of Prop B is ", "propertyvalueB" + i,
+			assertNotNull("No property "+testPath+"/propertyB"+i+" node found ", hp);
+			assertEquals("Property value of "+testPath+"/propertyB"+i+" is ", "propertyvalueB" + i,
 					hp.getPropvalue());
 			
 		}
@@ -83,16 +83,19 @@ public class HierarchyServiceTest
 	{
 		for (int i = 0; i < 10; i++)
 		{
-			Hierarchy child1 = hierarchyService.newHierarchy(h.getName() + "/"
+			Hierarchy child1 = hierarchyService.newHierarchy(h.getPath() + "/"
 					+ i);
+			h.addTochildren(child1);
+
 			HierarchyProperty hp = hierarchyService.newHierachyProperty();
 			hp.setName("propertyA" + i);
 			hp.setPropvalue("propertyvalueA" + i);
-			h.addTochildren(child1);
-			h.addToproperties(hp);
+			child1.addToproperties(hp);
+			
 			hp = hierarchyService.newHierachyProperty();
 			hp.setName("propertyB" + i);
 			hp.setPropvalue("propertyvalueB" + i);
+			child1.addToproperties(hp);
 		}
 	}
 
