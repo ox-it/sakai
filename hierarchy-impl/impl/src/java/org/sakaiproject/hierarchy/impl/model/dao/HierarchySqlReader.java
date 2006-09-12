@@ -27,7 +27,7 @@ public class HierarchySqlReader implements SqlReader
 
 	private static final int HIERARCHY_VERSION_POS = 6;
 
-	public static final String FIND_ROOTS = "select id, pathhash, path, parent_id, realm, version where parent_id is null " ;
+	public static final String FIND_ROOTS = "select id, pathhash, path, parent_id, realm, version from hierarchy_nodes where parent_id is null " ;
 
 	public static final String FIND_BY_PATHHASH_SQL = "select id, pathhash, path, parent_id, realm, version from hierarchy_nodes where pathhash = ? ";
 

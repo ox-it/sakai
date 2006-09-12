@@ -11,6 +11,15 @@
     <deploy.type>jar</deploy.type>
 	<deploy.target>shared</deploy.target>
   </properties>
+  <dependencies>
+      <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-component</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+  
+  </dependencies>
   <build>
     <!-- java source -->
     <sourceDirectory>src/java</sourceDirectory>
@@ -47,6 +56,4 @@
       </resource>
     </resources>
   </build>
-  <dependencies>
-  </dependencies>
 </project>

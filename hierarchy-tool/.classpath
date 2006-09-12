@@ -18,5 +18,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/user-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/util-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/util-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/hierarchy-api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -24,9 +24,11 @@ package org.sakaiproject.portal.orcus;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.servlet.ServletConfig;
@@ -41,6 +43,9 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.hierarchy.api.model.Hierarchy;
+import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
+import org.sakaiproject.hierarchy.cover.HierarchyService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -1131,24 +1136,79 @@ public class OrcusPortal extends HttpServlet
 
 	private void includeHierarchyNav(PrintWriter out, HttpServletRequest req, Session session, String siteId)
 	{
-		includeList();
+		
+		List rootNodes = HierarchyService.getRootNodes();
+		out.println("<ul class=\"tree\" >");
+		for ( Iterator i = rootNodes.iterator(); i.hasNext(); ) {
+			Hierarchy h = (Hierarchy) i.next();
+			out.println("<li class=\"closed\" ><a href=\"#\" >Node:" +h.getPath()+
+					" </a>");
+			out.println("<ul>");
+			includeChildren(out,h.getChildren());
+			includeProperties(out,h.getProperties());
+			out.println("</ul>");
+			out.println("</li>");
+		}
+		out.println("</ul>");
 		
 	}
+	
+	private void includeProperties(PrintWriter out, Map properties)
+	{
+		for ( Iterator i = properties.values().iterator(); i.hasNext(); ) {
+			HierarchyProperty h = (HierarchyProperty) i.next();
+			out.println("<li><a href=\"#\" >Property:" +
+					h.getName()+
+					"="+
+					h.getPropvalue()+
+					" </a>");
+			out.println("</li>");
+		}
+	}
+
+	private void includeChildren(PrintWriter out, Map children)
+	{
+		for ( Iterator i = children.values().iterator(); i.hasNext(); ) {
+			Hierarchy h = (Hierarchy) i.next();
+			out.println("<li class=\"closed\" ><a href=\"#\" >Node:" +h.getPath()+
+					" </a>");
+			out.println("<ul>");
+			includeChildren(out,h.getChildren());
+			includeProperties(out,h.getProperties());
+			out.println("</ul>");
+			out.println("</li>");
+		}
+	}
+
+	private void addList(int levels, List l) {
+		levels--;
+		if ( levels == 0 ) {
+			return;
+		} else {
+			for ( int i = 0; i < 5; i++ ) {
+				l.add("Some text at item "+i);
+			}
+			List l2 = new ArrayList();
+			l.add(l2);
+			addList(levels,l2);
+		}
+	}
 	private void includeList(PrintWriter out, List l) {
-	out.println("<ul>");
 	for ( Iterator i = l.iterator(); i.hasNext(); ) {
 		Object o = i.next();
 		if ( o instanceof List ) {
-			out.print("<li>");
+			
+			out.print("<li class=\"closed\" >");
+			out.print("<a href=\"#\">Folder/</a><ul>");		
 			includeList(out,(List)o);
+			out.println("</ul>");
 			out.println("</li>");
 		} else {
-		out.print("<li>");
-		out.print(i.next());
-		out.println("</li>");
+			out.print("<li><a href=\"#\" >");
+			out.print(o);
+			out.println("</a></li>");
 		}
 	}
-	out.println("</ul>");
 	}
 
 	protected String getPlacement(HttpServletRequest req, HttpServletResponse res, Session session, String placementId,
@@ -2310,7 +2370,10 @@ public class OrcusPortal extends HttpServlet
 
 		out.println("    <link href=\"" + skinRepo + "/" + skin
 				+ "/portal.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
-
+		out.println("    <link href=\"" + skinRepo + "/" + skin
+				+ "/tree.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
+		out.println("<script type=\"text/javascript\" src=\"" + getScriptPath()
+				+ "tree.js\"></script>");
 		out.println("    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />" + "    <title>" + Web.escapeHtml(title)
 				+ "</title>" + "    <script type=\"text/javascript\" language=\"JavaScript\" src=\"" + getScriptPath()
 				+ "headscripts.js\"></script>" + "  </head>");

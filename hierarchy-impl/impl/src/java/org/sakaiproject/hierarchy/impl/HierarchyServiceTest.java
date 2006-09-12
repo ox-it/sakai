@@ -1,5 +1,8 @@
 package org.sakaiproject.hierarchy.impl;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.hierarchy.api.HierarchyService;
@@ -29,7 +32,10 @@ public class HierarchyServiceTest
 			h = hierarchyService.getNode(testRoot);
 			assertEquals("Root node check ", h.getPath(), testRoot);
 			checkNodes(h);
-			hierarchyService.deleteNode(h);
+			//hierarchyService.deleteNode(h);
+			log.info("Testing Navigation ");
+			List l = hierarchyService.getRootNodes();
+			printList("",l.iterator());
 			log.warn("Spring Injected Test Sucessfull..... but plesae remove in production ");
 		}
 		catch (Exception ex)
@@ -38,6 +44,35 @@ public class HierarchyServiceTest
 			log.error("Spring Injected Test Failed..... but plesae remove in production ");
 			System.exit(-1);
 		}
+	}
+
+	private void printList(String indent, Iterator i)
+	{
+		while ( i.hasNext() ) {
+			Object o = i.next();
+			if ( o instanceof Hierarchy ) {
+				print(indent,(Hierarchy)o);
+			} else if ( o instanceof HierarchyProperty ) {
+				print(indent,(HierarchyProperty)o);
+			} else {
+				log.info(indent+"Unrecognised Node :"+o);
+			}
+		}
+		
+	}
+
+	private void print(String indent, HierarchyProperty property)
+	{
+		log.info(indent+"Property "+property.getName()+"(" + property.getVersion() +
+				"):"+property.getPropvalue());
+		
+	}
+
+	private void print(String indent, Hierarchy hierarchy)
+	{
+		log.info("Node "+hierarchy.getPath()+"("+hierarchy.getVersion()+")");
+		printList("      ",hierarchy.getProperties().values().iterator());
+		printList("",hierarchy.getChildren().values().iterator());		
 	}
 
 	private void checkNodes(Hierarchy h) throws Exception
