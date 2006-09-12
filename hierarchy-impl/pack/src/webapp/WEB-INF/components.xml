@@ -33,6 +33,15 @@
     
     
   </bean> 
+  <bean id="org.sakaiproject.hierarchy.api.HierarchyService.testsite"
+    class="org.sakaiproject.hierarchy.impl.SiteHierarchyServiceTest" 
+    init-method="init" >
+    <property name="hierarchyService"><ref bean="org.sakaiproject.hierarchy.api.HierarchyService" /></property>
+    <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
+      
+    
+    
+  </bean> 
 
 <!-- the service -->
   <bean id="org.sakaiproject.hierarchy.api.HierarchyService"

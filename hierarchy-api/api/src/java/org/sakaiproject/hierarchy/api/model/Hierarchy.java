@@ -98,4 +98,6 @@ public interface Hierarchy
 
 	void setId(String string);
 
+	HierarchyProperty addToproperties(String string, String value);
+
 }

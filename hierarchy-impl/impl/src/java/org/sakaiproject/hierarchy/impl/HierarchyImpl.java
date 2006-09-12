@@ -360,5 +360,15 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 		return modified;
 	}
 
+	public HierarchyProperty addToproperties(String name, String value)
+	{
+		HierarchyProperty hp = new HierarchyPropertyImpl();
+		hp.setName(name);
+		hp.setPropvalue(value);
+		addToproperties(hp);
+		return hp;
+		
+	}
+
 	// BaseValueObjectCustomContents
 }

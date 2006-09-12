@@ -10,5 +10,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/db-api"/>
 	<classpathentry kind="src" path="impl/src/sql"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/util-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/site-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/entity-api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
