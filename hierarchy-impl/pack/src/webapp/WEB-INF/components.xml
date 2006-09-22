@@ -29,10 +29,10 @@
     class="org.sakaiproject.hierarchy.impl.HierarchyServiceTest" 
     init-method="init" >
     <property name="hierarchyService"><ref bean="org.sakaiproject.hierarchy.api.HierarchyService" /></property>
-    -->
     
     
   </bean> 
+    -->
   <bean id="org.sakaiproject.hierarchy.api.HierarchyService.testsite"
     class="org.sakaiproject.hierarchy.impl.SiteHierarchyServiceTest" 
     init-method="init" >
