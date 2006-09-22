@@ -33,6 +33,7 @@ public class HierarchyDAO implements
 	private IdManager idmanager = null;
 
 	private ThreadLocalManager threadLocalManager = null;
+	
 
 	public HierarchyDAO()
 	{
@@ -343,18 +344,8 @@ public class HierarchyDAO implements
 					log.warn("Failed to delete Hieratchy Node at "
 							+ hierarchy.getPath());
 				}
-				for (Iterator i = hierarchy.getChildren().values().iterator(); i
-						.hasNext();)
-				{
-					Hierarchy h = (Hierarchy) i.next();
-					delete(h);
-				}
-				for (Iterator i = hierarchy.getProperties().values().iterator(); i
-						.hasNext();)
-				{
-					HierarchyProperty hp = (HierarchyProperty) i.next();
-					delete(hp);
-				}
+				deleteChildren(hierarchy);
+				deleteProperties(hierarchy);
 			}
 			finally
 			{
@@ -363,6 +354,60 @@ public class HierarchyDAO implements
 
 		}
 
+	}
+
+	private void deleteProperties(Hierarchy hierarchy)
+	{
+		if (hierarchy.getId() != null)
+		{
+			Connection connection = null;
+			try
+			{
+				connection = getConnection();
+				Object[] params = new Object[] { hierarchy.getId() };
+				logSQL("Delete Hierarchy ", HierarchyPropertySqlReader.DELETE_NODE_PROPERTIES_SQL,
+						params, null);
+				if (!sqlService.dbWrite(connection,
+						HierarchyPropertySqlReader.DELETE_NODE_PROPERTIES_SQL, params))
+				{
+					log.warn("Failed to delete Hieratchy Node at "
+							+ hierarchy.getPath());
+				}
+			}
+			finally
+			{
+				releaseConnection();
+			}
+
+		}
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void deleteChildren(Hierarchy hierarchy)
+	{
+		if (hierarchy.getId() != null)
+		{
+			Connection connection = null;
+			try
+			{
+				/*
+				 * This is not very efficient, but I have to iterate to find the children. 
+				 * Would be better to find all the parents, and delete that list
+				 */
+				connection = getConnection();
+				for ( Iterator i = hierarchy.getChildren().values().iterator(); i.hasNext(); ) {
+					Hierarchy h = ( Hierarchy) i.next();
+					delete(h);
+				}
+			}
+			finally
+			{
+				releaseConnection();
+			}
+
+		}
+		
 	}
 
 	public void delete(HierarchyProperty hierarchyProperty)

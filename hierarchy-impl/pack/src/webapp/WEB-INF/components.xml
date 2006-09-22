@@ -66,6 +66,7 @@
     init-method="init" >
     <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService" /></property>
     <property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager" /></property>
+    <property name="idmanager"><ref bean="org.sakaiproject.id.api.IdManager" /></property>
   </bean> 
 
 

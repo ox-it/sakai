@@ -41,6 +41,7 @@ public class HierarchySqlReader implements SqlReader
 
 	public static final String FIND_BY_ID_SQL = "select id, pathhash, path, parent_id, realm, version from hierarchy_nodes where id = ? ";
 
+
 	private Hierarchy owner = null;
 
 	private HierarchyDAO dao = null;

@@ -88,6 +88,9 @@ public class HierarchyServiceImplTest extends HierarchyServiceApiTestBase
 			printList("", l.iterator(), 1);
 			log.info("The following should only generate 10 set of finds ");
 			printList("", l.iterator(), 2);
+			
+			log.info("Starting delete ");
+			service.deleteNode(h);
 			log
 					.warn("Spring Injected Test Sucessfull..... but plesae remove in production ");
 		}
