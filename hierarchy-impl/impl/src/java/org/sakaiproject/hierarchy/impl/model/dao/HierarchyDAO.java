@@ -357,45 +357,53 @@ public class HierarchyDAO implements
 	private void deleteNodes(Connection connection, List l)
 	{
 		StringBuffer sb = null;
+		List paramL = new ArrayList();
+
 		for (Iterator i = l.iterator(); i.hasNext();)
 		{
 			String id = (String) i.next();
 			if (sb == null)
 			{
 				sb = new StringBuffer();
+				paramL.clear();
 				sb.append(HierarchySqlReader.DELETE_NODE_GROUPS_SQL_1);
 			}
 			else
 			{
 				sb.append(",");
 			}
-			sb.append("'").append(id).append("'");
-			if (sb.length() > 3500)
+			sb.append(" ? ");
+			paramL.add(id);
+			if (paramL.size() > 500 )
 			{
 				sb.append(HierarchySqlReader.DELETE_NODE_GROUPS_SQL_2);
 				log.info("Executing " + sb.toString());
-				sqlService.dbWrite(connection, sb.toString(), new Object[] {});
+				sqlService.dbWrite(connection, sb.toString(), paramL.toArray());
 				sb = null;
+				paramL.clear();
 			}
 		}
 		if (sb != null)
 		{
 			sb.append(HierarchySqlReader.DELETE_NODE_GROUPS_SQL_2);
 			log.info("Executing " + sb.toString());
-			sqlService.dbWrite(connection, sb.toString(), new Object[] {});
+			sqlService.dbWrite(connection, sb.toString(),paramL.toArray());
 			sb = null;
+			paramL.clear();
 		}
 	}
 
 	private void deleteProperties(Connection connection, List l)
 	{
 		StringBuffer sb = null;
+		List paramL = new ArrayList();
 		for (Iterator i = l.iterator(); i.hasNext();)
 		{
 			String id = (String) i.next();
 			if (sb == null)
 			{
 				sb = new StringBuffer();
+				paramL.clear();
 				sb
 						.append(HierarchyPropertySqlReader.DELETE_NODE_PROPERTIES_GROUPS_SQL_1);
 			}
@@ -403,14 +411,16 @@ public class HierarchyDAO implements
 			{
 				sb.append(",");
 			}
-			sb.append("'").append(id).append("'");
-			if (sb.length() > 3500)
+			sb.append(" ? ");
+			paramL.add(id);
+			if (paramL.size() > 500 )
 			{
 				sb
 						.append(HierarchyPropertySqlReader.DELETE_NODE_PROPERTIES_GROUPS_SQL_2);
 				log.info("Executing " + sb.toString());
-				sqlService.dbWrite(connection, sb.toString(), new Object[] {});
+				sqlService.dbWrite(connection, sb.toString(),paramL.toArray());
 				sb = null;
+				paramL.clear();
 			}
 		}
 		if (sb != null)
@@ -418,14 +428,16 @@ public class HierarchyDAO implements
 			sb
 					.append(HierarchyPropertySqlReader.DELETE_NODE_PROPERTIES_GROUPS_SQL_2);
 			log.info("Executing " + sb.toString());
-			sqlService.dbWrite(connection, sb.toString(), new Object[] {});
+			sqlService.dbWrite(connection, sb.toString(),paramL.toArray());
 			sb = null;
+			paramL.clear();
 		}
 	}
 
 	private void loadChildren(Connection connection, List l)
 	{
 		StringBuffer sb = null;
+		List paramL = new ArrayList();
 		List found = new ArrayList();
 		for (Iterator i = l.iterator(); i.hasNext();)
 		{
@@ -433,6 +445,7 @@ public class HierarchyDAO implements
 			if (sb == null)
 			{
 				sb = new StringBuffer();
+				paramL.clear();
 				sb
 						.append(HierarchySqlReader.FIND_CHILD_ID_BY_PARENT_GROUPS_SQL_1);
 			}
@@ -440,14 +453,15 @@ public class HierarchyDAO implements
 			{
 				sb.append(",");
 			}
-			sb.append("'").append(id).append("'");
-			if (sb.length() > 3500)
+			sb.append(" ? ");
+			paramL.add(id);
+			if (paramL.size() > 500)
 			{
 				sb
 						.append(HierarchySqlReader.FIND_CHILD_ID_BY_PARENT_GROUPS_SQL_2);
 				log.info("Executing " + sb.toString());
 				found.addAll(sqlService.dbRead(connection, sb.toString(),
-						new Object[] {}, new SqlReader()
+						paramL.toArray(), new SqlReader()
 						{
 
 							public Object readSqlResultRecord(ResultSet result)
@@ -464,6 +478,7 @@ public class HierarchyDAO implements
 
 						}));
 				sb = null;
+				paramL.clear();
 			}
 		}
 		if (sb != null)
@@ -471,7 +486,7 @@ public class HierarchyDAO implements
 			sb.append(HierarchySqlReader.FIND_CHILD_ID_BY_PARENT_GROUPS_SQL_2);
 			log.info("Executing " + sb.toString());
 			found.addAll(sqlService.dbRead(connection, sb.toString(),
-					new Object[] {}, new SqlReader()
+					paramL.toArray(), new SqlReader()
 					{
 						public Object readSqlResultRecord(ResultSet result)
 						{
@@ -486,6 +501,7 @@ public class HierarchyDAO implements
 						}
 					}));
 			sb = null;
+			paramL.clear();
 		}
 		if (found.size() > 0)
 		{
