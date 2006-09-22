@@ -3,6 +3,7 @@ package org.sakaiproject.hierarchy.impl.model.dao;
 // CustomDAOImports
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,12 +29,13 @@ public class HierarchyDAO implements
 	private static final String SAVE_LIST_NAME = HierarchyDAO.class.getName()
 			+ "_saveList";
 
+	private static final String HierarchyProSqlReader = null;
+
 	private SqlService sqlService = null;
 
 	private IdManager idmanager = null;
 
 	private ThreadLocalManager threadLocalManager = null;
-	
 
 	public HierarchyDAO()
 	{
@@ -108,7 +110,8 @@ public class HierarchyDAO implements
 				}
 				sqlService.returnConnection(ch.connection);
 				connectionHolder.set(null);
-				log.info("Release Connection ------------------------------------------");
+				log
+						.info("Release Connection ------------------------------------------");
 			}
 		}
 	}
@@ -334,18 +337,13 @@ public class HierarchyDAO implements
 			try
 			{
 				connection = getConnection();
-				Object[] params = HierarchySqlReader
-						.getDeleteObjects(hierarchy);
-				logSQL("Delete Hierarchy ", HierarchySqlReader.DELETE_SQL,
-						params, null);
-				if (!sqlService.dbWrite(connection,
-						HierarchySqlReader.DELETE_SQL, params))
-				{
-					log.warn("Failed to delete Hieratchy Node at "
-							+ hierarchy.getPath());
-				}
-				deleteChildren(hierarchy);
-				deleteProperties(hierarchy);
+
+				List l = new ArrayList();
+				l.add(hierarchy.getId());
+				loadChildren(connection, l);
+				deleteProperties(connection, l);
+				deleteNodes(connection, l);
+
 			}
 			finally
 			{
@@ -356,60 +354,163 @@ public class HierarchyDAO implements
 
 	}
 
-	private void deleteProperties(Hierarchy hierarchy)
+	private void deleteNodes(Connection connection, List l)
 	{
-		if (hierarchy.getId() != null)
+		StringBuffer sb = null;
+		for (Iterator i = l.iterator(); i.hasNext();)
 		{
-			Connection connection = null;
-			try
+			String id = (String) i.next();
+			if (sb == null)
 			{
-				connection = getConnection();
-				Object[] params = new Object[] { hierarchy.getId() };
-				logSQL("Delete Hierarchy ", HierarchyPropertySqlReader.DELETE_NODE_PROPERTIES_SQL,
-						params, null);
-				if (!sqlService.dbWrite(connection,
-						HierarchyPropertySqlReader.DELETE_NODE_PROPERTIES_SQL, params))
-				{
-					log.warn("Failed to delete Hieratchy Node at "
-							+ hierarchy.getPath());
-				}
+				sb = new StringBuffer();
+				sb.append(HierarchySqlReader.DELETE_NODE_GROUPS_SQL_1);
 			}
-			finally
+			else
 			{
-				releaseConnection();
+				sb.append(",");
 			}
-
+			sb.append("'").append(id).append("'");
+			if (sb.length() > 3500)
+			{
+				sb.append(HierarchySqlReader.DELETE_NODE_GROUPS_SQL_2);
+				log.info("Executing " + sb.toString());
+				sqlService.dbWrite(connection, sb.toString(), new Object[] {});
+				sb = null;
+			}
 		}
-		// TODO Auto-generated method stub
-		
+		if (sb != null)
+		{
+			sb.append(HierarchySqlReader.DELETE_NODE_GROUPS_SQL_2);
+			log.info("Executing " + sb.toString());
+			sqlService.dbWrite(connection, sb.toString(), new Object[] {});
+			sb = null;
+		}
 	}
 
-	private void deleteChildren(Hierarchy hierarchy)
+	private void deleteProperties(Connection connection, List l)
 	{
-		if (hierarchy.getId() != null)
+		StringBuffer sb = null;
+		for (Iterator i = l.iterator(); i.hasNext();)
 		{
-			Connection connection = null;
-			try
+			String id = (String) i.next();
+			if (sb == null)
 			{
-				/*
-				 * This is not very efficient, but I have to iterate to find the children. 
-				 * Would be better to find all the parents, and delete that list
-				 */
-				connection = getConnection();
-				for ( Iterator i = hierarchy.getChildren().values().iterator(); i.hasNext(); ) {
-					Hierarchy h = ( Hierarchy) i.next();
-					delete(h);
-				}
+				sb = new StringBuffer();
+				sb
+						.append(HierarchyPropertySqlReader.DELETE_NODE_PROPERTIES_GROUPS_SQL_1);
 			}
-			finally
+			else
 			{
-				releaseConnection();
+				sb.append(",");
 			}
-
+			sb.append("'").append(id).append("'");
+			if (sb.length() > 3500)
+			{
+				sb
+						.append(HierarchyPropertySqlReader.DELETE_NODE_PROPERTIES_GROUPS_SQL_2);
+				log.info("Executing " + sb.toString());
+				sqlService.dbWrite(connection, sb.toString(), new Object[] {});
+				sb = null;
+			}
 		}
-		
+		if (sb != null)
+		{
+			sb
+					.append(HierarchyPropertySqlReader.DELETE_NODE_PROPERTIES_GROUPS_SQL_2);
+			log.info("Executing " + sb.toString());
+			sqlService.dbWrite(connection, sb.toString(), new Object[] {});
+			sb = null;
+		}
 	}
 
+	private void loadChildren(Connection connection, List l)
+	{
+		StringBuffer sb = null;
+		List found = new ArrayList();
+		for (Iterator i = l.iterator(); i.hasNext();)
+		{
+			String id = (String) i.next();
+			if (sb == null)
+			{
+				sb = new StringBuffer();
+				sb
+						.append(HierarchySqlReader.FIND_CHILD_ID_BY_PARENT_GROUPS_SQL_1);
+			}
+			else
+			{
+				sb.append(",");
+			}
+			sb.append("'").append(id).append("'");
+			if (sb.length() > 3500)
+			{
+				sb
+						.append(HierarchySqlReader.FIND_CHILD_ID_BY_PARENT_GROUPS_SQL_2);
+				log.info("Executing " + sb.toString());
+				found.addAll(sqlService.dbRead(connection, sb.toString(),
+						new Object[] {}, new SqlReader()
+						{
+
+							public Object readSqlResultRecord(ResultSet result)
+							{
+								try
+								{
+									return result.getString(1);
+								}
+								catch (SQLException e)
+								{
+									return "";
+								}
+							}
+
+						}));
+				sb = null;
+			}
+		}
+		if (sb != null)
+		{
+			sb.append(HierarchySqlReader.FIND_CHILD_ID_BY_PARENT_GROUPS_SQL_2);
+			log.info("Executing " + sb.toString());
+			found.addAll(sqlService.dbRead(connection, sb.toString(),
+					new Object[] {}, new SqlReader()
+					{
+						public Object readSqlResultRecord(ResultSet result)
+						{
+							try
+							{
+								return result.getString(1);
+							}
+							catch (SQLException e)
+							{
+								return "";
+							}
+						}
+					}));
+			sb = null;
+		}
+		if (found.size() > 0)
+		{
+			loadChildren(connection, found);
+			l.addAll(found);
+			log.info("Got " + l.size() + " nodes ");
+		}
+	}
+
+	/*
+	 * private void deleteProperties(Hierarchy hierarchy) { if
+	 * (hierarchy.getId() != null) { Connection connection = null; try {
+	 * connection = getConnection(); Object[] params = new Object[] {
+	 * hierarchy.getId() }; logSQL("Delete Hierarchy ",
+	 * HierarchyPropertySqlReader.DELETE_NODE_PROPERTIES_SQL, params, null); if
+	 * (!sqlService.dbWrite(connection,
+	 * HierarchyPropertySqlReader.DELETE_NODE_PROPERTIES_SQL, params)) {
+	 * log.warn("Failed to delete Hieratchy Node at " + hierarchy.getPath()); } }
+	 * finally { releaseConnection(); } } } private void
+	 * deleteChildren(Hierarchy hierarchy) { if (hierarchy.getId() != null) {
+	 * Connection connection = null; try { connection = getConnection(); for (
+	 * Iterator i = hierarchy.getChildren().values().iterator(); i.hasNext(); ) {
+	 * Hierarchy h = ( Hierarchy) i.next(); delete(h); } } finally {
+	 * releaseConnection(); } } }
+	 */
 	public void delete(HierarchyProperty hierarchyProperty)
 	{
 		if (hierarchyProperty.getId() != null)
@@ -551,7 +652,7 @@ public class HierarchyDAO implements
 		}
 		if (ex == null)
 		{
-			log.info(message + sql + "with params " + psb);
+			log.debug(message + sql + "with params " + psb);
 		}
 		else
 		{

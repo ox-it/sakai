@@ -37,6 +37,11 @@ public class HierarchyPropertySqlReader implements SqlReader
 
 	public static final String DELETE_NODE_PROPERTIES_SQL = "delete from hierarchy_property where node_id = ?  ";
 
+	public static final String DELETE_NODE_PROPERTIES_GROUPS_SQL_1 = "delete from hierarchy_property where node_id in ( ";
+
+	public static final String DELETE_NODE_PROPERTIES_GROUPS_SQL_2 = " ) ";
+
+
 
 	private Hierarchy owner = null;
 	private HierarchyDAO hierarchyDao = null;
