@@ -9,7 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.impl.HierarchyImpl;
-import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.id.api.IdManager;
 
 public class HierarchySqlReader implements SqlReader
 {
@@ -62,21 +62,21 @@ public class HierarchySqlReader implements SqlReader
 		{
 			HierarchyImpl h = new HierarchyImpl();
 			h.setId(result.getString(HIERARCHY_ID_POS));
-			h.setPathHash(result.getString(HIERARCHY_PATH_HASH_POS));
 			h.setPath(result.getString(HIERARCHY_PATH_POS));
 			if (owner == null)
 			{
-				h.setParent(new LazyHierarchyParent(dao, result
+				h.setInternalParent(new LazyHierarchyParent(dao, result
 						.getString(HIERARCHY_PARENT_ID)));
 			}
 			else
 			{
-				h.setParent(owner);
+				h.setInternalParent(owner);
 			}
 			h.setRealm(result.getString(HIERARCHY_REALM_POS));
 			h.setVersion(result.getTimestamp(HIERARCHY_VERSION_POS));
-			h.setChildren(new LazyHierarchyChildren(dao, h));
-			h.setProperties(new LazyHierarchyProperties(dao, h));
+			
+			h.setInternalChildren(new LazyHierarchyChildren(dao, h));
+			h.setInternalProperties(new LazyHierarchyProperties(dao, h));
 			h.setModified(false);
 			return h;
 		}
@@ -108,12 +108,12 @@ public class HierarchySqlReader implements SqlReader
 		return o;
 	}
 
-	public static Object[] getInsertObjects(Hierarchy hierarchy)
+	public static Object[] getInsertObjects(Hierarchy hierarchy, IdManager idManager)
 	{
 //	"insert into hierarchy_nodes ( id, pathhash, path, parent_id, realm, version ) values ( ?, ?, ?, ?, ?, ?) ";
 		Object[] o = new Object[6];
 		if ( hierarchy.getId() == null ) {
-			hierarchy.setId(IdManager.createUuid());
+			hierarchy.setId(idManager.createUuid());
 		}
 	    o[0] = hierarchy.getId();
 		o[1] = hierarchy.getPathHash();

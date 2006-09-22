@@ -10,7 +10,7 @@ import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
 import org.sakaiproject.hierarchy.impl.HierarchyPropertyImpl;
-import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.id.api.IdManager;
 
 public class HierarchyPropertySqlReader implements SqlReader
 {
@@ -66,11 +66,11 @@ public class HierarchyPropertySqlReader implements SqlReader
 		}
 	}
 
-	public static Object[] getInsertObjects(HierarchyProperty hierarchyProperty)
+	public static Object[] getInsertObjects(HierarchyProperty hierarchyProperty, IdManager idManager)
 	{
 		String nodeId = hierarchyProperty.getId();
 		if ( nodeId == null ) {
-			hierarchyProperty.setId(IdManager.createUuid());
+			hierarchyProperty.setId(idManager.createUuid());
 		}
 		Object[] params = new Object[5];
 		params[0] = hierarchyProperty.getId();

@@ -6,19 +6,20 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.hierarchy.api.HierarchyService;
+import org.sakaiproject.hierarchy.api.HierarchyServiceException;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
 
-public class HierarchyServiceTest
+public class PortalHierarchyServiceTest
 {
-	private static final Log log = LogFactory.getLog(HierarchyServiceTest.class);
+	private static final Log log = LogFactory.getLog(PortalHierarchyServiceTest.class);
 	private HierarchyService hierarchyService = null;
 
 	public void init()
 	{
 		try
 		{
-			String testRoot = "/rootTestNode";
+			String testRoot = "/portal";
 
 			Hierarchy h = hierarchyService.getNode(testRoot);
 			if (h != null)
@@ -26,12 +27,12 @@ public class HierarchyServiceTest
 				hierarchyService.deleteNode(h);
 			}
 			h = hierarchyService.newHierarchy(testRoot);
-			addNodes(h);
+			addNodes(h,5);
 			hierarchyService.save(h);
 
 			h = hierarchyService.getNode(testRoot);
 			assertEquals("Root node check ", h.getPath(), testRoot);
-			checkNodes(h);
+			//checkNodes(h);
 			//hierarchyService.deleteNode(h);
 			log.info("Testing Navigation ");
 			List l = hierarchyService.getRootNodes();
@@ -114,9 +115,11 @@ public class HierarchyServiceTest
 		}
 	}
 
-	private void addNodes(Hierarchy h)
+	private void addNodes(Hierarchy h, int depth) throws HierarchyServiceException
 	{
-		for (int i = 0; i < 10; i++)
+		if ( depth == 0 ) return;
+		log.info("Adding nodes to "+h.getPath()+" at depth "+depth);
+		for (int i = 0; i < 5; i++)
 		{
 			Hierarchy child1 = hierarchyService.newHierarchy(h.getPath() + "/"
 					+ i);
@@ -131,6 +134,7 @@ public class HierarchyServiceTest
 			hp.setName("propertyB" + i);
 			hp.setPropvalue("propertyvalueB" + i);
 			child1.addToproperties(hp);
+			addNodes(child1,depth-1);
 		}
 	}
 

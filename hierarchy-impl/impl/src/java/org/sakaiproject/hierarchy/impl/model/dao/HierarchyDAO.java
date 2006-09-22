@@ -12,6 +12,7 @@ import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 public class HierarchyDAO implements
@@ -26,6 +27,8 @@ public class HierarchyDAO implements
 			+ "_saveList";
 
 	private SqlService sqlService = null;
+	
+	private IdManager idmanager = null;
 
 	private ThreadLocalManager threadLocalManager = null;
 
@@ -96,8 +99,8 @@ public class HierarchyDAO implements
 				{
 					if (hierarchy.getId() == null)
 					{
-						Object[] params = HierarchySqlReader.getInsertObjects(hierarchy); 
-						logSQL("Save or Update Insert ",HierarchySqlReader.INSERT_SQL,params,null);
+						Object[] params = HierarchySqlReader.getInsertObjects(hierarchy, idmanager); 
+						logSQL("SaveOrUpdate Insert ",HierarchySqlReader.INSERT_SQL,params,null);
 						if ( !sqlService.dbWrite(HierarchySqlReader.INSERT_SQL,params) ) {
 							log.warn("Failed to save Hieratchy Node at "+hierarchy.getPath());
 						}
@@ -105,7 +108,7 @@ public class HierarchyDAO implements
 					else
 					{
 						Object[] params = HierarchySqlReader.getUpdateObjects(hierarchy); 
-						logSQL("Save or Update Insert ",HierarchySqlReader.UPDATE_SQL,params,null);
+						logSQL("SaveOrUpdate Update ",HierarchySqlReader.UPDATE_SQL,params,null);
 						if (!sqlService.dbWrite(HierarchySqlReader.UPDATE_SQL,
 								params) ) {
 							log.warn("Failed to update Hieratchy Node at "+hierarchy.getPath());
@@ -116,6 +119,9 @@ public class HierarchyDAO implements
 							.iterator(); i.hasNext();)
 					{
 						Hierarchy child = (Hierarchy) i.next();
+						if ( !hierarchy.equals(child.getParent()) ) {
+							child.setParent(hierarchy);
+						}
 						saveOrUpdate(child);
 					}
 					for (Iterator i = hierarchy.getProperties().values()
@@ -160,7 +166,7 @@ public class HierarchyDAO implements
 			if (hierarchyProperty.getId() == null)
 			{
 				Object[] params = HierarchyPropertySqlReader
-				.getInsertObjects(hierarchyProperty);
+				.getInsertObjects(hierarchyProperty,idmanager);
 				logSQL("Insert Hierarchy properties ",HierarchyPropertySqlReader.INSERT_SQL,params, null);
 				if ( !sqlService.dbWrite(HierarchyPropertySqlReader.INSERT_SQL,
 						params) ) {
@@ -344,5 +350,16 @@ public class HierarchyDAO implements
 	{
 		this.threadLocalManager = threadLocalManager;
 	}
+
+	public IdManager getIdmanager()
+	{
+		return idmanager;
+	}
+
+	public void setIdmanager(IdManager idmanager)
+	{
+		this.idmanager = idmanager;
+	}
+
 
 }

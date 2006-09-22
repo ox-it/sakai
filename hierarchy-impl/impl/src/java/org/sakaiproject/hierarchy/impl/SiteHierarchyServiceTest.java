@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.hierarchy.api.HierarchyService;
+import org.sakaiproject.hierarchy.api.HierarchyServiceException;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
 import org.sakaiproject.site.api.Site;
@@ -78,7 +79,7 @@ public class SiteHierarchyServiceTest
 		}
 	}
 
-	private Hierarchy getPath(Hierarchy parent, String newNode)
+	private Hierarchy getPath(Hierarchy parent, String newNode) throws HierarchyServiceException
 	{
 		Hierarchy h = parent.getChild(parent.getPath() + "/" + newNode);
 		if (h == null)

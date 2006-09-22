@@ -19,5 +19,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/util-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/util-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/hierarchy-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/portal-impl"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

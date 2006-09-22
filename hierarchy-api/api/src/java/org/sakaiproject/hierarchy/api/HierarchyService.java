@@ -46,8 +46,9 @@ public interface HierarchyService
 	 * 
 	 * @param nodePath
 	 * @return
+	 * @throws HierarchyServiceException 
 	 */
-	Hierarchy newHierarchy(String nodePath);
+	Hierarchy newHierarchy(String nodePath) throws HierarchyServiceException;
 
 	/**
 	 * create a new detached HierarchyPropery. This must be added to a node, and

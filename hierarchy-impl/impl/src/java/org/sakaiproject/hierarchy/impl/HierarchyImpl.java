@@ -8,8 +8,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
+import org.sakaiproject.hierarchy.impl.model.dao.LazyHierarchyChildren;
+import org.sakaiproject.hierarchy.impl.model.dao.LazyHierarchyParent;
+import org.sakaiproject.hierarchy.impl.model.dao.LazyHierarchyProperties;
 
 //BaseValueObjectClassComments
 
@@ -25,8 +30,8 @@ import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
 public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 {
 
+	private static final Log log = LogFactory.getLog(HierarchyImpl.class);
 	private static final long serialVersionUID = 1L;
-
 
 	protected void load()
 	{
@@ -44,13 +49,13 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 	public static String PROP_PARENT = "parent";
 
 	public static String PROP_NAME = "path";
-	
+
 	public static String PROP_PATH_HASH = "pathhash";
-	
+
 	public static String PROP_ID = "id";
-	
-	
-	protected void copy(Hierarchy source) {
+
+	protected void copy(Hierarchy source)
+	{
 		this.setId(source.getId());
 		this.setPath(source.getPath());
 		this.setPathHash(source.getPathHash());
@@ -164,8 +169,11 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 	 */
 	public void setVersion(Date version)
 	{
-		modified = true;
-		this.version = version;
+		if (this.version == null || !this.version.equals(version))
+		{
+			modified = true;
+			this.version = version;
+		}
 	}
 
 	/**
@@ -182,10 +190,13 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 	 * @param nodeid
 	 *        the nodeid value
 	 */
-	public void setPathHash(String pathhash)
+	private void setPathHash(String pathhash)
 	{
-		modified = true;
-		this.pathhash = pathhash;
+		if (this.pathhash == null || !this.pathhash.equals(pathhash))
+		{
+			modified = true;
+			this.pathhash = pathhash;
+		}
 	}
 
 	/**
@@ -204,8 +215,12 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 	 */
 	public void setPath(String path)
 	{
-		modified = true;
-		this.path = path;
+		if (this.path == null || !this.path.equals(path))
+		{
+			modified = true;
+			this.path = path;
+			setPathHash(HierarchyServiceImpl.hash(path));
+		}
 	}
 
 	/**
@@ -224,8 +239,11 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 	 */
 	public void setRealm(String realm)
 	{
-		modified = true;
-		this.realm = realm;
+		if (this.realm == null || this.realm.equals(realm))
+		{
+			modified = true;
+			this.realm = realm;
+		}
 	}
 
 	/**
@@ -244,8 +262,39 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 	 */
 	public void setParent(Hierarchy parent)
 	{
-		modified = true;
-		this.parent = parent;
+		if (parent == null)
+		{
+			String[] pathElements = path.split("/");
+			String name = pathElements[pathElements.length - 1];
+			String thisPath = "/" + name;
+			if (!thisPath.equals(path))
+			{
+				setPath(thisPath);
+			}
+		}
+		else
+		{
+			// we should enforce the path so that this node is housed on the
+			// correct
+			// path.
+			String[] pathElements = path.split("/");
+			String name = pathElements[pathElements.length - 1];
+			String parentPath = parent.getPath();
+			if ( parentPath == null )  {
+				parentPath = "";
+				log.info("Parent Path was null ");
+			}
+			String thisPath = parentPath + "/" + name;
+			if (!thisPath.equals(path))
+			{
+				setPath(thisPath);
+			}
+		}
+		if (this.parent == null || !this.parent.equals(parent))
+		{
+			modified = true;
+			this.parent = parent;
+		}
 	}
 
 	/**
@@ -264,19 +313,34 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 	 */
 	public void setChildren(Map children)
 	{
-		modified = true;
-		this.children = children;
-		for ( Iterator i = this.children.values().iterator(); i.hasNext(); ) {
-			Hierarchy h = (Hierarchy) i.next();
-			h.setParent(this);
+		if (this.children == null || !this.children.equals(children))
+		{
+			modified = true;
+			this.children = children;
+			for (Iterator i = this.children.values().iterator(); i.hasNext();)
+			{
+				Hierarchy h = (Hierarchy) i.next();
+				h.setParent(this);
+			}
 		}
+	}
+
+	/**
+	 * we want to make cetain that the cildren are not loaded unless required.
+	 * 
+	 * @param children
+	 */
+	public void setInternalChildren(LazyHierarchyChildren children)
+	{
+		this.children = children;
 	}
 
 	public void addTochildren(Hierarchy hierarchy)
 	{
 		modified = true;
 		if (null == getChildren()) setChildren(new HashMap());
-		getChildren().put(hierarchy.getPath(),hierarchy);
+
+		getChildren().put(hierarchy.getPath(), hierarchy);
 		hierarchy.setParent(this);
 	}
 
@@ -296,11 +360,15 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 	 */
 	public void setProperties(Map properties)
 	{
-		modified = true;
-		this.properties = properties;
-		for ( Iterator i = this.properties.values().iterator(); i.hasNext(); ) {
-			HierarchyProperty h = (HierarchyProperty) i.next();
-			h.setNode(this);
+		if (this.properties == null || !this.properties.equals(properties))
+		{
+			modified = true;
+			this.properties = properties;
+			for (Iterator i = this.properties.values().iterator(); i.hasNext();)
+			{
+				HierarchyProperty h = (HierarchyProperty) i.next();
+				h.setNode(this);
+			}
 		}
 	}
 
@@ -308,7 +376,7 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 	{
 		modified = true;
 		if (null == getProperties()) setProperties(new HashMap());
-		getProperties().put(hierarchyProperty.getName(),hierarchyProperty);
+		getProperties().put(hierarchyProperty.getName(), hierarchyProperty);
 		hierarchyProperty.setNode(this);
 	}
 
@@ -341,22 +409,24 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 	{
 		return super.toString();
 	}
-	
-	
+
 	public Hierarchy getChild(String path)
 	{
 		return (Hierarchy) children.get(path);
 	}
 
-	public HierarchyProperty  getProperty(String name)
+	public HierarchyProperty getProperty(String name)
 	{
 		return (HierarchyProperty) properties.get(name);
 	}
 
-	public void setModified(boolean modified ) {
-		this.modified  = modified;
+	public void setModified(boolean modified)
+	{
+		this.modified = modified;
 	}
-	public boolean isModified() {
+
+	public boolean isModified()
+	{
 		return modified;
 	}
 
@@ -367,7 +437,17 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 		hp.setPropvalue(value);
 		addToproperties(hp);
 		return hp;
-		
+
+	}
+
+	public void setInternalParent(Hierarchy parent)
+	{
+		this.parent = parent;		
+	}
+
+	public void setInternalProperties(Map properties)
+	{
+		this.properties = properties;		
 	}
 
 	// BaseValueObjectCustomContents

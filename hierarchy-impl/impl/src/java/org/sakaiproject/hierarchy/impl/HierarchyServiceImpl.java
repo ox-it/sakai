@@ -1,11 +1,13 @@
 package org.sakaiproject.hierarchy.impl;
 
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.hierarchy.api.HierarchyService;
+import org.sakaiproject.hierarchy.api.HierarchyServiceException;
 import org.sakaiproject.hierarchy.api.dao.HierarchyDAO;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
@@ -19,7 +21,6 @@ public class HierarchyServiceImpl implements HierarchyService
 
 	private HierarchyDAO hierarchyDao = null;
 
-	private MessageDigest digest;
 
 	public void init()
 	{
@@ -43,7 +44,6 @@ public class HierarchyServiceImpl implements HierarchyService
 					.info(" ==================================== init HierarchyServiceImpl ");
 			log
 					.info(" ==================================== init HierarchyServiceImpl ");
-			digest = MessageDigest.getInstance("SHA1");
 		}
 		catch (Exception e)
 		{
@@ -88,16 +88,30 @@ public class HierarchyServiceImpl implements HierarchyService
 	private static char[] encode = { '0', '1', '2', '3', '4', '5', '6', '7',
 			'8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
+	private static ThreadLocal digest = new ThreadLocal();
 	/**
 	 * create a hash of the path
 	 * 
 	 * @param nodePath
 	 * @param encode
 	 * @return
+	 * @throws NoSuchAlgorithmException 
 	 */
-	private String hash(String nodePath)
+	public static String hash(String nodePath) 
 	{
-		byte[] b = digest.digest(nodePath.getBytes());
+		MessageDigest mdigest  = (MessageDigest) digest.get();
+		if ( mdigest == null ) {
+			try
+			{
+				mdigest = MessageDigest.getInstance("SHA1");
+			}
+			catch (NoSuchAlgorithmException e)
+			{
+				log.error("Cant find Hash Algorithm ",e);
+			}
+			digest.set(mdigest);
+		}
+		byte[] b = mdigest.digest(nodePath.getBytes());
 		char[] c = new char[b.length * 2];
 		for (int i = 0; i < b.length; i++)
 		{
@@ -129,10 +143,17 @@ public class HierarchyServiceImpl implements HierarchyService
 		hierarchyDao.delete(hierachy);
 	}
 	
-	public Hierarchy newHierarchy(String nodePath) {
+	public Hierarchy newHierarchy(String nodePath) throws HierarchyServiceException {
+		if ( nodePath == null ) {
+			throw new HierarchyServiceException("Node Path cannot be null");
+		}
+		if ( !nodePath.startsWith("/") ) {
+			throw new HierarchyServiceException("Node Path must start with a / ");
+		}
+		if ( nodePath.length() <= 1 ) {
+			throw new HierarchyServiceException("Cant create the / node, it already exists ");
+		}
 		HierarchyImpl h = new HierarchyImpl();
-		String pathhash = hash(nodePath);
-		h.setPathHash(pathhash);
 		h.setPath(nodePath);
 		return h;
 	}

@@ -6,6 +6,7 @@ package org.sakaiproject.hierarchy.cover;
 import java.util.List;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.hierarchy.api.HierarchyServiceException;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
 
@@ -77,7 +78,7 @@ public class HierarchyService
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.hierarchy.api.HierarchyService#newHierarchy(java.lang.String)
 	 */
-	public Hierarchy newHierarchy(String nodePath)
+	public Hierarchy newHierarchy(String nodePath) throws HierarchyServiceException
 	{
 		org.sakaiproject.hierarchy.api.HierarchyService service = getInstance();
 		if (service == null) return null;

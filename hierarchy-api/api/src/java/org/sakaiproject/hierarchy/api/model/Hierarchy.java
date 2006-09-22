@@ -15,7 +15,6 @@ public interface Hierarchy
 	 * Return the value associated with the column: name
 	 */
 	String getPath();
-
 	/**
 	 * Return the value associated with the column: parent_id
 	 */
