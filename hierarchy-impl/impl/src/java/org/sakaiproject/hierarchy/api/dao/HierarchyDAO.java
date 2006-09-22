@@ -67,7 +67,23 @@ public interface HierarchyDAO {
 	 * @return
 	 */
 	public List findHierarchyByParent(Hierarchy parent);
+	/**
+	 * Begin a hierarchy transaction, a corresponding end() MUST be called.
+	 * begin can be called multiple times, but there must be a matching numer of ends.
+	 *
+	 */
+	public void begin();
 
+	/**
+	 * End a hierarchy transaction. Must be called after a begin
+	 *
+	 */
+	public void end();
+	/**
+	 * abort a hierarchy transaction
+	 *
+	 */
+	public void abort();
 
 
 }

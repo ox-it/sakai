@@ -2,6 +2,8 @@ package org.sakaiproject.hierarchy.impl.model.dao;
 
 // CustomDAOImports
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,16 +29,111 @@ public class HierarchyDAO implements
 			+ "_saveList";
 
 	private SqlService sqlService = null;
-	
+
 	private IdManager idmanager = null;
 
 	private ThreadLocalManager threadLocalManager = null;
 
-	// CustomDAOClassConstructor
-
 	public HierarchyDAO()
 	{
 	}
+
+	/*
+	 * Connection and transaction management
+	 * ----------------------------------------------------------------------
+	 */
+	private ThreadLocal connectionHolder = new ThreadLocal();
+
+	protected class ConnectionHolder
+	{
+		protected Connection connection = null;
+
+		protected int refcount = 0;
+
+	}
+
+	public void begin()
+	{
+		getConnection();
+	}
+
+	public void end()
+	{
+		releaseConnection();
+	}
+
+	public void abort()
+	{
+		abortConnection();
+	}
+
+	private Connection getConnection()
+	{
+		ConnectionHolder ch = (ConnectionHolder) connectionHolder.get();
+		if (ch == null)
+		{
+			try
+			{
+				ch = new ConnectionHolder();
+				ch.connection = sqlService.borrowConnection();
+				connectionHolder.set(ch);
+				log
+						.info("Getting Connection +++++++++++++++++++++++++++++++++++++");
+			}
+			catch (Exception ex)
+			{
+				log.error("Failed to get connection for hierarchy service ");
+			}
+		}
+		ch.refcount++;
+		return ch.connection;
+	}
+
+	private void releaseConnection()
+	{
+		ConnectionHolder ch = (ConnectionHolder) connectionHolder.get();
+		if (ch != null)
+		{
+			ch.refcount--;
+			if (ch.refcount == 0)
+			{
+				try
+				{
+					ch.connection.commit();
+				}
+				catch (SQLException e)
+				{
+					log.error("Failed to commit transaction ");
+				}
+				sqlService.returnConnection(ch.connection);
+				connectionHolder.set(null);
+				log.info("Release Connection ------------------------------------------");
+			}
+		}
+	}
+
+	private void abortConnection()
+	{
+		ConnectionHolder ch = (ConnectionHolder) connectionHolder.get();
+		if (ch != null)
+		{
+			try
+			{
+				ch.connection.rollback();
+			}
+			catch (SQLException e)
+			{
+				log.error("Failed to commit transaction ");
+			}
+			sqlService.returnConnection(ch.connection);
+			connectionHolder.set(null);
+			log.info("Abort Connection -------------------------");
+		}
+	}
+
+	/*
+	 * ---------------------------------------------------------------------------
+	 */
 
 	public void init()
 	{
@@ -61,8 +158,8 @@ public class HierarchyDAO implements
 	public List findHierarchyProperties(Hierarchy owner)
 	{
 		return findList(HierarchyPropertySqlReader.FIND_BY_NODE_ID_SQL,
-				new Object[] { owner.getId() }, new HierarchyPropertySqlReader(this,
-						owner));
+				new Object[] { owner.getId() }, new HierarchyPropertySqlReader(
+						this, owner));
 	}
 
 	public Hierarchy findHierarchyById(String nodeId)
@@ -89,8 +186,10 @@ public class HierarchyDAO implements
 		if (!isInSaveStack(hierarchy))
 		{
 			pushSaveStack(hierarchy);
+			Connection connection = null;
 			try
 			{
+				connection = getConnection();
 				if (hierarchy.getParent() != null)
 				{
 					saveOrUpdate(hierarchy.getParent());
@@ -99,19 +198,28 @@ public class HierarchyDAO implements
 				{
 					if (hierarchy.getId() == null)
 					{
-						Object[] params = HierarchySqlReader.getInsertObjects(hierarchy, idmanager); 
-						logSQL("SaveOrUpdate Insert ",HierarchySqlReader.INSERT_SQL,params,null);
-						if ( !sqlService.dbWrite(HierarchySqlReader.INSERT_SQL,params) ) {
-							log.warn("Failed to save Hieratchy Node at "+hierarchy.getPath());
+						Object[] params = HierarchySqlReader.getInsertObjects(
+								hierarchy, idmanager);
+						logSQL("SaveOrUpdate Insert ",
+								HierarchySqlReader.INSERT_SQL, params, null);
+						if (!sqlService.dbWrite(connection,
+								HierarchySqlReader.INSERT_SQL, params))
+						{
+							log.warn("Failed to save Hieratchy Node at "
+									+ hierarchy.getPath());
 						}
 					}
 					else
 					{
-						Object[] params = HierarchySqlReader.getUpdateObjects(hierarchy); 
-						logSQL("SaveOrUpdate Update ",HierarchySqlReader.UPDATE_SQL,params,null);
-						if (!sqlService.dbWrite(HierarchySqlReader.UPDATE_SQL,
-								params) ) {
-							log.warn("Failed to update Hieratchy Node at "+hierarchy.getPath());
+						Object[] params = HierarchySqlReader
+								.getUpdateObjects(hierarchy);
+						logSQL("SaveOrUpdate Update ",
+								HierarchySqlReader.UPDATE_SQL, params, null);
+						if (!sqlService.dbWrite(connection,
+								HierarchySqlReader.UPDATE_SQL, params))
+						{
+							log.warn("Failed to update Hieratchy Node at "
+									+ hierarchy.getPath());
 						}
 					}
 					// save properties and nodes
@@ -119,7 +227,8 @@ public class HierarchyDAO implements
 							.iterator(); i.hasNext();)
 					{
 						Hierarchy child = (Hierarchy) i.next();
-						if ( !hierarchy.equals(child.getParent()) ) {
+						if (!hierarchy.equals(child.getParent()))
+						{
 							child.setParent(hierarchy);
 						}
 						saveOrUpdate(child);
@@ -135,6 +244,7 @@ public class HierarchyDAO implements
 			}
 			finally
 			{
+				releaseConnection();
 				popSaveStack(hierarchy);
 			}
 		}
@@ -148,11 +258,10 @@ public class HierarchyDAO implements
 			// should this cascade ?, for simplicity probably not.
 			if (hierarchyProperty.getNode() == null)
 			{
-				log
-						.error("Detached Hierarchy Propert, attach it " +
-								"first please before attempting to save " +
-								" name:"+hierarchyProperty.getName()+
-								"; value:"+hierarchyProperty.getPropvalue());
+				log.error("Detached Hierarchy Propert, attach it "
+						+ "first please before attempting to save " + " name:"
+						+ hierarchyProperty.getName() + "; value:"
+						+ hierarchyProperty.getPropvalue());
 				return;
 			}
 			else
@@ -165,22 +274,49 @@ public class HierarchyDAO implements
 			}
 			if (hierarchyProperty.getId() == null)
 			{
-				Object[] params = HierarchyPropertySqlReader
-				.getInsertObjects(hierarchyProperty,idmanager);
-				logSQL("Insert Hierarchy properties ",HierarchyPropertySqlReader.INSERT_SQL,params, null);
-				if ( !sqlService.dbWrite(HierarchyPropertySqlReader.INSERT_SQL,
-						params) ) {
-					log.warn("Failed to save Hieratchy Property at "+hierarchyProperty.getNode().getPath()+"/"+hierarchyProperty.getName());
+				Connection connection = null;
+				try
+				{
+					connection = getConnection();
+					Object[] params = HierarchyPropertySqlReader
+							.getInsertObjects(hierarchyProperty, idmanager);
+					logSQL("Insert Hierarchy properties ",
+							HierarchyPropertySqlReader.INSERT_SQL, params, null);
+					if (!sqlService.dbWrite(connection,
+							HierarchyPropertySqlReader.INSERT_SQL, params))
+					{
+						log.warn("Failed to save Hieratchy Property at "
+								+ hierarchyProperty.getNode().getPath() + "/"
+								+ hierarchyProperty.getName());
 
+					}
+				}
+				finally
+				{
+					releaseConnection();
 				}
 			}
 			else
 			{
-				Object[] params = HierarchyPropertySqlReader
-				.getUpdateObjects(hierarchyProperty);
-				logSQL("Update Hierarchy properties ",HierarchyPropertySqlReader.UPDATE_SQL,params, null);
-				if ( !sqlService.dbWrite(HierarchyPropertySqlReader.UPDATE_SQL,params) ) {
-					log.warn("Failed to update Hieratchy Property at "+hierarchyProperty.getNode().getPath()+"/"+hierarchyProperty.getName());
+				Connection connection = null;
+				try
+				{
+					connection = getConnection();
+					Object[] params = HierarchyPropertySqlReader
+							.getUpdateObjects(hierarchyProperty);
+					logSQL("Update Hierarchy properties ",
+							HierarchyPropertySqlReader.UPDATE_SQL, params, null);
+					if (!sqlService.dbWrite(connection,
+							HierarchyPropertySqlReader.UPDATE_SQL, params))
+					{
+						log.warn("Failed to update Hieratchy Property at "
+								+ hierarchyProperty.getNode().getPath() + "/"
+								+ hierarchyProperty.getName());
+					}
+				}
+				finally
+				{
+					releaseConnection();
 				}
 			}
 			hierarchyProperty.setModified(false);
@@ -190,23 +326,41 @@ public class HierarchyDAO implements
 
 	public void delete(Hierarchy hierarchy)
 	{
+
 		if (hierarchy.getId() != null)
 		{
-			Object[] params = HierarchySqlReader
-			.getDeleteObjects(hierarchy);
-			logSQL("Delete Hierarchy ",HierarchySqlReader.DELETE_SQL,params, null);
-			if ( !sqlService.dbWrite(HierarchySqlReader.DELETE_SQL,
-					params) ) {
-				log.warn("Failed to delete Hieratchy Node at "+hierarchy.getPath());
+			Connection connection = null;
+			try
+			{
+				connection = getConnection();
+				Object[] params = HierarchySqlReader
+						.getDeleteObjects(hierarchy);
+				logSQL("Delete Hierarchy ", HierarchySqlReader.DELETE_SQL,
+						params, null);
+				if (!sqlService.dbWrite(connection,
+						HierarchySqlReader.DELETE_SQL, params))
+				{
+					log.warn("Failed to delete Hieratchy Node at "
+							+ hierarchy.getPath());
+				}
+				for (Iterator i = hierarchy.getChildren().values().iterator(); i
+						.hasNext();)
+				{
+					Hierarchy h = (Hierarchy) i.next();
+					delete(h);
+				}
+				for (Iterator i = hierarchy.getProperties().values().iterator(); i
+						.hasNext();)
+				{
+					HierarchyProperty hp = (HierarchyProperty) i.next();
+					delete(hp);
+				}
 			}
-			for ( Iterator i = hierarchy.getChildren().values().iterator(); i.hasNext(); ) {
-				Hierarchy h = (Hierarchy) i.next();
-				delete(h);
+			finally
+			{
+				releaseConnection();
 			}
-			for ( Iterator i = hierarchy.getProperties().values().iterator(); i.hasNext(); ) {
-				HierarchyProperty hp = (HierarchyProperty) i.next();
-				delete(hp);
-			}
+
 		}
 
 	}
@@ -215,18 +369,32 @@ public class HierarchyDAO implements
 	{
 		if (hierarchyProperty.getId() != null)
 		{
-			Object[] params = HierarchyPropertySqlReader
-			.getDeleteObjects(hierarchyProperty);
-			logSQL("Delete Hierarchy properties ",HierarchyPropertySqlReader.DELETE_SQL,params,null);
-			if ( !sqlService.dbWrite(HierarchyPropertySqlReader.DELETE_SQL,
-					params) ) {
-				log.warn("Failed to update Hieratchy Property at "+hierarchyProperty.getNode().getPath()+"/"+hierarchyProperty.getName());				
-			}			
+			Connection connection = null;
+			try
+			{
+				connection = getConnection();
+
+				Object[] params = HierarchyPropertySqlReader
+						.getDeleteObjects(hierarchyProperty);
+				logSQL("Delete Hierarchy properties ",
+						HierarchyPropertySqlReader.DELETE_SQL, params, null);
+				if (!sqlService.dbWrite(connection,
+						HierarchyPropertySqlReader.DELETE_SQL, params))
+				{
+					log.warn("Failed to update Hieratchy Property at "
+							+ hierarchyProperty.getNode().getPath() + "/"
+							+ hierarchyProperty.getName());
+				}
+			}
+			finally
+			{
+				releaseConnection();
+			}
+
 		}
 	}
 
 	// utility methods
-
 
 	private void popSaveStack(Object o)
 	{
@@ -263,11 +431,13 @@ public class HierarchyDAO implements
 
 	private List findList(String sql, Object[] params, SqlReader reader)
 	{
+		Connection connection = null;
 		try
 		{
-			logSQL("findList ",sql,params,null);
-			List l = sqlService.dbRead(sql, params, reader);
-			log.info(" Found "+l);
+			connection = getConnection();
+			logSQL("findList ", sql, params, null);
+			List l = sqlService.dbRead(connection, sql, params, reader);
+			log.info(" Found " + l);
 			if (l == null)
 			{
 				l = new ArrayList();
@@ -276,19 +446,24 @@ public class HierarchyDAO implements
 		}
 		catch (Exception ex)
 		{
-			logSQL("Failed to execute ",sql, params, ex);
+			logSQL("Failed to execute ", sql, params, ex);
+		}
+		finally
+		{
+			releaseConnection();
 		}
 		return null;
 	}
 
-
 	private Object findFirst(String sql, Object[] params, SqlReader reader)
 	{
+		Connection connection = null;
 		try
 		{
-			logSQL("findFirst ",sql,params,null);
-			List l = sqlService.dbRead(sql, params, reader);
-			log.info(" Found "+l);
+			connection = getConnection();
+			logSQL("findFirst ", sql, params, null);
+			List l = sqlService.dbRead(connection, sql, params, reader);
+			log.info(" Found " + l);
 			if (l != null && l.size() > 0)
 			{
 				return l.get(0);
@@ -296,12 +471,17 @@ public class HierarchyDAO implements
 		}
 		catch (Exception ex)
 		{
-			logSQL("Failed ",sql, params, ex);
+			logSQL("Failed ", sql, params, ex);
+		}
+		finally
+		{
+			releaseConnection();
 		}
 		return null;
 	}
 
-	private void logSQL(String message, String sql, Object[] params, Exception ex)
+	private void logSQL(String message, String sql, Object[] params,
+			Exception ex)
 	{
 		StringBuffer psb = new StringBuffer();
 		if (params == null)
@@ -324,10 +504,13 @@ public class HierarchyDAO implements
 			}
 			psb.append("}");
 		}
-		if ( ex == null ) {
+		if (ex == null)
+		{
 			log.info(message + sql + "with params " + psb);
-		} else {
-			log.error(message + sql + "with params " + psb, ex);			
+		}
+		else
+		{
+			log.error(message + sql + "with params " + psb, ex);
 		}
 	}
 
@@ -360,6 +543,5 @@ public class HierarchyDAO implements
 	{
 		this.idmanager = idmanager;
 	}
-
 
 }

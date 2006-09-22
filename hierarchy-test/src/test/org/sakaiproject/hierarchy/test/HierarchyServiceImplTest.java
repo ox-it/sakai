@@ -18,14 +18,13 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.thread_local.impl.ThreadLocalComponent;
 
 /**
- * 
  * @author Matthew Buckett matthew.buckett at oucs dot ox dot ac dot uk
- *
  */
 public class HierarchyServiceImplTest extends HierarchyServiceApiTestBase
 {
-	private static final Log log = LogFactory.getLog(HierarchyServiceImplTest.class);
-	
+	private static final Log log = LogFactory
+			.getLog(HierarchyServiceImplTest.class);
+
 	private BasicDataSource ds;
 
 	public void setUp()
@@ -62,55 +61,69 @@ public class HierarchyServiceImplTest extends HierarchyServiceApiTestBase
 		ds.getConnection().prepareStatement("SHUTDOWN").execute();
 		ds.close();
 	}
-	
-	public void testZBigInjection() throws Exception {
-		String testRoot = "/rootTestNode";
 
-		Hierarchy h = service.getNode(testRoot);
-		if (h != null)
+	public void testZBigInjection() throws Exception
+	{
+		try
 		{
-			service.deleteNode(h);
-		}
-		h = service.newHierarchy(testRoot);
-		addNodes(h,5);
-		service.save(h);
+			service.begin();
+			String testRoot = "/rootTestNode";
 
-		h = service.getNode(testRoot);
-		assertEquals("Root node check ", h.getPath(), testRoot);
-		checkNodes(h);
-		//hierarchyService.deleteNode(h);
-		log.info("Testing Navigation ");
-		List l = service.getRootNodes();
-		log.info("The following should only generate 1 set of finds ");
-		printList("",l.iterator(), 1);
-		log.info("The following should only generate 10 set of finds ");
-		printList("",l.iterator(), 2);
-		log.warn("Spring Injected Test Sucessfull..... but plesae remove in production ");
+			Hierarchy h = service.getNode(testRoot);
+			if (h != null)
+			{
+				service.deleteNode(h);
+			}
+			h = service.newHierarchy(testRoot);
+			addNodes(h, 5);
+			service.save(h);
+
+			h = service.getNode(testRoot);
+			assertEquals("Root node check ", h.getPath(), testRoot);
+			checkNodes(h);
+			// hierarchyService.deleteNode(h);
+			log.info("Testing Navigation ");
+			List l = service.getRootNodes();
+			log.info("The following should only generate 1 set of finds ");
+			printList("", l.iterator(), 1);
+			log.info("The following should only generate 10 set of finds ");
+			printList("", l.iterator(), 2);
+			log
+					.warn("Spring Injected Test Sucessfull..... but plesae remove in production ");
+		}
+		finally
+		{
+			service.end();
+		}
 
 	}
-	private void addNodes(Hierarchy h, int depth) throws HierarchyServiceException
+
+	private void addNodes(Hierarchy h, int depth)
+			throws HierarchyServiceException
 	{
-		if ( depth == 0 ) {
+		if (depth == 0)
+		{
 			return;
 		}
 		for (int i = 0; i < 5; i++)
 		{
-			Hierarchy child1 = service.newHierarchy(h.getPath() + "/annothernodeinthechain"
-					+ i);
+			Hierarchy child1 = service.newHierarchy(h.getPath()
+					+ "/annothernodeinthechain" + i);
 			h.addTochildren(child1);
 
 			HierarchyProperty hp = service.newHierachyProperty();
 			hp.setName("propertyA" + i);
 			hp.setPropvalue("propertyvalueA" + i);
 			child1.addToproperties(hp);
-			
+
 			hp = service.newHierachyProperty();
 			hp.setName("propertyB" + i);
 			hp.setPropvalue("propertyvalueB" + i);
 			child1.addToproperties(hp);
-			addNodes(child1,depth-1);
+			addNodes(child1, depth - 1);
 		}
 	}
+
 	private void checkNodes(Hierarchy h) throws Exception
 	{
 		for (int i = 0; i < 5; i++)
@@ -121,14 +134,16 @@ public class HierarchyServiceImplTest extends HierarchyServiceApiTestBase
 			assertEquals("Path name is not correct ", testPath, child1
 					.getPath());
 			HierarchyProperty hp = child1.getProperty("propertyA" + i);
-			assertNotNull("No property "+testPath+"/propertyA"+i+" node found ", hp);
-			assertEquals("Property value of "+testPath+"/propertyA"+i+" is ", "propertyvalueA" + i,
-					hp.getPropvalue());
+			assertNotNull("No property " + testPath + "/propertyA" + i
+					+ " node found ", hp);
+			assertEquals("Property value of " + testPath + "/propertyA" + i
+					+ " is ", "propertyvalueA" + i, hp.getPropvalue());
 			hp = child1.getProperty("propertyB" + i);
-			assertNotNull("No property "+testPath+"/propertyB"+i+" node found ", hp);
-			assertEquals("Property value of "+testPath+"/propertyB"+i+" is ", "propertyvalueB" + i,
-					hp.getPropvalue());
-			
+			assertNotNull("No property " + testPath + "/propertyB" + i
+					+ " node found ", hp);
+			assertEquals("Property value of " + testPath + "/propertyB" + i
+					+ " is ", "propertyvalueB" + i, hp.getPropvalue());
+
 		}
 	}
 

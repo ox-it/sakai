@@ -58,4 +58,24 @@ public interface HierarchyService
 	 */
 	HierarchyProperty newHierachyProperty();
 
+	/**
+	 * Begin a transaction
+	 *
+	 */
+	void begin();
+
+	/**
+	 * end a hierarchy transaction 
+	 *
+	 */
+	void end();
+
+	/**
+	 * abort a hierarchy transaction and prepare to begin a new one
+	 *
+	 */
+	void abort();
+	
+	
+
 }

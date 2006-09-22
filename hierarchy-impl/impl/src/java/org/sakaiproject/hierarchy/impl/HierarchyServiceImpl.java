@@ -160,5 +160,16 @@ public class HierarchyServiceImpl implements HierarchyService
 	public HierarchyProperty newHierachyProperty() {
 		return new HierarchyPropertyImpl();
 	}
+	
+	public void begin() {
+		hierarchyDao.begin();
+	}
+	public void end() {
+		hierarchyDao.end();
+	}
+	
+	public void abort() {
+		hierarchyDao.abort();
+	}
 
 }
