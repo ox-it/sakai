@@ -28,22 +28,6 @@ public class HierarchyServiceImpl implements HierarchyService
 		{
 			log
 					.info(" ==================================== init HierarchyServiceImpl ");
-			log
-					.info(" ==================================== init HierarchyServiceImpl ");
-			log
-					.info(" ==================================== init HierarchyServiceImpl ");
-			log
-					.info(" ==================================== init HierarchyServiceImpl ");
-			log
-					.info(" ==================================== init HierarchyServiceImpl ");
-			log
-					.info(" ==================================== init HierarchyServiceImpl ");
-			log
-					.info(" ==================================== init HierarchyServiceImpl ");
-			log
-					.info(" ==================================== init HierarchyServiceImpl ");
-			log
-					.info(" ==================================== init HierarchyServiceImpl ");
 		}
 		catch (Exception e)
 		{

@@ -81,7 +81,7 @@ public class HierarchyDAO implements
 				ch.connection = sqlService.borrowConnection();
 				connectionHolder.set(ch);
 				log
-						.info("Getting Connection +++++++++++++++++++++++++++++++++++++");
+						.debug("Getting Connection +++++++++++++++++++++++++++++++++++++");
 			}
 			catch (Exception ex)
 			{
@@ -111,7 +111,7 @@ public class HierarchyDAO implements
 				sqlService.returnConnection(ch.connection);
 				connectionHolder.set(null);
 				log
-						.info("Release Connection ------------------------------------------");
+						.debug("Release Connection ------------------------------------------");
 			}
 		}
 	}
@@ -131,7 +131,7 @@ public class HierarchyDAO implements
 			}
 			sqlService.returnConnection(ch.connection);
 			connectionHolder.set(null);
-			log.info("Abort Connection -------------------------");
+			log.debug("Abort Connection -------------------------");
 		}
 	}
 
@@ -377,7 +377,7 @@ public class HierarchyDAO implements
 			if (paramL.size() > 500 )
 			{
 				sb.append(HierarchySqlReader.DELETE_NODE_GROUPS_SQL_2);
-				log.info("Executing " + sb.toString());
+				log.debug("Executing " + sb.toString());
 				sqlService.dbWrite(connection, sb.toString(), paramL.toArray());
 				sb = null;
 				paramL.clear();
@@ -386,7 +386,7 @@ public class HierarchyDAO implements
 		if (sb != null)
 		{
 			sb.append(HierarchySqlReader.DELETE_NODE_GROUPS_SQL_2);
-			log.info("Executing " + sb.toString());
+			log.debug("Executing " + sb.toString());
 			sqlService.dbWrite(connection, sb.toString(),paramL.toArray());
 			sb = null;
 			paramL.clear();
@@ -417,7 +417,7 @@ public class HierarchyDAO implements
 			{
 				sb
 						.append(HierarchyPropertySqlReader.DELETE_NODE_PROPERTIES_GROUPS_SQL_2);
-				log.info("Executing " + sb.toString());
+				log.debug("Executing " + sb.toString());
 				sqlService.dbWrite(connection, sb.toString(),paramL.toArray());
 				sb = null;
 				paramL.clear();
@@ -427,7 +427,7 @@ public class HierarchyDAO implements
 		{
 			sb
 					.append(HierarchyPropertySqlReader.DELETE_NODE_PROPERTIES_GROUPS_SQL_2);
-			log.info("Executing " + sb.toString());
+			log.debug("Executing " + sb.toString());
 			sqlService.dbWrite(connection, sb.toString(),paramL.toArray());
 			sb = null;
 			paramL.clear();
@@ -459,7 +459,7 @@ public class HierarchyDAO implements
 			{
 				sb
 						.append(HierarchySqlReader.FIND_CHILD_ID_BY_PARENT_GROUPS_SQL_2);
-				log.info("Executing " + sb.toString());
+				log.debug("Executing " + sb.toString());
 				found.addAll(sqlService.dbRead(connection, sb.toString(),
 						paramL.toArray(), new SqlReader()
 						{
@@ -484,7 +484,7 @@ public class HierarchyDAO implements
 		if (sb != null)
 		{
 			sb.append(HierarchySqlReader.FIND_CHILD_ID_BY_PARENT_GROUPS_SQL_2);
-			log.info("Executing " + sb.toString());
+			log.debug("Executing " + sb.toString());
 			found.addAll(sqlService.dbRead(connection, sb.toString(),
 					paramL.toArray(), new SqlReader()
 					{
@@ -507,7 +507,7 @@ public class HierarchyDAO implements
 		{
 			loadChildren(connection, found);
 			l.addAll(found);
-			log.info("Got " + l.size() + " nodes ");
+			log.debug("Got " + l.size() + " nodes ");
 		}
 	}
 
@@ -599,7 +599,7 @@ public class HierarchyDAO implements
 			connection = getConnection();
 			logSQL("findList ", sql, params, null);
 			List l = sqlService.dbRead(connection, sql, params, reader);
-			log.info(" Found " + l);
+			log.debug(" Found " + l);
 			if (l == null)
 			{
 				l = new ArrayList();
@@ -625,7 +625,7 @@ public class HierarchyDAO implements
 			connection = getConnection();
 			logSQL("findFirst ", sql, params, null);
 			List l = sqlService.dbRead(connection, sql, params, reader);
-			log.info(" Found " + l);
+			log.debug(" Found " + l);
 			if (l != null && l.size() > 0)
 			{
 				return l.get(0);

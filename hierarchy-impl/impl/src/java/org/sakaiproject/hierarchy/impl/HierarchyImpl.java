@@ -282,7 +282,7 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 			String parentPath = parent.getPath();
 			if ( parentPath == null )  {
 				parentPath = "";
-				log.info("Parent Path was null ");
+				log.debug("Parent Path was null ");
 			}
 			String thisPath = parentPath + "/" + name;
 			if (!thisPath.equals(path))
