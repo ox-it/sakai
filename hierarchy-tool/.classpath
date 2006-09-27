@@ -20,5 +20,8 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/util-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/hierarchy-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/portal-impl"/>
+	<classpathentry kind="src" path="tool/src/bundle"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-1.2.8.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/velocity/jars/velocity-1.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

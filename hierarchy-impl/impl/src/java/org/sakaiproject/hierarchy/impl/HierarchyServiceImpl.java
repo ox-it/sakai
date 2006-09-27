@@ -11,6 +11,8 @@ import org.sakaiproject.hierarchy.api.HierarchyServiceException;
 import org.sakaiproject.hierarchy.api.dao.HierarchyDAO;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 
 public class HierarchyServiceImpl implements HierarchyService
 {
@@ -154,6 +156,28 @@ public class HierarchyServiceImpl implements HierarchyService
 	
 	public void abort() {
 		hierarchyDao.abort();
+	}
+
+	public String getCurrentPortalPath()
+	{
+		Session session = SessionManager.getCurrentSession();
+		return (String) session.getAttribute("portal-hierarchy-path");
+	}
+
+	public void setCurrentPortalPath(String portalPath)
+	{
+		Session session = SessionManager.getCurrentSession();
+		session.setAttribute("portal-hierarchy-path", portalPath);
+	}
+
+	public Hierarchy getCurrentPortalNode()
+	{
+		String portalPath = getCurrentPortalPath();
+		if (portalPath == null)
+		{
+			portalPath = "/";
+		}
+		return getNode(portalPath);
 	}
 
 }

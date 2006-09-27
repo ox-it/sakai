@@ -11,6 +11,9 @@ import java.util.Date;
 public interface HierarchyProperty
 {
 
+	public static final String PORTAL_SITES = "portal:sites";
+	public static final String MANAGEMENT_SITE = "portal:management-site";
+
 	/**
 	 * Return the value associated with the column: name
 	 */

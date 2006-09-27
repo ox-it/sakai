@@ -11,13 +11,11 @@
 	<function name="search.superadmin" />
 -->
 	<tool
-			id="sakai.hello"
-			title="Hello"
-		description="Hello World ">
+			id="sakai.hierarchy-manager"
+			title="Hierarchy Manager"
+		description="Hierarchy Manager ">
 			
-		<category name="course" />
          <category name="project" />
-         <category name="myworkspace" />
 		
 
 	</tool>

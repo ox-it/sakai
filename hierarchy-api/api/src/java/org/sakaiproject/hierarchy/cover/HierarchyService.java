@@ -94,5 +94,24 @@ public class HierarchyService
 		if (service == null) return null;
 		return service.newHierachyProperty();
 	}
+	public static String getCurrentPortalPath()
+	{
+		org.sakaiproject.hierarchy.api.HierarchyService service = getInstance();
+		if (service == null) return null;
+		return service.getCurrentPortalPath();
+	}
+	public static void setCurrentPortalPath(String portalPath)
+	{
+		org.sakaiproject.hierarchy.api.HierarchyService service = getInstance();
+		if (service == null) return;
+		service.setCurrentPortalPath(portalPath);
+		
+	}
+	public static Hierarchy getCurrentPortalNode()
+	{
+		org.sakaiproject.hierarchy.api.HierarchyService service = getInstance();
+		if (service == null) return null;
+		return service.getCurrentPortalNode();
+	}
 
 }

@@ -26,7 +26,6 @@ public class PortalHierarchyServiceTest
 			Hierarchy h = hierarchyService.getNode(testRoot);
 			if (h == null)
 			{
-				hierarchyService.deleteNode(h);
 				h = hierarchyService.newHierarchy(testRoot);
 				addNodes(h, 5);
 				hierarchyService.save(h);

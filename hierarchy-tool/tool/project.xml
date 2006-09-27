@@ -1,54 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/3.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://maven.apache.org/maven-v3_0_0.xsd">
-  <extend>../../../master/project.xml</extend>
-  <pomVersion>3</pomVersion>
-  <name>orcusportal</name>
-  <groupId>sakaiproject</groupId>
-  <artifactId>orcusportal</artifactId>
-  <shortDescription>sakai-hierarchy World Tool</shortDescription>
-    <currentVersion>${sakai.version}</currentVersion>
-  <description>
-    sakai-hierarchy World
-  </description>
-  <properties>
-    <deploy.type>war</deploy.type>
-  </properties>
-  <build>
-    <!-- java source -->
-    <sourceDirectory>src/java</sourceDirectory>
-    <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
-    <unitTest>
-      <includes>**/*Test</includes>
-      <resources>
-	<resource>
-	  <directory>${basedir}/src/testBundle</directory>
-	  <includes>
-	    <include>**/*.*</include>
-	  </includes>
-	  <filtering>false</filtering>
-	</resource>
-      </resources>
-    </unitTest>
-    <defaultGoal>war:install</defaultGoal>
-    <!-- other resources for the jar - the message bundles -->
-    <resources>
-      <resource>
-	<directory>${basedir}/src/bundle</directory>
-	<includes>
-	  <include>**/*.*</include>
-	</includes>
-	<filtering>false</filtering>
-      </resource>
-      <resource>
-	<directory>${basedir}/src/java</directory>
-	<includes>
-	  <include>**/*.xml</include>
-	</includes>
-	<filtering>false</filtering>
-      </resource>
-    </resources>
-  </build>
-  <dependencies>
+<project xmlns="http://maven.apache.org/POM/3.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://maven.apache.org/maven-v3_0_0.xsd">
+	<extend>../../../master/project.xml</extend>
+	<pomVersion>3</pomVersion>
+	<name>sakai-hierarchy-tool</name>
+	<groupId>sakaiproject</groupId>
+	<artifactId>sakai-hierarchy-tool</artifactId>
+	<shortDescription>sakai-hierarchy Tool</shortDescription>
+	<currentVersion>${sakai.version}</currentVersion>
+	<description>sakai-hierarchy</description>
+	<properties>
+		<deploy.type>war</deploy.type>
+	</properties>
+	<build>
+		<!-- java source -->
+		<sourceDirectory>src/java</sourceDirectory>
+		<unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+		<unitTest>
+			<includes>**/*Test</includes>
+			<resources>
+				<resource>
+					<directory>${basedir}/src/testBundle</directory>
+					<includes>
+						<include>**/*.*</include>
+					</includes>
+					<filtering>false</filtering>
+				</resource>
+			</resources>
+		</unitTest>
+		<defaultGoal>war:install</defaultGoal>
+		<!-- other resources for the jar - the message bundles -->
+		<resources>
+			<resource>
+				<directory>${basedir}/src/bundle</directory>
+				<includes>
+					<include>**/*.*</include>
+				</includes>
+				<filtering>false</filtering>
+			</resource>
+			<resource>
+				<directory>${basedir}/src/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
+	</build>
+	<dependencies>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
@@ -91,9 +91,7 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
-		
-		
-		
+
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-tool-api</artifactId>
@@ -137,6 +135,54 @@
 		</dependency>
 
 
+		<dependency>
+			<groupId>rsfutil</groupId>
+			<artifactId>rsfspringmvc</artifactId>
+			<version>0.6.4</version>
+			<type>jar</type>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>ponderutilcore</groupId>
+			<artifactId>ponderutilcore</artifactId>
+			<version>1.1.4</version>
+			<type>jar</type>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>j-servletutil</groupId>
+			<artifactId>j-servletutil</artifactId>
+			<version>1.1.4</version>
+			<type>jar</type>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>rsfutil</groupId>
+			<artifactId>rsfutil</artifactId>
+			<version>0.6.4</version>
+			<type>jar</type>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>${sakai.spring.groupId}</groupId>
+			<artifactId>${sakai.spring.artifactId}</artifactId>
+			<version>${sakai.spring.version}</version>
+			<type>jar</type>
+		</dependency>
+
+
 
 		<dependency>
 			<groupId>servletapi</groupId>
@@ -149,12 +195,12 @@
 			<artifactId>commons-logging</artifactId>
 			<version>1.0.4</version>
 		</dependency>
-		
-		
-		
-		
-		
-		
-  </dependencies>
+
+
+
+
+
+
+	</dependencies>
 </project>
 

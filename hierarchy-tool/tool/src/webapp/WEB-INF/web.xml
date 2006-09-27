@@ -1,47 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
-    <display-name>orcusportal</display-name>
-    <description>orcusportal</description>
+<web-app id="WebApp_9" version="2.4"
+	xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>sakai hierarchy manager</display-name>
+	<description>sakai hierarchy manager</description>
 
-    <filter>
-        <filter-name>sakai.request</filter-name>
-        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
-        <!-- Portal URLs encode the placement, so we don't need it added -->
-        <init-param>
-            <param-name>tool.placement</param-name>
-            <param-value>none</param-value>
-        </init-param>
-        <!-- Don't parse file uploads in the portal, since a tool may handle this itself. -->
-        <init-param>
-            <param-name>upload.enabled</param-name>
-            <param-value>false</param-value>
-        </init-param>
-        <!-- MUST set character encoding in the portal, before parameters are read. -->
-        <init-param>
-            <param-name>encoding.enabled</param-name>
-            <param-value>true</param-value>
-        </init-param>
-    </filter>
+	<!-- Configure standard Spring application contexts. Be sure to mention
+		rsf config files first, so any overrides may be processed. The first two
+		config files are loaded from inside the rsfutil.jar  -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			classpath:conf/rsf-config.xml,
+			classpath:conf/blank-applicationContext.xml,
+			/WEB-INF/applicationContext.xml
+		</param-value>
+	</context-param>
+	<!-- Configure "resource scope" Spring application contexts (RSAC).
+		Be sure to mention rsf config files first, so any overrides may be
+		processed -->
+	<context-param>
+		<param-name>requestContextConfigLocation</param-name>
+		<param-value>
+			classpath:conf/rsf-requestscope-config.xml,
+			classpath:conf/blank-requestContext.xml,
+			classpath:conf/springmvc-requestContext.xml
+		</param-value>
+	</context-param>
 
-    <filter-mapping>
-        <filter-name>sakai.request</filter-name>
-        <servlet-name>sakai.portal.orcus</servlet-name>
-        <dispatcher>REQUEST</dispatcher>
-        <dispatcher>FORWARD</dispatcher>
-        <dispatcher>INCLUDE</dispatcher>
-    </filter-mapping>
 
-    <servlet>
-        <servlet-name>sakai.portal.orcus</servlet-name>
-        <servlet-class>org.sakaiproject.portal.orcus.OrcusPortal</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
+	<listener>
+		<listener-class>
+			org.sakaiproject.util.ToolListener
+		</listener-class>
+	</listener>
 
-    <servlet-mapping>
-        <servlet-name>sakai.portal.orcus</servlet-name>
-        <url-pattern>/*</url-pattern>
-    </servlet-mapping>
+	<listener>
+		<listener-class>
+			org.springframework.web.context.ContextLoaderListener
+		</listener-class>
+	</listener>
+
+
+	<filter>
+		<filter-name>sakai.request</filter-name>
+		<filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>sakai.request</filter-name>
+		<servlet-name>sakai.hierarchy-manager</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+
+
+	<servlet>
+		<servlet-name>sakai.hierarchy-manager</servlet-name>
+		<servlet-class>
+			org.springframework.web.servlet.DispatcherServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+
+	<servlet-mapping>
+		<servlet-name>sakai.hierarchy-manager</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
 
 </web-app>

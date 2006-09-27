@@ -75,6 +75,12 @@ public interface HierarchyService
 	 *
 	 */
 	void abort();
+
+	String getCurrentPortalPath();
+
+	void setCurrentPortalPath(String portalPath);
+
+	Hierarchy getCurrentPortalNode();
 	
 	
 

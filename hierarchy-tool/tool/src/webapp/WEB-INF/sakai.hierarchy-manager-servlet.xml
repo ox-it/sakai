@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+	- Application context definition for "springapp" DispatcherServlet.
+-->
+
+<beans>
+
+
+	<bean id="urlMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/*">managerController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="managerController"
+		class="org.sakaiproject.hierarchy.tool.ManagerController"
+		init-method="init" />
+
+
+
+	<bean id="viewResolver"
+		class="uk.org.ponder.rsf.springmvc.IKATViewResolver" />
+
+	<bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename">
+			<value>messages</value>
+		</property>
+	</bean>
+
+</beans>
