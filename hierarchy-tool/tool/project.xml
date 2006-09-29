@@ -135,6 +135,15 @@
 			<version>${sakai.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-velocity-tool</artifactId>
+			<version>${sakai.version}</version>
+			<type>jar</type>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
 
 		<dependency>
 			<groupId>velocity</groupId>

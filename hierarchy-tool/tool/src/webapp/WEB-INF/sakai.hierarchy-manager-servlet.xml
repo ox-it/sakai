@@ -89,7 +89,7 @@
 					portal.vm
 				</prop>
 				<prop key="velocimacro.library">
-					/org/sakaiproject/hierarchy/tool/vm/spring/macros.vm
+					 VM_chef_library.vm
 				</prop>
 				<prop key="velocimacro.permissions.allow.inline">
 					true

@@ -1,0 +1,43 @@
+#chef_start()
+#chef_portletContainer()
+#chef_portletContent()
+<form action="#" method="post" >
+<p class="shorttext">
+	<label for="nodepath">Path</label>
+	<input type="text" name="nodepath" id="nodepath" size="60" value="${node.path}" readonly="readonly" />
+</p>
+<p class="shorttext">
+	<label for="nodepathhash">Path Hash</label>
+	<input type="text" name="nodepathhash" id="nodepathhash" size="60" value="${node.pathhash}" readonly="readonly" />
+</p>
+<p class="shorttext">
+	<label for="nodeid">Id</label>
+	<input type="text" name="nodeid" id="nodeid" size="60" value="${node.nodeid}" readonly="readonly" />
+</p>
+<p class="shorttext">
+	<label for="nodeversion">Version</label>
+	<input type="text" name="nodeversion" id="nodeversion" size="60" value="${node.version}" readonly="readonly" />
+</p>
+#foreach ( $nodeprop in $node.properties )
+<p class="shorttext">
+	<label for="value_${nodeprop.name}">${nodeprop.name}</label>
+	<input type="text" name="value_${nodeprop.name}" id="value_${nodeprop.name}" size="60" value="${nodeprop.value}" />
+</p>
+#end	
+<p class="shorttext">
+	<label for="new_name">New Name</label>
+	<input type="text" name="new_name" id="new_name" size="60" value="" />
+</p>
+<p class="shorttext">
+	<label for="new_value">New Value</label>
+	<input type="text" name="new_value" id="new_value" size="60" value="" />
+</p>
+#foreach ( $child in $node.children )
+<p class="shorttext">
+	<a href="${child.path}" >Path ${child.path}</a>
+</p>
+#end	
+</form>
+#chef_portletContentEnd()
+#chef_portletContainerEnd()
+#chef_end()

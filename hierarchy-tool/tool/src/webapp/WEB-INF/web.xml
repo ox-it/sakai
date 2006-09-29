@@ -70,7 +70,7 @@
 	<servlet>
 		<servlet-name>sakai.hierarchy-manager</servlet-name>
 		<servlet-class>
-			org.springframework.web.servlet.DispatcherServlet
+			org.sakaiproject.hierarchy.tool.SpringDispatcherServlet
 		</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
