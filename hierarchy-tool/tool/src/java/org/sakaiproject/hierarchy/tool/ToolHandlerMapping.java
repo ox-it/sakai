@@ -13,23 +13,27 @@ public class ToolHandlerMapping extends AbstractHandlerMapping
 {
 
 	private Map mappings = null;
+
 	private AbstractController defaultHandler;
 
-	
 	public ToolHandlerMapping()
 	{
 		super();
 	}
 
-	protected Object getHandlerInternal(HttpServletRequest request) throws Exception
+	protected Object getHandlerInternal(HttpServletRequest request)
+			throws Exception
 	{
 		Placement p = ToolManager.getCurrentPlacement();
 		String toolId = p.getTool().getId();
-		
+
 		Object handler = mappings.get(toolId);
-		if ( handler == null ) {
+		if (handler == null)
+		{
 			return defaultHandler;
-		} else {
+		}
+		else
+		{
 			return handler;
 		}
 	}

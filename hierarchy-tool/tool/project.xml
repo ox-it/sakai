@@ -43,6 +43,7 @@
 				<directory>${basedir}/src/java</directory>
 				<includes>
 					<include>**/*.xml</include>
+					<include>**/*.vm</include>
 				</includes>
 				<filtering>false</filtering>
 			</resource>
@@ -136,6 +137,18 @@
 
 
 		<dependency>
+			<groupId>velocity</groupId>
+			<artifactId>velocity</artifactId>
+			<version>1.4</version>
+			<type>jar</type>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+<!--
+Start RSF Deps
+-->
+		<dependency>
 			<groupId>rsfutil</groupId>
 			<artifactId>rsfspringmvc</artifactId>
 			<version>0.6.4</version>
@@ -174,7 +187,9 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
-
+<!-- 
+End RSF Deps
+-->
 		<dependency>
 			<groupId>${sakai.spring.groupId}</groupId>
 			<artifactId>${sakai.spring.artifactId}</artifactId>
@@ -194,6 +209,36 @@
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 			<version>1.0.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.1</version>
+		</dependency>
+
+<!--  RSF  -->
+		<dependency>
+			<!-- Doug Lea's Oswego concurrency package. The forerunner of JSR 166
+				java.util.concurrent -->
+			<groupId>concurrent</groupId>
+			<artifactId>concurrent</artifactId>
+			<version>1.3.4</version>
+			<type>jar</type>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+<!-- RSF  -->
+		<!-- Aleksander Slominski's (U Indiana) lightning-fast XML pull parser -->
+		<dependency>
+			<groupId>xpp3</groupId>
+			<artifactId>xpp3</artifactId>
+			<version>1.1.3.4-RC8_min</version>
+			<type>jar</type>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
 		</dependency>
 
 

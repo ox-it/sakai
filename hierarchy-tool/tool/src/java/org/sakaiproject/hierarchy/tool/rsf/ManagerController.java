@@ -1,10 +1,4 @@
-package org.sakaiproject.hierarchy.tool;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+package org.sakaiproject.hierarchy.tool.rsf;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,15 +15,15 @@ import org.springframework.web.servlet.mvc.AbstractController;
 public class ManagerController extends AbstractController
 {
 
-	private static final String ACT_ADDNODE = "act_addnode";
-	private static final String ACT_SITELIST = "act_sitelist";
-	private static final String ACT_SETPROPERTY = "act_setproperty";
-	private static final String ACT_CLEARPROPERTY = "act_clearproperty";
-	private static final String REQUEST_ACTION = "_action";
-	private static final String REQUEST_SITES = "_sites";
-	private static final String REQUEST_NEWNODE = "_newnode";
-	private static final String REQUEST_PROPERTY = "_property";
-	private static final String REQUEST_VALUE = "_value";
+	public static final String ACT_ADDNODE = "act_addnode";
+	public static final String ACT_SITELIST = "act_sitelist";
+	public static final String ACT_SETPROPERTY = "act_setproperty";
+	public static final String ACT_CLEARPROPERTY = "act_clearproperty";
+	public static final String REQUEST_ACTION = "_action";
+	public static final String REQUEST_SITES = "_sites";
+	public static final String REQUEST_NEWNODE = "_newnode";
+	public static final String REQUEST_PROPERTY = "_property";
+	public static final String REQUEST_VALUE = "_value";
 
 	public ManagerController()
 	{
@@ -37,7 +31,6 @@ public class ManagerController extends AbstractController
 	}
 	
 	public void init() {
-		
 	}
 
 	protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception
@@ -105,43 +98,10 @@ public class ManagerController extends AbstractController
 				HierarchyService.getInstance().save(node);
 			}
 
-			// render the output
-			Map model = new HashMap();
-			
-			Map nodeMap = new HashMap();
-			model.put("currentNode", nodeMap);
-			model.put("sakai_fragment", Boolean.FALSE );
-			model.put("sakai_head", request.getAttribute("sakai.html.head"));
-			model.put("sakai_onload",request.getAttribute("sakai.html.body.onload"));
-			
-			model.put("toolTitle","Hierarchy Manager");
-			nodeMap.put("path", node.getPath());
-			Map properties = node.getProperties();
-			List propValues = new ArrayList();
-			for (Iterator i = properties.keySet().iterator(); i.hasNext();)
-			{
-				String key = (String) i.next();
-				HierarchyProperty hp = (HierarchyProperty) properties.get(key);
-				Map m = new HashMap();
-				m.put("name", key);
-				m.put("value", hp.getPropvalue());
-				propValues.add(m);
-			}
-
-			Map m = new HashMap();
-			m.put(ACT_ADDNODE, ACT_ADDNODE);
-			m.put(ACT_SITELIST, ACT_SITELIST);
-			m.put(ACT_SETPROPERTY, ACT_SETPROPERTY);
-			m.put(ACT_CLEARPROPERTY, ACT_CLEARPROPERTY);
-			m.put(REQUEST_ACTION, REQUEST_ACTION);
-			m.put(REQUEST_SITES, REQUEST_SITES);
-			m.put(REQUEST_NEWNODE, REQUEST_NEWNODE);
-			m.put(REQUEST_PROPERTY, REQUEST_PROPERTY);
-			m.put(REQUEST_VALUE, REQUEST_VALUE);
-			nodeMap.put("form", m);
-			nodeMap.put("properties", propValues);
-			return new ModelAndView("manager", "manager", model);
+		 				
+			return new ModelAndView("manager");
 		}
 	}
+
 
 }
