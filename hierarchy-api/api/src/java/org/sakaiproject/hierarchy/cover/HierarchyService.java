@@ -56,7 +56,7 @@ public class HierarchyService
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.hierarchy.api.HierarchyService#deleteNode(org.sakaiproject.hierarchy.api.model.Hierarchy)
 	 */
-	public void deleteNode(Hierarchy node)
+	public static void deleteNode(Hierarchy node)
 	{
 		org.sakaiproject.hierarchy.api.HierarchyService service = getInstance();
 		if (service == null) return;
@@ -67,7 +67,7 @@ public class HierarchyService
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.hierarchy.api.HierarchyService#save(org.sakaiproject.hierarchy.api.model.Hierarchy)
 	 */
-	public void save(Hierarchy node)
+	public static void save(Hierarchy node)
 	{
 		org.sakaiproject.hierarchy.api.HierarchyService service = getInstance();
 		if (service == null) return;
@@ -78,7 +78,7 @@ public class HierarchyService
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.hierarchy.api.HierarchyService#newHierarchy(java.lang.String)
 	 */
-	public Hierarchy newHierarchy(String nodePath) throws HierarchyServiceException
+	public static Hierarchy newHierarchy(String nodePath) throws HierarchyServiceException
 	{
 		org.sakaiproject.hierarchy.api.HierarchyService service = getInstance();
 		if (service == null) return null;
@@ -88,7 +88,7 @@ public class HierarchyService
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.hierarchy.api.HierarchyService#newHierachyProperty()
 	 */
-	public HierarchyProperty newHierachyProperty()
+	public static HierarchyProperty newHierachyProperty()
 	{
 		org.sakaiproject.hierarchy.api.HierarchyService service = getInstance();
 		if (service == null) return null;
