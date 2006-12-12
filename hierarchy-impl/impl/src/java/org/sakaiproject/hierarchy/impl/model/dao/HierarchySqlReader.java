@@ -35,7 +35,7 @@ public class HierarchySqlReader implements SqlReader
 
 	public static final String INSERT_SQL = "insert into hierarchy_nodes ( id, pathhash, path, parent_id, realm, version ) values ( ?, ?, ?, ?, ?, ?) ";
 
-	public static final String UPDATE_SQL = "update hierarchy_nodes set pathhash = ?, path = ? parent_id = ?, realm = ?, version = ? where id = ? and version = ?";
+	public static final String UPDATE_SQL = "update hierarchy_nodes set pathhash = ?, path = ?, parent_id = ?, realm = ?, version = ? where id = ? and version = ?";
 
 	public static final String DELETE_SQL = "delete from hierarchy_nodes where id = ? and version = ?";
 
