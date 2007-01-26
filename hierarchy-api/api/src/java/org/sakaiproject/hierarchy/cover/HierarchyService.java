@@ -3,6 +3,7 @@
  */
 package org.sakaiproject.hierarchy.cover;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.sakaiproject.component.cover.ComponentManager;
@@ -36,7 +37,7 @@ public class HierarchyService
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.hierarchy.api.HierarchyService#getRootNodes()
 	 */
-	public static List getRootNodes()
+	public static Collection getRootNodes()
 	{
 		org.sakaiproject.hierarchy.api.HierarchyService service = getInstance();
 		if (service == null) return null;
@@ -94,24 +95,6 @@ public class HierarchyService
 		if (service == null) return null;
 		return service.newHierachyProperty();
 	}
-	public static String getCurrentPortalPath()
-	{
-		org.sakaiproject.hierarchy.api.HierarchyService service = getInstance();
-		if (service == null) return null;
-		return service.getCurrentPortalPath();
-	}
-	public static void setCurrentPortalPath(String portalPath)
-	{
-		org.sakaiproject.hierarchy.api.HierarchyService service = getInstance();
-		if (service == null) return;
-		service.setCurrentPortalPath(portalPath);
-		
-	}
-	public static Hierarchy getCurrentPortalNode()
-	{
-		org.sakaiproject.hierarchy.api.HierarchyService service = getInstance();
-		if (service == null) return null;
-		return service.getCurrentPortalNode();
-	}
+
 
 }

@@ -71,7 +71,7 @@ public interface Hierarchy
 	 */
 	void setRealm(String realm);
 
-	Hierarchy getChild(String testPath);
+	Hierarchy getChild(String childPath);
 
 	HierarchyProperty getProperty(String string);
 
@@ -94,7 +94,7 @@ public interface Hierarchy
 	Date getVersion();
 
 	void setVersion(Date date);
-
+	
 	void setId(String string);
 
 	HierarchyProperty addToproperties(String string, String value);

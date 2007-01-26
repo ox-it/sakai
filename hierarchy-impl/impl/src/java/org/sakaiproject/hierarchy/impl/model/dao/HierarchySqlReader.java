@@ -76,8 +76,15 @@ public class HierarchySqlReader implements SqlReader
 			h.setPath(result.getString(HIERARCHY_PATH_POS));
 			if (owner == null)
 			{
-				h.setInternalParent(new LazyHierarchyParent(dao, result
-						.getString(HIERARCHY_PARENT_ID)));
+				String parentId = result.getString(HIERARCHY_PARENT_ID);
+				if (result.wasNull())
+				{
+					h.setInternalParent(null);
+				} 
+				else
+				{
+					h.setInternalParent(new LazyHierarchyParent(dao, parentId));
+				}
 			}
 			else
 			{

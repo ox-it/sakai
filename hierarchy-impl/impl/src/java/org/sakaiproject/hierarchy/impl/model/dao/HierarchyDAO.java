@@ -29,8 +29,6 @@ public class HierarchyDAO implements
 	private static final String SAVE_LIST_NAME = HierarchyDAO.class.getName()
 			+ "_saveList";
 
-	private static final String HierarchyProSqlReader = null;
-
 	private SqlService sqlService = null;
 
 	private IdManager idmanager = null;

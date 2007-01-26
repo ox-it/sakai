@@ -1,6 +1,6 @@
 package org.sakaiproject.hierarchy.api;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
@@ -14,7 +14,7 @@ public interface HierarchyService
 	 * 
 	 * @return
 	 */
-	List getRootNodes();
+	Collection getRootNodes();
 
 	/**
 	 * Get the node based on its nodePath
@@ -76,11 +76,7 @@ public interface HierarchyService
 	 */
 	void abort();
 
-	String getCurrentPortalPath();
 
-	void setCurrentPortalPath(String portalPath);
-
-	Hierarchy getCurrentPortalNode();
 	
 	
 

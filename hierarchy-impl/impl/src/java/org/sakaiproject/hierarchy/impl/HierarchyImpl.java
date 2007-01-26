@@ -33,11 +33,6 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 	private static final Log log = LogFactory.getLog(HierarchyImpl.class);
 	private static final long serialVersionUID = 1L;
 
-	protected void load()
-	{
-		// this is not a proxy so dont load anything
-	}
-
 	// Custom BaseValueObjectStaticProperties
 
 	public static String REF = "Hierarchy";
@@ -59,7 +54,7 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 		this.setId(source.getId());
 		this.setPath(source.getPath());
 		this.setPathHash(source.getPathHash());
-		this.setParent(source.getParent());
+		this.setInternalParent(source.getParent());
 		this.setRealm(source.getRealm());
 		this.setVersion(source.getVersion());
 		this.setChildren(source.getChildren());
@@ -125,7 +120,9 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 	private Map properties = new HashMap();
 
 	private boolean modified = false;
-
+	
+	private int prefixOffset;
+	
 	// BaseValueObjectGetterIdGetterSetter
 
 	/**

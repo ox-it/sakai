@@ -2,7 +2,9 @@ package org.sakaiproject.hierarchy.impl;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -11,8 +13,6 @@ import org.sakaiproject.hierarchy.api.HierarchyServiceException;
 import org.sakaiproject.hierarchy.api.dao.HierarchyDAO;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
 
 public class HierarchyServiceImpl implements HierarchyService
 {
@@ -20,25 +20,12 @@ public class HierarchyServiceImpl implements HierarchyService
 			.getLog(HierarchyServiceImpl.class);
 
 	private static final String SEPERATOR = "/";
+	private String prefix;
 
 	private HierarchyDAO hierarchyDao = null;
-
-
 	public void init()
 	{
-		try
-		{
-			log
-					.info(" ==================================== init HierarchyServiceImpl ");
-		}
-		catch (Exception e)
-		{
-			log
-					.error(
-							"Failed to start up the HierarchyService, please investigate ",
-							e);
-			System.exit(-1);
-		}
+		log.debug("init()");
 	}
 
 	/* Dependencies */
@@ -65,9 +52,8 @@ public class HierarchyServiceImpl implements HierarchyService
 	}
 
 
-	public List getRootNodes()
+	public Collection getRootNodes()
 	{
-
 		return hierarchyDao.findHierarchyRoots();
 	}
 
@@ -156,28 +142,6 @@ public class HierarchyServiceImpl implements HierarchyService
 	
 	public void abort() {
 		hierarchyDao.abort();
-	}
-
-	public String getCurrentPortalPath()
-	{
-		Session session = SessionManager.getCurrentSession();
-		return (String) session.getAttribute("portal-hierarchy-path");
-	}
-
-	public void setCurrentPortalPath(String portalPath)
-	{
-		Session session = SessionManager.getCurrentSession();
-		session.setAttribute("portal-hierarchy-path", portalPath);
-	}
-
-	public Hierarchy getCurrentPortalNode()
-	{
-		String portalPath = getCurrentPortalPath();
-		if (portalPath == null)
-		{
-			portalPath = "/";
-		}
-		return getNode(portalPath);
 	}
 
 }
