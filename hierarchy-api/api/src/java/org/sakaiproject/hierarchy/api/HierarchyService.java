@@ -10,17 +10,19 @@ public interface HierarchyService
 
 	/**
 	 * Get a list of Root nodes, the list contains Hierachy objects.
-	 * Root nodes represent the named hierachies that the hierachy service knos about
+	 * Root nodes represent the named hierachies that the hierachy service knows about.
 	 * 
-	 * @return
+	 * @return Collection containing the root nodes.
 	 */
 	Collection getRootNodes();
 
 	/**
-	 * Get the node based on its nodePath
+	 * Get the node based on its nodePath.
 	 * 
-	 * @param nodePath
-	 * @return
+	 * @param nodePath The path of the node. If null or an empty string then get the node
+	 * at the base of the service.
+	 * @see #getRootNodes() 
+	 * @return The found node or null if it couldn't be found.
 	 */
 	Hierarchy getNode(String nodePath);
 
