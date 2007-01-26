@@ -70,9 +70,14 @@ public class ContextableHierarchyServiceImpl implements HierarchyService {
 	}
 
 	public Hierarchy getNode(String nodePath) {
-		Hierarchy node = hierarchyService.getNode(context + nodePath);
-		if (node != null) {
-			node = new ContextableHierarchyImpl(node, context);
+		Hierarchy node;
+		if (nodePath == null || nodePath.length() == 0) {
+			node = getRootNode();
+		} else { 
+			node = hierarchyService.getNode(context + nodePath);
+			if (node != null) {
+				node = new ContextableHierarchyImpl(node, context);
+			}
 		}
 		return node;
 	}
