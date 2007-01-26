@@ -100,6 +100,9 @@ public class HierarchyServiceImpl implements HierarchyService
 
 	public Hierarchy getNode(String nodePath)
 	{
+		if (nodePath == null || nodePath.length() == 0) {
+			return null;
+		}
 		String pathHash = hash(nodePath);
 		return hierarchyDao.findHierarchyByPathHash(pathHash);
 	}
