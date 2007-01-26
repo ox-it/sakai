@@ -15,11 +15,11 @@ import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
  * 
  * @author Matthew Buckett matthew.buckett at oucs dot ox dot ac dot uk
  */
-public abstract class ApiTest extends ServiceTest
+public abstract class HierarchyServiceTest extends ServiceTest
 {
 
 	private static final Log log = LogFactory
-			.getLog(ApiTest.class);
+			.getLog(HierarchyServiceTest.class);
 
 
 	public void testGetRoots() throws HierarchyServiceException
