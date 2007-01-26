@@ -55,9 +55,6 @@
     class="org.sakaiproject.hierarchy.impl.HierarchyServiceImpl" 
     init-method="init" >
     <property name="hierarchyDao"><ref bean="org.sakaiproject.hierarchy.api.dao.HierarchyDAO" /></property>
-     
-    
-    
   </bean> 
   
 
@@ -67,8 +64,26 @@
     <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService" /></property>
     <property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager" /></property>
     <property name="idmanager"><ref bean="org.sakaiproject.id.api.IdManager" /></property>
-  </bean> 
+  </bean>
 
+  <bean id="org.sakaiproject.hierarchy.api.PortalHierarchyService"
+  	class="org.sakaiproject.hierarchy.impl.PortalHierarchyServiceImpl"
+  	init-method="init">
+  	<property name="sessionManager">
+  		<ref bean="org.sakaiproject.tool.api.SessionManager" />
+  	</property>
+  	<property name="hierarchyService">
+  		<bean
+  			class="org.sakaiproject.hierarchy.impl.ContextableHierarchyServiceImpl"
+  			init-method="init">
+  			<property name="hierarchyService">
+  				<ref
+  					bean="org.sakaiproject.hierarchy.api.HierarchyService" />
+  			</property>
+  			<property name="context" value="/portal" />
+  		</bean>
+  	</property>
+  </bean>
 
 
 </beans>

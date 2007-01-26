@@ -15,6 +15,10 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	private SessionManager sessionManager = null;
 	private HierarchyService hierarchyService = null;
 
+	public void init()
+	{
+		
+	}
 	
 	public Hierarchy getCurrentPortalNode()
 	{
