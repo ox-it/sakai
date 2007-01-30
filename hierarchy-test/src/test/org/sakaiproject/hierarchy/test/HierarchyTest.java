@@ -16,6 +16,7 @@ abstract public class HierarchyTest extends ServiceTest {
 	
 	public void tearDown() throws Exception {
 		service.end();
+		super.tearDown();
 	}
 
 	private void createRoot() throws HierarchyServiceException {
@@ -62,7 +63,7 @@ abstract public class HierarchyTest extends ServiceTest {
 		assertNotNull(loadRoot().getChildren());
 		assertEquals(0,root.getChildren().size());
 		createChild(root);
-		loadRoot();
+		root = loadRoot();
 		assertNotNull(root.getChildren());
 		assertNotNull(loadRoot().getChildren());
 		assertEquals(1,root.getChildren().size());
@@ -72,17 +73,17 @@ abstract public class HierarchyTest extends ServiceTest {
 		assertNull(root.getProperty("prop"));
 		root.addToproperties("prop", "value");
 		service.save(root);
-		loadRoot();
+		root = loadRoot();
 		assertEquals("value", root.getProperty("prop").getPropvalue());
 		root.addToproperties("prop", "different");
 		service.save(root);
-		loadRoot();
+		root = loadRoot();
 		assertEquals("different", root.getProperty("prop").getPropvalue());
 	}
 	
 	public void testGetChild() {
 		Hierarchy child = createChild(root);
-		loadRoot();
+		root = loadRoot();
 		assertEquals(child.getId(), root.getChild("/root/child").getId());
 		assertNull(root.getChild("/root/nothere"));
 	}
