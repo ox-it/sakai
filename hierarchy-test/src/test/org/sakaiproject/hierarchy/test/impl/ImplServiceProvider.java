@@ -7,11 +7,20 @@ import org.sakaiproject.db.impl.BasicSqlService;
 import org.sakaiproject.db.impl.SqlServiceTest;
 import org.sakaiproject.hierarchy.api.HierarchyService;
 import org.sakaiproject.hierarchy.impl.HierarchyServiceImpl;
-import org.sakaiproject.hierarchy.impl.model.dao.HierarchyDAO;
+import org.sakaiproject.hierarchy.impl.ibatis.dao.HierarchyDAO;
 import org.sakaiproject.hierarchy.test.ServiceProvider;
 import org.sakaiproject.id.impl.UuidV4IdComponent;
+import org.sakaiproject.orm.ibatis.SqlMapClientFactoryBean;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.thread_local.impl.ThreadLocalComponent;
+import org.sakaiproject.util.LocalClassPathResource;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.xml.XmlBeanFactory;
+import org.springframework.core.io.Resource;
+
+import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
+
+import com.ibatis.sqlmap.client.SqlMapClientBuilder;
 
 public class ImplServiceProvider implements ServiceProvider {
 
@@ -21,31 +30,10 @@ public class ImplServiceProvider implements ServiceProvider {
 
 	public void setUp()
 	{
+		BeanFactory factory = new XmlBeanFactory(new LocalClassPathResource("spring.xml", this.getClass()));
 
-		ds = new BasicDataSource();
-		ds.setDriverClassName("org.hsqldb.jdbcDriver");
-		ds.setUsername("sa");
-		ds.setPassword("");
-		ds.setUrl("jdbc:hsqldb:mem:db");
-
-		BasicSqlService sqlService = new SqlServiceTest();
-		sqlService.setDefaultDataSource(ds);
-		sqlService.setAutoDdl("true");
-		sqlService.init();
-
-		ThreadLocalManager threadLocalManager = new ThreadLocalComponent();
-
-		HierarchyDAO dao = new HierarchyDAO();
-		dao.setSqlService(sqlService);
-		dao.setThreadLocalManager(threadLocalManager);
-		dao.setIdmanager(new UuidV4IdComponent());
-		dao.init();
-
-		HierarchyServiceImpl impl = new HierarchyServiceImpl();
-		impl.setHierarchyDao(dao);
-		impl.init();
-
-		service = impl;
+		service = (HierarchyService)factory.getBean("org.sakaiproject.hierarchy.api.HierarchyService");
+		ds = (BasicDataSource)factory.getBean("javax.sql.DataSource");
 	}
 
 	public void tearDown() throws SQLException

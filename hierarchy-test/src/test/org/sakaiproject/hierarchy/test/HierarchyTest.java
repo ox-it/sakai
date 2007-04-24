@@ -11,11 +11,9 @@ abstract public class HierarchyTest extends ServiceTest {
 	public void setUp() throws Exception {
 		super.setUp();
 		createRoot();
-		service.begin();
 	}
 	
 	public void tearDown() throws Exception {
-		service.end();
 		super.tearDown();
 	}
 
@@ -69,7 +67,7 @@ abstract public class HierarchyTest extends ServiceTest {
 		assertEquals(1,root.getChildren().size());
 	}
 	
-	public void testAddToProperties() {
+	public void testAddToProperties() throws Exception{
 		assertNull(root.getProperty("prop"));
 		root.addToproperties("prop", "value");
 		service.save(root);

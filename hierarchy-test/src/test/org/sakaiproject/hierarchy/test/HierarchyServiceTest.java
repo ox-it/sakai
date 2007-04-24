@@ -231,6 +231,27 @@ public abstract class HierarchyServiceTest extends ServiceTest
 		assertNotNull(parent.getChild("/parent/child/parent"));
 	}
 	
+	public void testLocking() throws HierarchyServiceException {
+		Hierarchy node = service.newHierarchy("/node");
+		node.setRealm("original");
+		service.save(node);
+		
+		Hierarchy node1 = service.getNode("/node");
+		Hierarchy node2 = service.getNode("/node");
+		service.begin();
+		node1.setRealm("new realm");
+		service.save(node1);
+		service.end();
+		
+		service.begin();
+		node2.setRealm("other realm");
+		// This shouldn't work because of the broken wrong version
+		service.save(node2);
+		service.end();
+		
+		assertEquals("new realm", service.getNode("/node").getRealm());
+	}
+	
 
 
 

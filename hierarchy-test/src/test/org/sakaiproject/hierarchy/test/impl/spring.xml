@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+  <bean id="javax.sql.DataSource"
+    class="org.apache.commons.dbcp.BasicDataSource">
+    <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+    <property name="username" value="sa"/>
+    <property name="password" value=""/>
+    <property name="url" value="jdbc:hsqldb:mem:db"/>
+  </bean>
+  
+  <bean id="org.sakaiproject.db.api.SqlService"
+  	class="org.sakaiproject.db.impl.SqlServiceTest"
+  	init-method="init">
+  	<property name="defaultDataSource"><ref bean="javax.sql.DataSource"></ref></property>
+  	<property name="autoDdl" value="true"/>
+  </bean>
+  
+  <bean id="org.sakaiproject.id.api.IdManager"
+  	class="org.sakaiproject.id.impl.UuidV4IdComponent"/>
+  	
+  <bean id="org.sakaiproject.thread_local.api.ThreadLocalManager"
+    class="org.sakaiproject.thread_local.impl.ThreadLocalComponent"/>
+  	
+  <bean id="org.sakaiproject.hierarchy.api.HierarchyService"
+    class="org.sakaiproject.hierarchy.impl.HierarchyServiceImpl" 
+    init-method="init" >
+    <property name="hierarchyDao"><ref bean="org.sakaiproject.hierarchy.api.dao.HierarchyDAO" /></property>
+  </bean> 
+  
+  <bean id="com.ibatis.sqlmap.client.SqlMapClient"
+  	class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+  	<property name="dataSource">
+  		<ref bean="javax.sql.DataSource"/>
+  	</property>
+  	<property name="configLocation" value="classpath:/sql-maps-config.xml"/>
+  </bean>
+
+  <bean id="org.sakaiproject.hierarchy.api.dao.HierarchyDAO"
+    class="org.sakaiproject.hierarchy.impl.ibatis.dao.HierarchyDAO" 
+    init-method="init" >
+    <property name="sqlMapClient"><ref bean="com.ibatis.sqlmap.client.SqlMapClient"/></property>
+    <property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager" /></property>
+    <property name="threadLocal"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+    <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService" /></property>
+  </bean>
+
+</beans>
