@@ -85,7 +85,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		return hierarchyService.newHierarchy(nodePath);
 	}
 
-	public void save(Hierarchy node) {
+	public void save(Hierarchy node) throws HierarchyServiceException {
 		hierarchyService.save(node);
 	}
 

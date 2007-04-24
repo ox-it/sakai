@@ -108,7 +108,7 @@ public class HierarchyServiceImpl implements HierarchyService
 	}
 
 
-	public void save(Hierarchy hierachy) {
+	public void save(Hierarchy hierachy) throws HierarchyServiceException {
 		hierarchyDao.saveOrUpdate( hierachy);
 	}
 

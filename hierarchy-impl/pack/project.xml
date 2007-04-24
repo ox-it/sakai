@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/3.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://maven.apache.org/maven-v3_0_0.xsd">
   <extend>../../../master/project.xml</extend>
   <pomVersion>3</pomVersion>
-  <name>000sakai-hierarchy-pack</name>
+  <name>sakai-hierarchy-pack</name>
   <groupId>sakaiproject</groupId>
-  <artifactId>000sakai-hierarchy-pack</artifactId>
+  <artifactId>sakai-hierarchy-pack</artifactId>
     <currentVersion>${sakai.version}</currentVersion>
   <shortDescription>sakai-hierarchy Component</shortDescription>
   <properties>
@@ -54,6 +54,16 @@
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.ibatis</groupId>
+      <artifactId>ibatis</artifactId>
+      <version>2.3.0.677</version>
+      <type>jar</type>
+ 			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
     </dependency>
     
   </dependencies>

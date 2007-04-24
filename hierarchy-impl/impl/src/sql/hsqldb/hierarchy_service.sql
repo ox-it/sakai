@@ -15,7 +15,7 @@ CREATE TABLE hierarchy_property (
   id varchar(36) NOT NULL,
   name varchar(64) default '' NOT NULL,
   propvalue varchar(254) default '' NOT NULL,
-  node_id varchar(36) default NULL,
+  node_id varchar(36) NOT NULL,
   version datetime NOT NULL,
   PRIMARY KEY  (id),
   UNIQUE (node_id,name)

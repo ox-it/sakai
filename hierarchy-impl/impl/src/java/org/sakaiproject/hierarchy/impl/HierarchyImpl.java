@@ -114,6 +114,8 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 	// many to one
 	private Hierarchy parent = null;
 
+	private String parentId;
+	
 	// collections
 	private Map children = new HashMap();
 
@@ -291,6 +293,7 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 		{
 			modified = true;
 			this.parent = parent;
+			this.parentId = parent.getId();
 		}
 	}
 
@@ -327,7 +330,7 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 	 * 
 	 * @param children
 	 */
-	public void setInternalChildren(LazyHierarchyChildren children)
+	public void setInternalChildren(Map children)
 	{
 		this.children = children;
 	}
@@ -445,6 +448,14 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 	public void setInternalProperties(Map properties)
 	{
 		this.properties = properties;		
+	}
+
+	public String getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
 	}
 
 	// BaseValueObjectCustomContents

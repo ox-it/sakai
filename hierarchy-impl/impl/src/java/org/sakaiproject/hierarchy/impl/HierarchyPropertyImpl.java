@@ -84,6 +84,8 @@ public class HierarchyPropertyImpl implements Serializable, Comparable, Hierarch
 
 	// many to one
 	private Hierarchy node;
+	
+	private String nodeId;
 
 	private boolean modified = false;
 
@@ -229,6 +231,14 @@ public class HierarchyPropertyImpl implements Serializable, Comparable, Hierarch
 	}
 	public boolean isModified() {
 		return modified ;
+	}
+
+	public String getNodeId() {
+		return nodeId;
+	}
+
+	public void setNodeId(String nodeId) {
+		this.nodeId = nodeId;
 	}
 
 	// BaseValueObjectCustomContents

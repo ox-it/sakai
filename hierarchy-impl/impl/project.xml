@@ -106,6 +106,23 @@
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
+    
+    <!-- ibatis start -->
+    <dependency>
+      <groupId>com.ibatis</groupId>
+      <artifactId>ibatis</artifactId>
+      <version>2.3.0.677</version>
+      <type>jar</type>
+    </dependency>
+    <!-- ibatis end -->
+      
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+      <version>1.2.8</version>
+      <type>jar</type>
+    </dependency>
+    
   </dependencies>
 </project>
 

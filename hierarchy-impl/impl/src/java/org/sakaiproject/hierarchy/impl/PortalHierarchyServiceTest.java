@@ -1,5 +1,6 @@
 package org.sakaiproject.hierarchy.impl;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,38 +20,6 @@ public class PortalHierarchyServiceTest
 
 	public void init()
 	{
-		try
-		{
-			String testRoot = "/portal";
-
-			Hierarchy h = hierarchyService.getNode(testRoot);
-			if (h == null)
-			{
-				h = hierarchyService.newHierarchy(testRoot);
-				addNodes(h, 5);
-				hierarchyService.save(h);
-
-				h = hierarchyService.getNode(testRoot);
-				assertEquals("Root node check ", h.getPath(), testRoot);
-				// checkNodes(h);
-				// hierarchyService.deleteNode(h);
-				log.info("Testing Navigation ");
-				List l = hierarchyService.getRootNodes();
-				printList("", l.iterator());
-			}
-			log
-					.warn("Spring Injected Test Sucessfull..... but plesae remove in production ");
-		}
-		catch (Exception ex)
-		{
-			log
-					.warn(
-							"Spring Injected Test Failed..... but plesae remove in production ",
-							ex);
-			log
-					.error("Spring Injected Test Failed..... but plesae remove in production ");
-			System.exit(-1);
-		}
 	}
 
 	private void printList(String indent, Iterator i)

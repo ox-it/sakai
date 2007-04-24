@@ -102,13 +102,22 @@ public class ContextableHierarchyServiceImpl implements HierarchyService {
 
 	public Hierarchy newHierarchy(String nodePath)
 			throws HierarchyServiceException {
+		if ( nodePath == null ) {
+			throw new HierarchyServiceException("Node Path cannot be null");
+		}
+		if ( !nodePath.startsWith("/") ) {
+			throw new HierarchyServiceException("Node Path must start with a / ");
+		}
+		if ( nodePath.length() <= 1 ) {
+			throw new HierarchyServiceException("Cant create the / node, it already exists ");
+		}
 		ContextableHierarchyImpl node = new ContextableHierarchyImpl(
 				hierarchyService.newHierarchy(context + nodePath), context);
 		node.setParent(getRootNode());
 		return node;
 	}
 
-	public void save(Hierarchy node) {
+	public void save(Hierarchy node) throws HierarchyServiceException {
 		if (node instanceof ContextableHierarchyImpl) {
 			ContextableHierarchyImpl contextable = (ContextableHierarchyImpl) node;
 			hierarchyService.save(contextable.getDelegate());

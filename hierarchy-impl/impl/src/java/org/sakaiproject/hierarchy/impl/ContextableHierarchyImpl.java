@@ -131,6 +131,9 @@ public class ContextableHierarchyImpl implements Hierarchy {
 	}
 
 	public String getPath() {
+		if (delegate.getPath().equals(context)) {
+			return "/";
+		}
 		return delegate.getPath().substring(context.length());
 	}
 
