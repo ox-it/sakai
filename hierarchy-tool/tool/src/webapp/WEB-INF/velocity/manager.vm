@@ -38,6 +38,38 @@
 </p>
 #end	
 </form>
+<h2>Current Node</h2>
+Path: ${node.path}<br/>
+Children: 
+<ul>
+#foreach ( $child in $node.children )
+<li>${child.path}</li>
+#end
+</ul>	
+Sites:
+<ul>
+#foreach ($site in $nodeSites)
+<li>$site.title</li>
+#end
+</ul>
+
+<h2>New Node</h2>
+<form method="post">
+<input type="hidden" name="_action" value="act_addnode"/>
+<input type="text" name="_newnode"/>
+<input type="submit" value="Add"/>
+</form>
+
+<h2>Add Site</h2>
+<form method="post">
+<input type="hidden" name="_action" value="act_addsite"/>
+<select name="_site">
+#foreach ($site in $sites)
+<option value="$site.id">$site.title</option>
+#end
+</select>
+<input type="submit" value="Add"/>
+</form>
 #chef_portletContentEnd()
 #chef_portletContainerEnd()
 #chef_end()
