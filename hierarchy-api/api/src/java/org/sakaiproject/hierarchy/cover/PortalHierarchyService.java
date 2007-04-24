@@ -60,7 +60,7 @@ public class PortalHierarchyService {
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.hierarchy.api.PortalHierarchyService#save(org.sakaiproject.hierarchy.api.model.Hierarchy)
 	 */
-	public static void save(Hierarchy node)
+	public static void save(Hierarchy node) throws HierarchyServiceException
 	{
 		org.sakaiproject.hierarchy.api.PortalHierarchyService service = getInstance();
 		if (service == null) return;

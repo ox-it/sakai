@@ -34,11 +34,12 @@ public interface HierarchyService
 	void deleteNode(Hierarchy node);
 
 	/**
-	 * Save a node, and all connected nodes/properties
+	 * Save a node, and all connected nodes/properties that have changed.
 	 * 
 	 * @param node
+	 * @throws HierarchyServiceException 
 	 */
-	void save(Hierarchy node);
+	void save(Hierarchy node) throws HierarchyServiceException;
 
 	/**
 	 * Create a new hierachy with a nodePath. The node path should represent the

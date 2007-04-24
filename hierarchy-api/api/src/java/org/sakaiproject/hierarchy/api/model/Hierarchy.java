@@ -56,6 +56,11 @@ public interface Hierarchy
 	 */
 	void setProperties(Map properties);
 
+	/**
+	 * Add or update a property. If the property name already exists then update the 
+	 * value with the value of the supplied property.
+	 * @param hierarchyProperty The new or existing hierarchyProperty.
+	 */
 	void addToproperties(HierarchyProperty hierarchyProperty);
 
 	/**
@@ -73,6 +78,11 @@ public interface Hierarchy
 
 	Hierarchy getChild(String childPath);
 
+	/**
+	 * Get the property.
+	 * @param String key. 
+	 * @return The HierarchyProperty or <code>null</code> if the property doesn't exist.
+	 */
 	HierarchyProperty getProperty(String string);
 
 	String getId();

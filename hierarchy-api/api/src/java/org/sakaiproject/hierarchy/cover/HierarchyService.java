@@ -68,7 +68,7 @@ public class HierarchyService
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.hierarchy.api.HierarchyService#save(org.sakaiproject.hierarchy.api.model.Hierarchy)
 	 */
-	public static void save(Hierarchy node)
+	public static void save(Hierarchy node) throws HierarchyServiceException
 	{
 		org.sakaiproject.hierarchy.api.HierarchyService service = getInstance();
 		if (service == null) return;
