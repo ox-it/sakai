@@ -1,6 +1,7 @@
 package org.sakaiproject.hierarchy.tool.vm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -12,9 +13,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
-import org.sakaiproject.hierarchy.cover.HierarchyService;
+import org.sakaiproject.hierarchy.cover.PortalHierarchyService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.springframework.web.servlet.ModelAndView;
@@ -28,6 +34,10 @@ public class ManagerController extends AbstractController
 	public static final String ACT_ADDNODE = "act_addnode";
 
 	public static final String ACT_SITELIST = "act_sitelist";
+	
+	public static final String ACT_ADDSITE = "act_addsite";
+	
+	public static final String ACT_DELSITE = "act_delsite";
 
 	public static final String ACT_SETPROPERTY = "act_setproperty";
 
@@ -36,6 +46,8 @@ public class ManagerController extends AbstractController
 	public static final String REQUEST_ACTION = "_action";
 
 	public static final String REQUEST_SITES = "_sites";
+	
+	public static final String REQUEST_SITE = "_site";
 
 	public static final String REQUEST_NEWNODE = "_newnode";
 
@@ -58,24 +70,23 @@ public class ManagerController extends AbstractController
 	{
 
 
-		Hierarchy node = HierarchyService.getCurrentPortalNode();
+		Hierarchy node = PortalHierarchyService.getCurrentPortalNode();
 		if ( node == null ) {
-			node = HierarchyService.getNode("/portal");
+			node = PortalHierarchyService.getNode(null);
 		}
 		Placement p = ToolManager.getCurrentPlacement();
-		String siteContext = p.getContext();
-		Map model = new HashMap();
+		String siteContext = p.getId();
+		Map<String, Object> model = new HashMap<String, Object>();
 		populateModel(model,request);
 
 		if (node == null)
 		{
-
 			return new ModelAndView("nonode", model);
 		}
 		else
 		{
 			String action = request.getParameter(REQUEST_ACTION);
-			boolean modified = true;
+			boolean modified = false;
 			if (ACT_SITELIST.equals(action))
 			{
 				String[] sites = request.getParameterValues(REQUEST_SITES);
@@ -87,18 +98,60 @@ public class ManagerController extends AbstractController
 						siteList = siteList + sites[i] + ";";
 					}
 				}
-				node.addToproperties(HierarchyProperty.PORTAL_SITES, siteList);
+				node.addToproperties(org.sakaiproject.hierarchy.api.PortalHierarchyService.PORTAL_SITES, siteList);
 				modified = true;
 			}
 			else if (ACT_ADDNODE.equals(action))
 			{
 				String newNode = request.getParameter(REQUEST_NEWNODE);
-				Hierarchy h = HierarchyService.getInstance().newHierarchy(
+				Hierarchy h = PortalHierarchyService.newHierarchy(
 						node.getPath() + "/" + newNode);
 				node.addTochildren(h);
-				h.addToproperties(HierarchyProperty.MANAGEMENT_SITE,
+				h.addToproperties(org.sakaiproject.hierarchy.api.PortalHierarchyService.MANAGEMENT_SITE,
 						siteContext);
 				modified = true;
+			}
+			else if (ACT_ADDSITE.equals(action)) {
+				String siteId = request.getParameter(REQUEST_SITE);
+				List<String> siteIds = getSiteIds(node);
+				if (siteId != null && siteId.trim().length() > 0 && !siteIds.contains(siteId)) {
+					StringBuilder siteList = new StringBuilder(siteId);
+					for (String site : siteIds)
+					{
+						siteList.append(";");
+						siteList.append(site);
+					}
+					log.debug("Setting site list to :"+ siteList.toString());
+					node
+							.addToproperties(
+									org.sakaiproject.hierarchy.api.PortalHierarchyService.PORTAL_SITES,
+									siteList.toString());
+					modified = true;
+				}
+			} else if (ACT_DELSITE.equals(action)) {
+				String siteId = request.getParameter(REQUEST_SITE);
+				List<String> siteIds = getSiteIds(node);
+				if (siteIds.contains(siteId)) {
+					StringBuilder siteList = new StringBuilder("");
+					for (String site: siteIds)
+					{
+						if (!site.equals(siteId))
+						{
+							if (siteList.length() > 0)
+							{
+								siteList.append(";");
+							}
+							siteList.append(site);
+							
+						}
+					}
+					node
+							.addToproperties(
+									org.sakaiproject.hierarchy.api.PortalHierarchyService.PORTAL_SITES,
+									siteList.toString());
+					modified = true;
+				}
+				
 			}
 			else if (ACT_SETPROPERTY.equals(action))
 			{
@@ -124,10 +177,13 @@ public class ManagerController extends AbstractController
 
 			if (modified)
 			{
-				HierarchyService.getInstance().save(node);
+				log.debug("Modified so attempting to save.");
+				PortalHierarchyService.getInstance().begin();
+				PortalHierarchyService.getInstance().save(node);
+				PortalHierarchyService.getInstance().end();
 			}
 
-			Map formActions = new HashMap();
+			Map<String, String> formActions = new HashMap<String, String>();
 			model.put("formactions", formActions);
 			formActions.put(ManagerController.ACT_ADDNODE,
 					ManagerController.ACT_ADDNODE);
@@ -147,8 +203,15 @@ public class ManagerController extends AbstractController
 					ManagerController.REQUEST_PROPERTY);
 			formActions.put(ManagerController.REQUEST_VALUE,
 					ManagerController.REQUEST_VALUE);
+			
+			List sites = SiteService.getSites(SelectionType.ANY, null, null,
+					null, SortType.NONE, null);
+			
+			model.put("nodeSites", getSites(node));
+			
+			model.put("sites", sites);
 
-			Map nodeMap = new HashMap();
+			Map<String, Object> nodeMap = new HashMap<String, Object>();
 			model.put("node", nodeMap);
 
 			nodeMap.put("path", node.getPath());
@@ -157,7 +220,7 @@ public class ManagerController extends AbstractController
 			nodeMap.put("nodeid", node.getId());
 			nodeMap.put("version", node.getVersion().toString());
 
-			List nodeProperties = new ArrayList();
+			List<Map<String, String>> nodeProperties = new ArrayList<Map<String, String>>();
 			nodeMap.put("properties", nodeProperties);
 			Map properties = node.getProperties();
 			log.info("Got "+properties.size()+" properties ");
@@ -165,21 +228,21 @@ public class ManagerController extends AbstractController
 			for (Iterator i = properties.values().iterator(); i.hasNext();)
 			{
 				HierarchyProperty property = (HierarchyProperty) i.next();
-				Map prop = new HashMap();
+				Map<String, String> prop = new HashMap<String, String>();
 				prop.put("name", property.getName());
 				prop.put("value", property.getPropvalue());
 				nodeProperties.add(prop);
 			}
 			
 			
-			List childrenNodes = new ArrayList();
+			List<Map<String, String>> childrenNodes = new ArrayList<Map<String, String>>();
 			nodeMap.put("children", childrenNodes);
 			Map children = node.getChildren();
 			log.info("Got "+children.size()+" children ");
 			for (Iterator i = children.values().iterator(); i.hasNext();)
 			{
 				Hierarchy child = (Hierarchy) i.next();
-				Map prop = new HashMap();
+				Map<String, String> prop = new HashMap<String, String>();
 				prop.put("path", child.getPath());
 				prop.put("nodeid", child.getId());
 				log.info("Added "+child.getPath());
@@ -189,8 +252,41 @@ public class ManagerController extends AbstractController
 			return new ModelAndView("manager", model);
 		}
 	}
+	
+	// Should be in service.
+	private static List<Site> getSites(Hierarchy node) 
+	{
+		List siteIds = getSiteIds(node);
+		List<Site> sitesList = new ArrayList<Site>(siteIds.size());
+		for (String siteId : getSiteIds(node)) {
+			try {
+				Site site = SiteService.getSite(siteId);
+				sitesList.add(site);
+			} catch (IdUnusedException e) {
+				log
+						.warn("Hierarchy Property contains site that doesn't exist: "
+								+ siteId);
+			}
 
-	private void populateModel(Map model, HttpServletRequest request)
+		}
+		return sitesList;
+	}
+	
+	private static List<String> getSiteIds(Hierarchy node)
+	{
+		HierarchyProperty sitesProp = node.getProperty(org.sakaiproject.hierarchy.api.PortalHierarchyService.PORTAL_SITES);
+		List <String>siteIds = new ArrayList<String>(1);
+		if (sitesProp != null) {
+			String sites = sitesProp.getPropvalue();
+			if (sites != null) {
+				siteIds = Arrays.asList(sites.split(";"));
+			}
+		}
+		return siteIds;
+	
+	}
+
+	private void populateModel(Map<String, Object> model, HttpServletRequest request)
 	{
 		model.put("sakai_fragment","false");
 		model.put("sakai_head", (String) request
