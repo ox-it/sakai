@@ -6,7 +6,7 @@
 	<extend>${sakai.root}/master/project.xml</extend>
 	<name>Root WebApp</name>
 	<groupId>uk.ac.ox.oucs</groupId>
-	<id>root-webapp</id>
+	<id>ROOT</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Oxford</name>
