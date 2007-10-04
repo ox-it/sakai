@@ -6,6 +6,11 @@ import java.util.Map;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
 
+/**
+ * Adds some extra information needed when doing updates.
+ * @author buckett
+ *
+ */
 public class HierarchyWrapper implements Hierarchy {
 
 	private Hierarchy hierarchy;
