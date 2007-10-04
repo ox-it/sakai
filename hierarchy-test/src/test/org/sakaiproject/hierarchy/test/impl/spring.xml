@@ -14,7 +14,10 @@
   <bean id="org.sakaiproject.db.api.SqlService"
   	class="org.sakaiproject.db.impl.SqlServiceTest"
   	init-method="init">
+  	<property name="defaultDataSource"><ref bean="javax.sql.DataSource"></ref></property>
+    <lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
   	<property name="autoDdl" value="true"/>
+<!--  	<property name="showSql" value="true"/>-->
   </bean>
   
   <bean id="org.sakaiproject.id.api.IdManager"
