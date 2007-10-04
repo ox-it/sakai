@@ -67,6 +67,12 @@ abstract public class HierarchyTest extends ServiceTest {
 		assertEquals(1,root.getChildren().size());
 	}
 	
+	/**
+	 * Current fails, what should we do, update the value of the existing property?
+	 * But then if you addToProperties(), then modify the property the updates won't
+	 * be reflected.
+	 * @throws Exception
+	 */
 	public void testAddToProperties() throws Exception{
 		assertNull(root.getProperty("prop"));
 		root.addToproperties("prop", "value");
