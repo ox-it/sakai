@@ -3,12 +3,14 @@ package org.sakaiproject.hierarchy.test;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.hierarchy.api.HierarchyServiceException;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
+
 
 /**
  * Test the performance of the implementation. Not really a good use of jUnit but hey.
@@ -18,22 +20,61 @@ public abstract class PerformanceTest extends ServiceTest {
 	
 	private static Log log = LogFactory.getLog(PerformanceTest.class);
 	
+
+	private long current;
+	
+	private void logTime() {
+		if (current != 0) {
+			System.out.println(System.currentTimeMillis() - current);
+		}
+		current = System.currentTimeMillis();
+	}
+	
+	
 	public void testLargeNoRootNodes() throws HierarchyServiceException {
 		try {
+			logTime();
 			service.begin();
 			for (int i = 0; i < 2000; i++) {
 				Hierarchy node = service.newHierarchy("/rootnode"+i);
 				service.save(node);
 			}
+			logTime();
 			Iterator roots = service.getRootNodes().iterator();
 			while(roots.hasNext()) {
 				assertTrue( ((Hierarchy)roots.next()).getPath().startsWith("/rootnode"));
 			}
+			logTime();
 			assertEquals(2000, service.getRootNodes().size());
+			logTime();
 		} finally {
 			service.end();
 		}
 	}
+	
+	public void testLargeNoChildren() throws HierarchyServiceException {
+		try {
+			logTime();
+			service.begin();
+			Hierarchy node = service.newHierarchy("/rootnode");
+			for (int i = 0; i < 2000; i++) {
+				Hierarchy child = service.newHierarchy("/rootnode/child"+i);
+				node.addTochildren(child);
+			}
+			service.save(node);
+			logTime();
+			Iterator children = service.getNode("/rootnode").getChildren().entrySet().iterator();
+			while(children.hasNext()) {
+				assertTrue( ((Hierarchy)((Entry)children.next()).getValue()).getPath().startsWith("/rootnode"));
+			}
+			logTime();
+			assertEquals(2000, service.getNode("/rootnode").getChildren().size());
+			logTime();
+		} finally {
+			service.end();
+		}
+	}
+	
 	
 	public void testDeeplyNestedNodes() throws HierarchyServiceException {
 		try {
