@@ -106,6 +106,14 @@ public class HierarchyServiceImpl implements HierarchyService
 		String pathHash = hash(nodePath);
 		return hierarchyDao.findHierarchyByPathHash(pathHash);
 	}
+	
+	public Hierarchy getNodeById(String id)
+	{
+		if (id == null || id.length() == 0) {
+			return null;
+		}
+		return hierarchyDao.findHierarchyById(id);
+	}
 
 
 	public void save(Hierarchy hierachy) throws HierarchyServiceException {

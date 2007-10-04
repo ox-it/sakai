@@ -47,6 +47,16 @@ public class PortalHierarchyService {
 	}
 
 	/* (non-Javadoc)
+	 * @see org.sakaiproject.hierarchy.api.HierarchyService#getNode(java.lang.String)
+	 */
+	public static Hierarchy getNodeById(String id)
+	{
+		org.sakaiproject.hierarchy.api.HierarchyService service = getInstance();
+		if (service == null) return null;
+		return service.getNodeById(id);
+	}
+	
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.hierarchy.api.PortalHierarchyService#deleteNode(org.sakaiproject.hierarchy.api.model.Hierarchy)
 	 */
 	public static void deleteNode(Hierarchy node)

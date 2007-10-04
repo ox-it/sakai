@@ -53,6 +53,16 @@ public class HierarchyService
 		if (service == null) return null;
 		return service.getNode(nodePath);
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.hierarchy.api.HierarchyService#getNode(java.lang.String)
+	 */
+	public static Hierarchy getNodeById(String id)
+	{
+		org.sakaiproject.hierarchy.api.HierarchyService service = getInstance();
+		if (service == null) return null;
+		return service.getNodeById(id);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.hierarchy.api.HierarchyService#deleteNode(org.sakaiproject.hierarchy.api.model.Hierarchy)

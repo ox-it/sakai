@@ -81,6 +81,10 @@ public class ContextableHierarchyServiceImpl implements HierarchyService {
 		}
 		return node;
 	}
+	
+	public Hierarchy getNodeById(String id) {
+		return hierarchyService.getNode(id);
+	}
 
 	public Hierarchy getRootNode() {
 		Hierarchy node = (Hierarchy) root.get();

@@ -89,4 +89,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		hierarchyService.save(node);
 	}
 
+	public Hierarchy getNodeById(String id) {
+		return hierarchyService.getNodeById(id);
+	}
+
 }
