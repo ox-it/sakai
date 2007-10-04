@@ -407,7 +407,10 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 
 	public String toString()
 	{
-		return super.toString();
+		return
+			"id: "+ id+ ", "+
+			"path: "+ path+ ", "+
+			"parentId: "+ parentId;
 	}
 
 	public Hierarchy getChild(String path)
@@ -432,8 +435,12 @@ public class HierarchyImpl implements Serializable, Comparable, Hierarchy
 
 	public HierarchyProperty addToproperties(String name, String value)
 	{
-		HierarchyProperty hp = new HierarchyPropertyImpl();
-		hp.setName(name);
+		HierarchyProperty hp = getProperty(name);
+		if (hp == null)
+		{
+			hp = new HierarchyPropertyImpl();
+			hp.setName(name);
+		}
 		hp.setPropvalue(value);
 		addToproperties(hp);
 		return hp;
