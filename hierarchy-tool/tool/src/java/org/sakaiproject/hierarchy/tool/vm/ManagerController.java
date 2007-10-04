@@ -69,13 +69,21 @@ public class ManagerController extends AbstractController
 			HttpServletResponse response) throws Exception
 	{
 
-
-		Hierarchy node = PortalHierarchyService.getCurrentPortalNode();
-		if ( node == null ) {
-			node = PortalHierarchyService.getNode(null);
+		Hierarchy node = null;
+		String currentPath = request.getPathInfo();
+		if (currentPath != null && currentPath.length() > 0)
+		{
+			node = PortalHierarchyService.getNode(currentPath);
+		}
+		if (node == null)
+		{
+			node = PortalHierarchyService.getCurrentPortalNode();
+			if ( node == null ) {
+				node = PortalHierarchyService.getNode(null);
+			}
 		}
 		Placement p = ToolManager.getCurrentPlacement();
-		String siteContext = p.getId();
+		String siteContext = (p != null)?p.getId(): "";
 		Map<String, Object> model = new HashMap<String, Object>();
 		populateModel(model,request);
 
@@ -107,8 +115,9 @@ public class ManagerController extends AbstractController
 				Hierarchy h = PortalHierarchyService.newHierarchy(
 						node.getPath() + "/" + newNode);
 				node.addTochildren(h);
-				h.addToproperties(org.sakaiproject.hierarchy.api.PortalHierarchyService.MANAGEMENT_SITE,
-						siteContext);
+				
+				String siteId = request.getParameter(REQUEST_SITE);
+				h.addToproperties(org.sakaiproject.hierarchy.api.PortalHierarchyService.CONTENT, siteId);
 				modified = true;
 			}
 			else if (ACT_ADDSITE.equals(action)) {
@@ -160,6 +169,10 @@ public class ManagerController extends AbstractController
 				String[] propValue = request.getParameterValues(REQUEST_VALUE);
 				for (int i = 0; i < propName.length; i++)
 				{
+					if (propName[i] == null || propName[i].length() < 1)
+						continue;
+					if (propValue[i] != null && propValue[i].length() < 1)
+						propValue[i] = null;
 					node.addToproperties(propName[i], propValue[i]);
 				}
 				modified = true;
@@ -248,6 +261,10 @@ public class ManagerController extends AbstractController
 				log.info("Added "+child.getPath());
 				childrenNodes.add(prop);
 			}
+			
+			nodeMap.put("parent", node.getParent());
+			log.info("Parent: "+ node.getParent());
+			model.put("rootUrl", request.getContextPath()+request.getServletPath());
 			
 			return new ModelAndView("manager", model);
 		}

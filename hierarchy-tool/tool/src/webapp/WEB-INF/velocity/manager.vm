@@ -1,7 +1,7 @@
 #chef_start()
 #chef_portletContainer()
 #chef_portletContent()
-<form action="#" method="post" >
+
 <p class="shorttext">
 	<label for="nodepath">Path</label>
 	<input type="text" name="nodepath" id="nodepath" size="60" value="${node.path}" readonly="readonly" />
@@ -18,32 +18,39 @@
 	<label for="nodeversion">Version</label>
 	<input type="text" name="nodeversion" id="nodeversion" size="60" value="${node.version}" readonly="readonly" />
 </p>
+<form action="#" method="post">
 #foreach ( $nodeprop in $node.properties )
 <p class="shorttext">
 	<label for="value_${nodeprop.name}">${nodeprop.name}</label>
-	<input type="text" name="value_${nodeprop.name}" id="value_${nodeprop.name}" size="60" value="${nodeprop.value}" />
+	<input type="hidden" name="_property" value="${nodeprop.name}"/>
+	<input type="text" name="_value" id="value_${nodeprop.name}" size="60" value="${nodeprop.value}" />
 </p>
 #end	
+
 <p class="shorttext">
 	<label for="new_name">New Name</label>
-	<input type="text" name="new_name" id="new_name" size="60" value="" />
+	<input type="text" name="_property" id="new_name" size="60" value="" />
 </p>
 <p class="shorttext">
 	<label for="new_value">New Value</label>
-	<input type="text" name="new_value" id="new_value" size="60" value="" />
+	<input type="text" name="_value" id="new_value" size="60" value="" />
 </p>
-#foreach ( $child in $node.children )
-<p class="shorttext">
-	<a href="${child.path}" >Path ${child.path}</a>
-</p>
-#end	
+<input type="submit" value="Save"/>
+<input type="hidden" name="_action" value="act_setproperty"/>
 </form>
 <h2>Current Node</h2>
 Path: ${node.path}<br/>
+Parent:
+#if (${node.parent})
+<a href="${rootUrl}${node.parent.path}">${node.parent.path}</a>
+#else
+None
+#end
+<br/>
 Children: 
 <ul>
 #foreach ( $child in $node.children )
-<li>${child.path}</li>
+<li><a href="${rootUrl}${child.path}">${child.path}</a></li>
 #end
 </ul>	
 Sites:
@@ -57,12 +64,6 @@ Sites:
 <form method="post">
 <input type="hidden" name="_action" value="act_addnode"/>
 <input type="text" name="_newnode"/>
-<input type="submit" value="Add"/>
-</form>
-
-<h2>Add Site</h2>
-<form method="post">
-<input type="hidden" name="_action" value="act_addsite"/>
 <select name="_site">
 #foreach ($site in $sites)
 <option value="$site.id">$site.title</option>
