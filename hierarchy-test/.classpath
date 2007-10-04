@@ -16,5 +16,7 @@
 	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-1.2.8.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/com.ibatis/jars/ibatis-2.3.0.677.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/tool-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/tool-impl"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
