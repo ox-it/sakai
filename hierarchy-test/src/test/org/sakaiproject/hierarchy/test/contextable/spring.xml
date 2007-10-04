@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+  <bean id="javax.sql.DataSource"
+    class="org.apache.commons.dbcp.BasicDataSource">
+    <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+    <property name="username" value="sa"/>
+    <property name="password" value=""/>
+    <property name="url" value="jdbc:hsqldb:mem:db"/>
+  </bean>
+  
+  <bean id="org.sakaiproject.db.api.SqlService"
+  	class="org.sakaiproject.db.impl.SqlServiceTest"
+  	init-method="init">
+  	<property name="defaultDataSource"><ref bean="javax.sql.DataSource"></ref></property>
+  	<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+  	<property name="autoDdl" value="true"/>
+  </bean>
+  
+  <bean id="org.sakaiproject.id.api.IdManager"
+  	class="org.sakaiproject.id.impl.UuidV4IdComponent"/>
+  	
+  <bean id="org.sakaiproject.thread_local.api.ThreadLocalManager"
+    class="org.sakaiproject.thread_local.impl.ThreadLocalComponent"/>
+    
+  <bean id="org.sakaiproject.tool.api.SessionManager"
+    class="org.sakaiproject.tool.impl.SessionComponentTest"
+    init-method="init"/>
+  
+  	
+  	
+  <import resource="classpath:/WEB-INF/components.xml"/>
+  
+  
+
+</beans>
