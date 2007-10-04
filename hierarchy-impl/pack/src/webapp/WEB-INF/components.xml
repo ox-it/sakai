@@ -58,6 +58,7 @@
 		</property>
 	</bean>
 
+<!-- 
 	<bean id="com.ibatis.sqlmap.client.SqlMapClient"
 		class="org.sakaiproject.orm.ibatis.SqlMapClientFactoryBean">
 		<property name="dataSource">
@@ -89,6 +90,23 @@
 			<ref bean="org.sakaiproject.db.api.SqlService" />
 		</property>
 	</bean>
+	-->
+	
+	<bean id="org.sakaiproject.hierarchy.api.dao.HierarchyDAO"
+		class="org.sakaiproject.hierarchy.impl.model.dao.HierarchyDAO"
+		init-method="init">
+		<property name="idManager">
+			<ref bean="org.sakaiproject.id.api.IdManager" />
+		</property>
+		<property name="threadLocalManager">
+			<ref
+				bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+		</property>
+		<property name="sqlService">
+			<ref bean="org.sakaiproject.db.api.SqlService" />
+		</property>
+	</bean>
+
 
 	<!--  end the service -->
 	<bean id="org.sakaiproject.hierarchy.api.PortalHierarchyService"

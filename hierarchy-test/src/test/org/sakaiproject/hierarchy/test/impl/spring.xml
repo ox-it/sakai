@@ -14,7 +14,6 @@
   <bean id="org.sakaiproject.db.api.SqlService"
   	class="org.sakaiproject.db.impl.SqlServiceTest"
   	init-method="init">
-  	<property name="defaultDataSource"><ref bean="javax.sql.DataSource"></ref></property>
   	<property name="autoDdl" value="true"/>
   </bean>
   
@@ -39,11 +38,10 @@
   </bean>
 
   <bean id="org.sakaiproject.hierarchy.api.dao.HierarchyDAO"
-    class="org.sakaiproject.hierarchy.impl.ibatis.dao.HierarchyDAO" 
+    class="org.sakaiproject.hierarchy.impl.model.dao.HierarchyDAO" 
     init-method="init" >
-    <property name="sqlMapClient"><ref bean="com.ibatis.sqlmap.client.SqlMapClient"/></property>
     <property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager" /></property>
-    <property name="threadLocal"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+    <property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
     <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService" /></property>
   </bean>
 

@@ -31,7 +31,7 @@ public class HierarchyDAO implements
 
 	private SqlService sqlService = null;
 
-	private IdManager idmanager = null;
+	private IdManager idManager = null;
 
 	private ThreadLocalManager threadLocalManager = null;
 
@@ -201,7 +201,7 @@ public class HierarchyDAO implements
 					if (hierarchy.getId() == null)
 					{
 						Object[] params = HierarchySqlReader.getInsertObjects(
-								hierarchy, idmanager);
+								hierarchy, idManager);
 						logSQL("SaveOrUpdate Insert ",
 								HierarchySqlReader.INSERT_SQL, params, null);
 						if (!sqlService.dbWrite(connection,
@@ -274,14 +274,38 @@ public class HierarchyDAO implements
 					saveOrUpdate(h); // this could cause recursion
 				}
 			}
-			if (hierarchyProperty.getId() == null)
+			if (hierarchyProperty.getPropvalue() == null)
 			{
 				Connection connection = null;
 				try
 				{
 					connection = getConnection();
 					Object[] params = HierarchyPropertySqlReader
-							.getInsertObjects(hierarchyProperty, idmanager);
+							.getDeleteObjects(hierarchyProperty);
+					logSQL("Insert Hierarchy properties ",
+							HierarchyPropertySqlReader.DELETE_SQL, params, null);
+					if (!sqlService.dbWrite(connection,
+							HierarchyPropertySqlReader.DELETE_SQL, params))
+					{
+						log.warn("Failed to save Hieratchy Property at "
+								+ hierarchyProperty.getNode().getPath() + "/"
+								+ hierarchyProperty.getName());
+
+					}
+				}
+				finally
+				{
+					releaseConnection();
+				}
+			}
+			else if (hierarchyProperty.getId() == null)
+			{
+				Connection connection = null;
+				try
+				{
+					connection = getConnection();
+					Object[] params = HierarchyPropertySqlReader
+							.getInsertObjects(hierarchyProperty, idManager);
 					logSQL("Insert Hierarchy properties ",
 							HierarchyPropertySqlReader.INSERT_SQL, params, null);
 					if (!sqlService.dbWrite(connection,
@@ -694,14 +718,14 @@ public class HierarchyDAO implements
 		this.threadLocalManager = threadLocalManager;
 	}
 
-	public IdManager getIdmanager()
+	public IdManager getIdManager()
 	{
-		return idmanager;
+		return idManager;
 	}
 
-	public void setIdmanager(IdManager idmanager)
+	public void setIdManager(IdManager idmanager)
 	{
-		this.idmanager = idmanager;
+		this.idManager = idmanager;
 	}
 
 }
