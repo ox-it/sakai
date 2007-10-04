@@ -2,7 +2,7 @@
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>../../master/project.xml</extend>
+    <extend>${sakai.root}/master/project.xml</extend>
     <name>sakai-hierarchy-help</name>
     <groupId>sakaiproject</groupId>
     <id>sakai-hierarchy-help</id>

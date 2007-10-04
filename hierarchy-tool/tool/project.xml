@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/3.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="http://maven.apache.org/maven-v3_0_0.xsd">
-	<extend>../../../master/project.xml</extend>
+	<extend>${sakai.root}/master/project.xml</extend>
 	<pomVersion>3</pomVersion>
 	<name>sakai-hierarchy-tool</name>
 	<groupId>sakaiproject</groupId>
@@ -18,7 +18,7 @@
 		<sourceDirectory>src/java</sourceDirectory>
 		<unitTestSourceDirectory>src/test</unitTestSourceDirectory>
 		<unitTest>
-			<includes>**/*Test</includes>
+			<includes><include>**/*Test</include></includes>
 			<resources>
 				<resource>
 					<directory>${basedir}/src/testBundle</directory>
