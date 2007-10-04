@@ -124,7 +124,7 @@ public class ContextableHierarchyImpl implements Hierarchy {
 	public Hierarchy getParent() {
 		Hierarchy parent = delegate.getParent();
 		// Don't allow caller to escape the context.
-		if (parent == null || parent != null && context.equals(parent.getPath())) {
+		if (parent == null || context.equals(getPath())) {
 			return null;
 		}
 		return new ContextableHierarchyImpl(parent, context);
