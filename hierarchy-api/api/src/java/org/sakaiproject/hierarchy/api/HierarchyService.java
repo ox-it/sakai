@@ -26,6 +26,8 @@ public interface HierarchyService
 	 */
 	Hierarchy getNode(String nodePath);
 
+	Hierarchy getNodeById(String id);
+	
 	/**
 	 * delete nodes also removes the properties
 	 * 
