@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?><project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+  </parent>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-hierarchy-api</artifactId>
+  <name>sakai-hierarchy-api</name>
+  <version>M2</version>
+  <properties>
+    <deploy.target>shared</deploy.target>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-component</artifactId>
+      <version>M2</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+</project>
