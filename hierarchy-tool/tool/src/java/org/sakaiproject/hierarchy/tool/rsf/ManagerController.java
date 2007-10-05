@@ -3,6 +3,7 @@ package org.sakaiproject.hierarchy.tool.rsf;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
 import org.sakaiproject.hierarchy.cover.HierarchyService;
@@ -37,7 +38,7 @@ public class ManagerController extends AbstractController
 	{
 		request.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 
-		Hierarchy node = HierarchyService.getCurrentPortalNode();
+		Hierarchy node = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getCurrentPortalNode();
 		Placement p = ToolManager.getCurrentPlacement();
 		String siteContext = p.getContext();
 		if (node == null)
@@ -59,7 +60,7 @@ public class ManagerController extends AbstractController
 						siteList = siteList + sites[i] + ";";
 					}
 				}
-				node.addToproperties(HierarchyProperty.PORTAL_SITES, siteList);
+				node.addToproperties(PortalHierarchyService.PORTAL_SITES, siteList);
 				modified = true;
 			}
 			else if (ACT_ADDNODE.equals(action))
@@ -68,7 +69,7 @@ public class ManagerController extends AbstractController
 				Hierarchy h = HierarchyService.getInstance().newHierarchy(
 						node.getPath() + "/" + newNode);
 				node.addTochildren(h);
-				h.addToproperties(HierarchyProperty.MANAGEMENT_SITE,
+				h.addToproperties(PortalHierarchyService.MANAGEMENT_SITE,
 						siteContext);
 				modified = true;
 			}

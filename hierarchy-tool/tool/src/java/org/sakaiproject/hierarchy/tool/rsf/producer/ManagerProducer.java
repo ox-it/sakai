@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
 import org.sakaiproject.hierarchy.cover.HierarchyService;
+import org.sakaiproject.hierarchy.cover.PortalHierarchyService;
 import org.sakaiproject.hierarchy.tool.rsf.ManagerController;
 
 import uk.org.ponder.rsf.components.UIBranchContainer;
@@ -33,7 +34,7 @@ public class ManagerProducer implements ViewComponentProducer
 			ComponentChecker checker)
 	{
 
-		Hierarchy node = HierarchyService.getCurrentPortalNode();
+		Hierarchy node = PortalHierarchyService.getCurrentPortalNode();
 
 		UIOutput.make(tofill, "sakai_head", (String) httpServletRequest
 				.getAttribute("sakai.html.head"));
