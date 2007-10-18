@@ -12,12 +12,14 @@ public class HierarchyListener implements ServletContextListener {
 	private PortalHandler hierarchyHandler;
 	private PortalHandler magicHandler;
 	private PortalHandler hierarchyToolHandler;
+	private PortalHandler hierarchyToolResetHandler;
 	
 	public void contextDestroyed(ServletContextEvent arg0) {
 		PortalService ps = (PortalService) org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		ps.removeHandler("charon", hierarchyHandler.getUrlFragment());
 		ps.removeHandler("charon", magicHandler.getUrlFragment());
 		ps.removeHandler("charon", hierarchyToolHandler.getUrlFragment());
+		ps.removeHandler("charon", hierarchyToolResetHandler.getUrlFragment());
 	}
 
 	public void contextInitialized(ServletContextEvent event) {
@@ -26,9 +28,11 @@ public class HierarchyListener implements ServletContextListener {
 		hierarchyHandler = new HierarchyHandler(siteService);
 		magicHandler = new MagicHandler();
 		hierarchyToolHandler = new HierarchyToolHandler();
+		hierarchyToolResetHandler = new HierarchyToolResetHandler();
 		ps.addHandler("charon", hierarchyHandler);
 		ps.addHandler("charon", magicHandler);
 		ps.addHandler("charon", hierarchyToolHandler);
+		ps.addHandler("charon", hierarchyToolResetHandler);
 	}
 
 }
