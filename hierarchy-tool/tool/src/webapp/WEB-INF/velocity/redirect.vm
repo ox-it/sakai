@@ -1,0 +1,13 @@
+#chef_start()
+#chef_portletContainer()
+#chef_portletContent()
+
+	<script type="text/javascript" language="JavaScript">
+		parent.location.replace("$siteUrl");
+	</script>
+	
+	<a href="$siteUrl">Site</a>. 
+
+#chef_portletContentEnd()
+#chef_portletContainerEnd()
+#chef_end()

@@ -1,0 +1,27 @@
+#chef_start()
+#chef_portletContainer()
+#chef_portletContent()
+
+<form method="post" action="${rootUrl}">
+
+<input type="hidden" name="_action" value="act_newsite"/>
+
+<p>
+<label for="title">Title:</label>
+#springFormInput("command.title" "")
+#springShowErrors("" "")
+</p>
+<p>
+#springFormRadioButton("command.method" "AUTOMATIC" "")<label for="method-AUTOMATIC">Automatic</label><br/>
+#springFormRadioButton("command.method" "CUSTOM" "")<label for="method-CUSTOM">Custom</label>
+#springFormInput("command.name" "")
+#springShowErrors("" "")
+</p>
+
+
+<input type="submit" value="Continue"/>
+</form>
+
+#chef_portletContentEnd()
+#chef_portletContainerEnd()
+#chef_end()

@@ -25,5 +25,7 @@
 	<classpathentry kind="var" path="MAVEN_REPO/ponderutilcore/jars/ponderutilcore-1.1.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/rsfutil/jars/rsfutil-0.6.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-collections/jars/commons-collections-3.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/site-manage-api"/>
+	<classpathentry kind="var" path="MAVEN_REPO/velocity-tools/jars/velocity-tools-1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

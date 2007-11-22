@@ -60,6 +60,11 @@ Sites:
 #end
 </ul>
 
+<form method="post">
+<input type="hidden" name="_action" value="act_selectsite"/>
+<input type="submit" name="Select Site"/>
+</form>
+
 <h2>New Node</h2>
 <form method="post">
 <input type="hidden" name="_action" value="act_addnode"/>

@@ -1,0 +1,10 @@
+#chef_start()
+#chef_portletContainer()
+#chef_portletContent()
+
+## Should pull global error.
+#springShowErrors("" "")
+
+#chef_portletContentEnd()
+#chef_portletContainerEnd()
+#chef_end()

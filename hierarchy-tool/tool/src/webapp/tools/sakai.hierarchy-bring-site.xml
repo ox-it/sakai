@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.hierarchy-new-site"
+			title="New Site"
+		description="Create a new site.">
+			
+         <category name="hierarchy" />
+		
+
+	</tool>
+
+</registration>

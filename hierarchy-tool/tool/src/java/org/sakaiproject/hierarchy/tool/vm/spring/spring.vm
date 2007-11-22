@@ -230,6 +230,28 @@
 #end
 
 #**
+ * springFormRadioButton
+ *
+ * Show a radio button.
+ *
+ * @param path the name of the field to bind to
+ * @param separator the html tag or other character list that should be used to
+ *    separate each option.  Typically '&nbsp;' or '<br>'
+ * @param attributes any additional attributes for the element (such as class
+ *    or CSS styles or size
+*#
+#macro( springFormRadioButton $path $value $attributes )
+    #springBind($path)
+    <input type="radio" id="${status.expression}-${value}" name="${status.expression}" value="${value}"
+    #if("$!status.value" == "$value")
+        checked="checked"
+    #end
+    ${attributes}
+    #springCloseTag()
+#end
+
+
+#**
  * springFormCheckboxes
  *
  * Show checkboxes.

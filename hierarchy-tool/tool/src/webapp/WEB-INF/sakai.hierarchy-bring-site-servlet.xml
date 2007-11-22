@@ -9,10 +9,9 @@
 		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
 		<property name="mappings">
 			<props>
-				<prop key="/sites*">siteBrowserHelper</prop>
-				<prop key="/create*">siteCreationHelper</prop>
-				<prop key="/delete*">deleteSiteController</prop>
-				<prop key="/*">managerController</prop>
+				<prop key="/helper*">siteCreationHelper</prop>
+				<prop key="/reuse*">reuseSiteController</prop>
+				<prop key="/*">bringSiteController</prop>
 			</props>
 		</property>
 		<property name="urlPathHelper">
@@ -20,32 +19,47 @@
 		</property>
 	</bean>
 
-	<bean id="managerController"
-		class="org.sakaiproject.hierarchy.tool.vm.ManagerController"
-		init-method="init" />
+	<bean id="bringSiteController"
+		class="org.sakaiproject.hierarchy.tool.vm.BringSiteController">
+		<property name="formView" value="bring"/>
+		<property name="successView" value="redirect:/helper"/>
+		<property name="sessionForm" value="true"/>
+		<property name="returnPath" value="/reuse"/>
+	</bean>
+	
+	<bean id="newSiteValidator"
+		class="org.sakaiproject.hierarchy.tool.vm.NewSiteValidator"/>
 		
-	<bean id="siteBrowserHelper"
+		
+			
+	<bean id="siteCreationHelper"
 		class="org.sakaiproject.hierarchy.tool.vm.HelperController">
 		<property name="helperId"><value>sakai.sitebrowser</value></property>
 	</bean>
 	
-	<bean id="siteCreationHelper"
-		class="org.sakaiproject.hierarchy.tool.vm.HelperController">
-		<property name="helperId"><value>sakai.sitesetup</value></property>
+	<bean id="reuseSiteController"
+		class="org.sakaiproject.hierarchy.tool.vm.ReuseSiteController">
+		<property name="cancelledView" value="redirect:/"/>
+		<property name="formView" value="reuse"/>
+		<property name="successView" value="redirect"/>
+		<property name="defaultMethod" value="AUTOMATIC"/>
+		<property name="bindOnNewForm" value="true"/>
+		<property name="sessionForm" value="true"/>
 	</bean>
 
-	
-	<bean id="deleteSiteController"
-		class="org.sakaiproject.hierarchy.tool.vm.DeleteSiteController"
-		init-method="init">
-		<property name="formView" value="delete"/>
-		<property name="successView" value="redirect"/>
-	</bean>
+
 
 	<!-- 
 		View resolvers can also be configured with ResourceBundles or XML files. If you need 
 		different view resolving based on Locale, you have to use the resource bundle resolver. 
 	-->
+	
+	<!-- Need internal resolved for redirects, unlike UrlBasedViewResolver this doesn't have to be last -->
+	<bean id="redirectViewResolver" class="org.sakaiproject.hierarchy.tool.vm.RedirectViewResolver">
+		<property name="order" value="1"/>
+	</bean>
+	
+	<!-- Because velocity view resolver is done with a dispatch always has to be last in the chain. -->
 	<bean id="viewResolver"
 		class="org.sakaiproject.hierarchy.tool.vm.spring.VelocityViewResolver">
 		<property name="cache">
@@ -60,10 +74,10 @@
 		<property name="velocityConfig" >
 			<ref bean="velocityConfig" />
 		</property>
-		
 		<property name="exposeSpringMacroHelpers"><value>true</value></property>
 	</bean>
-
+	
+	
 	<bean id="velocityConfig"
 		class="org.sakaiproject.hierarchy.tool.vm.spring.VelocityConfigurer"
 		init-method="init"  >
@@ -102,9 +116,6 @@
 				<prop key="output.encoding">UTF-8</prop>
 				<prop key="runtime.log.logsystem.class">
 					org.apache.velocity.runtime.log.SimpleLog4JLogSystem
-				</prop>
-				<prop key="runtime.log.logsystem.log4j.category">
-					portal.vm
 				</prop>
 				<prop key="runtime.log.logsystem.log4j.category">
 					portal.vm

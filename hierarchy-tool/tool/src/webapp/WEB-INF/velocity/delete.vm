@@ -1,0 +1,12 @@
+#chef_start()
+#chef_portletContainer()
+#chef_portletContent()
+
+<form method="POST">
+<input type="submit" value="Confirm Remove Site"/>
+</form>
+
+
+#chef_portletContentEnd()
+#chef_portletContainerEnd()
+#chef_end()

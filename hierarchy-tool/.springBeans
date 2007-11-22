@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansProjectDescription>
+	<configExtensions>
+		<configExtension>xml</configExtension>
+	</configExtensions>
+	<configs>
+		<config>tool/src/webapp/tools/sakai.hierarchy-manager.xml</config>
+	</configs>
+	<configSets>
+	</configSets>
+</beansProjectDescription>

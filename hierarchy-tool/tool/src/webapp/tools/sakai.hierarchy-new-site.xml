@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.hierarchy-bring-site"
+			title="Bring Site"
+		description="Bring a new site.">
+			
+         <category name="hierarchy" />
+		
+
+	</tool>
+
+</registration>

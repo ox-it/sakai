@@ -1,0 +1,25 @@
+#chef_start()
+#chef_portletContainer()
+#chef_portletContent()
+
+<form method="post">
+
+<p>
+<label for="title">Title:</label>
+#springFormInput("command.title" "")
+#springShowErrors("" "")
+</p>
+<p>
+#springFormRadioButton("command.method" "AUTOMATIC" "")<label for="method-AUTOMATIC">Automatic</label><br/>
+#springFormRadioButton("command.method" "CUSTOM" "")<label for="method-CUSTOM">Custom</label>
+#springFormInput("command.name" "")
+#springShowErrors("" "")
+</p>
+
+
+<input type="submit" value="Create"/>
+</form>
+
+#chef_portletContentEnd()
+#chef_portletContainerEnd()
+#chef_end()
