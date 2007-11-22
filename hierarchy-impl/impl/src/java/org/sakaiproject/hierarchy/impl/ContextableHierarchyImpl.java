@@ -49,7 +49,8 @@ public class ContextableHierarchyImpl implements Hierarchy {
 	}
 
 	public Hierarchy getChild(String childPath) {
-		return new ContextableHierarchyImpl(delegate.getChild(context+childPath), context);
+		Hierarchy child = delegate.getChild(context+"/"+childPath);
+		return (child == null)?null:new ContextableHierarchyImpl(child, context);
 	}
 
 	public Map getChildren() {
