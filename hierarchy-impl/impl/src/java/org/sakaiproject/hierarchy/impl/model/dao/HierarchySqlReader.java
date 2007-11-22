@@ -50,6 +50,8 @@ public class HierarchySqlReader implements SqlReader
 	public static final Object FIND_CHILD_ID_BY_PARENT_GROUPS_SQL_1 = "select id from hierarchy_nodes where parent_id in (  ";
 
 	public static final Object FIND_CHILD_ID_BY_PARENT_GROUPS_SQL_2 = " ) ";
+
+	public static final String FIND_BY_PROPERTY = "select n.id, n.pathhash, n.path, n.parent_id, n.realm, n.version from hierarchy_nodes n, hierarchy_property p where n.id = p.node_id and p.name = ? and p.propvalue = ?";
 	
 
 	private Hierarchy owner = null;

@@ -14,5 +14,7 @@ public interface PortalHierarchyService extends HierarchyService {
 	void setCurrentPortalPath(String portalPath);
 
 	Hierarchy getCurrentPortalNode();
+	
+	
 
 }

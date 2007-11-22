@@ -78,6 +78,7 @@ public class HierarchyDAO implements
 				ch = new ConnectionHolder();
 				ch.connection = sqlService.borrowConnection();
 				connectionHolder.set(ch);
+				log.debug("Auto commit: "+ch.connection.getAutoCommit());
 				log
 						.debug("Getting Connection +++++++++++++++++++++++++++++++++++++");
 			}
@@ -96,7 +97,7 @@ public class HierarchyDAO implements
 		if (ch != null)
 		{
 			ch.refcount--;
-			if (ch.refcount == 0)
+			if (ch.refcount < 1)
 			{
 				try
 				{
@@ -181,6 +182,12 @@ public class HierarchyDAO implements
 		return findList(HierarchySqlReader.FIND_BY_PARENT_ID_SQL,
 				new Object[] { parent.getId() }, new HierarchySqlReader(this,
 						parent));
+	}
+	
+	public List findHierarchyByProperty(String name,String value) 
+	{
+		return findList(HierarchySqlReader.FIND_BY_PROPERTY,
+				new Object[] {name, value}, new HierarchySqlReader(this));
 	}
 
 	public void saveOrUpdate(Hierarchy hierarchy)

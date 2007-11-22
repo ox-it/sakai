@@ -45,6 +45,16 @@ public class PortalHierarchyService {
 		if (service == null) return null;
 		return service.getNode(nodePath);
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.hierarchy.api.PortalHierarchyService#getNode(java.lang.String)
+	 */
+	public static List getNodesByProperty(String name, String value)
+	{
+		org.sakaiproject.hierarchy.api.PortalHierarchyService service = getInstance();
+		if (service == null) return null;
+		return service.getNodesByProperty(name, value);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.hierarchy.api.HierarchyService#getNode(java.lang.String)

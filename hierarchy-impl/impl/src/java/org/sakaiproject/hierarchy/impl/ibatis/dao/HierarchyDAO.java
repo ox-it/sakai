@@ -18,7 +18,7 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 
-public class HierarchyDAO implements
+public abstract class HierarchyDAO implements
 		org.sakaiproject.hierarchy.api.dao.HierarchyDAO {
 
 	private static Log log = LogFactoryImpl.getLog(HierarchyDAO.class);

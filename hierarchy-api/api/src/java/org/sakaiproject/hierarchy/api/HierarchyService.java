@@ -1,6 +1,7 @@
 package org.sakaiproject.hierarchy.api;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
@@ -27,6 +28,8 @@ public interface HierarchyService
 	Hierarchy getNode(String nodePath);
 
 	Hierarchy getNodeById(String id);
+	
+	List getNodesByProperty(String name, String value);
 	
 	/**
 	 * delete nodes also removes the properties

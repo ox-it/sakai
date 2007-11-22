@@ -1,6 +1,7 @@
 package org.sakaiproject.hierarchy.impl;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.sakaiproject.hierarchy.api.HierarchyService;
 import org.sakaiproject.hierarchy.api.HierarchyServiceException;
@@ -91,6 +92,10 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 	public Hierarchy getNodeById(String id) {
 		return hierarchyService.getNodeById(id);
+	}
+
+	public List getNodesByProperty(String name, String value) {
+		return hierarchyService.getNodesByProperty(name, value);
 	}
 
 }

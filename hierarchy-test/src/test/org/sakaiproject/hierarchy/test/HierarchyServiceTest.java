@@ -1,13 +1,12 @@
 package org.sakaiproject.hierarchy.test;
 
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.hierarchy.api.HierarchyServiceException;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
-import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
 
 /**
  * Implementations of the Heararchy API should pass this test. To use it
@@ -250,6 +249,29 @@ public abstract class HierarchyServiceTest extends ServiceTest
 		service.end();
 		
 		assertEquals("new realm", service.getNode("/node").getRealm());
+	}
+	
+	public void testGetNodeByProperty() throws HierarchyServiceException {
+		
+		Hierarchy node1 = service.newHierarchy("/one");
+		node1.addToproperties("NAME", "VALUE");
+		service.save(node1);
+		
+		Hierarchy node2 = service.newHierarchy("/two");
+		node2.addToproperties("NAME", "VALUE");
+		service.save(node2);
+		
+		Hierarchy node3 = service.newHierarchy("/three");
+		node3.addToproperties("NAME2", "VALUE2");
+		service.save(node3);
+		
+		List<Hierarchy> found = service.getNodesByProperty("NAME", "VALUE");
+		assertEquals(2, found.size());
+		
+		assertNotSame(found.get(0).getPath(), found.get(1).getPath());
+		
+		
+		
 	}
 	
 

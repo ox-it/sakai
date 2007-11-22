@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -103,6 +104,9 @@ public class HierarchyServiceImpl implements HierarchyService
 		if (nodePath == null || nodePath.length() == 0) {
 			return null;
 		}
+		if (nodePath.endsWith("/")) {
+			nodePath = nodePath.substring(0, nodePath.length()-1);
+		}
 		String pathHash = hash(nodePath);
 		return hierarchyDao.findHierarchyByPathHash(pathHash);
 	}
@@ -153,6 +157,10 @@ public class HierarchyServiceImpl implements HierarchyService
 	
 	public void abort() {
 		hierarchyDao.abort();
+	}
+
+	public List getNodesByProperty(String name, String value) {
+		return hierarchyDao.findHierarchyByProperty(name, value);
 	}
 
 }

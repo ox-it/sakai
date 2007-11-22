@@ -1,6 +1,8 @@
 package org.sakaiproject.hierarchy.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -8,6 +10,7 @@ import org.sakaiproject.hierarchy.api.HierarchyService;
 import org.sakaiproject.hierarchy.api.HierarchyServiceException;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
  * Extension of the HierarchyService which allows a HierarchyService to be
@@ -29,7 +32,7 @@ public class ContextableHierarchyServiceImpl implements HierarchyService {
 	private String context;
 
 	// Root node is cached for a transaction.
-	private ThreadLocal root = new ThreadLocal();
+	private ThreadLocalManager threadLocalManager = org.sakaiproject.thread_local.cover.ThreadLocalManager.getInstance();
 
 	public void init() {
 		if (context == null) {
@@ -51,12 +54,12 @@ public class ContextableHierarchyServiceImpl implements HierarchyService {
 	}
 
 	public void abort() {
-		root.remove();
+		threadLocalManager.set("root", null);
 		hierarchyService.abort();
 	}
 
 	public void begin() {
-		root.remove();
+		threadLocalManager.set("root", null);
 		hierarchyService.begin();
 	}
 
@@ -65,7 +68,7 @@ public class ContextableHierarchyServiceImpl implements HierarchyService {
 	}
 
 	public void end() {
-		root.remove();
+		threadLocalManager.set("root", null);
 		hierarchyService.end();
 	}
 
@@ -87,11 +90,11 @@ public class ContextableHierarchyServiceImpl implements HierarchyService {
 	}
 
 	public Hierarchy getRootNode() {
-		Hierarchy node = (Hierarchy) root.get();
+		Hierarchy node = (Hierarchy) threadLocalManager.get("root");
 		if (node == null) {
 			node = new ContextableHierarchyImpl(hierarchyService
 					.getNode(context), context);
-			root.set(node);
+			threadLocalManager.set("root", node);
 		}
 		return node;
 	}
@@ -146,6 +149,18 @@ public class ContextableHierarchyServiceImpl implements HierarchyService {
 
 	public void setHierarchyService(HierarchyService hierarchyService) {
 		this.hierarchyService = hierarchyService;
+	}
+
+	public List getNodesByProperty(String name, String value) {
+		// Piss poor performance.
+		List<Hierarchy> allNodes = hierarchyService.getNodesByProperty(name, value);
+		List<Hierarchy> ourNodes = new ArrayList(allNodes.size());
+		for (Hierarchy node: allNodes) {
+			if (node.getPath().startsWith(getContext())) {
+				ourNodes.add(new ContextableHierarchyImpl(node, context));
+			}
+		}
+		return ourNodes;
 	}
 
 }
