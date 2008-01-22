@@ -8,7 +8,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/tool-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/entity-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/site-api"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/authz-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/tool-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/portal-impl"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/portal-api"/>
@@ -18,5 +17,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/servletapi/jars/servletapi-2.4.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/web-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/util-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/authz-api"/>
 	<classpathentry kind="output" path="m2-target/classes"/>
 </classpath>

@@ -210,4 +210,8 @@ public class AdoptedSitePage implements SitePage {
 		return original.toXml(doc, stack);
 	}
 
+	public void setupPageCategory(String toolId) {
+		//original.setupPageCategory(toolId);
+	}
+
 }

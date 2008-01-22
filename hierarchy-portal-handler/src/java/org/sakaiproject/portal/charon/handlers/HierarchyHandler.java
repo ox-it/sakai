@@ -20,6 +20,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
+import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
@@ -42,9 +43,11 @@ public class HierarchyHandler extends SiteHandler {
 	private static Log log = LogFactory.getLog(HierarchyHandler.class);
 	private PortalSiteHelper siteHelper;
 	private SiteService siteService;
+	private PortalHierarchyService portalHierarchyService;
 	
-	public HierarchyHandler(SiteService siteService) {
+	public HierarchyHandler(SiteService siteService, PortalHierarchyService portalHierarchyService) {
 		this.siteService = siteService;
+		this.portalHierarchyService = portalHierarchyService;
 		urlFragment = "hierarchy";
 		siteHelper = new PortalSiteHelper();
 	}
@@ -58,27 +61,27 @@ public class HierarchyHandler extends SiteHandler {
 			try
 			{
 				PortalHierarchyService phs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
-				Hierarchy hierarchy = null;
+				PortalNode node = null;
 				int hierarchyPartNo = parts.length;
-				for (; hierarchy == null && hierarchyPartNo >= 2; hierarchyPartNo--) {
+				for (; node == null && hierarchyPartNo >= 2; hierarchyPartNo--) {
 					StringBuffer hierarchyPath = new StringBuffer();
 					for (int partNo = 2; partNo < hierarchyPartNo; partNo++) {
 						hierarchyPath.append("/");
 						hierarchyPath.append(parts[partNo]);
 					}
 					log.debug("Looking for: "+ hierarchyPath.toString());
-					hierarchy = phs.getNode(hierarchyPath.toString());
+					node = phs.getNode(hierarchyPath.toString());
 				}
 				
-				if (hierarchy == null) {
+				if (node == null) {
 					log.debug("Using root site.");
-						hierarchy = phs.getNode(null);
+						node = phs.getNode(null);
 				}
-				phs.setCurrentPortalPath(hierarchy.getPath());
-				log.debug("Path is: "+ hierarchy.getPath());
+				phs.setCurrentPortalPath(node.getPath());
+				log.debug("Path is: "+ node.getPath());
 				
-				HierarchyProperty prop = hierarchy.getProperty(PortalHierarchyService.CONTENT);
-				String siteId = (prop != null)?prop.getPropvalue():null;
+				
+				String siteId = node.getSite().getId();
 				
 				String pageId = null;
 					
@@ -88,8 +91,8 @@ public class HierarchyHandler extends SiteHandler {
 				} 				
 				
 				log.debug("siteId: "+ siteId+ " pageId: "+ pageId);
-				doSite(req, res, session, siteId, pageId, req.getContextPath()
-						+ req.getServletPath()+hierarchy.getPath(), hierarchy);
+				doSite(req, res, session, node.getSite(), pageId, req.getContextPath()
+						+ req.getServletPath()+node.getPath(), node);
 				return END;
 			}
 			catch (Exception ex)
@@ -105,36 +108,18 @@ public class HierarchyHandler extends SiteHandler {
 	
 
 	public void doSite(HttpServletRequest req, HttpServletResponse res, Session session,
-			String siteId, String pageId, String toolContextPath, Hierarchy node) throws ToolException,
+			Site site, String pageId, String toolContextPath, PortalNode node) throws ToolException,
 			IOException
 	{
 		
 		// default site if not set
-		if (siteId == null)
-		{
-			if (session.getUserId() == null)
-			{
-				siteId = ServerConfigurationService.getGatewaySiteId();
-			}
-			else
-			{
-				siteId = siteService.getUserSiteId(session.getUserId());
-			}
-		}
-
-
-		// find the site, for visiting
-		Site site = null;
-		try
-		{
-			site = siteHelper.getSiteVisit(siteId);
-		}
-		catch (IdUnusedException e)
+		if (site == null)
 		{
 			portal.doError(req, res, session, Portal.ERROR_SITE);
 			return;
 		}
-		catch (PermissionException e)
+
+		if (!siteService.allowAccessSite(site.getId()))
 		{
 			// if not logged in, give them a chance
 			if (session.getUserId() == null)
@@ -168,21 +153,26 @@ public class HierarchyHandler extends SiteHandler {
 
 		// find the page, or use the first page if pageId not found
 		SitePage page = site.getPage(pageId);
-		if (page == null)
+		if (page == null && pageId != null)
 		{
-			// Look in the hierarchy site.
-			page = hierarchySite.getPage(pageId);
-			if (page != null) 
-			{
-				// Fix up the skin.
-				page = new AdoptedSitePage(site, page);
-			}
+/*			page = site.getPagebyName(pageId);
+			if (page == null)
+			{*/
+				// Look in the hierarchy site.
+				page = hierarchySite.getPage(pageId);
+				if (page != null) 
+				{
+					// Fix up the skin.
+					page = new AdoptedSitePage(site, page);
+				}
+			/*}*/
+			
 		}
 		
 		if (page == null)
 		{
 			// List pages = site.getOrderedPages();
-			List pages = siteHelper.getPermittedPagesInOrder(site);
+			List pages = siteHelper.getPermittedPagesInOrder(portal, site);
 			if (!pages.isEmpty())
 			{
 				page = (SitePage) pages.get(0);
@@ -202,7 +192,7 @@ public class HierarchyHandler extends SiteHandler {
 				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
-		String siteType = portal.calcSiteType(siteId);
+		String siteType = portal.calcSiteType(site.getId());
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
 				.getSkin(), req);
 
@@ -231,7 +221,7 @@ public class HierarchyHandler extends SiteHandler {
 	}
 	
 	protected void includeHierarchyNav(PortalRenderContext rcontext, HttpServletRequest req,
-			Session session, Site site, SitePage page, String context, String prefix, Site hierarchySite, Hierarchy node)
+			Session session, Site site, SitePage page, String context, String prefix, Site hierarchySite, PortalNode node)
 	{
 			boolean loggedIn = session.getUserId() != null;
 
@@ -258,24 +248,22 @@ public class HierarchyHandler extends SiteHandler {
 			}
 	}
 
-	private void includeHierarchy(PortalRenderContext rcontext, HttpServletRequest req, Session session, Site site, SitePage page, String context, String portalPrefix, Site hierarchySite, Hierarchy node) {
+	private void includeHierarchy(PortalRenderContext rcontext, HttpServletRequest req, Session session, Site site, SitePage page, String context, String portalPrefix, Site hierarchySite, PortalNode node) {
 		// Need to get list of parents
-		
-		Hierarchy currentNode = node;
-		
+				
 		List<Map<String, Object>> parents = new ArrayList<Map<String, Object>>();
 		
-		while (currentNode != null) {
-			Map<String, Object> map = convertToMap(currentNode);
+		List<PortalNode> parentNodes = portalHierarchyService.getNodesFromRoot(node.getId());
+		
+		for (PortalNode parentNode: parentNodes) {
+			Map<String, Object> map = convertToMap(parentNode);
 			if (map == null) {
-				parents.add(getUnknownSite(currentNode));
+				parents.add(getUnknownSite(parentNode));
 			} else {
 				parents.add(map);
 			}
-			currentNode = currentNode.getParent();
 		}
-		
-		Collections.reverse(parents);
+		parents.add(convertToMap(node));
 		rcontext.put("parents", parents);
 		
 		// Details of children.
@@ -283,7 +271,7 @@ public class HierarchyHandler extends SiteHandler {
 		
 		List<Map<String, Object>> children = new ArrayList<Map<String, Object>>();
 		
-		for (Hierarchy currentChild : ((Map<String,Hierarchy>)node.getChildren()).values()) {
+		for (PortalNode currentChild : portalHierarchyService.getNodeChildren(node.getId())) {
 			Map<String, Object> map = convertToMap(currentChild);
 			if (map != null) {
 				children.add(map);
@@ -316,42 +304,30 @@ public class HierarchyHandler extends SiteHandler {
 	}
 
 
-	private Map<String, Object> getUnknownSite(Hierarchy currentNode) {
+	private Map<String, Object> getUnknownSite(PortalNode currentNode) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("title", "Unknown Site");
 		map.put("url", getNodeURL(currentNode));
 		return null;
 	}
-
-	private Map<String, Object> convertToMap(Hierarchy currentNode) {
+	
+	private Map<String, Object> convertToMap(PortalNode currentNode) {
 		Map<String, Object> siteDetails = new HashMap<String, Object>();
-		HierarchyProperty contentProperty = currentNode.getProperty(PortalHierarchyService.CONTENT);
-		if (contentProperty != null) {
-			String currentSiteId = contentProperty.getPropvalue();
-			if (currentSiteId != null) {
-				try {
-					
-					Site currentSite = siteService.getSite(currentSiteId);
-					if (allowSeeSite(currentSite)) {
-						siteDetails.put("url", getNodeURL(currentNode));
-						
-						HierarchyProperty titleProperty = currentNode.getProperty(PortalHierarchyService.TITLE);
-						if (titleProperty != null && titleProperty.getPropvalue() != null) {
-							siteDetails.put("title", Web.escapeHtml(titleProperty.getPropvalue()));
-						} else {
-							siteDetails.put("title", Web.escapeHtml(currentSite.getTitle()));
-						}
-						siteDetails.put("path", currentNode.getPath());
-						siteDetails.put("shortDescription", (currentSite.getShortDescription()== null)?null:Web.escapeHtml(currentSite.getShortDescription()));
-						return siteDetails;
-					}
-					
-				} catch (IdUnusedException iue) {
-					log.debug("Couldn't find content site: "+ currentSiteId+ " at node "+ currentNode.getPath());
-				}
-			}	
+		Site currentSite = currentNode.getSite();
+		if (allowSeeSite(currentSite)) {
+			siteDetails.put("url", getNodeURL(currentNode));
+
+			HierarchyProperty titleProperty = null;
+			if (titleProperty != null && titleProperty.getPropvalue() != null) {
+				siteDetails.put("title", Web.escapeHtml(titleProperty.getPropvalue()));
+			} else {
+				siteDetails.put("title", Web.escapeHtml(currentSite.getTitle()));
+			}
+			siteDetails.put("path", currentNode.getPath());
+			siteDetails.put("shortDescription", (currentSite.getShortDescription()== null)?null:Web.escapeHtml(currentSite.getShortDescription()));
+			return siteDetails;
 		}
-		
+
 		return null;
 	}
 	
@@ -363,6 +339,10 @@ public class HierarchyHandler extends SiteHandler {
 		return ServerConfigurationService.getPortalUrl()+ "/"+ urlFragment + Web.escapeUrl(node.getPath());
 	}
 	
+	private String getNodeURL(PortalNode node) {
+		return ServerConfigurationService.getPortalUrl()+ "/"+ urlFragment + Web.escapeUrl(node.getPath());
+	}
+	
 	public void includeWorksite(PortalRenderContext rcontext, HttpServletResponse res,
 			HttpServletRequest req, Session session, Site site, SitePage page,
 			String toolContextPath, String portalPrefix) throws IOException
@@ -371,8 +351,14 @@ public class HierarchyHandler extends SiteHandler {
 		{
 
 			// add the page navigation with presence
-			includePageNav(rcontext, req, session, site, page, toolContextPath,
-					portalPrefix);
+			boolean loggedIn = session.getUserId() != null;
+			Map pageMap = portal.pageListToMap(req, loggedIn, site, page, toolContextPath, 
+				portalPrefix, 
+				/* doPages */true,
+				/* resetTools */"true".equals(ServerConfigurationService
+						.getString(Portal.CONFIG_AUTO_RESET)),
+				/* includeSummary */false);
+			rcontext.put("sitePages", pageMap);
 
 			// add the page
 			includePage(rcontext, res, req, page, toolContextPath, "content");
@@ -451,7 +437,7 @@ public class HierarchyHandler extends SiteHandler {
 			String portalPrefix, boolean doPages, boolean resetTools,
 			boolean includeSummary, String pageUrl, String toolUrl,
 			String pagePopupUrl) {
-		List pages = siteHelper.getPermittedPagesInOrder(site);
+		List pages = siteHelper.getPermittedPagesInOrder(portal, site);
 
 		List<Map> l = new ArrayList<Map>();
 		for (Iterator i = pages.iterator(); i.hasNext();)
@@ -462,7 +448,7 @@ public class HierarchyHandler extends SiteHandler {
 
 			boolean current = (page != null && p.getId().equals(page.getId()) && !p
 					.isPopUp());
-			String pagerefUrl = pageUrl + Web.escapeUrl(p.getId());
+			String pagerefUrl = pageUrl + Web.escapeUrl(/*(p.getName() != null)?p.getName():*/p.getId());
 			if (resetTools)
 			{
 				pagerefUrl = pagerefUrl.replaceFirst("/" + portalPrefix + "/", "/"
