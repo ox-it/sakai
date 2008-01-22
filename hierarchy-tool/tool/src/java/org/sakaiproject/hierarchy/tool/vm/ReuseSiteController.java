@@ -10,6 +10,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.hierarchy.api.HierarchyServiceException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
+import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.hierarchy.tool.vm.NewSiteCommand.Method;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -74,19 +75,12 @@ public class ReuseSiteController extends SimpleFormController {
 		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
 		String sitePath = null;
 		try {
-			hs.begin();
-			Hierarchy node = hs.getCurrentPortalNode();
-			Hierarchy newNode = hs.newHierarchy(node.getPath() + "/" + command.getName());
-			node.addTochildren(newNode);
-			newNode.addToproperties(org.sakaiproject.hierarchy.api.PortalHierarchyService.CONTENT, command.getSiteId());
-			hs.save(newNode);
+			PortalNode node = hs.getCurrentPortalNode();
+			PortalNode newNode = hs.newNode(node.getId(), command.getName(), command.getSiteId(), node.getManagementSite().getId());
 			sitePath = newNode.getPath();
-		} catch (HierarchyServiceException hse) {
-			hs.abort();
+		} catch (Exception hse) {
 			errors.reject("error.add.hierarchy");
-		} finally {
-			hs.end();
-		}
+		} 
 		
 		Map model = errors.getModel();
 		model.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ sitePath);

@@ -1,6 +1,6 @@
 package org.sakaiproject.hierarchy.tool.vm;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,9 +9,9 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
+import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.hierarchy.tool.vm.NewSiteCommand.Method;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.tool.api.Tool;
@@ -73,13 +73,15 @@ public class NewSiteController extends SimpleFormController
 		// Check for duplicate node.
 		// Not done in validator as it requires DB access.
 		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
-		Hierarchy node = hs.getCurrentPortalNode().getChild(newSite.getName());
-		if ( node != null ) {
-			errors.rejectValue("name", "error.name.exists");
-			newSite.setMethod(Method.CUSTOM);
-			return showForm(request, response, errors);
+		PortalNode currentNode = hs.getCurrentPortalNode();
+		List<PortalNode> children = hs.getNodeChildren(currentNode.getId());
+		for (PortalNode child : children) {
+			if (child.getName().equals(newSite.getName())) {
+				errors.rejectValue("name", "error.name.exists");
+				newSite.setMethod(Method.CUSTOM);
+				return showForm(request, response, errors);
+			}
 		}
-		
 		// This will actually be a tool session specific to this tool.
 		HttpSession session = request.getSession();
 		

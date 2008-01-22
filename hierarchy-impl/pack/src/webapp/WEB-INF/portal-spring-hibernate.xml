@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+   <bean id="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNodeDaoTarget" 
+         class="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNodeDaoHibernate">
+      <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+   </bean>
+
+   <bean id="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistenNodeDao" 
+         class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager">
+         <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+      </property>
+      <property name="target">
+         <ref bean="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNodeDaoTarget" />
+      </property>
+      <property name="transactionAttributes">
+         <props>
+            <prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
+            <prop key="save">PROPAGATION_REQUIRED</prop>
+            <prop key="delete">PROPAGATION_REQUIRED</prop>
+         </props>
+      </property>
+   </bean>
+
+</beans>

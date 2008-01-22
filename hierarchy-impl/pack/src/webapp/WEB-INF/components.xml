@@ -49,14 +49,6 @@
 
 
 
-	<!-- the service -->
-	<bean id="org.sakaiproject.hierarchy.api.HierarchyService"
-		class="org.sakaiproject.hierarchy.impl.HierarchyServiceImpl"
-		init-method="init">
-		<property name="hierarchyDao">
-			<ref bean="org.sakaiproject.hierarchy.api.dao.HierarchyDAO" />
-		</property>
-	</bean>
 
 <!-- 
 	<bean id="com.ibatis.sqlmap.client.SqlMapClient"
@@ -91,7 +83,33 @@
 		</property>
 	</bean>
 	-->
+	<import resource="hibernate-hbms.xml"/>
+	<import resource="portal-spring-hibernate.xml"/>
 	
+	<bean id="org.sakaiproject.hierarchy.api.PortalHierarchyService"
+		class="org.sakaiproject.hierarchy.impl.PortalHierarchyServiceImpl"
+		init-method="init">
+		<property name="hierarchyService">
+			<ref bean="org.sakaiproject.hierarchy.HierarchyService" />
+		</property>
+		<property name="siteService">
+			<ref bean="org.sakaiproject.site.api.SiteService" />		
+		</property>
+		<property name="threadLocalManager">
+			<ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+		</property>
+		<property name="sessionManager">
+			<ref bean="org.sakaiproject.tool.api.SessionManager" />
+		</property>
+		<property name="dao">
+			<ref bean="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistenNodeDao"/>
+		</property>
+		<property name="hierarchyId"><value>hierarchy</value></property>
+	</bean>
+	
+	
+
+	<!-- 	
 	<bean id="org.sakaiproject.hierarchy.api.dao.HierarchyDAO"
 		class="org.sakaiproject.hierarchy.impl.model.dao.HierarchyDAO"
 		init-method="init">
@@ -107,8 +125,14 @@
 		</property>
 	</bean>
 
-
-	<!--  end the service -->
+	<bean id="org.sakaiproject.hierarchy.api.HierarchyService"
+		class="org.sakaiproject.hierarchy.impl.HierarchyServiceImpl"
+		init-method="init">
+		<property name="hierarchyDao">
+			<ref bean="org.sakaiproject.hierarchy.api.dao.HierarchyDAO" />
+		</property>
+	</bean>
+	
 	<bean id="org.sakaiproject.hierarchy.api.PortalHierarchyService"
 		class="org.sakaiproject.hierarchy.impl.PortalHierarchyServiceImpl"
 		init-method="init">
@@ -127,6 +151,7 @@
 			</bean>
 		</property>
 	</bean>
+	-->
 
 
 </beans>

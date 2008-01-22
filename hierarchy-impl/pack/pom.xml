@@ -6,18 +6,18 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>M2</version>
+    <version>SNAPSHOT</version>
   </parent>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-hierarchy-pack</artifactId>
   <name>sakai-hierarchy-pack</name>
-  <version>M2</version>
+  <version>SNAPSHOT</version>
   <packaging>sakai-component</packaging>
    <dependencies>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-hierarchy-impl</artifactId>
-      <version>M2</version>
+      <version>SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>

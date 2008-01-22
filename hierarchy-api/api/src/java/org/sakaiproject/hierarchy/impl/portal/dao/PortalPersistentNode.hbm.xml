@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   <!-- put your value object in the class name, 
+      the table name is optional but you should specify it to avoid collisions -->
+   <class name="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNode"
+      table="PORTAL_NODE">
+
+      <!-- create the primary key id -->
+      <id name="id" type="string">
+         <column name="ID" />
+      </id>
+      <property name="siteId" type="string" length="64" />
+      <property name="managementSiteId" type="string" length="64" />
+      <property name="name" type="string" length="64" />
+      <property name="path" type="string" />
+      <property name="pathHash" type="string" />
+   </class>
+</hibernate-mapping>

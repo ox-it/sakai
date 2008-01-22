@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="impl/src/java"/>
-	<classpathentry kind="src" path="pack/src/webapp"/>
 	<classpathentry kind="src" path="impl/src/sql"/>
+	<classpathentry kind="src" path="pack/src/webapp/WEB-INF"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="JUNIT_HOME/junit.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/hierarchy-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/db-api"/>
@@ -14,5 +13,8 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/tool-api"/>
 	<classpathentry kind="var" path="MAVEN_REPO/com.ibatis/jars/ibatis-2.3.0.677.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-1.2.8.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/org.hibernate/jars/hibernate-3.1.3.jar" sourcepath="/HIBERNATE_SRC"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/authz-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/hierarchy"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -64,6 +64,12 @@
     </dependency>
     <dependency>
       <groupId>sakaiproject</groupId>
+      <artifactId>caret-hierarchy-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
       <artifactId>sakai-db-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
