@@ -42,7 +42,6 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.servlet.view.AbstractTemplateView;
-import org.springframework.web.servlet.view.velocity.VelocityToolboxView;
 import org.springframework.web.util.NestedServletException;
 
 /**
@@ -521,9 +520,5 @@ public class VelocityView extends AbstractTemplateView {
 					ex.getWrappedThrowable());
 		}
 	}
-
-
-
-
 
 }

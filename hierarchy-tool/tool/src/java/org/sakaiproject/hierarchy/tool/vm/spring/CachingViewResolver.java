@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.web.context.support.WebApplicationObjectSupport;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.ViewResolver;
 
@@ -42,7 +43,7 @@ import org.springframework.web.servlet.ViewResolver;
  * @author Juergen Hoeller
  * @see #loadView
  */
-public abstract class CachingViewResolver implements ViewResolver {
+public abstract class CachingViewResolver extends WebApplicationObjectSupport implements ViewResolver {
 
 	private static final Log logger = LogFactory.getLog(CachingViewResolver.class);
 	/** Whether we should cache views, once resolved */

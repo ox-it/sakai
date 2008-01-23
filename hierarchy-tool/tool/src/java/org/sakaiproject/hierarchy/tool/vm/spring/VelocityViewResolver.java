@@ -89,6 +89,7 @@ public class VelocityViewResolver extends CachingViewResolver implements
 	{
 		VelocityView view = new VelocityView();
 		VelocityEngine ve = velocityConfig.getVelocityEngine();
+		view.setServletContext(getServletContext());
 		view.setVelocityEngine(ve);
 		view.setUrl(getPrefix() + viewName + getSuffix());
 		String contentType = getContentType();
