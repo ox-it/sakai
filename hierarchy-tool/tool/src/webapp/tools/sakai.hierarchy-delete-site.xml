@@ -3,9 +3,9 @@
 <registration>
 
 	<tool
-			id="sakai.hierarchy-bring-site"
-			title="Bring Site"
-		description="Bring a site.">
+			id="sakai.hierarchy-delete-site"
+			title="Delete Site"
+		description="Delete a site.">
 			
 		<category name="hierarchy" />
 		<configuration name="functions.require" value="site.upd"/>

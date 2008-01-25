@@ -2,20 +2,13 @@
 
 <registration>
 
-<!--
-	<function name="search.create" />
-	<function name="search.read" />
-	<function name="search.update" />
-	<function name="search.delete" />
-	<function name="search.admin" />
-	<function name="search.superadmin" />
--->
 	<tool
 			id="sakai.hierarchy-manager"
 			title="Hierarchy Manager"
 		description="Hierarchy Manager ">
-			
-         <category name="project" />
+		
+		<category name="project" />
+		<configuration name="functions.require" value="site.upd"/>
 		
 
 	</tool>

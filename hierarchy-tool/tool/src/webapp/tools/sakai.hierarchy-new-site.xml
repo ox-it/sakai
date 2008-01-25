@@ -3,11 +3,12 @@
 <registration>
 
 	<tool
-			id="sakai.hierarchy-bring-site"
-			title="Bring Site"
-		description="Bring a new site.">
+			id="sakai.hierarchy-new-site"
+			title="New Site"
+		description="Create a new site in the hierarchy">
 			
-         <category name="hierarchy" />
+		<category name="hierarchy" />
+		<configuration name="functions.require" value="site.upd"/>
 		
 
 	</tool>
