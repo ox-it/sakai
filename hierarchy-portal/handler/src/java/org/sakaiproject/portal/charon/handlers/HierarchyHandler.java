@@ -2,8 +2,6 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -16,7 +14,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
@@ -31,9 +28,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.util.Web;
 
 public class HierarchyHandler extends SiteHandler {
@@ -58,51 +53,57 @@ public class HierarchyHandler extends SiteHandler {
 		if ( (parts.length >= 2) && parts[1].equals(urlFragment) || parts.length == 0)
 		{
 			log.debug("Matched");
-			try
-			{
-				PortalHierarchyService phs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
-				PortalNode node = null;
-				int hierarchyPartNo = parts.length;
-				for (; node == null && hierarchyPartNo >= 2; hierarchyPartNo--) {
-					StringBuffer hierarchyPath = new StringBuffer();
-					for (int partNo = 2; partNo < hierarchyPartNo; partNo++) {
-						hierarchyPath.append("/");
-						hierarchyPath.append(parts[partNo]);
-					}
-					log.debug("Looking for: "+ hierarchyPath.toString());
-					node = phs.getNode(hierarchyPath.toString());
-				}
-				
-				if (node == null) {
-					log.debug("Using root site.");
-						node = phs.getNode(null);
-				}
-				phs.setCurrentPortalPath(node.getPath());
-				log.debug("Path is: "+ node.getPath());
-				
-				
-				String siteId = node.getSite().getId();
-				
-				String pageId = null;
-					
-				
-				if (parts.length >= hierarchyPartNo+2 && "page".equals(parts[hierarchyPartNo+1])){
-					pageId = parts[hierarchyPartNo+2];
-				} 				
-				
-				log.debug("siteId: "+ siteId+ " pageId: "+ pageId);
-				doSite(req, res, session, node.getSite(), pageId, req.getContextPath()
-						+ req.getServletPath()+node.getPath(), node);
-				return END;
-			}
-			catch (Exception ex)
-			{
-				throw new PortalHandlerException(ex);
-			}
+			return doFindSite(parts, req, res, session);
 		}
 		else
 		{
 			return NEXT;
+		}
+	}
+
+	private int doFindSite(String[] parts, HttpServletRequest req,
+			HttpServletResponse res, Session session)
+			throws PortalHandlerException {
+		try
+		{
+			PortalHierarchyService phs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
+			PortalNode node = null;
+			int hierarchyPartNo = parts.length;
+			for (; node == null && hierarchyPartNo >= 2; hierarchyPartNo--) {
+				StringBuffer hierarchyPath = new StringBuffer();
+				for (int partNo = 2; partNo < hierarchyPartNo; partNo++) {
+					hierarchyPath.append("/");
+					hierarchyPath.append(parts[partNo]);
+				}
+				log.debug("Looking for: "+ hierarchyPath.toString());
+				node = phs.getNode(hierarchyPath.toString());
+			}
+			
+			if (node == null) {
+				log.debug("Using root site.");
+					node = phs.getNode(null);
+			}
+			phs.setCurrentPortalPath(node.getPath());
+			log.debug("Path is: "+ node.getPath());
+			
+			
+			String siteId = node.getSite().getId();
+			
+			String pageId = null;
+				
+			
+			if (parts.length >= hierarchyPartNo+2 && "page".equals(parts[hierarchyPartNo+1])){
+				pageId = parts[hierarchyPartNo+2];
+			} 				
+			
+			log.debug("siteId: "+ siteId+ " pageId: "+ pageId);
+			doSite(req, res, session, node.getSite(), pageId, req.getContextPath()
+					+ req.getServletPath()+node.getPath(), node);
+			return END;
+		}
+		catch (Exception ex)
+		{
+			throw new PortalHandlerException(ex);
 		}
 	}
 	
@@ -119,7 +120,7 @@ public class HierarchyHandler extends SiteHandler {
 			return;
 		}
 
-		if (!siteService.allowAccessSite(site.getId()))
+		if (!node.canView())
 		{
 			// if not logged in, give them a chance
 			if (session.getUserId() == null)
@@ -211,7 +212,7 @@ public class HierarchyHandler extends SiteHandler {
 		portal.includeBottom(rcontext);
 
 		// end the response
-		portal.sendResponse(rcontext, res, "site", null);
+		portal.sendResponse(rcontext, res, "hierarchy", null);
 		StoredState ss = portalService.getStoredState();
 		if (ss != null && toolContextPath.equals(ss.getToolContextPath()))
 		{
@@ -313,8 +314,8 @@ public class HierarchyHandler extends SiteHandler {
 	
 	private Map<String, Object> convertToMap(PortalNode currentNode) {
 		Map<String, Object> siteDetails = new HashMap<String, Object>();
-		Site currentSite = currentNode.getSite();
-		if (allowSeeSite(currentSite)) {
+		if (currentNode.canView()) {
+			Site currentSite = currentNode.getSite();
 			siteDetails.put("url", getNodeURL(currentNode));
 
 			HierarchyProperty titleProperty = null;
@@ -352,13 +353,22 @@ public class HierarchyHandler extends SiteHandler {
 
 			// add the page navigation with presence
 			boolean loggedIn = session.getUserId() != null;
-			Map pageMap = portal.pageListToMap(req, loggedIn, site, page, toolContextPath, 
+			String pageUrl = Web.returnUrl(req, "/" + portalPrefix 
+					+ "/page/");
+			String toolUrl = Web.returnUrl(req, "/" + portalPrefix 
+					+ Web.escapeUrl(siteHelper.getSiteEffectiveId(site)));
+			String pagePopupUrl = Web.returnUrl(req, "/page/");
+			
+			List pageMap = convertPagesToMap( site, page, 
 				portalPrefix, 
 				/* doPages */true,
 				/* resetTools */"true".equals(ServerConfigurationService
 						.getString(Portal.CONFIG_AUTO_RESET)),
-				/* includeSummary */false);
-			rcontext.put("sitePages", pageMap);
+				/* includeSummary */false, pageUrl, toolUrl, pagePopupUrl);
+			Map sitePages = new HashMap();
+			sitePages.put("pageNaveToolsCount", pageMap.size());
+			sitePages.put("pageNavTools", pageMap);
+			rcontext.put("sitePages", sitePages);
 
 			// add the page
 			includePage(rcontext, res, req, page, toolContextPath, "content");

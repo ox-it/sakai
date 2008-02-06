@@ -1,7 +1,9 @@
 package org.sakaiproject.hierarchy.impl;
 
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 
 public class PortalNodeImpl implements PortalNode {
 
@@ -12,16 +14,21 @@ public class PortalNodeImpl implements PortalNode {
 	private Site site;
 	private Site managementSite;
 	
+	// TODO Holding too many references to service? Move methods to service API.
+	private SecurityService securityService;
+	private SiteService siteService;
+	
+	public PortalNodeImpl(SecurityService securityService, SiteService siteService) {
+		this.securityService = securityService;
+		this.siteService = siteService;
+	}
 	
 	public boolean canModify() {
-		// TODO Auto-generated method stub
-		
-		return false;
+		return securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference());
 	}
 
 	public boolean canView() {
-		// TODO Auto-generated method stub
-		return false;
+		return siteService.allowAccessSite(site.getId());
 	}
 
 	public String getId() {
@@ -112,6 +119,22 @@ public class PortalNodeImpl implements PortalNode {
 		} else if (!site.equals(other.site))
 			return false;
 		return true;
+	}
+
+	SecurityService getSecurityService() {
+		return securityService;
+	}
+
+	void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
+	SiteService getSiteService() {
+		return siteService;
+	}
+
+	void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
 	}
 
 	

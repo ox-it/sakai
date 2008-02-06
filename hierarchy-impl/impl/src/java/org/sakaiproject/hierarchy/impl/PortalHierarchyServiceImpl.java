@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.hierarchy.HierarchyService;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
@@ -32,7 +34,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	private SiteService siteService;
 	private ThreadLocalManager threadLocalManager;
 	private SessionManager sessionManager;
-	
+	private SecurityService securityService;
+	private FunctionManager functionManager;
 	
 	private String hierarchyId;
 	
@@ -74,7 +77,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	protected PortalNodeImpl populatePortalNode(PortalPersistentNode portalPersistentNode) {
 		PortalNodeImpl portalNode = null;
 		if (portalPersistentNode != null) {
-			portalNode = new PortalNodeImpl();
+			portalNode = new PortalNodeImpl(securityService, siteService);
 			portalNode.setId(portalPersistentNode.getId());
 			portalNode.setName(portalPersistentNode.getName());
 			portalNode.setPath(portalPersistentNode.getPath());
