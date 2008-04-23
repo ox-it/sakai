@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>oxford-master</artifactId>
+    <groupId>uk.ac.ox.oucs</groupId>
+    <version>1.1</version>
+  </parent>
+  <groupId>uk.ac.ox.oucs</groupId>
+  <!-- Watch SAK-13112 for a better way -->
+  <artifactId>ROOT</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <name>Root WebApp</name>
+  <packaging>war</packaging>
+  <inceptionYear>2007</inceptionYear>
+  <organization>
+    <name>University of Oxford</name>
+    <url>http://www.oucs.ox.ac.uk/</url>
+  </organization>
+  <build>
+  </build>
+</project>
