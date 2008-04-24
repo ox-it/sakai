@@ -13,9 +13,9 @@
   <name>Root WebApp</name>
   <packaging>war</packaging>
   <scm>
-    <developerConnection>scm:svn:https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp</developerConnection>
-    <connection>scm:svn:https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp</connection>
-    <url>https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp</url>
+    <developerConnection>scm:svn:https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/trunk</developerConnection>
+    <connection>scm:svn:https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/trunk</connection>
+    <url>https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/trunk</url>
   </scm>
   <inceptionYear>2007</inceptionYear>
   <organization>
