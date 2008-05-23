@@ -11,6 +11,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.springframework.validation.BindException;
+import org.springframework.validation.Errors;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.SimpleFormController;
 
@@ -34,10 +35,17 @@ public class DeleteSiteController extends SimpleFormController {
 		String parentPath = nodes.get(nodes.size()-1).getPath();
 		phs.deleteNode(node.getId());
 				
-		Map model = new HashMap();
+		Map model = referenceData(request, command, errors);
+		
 		model.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ parentPath);
 		
 		return new ModelAndView(getSuccessView(), model);
+	}
+	
+	@Override
+	protected Map referenceData(HttpServletRequest request, Object command,
+			Errors errors) throws Exception {
+		return VelocityControllerUtils.referenceData(request, command, errors);
 	}
 	
 }
