@@ -27,21 +27,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
-import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Web;
 
 /**
@@ -55,7 +46,7 @@ public class MagicHandler extends BasePortalHandler
 {
 	public MagicHandler()
 	{
-		urlFragment = "magic";
+		setUrlFragment("magic");
 	}
 
 	@Override
@@ -71,7 +62,7 @@ public class MagicHandler extends BasePortalHandler
 	{
 		// recognize and dispatch the 'tool' option: [1] = "tool", [2] =
 		// placement id (of a site's tool placement), rest for the tool
-		if ((parts.length > 2) && (parts[1].equals(urlFragment)))
+		if ((parts.length > 2) && (parts[1].equals(getUrlFragment())))
 		{
 			try
 			{
