@@ -19,13 +19,12 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/hierarchy-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/portal-impl"/>
 	<classpathentry kind="src" path="tool/src/bundle"/>
-	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-1.2.8.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/velocity/jars/velocity-1.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/j-servletutil/jars/j-servletutil-1.1.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/ponderutilcore/jars/ponderutilcore-1.1.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/rsfutil/jars/rsfutil-0.6.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-collections/jars/commons-collections-3.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/site-manage-api"/>
-	<classpathentry kind="var" path="MAVEN_REPO/velocity-tools/jars/velocity-tools-1.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring/2.0.6/spring-2.0.6.jar" sourcepath="/M2_REPO/org/springframework/spring/2.0.6/spring-2.0.6-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
