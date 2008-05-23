@@ -31,9 +31,9 @@ public interface PortalHierarchyService {
 	 */
 	List<PortalNode> getNodesWithSite(String siteId);
 	
-	List<PortalNode> getNodesFromRoot(String siteId);
+	List<PortalNode> getNodesFromRoot(String nodeId);
 	
-	List<PortalNode> getNodeChildren(String siteid);
+	List<PortalNode> getNodeChildren(String nodeId);
 	
 	/**
 	 * delete nodes also removes the properties

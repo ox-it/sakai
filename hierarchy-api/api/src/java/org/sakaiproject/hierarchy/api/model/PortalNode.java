@@ -19,6 +19,8 @@ public interface PortalNode {
 	
 	public String getPath();
 	
+	public String getTitle();
+	
 	public boolean canView();
 	
 	public boolean canModify();
