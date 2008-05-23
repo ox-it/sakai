@@ -9,9 +9,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.hierarchy.api.PortalHierarchyService;
-import org.sakaiproject.hierarchy.api.model.Hierarchy;
-import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -23,7 +20,6 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.util.Placement;
 
 
 /**
@@ -33,10 +29,10 @@ import org.sakaiproject.util.Placement;
  */
 public class HierarchyToolHandler extends ToolHandler {
 
-	private Log log = LogFactory.getLog(HierarchyToolHandler.class);
+	private static Log log = LogFactory.getLog(HierarchyToolHandler.class);
 	
 	public HierarchyToolHandler() {
-		urlFragment = "hierarchytool";
+		setUrlFragment("hierarchytool");
 	}
 	
 	public void doTool(HttpServletRequest req, HttpServletResponse res, Session session,

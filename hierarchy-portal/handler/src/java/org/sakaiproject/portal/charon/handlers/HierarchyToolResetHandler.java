@@ -10,14 +10,14 @@ import org.sakaiproject.util.Web;
 public class HierarchyToolResetHandler extends ToolHandler {
 		public HierarchyToolResetHandler()
 		{
-			urlFragment = "hierarchytool-reset";
+			setUrlFragment("hierarchytool-reset");
 		}
 
 		@Override
 		public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 				Session session) throws PortalHandlerException
 		{
-			if ((parts.length > 2) && (parts[1].equals(urlFragment)))
+			if ((parts.length > 2) && (parts[1].equals(getUrlFragment())))
 			{
 				try
 				{
