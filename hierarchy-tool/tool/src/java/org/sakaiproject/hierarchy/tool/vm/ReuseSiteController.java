@@ -43,6 +43,7 @@ public class ReuseSiteController extends SimpleFormController {
 			// If throw exception if doesn't exist and bomb out.
 			Site site = SiteService.getSite(siteId);
 			command.setTitle(site.getTitle());
+			command.setSiteId(siteId);
 		}		
 		
 	}
@@ -78,13 +79,14 @@ public class ReuseSiteController extends SimpleFormController {
 			PortalNode node = hs.getCurrentPortalNode();
 			PortalNode newNode = hs.newNode(node.getId(), command.getName(), command.getSiteId(), node.getManagementSite().getId());
 			sitePath = newNode.getPath();
+			Map model = errors.getModel();
+			model.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ sitePath);
 		} catch (Exception hse) {
 			errors.reject("error.add.hierarchy");
+			return showForm(request, errors, getFormView(), errors.getModel());
 		} 
 		
-		Map model = errors.getModel();
-		model.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ sitePath);
-		
+
 		return super.onSubmit(request, response, command, errors);
 	}
 
