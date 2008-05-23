@@ -137,5 +137,10 @@ public class PortalNodeImpl implements PortalNode {
 		this.siteService = siteService;
 	}
 
+	public String getTitle()
+	{
+		return getSite().getTitle();
+	}
+
 	
 }
