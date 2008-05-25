@@ -6,67 +6,67 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>SNAPSHOT</version>
+    <version>M2</version>
   </parent>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-hierarchy-test</artifactId>
   <name>sakai-hierarchy-test</name>
-  <version>SNAPSHOT</version>
+  <version>M2</version>
   <build>
   </build>
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-db-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>M2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-db-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>M2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-hierarchy-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>M2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-hierarchy-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>M2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-tool-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>M2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-tool-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>M2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-site-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>M2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>M2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-impl</artifactId>
-      <version>SNAPSHOT</version>
+      <version>M2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

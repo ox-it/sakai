@@ -3,12 +3,12 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>SNAPSHOT</version>
+    <version>M2</version>
   </parent>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-hierarchy-api</artifactId>
   <name>sakai-hierarchy-api</name>
-  <version>SNAPSHOT</version>
+  <version>M2</version>
   <properties>
     <deploy.target>shared</deploy.target>
   </properties>
@@ -16,14 +16,14 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component</artifactId>
-      <version>SNAPSHOT</version>
+      <version>M2</version>
       <scope>provided</scope>
     </dependency>
     
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-site-api</artifactId>
-      <version>SNAPSHOT</version>
+      <version>M2</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
