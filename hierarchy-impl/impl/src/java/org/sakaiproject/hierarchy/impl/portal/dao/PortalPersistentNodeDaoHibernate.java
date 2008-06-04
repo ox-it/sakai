@@ -1,6 +1,7 @@
 package org.sakaiproject.hierarchy.impl.portal.dao;
 
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -26,6 +27,11 @@ public class PortalPersistentNodeDaoHibernate extends HibernateDaoSupport implem
 	}
 	
 	public void save(PortalPersistentNode node) {
+		Date now = new Date();
+		if (node.getCreated() == null) {
+			node.setCreated(now);
+		}
+		node.setUpdated(now);
 		getHibernateTemplate().saveOrUpdate(node);
 	}
 	

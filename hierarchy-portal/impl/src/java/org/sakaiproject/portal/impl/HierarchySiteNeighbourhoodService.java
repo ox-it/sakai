@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
@@ -33,30 +34,36 @@ public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodServi
 	{
 		// Get the threadlocal, if found use that, otherwise use proxy
 		PortalNode node = (PortalNode) ThreadLocalManager.get("sakai:portal:node");
-		if (node == null)
+		if (node != null)
 		{
-			return proxy.lookupSiteAlias(siteReferenced, content);
-		}
-		// Need to check current site, then children, then parents.
-		if (node.getSite().getReference().equals(siteReferenced) || node.getManagementSite().getReference().equals(siteReferenced))
-		{
-			return node.getPath();
-		}
-		for (PortalNode child: portalHierarchyService.getNodeChildren(node.getId()))
-		{
-			if (child.getSite().getReference().equals(siteReferenced))
+			// Need to check current site, then children, then parents.
+			if (node.getSite().getReference().equals(siteReferenced) || node.getManagementSite().getReference().equals(siteReferenced))
 			{
-				return child.getPath();
+				return node.getPath();
+			}
+			for (PortalNode child: portalHierarchyService.getNodeChildren(node.getId()))
+			{
+				if (child.getSite().getReference().equals(siteReferenced))
+				{
+					return child.getPath();
+				}
+			}
+			for (PortalNode parent: portalHierarchyService.getNodesFromRoot(node.getId()))
+			{
+				if (parent.getSite().getReference().equals(siteReferenced))
+				{
+					return parent.getPath();
+				}
+			}
+			// Don't do this at the moment unless we are coming through the hierarchy handler
+			String siteId = EntityManager.newReference(siteReferenced).getId();
+			PortalNode defaultNode = portalHierarchyService.getDefaultNode(siteId);
+			if (defaultNode != null) {
+				return defaultNode.getPath();
 			}
 		}
-		for (PortalNode parent: portalHierarchyService.getNodesFromRoot(node.getId()))
-		{
-			if (parent.getSite().getReference().equals(siteReferenced))
-			{
-				return parent.getPath();
-			}
-		}
-		return null;
+		
+		return proxy.lookupSiteAlias(siteReferenced, content);
 	}
 
 	public String parseSiteAlias(String alias)

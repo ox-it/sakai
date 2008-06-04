@@ -1,5 +1,7 @@
 package org.sakaiproject.hierarchy.impl.portal.dao;
 
+import java.util.Date;
+
 public class PortalPersistentNode {
 
 	private String id;
@@ -8,6 +10,8 @@ public class PortalPersistentNode {
 	private String name;
 	private String path;
 	private String pathHash;
+	private Date created;
+	private Date updated;
 	
 	public String getId() {
 		return id;
@@ -44,6 +48,22 @@ public class PortalPersistentNode {
 	}
 	public void setPathHash(String pathHash) {
 		this.pathHash = pathHash;
+	}
+	public Date getCreated()
+	{
+		return created;
+	}
+	public void setCreated(Date created)
+	{
+		this.created = created;
+	}
+	public Date getUpdated()
+	{
+		return updated;
+	}
+	public void setUpdated(Date updated)
+	{
+		this.updated = updated;
 	}
 	
 }

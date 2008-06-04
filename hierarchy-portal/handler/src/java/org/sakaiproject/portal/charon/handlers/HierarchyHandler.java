@@ -71,6 +71,7 @@ public class HierarchyHandler extends SiteHandler {
 		{
 			PortalHierarchyService phs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
 			PortalNode node = null;
+			Site site = null;
 			int hierarchyPartNo = parts.length;
 			for (; node == null && hierarchyPartNo >= start; hierarchyPartNo--) {
 				StringBuffer hierarchyPath = new StringBuffer();
@@ -84,20 +85,34 @@ public class HierarchyHandler extends SiteHandler {
 			if (node == null)
 			{
 				node = phs.getNode(null);
+				if (parts.length > 2)
+				{
+					try
+					{
+						site = portal.getSiteHelper().getSiteVisit(parts[2]);
+						hierarchyPartNo = 2;
+					}
+					catch (IdUnusedException iuue)
+					{
+						site = node.getSite();
+					}
+				}
 			}
-			log.debug("Path is: "+ node.getPath());
+			else
+			{
+				site = node.getSite();
+			}
 			
-			String siteId = node.getSite().getId();
+			phs.setCurrentPortalPath(node.getPath());
 			
 			String pageId = null;
 			if (parts.length >= hierarchyPartNo+2 && "page".equals(parts[hierarchyPartNo+1])){
 				pageId = parts[hierarchyPartNo+2];
 			}
 			
-			log.debug("siteId: "+ siteId+ " pageId: "+ pageId);
+			log.debug("siteId: "+ site.getId()+ " pageId: "+ pageId);
 
-			phs.setCurrentPortalPath(node.getPath());
-			doSite(req, res, session, node.getSite(), pageId, req.getContextPath()
+			doSite(req, res, session, site, pageId, req.getContextPath()
 					+ req.getServletPath()+node.getPath(), node);
 			return END;
 		}
@@ -146,28 +161,19 @@ public class HierarchyHandler extends SiteHandler {
 		{
 			log.warn("Hierarchy site not found.");
 		}
-				// if no page id, see if there was a last page visited for this site
-		if (pageId == null)
-		{
-			pageId = (String) session.getAttribute(Portal.ATTR_SITE_PAGE + node.getId());
-		}
 
 		// find the page, or use the first page if pageId not found
 		SitePage page = lookupSitePage(pageId, site);
 		if (page == null && pageId != null)
 		{
-/*			page = site.getPagebyName(pageId);
-			if (page == null)
-			{*/
-				// Look in the hierarchy site.
-				page = lookupSitePage(pageId, hierarchySite);
-				if (page != null) 
-				{
-					// Fix up the skin.
-					page = new AdoptedSitePage(site, page);
-				}
-			/*}*/
-			
+			// Look in the hierarchy site.
+			page = lookupSitePage(pageId, hierarchySite);
+			if (page != null) 
+			{
+				// Fix up the skin.
+				page = new AdoptedSitePage(site, page);
+			}
+
 		}
 		
 		if (page == null)
@@ -184,8 +190,9 @@ public class HierarchyHandler extends SiteHandler {
 			return;
 		}
 
-		// store the last page visited
-		session.setAttribute(Portal.ATTR_SITE_PAGE + node.getId(), page.getId());
+
+		ThreadLocalManager.set("sakai:portal:node", node);
+
 
 		// form a context sensitive title
 		String title = ServerConfigurationService.getString("ui.service") + " : "
@@ -206,7 +213,6 @@ public class HierarchyHandler extends SiteHandler {
 			siteUrl = siteUrl.substring(0, siteUrl.length()-1);
 		}
 
-		ThreadLocalManager.set("sakai:portal:node", node);
 		
 
 		if (hierarchySite != null)
@@ -257,56 +263,53 @@ public class HierarchyHandler extends SiteHandler {
 
 	private void includeHierarchy(PortalRenderContext rcontext, HttpServletRequest req, Session session, Site site, SitePage page, String toolContextPath, String portalPrefix, String siteUrl, Site hierarchySite, PortalNode node) {
 		// Need to get list of parents
-				
+
 		List<Map<String, Object>> parents = new ArrayList<Map<String, Object>>();
-		
+
 		List<PortalNode> parentNodes = portalHierarchyService.getNodesFromRoot(node.getId());
-		
+
 		boolean loggedIn = session.getUserId() != null;
 		boolean resetTools = "true".equals(ServerConfigurationService.getString(Portal.CONFIG_AUTO_RESET));
-		
+
+		List<Site> parentSites = new ArrayList<Site>(parentNodes.size());
 		for (PortalNode parentNode: parentNodes) {
-			Map<String, Object> map = convertToMap(parentNode);
-			if (map == null) {
-				parents.add(getUnknownSite(parentNode));
-			} else {
-				parents.add(map);
-			}
+			parentSites.add(parentNode.getSite());
 		}
-		parents.add(convertToMap(node));
-		rcontext.put("parents", parents);
+		String currentSiteId = node.getSite().getId();
+		Site myWorkspace = portal.getSiteHelper().getMyWorkspace(session);
+		String myWorkspaceId = null;
+		if (myWorkspace != null) {
+			myWorkspaceId = myWorkspace.getId();
+		}
 		
+		List<Map> parentSiteMaps = portal.getSiteHelper().convertSitesToMaps(req, parentSites, getUrlFragment(), currentSiteId, myWorkspaceId, false, false, resetTools, false, null, loggedIn);
+		rcontext.put("parents", parentSiteMaps);
+
 		// Details of children.
 		// List of site.visit but also display joinable.
-		
-		List<Map<String, Object>> children = new ArrayList<Map<String, Object>>();
-		
+
+		List<Site> childSites = new ArrayList<Site>();
+
 		for (PortalNode currentChild : portalHierarchyService.getNodeChildren(node.getId())) {
-			Map<String, Object> map = convertToMap(currentChild);
-			if (map != null) {
-				children.add(map);
-			} else {
-				log.debug("Ignored node: "+ currentChild);
+			if (currentChild.canView()) {
+				childSites.add(currentChild.getSite());
 			}
 		}
-		
-		rcontext.put("children", children);
-		
-		// Name - from Site or fallback to hierarchy.
-		
-		
-			String pageUrl = Web.returnUrl(req, "/" + portalPrefix + siteUrl
-					+ "/page/");
-			String toolUrl = Web.returnUrl(req, "/" + portalPrefix 
-					+ Web.escapeUrl(portal.getSiteHelper().getSiteEffectiveId(site)));
-			String pagePopupUrl = Web.returnUrl(req, "/page/");
-			
-			Map hierarchyPages = portal.getSiteHelper().pageListToMap(req, loggedIn, hierarchySite, page, toolUrl, portalPrefix, true, resetTools, false);
-			//Map hierarchyPages = pageListToMap(req, loggedIn, hierarchySite, page, toolUrl, portalPrefix, true, resetTools, false);
-			rcontext.put("hierarchyPages", hierarchyPages);
-		
+		List<Map> childSiteMaps = portal.getSiteHelper().convertSitesToMaps(req, childSites, getUrlFragment(), currentSiteId, myWorkspaceId, false, false, resetTools, false, null, loggedIn);
+		rcontext.put("children", childSiteMaps);
+
+		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + siteUrl
+				+ "/page/");
+		String toolUrl = Web.returnUrl(req, "/" + portalPrefix 
+				+ Web.escapeUrl(portal.getSiteHelper().getSiteEffectiveId(site)));
+		String pagePopupUrl = Web.returnUrl(req, "/page/");
+
+		Map hierarchyPages = portal.getSiteHelper().pageListToMap(req, loggedIn, hierarchySite, page, toolUrl, portalPrefix, true, resetTools, false);
+		//Map hierarchyPages = pageListToMap(req, loggedIn, hierarchySite, page, toolUrl, portalPrefix, true, resetTools, false);
+		rcontext.put("hierarchyPages", hierarchyPages);
+
 		// What todo if you can't see current site?
-		
+
 	}
 
 

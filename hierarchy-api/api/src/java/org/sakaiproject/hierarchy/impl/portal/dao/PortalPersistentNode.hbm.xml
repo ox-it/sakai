@@ -17,5 +17,7 @@
       <property name="name" type="string" length="64" />
       <property name="path" type="string" />
       <property name="pathHash" type="string" />
+      <property name="created" type="date" />
+      <property name="updated" type="date" />
    </class>
 </hibernate-mapping>

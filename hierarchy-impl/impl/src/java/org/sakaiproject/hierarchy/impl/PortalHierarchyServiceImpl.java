@@ -4,6 +4,8 @@ package org.sakaiproject.hierarchy.impl;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -201,6 +203,25 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		
 		return populatePortalNode(portalNode);
 		
+	}
+	
+
+	public PortalNode getDefaultNode(String siteId) {
+		List<PortalPersistentNode> nodes =  dao.findBySiteId(siteId);
+		if (nodes.size() == 0) {
+			return null;
+		}
+		if (nodes.size() > 1) {
+			Comparator<PortalPersistentNode> comp = new Comparator<PortalPersistentNode>() {
+
+				public int compare(PortalPersistentNode o1, PortalPersistentNode o2)
+				{
+					return o1.getCreated().compareTo(o2.getCreated());
+				}
+			};
+			Collections.sort(nodes, comp);
+		}
+		return populatePortalNode(nodes.get(0));
 	}
 
 	public void renameNode(String id, String newPath) {

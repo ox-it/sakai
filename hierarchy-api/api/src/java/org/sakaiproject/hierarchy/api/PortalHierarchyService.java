@@ -24,6 +24,8 @@ public interface PortalHierarchyService {
 
 	PortalNode getNodeById(String id);
 	
+	PortalNode getDefaultNode(String siteId);
+	
 	/**
 	 * Find all the nodes in the hierarchy with the selected site attached.
 	 * @param siteId The ID of the site to search for.
