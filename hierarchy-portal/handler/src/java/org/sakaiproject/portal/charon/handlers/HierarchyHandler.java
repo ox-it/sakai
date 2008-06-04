@@ -86,6 +86,7 @@ public class HierarchyHandler extends SiteHandler {
 			// Default site.
 			if (hierarchyPartNo == start || parts[start].equals("page")) {
 				node = phs.getNode(null);
+				hierarchyPartNo = start-1;
 			} else {
 				for (; node == null && hierarchyPartNo >= start; hierarchyPartNo--) {
 					String hierarchyPath = buildPath(parts, start, hierarchyPartNo);
