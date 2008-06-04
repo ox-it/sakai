@@ -20,5 +20,7 @@
   	<module>hierarchy-impl/pack</module>
   	<module>hierarchy-tool/tool</module>
   	<module>hierarchy-portal/handler</module>
+  	<module>hierarchy-portal/impl</module>
+  	<module>hierarchy-portal/pack</module>
   </modules>
 </project>
