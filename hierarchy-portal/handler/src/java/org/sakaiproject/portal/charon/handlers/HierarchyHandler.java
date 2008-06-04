@@ -74,13 +74,9 @@ public class HierarchyHandler extends SiteHandler {
 			Site site = null;
 			int hierarchyPartNo = parts.length;
 			for (; node == null && hierarchyPartNo >= start; hierarchyPartNo--) {
-				StringBuffer hierarchyPath = new StringBuffer();
-				for (int partNo = start; partNo < hierarchyPartNo; partNo++) {
-					hierarchyPath.append("/");
-					hierarchyPath.append(parts[partNo]);
-				}
-				log.debug("Looking for: "+ hierarchyPath.toString());
-				node = phs.getNode(hierarchyPath.toString());
+				String hierarchyPath = buildPath(parts, start, hierarchyPartNo);
+				log.debug("Looking for: "+ hierarchyPath);
+				node = phs.getNode(hierarchyPath);
 			}
 			if (node == null)
 			{
@@ -120,6 +116,20 @@ public class HierarchyHandler extends SiteHandler {
 		{
 			throw new PortalHandlerException(ex);
 		}
+	}
+
+	/**
+	 * Builds a hierarchy path from subset of the parts supplied.
+	 * @return The built string.
+	 */
+	private String buildPath(String[] parts, int start, int stop)
+	{
+		StringBuffer hierarchyPath = new StringBuffer();
+		for (int partNo = start; partNo < stop; partNo++) {
+			hierarchyPath.append("/");
+			hierarchyPath.append(parts[partNo]);
+		}
+		return hierarchyPath.toString();
 	}
 	
 
