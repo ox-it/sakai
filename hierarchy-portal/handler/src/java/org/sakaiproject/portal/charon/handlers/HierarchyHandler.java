@@ -13,14 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.entity.api.EntitySummary;
-import org.sakaiproject.entity.api.Summary;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
-import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
@@ -28,15 +23,9 @@ import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.util.ArrayUtil;
-import org.sakaiproject.util.MapUtil;
 import org.sakaiproject.util.Web;
 
 public class HierarchyHandler extends SiteHandler {
@@ -229,7 +218,7 @@ public class HierarchyHandler extends SiteHandler {
 		portal.includeBottom(rcontext);
 
 		// end the response
-		portal.sendResponse(rcontext, res, "hierarchy", null);
+		portal.sendResponse(rcontext, res, "site", null);
 		StoredState ss = portalService.getStoredState();
 		if (ss != null && toolContextPath.equals(ss.getToolContextPath()))
 		{
@@ -302,8 +291,6 @@ public class HierarchyHandler extends SiteHandler {
 		}
 		
 		rcontext.put("children", children);
-		
-		rcontext.put("tabsSites", Boolean.TRUE);
 		
 		// Name - from Site or fallback to hierarchy.
 		
