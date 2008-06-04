@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -216,7 +217,16 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 				public int compare(PortalPersistentNode o1, PortalPersistentNode o2)
 				{
-					return o1.getCreated().compareTo(o2.getCreated());
+					Date o1Created = o1.getCreated();
+					Date o2Created = o2.getCreated();
+					if (o1Created == null) {
+						o1Created = new Date(0);
+					}
+					if (o2Created == null) {
+						o2Created = new Date(0);
+					}
+					
+					return o1Created.compareTo(o2Created);
 				}
 			};
 			Collections.sort(nodes, comp);
