@@ -38,7 +38,7 @@ public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodServi
 			return proxy.lookupSiteAlias(siteReferenced, content);
 		}
 		// Need to check current site, then children, then parents.
-		if (node.getSite().getReference().equals(siteReferenced))
+		if (node.getSite().getReference().equals(siteReferenced) || node.getManagementSite().getReference().equals(siteReferenced))
 		{
 			return node.getPath();
 		}
