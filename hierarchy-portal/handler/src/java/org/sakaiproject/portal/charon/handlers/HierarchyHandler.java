@@ -314,8 +314,9 @@ public class HierarchyHandler extends SiteHandler {
 					+ Web.escapeUrl(portal.getSiteHelper().getSiteEffectiveId(site)));
 			String pagePopupUrl = Web.returnUrl(req, "/page/");
 			
+			Map hierarchyPages = portal.getSiteHelper().pageListToMap(req, loggedIn, hierarchySite, page, toolUrl, portalPrefix, true, resetTools, false);
 			//Map hierarchyPages = pageListToMap(req, loggedIn, hierarchySite, page, toolUrl, portalPrefix, true, resetTools, false);
-			//rcontext.put("hierarchyPages", hierarchyPages);
+			rcontext.put("hierarchyPages", hierarchyPages);
 		
 		// What todo if you can't see current site?
 		
