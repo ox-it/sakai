@@ -29,7 +29,7 @@ public class BringSiteController extends SimpleFormController {
 		
 		session.setAttribute(Tool.HELPER_DONE_URL, request.getContextPath()+ request.getServletPath()+getReturnPath());
 		session.setAttribute(SiteHelper.SITE_CREATE_START, Boolean.TRUE);
-		session.setAttribute(SiteHelper.SITE_CREATE_SITE_TYPES, "project,course");
+		session.setAttribute(SiteHelper.SITE_PICKER_PERMISSION, org.sakaiproject.site.api.SiteService.SelectionType.UPDATE);
 		
 		return super.onSubmit(request, response, command, errors);
 	}
