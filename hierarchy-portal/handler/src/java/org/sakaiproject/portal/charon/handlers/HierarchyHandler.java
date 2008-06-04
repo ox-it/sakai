@@ -164,14 +164,14 @@ public class HierarchyHandler extends SiteHandler {
 		}
 
 		// find the page, or use the first page if pageId not found
-		SitePage page = site.getPage(pageId);
+		SitePage page = lookupSitePage(pageId, site);
 		if (page == null && pageId != null)
 		{
 /*			page = site.getPagebyName(pageId);
 			if (page == null)
 			{*/
 				// Look in the hierarchy site.
-				page = hierarchySite.getPage(pageId);
+				page = lookupSitePage(pageId, hierarchySite);
 				if (page != null) 
 				{
 					// Fix up the skin.
@@ -346,6 +346,31 @@ public class HierarchyHandler extends SiteHandler {
 	
 	private String getNodeURL(PortalNode node) {
 		return ServerConfigurationService.getPortalUrl()+ "/"+ getUrlFragment() + Web.escapeUrl(node.getPath());
+	}
+	
+	public SitePage lookupSitePage(String pageId, Site site)
+	{
+		// Make sure we have some permitted pages
+		List pages = portal.getSiteHelper().getPermittedPagesInOrder(site);
+		if (pages.isEmpty()) return null;
+		SitePage page = site.getPage(pageId);
+		if (page == null)
+		{
+			page = portal.getSiteHelper().lookupAliasToPage(pageId, site);
+		}
+		if (page != null) {
+
+			// Make sure that they user has permission for the page.
+			// If the page is not in the permitted list go to the first
+			// page.
+			for (Iterator i = pages.iterator(); i.hasNext();)
+			{
+				SitePage p = (SitePage) i.next();
+				if (p.getId().equals(page.getId())) return page;
+			}
+		}
+
+		return null;
 	}
 	
 //	public void includeWorksite(PortalRenderContext rcontext, HttpServletResponse res,
