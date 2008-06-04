@@ -47,13 +47,14 @@ public class HierarchyHandler extends SiteHandler {
 	{
 		if ( (parts.length >= 2) && parts[1].equals(getUrlFragment()))
 		{
-			log.debug("Matched");
 			return doFindSite(parts, 2, req, res, session);
 		}
+		// If we have an extra slash (/portal/)
 		else if (parts.length > 0)
 		{
 			return doFindSite(parts, 1, req, res, session);
 		}
+		// Default handling (/portal)
 		else if (parts.length == 0)
 		{
 			return doFindSite(parts, 0, req, res, session);
