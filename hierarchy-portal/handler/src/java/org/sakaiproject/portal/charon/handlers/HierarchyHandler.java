@@ -15,6 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.portal.api.Portal;
@@ -107,6 +108,21 @@ public class HierarchyHandler extends SiteHandler {
 					catch (IdUnusedException iuue)
 					{
 						portal.doError(req, res, session, Portal.ERROR_SITE);
+					}
+					catch (PermissionException pe)
+					{
+						if (session.getUserId() == null)
+						{
+							StoredState ss = portalService.newStoredState("directtool", "tool");
+							ss.setRequest(req);
+							ss.setToolContextPath(req.getServletPath());
+							portalService.setStoredState(ss);
+							portal.doLogin(req, res, session, req.getPathInfo(), false);
+						}
+						else
+						{
+							portal.doError(req, res, session, Portal.ERROR_SITE);
+						}
 					}
 				}
 			}
