@@ -10,7 +10,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
-import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.hierarchy.tool.vm.NewSiteCommand.Method;
 import org.sakaiproject.sitemanage.api.SiteHelper;

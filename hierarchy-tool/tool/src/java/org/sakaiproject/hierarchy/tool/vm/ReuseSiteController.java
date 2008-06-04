@@ -7,9 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.hierarchy.api.HierarchyServiceException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
-import org.sakaiproject.hierarchy.api.model.Hierarchy;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.hierarchy.tool.vm.NewSiteCommand.Method;
 import org.sakaiproject.site.api.Site;

@@ -1,9 +1,7 @@
 package org.sakaiproject.hierarchy.tool.vm;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -14,8 +12,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.hierarchy.api.model.Hierarchy;
-import org.sakaiproject.hierarchy.api.model.HierarchyProperty;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.hierarchy.cover.PortalHierarchyService;
 import org.sakaiproject.site.api.Site;
