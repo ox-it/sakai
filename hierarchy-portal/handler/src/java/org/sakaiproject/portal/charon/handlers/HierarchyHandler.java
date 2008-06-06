@@ -141,7 +141,7 @@ public class HierarchyHandler extends SiteHandler {
 			
 			log.debug("siteId: "+ site.getId()+ " pageId: "+ pageId);
 			if (node == null) {
-				super.doSite(req, res, session, site.getId(), pageId, null);
+				super.doSite(req, res, session, site.getId(), pageId, req.getContextPath()+req.getServletPath());
 			} else {
 				doSite(req, res, session, site, pageId, req.getContextPath()
 						+ req.getServletPath()+node.getPath(), node);
