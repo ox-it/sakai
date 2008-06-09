@@ -2,20 +2,38 @@
 #chef_portletContainer()
 #chef_portletContent()
 
+<h3>#springMessage("newsite.title")</h3>
+
+<p>
+#springMessage("newsite.intro")
+</p>
+
 <form method="post" action="${rootUrl}">
 
 <input type="hidden" name="_action" value="act_newsite"/>
 
-<p>
-<label for="title">Title:</label>
-#springFormInput("command.title" "")
-#springShowErrors("" "")
-</p>
-<p>
-#springFormRadioButton("command.method" "AUTOMATIC" "")<label for="method-AUTOMATIC">Automatic</label><br/>
-#springFormRadioButton("command.method" "CUSTOM" "")<label for="method-CUSTOM">Custom</label>
-#springFormInput("command.name" "")
-#springShowErrors("" "")
+<table cellpadding="4px">
+ <tr>
+  <th>
+   <label for="title">#springMessage("newsite.site.title")</label>
+  </th>
+  <td>
+   #springFormInput("command.title" "")
+   #springShowErrors("" "")
+  </td>
+ </tr>
+ <tr>
+  <th>
+   <label>#springMessage("newsite.url")</label>
+  </th>
+  <td>
+   #springFormRadioButton("command.method" "AUTOMATIC" "")<label for="method-AUTOMATIC">#springMessage("newsite.automatic")</label><br/>
+   #springFormRadioButton("command.method" "CUSTOM" "")<label for="method-CUSTOM">#springMessage("newsite.custom")</label>
+   #springFormInput("command.name" "")
+   #springShowErrors("" "")
+  </td>
+ </tr>
+</table>
 </p>
 
 

@@ -2,10 +2,15 @@
 #chef_portletContainer()
 #chef_portletContent()
 
+<h3>#springMessage("bring.title")</h3>
+<p class="instruction">
+#springMessage("bring.intro")
+</p>
 <form method="POST">
-<input type="submit" value="Select Site"/>
+<p class="act">
+<input type="submit" class="active" value="Select Site"/>
+</p>
 </form>
-
 
 #chef_portletContentEnd()
 #chef_portletContainerEnd()

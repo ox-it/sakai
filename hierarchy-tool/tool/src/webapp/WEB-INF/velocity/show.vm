@@ -2,8 +2,8 @@
 #chef_portletContainer()
 #chef_portletContent()
 
-<h2>Current Site</h2>
-<h3>Path: $node.path</h3>
+<h3>Current Site</h3>
+<h4>Path: $node.path</h4>
 
 <p>
 #if ($site)
