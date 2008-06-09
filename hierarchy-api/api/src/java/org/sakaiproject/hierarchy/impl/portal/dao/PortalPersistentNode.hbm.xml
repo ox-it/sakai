@@ -8,6 +8,8 @@
    <class name="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNode"
       table="PORTAL_NODE">
 
+      <cache usage="read-write"/>
+
       <!-- create the primary key id -->
       <id name="id" type="string">
          <column name="ID" />
@@ -19,5 +21,6 @@
       <property name="pathHash" type="string" />
       <property name="created" type="date" />
       <property name="updated" type="date" />
+
    </class>
 </hibernate-mapping>
