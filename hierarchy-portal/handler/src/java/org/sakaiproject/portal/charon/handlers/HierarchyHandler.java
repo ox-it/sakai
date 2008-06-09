@@ -47,6 +47,10 @@ public class HierarchyHandler extends SiteHandler {
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
+
+		// Set a threadlocal so lower levels can know we are using the hierarchy handler (eg aliases).
+		ThreadLocalManager.set("sakai:portal:hierarchy", Boolean.TRUE);
+
 		// If we are specified (/portal/hierarchy)
 		if ( (parts.length >= 2) && parts[1].equals(getUrlFragment()))
 		{
@@ -173,8 +177,6 @@ public class HierarchyHandler extends SiteHandler {
 			Site site, String pageId, String toolContextPath, PortalNode node) throws ToolException,
 			IOException
 	{
-		
-
 		Site hierarchySite = null;
 		
 		// default site if not set

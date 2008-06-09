@@ -55,6 +55,10 @@ public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodServi
 					return parent.getPath();
 				}
 			}
+		}
+		// If we aren't at a node but came through hierarchy (eg MyWorkspace URLs).
+		if (ThreadLocalManager.get("sakai:portal:hierarchy") != null)
+		{
 			// Don't do this at the moment unless we are coming through the hierarchy handler
 			String siteId = EntityManager.newReference(siteReferenced).getId();
 			PortalNode defaultNode = portalHierarchyService.getDefaultNode(siteId);
