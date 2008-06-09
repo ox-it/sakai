@@ -73,19 +73,18 @@ public class ReuseSiteController extends SimpleFormController {
 		NewSiteCommand command = (NewSiteCommand)object;
 		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
 		String sitePath = null;
+		Map model = errors.getModel();
 		try {
 			PortalNode node = hs.getCurrentPortalNode();
 			PortalNode newNode = hs.newNode(node.getId(), command.getName(), command.getSiteId(), node.getManagementSite().getId());
 			sitePath = newNode.getPath();
-			Map model = errors.getModel();
 			model.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ sitePath);
 		} catch (Exception hse) {
 			errors.reject("error.add.hierarchy");
 			return showForm(request, errors, getFormView(), errors.getModel());
-		} 
-		
+		}
 
-		return super.onSubmit(request, response, command, errors);
+		return new ModelAndView(getSuccessView(), model);
 	}
 
 	public String getCancelledView() {
@@ -109,9 +108,5 @@ public class ReuseSiteController extends SimpleFormController {
 			Errors errors) throws Exception {
 		return VelocityControllerUtils.referenceData(request, command, errors);
 	}
-	
-	
 
-	
-	
 }
