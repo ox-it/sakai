@@ -28,6 +28,9 @@ public class PortalNodeImpl implements PortalNode {
 	}
 
 	public boolean canView() {
+		if (site == null) {
+			return false;
+		}
 		return siteService.allowAccessSite(site.getId());
 	}
 

@@ -42,6 +42,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	
 	private String hierarchyId;
 	
+	private String missingSiteId;
+	
 	public void changeSite(String id, String newSiteId) {
 		PortalPersistentNode node = dao.findById(id);
 		node.setSiteId(newSiteId);
@@ -87,8 +89,14 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 			try {
 				Site portalSite = siteService.getSite(portalPersistentNode.getSiteId());
 				portalNode.setSite(portalSite);
-			} catch (IdUnusedException e) {
-				log.warn("Couldn't find portal site "+ portalPersistentNode.getSiteId()+ " for "+ portalPersistentNode.getPath());
+			} catch (IdUnusedException iue) {
+				log.debug("Couldn't find portal site "+ portalPersistentNode.getSiteId()+ " for "+ portalPersistentNode.getPath());
+				try {
+					Site missingSite = siteService.getSite(missingSiteId);
+					portalNode.setSite(missingSite);
+				} catch (IdUnusedException iue2 ) {
+					log.warn("Couldn't find missing site "+ missingSiteId);
+				}
 			}
 			try {
 				Site managementSite = siteService.getSite(portalPersistentNode.getManagementSiteId());
@@ -351,6 +359,16 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 	public void setSessionManager(SessionManager sessionManager) {
 		this.sessionManager = sessionManager;
+	}
+
+	public String getMissingSiteId()
+	{
+		return missingSiteId;
+	}
+
+	public void setMissingSiteId(String missingSiteId)
+	{
+		this.missingSiteId = missingSiteId;
 	}
 
 }
