@@ -3,8 +3,6 @@
 #chef_portletContent()
 
 <h3>Current Site</h3>
-<h4>Path: $node.path</h4>
-
 <p>
 #if ($site)
 ${site.title} - #if($site.description)${site.description}#else No Description #end
@@ -12,7 +10,9 @@ ${site.title} - #if($site.description)${site.description}#else No Description #e
 No site currently set.
 #end
 </p>
-<h3>Other Locations</h3>
+
+<h4>Path: $node.path</h4>
+<h4>Other Locations</h4>
 <ul>
 #foreach ($path in $otherPaths)
 <li>$path</li>
