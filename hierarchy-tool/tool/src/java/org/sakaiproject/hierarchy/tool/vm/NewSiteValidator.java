@@ -9,8 +9,9 @@ import org.springframework.validation.Validator;
 
 public class NewSiteValidator implements Validator {
 
-	private int maxLength = 12;
+	private int maxNameLength = 12;
 	private int generateLength = 10;
+	private int maxTitleLength = 20;
 
 	public boolean supports(Class clazz) {
 		return NewSiteCommand.class.isAssignableFrom(clazz);
@@ -20,14 +21,17 @@ public class NewSiteValidator implements Validator {
 		NewSiteCommand command = (NewSiteCommand) object;
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "title",
 				"validator.title.empty");
+		if (command.getTitle() != null && command.getTitle().length() > maxTitleLength) {
+			errors.rejectValue("title", "validator.title.too.long", new Object[] {maxTitleLength}, null);
+		}
 		if (Method.CUSTOM.equals(command.getMethod())) {
 			String url = command.getName();
 			if (url == null || url.length() == 0) {
 				errors.rejectValue("name", "validator.name.empty");
 			} else {
-				if (url.length() > maxLength) {
+				if (url.length() > maxNameLength) {
 					errors.rejectValue("name", "validator.name.too.long",
-							new Object[] { Integer.toString(maxLength) }, null);
+							new Object[] { Integer.toString(maxNameLength) }, null);
 				}
 				if (!Pattern.matches("[a-z0-9][_a-z0-9]*", url)) {
 					errors.rejectValue("name", "validator.name.bad.characters");
@@ -60,6 +64,16 @@ public class NewSiteValidator implements Validator {
 			tmp = tmp.substring(0, tmp.length() - 1);
 		}
 		return tmp;
+	}
+
+	public int getMaxTitleLength()
+	{
+		return maxTitleLength;
+	}
+
+	public void setMaxTitleLength(int maxTitleLength)
+	{
+		this.maxTitleLength = maxTitleLength;
 	}
 
 }

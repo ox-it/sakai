@@ -30,13 +30,26 @@
 		<property name="validator">
 			<ref bean="newSiteValidator"/>
 		</property>
+		<property name="titleMaxLength">
+			<ref bean="titleMaxLength"/>
+		</property>
 	</bean>
-	
+
 	<bean id="newSiteValidator"
-		class="org.sakaiproject.hierarchy.tool.vm.NewSiteValidator"/>
-		
-		
-			
+		class="org.sakaiproject.hierarchy.tool.vm.NewSiteValidator">
+		<property name="maxTitleLength">
+			<ref bean="titleMaxLength"/>
+		</property>
+	</bean>
+
+	<bean id="titleMaxLength"
+		factory-bean="org.sakaiproject.component.api.ServerConfigurationService"
+		factory-method="getInt">
+		<constructor-arg value="site.title.maxlength" />
+		<constructor-arg value="20" />
+	</bean>
+
+
 	<bean id="siteCreationHelper"
 		class="org.sakaiproject.hierarchy.tool.vm.HelperController">
 		<property name="helperId"><value>sakai.sitesetup</value></property>

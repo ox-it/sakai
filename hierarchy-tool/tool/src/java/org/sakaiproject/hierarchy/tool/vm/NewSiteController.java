@@ -28,6 +28,8 @@ public class NewSiteController extends SimpleFormController
 	
 	private String returnPath;
 	
+	private int titleMaxLength;
+
 	private Method defaultMethod;
 	
 	public String getReturnPath() {
@@ -100,7 +102,19 @@ public class NewSiteController extends SimpleFormController
 	@Override
 	protected Map<String, String> referenceData(HttpServletRequest request, Object command, Errors errors)
 	{
-		return VelocityControllerUtils.referenceData(request, command, errors);
+		Map referenceData = VelocityControllerUtils.referenceData(request, command, errors);
+		referenceData.put("titleMaxLength", getTitleMaxLength());
+		return referenceData;
+	}
+
+	public int getTitleMaxLength()
+	{
+		return titleMaxLength;
+	}
+
+	public void setTitleMaxLength(int titleMaxLength)
+	{
+		this.titleMaxLength = titleMaxLength;
 	}
 
 }
