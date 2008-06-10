@@ -35,9 +35,9 @@
  </tr>
 </table>
 </p>
-
-
-<input type="submit" value="Continue"/>
+<p class="act">
+ <input type="submit" class="active" value="Continue"/>
+</p>
 </form>
 
 #chef_portletContentEnd()
