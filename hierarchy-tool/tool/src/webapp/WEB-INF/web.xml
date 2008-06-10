@@ -14,7 +14,7 @@
 
 	<listener>
 		<listener-class>
-			org.springframework.web.context.ContextLoaderListener
+			org.sakaiproject.util.ContextLoaderListener
 		</listener-class>
 	</listener>
 
