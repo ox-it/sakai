@@ -14,7 +14,7 @@
       <id name="id" type="string">
          <column name="ID" />
       </id>
-      <property name="siteId" type="string" length="64" />
+      <property name="siteId" type="string" length="64" index="portal_node_site_idx"/>
       <property name="managementSiteId" type="string" length="64" />
       <property name="name" type="string" length="64" />
       <property name="path" type="string" />
