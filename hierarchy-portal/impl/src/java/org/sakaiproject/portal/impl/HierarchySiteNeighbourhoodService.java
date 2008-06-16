@@ -1,6 +1,8 @@
 package org.sakaiproject.portal.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,6 +19,8 @@ import org.sakaiproject.tool.api.Session;
 public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodService
 {
 	
+	private static final String CACHE_KEY = HierarchySiteNeighbourhoodService.class+ "cache";
+
 	private static Log log = LogFactory.getLog(HierarchySiteNeighbourhoodService.class);
 
 	private SiteNeighbourhoodService proxy;
@@ -30,7 +34,29 @@ public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodServi
 		return proxy.getSitesAtNode(request, session, includeMyWorksite);
 	}
 
-	public String lookupSiteAlias(String siteReferenced, String content)
+	public String lookupSiteAlias(String siteReferenced, String context)
+	{
+		Map<String, String> cache = (Map<String, String>)ThreadLocalManager.get(CACHE_KEY);
+		if (cache == null)
+		{
+			cache = new HashMap<String, String>();
+			ThreadLocalManager.set(CACHE_KEY, cache);
+		}
+		String key = siteReferenced+context;
+		if (cache.containsKey(key))
+		{
+			return cache.get(key);
+		}
+		else
+		{
+			String value = findSiteAlias(siteReferenced, context);
+			cache.put(key, value);
+			return value;
+		}
+	}
+	
+	
+	public String findSiteAlias(String siteReferenced, String content)
 	{
 		// Get the threadlocal, if found use that, otherwise use proxy
 		PortalNode node = (PortalNode) ThreadLocalManager.get("sakai:portal:node");
