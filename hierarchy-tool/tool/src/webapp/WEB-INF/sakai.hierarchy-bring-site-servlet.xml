@@ -26,28 +26,36 @@
 		<property name="sessionForm" value="true"/>
 		<property name="returnPath" value="/reuse"/>
 	</bean>
-	
-	<bean id="newSiteValidator"
-		class="org.sakaiproject.hierarchy.tool.vm.NewSiteValidator"/>
-		
-		
-			
+
 	<bean id="siteCreationHelper"
 		class="org.sakaiproject.hierarchy.tool.vm.HelperController">
 		<property name="helperId"><value>sakai.sitebrowser</value></property>
 	</bean>
-	
+
 	<bean id="reuseSiteController"
 		class="org.sakaiproject.hierarchy.tool.vm.ReuseSiteController">
-		<property name="cancelledView" value="redirect:/"/>
-		<property name="formView" value="reuse"/>
-		<property name="successView" value="redirect"/>
-		<property name="defaultMethod" value="AUTOMATIC"/>
-		<property name="bindOnNewForm" value="true"/>
-		<property name="sessionForm" value="true"/>
+		<property name="cancelledView" value="redirect:/" />
+		<property name="formView" value="reuse" />
+		<property name="successView" value="redirect" />
+		<property name="defaultMethod" value="AUTOMATIC" />
+		<property name="bindOnNewForm" value="true" />
+		<property name="sessionForm" value="true" />
+		<property name="validator">
+			<bean
+				class="org.sakaiproject.hierarchy.tool.vm.ReuseSiteValidator">
+				<property name="maxTitleLength">
+					<ref bean="titleMaxLength" />
+				</property>
+			</bean>
+		</property>
 	</bean>
 
-
+	<bean id="titleMaxLength"
+		factory-bean="org.sakaiproject.component.api.ServerConfigurationService"
+		factory-method="getInt">
+		<constructor-arg value="site.title.maxlength" />
+		<constructor-arg value="20" />
+	</bean>
 
 	<!-- 
 		View resolvers can also be configured with ResourceBundles or XML files. If you need 

@@ -6,7 +6,7 @@
 
 <p>
 <label for="title">Title:</label>
-#springFormInput("command.title" "")
+#springFormInput("command.title" "readonly='true'")
 #springShowErrors("" "")
 </p>
 <p>

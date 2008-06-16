@@ -1,5 +1,6 @@
 package org.sakaiproject.hierarchy.tool.vm;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +27,6 @@ public class ReuseSiteController extends SimpleFormController {
 	
 	public ReuseSiteController() {
 		setCommandClass(NewSiteCommand.class);
-		setValidator(new NewSiteValidator());
 	}
 
 	@Override
@@ -72,6 +72,16 @@ public class ReuseSiteController extends SimpleFormController {
 		
 		NewSiteCommand command = (NewSiteCommand)object;
 		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
+		PortalNode currentNode = hs.getCurrentPortalNode();
+		List<PortalNode> children = hs.getNodeChildren(currentNode.getId());
+		for (PortalNode child : children) {
+			if (child.getName().equals(command.getName())) {
+				errors.rejectValue("name", "error.name.exists");
+				command.setMethod(Method.CUSTOM);
+				return showForm(request, response, errors);
+			}
+		}
+		
 		String sitePath = null;
 		Map model = errors.getModel();
 		try {
