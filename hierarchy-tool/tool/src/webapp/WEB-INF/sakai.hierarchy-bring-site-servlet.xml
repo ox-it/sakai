@@ -25,6 +25,9 @@
 		<property name="successView" value="redirect:/helper"/>
 		<property name="sessionForm" value="true"/>
 		<property name="returnPath" value="/reuse"/>
+		<property name="securityService">
+			<ref bean="org.sakaiproject.authz.api.SecurityService"/>
+		</property>
 	</bean>
 
 	<bean id="siteCreationHelper"
