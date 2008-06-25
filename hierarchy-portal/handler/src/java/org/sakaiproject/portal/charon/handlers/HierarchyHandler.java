@@ -37,11 +37,13 @@ public class HierarchyHandler extends SiteHandler {
 	private static Log log = LogFactory.getLog(HierarchyHandler.class);
 	private SiteService siteService;
 	private PortalHierarchyService portalHierarchyService;
+	private boolean resetTools;
 	
 	public HierarchyHandler(SiteService siteService, PortalHierarchyService portalHierarchyService) {
 		this.siteService = siteService;
 		this.portalHierarchyService = portalHierarchyService;
 		setUrlFragment("hierarchy");
+		resetTools = ServerConfigurationService.getBoolean(Portal.CONFIG_AUTO_RESET, false);
 	}
 	
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
@@ -317,7 +319,6 @@ public class HierarchyHandler extends SiteHandler {
 		List<PortalNode> parentNodes = portalHierarchyService.getNodesFromRoot(node.getId());
 
 		boolean loggedIn = session.getUserId() != null;
-		boolean resetTools = "true".equals(ServerConfigurationService.getString(Portal.CONFIG_AUTO_RESET));
 
 		List<Site> parentSites = new ArrayList<Site>(parentNodes.size());
 		for (PortalNode parentNode: parentNodes) {
@@ -409,167 +410,5 @@ public class HierarchyHandler extends SiteHandler {
 
 		return null;
 	}
-	
-//	public void includeWorksite(PortalRenderContext rcontext, HttpServletResponse res,
-//			HttpServletRequest req, Session session, Site site, SitePage page,
-//			String toolContextPath, String portalPrefix, String siteUrl) throws IOException
-//	{
-//		if (rcontext.uses(INCLUDE_WORKSITE))
-//		{
-//
-//			// add the page navigation with presence
-//			boolean loggedIn = session.getUserId() != null;
-//			String pageUrl = Web.returnUrl(req, "/" + portalPrefix 
-//					+ "/page/");
-//			String toolUrl = Web.returnUrl(req, "/" + portalPrefix 
-//					+ Web.escapeUrl(portal.getSiteHelper().getSiteEffectiveId(site)));
-//			String pagePopupUrl = Web.returnUrl(req, "/page/");
-//			
-//			List pageMap = convertPagesToMap( site, page, 
-//				portalPrefix, 
-//				/* doPages */true,
-//				/* resetTools */"true".equals(ServerConfigurationService
-//						.getString(Portal.CONFIG_AUTO_RESET)),
-//				/* includeSummary */false, pageUrl, toolUrl, pagePopupUrl);
-//			Map sitePages = new HashMap();
-//			sitePages.put("pageNaveToolsCount", pageMap.size());
-//			sitePages.put("pageNavTools", pageMap);
-//			rcontext.put("sitePages", sitePages);
-//
-//			// add the page
-//			includePage(rcontext, res, req, session, page, toolContextPath, "content");
-//		}
-//
-//	}
-//	
-//	protected void includePageList(PortalRenderContext rcontext, HttpServletRequest req,
-//			Session session, Site site, SitePage page, String toolContextPath,
-//			String portalPrefix, boolean doPages, boolean resetTools,
-//			boolean includeSummary) throws IOException
-//	{
-//		boolean loggedIn = session.getUserId() != null;
-//
-//		String pageUrl = Web.returnUrl(req, "/" + portalPrefix 
-//				+ "/page/");
-//		String toolUrl = Web.returnUrl(req, "/" + portalPrefix 
-//				+ Web.escapeUrl(portal.getSiteHelper().getSiteEffectiveId(site)));
-//		if (resetTools)
-//		{
-//			toolUrl = toolUrl + "/tool-reset/";
-//		}
-//		else
-//		{
-//			toolUrl = toolUrl + "/tool/";
-//		}
-//
-//		String pagePopupUrl = Web.returnUrl(req, "/page/");
-//		
-//		if (rcontext.uses(INCLUDE_PAGE_NAV))
-//		{
-//			boolean showHelp = ServerConfigurationService.getBoolean("display.help.menu",
-//					true);
-//			String iconUrl = site.getIconUrlFull();
-//			boolean published = site.isPublished();
-//			String type = site.getType();
-//
-//			rcontext.put("pageNavPublished", Boolean.valueOf(published));
-//			rcontext.put("pageNavType", type);
-//			rcontext.put("pageNavIconUrl", iconUrl);
-//			// rcontext.put("pageNavSitToolsHead",
-//			// Web.escapeHtml(rb.getString("sit_toolshead")));
-//
-//			// order the pages based on their tools and the tool order for the
-//			// site type
-//			// List pages = site.getOrderedPages();
-//			List<Map> l = convertPagesToMap(site, page, portalPrefix, doPages,
-//					resetTools, includeSummary, pageUrl, toolUrl, pagePopupUrl);
-//			rcontext.put("pageNavTools", l);
-//
-//			String helpUrl = ServerConfigurationService.getHelpUrl(null);
-//			rcontext.put("pageNavShowHelp", Boolean.valueOf(showHelp));
-//			rcontext.put("pageNavHelpUrl", helpUrl);
-//
-//			// rcontext.put("pageNavSitContentshead",
-//			// Web.escapeHtml(rb.getString("sit_contentshead")));
-//
-//			// Handle Presense
-//			boolean showPresence = ServerConfigurationService.getBoolean(
-//					"display.users.present", true);
-//			String presenceUrl = Web.returnUrl(req, "/presence/"
-//					+ Web.escapeUrl(site.getId()));
-//
-//			// rcontext.put("pageNavSitPresenceTitle",
-//			// Web.escapeHtml(rb.getString("sit_presencetitle")));
-//			// rcontext.put("pageNavSitPresenceFrameTitle",
-//			// Web.escapeHtml(rb.getString("sit_presenceiframetit")));
-//			rcontext.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(showPresence
-//					&& loggedIn));
-//			rcontext.put("pageNavPresenceUrl", presenceUrl);
-//		}
-//
-//	}
-//
-//	protected List<Map> convertPagesToMap(Site site, SitePage page,
-//			String portalPrefix, boolean doPages, boolean resetTools,
-//			boolean includeSummary, String pageUrl, String toolUrl,
-//			String pagePopupUrl) {
-//		List pages = portal.getSiteHelper().getPermittedPagesInOrder(site);
-//
-//		List<Map> l = new ArrayList<Map>();
-//		for (Iterator i = pages.iterator(); i.hasNext();)
-//		{
-//
-//			SitePage p = (SitePage) i.next();
-//			List pTools = p.getTools();
-//
-//			boolean current = (page != null && p.getId().equals(page.getId()) && !p
-//					.isPopUp());
-//			String pagerefUrl = pageUrl + Web.escapeUrl(/*(p.getName() != null)?p.getName():*/p.getId());
-//			if (resetTools)
-//			{
-//				pagerefUrl = pagerefUrl.replaceFirst("/" + portalPrefix + "/", "/"
-//						+ portalPrefix + "-reset/");
-//			}
-//
-//			if (doPages || p.isPopUp())
-//			{
-//				Map<String, Object> m = new HashMap<String, Object>();
-//				m.put("isPage", Boolean.valueOf(true));
-//				m.put("current", Boolean.valueOf(current));
-//				m.put("ispopup", Boolean.valueOf(p.isPopUp()));
-//				m.put("pagePopupUrl", pagePopupUrl);
-//				m.put("pageTitle", Web.escapeHtml(p.getTitle()));
-//				m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
-//				m.put("pageId", Web.escapeUrl(p.getId()));
-//				m.put("jsPageId", Web.escapeJavascript(p.getId()));
-//				m.put("pageRefUrl", pagerefUrl);
-//				l.add(m);
-//				continue;
-//			}
-//
-//			// Loop through the tools again and Unroll the tools
-//			Iterator iPt = pTools.iterator();
-//
-//			while (iPt.hasNext())
-//			{
-//				ToolConfiguration placement = (ToolConfiguration) iPt.next();
-//
-//				String toolrefUrl = toolUrl + Web.escapeUrl(placement.getId());
-//
-//				Map<String, Object> m = new HashMap<String, Object>();
-//				m.put("isPage", Boolean.valueOf(false));
-//				m.put("toolId", Web.escapeUrl(placement.getId()));
-//				m.put("jsToolId", Web.escapeJavascript(placement.getId()));
-//				m.put("toolRegistryId", placement.getToolId());
-//				m.put("toolTitle", Web.escapeHtml(placement.getTitle()));
-//				m.put("jsToolTitle", Web.escapeJavascript(placement.getTitle()));
-//				m.put("toolrefUrl", toolrefUrl);
-//				l.add(m);
-//			}
-//
-//		}
-//		return l;
-//	}
-
 
 }
