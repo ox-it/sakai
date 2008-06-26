@@ -7,7 +7,7 @@
 			title="Hierarchy Manager"
 		description="Hierarchy Manager ">
 		
-		<category name="project" />
+		<category name="hierarchy" />
 		<configuration name="functions.require" value="site.upd"/>
 		
 
