@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>../master/project.xml</extend>
+	<name>ambrosia</name>
+	<groupId>etudes</groupId>
+	<currentVersion>${ambrosia.version}</currentVersion>
+	<organization>
+		<name>Etudes, Inc.</name>
+		<url>http://etudes.org/mneme</url>
+	</organization>
+	<inceptionYear>2007</inceptionYear>
+
+	<properties>
+	</properties>
+
+	<dependencies>
+	</dependencies>
+
+	<build>
+	</build>
+
+</project>

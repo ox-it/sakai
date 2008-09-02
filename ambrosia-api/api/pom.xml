@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>ambrosia</artifactId>
+		<groupId>org.etudes.ambrosia</groupId>
+		<version>1.1.0</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<name>etudes-ambrosia-api</name>
+	<groupId>org.etudes.ambrosia</groupId>
+	<artifactId>etudes-ambrosia-api</artifactId>
+	<packaging>jar</packaging>
+
+	<properties>
+		<deploy.target>shared</deploy.target>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-content-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-util-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>${sakai.servletapi.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>${sakai.commons.fileupload.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+	</dependencies>
+
+</project>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.etudes.test-center</groupId>
+		<artifactId>test-center</artifactId>
+		<version>1.1.0</version>
+		<relativePath>..\pom.xml</relativePath>
+	</parent>
+
+	<name>Ambrosia</name>
+	<groupId>org.etudes.ambrosia</groupId>
+	<artifactId>ambrosia</artifactId>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>ambrosia-api/api</module>
+		<module>ambrosia-impl/impl</module>
+		<module>ambrosia-impl/pack</module>
+		<module>ambrosia-util/util</module>
+		<module>ambrosia-library/lib</module>
+	</modules>
+
+</project>

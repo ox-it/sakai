@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>../../project.xml</extend>
+	<name>etudes-ambrosia-api</name>
+	<groupId>etudes</groupId>
+	<id>etudes-ambrosia-api</id>
+	<currentVersion>${ambrosia.version}</currentVersion>
+	<organization>
+		<name>Etudes, Inc.</name>
+		<url>http://etudes.org/mneme</url>
+	</organization>
+	<inceptionYear>2007</inceptionYear>
+
+	<properties>
+		<!-- deploy as a jar -->
+		<deploy.type>jar</deploy.type>
+		<!-- deploy to "shared", "common" or "server" -->
+		<deploy.target>shared</deploy.target>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-content-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>servletapi</groupId>
+			<artifactId>servletapi</artifactId>
+			<version>2.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+
+		<sourceDirectory>src/java</sourceDirectory>
+
+	</build>
+
+</project>
