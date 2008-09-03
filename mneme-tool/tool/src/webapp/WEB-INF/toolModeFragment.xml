@@ -32,7 +32,7 @@
 <beans>
 
 	<bean id="ToolModeFragment"
-			class="org.muse.mneme.tool.ToolModeFragmentDelegate"
+			class="org.etudes.mneme.tool.ToolModeFragmentDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">

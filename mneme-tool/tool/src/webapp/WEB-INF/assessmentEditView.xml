@@ -31,16 +31,16 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.AssessmentEditView"
-			class="org.muse.mneme.tool.AssessmentEditView"
+	<bean id="org.etudes.mneme.tool.AssessmentEditView"
+			class="org.etudes.mneme.tool.AssessmentEditView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true"
 			depends-on="FormatPartSummary">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
- 		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
- 		<property name="attachmentService"><ref bean="org.muse.mneme.api.AttachmentService"/></property>
+ 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+ 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
   		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
   		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
  
@@ -53,7 +53,7 @@
 	</bean>
 
 	<bean id="FormatPartSummary"
-			class="org.muse.mneme.tool.FormatPartSummaryDelegate"
+			class="org.etudes.mneme.tool.FormatPartSummaryDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">

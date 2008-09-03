@@ -31,8 +31,8 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.InstallTemplatesView"
-			class="org.muse.mneme.tool.InstallTemplatesView"
+	<bean id="org.etudes.mneme.tool.InstallTemplatesView"
+			class="org.etudes.mneme.tool.InstallTemplatesView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -42,7 +42,7 @@
 		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
 		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
-		<property name="installView"><ref bean="org.muse.mneme.tool.InstallView"/></property>
+		<property name="installView"><ref bean="org.etudes.mneme.tool.InstallView"/></property>
 
 		<property name="templates"><value>!site.template,!site.template.course,!site.template.project</value></property>
  		<property name="toolId"><value>sakai.mneme.admin</value></property>

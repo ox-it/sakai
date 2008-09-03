@@ -31,15 +31,15 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.AssessmentPreviewView"
-			class="org.muse.mneme.tool.AssessmentPreviewView"
+	<bean id="org.etudes.mneme.tool.AssessmentPreviewView"
+			class="org.etudes.mneme.tool.AssessmentPreviewView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true"
 			depends-on="SubmissionScore,FormatQuestionTitle">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
- 		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
+ 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
  
  		<property name="toolId"><value>sakai.mneme</value></property>

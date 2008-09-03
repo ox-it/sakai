@@ -31,16 +31,16 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.SelectQuestionType"
-			class="org.muse.mneme.tool.SelectQuestionType"
+	<bean id="org.etudes.mneme.tool.SelectQuestionType"
+			class="org.etudes.mneme.tool.SelectQuestionType"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
 
 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService" /></property>
-		<property name="mnemeService"><ref bean="org.muse.mneme.api.MnemeService" /></property>
-		<property name="poolService"><ref bean="org.muse.mneme.api.PoolService" /></property>
-		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService" /></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService" /></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService" /></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService" /></property>
 		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager" /></property>
 
 		<property name="toolId"><value>sakai.mneme</value></property>

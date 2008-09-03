@@ -31,8 +31,8 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.InstallView"
-			class="org.muse.mneme.tool.InstallView"
+	<bean id="org.etudes.mneme.tool.InstallView"
+			class="org.etudes.mneme.tool.InstallView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">

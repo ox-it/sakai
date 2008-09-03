@@ -31,14 +31,14 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.ErrorView"
-			class="org.muse.mneme.tool.ErrorView"
+	<bean id="org.etudes.mneme.tool.ErrorView"
+			class="org.etudes.mneme.tool.ErrorView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
- 		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService"/></property>
+ 		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
  
  		<property name="toolId"><value>sakai.mneme</value></property>
  		<property name="path"><value>error</value></property>

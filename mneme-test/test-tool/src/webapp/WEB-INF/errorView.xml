@@ -31,8 +31,8 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.ErrorView"
-			class="org.muse.mneme.tool.ErrorView"
+	<bean id="org.etudes.mneme.tool.ErrorView"
+			class="org.etudes.mneme.tool.ErrorView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">

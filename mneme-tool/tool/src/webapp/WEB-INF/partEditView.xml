@@ -31,8 +31,8 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.PartEditView"
-			class="org.muse.mneme.tool.PartEditView"
+	<bean id="org.etudes.mneme.tool.PartEditView"
+			class="org.etudes.mneme.tool.PartEditView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true"
@@ -40,9 +40,9 @@
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
   		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
- 		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
- 		<property name="poolService"><ref bean="org.muse.mneme.api.PoolService"/></property>
- 		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService"/></property>
+ 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+ 		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+ 		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
  
  		<property name="toolId"><value>sakai.mneme</value></property>
  		<property name="path"><value>part_edit</value></property>
@@ -54,7 +54,7 @@
 	</bean>
 
 	<bean id="PoolReferencedDecisionDelegate"
-			class="org.muse.mneme.tool.PoolReferencedDecisionDelegate"
+			class="org.etudes.mneme.tool.PoolReferencedDecisionDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">

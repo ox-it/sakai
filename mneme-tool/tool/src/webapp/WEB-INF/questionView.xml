@@ -31,16 +31,16 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.QuestionView"
-			class="org.muse.mneme.tool.QuestionView"
+	<bean id="org.etudes.mneme.tool.QuestionView"
+			class="org.etudes.mneme.tool.QuestionView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true"
 			depends-on="SubmissionScore,SectionScore,FormatQuestionTitle">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
- 		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
- 		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService"/></property>
+ 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+ 		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
 		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
  
  		<property name="toolId"><value>sakai.mneme</value></property>
@@ -52,7 +52,7 @@
 	</bean>
 
 	<bean id="SubmissionScore"
-			class="org.muse.mneme.tool.SubmissionScoreDelegate"
+			class="org.etudes.mneme.tool.SubmissionScoreDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -64,7 +64,7 @@
 	</bean>
 
 	<bean id="SectionScore"
-			class="org.muse.mneme.tool.SectionScoreDelegate"
+			class="org.etudes.mneme.tool.SectionScoreDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -76,7 +76,7 @@
 	</bean>
 
 	<bean id="FormatQuestionTitle"
-			class="org.muse.mneme.tool.FormatQuestionTitleDelegate"
+			class="org.etudes.mneme.tool.FormatQuestionTitleDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">

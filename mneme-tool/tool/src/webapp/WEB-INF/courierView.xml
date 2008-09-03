@@ -31,8 +31,8 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.CourierView"
-			class="org.muse.mneme.tool.CourierView"
+	<bean id="org.etudes.mneme.tool.CourierView"
+			class="org.etudes.mneme.tool.CourierView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">

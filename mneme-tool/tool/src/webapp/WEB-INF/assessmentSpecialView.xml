@@ -31,14 +31,14 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.AssessmentSpecialView"
-			class="org.muse.mneme.tool.AssessmentSpecialView"
+	<bean id="org.etudes.mneme.tool.AssessmentSpecialView"
+			class="org.etudes.mneme.tool.AssessmentSpecialView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
- 		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
+ 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
  
  		<property name="toolId"><value>sakai.mneme</value></property>
  		<property name="path"><value>assessment_special</value></property>

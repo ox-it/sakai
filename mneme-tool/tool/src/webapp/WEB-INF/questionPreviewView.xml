@@ -31,14 +31,14 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.QuestionPreviewView"
-			class="org.muse.mneme.tool.QuestionPreviewView"
+	<bean id="org.etudes.mneme.tool.QuestionPreviewView"
+			class="org.etudes.mneme.tool.QuestionPreviewView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
- 		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService"/></property>
+ 		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
  
  		<property name="toolId"><value>sakai.mneme</value></property>
  		<property name="path"><value>question_preview</value></property>

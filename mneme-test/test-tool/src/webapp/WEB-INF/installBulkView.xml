@@ -31,8 +31,8 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.InstallBulkView"
-			class="org.muse.mneme.tool.InstallBulkView"
+	<bean id="org.etudes.mneme.tool.InstallBulkView"
+			class="org.etudes.mneme.tool.InstallBulkView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -40,7 +40,7 @@
 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
 		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
-		<property name="installView"><ref bean="org.muse.mneme.tool.InstallView"/></property>
+		<property name="installView"><ref bean="org.etudes.mneme.tool.InstallView"/></property>
 
  		<property name="toolId"><value>sakai.mneme.admin</value></property>
  		<property name="path"><value>install_bulk</value></property>

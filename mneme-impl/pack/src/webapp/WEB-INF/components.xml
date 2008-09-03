@@ -32,28 +32,28 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.api.MnemeService"
-			class="org.muse.mneme.impl.MnemeServiceImpl"
+	<bean id="org.etudes.mneme.api.MnemeService"
+			class="org.etudes.mneme.impl.MnemeServiceImpl"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
 
-		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
-		<property name="poolService"><ref bean="org.muse.mneme.api.PoolService"/></property>
-		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService"/></property>
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
 
 		<property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
 	</bean>
 
-	<bean id="org.muse.mneme.api.AttachmentService"
-			class="org.muse.mneme.impl.AttachmentServiceImpl"
+	<bean id="org.etudes.mneme.api.AttachmentService"
+			class="org.etudes.mneme.impl.AttachmentServiceImpl"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
 
-		<property name="securityService"><ref bean="org.muse.mneme.api.SecurityService"/></property>
- 		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+ 		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
 
 		<property name="securityServiceSakai"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
@@ -65,22 +65,22 @@
  		<property name="makeThumbs"><value>true</value></property>
 	</bean>
 
-	<bean id="org.muse.mneme.api.Pool"
-		class="org.muse.mneme.impl.PoolImpl"
+	<bean id="org.etudes.mneme.api.Pool"
+		class="org.etudes.mneme.impl.PoolImpl"
 		singleton="false">
 
-		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
  	</bean>
 
-	<bean id="org.muse.mneme.api.PoolService"
-		class="org.muse.mneme.impl.PoolServiceImpl"
+	<bean id="org.etudes.mneme.api.PoolService"
+		class="org.etudes.mneme.impl.PoolServiceImpl"
 		init-method="init"
 		destroy-method="destroy"
 		singleton="true">
 
-		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
-		<property name="securityService"><ref bean="org.muse.mneme.api.SecurityService"/></property>
-		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService"/></property>
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
 
 		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
 		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
@@ -91,29 +91,29 @@
 
 		<property name="storage">
 			<map>
-				<!-- <entry key="default"><ref bean="org.muse.mneme.impl.PoolStorageDefault"/></entry> -->
-				<entry key="sample"><ref bean="org.muse.mneme.impl.PoolStorageSample"/></entry>
-				<entry key="mysql"><ref bean="org.muse.mneme.impl.PoolStorageMysql"/></entry>
-				<entry key="oracle"><ref bean="org.muse.mneme.impl.PoolStorageOracle"/></entry>
+				<!-- <entry key="default"><ref bean="org.etudes.mneme.impl.PoolStorageDefault"/></entry> -->
+				<entry key="sample"><ref bean="org.etudes.mneme.impl.PoolStorageSample"/></entry>
+				<entry key="mysql"><ref bean="org.etudes.mneme.impl.PoolStorageMysql"/></entry>
+				<entry key="oracle"><ref bean="org.etudes.mneme.impl.PoolStorageOracle"/></entry>
 			</map>
 		</property>
 		<property name="storageKey"><value>SQL</value></property> <!-- use sample to choose the sample impl -->
  	</bean>
 
-	<bean id="org.muse.mneme.impl.PoolStorageSample"
-		class="org.muse.mneme.impl.PoolStorageSample"
+	<bean id="org.etudes.mneme.impl.PoolStorageSample"
+		class="org.etudes.mneme.impl.PoolStorageSample"
 		destroy-method="destroy"
 		singleton="true">
 
-		<lookup-method name="newPool" bean="org.muse.mneme.api.Pool" />
+		<lookup-method name="newPool" bean="org.etudes.mneme.api.Pool" />
 	</bean>
 
-	<bean id="org.muse.mneme.impl.PoolStorageMysql"
-		class="org.muse.mneme.impl.PoolStorageMysql"
+	<bean id="org.etudes.mneme.impl.PoolStorageMysql"
+		class="org.etudes.mneme.impl.PoolStorageMysql"
 		destroy-method="destroy"
 		singleton="true">
 
-		<lookup-method name="newPool" bean="org.muse.mneme.api.Pool" />
+		<lookup-method name="newPool" bean="org.etudes.mneme.api.Pool" />
 
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
@@ -121,12 +121,12 @@
 		<property name="autoDdl"><value>${auto.ddl}</value></property>
 	</bean>
 
-	<bean id="org.muse.mneme.impl.PoolStorageOracle"
-		class="org.muse.mneme.impl.PoolStorageOracle"
+	<bean id="org.etudes.mneme.impl.PoolStorageOracle"
+		class="org.etudes.mneme.impl.PoolStorageOracle"
 		destroy-method="destroy"
 		singleton="true">
 
-		<lookup-method name="newPool" bean="org.muse.mneme.api.Pool" />
+		<lookup-method name="newPool" bean="org.etudes.mneme.api.Pool" />
 
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
@@ -134,26 +134,26 @@
 		<property name="autoDdl"><value>${auto.ddl}</value></property>
 	</bean>
 
-	<bean id="org.muse.mneme.api.Question"
-		class="org.muse.mneme.impl.QuestionImpl"
+	<bean id="org.etudes.mneme.api.Question"
+		class="org.etudes.mneme.impl.QuestionImpl"
 		singleton="false">
 
- 		<property name="poolService"><ref bean="org.muse.mneme.api.PoolService"/></property>
-		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService"/></property>
- 		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService"/></property>
+ 		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+ 		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
  	</bean>
 
-	<bean id="org.muse.mneme.api.QuestionService"
-		class="org.muse.mneme.impl.QuestionServiceImpl"
+	<bean id="org.etudes.mneme.api.QuestionService"
+		class="org.etudes.mneme.impl.QuestionServiceImpl"
 		init-method="init"
 		destroy-method="destroy"
 		singleton="true">
 		
-		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
-		<property name="mnemeService"><ref bean="org.muse.mneme.api.MnemeService"/></property>
-		<property name="poolService"><ref bean="org.muse.mneme.api.PoolService"/></property>
-		<property name="securityService"><ref bean="org.muse.mneme.api.SecurityService"/></property>
-		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService"/></property>
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
 
 		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
 		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
@@ -162,37 +162,37 @@
 
 		<property name="storage">
 			<map>
-				<!-- <entry key="default"><ref bean="org.muse.mneme.impl.QuestionStorageDefault"/></entry> -->
-				<entry key="sample"><ref bean="org.muse.mneme.impl.QuestionStorageSample"/></entry>
-				<entry key="mysql"><ref bean="org.muse.mneme.impl.QuestionStorageMysql"/></entry>
-				<entry key="oracle"><ref bean="org.muse.mneme.impl.QuestionStorageOracle"/></entry>
+				<!-- <entry key="default"><ref bean="org.etudes.mneme.impl.QuestionStorageDefault"/></entry> -->
+				<entry key="sample"><ref bean="org.etudes.mneme.impl.QuestionStorageSample"/></entry>
+				<entry key="mysql"><ref bean="org.etudes.mneme.impl.QuestionStorageMysql"/></entry>
+				<entry key="oracle"><ref bean="org.etudes.mneme.impl.QuestionStorageOracle"/></entry>
 			</map>
 		</property>
 		<property name="storageKey"><value>SQL</value></property> <!-- use sample to choose the sample impl -->
 	</bean>
 
-	<bean id="org.muse.mneme.impl.QuestionStorageSample"
-		class="org.muse.mneme.impl.QuestionStorageSample"
+	<bean id="org.etudes.mneme.impl.QuestionStorageSample"
+		class="org.etudes.mneme.impl.QuestionStorageSample"
 		destroy-method="destroy"
 		singleton="true">
 
-		<lookup-method name="newQuestion" bean="org.muse.mneme.api.Question" />
+		<lookup-method name="newQuestion" bean="org.etudes.mneme.api.Question" />
 
-		<property name="attachmentService"><ref bean="org.muse.mneme.api.AttachmentService"/></property>
-		<property name="mnemeService"><ref bean="org.muse.mneme.api.MnemeService"/></property>
-		<property name="poolService"><ref bean="org.muse.mneme.api.PoolService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
 	</bean>
 
-	<bean id="org.muse.mneme.impl.QuestionStorageMysql"
-		class="org.muse.mneme.impl.QuestionStorageMysql"
+	<bean id="org.etudes.mneme.impl.QuestionStorageMysql"
+		class="org.etudes.mneme.impl.QuestionStorageMysql"
 		destroy-method="destroy"
 		singleton="true">
 
-		<lookup-method name="newQuestion" bean="org.muse.mneme.api.Question" />
+		<lookup-method name="newQuestion" bean="org.etudes.mneme.api.Question" />
 
-		<property name="attachmentService"><ref bean="org.muse.mneme.api.AttachmentService"/></property>
-		<property name="poolService"><ref bean="org.muse.mneme.api.PoolService"/></property>
-		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
 
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
  		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
@@ -200,16 +200,16 @@
 		<property name="autoDdl"><value>${auto.ddl}</value></property>
 	</bean>
 
-	<bean id="org.muse.mneme.impl.QuestionStorageOracle"
-		class="org.muse.mneme.impl.QuestionStorageOracle"
+	<bean id="org.etudes.mneme.impl.QuestionStorageOracle"
+		class="org.etudes.mneme.impl.QuestionStorageOracle"
 		destroy-method="destroy"
 		singleton="true">
 
-		<lookup-method name="newQuestion" bean="org.muse.mneme.api.Question" />
+		<lookup-method name="newQuestion" bean="org.etudes.mneme.api.Question" />
 
-		<property name="attachmentService"><ref bean="org.muse.mneme.api.AttachmentService"/></property>
-		<property name="poolService"><ref bean="org.muse.mneme.api.PoolService"/></property>
-		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
 
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
  		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
@@ -217,15 +217,15 @@
 		<property name="autoDdl"><value>${auto.ddl}</value></property>
 	</bean>
 
-	<bean id="org.muse.mneme.api.GradesService"
-		class="org.muse.mneme.impl.GradesServiceGradebook23Impl"
+	<bean id="org.etudes.mneme.api.GradesService"
+		class="org.etudes.mneme.impl.GradesServiceGradebook23Impl"
 		init-method="init"
 		destroy-method="destroy"
 		singleton="true">
 		
-		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
-		<property name="securityService"><ref bean="org.muse.mneme.api.SecurityService"/></property>
-		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService"/></property>
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
 
 		<!-- for 2.4 only: <property name="gradebookService"><ref bean="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/></property> -->
 		<property name="gradebookService"><ref bean="org.sakaiproject.service.gradebook.GradebookService"/></property>
@@ -234,37 +234,37 @@
 		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
 	</bean>
 
-	<bean id="org.muse.mneme.api.Answer"
-		class="org.muse.mneme.impl.AnswerImpl"
+	<bean id="org.etudes.mneme.api.Answer"
+		class="org.etudes.mneme.impl.AnswerImpl"
 		init-method="init"
 		singleton="false">
 
-		<property name="mnemeService"><ref bean="org.muse.mneme.api.MnemeService"/></property>
-		<property name="attachmentService"><ref bean="org.muse.mneme.api.AttachmentService"/></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
  	</bean>
  
-	<bean id="org.muse.mneme.api.Submission"
-		class="org.muse.mneme.impl.SubmissionImpl"
+	<bean id="org.etudes.mneme.api.Submission"
+		class="org.etudes.mneme.impl.SubmissionImpl"
 		init-method="init"
 		singleton="false">
 
-		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
-		<property name="attachmentService"><ref bean="org.muse.mneme.api.AttachmentService"/></property>
-		<property name="securityService"><ref bean="org.muse.mneme.api.SecurityService"/></property>
-		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService"/></property>
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
  		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
  	</bean>
 
- 	<bean id="org.muse.mneme.api.SubmissionService"
-		class="org.muse.mneme.impl.SubmissionServiceImpl"
+ 	<bean id="org.etudes.mneme.api.SubmissionService"
+		class="org.etudes.mneme.impl.SubmissionServiceImpl"
 		init-method="init"
 		destroy-method="destroy"
 		singleton="true">
 
-		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
-		<property name="gradesService"><ref bean="org.muse.mneme.api.GradesService"/></property>
-		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService"/></property>
-		<property name="securityService"><ref bean="org.muse.mneme.api.SecurityService"/></property>
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="gradesService"><ref bean="org.etudes.mneme.api.GradesService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
 
 		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
 		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
@@ -274,64 +274,43 @@
 
 		<property name="storage">
 			<map>
-				<!-- <entry key="default"><ref bean="org.muse.mneme.impl.SubmissionStorageDefault"/></entry> -->
-				<entry key="sample"><ref bean="org.muse.mneme.impl.SubmissionStorageSample"/></entry>
-				<entry key="mysql"><ref bean="org.muse.mneme.impl.SubmissionStorageMysql"/></entry>
-				<entry key="oracle"><ref bean="org.muse.mneme.impl.SubmissionStorageOracle"/></entry>
+				<!-- <entry key="default"><ref bean="org.etudes.mneme.impl.SubmissionStorageDefault"/></entry> -->
+				<entry key="sample"><ref bean="org.etudes.mneme.impl.SubmissionStorageSample"/></entry>
+				<entry key="mysql"><ref bean="org.etudes.mneme.impl.SubmissionStorageMysql"/></entry>
+				<entry key="oracle"><ref bean="org.etudes.mneme.impl.SubmissionStorageOracle"/></entry>
 			</map>
 		</property>
 		<property name="storageKey"><value>SQL</value></property> <!-- use sample to choose the sample impl -->
 	</bean>
 
-	<bean id="org.muse.mneme.impl.SubmissionStorageSample"
-		class="org.muse.mneme.impl.SubmissionStorageSample"
+	<bean id="org.etudes.mneme.impl.SubmissionStorageSample"
+		class="org.etudes.mneme.impl.SubmissionStorageSample"
 		destroy-method="destroy"
 		singleton="true">
 
-		<lookup-method name="newAnswer" bean="org.muse.mneme.api.Answer" />
-		<lookup-method name="newSubmission" bean="org.muse.mneme.api.Submission" />
+		<lookup-method name="newAnswer" bean="org.etudes.mneme.api.Answer" />
+		<lookup-method name="newSubmission" bean="org.etudes.mneme.api.Submission" />
 
-		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
-		<property name="mnemeService"><ref bean="org.muse.mneme.api.MnemeService"/></property>
-		<property name="securityService"><ref bean="org.muse.mneme.api.SecurityService"/></property>
-		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService"/></property>
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
 		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
 	</bean>
 
-	<bean id="org.muse.mneme.impl.SubmissionStorageMysql"
-		class="org.muse.mneme.impl.SubmissionStorageMysql"
+	<bean id="org.etudes.mneme.impl.SubmissionStorageMysql"
+		class="org.etudes.mneme.impl.SubmissionStorageMysql"
 		destroy-method="destroy"
 		singleton="true">
 
-		<lookup-method name="newAnswer" bean="org.muse.mneme.api.Answer" />
-		<lookup-method name="newSubmission" bean="org.muse.mneme.api.Submission" />
+		<lookup-method name="newAnswer" bean="org.etudes.mneme.api.Answer" />
+		<lookup-method name="newSubmission" bean="org.etudes.mneme.api.Submission" />
 
-		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
-		<property name="attachmentService"><ref bean="org.muse.mneme.api.AttachmentService"/></property>
-		<property name="mnemeService"><ref bean="org.muse.mneme.api.MnemeService"/></property>
-		<property name="securityService"><ref bean="org.muse.mneme.api.SecurityService"/></property>
-		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService"/></property>
-
-		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
-		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
-		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
-
-		<property name="autoDdl"><value>${auto.ddl}</value></property>
-	</bean>
-
-	<bean id="org.muse.mneme.impl.SubmissionStorageOracle"
-		class="org.muse.mneme.impl.SubmissionStorageOracle"
-		destroy-method="destroy"
-		singleton="true">
-
-		<lookup-method name="newAnswer" bean="org.muse.mneme.api.Answer" />
-		<lookup-method name="newSubmission" bean="org.muse.mneme.api.Submission" />
-
-		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
-		<property name="attachmentService"><ref bean="org.muse.mneme.api.AttachmentService"/></property>
-		<property name="mnemeService"><ref bean="org.muse.mneme.api.MnemeService"/></property>
-		<property name="securityService"><ref bean="org.muse.mneme.api.SecurityService"/></property>
-		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService"/></property>
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
 
 		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
@@ -340,18 +319,39 @@
 		<property name="autoDdl"><value>${auto.ddl}</value></property>
 	</bean>
 
-	<bean id="org.muse.mneme.api.AssessmentService"
-		class="org.muse.mneme.impl.AssessmentServiceImpl"
+	<bean id="org.etudes.mneme.impl.SubmissionStorageOracle"
+		class="org.etudes.mneme.impl.SubmissionStorageOracle"
+		destroy-method="destroy"
+		singleton="true">
+
+		<lookup-method name="newAnswer" bean="org.etudes.mneme.api.Answer" />
+		<lookup-method name="newSubmission" bean="org.etudes.mneme.api.Submission" />
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
+
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+
+		<property name="autoDdl"><value>${auto.ddl}</value></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.api.AssessmentService"
+		class="org.etudes.mneme.impl.AssessmentServiceImpl"
 		init-method="init"
 		destroy-method="destroy"
 		singleton="true">
 		
-		<property name="attachmentService"><ref bean="org.muse.mneme.api.AttachmentService"/></property>
-		<property name="gradesService"><ref bean="org.muse.mneme.api.GradesService"/></property>
-		<property name="poolService"><ref bean="org.muse.mneme.api.PoolService"/></property>
-		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService"/></property>
-		<property name="securityService"><ref bean="org.muse.mneme.api.SecurityService"/></property>
-		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="gradesService"><ref bean="org.etudes.mneme.api.GradesService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
 
 		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
 		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
@@ -361,41 +361,41 @@
 
 		<property name="storage">
 			<map>
-				<!-- <entry key="default"><ref bean="org.muse.mneme.impl.AssesmentStorageDefault"/></entry> -->
-				<entry key="sample"><ref bean="org.muse.mneme.impl.AssessmentStorageSample"/></entry>
-				<entry key="mysql"><ref bean="org.muse.mneme.impl.AssessmentStorageMysql"/></entry>
-				<entry key="oracle"><ref bean="org.muse.mneme.impl.AssessmentStorageOracle"/></entry>
+				<!-- <entry key="default"><ref bean="org.etudes.mneme.impl.AssesmentStorageDefault"/></entry> -->
+				<entry key="sample"><ref bean="org.etudes.mneme.impl.AssessmentStorageSample"/></entry>
+				<entry key="mysql"><ref bean="org.etudes.mneme.impl.AssessmentStorageMysql"/></entry>
+				<entry key="oracle"><ref bean="org.etudes.mneme.impl.AssessmentStorageOracle"/></entry>
 			</map>
 		</property>
 		<property name="storageKey"><value>SQL</value></property> <!-- use sample to choose the sample impl -->
 	</bean>
 
-	<bean id="org.muse.mneme.impl.AssessmentStorageSample"
-		class="org.muse.mneme.impl.AssessmentStorageSample"
+	<bean id="org.etudes.mneme.impl.AssessmentStorageSample"
+		class="org.etudes.mneme.impl.AssessmentStorageSample"
 		destroy-method="destroy"
 		singleton="true">
 
-		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
-		<property name="poolService"><ref bean="org.muse.mneme.api.PoolService"/></property>
-		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService"/></property>
-		<property name="securityService"><ref bean="org.muse.mneme.api.SecurityService"/></property>
-		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService"/></property>
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
 
 		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
 
 		<property name="bundle"><value>mnemeImpl</value></property>
 	</bean>
 
-	<bean id="org.muse.mneme.impl.AssessmentStorageMysql"
-		class="org.muse.mneme.impl.AssessmentStorageMysql"
+	<bean id="org.etudes.mneme.impl.AssessmentStorageMysql"
+		class="org.etudes.mneme.impl.AssessmentStorageMysql"
 		destroy-method="destroy"
 		singleton="true">
 
-		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
-		<property name="poolService"><ref bean="org.muse.mneme.api.PoolService"/></property>
-		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService"/></property>
-		<property name="securityService"><ref bean="org.muse.mneme.api.SecurityService"/></property>
-		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService"/></property>
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
 
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
@@ -405,16 +405,16 @@
 		<property name="bundle"><value>mnemeImpl</value></property>
 	</bean>
 
-	<bean id="org.muse.mneme.impl.AssessmentStorageOracle"
-		class="org.muse.mneme.impl.AssessmentStorageOracle"
+	<bean id="org.etudes.mneme.impl.AssessmentStorageOracle"
+		class="org.etudes.mneme.impl.AssessmentStorageOracle"
 		destroy-method="destroy"
 		singleton="true">
 
-		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
-		<property name="poolService"><ref bean="org.muse.mneme.api.PoolService"/></property>
-		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService"/></property>
-		<property name="securityService"><ref bean="org.muse.mneme.api.SecurityService"/></property>
-		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService"/></property>
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
 
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
@@ -424,8 +424,8 @@
 		<property name="bundle"><value>mnemeImpl</value></property>
 	</bean>
 
-	<bean id="org.muse.mneme.api.SecurityService"
-		class="org.muse.mneme.impl.SecurityServiceImpl"
+	<bean id="org.etudes.mneme.api.SecurityService"
+		class="org.etudes.mneme.impl.SecurityServiceImpl"
 		init-method="init"
 		destroy-method="destroy"
 		singleton="true">
@@ -436,105 +436,105 @@
 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
 	</bean>
 
-	<bean id="org.muse.mneme.impl.TrueFalsePlugin"
-		class="org.muse.mneme.impl.TrueFalsePlugin"
+	<bean id="org.etudes.mneme.impl.TrueFalsePlugin"
+		class="org.etudes.mneme.impl.TrueFalsePlugin"
 		init-method="init"
 		destroy-method="destroy"
 		singleton="true">
 
  		<property name="bundle"><value>mnemeTrueFalse</value></property>
 
-		<property name="mnemeService"><ref bean="org.muse.mneme.api.MnemeService"/></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 	</bean>
 
-	<bean id="org.muse.mneme.impl.MultipleChoicePlugin"
-		class="org.muse.mneme.impl.MultipleChoicePlugin"
+	<bean id="org.etudes.mneme.impl.MultipleChoicePlugin"
+		class="org.etudes.mneme.impl.MultipleChoicePlugin"
 		init-method="init"
 		destroy-method="destroy"
 		singleton="true">
 
  		<property name="bundle"><value>mnemeMultipleChoice</value></property>
 
-		<property name="mnemeService"><ref bean="org.muse.mneme.api.MnemeService"/></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 	</bean>
 	
-	<bean id="org.muse.mneme.impl.LikertScalePlugin"
-		class="org.muse.mneme.impl.LikertScalePlugin"
+	<bean id="org.etudes.mneme.impl.LikertScalePlugin"
+		class="org.etudes.mneme.impl.LikertScalePlugin"
 		init-method="init"
 		destroy-method="destroy"
 		singleton="true">
 
 		<property name="bundle"><value>mnemeLikertScale</value></property>
 
-		<property name="mnemeService"><ref bean="org.muse.mneme.api.MnemeService" /></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService" /></property>
 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService" /></property>
 	</bean>	
 	
-    <bean id="org.muse.mneme.impl.FillBlanksPlugin"
-		class="org.muse.mneme.impl.FillBlanksPlugin"
+    <bean id="org.etudes.mneme.impl.FillBlanksPlugin"
+		class="org.etudes.mneme.impl.FillBlanksPlugin"
 		init-method="init"
 		destroy-method="destroy"
 		singleton="true">
 
 		<property name="bundle"><value>mnemeFillBlanks</value></property>
 
-		<property name="mnemeService"><ref bean="org.muse.mneme.api.MnemeService" /></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService" /></property>
 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService" /></property>
 	</bean>
 
-	<bean id="org.muse.mneme.impl.MatchPlugin"
-		class="org.muse.mneme.impl.MatchPlugin"
+	<bean id="org.etudes.mneme.impl.MatchPlugin"
+		class="org.etudes.mneme.impl.MatchPlugin"
 		init-method="init"
 		destroy-method="destroy"
 		singleton="true">
 
  		<property name="bundle"><value>mnemeMatch</value></property>
 
-		<property name="mnemeService"><ref bean="org.muse.mneme.api.MnemeService"/></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
  		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
 	</bean>
 
-	<bean id="org.muse.mneme.impl.EssayPlugin"
-		class="org.muse.mneme.impl.EssayPlugin"
+	<bean id="org.etudes.mneme.impl.EssayPlugin"
+		class="org.etudes.mneme.impl.EssayPlugin"
 		init-method="init"
 		destroy-method="destroy"
 		singleton="true">
 
  		<property name="bundle"><value>mnemeEssay</value></property>
 
-		<property name="mnemeService"><ref bean="org.muse.mneme.api.MnemeService"/></property>
- 		<property name="attachmentService"><ref bean="org.muse.mneme.api.AttachmentService"/></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+ 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
  	</bean>	
 
-	<bean id="org.muse.mneme.impl.TaskPlugin"
-		class="org.muse.mneme.impl.TaskPlugin"
+	<bean id="org.etudes.mneme.impl.TaskPlugin"
+		class="org.etudes.mneme.impl.TaskPlugin"
 		init-method="init"
 		destroy-method="destroy"
 		singleton="true">
 
  		<property name="bundle"><value>mnemeTask</value></property>
 
-		<property name="mnemeService"><ref bean="org.muse.mneme.api.MnemeService"/></property>
- 		<property name="attachmentService"><ref bean="org.muse.mneme.api.AttachmentService"/></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+ 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 	</bean>	
 
-	<bean id="org.muse.mneme.api.ImportService"
-		class="org.muse.mneme.impl.ImportServiceImpl"
+	<bean id="org.etudes.mneme.api.ImportService"
+		class="org.etudes.mneme.impl.ImportServiceImpl"
 		init-method="init"
 		destroy-method="destroy"
 		singleton="true">
 
-		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
-		<property name="attachmentService"><ref bean="org.muse.mneme.api.AttachmentService"/></property>
-		<property name="gradesService"><ref bean="org.muse.mneme.api.GradesService"/></property>
-		<property name="poolService"><ref bean="org.muse.mneme.api.PoolService"/></property>
-		<property name="securityService"><ref bean="org.muse.mneme.api.SecurityService"/></property>
-		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService"/></property>
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="gradesService"><ref bean="org.etudes.mneme.api.GradesService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
 
 		<property name="assignmentService"><ref bean="org.sakaiproject.assignment.api.AssignmentService"/></property>
 		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
@@ -548,17 +548,17 @@
 		<property name="bundle"><value>mnemeImpl</value></property>
  	</bean>
 
-	<bean id="org.muse.mneme.api.MnemeTransferService"
-			class="org.muse.mneme.impl.MnemeTransferServiceImpl"
+	<bean id="org.etudes.mneme.api.MnemeTransferService"
+			class="org.etudes.mneme.impl.MnemeTransferServiceImpl"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
 
-		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
-		<property name="attachmentService"><ref bean="org.muse.mneme.api.AttachmentService"/></property>
-		<property name="poolService"><ref bean="org.muse.mneme.api.PoolService"/></property>
-		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService"/></property>
-		<property name="securityService"><ref bean="org.muse.mneme.api.SecurityService"/></property>
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
 
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
 		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
@@ -566,7 +566,7 @@
 	</bean>
 
 	<bean id="AccessSubmissionsQuestionAnswers"
-			class="org.muse.mneme.impl.AccessSubmissionsQuestionAnswersDelegate"
+			class="org.etudes.mneme.impl.AccessSubmissionsQuestionAnswersDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -578,7 +578,7 @@
 	</bean>
 
 	<bean id="FormatPercent"
-			class="org.muse.mneme.impl.FormatPercentDelegate"
+			class="org.etudes.mneme.impl.FormatPercentDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -590,7 +590,7 @@
 	</bean>
 
 	<bean id="FormatCount"
-			class="org.muse.mneme.impl.FormatCountDelegate"
+			class="org.etudes.mneme.impl.FormatCountDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -602,7 +602,7 @@
 	</bean>
 
 	<bean id="FormatUnansweredPercent"
-			class="org.muse.mneme.impl.FormatUnansweredPercentDelegate"
+			class="org.etudes.mneme.impl.FormatUnansweredPercentDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -614,7 +614,7 @@
 	</bean>
 
 	<bean id="AccessFillinPositions"
-			class="org.muse.mneme.impl.AccessFillinPositionsDelegate"
+			class="org.etudes.mneme.impl.AccessFillinPositionsDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -626,7 +626,7 @@
 	</bean>
 
 	<bean id="AccessFillinPositionValues"
-			class="org.muse.mneme.impl.AccessFillinPositionValuesDelegate"
+			class="org.etudes.mneme.impl.AccessFillinPositionValuesDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -638,7 +638,7 @@
 	</bean>
 
 	<bean id="FormatFillinPositionPercents"
-			class="org.muse.mneme.impl.FormatFillinPositionPercentsDelegate"
+			class="org.etudes.mneme.impl.FormatFillinPositionPercentsDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -650,7 +650,7 @@
 	</bean>
 
 	<bean id="FormatFillinPositionCount"
-			class="org.muse.mneme.impl.FormatFillinPositionCountDelegate"
+			class="org.etudes.mneme.impl.FormatFillinPositionCountDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -662,7 +662,7 @@
 	</bean>
 
 	<bean id="FormatFillinPositionCorrect"
-			class="org.muse.mneme.impl.FormatFillinPositionCorrectDelegate"
+			class="org.etudes.mneme.impl.FormatFillinPositionCorrectDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -674,7 +674,7 @@
 	</bean>
 
 	<bean id="AccessMatchMatches"
-			class="org.muse.mneme.impl.AccessMatchMatchesDelegate"
+			class="org.etudes.mneme.impl.AccessMatchMatchesDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -686,7 +686,7 @@
 	</bean>
 
 	<bean id="AccessMatchChoices"
-			class="org.muse.mneme.impl.AccessMatchChoicesDelegate"
+			class="org.etudes.mneme.impl.AccessMatchChoicesDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -698,7 +698,7 @@
 	</bean>
 
 	<bean id="FormatMatchMatch"
-			class="org.muse.mneme.impl.FormatMatchMatchDelegate"
+			class="org.etudes.mneme.impl.FormatMatchMatchDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -710,7 +710,7 @@
 	</bean>
 
 	<bean id="FormatMatchChoice"
-			class="org.muse.mneme.impl.FormatMatchChoiceDelegate"
+			class="org.etudes.mneme.impl.FormatMatchChoiceDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -722,7 +722,7 @@
 	</bean>
 
 	<bean id="FormatMatchCorrect"
-			class="org.muse.mneme.impl.FormatMatchCorrectDelegate"
+			class="org.etudes.mneme.impl.FormatMatchCorrectDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -734,7 +734,7 @@
 	</bean>
 
 	<bean id="FormatMatchPercents"
-			class="org.muse.mneme.impl.FormatMatchPercentsDelegate"
+			class="org.etudes.mneme.impl.FormatMatchPercentsDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -746,7 +746,7 @@
 	</bean>
 
 	<bean id="FormatMatchCount"
-			class="org.muse.mneme.impl.FormatMatchCountDelegate"
+			class="org.etudes.mneme.impl.FormatMatchCountDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">

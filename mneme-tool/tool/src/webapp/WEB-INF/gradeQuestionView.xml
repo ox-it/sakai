@@ -31,16 +31,16 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.GradeQuestionView"
-			class="org.muse.mneme.tool.GradeQuestionView"
+	<bean id="org.etudes.mneme.tool.GradeQuestionView"
+			class="org.etudes.mneme.tool.GradeQuestionView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
 
 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService" /></property>
-		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService" /></property>
-		<property name="attachmentService"><ref bean="org.muse.mneme.api.AttachmentService" /></property>
-		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService" /></property>
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService" /></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService" /></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService" /></property>
 		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager" /></property>
 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
 

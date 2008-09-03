@@ -31,16 +31,16 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.EnterView"
-			class="org.muse.mneme.tool.EnterView"
+	<bean id="org.etudes.mneme.tool.EnterView"
+			class="org.etudes.mneme.tool.EnterView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true"
 			depends-on="FormatScore">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
- 		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService"/></property>
- 		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService"/></property>
+ 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+ 		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
  		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
 
  		<property name="toolId"><value>sakai.mneme</value></property>
@@ -52,7 +52,7 @@
 	</bean>
 
 	<bean id="FormatScore"
-			class="org.muse.mneme.tool.FormatScoreDelegate"
+			class="org.etudes.mneme.tool.FormatScoreDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">

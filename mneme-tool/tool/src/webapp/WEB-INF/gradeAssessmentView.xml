@@ -31,16 +31,16 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.GradeAssessmentView"
-			class="org.muse.mneme.tool.GradeAssessmentView"
+	<bean id="org.etudes.mneme.tool.GradeAssessmentView"
+			class="org.etudes.mneme.tool.GradeAssessmentView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true"
 			depends-on="SubmissionStatus,UserSpecialAccess">
 
 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService" /></property>
-		<property name="assessmentService"><ref bean="org.muse.mneme.api.AssessmentService" /></property>
-		<property name="submissionService"><ref bean="org.muse.mneme.api.SubmissionService" /></property>
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService" /></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService" /></property>
 		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager" /></property>
 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
 
@@ -54,7 +54,7 @@
 	</bean>
 
 	<bean id="SubmissionStatus"
-			class="org.muse.mneme.tool.SubmissionStatusDelegate"
+			class="org.etudes.mneme.tool.SubmissionStatusDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -66,7 +66,7 @@
 	</bean>
 
 	<bean id="UserSpecialAccess"
-			class="org.muse.mneme.tool.UserSpecialAccessDecisionDelegate"
+			class="org.etudes.mneme.tool.UserSpecialAccessDecisionDelegate"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">

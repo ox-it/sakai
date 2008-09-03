@@ -31,14 +31,14 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.QuestionCleanupView"
-			class="org.muse.mneme.tool.QuestionCleanupView"
+	<bean id="org.etudes.mneme.tool.QuestionCleanupView"
+			class="org.etudes.mneme.tool.QuestionCleanupView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
 
 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
-		<property name="questionService"><ref bean="org.muse.mneme.api.QuestionService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
 		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
 

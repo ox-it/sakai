@@ -31,8 +31,8 @@
 
 <beans>
 
-	<bean id="org.muse.mneme.tool.HomeView"
-			class="org.muse.mneme.tool.HomeView"
+	<bean id="org.etudes.mneme.tool.HomeView"
+			class="org.etudes.mneme.tool.HomeView"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
