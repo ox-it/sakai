@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<title>
+		<message selector="grading-assessment-title" />
+	</title>
+
+	<header>
+		<message selector="grading-assessment-header">
+			<model type="icon" icon="/icons/grade_questions.png" />
+		</message>
+	</header>
+
+	<subHeader>
+		<container>
+			<text>
+				<message>
+					<model ref="assessment.title" type="text" />
+				</message>
+			</text>
+			<text>
+				<message selector="assessment-total-points">
+					<model ref="assessment.Parts.totalPoints" />
+				</message>
+				<included>
+					<decision model="assessment.hasPoints" />
+				</included>
+			</text>
+		</container>
+	</subHeader>
+
+	<container>
+
+		<!--navigation-->
+		<navigationBar>
+			<container>
+				<navigation title="grade-submission-title" style="LINK" accessKey="grade-submission-access">
+					<icon icon="/icons/grade_student.png" style="LEFT" />
+					<destination template="/grade_assessment/{0}/{1}">
+						<model ref="sort_grades" />
+						<model ref="assessment.id" />
+					</destination>
+				</navigation>
+				<navigation disabled="TRUE" title="bar" />
+				<navigation title="grade-questions-title" style="LINK" accessKey="grade-questions-access" submit="FALSE" disabled="TRUE">
+					<icon icon="/icons/grade_questions.png" style="LEFT" />
+				</navigation>
+				<navigation disabled="TRUE" title="bar" />
+				<navigation title="grade-stats-title" style="LINK" accessKey="grade-stats-access" submit="TRUE">
+					<icon icon="/icons/stats.png" style="LEFT" />
+					<destination template="/assessment_stats/{0}/{1}">
+						<model ref="sort_grades" />
+						<model ref="assessment.id" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+		<section>
+			<iterator name="part" model="assessment.parts.parts" />
+			<title>
+				<message selector="question-list-part-title">
+					<model ref="part.ordering.position" />
+					<model ref="assessment.parts.size" />
+					<model ref="part.title" type="text" />
+					<selectors>
+						<selector selector="question-list-part-title-no-title">
+							<hasValueDecision reversed="TRUE" model="part.title" />
+						</selector>
+					</selectors>
+				</message>
+			</title>
+			<container>
+				<entityList>
+					<iterator name="question" model="part.questionsUsed">
+						<empty>
+							<message selector="no-answers" />
+						</empty>
+					</iterator>
+					<columns>
+						<column pixels="16">
+							<navigations>
+								<navigation style="LINK" submit="FALSE" description="unscored-alt">
+									<icon icon="/icons/grade.png" />
+									<destination template="/grade_question/{0}/{1}/{2}">
+										<model ref="sort_grades" />
+										<model ref="assessment.id" />
+										<model ref="question.id" />
+									</destination>
+								</navigation>
+							</navigations>
+							<entityIncluded>
+								<decision model="assessment.hasPoints" />
+								<decision model="question.hasUnscoredSubmissions" />
+							</entityIncluded>
+						</column>
+						<column>
+							<navigations>
+								<navigation style="LINK" submit="FALSE">
+									<title>
+										<message>
+											<model ref="question.description" type="text" missing="no-title" stripHtml="TRUE" max="60" />
+										</message>
+									</title>
+									<destination template="/grade_question/{0}/{1}/{2}">
+										<model ref="sort_grades" />
+										<model ref="assessment.id" />
+										<model ref="question.id" />
+									</destination>
+								</navigation>
+							</navigations>
+						</column>
+					</columns>
+				</entityList>
+			</container>
+		</section>
+
+		<!-- navigation -->
+		<navigationBar>
+			<container>
+				<navigation title="return" style="BUTTON" accessKey="return-access" description="return-description">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="/grades/{0}">
+						<model ref="sort_grades" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>

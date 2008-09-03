@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<title>
+		<message selector="assessment-stats-title" />
+	</title>
+
+	<header>
+		<message selector="assessment-stats-header">
+			<model type="icon" icon="/icons/stats.png" />
+		</message>
+	</header>
+
+	<subHeader>
+		<container>
+			<text>
+				<message>
+					<model ref="assessment.title" type="text" />
+				</message>
+			</text>
+			<text>
+				<message selector="assessment-total-points">
+					<model ref="assessment.Parts.totalPoints" />
+				</message>
+				<included>
+					<decision model="assessment.hasPoints" />
+				</included>
+			</text>
+			<text>
+				<message selector="assessment-pct-complete">
+					<model ref="complete-percent" />
+					<model ref="complete-complete" />
+					<model ref="complete-total" />
+				</message>
+			</text>
+		</container>
+	</subHeader>
+
+	<container>
+
+		<!--navigation-->
+		<navigationBar>
+			<container>
+				<navigation title="grade-submission-title" style="LINK" accessKey="grade-submission-access">
+					<icon icon="/icons/grade_student.png" style="LEFT" />
+					<destination template="/grade_assessment/{0}/{1}">
+						<model ref="sort_grades" />
+						<model ref="assessment.id" />
+					</destination>
+				</navigation>
+				<navigation disabled="TRUE" title="bar" />
+				<navigation title="grade-questions-title" style="LINK" accessKey="grade-questions-access" submit="TRUE">
+					<icon icon="/icons/grade_questions.png" style="LEFT" />
+					<destination template="/grade_questions_list/{0}/{1}">
+						<model ref="sort_grades" />
+						<model ref="assessment.id" />
+					</destination>
+				</navigation>
+				<navigation disabled="TRUE" title="bar" />
+				<navigation title="grade-stats-title" style="LINK" accessKey="grade-stats-access" submit="TRUE" disabled="TRUE">
+					<icon icon="/icons/stats.png" style="LEFT" />
+				</navigation>
+			</container>
+		</navigationBar>
+
+		<section>
+			<iterator name="part" model="assessment.parts.parts">
+				<empty>
+					<message selector="no-parts" />
+				</empty>
+			</iterator>
+			<title>
+				<message selector="part-title">
+					<model ref="part.ordering.position" />
+					<model ref="assessment.parts.size" />
+					<model ref="part.title" type="text" />
+					<selectors>
+						<selector selector="part-title-no-title">
+							<hasValueDecision reversed="TRUE" model="part.title" />
+						</selector>
+					</selectors>
+				</message>
+			</title>
+
+			<container>
+
+				<!-- part presentation -->
+				<text model="part.presentation.text">
+					<included>
+						<decision model="assessment.parts.showPresentation" />
+					</included>
+				</text>
+				<attachments title="attachments" model="part.presentation.attachments">
+					<included>
+						<hasValueDecision model="part.presentation.attachments" />
+						<decision model="assessment.parts.showPresentation" />
+					</included>
+				</attachments>
+
+				<section>
+					<iterator name="question" model="part.questionsUsed">
+						<empty>
+							<message selector="no-answers" />
+						</empty>
+					</iterator>
+
+					<!-- question header -->
+					<title highlighted="TRUE">
+						<message selector="question-header">
+							<model type="html" ref="question" delegate="FormatQuestionTitle" tool="sakai.mneme" />
+						</message>
+					</title>
+
+					<container>
+
+						<!-- Question specific stats -->
+						<modelComponent model="question.typeSpecificQuestion.viewStatsUi" />
+
+					</container>
+				</section>
+			</container>
+		</section>
+
+		<!--navigation-->
+		<navigationBar id="nav">
+			<container>
+				<navigation title="done" style="BUTTON" accessKey="done-access" description="done-description" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="/grades/{0}">
+						<model ref="sort_grades" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>

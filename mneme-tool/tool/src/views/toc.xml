@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme">
+			<included>
+				<hasValueDecision model="maintainer" />
+			</included>
+		</alias>
+	</modeContainer>
+
+	<!-- title and header -->
+	<title>
+		<message selector="toc-title">
+			<model ref="submission.assessment.title" type="text" />
+		</message>
+	</title>
+
+	<header>
+		<message selector="toc-header">
+			<model type="icon" icon="/icons/contents.gif" />
+		</message>
+	</header>
+
+	<container>
+		<!-- courier to keep the session alive -->
+		<courier destination="/courier" frequency="600" />
+
+		<!-- repeat the nav up top -->
+		<alias to="nav" />
+
+		<!-- timer for timed tests -->
+		<countdownTimer submit="TRUE">
+			<duration>
+				<message selector="timer-duration">
+					<model type="duration" concise="TRUE" ref="submission.expiration.limit" />
+				</message>
+				<model ref="submission.expiration.limit" />
+			</duration>
+			<remaining>
+				<message selector="timer-remaining" />
+			</remaining>
+			<timeTillExpire>
+				<model ref="submission.expiration.duration" />
+			</timeTillExpire>
+			<destination template="/submitted/{0}">
+				<model ref="submission.id" />
+			</destination>
+			<included>
+				<decision model="review" reversed="TRUE" />
+				<hasValueDecision model="submission.expiration" />
+				<compareDecision model="submission.expiration.cause" constant="timeLimit" />
+			</included>
+		</countdownTimer>
+
+		<!-- timer for near-due tests -->
+		<countdownTimer submit="TRUE">
+			<duration>
+				<message selector="timer-due">
+					<model type="date" concise="TRUE" ref="submission.expiration.time" />
+				</message>
+				<model ref="submission.expiration.limit" />
+			</duration>
+			<remaining>
+				<message selector="timer-remaining" />
+			</remaining>
+			<timeTillExpire>
+				<model ref="submission.expiration.duration" />
+			</timeTillExpire>
+			<destination template="/submitted/{0}">
+				<model ref="submission.id" />
+			</destination>
+			<included>
+				<decision model="review" reversed="TRUE" />
+				<hasValueDecision model="submission.expiration" />
+				<compareDecision model="submission.expiration.cause" constant="closedDate" />
+			</included>
+		</countdownTimer>
+
+		<!-- final review instructions -->
+		<alert>
+			<message selector="final-instructions">
+				<model type="enum" messageRoot="assessment-type-" ref="submission.assessment.type" />
+			</message>
+			<included>
+				<decision model="finalReview" />
+			</included>
+		</alert>
+
+		<!-- test header -->
+		<section>
+			<title>
+				<message selector="toc-section-title">
+					<model type="icon" icon="/icons/test.png" />
+					<model ref="submission.assessment.title" type="text" />
+					<model ref="submission.assessment" delegate="QuestionsAnswered" tool="sakai.mneme" />
+					<model ref="submission.assessment.parts.numQuestions" />
+					<model ref="submission" delegate="SubmissionScore" tool="sakai.mneme" />
+					<selectors>
+						<selector selector="toc-section-title-no-points">
+							<decision reversed="TRUE" model="submission.assessment.hasPoints" />
+						</selector>
+					</selectors>
+				</message>
+			</title>
+			<included>
+				<decision model="submission.assessment.randomAccess" />
+			</included>
+		</section>
+
+		<!-- question listing -->
+		<section>
+			<container>
+
+				<!-- for each question -->
+				<entityList style="FORM">
+					<iterator name="question" model="submission.assessment.parts.questions" />
+
+					<!-- part title (click to instructions) -->
+					<headings>
+						<heading>
+							<decision model="submission.assessment.parts.showPresentation" />
+							<decision model="question.partOrdering.isFirst" />
+							<navigation style="LINK">
+								<title>
+									<message selector="toc-questions-title">
+										<model type="icon" icon="/icons/section.png" />
+										<model ref="question.part.ordering.position" />
+										<model ref="question.part.title" type="text" />
+										<model ref="question.part" delegate="QuestionsAnswered" tool="sakai.mneme" />
+										<model ref="question.part.numQuestions" />
+										<model ref="question.part" delegate="SectionScore" tool="sakai.mneme" />
+										<selectors>
+											<selector selector="toc-questions-title-no-points">
+												<decision reversed="TRUE" model="submission.assessment.hasPoints" />
+											</selector>
+										</selectors>
+									</message>
+								</title>
+								<disabled>
+									<compareDecision model="submission.assessment.questionGrouping">
+										<constant value="assessment" />
+										<constant value="part" />
+									</compareDecision>
+								</disabled>
+								<destination template="/part_instructions/{0}/{1}">
+									<model ref="submission.id" />
+									<model ref="question.part.id" />
+								</destination>
+							</navigation>
+						</heading>
+					</headings>
+
+					<columns>
+
+						<!-- icon -->
+						<modelColumn pixels="16">
+							<model delegate="FormatQuestionDecoration" tool="sakai.mneme" />
+						</modelColumn>
+
+						<!-- question display (w/ by-question link) -->
+						<modelColumn>
+							<message selector="toc-question-entry">
+								<model delegate="FormatQuestionNumber" tool="sakai.mneme" />
+								<model type="text" stripHtml="TRUE" max="60" ref="question.description" missing="no-title" />
+								<model delegate="QuestionScore" tool="sakai.mneme" />
+								<selectors>
+									<selector selector="toc-question-entry-no-points">
+										<orDecision>
+											<decision reversed="TRUE" model="submission.assessment.hasPoints" />
+											<decision reversed="TRUE" model="question.hasPoints" />
+										</orDecision>
+									</selector>
+								</selectors>
+							</message>
+							<entityNavigations>
+								<navigation>
+									<destination template="/question/{0}/q{1}">
+										<model ref="submission.id" />
+										<model ref="question.id" />
+									</destination>
+								</navigation>
+							</entityNavigations>
+							<included>
+								<compareDecision model="submission.assessment.questionGrouping" constant="question" />
+							</included>
+						</modelColumn>
+
+						<!-- question display (w/ by-section link) TODO: might have just one column with include on the entity nav -->
+						<modelColumn>
+							<message selector="toc-question-entry">
+								<model delegate="FormatQuestionNumber" tool="sakai.mneme" />
+								<model type="text" stripHtml="TRUE" max="60" ref="question.description" />
+								<model delegate="QuestionScore" tool="sakai.mneme" />
+								<selectors>
+									<selector selector="toc-question-entry-no-points">
+										<orDecision>
+											<decision reversed="TRUE" model="submission.assessment.hasPoints" />
+											<decision reversed="TRUE" model="question.hasPoints" />
+										</orDecision>
+									</selector>
+								</selectors>
+							</message>
+							<entityNavigations>
+								<navigation>
+									<destination template="/question/{0}/p{1}/{2}">
+										<model ref="submission.id" />
+										<model ref="question.part.id" />
+										<model ref="question.id" />
+									</destination>
+								</navigation>
+							</entityNavigations>
+							<included>
+								<compareDecision model="submission.assessment.questionGrouping" constant="part" />
+							</included>
+						</modelColumn>
+
+						<!-- question display (w/ by-test link) TODO: might have just one column with include on the entity nav -->
+						<modelColumn>
+							<message selector="toc-question-entry">
+								<model delegate="FormatQuestionNumber" tool="sakai.mneme" />
+								<model type="text" stripHtml="TRUE" max="60" ref="question.description" missing="no-title" />
+								<model delegate="QuestionScore" tool="sakai.mneme" />
+								<selectors>
+									<selector selector="toc-question-entry-no-points">
+										<orDecision>
+											<decision reversed="TRUE" model="submission.assessment.hasPoints" />
+											<decision reversed="TRUE" model="question.hasPoints" />
+										</orDecision>
+									</selector>
+								</selectors>
+							</message>
+							<entityNavigations>
+								<navigation>
+									<destination template="/question/{0}/a/{1}">
+										<model ref="submission.id" />
+										<model ref="question.id" />
+									</destination>
+								</navigation>
+							</entityNavigations>
+							<included>
+								<compareDecision model="submission.assessment.questionGrouping" constant="assessment" />
+							</included>
+						</modelColumn>
+
+					</columns>
+				</entityList>
+			</container>
+			<included>
+				<decision model="submission.assessment.randomAccess" />
+			</included>
+		</section>
+
+		<!-- toc icon key -->
+		<section>
+			<container>
+				<iconKey title="toc-key-title">
+					<icons>
+						<icon icon="/icons/unanswered.png" message="format-question-decoration-unanswered" />
+						<icon icon="/icons/markedforreview.png" message="format-question-decoration-mark-for-review" />
+						<icon icon="/icons/reason.png" message="format-question-decoration-rationale" />
+					</icons>
+				</iconKey>
+			</container>
+			<included>
+				<decision model="submission.assessment.randomAccess" />
+			</included>
+		</section>
+
+		<!-- nav bar -->
+		<navigationBar id="nav">
+			<container>
+				<navigation title="save-exit" accessKey="save-exit-access" description="save-exit-description" style="BUTTON" destination="/list"
+					default="TRUE">
+					<icon icon="/icons/exit.gif" style="LEFT" />
+				</navigation>
+				<navigation title="finish-exam" accessKey="finish-exam-access" description="finish-exam-description" style="BUTTON" submit="TRUE"
+					id="finish">
+					<icon icon="/icons/finish.gif" style="LEFT" />
+					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif">
+						<message selector="finish-confirm">
+							<model type="enum" messageRoot="assessment-type-" ref="submission.assessment.type" />
+						</message>
+					</confirm>
+					<destination template="/submitted/{0}" model="submission.id" />
+				</navigation>
+				<divider />
+				<navigation title="instructions" accessKey="instructions-access" style="LINK">
+					<icon icon="/icons/test.png" style="LEFT" />
+					<destination template="/instructions/{0}{1}">
+						<model ref="submission.id" />
+						<model ref="sakai_destination" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>

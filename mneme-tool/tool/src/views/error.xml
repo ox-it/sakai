@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface title="error-title" header="error-header">
+	<container>
+		<section>
+			<container>
+				<alert selector="error-invalid-url-alert" model="invalidUrl" />
+			</container>
+			<included>
+				<decision type="hasValue">
+					<model ref="invalidUrl" />
+				</decision>
+			</included>
+		</section>
+		<section>
+			<container>
+				<alert selector="error-invalid-post" />
+			</container>
+			<included>
+				<decision type="hasValue">
+					<model ref="invalidPost" />
+				</decision>
+			</included>
+		</section>
+		<section>
+			<container>
+				<alert selector="error-unauthorized" />
+			</container>
+			<included>
+				<decision type="hasValue">
+					<model ref="unauthorized" />
+				</decision>
+			</included>
+		</section>
+		<section>
+			<container>
+				<alert selector="error-policy" />
+			</container>
+			<included>
+				<decision type="hasValue">
+					<model ref="policy" />
+				</decision>
+			</included>
+		</section>
+		<section>
+			<container>
+				<alert selector="error-unexpected" />
+			</container>
+			<included>
+				<decision type="hasValue">
+					<model ref="unexpected" />
+				</decision>
+			</included>
+		</section>
+		<section>
+			<container>
+				<alert selector="error-upload" model="uploadMax" />
+			</container>
+			<included>
+				<decision type="hasValue">
+					<model ref="upload" />
+				</decision>
+			</included>
+		</section>
+		<section>
+			<container>
+				<alert selector="error-over" />
+			</container>
+			<included>
+				<decision type="hasValue">
+					<model ref="over" />
+				</decision>
+			</included>
+		</section>
+		<section>
+			<container>
+				<alert selector="error-closed" />
+			</container>
+			<included>
+				<decision type="hasValue">
+					<model ref="closed" />
+				</decision>
+			</included>
+		</section>
+		<section>
+			<container>
+				<alert selector="error-password" />
+			</container>
+			<included>
+				<hasValueDecision model="password" />
+			</included>
+		</section>
+		<section>
+			<container>
+				<alert selector="error-pledge" />
+			</container>
+			<included>
+				<hasValueDecision model="pledge" />
+			</included>
+		</section>
+		<section>
+			<container>
+				<instructions selector="error-recovery-test" />
+				<navigation style="BUTTON" title="enter" default="TRUE">
+					<destination template="{0}">
+						<model ref="testUrl" />
+					</destination>
+				</navigation>
+			</container>
+			<included>
+				<decision type="hasValue">
+					<model ref="testUrl" />
+				</decision>
+			</included>
+		</section>
+		<section>
+			<container>
+				<instructions selector="error-recovery" />
+				<navigation style="BUTTON" title="return" default="TRUE" destination="/list" />
+			</container>
+		</section>
+	</container>
+</interface>

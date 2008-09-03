@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<!--  title & header -->
+	<title>
+		<message selector="testAccess-title">
+			<model ref="assessment.title" type="text" missing="no-title" />
+		</message>
+	</title>
+
+	<header>
+		<message selector="testAccess-header">
+			<model type="icon" icon="/icons/access.png" />
+		</message>
+	</header>
+
+	<subHeader>
+		<container>
+			<text>
+				<message>
+					<model ref="assessment.title" type="text" missing="no-title" />
+				</message>
+			</text>
+		</container>
+	</subHeader>
+
+	<container>
+
+		<!-- top nav bar (empty, used as frame) -->
+		<navigationBar />
+
+		<section>
+			<container>
+
+				<!-- timed instructions overlay -->
+				<overlay id="instructions">
+					<container>
+						<text selector="timed-instructions" />
+						<gap />
+						<toggle target="instructions" title="close" style="LINK">
+							<icon icon="/icons/close.png" style="LEFT" />
+						</toggle>
+					</container>
+				</overlay>
+				<selection orientation="DROPDOWN" height="5" title="users">
+					<singleSelect>
+						<decision type="true" reversed="TRUE" />
+					</singleSelect>
+					<model ref="access.users" />
+					<selectionModel name="user" model="assessment.submitUsers">
+						<valueMessage>
+							<message model="user.id" />
+						</valueMessage>
+						<displayMessage>
+							<message model="user.sortName" />
+						</displayMessage>
+					</selectionModel>
+					<included>
+						<hasValueDecision reversed="TRUE" model="fixed_user" />
+					</included>
+				</selection>
+				<text>
+					<message selector="for-user">
+						<model type="userInfo" ref="fixed_user" selector="SORTNAME" />
+					</message>
+					<included>
+						<hasValueDecision model="fixed_user" />
+					</included>
+				</text>
+				<dateEdit title="open-date">
+					<model ref="access.openDate" type="date" />
+				</dateEdit>
+				<dateEdit title="due-date">
+					<model ref="access.dueDate" type="date" />
+				</dateEdit>
+				<dateEdit title="accept-until">
+					<model ref="access.acceptUntilDate" type="date" />
+				</dateEdit>
+				<selection title="timeLimit">
+					<model ref="access.hasTimeLimit" />
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="no-time-limit" />
+							</displayMessage>
+							<valueMessage>
+								<message template="false" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="time-limit" />
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+							<container>
+								<durationEdit>
+									<model ref="access.timeLimit" type="duration" />
+								</durationEdit>
+								<toggle target="instructions" title="instructions" style="LINK" />
+							</container>
+						</selectionChoice>
+					</selectionChoices>
+					<included>
+						<decision model="assessment.hasTimeLimit" />
+					</included>
+				</selection>
+				<selection title="allowTries">
+					<model ref="access.hasTriesLimit" />
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="no-tries" />
+							</displayMessage>
+							<valueMessage>
+								<message template="false" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="tries" />
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+							<container>
+								<countEdit>
+									<model ref="access.tries" type="count" />
+									<minValue>
+										<model type="constant" value="1" />
+									</minValue>
+								</countEdit>
+							</container>
+						</selectionChoice>
+					</selectionChoices>
+				</selection>
+				<textEdit cols="16">
+					<title>
+						<message selector="password">
+							<model type="icon" icon="/icons/password.png" />
+						</message>
+					</title>
+					<model type="text" ref="access.passwordValue" />
+				</textEdit>
+
+				<!-- navigation -->
+				<navigationBar id="nav">
+					<container>
+						<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
+							<icon icon="/icons/return.png" style="LEFT" />
+							<destination template="{0}">
+								<model ref="return" />
+							</destination>
+						</navigation>
+					</container>
+				</navigationBar>
+
+			</container>
+		</section>
+
+	</container>
+
+	<footer>
+		<container>
+			<finePrint selector="id-display" model="access.id" />
+		</container>
+	</footer>
+
+</interface>

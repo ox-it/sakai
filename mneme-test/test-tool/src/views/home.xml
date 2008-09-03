@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface title="home-title" header="home-header">
+	<container>
+
+		<navigationBar />
+
+		<section>
+			<container>
+
+				<section>
+					<title highlighted="TRUE">
+						<message selector="install-templates" />
+					</title>
+					<container>
+						<instructions selector="install-templates-instructions" />
+						<navigation title="install-templates" style="LINK" destination="INSTALL_TEMPLATES" submit="TRUE">
+							<confirm decision="TRUE" cancelSelector="cancel" selector="install-templates-confirm" />
+						</navigation>
+					</container>
+				</section>
+
+				<section>
+					<title selector="install-context" highlighted="TRUE">
+						<message selector="install-context" />
+					</title>
+					<container>
+						<instructions selector="install-context-instructions" />
+						<textEdit title="install-value" rows="1" cols="40">
+							<model ref="installValue.value" />
+						</textEdit>
+						<navigation title="install-context" style="LINK" destination="INSTALL" submit="TRUE">
+							<confirm decision="TRUE" cancelSelector="cancel" selector="install-context-confirm" />
+						</navigation>
+					</container>
+				</section>
+
+				<section>
+					<title highlighted="TRUE">
+						<message selector="install-bulk" />
+					</title>
+					<container>
+						<instructions selector="install-bulk-instructions" />
+						<textEdit title="install-bulk-value" rows="1" cols="40">
+							<model ref="installBulkValue.value" />
+						</textEdit>
+						<navigation title="install-bulk" style="LINK" destination="INSTALL_BULK" submit="TRUE">
+							<confirm decision="TRUE" cancelSelector="cancel" selector="install-bulk-confirm" />
+						</navigation>
+					</container>
+				</section>
+
+				<section>
+					<title highlighted="TRUE">
+						<message selector="question-cleanup" />
+					</title>
+					<container>
+						<instructions selector="question-cleanup-instructions" />
+						<navigation title="question-cleanup" style="LINK" destination="QUESTION_CLEANUP" submit="TRUE">
+							<confirm decision="TRUE" cancelSelector="cancel" selector="question-cleanup-confirm" />
+						</navigation>
+					</container>
+				</section>
+
+			</container>
+		</section>
+
+		<navigationBar />
+
+	</container>
+</interface>

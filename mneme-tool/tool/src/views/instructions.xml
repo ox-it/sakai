@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme">
+			<included>
+				<hasValueDecision model="maintainer" />
+			</included>
+		</alias>
+	</modeContainer>
+
+	<!-- title and header -->
+	<title>
+		<message selector="instructions-title">
+			<model ref="submission.assessment.title" type="text" />
+		</message>
+	</title>
+
+	<header>
+		<message selector="instructions-header">
+			<model type="icon" icon="/icons/test.png" />
+		</message>
+	</header>
+
+	<container>
+
+		<!-- courier to keep the session alive -->
+		<courier destination="/courier" frequency="600" />
+
+		<!-- repeat the nav up top -->
+		<alias to="nav" />
+
+		<!-- timer for timed tests -->
+		<countdownTimer submit="TRUE">
+			<duration>
+				<message selector="timer-duration">
+					<model type="duration" concise="TRUE" ref="submission.expiration.limit" />
+				</message>
+				<model ref="submission.expiration.limit" />
+			</duration>
+			<remaining>
+				<message selector="timer-remaining" />
+			</remaining>
+			<timeTillExpire>
+				<model ref="submission.expiration.duration" />
+			</timeTillExpire>
+			<destination template="/submitted/{0}">
+				<model ref="submission.id" />
+			</destination>
+			<included>
+				<decision model="review" reversed="TRUE" />
+				<hasValueDecision model="submission.expiration" />
+				<compareDecision model="submission.expiration.cause" constant="timeLimit" />
+			</included>
+		</countdownTimer>
+
+		<!-- timer for near-due tests -->
+		<countdownTimer submit="TRUE">
+			<duration>
+				<message selector="timer-due">
+					<model type="date" concise="TRUE" ref="submission.expiration.time" />
+				</message>
+				<model ref="submission.expiration.limit" />
+			</duration>
+			<remaining>
+				<message selector="timer-remaining" />
+			</remaining>
+			<timeTillExpire>
+				<model ref="submission.expiration.duration" />
+			</timeTillExpire>
+			<destination template="/submitted/{0}">
+				<model ref="submission.id" />
+			</destination>
+			<included>
+				<decision model="review" reversed="TRUE" />
+				<hasValueDecision model="submission.expiration" />
+				<compareDecision model="submission.expiration.cause" constant="closedDate" />
+			</included>
+		</countdownTimer>
+
+		<!-- test information -->
+		<section>
+			<title>
+				<message selector="instructions-test-title">
+					<model type="icon" icon="/icons/test.png" />
+					<model ref="submission.assessment.title" type="text" missing="no-title" />
+					<model ref="submission.assessment.parts.totalPoints" delegate="FormatScore" tool="sakai.mneme" />
+					<selectors>
+						<selector selector="instructions-test-title-no-points">
+							<decision reversed="TRUE" model="submission.assessment.hasPoints" />
+						</selector>
+						<selector selector="instructions-test-title-singular">
+							<compareDecision constant="1.0" model="submission.assessment.parts.totalPoints" />
+						</selector>
+					</selectors>
+				</message>
+			</title>
+			<container>
+				<text>
+					<message>
+						<model type="html" ref="submission.assessment.presentation.text" />
+					</message>
+				</text>
+				<attachments title="attachments">
+					<model ref="submission.assessment.presentation.attachments" />
+					<included>
+						<hasValueDecision model="submission.assessment.presentation.attachments" />
+					</included>
+				</attachments>
+			</container>
+		</section>
+
+		<!-- for each part, part information -->
+		<section>
+			<iterator model="submission.assessment.parts.parts" name="part" />
+			<entityIncluded>
+				<decision model="submission.assessment.parts.showPresentation" />
+			</entityIncluded>
+			<title>
+				<message selector="instructions-part-title">
+					<model type="icon" icon="/icons/section.png" />
+					<model type="text" ref="part.ordering.position" />
+					<model type="text" ref="part.assessment.parts.size" />
+					<model type="text" ref="part.title" />
+					<model ref="part" delegate="SectionScore" tool="sakai.mneme" />
+					<selectors>
+						<selector selector="instructions-part-title-no-points">
+							<decision reversed="TRUE" model="submission.assessment.hasPoints" />
+						</selector>
+					</selectors>
+				</message>
+			</title>
+			<container>
+				<text>
+					<message>
+						<model type="html" ref="part.presentation.text" />
+					</message>
+					<included>
+						<hasValueDecision model="part.presentation.text" />
+					</included>
+				</text>
+				<attachments title="attachments">
+					<model ref="part.presentation.attachments" />
+					<included>
+						<hasValueDecision model="part.presentation.attachments" />
+					</included>
+				</attachments>
+			</container>
+		</section>
+
+		<!-- survey instructions -->
+		<section>
+			<container>
+				<instructions>
+					<message selector="survey-instructions">
+						<model type="icon" icon="/icons/survey_type.png" />
+					</message>
+				</instructions>
+			</container>
+			<included>
+				<compareDecision model="submission.assessment.type" constant="survey" />
+			</included>
+		</section>
+
+		<!-- linear instructions -->
+		<section>
+			<container>
+				<instructions>
+					<message selector="linear-instructions">
+						<model type="icon" icon="/icons/linear.png" />
+						<model type="enum" messageRoot="assessment-type-" ref="submission.assessment.type" />
+					</message>
+				</instructions>
+			</container>
+			<included>
+				<decision reversed="TRUE" model="submission.assessment.randomAccess" />
+			</included>
+		</section>
+
+		<!-- flexible instructions (by-question and by-part) -->
+		<section>
+			<container>
+				<instructions>
+					<message selector="flexible-instructions">
+						<model type="icon" icon="/icons/flexible.png" />
+						<model type="enum" messageRoot="assessment-type-" ref="submission.assessment.type" />
+					</message>
+				</instructions>
+			</container>
+			<included>
+				<compareDecision>
+					<model ref="submission.assessment.questionGrouping" />
+					<constant value="part" />
+					<constant value="question" />
+				</compareDecision>
+				<decision model="submission.assessment.randomAccess" />
+			</included>
+		</section>
+
+		<!-- flexible instructions (by-test) -->
+		<section>
+			<container>
+				<instructions>
+					<message selector="flexible-instructions-by-assessment">
+						<model type="icon" icon="/icons/flexible.png" />
+						<model type="enum" messageRoot="assessment-type-" ref="submission.assessment.type" />
+					</message>
+				</instructions>
+			</container>
+			<included>
+				<compareDecision model="submission.assessment.questionGrouping" constant="assessment" />
+				<decision model="submission.assessment.randomAccess" />
+			</included>
+		</section>
+
+		<!-- multiple submission instructions -->
+		<section>
+			<container>
+				<instructions>
+					<message selector="highest-instructions">
+						<model type="icon" icon="/icons/highest.png" />
+						<model type="enum" messageRoot="assessment-type-" ref="submission.assessment.type" />
+					</message>
+				</instructions>
+			</container>
+			<included>
+				<decision model="submission.assessment.hasMultipleTries" />
+			</included>
+		</section>
+
+
+		<!-- timed test (in progress) instructions -->
+		<section>
+			<container>
+				<instructions>
+					<message selector="timed-instructions-inprogress">
+						<model type="icon" icon="/icons/clock.png" />
+						<model type="enum" messageRoot="assessment-type-" ref="submission.assessment.type" />
+					</message>
+				</instructions>
+			</container>
+			<included>
+				<hasValueDecision model="submission.assessment.timeLimit" />
+			</included>
+		</section>
+
+		<gap />
+
+		<navigationBar id="nav">
+			<container>
+				<navigation title="continue" style="BUTTON" accessKey="continue-access" description="continue-description">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="destination" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>

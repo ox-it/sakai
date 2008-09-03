@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface title="guest-list-title" header="guest-list-header">
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme">
+			<included>
+				<hasValueDecision model="maintainer" />
+			</included>
+		</alias>
+	</modeContainer>
+
+	<container>
+		<entityList style="FLAT">
+			<iterator name="submission" model="submissions" />
+			<emptyTitle>
+				<message selector="list-empty" />
+			</emptyTitle>
+			<columns>
+				<modelColumn pixels="16" centered="TRUE">
+					<title>
+						<message selector="list-type" />
+					</title>
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="3" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/guest_list/3A" />
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/guest_list/3D" />
+						</desc>
+					</sort>
+					<navigations>
+						<navigation style="LINK" submit="TRUE" description="assessment-type-test" disabled="TRUE">
+							<icon icon="/icons/test_type.png" style="LEFT" />
+							<included>
+								<compareDecision model="submission.assessment.type" constant="test" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="assessment-type-survey" disabled="TRUE">
+							<icon icon="/icons/survey_type.png" style="LEFT" />
+							<included>
+								<compareDecision model="submission.assessment.type" constant="survey" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="assessment-type-assignment" disabled="TRUE">
+							<icon icon="/icons/assignment_type.png" style="LEFT" />
+							<included>
+								<compareDecision model="submission.assessment.type" constant="assignment" />
+							</included>
+						</navigation>
+					</navigations>
+				</modelColumn>
+				<modelColumn>
+					<title>
+						<message selector="list-header-title" />
+					</title>
+					<model ref="submission.assessment.title" type="text" missing="no-title"/>
+					<sort>
+						<active>
+							<compareDecision model="sort_column" constant="0" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/guest_list/0A" />
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/guest_list/0D" />
+						</desc>
+					</sort>
+					<entityNavigations>
+						<navigation>
+							<destination template="/guest_view/{0}/guest_list/{1}{2}">
+								<model ref="submission.assessment.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+							</destination>
+							<included>
+								<decision model="submission.mayGuestView" />
+							</included>
+						</navigation>
+					</entityNavigations>
+				</modelColumn>
+				<modelColumn>
+					<title>
+						<message selector="list-header-open" />
+					</title>
+					<model type="date" twoLine="TRUE" missing="assume-open" ref="submission.assessment.dates.openDate" />
+				</modelColumn>
+
+				<!-- due date -->
+				<column>
+					<title>
+						<message selector="list-header-due" />
+					</title>
+					<sort>
+						<active>
+							<compareDecision model="sort_column" constant="2" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/guest_list/2A" />
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/guest_list/2D" />
+						</desc>
+					</sort>
+					<container>
+						<text>
+							<message>
+								<model type="date" twoLine="TRUE" missing="assume-open" ref="submission.assessment.dates.dueDate" />
+							</message>
+							<included>
+								<andDecision reversed="TRUE">
+									<andDecision>
+										<hasValueDecision model="submission.assessment.dates.expiration" />
+										<orDecision>
+											<compareDecision model="submission.assessmentSubmissionStatus">
+												<constant value="ready" />
+												<constant value="overdueReady" />
+											</compareDecision>
+											<andDecision>
+												<compareDecision model="submission.assessmentSubmissionStatus">
+													<constant value="inProgress" />
+													<constant value="inProgressAlert" />
+												</compareDecision>
+												<hasValueDecision reversed="TRUE" model="submission.assessment.timeLimit" />
+											</andDecision>
+										</orDecision>
+									</andDecision>
+								</andDecision>
+							</included>
+						</text>
+						<countdownTimer tight="TRUE" pixels="100">
+							<duration>
+								<message selector="timer-due">
+									<model type="date" ref="submission.assessment.dates.expiration.time" />
+								</message>
+								<model ref="submission.assessment.dates.expiration.limit" />
+							</duration>
+							<remaining>
+								<message selector="timer-remaining" />
+							</remaining>
+							<timeTillExpire>
+								<model ref="submission.assessment.dates.expiration.duration" />
+							</timeTillExpire>
+							<destination template="/guest_list" />
+							<included>
+								<andDecision>
+									<hasValueDecision model="submission.assessment.dates.expiration" />
+									<orDecision>
+										<compareDecision model="submission.assessmentSubmissionStatus">
+											<constant value="ready" />
+											<constant value="overdueReady" />
+										</compareDecision>
+										<andDecision>
+											<compareDecision model="submission.assessmentSubmissionStatus">
+												<constant value="inProgress" />
+												<constant value="inProgressAlert" />
+											</compareDecision>
+											<hasValueDecision reversed="TRUE" model="submission.assessment.timeLimit" />
+										</andDecision>
+									</orDecision>
+								</andDecision>
+							</included>
+						</countdownTimer>
+					</container>
+				</column>
+
+				<!-- time limit -->
+				<column>
+					<title>
+						<message selector="list-header-limit" />
+					</title>
+					<container>
+						<text>
+							<message>
+								<model type="duration" concise="TRUE" missing="infinite" ref="submission.assessment.timeLimit" />
+							</message>
+							<included>
+								<decision reversed="TRUE" model="submission.mayContinue" />
+							</included>
+						</text>
+						<countdownTimer tight="TRUE" pixels="100">
+							<duration>
+								<message selector="timer-duration">
+									<model type="duration" concise="TRUE" ref="submission.expiration.limit" />
+								</message>
+								<model ref="submission.expiration.limit" />
+							</duration>
+							<timeTillExpire>
+								<model ref="submission.expiration.duration" />
+							</timeTillExpire>
+							<destination template="/guest_list" />
+							<included>
+								<decision model="submission.mayContinue" />
+								<hasValueDecision model="submission.assessment.timeLimit" />
+							</included>
+						</countdownTimer>
+					</container>
+				</column>
+
+				<column wrap="FALSE">
+					<title>
+						<message selector="list-header-tries" />
+					</title>
+					<container>
+						<text>
+							<message selector="list-format-tries">
+								<model ref="submission.assessment.tries" missing="infinite" />
+							</message>
+						</text>
+					</container>
+				</column>
+			</columns>
+		</entityList>
+	</container>
+</interface>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE fragment SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<fragment>
+	<container>
+		<modeBar>
+			<container>
+				<navigation title="pools-nav-title" destination="/pools" style="LINK" accessKey="pools-nav-access-key" submit="TRUE">
+					<icon icon="/icons/basket_add.png" style="LEFT" />
+					<disabled>
+						<hasValueDecision model="disablePools" />
+					</disabled>
+				</navigation>
+				<navigation title="test-manager-nav-title" destination="/assessments" style="LINK" accessKey="test-manager-nav-access-key"
+					submit="TRUE">
+					<icon icon="/icons/folder_page.png" style="LEFT" />
+					<disabled>
+						<hasValueDecision model="disableAssessments" />
+					</disabled>
+				</navigation>
+				<navigation title="grading-nav-title" destination="/grades" style="LINK" accessKey="grading-nav-access-key" submit="TRUE">
+					<icon icon="/icons/grade.png" style="LEFT" />
+					<disabled>
+						<hasValueDecision model="disableGrades" />
+					</disabled>
+				</navigation>
+				<navigation title="delivery-nav-title" destination="/list" style="LINK" accessKey="delivery-nav-access-key" submit="TRUE">
+					<icon icon="/icons/test_drive.png" style="LEFT" />
+					<disabled>
+						<hasValueDecision model="disableDelivery" />
+					</disabled>
+				</navigation>
+			</container>
+		</modeBar>
+	</container>
+</fragment>

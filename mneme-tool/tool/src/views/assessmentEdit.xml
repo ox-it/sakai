@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface focus="title">
+
+	<!-- attachment picker view -->
+	<attachmentPicker>
+		<destination template="/attachments" />
+	</attachmentPicker>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<header>
+		<message selector="testEdit-header">
+			<model type="icon" icon="/icons/edit.png" />
+		</message>
+	</header>
+
+	<subHeader>
+		<container>
+			<!--  if invalid -->
+			<warning>
+				<message selector="invalid-dates">
+					<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+				</message>
+				<included>
+					<decision model="assessment.dates.isValid" reversed="TRUE" />
+				</included>
+			</warning>
+
+		</container>
+	</subHeader>
+
+	<title>
+		<message selector="testEdit-title" />
+	</title>
+
+	<container>
+		<navigationBar />
+
+		<section>
+			<container>
+				<section>
+					<container>
+
+						<!-- instructions overlay -->
+						<overlay id="instructions">
+							<container>
+								<htmlEdit title="test-instructions" size="SMALL">
+									<model type="html" ref="assessment.presentation.text" />
+								</htmlEdit>
+								<!-- 
+									<attachments title="attachments" model="assessment.presentation.attachments" name="attachment">
+									<navigations>
+									<navigation destination="REMOVE" title="remove-attachment" style="LINK"
+									description="remove-attachment-description" submit="TRUE" small="TRUE">
+									<icon icon="/icons/delete.png" style="NONE" />
+									<destination template="REMOVE:{0}">
+									<model ref="attachment.reference" />
+									</destination>
+									<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif"
+									selector="confirm-remove-attachment" />
+									</navigation>
+									</navigations>
+									</attachments>
+									<fileUpload>
+									<model ref="upload.upload" />
+									<title>
+									<message selector="upload-attachment" />
+									</title>
+									<upload>
+									<message selector="upload-button" />
+									</upload>
+									</fileUpload>
+								-->
+								<gap />
+								<toggle target="instructions" title="close" style="LINK">
+									<icon icon="/icons/close.png" style="LEFT" />
+								</toggle>
+							</container>
+						</overlay>
+
+						<!-- type -->
+						<selection id="type" title="type">
+							<model ref="assessment.type" />
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="assessment-type-test" />
+									</displayMessage>
+									<valueMessage>
+										<message template="test" />
+									</valueMessage>
+								</selectionChoice>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="assessment-type-assignment" />
+									</displayMessage>
+									<valueMessage>
+										<message template="assignment" />
+									</valueMessage>
+								</selectionChoice>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="assessment-type-survey" />
+									</displayMessage>
+									<valueMessage>
+										<message template="survey" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<readOnly>
+								<decision model="assessment.isLocked" />
+								<compareDecision model="assessment.type" constant="survey" />
+							</readOnly>
+							<destination template="/assessment_edit/{0}/{1}">
+								<model ref="sortcode" />
+								<model ref="assessment.id" />
+							</destination>
+						</selection>
+
+						<!-- title -->
+						<textEdit id="title" title="test-title" cols="40">
+							<model ref="assessment.title" type="text" />
+						</textEdit>
+
+						<!-- toggle to show instructions -->
+						<toggle target="instructions" title="edit-instructions" style="LINK">
+							<icon icon="/icons/test.png" style="LEFT" />
+							<included>
+								<hasValueDecision model="assessment.presentation.text" />
+							</included>
+						</toggle>
+						<toggle target="instructions" title="add-instructions" style="LINK">
+							<icon icon="/icons/test.png" style="LEFT" />
+							<included>
+								<hasValueDecision reversed="TRUE" model="assessment.presentation.text" />
+							</included>
+						</toggle>
+
+					</container>
+				</section>
+			</container>
+		</section>
+
+		<section>
+			<container>
+
+				<!-- the list of parts -->
+				<entityList style="FLAT">
+					<title>
+						<message selector="add-parts" />
+					</title>
+					<iterator name="part" model="assessment.parts.parts" />
+					<emptyTitle>
+						<message selector="no-parts" />
+					</emptyTitle>
+					<columns>
+						<selectionColumn multiple="TRUE" pixels="16">
+							<value>
+								<model ref="part.id" />
+							</value>
+							<readOnly>
+								<decision model="assessment.isLocked" />
+							</readOnly>
+							<model ref="ids.values" />
+							<!-- entity actions -->
+							<entityActions>
+								<!--  inform if live -->
+								<instructions>
+									<message selector="live-warning-parts">
+										<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+									</message>
+									<included>
+										<decision model="assessment.isLocked" />
+									</included>
+								</instructions>
+								<!-- these two are not dependent, but put here for desired presentation order of actions -->
+								<navigation destination="MANUAL" title="manual-select" style="LINK" submit="TRUE">
+									<icon icon="/icons/add_manual_add.png" style="LEFT" />
+									<included>
+										<decision reversed="TRUE" model="assessment.isLocked" />
+									</included>
+								</navigation>
+								<navigation destination="DRAW" title="random-draw" style="LINK" submit="TRUE">
+									<icon icon="/icons/add_draw_add.png" style="LEFT" />
+									<included>
+										<decision reversed="TRUE" model="assessment.isLocked" />
+									</included>
+								</navigation>
+								<!-- delete is dependent, and desired to go last  -->
+								<navigation destination="DELETE" selectRequirement="SOME" selectRequirementMessage="delete-failed-requirements"
+									title="delete-part" style="LINK" submit="TRUE">
+									<icon icon="/icons/delete.png" style="LEFT" />
+									<included>
+										<decision reversed="TRUE" model="assessment.isLocked" />
+									</included>
+									<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif" selector="confirm-delete" />
+								</navigation>
+							</entityActions>
+						</selectionColumn>
+						<orderColumn em="4">
+							<title>
+								<message selector="part-order" />
+							</title>
+							<value>
+								<model ref="part.id" />
+							</value>
+							<model ref="assessment.parts.order" />
+							<included>
+								<decision reversed="TRUE" model="assessment.isLocked" />
+							</included>
+						</orderColumn>
+						<column pixels="16">
+							<entityIncluded>
+								<decision reversed="TRUE" model="part.isValid" />
+							</entityIncluded>
+							<container>
+								<warning>
+									<message>
+										<model ref="part.invalidMessage" />
+									</message>
+								</warning>
+							</container>
+						</column>
+						<modelColumn>
+							<title>
+								<message selector="part-title" />
+							</title>
+							<model ref="part.title" type="text" missing="no-title" />
+							<entityNavigations>
+								<navigation submit="TRUE">
+									<destination template="/part_edit/{0}/{1}/{2}">
+										<model ref="sortcode" />
+										<model ref="assessment.id" />
+										<model ref="part.id" />
+									</destination>
+								</navigation>
+							</entityNavigations>
+						</modelColumn>
+						<modelColumn>
+							<title>
+								<message selector="part-summary" />
+							</title>
+							<model ref="part" delegate="FormatPartSummary" tool="sakai.mneme" />
+						</modelColumn>
+						<modelColumn>
+							<title>
+								<message selector="part-points" />
+							</title>
+							<model ref="part.totalPoints" />
+							<included>
+								<decision model="assessment.hasPoints" />
+							</included>
+						</modelColumn>
+					</columns>
+				</entityList>
+				<text>
+					<message selector="assessment-totals">
+						<model ref="assessment.parts.numQuestions" />
+						<model ref="assessment.parts.totalPoints" />
+						<selectors>
+							<selector selector="assessment-totals-no-points">
+								<decision reversed="TRUE" model="assessment.hasPoints" />
+							</selector>
+						</selectors>
+					</message>
+				</text>
+			</container>
+		</section>
+
+		<!-- navigations -->
+		<navigationBar>
+			<container>
+				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="/assessments/{0}">
+						<model ref="sortcode" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+	</container>
+
+	<footer>
+		<container>
+			<finePrint>
+				<message selector="id-display">
+					<model ref="assessment.id" />
+				</message>
+			</finePrint>
+			<finePrint>
+				<message selector="history-createText">
+					<model type="userInfo" selector="DISPLAYNAME" ref="assessment.createdBy.UserId" />
+					<model type="date" ref="assessment.createdBy.date" />
+				</message>
+			</finePrint>
+			<finePrint>
+				<message selector="history-modifyText">
+					<model type="userInfo" selector="DISPLAYNAME" ref="assessment.modifiedBy.UserId" />
+					<model type="date" ref="assessment.modifiedBy.date" />
+				</message>
+			</finePrint>
+		</container>
+	</footer>
+
+</interface>

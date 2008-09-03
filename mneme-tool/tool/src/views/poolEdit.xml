@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<title>
+		<message selector="pool-edit-title" />
+	</title>
+
+	<header>
+		<message selector="pool-edit-header">
+			<model type="icon" icon="/icons/basket_add.png" />
+			<model ref="pool.title" type="text" missing="no-title" />
+		</message>
+	</header>
+
+	<subHeader>
+		<container>
+			<text>
+				<message selector="point-value-text">
+					<model ref="pool.points" />
+				</message>
+			</text>
+			<text>
+				<message selector="difficult-level-text">
+					<model ref="pool.difficulty" />
+				</message>
+			</text>
+		</container>
+	</subHeader>
+
+	<container>
+
+		<!-- the list of questions -->
+		<entityList style="FLAT">
+			<iterator name="question" model="questions" />
+			<emptyTitle>
+				<message selector="no-questions" />
+			</emptyTitle>
+			<columns>
+				<column pixels="16">
+					<navigations>
+						<navigation style="LINK" submit="TRUE" description="invalid-alt">
+							<icon icon="/icons/warning.png" style="LEFT" />
+							<destination template="/question_edit/{0}/{1}/{2}{3}/{4}/{5}">
+								<model ref="poolsSortCode" />
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+								<model ref="question.id" />
+							</destination>
+							<included>
+								<decision reversed="TRUE" model="question.isValid" />
+							</included>
+						</navigation>
+					</navigations>
+				</column>
+				<selectionColumn multiple="TRUE" pixels="16">
+					<value>
+						<model type="text" ref="question.id" />
+					</value>
+					<model ref="questionids.values" />
+					<entityActions>
+						<navigation submit="TRUE" style="LINK" title="add-question-title">
+							<destination template="/select_question_type/{0}/{1}/{2}{3}/{4}">
+								<model ref="poolsSortCode" />
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+							</destination>
+							<icon icon="/icons/add_qst.png" style="LEFT" />
+						</navigation>
+						<navigation title="move-to-pool" selectRequirement="SOME" selectRequirementMessage="move-failed-requirements" style="LINK"
+							disabled="FALSE" submit="TRUE">
+							<icon icon="/icons/page_go.png" style="LEFT" />
+							<destination template="/question_move/{0}/{1}/{2}{3}/{4}">
+								<model ref="poolsSortCode" />
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+							</destination>
+						</navigation>
+						<navigation title="copy-to-pool" selectRequirement="SOME" selectRequirementMessage="copy-failed-requirements" style="LINK"
+							submit="TRUE">
+							<icon icon="/icons/copy.png" style="LEFT" />
+							<destination template="/question_copy/{0}/{1}/{2}{3}/{4}">
+								<model ref="poolsSortCode" />
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+							</destination>
+						</navigation>
+						<navigation title="delete-title" selectRequirement="SOME" selectRequirementMessage="delete-failed-requirements" style="LINK"
+							submit="TRUE" destination="DELETE">
+							<icon icon="/icons/delete.png" style="LEFT" />
+							<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif" selector="confirm-delete" />
+						</navigation>
+						<pager paging="paging" submit="TRUE">
+							<destination template="/pool_edit/{0}/{1}/{2}{3}/{4}">
+								<model ref="poolsSortCode" />
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+							</destination>
+							<sizeOptions>
+								<model ref="pageSizes" />
+							</sizeOptions>
+						</pager>
+					</entityActions>
+				</selectionColumn>
+				<column pixels="16">
+					<navigations>
+						<navigation style="LINK" submit="TRUE" description="view-question">
+							<icon icon="/icons/preview.png" style="LEFT" />
+							<destination template="/question_preview/{0}/pool_edit/{1}/{2}/{3}{4}/{5}">
+								<model ref="question.id" />
+								<model ref="poolsSortCode" />
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+							</destination>
+							<included>
+								<decision reversed="TRUE" model="question.isSurvey" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="view-survey">
+							<icon icon="/icons/survey_view.png" style="LEFT" />
+							<destination template="/question_preview/{0}/pool_edit/{1}/{2}/{3}{4}/{5}">
+								<model ref="question.id" />
+								<model ref="poolsSortCode" />
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+							</destination>
+							<included>
+								<decision model="question.isSurvey" />
+							</included>
+						</navigation>
+					</navigations>
+				</column>
+				<modelColumn>
+					<title>
+						<message selector="question-description" />
+					</title>
+					<model type="text" ref="question.description" missing="no-title" stripHtml="TRUE" max="60" />
+					<entityNavigations>
+						<navigation>
+							<destination template="/question_edit/{0}/{1}/{2}{3}/{4}/{5}">
+								<model ref="poolsSortCode" />
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+								<model ref="question.id" />
+							</destination>
+						</navigation>
+					</entityNavigations>
+					<sort>
+						<active>
+							<compareDecision model="sort_column" constant="0" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/pool_edit/{0}/{1}/0A/{2}">
+								<model ref="poolsSortCode" />
+								<model ref="pool.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+							</destination>
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/pool_edit/{0}/{1}/0D/{2}">
+								<model ref="poolsSortCode" />
+								<model ref="pool.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+							</destination>
+						</desc>
+					</sort>
+				</modelColumn>
+				<modelColumn>
+					<title>
+						<message selector="question-type" />
+					</title>
+					<model ref="question.typeName" />
+					<sort>
+						<active>
+							<compareDecision model="sort_column" constant="1" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/pool_edit/{0}/{1}/1A/{2}">
+								<model ref="poolsSortCode" />
+								<model ref="pool.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+							</destination>
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/pool_edit/{0}/{1}/1D/{2}">
+								<model ref="poolsSortCode" />
+								<model ref="pool.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+							</destination>
+						</desc>
+					</sort>
+				</modelColumn>
+				<modelColumn pixels="16">
+					<navigations>
+						<navigation style="LINK" submit="TRUE" description="question-duplicate-description">
+							<icon icon="/icons/copy.png" style="LEFT" />
+							<destination template="DUPLICATE:{0}">
+								<model ref="question.id" />
+							</destination>
+						</navigation>
+					</navigations>
+				</modelColumn>
+			</columns>
+		</entityList>
+
+		<!--navigation-->
+		<navigationBar>
+			<container>
+				<navigation title="return" accessKey="return-access" description="return-description" style="BUTTON" submit="FALSE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<!--destination template="/pools" /-->
+					<destination template="/pools/{0}">
+						<model ref="poolsSortCode" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+
+	<footer>
+		<container>
+			<finePrint>
+				<message selector="id-display">
+					<model ref="pool.id" />
+				</message>
+			</finePrint>
+			<finePrint>
+				<message selector="history-createText">
+					<model type="userInfo" selector="DISPLAYNAME" ref="pool.createdBy.UserId" />
+					<model type="date" ref="pool.createdBy.date" />
+				</message>
+			</finePrint>
+			<finePrint>
+				<message selector="history-modifyText">
+					<model type="userInfo" selector="DISPLAYNAME" ref="pool.modifiedBy.UserId" />
+					<model type="date" ref="pool.modifiedBy.date" />
+				</message>
+			</finePrint>
+		</container>
+	</footer>
+
+</interface>

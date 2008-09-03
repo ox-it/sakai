@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+	<!-- attachment picker view -->
+	<attachmentPicker>
+		<destination template="/attachments" />
+	</attachmentPicker>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<!-- title -->
+	<title>
+		<message selector="question-edit-title" />
+	</title>
+
+	<!-- header -->
+	<header>
+		<message selector="question-edit-header">
+			<model type="icon" icon="/icons/edit.png" />
+		</message>
+	</header>
+
+	<subHeader>
+		<container>
+			<text>
+				<message>
+					<model ref="question.pool.title" type="text" missing="no-title" />
+				</message>
+			</text>
+			<text selector="blank" />
+			<text selector="pool-points" model="question.points" />
+			<text selector="pool-difficulty" model="question.pool.difficulty" />
+		</container>
+	</subHeader>
+
+	<container>
+		<navigationBar>
+			<container>
+				<text model="question.typeName" />
+			</container>
+		</navigationBar>
+
+		<!--  if invalid -->
+		<section>
+			<container>
+				<text>
+					<message selector="invalid-question">
+						<model type="icon" icon="/icons/warning.png" />
+						<model type="html" ref="question.typeSpecificQuestion.invalidMessage" />
+					</message>
+				</text>
+			</container>
+			<included>
+				<decision model="question.isValid" reversed="TRUE" />
+				<decision model="question.mint" reversed="TRUE" />
+			</included>
+		</section>
+
+		<!-- survey -->
+		<section>
+			<container>
+				<selection>
+					<title>
+						<message selector="question-author-survey-header">
+							<model type="icon" icon="/icons/survey_type.png" />
+						</message>
+					</title>
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="question-author-survey">
+									<selectors>
+										<selector selector="question-author-survey-selected">
+											<decision model="question.isSurvey" />
+										</selector>
+									</selectors>
+								</message>
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+					<model ref="question.isSurvey" />
+					<readOnly>
+						<decision model="question.typeSpecificQuestion.isSurvey" />
+					</readOnly>
+					<destination template="STAY" />
+				</selection>
+			</container>
+		</section>
+
+		<!-- generic presentation -->
+		<section>
+			<container>
+				<htmlEdit size="TALL" title="question-presentation">
+					<model type="html" ref="question.presentation.text" />
+				</htmlEdit>
+			</container>
+			<included>
+				<decision model="question.typeSpecificQuestion.useQuestionPresentation" />
+			</included>
+		</section>
+
+		<!-- question specific -->
+		<modelComponent model="question.typeSpecificQuestion.authoringUi" />
+
+		<!--  generic reason -->
+		<section>
+			<container>
+				<selection>
+					<title>
+						<message selector="question-author-reason-header">
+							<model type="icon" icon="/icons/reason.png" />
+						</message>
+					</title>
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="question-author-reason" />
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+					<model ref="question.explainReason" />
+				</selection>
+			</container>
+			<included>
+				<decision model="question.typeSpecificQuestion.useReason" />
+			</included>
+		</section>
+
+		<!--  generic hints -->
+		<section>
+			<container>
+				<htmlEdit>
+					<title>
+						<message selector="question-author-hints">
+							<model type="icon" icon="/icons/hints.png" />
+						</message>
+					</title>
+					<model type="html" ref="question.hints" />
+				</htmlEdit>
+			</container>
+			<included>
+				<decision model="question.typeSpecificQuestion.useHints" />
+			</included>
+		</section>
+
+		<!--  generic feedback -->
+		<section>
+			<container>
+				<htmlEdit>
+					<title>
+						<message selector="question-author-feedback">
+							<model type="icon" icon="/icons/feedback.png" />
+						</message>
+					</title>
+					<model type="html" ref="question.feedback" />
+				</htmlEdit>
+			</container>
+			<included>
+				<decision model="question.typeSpecificQuestion.useFeedback" />
+			</included>
+		</section>
+
+		<!-- navigation -->
+		<navigationBar>
+			<container>
+				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
+					<destination template="/pool_edit/{0}">
+						<model ref="extras" />
+					</destination>
+					<icon icon="/icons/return.png" style="LEFT" />
+				</navigation>
+				<divider />
+				<navigation title="add" accessKey="add-access" description="add-description" style="BUTTON" submit="TRUE">
+					<destination template="/select_question_type/{0}">
+						<model ref="extras" />
+					</destination>
+					<icon icon="/icons/add.png" style="LEFT" />
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+
+	<footer>
+		<container>
+			<finePrint selector="id-display" model="question.id" />
+			<finePrint>
+				<message selector="history-createText">
+					<model type="userInfo" selector="DISPLAYNAME" ref="question.createdBy.userId" />
+					<model type="date" ref="question.createdBy.date" />
+				</message>
+			</finePrint>
+			<finePrint>
+				<message selector="history-modifyText">
+					<model type="userInfo" selector="DISPLAYNAME" ref="question.modifiedBy.userId" />
+					<model type="date" ref="question.modifiedBy.date" />
+				</message>
+			</finePrint>
+		</container>
+	</footer>
+
+</interface>

@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme">
+			<included>
+				<hasValueDecision model="maintainer" />
+			</included>
+		</alias>
+	</modeContainer>
+
+	<!-- title & header-->
+	<title>
+		<message selector="instructions-title">
+			<model ref="submission.assessment.title" type="text" />
+		</message>
+	</title>
+	<header>
+		<message selector="instructions-header">
+			<model type="icon" icon="/icons/section.png" />
+		</message>
+	</header>
+
+	<subHeader>
+		<container>
+			<text>
+				<message>
+					<model ref="submission.assessment.title" type="text" missing="no-title" />
+				</message>
+			</text>
+		</container>
+	</subHeader>
+
+	<container>
+
+		<!-- courier to keep the session alive -->
+		<courier destination="/courier" frequency="600" />
+
+		<!-- repeat the nav up top -->
+		<alias to="nav" />
+
+		<!-- timer for timed tests -->
+		<countdownTimer submit="TRUE">
+			<duration>
+				<message selector="timer-duration">
+					<model type="duration" concise="TRUE" ref="submission.expiration.limit" />
+				</message>
+				<model ref="submission.expiration.limit" />
+			</duration>
+			<remaining>
+				<message selector="timer-remaining" />
+			</remaining>
+			<timeTillExpire>
+				<model ref="submission.expiration.duration" />
+			</timeTillExpire>
+			<destination template="/submitted/{0}">
+				<model ref="submission.id" />
+			</destination>
+			<included>
+				<decision model="review" reversed="TRUE" />
+				<hasValueDecision model="submission.expiration" />
+				<compareDecision model="submission.expiration.cause" constant="timeLimit" />
+			</included>
+		</countdownTimer>
+
+		<!-- timer for near-due tests -->
+		<countdownTimer submit="TRUE">
+			<duration>
+				<message selector="timer-due">
+					<model type="date" concise="TRUE" ref="submission.expiration.time" />
+				</message>
+				<model ref="submission.expiration.limit" />
+			</duration>
+			<remaining>
+				<message selector="timer-remaining" />
+			</remaining>
+			<timeTillExpire>
+				<model ref="submission.expiration.duration" />
+			</timeTillExpire>
+			<destination template="/submitted/{0}">
+				<model ref="submission.id" />
+			</destination>
+			<included>
+				<decision model="review" reversed="TRUE" />
+				<hasValueDecision model="submission.expiration" />
+				<compareDecision model="submission.expiration.cause" constant="closedDate" />
+			</included>
+		</countdownTimer>
+
+		<!-- section header -->
+		<section>
+			<title>
+				<message selector="instructions-part-title">
+					<model type="icon" icon="/icons/section.png" />
+					<model type="text" ref="part.ordering.position" />
+					<model type="text" ref="part.assessment.parts.size" />
+					<model type="text" ref="part.title" />
+					<model ref="part" delegate="SectionScore" tool="sakai.mneme" />
+					<selectors>
+						<selector selector="instructions-part-title-no-points">
+							<decision reversed="TRUE" model="submission.assessment.hasPoints" />
+						</selector>
+					</selectors>
+				</message>
+			</title>
+			<container>
+				<text>
+					<message>
+						<model type="html" ref="part.presentation.text" />
+					</message>
+					<included>
+						<hasValueDecision model="part.presentation.text" />
+					</included>
+				</text>
+				<attachments title="attachments" model="part.presentation.attachments">
+					<included>
+						<hasValueDecision model="part.presentation.attachments" />
+					</included>
+				</attachments>
+			</container>
+			<included>
+				<decision model="submission.assessment.parts.showPresentation" />
+			</included>
+		</section>
+
+		<gap />
+
+		<!-- question nav bar -->
+		<navigationBar id="nav">
+			<included>
+				<decision reversed="TRUE" model="review" />
+			</included>
+			<container>
+				<navigation title="prev" accessKey="prev-access" description="prev-description" style="BUTTON">
+					<icon icon="/icons/prev.gif" style="LEFT" />
+					<destination template="/question/{0}/q{1}">
+						<model ref="submission.id" />
+						<model ref="part.ordering.previous.lastQuestion.id" />
+					</destination>
+					<disabled>
+						<orDecision>
+							<decision reversed="TRUE" model="submission.assessment.randomAccess" />
+							<decision model="part.ordering.isFirst" />
+						</orDecision>
+					</disabled>
+				</navigation>
+				<navigation title="toc" accessKey="toc-access" description="toc-description" style="BUTTON">
+					<icon icon="/icons/contents.gif" style="LEFT" />
+					<destination template="/toc/{0}" model="submission.id" />
+					<disabled>
+						<decision reversed="TRUE" model="submission.assessment.randomAccess" />
+					</disabled>
+				</navigation>
+				<navigation title="next" accessKey="next-access" description="next-description" style="BUTTON" default="TRUE">
+					<icon icon="/icons/next.gif" style="RIGHT" />
+					<destination template="/question/{0}/q{1}">
+						<model ref="submission.id" />
+						<model ref="part.firstQuestion.id" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation title="save-exit" accessKey="save-exit-access" description="save-exit-description" style="BUTTON" destination="/list">
+					<icon icon="/icons/exit.gif" style="LEFT" />
+				</navigation>
+				<navigation title="finish-exam" accessKey="finish-exam-access" description="finish-exam-description" style="BUTTON" submit="TRUE"
+					destination="SUBMIT" id="finish">
+					<icon icon="/icons/finish.gif" style="LEFT" />
+					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif">
+						<message selector="finish-confirm">
+							<model type="enum" messageRoot="assessment-type-" ref="submission.assessment.type" />
+						</message>
+					</confirm>
+				</navigation>
+				<divider />
+				<navigation title="instructions" accessKey="instructions-access" style="LINK">
+					<icon icon="/icons/test.png" style="LEFT" />
+					<destination template="/instructions/{0}{1}">
+						<model ref="submission.id" />
+						<model ref="sakai_destination" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>

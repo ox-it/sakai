@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+	<header>
+		<message selector="grading-header">
+			<model type="icon" icon="/icons/grade.png" />
+		</message>
+	</header>
+	<title>
+		<message selector="grading-title" />
+	</title>
+	<subHeader />
+	<container>
+		<!-- the list of assessments -->
+		<entityList style="FLAT">
+			<iterator name="assessment">
+				<model ref="assessments" indexRef="id" />
+			</iterator>
+			<emptyTitle>
+				<message selector="no-assessments" />
+			</emptyTitle>
+			<columns>
+				<column pixels="16">
+					<navigations>
+						<navigation style="LINK" submit="TRUE">
+							<icon icon="/icons/test_view.png" style="LEFT" />
+							<included>
+								<compareDecision model="assessment.type" constant="test" />
+							</included>
+							<description>
+								<message selector="view-type">
+									<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+								</message>
+							</description>
+							<destination template="/assessment_preview/{0}/grades/{1}{2}">
+								<model ref="assessment.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+							</destination>
+						</navigation>
+						<navigation style="LINK" submit="TRUE">
+							<icon icon="/icons/survey_view.png" style="LEFT" />
+							<included>
+								<compareDecision model="assessment.type" constant="survey" />
+							</included>
+							<description>
+								<message selector="view-type">
+									<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+								</message>
+							</description>
+							<destination template="/assessment_preview/{0}/grades/{1}{2}">
+								<model ref="assessment.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+							</destination>
+						</navigation>
+						<navigation style="LINK" submit="TRUE">
+							<icon icon="/icons/assignment_view.png" style="LEFT" />
+							<included>
+								<compareDecision model="assessment.type" constant="assignment" />
+							</included>
+							<description>
+								<message selector="view-type">
+									<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+								</message>
+							</description>
+							<destination template="/assessment_preview/{0}/grades/{1}{2}">
+								<model ref="assessment.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+							</destination>
+						</navigation>
+					</navigations>
+				</column>
+				<column>
+					<title>
+						<message selector="assessment-title" />
+					</title>
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="2" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/grades/2A" />
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/grades/2D" />
+						</desc>
+					</sort>
+					<container>
+						<navigation style="LINK" submit="TRUE">
+							<title>
+								<message>
+									<model ref="assessment.title" type="text" missing="no-title" />
+								</message>
+							</title>
+							<destination template="/grade_assessment/{0}{1}/{2}">
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model ref="assessment.id" />
+							</destination>
+						</navigation>
+					</container>
+				</column>
+				<modelColumn wrap="FALSE">
+					<title>
+						<message selector="assessment-odate" />
+					</title>
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="1" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/grades/1A" />
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/grades/1D" />
+						</desc>
+					</sort>
+					<model ref="assessment.dates.openDate" type="date" missing="assume-open" />
+				</modelColumn>
+				<modelColumn wrap="FALSE">
+					<title>
+						<message selector="assessment-ddate" />
+					</title>
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="0" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/grades/0A" />
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/grades/0D" />
+						</desc>
+					</sort>
+					<model ref="assessment.dates.dueDate" type="date" missing="assume-open" />
+				</modelColumn>
+				<modelColumn>
+					<title>
+						<message selector="submit_status" />
+					</title>
+					<model type="enum" ref="assessment.acceptSubmitStatus" messageRoot="submit-status-" />
+				</modelColumn>
+				<modelColumn>
+					<navigations>
+						<navigation style="LINK" submit="TRUE" description="unscored-alt">
+							<icon icon="/icons/grade.png" />
+							<destination template="/grade_assessment/{0}{1}/{2}">
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<decision model="assessment.hasPoints" />
+								<decision model="assessment.hasUnscoredSubmissions" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="live-alt">
+							<icon icon="/icons/grade_student.png" />
+							<destination template="/grade_assessment/{0}{1}/{2}">
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<decision model="assessment.isLive" />
+								<orDecision>
+									<decision reversed="TRUE" model="assessment.hasPoints" />
+									<decision reversed="TRUE" model="assessment.hasUnscoredSubmissions" />
+								</orDecision>
+							</included>
+						</navigation>
+					</navigations>
+				</modelColumn>
+			</columns>
+		</entityList>
+	</container>
+</interface>

@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface anchor="anchor">
+
+	<!-- attachment picker view -->
+	<attachmentPicker>
+		<destination template="/attachments" />
+	</attachmentPicker>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<header>
+		<message selector="grading-assessment-header-question">
+			<model type="icon" icon="/icons/grade_questions.png" />
+		</message>
+	</header>
+
+	<title>
+		<message selector="grading-questions-title" />
+	</title>
+
+	<subHeader>
+		<container>
+			<text>
+				<message>
+					<model ref="assessment.title" type="text" />
+				</message>
+			</text>
+			<text>
+				<message selector="assessment-total-points">
+					<model ref="assessment.Parts.totalPoints" />
+				</message>
+				<included>
+					<decision model="assessment.hasPoints" />
+				</included>
+			</text>
+		</container>
+	</subHeader>
+
+	<container>
+
+		<!--navigation-->
+		<navigationBar>
+			<container>
+				<navigation title="grade-submission-title" style="LINK" accessKey="grade-submission-access" submit="TRUE">
+					<icon icon="/icons/grade_student.png" style="LEFT" />
+					<destination template="/grade_assessment/{0}/{1}">
+						<model ref="sort_grades" />
+						<model ref="assessment.id" />
+					</destination>
+				</navigation>
+				<navigation disabled="TRUE" title="bar" />
+				<navigation title="grade-questions-title" style="LINK" accessKey="grade-questions-access" submit="TRUE">
+					<icon icon="/icons/grade_questions.png" style="LEFT" />
+					<destination template="/grade_questions_list/{0}/{1}">
+						<model ref="sort_grades" />
+						<model ref="assessment.id" />
+					</destination>
+				</navigation>
+				<navigation disabled="TRUE" title="bar" />
+				<navigation title="grade-stats-title" style="LINK" accessKey="grade-stats-access" submit="TRUE">
+					<icon icon="/icons/stats.png" style="LEFT" />
+					<destination template="/assessment_stats/{0}/{1}">
+						<model ref="sort_grades" />
+						<model ref="assessment.id" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+		<section>
+			<title>
+				<message selector="submission-question-pts">
+					<model ref="question.points" />
+				</message>
+				<included>
+					<decision model="question.hasPoints" />
+					<decision model="assessment.hasPoints" />
+				</included>
+			</title>
+			<container>
+				<!-- type-specific question viewing -->
+				<modelComponent model="question.typeSpecificQuestion.viewQuestionUi" />
+			</container>
+		</section>
+
+		<entityList style="FLAT">
+			<iterator name="answer">
+				<model ref="answers" indexRef="id" />
+			</iterator>
+			<!-- page anchor to be able to return to this particular answer -->
+			<anchor>
+				<message>
+					<model ref="answer.id" />
+				</message>
+			</anchor>
+			<pager paging="paging" submit="TRUE">
+				<destination template="/grade_question/{0}/{1}/{2}/{3}{4}/{5}/-">
+					<model ref="sort_grades" />
+					<model ref="assessment.id" />
+					<model ref="question.id" />
+					<model ref="sort_column" />
+					<model ref="sort_direction" />
+					<model type="paging" ref="paging" />
+				</destination>
+				<sizeOptions>
+					<model ref="pageSizes" />
+				</sizeOptions>
+			</pager>
+			<emptyTitle>
+				<message selector="no-answers" />
+			</emptyTitle>
+
+			<columns>
+				<modelColumn>
+					<title>
+						<message selector="submission-username" />
+					</title>
+					<included>
+						<decision reversed="TRUE" model="assessment.anonymous" />
+					</included>
+					<entityNavigations>
+						<navigation submit="TRUE">
+							<destination template="/grade_submission/{0}/-/-/grade_question/{1}/{2}/{3}/{4}{5}/{6}/-">
+								<model ref="answer.submission.id" />
+								<model ref="sort_grades" />
+								<model ref="assessment.id" />
+								<model ref="question.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+							</destination>
+							<included>
+								<decision model="answer.submission.isComplete" />
+							</included>
+						</navigation>
+					</entityNavigations>
+					<model type="userInfo" selector="SORTNAME" ref="answer.submission.userId" missing="no-username" />
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="0" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/grade_question/{0}/{1}/{2}/0A/{3}/-">
+								<model ref="sort_grades" />
+								<model ref="assessment.id" />
+								<model ref="question.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+							</destination>
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/grade_question/{0}/{1}/{2}/0D/{3}/-">
+								<model ref="sort_grades" />
+								<model ref="assessment.id" />
+								<model ref="question.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+							</destination>
+						</desc>
+					</sort>
+				</modelColumn>
+				<column>
+					<title>
+						<message selector="submission-username" />
+					</title>
+					<included>
+						<decision model="assessment.anonymous" />
+					</included>
+					<entityNavigations>
+						<navigation submit="TRUE">
+							<destination template="/grade_submission/{0}/-/-/grade_question/{1}/{2}/{3}/{4}{5}/{6}/-">
+								<model ref="answer.submission.id" />
+								<model ref="sort_grades" />
+								<model ref="assessment.id" />
+								<model ref="question.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+							</destination>
+							<included>
+								<decision model="answer.submission.isComplete" />
+							</included>
+						</navigation>
+					</entityNavigations>
+					<container>
+						<text selector="anonymous" />
+					</container>
+				</column>
+				<column>
+					<title>
+						<message selector="submission-answer" />
+					</title>
+					<container>
+						<!-- completed date -->
+						<text>
+							<message selector="submission-finished-date">
+								<model type="date" ref="answer.submission.submittedDate" />
+							</message>
+							<included>
+								<decision reversed="TRUE" model="answer.submission.isCompletedLate" />
+							</included>
+						</text>
+						<text>
+							<message selector="submission-finished-date-late">
+								<model type="date" ref="answer.submission.submittedDate" />
+							</message>
+							<included>
+								<decision model="answer.submission.isCompletedLate" />
+							</included>
+						</text>
+						<section>
+							<container>
+								<!-- Answer type-specific viewing -->
+								<modelComponent model="answer.question.typeSpecificQuestion.viewAnswerUi" />
+								<!-- reason -->
+								<text>
+									<title>
+										<message selector="question-rationale">
+											<model type="icon" icon="/icons/reason.png" />
+										</message>
+									</title>
+									<message>
+										<model type="html" ref="answer.reason" />
+									</message>
+									<included>
+										<hasValueDecision model="answer.reason" />
+									</included>
+								</text>
+							</container>
+						</section>
+						<!-- evaluation -->
+						<section>
+							<container>
+								<text>
+									<message selector="auto-eval-score">
+										<model type="icon" icon="/icons/grade.png">
+											<title>
+												<message selector="score" />
+											</title>
+										</model>
+										<model type="component">
+											<container>
+												<floatEdit model="answer.totalScore" cols="6" />
+											</container>
+										</model>
+										<model ref="answer.autoScore" missing="dash" />
+										<model ref="question.points" />
+									</message>
+									<included>
+										<decision model="question.hasPoints" />
+										<decision model="assessment.hasPoints" />
+									</included>
+								</text>
+								<htmlEdit>
+									<model type="html" ref="answer.evaluation.comment" />
+									<title>
+										<message selector="submission-evaluation">
+											<model type="icon" icon="/icons/note.png" />
+										</message>
+									</title>
+								</htmlEdit>
+								<fileUpload>
+									<model ref="answer.evaluation.upload" />
+									<title>
+										<message selector="upload-evaluation" />
+									</title>
+									<upload>
+										<message selector="upload-button" />
+									</upload>
+									<destination template="STAY_UPLOAD:{0}">
+										<model ref="answer.id" />
+									</destination>
+								</fileUpload>
+								<attachments model="answer.evaluation.attachments" name="attachment">
+									<navigations>
+										<navigation title="remove-attachment" style="LINK" description="remove-attachment-description" submit="TRUE"
+											small="TRUE">
+											<icon icon="/icons/delete.png" style="NONE" />
+											<destination template="STAY_REMOVE:{0}:{1}">
+												<model ref="answer.id" />
+												<model ref="attachment.reference" />
+											</destination>
+											<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif"
+												selector="confirm-remove-attachment" />
+										</navigation>
+									</navigations>
+								</attachments>
+							</container>
+						</section>
+					</container>
+				</column>
+			</columns>
+		</entityList>
+
+		<!--navigation-->
+		<navigationBar>
+			<container>
+				<pager paging="paging" submit="TRUE">
+					<destination template="/grade_question/{0}/{1}/{2}/{3}{4}/{5}/-">
+						<model ref="sort_grades" />
+						<model ref="assessment.id" />
+						<model ref="question.id" />
+						<model ref="sort_column" />
+						<model ref="sort_direction" />
+						<model type="paging" ref="paging" />
+					</destination>
+					<sizeOptions>
+						<model ref="pageSizes" />
+					</sizeOptions>
+				</pager>
+				<divider />
+				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="/grade_questions_list/{0}/{1}">
+						<model ref="sort_grades" />
+						<model ref="assessment.id" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation title="save" accessKey="save-access" description="save-description" style="BUTTON" submit="TRUE">
+					<destination template="/grade_question/{0}/{1}/{2}/{3}{4}/{5}/-">
+						<model ref="sort_grades" />
+						<model ref="assessment.id" />
+						<model ref="question.id" />
+						<model ref="sort_column" />
+						<model ref="sort_direction" />
+						<model type="paging" ref="paging" />
+					</destination>
+					<icon icon="/icons/save.png" style="LEFT" />
+				</navigation>
+			</container>
+		</navigationBar>
+	</container>
+</interface>

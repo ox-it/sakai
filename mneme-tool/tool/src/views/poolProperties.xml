@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- <!DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd">  -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<!-- attachment picker view -->
+	<attachmentPicker>
+		<destination template="/attachments" />
+	</attachmentPicker>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<title>
+		<message selector="pools-add-title" />
+	</title>
+
+	<header>
+		<message selector="pools-add-header">
+			<model type="icon" icon="/icons/edit.png" />
+		</message>
+	</header>
+
+	<container>
+
+		<navigationBar />
+
+		<section>
+			<container>
+
+				<textEdit title="pool-title" cols="40">
+					<model type="text" ref="pool.title" />
+				</textEdit>
+
+				<htmlEdit title="pool-description" size="SMALL">
+					<model type="html" ref="pool.description" />
+				</htmlEdit>
+
+				<floatEdit title="pool-points" model="pool.pointsEdit" cols="6">
+					<onEmptyAlert>
+						<message selector="missing-points" />
+					</onEmptyAlert>
+					<minValue>
+						<model type="constant" value="0" />
+					</minValue>
+				</floatEdit>
+
+				<selection title="pool-difficulty">
+					<model ref="pool.difficulty" />
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="Level-1" />
+							</displayMessage>
+							<valueMessage>
+								<message template="1" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="Level-2" />
+							</displayMessage>
+							<valueMessage>
+								<message template="2" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="Level-3" />
+							</displayMessage>
+							<valueMessage>
+								<message template="3" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="Level-4" />
+							</displayMessage>
+							<valueMessage>
+								<message template="4" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="Level-5" />
+							</displayMessage>
+							<valueMessage>
+								<message template="5" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+				</selection>
+
+			</container>
+		</section>
+
+		<!-- navigation -->
+		<navigationBar>
+			<container>
+				<navigation title="done" style="BUTTON" accessKey="done-access" description="done-description" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="/pools/{0}">
+						<model ref="poolsSortCode" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+
+	<footer>
+		<container>
+			<finePrint>
+				<message selector="id-display">
+					<model ref="pool.id" />
+				</message>
+			</finePrint>
+			<finePrint>
+				<message selector="history-createText">
+					<model type="userInfo" selector="DISPLAYNAME" ref="pool.createdBy.userId" />
+					<model type="date" ref="pool.createdBy.date" />
+				</message>
+			</finePrint>
+			<finePrint>
+				<message selector="history-modifyText">
+					<model type="userInfo" selector="DISPLAYNAME" ref="pool.modifiedBy.userId" />
+					<model type="date" ref="pool.modifiedBy.date" />
+				</message>
+			</finePrint>
+		</container>
+	</footer>
+
+</interface>

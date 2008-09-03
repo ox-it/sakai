@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface autoComplete="FALSE">
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<!-- title & header-->
+	<title>
+		<message selector="question-preview-title" />
+	</title>
+	<header>
+		<message selector="question-preview-header" />
+	</header>
+
+	<container>
+
+		<!-- repeat the nav up top -->
+		<alias to="nav" />
+
+		<!--  if invalid -->
+		<section>
+			<container>
+				<text>
+					<message selector="invalid-question">
+						<model type="icon" icon="/icons/warning.png" />
+						<model type="html" ref="question.typeSpecificQuestion.invalidMessage" />
+					</message>
+				</text>
+			</container>
+			<included>
+				<decision model="question.isValid" reversed="TRUE" />
+				<decision model="question.mint" reversed="TRUE" />
+			</included>
+		</section>
+
+		<!-- Question specific delivery -->
+		<modelComponent model="question.typeSpecificQuestion.viewQuestionUi" />
+
+		<!-- hints -->
+		<overlay id="hints">
+			<container>
+				<text>
+					<message selector="question-hints">
+						<model type="icon" icon="/icons/hints.png" />
+					</message>
+				</text>
+				<text>
+					<message>
+						<model type="html" ref="question.hints" />
+					</message>
+				</text>
+				<!-- hints toggle -->
+				<gap />
+				<toggle target="hints" title="close" style="LINK">
+					<icon icon="/icons/close.png" style="LEFT" />
+					<included>
+						<hasValueDecision model="question.hints" />
+					</included>
+				</toggle>
+			</container>
+			<included>
+				<hasValueDecision model="question.hints" />
+			</included>
+		</overlay>
+
+		<!-- reason -->
+		<section>
+			<container>
+				<text>
+					<title>
+						<message selector="question-preview-reason-header">
+							<model type="icon" icon="/icons/reason.png" />
+						</message>
+					</title>
+					<message selector="question-preview-reason" />
+				</text>
+			</container>
+			<included>
+				<decision model="question.explainReason" />
+			</included>
+		</section>
+
+		<!-- hints toggle -->
+		<section>
+			<container>
+				<toggle target="hints" title="show-hints" description="show-hints-description" style="LINK">
+					<icon icon="/icons/hints.png" style="LEFT" />
+				</toggle>
+			</container>
+			<included>
+				<hasValueDecision model="question.hints" />
+			</included>
+		</section>
+
+		<!-- question feedback -->
+		<section>
+			<container>
+				<text>
+					<title>
+						<message selector="question-feedback">
+							<model type="icon" icon="/icons/feedback.png" />
+						</message>
+					</title>
+					<message>
+						<model type="html" ref="question.feedback" />
+					</message>
+				</text>
+			</container>
+			<included>
+				<hasValueDecision model="question.feedback" />
+			</included>
+		</section>
+
+		<!-- nav bar -->
+		<navigationBar id="nav">
+			<container>
+				<navigation title="return" accessKey="return-access" description="return-description" style="BUTTON">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>

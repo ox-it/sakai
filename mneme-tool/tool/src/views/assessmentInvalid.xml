@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface title="test-invalid-title">
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<title>
+		<message selector="invalid-title">
+			<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+		</message>
+	</title>
+
+	<header>
+		<message selector="invalid-header">
+			<model type="icon" icon="/icons/warning.png" />
+			<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+		</message>
+	</header>
+
+	<subHeader>
+		<container>
+			<text>
+				<message>
+					<model ref="assessment.title" type="text" missing="no-title" />
+				</message>
+			</text>
+		</container>
+	</subHeader>
+
+	<container>
+
+		<navigationBar />
+
+		<section>
+			<included>
+				<decision reversed="TRUE" model="assessment.isValid" />
+			</included>
+			<container>
+				<text>
+					<message selector="invalid-instructions">
+						<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+					</message>
+				</text>
+				<text>
+					<message>
+						<model type="html" ref="message" />
+					</message>
+				</text>
+			</container>
+		</section>
+
+		<!-- navigation -->
+		<navigationBar>
+			<container>
+				<navigation title="return" accessKey="return-access" description="return-description" style="BUTTON" submit="TRUE">
+					<destination template="/assessments/{0}">
+						<model ref="sortcode" />
+					</destination>
+					<icon icon="/icons/return.png" style="LEFT" />
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>

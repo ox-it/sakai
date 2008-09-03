@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+    <display-name>muse-mneme-tool-admin</display-name>
+    <description>muse-mneme-tool-admin</description>
+
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+            /WEB-INF/*View.xml
+        </param-value>
+    </context-param>
+
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.mneme.admin</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <servlet>
+        <servlet-name>sakai.mneme.admin</servlet-name>
+        <servlet-class>org.etudes.ambrosia.util.AmbrosiaServlet</servlet-class>
+        <init-param>
+            <param-name>defaultView</param-name>
+            <param-value>home</param-value>
+        </init-param>
+        <init-param>
+            <param-name>toolId</param-name>
+            <param-value>sakai.mneme.admin</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+
+    <listener>
+        <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+    </listener>
+
+</web-app>

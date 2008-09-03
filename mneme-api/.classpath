@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="**/.DS_Store" kind="src" path="api/src/java"/>
+	<classpathentry kind="var" path="JRE_LIB" sourcepath="JRE_SRC"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/util-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/entity-api"/>
+	<classpathentry kind="var" path="MAVEN_REPO/commons-fileupload/jars/commons-fileupload-1.1.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ambrosia-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/user-api"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

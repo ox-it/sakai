@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme">
+			<included>
+				<hasValueDecision model="maintainer" />
+			</included>
+		</alias>
+	</modeContainer>
+
+	<title>
+		<message selector="enter-title">
+			<model ref="assessment.title" type="text" />
+		</message>
+	</title>
+
+	<header>
+		<message selector="enter-header">
+			<model type="icon" icon="/icons/begin.gif" />
+			<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+		</message>
+	</header>
+
+	<container>
+		<section>
+			<title highlighted="TRUE">
+				<message selector="enter-test-title">
+					<model type="icon" icon="/icons/test.png" />
+					<model ref="assessment.title" type="text" />
+					<model ref="assessment.parts.totalPoints" delegate="FormatScore" tool="sakai.mneme" />
+					<selectors>
+						<selector selector="enter-test-title-no-points">
+							<decision reversed="TRUE" model="assessment.hasPoints" />
+						</selector>
+					</selectors>
+				</message>
+			</title>
+			<container>
+				<text>
+					<message>
+						<model type="html" ref="assessment.presentation.text" />
+					</message>
+				</text>
+				<attachments title="attachments">
+					<model ref="assessment.presentation.attachments" />
+					<included>
+						<hasValueDecision model="assessment.presentation.attachments" />
+					</included>
+				</attachments>
+			</container>
+		</section>
+		<section>
+			<container>
+				<instructions>
+					<message selector="survey-instructions">
+						<model type="icon" icon="/icons/survey_type.png" />
+					</message>
+				</instructions>
+			</container>
+			<included>
+				<compareDecision model="assessment.type" constant="survey" />
+			</included>
+		</section>
+		<section>
+			<container>
+				<instructions>
+					<message selector="linear-instructions">
+						<model type="icon" icon="/icons/linear.png" />
+						<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+					</message>
+				</instructions>
+			</container>
+			<included>
+				<decision reversed="TRUE" model="assessment.randomAccess" />
+			</included>
+		</section>
+		<section>
+			<container>
+				<instructions>
+					<message selector="flexible-instructions">
+						<model type="icon" icon="/icons/flexible.png" />
+						<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+					</message>
+				</instructions>
+			</container>
+			<included>
+				<compareDecision>
+					<model ref="assessment.questionGrouping" />
+					<constant value="part" />
+					<constant value="question" />
+				</compareDecision>
+				<decision model="assessment.randomAccess" />
+			</included>
+		</section>
+		<section>
+			<container>
+				<instructions>
+					<message selector="flexible-instructions-by-assessment">
+						<model type="icon" icon="/icons/flexible.png" />
+						<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+					</message>
+				</instructions>
+			</container>
+			<included>
+				<compareDecision model="assessment.questionGrouping" constant="assessment" />
+				<decision model="assessment.randomAccess" />
+			</included>
+		</section>
+		<section>
+			<container>
+				<instructions>
+					<message selector="highest-instructions">
+						<model type="icon" icon="/icons/highest.png" />
+						<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+						<selectors>
+							<selector selector="highest-instructions-no-points">
+								<decision reversed="TRUE" model="assessment.hasPoints" />
+							</selector>
+						</selectors>
+					</message>
+				</instructions>
+			</container>
+			<included>
+				<decision model="assessment.hasMultipleTries" />
+			</included>
+		</section>
+		<section>
+			<container>
+				<countdownTimer disabled="TRUE">
+					<duration>
+						<message selector="timer-duration">
+							<model type="duration" concise="TRUE" ref="assessment.timeLimit" />
+						</message>
+						<model ref="assessment.timeLimit" />
+					</duration>
+					<remaining>
+						<message selector="timer-remaining" />
+					</remaining>
+					<timeTillExpire>
+						<model ref="assessment.timeLimit" />
+					</timeTillExpire>
+				</countdownTimer>
+				<instructions>
+					<message selector="timed-instructions">
+						<model type="icon" icon="/icons/clock.png" />
+						<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+					</message>
+				</instructions>
+			</container>
+			<included>
+				<hasValueDecision model="assessment.timeLimit" />
+			</included>
+		</section>
+		<section>
+			<container>
+				<countdownTimer>
+					<destination template="/list" />
+					<duration>
+						<message selector="timer-due">
+							<model type="date" ref="assessment.dates.expiration.time" />
+						</message>
+						<model ref="assessment.dates.expiration.limit" />
+					</duration>
+					<remaining>
+						<message selector="timer-remaining" />
+					</remaining>
+					<timeTillExpire>
+						<model ref="assessment.dates.expiration.duration" />
+					</timeTillExpire>
+				</countdownTimer>
+				<instructions>
+					<message selector="near-due-instructions">
+						<model type="icon" icon="/icons/future.gif" />
+						<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+					</message>
+				</instructions>
+			</container>
+			<included>
+				<hasValueDecision model="assessment.dates.expiration" />
+				<compareDecision model="assessment.dates.expiration.cause" constant="closedDate" />
+			</included>
+		</section>
+		<section>
+			<title highlighted="TRUE">
+				<message selector="enter-pw-instructions">
+					<model type="icon" icon="/icons/password.png" />
+					<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+				</message>
+			</title>
+			<container>
+				<password title="enter-password" model="password.value" />
+			</container>
+			<included>
+				<hasValueDecision model="assessment.password.password" />
+			</included>
+		</section>
+		<section>
+			<title highlighted="TRUE">
+				<message selector="enter-honor-pledge">
+					<model type="icon" icon="/icons/user_pledge.png" />
+					<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+				</message>
+			</title>
+			<container>
+				<selection>
+					<title>
+						<message selector="honor-pledge-title">
+							<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+						</message>
+					</title>
+					<model ref="pledge.value" />
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="honor-pledge-agree" />
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+				</selection>
+			</container>
+			<included>
+				<decision model="assessment.requireHonorPledge" />
+			</included>
+		</section>
+		<gap />
+		<navigationBar id="nav">
+			<container>
+				<navigation destination="ENTER" submit="TRUE" title="begin" style="BUTTON" accessKey="begin-access" description="begin-description">
+					<icon icon="/icons/begin.gif" style="LEFT" />
+				</navigation>
+				<divider />
+				<navigation destination="/list" title="cancel" style="BUTTON" accessKey="cancel-access" description="cancel-description">
+					<icon icon="/icons/cancel.gif" style="LEFT" />
+				</navigation>
+			</container>
+		</navigationBar>
+	</container>
+</interface>

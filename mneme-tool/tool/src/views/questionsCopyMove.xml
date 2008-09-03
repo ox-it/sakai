@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Portions completed before September 1, 2008 Copyright (c) 2007, 2008 Sakai Foundation,
+ * licensed under the Educational Community License, Version 2.0
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<title>
+		<message selector="questions-copy-move-title" />
+	</title>
+
+	<header>
+		<message selector="copy-move-header">
+			<model type="icon" ref="headerIcon" />
+			<model ref="headerText" />
+		</message>
+	</header>
+
+	<container>
+		<!-- the list of pools -->
+		<entityList style="FLAT">
+			<iterator name="pool" model="pools" />
+			<emptyTitle>
+				<message selector="no-pools" />
+			</emptyTitle>
+			<columns>
+				<selectionColumn multiple="FALSE" id="SELECTION" pixels="16">
+					<value>
+						<model type="text" ref="pool.id" />
+					</value>
+					<model ref="selectedPoolId.value" />
+				</selectionColumn>
+				<modelColumn>
+					<title>
+						<message selector="pool-title" />
+					</title>
+					<model ref="pool.title" type="text" missing="no-title" />
+					<sort>
+						<active>
+							<compareDecision model="sort_column" constant="0" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="{0}/0A">
+								<model ref="here" />
+							</destination>
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="{0}/0D">
+								<model ref="here" />
+							</destination>
+						</desc>
+					</sort>
+				</modelColumn>
+				<modelColumn>
+					<title>
+						<message selector="pool-description" />
+					</title>
+					<model type="text" ref="pool.description" stripHtml="TRUE" max="60" />
+				</modelColumn>
+				<modelColumn>
+					<title>
+						<message selector="pool-questions" />
+					</title>
+					<model ref="pool.numQuestions" />
+				</modelColumn>
+				<modelColumn>
+					<title>
+						<message selector="pool-points" />
+					</title>
+					<model ref="pool.points" />
+				</modelColumn>
+				<modelColumn>
+					<title>
+						<message selector="pool-difficulty" />
+					</title>
+					<model ref="pool.difficulty" />
+				</modelColumn>
+			</columns>
+		</entityList>
+
+		<!--navigation-->
+		<navigationBar>
+			<container>
+				<navigation title="ok" style="BUTTON" accessKey="ok-access" description="ok-description" submit="TRUE" selectRequirement="SINGLE"
+					selectRequirementId="SELECTION" selectRequirementMessage="save-failed-requirements" destination="DOIT">
+					<icon icon="/icons/OK.png" style="LEFT" />
+				</navigation>
+				<divider />
+				<navigation title="cancel" style="BUTTON" accessKey="cancel-access" description="cancel-description">
+					<icon icon="/icons/cancel.gif" style="LEFT" />
+					<destination template="/pool_edit/{0}">
+						<model ref="extras" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>
