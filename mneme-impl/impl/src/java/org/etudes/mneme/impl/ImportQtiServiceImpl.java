@@ -190,8 +190,9 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			{
 				Element item = (Element) oItem;
 
-				if (processSamigoTF(item, pool, pointsAverage)) continue;
-				if (processSamigoMC(item, pool, pointsAverage)) continue;
+				if (processSamigoTrueFalse(item, pool, pointsAverage)) continue;
+				if (processSamigoMultipleChoice(item, pool, pointsAverage)) continue;
+				if (processSamigoSurvey(item, pool)) continue;
 
 				M_log.warn("item recognized: " + item.getAttribute("ident"));
 			}
@@ -438,11 +439,11 @@ public class ImportQtiServiceImpl implements ImportQtiService
 	 * @param pointsAverage
 	 *        A running average to contribute the question's point value to for the pool.
 	 */
-	protected boolean processSamigoMC(Element item, Pool pool, Average pointsAverage) throws AssessmentPermissionException
+	protected boolean processSamigoMultipleChoice(Element item, Pool pool, Average pointsAverage) throws AssessmentPermissionException
 	{
 		try
 		{
-			// the attributes of a true/false question
+			// the attributes of a multiple choice question
 			String presentation = null;
 			boolean rationale = false;
 			String feedback = null;
@@ -613,6 +614,174 @@ public class ImportQtiServiceImpl implements ImportQtiService
 	}
 
 	/**
+	 * Process the item if it is recognized as a Samigo multiple choice.
+	 * 
+	 * @param item
+	 *        The QTI item from the QTI file DOM.
+	 * @param pool
+	 *        The pool to add the question to.
+	 * @param pointsAverage
+	 *        A running average to contribute the question's point value to for the pool.
+	 */
+	protected boolean processSamigoSurvey(Element item, Pool pool) throws AssessmentPermissionException
+	{
+		try
+		{
+			// the attributes of a survey question
+			String presentation = null;
+			boolean rationale = false;
+			String feedback = null;
+			String externalId = null;
+
+			externalId = StringUtil.trimToNull(item.getAttribute("ident"));
+
+			XPath metaDataPath = new DOMXPath("itemmetadata/qtimetadata/qtimetadatafield[fieldlabel='qmd_itemtype']/fieldentry");
+			String qmdItemType = StringUtil.trimToNull(metaDataPath.stringValueOf(item));
+			if (!"Multiple Choice Survey".equalsIgnoreCase(qmdItemType))
+			{
+				return false;
+			}
+
+			XPath rationalePath = new DOMXPath("itemmetadata/qtimetadata/qtimetadatafield[fieldlabel='hasRationale']/fieldentry");
+			String rationaleValue = StringUtil.trimToNull(rationalePath.stringValueOf(item));
+			if (rationaleValue != null)
+			{
+				rationale = "true".equalsIgnoreCase(rationaleValue);
+			}
+
+			XPath textPath = new DOMXPath("presentation//material[not(ancestor::response_lid)]/mattext");
+			presentation = combineHits(textPath, item);
+			if (presentation == null) return false;
+
+			// use the first (correct / incorrect) feedback as the feedback
+			XPath feedbackPath = new DOMXPath(".//itemfeedback//material/mattext");
+			List feedbacks = feedbackPath.selectNodes(item);
+			for (Object oFeedback : feedbacks)
+			{
+				Element feedbackElement = (Element) oFeedback;
+				String feedbackValue = StringUtil.trimToNull(feedbackElement.getTextContent());
+				if (feedbackValue != null)
+				{
+					feedback = feedbackValue;
+					break;
+				}
+			}
+
+			// answers
+			Set<String> answerSet = new HashSet<String>();
+			XPath answersPath = new DOMXPath(".//presentation//response_lid//render_choice//response_label");
+			List answers = answersPath.selectNodes(item);
+			for (Object oAnswer : answers)
+			{
+				Element answerElement = (Element) oAnswer;
+
+				String id = StringUtil.trimToNull(answerElement.getAttribute("ident"));
+				if (id == null) continue;
+
+				XPath answerMaterialPath = new DOMXPath(".//material//mattext");
+				String answer = combineHits(answerMaterialPath, answerElement);
+				if (answer == null) continue;
+
+				answerSet.add(answer);
+			}
+
+			// create the question
+			Question question = this.questionService.newQuestion(pool, "mneme:LikertScale");
+			LikertScaleQuestionImpl l = (LikertScaleQuestionImpl) (question.getTypeSpecificQuestion());
+
+			// set the text
+			String clean = HtmlHelper.clean(presentation);
+			question.getPresentation().setText(clean);
+
+			String scale = null;
+			// "0" for our 5 point "strongly-agree"
+			// "1" for our 4 point "excellent"
+			// "2" for our 3 point "above-average"
+			// "3" for our 2 point "yes"
+			// "4" for our 5 point "5"
+			// "5" for our 2 point "rocks"
+
+			// 3 choices is below/average/above or disagree/undecided/agree
+			if (answerSet.size() == 3)
+			{
+				if (answerSet.contains("Below Average"))
+				{
+					scale = "2";
+				}
+				else
+				{
+					scale = "0";
+				}
+			}
+
+			// 2 is yes/no, or agree / disagree
+			else if (answerSet.size() == 2)
+			{
+				if (answerSet.contains("No"))
+				{
+					scale = "3";
+				}
+
+				else
+				{
+					scale = "0";
+				}
+			}
+
+			// 5 is strongly agree -> strongly disagree or unacceptable/below average/average/above average/excelent
+			// or 1..5
+			else if (answerSet.size() == 5)
+			{
+				if (answerSet.contains("1"))
+				{
+					scale = "4";
+				}
+				else if (answerSet.contains("Strongly Disagree"))
+				{
+					scale = "0";
+				}
+				else
+				{
+					scale = "1";
+				}
+			}
+
+			// 10 is 1..10
+			else if (answerSet.size() == 10)
+			{
+				scale = "4";
+			}
+
+			if (scale == null)
+			{
+				return false;
+			}
+
+			// set the scale
+			l.setScale(scale);
+
+			// reason
+			question.setExplainReason(Boolean.valueOf(rationale));
+
+			// feedback
+			if (feedback != null)
+			{
+				question.setFeedback(HtmlHelper.clean(feedback));
+			}
+
+			// save
+			question.getTypeSpecificQuestion().consolidate("");
+			this.questionService.saveQuestion(question);
+
+			return true;
+		}
+		catch (JaxenException e)
+		{
+			return false;
+		}
+	}
+
+	/**
 	 * Process this item if it is recognized as a Samigo true false.
 	 * 
 	 * @param item
@@ -623,7 +792,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 	 *        A running average to contribute the question's point value to for the pool.
 	 * @return true if successfully recognized and processed, false if not.
 	 */
-	protected boolean processSamigoTF(Element item, Pool pool, Average pointsAverage) throws AssessmentPermissionException
+	protected boolean processSamigoTrueFalse(Element item, Pool pool, Average pointsAverage) throws AssessmentPermissionException
 	{
 		try
 		{
