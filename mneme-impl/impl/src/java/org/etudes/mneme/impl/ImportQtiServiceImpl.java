@@ -22,10 +22,14 @@
 package org.etudes.mneme.impl;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,6 +65,28 @@ import org.w3c.dom.Element;
  */
 public class ImportQtiServiceImpl implements ImportQtiService
 {
+	protected class Average
+	{
+		protected int count = 0;
+
+		protected float total = 0.0f;
+
+		public void add(float value)
+		{
+			count++;
+			total += value;
+		}
+
+		public float getAverage()
+		{
+			if (count > 0)
+			{
+				return total / count;
+			}
+			return 0.0f;
+		}
+	}
+
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(ImportQtiServiceImpl.class);
 
@@ -156,8 +182,6 @@ public class ImportQtiServiceImpl implements ImportQtiService
 		Average pointsAverage = new Average();
 
 		// process questions
-
-		// try all items for samigo true false
 		try
 		{
 			XPath itemPath = new DOMXPath("//item");
@@ -166,10 +190,10 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			{
 				Element item = (Element) oItem;
 
-				if (!processSamigoTF(item, pool, pointsAverage))
-				{
-					M_log.warn("item not samigo tf: " + item.getAttribute("ident"));
-				}
+				if (processSamigoTF(item, pool, pointsAverage)) continue;
+				if (processSamigoMC(item, pool, pointsAverage)) continue;
+
+				M_log.warn("item recognized: " + item.getAttribute("ident"));
 			}
 		}
 		catch (JaxenException e)
@@ -400,36 +424,203 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			System.out.println(e.toString());
 		}
 
+		if (rv.length() == 0) return null;
 		return rv.toString();
 	}
 
-	protected class Average
+	/**
+	 * Process the item if it is recognized as a Samigo multiple choice.
+	 * 
+	 * @param item
+	 *        The QTI item from the QTI file DOM.
+	 * @param pool
+	 *        The pool to add the question to.
+	 * @param pointsAverage
+	 *        A running average to contribute the question's point value to for the pool.
+	 */
+	protected boolean processSamigoMC(Element item, Pool pool, Average pointsAverage) throws AssessmentPermissionException
 	{
-		protected int count = 0;
-
-		protected float total = 0.0f;
-
-		public void add(float value)
+		try
 		{
-			count++;
-			total += value;
-		}
+			// the attributes of a true/false question
+			String presentation = null;
+			boolean rationale = false;
+			String feedback = null;
+			String hint = null;
+			boolean survey = false;
+			float points = 0.0f;
+			String externalId = null;
+			boolean shuffle = true;
+			boolean singleAnswer = true;
 
-		public float getAverage()
-		{
-			if (count > 0)
+			externalId = StringUtil.trimToNull(item.getAttribute("ident"));
+
+			XPath metaDataPath = new DOMXPath("itemmetadata/qtimetadata/qtimetadatafield[fieldlabel='qmd_itemtype']/fieldentry");
+			String qmdItemType = StringUtil.trimToNull(metaDataPath.stringValueOf(item));
+			if ("Multiple Correct Answer".equalsIgnoreCase(qmdItemType))
 			{
-				return total / count;
+				singleAnswer = false;
 			}
-			return 0.0f;
+			else if (!"Multiple Choice".equalsIgnoreCase(qmdItemType))
+			{
+				return false;
+			}
+
+			XPath rationalePath = new DOMXPath("itemmetadata/qtimetadata/qtimetadatafield[fieldlabel='hasRationale']/fieldentry");
+			String rationaleValue = StringUtil.trimToNull(rationalePath.stringValueOf(item));
+			if (rationaleValue == null) return false;
+			rationale = "true".equalsIgnoreCase(rationaleValue);
+
+			XPath shufflePath = new DOMXPath("presentation//response_lid//render_choice/@shuffle");
+			String shuffleValue = StringUtil.trimToNull(shufflePath.stringValueOf(item));
+			if (shuffleValue == null) return false;
+			shuffle = "yes".equalsIgnoreCase(shuffleValue);
+
+			// XPath singleAnswerPath = new DOMXPath("presentation//response_lid/@rcardinality");
+			// String singleAnswerValue = StringUtil.trimToNull(singleAnswerPath.stringValueOf(item));
+			// if (singleAnswerValue == null) return false;
+			// boolean singleAnswer2 = "single".equalsIgnoreCase(singleAnswerValue);
+			//
+			// if (singleAnswer2 != singleAnswer)
+			// {
+			// System.out.println(" !!!!!!!!!!! single answer mismatch");
+			// }
+
+			XPath textPath = new DOMXPath("presentation//material[not(ancestor::response_lid)]/mattext");
+			presentation = combineHits(textPath, item);
+			if (presentation == null) return false;
+
+			XPath pointsPath = new DOMXPath("resprocessing/outcomes/decvar/@maxvalue");
+			String pointsValue = StringUtil.trimToNull(pointsPath.stringValueOf(item));
+			if (pointsValue == null) return false;
+			try
+			{
+				points = Float.valueOf(pointsValue);
+			}
+			catch (NumberFormatException e)
+			{
+				return false;
+			}
+
+			// use the first (correct / incorrect) feedback as the feedback
+			XPath feedbackPath = new DOMXPath(".//itemfeedback//material/mattext");
+			List feedbacks = feedbackPath.selectNodes(item);
+			for (Object oFeedback : feedbacks)
+			{
+				Element feedbackElement = (Element) oFeedback;
+				String feedbackValue = StringUtil.trimToNull(feedbackElement.getTextContent());
+				if (feedbackValue != null)
+				{
+					feedback = feedbackValue;
+					break;
+				}
+			}
+
+			// answers - w/ id
+			Map<String, String> answerMap = new LinkedHashMap<String, String>();
+			XPath answersPath = new DOMXPath(".//presentation//response_lid//render_choice//response_label");
+			List answers = answersPath.selectNodes(item);
+			for (Object oAnswer : answers)
+			{
+				Element answerElement = (Element) oAnswer;
+
+				String id = StringUtil.trimToNull(answerElement.getAttribute("ident"));
+				if (id == null) continue;
+
+				XPath answerMaterialPath = new DOMXPath(".//material//mattext");
+				String answer = combineHits(answerMaterialPath, answerElement);
+				if (answer == null) continue;
+
+				answerMap.put(id, answer);
+			}
+
+			// create the question
+			Question question = this.questionService.newQuestion(pool, "mneme:MultipleChoice");
+			MultipleChoiceQuestionImpl mc = (MultipleChoiceQuestionImpl) (question.getTypeSpecificQuestion());
+
+			// set the text
+			String clean = HtmlHelper.clean(presentation);
+			question.getPresentation().setText(clean);
+
+			// randomize
+			mc.setShuffleChoices(Boolean.toString(shuffle));
+
+			// single / multiple select
+			mc.setSingleCorrect(Boolean.toString(singleAnswer));
+
+			// set the choices
+			List<String> choices = new ArrayList<String>();
+			for (String key : answerMap.keySet())
+			{
+				String value = answerMap.get(key);
+
+				clean = HtmlHelper.clean(value);
+				choices.add(clean);
+			}
+			mc.setAnswerChoices(choices);
+
+			// corrects
+			Set<Integer> correctAnswers = new HashSet<Integer>();
+			List<MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice> choicesAuthored = mc.getChoicesAsAuthored();
+
+			// the correct answers
+			XPath correctAnswerPath = new DOMXPath("resprocessing/respcondition[displayfeedback/@linkrefid='Correct']/conditionvar/varequal");
+			List corrects = correctAnswerPath.selectNodes(item);
+			for (Object oCorrect : corrects)
+			{
+				Element correctElement = (Element) oCorrect;
+				String correctId = StringUtil.trimToNull(correctElement.getTextContent());
+				if (correctId != null)
+				{
+					String correctValue = answerMap.get(correctId);
+
+					// find this answer
+					for (int index = 0; index < choicesAuthored.size(); index++)
+					{
+						MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice choice = choicesAuthored.get(index);
+						if (choice.getText().equals(correctValue))
+						{
+							// use this answer's id
+							correctAnswers.add(Integer.valueOf(choice.getId()));
+						}
+					}
+				}
+			}
+			mc.setCorrectAnswerSet(correctAnswers);
+
+			// reason
+			question.setExplainReason(Boolean.valueOf(rationale));
+
+			// feedback
+			if (feedback != null)
+			{
+				question.setFeedback(HtmlHelper.clean(feedback));
+			}
+
+			// save
+			question.getTypeSpecificQuestion().consolidate("");
+			this.questionService.saveQuestion(question);
+
+			// add to the points average
+			pointsAverage.add(points);
+
+			return true;
+		}
+		catch (JaxenException e)
+		{
+			return false;
 		}
 	}
 
 	/**
-	 * Process all the items in the doc that are recognized as Samigo True False questions
+	 * Process this item if it is recognized as a Samigo true false.
 	 * 
 	 * @param item
 	 *        The QTI item from the QTI file DOM.
+	 * @param pool
+	 *        The pool to add the question to.
+	 * @param pointsAverage
+	 *        A running average to contribute the question's point value to for the pool.
 	 * @return true if successfully recognized and processed, false if not.
 	 */
 	protected boolean processSamigoTF(Element item, Pool pool, Average pointsAverage) throws AssessmentPermissionException
@@ -524,15 +715,6 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			String correctValue = answerMap.get(correctId);
 			if (correctValue == null) return false;
 			isTrue = "true".equalsIgnoreCase(correctValue);
-
-			// M_log.info("external id: " + externalId);
-			// M_log.info("presentation: " + presentation);
-			// M_log.info("rationale: " + rationale);
-			// M_log.info("answer: " + isTrue);
-			// M_log.info("feedback: " + feedback);
-			// M_log.info("hints: " + hint);
-			// M_log.info("survey: " + survey);
-			// M_log.info("points: " + points);
 
 			// create the question
 			Question question = this.questionService.newQuestion(pool, "mneme:TrueFalse");
