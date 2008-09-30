@@ -1,4 +1,18 @@
 #chef_start()
+	<script type="text/javascript" src="/library/js/jquery.js"></script>
+	<script type="text/javascript">
+	$(document).ready( function() {
+			$('#name').keypress( function(e) {
+			    // Ignore TAB
+				if (e.which != 9) {
+					// Select the custom radio button
+					$("input[@name='method']").val(
+					 $("#method-CUSTOM").attr("checked", "checked").attr("value")
+					);
+				}
+			});
+	});
+	</script>
 #chef_portletContainer()
 #chef_portletContent()
 
