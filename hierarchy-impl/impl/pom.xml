@@ -31,7 +31,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-hierarchy-api</artifactId>
-      <version>${sakai.version}</version>
+      <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

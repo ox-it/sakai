@@ -17,7 +17,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>hierarchy-portal-impl</artifactId>
-      <version>${sakai.version}</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
   <build>
