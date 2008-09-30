@@ -4,14 +4,13 @@
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>hierarchy-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>M2</version>
+    <version>1.0-SNAPSHOT</version>
   </parent>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-hierarchy-impl</artifactId>
   <name>sakai-hierarchy-impl</name>
-  <version>M2</version>
   <build>
   	<resources>
   		<resource>
@@ -32,43 +31,43 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-hierarchy-api</artifactId>
-      <version>M2</version>
+      <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-db-api</artifactId>
-      <version>M2</version>
+      <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-tool-api</artifactId>
-      <version>M2</version>
+      <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-site-api</artifactId>
-      <version>M2</version>
+      <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-user-api</artifactId>
-      <version>M2</version>
+      <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-entity-api</artifactId>
-      <version>M2</version>
+      <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-authz-api</artifactId>
-      <version>M2</version>
+      <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -80,7 +79,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-api</artifactId>
-      <version>M2</version>
+      <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

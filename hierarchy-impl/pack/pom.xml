@@ -4,20 +4,19 @@
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>hierarchy-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>M2</version>
+    <version>1.0-SNAPSHOT</version>
   </parent>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-hierarchy-pack</artifactId>
   <name>sakai-hierarchy-pack</name>
-  <version>M2</version>
   <packaging>sakai-component</packaging>
    <dependencies>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-hierarchy-impl</artifactId>
-      <version>M2</version>
+      <version>${sakai.version}</version>
     </dependency>
   </dependencies>
 </project>
