@@ -2,7 +2,6 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -37,11 +38,13 @@ public class HierarchyHandler extends SiteHandler {
 	private static Log log = LogFactory.getLog(HierarchyHandler.class);
 	private SiteService siteService;
 	private PortalHierarchyService portalHierarchyService;
+	private SecurityService securityService;
 	private boolean resetTools;
 	
-	public HierarchyHandler(SiteService siteService, PortalHierarchyService portalHierarchyService) {
+	public HierarchyHandler(SiteService siteService, PortalHierarchyService portalHierarchyService, SecurityService securityService) {
 		this.siteService = siteService;
 		this.portalHierarchyService = portalHierarchyService;
+		this.securityService = securityService;
 		setUrlFragment("hierarchy");
 		resetTools = ServerConfigurationService.getBoolean(Portal.CONFIG_AUTO_RESET, false);
 	}
@@ -176,7 +179,7 @@ public class HierarchyHandler extends SiteHandler {
 	
 
 	public void doSite(HttpServletRequest req, HttpServletResponse res, Session session,
-			Site site, String pageId, String toolContextPath, PortalNode node) throws ToolException,
+			final Site site, String pageId, String toolContextPath, PortalNode node) throws ToolException,
 			IOException
 	{
 		Site hierarchySite = null;
@@ -212,6 +215,25 @@ public class HierarchyHandler extends SiteHandler {
 		catch (IdUnusedException e)
 		{
 			log.warn("Hierarchy site not found.");
+		}
+		
+		if (hierarchySite != null) 
+		{
+			// Do permission checks against the current site rather than the hierarchy site.
+			// This isn't a good way of doing this and should change later.
+			final Site otherSite = hierarchySite;
+			securityService.pushAdvisor(new SecurityAdvisor(){
+
+				public SecurityAdvice isAllowed(String userId, String function,
+						String reference) {
+					if (reference.equals(otherSite.getReference()) && !site.getReference().equals(otherSite.getReference())) {
+						boolean allowed = site.isAllowed(userId, function);
+						return (allowed)?SecurityAdvice.ALLOWED:SecurityAdvice.NOT_ALLOWED;
+					}
+					return SecurityAdvice.PASS;
+				}
+
+			});
 		}
 
 		// find the page, or use the first page if pageId not found
@@ -269,6 +291,7 @@ public class HierarchyHandler extends SiteHandler {
 
 		if (hierarchySite != null)
 		{
+			
 			includeHierarchyNav(rcontext, req, session, site, page, toolContextPath, prefix, siteUrl, hierarchySite, node);
 		}
 		includeWorksite(rcontext, res, req, session, site, page, toolContextPath, prefix);
@@ -313,7 +336,7 @@ public class HierarchyHandler extends SiteHandler {
 			}
 	}
 
-	private void includeHierarchy(PortalRenderContext rcontext, HttpServletRequest req, Session session, Site site, SitePage page, String toolContextPath, String portalPrefix, String siteUrl, Site hierarchySite, PortalNode node) {
+	private void includeHierarchy(PortalRenderContext rcontext, HttpServletRequest req, Session session, final Site site, SitePage page, String toolContextPath, String portalPrefix, String siteUrl, final Site hierarchySite, PortalNode node) {
 		// Need to get list of parents
 
 		List<PortalNode> parentNodes = portalHierarchyService.getNodesFromRoot(node.getId());
@@ -353,9 +376,11 @@ public class HierarchyHandler extends SiteHandler {
 				+ Web.escapeUrl(portal.getSiteHelper().getSiteEffectiveId(site)));
 		String pagePopupUrl = Web.returnUrl(req, "/page/");
 
+
 		Map hierarchyPages = portal.getSiteHelper().pageListToMap(req, loggedIn, hierarchySite, page, toolUrl, portalPrefix, true, resetTools, false);
 		//Map hierarchyPages = pageListToMap(req, loggedIn, hierarchySite, page, toolUrl, portalPrefix, true, resetTools, false);
 		rcontext.put("hierarchyPages", hierarchyPages);
+
 
 		// What todo if you can't see current site?
 

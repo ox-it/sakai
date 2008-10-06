@@ -3,6 +3,7 @@ package org.sakaiproject.portal.charon.handlers;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalService;
@@ -29,7 +30,8 @@ public class HierarchyListener implements ServletContextListener {
 		PortalService ps = (PortalService) org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		SiteService siteService = (SiteService) org.sakaiproject.site.cover.SiteService.getInstance();
 		PortalHierarchyService portalHierarchyService = (PortalHierarchyService)org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
-		hierarchyHandler = new HierarchyHandler(siteService, portalHierarchyService);
+		SecurityService securityService = (SecurityService)org.sakaiproject.authz.cover.SecurityService.getInstance();
+		hierarchyHandler = new HierarchyHandler(siteService, portalHierarchyService, securityService);
 		hierarchyResetHandler = new HierarchyResetHandler();
 		magicHandler = new MagicHandler();
 		hierarchyToolHandler = new HierarchyToolHandler();

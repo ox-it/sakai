@@ -8,7 +8,7 @@
 		description="Create a new site in the hierarchy">
 			
 		<category name="hierarchy" />
-		<configuration name="functions.require" value="site.upd"/>
+		<configuration name="functions.require" value="site.upd,site.add|site.upd,site.add.managed"/>
 		
 
 	</tool>
