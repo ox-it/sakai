@@ -15,34 +15,42 @@
 	</script>
 #chef_portletContainer()
 #chef_portletContent()
-
-<h3>#springMessage("newsite.title")</h3>
+#if ($mode == "new")
+	#set ($prefix = "newsite")
+#else
+	#set ($prefix = "reusesite")
+#end
+<h3>#springMessage("${prefix}.title")</h3>
 
 <p>
-#springMessage("newsite.intro")
+#springMessage("${prefix}.intro")
 </p>
 
-<form method="post" action="${rootUrl}">
+<form method="post">
 
 <input type="hidden" name="_action" value="act_newsite"/>
 
 <table cellpadding="4px">
  <tr>
   <th>
-   <label for="title">#springMessage("newsite.site.title")</label>
+   <label for="title">#springMessage("site.title")</label>
   </th>
   <td>
-   #springFormInput("command.title" "maxlength='${titleMaxLength}'")
+  #if ($mode == "new")
+     #springFormInput("command.title" "maxlength='${titleMaxLength}'")
+  #else
+    #springFormInput("command.title" "maxlength='${titleMaxLength}' readonly='true'")
+  #end
    #springShowErrors("" "")
   </td>
  </tr>
  <tr>
   <th>
-   <label>#springMessage("newsite.url")</label>
+   <label>#springMessage("site.url")</label>
   </th>
   <td>
-   #springFormRadioButton("command.method" "AUTOMATIC" "")<label for="method-AUTOMATIC">#springMessage("newsite.automatic")</label><br/>
-   #springFormRadioButton("command.method" "CUSTOM" "")<label for="method-CUSTOM">#springMessage("newsite.custom")</label>
+   #springFormRadioButton("command.method" "AUTOMATIC" "")<label for="method-AUTOMATIC">#springMessage("url.automatic")</label><br/>
+   #springFormRadioButton("command.method" "CUSTOM" "")<label for="method-CUSTOM">#springMessage("url.custom")</label>
    #springFormInput("command.name" "")
    #springShowErrors("" "")
   </td>
@@ -50,7 +58,7 @@
 </table>
 </p>
 <p class="act">
- <input type="submit" class="active" value="Continue"/>
+ <input type="submit" class="active" value="#springMessage("${prefix}.submit")"/>
 </p>
 </form>
 

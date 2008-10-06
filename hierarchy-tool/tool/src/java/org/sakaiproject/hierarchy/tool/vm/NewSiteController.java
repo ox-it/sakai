@@ -104,6 +104,7 @@ public class NewSiteController extends SimpleFormController
 	{
 		Map referenceData = VelocityControllerUtils.referenceData(request, command, errors);
 		referenceData.put("titleMaxLength", getTitleMaxLength());
+		referenceData.put("mode", "new");
 		return referenceData;
 	}
 

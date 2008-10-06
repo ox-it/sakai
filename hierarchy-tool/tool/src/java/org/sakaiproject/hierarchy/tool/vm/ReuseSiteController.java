@@ -25,6 +25,16 @@ public class ReuseSiteController extends SimpleFormController {
 
 	private Method defaultMethod;
 	
+	private Integer titleMaxLength;
+	
+	public Integer getTitleMaxLength() {
+		return titleMaxLength;
+	}
+
+	public void setTitleMaxLength(Integer maxLength) {
+		this.titleMaxLength = maxLength;
+	}
+
 	public ReuseSiteController() {
 		setCommandClass(NewSiteCommand.class);
 	}
@@ -116,7 +126,10 @@ public class ReuseSiteController extends SimpleFormController {
 	@Override
 	protected Map referenceData(HttpServletRequest request, Object command,
 			Errors errors) throws Exception {
-		return VelocityControllerUtils.referenceData(request, command, errors);
+		Map data = VelocityControllerUtils.referenceData(request, command, errors);
+		data.put("titleMaxLength", getTitleMaxLength());
+		data.put("mode", "reuse");
+		return data;
 	}
 
 }
