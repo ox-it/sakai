@@ -419,7 +419,16 @@ public class FillBlanksAnswerImpl implements TypeSpecificAnswer
 		// we have answers
 		if (this.answers.length != size)
 		{
-			M_log.warn("getEntryCorrects: answers length: " + this.answers.length + " != correct answers length: " + size);
+			M_log.warn("getEntryCorrects: answers length: " + this.answers.length + " != correct answers length: " + size + " question: "
+					+ this.answer.getQuestion().getId() + " submission: " + this.answer.getSubmission().getId());
+			
+			// return as if nothing was entered correctly, since we don't know what is missing
+			for (int i = 0; i < size; i++)
+			{
+				rv.add(Boolean.FALSE);
+			}
+			
+			return rv;
 		}
 
 		List<String> priorAnswers = new ArrayList<String>(size);
