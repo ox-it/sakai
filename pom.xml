@@ -4,7 +4,7 @@
   <parent>
     <artifactId>oxford-master</artifactId>
     <groupId>uk.ac.ox.oucs</groupId>
-    <version>1.1</version>
+    <version>1.4</version>
   </parent>
   <groupId>uk.ac.ox.oucs</groupId>
   <!-- Watch SAK-13112 for a better way -->
@@ -12,6 +12,17 @@
   <version>1.2-SNAPSHOT</version>
   <name>Root WebApp</name>
   <packaging>war</packaging>
+  <repositories>
+    <repository>
+      <id>oucs-vle</id>
+      <name>OUCS VLE Repository</name>
+      <layout>default</layout>
+      <url>http://archiva.oucs.ox.ac.uk/archiva/repository/internal/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
   <scm>
     <developerConnection>scm:svn:https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/trunk</developerConnection>
     <connection>scm:svn:https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/trunk</connection>
