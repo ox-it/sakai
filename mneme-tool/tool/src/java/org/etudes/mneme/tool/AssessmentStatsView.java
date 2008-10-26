@@ -187,7 +187,7 @@ public class AssessmentStatsView extends ControllerImpl
 		}
 
 		// percent
-		int pct = (complete * 100) / users.size();
+		int pct = users.isEmpty() ? 0 : ((complete * 100) / users.size());
 
 		context.put("complete-percent", Integer.valueOf(pct));
 		context.put("complete-complete", Integer.valueOf(complete));
