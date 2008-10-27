@@ -335,9 +335,17 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		answer.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.typeSpecificAnswer.answerEvaluated"));
 		answer.setIncluded(this.uiService.newDecision().setProperty(
 				this.uiService.newPropertyReference().setReference("answer.submission.isReleased")), this.uiService.newHasValueDecision()
-				.setProperty(this.uiService.newPropertyReference().setReference("review")), this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answerData")));
+				.setProperty(this.uiService.newPropertyReference().setReference("review")));
 		answerSection.add(answer);
+
+		// message if there is no answer
+		Instructions notAnswered = this.uiService.newInstructions();
+		notAnswered.setText("not-answered");
+		notAnswered.setIncluded(this.uiService.newDecision().setProperty(
+				this.uiService.newPropertyReference().setReference("answer.submission.isReleased")), this.uiService.newHasValueDecision()
+				.setProperty(this.uiService.newPropertyReference().setReference("review")), this.uiService.newHasValueDecision().setReversed()
+				.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answerData")));
+		answerSection.add(notAnswered);
 
 		// or if not released, the actual answer text
 		Text answer2 = this.uiService.newText();
@@ -345,8 +353,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		answer2.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.typeSpecificAnswer.answerData"));
 		answer2.setIncluded(this.uiService.newDecision().setReversed().setProperty(
 				this.uiService.newPropertyReference().setReference("answer.submission.isReleased")), this.uiService.newHasValueDecision()
-				.setProperty(this.uiService.newPropertyReference().setReference("review")), this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answerData")));
+				.setProperty(this.uiService.newPropertyReference().setReference("review")));
 		answerSection.add(answer2);
 
 		// for grading, command to delete annotation
@@ -362,9 +369,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		edit.setTitle("answer", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
 		edit.setSize(HtmlEdit.Sizes.tall);
 		edit.setProperty(this.uiService.newHtmlPropertyReference().setReference("answer.typeSpecificAnswer.answerEvaluated"));
-		edit.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")),
-				this.uiService.newHasValueDecision().setProperty(
-						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answerData")));
+		edit.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")));
 		edit.addAction(delAnnotation);
 		answerSection.add(edit);
 

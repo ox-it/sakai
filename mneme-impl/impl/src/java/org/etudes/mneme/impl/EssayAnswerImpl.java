@@ -202,7 +202,9 @@ public class EssayAnswerImpl implements TypeSpecificAnswer
 	 */
 	public Float getAutoScore()
 	{
-		// there is no auto scoring for essays
+		// there is no auto scoring for essays, unless they are unanswered
+		if (!this.getIsAnswered().booleanValue()) return Float.valueOf(0f);
+
 		return null;
 	}
 
