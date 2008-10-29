@@ -79,7 +79,7 @@ public interface SubmissionStorage
 	List<SubmissionImpl> getAssessmentCompleteSubmissions(Assessment assessment);
 
 	/**
-	 * Check if there are any completed submissions that have any null scores for answered answers for this assessment.
+	 * Check if there are any completed submissions that have any null scores for answered answers for this assessment (skip survey questions).
 	 * 
 	 * @return a list of user ids of the users with unscored submissions to this assessment.
 	 */

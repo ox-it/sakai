@@ -169,7 +169,7 @@ public abstract class SubmissionStorageSample implements SubmissionStorage
 			{
 				for (Answer answer : submission.getAnswers())
 				{
-					if ((answer.getIsAnswered()) && (answer.getTotalScore() == null))
+					if ((answer.getIsAnswered()) && (answer.getTotalScore() == null) && (!answer.getQuestion().getIsSurvey().booleanValue()))
 					{
 						if (!rv.contains(submission.getUserId()))
 						{

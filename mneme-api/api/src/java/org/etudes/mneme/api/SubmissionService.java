@@ -271,7 +271,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	Answer getAnswer(String answerId);
 
 	/**
-	 * Check if there are any completed submissions that have any null scores for answered answers for this assessment.
+	 * Check if there are any completed submissions that have any null scores for answered answers for this assessment (skip survey questions).
 	 * 
 	 * @param assessment
 	 *        The assessment.

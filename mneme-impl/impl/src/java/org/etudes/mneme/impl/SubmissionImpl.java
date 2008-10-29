@@ -606,7 +606,7 @@ public class SubmissionImpl implements Submission
 
 		for (Answer answer : getAnswers())
 		{
-			if ((answer.getIsAnswered()) && (answer.getTotalScore() == null))
+			if ((answer.getIsAnswered()) && (answer.getTotalScore() == null) && (!answer.getQuestion().getIsSurvey().booleanValue()))
 			{
 				return Boolean.TRUE;
 			}

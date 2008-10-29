@@ -404,6 +404,9 @@ public class QuestionImpl implements Question
 	 */
 	public Boolean getHasUnscoredSubmissions()
 	{
+		// survey questions do not have unscored submissions
+		if (this.survey.booleanValue()) return Boolean.FALSE;
+
 		if (this.partContext != null)
 		{
 			return this.submissionService.getAssessmentQuestionHasUnscoredSubmissions(this.partContext.getAssessment(), this);
