@@ -341,10 +341,12 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		// message if there is no answer
 		Instructions notAnswered = this.uiService.newInstructions();
 		notAnswered.setText("not-answered");
-		notAnswered.setIncluded(this.uiService.newDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.submission.isReleased")), this.uiService.newHasValueDecision()
-				.setProperty(this.uiService.newPropertyReference().setReference("review")), this.uiService.newHasValueDecision().setReversed()
-				.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answerData")));
+		notAnswered.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.none.toString()).setProperty(
+				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")).setReversed(),
+				this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.submission.isReleased")),
+				this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("review")), this.uiService
+						.newHasValueDecision().setReversed().setProperty(
+								this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answerData")));
 		answerSection.add(notAnswered);
 
 		// or if not released, the actual answer text
