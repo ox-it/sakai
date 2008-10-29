@@ -17,6 +17,7 @@ import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitemanage.api.SiteHelper;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.springframework.validation.BindException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractCommandController;
@@ -85,6 +86,8 @@ public class CreateSiteController extends AbstractCommandController {
 			errors.reject("error.add.hierarchy");
 			return handleFailure(command,errors);
 		}
+		// This is a hack as something in the tool session breaks the tool the second time you create a site
+		SessionManager.getCurrentToolSession().clearAttributes();
 		Map model = new HashMap();
 		model.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ sitePath);
 		
