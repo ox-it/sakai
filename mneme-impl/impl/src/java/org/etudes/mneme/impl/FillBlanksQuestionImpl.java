@@ -28,6 +28,8 @@ package org.etudes.mneme.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.etudes.ambrosia.api.AndDecision;
 import org.etudes.ambrosia.api.Component;
@@ -455,7 +457,7 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	/**
 	 * Access the question text.
 	 * 
-	 * @return The quesion text.
+	 * @return The question text.
 	 */
 	public String getText()
 	{
@@ -526,6 +528,9 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		return this.uiService.newFragment().setMessages(this.messages).add(first);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public Component getViewQuestionUi()
 	{
 		FillIn fillIn = this.uiService.newFillIn();
@@ -701,7 +706,7 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	}
 
 	/**
-	 * Check the text for a valid fillin question.
+	 * Check the text for a valid fill-in question.
 	 * 
 	 * @param text
 	 *        The question text.
@@ -829,7 +834,12 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	 */
 	protected void parseCorrectAnswers(List<String> correctAnswers)
 	{
+		// start with the question text
 		String alltext = getText();
+		
+		// remove any html comments so we don't accidently consider brackets in there
+		alltext = unHtmlComment(alltext);
+
 		while (alltext.indexOf("{") > -1)
 		{
 			int alltextLeftIndex = alltext.indexOf("{");
@@ -856,5 +866,28 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 				break;
 			}
 		}
+	}
+
+	/**
+	 * Remove any html comment text from the source, return the result.
+	 * 
+	 * @param source
+	 *        The source html string.
+	 * @return The source html string with all html comments removed.
+	 */
+	protected String unHtmlComment(String source)
+	{
+		if (source == null) return source;
+
+		Pattern p = Pattern.compile("<!--(.|\\s)*?-->");
+		Matcher m = p.matcher(source);
+		StringBuffer sb = new StringBuffer();
+		while (m.find())
+		{
+			m.appendReplacement(sb, "");
+		}
+		m.appendTail(sb);
+
+		return sb.toString();
 	}
 }
