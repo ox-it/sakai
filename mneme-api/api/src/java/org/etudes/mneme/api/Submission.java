@@ -157,6 +157,14 @@ public interface Submission
 	Boolean getHasUnscoredAnswers();
 
 	/**
+	 * Get if any of the submissions, including this one, to this same assignment from the same user, has unscored answers. May not be known.
+	 * 
+	 * @return The TRUE if any of the submissions, including this one, to this same assignment from the same user, has unscored answers, FALSE if not,
+	 *         or NULL if not known.
+	 */
+	Boolean getHasUnscoredSiblings();
+
+	/**
 	 * Access the id of this submission.
 	 * 
 	 * @return The submission's id.

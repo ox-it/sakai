@@ -98,6 +98,8 @@ public class SubmissionImpl implements Submission
 
 	protected transient boolean totalScoreToBeSet = false;
 
+	protected transient Boolean unscoredSiblings = null;
+
 	protected String userId = null;
 
 	/**
@@ -611,6 +613,14 @@ public class SubmissionImpl implements Submission
 		}
 
 		return Boolean.FALSE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getHasUnscoredSiblings()
+	{
+		return this.unscoredSiblings;
 	}
 
 	/**
@@ -1347,6 +1357,14 @@ public class SubmissionImpl implements Submission
 	}
 
 	/**
+	 * Initialize the unscored siblings setting.
+	 */
+	protected void initUnscoredSiblings(Boolean unscoredSiblings)
+	{
+		this.unscoredSiblings = unscoredSiblings;
+	}
+
+	/**
 	 * Initialize the user id property.
 	 * 
 	 * @param userId
@@ -1422,6 +1440,7 @@ public class SubmissionImpl implements Submission
 		this.submissionService = other.submissionService;
 		this.submittedDate = other.submittedDate;
 		this.testDrive = other.testDrive;
+		this.unscoredSiblings = other.unscoredSiblings;
 		this.userId = other.userId;
 	}
 }

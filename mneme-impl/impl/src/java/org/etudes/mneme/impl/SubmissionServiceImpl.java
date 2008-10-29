@@ -2645,6 +2645,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 				}
 			}
 
+			// track if any have unscored answers
+			boolean unscoredSiblings = submission.getHasUnscoredAnswers().booleanValue();
+
 			// remove all others with this one's assessment id - keeping track of the best score if complete
 			for (Iterator i = all.iterator(); i.hasNext();)
 			{
@@ -2673,6 +2676,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 					// if not in progress, then see if it has the best score so far
 					else
 					{
+						// track if any have unscored answers
+						if (!unscoredSiblings) unscoredSiblings = candidateSub.getHasUnscoredAnswers().booleanValue();
+
 						if (bestSubmission == null)
 						{
 							bestSubmission = candidateSub;
@@ -2706,6 +2712,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 			// set the winner's sibling count
 			winner.initSiblingCount(new Integer(count));
+
+			// set the winner's unscored sibling
+			winner.initUnscoredSiblings(Boolean.valueOf(unscoredSiblings));
 
 			// set the winner's best
 			if (bestSubmission != null)
@@ -2749,6 +2758,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			{
 				count++;
 			}
+
+			// track if any have unscored answers
+			boolean unscoredSiblings = submission.getHasUnscoredAnswers().booleanValue();
 
 			String uid = submission.getUserId();
 			SubmissionImpl bestSubmission = null;
@@ -2809,6 +2821,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 					// if not in progress, then see if it has the best score so far
 					else
 					{
+						// track if any have unscored answers
+						if (!unscoredSiblings) unscoredSiblings = candidateSub.getHasUnscoredAnswers().booleanValue();
+
 						if (bestSubmission == null)
 						{
 							bestSubmission = candidateSub;
@@ -2855,6 +2870,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 			// set the winner's sibling count
 			winner.initSiblingCount(new Integer(count));
+
+			// set the winner's unscored sibling
+			winner.initUnscoredSiblings(Boolean.valueOf(unscoredSiblings));
 
 			// set the winner's best
 			if (bestSubmission != null)

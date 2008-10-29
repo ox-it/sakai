@@ -319,7 +319,14 @@
 					<navigations>
 						<navigation style="LINK" submit="TRUE" small="TRUE">
 							<title>
-								<message selector="view-all" />
+								<message selector="view-all">
+									<model type="icon" icon="/icons/grade.png" />
+									<selectors>
+										<selector selector="view-all-showing-unscored">
+											<decision model="submission.hasUnscoredSiblings" />
+										</selector>
+									</selectors>
+								</message>
 							</title>
 							<destination template="/grade_assessment/{0}/{1}/{2}{3}/{4}/{5}">
 								<model ref="sort_grades" />
