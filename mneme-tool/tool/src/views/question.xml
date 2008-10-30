@@ -209,6 +209,13 @@
 			</included>
 		</section>
 
+		<alert>
+			<message selector="linear-missing" />
+			<included>
+				<hasValueDecision model="lastChance" />
+			</included>
+		</alert>
+
 		<!-- iterating section for each answer -->
 		<section>
 			<iterator name="answer">

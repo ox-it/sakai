@@ -655,8 +655,6 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		}
 		selCol.setValueProperty(this.uiService.newTextPropertyReference().setReference("choice.id"));
 		selCol.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answers"));
-		selCol.setOnEmptyAlert(this.uiService.newDecision().setReversed().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.submission.assessment.randomAccess")), "linear-missing");
 		entityList.addColumn(selCol);
 
 		AutoColumn autoCol = this.uiService.newAutoColumn();

@@ -84,6 +84,7 @@ public class QuestionView extends ControllerImpl
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
 		// we need two parameters (sid/question selector) and optional anchor
+		//question selector may end in "!" for "last chance" - linear repeat question when it was not answered
 		if ((params.length != 4) && (params.length != 5))
 		{
 			throw new IllegalArgumentException();
@@ -91,6 +92,12 @@ public class QuestionView extends ControllerImpl
 
 		String submissionId = params[2];
 		String questionSelector = params[3];
+		boolean lastChance = false;
+		if (questionSelector.endsWith("!"))
+		{
+			questionSelector = questionSelector.substring(0, questionSelector.length() - 1);
+			lastChance = true;
+		}
 		String anchor = (params.length == 5) ? params[4] : null;
 
 		// adjust the current destination to remove the anchor
@@ -169,6 +176,7 @@ public class QuestionView extends ControllerImpl
 		}
 
 		if (anchor != null) context.put("anchor", anchor);
+		if (lastChance) context.put("lastChance", Boolean.TRUE);
 
 		// render
 		uiService.render(ui, context);
@@ -189,6 +197,7 @@ public class QuestionView extends ControllerImpl
 	public void post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
 		// we need two parameters (sid/question selector) and optional anchor
+		//question selector may end in "!" for "last chance" - linear repeat question when it was not answered
 		if ((params.length != 4) && (params.length != 5))
 		{
 			throw new IllegalArgumentException();
@@ -196,6 +205,12 @@ public class QuestionView extends ControllerImpl
 
 		String submissionId = params[2];
 		String questionSelector = params[3];
+		boolean lastChance = false;
+		if (questionSelector.endsWith("!"))
+		{
+			questionSelector = questionSelector.substring(0, questionSelector.length() - 1);
+			lastChance = true;
+		}
 		String anchor = (params.length == 5) ? params[4] : null;
 
 		// adjust the current destination to remove the anchor
@@ -258,8 +273,30 @@ public class QuestionView extends ControllerImpl
 			answer.getTypeSpecificAnswer().consolidate(destination);
 		}
 
+		// linear order check - unless this was a last chance display
+		boolean repeat = false;
+		if (!lastChance)
+		{
+			if (!submission.getAssessment().getRandomAccess().booleanValue())
+			{
+				// linear order is always presented by-question
+				if (answers.size() == 1)
+				{
+					Answer answer = answers.get(0);
+					boolean answered = answer.getIsAnswered().booleanValue();
+					if (!answered)
+					{
+						repeat = true;
+
+						// don't mark the answer as complete, so we can re-enter
+						answersComplete = false;
+					}
+				}
+			}
+		}
+
 		// where are we going?
-		destination = questionChooseDestination(context, destination, questionSelector, submissionId, curDestination);
+		destination = questionChooseDestination(context, destination, questionSelector, submissionId, curDestination, repeat);
 
 		// submit all answers
 		try
@@ -355,9 +392,11 @@ public class QuestionView extends ControllerImpl
 	 *        The selected submission id.
 	 * @param curDestination
 	 *        The current destination, adjusted to remove anchor.
+	 * @param repeat
+	 *        If true, and we would be sending the user to another question, repeat the current question.
 	 */
 	protected String questionChooseDestination(Context context, String destination, String questionSelector, String submissionId,
-			String curDestination)
+			String curDestination, boolean repeat)
 	{
 		// get the submission
 		Submission submission = submissionService.getSubmission(submissionId);
@@ -401,7 +440,13 @@ public class QuestionView extends ControllerImpl
 
 			if ("NEXT".equals(destination))
 			{
-				// if the question is not the last of the part, go to the next quesiton
+				// only for NEXT, if repeat, do the question again with a "!" to indicate a second chance
+				if (repeat)
+				{
+					return "/question/" + submissionId + "/q" + question.getId() + "!";
+				}
+
+				// if the question is not the last of the part, go to the next question
 				if (!question.getPartOrdering().getIsLast())
 				{
 					return "/question/" + submissionId + "/q" + question.getAssessmentOrdering().getNext().getId();

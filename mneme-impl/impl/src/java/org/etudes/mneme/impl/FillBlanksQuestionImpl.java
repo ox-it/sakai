@@ -284,9 +284,6 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 				.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answers")).setWidth(20);
 		fillIn.setWidth(20);
 
-		fillIn.setOnEmptyAlert(this.uiService.newDecision().setReversed().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.submission.assessment.randomAccess")), "linear-missing");
-
 		Section section = this.uiService.newSection();
 		section.add(fillIn);
 

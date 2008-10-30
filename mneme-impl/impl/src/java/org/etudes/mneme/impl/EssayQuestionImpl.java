@@ -199,8 +199,6 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		edit.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.inline.toString(), SubmissionType.both.toString())
 				.setProperty(this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")));
 		edit.setProperty(this.uiService.newHtmlPropertyReference().setReference("answer.typeSpecificAnswer.answerData"));
-		edit.setOnEmptyAlert(this.uiService.newDecision().setReversed().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.submission.assessment.randomAccess")), "linear-missing");
 		answerSection.add(edit);
 
 		// the upload
