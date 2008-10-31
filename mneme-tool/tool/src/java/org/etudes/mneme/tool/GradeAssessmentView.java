@@ -394,7 +394,6 @@ public class GradeAssessmentView extends ControllerImpl
 				context.put("sort_column", sortCode.charAt(0));
 				context.put("sort_direction", sortCode.charAt(1));
 
-				// 0 is title
 				if ((sortCode.charAt(0) == '0') && (sortCode.charAt(1) == 'A'))
 					sort = SubmissionService.FindAssessmentSubmissionsSort.userName_a;
 				else if ((sortCode.charAt(0) == '0') && (sortCode.charAt(1) == 'D'))
@@ -407,6 +406,18 @@ public class GradeAssessmentView extends ControllerImpl
 					sort = SubmissionService.FindAssessmentSubmissionsSort.final_a;
 				else if ((sortCode.charAt(0) == '2') && (sortCode.charAt(1) == 'D'))
 					sort = SubmissionService.FindAssessmentSubmissionsSort.final_d;
+				else if ((sortCode.charAt(0) == '3') && (sortCode.charAt(1) == 'A'))
+					sort = SubmissionService.FindAssessmentSubmissionsSort.evaluated_a;
+				else if ((sortCode.charAt(0) == '3') && (sortCode.charAt(1) == 'D'))
+					sort = SubmissionService.FindAssessmentSubmissionsSort.evaluated_d;
+				else if ((sortCode.charAt(0) == '4') && (sortCode.charAt(1) == 'A'))
+					sort = SubmissionService.FindAssessmentSubmissionsSort.released_a;
+				else if ((sortCode.charAt(0) == '4') && (sortCode.charAt(1) == 'D'))
+					sort = SubmissionService.FindAssessmentSubmissionsSort.released_d;
+				else if ((sortCode.charAt(0) == '5') && (sortCode.charAt(1) == 'A'))
+					sort = SubmissionService.FindAssessmentSubmissionsSort.sdate_a;
+				else if ((sortCode.charAt(0) == '5') && (sortCode.charAt(1) == 'D'))
+					sort = SubmissionService.FindAssessmentSubmissionsSort.sdate_d;
 				else
 				{
 					throw new IllegalArgumentException();

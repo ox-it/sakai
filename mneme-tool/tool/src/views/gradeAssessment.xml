@@ -167,6 +167,28 @@
 				</sizeOptions>
 			</pager>
 			<columns>
+				<column pixels="16">
+					<container>
+						<navigation style="LINK" submit="TRUE" description="unscored-alt">
+							<icon icon="/icons/grade.png" />
+							<destination template="/grade_submission/{0}/-/-/{1}/grade_assessment/{2}/{3}/{4}{5}/{6}">
+								<model ref="submission.id" />
+								<model ref="sort" />
+								<model ref="sort_grades" />
+								<model ref="assessment.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+							</destination>
+						</navigation>
+					</container>
+					<entityIncluded>
+						<decision model="submission.hasUnscoredAnswers" />
+					</entityIncluded>
+					<included>
+						<decision model="assessment.hasPoints" />
+					</included>
+				</column>
 				<modelColumn>
 					<title>
 						<message selector="submission-username" />
@@ -245,65 +267,6 @@
 						<text selector="anonymous" />
 					</container>
 				</column>
-				<column wrap="FALSE">
-					<title>
-						<message selector="submission-finished" />
-					</title>
-					<container>
-						<text>
-							<message>
-								<model type="date" ref="submission.submittedDate" />
-							</message>
-							<included>
-								<decision reversed="TRUE" model="submission.isCompletedLate" />
-							</included>
-						</text>
-						<text>
-							<message selector="submission-finished-date-late-list">
-								<model type="date" ref="submission.submittedDate" />
-							</message>
-							<included>
-								<decision model="submission.isCompletedLate" />
-							</included>
-						</text>
-					</container>
-					<entityIncluded>
-						<decision model="submission.isComplete" />
-					</entityIncluded>
-				</column>
-				<modelColumn wrap="FALSE">
-					<title>
-						<message selector="submission-status" />
-					</title>
-					<!--<model type="html" ref="submission" delegate="SubmissionStatus" tool="sakai.mneme" />-->
-					<model type="enum" ref="submission.gradingStatus" messageRoot="grade-status-" />
-					<sort submit="TRUE">
-						<active>
-							<compareDecision model="sort_column" constant="1" />
-						</active>
-						<direction>
-							<compareDecision model="sort_direction" constant="A" />
-						</direction>
-						<asc icon="/icons/sortascending.gif">
-							<message selector="asc" />
-							<destination template="/grade_assessment/{0}/{1}/1A/{2}/{3}">
-								<model ref="sort_grades" />
-								<model ref="assessment.id" />
-								<model type="paging" ref="paging" selector="FIRST" />
-								<model ref="view" />
-							</destination>
-						</asc>
-						<desc icon="/icons/sortdescending.gif">
-							<message selector="desc" />
-							<destination template="/grade_assessment/{0}/{1}/1D/{2}/{3}">
-								<model ref="sort_grades" />
-								<model ref="assessment.id" />
-								<model type="paging" ref="paging" selector="FIRST" />
-								<model ref="view" />
-							</destination>
-						</desc>
-					</sort>
-				</modelColumn>
 				<column>
 					<title>
 						<message selector="submission-tries" />
@@ -362,6 +325,70 @@
 						</navigation>
 					</navigations>
 				</column>
+				<column wrap="FALSE">
+					<title>
+						<message selector="submission-finished" />
+					</title>
+					<container>
+						<text>
+							<message>
+								<model type="date" ref="submission.submittedDate" />
+							</message>
+							<included>
+								<decision model="submission.isComplete" />
+								<decision reversed="TRUE" model="submission.isCompletedLate" />
+							</included>
+						</text>
+						<text>
+							<message selector="submission-finished-date-late-list">
+								<model type="date" ref="submission.submittedDate" />
+							</message>
+							<included>
+								<decision model="submission.isComplete" />
+								<decision model="submission.isCompletedLate" />
+							</included>
+						</text>
+						<text>
+							<message selector="submission-in-progress" />
+							<included>
+								<decision reversed="TRUE" model="submission.isPhantom" />
+								<decision reversed="TRUE" model="submission.isComplete" />
+							</included>
+						</text>
+						<text>
+							<message selector="submission-not-started" />
+							<included>
+								<decision model="submission.isPhantom" />
+							</included>
+						</text>
+					</container>
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="5" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/grade_assessment/{0}/{1}/5A/{2}/{3}">
+								<model ref="sort_grades" />
+								<model ref="assessment.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="view" />
+							</destination>
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/grade_assessment/{0}/{1}/5D/{2}/{3}">
+								<model ref="sort_grades" />
+								<model ref="assessment.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="view" />
+							</destination>
+						</desc>
+					</sort>
+				</column>
 				<modelColumn title="submission-score" model="submission.answersAutoScore">
 					<entityIncluded selector="dash">
 						<orDecision>
@@ -413,29 +440,105 @@
 						<decision model="assessment.hasPoints" />
 					</included>
 				</column>
-				<column>
+				<column pixels="16">
+					<title>
+						<message selector="evaluated" />
+					</title>
 					<container>
-						<navigation style="LINK" submit="TRUE" description="unscored-alt">
-							<icon icon="/icons/grade.png" />
-							<destination template="/grade_submission/{0}/-/-/{1}/grade_assessment/{2}/{3}/{4}{5}/{6}">
-								<model ref="submission.id" />
-								<model ref="sort" />
-								<model ref="sort_grades" />
-								<model ref="assessment.id" />
-								<model ref="sort_column" />
-								<model ref="sort_direction" />
-								<model type="paging" ref="paging" />
-							</destination>
-						</navigation>
+						<selection>
+							<selectionChoices>
+								<selectionChoice>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="submission.evaluation.evaluated" />
+						</selection>				
 					</container>
 					<entityIncluded>
-						<decision model="submission.hasUnscoredAnswers" />
+						<decision model="submission.isComplete" />
 					</entityIncluded>
 					<included>
 						<decision model="assessment.hasPoints" />
 					</included>
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="3" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/grade_assessment/{0}/{1}/3A/{2}/{3}">
+								<model ref="sort_grades" />
+								<model ref="assessment.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="view" />
+							</destination>
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/grade_assessment/{0}/{1}/3D/{2}/{3}">
+								<model ref="sort_grades" />
+								<model ref="assessment.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="view" />
+							</destination>
+						</desc>
+					</sort>
 				</column>
 				<column pixels="16">
+					<title>
+						<message selector="released" />
+					</title>
+					<container>
+						<selection>
+							<selectionChoices>
+								<selectionChoice>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="submission.isReleased" />
+						</selection>				
+					</container>
+					<entityIncluded>
+						<decision model="submission.isComplete" />
+					</entityIncluded>
+					<included>
+						<decision model="assessment.hasPoints" />
+					</included>
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="4" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/grade_assessment/{0}/{1}/4A/{2}/{3}">
+								<model ref="sort_grades" />
+								<model ref="assessment.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="view" />
+							</destination>
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/grade_assessment/{0}/{1}/4D/{2}/{3}">
+								<model ref="sort_grades" />
+								<model ref="assessment.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="view" />
+							</destination>
+						</desc>
+					</sort>
+				</column>
+				<column pixels="32">
 					<navigations>
 						<navigation style="LINK" submit="TRUE" description="special-access-view">
 							<icon icon="/icons/access_view.png" style="LEFT" />

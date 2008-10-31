@@ -40,7 +40,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 */
 	enum FindAssessmentSubmissionsSort
 	{
-		final_a, final_d, sdate_a, sdate_d, status_a, status_d, userName_a, userName_d
+		evaluated_a, evaluated_d, final_a, final_d, released_a, released_d, sdate_a, sdate_d, status_a, status_d, userName_a, userName_d
 	}
 
 	/**
@@ -55,10 +55,9 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	static final String PHANTOM_PREFIX = "phantom/";
 
 	/**
-	 * Check if the current user is allowed to update or add answers or complete this submission.<br />
-	 * Any hard deadlines are extended by a grace period to allow for inaccuracies in timing.<br />
-	 * The user must match the submission user.<br />
-	 * The submission must be incomplete, the assessment must be open, the user must have submit permission.
+	 * Check if the current user is allowed to update or add answers or complete this submission.<br /> Any hard deadlines are extended by a grace
+	 * period to allow for inaccuracies in timing.<br /> The user must match the submission user.<br /> The submission must be incomplete, the
+	 * assessment must be open, the user must have submit permission.
 	 * 
 	 * @param submission
 	 *        The submission.
@@ -76,8 +75,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	Boolean allowEvaluate(String context);
 
 	/**
-	 * Check if the current user is allowed to evaluate (grade) this submission.<br />
-	 * The submission must be complete.<br />
+	 * Check if the current user is allowed to evaluate (grade) this submission.<br /> The submission must be complete.<br />
 	 * 
 	 * @param submission
 	 *        The submission.
@@ -86,9 +84,8 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	Boolean allowEvaluate(Submission submission);
 
 	/**
-	 * Check if the current user is allowed to review this submission.<br />
-	 * The user must match the submission user.<br />
-	 * The submission must be complete.
+	 * Check if the current user is allowed to review this submission.<br /> The user must match the submission user.<br /> The submission must be
+	 * complete.
 	 * 
 	 * @param submission
 	 *        The submission.
@@ -97,8 +94,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	Boolean allowReviewSubmission(Submission submission);
 
 	/**
-	 * Check if the current user is allowed to submit to the assessment.<br />
-	 * If the user has a submission in progress, this returns true.<br />
+	 * Check if the current user is allowed to submit to the assessment.<br /> If the user has a submission in progress, this returns true.<br />
 	 * Otherwise, the assessment must be open, the user must have submit permission, and not yet submitted the max.
 	 * 
 	 * @param submission
@@ -122,10 +118,9 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	void completeSubmission(Submission submission) throws AssessmentPermissionException, AssessmentClosedException, SubmissionCompletedException;
 
 	/**
-	 * Count the submissions to the assignment made by all users.<br />
-	 * If a user has not yet submitted, a phantom one for that user is included. <br />
-	 * Optionally group multiple submissions from a single user and select the in-progress or "best" one. <br />
-	 * Optionally when grouping leave one user's submissions all there un-clumped.
+	 * Count the submissions to the assignment made by all users.<br /> If a user has not yet submitted, a phantom one for that user is included. <br
+	 * /> Optionally group multiple submissions from a single user and select the in-progress or "best" one. <br /> Optionally when grouping leave one
+	 * user's submissions all there un-clumped.
 	 * 
 	 * @param assessment
 	 *        The assessment.
@@ -198,10 +193,9 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	void evaluateSubmissions(Assessment assessment, String comment, Float score) throws AssessmentPermissionException;
 
 	/**
-	 * Find the submissions to the assignment made by all users.<br />
-	 * If a user has not yet submitted, a phantom one for that user is included. <br />
-	 * Optionally group multiple submissions from a single user and select the in-progress or "best" one. <br />
-	 * Optionally when grouping leave one user's submissions all there un-clumped.
+	 * Find the submissions to the assignment made by all users.<br /> If a user has not yet submitted, a phantom one for that user is included. <br
+	 * /> Optionally group multiple submissions from a single user and select the in-progress or "best" one. <br /> Optionally when grouping leave one
+	 * user's submissions all there un-clumped.
 	 * 
 	 * @param assessment
 	 *        The assessment.
@@ -221,8 +215,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 			Integer pageNum, Integer pageSize);
 
 	/**
-	 * Find the questions that have been used in submissions in this assessment part.<br />
-	 * Order by question description.
+	 * Find the questions that have been used in submissions in this assessment part.<br /> Order by question description.
 	 * 
 	 * @param part
 	 *        The assessment part.
@@ -231,8 +224,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	List<Question> findPartQuestions(Part part);
 
 	/**
-	 * Find the previous and next submissions, from this one, to this one's assessment, based on the sort.<br />
-	 * Real (not phantom) submissions only.
+	 * Find the previous and next submissions, from this one, to this one's assessment, based on the sort.<br /> Real (not phantom) submissions only.
 	 * 
 	 * @param submission
 	 *        The current submission.
@@ -300,8 +292,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	List<Float> getAssessmentScores(Assessment assessment);
 
 	/**
-	 * Get either the in-progress submission, or a new one, to the assignment made by this user.<br />
-	 * The sibling count is set.
+	 * Get either the in-progress submission, or a new one, to the assignment made by this user.<br /> The sibling count is set.
 	 * 
 	 * @param assessment
 	 *        The assessment to use.
@@ -390,8 +381,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 
 	/**
 	 * Enter or update an answer to a question of an incomplete submission to an assessment. Auto grade. Updated realated info (such as the
-	 * submission's score).<br />
-	 * Complete the submission if indicated.
+	 * submission's score).<br /> Complete the submission if indicated.
 	 * 
 	 * @param answer
 	 *        The SubmissionAnswerAnswer containing the submitters answer information to a question
@@ -411,8 +401,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 
 	/**
 	 * Enter or update a set of answers to questions of an incomplete submission to an assessment. Auto grade. Updated realated info (such as the
-	 * submission's score).<br />
-	 * Complete the submission if indicated.
+	 * submission's score).<br /> Complete the submission if indicated.
 	 * 
 	 * @param answers
 	 *        The List of Answers.

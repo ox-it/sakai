@@ -2367,10 +2367,30 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 						}
 						else
 						{
-							rv = ((Submission) arg0).getSubmittedDate().compareTo(((Submission) arg1).getSubmittedDate());
+							rv = date0.compareTo(date1);
 						}
 
 						secondary = null;
+						break;
+					}
+					case evaluated_a:
+					case evaluated_d:
+					{
+						Boolean evaluated0 = ((Submission) arg0).getEvaluation().getEvaluated();
+						Boolean evaluated1 = ((Submission) arg1).getEvaluation().getEvaluated();
+						rv = evaluated0.compareTo(evaluated1);
+
+						secondary = FindAssessmentSubmissionsSort.userName_a;
+						break;
+					}
+					case released_a:
+					case released_d:
+					{
+						Boolean released0 = ((Submission) arg0).getIsReleased();
+						Boolean released1 = ((Submission) arg1).getIsReleased();
+						rv = released0.compareTo(released1);
+
+						secondary = FindAssessmentSubmissionsSort.userName_a;
 						break;
 					}
 				}
@@ -2476,6 +2496,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			case final_d:
 			case userName_d:
 			case sdate_d:
+			case released_d:
+			case evaluated_d:
 			{
 				Collections.reverse(rv);
 			}
