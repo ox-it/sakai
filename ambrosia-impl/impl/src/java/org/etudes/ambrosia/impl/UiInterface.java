@@ -354,8 +354,7 @@ public class UiInterface extends UiContainer implements Interface
 			}
 
 			// our js
-			response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ambrosia_library/js/ambrosia_" + UiService.VERSION
-					+ ".js\"></script>\n");
+			response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ambrosia_library/js/ambrosia.js\"></script>\n");
 
 			// for rich editing - tiny
 			if (this.popup)
@@ -375,11 +374,11 @@ public class UiInterface extends UiContainer implements Interface
 				String css = findCss(headInclude);
 				if (css == null)
 				{
-					css = "/ambrosia_library/skin/ambrosia_" + UiService.VERSION + ".css";
+					css = "/ambrosia_library/skin/ambrosia.css";
 				}
 				else
 				{
-					css += ",/ambrosia_library/skin/ambrosia_" + UiService.VERSION + ".css";
+					css += ",/ambrosia_library/skin/ambrosia.css";
 				}
 				response.println("<script type=\"text/javascript\" language=\"JavaScript\">ambrosiaTinyCss=\"" + css + "\";</script>");
 			}
@@ -388,7 +387,7 @@ public class UiInterface extends UiContainer implements Interface
 			response.println("<script type=\"text/javascript\" src=\"/ambrosia_library/calendar/calendar2.js\"></script>");
 
 			// our css
-			response.println("<link rel=\"stylesheet\" type=\"text/css\" href=\"/ambrosia_library/skin/ambrosia_" + UiService.VERSION + ".css\" />");
+			response.println("<link rel=\"stylesheet\" type=\"text/css\" href=\"/ambrosia_library/skin/ambrosia.css\" />");
 
 			// use our title
 			// TODO: we might want to send in the placement title and deal with that...
