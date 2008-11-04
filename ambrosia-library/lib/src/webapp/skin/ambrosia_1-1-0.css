@@ -485,8 +485,8 @@ size for "small" html edit. (will be 2 (border) + 4+4 (padding) wider, 2 (border
 */
 .ambrosiaHtmlEditSize_small
 {
-	width: 394px;
-	height: 154px;
+	width: 290px;
+	height: 174px;
 }
 
 /*
@@ -494,7 +494,7 @@ size for "full" html edit.
 */
 .ambrosiaHtmlEditSize_full
 {
-	width: 795px;
+	width: 590px;
 	height: 142px;
 }
 
@@ -503,6 +503,6 @@ size for "tall" html edit.
 */
 .ambrosiaHtmlEditSize_tall
 {
-	width: 795px;
+	width: 590px;
 	height: 231px;
 }
