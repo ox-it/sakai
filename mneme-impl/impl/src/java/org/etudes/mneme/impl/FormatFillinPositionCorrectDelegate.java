@@ -93,8 +93,7 @@ public class FormatFillinPositionCorrectDelegate extends FormatDelegateImpl
 				if (corrects.size() > pos)
 				{
 					// for any order, target can match any corrects position
-					correct = FillBlanksAnswerImpl.answerCorrect(target, corrects.get(pos), caseSensitive, false, textual, new ArrayList<String>(),
-							new ArrayList<String>());
+					correct = FillBlanksAnswerImpl.answerCorrect(target, corrects.get(pos), caseSensitive, false, textual, new ArrayList<String>());
 				}
 			}
 			else
@@ -102,8 +101,8 @@ public class FormatFillinPositionCorrectDelegate extends FormatDelegateImpl
 				correct = Boolean.FALSE;
 				for (String aCorrect : corrects)
 				{
-					boolean thisCorrect = FillBlanksAnswerImpl.answerCorrect(target, aCorrect, caseSensitive, false, textual,
-							new ArrayList<String>(), new ArrayList<String>());
+					boolean thisCorrect = FillBlanksAnswerImpl
+							.answerCorrect(target, aCorrect, caseSensitive, false, textual, new ArrayList<String>());
 					if (thisCorrect)
 					{
 						correct = Boolean.TRUE;

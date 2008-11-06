@@ -59,58 +59,47 @@ public class FillBlanksAnswerImpl implements TypeSpecificAnswer
 	 *        if order does not matter.
 	 * @param textual
 	 *        if the response is to be textual, not numeric.
-	 * @param correctAnswers
-	 *        The entire set of correct answer patterns.
-	 * @param priorAnswers
-	 *        The set of answers already processed.
+	 * @param availableCorrectAnswers
+	 *        The set of available correct answer patterns. If anyOrder, and this answer is correct, the entry it matched is removed from this set.
 	 * @return TRUE if the answer is correct, FALSE if not.
 	 */
 	protected static Boolean answerCorrect(String answer, String correctPattern, boolean caseSensitive, boolean anyOrder, boolean textual,
-			List<String> correctAnswers, List<String> priorAnswers)
+			List<String> availableCorrectAnswers)
 	{
+		String workingAnswer = fullTrim(answer);
+
 		if (!anyOrder)
 		{
 			// answer must match correctPattern
 			if (textual)
 			{
-				return isFillInAnswerCorrect(answer, correctPattern, caseSensitive);
+				return isFillInAnswerCorrect(workingAnswer, correctPattern, caseSensitive);
 			}
 			else
 			{
-				return isNumericAnswerCorrect(answer, correctPattern);
+				return isNumericAnswerCorrect(workingAnswer, correctPattern);
 			}
 		}
 
 		else
 		{
-			// answer must not be one of the priors
-			for (String prior : priorAnswers)
-			{
-				if (caseSensitive)
-				{
-					if (prior.equals(answer)) return Boolean.FALSE;
-				}
-				else
-				{
-					if (prior.equalsIgnoreCase(answer)) return Boolean.FALSE;
-				}
-			}
-
-			// answer must match one of the correct answers
-			for (String pattern : correctAnswers)
+			// answer must match one of the available correct answers
+			for (String pattern : availableCorrectAnswers)
 			{
 				// answer must match correctPattern
 				if (textual)
 				{
-					if (isFillInAnswerCorrect(answer, pattern, caseSensitive))
+					if (isFillInAnswerCorrect(workingAnswer, pattern, caseSensitive))
 					{
+						availableCorrectAnswers.remove(pattern);
 						return Boolean.TRUE;
 					}
 				}
 				else
 				{
-					if (isNumericAnswerCorrect(answer, pattern))
+					if (isNumericAnswerCorrect(workingAnswer, pattern))
 					{
+						availableCorrectAnswers.remove(pattern);
 						return Boolean.TRUE;
 					}
 				}
@@ -118,6 +107,38 @@ public class FillBlanksAnswerImpl implements TypeSpecificAnswer
 		}
 
 		return Boolean.FALSE;
+	}
+
+	/**
+	 * Trim the target outside and inside.
+	 * 
+	 * @param target
+	 *        The string to trim.
+	 * @return The trimmed string.
+	 */
+	protected static String fullTrim(String target)
+	{
+		String working = target;
+		if (working != null)
+		{
+			working = working.trim();
+
+			// trim interior white space from the answer
+			String[] tokens = StringUtil.split(working, " ");
+			StringBuilder buf = new StringBuilder();
+			buf.append(tokens[0]);
+			for (int i = 1; i < tokens.length; i++)
+			{
+				if ((tokens[i] != null) && (tokens[i].length() > 0))
+				{
+					buf.append(" ");
+					buf.append(tokens[i]);
+				}
+			}
+			working = buf.toString();
+		}
+
+		return working;
 	}
 
 	/**
@@ -396,6 +417,7 @@ public class FillBlanksAnswerImpl implements TypeSpecificAnswer
 		// we need an answer for each fill-in. The correct answers will give us that size
 		Question question = answer.getQuestion();
 		List<String> correctAnswers = ((FillBlanksQuestionImpl) question.getTypeSpecificQuestion()).getCorrectAnswers();
+		List<String> availableCorrectAnswers = new ArrayList<String>(correctAnswers);
 		int size = correctAnswers.size();
 
 		// Get all other question properties
@@ -421,17 +443,16 @@ public class FillBlanksAnswerImpl implements TypeSpecificAnswer
 		{
 			M_log.warn("getEntryCorrects: answers length: " + this.answers.length + " != correct answers length: " + size + " question: "
 					+ this.answer.getQuestion().getId() + " submission: " + this.answer.getSubmission().getId());
-			
+
 			// return as if nothing was entered correctly, since we don't know what is missing
 			for (int i = 0; i < size; i++)
 			{
 				rv.add(Boolean.FALSE);
 			}
-			
+
 			return rv;
 		}
 
-		List<String> priorAnswers = new ArrayList<String>(size);
 		for (int i = 0; i < size; i++)
 		{
 			String answer = answers[i];
@@ -442,8 +463,7 @@ public class FillBlanksAnswerImpl implements TypeSpecificAnswer
 			else
 			{
 				String correctAnswer = correctAnswers.get(i);
-				rv.add(answerCorrect(answer, correctAnswer, caseSensitive, anyOrder, textual, correctAnswers, priorAnswers));
-				priorAnswers.add(answer);
+				rv.add(answerCorrect(answer, correctAnswer, caseSensitive, anyOrder, textual, availableCorrectAnswers));
 			}
 		}
 

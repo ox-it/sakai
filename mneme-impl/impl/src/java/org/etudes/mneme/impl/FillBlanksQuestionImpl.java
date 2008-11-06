@@ -703,6 +703,38 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	}
 
 	/**
+	 * Trim the target outside and inside.
+	 * 
+	 * @param target
+	 *        The string to trim.
+	 * @return The trimmed string.
+	 */
+	protected String fullTrim(String target)
+	{
+		String working = target;
+		if (working != null)
+		{
+			working = working.trim();
+
+			// trim interior white space from the answer
+			String[] tokens = StringUtil.split(working, " ");
+			StringBuilder buf = new StringBuilder();
+			buf.append(tokens[0]);
+			for (int i = 1; i < tokens.length; i++)
+			{
+				if ((tokens[i] != null) && (tokens[i].length() > 0))
+				{
+					buf.append(" ");
+					buf.append(tokens[i]);
+				}
+			}
+			working = buf.toString();
+		}
+
+		return working;
+	}
+
+	/**
 	 * Check the text for a valid fill-in question.
 	 * 
 	 * @param text
@@ -833,7 +865,7 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	{
 		// start with the question text
 		String alltext = getText();
-		
+
 		// remove any html comments so we don't accidently consider brackets in there
 		alltext = unHtmlComment(alltext);
 
@@ -846,15 +878,34 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 			alltext = alltext.substring(alltextRightIndex + 1);
 
 			// clean up any html in the answer
+			// save the newlines which convertFormattedTextToPlaintext just strips out
+			tmp = tmp.replace("\n", " ");
 			tmp = FormattedText.convertFormattedTextToPlaintext(tmp);
 
 			// Note: convertFormattedTextToPlaintext converts %nbsp; to unicode 160
 			tmp = tmp.replace((char) 160, ' ');
+
+			// convert any strange left over whitespace to space
 			tmp = tmp.replace("\n", " ");
 			tmp = tmp.replace("\r", " ");
+			tmp = tmp.replace("\t", " ");
 			tmp = tmp.replace("&nbsp;", " ");
+
+			// trim leading and trailing white space
 			tmp = tmp.trim();
-			if (tmp.length() == 0) tmp = "*";
+
+			// nothing becomes *
+			if (tmp.length() == 0)
+			{
+				tmp = "*";
+			}
+
+			// trim interior white space as well
+			else
+			{
+				tmp = fullTrim(tmp);
+			}
+
 			correctAnswers.add(tmp);
 
 			// there are no more "}", exit loop
