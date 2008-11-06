@@ -68,7 +68,7 @@
 				<!-- instructions overlay -->
 				<overlay id="instructions">
 					<container>
-						<htmlEdit title="part-instructions" size="SMALL">
+						<htmlEdit title="part-instructions" size="FULL">
 							<model type="html" ref="part.presentation.text" />
 						</htmlEdit>
 						<gap />
