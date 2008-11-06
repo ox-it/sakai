@@ -937,7 +937,7 @@ function ambrosiaTinyInit(picker, mode)
 				tab_focus: ":prev,:next",
 				content_css: (ambrosiaTinyCss == null) ? "" : ambrosiaTinyCss,
 				width: 300,
-				height: 166
+				height: 174
 			});
 		}
 	}
@@ -1031,7 +1031,7 @@ function ambrosiaTinyInit(picker, mode)
 				tab_focus: ":prev,:next",
 				content_css: (ambrosiaTinyCss == null) ? "" : ambrosiaTinyCss,
 				width: 300,
-				height: 166
+				height: 174
 			});
 		}
 	}

@@ -42,7 +42,7 @@ public class UiOverlay extends UiContainer implements Overlay
 	protected String height = "250px";
 
 	/** Width. */
-	protected String width = "500px";
+	protected String width = "620px";
 
 	/**
 	 * Public no-arg constructor.
