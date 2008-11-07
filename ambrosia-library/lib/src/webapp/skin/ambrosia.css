@@ -211,6 +211,7 @@ Confirm for Navigation
 	background: #F8F8F8;
 	position: absolute;
 	padding: 1em;
+	z-index: 99999;
 }
 
 /*
