@@ -56,6 +56,9 @@ public class GradesServiceGradebook23Impl implements GradesService
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(GradesServiceGradebook23Impl.class);
 
+	/** Our application name in the grade book UI. */
+	protected static final String APPLICATION_NAME = "Tasks, Tests and Surveys";
+
 	/** Dependency: AssessmentService */
 	protected AssessmentService assessmentService = null;
 
@@ -75,7 +78,7 @@ public class GradesServiceGradebook23Impl implements GradesService
 	/** Dependency: ThreadLocalManager */
 	protected ThreadLocalManager threadLocalManager = null;
 
-	/** Dependenct: UserDirectoryService. */
+	/** Dependency: UserDirectoryService. */
 	protected UserDirectoryService userDirectoryService = null;
 
 	/**
@@ -157,7 +160,7 @@ public class GradesServiceGradebook23Impl implements GradesService
 
 				// make an entry for the assessment
 				gradebookService.addExternalAssessment(assessment.getContext(), assessment.getTitle(), url, assessment.getTitle(), assessment
-						.getParts().getTotalPoints(), assessment.getDates().getDueDate(), "Test Center");
+						.getParts().getTotalPoints(), assessment.getDates().getDueDate(), APPLICATION_NAME);
 				return Boolean.TRUE;
 			}
 		}
@@ -192,7 +195,7 @@ public class GradesServiceGradebook23Impl implements GradesService
 		if (!(assessment.getPublished() && assessment.getGrading().getGradebookIntegration() && assessment.getIsValid() && (assessment.getTitle() != null)))
 			return Boolean.FALSE;
 
-		// make sure our assessment is in the gb
+		// make sure our assessment is in the gradebook
 		if (!assessmentReported(assessment)) return Boolean.FALSE;
 
 		M_log.debug("reportAssessmentGrades: " + assessment.getId());
