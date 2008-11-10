@@ -220,7 +220,7 @@ Sakai ~ alertMessage
 */
 .ambrosiaAlert
 {
-	background: #fff url(images/warning.png) .3em center no-repeat;
+	background: #FFFFCC url(images/warning.png) .3em center no-repeat;
 	border: 1px solid #555;
 	display: block;
 	width: 70%;
