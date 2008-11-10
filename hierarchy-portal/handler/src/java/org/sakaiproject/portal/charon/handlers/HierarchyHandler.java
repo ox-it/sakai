@@ -2,6 +2,8 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +43,26 @@ public class HierarchyHandler extends SiteHandler {
 	private SecurityService securityService;
 	private boolean resetTools;
 	
+	/**
+	 * Sort on the title of the site.
+	 */
+	private Comparator<Site> siteTitleSorter = new Comparator<Site>() {
+
+		public int compare(Site site1, Site site2) {
+			String siteTitle1 = site1.getTitle();
+			String siteTitle2 = site2.getTitle();
+			if (siteTitle1 == null) {
+				if (siteTitle2 == null) {
+					return site1.compareTo(site2);
+				} else {
+					return siteTitle2.compareTo(siteTitle1);
+				}
+			} else {
+				return siteTitle1.compareTo(siteTitle2);
+			}
+		}
+	};
+
 	public HierarchyHandler(SiteService siteService, PortalHierarchyService portalHierarchyService, SecurityService securityService) {
 		this.siteService = siteService;
 		this.portalHierarchyService = portalHierarchyService;
@@ -367,6 +389,10 @@ public class HierarchyHandler extends SiteHandler {
 				childSites.add(currentChild.getSite());
 			}
 		}
+
+		// Need to sort the child sites by title, we don't do this in the DB so that changes in site title switch the sorting order straight away.
+		Collections.sort(childSites, siteTitleSorter);
+
 		List<Map> childSiteMaps = portal.getSiteHelper().convertSitesToMaps(req, childSites, getUrlFragment(), currentSiteId, myWorkspaceId, false, false, resetTools, false, null, loggedIn);
 		rcontext.put("children", childSiteMaps);
 
