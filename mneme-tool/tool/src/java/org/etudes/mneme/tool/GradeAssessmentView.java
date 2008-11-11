@@ -430,12 +430,12 @@ public class GradeAssessmentView extends ControllerImpl
 		}
 		else
 		{
-			// default sort: user name ascending for non anon, status for anon
+			// default sort: user name ascending for non anon, sdate asc for anon
 			if (assessment.getAnonymous())
 			{
-				sort = SubmissionService.FindAssessmentSubmissionsSort.status_d;
-				context.put("sort_column", '1');
-				context.put("sort_direction", 'D');
+				sort = SubmissionService.FindAssessmentSubmissionsSort.sdate_a;
+				context.put("sort_column", '5');
+				context.put("sort_direction", 'A');
 			}
 			else
 			{
