@@ -287,7 +287,7 @@
 										<decision model="assessment.hasPoints" />
 									</included>
 								</text>
-								<htmlEdit>
+								<htmlEdit size="TALL">
 									<model type="html" ref="answer.evaluation.comment" />
 									<title>
 										<message selector="submission-evaluation">

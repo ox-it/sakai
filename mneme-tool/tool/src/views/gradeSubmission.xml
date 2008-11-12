@@ -237,7 +237,7 @@
 										<decision model="submission.assessment.hasPoints" />
 									</included>
 								</text>
-								<htmlEdit>
+								<htmlEdit size="TALL">
 									<model type="html" ref="answer.evaluation.comment" />
 									<title>
 										<message selector="question-evaluation">
@@ -294,7 +294,7 @@
 				<!-- overall comments -->
 				<section>
 					<container>
-						<htmlEdit>
+						<htmlEdit size="TALL">
 							<model type="html" ref="submission.evaluation.comment" />
 							<title>
 								<message selector="overall-comments">
