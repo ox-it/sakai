@@ -149,32 +149,7 @@ public class TaskQuestionImpl extends EssayQuestionImpl
 		Section typeSection = this.uiService.newSection();
 		typeSection.add(type);
 
-		// model answer
-		Text modelAnswerTitle = this.uiService.newText();
-		modelAnswerTitle.setText("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
-
-		Text modelAnswer = this.uiService.newText();
-		modelAnswer.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer"));
-
-		// overlay for the model answer
-		Overlay modelAnswerOverlay = this.uiService.newOverlay();
-		modelAnswerOverlay.setId("modelanswer");
-		modelAnswerOverlay.add(modelAnswerTitle).add(modelAnswer).add(this.uiService.newGap());
-		modelAnswerOverlay.add(this.uiService.newToggle().setTarget("modelanswer").setTitle("close").setIcon("/icons/close.png",
-				Navigation.IconStyle.left));
-
-		// control to show the model answer
-		Toggle showModelAnswer = this.uiService.newToggle();
-		showModelAnswer.setTarget("modelanswer");
-		showModelAnswer.setTitle("view-model-answer");
-		showModelAnswer.setIcon("/icons/model_answer.png", Navigation.IconStyle.left);
-
-		Section showModelAnswerSection = this.uiService.newSection();
-		showModelAnswerSection.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer")));
-		showModelAnswerSection.add(modelAnswerOverlay).add(showModelAnswer);
-
-		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(typeSection).add(showModelAnswerSection);
+		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(typeSection);
 	}
 
 	/**
