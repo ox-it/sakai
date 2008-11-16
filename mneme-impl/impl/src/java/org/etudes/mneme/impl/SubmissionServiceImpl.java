@@ -342,7 +342,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		if (M_log.isDebugEnabled())
 			M_log.debug("countAssessmentSubmissions: assessment: " + assessment.getId() + " official: " + official + " allUid: " + allUid);
 
-		// get the submissions to the assignment made by all possible submitters
+		// get the submissions to the assessment made by all possible submitters
 		List<SubmissionImpl> all = getAssessmentSubmissions(assessment, FindAssessmentSubmissionsSort.status_a, null);
 
 		// see if any needs to be completed based on time limit or dates
@@ -874,7 +874,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			M_log.debug("findAssessmentSubmissions: assessment: " + assessment.getId() + " sort: " + sort + " official: " + official + " allUid: "
 					+ allUid);
 
-		// get the submissions to the assignment made by all possible submitters
+		// get the submissions to the assessment made by all possible submitters
 		List<SubmissionImpl> all = getAssessmentSubmissions(assessment, sort, null);
 
 		// see if any needs to be completed based on time limit or dates
@@ -966,7 +966,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		if (M_log.isDebugEnabled())
 			M_log.debug("findNextPrevSubmissionIds: submission: " + submission.getId() + " sort: " + sort + " official: " + official);
 
-		// get the submissions to the assignment made by all possible submitters
+		// get the submissions to the assessment made by all possible submitters
 		// TODO: we don't really need them all... no phantoms!
 		List<SubmissionImpl> all = getAssessmentSubmissions(submission.getAssessment(), sort, null);
 
@@ -2213,7 +2213,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	}
 
 	/**
-	 * Get the submissions to the assignment made by all users.
+	 * Get the submissions to the assessment made by all users.
 	 * 
 	 * @param assessment
 	 *        The assessment.
@@ -2270,6 +2270,28 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			}
 		}
 
+		// for submission date sorts, separate out the completed, not-started, in-progress
+		List<SubmissionImpl> inProgress = new ArrayList<SubmissionImpl>();
+		List<SubmissionImpl> notStarted = new ArrayList<SubmissionImpl>();
+		if ((sort == FindAssessmentSubmissionsSort.sdate_a) || (sort == FindAssessmentSubmissionsSort.sdate_d))
+		{
+			for (Iterator i = rv.iterator(); i.hasNext();)
+			{
+				SubmissionImpl submission = (SubmissionImpl) i.next();
+
+				if (!submission.getIsStarted().booleanValue())
+				{
+					notStarted.add(submission);
+					i.remove();
+				}
+				else if (!submission.getIsComplete().booleanValue())
+				{
+					inProgress.add(submission);
+					i.remove();
+				}
+			}
+		}
+
 		// sort - secondary sort of user name, or if primary is title, on submit date
 		Collections.sort(rv, new Comparator()
 		{
@@ -2305,6 +2327,10 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 						}
 
 						rv = id0.compareToIgnoreCase(id1);
+
+						// Note: leave status sort ascending
+						if (sort == FindAssessmentSubmissionsSort.userName_d) rv = -1 * rv;
+
 						secondary = FindAssessmentSubmissionsSort.sdate_a;
 						break;
 					}
@@ -2343,6 +2369,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 						{
 							rv = final0.compareTo(final1);
 						}
+
+						if (sort == FindAssessmentSubmissionsSort.final_d) rv = -1 * rv;
+
 						secondary = FindAssessmentSubmissionsSort.userName_a;
 						break;
 					}
@@ -2368,7 +2397,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 							rv = date0.compareTo(date1);
 						}
 
-						secondary = null;
+						if (sort == FindAssessmentSubmissionsSort.sdate_d) rv = -1 * rv;
+
+						secondary = FindAssessmentSubmissionsSort.userName_a;
 						break;
 					}
 					case evaluated_a:
@@ -2377,6 +2408,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 						Boolean evaluated0 = ((Submission) arg0).getEvaluation().getEvaluated();
 						Boolean evaluated1 = ((Submission) arg1).getEvaluation().getEvaluated();
 						rv = evaluated0.compareTo(evaluated1);
+
+						if (sort == FindAssessmentSubmissionsSort.evaluated_d) rv = -1 * rv;
 
 						secondary = FindAssessmentSubmissionsSort.userName_a;
 						break;
@@ -2387,6 +2420,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 						Boolean released0 = ((Submission) arg0).getIsReleased();
 						Boolean released1 = ((Submission) arg1).getIsReleased();
 						rv = released0.compareTo(released1);
+
+						if (sort == FindAssessmentSubmissionsSort.released_d) rv = -1 * rv;
 
 						secondary = FindAssessmentSubmissionsSort.userName_a;
 						break;
@@ -2400,7 +2435,6 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 					switch (secondary)
 					{
 						case userName_a:
-						case userName_d:
 						{
 							String id0 = ((Submission) arg0).getUserId();
 							try
@@ -2428,7 +2462,6 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 						}
 
 						case sdate_a:
-						case sdate_d:
 						{
 							Date date0 = ((Submission) arg0).getSubmittedDate();
 							Date date1 = ((Submission) arg1).getSubmittedDate();
@@ -2459,7 +2492,6 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 					switch (third)
 					{
 						case sdate_a:
-						case sdate_d:
 						{
 							Date date0 = ((Submission) arg0).getSubmittedDate();
 							Date date1 = ((Submission) arg1).getSubmittedDate();
@@ -2488,17 +2520,77 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			}
 		});
 
-		// reverse for descending (except for status)
-		switch (sort)
+		// if we have in-progress and not-started to deal with
+		if (!inProgress.isEmpty())
 		{
-			case final_d:
-			case userName_d:
-			case sdate_d:
-			case released_d:
-			case evaluated_d:
+			// sort them by user name asc
+			Collections.sort(inProgress, new Comparator()
 			{
-				Collections.reverse(rv);
-			}
+				public int compare(Object arg0, Object arg1)
+				{
+					int rv = 0;
+					String id0 = ((Submission) arg0).getUserId();
+					try
+					{
+						User u = userDirectoryService.getUser(id0);
+						id0 = u.getSortName();
+					}
+					catch (UserNotDefinedException e)
+					{
+					}
+
+					String id1 = ((Submission) arg1).getUserId();
+					try
+					{
+						User u = userDirectoryService.getUser(id1);
+						id1 = u.getSortName();
+					}
+					catch (UserNotDefinedException e)
+					{
+					}
+
+					rv = id0.compareToIgnoreCase(id1);
+					return rv;
+				}
+			});
+
+			rv.addAll(inProgress);
+		}
+
+		if (!notStarted.isEmpty())
+		{
+			// sort them by user name asc
+			Collections.sort(notStarted, new Comparator()
+			{
+				public int compare(Object arg0, Object arg1)
+				{
+					int rv = 0;
+					String id0 = ((Submission) arg0).getUserId();
+					try
+					{
+						User u = userDirectoryService.getUser(id0);
+						id0 = u.getSortName();
+					}
+					catch (UserNotDefinedException e)
+					{
+					}
+
+					String id1 = ((Submission) arg1).getUserId();
+					try
+					{
+						User u = userDirectoryService.getUser(id1);
+						id1 = u.getSortName();
+					}
+					catch (UserNotDefinedException e)
+					{
+					}
+
+					rv = id0.compareToIgnoreCase(id1);
+					return rv;
+				}
+			});
+
+			rv.addAll(notStarted);
 		}
 
 		return rv;

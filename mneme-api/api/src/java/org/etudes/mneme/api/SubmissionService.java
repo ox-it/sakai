@@ -116,7 +116,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	void completeSubmission(Submission submission) throws AssessmentPermissionException, AssessmentClosedException, SubmissionCompletedException;
 
 	/**
-	 * Count the submissions to the assignment made by all users.<br /> If a user has not yet submitted, a phantom one for that user is included. <br
+	 * Count the submissions to the assessment made by all users.<br /> If a user has not yet submitted, a phantom one for that user is included. <br
 	 * /> Optionally group multiple submissions from a single user and select the in-progress or "best" one. <br /> Optionally when grouping leave one
 	 * user's submissions all there un-clumped.
 	 * 
@@ -131,7 +131,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	Integer countAssessmentSubmissions(Assessment assessment, Boolean official, String allUid);
 
 	/**
-	 * Count the submission answers to the assignment and question made by all users, answered, in completed submissions.
+	 * Count the submission answers to the assessment and question made by all users, answered, in completed submissions.
 	 * 
 	 * @param assessment
 	 *        The assessment.
@@ -191,7 +191,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	void evaluateSubmissions(Assessment assessment, String comment, Float score) throws AssessmentPermissionException;
 
 	/**
-	 * Find the submissions to the assignment made by all users.<br /> If a user has not yet submitted, a phantom one for that user is included. <br
+	 * Find the submissions to the assessment made by all users.<br /> If a user has not yet submitted, a phantom one for that user is included. <br
 	 * /> Optionally group multiple submissions from a single user and select the in-progress or "best" one. <br /> Optionally when grouping leave one
 	 * user's submissions all there un-clumped.
 	 * 
@@ -235,7 +235,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	String[] findPrevNextSubmissionIds(Submission submission, FindAssessmentSubmissionsSort sort, Boolean official);
 
 	/**
-	 * Find the submission answers to the assignment and question made by all users, answered, in completed submissions.
+	 * Find the submission answers to the assessment and question made by all users, answered, in completed submissions.
 	 * 
 	 * @param assessment
 	 *        The assessment.
@@ -290,7 +290,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	List<Float> getAssessmentScores(Assessment assessment);
 
 	/**
-	 * Get either the in-progress submission, or a new one, to the assignment made by this user.<br /> The sibling count is set.
+	 * Get either the in-progress submission, or a new one, to the assessment made by this user.<br /> The sibling count is set.
 	 * 
 	 * @param assessment
 	 *        The assessment to use.
@@ -331,7 +331,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	Float getSubmissionOfficialScore(Assessment assessment, String userId);
 
 	/**
-	 * Get the submissions to assignments in this context made by this user. Consider:
+	 * Get the submissions to assessments in this context made by this user. Consider:
 	 * <ul>
 	 * <li>published and valid assessments</li>
 	 * <li>assessments in this context</li>
