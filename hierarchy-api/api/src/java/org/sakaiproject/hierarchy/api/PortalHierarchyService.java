@@ -8,7 +8,7 @@ public interface PortalHierarchyService {
 	
 	String getCurrentPortalPath();
 
-	void setCurrentPortalPath(String portalPath);
+	void setCurrentPortalNode(PortalNode node);
 
 	PortalNode getCurrentPortalNode();
 	

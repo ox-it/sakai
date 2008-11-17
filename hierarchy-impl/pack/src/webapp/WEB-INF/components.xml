@@ -98,9 +98,6 @@
 		<property name="threadLocalManager">
 			<ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
 		</property>
-		<property name="sessionManager">
-			<ref bean="org.sakaiproject.tool.api.SessionManager" />
-		</property>
 		<property name="dao">
 			<ref bean="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistenNodeDao"/>
 		</property>

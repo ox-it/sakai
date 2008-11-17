@@ -39,7 +39,7 @@ public class AdoptedToolConfiguration implements ToolConfiguration {
 	}
 
 	public String getSiteId() {
-		return sitePage.newParent.getId();
+		return sitePage.node.getSite().getId();
 	}
 
 	public String getSkin() {
@@ -71,7 +71,7 @@ public class AdoptedToolConfiguration implements ToolConfiguration {
 	}
 
 	public String getId() {
-		return original.getId()+ ":"+ sitePage.newParent.getId();
+		return original.getId()+ ":"+ sitePage.node.getId();
 	}
 
 	public Properties getPlacementConfig() {

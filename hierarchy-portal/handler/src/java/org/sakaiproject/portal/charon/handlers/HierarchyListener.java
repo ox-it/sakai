@@ -34,7 +34,7 @@ public class HierarchyListener implements ServletContextListener {
 		hierarchyHandler = new HierarchyHandler(siteService, portalHierarchyService, securityService);
 		hierarchyResetHandler = new HierarchyResetHandler();
 		magicHandler = new MagicHandler();
-		hierarchyToolHandler = new HierarchyToolHandler();
+		hierarchyToolHandler = new HierarchyToolHandler(portalHierarchyService);
 		hierarchyToolResetHandler = new HierarchyToolResetHandler();
 		ps.addHandler("charon", hierarchyHandler);
 		ps.addHandler("charon", hierarchyResetHandler);

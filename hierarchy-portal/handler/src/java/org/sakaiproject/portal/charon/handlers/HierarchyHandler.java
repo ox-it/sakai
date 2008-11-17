@@ -159,7 +159,7 @@ public class HierarchyHandler extends SiteHandler {
 			}
 			else
 			{
-				phs.setCurrentPortalPath(node.getPath());
+				phs.setCurrentPortalNode(node);
 				site = node.getSite();
 			}
 			
@@ -267,7 +267,7 @@ public class HierarchyHandler extends SiteHandler {
 			if (page != null) 
 			{
 				// Fix up the skin.
-				page = new AdoptedSitePage(site, page);
+				page = new AdoptedSitePage(node, page);
 			}
 
 		}
@@ -285,10 +285,6 @@ public class HierarchyHandler extends SiteHandler {
 			portal.doError(req, res, session, Portal.ERROR_SITE);
 			return;
 		}
-
-
-		ThreadLocalManager.set("sakai:portal:node", node);
-
 
 		// form a context sensitive title
 		String title = ServerConfigurationService.getString("ui.service") + " : "

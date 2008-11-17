@@ -30,13 +30,12 @@ import org.sakaiproject.tool.api.SessionManager;
 public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 	private static Log log = LogFactory.getLog(PortalHierarchyServiceImpl.class);
-	private static final String CURRENT_PATH = PortalHierarchyServiceImpl.class.getName()+ "#current"; 
+	private static final String CURRENT_NODE = PortalHierarchyServiceImpl.class.getName()+ "#current"; 
 	
 	private PortalPersistentNodeDao dao;
 	private HierarchyService hierarchyService;
 	private SiteService siteService;
 	private ThreadLocalManager threadLocalManager;
-	private SessionManager sessionManager;
 	private SecurityService securityService;
 	private FunctionManager functionManager;
 	
@@ -59,17 +58,13 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		dao.delete(node.id);
 	}
 
-	public PortalNode getCurrentPortalNode() {
-		String path = getCurrentPortalPath();
-		PortalNode node = null;
-		if(path != null) {
-			node = getNode(path);
-		}
-		return node;
+	public String getCurrentPortalPath() {
+		PortalNode node = getCurrentPortalNode();
+		return (node==null)?null:node.getPath();
 	}
 
-	public String getCurrentPortalPath() {
-		return (String)sessionManager.getCurrentSession().getAttribute(CURRENT_PATH);
+	public PortalNode getCurrentPortalNode() {
+		return (PortalNode)threadLocalManager.get(CURRENT_NODE);
 	}
 
 	public PortalNode getNode(String portalPath) {
@@ -247,8 +242,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		
 	}
 
-	public void setCurrentPortalPath(String portalPath) {
-		sessionManager.getCurrentSession().setAttribute(CURRENT_PATH, portalPath);
+	public void setCurrentPortalNode(PortalNode node) {
+		threadLocalManager.set(CURRENT_NODE, node);
 	}
 	
 
@@ -351,14 +346,6 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 	public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
 		this.threadLocalManager = threadLocalManager;
-	}
-
-	public SessionManager getSessionManager() {
-		return sessionManager;
-	}
-
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
 	}
 
 	public String getMissingSiteId()

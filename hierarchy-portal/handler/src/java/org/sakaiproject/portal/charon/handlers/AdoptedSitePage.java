@@ -9,6 +9,7 @@ import java.util.Stack;
 
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -19,10 +20,10 @@ import org.w3c.dom.Element;
 public class AdoptedSitePage implements SitePage {
 	
 	private SitePage original;
-	Site newParent;
+	PortalNode node;
 
-	public AdoptedSitePage(Site newParent, SitePage original) {
-		this.newParent = newParent;
+	public AdoptedSitePage(PortalNode node, SitePage original) {
+		this.node = node;
 		this.original = original;
 	}
 
@@ -60,7 +61,7 @@ public class AdoptedSitePage implements SitePage {
 	}
 
 	public String getSkin() {
-		return newParent.getSkin();
+		return node.getSite().getSkin();
 	}
 
 	public String getTitle() {

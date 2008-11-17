@@ -59,7 +59,7 @@ public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodServi
 	public String findSiteAlias(String siteReferenced, String content)
 	{
 		// Get the threadlocal, if found use that, otherwise use proxy
-		PortalNode node = (PortalNode) ThreadLocalManager.get("sakai:portal:node");
+		PortalNode node = portalHierarchyService.getCurrentPortalNode();
 		if (node != null)
 		{
 			// Need to check current site, then children, then parents.

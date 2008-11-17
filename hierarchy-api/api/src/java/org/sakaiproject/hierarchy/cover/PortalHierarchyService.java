@@ -85,10 +85,10 @@ public class PortalHierarchyService {
 		if (m_instance == null) return;
 		m_instance.renameNode(id, newPath);
 	}
-	public static void setCurrentPortalPath(String portalPath) {
+	public static void setCurrentPortalNode(PortalNode node) {
 		getInstance();
 		if (m_instance == null) return;
-		m_instance.setCurrentPortalPath(portalPath);
+		m_instance.setCurrentPortalNode(node);
 	}
 
 }

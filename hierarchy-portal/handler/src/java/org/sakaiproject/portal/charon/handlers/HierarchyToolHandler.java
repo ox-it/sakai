@@ -9,6 +9,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.hierarchy.api.PortalHierarchyService;
+import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -31,7 +33,10 @@ public class HierarchyToolHandler extends ToolHandler {
 
 	private static Log log = LogFactory.getLog(HierarchyToolHandler.class);
 	
-	public HierarchyToolHandler() {
+	private PortalHierarchyService portalHierarchyService;
+	
+	public HierarchyToolHandler(PortalHierarchyService portalHierarchyService) {
+		this.portalHierarchyService = portalHierarchyService;
 		setUrlFragment("hierarchytool");
 	}
 	
@@ -54,14 +59,14 @@ public class HierarchyToolHandler extends ToolHandler {
 			if (parts.length == 2 )
 			{
 				siteTool = SiteService.findTool(parts[0]);
-				String siteId = parts[1];
-				Site site;
-				try {
-					site = SiteService.getSite(siteId);
-					skin = site.getSkin();
-					siteTool = new AdoptedToolConfiguration(new AdoptedSitePage(site, siteTool.getContainingPage()), siteTool);
-				} catch (IdUnusedException e) {
-					log.debug("Site not found: +"+ siteId);
+				PortalNode node = portalHierarchyService.getNodeById(parts[1]);
+				if (node != null)
+				{
+					portalHierarchyService.setCurrentPortalNode(node);
+					skin = node.getSite().getSkin();
+					siteTool = new AdoptedToolConfiguration(new AdoptedSitePage(node, siteTool.getContainingPage()), siteTool);
+				} else {
+					log.info("Node not found: "+ parts[1]);
 				}
 			}
 			else
