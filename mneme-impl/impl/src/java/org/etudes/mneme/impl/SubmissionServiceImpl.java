@@ -2270,10 +2270,11 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			}
 		}
 
-		// for submission date sorts, separate out the completed, not-started, in-progress
+		// for all but user name & status sorts, separate out the completed, not-started, in-progress
 		List<SubmissionImpl> inProgress = new ArrayList<SubmissionImpl>();
 		List<SubmissionImpl> notStarted = new ArrayList<SubmissionImpl>();
-		if ((sort == FindAssessmentSubmissionsSort.sdate_a) || (sort == FindAssessmentSubmissionsSort.sdate_d))
+		if ((sort != FindAssessmentSubmissionsSort.userName_a) && (sort != FindAssessmentSubmissionsSort.userName_d)
+				&& (sort != FindAssessmentSubmissionsSort.status_a) && (sort != FindAssessmentSubmissionsSort.status_d))
 		{
 			for (Iterator i = rv.iterator(); i.hasNext();)
 			{
