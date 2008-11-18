@@ -27,7 +27,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.UserDirectoryService;
 
 public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
@@ -51,8 +50,16 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	public void changeSite(String id, String newSiteId) throws PermissionException {
 		unlockNodeSite(id);
 		PortalPersistentNode node = dao.findById(id);
-		node.setSiteId(newSiteId);
-		dao.save(node);
+		try {
+			Site site = siteService.getSite(newSiteId);
+			if (!securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
+				throw new PermissionException(sessionManager.getCurrentSession().getUserEid(), SiteService.SECURE_UPDATE_SITE, site.getReference());
+			}
+			node.setSiteId(newSiteId);
+			dao.save(node);
+		} catch (IdUnusedException e) {
+			throw new IllegalArgumentException("Couldn't find site: "+ newSiteId);
+		}
 	}
 
 	public void deleteNode(String id) throws PermissionException{
