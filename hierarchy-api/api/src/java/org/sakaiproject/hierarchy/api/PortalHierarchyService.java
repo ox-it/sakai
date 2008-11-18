@@ -6,7 +6,11 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 
 public interface PortalHierarchyService {
-	
+
+	String EVENT_NEW = "portal_hierarchy.new";
+	String EVENT_DELETE = "portal_hierarchy.delete";
+	String EVENT_MODIFY = "portal_hierarchy.modify";
+
 	String getCurrentPortalPath();
 
 	void setCurrentPortalNode(PortalNode node);

@@ -15,6 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.HierarchyService;
@@ -38,19 +39,9 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	private SiteService siteService;
 	private ThreadLocalManager threadLocalManager;
 	private SecurityService securityService;
-	public SecurityService getSecurityService() {
-		return securityService;
-	}
-
-	public void setSecurityService(SecurityService securityService) {
-		this.securityService = securityService;
-	}
-
-
 	private FunctionManager functionManager;
 	private SessionManager sessionManager;
-
-
+	private EventTrackingService eventTrackingService;
 
 	private String hierarchyId;
 	
@@ -69,6 +60,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		} catch (IdUnusedException e) {
 			throw new IllegalArgumentException("Couldn't find site: "+ newSiteId);
 		}
+		eventTrackingService.post(eventTrackingService.newEvent(EVENT_MODIFY, id, true));
 	}
 
 	public void deleteNode(String id) throws PermissionException{
@@ -79,6 +71,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		}
 		hierarchyService.removeNode(node.id);
 		dao.delete(node.id);
+		eventTrackingService.post(eventTrackingService.newEvent(EVENT_DELETE, id, true));
 	}
 
 	public String getCurrentPortalPath() {
@@ -234,7 +227,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		portalNode.setPath(childPath);
 		portalNode.setPathHash(hash(childPath));
 		dao.save(portalNode);
-		
+		eventTrackingService.post(eventTrackingService.newEvent(EVENT_NEW, node.id, true));
 		return populatePortalNode(portalNode);
 		
 	}
@@ -339,12 +332,28 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		this.siteService = siteService;
 	}
 
+	public SecurityService getSecurityService() {
+		return securityService;
+	}
+
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
 	public SessionManager getSessionManager() {
 		return sessionManager;
 	}
 
 	public void setSessionManager(SessionManager sessionManager) {
 		this.sessionManager = sessionManager;
+	}
+
+	public void setEventTrackingService(EventTrackingService eventTrackingService) {
+		this.eventTrackingService = eventTrackingService;
+	}
+
+	public EventTrackingService getEventTrackingService() {
+		return eventTrackingService;
 	}
 
 	public String getHierarchyId() {
@@ -436,6 +445,5 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	public boolean canRenameNode(String id) {
 		return unlockCheckNodeSite(id);
 	}
-
 
 }

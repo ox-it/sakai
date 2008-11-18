@@ -106,6 +106,8 @@
 		</property>
 		<property name="securityService">
 			<ref bean="org.sakaiproject.authz.api.SecurityService" />
+		<property name="eventTrackingService">
+			<ref bean="org.sakaiproject.event.api.EventTrackingService" />
 		</property>
 		<property name="dao">
 			<ref bean="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistenNodeDao"/>
