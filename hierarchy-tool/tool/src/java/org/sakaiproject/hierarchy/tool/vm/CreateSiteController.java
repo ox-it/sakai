@@ -73,7 +73,7 @@ public class CreateSiteController extends AbstractCommandController {
 		//Pretty serious as is means something went wrong in the flow
 		if (errors.hasErrors()) {
 			log.warn("Didn't have enough information to finish site creation: "+ command);
-			return handleFailure(command, errors);
+			return handleFailure(request, command, errors);
 		}
 
 		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
@@ -83,8 +83,8 @@ public class CreateSiteController extends AbstractCommandController {
 			PortalNode newNode = hs.newNode(node.getId(), command.getName(), command.getSiteId(), node.getManagementSite().getId());
 			sitePath = newNode.getPath();
 		} catch (Exception e) {
-			errors.reject("error.add.hierarchy");
-			return handleFailure(command,errors);
+			errors.reject("error.add.hierarchy",new Object[]{e.getMessage()}, "Failed to create node in hierarchy: {0}");
+			return handleFailure(request, command,errors);
 		}
 		// This is a hack as something in the tool session breaks the tool the second time you create a site
 		SessionManager.getCurrentToolSession().clearAttributes();
@@ -101,7 +101,7 @@ public class CreateSiteController extends AbstractCommandController {
 	 * @param errors
 	 * @return
 	 */
-	protected ModelAndView handleFailure(CreateSiteCommand command, BindException errors) {
+	protected ModelAndView handleFailure(HttpServletRequest request, CreateSiteCommand command, BindException errors) {
 		String siteId = command.getSiteId();
 		if (siteId != null && siteId.length() != 0) {
 			SiteService siteService = org.sakaiproject.site.cover.SiteService.getInstance();
@@ -117,7 +117,9 @@ public class CreateSiteController extends AbstractCommandController {
 		} else {
 			log.warn("Not cleaning up site as we don't know the site ID.");
 		}
-		return new ModelAndView(failureView, errors.getModel());
+		Map model = VelocityControllerUtils.referenceData(request, command, errors);
+		model.putAll(errors.getModel());
+		return new ModelAndView(failureView, model);
 	}
 
 	public void setCanceledView(String canceledView) {

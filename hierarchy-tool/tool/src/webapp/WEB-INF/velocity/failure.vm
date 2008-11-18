@@ -2,7 +2,9 @@
 #chef_portletContainer()
 #chef_portletContent()
 
+<h3>Something went a little wrong</h3>
 ## Should pull global error.
+#springBind("command")
 #springShowErrors("" "")
 
 #chef_portletContentEnd()
