@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.HierarchyService;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
@@ -26,6 +27,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
@@ -38,18 +40,23 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	private ThreadLocalManager threadLocalManager;
 	private SecurityService securityService;
 	private FunctionManager functionManager;
-	
+	private SessionManager sessionManager;
+
+
+
 	private String hierarchyId;
 	
 	private String missingSiteId;
 	
-	public void changeSite(String id, String newSiteId) {
+	public void changeSite(String id, String newSiteId) throws PermissionException {
+		unlockNodeSite(id);
 		PortalPersistentNode node = dao.findById(id);
 		node.setSiteId(newSiteId);
 		dao.save(node);
 	}
 
-	public void deleteNode(String id) {
+	public void deleteNode(String id) throws PermissionException{
+		unlockNodeSite(id);
 		HierarchyNode node = hierarchyService.getNodeById(id);
 		if (!node.childNodeIds.isEmpty()) {
 			throw new IllegalStateException("Can't delete a node with children.");
@@ -180,18 +187,26 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		throw new UnsupportedOperationException("Wops, needs implementing.");
 	}
 
-	public PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId) {
+	public PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId) throws PermissionException {
+		unlockNodeSite(parentId);
 		if (!siteService.siteExists(siteId))
 			throw new IllegalArgumentException("Site does not exist: "+ siteId);
 		
 		PortalNode parent = getNodeById(parentId);
 		if (parent == null)
 			throw new IllegalArgumentException("Parent site could not be found: "+ parentId);
+		
 		String childPath = (parent.getPath().equals("/"))?"/" + childName: parent.getPath() + "/" + childName;
 		List<PortalNode> children =  getNodeChildren(parentId);
 		for (PortalNode child: children) {
 			if (child.getName().equals(childName))
 				throw new IllegalArgumentException("Child site of this name already exists: "+ childName);
+		}
+		
+		List<PortalNode> parents = getNodesFromRoot(parentId);
+		for (PortalNode parentNode: parents) {
+			if (siteId.equals(parentNode.getSite().getId()))
+				throw new IllegalArgumentException("Site already used in parent.");
 		}
 		
 		HierarchyNode node = hierarchyService.addNode(hierarchyId, parentId);
@@ -308,6 +323,14 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		this.siteService = siteService;
 	}
 
+	public SessionManager getSessionManager() {
+		return sessionManager;
+	}
+
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
 	public String getHierarchyId() {
 		return hierarchyId;
 	}
@@ -356,29 +379,47 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		this.missingSiteId = missingSiteId;
 	}
 
-	public boolean canChangeSite(String id) {
-		// TODO Auto-generated method stub
+	private void unlockNodeSite(String id) throws PermissionException {
+		PortalNode node = getNodeById(id);
+		if (node != null) {
+			Site site = node.getSite();
+			if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
+				return;
+			} else {
+				throw new PermissionException(sessionManager.getCurrentSession().getUserEid(), SiteService.SECURE_UPDATE_SITE, site.getReference());
+			}
+		}
+		throw new PermissionException(sessionManager.getCurrentSession().getUserEid(), SiteService.SECURE_UPDATE_SITE, null);
+	}
+	
+	private boolean unlockCheckNodeSite(String id) {
+		PortalNode node = getNodeById(id);
+		if (node != null) {
+			Site site = node.getSite();
+			return securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference());
+		}
 		return false;
+	}
+
+	public boolean canChangeSite(String id) {
+		return unlockCheckNodeSite(id);
 	}
 
 	public boolean canDeleteNode(String id) {
-		// TODO Auto-generated method stub
-		return false;
+		return unlockCheckNodeSite(id);
 	}
 
 	public boolean canMoveNode(String id) {
-		// TODO Auto-generated method stub
-		return false;
+		return unlockCheckNodeSite(id);
 	}
 
 	public boolean canNewNode(String parentId) {
-		// TODO Auto-generated method stub
-		return false;
+		return unlockCheckNodeSite(parentId);
 	}
 
 	public boolean canRenameNode(String id) {
-		// TODO Auto-generated method stub
-		return false;
+		return unlockCheckNodeSite(id);
 	}
+
 
 }

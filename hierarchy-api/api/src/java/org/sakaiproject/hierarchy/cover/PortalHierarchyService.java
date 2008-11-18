@@ -3,6 +3,7 @@ package org.sakaiproject.hierarchy.cover;
 import java.util.List;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 
 public class PortalHierarchyService {
@@ -23,12 +24,12 @@ public class PortalHierarchyService {
 					.get(org.sakaiproject.hierarchy.api.PortalHierarchyService.class);
 		}
 	}
-	public static void changeSite(String id, String newSiteId) {
+	public static void changeSite(String id, String newSiteId) throws PermissionException {
 		getInstance();
 		if (m_instance == null) return;
 		m_instance.changeSite(id, newSiteId);
 	}
-	public static void deleteNode(String id) {
+	public static void deleteNode(String id) throws PermissionException {
 		getInstance();
 		if (m_instance == null) return;
 		m_instance.deleteNode(id);
@@ -68,19 +69,19 @@ public class PortalHierarchyService {
 		if (m_instance == null) return null;
 		return m_instance.getNodesWithSite(siteId);
 	}
-	public static void moveNode(String id, String newParent) {
+	public static void moveNode(String id, String newParent) throws PermissionException {
 		getInstance();
 		if (m_instance == null) return;
 		m_instance.moveNode(id, newParent);
 	}
 	public static PortalNode newNode(String parentId, String childName, String siteId,
-			String managementSiteId) {
+			String managementSiteId) throws PermissionException {
 		getInstance();
 		if (m_instance == null) return null;
 		return m_instance
 				.newNode(parentId, childName, siteId, managementSiteId);
 	}
-	public static void renameNode(String id, String newPath) {
+	public static void renameNode(String id, String newPath) throws PermissionException {
 		getInstance();
 		if (m_instance == null) return;
 		m_instance.renameNode(id, newPath);

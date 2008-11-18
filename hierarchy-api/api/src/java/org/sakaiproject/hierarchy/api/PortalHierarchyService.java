@@ -2,6 +2,7 @@ package org.sakaiproject.hierarchy.api;
 
 import java.util.List;
 
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 
 public interface PortalHierarchyService {
@@ -42,15 +43,15 @@ public interface PortalHierarchyService {
 	 * 
 	 * @param nodePath
 	 */
-	void deleteNode(String id);
+	void deleteNode(String id) throws PermissionException;
 
-	PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId);
+	PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId) throws PermissionException;
 	
-	void renameNode(String id, String newPath);
+	void renameNode(String id, String newPath) throws PermissionException;
 
-	void moveNode(String id, String newParent);
+	void moveNode(String id, String newParent) throws PermissionException;
 	
-	void changeSite(String id, String newSiteId);
+	void changeSite(String id, String newSiteId) throws PermissionException;
 	
 	boolean canDeleteNode(String id);
 	

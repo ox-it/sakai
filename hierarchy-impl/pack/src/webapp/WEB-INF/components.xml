@@ -92,6 +92,9 @@
 		<property name="hierarchyService">
 			<ref bean="org.sakaiproject.hierarchy.HierarchyService" />
 		</property>
+		<property name="sessionManager">
+			<ref bean="org.sakaiproject.tool.api.SessionManager"/>
+		</property>
 		<property name="siteService">
 			<ref bean="org.sakaiproject.site.api.SiteService" />		
 		</property>
