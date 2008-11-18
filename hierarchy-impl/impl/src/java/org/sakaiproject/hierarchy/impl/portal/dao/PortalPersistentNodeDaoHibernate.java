@@ -18,7 +18,7 @@ public class PortalPersistentNodeDaoHibernate extends HibernateDaoSupport implem
 						"from org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNode as node where node.pathHash = ?",
 						pathHash));
 	}
-	
+
 	public List<PortalPersistentNode> findBySiteId(String siteId) {
 		return (List<PortalPersistentNode>) getHibernateTemplate()
 				.find(
@@ -46,6 +46,5 @@ public class PortalPersistentNodeDaoHibernate extends HibernateDaoSupport implem
 		PortalPersistentNode node = findById(id);
 		getHibernateTemplate().delete(node);
 	}
-
 
 }
