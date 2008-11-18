@@ -14,9 +14,13 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.HierarchyService;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
@@ -25,9 +29,11 @@ import org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNode;
 import org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNodeDao;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.Tool;
 
 public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
@@ -39,6 +45,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	private SiteService siteService;
 	private ThreadLocalManager threadLocalManager;
 	private SecurityService securityService;
+
+
 	private FunctionManager functionManager;
 	private SessionManager sessionManager;
 	private EventTrackingService eventTrackingService;
@@ -367,6 +375,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 	public void init() {
 		HierarchyNode root = hierarchyService.getRootNode(hierarchyId);
+		
 		// How to stop race in 
 		if (root == null ) {
 			hierarchyService.createHierarchy(hierarchyId);
@@ -385,6 +394,50 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 			dao.save(portalNode);
 		}
 		
+		try {
+			// Don't worry about security checks at startup.
+			securityService.pushAdvisor(new SecurityAdvisor(){
+				public SecurityAdvice isAllowed(String arg0, String arg1, String arg2) { return SecurityAdvice.ALLOWED;};}
+			);
+			siteService.removeSite(siteService.getSite("!hierarchy"));
+			throw new IdUnusedException("on purpose");
+		} catch (IdUnusedException e) {
+			try {
+				Site hierarchySite = siteService.addSite("!hierarchy", "hierarchy");
+				hierarchySite.setTitle("Hierarchy Site");
+				addPage(hierarchySite, "New Site", "sakai.hierarchy-new-site");
+				addPage(hierarchySite, "Bring Site", "sakai.hierarchy-bring-site");
+				addPage(hierarchySite, "Manage Site", "sakai.hierarchy-manager");
+				
+				siteService.save(hierarchySite);
+			} catch (IdUsedException iue) {
+				;
+			} catch (IdInvalidException iie) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (PermissionException pe) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IdUnusedException iuue) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (PermissionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			securityService.popAdvisor();
+		}
+		
+	}
+
+	private void addPage(Site hierarchySite, String title, String toolId) {
+		SitePage page = hierarchySite.addPage();
+		page.setTitle(title);
+		Tool tool = new Tool();
+		tool.setId(toolId);	
+		tool.setTitle(title);
+		page.addTool(tool);
 	}
 
 	public ThreadLocalManager getThreadLocalManager() {
