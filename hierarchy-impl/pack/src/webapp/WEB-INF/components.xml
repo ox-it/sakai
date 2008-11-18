@@ -101,6 +101,9 @@
 		<property name="dao">
 			<ref bean="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistenNodeDao"/>
 		</property>
+		<property name="securityService">
+			<ref bean="org.sakaiproject.authz.api.SecurityService" />
+		</property>
 		<!--  Which hierarchy to use. -->
 		<property name="hierarchyId"><value>hierarchy</value></property>
 		<property name="missingSiteId"><value>!hierarchy.missing</value></property>
