@@ -107,6 +107,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 					portalNode.setSite(missingSite);
 				} catch (IdUnusedException iue2 ) {
 					log.warn("Couldn't find missing site "+ missingSiteId);
+					return null;
 				}
 			}
 			try {
