@@ -38,6 +38,15 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	private SiteService siteService;
 	private ThreadLocalManager threadLocalManager;
 	private SecurityService securityService;
+	public SecurityService getSecurityService() {
+		return securityService;
+	}
+
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
+
 	private FunctionManager functionManager;
 	private SessionManager sessionManager;
 
