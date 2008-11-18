@@ -177,8 +177,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	}
 
 	public void moveNode(String id, String newParent) {
-		// TODO Auto-generated method stub
-		
+		throw new UnsupportedOperationException("Wops, needs implementing.");
 	}
 
 	public PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId) {
@@ -238,8 +237,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	}
 
 	public void renameNode(String id, String newPath) {
-		// TODO Auto-generated method stub
-		
+		throw new UnsupportedOperationException("Not implemented yet.");
 	}
 
 	public void setCurrentPortalNode(PortalNode node) {
@@ -356,6 +354,31 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	public void setMissingSiteId(String missingSiteId)
 	{
 		this.missingSiteId = missingSiteId;
+	}
+
+	public boolean canChangeSite(String id) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean canDeleteNode(String id) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean canMoveNode(String id) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean canNewNode(String parentId) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean canRenameNode(String id) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

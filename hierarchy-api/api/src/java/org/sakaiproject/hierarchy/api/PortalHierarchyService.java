@@ -52,4 +52,15 @@ public interface PortalHierarchyService {
 	
 	void changeSite(String id, String newSiteId);
 	
+	boolean canDeleteNode(String id);
+	
+	boolean canNewNode(String parentId);
+	
+	boolean canRenameNode(String id);
+	
+	boolean canMoveNode(String id);
+	
+	boolean canChangeSite(String id);
+	
+	
 }
