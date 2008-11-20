@@ -249,7 +249,8 @@ public class HierarchyHandler extends SiteHandler {
 				public SecurityAdvice isAllowed(String userId, String function,
 						String reference) {
 					if (reference.equals(otherSite.getReference()) && !site.getReference().equals(otherSite.getReference())) {
-						boolean allowed = site.isAllowed(userId, function);
+						// Use the security service so it picks up from the templates.
+						boolean allowed = securityService.unlock(userId, function, site.getReference());
 						return (allowed)?SecurityAdvice.ALLOWED:SecurityAdvice.NOT_ALLOWED;
 					}
 					return SecurityAdvice.PASS;
