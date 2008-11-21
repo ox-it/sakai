@@ -92,9 +92,6 @@
 		<property name="hierarchyService">
 			<ref bean="org.sakaiproject.hierarchy.HierarchyService" />
 		</property>
-		<property name="sessionManager">
-			<ref bean="org.sakaiproject.tool.api.SessionManager"/>
-		</property>
 		<property name="siteService">
 			<ref bean="org.sakaiproject.site.api.SiteService" />		
 		</property>
@@ -112,9 +109,6 @@
 		</property>
 		<property name="dao">
 			<ref bean="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistenNodeDao"/>
-		</property>
-		<property name="securityService">
-			<ref bean="org.sakaiproject.authz.api.SecurityService" />
 		</property>
 		<!--  Which hierarchy to use. -->
 		<property name="hierarchyId"><value>hierarchy</value></property>
