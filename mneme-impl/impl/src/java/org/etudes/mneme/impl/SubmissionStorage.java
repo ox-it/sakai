@@ -148,7 +148,7 @@ public interface SubmissionStorage
 	SubmissionImpl getSubmission(String id);
 
 	/**
-	 * Find the highest submission score for this user to this assessment.
+	 * Find the highest submission score for this user to this assessment (among completed and released submissions).
 	 * 
 	 * @param assessment
 	 *        The assessment.

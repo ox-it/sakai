@@ -246,7 +246,7 @@ public class GradesServiceGradebook23Impl implements GradesService
 		if (!(assessment.getPublished() && assessment.getGrading().getGradebookIntegration() && assessment.getIsValid() && (assessment.getTitle() != null)))
 			return Boolean.FALSE;
 
-		// make sure we are complete
+		// if this one is not complete, it will not cause a change in what we report
 		if (!submission.getIsComplete()) return Boolean.FALSE;
 
 		M_log.debug("reportSubmissionGrade: " + submission.getId());
@@ -262,15 +262,11 @@ public class GradesServiceGradebook23Impl implements GradesService
 				{
 					Double dScore = null;
 
-					// if not released, report the null score
-					if (submission.getIsReleased())
+					// get the official (highest) score for this submission, considering this and all other completed and released submissions
+					Float score = this.submissionService.getSubmissionOfficialScore(assessment, submission.getUserId());
+					if (score != null)
 					{
-						// get this submission's user's "official" submission for this submission's assessment
-						Float score = this.submissionService.getSubmissionOfficialScore(assessment, submission.getUserId());
-						if (score != null)
-						{
-							dScore = Double.valueOf(score.doubleValue());
-						}
+						dScore = Double.valueOf(score.doubleValue());
 					}
 
 					// report it

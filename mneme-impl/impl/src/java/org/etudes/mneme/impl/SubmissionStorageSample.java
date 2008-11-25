@@ -323,7 +323,7 @@ public abstract class SubmissionStorageSample implements SubmissionStorage
 		for (SubmissionImpl submission : this.submissions.values())
 		{
 			if (submission.getAssessment().equals(assessment) && submission.getUserId().equals(userId) && submission.getIsComplete()
-					&& ((rv == null) || (submission.getTotalScore() > rv.floatValue())))
+					&& submission.getIsReleased() && ((rv == null) || (submission.getTotalScore() > rv.floatValue())))
 			{
 				rv = submission.getTotalScore();
 			}

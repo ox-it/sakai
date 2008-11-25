@@ -2741,6 +2741,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			String aid = submission.getAssessmentId();
 			SubmissionImpl bestSubmission = null;
 			SubmissionImpl inProgressSubmission = null;
+			SubmissionImpl mostRecentCompletedNotReleasedSubmission = null;
 
 			// this one may be our best, or in progress, but only if it's started
 			if (submission.getStartDate() != null)
@@ -2751,10 +2752,20 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 					inProgressSubmission = submission;
 				}
 
-				// else, if complete, make it the best so far
+				// else, if complete
 				else
 				{
-					bestSubmission = submission;
+					// if released, make it the best so far
+					if (submission.getIsReleased())
+					{
+						bestSubmission = submission;
+					}
+
+					// if not released, make it the most recent
+					else
+					{
+						mostRecentCompletedNotReleasedSubmission = submission;
+					}
 				}
 			}
 
@@ -2770,7 +2781,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 					// take this one out
 					i.remove();
 
-					// we should not get a second one that is unstarted
+					// we should not get a second one that is not started
 					if (candidateSub.getStartDate() == null)
 					{
 						M_log.warn("officializeByAssessment: another unstarted for aid: " + aid + " sid:" + candidateSub.getId());
@@ -2792,26 +2803,48 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 						// track if any have unscored answers
 						if (!unscoredSiblings) unscoredSiblings = candidateSub.getHasUnscoredAnswers().booleanValue();
 
-						if (bestSubmission == null)
+						// consider for "best" if candidate is released
+						if (candidateSub.getIsReleased())
 						{
-							bestSubmission = candidateSub;
-						}
-
-						// take the new one if it exceeds the best so far
-						else if (candidateBetter(bestSubmission, candidateSub))
-						// else if (bestSubmission.getTotalScore().floatValue() < candidateSub.getTotalScore().floatValue())
-						{
-							bestSubmission = candidateSub;
-						}
-
-						// if we match the best, pick the latest submit date
-						else if (sameScores(bestSubmission, candidateSub))
-						// else if (bestSubmission.getTotalScore().floatValue() == candidateSub.getTotalScore().floatValue())
-						{
-							if ((bestSubmission.getSubmittedDate() != null) && (candidateSub.getSubmittedDate() != null)
-									&& (bestSubmission.getSubmittedDate().before(candidateSub.getSubmittedDate())))
+							if (bestSubmission == null)
 							{
 								bestSubmission = candidateSub;
+							}
+
+							// take the new one if it exceeds the best so far
+							else if (candidateBetter(bestSubmission, candidateSub))
+							// else if (bestSubmission.getTotalScore().floatValue() < candidateSub.getTotalScore().floatValue())
+							{
+								bestSubmission = candidateSub;
+							}
+
+							// if we match the best, pick the latest submit date
+							else if (sameScores(bestSubmission, candidateSub))
+							// else if (bestSubmission.getTotalScore().floatValue() == candidateSub.getTotalScore().floatValue())
+							{
+								if ((bestSubmission.getSubmittedDate() != null) && (candidateSub.getSubmittedDate() != null)
+										&& (bestSubmission.getSubmittedDate().before(candidateSub.getSubmittedDate())))
+								{
+									bestSubmission = candidateSub;
+								}
+							}
+						}
+
+						// if not released, consider for the most recent
+						else
+						{
+							if (mostRecentCompletedNotReleasedSubmission == null)
+							{
+								mostRecentCompletedNotReleasedSubmission = candidateSub;
+							}
+							else
+							{
+								if ((mostRecentCompletedNotReleasedSubmission.getSubmittedDate() != null)
+										&& (candidateSub.getSubmittedDate() != null)
+										&& (mostRecentCompletedNotReleasedSubmission.getSubmittedDate().before(candidateSub.getSubmittedDate())))
+								{
+									mostRecentCompletedNotReleasedSubmission = candidateSub;
+								}
 							}
 						}
 					}
@@ -2821,6 +2854,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			// pick the winner
 			SubmissionImpl winner = inProgressSubmission;
 			if (winner == null) winner = bestSubmission;
+			if (winner == null) winner = mostRecentCompletedNotReleasedSubmission;
 			if (winner == null) winner = submission;
 
 			// set the winner's sibling count
@@ -2833,6 +2867,10 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			if (bestSubmission != null)
 			{
 				winner.initBest(bestSubmission);
+			}
+			else if (mostRecentCompletedNotReleasedSubmission != null)
+			{
+				winner.initBest(mostRecentCompletedNotReleasedSubmission);
 			}
 
 			// keep the winner

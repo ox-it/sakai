@@ -320,7 +320,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	Submission getSubmission(String id);
 
 	/**
-	 * Find the "official" submission score for this user to this assessment.
+	 * Find the "official" submission score for this user to this assessment.  Defined as the one with the highest score, complete and released.
 	 * 
 	 * @param assessment
 	 *        The assessment.
@@ -346,7 +346,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 *        The user id - if null, use the current user.
 	 * @param sort
 	 *        The sort order.
-	 * @return A List<Submission> of the submissions that are the offical submissions for assessments in the context by this user, sorted.
+	 * @return A List<Submission> of the submissions that are the official submissions for assessments in the context by this user, sorted.
 	 */
 	List<Submission> getUserContextSubmissions(String context, String userId, GetUserContextSubmissionsSort sort);
 

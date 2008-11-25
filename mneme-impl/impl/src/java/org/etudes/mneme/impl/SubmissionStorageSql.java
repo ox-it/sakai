@@ -354,7 +354,8 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT S.ID, S.EVAL_SCORE, SUM(A.EVAL_SCORE), SUM(A.AUTO_SCORE) FROM MNEME_SUBMISSION S");
 		sql.append(" JOIN  MNEME_ANSWER A ON S.ID=A.SUBMISSION_ID");
-		sql.append(" WHERE S.ASSESSMENT_ID=? AND S.USERID=? AND S.COMPLETE='1'");
+		sql.append(" WHERE S.ASSESSMENT_ID=? AND S.USERID=? AND S.COMPLETE='1' AND S.RELEASED='1'");
+		// TODO: the MNEME_SUBMISSION_IDX_AUC index should work here, then only needing to test released - if not, we can read it and filter it out here -ggolden
 		sql.append(" GROUP BY S.ID, S.EVAL_SCORE");
 
 		Object[] fields = new Object[2];
