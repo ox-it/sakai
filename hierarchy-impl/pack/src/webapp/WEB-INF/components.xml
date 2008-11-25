@@ -88,7 +88,7 @@
 	
 	<bean id="org.sakaiproject.hierarchy.api.PortalHierarchyService"
 		class="org.sakaiproject.hierarchy.impl.PortalHierarchyServiceImpl"
-		init-method="init">
+		init-method="init" >
 		<property name="hierarchyService">
 			<ref bean="org.sakaiproject.hierarchy.HierarchyService" />
 		</property>
@@ -113,6 +113,25 @@
 		<!--  Which hierarchy to use. -->
 		<property name="hierarchyId"><value>hierarchy</value></property>
 		<property name="missingSiteId"><value>!hierarchy.missing</value></property>
+		<property name="autoDDL"><value>${auto.ddl}</value></property>
+	</bean>
+
+	<!--  Bean to create some content after component manager starts up but before Sakai is available. -->
+	<bean class="org.sakaiproject.hierarchy.impl.PortalHierarchySetup">
+		<property name="hierarchySiteId"><value>!hierarchy</value></property>
+		<property name="autoDDL"><value>${auto.ddl}</value></property>
+		<property name="siteService">
+			<ref bean="org.sakaiproject.site.api.SiteService"/>
+		</property>
+		<property name="usageSessionService">
+			<ref bean="org.sakaiproject.event.api.UsageSessionService"/>
+		</property>
+		<property name="securityService">
+			<ref bean="org.sakaiproject.authz.api.SecurityService"/>
+		</property>
+		<property name="sessionManager">
+			<ref bean="org.sakaiproject.tool.api.SessionManager"/>
+		</property>
 	</bean>
 	
 	
