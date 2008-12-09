@@ -324,27 +324,27 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		questionSection.add(question).add(attachments);
 
 		Section answerSection = this.uiService.newSection();
+		answerSection.setTitle("answer", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
 
-		// for review mode, show just the evaluated answer text, if released
+		// in-line text: for review mode, show the evaluated answer text, if released
 		Text answer = this.uiService.newText();
-		answer.setTitle("answer", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
 		answer.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.typeSpecificAnswer.answerEvaluated"));
 		answer.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.inline.toString(), SubmissionType.both.toString())
 				.setProperty(this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")),
 				this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.submission.isReleased")),
 				this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("review")));
 		answerSection.add(answer);
+		// or if not released, show the actual answer text
+		answer = this.uiService.newText();
+		answer.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.typeSpecificAnswer.answerData"));
+		answer.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.inline.toString(), SubmissionType.both.toString())
+				.setProperty(this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")),
+				this.uiService.newDecision().setReversed().setProperty(
+						this.uiService.newPropertyReference().setReference("answer.submission.isReleased")), this.uiService.newHasValueDecision()
+						.setProperty(this.uiService.newPropertyReference().setReference("review")));
+		answerSection.add(answer);
 
-		// or if not released, the actual answer text
-		Text answer2 = this.uiService.newText();
-		answer2.setTitle("answer", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
-		answer2.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.typeSpecificAnswer.answerData"));
-		answer2.setIncluded(this.uiService.newDecision().setReversed().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.submission.isReleased")), this.uiService.newHasValueDecision()
-				.setProperty(this.uiService.newPropertyReference().setReference("review")));
-		answerSection.add(answer2);
-
-		// for grading, command to delete annotation
+		// in-line text: for grading, command to delete annotation
 		Navigation delAnnotation = this.uiService.newNavigation();
 		delAnnotation.setTitle("delete-annotation").setStyle(Navigation.Style.link).setSubmit();
 		delAnnotation.setIcon("/icons/comments_erase.png", Navigation.IconStyle.left);
@@ -352,73 +352,50 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 				this.uiService.newPropertyReference().setReference("answer.id")));
 		delAnnotation.setConfirm(this.uiService.newTrueDecision(), "cancel", "/icons/cancel.gif", "confirm-delete-annotation");
 
-		// for grading, include the editor for marking up the answer
+		// for grading, include the editor for marking up the answer (if there is an answer)
 		HtmlEdit edit = this.uiService.newHtmlEdit();
-		edit.setTitle("answer", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
 		edit.setSize(HtmlEdit.Sizes.tall);
 		edit.setProperty(this.uiService.newHtmlPropertyReference().setReference("answer.typeSpecificAnswer.answerEvaluated"));
 		edit.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")),
-				this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.inline.toString(), SubmissionType.both.toString()).setProperty(
-						this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")));
+				this.uiService.newHasValueDecision().setProperty(
+						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answerEvaluated")));
 		edit.addAction(delAnnotation);
 		answerSection.add(edit);
 
-		// with a title if we are attachments only
-		Attachments uploaded = this.uiService.newAttachments();
-		uploaded.setTitle("answer", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
-		uploaded.setAttachments(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded"), "attachment");
-		uploaded.setSize(false).setTimestamp(false);
-		uploaded.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.attachments.toString()).setProperty(
-				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")));
-		answerSection.add(uploaded);
-		// without a title if both
-		uploaded = this.uiService.newAttachments();
-		uploaded.setAttachments(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded"), "attachment");
-		uploaded.setSize(false).setTimestamp(false);
-		uploaded.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.both.toString()).setProperty(
-				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")));
-		answerSection.add(uploaded);
-
-		// message if there is no answer
-		// for inline, if not answered
+		// if no in-line text, and type allows it, message
 		Instructions notAnswered = this.uiService.newInstructions();
 		notAnswered.setText("not-answered");
-		notAnswered.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.inline.toString()).setProperty(
+		notAnswered.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.inline.toString(),
+				SubmissionType.both.toString()).setProperty(
 				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")), this.uiService
-				.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.submission.isReleased")), this.uiService
-				.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("review")), this.uiService
 				.newHasValueDecision().setReversed().setProperty(
 						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answerData")));
 		answerSection.add(notAnswered);
-		// for attachment, if not attached
+
+		// if no in-line text expected, message
 		notAnswered = this.uiService.newInstructions();
-		notAnswered.setText("not-answered");
-		notAnswered.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.attachments.toString()).setProperty(
-				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")), this.uiService
-				.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.submission.isReleased")), this.uiService
-				.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("review")), this.uiService
-				.newHasValueDecision().setReversed().setProperty(
-						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded")));
-		answerSection.add(notAnswered);
-		// for inline or attachment, if not answered and not attached
-		notAnswered = this.uiService.newInstructions();
-		notAnswered.setText("not-answered");
-		notAnswered.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.both.toString()).setProperty(
-				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")), this.uiService
-				.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.submission.isReleased")), this.uiService
-				.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("review")), this.uiService
-				.newHasValueDecision().setReversed().setProperty(
-						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answerData")), this.uiService
-				.newHasValueDecision().setReversed().setProperty(
-						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded")));
+		notAnswered.setText("no-submission");
+		notAnswered.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.none.toString()).setProperty(
+				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")));
 		answerSection.add(notAnswered);
 
-		// if no submission
-		Instructions noSub = this.uiService.newInstructions();
-		noSub.setText("no-submission");
-		noSub.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.none.toString()).setProperty(
-				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")));
-		answerSection.add(noSub);
+		// attachments display
+		Attachments uploaded = this.uiService.newAttachments();
+		uploaded.setAttachments(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded"), "attachment");
+		uploaded.setSize(false).setTimestamp(false);
+		uploaded.setIncluded(this.uiService.newHasValueDecision().setProperty(
+				this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded")));
+		answerSection.add(uploaded);
+
+		// if no attachments, and type allows it, message
+		notAnswered = this.uiService.newInstructions();
+		notAnswered.setText("not-attached");
+		notAnswered.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.attachments.toString(),
+				SubmissionType.both.toString()).setProperty(
+				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")), this.uiService
+				.newHasValueDecision().setReversed().setProperty(
+						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded")));
+		answerSection.add(notAnswered);
 
 		// model answer
 		Text modelAnswerTitle = this.uiService.newText();
@@ -493,6 +470,9 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 	 */
 	public Component getViewAnswerUi()
 	{
+		Section answerSection = this.uiService.newSection();
+		answerSection.setTitle("answer", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
+
 		// command to delete annotation
 		Navigation delAnnotation = this.uiService.newNavigation();
 		delAnnotation.setTitle("delete-annotation").setStyle(Navigation.Style.link).setSubmit();
@@ -503,20 +483,49 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 
 		// editor for marking up the answer
 		HtmlEdit answer = this.uiService.newHtmlEdit();
-		answer.setTitle("answer", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
 		answer.setSize(HtmlEdit.Sizes.tall);
 		answer.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answerData")));
+				this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answerEvaluated")));
 		answer.setProperty(this.uiService.newHtmlPropertyReference().setReference("answer.typeSpecificAnswer.answerEvaluated"));
 		answer.addAction(delAnnotation);
+		answerSection.add(answer);
 
+		// if no in-line text, and type allows it, message
+		Instructions notAnswered = this.uiService.newInstructions();
+		notAnswered.setText("not-answered");
+		notAnswered.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.inline.toString(),
+				SubmissionType.both.toString()).setProperty(
+				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")), this.uiService
+				.newHasValueDecision().setReversed().setProperty(
+						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answerData")));
+		answerSection.add(notAnswered);
+
+		// if no in-line text expected, message
+		notAnswered = this.uiService.newInstructions();
+		notAnswered.setText("no-submission");
+		notAnswered.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.none.toString()).setProperty(
+				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")));
+		answerSection.add(notAnswered);
+
+		// attachments
 		Attachments uploaded = this.uiService.newAttachments();
 		uploaded.setAttachments(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded"), "attachment");
 		uploaded.setSize(false).setTimestamp(false);
 		uploaded.setIncluded(this.uiService.newHasValueDecision().setProperty(
 				this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded")));
+		answerSection.add(uploaded);
 
-		return this.uiService.newFragment().setMessages(this.messages).add(answer).add(uploaded);
+		// if no attachments, and type allows it, message
+		notAnswered = this.uiService.newInstructions();
+		notAnswered.setText("not-attached");
+		notAnswered.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.attachments.toString(),
+				SubmissionType.both.toString()).setProperty(
+				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")), this.uiService
+				.newHasValueDecision().setReversed().setProperty(
+						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded")));
+		answerSection.add(notAnswered);
+
+		return this.uiService.newFragment().setMessages(this.messages).add(answerSection);
 	}
 
 	/**
