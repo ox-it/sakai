@@ -42,6 +42,27 @@ import org.w3c.dom.Element;
 public class UiNavigation extends UiComponent implements Navigation
 {
 	/**
+	 * Escape with a preceding '\' (for javascript) any single quotes in the source string.
+	 * 
+	 * @param source
+	 *        The source string.
+	 * @return The source string with the single quotes escaped to live in a javascript single-quoted string.
+	 */
+	protected static String escapeSingleQuote(String source)
+	{
+		if (source == null) return null;
+
+		StringBuilder dest = new StringBuilder();
+		for (int i = 0; i < source.length(); i++)
+		{
+			char c = source.charAt(i);
+			if (c == '\'') dest.append('\\');
+			dest.append(c);
+		}
+		return dest.toString();
+	}
+
+	/**
 	 * Generate the link script for a navigation
 	 * 
 	 * @param context
@@ -71,7 +92,7 @@ public class UiNavigation extends UiComponent implements Navigation
 		if (!trigger)
 		{
 			action = "ambrosiaNavigate(enabled_" + id + ", 'enable_" + id + "()', " + Boolean.toString(confirm) + ", 'confirm_" + id + "', "
-					+ Boolean.toString(validate) + ", " + Boolean.toString(submit) + ", '" + destination + "','" + root + "', "
+					+ Boolean.toString(validate) + ", " + Boolean.toString(submit) + ", '" + escapeSingleQuote(destination) + "','" + root + "', "
 					+ (requirements ? "'requirements_" + id + "()','failure_" + id + "'" : "null, null") + ");";
 		}
 		else
@@ -983,8 +1004,8 @@ public class UiNavigation extends UiComponent implements Navigation
 
 					if (this.icon != null)
 					{
-						response.print("<img style=\"vertical-align:text-bottom;\" src=\"" + context.getUrl(this.icon) + "\" "
-								+ "title=\"" + description + "\" " + "alt=\"" + description + "\" />");
+						response.print("<img style=\"vertical-align:text-bottom;\" src=\"" + context.getUrl(this.icon) + "\" " + "title=\""
+								+ description + "\" " + "alt=\"" + description + "\" />");
 					}
 
 					if (!disabled) response.print("</a>");
@@ -1037,7 +1058,9 @@ public class UiNavigation extends UiComponent implements Navigation
 								+ id
 								+ "();return false;\" "
 								+ ((accessKey == null) ? "" : "accesskey=\"" + accessKey.charAt(0) + "\" ")
-								+ "title=\"" + description + "\" "
+								+ "title=\""
+								+ description
+								+ "\" "
 								+ (((this.icon != null) && (this.iconStyle == IconStyle.left)) ? "style=\"padding-left:2em; background: #eee url('"
 										+ context.getUrl(this.icon) + "') .2em no-repeat;\"" : "")
 								+ (((this.icon != null) && (this.iconStyle == IconStyle.right)) ? "style=\"padding-left:.4em; padding-right:2em; background: #eee url('"
