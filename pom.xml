@@ -51,7 +51,13 @@
 	<name>Ambrosia</name>
 	<groupId>org.etudes.ambrosia</groupId>
 	<artifactId>ambrosia</artifactId>
+	<version>1.2</version>
 	<packaging>pom</packaging>
+
+	<properties>
+		<ambrosia.version>1.2</ambrosia.version>
+		<sakai.commons.logging.version>1.0.4</sakai.commons.logging.version>
+	</properties>
 
 	<modules>
 		<module>ambrosia-api/api</module>
