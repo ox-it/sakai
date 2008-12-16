@@ -51,7 +51,14 @@
 	<name>Mneme - Test Center</name>
 	<groupId>org.etudes.mneme</groupId>
 	<artifactId>mneme</artifactId>
+	<version>1.2</version>
 	<packaging>pom</packaging>
+
+	<properties>
+		<mneme.version>1.2</mneme.version>
+		<ambrosia.version>1.2</ambrosia.version>
+		<sakai.commons.logging.version>1.0.4</sakai.commons.logging.version>
+	</properties>
 
 	<modules>
 		<module>mneme-api/api</module>
