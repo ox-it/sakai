@@ -29,12 +29,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
 	<modelVersion>4.0.0</modelVersion>
 
+	<!-- for stand-alone building under test-center -->
 	<parent>
 		<groupId>org.etudes.test-center</groupId>
 		<artifactId>test-center</artifactId>
 		<version>1.2</version>
-		<relativePath>..\pom.xml</relativePath>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
+
+	<!-- for embedded building withing sakai -->
+	<!-- Note: set the version to the Sakai version you are using -->
+	<!--
+	<parent>
+		<artifactId>base</artifactId>
+		<groupId>org.sakaiproject</groupId>
+		<version>2.5.3</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	-->
 
 	<name>Mneme - Test Center</name>
 	<groupId>org.etudes.mneme</groupId>
