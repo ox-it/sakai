@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -193,6 +194,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 				if (processSamigoTrueFalse(item, pool, pointsAverage)) continue;
 				if (processSamigoMultipleChoice(item, pool, pointsAverage)) continue;
 				if (processSamigoSurvey(item, pool)) continue;
+				if (processSamigoFillIn(item, pool, pointsAverage)) continue;
 
 				M_log.warn("item recognized: " + item.getAttribute("ident"));
 			}
@@ -427,6 +429,74 @@ public class ImportQtiServiceImpl implements ImportQtiService
 
 		if (rv.length() == 0) return null;
 		return rv.toString();
+	}
+	
+	/**
+	 * Find all the items from the root using the path, and combine their text content.
+	 *  
+	 * @param textPath
+	 * 		  Text XPath
+	 * @param blanksPath
+	 * 		  Blanks XPath
+	 * @param answersPath
+	 * 		  Answers XPath
+	 * @param root
+	 * 		  The Document or Element root
+	 * @return The question.
+	 */
+	protected String buildFillInQuestionText(XPath textPath, XPath blanksPath, XPath answersPath, Object root) 
+	{
+		StringBuilder rv = new StringBuilder();
+		String questionText = null;
+		try
+		{
+			List hits = textPath.selectNodes(root);
+			List blankHits = blanksPath.selectNodes(root);
+			List answerHits = answersPath.selectNodes(root);
+			
+			if (answerHits.size() != blankHits.size())
+				return null;
+			
+			int count = 0, blanksCount = 0;
+		
+			blanksCount = blankHits.size();
+			
+			for (Object o : hits)
+			{
+				//add braces for the text
+				if (count > 0 && blanksCount > 0)
+				{
+					rv.append(" {} ");
+					blanksCount--;
+				}
+				
+				Element e = (Element) o;
+				String value = StringUtil.trimToNull(e.getTextContent());
+				if (value != null)
+				{
+					rv.append(value);
+				}
+				count++;
+			}
+			
+			//fill the braces({}) with answers 
+			questionText = rv.toString();
+			Element e;
+			String answer;
+			for (int index = 0; index < answerHits.size(); index++)
+			{	
+				e = (Element) answerHits.get(index);
+				answer = StringUtil.trimToNull(e.getTextContent());
+				questionText = questionText.replaceFirst("\\{\\}", Matcher.quoteReplacement("{" + answer + "}"));
+			}
+		}
+		catch (JaxenException e)
+		{
+			M_log.warn(e.toString());
+		}
+
+		if (questionText.length() == 0) return null;
+		return questionText;
 	}
 
 	/**
@@ -916,6 +986,101 @@ public class ImportQtiServiceImpl implements ImportQtiService
 		}
 		catch (JaxenException e)
 		{
+			return false;
+		}
+	}
+	
+	/**
+	 * Process this item if it is recognized as a Samigo Fill in the blank.
+	 * 
+	 * @param item
+	 *        The QTI item from the QTI file DOM.
+	 * @param pool
+	 *        The pool to add the question to.
+	 * @param pointsAverage
+	 *        A running average to contribute the question's point value to for the pool.
+	 * @return true if successfully recognized and processed, false if not.
+	 */
+	private boolean processSamigoFillIn(Element item, Pool pool, Average pointsAverage) throws AssessmentPermissionException 
+	{
+		// the attributes of a Fill In the Blank question
+		boolean caseSensitive = false;
+		boolean mutuallyExclusive = false;
+		String presentation = null;
+		float points = 0.0f;
+		
+		String externalId = null;
+		
+		//identifier
+		externalId = StringUtil.trimToNull(item.getAttribute("ident"));
+		
+		try {
+			XPath metaDataPath;
+			metaDataPath = new DOMXPath("itemmetadata/qtimetadata/qtimetadatafield[fieldlabel='qmd_itemtype']/fieldentry");
+			String qmdItemType = StringUtil.trimToNull(metaDataPath.stringValueOf(item));
+			if (!"Fill In the Blank".equalsIgnoreCase(qmdItemType)) return false;
+			
+			XPath caseSensitivePath = new DOMXPath("itemmetadata/qtimetadata/qtimetadatafield[fieldlabel='CASE_SENSITIVE']/fieldentry");
+			String caseSensitiveValue = StringUtil.trimToNull(caseSensitivePath.stringValueOf(item));
+			if (caseSensitiveValue != null) 
+				caseSensitive = "true".equalsIgnoreCase(caseSensitiveValue);
+			
+			XPath mutuallyExclusivePath = new DOMXPath("itemmetadata/qtimetadata/qtimetadatafield[fieldlabel='MUTUALLY_EXCLUSIVE']/fieldentry");
+			String mutuallyExclusiveValue = StringUtil.trimToNull(mutuallyExclusivePath.stringValueOf(item));
+			if (mutuallyExclusiveValue != null) 
+				mutuallyExclusive = "true".equalsIgnoreCase(mutuallyExclusiveValue);
+			
+			XPath textPath = new DOMXPath("presentation//material[not(ancestor::response_lid)]/mattext");
+			XPath blanksPath = new DOMXPath("presentation//response_str/render_fib");
+			XPath answersPath = new DOMXPath("resprocessing//respcondition/conditionvar/or/varequal");
+			
+			presentation = buildFillInQuestionText(textPath, blanksPath, answersPath, item);
+			if (presentation == null) return false;
+			
+			XPath pointsPath = new DOMXPath("resprocessing/outcomes/decvar/@maxvalue");
+			String pointsValue = StringUtil.trimToNull(pointsPath.stringValueOf(item));
+			if (pointsValue == null) return false;
+			try
+			{
+				points = Float.valueOf(pointsValue);
+			}
+			catch (NumberFormatException e)
+			{
+				return false;
+			}
+			
+			// create the question
+			Question question = this.questionService.newQuestion(pool, "mneme:FillBlanks");
+			FillBlanksQuestionImpl f = (FillBlanksQuestionImpl) (question.getTypeSpecificQuestion());
+			
+			f.setAnyOrder(Boolean.FALSE.toString());
+			
+			// case sensitive
+			f.setCaseSensitive(Boolean.toString(caseSensitive));
+			
+			//mutually exclusive
+			f.setAnyOrder(Boolean.toString(mutuallyExclusive));
+
+			// text or numeric
+			f.setResponseTextual(Boolean.TRUE.toString());
+			
+			// TODO attachments
+					
+			// set the text
+			String clean = HtmlHelper.clean(presentation);
+			f.setText(clean);
+			
+			// save
+			question.getTypeSpecificQuestion().consolidate("");
+			this.questionService.saveQuestion(question);
+			
+			// add to the points average
+			pointsAverage.add(points);
+			
+			return true;
+			
+		} catch (JaxenException e) {
+			
 			return false;
 		}
 	}
