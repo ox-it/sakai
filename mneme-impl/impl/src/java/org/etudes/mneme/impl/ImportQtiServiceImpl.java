@@ -1001,7 +1001,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 	 *        A running average to contribute the question's point value to for the pool.
 	 * @return true if successfully recognized and processed, false if not.
 	 */
-	private boolean processSamigoFillIn(Element item, Pool pool, Average pointsAverage) throws AssessmentPermissionException 
+	protected boolean processSamigoFillIn(Element item, Pool pool, Average pointsAverage) throws AssessmentPermissionException 
 	{
 		// the attributes of a Fill In the Blank question
 		boolean caseSensitive = false;
