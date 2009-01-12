@@ -1014,7 +1014,8 @@ public class ImportQtiServiceImpl implements ImportQtiService
 		//identifier
 		externalId = StringUtil.trimToNull(item.getAttribute("ident"));
 		
-		try {
+		try 
+		{
 			XPath metaDataPath;
 			metaDataPath = new DOMXPath("itemmetadata/qtimetadata/qtimetadatafield[fieldlabel='qmd_itemtype']/fieldentry");
 			String qmdItemType = StringUtil.trimToNull(metaDataPath.stringValueOf(item));
@@ -1079,7 +1080,9 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			
 			return true;
 			
-		} catch (JaxenException e) {
+		} 
+		catch (JaxenException e) 
+		{
 			
 			return false;
 		}
