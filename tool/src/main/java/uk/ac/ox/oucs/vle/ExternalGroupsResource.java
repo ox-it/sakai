@@ -15,24 +15,27 @@ import org.restlet.resource.Variant;
 
 public class ExternalGroupsResource extends Resource {
 
-	private String id;
-	
+	private ExternalGroup group;
+
 	public ExternalGroupsResource(Context context, Request request,
 			Response response) {
 		super(context, request, response);
-		this.id = (String) request.getAttributes().get("group");
+		String id = (String) request.getAttributes().get("group");
+		ExternalGroupManager externalGroupManager = (ExternalGroupManager) context.getAttributes().get(ExternalGroupManager.class.getName());
 		
+		group = externalGroupManager.findExternalGroup(id);
 		// This representation has only one type of representation.
 		getVariants().add(new Variant(MediaType.TEXT_JAVASCRIPT));
 	}
 	
 	public Representation represent(Variant varient) throws ResourceException {
 
-		Map<Object, Object> group = new HashMap<Object, Object>();
-		group.put("id", id);
-		group.put("name", "Example Name");
+		
+		Map<Object, Object> groupMap = new HashMap<Object, Object>();
+		groupMap.put("id", group.getId());
+		groupMap.put("name", group.getName());
 
-		Representation representation = new JsonRepresentation(group);
+		Representation representation = new JsonRepresentation(groupMap);
 		return representation;
 	}
 	
