@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="LDAPConnectionManager" class="edu.amc.sakai.user.SimpleLdapConnectionManager">
+		<property name="config">
+			<bean class="uk.ac.ox.oucs.vle.LdapConfigurationTest">
+				<property name="autoBind" value="true"/>
+				<property name="secureConnection" value="true"/>
+				<property name="secureSocketFactory">
+<!--					<bean class="com.novell.ldap.LDAPJSSEStartTLSFactory" />-->
+					  <bean class="com.novell.ldap.LDAPJSSESecureSocketFactory" /> 
+				</property>
+				<property name="ldapHost" value="ldap.oak.ox.ac.uk"/>
+				<property name="ldapPort" value="636"/>
+				<property name="ldapUser" value="cn=service/bit.oucs.ox.ac.uk,cn=oakInternalPrincipals,dc=oak,dc=ox,dc=ac,dc=uk"/>
+				<property name="ldapPassword" value=""/>
+			</bean>
+		</property>
+	</bean>
+		
+	<bean id="MockUserDirectory" class="uk.ac.ox.oucs.vle.MockUserDirectoryServices">
+		
+	</bean>
+	
+	<bean id="ExternalGroupManager" class="uk.ac.ox.oucs.vle.ExternalGroupManagerImpl">
+		<property name="ldapConnectionManager">
+			<ref bean="LDAPConnectionManager"/>
+		</property>
+		<property name="userDirectoryService">
+			<ref bean="MockUserDirectory"/>
+		</property>
+	</bean>
+
+
+</beans>
