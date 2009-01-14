@@ -24,6 +24,10 @@ public class ExternalGroupsResource extends Resource {
 		ExternalGroupManager externalGroupManager = (ExternalGroupManager) context.getAttributes().get(ExternalGroupManager.class.getName());
 		
 		group = externalGroupManager.findExternalGroup(id);
+		if (group == null) {
+			setAvailable(false);
+		}
+			
 		// This representation has only one type of representation.
 		getVariants().add(new Variant(MediaType.TEXT_JAVASCRIPT));
 	}
