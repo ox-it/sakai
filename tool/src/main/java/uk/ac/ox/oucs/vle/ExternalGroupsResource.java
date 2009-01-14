@@ -35,12 +35,17 @@ public class ExternalGroupsResource extends Resource {
 	public Representation represent(Variant varient) throws ResourceException {
 
 		
-		Map<Object, Object> groupMap = new HashMap<Object, Object>();
-		groupMap.put("id", group.getId());
-		groupMap.put("name", group.getName());
+		Map<Object, Object> groupMap = convertGroupToMap(group);
 
 		Representation representation = new JsonRepresentation(groupMap);
 		return representation;
+	}
+
+	private Map<Object, Object> convertGroupToMap(ExternalGroup externalGroup) {
+		Map<Object, Object> groupMap = new HashMap<Object, Object>();
+		groupMap.put("id", externalGroup.getId());
+		groupMap.put("name", externalGroup.getName());
+		return groupMap;
 	}
 	
 	
