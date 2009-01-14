@@ -211,7 +211,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 				
 			}
 		} catch (LDAPException ldape) {
-			
+			log.warn("Failed to find members of: "+ externalId, ldape);
 		} catch (ParseException e) {
 			log.error("Error in formatter, can't load members. "+ e.getMessage());
 		} finally {
