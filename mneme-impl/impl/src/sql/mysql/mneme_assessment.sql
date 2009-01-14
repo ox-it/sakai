@@ -3,7 +3,7 @@
 -- $Id$
 --**********************************************************************************
 --
--- Copyright (c) 2008 Etudes, Inc.
+-- Copyright (c) 2008, 2009 Etudes, Inc.
 -- 
 -- Portions completed before September 1, 2008
 -- Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -149,4 +149,9 @@ CREATE INDEX MNEME_ASSESSMENT_PART_DETAIL_IDX_PID ON MNEME_ASSESSMENT_PART_DETAI
 CREATE INDEX MNEME_ASSESSMENT_PART_DETAIL_IDX_QID ON MNEME_ASSESSMENT_PART_DETAIL
 (
 	QUESTION_ID	ASC
+);
+
+CREATE INDEX MNEME_ASSESSMENT_PART_DETAIL_IDX_POOLID ON MNEME_ASSESSMENT_PART_DETAIL
+(
+	POOL_ID	ASC
 );
