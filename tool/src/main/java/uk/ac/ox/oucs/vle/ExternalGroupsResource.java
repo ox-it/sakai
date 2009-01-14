@@ -20,9 +20,9 @@ public class ExternalGroupsResource extends Resource {
 	public ExternalGroupsResource(Context context, Request request,
 			Response response) {
 		super(context, request, response);
-		String id = (String) request.getAttributes().get("group");
 		ExternalGroupManager externalGroupManager = (ExternalGroupManager) context.getAttributes().get(ExternalGroupManager.class.getName());
-		
+
+		String id = (String) request.getAttributes().get("group");
 		group = externalGroupManager.findExternalGroup(id);
 		if (group == null) {
 			setAvailable(false);
