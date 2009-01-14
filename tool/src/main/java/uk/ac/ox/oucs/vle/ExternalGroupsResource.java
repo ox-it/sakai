@@ -41,7 +41,7 @@ public class ExternalGroupsResource extends Resource {
 		return representation;
 	}
 
-	private Map<Object, Object> convertGroupToMap(ExternalGroup externalGroup) {
+	static Map<Object, Object> convertGroupToMap(ExternalGroup externalGroup) {
 		Map<Object, Object> groupMap = new HashMap<Object, Object>();
 		groupMap.put("id", externalGroup.getId());
 		groupMap.put("name", externalGroup.getName());
