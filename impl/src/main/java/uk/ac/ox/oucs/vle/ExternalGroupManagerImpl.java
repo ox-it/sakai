@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -21,6 +20,7 @@ import com.novell.ldap.LDAPEntry;
 import com.novell.ldap.LDAPException;
 import com.novell.ldap.LDAPSearchResults;
 
+import edu.amc.sakai.user.JLDAPDirectoryProvider;
 import edu.amc.sakai.user.LdapConnectionManager;
 
 public class ExternalGroupManagerImpl implements ExternalGroupManager {
@@ -29,7 +29,20 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	
 	LdapConnectionManager ldapConnectionManager;
 	
+	JLDAPDirectoryProvider jldapDirectoryProvider;
+	
 	UserDirectoryService userDirectoryService;
+	
+	public void init() {
+		log.debug("init()");
+		if (ldapConnectionManager == null && jldapDirectoryProvider == null) {
+			throw new IllegalStateException("Don't have a way of getting a LdapConnectionManager");
+		}
+		if (userDirectoryService == null) {
+			throw new IllegalStateException("UserDirectoryService must be set.");
+		}
+			
+	}
 
 	public String addMappedGroup(String externalGroupId, String role) {
 		// TODO Auto-generated method stub
@@ -44,7 +57,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	public ExternalGroup findExternalGroup(String externalGroupId) {
 		ExternalGroup group = null;
 		try {
-			LDAPConnection connection = ldapConnectionManager.getConnection();
+			LDAPConnection connection = getConnection();
 			LDAPSearchResults results = connection.search(externalGroupId, LDAPConnection.SCOPE_BASE, null, getSearchAttributes(), false);
 			if (results.hasMore()) {
 				group = convert(results.next());
@@ -64,7 +77,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		}
 		List<ExternalGroup> groups = null;
 		try {
-			LDAPConnection connection = ldapConnectionManager.getConnection();
+			LDAPConnection connection = getConnection();
 			String filter = "displayName=*"+ query+ "*";
 			LDAPSearchResults results = connection.search("ou=units,dc=oak,dc=ox,dc=ac,dc=uk", LDAPConnection.SCOPE_SUB, filter, getSearchAttributes(), false);
 			groups = new ArrayList<ExternalGroup>(results.getCount());
@@ -113,6 +126,22 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	String[] getSearchAttributes() {
 		return new String[]{"displayName"};
 	}
+	
+	/**
+	 * Get an LDAP Connection.
+	 * Attempt to get a connection manager, see if we have one locally or 
+	 * get one from the directory provider. We can't do this in the init()
+	 * as we then have an init() dependency between this and JLDAPDirectoryProvider.
+	 * This is not a standard getter.
+	 * @return A @{LdapConnection}.
+	 * @throws LDAPException 
+	 */
+	LDAPConnection getConnection() throws LDAPException {
+		if (ldapConnectionManager == null) { 
+			ldapConnectionManager = jldapDirectoryProvider.getLdapConnectionManager();
+		}
+		return ldapConnectionManager.getConnection();
+	}
 
 	public void setLdapConnectionManager(LdapConnectionManager ldapConnectionManager) {
 		this.ldapConnectionManager = ldapConnectionManager;
@@ -122,10 +151,15 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		this.userDirectoryService = userDirectoryService;
 	}
 
+	public void setJldapDirectoryProvider(
+			JLDAPDirectoryProvider jldapDirectoryProvider) {
+		this.jldapDirectoryProvider = jldapDirectoryProvider;
+	}
+
 	Iterator<User> findMembers(String externalId) {
 		Collection<User> users = Collections.emptyList();
 		try {
-			LDAPConnection connection = ldapConnectionManager.getConnection();
+			LDAPConnection connection = getConnection();
 			LDAPSearchResults results = connection.search(externalId, LDAPConnection.SCOPE_BASE, null, new String[]{"member"}, false);
 			while(results.hasMore()) {
 				LDAPEntry entry = results.next();
