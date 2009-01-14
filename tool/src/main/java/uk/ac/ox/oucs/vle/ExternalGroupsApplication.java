@@ -22,6 +22,7 @@ public class ExternalGroupsApplication extends Application {
 
 		// Defines only one route
 		router.attach("/group/{group}", ExternalGroupsResource.class);
+		router.attach("/group/search/", ExternalGroupsSearch.class);
 
 		return router;
 	}
