@@ -86,7 +86,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		LDAPConnection connection = null;
 		try {
 			connection = getConnection();
-			String filter = "displayName=*"+ query+ "*";
+			String filter = "ou=*"+ query+ "*";
 			LDAPSearchResults results = connection.search("ou=units,dc=oak,dc=ox,dc=ac,dc=uk", LDAPConnection.SCOPE_SUB, filter, getSearchAttributes(), false);
 			groups = new ArrayList<ExternalGroup>(results.getCount());
 			while (results.hasMore()) {
@@ -107,36 +107,36 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 
 	ExternalGroup convert(LDAPEntry entry) {
 		String dn = entry.getDN();
-		LDAPAttribute attribute = entry.getAttribute("displayName");
-		String displayName = null;
+		LDAPAttribute attribute = entry.getAttribute("ou");
+		String name = null;
 		if (attribute != null) {
-			String[] displayNames = attribute.getStringValueArray();
-			if (displayNames.length == 1) {
-				displayName = displayNames[0];
+			String[] names = attribute.getStringValueArray();
+			if (names.length == 1) {
+				name = names[0];
 			} else {
-				if (displayNames.length == 0) {
-					log.warn("No display names for: "+ dn);
+				if (names.length == 0) {
+					log.warn("No names for: "+ dn);
 				} else {
-					displayName = displayNames[0];
-					log.warn("Found "+ displayNames.length+ " for: "+ dn);
+					name = names[0];
+					log.warn("Found "+ names.length+ " for: "+ dn);
 				}
 			}
 		}
-		if (displayName == null) {
+		if (name == null) {
 			if (log.isDebugEnabled()) {
 				log.debug("Failed to convert ldap entry: "+ entry);
 			}
 			return null;
 		}
-		return newExternalGroup(dn, displayName);
+		return newExternalGroup(dn, name);
 	}
 	
-	ExternalGroup newExternalGroup(String id, String displayName) {
-		return new ExternalGroupImpl(id, displayName, this);
+	ExternalGroup newExternalGroup(String id, String name) {
+		return new ExternalGroupImpl(id, name, this);
 	}
 
 	String[] getSearchAttributes() {
-		return new String[]{"displayName"};
+		return new String[]{"ou"};
 	}
 
 	void ensureConnectionManager() {
