@@ -56,8 +56,9 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	
 	public ExternalGroup findExternalGroup(String externalGroupId) {
 		ExternalGroup group = null;
+		LDAPConnection connection = null;
 		try {
-			LDAPConnection connection = getConnection();
+			connection = getConnection();
 			LDAPSearchResults results = connection.search(externalGroupId, LDAPConnection.SCOPE_BASE, null, getSearchAttributes(), false);
 			if (results.hasMore()) {
 				group = convert(results.next());
@@ -67,6 +68,10 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			}
 		} catch (LDAPException ldape) {
 			log.error("Problem with LDAP.", ldape);
+		} finally {
+			if (connection != null) {
+				returnConnection(connection);
+			}
 		}
 		return group;
 	}
@@ -76,8 +81,9 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			return Collections.emptyList();
 		}
 		List<ExternalGroup> groups = null;
+		LDAPConnection connection = null;
 		try {
-			LDAPConnection connection = getConnection();
+			connection = getConnection();
 			String filter = "displayName=*"+ query+ "*";
 			LDAPSearchResults results = connection.search("ou=units,dc=oak,dc=ox,dc=ac,dc=uk", LDAPConnection.SCOPE_SUB, filter, getSearchAttributes(), false);
 			groups = new ArrayList<ExternalGroup>(results.getCount());
@@ -89,6 +95,10 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			}
 		} catch (LDAPException ldape) {
 			log.error("Problem with LDAP.", ldape);
+		} finally {
+			if (connection != null) {
+				returnConnection(connection);
+			}
 		}
 		return groups;
 	}
@@ -126,6 +136,12 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	String[] getSearchAttributes() {
 		return new String[]{"displayName"};
 	}
+
+	void ensureConnectionManager() {
+		if (ldapConnectionManager == null) { 
+			ldapConnectionManager = jldapDirectoryProvider.getLdapConnectionManager();
+		}
+	}
 	
 	/**
 	 * Get an LDAP Connection.
@@ -137,10 +153,13 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	 * @throws LDAPException 
 	 */
 	LDAPConnection getConnection() throws LDAPException {
-		if (ldapConnectionManager == null) { 
-			ldapConnectionManager = jldapDirectoryProvider.getLdapConnectionManager();
-		}
+		ensureConnectionManager();
 		return ldapConnectionManager.getConnection();
+	}
+
+	void returnConnection(LDAPConnection connection) {
+		ensureConnectionManager();
+		ldapConnectionManager.returnConnection(connection);
 	}
 
 	public void setLdapConnectionManager(LdapConnectionManager ldapConnectionManager) {
@@ -158,8 +177,9 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 
 	Iterator<User> findMembers(String externalId) {
 		Collection<User> users = Collections.emptyList();
+		LDAPConnection connection = null;
 		try {
-			LDAPConnection connection = getConnection();
+			connection = getConnection();
 			LDAPSearchResults results = connection.search(externalId, LDAPConnection.SCOPE_BASE, null, new String[]{"member"}, false);
 			while(results.hasMore()) {
 				LDAPEntry entry = results.next();
@@ -192,6 +212,10 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			
 		} catch (ParseException e) {
 			log.error("Error in formatter, can't load members. "+ e.getMessage());
+		} finally {
+			if (connection != null) {
+				returnConnection(connection);
+			}
 		}
 		return users.iterator();
 	}
