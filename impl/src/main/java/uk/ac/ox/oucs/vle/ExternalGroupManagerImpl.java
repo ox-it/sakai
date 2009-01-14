@@ -59,15 +59,17 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		LDAPConnection connection = null;
 		try {
 			connection = getConnection();
-			LDAPSearchResults results = connection.search(externalGroupId, LDAPConnection.SCOPE_BASE, null, getSearchAttributes(), false);
-			if (results.hasMore()) {
-				group = convert(results.next());
-				if (results.hasMore()) {
-					log.warn("More than one result for:"+ externalGroupId);
-				}
+			LDAPEntry entry = connection.read(externalGroupId, getSearchAttributes());
+			if (entry != null) {
+				group = convert(entry);
 			}
 		} catch (LDAPException ldape) {
-			log.error("Problem with LDAP.", ldape);
+			// Not finding a DN throws an exception.
+			if (LDAPException.NO_SUCH_OBJECT == ldape.getResultCode()) {
+				log.debug("Didn't find group ID: "+ externalGroupId);
+			} else {
+				log.error("Problem with LDAP.", ldape);
+			}
 		} finally {
 			if (connection != null) {
 				returnConnection(connection);
