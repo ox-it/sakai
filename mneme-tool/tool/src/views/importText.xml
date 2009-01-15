@@ -64,9 +64,9 @@
 
 		<section>
 			<container>
-				<htmlEdit title="paste-message" size="FULL">
-					<model type="text" stripHtml="TRUE" ref="text.value" />
-				</htmlEdit>
+				<textEdit title="paste-message" rows="20" cols="60">
+					<model type="text" ref="text.value" />
+				</textEdit>
 			</container>
 		</section>
 

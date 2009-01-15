@@ -117,8 +117,11 @@ public class ImportTextServiceImpl implements ImportTextService
 		String descriptionKey = "description:";
 		String difficultyKey = "difficulty:";
 
+		// replace any \r\n with just a \n
+		text = text.replaceAll("\r\n", "\n");
+
 		// parse the text into lines
-		String[] lines = text.split("\n");
+		String[] lines = text.split("[\n]");
 
 		// trim each one - record the blank index positions
 		List<Integer> blanks = new ArrayList<Integer>();

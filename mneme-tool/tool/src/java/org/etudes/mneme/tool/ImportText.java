@@ -121,9 +121,8 @@ public class ImportText extends ControllerImpl
 		// read the form
 		String destination = uiService.decode(req, context);
 
-		// TODO: get the text clean!
+		// the text
 		String text = textValue.getValue();
-		text = "Title:imported pool\nPoints:10\nDescription:pasted questions\n\nFirst group\nA. True\n*B. False\n\nSecond group\nA. 12\nB. 14\n*C. 16\n";
 
 		// import the pools
 		if ("IMPORT".equals(destination))
