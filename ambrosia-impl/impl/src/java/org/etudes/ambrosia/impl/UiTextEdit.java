@@ -48,6 +48,9 @@ public class UiTextEdit extends UiComponent implements TextEdit
 	/** The number of columns per row for the box. */
 	protected int numCols = 50;
 
+	/** The number of rows for the edit - if > 1, a textarea is requested. */
+	protected int numRows = 1;
+
 	/** The decision to control the onEmptyAlert. */
 	protected Decision onEmptyAlertDecision = null;
 
@@ -123,14 +126,23 @@ public class UiTextEdit extends UiComponent implements TextEdit
 		}
 
 		// size
+		int cols = this.numCols;
+		int rows = this.numRows;
 		try
 		{
-			int cols = Integer.parseInt(xml.getAttribute("cols"));
-			setSize(cols);
+			rows = Integer.parseInt(xml.getAttribute("rows"));
 		}
 		catch (Throwable ignore)
 		{
 		}
+		try
+		{
+			cols = Integer.parseInt(xml.getAttribute("cols"));
+		}
+		catch (Throwable ignore)
+		{
+		}
+		setSize(rows, cols);
 
 		// title
 		Element settingsXml = XmlHelper.getChildElementNamed(xml, "title");
@@ -275,8 +287,17 @@ public class UiTextEdit extends UiComponent implements TextEdit
 		}
 
 		// the edit control
-		response.println("<input " + onchange + "type=\"text\" id=\"" + id + "\" name=\"" + id + "\" size=\"" + Integer.toString(numCols)
-				+ "\" value=\"" + Validator.escapeHtml(value) + "\"" + (readOnly ? " disabled=\"disabled\"" : "") + " />");
+		if (this.numRows == 1)
+		{
+			response.println("<input " + onchange + "type=\"text\" id=\"" + id + "\" name=\"" + id + "\" size=\"" + Integer.toString(this.numCols)
+					+ "\" value=\"" + Validator.escapeHtml(value) + "\"" + (readOnly ? " disabled=\"disabled\"" : "") + " />");
+		}
+		else
+		{
+			response.println("<textarea " + onchange + "id=\"" + id + "\" name=\"" + id + "\" cols=\"" + Integer.toString(this.numCols)
+					+ "\" rows = \"" + Integer.toString(this.numRows) + "\" wrap=\"SOFT\"" + (readOnly ? " disabled=\"disabled\"" : "") + ">\n"
+					+ Validator.escapeHtmlTextarea(value) + "\n" + "</textarea>");
+		}
 
 		context.editComponentRendered(id);
 
@@ -368,8 +389,9 @@ public class UiTextEdit extends UiComponent implements TextEdit
 	/**
 	 * {@inheritDoc}
 	 */
-	public TextEdit setSize(int cols)
+	public TextEdit setSize(int rows, int cols)
 	{
+		this.numRows = rows;
 		this.numCols = cols;
 
 		return this;
@@ -406,7 +428,7 @@ public class UiTextEdit extends UiComponent implements TextEdit
 		response.println("<option value=\"\"></option>");
 		if (options instanceof Collection)
 		{
-			for (Object option : (Collection) options)
+			for (Object option : (Collection<Object>) options)
 			{
 				String str = option.toString();
 				response.println("<option value=\"" + str + "\">" + str + "</option>");

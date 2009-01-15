@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -87,11 +87,13 @@ public interface TextEdit extends Component
 	/**
 	 * Set the size of the text edit box in columns.
 	 * 
+	 * @param rows
+	 *        The number of rows to show.
 	 * @param cols
 	 *        The number of columns to show.
 	 * @return self.
 	 */
-	TextEdit setSize(int cols);
+	TextEdit setSize(int rows, int cols);
 
 	/**
 	 * Set the title text.
