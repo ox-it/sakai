@@ -1,0 +1,178 @@
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2009 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
+package org.etudes.mneme.tool;
+
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.etudes.ambrosia.api.Context;
+import org.etudes.ambrosia.api.Value;
+import org.etudes.ambrosia.util.ControllerImpl;
+import org.etudes.mneme.api.AssessmentPermissionException;
+import org.etudes.mneme.api.ImportTextService;
+import org.etudes.mneme.api.PoolService;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.Web;
+
+/**
+ * The /import_text view for the mneme tool.
+ */
+public class ImportText extends ControllerImpl
+{
+	/** Our log. */
+	private static Log M_log = LogFactory.getLog(ImportText.class);
+
+	/** Dependency: ImportTextService */
+	protected ImportTextService importTextService = null;
+
+	/** Pool Service */
+	protected PoolService poolService = null;
+
+	/** tool manager reference. */
+	protected ToolManager toolManager = null;
+
+	/**
+	 * Shutdown.
+	 */
+	public void destroy()
+	{
+		M_log.info("destroy()");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
+	{
+		// [2] pools sort
+		if (params.length != 3)
+		{
+			throw new IllegalArgumentException();
+		}
+		String poolsSort = params[2];
+		context.put("poolsSort", poolsSort);
+
+		if (!this.poolService.allowManagePools(toolManager.getCurrentPlacement().getContext()))
+		{
+			// redirect to error
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+
+		// render
+		uiService.render(ui, context);
+	}
+
+	/**
+	 * Final initialization, once all dependencies are set.
+	 */
+	public void init()
+	{
+		super.init();
+		M_log.info("init()");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
+	{
+		// [2] pools sort
+		if (params.length != 3)
+		{
+			throw new IllegalArgumentException();
+		}
+		String poolsSort = params[2];
+
+		if (!this.poolService.allowManagePools(toolManager.getCurrentPlacement().getContext()))
+		{
+			// redirect to error
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+
+		// for the text
+		Value textValue = this.uiService.newValue();
+		context.put("text", textValue);
+
+		// read the form
+		String destination = uiService.decode(req, context);
+
+		// TODO: get the text clean!
+		String text = textValue.getValue();
+		text = "Title:imported pool\nPoints:10\nDescription:pasted questions\n\nFirst group\nA. True\n*B. False\n\nSecond group\nA. 12\nB. 14\n*C. 16\n";
+
+		// import the pools
+		if ("IMPORT".equals(destination))
+		{
+			try
+			{
+				this.importTextService.importQuestions(toolManager.getCurrentPlacement().getContext(), null, text);
+			}
+			catch (AssessmentPermissionException e)
+			{
+				// redirect to error
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+				return;
+			}
+
+			destination = "/pools/" + poolsSort;
+		}
+
+		res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
+	}
+
+	/**
+	 * Set the ImportTextService
+	 * 
+	 * @param service
+	 *        the ImportQtiService.
+	 */
+	public void setImportTextService(ImportTextService service)
+	{
+		this.importTextService = service;
+	}
+
+	/**
+	 * @param poolService
+	 *        the poolService to set
+	 */
+	public void setPoolService(PoolService poolService)
+	{
+		this.poolService = poolService;
+	}
+
+	/**
+	 * Set the tool manager.
+	 * 
+	 * @param manager
+	 *        The tool manager.
+	 */
+	public void setToolManager(ToolManager manager)
+	{
+		toolManager = manager;
+	}
+}

@@ -569,6 +569,29 @@
 		<property name="bundle"><value>mnemeImpl</value></property>
  	</bean>
 
+	<bean id="org.etudes.mneme.api.ImportTextService"
+		class="org.etudes.mneme.impl.ImportTextServiceImpl"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="gradesService"><ref bean="org.etudes.mneme.api.GradesService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+
+		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>		
+
+		<property name="bundle"><value>mnemeImpl</value></property>
+ 	</bean>
+
 	<bean id="org.etudes.mneme.api.MnemeTransferService"
 			class="org.etudes.mneme.impl.MnemeTransferServiceImpl"
 			init-method="init"
