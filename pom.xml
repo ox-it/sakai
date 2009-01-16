@@ -97,6 +97,12 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.sakaiproject</groupId>
+				<artifactId>sakai-component-api</artifactId>
+				<version>M2</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
 				<groupId>commons-logging</groupId>
 				<artifactId>commons-logging</artifactId>
 				<version>1.0.4</version>
@@ -106,6 +112,18 @@
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-mock</artifactId>
 				<version>2.0.8</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate</artifactId>
+				<version>3.2.5.ga</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring</artifactId>
+				<version>2.0.6</version>
 				<scope>provided</scope>
 			</dependency>
 		</dependencies>
