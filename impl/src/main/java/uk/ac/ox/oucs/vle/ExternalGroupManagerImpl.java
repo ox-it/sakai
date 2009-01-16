@@ -33,6 +33,8 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	
 	UserDirectoryService userDirectoryService;
 	
+	MappedGroupDao mappedGroupDao;
+	
 	public void init() {
 		log.debug("init()");
 		if (ldapConnectionManager == null && jldapDirectoryProvider == null) {
@@ -41,17 +43,28 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		if (userDirectoryService == null) {
 			throw new IllegalStateException("UserDirectoryService must be set.");
 		}
+		if (mappedGroupDao == null) {
+			throw new IllegalStateException("MappedGroupDao must be set.");
+		}
 			
 	}
 
 	public String addMappedGroup(String externalGroupId, String role) {
-		// TODO Auto-generated method stub
-		return null;
+		ExternalGroup group = findExternalGroup(externalGroupId);
+		if (group == null) {
+			return null;
+		}
+		MappedGroup mappedGroup = mappedGroupDao.findByGroupRole(externalGroupId, role);
+		if (mappedGroup == null) {
+			return mappedGroupDao.newMappedGroup(externalGroupId, role);
+		} else {
+			return mappedGroup.getId();
+		}
 	}
 
 	public String findExternalGroupId(String mappedGroupId) {
-		// TODO Auto-generated method stub
-		return null;
+		MappedGroup mappedGroup = mappedGroupDao.findById(mappedGroupId);
+		return (mappedGroup == null)?null:mappedGroup.getExternalGroup();
 	}
 	
 	public ExternalGroup findExternalGroup(String externalGroupId) {
@@ -65,9 +78,14 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			}
 		} catch (LDAPException ldape) {
 			// Not finding a DN throws an exception.
-			if (LDAPException.NO_SUCH_OBJECT == ldape.getResultCode()) {
-				log.debug("Didn't find group ID: "+ externalGroupId);
-			} else {
+			switch (ldape.getResultCode()) {
+			case LDAPException.NO_SUCH_OBJECT:
+				log.debug("Didn't find group ID: " + externalGroupId);
+				break;
+			case LDAPException.INVALID_DN_SYNTAX:
+				log.debug("Badly formed DN: " + externalGroupId);
+				throw new IllegalArgumentException("Badly formed DN: "+ externalGroupId);
+			default:
 				log.error("Problem with LDAP.", ldape);
 			}
 		} finally {
@@ -175,6 +193,10 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	public void setJldapDirectoryProvider(
 			JLDAPDirectoryProvider jldapDirectoryProvider) {
 		this.jldapDirectoryProvider = jldapDirectoryProvider;
+	}
+
+	public void setMappedGroupDao(MappedGroupDao mappedGroupDao) {
+		this.mappedGroupDao = mappedGroupDao;
 	}
 
 	Iterator<User> findMembers(String externalId) {
