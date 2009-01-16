@@ -3,19 +3,23 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-   <!-- put your value object in the class name, 
-      the table name is optional but you should specify it to avoid collisions -->
-   <class name="uk.ac.ox.oucs.vle.MappedGroup"
-      table="MAPPED_GROUP">
+	<!--
+		put your value object in the class name, the table name is optional
+		but you should specify it to avoid collisions
+	-->
+	<class name="uk.ac.ox.oucs.vle.MappedGroup" table="MAPPED_GROUP">
 
-      <!-- <cache usage="read-write"/> -->
+		<!-- <cache usage="read-write"/> -->
 
-      <!-- create the primary key id -->
-      <id name="id" type="string">
-         <column name="ID" />
-      </id>
-      <property name="externalGroup" type="string" length="128" index="mapped_external_group_idx"/>
-      <property name="role" type="string" length="32" />
+		<!-- create the primary key id -->
+		<id name="id" type="string">
+			<column name="ID" />
+			<generator class="uuid" />
+		</id>
+		<property name="externalGroup" type="string" length="128"
+			index="mapped_external_group_idx" />
+		<property name="role" type="string" length="32"
+			index="mapped_external_group_idx" />
 
-   </class>
+	</class>
 </hibernate-mapping>
