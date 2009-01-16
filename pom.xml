@@ -10,6 +10,7 @@
 
 	<modules>
 		<module>api</module>
+		<module>hbm</module>
 		<module>impl</module>
 		<module>tool</module>
 	</modules>
@@ -46,6 +47,12 @@
 			<dependency>
 				<groupId>uk.ac.ox.oucs</groupId>
 				<artifactId>external-groups-api</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>uk.ac.ox.oucs</groupId>
+				<artifactId>external-groups-hbm</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
