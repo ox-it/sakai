@@ -104,7 +104,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		LDAPConnection connection = null;
 		try {
 			connection = getConnection();
-			String filter = "ou=*"+ query+ "*";
+			String filter = "ou=*"+ escapeSearchFilterTerm(query)+ "*";
 			LDAPSearchResults results = connection.search("ou=units,dc=oak,dc=ox,dc=ac,dc=uk", LDAPConnection.SCOPE_SUB, filter, getSearchAttributes(), false);
 			groups = new ArrayList<ExternalGroup>(results.getCount());
 			while (results.hasMore()) {
@@ -208,6 +208,9 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			while(results.hasMore()) {
 				LDAPEntry entry = results.next();
 				LDAPAttribute memberAttr = entry.getAttribute("member");
+				if (memberAttr == null) {
+					continue;
+				}
 				String[] members = memberAttr.getStringValueArray();
 				
 				MessageFormat formatter = new MessageFormat("oakPrimaryPersonID={0},ou=people,dc=oak,dc=ox,dc=ac,dc=uk");
@@ -242,6 +245,20 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			}
 		}
 		return users.iterator();
+	}
+	
+    public String escapeSearchFilterTerm(String term) {
+		if (term == null)
+			return null;
+		// From RFC 2254
+		String escapedStr = new String(term);
+		escapedStr = escapedStr.replaceAll("\\\\", "\\\\5c");
+		escapedStr = escapedStr.replaceAll("\\*", "\\\\2a");
+		escapedStr = escapedStr.replaceAll("\\(", "\\\\28");
+		escapedStr = escapedStr.replaceAll("\\)", "\\\\29");
+		escapedStr = escapedStr.replaceAll("\\" + Character.toString('\u0000'),
+				"\\\\00");
+		return escapedStr;
 	}
 
 }
