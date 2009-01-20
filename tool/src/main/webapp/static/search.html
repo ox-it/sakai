@@ -11,26 +11,77 @@
 <title>Insert title here</title>
 <script type="text/javascript" src="js/jquery-1.3.js"></script>
 <script type="text/javascript" src="js/jquery.autocomplete.js"></script>
+<script type="text/javascript" src="js/trimpath-template-1.0.38.js"></script>
 <script type="text/javascript">
 	// Make sure we send as text/plain
-	jQuery.ajaxSetup({
-		beforeSend: function(xhr) {xhr.setRequestHeader("Accept", "text/plain")}
-	});
 	jQuery(document).ready(function(){
-		jQuery("#ldap-search").autocomplete("../group/search/", {
+		jQuery("#ldap-search").autocomplete("../group/autocomplete", {
 			loadingClass: "my_ac_loading"
+		});
+		jQuery("form.find-group").bind("submit", function(event) {
+			var groupName = jQuery("#ldap-search").val();
+			if (groupName) {
+				var submit = jQuery("form.find-group input[type='submit']");
+				submit.attr("disabled","true");
+				jQuery.getJSON("../group/search", {"q": groupName}, function(data, textStatus) {
+					submit.removeAttr("disabled");
+					if (textStatus == "success") {
+						if (data.length == 1) {
+							// Wooho
+							var htmlResult = TrimPath.processDOMTemplate("group_jst", data[0]);
+							jQuery("form.show-group").html(htmlResult).show(1000);
+							jQuery.getJSON("../group/"+ data[0].id+ "/members", {}, function(data, textStatus) {
+								// loading members.
+								if (textStatus == "success") {
+									var htmlResult = TrimPath.processDOMTemplate("membership_jst", {"members": data});
+									jQuery(".show-group .members").html(htmlResult);
+									
+								} 
+							});
+						} else if (data.length == 0) {
+							
+						} else {
+							
+						}
+					}
+				});
+			}
+			return false;
 		});
 	});
 </script>
 </head>
 <body>
-<form>
+<div style="display:none">
+	<textarea id="group_jst">
+		<h4 class="group">${name}</h4>
+		<h5>Membership</h5>
+		<ul class="members">
+			<li>Loading<img src="images/ajax-loader.gif"/></li>
+		</ul>
+		
+		<label for="access">Access</label>
+		<input id="access" type="radio" name="role" value="access"><br/>
+		<label for="maintain">Maintain</label>
+		<input id="maintain" type="radio" name="role" value="maintain">
+	</textarea>
+	<textarea id="membership_jst">
+		{for member in members}
+		<li>${member.name} <span class="username">(${member.username})</span></li>
+		{/for}
+	</textarea>
+</div>
+
+<form class="find-group">
 	<fieldset>
 	<label>Find a group:</label>
 	<input type="text" id="ldap-search" name="group" size="30"/>
 	</fieldset>
 	<input type="submit" value="Next"/>
 </form>
+<form class="show-group" style="display:none">
+</form>
+	
 
 </body>
 </html>

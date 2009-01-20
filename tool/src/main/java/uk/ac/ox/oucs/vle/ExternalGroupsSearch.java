@@ -13,14 +13,13 @@ import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
-import org.restlet.resource.StringRepresentation;
 import org.restlet.resource.Variant;
 
 public class ExternalGroupsSearch extends Resource {
 
 	private List<ExternalGroup> groups;
 	
-	private static Comparator<ExternalGroup> sorter = new Comparator<ExternalGroup>() {
+	static Comparator<ExternalGroup> sorter = new Comparator<ExternalGroup>() {
 
 		public int compare(ExternalGroup o1, ExternalGroup o2) {
 			return (o1.getName() != null)?o1.getName().compareTo(o2.getName()):-1;
@@ -40,7 +39,6 @@ public class ExternalGroupsSearch extends Resource {
 		Collections.sort(groups,sorter);
 		
 		getVariants().add(new Variant(MediaType.TEXT_JAVASCRIPT));
-		getVariants().add(new Variant(MediaType.TEXT_PLAIN));
 	}
 
 	public Representation represent(Variant varient) throws ResourceException {
@@ -48,19 +46,13 @@ public class ExternalGroupsSearch extends Resource {
 			JSONArray groupsJSON = new JSONArray();
 
 			for (ExternalGroup group : groups) {
-				groupsJSON.put(ExternalGroupsResource.convertGroupToMap(group));
+				groupsJSON.put(ExternalGroupsResource.convertGroupToMap(group, false));
 			}
 
 			Representation representation = new JsonRepresentation(groupsJSON);
 			return representation;
-		} else {
-			StringBuilder output = new StringBuilder();
-			for (ExternalGroup group : groups) {
-				output.append(group.getName());
-				output.append("\n");
-			}
-			return new StringRepresentation(output.toString());
-		}
+		} 
+		return null;
 	}
 	
 
