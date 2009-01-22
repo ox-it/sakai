@@ -124,6 +124,8 @@ var TrimPath;
         this.process = function(context, flags) {
             if (context == null)
                 context = {};
+			if (typeof context != "object")
+				throw "Context must be an object but is an "+ typeof context;
             if (context._MODIFIERS == null)
                 context._MODIFIERS = {};
             if (context.defined == null)
