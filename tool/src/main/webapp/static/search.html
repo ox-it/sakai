@@ -15,45 +15,84 @@
 <script type="text/javascript">
 	// Make sure we send as text/plain
 	jQuery(document).ready(function(){
-		jQuery("#ldap-search").autocomplete("../group/autocomplete", {
-			loadingClass: "my_ac_loading"
-		});
-		jQuery("form.find-group").bind("submit", function(event) {
-			var groupName = jQuery("#ldap-search").val();
-			if (groupName) {
-				var submit = jQuery("form.find-group input[type='submit']");
-				submit.attr("disabled","true");
-				jQuery.getJSON("../group/search", {"q": groupName}, function(data, textStatus) {
-					submit.removeAttr("disabled");
-					if (textStatus == "success") {
-						if (data.length == 1) {
-							// Wooho
-							var htmlResult = TrimPath.processDOMTemplate("group_jst", data[0]);
-							jQuery("form.show-group").html(htmlResult).show(1000);
-							jQuery.getJSON("../group/"+ data[0].id+ "/members", {}, function(data, textStatus) {
-								// loading members.
-								if (textStatus == "success") {
-									var htmlResult = TrimPath.processDOMTemplate("membership_jst", {"members": data});
-									jQuery(".show-group .members").html(htmlResult);
-									
-								} 
-							});
-						} else if (data.length == 0) {
-							
-						} else {
-							
-						}
-					}
+
+		this.url = function(param) {
+			var regex = '[?&]' + param + '=([^&#]*)';
+			var results = (new RegExp(regex)).exec(window.location.href);
+			if(results) return results[1];
+				return '';
+		}
+
+		var site = this.url("site");
+		
+		jQuery.ajax({
+			url: "../site/"+ site+ "/addgroup",
+            method: "GET",
+			success: function(json, textStatus) {
+				eval("var siteData = "+ json);
+				var content = TrimPath.processDOMTemplate("find_jst", siteData);
+				jQuery("#content").append(content);
+				// Add autocomplete support.
+				jQuery("#ldap-search").autocomplete("../group/autocomplete", {
+					loadingClass: "my_ac_loading"
 				});
-			}
-			return false;
+
+				// Add the display members support.
+				jQuery("form.find-group").bind("submit", function(event) {
+					var groupName = jQuery("#ldap-search").val();
+					if (groupName) {
+						var submit = jQuery("form.find-group input[type='submit']");
+						submit.attr("disabled","true");
+						jQuery.getJSON("../group/search", {"q": groupName}, function(data, textStatus) {
+							submit.removeAttr("disabled");
+							if (textStatus == "success") {
+								if (data.length == 1) {
+									// Wooho
+									var htmlResult = TrimPath.processDOMTemplate("group_jst", data[0]);
+									jQuery("#content").append(htmlResult);
+									jQuery.getJSON("../group/"+ data[0].id+ "/members", {}, function(data, textStatus) {
+										// loading members.
+										if (textStatus == "success") {
+											var htmlResult = TrimPath.processDOMTemplate("membership_jst", {"members": data});
+											jQuery(".show-group .members").html(htmlResult);
+
+										}
+									});
+								} else if (data.length == 0) {
+
+								} else {
+
+								}
+							}
+						});
+					}
+					return false;
+				});
+			},
+		error: function(xhr, textStatus, errorThrown) {
+			alert("bugger me");
+		}
 		});
 	});
+
 </script>
 </head>
 <body>
 <div style="display:none">
+	<textarea id="find_jst">
+		<div class="find">
+		<h1>Adding group for ${title}</h1>
+		<form class="find-group">
+		<fieldset>
+		<label>Find a group:</label>
+		<input type="text" id="ldap-search" name="group" size="30"/>
+		</fieldset>
+		<input type="submit" value="Next"/>
+		</form>
+		</div>
+	</textarea>
 	<textarea id="group_jst">
+		<form class="show-group">
 		<h4 class="group">${name}</h4>
 		<h5>Membership</h5>
 		<ul class="members">
@@ -64,6 +103,7 @@
 		<input id="access" type="radio" name="role" value="access"><br/>
 		<label for="maintain">Maintain</label>
 		<input id="maintain" type="radio" name="role" value="maintain">
+		</form>
 	</textarea>
 	<textarea id="membership_jst">
 		{for member in members}
@@ -72,15 +112,11 @@
 	</textarea>
 </div>
 
-<form class="find-group">
-	<fieldset>
-	<label>Find a group:</label>
-	<input type="text" id="ldap-search" name="group" size="30"/>
-	</fieldset>
-	<input type="submit" value="Next"/>
-</form>
-<form class="show-group" style="display:none">
-</form>
+
+
+<div id="content">
+	<!-- Templates get put in here .... -->
+</div>
 	
 
 </body>
