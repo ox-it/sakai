@@ -33,6 +33,7 @@ import org.etudes.mneme.api.GradesService;
 import org.etudes.mneme.api.ImportTextService;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
+import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.SecurityService;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -401,8 +402,73 @@ public class ImportTextServiceImpl implements ImportTextService
 	 * @param lines
 	 *        The lines to process.
 	 */
-	protected void processTextGroup(Pool pool, String[] lines)
+	protected void processTextGroup(Pool pool, String[] lines) throws AssessmentPermissionException
 	{
-		// TODO:
+		if (processTextTrueFalse(pool, lines)) return;
+	}
+	
+	/**
+	 * Process if it is recognized as a true false question.
+	 * 
+	 * @param pool
+	 * 		  The pool to hold the question.
+	 * @param lines
+	 * 		  The lines to process.
+	 * @return true if successfully recognized and processed, false if not.
+	 * 
+	 * @throws AssessmentPermissionException
+	 */
+	protected boolean processTextTrueFalse(Pool pool, String[] lines) throws AssessmentPermissionException
+	{
+		//if there are only 2 answers, and they are true and false then that may be a true/false question
+		if (lines.length == 3)
+		{
+			boolean isTrue = false;
+			
+			String[] answer1 = lines[1].trim().split("\\s+");
+			String[] answer2 = lines[2].trim().split("\\s+");
+			
+			if (answer1.length != 2 && answer2.length != 2)
+				return false;
+			
+			//check for true and false answers
+			if (("true".equalsIgnoreCase(answer1[1]) && "false".equalsIgnoreCase(answer2[1])) || 
+					("false".equalsIgnoreCase(answer1[1]) && "true".equalsIgnoreCase(answer2[1])))
+			{
+				//true/false question should have only one answer
+				if (answer1[0].startsWith("*") && answer2[0].startsWith("*"))
+					return false;
+				
+				if (answer1[0].startsWith("*") && "true".equalsIgnoreCase(answer1[1]))
+					isTrue = true;
+				
+				if (answer2[0].startsWith("*") && "true".equalsIgnoreCase(answer2[1]))
+					isTrue = true;
+					
+				if ((answer1[0].startsWith("*") && "true".equalsIgnoreCase(answer1[1])) || 
+					(answer2[0].startsWith("*") && "true".equalsIgnoreCase(answer2[1])))
+				{
+					isTrue = true;
+				}
+				
+				// create the question
+				Question question = this.questionService.newQuestion(pool, "mneme:TrueFalse");
+				TrueFalseQuestionImpl tf = (TrueFalseQuestionImpl) (question.getTypeSpecificQuestion());
+
+				// set the text
+				String clean = HtmlHelper.clean(lines[0].trim());
+				question.getPresentation().setText(clean);
+
+				// the correct answer
+				tf.setCorrectAnswer(Boolean.toString(isTrue));
+
+				// save
+				question.getTypeSpecificQuestion().consolidate("");
+				this.questionService.saveQuestion(question);
+				
+				return true;
+			}
+		}
+		return false;
 	}
 }
