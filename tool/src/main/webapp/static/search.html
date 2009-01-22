@@ -13,7 +13,6 @@
 <script type="text/javascript" src="js/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="js/trimpath-template-1.0.38.js"></script>
 <script type="text/javascript">
-	// Make sure we send as text/plain
 	jQuery(document).ready(function(){
 
 		this.url = function(param) {
@@ -23,6 +22,7 @@
 				return '';
 		}
 
+
 		var site = this.url("site");
 		
 		jQuery.ajax({
@@ -31,7 +31,7 @@
 			success: function(json, textStatus) {
 				eval("var siteData = "+ json);
 				var content = TrimPath.processDOMTemplate("find_jst", siteData);
-				jQuery("#content").append(content);
+				jQuery("#content").html(content);
 				// Add autocomplete support.
 				jQuery("#ldap-search").autocomplete("../group/autocomplete", {
 					loadingClass: "my_ac_loading"
@@ -48,9 +48,10 @@
 							if (textStatus == "success") {
 								if (data.length == 1) {
 									// Wooho
-									var htmlResult = TrimPath.processDOMTemplate("group_jst", data[0]);
+									var group = data[0];
+									var htmlResult = TrimPath.processDOMTemplate("group_jst", {group: group, site: siteData});
 									jQuery("#content").append(htmlResult);
-									jQuery.getJSON("../group/"+ data[0].id+ "/members", {}, function(data, textStatus) {
+									jQuery.getJSON("../group/"+ group.id+ "/members", {}, function(data, textStatus) {
 										// loading members.
 										if (textStatus == "success") {
 											var htmlResult = TrimPath.processDOMTemplate("membership_jst", {"members": data});
@@ -58,6 +59,27 @@
 
 										}
 									});
+									jQuery("form.show-group").
+										bind("submit", function(event) {
+											var role = jQuery("form.show-group input[name=role]:checked").val();
+											if (role != null) {
+												console.log("Selected role: "+role+ " group is "+ group.id);
+												jQuery.ajax({
+													url: "../mapped/",
+													type: "POST",
+													data: {group: group.id, role: role},
+													success: function(json, textStatus) {
+														eval("var data = "+ json);
+														console.log(data);
+													},
+													error: function() {
+														console.log("tits up");
+													}
+												});
+
+											}
+											return false;
+										});
 								} else if (data.length == 0) {
 
 								} else {
@@ -86,6 +108,7 @@
 		<fieldset>
 		<label>Find a group:</label>
 		<input type="text" id="ldap-search" name="group" size="30"/>
+		<span id="ldap-search-error" class="error"></span>
 		</fieldset>
 		<input type="submit" value="Next"/>
 		</form>
@@ -93,16 +116,19 @@
 	</textarea>
 	<textarea id="group_jst">
 		<form class="show-group">
-		<h4 class="group">${name}</h4>
+		<h4 class="group">${group.name}</h4>
 		<h5>Membership</h5>
+		{for role in site.roles}
+		<label for="${role.id}">${role.id}</label>
+		<input id="access" type="radio" name="role" value="${role.id}"><br/>
+		{/for}
+		<input type="submit" value="Add Group"/>
+
 		<ul class="members">
 			<li>Loading<img src="images/ajax-loader.gif"/></li>
 		</ul>
 		
-		<label for="access">Access</label>
-		<input id="access" type="radio" name="role" value="access"><br/>
-		<label for="maintain">Maintain</label>
-		<input id="maintain" type="radio" name="role" value="maintain">
+
 		</form>
 	</textarea>
 	<textarea id="membership_jst">
