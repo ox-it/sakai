@@ -498,13 +498,14 @@ public class ImportTextServiceImpl implements ImportTextService
 	{
 		/*if there is only one answer for more answer choices then that may be a multiple choice question*/
 		
-		String correctAnswer = null, answerChoice = null;
+		String answerChoice = null;
 		boolean first = true;
 		boolean foundAnswer = false;
-		// set the choices
+		int correctAnswerIndex = 0;
 		List<String> choices = new ArrayList<String>();
 		String clean = null;
 		
+		int answersIndex = 0;
 		for (String line : lines)
 		{
 			//ignore first line as first line is question text
@@ -521,7 +522,7 @@ public class ImportTextServiceImpl implements ImportTextService
 			{
 				if (!foundAnswer)
 				{
-					correctAnswer = line.substring(answer[0].length()).trim();
+					correctAnswerIndex = answersIndex;
 					foundAnswer = true;
 				}
 				else
@@ -530,6 +531,7 @@ public class ImportTextServiceImpl implements ImportTextService
 			answerChoice = line.substring(answer[0].length()).trim();
 			clean = HtmlHelper.clean(answerChoice);
 			choices.add(clean);
+			answersIndex++;
 		}
 		
 		if (!foundAnswer)
@@ -555,19 +557,10 @@ public class ImportTextServiceImpl implements ImportTextService
 		Set<Integer> correctAnswers = new HashSet<Integer>();
 		List<MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice> choicesAuthored = mc.getChoicesAsAuthored();
 
-		// find this answer
-		for (int index = 0; index < choicesAuthored.size(); index++)
-		{
-			MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice choice = choicesAuthored.get(index);
-			if (choice.getText().equals(correctAnswer))
-			{
-				// use this answer's id
-				correctAnswers.add(Integer.valueOf(choice.getId()));
-				break;
-			}
-		}
-		
-		//correct answer
+		// answer
+		correctAnswers.add(Integer.valueOf(choicesAuthored.get(correctAnswerIndex).getId()));
+				
+		// correct answer
 		mc.setCorrectAnswerSet(correctAnswers);
 		
 		// save
@@ -598,14 +591,14 @@ public class ImportTextServiceImpl implements ImportTextService
 	{
 		/*if there is only one answer for more answer choices then that may be a multiple choice question*/
 		
-		String answerChoice = null;
-		Set<String> multipleAnswers = new HashSet<String>();
 		boolean first = true;
 		boolean foundAnswer = false;
-		// set the choices
+		String answerChoice = null;
+		List<Integer> multipleAnswers = new ArrayList<Integer>();
 		List<String> choices = new ArrayList<String>();
 		String clean = null;
 		
+		int answersIndex = 0;
 		for (String line : lines)
 		{
 			//ignore first line as first line is question text
@@ -622,17 +615,18 @@ public class ImportTextServiceImpl implements ImportTextService
 			{
 				if (!foundAnswer) 
 				{
-					multipleAnswers.add(line.substring(answer[0].length()).trim());
+					multipleAnswers.add(Integer.valueOf(answersIndex));
 					foundAnswer = true;
 				}
 				else
 				{
-					multipleAnswers.add(line.substring(answer[0].length()).trim());
+					multipleAnswers.add(Integer.valueOf(answersIndex));
 				}
 			}
 			answerChoice = line.substring(answer[0].length()).trim();
 			clean = HtmlHelper.clean(answerChoice);
 			choices.add(clean);
+			answersIndex++;
 		}
 		
 		if (!foundAnswer)
@@ -658,15 +652,10 @@ public class ImportTextServiceImpl implements ImportTextService
 		Set<Integer> correctAnswers = new HashSet<Integer>();
 		List<MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice> choicesAuthored = mc.getChoicesAsAuthored();
 
-		// find this answer
-		for (int index = 0; index < choicesAuthored.size(); index++)
+		// find the answers
+		for (Integer answerIndex : multipleAnswers)
 		{
-			MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice choice = choicesAuthored.get(index);
-			if (multipleAnswers.contains(choice.getText()))
-			{
-				// use this answer's id
-				correctAnswers.add(Integer.valueOf(choice.getId()));
-			}
+			correctAnswers.add(Integer.valueOf(choicesAuthored.get(answerIndex).getId()));
 		}
 		
 		//correct answer
