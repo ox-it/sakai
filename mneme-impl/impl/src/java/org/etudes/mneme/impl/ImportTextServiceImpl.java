@@ -408,6 +408,7 @@ public class ImportTextServiceImpl implements ImportTextService
 	{
 		if (processTextTrueFalse(pool, lines)) return;
 		if (processTextMultipleChoice(pool, lines)) return;
+		if (processTextMultipleResponse(pool, lines)) return;
 	}
 	
 	/**
@@ -518,7 +519,7 @@ public class ImportTextServiceImpl implements ImportTextService
 			
 			if (answer[0].startsWith("*"))
 			{
-				if (!foundAnswer) 
+				if (!foundAnswer)
 				{
 					correctAnswer = line.substring(answer[0].length()).trim();
 					foundAnswer = true;
@@ -527,7 +528,7 @@ public class ImportTextServiceImpl implements ImportTextService
 					return false;
 			}
 			answerChoice = line.substring(answer[0].length()).trim();
-			clean = HtmlHelper.clean(answerChoice.trim());
+			clean = HtmlHelper.clean(answerChoice);
 			choices.add(clean);
 		}
 		
@@ -558,7 +559,110 @@ public class ImportTextServiceImpl implements ImportTextService
 		for (int index = 0; index < choicesAuthored.size(); index++)
 		{
 			MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice choice = choicesAuthored.get(index);
-			if (choice.getText().equals(correctAnswer.trim()))
+			if (choice.getText().equals(correctAnswer))
+			{
+				// use this answer's id
+				correctAnswers.add(Integer.valueOf(choice.getId()));
+				break;
+			}
+		}
+		
+		//correct answer
+		mc.setCorrectAnswerSet(correctAnswers);
+		
+		// save
+		question.getTypeSpecificQuestion().consolidate("");
+		this.questionService.saveQuestion(question);
+		
+		//TODO: reason
+		
+		//TODO: hints
+
+		//TODO: feedback
+		
+		return true;
+	}
+	
+	/**
+	 * Process if it is recognized as a multiple response question.
+	 * 
+	 * @param pool
+	 * 		  The pool to hold the question.
+	 * @param lines
+	 * 		  The lines to process.
+	 * @return true if successfully recognized and processed, false if not.
+	 * 
+	 * @throws AssessmentPermissionException
+	 */
+	protected boolean processTextMultipleResponse(Pool pool, String[] lines) throws AssessmentPermissionException
+	{
+		/*if there is only one answer for more answer choices then that may be a multiple choice question*/
+		
+		String answerChoice = null;
+		Set<String> multipleAnswers = new HashSet<String>();
+		boolean first = true;
+		boolean foundAnswer = false;
+		// set the choices
+		List<String> choices = new ArrayList<String>();
+		String clean = null;
+		
+		for (String line : lines)
+		{
+			//ignore first line as first line is question text
+			if (first)
+			{
+				first = false;
+				continue;
+			}
+			String[] answer = line.trim().split("\\s+");
+			if (answer.length < 2)
+				return false;
+			
+			if (answer[0].startsWith("*"))
+			{
+				if (!foundAnswer) 
+				{
+					multipleAnswers.add(line.substring(answer[0].length()).trim());
+					foundAnswer = true;
+				}
+				else
+				{
+					multipleAnswers.add(line.substring(answer[0].length()).trim());
+				}
+			}
+			answerChoice = line.substring(answer[0].length()).trim();
+			clean = HtmlHelper.clean(answerChoice);
+			choices.add(clean);
+		}
+		
+		if (!foundAnswer)
+			return false;
+		
+		// create the question
+		Question question = this.questionService.newQuestion(pool, "mneme:MultipleChoice");
+		MultipleChoiceQuestionImpl mc = (MultipleChoiceQuestionImpl) (question.getTypeSpecificQuestion());
+
+		// set the text
+		clean = HtmlHelper.clean(lines[0].trim());
+		question.getPresentation().setText(clean);
+
+		// randomize
+		mc.setShuffleChoices(Boolean.toString(false));
+
+		// single / multiple select
+		mc.setSingleCorrect(Boolean.toString(false));
+		
+		// answer choices
+		mc.setAnswerChoices(choices);
+		
+		Set<Integer> correctAnswers = new HashSet<Integer>();
+		List<MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice> choicesAuthored = mc.getChoicesAsAuthored();
+
+		// find this answer
+		for (int index = 0; index < choicesAuthored.size(); index++)
+		{
+			MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice choice = choicesAuthored.get(index);
+			if (multipleAnswers.contains(choice.getText()))
 			{
 				// use this answer's id
 				correctAnswers.add(Integer.valueOf(choice.getId()));
