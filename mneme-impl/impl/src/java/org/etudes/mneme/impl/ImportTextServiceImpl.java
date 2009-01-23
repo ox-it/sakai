@@ -22,7 +22,9 @@
 package org.etudes.mneme.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -405,6 +407,7 @@ public class ImportTextServiceImpl implements ImportTextService
 	protected void processTextGroup(Pool pool, String[] lines) throws AssessmentPermissionException
 	{
 		if (processTextTrueFalse(pool, lines)) return;
+		if (processTextMultipleChoice(pool, lines)) return;
 	}
 	
 	/**
@@ -420,7 +423,8 @@ public class ImportTextServiceImpl implements ImportTextService
 	 */
 	protected boolean processTextTrueFalse(Pool pool, String[] lines) throws AssessmentPermissionException
 	{
-		//if there are only 2 answers, and they are true and false then that may be a true/false question
+		//if there are only two answer choices, and they are true and false and only one correct answer
+		//then that may be a true/false question
 		if (lines.length == 3)
 		{
 			boolean isTrue = false;
@@ -466,9 +470,114 @@ public class ImportTextServiceImpl implements ImportTextService
 				question.getTypeSpecificQuestion().consolidate("");
 				this.questionService.saveQuestion(question);
 				
+				//TODO: reason
+				
+				//TODO: hints
+
+				//TODO: feedback
+				
 				return true;
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Process if it is recognized as a multiple choice question.
+	 * 
+	 * @param pool
+	 * 		  The pool to hold the question.
+	 * @param lines
+	 * 		  The lines to process.
+	 * @return true if successfully recognized and processed, false if not.
+	 * 
+	 * @throws AssessmentPermissionException
+	 */
+	protected boolean processTextMultipleChoice(Pool pool, String[] lines) throws AssessmentPermissionException
+	{
+		/*if there is only one answer for more answer choices then that may be a multiple choice question*/
+		
+		String correctAnswer = null, answerChoice = null;
+		boolean first = true;
+		boolean foundAnswer = false;
+		// set the choices
+		List<String> choices = new ArrayList<String>();
+		String clean = null;
+		
+		for (String line : lines)
+		{
+			//ignore first line as first line is question text
+			if (first)
+			{
+				first = false;
+				continue;
+			}
+			String[] answer = line.trim().split("\\s+");
+			if (answer.length < 2)
+				return false;
+			
+			if (answer[0].startsWith("*"))
+			{
+				if (!foundAnswer) 
+				{
+					correctAnswer = line.substring(answer[0].length()).trim();
+					foundAnswer = true;
+				}
+				else
+					return false;
+			}
+			answerChoice = line.substring(answer[0].length()).trim();
+			clean = HtmlHelper.clean(answerChoice.trim());
+			choices.add(clean);
+		}
+		
+		if (!foundAnswer)
+			return false;
+		
+		// create the question
+		Question question = this.questionService.newQuestion(pool, "mneme:MultipleChoice");
+		MultipleChoiceQuestionImpl mc = (MultipleChoiceQuestionImpl) (question.getTypeSpecificQuestion());
+
+		// set the text
+		clean = HtmlHelper.clean(lines[0].trim());
+		question.getPresentation().setText(clean);
+
+		// randomize
+		mc.setShuffleChoices(Boolean.toString(false));
+
+		// single / multiple select
+		mc.setSingleCorrect(Boolean.toString(true));
+		
+		// answer choices
+		mc.setAnswerChoices(choices);
+		
+		Set<Integer> correctAnswers = new HashSet<Integer>();
+		List<MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice> choicesAuthored = mc.getChoicesAsAuthored();
+
+		// find this answer
+		for (int index = 0; index < choicesAuthored.size(); index++)
+		{
+			MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice choice = choicesAuthored.get(index);
+			if (choice.getText().equals(correctAnswer.trim()))
+			{
+				// use this answer's id
+				correctAnswers.add(Integer.valueOf(choice.getId()));
+			}
+		}
+		
+		//correct answer
+		mc.setCorrectAnswerSet(correctAnswers);
+		
+		// save
+		question.getTypeSpecificQuestion().consolidate("");
+		this.questionService.saveQuestion(question);
+		
+		//TODO: reason
+		
+		//TODO: hints
+
+		//TODO: feedback
+		
+		return true;
 	}
 }
