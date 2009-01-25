@@ -51,6 +51,10 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-authz-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-entity-api</artifactId>
 		</dependency>
 		<dependency>
