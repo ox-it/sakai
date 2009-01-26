@@ -99,6 +99,12 @@ public class ImportTextServiceImpl implements ImportTextService
 
 	/** Dependency: ThreadLocalManager. */
 	protected ThreadLocalManager threadLocalManager = null;
+	
+	/** hint key */
+	protected static final String hintKey = "hint:";
+	
+	/** feedback key */
+	protected static final String feedbackKey = "general feedback:";
 
 	/**
 	 * Returns to uninitialized state.
@@ -426,34 +432,71 @@ public class ImportTextServiceImpl implements ImportTextService
 	{
 		//if there are only two answer choices, and they are true and false and only one correct answer
 		//then that may be a true/false question
-		if (lines.length == 3)
+		if (lines.length >= 3)
 		{
 			boolean isTrue = false;
+			String feedback = null;
+			String hints = null;
 			
 			String[] answer1 = lines[1].trim().split("\\s+");
 			String[] answer2 = lines[2].trim().split("\\s+");
 			
-			if (answer1.length != 2 && answer2.length != 2)
+			if (answer1.length < 2 || answer2.length < 2)
 				return false;
 			
-			//check for true and false answers
+			// check for true and false answers
 			if (("true".equalsIgnoreCase(answer1[1]) && "false".equalsIgnoreCase(answer2[1])) || 
 					("false".equalsIgnoreCase(answer1[1]) && "true".equalsIgnoreCase(answer2[1])))
 			{
-				//true/false question should have only one answer
+				// true/false question should have only one answer
 				if (answer1[0].startsWith("*") && answer2[0].startsWith("*"))
 					return false;
 				
-				if (answer1[0].startsWith("*") && "true".equalsIgnoreCase(answer1[1]))
-					isTrue = true;
-				
-				if (answer2[0].startsWith("*") && "true".equalsIgnoreCase(answer2[1]))
-					isTrue = true;
-					
 				if ((answer1[0].startsWith("*") && "true".equalsIgnoreCase(answer1[1])) || 
 					(answer2[0].startsWith("*") && "true".equalsIgnoreCase(answer2[1])))
 				{
 					isTrue = true;
+				}
+				
+				if (lines.length >= 4 && (StringUtil.trimToNull(lines[3]) != null)) 
+				{
+					String lower = lines[3].toLowerCase();
+					if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey))
+					{
+						if (lower.startsWith(feedbackKey))
+						{
+							String[] parts = StringUtil.splitFirst(lines[3], ":");
+							if (parts.length > 1) feedback = parts[1].trim(); 
+						} 
+						else if (lower.startsWith(hintKey))
+						{
+							String[] parts = StringUtil.splitFirst(lines[3], ":");
+							if (parts.length > 1) hints = parts[1].trim();
+						}
+					}
+					else
+						return false;
+					
+					if (lines.length >= 5 && (StringUtil.trimToNull(lines[4]) != null))
+					{
+						lower = lines[4].toLowerCase();
+						if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey))
+						{
+							if (lower.startsWith(feedbackKey))
+							{
+								String[] parts = StringUtil.splitFirst(lines[4], ":");
+								if (parts.length > 1) feedback = parts[1].trim(); 
+							} 
+							else if (lower.startsWith(hintKey))
+							{
+								String[] parts = StringUtil.splitFirst(lines[4], ":");
+								if (parts.length > 1) hints = parts[1].trim();
+							}
+						}
+						else
+							return false;
+					}
+						
 				}
 				
 				// create the question
@@ -467,15 +510,21 @@ public class ImportTextServiceImpl implements ImportTextService
 				// the correct answer
 				tf.setCorrectAnswer(Boolean.toString(isTrue));
 
+				//add feedback
+				if (StringUtil.trimToNull(feedback) != null)
+				{
+					question.setFeedback(feedback);
+				}
+				
+				//add hints
+				if (StringUtil.trimToNull(feedback) != null)
+				{
+					question.setHints(hints);
+				}
+				
 				// save
 				question.getTypeSpecificQuestion().consolidate("");
 				this.questionService.saveQuestion(question);
-				
-				//TODO: reason
-				
-				//TODO: hints
-
-				//TODO: feedback
 				
 				return true;
 			}
@@ -563,15 +612,13 @@ public class ImportTextServiceImpl implements ImportTextService
 		// correct answer
 		mc.setCorrectAnswerSet(correctAnswers);
 		
-		// save
-		question.getTypeSpecificQuestion().consolidate("");
-		this.questionService.saveQuestion(question);
-		
-		//TODO: reason
-		
 		//TODO: hints
 
 		//TODO: feedback
+		
+		// save
+		question.getTypeSpecificQuestion().consolidate("");
+		this.questionService.saveQuestion(question);
 		
 		return true;
 	}
@@ -661,15 +708,13 @@ public class ImportTextServiceImpl implements ImportTextService
 		//correct answer
 		mc.setCorrectAnswerSet(correctAnswers);
 		
-		// save
-		question.getTypeSpecificQuestion().consolidate("");
-		this.questionService.saveQuestion(question);
-		
-		//TODO: reason
-		
 		//TODO: hints
 
 		//TODO: feedback
+		
+		// save
+		question.getTypeSpecificQuestion().consolidate("");
+		this.questionService.saveQuestion(question);
 		
 		return true;
 	}
