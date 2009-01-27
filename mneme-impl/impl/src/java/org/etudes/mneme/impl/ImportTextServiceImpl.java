@@ -416,9 +416,8 @@ public class ImportTextServiceImpl implements ImportTextService
 	protected void processTextGroup(Pool pool, String[] lines) throws AssessmentPermissionException
 	{
 		if (processTextTrueFalse(pool, lines)) return;
-		//if (processTextMultipleChoice(pool, lines)) return;
-		//if (processTextMultipleResponse(pool, lines)) return;
 		if (processTextMultipleChoice(pool, lines)) return;
+		if (processEssay(pool, lines)) return;
 	}
 	
 	/**
@@ -520,13 +519,13 @@ public class ImportTextServiceImpl implements ImportTextService
 			// the correct answer
 			tf.setCorrectAnswer(Boolean.toString(isTrue));
 
-			//add feedback
+			// add feedback
 			if (StringUtil.trimToNull(feedback) != null)
 			{
 				question.setFeedback(HtmlHelper.clean(feedback));
 			}
 			
-			//add hints
+			// add hints
 			if (StringUtil.trimToNull(hints) != null)
 			{
 				question.setHints(HtmlHelper.clean(hints));
@@ -574,7 +573,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		int answersIndex = 0;
 		for (String line : lines)
 		{
-			//ignore first line as first line is question text
+			// ignore first line as first line is question text
 			if (first)
 			{
 				first = false;
@@ -657,7 +656,7 @@ public class ImportTextServiceImpl implements ImportTextService
 			correctAnswers.add(Integer.valueOf(choicesAuthored.get(answerIndex).getId()));
 		}
 		
-		//correct answer
+		// correct answer
 		mc.setCorrectAnswerSet(correctAnswers);
 		
 		// single / multiple select
@@ -666,18 +665,115 @@ public class ImportTextServiceImpl implements ImportTextService
 		else
 			mc.setSingleCorrect(Boolean.toString(false));
 		
-		//add feedback
+		// add feedback
 		if (StringUtil.trimToNull(feedback) != null)
 		{
 			question.setFeedback(HtmlHelper.clean(feedback));
 		}
 		
-		//add hints
+		// add hints
 		if (StringUtil.trimToNull(hints) != null)
 		{
 			question.setHints(HtmlHelper.clean(hints));
 		}
 		
+		// save
+		question.getTypeSpecificQuestion().consolidate("");
+		this.questionService.saveQuestion(question);
+		
+		return true;
+	}
+	
+	/**
+	 * Process if it is recognized as an essay question.
+	 * 
+	 * @param pool
+	 * 		  The pool to hold the question.
+	 * @param lines
+	 * 		  The lines to process.
+	 * @return true if successfully recognized and processed, false if not.
+	 * 
+	 * @throws AssessmentPermissionException
+	 */
+	protected boolean processEssay(Pool pool, String[] lines) throws AssessmentPermissionException
+	{
+		//if there are no answers then that may be a essay question
+		if (lines.length > 4)
+			return false;
+		
+		boolean first = true;
+		String clean = null;
+		String feedback = null;
+		String hints = null;
+		String modelAnswer = null;
+		String modelAnswerKey = "model answer:";
+		
+		// question with braces may be a fill in question
+		if ((lines[0].indexOf("{") != -1) && (lines[0].indexOf("}") != -1) && (lines[0].indexOf("{") < lines[0].indexOf("}")))
+			return false;
+		
+		// model answer, hints and feedback
+		for (String line : lines)
+		{
+			// ignore first line as first line is question text
+			if (first)
+			{
+				first = false;
+				continue;
+			}
+			
+			String lower = line.toLowerCase();
+			if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2) || lower.startsWith(modelAnswerKey))
+			{
+				if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+				{
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) feedback = parts[1].trim();
+				} 
+				else if (lower.startsWith(hintKey))
+				{
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) hints = parts[1].trim();
+				}
+				else if (lower.startsWith(modelAnswerKey))
+				{
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) modelAnswer = parts[1].trim();
+				}
+			} 
+			else
+				return false;
+		}
+		
+		// create the question
+		Question question = this.questionService.newQuestion(pool, "mneme:Essay");
+		EssayQuestionImpl e = (EssayQuestionImpl) (question.getTypeSpecificQuestion());
+		
+		// set the text
+		clean = HtmlHelper.clean(lines[0].trim());
+		question.getPresentation().setText(clean);
+				
+		// type
+		e.setSubmissionType(EssayQuestionImpl.SubmissionType.inline);
+		
+		// add model answer
+		if (StringUtil.trimToNull(modelAnswer) != null)
+		{
+			e.setModelAnswer(HtmlHelper.clean(modelAnswer));
+		}
+		
+		// add feedback
+		if (StringUtil.trimToNull(feedback) != null)
+		{
+			question.setFeedback(HtmlHelper.clean(feedback));
+		}
+		
+		// add hints
+		if (StringUtil.trimToNull(hints) != null)
+		{
+			question.setHints(HtmlHelper.clean(hints));
+		}
+				
 		// save
 		question.getTypeSpecificQuestion().consolidate("");
 		this.questionService.saveQuestion(question);
