@@ -457,12 +457,17 @@ public class ImportTextServiceImpl implements ImportTextService
 			if (answer1[0].startsWith("*") && answer2[0].startsWith("*"))
 				return false;
 			
+			// there should be at least one answer
+			if (!(answer1[0].startsWith("*") || answer2[0].startsWith("*")))
+				return false;
+			
 			if ((answer1[0].startsWith("*") && "true".equalsIgnoreCase(answer1[1])) || 
 				(answer2[0].startsWith("*") && "true".equalsIgnoreCase(answer2[1])))
 			{
 				isTrue = true;
 			}
 			
+			// hints and feedback
 			if (lines.length >= 4 && (StringUtil.trimToNull(lines[3]) != null)) 
 			{
 				String lower = lines[3].toLowerCase();
