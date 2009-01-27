@@ -103,8 +103,11 @@ public class ImportTextServiceImpl implements ImportTextService
 	/** hint key */
 	protected static final String hintKey = "hint:";
 	
-	/** feedback key */
-	protected static final String feedbackKey = "general feedback:";
+	/** feedback key1 */
+	protected static final String feedbackKey1 = "feedback:";
+	
+	/** feedback key2 */
+	protected static final String feedbackKey2 = "general feedback:";
 
 	/**
 	 * Returns to uninitialized state.
@@ -461,9 +464,9 @@ public class ImportTextServiceImpl implements ImportTextService
 				if (lines.length >= 4 && (StringUtil.trimToNull(lines[3]) != null)) 
 				{
 					String lower = lines[3].toLowerCase();
-					if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey))
+					if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 					{
-						if (lower.startsWith(feedbackKey))
+						if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 						{
 							String[] parts = StringUtil.splitFirst(lines[3], ":");
 							if (parts.length > 1) feedback = parts[1].trim(); 
@@ -480,9 +483,9 @@ public class ImportTextServiceImpl implements ImportTextService
 					if (lines.length >= 5 && (StringUtil.trimToNull(lines[4]) != null))
 					{
 						lower = lines[4].toLowerCase();
-						if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey))
+						if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 						{
-							if (lower.startsWith(feedbackKey))
+							if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 							{
 								String[] parts = StringUtil.splitFirst(lines[4], ":");
 								if (parts.length > 1) feedback = parts[1].trim(); 
@@ -513,13 +516,13 @@ public class ImportTextServiceImpl implements ImportTextService
 				//add feedback
 				if (StringUtil.trimToNull(feedback) != null)
 				{
-					question.setFeedback(feedback);
+					question.setFeedback(HtmlHelper.clean(feedback));
 				}
 				
 				//add hints
-				if (StringUtil.trimToNull(feedback) != null)
+				if (StringUtil.trimToNull(hints) != null)
 				{
-					question.setHints(hints);
+					question.setHints(HtmlHelper.clean(hints));
 				}
 				
 				// save
@@ -554,6 +557,10 @@ public class ImportTextServiceImpl implements ImportTextService
 		List<String> choices = new ArrayList<String>();
 		String clean = null;
 		
+		String feedback = null;
+		String hints = null;
+		boolean foundHints = false, foundFeedback = false;
+		
 		int answersIndex = 0;
 		for (String line : lines)
 		{
@@ -563,6 +570,35 @@ public class ImportTextServiceImpl implements ImportTextService
 				first = false;
 				continue;
 			}
+			
+			// hints and feedback
+			String lower = line.toLowerCase();
+			if (foundAnswer)
+			{
+				if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+				{
+					if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+					{
+						String[] parts = StringUtil.splitFirst(line, ":");
+						if (parts.length > 1) feedback = parts[1].trim();
+						foundFeedback = true;
+					} 
+					else if (lower.startsWith(hintKey))
+					{
+						String[] parts = StringUtil.splitFirst(line, ":");
+						if (parts.length > 1) hints = parts[1].trim();
+						foundHints = true;
+					}
+					if (foundFeedback && foundHints)
+						break;
+					
+					continue;
+				} 
+				// ignore the answer choices after hints or feedback found
+				else if (foundFeedback || foundHints)
+						continue;
+			}
+			
 			String[] answer = line.trim().split("\\s+");
 			if (answer.length < 2)
 				return false;
@@ -612,9 +648,17 @@ public class ImportTextServiceImpl implements ImportTextService
 		// correct answer
 		mc.setCorrectAnswerSet(correctAnswers);
 		
-		//TODO: hints
-
-		//TODO: feedback
+		//add feedback
+		if (StringUtil.trimToNull(feedback) != null)
+		{
+			question.setFeedback(HtmlHelper.clean(feedback));
+		}
+		
+		//add hints
+		if (StringUtil.trimToNull(hints) != null)
+		{
+			question.setHints(HtmlHelper.clean(hints));
+		}
 		
 		// save
 		question.getTypeSpecificQuestion().consolidate("");
