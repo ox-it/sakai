@@ -416,8 +416,9 @@ public class ImportTextServiceImpl implements ImportTextService
 	protected void processTextGroup(Pool pool, String[] lines) throws AssessmentPermissionException
 	{
 		if (processTextTrueFalse(pool, lines)) return;
+		//if (processTextMultipleChoice(pool, lines)) return;
+		//if (processTextMultipleResponse(pool, lines)) return;
 		if (processTextMultipleChoice(pool, lines)) return;
-		if (processTextMultipleResponse(pool, lines)) return;
 	}
 	
 	/**
@@ -433,106 +434,108 @@ public class ImportTextServiceImpl implements ImportTextService
 	 */
 	protected boolean processTextTrueFalse(Pool pool, String[] lines) throws AssessmentPermissionException
 	{
-		//if there are only two answer choices, and they are true and false and only one correct answer
+		//if there are only two answer choices, and they are true and false and with one correct answer
 		//then that may be a true/false question
-		if (lines.length >= 3)
+		if (lines.length < 3)
+			return false;
+			
+		boolean isTrue = false;
+		String feedback = null;
+		String hints = null;
+		
+		String[] answer1 = lines[1].trim().split("\\s+");
+		String[] answer2 = lines[2].trim().split("\\s+");
+		
+		if (answer1.length < 2 || answer2.length < 2)
+			return false;
+		
+		// check for true and false answers
+		if (("true".equalsIgnoreCase(answer1[1]) && "false".equalsIgnoreCase(answer2[1])) || 
+				("false".equalsIgnoreCase(answer1[1]) && "true".equalsIgnoreCase(answer2[1])))
 		{
-			boolean isTrue = false;
-			String feedback = null;
-			String hints = null;
-			
-			String[] answer1 = lines[1].trim().split("\\s+");
-			String[] answer2 = lines[2].trim().split("\\s+");
-			
-			if (answer1.length < 2 || answer2.length < 2)
+			// true/false question should have only one answer
+			if (answer1[0].startsWith("*") && answer2[0].startsWith("*"))
 				return false;
 			
-			// check for true and false answers
-			if (("true".equalsIgnoreCase(answer1[1]) && "false".equalsIgnoreCase(answer2[1])) || 
-					("false".equalsIgnoreCase(answer1[1]) && "true".equalsIgnoreCase(answer2[1])))
+			if ((answer1[0].startsWith("*") && "true".equalsIgnoreCase(answer1[1])) || 
+				(answer2[0].startsWith("*") && "true".equalsIgnoreCase(answer2[1])))
 			{
-				// true/false question should have only one answer
-				if (answer1[0].startsWith("*") && answer2[0].startsWith("*"))
+				isTrue = true;
+			}
+			
+			if (lines.length >= 4 && (StringUtil.trimToNull(lines[3]) != null)) 
+			{
+				String lower = lines[3].toLowerCase();
+				if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+				{
+					if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+					{
+						String[] parts = StringUtil.splitFirst(lines[3], ":");
+						if (parts.length > 1) feedback = parts[1].trim(); 
+					} 
+					else if (lower.startsWith(hintKey))
+					{
+						String[] parts = StringUtil.splitFirst(lines[3], ":");
+						if (parts.length > 1) hints = parts[1].trim();
+					}
+				}
+				else
 					return false;
 				
-				if ((answer1[0].startsWith("*") && "true".equalsIgnoreCase(answer1[1])) || 
-					(answer2[0].startsWith("*") && "true".equalsIgnoreCase(answer2[1])))
+				if (lines.length >= 5 && (StringUtil.trimToNull(lines[4]) != null))
 				{
-					isTrue = true;
-				}
-				
-				if (lines.length >= 4 && (StringUtil.trimToNull(lines[3]) != null)) 
-				{
-					String lower = lines[3].toLowerCase();
+					lower = lines[4].toLowerCase();
 					if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 					{
 						if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 						{
-							String[] parts = StringUtil.splitFirst(lines[3], ":");
+							String[] parts = StringUtil.splitFirst(lines[4], ":");
 							if (parts.length > 1) feedback = parts[1].trim(); 
 						} 
 						else if (lower.startsWith(hintKey))
 						{
-							String[] parts = StringUtil.splitFirst(lines[3], ":");
+							String[] parts = StringUtil.splitFirst(lines[4], ":");
 							if (parts.length > 1) hints = parts[1].trim();
 						}
 					}
 					else
 						return false;
+				}
 					
-					if (lines.length >= 5 && (StringUtil.trimToNull(lines[4]) != null))
-					{
-						lower = lines[4].toLowerCase();
-						if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
-						{
-							if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
-							{
-								String[] parts = StringUtil.splitFirst(lines[4], ":");
-								if (parts.length > 1) feedback = parts[1].trim(); 
-							} 
-							else if (lower.startsWith(hintKey))
-							{
-								String[] parts = StringUtil.splitFirst(lines[4], ":");
-								if (parts.length > 1) hints = parts[1].trim();
-							}
-						}
-						else
-							return false;
-					}
-						
-				}
-				
-				// create the question
-				Question question = this.questionService.newQuestion(pool, "mneme:TrueFalse");
-				TrueFalseQuestionImpl tf = (TrueFalseQuestionImpl) (question.getTypeSpecificQuestion());
-
-				// set the text
-				String clean = HtmlHelper.clean(lines[0].trim());
-				question.getPresentation().setText(clean);
-
-				// the correct answer
-				tf.setCorrectAnswer(Boolean.toString(isTrue));
-
-				//add feedback
-				if (StringUtil.trimToNull(feedback) != null)
-				{
-					question.setFeedback(HtmlHelper.clean(feedback));
-				}
-				
-				//add hints
-				if (StringUtil.trimToNull(hints) != null)
-				{
-					question.setHints(HtmlHelper.clean(hints));
-				}
-				
-				// save
-				question.getTypeSpecificQuestion().consolidate("");
-				this.questionService.saveQuestion(question);
-				
-				return true;
 			}
+			
+			// create the question
+			Question question = this.questionService.newQuestion(pool, "mneme:TrueFalse");
+			TrueFalseQuestionImpl tf = (TrueFalseQuestionImpl) (question.getTypeSpecificQuestion());
+
+			// set the text
+			String clean = HtmlHelper.clean(lines[0].trim());
+			question.getPresentation().setText(clean);
+
+			// the correct answer
+			tf.setCorrectAnswer(Boolean.toString(isTrue));
+
+			//add feedback
+			if (StringUtil.trimToNull(feedback) != null)
+			{
+				question.setFeedback(HtmlHelper.clean(feedback));
+			}
+			
+			//add hints
+			if (StringUtil.trimToNull(hints) != null)
+			{
+				question.setHints(HtmlHelper.clean(hints));
+			}
+			
+			// save
+			question.getTypeSpecificQuestion().consolidate("");
+			this.questionService.saveQuestion(question);
+			
+			return true;
 		}
+		
 		return false;
+		
 	}
 	
 	/**
@@ -548,12 +551,14 @@ public class ImportTextServiceImpl implements ImportTextService
 	 */
 	protected boolean processTextMultipleChoice(Pool pool, String[] lines) throws AssessmentPermissionException
 	{
-		/*if there is only one answer for more answer choices then that may be a multiple choice question*/
+		//if there is one or more answers for more answer choices then that may be a multiple choice question
+		if (lines.length < 3)
+			return false;
 		
-		String answerChoice = null;
 		boolean first = true;
 		boolean foundAnswer = false;
-		int correctAnswerIndex = 0;
+		String answerChoice = null;
+		List<Integer> multipleAnswers = new ArrayList<Integer>();
 		List<String> choices = new ArrayList<String>();
 		String clean = null;
 		
@@ -605,105 +610,6 @@ public class ImportTextServiceImpl implements ImportTextService
 			
 			if (answer[0].startsWith("*"))
 			{
-				if (!foundAnswer)
-				{
-					correctAnswerIndex = answersIndex;
-					foundAnswer = true;
-				}
-				else
-					return false;
-			}
-			answerChoice = line.substring(answer[0].length()).trim();
-			clean = HtmlHelper.clean(answerChoice);
-			choices.add(clean);
-			answersIndex++;
-		}
-		
-		if (!foundAnswer)
-			return false;
-		
-		// create the question
-		Question question = this.questionService.newQuestion(pool, "mneme:MultipleChoice");
-		MultipleChoiceQuestionImpl mc = (MultipleChoiceQuestionImpl) (question.getTypeSpecificQuestion());
-
-		// set the text
-		clean = HtmlHelper.clean(lines[0].trim());
-		question.getPresentation().setText(clean);
-
-		// randomize
-		mc.setShuffleChoices(Boolean.toString(false));
-
-		// single / multiple select
-		mc.setSingleCorrect(Boolean.toString(true));
-		
-		// answer choices
-		mc.setAnswerChoices(choices);
-		
-		Set<Integer> correctAnswers = new HashSet<Integer>();
-		List<MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice> choicesAuthored = mc.getChoicesAsAuthored();
-
-		// answer
-		correctAnswers.add(Integer.valueOf(choicesAuthored.get(correctAnswerIndex).getId()));
-				
-		// correct answer
-		mc.setCorrectAnswerSet(correctAnswers);
-		
-		//add feedback
-		if (StringUtil.trimToNull(feedback) != null)
-		{
-			question.setFeedback(HtmlHelper.clean(feedback));
-		}
-		
-		//add hints
-		if (StringUtil.trimToNull(hints) != null)
-		{
-			question.setHints(HtmlHelper.clean(hints));
-		}
-		
-		// save
-		question.getTypeSpecificQuestion().consolidate("");
-		this.questionService.saveQuestion(question);
-		
-		return true;
-	}
-	
-	/**
-	 * Process if it is recognized as a multiple response question.
-	 * 
-	 * @param pool
-	 * 		  The pool to hold the question.
-	 * @param lines
-	 * 		  The lines to process.
-	 * @return true if successfully recognized and processed, false if not.
-	 * 
-	 * @throws AssessmentPermissionException
-	 */
-	protected boolean processTextMultipleResponse(Pool pool, String[] lines) throws AssessmentPermissionException
-	{
-		/*if there is only one answer for more answer choices then that may be a multiple choice question*/
-		
-		boolean first = true;
-		boolean foundAnswer = false;
-		String answerChoice = null;
-		List<Integer> multipleAnswers = new ArrayList<Integer>();
-		List<String> choices = new ArrayList<String>();
-		String clean = null;
-		
-		int answersIndex = 0;
-		for (String line : lines)
-		{
-			//ignore first line as first line is question text
-			if (first)
-			{
-				first = false;
-				continue;
-			}
-			String[] answer = line.trim().split("\\s+");
-			if (answer.length < 2)
-				return false;
-			
-			if (answer[0].startsWith("*"))
-			{
 				if (!foundAnswer) 
 				{
 					multipleAnswers.add(Integer.valueOf(answersIndex));
@@ -734,9 +640,6 @@ public class ImportTextServiceImpl implements ImportTextService
 		// randomize
 		mc.setShuffleChoices(Boolean.toString(false));
 
-		// single / multiple select
-		mc.setSingleCorrect(Boolean.toString(false));
-		
 		// answer choices
 		mc.setAnswerChoices(choices);
 		
@@ -752,9 +655,23 @@ public class ImportTextServiceImpl implements ImportTextService
 		//correct answer
 		mc.setCorrectAnswerSet(correctAnswers);
 		
-		//TODO: hints
-
-		//TODO: feedback
+		// single / multiple select
+		if (correctAnswers.size() == 1)
+			mc.setSingleCorrect(Boolean.toString(true));
+		else
+			mc.setSingleCorrect(Boolean.toString(false));
+		
+		//add feedback
+		if (StringUtil.trimToNull(feedback) != null)
+		{
+			question.setFeedback(HtmlHelper.clean(feedback));
+		}
+		
+		//add hints
+		if (StringUtil.trimToNull(hints) != null)
+		{
+			question.setHints(HtmlHelper.clean(hints));
+		}
 		
 		// save
 		question.getTypeSpecificQuestion().consolidate("");
@@ -762,4 +679,5 @@ public class ImportTextServiceImpl implements ImportTextService
 		
 		return true;
 	}
+	
 }
