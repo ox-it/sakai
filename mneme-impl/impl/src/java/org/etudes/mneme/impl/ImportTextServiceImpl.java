@@ -435,7 +435,7 @@ public class ImportTextServiceImpl implements ImportTextService
 	{
 		//if there are only two answer choices, and they are true and false and with one correct answer
 		//then that may be a true/false question
-		if (lines.length < 3)
+		if (lines.length == 0 || lines.length < 3)
 			return false;
 			
 		boolean isTrue = false;
@@ -556,7 +556,7 @@ public class ImportTextServiceImpl implements ImportTextService
 	protected boolean processTextMultipleChoice(Pool pool, String[] lines) throws AssessmentPermissionException
 	{
 		//if there is one or more answers for more answer choices then that may be a multiple choice question
-		if (lines.length < 3)
+		if (lines.length == 0 || lines.length < 3)
 			return false;
 		
 		boolean first = true;
@@ -698,7 +698,7 @@ public class ImportTextServiceImpl implements ImportTextService
 	protected boolean processEssay(Pool pool, String[] lines) throws AssessmentPermissionException
 	{
 		//if there are no answers then that may be a essay question
-		if (lines.length > 4)
+		if (lines.length == 0 || lines.length > 4)
 			return false;
 		
 		boolean first = true;
