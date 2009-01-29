@@ -15,7 +15,6 @@ import javax.ws.rs.ext.Provider;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
