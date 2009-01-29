@@ -418,6 +418,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		if (processTextTrueFalse(pool, lines)) return;
 		if (processTextMultipleChoice(pool, lines)) return;
 		if (processEssay(pool, lines)) return;
+		if (processFillIn(pool, lines)) return;
 	}
 	
 	/**
@@ -774,6 +775,205 @@ public class ImportTextServiceImpl implements ImportTextService
 			question.setHints(HtmlHelper.clean(hints));
 		}
 				
+		// save
+		question.getTypeSpecificQuestion().consolidate("");
+		this.questionService.saveQuestion(question);
+		
+		return true;
+	}
+	
+	/**
+	 * Process if it is recognized as an fill-in question.
+	 * 
+	 * @param pool
+	 * 		  The pool to hold the question.
+	 * @param lines
+	 * 		  The lines to process.
+	 * @return true if successfully recognized and processed, false if not.
+	 * 
+	 * @throws AssessmentPermissionException
+	 */
+	protected boolean processFillIn(Pool pool, String[] lines) throws AssessmentPermissionException
+	{
+		// if there are only answers then that may be a fill-in question. Another case is if the question has braces that may be a fill-in question
+		if (lines.length == 0)
+			return false;
+		
+		boolean braces = false;
+		boolean first = true;
+		boolean foundAnswer = false;
+		List<String> answers = new ArrayList<String>();
+		String feedback = null, hints = null;
+		boolean foundHints = false, foundFeedback = false;
+		String clean = null;
+			
+		// question with braces may be a fill in question
+		if ((lines[0].indexOf("{") != -1) && (lines[0].indexOf("}") != -1) && (lines[0].indexOf("{") < lines[0].indexOf("}")))
+		{
+			String validateBraces = lines[0];
+			while (validateBraces.indexOf("{") != -1)
+			{
+				validateBraces = validateBraces.substring(validateBraces.indexOf("{")+1);
+				int startBraceIndex = validateBraces.indexOf("{");
+				int endBraceIndex = validateBraces.indexOf("}");
+				String answer;
+				
+				if (startBraceIndex != -1 && endBraceIndex != -1)
+				{
+					if (endBraceIndex > startBraceIndex)
+						return false;
+				}
+				if (endBraceIndex != -1)
+				{
+					answer = validateBraces.substring(0, endBraceIndex);
+					if (StringUtil.trimToNull(answer) == null)
+						return false;
+				}
+				else
+					return false;
+				
+				validateBraces = validateBraces.substring(validateBraces.indexOf("}")+1);
+			}
+			
+			braces = true;
+		}
+		
+		if (braces)
+		{
+			// hints and feedback
+			for (String line : lines)
+			{
+				// ignore first line as first line is question text
+				if (first)
+				{
+					first = false;
+					continue;
+				}
+				
+				if (line.startsWith("*"))
+					return false;
+				
+				// hints and feedback
+				String lower = line.toLowerCase();
+				if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+				{
+					if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+					{
+						String[] parts = StringUtil.splitFirst(line, ":");
+						if (parts.length > 1) feedback = parts[1].trim();
+						foundFeedback = true;
+					} 
+					else if (lower.startsWith(hintKey))
+					{
+						String[] parts = StringUtil.splitFirst(line, ":");
+						if (parts.length > 1) hints = parts[1].trim();
+						foundHints = true;
+					}
+					if (foundFeedback && foundHints)
+						break;
+				} 
+			}			
+		}
+		else
+		{
+			for (String line : lines)
+			{
+				// ignore first line as first line is question text
+				if (first)
+				{
+					first = false;
+					continue;
+				}
+				
+				if (line.startsWith("*"))
+					return false;
+				
+				// hints and feedback
+				String lower = line.toLowerCase();
+				if (foundAnswer)
+				{
+					if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+					{
+						if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+						{
+							String[] parts = StringUtil.splitFirst(line, ":");
+							if (parts.length > 1) feedback = parts[1].trim();
+							foundFeedback = true;
+						} 
+						else if (lower.startsWith(hintKey))
+						{
+							String[] parts = StringUtil.splitFirst(line, ":");
+							if (parts.length > 1) hints = parts[1].trim();
+							foundHints = true;
+						}
+						if (foundFeedback && foundHints)
+							break;
+						
+						continue;
+					} 
+					// ignore the answer choices after hints or feedback found
+					else if (foundFeedback || foundHints)
+							continue;
+				}
+				
+				String[] answer = line.trim().split("\\s+");
+				if (answer.length < 2)
+					return false;
+				
+				String answerChoice = line.substring(answer[0].length()).trim();
+				clean = HtmlHelper.clean(answerChoice);
+				answers.add(clean);
+				if (!foundAnswer) foundAnswer = true;
+			}
+			
+			if (!foundAnswer)
+				return false;
+		}
+				
+		// create the question
+		Question question = this.questionService.newQuestion(pool, "mneme:FillBlanks");
+		FillBlanksQuestionImpl f = (FillBlanksQuestionImpl) (question.getTypeSpecificQuestion());
+		
+		f.setAnyOrder(Boolean.FALSE.toString());
+		
+		// case sensitive
+		f.setCaseSensitive(Boolean.FALSE.toString());
+		
+		//mutually exclusive
+		f.setAnyOrder(Boolean.FALSE.toString());
+
+		// text or numeric
+		f.setResponseTextual(Boolean.TRUE.toString());
+		
+		String questionText = lines[0];
+		if (!braces && foundAnswer) {
+			StringBuffer buildAnswers = new StringBuffer();
+			buildAnswers.append("{");
+			for (String answer : answers)
+			{
+				buildAnswers.append(answer);
+				buildAnswers.append("|");
+			}
+			buildAnswers.replace(buildAnswers.length() - 1, buildAnswers.length(), "}");
+			questionText = questionText.concat(buildAnswers.toString());
+		}
+		
+		// set the text
+		clean = HtmlHelper.clean(questionText);
+		f.setText(clean);
+		
+		// add feedback
+		if (StringUtil.trimToNull(feedback) != null)
+		{
+			question.setFeedback(HtmlHelper.clean(feedback));
+		}
+		
+		// add hints
+		if (StringUtil.trimToNull(hints) != null)
+		{
+			question.setHints(HtmlHelper.clean(hints));
+		}
+		
 		// save
 		question.getTypeSpecificQuestion().consolidate("");
 		this.questionService.saveQuestion(question);
