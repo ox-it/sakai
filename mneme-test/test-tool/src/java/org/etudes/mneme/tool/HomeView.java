@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008,2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -108,6 +108,10 @@ public class HomeView extends ControllerImpl
 		context.put("installValue", installValue);
 		Value installBulkValue = this.uiService.newValue();
 		context.put("installBulkValue", installBulkValue);
+		Value poolRmDupsContext = this.uiService.newValue();
+		context.put("poolRmDupsContext", poolRmDupsContext);
+		Value poolRmContext = this.uiService.newValue();
+		context.put("poolRmContext", poolRmContext);
 
 		String destination = uiService.decode(req, context);
 
@@ -145,6 +149,26 @@ public class HomeView extends ControllerImpl
 			destination = "/install_templates";
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
 			return;
+		}
+
+		else if ("POOL_RM_DUPS".equals(destination))
+		{
+			if (poolRmDupsContext.getValue() != null)
+			{
+				destination = "/pool_rm_dups/" + poolRmDupsContext.getValue();
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
+				return;
+			}
+		}
+
+		else if ("POOL_RM".equals(destination))
+		{
+			if (poolRmContext.getValue() != null)
+			{
+				destination = "/pool_rm/" + poolRmContext.getValue();
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
+				return;
+			}
 		}
 
 		destination = "/home";
