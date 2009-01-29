@@ -19,25 +19,27 @@
 <script type="text/javascript">
 	jQuery(document).ready(function(){
 
+		path = "../rest/";
 		this.url = function(param) {
 			var regex = '[?&]' + param + '=([^&#]*)';
 			var results = (new RegExp(regex)).exec(window.location.href);
 			if(results) return results[1];
 				return '';
+			
 		}
 
 
 		var site = this.url("site");
 		
 		jQuery.ajax({
-			url: "../site/"+ site+ "/addgroup",
+			url: path+ "site/"+ site+ "/addgroup",
             method: "GET",
 			success: function(json, textStatus) {
 				eval("var siteData = "+ json);
 				var content = TrimPath.processDOMTemplate("find_jst", siteData);
 				jQuery("#content").html(content);
 				// Add autocomplete support.
-				jQuery("#ldap-search").autocomplete("../group/autocomplete", {
+				jQuery("#ldap-search").autocomplete(path+ "group/autocomplete", {
 					loadingClass: "my_ac_loading"
 				});
 
@@ -47,7 +49,7 @@
 					if (groupName) {
 						var submit = jQuery("form.find-group input[type='submit']");
 						submit.attr("disabled","true");
-						jQuery.getJSON("../group/search", {"q": groupName}, function(data, textStatus) {
+						jQuery.getJSON(path+ "group/search", {"q": groupName}, function(data, textStatus) {
 							submit.removeAttr("disabled");
 							if (textStatus == "success") {
 								if (data.length == 1) {
@@ -55,7 +57,7 @@
 									var group = data[0];
 									var htmlResult = TrimPath.processDOMTemplate("group_jst", {group: group, site: siteData});
 									jQuery("#content").append(htmlResult);
-									jQuery.getJSON("../group/"+ group.id+ "/members", {}, function(data, textStatus) {
+									jQuery.getJSON(path+ "group/"+ group.id+ "/members", {}, function(data, textStatus) {
 										// loading members.
 										if (textStatus == "success") {
 											var htmlResult = TrimPath.processDOMTemplate("membership_jst", {"members": data});
@@ -69,7 +71,7 @@
 											if (role != null) {
 												console.log("Selected role: "+role+ " group is "+ group.id);
 												jQuery.ajax({
-													url: "../mapped/",
+													url: path+ "mapped/",
 													type: "POST",
 													data: {group: group.id, role: role},
 													success: function(json, textStatus) {

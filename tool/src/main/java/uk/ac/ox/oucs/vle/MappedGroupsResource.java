@@ -5,92 +5,69 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.ext.ContextResolver;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.restlet.Context;
-import org.restlet.data.Form;
-import org.restlet.data.MediaType;
-import org.restlet.data.Method;
-import org.restlet.data.Request;
-import org.restlet.data.Response;
-import org.restlet.data.Status;
-import org.restlet.ext.json.JsonRepresentation;
-import org.restlet.resource.Representation;
-import org.restlet.resource.Resource;
-import org.restlet.resource.Variant;
 
-public class MappedGroupsResource extends Resource {
+@Path("/mapped/")
+public class MappedGroupsResource {
 	
 	private ExternalGroupManager externalGroupManager;
-	private String group;
-	private String externalGroupId;
 
-	public MappedGroupsResource(Context context, Request request,
-			Response response) {
-		super(context, request, response);
-		externalGroupManager = (ExternalGroupManager) context.getAttributes().get(ExternalGroupManager.class.getName());
-
-		group = (String) request.getAttributes().get("group");
-		if (Method.GET.equals(request.getMethod())) {
-			if (group == null || group.trim().length() == 0) {
-				setAvailable(false);
-			} else {
-				externalGroupId = externalGroupManager.findExternalGroupId(group);
-				if (externalGroupId == null) {
-					setAvailable(false);
-				}
-			}
-		}
-			
-		// This representation has only one type of representation.
-		getVariants().add(new Variant(MediaType.TEXT_JAVASCRIPT));
+	public MappedGroupsResource(@Context ContextResolver<Object> resolver) {
+		externalGroupManager = (ExternalGroupManager)resolver.getContext(ExternalGroupManager.class);
 	}
 	
-	public Representation represent(Variant variant) {
+	@Produces(MediaType.APPLICATION_JSON)
+	@POST
+	public Response addMappedGroup(@FormParam("group") String group, @FormParam("role") String role) {
+		// TODO Should split it out.
+		ValidationErrors errors = new ValidationErrors();
+		if (group == null || group.length() == 0) {
+			errors.addError("group", "Group cannot be empty");
+		}
+		if (role == null || role.length() == 0) {
+			errors.addError("role", "Role cannot be empty");
+		}
+		
+		if (errors.hasErrors()) {
+			return Response.status(Status.BAD_REQUEST).entity(convertErrors(errors.getAllErrors())).build();
+		} else {
+			try {
+				String id = externalGroupManager.addMappedGroup(group,role);
+				return Response.ok(new JSONObject(Collections.singletonMap("id", id))).build();
+			} catch (IllegalArgumentException iae) {
+				return Response.status(Status.BAD_REQUEST).entity(Collections.singletonList(iae.getMessage())).build();
+			}
+		}
+	}
+	
+	
+	@Path("{group}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@GET
+	public Response getMappedGroup(@PathParam("group") String group) {
+		String externalGroupId = externalGroupManager.findExternalGroupId(group);
 		Map<Object,Object> jsonMap = new HashMap<Object, Object>();
 		jsonMap.put("id", group);
 		jsonMap.put("group", externalGroupId);
-		return new JsonRepresentation(jsonMap);
-	}
-	
-	public boolean allowPost() {
-		return true;
-	}
-	public void acceptRepresentation(Representation representation) {
-		if (representation.getMediaType().equals(MediaType.APPLICATION_WWW_FORM)) {
-			Form form = new Form(representation);
-			String group = form.getFirstValue("group");
-			String role = form.getFirstValue("role");
-			
-			// TODO Should split it out.
-			ValidationErrors errors = new ValidationErrors();
-			if (group == null || group.length() == 0) {
-				errors.addError("group", "Group cannot be empty");
-			}
-			if (role == null || role.length() == 0) {
-				errors.addError("role", "Role cannot be empty");
-			}
-			
-			if (errors.hasErrors()) {
-				sendErrors(errors.getAllErrors());
-			} else {
-				try {
-				String id = externalGroupManager.addMappedGroup(group,role);
-				Representation responseRep = new JsonRepresentation(new JSONObject(Collections.singletonMap("id", id)));
-				getResponse().setEntity(responseRep);
-				} catch (IllegalArgumentException iae) {
-					sendErrors(Collections.singletonList(iae.getMessage()));
-				}
-			}
-		} else {
-			getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-		}
+		return Response.ok(jsonMap).build();
 	}
 
-	private void sendErrors(List<String> allErrors) {
-		Representation responseRep = new JsonRepresentation(new JSONObject(Collections.singletonMap("errors", new JSONArray(allErrors))));
-		getResponse().setEntity(responseRep);
-		getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+
+	private JSONObject convertErrors(List<String> allErrors) {
+		return new JSONObject(Collections.singletonMap("errors", new JSONArray(allErrors)));
 	}
 	
 

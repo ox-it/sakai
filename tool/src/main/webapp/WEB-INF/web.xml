@@ -6,22 +6,18 @@
                   http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">  
     <display-name>External Groups</display-name>  
     <!-- Application class name -->  
-    <context-param>  
-       <param-name>org.restlet.application</param-name>  
-       <param-value>uk.ac.ox.oucs.vle.ExternalGroupsApplication</param-value>  
-    </context-param>  
-   
-    <!-- Restlet adapter -->  
-    <servlet>  
-       <servlet-name>RestletServlet</servlet-name>  
-       <servlet-class>  
-          com.noelios.restlet.ext.servlet.ServerServlet  
-       </servlet-class>  
-    </servlet>  
-   
-    <!-- Catch all requests -->  
-    <servlet-mapping>  
-       <servlet-name>RestletServlet</servlet-name>  
-       <url-pattern>/*</url-pattern>  
-    </servlet-mapping>  
-</web-app>  
+    <servlet>
+        <servlet-name>Jersey Web Application</servlet-name>
+        <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>com.sun.jersey.config.property.packages</param-name>
+            <param-value>uk.ac.ox.oucs.vle</param-value>
+        </init-param>
+         <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+    	<!--  So we can access the static content. -->
+        <servlet-name>Jersey Web Application</servlet-name>
+        <url-pattern>/rest/*</url-pattern> 
+    </servlet-mapping>
+</web-app>
