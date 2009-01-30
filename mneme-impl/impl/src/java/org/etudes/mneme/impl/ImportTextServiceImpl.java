@@ -22,8 +22,10 @@
 package org.etudes.mneme.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -417,8 +419,9 @@ public class ImportTextServiceImpl implements ImportTextService
 	{
 		if (processTextTrueFalse(pool, lines)) return;
 		if (processTextMultipleChoice(pool, lines)) return;
-		if (processEssay(pool, lines)) return;
-		if (processFillIn(pool, lines)) return;
+		if (processTextEssay(pool, lines)) return;
+		if (processTextFillIn(pool, lines)) return;
+		if (processTextMatching(pool, lines)) return;
 	}
 	
 	/**
@@ -696,7 +699,7 @@ public class ImportTextServiceImpl implements ImportTextService
 	 * 
 	 * @throws AssessmentPermissionException
 	 */
-	protected boolean processEssay(Pool pool, String[] lines) throws AssessmentPermissionException
+	protected boolean processTextEssay(Pool pool, String[] lines) throws AssessmentPermissionException
 	{
 		//if there are no answers then that may be a essay question
 		if (lines.length == 0 || lines.length > 4)
@@ -793,7 +796,7 @@ public class ImportTextServiceImpl implements ImportTextService
 	 * 
 	 * @throws AssessmentPermissionException
 	 */
-	protected boolean processFillIn(Pool pool, String[] lines) throws AssessmentPermissionException
+	protected boolean processTextFillIn(Pool pool, String[] lines) throws AssessmentPermissionException
 	{
 		// if there are only answers then that may be a fill-in question. Another case is if the question has braces that may be a fill-in question
 		if (lines.length == 0)
@@ -850,7 +853,7 @@ public class ImportTextServiceImpl implements ImportTextService
 					continue;
 				}
 				
-				if (line.startsWith("*"))
+				if (line.startsWith("*") || line.startsWith("["))
 					return false;
 				
 				// hints and feedback
@@ -885,7 +888,7 @@ public class ImportTextServiceImpl implements ImportTextService
 					continue;
 				}
 				
-				if (line.startsWith("*"))
+				if (line.startsWith("*") || line.startsWith("["))
 					return false;
 				
 				// hints and feedback
@@ -981,4 +984,144 @@ public class ImportTextServiceImpl implements ImportTextService
 		return true;
 	}
 	
+	/**
+	 * Process if it is recognized as an match question.
+	 * 
+	 * @param pool
+	 * 		  The pool to hold the question.
+	 * @param lines
+	 * 		  The lines to process.
+	 * @return true if successfully recognized and processed, false if not.
+	 * 
+	 * @throws AssessmentPermissionException
+	 */
+	protected boolean processTextMatching(Pool pool, String[] lines) throws AssessmentPermissionException
+	{
+		if (lines.length == 0)
+			return false;
+		
+		boolean first = true;
+		boolean blankMatch = false;
+		String distractor = null;
+		Map<String, String> choiceMatch = new HashMap<String, String>();
+		Map<String, String> choiceDrawMatch = new HashMap<String, String>();
+		
+		for (String line : lines)
+		{
+			// ignore first line as first line is question text
+			if (first)
+			{
+				first = false;
+				continue;
+			}
+			
+			if (!line.startsWith("["))
+			{
+				if (choiceMatch.size() < 2)
+					return false;
+				else
+				{
+					if (choiceDrawMatch.size() < choiceMatch.size())
+					{
+						String[] drawMatch = line.trim().split("\\s+");
+						
+						if (drawMatch.length == 2)
+						{
+							String key, value;
+							if (drawMatch[0].endsWith("."))
+								key = drawMatch[0].substring(0, drawMatch[0].length() - 1);
+							else
+								key = drawMatch[0].substring(0, drawMatch[0].length());
+							
+							value = drawMatch[1];
+							
+							choiceDrawMatch.put(key, value);								
+						}
+						else
+							return false;
+					}
+					continue;
+				}
+			}
+			
+			String[] match = line.trim().split("\\s+");
+			
+			//if (match.length < 3 || !match[0].endsWith("]"))
+			if (!match[0].endsWith("]"))
+			{
+				if (choiceMatch.size() < 2)
+					return false;
+			}
+			
+			if (match.length < 3)
+			{
+				if (!blankMatch && match.length == 1) 
+				{
+					distractor = match[0].substring(match[0].indexOf("[")+ 1, match[0].lastIndexOf("]")).trim();
+					
+					blankMatch = true;
+					continue;
+				}
+				else if (match.length == 2)
+				{
+					
+					
+				}
+				else
+					return false;
+			}
+						
+			String key = line.substring(match[0].length()).substring(match[1].length()+ 1).trim();
+			String value = match[0].substring(match[0].indexOf("[")+ 1, match[0].lastIndexOf("]")).trim();
+			choiceMatch.put(key, value);
+			
+		}
+
+		
+		// create the question
+		Question question = this.questionService.newQuestion(pool, "mneme:Match");
+		MatchQuestionImpl m = (MatchQuestionImpl) (question.getTypeSpecificQuestion());
+
+		// set the text
+		String clean = HtmlHelper.clean(lines[0]);
+		question.getPresentation().setText(clean);
+		
+		// set the # pairs
+		m.consolidate("INIT:" + choiceMatch.size());
+
+		// set the pair values
+		List<MatchQuestionImpl.MatchQuestionPair> pairs = m.getPairs();
+		String value;
+		int index = 0;
+		for (String key : choiceMatch.keySet())
+		{
+			clean = HtmlHelper.clean(key);
+			pairs.get(index).setChoice(clean);
+			
+			if (choiceDrawMatch.size() > 0)
+			{
+				value = choiceMatch.get(key);
+				value = choiceDrawMatch.get(value);
+			}
+			else
+				value = choiceMatch.get(key);
+			
+			if(StringUtil.trimToNull(value) == null)
+				return false;
+			
+			clean = HtmlHelper.clean(value);
+			pairs.get(index).setMatch(clean);
+			
+			index++;				
+		}
+		
+		if (distractor != null)
+			m.setDistractor(distractor);		
+		
+		// save
+		question.getTypeSpecificQuestion().consolidate("");
+		this.questionService.saveQuestion(question);
+		
+		return true;
+	}
 }
