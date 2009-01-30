@@ -997,6 +997,7 @@ public class ImportTextServiceImpl implements ImportTextService
 	 */
 	protected boolean processTextMatching(Pool pool, String[] lines) throws AssessmentPermissionException
 	{
+		//if the choices start with '[' then it may be a matching question
 		if (lines.length == 0)
 			return false;
 		
@@ -1025,7 +1026,7 @@ public class ImportTextServiceImpl implements ImportTextService
 					{
 						String[] drawMatch = line.trim().split("\\s+");
 						
-						if (drawMatch.length == 2)
+						if (drawMatch.length > 1)
 						{
 							String key, value;
 							if (drawMatch[0].endsWith("."))
@@ -1033,8 +1034,8 @@ public class ImportTextServiceImpl implements ImportTextService
 							else
 								key = drawMatch[0].substring(0, drawMatch[0].length());
 							
-							value = drawMatch[1];
-							
+							value = line.substring(drawMatch[0].length()+ 1);
+							 
 							choiceDrawMatch.put(key, value);								
 						}
 						else
