@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,9 +39,12 @@ import org.apache.commons.logging.LogFactory;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AttachmentService;
+import org.etudes.mneme.api.DrawPart;
+import org.etudes.mneme.api.ManualPart;
 import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.Pool;
+import org.etudes.mneme.api.PoolDraw;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionService;
@@ -55,6 +59,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -314,11 +319,66 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 		// map from old question ids to new ids
 		Map<String, String> qidMap = new HashMap<String, String>();
 
-		// get all pools in the context
-		List<Pool> pools = this.poolService.findPools(fromContext, null, null);
+		// get all pools in the from context
+		List<Pool> pools = this.poolService.getPools(fromContext);
 
-		// get all the assessments
+		// get all the assessments in the from context
 		List<Assessment> assessments = this.assessmentService.getContextAssessments(fromContext, null, Boolean.FALSE);
+
+		// filter out the pools where there is one already with a matching title
+		// TODO: remove this filtering if we want all pools
+		List<Pool> existingPools = this.poolService.getPools(toContext);
+		List<Pool> skippingPools = new ArrayList<Pool>();
+		for (Iterator<Pool> i = pools.iterator(); i.hasNext();)
+		{
+			Pool fromPool = i.next();
+			for (Pool toPool : existingPools)
+			{
+				if (!StringUtil.different(fromPool.getTitle(), toPool.getTitle()))
+				{
+					skippingPools.add(fromPool);
+					i.remove();
+
+					break;
+				}
+			}
+		}
+
+		// filter out the assessments where there is one already with a matching title, or where it depends on a skipped pool
+		// TODO: remove this filtering if we want all assessments
+		List<Assessment> existingAssessments = this.assessmentService.getContextAssessments(toContext, null, Boolean.FALSE);
+		for (Iterator<Assessment> i = assessments.iterator(); i.hasNext();)
+		{
+			Assessment fromAssessment = i.next();
+			boolean toRemove = false;
+
+			for (Assessment toAssessment : existingAssessments)
+			{
+				if (!StringUtil.different(fromAssessment.getTitle(), toAssessment.getTitle()))
+				{
+					toRemove = true;
+					break;
+				}
+			}
+
+			// if assessment relies on a pool in the fromContext that we are not importing, don't import it
+			if (!toRemove)
+			{
+				for (Pool skipping : skippingPools)
+				{
+					if (assessmentDependsOnPool(fromAssessment, skipping))
+					{
+						toRemove = true;
+						break;
+					}
+				}
+			}
+
+			if (toRemove)
+			{
+				i.remove();
+			}
+		}
 
 		// collect media references
 		Set<String> refs = new HashSet<String>();
@@ -407,6 +467,48 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 	 */
 	public boolean willArchiveMerge()
 	{
+		return false;
+	}
+
+	/**
+	 * Check if an assessment depends on a pool or any questions in the pool.
+	 * 
+	 * @param assessment
+	 *        The assessment to check.
+	 * @param pool
+	 *        The pool to check against.
+	 * @return true if there is a dependency, false if not.
+	 */
+	protected boolean assessmentDependsOnPool(Assessment assessment, Pool pool)
+	{
+		for (Part part : assessment.getParts().getParts())
+		{
+			if (part instanceof DrawPart)
+			{
+				for (Iterator<PoolDraw> i = ((DrawPartImpl) part).pools.iterator(); i.hasNext();)
+				{
+					PoolDrawImpl draw = (PoolDrawImpl) i.next();
+
+					if (draw.origPoolId.equals(pool.getId()))
+					{
+						return true;
+					}
+				}
+			}
+			else if (part instanceof ManualPart)
+			{
+				for (Iterator<PoolPick> i = ((ManualPartImpl) part).questions.iterator(); i.hasNext();)
+				{
+					PoolPick pick = i.next();
+					Question question = this.questionService.getQuestion(((PoolPick) pick).origQuestionId);
+					if ((question != null) && (question.getPool().getId().equals(pool.getId())))
+					{
+						return true;
+					}
+				}
+			}
+		}
+
 		return false;
 	}
 }
