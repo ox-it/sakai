@@ -88,6 +88,12 @@
 			</dependency>
 			<dependency>
 				<groupId>org.sakaiproject</groupId>
+				<artifactId>sakai-tool-api</artifactId>
+				<version>M2</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject</groupId>
 				<artifactId>sakai-user-util</artifactId>
 				<version>M2</version>
 			</dependency>

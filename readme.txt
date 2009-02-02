@@ -4,3 +4,5 @@ Hack up group provider.
 At some point need a tree browser of the groups as well.
 Need to look at request filter for Sakai.
 Need to add in authorization checks.
+Helper done processing (servlet? which we can redirect to).
+
