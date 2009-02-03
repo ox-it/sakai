@@ -490,7 +490,7 @@ public class ImportTextServiceImpl implements ImportTextService
 					
 					if (answer[0].startsWith("*"))
 					{
-						checkFormat = answer[0].matches("\\*\\w.");
+						checkFormat = (answer[0].matches("\\*\\d+\\.?") || answer[0].matches("\\*[a-zA-Z]\\.?"));
 						if (!foundAnswer)
 							foundAnswer = true;
 						else
@@ -500,7 +500,7 @@ public class ImportTextServiceImpl implements ImportTextService
 							isTrue = true;
 					}
 					else
-						checkFormat = answer[0].matches("\\w.");
+						checkFormat = (answer[0].matches("\\d+\\.?") || answer[0].matches("[a-zA-Z]\\.?"));
 					
 					if (!checkFormat)
 						return false;
@@ -512,7 +512,7 @@ public class ImportTextServiceImpl implements ImportTextService
 			else
 			{
 				// for true/false question there should be only two answer choices
-				if (answer[0].matches("\\*\\w.") || answer[0].matches("\\w."))
+				if (answer[0].matches("\\*?\\d+\\.?") || answer[0].matches("\\*?[a-zA-Z]\\.?"))
 					return false;
 				
 				// get feedback, hints, reason, survey. Ignore the line if the key is not found
@@ -550,7 +550,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		// If a question starts with a number ("1."), strip out number and dot all the way to first letter. 
 		String clean = null;
 		String text = lines[0].trim();
-		if (text.matches("^\\d.+"))
+		if (text.matches("^\\d+\\..*"))
 		{
 			String[] parts = StringUtil.splitFirst(text, ".");
 			if (parts.length > 1) 
