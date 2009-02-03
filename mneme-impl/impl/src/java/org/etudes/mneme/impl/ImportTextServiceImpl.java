@@ -110,6 +110,12 @@ public class ImportTextServiceImpl implements ImportTextService
 	
 	/** feedback key2 */
 	protected static final String feedbackKey2 = "general feedback:";
+	
+	/** reason */
+	protected static final String reasonKey = "reason";
+	
+	/** survey */
+	protected static final String surveyKey = "survey";
 
 	/**
 	 * Returns to uninitialized state.
@@ -441,109 +447,151 @@ public class ImportTextServiceImpl implements ImportTextService
 		//then that may be a true/false question
 		if (lines.length == 0 || lines.length < 3)
 			return false;
-			
+		
+		boolean foundAnswer = false;
 		boolean isTrue = false;
 		String feedback = null;
 		String hints = null;
+		boolean explainReason = false;
+		boolean isSurvey = false;
 		
-		String[] answer1 = lines[1].trim().split("\\s+");
-		String[] answer2 = lines[2].trim().split("\\s+");
+		int index = 0;
 		
-		if (answer1.length < 2 || answer2.length < 2)
-			return false;
-		
-		// check for true and false answers
-		if (("true".equalsIgnoreCase(answer1[1]) && "false".equalsIgnoreCase(answer2[1])) || 
-				("false".equalsIgnoreCase(answer1[1]) && "true".equalsIgnoreCase(answer2[1])))
+		for (String line : lines)
 		{
-			// true/false question should have only one answer
-			if (answer1[0].startsWith("*") && answer2[0].startsWith("*"))
-				return false;
-			
-			// there should be at least one answer
-			if (!(answer1[0].startsWith("*") || answer2[0].startsWith("*")))
-				return false;
-			
-			if ((answer1[0].startsWith("*") && "true".equalsIgnoreCase(answer1[1])) || 
-				(answer2[0].startsWith("*") && "true".equalsIgnoreCase(answer2[1])))
+			// ignore first line as first line is question text
+			if (index == 0)
 			{
-				isTrue = true;
+				index++;
+				continue;
 			}
 			
-			// hints and feedback
-			if (lines.length >= 4 && (StringUtil.trimToNull(lines[3]) != null)) 
+			// first and second answers must be "true" or "false" and if there are more answers choices it's not a true/false question
+			String[] answer = line.trim().split("\\s+");
+			
+			// first two answers choices should be true or false
+			if (index < 3)
 			{
-				String lower = lines[3].toLowerCase();
-				if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+				if (answer.length == 2)
 				{
-					if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+					if (!("true".equalsIgnoreCase(answer[1]) || "false".equalsIgnoreCase(answer[1])))
+						return false;
+					
+					// check the format of the first part of the answer choices
+					/*
+					 	- An asterisk * (for correct answer) MUST be attached to the letter (no space)
+						- Numbering the questions is not necessary. A. B. C. D. or a. b. c. d. is recommended. Mneme should not choke if people leave 
+							out 1. 2. 3. or A. B. C. D. 
+						- If provided, choices (a, b, c, d) can be in lower or upper case.
+						- a, b, c, d may or may not have a period after them. However, there must ALWAYS be a space between the letter of choice and the text 
+							of the choice.
+					*/
+					boolean checkFormat = false;
+					
+					if (answer[0].startsWith("*"))
 					{
-						String[] parts = StringUtil.splitFirst(lines[3], ":");
-						if (parts.length > 1) feedback = parts[1].trim(); 
-					} 
-					else if (lower.startsWith(hintKey))
-					{
-						String[] parts = StringUtil.splitFirst(lines[3], ":");
-						if (parts.length > 1) hints = parts[1].trim();
+						checkFormat = answer[0].matches("\\*\\w.");
+						if (!foundAnswer)
+							foundAnswer = true;
+						else
+							return false;
+						
+						if ("true".equalsIgnoreCase(answer[1]))
+							isTrue = true;
 					}
+					else
+						checkFormat = answer[0].matches("\\w.");
+					
+					if (!checkFormat)
+						return false;
+					
 				}
 				else
 					return false;
+			}
+			else
+			{
+				// for true/false question there should be only two answer choices
+				if (answer[0].matches("\\*\\w.") || answer[0].matches("\\w."))
+					return false;
 				
-				if (lines.length >= 5 && (StringUtil.trimToNull(lines[4]) != null))
+				// get feedback, hints, reason, survey. Ignore the line if the key is not found
+				String lower = line.toLowerCase();
+				if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 				{
-					lower = lines[4].toLowerCase();
-					if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
-					{
-						if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
-						{
-							String[] parts = StringUtil.splitFirst(lines[4], ":");
-							if (parts.length > 1) feedback = parts[1].trim(); 
-						} 
-						else if (lower.startsWith(hintKey))
-						{
-							String[] parts = StringUtil.splitFirst(lines[4], ":");
-							if (parts.length > 1) hints = parts[1].trim();
-						}
-					}
-					else
-						return false;
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) feedback = parts[1].trim(); 
+				} 
+				else if (lower.startsWith(hintKey))
+				{
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) hints = parts[1].trim();
 				}
-					
+				else if (lower.equalsIgnoreCase(reasonKey))
+				{
+					explainReason = true;
+				}
+				else if (lower.equalsIgnoreCase(surveyKey))
+				{
+					isSurvey = true;
+				}
 			}
-			
-			// create the question
-			Question question = this.questionService.newQuestion(pool, "mneme:TrueFalse");
-			TrueFalseQuestionImpl tf = (TrueFalseQuestionImpl) (question.getTypeSpecificQuestion());
-
-			// set the text
-			String clean = HtmlHelper.clean(lines[0].trim());
-			question.getPresentation().setText(clean);
-
-			// the correct answer
-			tf.setCorrectAnswer(Boolean.toString(isTrue));
-
-			// add feedback
-			if (StringUtil.trimToNull(feedback) != null)
-			{
-				question.setFeedback(HtmlHelper.clean(feedback));
-			}
-			
-			// add hints
-			if (StringUtil.trimToNull(hints) != null)
-			{
-				question.setHints(HtmlHelper.clean(hints));
-			}
-			
-			// save
-			question.getTypeSpecificQuestion().consolidate("");
-			this.questionService.saveQuestion(question);
-			
-			return true;
+			index++;
 		}
 		
-		return false;
+		if (!foundAnswer)
+			return false;
 		
+		// create the question
+		Question question = this.questionService.newQuestion(pool, "mneme:TrueFalse");
+		TrueFalseQuestionImpl tf = (TrueFalseQuestionImpl) (question.getTypeSpecificQuestion());
+
+		// set the text
+		// If a question starts with a number ("1."), strip out number and dot all the way to first letter. 
+		String clean = null;
+		String text = lines[0].trim();
+		if (text.matches("^\\d.+"))
+		{
+			String[] parts = StringUtil.splitFirst(text, ".");
+			if (parts.length > 1) 
+			{
+				text = parts[1].trim();
+				clean = HtmlHelper.clean(text);
+			}
+			else
+				return false;
+		}
+		else
+			clean = HtmlHelper.clean(text);
+		
+		question.getPresentation().setText(clean);
+
+		// the correct answer
+		tf.setCorrectAnswer(Boolean.toString(isTrue));
+
+		// add feedback
+		if (StringUtil.trimToNull(feedback) != null)
+		{
+			question.setFeedback(HtmlHelper.clean(feedback));
+		}
+		
+		// add hints
+		if (StringUtil.trimToNull(hints) != null)
+		{
+			question.setHints(HtmlHelper.clean(hints));
+		}
+		
+		// explain reason
+		question.setExplainReason(explainReason);
+		
+		// survey
+		question.setIsSurvey(isSurvey);
+		
+		// save
+		question.getTypeSpecificQuestion().consolidate("");
+		this.questionService.saveQuestion(question);
+		
+		return true;
 	}
 	
 	/**
