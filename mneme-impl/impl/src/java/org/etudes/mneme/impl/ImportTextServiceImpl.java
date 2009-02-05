@@ -550,7 +550,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		// If a question starts with a number ("1."), strip out number and dot all the way to first letter. 
 		String clean = null;
 		String text = lines[0].trim();
-		if (text.matches("^\\d+\\..*"))
+		if (text.matches("^\\d+\\.\\s.*"))
 		{
 			String[] parts = StringUtil.splitFirst(text, ".");
 			if (parts.length > 1) 
@@ -718,7 +718,7 @@ public class ImportTextServiceImpl implements ImportTextService
 
 		// set the text
 		String text = lines[0].trim();
-		if (text.matches("^\\d+\\..*"))
+		if (text.matches("^\\d+\\.\\s.*"))
 		{
 			String[] parts = StringUtil.splitFirst(text, ".");
 			if (parts.length > 1) 
@@ -826,6 +826,7 @@ public class ImportTextServiceImpl implements ImportTextService
 				continue;
 			}
 			
+			// get feedback, hints, reason, survey. Ignore the line if the key is not found
 			String lower = line.toLowerCase();
 			if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 			{
@@ -851,7 +852,13 @@ public class ImportTextServiceImpl implements ImportTextService
 				isSurvey = true;
 			}
 			else
-				return false;
+			{
+				//if answers are followed by question then it is not an essay question
+				if (lower.matches("^\\d+\\.?\\s.*") || lower.matches("^[a-zA-Z]\\.?\\s.*"))
+				{
+					return false;
+				}
+			}
 		}
 		
 		// create the question
@@ -860,7 +867,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		
 		// set the text
 		String text = lines[0].trim();
-		if (text.matches("^\\d+\\..*"))
+		if (text.matches("^\\d+\\.\\s.*"))
 		{
 			String[] parts = StringUtil.splitFirst(text, ".");
 			if (parts.length > 1) 
