@@ -622,7 +622,10 @@ public class ImportTextServiceImpl implements ImportTextService
 		String hints = null;
 		boolean explainReason = false;
 		boolean isSurvey = false;
+		boolean shuffleChoices = false;
 		boolean foundQuestionAttributes = false;
+		
+		String shuffleKey = "shuffle";
 		
 		int answersIndex = 0;
 		for (String line : lines)
@@ -659,6 +662,11 @@ public class ImportTextServiceImpl implements ImportTextService
 				else if (lower.equalsIgnoreCase(surveyKey))
 				{
 					isSurvey = true;
+					foundQuestionAttributes = true;
+				} 
+				else if (lower.equalsIgnoreCase(shuffleKey))
+				{
+					shuffleChoices = true;
 					foundQuestionAttributes = true;
 				}
 				
@@ -750,6 +758,9 @@ public class ImportTextServiceImpl implements ImportTextService
 		else
 			mc.setSingleCorrect(Boolean.toString(false));
 		
+		// shuffle choices
+		mc.setShuffleChoices(Boolean.toString(shuffleChoices));
+		
 		// add feedback
 		if (StringUtil.trimToNull(feedback) != null)
 		{
@@ -796,6 +807,8 @@ public class ImportTextServiceImpl implements ImportTextService
 		String clean = null;
 		String feedback = null;
 		String hints = null;
+		boolean explainReason = false;
+		boolean isSurvey = false;
 		String modelAnswer = null;
 		String modelAnswerKey = "model answer:";
 		
@@ -814,24 +827,29 @@ public class ImportTextServiceImpl implements ImportTextService
 			}
 			
 			String lower = line.toLowerCase();
-			if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2) || lower.startsWith(modelAnswerKey))
+			if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 			{
-				if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
-				{
-					String[] parts = StringUtil.splitFirst(line, ":");
-					if (parts.length > 1) feedback = parts[1].trim();
-				} 
-				else if (lower.startsWith(hintKey))
-				{
-					String[] parts = StringUtil.splitFirst(line, ":");
-					if (parts.length > 1) hints = parts[1].trim();
-				}
-				else if (lower.startsWith(modelAnswerKey))
-				{
-					String[] parts = StringUtil.splitFirst(line, ":");
-					if (parts.length > 1) modelAnswer = parts[1].trim();
-				}
+				String[] parts = StringUtil.splitFirst(line, ":");
+				if (parts.length > 1) feedback = parts[1].trim();
 			} 
+			else if (lower.startsWith(hintKey))
+			{
+				String[] parts = StringUtil.splitFirst(line, ":");
+				if (parts.length > 1) hints = parts[1].trim();
+			}
+			else if (lower.startsWith(modelAnswerKey))
+			{
+				String[] parts = StringUtil.splitFirst(line, ":");
+				if (parts.length > 1) modelAnswer = parts[1].trim();
+			}
+			else if (lower.equalsIgnoreCase(reasonKey))
+			{
+				explainReason = true;
+			}
+			else if (lower.equalsIgnoreCase(surveyKey))
+			{
+				isSurvey = true;
+			}
 			else
 				return false;
 		}
@@ -841,7 +859,21 @@ public class ImportTextServiceImpl implements ImportTextService
 		EssayQuestionImpl e = (EssayQuestionImpl) (question.getTypeSpecificQuestion());
 		
 		// set the text
-		clean = HtmlHelper.clean(lines[0].trim());
+		String text = lines[0].trim();
+		if (text.matches("^\\d+\\..*"))
+		{
+			String[] parts = StringUtil.splitFirst(text, ".");
+			if (parts.length > 1) 
+			{
+				text = parts[1].trim();
+				clean = HtmlHelper.clean(text);
+			}
+			else
+				return false;
+		}
+		else
+			clean = HtmlHelper.clean(text);
+		
 		question.getPresentation().setText(clean);
 				
 		// type
@@ -864,6 +896,12 @@ public class ImportTextServiceImpl implements ImportTextService
 		{
 			question.setHints(HtmlHelper.clean(hints));
 		}
+		
+		// explain reason
+		question.setExplainReason(explainReason);
+		
+		// survey
+		question.setIsSurvey(isSurvey);
 				
 		// save
 		question.getTypeSpecificQuestion().consolidate("");
