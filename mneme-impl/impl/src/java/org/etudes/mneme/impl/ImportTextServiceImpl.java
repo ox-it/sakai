@@ -754,9 +754,9 @@ public class ImportTextServiceImpl implements ImportTextService
 		
 		// single / multiple select
 		if (correctAnswers.size() == 1)
-			mc.setSingleCorrect(Boolean.toString(true));
+			mc.setSingleCorrect(Boolean.TRUE.toString());
 		else
-			mc.setSingleCorrect(Boolean.toString(false));
+			mc.setSingleCorrect(Boolean.FALSE.toString());
 		
 		// shuffle choices
 		mc.setShuffleChoices(Boolean.toString(shuffleChoices));
@@ -938,8 +938,12 @@ public class ImportTextServiceImpl implements ImportTextService
 		boolean first = true;
 		boolean foundAnswer = false;
 		List<String> answers = new ArrayList<String>();
-		String feedback = null, hints = null;
-		boolean foundHints = false, foundFeedback = false;
+		String feedback = null;
+		String hints = null;
+		boolean explainReason = false;
+		boolean isSurvey = false;
+		boolean foundQuestionAttributes = false;
+		
 		String clean = null;
 			
 		// question with braces may be a fill in question
@@ -990,22 +994,23 @@ public class ImportTextServiceImpl implements ImportTextService
 				
 				// hints and feedback
 				String lower = line.toLowerCase();
-				if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+				if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 				{
-					if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
-					{
-						String[] parts = StringUtil.splitFirst(line, ":");
-						if (parts.length > 1) feedback = parts[1].trim();
-						foundFeedback = true;
-					} 
-					else if (lower.startsWith(hintKey))
-					{
-						String[] parts = StringUtil.splitFirst(line, ":");
-						if (parts.length > 1) hints = parts[1].trim();
-						foundHints = true;
-					}
-					if (foundFeedback && foundHints)
-						break;
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) feedback = parts[1].trim();
+				} 
+				else if (lower.startsWith(hintKey))
+				{
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) hints = parts[1].trim();
+				}
+				else if (lower.equalsIgnoreCase(reasonKey))
+				{
+					explainReason = true;
+				}
+				else if (lower.equalsIgnoreCase(surveyKey))
+				{
+					isSurvey = true;
 				} 
 			}			
 		}
@@ -1027,27 +1032,31 @@ public class ImportTextServiceImpl implements ImportTextService
 				String lower = line.toLowerCase();
 				if (foundAnswer)
 				{
-					if (lower.startsWith(hintKey) || lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+					if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 					{
-						if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
-						{
-							String[] parts = StringUtil.splitFirst(line, ":");
-							if (parts.length > 1) feedback = parts[1].trim();
-							foundFeedback = true;
-						} 
-						else if (lower.startsWith(hintKey))
-						{
-							String[] parts = StringUtil.splitFirst(line, ":");
-							if (parts.length > 1) hints = parts[1].trim();
-							foundHints = true;
-						}
-						if (foundFeedback && foundHints)
-							break;
-						
-						continue;
+						String[] parts = StringUtil.splitFirst(line, ":");
+						if (parts.length > 1) feedback = parts[1].trim();
+						foundQuestionAttributes = true;
 					} 
+					else if (lower.startsWith(hintKey))
+					{
+						String[] parts = StringUtil.splitFirst(line, ":");
+						if (parts.length > 1) hints = parts[1].trim();
+						foundQuestionAttributes = true;
+					}
+					else if (lower.equalsIgnoreCase(reasonKey))
+					{
+						explainReason = true;
+						foundQuestionAttributes = true;
+					}
+					else if (lower.equalsIgnoreCase(surveyKey))
+					{
+						isSurvey = true;
+						foundQuestionAttributes = true;
+					} 
+					
 					// ignore the answer choices after hints or feedback found
-					else if (foundFeedback || foundHints)
+					if (foundQuestionAttributes)
 							continue;
 				}
 				
@@ -1055,10 +1064,15 @@ public class ImportTextServiceImpl implements ImportTextService
 				if (answer.length < 2)
 					return false;
 				
-				String answerChoice = line.substring(answer[0].length()).trim();
-				clean = HtmlHelper.clean(answerChoice);
-				answers.add(clean);
-				if (!foundAnswer) foundAnswer = true;
+				if (answer[0].matches("\\d+\\.?") || answer[0].matches("[a-zA-Z]\\.?"))
+				{
+					String answerChoice = line.substring(answer[0].length()).trim();
+					clean = HtmlHelper.clean(answerChoice);
+					answers.add(clean);
+					if (!foundAnswer) foundAnswer = true;
+				}
+				else
+					return false;
 			}
 			
 			if (!foundAnswer)
@@ -1069,8 +1083,6 @@ public class ImportTextServiceImpl implements ImportTextService
 		Question question = this.questionService.newQuestion(pool, "mneme:FillBlanks");
 		FillBlanksQuestionImpl f = (FillBlanksQuestionImpl) (question.getTypeSpecificQuestion());
 		
-		f.setAnyOrder(Boolean.FALSE.toString());
-		
 		// case sensitive
 		f.setCaseSensitive(Boolean.FALSE.toString());
 		
@@ -1080,7 +1092,8 @@ public class ImportTextServiceImpl implements ImportTextService
 		// text or numeric
 		f.setResponseTextual(Boolean.TRUE.toString());
 		
-		String questionText = lines[0];
+		//if found answers append them at the end of question
+		String questionText = lines[0].trim();
 		if (!braces && foundAnswer) {
 			StringBuffer buildAnswers = new StringBuffer();
 			buildAnswers.append("{");
@@ -1094,7 +1107,20 @@ public class ImportTextServiceImpl implements ImportTextService
 		}
 		
 		// set the text
-		clean = HtmlHelper.clean(questionText);
+		if (questionText.matches("^\\d+\\.\\s.*"))
+		{
+			String[] parts = StringUtil.splitFirst(questionText, ".");
+			if (parts.length > 1) 
+			{
+				questionText = parts[1].trim();
+				clean = HtmlHelper.clean(questionText);
+			}
+			else
+				return false;
+		}
+		else
+			clean = HtmlHelper.clean(questionText);
+		
 		f.setText(clean);
 		
 		// add feedback
@@ -1108,6 +1134,12 @@ public class ImportTextServiceImpl implements ImportTextService
 		{
 			question.setHints(HtmlHelper.clean(hints));
 		}
+		
+		// explain reason
+		question.setExplainReason(explainReason);
+		
+		// survey
+		question.setIsSurvey(isSurvey);
 		
 		// save
 		question.getTypeSpecificQuestion().consolidate("");
