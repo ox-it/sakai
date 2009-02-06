@@ -1166,6 +1166,11 @@ public class ImportTextServiceImpl implements ImportTextService
 		
 		boolean first = true;
 		boolean blankMatch = false;
+		boolean foundQuestionAttributes = false;
+		boolean foundDrawMatch = false;
+		String feedback = null;
+		String hints = null;
+		boolean isSurvey = false;
 		String distractor = null;
 		Map<String, String> choiceMatch = new HashMap<String, String>();
 		Map<String, String> choiceDrawMatch = new HashMap<String, String>();
@@ -1179,27 +1184,58 @@ public class ImportTextServiceImpl implements ImportTextService
 				continue;
 			}
 			
+			// draw choices
 			if (!line.startsWith("["))
 			{
 				if (choiceMatch.size() < 2)
 					return false;
 				else
 				{
+					String lower = line.toLowerCase();
+					// get feedback, hints, reason, survey. Ignore the line if the key is not found
+					if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+					{
+						String[] parts = StringUtil.splitFirst(line, ":");
+						if (parts.length > 1) feedback = parts[1].trim(); 
+						foundQuestionAttributes = true;
+					} 
+					else if (lower.startsWith(hintKey))
+					{
+						String[] parts = StringUtil.splitFirst(line, ":");
+						if (parts.length > 1) hints = parts[1].trim();
+						foundQuestionAttributes = true;
+					}
+					else if (lower.equalsIgnoreCase(surveyKey))
+					{
+						isSurvey = true;
+						foundQuestionAttributes = true;
+					}
+					
+					//after finding feedback or hints or reason or survey, ignore paired lists
+					if (foundQuestionAttributes)
+						continue;
+					
 					if (choiceDrawMatch.size() < choiceMatch.size())
 					{
 						String[] drawMatch = line.trim().split("\\s+");
 						
 						if (drawMatch.length > 1)
 						{
-							String key, value;
-							if (drawMatch[0].endsWith("."))
-								key = drawMatch[0].substring(0, drawMatch[0].length() - 1);
-							else
-								key = drawMatch[0].substring(0, drawMatch[0].length());
-							
-							value = line.substring(drawMatch[0].length()+ 1);
-							 
-							choiceDrawMatch.put(key, value);								
+							//check to see if the relation match starts with a character or digit with optional dot
+							if (drawMatch[0].matches("\\d+\\.?") || drawMatch[0].matches("[a-zA-Z]\\.?"))
+							{
+								String key, value;
+								if (drawMatch[0].endsWith("."))
+									key = drawMatch[0].substring(0, drawMatch[0].length() - 1);
+								else
+									key = drawMatch[0].substring(0, drawMatch[0].length());
+								
+								value = line.substring(drawMatch[0].length()+ 1);
+								 
+								choiceDrawMatch.put(key, value);
+								
+								foundDrawMatch = true;
+							}
 						}
 						else
 							return false;
@@ -1207,16 +1243,23 @@ public class ImportTextServiceImpl implements ImportTextService
 					continue;
 				}
 			}
+			else
+			{
+				// once draw matches found no more matching paired lists are added
+				if (foundDrawMatch || foundQuestionAttributes)
+					continue;
+			}
 			
 			String[] match = line.trim().split("\\s+");
 			
-			//if (match.length < 3 || !match[0].endsWith("]"))
+			// at least there should be 2 or more paired lists
 			if (!match[0].endsWith("]"))
 			{
 				if (choiceMatch.size() < 2)
 					return false;
 			}
 			
+			// distractor
 			if (match.length < 3)
 			{
 				if (!blankMatch && match.length == 1) 
@@ -1234,20 +1277,41 @@ public class ImportTextServiceImpl implements ImportTextService
 				else
 					return false;
 			}
-						
-			String key = line.substring(match[0].length()).substring(match[1].length()+ 1).trim();
-			String value = match[0].substring(match[0].indexOf("[")+ 1, match[0].lastIndexOf("]")).trim();
-			choiceMatch.put(key, value);
+			
+			if (match.length > 2)
+			{
+				//check to see if paired lists counter starts with a character or digit with optional dot
+				if (match[1].matches("\\d+\\.?") || match[1].matches("[a-zA-Z]\\.?"))
+				{
+					String key = line.substring(match[0].length()).substring(match[1].length()+ 1).trim();
+					String value = match[0].substring(match[0].indexOf("[")+ 1, match[0].lastIndexOf("]")).trim();
+					choiceMatch.put(key, value);
+				}
+			}
 			
 		}
-
 		
 		// create the question
 		Question question = this.questionService.newQuestion(pool, "mneme:Match");
 		MatchQuestionImpl m = (MatchQuestionImpl) (question.getTypeSpecificQuestion());
 
 		// set the text
-		String clean = HtmlHelper.clean(lines[0]);
+		String text = lines[0].trim();
+		String clean;
+		if (text.matches("^\\d+\\.\\s.*"))
+		{
+			String[] parts = StringUtil.splitFirst(text, ".");
+			if (parts.length > 1) 
+			{
+				text = parts[1].trim();
+				clean = HtmlHelper.clean(text);
+			}
+			else
+				return false;
+		}
+		else
+			clean = HtmlHelper.clean(text);
+		
 		question.getPresentation().setText(clean);
 		
 		// set the # pairs
@@ -1280,7 +1344,22 @@ public class ImportTextServiceImpl implements ImportTextService
 		}
 		
 		if (distractor != null)
-			m.setDistractor(distractor);		
+			m.setDistractor(distractor);
+		
+		// add feedback
+		if (StringUtil.trimToNull(feedback) != null)
+		{
+			question.setFeedback(HtmlHelper.clean(feedback));
+		}
+		
+		// add hints
+		if (StringUtil.trimToNull(hints) != null)
+		{
+			question.setHints(HtmlHelper.clean(hints));
+		}
+		
+		// survey
+		question.setIsSurvey(isSurvey);
 		
 		// save
 		question.getTypeSpecificQuestion().consolidate("");
