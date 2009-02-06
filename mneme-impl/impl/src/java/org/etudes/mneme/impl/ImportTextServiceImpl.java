@@ -1067,8 +1067,7 @@ public class ImportTextServiceImpl implements ImportTextService
 				if (answer[0].matches("\\d+\\.?") || answer[0].matches("[a-zA-Z]\\.?"))
 				{
 					String answerChoice = line.substring(answer[0].length()).trim();
-					clean = HtmlHelper.clean(answerChoice);
-					answers.add(clean);
+					answers.add(answerChoice);
 					if (!foundAnswer) foundAnswer = true;
 				}
 				else
@@ -1105,7 +1104,7 @@ public class ImportTextServiceImpl implements ImportTextService
 			buildAnswers.replace(buildAnswers.length() - 1, buildAnswers.length(), "}");
 			questionText = questionText.concat(buildAnswers.toString());
 		}
-		
+				
 		// set the text
 		if (questionText.matches("^\\d+\\.\\s.*"))
 		{
