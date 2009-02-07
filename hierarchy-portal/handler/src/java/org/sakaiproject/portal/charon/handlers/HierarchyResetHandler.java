@@ -48,12 +48,14 @@ public class HierarchyResetHandler extends BasePortalHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length > 2) && (parts[1].equals(getUrlFragment())))
+		if ((parts.length >= 2) && (parts[1].equals(getUrlFragment())))
 		{
 			try
 			{
-				String siteUrl = req.getContextPath() + "/hierarchy"
-						+ Web.makePath(parts, 2, parts.length);
+				String siteUrl = req.getContextPath() + "/hierarchy";
+				if (parts.length > 2) {
+						siteUrl = siteUrl + Web.makePath(parts, 2, parts.length);
+				}
 				// Make sure to add the parameters such as panel=Main
 				String queryString = req.getQueryString();
 				if (queryString != null)
