@@ -139,6 +139,7 @@ public class HierarchyHandler extends SiteHandler {
 					catch (IdUnusedException iuue)
 					{
 						portal.doError(req, res, session, Portal.ERROR_SITE);
+						return END;
 					}
 					catch (PermissionException pe)
 					{
@@ -154,6 +155,7 @@ public class HierarchyHandler extends SiteHandler {
 						{
 							portal.doError(req, res, session, Portal.ERROR_SITE);
 						}
+						return END;
 					}
 				}
 			}
