@@ -852,11 +852,9 @@ public class ImportTextServiceImpl implements ImportTextService
 			}
 			else
 			{
-				//if answers are followed by question then it is not an essay question
-				if (lower.matches("^\\d+\\.?\\s.*") || lower.matches("^[a-zA-Z]\\.?\\s.*"))
-				{
+				//if answers are followed by question or followed by choices for matching question then it is not an essay question
+				if (lower.matches("^\\d+\\.?\\s.*") || lower.matches("^[a-zA-Z]\\.?\\s.*") || lower.matches("^\\[\\w.*\\].*"))
 					return false;
-				}
 			}
 		}
 		
