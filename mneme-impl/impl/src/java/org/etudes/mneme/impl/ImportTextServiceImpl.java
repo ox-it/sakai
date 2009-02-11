@@ -511,7 +511,7 @@ public class ImportTextServiceImpl implements ImportTextService
 			else
 			{
 				// for true/false question there should be only two answer choices
-				if (answer[0].matches("\\*?\\d+\\.?") || answer[0].matches("\\*?[a-zA-Z]\\.?"))
+				if (answer[0].matches("\\*?\\d+\\.?") || answer[0].matches("\\*?[a-zA-Z]\\.?") || answer[0].matches("^\\[\\w.*\\]$"))
 					return false;
 				
 				// get feedback, hints, reason, survey. Ignore the line if the key is not found
@@ -538,7 +538,7 @@ public class ImportTextServiceImpl implements ImportTextService
 			index++;
 		}
 		
-		if (!foundAnswer)
+		if (!foundAnswer && !isSurvey)
 			return false;
 		
 		// create the question
