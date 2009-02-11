@@ -799,7 +799,7 @@ public class ImportTextServiceImpl implements ImportTextService
 	protected boolean processTextEssay(Pool pool, String[] lines) throws AssessmentPermissionException
 	{
 		//if there are no answers then that may be a essay question
-		if (lines.length == 0 || lines.length > 5)
+		if (lines.length == 0)
 			return false;
 		
 		boolean first = true;
