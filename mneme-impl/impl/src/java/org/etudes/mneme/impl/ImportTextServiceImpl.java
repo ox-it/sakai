@@ -940,6 +940,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		boolean explainReason = false;
 		boolean isSurvey = false;
 		boolean foundQuestionAttributes = false;
+		boolean bracesNoAnswer = false;
 		
 		String clean = null;
 			
@@ -963,7 +964,12 @@ public class ImportTextServiceImpl implements ImportTextService
 				{
 					answer = validateBraces.substring(0, endBraceIndex);
 					if (StringUtil.trimToNull(answer) == null)
-						return false;
+					{
+						if (lines.length < 1)
+							return false;
+						
+						bracesNoAnswer = true;
+					}
 				}
 				else
 					return false;
@@ -1135,6 +1141,9 @@ public class ImportTextServiceImpl implements ImportTextService
 		question.setExplainReason(explainReason);
 		
 		// survey
+		if (bracesNoAnswer && !isSurvey)
+			return false;
+		
 		question.setIsSurvey(isSurvey);
 		
 		// save
@@ -1158,7 +1167,7 @@ public class ImportTextServiceImpl implements ImportTextService
 	protected boolean processTextMatching(Pool pool, String[] lines) throws AssessmentPermissionException
 	{
 		//if the choices start with '[' then it may be a matching question
-		if (lines.length == 0)
+		if (lines.length < 3)
 			return false;
 		
 		boolean first = true;
@@ -1169,8 +1178,8 @@ public class ImportTextServiceImpl implements ImportTextService
 		String hints = null;
 		boolean isSurvey = false;
 		String distractor = null;
-		Map<String, String> choiceMatch = new HashMap<String, String>();
-		Map<String, String> choiceDrawMatch = new HashMap<String, String>();
+		Map<String, String> choicePairs = new HashMap<String, String>();
+		Map<String, String> drawChoicePairs = new HashMap<String, String>();
 		
 		for (String line : lines)
 		{
@@ -1183,8 +1192,8 @@ public class ImportTextServiceImpl implements ImportTextService
 			
 			// draw choices
 			if (!line.startsWith("["))
-			{
-				if (choiceMatch.size() < 2)
+		    {
+				if (choicePairs.size() < 2)
 					return false;
 				else
 				{
@@ -1212,7 +1221,7 @@ public class ImportTextServiceImpl implements ImportTextService
 					if (foundQuestionAttributes)
 						continue;
 					
-					if (choiceDrawMatch.size() < choiceMatch.size())
+					if (drawChoicePairs.size() < choicePairs.size())
 					{
 						String[] drawMatch = line.trim().split("\\s+");
 						
@@ -1229,7 +1238,7 @@ public class ImportTextServiceImpl implements ImportTextService
 								
 								value = line.substring(drawMatch[0].length()+ 1);
 								 
-								choiceDrawMatch.put(key, value);
+								drawChoicePairs.put(key, value);
 								
 								foundDrawMatch = true;
 							}
@@ -1249,10 +1258,10 @@ public class ImportTextServiceImpl implements ImportTextService
 			
 			String[] match = line.trim().split("\\s+");
 			
-			// at least there should be 2 or more paired lists
-			if (!match[0].endsWith("]"))
+			// format should be like [sometext] and at least there should be 2 or more paired lists
+			if (!match[0].matches("^\\[\\w.*\\]$"))
 			{
-				if (choiceMatch.size() < 2)
+				if (choicePairs.size() < 2)
 					return false;
 			}
 			
@@ -1268,25 +1277,26 @@ public class ImportTextServiceImpl implements ImportTextService
 				}
 				else if (match.length == 2)
 				{
-					
-					
 				}
 				else
 					return false;
 			}
 			
-			if (match.length > 2)
+			if (match.length > 2 && match[0].matches("^\\[\\w.*\\]$"))
 			{
 				//check to see if paired lists counter starts with a character or digit with optional dot
 				if (match[1].matches("\\d+\\.?") || match[1].matches("[a-zA-Z]\\.?"))
 				{
 					String key = line.substring(match[0].length()).substring(match[1].length()+ 1).trim();
 					String value = match[0].substring(match[0].indexOf("[")+ 1, match[0].lastIndexOf("]")).trim();
-					choiceMatch.put(key, value);
+					choicePairs.put(key, value);
 				}
 			}
 			
 		}
+		
+		if (choicePairs.size() < 2)
+			return false;
 		
 		// create the question
 		Question question = this.questionService.newQuestion(pool, "mneme:Match");
@@ -1312,24 +1322,24 @@ public class ImportTextServiceImpl implements ImportTextService
 		question.getPresentation().setText(clean);
 		
 		// set the # pairs
-		m.consolidate("INIT:" + choiceMatch.size());
+		m.consolidate("INIT:" + choicePairs.size());
 
 		// set the pair values
 		List<MatchQuestionImpl.MatchQuestionPair> pairs = m.getPairs();
 		String value;
 		int index = 0;
-		for (String key : choiceMatch.keySet())
+		for (String key : choicePairs.keySet())
 		{
 			clean = HtmlHelper.clean(key);
 			pairs.get(index).setChoice(clean);
 			
-			if (choiceDrawMatch.size() > 0)
+			if (drawChoicePairs.size() > 0)
 			{
-				value = choiceMatch.get(key);
-				value = choiceDrawMatch.get(value);
+				value = choicePairs.get(key);
+				value = drawChoicePairs.get(value);
 			}
 			else
-				value = choiceMatch.get(key);
+				value = choicePairs.get(key);
 			
 			if(StringUtil.trimToNull(value) == null)
 				return false;
