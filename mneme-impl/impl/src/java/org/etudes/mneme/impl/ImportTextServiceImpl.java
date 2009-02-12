@@ -941,6 +941,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		boolean isSurvey = false;
 		boolean foundQuestionAttributes = false;
 		boolean bracesNoAnswer = false;
+		boolean isResponseTextual = false;
 		
 		String clean = null;
 			
@@ -969,6 +970,20 @@ public class ImportTextServiceImpl implements ImportTextService
 							return false;
 						
 						bracesNoAnswer = true;
+					}
+					else
+					{
+						if (!isResponseTextual)
+						{
+							try
+							{
+								Float.parseFloat(answer);
+								
+							} catch (NumberFormatException e)
+							{
+								isResponseTextual = true;
+							}
+						}
 					}
 				}
 				else
@@ -1091,9 +1106,6 @@ public class ImportTextServiceImpl implements ImportTextService
 		//mutually exclusive
 		f.setAnyOrder(Boolean.FALSE.toString());
 
-		// text or numeric
-		f.setResponseTextual(Boolean.TRUE.toString());
-		
 		//if found answers append them at the end of question
 		String questionText = lines[0].trim();
 		if (!braces && foundAnswer) {
@@ -1101,6 +1113,17 @@ public class ImportTextServiceImpl implements ImportTextService
 			buildAnswers.append("{");
 			for (String answer : answers)
 			{
+				if (!isResponseTextual)
+				{
+					try
+					{
+						Float.parseFloat(answer);
+						
+					} catch (NumberFormatException e)
+					{
+						isResponseTextual = true;
+					}
+				}
 				buildAnswers.append(answer);
 				buildAnswers.append("|");
 			}
@@ -1125,6 +1148,9 @@ public class ImportTextServiceImpl implements ImportTextService
 		
 		f.setText(clean);
 		
+		// text or numeric
+		f.setResponseTextual(Boolean.toString(isResponseTextual));
+		
 		// add feedback
 		if (StringUtil.trimToNull(feedback) != null)
 		{
@@ -1140,10 +1166,10 @@ public class ImportTextServiceImpl implements ImportTextService
 		// explain reason
 		question.setExplainReason(explainReason);
 		
-		// survey
 		if (bracesNoAnswer && !isSurvey)
 			return false;
 		
+		// survey
 		question.setIsSurvey(isSurvey);
 		
 		// save
