@@ -1263,7 +1263,10 @@ public class ImportTextServiceImpl implements ImportTextService
 									key = drawMatch[0].substring(0, drawMatch[0].length());
 								
 								value = line.substring(drawMatch[0].length()+ 1);
-								 
+								
+								if (drawChoicePairs.containsKey(key) || drawChoicePairs.containsValue(value))
+									return false;
+								
 								drawChoicePairs.put(key, value);
 								
 								foundDrawMatch = true;
@@ -1315,6 +1318,10 @@ public class ImportTextServiceImpl implements ImportTextService
 				{
 					String key = line.substring(match[0].length()).substring(match[1].length()+ 1).trim();
 					String value = match[0].substring(match[0].indexOf("[")+ 1, match[0].lastIndexOf("]")).trim();
+					
+					if (choicePairs.containsKey(key) || choicePairs.containsValue(value))
+						return false;
+					
 					choicePairs.put(key, value);
 				}
 			}
