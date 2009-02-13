@@ -43,6 +43,16 @@
         </repository>
 	</repositories>
 
+	<pluginRepositories>
+		<pluginRepository>
+			<id>oucs-vle</id>
+			<name>OUCS VLE Repository</name>
+			<url>http://archiva.oucs.ox.ac.uk/archiva/repository/internal/</url>
+			<layout>default</layout>
+		</pluginRepository>
+	</pluginRepositories>
+
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
