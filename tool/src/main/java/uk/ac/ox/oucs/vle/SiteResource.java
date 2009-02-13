@@ -61,6 +61,7 @@ public class SiteResource {
 		return Response.status(Status.NOT_FOUND).build();
 	}
 
+	@SuppressWarnings("unchecked")
 	private Response convertSiteToJSON(Site site) {
 		Map<Object, Object> data = new HashMap<Object, Object>();
 		data.put("id", site.getId());
