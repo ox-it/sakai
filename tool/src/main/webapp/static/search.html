@@ -83,10 +83,10 @@
 												jQuery.ajax({
 													url: path+ "mapped/",
 													type: "POST",
-													data: {group: group.id, role: role},
+													data: {group: group.id, role: role, site: site},
 													success: function(json, textStatus) {
-														eval("var data = "+ json);
 														console.log(data);
+														window.location = "./../done.jsp";
 													},
 													error: function() {
 														console.log("tits up");
