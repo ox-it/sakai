@@ -1,6 +1,7 @@
 package uk.ac.ox.oucs.vle;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,6 +36,13 @@ public class MappedGroupDaoHibernate extends HibernateDaoSupport implements
 		newGroup.setExternalGroup(group);
 		newGroup.setRole(role);
 		return (String) getHibernateTemplate().save(newGroup);
+	}
+
+	public List<MappedGroup> findByGroup(String group) {
+		MappedGroup example = new MappedGroup();
+		example.setExternalGroup(group);
+		List<MappedGroup> results = getHibernateTemplate().findByExample(example);
+		return results;
 	}
 
 }

@@ -5,8 +5,10 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -67,6 +69,11 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		return (mappedGroup == null)?null:mappedGroup.getExternalGroup();
 	}
 	
+	public String findRole(String mappedGroupId) {
+		MappedGroup mappedGroup = mappedGroupDao.findById(mappedGroupId);
+		return (mappedGroup == null)?null:mappedGroup.getRole();
+	}
+
 	public ExternalGroup findExternalGroup(String externalGroupId) {
 		ExternalGroup group = null;
 		LDAPConnection connection = null;
@@ -94,6 +101,36 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			}
 		}
 		return group;
+	}
+
+	public Map<String, String> getGroupRoles(String userId) {
+		MessageFormat formatter = new MessageFormat("oakPrimaryPersonID={0},ou=people,dc=oak,dc=ox,dc=ac,dc=uk");
+		String member = formatter.format(new Object[]{userId});
+		LDAPConnection connection = null;
+		Map<String, String> groupRoles;
+		try {
+			connection = getConnection();
+			String filter = "member="+member;
+			LDAPSearchResults results = connection.search("ou=units,dc=oak,dc=ox,dc=ac,dc=uk", LDAPConnection.SCOPE_SUB, filter, getSearchAttributes(), false);
+			groupRoles = new HashMap<String, String>();
+			while (results.hasMore()) {
+				ExternalGroup group = convert(results.next());
+				if (group != null) {
+					List <MappedGroup> mappedGroups = mappedGroupDao.findByGroup(group.getId());
+					for (MappedGroup mappedGroup: mappedGroups) {
+						groupRoles.put(mappedGroup.getId(), mappedGroup.getRole());
+					}
+				}
+			}
+			return groupRoles;
+		} catch (LDAPException ldape) {
+			log.error("Problem with LDAP.", ldape);
+		} finally {
+			if (connection != null) {
+				returnConnection(connection);
+			}
+		}
+		return null;
 	}
 
 	public List<ExternalGroup> search(String query) {
@@ -247,7 +284,8 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		return users.iterator();
 	}
 	
-    public String escapeSearchFilterTerm(String term) {
+	// Taken from the provider LDAP stuff.
+	public String escapeSearchFilterTerm(String term) {
 		if (term == null)
 			return null;
 		// From RFC 2254
