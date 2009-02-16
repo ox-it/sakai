@@ -41,6 +41,11 @@
             <url>http://download.java.net/maven/2/</url>
             <layout>default</layout>
         </repository>
+        <repository>
+			<id>sakai.maven2</id>
+			<name>Sakai Maven2 Repo</name>
+			<url>https://source.sakaiproject.org/maven2</url>
+		</repository>
 	</repositories>
 
 	<pluginRepositories>
@@ -50,6 +55,7 @@
 			<url>http://archiva.oucs.ox.ac.uk/archiva/repository/internal/</url>
 			<layout>default</layout>
 		</pluginRepository>
+		
 	</pluginRepositories>
 
 
