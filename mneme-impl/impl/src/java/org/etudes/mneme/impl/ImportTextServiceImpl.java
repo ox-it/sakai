@@ -978,13 +978,30 @@ public class ImportTextServiceImpl implements ImportTextService
 					{
 						if (!isResponseTextual)
 						{
-							try
+							String[] multiAnswers = answer.split("\\|");
+							if (multiAnswers.length > 1) {
+								for (String multiAnswer : multiAnswers)
+								{
+									try
+									{
+										Float.parseFloat(multiAnswer.trim());
+										
+									} catch (NumberFormatException e)
+									{
+										isResponseTextual = true;
+									}
+								}
+							}
+							else 
 							{
-								Float.parseFloat(answer);
-								
-							} catch (NumberFormatException e)
-							{
-								isResponseTextual = true;
+								try
+								{
+									Float.parseFloat(answer);
+									
+								} catch (NumberFormatException e)
+								{
+									isResponseTextual = true;
+								}
 							}
 						}
 					}
@@ -1118,13 +1135,30 @@ public class ImportTextServiceImpl implements ImportTextService
 			{
 				if (!isResponseTextual)
 				{
-					try
+					String[] multiAnswers = answer.split("\\|");
+					if (multiAnswers.length > 1) {
+						for (String multiAnswer : multiAnswers)
+						{
+							try
+							{
+								Float.parseFloat(multiAnswer.trim());
+								
+							} catch (NumberFormatException e)
+							{
+								isResponseTextual = true;
+							}
+						}
+					}
+					else
 					{
-						Float.parseFloat(answer);
-						
-					} catch (NumberFormatException e)
-					{
-						isResponseTextual = true;
+						try
+						{
+							Float.parseFloat(answer);
+							
+						} catch (NumberFormatException e)
+						{
+							isResponseTextual = true;
+						}
 					}
 				}
 				buildAnswers.append(answer);
