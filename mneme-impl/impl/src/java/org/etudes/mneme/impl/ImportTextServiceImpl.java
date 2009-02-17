@@ -505,6 +505,25 @@ public class ImportTextServiceImpl implements ImportTextService
 						return false;
 					
 				}
+				else if (answer.length == 1)
+				{
+					if (!("true".equalsIgnoreCase(answer[0]) || "*true".equalsIgnoreCase(answer[0]) || "false".equalsIgnoreCase(answer[0]) 
+								|| "*false".equalsIgnoreCase(answer[0])))
+					{
+						return false;
+					}
+					
+					if (answer[0].startsWith("*"))
+					{
+						if (!foundAnswer)
+							foundAnswer = true;
+						else
+							return false;
+						
+						if ("*true".equalsIgnoreCase(answer[0]))
+							isTrue = true;
+					}
+				}
 				else
 					return false;
 			}
