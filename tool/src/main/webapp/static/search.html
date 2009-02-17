@@ -138,10 +138,14 @@
 		<form class="show-group">
 		<h4 class="group">${group.name}</h4>
 		<h5>Membership</h5>
+		<table>
 		{for role in site.roles}
-		<label for="${role.id}">${role.id}</label>
-		<input id="access" type="radio" name="role" value="${role.id}"><br/>
+		<tr>
+		<td><label for="${role.id}">${role.id}</label></td>
+		<td><input id="${role.id}" type="radio" name="role" value="${role.id}"></td>
+		</tr>
 		{/for}
+		</table>
 		<input type="submit" value="Add Group"/>
 
 		<ul class="members">
