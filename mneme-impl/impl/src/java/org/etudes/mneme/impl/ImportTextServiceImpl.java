@@ -453,6 +453,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		String hints = null;
 		boolean explainReason = false;
 		boolean isSurvey = false;
+		boolean foundQuestionAttributes = false;
 		
 		int index = 0;
 		
@@ -529,29 +530,40 @@ public class ImportTextServiceImpl implements ImportTextService
 			}
 			else
 			{
-				// for true/false question there should be only two answer choices
-				if (answer[0].matches("\\*?\\d+\\.?") || answer[0].matches("\\*?[a-zA-Z]\\.?") || answer[0].matches("^\\[\\w.*\\]$"))
-					return false;
-				
 				// get feedback, hints, reason, survey. Ignore the line if the key is not found
 				String lower = line.toLowerCase();
 				if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 				{
 					String[] parts = StringUtil.splitFirst(line, ":");
 					if (parts.length > 1) feedback = parts[1].trim(); 
+					
+					foundQuestionAttributes = true;
 				} 
 				else if (lower.startsWith(hintKey))
 				{
 					String[] parts = StringUtil.splitFirst(line, ":");
 					if (parts.length > 1) hints = parts[1].trim();
+					
+					foundQuestionAttributes = true;
 				}
 				else if (lower.equalsIgnoreCase(reasonKey))
 				{
 					explainReason = true;
+					
+					foundQuestionAttributes = true;
 				}
 				else if (lower.equalsIgnoreCase(surveyKey))
 				{
 					isSurvey = true;
+					
+					foundQuestionAttributes = true;
+				}
+				
+				if (!foundQuestionAttributes)
+				{
+					// for true/false question there should be only two answer choices
+					if (answer[0].matches("\\*?\\d+\\.?") || answer[0].matches("\\*?[a-zA-Z]\\.?") || answer[0].matches("^\\[\\w.*\\]$"))
+						return false;
 				}
 			}
 			index++;
