@@ -675,8 +675,10 @@ public class ImportTextServiceImpl implements ImportTextService
 			}
 			
 			String[] answer = line.trim().split("\\s+");
+			
+			// ignore answer choices with incorrect format
 			if (answer.length < 2)
-				return false;
+				continue;
 			
 			boolean checkFormat = false;
 			
@@ -699,8 +701,9 @@ public class ImportTextServiceImpl implements ImportTextService
 				checkFormat = (answer[0].matches("\\d+\\.?") || answer[0].matches("[a-zA-Z]\\.?"));
 			}
 			
+			// ignore answer choices with incorrect format
 			if (!checkFormat)
-				return false;				
+				continue;				
 				
 			answerChoice = line.substring(answer[0].length()).trim();
 			clean = HtmlHelper.clean(answerChoice);
