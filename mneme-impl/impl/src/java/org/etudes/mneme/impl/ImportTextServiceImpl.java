@@ -101,20 +101,38 @@ public class ImportTextServiceImpl implements ImportTextService
 	/** Dependency: ThreadLocalManager. */
 	protected ThreadLocalManager threadLocalManager = null;
 	
-	/** hint key */
+	/** Hint key */
 	protected static final String hintKey = "hint:";
 	
-	/** feedback key1 */
+	/** Feedback key1 */
 	protected static final String feedbackKey1 = "feedback:";
 	
-	/** feedback key2 */
+	/** Feedback key2 */
 	protected static final String feedbackKey2 = "general feedback:";
 	
-	/** reason */
+	/** Reason */
 	protected static final String reasonKey = "reason";
 	
-	/** survey */
+	/** Survey */
 	protected static final String surveyKey = "survey";
+	
+	/** Regular expression for digit with period */
+	protected static final String digitPeriodRegex = "\\*?\\d+\\.";
+	
+	/** Regular expression for digit */
+	protected static final String digitRegex = "\\*?\\d+";
+	
+	/** Regular expression for alphabet with period */
+	protected static final String alphabetPeriodRegex = "\\*?[a-zA-Z]\\.";
+	
+	/** Regular expression for alphabet */
+	protected static final String alphabetRegex = "\\*?[a-zA-Z]";
+	
+	/** An enumerate type that declares the types of numbering style */
+	public enum NumberingType
+	{
+		digitperiod, digit, alphabetperiod, alphabet, none;
+	}
 
 	/**
 	 * Returns to uninitialized state.
@@ -454,6 +472,9 @@ public class ImportTextServiceImpl implements ImportTextService
 		boolean explainReason = false;
 		boolean isSurvey = false;
 		boolean foundQuestionAttributes = false;
+		boolean numberFormatNeeded = false;
+		
+		NumberingType numberingType = null;
 		
 		int index = 0;
 		
@@ -486,11 +507,23 @@ public class ImportTextServiceImpl implements ImportTextService
 						- a, b, c, d may or may not have a period after them. However, there must ALWAYS be a space between the letter of choice and the text 
 							of the choice.
 					*/
+					// establish numbering type style
+					if (index == 1)
+					{
+						numberingType = establishNumberingType(answer[0]);
+						
+						numberFormatNeeded = true;
+					}					
+					
+					if (!numberFormatNeeded)
+						return false;					
+					
 					boolean checkFormat = false;
 					
 					if (answer[0].startsWith("*"))
 					{
-						checkFormat = (answer[0].matches("\\*\\d+\\.?") || answer[0].matches("\\*[a-zA-Z]\\.?"));
+						checkFormat = validateNumberingType(answer[0], numberingType);
+						
 						if (!foundAnswer)
 							foundAnswer = true;
 						else
@@ -500,7 +533,7 @@ public class ImportTextServiceImpl implements ImportTextService
 							isTrue = true;
 					}
 					else
-						checkFormat = (answer[0].matches("\\d+\\.?") || answer[0].matches("[a-zA-Z]\\.?"));
+						checkFormat = validateNumberingType(answer[0], numberingType);
 					
 					if (!checkFormat)
 						return false;
@@ -508,6 +541,9 @@ public class ImportTextServiceImpl implements ImportTextService
 				}
 				else if (answer.length == 1)
 				{
+					if (numberFormatNeeded)
+						return false;
+					
 					if (!("true".equalsIgnoreCase(answer[0]) || "*true".equalsIgnoreCase(answer[0]) || "false".equalsIgnoreCase(answer[0]) 
 								|| "*false".equalsIgnoreCase(answer[0])))
 					{
@@ -524,6 +560,8 @@ public class ImportTextServiceImpl implements ImportTextService
 						if ("*true".equalsIgnoreCase(answer[0]))
 							isTrue = true;
 					}
+					
+					numberFormatNeeded = false;
 				}
 				else
 					return false;
@@ -562,7 +600,7 @@ public class ImportTextServiceImpl implements ImportTextService
 				if (!foundQuestionAttributes)
 				{
 					// for true/false question there should be only two answer choices
-					if (answer[0].matches("\\*?\\d+\\.?") || answer[0].matches("\\*?[a-zA-Z]\\.?") || answer[0].matches("^\\[\\w.*\\]$"))
+					if (numberFormatNeeded && validateNumberingType(answer[0], numberingType))
 						return false;
 				}
 			}
@@ -1475,4 +1513,66 @@ public class ImportTextServiceImpl implements ImportTextService
 		
 		return true;
 	}
+	
+	/**
+	 * Get the numbering type
+	 * 
+	 * @param text
+	 * 		The text to process
+	 * @return The numbering type for the text
+	 */
+	protected NumberingType establishNumberingType(String text) 
+	{
+		if (StringUtil.trimToNull(text) == null)
+			return NumberingType.none;
+		
+		if (text.matches(digitPeriodRegex))
+			return NumberingType.digitperiod;
+		
+		if (text.matches(digitRegex))
+			return NumberingType.digit;
+		
+		if (text.matches(alphabetPeriodRegex))
+			return NumberingType.alphabetperiod;
+		
+		if (text.matches(alphabetRegex))
+			return NumberingType.alphabet;
+		
+		return NumberingType.none;
+	}
+	
+	/**
+	 * Validate the numbering type
+	 * 
+	 * @param text
+	 * 		The text to validate
+	 * @param numberingType
+	 * 		The NumberingType to validate with 
+	 * @return true if the text is valid numberingType else return false
+	 */
+	protected boolean validateNumberingType(String text, NumberingType numberingType) 
+	{
+		if (StringUtil.trimToNull(text) == null)
+			return false;
+		
+		switch (numberingType)
+		{
+			case digitperiod:
+				return text.matches(digitPeriodRegex);
+				
+			case digit:
+				return text.matches(digitRegex);
+				
+			case alphabetperiod:
+				return text.matches(alphabetPeriodRegex);
+				
+			case alphabet:
+				return text.matches(alphabetRegex);
+			
+			default:
+				return false;
+		}
+		
+	}
+	
 }
