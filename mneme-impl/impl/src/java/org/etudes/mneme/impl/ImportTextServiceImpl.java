@@ -897,6 +897,8 @@ public class ImportTextServiceImpl implements ImportTextService
 		String modelAnswer = null;
 		String modelAnswerKey = "model answer:";
 		
+		boolean foundQuestionAttributes = false;
+		
 		// question with braces may be a fill in question
 		if ((lines[0].indexOf("{") != -1) && (lines[0].indexOf("}") != -1) && (lines[0].indexOf("{") < lines[0].indexOf("}")))
 			return false;
@@ -917,30 +919,44 @@ public class ImportTextServiceImpl implements ImportTextService
 			{
 				String[] parts = StringUtil.splitFirst(line, ":");
 				if (parts.length > 1) feedback = parts[1].trim();
+				
+				foundQuestionAttributes = true;
 			} 
 			else if (lower.startsWith(hintKey))
 			{
 				String[] parts = StringUtil.splitFirst(line, ":");
 				if (parts.length > 1) hints = parts[1].trim();
+				
+				foundQuestionAttributes = true;
 			}
 			else if (lower.startsWith(modelAnswerKey))
 			{
 				String[] parts = StringUtil.splitFirst(line, ":");
 				if (parts.length > 1) modelAnswer = parts[1].trim();
+				
+				foundQuestionAttributes = true;
 			}
 			else if (lower.equalsIgnoreCase(reasonKey))
 			{
 				explainReason = true;
+				foundQuestionAttributes = true;
 			}
 			else if (lower.equalsIgnoreCase(surveyKey))
 			{
 				isSurvey = true;
+				foundQuestionAttributes = true;
 			}
 			else
 			{
 				//if answers are followed by question or followed by choices for matching question then it is not an essay question
-				if (lower.matches("^\\d+\\.?\\s.*") || lower.matches("^[a-zA-Z]\\.?\\s.*") || lower.matches("^\\[\\w.*\\].*"))
-					return false;
+				if (!foundQuestionAttributes)
+				{
+					String[] answer = line.trim().split("\\s+");
+					NumberingType numberingType;
+					numberingType = establishNumberingType(answer[0]);
+					if (!(numberingType == NumberingType.none) || lower.matches("^\\[\\w.*\\].*"))
+						return false;
+				}
 			}
 		}
 		
