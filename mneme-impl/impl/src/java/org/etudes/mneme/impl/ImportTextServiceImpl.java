@@ -442,8 +442,8 @@ public class ImportTextServiceImpl implements ImportTextService
 	{
 		if (processTextTrueFalse(pool, lines)) return;
 		if (processTextMultipleChoice(pool, lines)) return;
-		if (processTextEssay(pool, lines)) return;
 		if (processTextFillIn(pool, lines)) return;
+		if (processTextEssay(pool, lines)) return;
 		if (processTextMatching(pool, lines)) return;
 	}
 	
@@ -1029,6 +1029,10 @@ public class ImportTextServiceImpl implements ImportTextService
 		boolean bracesNoAnswer = false;
 		boolean isResponseTextual = false;
 		
+		boolean numberFormatEstablished = false;
+		
+		NumberingType numberingType = null;
+		
 		String clean = null;
 			
 		// question with braces may be a fill in question
@@ -1110,7 +1114,7 @@ public class ImportTextServiceImpl implements ImportTextService
 					continue;
 				}
 				
-				if (line.startsWith("*") || line.startsWith("["))
+				if (line.startsWith("*") || line.matches("^\\[\\w.*\\].*"))
 					return false;
 				
 				// hints and feedback
@@ -1146,7 +1150,7 @@ public class ImportTextServiceImpl implements ImportTextService
 					continue;
 				}
 				
-				if (line.startsWith("*") || line.startsWith("["))
+				if (line.startsWith("*") || line.matches("^\\[\\w.*\\].*"))
 					return false;
 				
 				// hints and feedback
@@ -1185,14 +1189,24 @@ public class ImportTextServiceImpl implements ImportTextService
 				if (answer.length < 2)
 					return false;
 				
-				if (answer[0].matches("\\d+\\.?") || answer[0].matches("[a-zA-Z]\\.?"))
+				if (!numberFormatEstablished)
+				{
+					numberingType = establishNumberingType(answer[0]);
+					
+					if (numberingType == NumberingType.none)
+						continue;
+					
+					numberFormatEstablished = true;
+				}
+				
+				if (validateNumberingType(answer[0], numberingType))
 				{
 					String answerChoice = line.substring(answer[0].length()).trim();
 					answers.add(answerChoice);
 					if (!foundAnswer) foundAnswer = true;
 				}
 				else
-					return false;
+					continue;
 			}
 			
 			if (!foundAnswer)
