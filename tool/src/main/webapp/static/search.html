@@ -23,9 +23,49 @@
 <script type="text/javascript" src="/library/js/headscripts.js"></script>
 <script type="text/javascript">
 	jQuery(function(){
+
+		var loadGroupAjax;
+		var loadGroup = function (groupId, groupName) {
+			var group = {"id": groupId, "name": groupName};
+			var htmlResult = TrimPath.processDOMTemplate("group_jst", {"group": group, "site": siteData});
+			jQuery("#group").html(htmlResult);
+			setMainFrameHeightNow(frameId);
+			loadGroupAjax = jQuery.getJSON(path+ "group/"+ group.id+ "/members", {}, function(data, textStatus) {
+				// loading members.
+				if (textStatus == "success") {
+					var htmlResult = TrimPath.processDOMTemplate("membership_jst", {"members": data});
+					jQuery(".show-group .members").html(htmlResult);
+					setMainFrameHeightNow(frameId);
+				}
+			});
+			jQuery("form.show-group").
+				bind("submit", function(event) {
+					var role = jQuery("form.show-group input[name=role]:checked").val();
+					if (role != null) {
+						console.log("Selected role: "+role+ " group is "+ group.id);
+						if (loadGroupAjax.readyState != 4) {
+							console.log("Aborting");
+							loadGroupAjax.abort();
+						}
+						jQuery.ajax({
+							url: path+ "mapped/",
+							type: "POST",
+							data: {group: group.id, role: role, site: siteData.id},
+							success: function(json, textStatus) {
+								window.location = "./../done.jsp";
+							},
+							error: function() {
+								console.log("tits up");
+							}
+						});
+
+					}
+					return false;
+				});
+		};
 		
 		path = "/external-groups/rest/";
-		this.url = function(param) {
+		url = function(param) {
 			var regex = '[?&]' + param + '=([^&#]*)';
 			var results = (new RegExp(regex)).exec(window.location.href);
 			if(results) return results[1];
@@ -33,8 +73,8 @@
 			
 		}
 		// Support running as a helper.
-		var placement = this.url("sakai.tool.placement.id");
-		var frameId = "Main"+placement;
+		var placement = url("sakai.tool.placement.id");
+		frameId = "Main"+placement;
 		frameId = frameId.replace(/-/g, "x");
 		
 		// Don't shrink frame as autocomplete needs space.
@@ -46,7 +86,8 @@
 			url: path+ "site/placement/"+placement,
             method: "GET",
 			success: function(json, textStatus) {
-				eval("var siteData = "+ json);
+				console.log(json);
+				eval("siteData = "+json);
 				var site = siteData.id;
 				var content = TrimPath.processDOMTemplate("find_jst", siteData);
 				jQuery("#search").html(content);
@@ -67,43 +108,27 @@
 								if (data.length == 1) {
 									// Wooho
 									var group = data[0];
-									var htmlResult = TrimPath.processDOMTemplate("group_jst", {group: group, site: siteData});
-									jQuery("#group").html(htmlResult);
-									setMainFrameHeightNow(frameId);
-									jQuery.getJSON(path+ "group/"+ group.id+ "/members", {}, function(data, textStatus) {
-										// loading members.
-										if (textStatus == "success") {
-											var htmlResult = TrimPath.processDOMTemplate("membership_jst", {"members": data});
-											jQuery(".show-group .members").html(htmlResult);
-											setMainFrameHeightNow(frameId);
-
-										}
-									});
-									jQuery("form.show-group").
-										bind("submit", function(event) {
-											var role = jQuery("form.show-group input[name=role]:checked").val();
-											if (role != null) {
-												console.log("Selected role: "+role+ " group is "+ group.id);
-												jQuery.ajax({
-													url: path+ "mapped/",
-													type: "POST",
-													data: {group: group.id, role: role, site: site},
-													success: function(json, textStatus) {
-														console.log(data);
-														window.location = "./../done.jsp";
-													},
-													error: function() {
-														console.log("tits up");
-													}
-												});
-
-											}
-											return false;
-										});
+									loadGroup(group["id"], group["name"]);
+									
 								} else if (data.length == 0) {
-
+									// Need to add warning
 								} else {
-
+									// Should check list to see if we have an exact match first.
+									// User needs to select from list.
+									var htmlResult = TrimPath.processDOMTemplate("select_group_jst", {groups: data});
+									jQuery("#select_group").html(htmlResult);
+									// Need to add onsubmit handling
+									jQuery("#select_group").bind("submit", function (event) {
+										var input = jQuery("#select_group input[name=group]:checked");
+										if (input) {
+											var groupId = input.val();
+											var groupName = input.parent().parent().children("td:last-child").text();
+											console.log("Id: "+ groupId+ " Name: "+ groupName);
+											loadGroup(groupId, groupName);
+										}
+										
+										return false;
+									});
 								}
 							}
 						});
@@ -132,6 +157,8 @@
 		</fieldset>
 		<input type="submit" value="Next"/>
 		</form>
+		<form id="select_group">
+		</form>
 		</div>
 	</textarea>
 	<textarea id="group_jst">
@@ -159,6 +186,22 @@
 		{for member in members}
 		<li>${member.name} <span class="username">(${member.username})</span></li>
 		{/for}
+	</textarea>
+
+	<!-- When more than one group matches select one from list -->
+	<textarea id="select_group_jst">
+	
+		<fieldset id="found_groups">
+		<table>
+		{for group in groups}
+			<tr>
+				<td><input type="radio" name="group" value="${group.id}"/></td>
+				<td class="name">${group.name}</td>
+			</tr>
+		{/for}
+		</table>
+		</fieldset>
+		<input type="submit" value="Select"/>
 	</textarea>
 </div>
 
