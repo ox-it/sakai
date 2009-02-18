@@ -1357,6 +1357,10 @@ public class ImportTextServiceImpl implements ImportTextService
 		Map<String, String> choicePairs = new HashMap<String, String>();
 		Map<String, String> drawChoicePairs = new HashMap<String, String>();
 		
+		boolean drawMatchNumberFormatEstablished = false, numberFormatEstablished = false;
+		
+		NumberingType drawMatchNumberingType = null, numberingType = null;
+		
 		for (String line : lines)
 		{
 			// ignore first line as first line is question text
@@ -1404,7 +1408,16 @@ public class ImportTextServiceImpl implements ImportTextService
 						if (drawMatch.length > 1)
 						{
 							//check to see if the relation match starts with a character or digit with optional dot
-							if (drawMatch[0].matches("\\d+\\.?") || drawMatch[0].matches("[a-zA-Z]\\.?"))
+							if (!drawMatchNumberFormatEstablished)
+							{
+								drawMatchNumberingType = establishNumberingType(drawMatch[0]);
+								
+								if (drawMatchNumberingType == NumberingType.none)
+									continue;
+								
+								drawMatchNumberFormatEstablished = true;
+							}
+							if (validateNumberingType(drawMatch[0], drawMatchNumberingType))
 							{
 								String key, value;
 								if (drawMatch[0].endsWith("."))
@@ -1464,7 +1477,16 @@ public class ImportTextServiceImpl implements ImportTextService
 			if (match.length > 2 && match[0].matches("^\\[\\w.*\\]$"))
 			{
 				//check to see if paired lists counter starts with a character or digit with optional dot
-				if (match[1].matches("\\d+\\.?") || match[1].matches("[a-zA-Z]\\.?"))
+				if (!numberFormatEstablished)
+				{
+					numberingType = establishNumberingType(match[1]);
+					
+					if (numberingType == NumberingType.none)
+						continue;
+					
+					numberFormatEstablished = true;
+				}
+				if (validateNumberingType(match[1], numberingType))
 				{
 					String key = line.substring(match[0].length()).substring(match[1].length()+ 1).trim();
 					String value = match[0].substring(match[0].indexOf("[")+ 1, match[0].lastIndexOf("]")).trim();
