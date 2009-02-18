@@ -187,7 +187,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	}
 	
 	ExternalGroup newExternalGroup(String id, String name) {
-		return new ExternalGroupImpl(id, name, this);
+		return new ExternalGroupImpl(id, name, this, userDirectoryService);
 	}
 
 	String[] getSearchAttributes() {
@@ -236,8 +236,8 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		this.mappedGroupDao = mappedGroupDao;
 	}
 
-	Iterator<User> findMembers(String externalId) {
-		Collection<User> users = Collections.emptyList();
+	Collection<String> findMembers(String externalId) {
+		Collection<String> users = Collections.emptyList();
 		LDAPConnection connection = null;
 		try {
 			connection = getConnection();
@@ -251,26 +251,18 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 				String[] members = memberAttr.getStringValueArray();
 				
 				MessageFormat formatter = new MessageFormat("oakPrimaryPersonID={0},ou=people,dc=oak,dc=ox,dc=ac,dc=uk");
-				users = new ArrayList<User>(members.length);
+				users = new ArrayList<String>(members.length);
 				
 				for(String member: members) {
 					//oakPrimaryPersonID=21096,ou=people,dc=oak,dc=ox,dc=ac,dc=uk
 					Object[] parseValues = formatter.parse(member);
 					if(parseValues.length == 1) {
 						String eid = (String) parseValues[0];
-						try {
-							User user = userDirectoryService.getUserByEid(eid);
-							users.add(user);
-						} catch (UserNotDefinedException e) {
-							if (log.isInfoEnabled()) {
-								log.info("Failed to find user ("+ eid+ ") for group ("+ externalId+ ")");
-							}
-						}
+						users.add(eid);
 					} else {
 						log.warn("Failed to parse member of group: "+ member);
 					}
 				}
-				
 			}
 		} catch (LDAPException ldape) {
 			log.warn("Failed to find members of: "+ externalId, ldape);
@@ -281,7 +273,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 				returnConnection(connection);
 			}
 		}
-		return users.iterator();
+		return users;
 	}
 	
 	// Taken from the provider LDAP stuff.

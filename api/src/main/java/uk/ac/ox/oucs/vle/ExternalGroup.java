@@ -24,4 +24,11 @@ public interface ExternalGroup {
 	 * @return
 	 */
 	public Iterator<User> getMembers();
+	
+	/**
+	 * Get the EIDs of all the members of this group.
+	 * @return
+	 */
+	public Iterator<String> getMemberEids();
+	
 }

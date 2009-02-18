@@ -56,8 +56,8 @@ public class ExternalGroupProvider implements GroupProvider, DisplayGroupProvide
 			String groupId = externalGroupManager.findExternalGroupId(id);
 			String role = externalGroupManager.findRole(id);
 			ExternalGroup group = externalGroupManager.findExternalGroup(groupId);
-			for (Iterator<User> members = group.getMembers(); members.hasNext(); ) {
-				String eid = members.next().getEid();
+			for (Iterator<String> memberEids = group.getMemberEids(); memberEids.hasNext(); ) {
+				String eid = memberEids.next();
 				String existingRole = userRoles.get(eid);
 				if (existingRole == null) {
 					userRoles.put(eid, role);
