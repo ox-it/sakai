@@ -693,6 +693,10 @@ public class ImportTextServiceImpl implements ImportTextService
 		boolean shuffleChoices = false;
 		boolean foundQuestionAttributes = false;
 		
+		boolean numberFormatEstablished = false;
+		
+		NumberingType numberingType = null;
+		
 		String shuffleKey = "shuffle";
 		
 		int answersIndex = 0;
@@ -749,11 +753,21 @@ public class ImportTextServiceImpl implements ImportTextService
 			if (answer.length < 2)
 				continue;
 			
+			if (!numberFormatEstablished)
+			{
+				numberingType = establishNumberingType(answer[0]);
+				
+				if (numberingType == NumberingType.none)
+					continue;
+				
+				numberFormatEstablished = true;
+			}
+			
 			boolean checkFormat = false;
 			
 			if (answer[0].startsWith("*"))
 			{
-				checkFormat = (answer[0].matches("\\*\\d+\\.?") || answer[0].matches("\\*[a-zA-Z]\\.?"));
+				checkFormat = validateNumberingType(answer[0], numberingType);
 				
 				if (!foundAnswer) 
 				{
@@ -767,7 +781,7 @@ public class ImportTextServiceImpl implements ImportTextService
 			}
 			else
 			{
-				checkFormat = (answer[0].matches("\\d+\\.?") || answer[0].matches("[a-zA-Z]\\.?"));
+				checkFormat = validateNumberingType(answer[0], numberingType);
 			}
 			
 			// ignore answer choices with incorrect format
