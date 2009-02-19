@@ -468,17 +468,18 @@ public class ImportTextServiceImpl implements ImportTextService
 		boolean foundQuestionAttributes = false;
 		boolean numberFormatNeeded = false;
 		boolean foundTrue = false, foundFalse = false;
+		boolean first = true;
 		
 		NumberingType numberingType = null;
 		
-		int index = 0;
+		
 		
 		for (String line : lines)
 		{
 			// ignore first line as first line is question text
-			if (index == 0)
+			if (first)
 			{
-				index++;
+				first= false;
 				continue;
 			}
 			
@@ -490,7 +491,7 @@ public class ImportTextServiceImpl implements ImportTextService
 			{
 				if (answer.length == 2)
 				{
-					if (index == 1)
+					if (!numberFormatNeeded)
 					{
 						numberingType = establishNumberingType(answer[0]);
 						if (numberingType == NumberingType.none)
@@ -506,12 +507,6 @@ public class ImportTextServiceImpl implements ImportTextService
 					else
 						return false;
 						
-					// establish numbering type style
-								
-					
-					if (!numberFormatNeeded)
-						return false;					
-					
 					boolean checkFormat = false;
 					
 					if (answer[0].startsWith("*"))
@@ -598,7 +593,6 @@ public class ImportTextServiceImpl implements ImportTextService
 						return false;
 				}
 			}
-			index++;
 		}
 		
 		if (!foundAnswer && !isSurvey)
