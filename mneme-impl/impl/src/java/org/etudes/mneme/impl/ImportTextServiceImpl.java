@@ -538,8 +538,13 @@ public class ImportTextServiceImpl implements ImportTextService
 					else if (!foundFalse && ("false".equalsIgnoreCase(answer[0])|| "*false".equalsIgnoreCase(answer[0])))
 						foundFalse = true;
 					else
-						continue;
-					
+					{
+						if (foundTrue || foundFalse)
+							return false;
+						else
+							continue;
+					}
+											
 					if (answer[0].startsWith("*"))
 					{
 						if (!foundAnswer)
@@ -597,6 +602,9 @@ public class ImportTextServiceImpl implements ImportTextService
 		}
 		
 		if (!foundAnswer && !isSurvey)
+			return false;
+		
+		if (!foundTrue || !foundFalse)
 			return false;
 		
 		// create the question
@@ -934,7 +942,7 @@ public class ImportTextServiceImpl implements ImportTextService
 					String[] answer = line.trim().split("\\s+");
 					NumberingType numberingType;
 					numberingType = establishNumberingType(answer[0]);
-					if (!(numberingType == NumberingType.none) || lower.matches("^\\[\\w.*\\].*"))
+					if (!(numberingType == NumberingType.none) || lower.matches("^\\[\\w.*\\].*") || lower.startsWith("*"))
 						return false;
 				}
 			}
