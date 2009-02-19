@@ -533,11 +533,12 @@ public class ImportTextServiceImpl implements ImportTextService
 					if (numberFormatNeeded)
 						return false;
 					
-					if (!("true".equalsIgnoreCase(answer[0]) || "*true".equalsIgnoreCase(answer[0]) || "false".equalsIgnoreCase(answer[0]) 
-								|| "*false".equalsIgnoreCase(answer[0])))
-					{
-						return false;
-					}
+					if (!foundTrue && ("true".equalsIgnoreCase(answer[0]) || "*true".equalsIgnoreCase(answer[0])))
+						foundTrue = true;
+					else if (!foundFalse && ("false".equalsIgnoreCase(answer[0])|| "*false".equalsIgnoreCase(answer[0])))
+						foundFalse = true;
+					else
+						continue;
 					
 					if (answer[0].startsWith("*"))
 					{
