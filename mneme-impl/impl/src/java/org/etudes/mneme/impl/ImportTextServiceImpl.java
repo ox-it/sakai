@@ -119,19 +119,13 @@ public class ImportTextServiceImpl implements ImportTextService
 	/** Regular expression for digit with period */
 	protected static final String digitPeriodRegex = "\\*?\\d+\\.";
 	
-	/** Regular expression for digit */
-	protected static final String digitRegex = "\\*?\\d+";
-	
 	/** Regular expression for alphabet with period */
 	protected static final String alphabetPeriodRegex = "\\*?[a-zA-Z]\\.";
-	
-	/** Regular expression for alphabet */
-	protected static final String alphabetRegex = "\\*?[a-zA-Z]";
 	
 	/** An enumerate type that declares the types of numbering style */
 	public enum NumberingType
 	{
-		digitperiod, digit, alphabetperiod, alphabet, none;
+		digitperiod, alphabetperiod, none;
 	}
 
 	/**
@@ -473,6 +467,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		boolean isSurvey = false;
 		boolean foundQuestionAttributes = false;
 		boolean numberFormatNeeded = false;
+		boolean foundTrue = false, foundFalse = false;
 		
 		NumberingType numberingType = null;
 		
@@ -491,29 +486,28 @@ public class ImportTextServiceImpl implements ImportTextService
 			String[] answer = line.trim().split("\\s+");
 			
 			// first two answers choices should be true or false
-			if (index < 3)
+			if (!(foundTrue && foundFalse))
 			{
 				if (answer.length == 2)
 				{
-					if (!("true".equalsIgnoreCase(answer[1]) || "false".equalsIgnoreCase(answer[1])))
-						return false;
-					
-					// check the format of the first part of the answer choices
-					/*
-					 	- An asterisk * (for correct answer) MUST be attached to the letter (no space)
-						- Numbering the questions is not necessary. A. B. C. D. or a. b. c. d. is recommended. Mneme should not choke if people leave 
-							out 1. 2. 3. or A. B. C. D. 
-						- If provided, choices (a, b, c, d) can be in lower or upper case.
-						- a, b, c, d may or may not have a period after them. However, there must ALWAYS be a space between the letter of choice and the text 
-							of the choice.
-					*/
-					// establish numbering type style
 					if (index == 1)
 					{
 						numberingType = establishNumberingType(answer[0]);
+						if (numberingType == NumberingType.none)
+							continue;
 						
 						numberFormatNeeded = true;
-					}					
+					}		
+					
+					if (!foundTrue && "true".equalsIgnoreCase(answer[1]))
+						foundTrue = true;
+					else if (!foundFalse && "false".equalsIgnoreCase(answer[1]))
+						foundFalse = true;
+					else
+						return false;
+						
+					// establish numbering type style
+								
 					
 					if (!numberFormatNeeded)
 						return false;					
@@ -564,7 +558,7 @@ public class ImportTextServiceImpl implements ImportTextService
 					numberFormatNeeded = false;
 				}
 				else
-					return false;
+					continue;
 			}
 			else
 			{
@@ -1595,14 +1589,8 @@ public class ImportTextServiceImpl implements ImportTextService
 		if (text.matches(digitPeriodRegex))
 			return NumberingType.digitperiod;
 		
-		if (text.matches(digitRegex))
-			return NumberingType.digit;
-		
 		if (text.matches(alphabetPeriodRegex))
 			return NumberingType.alphabetperiod;
-		
-		if (text.matches(alphabetRegex))
-			return NumberingType.alphabet;
 		
 		return NumberingType.none;
 	}
@@ -1626,15 +1614,9 @@ public class ImportTextServiceImpl implements ImportTextService
 			case digitperiod:
 				return text.matches(digitPeriodRegex);
 				
-			case digit:
-				return text.matches(digitRegex);
-				
 			case alphabetperiod:
 				return text.matches(alphabetPeriodRegex);
 				
-			case alphabet:
-				return text.matches(alphabetRegex);
-			
 			default:
 				return false;
 		}
