@@ -491,6 +491,9 @@ public class ImportTextServiceImpl implements ImportTextService
 			{
 				if (answer.length == 2)
 				{
+					if (!numberFormatNeeded && (foundTrue || foundFalse))
+						return false;
+					
 					if (!numberFormatNeeded)
 					{
 						numberingType = establishNumberingType(answer[0]);
