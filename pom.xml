@@ -30,6 +30,9 @@
 				<artifactId>sakai</artifactId>
 				<version>1.4.ox1</version>
 				<extensions>true</extensions>
+				<configuration>
+					<deployDirectory>${maven.tomcat.home}</deployDirectory>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
