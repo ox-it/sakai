@@ -817,6 +817,9 @@ public class ImportTextServiceImpl implements ImportTextService
 		mc.setShuffleChoices(Boolean.toString(false));
 
 		// answer choices
+		if (choices.size() < 2)
+			return false;
+		
 		mc.setAnswerChoices(choices);
 		
 		Set<Integer> correctAnswers = new HashSet<Integer>();
