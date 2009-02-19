@@ -751,31 +751,19 @@ public class ImportTextServiceImpl implements ImportTextService
 				numberFormatEstablished = true;
 			}
 			
-			boolean checkFormat = false;
+			// ignore answer choices with incorrect format
+			if (!validateNumberingType(answer[0], numberingType))
+				continue;
 			
 			if (answer[0].startsWith("*"))
 			{
-				checkFormat = validateNumberingType(answer[0], numberingType);
-				
 				if (!foundAnswer) 
 				{
-					multipleAnswers.add(Integer.valueOf(answersIndex));
 					foundAnswer = true;
 				}
-				else
-				{
-					multipleAnswers.add(Integer.valueOf(answersIndex));
-				}
+				multipleAnswers.add(Integer.valueOf(answersIndex));
 			}
-			else
-			{
-				checkFormat = validateNumberingType(answer[0], numberingType);
-			}
-			
-			// ignore answer choices with incorrect format
-			if (!checkFormat)
-				continue;				
-				
+						
 			answerChoice = line.substring(answer[0].length()).trim();
 			clean = HtmlHelper.clean(answerChoice);
 			choices.add(clean);
