@@ -75,6 +75,9 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	}
 
 	public ExternalGroup findExternalGroup(String externalGroupId) {
+		if (externalGroupId == null || externalGroupId.length() < 0) {
+			return null;
+		}
 		ExternalGroup group = null;
 		LDAPConnection connection = null;
 		try {
