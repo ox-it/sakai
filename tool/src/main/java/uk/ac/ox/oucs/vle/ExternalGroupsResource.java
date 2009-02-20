@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -29,12 +30,19 @@ public class ExternalGroupsResource {
 
 	private ExternalGroupManager externalGroupManager;
 	
-	static Comparator<ExternalGroup> sorter = new Comparator<ExternalGroup>() {
+	static final Comparator<ExternalGroup> sorter = new Comparator<ExternalGroup>() {
 	
 		public int compare(ExternalGroup o1, ExternalGroup o2) {
 			return (o1.getName() != null)?o1.getName().compareTo(o2.getName()):-1;
 		}
 		
+	};
+	
+	static final Comparator<User> userComparator = new Comparator<User>() {
+		public int compare(User u1, User u2) {
+			// We check for null users when we put them into a list.
+			return u1.getDisplayName().compareTo(u2.getDisplayName());
+		}
 	};
 
 	public ExternalGroupsResource(@Context Providers provider) {
@@ -89,9 +97,17 @@ public class ExternalGroupsResource {
 		if (group == null) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
-		JSONArray membersArray = new JSONArray();
+		List<User> userList = new ArrayList<User>();
 		for (Iterator<User> userIt = group.getMembers(); userIt.hasNext();) {
 			User user = userIt.next();
+			if (user != null) {
+				userList.add(user);
+			}
+		}
+		Collections.sort(userList, userComparator);
+		
+		JSONArray membersArray = new JSONArray();
+		for (User user: userList) {
 			Map<Object, Object> userObject = new HashMap<Object, Object>();
 			userObject.put("id", user.getId());
 			userObject.put("name", user.getDisplayName());
