@@ -97,6 +97,8 @@ public class ExternalGroupsResource {
 		if (group == null) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
+		
+		// Put users into a list so we can sort them.
 		List<User> userList = new ArrayList<User>();
 		for (Iterator<User> userIt = group.getMembers(); userIt.hasNext();) {
 			User user = userIt.next();
