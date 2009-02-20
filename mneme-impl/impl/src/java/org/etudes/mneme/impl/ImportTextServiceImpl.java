@@ -1364,73 +1364,68 @@ public class ImportTextServiceImpl implements ImportTextService
 			// draw choices
 			if (!line.startsWith("["))
 		    {
-				if (choicePairs.size() < 2)
-					return false;
-				else
+				
+				String lower = line.toLowerCase();
+				// get feedback, hints, reason, survey. Ignore the line if the key is not found
+				if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 				{
-					String lower = line.toLowerCase();
-					// get feedback, hints, reason, survey. Ignore the line if the key is not found
-					if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
-					{
-						String[] parts = StringUtil.splitFirst(line, ":");
-						if (parts.length > 1) feedback = parts[1].trim(); 
-						foundQuestionAttributes = true;
-					} 
-					else if (lower.startsWith(hintKey))
-					{
-						String[] parts = StringUtil.splitFirst(line, ":");
-						if (parts.length > 1) hints = parts[1].trim();
-						foundQuestionAttributes = true;
-					}
-					else if (lower.equalsIgnoreCase(surveyKey))
-					{
-						isSurvey = true;
-						foundQuestionAttributes = true;
-					}
-					
-					//after finding feedback or hints or reason or survey, ignore paired lists
-					if (foundQuestionAttributes)
-						continue;
-					
-					if (drawChoicePairs.size() < choicePairs.size())
-					{
-						String[] drawMatch = line.trim().split("\\s+");
-						
-						if (drawMatch.length > 1)
-						{
-							//check to see if the relation match starts with a character or digit with optional dot
-							if (!drawMatchNumberFormatEstablished)
-							{
-								drawMatchNumberingType = establishNumberingType(drawMatch[0]);
-								
-								if (drawMatchNumberingType == NumberingType.none)
-									continue;
-								
-								drawMatchNumberFormatEstablished = true;
-							}
-							if (validateNumberingType(drawMatch[0], drawMatchNumberingType))
-							{
-								String key, value;
-								if (drawMatch[0].endsWith("."))
-									key = drawMatch[0].substring(0, drawMatch[0].length() - 1);
-								else
-									key = drawMatch[0].substring(0, drawMatch[0].length());
-								
-								value = line.substring(drawMatch[0].length()+ 1);
-								
-								if (drawChoicePairs.containsKey(key) || drawChoicePairs.containsValue(value))
-									return false;
-								
-								drawChoicePairs.put(key, value);
-								
-								foundDrawMatch = true;
-							}
-						}
-						else
-							return false;
-					}
-					continue;
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) feedback = parts[1].trim(); 
+					foundQuestionAttributes = true;
+				} 
+				else if (lower.startsWith(hintKey))
+				{
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) hints = parts[1].trim();
+					foundQuestionAttributes = true;
 				}
+				else if (lower.equalsIgnoreCase(surveyKey))
+				{
+					isSurvey = true;
+					foundQuestionAttributes = true;
+				}
+				
+				//after finding feedback or hints or reason or survey, ignore paired lists
+				if (foundQuestionAttributes)
+					continue;
+				
+				if (drawChoicePairs.size() < choicePairs.size())
+				{
+					String[] drawMatch = line.trim().split("\\s+");
+					
+					if (drawMatch.length > 1)
+					{
+						//check to see if the relation match starts with a character or digit with optional dot
+						if (!drawMatchNumberFormatEstablished)
+						{
+							drawMatchNumberingType = establishNumberingType(drawMatch[0]);
+							
+							if (drawMatchNumberingType == NumberingType.none)
+								continue;
+							
+							drawMatchNumberFormatEstablished = true;
+						}
+						if (validateNumberingType(drawMatch[0], drawMatchNumberingType))
+						{
+							String key, value;
+							if (drawMatch[0].endsWith("."))
+								key = drawMatch[0].substring(0, drawMatch[0].length() - 1);
+							else
+								key = drawMatch[0].substring(0, drawMatch[0].length());
+							
+							value = line.substring(drawMatch[0].length()+ 1);
+							
+							if (drawChoicePairs.containsKey(key) || drawChoicePairs.containsValue(value))
+								return false;
+							
+							drawChoicePairs.put(key, value);
+							
+							foundDrawMatch = true;
+						}
+					}
+				}
+				continue;
+				
 			}
 			else
 			{
