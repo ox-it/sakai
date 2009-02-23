@@ -25,14 +25,23 @@
 	jQuery(function(){
 
 		var updateActive = function() {
-			jQuery("input[type=submit]").removeClass("active").filter(":last").addClass("active");
+			jQuery("input[type=submit]").not(".cancel").removeClass("active").filter(":last").addClass("active");
 		};
+		var setupCancel = function() {
+			jQuery("input[type=submit].cancel").bind("click", function() {
+				document.location = "./../done.jsp";
+				return false;
+			});
+		};
+
+		
 		var loadGroupAjax;
 		var loadGroup = function (groupId, groupName) {
 			var group = {"id": groupId, "name": groupName};
 			var htmlResult = TrimPath.processDOMTemplate("group_jst", {"group": group, "site": siteData});
 			jQuery("#group").html(htmlResult);
 			setMainFrameHeightNow(frameId);
+			setupCancel();
 			loadGroupAjax = jQuery.getJSON(path+ "group/"+ group.id+ "/members", {}, function(data, textStatus) {
 				// loading members.
 				if (textStatus == "success") {
@@ -97,6 +106,7 @@
 				var site = siteData.id;
 				var content = TrimPath.processDOMTemplate("find_jst", siteData);
 				jQuery("#search").html(content);
+				setupCancel();
 				// Add autocomplete support.
 				jQuery("#ldap-search").autocomplete(path+ "group/autocomplete", {
 					loadingClass: "my_ac_loading"
@@ -127,6 +137,7 @@
 									var htmlResult = TrimPath.processDOMTemplate("select_group_jst", {groups: data});
 									jQuery("#select_group").html(htmlResult);
 									updateActive();
+									setupCancel();
 									// Need to add onsubmit handling
 									jQuery("#select_group").bind("submit", function (event) {
 										var input = jQuery("#select_group input[name=group]:checked");
@@ -169,6 +180,7 @@
 		</fieldset>
 		<div class="act">
 			<input class="active" type="submit" value="Next"/>
+			<input class="cancel" type="submit" value="Cancel"/>
 		</div>
 		</form>
 		<form id="select_group">
@@ -182,7 +194,7 @@
 		<p class="step">
 		Select the role which you wish the group to have.
 		</p>
-		<table>
+		<table class="roleSelect">
 		{for role in site.roles}
 		<tr>
 		<td><label for="${role.id}">${role.id}</label></td>
@@ -192,6 +204,7 @@
 		</table>
 		<div class="act">
 			<input class="active" type="submit" value="Add Group"/>
+			<input class="cancel" type="submit" value="Cancel"/>
 		</div>
 		<h5>Membership</h5>
 		<ul class="members">
@@ -224,6 +237,7 @@
 		</fieldset>
 		<div class="act">
 			<input class="active" type="submit" value="Select"/>
+			<input class="cancel" type="submit" value="Cancel"/>
 		</div>
 	</textarea>
 </div>
