@@ -24,6 +24,9 @@
 <script type="text/javascript">
 	jQuery(function(){
 
+		var updateActive = function() {
+			jQuery("input[type=submit]").removeClass("active").filter(":last").addClass("active");
+		};
 		var loadGroupAjax;
 		var loadGroup = function (groupId, groupName) {
 			var group = {"id": groupId, "name": groupName};
@@ -36,6 +39,7 @@
 					var htmlResult = TrimPath.processDOMTemplate("membership_jst", {"members": data});
 					jQuery(".show-group .members").html(htmlResult);
 					setMainFrameHeightNow(frameId);
+					updateActive();
 				}
 			});
 			jQuery("form.show-group").
@@ -60,6 +64,7 @@
 					}
 					return false;
 				});
+			updateActive();
 		};
 		
 		path = "/external-groups/rest/";
@@ -97,6 +102,7 @@
 				jQuery("form.find-group").bind("submit", function(event) {
 					// Clear out previous select group.
 					jQuery("#select_group").html("");
+					jQuery("#group").html("");
 					var groupName = jQuery("#ldap-search").val();
 					if (groupName) {
 						var submit = jQuery("form.find-group input[type='submit']");
@@ -110,12 +116,13 @@
 									loadGroup(group["id"], group["name"]);
 									
 								} else if (data.length == 0) {
-									// Need to add warning
+									jQuery("#select_group").html("<div class=\"alertMessage\">No groups matched your query. Try something shorter</div>");
 								} else {
 									// Should check list to see if we have an exact match first.
 									// User needs to select from list.
 									var htmlResult = TrimPath.processDOMTemplate("select_group_jst", {groups: data});
 									jQuery("#select_group").html(htmlResult);
+									updateActive();
 									// Need to add onsubmit handling
 									jQuery("#select_group").bind("submit", function (event) {
 										var input = jQuery("#select_group input[name=group]:checked");
@@ -147,13 +154,18 @@
 	<textarea id="find_jst">
 		<div class="find">
 		<h3>Adding group to ${title}...</h3>
+		<p class="step">
+		Enter the name of a group you wish to find (eg: typing in "college" will find all the colleges).
+		</p>
 		<form class="find-group">
 		<fieldset>
-		<label>Find a group:</label>
-		<input type="text" id="ldap-search" name="group" size="30"/>
-		<span id="ldap-search-error" class="error"></span>
+			<label>Search for a group:</label>
+			<input type="text" id="ldap-search" name="group" size="30"/>
+			<span id="ldap-search-error" class="error"></span>
 		</fieldset>
-		<input type="submit" value="Next"/>
+		<div class="act">
+			<input class="active" type="submit" value="Next"/>
+		</div>
 		</form>
 		<form id="select_group">
 		</form>
@@ -162,7 +174,10 @@
 	<textarea id="group_jst">
 		<form class="show-group">
 		<h4 class="group">${group.name}</h4>
-		<h5>Membership</h5>
+		<h5>Roles</h5>
+		<p class="step">
+		Select the role which you wish the group to have.
+		</p>
 		<table>
 		{for role in site.roles}
 		<tr>
@@ -171,8 +186,10 @@
 		</tr>
 		{/for}
 		</table>
-		<input type="submit" value="Add Group"/>
-
+		<div class="act">
+			<input class="active" type="submit" value="Add Group"/>
+		</div>
+		<h5>Membership</h5>
 		<ul class="members">
 			<li>Loading<img class="loader" src="images/ajax-loader.gif"/></li>
 		</ul>
@@ -188,7 +205,9 @@
 
 	<!-- When more than one group matches select one from list -->
 	<textarea id="select_group_jst">
-	
+		<p class="step">
+			More than one group matches your search, please select one.
+		</p>
 		<fieldset id="found_groups">
 		<table>
 		{for group in groups}
@@ -199,7 +218,9 @@
 		{/for}
 		</table>
 		</fieldset>
-		<input type="submit" value="Select"/>
+		<div class="act">
+			<input class="active" type="submit" value="Select"/>
+		</div>
 	</textarea>
 </div>
 
