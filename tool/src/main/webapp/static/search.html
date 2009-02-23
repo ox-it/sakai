@@ -42,9 +42,7 @@
 				bind("submit", function(event) {
 					var role = jQuery("form.show-group input[name=role]:checked").val();
 					if (role != null) {
-						console.log("Selected role: "+role+ " group is "+ group.id);
 						if (loadGroupAjax.readyState != 4) {
-							console.log("Aborting");
 							loadGroupAjax.abort();
 						}
 						jQuery.ajax({
@@ -55,7 +53,7 @@
 								window.location = "./../done.jsp";
 							},
 							error: function() {
-								console.log("tits up");
+								// TODO Handle failed requests.
 							}
 						});
 
@@ -86,7 +84,6 @@
 			url: path+ "site/placement/"+placement,
             method: "GET",
 			success: function(json, textStatus) {
-				console.log(json);
 				eval("siteData = "+json);
 				var site = siteData.id;
 				var content = TrimPath.processDOMTemplate("find_jst", siteData);
@@ -98,6 +95,8 @@
 
 				// Add the display members support.
 				jQuery("form.find-group").bind("submit", function(event) {
+					// Clear out previous select group.
+					jQuery("#select_group").html("");
 					var groupName = jQuery("#ldap-search").val();
 					if (groupName) {
 						var submit = jQuery("form.find-group input[type='submit']");
@@ -123,7 +122,6 @@
 										if (input) {
 											var groupId = input.val();
 											var groupName = input.parent().parent().children("td:last-child").text();
-											console.log("Id: "+ groupId+ " Name: "+ groupName);
 											loadGroup(groupId, groupName);
 										}
 										
@@ -137,7 +135,7 @@
 				});
 			},
 		error: function(xhr, textStatus, errorThrown) {
-			alert("bugger me");
+			// TODO Show nice error.
 		}
 		});
 	});
