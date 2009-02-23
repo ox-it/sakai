@@ -44,6 +44,8 @@
 			});
 			jQuery("form.show-group").
 				bind("submit", function(event) {
+					// Remove any error
+					jQuery("form.show-group div.alertMessage").remove();
 					var role = jQuery("form.show-group input[name=role]:checked").val();
 					if (role != null) {
 						if (loadGroupAjax.readyState != 4) {
@@ -61,6 +63,8 @@
 							}
 						});
 
+					} else {
+						jQuery("form.show-group table").after('<div class="alertMessage">You need to select a role</div>');
 					}
 					return false;
 				});
