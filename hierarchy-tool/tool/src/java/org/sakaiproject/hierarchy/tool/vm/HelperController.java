@@ -32,7 +32,9 @@ public class HelperController extends AbstractController {
 		String path = "/sites";
 
 		String context = req.getContextPath() + req.getServletPath() + path;
-		log.info(context);
+		if (log.isDebugEnabled()) {
+			log.debug(context);
+		}
 		req.removeAttribute(ActiveTool.NATIVE_URL);
 		tool.help(req, res, null, null);
 		return null;
