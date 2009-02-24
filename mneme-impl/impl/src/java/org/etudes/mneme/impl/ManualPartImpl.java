@@ -287,6 +287,25 @@ public class ManualPartImpl extends PartImpl implements ManualPart
 	/**
 	 * {@inheritDoc}
 	 */
+	public boolean setOrig(Map<String, String> idMap)
+	{
+		for (Iterator i = this.questions.iterator(); i.hasNext();)
+		{
+			PoolPick pick = (PoolPick) i.next();
+
+			// if we cannot restore the original values, remove the pick
+			if (!pick.setOrig(idMap))
+			{
+				i.remove();
+			}
+		}
+		
+		return !this.questions.isEmpty();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setQuestionOrder(String[] questionIds)
 	{
 		if (questionIds == null) return;
@@ -393,22 +412,5 @@ public class ManualPartImpl extends PartImpl implements ManualPart
 		shuffler.shuffle(rv, this.id);
 
 		return rv;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	protected void setOrig(Map<String, String> idMap)
-	{
-		for (Iterator i = this.questions.iterator(); i.hasNext();)
-		{
-			PoolPick pick = (PoolPick) i.next();
-
-			// if we cannot restore the original values, remove the pick
-			if (!pick.setOrig(idMap))
-			{
-				i.remove();
-			}
-		}
 	}
 }

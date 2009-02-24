@@ -488,12 +488,4 @@ public abstract class PartImpl implements Part, Changeable
 		this.title = other.title;
 		this.messages = other.messages;
 	}
-
-	/**
-	 * Restore the part pool and question references to their original values.
-	 * 
-	 * @param idMap
-	 *        A map of pool and question ids (old id to new id) to change original references to.
-	 */
-	protected abstract void setOrig(Map<String, String> idMap);
 }

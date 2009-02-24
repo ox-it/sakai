@@ -25,6 +25,7 @@
 package org.etudes.mneme.api;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Part holds a set of questions within an assessment.
@@ -111,8 +112,7 @@ public interface Part
 	List<Question> getQuestions();
 
 	/**
-	 * Access the questions that have been used for this part in any submissions. <br />
-	 * Order by question description.
+	 * Access the questions that have been used for this part in any submissions. <br /> Order by question description.
 	 * 
 	 * @return The questions that have been used for this part in any submissions
 	 */
@@ -131,6 +131,14 @@ public interface Part
 	 * @return The sum of all possible points for all questions in the part.
 	 */
 	Float getTotalPoints();
+
+	/**
+	 * Restore the part pool and question references to their original, non-historical values.
+	 * 
+	 * @param idMap
+	 *        A map of pool (for draw parts) or question (for manual parts) ids (old id to new id) to change original references to. may be null.
+	 */
+	boolean setOrig(Map<String, String> idMap);
 
 	/**
 	 * Set the title.

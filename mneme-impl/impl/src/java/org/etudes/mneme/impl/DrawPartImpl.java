@@ -387,6 +387,25 @@ public class DrawPartImpl extends PartImpl implements DrawPart
 	/**
 	 * {@inheritDoc}
 	 */
+	public boolean setOrig(Map<String, String> idMap)
+	{
+		for (Iterator i = this.pools.iterator(); i.hasNext();)
+		{
+			PoolDrawImpl draw = (PoolDrawImpl) i.next();
+
+			// if we cannot restore the original values, remove the draw
+			if (!draw.setOrig(idMap))
+			{
+				i.remove();
+			}
+		}
+		
+		return !this.pools.isEmpty();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void updateDraws(List<PoolDraw> draws)
 	{
 		if (draws == null) throw new IllegalArgumentException();
@@ -490,22 +509,5 @@ public class DrawPartImpl extends PartImpl implements DrawPart
 	{
 		PoolDraw draw = new PoolDrawImpl(this.assessment, this.poolService, poolId, origPoolId, numQuestions);
 		pools.add(draw);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	protected void setOrig(Map<String, String> idMap)
-	{
-		for (Iterator i = this.pools.iterator(); i.hasNext();)
-		{
-			PoolDrawImpl draw = (PoolDrawImpl) i.next();
-
-			// if we cannot restore the original values, remove the draw
-			if (!draw.setOrig(idMap))
-			{
-				i.remove();
-			}
-		}
 	}
 }
