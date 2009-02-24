@@ -117,6 +117,7 @@
 					// Clear out previous select group.
 					jQuery("#select_group").html("");
 					jQuery("#group").html("");
+					jQuery("form.find-group div.alertMessage").remove();
 					var groupName = jQuery("#ldap-search").val();
 					if (groupName) {
 						var submit = jQuery("form.find-group input[type='submit']");
@@ -141,17 +142,21 @@
 									// Need to add onsubmit handling
 									jQuery("#select_group").bind("submit", function (event) {
 										var input = jQuery("#select_group input[name=group]:checked");
-										if (input) {
+										jQuery("#found_groups div.alertMessage").remove();
+										if (input.size() == 1) {
 											var groupId = input.val();
 											var groupName = input.parent().parent().children("td:last-child").text();
 											loadGroup(groupId, groupName);
+										} else {
+											jQuery("#found_groups").prepend('<div class="alertMessage">No group selected</div>');
 										}
-										
 										return false;
 									});
 								}
 							}
 						});
+					} else {
+						jQuery("form.find-group").prepend('<div class="alertMessage">You need to enter something to search for</div>');
 					}
 					return false;
 				});
@@ -189,7 +194,7 @@
 	</textarea>
 	<textarea id="group_jst">
 		<form class="show-group">
-		<h4 class="group">${group.name}</h4>
+		<h4 class="group">Group: ${group.name}</h4>
 		<h5>Roles</h5>
 		<p class="step">
 		Select the role which you wish the group to have.
@@ -222,6 +227,7 @@
 
 	<!-- When more than one group matches select one from list -->
 	<textarea id="select_group_jst">
+		<h4>Select Group</h4>
 		<p class="step">
 			More than one group matches your search, please select one.
 		</p>
