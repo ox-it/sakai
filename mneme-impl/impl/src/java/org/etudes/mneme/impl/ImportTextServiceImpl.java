@@ -1415,6 +1415,9 @@ public class ImportTextServiceImpl implements ImportTextService
 							
 							value = line.substring(drawMatch[0].length()+ 1);
 							
+							if((StringUtil.trimToNull(value) == null) || (StringUtil.trimToNull(key) == null))
+								continue;
+							
 							if (drawChoicePairs.containsKey(key) || drawChoicePairs.containsValue(value))
 								return false;
 							
@@ -1473,7 +1476,10 @@ public class ImportTextServiceImpl implements ImportTextService
 				if (validateNumberingType(match[0], numberingType))
 				{
 					String value = choiceValue;
-					String key = line.substring(line.indexOf("]")+1).substring(match[0].length()+ 1).trim();;
+					String key = line.substring(line.indexOf("]")+1).substring(match[0].length()+ 1).trim();
+					
+					if((StringUtil.trimToNull(value) == null) || (StringUtil.trimToNull(key) == null))
+						continue;
 					
 					if (choicePairs.containsKey(key) || choicePairs.containsValue(value))
 						return false;
