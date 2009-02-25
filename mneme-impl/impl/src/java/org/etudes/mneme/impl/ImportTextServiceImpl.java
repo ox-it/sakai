@@ -1333,7 +1333,8 @@ public class ImportTextServiceImpl implements ImportTextService
 	 */
 	protected boolean processTextMatching(Pool pool, String[] lines) throws AssessmentPermissionException
 	{
-		//if the choices start with '[' then it may be a matching question
+		/* 1. if the choices start with '[' then it may be a matching question
+		   2. choice and match. choices should be equal or greater by one than matches*/
 		if (lines.length < 3)
 			return false;
 		
@@ -1364,7 +1365,6 @@ public class ImportTextServiceImpl implements ImportTextService
 			// draw choices
 			if (!line.startsWith("["))
 		    {
-				
 				String lower = line.toLowerCase();
 				// get feedback, hints, reason, survey. Ignore the line if the key is not found
 				if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
@@ -1434,48 +1434,46 @@ public class ImportTextServiceImpl implements ImportTextService
 					continue;
 			}
 			
-			String[] match = line.trim().split("\\s+");
+			if (line.indexOf("]") == -1)
+				continue;
 			
-			// format should be like [sometext] and at least there should be 2 or more paired lists
-			if (!match[0].matches("^\\[\\w.*\\]$"))
-			{
-				if (choicePairs.size() < 2)
-					return false;
-			}
+			// choice
+			String choiceValue = line.substring(line.indexOf("[")+ 1, line.indexOf("]")).trim();
+			
+			String matchLine = line.substring(line.indexOf("]")+1).trim();
+			
+			String[] match = matchLine.trim().split("\\s+");
 			
 			// distractor
-			if (match.length < 3)
+			if (match.length < 2)
 			{
 				if (!blankMatch && match.length == 1) 
 				{
-					distractor = match[0].substring(match[0].indexOf("[")+ 1, match[0].lastIndexOf("]")).trim();
+					distractor = choiceValue;
 					
 					blankMatch = true;
 					continue;
-				}
-				else if (match.length == 2)
-				{
 				}
 				else
 					return false;
 			}
 			
-			if (match.length > 2 && match[0].matches("^\\[\\w.*\\]$"))
+			if (match.length > 1)
 			{
 				//check to see if paired lists counter starts with a character or digit with optional dot
 				if (!numberFormatEstablished)
 				{
-					numberingType = establishNumberingType(match[1]);
+					numberingType = establishNumberingType(match[0]);
 					
 					if (numberingType == NumberingType.none)
 						continue;
 					
 					numberFormatEstablished = true;
 				}
-				if (validateNumberingType(match[1], numberingType))
+				if (validateNumberingType(match[0], numberingType))
 				{
-					String key = line.substring(match[0].length()).substring(match[1].length()+ 1).trim();
-					String value = match[0].substring(match[0].indexOf("[")+ 1, match[0].lastIndexOf("]")).trim();
+					String value = choiceValue;
+					String key = line.substring(line.indexOf("]")+1).substring(match[0].length()+ 1).trim();;
 					
 					if (choicePairs.containsKey(key) || choicePairs.containsValue(value))
 						return false;
@@ -1522,7 +1520,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		for (String key : choicePairs.keySet())
 		{
 			clean = HtmlHelper.clean(key);
-			pairs.get(index).setChoice(clean);
+			pairs.get(index).setMatch(clean);
 			
 			if (drawChoicePairs.size() > 0)
 			{
@@ -1536,7 +1534,7 @@ public class ImportTextServiceImpl implements ImportTextService
 				return false;
 			
 			clean = HtmlHelper.clean(value);
-			pairs.get(index).setMatch(clean);
+			pairs.get(index).setChoice(clean);
 			
 			index++;				
 		}
