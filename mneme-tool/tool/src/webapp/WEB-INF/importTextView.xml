@@ -35,6 +35,7 @@
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
   		<property name="importTextService"><ref bean="org.etudes.mneme.api.ImportTextService"/></property>
   		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
   		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
 
 		<property name="toolId"><value>sakai.mneme</value></property>

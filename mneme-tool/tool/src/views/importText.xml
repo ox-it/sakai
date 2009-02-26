@@ -43,24 +43,16 @@
 
 	<container>
 
-		<!-- instructions overlay -->
-		<overlay id="instructions">
-			<container>
-				<instructions>
-					<message selector="instructions">
-					</message>
-				</instructions>
-				<gap />
-				<toggle target="instructions" title="close" style="LINK">
-					<icon icon="/icons/close.png" style="LEFT" />
-				</toggle>
-			</container>
-		</overlay>
-
-		<!-- toggle to show instructions -->
-		<toggle target="instructions" title="view-instructions" style="LINK">
+		<!-- link to instructions -->
+		<navigation style="LINK" submit="TRIGGER" title="view-instructions">
 			<icon icon="/icons/test.png" style="LEFT" />
-		</toggle>
+			<destination template="openWindow('{0}',null,'toolbar=no,scrollbars=yes,resizable=yes,menubar=no,status=no,directories=no,location=no,width=600,height=400');">
+				<model ref="instructionsUrl" />
+			</destination>
+			<included>
+				<hasValueDecision model="instructionsUrl" />
+			</included>
+		</navigation>
 
 		<section>
 			<container>

@@ -34,7 +34,9 @@ import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.ImportTextService;
 import org.etudes.mneme.api.PoolService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
 
 /**
@@ -48,8 +50,14 @@ public class ImportText extends ControllerImpl
 	/** Dependency: ImportTextService */
 	protected ImportTextService importTextService = null;
 
+	/** Configuration: the instructions URL. */
+	protected String instructionsUrl = null;
+
 	/** Pool Service */
 	protected PoolService poolService = null;
+
+	/** Dependency: ServerConfigurationService. */
+	protected ServerConfigurationService serverConfigurationService = null;
 
 	/** tool manager reference. */
 	protected ToolManager toolManager = null;
@@ -74,6 +82,7 @@ public class ImportText extends ControllerImpl
 		}
 		String poolsSort = params[2];
 		context.put("poolsSort", poolsSort);
+		if (this.instructionsUrl != null) context.put("instructionsUrl", this.instructionsUrl);
 
 		if (!this.poolService.allowManagePools(toolManager.getCurrentPlacement().getContext()))
 		{
@@ -92,6 +101,9 @@ public class ImportText extends ControllerImpl
 	public void init()
 	{
 		super.init();
+		this.instructionsUrl = StringUtil.trimToNull(this.serverConfigurationService
+				.getString("questionPasteInstructionUrl@org.muse.mneme.tool.ImportText"));
+
 		M_log.info("init()");
 	}
 
@@ -162,6 +174,17 @@ public class ImportText extends ControllerImpl
 	public void setPoolService(PoolService poolService)
 	{
 		this.poolService = poolService;
+	}
+
+	/**
+	 * Set the ServerConfigurationService.
+	 * 
+	 * @param service
+	 *        the ServerConfigurationService.
+	 */
+	public void setServerConfigurationService(ServerConfigurationService service)
+	{
+		this.serverConfigurationService = service;
 	}
 
 	/**
