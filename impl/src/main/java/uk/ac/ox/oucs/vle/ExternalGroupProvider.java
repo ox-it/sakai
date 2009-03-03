@@ -99,6 +99,9 @@ public class ExternalGroupProvider implements GroupProvider, DisplayGroupProvide
 	}
 
 	public String[] unpackId(String id) {
+		if (id == null) {
+			return new String[]{};
+		}
 		return StringUtil.split(id, ",");
 	}
 
