@@ -18,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -38,9 +39,11 @@ public class SiteResource {
 	public Response getSiteAddGroup(@PathParam("site") String siteId) {
 		Site site;
 		try {
-			site = siteService.getSite(siteId); 
+			site = siteService.getSiteVisit(siteId); 
 		} catch (IdUnusedException idue) {
 			return Response.status(Status.NOT_FOUND).build();
+		} catch (PermissionException pe) {
+			return Response.status(Status.FORBIDDEN).build();
 		}
 		return convertSiteToJSON(site);
 	}
@@ -52,11 +55,13 @@ public class SiteResource {
 		ToolConfiguration toolConfiguration = siteService.findTool(placementId);
 		try {
 			if (toolConfiguration != null) {
-				site = siteService.getSite(toolConfiguration.getSiteId());
+				site = siteService.getSiteVisit(toolConfiguration.getSiteId());
 				return convertSiteToJSON(site);
 			}
 		} catch (IdUnusedException idue) {
 			log.warn("Placement had siteId that doesn't exist: "+ placementId);
+		} catch (PermissionException pe) {
+			return Response.status(Status.FORBIDDEN).build();
 		}
 		return Response.status(Status.NOT_FOUND).build();
 	}

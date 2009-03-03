@@ -22,13 +22,17 @@ import javax.ws.rs.ext.Providers;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 
 @Path("/group/")
 public class ExternalGroupsResource {
 
 	private ExternalGroupManager externalGroupManager;
+	private UserDirectoryService userDirectoryService;
 	
 	static final Comparator<ExternalGroup> sorter = new Comparator<ExternalGroup>() {
 	
@@ -48,12 +52,16 @@ public class ExternalGroupsResource {
 	public ExternalGroupsResource(@Context Providers provider) {
 		ContextResolver<Object> componentMgr = provider.getContextResolver(Object.class, null);
 		this.externalGroupManager = (ExternalGroupManager)componentMgr.getContext(ExternalGroupManager.class);
+		this.userDirectoryService = (UserDirectoryService)componentMgr.getContext(UserDirectoryService.class);
 	}
 
 	@Path("{group}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@GET
 	public Response getGroup(@PathParam("group") String id) {
+		if (!loggedIn()) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
 		ExternalGroup group = externalGroupManager.findExternalGroup(id);
 		if (group != null) {
 			return Response.ok(convertGroupToMap(group)).build();
@@ -61,11 +69,14 @@ public class ExternalGroupsResource {
 			return Response.status(Status.NOT_FOUND).build();
 		}
 	}
-	
+
 	@Path("autocomplete")
 	@Produces(MediaType.TEXT_PLAIN)
 	@GET
 	public Response getAutocompleteGroups(@QueryParam("q") String query) {
+		if (!loggedIn()) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
 		List<ExternalGroup>groups = externalGroupManager.search(query);
 		Collections.sort(groups, ExternalGroupsResource.sorter);
 		StringBuilder output = new StringBuilder();
@@ -80,6 +91,9 @@ public class ExternalGroupsResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@GET
 	public Response getGroups(@QueryParam("q") String query) {
+		if (!loggedIn()) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
 		List<ExternalGroup>groups = externalGroupManager.search(query);
 		Collections.sort(groups, ExternalGroupsResource.sorter);
 		JSONArray groupsJson = new JSONArray();
@@ -93,6 +107,9 @@ public class ExternalGroupsResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@GET
 	public Response getMembers(@PathParam("group") String id) {
+		if (!loggedIn()) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
 		ExternalGroup group = externalGroupManager.findExternalGroup(id);
 		if (group == null) {
 			return Response.status(Status.NOT_FOUND).build();
@@ -107,7 +124,7 @@ public class ExternalGroupsResource {
 			}
 		}
 		Collections.sort(userList, userComparator);
-		
+
 		JSONArray membersArray = new JSONArray();
 		for (User user: userList) {
 			Map<Object, Object> userObject = new HashMap<Object, Object>();
@@ -126,4 +143,9 @@ public class ExternalGroupsResource {
 		return new JSONObject(groupMap);
 	}
 
+	private boolean loggedIn() {
+		User anonUser = userDirectoryService.getAnonymousUser();
+		User currUser = userDirectoryService.getCurrentUser();
+		return (currUser != null && !currUser.equals(anonUser));
+	}
 }
