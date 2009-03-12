@@ -23,11 +23,20 @@ jQuery(function() {
 				data: {
 					type: "json",
 					url: "browse.txt"
+				}, 
+				ui : {
+					context: "false"
+				},
+				rules: {
+					renameable: "none",
+					deletable: "none",
+					creatable: "none",
+					clickable: ["group"]
 				}
+			
 			}
 	);
 
-	console.log("asdasd");
 });
 
 </script>

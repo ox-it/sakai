@@ -33,7 +33,7 @@
 							data: { title: "Surgery" }
 						},
 						{
-							attributes: { id: "pubhealth" },
+							attributes: { id: "pubhealth", rel: "group"},
 							data: { title: "Public Health" }
 						}
 					]
