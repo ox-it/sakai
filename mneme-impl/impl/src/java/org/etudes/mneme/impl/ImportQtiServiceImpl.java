@@ -1322,6 +1322,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			String hint = null;
 			boolean survey = false;
 			float points = 0.0f;
+			float maxPoints = 0.0f;
 			String externalId = null;
 			boolean shuffle = true;
 			boolean singleAnswer = true;
@@ -1386,10 +1387,32 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// score declaration - decvar
 			XPath scoreDecVarPath = new DOMXPath("resprocessing/outcomes/decvar");
 			Element scoreDecVarElement = (Element) scoreDecVarPath.selectSingleNode(item);
+			
+			if (scoreDecVarElement == null)
+				return false;
+			
 			String vartype = StringUtil.trimToNull(scoreDecVarElement.getAttribute("vartype"));
 			
 			if ((vartype != null) && !("Integer".equalsIgnoreCase(vartype) || "Decimal".equalsIgnoreCase(vartype)))
 				return false;
+			
+			String maxValue = StringUtil.trimToNull(scoreDecVarElement.getAttribute("maxvalue"));
+			String minValue = StringUtil.trimToNull(scoreDecVarElement.getAttribute("minvalue"));
+			
+			if (!singleAnswer && ((maxValue == null) || (minValue == null)))
+				return false;
+			
+			if (!singleAnswer)
+			{
+				try
+				{
+					maxPoints = Float.valueOf(maxValue);
+				}
+				catch (NumberFormatException e)
+				{
+					return false;
+				}
+			}
 			
 			// correct answer
 			XPath respConditionPath = new DOMXPath("resprocessing/respcondition");
@@ -1422,6 +1445,9 @@ public class ImportQtiServiceImpl implements ImportQtiService
 						//this is the answer for multiple choice - single answer
 						if (singleAnswer)
 						{
+							if (responseAnswers.size() > 0)
+								return false;
+							
 							responseAnswers.add(responseText);
 						} 
 						else
@@ -1465,6 +1491,59 @@ public class ImportQtiServiceImpl implements ImportQtiService
 							
 							feedback = feedbackText;
 						}
+					} 
+					else if (!singleAnswer && "Add".equalsIgnoreCase(setVarElement.getAttribute("action")))
+					{
+						String pointsValue = StringUtil.trimToNull(setVarElement.getTextContent());
+						
+						if (pointsValue == null)
+							return false;
+						
+						float resPoints = 0.0f;
+						
+						try
+						{
+							resPoints = Float.valueOf(pointsValue);
+						}
+						catch (NumberFormatException e)
+						{
+							return false;
+						}
+						
+						if (resPoints < 0)
+							continue;
+						
+						responseAnswers.add(responseText);
+						points += resPoints;
+																	
+						// feedback optional and can be Response, Solution, Hint
+						XPath displayFeedbackPath = new DOMXPath("displayfeedback");
+						Element displayFeedbackElement = (Element) displayFeedbackPath.selectSingleNode(responseElement);
+						
+						if (displayFeedbackElement == null)
+							continue;
+						
+						// only one feedback is added as feed back is repeated in Respondous
+						if ((feedback != null) && (feedback.length() > 0))
+							continue;
+						
+						String feedbackType = StringUtil.trimToNull(displayFeedbackElement.getAttribute("feedbacktype"));
+						
+						if (feedbackType == null || "Response".equalsIgnoreCase(feedbackType))
+						{
+							String linkRefId = StringUtil.trimToNull(displayFeedbackElement.getAttribute("linkrefid"));
+							
+							XPath itemfeedbackPath = new DOMXPath("//itemfeedback[@ident='"+ linkRefId +"']");
+							Element feedbackElement = (Element)itemfeedbackPath.selectSingleNode(item);
+							
+							if (feedbackElement == null)
+								continue;
+							
+							XPath feedbackTextPath = new DOMXPath("material/mattext");
+							String feedbackText = StringUtil.trimToNull(feedbackTextPath.stringValueOf(feedbackElement));
+							
+							feedback = feedbackText;
+						}
 					}
 				}
 			}
@@ -1472,6 +1551,17 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			if (responseAnswers.size() == 0)
 				return false;
 			
+			if (!singleAnswer)
+			{
+				maxPoints = Float.valueOf(((float) Math.round(maxPoints * 100.0f)) / 100.0f);
+				//points = Float.valueOf(((float) Math.round(points * 100.0f)) / 100.0f);
+				
+				points = maxPoints;
+				
+				/*if (maxPoints != points)
+					return false;*/
+			}
+							
 			// create the question
 			Question question = this.questionService.newQuestion(pool, "mneme:MultipleChoice");
 			MultipleChoiceQuestionImpl mc = (MultipleChoiceQuestionImpl) (question.getTypeSpecificQuestion());
