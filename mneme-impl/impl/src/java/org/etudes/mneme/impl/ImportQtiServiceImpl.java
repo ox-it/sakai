@@ -199,6 +199,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 				// process Respondous 3.5 type of format
 				if (processRespondousTrueFalse(item, pool, pointsAverage)) continue;
 				if (processRespondousMultipleChoice(item, pool, pointsAverage)) continue;
+				if (processRespondousEssay(item, pool)) continue;
 
 				M_log.warn("item recognized: " + item.getAttribute("ident"));
 			}
@@ -1251,6 +1252,9 @@ public class ImportQtiServiceImpl implements ImportQtiService
 						{
 							String linkRefId = StringUtil.trimToNull(displayFeedbackElement.getAttribute("linkrefid"));
 							
+							if (linkRefId == null)
+								continue;
+							
 							XPath itemfeedbackPath = new DOMXPath("//itemfeedback[@ident='"+ linkRefId +"']");
 							Element feedbackElement = (Element)itemfeedbackPath.selectSingleNode(item);
 							
@@ -1327,9 +1331,6 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			boolean shuffle = true;
 			boolean singleAnswer = true;
 			
-			// correct answers
-			Set<String> responseAnswers = new HashSet<String>();
-
 			externalId = StringUtil.trimToNull(item.getAttribute("ident"));
 			
 			// presentation text
@@ -1418,6 +1419,9 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			XPath respConditionPath = new DOMXPath("resprocessing/respcondition");
 			List responses = respConditionPath.selectNodes(item);
 			
+			// correct answers
+			Set<String> responseAnswers = new HashSet<String>();
+			
 			if (responses == null || responses.size() == 0)
 				return false;
 			
@@ -1480,6 +1484,9 @@ public class ImportQtiServiceImpl implements ImportQtiService
 						{
 							String linkRefId = StringUtil.trimToNull(displayFeedbackElement.getAttribute("linkrefid"));
 							
+							if (linkRefId == null)
+								continue;
+							
 							XPath itemfeedbackPath = new DOMXPath("//itemfeedback[@ident='"+ linkRefId +"']");
 							Element feedbackElement = (Element)itemfeedbackPath.selectSingleNode(item);
 							
@@ -1510,7 +1517,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 							return false;
 						}
 						
-						if (resPoints < 0)
+						if (resPoints <= 0)
 							continue;
 						
 						responseAnswers.add(responseText);
@@ -1532,6 +1539,9 @@ public class ImportQtiServiceImpl implements ImportQtiService
 						if (feedbackType == null || "Response".equalsIgnoreCase(feedbackType))
 						{
 							String linkRefId = StringUtil.trimToNull(displayFeedbackElement.getAttribute("linkrefid"));
+							
+							if (linkRefId == null)
+								continue;
 							
 							XPath itemfeedbackPath = new DOMXPath("//itemfeedback[@ident='"+ linkRefId +"']");
 							Element feedbackElement = (Element)itemfeedbackPath.selectSingleNode(item);
@@ -1556,10 +1566,10 @@ public class ImportQtiServiceImpl implements ImportQtiService
 				maxPoints = Float.valueOf(((float) Math.round(maxPoints * 100.0f)) / 100.0f);
 				//points = Float.valueOf(((float) Math.round(points * 100.0f)) / 100.0f);
 				
-				points = maxPoints;
-				
 				/*if (maxPoints != points)
 					return false;*/
+				
+				points = maxPoints;
 			}
 							
 			// create the question
@@ -1630,6 +1640,86 @@ public class ImportQtiServiceImpl implements ImportQtiService
 
 			// add to the points average
 			pointsAverage.add(points);
+			
+			return true;
+		}
+		catch(JaxenException e)
+		{
+			return false;
+		}
+	}
+	
+	/**
+	 * Process the item if it is recognized as a Respondous Essay question.
+	 * 
+	 * @param item
+	 *        The QTI item from the QTI file DOM.
+	 * @param pool
+	 *        The pool to add the question to.
+	 * @param pointsAverage
+	 *        A running average to contribute the question's point value to for the pool.
+	 */
+	protected boolean processRespondousEssay(Element item, Pool pool) throws AssessmentPermissionException
+	{
+		try
+		{
+			// the attributes of a survey question
+			String presentation = null;
+			String feedback = null;
+			String externalId = null;
+
+			externalId = StringUtil.trimToNull(item.getAttribute("ident"));
+			
+			// presentation text
+			// Respondous is using the format - presentation/material/mattext
+			XPath presentationTextPath = new DOMXPath("presentation/material/mattext");
+			presentation = StringUtil.trimToNull(presentationTextPath.stringValueOf(item));
+			if (presentation == null)
+			{
+				// QTI format - presentation/flow/material/mattext
+				presentationTextPath = new DOMXPath("presentation/flow/material/mattext");
+				presentation = StringUtil.trimToNull(presentationTextPath.stringValueOf(item));
+			}
+			
+			if (presentation == null) return false;
+			
+			// reponse_str/response_fib
+			XPath renderFibPath = new DOMXPath("presentation/response_str/render_fib");
+			Element responseFib = (Element) renderFibPath.selectSingleNode(item);
+			
+			if (responseFib == null)
+				return false;
+			
+			String prompt = StringUtil.trimToNull(responseFib.getAttribute("prompt"));
+			String rows = StringUtil.trimToNull(responseFib.getAttribute("rows"));
+			String columns = StringUtil.trimToNull(responseFib.getAttribute("columns"));
+			
+			if (prompt == null || rows == null || columns == null)
+				return false;
+			
+			if (!"Box".equalsIgnoreCase(prompt))
+				return false;
+			
+			// create the question
+			Question question = this.questionService.newQuestion(pool, "mneme:Essay");
+			EssayQuestionImpl e = (EssayQuestionImpl) (question.getTypeSpecificQuestion());
+			
+			String clean = HtmlHelper.clean(presentation);
+			
+			question.getPresentation().setText(clean);
+			
+			// type
+			e.setSubmissionType(EssayQuestionImpl.SubmissionType.inline);
+			
+			// add feedback
+			if (StringUtil.trimToNull(feedback) != null)
+			{
+				question.setFeedback(HtmlHelper.clean(feedback));
+			}
+							
+			// save
+			question.getTypeSpecificQuestion().consolidate("");
+			this.questionService.saveQuestion(question);
 			
 			return true;
 		}
