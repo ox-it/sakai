@@ -56,6 +56,7 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -200,6 +201,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 				if (processRespondousTrueFalse(item, pool, pointsAverage)) continue;
 				if (processRespondousMultipleChoice(item, pool, pointsAverage)) continue;
 				if (processRespondousEssay(item, pool)) continue;
+				if (processRespondousFillIn(item, pool, pointsAverage)) continue;
 
 				M_log.warn("item recognized: " + item.getAttribute("ident"));
 			}
@@ -1690,14 +1692,14 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			if (responseFib == null)
 				return false;
 			
-			String prompt = StringUtil.trimToNull(responseFib.getAttribute("prompt"));
-			String rows = StringUtil.trimToNull(responseFib.getAttribute("rows"));
-			String columns = StringUtil.trimToNull(responseFib.getAttribute("columns"));
+			Attr promptAttr = responseFib.getAttributeNode("prompt");
+			Attr rowsAttr = responseFib.getAttributeNode("rows");
+			Attr columnsAttr = responseFib.getAttributeNode("columns");
 			
-			if (prompt == null || rows == null || columns == null)
+			if (promptAttr == null || rowsAttr == null || columnsAttr == null)
 				return false;
 			
-			if (!"Box".equalsIgnoreCase(prompt))
+			if (!"Box".equalsIgnoreCase(promptAttr.getValue().trim()))
 				return false;
 			
 			// create the question
@@ -1717,6 +1719,211 @@ public class ImportQtiServiceImpl implements ImportQtiService
 				question.setFeedback(HtmlHelper.clean(feedback));
 			}
 							
+			// save
+			question.getTypeSpecificQuestion().consolidate("");
+			this.questionService.saveQuestion(question);
+			
+			return true;
+		}
+		catch(JaxenException e)
+		{
+			return false;
+		}
+	}
+	
+	/**
+	 * Process this item if it is recognized as a Respondous Fill in the blank.
+	 * 
+	 * @param item
+	 *        The QTI item from the QTI file DOM.
+	 * @param pool
+	 *        The pool to add the question to.
+	 * @param pointsAverage
+	 *        A running average to contribute the question's point value to for the pool.
+	 * @return true if successfully recognized and processed, false if not.
+	 */
+	protected boolean processRespondousFillIn(Element item, Pool pool, Average pointsAverage) throws AssessmentPermissionException 
+	{
+		// the attributes of a Fill In the Blank question
+		boolean caseSensitive = false;
+		boolean mutuallyExclusive = false;
+		String presentation = null;
+		float points = 0.0f;
+		String feedback = null;
+		
+		String externalId = null;
+		List<String> answers = new ArrayList<String>();
+		
+		try 
+		{
+			//identifier
+			externalId = StringUtil.trimToNull(item.getAttribute("ident"));
+			
+			// presentation text
+			// Respondous is using the format - presentation/material/mattext
+			XPath presentationTextPath = new DOMXPath("presentation/material/mattext");
+			presentation = StringUtil.trimToNull(presentationTextPath.stringValueOf(item));
+			if (presentation == null)
+			{
+				// QTI format - presentation/flow/material/mattext
+				presentationTextPath = new DOMXPath("presentation/flow/material/mattext");
+				presentation = StringUtil.trimToNull(presentationTextPath.stringValueOf(item));
+			}
+			
+			if (presentation == null) return false;
+			
+			// reponse_str/response_fib
+			XPath renderFibPath = new DOMXPath("presentation/response_str/render_fib");
+			Element responseFib = (Element) renderFibPath.selectSingleNode(item);
+			
+			if (responseFib == null)
+				return false;
+			
+			Attr promptAttr = responseFib.getAttributeNode("prompt");
+			Attr rowsAttr = responseFib.getAttributeNode("rows");
+			Attr columnsAttr = responseFib.getAttributeNode("columns");
+			
+			if (promptAttr == null || rowsAttr != null || columnsAttr != null)
+				return false;
+			
+			if (!"Box".equalsIgnoreCase(promptAttr.getValue().trim()))
+				return false;
+			
+			// score declaration - decvar
+			XPath scoreDecVarPath = new DOMXPath("resprocessing/outcomes/decvar");
+			Element scoreDecVarElement = (Element) scoreDecVarPath.selectSingleNode(item);
+			
+			if (scoreDecVarElement == null)
+				return false;
+			
+			String vartype = StringUtil.trimToNull(scoreDecVarElement.getAttribute("vartype"));
+			
+			if ((vartype != null) && !("Integer".equalsIgnoreCase(vartype) || "Decimal".equalsIgnoreCase(vartype)))
+				return false;
+			
+			String maxValue = StringUtil.trimToNull(scoreDecVarElement.getAttribute("maxvalue"));
+			String minValue = StringUtil.trimToNull(scoreDecVarElement.getAttribute("minvalue"));
+			
+			if (maxValue == null || minValue == null)
+				return false;
+			
+			try
+			{
+				points = Float.valueOf(maxValue);
+			}
+			catch (NumberFormatException e)
+			{
+				return false;
+			}
+			
+			// correct answer
+			XPath respConditionPath = new DOMXPath("resprocessing/respcondition");
+			List responses = respConditionPath.selectNodes(item);
+			
+			if (responses == null || responses.size() == 0)
+				return false;
+			
+			for (Object oResponse : responses)
+			{
+				Element responseElement = (Element) oResponse;
+
+				XPath responsePath = new DOMXPath("conditionvar/varequal");
+				String responseText = StringUtil.trimToNull(responsePath.stringValueOf(responseElement));
+				
+				if (responseText != null)
+				{
+					// score
+					XPath setVarPath = new DOMXPath("setvar");
+					Element setVarElement = (Element) setVarPath.selectSingleNode(responseElement);
+					
+					if (setVarElement == null)
+						return false;
+					
+					if ("Add".equalsIgnoreCase(setVarElement.getAttribute("action")))
+					{
+						String pointsValue = StringUtil.trimToNull(setVarElement.getTextContent());
+						
+						if (pointsValue == null)
+							return false;
+						
+						answers.add(responseText.trim());
+						
+						/*try
+						{
+							points = Float.valueOf(pointsValue);
+						}
+						catch (NumberFormatException e)
+						{
+							return false;
+						}*/
+						
+						// feedback optional and can be Response, Solution, Hint
+						XPath displayFeedbackPath = new DOMXPath("displayfeedback");
+						Element displayFeedbackElement = (Element) displayFeedbackPath.selectSingleNode(responseElement);
+						
+						if (displayFeedbackElement == null)
+							continue;
+						
+						String feedbackType = StringUtil.trimToNull(displayFeedbackElement.getAttribute("feedbacktype"));
+						
+						if (feedbackType == null || "Response".equalsIgnoreCase(feedbackType))
+						{
+							String linkRefId = StringUtil.trimToNull(displayFeedbackElement.getAttribute("linkrefid"));
+							
+							if (linkRefId == null)
+								continue;
+							
+							XPath itemfeedbackPath = new DOMXPath("//itemfeedback[@ident='"+ linkRefId +"']");
+							Element feedbackElement = (Element)itemfeedbackPath.selectSingleNode(item);
+							
+							if (feedbackElement == null)
+								continue;
+							
+							XPath feedbackTextPath = new DOMXPath("material/mattext");
+							String feedbackText = StringUtil.trimToNull(feedbackTextPath.stringValueOf(feedbackElement));
+							
+							feedback = feedbackText;
+						}
+					}
+				}
+			}
+			
+			if (answers.size() == 0)
+				return false;
+			
+			// create the question
+			Question question = this.questionService.newQuestion(pool, "mneme:FillBlanks");
+			FillBlanksQuestionImpl f = (FillBlanksQuestionImpl) (question.getTypeSpecificQuestion());
+			
+			// case sensitive
+			f.setCaseSensitive(Boolean.FALSE.toString());
+			
+			//mutually exclusive
+			f.setAnyOrder(Boolean.FALSE.toString());
+			
+			StringBuffer buildAnswers = new StringBuffer();
+			buildAnswers.append("{");
+			for (String answer : answers)
+			{
+				buildAnswers.append(answer);
+				buildAnswers.append("|");
+			}
+			buildAnswers.replace(buildAnswers.length() - 1, buildAnswers.length(), "}");
+			String questionText = presentation.concat(buildAnswers.toString());
+			
+			String clean = HtmlHelper.clean(questionText);
+			
+			f.setText(clean);
+			
+			// text or numeric
+			//f.setResponseTextual(Boolean.toString(isResponseTextual));
+			
+			// add feedback
+			if (StringUtil.trimToNull(feedback) != null)
+			{
+				question.setFeedback(HtmlHelper.clean(feedback));
+			}
+						
 			// save
 			question.getTypeSpecificQuestion().consolidate("");
 			this.questionService.saveQuestion(question);
