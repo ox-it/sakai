@@ -202,6 +202,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 				if (processRespondousMultipleChoice(item, pool, pointsAverage)) continue;
 				if (processRespondousEssay(item, pool)) continue;
 				if (processRespondousFillIn(item, pool, pointsAverage)) continue;
+				if (processRespondousMatching(item, pool, pointsAverage)) continue;
 
 				M_log.warn("item recognized: " + item.getAttribute("ident"));
 			}
@@ -1368,7 +1369,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 				singleAnswer = false;
 			
 			// answers - w/ id
-			Map<String, String> answerMap = new HashMap<String, String>();
+			Map<String, String> answerMap = new LinkedHashMap<String, String>();
 			XPath answersPath = new DOMXPath(".//render_choice//response_label");
 			List answers = answersPath.selectNodes(responseLidElement);
 			for (Object oAnswer : answers)
@@ -1924,6 +1925,165 @@ public class ImportQtiServiceImpl implements ImportQtiService
 				question.setFeedback(HtmlHelper.clean(feedback));
 			}
 						
+			// save
+			question.getTypeSpecificQuestion().consolidate("");
+			this.questionService.saveQuestion(question);
+			
+			return true;
+		}
+		catch(JaxenException e)
+		{
+			return false;
+		}
+	}
+	
+	/**
+	 * Process this item if it is recognized as a Respondous Matching question.
+	 * 
+	 * @param item
+	 *        The QTI item from the QTI file DOM.
+	 * @param pool
+	 *        The pool to add the question to.
+	 * @param pointsAverage
+	 *        A running average to contribute the question's point value to for the pool.
+	 * @return true if successfully recognized and processed, false if not.
+	 */
+	protected boolean processRespondousMatching(Element item, Pool pool, Average pointsAverage) throws AssessmentPermissionException 
+	{
+		String externalId = null;
+		String presentation = null;
+		try 
+		{
+			//identifier
+			externalId = StringUtil.trimToNull(item.getAttribute("ident"));
+			
+			// presentation text
+			// Respondous is using the format - presentation/material/mattext
+			XPath presentationTextPath = new DOMXPath("presentation/material/mattext");
+			presentation = StringUtil.trimToNull(presentationTextPath.stringValueOf(item));
+			if (presentation == null)
+			{
+				// QTI format - presentation/flow/material/mattext
+				presentationTextPath = new DOMXPath("presentation/flow/material/mattext");
+				presentation = StringUtil.trimToNull(presentationTextPath.stringValueOf(item));
+			}
+			
+			if (presentation == null) return false;
+			
+			// reponse_lid
+			XPath reponseLidPath = new DOMXPath("presentation//response_lid");
+			List responseLids = reponseLidPath.selectNodes(item);
+			
+			if (responseLids.size() == 0) 
+				return false;
+			
+			Map<String, String> matchPresentations = new LinkedHashMap<String, String>();
+			Map<String, Object> matchChoices = new HashMap<String, Object>();
+			
+			for (Object responseLid : responseLids)
+			{
+				Element responseLidElement = (Element) responseLid;
+				
+				String identifier = responseLidElement.getAttribute("ident");
+				
+				if (StringUtil.trimToNull(identifier) == null)
+					continue;
+				
+				XPath matchPresentationPath = new DOMXPath("material/mattext");
+				String matchPresentationText = StringUtil.trimToNull(matchPresentationPath.stringValueOf(responseLidElement));
+				
+				matchPresentations.put(identifier, matchPresentationText);
+				
+				// response_label
+				XPath reponseChoicePath = new DOMXPath("render_choice/response_label");
+				List reponseChoices = reponseChoicePath.selectNodes(responseLidElement);
+				
+				Map<String, String> answerChoices = new HashMap<String, String>();
+				for (Object reponseChoice : reponseChoices)
+				{
+					Element reponseChoiceElement = (Element) reponseChoice;
+					
+					String responseChoiceId = reponseChoiceElement.getAttribute("ident");
+					
+					if (StringUtil.trimToNull(responseChoiceId) == null)
+						continue;
+					
+					XPath choicePresentation = new DOMXPath("material/mattext");
+					String matchChoicesText = StringUtil.trimToNull(choicePresentation.stringValueOf(reponseChoiceElement));
+					
+					if (StringUtil.trimToNull(matchChoicesText) == null)
+						continue;
+					
+					answerChoices.put(responseChoiceId, matchChoicesText);
+				}
+				matchChoices.put(identifier, answerChoices);
+			}
+			
+			Map<String, String> matchAnswers = new HashMap<String, String>();
+			
+			for (String matchPresId : matchPresentations.keySet())
+			{
+				// resprocessing
+				XPath reponseAnswerPath = new DOMXPath("resprocessing//conditionvar/varequal[@respident='"+ matchPresId +"']");
+				List reponseAnswers = reponseAnswerPath.selectNodes(item);
+				
+				for (Object answer : reponseAnswers)
+				{
+					Element answerElement = (Element) answer;
+					
+					if (answerElement == null)
+						continue;
+					
+					XPath setvarPath = new DOMXPath("../../setvar");
+					Element setvarElement = (Element)setvarPath.selectSingleNode(answerElement);
+					
+					if (setvarElement == null)
+						continue;
+					
+					if (!"setvar".equalsIgnoreCase(setvarElement.getNodeName()))
+						continue;
+					
+					if (!"Respondus_Correct".equalsIgnoreCase(setvarElement.getAttribute("varname")))
+						continue;
+					
+					matchAnswers.put(matchPresId, answerElement.getTextContent());
+				}
+			}
+			
+			if (matchAnswers.size() != matchPresentations.size())
+				return false;
+			
+			// create the question
+			Question question = this.questionService.newQuestion(pool, "mneme:Match");
+			MatchQuestionImpl m = (MatchQuestionImpl) (question.getTypeSpecificQuestion());
+			
+			String clean = HtmlHelper.clean(presentation);
+			
+			question.getPresentation().setText(clean);
+			
+			m.consolidate("INIT:" + matchPresentations.size());
+			
+			// set the pair values
+			List<MatchQuestionImpl.MatchQuestionPair> pairs = m.getPairs();
+			String value;
+			int index = 0;
+			for (String key : matchPresentations.keySet())
+			{
+				clean = HtmlHelper.clean(matchPresentations.get(key));
+				pairs.get(index).setMatch(clean);
+				
+				Map choices = (Map) matchChoices.get(key);
+				value = (String) choices.get(matchAnswers.get(key));
+				
+				if(StringUtil.trimToNull(value) == null)
+					return false;
+				
+				clean = HtmlHelper.clean(value);
+				pairs.get(index).setChoice(clean);
+				
+				index++;				
+			}
+			
 			// save
 			question.getTypeSpecificQuestion().consolidate("");
 			this.questionService.saveQuestion(question);
