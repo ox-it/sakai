@@ -23,6 +23,7 @@ package org.etudes.mneme.impl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1349,8 +1350,8 @@ public class ImportTextServiceImpl implements ImportTextService
 		String hints = null;
 		boolean isSurvey = false;
 		String distractor = null;
-		Map<String, String> choicePairs = new HashMap<String, String>();
-		Map<String, String> drawChoicePairs = new HashMap<String, String>();
+		Map<String, String> choicePairs = new LinkedHashMap<String, String>();
+		Map<String, String> drawChoicePairs = new LinkedHashMap<String, String>();
 		
 		boolean drawMatchNumberFormatEstablished = false, numberFormatEstablished = false;
 		
