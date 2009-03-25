@@ -188,6 +188,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 		{
 			XPath itemPath = new DOMXPath("//item");
 			List items = itemPath.selectNodes(doc);
+			
 			for (Object oItem : items)
 			{
 				Element item = (Element) oItem;
@@ -1952,6 +1953,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 	{
 		String externalId = null;
 		String presentation = null;
+		String feedback = null;
 		try 
 		{
 			//identifier
@@ -2082,6 +2084,14 @@ public class ImportQtiServiceImpl implements ImportQtiService
 				pairs.get(index).setChoice(clean);
 				
 				index++;				
+			}
+			
+			XPath itemfeedbackPath = new DOMXPath("itemfeedback/material/mattext");
+			feedback = StringUtil.trimToNull(itemfeedbackPath.stringValueOf(item));
+			
+			if (feedback != null)
+			{
+				question.setFeedback(HtmlHelper.clean(feedback));
 			}
 			
 			// save
