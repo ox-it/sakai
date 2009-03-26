@@ -1954,6 +1954,8 @@ public class ImportQtiServiceImpl implements ImportQtiService
 		String externalId = null;
 		String presentation = null;
 		String feedback = null;
+		float points = 0.0f;
+		
 		try 
 		{
 			//identifier
@@ -2052,6 +2054,19 @@ public class ImportQtiServiceImpl implements ImportQtiService
 				}
 			}
 			
+			XPath pointsPath = new DOMXPath("resprocessing/outcomes/decvar[@varname='Respondus_Correct']/@maxvalue");
+			String pointsValue = StringUtil.trimToNull(pointsPath.stringValueOf(item));
+			
+			try
+			{
+				if (pointsValue != null)
+					points = Float.valueOf(pointsValue);
+			}
+			catch (NumberFormatException e)
+			{
+				return false;
+			}
+			
 			if (matchAnswers.size() != matchPresentations.size())
 				return false;
 			
@@ -2097,6 +2112,9 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// save
 			question.getTypeSpecificQuestion().consolidate("");
 			this.questionService.saveQuestion(question);
+			
+			// add to the points average
+			pointsAverage.add(points);
 			
 			return true;
 		}
