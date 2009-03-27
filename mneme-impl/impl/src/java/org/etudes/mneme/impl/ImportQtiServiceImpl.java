@@ -1128,12 +1128,16 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// presentation text
 			// Respondous is using the format - presentation/material/mattext
 			XPath presentationTextPath = new DOMXPath("presentation/material/mattext");
-			List presentationTexts = presentationTextPath.selectNodes(item);
+			List presentationMaterialTexts = presentationTextPath.selectNodes(item);
 			StringBuilder presentationTextBuilder = new StringBuilder();
-			for (Object presentationText : presentationTexts)
+			for (Object presentationMaterialText : presentationMaterialTexts)
 			{
-				Element presentationTextElement = (Element) presentationText;
-				presentationTextBuilder.append(presentationTextElement.getTextContent());
+				Element presentationTextElement = (Element) presentationMaterialText;
+				XPath matTextPath = new DOMXPath(".");
+				String matText = StringUtil.trimToNull(matTextPath.stringValueOf(presentationTextElement));
+				
+				if (matText != null)
+					presentationTextBuilder.append(matText);
 			}
 			presentation = presentationTextBuilder.toString();
 			
@@ -1348,12 +1352,16 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// presentation text
 			// Respondous is using the format - presentation/material/mattext
 			XPath presentationTextPath = new DOMXPath("presentation/material/mattext");
-			List presentationTexts = presentationTextPath.selectNodes(item);
+			List presentationMaterialTexts = presentationTextPath.selectNodes(item);
 			StringBuilder presentationTextBuilder = new StringBuilder();
-			for (Object presentationText : presentationTexts)
+			for (Object presentationMaterialText : presentationMaterialTexts)
 			{
-				Element presentationTextElement = (Element) presentationText;
-				presentationTextBuilder.append(presentationTextElement.getTextContent());
+				Element presentationTextElement = (Element) presentationMaterialText;
+				XPath matTextPath = new DOMXPath(".");
+				String matText = StringUtil.trimToNull(matTextPath.stringValueOf(presentationTextElement));
+				
+				if (matText != null)
+					presentationTextBuilder.append(matText);
 			}
 			presentation = presentationTextBuilder.toString();
 			
@@ -1693,12 +1701,16 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// presentation text
 			// Respondous is using the format - presentation/material/mattext
 			XPath presentationTextPath = new DOMXPath("presentation/material/mattext");
-			List presentationTexts = presentationTextPath.selectNodes(item);
+			List presentationMaterialTexts = presentationTextPath.selectNodes(item);
 			StringBuilder presentationTextBuilder = new StringBuilder();
-			for (Object presentationText : presentationTexts)
+			for (Object presentationMaterialText : presentationMaterialTexts)
 			{
-				Element presentationTextElement = (Element) presentationText;
-				presentationTextBuilder.append(presentationTextElement.getTextContent());
+				Element presentationTextElement = (Element) presentationMaterialText;
+				XPath matTextPath = new DOMXPath(".");
+				String matText = StringUtil.trimToNull(matTextPath.stringValueOf(presentationTextElement));
+				
+				if (matText != null)
+					presentationTextBuilder.append(matText);
 			}
 			presentation = presentationTextBuilder.toString();
 			
@@ -1788,12 +1800,16 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// presentation text
 			// Respondous is using the format - presentation/material/mattext
 			XPath presentationTextPath = new DOMXPath("presentation/material/mattext");
-			List presentationTexts = presentationTextPath.selectNodes(item);
+			List presentationMaterialTexts = presentationTextPath.selectNodes(item);
 			StringBuilder presentationTextBuilder = new StringBuilder();
-			for (Object presentationText : presentationTexts)
+			for (Object presentationMaterialText : presentationMaterialTexts)
 			{
-				Element presentationTextElement = (Element) presentationText;
-				presentationTextBuilder.append(presentationTextElement.getTextContent());
+				Element presentationTextElement = (Element) presentationMaterialText;
+				XPath matTextPath = new DOMXPath(".");
+				String matText = StringUtil.trimToNull(matTextPath.stringValueOf(presentationTextElement));
+				
+				if (matText != null)
+					presentationTextBuilder.append(matText);
 			}
 			presentation = presentationTextBuilder.toString();
 			
@@ -1996,12 +2012,16 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// presentation text
 			// Respondous is using the format - presentation/material/mattext
 			XPath presentationTextPath = new DOMXPath("presentation/material/mattext");
-			List presentationTexts = presentationTextPath.selectNodes(item);
+			List presentationMaterialTexts = presentationTextPath.selectNodes(item);
 			StringBuilder presentationTextBuilder = new StringBuilder();
-			for (Object presentationText : presentationTexts)
+			for (Object presentationMaterialText : presentationMaterialTexts)
 			{
-				Element presentationTextElement = (Element) presentationText;
-				presentationTextBuilder.append(presentationTextElement.getTextContent());
+				Element presentationTextElement = (Element) presentationMaterialText;
+				XPath matTextPath = new DOMXPath(".");
+				String matText = StringUtil.trimToNull(matTextPath.stringValueOf(presentationTextElement));
+				
+				if (matText != null)
+					presentationTextBuilder.append(matText);
 			}
 			presentation = presentationTextBuilder.toString();
 			
