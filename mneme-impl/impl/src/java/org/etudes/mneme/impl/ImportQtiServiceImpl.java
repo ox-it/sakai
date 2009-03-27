@@ -1128,7 +1128,15 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// presentation text
 			// Respondous is using the format - presentation/material/mattext
 			XPath presentationTextPath = new DOMXPath("presentation/material/mattext");
-			presentation = StringUtil.trimToNull(presentationTextPath.stringValueOf(item));
+			List presentationTexts = presentationTextPath.selectNodes(item);
+			StringBuilder presentationTextBuilder = new StringBuilder();
+			for (Object presentationText : presentationTexts)
+			{
+				Element presentationTextElement = (Element) presentationText;
+				presentationTextBuilder.append(presentationTextElement.getTextContent());
+			}
+			presentation = presentationTextBuilder.toString();
+			
 			if (presentation == null)
 			{
 				// QTI format - presentation/flow/material/mattext
@@ -1340,7 +1348,15 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// presentation text
 			// Respondous is using the format - presentation/material/mattext
 			XPath presentationTextPath = new DOMXPath("presentation/material/mattext");
-			presentation = StringUtil.trimToNull(presentationTextPath.stringValueOf(item));
+			List presentationTexts = presentationTextPath.selectNodes(item);
+			StringBuilder presentationTextBuilder = new StringBuilder();
+			for (Object presentationText : presentationTexts)
+			{
+				Element presentationTextElement = (Element) presentationText;
+				presentationTextBuilder.append(presentationTextElement.getTextContent());
+			}
+			presentation = presentationTextBuilder.toString();
+			
 			if (presentation == null)
 			{
 				// QTI format - presentation/flow/material/mattext
@@ -1980,7 +1996,15 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// presentation text
 			// Respondous is using the format - presentation/material/mattext
 			XPath presentationTextPath = new DOMXPath("presentation/material/mattext");
-			presentation = StringUtil.trimToNull(presentationTextPath.stringValueOf(item));
+			List presentationTexts = presentationTextPath.selectNodes(item);
+			StringBuilder presentationTextBuilder = new StringBuilder();
+			for (Object presentationText : presentationTexts)
+			{
+				Element presentationTextElement = (Element) presentationText;
+				presentationTextBuilder.append(presentationTextElement.getTextContent());
+			}
+			presentation = presentationTextBuilder.toString();
+			
 			if (presentation == null)
 			{
 				// QTI format - presentation/flow/material/mattext
