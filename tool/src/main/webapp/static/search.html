@@ -109,7 +109,8 @@
 				setupCancel();
 				// Add autocomplete support.
 				jQuery("#ldap-search").autocomplete(path+ "group/autocomplete", {
-					loadingClass: "my_ac_loading"
+					loadingClass: "my_ac_loading",
+					matchContains: 1
 				});
 
 				// Add the display members support.

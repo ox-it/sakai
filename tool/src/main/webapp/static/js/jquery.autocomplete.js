@@ -245,6 +245,12 @@ jQuery.autocomplete = function(input, options) {
 			}
 		}
 	};
+	
+	function recieveError(status) {
+		$input.removeClass(options.loadingClass);
+		results.innerHTML = "";
+		hideResultsNow();
+	};
 
 	function receiveData(q, data) {
 		if (data) {
@@ -323,10 +329,17 @@ jQuery.autocomplete = function(input, options) {
 			receiveData(q, data);
 		// if an AJAX url has been supplied, try loading the data now
 		} else if( (typeof options.url == "string") && (options.url.length > 0) ){
-			$.get(makeUrl(q), function(data) {
-				data = parseData(data);
-				addToCache(q, data);
-				receiveData(q, data);
+			$.ajax({
+				type: "GET",
+				url: makeUrl(q),
+				success: function(data, textStatus) {
+					data = parseData(data);
+					addToCache(q, data);
+					receiveData(q, data);
+				},
+				error: function(xmlhttp, testStatus, error) {
+					recieveError(xmlhttp.status);
+				}
 			});
 		// if there's been no data found, remove the loading class
 		} else {
