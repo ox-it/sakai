@@ -1990,6 +1990,9 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			question.getTypeSpecificQuestion().consolidate("");
 			this.questionService.saveQuestion(question);
 			
+			// add to the points average
+			pointsAverage.add(points);
+			
 			return true;
 		}
 		catch(JaxenException e)
