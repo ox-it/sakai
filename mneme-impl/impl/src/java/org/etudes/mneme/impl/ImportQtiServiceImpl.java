@@ -1751,6 +1751,9 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// type
 			e.setSubmissionType(EssayQuestionImpl.SubmissionType.inline);
 			
+			XPath itemfeedbackPath = new DOMXPath("itemfeedback/material/mattext");
+			feedback = StringUtil.trimToNull(itemfeedbackPath.stringValueOf(item));
+			
 			// add feedback
 			if (StringUtil.trimToNull(feedback) != null)
 			{
@@ -1898,15 +1901,6 @@ public class ImportQtiServiceImpl implements ImportQtiService
 							return false;
 						
 						answers.add(responseText.trim());
-						
-						/*try
-						{
-							points = Float.valueOf(pointsValue);
-						}
-						catch (NumberFormatException e)
-						{
-							return false;
-						}*/
 						
 						// feedback optional and can be Response, Solution, Hint
 						XPath displayFeedbackPath = new DOMXPath("displayfeedback");
