@@ -27,6 +27,8 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
+import uk.ac.ox.oucs.vle.ExternalGroupException.Type;
+
 
 @Path("/group/")
 public class ExternalGroupsResource {
@@ -77,14 +79,22 @@ public class ExternalGroupsResource {
 		if (!loggedIn()) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-		List<ExternalGroup>groups = externalGroupManager.search(query);
-		Collections.sort(groups, ExternalGroupsResource.sorter);
-		StringBuilder output = new StringBuilder();
-		for(ExternalGroup group: groups) {
-			output.append(group.getName());
-			output.append("\n");
+		try {
+			List<ExternalGroup>groups = externalGroupManager.search(query);
+			Collections.sort(groups, ExternalGroupsResource.sorter);
+			StringBuilder output = new StringBuilder();
+			for(ExternalGroup group: groups) {
+				output.append(group.getName());
+				output.append("\n");
+			}
+			return Response.ok(output.toString()).build();
+		} catch (ExternalGroupException ege) {
+			if (Type.SIZE_LIMIT.equals(ege.getType())) {
+				return Response.status(499).build();
+			} else {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
 		}
-		return Response.ok(output.toString()).build();
 	}
 	
 	@Path("search")
@@ -94,6 +104,7 @@ public class ExternalGroupsResource {
 		if (!loggedIn()) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
+		try {
 		List<ExternalGroup>groups = externalGroupManager.search(query);
 		Collections.sort(groups, ExternalGroupsResource.sorter);
 		JSONArray groupsJson = new JSONArray();
@@ -101,6 +112,9 @@ public class ExternalGroupsResource {
 			groupsJson.put(convertGroupToMap(group));
 		}
 		return Response.ok(groupsJson).build();
+		} catch (ExternalGroupException ege) {
+			return Response.ok().build();
+		}
 	}
 	
 	@Path("{group}/members")

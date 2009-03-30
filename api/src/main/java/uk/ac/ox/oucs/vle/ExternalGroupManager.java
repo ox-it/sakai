@@ -5,7 +5,7 @@ import java.util.Map;
 
 public interface ExternalGroupManager {
 
-	public List<ExternalGroup> search(String query);
+	public List<ExternalGroup> search(String query) throws ExternalGroupException;
 	
 	public ExternalGroup findExternalGroup(String externalGroupId);
 	

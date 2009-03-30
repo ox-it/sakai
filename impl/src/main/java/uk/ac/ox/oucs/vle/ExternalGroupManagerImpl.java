@@ -6,20 +6,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
+
+import uk.ac.ox.oucs.vle.ExternalGroupException.Type;
 
 import com.novell.ldap.LDAPAttribute;
 import com.novell.ldap.LDAPConnection;
+import com.novell.ldap.LDAPConstraints;
 import com.novell.ldap.LDAPEntry;
 import com.novell.ldap.LDAPException;
+import com.novell.ldap.LDAPSearchConstraints;
 import com.novell.ldap.LDAPSearchResults;
 
 import edu.amc.sakai.user.JLDAPDirectoryProvider;
@@ -36,7 +37,15 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	UserDirectoryService userDirectoryService;
 	
 	MappedGroupDao mappedGroupDao;
-	
+
+	private String memberFormat = "oakPrimaryPersonID={0},ou=people,dc=oak,dc=ox,dc=ac,dc=uk";
+
+	private String groupBase = "dc=oak,dc=ox,dc=ac,dc=uk";
+
+	private String[] searchAttributes = {"displayName","ou"};
+
+	private int SEARCH_LIMIT = 50;
+
 	public void init() {
 		log.debug("init()");
 		if (ldapConnectionManager == null && jldapDirectoryProvider == null) {
@@ -107,14 +116,14 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	}
 
 	public Map<String, String> getGroupRoles(String userId) {
-		MessageFormat formatter = new MessageFormat("oakPrimaryPersonID={0},ou=people,dc=oak,dc=ox,dc=ac,dc=uk");
+		MessageFormat formatter = new MessageFormat(memberFormat);
 		String member = formatter.format(new Object[]{userId});
 		LDAPConnection connection = null;
 		Map<String, String> groupRoles;
 		try {
 			connection = getConnection();
 			String filter = "member="+member;
-			LDAPSearchResults results = connection.search("ou=units,dc=oak,dc=ox,dc=ac,dc=uk", LDAPConnection.SCOPE_SUB, filter, getSearchAttributes(), false);
+			LDAPSearchResults results = connection.search(groupBase, LDAPConnection.SCOPE_SUB, filter, getSearchAttributes(), false);
 			groupRoles = new HashMap<String, String>();
 			while (results.hasMore()) {
 				ExternalGroup group = convert(results.next());
@@ -136,7 +145,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		return null;
 	}
 
-	public List<ExternalGroup> search(String query) {
+	public List<ExternalGroup> search(String query) throws ExternalGroupException{
 		if (query == null || query.length() == 0) {
 			return Collections.emptyList();
 		}
@@ -144,8 +153,11 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		LDAPConnection connection = null;
 		try {
 			connection = getConnection();
-			String filter = "ou=*"+ escapeSearchFilterTerm(query)+ "*";
-			LDAPSearchResults results = connection.search("ou=units,dc=oak,dc=ox,dc=ac,dc=uk", LDAPConnection.SCOPE_SUB, filter, getSearchAttributes(), false);
+			LDAPSearchConstraints constraints = new LDAPSearchConstraints(connection.getConstraints());
+			constraints.setMaxResults(SEARCH_LIMIT);
+			MessageFormat filterFormat = new MessageFormat("(&(|(ou=*{0}*)(displayName=*{0}*))(member=*)(objectClass=oakGroupAbs))");
+			String filter = filterFormat.format(new Object[]{escapeSearchFilterTerm(query)});
+			LDAPSearchResults results = connection.search(groupBase, LDAPConnection.SCOPE_SUB, filter, getSearchAttributes(), false);
 			groups = new ArrayList<ExternalGroup>(results.getCount());
 			while (results.hasMore()) {
 				ExternalGroup group = convert(results.next());
@@ -154,7 +166,11 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 				}
 			}
 		} catch (LDAPException ldape) {
-			log.error("Problem with LDAP.", ldape);
+			if (ldape.getResultCode() == LDAPException.SIZE_LIMIT_EXCEEDED) {
+				throw new ExternalGroupException(Type.SIZE_LIMIT);
+			} else {
+				log.error("Problem with LDAP.", ldape);
+			}
 		} finally {
 			if (connection != null) {
 				returnConnection(connection);
@@ -165,18 +181,24 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 
 	ExternalGroup convert(LDAPEntry entry) {
 		String dn = entry.getDN();
-		LDAPAttribute attribute = entry.getAttribute("ou");
 		String name = null;
-		if (attribute != null) {
-			String[] names = attribute.getStringValueArray();
-			if (names.length == 1) {
-				name = names[0];
-			} else {
-				if (names.length == 0) {
-					log.warn("No names for: "+ dn);
-				} else {
+		for(String attributeName: getSearchAttributes() ) {
+			LDAPAttribute attribute = entry.getAttribute(attributeName);
+			if (attribute != null) {
+				String[] names = attribute.getStringValueArray();
+				if (names.length == 1) {
 					name = names[0];
-					log.warn("Found "+ names.length+ " for: "+ dn);
+				} else {
+					if (names.length == 0) {
+						if (log.isDebugEnabled()) {
+							log.debug("No names for: "+ dn);
+						}
+					} else {
+						name = names[0];
+						if (log.isDebugEnabled()) {
+							log.debug("Found "+ names.length+ " for: "+ dn);
+						}
+					}
 				}
 			}
 		}
@@ -194,7 +216,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	}
 
 	String[] getSearchAttributes() {
-		return new String[]{"ou"};
+		return searchAttributes;
 	}
 
 	void ensureConnectionManager() {
@@ -239,6 +261,14 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		this.mappedGroupDao = mappedGroupDao;
 	}
 
+	public void setMemberFormat(String memberFormat) {
+		this.memberFormat = memberFormat;
+	}
+
+	public void setGroupBase(String groupBase) {
+		this.groupBase = groupBase;
+	}
+
 	Collection<String> findMembers(String externalId) {
 		Collection<String> users = Collections.emptyList();
 		LDAPConnection connection = null;
@@ -253,7 +283,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 				}
 				String[] members = memberAttr.getStringValueArray();
 				
-				MessageFormat formatter = new MessageFormat("oakPrimaryPersonID={0},ou=people,dc=oak,dc=ox,dc=ac,dc=uk");
+				MessageFormat formatter = new MessageFormat(memberFormat);
 				users = new ArrayList<String>(members.length);
 				
 				for(String member: members) {
