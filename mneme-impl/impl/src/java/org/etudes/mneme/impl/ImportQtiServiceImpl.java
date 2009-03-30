@@ -1788,6 +1788,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 		String presentation = null;
 		float points = 0.0f;
 		String feedback = null;
+		boolean isResponseTextual = false;
 		
 		String externalId = null;
 		List<String> answers = new ArrayList<String>();
@@ -1955,6 +1956,17 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			buildAnswers.append("{");
 			for (String answer : answers)
 			{
+				if (!isResponseTextual)
+				{
+					try
+					{
+						Float.parseFloat(answer);
+					}
+					catch (NumberFormatException e)
+					{
+						isResponseTextual = true;
+					}
+				}
 				buildAnswers.append(answer);
 				buildAnswers.append("|");
 			}
@@ -1966,7 +1978,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			f.setText(clean);
 			
 			// text or numeric
-			//f.setResponseTextual(Boolean.toString(isResponseTextual));
+			f.setResponseTextual(Boolean.toString(isResponseTextual));
 			
 			// add feedback
 			if (StringUtil.trimToNull(feedback) != null)
