@@ -1,10 +1,15 @@
 package uk.ac.ox.oucs.vle;
 
+import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class MappedGroupDaoHibernate extends HibernateDaoSupport implements
@@ -32,10 +37,20 @@ public class MappedGroupDaoHibernate extends HibernateDaoSupport implements
 	}
 
 	public String newMappedGroup(String group, String role) {
-		MappedGroup newGroup = new MappedGroup();
+		final MappedGroup newGroup = new MappedGroup();
 		newGroup.setExternalGroup(group);
 		newGroup.setRole(role);
-		return (String) getHibernateTemplate().save(newGroup);
+		String id = (String)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Serializable id = session.save(newGroup);
+				// We look for the group later on in the request so flush.
+				session.flush();
+				return id;
+			}
+			
+		});
+		return id;
 	}
 
 	public List<MappedGroup> findByGroup(String group) {
