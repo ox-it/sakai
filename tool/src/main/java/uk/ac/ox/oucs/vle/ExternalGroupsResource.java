@@ -113,7 +113,11 @@ public class ExternalGroupsResource {
 		}
 		return Response.ok(groupsJson).build();
 		} catch (ExternalGroupException ege) {
-			return Response.ok().build();
+			if (Type.SIZE_LIMIT.equals(ege.getType())) {
+				return Response.status(499).build();
+			} else {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
 		}
 	}
 	
