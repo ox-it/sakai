@@ -85,7 +85,11 @@ public class MappedGroupsResource {
 				} else {
 					splitNewGroupIds = Collections.singletonList(newId);
 				}
-				site.setProviderGroupId(groupProvider.packId(splitNewGroupIds.toArray(new String[]{})));
+				String providedId = groupProvider.packId(splitNewGroupIds.toArray(new String[]{}));
+				site.setProviderGroupId(providedId);
+				if (log.isDebugEnabled()) {
+					log.debug("Set site : "+ site.getId()+ " provided id to: "+ providedId);
+				}
 				siteService.save(site);
 				
 				return Response.ok().build();
