@@ -100,10 +100,10 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			// Not finding a DN throws an exception.
 			switch (ldape.getResultCode()) {
 			case LDAPException.NO_SUCH_OBJECT:
-				log.debug("Didn't find group ID: " + externalGroupId);
+				log.warn("Didn't find group ID: " + externalGroupId);
 				break;
 			case LDAPException.INVALID_DN_SYNTAX:
-				log.debug("Badly formed DN: " + externalGroupId);
+				log.warn("Badly formed DN: " + externalGroupId);
 				throw new IllegalArgumentException("Badly formed DN: "+ externalGroupId);
 			default:
 				log.error("Problem with LDAP.", ldape);
