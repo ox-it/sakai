@@ -17,7 +17,6 @@ import uk.ac.ox.oucs.vle.ExternalGroupException.Type;
 
 import com.novell.ldap.LDAPAttribute;
 import com.novell.ldap.LDAPConnection;
-import com.novell.ldap.LDAPConstraints;
 import com.novell.ldap.LDAPEntry;
 import com.novell.ldap.LDAPException;
 import com.novell.ldap.LDAPSearchConstraints;
@@ -45,6 +44,8 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	private String[] searchAttributes = {"displayName","ou"};
 
 	private int SEARCH_LIMIT = 50;
+
+	private String searchPattern = "(&(|(ou=*{0}*)(displayName=*{0}*))(member=*)(objectClass=oakGroupAbs))";
 
 	public void init() {
 		log.debug("init()");
@@ -155,7 +156,8 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			connection = getConnection();
 			LDAPSearchConstraints constraints = new LDAPSearchConstraints(connection.getConstraints());
 			constraints.setMaxResults(SEARCH_LIMIT);
-			MessageFormat filterFormat = new MessageFormat("(&(|(ou=*{0}*)(displayName=*{0}*))(member=*)(objectClass=oakGroupAbs))");
+			connection.setConstraints(constraints);
+			MessageFormat filterFormat = new MessageFormat(searchPattern);
 			String filter = filterFormat.format(new Object[]{escapeSearchFilterTerm(query)});
 			LDAPSearchResults results = connection.search(groupBase, LDAPConnection.SCOPE_SUB, filter, getSearchAttributes(), false);
 			groups = new ArrayList<ExternalGroup>(results.getCount());
