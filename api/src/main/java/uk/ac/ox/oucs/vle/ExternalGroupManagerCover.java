@@ -25,7 +25,7 @@ public class ExternalGroupManagerCover {
 		}
 	}
 	
-	public static List<ExternalGroup> search(String query) {
+	public static List<ExternalGroup> search(String query) throws ExternalGroupException {
 		ExternalGroupManager service = getInstance();
 		if (service == null) return Collections.emptyList();
 		
