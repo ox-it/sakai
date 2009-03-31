@@ -105,13 +105,14 @@ public class ExternalGroupsResource {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		try {
-		List<ExternalGroup>groups = externalGroupManager.search(query);
-		Collections.sort(groups, ExternalGroupsResource.sorter);
-		JSONArray groupsJson = new JSONArray();
-		for(ExternalGroup group: groups) {
-			groupsJson.put(convertGroupToMap(group));
-		}
-		return Response.ok(groupsJson).build();
+			String[] terms = query.split("\\s");
+			List<ExternalGroup>groups = externalGroupManager.search(terms);
+			Collections.sort(groups, ExternalGroupsResource.sorter);
+			JSONArray groupsJson = new JSONArray();
+			for(ExternalGroup group: groups) {
+				groupsJson.put(convertGroupToMap(group));
+			}
+			return Response.ok(groupsJson).build();
 		} catch (ExternalGroupException ege) {
 			if (Type.SIZE_LIMIT.equals(ege.getType())) {
 				return Response.status(499).build();

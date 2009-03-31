@@ -45,7 +45,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 
 	private int SEARCH_LIMIT = 50;
 
-	private String searchPattern = "(&(|(ou=*{0}*)(displayName=*{0}*))(member=*)(objectClass=oakGroupAbs))";
+	private String searchPattern = "(&{0}(member=*)(objectClass=oakGroupAbs))";
 
 	public void init() {
 		log.debug("init()");
@@ -145,11 +145,33 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		}
 		return null;
 	}
-
-	public List<ExternalGroup> search(String query) throws ExternalGroupException{
-		if (query == null || query.length() == 0) {
+	public List<ExternalGroup> search(String[] terms) throws ExternalGroupException {
+		if (terms == null || terms.length == 0) {
 			return Collections.emptyList();
 		}
+		StringBuilder query = new StringBuilder();
+		query.append("(&");
+		for (String term: terms) {
+			if (term != null && term.length() > 1) {
+				query.append("(displayName=*");
+				query.append(escapeSearchFilterTerm(term));
+				query.append("*)");
+			}
+		}
+		query.append(")");
+		return doSearch(query.toString());
+	}
+
+	public List<ExternalGroup> search(String term) throws ExternalGroupException{
+		if (term == null || term.length() == 0) {
+			return Collections.emptyList();
+		}
+		String query = "(displayName=*"+ escapeSearchFilterTerm(term)+ "*)";
+		return doSearch(query);
+	}
+
+	protected List<ExternalGroup> doSearch(String query)
+			throws ExternalGroupException {
 		List<ExternalGroup> groups = null;
 		LDAPConnection connection = null;
 		try {
@@ -158,7 +180,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			constraints.setMaxResults(SEARCH_LIMIT);
 			connection.setConstraints(constraints);
 			MessageFormat filterFormat = new MessageFormat(searchPattern);
-			String filter = filterFormat.format(new Object[]{escapeSearchFilterTerm(query)});
+			String filter = filterFormat.format(new Object[]{query});
 			LDAPSearchResults results = connection.search(groupBase, LDAPConnection.SCOPE_SUB, filter, getSearchAttributes(), false);
 			groups = new ArrayList<ExternalGroup>(results.getCount());
 			while (results.hasMore()) {

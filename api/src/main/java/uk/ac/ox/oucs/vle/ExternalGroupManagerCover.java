@@ -32,6 +32,13 @@ public class ExternalGroupManagerCover {
 		return service.search(query);
 	}
 	
+	public static List<ExternalGroup> search(String terms[]) throws ExternalGroupException {
+		ExternalGroupManager service = getInstance();
+		if (service == null) return Collections.emptyList();
+		
+		return service.search(terms);
+	}
+	
 	public ExternalGroup findExternalGroup(String externalGroupId) {
 		ExternalGroupManager service = getInstance();
 		if (service == null) return null;;

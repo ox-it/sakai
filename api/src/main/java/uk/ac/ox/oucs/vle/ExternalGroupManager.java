@@ -7,6 +7,8 @@ public interface ExternalGroupManager {
 
 	public List<ExternalGroup> search(String query) throws ExternalGroupException;
 	
+	public List<ExternalGroup> search(String[] terms) throws ExternalGroupException;
+	
 	public ExternalGroup findExternalGroup(String externalGroupId);
 	
 	public String findExternalGroupId(String mappedGroupId);
