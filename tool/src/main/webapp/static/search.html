@@ -134,8 +134,13 @@
 								} else if (data.length == 0) {
 									jQuery("#select_group").html("<div class=\"alertMessage\">No groups matched your query. Try something shorter</div>");
 								} else {
-									// Should check list to see if we have an exact match first.
-									// User needs to select from list.
+									// Check list to see if we have an exact match first.
+									for (i in data) {
+										if (data[i]["name"].toLowerCase() == groupName.toLowerCase()) {
+											loadGroup(data[i]["id"], data[i]["name"]);
+											return false;
+										}
+									}
 									var htmlResult = TrimPath.processDOMTemplate("select_group_jst", {groups: data});
 									jQuery("#select_group").html(htmlResult);
 									updateActive();
