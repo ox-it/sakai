@@ -172,7 +172,7 @@ public class HierarchyHandler extends SiteHandler {
 				pageId = parts[hierarchyPartNo+2];
 			}
 			
-			log.debug("siteId: "+ site.getId()+ " pageId: "+ pageId);
+			log.debug("siteId: "+ ((site==null)?"null":site.getId())+ " pageId: "+ pageId);
 			if (node == null) {
 				super.doSite(req, res, session, site.getId(), pageId, req.getContextPath()+req.getServletPath());
 			} else {
