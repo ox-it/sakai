@@ -15,7 +15,7 @@
 					data: "Sommerville College"
 				},
 				{ 
-					attributes: { id : "exter" }, 
+					attributes: { id : "exeter" }, 
 					data: "Exeter College"
 				}
 			] 
