@@ -41,7 +41,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 
 	private String groupBase = "dc=oak,dc=ox,dc=ac,dc=uk";
 
-	private String[] searchAttributes = {"displayName","ou"};
+	private String[] searchAttributes = {"displayName"};
 
 	private int SEARCH_LIMIT = 50;
 
