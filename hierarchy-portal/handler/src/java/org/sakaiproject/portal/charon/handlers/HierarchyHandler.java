@@ -149,7 +149,7 @@ public class HierarchyHandler extends SiteHandler {
 							ss.setRequest(req);
 							ss.setToolContextPath(req.getServletPath());
 							portalService.setStoredState(ss);
-							portal.doLogin(req, res, session, req.getPathInfo(), false);
+							portal.doLogin(req, res, session, req.getPathInfo(), Portal.LoginRoute.NONE);
 						}
 						else
 						{
@@ -224,7 +224,7 @@ public class HierarchyHandler extends SiteHandler {
 				ss.setRequest(req);
 				ss.setToolContextPath(toolContextPath);
 				portalService.setStoredState(ss);
-				portal.doLogin(req, res, session, req.getPathInfo(), false);
+				portal.doLogin(req, res, session, req.getPathInfo(), Portal.LoginRoute.NONE);
 			}
 			else
 			{
