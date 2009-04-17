@@ -22,8 +22,6 @@ import javax.ws.rs.ext.Providers;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
@@ -35,6 +33,9 @@ public class ExternalGroupsResource {
 
 	private ExternalGroupManager externalGroupManager;
 	private UserDirectoryService userDirectoryService;
+	
+	String tooManyError;
+
 	
 	static final Comparator<ExternalGroup> sorter = new Comparator<ExternalGroup>() {
 	
@@ -55,6 +56,11 @@ public class ExternalGroupsResource {
 		ContextResolver<Object> componentMgr = provider.getContextResolver(Object.class, null);
 		this.externalGroupManager = (ExternalGroupManager)componentMgr.getContext(ExternalGroupManager.class);
 		this.userDirectoryService = (UserDirectoryService)componentMgr.getContext(UserDirectoryService.class);
+		
+		Map<String,String> error = new HashMap<String, String>();
+		error.put("key", "499");
+		error.put("message", "Too many results found");
+		tooManyError = new JSONObject(Collections.singletonMap("error", new JSONObject(error))).toString();
 	}
 
 	@Path("{group}")
@@ -90,7 +96,8 @@ public class ExternalGroupsResource {
 			return Response.ok(output.toString()).build();
 		} catch (ExternalGroupException ege) {
 			if (Type.SIZE_LIMIT.equals(ege.getType())) {
-				return Response.status(499).build();
+				// Empty response works ok for autocomplete
+				return Response.status(Status.OK).build();
 			} else {
 				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 			}
@@ -115,7 +122,7 @@ public class ExternalGroupsResource {
 			return Response.ok(groupsJson).build();
 		} catch (ExternalGroupException ege) {
 			if (Type.SIZE_LIMIT.equals(ege.getType())) {
-				return Response.status(499).build();
+				return Response.ok(tooManyError).build();
 			} else {
 				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 			}
