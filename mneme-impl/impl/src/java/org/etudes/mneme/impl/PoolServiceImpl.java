@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -33,6 +33,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.mneme.api.AssessmentPermissionException;
+import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
@@ -57,6 +58,9 @@ public class PoolServiceImpl implements PoolService
 	private static Log M_log = LogFactory.getLog(PoolServiceImpl.class);
 
 	protected AssessmentServiceImpl assessmentService = null;
+
+	/** Dependency: AttachmentService */
+	protected AttachmentService attachmentService = null;
 
 	/** Messages bundle name. */
 	protected String bundle = null;
@@ -354,6 +358,17 @@ public class PoolServiceImpl implements PoolService
 	}
 
 	/**
+	 * Dependency: AttachmentService.
+	 * 
+	 * @param service
+	 *        The AttachmentService.
+	 */
+	public void setAttachmentService(AttachmentService service)
+	{
+		attachmentService = service;
+	}
+
+	/**
 	 * Set the message bundle.
 	 * 
 	 * @param bundle
@@ -537,6 +552,9 @@ public class PoolServiceImpl implements PoolService
 		{
 			rv.setTitle(addDate("copy-text", rv.getTitle(), now));
 		}
+
+		// translate the description embedded references
+		rv.setDescription(this.attachmentService.translateEmbeddedReferences(rv.getDescription(), attachmentTranslations));
 
 		// clear the changed settings
 		((PoolImpl) rv).clearChanged();

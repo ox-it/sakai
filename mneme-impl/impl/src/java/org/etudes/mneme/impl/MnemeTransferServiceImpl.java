@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -38,6 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentService;
+import org.etudes.mneme.api.Attachment;
 import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.DrawPart;
 import org.etudes.mneme.api.ManualPart;
@@ -383,8 +384,12 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 		// collect media references
 		Set<String> refs = new HashSet<String>();
 
+		// pools
 		for (Pool pool : pools)
 		{
+			// from the pool description
+			refs.addAll(this.attachmentService.harvestAttachmentsReferenced(pool.getDescription(), true));
+			
 			List<String> qids = ((PoolImpl) pool).getAllQuestionIds(null, null);
 			for (String qid : qids)
 			{
@@ -403,6 +408,7 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 			}
 		}
 
+		// assessments
 		for (Assessment assessment : assessments)
 		{
 			// get this assessment's media refs instructions, part instructions, attachments
@@ -421,6 +427,13 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 				// }
 				refs.addAll(this.attachmentService.harvestAttachmentsReferenced(part.getPresentation().getText(), true));
 			}
+		}
+		
+		// any others in MnemeDocs for the site we have not yet covered
+		List<Attachment> attachments = this.attachmentService.findFiles(AttachmentService.MNEME_APPLICATION, fromContext, AttachmentService.DOCS_AREA);
+		for (Attachment attachment : attachments)
+		{
+			refs.add(attachment.getReference());
 		}
 
 		// copy the attachments, creating translations
