@@ -441,9 +441,10 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 		for (String refString : refs)
 		{
 			// move the referenced attachment into our docs area in this context
+			// try using the attachment name, but if that has a name conflict, fall back to using a unique folder
 			Reference ref = this.attachmentService.getReference(refString);
 			Reference attachment = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, toContext, AttachmentService.DOCS_AREA,
-					false, ref);
+					AttachmentService.NameConflictResolution.useFolder, ref);
 			if (attachment != null)
 			{
 				// make the translation

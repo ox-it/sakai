@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -45,9 +45,6 @@ public class Upload
 	/** The content path prefix. */
 	protected String prefix = null;
 
-	/** True if we want to store the upload in a unique holding folder. */
-	protected boolean uniqueHolder = false;
-
 	/** The uploaded file reference. */
 	protected Reference upload = null;
 
@@ -58,16 +55,13 @@ public class Upload
 	 *        The context.
 	 * @param prefix
 	 *        The content path prefix.
-	 * @param uniqueHolder
-	 *        True if we want to store the upload in a unique holding folder.
 	 * @param attachmentService
 	 *        the AttachmentService dependency.
 	 */
-	public Upload(String context, String prefix, boolean uniqueHolder, AttachmentService attachmentService)
+	public Upload(String context, String prefix, AttachmentService attachmentService)
 	{
 		this.context = context;
 		this.prefix = prefix;
-		this.uniqueHolder = uniqueHolder;
 		this.attachmentService = attachmentService;
 	}
 
@@ -89,8 +83,9 @@ public class Upload
 	 */
 	public void setUpload(FileItem file)
 	{
-		Reference reference = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, this.context, this.prefix, this.uniqueHolder,
-				file);
+		// try using the file name, but if that has a name conflict, fall back to using a unique folder
+		Reference reference = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, this.context, this.prefix,
+				AttachmentService.NameConflictResolution.useFolder, file);
 		if (reference != null)
 		{
 			this.upload = reference;

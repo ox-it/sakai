@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -59,6 +59,7 @@ import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
 import org.etudes.mneme.api.Translation;
+import org.etudes.mneme.api.AttachmentService.NameConflictResolution;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -78,6 +79,8 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdLengthException;
+import org.sakaiproject.exception.IdUniquenessException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
@@ -141,7 +144,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	/**
 	 * {@inheritDoc}
 	 */
-	public Reference addAttachment(String application, String context, String prefix, boolean uniqueHolder, FileItem file)
+	public Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, FileItem file)
 	{
 		pushAdvisor();
 
@@ -169,25 +172,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				return null;
 			}
 
-			Reference rv = doAdd(contentHostingId(name, application, context, prefix, uniqueHolder), name, type, body, size, false);
-
-			// if this failed, and we are not using a uniqueHolder, try it with a uniqueHolder
-			if ((rv == null) && !uniqueHolder)
-			{
-				rv = doAdd(contentHostingId(name, application, context, prefix, true), name, type, body, size, false);
-			}
-
-			// TODO: we might not want a thumb (such as for submission uploads to essay/task
-			// if we added one
-			if (rv != null)
-			{
-				// if it is an image
-				if (type.toLowerCase().startsWith("image/"))
-				{
-					addThumb(rv, name, body);
-				}
-			}
-
+			Reference rv = tryAdd(name, application, context, prefix, onConflict, type, body, size);
 			return rv;
 		}
 		finally
@@ -199,7 +184,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	/**
 	 * {@inheritDoc}
 	 */
-	public Reference addAttachment(String application, String context, String prefix, boolean uniqueHolder, Reference resourceRef)
+	public Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, Reference resourceRef)
 	{
 		// make sure we can read!
 		pushAdvisor();
@@ -219,24 +204,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			byte[] body = resource.getContent();
 			String name = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 
-			Reference rv = doAdd(contentHostingId(name, application, context, prefix, uniqueHolder), name, type, body, size, false);
-
-			// if this failed, and we are not using a uniqueHolder, try it with a uniqueHolder
-			if ((rv == null) && !uniqueHolder)
-			{
-				rv = doAdd(contentHostingId(name, application, context, prefix, true), name, type, body, size, false);
-			}
-
-			// if we added one
-			if (rv != null)
-			{
-				// if it is an image
-				if (type.toLowerCase().startsWith("image/"))
-				{
-					addThumb(rv, name, body);
-				}
-			}
-
+			Reference rv = tryAdd(name, application, context, prefix, onConflict, type, body, size);
 			return rv;
 		}
 		catch (PermissionException e)
@@ -267,7 +235,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	/**
 	 * {@inheritDoc}
 	 */
-	public Reference addAttachment(String application, String context, String prefix, boolean uniqueHolder, String name, byte[] body, String type)
+	public Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, String name, byte[] body, String type)
 	{
 		pushAdvisor();
 
@@ -286,25 +254,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				return null;
 			}
 
-			Reference rv = doAdd(contentHostingId(name, application, context, prefix, uniqueHolder), name, type, body, size, false);
-
-			// if this failed, and we are not using a uniqueHolder, try it with a uniqueHolder
-			if ((rv == null) && !uniqueHolder)
-			{
-				rv = doAdd(contentHostingId(name, application, context, prefix, true), name, type, body, size, false);
-			}
-
-			// TODO: we might not want a thumb (such as for submission uploads to essay/task
-			// if we added one
-			if (rv != null)
-			{
-				// if it is an image
-				if (type.toLowerCase().startsWith("image/"))
-				{
-					addThumb(rv, name, body);
-				}
-			}
-
+			Reference rv = tryAdd(name, application, context, prefix, onConflict, type, body, size);
 			return rv;
 		}
 		finally
@@ -869,24 +819,24 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 * 
 	 * @param resource
 	 *        The image resource reference.
-	 * @param name
-	 *        The original file name.
 	 * @param body
 	 *        The image bytes.
 	 * @return A reference to the thumbnail, or null if not made.
 	 */
-	protected Reference addThumb(Reference resource, String name, byte[] body)
+	protected Reference addThumb(Reference resource, byte[] body)
 	{
 		// if disabled
 		if (!this.makeThumbs) return null;
 
+		// base the thumb name on the resource name
+		String[] parts = StringUtil.split(resource.getId(), "/");
+		String thumbName = parts[parts.length - 1] + THUMB_SUFFIX;
 		Reference ref = this.getReference(resource.getId());
 		String thumbId = ref.getId() + THUMB_SUFFIX;
-		String thumbName = name + THUMB_SUFFIX;
 		try
 		{
 			byte[] thumb = makeThumb(body, 80, 80, 0.75f);
-			Reference thumbRef = doAdd(thumbId, thumbName, "image/jpeg", thumb, thumb.length, true);
+			Reference thumbRef = doAdd(thumbId, thumbName, "image/jpeg", thumb, thumb.length, true, false);
 
 			return thumbRef;
 		}
@@ -1072,41 +1022,72 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 *        The body bytes.
 	 * @param size
 	 *        The body size.
-	 * @param application
-	 *        The application prefix for the collection in private.
-	 * @param context
-	 *        The context associated with the attachment.
-	 * @param prefix
-	 *        Any prefix path for within the context are of the application in private.
-	 * @param uniqueHolder
-	 *        If true, a uniquely named folder is created to hold the resource.
+	 * @param thumb
+	 *        If true, mark this as a thumb.
+	 * @param renameToFit
+	 *        If true, let CHS rename the file on name conflict.
 	 * @return The Reference to the added attachment.
 	 */
-	protected Reference doAdd(String id, String name, String type, byte[] body, long size, boolean thumb)
+	protected Reference doAdd(String id, String name, String type, byte[] body, long size, boolean thumb, boolean renameToFit)
 	{
 		try
 		{
-			ContentResourceEdit edit = this.contentHostingService.addResource(id);
-			edit.setContent(body);
-			edit.setContentType(type);
-			ResourcePropertiesEdit props = edit.getPropertiesEdit();
-
-			// set the alternate reference root so we get all requests
-			props.addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, AttachmentService.REFERENCE_ROOT);
-
-			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-
-			if (thumb)
+			if (!renameToFit)
 			{
-				props.addProperty(PROP_THUMB, PROP_THUMB);
+				ContentResourceEdit edit = this.contentHostingService.addResource(id);
+				edit.setContent(body);
+				edit.setContentType(type);
+				ResourcePropertiesEdit props = edit.getPropertiesEdit();
+
+				// set the alternate reference root so we get all requests
+				props.addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, AttachmentService.REFERENCE_ROOT);
+
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+
+				if (thumb)
+				{
+					props.addProperty(PROP_THUMB, PROP_THUMB);
+				}
+
+				this.contentHostingService.commitResource(edit);
+
+				String ref = edit.getReference(ContentHostingService.PROP_ALTERNATE_REFERENCE);
+				Reference reference = entityManager.newReference(ref);
+
+				return reference;
 			}
+			else
+			{
+				String[] parts = StringUtil.split(id, "/");
+				String destinationCollection = StringUtil.unsplit(parts, 0, parts.length - 1, "/") + "/";
+				String destinationName = parts[parts.length - 1];
 
-			this.contentHostingService.commitResource(edit);
+				// set the alternate reference root so we get all requests
+				ResourcePropertiesEdit props = this.contentHostingService.newResourceProperties();
+				props.addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, AttachmentService.REFERENCE_ROOT);
 
-			String ref = edit.getReference(ContentHostingService.PROP_ALTERNATE_REFERENCE);
-			Reference reference = entityManager.newReference(ref);
+				// mark if a thumb
+				if (thumb)
+				{
+					props.addProperty(PROP_THUMB, PROP_THUMB);
+				}
 
-			return reference;
+				ContentResource uploadedResource = this.contentHostingService.addResource(destinationName, destinationCollection, 255, type, body,
+						props, 0);
+
+				// need to set the display name based on the id that it got
+				ContentResourceEdit edit = this.contentHostingService.editResource(uploadedResource.getId());
+				props = edit.getPropertiesEdit();
+				parts = edit.getId().split("/");
+				destinationName = parts[parts.length - 1];
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, destinationName);
+				this.contentHostingService.commitResource(edit);
+
+				String ref = uploadedResource.getReference(ContentHostingService.PROP_ALTERNATE_REFERENCE);
+				Reference reference = entityManager.newReference(ref);
+
+				return reference;				
+			}
 		}
 		catch (PermissionException e2)
 		{
@@ -1114,7 +1095,6 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		}
 		catch (IdUsedException e2)
 		{
-			// M_log.warn("addAttachment: creating our content: " + e2.toString());
 		}
 		catch (IdInvalidException e2)
 		{
@@ -1131,6 +1111,24 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		catch (OverQuotaException e2)
 		{
 			M_log.warn("addAttachment: creating our content: " + e2.toString());
+		}
+		catch (IdUniquenessException e)
+		{
+		}
+		catch (IdLengthException e)
+		{
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.warn("addAttachment: creating our content: " + e.toString());
+		}
+		catch (TypeException e)
+		{
+			M_log.warn("addAttachment: creating our content: " + e.toString());
+		}
+		catch (InUseException e)
+		{
+			M_log.warn("addAttachment: creating our content: " + e.toString());
 		}
 		finally
 		{
@@ -1358,5 +1356,54 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				return SecurityAdvice.ALLOWED;
 			}
 		});
+	}
+
+	/**
+	 * Go through the add process, trying the various requested conflict resolution steps.
+	 * 
+	 * @param name
+	 * @param application
+	 * @param context
+	 * @param prefix
+	 * @param onConflict
+	 * @param type
+	 * @param body
+	 * @param size
+	 * @return
+	 */
+	protected Reference tryAdd(String name, String application, String context, String prefix, NameConflictResolution onConflict, String type,
+			byte[] body, long size)
+	{
+		String id = contentHostingId(name, application, context, prefix, (onConflict == NameConflictResolution.alwaysUseFolder));
+		Reference rv = doAdd(id, name, type, body, size, false, (onConflict == NameConflictResolution.rename));
+
+		// if this failed and we need to fall back to using a folder, try again
+		if ((rv == null) && (onConflict == NameConflictResolution.useFolder))
+		{
+			id = contentHostingId(name, application, context, prefix, true);
+			rv = doAdd(id, name, type, body, size, false, false);
+		}
+
+		// if we have not added one, and we are to use the one we have
+		if (rv == null)
+		{
+			if (onConflict == NameConflictResolution.keepExisting)
+			{
+				rv = this.entityManager.newReference(this.contentHostingService.getReference(id));
+			}
+		}
+
+		// TODO: we might not want a thumb (such as for submission uploads to essay/task)
+		// if we added one
+		else
+		{
+			// if it is an image
+			if (type.toLowerCase().startsWith("image/"))
+			{
+				addThumb(rv, body);
+			}
+		}
+
+		return rv;
 	}
 }

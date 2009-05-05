@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -55,6 +55,12 @@ public interface AttachmentService
 	/** The text added to the main URL to form the thumb-nail URL. */
 	public final static String THUMB_SUFFIX = "_thumb.jpg";
 
+	/** How to resolve name conflicts when adding an attachment. */
+	public enum NameConflictResolution
+	{
+		keepExisting, alwaysUseFolder, rename, useFolder
+	};
+
 	/**
 	 * Add an attachment from an uploaded file.
 	 * 
@@ -64,13 +70,13 @@ public interface AttachmentService
 	 *        The context associated with the attachment.
 	 * @param prefix
 	 *        Any prefix path for within the context are of the application in private.
-	 * @param uniqueHolder
-	 *        If true, a uniquely named folder is created to hold the resource.
+	 * @param onConflict
+	 *        What to do if we have a file with this name already.
 	 * @param file
 	 *        The attachment file.
 	 * @return The Reference to the added attachment.
 	 */
-	Reference addAttachment(String application, String context, String prefix, boolean uniqueHolder, FileItem file);
+	Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, FileItem file);
 
 	/**
 	 * Add an attachment from a reference to a resource in ContentHosting.
@@ -81,13 +87,13 @@ public interface AttachmentService
 	 *        The context associated with the attachment.
 	 * @param prefix
 	 *        Any prefix path for within the context are of the application in private.
-	 * @param uniqueHolder
-	 *        If true, a uniquely named folder is created to hold the resource.
+	 * @param onConflict
+	 *        What to do if we have a file with this name already.
 	 * @param resource
 	 *        The Reference to the resource in ContentHosting.
 	 * @return The Reference to the added attachment.
 	 */
-	Reference addAttachment(String application, String context, String prefix, boolean uniqueHolder, Reference resource);
+	Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, Reference resource);
 
 	/**
 	 * Add an attachment from an uploaded file.
@@ -98,17 +104,17 @@ public interface AttachmentService
 	 *        The context associated with the attachment.
 	 * @param prefix
 	 *        Any prefix path for within the context are of the application in private.
-	 * @param uniqueHolder
-	 *        If true, a uniquely named folder is created to hold the resource.
+	 * @param onConflict
+	 *        What to do if we have a file with this name already.
 	 * @param name
 	 *        The attachment file name.
 	 * @param body
 	 *        The attachment body bytes.
 	 * @param type
-	 *        The attacment file mime type.
+	 *        The attachment file mime type.
 	 * @return The Reference to the added attachment.
 	 */
-	Reference addAttachment(String application, String context, String prefix, boolean uniqueHolder, String name, byte[] body, String type);
+	Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, String name, byte[] body, String type);
 
 	/**
 	 * Find all the attachments in the docs area of the application for this context. Skip image thumbs.

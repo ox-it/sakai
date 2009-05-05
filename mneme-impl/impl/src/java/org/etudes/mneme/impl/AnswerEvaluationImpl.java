@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -80,8 +80,10 @@ public class AnswerEvaluationImpl extends EvaluationImpl implements AnswerEvalua
 	 */
 	public void setUpload(FileItem file)
 	{
+		// put the attachment in a unique folder to avoid name conflicts
 		Reference reference = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, getAnswer().getSubmission().getAssessment()
-				.getContext(), AttachmentService.SUBMISSIONS_AREA + "/" + getAnswer().getSubmission().getId(), true, file);
+				.getContext(), AttachmentService.SUBMISSIONS_AREA + "/" + getAnswer().getSubmission().getId(),
+				AttachmentService.NameConflictResolution.alwaysUseFolder, file);
 		if (reference != null)
 		{
 			this.attachments.add(reference);

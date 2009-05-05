@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -1449,9 +1449,9 @@ public class ImportServiceImpl implements ImportService
 				// form a reference to the existing resource
 				Reference resource = this.entityManager.newReference(a.ref);
 
-				// move the referenced resource into our docs
+				// move the referenced resource into our docs, into a unique folder to avoid name conflicts
 				Reference attachment = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, context,
-						AttachmentService.DOCS_AREA, true, resource);
+						AttachmentService.DOCS_AREA, AttachmentService.NameConflictResolution.alwaysUseFolder, resource);
 				if (attachment != null)
 				{
 					// remember the new reference
@@ -1481,9 +1481,9 @@ public class ImportServiceImpl implements ImportService
 		{
 			Reference ref = this.attachmentService.getReference(refString);
 
-			// move the referenced resource into our docs
+			// move the referenced resource into our docs, into a unique folder to avoid name conflicts
 			Reference attachment = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, context, AttachmentService.DOCS_AREA,
-					true, ref);
+					AttachmentService.NameConflictResolution.alwaysUseFolder, ref);
 			if (attachment != null)
 			{
 				// make the translation

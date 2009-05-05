@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -141,9 +141,9 @@ public class EssayAnswerImpl implements TypeSpecificAnswer
 				if (parts2.length == 2)
 				{
 					String refStr = parts2[1];
-					for (Iterator i = this.uploads.iterator(); i.hasNext();)
+					for (Iterator<Reference> i = this.uploads.iterator(); i.hasNext();)
 					{
-						Reference ref = (Reference) i.next();
+						Reference ref = i.next();
 						if (ref.getReference().equals(refStr))
 						{
 							i.remove();
@@ -331,8 +331,10 @@ public class EssayAnswerImpl implements TypeSpecificAnswer
 	 */
 	public void setUpload(FileItem file)
 	{
+		// put the attachment in a unique folder to avoid name conflicts
 		Reference reference = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, this.answer.getSubmission().getAssessment()
-				.getContext(), AttachmentService.SUBMISSIONS_AREA + "/" + this.answer.getSubmission().getId(), true, file);
+				.getContext(), AttachmentService.SUBMISSIONS_AREA + "/" + this.answer.getSubmission().getId(),
+				AttachmentService.NameConflictResolution.alwaysUseFolder, file);
 		if (reference != null)
 		{
 			this.uploads.add(reference);
