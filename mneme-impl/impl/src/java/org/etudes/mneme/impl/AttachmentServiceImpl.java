@@ -172,7 +172,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				return null;
 			}
 
-			Reference rv = tryAdd(name, application, context, prefix, onConflict, type, body, size);
+			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size);
 			return rv;
 		}
 		finally
@@ -204,7 +204,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			byte[] body = resource.getContent();
 			String name = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 
-			Reference rv = tryAdd(name, application, context, prefix, onConflict, type, body, size);
+			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size);
 			return rv;
 		}
 		catch (PermissionException e)
@@ -254,7 +254,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				return null;
 			}
 
-			Reference rv = tryAdd(name, application, context, prefix, onConflict, type, body, size);
+			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size);
 			return rv;
 		}
 		finally
@@ -815,6 +815,75 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	}
 
 	/**
+	 * Go through the add process, trying the various requested conflict resolution steps.
+	 * 
+	 * @param name
+	 * @param application
+	 * @param context
+	 * @param prefix
+	 * @param onConflict
+	 * @param type
+	 * @param body
+	 * @param size
+	 * @return
+	 */
+	protected Reference addAttachment(String name, String application, String context, String prefix, NameConflictResolution onConflict, String type,
+			byte[] body, long size)
+	{
+		String id = contentHostingId(name, application, context, prefix, (onConflict == NameConflictResolution.alwaysUseFolder));
+		Reference rv = doAdd(id, name, type, body, size, false, (onConflict == NameConflictResolution.rename));
+
+		// if this failed and we need to fall back to using a folder, try again
+		if ((rv == null) && (onConflict == NameConflictResolution.useFolder))
+		{
+			id = contentHostingId(name, application, context, prefix, true);
+			rv = doAdd(id, name, type, body, size, false, false);
+		}
+
+		// if we have not added one, and we are to use the one we have
+		if (rv == null)
+		{
+			if (onConflict == NameConflictResolution.keepExisting)
+			{
+				try
+				{
+					// get the existing
+					ContentResource existing = this.contentHostingService.getResource(id);
+
+					// use the alternate reference
+					String ref = existing.getReference(ContentHostingService.PROP_ALTERNATE_REFERENCE);
+					rv = entityManager.newReference(ref);
+				}
+				catch (PermissionException e)
+				{
+					M_log.warn("addAttachment: " + e);
+				}
+				catch (IdUnusedException e)
+				{
+					M_log.warn("addAttachment: " + e);
+				}
+				catch (TypeException e)
+				{
+					M_log.warn("addAttachment: " + e);
+				}
+			}
+		}
+
+		// TODO: we might not want a thumb (such as for submission uploads to essay/task)
+		// if we added one
+		else
+		{
+			// if it is an image
+			if (type.toLowerCase().startsWith("image/"))
+			{
+				addThumb(rv, body);
+			}
+		}
+
+		return rv;
+	}
+
+	/**
 	 * Add a thumbnail for the image at this reference with this name and contents.
 	 * 
 	 * @param resource
@@ -1356,54 +1425,5 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				return SecurityAdvice.ALLOWED;
 			}
 		});
-	}
-
-	/**
-	 * Go through the add process, trying the various requested conflict resolution steps.
-	 * 
-	 * @param name
-	 * @param application
-	 * @param context
-	 * @param prefix
-	 * @param onConflict
-	 * @param type
-	 * @param body
-	 * @param size
-	 * @return
-	 */
-	protected Reference tryAdd(String name, String application, String context, String prefix, NameConflictResolution onConflict, String type,
-			byte[] body, long size)
-	{
-		String id = contentHostingId(name, application, context, prefix, (onConflict == NameConflictResolution.alwaysUseFolder));
-		Reference rv = doAdd(id, name, type, body, size, false, (onConflict == NameConflictResolution.rename));
-
-		// if this failed and we need to fall back to using a folder, try again
-		if ((rv == null) && (onConflict == NameConflictResolution.useFolder))
-		{
-			id = contentHostingId(name, application, context, prefix, true);
-			rv = doAdd(id, name, type, body, size, false, false);
-		}
-
-		// if we have not added one, and we are to use the one we have
-		if (rv == null)
-		{
-			if (onConflict == NameConflictResolution.keepExisting)
-			{
-				rv = this.entityManager.newReference(this.contentHostingService.getReference(id));
-			}
-		}
-
-		// TODO: we might not want a thumb (such as for submission uploads to essay/task)
-		// if we added one
-		else
-		{
-			// if it is an image
-			if (type.toLowerCase().startsWith("image/"))
-			{
-				addThumb(rv, body);
-			}
-		}
-
-		return rv;
 	}
 }
