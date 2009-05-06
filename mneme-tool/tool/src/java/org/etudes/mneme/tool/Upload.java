@@ -83,9 +83,9 @@ public class Upload
 	 */
 	public void setUpload(FileItem file)
 	{
-		// try using the file name, but if that has a name conflict, fall back to using a unique folder
+		// try using the file name, but if that has a name conflict, let the file name drift to fit in
 		Reference reference = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, this.context, this.prefix,
-				AttachmentService.NameConflictResolution.useFolder, file);
+				AttachmentService.NameConflictResolution.rename, file);
 		if (reference != null)
 		{
 			this.upload = reference;
