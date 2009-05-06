@@ -1451,7 +1451,7 @@ public class ImportServiceImpl implements ImportService
 
 				// move the referenced resource into our docs, into a unique folder to avoid name conflicts
 				Reference attachment = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, context,
-						AttachmentService.DOCS_AREA, AttachmentService.NameConflictResolution.alwaysUseFolder, resource);
+						AttachmentService.DOCS_AREA, AttachmentService.NameConflictResolution.keepExisting, resource);
 				if (attachment != null)
 				{
 					// remember the new reference
@@ -1483,7 +1483,7 @@ public class ImportServiceImpl implements ImportService
 
 			// move the referenced resource into our docs, into a unique folder to avoid name conflicts
 			Reference attachment = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, context, AttachmentService.DOCS_AREA,
-					AttachmentService.NameConflictResolution.alwaysUseFolder, ref);
+					AttachmentService.NameConflictResolution.keepExisting, ref);
 			if (attachment != null)
 			{
 				// make the translation
