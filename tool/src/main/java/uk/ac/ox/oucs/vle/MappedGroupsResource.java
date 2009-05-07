@@ -90,7 +90,7 @@ public class MappedGroupsResource {
 				if (log.isDebugEnabled()) {
 					log.debug("Set site : "+ site.getId()+ " provided id to: "+ providedId);
 				}
-				siteService.save(site);
+				siteService.saveSiteMembership(site);
 				
 				return Response.ok().build();
 			} catch (Exception e) {
