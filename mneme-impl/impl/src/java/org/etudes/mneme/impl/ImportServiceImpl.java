@@ -385,7 +385,7 @@ public class ImportServiceImpl implements ImportService
 			{
 				docs.add(ref.getReference());
 			}
-			
+
 			// remember just the attachments
 			Set<String> attachmentDocs = new LinkedHashSet<String>();
 			attachmentDocs.addAll(docs);
@@ -735,14 +735,16 @@ public class ImportServiceImpl implements ImportService
 	}
 
 	/**
-	 * Convert all references to embedded documents that have been imported to their new locations in the question data.
+	 * Convert all references to embedded documents that have been imported to their new locations in the question and attachment data.
 	 * 
 	 * @param questionData
 	 *        The Samigo question data.
+	 * @param attachments
+	 *        The attachments info.
 	 * @param translations
 	 *        The translations for each imported embedded document reference.
 	 */
-	protected void convertDocumentsReferenced(List<SamigoQuestion> questionData, List<Translation> translations)
+	protected void convertDocumentsReferenced(List<SamigoQuestion> questionData, List<AttachmentInfo> attachments, List<Translation> translations)
 	{
 		for (Translation t : translations)
 		{
@@ -759,6 +761,23 @@ public class ImportServiceImpl implements ImportService
 				if (q.instruction != null) q.instruction = this.attachmentService.translateEmbeddedReferences(q.instruction, translations);
 				if (q.questionChoiceText != null)
 					q.questionChoiceText = this.attachmentService.translateEmbeddedReferences(q.questionChoiceText, translations);
+			}
+		}
+
+		for (AttachmentInfo a : attachments)
+		{
+			// not for links
+			if ((a.isLink == null) || (!a.isLink.booleanValue()))
+			{
+				// find our translation
+				for (Translation t : translations)
+				{
+					if (t.getFrom().equals(a.ref))
+					{
+						a.ref = t.getTo();
+						break;
+					}
+				}
 			}
 		}
 	}
@@ -1406,14 +1425,15 @@ public class ImportServiceImpl implements ImportService
 	}
 
 	/**
-	 * Collect all the attachment references in the Samigo question html data:<br />
-	 * Anything referenced by a src= or href=.
+	 * Collect all the attachment references in the Samigo question html data:<br /> Anything referenced by a src= or href=.
 	 * 
 	 * @param questionData
 	 *        The Samigo question data.
+	 * @param attachments
+	 *        The attachments info.
 	 * @return The set of attachment references.
 	 */
-	protected Set<String> harvestDocumentsReferenced(List<SamigoQuestion> questionData)
+	protected Set<String> harvestDocumentsReferenced(List<SamigoQuestion> questionData, List<AttachmentInfo> attachments)
 	{
 		Set<String> rv = new HashSet<String>();
 
@@ -1428,41 +1448,16 @@ public class ImportServiceImpl implements ImportService
 			rv.addAll(this.attachmentService.harvestAttachmentsReferenced(q.questionChoiceText, true));
 		}
 
-		return rv;
-	}
-
-	/**
-	 * Import the attachments to the MnemeDocs for the pool's context.
-	 * 
-	 * @param attachment
-	 *        The list of attachments.
-	 * @param context
-	 *        The destination context.
-	 */
-	protected void importAttachments(List<AttachmentInfo> attachments, String context)
-	{
 		for (AttachmentInfo a : attachments)
 		{
 			// not for links
 			if ((a.isLink == null) || (!a.isLink.booleanValue()))
 			{
-				// form a reference to the existing resource
-				Reference resource = this.entityManager.newReference(a.ref);
-
-				// move the referenced resource into our docs, into a unique folder to avoid name conflicts
-				Reference attachment = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, context,
-						AttachmentService.DOCS_AREA, AttachmentService.NameConflictResolution.keepExisting, resource);
-				if (attachment != null)
-				{
-					// remember the new reference
-					a.ref = attachment.getReference();
-				}
-				else
-				{
-					M_log.warn("importAttachments: failed to move resource: " + a.ref);
-				}
+				rv.addAll(this.attachmentService.harvestEmbedded(a.ref, true));
 			}
 		}
+
+		return rv;
 	}
 
 	/**
@@ -1476,25 +1471,8 @@ public class ImportServiceImpl implements ImportService
 	 */
 	protected List<Translation> importEmbeddedDocs(Set<String> refs, String context)
 	{
-		List<Translation> rv = new ArrayList<Translation>();
-		for (String refString : refs)
-		{
-			Reference ref = this.attachmentService.getReference(refString);
-
-			// move the referenced resource into our docs, into a unique folder to avoid name conflicts
-			Reference attachment = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, context, AttachmentService.DOCS_AREA,
-					AttachmentService.NameConflictResolution.keepExisting, ref);
-			if (attachment != null)
-			{
-				// make the translation
-				TranslationImpl t = new TranslationImpl(ref.getReference(), attachment.getReference());
-				rv.add(t);
-			}
-			else
-			{
-				M_log.warn("importEmbeddedDocs: failed to move resource: " + ref);
-			}
-		}
+		List<Translation> rv = this.attachmentService.importResources(AttachmentService.MNEME_APPLICATION, context, AttachmentService.DOCS_AREA,
+				AttachmentService.NameConflictResolution.keepExisting, refs);
 
 		return rv;
 	}
@@ -1731,17 +1709,14 @@ public class ImportServiceImpl implements ImportService
 	protected void importSamigoQuestions(List<SamigoQuestion> questionData, List<AttachmentInfo> attachments, Pool pool)
 			throws AssessmentPermissionException
 	{
-		// find any additional docs references in the question data
-		Set<String> docs = harvestDocumentsReferenced(questionData);
+		// find any additional docs references in the question data and attachments
+		Set<String> docs = harvestDocumentsReferenced(questionData, attachments);
 
 		// import those docs, returning the translation mapping
 		List<Translation> translations = importEmbeddedDocs(docs, pool.getContext());
 
-		// modify the question data to reference the new doc locations
-		convertDocumentsReferenced(questionData, translations);
-
-		// import the attachments to the MnemeDocs for the pool's context
-		importAttachments(attachments, pool.getContext());
+		// modify the question and attachment data to reference the new doc locations
+		convertDocumentsReferenced(questionData, attachments, translations);
 
 		// build the questions
 		float total = 0f;

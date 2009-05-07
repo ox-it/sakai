@@ -436,22 +436,9 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 			refs.add(attachment.getReference());
 		}
 
-		// copy the attachments, creating translations
-		List<Translation> translations = new ArrayList<Translation>();
-		for (String refString : refs)
-		{
-			// move the referenced attachment into our docs area in this context
-			// try using the attachment name, but if that has a name conflict, skip the import, and use the current file for the translation
-			Reference ref = this.attachmentService.getReference(refString);
-			Reference attachment = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, toContext, AttachmentService.DOCS_AREA,
-					AttachmentService.NameConflictResolution.keepExisting, ref);
-			if (attachment != null)
-			{
-				// make the translation
-				Translation t = new TranslationImpl(ref.getReference(), attachment.getReference());
-				translations.add(t);
-			}
-		}
+		// import all referenced and attached documents, translating any html to local references, creating translations
+		List<Translation> translations = this.attachmentService.importResources(AttachmentService.MNEME_APPLICATION, toContext,
+				AttachmentService.DOCS_AREA, AttachmentService.NameConflictResolution.keepExisting, refs);
 
 		// copy each pool, with all questions
 		for (Pool pool : pools)

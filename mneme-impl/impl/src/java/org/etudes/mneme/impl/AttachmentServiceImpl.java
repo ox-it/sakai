@@ -38,6 +38,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,7 +60,6 @@ import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
 import org.etudes.mneme.api.Translation;
-import org.etudes.mneme.api.AttachmentService.NameConflictResolution;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -90,6 +90,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Document;
@@ -104,6 +105,9 @@ import com.sun.image.codec.jpeg.JPEGImageEncoder;
  */
 public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 {
+	/** A thread-local key to the List of Translations we have made so far in the thread (matches the XrefHelper). */
+	public final static String THREAD_TRANSLATIONS_KEY = "XrefHelper.translations";
+
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(AttachmentServiceImpl.class);
 
@@ -235,7 +239,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	/**
 	 * {@inheritDoc}
 	 */
-	public Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, String name, byte[] body, String type)
+	public Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, String name, byte[] body,
+			String type)
 	{
 		pushAdvisor();
 
@@ -462,62 +467,184 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	/**
 	 * {@inheritDoc}
 	 */
-	public Set<String> harvestAttachmentsReferenced(String data, boolean normalize)
+	public Set<String> harvestEmbedded(String reference, boolean normalize)
 	{
-		Set<String> rv = new HashSet<String>();
-		if (data == null) return rv;
+		// return an insertion-ordered set
+		Set<String> rv = new LinkedHashSet<String>();
+		if (reference == null) return rv;
 
-		// pattern to find any src= or href= text
-		// groups: 0: the whole matching text 1: src|href 2: the string in the quotes
-		Pattern p = Pattern.compile("(src|href)[\\s]*=[\\s]*\"([^\"]*)\"");
-
-		Matcher m = p.matcher(data);
-		while (m.find())
+		// deal with %20 and other encoded URL stuff
+		if (normalize)
 		{
-			if (m.groupCount() == 2)
+			try
 			{
-				String ref = m.group(2);
+				reference = URLDecoder.decode(reference, "UTF-8");
+			}
+			catch (UnsupportedEncodingException e)
+			{
+				M_log.warn("harvestEmbedded: " + e);
+			}
+		}
 
-				// harvest any content hosting reference
-				int index = ref.indexOf("/access/content/");
-				if (index != -1)
+		// start with this reference
+		rv.add(reference);
+
+		// process a set of references - initially the passed in reference
+		Set<String> process = new LinkedHashSet<String>();
+		process.addAll(rv);
+
+		while (!process.isEmpty())
+		{
+			Set<String> secondary = new LinkedHashSet<String>();
+			for (String ref : process)
+			{
+				// check for any html
+				if (ref.endsWith(".html") || (ref.endsWith(".htm")))
 				{
-					// except for any in /user/ or /public/
-					if (ref.indexOf("/access/content/user/") != -1)
-					{
-						index = -1;
-					}
-					else if (ref.indexOf("/access/content/public/") != -1)
-					{
-						index = -1;
-					}
-				}
+					// read the referenced html
+					String secondaryData = readReferencedDocument(ref);
 
-				// harvest also the mneme docs references
-				if (index == -1) index = ref.indexOf("/access/mneme/content/");
-
-				// TODO: further filter to docs root and context (optional)
-				if (index != -1)
-				{
-					// save just the reference part (i.e. after the /access);
-					String refString = ref.substring(index + 7);
-
-					// deal with %20 and other encoded URL stuff
-					if (normalize)
-					{
-						try
-						{
-							refString = URLDecoder.decode(refString, "UTF-8");
-						}
-						catch (UnsupportedEncodingException e)
-						{
-							M_log.warn("harvestAttachmentsReferenced: " + e);
-						}
-					}
-
-					rv.add(refString);
+					// harvest it
+					secondary.addAll(harvestAttachmentsReferenced(secondaryData, normalize, ref));
 				}
 			}
+
+			// ignore any secondary we already have
+			secondary.removeAll(rv);
+
+			// collect the secondary
+			rv.addAll(secondary);
+
+			// process the secondary
+			process.clear();
+			process.addAll(secondary);
+		}
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Set<String> harvestAttachmentsReferenced(String data, boolean normalize)
+	{
+		// return an insertion-ordered set
+		Set<String> rv = new LinkedHashSet<String>();
+		if (data == null) return rv;
+
+		// harvest the main data
+		rv.addAll(harvestAttachmentsReferenced(data, normalize, null));
+
+		// process a set of references - initially the main data's references
+		Set<String> process = new LinkedHashSet<String>();
+		process.addAll(rv);
+
+		while (!process.isEmpty())
+		{
+			Set<String> secondary = new LinkedHashSet<String>();
+			for (String ref : process)
+			{
+				// check for any html
+				if (ref.endsWith(".html") || (ref.endsWith(".htm")))
+				{
+					// read the referenced html
+					String secondaryData = readReferencedDocument(ref);
+
+					// harvest it
+					secondary.addAll(harvestAttachmentsReferenced(secondaryData, normalize, ref));
+				}
+			}
+
+			// ignore any secondary we already have
+			secondary.removeAll(rv);
+
+			// collect the secondary
+			rv.addAll(secondary);
+
+			// process the secondary
+			process.clear();
+			process.addAll(secondary);
+		}
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<Translation> importResources(String application, String context, String prefix, NameConflictResolution onConflict,
+			Set<String> resources)
+	{
+		// get our thread-local list of translations made in this thread
+		List<Translation> threadTranslations = (List<Translation>) ThreadLocalManager.get(THREAD_TRANSLATIONS_KEY);
+		if (threadTranslations == null)
+		{
+			threadTranslations = new ArrayList<Translation>();
+			ThreadLocalManager.set(THREAD_TRANSLATIONS_KEY, threadTranslations);
+		}
+
+		// collect any that may need html body translation in a second pass
+		List<Reference> toTranslate = new ArrayList<Reference>();
+
+		// collect translations
+		List<Translation> rv = new ArrayList<Translation>();
+
+		for (String refString : resources)
+		{
+			// if we have done this already in the thread, just skip it
+			boolean skip = false;
+			for (Translation imported : threadTranslations)
+			{
+				if (refString.equals(imported.getFrom()))
+				{
+					skip = true;
+					break;
+				}
+			}
+			if (skip) continue;
+
+			Reference ref = this.entityManager.newReference(refString);
+
+			// move the referenced resource into our docs, into a unique folder to avoid name conflicts
+			Reference imported = addAttachment(application, context, prefix, onConflict, ref);
+			if (imported != null)
+			{
+				// make the translation
+				TranslationImpl t = new TranslationImpl(ref.getReference(), imported.getReference());
+				rv.add(t);
+				threadTranslations.add(t);
+			}
+			else
+			{
+				M_log.warn("importResources: failed to import resource: " + ref.toString());
+			}
+
+			// do we need a second-pass translation? Collect an item only once.
+			if ((imported.getReference().endsWith(".html")) || (imported.getReference().endsWith(".htm")))
+			{
+				// check if we have this (Reference.equals() is not to be trusted -ggolden)
+				boolean found = false;
+				for (Reference tt : toTranslate)
+				{
+					if (tt.getReference().equals(imported.getReference()))
+					{
+						found = true;
+						break;
+					}
+				}
+
+				if (!found)
+				{
+					toTranslate.add(imported);
+				}
+			}
+		}
+
+		// now that we have all the translations, update any resources that have html bodies
+		for (Reference ref : toTranslate)
+		{
+			// translate using the full set we have so far for the thread
+			translateHtmlBody(ref, threadTranslations, context);
 		}
 
 		return rv;
@@ -732,78 +859,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 */
 	public String translateEmbeddedReferences(String data, List<Translation> translations)
 	{
-		if (data == null) return data;
-		if (translations == null) return data;
-
-		// pattern to find any src= or href= text
-		// groups: 0: the whole matching text 1: src|href 2: the string in the quotes
-		Pattern p = Pattern.compile("(src|href)[\\s]*=[\\s]*\"([^\"]*)\"");
-
-		Matcher m = p.matcher(data);
-		StringBuffer sb = new StringBuffer();
-
-		// process each "harvested" string (avoiding like strings that are not in src= or href= patterns)
-		while (m.find())
-		{
-			if (m.groupCount() == 2)
-			{
-				String ref = m.group(2);
-
-				// harvest any content hosting reference
-				int index = ref.indexOf("/access/content/");
-				if (index != -1)
-				{
-					// except for any in /user/ or /public/
-					if (ref.indexOf("/access/content/user/") != -1)
-					{
-						index = -1;
-					}
-					else if (ref.indexOf("/access/content/public/") != -1)
-					{
-						index = -1;
-					}
-				}
-
-				// harvest also the mneme docs references
-				if (index == -1) index = ref.indexOf("/access/mneme/content/");
-
-				if (index != -1)
-				{
-					// save just the reference part (i.e. after the /access);
-					String normal = ref.substring(index + 7);
-
-					// deal with %20 and other encoded URL stuff
-					try
-					{
-						normal = URLDecoder.decode(normal, "UTF-8");
-					}
-					catch (UnsupportedEncodingException e)
-					{
-						M_log.warn("harvestAttachmentsReferenced: " + e);
-					}
-
-					// translate the normal form
-					String translated = normal;
-					for (Translation translation : translations)
-					{
-						translated = translation.translate(translated);
-					}
-
-					// URL encode translated
-					String escaped = EscapeRefUrl.escapeUrl(translated);
-
-					// if changed, replace
-					if (!normal.equals(translated))
-					{
-						m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref.substring(0, index + 7) + escaped + "\""));
-					}
-				}
-			}
-		}
-
-		m.appendTail(sb);
-
-		return sb.toString();
+		return translateEmbeddedReferences(data, translations, null);
 	}
 
 	/**
@@ -919,6 +975,32 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		}
 
 		return null;
+	}
+
+	/**
+	 * If the ref is relative, reconstruct the full ref based on where it was embedded.
+	 * 
+	 * @param ref
+	 *        The reference string.
+	 * @param parentRef
+	 *        The reference to the resource in which ref is embedded.
+	 * @return The ref string unmodified if not relative, or the full reference to the resource if relative.
+	 */
+	protected String adjustRelativeReference(String ref, String parentRef)
+	{
+		// if no transport, and it does not start with "/", it is a relative reference
+		if ((parentRef != null) && (ref != null) && (ref.indexOf("://") == -1) && (!(ref.startsWith("/"))))
+		{
+			// replace the part after the last "/" in the parentRef with the ref
+			int pos = parentRef.lastIndexOf('/');
+			if (pos != -1)
+			{
+				String fullRef = "/access" + parentRef.substring(0, pos + 1) + ref;
+				return fullRef;
+			}
+		}
+
+		return ref;
 	}
 
 	/**
@@ -1155,7 +1237,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				String ref = uploadedResource.getReference(ContentHostingService.PROP_ALTERNATE_REFERENCE);
 				Reference reference = entityManager.newReference(ref);
 
-				return reference;				
+				return reference;
 			}
 		}
 		catch (PermissionException e2)
@@ -1276,14 +1358,14 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 			// get the members of this collection
 			ContentCollection docs = contentHostingService.getCollection(docsCollection);
-			List members = docs.getMemberResources();
+			List<Object> members = docs.getMemberResources();
 			for (Object m : members)
 			{
 				if (m instanceof ContentCollection)
 				{
 					// get the member within
 					ContentCollection holder = (ContentCollection) m;
-					List innerMembers = holder.getMemberResources();
+					List<Object> innerMembers = holder.getMemberResources();
 					for (Object mm : innerMembers)
 					{
 						if (mm instanceof ContentResource)
@@ -1311,6 +1393,82 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		finally
 		{
 			popAdvisor();
+		}
+
+		return rv;
+	}
+
+	/**
+	 * Collect all the attachment references in the html data:<br /> Anything referenced by a src= or href=. in our content docs, or in a site content
+	 * area <br /> Ignore anything in a myWorkspace content area or the public content area. <br />
+	 * 
+	 * @param data
+	 *        The data string.
+	 * @param normalize
+	 *        if true, decode the references by URL decoding rules.
+	 * @param parentRef
+	 *        Reference string to the embedding (parent) resource - used to resolve relative references.
+	 * @return The set of attachment references.
+	 */
+	protected Set<String> harvestAttachmentsReferenced(String data, boolean normalize, String parentRef)
+	{
+		Set<String> rv = new HashSet<String>();
+		if (data == null) return rv;
+
+		// pattern to find any src= or href= text
+		// groups: 0: the whole matching text 1: src|href 2: the string in the quotes
+		Pattern p = Pattern.compile("(src|href)[\\s]*=[\\s]*\"([^\"]*)\"");
+
+		Matcher m = p.matcher(data);
+		while (m.find())
+		{
+			if (m.groupCount() == 2)
+			{
+				String ref = m.group(2);
+
+				// expand to a full reference if relative
+				ref = adjustRelativeReference(ref, parentRef);
+
+				// harvest any content hosting reference
+				int index = ref.indexOf("/access/content/");
+				if (index != -1)
+				{
+					// except for any in /user/ or /public/
+					if (ref.indexOf("/access/content/user/") != -1)
+					{
+						index = -1;
+					}
+					else if (ref.indexOf("/access/content/public/") != -1)
+					{
+						index = -1;
+					}
+				}
+
+				// harvest also the mneme docs references
+				if (index == -1) index = ref.indexOf("/access/mneme/content/");
+
+				// TODO: further filter to docs root and context (optional)
+				if (index != -1)
+				{
+					// save just the reference part (i.e. after the /access);
+					String refString = ref.substring(index + 7);
+
+					// deal with %20 and other encoded URL stuff
+					if (normalize)
+					{
+						try
+						{
+							refString = URLDecoder.decode(refString, "UTF-8");
+						}
+						catch (UnsupportedEncodingException e)
+						{
+							M_log.warn("harvestAttachmentsReferenced: " + e);
+						}
+					}
+
+					rv.add(refString);
+				}
+			}
 		}
 
 		return rv;
@@ -1375,8 +1533,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	}
 
 	/**
-	 * Trim the name to only the characters after the last slash of either kind.<br />
-	 * Remove junk from uploaded file names.
+	 * Trim the name to only the characters after the last slash of either kind.<br /> Remove junk from uploaded file names.
 	 * 
 	 * @param name
 	 *        The string to trim.
@@ -1425,5 +1582,230 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				return SecurityAdvice.ALLOWED;
 			}
 		});
+	}
+
+	/**
+	 * Read a document from content hosting.
+	 * 
+	 * @param ref
+	 *        The document reference.
+	 * @return The document content in a String.
+	 */
+	protected String readReferencedDocument(String ref)
+	{
+		// bypass security when reading the resource to copy
+		pushAdvisor();
+
+		try
+		{
+			// get an id from the reference string
+			Reference reference = this.entityManager.newReference(ref);
+			String id = reference.getId();
+			if (id.startsWith("/content/"))
+			{
+				id = id.substring("/content".length());
+			}
+
+			try
+			{
+				// read the resource
+				ContentResource r = this.contentHostingService.getResource(id);
+
+				// get the body into a string
+				byte[] body = r.getContent();
+				String bodyString = new String(body, "UTF-8");
+
+				return bodyString;
+			}
+			catch (IOException e)
+			{
+				M_log.warn("readReferencedDocument: " + e.toString());
+			}
+			catch (IdUnusedException e)
+			{
+			}
+			catch (TypeException e)
+			{
+				M_log.warn("readReferencedDocument: " + e.toString());
+			}
+			catch (PermissionException e)
+			{
+				M_log.warn("readReferencedDocument: " + e.toString());
+			}
+			catch (ServerOverloadException e)
+			{
+				M_log.warn("readReferencedDocument: " + e.toString());
+			}
+		}
+		finally
+		{
+			popAdvisor();
+		}
+
+		return "";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	protected String translateEmbeddedReferences(String data, Collection<Translation> translations, String parentRef)
+	{
+		if (data == null) return data;
+		if (translations == null) return data;
+
+		// pattern to find any src= or href= text
+		// groups: 0: the whole matching text 1: src|href 2: the string in the quotes
+		Pattern p = Pattern.compile("(src|href)[\\s]*=[\\s]*\"([^\"]*)\"");
+
+		Matcher m = p.matcher(data);
+		StringBuffer sb = new StringBuffer();
+
+		// process each "harvested" string (avoiding like strings that are not in src= or href= patterns)
+		while (m.find())
+		{
+			if (m.groupCount() == 2)
+			{
+				String ref = m.group(2);
+
+				// expand to a full reference if relative
+				ref = adjustRelativeReference(ref, parentRef);
+
+				// harvest any content hosting reference
+				int index = ref.indexOf("/access/content/");
+				if (index != -1)
+				{
+					// except for any in /user/ or /public/
+					if (ref.indexOf("/access/content/user/") != -1)
+					{
+						index = -1;
+					}
+					else if (ref.indexOf("/access/content/public/") != -1)
+					{
+						index = -1;
+					}
+				}
+
+				// harvest also the mneme docs references
+				if (index == -1) index = ref.indexOf("/access/mneme/content/");
+
+				if (index != -1)
+				{
+					// save just the reference part (i.e. after the /access);
+					String normal = ref.substring(index + 7);
+
+					// deal with %20 and other encoded URL stuff
+					try
+					{
+						normal = URLDecoder.decode(normal, "UTF-8");
+					}
+					catch (UnsupportedEncodingException e)
+					{
+						M_log.warn("harvestAttachmentsReferenced: " + e);
+					}
+
+					// translate the normal form
+					String translated = normal;
+					for (Translation translation : translations)
+					{
+						translated = translation.translate(translated);
+					}
+
+					// URL encode translated
+					String escaped = EscapeRefUrl.escapeUrl(translated);
+
+					// if changed, replace
+					if (!normal.equals(translated))
+					{
+						m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref.substring(0, index + 7) + escaped + "\""));
+					}
+				}
+			}
+		}
+
+		m.appendTail(sb);
+
+		return sb.toString();
+	}
+
+	/**
+	 * Translate the resource's body html with the translations.
+	 * 
+	 * @param ref
+	 *        The resource reference.
+	 * @param translations
+	 *        The complete set of translations.
+	 * @param context
+	 *        The context.
+	 */
+	protected void translateHtmlBody(Reference ref, Collection<Translation> translations, String context)
+	{
+		// ref is the destination ("to" in the translations) resource - we need the "parent ref" from the source ("from" in the translations) resource
+		String parentRef = ref.getReference();
+		for (Translation translation : translations)
+		{
+			parentRef = translation.reverseTranslate(parentRef);
+		}
+
+		// bypass security when reading the resource to copy
+		pushAdvisor();
+
+		try
+		{
+			// Reference does not know how to make the id from a private docs reference.
+			String id = ref.getId();
+			if (id.startsWith("/content/"))
+			{
+				id = id.substring("/content".length());
+			}
+
+			// get the resource
+			ContentResource resource = this.contentHostingService.getResource(id);
+			String type = resource.getContentType();
+
+			// translate if we are html
+			if (type.equals("text/html"))
+			{
+				byte[] body = resource.getContent();
+				String bodyString = new String(body, "UTF-8");
+				String translated = translateEmbeddedReferences(bodyString, translations, parentRef);
+				body = translated.getBytes("UTF-8");
+
+				ContentResourceEdit edit = this.contentHostingService.editResource(resource.getId());
+				edit.setContent(body);
+				this.contentHostingService.commitResource(edit, 0);
+			}
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			M_log.warn("translateHtmlBody: " + e.toString());
+		}
+		catch (PermissionException e)
+		{
+			M_log.warn("translateHtmlBody: " + e.toString());
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.warn("translateHtmlBody: " + e.toString());
+		}
+		catch (TypeException e)
+		{
+			M_log.warn("translateHtmlBody: " + e.toString());
+		}
+		catch (ServerOverloadException e)
+		{
+			M_log.warn("translateHtmlBody: " + e.toString());
+		}
+		catch (InUseException e)
+		{
+			M_log.warn("translateHtmlBody: " + e.toString());
+		}
+		catch (OverQuotaException e)
+		{
+			M_log.warn("translateHtmlBody: " + e.toString());
+		}
+		finally
+		{
+			popAdvisor();
+		}
 	}
 }

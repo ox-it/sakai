@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -24,14 +24,56 @@
 
 package org.etudes.mneme.api;
 
+/**
+ * Translation between two strings.
+ */
 public interface Translation
 {
+	/**
+	 * Get the 'from' of the translation.
+	 * 
+	 * @return The string to translate from.
+	 */
+	String getFrom();
+
+	/**
+	 * Get the 'to' of the translation.
+	 * 
+	 * @return The string to translate to.
+	 */
+	String getTo();
+
+	/**
+	 * Reverse translate a target string.
+	 * 
+	 * @param target
+	 *        The target string.
+	 * @return The target string with all "to" instances replaced with "from" translation.
+	 */
+	String reverseTranslate(String target);
+
+	/**
+	 * Set the 'from'.
+	 * 
+	 * @param from
+	 *        The string to translate from.
+	 */
+	void setFrom(String from);
+
+	/**
+	 * Set the 'to'.
+	 * 
+	 * @param to
+	 *        The string to translate to.
+	 */
+	void setTo(String to);
+
 	/**
 	 * Translate a target string.
 	 * 
 	 * @param target
 	 *        The target string.
-	 * @return The target string with all "from" instances replaced with "to" instances.
+	 * @return The target string with all "from" instances replaced with "to" translation.
 	 */
 	String translate(String target);
 }

@@ -24,6 +24,9 @@
 
 package org.etudes.mneme.impl;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.etudes.mneme.api.Translation;
 
 /**
@@ -31,10 +34,20 @@ import org.etudes.mneme.api.Translation;
  */
 public class TranslationImpl implements Translation
 {
-	String from = null;
+	/** The from value. */
+	protected String from = null;
 
-	String to = null;
+	/** The to value. */
+	protected String to = null;
 
+	/**
+	 * Construct.
+	 * 
+	 * @param from
+	 *        The from value.
+	 * @param to
+	 *        The to value.
+	 */
 	public TranslationImpl(String from, String to)
 	{
 		this.from = from;
@@ -42,17 +55,60 @@ public class TranslationImpl implements Translation
 	}
 
 	/**
-	 * Translate a target string.
-	 * 
-	 * @param target
-	 *        The target string.
-	 * @return The target string with all "from" instances replaced with "to" instances.
+	 * {@inheritDoc}
+	 */
+	public String getFrom()
+	{
+		return this.from;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getTo()
+	{
+		return this.to;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String reverseTranslate(String target)
+	{
+		if (target == null) return null;
+
+		String rv = Pattern.compile(this.to.toString(), Pattern.LITERAL | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE).matcher(target)
+				.replaceAll(Matcher.quoteReplacement(this.from.toString()));
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setFrom(String from)
+	{
+		this.from = from;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setTo(String to)
+	{
+		this.to = to;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 */
 	public String translate(String target)
 	{
 		if (target == null) return null;
 
-		String rv = target.replace(from, to);
+		String rv = Pattern.compile(this.from.toString(), Pattern.LITERAL | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE).matcher(target)
+				.replaceAll(Matcher.quoteReplacement(this.to.toString()));
+
 		return rv;
 	}
 }
