@@ -83,6 +83,15 @@
 		</dependency>
 
 		<dependency>
+			<groupId>etudes</groupId>
+			<artifactId>etudes-util</artifactId>
+			<version>1.0</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
 			<groupId>jaxen</groupId>
 			<artifactId>jaxen</artifactId>
 			<version>1.1.1</version>
