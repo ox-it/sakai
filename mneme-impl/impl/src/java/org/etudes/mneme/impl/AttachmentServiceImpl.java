@@ -106,6 +106,9 @@ import com.sun.image.codec.jpeg.JPEGImageEncoder;
 public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 {
 	/** A thread-local key to the List of Translations we have made so far in the thread (matches the XrefHelper). */
+	public final static String THREAD_TRANSLATIONS_BODY_KEY = "XrefHelper.body.translations";
+
+	/** A thread-local key to the List of Translations we have made so far in the thread (matches the XrefHelper). */
 	public final static String THREAD_TRANSLATIONS_KEY = "XrefHelper.translations";
 
 	/** Our logger. */
@@ -467,6 +470,52 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	/**
 	 * {@inheritDoc}
 	 */
+	public Set<String> harvestAttachmentsReferenced(String data, boolean normalize)
+	{
+		// return an insertion-ordered set
+		Set<String> rv = new LinkedHashSet<String>();
+		if (data == null) return rv;
+
+		// harvest the main data
+		rv.addAll(harvestAttachmentsReferenced(data, normalize, null));
+
+		// process a set of references - initially the main data's references
+		Set<String> process = new LinkedHashSet<String>();
+		process.addAll(rv);
+
+		while (!process.isEmpty())
+		{
+			Set<String> secondary = new LinkedHashSet<String>();
+			for (String ref : process)
+			{
+				// check for any html
+				if (ref.endsWith(".html") || (ref.endsWith(".htm")))
+				{
+					// read the referenced html
+					String secondaryData = readReferencedDocument(ref);
+
+					// harvest it
+					secondary.addAll(harvestAttachmentsReferenced(secondaryData, normalize, ref));
+				}
+			}
+
+			// ignore any secondary we already have
+			secondary.removeAll(rv);
+
+			// collect the secondary
+			rv.addAll(secondary);
+
+			// process the secondary
+			process.clear();
+			process.addAll(secondary);
+		}
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Set<String> harvestEmbedded(String reference, boolean normalize)
 	{
 		// return an insertion-ordered set
@@ -526,52 +575,6 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	/**
 	 * {@inheritDoc}
 	 */
-	public Set<String> harvestAttachmentsReferenced(String data, boolean normalize)
-	{
-		// return an insertion-ordered set
-		Set<String> rv = new LinkedHashSet<String>();
-		if (data == null) return rv;
-
-		// harvest the main data
-		rv.addAll(harvestAttachmentsReferenced(data, normalize, null));
-
-		// process a set of references - initially the main data's references
-		Set<String> process = new LinkedHashSet<String>();
-		process.addAll(rv);
-
-		while (!process.isEmpty())
-		{
-			Set<String> secondary = new LinkedHashSet<String>();
-			for (String ref : process)
-			{
-				// check for any html
-				if (ref.endsWith(".html") || (ref.endsWith(".htm")))
-				{
-					// read the referenced html
-					String secondaryData = readReferencedDocument(ref);
-
-					// harvest it
-					secondary.addAll(harvestAttachmentsReferenced(secondaryData, normalize, ref));
-				}
-			}
-
-			// ignore any secondary we already have
-			secondary.removeAll(rv);
-
-			// collect the secondary
-			rv.addAll(secondary);
-
-			// process the secondary
-			process.clear();
-			process.addAll(secondary);
-		}
-
-		return rv;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public List<Translation> importResources(String application, String context, String prefix, NameConflictResolution onConflict,
 			Set<String> resources)
 	{
@@ -581,6 +584,14 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		{
 			threadTranslations = new ArrayList<Translation>();
 			ThreadLocalManager.set(THREAD_TRANSLATIONS_KEY, threadTranslations);
+		}
+
+		// get our thread-local list of bodies translated in this thread
+		List<String> threadBodyTranslations = (List<String>) ThreadLocalManager.get(THREAD_TRANSLATIONS_BODY_KEY);
+		if (threadBodyTranslations == null)
+		{
+			threadBodyTranslations = new ArrayList<String>();
+			ThreadLocalManager.set(THREAD_TRANSLATIONS_BODY_KEY, threadBodyTranslations);
 		}
 
 		// collect any that may need html body translation in a second pass
@@ -613,30 +624,32 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				TranslationImpl t = new TranslationImpl(ref.getReference(), imported.getReference());
 				rv.add(t);
 				threadTranslations.add(t);
+
+				// do we need a second-pass translation?
+				String importedRef = imported.getReference();
+				if ((importedRef.endsWith(".html")) || (importedRef.endsWith(".htm")))
+				{
+					// check if we have done this already in the thread (Reference.equals() is not to be trusted -ggolden)
+					boolean found = false;
+					for (String bodyTranslatedReference : threadBodyTranslations)
+					{
+						if (bodyTranslatedReference.equals(importedRef))
+						{
+							found = true;
+							break;
+						}
+					}
+
+					if (!found)
+					{
+						toTranslate.add(imported);
+						threadBodyTranslations.add(importedRef);
+					}
+				}
 			}
 			else
 			{
 				M_log.warn("importResources: failed to import resource: " + ref.toString());
-			}
-
-			// do we need a second-pass translation? Collect an item only once.
-			if ((imported.getReference().endsWith(".html")) || (imported.getReference().endsWith(".htm")))
-			{
-				// check if we have this (Reference.equals() is not to be trusted -ggolden)
-				boolean found = false;
-				for (Reference tt : toTranslate)
-				{
-					if (tt.getReference().equals(imported.getReference()))
-					{
-						found = true;
-						break;
-					}
-				}
-
-				if (!found)
-				{
-					toTranslate.add(imported);
-				}
 			}
 		}
 
