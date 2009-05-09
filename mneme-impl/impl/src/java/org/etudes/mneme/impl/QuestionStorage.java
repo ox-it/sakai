@@ -31,7 +31,7 @@ import java.util.Map;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionService;
-import org.etudes.mneme.api.Translation;
+import org.etudes.util.api.Translation;
 
 /**
  * QuestionStorage defines the storage interface for Questions.

@@ -56,7 +56,7 @@ import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.ReviewTiming;
 import org.etudes.mneme.api.SecurityService;
-import org.etudes.mneme.api.Translation;
+import org.etudes.util.api.Translation;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentContent;
 import org.sakaiproject.assignment.api.AssignmentEdit;

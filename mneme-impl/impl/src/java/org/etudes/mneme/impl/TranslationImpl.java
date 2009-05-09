@@ -27,7 +27,7 @@ package org.etudes.mneme.impl;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.etudes.mneme.api.Translation;
+import org.etudes.util.api.Translation;
 
 /**
  * TranslationImpl implements Translation

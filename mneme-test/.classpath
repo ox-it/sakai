@@ -29,5 +29,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/drivers/jars/mysql-connector-java-5.1.5-bin.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/drivers/jars/ojdbc14_10.2.0.3.0.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-collections/jars/commons-collections-3.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/etudes-util-api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

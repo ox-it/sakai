@@ -43,7 +43,7 @@ import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionService;
-import org.etudes.mneme.api.Translation;
+import org.etudes.util.api.Translation;
 import org.sakaiproject.util.StringUtil;
 
 /**

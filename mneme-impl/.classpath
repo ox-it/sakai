@@ -26,5 +26,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/jaxen/jars/jaxen-1.1.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jtidy/jars/jtidy-4aug2000r7-dev.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/assignment-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/etudes-util-api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

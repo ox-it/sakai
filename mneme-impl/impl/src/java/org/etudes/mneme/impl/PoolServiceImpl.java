@@ -39,7 +39,7 @@ import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.SecurityService;
-import org.etudes.mneme.api.Translation;
+import org.etudes.util.api.Translation;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.i18n.InternationalizedMessages;

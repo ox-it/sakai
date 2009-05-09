@@ -59,7 +59,7 @@ import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
-import org.etudes.mneme.api.Translation;
+import org.etudes.util.api.Translation;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;

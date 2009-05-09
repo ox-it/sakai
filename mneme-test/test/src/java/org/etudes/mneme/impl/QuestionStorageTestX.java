@@ -35,7 +35,7 @@ import junit.framework.TestCase;
 import org.apache.commons.dbcp.SakaiBasicDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.etudes.mneme.api.Translation;
+import org.etudes.util.api.Translation;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.db.impl.BasicSqlService;
 import org.sakaiproject.event.api.UsageSessionService;

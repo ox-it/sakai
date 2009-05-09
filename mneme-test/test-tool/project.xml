@@ -142,6 +142,12 @@
 			</properties>
 		</dependency>
 
+		<dependency>
+			<groupId>etudes</groupId>
+			<artifactId>etudes-util-api</artifactId>
+			<version>1.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

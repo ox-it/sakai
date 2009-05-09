@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.fileupload.FileItem;
+import org.etudes.util.api.Translation;
 import org.sakaiproject.entity.api.Reference;
 
 /**

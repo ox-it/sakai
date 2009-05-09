@@ -7,5 +7,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/commons-fileupload/jars/commons-fileupload-1.1.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ambrosia-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/user-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/etudes-util-api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
