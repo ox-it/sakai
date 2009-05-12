@@ -620,7 +620,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			Reference ref = this.entityManager.newReference(refString);
 
 			// move the referenced resource into our docs, into a unique folder to avoid name conflicts
-			Reference imported = addAttachment(application, context, prefix, onConflict, ref, makeThumbs);
+			Reference imported = addAttachment(application, context, prefix, onConflict, ref, makeThumb);
 			if (imported != null)
 			{
 				// make the translation
