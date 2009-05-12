@@ -80,10 +80,10 @@ public class AnswerEvaluationImpl extends EvaluationImpl implements AnswerEvalua
 	 */
 	public void setUpload(FileItem file)
 	{
-		// put the attachment in a unique folder to avoid name conflicts
+		// put the attachment in a unique folder to avoid name conflicts (no thumbs for images)
 		Reference reference = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, getAnswer().getSubmission().getAssessment()
 				.getContext(), AttachmentService.SUBMISSIONS_AREA + "/" + getAnswer().getSubmission().getId(),
-				AttachmentService.NameConflictResolution.alwaysUseFolder, file);
+				AttachmentService.NameConflictResolution.alwaysUseFolder, file, false);
 		if (reference != null)
 		{
 			this.attachments.add(reference);

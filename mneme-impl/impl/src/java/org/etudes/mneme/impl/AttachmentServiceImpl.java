@@ -152,7 +152,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	/**
 	 * {@inheritDoc}
 	 */
-	public Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, FileItem file)
+	public Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, FileItem file,
+			boolean makeThumb)
 	{
 		pushAdvisor();
 
@@ -180,7 +181,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				return null;
 			}
 
-			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size);
+			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size, makeThumb);
 			return rv;
 		}
 		finally
@@ -192,7 +193,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	/**
 	 * {@inheritDoc}
 	 */
-	public Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, Reference resourceRef)
+	public Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, Reference resourceRef,
+			boolean makeThumb)
 	{
 		// make sure we can read!
 		pushAdvisor();
@@ -212,7 +214,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			byte[] body = resource.getContent();
 			String name = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 
-			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size);
+			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size, makeThumb);
 			return rv;
 		}
 		catch (PermissionException e)
@@ -244,7 +246,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 * {@inheritDoc}
 	 */
 	public Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, String name, byte[] body,
-			String type)
+			String type, boolean makeThumb)
 	{
 		pushAdvisor();
 
@@ -263,7 +265,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				return null;
 			}
 
-			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size);
+			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size, makeThumb);
 			return rv;
 		}
 		finally
@@ -577,7 +579,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 * {@inheritDoc}
 	 */
 	public List<Translation> importResources(String application, String context, String prefix, NameConflictResolution onConflict,
-			Set<String> resources)
+			Set<String> resources, boolean makeThumb)
 	{
 		// get our thread-local list of translations made in this thread
 		List<Translation> threadTranslations = (List<Translation>) ThreadLocalManager.get(THREAD_TRANSLATIONS_KEY);
@@ -618,7 +620,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			Reference ref = this.entityManager.newReference(refString);
 
 			// move the referenced resource into our docs, into a unique folder to avoid name conflicts
-			Reference imported = addAttachment(application, context, prefix, onConflict, ref);
+			Reference imported = addAttachment(application, context, prefix, onConflict, ref, makeThumbs);
 			if (imported != null)
 			{
 				// make the translation
@@ -895,10 +897,11 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 * @param type
 	 * @param body
 	 * @param size
+	 * @param makeThumb
 	 * @return
 	 */
 	protected Reference addAttachment(String name, String application, String context, String prefix, NameConflictResolution onConflict, String type,
-			byte[] body, long size)
+			byte[] body, long size, boolean makeThumb)
 	{
 		String id = contentHostingId(name, application, context, prefix, (onConflict == NameConflictResolution.alwaysUseFolder));
 		Reference rv = doAdd(id, name, type, body, size, false, (onConflict == NameConflictResolution.rename));
@@ -939,14 +942,17 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			}
 		}
 
-		// TODO: we might not want a thumb (such as for submission uploads to essay/task)
 		// if we added one
 		else
 		{
-			// if it is an image
-			if (type.toLowerCase().startsWith("image/"))
+			// if we want thumbs
+			if (makeThumb)
 			{
-				addThumb(rv, body);
+				// if it is an image
+				if (type.toLowerCase().startsWith("image/"))
+				{
+					addThumb(rv, body);
+				}
 			}
 		}
 

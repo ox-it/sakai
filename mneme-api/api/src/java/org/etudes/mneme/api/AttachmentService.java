@@ -53,14 +53,17 @@ public interface AttachmentService
 	/** Application code for Mneme in ContentHosting's private area. */
 	static final String MNEME_APPLICATION = "mneme";
 
+	/** In Mneme, we want thumb resources created for attached images. */
+	public final static boolean MNEME_THUMB_POLICY = true;
+
 	/** This string starts the references to uploaded resources. */
 	static final String REFERENCE_ROOT = "/mneme";
 
 	/** Prefix for the submissions upload area in MnemeDocs: in 1.1 and later, expect another path component with the submission id. */
-	static final String SUBMISSIONS_AREA = "submissions";
+	static final String SUBMISSIONS_AREA = "submissions";;
 
 	/** The text added to the main URL to form the thumb-nail URL. */
-	public final static String THUMB_SUFFIX = "_thumb.jpg";;
+	public final static String THUMB_SUFFIX = "_thumb.jpg";
 
 	/**
 	 * Add an attachment from an uploaded file.
@@ -75,9 +78,11 @@ public interface AttachmentService
 	 *        What to do if we have a file with this name already.
 	 * @param file
 	 *        The attachment file.
+	 * @param makeThumb
+	 *        if true, make a thumb resource for image types.
 	 * @return The Reference to the added attachment.
 	 */
-	Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, FileItem file);
+	Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, FileItem file, boolean makeThumb);
 
 	/**
 	 * Add an attachment from a reference to a resource in ContentHosting.
@@ -92,9 +97,12 @@ public interface AttachmentService
 	 *        What to do if we have a file with this name already.
 	 * @param resource
 	 *        The Reference to the resource in ContentHosting.
+	 * @param makeThumb
+	 *        if true, make a thumb resource for image types.
 	 * @return The Reference to the added attachment.
 	 */
-	Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, Reference resource);
+	Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, Reference resource,
+			boolean makeThumb);
 
 	/**
 	 * Add an attachment from an uploaded file.
@@ -113,10 +121,12 @@ public interface AttachmentService
 	 *        The attachment body bytes.
 	 * @param type
 	 *        The attachment file mime type.
+	 * @param makeThumb
+	 *        if true, make a thumb resource for image types.
 	 * @return The Reference to the added attachment.
 	 */
 	Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, String name, byte[] body,
-			String type);
+			String type, boolean makeThumb);
 
 	/**
 	 * Find all the attachments in the docs area of the application for this context. Skip image thumbs.
@@ -190,9 +200,12 @@ public interface AttachmentService
 	 *        What to do if we have a file with this name already.
 	 * @param resources
 	 *        The References to the resources in ContentHosting to import.
+	 * @param makeThumb
+	 *        if true, make a thumb resource for image types.
 	 * @return a Translation list for each imported resource from its source to its imported location in this context.
 	 */
-	List<Translation> importResources(String application, String context, String prefix, NameConflictResolution onConflict, Set<String> resources);
+	List<Translation> importResources(String application, String context, String prefix, NameConflictResolution onConflict, Set<String> resources,
+			boolean makeThumb);
 
 	/**
 	 * Remove this attachment.
