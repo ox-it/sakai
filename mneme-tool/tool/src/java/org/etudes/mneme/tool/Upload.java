@@ -85,7 +85,7 @@ public class Upload
 	{
 		// try using the file name, but if that has a name conflict, let the file name drift to fit in
 		Reference reference = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, this.context, this.prefix,
-				AttachmentService.NameConflictResolution.rename, file, AttachmentService.MNEME_THUMB_POLICY);
+				AttachmentService.NameConflictResolution.rename, file, AttachmentService.MNEME_THUMB_POLICY, AttachmentService.REFERENCE_ROOT);
 		if (reference != null)
 		{
 			this.upload = reference;

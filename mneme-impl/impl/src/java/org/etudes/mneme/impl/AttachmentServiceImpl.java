@@ -106,11 +106,11 @@ import com.sun.image.codec.jpeg.JPEGImageEncoder;
  */
 public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 {
-	/** A thread-local key to the List of Translations we have made so far in the thread (matches the XrefHelper). */
-	public final static String THREAD_TRANSLATIONS_BODY_KEY = "XrefHelper.body.translations";
+	/** A thread-local key to the List of resource bodies translated so far in the thread. */
+	public final static String THREAD_TRANSLATIONS_BODY_KEY = "AttachmentService.body.translations.";
 
-	/** A thread-local key to the List of Translations we have made so far in the thread (matches the XrefHelper). */
-	public final static String THREAD_TRANSLATIONS_KEY = "XrefHelper.translations";
+	/** A thread-local key to the List of Translations we have made so far in the thread. */
+	public final static String THREAD_TRANSLATIONS_KEY = "AttachmentService.translations.";
 
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(AttachmentServiceImpl.class);
@@ -153,7 +153,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 * {@inheritDoc}
 	 */
 	public Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, FileItem file,
-			boolean makeThumb)
+			boolean makeThumb, String altRef)
 	{
 		pushAdvisor();
 
@@ -181,7 +181,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				return null;
 			}
 
-			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size, makeThumb);
+			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size, makeThumb, altRef);
 			return rv;
 		}
 		finally
@@ -194,7 +194,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 * {@inheritDoc}
 	 */
 	public Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, Reference resourceRef,
-			boolean makeThumb)
+			boolean makeThumb, String altRef)
 	{
 		// make sure we can read!
 		pushAdvisor();
@@ -214,7 +214,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			byte[] body = resource.getContent();
 			String name = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 
-			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size, makeThumb);
+			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size, makeThumb, altRef);
 			return rv;
 		}
 		catch (PermissionException e)
@@ -246,7 +246,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 * {@inheritDoc}
 	 */
 	public Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, String name, byte[] body,
-			String type, boolean makeThumb)
+			String type, boolean makeThumb, String altRef)
 	{
 		pushAdvisor();
 
@@ -265,7 +265,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				return null;
 			}
 
-			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size, makeThumb);
+			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size, makeThumb, altRef);
 			return rv;
 		}
 		finally
@@ -579,22 +579,24 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 * {@inheritDoc}
 	 */
 	public List<Translation> importResources(String application, String context, String prefix, NameConflictResolution onConflict,
-			Set<String> resources, boolean makeThumb)
+			Set<String> resources, boolean makeThumb, String altRef)
 	{
-		// get our thread-local list of translations made in this thread
-		List<Translation> threadTranslations = (List<Translation>) ThreadLocalManager.get(THREAD_TRANSLATIONS_KEY);
+		// get our thread-local list of translations made in this thread, for this application/prefix combination
+		String threadKey = THREAD_TRANSLATIONS_KEY + application + "." + prefix;
+		List<Translation> threadTranslations = (List<Translation>) ThreadLocalManager.get(threadKey);
 		if (threadTranslations == null)
 		{
 			threadTranslations = new ArrayList<Translation>();
-			ThreadLocalManager.set(THREAD_TRANSLATIONS_KEY, threadTranslations);
+			ThreadLocalManager.set(threadKey, threadTranslations);
 		}
 
 		// get our thread-local list of bodies translated in this thread
-		List<String> threadBodyTranslations = (List<String>) ThreadLocalManager.get(THREAD_TRANSLATIONS_BODY_KEY);
+		threadKey = THREAD_TRANSLATIONS_BODY_KEY + application + "." + prefix;
+		List<String> threadBodyTranslations = (List<String>) ThreadLocalManager.get(threadKey);
 		if (threadBodyTranslations == null)
 		{
 			threadBodyTranslations = new ArrayList<String>();
-			ThreadLocalManager.set(THREAD_TRANSLATIONS_BODY_KEY, threadBodyTranslations);
+			ThreadLocalManager.set(threadKey, threadBodyTranslations);
 		}
 
 		// collect any that may need html body translation in a second pass
@@ -620,7 +622,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			Reference ref = this.entityManager.newReference(refString);
 
 			// move the referenced resource into our docs, into a unique folder to avoid name conflicts
-			Reference imported = addAttachment(application, context, prefix, onConflict, ref, makeThumb);
+			Reference imported = addAttachment(application, context, prefix, onConflict, ref, makeThumb, altRef);
 			if (imported != null)
 			{
 				// make the translation
@@ -898,19 +900,20 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 * @param body
 	 * @param size
 	 * @param makeThumb
+	 * @param altRef
 	 * @return
 	 */
 	protected Reference addAttachment(String name, String application, String context, String prefix, NameConflictResolution onConflict, String type,
-			byte[] body, long size, boolean makeThumb)
+			byte[] body, long size, boolean makeThumb, String altRef)
 	{
 		String id = contentHostingId(name, application, context, prefix, (onConflict == NameConflictResolution.alwaysUseFolder));
-		Reference rv = doAdd(id, name, type, body, size, false, (onConflict == NameConflictResolution.rename));
+		Reference rv = doAdd(id, name, type, body, size, false, (onConflict == NameConflictResolution.rename), altRef);
 
 		// if this failed and we need to fall back to using a folder, try again
 		if ((rv == null) && (onConflict == NameConflictResolution.useFolder))
 		{
 			id = contentHostingId(name, application, context, prefix, true);
-			rv = doAdd(id, name, type, body, size, false, false);
+			rv = doAdd(id, name, type, body, size, false, false, altRef);
 		}
 
 		// if we have not added one, and we are to use the one we have
@@ -951,7 +954,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				// if it is an image
 				if (type.toLowerCase().startsWith("image/"))
 				{
-					addThumb(rv, body);
+					addThumb(rv, body, altRef);
 				}
 			}
 		}
@@ -966,9 +969,11 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 *        The image resource reference.
 	 * @param body
 	 *        The image bytes.
+	 * @param altRef
+	 *        The alternate Reference for the resource.
 	 * @return A reference to the thumbnail, or null if not made.
 	 */
-	protected Reference addThumb(Reference resource, byte[] body)
+	protected Reference addThumb(Reference resource, byte[] body, String altRef)
 	{
 		// if disabled
 		if (!this.makeThumbs) return null;
@@ -981,7 +986,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		try
 		{
 			byte[] thumb = makeThumb(body, 80, 80, 0.75f);
-			Reference thumbRef = doAdd(thumbId, thumbName, "image/jpeg", thumb, thumb.length, true, false);
+			Reference thumbRef = doAdd(thumbId, thumbName, "image/jpeg", thumb, thumb.length, true, false, altRef);
 
 			return thumbRef;
 		}
@@ -1197,9 +1202,11 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 *        If true, mark this as a thumb.
 	 * @param renameToFit
 	 *        If true, let CHS rename the file on name conflict.
+	 * @param altRef
+	 *        the alternate reference for the resource.
 	 * @return The Reference to the added attachment.
 	 */
-	protected Reference doAdd(String id, String name, String type, byte[] body, long size, boolean thumb, boolean renameToFit)
+	protected Reference doAdd(String id, String name, String type, byte[] body, long size, boolean thumb, boolean renameToFit, String altRef)
 	{
 		try
 		{
@@ -1210,8 +1217,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				edit.setContentType(type);
 				ResourcePropertiesEdit props = edit.getPropertiesEdit();
 
-				// set the alternate reference root so we get all requests
-				props.addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, AttachmentService.REFERENCE_ROOT);
+				// set the alternate reference root so we get all requests TODO:
+				props.addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, altRef /* AttachmentService.REFERENCE_ROOT */);
 
 				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 

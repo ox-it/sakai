@@ -82,7 +82,7 @@ public class SubmissionEvaluationImpl extends EvaluationImpl implements Submissi
 		// put the attachment in a unique folder to avoid name conflicts (no thumbs for images)
 		Reference reference = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, getSubmission().getAssessment().getContext(),
 				AttachmentService.SUBMISSIONS_AREA + "/" + getSubmission().getId(), AttachmentService.NameConflictResolution.alwaysUseFolder, file,
-				false);
+				false, AttachmentService.REFERENCE_ROOT);
 		if (reference != null)
 		{
 			this.attachments.add(reference);

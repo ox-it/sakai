@@ -438,7 +438,8 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 
 		// import all referenced and attached documents, translating any html to local references, creating translations
 		List<Translation> translations = this.attachmentService.importResources(AttachmentService.MNEME_APPLICATION, toContext,
-				AttachmentService.DOCS_AREA, AttachmentService.NameConflictResolution.keepExisting, refs, AttachmentService.MNEME_THUMB_POLICY);
+				AttachmentService.DOCS_AREA, AttachmentService.NameConflictResolution.keepExisting, refs, AttachmentService.MNEME_THUMB_POLICY,
+				AttachmentService.REFERENCE_ROOT);
 
 		// copy each pool, with all questions
 		for (Pool pool : pools)

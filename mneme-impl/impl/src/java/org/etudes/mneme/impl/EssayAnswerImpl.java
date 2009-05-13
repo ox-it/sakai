@@ -334,7 +334,7 @@ public class EssayAnswerImpl implements TypeSpecificAnswer
 		// put the attachment in a unique folder to avoid name conflicts (no thumbs for images)
 		Reference reference = this.attachmentService.addAttachment(AttachmentService.MNEME_APPLICATION, this.answer.getSubmission().getAssessment()
 				.getContext(), AttachmentService.SUBMISSIONS_AREA + "/" + this.answer.getSubmission().getId(),
-				AttachmentService.NameConflictResolution.alwaysUseFolder, file, false);
+				AttachmentService.NameConflictResolution.alwaysUseFolder, file, false, AttachmentService.REFERENCE_ROOT);
 		if (reference != null)
 		{
 			this.uploads.add(reference);

@@ -80,9 +80,12 @@ public interface AttachmentService
 	 *        The attachment file.
 	 * @param makeThumb
 	 *        if true, make a thumb resource for image types.
+	 * @param altRef
+	 *        The alternate reference for the resource.
 	 * @return The Reference to the added attachment.
 	 */
-	Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, FileItem file, boolean makeThumb);
+	Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, FileItem file, boolean makeThumb,
+			String altRef);
 
 	/**
 	 * Add an attachment from a reference to a resource in ContentHosting.
@@ -99,10 +102,12 @@ public interface AttachmentService
 	 *        The Reference to the resource in ContentHosting.
 	 * @param makeThumb
 	 *        if true, make a thumb resource for image types.
+	 * @param altRef
+	 *        The alternate reference for the resource.
 	 * @return The Reference to the added attachment.
 	 */
 	Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, Reference resource,
-			boolean makeThumb);
+			boolean makeThumb, String altRef);
 
 	/**
 	 * Add an attachment from an uploaded file.
@@ -123,10 +128,12 @@ public interface AttachmentService
 	 *        The attachment file mime type.
 	 * @param makeThumb
 	 *        if true, make a thumb resource for image types.
+	 * @param altRef
+	 *        The alternate reference for the resource.
 	 * @return The Reference to the added attachment.
 	 */
 	Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, String name, byte[] body,
-			String type, boolean makeThumb);
+			String type, boolean makeThumb, String altRef);
 
 	/**
 	 * Find all the attachments in the docs area of the application for this context. Skip image thumbs.
@@ -202,10 +209,12 @@ public interface AttachmentService
 	 *        The References to the resources in ContentHosting to import.
 	 * @param makeThumb
 	 *        if true, make a thumb resource for image types.
+	 * @param altRef
+	 *        The alternate reference for the resource.
 	 * @return a Translation list for each imported resource from its source to its imported location in this context.
 	 */
 	List<Translation> importResources(String application, String context, String prefix, NameConflictResolution onConflict, Set<String> resources,
-			boolean makeThumb);
+			boolean makeThumb, String altRef);
 
 	/**
 	 * Remove this attachment.

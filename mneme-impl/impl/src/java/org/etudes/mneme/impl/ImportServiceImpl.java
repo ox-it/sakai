@@ -1472,7 +1472,7 @@ public class ImportServiceImpl implements ImportService
 	protected List<Translation> importEmbeddedDocs(Set<String> refs, String context)
 	{
 		List<Translation> rv = this.attachmentService.importResources(AttachmentService.MNEME_APPLICATION, context, AttachmentService.DOCS_AREA,
-				AttachmentService.NameConflictResolution.keepExisting, refs, AttachmentService.MNEME_THUMB_POLICY);
+				AttachmentService.NameConflictResolution.keepExisting, refs, AttachmentService.MNEME_THUMB_POLICY, AttachmentService.REFERENCE_ROOT);
 
 		return rv;
 	}
