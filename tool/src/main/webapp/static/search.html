@@ -112,7 +112,11 @@
 					loadingClass: "my_ac_loading",
 					matchContains: 1
 				});
-
+				// Scroll to the top.
+				if (window.parent) {
+					window.parent.scroll(0,0);
+				}
+				
 				// Add the display members support.
 				jQuery("form.find-group").bind("submit", function(event) {
 					// Clear out previous select group.
