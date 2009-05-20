@@ -295,7 +295,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 */
 	public List<Attachment> findFiles(String application, String context, String prefix)
 	{
-		return findTypes(application, context, prefix, null);
+		return findTypes(application, context, prefix, null, false);
 	}
 
 	/**
@@ -303,7 +303,15 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 */
 	public List<Attachment> findImages(String application, String context, String prefix)
 	{
-		return findTypes(application, context, prefix, "image/");
+		return findTypes(application, context, prefix, "image/", false);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<Attachment> findThumbs(String application, String context, String prefix)
+	{
+		return findTypes(application, context, prefix, null, true);
 	}
 
 	/**
@@ -1324,7 +1332,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	}
 
 	/**
-	 * If the document matches typePrefix and not a thumbnail, add it to the attachments.
+	 * If the document matches typePrefix and thumbnail requirement, add it to the attachments.
 	 * 
 	 * @param attachments
 	 *        The list of attachments.
@@ -1332,14 +1340,16 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 *        The resource.
 	 * @param typePrefix
 	 *        if null, match any type, else match only the types that match this prefix.
+	 * @param thumbs
+	 *        if true, include only thumbs, else skip them.
 	 */
-	protected void filterNonThumbTypes(List<Attachment> attachments, ContentResource doc, String typePrefix)
+	protected void filterTypes(List<Attachment> attachments, ContentResource doc, String typePrefix, boolean thumbs)
 	{
 		// only matching types
 		if ((typePrefix == null) || (doc.getContentType().toLowerCase().startsWith(typePrefix.toLowerCase())))
 		{
-			// not thumbs
-			if (doc.getProperties().getProperty(this.PROP_THUMB) == null)
+			// thumbs? not thumbs?
+			if ((doc.getProperties().getProperty(this.PROP_THUMB) != null) == thumbs)
 			{
 				String ref = doc.getReference(ContentHostingService.PROP_ALTERNATE_REFERENCE);
 				String url = doc.getUrl(ContentHostingService.PROP_ALTERNATE_REFERENCE);
@@ -1353,7 +1363,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	}
 
 	/**
-	 * Find all the attachments in the docs area of the application for this context. Skip image thumbs. Select only those matching type.
+	 * Find all the attachments in the docs area of the application for this context. Select only those matching type.
 	 * 
 	 * @param application
 	 *        The application prefix for the collection in private.
@@ -1363,9 +1373,11 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 *        Any prefix path for within the context are of the application in private.
 	 * @param typePrefix
 	 *        if null, all but the thumbs. Otherwise only those matching the prefix in mime type.
+	 * @param thumbs
+	 *        if true, return only thumbs, else return no thumbs.
 	 * @return A List of Attachments to the attachments.
 	 */
-	protected List<Attachment> findTypes(String application, String context, String prefix, String typePrefix)
+	protected List<Attachment> findTypes(String application, String context, String prefix, String typePrefix, boolean thumbs)
 	{
 		// permission
 		pushAdvisor();
@@ -1397,14 +1409,14 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 					{
 						if (mm instanceof ContentResource)
 						{
-							filterNonThumbTypes(rv, (ContentResource) mm, typePrefix);
+							filterTypes(rv, (ContentResource) mm, typePrefix, thumbs);
 						}
 					}
 				}
 
 				else if (m instanceof ContentResource)
 				{
-					filterNonThumbTypes(rv, (ContentResource) m, typePrefix);
+					filterTypes(rv, (ContentResource) m, typePrefix, thumbs);
 				}
 			}
 		}

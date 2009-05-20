@@ -162,6 +162,19 @@ public interface AttachmentService
 	List<Attachment> findImages(String application, String context, String prefix);
 
 	/**
+	 * Find all the thumb images made for attachments in the docs area of the application for this context.
+	 * 
+	 * @param application
+	 *        The application prefix for the collection in private.
+	 * @param context
+	 *        The context associated with the attachment.
+	 * @param prefix
+	 *        Any prefix path for within the context are of the application in private.
+	 * @return A List of Attachments to the attachments.
+	 */
+	List<Attachment> findThumbs(String application, String context, String prefix);
+
+	/**
 	 * Form a Reference object from a reference string.
 	 * 
 	 * @param refString
