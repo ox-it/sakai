@@ -50,6 +50,7 @@ import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.SecurityService;
+import org.etudes.util.XrefHelper;
 import org.etudes.util.api.Translation;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -314,6 +315,11 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 			return;
 		}
 
+		// things we are skipping
+		Set<String> skippedPools = new HashSet<String>();
+		Set<String> skippedAssessments = new HashSet<String>();
+		Set<String> skippedAssessmentsPools = new HashSet<String>();
+
 		// map from old pool ids to new ids
 		Map<String, String> pidMap = new HashMap<String, String>();
 
@@ -339,7 +345,7 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 				{
 					skippingPools.add(fromPool);
 					i.remove();
-
+					skippedPools.add(fromPool.getTitle());
 					break;
 				}
 			}
@@ -358,6 +364,7 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 				if (!StringUtil.different(fromAssessment.getTitle(), toAssessment.getTitle()))
 				{
 					toRemove = true;
+					skippedAssessments.add(fromAssessment.getTitle());
 					break;
 				}
 			}
@@ -370,6 +377,7 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 					if (assessmentDependsOnPool(fromAssessment, skipping))
 					{
 						toRemove = true;
+						skippedAssessmentsPools.add(fromAssessment.getTitle());
 						break;
 					}
 				}
@@ -389,7 +397,7 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 		{
 			// from the pool description
 			refs.addAll(this.attachmentService.harvestAttachmentsReferenced(pool.getDescription(), true));
-			
+
 			List<String> qids = ((PoolImpl) pool).getAllQuestionIds(null, null);
 			for (String qid : qids)
 			{
@@ -428,9 +436,10 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 				refs.addAll(this.attachmentService.harvestAttachmentsReferenced(part.getPresentation().getText(), true));
 			}
 		}
-		
+
 		// any others in MnemeDocs for the site we have not yet covered
-		List<Attachment> attachments = this.attachmentService.findFiles(AttachmentService.MNEME_APPLICATION, fromContext, AttachmentService.DOCS_AREA);
+		List<Attachment> attachments = this.attachmentService
+				.findFiles(AttachmentService.MNEME_APPLICATION, fromContext, AttachmentService.DOCS_AREA);
 		for (Attachment attachment : attachments)
 		{
 			refs.add(attachment.getReference());
@@ -452,6 +461,26 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 		for (Assessment assessment : assessments)
 		{
 			((AssessmentServiceImpl) this.assessmentService).doCopyAssessment(toContext, assessment, pidMap, qidMap, false, translations);
+		}
+
+		// report
+		HashMap<String, StringBuffer> importReports = (HashMap<String, StringBuffer>) this.threadLocalManager.get("IMPORTSITE_PROCESS");
+		if (importReports != null)
+		{
+			StringBuffer importReport = importReports.get(fromContext);
+			if (importReport != null)
+			{
+				String report = XrefHelper.reportFilesSkipped("Tasks, Tests and Surveys");
+				importReport.append(report);
+
+				report = reportSkipped("Pools not imported", skippedPools);
+				importReport.append(report);
+
+				// report all assessments skipped as one list
+				skippedAssessments.addAll(skippedAssessmentsPools);
+				report = reportSkipped("Assessments not imported", skippedAssessments);
+				importReport.append(report);
+			}
 		}
 	}
 
@@ -512,5 +541,35 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 		}
 
 		return false;
+	}
+
+	/**
+	 * Format an html fragment display message about the files skipped. Use the FILES_SKIPPED_KEY thread local set.
+	 * 
+	 * @param application
+	 *        The display text for the application.
+	 * @return The display message, or a blank string if there was nothing skipped.
+	 */
+	protected String reportSkipped(String area, Set<String> items)
+	{
+		if ((items == null) || (items.isEmpty())) return "";
+
+		// format: <li>In <strong>Discussions and Private Messages</strong>: xxx.jpg, yyy.jpg</li>
+		StringBuilder buf = new StringBuilder();
+		buf.append("<li><strong>");
+		buf.append(area);
+		buf.append("</strong>: ");
+		boolean started = false;
+		for (String name : items)
+		{
+			if (started) buf.append(", ");
+			started = true;
+			buf.append("\"");
+			buf.append(name);
+			buf.append("\"");
+		}
+		buf.append("</li>");
+
+		return buf.toString();
 	}
 }

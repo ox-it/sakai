@@ -60,6 +60,7 @@ import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
 import org.etudes.util.TranslationImpl;
+import org.etudes.util.XrefHelper;
 import org.etudes.util.api.Translation;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -629,7 +630,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 			Reference ref = this.entityManager.newReference(refString);
 
-			// move the referenced resource into our docs, into a unique folder to avoid name conflicts
+			// move the referenced resource into our docs
 			Reference imported = addAttachment(application, context, prefix, onConflict, ref, makeThumb, altRef);
 			if (imported != null)
 			{
@@ -937,6 +938,15 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 					// use the alternate reference
 					String ref = existing.getReference(ContentHostingService.PROP_ALTERNATE_REFERENCE);
 					rv = entityManager.newReference(ref);
+
+					// record this as a file skipped in our thread-local list of references to files skipped
+					List<String> filesSkipped = (List<String>) ThreadLocalManager.get(XrefHelper.FILES_SKIPPED_KEY);
+					if (filesSkipped == null)
+					{
+						filesSkipped = new ArrayList<String>();
+						ThreadLocalManager.set(XrefHelper.FILES_SKIPPED_KEY, filesSkipped);
+					}
+					filesSkipped.add(ref);
 				}
 				catch (PermissionException e)
 				{
