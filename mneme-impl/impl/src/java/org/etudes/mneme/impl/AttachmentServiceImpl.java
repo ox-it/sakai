@@ -914,13 +914,13 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	protected Reference addAttachment(String name, String application, String context, String prefix, NameConflictResolution onConflict, String type,
 			byte[] body, long size, boolean makeThumb, String altRef)
 	{
-		String id = contentHostingId(name, application, context, prefix, (onConflict == NameConflictResolution.alwaysUseFolder));
+		String id = contentHostingId(name, application, context, prefix, (onConflict == NameConflictResolution.alwaysUseFolder), altRef);
 		Reference rv = doAdd(id, name, type, body, size, false, (onConflict == NameConflictResolution.rename), altRef);
 
 		// if this failed and we need to fall back to using a folder, try again
 		if ((rv == null) && (onConflict == NameConflictResolution.useFolder))
 		{
-			id = contentHostingId(name, application, context, prefix, true);
+			id = contentHostingId(name, application, context, prefix, true, altRef);
 			rv = doAdd(id, name, type, body, size, false, false, altRef);
 		}
 
@@ -1045,8 +1045,10 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 *        The collection name to check and create (no trailing slash needed).
 	 * @param uniqueHolder
 	 *        true if the folder is being created solely to hold the attachment uniquely.
+	 * @param altRef
+	 *        the alternate reference for the resource.
 	 */
-	protected void assureCollection(String container, String name, boolean uniqueHolder)
+	protected void assureCollection(String container, String name, boolean uniqueHolder, String altRef)
 	{
 		try
 		{
@@ -1060,7 +1062,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				ResourcePropertiesEdit props = edit.getPropertiesEdit();
 
 				// set the alternate reference root so we get all requests
-				props.addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, AttachmentService.REFERENCE_ROOT);
+				props.addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, altRef);
 
 				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 
@@ -1153,15 +1155,17 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 *        Any prefix path for within the context are of the application in private.
 	 * @param uniqueHolder
 	 *        If true, a uniquely named folder is created to hold the resource.
+	 * @param altRef
+	 *        the alternate reference for the resource.
 	 * @return
 	 */
-	protected String contentHostingId(String name, String application, String context, String prefix, boolean uniqueHolder)
+	protected String contentHostingId(String name, String application, String context, String prefix, boolean uniqueHolder, String altRef)
 	{
 		// form the content hosting path, and make sure all the folders exist
 		String contentPath = "/private/";
-		assureCollection(contentPath, application, false);
+		assureCollection(contentPath, application, false, altRef);
 		contentPath += application + "/";
-		assureCollection(contentPath, context, false);
+		assureCollection(contentPath, context, false, altRef);
 		contentPath += context + "/";
 		if ((prefix != null) && (prefix.length() > 0))
 		{
@@ -1171,20 +1175,20 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				String[] prefixes = StringUtil.split(prefix, "/");
 				for (String pre : prefixes)
 				{
-					assureCollection(contentPath, pre, false);
+					assureCollection(contentPath, pre, false, altRef);
 					contentPath += pre + "/";
 				}
 			}
 			else
 			{
-				assureCollection(contentPath, prefix, false);
+				assureCollection(contentPath, prefix, false, altRef);
 				contentPath += prefix + "/";
 			}
 		}
 		if (uniqueHolder)
 		{
 			String uuid = this.idManager.createUuid();
-			assureCollection(contentPath, uuid, true);
+			assureCollection(contentPath, uuid, true, altRef);
 			contentPath += uuid + "/";
 		}
 
@@ -1226,7 +1230,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				ResourcePropertiesEdit props = edit.getPropertiesEdit();
 
 				// set the alternate reference root so we get all requests TODO:
-				props.addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, altRef /* AttachmentService.REFERENCE_ROOT */);
+				props.addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, altRef);
 
 				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 
@@ -1250,7 +1254,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 				// set the alternate reference root so we get all requests
 				ResourcePropertiesEdit props = this.contentHostingService.newResourceProperties();
-				props.addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, AttachmentService.REFERENCE_ROOT);
+				props.addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, altRef);
 
 				// mark if a thumb
 				if (thumb)
