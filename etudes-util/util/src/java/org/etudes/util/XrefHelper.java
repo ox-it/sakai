@@ -66,6 +66,9 @@ import org.sakaiproject.util.StringUtil;
  */
 public class XrefHelper
 {
+	/** A thread-local key to the List<String> of files (reference string) skipped so far in the thread. */
+	public final static String FILES_SKIPPED_KEY = "XrefHelper.files.skipped";
+
 	/** A thread-local key to the List of Translations we have made so far in the thread. */
 	public final static String THREAD_TRANSLATIONS_BODY_KEY = "XrefHelper.body.translations";
 
@@ -183,6 +186,40 @@ public class XrefHelper
 		}
 
 		return rv;
+	}
+
+	/**
+	 * Format an html fragment display message about the files skipped. Use the FILES_SKIPPED_KEY thread local set.
+	 * 
+	 * @param application
+	 *        The display text for the application.
+	 * @return The display message, or a blank string if there was nothing skipped.
+	 */
+	public static String reportFilesSkipped(String application)
+	{
+		// record this as a file skipped in our thread-local list of references to files skipped
+		List<String> filesSkipped = (List<String>) ThreadLocalManager.get(FILES_SKIPPED_KEY);
+		if ((filesSkipped == null) || (filesSkipped.isEmpty())) return "";
+
+		// format: <li>In <strong>Discussions and Private Messages</strong>: xxx.jpg, yyy.jpg</li>
+		StringBuilder buf = new StringBuilder();
+		buf.append("<li>In <strong>");
+		buf.append(application);
+		buf.append("</strong>:");
+		boolean started = false;
+		for (String ref : filesSkipped)
+		{
+			String[] parts = StringUtil.split(ref, "/");
+			if (started) buf.append(", ");
+			started = true;
+			buf.append(parts[parts.length - 1]);
+		}
+		buf.append("</li>");
+
+		// clear the files skipped
+		ThreadLocalManager.set(FILES_SKIPPED_KEY, null);
+
+		return buf.toString();
 	}
 
 	/**
@@ -833,7 +870,18 @@ public class XrefHelper
 		catch (IdUsedException e)
 		{
 			// we have a resource here already, make a reference to it
-			Reference reference = EntityManager.newReference(ContentHostingService.getReference(destinationCollection + destinationName));
+			String ref = destinationCollection + destinationName;
+			Reference reference = EntityManager.newReference(ContentHostingService.getReference(ref));
+
+			// record this as a file skipped in our thread-local list of references to files skipped
+			List<String> filesSkipped = (List<String>) ThreadLocalManager.get(FILES_SKIPPED_KEY);
+			if (filesSkipped == null)
+			{
+				filesSkipped = new ArrayList<String>();
+				ThreadLocalManager.set(FILES_SKIPPED_KEY, filesSkipped);
+			}
+			filesSkipped.add(ref);
+
 			return reference;
 		}
 		finally
