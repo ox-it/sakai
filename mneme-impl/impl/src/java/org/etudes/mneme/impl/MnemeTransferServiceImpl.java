@@ -59,8 +59,10 @@ import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -79,8 +81,14 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 	/** Dependency: AttachmentService */
 	protected AttachmentService attachmentService = null;
 
+	/** Messages bundle name. */
+	protected String bundle = null;
+
 	/** Dependency: EntityManager. */
 	protected EntityManager entityManager = null;
+
+	/** Messages. */
+	protected transient InternationalizedMessages messages = null;
 
 	/** Dependency: PoolService */
 	protected PoolService poolService = null;
@@ -166,8 +174,7 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 	 */
 	public String getLabel()
 	{
-		// TODO: localize
-		return "Test Center";
+		return this.messages.getFormattedMessage("test-center", null);
 	}
 
 	/**
@@ -179,6 +186,9 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 		{
 			// entity producer registration (note: there is no reference root since we do no entities)
 			entityManager.registerEntityProducer(this, "/mneme-NEVER");
+
+			// messages
+			if (this.bundle != null) this.messages = new ResourceLoader(this.bundle);
 
 			M_log.info("init():");
 		}
@@ -234,6 +244,17 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 	public void setAttachmentService(AttachmentService service)
 	{
 		attachmentService = service;
+	}
+
+	/**
+	 * Set the message bundle.
+	 * 
+	 * @param bundle
+	 *        The message bundle.
+	 */
+	public void setBundle(String name)
+	{
+		this.bundle = name;
 	}
 
 	/**
@@ -470,15 +491,10 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 			StringBuffer importReport = importReports.get(fromContext);
 			if (importReport != null)
 			{
-				String report = XrefHelper.reportFilesSkipped("Tasks, Tests and Surveys");
-				importReport.append(report);
-
-				report = reportSkipped("Pools not imported", skippedPools);
-				importReport.append(report);
-
 				// report all assessments skipped as one list
 				skippedAssessments.addAll(skippedAssessmentsPools);
-				report = reportSkipped("Assessments not imported", skippedAssessments);
+
+				String report = reportSkipped(skippedPools, skippedAssessments);
 				importReport.append(report);
 			}
 		}
@@ -544,31 +560,78 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 	}
 
 	/**
-	 * Format an html fragment display message about the files skipped. Use the FILES_SKIPPED_KEY thread local set.
+	 * Format an html fragment display message about the files, pools and assessments skipped. Use and clear the XrefHelper's FILES_SKIPPED_KEY thread
+	 * local set.
 	 * 
-	 * @param application
-	 *        The display text for the application.
+	 * @param pools
+	 *        The names of pools skipped.
+	 * @param assessments
+	 *        The names of assessments skipped.
 	 * @return The display message, or a blank string if there was nothing skipped.
 	 */
-	protected String reportSkipped(String area, Set<String> items)
+	protected String reportSkipped(Set<String> pools, Set<String> assessments)
 	{
-		if ((items == null) || (items.isEmpty())) return "";
+		// the file skipped
+		List<String> filesSkipped = (List<String>) this.threadLocalManager.get(XrefHelper.FILES_SKIPPED_KEY);
+		if (((filesSkipped == null) || (filesSkipped.isEmpty())) && (pools.isEmpty()) && (assessments.isEmpty())) return "";
 
 		// format: <li>In <strong>Discussions and Private Messages</strong>: xxx.jpg, yyy.jpg</li>
 		StringBuilder buf = new StringBuilder();
-		buf.append("<li><strong>");
-		buf.append(area);
-		buf.append("</strong>: ");
+		buf.append("<li>");
+		buf.append(this.messages.getFormattedMessage("site-import-report-prefix", null));
+		buf.append(" ");
 		boolean started = false;
-		for (String name : items)
+
+		// files
+		if (filesSkipped != null)
 		{
-			if (started) buf.append(", ");
-			started = true;
-			buf.append("\"");
-			buf.append(name);
-			buf.append("\"");
+			for (String ref : filesSkipped)
+			{
+				String[] parts = StringUtil.split(ref, "/");
+				if (started) buf.append(", ");
+				started = true;
+				buf.append(parts[parts.length - 1]);
+			}
 		}
+
+		// pools
+		if (!pools.isEmpty())
+		{
+			buf.append(this.messages.getFormattedMessage("site-import-pools-prefix", null));
+			buf.append(" ");
+			started = false;
+			for (String name : pools)
+			{
+				if (started) buf.append(", ");
+				started = true;
+
+				buf.append("\"");
+				buf.append(name);
+				buf.append("\"");
+			}
+		}
+
+		// assessments
+		if (!assessments.isEmpty())
+		{
+			buf.append(this.messages.getFormattedMessage("site-import-assessments-prefix", null));
+			buf.append(" ");
+			started = false;
+			for (String name : assessments)
+			{
+				if (started) buf.append(", ");
+				started = true;
+
+				buf.append("\"");
+				buf.append(name);
+				buf.append("\"");
+			}
+		}
+
 		buf.append("</li>");
+
+		// clear the files skipped
+		this.threadLocalManager.set(XrefHelper.FILES_SKIPPED_KEY, null);
 
 		return buf.toString();
 	}

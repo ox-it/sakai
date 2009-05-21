@@ -608,6 +608,8 @@
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
 		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+
+		<property name="bundle"><value>mnemeImpl</value></property>
 	</bean>
 
 	<bean id="AccessSubmissionsQuestionAnswers"
