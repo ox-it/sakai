@@ -1367,6 +1367,11 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			{
 				String ref = doc.getReference(ContentHostingService.PROP_ALTERNATE_REFERENCE);
 				String url = doc.getUrl(ContentHostingService.PROP_ALTERNATE_REFERENCE);
+
+				// strip the leading transport, server DNS, port, etc, to make a root-relative URL
+				int pos = url.indexOf("/access");
+				if (pos != -1) url = url.substring(pos);
+
 				String escapedUrl = EscapeRefUrl.escapeRefUrl(ref, url);
 
 				Attachment a = new AttachmentImpl(doc.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME), ref, escapedUrl, doc
