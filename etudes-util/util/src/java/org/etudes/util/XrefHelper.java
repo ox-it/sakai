@@ -144,7 +144,7 @@ public class XrefHelper
 	 */
 	public static List<Translation> importResources(Set<String> refs, String context, String tool)
 	{
-		return importResources(refs, context, tool, false);
+		return importResources(refs, context, tool, false, false);
 	}
 
 	/**
@@ -160,7 +160,7 @@ public class XrefHelper
 	 */
 	public static List<Translation> importTranslateResources(Set<String> refs, String context, String tool)
 	{
-		return importResources(refs, context, tool, true);
+		return importResources(refs, context, tool, true, false);
 	}
 
 	/**
@@ -197,7 +197,7 @@ public class XrefHelper
 	 */
 	public static String reportFilesSkipped(String application)
 	{
-		// record this as a file skipped in our thread-local list of references to files skipped
+		// the file skipped
 		List<String> filesSkipped = (List<String>) ThreadLocalManager.get(FILES_SKIPPED_KEY);
 		if ((filesSkipped == null) || (filesSkipped.isEmpty())) return "";
 
@@ -205,7 +205,7 @@ public class XrefHelper
 		StringBuilder buf = new StringBuilder();
 		buf.append("<li>In <strong>");
 		buf.append(application);
-		buf.append("</strong>:");
+		buf.append("</strong>: ");
 		boolean started = false;
 		for (String ref : filesSkipped)
 		{
@@ -220,6 +220,50 @@ public class XrefHelper
 		ThreadLocalManager.set(FILES_SKIPPED_KEY, null);
 
 		return buf.toString();
+	}
+
+	/**
+	 * Replace any full URL references that include the server DNS, port, etc, with a root-relative one (i.e. starting with "/access")
+	 * 
+	 * @param data
+	 *        the html data.
+	 * @return The shortened data.
+	 */
+	public static String shortenFullUrls(String data)
+	{
+		if (data == null) return data;
+
+		// get the access url prefix (this does transport:dns/access/content/, but we don't want the "content" at the end
+		// because alt references start after the /access
+		String referenceUrl = ContentHostingService.getUrl("/");
+		referenceUrl = referenceUrl.substring(0, referenceUrl.length() - ("content/".length()));
+
+		Pattern p = getPattern();
+		Matcher m = p.matcher(data);
+		StringBuffer sb = new StringBuffer();
+
+		// process each "harvested" string (avoiding like strings that are not in src= or href= patterns)
+		while (m.find())
+		{
+			if (m.groupCount() == 2)
+			{
+				String ref = m.group(2);
+
+				// find the "/access/" in the ref
+				int pos = ref.indexOf("/access");
+
+				// if this is an access to our own server, shorten it to root relative (i.e. starting with "/access")
+				if ((pos != -1) && ref.startsWith(referenceUrl))
+				{
+					ref = ref.substring(pos);
+					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + "\""));
+				}
+			}
+		}
+
+		m.appendTail(sb);
+
+		return sb.toString();
 	}
 
 	/**
@@ -330,7 +374,29 @@ public class XrefHelper
 	}
 
 	/**
-	 * Translate the resource's body html with the translations.
+	 * Replace any embedded references in the html data with the translated, new references listed in translations.<br /> Also replace any references
+	 * that include the full server DNS with a root-relative (i.e. starting with "/access") one.
+	 * 
+	 * @param data
+	 *        the html data.
+	 * @param translations
+	 *        The translations.
+	 * @param siteId
+	 *        The site id.
+	 * @param parentRef
+	 *        Reference of the resource that has data as body.
+	 * @return The translated html data.
+	 */
+	public static String translateEmbeddedReferencesAndShorten(String data, Collection<Translation> translations, String siteId, String parentRef)
+	{
+		String rv = translateEmbeddedReferences(data, translations, siteId, parentRef);
+		rv = shortenFullUrls(rv);
+
+		return rv;
+	}
+
+	/**
+	 * Translate the resource's body html with the translations. Optionally shorten full URLs.
 	 * 
 	 * @param ref
 	 *        The resource reference.
@@ -338,8 +404,10 @@ public class XrefHelper
 	 *        The complete set of translations.
 	 * @param context
 	 *        The context.
+	 * @param shortenUrls
+	 *        if true, full references to resources on this server are shortened.
 	 */
-	public static void translateHtmlBody(Reference ref, Collection<Translation> translations, String context)
+	public static void translateHtmlBody(Reference ref, Collection<Translation> translations, String context, boolean shortenUrls)
 	{
 		// ref is the destination ("to" in the translations) resource - we need the "parent ref" from the source ("from" in the translations) resource
 		String parentRef = ref.getReference();
@@ -375,7 +443,16 @@ public class XrefHelper
 			{
 				byte[] body = resource.getContent();
 				String bodyString = new String(body, "UTF-8");
-				String translated = translateEmbeddedReferences(bodyString, translations, context, parentRef);
+
+				String translated = null;
+				if (shortenUrls)
+				{
+					translated = translateEmbeddedReferencesAndShorten(bodyString, translations, context, parentRef);
+				}
+				else
+				{
+					translated = translateEmbeddedReferences(bodyString, translations, context, parentRef);
+				}
 				body = translated.getBytes("UTF-8");
 
 				ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
@@ -1103,9 +1180,11 @@ public class XrefHelper
 	 *        the tool id (used as part of the attachment area resource name).
 	 * @param translate
 	 *        if true, translate any embedded references in html resources imported.
+	 * @param shortenUrls
+	 *        if true, full references to resources on this server are shortened.
 	 * @return a Translation list for each embedded document to its location in this context.
 	 */
-	protected static List<Translation> importResources(Set<String> refs, String context, String tool, boolean translate)
+	protected static List<Translation> importResources(Set<String> refs, String context, String tool, boolean translate, boolean shortenUrls)
 	{
 		// get our thread-local list of translations made in this thread
 		List<Translation> threadTranslations = (List<Translation>) ThreadLocalManager.get(THREAD_TRANSLATIONS_KEY);
@@ -1202,7 +1281,7 @@ public class XrefHelper
 			for (Reference ref : toTranslate)
 			{
 				// translate using the full set we have so far for the thread
-				translateHtmlBody(ref, threadTranslations, context);
+				translateHtmlBody(ref, threadTranslations, context, shortenUrls);
 			}
 		}
 
