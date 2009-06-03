@@ -44,7 +44,19 @@ public class DeleteSiteController extends SimpleFormController {
 	@Override
 	protected Map referenceData(HttpServletRequest request, Object command,
 			Errors errors) throws Exception {
-		return VelocityControllerUtils.referenceData(request, command, errors);
+		Map data = VelocityControllerUtils.referenceData(request, command, errors);
+		PortalHierarchyService phs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
+		PortalNode current = phs.getCurrentPortalNode();
+		boolean canDelete = true;
+		boolean hasChildren = false;
+		if (current != null) {
+			List<PortalNode> children = phs.getNodeChildren(current.getId());
+			hasChildren = children.size() > 0;
+		}
+		canDelete = !hasChildren;
+		data.put("hasChildren", hasChildren);
+		data.put("canDelete", canDelete);
+		return data;
 	}
 	
 }

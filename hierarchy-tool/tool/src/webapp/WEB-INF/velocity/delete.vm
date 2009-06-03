@@ -3,12 +3,22 @@
 #chef_portletContent()
 
 <h3>#springMessage("delete.title")</h3>
-<p>
-#springMessage("delete.intro")
+
+#if ($canDelete)
+<p class="instruction">
+	#springMessage("delete.intro")
 </p>
-<form method="POST">
-<input type="submit" value="#springMessage("delete.button")"/>
-</form>
+	<form method="POST">
+	<input type="submit" value="#springMessage("delete.button")"/>
+	</form>
+#else
+	#springMessage("delete.cannot")
+	#if ($hasChildren)
+		#springMessage("delete.cannot.children")
+	#else
+		#springMessage("delete.cannot.unknown")
+	#end
+#end
 
 
 #chef_portletContentEnd()
