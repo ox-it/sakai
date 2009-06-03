@@ -152,7 +152,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		StringBuilder query = new StringBuilder();
 		query.append("(&");
 		for (String term: terms) {
-			if (term != null && term.length() > 1) {
+			if (isValidTerm(term)) {
 				query.append("(displayName=*");
 				query.append(escapeSearchFilterTerm(term));
 				query.append("*)");
@@ -160,6 +160,12 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		}
 		query.append(")");
 		return doSearch(query.toString());
+	}
+
+	private boolean isValidTerm(String term) {
+		// We want to be able to search for 1
+		return term != null && (term.length() > 1 ||
+			(term.length() == 1 && Character.isDigit(term.charAt(0))));
 	}
 
 	public List<ExternalGroup> search(String term) throws ExternalGroupException{
