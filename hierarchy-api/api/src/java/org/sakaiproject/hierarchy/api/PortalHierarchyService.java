@@ -46,8 +46,9 @@ public interface PortalHierarchyService {
 	 * delete nodes also removes the properties
 	 * 
 	 * @param nodePath
+	 * @throws IllegalStateException When there are still children of this node.
 	 */
-	void deleteNode(String id) throws PermissionException;
+	void deleteNode(String id) throws PermissionException, IllegalStateException;
 
 	PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId) throws PermissionException;
 	
