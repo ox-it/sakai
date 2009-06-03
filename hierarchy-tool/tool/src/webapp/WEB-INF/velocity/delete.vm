@@ -3,11 +3,14 @@
 #chef_portletContent()
 
 <h3>#springMessage("delete.title")</h3>
+## Should pull global error.
+#springBind("command")
+#springShowErrors("" "")
 
 #if ($canDelete)
-<p class="instruction">
-	#springMessage("delete.intro")
-</p>
+	<p class="instruction">
+		#springMessage("delete.intro")
+	</p>
 	<form method="POST">
 	<input type="submit" value="#springMessage("delete.button")"/>
 	</form>

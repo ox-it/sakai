@@ -32,13 +32,19 @@ public class DeleteSiteController extends SimpleFormController {
 		PortalNode node = phs.getCurrentPortalNode();
 		List<PortalNode> nodes = phs.getNodesFromRoot(node.getId());
 		String parentPath = nodes.get(nodes.size()-1).getPath();
-		phs.deleteNode(node.getId());
+		try {
+			phs.deleteNode(node.getId());
+			Map model = referenceData(request, command, errors);
+			
+			model.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ parentPath);
+			
+			return new ModelAndView(getSuccessView(), model);
+		} catch (IllegalStateException ise) {
+			errors.reject("delete.error.children");
+			return showForm(request, response, errors);
+		}
 				
-		Map model = referenceData(request, command, errors);
 		
-		model.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ parentPath);
-		
-		return new ModelAndView(getSuccessView(), model);
 	}
 	
 	@Override
