@@ -39,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.etudes.util.api.Translation;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
@@ -164,6 +165,31 @@ public class XrefHelper
 	}
 
 	/**
+	 * Check if this URL is being hosted by us on this server. Consider the primary and also some alternate URL roots.
+	 * 
+	 * @param url
+	 *        The url to check.
+	 * @return true if this is a URL to a resource hosted by us, false if not.
+	 */
+	public static boolean internallyHostedUrl(String url)
+	{
+		// form the access root, and check for alternate ones
+		String accessUrl = ServerConfigurationService.getAccessUrl() + "/";
+		String[] alternateUrls = ServerConfigurationService.getStrings("alternateAccessUrlRoots");
+
+		if (url.startsWith(accessUrl)) return true;
+		if (alternateUrls != null)
+		{
+			for (String alternateUrl : alternateUrls)
+			{
+				if (url.startsWith(alternateUrl)) return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Properly lower case a CHS reference.
 	 * 
 	 * @param ref
@@ -233,11 +259,6 @@ public class XrefHelper
 	{
 		if (data == null) return data;
 
-		// get the access url prefix (this does transport:dns/access/content/, but we don't want the "content" at the end
-		// because alt references start after the /access
-		String referenceUrl = ContentHostingService.getUrl("/");
-		referenceUrl = referenceUrl.substring(0, referenceUrl.length() - ("content/".length()));
-
 		Pattern p = getPattern();
 		Matcher m = p.matcher(data);
 		StringBuffer sb = new StringBuffer();
@@ -253,7 +274,7 @@ public class XrefHelper
 				int pos = ref.indexOf("/access");
 
 				// if this is an access to our own server, shorten it to root relative (i.e. starting with "/access")
-				if ((pos != -1) && ref.startsWith(referenceUrl))
+				if ((pos != -1) && internallyHostedUrl(ref))
 				{
 					ref = ref.substring(pos);
 					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + "\""));
