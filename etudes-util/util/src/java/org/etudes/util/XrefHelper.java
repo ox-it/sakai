@@ -229,7 +229,7 @@ public class XrefHelper
 
 		// format: <li>In <strong>Discussions and Private Messages</strong>: xxx.jpg, yyy.jpg</li>
 		StringBuilder buf = new StringBuilder();
-		buf.append("<li>In <strong>");
+		buf.append("<li><strong>");
 		buf.append(application);
 		buf.append("</strong>: ");
 		boolean started = false;
