@@ -43,6 +43,8 @@ import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionService;
+import org.etudes.mneme.api.QuestionPoolService.FindQuestionsSort;
+import org.etudes.util.TranslationImpl;
 import org.etudes.util.api.Translation;
 import org.sakaiproject.util.StringUtil;
 
@@ -134,7 +136,7 @@ public abstract class QuestionStorageSample implements QuestionStorage
 	 * {@inheritDoc}
 	 */
 	public List<String> copyPoolQuestions(String userId, Pool source, Pool destination, boolean asHistory, Map<String, String> oldToNew,
-			List<Translation> attachmentTranslations)
+			List<Translation> attachmentTranslations, boolean merge)
 	{
 		List<String> rv = new ArrayList<String>();
 
@@ -177,14 +179,41 @@ public abstract class QuestionStorageSample implements QuestionStorage
 					q.getTypeSpecificQuestion().setData(data);
 				}
 
-				// save
-				saveQuestion(q);
-
-				rv.add(q.getId());
-
-				if (oldToNew != null)
+				// if merging, if there is a question in the pool that "matches" this one, use it and skip the import
+				boolean skipping = false;
+				if (merge)
 				{
-					oldToNew.put(question.getId(), q.getId());
+					List<QuestionImpl> existingQuestions = findPoolQuestions(destination, FindQuestionsSort.cdate_a, question.getType(), null, null,
+							null, null);
+					for (Question candidate : questions)
+					{
+						if (candidate.matches(q))
+						{
+							// will map references to this question.getId() , artifact.getProperties().get("id");
+							if (oldToNew != null)
+							{
+								oldToNew.put(question.getId(), candidate.getId());
+							}
+
+							// return without saving the new question - it will stay mint and be cleared
+							skipping = true;
+
+							rv.add(candidate.getId());
+						}
+					}
+				}
+
+				// save
+				if (!skipping)
+				{
+					saveQuestion(q);
+
+					rv.add(q.getId());
+
+					if (oldToNew != null)
+					{
+						oldToNew.put(question.getId(), q.getId());
+					}
 				}
 			}
 		}

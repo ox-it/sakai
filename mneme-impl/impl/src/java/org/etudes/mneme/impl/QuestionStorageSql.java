@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -39,6 +39,7 @@ import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionService;
+import org.etudes.mneme.api.QuestionPoolService.FindQuestionsSort;
 import org.etudes.util.api.Translation;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
@@ -116,48 +117,57 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	 * {@inheritDoc}
 	 */
 	public List<String> copyPoolQuestions(final String userId, final Pool source, final Pool destination, final boolean asHistory,
-			final Map<String, String> oldToNew, final List<Translation> attachmentTranslations)
+			final Map<String, String> oldToNew, final List<Translation> attachmentTranslations, boolean merge)
 	{
-		// get source's question ids
-		final List<String> poolQids = source.getAllQuestionIds(null, null);
-
 		final List<String> rv = new ArrayList<String>();
 
-		this.sqlService.transact(new Runnable()
+		// if merging, we need to do this internally, rather than in the db
+		if (merge)
 		{
-			public void run()
+			rv.addAll(copyPoolQuestionsInternally(userId, source, destination, asHistory, oldToNew, attachmentTranslations, merge));
+		}
+
+		// otherwise we can use the db transactions
+		else
+		{
+			// get source's question ids
+			final List<String> poolQids = source.getAllQuestionIds(null, null);
+
+			this.sqlService.transact(new Runnable()
 			{
-				for (String qid : poolQids)
+				public void run()
 				{
-					String newId = null;
-					if (asHistory)
+					for (String qid : poolQids)
 					{
-						newId = copyQuestionHistoricalTx(userId, qid, destination);
-						if (oldToNew != null)
+						String newId = null;
+						if (asHistory)
 						{
-							oldToNew.put(qid, newId);
+							newId = copyQuestionHistoricalTx(userId, qid, destination);
+							if (oldToNew != null)
+							{
+								oldToNew.put(qid, newId);
+							}
 						}
-					}
-					else
-					{
-						newId = copyQuestionTx(userId, qid, destination);
-						if (oldToNew != null)
+						else
 						{
-							oldToNew.put(qid, newId);
+							newId = copyQuestionTx(userId, qid, destination);
+							if (oldToNew != null)
+							{
+								oldToNew.put(qid, newId);
+							}
 						}
-					}
 
-					rv.add(newId);
+						rv.add(newId);
 
-					// translate attachments
-					if (attachmentTranslations != null)
-					{
-						translateQuestionAttachmentsTx(newId, attachmentTranslations);
+						// translate attachments
+						if (attachmentTranslations != null)
+						{
+							translateQuestionAttachmentsTx(newId, attachmentTranslations);
+						}
 					}
 				}
-			}
-		}, "copyPoolQuestions: " + source.getId());
-
+			}, "copyPoolQuestions: " + source.getId());
+		}
 		return rv;
 	}
 
@@ -390,6 +400,40 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	/**
 	 * {@inheritDoc}
 	 */
+	public List<String> findAllNonHistoricalIds()
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT Q.ID");
+		sql.append(" FROM MNEME_QUESTION Q ");
+		sql.append(" WHERE Q.MINT IN ('0', '1') AND Q.HISTORICAL='0'");
+		sql.append(" ORDER BY Q.ID ASC");
+
+		final List<String> rv = new ArrayList<String>();
+		this.sqlService.dbRead(sql.toString(), null, new SqlReader()
+		{
+			public Object readSqlResultRecord(ResultSet result)
+			{
+				try
+				{
+					String qid = SqlHelper.readId(result, 1);
+					rv.add(qid);
+
+					return null;
+				}
+				catch (SQLException e)
+				{
+					M_log.warn("findAllNonHistoricalIds: " + e);
+					return null;
+				}
+			}
+		});
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<QuestionImpl> findContextQuestions(String context, QuestionService.FindQuestionsSort sort, String questionType, Integer pageNum,
 			Integer pageSize, Boolean survey, Boolean valid)
 	{
@@ -493,40 +537,6 @@ public abstract class QuestionStorageSql implements QuestionStorage
 
 			rv = rv.subList(start, end);
 		}
-
-		return rv;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public List<String> findAllNonHistoricalIds()
-	{
-		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT Q.ID");
-		sql.append(" FROM MNEME_QUESTION Q ");
-		sql.append(" WHERE Q.MINT IN ('0', '1') AND Q.HISTORICAL='0'");
-		sql.append(" ORDER BY Q.ID ASC");
-
-		final List<String> rv = new ArrayList<String>();
-		this.sqlService.dbRead(sql.toString(), null, new SqlReader()
-		{
-			public Object readSqlResultRecord(ResultSet result)
-			{
-				try
-				{
-					String qid = SqlHelper.readId(result, 1);
-					rv.add(qid);
-
-					return null;
-				}
-				catch (SQLException e)
-				{
-					M_log.warn("findAllNonHistoricalIds: " + e);
-					return null;
-				}
-			}
-		});
 
 		return rv;
 	}
@@ -747,6 +757,108 @@ public abstract class QuestionStorageSql implements QuestionStorage
 		{
 			throw new RuntimeException("clearStaleMintQuestionsTx: db write failed");
 		}
+	}
+
+	/**
+	 * Create a new question that is a copy of each question in the pool, supporting merges
+	 * 
+	 * @param userId
+	 *        The user to own the questions.
+	 * @param source
+	 *        The pool of questions to copy.
+	 * @param destination
+	 *        the pool where the question will live.
+	 * @param asHistory
+	 *        If set, make the questions historical.
+	 * @param oldToNew
+	 *        A map, which, if present, will be filled in with the mapping of the source question id to the destination question id for each question
+	 *        copied.
+	 * @param attachmentTranslations
+	 *        A list of Translations for attachments and embedded media.
+	 * @param merge
+	 *        if true, if there is question already in the pool that matches one to be copied, don't copy it and create a new question.
+	 * @return A List of the ids of the new questions created.
+	 */
+	protected List<String> copyPoolQuestionsInternally(String userId, Pool source, Pool destination, boolean asHistory, Map<String, String> oldToNew,
+			List<Translation> attachmentTranslations, boolean merge)
+	{
+		List<String> rv = new ArrayList<String>();
+
+		List<QuestionImpl> questions = findPoolQuestions(source, QuestionService.FindQuestionsSort.cdate_a, null, null, null, null, null);
+		for (QuestionImpl question : questions)
+		{
+			QuestionImpl q = new QuestionImpl(question);
+
+			// set the destination as the pool
+			q.setPool(destination);
+
+			// clear the id to make it new
+			q.id = null;
+
+			Date now = new Date();
+
+			// set the new created and modified info
+			q.getCreatedBy().setUserId(userId);
+			q.getCreatedBy().setDate(now);
+			q.getModifiedBy().setUserId(userId);
+			q.getModifiedBy().setDate(now);
+
+			if (asHistory) q.makeHistorical();
+
+			// translate attachments and embedded media using attachmentTranslations
+			if (attachmentTranslations != null)
+			{
+				q.getPresentation()
+						.setText(this.attachmentService.translateEmbeddedReferences(q.getPresentation().getText(), attachmentTranslations));
+				q.setFeedback(this.attachmentService.translateEmbeddedReferences(q.getFeedback(), attachmentTranslations));
+				q.setHints(this.attachmentService.translateEmbeddedReferences(q.getHints(), attachmentTranslations));
+
+				String[] data = q.getTypeSpecificQuestion().getData();
+				for (int i = 0; i < data.length; i++)
+				{
+					data[i] = this.attachmentService.translateEmbeddedReferences(data[i], attachmentTranslations);
+				}
+				q.getTypeSpecificQuestion().setData(data);
+			}
+
+			// if merging, if there is a question in the pool that "matches" this one, use it and skip the import
+			boolean skipping = false;
+			if (merge)
+			{
+				List<QuestionImpl> existingQuestions = findPoolQuestions(destination, FindQuestionsSort.cdate_a, q.getType(), null, null, null, null);
+				for (Question candidate : existingQuestions)
+				{
+					if (candidate.matches(q))
+					{
+						// will map references to this question.getId() , artifact.getProperties().get("id");
+						if (oldToNew != null)
+						{
+							oldToNew.put(question.getId(), candidate.getId());
+						}
+
+						// return without saving the new question - it will stay mint and be cleared
+						skipping = true;
+
+						rv.add(candidate.getId());
+					}
+				}
+			}
+
+			// save
+			if (!skipping)
+			{
+				saveQuestion(q);
+
+				rv.add(q.getId());
+
+				if (oldToNew != null)
+				{
+					oldToNew.put(question.getId(), q.getId());
+				}
+			}
+		}
+
+		return rv;
 	}
 
 	/**

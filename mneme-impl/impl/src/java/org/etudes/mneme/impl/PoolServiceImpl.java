@@ -46,6 +46,7 @@ import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.StringUtil;
 
 /**
  * <p>
@@ -143,7 +144,7 @@ public class PoolServiceImpl implements PoolService
 		// security check
 		this.securityService.secure(sessionManager.getCurrentSessionUserId(), MnemeService.MANAGE_PERMISSION, context);
 
-		Pool rv = doCopyPool(context, pool, false, null, true, null);
+		Pool rv = doCopyPool(context, pool, false, null, true, null, false);
 
 		return rv;
 	}
@@ -524,50 +525,73 @@ public class PoolServiceImpl implements PoolService
 	 *        if true, append text to the title, else leave the title an exact copy.
 	 * @param attachmentTranslations
 	 *        A list of Translations for attachments and embedded media.
+	 * @param merge
+	 *        if true, if there is an existing pool with the same title, use it and don't create a new pool.
 	 * @return The copied pool.
 	 */
 	protected Pool doCopyPool(String context, Pool pool, boolean asHistory, Map<String, String> oldToNew, boolean appendTitle,
-			List<Translation> attachmentTranslations)
+			List<Translation> attachmentTranslations, boolean merge)
 	{
 		String userId = sessionManager.getCurrentSessionUserId();
 		Date now = new Date();
 
-		// make a copy of the pool
-		PoolImpl rv = storage.clone((PoolImpl) pool);
+		Pool rv = null;
 
-		// clear the id to make it a new one
-		rv.id = null;
-
-		// set the context
-		rv.setContext(context);
-
-		// update created and last modified information
-		rv.getCreatedBy().setDate(now);
-		rv.getCreatedBy().setUserId(userId);
-		rv.getModifiedBy().setDate(now);
-		rv.getModifiedBy().setUserId(userId);
-
-		// add to the title
-		if (appendTitle)
+		// if merging, find an existing pool with the same title and use it (for history, we always need a new pool)
+		if (merge && (!asHistory))
 		{
-			rv.setTitle(addDate("copy-text", rv.getTitle(), now));
+			// do we have a pool already?
+			List<Pool> pools = getPools(context);
+			for (Pool existingPool : pools)
+			{
+				if (!StringUtil.different(existingPool.getTitle(), pool.getTitle()))
+				{
+					rv = existingPool;
+					break;
+				}
+			}
 		}
 
-		// translate the description embedded references
-		rv.setDescription(this.attachmentService.translateEmbeddedReferences(rv.getDescription(), attachmentTranslations));
+		// if we don't have a pool yet, make one
+		if (rv == null)
+		{
+			// make a copy of the pool
+			rv = storage.clone((PoolImpl) pool);
 
-		// clear the changed settings
-		((PoolImpl) rv).clearChanged();
+			// clear the id to make it a new one
+			((PoolImpl) rv).id = null;
 
-		// save
-		storage.savePool((PoolImpl) rv);
+			// set the context
+			rv.setContext(context);
+
+			// update created and last modified information
+			rv.getCreatedBy().setDate(now);
+			rv.getCreatedBy().setUserId(userId);
+			rv.getModifiedBy().setDate(now);
+			rv.getModifiedBy().setUserId(userId);
+
+			// add to the title
+			if (appendTitle)
+			{
+				rv.setTitle(addDate("copy-text", rv.getTitle(), now));
+			}
+
+			// translate the description embedded references
+			rv.setDescription(this.attachmentService.translateEmbeddedReferences(rv.getDescription(), attachmentTranslations));
+
+			// clear the changed settings
+			((PoolImpl) rv).clearChanged();
+
+			// save
+			storage.savePool((PoolImpl) rv);
+		}
 
 		// make a copy of the questions
-		this.questionService.copyPoolQuestions(pool, rv, asHistory, oldToNew, attachmentTranslations);
+		this.questionService.copyPoolQuestions(pool, rv, asHistory, oldToNew, attachmentTranslations, merge);
 
 		if (asHistory)
 		{
-			rv.makeHistorical(rv);
+			((PoolImpl) rv).makeHistorical(rv);
 			storage.savePool((PoolImpl) rv);
 		}
 
@@ -683,7 +707,7 @@ public class PoolServiceImpl implements PoolService
 
 		if (M_log.isDebugEnabled()) M_log.debug("makePoolHistory: " + pool.getId());
 
-		Pool rv = doCopyPool(pool.getContext(), pool, true, oldToNew, false, null);
+		Pool rv = doCopyPool(pool.getContext(), pool, true, oldToNew, false, null, false);
 
 		return rv;
 	}

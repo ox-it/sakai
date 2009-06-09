@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -80,10 +80,12 @@ public interface QuestionStorage
 	 *        copied.
 	 * @param attachmentTranslations
 	 *        A list of Translations for attachments and embedded media.
+	 * @param merge
+	 *        if true, if there is question already in the pool that matches one to be copied, don't copy it and create a new question.
 	 * @return A List of the ids of the new questions created.
 	 */
 	List<String> copyPoolQuestions(String userId, Pool source, Pool destination, boolean asHistory, Map<String, String> oldToNew,
-			List<Translation> attachmentTranslations);
+			List<Translation> attachmentTranslations, boolean merge);
 
 	/**
 	 * Count the questions in this context.

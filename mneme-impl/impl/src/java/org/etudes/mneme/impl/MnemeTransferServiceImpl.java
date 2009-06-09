@@ -24,7 +24,6 @@
 
 package org.etudes.mneme.impl;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -336,10 +335,8 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 			return;
 		}
 
-		// things we are skipping
-		Set<String> skippedPools = new HashSet<String>();
+		// assessments we are skipping
 		Set<String> skippedAssessments = new HashSet<String>();
-		Set<String> skippedAssessmentsPools = new HashSet<String>();
 
 		// map from old pool ids to new ids
 		Map<String, String> pidMap = new HashMap<String, String>();
@@ -352,63 +349,6 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 
 		// get all the assessments in the from context
 		List<Assessment> assessments = this.assessmentService.getContextAssessments(fromContext, null, Boolean.FALSE);
-
-		// filter out the pools where there is one already with a matching title
-		// TODO: remove this filtering if we want all pools
-		List<Pool> existingPools = this.poolService.getPools(toContext);
-		List<Pool> skippingPools = new ArrayList<Pool>();
-		for (Iterator<Pool> i = pools.iterator(); i.hasNext();)
-		{
-			Pool fromPool = i.next();
-			for (Pool toPool : existingPools)
-			{
-				if (!StringUtil.different(fromPool.getTitle(), toPool.getTitle()))
-				{
-					skippingPools.add(fromPool);
-					i.remove();
-					skippedPools.add(fromPool.getTitle());
-					break;
-				}
-			}
-		}
-
-		// filter out the assessments where there is one already with a matching title, or where it depends on a skipped pool
-		// TODO: remove this filtering if we want all assessments
-		List<Assessment> existingAssessments = this.assessmentService.getContextAssessments(toContext, null, Boolean.FALSE);
-		for (Iterator<Assessment> i = assessments.iterator(); i.hasNext();)
-		{
-			Assessment fromAssessment = i.next();
-			boolean toRemove = false;
-
-			for (Assessment toAssessment : existingAssessments)
-			{
-				if (!StringUtil.different(fromAssessment.getTitle(), toAssessment.getTitle()))
-				{
-					toRemove = true;
-					skippedAssessments.add(fromAssessment.getTitle());
-					break;
-				}
-			}
-
-			// if assessment relies on a pool in the fromContext that we are not importing, don't import it
-			if (!toRemove)
-			{
-				for (Pool skipping : skippingPools)
-				{
-					if (assessmentDependsOnPool(fromAssessment, skipping))
-					{
-						toRemove = true;
-						skippedAssessmentsPools.add(fromAssessment.getTitle());
-						break;
-					}
-				}
-			}
-
-			if (toRemove)
-			{
-				i.remove();
-			}
-		}
 
 		// collect media references
 		Set<String> refs = new HashSet<String>();
@@ -440,11 +380,6 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 		// assessments
 		for (Assessment assessment : assessments)
 		{
-			// get this assessment's media refs instructions, part instructions, attachments
-			// for (Reference attachment : assessment.getPresentation().getAttachments())
-			// {
-			// refs.add(attachment.getReference());
-			// }
 			refs.addAll(this.attachmentService.harvestAttachmentsReferenced(assessment.getPresentation().getText(), true));
 			refs.addAll(this.attachmentService.harvestAttachmentsReferenced(assessment.getSubmitPresentation().getText(), true));
 
@@ -471,17 +406,34 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 				AttachmentService.DOCS_AREA, AttachmentService.NameConflictResolution.keepExisting, refs, AttachmentService.MNEME_THUMB_POLICY,
 				AttachmentService.REFERENCE_ROOT);
 
-		// copy each pool, with all questions
+		// copy each pool, with all questions, merging
 		for (Pool pool : pools)
 		{
-			Pool newPool = ((PoolServiceImpl) this.poolService).doCopyPool(toContext, pool, false, qidMap, false, translations);
+			Pool newPool = ((PoolServiceImpl) this.poolService).doCopyPool(toContext, pool, false, qidMap, false, translations, true);
 			pidMap.put(pool.getId(), newPool.getId());
 		}
 
-		// copy each assessment
+		// copy each assessment, unless we have a title conflict
 		for (Assessment assessment : assessments)
 		{
-			((AssessmentServiceImpl) this.assessmentService).doCopyAssessment(toContext, assessment, pidMap, qidMap, false, translations);
+			// check if we have an assessment that matches (check title only)
+			List<Assessment> existingAssessments = this.assessmentService.getContextAssessments(toContext, AssessmentService.AssessmentsSort.cdate_a,
+					Boolean.FALSE);
+			boolean skipping = false;
+			for (Assessment candidate : existingAssessments)
+			{
+				if (!StringUtil.different(candidate.getTitle(), assessment.getTitle()))
+				{
+					skipping = true;
+					skippedAssessments.add(assessment.getTitle());
+					break;
+				}
+			}
+
+			if (!skipping)
+			{
+				((AssessmentServiceImpl) this.assessmentService).doCopyAssessment(toContext, assessment, pidMap, qidMap, false, translations);
+			}
 		}
 
 		// report
@@ -491,10 +443,7 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 			StringBuffer importReport = importReports.get(fromContext);
 			if (importReport != null)
 			{
-				// report all assessments skipped as one list
-				skippedAssessments.addAll(skippedAssessmentsPools);
-
-				String report = reportSkipped(skippedPools, skippedAssessments);
+				String report = reportSkipped(skippedAssessments);
 				importReport.append(report);
 			}
 		}
@@ -560,22 +509,20 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 	}
 
 	/**
-	 * Format an html fragment display message about the files, pools and assessments skipped. Use and clear the XrefHelper's FILES_SKIPPED_KEY thread
-	 * local set.
+	 * Format an html fragment display message about the files and assessments skipped. Use and clear the XrefHelper's FILES_SKIPPED_KEY thread local
+	 * set.
 	 * 
-	 * @param pools
-	 *        The names of pools skipped.
 	 * @param assessments
 	 *        The names of assessments skipped.
 	 * @return The display message, or a blank string if there was nothing skipped.
 	 */
-	protected String reportSkipped(Set<String> pools, Set<String> assessments)
+	protected String reportSkipped(Set<String> assessments)
 	{
 		// the file skipped
 		List<String> filesSkipped = (List<String>) this.threadLocalManager.get(XrefHelper.FILES_SKIPPED_KEY);
-		if (((filesSkipped == null) || (filesSkipped.isEmpty())) && (pools.isEmpty()) && (assessments.isEmpty())) return "";
+		if (((filesSkipped == null) || (filesSkipped.isEmpty())) && (assessments.isEmpty())) return "";
 
-		// format: <li>In <strong>Discussions and Private Messages</strong>: xxx.jpg, yyy.jpg</li>
+		// format: <li><strong>Discussions and Private Messages</strong>: xxx.jpg, yyy.jpg</li>
 		StringBuilder buf = new StringBuilder();
 		buf.append("<li>");
 		buf.append(this.messages.getFormattedMessage("site-import-report-prefix", null));
@@ -591,23 +538,6 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 				if (started) buf.append(", ");
 				started = true;
 				buf.append(parts[parts.length - 1]);
-			}
-		}
-
-		// pools
-		if (!pools.isEmpty())
-		{
-			buf.append(this.messages.getFormattedMessage("site-import-pools-prefix", null));
-			buf.append(" ");
-			started = false;
-			for (String name : pools)
-			{
-				if (started) buf.append(", ");
-				started = true;
-
-				buf.append("\"");
-				buf.append(name);
-				buf.append("\"");
 			}
 		}
 

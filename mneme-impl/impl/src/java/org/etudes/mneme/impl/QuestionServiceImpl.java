@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -192,7 +192,7 @@ public class QuestionServiceImpl implements QuestionService
 		// the new questions in the destination pool may invalidate test-drive submissions in the context
 		this.submissionService.removeTestDriveSubmissions(destination.getContext());
 
-		List<String> ids = this.storage.copyPoolQuestions(userId, source, destination, false, null, null);
+		List<String> ids = this.storage.copyPoolQuestions(userId, source, destination, false, null, null, false);
 
 		// generate events for any created
 		for (String id : ids)
@@ -458,7 +458,7 @@ public class QuestionServiceImpl implements QuestionService
 		}
 
 		// return a copy
-		List rv = new ArrayList<String>(questions);
+		List<String> rv = new ArrayList<String>(questions);
 		return rv;
 	}
 
@@ -866,14 +866,16 @@ public class QuestionServiceImpl implements QuestionService
 	 *        copied.
 	 * @param attachmentTranslations
 	 *        A list of Translations for attachments and embedded media.
+	 * @param merge
+	 *        if true, if a question already exists in the pool that matches one to be copied, don't copy.
 	 */
 	protected void copyPoolQuestions(Pool source, Pool destination, boolean asHistory, Map<String, String> oldToNew,
-			List<Translation> attachmentTranslations)
+			List<Translation> attachmentTranslations, boolean merge)
 	{
 		if (M_log.isDebugEnabled()) M_log.debug("copyPoolQuestionsHistorical: source: " + source.getId() + " destination: " + destination.getId());
 
 		List<String> ids = this.storage.copyPoolQuestions(sessionManager.getCurrentSessionUserId(), source, destination, asHistory, oldToNew,
-				attachmentTranslations);
+				attachmentTranslations, merge);
 
 		if (!asHistory)
 		{

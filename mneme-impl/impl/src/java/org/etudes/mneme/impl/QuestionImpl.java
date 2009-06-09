@@ -558,6 +558,29 @@ public class QuestionImpl implements Question
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean matches(Question other)
+	{
+		if (different(this.getExplainReason(), other.getExplainReason())) return Boolean.FALSE;
+		if (different(this.getFeedback(), other.getFeedback())) return Boolean.FALSE;
+		if (different(this.getHints(), other.getHints())) return Boolean.FALSE;
+		if (different(this.getIsSurvey(), other.getIsSurvey())) return Boolean.FALSE;
+		if (different(this.getPresentation().getText(), other.getPresentation().getText())) return Boolean.FALSE;
+		if (different(this.getType(), other.getType())) return Boolean.FALSE;
+
+		String[] data1 = this.getTypeSpecificQuestion().getData();
+		String[] data2 = other.getTypeSpecificQuestion().getData();
+		if (data1.length != data2.length) return Boolean.FALSE;
+		for (int i = 0; i < data1.length; i++)
+		{
+			if (different(data1[i], data2[i])) return Boolean.FALSE;
+		}
+
+		return Boolean.TRUE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setChanged()
 	{
 		this.changed.setChanged();
@@ -680,6 +703,27 @@ public class QuestionImpl implements Question
 	protected void clearMint()
 	{
 		this.mint = Boolean.FALSE;
+	}
+
+	/**
+	 * Compare two objects for differences, either may be null
+	 * 
+	 * @param a
+	 *        One object.
+	 * @param b
+	 *        The other object.
+	 * @return true if the object are different, false if they are the same.
+	 */
+	protected boolean different(Object a, Object b)
+	{
+		// if both null, they are the same
+		if ((a == null) && (b == null)) return false;
+
+		// if either are null (they both are not), they are different
+		if ((a == null) || (b == null)) return true;
+
+		// now we know neither are null, so compare
+		return (!a.equals(b));
 	}
 
 	/**
