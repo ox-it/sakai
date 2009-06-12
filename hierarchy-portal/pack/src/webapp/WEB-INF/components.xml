@@ -15,5 +15,13 @@
 				bean="org.sakaiproject.hierarchy.api.PortalHierarchyService" />
 		</property>
 	</bean>
+	
+	<bean id="org.sakaiproject.portal.impl.HierarchySiteAliasProvider"
+		class="org.sakaiproject.portal.impl.HierarchySiteAliasProvider"
+		singleton="true">
+		<property name="portalHierarchyService">
+			<ref bean="org.sakaiproject.hierarchy.api.PortalHierarchyService"/>
+		</property>
+	</bean>
 
 </beans>
