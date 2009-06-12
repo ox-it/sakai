@@ -63,11 +63,11 @@ public class HierarchyHandler extends SiteHandler {
 		}
 	};
 
-	public HierarchyHandler(SiteService siteService, PortalHierarchyService portalHierarchyService, SecurityService securityService) {
+	public HierarchyHandler(SiteService siteService, PortalHierarchyService portalHierarchyService, SecurityService securityService, String fragment) {
 		this.siteService = siteService;
 		this.portalHierarchyService = portalHierarchyService;
 		this.securityService = securityService;
-		setUrlFragment("hierarchy");
+		setUrlFragment(fragment);
 		resetTools = ServerConfigurationService.getBoolean(Portal.CONFIG_AUTO_RESET, false);
 	}
 	
@@ -110,6 +110,8 @@ public class HierarchyHandler extends SiteHandler {
 			throws PortalHandlerException {
 		try
 		{
+			// This is so that when the site service builds URLs it uses hierarchy. 
+			session.setAttribute("sakai-controlling-portal", getUrlFragment());
 			PortalHierarchyService phs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
 			PortalNode node = null;
 			Site site = null;
