@@ -104,6 +104,7 @@ public class HierarchyHandler extends SiteHandler {
 	// /college - college site / default page
 	// /college/page/site - college site / page site
 	// /asdasd/asdasd - Error 
+	// /college/asdsad - Error
 	
 	private int doFindSite(String[] parts, int start, HttpServletRequest req,
 			HttpServletResponse res, Session session)
@@ -115,28 +116,23 @@ public class HierarchyHandler extends SiteHandler {
 			PortalHierarchyService phs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
 			PortalNode node = null;
 			Site site = null;
-			int hierarchyPartNo = parts.length;
+			String pageId = null;
+			int end = parts.length;
 			
-			// Default site.
-			if (hierarchyPartNo == start || parts[start].equals("page")) {
-				node = phs.getNode(null);
-				hierarchyPartNo = start-1;
-			} else {
-				for (; node == null && hierarchyPartNo >= start; hierarchyPartNo--) {
-					String hierarchyPath = buildPath(parts, start, hierarchyPartNo);
-					log.debug("Looking for: "+ hierarchyPath);
-					node = phs.getNode(hierarchyPath);
-				}
+			//First see if we need to trim off a page
+			if (start + 2 <= end && "page".equals(parts[end-2])) {
+				pageId = parts[end-1];
+				end -=2;
 			}
-			
+			String hierarchyPath = buildPath(parts, start, end);
+			node = phs.getNode(hierarchyPath);
 			if (node == null)
 			{
-				if (parts.length > 2)
+				if (end - start > 0)
 				{
 					try
 					{
-						site = portal.getSiteHelper().getSiteVisit(parts[2]);
-						hierarchyPartNo = 2;
+						site = portal.getSiteHelper().getSiteVisit(parts[start]);
 					}
 					catch (IdUnusedException iuue)
 					{
@@ -160,19 +156,19 @@ public class HierarchyHandler extends SiteHandler {
 						return END;
 					}
 				}
+				else
+				{
+					node = phs.getNode(null);
+				}
 			}
-			else
-			{
+			
+			if (node != null){
 				phs.setCurrentPortalNode(node);
 				site = node.getSite();
 			}
 			
 
-			
-			String pageId = null;
-			if (parts.length >= hierarchyPartNo+2 && "page".equals(parts[hierarchyPartNo+1])){
-				pageId = parts[hierarchyPartNo+2];
-			}
+
 			
 			log.debug("siteId: "+ ((site==null)?"null":site.getId())+ " pageId: "+ pageId);
 			if (node == null) {
