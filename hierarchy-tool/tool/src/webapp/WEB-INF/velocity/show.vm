@@ -34,12 +34,13 @@ No site currently set.
 <form method="get" action="${rootUrl}">
 <input type="submit" value="Cancel"/>
 </form>
-</p>
-#end
-
+#else
 <form method="GET" action="${rootUrl}/delete">
 <input type="submit" value="Remove Site"/>
 </form>
+#end
+</p>
+
 
 
 #chef_portletContentEnd()
