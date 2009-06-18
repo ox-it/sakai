@@ -21,11 +21,11 @@ No site currently set.
 
 <form method="post" action="${rootUrl}">
 <input type="hidden" name="_action" value="act_selectsite"/>
-<input type="submit" value="Change Site"/>
+<input type="submit" value="Replace Site"/>
 </form>
 
-#if ($updating)
 <p>
+#if ($updating)
 <form method="post" action="${rootUrl}">
 <input type="hidden" name="_action" value="act_savesite"/>
 <input type="hidden" name="_site" value="$!{site.id}" />
