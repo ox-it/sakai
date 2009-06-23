@@ -940,13 +940,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 					rv = entityManager.newReference(ref);
 
 					// record this as a file skipped in our thread-local list of references to files skipped
-					List<String> filesSkipped = (List<String>) ThreadLocalManager.get(XrefHelper.FILES_SKIPPED_KEY);
-					if (filesSkipped == null)
-					{
-						filesSkipped = new ArrayList<String>();
-						ThreadLocalManager.set(XrefHelper.FILES_SKIPPED_KEY, filesSkipped);
-					}
-					filesSkipped.add(ref);
+					XrefHelper.recordFileSkipped(id);
 				}
 				catch (PermissionException e)
 				{

@@ -519,7 +519,7 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 	protected String reportSkipped(Set<String> assessments)
 	{
 		// the file skipped
-		List<String> filesSkipped = (List<String>) this.threadLocalManager.get(XrefHelper.FILES_SKIPPED_KEY);
+		Set<String> filesSkipped = (Set<String>) this.threadLocalManager.get(XrefHelper.FILES_SKIPPED_KEY);
 		if (((filesSkipped == null) || (filesSkipped.isEmpty())) && (assessments.isEmpty())) return "";
 
 		// format: <li><strong>Discussions and Private Messages</strong>: xxx.jpg, yyy.jpg</li>
