@@ -67,6 +67,9 @@ import org.sakaiproject.util.StringUtil;
  */
 public class XrefHelper
 {
+	/** A thread-local key to the Set<String> of files (reference string) skipped so far in the thread. */
+	public final static String ALL_FILES_SKIPPED_KEY = "XrefHelper.all.files.skipped";
+
 	/** A thread-local key to the List<String> of files (reference string) skipped so far in the thread. */
 	public final static String FILES_SKIPPED_KEY = "XrefHelper.files.skipped";
 
@@ -78,6 +81,17 @@ public class XrefHelper
 
 	/** Our log. */
 	private static Log M_log = LogFactory.getLog(XrefHelper.class);
+
+	/**
+	 * Clear all thread local cached info. Use between sites on the same thread.
+	 */
+	public static void clearThreadCaches()
+	{
+		ThreadLocalManager.set(XrefHelper.THREAD_TRANSLATIONS_BODY_KEY, null);
+		ThreadLocalManager.set(XrefHelper.THREAD_TRANSLATIONS_KEY, null);
+		ThreadLocalManager.set(XrefHelper.FILES_SKIPPED_KEY, null);
+		ThreadLocalManager.set(XrefHelper.ALL_FILES_SKIPPED_KEY, null);
+	}
 
 	/**
 	 * Get all the resource references embedded in the html that need harvesting because they are from another site.<br /> If any are html, repeat the
@@ -215,6 +229,53 @@ public class XrefHelper
 	}
 
 	/**
+	 * Record that this resource was skipped while importing.
+	 * 
+	 * @param chsId
+	 *        The content hosting id of the destination resource that caused a file to be skipped.
+	 */
+	public static void recordFileSkipped(String chsId)
+	{
+		Set<String> filesSkipped = (Set<String>) ThreadLocalManager.get(FILES_SKIPPED_KEY);
+		if (filesSkipped == null)
+		{
+			filesSkipped = new LinkedHashSet<String>();
+			ThreadLocalManager.set(FILES_SKIPPED_KEY, filesSkipped);
+		}
+
+		filesSkipped.add(chsId);
+
+		// also add it to the master list that we don't clear
+		Set<String> allFilesSkipped = (Set<String>) ThreadLocalManager.get(ALL_FILES_SKIPPED_KEY);
+		if (allFilesSkipped == null)
+		{
+			allFilesSkipped = new LinkedHashSet<String>();
+			ThreadLocalManager.set(ALL_FILES_SKIPPED_KEY, allFilesSkipped);
+		}
+
+		allFilesSkipped.add(chsId);
+	}
+
+	/**
+	 * Record that this resource was skipped while importing, only if we have already reported so in this thread.
+	 * 
+	 * @param chsId
+	 *        The content hosting id of the destination resource that caused a file to be skipped.
+	 */
+	public static void recordFileSkippedIfAlreadySkipped(String chsId)
+	{
+		// have we skipped this so far?
+		Set<String> allFilesSkipped = (Set<String>) ThreadLocalManager.get(ALL_FILES_SKIPPED_KEY);
+		if (allFilesSkipped != null)
+		{
+			if (allFilesSkipped.contains(chsId))
+			{
+				recordFileSkipped(chsId);
+			}
+		}
+	}
+
+	/**
 	 * Format an html fragment display message about the files skipped. Use the FILES_SKIPPED_KEY thread local set.
 	 * 
 	 * @param application
@@ -224,10 +285,10 @@ public class XrefHelper
 	public static String reportFilesSkipped(String application)
 	{
 		// the file skipped
-		List<String> filesSkipped = (List<String>) ThreadLocalManager.get(FILES_SKIPPED_KEY);
+		Set<String> filesSkipped = (Set<String>) ThreadLocalManager.get(FILES_SKIPPED_KEY);
 		if ((filesSkipped == null) || (filesSkipped.isEmpty())) return "";
 
-		// format: <li>In <strong>Discussions and Private Messages</strong>: xxx.jpg, yyy.jpg</li>
+		// format: <li><strong>Discussions and Private Messages</strong>: xxx.jpg, yyy.jpg</li>
 		StringBuilder buf = new StringBuilder();
 		buf.append("<li><strong>");
 		buf.append(application);
@@ -968,18 +1029,13 @@ public class XrefHelper
 		catch (IdUsedException e)
 		{
 			// we have a resource here already, make a reference to it
-			String ref = destinationCollection + destinationName;
-			Reference reference = EntityManager.newReference(ContentHostingService.getReference(ref));
+			String chsId = destinationCollection + destinationName;
 
 			// record this as a file skipped in our thread-local list of references to files skipped
-			List<String> filesSkipped = (List<String>) ThreadLocalManager.get(FILES_SKIPPED_KEY);
-			if (filesSkipped == null)
-			{
-				filesSkipped = new ArrayList<String>();
-				ThreadLocalManager.set(FILES_SKIPPED_KEY, filesSkipped);
-			}
-			filesSkipped.add(ref);
+			recordFileSkipped(chsId);
 
+			// return a reference to the existing file
+			Reference reference = EntityManager.newReference(ContentHostingService.getReference(chsId));
 			return reference;
 		}
 		finally
@@ -1236,6 +1292,10 @@ public class XrefHelper
 				if (refString.equals(imported.getFrom()))
 				{
 					skip = true;
+
+					// report this as a skipped file only if we have already reported it as skipped for another tool (need an id, not a reference)
+					recordFileSkippedIfAlreadySkipped(refString.substring("/content".length()));
+
 					break;
 				}
 			}
