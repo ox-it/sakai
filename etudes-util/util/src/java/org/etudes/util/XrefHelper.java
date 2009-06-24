@@ -147,6 +147,86 @@ public class XrefHelper
 	}
 
 	/**
+	 * For this existing resource, harvest any embedded references into the site, translating them and the resource.
+	 * 
+	 * @param resource
+	 *        The CHS resource.
+	 * @param siteId
+	 *        The site in which the resource is to live.
+	 * @param tool
+	 *        The tool identifier.
+	 */
+	public static void harvestTranslateResource(ContentResource resource, String siteId, String tool)
+	{
+		// skip if not html
+		if (!((resource.getReference().endsWith(".html")) || (resource.getReference().endsWith(".htm")))) return;
+
+		// bypass security when reading the resource to copy
+		SecurityService.pushAdvisor(new SecurityAdvisor()
+		{
+			public SecurityAdvice isAllowed(String userId, String function, String reference)
+			{
+				return SecurityAdvice.ALLOWED;
+			}
+		});
+
+		try
+		{
+			// get the body
+			byte[] body = resource.getContent();
+			String bodyString = new String(body, "UTF-8");
+
+			// get all embedded references, deep
+			Set<String> embeddedReferences = harvestEmbeddedReferences(bodyString, siteId);
+
+			// import the embedded references
+			List<Translation> translations = XrefHelper.importTranslateResources(embeddedReferences, siteId, tool);
+
+			// translate the resource
+			String newBodyString = translateEmbeddedReferences(bodyString, translations, siteId);
+			body = newBodyString.getBytes("UTF-8");
+
+			// update the resource
+			ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
+			edit.setContent(body);
+			ContentHostingService.commitResource(edit, 0);
+		}
+		catch (ServerOverloadException e)
+		{
+			M_log.warn("harvestTranslateResource: " + e);
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			M_log.warn("harvestTranslateResource: " + e);
+		}
+		catch (PermissionException e)
+		{
+			M_log.warn("harvestTranslateResource: " + e);
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.warn("harvestTranslateResource: " + e);
+		}
+		catch (TypeException e)
+		{
+			M_log.warn("harvestTranslateResource: " + e);
+		}
+		catch (InUseException e)
+		{
+			M_log.warn("harvestTranslateResource: " + e);
+		}
+		catch (OverQuotaException e)
+		{
+			M_log.warn("harvestTranslateResource: " + e);
+		}
+		finally
+		{
+			SecurityService.popAdvisor();
+		}
+
+	}
+
+	/**
 	 * Assure that all the referenced resources are imported or found in the context.
 	 * 
 	 * @param refs
@@ -1293,8 +1373,9 @@ public class XrefHelper
 				{
 					skip = true;
 
-					// report this as a skipped file only if we have already reported it as skipped for another tool (need an id, not a reference)
-					recordFileSkippedIfAlreadySkipped(refString.substring("/content".length()));
+					// report this as a skipped file only if we have already reported it as skipped for another tool
+					// need an id, not a reference, and of the destination, not the source
+					recordFileSkippedIfAlreadySkipped(imported.getTo().substring("/content".length()));
 
 					break;
 				}
