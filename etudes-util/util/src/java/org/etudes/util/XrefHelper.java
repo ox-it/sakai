@@ -499,7 +499,11 @@ public class XrefHelper
 					}
 					catch (UnsupportedEncodingException e)
 					{
-						M_log.warn("harvestAttachmentsReferenced: " + e);
+						M_log.warn("translateEmbeddedReferences: " + e);
+					}
+					catch (IllegalArgumentException e)
+					{
+						M_log.warn("translateEmbeddedReferences: " + e);
 					}
 
 					// translate the normal form
@@ -892,6 +896,10 @@ public class XrefHelper
 						refString = URLDecoder.decode(refString, "UTF-8");
 					}
 					catch (UnsupportedEncodingException e)
+					{
+						M_log.warn("harvestEmbeddedReferences: " + e);
+					}
+					catch (IllegalArgumentException e)
 					{
 						M_log.warn("harvestEmbeddedReferences: " + e);
 					}
