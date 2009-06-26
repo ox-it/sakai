@@ -56,6 +56,10 @@ public class HierarchyResetHandler extends BasePortalHandler
 				String siteUrl = req.getContextPath() + "/hierarchy";
 				if (parts.length > 2) {
 						siteUrl = siteUrl + Web.makePath(parts, 2, parts.length);
+						// Forget about the last page, this only works for /site/siteId ones.
+						// At the moment hierarchy handler doesn't remember last page anyway.
+						String siteId = parts[2];
+						session.removeAttribute(Portal.ATTR_SITE_PAGE + siteId);
 				}
 				// Make sure to add the parameters such as panel=Main
 				String queryString = req.getQueryString();
@@ -63,10 +67,7 @@ public class HierarchyResetHandler extends BasePortalHandler
 				{
 					siteUrl = siteUrl + "?" + queryString;
 				}
-				// Forget about the last page, this only works for /site/siteId ones.
-				// At the moment hierarchy handler doesn't remember last page anyway.
-				String siteId = parts[2];
-				session.removeAttribute(Portal.ATTR_SITE_PAGE + siteId);
+
 				portalService.setResetState("true");
 				res.sendRedirect(siteUrl);
 				return RESET_DONE;
