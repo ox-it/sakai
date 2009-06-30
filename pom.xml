@@ -14,13 +14,6 @@
   <packaging>war</packaging>
   <repositories>
     <repository>
-      <id>central</id>
-      <name>Central Repository</name>
-      <url>http://repo1.maven.org/maven2</url>
-      <snapshots><enabled>false</enabled></snapshots>
-      <releases><enabled>true</enabled></releases>
-    </repository>
-    <repository>
       <id>oucs-vle</id>
       <name>OUCS VLE Repository</name>
       <layout>default</layout>
@@ -40,13 +33,6 @@
     <name>University of Oxford</name>
     <url>http://www.oucs.ox.ac.uk/</url>
   </organization>
-  <dependencies>
-    <dependency>
-      <groupId>org.tuckey</groupId>
-      <artifactId>urlrewritefilter</artifactId>
-      <version>3.1.0</version>
-    </dependency>
-  </dependencies>
   <build>
   </build>
 </project>
