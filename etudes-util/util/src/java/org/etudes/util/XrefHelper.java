@@ -70,9 +70,6 @@ public class XrefHelper
 	/** A thread-local key to the Set<String> of files (reference string) skipped so far in the thread. */
 	public final static String ALL_FILES_SKIPPED_KEY = "XrefHelper.all.files.skipped";
 
-	/** A thread-local key to the List<String> of files (reference string) skipped so far in the thread. */
-	public final static String FILES_SKIPPED_KEY = "XrefHelper.files.skipped";
-
 	/** A thread-local key to the List of Translations we have made so far in the thread. */
 	public final static String THREAD_TRANSLATIONS_BODY_KEY = "XrefHelper.body.translations";
 
@@ -89,7 +86,6 @@ public class XrefHelper
 	{
 		ThreadLocalManager.set(XrefHelper.THREAD_TRANSLATIONS_BODY_KEY, null);
 		ThreadLocalManager.set(XrefHelper.THREAD_TRANSLATIONS_KEY, null);
-		ThreadLocalManager.set(XrefHelper.FILES_SKIPPED_KEY, null);
 		ThreadLocalManager.set(XrefHelper.ALL_FILES_SKIPPED_KEY, null);
 	}
 
@@ -316,16 +312,6 @@ public class XrefHelper
 	 */
 	public static void recordFileSkipped(String chsId)
 	{
-		Set<String> filesSkipped = (Set<String>) ThreadLocalManager.get(FILES_SKIPPED_KEY);
-		if (filesSkipped == null)
-		{
-			filesSkipped = new LinkedHashSet<String>();
-			ThreadLocalManager.set(FILES_SKIPPED_KEY, filesSkipped);
-		}
-
-		filesSkipped.add(chsId);
-
-		// also add it to the master list that we don't clear
 		Set<String> allFilesSkipped = (Set<String>) ThreadLocalManager.get(ALL_FILES_SKIPPED_KEY);
 		if (allFilesSkipped == null)
 		{
@@ -337,54 +323,42 @@ public class XrefHelper
 	}
 
 	/**
-	 * Record that this resource was skipped while importing, only if we have already reported so in this thread.
-	 * 
-	 * @param chsId
-	 *        The content hosting id of the destination resource that caused a file to be skipped.
-	 */
-	public static void recordFileSkippedIfAlreadySkipped(String chsId)
-	{
-		// have we skipped this so far?
-		Set<String> allFilesSkipped = (Set<String>) ThreadLocalManager.get(ALL_FILES_SKIPPED_KEY);
-		if (allFilesSkipped != null)
-		{
-			if (allFilesSkipped.contains(chsId))
-			{
-				recordFileSkipped(chsId);
-			}
-		}
-	}
-
-	/**
 	 * Format an html fragment display message about the files skipped. Use the FILES_SKIPPED_KEY thread local set.
 	 * 
 	 * @param application
 	 *        The display text for the application.
 	 * @return The display message, or a blank string if there was nothing skipped.
 	 */
-	public static String reportFilesSkipped(String application)
+	public static String reportAllFilesSkipped(String prefix, String application)
 	{
-		// the file skipped
-		Set<String> filesSkipped = (Set<String>) ThreadLocalManager.get(FILES_SKIPPED_KEY);
+		// the file skipped - the full list from the thread
+		Set<String> filesSkipped = (Set<String>) ThreadLocalManager.get(ALL_FILES_SKIPPED_KEY);
 		if ((filesSkipped == null) || (filesSkipped.isEmpty())) return "";
 
-		// format: <li><strong>Discussions and Private Messages</strong>: xxx.jpg, yyy.jpg</li>
+		// format: <li><strong>Resources</strong>: xxx.jpg, yyy.jpg</li>
 		StringBuilder buf = new StringBuilder();
-		buf.append("<li><strong>");
-		buf.append(application);
-		buf.append("</strong>: ");
 		boolean started = false;
-		for (String ref : filesSkipped)
+		for (String id : filesSkipped)
 		{
-			String[] parts = StringUtil.split(ref, "/");
-			if (started) buf.append(", ");
-			started = true;
-			buf.append(parts[parts.length - 1]);
+			// only with our prefix
+			if (id.startsWith(prefix))
+			{
+				String[] parts = StringUtil.split(id, "/");
+				if (!started)
+				{
+					buf.append("<li><strong>");
+					buf.append(application);
+					buf.append("</strong>: ");
+				}
+				if (started) buf.append(", ");
+				started = true;
+				buf.append(parts[parts.length - 1]);
+			}
 		}
-		buf.append("</li>");
-
-		// clear the files skipped
-		ThreadLocalManager.set(FILES_SKIPPED_KEY, null);
+		if (started)
+		{
+			buf.append("</li>");
+		}
 
 		return buf.toString();
 	}
@@ -1380,11 +1354,6 @@ public class XrefHelper
 				if (refString.equals(imported.getFrom()))
 				{
 					skip = true;
-
-					// report this as a skipped file only if we have already reported it as skipped for another tool
-					// need an id, not a reference, and of the destination, not the source
-					recordFileSkippedIfAlreadySkipped(imported.getTo().substring("/content".length()));
-
 					break;
 				}
 			}
