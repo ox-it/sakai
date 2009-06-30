@@ -49,7 +49,6 @@ import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.SecurityService;
-import org.etudes.util.XrefHelper;
 import org.etudes.util.api.Translation;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -435,18 +434,6 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 				((AssessmentServiceImpl) this.assessmentService).doCopyAssessment(toContext, assessment, pidMap, qidMap, false, translations);
 			}
 		}
-
-		// report
-		HashMap<String, StringBuffer> importReports = (HashMap<String, StringBuffer>) this.threadLocalManager.get("IMPORTSITE_PROCESS");
-		if (importReports != null)
-		{
-			StringBuffer importReport = importReports.get(fromContext);
-			if (importReport != null)
-			{
-				String report = reportSkipped(skippedAssessments);
-				importReport.append(report);
-			}
-		}
 	}
 
 	/**
@@ -506,63 +493,5 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 		}
 
 		return false;
-	}
-
-	/**
-	 * Format an html fragment display message about the files and assessments skipped. Use and clear the XrefHelper's FILES_SKIPPED_KEY thread local
-	 * set.
-	 * 
-	 * @param assessments
-	 *        The names of assessments skipped.
-	 * @return The display message, or a blank string if there was nothing skipped.
-	 */
-	protected String reportSkipped(Set<String> assessments)
-	{
-		// the file skipped
-		Set<String> filesSkipped = (Set<String>) this.threadLocalManager.get(XrefHelper.FILES_SKIPPED_KEY);
-		if (((filesSkipped == null) || (filesSkipped.isEmpty())) && (assessments.isEmpty())) return "";
-
-		// format: <li><strong>Discussions and Private Messages</strong>: xxx.jpg, yyy.jpg</li>
-		StringBuilder buf = new StringBuilder();
-		buf.append("<li>");
-		buf.append(this.messages.getFormattedMessage("site-import-report-prefix", null));
-		buf.append(" ");
-		boolean started = false;
-
-		// files
-		if (filesSkipped != null)
-		{
-			for (String ref : filesSkipped)
-			{
-				String[] parts = StringUtil.split(ref, "/");
-				if (started) buf.append(", ");
-				started = true;
-				buf.append(parts[parts.length - 1]);
-			}
-		}
-
-		// assessments
-		if (!assessments.isEmpty())
-		{
-			buf.append(this.messages.getFormattedMessage("site-import-assessments-prefix", null));
-			buf.append(" ");
-			started = false;
-			for (String name : assessments)
-			{
-				if (started) buf.append(", ");
-				started = true;
-
-				buf.append("\"");
-				buf.append(name);
-				buf.append("\"");
-			}
-		}
-
-		buf.append("</li>");
-
-		// clear the files skipped
-		this.threadLocalManager.set(XrefHelper.FILES_SKIPPED_KEY, null);
-
-		return buf.toString();
 	}
 }
