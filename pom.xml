@@ -9,7 +9,7 @@
   <groupId>uk.ac.ox.oucs</groupId>
   <!-- Watch SAK-13112 for a better way -->
   <artifactId>ROOT</artifactId>
-  <version>1.4</version>
+  <version>1.5-SNAPSHOT</version>
   <name>Root WebApp</name>
   <packaging>war</packaging>
   <repositories>
@@ -24,9 +24,9 @@
     </repository>
   </repositories>
   <scm>
-    <developerConnection>scm:svn:https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/tags/ROOT-1.4</developerConnection>
-    <connection>scm:svn:https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/tags/ROOT-1.4</connection>
-    <url>https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/tags/ROOT-1.4</url>
+    <developerConnection>scm:svn:https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/trunk</developerConnection>
+    <connection>scm:svn:https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/trunk</connection>
+    <url>https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/trunk</url>
   </scm>
   <inceptionYear>2007</inceptionYear>
   <organization>
