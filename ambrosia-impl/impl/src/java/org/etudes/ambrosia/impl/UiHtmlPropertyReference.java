@@ -26,6 +26,7 @@ package org.etudes.ambrosia.impl;
 
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.api.HtmlPropertyReference;
+import org.etudes.util.XrefHelper;
 import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Element;
 
@@ -122,6 +123,13 @@ public class UiHtmlPropertyReference extends UiPropertyReference implements Html
 			{
 				value = "";
 			}
+			
+			// shorten any full URL embedded references (such as what Tiny puts in for "emotions")
+			else
+			{
+				value = XrefHelper.shortenFullUrls(value);
+			}
+			
 		}
 
 		return value;
