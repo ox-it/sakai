@@ -255,31 +255,6 @@ public class XrefHelper
 	}
 
 	/**
-	 * Check if this URL is being hosted by us on this server. Consider the primary and also some alternate URL roots.
-	 * 
-	 * @param url
-	 *        The url to check.
-	 * @return true if this is a URL to a resource hosted by us, false if not.
-	 */
-	public static boolean internallyHostedUrl(String url)
-	{
-		// form the access root, and check for alternate ones
-		String accessUrl = ServerConfigurationService.getAccessUrl() + "/";
-		String[] alternateUrls = ServerConfigurationService.getStrings("alternateAccessUrlRoots");
-
-		if (url.startsWith(accessUrl)) return true;
-		if (alternateUrls != null)
-		{
-			for (String alternateUrl : alternateUrls)
-			{
-				if (url.startsWith(alternateUrl)) return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
 	 * Properly lower case a CHS reference.
 	 * 
 	 * @param ref
@@ -364,7 +339,8 @@ public class XrefHelper
 	}
 
 	/**
-	 * Replace any full URL references that include the server DNS, port, etc, with a root-relative one (i.e. starting with "/access")
+	 * Replace any full URL references that include the server DNS, port, etc, with a root-relative one (i.e. starting with "/access" or "/library" or
+	 * whatever)
 	 * 
 	 * @param data
 	 *        the html data.
@@ -385,11 +361,9 @@ public class XrefHelper
 			{
 				String ref = m.group(2);
 
-				// find the "/access/" in the ref
-				int pos = ref.indexOf("/access");
-
 				// if this is an access to our own server, shorten it to root relative (i.e. starting with "/access")
-				if ((pos != -1) && internallyHostedUrl(ref))
+				int pos = internallyHostedUrl(ref);
+				if (pos != -1)
 				{
 					ref = ref.substring(pos);
 					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + "\""));
@@ -1449,6 +1423,31 @@ public class XrefHelper
 		}
 
 		return rv;
+	}
+
+	/**
+	 * Check if this URL is being hosted by us on this server. Consider the primary and also some alternate URL roots.
+	 * 
+	 * @param url
+	 *        The url to check.
+	 * @return -1 if not, or the index position in the url of the start of the relative portion (i.e. after the server URL root)
+	 */
+	protected static int internallyHostedUrl(String url)
+	{
+		// form the access root, and check for alternate ones
+		String serverUrl = ServerConfigurationService.getServerUrl();
+		String[] alternateUrls = ServerConfigurationService.getStrings("alternateServerUrlRoots");
+
+		if (url.startsWith(serverUrl)) return serverUrl.length();
+		if (alternateUrls != null)
+		{
+			for (String alternateUrl : alternateUrls)
+			{
+				if (url.startsWith(alternateUrl)) return alternateUrl.length();
+			}
+		}
+
+		return -1;
 	}
 
 	/**
