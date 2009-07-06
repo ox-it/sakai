@@ -60,7 +60,6 @@ import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
 import org.etudes.util.TranslationImpl;
-import org.etudes.util.XrefHelper;
 import org.etudes.util.api.Translation;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -938,9 +937,6 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 					// use the alternate reference
 					String ref = existing.getReference(ContentHostingService.PROP_ALTERNATE_REFERENCE);
 					rv = entityManager.newReference(ref);
-
-					// record this as a file skipped in our thread-local list of references to files skipped
-					XrefHelper.recordFileSkipped(id);
 				}
 				catch (PermissionException e)
 				{
