@@ -67,9 +67,6 @@ import org.sakaiproject.util.StringUtil;
  */
 public class XrefHelper
 {
-	/** A thread-local key to the Set<String> of files (reference string) skipped so far in the thread. */
-	public final static String ALL_FILES_SKIPPED_KEY = "XrefHelper.all.files.skipped";
-
 	/** A thread-local key to the List of Translations we have made so far in the thread. */
 	public final static String THREAD_TRANSLATIONS_BODY_KEY = "XrefHelper.body.translations";
 
@@ -86,7 +83,6 @@ public class XrefHelper
 	{
 		ThreadLocalManager.set(XrefHelper.THREAD_TRANSLATIONS_BODY_KEY, null);
 		ThreadLocalManager.set(XrefHelper.THREAD_TRANSLATIONS_KEY, null);
-		ThreadLocalManager.set(XrefHelper.ALL_FILES_SKIPPED_KEY, null);
 	}
 
 	/**
@@ -277,65 +273,6 @@ public class XrefHelper
 		}
 
 		return rv;
-	}
-
-	/**
-	 * Record that this resource was skipped while importing.
-	 * 
-	 * @param chsId
-	 *        The content hosting id of the destination resource that caused a file to be skipped.
-	 */
-	public static void recordFileSkipped(String chsId)
-	{
-		Set<String> allFilesSkipped = (Set<String>) ThreadLocalManager.get(ALL_FILES_SKIPPED_KEY);
-		if (allFilesSkipped == null)
-		{
-			allFilesSkipped = new LinkedHashSet<String>();
-			ThreadLocalManager.set(ALL_FILES_SKIPPED_KEY, allFilesSkipped);
-		}
-
-		allFilesSkipped.add(chsId);
-	}
-
-	/**
-	 * Format an html fragment display message about the files skipped. Use the FILES_SKIPPED_KEY thread local set.
-	 * 
-	 * @param application
-	 *        The display text for the application.
-	 * @return The display message, or a blank string if there was nothing skipped.
-	 */
-	public static String reportAllFilesSkipped(String prefix, String application)
-	{
-		// the file skipped - the full list from the thread
-		Set<String> filesSkipped = (Set<String>) ThreadLocalManager.get(ALL_FILES_SKIPPED_KEY);
-		if ((filesSkipped == null) || (filesSkipped.isEmpty())) return "";
-
-		// format: <li><strong>Resources</strong>: xxx.jpg, yyy.jpg</li>
-		StringBuilder buf = new StringBuilder();
-		boolean started = false;
-		for (String id : filesSkipped)
-		{
-			// only with our prefix
-			if (id.startsWith(prefix))
-			{
-				String[] parts = StringUtil.split(id, "/");
-				if (!started)
-				{
-					buf.append("<li><strong>");
-					buf.append(application);
-					buf.append("</strong>: ");
-				}
-				if (started) buf.append(", ");
-				started = true;
-				buf.append(parts[parts.length - 1]);
-			}
-		}
-		if (started)
-		{
-			buf.append("</li>");
-		}
-
-		return buf.toString();
 	}
 
 	/**
@@ -1066,9 +1003,6 @@ public class XrefHelper
 		{
 			// we have a resource here already, make a reference to it
 			String chsId = destinationCollection + destinationName;
-
-			// record this as a file skipped in our thread-local list of references to files skipped
-			recordFileSkipped(chsId);
 
 			// return a reference to the existing file
 			Reference reference = EntityManager.newReference(ContentHostingService.getReference(chsId));
