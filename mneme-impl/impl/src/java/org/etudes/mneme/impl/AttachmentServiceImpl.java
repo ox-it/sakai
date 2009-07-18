@@ -181,7 +181,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				return null;
 			}
 
-			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size, makeThumb, altRef);
+			Reference rv = addAttachment(name, name, application, context, prefix, onConflict, type, body, size, makeThumb, altRef);
 			return rv;
 		}
 		finally
@@ -214,7 +214,10 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			byte[] body = resource.getContent();
 			String name = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 
-			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size, makeThumb, altRef);
+			// form an id from the
+			String id = massageName(resource.getId());
+
+			Reference rv = addAttachment(id, name, application, context, prefix, onConflict, type, body, size, makeThumb, altRef);
 			return rv;
 		}
 		catch (PermissionException e)
@@ -265,7 +268,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				return null;
 			}
 
-			Reference rv = addAttachment(name, application, context, prefix, onConflict, type, body, size, makeThumb, altRef);
+			Reference rv = addAttachment(name, name, application, context, prefix, onConflict, type, body, size, makeThumb, altRef);
 			return rv;
 		}
 		finally
@@ -500,7 +503,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			for (String ref : process)
 			{
 				// check for any html
-				if (ref.endsWith(".html") || (ref.endsWith(".htm")))
+				String type = getReferencedDocumentType(ref);
+				if ("text/html".equals(type))
 				{
 					// read the referenced html
 					String secondaryData = readReferencedDocument(ref);
@@ -559,7 +563,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			for (String ref : process)
 			{
 				// check for any html
-				if (ref.endsWith(".html") || (ref.endsWith(".htm")))
+				String type = getReferencedDocumentType(ref);
+				if ("text/html".equals(type))
 				{
 					// read the referenced html
 					String secondaryData = readReferencedDocument(ref);
@@ -640,7 +645,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 				// do we need a second-pass translation?
 				String importedRef = imported.getReference();
-				if ((importedRef.endsWith(".html")) || (importedRef.endsWith(".htm")))
+				String type = getReferencedDocumentType(importedRef);
+				if ("text/html".equals(type))
 				{
 					// check if we have done this already in the thread (Reference.equals() is not to be trusted -ggolden)
 					boolean found = false;
@@ -899,7 +905,10 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	/**
 	 * Go through the add process, trying the various requested conflict resolution steps.
 	 * 
+	 * @param idName
+	 *        The CHS id (name part) to use.
 	 * @param name
+	 *        The display name.
 	 * @param application
 	 * @param context
 	 * @param prefix
@@ -911,16 +920,16 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 * @param altRef
 	 * @return
 	 */
-	protected Reference addAttachment(String name, String application, String context, String prefix, NameConflictResolution onConflict, String type,
-			byte[] body, long size, boolean makeThumb, String altRef)
+	protected Reference addAttachment(String idName, String name, String application, String context, String prefix,
+			NameConflictResolution onConflict, String type, byte[] body, long size, boolean makeThumb, String altRef)
 	{
-		String id = contentHostingId(name, application, context, prefix, (onConflict == NameConflictResolution.alwaysUseFolder), altRef);
+		String id = contentHostingId(idName, application, context, prefix, (onConflict == NameConflictResolution.alwaysUseFolder), altRef);
 		Reference rv = doAdd(id, name, type, body, size, false, (onConflict == NameConflictResolution.rename), altRef);
 
 		// if this failed and we need to fall back to using a folder, try again
 		if ((rv == null) && (onConflict == NameConflictResolution.useFolder))
 		{
-			id = contentHostingId(name, application, context, prefix, true, altRef);
+			id = contentHostingId(idName, application, context, prefix, true, altRef);
 			rv = doAdd(id, name, type, body, size, false, false, altRef);
 		}
 
@@ -1203,7 +1212,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 * @param id
 	 *        The content hosting id.
 	 * @param name
-	 *        The simple file name.
+	 *        The display name.
 	 * @param type
 	 *        The mime type.
 	 * @param body
@@ -1444,6 +1453,56 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		}
 
 		return rv;
+	}
+
+	/**
+	 * Get a CHS document's mime type.
+	 * 
+	 * @param ref
+	 *        The document reference.
+	 * @return The document's mime type.
+	 */
+	protected String getReferencedDocumentType(String ref)
+	{
+		// bypass security when reading the resource to copy
+		pushAdvisor();
+
+		try
+		{
+			// get an id from the reference string
+			Reference reference = this.entityManager.newReference(ref);
+			String id = reference.getId();
+			if (id.startsWith("/content/"))
+			{
+				id = id.substring("/content".length());
+			}
+
+			try
+			{
+				// read the resource
+				ContentResource r = this.contentHostingService.getResource(id);
+				String type = r.getContentType();
+
+				return type;
+			}
+			catch (IdUnusedException e)
+			{
+			}
+			catch (TypeException e)
+			{
+				M_log.warn("getReferencedDocumentType: " + e.toString());
+			}
+			catch (PermissionException e)
+			{
+				M_log.warn("getReferencedDocumentType: " + e.toString());
+			}
+		}
+		finally
+		{
+			popAdvisor();
+		}
+
+		return "";
 	}
 
 	/**
