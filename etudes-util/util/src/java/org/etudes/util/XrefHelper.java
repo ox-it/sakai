@@ -114,7 +114,8 @@ public class XrefHelper
 			for (String ref : process)
 			{
 				// check for any html
-				if (ref.endsWith(".html") || (ref.endsWith(".htm")))
+				String type = readReferencedDocumentType(ref);
+				if ("text/html".equals(type))
 				{
 					// read the referenced html
 					String secondaryData = readReferencedDocument(ref);
@@ -151,7 +152,7 @@ public class XrefHelper
 	public static void harvestTranslateResource(ContentResource resource, String siteId, String tool)
 	{
 		// skip if not html
-		if (!((resource.getReference().endsWith(".html")) || (resource.getReference().endsWith(".htm")))) return;
+		if (!"text/html".equals(resource.getContentType())) return;
 
 		// bypass security when reading the resource to copy
 		SecurityService.pushAdvisor(new SecurityAdvisor()
@@ -1300,7 +1301,8 @@ public class XrefHelper
 			if (imported != null)
 			{
 				String importedRef = imported.getReference();
-				if ((importedRef.endsWith(".html")) || (importedRef.endsWith(".htm")))
+				String type = readReferencedDocumentType(importedRef);
+				if ("text/html".equals(type))
 				{
 					// check if we have done this already in the thread (Reference.equals() is not to be trusted -ggolden)
 					boolean found = false;
@@ -1494,6 +1496,62 @@ public class XrefHelper
 			catch (ServerOverloadException e)
 			{
 				M_log.warn("readReferencedDocument: " + e.toString());
+			}
+		}
+		finally
+		{
+			SecurityService.popAdvisor();
+		}
+
+		return "";
+	}
+
+	/**
+	 * Read a document's mime type from content hosting.
+	 * 
+	 * @param ref
+	 *        The document reference.
+	 * @return The document's mime type.
+	 */
+	protected static String readReferencedDocumentType(String ref)
+	{
+		// bypass security when reading the resource to copy
+		SecurityService.pushAdvisor(new SecurityAdvisor()
+		{
+			public SecurityAdvice isAllowed(String userId, String function, String reference)
+			{
+				return SecurityAdvice.ALLOWED;
+			}
+		});
+
+		try
+		{
+			// get an id from the reference string
+			Reference reference = EntityManager.newReference(ref);
+			String id = reference.getId();
+			if (id.startsWith("/content/"))
+			{
+				id = id.substring("/content".length());
+			}
+
+			try
+			{
+				// read the resource
+				ContentResource r = ContentHostingService.getResource(id);
+				String type = r.getContentType();
+
+				return type;
+			}
+			catch (IdUnusedException e)
+			{
+			}
+			catch (TypeException e)
+			{
+				M_log.warn("readReferencedDocumentType: " + e.toString());
+			}
+			catch (PermissionException e)
+			{
+				M_log.warn("readReferencedDocumentType: " + e.toString());
 			}
 		}
 		finally
