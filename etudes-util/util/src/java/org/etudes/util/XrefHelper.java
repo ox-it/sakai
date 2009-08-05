@@ -1474,6 +1474,8 @@ public class XrefHelper
 
 				// get the body into a string
 				byte[] body = r.getContent();
+				if (body == null) return null;
+
 				String bodyString = new String(body, "UTF-8");
 
 				return bodyString;
