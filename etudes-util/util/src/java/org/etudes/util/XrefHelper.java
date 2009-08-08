@@ -167,22 +167,25 @@ public class XrefHelper
 		{
 			// get the body
 			byte[] body = resource.getContent();
-			String bodyString = new String(body, "UTF-8");
+			if (body != null)
+			{
+				String bodyString = new String(body, "UTF-8");
 
-			// get all embedded references, deep
-			Set<String> embeddedReferences = harvestEmbeddedReferences(bodyString, siteId);
+				// get all embedded references, deep
+				Set<String> embeddedReferences = harvestEmbeddedReferences(bodyString, siteId);
 
-			// import the embedded references
-			List<Translation> translations = XrefHelper.importTranslateResources(embeddedReferences, siteId, tool);
+				// import the embedded references
+				List<Translation> translations = XrefHelper.importTranslateResources(embeddedReferences, siteId, tool);
 
-			// translate the resource
-			String newBodyString = translateEmbeddedReferences(bodyString, translations, siteId);
-			body = newBodyString.getBytes("UTF-8");
+				// translate the resource
+				String newBodyString = translateEmbeddedReferences(bodyString, translations, siteId);
+				body = newBodyString.getBytes("UTF-8");
 
-			// update the resource
-			ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
-			edit.setContent(body);
-			ContentHostingService.commitResource(edit, 0);
+				// update the resource
+				ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
+				edit.setContent(body);
+				ContentHostingService.commitResource(edit, 0);
+			}
 		}
 		catch (ServerOverloadException e)
 		{
@@ -494,22 +497,25 @@ public class XrefHelper
 			if (type.equals("text/html"))
 			{
 				byte[] body = resource.getContent();
-				String bodyString = new String(body, "UTF-8");
-
-				String translated = null;
-				if (shortenUrls)
+				if (body != null)
 				{
-					translated = translateEmbeddedReferencesAndShorten(bodyString, translations, context, parentRef);
-				}
-				else
-				{
-					translated = translateEmbeddedReferences(bodyString, translations, context, parentRef);
-				}
-				body = translated.getBytes("UTF-8");
+					String bodyString = new String(body, "UTF-8");
 
-				ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
-				edit.setContent(body);
-				ContentHostingService.commitResource(edit, 0);
+					String translated = null;
+					if (shortenUrls)
+					{
+						translated = translateEmbeddedReferencesAndShorten(bodyString, translations, context, parentRef);
+					}
+					else
+					{
+						translated = translateEmbeddedReferences(bodyString, translations, context, parentRef);
+					}
+					body = translated.getBytes("UTF-8");
+
+					ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
+					edit.setContent(body);
+					ContentHostingService.commitResource(edit, 0);
+				}
 			}
 		}
 		catch (UnsupportedEncodingException e)
