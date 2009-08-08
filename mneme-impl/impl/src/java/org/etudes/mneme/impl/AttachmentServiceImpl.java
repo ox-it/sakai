@@ -1875,13 +1875,16 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			if (type.equals("text/html"))
 			{
 				byte[] body = resource.getContent();
-				String bodyString = new String(body, "UTF-8");
-				String translated = translateEmbeddedReferences(bodyString, translations, parentRef);
-				body = translated.getBytes("UTF-8");
-
-				ContentResourceEdit edit = this.contentHostingService.editResource(resource.getId());
-				edit.setContent(body);
-				this.contentHostingService.commitResource(edit, 0);
+				if (body != null)
+				{
+					String bodyString = new String(body, "UTF-8");
+					String translated = translateEmbeddedReferences(bodyString, translations, parentRef);
+					body = translated.getBytes("UTF-8");
+	
+					ContentResourceEdit edit = this.contentHostingService.editResource(resource.getId());
+					edit.setContent(body);
+					this.contentHostingService.commitResource(edit, 0);
+				}
 			}
 		}
 		catch (UnsupportedEncodingException e)
