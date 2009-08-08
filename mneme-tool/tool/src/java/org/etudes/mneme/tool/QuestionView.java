@@ -116,11 +116,23 @@ public class QuestionView extends ControllerImpl
 			return;
 		}
 
+		// if not in-progress (i.e. already closed)
+		if (submission.getIsComplete())
+		{
+			// redirect to error
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.over)));
+			return;			
+		}
+
 		// handle our 'z' selector - redirect to the appropriate question to re-enter this submission
 		if ("z".equals(questionSelector))
 		{
 			try
 			{
+				// Note: enterSubmission() can create a new submission, if the submission is not in progress.
+				// Our submission has no sibling count (=0), since we used getSubmission(), which does not set it.
+				// enterSubmission() will think there are no other submissions, so would create one even if the max allowed
+				// for the user has been exceeded.  Since we check getIsComplete() above, this should be avoided -ggolden
 				this.submissionService.enterSubmission(submission);
 			}
 			catch (AssessmentPermissionException e)
