@@ -201,8 +201,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 		try
 		{
-			// if from our docs, convert into a content hosting ref
-			if (resourceRef.getType().equals(APPLICATION_ID))
+			// if from our docs, convert into a content hosting ref (The id of the Reference in this case is not a real CHS id).
+			if (resourceRef.getType().equals(APPLICATION_ID_ROOT + application))
 			{
 				resourceRef = entityManager.newReference(resourceRef.getId());
 			}
@@ -728,7 +728,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				id = "/" + StringUtil.unsplit(parts, 2, parts.length - 2, "/");
 			}
 
-			ref.set(APPLICATION_ID, null, id, null, context);
+			ref.set(APPLICATION_ID_ROOT + MNEME_APPLICATION, null, id, null, context);
 
 			return true;
 		}

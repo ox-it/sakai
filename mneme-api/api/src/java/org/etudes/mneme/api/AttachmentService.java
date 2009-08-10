@@ -43,9 +43,9 @@ public interface AttachmentService
 	}
 
 	/**
-	 * The type string for this application: should not change over time as it may be stored in various parts of persistent entities.
+	 * The root of type string for applications: add MNENE_APPLICATION or as appropriate to match the Reference type value.
 	 */
-	static final String APPLICATION_ID = "sakai:mneme";
+	static final String APPLICATION_ID_ROOT = "sakai:";
 
 	/** Prefix for the MnemeDocs area. */
 	static final String DOCS_AREA = "docs";
@@ -54,7 +54,7 @@ public interface AttachmentService
 	static final String MNEME_APPLICATION = "mneme";
 
 	/** In Mneme, we want thumb resources created for attached images. */
-	public final static boolean MNEME_THUMB_POLICY = true;
+	final static boolean MNEME_THUMB_POLICY = true;
 
 	/** This string starts the references to uploaded resources. */
 	static final String REFERENCE_ROOT = "/mneme";
