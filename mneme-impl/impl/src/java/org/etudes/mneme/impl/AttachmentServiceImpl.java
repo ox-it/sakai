@@ -201,20 +201,21 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 		try
 		{
-			// if from our docs, convert into a content hosting ref (The id of the Reference in this case is not a real CHS id).
-			if (resourceRef.getType().equals(APPLICATION_ID_ROOT + application))
+			// get an id from the reference string
+			String chsId = resourceRef.getId();
+			if (chsId.startsWith("/content/"))
 			{
-				resourceRef = entityManager.newReference(resourceRef.getId());
+				chsId = chsId.substring("/content".length());
 			}
 
 			// make sure we can read!
-			ContentResource resource = this.contentHostingService.getResource(resourceRef.getId());
+			ContentResource resource = this.contentHostingService.getResource(chsId);
 			String type = resource.getContentType();
 			long size = resource.getContentLength();
 			byte[] body = resource.getContent();
 			String name = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 
-			// form an id from the
+			// form an id from the resource id
 			String id = massageName(resource.getId());
 
 			Reference rv = addAttachment(id, name, application, context, prefix, onConflict, type, body, size, makeThumb, altRef);
@@ -668,7 +669,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			}
 			else
 			{
-				M_log.warn("importResources: failed to import resource: " + ref.toString());
+				M_log.warn("importResources: failed to import resource: " + ref.getReference());
 			}
 		}
 
