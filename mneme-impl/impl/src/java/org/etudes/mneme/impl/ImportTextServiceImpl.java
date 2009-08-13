@@ -823,7 +823,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		// find the answers
 		for (Integer answerIndex : multipleAnswers)
 		{
-			if (choicesAuthored.size() < answerIndex)
+			if (choicesAuthored.size() <= answerIndex)
 				return false;
 			
 			correctAnswers.add(Integer.valueOf(choicesAuthored.get(answerIndex).getId()));
