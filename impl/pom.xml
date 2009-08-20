@@ -11,6 +11,61 @@
 	<artifactId>external-groups-impl</artifactId>
 	<name>External Groups Implementation</name>
 	<packaging>jar</packaging>
+	<profiles>
+		<profile>
+			<id>pre-K1</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-component</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-authz-api</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-entity-api</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-entity-util</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-user-api</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-user-util</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-util-api</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>K1</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.sakaiproject.kernel</groupId>
+					<artifactId>sakai-kernel-api</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject.kernel</groupId>
+					<artifactId>sakai-component-manager</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject.kernel</groupId>
+					<artifactId>sakai-kernel-util</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 	<dependencies>
 		<dependency>
 			<groupId>uk.ac.ox.oucs</groupId>
@@ -20,37 +75,11 @@
 			<groupId>uk.ac.ox.oucs</groupId>
 			<artifactId>external-groups-hbm</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-authz-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-entity-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-entity-util</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-user-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-user-util</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util-api</artifactId>
-		</dependency>
+
+
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-jldap-provider</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-component</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
