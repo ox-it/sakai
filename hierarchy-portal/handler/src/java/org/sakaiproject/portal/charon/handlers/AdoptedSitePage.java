@@ -212,7 +212,12 @@ public class AdoptedSitePage implements SitePage {
 	}
 
 	public void setupPageCategory(String toolId) {
-		//original.setupPageCategory(toolId);
+		original.setupPageCategory(toolId);
+	}
+
+	public void localizePage() {
+		original.localizePage();
+		
 	}
 
 }
