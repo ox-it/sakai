@@ -126,4 +126,24 @@
 			</dependencies>
 		</profile>
 	</profiles>
+	
+	<build>
+		<resources>
+			<resource>
+				<directory>${project.build.sourceDirectory}</directory>
+				<includes>
+					<!-- We have velocity macros. -->
+					<include>**/*.vm</include>
+				</includes>
+			</resource>
+			
+			<resource>
+				<directory>${basedir}/src/bundle</directory>
+				<includes>
+					<!-- We have velocity macros. -->
+					<include>**/*</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
 </project>
