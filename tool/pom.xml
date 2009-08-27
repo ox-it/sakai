@@ -113,6 +113,12 @@
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-jsp-adapter</artifactId>
 			<version>0.8-M2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-tool-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>uk.ac.ox.oucs</groupId>
