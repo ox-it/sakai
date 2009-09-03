@@ -1,38 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>oxford-master</artifactId>
-    <groupId>uk.ac.ox.oucs</groupId>
-    <version>1.4</version>
-  </parent>
   <groupId>uk.ac.ox.oucs</groupId>
   <!-- Watch SAK-13112 for a better way -->
-  <artifactId>ROOT</artifactId>
+  <artifactId>portal-redirect</artifactId>
   <version>1.5-SNAPSHOT</version>
   <name>Root WebApp</name>
   <packaging>war</packaging>
-  <repositories>
-    <repository>
-      <id>oucs-vle</id>
-      <name>OUCS VLE Repository</name>
-      <layout>default</layout>
-      <url>http://archiva.oucs.ox.ac.uk/archiva/repository/internal/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
   <scm>
     <developerConnection>scm:svn:https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/trunk</developerConnection>
     <connection>scm:svn:https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/trunk</connection>
     <url>https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/trunk</url>
   </scm>
+  <distributionManagement>
+    <repository>
+      <id>maven-repo.oucs</id>
+      <name>OUCS Maven Repository</name>
+      <url>http://maven-repo.oucs.ox.ac.uk/content/repositories/releases/</url>
+      <layout>default</layout>
+      <uniqueVersion>false</uniqueVersion>
+    </repository>
+  </distributionManagement>
   <inceptionYear>2007</inceptionYear>
   <organization>
     <name>University of Oxford</name>
     <url>http://www.oucs.ox.ac.uk/</url>
   </organization>
   <build>
+    <finalName>ROOT</finalName>
   </build>
 </project>
