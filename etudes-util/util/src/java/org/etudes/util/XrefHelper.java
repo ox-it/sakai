@@ -86,8 +86,8 @@ public class XrefHelper
 	}
 
 	/**
-	 * Get all the resource references embedded in the html that need harvesting because they are from another site.<br /> If any are html, repeat the
-	 * process for those to harvest their embedded references.
+	 * Get all the resource references embedded in the html that need harvesting because they are from another site.<br />
+	 * If any are html, repeat the process for those to harvest their embedded references.
 	 * 
 	 * @param data
 	 *        The html data.
@@ -280,8 +280,7 @@ public class XrefHelper
 	}
 
 	/**
-	 * Replace any full URL references that include the server DNS, port, etc, with a root-relative one (i.e. starting with "/access" or "/library" or
-	 * whatever)
+	 * Replace any full URL references that include the server DNS, port, etc, with a root-relative one (i.e. starting with "/access" or "/library" or whatever)
 	 * 
 	 * @param data
 	 *        the html data.
@@ -294,6 +293,9 @@ public class XrefHelper
 		Pattern p = getPattern();
 		Matcher m = p.matcher(data);
 		StringBuffer sb = new StringBuffer();
+
+		// for the relative access check: matches ..\..\access\ etc with any number of leading "../"
+		Pattern relAccessPattern = Pattern.compile("^(../)+(access/.*)");
 
 		// process each "harvested" string (avoiding like strings that are not in src= or href= patterns)
 		while (m.find())
@@ -308,6 +310,17 @@ public class XrefHelper
 				{
 					ref = ref.substring(pos);
 					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + "\""));
+				}
+
+				// if this is a relative access URL, fix it
+				else
+				{
+					Matcher relAccessMatcher = relAccessPattern.matcher(ref);
+					if (relAccessMatcher.matches())
+					{
+						ref = "/" + relAccessMatcher.group(2);
+						m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + "\""));
+					}
 				}
 			}
 		}
@@ -429,8 +442,8 @@ public class XrefHelper
 	}
 
 	/**
-	 * Replace any embedded references in the html data with the translated, new references listed in translations.<br /> Also replace any references
-	 * that include the full server DNS with a root-relative (i.e. starting with "/access") one.
+	 * Replace any embedded references in the html data with the translated, new references listed in translations.<br />
+	 * Also replace any references that include the full server DNS with a root-relative (i.e. starting with "/access") one.
 	 * 
 	 * @param data
 	 *        the html data.
@@ -742,8 +755,8 @@ public class XrefHelper
 	}
 
 	/**
-	 * Get all the resource references embedded in the html that need harvesting because they are from another site.<br /> If any are html, repeat the
-	 * process for those to harvest their embedded references.
+	 * Get all the resource references embedded in the html that need harvesting because they are from another site.<br />
+	 * If any are html, repeat the process for those to harvest their embedded references.
 	 * 
 	 * @param data
 	 *        The html data.
@@ -919,8 +932,7 @@ public class XrefHelper
 	 *        the source to copy.
 	 * @param context
 	 *        The destination context.
-	 * @return A reference to the new resource, or if we didn't copy because of a name conflict, a reference to the existing resource that blocked the
-	 *         copy.
+	 * @return A reference to the new resource, or if we didn't copy because of a name conflict, a reference to the existing resource that blocked the copy.
 	 */
 	protected static Reference importResourceIfNoConflict(Reference resourceRef, String context)
 	{
