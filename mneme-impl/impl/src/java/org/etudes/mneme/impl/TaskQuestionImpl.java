@@ -204,6 +204,7 @@ public class TaskQuestionImpl extends EssayQuestionImpl
 				this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer")));
 		showModelAnswerSection.add(showModelAnswer);
 
-		return this.uiService.newFragment().setMessages(this.messages).add(modelAnswerOverlay).add(questionSection).add(typeSection).add(showModelAnswerSection);
+		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(typeSection).add(modelAnswerOverlay).add(
+				showModelAnswerSection);
 	}
 }
