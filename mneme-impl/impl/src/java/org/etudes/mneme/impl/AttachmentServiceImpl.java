@@ -628,6 +628,10 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				if (refString.equals(imported.getFrom()))
 				{
 					skip = true;
+
+					// we need the translation as part of the return set
+					rv.add(imported);
+
 					break;
 				}
 			}
@@ -1507,8 +1511,9 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	}
 
 	/**
-	 * Collect all the attachment references in the html data:<br /> Anything referenced by a src= or href=. in our content docs, or in a site content
-	 * area <br /> Ignore anything in a myWorkspace content area or the public content area. <br />
+	 * Collect all the attachment references in the html data:<br />
+	 * Anything referenced by a src= or href=. in our content docs, or in a site content area <br />
+	 * Ignore anything in a myWorkspace content area or the public content area. <br />
 	 * 
 	 * @param data
 	 *        The data string.
@@ -1641,7 +1646,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	}
 
 	/**
-	 * Trim the name to only the characters after the last slash of either kind.<br /> Remove junk from uploaded file names.
+	 * Trim the name to only the characters after the last slash of either kind.<br />
+	 * Remove junk from uploaded file names.
 	 * 
 	 * @param name
 	 *        The string to trim.
@@ -1881,7 +1887,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 					String bodyString = new String(body, "UTF-8");
 					String translated = translateEmbeddedReferences(bodyString, translations, parentRef);
 					body = translated.getBytes("UTF-8");
-	
+
 					ContentResourceEdit edit = this.contentHostingService.editResource(resource.getId());
 					edit.setContent(body);
 					this.contentHostingService.commitResource(edit, 0);
