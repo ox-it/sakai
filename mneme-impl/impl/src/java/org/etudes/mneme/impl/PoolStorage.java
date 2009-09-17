@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -81,13 +81,15 @@ public interface PoolStorage
 	PoolImpl getPool(String poolId);
 
 	/**
-	 * Access all pools in the context (excluding mints and historicals).
+	 * Access all pools in the context (excluding mints).
 	 * 
 	 * @param context
 	 *        The context.
+	 * @param includeHistorical
+	 *        if true, include historical pools, else exclude them.
 	 * @return The List of Pools in the context.
 	 */
-	List<PoolImpl> getPools(String context);
+	List<PoolImpl> getPools(String context, boolean includeHistorical);
 
 	/**
 	 * Get any pools that are mint and old enough to be considered abandoned.

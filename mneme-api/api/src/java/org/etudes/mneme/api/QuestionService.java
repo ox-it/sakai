@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -167,7 +167,7 @@ public interface QuestionService extends QuestionPoolService, QuestionGetService
 	void removeQuestion(Question question) throws AssessmentPermissionException;
 
 	/**
-	 * Save changes made to this question.
+	 * Save changes made to this question. The question cannot be historical.
 	 * 
 	 * @param question
 	 *        The question to save.
@@ -175,4 +175,16 @@ public interface QuestionService extends QuestionPoolService, QuestionGetService
 	 *         if the current user is not allowed to edit this question.
 	 */
 	void saveQuestion(Question question) throws AssessmentPermissionException;
+
+	/**
+	 * Save changes made to this question. If the question is historical, it will be saved if the parameter is so set.
+	 * 
+	 * @param question
+	 *        The question to save.
+	 * @param allowHistorical
+	 *        if TRUE, the question will be saved even if historical (else this throws the IllegalArgumentException).
+	 * @throws AssessmentPermissionException
+	 *         if the current user is not allowed to edit this question.
+	 */
+	void saveQuestion(Question question, Boolean allowHistorical) throws AssessmentPermissionException;
 }

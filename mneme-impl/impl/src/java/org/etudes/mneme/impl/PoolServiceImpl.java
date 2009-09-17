@@ -194,6 +194,21 @@ public class PoolServiceImpl implements PoolService
 	/**
 	 * {@inheritDoc}
 	 */
+	public List<Pool> getAllPools(String context)
+	{
+		if (context == null) throw new IllegalArgumentException();
+
+		if (M_log.isDebugEnabled()) M_log.debug("getAllPools: " + context);
+
+		// get all the pools for the context
+		List<Pool> rv = new ArrayList<Pool>(this.storage.getPools(context, true));
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Pool getPool(String poolId)
 	{
 		if (poolId == null) throw new IllegalArgumentException();
@@ -227,7 +242,7 @@ public class PoolServiceImpl implements PoolService
 		if (M_log.isDebugEnabled()) M_log.debug("getPools: " + context);
 
 		// get all the pools for the context
-		List<Pool> rv = new ArrayList<Pool>(this.storage.getPools(context));
+		List<Pool> rv = new ArrayList<Pool>(this.storage.getPools(context, false));
 
 		return rv;
 	}
@@ -519,8 +534,7 @@ public class PoolServiceImpl implements PoolService
 	 * @param asHistory
 	 *        If set, make the pool and questions all historical.
 	 * @param oldToNew
-	 *        A map, which, if present, will be filled in with the mapping of the source question id to the destination question id for each question
-	 *        copied.
+	 *        A map, which, if present, will be filled in with the mapping of the source question id to the destination question id for each question copied.
 	 * @param appendTitle
 	 *        if true, append text to the title, else leave the title an exact copy.
 	 * @param attachmentTranslations
@@ -697,8 +711,7 @@ public class PoolServiceImpl implements PoolService
 	 * @param pool
 	 *        The pool to copy.
 	 * @param oldToNew
-	 *        A map, which, if present, will be filled in with the mapping of the source question id to the destination question id for each question
-	 *        copied.
+	 *        A map, which, if present, will be filled in with the mapping of the source question id to the destination question id for each question copied.
 	 * @return The historical pool.
 	 */
 	protected Pool makePoolHistory(Pool pool, Map<String, String> oldToNew)

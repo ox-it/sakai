@@ -157,12 +157,17 @@ public abstract class PoolStorageSql implements PoolStorage
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<PoolImpl> getPools(String context)
+	public List<PoolImpl> getPools(String context, boolean includeHistorical)
 	{
-		// if ((!pool.historical) && (!pool.getMint()) && pool.getContext().equals(context))
+		// if (((!pool.historical) || includeHistorical) && (!pool.getMint()) && pool.getContext().equals(context))
 
 		StringBuilder whereOrder = new StringBuilder();
-		whereOrder.append("WHERE P.CONTEXT=? AND P.MINT='0' AND P.HISTORICAL='0' ORDER BY CREATED_BY_DATE ASC");
+		whereOrder.append("WHERE P.CONTEXT=? AND P.MINT='0'");
+		if (!includeHistorical)
+		{
+			whereOrder.append(" AND P.HISTORICAL='0'");
+		}
+		whereOrder.append(" ORDER BY CREATED_BY_DATE ASC");
 
 		Object[] fields = new Object[1];
 		fields[0] = context;

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -76,7 +76,7 @@ public interface PoolService extends PoolGetService
 	Boolean existsPool(String poolId);
 
 	/**
-	 * Locate a list of pools in this context with this criteria (excluding mints and historicals).
+	 * Locate a list of pools in this context with this criteria (excluding mints and historical).
 	 * 
 	 * @param context
 	 *        The context.
@@ -89,7 +89,16 @@ public interface PoolService extends PoolGetService
 	List<Pool> findPools(String context, FindPoolsSort sort, String search);
 
 	/**
-	 * Get all the pools available to the context (excluding mints and historicals).
+	 * Get all the pools available to the context (including historical).
+	 * 
+	 * @param context
+	 *        The context.
+	 * @return The pools available to the context.
+	 */
+	List<Pool> getAllPools(String context);
+
+	/**
+	 * Get all the pools available to the context (excluding mints and historical).
 	 * 
 	 * @param context
 	 *        The context.

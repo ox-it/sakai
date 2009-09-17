@@ -640,46 +640,18 @@ public class QuestionServiceImpl implements QuestionService
 	 */
 	public void saveQuestion(Question question) throws AssessmentPermissionException
 	{
-		if (question == null) throw new IllegalArgumentException();
 		if (((QuestionImpl) question).getIsHistorical()) throw new IllegalArgumentException();
+		saveTheQuestion(question);
+	}
 
-		// if any changes made, clear mint
-		if (question.getIsChanged())
-		{
-			// if other than just a survey change
-			if (!((QuestionImpl) question).getSurveyOnlyChanged())
-			{
-				((QuestionImpl) question).clearMint();
-			}
-		}
-
-		// otherwise we don't save: but if mint, we delete
-		else
-		{
-			// if mint, delete instead of save
-			if (((QuestionImpl) question).getMint())
-			{
-				if (M_log.isDebugEnabled()) M_log.debug("saveQuestion: deleting mint: " + question.getId());
-
-				// Note: mint questions cannot have already been dependened on, so we can just forget about it.
-				this.storage.removeQuestion((QuestionImpl) question);
-
-				// event
-				eventTrackingService.post(eventTrackingService.newEvent(MnemeService.QUESTION_DELETE, getQuestionReference(question.getId()), true));
-			}
-
-			return;
-		}
-
-		if (M_log.isDebugEnabled()) M_log.debug("saveQuestion: " + question.getId());
-
-		// the changed question might invalidate test-drive submissions
-		this.submissionService.removeTestDriveSubmissions(question.getContext());
-
-		// security check
-		securityService.secure(sessionManager.getCurrentSessionUserId(), MnemeService.MANAGE_PERMISSION, question.getContext());
-
-		doSave(question);
+	/**
+	 * {@inheritDoc}
+	 */
+	public void saveQuestion(Question question, Boolean allowHistorical) throws AssessmentPermissionException
+	{
+		if (((allowHistorical == null) || (!allowHistorical.booleanValue())) && ((QuestionImpl) question).getIsHistorical())
+			throw new IllegalArgumentException();
+		saveTheQuestion(question);
 	}
 
 	/**
@@ -862,8 +834,7 @@ public class QuestionServiceImpl implements QuestionService
 	 * @param asHistory
 	 *        If set, copy the questions as historical
 	 * @param oldToNew
-	 *        A map, which, if present, will be filled in with the mapping of the source question id to the destination question id for each question
-	 *        copied.
+	 *        A map, which, if present, will be filled in with the mapping of the source question id to the destination question id for each question copied.
 	 * @param attachmentTranslations
 	 *        A list of Translations for attachments and embedded media.
 	 * @param merge
@@ -977,6 +948,57 @@ public class QuestionServiceImpl implements QuestionService
 	{
 		String ref = MnemeService.REFERENCE_ROOT + "/" + MnemeService.QUESTION_TYPE + "/" + questionId;
 		return ref;
+	}
+
+	/**
+	 * Save changes made to this question.
+	 * 
+	 * @param question
+	 *        The question to save.
+	 * @throws AssessmentPermissionException
+	 *         if the current user is not allowed to edit this question.
+	 */
+	protected void saveTheQuestion(Question question) throws AssessmentPermissionException
+	{
+		if (question == null) throw new IllegalArgumentException();
+
+		// if any changes made, clear mint
+		if (question.getIsChanged())
+		{
+			// if other than just a survey change
+			if (!((QuestionImpl) question).getSurveyOnlyChanged())
+			{
+				((QuestionImpl) question).clearMint();
+			}
+		}
+
+		// otherwise we don't save: but if mint, we delete
+		else
+		{
+			// if mint, delete instead of save
+			if (((QuestionImpl) question).getMint())
+			{
+				if (M_log.isDebugEnabled()) M_log.debug("saveQuestion: deleting mint: " + question.getId());
+
+				// Note: mint questions cannot have already been dependened on, so we can just forget about it.
+				this.storage.removeQuestion((QuestionImpl) question);
+
+				// event
+				eventTrackingService.post(eventTrackingService.newEvent(MnemeService.QUESTION_DELETE, getQuestionReference(question.getId()), true));
+			}
+
+			return;
+		}
+
+		if (M_log.isDebugEnabled()) M_log.debug("saveQuestion: " + question.getId());
+
+		// the changed question might invalidate test-drive submissions
+		this.submissionService.removeTestDriveSubmissions(question.getContext());
+
+		// security check
+		securityService.secure(sessionManager.getCurrentSessionUserId(), MnemeService.MANAGE_PERMISSION, question.getContext());
+
+		doSave(question);
 	}
 
 	/**

@@ -180,7 +180,7 @@ public abstract class PoolStorageSample implements PoolStorage
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<PoolImpl> getPools(String context)
+	public List<PoolImpl> getPools(String context, boolean includeHistorical)
 	{
 		fakeIt();
 
@@ -188,7 +188,7 @@ public abstract class PoolStorageSample implements PoolStorage
 
 		for (PoolImpl pool : this.pools.values())
 		{
-			if ((!pool.historical) && (!pool.getMint()) && pool.getContext().equals(context))
+			if (((!pool.historical) || includeHistorical) && (!pool.getMint()) && pool.getContext().equals(context))
 			{
 				rv.add(clone(pool));
 			}

@@ -351,7 +351,7 @@ public abstract class PoolStorageTestX extends TestCase
 		pool5.getModifiedBy().setUserId("admin");
 		this.storage.savePool(pool5);
 
-		List<PoolImpl> pools = this.storage.getPools(CONTEXT);
+		List<PoolImpl> pools = this.storage.getPools(CONTEXT,false);
 		assertTrue(pools != null);
 		assertTrue(pools.size() == 4);
 		assertTrue(pools.get(0).equals(pool1));
