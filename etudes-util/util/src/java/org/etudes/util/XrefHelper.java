@@ -297,12 +297,17 @@ public class XrefHelper
 		// for the relative access check: matches ..\..\access\ etc with any number of leading "../"
 		Pattern relAccessPattern = Pattern.compile("^(../)+(access/.*)");
 
+		// to fix our messed up URLs with this pattern:
+		// /access/content/private/meleteDocs/3349d4ca-38f3-4744-00c6-26715545e441/module_339214362/../../../../access/meleteDocs/content/private/meleteDocs/3349d4ca-38f3-4744-00c6-26715545e441/uploads/applelogohistory.jpg
+		Pattern messUpFixPattern = Pattern.compile("^/access/content/.*(../)+(access/.*)");
+
 		// process each "harvested" string (avoiding like strings that are not in src= or href= patterns)
 		while (m.find())
 		{
 			if (m.groupCount() == 2)
 			{
 				String ref = m.group(2);
+				String origRef = ref;
 
 				// if this is an access to our own server, shorten it to root relative (i.e. starting with "/access")
 				int pos = internallyHostedUrl(ref);
@@ -320,6 +325,18 @@ public class XrefHelper
 					{
 						ref = "/" + relAccessMatcher.group(2);
 						m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + "\""));
+					}
+
+					// fix a botched attempt a xref fixing that got tripped up with ../../../../access relative references
+					else
+					{
+						Matcher messUpFixer = messUpFixPattern.matcher(ref);
+						if (messUpFixer.matches())
+						{
+							ref = "/" + messUpFixer.group(2);
+							m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + "\""));
+							M_log.warn("shortenFullUrls: fixing ref: " + origRef + " : to : " + ref);
+						}
 					}
 				}
 			}
@@ -665,8 +682,8 @@ public class XrefHelper
 	 */
 	protected static String adjustRelativeReference(String ref, String parentRef)
 	{
-		// if no transport, and it does not start with "/", it is a relative reference
-		if ((parentRef != null) && (ref != null) && (ref.indexOf("://") == -1) && (!(ref.startsWith("/"))))
+		// if no transport, and it does not start with "/", and it does not start with ".", it is the kind of relative reference we can work with
+		if ((parentRef != null) && (ref != null) && (ref.indexOf("://") == -1) && (!ref.startsWith(".")) && (!(ref.startsWith("/"))))
 		{
 			// replace the part after the last "/" in the parentRef with the ref
 			int pos = parentRef.lastIndexOf('/');
