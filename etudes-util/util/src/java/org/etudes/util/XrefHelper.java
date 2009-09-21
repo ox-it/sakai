@@ -993,7 +993,14 @@ public class XrefHelper
 			}
 
 			// the new resource collection and name
-			destinationCollection = "/group/" + context + relativePath;
+			if (context.startsWith("~"))
+			{
+				destinationCollection = "/user/" + context.substring(1) + relativePath;
+			}
+			else
+			{
+				destinationCollection = "/group/" + context + relativePath;
+			}
 			destinationName = parts[parts.length - 1];
 
 			// make sure to remove the reference root sakai:reference-root
