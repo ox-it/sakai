@@ -304,9 +304,10 @@ public class XrefHelper
 		// process each "harvested" string (avoiding like strings that are not in src= or href= patterns)
 		while (m.find())
 		{
-			if (m.groupCount() == 2)
+			if (m.groupCount() == 3)
 			{
 				String ref = m.group(2);
+				String terminator = m.group(3);
 				String origRef = ref;
 
 				// if this is an access to our own server, shorten it to root relative (i.e. starting with "/access")
@@ -314,7 +315,7 @@ public class XrefHelper
 				if (pos != -1)
 				{
 					ref = ref.substring(pos);
-					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + "\""));
+					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + terminator));
 				}
 
 				// if this is a relative access URL, fix it
@@ -324,7 +325,7 @@ public class XrefHelper
 					if (relAccessMatcher.matches())
 					{
 						ref = "/" + relAccessMatcher.group(2);
-						m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + "\""));
+						m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + terminator));
 					}
 
 					// fix a botched attempt a xref fixing that got tripped up with ../../../../access relative references
@@ -334,7 +335,7 @@ public class XrefHelper
 						if (messUpFixer.matches())
 						{
 							ref = "/" + messUpFixer.group(2);
-							m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + "\""));
+							m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + terminator));
 							M_log.warn("shortenFullUrls: fixing ref: " + origRef + " : to : " + ref);
 						}
 					}
@@ -391,9 +392,10 @@ public class XrefHelper
 		// process each "harvested" string (avoiding like strings that are not in src= or href= patterns)
 		while (m.find())
 		{
-			if (m.groupCount() == 2)
+			if (m.groupCount() == 3)
 			{
 				String ref = m.group(2);
+				String terminator = m.group(3);
 
 				// expand to a full reference if relative
 				ref = adjustRelativeReference(ref, parentRef);
@@ -447,7 +449,7 @@ public class XrefHelper
 					// if changed, replace
 					if (!normal.equals(translated))
 					{
-						m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref.substring(0, index + 7) + escaped + "\""));
+						m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref.substring(0, index + 7) + escaped + terminator));
 					}
 				}
 			}
@@ -762,13 +764,13 @@ public class XrefHelper
 	}
 
 	/**
-	 * Create the embedded reference detection pattern. It creates three groups: 0 - the entire matc, 1- src|href, 2-the reference.
+	 * Create the embedded reference detection pattern. It creates four groups: 0-the entire match, 1- src|href, 2-the reference, 3-the terminating character.
 	 * 
 	 * @return The Pattern.
 	 */
 	protected static Pattern getPattern()
 	{
-		return Pattern.compile("(src|href)[\\s]*=[\\s]*\"([^\"]*)\"", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+		return Pattern.compile("(src|href)[\\s]*=[\\s]*\"([^#\"]*)([#\"])", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 	}
 
 	/**
@@ -792,7 +794,7 @@ public class XrefHelper
 		Matcher m = p.matcher(data);
 		while (m.find())
 		{
-			if (m.groupCount() == 2)
+			if (m.groupCount() == 3)
 			{
 				String ref = m.group(2);
 
