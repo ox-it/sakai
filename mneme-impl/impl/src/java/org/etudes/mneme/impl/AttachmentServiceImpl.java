@@ -1529,13 +1529,13 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		if (data == null) return rv;
 
 		// pattern to find any src= or href= text
-		// groups: 0: the whole matching text 1: src|href 2: the string in the quotes
-		Pattern p = Pattern.compile("(src|href)[\\s]*=[\\s]*\"([^\"]*)\"");
+		// groups: 0: the whole matching text 1: src|href 2: the string in the quotes 3: the terminator character
+		Pattern p = Pattern.compile("(src|href)[\\s]*=[\\s]*\"([^#\"]*)([#\"])", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
 		Matcher m = p.matcher(data);
 		while (m.find())
 		{
-			if (m.groupCount() == 2)
+			if (m.groupCount() == 3)
 			{
 				String ref = m.group(2);
 
@@ -1770,8 +1770,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		if (translations == null) return data;
 
 		// pattern to find any src= or href= text
-		// groups: 0: the whole matching text 1: src|href 2: the string in the quotes
-		Pattern p = Pattern.compile("(src|href)[\\s]*=[\\s]*\"([^\"]*)\"");
+		// groups: 0: the whole matching text 1: src|href 2: the string in the quotes 3: the terminator character
+		Pattern p = Pattern.compile("(src|href)[\\s]*=[\\s]*\"([^#\"]*)([#\"])", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
 		Matcher m = p.matcher(data);
 		StringBuffer sb = new StringBuffer();
@@ -1779,9 +1779,10 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		// process each "harvested" string (avoiding like strings that are not in src= or href= patterns)
 		while (m.find())
 		{
-			if (m.groupCount() == 2)
+			if (m.groupCount() == 3)
 			{
 				String ref = m.group(2);
+				String terminator = m.group(3);
 
 				// expand to a full reference if relative
 				ref = adjustRelativeReference(ref, parentRef);
@@ -1832,7 +1833,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 					// if changed, replace
 					if (!normal.equals(translated))
 					{
-						m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref.substring(0, index + 7) + escaped + "\""));
+						m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref.substring(0, index + 7) + escaped + terminator));
 					}
 				}
 			}
