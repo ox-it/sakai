@@ -1035,8 +1035,9 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 */
 	protected String adjustRelativeReference(String ref, String parentRef)
 	{
-		// if no transport, and it does not start with "/", it is a relative reference
-		if ((parentRef != null) && (ref != null) && (ref.indexOf("://") == -1) && (!(ref.startsWith("/"))))
+		// if no transport, not a "mailto:", and it does not start with "/", it is a relative reference
+		if ((parentRef != null) && (ref != null) && (parentRef.length() > 0) && (ref.length() > 0) && (ref.indexOf("://") == -1)
+				&& (!(ref.startsWith("/")) && (!(ref.toLowerCase().startsWith("mailto:")))))
 		{
 			// replace the part after the last "/" in the parentRef with the ref
 			int pos = parentRef.lastIndexOf('/');
@@ -1539,6 +1540,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			{
 				String ref = m.group(2);
 
+				if (ref != null) ref = ref.trim();
+
 				// expand to a full reference if relative
 				ref = adjustRelativeReference(ref, parentRef);
 
@@ -1783,6 +1786,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			{
 				String ref = m.group(2);
 				String terminator = m.group(3);
+
+				if (ref != null) ref = ref.trim();
 
 				// expand to a full reference if relative
 				ref = adjustRelativeReference(ref, parentRef);
