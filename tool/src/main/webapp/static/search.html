@@ -46,7 +46,7 @@
 				// loading members.
 				if (textStatus == "success") {
 					var htmlResult = TrimPath.processDOMTemplate("membership_jst", {"members": data});
-					jQuery(".show-group .members").html(htmlResult);
+					jQuery(".show-group .membership").html(htmlResult);
 					setMainFrameHeightNow(frameId);
 					updateActive();
 				}
@@ -251,18 +251,21 @@
 			<input class="active" type="submit" value="Add Group"/>
 			<input class="cancel" type="submit" value="Cancel"/>
 		</div>
+		<div class="membership">
 		<h5>Membership</h5>
 		<ul class="members">
 			<li>Loading<img class="loader" src="images/ajax-loader.gif"/></li>
 		</ul>
-		
-
+		</div>
 		</form>
 	</textarea>
 	<textarea id="membership_jst">
+		<h5>Membership (# ${members.length})</h5>
+		<ul class="members">
 		{for member in members}
 		<li>${member.name} <span class="username">(${member.username})</span></li>
 		{/for}
+		</ul>
 	</textarea>
 
 	<!-- When more than one group matches select one from list -->
