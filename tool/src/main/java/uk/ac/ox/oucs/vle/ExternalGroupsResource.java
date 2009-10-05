@@ -48,7 +48,7 @@ public class ExternalGroupsResource {
 	static final Comparator<User> userComparator = new Comparator<User>() {
 		public int compare(User u1, User u2) {
 			// We check for null users when we put them into a list.
-			return u1.getDisplayName().compareTo(u2.getDisplayName());
+			return u1.getSortName().compareTo(u2.getSortName());
 		}
 	};
 
@@ -155,7 +155,7 @@ public class ExternalGroupsResource {
 		for (User user: userList) {
 			Map<Object, Object> userObject = new HashMap<Object, Object>();
 			userObject.put("id", user.getId());
-			userObject.put("name", user.getDisplayName());
+			userObject.put("name", user.getSortName());
 			userObject.put("username", user.getDisplayId());
 			membersArray.put(new JSONObject(userObject));
 		}
