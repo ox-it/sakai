@@ -151,11 +151,21 @@
 											jQuery("#select_group").html("<div class=\"alertMessage\">No groups matched your query. Try something shorter</div>");
 										} else {
 											// Check list to see if we have an exact match first.
+											var matchingGroup = null;
 											for (var i = 0; i < data.length; i++) {
 												if (data[i]["name"].toLowerCase() == groupName.toLowerCase()) {
-													loadGroup(data[i]["id"], data[i]["name"]);
-														return false;
+													if (matchingGroup == null) {
+														matchingGroup = i;
+													} else {
+														// If we find two matches it's not good.
+														matchingGroup = null;
+														break;
+													}
 												}
+											}
+											if (matchingGroup != null) {
+												loadGroup(data[matchingGroup]["id"], data[matchingGroup]["name"]);
+												return false;
 											}
 											var htmlResult = TrimPath.processDOMTemplate("select_group_jst", {groups: data});
 											jQuery("#select_group").html(htmlResult);
