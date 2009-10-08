@@ -44,6 +44,13 @@ public class ExternalGroupsResource {
 		}
 		
 	};
+	static final Comparator<ExternalGroupNode> nodeComparator = new Comparator<ExternalGroupNode>() {
+		
+		public int compare(ExternalGroupNode o1, ExternalGroupNode o2) {
+			return (o1.getName() != null)?o1.getName().compareTo(o2.getName()):-1;
+		}
+		
+	};
 	
 	static final Comparator<User> userComparator = new Comparator<User>() {
 		public int compare(User u1, User u2) {
@@ -160,6 +167,33 @@ public class ExternalGroupsResource {
 			membersArray.put(new JSONObject(userObject));
 		}
 		return Response.ok(membersArray).build();
+	}
+
+	@Path("browse/{path:.*}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@GET
+	public Response getNodes(@PathParam("path") String path) {
+		if (!loggedIn()) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		try {
+			List <ExternalGroupNode> nodes = externalGroupManager.findNodes(path);
+			Collections.sort(nodes, nodeComparator);
+			
+			JSONArray nodeArray = new JSONArray();
+			for (ExternalGroupNode node: nodes) {
+				Map<Object, Object> nodeObject = new HashMap<Object, Object>();
+				nodeObject.put("path", node.getPath());
+				nodeObject.put("name", node.getName());
+				if (node.hasGroup()) {
+					nodeObject.put("groupId", node.getGroup().getId());
+				}
+				nodeArray.put(nodeObject);
+			}
+			return Response.ok(nodeArray).build();
+		} catch (ExternalGroupException e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 	
 	static JSONObject convertGroupToMap(ExternalGroup externalGroup) {

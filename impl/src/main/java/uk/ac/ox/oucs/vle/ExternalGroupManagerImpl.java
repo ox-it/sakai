@@ -3,6 +3,7 @@ package uk.ac.ox.oucs.vle;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,6 +47,8 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	private int SEARCH_LIMIT = 50;
 
 	private String searchPattern = "(&{0}(member=*)(objectClass=oakGroupAbs))";
+	
+	private List<PathHandler> pathHandlers;
 
 	public void init() {
 		log.debug("init()");
@@ -58,7 +61,37 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		if (mappedGroupDao == null) {
 			throw new IllegalStateException("MappedGroupDao must be set.");
 		}
-			
+		Map<String, String> displayNames = new HashMap<String, String>();
+		displayNames.put("acserv", "ASUC");
+		displayNames.put("centadm", "Central Administration");
+		displayNames.put("college", "Colleges");
+		displayNames.put("conted", "Continuing Education");
+		displayNames.put("councildep", "Council?");
+		displayNames.put("human", "Humanities");
+		displayNames.put("mathsci", "Mathematical, Physical & Life Sciences");
+		displayNames.put("medsci", "Medical Sciences");
+		displayNames.put("payetc", "Payroll?");
+		displayNames.put("related", "Related?");
+		displayNames.put("socsci", "Social Sciences");
+		
+		DisplayAdjuster da = new MappedDisplayAdaptor(displayNames);
+		
+		pathHandlers = new ArrayList<PathHandler>();
+		pathHandlers.add(new StaticPathHandler(Arrays.asList(new ExternalGroupNode[]{
+				new ExternalGroupNodeImpl("courses", "Courses"),
+				new ExternalGroupNodeImpl("units", "Units")}))
+		);
+		pathHandlers.add(new UniquePathHandler("cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakOSSUnitCode", "oakOSSUnitName", this));
+		pathHandlers.add(new AttributePathHandler("cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakOSSUnitCode", "oakGN", "displayName", this));
+		pathHandlers.add(new SubPathHandler("oakGN=%s,cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakOSSUnitCode", "displayName", this));
+		
+		UniquePathHandler unitsUnique = new UniquePathHandler("ou=units,dc=oak,dc=ox,dc=ac,dc=uk", "units", "oakDivision", "oakDivision", this);
+		unitsUnique.setDisplayAdjuster(da);
+		
+		pathHandlers.add(unitsUnique); // Needs a mapper.
+		pathHandlers.add(new AttributePathHandler("ou=units,dc=oak,dc=ox,dc=ac,dc=uk", "units", "oakDivision", "oakUnitCode", "displayName", this));
+		pathHandlers.add(new SubPathHandler("oakUnitCode=%s,ou=units,dc=oak,dc=ox,dc=ac,dc=uk", "units", "oakUnitCode", "displayName", this));
+		
 	}
 
 	public String addMappedGroup(String externalGroupId, String role) {
@@ -352,6 +385,20 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		escapedStr = escapedStr.replaceAll("\\" + Character.toString('\u0000'),
 				"\\\\00");
 		return escapedStr;
+	}
+
+	public List<ExternalGroupNode> findNodes(String path)
+			throws ExternalGroupException {
+		if (path == null) {
+			path = "";
+		}
+		String parts[] = path.split(PathHandler.SEPARATOR);
+		for (PathHandler handler: pathHandlers) {
+			if (handler.canHandle(parts)) {
+				return handler.getNodes(parts);
+			}
+		}
+		return null;
 	}
 
 }
