@@ -2,17 +2,19 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Insert title here</title>
-<link rel="stylesheet" type="text/css" href="css/tree_component.css" />
+<title>Browse for groups</title>
+<link href="/local-skins/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<!--  TODO: Need to pull current skin from somewhere. -->
+<link href="/local-skins/weblearn-beta/tool.css" type="text/css" rel="stylesheet" media="all" />
+
 <style type="text/css">
-body {
-	font-family: sans-serif;
-	font-size: 80%;
+a:visited {
+	text-decoration:none !important;
 }
 </style>
 <script type="text/javascript" src="js/css.js"></script>
 <script type="text/javascript" src="js/jquery-1.3.js"></script>
-<script type="text/javascript" src="js/tree_component.js"></script>
+<script type="text/javascript" src="js/jquery.tree.js"></script>
 
 <script language="Javascript">
 
@@ -22,18 +24,35 @@ jQuery(function() {
 			{
 				data: {
 					type: "json",
-					url: "browse.txt"
+					async: true,
+					opts: {
+						url: "/external-groups/rest/group/browse/",
+						async: true
+					}
 				}, 
 				ui : {
 					context: "false"
 				},
-				rules: {
-					renameable: "none",
-					deletable: "none",
-					creatable: "none",
-					clickable: ["group"]
+				types : {
+					default: {
+						renameable: false,
+						deletable: false,
+						creatable: false,
+						draggable: false,
+						clickable: function(node, tree) {
+							return $(node).attr("groupId");
+						}
+					}
+				},
+				callback : {
+					// Take care of refresh calls - n will be false only when the whole tree is refreshed or loaded of the first time
+					beforedata : function (n, t) {
+						return { id : $(n).attr("id") || "" };
+					},
+					onselect : function (n, t) {
+						alert($(n).attr("groupId"));
+					}
 				}
-			
 			}
 	);
 
@@ -42,8 +61,9 @@ jQuery(function() {
 </script>
 </head>
 <body>
-
-<h1>Hello</h1>
+<div>
+<h4>Select a group</h4>
+</div>
 <div id="browseTree">
 </div>
 

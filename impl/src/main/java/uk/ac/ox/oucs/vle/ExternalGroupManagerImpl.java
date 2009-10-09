@@ -78,8 +78,8 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		
 		pathHandlers = new ArrayList<PathHandler>();
 		pathHandlers.add(new StaticPathHandler(Arrays.asList(new ExternalGroupNode[]{
-				new ExternalGroupNodeImpl("courses", "Courses"),
-				new ExternalGroupNodeImpl("units", "Units")}))
+				new ExternalGroupNodeImpl("courses", "Course Groups"),
+				new ExternalGroupNodeImpl("units", "Unit Groups")}))
 		);
 		pathHandlers.add(new UniquePathHandler("cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakOSSUnitCode", "oakOSSUnitName", this));
 		pathHandlers.add(new AttributePathHandler("cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakOSSUnitCode", "oakGN", "displayName", this));
