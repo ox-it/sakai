@@ -538,17 +538,10 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		Set<String> rv = new LinkedHashSet<String>();
 		if (reference == null) return rv;
 
-		// deal with %20 and other encoded URL stuff
+		// deal with %20, &amp;, and other encoded URL stuff
 		if (normalize)
 		{
-			try
-			{
-				reference = URLDecoder.decode(reference, "UTF-8");
-			}
-			catch (UnsupportedEncodingException e)
-			{
-				M_log.warn("harvestEmbedded: " + e);
-			}
+			reference = decodeUrl(reference);
 		}
 
 		// start with this reference
@@ -1213,6 +1206,43 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	}
 
 	/**
+	 * Decode the URL as a browser would.
+	 * 
+	 * @param url
+	 *        The URL.
+	 * @return the decoded URL.
+	 */
+	protected String decodeUrl(String url)
+	{
+		try
+		{
+			// these the browser will convert when it's making the URL to send
+			String processed = url.replaceAll("&amp;", "&");
+			processed = processed.replaceAll("&lt;", "<");
+			processed = processed.replaceAll("&gt;", ">");
+			processed = processed.replaceAll("&quot;", "\"");
+
+			// if a browser sees a plus, it sends a plus (URLDecoder will change it to a space)
+			processed = processed.replaceAll("\\+", "%2b");
+
+			// and the rest of the works, including %20 and + handling
+			String decoded = URLDecoder.decode(processed, "UTF-8");
+
+			return decoded;
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			M_log.warn("decodeUrl: " + e);
+		}
+		catch (IllegalArgumentException e)
+		{
+			M_log.warn("decodeUrl: " + e);
+		}
+
+		return url;
+	}
+
+	/**
 	 * Perform the add.
 	 * 
 	 * @param id
@@ -1572,14 +1602,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 					// deal with %20 and other encoded URL stuff
 					if (normalize)
 					{
-						try
-						{
-							refString = URLDecoder.decode(refString, "UTF-8");
-						}
-						catch (UnsupportedEncodingException e)
-						{
-							M_log.warn("harvestAttachmentsReferenced: " + e);
-						}
+						refString = decodeUrl(refString);
 					}
 
 					rv.add(refString);
@@ -1815,15 +1838,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 					// save just the reference part (i.e. after the /access);
 					String normal = ref.substring(index + 7);
 
-					// deal with %20 and other encoded URL stuff
-					try
-					{
-						normal = URLDecoder.decode(normal, "UTF-8");
-					}
-					catch (UnsupportedEncodingException e)
-					{
-						M_log.warn("harvestAttachmentsReferenced: " + e);
-					}
+					// deal with %20, &amp;, and other encoded URL stuff
+					normal = decodeUrl(normal);
 
 					// translate the normal form
 					String translated = normal;
