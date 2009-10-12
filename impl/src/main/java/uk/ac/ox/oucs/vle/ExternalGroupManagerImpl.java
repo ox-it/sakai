@@ -18,6 +18,7 @@ import uk.ac.ox.oucs.vle.ExternalGroupException.Type;
 
 import com.novell.ldap.LDAPAttribute;
 import com.novell.ldap.LDAPConnection;
+import com.novell.ldap.LDAPConstraints;
 import com.novell.ldap.LDAPEntry;
 import com.novell.ldap.LDAPException;
 import com.novell.ldap.LDAPSearchConstraints;
@@ -299,7 +300,11 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	 */
 	LDAPConnection getConnection() throws LDAPException {
 		ensureConnectionManager();
-		return ldapConnectionManager.getConnection();
+		LDAPConnection connection =  ldapConnectionManager.getConnection();
+		LDAPSearchConstraints searchConstraints = connection.getSearchConstraints();
+		searchConstraints.setMaxResults(1000);
+		connection.setConstraints(searchConstraints);
+		return connection;
 	}
 
 	void returnConnection(LDAPConnection connection) {
