@@ -203,6 +203,7 @@ public class ExternalGroupsResource {
 				nodeAttributes.put("title", node.getName());
 				nodeObject.put("data", node.getName());
 				if (node.hasGroup()) {
+					nodeAttributes.put("rel", "group");
 					nodeAttributes.put("groupId", node.getGroup().getId());
 				} else {
 					nodeObject.put("state", "closed");

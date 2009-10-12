@@ -34,6 +34,10 @@
 		height: 300px;
 		overflow-y: scroll;
 	}
+	
+	ul.groups li {
+		list-style-image: url(images/group.png);
+	}
 </style>
 <title>External Groups</title>
 <script type="text/javascript" src="js/jquery-1.3.js"></script>
@@ -101,6 +105,7 @@
 					return false;
 				});
 			updateActive();
+			
 		};
 		
 		path = "/external-groups/rest/";
@@ -154,10 +159,17 @@
 									deletable: false,
 									creatable: false,
 									draggable: false,
-									clickable: function(node, tree) {
-										return $(node).attr("groupId");
-									}
-								}
+									clickable: false,
+								},
+								group: {
+									renameable: false,
+									deletable: false,
+									creatable: false,
+									draggable: false,
+									clickable: true,
+									icon: { image: "images/group.png" }
+								},
+							
 							},
 							callback : {
 								// Take care of refresh calls - n will be false only when the whole tree is refreshed or loaded of the first time
@@ -307,6 +319,9 @@
 		</div>
 		<div id="browsing" class="group-find">
 		<h4>Select a group</h4>
+		<p class="step">
+		Browse the tree of groups and click on a group.
+		</p>
 		<div id="browseTree">
 		</div>
 		</div>
@@ -356,7 +371,7 @@
 		</p>
 		<ul class="groups">
 		{for group in groups}
-			<li><a href="" id="${group.id}">${group.name}</a></li>
+			<li class="group"><a href="" id="${group.id}">${group.name}</a></li>
 		{/for}
 		</ul>
 	</textarea>
