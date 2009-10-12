@@ -24,4 +24,6 @@ public interface ExternalGroupManager {
 	
 	public Map<String, String> getGroupRoles(String userId);
 	
+	public List<ExternalGroupNode> findNodes(String path) throws ExternalGroupException;
+	
 }

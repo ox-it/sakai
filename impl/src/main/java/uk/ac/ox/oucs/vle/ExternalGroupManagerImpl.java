@@ -3,6 +3,7 @@ package uk.ac.ox.oucs.vle;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import uk.ac.ox.oucs.vle.ExternalGroupException.Type;
 
 import com.novell.ldap.LDAPAttribute;
 import com.novell.ldap.LDAPConnection;
+import com.novell.ldap.LDAPConstraints;
 import com.novell.ldap.LDAPEntry;
 import com.novell.ldap.LDAPException;
 import com.novell.ldap.LDAPSearchConstraints;
@@ -46,6 +48,10 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	private int SEARCH_LIMIT = 50;
 
 	private String searchPattern = "(&{0}(member=*)(objectClass=oakGroupAbs))";
+	
+	private List<PathHandler> pathHandlers;
+
+	private String memberAttribute = "member";
 
 	public void init() {
 		log.debug("init()");
@@ -58,7 +64,37 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		if (mappedGroupDao == null) {
 			throw new IllegalStateException("MappedGroupDao must be set.");
 		}
-			
+		Map<String, String> displayNames = new HashMap<String, String>();
+		displayNames.put("acserv", "ASUC");
+		displayNames.put("centadm", "Central Administration");
+		displayNames.put("college", "Colleges");
+		displayNames.put("conted", "Continuing Education");
+		displayNames.put("councildep", "Council Departments");
+		displayNames.put("human", "Humanities");
+		displayNames.put("mathsci", "Mathematical, Physical & Life Sciences");
+		displayNames.put("medsci", "Medical Sciences");
+		displayNames.put("payetc", "Payroll & Others");
+		displayNames.put("related", "Related");
+		displayNames.put("socsci", "Social Sciences");
+		
+		DisplayAdjuster da = new MappedDisplayAdaptor(displayNames);
+		
+		pathHandlers = new ArrayList<PathHandler>();
+		pathHandlers.add(new StaticPathHandler(Arrays.asList(new ExternalGroupNode[]{
+				new ExternalGroupNodeImpl("courses", "Course Groups"),
+				new ExternalGroupNodeImpl("units", "Unit Groups")}))
+		);
+		pathHandlers.add(new UniquePathHandler("cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakOSSUnitCode", "oakOSSUnitName", this));
+		pathHandlers.add(new AttributePathHandler("cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakOSSUnitCode", "oakGN", "displayName", this));
+		pathHandlers.add(new SubPathHandler("oakGN=%s,cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakOSSUnitCode", "displayName", this));
+		
+		UniquePathHandler unitsUnique = new UniquePathHandler("ou=units,dc=oak,dc=ox,dc=ac,dc=uk", "units", "oakDivision", "oakDivision", this);
+		unitsUnique.setDisplayAdjuster(da);
+		
+		pathHandlers.add(unitsUnique); // Needs a mapper.
+		pathHandlers.add(new AttributePathHandler("ou=units,dc=oak,dc=ox,dc=ac,dc=uk", "units", "oakDivision", "oakUnitCode", "displayName", this));
+		pathHandlers.add(new SubPathHandler("oakUnitCode=%s,ou=units,dc=oak,dc=ox,dc=ac,dc=uk", "units", "oakUnitCode", "displayName", this));
+		
 	}
 
 	public String addMappedGroup(String externalGroupId, String role) {
@@ -123,7 +159,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		Map<String, String> groupRoles;
 		try {
 			connection = getConnection();
-			String filter = "member="+member;
+			String filter = memberAttribute+ "="+member;
 			LDAPSearchResults results = connection.search(groupBase, LDAPConnection.SCOPE_SUB, filter, getSearchAttributes(), false);
 			groupRoles = new HashMap<String, String>();
 			while (results.hasMore()) {
@@ -266,7 +302,11 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	 */
 	LDAPConnection getConnection() throws LDAPException {
 		ensureConnectionManager();
-		return ldapConnectionManager.getConnection();
+		LDAPConnection connection =  ldapConnectionManager.getConnection();
+		LDAPSearchConstraints searchConstraints = connection.getSearchConstraints();
+		searchConstraints.setMaxResults(1000);
+		connection.setConstraints(searchConstraints);
+		return connection;
 	}
 
 	void returnConnection(LDAPConnection connection) {
@@ -304,10 +344,10 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		LDAPConnection connection = null;
 		try {
 			connection = getConnection();
-			LDAPSearchResults results = connection.search(externalId, LDAPConnection.SCOPE_BASE, null, new String[]{"member"}, false);
+			LDAPSearchResults results = connection.search(externalId, LDAPConnection.SCOPE_BASE, null, new String[]{memberAttribute}, false);
 			while(results.hasMore()) {
 				LDAPEntry entry = results.next();
-				LDAPAttribute memberAttr = entry.getAttribute("member");
+				LDAPAttribute memberAttr = entry.getAttribute(memberAttribute);
 				if (memberAttr == null) {
 					continue;
 				}
@@ -352,6 +392,20 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		escapedStr = escapedStr.replaceAll("\\" + Character.toString('\u0000'),
 				"\\\\00");
 		return escapedStr;
+	}
+
+	public List<ExternalGroupNode> findNodes(String path)
+			throws ExternalGroupException {
+		if (path == null) {
+			path = "";
+		}
+		String parts[] = path.split(PathHandler.SEPARATOR);
+		for (PathHandler handler: pathHandlers) {
+			if (handler.canHandle(parts)) {
+				return handler.getNodes(parts);
+			}
+		}
+		return null;
 	}
 
 }

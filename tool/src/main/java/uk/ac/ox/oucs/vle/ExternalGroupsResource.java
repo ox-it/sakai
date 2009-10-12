@@ -21,6 +21,7 @@ import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Providers;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -40,6 +41,13 @@ public class ExternalGroupsResource {
 	static final Comparator<ExternalGroup> sorter = new Comparator<ExternalGroup>() {
 	
 		public int compare(ExternalGroup o1, ExternalGroup o2) {
+			return (o1.getName() != null)?o1.getName().compareTo(o2.getName()):-1;
+		}
+		
+	};
+	static final Comparator<ExternalGroupNode> nodeComparator = new Comparator<ExternalGroupNode>() {
+		
+		public int compare(ExternalGroupNode o1, ExternalGroupNode o2) {
 			return (o1.getName() != null)?o1.getName().compareTo(o2.getName()):-1;
 		}
 		
@@ -160,6 +168,56 @@ public class ExternalGroupsResource {
 			membersArray.put(new JSONObject(userObject));
 		}
 		return Response.ok(membersArray).build();
+	}
+
+	
+	/**
+	 * jstree format, should we spit it back in this format?
+	{ 
+	attributes: { id : "node_identificator", some-other-attribute : "attribute_value" }, 
+	data: "node_title", 
+	// Properties below are only used for NON-leaf nodes
+	state: "closed", // or "open"
+	children: [ an array of child nodes objects ]
+	}
+
+	 * @param path
+	 * @return
+	 */
+	@Path("browse/")
+	@Produces(MediaType.APPLICATION_JSON)
+	@GET
+	public Response getNodes(@QueryParam("id") String path) {
+		if (!loggedIn()) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+		try {
+			List <ExternalGroupNode> nodes = externalGroupManager.findNodes(path);
+			if (nodes == null) {
+				return Response.status(Status.NOT_FOUND).build();
+			}
+			Collections.sort(nodes, nodeComparator);
+			
+			JSONArray nodeArray = new JSONArray();
+			for (ExternalGroupNode node: nodes) {
+				Map<Object, Object> nodeObject = new HashMap<Object, Object>();
+				Map<Object, Object> nodeAttributes = new HashMap<Object, Object>();
+				nodeAttributes.put("id", node.getPath());
+				nodeAttributes.put("title", node.getName());
+				nodeObject.put("data", node.getName());
+				if (node.hasGroup()) {
+					nodeAttributes.put("rel", "group");
+					nodeAttributes.put("groupId", node.getGroup().getId());
+				} else {
+					nodeObject.put("state", "closed");
+				}
+				nodeObject.put("attributes", nodeAttributes);
+				nodeArray.put(nodeObject);
+			};
+			return Response.ok(nodeArray).build();
+		} catch (ExternalGroupException e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 	
 	static JSONObject convertGroupToMap(ExternalGroup externalGroup) {
