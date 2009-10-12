@@ -228,6 +228,10 @@
 											}
 											var htmlResult = TrimPath.processDOMTemplate("select_group_jst", {groups: data});
 											jQuery("#select_group").html(htmlResult);
+											jQuery("#select_group ul.groups a").bind("click", function(e) {
+												loadGroup(jQuery(e.target).attr("id"), jQuery(e.target).text());
+												return false;
+											});
 											updateActive();
 											setupCancel();
 											// Need to add onsubmit handling
@@ -350,20 +354,11 @@
 		<p class="step">
 			More than one group matches your search, please select one.
 		</p>
-		<fieldset id="found_groups">
-		<table>
+		<ul class="groups">
 		{for group in groups}
-			<tr>
-				<td><input type="radio" name="group" value="${group.id}"/></td>
-				<td class="name">${group.name}</td>
-			</tr>
+			<li><a href="" id="${group.id}">${group.name}</a></li>
 		{/for}
-		</table>
-		</fieldset>
-		<div class="act">
-			<input class="active" type="submit" value="Select"/>
-			<input class="cancel" type="submit" value="Cancel"/>
-		</div>
+		</ul>
 	</textarea>
 </div>
 
