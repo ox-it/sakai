@@ -310,8 +310,7 @@
 			<span id="ldap-search-error" class="error"></span>
 		</fieldset>
 		<div class="act">
-			<input class="active" type="submit" value="Next"/>
-			<input class="cancel" type="submit" value="Cancel"/>
+			<input class="active" type="submit" value="Search"/>
 		</div>
 		</form>
 		<form id="select_group">
@@ -325,11 +324,26 @@
 		<div id="browseTree">
 		</div>
 		</div>
+		<form>
+		<div class="act">
+			<input class="cancel" type="submit" value="Cancel"/>
+		</div>
+		</form>
 		</div>
 	</textarea>
+	
+	<!-- When more than one group matches select one from list -->
+	<textarea id="select_group_jst">
+		<ul class="groups scroll">
+		{for group in groups}
+			<li class="group"><a href="" id="${group.id}">${group.name}</a></li>
+		{/for}
+		</ul>
+	</textarea>
+	
 	<textarea id="group_jst">
 		<form class="show-group">
-		<h4 class="group">Group: ${group.name}</h4>
+		<h4 class="group">Selected Group: ${group.name}</h4>
 		<h5>Roles</h5>
 		<p class="step">
 		Select the role which you wish the group to have.
@@ -363,18 +377,6 @@
 		</ul>
 	</textarea>
 
-	<!-- When more than one group matches select one from list -->
-	<textarea id="select_group_jst">
-		<h4>Select Group</h4>
-		<p class="step">
-			More than one group matches your search, please select one.
-		</p>
-		<ul class="groups">
-		{for group in groups}
-			<li class="group"><a href="" id="${group.id}">${group.name}</a></li>
-		{/for}
-		</ul>
-	</textarea>
 </div>
 
 
