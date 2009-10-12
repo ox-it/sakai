@@ -67,12 +67,12 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		displayNames.put("centadm", "Central Administration");
 		displayNames.put("college", "Colleges");
 		displayNames.put("conted", "Continuing Education");
-		displayNames.put("councildep", "Council?");
+		displayNames.put("councildep", "Council Departments");
 		displayNames.put("human", "Humanities");
 		displayNames.put("mathsci", "Mathematical, Physical & Life Sciences");
 		displayNames.put("medsci", "Medical Sciences");
-		displayNames.put("payetc", "Payroll?");
-		displayNames.put("related", "Related?");
+		displayNames.put("payetc", "Payroll & Others");
+		displayNames.put("related", "Related");
 		displayNames.put("socsci", "Social Sciences");
 		
 		DisplayAdjuster da = new MappedDisplayAdaptor(displayNames);
