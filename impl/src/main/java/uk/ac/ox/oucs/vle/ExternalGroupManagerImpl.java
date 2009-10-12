@@ -51,6 +51,8 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	
 	private List<PathHandler> pathHandlers;
 
+	private String memberAttribute = "member";
+
 	public void init() {
 		log.debug("init()");
 		if (ldapConnectionManager == null && jldapDirectoryProvider == null) {
@@ -157,7 +159,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		Map<String, String> groupRoles;
 		try {
 			connection = getConnection();
-			String filter = "member="+member;
+			String filter = memberAttribute+ "="+member;
 			LDAPSearchResults results = connection.search(groupBase, LDAPConnection.SCOPE_SUB, filter, getSearchAttributes(), false);
 			groupRoles = new HashMap<String, String>();
 			while (results.hasMore()) {
@@ -342,10 +344,10 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		LDAPConnection connection = null;
 		try {
 			connection = getConnection();
-			LDAPSearchResults results = connection.search(externalId, LDAPConnection.SCOPE_BASE, null, new String[]{"member"}, false);
+			LDAPSearchResults results = connection.search(externalId, LDAPConnection.SCOPE_BASE, null, new String[]{memberAttribute}, false);
 			while(results.hasMore()) {
 				LDAPEntry entry = results.next();
-				LDAPAttribute memberAttr = entry.getAttribute("member");
+				LDAPAttribute memberAttr = entry.getAttribute(memberAttribute);
 				if (memberAttr == null) {
 					continue;
 				}
