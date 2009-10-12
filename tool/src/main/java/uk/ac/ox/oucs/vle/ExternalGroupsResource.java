@@ -193,6 +193,9 @@ public class ExternalGroupsResource {
 		}
 		try {
 			List <ExternalGroupNode> nodes = externalGroupManager.findNodes(path);
+			if (nodes == null) {
+				return Response.status(Status.NOT_FOUND).build();
+			}
 			Collections.sort(nodes, nodeComparator);
 			
 			JSONArray nodeArray = new JSONArray();
