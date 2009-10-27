@@ -2,15 +2,20 @@
 	<script type="text/javascript" src="/library/js/jquery.js"></script>
 	<script type="text/javascript">
 	$(document).ready( function() {
-			$('#name').keypress( function(e) {
-			    // Ignore TAB
-				if (e.which != 9) {
-					// Select the custom radio button
-					$("input[@name='method']").val(
-					 $("#method-CUSTOM").attr("checked", "checked").attr("value")
-					);
-				}
-			});
+		$('#title').keyup( function(e) {
+			var title = e.target.value;
+			title = title.toLowerCase();
+			title = title.replace(/[^a-z,0-9,_ ]/g,"");
+			title = title.replace(/ /g,"_");
+			title = title.replace(/_+/g, "_");
+			if (title.length > 12) {
+				title = title.substring(0,12)
+			}
+			if (title.match(/_$/)) {
+				title = title.substring(0,title.length-1);
+			}
+			$('#name').val(title);
+		});
 	});
 	</script>
 #chef_portletContainer()
@@ -49,9 +54,7 @@
    <label>#springMessage("site.url")</label>
   </th>
   <td>
-   #springFormRadioButton("command.method" "AUTOMATIC" "")<label for="method-AUTOMATIC">#springMessage("url.automatic")</label><br/>
-   #springFormRadioButton("command.method" "CUSTOM" "")<label for="method-CUSTOM">#springMessage("url.custom")</label>
-   #springFormInput("command.name" "")
+   ${siteUrl}/#springFormInput("command.name" "")
    #springShowErrors("" "")
   </td>
  </tr>

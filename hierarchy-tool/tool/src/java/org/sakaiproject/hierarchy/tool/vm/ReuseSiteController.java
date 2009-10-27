@@ -10,7 +10,6 @@ import javax.servlet.http.HttpSession;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
-import org.sakaiproject.hierarchy.tool.vm.NewSiteCommand.Method;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.sitemanage.api.SiteHelper;
@@ -23,8 +22,6 @@ public class ReuseSiteController extends SimpleFormController {
 
 	private String cancelledView;
 
-	private Method defaultMethod;
-	
 	private Integer titleMaxLength;
 	
 	public Integer getTitleMaxLength() {
@@ -58,8 +55,6 @@ public class ReuseSiteController extends SimpleFormController {
 	
 	protected Object formBackingObject(HttpServletRequest request) throws Exception {
 		NewSiteCommand command = (NewSiteCommand)super.formBackingObject(request);
-		// Make sure the default method is set.
-		command.setMethod(defaultMethod);
 		return command;
 	}
 	
@@ -87,7 +82,6 @@ public class ReuseSiteController extends SimpleFormController {
 		for (PortalNode child : children) {
 			if (child.getName().equals(command.getName())) {
 				errors.rejectValue("name", "error.name.exists");
-				command.setMethod(Method.CUSTOM);
 				return showForm(request, response, errors);
 			}
 		}
@@ -114,14 +108,6 @@ public class ReuseSiteController extends SimpleFormController {
 
 	public void setCancelledView(String cancelledView) {
 		this.cancelledView = cancelledView;
-	}
-
-	public Method getDefaultMethod() {
-		return defaultMethod;
-	}
-
-	public void setDefaultMethod(Method defaultMethod) {
-		this.defaultMethod = defaultMethod;
 	}
 
 	@Override

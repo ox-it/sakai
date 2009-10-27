@@ -11,7 +11,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
-import org.sakaiproject.hierarchy.tool.vm.NewSiteCommand.Method;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.tool.api.Tool;
 import org.springframework.validation.BindException;
@@ -29,8 +28,6 @@ public class NewSiteController extends SimpleFormController
 	private String returnPath;
 	
 	private int titleMaxLength;
-
-	private Method defaultMethod;
 	
 	public String getReturnPath() {
 		return returnPath;
@@ -47,11 +44,7 @@ public class NewSiteController extends SimpleFormController
 	public void init() {
 		
 	}
-	
-	public void setDefaultMethod(Method defaultMethod) {
-		this.defaultMethod = defaultMethod;
-	}
-	
+
 	/**
 	 * We override this so that two controllers can share the same command class.
 	 */
@@ -61,8 +54,6 @@ public class NewSiteController extends SimpleFormController
 	
 	protected Object formBackingObject(HttpServletRequest request) throws Exception {
 		NewSiteCommand command = (NewSiteCommand)super.formBackingObject(request);
-		// Make sure the default method is set.
-		command.setMethod(defaultMethod);
 		return command;
 	}
 	
@@ -79,7 +70,6 @@ public class NewSiteController extends SimpleFormController
 		for (PortalNode child : children) {
 			if (child.getName().equals(newSite.getName())) {
 				errors.rejectValue("name", "error.name.exists");
-				newSite.setMethod(Method.CUSTOM);
 				return showForm(request, response, errors);
 			}
 		}
@@ -105,6 +95,11 @@ public class NewSiteController extends SimpleFormController
 		Map referenceData = VelocityControllerUtils.referenceData(request, command, errors);
 		referenceData.put("titleMaxLength", getTitleMaxLength());
 		referenceData.put("mode", "new");
+		
+		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
+		PortalNode currentNode = hs.getCurrentPortalNode();
+		String siteURL = currentNode.getSite().getUrl();
+		referenceData.put("siteUrl", siteURL);
 		return referenceData;
 	}
 

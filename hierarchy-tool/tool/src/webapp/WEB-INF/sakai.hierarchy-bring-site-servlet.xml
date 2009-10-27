@@ -40,7 +40,6 @@
 		<property name="cancelledView" value="redirect:/" />
 		<property name="formView" value="newsite" />
 		<property name="successView" value="redirect" />
-		<property name="defaultMethod" value="AUTOMATIC" />
 		<property name="bindOnNewForm" value="true" />
 		<property name="sessionForm" value="true" />
 		<property name="titleMaxLength">

@@ -26,7 +26,6 @@
 		<property name="successView" value="redirect:/helper"/>
 		<property name="sessionForm" value="true"/>
 		<property name="returnPath" value="/create"/>
-		<property name="defaultMethod" value="AUTOMATIC"/>
 		<property name="validator">
 			<ref bean="newSiteValidator"/>
 		</property>
@@ -108,7 +107,7 @@
 				<prop key="file.resource.loader.class">
 					org.sakaiproject.hierarchy.tool.vm.spring.WebappLoader
 				</prop>
-				<prop key="file.resource.loader.cache">true</prop>
+				<prop key="file.resource.loader.cache">false</prop>
 				<prop
 					key="file.resource.loader.modificationCheckInterval">
 					60
