@@ -114,6 +114,12 @@ public class ReuseSiteController extends SimpleFormController {
 	protected Map referenceData(HttpServletRequest request, Object command,
 			Errors errors) throws Exception {
 		Map data = VelocityControllerUtils.referenceData(request, command, errors);
+		
+		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
+		PortalNode currentNode = hs.getCurrentPortalNode();
+		String sitePath = currentNode.getPath();
+		data.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ sitePath);
+		
 		data.put("titleMaxLength", getTitleMaxLength());
 		data.put("mode", "reuse");
 		return data;

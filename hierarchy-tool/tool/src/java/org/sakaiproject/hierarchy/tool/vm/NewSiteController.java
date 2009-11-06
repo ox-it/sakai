@@ -9,6 +9,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.sitemanage.api.SiteHelper;
@@ -98,8 +99,8 @@ public class NewSiteController extends SimpleFormController
 		
 		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
 		PortalNode currentNode = hs.getCurrentPortalNode();
-		String siteURL = currentNode.getSite().getUrl();
-		referenceData.put("siteUrl", siteURL);
+		String sitePath = currentNode.getPath();
+		referenceData.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ sitePath);
 		return referenceData;
 	}
 
