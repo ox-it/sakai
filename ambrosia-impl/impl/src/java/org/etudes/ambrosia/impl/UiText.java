@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -30,11 +30,8 @@ import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.api.Message;
 import org.etudes.ambrosia.api.PropertyReference;
 import org.etudes.ambrosia.api.Text;
-import org.etudes.ambrosia.api.TextEdit;
 import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * UiText implements Text.
@@ -48,7 +45,7 @@ public class UiText extends UiComponent implements Text
 	protected Message titleMessage = null;
 
 	/**
-	 * Public no-arg constructor.
+	 * Construct.
 	 */
 	public UiText()
 	{
@@ -126,6 +123,10 @@ public class UiText extends UiComponent implements Text
 
 		if ((msg == null) && (titleMsg == null)) return false;
 
+		// set some ids
+		int idRoot = context.getUniqueId();
+		String id = (this.id != null) ? this.id : this.getClass().getSimpleName() + "_" + idRoot;
+
 		PrintWriter response = context.getResponseWriter();
 
 		// title
@@ -138,7 +139,9 @@ public class UiText extends UiComponent implements Text
 
 		if (msg != null)
 		{
+			response.print("<span id=\"" + id + "\">");
 			response.println(msg);
+			response.println("</span>");
 		}
 
 		return true;

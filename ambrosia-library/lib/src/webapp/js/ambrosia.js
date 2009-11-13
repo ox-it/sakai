@@ -395,7 +395,17 @@ function ambrosiaCountSummaryFloat(source, shadowId, summaryId, defaultValue)
 	// update the summary
 	if (summary != null)
 	{
-		summary.value = getFloat(summary.value) - getFloat(oldValue) + getFloat(newValue);
+		// for a text field
+		if (summary.value)
+		{
+			summary.value = getFloat(summary.value) - getFloat(oldValue) + getFloat(newValue);
+		}
+		// for some html container like span
+		else
+		{
+			var summaryValue = getFloat(summary.innerHTML);
+			summary.innerHTML = summaryValue - getFloat(oldValue) + getFloat(newValue);
+		}
 	}
 }
 
