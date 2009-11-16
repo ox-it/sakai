@@ -25,8 +25,6 @@
 package org.etudes.mneme.tool;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,21 +33,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.api.Component;
 import org.etudes.ambrosia.api.Context;
-import org.etudes.ambrosia.api.PopulatingSet;
 import org.etudes.ambrosia.api.Values;
-import org.etudes.ambrosia.api.PopulatingSet.Factory;
-import org.etudes.ambrosia.api.PopulatingSet.Id;
 import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentPolicyException;
 import org.etudes.mneme.api.AssessmentService;
-import org.etudes.mneme.api.DrawPart;
-import org.etudes.mneme.api.ManualPart;
 import org.etudes.mneme.api.Part;
-import org.etudes.mneme.api.PoolDraw;
 import org.etudes.mneme.api.PoolService;
-import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.Web;
@@ -134,15 +125,16 @@ public class PartEditView extends ControllerImpl
 			return;
 		}
 
-		// based on the part type...
-		if (part instanceof DrawPart)
-		{
-			getDraw(assessment, (DrawPart) part, sortCode, context);
-		}
-		else
-		{
-			getManual(assessment, (ManualPart) part, req, res, context, params);
-		}
+		// TODO:
+//		// based on the part type...
+//		if (part instanceof DrawPart)
+//		{
+//			getDraw(assessment, (DrawPart) part, sortCode, context);
+//		}
+//		else
+//		{
+//			getManual(assessment, (ManualPart) part, req, res, context, params);
+//		}
 	}
 
 	/**
@@ -210,72 +202,72 @@ public class PartEditView extends ControllerImpl
 		Values values = null;
 
 		// based on the part type...
-		PopulatingSet draws = null;
-		if (part instanceof DrawPart)
-		{
-			final DrawPart dpart = (DrawPart) part;
-			final PoolService pservice = this.poolService;
-			draws = uiService.newPopulatingSet(new Factory()
-			{
-				public Object get(String id)
-				{
-					// add a virtual draw to the part, matching one from the DrawPart if there is one, else a new 0 count one.
-					PoolDraw draw = dpart.getVirtualDraw(pservice.getPool(id));
-					return draw;
-				}
-			}, new Id()
-			{
-				public String getId(Object o)
-				{
-					return ((PoolDraw) o).getPool().getId();
-				}
-			});
-
-			context.put("draws", draws);
-		}
-
-		// for mpart, we need to collect the checkbox ids
-		else
-		{
-			values = uiService.newValues();
-			context.put("questionIds", values);
-		}
+//		PopulatingSet draws = null;
+//		if (part instanceof DrawPart)
+//		{
+//			final DrawPart dpart = (DrawPart) part;
+//			final PoolService pservice = this.poolService;
+//			draws = uiService.newPopulatingSet(new Factory()
+//			{
+//				public Object get(String id)
+//				{
+//					// add a virtual draw to the part, matching one from the DrawPart if there is one, else a new 0 count one.
+//					PoolDraw draw = dpart.getVirtualDraw(pservice.getPool(id));
+//					return draw;
+//				}
+//			}, new Id()
+//			{
+//				public String getId(Object o)
+//				{
+//					return ((PoolDraw) o).getPool().getId();
+//				}
+//			});
+//
+//			context.put("draws", draws);
+//		}
+//
+//		// for mpart, we need to collect the checkbox ids
+//		else
+//		{
+//			values = uiService.newValues();
+//			context.put("questionIds", values);
+//		}
 
 		// read the form
 		String destination = uiService.decode(req, context);
 
 		// filter out draw part draws that are no questions
-		if (part instanceof DrawPart)
-		{
-			// apply the draws to the part
-			DrawPart dpart = (DrawPart) part;
-			dpart.updateDraws(new ArrayList<PoolDraw>(draws.getSet()));
-		}
-
-		// process the ids into the destination for a redirect to the remove confirm view...
-		else
-		{
-			if (destination.equals("DELETEQ"))
-			{
-				// get the ids
-				String[] removeQuesIds = values.getValues();
-				if (removeQuesIds != null && removeQuesIds.length != 0)
-				{
-					// remove questions from part
-					for (String removeQuesId : removeQuesIds)
-					{
-						if (removeQuesId != null)
-						{
-							// remove question from part
-							Question question = part.getQuestion(removeQuesId);
-							((ManualPart) part).removeQuestion(question);
-						}
-					}
-				}
-
-				destination = context.getDestination();
-			}
-		}
+//		if (part instanceof DrawPart)
+//		{
+//			// apply the draws to the part
+//			DrawPart dpart = (DrawPart) part;
+//			dpart.updateDraws(new ArrayList<PoolDraw>(draws.getSet()));
+//		}
+//
+//		// process the ids into the destination for a redirect to the remove confirm view...
+//		else
+//		{
+//			if (destination.equals("DELETEQ"))
+//			{
+//				// get the ids
+//				String[] removeQuesIds = values.getValues();
+//				if (removeQuesIds != null && removeQuesIds.length != 0)
+//				{
+//					// remove questions from part
+//					for (String removeQuesId : removeQuesIds)
+//					{
+//						if (removeQuesId != null)
+//						{
+//							// remove question from part
+//							Question question = part.getQuestion(removeQuesId);
+//							((ManualPart) part).removeQuestion(question);
+//						}
+//					}
+//				}
+//
+//				destination = context.getDestination();
+//			}
+//		}
 
 		// commit the save
 		try
@@ -384,69 +376,69 @@ public class PartEditView extends ControllerImpl
 		return sort;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	protected void getDraw(Assessment assessment, DrawPart part, String sortCode, Context context) throws IOException
-	{
-		// sort
-		if ((sortCode == null) || (sortCode.length() != 2))
-		{
-			throw new IllegalArgumentException();
-		}
-		context.put("sort_column", sortCode.charAt(0));
-		context.put("sort_direction", sortCode.charAt(1));
-		PoolService.FindPoolsSort sort = findSortCode(sortCode);
+//	/**
+//	 * {@inheritDoc}
+//	 */
+//	protected void getDraw(Assessment assessment, DrawPart part, String sortCode, Context context) throws IOException
+//	{
+//		// sort
+//		if ((sortCode == null) || (sortCode.length() != 2))
+//		{
+//			throw new IllegalArgumentException();
+//		}
+//		context.put("sort_column", sortCode.charAt(0));
+//		context.put("sort_direction", sortCode.charAt(1));
+//		PoolService.FindPoolsSort sort = findSortCode(sortCode);
+//
+//		// pre-read question counts per pool
+//		this.questionService.preCountContextQuestions(toolManager.getCurrentPlacement().getContext(), Boolean.TRUE);
+//
+//		// get the pool draw list
+//		// - all the pools for the user (select, sort, page) crossed with this part's actual draws
+//		// - these are virtual draws, not part of the DrawPart
+//		List<PoolDraw> draws = getDraws(assessment, part, sort);
+//		context.put("draws", draws);
+//
+//		// render
+//		uiService.render(ui, context);
+//	}
 
-		// pre-read question counts per pool
-		this.questionService.preCountContextQuestions(toolManager.getCurrentPlacement().getContext(), Boolean.TRUE);
+//	/**
+//	 * Get the draw of pools. If the assessment is live, just get the used pools, else get that joined with all possible pools.
+//	 * 
+//	 * @param assessment
+//	 *        The assessment.
+//	 * @param part
+//	 *        The draw part.
+//	 * @param sort
+//	 *        The sort.
+//	 * @return The draw of pools.
+//	 */
+//	protected List<PoolDraw> getDraws(Assessment assessment, DrawPart part, PoolService.FindPoolsSort sort)
+//	{
+//		if (assessment.getIsLocked())
+//		{
+//			List<PoolDraw> draws = part.getDraws(sort);
+//			return draws;
+//		}
+//
+//		// - all the pools for the user (select, sort, page) crossed with this part's actual draws
+//		// - these are virtual draws, not part of the DrawPart
+//		List<PoolDraw> draws = part.getDrawsForPools(toolManager.getCurrentPlacement().getContext(), sort, null);
+//		return draws;
+//	}
 
-		// get the pool draw list
-		// - all the pools for the user (select, sort, page) crossed with this part's actual draws
-		// - these are virtual draws, not part of the DrawPart
-		List<PoolDraw> draws = getDraws(assessment, part, sort);
-		context.put("draws", draws);
-
-		// render
-		uiService.render(ui, context);
-	}
-
-	/**
-	 * Get the draw of pools. If the assessment is live, just get the used pools, else get that joined with all possible pools.
-	 * 
-	 * @param assessment
-	 *        The assessment.
-	 * @param part
-	 *        The draw part.
-	 * @param sort
-	 *        The sort.
-	 * @return The draw of pools.
-	 */
-	protected List<PoolDraw> getDraws(Assessment assessment, DrawPart part, PoolService.FindPoolsSort sort)
-	{
-		if (assessment.getIsLocked())
-		{
-			List<PoolDraw> draws = part.getDraws(sort);
-			return draws;
-		}
-
-		// - all the pools for the user (select, sort, page) crossed with this part's actual draws
-		// - these are virtual draws, not part of the DrawPart
-		List<PoolDraw> draws = part.getDrawsForPools(toolManager.getCurrentPlacement().getContext(), sort, null);
-		return draws;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	protected void getManual(Assessment assessment, ManualPart part, HttpServletRequest req, HttpServletResponse res, Context context, String[] params)
-			throws IOException
-	{
-		// checkboxes to remove questions
-		Values values = uiService.newValues();
-		context.put("questionIds", values);
-
-		// render
-		uiService.render(ui2, context);
-	}
+//	/**
+//	 * {@inheritDoc}
+//	 */
+//	protected void getManual(Assessment assessment, ManualPart part, HttpServletRequest req, HttpServletResponse res, Context context, String[] params)
+//			throws IOException
+//	{
+//		// checkboxes to remove questions
+//		Values values = uiService.newValues();
+//		context.put("questionIds", values);
+//
+//		// render
+//		uiService.render(ui2, context);
+//	}
 }

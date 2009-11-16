@@ -187,4 +187,16 @@ public interface QuestionService extends QuestionPoolService, QuestionGetService
 	 *         if the current user is not allowed to edit this question.
 	 */
 	void saveQuestion(Question question, Boolean allowHistorical) throws AssessmentPermissionException;
+
+	/**
+	 * Save changes made to this question as a new question type. Preserve as much data as possible in the type change. The question cannot be historical.
+	 * 
+	 * @param question
+	 *        The question to save.
+	 * @param type
+	 *        The new question type.
+	 * @throws AssessmentPermissionException
+	 *         if the current user is not allowed to edit this question.
+	 */
+	void saveQuestionAsType(Question question, String newType) throws AssessmentPermissionException;
 }

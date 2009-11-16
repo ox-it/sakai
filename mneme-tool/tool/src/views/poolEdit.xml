@@ -73,7 +73,7 @@
 					<navigations>
 						<navigation style="LINK" submit="TRUE" description="invalid-alt">
 							<icon icon="/icons/warning.png" style="LEFT" />
-							<destination template="/question_edit/{0}/{1}/{2}{3}/{4}/{5}">
+							<destination template="/question_edit/{5}/0/0/pool_edit/{0}/{1}/{2}{3}/{4}">
 								<model ref="poolsSortCode" />
 								<model ref="pool.id" />
 								<model ref="sort_column" />
@@ -94,13 +94,7 @@
 					<model ref="questionids.values" />
 					<entityActions>
 						<navigation submit="TRUE" style="LINK" title="add-question-title">
-							<destination template="/select_question_type/{0}/{1}/{2}{3}/{4}">
-								<model ref="poolsSortCode" />
-								<model ref="pool.id" />
-								<model ref="sort_column" />
-								<model ref="sort_direction" />
-								<model type="paging" ref="paging" />
-							</destination>
+							<destination template="ADD" />
 							<icon icon="/icons/add_qst.png" style="LEFT" />
 						</navigation>
 						<navigation title="move-to-pool" selectRequirement="SOME" selectRequirementMessage="move-failed-requirements" style="LINK"
@@ -183,7 +177,7 @@
 					<model type="text" ref="question.description" missing="no-title" stripHtml="TRUE" max="60" />
 					<entityNavigations>
 						<navigation>
-							<destination template="/question_edit/{0}/{1}/{2}{3}/{4}/{5}">
+							<destination template="/question_edit/{5}/0/0/pool_edit/{0}/{1}/{2}{3}/{4}">
 								<model ref="poolsSortCode" />
 								<model ref="pool.id" />
 								<model ref="sort_column" />

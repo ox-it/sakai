@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -30,8 +30,9 @@ import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.api.Decision;
 import org.etudes.ambrosia.util.DecisionDelegateImpl;
 import org.etudes.mneme.api.Assessment;
-import org.etudes.mneme.api.ManualPart;
 import org.etudes.mneme.api.Part;
+import org.etudes.mneme.api.PartDetail;
+import org.etudes.mneme.api.QuestionPick;
 
 /**
  * The "QuestionReferencedDecision" decision delegate for the mneme tool.
@@ -60,11 +61,16 @@ public class QuestionReferencedDecisionDelegate extends DecisionDelegateImpl
 		// if the question can be found in the assessment, it is referenced
 		for (Part part : assessment.getParts().getParts())
 		{
-			if (part instanceof ManualPart)
+			for (PartDetail detail : part.getDetails())
 			{
-				if (part.getQuestion(questionId) != null)
+				if (detail instanceof QuestionPick)
 				{
-					return true;
+					QuestionPick pick = (QuestionPick) detail;
+
+					if (pick.getQuestionId().equals(questionId))
+					{
+						return true;
+					}
 				}
 			}
 		}

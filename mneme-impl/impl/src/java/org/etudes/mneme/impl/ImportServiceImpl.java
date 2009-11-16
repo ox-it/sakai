@@ -49,7 +49,7 @@ import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.Ent;
 import org.etudes.mneme.api.GradesService;
 import org.etudes.mneme.api.ImportService;
-import org.etudes.mneme.api.ManualPart;
+import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
@@ -477,8 +477,8 @@ public class ImportServiceImpl implements ImportService
 			if (noPoints) sendToGb = false;
 			assessment.getGrading().setGradebookIntegration(Boolean.valueOf(sendToGb));
 
-			ManualPart part = assessment.getParts().addManualPart();
-			part.addQuestion(question);
+			Part part = assessment.getParts().addPart();
+			part.addPickDetail(question);
 
 			this.assessmentService.saveAssessment(assessment);
 

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -42,8 +42,8 @@ import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentPolicyException;
 import org.etudes.mneme.api.AssessmentService;
-import org.etudes.mneme.api.ManualPart;
 import org.etudes.mneme.api.MnemeService;
+import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
@@ -96,17 +96,25 @@ public class SelectAddPartQuestionsView extends ControllerImpl
 	 */
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// [2]sort for /assessment, [3]aid |[4] pid |optional->| [5]our sort, [6]our page, [7] our type filter,
-		// [8] our pool filter [9] our survey filter (B-both, A-assessment, S-survey)
-		if (params.length < 5 || params.length > 10) throw new IllegalArgumentException();
+		// [2] assessment id, [3] part id
+		// [4] sort, [5] page, [6] type filter [7] pool filter [8] survey filter
+		// return address in the rest
+		if (params.length < 9) throw new IllegalArgumentException();
 
-		// assessment view sort
-		String assessmentSort = params[2];
-		context.put("assessmentSort", assessmentSort);
+		String destination = null;
+		if (params.length > 9)
+		{
+			destination = "/" + StringUtil.unsplit(params, 9, params.length - 9, "/");
+		}
+		// if not specified, go to the main list page
+		else
+		{
+			destination = "/assessments";
+		}
+		context.put("return", destination);
 
-		// assessment
-		String assessmentId = params[3];
-		Assessment assessment = assessmentService.getAssessment(params[3]);
+		String assessmentId = params[2];
+		Assessment assessment = assessmentService.getAssessment(assessmentId);
 		if (assessment == null)
 		{
 			// redirect to error
@@ -124,8 +132,8 @@ public class SelectAddPartQuestionsView extends ControllerImpl
 		}
 
 		// part
-		String partId = params[4];
-		ManualPart part = (ManualPart) assessment.getParts().getPart(params[4]);
+		String partId = params[3];
+		Part part = assessment.getParts().getPart(partId);
 		if (part == null)
 		{
 			// redirect to error
@@ -135,35 +143,24 @@ public class SelectAddPartQuestionsView extends ControllerImpl
 		context.put("part", part);
 
 		// sort
-		String sortCode = "0A";
-		if (params.length > 5) sortCode = params[5];
-		if ((sortCode == null) || (sortCode.length() != 2))
-		{
-			throw new IllegalArgumentException();
-		}
+		String sortCode = params[4];
 		context.put("sort_column", sortCode.charAt(0));
 		context.put("sort_direction", sortCode.charAt(1));
 		QuestionService.FindQuestionsSort sort = findQuestionSortCode(sortCode);
 
-		String typeFilter = (params.length > 7) ? params[7] : "0";
+		String typeFilter = params[6];
 		context.put("typeFilter", typeFilter);
 
 		// the question types
 		List<QuestionPlugin> questionTypes = this.mnemeService.getQuestionPlugins();
 		context.put("questionTypes", questionTypes);
 
-		String poolFilter = (params.length > 8) ? params[8] : "0";
+		String poolFilter = params[7];
 		context.put("poolFilter", poolFilter);
 		Pool pool = poolFilter.equals("0") ? null : this.poolService.getPool(poolFilter);
 
-		String surveyFilter = (params.length > 9) ? params[9] : "B";
+		String surveyFilter = params[8];
 		context.put("surveyFilter", surveyFilter);
-
-		// the pools
-		List<Pool> pools = this.poolService.getPools(toolManager.getCurrentPlacement().getContext());
-		context.put("pools", pools);
-
-		// survey filter
 		Boolean surveyFilterValue = null;
 		if ("A".equals(surveyFilter))
 		{
@@ -173,6 +170,10 @@ public class SelectAddPartQuestionsView extends ControllerImpl
 		{
 			surveyFilterValue = Boolean.TRUE;
 		}
+
+		// the pools
+		List<Pool> pools = this.poolService.getPools(toolManager.getCurrentPlacement().getContext());
+		context.put("pools", pools);
 
 		// paging
 		Integer maxQuestions = null;
@@ -186,34 +187,36 @@ public class SelectAddPartQuestionsView extends ControllerImpl
 			maxQuestions = this.questionService.countQuestions(pool, null, (typeFilter.equals("0") ? null : typeFilter), surveyFilterValue,
 					Boolean.TRUE);
 		}
-		String pagingParameter = "1-" + Integer.toString(this.pageSizes.get(0));
-		if (params.length > 6) pagingParameter = params[6];
+		String pagingParameter = params[5];
+		if ("-".equals(pagingParameter))
+		{
+			pagingParameter = "1-" + Integer.toString(this.pageSizes.get(0));
+		}
 		Paging paging = uiService.newPaging();
 		paging.setMaxItems(maxQuestions);
 		paging.setCurrentAndSize(pagingParameter);
 		context.put("paging", paging);
 
-		// get questions
+		// get questions - even invalids
 		List<Question> questions = null;
 
 		if (pool == null)
 		{
 			questions = questionService.findQuestions(this.toolManager.getCurrentPlacement().getContext(), sort, null, (typeFilter.equals("0") ? null
 					: typeFilter), paging.getSize() == 0 ? null : paging.getCurrent(), paging.getSize() == 0 ? null : paging.getSize(),
-					surveyFilterValue, Boolean.TRUE);
+					surveyFilterValue, null);
 		}
 		else
 		{
 			questions = questionService.findQuestions(pool, sort, null, (typeFilter.equals("0") ? null : typeFilter), paging.getSize() == 0 ? null
-					: paging.getCurrent(), paging.getSize() == 0 ? null : paging.getSize(), surveyFilterValue, Boolean.TRUE);
+					: paging.getCurrent(), paging.getSize() == 0 ? null : paging.getSize(), surveyFilterValue, null);
 		}
 		context.put("questions", questions);
 
 		// compute the current destination, except for being at page one
-		// this will match "current" in the filter dropdown values, which are all set to send to page one.
-		// [2]sort for /assessment, [3]aid |[4] pid |optional->| [5]our sort, [6]our page, [7] our type filter, [8] our pool filter, [9] survey filter
-		String newDestination = "/" + params[1] + "/" + params[2] + "/" + params[3] + "/" + params[4] + "/" + sortCode + "/" + "1" + "-"
-				+ paging.getSize().toString() + "/" + typeFilter + "/" + poolFilter + "/" + surveyFilter;
+		// this will match "current" in the filter drop-down values, which are all set to send to page one.
+		String newDestination = "/" + params[1] + "/" + params[2] + "/" + params[3] + "/" + sortCode + "/" + "1" + "-" + paging.getSize().toString()
+				+ "/" + typeFilter + "/" + poolFilter + "/" + surveyFilter + destination;
 
 		// for the selected question type
 		Value value = this.uiService.newValue();
@@ -235,6 +238,11 @@ public class SelectAddPartQuestionsView extends ControllerImpl
 		{
 			context.put("pageSizes", this.pageSizes);
 		}
+
+		// for the selected "for" part
+		value = this.uiService.newValue();
+		value.setValue(part.getId());
+		context.put("partId", value);
 
 		// render
 		uiService.render(ui, context);
@@ -262,11 +270,12 @@ public class SelectAddPartQuestionsView extends ControllerImpl
 	 */
 	public void post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// [2]sort for /assessment, [3]aid |[4] pid |optional->| [5]our sort, [6]our page, [7] our type filter,
-		// [8] our pool filter [9] our survey filter
-		if (params.length < 5 || params.length > 10) throw new IllegalArgumentException();
+		// [2] assessment id, [3] part id
+		// [4] sort "0A", [5] page, [6] type filter [7] pool filter [8] survey filter
+		// return address in the rest
+		if (params.length < 9) throw new IllegalArgumentException();
 
-		String assessmentId = params[3];
+		String assessmentId = params[2];
 		Assessment assessment = assessmentService.getAssessment(assessmentId);
 		if (assessment == null)
 		{
@@ -283,8 +292,8 @@ public class SelectAddPartQuestionsView extends ControllerImpl
 			return;
 		}
 
-		String partId = params[4];
-		ManualPart part = (ManualPart) assessment.getParts().getPart(partId);
+		String partId = params[3];
+		Part part = assessment.getParts().getPart(partId);
 		if (part == null)
 		{
 			// redirect to error
@@ -295,15 +304,61 @@ public class SelectAddPartQuestionsView extends ControllerImpl
 		Values values = this.uiService.newValues();
 		context.put("questionids", values);
 
+		// for the selected "for" part
+		Value value = this.uiService.newValue();
+		context.put("partId", value);
+
 		// read form
 		String destination = this.uiService.decode(req, context);
+
+		// get the new part id
+		String newPartId = value.getValue();
+		if (!part.getId().equals(newPartId))
+		{
+			// create a new part?
+			if ("0".equals(newPartId))
+			{
+				try
+				{
+					Part created = assessment.getParts().addPart();
+					this.assessmentService.saveAssessment(assessment);
+					newPartId = created.getId();
+				}
+				catch (AssessmentPermissionException e)
+				{
+					// redirect to error
+					res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+					return;
+				}
+				catch (AssessmentPolicyException e)
+				{
+					// redirect to error
+					res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.policy)));
+					return;
+				}
+			}
+
+			Part newPart = assessment.getParts().getPart(newPartId);
+			if (newPart != null)
+			{
+				part = newPart;
+
+				// adjust the destination to use this part, if the destination is back to me
+				String[] destParts = StringUtil.split(destination, "/");
+				if (destParts[1].equals("select_add_mpart_question"))
+				{
+					destParts[3] = part.getId();
+					destination = StringUtil.unsplit(destParts, 0, destParts.length, "/");
+				}
+			}
+		}
 
 		for (String id : values.getValues())
 		{
 			Question question = this.questionService.getQuestion(id);
 			if (question != null)
 			{
-				part.addQuestion(question);
+				part.addPickDetail(question);
 			}
 		}
 

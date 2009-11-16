@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2009 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface focus="title">
+
+	<!-- attachment picker view -->
+	<attachmentPicker>
+		<destination template="/attachments" />
+	</attachmentPicker>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<header>
+		<message selector="instructionsEdit-header">
+			<model type="icon" icon="/icons/edit.png" />
+		</message>
+	</header>
+	<subHeader>
+		<container>
+			<text>
+				<message selector="instructionsEdit-subheader">
+					<model ref="assessment.title" type="text" missing="no-title" />
+				</message>
+			</text>
+		</container>
+	</subHeader>
+
+	<title>
+		<message selector="instructionsEdit-title" />
+	</title>
+
+	<container>
+
+		<htmlEdit size="FULL">
+			<title>
+				<message selector="test-instructions">
+					<model type="icon" icon="/icons/test.png" />
+					<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+					<model ref="assessment.title" type="text" missing="no-title" />
+				</message>
+			</title>
+			<readOnly>
+				<decision model="assessment.isLocked" />
+			</readOnly>
+			<model type="html" ref="assessment.presentation.text" />
+		</htmlEdit>
+
+		<gap />
+
+		<section>
+			<iterator name="part">
+				<model ref="parts" indexRef="id" />
+			</iterator>
+
+			<container>
+
+				<htmlEdit size="FULL">
+					<title>
+						<message selector="part-instructions">
+							<model type="icon" icon="/icons/section.png" />
+							<model type="text" ref="part.ordering.position" />
+							<model type="text" ref="part.assessment.parts.size" />
+							<model type="text" ref="part.title" />
+						</message>
+					</title>
+					<readOnly>
+						<decision model="assessment.isLocked" />
+					</readOnly>
+					<model type="html" ref="part.presentation.text" />
+				</htmlEdit>
+
+			</container>
+		</section>
+
+		<!-- navigations -->
+		<navigationBar>
+			<container>
+				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation title="save" accessKey="save-access" description="save-description" style="BUTTON" submit="TRUE">
+					<destination template="SAVE" />
+					<icon icon="/icons/save.png" style="LEFT" />
+				</navigation>
+			</container>
+		</navigationBar>
+	</container>
+
+</interface>

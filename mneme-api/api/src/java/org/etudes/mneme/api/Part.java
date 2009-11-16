@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -25,7 +25,6 @@
 package org.etudes.mneme.api;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Part holds a set of questions within an assessment.
@@ -33,11 +32,38 @@ import java.util.Map;
 public interface Part
 {
 	/**
+	 * Add a draw to the part; pool and count to draw from.
+	 * 
+	 * @param pool
+	 *        The pool to draw from.
+	 * @param numQuestions
+	 *        The number of questions to draw.
+	 * @return the PoolDraw detail added.
+	 */
+	PoolDraw addDrawDetail(Pool pool, Integer numQuestions);
+
+	/**
+	 * Add a pick to the part; question.
+	 * 
+	 * @param question
+	 *        The question to add.
+	 * @return the QuestionPick detail added.
+	 */
+	QuestionPick addPickDetail(Question question);
+
+	/**
 	 * Access the back pointer to the assessment.
 	 * 
 	 * @return The back pointer to the assessment.
 	 */
 	Assessment getAssessment();
+
+	/**
+	 * Access the part details, each a PoolDraw or QuestionPick.
+	 * 
+	 * @return The List of part details.
+	 */
+	List<PartDetail> getDetails();
 
 	/**
 	 * Access the first question. The order will be in a random order (if enabled) based on the current user.
@@ -89,7 +115,7 @@ public interface Part
 	Ordering<Part> getOrdering();
 
 	/**
-	 * Access the assessment's presentation; the rich tet and attachments that describe the assessment.
+	 * Access the assessment's presentation; the rich text and attachments that describe the assessment.
 	 * 
 	 * @return The assessment's presentation.
 	 */
@@ -112,12 +138,25 @@ public interface Part
 	List<Question> getQuestions();
 
 	/**
-	 * Access the questions that have been used for this part in any submissions. <br /> Order by question description.
+	 * Access the questions that have been used for this part in any submissions. <br />
+	 * Order by question description.
 	 * 
 	 * @return The questions that have been used for this part in any submissions
 	 */
 	List<Question> getQuestionsUsed();
 
+	/**
+	 * Access the randomize flag.
+	 * 
+	 * @return TRUE if questions should be randomized per submission, FALSE if they should be presented in authored order.
+	 */
+	Boolean getRandomize();
+
+	/**
+	 * @return a non empty string describing the part; either the title, or text based on the part position.
+	 */
+	String getTag();
+	
 	/**
 	 * Access the title.
 	 * 
@@ -133,12 +172,36 @@ public interface Part
 	Float getTotalPoints();
 
 	/**
-	 * Restore the part pool and question references to their original, non-historical values.
+	 * Remove the detail with this detail id.
 	 * 
-	 * @param idMap
-	 *        A map of pool (for draw parts) or question (for manual parts) ids (old id to new id) to change original references to. may be null.
+	 * @param id
+	 *        The detail id.
 	 */
-	boolean setOrig(Map<String, String> idMap);
+	void removeDetail(String id);
+
+	/**
+	 * Remove any draw detail that is for this pool.
+	 * 
+	 * @param pool
+	 *        The pool to remove.
+	 */
+	void removeDrawDetail(Pool pool);
+
+	/**
+	 * Remove any pick detail that selects this question.
+	 * 
+	 * @param question
+	 *        The question to remove.
+	 */
+	void removePickDetail(Question question);
+
+	/**
+	 * Set the randomize flag.
+	 * 
+	 * @param setting
+	 *        TRUE if questions should be randomized per submission, FALSE if they should be presented in authored order.
+	 */
+	void setRandomize(Boolean setting);
 
 	/**
 	 * Set the title.

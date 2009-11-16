@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -27,10 +27,12 @@ package org.etudes.mneme.impl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.mneme.api.AssessmentAccess;
-import org.etudes.mneme.api.ManualPart;
 import org.etudes.mneme.api.Part;
+import org.etudes.mneme.api.PartDetail;
 import org.etudes.mneme.api.Pool;
+import org.etudes.mneme.api.PoolDraw;
 import org.etudes.mneme.api.Question;
+import org.etudes.mneme.api.QuestionPick;
 import org.etudes.mneme.api.ReviewShowCorrect;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -109,6 +111,64 @@ public class AssessmentStorageOracle extends AssessmentStorageSql implements Ass
 	 * 
 	 * @param assessment
 	 *        The assessment.
+	 */
+	protected void insertAssessmentPartDetailTx(AssessmentImpl assessment, PartImpl part, PartDetailImpl detail)
+	{
+		// get the next id
+		Long id = this.sqlService.getNextSequence("MNEME_ASSESSMENT_DETAIL_SEQ", null);
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("INSERT INTO MNEME_ASSESSMENT_PART_DETAIL (ID,");
+		sql.append(" ASSESSMENT_ID, NUM_QUESTIONS_SEQ, ORIG_PID, ORIG_QID, PART_ID, POOL_ID, QUESTION_ID, SEQ, POINTS)");
+		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?)");
+
+		Object[] fields = new Object[10];
+		fields[0] = id;
+		fields[1] = Long.valueOf(assessment.getId());
+		int i = 2;
+
+		if (detail instanceof QuestionPick)
+		{
+			QuestionPick pick = (QuestionPick) detail;
+
+			fields[i++] = Integer.valueOf(1);
+			fields[i++] = null;
+			fields[i++] = (pick.getOrigQuestionId() == null) ? null : Long.valueOf(pick.getOrigQuestionId());
+			fields[i++] = Long.valueOf(part.getId());
+			fields[i++] = null;
+			fields[i++] = Long.valueOf(pick.getQuestionId());
+			fields[i++] = Integer.valueOf(((PartDetailImpl) detail).getSeq());
+			fields[i++] = detail.getPoints();
+		}
+
+		else if (detail instanceof PoolDraw)
+		{
+			PoolDraw draw = (PoolDraw) detail;
+
+			fields[i++] = Integer.valueOf(draw.getNumQuestions());
+			fields[i++] = draw.getOrigPoolId() == null ? null : Long.valueOf(draw.getOrigPoolId());
+			fields[i++] = null;
+			fields[i++] = Long.valueOf(part.getId());
+			fields[i++] = Long.valueOf(draw.getPoolId());
+			fields[i++] = null;
+			fields[i++] = Integer.valueOf(((PartDetailImpl) detail).getSeq());
+			fields[i++] = detail.getPoints();
+		}
+
+		if (!this.sqlService.dbWrite(null, sql.toString(), fields))
+		{
+			throw new RuntimeException("insertAssessmentPartDetailTx: dbWrite failed");
+		}
+
+		// set the detail's id
+		((PartDetailImpl) detail).initId(id.toString());
+	}
+
+	/**
+	 * Insert a new assessment's parts (transaction code).
+	 * 
+	 * @param assessment
+	 *        The assessment.
 	 * @param part
 	 *        the part.
 	 */
@@ -128,8 +188,8 @@ public class AssessmentStorageOracle extends AssessmentStorageSql implements Ass
 		fields[2] = part.getPresentation().getText();
 		fields[3] = part.getOrdering().getPosition();
 		fields[4] = part.getTitle();
-		fields[5] = (part instanceof ManualPart) ? "M" : "D";
-		fields[6] = (part instanceof ManualPart) ? (((ManualPart) part).getRandomize() ? "1" : "0") : "0";
+		fields[5] = "H";
+		fields[6] = part.getRandomize() ? "1" : "0";
 
 		if (!this.sqlService.dbWrite(null, sql.toString(), fields))
 		{
@@ -139,8 +199,11 @@ public class AssessmentStorageOracle extends AssessmentStorageSql implements Ass
 		// set the part's id
 		((PartImpl) part).initId(id.toString());
 
-		// part draw-pick
-		insertAssessmentPartDetailTx(assessment, part);
+		// part details
+		for (PartDetail detail : part.getDetails())
+		{
+			insertAssessmentPartDetailTx(assessment, (PartImpl) part, (PartDetailImpl) detail);
+		}
 	}
 
 	/**

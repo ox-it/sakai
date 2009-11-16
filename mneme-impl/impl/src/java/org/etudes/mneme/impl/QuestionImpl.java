@@ -29,11 +29,13 @@ import java.util.List;
 import org.etudes.mneme.api.Attribution;
 import org.etudes.mneme.api.Ordering;
 import org.etudes.mneme.api.Part;
+import org.etudes.mneme.api.PartDetail;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolGetService;
 import org.etudes.mneme.api.Presentation;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionGetService;
+import org.etudes.mneme.api.QuestionPick;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionUnscoredQuestionService;
 import org.etudes.mneme.api.TypeSpecificQuestion;
@@ -147,7 +149,7 @@ public class QuestionImpl implements Question
 		{
 			if (question.partContext == null) return true;
 
-			List<PoolPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
+			List<QuestionPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
 			if (question.getId().equals(questions.get(0).getQuestionId())) return true;
 
 			return false;
@@ -160,7 +162,7 @@ public class QuestionImpl implements Question
 		{
 			if (question.partContext == null) return true;
 
-			List<PoolPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
+			List<QuestionPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
 			if (question.getId().equals(questions.get(questions.size() - 1).getQuestionId())) return true;
 
 			return false;
@@ -173,9 +175,9 @@ public class QuestionImpl implements Question
 		{
 			if (question.partContext == null) return null;
 
-			List<PoolPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
+			List<QuestionPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
 			int index = 0;
-			for (PoolPick pick : questions)
+			for (QuestionPick pick : questions)
 			{
 				if (pick.getQuestionId().equals(question.getId()))
 				{
@@ -196,9 +198,9 @@ public class QuestionImpl implements Question
 		{
 			if (question.partContext == null) return new Integer(1);
 
-			List<PoolPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
+			List<QuestionPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
 			int index = 0;
-			for (PoolPick pick : questions)
+			for (QuestionPick pick : questions)
 			{
 				if (pick.getQuestionId().equals(question.getId()))
 				{
@@ -217,9 +219,9 @@ public class QuestionImpl implements Question
 		{
 			if (question.partContext == null) return null;
 
-			List<PoolPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
+			List<QuestionPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
 			int index = 0;
-			for (PoolPick pick : questions)
+			for (QuestionPick pick : questions)
 			{
 				if (pick.getQuestionId().equals(question.getId()))
 				{
@@ -259,6 +261,9 @@ public class QuestionImpl implements Question
 	protected AttributionImpl modifiedBy = new AttributionImpl(null);
 
 	protected transient Part partContext = null;
+
+	/** the PartDetail context for this instance of the question. */
+	protected transient PartDetail partDetailContext = null;
 
 	protected MyPartOrdering partOrdering = new MyPartOrdering(this);
 
@@ -504,6 +509,17 @@ public class QuestionImpl implements Question
 	{
 		if (!getHasPoints()) return Float.valueOf(0f);
 
+		if (this.partDetailContext != null)
+		{
+			// get the points from the detail
+			Float partPoints = this.partDetailContext.getQuestionPoints();
+			if (partPoints != null)
+			{
+				return partPoints;
+			}
+		}
+
+		// use the pool value if not overridden in a detail
 		return getPool().getPoints();
 	}
 
@@ -792,6 +808,17 @@ public class QuestionImpl implements Question
 	}
 
 	/**
+	 * Initialize the part detail context for this question - the part detail this question instance was created to support.
+	 * 
+	 * @param partDetail
+	 *        The Part Detail.
+	 */
+	protected void initPartDetailContext(PartDetail partDetail)
+	{
+		this.partDetailContext = partDetail;
+	}
+
+	/**
 	 * Establish the pool id.
 	 * 
 	 * @param poolId
@@ -868,6 +895,7 @@ public class QuestionImpl implements Question
 		this.id = other.id;
 		this.mint = other.mint;
 		this.modifiedBy = new AttributionImpl((AttributionImpl) other.modifiedBy, null);
+		this.partDetailContext = other.partDetailContext;
 		this.partContext = other.partContext;
 		this.poolId = other.poolId;
 		this.poolService = other.poolService;

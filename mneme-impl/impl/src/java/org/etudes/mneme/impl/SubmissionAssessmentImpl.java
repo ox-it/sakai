@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -40,6 +40,7 @@ import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentSpecialAccess;
 import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.Attribution;
+import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.Presentation;
 import org.etudes.mneme.api.QuestionGrouping;
 import org.etudes.mneme.api.Submission;
@@ -329,6 +330,14 @@ public class SubmissionAssessmentImpl implements Assessment
 		}
 
 		return getAssessment().getPassword();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Pool getPool()
+	{
+		return getAssessment().getPool();
 	}
 
 	/**

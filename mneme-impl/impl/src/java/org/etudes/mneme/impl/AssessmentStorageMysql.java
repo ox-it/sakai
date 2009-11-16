@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -27,10 +27,12 @@ package org.etudes.mneme.impl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.mneme.api.AssessmentAccess;
-import org.etudes.mneme.api.ManualPart;
 import org.etudes.mneme.api.Part;
+import org.etudes.mneme.api.PartDetail;
 import org.etudes.mneme.api.Pool;
+import org.etudes.mneme.api.PoolDraw;
 import org.etudes.mneme.api.Question;
+import org.etudes.mneme.api.QuestionPick;
 import org.etudes.mneme.api.ReviewShowCorrect;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -121,8 +123,8 @@ public class AssessmentStorageMysql extends AssessmentStorageSql implements Asse
 		fields[1] = part.getPresentation().getText();
 		fields[2] = part.getOrdering().getPosition();
 		fields[3] = part.getTitle();
-		fields[4] = (part instanceof ManualPart) ? "M" : "D";
-		fields[5] = (part instanceof ManualPart) ? (((ManualPart) part).getRandomize() ? "1" : "0") : "0";
+		fields[4] = "H";
+		fields[5] = part.getRandomize() ? "1" : "0";
 
 		Long id = this.sqlService.dbInsert(null, sql.toString(), fields, "ID");
 		if (id == null)
@@ -133,8 +135,11 @@ public class AssessmentStorageMysql extends AssessmentStorageSql implements Asse
 		// set the part's id
 		((PartImpl) part).initId(id.toString());
 
-		// part draw-pick
-		insertAssessmentPartDetailTx(assessment, part);
+		// part details
+		for (PartDetail detail : part.getDetails())
+		{
+			insertAssessmentPartDetailTx(assessment, (PartImpl) part, (PartDetailImpl) detail);
+		}
 	}
 
 	/**
@@ -217,6 +222,61 @@ public class AssessmentStorageMysql extends AssessmentStorageSql implements Asse
 		{
 			insertAssessmentPartTx(assessment, part);
 		}
+	}
+
+	/**
+	 * Insert a new assessment's parts (transaction code).
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 */
+	protected void insertAssessmentPartDetailTx(AssessmentImpl assessment, PartImpl part, PartDetailImpl detail)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("INSERT INTO MNEME_ASSESSMENT_PART_DETAIL (");
+		sql.append(" ASSESSMENT_ID, NUM_QUESTIONS_SEQ, ORIG_PID, ORIG_QID, PART_ID, POOL_ID, QUESTION_ID, SEQ, POINTS)");
+		sql.append(" VALUES(?,?,?,?,?,?,?,?,?)");
+
+		Object[] fields = new Object[9];
+		int i = 0;
+		fields[i++] = Long.valueOf(assessment.getId());
+
+		if (detail instanceof QuestionPick)
+		{
+			QuestionPick pick = (QuestionPick) detail;
+
+			fields[i++] = Integer.valueOf(1);
+			fields[i++] = null;
+			fields[i++] = (pick.getOrigQuestionId() == null) ? null : Long.valueOf(pick.getOrigQuestionId());
+			fields[i++] = Long.valueOf(part.getId());
+			fields[i++] = null;
+			fields[i++] = Long.valueOf(pick.getQuestionId());
+			fields[i++] = Integer.valueOf(((PartDetailImpl) detail).getSeq());
+			fields[i++] = detail.getPoints();
+		}
+
+		else if (detail instanceof PoolDraw)
+		{
+			PoolDraw draw = (PoolDraw) detail;
+
+			fields[i++] = Integer.valueOf(draw.getNumQuestions());
+			fields[i++] = draw.getOrigPoolId() == null ? null : Long.valueOf(draw.getOrigPoolId());
+			fields[i++] = null;
+			fields[i++] = Long.valueOf(part.getId());
+			fields[i++] = Long.valueOf(draw.getPoolId());
+			fields[i++] = null;
+			fields[i++] = Integer.valueOf(((PartDetailImpl) detail).getSeq());
+			fields[i++] = detail.getPoints();
+		}
+
+		Long id = this.sqlService.dbInsert(null, sql.toString(), fields, "ID");
+		if (id == null)
+		{
+			throw new RuntimeException("insertAssessmentPartDetailTx: dbInsert failed");
+		}
+
+		// set the detail's id
+		((PartDetailImpl) detail).initId(id.toString());
 	}
 
 	/**

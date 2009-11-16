@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -31,12 +31,11 @@ import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.FormatDelegateImpl;
 import org.etudes.mneme.api.Answer;
-import org.etudes.mneme.api.DrawPart;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.Submission;
 
 /**
- * The "FormatScore" format delegate for the mneme tool.
+ * The "FormatQuestionTitle" format delegate for the mneme tool.
  */
 public class FormatQuestionTitleDelegate extends FormatDelegateImpl
 {
@@ -115,10 +114,11 @@ public class FormatQuestionTitleDelegate extends FormatDelegateImpl
 			}
 			args[3] = Integer.valueOf(total);
 
-			if (question.getPart() instanceof DrawPart)
-			{
-				template += "-draw";
-			}
+			// TODO: from a draw?
+//			if (question.getPart() instanceof DrawPart)
+//			{
+//				template += "-draw";
+//			}
 		}
 
 		return context.getMessages().getFormattedMessage(template, args);

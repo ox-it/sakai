@@ -326,7 +326,6 @@ public class PoolImpl implements Pool
 	 */
 	public void setPointsEdit(Float points)
 	{
-		if ((points != null) && (points < 0f)) return;
 		if ((points != null) && (points.floatValue() < 0)) points = Float.valueOf(0.0f);
 		if ((points != null) && (points.floatValue() > 10000)) points = Float.valueOf(10000.0f);
 

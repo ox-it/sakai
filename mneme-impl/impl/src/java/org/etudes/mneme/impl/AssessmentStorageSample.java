@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -41,14 +41,14 @@ import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentAccess;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentType;
-import org.etudes.mneme.api.DrawPart;
-import org.etudes.mneme.api.ManualPart;
 import org.etudes.mneme.api.Part;
+import org.etudes.mneme.api.PartDetail;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolDraw;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionGrouping;
+import org.etudes.mneme.api.QuestionPick;
 import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.ReviewShowCorrect;
 import org.etudes.mneme.api.ReviewTiming;
@@ -471,11 +471,13 @@ public class AssessmentStorageSample implements AssessmentStorage
 			{
 				for (Part part : assessment.getParts().getParts())
 				{
-					if (part instanceof DrawPart)
+					for (Iterator<PartDetail> i = part.getDetails().iterator(); i.hasNext();)
 					{
-						for (Iterator i = ((DrawPartImpl) part).pools.iterator(); i.hasNext();)
+						PartDetail detail = i.next();
+
+						if (detail instanceof PoolDraw)
 						{
-							PoolDraw draw = (PoolDraw) i.next();
+							PoolDraw draw = (PoolDraw) detail;
 
 							if (draw.getPoolId().equals(pool.getId()))
 							{
@@ -499,11 +501,13 @@ public class AssessmentStorageSample implements AssessmentStorage
 			{
 				for (Part part : assessment.getParts().getParts())
 				{
-					if (part instanceof ManualPart)
+					for (Iterator<PartDetail> i = part.getDetails().iterator(); i.hasNext();)
 					{
-						for (Iterator i = ((ManualPartImpl) part).questions.iterator(); i.hasNext();)
+						PartDetail detail = i.next();
+
+						if (detail instanceof QuestionPick)
 						{
-							PoolPick pick = (PoolPick) i.next();
+							QuestionPick pick = (QuestionPick) detail;
 
 							if (pick.getQuestionId().equals(question.getId()))
 							{
@@ -533,6 +537,11 @@ public class AssessmentStorageSample implements AssessmentStorage
 		for (Part part : assessment.getParts().getParts())
 		{
 			((PartImpl) part).clearChanged();
+			((PartImpl) part).clearDeleted();
+			for (PartDetail detail : part.getDetails())
+			{
+				((PartDetailImpl) detail).clearChanged();
+			}
 		}
 		((AssessmentPartsImpl) assessment.getParts()).clearDeleted();
 
@@ -581,6 +590,8 @@ public class AssessmentStorageSample implements AssessmentStorage
 				((AssessmentAccessImpl) access).initId("x" + Long.toString(id));
 			}
 		}
+
+		// TODO: assign part deatil ids
 
 		// save a copy
 		AssessmentImpl copy = new AssessmentImpl(assessment);
@@ -706,23 +717,23 @@ public class AssessmentStorageSample implements AssessmentStorage
 			a.getReview().setTiming(ReviewTiming.graded);
 			a.getSubmitPresentation().setText("Thanks for all the fish!");
 
-			ManualPart p = a.getParts().addManualPart();
+			Part p = a.getParts().addPart();
 			p.setRandomize(Boolean.FALSE);
 			p.setTitle("Part one");
 			((PartImpl) p).initId("p1");
-			p.addQuestion(this.questionService.getQuestion("q1"));
-			p.addQuestion(this.questionService.getQuestion("q3"));
-			p.addQuestion(this.questionService.getQuestion("q4"));
+			p.addPickDetail(this.questionService.getQuestion("q1"));
+			p.addPickDetail(this.questionService.getQuestion("q3"));
+			p.addPickDetail(this.questionService.getQuestion("q4"));
 			p.getPresentation().setText("This is part one.");
 
-			p = a.getParts().addManualPart();
+			p = a.getParts().addPart();
 			p.setRandomize(Boolean.FALSE);
 			p.setTitle("Part two");
 			((PartImpl) p).initId("p2");
 
-			p.addQuestion(this.questionService.getQuestion("q5"));
-			p.addQuestion(this.questionService.getQuestion("q7"));
-			p.addQuestion(this.questionService.getQuestion("q8"));
+			p.addPickDetail(this.questionService.getQuestion("q5"));
+			p.addPickDetail(this.questionService.getQuestion("q7"));
+			p.addPickDetail(this.questionService.getQuestion("q8"));
 			p.getPresentation().setText("This is part two.");
 
 			a.clearChanged();
@@ -768,8 +779,8 @@ public class AssessmentStorageSample implements AssessmentStorage
 			a.getReview().setTiming(ReviewTiming.submitted);
 			a.getSubmitPresentation().setText("Have a nice day!");
 
-			DrawPart p2 = a.getParts().addDrawPart();
-			p2.addPool(this.poolService.getPool("b1"), 2);
+			Part p2 = a.getParts().addPart();
+			p2.addDrawDetail(this.poolService.getPool("b1"), 2);
 			p2.setTitle("Part one");
 			((PartImpl) p2).initId("p3");
 			p2.getPresentation().setText("This is part one.");
@@ -809,9 +820,9 @@ public class AssessmentStorageSample implements AssessmentStorage
 			a.getReview().setTiming(ReviewTiming.submitted);
 			a.getSubmitPresentation().setText("Have a nice day!");
 
-			p = a.getParts().addManualPart();
-			p.addQuestion(this.questionService.getQuestion("q3"));
-			p.addQuestion(this.questionService.getQuestion("q4"));
+			p = a.getParts().addPart();
+			p.addPickDetail(this.questionService.getQuestion("q3"));
+			p.addPickDetail(this.questionService.getQuestion("q4"));
 			p.setTitle("Part one");
 			((PartImpl) p).initId("p4");
 			p.getPresentation().setText("This is part 1.");

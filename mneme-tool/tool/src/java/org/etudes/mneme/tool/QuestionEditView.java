@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -25,6 +25,7 @@
 package org.etudes.mneme.tool;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,20 +33,33 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.api.Context;
+import org.etudes.ambrosia.api.Value;
 import org.etudes.ambrosia.util.ControllerImpl;
+import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
+import org.etudes.mneme.api.AssessmentPolicyException;
+import org.etudes.mneme.api.AssessmentService;
+import org.etudes.mneme.api.MnemeService;
+import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.Question;
+import org.etudes.mneme.api.QuestionPlugin;
 import org.etudes.mneme.api.QuestionService;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
 
 /**
- * The question edit view for the mneme tool.
+ * The question_edit view for the mneme tool.
  */
 public class QuestionEditView extends ControllerImpl
 {
 	/** Our log. */
 	private static Log M_log = LogFactory.getLog(QuestionEditView.class);
+
+	/** Assessment Service */
+	protected AssessmentService assessmentService = null;
+
+	/** Dependency: mneme service. */
+	protected MnemeService mnemeService = null;
 
 	/** Question Service */
 	protected QuestionService questionService = null;
@@ -63,13 +77,28 @@ public class QuestionEditView extends ControllerImpl
 	 */
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// [2] pool_sort / [3] pool_id / [4] question_sort / [5] question_page / [6] question_id
-		if ((params.length != 7)) throw new IllegalArgumentException();
-		String questionId = params[6];
+		// we need a qid, assessment and part id, then any number of parameters to form the return destination
+		if (params.length < 5)
+		{
+			throw new IllegalArgumentException();
+		}
 
-		// put the extra parameters all together
-		String extras = StringUtil.unsplit(params, 2, 4, "/");
-		context.put("extras", extras);
+		String destination = null;
+		if (params.length > 5)
+		{
+			destination = "/" + StringUtil.unsplit(params, 5, params.length - 5, "/");
+		}
+
+		// if not specified, go to the main pools page
+		else
+		{
+			destination = "/pools";
+		}
+		context.put("return", destination);
+
+		String questionId = params[2];
+		String assessmentId = params[3];
+		String partId = params[4];
 
 		// get the question to work on
 		Question question = this.questionService.getQuestion(questionId);
@@ -85,6 +114,50 @@ public class QuestionEditView extends ControllerImpl
 
 		// put the question in the context
 		context.put("question", question);
+
+		// the question types
+		List<QuestionPlugin> questionTypes = this.mnemeService.getQuestionPlugins();
+		context.put("questionTypes", questionTypes);
+
+		// select the question's current type
+		Value value = this.uiService.newValue();
+		value.setValue(question.getType());
+		context.put("selectedQuestionType", value);
+
+		// if we are adding directly to an assessment part
+		if ((!"0".equals(assessmentId)) && (!"0".equals(partId)))
+		{
+			Assessment assessment = this.assessmentService.getAssessment(assessmentId);
+			if (assessment == null)
+			{
+				// redirect to error
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.invalid)));
+				return;
+			}
+			context.put("assessment", assessment);
+
+			Part part = assessment.getParts().getPart(partId);
+			if (part == null)
+			{
+				// redirect to error
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.invalid)));
+				return;
+			}
+			context.put("part", part);
+
+			// security check for the assessment edit
+			if (!this.assessmentService.allowEditAssessment(assessment))
+			{
+				// redirect to error
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+				return;
+			}
+
+			// for the selected "for" part
+			value = this.uiService.newValue();
+			value.setValue(part.getId());
+			context.put("partId", value);
+		}
 
 		uiService.render(ui, context);
 	}
@@ -103,9 +176,59 @@ public class QuestionEditView extends ControllerImpl
 	 */
 	public void post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// [2] pool_sort / [3] pool_id / [4] question_sort / [5] question_page / [6] question_id
-		if ((params.length != 7)) throw new IllegalArgumentException();
-		String questionId = params[6];
+		// we need a question id, then any number of parameters to form the return destination
+		if (params.length < 5)
+		{
+			throw new IllegalArgumentException();
+		}
+
+		String returnDestination = null;
+		if (params.length > 5)
+		{
+			returnDestination = "/" + StringUtil.unsplit(params, 5, params.length - 5, "/");
+		}
+
+		// if not specified, go to the main pools page
+		else
+		{
+			returnDestination = "/pools";
+		}
+
+		String questionId = params[2];
+
+		String assessmentId = params[3];
+		String partId = params[4];
+		String origPartId = partId;
+		Assessment assessment = null;
+		Part origPart = null;
+		Part part = null;
+		if ((!"0".equals(assessmentId)) && (!"0".equals(partId)))
+		{
+			assessment = this.assessmentService.getAssessment(assessmentId);
+			if (assessment == null)
+			{
+				// redirect to error
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.invalid)));
+				return;
+			}
+
+			origPart = assessment.getParts().getPart(partId);
+			if (origPart == null)
+			{
+				// redirect to error
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.invalid)));
+				return;
+			}
+			part = origPart;
+
+			// security check for the assessment edit
+			if (!this.assessmentService.allowEditAssessment(assessment))
+			{
+				// redirect to error
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+				return;
+			}
+		}
 
 		// get the question to work on
 		Question question = this.questionService.getQuestion(questionId);
@@ -114,16 +237,139 @@ public class QuestionEditView extends ControllerImpl
 		// put the question in the context
 		context.put("question", question);
 
+		// for the selected question type
+		Value newType = this.uiService.newValue();
+		context.put("selectedQuestionType", newType);
+
+		// for the selected "for" part
+		Value value = this.uiService.newValue();
+		context.put("partId", value);
+
 		// read form
 		String destination = this.uiService.decode(req, context);
 
 		// consolidate the question
 		destination = question.getTypeSpecificQuestion().consolidate(destination);
 
-		// save
 		try
 		{
-			this.questionService.saveQuestion(question);
+			// save
+			if ("RETYPE".equals(destination))
+			{
+				// save and re-type
+				this.questionService.saveQuestionAsType(question, newType.getValue());
+			}
+
+			else
+			{
+				// just save
+				this.questionService.saveQuestion(question);
+			}
+
+			// update the assessment part details if the question is not mint
+			if ((assessment != null) && (!question.getMint()))
+			{
+				// see if the user changed the part from the original
+				String newPartId = value.getValue();
+				if (!origPart.getId().equals(newPartId))
+				{
+					// see if the user wants a new part
+					if ("0".equals(newPartId))
+					{
+						// create the new part
+						try
+						{
+							Part created = assessment.getParts().addPart();
+							this.assessmentService.saveAssessment(assessment);
+
+							// here's the new id
+							newPartId = created.getId();
+						}
+						catch (AssessmentPermissionException e)
+						{
+							// redirect to error
+							res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+							return;
+						}
+						catch (AssessmentPolicyException e)
+						{
+							// redirect to error
+							res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.policy)));
+							return;
+						}
+					}
+
+					// get the desired part
+					Part newPart = assessment.getParts().getPart(newPartId);
+					if (newPart != null)
+					{
+						// remove the question from the old part (fails quietly if it was not there)
+						part.removePickDetail(question);
+						try
+						{
+							this.assessmentService.saveAssessment(assessment);
+						}
+						catch (AssessmentPermissionException e)
+						{
+							// redirect to error
+							res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+							return;
+						}
+						catch (AssessmentPolicyException e)
+						{
+							// redirect to error
+							res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.policy)));
+							return;
+						}
+
+						// set part and partId to the desired part
+						part = newPart;
+						partId = part.getId();
+					}
+				}
+
+				// add to the desired part
+				if (part != null)
+				{
+					part.addPickDetail(question);
+					try
+					{
+						this.assessmentService.saveAssessment(assessment);
+					}
+					catch (AssessmentPermissionException e)
+					{
+						// redirect to error
+						res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+						return;
+					}
+					catch (AssessmentPolicyException e)
+					{
+						// redirect to error
+						res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.policy)));
+						return;
+					}
+				}
+			}
+
+			if ("ADD".equals(destination))
+			{
+				destination = null;
+
+				// setup a new question of the same type in the same pool
+				try
+				{
+					Question newQuestion = this.questionService.newQuestion(question.getPool(), question.getType());
+
+					// edit it
+					destination = "/question_edit/" + newQuestion.getId() + "/" + assessmentId + "/" + partId + "/" + returnDestination;
+				}
+				catch (AssessmentPermissionException e)
+				{
+					// redirect to error
+					res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+					return;
+				}
+			}
 		}
 		catch (AssessmentPermissionException e)
 		{
@@ -133,13 +379,44 @@ public class QuestionEditView extends ControllerImpl
 		}
 
 		// if destination became null, or is the stay here
-		if ((destination == null) || ("STAY".equals(destination)))
+		if ((destination == null) || ("STAY".equals(destination) || "RETYPE".equals(destination)))
 		{
 			destination = context.getDestination();
 		}
 
+		// adjust destination for proper part
+		if (!partId.equals(origPartId))
+		{
+			String[] destParts = StringUtil.split(destination, "/");
+			if (destParts[1].equals("question_edit"))
+			{
+				destParts[4] = part.getId();
+				destination = StringUtil.unsplit(destParts, 0, destParts.length, "/");
+			}
+		}
+
 		// redirect
 		res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
+	}
+
+	/**
+	 * Set the AssessmentService.
+	 * 
+	 * @param service
+	 *        The AssessmentService.
+	 */
+	public void setAssessmentService(AssessmentService service)
+	{
+		this.assessmentService = service;
+	}
+
+	/**
+	 * @param mnemeService
+	 *        the mnemeService to set
+	 */
+	public void setMnemeService(MnemeService mnemeService)
+	{
+		this.mnemeService = mnemeService;
 	}
 
 	/**

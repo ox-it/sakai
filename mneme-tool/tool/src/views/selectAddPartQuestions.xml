@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -41,13 +41,35 @@
 		<container>
 			<text>
 				<message selector="select-add-to">
-					<model ref="part.title" missing="no-title" type="text" />
 					<model ref="assessment.title" type="text" missing="no-title" />
 				</message>
 			</text>
 		</container>
 	</subHeader>
 	<container>
+
+		<selection title="parts">
+			<model ref="partId.value" />
+			<selectionModel name="forpart" model="assessment.parts.parts">
+				<valueMessage>
+					<message model="forpart.id" />
+				</valueMessage>
+				<displayMessage>
+					<message model="forpart.tag" />
+				</displayMessage>
+			</selectionModel>
+			<selectionChoices>
+				<selectionChoice>
+					<displayMessage>
+						<message selector="new-part" />
+					</displayMessage>
+					<valueMessage>
+						<message template="0" />
+					</valueMessage>
+				</selectionChoice>
+			</selectionChoices>
+		</selection>
+
 		<section>
 			<container>
 				<!-- the list of the selected questions -->
@@ -68,8 +90,7 @@
 														<message selector="all" />
 													</displayMessage>
 													<valueMessage>
-														<message template="/select_add_mpart_question/{0}/{1}/{2}/{3}{4}/{5}/{6}/0/{7}">
-															<model ref="assessmentSort" />
+														<message template="/select_add_mpart_question/{0}/{1}/{2}{3}/{4}/{5}/0/{6}{7}">
 															<model ref="assessment.id" />
 															<model ref="part.id" />
 															<model ref="sort_column" />
@@ -77,14 +98,14 @@
 															<model type="paging" ref="paging" selector="FIRST" />
 															<model ref="typeFilter" />
 															<model ref="surveyFilter" />
+															<model ref="return" />
 														</message>
 													</valueMessage>
 												</selectionChoice>
 											</selectionChoices>
 											<selectionModel model="pools" name="pool">
 												<valueMessage>
-													<message template="/select_add_mpart_question/{0}/{1}/{2}/{3}{4}/{5}/{6}/{7}/{8}">
-														<model ref="assessmentSort" />
+													<message template="/select_add_mpart_question/{0}/{1}/{2}{3}/{4}/{5}/{6}/{7}{8}">
 														<model ref="assessment.id" />
 														<model ref="part.id" />
 														<model ref="sort_column" />
@@ -93,6 +114,7 @@
 														<model ref="typeFilter" />
 														<model ref="pool.id" />
 														<model ref="surveyFilter" />
+														<model ref="return" />
 													</message>
 												</valueMessage>
 												<displayMessage>
@@ -118,8 +140,7 @@
 														<message selector="all" />
 													</displayMessage>
 													<valueMessage>
-														<message template="/select_add_mpart_question/{0}/{1}/{2}/{3}{4}/{5}/0/{6}/{7}">
-															<model ref="assessmentSort" />
+														<message template="/select_add_mpart_question/{0}/{1}/{2}{3}/{4}/0/{5}/{6}{7}">
 															<model ref="assessment.id" />
 															<model ref="part.id" />
 															<model ref="sort_column" />
@@ -127,14 +148,14 @@
 															<model type="paging" ref="paging" selector="FIRST" />
 															<model ref="poolFilter" />
 															<model ref="surveyFilter" />
+															<model ref="return" />
 														</message>
 													</valueMessage>
 												</selectionChoice>
 											</selectionChoices>
 											<selectionModel model="questionTypes" name="type">
 												<valueMessage>
-													<message template="/select_add_mpart_question/{0}/{1}/{2}/{3}{4}/{5}/{6}/{7}/{8}">
-														<model ref="assessmentSort" />
+													<message template="/select_add_mpart_question/{0}/{1}/{2}{3}/{4}/{5}/{6}/{7}{8}">
 														<model ref="assessment.id" />
 														<model ref="part.id" />
 														<model ref="sort_column" />
@@ -143,6 +164,7 @@
 														<model ref="type.type" />
 														<model ref="poolFilter" />
 														<model ref="surveyFilter" />
+														<model ref="return" />
 													</message>
 												</valueMessage>
 												<displayMessage>
@@ -166,8 +188,7 @@
 														<message selector="all" />
 													</displayMessage>
 													<valueMessage>
-														<message template="/select_add_mpart_question/{0}/{1}/{2}/{3}{4}/{5}/{6}/{7}/B">
-															<model ref="assessmentSort" />
+														<message template="/select_add_mpart_question/{0}/{1}/{2}{3}/{4}/{5}/{6}/B{7}">
 															<model ref="assessment.id" />
 															<model ref="part.id" />
 															<model ref="sort_column" />
@@ -175,6 +196,7 @@
 															<model type="paging" ref="paging" selector="FIRST" />
 															<model ref="typeFilter" />
 															<model ref="poolFilter" />
+															<model ref="return" />
 														</message>
 													</valueMessage>
 												</selectionChoice>
@@ -183,8 +205,7 @@
 														<message selector="survey-questions" />
 													</displayMessage>
 													<valueMessage>
-														<message template="/select_add_mpart_question/{0}/{1}/{2}/{3}{4}/{5}/{6}/{7}/S">
-															<model ref="assessmentSort" />
+														<message template="/select_add_mpart_question/{0}/{1}/{2}{3}/{4}/{5}/{6}/S{7}">
 															<model ref="assessment.id" />
 															<model ref="part.id" />
 															<model ref="sort_column" />
@@ -192,6 +213,7 @@
 															<model type="paging" ref="paging" selector="FIRST" />
 															<model ref="typeFilter" />
 															<model ref="poolFilter" />
+															<model ref="return" />
 														</message>
 													</valueMessage>
 												</selectionChoice>
@@ -200,8 +222,7 @@
 														<message selector="assessment-questions" />
 													</displayMessage>
 													<valueMessage>
-														<message template="/select_add_mpart_question/{0}/{1}/{2}/{3}{4}/{5}/{6}/{7}/A">
-															<model ref="assessmentSort" />
+														<message template="/select_add_mpart_question/{0}/{1}/{2}{3}/{4}/{5}/{6}/A{7}">
 															<model ref="assessment.id" />
 															<model ref="part.id" />
 															<model ref="sort_column" />
@@ -209,6 +230,7 @@
 															<model type="paging" ref="paging" selector="FIRST" />
 															<model ref="typeFilter" />
 															<model ref="poolFilter" />
+															<model ref="return" />
 														</message>
 													</valueMessage>
 												</selectionChoice>
@@ -220,8 +242,7 @@
 						</text>
 					</entityActions>
 					<pager paging="paging" submit="TRUE">
-						<destination template="/select_add_mpart_question/{0}/{1}/{2}/{3}{4}/{5}/{6}/{7}/{8}">
-							<model ref="assessmentSort" />
+						<destination template="/select_add_mpart_question/{0}/{1}/{2}{3}/{4}/{5}/{6}/{7}{8}">
 							<model ref="assessment.id" />
 							<model ref="part.id" />
 							<model ref="sort_column" />
@@ -230,6 +251,7 @@
 							<model ref="typeFilter" />
 							<model ref="poolFilter" />
 							<model ref="surveyFilter" />
+							<model ref="return" />
 						</destination>
 						<sizeOptions>
 							<model ref="pageSizes" />
@@ -237,6 +259,16 @@
 					</pager>
 					<iterator name="question" model="questions" />
 					<columns>
+						<column pixels="16">
+							<entityIncluded>
+								<decision reversed="TRUE" model="question.isValid" />
+							</entityIncluded>
+							<container>
+								<warning>
+									<message selector="invalid-question" />
+								</warning>
+							</container>
+						</column>
 						<selectionColumn multiple="TRUE" pixels="16">
 							<value>
 								<model type="text" ref="question.id" />
@@ -253,9 +285,8 @@
 							<navigations>
 								<navigation style="LINK" submit="TRUE" description="view-question">
 									<icon icon="/icons/preview.png" style="LEFT" />
-									<destination template="/question_preview/{0}/select_add_mpart_question/{1}/{2}/{3}/{4}{5}/{6}/{7}/{8}/{9}">
+									<destination template="/question_preview/{0}/select_add_mpart_question/{1}/{2}/{3}{4}/{5}/{6}/{7}/{8}{9}">
 										<model ref="question.id" />
-										<model ref="assessmentSort" />
 										<model ref="assessment.id" />
 										<model ref="part.id" />
 										<model ref="sort_column" />
@@ -264,6 +295,7 @@
 										<model ref="typeFilter" />
 										<model ref="poolFilter" />
 										<model ref="surveyFilter" />
+										<model ref="return" />
 									</destination>
 									<included>
 										<decision reversed="TRUE" model="question.isSurvey" />
@@ -271,9 +303,8 @@
 								</navigation>
 								<navigation style="LINK" submit="TRUE" description="view-survey">
 									<icon icon="/icons/survey_view.png" style="LEFT" />
-									<destination template="/question_preview/{0}/select_add_mpart_question/{1}/{2}/{3}/{4}{5}/{6}/{7}/{8}/{9}">
+									<destination template="/question_preview/{0}/select_add_mpart_question/{1}/{2}/{3}{4}/{5}/{6}/{7}/{8}{9}">
 										<model ref="question.id" />
-										<model ref="assessmentSort" />
 										<model ref="assessment.id" />
 										<model ref="part.id" />
 										<model ref="sort_column" />
@@ -282,6 +313,7 @@
 										<model ref="typeFilter" />
 										<model ref="poolFilter" />
 										<model ref="surveyFilter" />
+										<model ref="return" />
 									</destination>
 									<included>
 										<decision model="question.isSurvey" />
@@ -303,26 +335,26 @@
 								</direction>
 								<asc icon="/icons/sortascending.gif">
 									<message selector="asc" />
-									<destination template="/select_add_mpart_question/{0}/{1}/{2}/3A/{3}/{4}/{5}/{6}">
-										<model ref="assessmentSort" />
+									<destination template="/select_add_mpart_question/{0}/{1}/3A/{2}/{3}/{4}/{5}{6}">
 										<model ref="assessment.id" />
 										<model ref="part.id" />
 										<model type="paging" ref="paging" selector="FIRST" />
 										<model ref="typeFilter" />
 										<model ref="poolFilter" />
 										<model ref="surveyFilter" />
+										<model ref="return" />
 									</destination>
 								</asc>
 								<desc icon="/icons/sortdescending.gif">
 									<message selector="desc" />
-									<destination template="/select_add_mpart_question/{0}/{1}/{2}/3D/{3}/{4}/{5}/{6}">
-										<model ref="assessmentSort" />
+									<destination template="/select_add_mpart_question/{0}/{1}/3D/{2}/{3}/{4}/{5}{6}">
 										<model ref="assessment.id" />
 										<model ref="part.id" />
 										<model type="paging" ref="paging" selector="FIRST" />
 										<model ref="typeFilter" />
 										<model ref="poolFilter" />
 										<model ref="surveyFilter" />
+										<model ref="return" />
 									</destination>
 								</desc>
 							</sort>
@@ -341,26 +373,26 @@
 								</direction>
 								<asc icon="/icons/sortascending.gif">
 									<message selector="asc" />
-									<destination template="/select_add_mpart_question/{0}/{1}/{2}/0A/{3}/{4}/{5}/{6}">
-										<model ref="assessmentSort" />
+									<destination template="/select_add_mpart_question/{0}/{1}/0A/{2}/{3}/{4}/{5}{6}">
 										<model ref="assessment.id" />
 										<model ref="part.id" />
 										<model type="paging" ref="paging" selector="FIRST" />
 										<model ref="typeFilter" />
 										<model ref="poolFilter" />
 										<model ref="surveyFilter" />
+										<model ref="return" />
 									</destination>
 								</asc>
 								<desc icon="/icons/sortdescending.gif">
 									<message selector="desc" />
-									<destination template="/select_add_mpart_question/{0}/{1}/{2}/0D/{3}/{4}/{5}/{6}">
-										<model ref="assessmentSort" />
+									<destination template="/select_add_mpart_question/{0}/{1}/0D/{2}/{3}/{4}/{5}{6}">
 										<model ref="assessment.id" />
 										<model ref="part.id" />
 										<model type="paging" ref="paging" selector="FIRST" />
 										<model ref="typeFilter" />
 										<model ref="poolFilter" />
 										<model ref="surveyFilter" />
+										<model ref="return" />
 									</destination>
 								</desc>
 							</sort>
@@ -379,26 +411,26 @@
 								</direction>
 								<asc icon="/icons/sortascending.gif">
 									<message selector="asc" />
-									<destination template="/select_add_mpart_question/{0}/{1}/{2}/1A/{3}/{4}/{5}/{6}">
-										<model ref="assessmentSort" />
+									<destination template="/select_add_mpart_question/{0}/{1}/1A/{2}/{3}/{4}/{5}{6}">
 										<model ref="assessment.id" />
 										<model ref="part.id" />
 										<model type="paging" ref="paging" selector="FIRST" />
 										<model ref="typeFilter" />
 										<model ref="poolFilter" />
 										<model ref="surveyFilter" />
+										<model ref="return" />
 									</destination>
 								</asc>
 								<desc icon="/icons/sortdescending.gif">
 									<message selector="desc" />
-									<destination template="/select_add_mpart_question/{0}/{1}/{2}/1D/{3}/{4}/{5}/{6}">
-										<model ref="assessmentSort" />
+									<destination template="/select_add_mpart_question/{0}/{1}/1D/{2}/{3}/{4}/{5}{6}">
 										<model ref="assessment.id" />
 										<model ref="part.id" />
 										<model type="paging" ref="paging" selector="FIRST" />
 										<model ref="typeFilter" />
 										<model ref="poolFilter" />
 										<model ref="surveyFilter" />
+										<model ref="return" />
 									</destination>
 								</desc>
 							</sort>
@@ -417,26 +449,26 @@
 								</direction>
 								<asc icon="/icons/sortascending.gif">
 									<message selector="asc" />
-									<destination template="/select_add_mpart_question/{0}/{1}/{2}/2A/{3}/{4}/{5}/{6}">
-										<model ref="assessmentSort" />
+									<destination template="/select_add_mpart_question/{0}/{1}/2A/{2}/{3}/{4}/{5}{6}">
 										<model ref="assessment.id" />
 										<model ref="part.id" />
 										<model type="paging" ref="paging" selector="FIRST" />
 										<model ref="typeFilter" />
 										<model ref="poolFilter" />
 										<model ref="surveyFilter" />
+										<model ref="return" />
 									</destination>
 								</asc>
 								<desc icon="/icons/sortdescending.gif">
 									<message selector="desc" />
-									<destination template="/select_add_mpart_question/{0}/{1}/{2}/2D/{3}/{4}/{5}/{6}">
-										<model ref="assessmentSort" />
+									<destination template="/select_add_mpart_question/{0}/{1}/2D/{2}/{3}/{4}/{5}{6}">
 										<model ref="assessment.id" />
 										<model ref="part.id" />
 										<model type="paging" ref="paging" selector="FIRST" />
 										<model ref="typeFilter" />
 										<model ref="poolFilter" />
 										<model ref="surveyFilter" />
+										<model ref="return" />
 									</destination>
 								</desc>
 							</sort>
@@ -458,10 +490,8 @@
 			<container>
 				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/return.png" style="LEFT" />
-					<destination template="/part_edit/{0}/{1}/{2}">
-						<model ref="assessmentSort" />
-						<model ref="assessment.id" />
-						<model ref="part.id" />
+					<destination template="{0}">
+						<model ref="return" />
 					</destination>
 				</navigation>
 			</container>

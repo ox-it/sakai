@@ -262,7 +262,6 @@
 
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="gradesService"><ref bean="org.etudes.mneme.api.GradesService"/></property>
-		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
 		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
 
 		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>

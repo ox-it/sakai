@@ -68,6 +68,22 @@
 			</title>
 			<container>
 				<text>
+					<message selector="invalid-instructions">
+						<model type="icon" icon="/icons/warning.png" />
+						<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+					</message>
+				</text>
+				<text>
+					<message>
+						<model type="html" ref="invalidMsg" />
+					</message>
+				</text>
+				<included>
+					<decision reversed="TRUE" model="assessment.isValid" />
+				</included>
+			</container>
+			<container>
+				<text>
 					<message>
 						<model type="html" ref="assessment.presentation.text" />
 					</message>
@@ -132,6 +148,17 @@
 					</title>
 
 					<container>
+
+						<!--  if invalid -->
+						<text>
+							<message selector="invalid-question">
+								<model type="icon" icon="/icons/warning.png" />
+								<model type="html" ref="question.typeSpecificQuestion.invalidMessage" />
+							</message>
+							<included>
+								<decision model="question.isValid" reversed="TRUE" />
+							</included>
+						</text>
 
 						<!-- Question specific delivery -->
 						<modelComponent model="question.typeSpecificQuestion.viewQuestionUi" />

@@ -37,20 +37,21 @@ import org.etudes.mneme.api.AssessmentDates;
 import org.etudes.mneme.api.AssessmentGrading;
 import org.etudes.mneme.api.AssessmentParts;
 import org.etudes.mneme.api.AssessmentPassword;
+import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentReview;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentSpecialAccess;
 import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.Attribution;
-import org.etudes.mneme.api.DrawPart;
-import org.etudes.mneme.api.ManualPart;
 import org.etudes.mneme.api.Part;
+import org.etudes.mneme.api.PartDetail;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolDraw;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Presentation;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionGrouping;
+import org.etudes.mneme.api.QuestionPick;
 import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
@@ -108,6 +109,9 @@ public class AssessmentImpl implements Assessment
 	protected AssessmentPartsImpl parts = null;
 
 	protected AssessmentPassword password = null;
+
+	/** The auto-pool for this assessment. */
+	protected String poolId = null;
 
 	protected transient PoolServiceImpl poolService = null;
 
@@ -435,6 +439,48 @@ public class AssessmentImpl implements Assessment
 	public AssessmentPassword getPassword()
 	{
 		return this.password;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Pool getPool()
+	{
+		// see if the pool has been deleted - if so we will make a new one
+		if (this.poolId != null)
+		{
+			Pool pool = this.poolService.getPool(this.poolId);
+			if (pool == null)
+			{
+				this.poolId = null;
+			}
+		}
+		
+		if (this.poolId == null)
+		{
+			try
+			{
+				Pool pool = this.poolService.newPool(this.context);
+				this.poolId = pool.getId();
+				if (this.title.length() > 0)
+				{
+					pool.setTitle(this.title);
+				}
+				// Note: if we don't set a >0 length title, the pool will have no changes, remain mint and disappear
+				else
+				{
+					pool.setTitle(this.messages.getFormattedMessage("assessment-pool", null));
+				}
+				this.poolService.savePool(pool);
+				this.changed.setChanged();
+			}
+			catch (AssessmentPermissionException e)
+			{
+				M_log.warn("getPool: " + e.toString());
+			}
+		}
+
+		return this.poolService.getPool(this.poolId);
 	}
 
 	/**
@@ -902,6 +948,17 @@ public class AssessmentImpl implements Assessment
 	}
 
 	/**
+	 * Initialize the poolId field.
+	 * 
+	 * @param poolId
+	 *        The poolId.
+	 */
+	protected void initPool(String poolId)
+	{
+		this.poolId = poolId;
+	}
+
+	/**
 	 * Establish the published setting.
 	 * 
 	 * @param published
@@ -956,10 +1013,12 @@ public class AssessmentImpl implements Assessment
 		{
 			((PartImpl) part).changed = true;
 
-			if (part instanceof DrawPart)
+			for (PartDetail detail : part.getDetails())
 			{
-				for (PoolDraw draw : ((DrawPartImpl) part).pools)
+				if (detail instanceof PoolDraw)
 				{
+					PoolDraw draw = (PoolDraw) detail;
+
 					// if we have not yet made a history for this pool, do so
 					Pool history = histories.get(draw.getPoolId());
 					if (history == null)
@@ -971,15 +1030,14 @@ public class AssessmentImpl implements Assessment
 					}
 					draw.setPool(history);
 				}
-			}
-			else if (part instanceof ManualPart)
-			{
-				for (PoolPick pick : ((ManualPartImpl) part).questions)
+				else if (detail instanceof QuestionPick)
 				{
+					QuestionPick pick = (QuestionPick) detail;
+
 					Question q = this.questionService.getQuestion(pick.getQuestionId());
 					if (q != null)
 					{
-						// make sure we have this question's comlete pool
+						// make sure we have this question's complete pool
 						Pool history = histories.get(q.getPool().getId());
 						if (history == null)
 						{
@@ -994,7 +1052,7 @@ public class AssessmentImpl implements Assessment
 						String historicalQid = oldToNew.get(q.getId());
 						if (historicalQid != null)
 						{
-							pick.setQuestion(historicalQid);
+							pick.setQuestionId(historicalQid);
 						}
 					}
 				}
@@ -1028,6 +1086,7 @@ public class AssessmentImpl implements Assessment
 		this.modifiedBy = new AttributionImpl((AttributionImpl) other.modifiedBy, this.changed);
 		this.parts = new AssessmentPartsImpl(this, (AssessmentPartsImpl) other.parts, this.changed);
 		this.password = new AssessmentPasswordImpl((AssessmentPasswordImpl) other.password, this.changed);
+		this.poolId = other.poolId;
 		this.poolService = other.poolService;
 		this.presentation = new PresentationImpl((PresentationImpl) other.presentation, this.changed);
 		this.published = other.published;

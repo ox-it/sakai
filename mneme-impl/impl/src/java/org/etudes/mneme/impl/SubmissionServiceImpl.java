@@ -47,7 +47,6 @@ import org.etudes.mneme.api.GradesService;
 import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.Question;
-import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionCompletedException;
@@ -82,9 +81,6 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 	/** Dependency: GradesService */
 	protected GradesService gradesService = null;
-
-	/** Dependency: QuestionService */
-	protected QuestionService questionService = null;
 
 	/** Dependency: SecurityService */
 	protected SecurityService securityService = null;
@@ -929,10 +925,10 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		for (String qid : qids)
 		{
-			QuestionImpl q = (QuestionImpl) this.questionService.getQuestion(qid);
+			// get the question from the part so the contexts are all set
+			QuestionImpl q = (QuestionImpl) part.getQuestion(qid);
 			if (q != null)
 			{
-				q.initPartContext(part);
 				rv.add(q);
 			}
 		}
@@ -1783,17 +1779,6 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	public void setGradesService(GradesService service)
 	{
 		this.gradesService = service;
-	}
-
-	/**
-	 * Dependency: QuestionService.
-	 * 
-	 * @param service
-	 *        The QuestionService.
-	 */
-	public void setQuestionService(QuestionService service)
-	{
-		this.questionService = service;
 	}
 
 	/**

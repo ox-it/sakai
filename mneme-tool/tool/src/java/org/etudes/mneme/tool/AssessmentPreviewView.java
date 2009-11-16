@@ -105,6 +105,12 @@ public class AssessmentPreviewView extends ControllerImpl
 		context.put("assessment", assessment);
 		context.put("return", destination);
 
+		// format an invalid message
+		if (!assessment.getIsValid())
+		{
+			context.put("invalidMsg", AssessmentInvalidView.formatInvalidDisplay(assessment, this.messages));
+		}
+
 		// render
 		uiService.render(ui, context);
 	}

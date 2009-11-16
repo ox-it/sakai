@@ -7,11 +7,8 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2009 Etudes, Inc.
  * 
- * Portions completed before September 1, 2008
- * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +24,7 @@
  **********************************************************************************/
 -->
 
-<interface title="partEdit-title" focus="title">
+<interface title="drawQuestions-title" focus="title">
 
 	<!-- attachment picker view -->
 	<attachmentPicker>
@@ -40,16 +37,15 @@
 	</modeContainer>
 
 	<header>
-		<message selector="partEdit-header">
-			<model type="icon" icon="/icons/edit.png" />
-			<model ref="part.ordering.position" />
+		<message selector="drawQuestions-header">
+			<model type="icon" icon="/icons/add_draw_add.png" />
 		</message>
 	</header>
 
 	<subHeader>
 		<container>
 			<text>
-				<message>
+				<message selector="draw-add-to">
 					<model ref="assessment.title" type="text" missing="no-title" />
 				</message>
 			</text>
@@ -58,63 +54,40 @@
 
 	<container>
 
-		<navigationBar />
+		<selection title="parts">
+			<model ref="partId.value" />
+			<selectionModel name="forpart" model="assessment.parts.parts">
+				<valueMessage>
+					<message model="forpart.id" />
+				</valueMessage>
+				<displayMessage>
+					<message model="forpart.tag" />
+				</displayMessage>
+			</selectionModel>
+			<selectionChoices>
+				<selectionChoice>
+					<displayMessage>
+						<message selector="new-part" />
+					</displayMessage>
+					<valueMessage>
+						<message template="0" />
+					</valueMessage>
+				</selectionChoice>
+			</selectionChoices>
+		</selection>
 
 		<section>
 			<container>
 
-				<!-- instructions overlay -->
-				<overlay id="instructions">
-					<container>
-						<htmlEdit title="part-instructions" size="FULL">
-							<model type="html" ref="part.presentation.text" />
-						</htmlEdit>
-						<gap />
-						<toggle target="instructions" title="close" style="LINK">
-							<icon icon="/icons/close.png" style="LEFT" />
-						</toggle>
-					</container>
-				</overlay>
-
-				<!-- title -->
-				<textEdit id="title" title="part-title" cols="40">
-					<model ref="part.title" type="text" />
-				</textEdit>
-
-				<!-- toggle to show instructions -->
-				<toggle target="instructions" title="edit-instructions" style="LINK">
-					<icon icon="/icons/section.png" style="LEFT" />
-					<included>
-						<hasValueDecision model="part.presentation.text" />
-					</included>
-				</toggle>
-				<toggle target="instructions" title="add-instructions" style="LINK">
-					<icon icon="/icons/section.png" style="LEFT" />
-					<included>
-						<hasValueDecision reversed="TRUE" model="part.presentation.text" />
-					</included>
-				</toggle>
-
-			</container>
-		</section>
-
-		<section>
-			<container>
-
-				<!-- the list of ALL pools, with those selected for this part checked and their "draw" filled in -->
+				<!-- the list of ALL pools, with those selected for this assessment checked and their "draw" filled in -->
 				<entityList style="FLAT">
-					<title>
-						<message selector="part-pools-msg">
-							<model type="icon" icon="/icons/add_random.png" />
-						</message>
-					</title>
 					<emptyTitle>
 						<message selector="no-pools" />
 					</emptyTitle>
 					<entityActions>
 						<!--  inform if live -->
 						<instructions>
-							<message selector="live-warning-dpart">
+							<message selector="live-warning">
 								<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
 							</message>
 							<included>
@@ -127,19 +100,13 @@
 					</iterator>
 					<columns>
 						<column em="4">
-							<entityIncluded>
-								<decision reversed="TRUE" model="draw.pool.id" delegate="PoolReferencedDecision" tool="sakai.mneme" />
-								<message>
-									<model type="icon" icon="/icons/checkon.gif" />
-								</message>
-							</entityIncluded>
 							<title>
 								<message selector="pool-draw" />
 							</title>
 							<container>
 								<countEdit cols="4">
 									<model ref="draw.numQuestions" />
-									<summary initialValue="part.numQuestions" title="total-questions" />
+									<summary initialValue="assessment.parts.numDrawQuestions" title="total-questions" />
 									<readOnly>
 										<decision model="assessment.isLocked" />
 									</readOnly>
@@ -172,18 +139,18 @@
 								</direction>
 								<asc icon="/icons/sortascending.gif">
 									<message selector="asc" />
-									<destination template="/part_edit/{0}/{1}/{2}/0A">
-										<model ref="assessmentSort" />
+									<destination template="/draw_questions/{0}/{1}/0A{2}">
 										<model ref="assessment.id" />
 										<model ref="part.id" />
+										<model ref="return" />
 									</destination>
 								</asc>
 								<desc icon="/icons/sortdescending.gif">
 									<message selector="desc" />
-									<destination template="/part_edit/{0}/{1}/{2}/0D">
-										<model ref="assessmentSort" />
+									<destination template="/draw_questions/{0}/{1}/0D{2}">
 										<model ref="assessment.id" />
 										<model ref="part.id" />
+										<model ref="return" />
 									</destination>
 								</desc>
 							</sort>
@@ -209,9 +176,6 @@
 							</included>
 							<model ref="draw.pool.points" />
 
-							<!--  TODO  -->
-							<summary initialValue="part.totalPoints" title="total-points" />
-
 							<sort submit="TRUE">
 								<active>
 									<compareDecision model="sort_column" constant="1" />
@@ -221,18 +185,18 @@
 								</direction>
 								<asc icon="/icons/sortascending.gif">
 									<message selector="asc" />
-									<destination template="/part_edit/{0}/{1}/{2}/1A">
-										<model ref="assessmentSort" />
+									<destination template="/draw_questions/{0}/{1}/1A{2}">
 										<model ref="assessment.id" />
 										<model ref="part.id" />
+										<model ref="return" />
 									</destination>
 								</asc>
 								<desc icon="/icons/sortdescending.gif">
 									<message selector="desc" />
-									<destination template="/part_edit/{0}/{1}/{2}/1D">
-										<model ref="assessmentSort" />
+									<destination template="/draw_questions/{0}/{1}/1D{2}">
 										<model ref="assessment.id" />
 										<model ref="part.id" />
+										<model ref="return" />
 									</destination>
 								</desc>
 							</sort>
@@ -257,36 +221,12 @@
 			<container>
 				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/return.png" style="LEFT" />
-					<destination template="/assessment_edit/{0}/{1}">
-						<model ref="assessmentSort" />
-						<model ref="assessment.id" />
+					<destination template="{0}">
+						<model ref="return" />
 					</destination>
 				</navigation>
 			</container>
 		</navigationBar>
 
 	</container>
-
-	<footer>
-		<container>
-			<finePrint>
-				<message selector="id-display">
-					<model ref="assessment.id" />
-				</message>
-			</finePrint>
-			<finePrint>
-				<message selector="history-createText">
-					<model type="userInfo" selector="DISPLAYNAME" ref="assessment.createdBy.UserId" />
-					<model type="date" ref="assessment.createdBy.date" />
-				</message>
-			</finePrint>
-			<finePrint>
-				<message selector="history-modifyText">
-					<model type="userInfo" selector="DISPLAYNAME" ref="assessment.modifiedBy.UserId" />
-					<model type="date" ref="assessment.modifiedBy.date" />
-				</message>
-			</finePrint>
-		</container>
-	</footer>
-
 </interface>

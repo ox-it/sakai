@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * PoolDraw contain the details of a part's draw from a pool.
  */
-public interface PoolDraw
+public interface PoolDraw extends PartDetail
 {
 	/**
 	 * Draw questions based on this random seed.
@@ -48,25 +48,11 @@ public interface PoolDraw
 	List<String> getAllQuestionIds();
 
 	/**
-	 * Get the number of questions to draw from the pool.
+	 * Access the original pool id.
 	 * 
-	 * @return The number of questions to draw from the pool.
+	 * @return The original pool id.
 	 */
-	Integer getNumQuestions();
-
-	/**
-	 * Access the pool to draw from.
-	 * 
-	 * @return The pool.
-	 */
-	Pool getPool();
-
-	/**
-	 * Access the pool id.
-	 * 
-	 * @return The pool id.
-	 */
-	String getPoolId();
+	String getOrigPoolId();
 
 	/**
 	 * Get the number of questions available in the pool.<br />

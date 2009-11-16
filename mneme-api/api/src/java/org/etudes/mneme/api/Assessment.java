@@ -189,6 +189,13 @@ public interface Assessment
 	AssessmentPassword getPassword();
 
 	/**
+	 * Get the auto-pool for the assessment; the one to hold the assessment's unique questions.
+	 * 
+	 * @return The assessment's auto-pool, created if needed.
+	 */
+	Pool getPool();
+
+	/**
 	 * Access the assessment's presentation; the rich text and attachments that describe the assessment.
 	 * 
 	 * @return The assessment's presentation.

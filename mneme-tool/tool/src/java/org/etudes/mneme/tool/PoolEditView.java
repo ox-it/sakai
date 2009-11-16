@@ -195,6 +195,16 @@ public class PoolEditView extends ControllerImpl
 			return;
 		}
 
+		// pool
+		String pid = params[3];
+		Pool pool = this.poolService.getPool(pid);
+		if (pool == null)
+		{
+			// redirect to error
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.invalid)));
+			return;
+		}
+
 		// for the selected questions to delete
 		Values values = this.uiService.newValues();
 		context.put("questionids", values);
@@ -268,6 +278,29 @@ public class PoolEditView extends ControllerImpl
 			buf.setLength(buf.length() - 1);
 
 			destination = buf.toString();
+		}
+
+		else if ("ADD".equals(destination))
+		{
+			// create a question - type? TODO:
+			String type = "mneme:MultipleChoice";
+			// create the question of the appropriate type (all the way to save)
+			Question newQuestion = null;
+			try
+			{
+				newQuestion = this.questionService.newQuestion(pool, type);
+			}
+			catch (AssessmentPermissionException e)
+			{
+				// redirect to error
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+				return;
+			}
+
+			String returnDest = StringUtil.unsplit(params, "/");
+
+			// create URL for add questions /select_question_type/POOL/RETURN
+			destination = "/question_edit/" + newQuestion.getId() + "/0/0" + returnDest;
 		}
 
 		res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));

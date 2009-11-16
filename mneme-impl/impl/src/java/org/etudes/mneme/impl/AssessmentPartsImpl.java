@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -26,21 +26,24 @@ package org.etudes.mneme.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
 import org.etudes.mneme.api.AssessmentParts;
 import org.etudes.mneme.api.Changeable;
-import org.etudes.mneme.api.DrawPart;
-import org.etudes.mneme.api.ManualPart;
 import org.etudes.mneme.api.Part;
+import org.etudes.mneme.api.PartDetail;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolDraw;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
+import org.etudes.mneme.api.QuestionPick;
 import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.SubmissionService;
 import org.sakaiproject.i18n.InternationalizedMessages;
+import org.sakaiproject.util.StringUtil;
 
 /**
  * AssessmentPartsImpl implements AssessmentParts
@@ -105,30 +108,10 @@ public class AssessmentPartsImpl implements AssessmentParts
 	/**
 	 * {@inheritDoc}
 	 */
-	public DrawPart addDrawPart()
+	public Part addPart()
 	{
 		// create the new part
-		DrawPart rv = new DrawPartImpl(this.assessment, this.questionService, this.submissionService, this.poolService, this.owner, this.messages);
-
-		// add it to the list
-		this.parts.add(rv);
-		((PartImpl) rv).initContainer(this.parts);
-
-		// this is a change that cannot be made to live tests
-		this.assessment.lockedChanged = Boolean.TRUE;
-
-		this.owner.setChanged();
-
-		return rv;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public ManualPart addManualPart()
-	{
-		// create the new part
-		ManualPart rv = new ManualPartImpl(this.assessment, this.questionService, this.submissionService, this.owner, this.messages);
+		Part rv = new PartImpl(this.assessment, this.poolService, this.questionService, this.submissionService, this.owner, this.messages);
 
 		// add it to the list
 		this.parts.add(rv);
@@ -153,8 +136,161 @@ public class AssessmentPartsImpl implements AssessmentParts
 	/**
 	 * {@inheritDoc}
 	 */
+	public PartDetail getDetailId(String id)
+	{
+		for (Part part : getParts())
+		{
+			for (PartDetail detail : part.getDetails())
+			{
+				if (id.equals(detail.getId())) return detail;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<PartDetail> getDetails()
+	{
+		List<PartDetail> rv = new ArrayList<PartDetail>();
+
+		for (Part part : getParts())
+		{
+			rv.addAll(part.getDetails());
+		}
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<PartDetail> getPhantomDetails()
+	{
+		List<PartDetail> rv = new ArrayList<PartDetail>();
+
+		for (Part part : getParts())
+		{
+			if (part.getDetails().isEmpty())
+			{
+				rv.add(new EmptyPartDetailImpl(part));
+			}
+			else
+			{
+				rv.addAll(part.getDetails());
+			}
+		}
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<PoolDraw> getDraws(final PoolService.FindPoolsSort sort)
+	{
+		List<PoolDraw> rv = new ArrayList<PoolDraw>();
+		for (PartDetail detail : getDetails())
+		{
+			if (detail instanceof PoolDraw)
+			{
+				rv.add((PoolDraw) detail);
+			}
+		}
+
+		// sort
+		if (sort != null)
+		{
+			Collections.sort(rv, new Comparator<PoolDraw>()
+			{
+				public int compare(PoolDraw arg0, PoolDraw arg1)
+				{
+					int rv = 0;
+					switch (sort)
+					{
+						case title_a:
+						{
+							String s0 = StringUtil.trimToZero(((PoolDraw) arg0).getPool().getTitle());
+							String s1 = StringUtil.trimToZero(((PoolDraw) arg1).getPool().getTitle());
+							rv = s0.compareToIgnoreCase(s1);
+							break;
+						}
+						case title_d:
+						{
+							String s0 = StringUtil.trimToZero(((PoolDraw) arg0).getPool().getTitle());
+							String s1 = StringUtil.trimToZero(((PoolDraw) arg1).getPool().getTitle());
+							rv = -1 * s0.compareToIgnoreCase(s1);
+							break;
+						}
+						case points_a:
+						{
+							Float f0 = ((PoolDraw) arg0).getPool().getPoints();
+							if (f0 == null) f0 = Float.valueOf(0f);
+							Float f1 = ((PoolDraw) arg1).getPool().getPoints();
+							if (f1 == null) f1 = Float.valueOf(0f);
+							rv = f0.compareTo(f1);
+							break;
+						}
+						case points_d:
+						{
+							Float f0 = ((PoolDraw) arg0).getPool().getPoints();
+							if (f0 == null) f0 = Float.valueOf(0f);
+							Float f1 = ((PoolDraw) arg1).getPool().getPoints();
+							if (f1 == null) f1 = Float.valueOf(0f);
+							rv = -1 * f0.compareTo(f1);
+							break;
+						}
+					}
+
+					return rv;
+				}
+			});
+		}
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<PoolDraw> getDrawsForPools(String context, PoolService.FindPoolsSort sort, String search)
+	{
+		// get all the pools we need
+		List<Pool> allPools = this.poolService.findPools(context, sort, search);
+
+		List<PoolDraw> rv = new ArrayList<PoolDraw>();
+
+		for (Pool pool : allPools)
+		{
+			PoolDraw draw = new PoolDrawImpl(this.assessment, null, this.poolService, pool, null, null);
+			for (PartDetail detail : getDetails())
+			{
+				if (detail instanceof PoolDraw)
+				{
+					PoolDraw myDraw = (PoolDraw) detail;
+
+					if (myDraw.getPoolId().equals(pool.getId()))
+					{
+						draw.setNumQuestions(myDraw.getNumQuestions());
+					}
+				}
+			}
+
+			rv.add(draw);
+		}
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Part getFirst()
 	{
+		if (this.parts.isEmpty()) return null;
+
 		return this.parts.get(0);
 	}
 
@@ -192,10 +328,12 @@ public class AssessmentPartsImpl implements AssessmentParts
 		List<String> poolIds = new ArrayList<String>();
 		for (Part part : this.parts)
 		{
-			if (part instanceof DrawPart)
+			for (PartDetail detail : part.getDetails())
 			{
-				for (PoolDraw draw : ((DrawPart) part).getDraws())
+				if (detail instanceof PoolDraw)
 				{
+					PoolDraw draw = (PoolDraw) detail;
+
 					if (poolIds.contains(draw.getPoolId()))
 					{
 						return Boolean.FALSE;
@@ -210,21 +348,40 @@ public class AssessmentPartsImpl implements AssessmentParts
 		List<String> questionIds = new ArrayList<String>();
 		for (Part part : this.parts)
 		{
-			if (part instanceof ManualPart)
+			for (PartDetail detail : part.getDetails())
 			{
-				for (Question question : ((ManualPart) part).getQuestionsAsAuthored())
+				if (detail instanceof QuestionPick)
 				{
-					if (questionIds.contains(question.getId()))
+					QuestionPick pick = (QuestionPick) detail;
+
+					if (questionIds.contains(pick.getQuestionId()))
 					{
 						return Boolean.FALSE;
 					}
 
-					questionIds.add(question.getId());
+					questionIds.add(pick.getQuestionId());
 				}
 			}
 		}
 
 		return Boolean.TRUE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Integer getNumDrawQuestions()
+	{
+		int rv = 0;
+		for (PartDetail detail : getDetails())
+		{
+			if (detail instanceof PoolDraw)
+			{
+				rv += ((PoolDraw) detail).getNumQuestions();
+			}
+		}
+
+		return rv;
 	}
 
 	/**
@@ -350,33 +507,95 @@ public class AssessmentPartsImpl implements AssessmentParts
 	/**
 	 * {@inheritDoc}
 	 */
+	public PoolDraw getVirtualDraw(Pool pool)
+	{
+		PoolDraw rv = new PoolDrawImpl(this.assessment, null, this.poolService, pool, null, null);
+		for (PartDetail detail : getDetails())
+		{
+			if (detail instanceof PoolDraw)
+			{
+				PoolDraw myDraw = (PoolDraw) detail;
+
+				if (myDraw.getPoolId().equals(pool.getId()))
+				{
+					rv.setNumQuestions(myDraw.getNumQuestions());
+				}
+			}
+		}
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void moveDetails(String[] detailIds, Part destination)
+	{
+		if (detailIds == null) throw new IllegalArgumentException();
+		if (destination == null) throw new IllegalArgumentException();
+		if (destination.getAssessment() != this.assessment) throw new IllegalArgumentException();
+
+		for (String detailId : detailIds)
+		{
+			// get the detail to move
+			PartDetail detail = getDetailId(detailId);
+			if (detail == null) continue;
+
+			// if it is in the desired part already
+			if (detail.getPart() == destination) continue;
+
+			// remove it - but not so it gets deleted
+			((PartImpl) detail.getPart()).setChanged();
+			for (Iterator<PartDetail> i = detail.getPart().getDetails().iterator(); i.hasNext();)
+			{
+				PartDetail d = i.next();
+				if (d == detail)
+				{
+					i.remove();
+					break;
+				}
+			}
+
+			// add it
+			((PartImpl) destination).setChanged();
+			destination.getDetails().add(detail);
+
+			((PartDetailImpl) detail).setChanged();
+		}
+
+		// this is a change that cannot be made to live tests
+		this.assessment.lockedChanged = Boolean.TRUE;
+
+		this.owner.setChanged();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void removeDetail(String id)
+	{
+		for (Part part : this.parts)
+		{
+			part.removeDetail(id);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void removeEmptyParts()
 	{
-		for (Iterator i = this.parts.iterator(); i.hasNext();)
+		for (Iterator<Part> i = this.parts.iterator(); i.hasNext();)
 		{
-			Part part = (Part) i.next();
+			Part part = i.next();
 
 			if ((part.getTitle() == null) && (part.getPresentation().getText() == null) && (part.getPresentation().getAttachments().isEmpty()))
 			{
-				if (part instanceof ManualPart)
+				if (part.getDetails().isEmpty())
 				{
-					ManualPart mpart = (ManualPart) part;
-					if (mpart.getQuestionsAsAuthored().isEmpty())
-					{
-						i.remove();
-						this.owner.setChanged();
-						this.deleted.add(part);
-					}
-				}
-				else if (part instanceof DrawPart)
-				{
-					DrawPart dpart = (DrawPart) part;
-					if (dpart.getDraws().isEmpty())
-					{
-						i.remove();
-						this.owner.setChanged();
-						this.deleted.add(part);
-					}
+					i.remove();
+					this.owner.setChanged();
+					this.deleted.add(part);
 				}
 			}
 		}
@@ -416,12 +635,12 @@ public class AssessmentPartsImpl implements AssessmentParts
 	public void setOrder(String[] partIds)
 	{
 		if (partIds == null) return;
-		List<String> ids = new ArrayList(Arrays.asList(partIds));
+		List<String> ids = new ArrayList<String>(Arrays.asList(partIds));
 
 		// remove anything from the new list not in our parts
-		for (Iterator i = ids.iterator(); i.hasNext();)
+		for (Iterator<String> i = ids.iterator(); i.hasNext();)
 		{
-			String id = (String) i.next();
+			String id = i.next();
 			Part part = getPart(id);
 			if (part == null)
 			{
@@ -489,6 +708,63 @@ public class AssessmentPartsImpl implements AssessmentParts
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public void updateDraws(List<PoolDraw> draws, Part partForNewDraws)
+	{
+		for (PoolDraw newDraw : draws)
+		{
+			// if it is empty, make sure it is removed from any part
+			if ((newDraw.getNumQuestions() == null) || (newDraw.getNumQuestions().intValue() == 0))
+			{
+				for (Part part : this.parts)
+				{
+					part.removeDrawDetail(newDraw.getPool());
+				}
+			}
+
+			// if it has count, see if we need to update its presence in a part
+			else
+			{
+				boolean used = false;
+				for (Part part : this.parts)
+				{
+					for (PartDetail detail : part.getDetails())
+					{
+						if (detail instanceof PoolDraw)
+						{
+							PoolDraw oldDraw = (PoolDraw) detail;
+
+							// is this pool drawn in the part?
+							if (oldDraw.getPoolId().equals(newDraw.getPoolId()))
+							{
+								used = true;
+
+								// is the count different?
+								if (oldDraw.getNumQuestions().intValue() != newDraw.getNumQuestions().intValue())
+								{
+									// update the part
+									part.addDrawDetail(newDraw.getPool(), newDraw.getNumQuestions());
+								}
+							}
+						}
+					}
+				}
+
+				// if we didn't find that it was used, add it to part 1, creating the part if needed
+				if ((!used) && (partForNewDraws != null) && (partForNewDraws.getAssessment() == assessment))
+				{
+					if (getParts().isEmpty())
+					{
+						addPart();
+					}
+					partForNewDraws.addDrawDetail(newDraw.getPool(), newDraw.getNumQuestions());
+				}
+			}
+		}
+	}
+
+	/**
 	 * Clear the deleted parts.
 	 */
 	protected void clearDeleted()
@@ -507,7 +783,7 @@ public class AssessmentPartsImpl implements AssessmentParts
 	}
 
 	/**
-	 * Get the question ids that are manually selected from this pool, from all parts.
+	 * Get the question ids that are manually selected from this pool, from all parts. Only include valid questions.
 	 * 
 	 * @param pool
 	 *        The pool.
@@ -515,16 +791,26 @@ public class AssessmentPartsImpl implements AssessmentParts
 	 *        if null, consider all questions; else consider only questions that match survey in their survey setting.
 	 * @return The question ids that are manually selected from this pool, from all parts.
 	 */
-	protected List<String> getPoolPicks(Pool pool, Boolean survey)
+	protected List<String> getQuestionPicksFromPool(Pool pool, Boolean survey)
 	{
 		List<String> rv = new ArrayList<String>();
 
-		// only for manual parts
 		for (Part part : this.parts)
 		{
-			if (part instanceof ManualPartImpl)
+			for (PartDetail detail : part.getDetails())
 			{
-				rv.addAll(((ManualPartImpl) part).getPoolPicks(pool, survey));
+				// only consider picks
+				if (detail instanceof QuestionPick)
+				{
+					QuestionPick pick = (QuestionPick) detail;
+					Question question = this.questionService.getQuestion(pick.getQuestionId());
+					if (question == null) continue;
+					if (!question.getIsValid().booleanValue()) continue;
+					if ((survey != null) && (!question.getIsSurvey().equals(survey))) continue;
+					if (!question.getPool().getId().equals(pool.getId())) continue;
+
+					rv.add(pick.getQuestionId());
+				}
 			}
 		}
 
@@ -550,22 +836,30 @@ public class AssessmentPartsImpl implements AssessmentParts
 
 		for (Part part : other.parts)
 		{
-			if (part instanceof ManualPartImpl)
-			{
-				PartImpl newPart = new ManualPartImpl((ManualPartImpl) part, this.assessment, this.owner);
-				newPart.initContainer(this.parts);
-				newPart.initAssessment(this.assessment);
-				this.parts.add(newPart);
-			}
-			else if (part instanceof DrawPartImpl)
-			{
-				PartImpl newPart = new DrawPartImpl((DrawPartImpl) part, this.assessment, this.owner);
-				newPart.initContainer(this.parts);
-				newPart.initAssessment(this.assessment);
-				this.parts.add(newPart);
-			}
+			PartImpl newPart = new PartImpl((PartImpl) part, this.assessment, this.owner);
+			newPart.initContainer(this.parts);
+			newPart.initAssessment(this.assessment);
+			this.parts.add(newPart);
+		}
+	}
 
-			// TODO: else?
+	/**
+	 * Update the sequence numbers for all the parts' details.
+	 */
+	protected void setDetailSeq()
+	{
+		for (Part part : this.parts)
+		{
+			int seq = 1;
+			for (PartDetail detail : part.getDetails())
+			{
+				if (((PartDetailImpl) detail).getSeq() != seq)
+				{
+					((PartDetailImpl) detail).initSeq(seq);
+					((PartDetailImpl) detail).setChanged();
+				}
+				seq++;
+			}
 		}
 	}
 }

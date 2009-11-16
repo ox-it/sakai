@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2009 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface focus="title">
+
+	<!-- attachment picker view -->
+	<attachmentPicker>
+		<destination template="/attachments" />
+	</attachmentPicker>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<header>
+		<message selector="partManage-header">
+			<model type="icon" icon="/icons/edit.png" />
+		</message>
+	</header>
+	<subHeader>
+		<container>
+			<text>
+				<message selector="partManage-subheader">
+					<model ref="part.title" missing="no-title" type="text" />
+					<model ref="assessment.title" type="text" missing="no-title" />
+				</message>
+			</text>
+		</container>
+	</subHeader>
+
+	<title>
+		<message selector="partManage-title" />
+	</title>
+
+	<container>
+
+		<section>
+			<container>
+
+				<navigation destination="INSTRUCTIONS" title="edit-instructions" style="LINK" submit="TRUE">
+					<icon icon="/icons/test.png" style="LEFT" />
+					<included>
+						<decision reversed="TRUE" model="assessment.isLocked" />
+					</included>
+				</navigation>
+
+				<!-- the list of parts -->
+				<entityList style="FLAT">
+					<iterator name="part">
+						<model ref="parts" indexRef="id" />
+					</iterator>
+					<emptyTitle>
+						<message selector="no-parts" />
+					</emptyTitle>
+					<columns>
+						<selectionColumn multiple="TRUE" pixels="16">
+							<value>
+								<model ref="part.id" />
+							</value>
+							<readOnly>
+								<decision model="assessment.isLocked" />
+							</readOnly>
+							<model ref="ids.values" />
+							<!-- entity actions -->
+							<entityActions>
+								<!-- inform if live -->
+								<instructions>
+									<message selector="live-warning-parts">
+										<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+									</message>
+									<included>
+										<decision model="assessment.isLocked" />
+									</included>
+								</instructions>
+								<!-- these two are not dependent, but put here for desired presentation order of actions -->
+								<navigation destination="ADD" title="add" style="LINK" submit="TRUE">
+									<icon icon="/icons/add_manual_add.png" style="LEFT" />
+									<included>
+										<decision reversed="TRUE" model="assessment.isLocked" />
+									</included>
+								</navigation>
+								<!-- delete is dependent, and desired to go last  -->
+								<navigation destination="DELETE" selectRequirement="SOME" selectRequirementMessage="delete-failed-requirements"
+									title="delete-part" style="LINK" submit="TRUE">
+									<icon icon="/icons/delete.png" style="LEFT" />
+									<included>
+										<decision reversed="TRUE" model="assessment.isLocked" />
+									</included>
+									<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif" >
+										<message selector="confirm-delete">
+											<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+										</message>
+									</confirm>
+								</navigation>
+							</entityActions>
+						</selectionColumn>
+						<orderColumn em="4">
+							<title>
+								<message selector="part-order" />
+							</title>
+							<value>
+								<model ref="part.id" />
+							</value>
+							<model ref="assessment.parts.order" />
+							<included>
+								<decision reversed="TRUE" model="assessment.isLocked" />
+							</included>
+						</orderColumn>
+						<column pixels="16">
+							<entityIncluded>
+								<decision reversed="TRUE" model="part.isValid" />
+							</entityIncluded>
+							<container>
+								<warning>
+									<message>
+										<model ref="part.invalidMessage" />
+									</message>
+								</warning>
+							</container>
+						</column>
+						<column>
+							<title>
+								<message selector="part-title" />
+							</title>
+							<container>
+								<textEdit cols="40">
+									<model ref="part.title" type="text" />
+								</textEdit>
+							</container>
+						</column>
+						<column>
+							<title>
+								<message selector="randomize" />
+							</title>
+							<container>
+								<selection>
+									<selectionChoices>
+										<selectionChoice>
+											<displayMessage>
+												<message tempalte="" />
+											</displayMessage>
+											<valueMessage>
+												<message template="true" />
+											</valueMessage>
+										</selectionChoice>
+									</selectionChoices>
+									<model ref="part.randomize" />
+								</selection>
+							</container>
+						</column>
+						<modelColumn>
+							<title>
+								<message selector="part-summary" />
+							</title>
+							<model ref="part" delegate="FormatPartSummary" tool="sakai.mneme" />
+						</modelColumn>
+						<modelColumn>
+							<title>
+								<message selector="part-points" />
+							</title>
+							<model ref="part.totalPoints" />
+							<included>
+								<decision model="assessment.hasPoints" />
+							</included>
+						</modelColumn>
+					</columns>
+				</entityList>
+			</container>
+		</section>
+
+		<!-- navigations -->
+		<navigationBar>
+			<container>
+				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation title="save" accessKey="save-access" description="save-description" style="BUTTON" submit="TRUE">
+					<destination template="SAVE" />
+					<icon icon="/icons/save.png" style="LEFT" />
+				</navigation>
+			</container>
+		</navigationBar>
+	</container>
+
+</interface>

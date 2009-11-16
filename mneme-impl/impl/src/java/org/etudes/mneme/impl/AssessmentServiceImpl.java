@@ -39,11 +39,11 @@ import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentPolicyException;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AttachmentService;
-import org.etudes.mneme.api.DrawPart;
 import org.etudes.mneme.api.GradesRejectsAssessmentException;
 import org.etudes.mneme.api.GradesService;
 import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Part;
+import org.etudes.mneme.api.PartDetail;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
@@ -885,13 +885,9 @@ public class AssessmentServiceImpl implements AssessmentService
 		// set the parts to their original question and pool values
 		for (Part part : rv.getParts().getParts())
 		{
-			if (part instanceof DrawPart)
+			for (PartDetail detail : part.getDetails())
 			{
-				((PartImpl) part).setOrig(pidMap);
-			}
-			else
-			{
-				((PartImpl) part).setOrig(qidMap);
+				detail.restoreToOriginal(pidMap, qidMap);
 			}
 		}
 

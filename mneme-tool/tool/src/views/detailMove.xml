@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2009 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<title>
+		<message selector="title" />
+	</title>
+
+	<header>
+		<message selector="header">
+			<model type="icon" icon="/icons/page_go.png" />			
+		</message>
+	</header>
+
+	<container>
+		<!-- the list of parts -->
+		<entityList style="FLAT">
+			<iterator name="part" model="parts" />
+			<emptyTitle>
+				<message selector="no-parts" />
+			</emptyTitle>
+			<columns>
+				<selectionColumn multiple="FALSE" id="SELECTION" pixels="16">
+					<value>
+						<model type="text" ref="part.id" />
+					</value>
+					<model ref="selectedPartId.value" />
+				</selectionColumn>
+				<modelColumn>
+					<title>
+						<message selector="part-title" />
+					</title>
+					<model ref="part.tag" type="text" />
+				</modelColumn>
+			</columns>
+		</entityList>
+
+		<!--navigation-->
+		<navigationBar>
+			<container>
+				<navigation title="ok" style="BUTTON" accessKey="ok-access" description="ok-description" submit="TRUE" selectRequirement="SINGLE"
+					selectRequirementId="SELECTION" selectRequirementMessage="save-failed-requirements" destination="MOVE">
+					<icon icon="/icons/OK.png" style="LEFT" />
+				</navigation>
+				<divider />
+				<navigation title="cancel" style="BUTTON" accessKey="cancel-access" description="cancel-description">
+					<icon icon="/icons/cancel.gif" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>

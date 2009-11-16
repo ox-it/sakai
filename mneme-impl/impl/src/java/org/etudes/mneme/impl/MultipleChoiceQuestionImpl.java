@@ -1165,6 +1165,12 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 	 */
 	public void setCorrectAnswers(String[] correctAnswers)
 	{
+		// if we have no choices yet, start with 4
+		if (this.answerChoices.isEmpty())
+		{
+			consolidate("INIT:4");
+		}
+
 		// put them in a set
 		Set<Integer> corrects = new HashSet<Integer>();
 		if (correctAnswers != null)

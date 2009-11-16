@@ -35,8 +35,6 @@ import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentService;
-import org.etudes.mneme.api.DrawPart;
-import org.etudes.mneme.api.ManualPart;
 import org.etudes.mneme.api.Part;
 import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.util.Web;
@@ -93,37 +91,11 @@ public class AssessmentInvalidView extends ControllerImpl
 				}
 
 				// could be a specific part
-				int i = 0;
 				for (Part part : assessment.getParts().getParts())
 				{
-					i++;
 					if (!part.getIsValid())
 					{
-						Object args[] = new Object[1];
-						args[0] = part.getTitle();
-						if (args[0] == null) args[0] = Integer.toString(i);
-
-						if (part instanceof ManualPart)
-						{
-							// manual parts go invalid when they have no or invalid questions
-							msg.append("<li>" + msgs.getFormattedMessage("invalid-mpart", args) + "</li>");
-						}
-						else if (part instanceof DrawPart)
-						{
-							// draw parts go invalid if they draw too much from a pool, or have no draws
-							if (((DrawPart) part).getDraws().isEmpty())
-							{
-								msg.append("<li>" + msgs.getFormattedMessage("invalid-dpart-empty", args) + "</li>");
-							}
-							else
-							{
-								msg.append("<li>" + msgs.getFormattedMessage("invalid-dpart", args) + "</li>");
-							}
-						}
-						else
-						{
-							msg.append("<li>" + msgs.getFormattedMessage("invalid-part", args) + "</li>");
-						}
+						msg.append("<li>" + part.getInvalidMessage() + "</li>");
 					}
 				}
 			}

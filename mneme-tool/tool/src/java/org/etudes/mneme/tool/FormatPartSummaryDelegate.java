@@ -28,11 +28,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.FormatDelegateImpl;
-import org.etudes.mneme.api.DrawPart;
-import org.etudes.mneme.api.ManualPart;
 import org.etudes.mneme.api.Part;
-import org.etudes.mneme.api.Pool;
+import org.etudes.mneme.api.PartDetail;
 import org.etudes.mneme.api.PoolDraw;
+import org.etudes.mneme.api.QuestionPick;
 
 /**
  * The "FormatPartSummary" format delegate for the mneme tool.
@@ -60,40 +59,31 @@ public class FormatPartSummaryDelegate extends FormatDelegateImpl
 		if (!(value instanceof Part)) return value.toString();
 		Part part = (Part) value;
 
-		if (part instanceof ManualPart)
+		int draws = 0;
+		int picks = 0;
+		for (PartDetail detail : part.getDetails())
 		{
-			// manual-part-summary=Manually Selected Questions ({0})
-			Object[] args = new Object[1];
-			args[0] = ((ManualPart) part).getNumQuestions().toString();
-			return context.getMessages().getFormattedMessage("manual-part-summary", args);
-		}
-
-		if (part instanceof DrawPart)
-		{
-			// draw-part-summary=Random from Pool{0} ({1}): {2}
-			DrawPart p = (DrawPart) part;
-			Object[] args = new Object[3];
-
-			args[0] = ((p.getDraws().size() == 1) ? "" : "s");
-			args[1] = p.getNumQuestions().toString();
-
-			StringBuffer buf = new StringBuffer();
-			for (PoolDraw draw : p.getDraws())
+			if (detail instanceof PoolDraw)
 			{
-				Pool pool = draw.getPool();
-				if (pool != null)
-				{
-					buf.append(pool.getTitle());
-					buf.append(", ");
-				}
+				draws++;
 			}
-			if (buf.length() > 0) buf.setLength(buf.length() - 2);
-			args[2] = buf.toString();
-
-			return context.getMessages().getFormattedMessage("draw-part-summary", args);
+			else if (detail instanceof QuestionPick)
+			{
+				picks++;
+			}
 		}
 
-		return null;
+		// deal with single / plural!
+		String template = "fmt-part-summary";
+		template += (part.getNumQuestions().intValue() == 1) ? "s" : "p";
+		template += (draws == 1) ? "s" : "p";
+		template += (picks == 1) ? "s" : "p";
+
+		Object[] args = new Object[3];
+		args[0] = part.getNumQuestions().toString();
+		args[1] = Integer.valueOf(draws);
+		args[2] = Integer.valueOf(picks);
+		return context.getMessages().getFormattedMessage(template, args);
 	}
 
 	/**

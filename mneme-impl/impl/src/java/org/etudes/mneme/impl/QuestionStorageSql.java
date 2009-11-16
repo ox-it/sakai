@@ -1226,10 +1226,10 @@ public abstract class QuestionStorageSql implements QuestionStorage
 		sql.append("UPDATE MNEME_QUESTION SET");
 		sql.append(" CONTEXT=?, DESCRIPTION=?, EXPLAIN_REASON=?, FEEDBACK=?, HINTS=?, HISTORICAL=?,");
 		sql.append(" MINT=?, MODIFIED_BY_DATE=?, MODIFIED_BY_USER=?, POOL_ID=?,");
-		sql.append(" PRESENTATION_TEXT=?, SURVEY=?, VALID=?, GUEST=?");
+		sql.append(" PRESENTATION_TEXT=?, SURVEY=?, VALID=?, GUEST=?, TYPE=?");
 		sql.append(" WHERE ID=?");
 
-		Object[] fields = new Object[15];
+		Object[] fields = new Object[16];
 		fields[0] = question.getContext();
 		fields[1] = limit(question.getDescription(), 255);
 		fields[2] = question.getExplainReason() ? "1" : "0";
@@ -1244,7 +1244,8 @@ public abstract class QuestionStorageSql implements QuestionStorage
 		fields[11] = question.getIsSurvey() ? "1" : "0";
 		fields[12] = question.getIsValid() ? "1" : "0";
 		fields[13] = SqlHelper.encodeStringArray(question.getTypeSpecificQuestion().getData());
-		fields[14] = Long.valueOf(question.getId());
+		fields[14] = question.getType();
+		fields[15] = Long.valueOf(question.getId());
 
 		if (!this.sqlService.dbWrite(sql.toString(), fields))
 		{

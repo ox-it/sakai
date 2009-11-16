@@ -27,7 +27,6 @@ package org.etudes.mneme.impl;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,14 +38,14 @@ import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.Attachment;
 import org.etudes.mneme.api.AttachmentService;
-import org.etudes.mneme.api.DrawPart;
-import org.etudes.mneme.api.ManualPart;
 import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Part;
+import org.etudes.mneme.api.PartDetail;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolDraw;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
+import org.etudes.mneme.api.QuestionPick;
 import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.util.api.Translation;
@@ -210,7 +209,8 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 	 */
 	public String[] myToolIds()
 	{
-		String[] toolIds = {"sakai.mneme"};
+		String[] toolIds =
+		{ "sakai.mneme" };
 		return toolIds;
 	}
 
@@ -466,24 +466,21 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 	{
 		for (Part part : assessment.getParts().getParts())
 		{
-			if (part instanceof DrawPart)
+			for (PartDetail detail : part.getDetails())
 			{
-				for (Iterator<PoolDraw> i = ((DrawPartImpl) part).pools.iterator(); i.hasNext();)
+				if (detail instanceof PoolDraw)
 				{
-					PoolDrawImpl draw = (PoolDrawImpl) i.next();
+					PoolDraw draw = (PoolDraw) detail;
 
-					if (draw.origPoolId.equals(pool.getId()))
+					if (draw.getOrigPoolId().equals(pool.getId()))
 					{
 						return true;
 					}
 				}
-			}
-			else if (part instanceof ManualPart)
-			{
-				for (Iterator<PoolPick> i = ((ManualPartImpl) part).questions.iterator(); i.hasNext();)
+				else if (detail instanceof QuestionPick)
 				{
-					PoolPick pick = i.next();
-					Question question = this.questionService.getQuestion(((PoolPick) pick).origQuestionId);
+					QuestionPick pick = (QuestionPick) detail;
+					Question question = this.questionService.getQuestion(pick.getOrigQuestionId());
 					if ((question != null) && (question.getPool().getId().equals(pool.getId())))
 					{
 						return true;

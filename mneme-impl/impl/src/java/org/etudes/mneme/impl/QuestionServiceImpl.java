@@ -133,7 +133,7 @@ public class QuestionServiceImpl implements QuestionService
 		if (M_log.isDebugEnabled()) M_log.debug("allowEditQuestion: " + question.getId());
 
 		// check permission - user must have MANAGE_PERMISSION in the context
-		boolean ok = securityService.checkSecurity(sessionManager.getCurrentSessionUserId(), MnemeService.MANAGE_PERMISSION, question.getContext());
+		boolean ok = securityService.checkSecurity(userId, MnemeService.MANAGE_PERMISSION, question.getContext());
 
 		return ok;
 	}
@@ -641,7 +641,7 @@ public class QuestionServiceImpl implements QuestionService
 	public void saveQuestion(Question question) throws AssessmentPermissionException
 	{
 		if (((QuestionImpl) question).getIsHistorical()) throw new IllegalArgumentException();
-		saveTheQuestion(question);
+		saveTheQuestion(question, true);
 	}
 
 	/**
@@ -651,7 +651,49 @@ public class QuestionServiceImpl implements QuestionService
 	{
 		if (((allowHistorical == null) || (!allowHistorical.booleanValue())) && ((QuestionImpl) question).getIsHistorical())
 			throw new IllegalArgumentException();
-		saveTheQuestion(question);
+		saveTheQuestion(question, true);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void saveQuestionAsType(Question question, String newType) throws AssessmentPermissionException
+	{
+		if (((QuestionImpl) question).getIsHistorical()) throw new IllegalArgumentException();
+
+		// if there is really a type change
+		if (!question.getType().equals(newType))
+		{
+			// special cases
+			TypeSpecificQuestion oldHandler = question.getTypeSpecificQuestion();
+
+			// fillin's question text is not in the presentation
+			String presentationText = null;
+			if (oldHandler instanceof FillBlanksQuestionImpl)
+			{
+				presentationText = ((FillBlanksQuestionImpl) oldHandler).getText();
+			}
+
+			// change the question type - preserve any data we can
+			setType(newType, (QuestionImpl) question);
+
+			// special cases
+			TypeSpecificQuestion newHandler = question.getTypeSpecificQuestion();
+
+			// fillin's question text is not in the presentation
+			if (newHandler instanceof FillBlanksQuestionImpl)
+			{
+				((FillBlanksQuestionImpl) newHandler).setText(question.getPresentation().getText());
+				question.getPresentation().setText(null);
+			}
+			else if (oldHandler instanceof FillBlanksQuestionImpl)
+			{
+				question.getPresentation().setText(presentationText);
+			}
+		}
+
+		// save, but don't clear mint
+		saveTheQuestion(question, false);
 	}
 
 	/**
@@ -876,7 +918,6 @@ public class QuestionServiceImpl implements QuestionService
 		// if we don't have one, or we are trying to delete history, that's bad!
 		if (current == null) throw new IllegalArgumentException();
 		if (current.getIsHistorical()) throw new IllegalArgumentException();
-		Pool currentPool = current.getPool();
 
 		// removed any assessment dependencies on the question
 		this.assessmentService.removeDependency(question);
@@ -886,9 +927,9 @@ public class QuestionServiceImpl implements QuestionService
 
 		// clear caches
 		this.threadLocalManager.set(cacheKey(question.getId()), null);
-		this.threadLocalManager.set(this.cacheKeyPoolCount(question.getPool().getId()), null);
-		this.threadLocalManager.set(this.cacheKeyContextCount(question.getContext()), null);
-		this.threadLocalManager.set(this.cacheKeyPoolQuestions(question.getPool().getId()), null);
+		this.threadLocalManager.set(cacheKeyPoolCount(question.getPool().getId()), null);
+		this.threadLocalManager.set(cacheKeyContextCount(question.getContext()), null);
+		this.threadLocalManager.set(cacheKeyPoolQuestions(question.getPool().getId()), null);
 
 		// event
 		eventTrackingService.post(eventTrackingService.newEvent(MnemeService.QUESTION_DELETE, getQuestionReference(question.getId()), true));
@@ -955,10 +996,12 @@ public class QuestionServiceImpl implements QuestionService
 	 * 
 	 * @param question
 	 *        The question to save.
+	 * @param processMint
+	 *        If false, skip mint processing.
 	 * @throws AssessmentPermissionException
 	 *         if the current user is not allowed to edit this question.
 	 */
-	protected void saveTheQuestion(Question question) throws AssessmentPermissionException
+	protected void saveTheQuestion(Question question, boolean processMint) throws AssessmentPermissionException
 	{
 		if (question == null) throw new IllegalArgumentException();
 
@@ -973,18 +1016,13 @@ public class QuestionServiceImpl implements QuestionService
 		}
 
 		// otherwise we don't save: but if mint, we delete
-		else
+		if (processMint && (!question.getIsChanged()))
 		{
 			// if mint, delete instead of save
 			if (((QuestionImpl) question).getMint())
 			{
 				if (M_log.isDebugEnabled()) M_log.debug("saveQuestion: deleting mint: " + question.getId());
-
-				// Note: mint questions cannot have already been dependened on, so we can just forget about it.
-				this.storage.removeQuestion((QuestionImpl) question);
-
-				// event
-				eventTrackingService.post(eventTrackingService.newEvent(MnemeService.QUESTION_DELETE, getQuestionReference(question.getId()), true));
+				this.removeQuestion(question);
 			}
 
 			return;

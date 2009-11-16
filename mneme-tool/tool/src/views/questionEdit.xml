@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -64,11 +64,46 @@
 	</subHeader>
 
 	<container>
-		<navigationBar>
-			<container>
-				<text model="question.typeName" />
-			</container>
-		</navigationBar>
+		<!-- repeat the nav up top -->
+		<alias to="nav" />
+
+		<selection title="parts">
+			<included>
+				<hasValueDecision model="assessment" />
+			</included>
+			<model ref="partId.value" />
+			<selectionModel name="forpart" model="assessment.parts.parts">
+				<valueMessage>
+					<message model="forpart.id" />
+				</valueMessage>
+				<displayMessage>
+					<message model="forpart.tag" />
+				</displayMessage>
+			</selectionModel>
+			<selectionChoices>
+				<selectionChoice>
+					<displayMessage>
+						<message selector="new-part" />
+					</displayMessage>
+					<valueMessage>
+						<message template="0" />
+					</valueMessage>
+				</selectionChoice>
+			</selectionChoices>
+		</selection>
+
+		<selection title="question-types">
+			<model ref="selectedQuestionType.value" />
+			<selectionModel model="questionTypes" name="type">
+				<valueMessage>
+					<message model="type.type" />
+				</valueMessage>
+				<displayMessage>
+					<message model="type.typeName" />
+				</displayMessage>
+			</selectionModel>
+			<destination template="RETYPE" />
+		</selection>
 
 		<!--  if invalid -->
 		<section>
@@ -197,19 +232,17 @@
 		</section>
 
 		<!-- navigation -->
-		<navigationBar>
+		<navigationBar id="nav">
 			<container>
 				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
-					<destination template="/pool_edit/{0}">
-						<model ref="extras" />
+					<destination template="{0}">
+						<model ref="return" />
 					</destination>
 					<icon icon="/icons/return.png" style="LEFT" />
 				</navigation>
 				<divider />
 				<navigation title="add" accessKey="add-access" description="add-description" style="BUTTON" submit="TRUE">
-					<destination template="/select_question_type/{0}">
-						<model ref="extras" />
-					</destination>
+					<destination template="ADD" />
 					<icon icon="/icons/add.png" style="LEFT" />
 				</navigation>
 			</container>

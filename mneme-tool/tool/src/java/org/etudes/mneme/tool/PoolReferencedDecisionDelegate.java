@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -30,8 +30,8 @@ import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.api.Decision;
 import org.etudes.ambrosia.util.DecisionDelegateImpl;
 import org.etudes.mneme.api.Assessment;
-import org.etudes.mneme.api.DrawPart;
 import org.etudes.mneme.api.Part;
+import org.etudes.mneme.api.PartDetail;
 import org.etudes.mneme.api.PoolDraw;
 
 /**
@@ -67,10 +67,12 @@ public class PoolReferencedDecisionDelegate extends DecisionDelegateImpl
 		{
 			if (part.equals(thisPart)) continue;
 
-			if (part instanceof DrawPart)
+			for (PartDetail detail : part.getDetails())
 			{
-				for (PoolDraw draw : ((DrawPart) part).getDraws())
+				if (detail instanceof PoolDraw)
 				{
+					PoolDraw draw = (PoolDraw) detail;
+
 					if (draw.getPoolId().equals(poolId))
 					{
 						return true;
