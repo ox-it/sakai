@@ -325,6 +325,11 @@ public class GradeSubmissionView extends ControllerImpl
 			params[4] = newAnchor;
 			destination = StringUtil.unsplit(params, "/");
 		}
+		
+		else if (destination.equals("SAVE"))
+		{
+			destination = context.getDestination();
+		}
 
 		// save graded submission
 		try
