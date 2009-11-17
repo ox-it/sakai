@@ -54,6 +54,9 @@
 
 	<container>
 
+		<!-- repeat the nav up top -->
+		<alias to="nav" />
+
 		<selection title="parts">
 			<model ref="partId.value" />
 			<selectionModel name="forpart" model="assessment.parts.parts">
