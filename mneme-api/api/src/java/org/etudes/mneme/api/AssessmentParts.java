@@ -88,13 +88,6 @@ public interface AssessmentParts
 	Part getFirst();
 
 	/**
-	 * Check if any valid parts have zero points.
-	 * 
-	 * @return TRUE if any valid parts have zero points, FALSE if not.
-	 */
-	Boolean getHasZeroPointParts();
-
-	/**
 	 * Check if the assessment parts are valid; i.e. exist and all have >0 questions
 	 * 
 	 * @return TRUE if the assessment parts are valid, FALSE if not.

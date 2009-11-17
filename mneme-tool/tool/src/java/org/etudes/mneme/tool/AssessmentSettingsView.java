@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -39,6 +39,7 @@ import org.etudes.mneme.api.AssessmentPolicyException;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.GradesService;
 import org.etudes.mneme.api.Part;
+import org.etudes.mneme.api.PartDetail;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
 
@@ -101,21 +102,35 @@ public class AssessmentSettingsView extends ControllerImpl
 		}
 
 		// format part list of zero parts
-		if (assessment.getHasPoints() && assessment.getParts().getHasZeroPointParts())
+		if (assessment.getHasPoints())
 		{
+			boolean showWarning = false;
 			StringBuilder buf = new StringBuilder("<ul>");
 			Object args[] = new Object[1];
 			for (Part part : assessment.getParts().getParts())
 			{
+				// for valid, 0 point parts that are not all survey questions (i.e. that have details that support points)
 				if ((part.getTotalPoints().floatValue() == 0f) && (part.getIsValid()))
 				{
-					args[0] = part.getTitle();
-					if (args[0] == null) args[0] = part.getOrdering().getPosition().toString();
-					buf.append("<li>" + this.messages.getFormattedMessage("part", args) + "</li>");
+					for (PartDetail detail : part.getDetails())
+					{
+						if (detail.getHasPoints())
+						{
+							args[0] = part.getTitle();
+							if (args[0] == null) args[0] = part.getOrdering().getPosition().toString();
+							buf.append("<li>" + this.messages.getFormattedMessage("part", args) + "</li>");
+							showWarning = true;
+							break;
+						}
+					}
 				}
 			}
-			buf.append("</ul>");
-			context.put("zeroMsg", buf.toString());
+
+			if (showWarning)
+			{
+				buf.append("</ul>");
+				context.put("zeroMsg", buf.toString());
+			}
 		}
 
 		// collect information: the selected assessment
@@ -212,7 +227,7 @@ public class AssessmentSettingsView extends ControllerImpl
 		// if destination is stay here
 		else if (destination.startsWith("STAY:"))
 		{
-			String[] parts = StringUtil.splitFirst(destination,":");
+			String[] parts = StringUtil.splitFirst(destination, ":");
 			destination = context.getDestination() + "?focus=" + parts[1];
 		}
 
