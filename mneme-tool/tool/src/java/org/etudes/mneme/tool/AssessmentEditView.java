@@ -38,6 +38,7 @@ import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentPolicyException;
 import org.etudes.mneme.api.AssessmentService;
+import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.Pool;
@@ -239,8 +240,17 @@ public class AssessmentEditView extends ControllerImpl
 				Pool pool = assessment.getPool();
 				this.assessmentService.saveAssessment(assessment);
 
-				// create a question - type? TODO:
+				// create a question - mc for test, essay for assignment, likert for survey assessment types
 				String type = "mneme:MultipleChoice";
+				if (AssessmentType.assignment == assessment.getType())
+				{
+					type = "mneme:Essay";
+				}
+				else if (AssessmentType.survey == assessment.getType())
+				{
+					type = "mneme:LikertScale";
+				}
+
 				// create the question of the appropriate type (all the way to save)
 				Question newQuestion = null;
 				try
