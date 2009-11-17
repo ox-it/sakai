@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.etudes.ambrosia.api.AndDecision;
-import org.etudes.ambrosia.api.Attachments;
 import org.etudes.ambrosia.api.CompareDecision;
 import org.etudes.ambrosia.api.Component;
 import org.etudes.ambrosia.api.Decision;
@@ -232,10 +231,10 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 		Text question = this.uiService.newText();
 		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.presentation.text"));
 
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments")));
+		// Attachments attachments = this.uiService.newAttachments();
+		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
+		// attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
+		// this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments")));
 
 		Selection selection = this.uiService.newSelection();
 		selection.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answer"));
@@ -243,7 +242,7 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 		selection.addSelection(this.uiService.newMessage().setMessage("false"), this.uiService.newMessage().setTemplate("false"));
 
 		Section section = this.uiService.newSection();
-		section.add(question).add(attachments).add(selection);
+		section.add(question)/* .add(attachments) */.add(selection);
 
 		return this.uiService.newFragment().setMessages(this.messages).add(section);
 	}
@@ -318,10 +317,10 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 		Text question = this.uiService.newText();
 		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.presentation.text"));
 
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments")));
+		// Attachments attachments = this.uiService.newAttachments();
+		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
+		// attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
+		// this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments")));
 
 		Selection selection = this.uiService.newSelection();
 		selection.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answer"));
@@ -368,7 +367,7 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 		answerKey.setIncluded(this.uiService.newAndDecision().setRequirements(andInc));
 
 		Section first = this.uiService.newSection();
-		first.add(question).add(attachments).add(selection);
+		first.add(question)/* .add(attachments) */.add(selection);
 
 		Section second = this.uiService.newSection();
 		second.add(answerKey);
@@ -398,6 +397,14 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 	public Boolean getUseQuestionPresentation()
 	{
 		return Boolean.TRUE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getUseQuestionPresentationAttachments()
+	{
+		return Boolean.FALSE;
 	}
 
 	/**
@@ -451,10 +458,10 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 		Text question = this.uiService.newText();
 		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
 
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
+		// Attachments attachments = this.uiService.newAttachments();
+		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
+		// attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
+		// this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
 
 		Selection selection = this.uiService.newSelection();
 		selection.addSelection(this.uiService.newMessage().setMessage("true"), this.uiService.newMessage().setTemplate("true"));
@@ -462,7 +469,7 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 		selection.setReadOnly(this.uiService.newTrueDecision());
 
 		Section first = this.uiService.newSection();
-		first.add(question).add(attachments).add(selection);
+		first.add(question)/* .add(attachments) */.add(selection);
 
 		return this.uiService.newFragment().setMessages(this.messages).add(first);
 	}
@@ -475,10 +482,10 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 		Text question = this.uiService.newText();
 		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
 
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
+		// Attachments attachments = this.uiService.newAttachments();
+		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
+		// attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
+		// this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
 
 		Selection selection = this.uiService.newSelection();
 		selection.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.correctAnswer"));
@@ -496,7 +503,7 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 		answerKey.setText("answer-key", refs);
 
 		Section first = this.uiService.newSection();
-		first.add(question).add(attachments).add(selection);
+		first.add(question)/* .add(attachments) */.add(selection);
 
 		Section second = this.uiService.newSection();
 		second.setIncluded(this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("question.hasCorrect")));
@@ -513,10 +520,10 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 		Text question = this.uiService.newText();
 		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
 
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
+		// Attachments attachments = this.uiService.newAttachments();
+		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
+		// attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
+		// this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
 
 		EntityList entityList = this.uiService.newEntityList();
 		entityList.setStyle(EntityList.Style.form);
@@ -562,7 +569,7 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 						this.uiService.getFormatDelegate("FormatUnansweredPercent", "sakai.mneme")));
 
 		Section first = this.uiService.newSection();
-		first.add(question).add(attachments).add(entityList).add(unanswered);
+		first.add(question)/* .add(attachments) */.add(entityList).add(unanswered);
 
 		Section second = this.uiService.newSection();
 		second.setIncluded(this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("question.hasCorrect")));

@@ -161,6 +161,35 @@
 				<htmlEdit size="TALL" title="question-presentation">
 					<model type="html" ref="question.presentation.text" />
 				</htmlEdit>
+				<fileUpload>
+					<model ref="upload.upload" />
+					<title>
+						<message selector="upload-attachment" />
+					</title>
+					<upload>
+						<message selector="upload-button" />
+					</upload>
+					<destination template="STAY" />
+					<included>
+						<decision model="question.typeSpecificQuestion.useQuestionPresentationAttachments" />
+					</included>
+				</fileUpload>
+				<attachments model="question.presentation.attachments" name="attachment">
+					<navigations>
+						<navigation title="remove-attachment" style="LINK" description="remove-attachment-description" submit="TRUE"
+							small="TRUE">
+							<icon icon="/icons/delete.png" style="NONE" />
+							<destination template="REMOVE:{0}">
+								<model ref="attachment.reference" />
+							</destination>
+							<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif"
+								selector="confirm-remove-attachment" />
+						</navigation>
+					</navigations>
+					<included>
+						<decision model="question.typeSpecificQuestion.useQuestionPresentationAttachments" />
+					</included>
+				</attachments>
 			</container>
 			<included>
 				<decision model="question.typeSpecificQuestion.useQuestionPresentation" />

@@ -460,6 +460,14 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getUseQuestionPresentationAttachments()
+	{
+		return Boolean.TRUE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Boolean getUseReason()
 	{
 		return Boolean.FALSE;

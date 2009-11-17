@@ -690,6 +690,12 @@ public class QuestionServiceImpl implements QuestionService
 			{
 				question.getPresentation().setText(presentationText);
 			}
+
+			// when changing from likert, remove the survey setting
+			if (oldHandler instanceof LikertScaleQuestionImpl)
+			{
+				question.setIsSurvey(Boolean.FALSE);
+			}
 		}
 
 		// save, but don't clear mint

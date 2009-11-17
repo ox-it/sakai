@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -116,10 +116,24 @@ public class PresentationImpl implements Presentation
 	/**
 	 * {@inheritDoc}
 	 */
+	public void setAttachments(List<Reference> references)
+	{
+		this.attachments = new ArrayList<Reference>();
+		if (references != null)
+		{
+			this.attachments.addAll(references);
+		}
+
+		if (this.owner != null) this.owner.setChanged();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setText(String text)
 	{
 		text = StringUtil.trimToNull(text);
-		
+
 		if (!Different.different(this.text, text)) return;
 
 		this.text = text;

@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Random;
 
 import org.etudes.ambrosia.api.AndDecision;
-import org.etudes.ambrosia.api.Attachments;
 import org.etudes.ambrosia.api.AutoColumn;
 import org.etudes.ambrosia.api.Component;
 import org.etudes.ambrosia.api.Decision;
@@ -175,12 +174,14 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 	}
 
 	/** Lables for the choices. */
-	protected static String[] choiceLabels = {"A.", "B.", "C.", "D.", "E.", "F.", "G.", "H.", "I.", "J.", "K.", "L.", "M.", "N.", "O.", "P.", "Q.",
-			"R.", "S.", "T.", "U.", "V.", "W.", "X.", "Y.", "Z."};
+	protected static String[] choiceLabels =
+	{ "A.", "B.", "C.", "D.", "E.", "F.", "G.", "H.", "I.", "J.", "K.", "L.", "M.", "N.", "O.", "P.", "Q.", "R.", "S.", "T.", "U.", "V.", "W.", "X.",
+			"Y.", "Z." };
 
 	/** Lables for the matches. */
-	protected static String[] matchLabels = {"1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.", "9.", "10.", "11.", "12.", "13.", "14.", "15.", "16.",
-			"17.", "18.", "19.", "20.", "21.", "22.", "23.", "24.", "25.", "26."};
+	protected static String[] matchLabels =
+	{ "1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.", "9.", "10.", "11.", "12.", "13.", "14.", "15.", "16.", "17.", "18.", "19.", "20.", "21.",
+			"22.", "23.", "24.", "25.", "26." };
 
 	/** The maximum number of choices we support. */
 	protected final static int MAX = 25;
@@ -535,13 +536,13 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		Text question = this.uiService.newText();
 		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.presentation.text"));
 
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments")));
+		// Attachments attachments = this.uiService.newAttachments();
+		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
+		// attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
+		// this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments")));
 
 		Section quesitonSection = this.uiService.newSection();
-		quesitonSection.add(question).add(attachments);
+		quesitonSection.add(question)/* .add(attachments) */;
 
 		EntityList entityList = this.uiService.newEntityList();
 		entityList.setStyle(EntityList.Style.form);
@@ -809,13 +810,13 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		Text question = this.uiService.newText();
 		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.presentation.text"));
 
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments")));
+		// Attachments attachments = this.uiService.newAttachments();
+		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
+		// attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
+		// this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments")));
 
 		Section quesitonSection = this.uiService.newSection();
-		quesitonSection.add(question).add(attachments);
+		quesitonSection.add(question)/* .add(attachments) */;
 
 		EntityList entityList = this.uiService.newEntityList();
 		entityList.setStyle(EntityList.Style.form);
@@ -955,6 +956,14 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getUseQuestionPresentationAttachments()
+	{
+		return Boolean.FALSE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Boolean getUseReason()
 	{
 		return Boolean.FALSE;
@@ -1056,13 +1065,13 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		Text question = this.uiService.newText();
 		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
 
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
+		// Attachments attachments = this.uiService.newAttachments();
+		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
+		// attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
+		// this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
 
 		Section quesitonSection = this.uiService.newSection();
-		quesitonSection.add(question).add(attachments);
+		quesitonSection.add(question)/* .add(attachments) */;
 
 		EntityList entityList = this.uiService.newEntityList();
 		entityList.setStyle(EntityList.Style.form);
@@ -1117,13 +1126,13 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		Text question = this.uiService.newText();
 		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
 
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
+		// Attachments attachments = this.uiService.newAttachments();
+		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
+		// attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
+		// this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
 
 		Section quesitonSection = this.uiService.newSection();
-		quesitonSection.add(question).add(attachments);
+		quesitonSection.add(question)/* .add(attachments) */;
 
 		EntityList entityList = this.uiService.newEntityList();
 		entityList.setStyle(EntityList.Style.form);
@@ -1189,13 +1198,13 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		Text question = this.uiService.newText();
 		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
 
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
+		// Attachments attachments = this.uiService.newAttachments();
+		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
+		// attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
+		// this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
 
 		Section quesitonSection = this.uiService.newSection();
-		quesitonSection.add(question).add(attachments);
+		quesitonSection.add(question)/* .add(attachments) */;
 
 		Section matches = this.uiService.newSection();
 		PropertyReference iteratorRef = this.uiService.newPropertyReference().setReference("question").setFormatDelegate(

@@ -148,6 +148,13 @@ public interface TypeSpecificQuestion extends Cloneable
 	Boolean getUseQuestionPresentation();
 
 	/**
+	 * Check if this type uses the generic question presentation attachments.
+	 * 
+	 * @return TRUE to use the generic question presentation attachments for this type, FALSE to not.
+	 */
+	Boolean getUseQuestionPresentationAttachments();
+
+	/**
 	 * Check if this type uses the generic question reason.
 	 * 
 	 * @return TRUE to use the generic question reason for this type, FALSE to not.

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -69,13 +69,13 @@ public abstract class QuestionStorageMysql extends QuestionStorageSql implements
 		StringBuilder sql = new StringBuilder();
 		sql.append("INSERT INTO MNEME_QUESTION");
 		sql.append(" (CONTEXT, CREATED_BY_DATE, CREATED_BY_USER, DESCRIPTION, EXPLAIN_REASON, FEEDBACK,");
-		sql.append(" HINTS, HISTORICAL, MINT, MODIFIED_BY_DATE, MODIFIED_BY_USER, POOL_ID, PRESENTATION_TEXT,");
+		sql.append(" HINTS, HISTORICAL, MINT, MODIFIED_BY_DATE, MODIFIED_BY_USER, POOL_ID, PRESENTATION_TEXT, PRESENTATION_ATTACHMENTS,");
 		sql.append(" SURVEY, TYPE, VALID, GUEST)");
 		sql.append(" SELECT");
 		sql.append(" '" + destination.getContext() + "', " + now.getTime() + ", '" + userId + "',");
 		sql.append(" Q.DESCRIPTION, Q.EXPLAIN_REASON, Q.FEEDBACK, Q.HINTS, '1', Q.MINT,");
 		sql.append(" '" + now.getTime() + "', '" + userId + "', " + destination.getId() + ",");
-		sql.append(" Q.PRESENTATION_TEXT, Q.SURVEY, Q.TYPE, Q.VALID, Q.GUEST");
+		sql.append(" Q.PRESENTATION_TEXT, Q.PRESENTATION_ATTACHMENTS, Q.SURVEY, Q.TYPE, Q.VALID, Q.GUEST");
 		sql.append(" FROM MNEME_QUESTION Q WHERE Q.ID=?");
 
 		Object[] fields = new Object[1];
@@ -107,13 +107,13 @@ public abstract class QuestionStorageMysql extends QuestionStorageSql implements
 		StringBuilder sql = new StringBuilder();
 		sql.append("INSERT INTO MNEME_QUESTION");
 		sql.append(" (CONTEXT, CREATED_BY_DATE, CREATED_BY_USER, DESCRIPTION, EXPLAIN_REASON, FEEDBACK,");
-		sql.append(" HINTS, HISTORICAL, MINT, MODIFIED_BY_DATE, MODIFIED_BY_USER, POOL_ID, PRESENTATION_TEXT,");
+		sql.append(" HINTS, HISTORICAL, MINT, MODIFIED_BY_DATE, MODIFIED_BY_USER, POOL_ID, PRESENTATION_TEXT, PRESENTATION_ATTACHMENTS,");
 		sql.append(" SURVEY, TYPE, VALID, GUEST)");
 		sql.append(" SELECT");
 		sql.append(" '" + destination.getContext() + "', " + now.getTime() + ", '" + userId + "',");
 		sql.append(" Q.DESCRIPTION, Q.EXPLAIN_REASON, Q.FEEDBACK, Q.HINTS, Q.HISTORICAL, Q.MINT,");
 		sql.append(" '" + now.getTime() + "', '" + userId + "', " + destination.getId() + ",");
-		sql.append(" Q.PRESENTATION_TEXT, Q.SURVEY, Q.TYPE, Q.VALID, Q.GUEST");
+		sql.append(" Q.PRESENTATION_TEXT, Q.PRESENTATION_ATTACHMENTS, Q.SURVEY, Q.TYPE, Q.VALID, Q.GUEST");
 		sql.append(" FROM MNEME_QUESTION Q WHERE Q.ID=?");
 
 		Object[] fields = new Object[1];
@@ -139,11 +139,11 @@ public abstract class QuestionStorageMysql extends QuestionStorageSql implements
 		StringBuilder sql = new StringBuilder();
 		sql.append("INSERT INTO MNEME_QUESTION (");
 		sql.append(" CONTEXT, CREATED_BY_DATE, CREATED_BY_USER, DESCRIPTION, EXPLAIN_REASON, FEEDBACK,");
-		sql.append(" HINTS, HISTORICAL, MINT, MODIFIED_BY_DATE, MODIFIED_BY_USER, POOL_ID, PRESENTATION_TEXT,");
+		sql.append(" HINTS, HISTORICAL, MINT, MODIFIED_BY_DATE, MODIFIED_BY_USER, POOL_ID, PRESENTATION_TEXT, PRESENTATION_ATTACHMENTS,");
 		sql.append(" SURVEY, TYPE, VALID, GUEST )");
-		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
-		Object[] fields = new Object[17];
+		Object[] fields = new Object[18];
 		fields[0] = question.getContext();
 		fields[1] = question.getCreatedBy().getDate().getTime();
 		fields[2] = question.getCreatedBy().getUserId();
@@ -157,10 +157,11 @@ public abstract class QuestionStorageMysql extends QuestionStorageSql implements
 		fields[10] = question.getModifiedBy().getUserId();
 		fields[11] = (question.poolId == null) ? null : Long.valueOf(question.poolId);
 		fields[12] = question.getPresentation().getText();
-		fields[13] = question.getIsSurvey() ? "1" : "0";
-		fields[14] = question.getType();
-		fields[15] = question.getIsValid() ? "1" : "0";
-		fields[16] = SqlHelper.encodeStringArray(question.getTypeSpecificQuestion().getData());
+		fields[13] = SqlHelper.encodeReferences(question.getPresentation().getAttachments());
+		fields[14] = question.getIsSurvey() ? "1" : "0";
+		fields[15] = question.getType();
+		fields[16] = question.getIsValid() ? "1" : "0";
+		fields[17] = SqlHelper.encodeStringArray(question.getTypeSpecificQuestion().getData());
 
 		Long id = this.sqlService.dbInsert(null, sql.toString(), fields, "ID");
 		if (id == null)

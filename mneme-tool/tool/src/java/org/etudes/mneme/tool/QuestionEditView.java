@@ -39,11 +39,15 @@ import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentPolicyException;
 import org.etudes.mneme.api.AssessmentService;
+import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionPlugin;
 import org.etudes.mneme.api.QuestionService;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
 
@@ -58,11 +62,20 @@ public class QuestionEditView extends ControllerImpl
 	/** Assessment Service */
 	protected AssessmentService assessmentService = null;
 
+	/** Dependency: AttachmentService. */
+	protected AttachmentService attachmentService = null;
+
+	/** Dependency: EntityManager. */
+	protected EntityManager entityManager = null;
+
 	/** Dependency: mneme service. */
 	protected MnemeService mnemeService = null;
 
 	/** Question Service */
 	protected QuestionService questionService = null;
+
+	/** tool manager reference. */
+	protected ToolManager toolManager = null;
 
 	/**
 	 * Shutdown.
@@ -245,8 +258,37 @@ public class QuestionEditView extends ControllerImpl
 		Value value = this.uiService.newValue();
 		context.put("partId", value);
 
+		// for the upload of attachments
+		Upload upload = new Upload(this.toolManager.getCurrentPlacement().getContext(), AttachmentService.DOCS_AREA, this.attachmentService);
+		context.put("upload", upload);
+
 		// read form
 		String destination = this.uiService.decode(req, context);
+
+		// save the attachments upload
+		if (upload.getUpload() != null)
+		{
+			question.getPresentation().addAttachment(upload.getUpload());
+		}
+
+		// handle an attachments remove
+		if (destination.startsWith("REMOVE:"))
+		{
+			String[] parts = StringUtil.split(destination, ":");
+			if (parts.length != 2)
+			{
+				throw new IllegalArgumentException();
+			}
+			String refString = parts[1];
+			Reference ref = this.entityManager.newReference(refString);
+
+			// remove from the assessment, but since the attachment was in the site's mneme docs and generally available, don't remove it
+			question.getPresentation().removeAttachment(ref);
+			// this.attachmentService.removeAttachment(ref);
+
+			// stay here
+			destination = context.getDestination();
+		}
 
 		// consolidate the question
 		destination = question.getTypeSpecificQuestion().consolidate(destination);
@@ -411,6 +453,28 @@ public class QuestionEditView extends ControllerImpl
 	}
 
 	/**
+	 * Set the AttachmentService.
+	 * 
+	 * @param service
+	 *        The AttachmentService.
+	 */
+	public void setAttachmentService(AttachmentService service)
+	{
+		this.attachmentService = service;
+	}
+
+	/**
+	 * Set the EntityManager.
+	 * 
+	 * @param manager
+	 *        The EntityManager.
+	 */
+	public void setEntityManager(EntityManager manager)
+	{
+		entityManager = manager;
+	}
+
+	/**
 	 * @param mnemeService
 	 *        the mnemeService to set
 	 */
@@ -426,5 +490,16 @@ public class QuestionEditView extends ControllerImpl
 	public void setQuestionService(QuestionService questionService)
 	{
 		this.questionService = questionService;
+	}
+
+	/**
+	 * Set the tool manager.
+	 * 
+	 * @param manager
+	 *        The tool manager.
+	 */
+	public void setToolManager(ToolManager manager)
+	{
+		toolManager = manager;
 	}
 }

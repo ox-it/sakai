@@ -216,12 +216,9 @@ public class AssessmentEditView extends ControllerImpl
 			String refString = parts[1];
 			Reference ref = this.entityManager.newReference(refString);
 
-			// remove from the assessment
+			// remove from the assessment, but since the attachment was in the site's mneme docs and generally available, don't remove it
 			assessment.getPresentation().removeAttachment(ref);
-
-			// remove the attachment
-			// TODO: really?
-			this.attachmentService.removeAttachment(ref);
+			// this.attachmentService.removeAttachment(ref);
 
 			// stay here
 			destination = context.getDestination();

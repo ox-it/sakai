@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -26,7 +26,6 @@ package org.etudes.mneme.api;
 
 import java.util.List;
 
-import org.apache.commons.fileupload.FileItem;
 import org.sakaiproject.entity.api.Reference;
 
 /**
@@ -72,10 +71,18 @@ public interface Presentation
 	void removeAttachment(Reference reference);
 
 	/**
+	 * Set the attachments to these references.
+	 * 
+	 * @param references
+	 *        The list of attachment references.
+	 */
+	void setAttachments(List<Reference> references);
+
+	/**
 	 * Set the rich text (html) part of the presentation.
 	 * 
 	 * @param text
-	 *        The rich text (html) part of the presentation.  Must be well formed HTML or plain text.
+	 *        The rich text (html) part of the presentation. Must be well formed HTML or plain text.
 	 */
 	void setText(String text);
 }

@@ -487,6 +487,14 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getUseQuestionPresentationAttachments()
+	{
+		return Boolean.FALSE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Boolean getUseReason()
 	{
 		return Boolean.TRUE;

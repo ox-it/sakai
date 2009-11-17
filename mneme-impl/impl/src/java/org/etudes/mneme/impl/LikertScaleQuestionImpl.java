@@ -27,7 +27,6 @@ package org.etudes.mneme.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.etudes.ambrosia.api.Attachments;
 import org.etudes.ambrosia.api.CompareDecision;
 import org.etudes.ambrosia.api.Component;
 import org.etudes.ambrosia.api.EntityList;
@@ -248,10 +247,10 @@ public class LikertScaleQuestionImpl implements TypeSpecificQuestion
 		Text question = this.uiService.newText();
 		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.presentation.text"));
 
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments")));
+		// Attachments attachments = this.uiService.newAttachments();
+		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
+		// attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
+		// this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments")));
 
 		EntityList entityList = this.uiService.newEntityList();
 		entityList.setStyle(EntityList.Style.form);
@@ -269,7 +268,7 @@ public class LikertScaleQuestionImpl implements TypeSpecificQuestion
 		entityList.addColumn(propCol);
 
 		Section section = this.uiService.newSection();
-		section.add(question).add(attachments).add(entityList);
+		section.add(question)/* .add(attachments) */.add(entityList);
 
 		return this.uiService.newFragment().setMessages(this.messages).add(section);
 	}
@@ -344,10 +343,10 @@ public class LikertScaleQuestionImpl implements TypeSpecificQuestion
 		Text question = this.uiService.newText();
 		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.presentation.text"));
 
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments")));
+		// Attachments attachments = this.uiService.newAttachments();
+		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
+		// attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
+		// this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments")));
 
 		EntityList entityList = this.uiService.newEntityList();
 		entityList.setStyle(EntityList.Style.form);
@@ -366,7 +365,7 @@ public class LikertScaleQuestionImpl implements TypeSpecificQuestion
 		entityList.addColumn(propCol);
 
 		Section section = this.uiService.newSection();
-		section.add(question).add(attachments).add(entityList);
+		section.add(question)/* .add(attachments) */.add(entityList);
 
 		return this.uiService.newFragment().setMessages(this.messages).add(section);
 	}
@@ -479,6 +478,14 @@ public class LikertScaleQuestionImpl implements TypeSpecificQuestion
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getUseQuestionPresentationAttachments()
+	{
+		return Boolean.FALSE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Boolean getUseReason()
 	{
 		return Boolean.TRUE;
@@ -524,10 +531,10 @@ public class LikertScaleQuestionImpl implements TypeSpecificQuestion
 		Text question = this.uiService.newText();
 		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
 
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
+		// Attachments attachments = this.uiService.newAttachments();
+		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
+		// attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
+		// this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
 
 		EntityList entityList = this.uiService.newEntityList();
 		entityList.setStyle(EntityList.Style.form);
@@ -545,7 +552,7 @@ public class LikertScaleQuestionImpl implements TypeSpecificQuestion
 		entityList.addColumn(propCol);
 
 		Section section = this.uiService.newSection();
-		section.add(question).add(attachments).add(entityList);
+		section.add(question)/* .add(attachments) */.add(entityList);
 
 		return this.uiService.newFragment().setMessages(this.messages).add(section);
 	}
@@ -558,10 +565,10 @@ public class LikertScaleQuestionImpl implements TypeSpecificQuestion
 		Text question = this.uiService.newText();
 		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
 
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
+		// Attachments attachments = this.uiService.newAttachments();
+		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
+		// attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
+		// this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
 
 		EntityList entityList = this.uiService.newEntityList();
 		entityList.setStyle(EntityList.Style.form);
@@ -579,7 +586,7 @@ public class LikertScaleQuestionImpl implements TypeSpecificQuestion
 		entityList.addColumn(propCol);
 
 		Section section = this.uiService.newSection();
-		section.add(question).add(attachments).add(entityList);
+		section.add(question)/* .add(attachments) */.add(entityList);
 
 		return this.uiService.newFragment().setMessages(this.messages).add(section);
 	}
@@ -592,10 +599,10 @@ public class LikertScaleQuestionImpl implements TypeSpecificQuestion
 		Text question = this.uiService.newText();
 		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
 
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
+		// Attachments attachments = this.uiService.newAttachments();
+		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
+		// attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
+		// this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
 
 		EntityList entityList = this.uiService.newEntityList();
 		entityList.setStyle(EntityList.Style.form);
@@ -631,7 +638,7 @@ public class LikertScaleQuestionImpl implements TypeSpecificQuestion
 						this.uiService.getFormatDelegate("FormatUnansweredPercent", "sakai.mneme")));
 
 		Section section = this.uiService.newSection();
-		section.add(question).add(attachments).add(entityList).add(unanswered);
+		section.add(question)/* .add(attachments) */.add(entityList).add(unanswered);
 
 		return this.uiService.newFragment().setMessages(this.messages).add(section);
 	}

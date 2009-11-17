@@ -43,6 +43,7 @@ import org.etudes.mneme.api.QuestionPoolService.FindQuestionsSort;
 import org.etudes.util.api.Translation;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.util.StringUtil;
 
@@ -771,8 +772,7 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	 * @param asHistory
 	 *        If set, make the questions historical.
 	 * @param oldToNew
-	 *        A map, which, if present, will be filled in with the mapping of the source question id to the destination question id for each question
-	 *        copied.
+	 *        A map, which, if present, will be filled in with the mapping of the source question id to the destination question id for each question copied.
 	 * @param attachmentTranslations
 	 *        A list of Translations for attachments and embedded media.
 	 * @param merge
@@ -810,6 +810,18 @@ public abstract class QuestionStorageSql implements QuestionStorage
 			{
 				q.getPresentation()
 						.setText(this.attachmentService.translateEmbeddedReferences(q.getPresentation().getText(), attachmentTranslations));
+				List<Reference> attachments = q.getPresentation().getAttachments();
+				List<Reference> newAttachments = new ArrayList<Reference>();
+				for (Reference ref : attachments)
+				{
+					String newRef = ref.getReference();
+					for (Translation t : attachmentTranslations)
+					{
+						newRef = t.translate(newRef);
+					}
+					newAttachments.add(this.attachmentService.getReference(newRef));
+				}
+				q.getPresentation().setAttachments(newAttachments);
 				q.setFeedback(this.attachmentService.translateEmbeddedReferences(q.getFeedback(), attachmentTranslations));
 				q.setHints(this.attachmentService.translateEmbeddedReferences(q.getHints(), attachmentTranslations));
 
@@ -1024,7 +1036,7 @@ public abstract class QuestionStorageSql implements QuestionStorage
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT Q.CONTEXT, Q.CREATED_BY_DATE, Q.CREATED_BY_USER, Q.EXPLAIN_REASON, Q.FEEDBACK,");
 		sql.append(" Q.HINTS, Q.HISTORICAL, Q.ID, Q.MINT, Q.MODIFIED_BY_DATE, Q.MODIFIED_BY_USER, Q.POOL_ID,");
-		sql.append(" Q.PRESENTATION_TEXT, Q.SURVEY, Q.TYPE, Q.GUEST");
+		sql.append(" Q.PRESENTATION_TEXT, Q.PRESENTATION_ATTACHMENTS, Q.SURVEY, Q.TYPE, Q.GUEST");
 		sql.append(" FROM MNEME_QUESTION Q ");
 		sql.append(whereOrder);
 
@@ -1049,9 +1061,10 @@ public abstract class QuestionStorageSql implements QuestionStorage
 					question.getModifiedBy().setUserId(SqlHelper.readString(result, 11));
 					question.initPool(SqlHelper.readId(result, 12));
 					question.getPresentation().setText(SqlHelper.readString(result, 13));
-					question.setIsSurvey(SqlHelper.readBoolean(result, 14));
-					qService.setType(SqlHelper.readString(result, 15), question);
-					question.getTypeSpecificQuestion().setData(SqlHelper.decodeStringArray(StringUtil.trimToNull(result.getString(16))));
+					question.getPresentation().setAttachments(SqlHelper.readReferences(result, 14, attachmentService));
+					question.setIsSurvey(SqlHelper.readBoolean(result, 15));
+					qService.setType(SqlHelper.readString(result, 16), question);
+					question.getTypeSpecificQuestion().setData(SqlHelper.decodeStringArray(StringUtil.trimToNull(result.getString(17))));
 
 					question.clearChanged();
 					rv.add(question);
@@ -1146,15 +1159,15 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	{
 		// read the question's text
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT Q.PRESENTATION_TEXT, Q.GUEST, Q.HINTS, Q.FEEDBACK");
+		sql.append("SELECT Q.PRESENTATION_TEXT, Q.GUEST, Q.HINTS, Q.FEEDBACK, Q.PRESENTATION_ATTACHMENTS");
 		sql.append(" FROM MNEME_QUESTION Q ");
 		sql.append(" WHERE Q.ID=?");
 
 		Object[] fields = new Object[1];
 		fields[0] = Long.valueOf(qid);
 
-		final Object[] fields2 = new Object[5];
-		fields2[4] = fields[0];
+		final Object[] fields2 = new Object[6];
+		fields2[5] = fields[0];
 
 		this.sqlService.dbRead(sql.toString(), fields, new SqlReader()
 		{
@@ -1166,6 +1179,7 @@ public abstract class QuestionStorageSql implements QuestionStorage
 					fields2[1] = SqlHelper.decodeStringArray(StringUtil.trimToNull(result.getString(2)));
 					fields2[2] = SqlHelper.readString(result, 3);
 					fields2[3] = SqlHelper.readString(result, 4);
+					fields2[4] = SqlHelper.decodeStringArray(StringUtil.trimToNull(result.getString(5)));
 
 					return null;
 				}
@@ -1185,12 +1199,17 @@ public abstract class QuestionStorageSql implements QuestionStorage
 		{
 			((String[]) fields2[1])[i] = this.attachmentService.translateEmbeddedReferences(((String[]) fields2[1])[i], attachmentTranslations);
 		}
+		for (int i = 0; i < ((String[]) fields2[4]).length; i++)
+		{
+			((String[]) fields2[4])[i] = this.attachmentService.translateEmbeddedReferences(((String[]) fields2[4])[i], attachmentTranslations);
+		}
 
 		fields2[1] = SqlHelper.encodeStringArray(((String[]) fields2[1]));
+		fields2[4] = SqlHelper.encodeStringArray(((String[]) fields2[4]));
 
 		// update
 		sql = new StringBuilder();
-		sql.append("UPDATE MNEME_QUESTION SET PRESENTATION_TEXT=?, GUEST=?, HINTS=?, FEEDBACK=? WHERE ID=?");
+		sql.append("UPDATE MNEME_QUESTION SET PRESENTATION_TEXT=?, GUEST=?, HINTS=?, FEEDBACK=?, PRESENTATION_ATTACHMENTS=? WHERE ID=?");
 		if (!this.sqlService.dbWrite(sql.toString(), fields2))
 		{
 			throw new RuntimeException("translateQuestionAttachmentsTx(write): db write failed");
@@ -1226,10 +1245,10 @@ public abstract class QuestionStorageSql implements QuestionStorage
 		sql.append("UPDATE MNEME_QUESTION SET");
 		sql.append(" CONTEXT=?, DESCRIPTION=?, EXPLAIN_REASON=?, FEEDBACK=?, HINTS=?, HISTORICAL=?,");
 		sql.append(" MINT=?, MODIFIED_BY_DATE=?, MODIFIED_BY_USER=?, POOL_ID=?,");
-		sql.append(" PRESENTATION_TEXT=?, SURVEY=?, VALID=?, GUEST=?, TYPE=?");
+		sql.append(" PRESENTATION_TEXT=?, PRESENTATION_ATTACHMENTS=?, SURVEY=?, VALID=?, GUEST=?, TYPE=?");
 		sql.append(" WHERE ID=?");
 
-		Object[] fields = new Object[16];
+		Object[] fields = new Object[17];
 		fields[0] = question.getContext();
 		fields[1] = limit(question.getDescription(), 255);
 		fields[2] = question.getExplainReason() ? "1" : "0";
@@ -1241,11 +1260,12 @@ public abstract class QuestionStorageSql implements QuestionStorage
 		fields[8] = question.getModifiedBy().getUserId();
 		fields[9] = (question.poolId == null) ? null : Long.valueOf(question.poolId);
 		fields[10] = question.getPresentation().getText();
-		fields[11] = question.getIsSurvey() ? "1" : "0";
-		fields[12] = question.getIsValid() ? "1" : "0";
-		fields[13] = SqlHelper.encodeStringArray(question.getTypeSpecificQuestion().getData());
-		fields[14] = question.getType();
-		fields[15] = Long.valueOf(question.getId());
+		fields[11] = SqlHelper.encodeReferences(question.getPresentation().getAttachments());
+		fields[12] = question.getIsSurvey() ? "1" : "0";
+		fields[13] = question.getIsValid() ? "1" : "0";
+		fields[14] = SqlHelper.encodeStringArray(question.getTypeSpecificQuestion().getData());
+		fields[15] = question.getType();
+		fields[16] = Long.valueOf(question.getId());
 
 		if (!this.sqlService.dbWrite(sql.toString(), fields))
 		{

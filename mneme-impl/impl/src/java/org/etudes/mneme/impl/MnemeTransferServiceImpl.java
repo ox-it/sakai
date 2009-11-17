@@ -362,11 +362,11 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 			for (String qid : qids)
 			{
 				Question question = this.questionService.getQuestion(qid);
-				// for (Reference attachment : question.getPresentation().getAttachments())
-				// {
-				// refs.add(attachment.getReference());
-				// }
 				refs.addAll(this.attachmentService.harvestAttachmentsReferenced(question.getPresentation().getText(), true));
+				for (Reference attachment : question.getPresentation().getAttachments())
+				{
+					refs.add(attachment.getReference());
+				}
 				refs.addAll(this.attachmentService.harvestAttachmentsReferenced(question.getHints(), true));
 				refs.addAll(this.attachmentService.harvestAttachmentsReferenced(question.getFeedback(), true));
 				for (String data : question.getTypeSpecificQuestion().getData())
@@ -380,15 +380,23 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 		for (Assessment assessment : assessments)
 		{
 			refs.addAll(this.attachmentService.harvestAttachmentsReferenced(assessment.getPresentation().getText(), true));
+			for (Reference attachment : assessment.getPresentation().getAttachments())
+			{
+				refs.add(attachment.getReference());
+			}
 			refs.addAll(this.attachmentService.harvestAttachmentsReferenced(assessment.getSubmitPresentation().getText(), true));
+			for (Reference attachment : assessment.getSubmitPresentation().getAttachments())
+			{
+				refs.add(attachment.getReference());
+			}
 
 			for (Part part : assessment.getParts().getParts())
 			{
-				// for (Reference attachment : part.getPresentation().getAttachments())
-				// {
-				// refs.add(attachment.getReference());
-				// }
 				refs.addAll(this.attachmentService.harvestAttachmentsReferenced(part.getPresentation().getText(), true));
+				for (Reference attachment : part.getPresentation().getAttachments())
+				{
+					refs.add(attachment.getReference());
+				}
 			}
 		}
 

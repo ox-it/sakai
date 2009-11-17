@@ -3,11 +3,8 @@
 -- $Id$
 --**********************************************************************************
 --
--- Copyright (c) 2008 Etudes, Inc.
+-- Copyright (c) 2009 Etudes, Inc.
 -- 
--- Portions completed before September 1, 2008
--- Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
---
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
 -- You may obtain a copy of the License at
@@ -23,38 +20,10 @@
 --*********************************************************************************/
 
 -----------------------------------------------------------------------------
--- Mneme Question DDL
+-- Mneme Question DDL changes between 1.1 and 1.2
 -----------------------------------------------------------------------------
 
-CREATE TABLE MNEME_QUESTION
-(
-	CONTEXT				VARCHAR (99),
-	CREATED_BY_DATE		BIGINT,
-	CREATED_BY_USER		VARCHAR (99),
-	DESCRIPTION			VARCHAR (255),
-	EXPLAIN_REASON		CHAR (1),
-	FEEDBACK			LONGTEXT,
-	HINTS				LONGTEXT,
-	HISTORICAL			CHAR (1),
-	ID					BIGINT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
-	MINT				CHAR (1),
-	MODIFIED_BY_DATE	BIGINT,
-	MODIFIED_BY_USER	VARCHAR (99),
-	POOL_ID				BIGINT UNSIGNED,
-	PRESENTATION_TEXT	LONGTEXT,
-	PRESENTATION_ATTACHMENTS	LONGTEXT,
-	SURVEY				CHAR (1),
-	TYPE				VARCHAR (99),
-	VALID				CHAR (1),
-	GUEST				LONGTEXT
-);
+-- TODO - this is mysql, make oracle
 
-CREATE INDEX MNEME_QUESTION_IDX_MHPSV ON MNEME_QUESTION
-(
-	MINT		ASC,
-	HISTORICAL	ASC,
-	POOL_ID		ASC,
-	SURVEY		ASC,
-	VALID		ASC
-);
-
+ALTER TABLE MNEME_QUESTION
+	ADD (PRESENTATION_ATTACHMENTS LONGTEXT);
