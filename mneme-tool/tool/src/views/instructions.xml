@@ -57,7 +57,7 @@
 		<courier destination="/courier" frequency="600" />
 
 		<!-- repeat the nav up top w/o access key -->
-		<navigationBar id="nav">
+		<navigationBar>
 			<container>
 				<navigation title="continue" style="BUTTON" description="continue-description">
 					<icon icon="/icons/return.png" style="LEFT" />

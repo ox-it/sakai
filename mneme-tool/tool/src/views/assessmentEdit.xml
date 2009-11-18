@@ -66,7 +66,7 @@
 
 	<container>
 		<!-- repeat the nav up top w/o access keys -->
-		<navigationBar id="nav">
+		<navigationBar>
 			<container>
 				<navigation title="done" description="done-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/return.png" style="LEFT" />
