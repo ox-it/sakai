@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -455,7 +455,7 @@ public class AssessmentImpl implements Assessment
 				this.poolId = null;
 			}
 		}
-		
+
 		if (this.poolId == null)
 		{
 			try
@@ -824,6 +824,12 @@ public class AssessmentImpl implements Assessment
 		{
 			// this is a change that cannot be made to live tests
 			this.lockedChanged = Boolean.TRUE;
+		}
+
+		else if (this.type == AssessmentType.assignment)
+		{
+			// assignments always are flexible
+			this.setRandomAccess(Boolean.TRUE);
 		}
 
 		this.type = type;

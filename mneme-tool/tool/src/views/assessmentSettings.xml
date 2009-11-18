@@ -427,6 +427,9 @@
 				</selection>
 
 				<selection title="nav">
+					<included>
+						<compareDecision reversed="TRUE" model="assessment.type" constant="assignment" />
+					</included>
 					<model ref="assessment.randomAccess" />
 					<selectionChoices>
 						<selectionChoice>
