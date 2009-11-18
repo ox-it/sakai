@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -573,6 +573,7 @@
 				<navigation title="publish" accessKey="publish-access" description="publish-description" style="BUTTON" submit="TRUE"
 					destination="PUBLISH">
 					<icon icon="/icons/OK.png" style="LEFT" />
+					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif" selector="confirm-publish" />
 				</navigation>
 			</container>
 			<included>
