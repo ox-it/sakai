@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -55,8 +55,33 @@
 		<!-- courier to keep the session alive -->
 		<courier destination="/courier" frequency="600" />
 
-		<!-- repeat the nav up top -->
-		<alias to="nav" />
+		<!-- repeat the nav up top w/o access key -->
+		<navigationBar>
+			<container>
+				<navigation title="save-exit" description="save-exit-description" style="BUTTON" destination="/list"
+					default="TRUE">
+					<icon icon="/icons/exit.gif" style="LEFT" />
+				</navigation>
+				<navigation title="finish-exam" description="finish-exam-description" style="BUTTON" submit="TRUE"
+					id="finish">
+					<icon icon="/icons/finish.gif" style="LEFT" />
+					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif">
+						<message selector="finish-confirm">
+							<model type="enum" messageRoot="assessment-type-" ref="submission.assessment.type" />
+						</message>
+					</confirm>
+					<destination template="/submitted/{0}" model="submission.id" />
+				</navigation>
+				<divider />
+				<navigation title="instructions" style="LINK">
+					<icon icon="/icons/test.png" style="LEFT" />
+					<destination template="/instructions/{0}{1}">
+						<model ref="submission.id" />
+						<model ref="sakai_destination" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
 
 		<!-- timer for timed tests -->
 		<countdownTimer submit="TRUE">

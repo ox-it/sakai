@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -70,8 +70,96 @@
 		<!-- courier to keep the session alive -->
 		<courier destination="/courier" frequency="600" />
 
-		<!-- repeat the nav up top -->
-		<alias to="nav" />
+		<!-- repeat the nav up top w/0 access key -->
+		<navigationBar>
+			<included>
+				<decision reversed="TRUE" model="review" />
+			</included>
+			<container>
+				<navigation title="prev" description="prev-description" style="BUTTON" destination="PREV" submit="TRUE">
+					<icon icon="/icons/prev.gif" style="LEFT" />
+					<disabled>
+						<orDecision>
+							<decision reversed="TRUE" model="submission.assessment.randomAccess" />
+							<andDecision>
+								<hasValueDecision model="question" />
+								<decision model="question.assessmentOrdering.isFirst" />
+								<decision reversed="TRUE" model="question.part.assessment.parts.showPresentation" />
+							</andDecision>
+							<andDecision>
+								<hasValueDecision model="part" />
+								<decision model="part.ordering.isFirst" />
+							</andDecision>
+							<andDecision>
+								<hasValueDecision reversed="TRUE" model="question" />
+								<hasValueDecision reversed="TRUE" model="part" />
+							</andDecision>
+						</orDecision>
+					</disabled>
+				</navigation>
+				<navigation title="toc" description="toc-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/contents.gif" style="LEFT" />
+					<destination template="/toc/{0}" model="submission.id" />
+					<disabled>
+						<decision reversed="TRUE" model="submission.assessment.randomAccess" />
+					</disabled>
+				</navigation>
+				<navigation title="next" description="next-description" style="BUTTON" destination="NEXT" submit="TRUE"
+					default="TRUE">
+					<icon icon="/icons/next.gif" style="RIGHT" />
+					<validate>
+						<decision reversed="TRUE" model="submission.assessment.randomAccess" />
+					</validate>
+					<disabled>
+						<orDecision>
+							<andDecision>
+								<hasValueDecision model="question" />
+								<decision model="question.assessmentOrdering.isLast" />
+							</andDecision>
+							<andDecision>
+								<hasValueDecision model="part" />
+								<decision model="part.ordering.isLast" />
+							</andDecision>
+							<andDecision>
+								<hasValueDecision reversed="TRUE" model="question" />
+								<hasValueDecision reversed="TRUE" model="part" />
+							</andDecision>
+						</orDecision>
+					</disabled>
+				</navigation>
+				<divider />
+				<navigation title="save-exit" description="save-exit-description" style="BUTTON" submit="TRUE"
+					destination="/list">
+					<icon icon="/icons/exit.gif" style="LEFT" />
+					<validate>
+						<trueDecision reversed="TRUE" />
+					</validate>
+				</navigation>
+				<navigation title="finish-exam" description="finish-exam-description" style="BUTTON" submit="TRUE"
+					destination="SUBMIT" id="finish">
+					<icon icon="/icons/finish.gif" style="LEFT" />
+					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif">
+						<message selector="finish-confirm">
+							<model type="enum" messageRoot="assessment-type-" ref="submission.assessment.type" />
+						</message>
+					</confirm>
+					<validate>
+						<trueDecision reversed="TRUE" />
+					</validate>
+				</navigation>
+				<divider />
+				<navigation title="instructions" style="LINK" submit="TRUE">
+					<icon icon="/icons/test.png" style="LEFT" />
+					<destination template="/instructions/{0}{1}">
+						<model ref="submission.id" />
+						<model ref="curDestination" />
+					</destination>
+					<validate>
+						<trueDecision reversed="TRUE" />
+					</validate>
+				</navigation>
+			</container>
+		</navigationBar>
 
 		<!-- timer for timed tests -->
 		<countdownTimer submit="TRUE">

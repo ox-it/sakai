@@ -54,8 +54,17 @@
 
 	<container>
 
-		<!-- repeat the nav up top -->
-		<alias to="nav" />
+		<!-- repeat the nav up top w/o access -->
+		<navigationBar>
+			<container>
+				<navigation title="done" description="done-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
 
 		<selection title="parts">
 			<model ref="partId.value" />

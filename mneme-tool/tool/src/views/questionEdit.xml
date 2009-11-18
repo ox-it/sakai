@@ -64,8 +64,22 @@
 	</subHeader>
 
 	<container>
-		<!-- repeat the nav up top -->
-		<alias to="nav" />
+		<!-- repeat the nav up top w/o access keys-->
+		<navigationBar>
+			<container>
+				<navigation title="done" description="done-description" style="BUTTON" submit="TRUE">
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+					<icon icon="/icons/return.png" style="LEFT" />
+				</navigation>
+				<divider />
+				<navigation title="add" description="add-description" style="BUTTON" submit="TRUE">
+					<destination template="ADD" />
+					<icon icon="/icons/add.png" style="LEFT" />
+				</navigation>
+			</container>
+		</navigationBar>
 
 		<selection title="parts">
 			<included>

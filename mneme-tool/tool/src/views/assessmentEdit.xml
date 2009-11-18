@@ -65,8 +65,21 @@
 	</title>
 
 	<container>
-		<!-- repeat the nav up top -->
-		<alias to="nav" />
+		<!-- repeat the nav up top w/o access keys -->
+		<navigationBar id="nav">
+			<container>
+				<navigation title="done" description="done-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="/assessments/{0}">
+						<model ref="sortcode" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation title="save" description="save-description" style="BUTTON" submit="TRUE" destination="SAVE">
+					<icon icon="/icons/save.png" style="LEFT" />
+				</navigation>
+			</container>
+		</navigationBar>
 
 		<section>
 			<container>

@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -65,8 +65,62 @@
 		<!-- courier to keep the session alive -->
 		<courier destination="/courier" frequency="600" />
 
-		<!-- repeat the nav up top -->
-		<alias to="nav" />
+		<!-- repeat the nav up top w/o access key -->
+		<navigationBar>
+			<included>
+				<decision reversed="TRUE" model="review" />
+			</included>
+			<container>
+				<navigation title="prev" description="prev-description" style="BUTTON">
+					<icon icon="/icons/prev.gif" style="LEFT" />
+					<destination template="/question/{0}/q{1}">
+						<model ref="submission.id" />
+						<model ref="part.ordering.previous.lastQuestion.id" />
+					</destination>
+					<disabled>
+						<orDecision>
+							<decision reversed="TRUE" model="submission.assessment.randomAccess" />
+							<decision model="part.ordering.isFirst" />
+						</orDecision>
+					</disabled>
+				</navigation>
+				<navigation title="toc" description="toc-description" style="BUTTON">
+					<icon icon="/icons/contents.gif" style="LEFT" />
+					<destination template="/toc/{0}" model="submission.id" />
+					<disabled>
+						<decision reversed="TRUE" model="submission.assessment.randomAccess" />
+					</disabled>
+				</navigation>
+				<navigation title="next" description="next-description" style="BUTTON" default="TRUE">
+					<icon icon="/icons/next.gif" style="RIGHT" />
+					<destination template="/question/{0}/q{1}">
+						<model ref="submission.id" />
+						<model ref="part.firstQuestion.id" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation title="save-exit" description="save-exit-description" style="BUTTON" destination="/list">
+					<icon icon="/icons/exit.gif" style="LEFT" />
+				</navigation>
+				<navigation title="finish-exam" description="finish-exam-description" style="BUTTON" submit="TRUE"
+					destination="SUBMIT" id="finish">
+					<icon icon="/icons/finish.gif" style="LEFT" />
+					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif">
+						<message selector="finish-confirm">
+							<model type="enum" messageRoot="assessment-type-" ref="submission.assessment.type" />
+						</message>
+					</confirm>
+				</navigation>
+				<divider />
+				<navigation title="instructions" style="LINK">
+					<icon icon="/icons/test.png" style="LEFT" />
+					<destination template="/instructions/{0}{1}">
+						<model ref="submission.id" />
+						<model ref="sakai_destination" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
 
 		<!-- timer for timed tests -->
 		<countdownTimer submit="TRUE">

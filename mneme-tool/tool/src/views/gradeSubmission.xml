@@ -69,8 +69,65 @@
 
 	<container>
 
-		<!-- repeat the nav up top -->
-		<alias to="nav" />
+		<!-- repeat the nav up top w/o access key -->
+		<navigationBar>
+			<container>
+				<text selector="questions" />
+				<pager paging="paging" submit="TRUE">
+					<destination template="/grade_submission/{0}/{1}/-/{2}{3}">
+						<model ref="submission.id" />
+						<model type="paging" ref="paging" />
+						<model ref="sort" />
+						<model ref="return" />
+					</destination>
+					<sizeOptions>
+						<model ref="pageSizes" />
+					</sizeOptions>
+				</pager>
+				<divider />
+				<text selector="submissions" />
+				<navigation title="prev" style="BUTTON" description="prev-description" submit="TRUE">
+					<disabled>
+						<hasValueDecision model="prev" reversed="TRUE" />
+					</disabled>
+					<icon icon="/icons/previous.png" style="LEFT" />
+					<destination template="/grade_submission/{0}/{1}/-/{2}{3}">
+						<model ref="prev" />
+						<model type="paging" ref="paging" selector="FIRST" />
+						<model ref="sort" />
+						<model ref="return" />
+					</destination>
+					<included>
+						<hasValueDecision model="sort" />
+					</included>
+				</navigation>
+				<navigation title="done" style="BUTTON" description="done-description" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<navigation title="next" style="BUTTON" description="next-description" submit="TRUE">
+					<disabled>
+						<hasValueDecision model="next" reversed="TRUE" />
+					</disabled>
+					<icon icon="/icons/next.png" style="LEFT" />
+					<destination template="/grade_submission/{0}/{1}/-/{2}{3}">
+						<model ref="next" />
+						<model type="paging" ref="paging" selector="FIRST" />
+						<model ref="sort" />
+						<model ref="return" />
+					</destination>
+					<included>
+						<hasValueDecision model="sort" />
+					</included>
+				</navigation>
+				<divider />
+				<navigation title="save" description="save-description" style="BUTTON" submit="TRUE" destination="SAVE">
+					<icon icon="/icons/save.png" style="LEFT" />
+				</navigation>
+			</container>
+		</navigationBar>
 
 		<section>
 			<container>
