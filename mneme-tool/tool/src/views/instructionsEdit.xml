@@ -65,9 +65,6 @@
 					<model ref="assessment.title" type="text" missing="no-title" />
 				</message>
 			</title>
-			<readOnly>
-				<decision model="assessment.isLocked" />
-			</readOnly>
 			<model type="html" ref="assessment.presentation.text" />
 		</htmlEdit>
 
@@ -89,9 +86,6 @@
 							<model type="text" ref="part.title" />
 						</message>
 					</title>
-					<readOnly>
-						<decision model="assessment.isLocked" />
-					</readOnly>
 					<model type="html" ref="part.presentation.text" />
 				</htmlEdit>
 

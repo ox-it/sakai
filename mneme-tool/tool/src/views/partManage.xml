@@ -169,6 +169,9 @@
 										</selectionChoice>
 									</selectionChoices>
 									<model ref="part.randomize" />
+									<readOnly>
+										<decision model="assessment.isLocked" />
+									</readOnly>
 								</selection>
 							</container>
 						</column>

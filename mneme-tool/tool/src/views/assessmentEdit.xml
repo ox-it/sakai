@@ -132,16 +132,10 @@
 
 						<navigation destination="INSTRUCTIONS" title="edit-instructions" style="LINK" submit="TRUE">
 							<icon icon="/icons/test.png" style="LEFT" />
-							<included>
-								<decision reversed="TRUE" model="assessment.isLocked" />
-							</included>
 						</navigation>
 
 						<navigation destination="PARTS" title="manage-parts" style="LINK" submit="TRUE">
 							<icon icon="/icons/manage-parts.png" style="LEFT" />
-							<included>
-								<decision reversed="TRUE" model="assessment.isLocked" />
-							</included>
 						</navigation>
 
 					</container>
