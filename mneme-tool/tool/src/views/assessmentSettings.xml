@@ -482,6 +482,40 @@
 					</selectionChoices>
 				</selection>
 
+				<!-- in case the above is not included, don't loose this dependent selection -->
+				<selection title="layout">
+					<included>
+						<compareDecision model="assessment.type" constant="assignment" />
+					</included>
+					<model ref="assessment.questionGrouping" />
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="type-question" />
+							</displayMessage>
+							<valueMessage>
+								<message template="question" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="type-part" />
+							</displayMessage>
+							<valueMessage>
+								<message template="part" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="type-assessment" />
+							</displayMessage>
+							<valueMessage>
+								<message template="assessment" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+				</selection>
+
 				<selection title="partSettings">
 					<model ref="assessment.parts.continuousNumbering" />
 					<selectionChoices>
