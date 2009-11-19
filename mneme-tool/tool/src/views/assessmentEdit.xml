@@ -160,6 +160,18 @@
 							<navigation style="LINK">
 								<title>
 									<message selector="part-title">
+										<model type="component">
+											<container>
+												<warning>
+													<message>
+														<model ref="detail.part.invalidMessage" />
+													</message>
+													<included>
+														<decision reversed="TRUE" model="detail.part.isValid" />
+													</included>
+												</warning>
+											</container>
+										</model>
 										<model type="icon" icon="/icons/section.png" />
 										<model ref="detail.part.ordering.position" />
 										<model ref="detail.part.title" type="text" />
