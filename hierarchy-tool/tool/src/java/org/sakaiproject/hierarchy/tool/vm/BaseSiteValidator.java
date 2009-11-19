@@ -11,24 +11,24 @@ public abstract class BaseSiteValidator implements Validator
 
 	private int maxNameLength = 12;
 	private int maxTitleLength = 20;
+	private String pattern = "[a-z0-9]([-_a-z0-9]*[a-z0-9])?";
 
 	public BaseSiteValidator()
 	{
 		super();
 	}
 
-	protected void checkTitle(Errors errors, NewSiteCommand command)
+	protected void checkTitle(Errors errors, String title)
 	{
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "title",
 				"validator.title.empty");
-		if (command.getTitle() != null && command.getTitle().length() > maxTitleLength) {
+		if (title != null && title.length() > maxTitleLength) {
 			errors.rejectValue("title", "validator.title.too.long", new Object[] {maxTitleLength}, null);
 		}
 	}
 
-	protected void checkName(Errors errors, NewSiteCommand command)
+	protected void checkName(Errors errors, String url)
 	{
-		String url = command.getName();
 		if (url == null || url.length() == 0) {
 			errors.rejectValue("name", "validator.name.empty");
 		} else {
@@ -36,7 +36,7 @@ public abstract class BaseSiteValidator implements Validator
 				errors.rejectValue("name", "validator.name.too.long",
 						new Object[] { Integer.toString(maxNameLength) }, null);
 			}
-			if (!Pattern.matches("[a-z0-9][_a-z0-9]*", url)) {
+			if (!Pattern.matches(pattern, url)) {
 				errors.rejectValue("name", "validator.name.bad.characters");
 			}
 		}

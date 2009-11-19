@@ -11,8 +11,8 @@ public class NewSiteValidator extends BaseSiteValidator {
 
 	public void validate(Object object, Errors errors) {
 		NewSiteCommand command = (NewSiteCommand) object;
-		checkTitle(errors, command);
-		checkName(errors, command);
+		checkTitle(errors, command.getTitle());
+		checkName(errors, command.getName());
 	}
 
 }

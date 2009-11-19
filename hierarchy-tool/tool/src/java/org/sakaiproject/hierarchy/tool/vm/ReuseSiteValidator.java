@@ -11,7 +11,7 @@ public class ReuseSiteValidator extends BaseSiteValidator
 
 	public void validate(Object object, Errors errors) {
 		NewSiteCommand command = (NewSiteCommand) object;
-		checkName(errors, command);
+		checkName(errors, command.getName());
 	}
 
 
