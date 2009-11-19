@@ -53,4 +53,24 @@ public abstract class BaseSiteValidator implements Validator
 		this.maxTitleLength = maxTitleLength;
 	}
 
+	public int getMaxNameLength()
+	{
+		return maxNameLength;
+	}
+
+	public void setMaxNameLength(int maxNameLength)
+	{
+		this.maxNameLength = maxNameLength;
+	}
+
+	public String getPattern()
+	{
+		return pattern;
+	}
+
+	public void setPattern(String pattern)
+	{
+		this.pattern = pattern;
+	}
+
 }
