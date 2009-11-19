@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -885,9 +886,14 @@ public class AssessmentServiceImpl implements AssessmentService
 		// set the parts to their original question and pool values
 		for (Part part : rv.getParts().getParts())
 		{
-			for (PartDetail detail : part.getDetails())
+			// if any detail fails to restore, remove it
+			for (Iterator<PartDetail> i = part.getDetails().iterator(); i.hasNext();)
 			{
-				detail.restoreToOriginal(pidMap, qidMap);
+				PartDetail detail = i.next();
+				if (!detail.restoreToOriginal(pidMap, qidMap))
+				{
+					i.remove();
+				}
 			}
 		}
 
