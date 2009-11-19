@@ -77,6 +77,9 @@
 			</included>
 			<container>
 				<navigation title="prev" description="prev-description" style="BUTTON" destination="PREV" submit="TRUE">
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+					</included>
 					<icon icon="/icons/prev.gif" style="LEFT" />
 					<disabled>
 						<orDecision>
@@ -100,6 +103,9 @@
 				<navigation title="toc" description="toc-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/contents.gif" style="LEFT" />
 					<destination template="/toc/{0}" model="submission.id" />
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+					</included>
 					<disabled>
 						<decision reversed="TRUE" model="submission.assessment.randomAccess" />
 					</disabled>
@@ -110,6 +116,9 @@
 					<validate>
 						<decision reversed="TRUE" model="submission.assessment.randomAccess" />
 					</validate>
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+					</included>
 					<disabled>
 						<orDecision>
 							<andDecision>
@@ -127,7 +136,11 @@
 						</orDecision>
 					</disabled>
 				</navigation>
-				<divider />
+				<divider>
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+					</included>
+				</divider>
 				<navigation title="save-exit" description="save-exit-description" style="BUTTON" submit="TRUE"
 					destination="/list">
 					<icon icon="/icons/exit.gif" style="LEFT" />
@@ -590,6 +603,9 @@
 			<container>
 				<navigation title="prev" accessKey="prev-access" description="prev-description" style="BUTTON" destination="PREV" submit="TRUE">
 					<icon icon="/icons/prev.gif" style="LEFT" />
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+					</included>
 					<disabled>
 						<orDecision>
 							<decision reversed="TRUE" model="submission.assessment.randomAccess" />
@@ -612,6 +628,9 @@
 				<navigation title="toc" accessKey="toc-access" description="toc-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/contents.gif" style="LEFT" />
 					<destination template="/toc/{0}" model="submission.id" />
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+					</included>
 					<disabled>
 						<decision reversed="TRUE" model="submission.assessment.randomAccess" />
 					</disabled>
@@ -622,6 +641,9 @@
 					<validate>
 						<decision reversed="TRUE" model="submission.assessment.randomAccess" />
 					</validate>
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+					</included>
 					<disabled>
 						<orDecision>
 							<andDecision>
@@ -639,7 +661,11 @@
 						</orDecision>
 					</disabled>
 				</navigation>
-				<divider />
+				<divider>
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+					</included>
+				</divider>
 				<navigation title="save-exit" accessKey="save-exit-access" description="save-exit-description" style="BUTTON" submit="TRUE"
 					destination="/list">
 					<icon icon="/icons/exit.gif" style="LEFT" />

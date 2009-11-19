@@ -156,6 +156,13 @@ public interface Question
 	Part getPart();
 
 	/**
+	 * Access the assessment part detail, within the context of an assessment, that this question is being used in.
+	 * 
+	 * @return The assessment part detail that this question is being used in.
+	 */
+	PartDetail getPartDetail();
+
+	/**
 	 * Access the ordering information within the context of an assessment, ordering within a single part in which the question is being used.
 	 * 
 	 * @return The ordering information within the part in the assessment.

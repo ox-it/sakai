@@ -285,6 +285,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getIsSingleQuestion()
+	{
+		return getAssessment().getIsSingleQuestion();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Boolean getIsValid()
 	{
 		return getAssessment().getIsValid();

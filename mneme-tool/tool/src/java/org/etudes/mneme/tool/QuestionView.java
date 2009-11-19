@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -82,7 +82,7 @@ public class QuestionView extends ControllerImpl
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
 		// we need two parameters (sid/question selector) and optional anchor
-		//question selector may end in "!" for "last chance" - linear repeat question when it was not answered
+		// question selector may end in "!" for "last chance" - linear repeat question when it was not answered
 		if ((params.length != 4) && (params.length != 5))
 		{
 			throw new IllegalArgumentException();
@@ -121,7 +121,7 @@ public class QuestionView extends ControllerImpl
 		{
 			// redirect to error
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.over)));
-			return;			
+			return;
 		}
 
 		// handle our 'z' selector - redirect to the appropriate question to re-enter this submission
@@ -132,7 +132,7 @@ public class QuestionView extends ControllerImpl
 				// Note: enterSubmission() can create a new submission, if the submission is not in progress.
 				// Our submission has no sibling count (=0), since we used getSubmission(), which does not set it.
 				// enterSubmission() will think there are no other submissions, so would create one even if the max allowed
-				// for the user has been exceeded.  Since we check getIsComplete() above, this should be avoided -ggolden
+				// for the user has been exceeded. Since we check getIsComplete() above, this should be avoided -ggolden
 				this.submissionService.enterSubmission(submission);
 			}
 			catch (AssessmentPermissionException e)
@@ -207,7 +207,7 @@ public class QuestionView extends ControllerImpl
 	public void post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
 		// we need two parameters (sid/question selector) and optional anchor
-		//question selector may end in "!" for "last chance" - linear repeat question when it was not answered
+		// question selector may end in "!" for "last chance" - linear repeat question when it was not answered
 		if ((params.length != 4) && (params.length != 5))
 		{
 			throw new IllegalArgumentException();
@@ -325,8 +325,8 @@ public class QuestionView extends ControllerImpl
 				// get the submission again, to make sure that the answers we just posted are reflected
 				submission = submissionService.getSubmission(submissionId);
 
-				// if linear, or the submission is all answered, we can complete the submission and go to submitted
-				if ((!submission.getAssessment().getRandomAccess()) || (submission.getIsAnswered()))
+				// if linear, or the submission is all answered, or this is a single question assessment, we can complete the submission and go to submitted
+				if ((!submission.getAssessment().getRandomAccess()) || (submission.getIsAnswered()) || (submission.getAssessment().getIsSingleQuestion()))
 				{
 					submissionService.completeSubmission(submission);
 
@@ -561,8 +561,7 @@ public class QuestionView extends ControllerImpl
 	 * @param submisssion
 	 *        The selected submission.
 	 * @param questionSelector
-	 *        Which question(s) to put on the page: q followed by a questionId picks one, s followed by a sectionId picks a sections worth, and a
-	 *        picks them all.
+	 *        Which question(s) to put on the page: q followed by a questionId picks one, s followed by a sectionId picks a sections worth, and a picks them all.
 	 * @param context
 	 *        UiContext.
 	 * @param answers
@@ -674,8 +673,8 @@ public class QuestionView extends ControllerImpl
 		String destination = null;
 		Assessment assessment = submission.getAssessment();
 
-		// if we are random access, and allowed, send to TOC
-		if (toc && assessment.getRandomAccess())
+		// if we are random access, and not a single question, and allowed, send to TOC
+		if (toc && assessment.getRandomAccess() && !assessment.getIsSingleQuestion())
 		{
 			destination = "/toc/" + submission.getId();
 		}
@@ -684,6 +683,12 @@ public class QuestionView extends ControllerImpl
 		{
 			// find the first incomplete question
 			Question question = submission.getFirstIncompleteQuestion();
+
+			// if not found, and we have only one, go there
+			if ((question == null) && (assessment.getIsSingleQuestion()))
+			{
+				question = submission.getFirstQuestion();
+			}
 
 			// if we don't have one, we will go to the toc (or final_review for linear)
 			if (question == null)

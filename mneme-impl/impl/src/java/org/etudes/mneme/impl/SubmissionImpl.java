@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -540,6 +540,19 @@ public class SubmissionImpl implements Submission
 		}
 
 		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Question getFirstQuestion()
+	{
+		Assessment assessment = getAssessment();
+		if (assessment.getParts().getParts().isEmpty()) return null;
+		Part part = assessment.getParts().getParts().get(0);
+		List<Question> questions = part.getQuestions();
+		if (questions.isEmpty()) return null;
+		return questions.get(0);
 	}
 
 	/**

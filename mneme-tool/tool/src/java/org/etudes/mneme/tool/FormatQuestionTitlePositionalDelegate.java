@@ -69,7 +69,13 @@ public class FormatQuestionTitlePositionalDelegate extends FormatDelegateImpl
 			args[1] = question.getPart().getNumQuestions();
 		}
 
-		return context.getMessages().getFormattedMessage("format-question-title-positional", args);
+		String template = "format-question-title-positional";
+		if (question.getPart().getAssessment().getIsSingleQuestion())
+		{
+			template = "format-question-single-title-positional";
+		}
+
+		return context.getMessages().getFormattedMessage(template, args);
 	}
 
 	/**

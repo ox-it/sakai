@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.FormatDelegateImpl;
 import org.etudes.mneme.api.Answer;
+import org.etudes.mneme.api.PoolDraw;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.Submission;
 
@@ -89,6 +90,11 @@ public class FormatQuestionTitleDelegate extends FormatDelegateImpl
 		}
 
 		String template = "format-question-title";
+		if (question.getPart().getAssessment().getIsSingleQuestion())
+		{
+			template = "format-question-single-title";
+		}
+
 		if ((!question.getPart().getAssessment().getHasPoints()) || (!question.getHasPoints()))
 		{
 			template += "-no-points";
@@ -114,11 +120,11 @@ public class FormatQuestionTitleDelegate extends FormatDelegateImpl
 			}
 			args[3] = Integer.valueOf(total);
 
-			// TODO: from a draw?
-//			if (question.getPart() instanceof DrawPart)
-//			{
-//				template += "-draw";
-//			}
+			// from a draw?
+			if ((question.getPartDetail() != null) && (question.getPartDetail() instanceof PoolDraw))
+			{
+				template += "-draw";
+			}
 		}
 
 		return context.getMessages().getFormattedMessage(template, args);

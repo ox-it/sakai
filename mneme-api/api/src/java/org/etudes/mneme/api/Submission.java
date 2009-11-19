@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -40,8 +40,8 @@ public interface Submission
 	Boolean completeIfOver();
 
 	/**
-	 * Process the total score set by setTotalScore.<br /> Call after all answer scores are set, or automatically when saved
-	 * (SubmissionService.evaluateSubmission).
+	 * Process the total score set by setTotalScore.<br />
+	 * Call after all answer scores are set, or automatically when saved (SubmissionService.evaluateSubmission).
 	 */
 	void consolidateTotalScore();
 
@@ -120,7 +120,8 @@ public interface Submission
 	SubmissionEvaluation getEvaluation();
 
 	/**
-	 * Check if the submission evaluation is used.<br /> This is not so if it has not yet been set and the assessment has only a single question.
+	 * Check if the submission evaluation is used.<br />
+	 * This is not so if it has not yet been set and the assessment has only a single question.
 	 * 
 	 * @return TRUE if the evaluation is used, FALSE if not.
 	 */
@@ -141,6 +142,13 @@ public interface Submission
 	Question getFirstIncompleteQuestion();
 
 	/**
+	 * Find the first assessment question.
+	 * 
+	 * @return The first assessment question, or null if there is none.
+	 */
+	Question getFirstQuestion();
+
+	/**
 	 * Access the submission's grading status.
 	 * 
 	 * @return The submissions's grading status.
@@ -157,8 +165,7 @@ public interface Submission
 	/**
 	 * Get if any of the submissions, including this one, to this same assignment from the same user, has unscored answers. May not be known.
 	 * 
-	 * @return The TRUE if any of the submissions, including this one, to this same assignment from the same user, has unscored answers, FALSE if not,
-	 *         or NULL if not known.
+	 * @return The TRUE if any of the submissions, including this one, to this same assignment from the same user, has unscored answers, FALSE if not, or NULL if not known.
 	 */
 	Boolean getHasUnscoredSiblings();
 
@@ -246,8 +253,7 @@ public interface Submission
 	Boolean getMayBegin();
 
 	/**
-	 * Check if the submission may be started for an nth attempt - the user must have permission, the submission must be a complete, the sibling count
-	 * must be fewer than the assessment's tries limit, and the assessment must be open.
+	 * Check if the submission may be started for an nth attempt - the user must have permission, the submission must be a complete, the sibling count must be fewer than the assessment's tries limit, and the assessment must be open.
 	 * 
 	 * @return TRUE if the submission may be started, FALSE if not.
 	 */
@@ -268,16 +274,14 @@ public interface Submission
 	Boolean getMayGuestView();
 
 	/**
-	 * Check if the submission may be reviewed - the user must be the submission user, and the submission must be complete and not from a retracted
-	 * assessment.
+	 * Check if the submission may be reviewed - the user must be the submission user, and the submission must be complete and not from a retracted assessment.
 	 * 
 	 * @return TRUE if the submission may be reviewed, FALSE if not.
 	 */
 	Boolean getMayReview();
 
 	/**
-	 * Check if the submission may be reviewed at some later point - the user must be the submission user, and the submission must be complete and not
-	 * from a retracted assessment, and the assessment must be set to eventually allow review.
+	 * Check if the submission may be reviewed at some later point - the user must be the submission user, and the submission must be complete and not from a retracted assessment, and the assessment must be set to eventually allow review.
 	 * 
 	 * @return TRUE if the submission may be reviewed later, FALSE if not.
 	 */
@@ -312,8 +316,8 @@ public interface Submission
 	Date getSubmittedDate();
 
 	/**
-	 * Access the total score of the submission - the total of the auto scores from the answers and the evaluation scores from the answers and
-	 * overall.<br /> If the submission is "phantom" the total score will be null.
+	 * Access the total score of the submission - the total of the auto scores from the answers and the evaluation scores from the answers and overall.<br />
+	 * If the submission is "phantom" the total score will be null.
 	 * 
 	 * @return The total score of the submission, or 0 if there is no score, or null if the submission is phantom.
 	 */
@@ -366,8 +370,7 @@ public interface Submission
 	void setSubmittedDate(Date submittedDate);
 
 	/**
-	 * Set the total score of the submission. The Evaluation will be adjusted so that this becomes the total score given the current answer auto
-	 * scores and evaluations.
+	 * Set the total score of the submission. The Evaluation will be adjusted so that this becomes the total score given the current answer auto scores and evaluations.
 	 * 
 	 * @param score
 	 *        The new total score desired for the submission.

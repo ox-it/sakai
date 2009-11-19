@@ -497,6 +497,14 @@ public class QuestionImpl implements Question
 	/**
 	 * {@inheritDoc}
 	 */
+	public PartDetail getPartDetail()
+	{
+		return this.partDetailContext;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Ordering<Question> getPartOrdering()
 	{
 		return this.partOrdering;

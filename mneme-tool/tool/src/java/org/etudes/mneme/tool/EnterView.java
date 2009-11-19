@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -308,8 +308,8 @@ public class EnterView extends ControllerImpl
 		String destination = null;
 		Assessment assessment = submission.getAssessment();
 
-		// if we are random access, and allowed, send to TOC
-		if (toc && assessment.getRandomAccess())
+		// if we are random access, and allowed, and more than a single question, send to TOC
+		if (toc && assessment.getRandomAccess() && !assessment.getIsSingleQuestion())
 		{
 			destination = "/toc/" + submission.getId();
 		}
@@ -318,6 +318,12 @@ public class EnterView extends ControllerImpl
 		{
 			// find the first incomplete question
 			Question question = submission.getFirstIncompleteQuestion();
+
+			// if not found, and we have only one, go there
+			if ((question == null) && (assessment.getIsSingleQuestion()))
+			{
+				question = submission.getFirstQuestion();
+			}
 
 			// if we don't have one, we will go to the toc (or final_review for linear)
 			if (question == null)

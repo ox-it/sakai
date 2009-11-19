@@ -154,6 +154,11 @@ public interface Assessment
 	Boolean getIsLocked();
 
 	/**
+	 * @return TRUE if the assessment has only a single question, FALSE if it has multiple.
+	 */
+	Boolean getIsSingleQuestion();
+
+	/**
 	 * Check if the assessment is valid; i.e. has no inconsistencies in its definition.
 	 * 
 	 * @return TRUE if the assessment is valid, FALSE if not.

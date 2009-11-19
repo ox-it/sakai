@@ -388,6 +388,19 @@ public class AssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getIsSingleQuestion()
+	{
+		if (this.parts.getNumQuestions().intValue() == 1)
+		{
+			return Boolean.TRUE;
+		}
+
+		return Boolean.FALSE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Boolean getIsValid()
 	{
 		// must have a title
