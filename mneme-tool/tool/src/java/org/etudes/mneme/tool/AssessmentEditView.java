@@ -32,7 +32,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.api.Context;
+import org.etudes.ambrosia.api.PopulatingSet;
 import org.etudes.ambrosia.api.Values;
+import org.etudes.ambrosia.api.PopulatingSet.Factory;
+import org.etudes.ambrosia.api.PopulatingSet.Id;
 import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
@@ -41,6 +44,7 @@ import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.Part;
+import org.etudes.mneme.api.PartDetail;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
@@ -140,6 +144,8 @@ public class AssessmentEditView extends ControllerImpl
 		context.put("assessment", assessment);
 		context.put("sortcode", sort);
 
+		context.put("details", assessment.getParts().getPhantomDetails());
+
 		// value holders for the selection check boxes
 		Values values = this.uiService.newValues();
 		context.put("ids", values);
@@ -170,7 +176,7 @@ public class AssessmentEditView extends ControllerImpl
 		String sort = params[2];
 		String assessmentId = params[3];
 
-		Assessment assessment = assessmentService.getAssessment(assessmentId);
+		final Assessment assessment = assessmentService.getAssessment(assessmentId);
 		if (assessment == null)
 		{
 			// redirect to error
@@ -185,6 +191,23 @@ public class AssessmentEditView extends ControllerImpl
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
 			return;
 		}
+
+		// for editing the points
+		PopulatingSet details = uiService.newPopulatingSet(new Factory()
+		{
+			public Object get(String id)
+			{
+				PartDetail detail = assessment.getParts().getDetailId(id);
+				return detail;
+			}
+		}, new Id()
+		{
+			public String getId(Object o)
+			{
+				return ((PartDetail) o).getId();
+			}
+		});
+		context.put("details", details);
 
 		// setup the model: the selected assessment
 		context.put("assessment", assessment);

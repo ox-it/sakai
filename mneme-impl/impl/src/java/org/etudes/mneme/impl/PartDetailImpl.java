@@ -96,14 +96,27 @@ public abstract class PartDetailImpl implements PartDetail, Changeable
 			return index + 1;
 		}
 
-		public List<Integer> getPositions()
+		/**
+		 * @return The detail's id; this is a match to setPositioning, which will re-order based on ids.
+		 */
+		public String getPositioning()
 		{
-			List<Integer> rv = new ArrayList<Integer>();
+			if (this.detail.getIsPhantom()) return null;
+			return this.detail.getId();
+		}
+
+		/**
+		 * @return a set of Position objects for the details in the part - with the detail position and id.
+		 */
+		public List<Position> getPositions()
+		{
+			List<Position> rv = new ArrayList<Position>();
 			if (detail.part == null) return rv;
 
 			for (int i = 0; i < detail.part.getDetails().size(); i++)
 			{
-				rv.add(Integer.valueOf(i + 1));
+				Position p = new Position(Integer.valueOf(i + 1).toString(), detail.part.getDetails().get(i).getId());
+				rv.add(p);
 			}
 
 			return rv;
@@ -126,16 +139,23 @@ public abstract class PartDetailImpl implements PartDetail, Changeable
 		/**
 		 * Change the detail's position within the part
 		 * 
-		 * @param pos
-		 *        a new (1 based) position.
+		 * @param id
+		 *        The id in the position this one wants to move to.
 		 */
-		public void setPosition(Integer pos)
+		public void setPositioning(String id)
 		{
 			if (this.detail.getIsPhantom()) return;
-			if (pos == null) return;
+			if (id == null) return;
+
+			if (id.equals(this.detail.getId())) return;
 
 			int curPos = getPosition().intValue();
-			int newPos = pos.intValue();
+
+			// find the position of the id'ed element
+			PartDetail targetDetail = this.detail.part.getAssessment().getParts().getDetailId(id);
+			if (targetDetail == null) return;
+
+			int newPos = targetDetail.getOrdering().getPosition().intValue();
 			if (curPos == newPos) return;
 
 			// remove
@@ -149,6 +169,28 @@ public abstract class PartDetailImpl implements PartDetail, Changeable
 
 			// this is a change that cannot be made to live tests
 			((AssessmentImpl) this.detail.part.getAssessment()).lockedChanged = Boolean.TRUE;
+		}
+	}
+
+	public class Position
+	{
+		String id;
+		String position;
+
+		public Position(String position, String id)
+		{
+			this.position = position;
+			this.id = id;
+		}
+
+		public String getId()
+		{
+			return this.id;
+		}
+
+		public String getPosition()
+		{
+			return this.position;
 		}
 	}
 

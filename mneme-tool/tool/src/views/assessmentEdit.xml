@@ -151,7 +151,9 @@
 					<title>
 						<message selector="questions" />
 					</title>
-					<iterator name="detail" model="assessment.parts.phantomDetails" />
+					<iterator name="detail">
+						<model ref="details" indexRef="id" />
+					</iterator>-->
 
 					<!-- part title -->
 					<headings>
@@ -253,13 +255,13 @@
 							</entityIncluded>
 							<container>
 								<selection orientation="DROPDOWN" height="1">
-									<model ref="detail.ordering.position" />
+									<model ref="detail.ordering.positioning" />
 									<selectionModel name="pos" model="detail.ordering.positions">
 										<valueMessage>
-											<message model="pos" />
+											<message model="pos.id" />
 										</valueMessage>
 										<displayMessage>
-											<message model="pos" />
+											<message model="pos.position" />
 										</displayMessage>
 									</selectionModel>
 									<readOnly>
@@ -361,7 +363,7 @@
 								<message selector="points" />
 							</title>
 							<container>
-								<floatEdit model="detail.effectivePoints" cols="6" defaultValue="detail.nonOverridePoints" sumTo="total"> <!--  sumTo="total" -->
+								<floatEdit model="detail.effectivePoints" cols="6" defaultValue="detail.nonOverridePoints" sumTo="total">
 									<readOnly>
 										<decision model="assessment.isLocked" />
 									</readOnly>
@@ -384,11 +386,6 @@
 						<model ref="assessment.parts.numQuestions" />
 						<model type="component">
 							<container>
-								<!-- <floatEdit id="total" model="assessment.parts.totalPoints" cols="6" >
-									<readOnly>
-										<trueDecision />
-									</readOnly>
-								</floatEdit> -->
 								<text id="total">
 									<message template="{0}">
 										<model ref="assessment.parts.totalPoints" />
