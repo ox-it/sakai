@@ -492,6 +492,7 @@
 								</selection>
 							</container>
 							<included>
+								<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
 								<decision model="answer.question.part.assessment.randomAccess" />
 								<orDecision>
 									<decision reversed="TRUE" model="review" />
