@@ -837,10 +837,8 @@ public class PartImpl implements Part, Changeable
 	{
 		Shuffler shuffler = new ShufflerImpl(this);
 
-		// Note: to match the behavior and use of shuffler from the old DrawPart
-		// draw (using the shuffler) the draws first (the order of details should match the order of draws from DrawPart)
-		// then add in the manual picks,
-		// and shuffle the results.
+		// Note: old DrawPart or ManualPart on conversion will be uniform draws (with shuffle) or picks (no shuffle).
+		// Nothing special to do here with the shuffler to preserve question order -ggolden.
 
 		// random draws from the pools
 		List<QuestionPick> rv = new ArrayList<QuestionPick>();
@@ -858,12 +856,7 @@ public class PartImpl implements Part, Changeable
 					rv.add(pick);
 				}
 			}
-		}
-
-		// add in the manual picks
-		for (PartDetail detail : getDetails())
-		{
-			if (detail instanceof QuestionPick)
+			else if (detail instanceof QuestionPick)
 			{
 				rv.add((QuestionPick) detail);
 			}
