@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -55,7 +55,7 @@ public class GradesServiceGradebook23Impl implements GradesService
 	private static Log M_log = LogFactory.getLog(GradesServiceGradebook23Impl.class);
 
 	/** Our application name in the grade book UI. */
-	protected static final String APPLICATION_NAME = "Tasks, Tests and Surveys";
+	protected static final String APPLICATION_NAME = "AT&S";
 
 	/** Dependency: AssessmentService */
 	protected AssessmentService assessmentService = null;
