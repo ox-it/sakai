@@ -23,5 +23,4 @@
 -- Mneme Question DDL changes between 1.1 and 1.2
 -----------------------------------------------------------------------------
 
-ALTER TABLE MNEME_QUESTION
-	ADD (PRESENTATION_ATTACHMENTS LONGTEXT);
+ALTER TABLE MNEME_QUESTION ADD (PRESENTATION_ATTACHMENTS LONGTEXT);
