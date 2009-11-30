@@ -147,7 +147,7 @@
 			</activation>
 			<properties>
 				<kernel.version>1.0.12ox1-SNAPSHOT</kernel.version>
-				<sakai.version>2.6.0RC1-SNAPSHOT</sakai.version>
+				<sakai.version>2.6-SNAPSHOT</sakai.version>
 			</properties>
 			<dependencyManagement>
 				<dependencies>
