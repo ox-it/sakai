@@ -109,7 +109,7 @@ public class MappedGroupsResource {
 		Map<Object,Object> jsonMap = new HashMap<Object, Object>();
 		jsonMap.put("id", group);
 		jsonMap.put("group", externalGroupId);
-		return Response.ok(jsonMap).build();
+		return Response.ok(new JSONObject(jsonMap)).build();
 	}
 
 
