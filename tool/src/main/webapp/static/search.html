@@ -131,6 +131,10 @@
             method: "GET",
 			success: function(json, textStatus) {
 				eval("siteData = "+json);
+				// Sort the roles a-z
+				siteData.roles.sort(function (a,b) {
+					return a.id > b.id ? 1 : -1 ;
+				}); 
 				var site = siteData.id;
 				var content = TrimPath.processDOMTemplate("find_jst", siteData);
 				jQuery("#search").html(content);
