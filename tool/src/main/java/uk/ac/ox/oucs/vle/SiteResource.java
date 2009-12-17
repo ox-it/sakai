@@ -16,6 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -30,8 +31,11 @@ public class SiteResource {
 	
 	private SiteService siteService;
 	
+	private AuthzGroupService authzGroupService;
+	
 	public SiteResource(@Context ContextResolver<Object> resolver) {
 		siteService = (SiteService) resolver.getContext(SiteService.class);
+		authzGroupService = (AuthzGroupService) resolver.getContext(AuthzGroupService.class);
 	}
 
 	@Path("/{site}/addgroup")
@@ -73,10 +77,13 @@ public class SiteResource {
 		data.put("title", site.getTitle());
 		JSONArray jsonRoles = new JSONArray();
 		for (Role role: (Set<Role>)site.getRoles()) {
-			Map<String, String> jsonRole = new HashMap<String, String>();
-			jsonRole.put("id", role.getId());
-			jsonRole.put("description", role.getDescription());
-			jsonRoles.put(jsonRole);
+			if (authzGroupService.isRoleAssignable(role.getId())) {
+				Map<String, String> jsonRole = new HashMap<String, String>();
+				jsonRole.put("id", role.getId());
+				jsonRole.put("description", role.getDescription());
+				jsonRole.put("name", authzGroupService.getRoleName(role.getId()));
+				jsonRoles.put(jsonRole);
+			}
 		}
 		data.put("roles", jsonRoles);
 		return Response.ok(new JSONObject(data)).build();
