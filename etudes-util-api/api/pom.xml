@@ -37,12 +37,16 @@
 	<groupId>org.etudes.util</groupId>
 	<artifactId>etudes-util-api</artifactId>
 	<packaging>jar</packaging>
-
+	
 	<properties>
 		<deploy.target>shared</deploy.target>
 	</properties>
 
 	<dependencies>
 	</dependencies>
+	
+	<build>
+		<sourceDirectory>src/java</sourceDirectory>
+	</build>
 
 </project>
