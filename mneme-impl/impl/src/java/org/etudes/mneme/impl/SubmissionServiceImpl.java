@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -24,16 +24,21 @@
 
 package org.etudes.mneme.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,9 +56,18 @@ import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionCompletedException;
 import org.etudes.mneme.api.SubmissionService;
+import org.etudes.mneme.api.TypeSpecificAnswer;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -61,6 +75,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Validator;
 
 /**
  * SubmissionServiceImpl implements SubmissionService
@@ -70,11 +85,17 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(SubmissionServiceImpl.class);
 
+	/** The chunk size used when streaming (100k). */
+	protected static final int STREAM_BUFFER_SIZE = 102400;
+
 	/** Dependency: AssessmentService */
 	protected AssessmentService assessmentService = null;
 
 	/** The checker thread. */
 	protected Thread checkerThread = null;
+
+	/** Dependency: ContentHostingService */
+	protected ContentHostingService contentHostingService = null;
 
 	/** Dependency: EventTrackingService */
 	protected EventTrackingService eventTrackingService = null;
@@ -84,6 +105,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 	/** Dependency: SecurityService */
 	protected SecurityService securityService = null;
+
+	/** Dependency: SecurityService */
+	protected org.sakaiproject.authz.api.SecurityService securityServiceSakai = null;
 
 	/** Dependency: SessionManager */
 	protected SessionManager sessionManager = null;
@@ -1760,6 +1784,17 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	}
 
 	/**
+	 * Dependency: ContentHostingService.
+	 * 
+	 * @param service
+	 *        The ContentHostingService.
+	 */
+	public void setContentHostingService(ContentHostingService service)
+	{
+		contentHostingService = service;
+	}
+
+	/**
 	 * Dependency: EventTrackingService.
 	 * 
 	 * @param service
@@ -1790,6 +1825,17 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	public void setSecurityService(SecurityService service)
 	{
 		this.securityService = service;
+	}
+
+	/**
+	 * Dependency: SecurityService.
+	 * 
+	 * @param service
+	 *        The SecurityService.
+	 */
+	public void setSecurityServiceSakai(org.sakaiproject.authz.api.SecurityService service)
+	{
+		this.securityServiceSakai = service;
 	}
 
 	/**
@@ -2054,6 +2100,108 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public void zipSubmissionsQuestion(ZipOutputStream zip, Assessment assessment, Question question)
+	{
+		// the assessment
+		String assessmentTitle = assessment.getTitle();
+		if (assessmentTitle != null)
+		{
+			try
+			{
+				zip.putNextEntry(new ZipEntry("assessment/" + assessmentTitle + ".txt"));
+				zip.write(assessmentTitle.getBytes("UTF-8"));
+				zip.closeEntry();
+			}
+			catch (IOException e)
+			{
+				M_log.warn("zipSubmissionsQuestion: zipping assessment: " + e.toString());
+			}
+		}
+
+		// the question
+		// TODO: Note: works only for questions that use presentation
+		String questionText = question.getPresentation().getText();
+		if (questionText != null)
+		{
+			try
+			{
+				zip.putNextEntry(new ZipEntry("question/question.html"));
+				zip.write(questionText.getBytes("UTF-8"));
+				zip.closeEntry();
+			}
+			catch (IOException e)
+			{
+				M_log.warn("zipSubmissionsQuestion: zipping question: " + e.toString());
+			}
+		}
+
+		// question attachments
+		List<Reference> attachments = question.getPresentation().getAttachments();
+		int count = 1;
+		for (Reference attachment : attachments)
+		{
+			zipAttachment(zip, "question/question", attachment, count++);
+		}
+
+		Map<String, Integer> usersSeen = new HashMap<String, Integer>();
+
+		// get all the submissions
+		List<Answer> answers = findSubmissionAnswers(assessment, question, FindAssessmentSubmissionsSort.userName_a, null, null);
+		for (Answer answer : answers)
+		{
+			try
+			{
+				User user = this.userDirectoryService.getUser(answer.getSubmission().getUserId());
+
+				// keep track of how many submissions for each user
+				int uCount = 1;
+				Integer userCount = usersSeen.get(answer.getSubmission().getUserId());
+				if (userCount != null)
+				{
+					uCount = userCount.intValue();
+					uCount++;
+				}
+				usersSeen.put(answer.getSubmission().getUserId(), Integer.valueOf(uCount));
+
+				String key = user.getSortName() + " (" + user.getEid() + ") " + Integer.toString(uCount) + " ";
+
+				TypeSpecificAnswer a = answer.getTypeSpecificAnswer();
+				if (a instanceof EssayAnswerImpl)
+				{
+					EssayAnswerImpl essay = (EssayAnswerImpl) a;
+
+					// answer - inline
+					String inline = essay.getAnswerData();
+					if (inline != null)
+					{
+						zip.putNextEntry(new ZipEntry(key + " inline.html"));
+						zip.write(inline.getBytes("UTF-8"));
+						zip.closeEntry();
+					}
+
+					// attachments
+					attachments = essay.getUploaded();
+					count = 1;
+					for (Reference attachment : attachments)
+					{
+						zipAttachment(zip, key, attachment, count++);
+					}
+				}
+			}
+			catch (UserNotDefinedException e)
+			{
+				M_log.warn("zipSubmissionsQuestion: zipping answers: " + e.toString());
+			}
+			catch (IOException e)
+			{
+				M_log.warn("zipSubmissionsQuestion: zipping answers: " + e.toString());
+			}
+		}
+	}
+
+	/**
 	 * Mark the submission as auto-complete as of now.
 	 * 
 	 * @param asOf
@@ -2154,8 +2302,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	}
 
 	/**
-	 * Check how many additional submissions are allowed to this assessment by this user.<br /> If the user has no permission to submit, has submitted
-	 * the maximum, or the assessment is closed for submissions as of this time, return 0.
+	 * Check how many additional submissions are allowed to this assessment by this user.<br />
+	 * If the user has no permission to submit, has submitted the maximum, or the assessment is closed for submissions as of this time, return 0.
 	 * 
 	 * @param submission
 	 *        The submission.
@@ -2699,8 +2847,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	}
 
 	/**
-	 * Clump a list of all submissions from a user in a context, which may include many to the same assessment, into a list of official ones, with
-	 * siblings.<br /> Clumping is by assessment.
+	 * Clump a list of all submissions from a user in a context, which may include many to the same assessment, into a list of official ones, with siblings.<br />
+	 * Clumping is by assessment.
 	 * 
 	 * @param all
 	 *        The list of all submissions.
@@ -3053,6 +3201,29 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	}
 
 	/**
+	 * Remove our security advisor.
+	 */
+	protected void popAdvisor()
+	{
+		securityServiceSakai.popAdvisor();
+	}
+
+	/**
+	 * Setup a security advisor.
+	 */
+	protected void pushAdvisor()
+	{
+		// setup a security advisor
+		securityServiceSakai.pushAdvisor(new SecurityAdvisor()
+		{
+			public SecurityAdvice isAllowed(String userId, String function, String reference)
+			{
+				return SecurityAdvice.ALLOWED;
+			}
+		});
+	}
+
+	/**
 	 * Remove any test-drive submissions for this assessment.
 	 * 
 	 * @param assessment
@@ -3316,5 +3487,99 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		checkerThread.interrupt();
 
 		checkerThread = null;
+	}
+
+	/**
+	 * Add the body of an attachment file to the zip stream.
+	 * 
+	 * @param zip
+	 *        The zip stream.
+	 * @param key
+	 *        The root of the zip entry name.
+	 * @param attachment
+	 *        The attachment reference.
+	 * @param count
+	 *        The attachment count (used in the zip name).
+	 */
+	protected void zipAttachment(ZipOutputStream zip, String key, Reference attachment, int count)
+	{
+		InputStream content = null;
+
+		try
+		{
+			// security advisor
+			pushAdvisor();
+
+			// get a usable file name for the attachment
+			String fileName = Validator.getFileName(attachment.getId());
+			fileName = Validator.escapeResourceName(fileName);
+
+			// Reference does not know how to make the id from a private docs reference.
+			String id = attachment.getId();
+			if (id.startsWith("/content/"))
+			{
+				id = id.substring("/content".length());
+			}
+
+			// get the attachment
+			ContentResource resource = this.contentHostingService.getResource(id);
+
+			// get the body
+			content = resource.streamContent();
+			if (content != null)
+			{
+				// start a zip entry
+				zip.putNextEntry(new ZipEntry(key + " attachment " + Integer.toString(count++) + " " + fileName));
+
+				// read chunks of the body
+				byte[] chunk = new byte[STREAM_BUFFER_SIZE];
+				int lenRead;
+				while ((lenRead = content.read(chunk)) != -1)
+				{
+					zip.write(chunk, 0, lenRead);
+				}
+
+				// close the zip entry
+				zip.closeEntry();
+			}
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.warn("zipAttachment: " + e.toString());
+		}
+		catch (PermissionException e)
+		{
+			M_log.warn("zipAttachment: " + e.toString());
+		}
+		catch (TypeException e)
+		{
+			M_log.warn("zipAttachment: " + e.toString());
+		}
+		catch (IOException e)
+		{
+			M_log.warn("zipAttachment: " + e.toString());
+		}
+		catch (ServerOverloadException e)
+		{
+			M_log.warn("zipAttachment: " + e.toString());
+		}
+		finally
+		{
+			// close the body stream
+			if (content != null)
+			{
+				try
+				{
+					content.close();
+				}
+				catch (IOException e)
+				{
+					M_log.warn("zipAttachment: closing stream: " + e.toString());
+				}
+			}
+
+			// clear the security advisor
+			popAdvisor();
+		}
 	}
 }

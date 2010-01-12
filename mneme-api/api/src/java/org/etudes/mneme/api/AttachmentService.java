@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -49,6 +49,12 @@ public interface AttachmentService
 
 	/** Prefix for the MnemeDocs area. */
 	static final String DOCS_AREA = "docs";
+
+	/** For download (such as all submissions) request references. */
+	static final String DOWNLOAD = "download";
+
+	/** The download all submissions for an assignment question download request string. */
+	public final static String DOWNLOAD_ALL_SUBMISSIONS_QUESTION = "sq";
 
 	/** Application code for Mneme in ContentHosting's private area. */
 	static final String MNEME_APPLICATION = "mneme";
@@ -184,9 +190,10 @@ public interface AttachmentService
 	Reference getReference(String refString);
 
 	/**
-	 * Collect all the attachment references in the html data:<br /> Anything referenced by a src= or href=. in our content docs, or in a site content
-	 * area <br /> Ignore anything in a myWorkspace content area or the public content area. <br /> If any are html, repeat the process for those to
-	 * harvest their embedded references.
+	 * Collect all the attachment references in the html data:<br />
+	 * Anything referenced by a src= or href=. in our content docs, or in a site content area <br />
+	 * Ignore anything in a myWorkspace content area or the public content area. <br />
+	 * If any are html, repeat the process for those to harvest their embedded references.
 	 * 
 	 * @param data
 	 *        The data string.
@@ -238,8 +245,8 @@ public interface AttachmentService
 	void removeAttachment(Reference ref);
 
 	/**
-	 * Translate any embedded attachment references in the html data, based on the set of translations.<br /> Uses the same rules to find the
-	 * references as harvestAttachmentsReferenced.
+	 * Translate any embedded attachment references in the html data, based on the set of translations.<br />
+	 * Uses the same rules to find the references as harvestAttachmentsReferenced.
 	 * 
 	 * @param data
 	 *        The html data.

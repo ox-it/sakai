@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -44,10 +44,12 @@ import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AttachmentService;
+import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.SubmissionService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
@@ -122,6 +124,11 @@ public class GradeQuestionView extends ControllerImpl
 			return;
 		}
 		context.put("question", question);
+
+		// TODO: only for essays and tasks
+		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.DOWNLOAD_ALL_SUBMISSIONS_QUESTION
+				+ "/" + assessment.getContext() + "/" + assessment.getId() + "_" + question.getId() + ".zip");
+		context.put("download", ref);
 
 		// sort code
 		String sortCode = null;

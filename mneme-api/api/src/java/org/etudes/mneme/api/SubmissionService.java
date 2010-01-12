@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -27,6 +27,7 @@ package org.etudes.mneme.api;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipOutputStream;
 
 /**
  * SubmissionService manages submissions.
@@ -373,18 +374,18 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 * 
 	 * @param assessment
 	 *        The assessment.
-	 * @return TRUE if there are any submissions to the assesment.
+	 * @return TRUE if there are any submissions to the assessment.
 	 */
 	Boolean submissionsExist(Assessment assessment);
 
 	/**
-	 * Enter or update an answer to a question of an incomplete submission to an assessment. Auto grade. Updated realated info (such as the
+	 * Enter or update an answer to a question of an incomplete submission to an assessment. Auto grade. Updated related info (such as the
 	 * submission's score).<br /> Complete the submission if indicated.
 	 * 
 	 * @param answer
 	 *        The SubmissionAnswerAnswer containing the submitters answer information to a question
 	 * @param completeAnswer
-	 *        if TRUE, the answer is considerd answered and will be marked so.
+	 *        if TRUE, the answer is consider answered and will be marked so.
 	 * @param completeSubmission
 	 *        if TRUE, the submission will be marked complete and submitted for grading
 	 * @throws AssessmentPermissionException
@@ -398,13 +399,13 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 			AssessmentClosedException, SubmissionCompletedException;
 
 	/**
-	 * Enter or update a set of answers to questions of an incomplete submission to an assessment. Auto grade. Updated realated info (such as the
+	 * Enter or update a set of answers to questions of an incomplete submission to an assessment. Auto grade. Updated related info (such as the
 	 * submission's score).<br /> Complete the submission if indicated.
 	 * 
 	 * @param answers
 	 *        The List of Answers.
 	 * @param completeAnswers
-	 *        if TRUE, the answers are considerd answered and will be marked so.
+	 *        if TRUE, the answers are considered answered and will be marked so.
 	 * @param completeSubmission
 	 *        if TRUE, the submission will be marked complete and submitted for grading
 	 * @throws AssessmentPermissionException
@@ -416,4 +417,12 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 */
 	void submitAnswers(List<Answer> answers, Boolean completeAnswers, Boolean completeSubmission) throws AssessmentPermissionException,
 			AssessmentClosedException, SubmissionCompletedException;
+	
+	/**
+	 * Collect the submissions for this question in this assessment into the zip stream.
+	 * @param zip
+	 * @param assessment
+	 * @param question
+	 */
+	void zipSubmissionsQuestion(ZipOutputStream zip, Assessment assessment, Question question);
 }

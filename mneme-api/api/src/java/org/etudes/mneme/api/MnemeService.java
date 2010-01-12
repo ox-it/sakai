@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -51,6 +51,9 @@ public interface MnemeService
 
 	/** Event tracking event for un-publishing an assessment. */
 	static final String ASSESSMENT_UNPUBLISH = "mneme.assessment.unpublish";
+
+	/** Event tracking event for download submissions for question. */
+	static final String DOWNLOAD_SQ = "mneme.download.sq";
 
 	/** The number of ms we allow answers and completions of submissions after hard deadlines. */
 	static final long GRACE = 2 * 60 * 1000;

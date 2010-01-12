@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -33,6 +33,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,9 +55,12 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.util.EscapeRefUrl;
+import org.etudes.mneme.api.Assessment;
+import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.Attachment;
 import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.MnemeService;
+import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
@@ -79,6 +84,8 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.exception.CopyrightException;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
@@ -91,8 +98,11 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -122,11 +132,17 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	/** The chunk size used when streaming (100k). */
 	protected static final int STREAM_BUFFER_SIZE = 102400;
 
+	/** Assessment service. */
+	protected AssessmentService assessmentService = null;
+
 	/** Dependency: ContentHostingService */
 	protected ContentHostingService contentHostingService = null;
 
 	/** Dependency: EntityManager */
 	protected EntityManager entityManager = null;
+
+	/** Dependency: EventTrackingService */
+	protected EventTrackingService eventTrackingService = null;
 
 	/** Dependency: IdManager. */
 	protected IdManager idManager = null;
@@ -146,8 +162,14 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	/** Dependency: SessionManager */
 	protected SessionManager sessionManager = null;
 
+	/** Dependency: SiteService */
+	protected SiteService siteService = null;
+
 	/** Dependency: SubmissionService */
 	protected SubmissionService submissionService = null;
+
+	/** Dependency: ThreadLocalManager */
+	protected ThreadLocalManager threadLocalManager = null;
 
 	/**
 	 * {@inheritDoc}
@@ -393,24 +415,63 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		// decide on security
 		if (!checkSecurity(ref)) return null;
 
-		// isolate the ContentHosting reference
-		Reference contentHostingRef = entityManager.newReference(ref.getId());
-
-		// setup a security advisor
-		pushAdvisor();
-		try
+		// for download
+		if (DOWNLOAD.equals(ref.getContainer()))
 		{
-			// make sure we have a valid ContentHosting reference with an entity producer we can talk to
-			EntityProducer service = contentHostingRef.getEntityProducer();
-			if (service == null) return null;
+			if (DOWNLOAD_ALL_SUBMISSIONS_QUESTION.equals(ref.getSubType()))
+			{
+				ResourcePropertiesEdit props = new BaseResourcePropertiesEdit();
 
-			// pass on the request
-			return service.getEntityResourceProperties(contentHostingRef);
+				// use the site title, assessment and question ids for the file name
+				String[] outerParts = StringUtil.split(ref.getId(), ".");
+				String[] parts = StringUtil.split(outerParts[0], "_");
+				String siteTitle = ref.getContext();
+				try
+				{
+					Site site = this.siteService.getSite(ref.getContext());
+					siteTitle = site.getTitle();
+				}
+				catch (IdUnusedException e)
+				{
+				}
+				String fileName = siteTitle + " assessment " + parts[0] + " question " + parts[1] + ".zip";
+
+				props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, "application/zip");
+				props.addProperty("DAV:displayname", fileName);
+				props.addProperty(ResourceProperties.PROP_IS_COLLECTION, "FALSE");
+
+				return props;
+			}
+			else
+			{
+				// unknown download request
+				M_log.warn("getEntityResourceProperties: unknown download request: " + ref.getReference());
+				return null;
+			}
 		}
-		finally
+
+		// else for private docs CHS ref
+		else
 		{
-			// clear the security advisor
-			popAdvisor();
+			// isolate the ContentHosting reference
+			Reference contentHostingRef = entityManager.newReference(ref.getId());
+
+			// setup a security advisor
+			pushAdvisor();
+			try
+			{
+				// make sure we have a valid ContentHosting reference with an entity producer we can talk to
+				EntityProducer service = contentHostingRef.getEntityProducer();
+				if (service == null) return null;
+
+				// pass on the request
+				return service.getEntityResourceProperties(contentHostingRef);
+			}
+			finally
+			{
+				// clear the security advisor
+				popAdvisor();
+			}
 		}
 	}
 
@@ -427,6 +488,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	 */
 	public HttpAccess getHttpAccess()
 	{
+		final AttachmentServiceImpl service = this;
+
 		return new HttpAccess()
 		{
 			public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref, Collection copyrightAcceptedRefs)
@@ -438,28 +501,38 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 					throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), "sampleAccess", ref.getReference());
 				}
 
-				// isolate the ContentHosting reference
-				Reference contentHostingRef = entityManager.newReference(ref.getId());
-
-				// setup a security advisor
-				pushAdvisor();
-				try
+				// for download
+				if (DOWNLOAD.equals(ref.getContainer()))
 				{
-					// make sure we have a valid ContentHosting reference with an entity producer we can talk to
-					EntityProducer service = contentHostingRef.getEntityProducer();
-					if (service == null) throw new EntityNotDefinedException(ref.getReference());
-
-					// get the producer's HttpAccess helper, it might not support one
-					HttpAccess access = service.getHttpAccess();
-					if (access == null) throw new EntityNotDefinedException(ref.getReference());
-
-					// let the helper do the work
-					access.handleAccess(req, res, contentHostingRef, copyrightAcceptedRefs);
+					service.handleAccessDownload(req, res, ref, copyrightAcceptedRefs);
 				}
-				finally
+
+				// for private docs, forward to CHS
+				else
 				{
-					// clear the security advisor
-					popAdvisor();
+					// isolate the ContentHosting reference
+					Reference contentHostingRef = entityManager.newReference(ref.getId());
+
+					// setup a security advisor
+					pushAdvisor();
+					try
+					{
+						// make sure we have a valid ContentHosting reference with an entity producer we can talk to
+						EntityProducer service = contentHostingRef.getEntityProducer();
+						if (service == null) throw new EntityNotDefinedException(ref.getReference());
+
+						// get the producer's HttpAccess helper, it might not support one
+						HttpAccess access = service.getHttpAccess();
+						if (access == null) throw new EntityNotDefinedException(ref.getReference());
+
+						// let the helper do the work
+						access.handleAccess(req, res, contentHostingRef, copyrightAcceptedRefs);
+					}
+					finally
+					{
+						// clear the security advisor
+						popAdvisor();
+					}
 				}
 			}
 		};
@@ -590,20 +663,20 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	{
 		// get our thread-local list of translations made in this thread, for this application/prefix combination
 		String threadKey = THREAD_TRANSLATIONS_KEY + application + "." + prefix;
-		List<Translation> threadTranslations = (List<Translation>) ThreadLocalManager.get(threadKey);
+		List<Translation> threadTranslations = (List<Translation>) threadLocalManager.get(threadKey);
 		if (threadTranslations == null)
 		{
 			threadTranslations = new ArrayList<Translation>();
-			ThreadLocalManager.set(threadKey, threadTranslations);
+			threadLocalManager.set(threadKey, threadTranslations);
 		}
 
 		// get our thread-local list of bodies translated in this thread
 		threadKey = THREAD_TRANSLATIONS_BODY_KEY + application + "." + prefix;
-		List<String> threadBodyTranslations = (List<String>) ThreadLocalManager.get(threadKey);
+		List<String> threadBodyTranslations = (List<String>) threadLocalManager.get(threadKey);
 		if (threadBodyTranslations == null)
 		{
 			threadBodyTranslations = new ArrayList<String>();
-			ThreadLocalManager.set(threadKey, threadBodyTranslations);
+			threadLocalManager.set(threadKey, threadBodyTranslations);
 		}
 
 		// collect any that may need html body translation in a second pass
@@ -718,15 +791,33 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			// we will store the context, and the ContentHosting reference in our id field.
 			String id = null;
 			String context = null;
+			String subType = null;
 			String[] parts = StringUtil.split(reference, Entity.SEPARATOR);
+			String container = null;
 
-			if (parts.length > 5)
+			// support for the download access
+			if ((parts.length == 6) && (DOWNLOAD.equals(parts[2])))
+			{
+				context = parts[4];
+
+				// set id to the requested download
+				id = parts[5];
+
+				// set the sub-type to the type of download
+				subType = parts[3];
+
+				// set the container to "download"
+				container = parts[2];
+			}
+
+			// support for private docs
+			else if (parts.length > 5)
 			{
 				context = parts[5];
 				id = "/" + StringUtil.unsplit(parts, 2, parts.length - 2, "/");
 			}
 
-			ref.set(APPLICATION_ID_ROOT + MNEME_APPLICATION, null, id, null, context);
+			ref.set(APPLICATION_ID_ROOT + MNEME_APPLICATION, subType, id, container, context);
 
 			return true;
 		}
@@ -786,6 +877,17 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	}
 
 	/**
+	 * Set the AssessmentService.
+	 * 
+	 * @param service
+	 *        the AssessmentService.
+	 */
+	public void setAssessmentService(AssessmentService service)
+	{
+		this.assessmentService = service;
+	}
+
+	/**
 	 * Dependency: ContentHostingService.
 	 * 
 	 * @param service
@@ -805,6 +907,17 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	public void setEntityManager(EntityManager service)
 	{
 		entityManager = service;
+	}
+
+	/**
+	 * Dependency: EventTrackingService.
+	 * 
+	 * @param service
+	 *        The EventTrackingService.
+	 */
+	public void setEventTrackingService(EventTrackingService service)
+	{
+		eventTrackingService = service;
 	}
 
 	/**
@@ -874,6 +987,17 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	}
 
 	/**
+	 * Dependency: SiteService.
+	 * 
+	 * @param service
+	 *        The SiteService.
+	 */
+	public void setSiteService(SiteService service)
+	{
+		this.siteService = service;
+	}
+
+	/**
 	 * Dependency: SubmissionService.
 	 * 
 	 * @param service
@@ -882,6 +1006,17 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	public void setSubmissionService(SubmissionService service)
 	{
 		this.submissionService = service;
+	}
+
+	/**
+	 * Dependency: ThreadLocalManager.
+	 * 
+	 * @param service
+	 *        The ThreadLocalManager.
+	 */
+	public void setThreadLocalManager(ThreadLocalManager service)
+	{
+		this.threadLocalManager = service;
 	}
 
 	/**
@@ -1121,33 +1256,50 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		String userId = this.sessionManager.getCurrentSessionUserId();
 		String context = ref.getContext();
 
-		String[] parts = StringUtil.split(ref.getId(), "/");
-		if ((parts.length == 9) && (SUBMISSIONS_AREA.equals(parts[5])))
+		// for download
+		if (DOWNLOAD.equals(ref.getContainer()))
 		{
-			// manage or grade permission for the context is still a winner
+			// TODO: if students can download anything, check the sub-type
+			// if (DOWNLOAD_ALL_SUBMISSIONS_QUESTION.equals(ref.getSubType()))
+
+			// manage or grade permission for the context
 			if (this.securityService.checkSecurity(userId, MnemeService.MANAGE_PERMISSION, context)) return true;
 			if (this.securityService.checkSecurity(userId, MnemeService.GRADE_PERMISSION, context)) return true;
-
-			// otherwise, user must be submission user and have submit permission
-			if (this.securityService.checkSecurity(userId, MnemeService.SUBMIT_PERMISSION, context))
-			{
-				Submission submission = this.submissionService.getSubmission(parts[6]);
-				if (submission != null)
-				{
-					if (submission.getUserId().equals(userId))
-					{
-						return true;
-					}
-				}
-			}
 
 			return false;
 		}
 
-		// this is how we used to do it, without a submission id in the ref
-		if (this.securityService.checkSecurity(userId, MnemeService.MANAGE_PERMISSION, context)) return true;
-		if (this.securityService.checkSecurity(userId, MnemeService.SUBMIT_PERMISSION, context)) return true;
-		return false;
+		// for private docs
+		else
+		{
+			String[] parts = StringUtil.split(ref.getId(), "/");
+			if ((parts.length == 9) && (SUBMISSIONS_AREA.equals(parts[5])))
+			{
+				// manage or grade permission for the context is still a winner
+				if (this.securityService.checkSecurity(userId, MnemeService.MANAGE_PERMISSION, context)) return true;
+				if (this.securityService.checkSecurity(userId, MnemeService.GRADE_PERMISSION, context)) return true;
+
+				// otherwise, user must be submission user and have submit permission
+				if (this.securityService.checkSecurity(userId, MnemeService.SUBMIT_PERMISSION, context))
+				{
+					Submission submission = this.submissionService.getSubmission(parts[6]);
+					if (submission != null)
+					{
+						if (submission.getUserId().equals(userId))
+						{
+							return true;
+						}
+					}
+				}
+
+				return false;
+			}
+
+			// this is how we used to do it, without a submission id in the ref
+			if (this.securityService.checkSecurity(userId, MnemeService.MANAGE_PERMISSION, context)) return true;
+			if (this.securityService.checkSecurity(userId, MnemeService.SUBMIT_PERMISSION, context)) return true;
+			return false;
+		}
 	}
 
 	/**
@@ -1539,6 +1691,88 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		}
 
 		return "";
+	}
+
+	/**
+	 * Process the access request for a download (not CHS private docs).
+	 * 
+	 * @param req
+	 * @param res
+	 * @param ref
+	 * @param copyrightAcceptedRefs
+	 * @throws PermissionException
+	 * @throws IdUnusedException
+	 * @throws ServerOverloadException
+	 * @throws CopyrightException
+	 */
+	protected void handleAccessDownload(HttpServletRequest req, HttpServletResponse res, Reference ref, Collection copyrightAcceptedRefs)
+			throws EntityPermissionException, EntityNotDefinedException, EntityAccessOverloadException, EntityCopyrightException
+	{
+		if (DOWNLOAD_ALL_SUBMISSIONS_QUESTION.equals(ref.getSubType()))
+		{
+			// the file name has assessment_question.zip
+			String[] outerParts = StringUtil.split(ref.getId(), ".");
+			String[] parts = StringUtil.split(outerParts[0], "_");
+
+			// assessment
+			Assessment assessment = this.assessmentService.getAssessment(parts[0]);
+			if (assessment == null)
+			{
+				M_log.warn("handleAccessDownload: invalid assessment id: " + parts[0]);
+				return;
+			}
+
+			// question
+			Question question = assessment.getParts().getQuestion(parts[1]);
+			if (question == null)
+			{
+				M_log.warn("handleAccessDownload: invalid question id: " + parts[1]);
+				return;
+			}
+
+			String contentType = (String) ref.getProperties().get(ResourceProperties.PROP_CONTENT_TYPE);
+			String disposition = "attachment; filename=\"" + (String) ref.getProperties().get("DAV:displayname") + "\"";
+
+			OutputStream out = null;
+			ZipOutputStream zip = null;
+			try
+			{
+				res.setContentType(contentType);
+				res.addHeader("Content-Disposition", disposition);
+
+				out = res.getOutputStream();
+				zip = new ZipOutputStream(out);
+
+				this.submissionService.zipSubmissionsQuestion(zip, assessment, question);
+
+				zip.flush();
+			}
+			catch (Throwable e)
+			{
+				M_log.warn("zipping: " + e.toString());
+			}
+			finally
+			{
+				if (zip != null)
+				{
+					try
+					{
+						zip.close();
+					}
+					catch (Throwable e)
+					{
+						M_log.warn("closing zip: " + e.toString());
+					}
+				}
+			}
+
+			// track event
+			this.eventTrackingService.post(this.eventTrackingService.newEvent(MnemeService.DOWNLOAD_SQ, ref.getReference(), false));
+		}
+		else
+		{
+			M_log.warn("handleAccessDownload: unknown request: " + ref.getReference());
+		}
 	}
 
 	/**
