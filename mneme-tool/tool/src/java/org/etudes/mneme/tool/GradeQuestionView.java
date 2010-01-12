@@ -125,10 +125,14 @@ public class GradeQuestionView extends ControllerImpl
 		}
 		context.put("question", question);
 
-		// TODO: only for essays and tasks
-		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.DOWNLOAD_ALL_SUBMISSIONS_QUESTION
-				+ "/" + assessment.getContext() + "/" + assessment.getId() + "_" + question.getId() + ".zip");
-		context.put("download", ref);
+		// only for essays and tasks
+		if (question.getType().equals("mneme:Essay") || question.getType().equals("mneme:Task"))
+		{
+			Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/"
+					+ AttachmentService.DOWNLOAD_ALL_SUBMISSIONS_QUESTION + "/" + assessment.getContext() + "/" + assessment.getId() + "_"
+					+ question.getId() + ".zip");
+			context.put("download", ref);
+		}
 
 		// sort code
 		String sortCode = null;
