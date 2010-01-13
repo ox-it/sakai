@@ -125,8 +125,8 @@ public class GradeQuestionView extends ControllerImpl
 		}
 		context.put("question", question);
 
-		// only for essays and tasks
-		if (question.getType().equals("mneme:Essay") || question.getType().equals("mneme:Task"))
+		// only for essays and tasks, and only for assessments not set to anon. grading
+		if ((!assessment.getAnonymous().booleanValue()) && (question.getType().equals("mneme:Essay") || question.getType().equals("mneme:Task")))
 		{
 			Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/"
 					+ AttachmentService.DOWNLOAD_ALL_SUBMISSIONS_QUESTION + "/" + assessment.getContext() + "/" + assessment.getId() + "_"
