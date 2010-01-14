@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -328,7 +328,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 
 		// in-line text: for review mode, show the evaluated answer text, if released
 		Text answer = this.uiService.newText();
-		answer.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.typeSpecificAnswer.answerEvaluated"));
+		answer.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.typeSpecificAnswer.answerEvaluatedFormatted"));
 		answer.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.inline.toString(), SubmissionType.both.toString())
 				.setProperty(this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")),
 				this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.submission.isReleased")),

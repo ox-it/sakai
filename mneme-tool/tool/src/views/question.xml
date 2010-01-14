@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -265,7 +265,7 @@
 					<container>
 						<text>
 							<message>
-								<model type="html" ref="submission.evaluation.comment" />
+								<model type="html" ref="submission.evaluation.commentFormatted" />
 								<included>
 									<hasValueDecision model="submission.evaluation.comment" />
 								</included>
@@ -547,7 +547,7 @@
 							<container>
 								<text>
 									<message>
-										<model type="html" ref="answer.evaluation.comment" />
+										<model type="html" ref="answer.evaluation.commentFormatted" />
 										<included>
 											<hasValueDecision model="answer.evaluation.comment" />
 										</included>

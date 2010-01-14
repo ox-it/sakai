@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -70,6 +70,11 @@ public interface Evaluation
 	 * @return The rich text (html) comment.
 	 */
 	String getComment();
+
+	/**
+	 * @return The rich text (html) comment specially formatted.
+	 */
+	String getCommentFormatted();
 
 	/**
 	 * Check if the evaluation is defined - score, comment or attachment.

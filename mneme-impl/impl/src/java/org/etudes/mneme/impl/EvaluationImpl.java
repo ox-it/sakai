@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -27,6 +27,8 @@ package org.etudes.mneme.impl;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.etudes.mneme.api.Attribution;
 import org.etudes.mneme.api.Changeable;
@@ -39,6 +41,34 @@ import org.sakaiproject.util.StringUtil;
  */
 public abstract class EvaluationImpl implements Evaluation
 {
+	/**
+	 * Format the text - any special evaluation marks are translated into html for display
+	 * 
+	 * @param data
+	 *        The evaluation text.
+	 * @return The html formatted evaluation text.
+	 */
+	public static String formatEvaluation(String data)
+	{
+		if (data == null) return data;
+
+		Pattern p = Pattern.compile("\\{\\{(.|\\s)*?\\}\\}");
+		Matcher m = p.matcher(data);
+		StringBuffer sb = new StringBuffer();
+		while (m.find())
+		{
+			if (m.groupCount() == 1)
+			{
+				String comment = m.group(0);
+				comment = comment.substring(2, comment.length() - 2);
+				m.appendReplacement(sb, "<span style=\"color:#C11B17\">" + comment + "</span>");
+			}
+		}
+		m.appendTail(sb);
+
+		return sb.toString();
+	}
+
 	protected List<Reference> attachments = new ArrayList<Reference>();
 
 	protected AttributionImpl attribution = new AttributionImpl(null);
@@ -103,6 +133,17 @@ public abstract class EvaluationImpl implements Evaluation
 		return this.comment;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getCommentFormatted()
+	{
+		return formatEvaluation(this.comment);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Boolean getDefined()
 	{
 		if (this.score != null) return Boolean.TRUE;
@@ -133,9 +174,9 @@ public abstract class EvaluationImpl implements Evaluation
 	 */
 	public void removeAttachment(Reference reference)
 	{
-		for (Iterator i = this.attachments.iterator(); i.hasNext();)
+		for (Iterator<Reference> i = this.attachments.iterator(); i.hasNext();)
 		{
-			Reference ref = (Reference) i.next();
+			Reference ref = i.next();
 			if (ref.getReference().equals(reference.getReference()))
 			{
 				i.remove();

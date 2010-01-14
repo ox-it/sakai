@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -24,8 +24,6 @@
 
 package org.etudes.mneme.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -196,6 +194,21 @@ public class EssayAnswerImpl implements TypeSpecificAnswer
 	}
 
 	/**
+	 * @return The answer data as evaluated, and specially formatted
+	 */
+	public String getAnswerEvaluatedFormatted()
+	{
+		// if we have no evaluation yet, start with the raw answer data
+		if (this.answerEvaluated == null)
+		{
+			return this.answerData;
+		}
+
+		// format the evaluation
+		return EvaluationImpl.formatEvaluation(this.answerEvaluated);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public Float getAutoScore()
@@ -261,8 +274,8 @@ public class EssayAnswerImpl implements TypeSpecificAnswer
 	/**
 	 * Set the answerData
 	 * 
-	 * @param answerData.
-	 *        Must be well formed HTML or plain text.
+	 * @param answerData
+	 *        . Must be well formed HTML or plain text.
 	 */
 	public void setAnswerData(String answerData)
 	{
@@ -277,8 +290,8 @@ public class EssayAnswerImpl implements TypeSpecificAnswer
 	/**
 	 * Set the answer data marked up with evaluation
 	 * 
-	 * @param answerData.
-	 *        Must be well formed HTML or plain text.
+	 * @param answerData
+	 *        . Must be well formed HTML or plain text.
 	 */
 	public void setAnswerEvaluated(String evaluated)
 	{
