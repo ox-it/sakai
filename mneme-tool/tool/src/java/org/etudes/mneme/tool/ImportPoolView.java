@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.ControllerImpl;
+import org.etudes.mneme.api.ImportService;
 import org.etudes.mneme.api.PoolService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.Web;
@@ -81,9 +82,27 @@ public class ImportPoolView extends ControllerImpl
 
 		context.put("poolsSort", poolsSort);
 
+		// offer support for import from samigo and assignment
+		context.put("tq", this.importService.getOfferSamigo());
+		context.put("assignment", this.importService.getOfferAssignment());
+
 		// render
 		uiService.render(ui, context);
 	}
+
+	/**
+	 * Set the ImportService
+	 * 
+	 * @param service
+	 *        the ImportService.
+	 */
+	public void setImportService(ImportService service)
+	{
+		this.importService = service;
+	}
+
+	/** Dependency: ImportService */
+	protected ImportService importService = null;
 
 	/**
 	 * Final initialization, once all dependencies are set.

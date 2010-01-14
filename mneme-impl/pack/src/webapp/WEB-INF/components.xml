@@ -550,6 +550,8 @@
 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>		
 
 		<property name="bundle"><value>mnemeImpl</value></property>
+		<property name="samigoSupport"><value>TRUE</value></property>
+		<property name="assignmentSupport"><value>TRUE</value></property>
  	</bean>
 
 	<bean id="org.etudes.mneme.api.ImportQtiService"

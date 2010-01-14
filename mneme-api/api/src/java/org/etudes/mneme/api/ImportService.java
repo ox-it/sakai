@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -48,6 +48,16 @@ public interface ImportService
 	 * @return A list of Assignment site "Ent"s (id and description).
 	 */
 	List<Ent> getAssignmentSites(String userId);
+
+	/**
+	 * @return TRUE if we will offer import from assignments support, FALSE if not.
+	 */
+	Boolean getOfferAssignment();
+
+	/**
+	 * @return TRUE if we will offer import from samigo support, FALSE if not.
+	 */
+	Boolean getOfferSamigo();
 
 	/**
 	 * The the Samigo assessments in this context that can be imported as pools.

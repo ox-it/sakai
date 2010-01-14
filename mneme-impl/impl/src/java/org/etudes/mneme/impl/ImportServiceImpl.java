@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -184,6 +184,12 @@ public class ImportServiceImpl implements ImportService
 	/** Messages. */
 	protected transient InternationalizedMessages messages = null;
 
+	/** Configuration: offer import from Samigo support. */
+	protected Boolean offerAssignment = Boolean.TRUE;
+
+	/** Configuration: offer import from assignments support. */
+	protected Boolean offerSamigo = Boolean.TRUE;
+
 	/** Dependency: PoolService */
 	protected PoolService poolService = null;
 
@@ -266,6 +272,22 @@ public class ImportServiceImpl implements ImportService
 		Collections.sort(rv, new EntComparator());
 
 		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getOfferAssignment()
+	{
+		return this.offerAssignment;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getOfferSamigo()
+	{
+		return this.offerSamigo;
 	}
 
 	/**
@@ -564,6 +586,17 @@ public class ImportServiceImpl implements ImportService
 	}
 
 	/**
+	 * Configuration: Assignment support.
+	 * 
+	 * @param support
+	 *        TRUE to offer support, FALSE to not.
+	 */
+	public void setAssignmentSupport(String support)
+	{
+		this.offerAssignment = Boolean.valueOf(support);
+	}
+
+	/**
 	 * Dependency: AttachmentService.
 	 * 
 	 * @param service
@@ -649,6 +682,17 @@ public class ImportServiceImpl implements ImportService
 	public void setQuestionService(QuestionService service)
 	{
 		this.questionService = service;
+	}
+
+	/**
+	 * Configuration: Samigo support.
+	 * 
+	 * @param support
+	 *        TRUE to offer support, FALSE to not.
+	 */
+	public void setSamigoSupport(String support)
+	{
+		this.offerSamigo = Boolean.valueOf(support);
 	}
 
 	/**
@@ -1425,7 +1469,8 @@ public class ImportServiceImpl implements ImportService
 	}
 
 	/**
-	 * Collect all the attachment references in the Samigo question html data:<br /> Anything referenced by a src= or href=.
+	 * Collect all the attachment references in the Samigo question html data:<br />
+	 * Anything referenced by a src= or href=.
 	 * 
 	 * @param questionData
 	 *        The Samigo question data.
@@ -1881,6 +1926,9 @@ public class ImportServiceImpl implements ImportService
 	{
 		final List<Ent> rv = new ArrayList<Ent>();
 
+		// test if the samigo table exists
+		if (!tableExists("SAM_ASSESSMENTBASE_T")) return rv;
+
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT A.ID, A.TITLE FROM SAM_ASSESSMENTBASE_T A");
 		sql.append(" INNER JOIN SAM_AUTHZDATA_T Z ON A.ID=Z.QUALIFIERID AND Z.FUNCTIONID=? AND Z.AGENTID=?");
@@ -1927,6 +1975,9 @@ public class ImportServiceImpl implements ImportService
 	{
 		final List<Ent> rv = new ArrayList<Ent>();
 
+		// test if the samigo table exists
+		if (!tableExists("SAM_QUESTIONPOOL_T")) return rv;
+
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT P.QUESTIONPOOLID, P.TITLE FROM SAM_QUESTIONPOOL_T P WHERE P.OWNERID=?");
 
@@ -1956,5 +2007,19 @@ public class ImportServiceImpl implements ImportService
 		});
 
 		return rv;
+	}
+
+	/**
+	 * Check if this table exists.
+	 * 
+	 * @param table
+	 *        The table name.
+	 * @return true if the table exists, false if not.
+	 */
+	protected boolean tableExists(String table)
+	{
+		String sql = "SHOW TABLES LIKE '" + table + "'";
+		List rv = this.sqlService.dbRead(sql);
+		return !rv.isEmpty();
 	}
 }

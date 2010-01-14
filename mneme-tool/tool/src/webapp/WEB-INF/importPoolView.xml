@@ -36,6 +36,7 @@
 			singleton="true">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+  		<property name="importService"><ref bean="org.etudes.mneme.api.ImportService"/></property>
   		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
   		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
  
