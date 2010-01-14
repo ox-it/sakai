@@ -26,6 +26,7 @@ package org.etudes.mneme.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +36,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -74,6 +76,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 
@@ -2104,30 +2107,26 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	 */
 	public void zipSubmissionsQuestion(ZipOutputStream zip, Assessment assessment, Question question)
 	{
-		// the assessment
+		// the index.html file
+		StringBuilder indexHtml = new StringBuilder();
+		indexHtml.append("<html><head></head><body>\n");
+
+		// add the assessment information to the index
 		String assessmentTitle = assessment.getTitle();
 		if (assessmentTitle != null)
 		{
-			try
-			{
-				zip.putNextEntry(new ZipEntry("assessment/" + assessmentTitle + ".txt"));
-				zip.write(assessmentTitle.getBytes("UTF-8"));
-				zip.closeEntry();
-			}
-			catch (IOException e)
-			{
-				M_log.warn("zipSubmissionsQuestion: zipping assessment: " + e.toString());
-			}
+			indexHtml.append("<div><strong>" + assessment.getType().toString() + " &quot;" + assessmentTitle + "&quot;</strong></div>\n");
 		}
 
-		// the question
-		// TODO: Note: works only for questions that use presentation
+		// the question (if it has presentation)
 		String questionText = question.getPresentation().getText();
+		String questionFile = null;
 		if (questionText != null)
 		{
 			try
 			{
-				zip.putNextEntry(new ZipEntry("question/question.html"));
+				questionFile = "question.html";
+				zip.putNextEntry(new ZipEntry(questionFile));
 				zip.write(questionText.getBytes("UTF-8"));
 				zip.closeEntry();
 			}
@@ -2137,13 +2136,35 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			}
 		}
 
-		// question attachments
-		List<Reference> attachments = question.getPresentation().getAttachments();
-		int count = 1;
-		for (Reference attachment : attachments)
+		// add the question information to the index
+		String questionDescription = question.getDescription();
+		if (questionDescription != null)
 		{
-			zipAttachment(zip, "question/question", attachment, count++);
+			// compress and shorten
+			questionDescription = FormattedText.convertFormattedTextToPlaintext(questionDescription);
+			questionDescription = questionDescription.replace("\n", " ");
+			if (questionDescription.length() > 60)
+			{
+				questionDescription = questionDescription.substring(0, 60) + "...";
+			}
+			questionDescription = Validator.escapeHtml(questionDescription);
+
+			// TODO: message bundle
+			String header = "Submissions for question: &quot;";
+			indexHtml.append("<p>" + header);
+			if (questionFile != null)
+			{
+				indexHtml.append("<a href=\"" + questionFile + "\">");
+			}
+			indexHtml.append(questionDescription);
+			if (questionFile != null)
+			{
+				indexHtml.append("</a>");
+			}
+			indexHtml.append("&quot;</p>\n");
 		}
+
+		indexHtml.append("<hr>\n");
 
 		Map<String, Integer> usersSeen = new HashMap<String, Integer>();
 
@@ -2170,6 +2191,12 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 				TypeSpecificAnswer a = answer.getTypeSpecificAnswer();
 				if (a instanceof EssayAnswerImpl)
 				{
+					// format the submit date
+					DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.US);
+					String dateDisplay = removeSeconds(format.format(answer.getSubmittedDate()));
+
+					indexHtml.append("<div>" + user.getSortName() + " (" + user.getEid() + ") " + dateDisplay + "\n<ul>\n");
+
 					EssayAnswerImpl essay = (EssayAnswerImpl) a;
 
 					// answer - inline
@@ -2179,15 +2206,18 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 						zip.putNextEntry(new ZipEntry(key + " inline.html"));
 						zip.write(inline.getBytes("UTF-8"));
 						zip.closeEntry();
+
+						indexHtml.append("<li><a href=\"" + key + " inline.html" + "\">" + "inline</a></li>\n");
 					}
 
 					// attachments
-					attachments = essay.getUploaded();
-					count = 1;
+					List<Reference> attachments = essay.getUploaded();
+					int count = 1;
 					for (Reference attachment : attachments)
 					{
-						zipAttachment(zip, key, attachment, count++);
+						zipAttachment(zip, key, attachment, count++, indexHtml);
 					}
+					indexHtml.append("</ul>\n");
 				}
 			}
 			catch (UserNotDefinedException e)
@@ -2198,6 +2228,17 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			{
 				M_log.warn("zipSubmissionsQuestion: zipping answers: " + e.toString());
 			}
+		}
+
+		try
+		{
+			zip.putNextEntry(new ZipEntry("index.html"));
+			zip.write(indexHtml.toString().getBytes("UTF-8"));
+			zip.closeEntry();
+		}
+		catch (IOException e)
+		{
+			M_log.warn("zipSubmissionsQuestion: zipping index: " + e.toString());
 		}
 	}
 
@@ -3224,6 +3265,22 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	}
 
 	/**
+	 * Remove the ":xx" seconds part of a MEDIUM date format display.
+	 * 
+	 * @param display
+	 *        The MEDIUM formatted date.
+	 * @return The MEDIUM formatted date with the seconds removed.
+	 */
+	protected String removeSeconds(String display)
+	{
+		int i = display.lastIndexOf(":");
+		if ((i == -1) || ((i + 3) >= display.length())) return display;
+
+		String rv = display.substring(0, i) + display.substring(i + 3);
+		return rv;
+	}
+
+	/**
 	 * Remove any test-drive submissions for this assessment.
 	 * 
 	 * @param assessment
@@ -3500,8 +3557,10 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	 *        The attachment reference.
 	 * @param count
 	 *        The attachment count (used in the zip name).
+	 * @param indexHtml
+	 *        add a line about the attachment to this index html.
 	 */
-	protected void zipAttachment(ZipOutputStream zip, String key, Reference attachment, int count)
+	protected void zipAttachment(ZipOutputStream zip, String key, Reference attachment, int count, StringBuilder indexHtml)
 	{
 		InputStream content = null;
 
@@ -3529,7 +3588,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			if (content != null)
 			{
 				// start a zip entry
-				zip.putNextEntry(new ZipEntry(key + " attachment " + Integer.toString(count++) + " " + fileName));
+				String fname = key + " attachment " + Integer.toString(count++) + " " + fileName;
+				zip.putNextEntry(new ZipEntry(fname));
 
 				// read chunks of the body
 				byte[] chunk = new byte[STREAM_BUFFER_SIZE];
@@ -3541,6 +3601,11 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 				// close the zip entry
 				zip.closeEntry();
+
+				if (indexHtml != null)
+				{
+					indexHtml.append("<li><a href=\"" + fname + "\">" + fileName + "</a></li>\n");
+				}
 			}
 		}
 		catch (IdUnusedException e)
