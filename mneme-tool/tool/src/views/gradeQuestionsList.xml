@@ -143,6 +143,14 @@
 								</navigation>
 							</navigations>
 						</column>
+						<column>
+							<title>
+								<message selector="download" />
+							</title>
+							<container>
+								<attachments list="FALSE" model="question.downloadSubmissionsReference" />
+							</container>
+						</column>
 					</columns>
 				</entityList>
 			</container>

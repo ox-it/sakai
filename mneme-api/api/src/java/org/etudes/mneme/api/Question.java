@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -23,6 +23,8 @@
  **********************************************************************************/
 
 package org.etudes.mneme.api;
+
+import org.sakaiproject.entity.api.Reference;
 
 /**
  * Question defines the questions.
@@ -56,6 +58,11 @@ public interface Question
 	 * @return The description of the question.
 	 */
 	String getDescription();
+
+	/**
+	 * @return the download submissions reference for the submissions to this question in the question's assessment context.
+	 */
+	Reference getDownloadSubmissionsReference();
 
 	/**
 	 * Access the explain-reason setting.

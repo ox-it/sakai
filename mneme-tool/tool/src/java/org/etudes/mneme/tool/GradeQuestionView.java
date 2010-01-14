@@ -44,12 +44,10 @@ import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AttachmentService;
-import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.SubmissionService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
@@ -124,15 +122,6 @@ public class GradeQuestionView extends ControllerImpl
 			return;
 		}
 		context.put("question", question);
-
-		// only for essays and tasks, and only for assessments not set to anon. grading
-		if ((!assessment.getAnonymous().booleanValue()) && (question.getType().equals("mneme:Essay") || question.getType().equals("mneme:Task")))
-		{
-			Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/"
-					+ AttachmentService.DOWNLOAD_ALL_SUBMISSIONS_QUESTION + "/" + assessment.getContext() + "/" + assessment.getId() + "_"
-					+ question.getId() + ".zip");
-			context.put("download", ref);
-		}
 
 		// sort code
 		String sortCode = null;

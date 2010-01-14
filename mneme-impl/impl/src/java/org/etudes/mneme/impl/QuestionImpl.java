@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -26,6 +26,8 @@ package org.etudes.mneme.impl;
 
 import java.util.List;
 
+import org.etudes.mneme.api.Assessment;
+import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.Attribution;
 import org.etudes.mneme.api.Ordering;
 import org.etudes.mneme.api.Part;
@@ -39,6 +41,8 @@ import org.etudes.mneme.api.QuestionPick;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionUnscoredQuestionService;
 import org.etudes.mneme.api.TypeSpecificQuestion;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.StringUtil;
 
@@ -360,6 +364,27 @@ public class QuestionImpl implements Question
 		if (rv.length() > 255) rv = rv.substring(0, 255);
 
 		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Reference getDownloadSubmissionsReference()
+	{
+		if (this.partContext == null) return null;
+		Assessment assessment = this.partContext.getAssessment();
+		if (assessment == null) return null;
+
+		// not for anon grading
+		if (assessment.getAnonymous().booleanValue()) return null;
+
+		// only for essay and task
+		if (!(getType().equals("mneme:Essay") || getType().equals("mneme:Task"))) return null;
+
+		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.DOWNLOAD_ALL_SUBMISSIONS_QUESTION
+				+ "/" + assessment.getContext() + "/" + assessment.getId() + "_" + getId() + ".zip");
+
+		return ref;
 	}
 
 	/**
@@ -891,6 +916,12 @@ public class QuestionImpl implements Question
 		this.historical = Boolean.TRUE;
 	}
 
+	/**
+	 * Set as a copy of other
+	 * 
+	 * @param other
+	 *        The other.
+	 */
 	protected void set(QuestionImpl other)
 	{
 		if (other.questionHandler != null) this.questionHandler = (TypeSpecificQuestion) (other.questionHandler.clone(this));

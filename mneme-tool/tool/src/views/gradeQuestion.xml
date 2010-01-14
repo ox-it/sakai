@@ -114,15 +114,6 @@
 			</container>
 		</section>
 
-		<section>
-			<included>
-				<hasValueDecision model="download" />
-			</included>
-			<container>
-				<attachments title="download" model="download" />
-			</container>
-		</section>
-
 		<entityList style="FLAT">
 			<iterator name="answer">
 				<model ref="answers" indexRef="id" />
