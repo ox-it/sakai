@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -62,6 +62,9 @@ public class UiAttachments extends UiComponent implements Attachments
 	/** If set, show only the reference strings, with no checking. */
 	protected boolean raw = false;
 
+	/** If set, show items in a list (ul) */
+	protected boolean list = true;
+
 	/** If set, include the size display. */
 	protected boolean size = false;
 
@@ -118,6 +121,13 @@ public class UiAttachments extends UiComponent implements Attachments
 		if (raw != null)
 		{
 			setRaw(Boolean.parseBoolean(raw));
+		}
+
+		// list
+		String list = StringUtil.trimToNull(xml.getAttribute("list"));
+		if (list != null)
+		{
+			setList(Boolean.parseBoolean(list));
 		}
 
 		// size
@@ -196,7 +206,7 @@ public class UiAttachments extends UiComponent implements Attachments
 			response.println("</div>");
 		}
 
-		response.println("<ul class=\"ambrosiaAttachmentsList\">");
+		if (this.list) response.println("<ul class=\"ambrosiaAttachmentsList\">");
 
 		// attachments
 		if (this.attachments != null)
@@ -237,7 +247,7 @@ public class UiAttachments extends UiComponent implements Attachments
 			}
 		}
 
-		response.println("</ul>");
+		if (this.list) response.println("</ul>");
 
 		return true;
 	}
@@ -259,6 +269,15 @@ public class UiAttachments extends UiComponent implements Attachments
 	public Attachments setRaw(boolean setting)
 	{
 		this.raw = setting;
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Attachments setList(boolean setting)
+	{
+		this.list = setting;
 		return this;
 	}
 
@@ -312,7 +331,9 @@ public class UiAttachments extends UiComponent implements Attachments
 		// for raw, print only the reference
 		if (this.raw)
 		{
-			response.print("<li>" + Validator.escapeHtml(ref.getReference()));
+			if (this.list) response.print("<li>");
+
+			response.print(Validator.escapeHtml(ref.getReference()));
 
 			// navigations
 			if (!this.navigations.isEmpty())
@@ -323,7 +344,7 @@ public class UiAttachments extends UiComponent implements Attachments
 				}
 			}
 
-			response.println("</li>");
+			if (this.list) response.println("</li>");
 		}
 
 		// otherwise format it
@@ -335,19 +356,20 @@ public class UiAttachments extends UiComponent implements Attachments
 			{
 				try
 				{
+					if (this.list) response.print("<li>");
+
 					// for folders
 					if (props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION))
 					{
-						response.print("<li><img src = \"/library/image/" + ContentTypeImageService.getContentTypeImage("folder")
-								+ "\" border=\"0\" />");
+						response.print("<img src = \"/library/image/" + ContentTypeImageService.getContentTypeImage("folder") + "\" border=\"0\" />");
 					}
 
 					// otherwise lookup the icon from the mime type
 					else
 					{
 						String type = props.getProperty(ResourceProperties.PROP_CONTENT_TYPE);
-						response.print("<li><img src = \"/library/image/" + ContentTypeImageService.getContentTypeImage(type)
-								+ "\" border=\"0\" alt=\"" + type + "\"/>");
+						response.print("<img src = \"/library/image/" + ContentTypeImageService.getContentTypeImage(type) + "\" border=\"0\" alt=\""
+								+ type + "\"/>");
 					}
 
 					// form the URL safely
@@ -381,7 +403,7 @@ public class UiAttachments extends UiComponent implements Attachments
 						response.print("</div>");
 					}
 
-					response.println("</li>");
+					if (this.list) response.println("</li>");
 				}
 				catch (EntityPropertyNotDefinedException e)
 				{
