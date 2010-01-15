@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2009 Etudes, Inc.
+ * Copyright (c) 2009, 2010 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,8 +148,10 @@ public class QuestionPickImpl extends PartDetailImpl implements QuestionPick
 		Question q = this.questionService.getQuestion(this.questionId);
 		if (q == null) return "?";
 
-		// String html
+		// strip html
 		String value = FormattedText.convertFormattedTextToPlaintext(q.getDescription());
+		if (value == null) return "?";
+
 		value = value.replace("\n", " ");
 
 		return value;
@@ -211,7 +213,7 @@ public class QuestionPickImpl extends PartDetailImpl implements QuestionPick
 
 		// needs to be valid
 		if (!q.getIsValid().booleanValue()) return Boolean.FALSE;
-		
+
 		return Boolean.TRUE;
 	}
 
