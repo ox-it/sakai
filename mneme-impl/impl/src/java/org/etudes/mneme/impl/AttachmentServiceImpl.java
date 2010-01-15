@@ -422,7 +422,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			{
 				ResourcePropertiesEdit props = new BaseResourcePropertiesEdit();
 
-				// use the site title, assessment and question ids for the file name
+				// use the site title and question ids for the file name
 				String[] outerParts = StringUtil.split(ref.getId(), ".");
 				String[] parts = StringUtil.split(outerParts[0], "_");
 				String siteTitle = ref.getContext();
@@ -434,7 +434,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				catch (IdUnusedException e)
 				{
 				}
-				String fileName = siteTitle + " assessment " + parts[0] + " question " + parts[1] + ".zip";
+				String fileName = siteTitle + "_" + parts[1] + "_Submissions.zip";
+				fileName = fileName.replace(' ', '_');
 
 				props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, "application/zip");
 				props.addProperty("DAV:displayname", fileName);
