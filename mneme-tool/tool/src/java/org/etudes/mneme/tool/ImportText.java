@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2009 Etudes, Inc.
+ * Copyright (c) 2009, 2010 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ public class ImportText extends ControllerImpl
 	{
 		super.init();
 		this.instructionsUrl = StringUtil.trimToNull(this.serverConfigurationService
-				.getString("questionPasteInstructionUrl@org.muse.mneme.tool.ImportText"));
+				.getString("questionPasteInstructionUrl@org.etudes.mneme.tool.ImportText"));
 
 		M_log.info("init()");
 	}

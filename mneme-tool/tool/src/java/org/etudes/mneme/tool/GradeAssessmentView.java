@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -172,7 +172,7 @@ public class GradeAssessmentView extends ControllerImpl
 	public void init()
 	{
 		super.init();
-		String pageSize = StringUtil.trimToNull(this.serverConfigurationService.getString("pageSize@org.muse.mneme.tool.GradeAssessmentView"));
+		String pageSize = StringUtil.trimToNull(this.serverConfigurationService.getString("pageSize@org.etudes.mneme.tool.GradeAssessmentView"));
 		if (pageSize != null) setPageSize(pageSize);
 
 		if (this.pageSizes.isEmpty())

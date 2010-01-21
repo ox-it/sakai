@@ -214,7 +214,7 @@ public class GradeQuestionView extends ControllerImpl
 	public void init()
 	{
 		super.init();
-		String pageSize = StringUtil.trimToNull(this.serverConfigurationService.getString("pageSize@org.muse.mneme.tool.GradeQuestionView"));
+		String pageSize = StringUtil.trimToNull(this.serverConfigurationService.getString("pageSize@org.etudes.mneme.tool.GradeQuestionView"));
 		if (pageSize != null) setPageSize(pageSize);
 
 		if (this.pageSizes.isEmpty())

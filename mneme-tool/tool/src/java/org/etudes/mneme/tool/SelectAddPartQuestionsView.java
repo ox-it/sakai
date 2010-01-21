@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -254,7 +254,7 @@ public class SelectAddPartQuestionsView extends ControllerImpl
 	public void init()
 	{
 		super.init();
-		String pageSize = StringUtil.trimToNull(this.serverConfigurationService.getString("pageSize@org.muse.mneme.tool.SelectAddPartQuestionsView"));
+		String pageSize = StringUtil.trimToNull(this.serverConfigurationService.getString("pageSize@org.etudes.mneme.tool.SelectAddPartQuestionsView"));
 		if (pageSize != null) setPageSize(pageSize);
 
 		if (this.pageSizes.isEmpty())

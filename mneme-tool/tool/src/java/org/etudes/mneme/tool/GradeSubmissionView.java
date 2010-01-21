@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -41,7 +41,6 @@ import org.etudes.ambrosia.api.PopulatingSet.Factory;
 import org.etudes.ambrosia.api.PopulatingSet.Id;
 import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.Answer;
-import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentType;
@@ -209,7 +208,7 @@ public class GradeSubmissionView extends ControllerImpl
 	{
 		super.init();
 
-		String pageSize = StringUtil.trimToNull(this.serverConfigurationService.getString("pageSize@org.muse.mneme.tool.GradeSubmissionView"));
+		String pageSize = StringUtil.trimToNull(this.serverConfigurationService.getString("pageSize@org.etudes.mneme.tool.GradeSubmissionView"));
 		if (pageSize != null) setPageSize(pageSize);
 
 		if (this.pageSizes.isEmpty())
