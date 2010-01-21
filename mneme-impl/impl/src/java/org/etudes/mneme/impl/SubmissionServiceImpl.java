@@ -2193,7 +2193,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 				{
 					// format the submit date
 					DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.US);
-					String dateDisplay = removeSeconds(format.format(answer.getSubmittedDate()));
+					String dateDisplay = removeSeconds(format.format(answer.getSubmission().getSubmittedDate()));
 
 					indexHtml.append("<div>" + user.getSortName() + " (" + user.getEid() + ") " + dateDisplay + "\n<ul>\n");
 
