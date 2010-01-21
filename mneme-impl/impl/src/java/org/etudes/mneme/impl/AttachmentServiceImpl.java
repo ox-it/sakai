@@ -1750,7 +1750,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			}
 			catch (Throwable e)
 			{
-				M_log.warn("zipping: " + e.toString());
+				M_log.warn("zipping: ", e);
 			}
 			finally
 			{
