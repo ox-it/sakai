@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -26,6 +26,7 @@ package org.etudes.ambrosia.impl;
 
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.api.HtmlPropertyReference;
+import org.etudes.util.HtmlHelper;
 import org.etudes.util.XrefHelper;
 import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Element;
@@ -44,7 +45,7 @@ public class UiHtmlPropertyReference extends UiPropertyReference implements Html
 	protected boolean stripP = false;
 
 	/**
-	 * No-arg constructor.
+	 * Construct.
 	 */
 	public UiHtmlPropertyReference()
 	{
@@ -114,6 +115,24 @@ public class UiHtmlPropertyReference extends UiPropertyReference implements Html
 	/**
 	 * {@inheritDoc}
 	 */
+	protected String format(Context context, Object value)
+	{
+		String v = super.format(context, value);
+
+		// strip out comments from html before display
+		// Note: this is redundant with the unFormat() strip comments on the way into the data,
+		// but handles any data that already has comments in html
+		if (v != null)
+		{
+			v = HtmlHelper.stripComments(v);
+		}
+
+		return v;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	protected String unFormat(String value)
 	{
 		if (value != null)
@@ -123,13 +142,16 @@ public class UiHtmlPropertyReference extends UiPropertyReference implements Html
 			{
 				value = "";
 			}
-			
+
 			// shorten any full URL embedded references (such as what Tiny puts in for "emotions")
 			else
 			{
 				value = XrefHelper.shortenFullUrls(value);
 			}
-			
+
+			// clean the html
+			value = HtmlHelper.stripComments(value);
+			value = HtmlHelper.stripBadEncodingCharacters(value);
 		}
 
 		return value;
