@@ -124,6 +124,8 @@ public class UiHtmlPropertyReference extends UiPropertyReference implements Html
 		// but handles any data that already has comments in html
 		if (v != null)
 		{
+			// clean the outgoing (to display view) html
+			v = HtmlHelper.stripDamagedComments(v);
 			v = HtmlHelper.stripComments(v);
 		}
 
@@ -149,8 +151,7 @@ public class UiHtmlPropertyReference extends UiPropertyReference implements Html
 				value = XrefHelper.shortenFullUrls(value);
 			}
 
-			// clean the html
-			value = HtmlHelper.stripDamagedComments(value);
+			// clean the incoming html
 			value = HtmlHelper.stripComments(value);
 			value = HtmlHelper.stripBadEncodingCharacters(value);
 		}
