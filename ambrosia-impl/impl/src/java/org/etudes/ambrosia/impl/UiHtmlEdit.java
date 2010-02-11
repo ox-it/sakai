@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -31,6 +31,7 @@ import org.etudes.ambrosia.api.Decision;
 import org.etudes.ambrosia.api.HtmlEdit;
 import org.etudes.ambrosia.api.Message;
 import org.etudes.ambrosia.api.PropertyReference;
+import org.etudes.util.HtmlHelper;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Element;
@@ -62,8 +63,7 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 	protected boolean optional = false;
 
 	/**
-	 * The PropertyReference for encoding and decoding this selection - this is what will be updated with the end-user's text edit, and what value
-	 * seeds the display.
+	 * The PropertyReference for encoding and decoding this selection - this is what will be updated with the end-user's text edit, and what value seeds the display.
 	 */
 	protected PropertyReference propertyReference = null;
 
@@ -229,6 +229,10 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 			if (valueObj != null)
 			{
 				value = StringUtil.trimToZero(valueObj.toString());
+
+				// clean up bad and good comments
+				value = HtmlHelper.stripDamagedComments(value);
+				value = HtmlHelper.stripComments(value);
 			}
 		}
 

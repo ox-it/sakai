@@ -150,6 +150,7 @@ public class UiHtmlPropertyReference extends UiPropertyReference implements Html
 			}
 
 			// clean the html
+			value = HtmlHelper.stripDamagedComments(value);
 			value = HtmlHelper.stripComments(value);
 			value = HtmlHelper.stripBadEncodingCharacters(value);
 		}
