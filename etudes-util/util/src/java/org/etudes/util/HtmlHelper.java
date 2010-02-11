@@ -95,4 +95,36 @@ public class HtmlHelper
 
 		return sb.toString();
 	}
+	
+	/**
+	 * Remove any text that match the "comments damaged from IE and Tiny" from the data.
+	 * 
+	 * @param data
+	 *        the html data.
+	 * @return The cleaned up data.
+	 */
+	public static String stripDamagedComments(String data)
+	{
+		if (data == null) return data;
+
+		// quick check for any hint of the pattern
+		if (data.indexOf("<! [endif] >") == -1) return data;
+
+		// Notes: DOTALL so the "." matches line terminators too, "*?" Reluctant quantifier so text between two different comments is not lost
+		Pattern p = Pattern.compile("<!--\\[if.*?<! \\[endif\\] >", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
+
+		Matcher m = p.matcher(data);
+		StringBuffer sb = new StringBuffer();
+
+		while (m.find())
+		{
+			m.appendReplacement(sb, "");
+		}
+
+		m.appendTail(sb);
+
+		// now remove the bad comment end
+		String rv = sb.toString().replace("<-->", "");
+		return rv;
+	}
 }
