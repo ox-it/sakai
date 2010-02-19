@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -25,7 +25,6 @@
 package org.etudes.mneme.tool;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,8 +37,6 @@ import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.Answer;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.MnemeService;
-import org.etudes.mneme.api.Part;
-import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -108,6 +105,9 @@ public class ReviewView extends ControllerImpl
 		}
 
 		context.put("submission", submission);
+
+		// are we in full review, or just "view"
+		context.put("fullReview", submission.getMayReview());
 
 		// collect all the answers for review
 		List<Answer> answers = submission.getAnswersOrdered();

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -286,6 +286,22 @@ public interface Submission
 	 * @return TRUE if the submission may be reviewed later, FALSE if not.
 	 */
 	Boolean getMayReviewLater();
+
+	/**
+	 * Check if the submission may be viewed (just the questions and answers, no correct markings or model answers or grading feedback)<br />
+	 * - the user must be the submission user, and the submission must be complete and not from a retracted assessment.<br />
+	 * Further, the assessment must not be a "test", and it must not be ready for full review.
+	 * 
+	 * @return TRUE if the submission may be viewed, FALSE if not.
+	 */
+	Boolean getMayView();
+
+	/**
+	 * Check if the submission may be viewed or reviewed.
+	 * 
+	 * @return TRUE if the submission may be viewed or reviewed, FALSE if not.
+	 */
+	Boolean getMayViewOrReview();
 
 	/**
 	 * Access the reference of this submission.

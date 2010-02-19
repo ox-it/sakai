@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -34,6 +34,7 @@ import org.etudes.mneme.api.Answer;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentSubmissionStatus;
+import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.Changeable;
 import org.etudes.mneme.api.Expiration;
@@ -982,6 +983,64 @@ public class SubmissionImpl implements Submission
 		if ((getAssessment().getReview().getTiming() == ReviewTiming.date) && (getAssessment().getReview().getDate() == null)) return Boolean.FALSE;
 
 		// TODO: permission?
+
+		return Boolean.TRUE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getMayView()
+	{
+		// not for tests
+		if (getAssessment().getType() == AssessmentType.test) return Boolean.FALSE;
+
+		// same user
+		if (!this.sessionManager.getCurrentSessionUserId().equals(getUserId())) return Boolean.FALSE;
+
+		// submission complete
+		if (!getIsComplete()) return Boolean.FALSE;
+
+		// published (test drive need not be)
+		if (!getIsTestDrive())
+		{
+			if (!getAssessment().getPublished()) return Boolean.FALSE;
+		}
+
+		// valid
+		if (!getAssessment().getIsValid()) return Boolean.FALSE;
+
+		// assessment review NOT enabled
+		if (getAssessment().getReview().getNowAvailable()) return Boolean.FALSE;
+
+		return Boolean.TRUE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getMayViewOrReview()
+	{
+		// same user
+		if (!this.sessionManager.getCurrentSessionUserId().equals(getUserId())) return Boolean.FALSE;
+
+		// submission complete
+		if (!getIsComplete()) return Boolean.FALSE;
+
+		// published (test drive need not be)
+		if (!getIsTestDrive())
+		{
+			if (!getAssessment().getPublished()) return Boolean.FALSE;
+		}
+
+		// valid
+		if (!getAssessment().getIsValid()) return Boolean.FALSE;
+
+		// for tests, we would need review to be enabled, otherwise we have view already
+		if (getAssessment().getType() == AssessmentType.test)
+		{
+			if (!getAssessment().getReview().getNowAvailable()) return Boolean.FALSE;
+		}
 
 		return Boolean.TRUE;
 	}

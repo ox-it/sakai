@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -31,7 +31,6 @@ import org.etudes.ambrosia.util.FormatDelegateImpl;
 import org.etudes.mneme.api.Answer;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.Question;
-import org.etudes.mneme.api.ReviewShowCorrect;
 import org.etudes.mneme.api.Submission;
 
 /**
@@ -113,7 +112,7 @@ public class QuestionScoreDelegate extends FormatDelegateImpl
 		// use the {}/{} format if doing feedback, or just {} if not.
 		StringBuffer rv = new StringBuffer();
 
-		Boolean review = (Boolean) context.get("review");
+		Boolean review = (Boolean) context.get("fullReview");
 		if (review == null) review = Boolean.FALSE;
 		Boolean grading = (Boolean) context.get("grading");
 		if (grading == null) grading = Boolean.FALSE;

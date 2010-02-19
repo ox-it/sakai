@@ -332,7 +332,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		answer.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.inline.toString(), SubmissionType.both.toString())
 				.setProperty(this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")),
 				this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.submission.isReleased")),
-				this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("review")));
+				this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("fullReview")));
 		answerSection.add(answer);
 		// or if not released, show the actual answer text
 		answer = this.uiService.newText();
@@ -419,7 +419,12 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 
 		Section showModelAnswerSection = this.uiService.newSection();
 		showModelAnswerSection.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.modelAnswer")));
+				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.modelAnswer")), this.uiService
+				.newOrDecision().setOptions(
+						this.uiService.newDecision().setProperty(
+								this.uiService.newPropertyReference().setReference("fullReview")),
+						this.uiService.newDecision().setProperty(
+								this.uiService.newPropertyReference().setReference("grading"))));
 		showModelAnswerSection.add(modelAnswerOverlay).add(showModelAnswer);
 
 		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(answerSection).add(showModelAnswerSection);

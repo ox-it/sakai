@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -915,9 +915,12 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		refs[1] = this.uiService.newHtmlPropertyReference().setReference("answer.question.typeSpecificQuestion.answerKey");
 		answerKey.setText("answer-key", refs);
 
+		Decision[] innerAndInc = new Decision[2];
+		innerAndInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.showCorrectReview"));
+		innerAndInc[1] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("fullReview"));
 		Decision[] orInc = new Decision[2];
 		orInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"));
-		orInc[1] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.showCorrectReview"));
+		orInc[1] = this.uiService.newAndDecision().setRequirements(innerAndInc);
 		Decision[] andInc = new Decision[2];
 		andInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.question.hasCorrect"));
 		andInc[1] = this.uiService.newOrDecision().setOptions(orInc);
