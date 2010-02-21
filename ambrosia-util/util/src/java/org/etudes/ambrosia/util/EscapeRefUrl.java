@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -67,10 +67,15 @@ public class EscapeRefUrl
 			for (int i = 0; i < bytes.length; i++)
 			{
 				byte b = bytes[i];
-				if (("$&+,:;=?@ '\"<>#%{}|\\^~[]`^?;".indexOf((char) b) != -1) || (b <= 0x1F) || (b == 0x7F) || (b >= 0x80))
+
+				// convert to 'unsigned byte' in an int
+				// see: http://www.darksleep.com/player/JavaAndUnsignedTypes.html
+				int bi = 0xFF & (int) bytes[i];
+
+				if (("$&+,:;=?@ '\"<>#%{}|\\^~[]`^?;".indexOf((char) b) != -1) || (bi <= 0x1F) || (bi == 0x7F) || (bi >= 0x80))
 				{
 					buf.append("%");
-					buf.append(Integer.toString(b, 16));
+					buf.append(Integer.toString(bi, 16));
 				}
 				else
 				{
