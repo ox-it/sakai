@@ -231,6 +231,7 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 				value = StringUtil.trimToZero(valueObj.toString());
 
 				// clean up bad and good comments
+				value = HtmlHelper.stripEncodedFontDefinitionComments(value);
 				value = HtmlHelper.stripDamagedComments(value);
 				value = HtmlHelper.stripComments(value);
 			}

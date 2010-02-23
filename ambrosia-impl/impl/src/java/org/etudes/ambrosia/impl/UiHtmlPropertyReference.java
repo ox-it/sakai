@@ -125,6 +125,7 @@ public class UiHtmlPropertyReference extends UiPropertyReference implements Html
 		if (v != null)
 		{
 			// clean the outgoing (to display view) html
+			v = HtmlHelper.stripEncodedFontDefinitionComments(v);
 			v = HtmlHelper.stripDamagedComments(v);
 			v = HtmlHelper.stripComments(v);
 		}
