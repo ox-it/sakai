@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 20010 Etudes, Inc.
+ * Copyright (c) 2010 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,7 +95,7 @@ public class HtmlHelper
 
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Remove any text that match the "comments damaged from IE and Tiny" from the data.
 	 * 
@@ -126,5 +126,35 @@ public class HtmlHelper
 		// now remove the bad comment end
 		String rv = sb.toString().replace("<-->", "");
 		return rv;
+	}
+
+	/**
+	 * Remove any text that match the "comments from Word font definitions encoded into html by Tiny" from the data.
+	 * 
+	 * @param data
+	 *        the html data.
+	 * @return The cleaned up data.
+	 */
+	public static String stripEncodedFontDefinitionComments(String data)
+	{
+		if (data == null) return data;
+
+		// quick check for any hint of the pattern
+		if (data.indexOf("&lt;!--  /* Font Definitions */") == -1) return data;
+
+		// Notes: DOTALL so the "." matches line terminators too, "*?" Reluctant quantifier so text between two different comments is not lost
+		Pattern p = Pattern.compile("&lt;!--  /\\* Font Definitions \\*/.*?--&gt;", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
+
+		Matcher m = p.matcher(data);
+		StringBuffer sb = new StringBuffer();
+
+		while (m.find())
+		{
+			m.appendReplacement(sb, "");
+		}
+
+		m.appendTail(sb);
+
+		return sb.toString();
 	}
 }
