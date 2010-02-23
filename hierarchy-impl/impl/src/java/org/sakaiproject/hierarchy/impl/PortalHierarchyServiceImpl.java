@@ -64,13 +64,16 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	}
 
 	public void deleteNode(String id) throws PermissionException{
-		unlockNodeSite(id);
-		HierarchyNode node = hierarchyService.getNodeById(id);
-		if (!node.childNodeIds.isEmpty()) {
-			throw new IllegalStateException("Can't delete a node with children.");
+		if (!canDeleteNode(id)) {
+			throw new IllegalStateException("Can't delete this node.");
 		}
-		hierarchyService.removeNode(node.id);
-		dao.delete(node.id);
+		List<PortalNode> children = getNodeChildren(id);
+		// Remove children.
+		for (PortalNode node: children) {
+			deleteNode(node.getId());
+		}
+		hierarchyService.removeNode(id);
+		dao.delete(id);
 		eventTrackingService.post(eventTrackingService.newEvent(EVENT_DELETE, id, true));
 	}
 
@@ -438,7 +441,14 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		return unlockCheckNodeSite(id);
 	}
 
+	/**
+	 * @return <code>true</code> if the node has no children or the user is a sysadmin.
+	 */
 	public boolean canDeleteNode(String id) {
+		List<PortalNode> nodes = getNodeChildren(id);
+		if (nodes.size() > 0) {
+			return securityService.isSuperUser();
+		}
 		return unlockCheckNodeSite(id);
 	}
 

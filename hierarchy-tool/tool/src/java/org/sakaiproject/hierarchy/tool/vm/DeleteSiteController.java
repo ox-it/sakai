@@ -59,7 +59,7 @@ public class DeleteSiteController extends SimpleFormController {
 			List<PortalNode> children = phs.getNodeChildren(current.getId());
 			hasChildren = children.size() > 0;
 		}
-		canDelete = !hasChildren;
+		canDelete = phs.canDeleteNode(current.getId());
 		data.put("hasChildren", hasChildren);
 		data.put("canDelete", canDelete);
 		return data;
