@@ -8,11 +8,23 @@
 #springShowErrors("" "")
 
 #if ($canDelete)
+	#if ($hasChildren)
+	<div class="alertMessage">
+		#springMessage("delete.multiple")
+	</div>
+	<p class="instruction">
+		#springMessage("delete.multiple.intro")
+	</p>
+	#else
 	<p class="instruction">
 		#springMessage("delete.intro")
 	</p>
+	#end
 	<form method="POST">
 	<input type="submit" value="#springMessage("delete.button")"/>
+	</form>
+	<form method="GET" action="$rootUrl">
+	<input type="submit" value="#springMessage("delete.cancel")"/>
 	</form>
 #else
 	#springMessage("delete.cannot")

@@ -62,6 +62,8 @@ public class DeleteSiteController extends SimpleFormController {
 		canDelete = phs.canDeleteNode(current.getId());
 		data.put("hasChildren", hasChildren);
 		data.put("canDelete", canDelete);
+		data.put("rootUrl", request.getContextPath()+request.getServletPath());
+
 		return data;
 	}
 	
