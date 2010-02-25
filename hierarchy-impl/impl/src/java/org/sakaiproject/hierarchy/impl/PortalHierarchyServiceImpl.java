@@ -466,7 +466,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	public boolean canDeleteNode(String id) {
 		List<PortalNode> nodes = getNodeChildren(id);
 		if (nodes.size() > 0) {
-			;
+			return securityService.isSuperUser();
 		}
 		return unlockCheckNodeSite(id);
 	}
