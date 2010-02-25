@@ -1,0 +1,22 @@
+#chef_start()
+#chef_portletContainer()
+#chef_portletContent()
+<h3>Moving Site</h3>
+     #if($cutId == $current.nodeId)
+      <p>Please find another site and then click paste</p>
+    #else #if($cutChild)
+       <p>Can't paste site at a child</p>
+    #else 
+      <form method="POST" action="${rootUrl}">
+      <input type="hidden" name="_action" value="act_paste"/>
+      <input type="submit" value="Paste Site"/>
+      </form>
+    #end #end
+<form method="GET" action="${rootUrl}">
+<input type="hidden" name="_action" value="act_cancel"/>
+<input type="submit" value="Cancel"/>
+</form>
+
+#chef_portletContentEnd()
+#chef_portletContainerEnd()
+#chef_end()

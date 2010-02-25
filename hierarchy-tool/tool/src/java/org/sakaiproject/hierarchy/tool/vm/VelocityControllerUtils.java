@@ -10,9 +10,9 @@ import org.springframework.validation.Errors;
 
 public class VelocityControllerUtils {
 
-	public static Map<String, String> referenceData(HttpServletRequest request, Object command, Errors errors)
+	public static Map<String, Object> referenceData(HttpServletRequest request, Object command, Errors errors)
 	{
-		Map<String, String> model = new HashMap<String, String>();
+		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("sakai_fragment","false");
 		model.put("sakai_head", (String) request
 				.getAttribute("sakai.html.head"));

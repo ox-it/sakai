@@ -22,7 +22,9 @@
 
 	<bean id="managerController"
 		class="org.sakaiproject.hierarchy.tool.vm.ManagerController"
-		init-method="init" />
+		init-method="init">
+		<property name="portalHierarchyService" ref="org.sakaiproject.hierarchy.api.PortalHierarchyService"/>
+	</bean>
 		
 	<bean id="siteBrowserHelper"
 		class="org.sakaiproject.hierarchy.tool.vm.HelperController">

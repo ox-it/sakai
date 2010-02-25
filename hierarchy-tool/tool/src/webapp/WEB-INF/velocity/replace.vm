@@ -1,0 +1,21 @@
+#chef_start()
+#chef_portletContainer()
+#chef_portletContent()
+<h3>Replacing Site</h3>
+<p>Do you wish to replace the site:</p>
+$old.siteTitle
+<p>with the new site</p>
+$new.siteTitle
+
+<form method="post" action="${rootUrl}">
+<input type="hidden" name="_action" value="act_savesite"/>
+<input type="hidden" name="_site" value="$!{new.siteId}" />
+<input type="submit" value="Replace"/>
+</form>
+<form method="get" action="${rootUrl}">
+<input type="submit" value="Cancel"/>
+</form>
+
+#chef_portletContentEnd()
+#chef_portletContainerEnd()
+#chef_end()

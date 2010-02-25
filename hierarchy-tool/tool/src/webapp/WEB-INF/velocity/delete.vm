@@ -27,12 +27,19 @@
 	<input type="submit" value="#springMessage("delete.cancel")"/>
 	</form>
 #else
+	<div class="alertMessage">
 	#springMessage("delete.cannot")
+	</div>
+	<p>
 	#if ($hasChildren)
 		#springMessage("delete.cannot.children")
 	#else
 		#springMessage("delete.cannot.unknown")
 	#end
+	</p>
+	<form method="GET" action="$rootUrl">
+	<input type="submit" value="#springMessage("delete.cancel")"/>
+	</form>
 #end
 
 

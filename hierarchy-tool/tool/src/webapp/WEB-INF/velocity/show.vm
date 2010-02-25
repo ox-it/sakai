@@ -2,59 +2,48 @@
 #chef_portletContainer()
 #chef_portletContent()
 
-<h3>Current Site</h3>
-<p>
-#if ($site)
-${site.title} - #if($site.description)${site.description}#else No Description #end
-#else
-No site currently set.
-#end
-</p>
 
-<h4>Path: $node.path</h4>
-<h4>Other Locations</h4>
-<ul>
-#foreach ($path in $otherPaths)
-<li>$path</li>
+#if ($current)
+  <h3>${current.siteTitle}</h3>
+  <dl>
+  #if ($current.nodeUrl)
+  <dt>Site URL:</dt>
+  <dd><a href="$current.nodeUrl" target="_top">$current.nodeUrl</a></dd>
+  #end
+  #if ($current.siteShortDescription)
+  <dt>Description:</dt>
+  <dd>$current.siteShortDescription</dd>
+  #end
+  #if ($other.size() > 0)
+  <dt>Other locations:</dt>
+  <dd>
+    <ul>
+      #foreach ($node in $other)
+      <li><a href="$node.nodeUrl" target="_top">$node.nodeUrl</a></li>
+      #end
+    </ul>
+  </dd>
+  #end
+  </dl>
+#else
+  <h3>No site currently set.</h3>
 #end
-</ul>
 
 <form method="post" action="${rootUrl}">
 <input type="hidden" name="_action" value="act_selectsite"/>
-<input type="submit" value="Replace Site"/>
+<input type="submit" value="Replace Site" #if(!$canReplace)disabled="true"#end/>
 </form>
 
-<p>
-#if ($updating)
-<form method="post" action="${rootUrl}">
-<input type="hidden" name="_action" value="act_savesite"/>
-<input type="hidden" name="_site" value="$!{site.id}" />
-<input type="submit" value="Save"/>
-</form>
-<form method="get" action="${rootUrl}">
-<input type="submit" value="Cancel"/>
-</form>
-#else
 <form method="GET" action="${rootUrl}/delete">
 <input type="submit" value="Remove Site"/>
 </form>
-  #if($cutId)
-    #if($cutId == $node.nodeid)
-      <p>Please find another site and then click paste</p>
-    #else
-      <form method="POST" action="${rootUrl}">
-      <input type="hidden" name="_action" value="act_paste"/>
-      <input type="submit" value="Paste Site"/>
-      </form>
-    #end
-  #else
-    <form method="POST" action="${rootUrl}">
-    <input type="hidden" name="_action" value="act_cut"/>
-    <input type="submit" value="Move Site"/>
-    </form>
-  #end
+
+#if($canMove)
+<form method="POST" action="${rootUrl}">
+  <input type="hidden" name="_action" value="act_cut"/>
+  <input type="submit" value="Move Site"/>
+</form>
 #end
-</p>
 
 
 
