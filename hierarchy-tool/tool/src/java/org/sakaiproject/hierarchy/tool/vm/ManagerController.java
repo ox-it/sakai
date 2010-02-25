@@ -83,13 +83,13 @@ public class ManagerController extends AbstractController
 		String currentPath = request.getPathInfo();
 		if (currentPath != null && currentPath.length() > 0)
 		{
-			node = PortalHierarchyService.getNode(currentPath);
+			node = PortalHierarchyService.getInstance().getNode(currentPath);
 		}
 		if (node == null)
 		{
-			node = PortalHierarchyService.getCurrentPortalNode();
+			node = PortalHierarchyService.getInstance().getCurrentPortalNode();
 			if ( node == null ) {
-				node = PortalHierarchyService.getNode(null);
+				node = PortalHierarchyService.getInstance().getNode(null);
 			}
 		}
 		Placement p = ToolManager.getCurrentPlacement();
@@ -146,7 +146,7 @@ public class ManagerController extends AbstractController
 				String siteId = request.getParameter(REQUEST_SITE);
 				if (siteId != null && siteId.length() > 0)
 				{
-					PortalHierarchyService.changeSite(node.getId(), siteId);
+					PortalHierarchyService.getInstance().changeSite(node.getId(), siteId);
 				}
 			}
 			Map<String, Object> showModel = new HashMap<String, Object>();
@@ -168,7 +168,7 @@ public class ManagerController extends AbstractController
 
 	private void populateSite(Map<String, Object> editModel, PortalNode node) {
 			editModel.put("site", createSiteMap(node.getSite()));
-			List<PortalNode> nodes = PortalHierarchyService.getNodesWithSite(node.getSite().getId());
+			List<PortalNode> nodes = PortalHierarchyService.getInstance().getNodesWithSite(node.getSite().getId());
 			List<String> paths = new ArrayList<String>(nodes.size());
 			for (PortalNode currentNode: nodes) {
 				if (!node.getPath().equals(currentNode.getPath()))
@@ -201,7 +201,7 @@ public class ManagerController extends AbstractController
 	private void populateHierarchy(PortalNode node, Map<String, Object> nodeMap) {
 		List<Map<String, String>> childrenNodes = new ArrayList<Map<String, String>>();
 		nodeMap.put("children", childrenNodes);
-		List<PortalNode> children = PortalHierarchyService.getNodeChildren(node.getId());
+		List<PortalNode> children = PortalHierarchyService.getInstance().getNodeChildren(node.getId());
 		for (PortalNode child: children)
 		{
 			Map<String, String> prop = new HashMap<String, String>();
