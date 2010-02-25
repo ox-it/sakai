@@ -18,6 +18,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -52,6 +53,10 @@ public class ManagerController extends AbstractController
 	public static final String ACT_CLEARPROPERTY = "act_clearproperty";
 	
 	public static final String ACT_SELECT_SITE = "act_selectsite";
+	
+	public static final String ACT_CUT = "act_cut";
+	
+	public static final String ACT_PASTE = "act_paste";
 
 	public static final String REQUEST_ACTION = "_action";
 
@@ -64,6 +69,8 @@ public class ManagerController extends AbstractController
 	public static final String REQUEST_PROPERTY = "_property";
 
 	public static final String REQUEST_VALUE = "_value";
+
+	private static final String	CUT_ID	= ManagerController.class.getName() + "#CUT_ID";
 
 
 	public ManagerController()
@@ -97,6 +104,9 @@ public class ManagerController extends AbstractController
 		Map<String, Object> model = new HashMap<String, Object>();
 		populateModel(model,request);
 
+		Session session = SessionManager.getCurrentSession();
+		String cutId = (String) session.getAttribute(ManagerController.CUT_ID);
+		boolean topRefresh = false;
 		if (node == null)
 		{
 			return new ModelAndView("nonode", model);
@@ -119,7 +129,7 @@ public class ManagerController extends AbstractController
 				Map<String, Object> editModel = new HashMap<String, Object>();
 				editModel.put("updating", Boolean.TRUE);
 				populateModel(editModel, request);
-				populateNode(node, editModel);
+				populateNode(editModel, node);
 				
 				// Check to see if the user has come back from helper.
 				ToolSession toolSession = SessionManager.getCurrentToolSession();
@@ -147,12 +157,29 @@ public class ManagerController extends AbstractController
 				if (siteId != null && siteId.length() > 0)
 				{
 					PortalHierarchyService.getInstance().changeSite(node.getId(), siteId);
+					topRefresh = true;
+				}
+			}
+			else if (ACT_CUT.equals(action))
+			{
+				cutId = node.getId();
+				session.setAttribute(ManagerController.CUT_ID, cutId);
+			}
+			else if (ACT_PASTE.equals(action))
+			{
+				if (cutId != null)
+				{
+					PortalHierarchyService.getInstance().moveNode(cutId, node.getId());
+					session.removeAttribute(ManagerController.CUT_ID);
+					topRefresh = true;
 				}
 			}
 			Map<String, Object> showModel = new HashMap<String, Object>();
 			populateModel(showModel, request);
+			showModel.put("topRefresh", topRefresh);
 			populateSite(showModel, node);
-			populateNode(node, showModel);
+			populateNode(showModel, node);
+			showModel.put("cutId", cutId);
 
 			return new ModelAndView( "show", showModel);
 		}
@@ -185,7 +212,7 @@ public class ManagerController extends AbstractController
 		return siteMap;
 	}
 
-	private void populateNode(PortalNode node, Map<String, Object> model) {
+	private void populateNode(Map<String, Object> model, PortalNode node) {
 		Map<String, Object> nodeMap = new HashMap<String, Object>();
 		model.put("node", nodeMap);
 
@@ -231,7 +258,6 @@ public class ManagerController extends AbstractController
 		String editor = ServerConfigurationService.getString("wysiwyg.editor");
 		model.put("sakai_editor", editor);
 		model.put("sakai_library_path", "/library/");
-		
 
 		model.put("rootUrl", request.getContextPath()+request.getServletPath());
 	}

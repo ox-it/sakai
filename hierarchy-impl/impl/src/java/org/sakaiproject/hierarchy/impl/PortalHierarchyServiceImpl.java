@@ -63,7 +63,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		eventTrackingService.post(eventTrackingService.newEvent(EVENT_MODIFY, id, true));
 	}
 
-	public void deleteNode(String id) throws PermissionException{
+	public void deleteNode(String id) {
 		if (!canDeleteNode(id)) {
 			throw new IllegalStateException("Can't delete this node.");
 		}
@@ -196,8 +196,27 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		return populatePortalNodes(nodes);
 	}
 
-	public void moveNode(String id, String newParent) {
-		throw new UnsupportedOperationException("Wops, needs implementing.");
+	public void moveNode(String id, String newParentId) throws PermissionException {
+		if (!canMoveNode(id)) {
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), null, id);
+		}
+		PortalNode toMove = getNodeById(id);
+		PortalNode newParent = getNodeById(newParentId);
+		if (toMove == null) {
+			throw new IllegalArgumentException("Couldn't find node to move: "+ id);
+		}
+		if (newParent == null) {
+			throw new IllegalArgumentException("Couldn't find node to move to: "+ newParentId);
+		}
+		copyNodes(toMove, newParentId);
+		deleteNode(id);
+	}
+	
+	private void copyNodes(PortalNode node, String newParentId) throws PermissionException {
+		PortalNode newNode = newNode(newParentId, node.getName(), node.getSite().getId(), node.getManagementSite().getId());
+		for (PortalNode child: getNodeChildren(node.getId())) {
+			copyNodes(child, newNode.getId());
+		}
 	}
 
 	public PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId) throws PermissionException {
@@ -447,13 +466,13 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	public boolean canDeleteNode(String id) {
 		List<PortalNode> nodes = getNodeChildren(id);
 		if (nodes.size() > 0) {
-			return securityService.isSuperUser();
+			;
 		}
 		return unlockCheckNodeSite(id);
 	}
 
 	public boolean canMoveNode(String id) {
-		return unlockCheckNodeSite(id);
+		return securityService.isSuperUser();
 	}
 
 	public boolean canNewNode(String parentId) {

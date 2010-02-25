@@ -38,6 +38,21 @@ No site currently set.
 <form method="GET" action="${rootUrl}/delete">
 <input type="submit" value="Remove Site"/>
 </form>
+  #if($cutId)
+    #if($cutId == $node.nodeid)
+      <p>Please find another site and then click paste</p>
+    #else
+      <form method="POST" action="${rootUrl}">
+      <input type="hidden" name="_action" value="act_paste"/>
+      <input type="submit" value="Paste Site"/>
+      </form>
+    #end
+  #else
+    <form method="POST" action="${rootUrl}">
+    <input type="hidden" name="_action" value="act_cut"/>
+    <input type="submit" value="Move Site"/>
+    </form>
+  #end
 #end
 </p>
 
