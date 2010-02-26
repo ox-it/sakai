@@ -28,7 +28,7 @@
 	<import resource="hibernate-hbms.xml"/>
 	<import resource="portal-spring-hibernate.xml"/>
 	
-	<bean id="org.sakaiproject.hierarchy.api.PortalHierarchyService"
+	<bean id="org.sakaiproject.hierarchy.api.PortalHierarchyServiceTarget"
 		class="org.sakaiproject.hierarchy.impl.PortalHierarchyServiceImpl"
 		init-method="init" >
 		<property name="hierarchyService">
@@ -56,6 +56,26 @@
 		<property name="hierarchyId"><value>hierarchy</value></property>
 		<property name="missingSiteId"><value>!hierarchy.missing</value></property>
 		<property name="autoDDL"><value>${auto.ddl}</value></property>
+	</bean>
+
+	<bean
+		id="org.sakaiproject.hierarchy.api.PortalHierarchyService"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+				<ref
+						bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="target">
+				<ref
+						bean="org.sakaiproject.hierarchy.api.PortalHierarchyServiceTarget" />
+		</property>
+		<property name="transactionAttributes">
+				<props>
+						<prop key="moveNode">PROPAGATION_REQUIRED</prop>
+						<prop key="deleteNode">PROPAGATION_REQUIRED</prop>
+						<prop key="newNode">PROPAGATION_REQUIRED</prop>
+				</props>
+		</property>
 	</bean>
 
 	<!--  Bean to create some content after component manager starts up but before Sakai is available. -->
