@@ -1,0 +1,25 @@
+#chef_start()
+#chef_portletContainer()
+#chef_portletContent()
+<h3>#springMessage("cut.title")</h3>
+     #if($cutId == $current.nodeId)
+      <p>#springMessage("cut.another")</p>
+    #else #if($cutChild)
+       <p>#springMessage("cut.not")</p>
+    #else 
+      <div class="instr">
+        $springMacroRequestContext.getMessage("cut.intro", [ $cutNode.site.title, $cutNode.path ])
+      </div>
+      <form method="POST" action="${rootUrl}">
+      <input type="hidden" name="_action" value="act_paste"/>
+      <input type="submit" value="#springMessage("cut.paste")"/>
+      </form>
+    #end #end
+<form method="GET" action="${rootUrl}">
+<input type="hidden" name="_action" value="act_cancel"/>
+<input type="submit" value="#springMessage("button.cancel")"/>
+</form>
+
+#chef_portletContentEnd()
+#chef_portletContainerEnd()
+#chef_end()

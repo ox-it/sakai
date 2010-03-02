@@ -5,9 +5,9 @@
 	<script type="text/javascript" language="JavaScript">
 		parent.location.replace("$siteUrl");
 	</script>
-	
+	<noscript>
 	<a href="$siteUrl">Site</a>. 
-
+	</noscript>
 #chef_portletContentEnd()
 #chef_portletContainerEnd()
 #chef_end()

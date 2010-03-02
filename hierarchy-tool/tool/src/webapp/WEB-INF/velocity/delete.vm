@@ -3,9 +3,6 @@
 #chef_portletContent()
 
 <h3>#springMessage("delete.title")</h3>
-## Should pull global error.
-#springBind("command")
-#springShowErrors("" "")
 
 #if ($canDelete)
 	#if ($hasChildren)
@@ -24,15 +21,22 @@
 	<input type="submit" value="#springMessage("delete.button")"/>
 	</form>
 	<form method="GET" action="$rootUrl">
-	<input type="submit" value="#springMessage("delete.cancel")"/>
+	<input type="submit" value="#springMessage("button.cancel")"/>
 	</form>
 #else
+	<div class="alertMessage">
 	#springMessage("delete.cannot")
+	</div>
+	<p>
 	#if ($hasChildren)
 		#springMessage("delete.cannot.children")
 	#else
 		#springMessage("delete.cannot.unknown")
 	#end
+	</p>
+	<form method="GET" action="$rootUrl">
+	<input type="submit" value="#springMessage("button.cancel")"/>
+	</form>
 #end
 
 

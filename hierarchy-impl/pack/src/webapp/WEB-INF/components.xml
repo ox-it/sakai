@@ -24,69 +24,11 @@
 -->
 <beans>
 
-	<!--
-		<bean id="org.sakaiproject.hierarchy.api.HierarchyService.test"
-		class="org.sakaiproject.hierarchy.impl.HierarchyServiceTest" 
-		init-method="init" >
-		<property name="hierarchyService"><ref bean="org.sakaiproject.hierarchy.api.HierarchyService" /></property>
-		
-		
-		</bean> 
-		<bean id="org.sakaiproject.hierarchy.api.HierarchyService.testsite"
-		class="org.sakaiproject.hierarchy.impl.SiteHierarchyServiceTest" 
-		init-method="init" >
-		<property name="hierarchyService"><ref bean="org.sakaiproject.hierarchy.api.HierarchyService" /></property>
-		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
-		</bean>  
-		
-		
-		<bean id="org.sakaiproject.hierarchy.api.HierarchyService.testportal"
-		class="org.sakaiproject.hierarchy.impl.PortalHierarchyServiceTest" 
-		init-method="init" >
-		<property name="hierarchyService"><ref bean="org.sakaiproject.hierarchy.api.PortalHierarchyService" /></property>
-		</bean>
-	-->
 
-
-
-
-<!-- 
-	<bean id="com.ibatis.sqlmap.client.SqlMapClient"
-		class="org.sakaiproject.orm.ibatis.SqlMapClientFactoryBean">
-		<property name="dataSource">
-			<ref bean="javax.sql.DataSource" />
-		</property>
-		<property name="configLocation">
-			<bean class="org.sakaiproject.util.LocalClassPathResource">
-				<constructor-arg type="java.lang.String">
-					<value>/sql-maps-config.xml</value>
-				</constructor-arg>
-			</bean>
-		</property>
-	</bean>
-
-	<bean id="org.sakaiproject.hierarchy.api.dao.HierarchyDAO"
-		class="org.sakaiproject.hierarchy.impl.ibatis.dao.HierarchyDAO"
-		init-method="init">
-		<property name="sqlMapClient">
-			<ref bean="com.ibatis.sqlmap.client.SqlMapClient" />
-		</property>
-		<property name="idManager">
-			<ref bean="org.sakaiproject.id.api.IdManager" />
-		</property>
-		<property name="threadLocal">
-			<ref
-				bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
-		</property>
-		<property name="sqlService">
-			<ref bean="org.sakaiproject.db.api.SqlService" />
-		</property>
-	</bean>
-	-->
 	<import resource="hibernate-hbms.xml"/>
 	<import resource="portal-spring-hibernate.xml"/>
 	
-	<bean id="org.sakaiproject.hierarchy.api.PortalHierarchyService"
+	<bean id="org.sakaiproject.hierarchy.api.PortalHierarchyServiceTarget"
 		class="org.sakaiproject.hierarchy.impl.PortalHierarchyServiceImpl"
 		init-method="init" >
 		<property name="hierarchyService">
@@ -114,6 +56,26 @@
 		<property name="hierarchyId"><value>hierarchy</value></property>
 		<property name="missingSiteId"><value>!hierarchy.missing</value></property>
 		<property name="autoDDL"><value>${auto.ddl}</value></property>
+	</bean>
+
+	<bean
+		id="org.sakaiproject.hierarchy.api.PortalHierarchyService"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+				<ref
+						bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="target">
+				<ref
+						bean="org.sakaiproject.hierarchy.api.PortalHierarchyServiceTarget" />
+		</property>
+		<property name="transactionAttributes">
+				<props>
+						<prop key="moveNode">PROPAGATION_REQUIRED</prop>
+						<prop key="deleteNode">PROPAGATION_REQUIRED</prop>
+						<prop key="newNode">PROPAGATION_REQUIRED</prop>
+				</props>
+		</property>
 	</bean>
 
 	<!--  Bean to create some content after component manager starts up but before Sakai is available. -->

@@ -49,7 +49,7 @@ public class BringSiteController extends SimpleFormController {
 	}
 
 	
-	public Map<String, String> referenceData(HttpServletRequest request, Object command, Errors errors)
+	public Map<String, Object> referenceData(HttpServletRequest request, Object command, Errors errors)
 	{
 		return VelocityControllerUtils.referenceData(request, command, errors);
 	}
