@@ -10,10 +10,10 @@ $new.siteTitle
 <form method="post" action="${rootUrl}">
 <input type="hidden" name="_action" value="act_savesite"/>
 <input type="hidden" name="_site" value="$!{new.siteId}" />
-<input type="submit" value="Replace"/>
+<input type="submit" value="#springMessage("button.replace")"/>
 </form>
 <form method="get" action="${rootUrl}">
-<input type="submit" value="Cancel"/>
+<input type="submit" value="#springMessage("button.cancel")"/>
 </form>
 
 #chef_portletContentEnd()

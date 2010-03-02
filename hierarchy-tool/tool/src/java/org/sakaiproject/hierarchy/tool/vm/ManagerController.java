@@ -164,6 +164,7 @@ public class ManagerController extends AbstractController
 			showModel.put("cutId", cutId);
 			PortalNode cutNode = phs.getNodeById(cutId);
 			showModel.put("cutChild", node.getPath().startsWith(cutNode.getPath()));
+			showModel.put("cutNode", cutNode);
 			return new ModelAndView( "cut", showModel);
 		} else {
 			showModel.put("canDelete", phs.canDeleteNode(node.getId()));
