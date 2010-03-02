@@ -7,15 +7,15 @@
   <h3>${current.siteTitle}</h3>
   <dl>
   #if ($current.nodeUrl)
-  <dt>Site URL:</dt>
+  <dt>#springMessage("show.site.url"):</dt>
   <dd><a href="$current.nodeUrl" target="_top">$current.nodeUrl</a></dd>
   #end
   #if ($current.siteShortDescription)
-  <dt>Description:</dt>
+  <dt>#springMessage("show.site.desc"):</dt>
   <dd>$current.siteShortDescription</dd>
   #end
   #if ($other.size() > 0)
-  <dt>Other locations:</dt>
+  <dt>#springMessage("show.other"):</dt>
   <dd>
     <ul>
       #foreach ($node in $other)
@@ -26,22 +26,22 @@
   #end
   </dl>
 #else
-  <h3>No site currently set.</h3>
+  <h3>#springMessage("show.site.none")</h3>
 #end
 
 <form method="post" action="${rootUrl}">
 <input type="hidden" name="_action" value="act_selectsite"/>
-<input type="submit" value="Replace Site" #if(!$canReplace)disabled="true"#end/>
+<input type="submit" value="#springMessage("button.replace.site")" #if(!$canReplace)disabled="true"#end/>
 </form>
 
 <form method="GET" action="${rootUrl}/delete">
-<input type="submit" value="Remove Site"/>
+<input type="submit" value="#springMessage("button.remove.site")"/>
 </form>
 
 #if($canMove)
 <form method="POST" action="${rootUrl}">
   <input type="hidden" name="_action" value="act_cut"/>
-  <input type="submit" value="Move Site"/>
+  <input type="submit" value="#springMessage("button.move.site")"/>
 </form>
 #end
 
