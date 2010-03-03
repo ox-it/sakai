@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -48,6 +48,15 @@ public interface Section extends Container
 	Section setAnchor(String selection, PropertyReference... references);
 
 	/**
+	 * Set the section contents as originally collapsed, click in the title to expand.
+	 * 
+	 * @param setting
+	 *        if true, start out collapsed and be expandable.
+	 * @return self.
+	 */
+	Section setCollapsed(boolean setting);
+
+	/**
 	 * Set the decision to include each entity (if the EntityReference is set to a Collection)
 	 * 
 	 * @param inclusionDecision
@@ -80,6 +89,15 @@ public interface Section extends Container
 	Section setIterator(PropertyReference reference, String name, Message empty);
 
 	/**
+	 * Set the maximum height for the section. Any content larger will scroll.
+	 * 
+	 * @param maxHeight
+	 *        The maximum height (0 will disable).
+	 * @return self.
+	 */
+	Section setMaxHeight(int maxHeight);
+
+	/**
 	 * Set the section title message.
 	 * 
 	 * @param selection
@@ -110,7 +128,7 @@ public interface Section extends Container
 	/**
 	 * Set the treatment.
 	 * 
-	 * @param treatment.
+	 * @param treatment
 	 *        The section treatment.
 	 * @return self.
 	 */

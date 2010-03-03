@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -43,11 +43,20 @@ public class UiSection extends UiContainer implements Section
 	/** The message for the anchor. */
 	protected Message anchor = null;
 
+	/** To start out with the section body collapsed, expandable. */
+	protected boolean collapsed = false;
+
 	/** The inclusion decision for each entity. */
 	protected Decision entityIncluded = null;
 
 	/** The reference to an entity to focus on. */
 	protected PropertyReference focusReference = null;
+
+	/** Initial icon while collapsed. */
+	protected String icon1 = "!/ambrosia_library/icons/expand.gif";
+
+	/** Icon while expanded. */
+	protected String icon2 = "!/ambrosia_library/icons/collapse.gif";
 
 	/** Message to use if the iterator is empty. */
 	protected Message iteratorEmpty = null;
@@ -57,6 +66,9 @@ public class UiSection extends UiContainer implements Section
 
 	/** The reference to an entity to iterate over. */
 	protected PropertyReference iteratorReference = null;
+
+	/** The maximum pixel height of the section (scrolls if needed). */
+	protected Integer maxHeight = null;
 
 	/** The message for the title. */
 	protected Message title = null;
@@ -144,6 +156,13 @@ public class UiSection extends UiContainer implements Section
 			this.entityIncluded = decision;
 		}
 
+		// collapsed
+		String collapsed = StringUtil.trimToNull(xml.getAttribute("collapsed"));
+		if (collapsed != null)
+		{
+			setCollapsed(Boolean.parseBoolean(collapsed));
+		}
+
 		// focus
 		settingsXml = XmlHelper.getChildElementNamed(xml, "focusOn");
 		if (settingsXml != null)
@@ -187,6 +206,19 @@ public class UiSection extends UiContainer implements Section
 			if (innerXml != null)
 			{
 				this.iteratorEmpty = new UiMessage(service, innerXml);
+			}
+		}
+
+		// max height
+		String maxHeight = StringUtil.trimToNull(xml.getAttribute("maxHeight"));
+		if (maxHeight != null)
+		{
+			try
+			{
+				this.maxHeight = Integer.parseInt(maxHeight);
+			}
+			catch (NumberFormatException e)
+			{
 			}
 		}
 	}
@@ -329,6 +361,15 @@ public class UiSection extends UiContainer implements Section
 	/**
 	 * {@inheritDoc}
 	 */
+	public UiSection setCollapsed(boolean setting)
+	{
+		this.collapsed = setting;
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Section setEntityIncluded(Decision inclusionDecision)
 	{
 		this.entityIncluded = inclusionDecision;
@@ -352,6 +393,15 @@ public class UiSection extends UiContainer implements Section
 		this.iteratorReference = reference;
 		this.iteratorName = name;
 		this.iteratorEmpty = empty;
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Section setMaxHeight(int maxHeight)
+	{
+		this.maxHeight = Integer.valueOf(maxHeight);
 		return this;
 	}
 
@@ -455,6 +505,35 @@ public class UiSection extends UiContainer implements Section
 	{
 		PrintWriter response = context.getResponseWriter();
 
+		// generate id
+		String id = this.getClass().getSimpleName() + "_" + context.getUniqueId();
+
+		String idString = "";
+		String title1IdString = "";
+		String title2IdString = "";
+		if (this.collapsed)
+		{
+			// id for the div that expands (start with 0 height, but we will get rendered, hidden, so we can check the scrollHeight to know the actual size)
+			String targetId = this.getClass().getSimpleName() + "_" + context.getUniqueId();
+			idString = " id=\"" + targetId + "\" style=\"height:0px;overflow:hidden;\"";
+
+			// id for the two titles
+			String title1Id = this.getClass().getSimpleName() + "_" + context.getUniqueId();
+			title1IdString = " id=\"" + title1Id + "\"";
+
+			String title2Id = this.getClass().getSimpleName() + "_" + context.getUniqueId();
+			title2IdString = " id=\"" + title2Id + "\"";
+
+			// the script
+			int maxHeight = 0;
+			if (this.maxHeight != null)
+			{
+				maxHeight = this.maxHeight.intValue();
+			}
+			context.addScript("function act_" + id + "()\n{\n\tambrosiaToggleSection(\"" + targetId + "\",\"" + title1Id + "\",\"" + title2Id + "\","
+					+ maxHeight + ")\n}\n");
+		}
+
 		// start the section
 		response.println("<div class=\"ambrosiaSection\">");
 
@@ -465,30 +544,88 @@ public class UiSection extends UiContainer implements Section
 			response.println("<a id=\"" + anchorStr + "\" name=\"" + anchorStr + "\"></a>");
 		}
 
-		// title
+		// title - initially visible
 		if ((this.title != null) && (isTitleIncluded(context, focus)))
 		{
 			if (isTitleHighlighted(context, focus))
 			{
-				response.print("<div class=\"ambrosiaSectionHeaderHighlight\">");
+				response.print("<div" + title1IdString + " class=\"ambrosiaSectionHeaderHighlight\">");
 			}
 			else
 			{
-				response.print("<div class=\"ambrosiaSectionHeader\">");
+				response.print("<div" + title1IdString + " class=\"ambrosiaSectionHeader\">");
 			}
+
+			// wrap the title in an anchor to expand / contract
+			if (this.collapsed)
+			{
+				response.print("<a href=\"#\" onclick=\"act_" + id + "();return false;\">");
+			}
+
+			// icon, if collapsed
+			if (this.collapsed)
+			{
+				response.print("<img style=\"vertical-align:text-bottom; padding-right:0.3em;\" src=\"" + context.getUrl(this.icon1) + "\" "
+				// "title=\"" + description + "\" " + "alt=\"" + description
+						+ "/>");
+			}
+
 			response.print(this.title.getMessage(context, focus));
+
+			if (this.collapsed)
+			{
+				response.print("</a>");
+			}
+
 			response.println("</div>");
+		}
+
+		// the title while expanded, if we start collapsed
+		if (this.collapsed)
+		{
+			if ((this.title != null) && (isTitleIncluded(context, focus)))
+			{
+				if (isTitleHighlighted(context, focus))
+				{
+					response.print("<div" + title2IdString + " style=\"display:none;\" class=\"ambrosiaSectionHeaderHighlight\">");
+				}
+				else
+				{
+					response.print("<div" + title2IdString + " style=\"display:none;\" class=\"ambrosiaSectionHeader\">");
+				}
+
+				response.print("<a href=\"#\" onclick=\"act_" + id + "();return false;\">");
+
+				// icon
+				response.print("<img style=\"vertical-align:text-bottom; padding-right:0.3em;\" src=\"" + context.getUrl(this.icon2) + "\" "
+				// "title=\"" + description + "\" " + "alt=\"" + description
+						+ "/>");
+
+				response.print(this.title.getMessage(context, focus));
+				response.print("</a>");
+				response.println("</div>");
+			}
 		}
 
 		boolean closeDiv = false;
 		if ("evaluation".equals(this.treatment))
 		{
-			response.println("<div class=\"ambrosiaSectionEvaluation\">");
+			response.println("<div" + idString + " class=\"ambrosiaSectionEvaluation\">");
 			closeDiv = true;
 		}
 		else if ("indented".equals(this.treatment))
 		{
-			response.println("<div class=\"ambrosiaSectionIndented\">");
+			response.println("<div" + idString + " class=\"ambrosiaSectionIndented\">");
+			closeDiv = true;
+		}
+		else if ("inlay".equals(this.treatment))
+		{
+			response.println("<div" + idString + " class=\"ambrosiaSectionInlay\">");
+			closeDiv = true;
+		}
+		else if (this.collapsed)
+		{
+			response.println("<div" + idString + ">");
 			closeDiv = true;
 		}
 

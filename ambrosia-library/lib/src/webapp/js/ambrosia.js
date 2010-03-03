@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -28,8 +28,20 @@
 // take over the setMainFrameHeightNow function
 window.sakaiSetMainFrameHeightNow = window.setMainFrameHeightNow;
 window.setMainFrameHeightNow = ambrosiaSetMainFrameHeightNow;
+var ambrosiaSetMainFrameHeightNowId = null;
 function ambrosiaSetMainFrameHeightNow(id)
 {
+	if (ambrosiaSetMainFrameHeightNowId == null)
+	{
+		ambrosiaSetMainFrameHeightNowId = id;
+	}
+	var scroll = null;
+	if (id == null)
+	{
+		id = ambrosiaSetMainFrameHeightNowId;
+		scroll = findParentScroll();
+	}
+
 	var frame = parent.document.getElementById(id);
 	if (frame != null)
 	{
@@ -53,8 +65,13 @@ function ambrosiaSetMainFrameHeightNow(id)
 	
 		sakaiSetMainFrameHeightNow(id);
 		
+		if (scroll != null)
+		{
+			parent.window.scrollTo(scroll[0], scroll[1]);
+		}
+		
 		// anchor
-		if (ambrosiaAnchorId != null)
+		else if (ambrosiaAnchorId != null)
 		{
 			var anchor = document.getElementById(ambrosiaAnchorId);
 			if (anchor != null)
@@ -65,7 +82,7 @@ function ambrosiaSetMainFrameHeightNow(id)
 			}
 		}
 	}
-	
+
 	// not in a frame
 	else
 	{
@@ -80,6 +97,41 @@ function ambrosiaSetMainFrameHeightNow(id)
 			}
 		}
 	}
+}
+
+function ambrosiaAlterMainFrameHeight(delta)
+{
+	var frame = parent.document.getElementById(ambrosiaSetMainFrameHeightNowId);
+	if (frame)
+	{
+		var objToResize = (frame.style) ? frame.style : frame;
+		objToResize.height = parseInt(objToResize.height) + delta + "px";
+	}
+}
+
+
+//find parent's scroll
+function findParentScroll()
+{
+	var x = 0;
+	var y = 0;
+	if (parent.pageYOffset)
+	{
+		x = parent.pageXOffset;
+		y = parent.pageYOffset;
+	}
+	else if (parent.document.documentElement && parent.document.documentElement.scrollTop)
+	{
+		x = parent.document.documentElement.scrollLeft;
+		y = parent.document.documentElement.scrollTop;
+	}
+	else if (parent.document.body)
+	{
+		x = parent.document.body.scrollLeft;
+		y = parent.document.body.scrollTop;
+	}
+	
+	return [x,y];
 }
 
 function trim(s)
@@ -776,6 +828,124 @@ function ambrosiaCountChecked(name)
 		}
 	}
 	return count;
+}
+
+function ambrosiaToggleSection(name, title1, title2, maxHeight)
+{
+	var el = document.getElementById(name);
+	if (el == null) return;
+	var titleEl1 = document.getElementById(title1);
+	var titleEl2 = document.getElementById(title2);
+
+	if (parseInt(el.style.height) == 0)
+	{
+		if (titleEl1 != null) titleEl1.style.display = "none";
+		if (titleEl2 != null) titleEl2.style.display = "block";
+		expandSection(name, maxHeight);
+	}
+	else
+	{
+		if (titleEl2 != null) titleEl2.style.display = "none";
+		if (titleEl1 != null) titleEl1.style.display = "block";
+		contractSection(name);
+	}
+}
+
+function expandSection(name, maxHeight)
+{
+	var el = document.getElementById(name);
+	if (el == null) return;
+
+	// record the full height
+	el.ambrosiaFullHeight = el.scrollHeight;
+
+	el.ambrosiaMaxHeight = maxHeight;
+	if (el.ambrosiaMaxHeight == 0)
+	{
+		el.ambrosiaMaxHeight = el.ambrosiaFullHeight;
+	}
+
+	if (el.ambrosiaMaxHeight > el.ambrosiaFullHeight)
+	{
+		el.ambrosiaFinalHeight = el.ambrosiaFullHeight;
+	}
+	else
+	{
+		el.ambrosiaFinalHeight = el.ambrosiaMaxHeight;
+	}
+
+	expandToFullHeight(name)
+}
+
+function expandToFullHeight(name)
+{
+	var el = document.getElementById(name);
+	if (el == null) return;
+	if (parseInt(el.style.height) + 60 < el.ambrosiaFinalHeight)
+	{
+		ambrosiaAlterMainFrameHeight(60);
+		el.style.height = (parseInt(el.style.height) + 60) + "px";
+		setTimeout("expandToFullHeight('" + name + "')",5);
+	}
+	else
+	{
+		var delta = el.ambrosiaFinalHeight - parseInt(el.style.height);
+		ambrosiaAlterMainFrameHeight(delta);
+		el.style.height = el.ambrosiaFinalHeight + "px";
+		if (el.ambrosiaFinalHeight != el.ambrosiaFullHeight)
+		{
+			el.style.overflow = "auto";
+		}
+	}
+}
+
+function expandToFullHeightNow(name)
+{
+	var el = document.getElementById(name);
+	if (el == null) return;
+
+	el.style.height = el.ambrosiaFinalHeight + "px";
+	if (el.ambrosiaFinalHeight != el.ambrosiaFullHeight)
+	{
+		el.style.overflow = "auto";
+	}
+	setMainFrameHeightNow(null);
+}
+
+function contractSection(name)
+{
+	contractFromFullHeight(name);
+}
+
+function contractFromFullHeight(name)
+{
+	var el = document.getElementById(name);
+	if (el == null) return;
+	if (parseInt(el.style.height) - 60 > 0)
+	{
+		el.style.overflow = "hidden";
+		el.style.height = (parseInt(el.style.height) - 60) + "px";
+		ambrosiaAlterMainFrameHeight(-60);
+		setTimeout("contractFromFullHeight('" + name + "')",5);
+	}
+	else
+	{
+		var delta = parseInt(el.style.height) * -1;
+		el.style.height = "0px";
+		if (el.scrollTop) el.scrollTop = 0;
+		ambrosiaAlterMainFrameHeight(delta);
+	}
+}
+
+function contractFromFullHeightNow(name)
+{
+	var el = document.getElementById(name);
+	if (el == null) return;
+
+	el.style.height = "0px";
+	if (el.scrollTop) el.scrollTop = 0;
+	el.style.overflow = "hidden";
+	setMainFrameHeightNow(null);
 }
 
 function ambrosiaToggleVisibility(name)
