@@ -1262,6 +1262,41 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	/**
 	 * {@inheritDoc}
 	 */
+	public List<? extends Submission> getMultipleSubmissions(Assessment assessment, String uid)
+	{
+		// TODO: security!
+		if (assessment == null) throw new IllegalArgumentException();
+		if (uid == null) throw new IllegalArgumentException();
+
+		if (M_log.isDebugEnabled()) M_log.debug("getMultipleSubmissions: a: " + assessment.getId() + " u: " + uid);
+
+		List<SubmissionImpl> rv = this.storage.getMultipleSubmissions(assessment, uid);
+
+		if (rv.size() == 0) return rv;
+
+		// find the best
+		SubmissionImpl best = rv.get(rv.size() - 1);
+		for (int i = rv.size() - 2; i >= 0; i--)
+		{
+			SubmissionImpl candidate = rv.get(i);
+			if (candidateBetter(best, candidate))
+			{
+				best = candidate;
+			}
+		}
+
+		for (SubmissionImpl s : rv)
+		{
+			s.siblingCount = rv.size();
+			s.bestSubmissionId = best.getId();
+		}
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Submission getNewUserAssessmentSubmission(Assessment assessment, String userId)
 	{
 		if (assessment == null) throw new IllegalArgumentException();
@@ -1315,6 +1350,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	 */
 	public Submission getSubmission(String id)
 	{
+		// TODO: security!
 		if (id == null) throw new IllegalArgumentException();
 
 		// for thread-local caching

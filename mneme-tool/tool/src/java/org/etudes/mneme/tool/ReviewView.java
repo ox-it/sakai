@@ -106,8 +106,40 @@ public class ReviewView extends ControllerImpl
 
 		context.put("submission", submission);
 
-		// are we in full review, or just "view"
-		context.put("fullReview", submission.getMayReview());
+		// collect the other submissions from this user to the assessment
+		List<? extends Submission> allSubmissions = submissionService.getMultipleSubmissions(submission.getAssessment(), submission.getUserId());
+
+		// compute position within the group, pick the next and prev
+		int size = allSubmissions.size();
+		int position = 1;
+		for (Submission s : allSubmissions)
+		{
+			if (s.equals(submission)) break;
+			position++;
+		}
+		Submission prev = null;
+		if (position > 1) prev = allSubmissions.get(position - 2);
+		Submission next = null;
+		if (position < allSubmissions.size()) next = allSubmissions.get(position);
+
+		if (size > 0) context.put("count", Integer.valueOf(size));
+		context.put("position", Integer.valueOf(position));
+		if (prev != null) context.put("prevSubmissionId", prev.getId());
+		if (next != null) context.put("nextSubmissionId", next.getId());
+
+		Boolean mayReview = submission.getMayReview();
+		Boolean mayNotView = !submission.getMayViewOrReview();
+		
+		if ((mayReview.booleanValue()) && (allSubmissions.get(position - 1).getBest().equals(submission)))
+		{
+			context.put("best", Boolean.TRUE);
+		}
+
+		// can we "full review"?
+		context.put("fullReview", mayReview);
+
+		// is no review possible?
+		context.put("mayNotView", mayNotView);
 
 		// collect all the answers for review
 		List<Answer> answers = submission.getAnswersOrdered();

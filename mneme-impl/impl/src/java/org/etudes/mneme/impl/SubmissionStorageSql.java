@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -184,7 +184,8 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 	{
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT DISTINCT S.USERID FROM MNEME_ANSWER A");
-		sql.append(" JOIN MNEME_SUBMISSION S ON A.SUBMISSION_ID=S.ID AND S.ASSESSMENT_ID=? AND S.COMPLETE='1' AND S.TEST_DRIVE='0' AND S.EVAL_EVALUATED='0'");
+		sql
+				.append(" JOIN MNEME_SUBMISSION S ON A.SUBMISSION_ID=S.ID AND S.ASSESSMENT_ID=? AND S.COMPLETE='1' AND S.TEST_DRIVE='0' AND S.EVAL_EVALUATED='0'");
 		sql.append(" JOIN MNEME_QUESTION Q ON A.QUESTION_ID=Q.ID");
 		sql.append(" WHERE A.ANSWERED='1' AND A.EVAL_SCORE IS NULL AND A.AUTO_SCORE IS NULL AND S.EVAL_SCORE IS NULL AND Q.SURVEY='0'");
 
@@ -268,7 +269,8 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 	{
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT DISTINCT S.USERID FROM MNEME_ANSWER A");
-		sql.append(" JOIN MNEME_SUBMISSION S ON A.SUBMISSION_ID=S.ID AND S.ASSESSMENT_ID=? AND S.COMPLETE='1' AND S.TEST_DRIVE='0' AND S.EVAL_EVALUATED='0'");
+		sql
+				.append(" JOIN MNEME_SUBMISSION S ON A.SUBMISSION_ID=S.ID AND S.ASSESSMENT_ID=? AND S.COMPLETE='1' AND S.TEST_DRIVE='0' AND S.EVAL_EVALUATED='0'");
 		sql.append(" WHERE A.QUESTION_ID=? AND A.ANSWERED='1' AND A.EVAL_SCORE IS NULL AND A.AUTO_SCORE IS NULL AND S.EVAL_SCORE IS NULL");
 
 		Object[] fields = new Object[2];
@@ -302,6 +304,22 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 		fields[0] = Long.valueOf(assessment.getId());
 
 		List<SubmissionImpl> rv = readSubmissions(where, order, fields, true);
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<SubmissionImpl> getMultipleSubmissions(Assessment assessment, String uid)
+	{
+		String where = "WHERE S.ASSESSMENT_ID=? AND S.USERID=? AND S.COMPLETE='1'";
+		String order = "ORDER BY S.SUBMITTED_DATE ASC";
+
+		Object[] fields = new Object[2];
+		fields[0] = Long.valueOf(assessment.getId());
+		fields[1] = uid;
+		List<SubmissionImpl> rv = readSubmissions(where, order, fields, true);
+
 		return rv;
 	}
 

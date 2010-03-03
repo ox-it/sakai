@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -120,6 +120,17 @@ public interface SubmissionStorage
 	 * @return A List<Submission> of the submissions for the assessment.
 	 */
 	List<SubmissionImpl> getAssessmentSubmissions(Assessment assessment);
+
+	/**
+	 * Access a set of (complete) submissions from this user for this assessment.
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 * @param uid
+	 *        The user id.
+	 * @return The List of submissions, in submit date order.
+	 */
+	List<SubmissionImpl> getMultipleSubmissions(Assessment assessment, String uid);
 
 	/**
 	 * Get all the in-progress (open) submissions (all users, all assessments, all contexts).<br />

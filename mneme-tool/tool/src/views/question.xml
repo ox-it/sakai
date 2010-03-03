@@ -70,7 +70,51 @@
 		<!-- courier to keep the session alive -->
 		<courier destination="/courier" frequency="600" />
 
-		<!-- repeat the nav up top w/0 access key -->
+		<!-- review nav bar -->
+		<navigationBar id="nav">
+			<included>
+				<decision model="review" />
+			</included>
+			<container>
+				<text>
+					<message selector="submission-review">
+						<model ref="position" />
+						<model ref="count" />
+						<model type="date" ref="submission.submittedDate" />
+					</message>
+				</text>
+				<divider />
+				<navigation title="prev" accessKey="prev-access" description="review-prev-description" style="BUTTON">
+					<icon icon="/icons/prev.gif" style="LEFT" />
+					<disabled>
+						<hasValueDecision reversed="TRUE" model="prevSubmissionId" />
+					</disabled>
+					<destination template="/review/{0}">
+						<model ref="prevSubmissionId" />
+					</destination>
+				</navigation>
+				<navigation title="next" accessKey="next-access" description="review-next-description" style="BUTTON">
+					<icon icon="/icons/next.gif" style="RIGHT" />
+					<disabled>
+						<hasValueDecision reversed="TRUE" model="nextSubmissionId" />
+					</disabled>
+					<destination template="/review/{0}">
+						<model ref="nextSubmissionId" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation title="return" accessKey="return-access" description="return-description" style="BUTTON" destination="/list">
+					<icon icon="/icons/return.png" style="LEFT" />
+				</navigation>
+				<text>
+					<message selector="best-submission" />
+					<included>
+						<decision model="best" />
+					</included>
+				</text>
+			</container>
+		</navigationBar>
+
 		<navigationBar>
 			<included>
 				<decision reversed="TRUE" model="review" />
@@ -328,6 +372,7 @@
 			<included>
 				<hasValueDecision reversed="TRUE" model="question" />
 				<hasValueDecision reversed="TRUE" model="part" />
+				<decision reversed="TRUE" model="mayNotView" />
 			</included>
 		</section>
 
@@ -343,6 +388,7 @@
 			<included>
 				<hasValueDecision model="submission.assessment.submitPresentation.text" />
 				<decision model="review" />
+				<decision reversed="TRUE" model="mayNotView" />
 			</included>
 		</section>
 
@@ -358,6 +404,10 @@
 			<iterator name="answer">
 				<model ref="answers" />
 			</iterator>
+
+			<included>
+				<decision reversed="TRUE" model="mayNotView" />
+			</included>
 
 			<!-- part title -->
 			<title>
@@ -432,37 +482,6 @@
 								<decision model="review" />
 							</included>
 						</modelComponent>
-
-						<!-- hints -->
-						<overlay id="hints">
-							<container>
-								<text>
-									<message selector="question-hints">
-										<model type="icon" icon="/icons/hints.png" />
-									</message>
-								</text>
-								<text>
-									<message>
-										<model type="html" ref="answer.question.hints" />
-									</message>
-								</text>
-								<!-- hints toggle -->
-								<gap />
-								<toggle target="hints" title="close" style="LINK">
-									<icon icon="/icons/close.png" style="LEFT" />
-									<included>
-										<decision reversed="TRUE" model="review" />
-										<decision model="answer.question.part.assessment.showHints" />
-										<hasValueDecision model="answer.question.hints" />
-									</included>
-								</toggle>
-							</container>
-							<included>
-								<decision reversed="TRUE" model="review" />
-								<decision model="answer.question.part.assessment.showHints" />
-								<hasValueDecision model="answer.question.hints" />
-							</included>
-						</overlay>
 
 						<!-- reason for delivery -->
 						<section>
@@ -540,12 +559,19 @@
 							</included>
 						</section>
 
-						<!-- hints toggle -->
-						<section>
+						<!-- hints -->
+						<section collapsed="TRUE">
+							<title>
+								<message selector="show-hints">
+									<model type="icon" icon="/icons/hints.png" />
+								</message>
+							</title>
 							<container>
-								<toggle target="hints" title="show-hints" description="show-hints-description" style="LINK">
-									<icon icon="/icons/hints.png" style="LEFT" />
-								</toggle>
+								<text>
+									<message>
+										<model type="html" ref="answer.question.hints" />
+									</message>
+								</text>
 							</container>
 							<included>
 								<decision reversed="TRUE" model="review" />
@@ -613,25 +639,49 @@
 			</container>
 		</section>
 
-		<!-- review nav bar -->
-		<navigationBar id="nav">
+		<!-- repeat the review nav down here w/o access key -->
+		<navigationBar>
 			<included>
 				<decision model="review" />
+				<decision reversed="TRUE" model="mayNotView" />
 			</included>
 			<container>
-				<!--
-					<navigation title="prev" accessKey="prev-access" description="review-prev-description" style="BUTTON" disabled="TRUE">
+				<text>
+					<message selector="submission-review">
+						<model ref="position" />
+						<model ref="count" />
+						<model type="date" ref="submission.submittedDate" />
+					</message>
+				</text>
+				<divider />
+				<navigation title="prev" description="review-prev-description" style="BUTTON">
 					<icon icon="/icons/prev.gif" style="LEFT" />
-					</navigation>
-				-->
-				<navigation title="return" accessKey="return-access" description="return-description" style="BUTTON" destination="/list">
+					<disabled>
+						<hasValueDecision reversed="TRUE" model="prevSubmissionId" />
+					</disabled>
+					<destination template="/review/{0}">
+						<model ref="prevSubmissionId" />
+					</destination>
+				</navigation>
+				<navigation title="next" description="review-next-description" style="BUTTON">
+					<icon icon="/icons/next.gif" style="RIGHT" />
+					<disabled>
+						<hasValueDecision reversed="TRUE" model="nextSubmissionId" />
+					</disabled>
+					<destination template="/review/{0}">
+						<model ref="nextSubmissionId" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation title="return" description="return-description" style="BUTTON" destination="/list">
 					<icon icon="/icons/return.png" style="LEFT" />
 				</navigation>
-				<!--
-					<navigation title="next" accessKey="nexy-access" description="review-next-description" style="BUTTON" disabled="TRUE">
-					<icon icon="/icons/next.gif" style="RIGHT" />
-					</navigation>
-				-->
+				<text>
+					<message selector="best-submission" />
+					<included>
+						<decision model="best" />
+					</included>
+				</text>
 			</container>
 		</navigationBar>
 
