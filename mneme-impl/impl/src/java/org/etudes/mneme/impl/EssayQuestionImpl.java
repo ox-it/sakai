@@ -398,34 +398,20 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		answerSection.add(notAnswered);
 
 		// model answer
-		Text modelAnswerTitle = this.uiService.newText();
-		modelAnswerTitle.setText("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
-
 		Text modelAnswer = this.uiService.newText();
 		modelAnswer.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.typeSpecificQuestion.modelAnswer"));
 
-		// overlay for the model answer
-		Overlay modelAnswerOverlay = this.uiService.newOverlay();
-		modelAnswerOverlay.setId("modelanswer");
-		modelAnswerOverlay.add(modelAnswerTitle).add(modelAnswer).add(this.uiService.newGap());
-		modelAnswerOverlay.add(this.uiService.newToggle().setTarget("modelanswer").setTitle("close").setIcon("/icons/close.png",
-				Navigation.IconStyle.left));
-
-		// control to show the model answer
-		Toggle showModelAnswer = this.uiService.newToggle();
-		showModelAnswer.setTarget("modelanswer");
-		showModelAnswer.setTitle("view-model-answer");
-		showModelAnswer.setIcon("/icons/model_answer.png", Navigation.IconStyle.left);
-
 		Section showModelAnswerSection = this.uiService.newSection();
+		showModelAnswerSection.setCollapsed(true);
+		showModelAnswerSection.setMaxHeight(400);
+		showModelAnswerSection.setTreatment("inlay");
+		showModelAnswerSection.setTitle("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
 		showModelAnswerSection.setIncluded(this.uiService.newHasValueDecision().setProperty(
 				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.modelAnswer")), this.uiService
 				.newOrDecision().setOptions(
-						this.uiService.newDecision().setProperty(
-								this.uiService.newPropertyReference().setReference("fullReview")),
-						this.uiService.newDecision().setProperty(
-								this.uiService.newPropertyReference().setReference("grading"))));
-		showModelAnswerSection.add(modelAnswerOverlay).add(showModelAnswer);
+						this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("fullReview")),
+						this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"))));
+		showModelAnswerSection.add(modelAnswer);
 
 		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(answerSection).add(showModelAnswerSection);
 	}
@@ -601,32 +587,19 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		typeSection.add(type);
 
 		// model answer
-		Text modelAnswerTitle = this.uiService.newText();
-		modelAnswerTitle.setText("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
-
 		Text modelAnswer = this.uiService.newText();
 		modelAnswer.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer"));
 
-		// overlay for the model answer
-		Overlay modelAnswerOverlay = this.uiService.newOverlay();
-		modelAnswerOverlay.setId("modelanswer");
-		modelAnswerOverlay.add(modelAnswerTitle).add(modelAnswer).add(this.uiService.newGap());
-		modelAnswerOverlay.add(this.uiService.newToggle().setTarget("modelanswer").setTitle("close").setIcon("/icons/close.png",
-				Navigation.IconStyle.left));
-
-		// control to show the model answer
-		Toggle showModelAnswer = this.uiService.newToggle();
-		showModelAnswer.setTarget("modelanswer");
-		showModelAnswer.setTitle("view-model-answer");
-		showModelAnswer.setIcon("/icons/model_answer.png", Navigation.IconStyle.left);
-
 		Section showModelAnswerSection = this.uiService.newSection();
+		showModelAnswerSection.setCollapsed(true);
+		showModelAnswerSection.setMaxHeight(400);
+		showModelAnswerSection.setTreatment("inlay");
+		showModelAnswerSection.setTitle("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
 		showModelAnswerSection.setIncluded(this.uiService.newHasValueDecision().setProperty(
 				this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer")));
-		showModelAnswerSection.add(showModelAnswer);
+		showModelAnswerSection.add(modelAnswer);
 
-		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(typeSection).add(modelAnswerOverlay).add(
-				showModelAnswerSection);
+		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(typeSection).add(showModelAnswerSection);
 	}
 
 	/**
@@ -658,29 +631,17 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		typeSection.add(type);
 
 		// model answer
-		Text modelAnswerTitle = this.uiService.newText();
-		modelAnswerTitle.setText("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
-
 		Text modelAnswer = this.uiService.newText();
 		modelAnswer.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer"));
 
-		// overlay for the model answer
-		Overlay modelAnswerOverlay = this.uiService.newOverlay();
-		modelAnswerOverlay.setId("modelanswer");
-		modelAnswerOverlay.add(modelAnswerTitle).add(modelAnswer).add(this.uiService.newGap());
-		modelAnswerOverlay.add(this.uiService.newToggle().setTarget("modelanswer").setTitle("close").setIcon("/icons/close.png",
-				Navigation.IconStyle.left));
-
-		// control to show the model answer
-		Toggle showModelAnswer = this.uiService.newToggle();
-		showModelAnswer.setTarget("modelanswer");
-		showModelAnswer.setTitle("view-model-answer");
-		showModelAnswer.setIcon("/icons/model_answer.png", Navigation.IconStyle.left);
-
 		Section showModelAnswerSection = this.uiService.newSection();
+		showModelAnswerSection.setCollapsed(true);
+		showModelAnswerSection.setMaxHeight(400);
+		showModelAnswerSection.setTreatment("inlay");
+		showModelAnswerSection.setTitle("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
 		showModelAnswerSection.setIncluded(this.uiService.newHasValueDecision().setProperty(
 				this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer")));
-		showModelAnswerSection.add(modelAnswerOverlay).add(showModelAnswer);
+		showModelAnswerSection.add(modelAnswer);
 
 		Text answer = this.uiService.newText();
 		answer.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.typeSpecificAnswer.answerData"));

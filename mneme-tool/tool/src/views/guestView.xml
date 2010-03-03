@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -149,35 +149,6 @@
 						<!-- Question specific delivery -->
 						<modelComponent model="question.typeSpecificQuestion.viewDeliveryUi" />
 
-						<!-- hints -->
-						<overlay id="hints">
-							<container>
-								<text>
-									<message selector="question-hints">
-										<model type="icon" icon="/icons/hints.png" />
-									</message>
-								</text>
-								<text>
-									<message>
-										<model type="html" ref="question.hints" />
-									</message>
-								</text>
-								<!-- hints toggle -->
-								<gap />
-								<toggle target="hints" title="close" style="LINK">
-									<icon icon="/icons/closes.png" style="LEFT" />
-									<included>
-										<decision model="question.part.assessment.showHints" />
-										<hasValueDecision model="question.hints" />
-									</included>
-								</toggle>
-							</container>
-							<included>
-								<decision model="question.part.assessment.showHints" />
-								<hasValueDecision model="question.hints" />
-							</included>
-						</overlay>
-
 						<!-- reason -->
 						<section>
 							<container>
@@ -195,12 +166,19 @@
 							</included>
 						</section>
 
-						<!-- hints toggle -->
-						<section>
+						<!-- hints -->
+						<section collapsed="TRUE">
+							<title>
+								<message selector="show-hints">
+									<model type="icon" icon="/icons/hints.png" />
+								</message>
+							</title>
 							<container>
-								<toggle target="hints" title="show-hints" description="show-hints-description" style="LINK">
-									<icon icon="/icons/hints.png" style="LEFT" />
-								</toggle>
+								<text>
+									<message>
+										<model type="html" ref="question.hints" />
+									</message>
+								</text>
 							</container>
 							<included>
 								<decision model="question.part.assessment.showHints" />
