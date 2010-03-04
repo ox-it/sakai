@@ -233,6 +233,14 @@ public class GradeQuestionView extends ControllerImpl
 		// [2]grades sort code, [3]aid, [4]qid, |optional ->| [5]sort, [6]page, [7] anchor
 		if (params.length < 5) throw new IllegalArgumentException();
 
+		// assessment
+		Assessment assessment = this.assessmentService.getAssessment(params[3]);
+		if (assessment == null)
+		{
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.invalid)));
+			return;
+		}
+
 		// check for user permission to access the assessments for grading
 		if (!this.submissionService.allowEvaluate(toolManager.getCurrentPlacement().getContext()))
 		{
@@ -267,8 +275,6 @@ public class GradeQuestionView extends ControllerImpl
 			Answer a = (Answer) o;
 			a.getTypeSpecificAnswer().consolidate(destination);
 		}
-
-		String newDestination = null;
 
 		// check for remove
 		if (destination.startsWith("STAY_REMOVE:"))
@@ -317,14 +323,6 @@ public class GradeQuestionView extends ControllerImpl
 			}
 			else
 			{
-				// assessment
-				Assessment assessment = this.assessmentService.getAssessment(params[3]);
-				if (assessment == null)
-				{
-					res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.invalid)));
-					return;
-				}
-
 				// sort code
 				String sortCode = null;
 				if (params.length > 5)
@@ -358,7 +356,21 @@ public class GradeQuestionView extends ControllerImpl
 		// save
 		try
 		{
-			this.submissionService.evaluateAnswers(answers.getSet());
+			// for single question assessment, we need to save the overall submissions, because mark-evaluated and release are submission level
+			// this picks up answer evaluations too.
+			if (assessment.getIsSingleQuestion())
+			{
+				for (Object a : answers.getSet())
+				{
+					this.submissionService.evaluateSubmission(((Answer) a).getSubmission());
+				}
+			}
+			
+			// otherwise we can just save the answers
+			else
+			{
+				this.submissionService.evaluateAnswers(answers.getSet());
+			}
 		}
 		catch (AssessmentPermissionException e)
 		{

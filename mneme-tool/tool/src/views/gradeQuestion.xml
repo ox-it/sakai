@@ -319,6 +319,43 @@
 										</navigation>
 									</navigations>
 								</attachments>
+								
+								<!--mark as evaluated (single question only) -->
+								<selection>
+									<included>
+										<decision model="assessment.isSingleQuestion" />
+									</included>
+									<selectionChoices>
+										<selectionChoice>
+											<displayMessage>
+												<message selector="mark-evaluated" />
+											</displayMessage>
+											<valueMessage>
+												<message template="true" />
+											</valueMessage>
+										</selectionChoice>
+									</selectionChoices>
+									<model ref="answer.submission.evaluation.evaluated" />
+								</selection>
+
+								<!-- release (single question only) -->
+								<selection>
+									<included>
+										<decision model="assessment.isSingleQuestion" />
+									</included>
+									<selectionChoices>
+										<selectionChoice>
+											<displayMessage>
+												<message selector="release-scores" />
+											</displayMessage>
+											<valueMessage>
+												<message template="true" />
+											</valueMessage>
+										</selectionChoice>
+									</selectionChoices>
+									<model ref="answer.submission.isReleased" />
+								</selection>
+								
 							</container>
 						</section>
 					</container>
