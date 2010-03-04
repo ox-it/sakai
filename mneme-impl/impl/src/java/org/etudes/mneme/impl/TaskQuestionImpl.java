@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -27,12 +27,9 @@ package org.etudes.mneme.impl;
 import org.etudes.ambrosia.api.Attachments;
 import org.etudes.ambrosia.api.Component;
 import org.etudes.ambrosia.api.HtmlEdit;
-import org.etudes.ambrosia.api.Navigation;
-import org.etudes.ambrosia.api.Overlay;
 import org.etudes.ambrosia.api.Section;
 import org.etudes.ambrosia.api.Selection;
 import org.etudes.ambrosia.api.Text;
-import org.etudes.ambrosia.api.Toggle;
 import org.etudes.ambrosia.api.UiService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionPlugin;
@@ -180,31 +177,18 @@ public class TaskQuestionImpl extends EssayQuestionImpl
 		typeSection.add(type);
 
 		// model answer
-		Text modelAnswerTitle = this.uiService.newText();
-		modelAnswerTitle.setText("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
-
 		Text modelAnswer = this.uiService.newText();
 		modelAnswer.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer"));
 
-		// overlay for the model answer
-		Overlay modelAnswerOverlay = this.uiService.newOverlay();
-		modelAnswerOverlay.setId("modelanswer");
-		modelAnswerOverlay.add(modelAnswerTitle).add(modelAnswer).add(this.uiService.newGap());
-		modelAnswerOverlay.add(this.uiService.newToggle().setTarget("modelanswer").setTitle("close").setIcon("/icons/close.png",
-				Navigation.IconStyle.left));
-
-		// control to show the model answer
-		Toggle showModelAnswer = this.uiService.newToggle();
-		showModelAnswer.setTarget("modelanswer");
-		showModelAnswer.setTitle("view-model-answer");
-		showModelAnswer.setIcon("/icons/model_answer.png", Navigation.IconStyle.left);
-
 		Section showModelAnswerSection = this.uiService.newSection();
+		showModelAnswerSection.setCollapsed(true);
+		showModelAnswerSection.setMaxHeight(400);
+		showModelAnswerSection.setTreatment("inlay");
+		showModelAnswerSection.setTitle("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
 		showModelAnswerSection.setIncluded(this.uiService.newHasValueDecision().setProperty(
 				this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer")));
-		showModelAnswerSection.add(showModelAnswer);
+		showModelAnswerSection.add(modelAnswer);
 
-		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(typeSection).add(modelAnswerOverlay).add(
-				showModelAnswerSection);
+		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(typeSection).add(showModelAnswerSection);
 	}
 }
