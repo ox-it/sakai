@@ -167,8 +167,8 @@
 						</section>
 
 						<!-- hints -->
-						<section collapsed="TRUE">
-							<title>
+						<section collapsed="TRUE" treatment="inlay" maxHeight="400">
+							<title plain="TRUE">
 								<message selector="show-hints">
 									<model type="icon" icon="/icons/hints.png" />
 								</message>

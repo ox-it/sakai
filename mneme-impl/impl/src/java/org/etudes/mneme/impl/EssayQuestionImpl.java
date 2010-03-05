@@ -406,6 +406,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		showModelAnswerSection.setMaxHeight(400);
 		showModelAnswerSection.setTreatment("inlay");
 		showModelAnswerSection.setTitle("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
+		showModelAnswerSection.setTitlePlain(this.uiService.newTrueDecision());
 		showModelAnswerSection.setIncluded(this.uiService.newHasValueDecision().setProperty(
 				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.modelAnswer")), this.uiService
 				.newOrDecision().setOptions(
@@ -595,6 +596,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		showModelAnswerSection.setMaxHeight(400);
 		showModelAnswerSection.setTreatment("inlay");
 		showModelAnswerSection.setTitle("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
+		showModelAnswerSection.setTitlePlain(this.uiService.newTrueDecision());
 		showModelAnswerSection.setIncluded(this.uiService.newHasValueDecision().setProperty(
 				this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer")));
 		showModelAnswerSection.add(modelAnswer);
@@ -639,6 +641,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		showModelAnswerSection.setMaxHeight(400);
 		showModelAnswerSection.setTreatment("inlay");
 		showModelAnswerSection.setTitle("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
+		showModelAnswerSection.setTitlePlain(this.uiService.newTrueDecision());
 		showModelAnswerSection.setIncluded(this.uiService.newHasValueDecision().setProperty(
 				this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer")));
 		showModelAnswerSection.add(modelAnswer);

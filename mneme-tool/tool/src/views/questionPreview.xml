@@ -93,8 +93,8 @@
 		</section>
 
 		<!-- hints -->
-		<section collapsed="TRUE">
-			<title>
+		<section collapsed="TRUE" treatment="inlay" maxHeight="400">
+			<title plain="TRUE">
 				<message selector="show-hints">
 					<model type="icon" icon="/icons/hints.png" />
 				</message>
@@ -112,14 +112,14 @@
 		</section>
 
 		<!-- question feedback -->
-		<section>
+		<section treatment="inlay" maxHeight="400">
+			<title>
+				<message selector="question-feedback">
+					<model type="icon" icon="/icons/feedback.png" />
+				</message>
+			</title>
 			<container>
 				<text>
-					<title>
-						<message selector="question-feedback">
-							<model type="icon" icon="/icons/feedback.png" />
-						</message>
-					</title>
 					<message>
 						<model type="html" ref="question.feedback" />
 					</message>
