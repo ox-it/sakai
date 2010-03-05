@@ -126,6 +126,15 @@ public interface Section extends Container
 	Section setTitleIncluded(Decision... decision);
 
 	/**
+	 * Set the decision to make a plain title.
+	 * 
+	 * @param decision
+	 *        The decision, or set of decisions, all of which must pass to highlight the title.
+	 * @return self.
+	 */
+	Section setTitlePlain(Decision... decision);
+
+	/**
 	 * Set the treatment.
 	 * 
 	 * @param treatment

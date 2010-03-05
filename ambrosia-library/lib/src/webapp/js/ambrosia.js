@@ -912,6 +912,22 @@ function expandToFullHeightNow(name)
 	setMainFrameHeightNow(null);
 }
 
+function ambrosiaExpandSectionNow(name, maxHeight)
+{
+	var el = document.getElementById(name);
+	if (el == null) return;
+
+	if (el.scrollHeight > maxHeight)
+	{
+		el.style.height = maxHeight + "px";
+		el.style.overflow = "auto";
+	}
+	else
+	{
+		el.style.height = el.scrollHeight + "px";
+	}
+}
+
 function contractSection(name)
 {
 	contractFromFullHeight(name);

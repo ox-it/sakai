@@ -116,6 +116,14 @@ Header text at the top of a section (Section.header)
 }
 
 /*
+Header text at the top of a section (Section.header)
+*/
+.ambrosiaSectionPlain
+{
+	line-height: 2em;
+}
+
+/*
 Header text at the top of a section that has been highlighted (Section.header)
 */
 .ambrosiaSectionHeaderHighlight

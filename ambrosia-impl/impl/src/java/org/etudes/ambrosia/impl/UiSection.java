@@ -79,6 +79,9 @@ public class UiSection extends UiContainer implements Section
 	/** The include decision for the title. */
 	protected Decision titleIncluded = null;
 
+	/** The 'plain' decision for the title. */
+	protected Decision titlePlain = null;
+
 	/** The treatment. */
 	protected String treatment = null;
 
@@ -123,6 +126,18 @@ public class UiSection extends UiContainer implements Section
 			if (innerXml != null)
 			{
 				this.titleHighlighted = service.parseDecisions(innerXml);
+			}
+
+			String plain = StringUtil.trimToNull(settingsXml.getAttribute("plain"));
+			if ((plain != null) && ("TRUE".equals(plain)))
+			{
+				this.titlePlain = new UiDecision().setProperty(new UiConstantPropertyReference().setValue("true"));
+			}
+
+			innerXml = XmlHelper.getChildElementNamed(settingsXml, "plain");
+			if (innerXml != null)
+			{
+				this.titlePlain = service.parseDecisions(innerXml);
 			}
 
 			innerXml = XmlHelper.getChildElementNamed(settingsXml, "included");
@@ -457,6 +472,26 @@ public class UiSection extends UiContainer implements Section
 	/**
 	 * {@inheritDoc}
 	 */
+	public Section setTitlePlain(Decision... decision)
+	{
+		if (decision != null)
+		{
+			if (decision.length == 1)
+			{
+				this.titlePlain = decision[0];
+			}
+			else
+			{
+				this.titlePlain = new UiAndDecision().setRequirements(decision);
+			}
+		}
+
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Section setTreatment(String treatment)
 	{
 		this.treatment = treatment;
@@ -491,6 +526,21 @@ public class UiSection extends UiContainer implements Section
 	{
 		if (this.titleIncluded == null) return true;
 		return this.titleIncluded.decide(context, focus);
+	}
+
+	/**
+	 * Check if this title is plain.
+	 * 
+	 * @param context
+	 *        The Context.
+	 * @param focus
+	 *        The object focus.
+	 * @return true if plain, false if not.
+	 */
+	protected boolean isTitlePlain(Context context, Object focus)
+	{
+		if (this.titlePlain == null) return false;
+		return this.titlePlain.decide(context, focus);
 	}
 
 	/**
@@ -533,6 +583,15 @@ public class UiSection extends UiContainer implements Section
 			context.addScript("function act_" + id + "()\n{\n\tambrosiaToggleSection(\"" + targetId + "\",\"" + title1Id + "\",\"" + title2Id + "\","
 					+ maxHeight + ")\n}\n");
 		}
+		
+		// if not collapsed, but there's a max height
+		else if ((this.maxHeight != null) && (this.maxHeight > 0))
+		{
+			// id for the div that expands (start with 0 height, but we will get rendered, hidden, so we can check the scrollHeight to know the actual size)
+			String targetId = this.getClass().getSimpleName() + "_" + context.getUniqueId();
+			idString = " id=\"" + targetId + "\" style=\"height:0px;overflow:hidden;\"";
+			context.addScript("ambrosiaExpandSectionNow(\"" + targetId + "\"," + maxHeight + ");\n");
+		}
 
 		// start the section
 		response.println("<div class=\"ambrosiaSection\">");
@@ -550,6 +609,10 @@ public class UiSection extends UiContainer implements Section
 			if (isTitleHighlighted(context, focus))
 			{
 				response.print("<div" + title1IdString + " class=\"ambrosiaSectionHeaderHighlight\">");
+			}
+			else if (isTitlePlain(context, focus))
+			{
+				response.print("<div" + title1IdString + " class=\"ambrosiaSectionHeaderPlain\">");
 			}
 			else
 			{
@@ -588,6 +651,10 @@ public class UiSection extends UiContainer implements Section
 				if (isTitleHighlighted(context, focus))
 				{
 					response.print("<div" + title2IdString + " style=\"display:none;\" class=\"ambrosiaSectionHeaderHighlight\">");
+				}
+				else if (isTitlePlain(context, focus))
+				{
+					response.print("<div" + title2IdString + " style=\"display:none;\" class=\"ambrosiaSectionHeaderPlain\">");
 				}
 				else
 				{
