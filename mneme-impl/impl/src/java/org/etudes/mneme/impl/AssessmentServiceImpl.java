@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -907,6 +907,20 @@ public class AssessmentServiceImpl implements AssessmentService
 			{
 				p.getPresentation()
 						.setText(this.attachmentService.translateEmbeddedReferences(p.getPresentation().getText(), attachmentTranslations));
+			}
+		}
+
+		// change the auto-pool to the imported version of the pool
+		if (rv.poolId != null)
+		{
+			String translated = pidMap.get(rv.poolId);
+			if (translated != null)
+			{
+				rv.poolId = translated;
+			}
+			else
+			{
+				rv.poolId = null;
 			}
 		}
 
