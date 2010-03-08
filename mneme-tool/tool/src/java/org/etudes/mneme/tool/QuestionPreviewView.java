@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -25,6 +25,8 @@
 package org.etudes.mneme.tool;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -68,12 +70,20 @@ public class QuestionPreviewView extends ControllerImpl
 			throw new IllegalArgumentException();
 		}
 
+		// if there's a * instead of question id, expect multiple ids at the end of the URL
+		boolean multiple = "*".equals(params[2]);
+
 		String destination = null;
 		if (params.length > 3)
 		{
-			destination = "/" + StringUtil.unsplit(params, 3, params.length - 3, "/");
+			int len = params.length - 3;
+			if (multiple)
+			{
+				len--;
+			}
+			destination = "/" + StringUtil.unsplit(params, 3, len, "/");
 		}
-		
+
 		// if not specified, go to the main pools page
 		else
 		{
@@ -81,22 +91,55 @@ public class QuestionPreviewView extends ControllerImpl
 		}
 		context.put("return", destination);
 
-		String questionId = params[2];
-		Question question = questionService.getQuestion(questionId);
-		if (question == null)
+		if (!multiple)
 		{
-			// redirect to error
-			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.invalid)));
-			return;
-		}
-		context.put("question", question);
+			String questionId = params[2];
+			Question question = questionService.getQuestion(questionId);
+			if (question == null)
+			{
+				// redirect to error
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.invalid)));
+				return;
+			}
 
-		// security check
-		if (!questionService.allowEditQuestion(question))
+			// security check
+			if (!questionService.allowEditQuestion(question))
+			{
+				// redirect to error
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+				return;
+			}
+
+			List<Question> questions = new ArrayList<Question>();
+			questions.add(question);
+			context.put("questions", questions);
+		}
+
+		else
 		{
-			// redirect to error
-			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
-			return;
+			List<Question> questions = new ArrayList<Question>();
+
+			// question id's are in the params array at the end
+			String qids[] = StringUtil.split(params[params.length - 1], "+");
+			for (String qid : qids)
+			{
+				// get the question
+				Question question = this.questionService.getQuestion(qid);
+				if (question != null)
+				{
+					// security check
+					if (!questionService.allowEditQuestion(question))
+					{
+						// redirect to error
+						res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+						return;
+					}
+
+					questions.add(question);
+				}
+			}
+
+			context.put("questions", questions);
 		}
 
 		// render

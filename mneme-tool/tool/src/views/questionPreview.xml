@@ -56,78 +56,94 @@
 			</container>
 		</navigationBar>
 
-		<!--  if invalid -->
 		<section>
-			<container>
-				<text>
-					<message selector="invalid-question">
-						<model type="icon" icon="/icons/warning.png" />
-						<model type="html" ref="question.typeSpecificQuestion.invalidMessage" />
-					</message>
-				</text>
-			</container>
-			<included>
-				<decision model="question.isValid" reversed="TRUE" />
-				<decision model="question.mint" reversed="TRUE" />
-			</included>
-		</section>
+			<iterator name="question">
+				<model ref="questions" />
+			</iterator>
 
-		<!-- Question specific delivery -->
-		<modelComponent model="question.typeSpecificQuestion.viewQuestionUi" />
+			<title highlighted="TRUE">
+				<message selector="question-header">
+					<model ref="question.typeName" />
+					<model type="date" ref="question.createdBy.date" />
+				</message>
+			</title>
 
-		<!-- reason -->
-		<section>
 			<container>
-				<text>
-					<title>
-						<message selector="question-preview-reason-header">
-							<model type="icon" icon="/icons/reason.png" />
+				<!--  if invalid -->
+				<section>
+					<container>
+						<text>
+							<message selector="invalid-question">
+								<model type="icon" icon="/icons/warning.png" />
+								<model type="html" ref="question.typeSpecificQuestion.invalidMessage" />
+							</message>
+						</text>
+					</container>
+					<included>
+						<decision model="question.isValid" reversed="TRUE" />
+						<decision model="question.mint" reversed="TRUE" />
+					</included>
+				</section>
+		
+				<!-- Question specific delivery -->
+				<modelComponent model="question.typeSpecificQuestion.viewQuestionUi" />
+		
+				<!-- reason -->
+				<section>
+					<container>
+						<text>
+							<title>
+								<message selector="question-preview-reason-header">
+									<model type="icon" icon="/icons/reason.png" />
+								</message>
+							</title>
+							<message selector="question-preview-reason" />
+						</text>
+					</container>
+					<included>
+						<decision model="question.explainReason" />
+					</included>
+				</section>
+		
+				<!-- hints -->
+				<section collapsed="TRUE" treatment="inlay" maxHeight="400">
+					<title plain="TRUE">
+						<message selector="show-hints">
+							<model type="icon" icon="/icons/hints.png" />
 						</message>
 					</title>
-					<message selector="question-preview-reason" />
-				</text>
-			</container>
-			<included>
-				<decision model="question.explainReason" />
-			</included>
-		</section>
+					<container>
+						<text>
+							<message>
+								<model type="html" ref="question.hints" />
+							</message>
+						</text>
+					</container>
+					<included>
+						<hasValueDecision model="question.hints" />
+					</included>
+				</section>
+		
+				<!-- question feedback -->
+				<section treatment="inlay" maxHeight="400">
+					<title>
+						<message selector="question-feedback">
+							<model type="icon" icon="/icons/feedback.png" />
+						</message>
+					</title>
+					<container>
+						<text>
+							<message>
+								<model type="html" ref="question.feedback" />
+							</message>
+						</text>
+					</container>
+					<included>
+						<hasValueDecision model="question.feedback" />
+					</included>
+				</section>
 
-		<!-- hints -->
-		<section collapsed="TRUE" treatment="inlay" maxHeight="400">
-			<title plain="TRUE">
-				<message selector="show-hints">
-					<model type="icon" icon="/icons/hints.png" />
-				</message>
-			</title>
-			<container>
-				<text>
-					<message>
-						<model type="html" ref="question.hints" />
-					</message>
-				</text>
 			</container>
-			<included>
-				<hasValueDecision model="question.hints" />
-			</included>
-		</section>
-
-		<!-- question feedback -->
-		<section treatment="inlay" maxHeight="400">
-			<title>
-				<message selector="question-feedback">
-					<model type="icon" icon="/icons/feedback.png" />
-				</message>
-			</title>
-			<container>
-				<text>
-					<message>
-						<model type="html" ref="question.feedback" />
-					</message>
-				</text>
-			</container>
-			<included>
-				<hasValueDecision model="question.feedback" />
-			</included>
 		</section>
 
 		<!-- nav bar -->

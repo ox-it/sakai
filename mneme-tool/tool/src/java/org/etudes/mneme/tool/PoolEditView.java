@@ -96,7 +96,7 @@ public class PoolEditView extends ControllerImpl
 			throw new IllegalArgumentException();
 		}
 
-		return  sort;
+		return sort;
 	}
 
 	/**
@@ -271,7 +271,8 @@ public class PoolEditView extends ControllerImpl
 			}
 		}
 
-		else if ((destination.trim().startsWith("/question_copy")) || (destination.trim().startsWith("/question_move")))
+		else if ((destination.trim().startsWith("/question_copy")) || (destination.trim().startsWith("/question_move"))
+				|| (destination.trim().startsWith("/question_preview")))
 		{
 			// add the selected ids to the destination
 			StringBuilder buf = new StringBuilder();
