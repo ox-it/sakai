@@ -78,6 +78,27 @@ public class PoolEditView extends ControllerImpl
 		M_log.info("destroy()");
 	}
 
+	public static QuestionService.FindQuestionsSort findSort(String sortCode)
+	{
+		QuestionService.FindQuestionsSort sort = null;
+		// 0 is description
+		if ((sortCode.charAt(0) == '0') && (sortCode.charAt(1) == 'A'))
+			sort = QuestionService.FindQuestionsSort.description_a;
+		else if ((sortCode.charAt(0) == '0') && (sortCode.charAt(1) == 'D'))
+			sort = QuestionService.FindQuestionsSort.description_d;
+		// 1 is type
+		else if ((sortCode.charAt(0) == '1') && (sortCode.charAt(1) == 'A'))
+			sort = QuestionService.FindQuestionsSort.type_a;
+		else if ((sortCode.charAt(0) == '1') && (sortCode.charAt(1) == 'D'))
+			sort = QuestionService.FindQuestionsSort.type_d;
+		else
+		{
+			throw new IllegalArgumentException();
+		}
+
+		return  sort;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -121,21 +142,7 @@ public class PoolEditView extends ControllerImpl
 		}
 		context.put("sort_column", sortCode.charAt(0));
 		context.put("sort_direction", sortCode.charAt(1));
-		QuestionService.FindQuestionsSort sort = null;
-		// 0 is description
-		if ((sortCode.charAt(0) == '0') && (sortCode.charAt(1) == 'A'))
-			sort = QuestionService.FindQuestionsSort.description_a;
-		else if ((sortCode.charAt(0) == '0') && (sortCode.charAt(1) == 'D'))
-			sort = QuestionService.FindQuestionsSort.description_d;
-		// 1 is type
-		else if ((sortCode.charAt(0) == '1') && (sortCode.charAt(1) == 'A'))
-			sort = QuestionService.FindQuestionsSort.type_a;
-		else if ((sortCode.charAt(0) == '1') && (sortCode.charAt(1) == 'D'))
-			sort = QuestionService.FindQuestionsSort.type_d;
-		else
-		{
-			throw new IllegalArgumentException();
-		}
+		QuestionService.FindQuestionsSort sort = findSort(sortCode);
 
 		// paging
 		String pagingParameter = "1-" + Integer.toString(this.pageSizes.get(0));

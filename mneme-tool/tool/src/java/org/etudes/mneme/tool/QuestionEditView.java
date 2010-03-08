@@ -42,6 +42,7 @@ import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Part;
+import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionPlugin;
 import org.etudes.mneme.api.QuestionService;
@@ -108,6 +109,12 @@ public class QuestionEditView extends ControllerImpl
 			destination = "/pools";
 		}
 		context.put("return", destination);
+
+		// next/prev for pools (not assessment) editing
+		if (destination.startsWith("/pool_edit"))
+		{
+			context.put("nextPrev", Boolean.TRUE);
+		}
 
 		String questionId = params[2];
 		String assessmentId = params[3];
@@ -418,6 +425,62 @@ public class QuestionEditView extends ControllerImpl
 			// redirect to error
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
 			return;
+		}
+
+		if ("NEXT".equals(destination) || "PREV".equals(destination))
+		{
+			// figure out the question id
+			String returnDestParts[] = StringUtil.split(returnDestination, "/");
+			String sortCode = "0A";
+			if (returnDestParts.length > 4) sortCode = returnDestParts[4];
+
+			QuestionService.FindQuestionsSort sort = PoolEditView.findSort(sortCode);
+
+			// get questions
+			List<Question> questions = questionService.findQuestions(question.getPool(), sort, null, null, null, null, null, null);
+
+			// find this one
+			int pos = 0;
+			for (Question q : questions)
+			{
+				if (q.equals(question))
+				{
+					break;
+				}
+				pos++;
+			}
+
+			// find next/prev w/ wrapping
+			if ("NEXT".equals(destination))
+			{
+				if (pos == questions.size() - 1)
+				{
+					pos = 0;
+				}
+				else
+				{
+					pos++;
+				}
+			}
+			else
+			{
+				if (pos == 0)
+				{
+					pos = questions.size() - 1;
+				}
+				else
+				{
+					pos--;
+				}
+			}
+
+			String qid = questionId;
+			if ((pos >= 0) && (pos <= questions.size() - 1))
+			{
+				qid = questions.get(pos).getId();
+			}
+
+			destination = "/question_edit/" + qid + "/" + assessmentId + "/" + partId + "/" + returnDestination;
 		}
 
 		// if destination became null, or is the stay here
