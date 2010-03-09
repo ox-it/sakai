@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -53,6 +53,7 @@ import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionGrouping;
 import org.etudes.mneme.api.QuestionPick;
 import org.etudes.mneme.api.QuestionService;
+import org.etudes.mneme.api.ReviewTiming;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
@@ -839,13 +840,18 @@ public class AssessmentImpl implements Assessment
 			this.lockedChanged = Boolean.TRUE;
 		}
 
-		else if (this.type == AssessmentType.assignment)
+		this.type = type;
+
+		// some defaults for assessment
+		if (this.type == AssessmentType.assignment)
 		{
 			// assignments always are flexible
 			this.setRandomAccess(Boolean.TRUE);
+			
+			// also default to "review available upon release" and "manual release"
+			this.getReview().setTiming(ReviewTiming.graded);
+			this.getGrading().setAutoRelease(Boolean.FALSE);
 		}
-
-		this.type = type;
 
 		this.changed.setChanged();
 	}
