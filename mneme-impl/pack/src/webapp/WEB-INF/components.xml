@@ -54,6 +54,7 @@
 		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
  		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
 
+		<property name="bundle"><value>mnemeImpl</value></property>
 		<property name="securityServiceSakai"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
 		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
@@ -268,6 +269,7 @@
 		<property name="gradesService"><ref bean="org.etudes.mneme.api.GradesService"/></property>
 		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
 
+		<property name="bundle"><value>mnemeImpl</value></property>
 		<property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
 		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
 		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>

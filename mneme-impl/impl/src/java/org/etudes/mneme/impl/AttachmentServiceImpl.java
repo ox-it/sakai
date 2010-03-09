@@ -97,12 +97,14 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -135,6 +137,9 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	/** Assessment service. */
 	protected AssessmentService assessmentService = null;
 
+	/** Messages bundle name. */
+	protected String bundle = null;
+
 	/** Dependency: ContentHostingService */
 	protected ContentHostingService contentHostingService = null;
 
@@ -149,6 +154,9 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 	/** Configuration: to make thumbs for images or not. */
 	protected boolean makeThumbs = true;
+
+	/** Messages. */
+	protected transient InternationalizedMessages messages = null;
 
 	/** Dependency: SecurityService */
 	protected SecurityService securityService = null;
@@ -434,7 +442,9 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				catch (IdUnusedException e)
 				{
 				}
-				String fileName = siteTitle + "_" + parts[1] + "_Submissions.zip";
+				
+				// get the name extension from the messages (i.e. "_Submissions.zip")
+				String fileName = siteTitle + "_" + parts[1] + this.messages.getFormattedMessage("download_submissions_file_name", null);
 				fileName = fileName.replace(' ', '_');
 
 				props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, "application/zip");
@@ -764,6 +774,9 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			// register as an entity producer
 			entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
+			// messages
+			if (this.bundle != null) this.messages = new ResourceLoader(this.bundle);
+
 			M_log.info("init(): thumbs: " + this.makeThumbs);
 		}
 		catch (Throwable t)
@@ -886,6 +899,17 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	public void setAssessmentService(AssessmentService service)
 	{
 		this.assessmentService = service;
+	}
+
+	/**
+	 * Set the message bundle.
+	 * 
+	 * @param bundle
+	 *        The message bundle.
+	 */
+	public void setBundle(String name)
+	{
+		this.bundle = name;
 	}
 
 	/**

@@ -70,6 +70,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -77,6 +78,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 
@@ -87,12 +89,13 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(SubmissionServiceImpl.class);
-
 	/** The chunk size used when streaming (100k). */
 	protected static final int STREAM_BUFFER_SIZE = 102400;
-
 	/** Dependency: AssessmentService */
 	protected AssessmentService assessmentService = null;
+
+	/** Messages bundle name. */
+	protected String bundle = null;
 
 	/** The checker thread. */
 	protected Thread checkerThread = null;
@@ -105,6 +108,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 	/** Dependency: GradesService */
 	protected GradesService gradesService = null;
+
+	/** Messages. */
+	protected transient InternationalizedMessages messages = null;
 
 	/** Dependency: SecurityService */
 	protected SecurityService securityService = null;
@@ -1604,6 +1610,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	{
 		try
 		{
+			// messages
+			if (this.bundle != null) this.messages = new ResourceLoader(this.bundle);
+
 			// storage - as configured
 			if (this.storageKey != null)
 			{
@@ -1820,6 +1829,17 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	public void setAssessmentService(AssessmentService service)
 	{
 		this.assessmentService = service;
+	}
+
+	/**
+	 * Set the message bundle.
+	 * 
+	 * @param bundle
+	 *        The message bundle.
+	 */
+	public void setBundle(String name)
+	{
+		this.bundle = name;
 	}
 
 	/**
@@ -2161,7 +2181,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		{
 			try
 			{
-				questionFile = "question.html";
+				// "question.html"
+				questionFile = this.messages.getFormattedMessage("download_submissions_question_file_name", null);
 				zip.putNextEntry(new ZipEntry(questionFile));
 				zip.write(questionText.getBytes("UTF-8"));
 				zip.closeEntry();
@@ -2185,9 +2206,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			}
 			questionDescription = Validator.escapeHtml(questionDescription);
 
-			// TODO: message bundle
-			String header = "Submissions for question: &quot;";
-			indexHtml.append("<p>" + header);
+			// "Submissions for question:"
+			String header = this.messages.getFormattedMessage("download_submissions_header", null);
+			indexHtml.append("<p>" + header + " &quot;");
 			if (questionFile != null)
 			{
 				indexHtml.append("<a href=\"" + questionFile + "\">");
@@ -2239,11 +2260,14 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 					String inline = essay.getAnswerData();
 					if (inline != null)
 					{
-						zip.putNextEntry(new ZipEntry(key + " inline.html"));
+						// "inline.html"
+						zip.putNextEntry(new ZipEntry(key + " " + this.messages.getFormattedMessage("download_submissions_inline_file_name", null)));
 						zip.write(inline.getBytes("UTF-8"));
 						zip.closeEntry();
 
-						indexHtml.append("<li><a href=\"" + key + " inline.html" + "\">" + "inline</a></li>\n");
+						indexHtml.append("<li><a href=\"" + key + " "
+								+ this.messages.getFormattedMessage("download_submissions_inline_file_name", null) + "\">"
+								+ this.messages.getFormattedMessage("download_submissions_inline", null) + "</a></li>\n");
 					}
 
 					// attachments
@@ -2268,7 +2292,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		try
 		{
-			zip.putNextEntry(new ZipEntry("index.html"));
+			// "index.html"
+			zip.putNextEntry(new ZipEntry(this.messages.getFormattedMessage("download_submissions_index", null)));
 			zip.write(indexHtml.toString().getBytes("UTF-8"));
 			zip.closeEntry();
 		}
