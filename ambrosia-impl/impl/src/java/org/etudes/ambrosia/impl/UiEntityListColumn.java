@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -116,6 +116,9 @@ public class UiEntityListColumn implements EntityListColumn
 	/** The message for the column title. */
 	protected Message title = null;
 
+	/** The topped setting. */
+	protected boolean topped = false;
+
 	/** The column width (in pixels). */
 	protected Integer width = null;
 
@@ -157,7 +160,11 @@ public class UiEntityListColumn implements EntityListColumn
 
 		// short form for bottomed
 		String bottomed = StringUtil.trimToNull(xml.getAttribute("bottomed"));
-		if ((bottomed != null) && ("TRUE".equals(centered))) setBottomed();
+		if ((bottomed != null) && ("TRUE".equals(bottomed))) setBottomed();
+
+		// short form for toped
+		String topped = StringUtil.trimToNull(xml.getAttribute("topped"));
+		if ((topped != null) && ("TRUE".equals(topped))) setTopped();
 
 		// entity included
 		settingsXml = XmlHelper.getChildElementNamed(xml, "entityIncluded");
@@ -677,6 +684,14 @@ public class UiEntityListColumn implements EntityListColumn
 	/**
 	 * {@inheritDoc}
 	 */
+	public boolean getTopped()
+	{
+		return this.topped;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Integer getWidth()
 	{
 		return this.width;
@@ -855,6 +870,15 @@ public class UiEntityListColumn implements EntityListColumn
 	public EntityListColumn setTitle(String selector, PropertyReference... references)
 	{
 		this.title = new UiMessage().setMessage(selector, references);
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public EntityListColumn setTopped()
+	{
+		this.topped = true;
 		return this;
 	}
 

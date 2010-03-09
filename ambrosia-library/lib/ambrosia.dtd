@@ -406,6 +406,7 @@
 <!ATTLIST column centered (TRUE|FALSE) #IMPLIED >
 <!ATTLIST column right (TRUE|FALSE) #IMPLIED >
 <!ATTLIST column bottomed (TRUE|FALSE) #IMPLIED >
+<!ATTLIST column topped (TRUE|FALSE) #IMPLIED >
 <!ATTLIST column wrap (TRUE|FALSE) #IMPLIED >
 <!ATTLIST column title CDATA #IMPLIED >
 <!ATTLIST column pixels CDATA #IMPLIED >
@@ -438,6 +439,7 @@
 <!ELEMENT modelColumn (model | message | asAlert | entityIncluded | included | sort | title | container | entityNavigations | footnotes | navigations)* >
 <!ATTLIST modelColumn centered (TRUE|FALSE) #IMPLIED >
 <!ATTLIST modelColumn bottomed (TRUE|FALSE) #IMPLIED >
+<!ATTLIST modelColumn topped (TRUE|FALSE) #IMPLIED >
 <!ATTLIST modelColumn right (TRUE|FALSE) #IMPLIED >
 <!ATTLIST modelColumn wrap (TRUE|FALSE) #IMPLIED >
 <!ATTLIST modelColumn title CDATA #IMPLIED >
@@ -448,6 +450,7 @@
 <!ELEMENT selectionColumn (value | singleSelect | readOnly | model | onEmptyAlert | label | asAlert | entityIncluded | included | sort | title | container | entityActions | entityNavigations | footnotes | navigations | correct | correctDecision)* >
 <!ATTLIST selectionColumn centered (TRUE|FALSE) #IMPLIED >
 <!ATTLIST selectionColumn bottomed (TRUE|FALSE) #IMPLIED >
+<!ATTLIST selectionColumn topped (TRUE|FALSE) #IMPLIED >
 <!ATTLIST selectionColumn right (TRUE|FALSE) #IMPLIED >
 <!ATTLIST selectionColumn wrap (TRUE|FALSE) #IMPLIED >
 <!ATTLIST selectionColumn title CDATA #IMPLIED >

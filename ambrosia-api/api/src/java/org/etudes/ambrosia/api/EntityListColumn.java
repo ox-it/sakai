@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -52,7 +52,7 @@ public interface EntityListColumn
 	 * Add a navigation to use for the main text of the column. If multiple defined, the first enabled included non-null one wins.
 	 * 
 	 * @param navigation
-	 *        The navigation to use for the main text of the columm.
+	 *        The navigation to use for the main text of the column.
 	 * @return self.
 	 */
 	EntityListColumn addEntityNavigation(Navigation navigation);
@@ -290,6 +290,13 @@ public interface EntityListColumn
 	String getTitle(Context context, Object focus, String effectiveId);
 
 	/**
+	 * Access the topped setting.
+	 * 
+	 * @return the topped setting.
+	 */
+	boolean getTopped();
+
+	/**
 	 * Access the column pixel width.
 	 * 
 	 * @return The width (in pixels) for this column, or null if no specific width is set.
@@ -450,6 +457,13 @@ public interface EntityListColumn
 	 *        one or more (or an array) of UiPropertyReferences to form the additional values in the formatted message.
 	 */
 	EntityListColumn setTitle(String selector, PropertyReference... references);
+
+	/**
+	 * Set the column data to be top aligned.
+	 * 
+	 * @return self.
+	 */
+	EntityListColumn setTopped();
 
 	/**
 	 * Set a width (in pixels) for this column.

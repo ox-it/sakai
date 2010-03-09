@@ -666,6 +666,10 @@ public class UiEntityList extends UiComponent implements EntityList
 					{
 						response.print("vertical-align:bottom;");
 					}
+					if (c.getTopped())
+					{
+						response.print("vertical-align:top;");
+					}
 					response.print("\">");
 
 					// anchor
