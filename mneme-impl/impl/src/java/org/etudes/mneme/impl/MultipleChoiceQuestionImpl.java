@@ -641,6 +641,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		entityList.setIterator(this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.choices"), "choice");
 
 		SelectionColumn selCol = this.uiService.newSelectionColumn();
+		selCol.setTopped();
 		if (this.singleCorrect)
 		{
 			selCol.setSingle();
@@ -655,9 +656,11 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		entityList.addColumn(selCol);
 
 		AutoColumn autoCol = this.uiService.newAutoColumn();
+		autoCol.setTopped();
 		entityList.addColumn(autoCol);
 
 		PropertyColumn propCol = this.uiService.newPropertyColumn();
+		propCol.setTopped();
 		propCol.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("choice.text"));
 		entityList.addColumn(propCol);
 
@@ -766,6 +769,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		entityList.setIterator(this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.choices"), "choice");
 
 		SelectionColumn selCol = this.uiService.newSelectionColumn();
+		selCol.setTopped();
 		if (this.singleCorrect)
 		{
 			selCol.setSingle();
@@ -806,9 +810,11 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		entityList.addColumn(selCol);
 
 		AutoColumn autoCol = this.uiService.newAutoColumn();
+		autoCol.setTopped();
 		entityList.addColumn(autoCol);
 
 		PropertyColumn propCol = this.uiService.newPropertyColumn();
+		propCol.setTopped();
 		propCol.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("choice.text"));
 		entityList.addColumn(propCol);
 
@@ -916,6 +922,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		entityList.setEntityIncluded(entityIncludedDecision);
 
 		SelectionColumn selCol = this.uiService.newSelectionColumn();
+		selCol.setTopped();
 		if (this.singleCorrect)
 		{
 			selCol.setSingle();
@@ -935,10 +942,12 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 
 		// use the choice id instead of the entity list row number for the auto col (since we removed stuff).
 		AutoColumn autoCol = this.uiService.newAutoColumn();
+		autoCol.setTopped();
 		autoCol.setProperty(this.uiService.newPropertyReference().setReference("choice.id"));
 		entityList.addColumn(autoCol);
 
 		PropertyColumn propCol = this.uiService.newPropertyColumn();
+		propCol.setTopped();
 		propCol.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("choice.text"));
 		entityList.addColumn(propCol);
 
@@ -963,6 +972,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		entityList.setIterator(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.choicesShuffled"), "choice");
 
 		SelectionColumn selCol = this.uiService.newSelectionColumn();
+		selCol.setTopped();
 		if (this.singleCorrect)
 		{
 			selCol.setSingle();
@@ -977,9 +987,11 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		entityList.addColumn(selCol);
 
 		AutoColumn autoCol = this.uiService.newAutoColumn();
+		autoCol.setTopped();
 		entityList.addColumn(autoCol);
 
 		PropertyColumn propCol = this.uiService.newPropertyColumn();
+		propCol.setTopped();
 		propCol.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("choice.text"));
 		entityList.addColumn(propCol);
 
@@ -1007,6 +1019,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		entityList.setIterator(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.choicesAsAuthored"), "choice");
 
 		SelectionColumn selCol = this.uiService.newSelectionColumn();
+		selCol.setTopped();
 		if (this.singleCorrect)
 		{
 			selCol.setSingle();
@@ -1026,9 +1039,11 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		entityList.addColumn(selCol);
 
 		AutoColumn autoCol = this.uiService.newAutoColumn();
+		autoCol.setTopped();
 		entityList.addColumn(autoCol);
 
 		PropertyColumn propCol = this.uiService.newPropertyColumn();
+		propCol.setTopped();
 		propCol.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("choice.text"));
 		entityList.addColumn(propCol);
 
@@ -1067,6 +1082,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		entityList.setEmptyTitle("no-answer");
 
 		SelectionColumn selCol = this.uiService.newSelectionColumn();
+		selCol.setTopped();
 		if (this.singleCorrect)
 		{
 			selCol.setSingle();
@@ -1086,10 +1102,12 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		entityList.addColumn(selCol);
 
 		AutoColumn autoCol = this.uiService.newAutoColumn();
+		autoCol.setTopped();
 		autoCol.setProperty(this.uiService.newPropertyReference().setReference("choice.id"));
 		entityList.addColumn(autoCol);
 
 		PropertyColumn propCol = this.uiService.newPropertyColumn();
+		propCol.setTopped();
 		propCol.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("choice.text"));
 		entityList.addColumn(propCol);
 
