@@ -913,11 +913,21 @@ public class AssessmentServiceImpl implements AssessmentService
 		// change the auto-pool to the imported version of the pool
 		if (rv.poolId != null)
 		{
-			String translated = pidMap.get(rv.poolId);
-			if (translated != null)
+			// if we have pool translations, see if we can find our auto-pool in the new set (would happen on an import assessment from site)
+			if (pidMap != null)
 			{
-				rv.poolId = translated;
+				String translated = pidMap.get(rv.poolId);
+				if (translated != null)
+				{
+					rv.poolId = translated;
+				}
+				else
+				{
+					rv.poolId = null;
+				}
 			}
+			
+			// otherwise just clear our auto-pool (would happen on a copy assessment)
 			else
 			{
 				rv.poolId = null;
