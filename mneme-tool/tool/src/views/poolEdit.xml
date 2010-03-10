@@ -151,7 +151,7 @@
 				</selectionColumn>
 				<column pixels="16">
 					<navigations>
-						<navigation style="LINK" submit="TRUE" description="view-question">
+						<navigation style="LINK" description="view-question">
 							<icon icon="/icons/preview.png" style="LEFT" />
 							<destination template="/question_preview/{0}/pool_edit/{1}/{2}/{3}{4}/{5}">
 								<model ref="question.id" />
@@ -165,7 +165,7 @@
 								<decision reversed="TRUE" model="question.isSurvey" />
 							</included>
 						</navigation>
-						<navigation style="LINK" submit="TRUE" description="view-survey">
+						<navigation style="LINK" description="view-survey">
 							<icon icon="/icons/survey_view.png" style="LEFT" />
 							<destination template="/question_preview/{0}/pool_edit/{1}/{2}/{3}{4}/{5}">
 								<model ref="question.id" />
