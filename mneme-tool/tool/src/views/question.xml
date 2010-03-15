@@ -107,7 +107,9 @@
 					<icon icon="/icons/return.png" style="LEFT" />
 				</navigation>
 				<text>
-					<message selector="best-submission" />
+					<message selector="best-submission">
+						<model type="icon" icon="/icons/star.png" />
+					</message>
 					<included>
 						<decision model="best" />
 					</included>
@@ -677,7 +679,9 @@
 					<icon icon="/icons/return.png" style="LEFT" />
 				</navigation>
 				<text>
-					<message selector="best-submission" />
+					<message selector="best-submission">
+						<model type="icon" icon="/icons/star.png" />
+					</message>
 					<included>
 						<decision model="best" />
 					</included>
