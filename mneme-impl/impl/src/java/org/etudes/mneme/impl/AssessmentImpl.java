@@ -633,6 +633,19 @@ public class AssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public void initType(AssessmentType type)
+	{
+		if (type == null) throw new IllegalArgumentException();
+		if (this.type.equals(type)) return;
+
+		this.type = type;
+
+		this.changed.setChanged();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setArchived(Boolean archived)
 	{
 		if (archived == null) throw new IllegalArgumentException();
@@ -847,7 +860,7 @@ public class AssessmentImpl implements Assessment
 		{
 			// assignments always are flexible
 			this.setRandomAccess(Boolean.TRUE);
-			
+
 			// also default to "review available upon release" and "manual release"
 			this.getReview().setTiming(ReviewTiming.graded);
 			this.getGrading().setAutoRelease(Boolean.FALSE);

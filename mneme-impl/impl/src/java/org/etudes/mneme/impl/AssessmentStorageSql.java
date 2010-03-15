@@ -914,7 +914,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 					assessment.setTimeLimit(SqlHelper.readLong(result, i++));
 					assessment.initTitle(SqlHelper.readString(result, i++));
 					assessment.setTries(SqlHelper.readInteger(result, i++));
-					assessment.setType(AssessmentType.valueOf(SqlHelper.readString(result, i++)));
+					assessment.initType(AssessmentType.valueOf(SqlHelper.readString(result, i++)));
 					assessment.initPool(SqlHelper.readId(result, i++));
 
 					rv.add(assessment);

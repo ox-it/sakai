@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -511,6 +511,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public void initType(AssessmentType type)
+	{
+		throw new IllegalArgumentException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setArchived(Boolean archived)
 	{
 		throw new IllegalArgumentException();
@@ -611,7 +619,6 @@ public class SubmissionAssessmentImpl implements Assessment
 	{
 		throw new IllegalArgumentException();
 	}
-
 	/**
 	 * Access the assessment.
 	 * 
