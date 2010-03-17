@@ -99,6 +99,34 @@ public class AssessmentsView extends ControllerImpl
 			throw new IllegalArgumentException();
 		}
 
+		AssessmentService.AssessmentsSort sort = figureSort(sortCode);
+		context.put("sort_column", sortCode.charAt(0));
+		context.put("sort_direction", sortCode.charAt(1));
+
+		// collect the assessments in this context
+		List<Assessment> assessments = this.assessmentService.getContextAssessments(this.toolManager.getCurrentPlacement().getContext(), sort,
+				Boolean.FALSE);
+		context.put("assessments", assessments);
+
+		// disable the tool navigation to this view
+		context.put("disableAssessments", Boolean.TRUE);
+
+		// pre-read question counts per pool
+		this.questionService.preCountContextQuestions(toolManager.getCurrentPlacement().getContext(), Boolean.TRUE);
+
+		// render
+		uiService.render(ui, context);
+	}
+
+	/**
+	 * Figure the sort from the sort code.
+	 * 
+	 * @param sortCode
+	 *        The sort code.
+	 * @return The sort.
+	 */
+	protected static AssessmentService.AssessmentsSort figureSort(String sortCode)
+	{
 		// due (0), open (1), title (2), publish (3), view/type (4)
 		AssessmentService.AssessmentsSort sort = null;
 		if (sortCode.charAt(0) == '0')
@@ -161,22 +189,8 @@ public class AssessmentsView extends ControllerImpl
 		{
 			throw new IllegalArgumentException();
 		}
-		context.put("sort_column", sortCode.charAt(0));
-		context.put("sort_direction", sortCode.charAt(1));
 
-		// collect the assessments in this context
-		List<Assessment> assessments = this.assessmentService.getContextAssessments(this.toolManager.getCurrentPlacement().getContext(), sort,
-				Boolean.FALSE);
-		context.put("assessments", assessments);
-
-		// disable the tool navigation to this view
-		context.put("disableAssessments", Boolean.TRUE);
-
-		// pre-read question counts per pool
-		this.questionService.preCountContextQuestions(toolManager.getCurrentPlacement().getContext(), Boolean.TRUE);
-
-		// render
-		uiService.render(ui, context);
+		return sort;
 	}
 
 	/**

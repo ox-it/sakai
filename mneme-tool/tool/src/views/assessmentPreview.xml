@@ -52,6 +52,33 @@
 		<!-- repeat the nav up top w/o access key -->
 		<navigationBar>
 			<container>
+				<navigation title="prev" description="preview-prev-description" style="BUTTON">
+					<icon icon="/icons/prev.gif" style="LEFT" />
+					<disabled>
+						<hasValueDecision reversed="TRUE" model="prevAssessmentId" />
+					</disabled>
+					<destination template="/assessment_preview/{0}{1}">
+						<model ref="prevAssessmentId" />
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<text>
+					<message selector="n-of-size">
+						<model ref="position" />
+						<model ref="size" />
+					</message>
+				</text>
+				<navigation title="next" description="preview-next-description" style="BUTTON">
+					<icon icon="/icons/next.gif" style="RIGHT" />
+					<disabled>
+						<hasValueDecision reversed="TRUE" model="nextAssessmentId" />
+					</disabled>
+					<destination template="/assessment_preview/{0}{1}">
+						<model ref="nextAssessmentId" />
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<divider />
 				<navigation title="return" description="return-description" style="BUTTON">
 					<icon icon="/icons/return.png" style="LEFT" />
 					<destination template="{0}">
@@ -238,6 +265,33 @@
 		<!-- nav bar -->
 		<navigationBar id="nav">
 			<container>
+				<navigation title="prev" accessKey="prev-access" description="preview-prev-description" style="BUTTON">
+					<icon icon="/icons/prev.gif" style="LEFT" />
+					<disabled>
+						<hasValueDecision reversed="TRUE" model="prevAssessmentId" />
+					</disabled>
+					<destination template="/assessment_preview/{0}{1}">
+						<model ref="prevAssessmentId" />
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<text>
+					<message selector="n-of-size">
+						<model ref="position" />
+						<model ref="size" />
+					</message>
+				</text>
+				<navigation title="next" accessKey="next-access" description="preview-next-description" style="BUTTON">
+					<icon icon="/icons/next.gif" style="RIGHT" />
+					<disabled>
+						<hasValueDecision reversed="TRUE" model="nextAssessmentId" />
+					</disabled>
+					<destination template="/assessment_preview/{0}{1}">
+						<model ref="nextAssessmentId" />
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<divider />
 				<navigation title="return" accessKey="return-access" description="return-description" style="BUTTON">
 					<icon icon="/icons/return.png" style="LEFT" />
 					<destination template="{0}">

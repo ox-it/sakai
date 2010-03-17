@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -25,6 +25,7 @@
 package org.etudes.mneme.tool;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -79,7 +80,7 @@ public class AssessmentPreviewView extends ControllerImpl
 		{
 			destination = "/" + StringUtil.unsplit(params, 3, params.length - 3, "/");
 		}
-		
+
 		// if not specified, go to the main assessment page
 		else
 		{
@@ -109,6 +110,13 @@ public class AssessmentPreviewView extends ControllerImpl
 		if (!assessment.getIsValid())
 		{
 			context.put("invalidMsg", AssessmentInvalidView.formatInvalidDisplay(assessment, this.messages));
+		}
+
+		// if coming from assessments, we offer prev/next
+		// assessments/0A
+		if (destination.startsWith("/assessments"))
+		{
+			figurePrevNext(context, destination, assessment);
 		}
 
 		// render
@@ -162,5 +170,67 @@ public class AssessmentPreviewView extends ControllerImpl
 	public void setToolManager(ToolManager manager)
 	{
 		toolManager = manager;
+	}
+
+	/**
+	 * Figure the next and prev when coming from pool edit
+	 * 
+	 * @param context
+	 *        The context.
+	 * @param destination
+	 *        The return path.
+	 * @param question
+	 *        The question.
+	 */
+	protected void figurePrevNext(Context context, String destination, Assessment assessment)
+	{
+		// Note: must match the parameter and sort logic of AssessmentsView
+		// /assessments/0A
+		String[] params = StringUtil.split(destination, "/");
+
+		// default is due date, ascending
+		String sortCode = (params.length > 2) ? params[2] : "0A";
+		if (sortCode.length() != 2) return;
+
+		AssessmentService.AssessmentsSort sort = AssessmentsView.figureSort(sortCode);
+
+		// collect the assessments in this context
+		List<Assessment> assessments = this.assessmentService.getContextAssessments(this.toolManager.getCurrentPlacement().getContext(), sort,
+				Boolean.FALSE);
+
+		// figure this one's position (0 based)
+		int position = 0;
+		for (Assessment a : assessments)
+		{
+			if (a.equals(assessment)) break;
+			position++;
+		}
+
+		// figure prev and next, w/ wrap
+		Assessment prev = null;
+		if (position > 0)
+		{
+			prev = assessments.get(position - 1);
+		}
+		else
+		{
+			prev = assessments.get(assessments.size() - 1);
+		}
+
+		Assessment next = null;
+		if (position < assessments.size() - 1)
+		{
+			next = assessments.get(position + 1);
+		}
+		else
+		{
+			next = assessments.get(0);
+		}
+
+		if (prev != null) context.put("prevAssessmentId", prev.getId());
+		if (next != null) context.put("nextAssessmentId", next.getId());
+
+		context.put("position", Integer.valueOf(position + 1));
+		context.put("size", Integer.valueOf(assessments.size()));
 	}
 }
