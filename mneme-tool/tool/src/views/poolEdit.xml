@@ -253,6 +253,36 @@
 						</desc>
 					</sort>
 				</modelColumn>
+				<modelColumn>
+					<title>
+						<message selector="question-date" />
+					</title>
+					<model type="date" ref="question.createdBy.date" />
+					<sort>
+						<active>
+							<compareDecision model="sort_column" constant="2" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/pool_edit/{0}/{1}/2A/{2}">
+								<model ref="poolsSortCode" />
+								<model ref="pool.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+							</destination>
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/pool_edit/{0}/{1}/2D/{2}">
+								<model ref="poolsSortCode" />
+								<model ref="pool.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+							</destination>
+						</desc>
+					</sort>
+				</modelColumn>
 				<modelColumn pixels="16">
 					<navigations>
 						<navigation style="LINK" submit="TRUE" description="question-duplicate-description">

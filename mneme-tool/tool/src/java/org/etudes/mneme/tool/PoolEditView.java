@@ -52,8 +52,44 @@ import org.sakaiproject.util.Web;
  */
 public class PoolEditView extends ControllerImpl
 {
+	/** The default sort. */
+	public static String DEFAULT_SORT = "2A";
+
 	/** Our log. */
 	private static Log M_log = LogFactory.getLog(PoolEditView.class);
+
+	/**
+	 * Figure the sort.
+	 * 
+	 * @param sortCode
+	 *        The sort code string.
+	 * @return The sort.
+	 */
+	public static QuestionService.FindQuestionsSort findSort(String sortCode)
+	{
+		QuestionService.FindQuestionsSort sort = null;
+		// 0 is description
+		if ((sortCode.charAt(0) == '0') && (sortCode.charAt(1) == 'A'))
+			sort = QuestionService.FindQuestionsSort.description_a;
+		else if ((sortCode.charAt(0) == '0') && (sortCode.charAt(1) == 'D'))
+			sort = QuestionService.FindQuestionsSort.description_d;
+		// 1 is type
+		else if ((sortCode.charAt(0) == '1') && (sortCode.charAt(1) == 'A'))
+			sort = QuestionService.FindQuestionsSort.type_a;
+		else if ((sortCode.charAt(0) == '1') && (sortCode.charAt(1) == 'D'))
+			sort = QuestionService.FindQuestionsSort.type_d;
+		// 2 is creation date
+		else if ((sortCode.charAt(0) == '2') && (sortCode.charAt(1) == 'A'))
+			sort = QuestionService.FindQuestionsSort.cdate_a;
+		else if ((sortCode.charAt(0) == '2') && (sortCode.charAt(1) == 'D'))
+			sort = QuestionService.FindQuestionsSort.cdate_d;
+		else
+		{
+			throw new IllegalArgumentException();
+		}
+
+		return sort;
+	}
 
 	/** Configuration: the page sizes for the view. */
 	protected List<Integer> pageSizes = new ArrayList<Integer>();
@@ -78,32 +114,13 @@ public class PoolEditView extends ControllerImpl
 		M_log.info("destroy()");
 	}
 
-	public static QuestionService.FindQuestionsSort findSort(String sortCode)
-	{
-		QuestionService.FindQuestionsSort sort = null;
-		// 0 is description
-		if ((sortCode.charAt(0) == '0') && (sortCode.charAt(1) == 'A'))
-			sort = QuestionService.FindQuestionsSort.description_a;
-		else if ((sortCode.charAt(0) == '0') && (sortCode.charAt(1) == 'D'))
-			sort = QuestionService.FindQuestionsSort.description_d;
-		// 1 is type
-		else if ((sortCode.charAt(0) == '1') && (sortCode.charAt(1) == 'A'))
-			sort = QuestionService.FindQuestionsSort.type_a;
-		else if ((sortCode.charAt(0) == '1') && (sortCode.charAt(1) == 'D'))
-			sort = QuestionService.FindQuestionsSort.type_d;
-		else
-		{
-			throw new IllegalArgumentException();
-		}
-
-		return sort;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
+		// Note: parameter and sort logic changes need to be coordinated with QuestionPreviewView.figurePrevNextForPoolEdit()
+
 		// pools sort, pool id, optional sort, optional paging
 		if ((params.length != 4) && (params.length != 5) && (params.length != 6))
 		{
@@ -134,7 +151,7 @@ public class PoolEditView extends ControllerImpl
 		context.put("pool", pool);
 
 		// sort
-		String sortCode = "0A";
+		String sortCode = DEFAULT_SORT;
 		if (params.length > 4) sortCode = params[4];
 		if ((sortCode == null) || (sortCode.length() != 2))
 		{
