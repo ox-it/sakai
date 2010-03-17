@@ -76,14 +76,6 @@
 				<decision model="review" />
 			</included>
 			<container>
-				<text>
-					<message selector="submission-review">
-						<model ref="position" />
-						<model ref="count" />
-						<model type="date" ref="submission.submittedDate" />
-					</message>
-				</text>
-				<divider />
 				<navigation title="prev" accessKey="prev-access" description="review-prev-description" style="BUTTON">
 					<icon icon="/icons/prev.gif" style="LEFT" />
 					<disabled>
@@ -93,6 +85,12 @@
 						<model ref="prevSubmissionId" />
 					</destination>
 				</navigation>
+				<text>
+					<message selector="n-of-size">
+						<model ref="position" />
+						<model ref="count" />
+					</message>
+				</text>
 				<navigation title="next" accessKey="next-access" description="review-next-description" style="BUTTON">
 					<icon icon="/icons/next.gif" style="RIGHT" />
 					<disabled>
@@ -102,6 +100,12 @@
 						<model ref="nextSubmissionId" />
 					</destination>
 				</navigation>
+				<divider />
+				<text>
+					<message selector="submission-review">
+						<model type="date" ref="submission.submittedDate" />
+					</message>
+				</text>
 				<divider />
 				<navigation title="return" accessKey="return-access" description="return-description" style="BUTTON" destination="/list">
 					<icon icon="/icons/return.png" style="LEFT" />
@@ -648,14 +652,6 @@
 				<decision reversed="TRUE" model="mayNotView" />
 			</included>
 			<container>
-				<text>
-					<message selector="submission-review">
-						<model ref="position" />
-						<model ref="count" />
-						<model type="date" ref="submission.submittedDate" />
-					</message>
-				</text>
-				<divider />
 				<navigation title="prev" description="review-prev-description" style="BUTTON">
 					<icon icon="/icons/prev.gif" style="LEFT" />
 					<disabled>
@@ -665,6 +661,12 @@
 						<model ref="prevSubmissionId" />
 					</destination>
 				</navigation>
+				<text>
+					<message selector="n-of-size">
+						<model ref="position" />
+						<model ref="count" />
+					</message>
+				</text>
 				<navigation title="next" description="review-next-description" style="BUTTON">
 					<icon icon="/icons/next.gif" style="RIGHT" />
 					<disabled>
@@ -674,6 +676,12 @@
 						<model ref="nextSubmissionId" />
 					</destination>
 				</navigation>
+				<divider />
+				<text>
+					<message selector="submission-review">
+						<model type="date" ref="submission.submittedDate" />
+					</message>
+				</text>
 				<divider />
 				<navigation title="return" description="return-description" style="BUTTON" destination="/list">
 					<icon icon="/icons/return.png" style="LEFT" />
