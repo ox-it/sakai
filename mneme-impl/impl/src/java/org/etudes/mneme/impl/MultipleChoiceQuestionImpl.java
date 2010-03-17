@@ -642,6 +642,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 
 		SelectionColumn selCol = this.uiService.newSelectionColumn();
 		selCol.setTopped();
+		selCol.setNoWrap();
 		if (this.singleCorrect)
 		{
 			selCol.setSingle();
@@ -770,6 +771,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 
 		SelectionColumn selCol = this.uiService.newSelectionColumn();
 		selCol.setTopped();
+		selCol.setNoWrap();
 		if (this.singleCorrect)
 		{
 			selCol.setSingle();
@@ -923,6 +925,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 
 		SelectionColumn selCol = this.uiService.newSelectionColumn();
 		selCol.setTopped();
+		selCol.setNoWrap();
 		if (this.singleCorrect)
 		{
 			selCol.setSingle();
@@ -973,6 +976,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 
 		SelectionColumn selCol = this.uiService.newSelectionColumn();
 		selCol.setTopped();
+		selCol.setNoWrap();
 		if (this.singleCorrect)
 		{
 			selCol.setSingle();
@@ -1020,6 +1024,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 
 		SelectionColumn selCol = this.uiService.newSelectionColumn();
 		selCol.setTopped();
+		selCol.setNoWrap();
 		if (this.singleCorrect)
 		{
 			selCol.setSingle();
@@ -1083,6 +1088,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 
 		SelectionColumn selCol = this.uiService.newSelectionColumn();
 		selCol.setTopped();
+		selCol.setNoWrap();
 		if (this.singleCorrect)
 		{
 			selCol.setSingle();
