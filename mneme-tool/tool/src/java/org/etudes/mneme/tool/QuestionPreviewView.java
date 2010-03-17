@@ -35,8 +35,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.ControllerImpl;
-import org.etudes.mneme.api.Assessment;
-import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
@@ -51,9 +49,6 @@ public class QuestionPreviewView extends ControllerImpl
 {
 	/** Our log. */
 	private static Log M_log = LogFactory.getLog(QuestionPreviewView.class);
-
-	/** Assessment service. */
-	protected AssessmentService assessmentService = null;
 
 	/** Pool Service */
 	protected PoolService poolService = null;
@@ -124,19 +119,11 @@ public class QuestionPreviewView extends ControllerImpl
 			questions.add(question);
 			context.put("questions", questions);
 
-			// returns from pool, or from assessment
-			// /pool_edit/0A/1/1A/1-30
+			// only if coming from pool_edit, we offer prev/next
 			if (destination.startsWith("/pool_edit"))
 			{
 				figurePrevNextForPoolEdit(context, destination, question);
 			}
-			// /assessment_edit/0A/1
-			else if (destination.startsWith("/assessment_edit"))
-			{
-				figurePrevNextForAssessmentEdit(context, destination, question);
-			}
-			
-			// TODO: /select_add_mpart_question/2/2/0A/1-30/0/0/B/assessment_edit/0A/2 support?
 		}
 
 		else
@@ -192,17 +179,6 @@ public class QuestionPreviewView extends ControllerImpl
 	}
 
 	/**
-	 * Set the AssessmentService.
-	 * 
-	 * @param service
-	 *        The AssessmentService.
-	 */
-	public void setAssessmentService(AssessmentService service)
-	{
-		this.assessmentService = service;
-	}
-
-	/**
 	 * @param poolService
 	 *        the poolService to set
 	 */
@@ -220,52 +196,6 @@ public class QuestionPreviewView extends ControllerImpl
 	public void setQuestionService(QuestionService service)
 	{
 		this.questionService = service;
-	}
-
-	/**
-	 * Figure the next and prev when coming from assessment edit
-	 * 
-	 * @param context
-	 *        The context.
-	 * @param destination
-	 *        The return path.
-	 * @param question
-	 *        The question.
-	 */
-	protected void figurePrevNextForAssessmentEdit(Context context, String destination, Question q)
-	{
-		// Note: must match the parameter and sort logic of AssessmentEditView
-		// /assessment_edit/0A/1
-
-		String[] params = StringUtil.split(destination, "/");
-		if (params.length < 4) return;
-
-		String assessmentId = params[3];
-		Assessment assessment = this.assessmentService.getAssessment(assessmentId);
-		if (assessment == null) return;
-
-		Question question = assessment.getParts().getQuestion(q.getId());
-		if (question == null) return;
-
-		Question prev = question.getAssessmentOrdering().getPrevious();
-		if (prev == null)
-		{
-			// TODO: getLastQuestion() support?
-			List<Question> questions = assessment.getParts().getQuestions();
-			prev = questions.get(questions.size() - 1);
-		}
-
-		Question next = question.getAssessmentOrdering().getNext();
-		if (next == null)
-		{
-			next = assessment.getParts().getFirst().getFirstQuestion();
-		}
-
-		if (prev != null) context.put("prevQuestionId", prev.getId());
-		if (next != null) context.put("nextQuestionId", next.getId());
-
-		context.put("position", question.getAssessmentOrdering().getPosition());
-		context.put("size", assessment.getParts().getNumQuestions());
 	}
 
 	/**
