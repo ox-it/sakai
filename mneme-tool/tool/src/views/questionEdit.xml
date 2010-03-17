@@ -74,6 +74,15 @@
 						<hasValueDecision model="nextPrev" />
 					</included>
 				</navigation>
+				<text>
+					<message selector="n-of-size">
+						<model ref="position" />
+						<model ref="size" />
+					</message>
+					<included>
+						<hasValueDecision model="nextPrev" />
+					</included>
+				</text>
 				<navigation title="next" description="edit-next-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/next.gif" style="RIGHT" />
 					<destination template="NEXT" />
@@ -81,7 +90,11 @@
 						<hasValueDecision model="nextPrev" />
 					</included>
 				</navigation>
-				<divider />
+				<divider>
+					<included>
+						<hasValueDecision model="nextPrev" />
+					</included>
+				</divider>
 				<navigation title="done" description="done-description" style="BUTTON" submit="TRUE">
 					<destination template="{0}">
 						<model ref="return" />
@@ -299,6 +312,15 @@
 						<hasValueDecision model="nextPrev" />
 					</included>
 				</navigation>
+				<text>
+					<message selector="n-of-size">
+						<model ref="position" />
+						<model ref="size" />
+					</message>
+					<included>
+						<hasValueDecision model="nextPrev" />
+					</included>
+				</text>
 				<navigation title="next" accessKey="next-access" description="edit-next-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/next.gif" style="RIGHT" />
 					<destination template="NEXT" />
@@ -306,7 +328,11 @@
 						<hasValueDecision model="nextPrev" />
 					</included>
 				</navigation>
-				<divider />
+				<divider>
+					<included>
+						<hasValueDecision model="nextPrev" />
+					</included>
+				</divider>
 				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
 					<destination template="{0}">
 						<model ref="return" />

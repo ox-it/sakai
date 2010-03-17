@@ -110,12 +110,6 @@ public class QuestionEditView extends ControllerImpl
 		}
 		context.put("return", destination);
 
-		// next/prev for pools (not assessment) editing
-		if (destination.startsWith("/pool_edit"))
-		{
-			context.put("nextPrev", Boolean.TRUE);
-		}
-
 		String questionId = params[2];
 		String assessmentId = params[3];
 		String partId = params[4];
@@ -134,6 +128,36 @@ public class QuestionEditView extends ControllerImpl
 
 		// put the question in the context
 		context.put("question", question);
+
+		// next/prev for pools (not assessment) editing
+		if (destination.startsWith("/pool_edit"))
+		{
+			context.put("nextPrev", Boolean.TRUE);
+
+			// figure out the question id
+			String returnDestParts[] = StringUtil.split(destination, "/");
+			String sortCode = "0A";
+			if (returnDestParts.length > 4) sortCode = returnDestParts[4];
+
+			QuestionService.FindQuestionsSort sort = PoolEditView.findSort(sortCode);
+
+			// get questions
+			List<Question> questions = questionService.findQuestions(question.getPool(), sort, null, null, null, null, null, null);
+
+			// find this one ( 0 based)
+			int pos = 0;
+			for (Question q : questions)
+			{
+				if (q.equals(question))
+				{
+					break;
+				}
+				pos++;
+			}
+
+			context.put("position", Integer.valueOf(pos + 1));
+			context.put("size", Integer.valueOf(questions.size()));
+		}
 
 		// the question types
 		List<QuestionPlugin> questionTypes = this.mnemeService.getQuestionPlugins();
