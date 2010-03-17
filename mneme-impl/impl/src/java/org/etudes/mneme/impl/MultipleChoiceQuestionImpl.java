@@ -1119,12 +1119,14 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 
 		propCol = this.uiService.newPropertyColumn();
 		propCol.setRight();
+		propCol.setTopped();
 		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.id").setFormatDelegate(
 				this.uiService.getFormatDelegate("FormatPercent", "sakai.mneme")));
 		entityList.addColumn(propCol);
 
 		propCol = this.uiService.newPropertyColumn();
 		propCol.setRight();
+		propCol.setTopped();
 		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.id").setFormatDelegate(
 				this.uiService.getFormatDelegate("FormatCount", "sakai.mneme")));
 		entityList.addColumn(propCol);
