@@ -74,18 +74,19 @@
 						<hasValueDecision model="nextPrev" />
 					</included>
 				</navigation>
-				<navigation title="done" description="done-description" style="BUTTON" submit="TRUE">
-					<destination template="{0}">
-						<model ref="return" />
-					</destination>
-					<icon icon="/icons/return.png" style="LEFT" />
-				</navigation>
 				<navigation title="next" description="edit-next-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/next.gif" style="RIGHT" />
 					<destination template="NEXT" />
 					<included>
 						<hasValueDecision model="nextPrev" />
 					</included>
+				</navigation>
+				<divider />
+				<navigation title="done" description="done-description" style="BUTTON" submit="TRUE">
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+					<icon icon="/icons/return.png" style="LEFT" />
 				</navigation>
 				<divider />
 				<navigation title="add" description="add-description" style="BUTTON" submit="TRUE">
@@ -298,18 +299,19 @@
 						<hasValueDecision model="nextPrev" />
 					</included>
 				</navigation>
-				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
-					<destination template="{0}">
-						<model ref="return" />
-					</destination>
-					<icon icon="/icons/return.png" style="LEFT" />
-				</navigation>
 				<navigation title="next" accessKey="next-access" description="edit-next-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/next.gif" style="RIGHT" />
 					<destination template="NEXT" />
 					<included>
 						<hasValueDecision model="nextPrev" />
 					</included>
+				</navigation>
+				<divider />
+				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+					<icon icon="/icons/return.png" style="LEFT" />
 				</navigation>
 				<divider />
 				<navigation title="add" accessKey="add-access" description="add-description" style="BUTTON" submit="TRUE">
