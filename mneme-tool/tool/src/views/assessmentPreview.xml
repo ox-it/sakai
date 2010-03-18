@@ -61,12 +61,18 @@
 						<model ref="prevAssessmentId" />
 						<model ref="return" />
 					</destination>
+					<included>
+						<hasValueDecision model="position" />
+					</included>
 				</navigation>
 				<text>
 					<message selector="n-of-size">
 						<model ref="position" />
 						<model ref="size" />
 					</message>
+					<included>
+						<hasValueDecision model="position" />
+					</included>
 				</text>
 				<navigation title="next" description="preview-next-description" style="BUTTON">
 					<icon icon="/icons/next.gif" style="RIGHT" />
@@ -77,8 +83,15 @@
 						<model ref="nextAssessmentId" />
 						<model ref="return" />
 					</destination>
+					<included>
+						<hasValueDecision model="position" />
+					</included>
 				</navigation>
-				<divider />
+				<divider>
+					<included>
+						<hasValueDecision model="position" />
+					</included>
+				</divider>
 				<navigation title="return" description="return-description" style="BUTTON">
 					<icon icon="/icons/return.png" style="LEFT" />
 					<destination template="{0}">
@@ -274,12 +287,18 @@
 						<model ref="prevAssessmentId" />
 						<model ref="return" />
 					</destination>
+					<included>
+						<hasValueDecision model="position" />
+					</included>
 				</navigation>
 				<text>
 					<message selector="n-of-size">
 						<model ref="position" />
 						<model ref="size" />
 					</message>
+					<included>
+						<hasValueDecision model="position" />
+					</included>
 				</text>
 				<navigation title="next" accessKey="next-access" description="preview-next-description" style="BUTTON">
 					<icon icon="/icons/next.gif" style="RIGHT" />
@@ -290,8 +309,15 @@
 						<model ref="nextAssessmentId" />
 						<model ref="return" />
 					</destination>
+					<included>
+						<hasValueDecision model="position" />
+					</included>
 				</navigation>
-				<divider />
+				<divider>
+					<included>
+						<hasValueDecision model="position" />
+					</included>
+				</divider>
 				<navigation title="return" accessKey="return-access" description="return-description" style="BUTTON">
 					<icon icon="/icons/return.png" style="LEFT" />
 					<destination template="{0}">
