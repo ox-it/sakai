@@ -161,8 +161,21 @@ public class TaskQuestionImpl extends EssayQuestionImpl
 		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
 				this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
 
+		// for grading
 		Section questionSection = this.uiService.newSection();
+		questionSection.setMaxHeight(400);
+		questionSection.setTreatment("inlay");
+		questionSection.setCollapsed(true);
+		questionSection.setTitle("view-question", this.uiService.newIconPropertyReference().setIcon("/icons/question.png"));
+		questionSection.setTitlePlain(this.uiService.newTrueDecision());
 		questionSection.add(question).add(attachments);
+		questionSection.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")));
+
+		// for not grading
+		Section questionSection2 = this.uiService.newSection();
+		questionSection2.add(question).add(attachments);
+		questionSection2.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"))
+				.setReversed());
 
 		// submission type
 		Selection type = uiService.newSelection();
@@ -191,7 +204,8 @@ public class TaskQuestionImpl extends EssayQuestionImpl
 				this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer")));
 		showModelAnswerSection.add(modelAnswer);
 
-		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(typeSection).add(showModelAnswerSection);
+		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(questionSection2).add(typeSection).add(
+				showModelAnswerSection);
 	}
 
 	/**

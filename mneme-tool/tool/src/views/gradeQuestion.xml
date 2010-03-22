@@ -111,6 +111,25 @@
 			<container>
 				<!-- type-specific question viewing -->
 				<modelComponent model="question.typeSpecificQuestion.viewQuestionUi" />
+
+				<!-- question feedback -->
+				<section maxHeight="400" treatment="inlay" collapsed="TRUE">
+					<title plain="TRUE">
+						<message selector="question-feedback">
+							<model type="icon" icon="/icons/feedback.png" />
+						</message>
+					</title>
+					<container>
+						<text>
+							<message>
+								<model type="html" ref="question.feedback" />
+							</message>
+						</text>
+					</container>
+					<included>
+						<hasValueDecision model="question.feedback" />
+					</included>
+				</section>
 			</container>
 		</section>
 

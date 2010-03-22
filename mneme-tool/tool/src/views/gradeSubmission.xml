@@ -251,14 +251,14 @@
 						</section>
 
 						<!-- question feedback -->
-						<section>
+						<section maxHeight="400" treatment="inlay" collapsed="TRUE">
+							<title plain="TRUE">
+								<message selector="question-feedback">
+									<model type="icon" icon="/icons/feedback.png" />
+								</message>
+							</title>
 							<container>
 								<text>
-									<title>
-										<message selector="question-feedback">
-											<model type="icon" icon="/icons/feedback.png" />
-										</message>
-									</title>
 									<message>
 										<model type="html" ref="answer.question.feedback" />
 									</message>

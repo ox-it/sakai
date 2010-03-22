@@ -30,12 +30,10 @@ import org.etudes.ambrosia.api.FileUpload;
 import org.etudes.ambrosia.api.HtmlEdit;
 import org.etudes.ambrosia.api.Instructions;
 import org.etudes.ambrosia.api.Navigation;
-import org.etudes.ambrosia.api.Overlay;
 import org.etudes.ambrosia.api.PropertyReference;
 import org.etudes.ambrosia.api.Section;
 import org.etudes.ambrosia.api.Selection;
 import org.etudes.ambrosia.api.Text;
-import org.etudes.ambrosia.api.Toggle;
 import org.etudes.ambrosia.api.UiService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionPlugin;
@@ -320,8 +318,21 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
 				this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments")));
 
+		// for grading
 		Section questionSection = this.uiService.newSection();
+		questionSection.setMaxHeight(400);
+		questionSection.setTreatment("inlay");
+		questionSection.setCollapsed(true);
 		questionSection.add(question).add(attachments);
+		questionSection.setTitle("view-question", this.uiService.newIconPropertyReference().setIcon("/icons/question.png"));
+		questionSection.setTitlePlain(this.uiService.newTrueDecision());
+		questionSection.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")));
+
+		// for not grading
+		Section questionSection2 = this.uiService.newSection();
+		questionSection2.add(question).add(attachments);
+		questionSection2.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"))
+				.setReversed());
 
 		Section answerSection = this.uiService.newSection();
 		answerSection.setTitle("answer", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
@@ -414,7 +425,8 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 						this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"))));
 		showModelAnswerSection.add(modelAnswer);
 
-		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(answerSection).add(showModelAnswerSection);
+		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(questionSection2).add(answerSection).add(
+				showModelAnswerSection);
 	}
 
 	/**
@@ -572,8 +584,21 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
 				this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
 
+		// for grading
 		Section questionSection = this.uiService.newSection();
+		questionSection.setMaxHeight(400);
+		questionSection.setTreatment("inlay");
+		questionSection.setCollapsed(true);
+		questionSection.setTitle("view-question", this.uiService.newIconPropertyReference().setIcon("/icons/question.png"));
+		questionSection.setTitlePlain(this.uiService.newTrueDecision());
 		questionSection.add(question).add(attachments);
+		questionSection.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")));
+
+		// for not grading
+		Section questionSection2 = this.uiService.newSection();
+		questionSection2.add(question).add(attachments);
+		questionSection2.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"))
+				.setReversed());
 
 		// submission type
 		Selection type = uiService.newSelection();
@@ -601,7 +626,8 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 				this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer")));
 		showModelAnswerSection.add(modelAnswer);
 
-		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(typeSection).add(showModelAnswerSection);
+		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(questionSection2).add(typeSection).add(
+				showModelAnswerSection);
 	}
 
 	/**
