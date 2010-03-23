@@ -324,7 +324,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		questionSection.setTreatment("inlay");
 		questionSection.setCollapsed(true);
 		questionSection.add(question).add(attachments);
-		questionSection.setTitle("view-question", this.uiService.newIconPropertyReference().setIcon("/icons/question.png"));
+		questionSection.setTitle("view-question", this.uiService.newIconPropertyReference().setIcon("/icons/question_view.png"));
 		questionSection.setTitlePlain(this.uiService.newTrueDecision());
 		questionSection.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")));
 
@@ -589,7 +589,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		questionSection.setMaxHeight(400);
 		questionSection.setTreatment("inlay");
 		questionSection.setCollapsed(true);
-		questionSection.setTitle("view-question", this.uiService.newIconPropertyReference().setIcon("/icons/question.png"));
+		questionSection.setTitle("view-question", this.uiService.newIconPropertyReference().setIcon("/icons/question_view.png"));
 		questionSection.setTitlePlain(this.uiService.newTrueDecision());
 		questionSection.add(question).add(attachments);
 		questionSection.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")));
