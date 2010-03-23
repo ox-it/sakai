@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -78,13 +78,10 @@
 					</entityActions>
 				</selectionColumn>
 				<modelColumn pixels="16">
-					<title>
-						<message selector="pool-edit" />
-					</title>
 					<navigations>
-						<navigation style="LINK" description="pool-edit-description">
+						<navigation style="LINK" description="pool-preview-description">
 							<icon icon="/icons/edit.png" style="LEFT" />
-							<destination template="/pool_properties/{0}{1}/{2}">
+							<destination template="/question_preview/*/pools/{0}{1}/*{2}">
 								<model ref="sort_column" />
 								<model ref="sort_direction" />
 								<model ref="pool.id" />
@@ -147,6 +144,21 @@
 					</title>
 					<model ref="pool.difficulty" />
 				</modelColumn>
+				<column pixels="16" centered="TRUE">
+					<title>
+						<message selector="pool-edit" />
+					</title>
+					<navigations>
+						<navigation style="LINK" submit="TRUE" description="pool-edit-description">
+							<icon icon="/icons/unpub_settings.png" style="LEFT" />
+							<destination template="/pool_properties/{0}{1}/{2}">
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model ref="pool.id" />
+							</destination>
+						</navigation>
+					</navigations>
+				</column>
 				<modelColumn pixels="16">
 					<navigations>
 						<navigation style="LINK" submit="TRUE" description="pool-duplicate-description">

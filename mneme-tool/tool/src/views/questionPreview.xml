@@ -39,7 +39,14 @@
 		<message selector="question-preview-title" />
 	</title>
 	<header>
-		<message selector="question-preview-header" />
+		<message selector="question-preview-header">
+			<model ref="pool" />
+			<selectors>
+				<selector selector="pool-preview-header">
+					<hasValueDecision model="pool" />
+				</selector>
+			</selectors>
+		</message>
 	</header>
 
 	<container>

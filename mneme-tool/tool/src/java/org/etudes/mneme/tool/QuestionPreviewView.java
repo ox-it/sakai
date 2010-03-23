@@ -131,22 +131,58 @@ public class QuestionPreviewView extends ControllerImpl
 			List<Question> questions = new ArrayList<Question>();
 
 			// question id's are in the params array at the end
-			String qids[] = StringUtil.split(params[params.length - 1], "+");
-			for (String qid : qids)
-			{
-				// get the question
-				Question question = this.questionService.getQuestion(qid);
-				if (question != null)
-				{
-					// security check
-					if (!questionService.allowEditQuestion(question))
-					{
-						// redirect to error
-						res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
-						return;
-					}
+			String qidParam = params[params.length - 1];
 
-					questions.add(question);
+			// for entire pool "*pid"
+			if (qidParam.startsWith("*"))
+			{
+				String pid = qidParam.substring(1);
+				Pool pool = this.poolService.getPool(pid);
+				if (pool != null)
+				{
+					context.put("pool", pool.getTitle());
+
+					List<String> qids = this.questionService.getPoolQuestionIds(pool, null, null);
+					for (String qid : qids)
+					{
+						// get the question
+						Question question = this.questionService.getQuestion(qid);
+						if (question != null)
+						{
+							// security check
+							if (!questionService.allowEditQuestion(question))
+							{
+								// redirect to error
+								res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+								return;
+							}
+
+							questions.add(question);
+						}
+					}
+				}
+			}
+
+			// for list of selected questions "qid+qid+qid"
+			else
+			{
+				String qids[] = StringUtil.split(qidParam, "+");
+				for (String qid : qids)
+				{
+					// get the question
+					Question question = this.questionService.getQuestion(qid);
+					if (question != null)
+					{
+						// security check
+						if (!questionService.allowEditQuestion(question))
+						{
+							// redirect to error
+							res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+							return;
+						}
+
+						questions.add(question);
+					}
 				}
 			}
 
@@ -220,6 +256,8 @@ public class QuestionPreviewView extends ControllerImpl
 		String pid = params[3];
 		Pool pool = this.poolService.getPool(pid);
 		if (pool == null) return;
+
+		context.put("pool", pool.getTitle());
 
 		// sort
 		String sortCode = PoolEditView.DEFAULT_SORT;
