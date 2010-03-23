@@ -247,6 +247,7 @@
 						<!-- completed date -->
 						<text>
 							<message selector="submission-finished-date">
+								<model type="date" ref="answer.submission.startDate" />
 								<model type="date" ref="answer.submission.submittedDate" />
 							</message>
 							<included>
@@ -255,6 +256,7 @@
 						</text>
 						<text>
 							<message selector="submission-finished-date-late">
+								<model type="date" ref="answer.submission.startDate" />
 								<model type="date" ref="answer.submission.submittedDate" />
 							</message>
 							<included>

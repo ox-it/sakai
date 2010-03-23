@@ -308,6 +308,15 @@
 				</column>
 				<modelColumn>
 					<title>
+						<message selector="list-header-started" />
+					</title>
+					<model type="date" twoLine="TRUE" missing="dash" ref="submission.best.startDate" />
+					<entityIncluded selector="dash">
+						<decision model="submission.best.isStarted" />
+					</entityIncluded>
+				</modelColumn>
+				<modelColumn>
+					<title>
 						<message selector="list-header-finished" />
 					</title>
 					<model type="date" twoLine="TRUE" missing="dash" ref="submission.best.submittedDate" />

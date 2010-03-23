@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
 
 <!--
@@ -58,8 +57,15 @@
 	<subHeader>
 		<container>
 			<text>
-				<message>
+				<message selector="question-subheader">
 					<model ref="submission.assessment.title" type="text" missing="no-title" />
+					<model type="date" ref="submission.startDate" />
+					<model type="date" ref="submission.submittedDate" />
+					<selectors>
+						<selector selector="question-subheader-review">
+							<decision model="review" />
+						</selector>
+					</selectors>
 				</message>
 			</text>
 		</container>
@@ -100,12 +106,6 @@
 						<model ref="nextSubmissionId" />
 					</destination>
 				</navigation>
-				<divider />
-				<text>
-					<message selector="submission-review">
-						<model type="date" ref="submission.submittedDate" />
-					</message>
-				</text>
 				<divider />
 				<navigation title="return" accessKey="return-access" description="return-description" style="BUTTON" destination="/list">
 					<icon icon="/icons/return.png" style="LEFT" />
@@ -676,12 +676,6 @@
 						<model ref="nextSubmissionId" />
 					</destination>
 				</navigation>
-				<divider />
-				<text>
-					<message selector="submission-review">
-						<model type="date" ref="submission.submittedDate" />
-					</message>
-				</text>
 				<divider />
 				<navigation title="return" description="return-description" style="BUTTON" destination="/list">
 					<icon icon="/icons/return.png" style="LEFT" />
