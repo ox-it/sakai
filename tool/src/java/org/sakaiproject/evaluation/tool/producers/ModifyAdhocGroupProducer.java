@@ -101,7 +101,7 @@ ActionResultInterceptor {
                     if (EvalConstants.USER_TYPE_INTERNAL.equals(evalUser.type)) {
                         UIMessage.make(row, "user-id", "modifyadhocgroup.adhocuser.label");
                     } else {
-                        UIOutput.make(row, "user-id", evalUser.username);
+                        UIOutput.make(row, "user-id", evalUser.displayId);
                     }
                     UIOutput.make(row, "user-display", evalUser.displayName);
                     // Remove Button
