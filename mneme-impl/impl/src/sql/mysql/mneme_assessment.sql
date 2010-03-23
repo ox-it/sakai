@@ -3,7 +3,7 @@
 -- $Id$
 --**********************************************************************************
 --
--- Copyright (c) 2008, 2009 Etudes, Inc.
+-- Copyright (c) 2008, 2009, 2010 Etudes, Inc.
 -- 
 -- Portions completed before September 1, 2008
 -- Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -64,7 +64,8 @@ CREATE TABLE MNEME_ASSESSMENT
 	TITLE					VARCHAR (255),
 	TRIES					INT UNSIGNED,
 	TYPE					VARCHAR (32),
-	POOL					BIGINT UNSIGNED
+	POOL					BIGINT UNSIGNED,
+	NEEDSPOINTS				CHAR (1)
 );
 
 CREATE INDEX MNEME_ASSESSMENT_IDX_CAMHP ON MNEME_ASSESSMENT

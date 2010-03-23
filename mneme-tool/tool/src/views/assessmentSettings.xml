@@ -103,12 +103,31 @@
 							</destination>
 						</selection>
 
-						<!-- if invalid -->
-						<warning selector="invalid-dates">
+						<selection title="needs-points">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="needs-points-points">
+											<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+										</message>
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="assessment.needsPoints" />
+							<destination template="/assessment_settings/{0}/{1}">
+								<model ref="sort" />
+								<model ref="assessment.id" />
+							</destination>
+							<readOnly>
+								<decision model="assessment.isLocked" />
+							</readOnly>
 							<included>
-								<decision model="assessment.dates.isValid" reversed="TRUE" />
+								<decision model="assessment.allowedPoints" />
 							</included>
-						</warning>
+						</selection>
 
 						<dateEdit id="odate" title="open-date">
 							<model ref="assessment.dates.openDate" type="date" />
@@ -327,12 +346,6 @@
 								</selectionChoice>
 							</selectionChoices>
 						</selection>
-						<!-- if invalid -->
-						<warning selector="invalid-grading">
-							<included>
-								<decision model="assessment.grading.isValid" reversed="TRUE" />
-							</included>
-						</warning>
 						<selection id="gb" title="sendgbook">
 							<selectionChoices>
 								<selectionChoice>
@@ -573,6 +586,11 @@
 						<selectors>
 							<selector selector="summary-no-points">
 								<decision reversed="TRUE" model="assessment.hasPoints" />
+								<compareDecision reversed="TRUE" model="assessment.type" constant="survey" />
+							</selector>
+							<selector selector="summary-no-points-survey">
+								<decision reversed="TRUE" model="assessment.hasPoints" />
+								<compareDecision model="assessment.type" constant="survey" />
 							</selector>
 						</selectors>
 					</message>
@@ -593,11 +611,15 @@
 		<!-- navigation for publish -->
 		<navigationBar>
 			<container>
-				<navigation title="save" accessKey="save-access" description="save-description" style="BUTTON" submit="TRUE">
+				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
 					<destination template="/assessments/{0}">
 						<model ref="sort" />
 					</destination>
 					<icon icon="/icons/return.png" style="LEFT" />
+				</navigation>
+				<divider />
+				<navigation title="save" accessKey="save-access" description="save-description" style="BUTTON" submit="TRUE" destination="SAVE">
+					<icon icon="/icons/save.png" style="LEFT" />
 				</navigation>
 				<divider />
 				<navigation title="test-drive" accessKey="test-drive-access" description="test-drive-description" style="BUTTON" submit="TRUE">
@@ -610,7 +632,17 @@
 				<navigation title="publish" accessKey="publish-access" description="publish-description" style="BUTTON" submit="TRUE"
 					destination="PUBLISH">
 					<icon icon="/icons/OK.png" style="LEFT" />
-					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif" selector="confirm-publish" />
+					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif" selector="confirm-publish">
+						<message selector="confirm-publish">
+							<model ref="assessment.parts.totalPoints" />
+							<selectors>
+								<selector selector="confirm-publish-no-points">
+									<decision reversed="TRUE" model="assessment.hasPoints" />
+									<compareDecision reversed="TRUE" model="assessment.type" constant="survey" />
+								</selector>
+							</selectors>
+						</message>
+					</confirm>
 				</navigation>
 			</container>
 			<included>
@@ -627,6 +659,10 @@
 						<model ref="sort" />
 					</destination>
 					<icon icon="/icons/return.png" style="LEFT" />
+				</navigation>
+				<divider />
+				<navigation title="save" accessKey="save-access" description="save-description" style="BUTTON" submit="TRUE" destination="SAVE">
+					<icon icon="/icons/save.png" style="LEFT" />
 				</navigation>
 				<divider />
 				<navigation title="test-drive" accessKey="test-drive-access" description="test-drive-description" style="BUTTON" submit="TRUE">

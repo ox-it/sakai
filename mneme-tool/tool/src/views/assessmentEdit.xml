@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -44,21 +44,6 @@
 			<model type="icon" icon="/icons/edit.png" />
 		</message>
 	</header>
-
-	<subHeader>
-		<container>
-			<!--  if invalid -->
-			<warning>
-				<message selector="invalid-dates">
-					<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
-				</message>
-				<included>
-					<decision model="assessment.dates.isValid" reversed="TRUE" />
-				</included>
-			</warning>
-
-		</container>
-	</subHeader>
 
 	<title>
 		<message selector="testEdit-title" />
@@ -123,6 +108,32 @@
 								<model ref="sortcode" />
 								<model ref="assessment.id" />
 							</destination>
+						</selection>
+
+						<selection title="needs-points">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="needs-points-points">
+											<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+										</message>
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="assessment.needsPoints" />
+							<destination template="/assessment_edit/{0}/{1}">
+								<model ref="sortcode" />
+								<model ref="assessment.id" />
+							</destination>
+							<readOnly>
+								<decision model="assessment.isLocked" />
+							</readOnly>
+							<included>
+								<decision model="assessment.allowedPoints" />
+							</included>
 						</selection>
 
 						<!-- title -->

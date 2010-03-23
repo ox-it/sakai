@@ -41,6 +41,13 @@ public interface Assessment
 	AcceptSubmitStatus getAcceptSubmitStatus();
 
 	/**
+	 * Check if the assessment is allowed to have points, or if it is not. Survey type assessments, for example, do not support points.
+	 * 
+	 * @return TRUE if the question supports points, FALSE if it does not.
+	 */
+	Boolean getAllowedPoints();
+
+	/**
 	 * Check if student identities are invisible to the grader when grading.<br />
 	 * Use this instead of the AssessmentGrading version for logic, use the other for editing settings.
 	 * 
@@ -105,7 +112,7 @@ public interface Assessment
 	Boolean getHasPoints();
 
 	/**
-	 * Check if we have a time limmit.
+	 * Check if we have a time limit.
 	 * 
 	 * @return TRUE if a time limit is defined, FALSE if not.
 	 */
@@ -154,6 +161,13 @@ public interface Assessment
 	Boolean getIsLocked();
 
 	/**
+	 * Check if the assessment points are valid; i.e. are > 0 if points are needed
+	 * 
+	 * @return TRUE if the assessment points are valid, FALSE if not.
+	 */
+	Boolean getIsPointsValid();
+
+	/**
 	 * @return TRUE if the assessment has only a single question, FALSE if it has multiple.
 	 */
 	Boolean getIsSingleQuestion();
@@ -178,6 +192,13 @@ public interface Assessment
 	 * @return The modified-by attribution.
 	 */
 	Attribution getModifiedBy();
+
+	/**
+	 * Check if the assessment needs to have points to be valid
+	 * 
+	 * @return TRUE if the assessment is "needsPoints", FALSE if not.
+	 */
+	Boolean getNeedsPoints();
 
 	/**
 	 * Access the assessment part information.
@@ -268,7 +289,7 @@ public interface Assessment
 	/**
 	 * Access the submission that is referencing this assessment (so we can answer submission specific questions like question order).
 	 * <p>
-	 * Note: this will be null unless the assessment is accessed throught Submission.getAssessment().
+	 * Note: this will be null unless the assessment is accessed through Submission.getAssessment().
 	 * </p>
 	 * 
 	 * @return The submission, or null if there is none.
@@ -292,7 +313,7 @@ public interface Assessment
 	/**
 	 * Access the time limit for taking the assessment (ms).
 	 * 
-	 * @return The time limit for taking the assessment (ms), or null if it is untimed.
+	 * @return The time limit for taking the assessment (ms), or null if it is not timed.
 	 */
 	Long getTimeLimit();
 
@@ -313,7 +334,7 @@ public interface Assessment
 	/**
 	 * Access the assessment type.
 	 * 
-	 * @return The asssessment type.
+	 * @return The assessment type.
 	 */
 	AssessmentType getType();
 
@@ -358,6 +379,14 @@ public interface Assessment
 	void setHasTriesLimit(Boolean hasTriesLimit);
 
 	/**
+	 * Set the assessment's needsPoints setting: if true, the assessment is invalid if it has no points.
+	 * 
+	 * @param needsPoints
+	 *        The needsPoints setting.
+	 */
+	void setNeedsPoints(Boolean needsPoints);
+
+	/**
 	 * Set the assessment's published setting.
 	 * 
 	 * @param published
@@ -374,7 +403,7 @@ public interface Assessment
 	void setQuestionGrouping(QuestionGrouping grouping);
 
 	/**
-	 * Set the random access flag that controlls an assessment taker's random or linear access to the questions of the assessment.
+	 * Set the random access flag that controls an assessment taker's random or linear access to the questions of the assessment.
 	 * 
 	 * @param setting
 	 *        TRUE if random question access is supported, FALSE if only linear question access is supported.

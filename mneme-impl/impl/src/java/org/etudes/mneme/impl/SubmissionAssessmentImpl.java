@@ -107,6 +107,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getAllowedPoints()
+	{
+		return getAssessment().getAllowedPoints();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Boolean getAnonymous()
 	{
 		return this.getAssessment().getAnonymous();
@@ -285,6 +293,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getIsPointsValid()
+	{
+		return getAssessment().getIsPointsValid();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Boolean getIsSingleQuestion()
 	{
 		return getAssessment().getIsSingleQuestion();
@@ -312,6 +328,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	public Attribution getModifiedBy()
 	{
 		return getAssessment().getModifiedBy();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getNeedsPoints()
+	{
+		return getAssessment().getNeedsPoints();
 	}
 
 	/**
@@ -551,6 +575,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public void setNeedsPoints(Boolean needsPoints)
+	{
+		throw new IllegalArgumentException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setPublished(Boolean published)
 	{
 		throw new IllegalArgumentException();
@@ -619,6 +651,7 @@ public class SubmissionAssessmentImpl implements Assessment
 	{
 		throw new IllegalArgumentException();
 	}
+
 	/**
 	 * Access the assessment.
 	 * 

@@ -3,7 +3,7 @@
 -- $Id$
 --**********************************************************************************
 --
--- Copyright (c) 2008, 2009 Etudes, Inc.
+-- Copyright (c) 2008, 2009, 2010 Etudes, Inc.
 -- 
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -32,4 +32,6 @@ CREATE SEQUENCE MNEME_ASSESSMENT_DETAIL_SEQ;
 
 UPDATE MNEME_ASSESSMENT_PART_DETAIL SET SEQ=NUM_QUESTIONS_SEQ;
 
--- TODO: add to MNEME_ASSESSMENT POOL BIGINT UNSIGNED NULL
+-- TODO: add to MNEME_ASSESSMENT POOL NUMBER NULL
+-- TODO: add to MNEME_ASSESSMENT NEEDSPOINTS CHAR(1)
+

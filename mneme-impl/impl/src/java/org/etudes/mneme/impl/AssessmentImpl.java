@@ -107,6 +107,8 @@ public class AssessmentImpl implements Assessment
 
 	protected Attribution modifiedBy = null;
 
+	protected Boolean needsPoints = Boolean.TRUE;
+
 	protected AssessmentPartsImpl parts = null;
 
 	protected AssessmentPassword password = null;
@@ -241,6 +243,14 @@ public class AssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getAllowedPoints()
+	{
+		return Boolean.valueOf(this.type != AssessmentType.survey);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Boolean getAnonymous()
 	{
 		// surveys are always anon.
@@ -327,7 +337,16 @@ public class AssessmentImpl implements Assessment
 	 */
 	public Boolean getHasPoints()
 	{
-		return Boolean.valueOf(this.type != AssessmentType.survey);
+		// no points if not allowed or if not needed
+		if (!getAllowedPoints()) return Boolean.FALSE;
+	
+		// check for needs only if set
+		if (getNeedsPoints() != null)
+		{
+			if (!getNeedsPoints()) return Boolean.FALSE;
+		}
+
+		return Boolean.TRUE;
 	}
 
 	/**
@@ -389,6 +408,34 @@ public class AssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getIsPointsValid()
+	{
+		// since we don't change points after publication, don't go invalid if published
+		// Note: before we checked for valid points if needed, assessment were published without any points.
+		if (this.getPublished())
+		{
+			return Boolean.TRUE;
+		}
+
+		// points if needed
+		else if (this.getHasPoints())
+		{
+			// if we have questions
+			if (this.getParts().getNumQuestions() > 0)
+			{
+				if (this.getParts().getTotalPoints().floatValue() <= 0)
+				{
+					return Boolean.FALSE;
+				}
+			}
+		}
+
+		return Boolean.TRUE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Boolean getIsSingleQuestion()
 	{
 		if (this.parts.getNumQuestions().intValue() == 1)
@@ -420,6 +467,9 @@ public class AssessmentImpl implements Assessment
 		// grading valid
 		if (!this.grading.getIsValid()) return Boolean.FALSE;
 
+		// points if needed
+		if (!this.getIsPointsValid()) return Boolean.FALSE;
+
 		return Boolean.TRUE;
 	}
 
@@ -437,6 +487,14 @@ public class AssessmentImpl implements Assessment
 	public Attribution getModifiedBy()
 	{
 		return modifiedBy;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getNeedsPoints()
+	{
+		return this.needsPoints;
 	}
 
 	/**
@@ -715,6 +773,22 @@ public class AssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public void setNeedsPoints(Boolean needsPoints)
+	{
+		if (needsPoints == null) throw new IllegalArgumentException();
+		if (this.needsPoints.equals(needsPoints)) return;
+
+		// this is a change that cannot be made to live tests
+		this.lockedChanged = Boolean.TRUE;
+
+		this.needsPoints = needsPoints;
+
+		this.changed.setChanged();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setPublished(Boolean published)
 	{
 		if (published == null) throw new IllegalArgumentException();
@@ -986,6 +1060,26 @@ public class AssessmentImpl implements Assessment
 	}
 
 	/**
+	 * Establish the needsPoints setting.
+	 * 
+	 * @param needsPoints
+	 *        The needsPoints setting.
+	 */
+	protected void initNeedsPoints(Boolean needsPoints)
+	{
+		// if null, use the default
+		if (needsPoints == null)
+		{
+			this.needsPoints = true;
+		}
+
+		else
+		{
+			this.needsPoints = needsPoints;
+		}
+	}
+
+	/**
 	 * Initialize the poolId field.
 	 * 
 	 * @param poolId
@@ -1122,6 +1216,7 @@ public class AssessmentImpl implements Assessment
 		this.locked = other.locked;
 		this.mint = other.mint;
 		this.modifiedBy = new AttributionImpl((AttributionImpl) other.modifiedBy, this.changed);
+		this.needsPoints = other.needsPoints;
 		this.parts = new AssessmentPartsImpl(this, (AssessmentPartsImpl) other.parts, this.changed);
 		this.password = new AssessmentPasswordImpl((AssessmentPasswordImpl) other.password, this.changed);
 		this.poolId = other.poolId;

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -866,7 +866,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		sql.append(" A.PARTS_CONTINUOUS, A.PARTS_SHOW_PRES, A.PASSWORD, A.PRESENTATION_TEXT,");
 		sql.append(" A.PUBLISHED, A.QUESTION_GROUPING, A.RANDOM_ACCESS,");
 		sql.append(" A.REVIEW_DATE, A.REVIEW_SHOW_CORRECT, A.REVIEW_SHOW_FEEDBACK, A.REVIEW_TIMING,");
-		sql.append(" A.SHOW_HINTS, A.SUBMIT_PRES_TEXT, A.TIME_LIMIT, A.TITLE, A.TRIES, A.TYPE, A.POOL");
+		sql.append(" A.SHOW_HINTS, A.SUBMIT_PRES_TEXT, A.TIME_LIMIT, A.TITLE, A.TRIES, A.TYPE, A.POOL, A.NEEDSPOINTS");
 		sql.append(" FROM MNEME_ASSESSMENT A ");
 		sql.append(where);
 		if (order != null) sql.append(order);
@@ -916,6 +916,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 					assessment.setTries(SqlHelper.readInteger(result, i++));
 					assessment.initType(AssessmentType.valueOf(SqlHelper.readString(result, i++)));
 					assessment.initPool(SqlHelper.readId(result, i++));
+					assessment.initNeedsPoints(SqlHelper.readBoolean(result, i++));
 
 					rv.add(assessment);
 					assessments.put(assessment.getId(), assessment);
@@ -1287,10 +1288,10 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		sql.append(" PARTS_CONTINUOUS=?, PARTS_SHOW_PRES=?, PASSWORD=?, PRESENTATION_TEXT=?,");
 		sql.append(" PUBLISHED=?, QUESTION_GROUPING=?, RANDOM_ACCESS=?,");
 		sql.append(" REVIEW_DATE=?, REVIEW_SHOW_CORRECT=?, REVIEW_SHOW_FEEDBACK=?, REVIEW_TIMING=?,");
-		sql.append(" SHOW_HINTS=?, SUBMIT_PRES_TEXT=?, TIME_LIMIT=?, TITLE=?, TRIES=?, TYPE=?, POOL=?");
+		sql.append(" SHOW_HINTS=?, SUBMIT_PRES_TEXT=?, TIME_LIMIT=?, TITLE=?, TRIES=?, TYPE=?, POOL=?, NEEDSPOINTS=?");
 		sql.append(" WHERE ID=?");
 
-		Object[] fields = new Object[35];
+		Object[] fields = new Object[36];
 		int i = 0;
 		fields[i++] = assessment.getArchived() ? "1" : "0";
 		fields[i++] = assessment.getContext();
@@ -1328,6 +1329,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		fields[i++] = assessment.getTries();
 		fields[i++] = assessment.getType().toString();
 		fields[i++] = ((AssessmentImpl) assessment).poolId == null ? null : Long.valueOf(((AssessmentImpl) assessment).poolId);
+		fields[i++] = assessment.getNeedsPoints() == null ? null : (assessment.getNeedsPoints() ? "1" : "0");
 		fields[i++] = Long.valueOf(assessment.getId());
 
 		if (!this.sqlService.dbWrite(sql.toString(), fields))
