@@ -457,9 +457,6 @@
 					<entityIncluded>
 						<decision model="submission.isComplete" />
 					</entityIncluded>
-					<included>
-						<decision model="assessment.hasPoints" />
-					</included>
 					<sort submit="TRUE">
 						<active>
 							<compareDecision model="sort_column" constant="3" />
@@ -506,9 +503,6 @@
 					<entityIncluded>
 						<decision model="submission.isComplete" />
 					</entityIncluded>
-					<included>
-						<decision model="assessment.hasPoints" />
-					</included>
 					<sort submit="TRUE">
 						<active>
 							<compareDecision model="sort_column" constant="4" />
