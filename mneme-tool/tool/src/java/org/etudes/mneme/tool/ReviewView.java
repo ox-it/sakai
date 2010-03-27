@@ -117,10 +117,28 @@ public class ReviewView extends ControllerImpl
 			if (s.equals(submission)) break;
 			position++;
 		}
+
+		// prev: wrap if needed
 		Submission prev = null;
-		if (position > 1) prev = allSubmissions.get(position - 2);
+		if (position > 1)
+		{
+			prev = allSubmissions.get(position - 2);
+		}
+		else
+		{
+			prev = allSubmissions.get(size - 1);
+		}
+
+		// next: wrap if needed
 		Submission next = null;
-		if (position < allSubmissions.size()) next = allSubmissions.get(position);
+		if (position < size)
+		{
+			next = allSubmissions.get(position);
+		}
+		else
+		{
+			next = allSubmissions.get(0);
+		}
 
 		if (size > 0) context.put("count", Integer.valueOf(size));
 		context.put("position", Integer.valueOf(position));
@@ -129,7 +147,7 @@ public class ReviewView extends ControllerImpl
 
 		Boolean mayReview = submission.getMayReview();
 		Boolean mayNotView = !submission.getMayViewOrReview();
-		
+
 		if ((mayReview.booleanValue()) && (allSubmissions.get(position - 1).getBest().equals(submission)))
 		{
 			context.put("best", Boolean.TRUE);

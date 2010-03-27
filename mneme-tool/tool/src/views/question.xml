@@ -64,6 +64,11 @@
 					<selectors>
 						<selector selector="question-subheader-review">
 							<decision model="review" />
+							<decision reversed="TRUE" model="submission.isCompletedLate" />
+						</selector>
+						<selector selector="question-subheader-review-late">
+							<decision model="review" />
+							<decision model="submission.isCompletedLate" />
 						</selector>
 					</selectors>
 				</message>
