@@ -107,12 +107,15 @@
 						<hasValueDecision model="sort" />
 					</included>
 				</navigation>
-				<navigation title="done" style="BUTTON" description="done-description" submit="TRUE">
-					<icon icon="/icons/return.png" style="LEFT" />
-					<destination template="{0}">
-						<model ref="return" />
-					</destination>
-				</navigation>
+				<text>
+					<message selector="n-of-size">
+						<model ref="position" />
+						<model ref="size" />
+					</message>
+					<included>
+						<hasValueDecision model="position" />
+					</included>
+				</text>
 				<navigation title="next" style="BUTTON" description="next-description" submit="TRUE">
 					<disabled>
 						<hasValueDecision model="next" reversed="TRUE" />
@@ -127,6 +130,13 @@
 					<included>
 						<hasValueDecision model="sort" />
 					</included>
+				</navigation>
+				<divider />
+				<navigation title="done" style="BUTTON" description="done-description" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
 				</navigation>
 				<divider />
 				<navigation title="save" description="save-description" style="BUTTON" submit="TRUE" destination="SAVE">
@@ -480,12 +490,15 @@
 						<hasValueDecision model="sort" />
 					</included>
 				</navigation>
-				<navigation title="done" style="BUTTON" accessKey="done-access" description="done-description" submit="TRUE">
-					<icon icon="/icons/return.png" style="LEFT" />
-					<destination template="{0}">
-						<model ref="return" />
-					</destination>
-				</navigation>
+				<text>
+					<message selector="n-of-size">
+						<model ref="position" />
+						<model ref="size" />
+					</message>
+					<included>
+						<hasValueDecision model="position" />
+					</included>
+				</text>
 				<navigation title="next" style="BUTTON" accessKey="next-access" description="next-description" submit="TRUE">
 					<disabled>
 						<hasValueDecision model="next" reversed="TRUE" />
@@ -500,6 +513,13 @@
 					<included>
 						<hasValueDecision model="sort" />
 					</included>
+				</navigation>
+				<divider />
+				<navigation title="done" style="BUTTON" accessKey="done-access" description="done-description" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
 				</navigation>
 				<divider />
 				<navigation title="save" accessKey="save-access" description="save-description" style="BUTTON" submit="TRUE" destination="SAVE">

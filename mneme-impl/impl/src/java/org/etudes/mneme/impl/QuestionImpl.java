@@ -110,7 +110,7 @@ public class QuestionImpl implements Question
 			// position in this part
 			int pos = question.getPartOrdering().getPosition();
 
-			// count up questions in preceeding parts
+			// count up questions in preceding parts
 			for (Part part : question.getPart().getAssessment().getParts().getParts())
 			{
 				if (part.equals(question.partContext)) break;
@@ -134,6 +134,13 @@ public class QuestionImpl implements Question
 			if (part == null) return null;
 
 			return part.getLastQuestion();
+		}
+
+		public Integer getSize()
+		{
+			if (question.partContext == null) return new Integer(1);
+
+			return question.getPart().getAssessment().getParts().getNumQuestions();
 		}
 	}
 
@@ -237,6 +244,17 @@ public class QuestionImpl implements Question
 
 			// TODO: set context (pool? from question?)
 			return question.questionService.getQuestion(questions.get(index - 1).getQuestionId());
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		public Integer getSize()
+		{
+			if (question.partContext == null) return new Integer(1);
+
+			List<QuestionPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
+			return Integer.valueOf(questions.size());
 		}
 	}
 

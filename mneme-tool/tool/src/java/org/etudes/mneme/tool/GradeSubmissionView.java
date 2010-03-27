@@ -45,6 +45,7 @@ import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.AttachmentService;
+import org.etudes.mneme.api.Ordering;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -135,9 +136,11 @@ public class GradeSubmissionView extends ControllerImpl
 			// one submission per user (i.e. 'official' only), except for survey, where we consider them all
 			Boolean official = Boolean.valueOf(submission.getAssessment().getType() != AssessmentType.survey);
 
-			String[] nextPrev = submissionService.findPrevNextSubmissionIds(submission, sort, official);
-			if (nextPrev[0] != null) context.put("prev", nextPrev[0]);
-			if (nextPrev[1] != null) context.put("next", nextPrev[1]);
+			Ordering<String> nextPrev = submissionService.findPrevNextSubmissionIds(submission, sort, official);
+			if (nextPrev.getPrevious() != null) context.put("prev", nextPrev.getPrevious());
+			if (nextPrev.getNext() != null) context.put("next", nextPrev.getNext());
+			context.put("position", nextPrev.getPosition());
+			context.put("size", nextPrev.getSize());
 		}
 		context.put("sort", sortCode);
 

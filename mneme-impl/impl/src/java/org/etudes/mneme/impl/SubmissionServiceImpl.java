@@ -52,6 +52,7 @@ import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.GradesService;
 import org.etudes.mneme.api.MnemeService;
+import org.etudes.mneme.api.Ordering;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.SecurityService;
@@ -984,7 +985,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	/**
 	 * {@inheritDoc}
 	 */
-	public String[] findPrevNextSubmissionIds(Submission submission, FindAssessmentSubmissionsSort sort, Boolean official)
+	public Ordering<String> findPrevNextSubmissionIds(Submission submission, FindAssessmentSubmissionsSort sort, Boolean official)
 	{
 		// TODO: can we do this cheaper?
 		if (submission == null) throw new IllegalArgumentException();
@@ -1024,8 +1025,12 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		Submission prev = null;
 		Submission next = null;
 		boolean done = false;
+		int i = 0;
+		int pos = 0;
 		for (Submission s : working)
 		{
+			i++;
+
 			// TODO: we should not have to filter these out...
 			if (((SubmissionImpl) s).getIsPhantom()) continue;
 			if (!((SubmissionImpl) s).getIsComplete()) continue;
@@ -1039,6 +1044,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			if (s.getId().equals(submission.getId()))
 			{
 				done = true;
+				pos = i;
 			}
 			else
 			{
@@ -1075,19 +1081,45 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		}
 
-		String[] rv = new String[2];
-		if (!done)
-		{
-			rv[0] = null;
-			rv[1] = null;
-		}
-		else
-		{
-			rv[0] = ((prev == null) ? null : prev.getId());
-			rv[1] = ((next == null) ? null : next.getId());
-		}
+		final Submission fPrev = prev;
+		final Submission fNext = next;
+		final int fPos = pos;
+		final int fSize = working.size();
+		final Submission fFirst = working.get(0);
+		final Submission fLast = working.get(working.size() - 1);
 
-		return rv;
+		return new Ordering<String>()
+		{
+			public Boolean getIsFirst()
+			{
+				return fPrev == null;
+			}
+
+			public Boolean getIsLast()
+			{
+				return fNext == null;
+			}
+
+			public String getNext()
+			{
+				return (fNext == null ? fFirst.getId() : fNext.getId());
+			}
+
+			public Integer getPosition()
+			{
+				return Integer.valueOf(fPos);
+			}
+
+			public String getPrevious()
+			{
+				return (fPrev == null ? fLast.getId() : fPrev.getId());
+			}
+
+			public Integer getSize()
+			{
+				return Integer.valueOf(fSize);
+			}
+		};
 	}
 
 	/**

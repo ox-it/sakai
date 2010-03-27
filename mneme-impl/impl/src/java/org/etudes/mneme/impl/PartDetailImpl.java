@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2009 Etudes, Inc.
+ * Copyright (c) 2009, 2010 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,6 +134,17 @@ public abstract class PartDetailImpl implements PartDetail, Changeable
 			if (index == 0) return null;
 
 			return this.detail.part.getDetails().get(index - 1);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		public Integer getSize()
+		{
+			if (this.detail.getIsPhantom()) return null;
+			if (this.detail.part == null) return null;
+
+			return Integer.valueOf(this.detail.part.getDetails().size());
 		}
 
 		/**

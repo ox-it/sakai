@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -127,6 +127,16 @@ public class PartImpl implements Part, Changeable
 		}
 
 		/**
+		 * {@inheritDoc}
+		 */
+		public Integer getSize()
+		{
+			if (parts == null) return new Integer(1);
+
+			return Integer.valueOf(parts.size());
+		}
+
+		/**
 		 * Initialize the parts list that contains this part.
 		 * 
 		 * @param parts
@@ -210,6 +220,9 @@ public class PartImpl implements Part, Changeable
 	/** True if I've been changed. */
 	protected boolean changed = false;
 
+	/** Keep track of deleted details. */
+	protected List<PartDetail> deletedDetails = new ArrayList<PartDetail>();
+
 	/** My id. */
 	protected String id = null;
 
@@ -242,27 +255,6 @@ public class PartImpl implements Part, Changeable
 
 	/** List of part details. */
 	List<PartDetail> details = new ArrayList<PartDetail>();
-
-	/** Keep track of deleted details. */
-	protected List<PartDetail> deletedDetails = new ArrayList<PartDetail>();
-
-	/**
-	 * Clear the deleted details.
-	 */
-	protected void clearDeleted()
-	{
-		this.deletedDetails.clear();
-	}
-
-	/**
-	 * Access the deleted details.
-	 * 
-	 * @return The List of deleted details.
-	 */
-	protected List<PartDetail> getDeleted()
-	{
-		return this.deletedDetails;
-	}
 
 	/**
 	 * Construct.
@@ -795,6 +787,24 @@ public class PartImpl implements Part, Changeable
 		this.title = title;
 
 		setChanged();
+	}
+
+	/**
+	 * Clear the deleted details.
+	 */
+	protected void clearDeleted()
+	{
+		this.deletedDetails.clear();
+	}
+
+	/**
+	 * Access the deleted details.
+	 * 
+	 * @return The List of deleted details.
+	 */
+	protected List<PartDetail> getDeleted()
+	{
+		return this.deletedDetails;
 	}
 
 	/**

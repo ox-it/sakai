@@ -243,7 +243,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 *        if TRUE, clump multiple submissions by the same user behind the best one, else include all.
 	 * @return [0], the previous id, or null, [1], the next id, or null.
 	 */
-	String[] findPrevNextSubmissionIds(Submission submission, FindAssessmentSubmissionsSort sort, Boolean official);
+	Ordering<String> findPrevNextSubmissionIds(Submission submission, FindAssessmentSubmissionsSort sort, Boolean official);
 
 	/**
 	 * Find the submission answers to the assessment and question made by all users, answered, in completed submissions.

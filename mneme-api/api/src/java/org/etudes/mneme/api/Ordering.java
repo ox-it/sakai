@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -58,6 +58,13 @@ public interface Ordering<E>
 	 * @return The position (1 based).
 	 */
 	Integer getPosition();
+
+	/**
+	 * Access the size of the collection.
+	 * 
+	 * @return The size.
+	 */
+	Integer getSize();
 
 	/**
 	 * Access the previous.
