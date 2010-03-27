@@ -234,7 +234,19 @@ public class PoolEditView extends ControllerImpl
 		context.put("questionids", values);
 
 		// read form
+		context.put("pool", pool);
 		String destination = this.uiService.decode(req, context);
+
+		try
+		{
+			this.poolService.savePool(pool);
+		}
+		catch (AssessmentPermissionException e)
+		{
+			// redirect to error
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
 
 		if (destination.equals("DELETE"))
 		{

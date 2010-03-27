@@ -62,6 +62,78 @@
 
 	<container>
 
+		<section treatment="inlay" collapsed="TRUE">
+			<title plain="TRUE">
+				<message selector="edit-pool">
+					<model type="icon" icon="/icons/gear-edit.png" />
+				</message>
+			</title>
+
+			<container>
+
+				<textEdit title="pool-title" cols="40">
+					<model type="text" ref="pool.title" />
+				</textEdit>
+
+				<htmlEdit title="pool-description" size="SMALL">
+					<model type="html" ref="pool.description" />
+				</htmlEdit>
+
+				<floatEdit title="pool-points" model="pool.pointsEdit" cols="6">
+					<minValue>
+						<model type="constant" value="0" />
+					</minValue>
+				</floatEdit>
+
+				<selection title="pool-difficulty">
+					<model ref="pool.difficulty" />
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="Level-1" />
+							</displayMessage>
+							<valueMessage>
+								<message template="1" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="Level-2" />
+							</displayMessage>
+							<valueMessage>
+								<message template="2" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="Level-3" />
+							</displayMessage>
+							<valueMessage>
+								<message template="3" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="Level-4" />
+							</displayMessage>
+							<valueMessage>
+								<message template="4" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="Level-5" />
+							</displayMessage>
+							<valueMessage>
+								<message template="5" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+				</selection>
+
+			</container>
+		</section>
+
 		<!-- the list of questions -->
 		<entityList style="FLAT">
 			<iterator name="question" model="questions" />
@@ -151,7 +223,7 @@
 				</selectionColumn>
 				<column pixels="16">
 					<navigations>
-						<navigation style="LINK" description="view-question">
+						<navigation style="LINK" description="view-question" submit="TRUE">
 							<icon icon="/icons/preview.png" style="LEFT" />
 							<destination template="/question_preview/{0}/pool_edit/{1}/{2}/{3}{4}/{5}">
 								<model ref="question.id" />
@@ -165,7 +237,7 @@
 								<decision reversed="TRUE" model="question.isSurvey" />
 							</included>
 						</navigation>
-						<navigation style="LINK" description="view-survey">
+						<navigation style="LINK" description="view-survey" submit="TRUE">
 							<icon icon="/icons/survey_view.png" style="LEFT" />
 							<destination template="/question_preview/{0}/pool_edit/{1}/{2}/{3}{4}/{5}">
 								<model ref="question.id" />
@@ -187,7 +259,7 @@
 					</title>
 					<model type="text" ref="question.description" missing="no-title" stripHtml="TRUE" max="60" />
 					<entityNavigations>
-						<navigation>
+						<navigation submit="TRUE">
 							<destination template="/question_edit/{5}/0/0/pool_edit/{0}/{1}/{2}{3}/{4}">
 								<model ref="poolsSortCode" />
 								<model ref="pool.id" />
@@ -198,7 +270,7 @@
 							</destination>
 						</navigation>
 					</entityNavigations>
-					<sort>
+					<sort submit="TRUE">
 						<active>
 							<compareDecision model="sort_column" constant="0" />
 						</active>
@@ -228,7 +300,7 @@
 						<message selector="question-type" />
 					</title>
 					<model ref="question.typeName" />
-					<sort>
+					<sort submit="TRUE">
 						<active>
 							<compareDecision model="sort_column" constant="1" />
 						</active>
@@ -258,7 +330,7 @@
 						<message selector="question-date" />
 					</title>
 					<model type="date" ref="question.createdBy.date" />
-					<sort>
+					<sort submit="TRUE">
 						<active>
 							<compareDecision model="sort_column" constant="2" />
 						</active>
@@ -299,7 +371,7 @@
 		<!--navigation-->
 		<navigationBar>
 			<container>
-				<navigation title="return" accessKey="return-access" description="return-description" style="BUTTON" submit="FALSE">
+				<navigation title="return" accessKey="return-access" description="return-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/return.png" style="LEFT" />
 					<!--destination template="/pools" /-->
 					<destination template="/pools/{0}">
