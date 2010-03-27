@@ -80,7 +80,7 @@
 				<modelColumn pixels="16">
 					<navigations>
 						<navigation style="LINK" description="pool-preview-description">
-							<icon icon="/icons/edit.png" style="LEFT" />
+							<icon icon="/icons/preview.png" style="LEFT" />
 							<destination template="/question_preview/*/pools/{0}{1}/*{2}">
 								<model ref="sort_column" />
 								<model ref="sort_direction" />
@@ -150,7 +150,7 @@
 					</title>
 					<navigations>
 						<navigation style="LINK" submit="TRUE" description="pool-edit-description">
-							<icon icon="/icons/unpub_settings.png" style="LEFT" />
+							<icon icon="/icons/gear-edit.png" style="LEFT" />
 							<destination template="/pool_properties/{0}{1}/{2}">
 								<model ref="sort_column" />
 								<model ref="sort_direction" />
