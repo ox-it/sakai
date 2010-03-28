@@ -1004,21 +1004,32 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		checkAutoComplete(all, asOf);
 
 		// pick one for each assessment - the one in progress, or the official complete one (if official)
-		List<Submission> working = null;
+		List<Submission> officialSubmissions = null;
 		if (official)
 		{
-			working = officializeByUser(all, null);
+			officialSubmissions = officializeByUser(all, null);
 		}
 		else
 		{
-			working = new ArrayList<Submission>(all.size());
-			working.addAll(all);
+			officialSubmissions = new ArrayList<Submission>(all.size());
+			officialSubmissions.addAll(all);
 		}
 
 		// if sorting by status, do that sort
 		if (sort == FindAssessmentSubmissionsSort.status_a || sort == FindAssessmentSubmissionsSort.status_d)
 		{
-			working = sortByGradingSubmissionStatus((sort == FindAssessmentSubmissionsSort.status_d), working);
+			officialSubmissions = sortByGradingSubmissionStatus((sort == FindAssessmentSubmissionsSort.status_d), officialSubmissions);
+		}
+
+		// remove the incomplete and phantom
+		List<Submission> working = new ArrayList<Submission>();
+		for (Submission s : officialSubmissions)
+		{
+			// TODO: we should not have to filter these out...
+			if (((SubmissionImpl) s).getIsPhantom()) continue;
+			if (!((SubmissionImpl) s).getIsComplete()) continue;
+
+			working.add(s);
 		}
 
 		// find our submission by id
@@ -1030,10 +1041,6 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		for (Submission s : working)
 		{
 			i++;
-
-			// TODO: we should not have to filter these out...
-			if (((SubmissionImpl) s).getIsPhantom()) continue;
-			if (!((SubmissionImpl) s).getIsComplete()) continue;
 
 			if (done)
 			{
@@ -1057,11 +1064,11 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		{
 			next = null;
 			prev = null;
+			i = 0;
+			pos = 0;
 			for (Submission s : working)
 			{
-				// TODO: we should not have to filter these out...
-				if (((SubmissionImpl) s).getIsPhantom()) continue;
-				if (!((SubmissionImpl) s).getIsComplete()) continue;
+				i++;
 
 				if (done)
 				{
@@ -1072,13 +1079,13 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 				if (s.getUserId().equals(submission.getUserId()))
 				{
 					done = true;
+					pos = i;
 				}
 				else
 				{
 					prev = s;
 				}
 			}
-
 		}
 
 		final Submission fPrev = prev;
