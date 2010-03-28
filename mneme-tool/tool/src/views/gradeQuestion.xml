@@ -155,6 +155,11 @@
 				<sizeOptions>
 					<model ref="pageSizes" />
 				</sizeOptions>
+				<message selector="submissions-pager-message">
+					<model ref="paging.curFirstItem" />
+					<model ref="paging.curLastItem" />
+					<model ref="paging.maxItems" />
+				</message>
 			</pager>
 			<emptyTitle>
 				<message selector="no-answers" />
@@ -399,6 +404,11 @@
 					<sizeOptions>
 						<model ref="pageSizes" />
 					</sizeOptions>
+					<message selector="submissions-pager-message">
+						<model ref="paging.curFirstItem" />
+						<model ref="paging.curLastItem" />
+						<model ref="paging.maxItems" />
+					</message>
 				</pager>
 				<divider />
 				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
