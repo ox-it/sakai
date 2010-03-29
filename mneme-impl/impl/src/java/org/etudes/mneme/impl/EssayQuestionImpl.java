@@ -343,7 +343,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		answer.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.inline.toString(), SubmissionType.both.toString())
 				.setProperty(this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")),
 				this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.submission.isReleased")),
-				this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("fullReview")));
+				this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("review")));
 		answerSection.add(answer);
 		// or if not released, show the actual answer text
 		answer = this.uiService.newText();
@@ -419,9 +419,14 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		showModelAnswerSection.setTitle("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
 		showModelAnswerSection.setTitlePlain(this.uiService.newTrueDecision());
 		showModelAnswerSection.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.modelAnswer")), this.uiService
+				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.modelAnswer")), this.uiService.newDecision()
+				.setProperty(this.uiService.newPropertyReference().setReference("submission.assessment.showModelAnswer")), this.uiService
 				.newOrDecision().setOptions(
-						this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("fullReview")),
+						this.uiService.newAndDecision()
+								.setRequirements(
+										this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("review")),
+										this.uiService.newDecision().setProperty(
+												this.uiService.newPropertyReference().setReference("submission.isReleased"))),
 						this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"))));
 		showModelAnswerSection.add(modelAnswer);
 

@@ -273,11 +273,18 @@ public interface Assessment
 	List<Float> getScores();
 
 	/**
-	 * Access the "show-hints" setting
+	 * Access the "show hints" setting
 	 * 
 	 * @return TRUE to show authored hints, FALSE to ignore them.
 	 */
 	Boolean getShowHints();
+
+	/**
+	 * Access the "show model answer" setting
+	 * 
+	 * @return TRUE to show authored model answer in released submissions in review, FALSE to not.
+	 */
+	Boolean getShowModelAnswer();
 
 	/**
 	 * Access the set of special access definitions for the assessment.
@@ -419,12 +426,20 @@ public interface Assessment
 	void setRequireHonorPledge(Boolean honorPledge);
 
 	/**
-	 * Set the "show-hints" setting
+	 * Set the "show hints" setting
 	 * 
 	 * @param showHints
 	 *        TRUE to show authored hints, FALSE to ignore them.
 	 */
 	void setShowHints(Boolean showHints);
+
+	/**
+	 * Set the "show model answer" setting
+	 * 
+	 * @param show
+	 *        TRUE to show authored model answer for released submissions in review, FALSE to not.
+	 */
+	void setShowModelAnswer(Boolean show);
 
 	/**
 	 * Set the time limit for taking the assessment (ms).

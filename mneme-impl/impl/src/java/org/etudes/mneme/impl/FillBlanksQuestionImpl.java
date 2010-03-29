@@ -433,7 +433,7 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 
 		Decision[] innerAndInc = new Decision[2];
 		innerAndInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.showCorrectReview"));
-		innerAndInc[1] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("fullReview"));
+		innerAndInc[1] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("review"));
 		Decision[] orInc = new Decision[2];
 		orInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"));
 		orInc[1] = this.uiService.newAndDecision().setRequirements(innerAndInc);

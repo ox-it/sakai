@@ -283,44 +283,40 @@
 				<model type="enum" messageRoot="assessment-type-lc-" ref="submission.assessment.type" />
 			</message>
 			<included>
-				<decision model="fullReview" />
+				<decision model="review" />
+				<decision model="submission.mayReview" />
 				<decision reversed="TRUE" model="submission.isReleased" />
 				<decision model="submission.assessment.hasPoints" />
 			</included>
 		</alert>
-		
+
 		<!-- view only - not released alert -->
 		<alert>
 			<message selector="view-not-released-later">
-				<model type="enum" messageRoot="assessment-type-lc-" ref="submission.assessment.type" />
 				<model type="date" ref="submission.best.assessment.review.date" />
 			</message>
 			<included>
 				<decision model="review" />
-				<decision reversed="TRUE" model="fullReview" />
-				<decision model="submission.best.mayReviewLater" />
-				<compareDecision model="submission.best.assessment.review.timing" constant="date" />
+				<decision reversed="TRUE" model="submission.mayReview" />
+				<decision model="submission.mayReviewLater" />
+				<compareDecision model="submission.assessment.review.timing" constant="date" />
 			</included>
 		</alert>
 		<alert>
-			<message selector="view-not-released-graded">
-				<model type="enum" messageRoot="assessment-type-lc-" ref="submission.assessment.type" />
-			</message>
+			<message selector="view-not-released-graded" />
 			<included>
 				<decision model="review" />
-				<decision reversed="TRUE" model="fullReview" />
-				<decision model="submission.best.mayReviewLater" />
+				<decision reversed="TRUE" model="submission.mayReview" />
+				<decision model="submission.mayReviewLater" />
 				<compareDecision model="submission.best.assessment.review.timing" constant="graded" />
 			</included>
 		</alert>
 		<alert>
-			<message selector="view-not-released-not">
-				<model type="enum" messageRoot="assessment-type-lc-" ref="submission.assessment.type" />
-			</message>
+			<message selector="view-not-released-not" />
 			<included>
 				<decision model="review" />
-				<decision reversed="TRUE" model="fullReview" />
-				<decision reversed="TRUE" model="submission.best.mayReviewLater" />
+				<decision reversed="TRUE" model="submission.mayReview" />
+				<decision reversed="TRUE" model="submission.mayReviewLater" />
 			</included>
 		</alert>
 
@@ -371,7 +367,7 @@
 						</attachments>
 					</container>
 					<included>
-						<decision model="fullReview" />
+						<decision model="submission.mayReview" />
 						<decision model="submission.isReleased" />
 						<orDecision>
 							<hasValueDecision model="submission.evaluation.comment" />
@@ -383,7 +379,10 @@
 			<included>
 				<hasValueDecision reversed="TRUE" model="question" />
 				<hasValueDecision reversed="TRUE" model="part" />
-				<decision reversed="TRUE" model="mayNotView" />
+				<orDecision>
+					<decision reversed="TRUE" model="review" />
+					<decision model="submission.mayReview" />
+				</orDecision>
 			</included>
 		</section>
 
@@ -399,7 +398,7 @@
 			<included>
 				<hasValueDecision model="submission.assessment.submitPresentation.text" />
 				<decision model="review" />
-				<decision reversed="TRUE" model="mayNotView" />
+				<decision model="submission.mayReview" />
 			</included>
 		</section>
 
@@ -417,7 +416,10 @@
 			</iterator>
 
 			<included>
-				<decision reversed="TRUE" model="mayNotView" />
+				<orDecision>
+					<decision reversed="TRUE" model="review" />
+					<decision model="submission.mayReview" />
+				</orDecision>
 			</included>
 
 			<!-- part title -->
@@ -487,7 +489,6 @@
 						</modelComponent>
 
 						<!-- Question specific review -->
-						<!--  TODO: may need change here for fullReview -->
 						<modelComponent model="answer.question.typeSpecificQuestion.reviewUi">
 							<included>
 								<decision model="review" />
@@ -636,7 +637,7 @@
 								</attachments>
 							</container>
 							<included>
-								<decision model="fullReview" />
+								<decision model="submission.mayReview" />
 								<decision model="submission.isReleased" />
 								<orDecision>
 									<hasValueDecision model="answer.evaluation.comment" />
@@ -654,7 +655,7 @@
 		<navigationBar>
 			<included>
 				<decision model="review" />
-				<decision reversed="TRUE" model="mayNotView" />
+				<decision model="submission.mayReview" />
 			</included>
 			<container>
 				<navigation title="prev" description="review-prev-description" style="BUTTON">

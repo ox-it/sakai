@@ -990,64 +990,6 @@ public class SubmissionImpl implements Submission
 	/**
 	 * {@inheritDoc}
 	 */
-	public Boolean getMayView()
-	{
-		// not for tests
-		if (getAssessment().getType() == AssessmentType.test) return Boolean.FALSE;
-
-		// same user
-		if (!this.sessionManager.getCurrentSessionUserId().equals(getUserId())) return Boolean.FALSE;
-
-		// submission complete
-		if (!getIsComplete()) return Boolean.FALSE;
-
-		// published (test drive need not be)
-		if (!getIsTestDrive())
-		{
-			if (!getAssessment().getPublished()) return Boolean.FALSE;
-		}
-
-		// valid
-		if (!getAssessment().getIsValid()) return Boolean.FALSE;
-
-		// assessment review NOT enabled
-		if (getAssessment().getReview().getNowAvailable()) return Boolean.FALSE;
-
-		return Boolean.TRUE;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Boolean getMayViewOrReview()
-	{
-		// same user
-		if (!this.sessionManager.getCurrentSessionUserId().equals(getUserId())) return Boolean.FALSE;
-
-		// submission complete
-		if (!getIsComplete()) return Boolean.FALSE;
-
-		// published (test drive need not be)
-		if (!getIsTestDrive())
-		{
-			if (!getAssessment().getPublished()) return Boolean.FALSE;
-		}
-
-		// valid
-		if (!getAssessment().getIsValid()) return Boolean.FALSE;
-
-		// for tests, we would need review to be enabled, otherwise we have view already
-		if (getAssessment().getType() == AssessmentType.test)
-		{
-			if (!getAssessment().getReview().getNowAvailable()) return Boolean.FALSE;
-		}
-
-		return Boolean.TRUE;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public String getReference()
 	{
 		return this.submissionService.getSubmissionReference(this.id);

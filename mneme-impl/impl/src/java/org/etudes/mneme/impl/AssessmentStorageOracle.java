@@ -226,10 +226,10 @@ public class AssessmentStorageOracle extends AssessmentStorageSql implements Ass
 		sql.append(" PARTS_CONTINUOUS, PARTS_SHOW_PRES, PASSWORD, PRESENTATION_TEXT,");
 		sql.append(" PUBLISHED, QUESTION_GROUPING, RANDOM_ACCESS,");
 		sql.append(" REVIEW_DATE, REVIEW_SHOW_CORRECT, REVIEW_SHOW_FEEDBACK, REVIEW_TIMING,");
-		sql.append(" SHOW_HINTS, SUBMIT_PRES_TEXT, TIME_LIMIT, TITLE, TRIES, TYPE, POOL, NEEDSPOINTS)");
-		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		sql.append(" SHOW_HINTS, SHOW_MODEL_ANSWER, SUBMIT_PRES_TEXT, TIME_LIMIT, TITLE, TRIES, TYPE, POOL, NEEDSPOINTS)");
+		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
-		Object[] fields = new Object[38];
+		Object[] fields = new Object[39];
 		int i = 0;
 		fields[i++] = id;
 		fields[i++] = assessment.getArchived() ? "1" : "0";
@@ -264,6 +264,7 @@ public class AssessmentStorageOracle extends AssessmentStorageSql implements Ass
 		fields[i++] = assessment.getReview().getShowFeedback() ? "1" : "0";
 		fields[i++] = assessment.getReview().getTiming().toString();
 		fields[i++] = assessment.getShowHints() ? "1" : "0";
+		fields[i++] = assessment.getShowModelAnswer() ? "1" : "0";
 		fields[i++] = assessment.getSubmitPresentation().getText();
 		fields[i++] = assessment.getTimeLimit();
 		fields[i++] = assessment.getTitle();

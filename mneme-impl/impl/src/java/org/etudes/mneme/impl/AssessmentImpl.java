@@ -137,6 +137,8 @@ public class AssessmentImpl implements Assessment
 
 	protected Boolean showHints = Boolean.FALSE;
 
+	protected Boolean showModelAnswer = Boolean.TRUE;
+
 	protected AssessmentSpecialAccess specialAccess = null;
 
 	protected transient Submission submissionContext = null;
@@ -339,7 +341,7 @@ public class AssessmentImpl implements Assessment
 	{
 		// no points if not allowed or if not needed
 		if (!getAllowedPoints()) return Boolean.FALSE;
-	
+
 		// check for needs only if set
 		if (getNeedsPoints() != null)
 		{
@@ -622,6 +624,14 @@ public class AssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getShowModelAnswer()
+	{
+		return this.showModelAnswer;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public AssessmentSpecialAccess getSpecialAccess()
 	{
 		return this.specialAccess;
@@ -860,6 +870,19 @@ public class AssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public void setShowModelAnswer(Boolean show)
+	{
+		if (show == null) throw new IllegalArgumentException();
+		if (this.showModelAnswer.equals(show)) return;
+
+		this.showModelAnswer = show;
+
+		this.changed.setChanged();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setTimeLimit(Long limit)
 	{
 		// minimum of one minute
@@ -1070,7 +1093,7 @@ public class AssessmentImpl implements Assessment
 		// if null, use the default
 		if (needsPoints == null)
 		{
-			this.needsPoints = true;
+			this.needsPoints = Boolean.TRUE;
 		}
 
 		else
@@ -1100,6 +1123,26 @@ public class AssessmentImpl implements Assessment
 	{
 		this.published = published;
 		this.publishedWas = published;
+	}
+
+	/**
+	 * Establish the show model answer setting.
+	 * 
+	 * @param show
+	 *        The show model answer setting.
+	 */
+	protected void initShowModelAnswer(Boolean show)
+	{
+		// if null, use the default
+		if (show == null)
+		{
+			this.showModelAnswer = Boolean.TRUE;
+		}
+
+		else
+		{
+			this.showModelAnswer = show;
+		}
 	}
 
 	/**
@@ -1229,6 +1272,7 @@ public class AssessmentImpl implements Assessment
 		this.randomAccess = other.randomAccess;
 		this.review = new AssessmentReviewImpl(this, (AssessmentReviewImpl) other.review, this.changed);
 		this.showHints = other.showHints;
+		this.showModelAnswer = other.showModelAnswer;
 		this.submissionContext = other.submissionContext;
 		this.submissionService = other.submissionService;
 		this.submitPresentation = new PresentationImpl((PresentationImpl) other.submitPresentation, this.changed);

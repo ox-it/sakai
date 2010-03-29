@@ -112,7 +112,7 @@ public class QuestionScoreDelegate extends FormatDelegateImpl
 		// use the {}/{} format if doing feedback, or just {} if not.
 		StringBuffer rv = new StringBuffer();
 
-		Boolean review = (Boolean) context.get("fullReview");
+		Boolean review = (Boolean) context.get("review");
 		if (review == null) review = Boolean.FALSE;
 		Boolean grading = (Boolean) context.get("grading");
 		if (grading == null) grading = Boolean.FALSE;

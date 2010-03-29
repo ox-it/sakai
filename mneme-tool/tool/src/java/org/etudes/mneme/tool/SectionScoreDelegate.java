@@ -97,7 +97,7 @@ public class SectionScoreDelegate extends FormatDelegateImpl
 		// use the {}/{} format if doing feedback, or just {} if not.
 		StringBuffer rv = new StringBuffer();
 
-		Boolean review = (Boolean) context.get("fullReview");
+		Boolean review = (Boolean) context.get("review");
 
 		String selector = "worth-points";
 

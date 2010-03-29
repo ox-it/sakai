@@ -439,6 +439,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getShowModelAnswer()
+	{
+		return getAssessment().getShowModelAnswer();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public AssessmentSpecialAccess getSpecialAccess()
 	{
 		return getAssessment().getSpecialAccess();
@@ -616,6 +624,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	 * {@inheritDoc}
 	 */
 	public void setShowHints(Boolean showHints)
+	{
+		throw new IllegalArgumentException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setShowModelAnswer(Boolean show)
 	{
 		throw new IllegalArgumentException();
 	}

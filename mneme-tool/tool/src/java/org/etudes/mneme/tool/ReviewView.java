@@ -76,7 +76,7 @@ public class ReviewView extends ControllerImpl
 	 */
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// we need two parameters (sid/quesiton selector)
+		// we need two parameters (submission id/question selector)
 		if (params.length != 3)
 		{
 			throw new IllegalArgumentException();
@@ -145,19 +145,12 @@ public class ReviewView extends ControllerImpl
 		if (prev != null) context.put("prevSubmissionId", prev.getId());
 		if (next != null) context.put("nextSubmissionId", next.getId());
 
-		Boolean mayReview = submission.getMayReview();
-		Boolean mayNotView = !submission.getMayViewOrReview();
-
-		if ((mayReview.booleanValue()) && (allSubmissions.get(position - 1).getBest().equals(submission)))
+		// best is grade related, so only for released (and only if review is available)
+		if ((submission.getIsReleased().booleanValue()) && (allSubmissions.get(position - 1).getBest().equals(submission))
+				&& submission.getMayReview().booleanValue())
 		{
 			context.put("best", Boolean.TRUE);
 		}
-
-		// can we "full review"?
-		context.put("fullReview", mayReview);
-
-		// is no review possible?
-		context.put("mayNotView", mayNotView);
 
 		// collect all the answers for review
 		List<Answer> answers = submission.getAnswersOrdered();

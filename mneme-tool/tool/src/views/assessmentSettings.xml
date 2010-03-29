@@ -439,6 +439,25 @@
 					<model ref="assessment.showHints" />
 				</selection>
 
+				<selection>
+					<title>
+						<message selector="model-answer-header">
+							<model type="icon" icon="/icons/model_answer.png" />
+						</message>
+					</title>
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="model-answer-title" />
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+					<model ref="assessment.showModelAnswer" />
+				</selection>
+
 				<selection title="nav">
 					<included>
 						<compareDecision reversed="TRUE" model="assessment.type" constant="assignment" />

@@ -339,7 +339,7 @@
 						<navigation style="LINK" title="list-nav-review" small="TRUE">
 							<destination template="/review/{0}" model="submission.best.id" />
 							<included>
-								<decision model="submission.best.mayViewOrReview" />
+								<decision model="submission.best.mayReview" />
 							</included>
 						</navigation>
 						<navigation style="LINK" disabled="TRUE" small="TRUE">
@@ -349,7 +349,7 @@
 								</message>
 							</title>
 							<included>
-								<decision reversed="TRUE" model="submission.best.mayViewOrReview" />
+								<decision reversed="TRUE" model="submission.best.mayReview" />
 								<decision model="submission.best.mayReviewLater" />
 								<compareDecision model="submission.best.assessment.review.timing" constant="date" />
 							</included>
@@ -359,7 +359,7 @@
 								<message selector="list-nav-review-graded" />
 							</title>
 							<included>
-								<decision reversed="TRUE" model="submission.best.mayViewOrReview" />
+								<decision reversed="TRUE" model="submission.best.mayReview" />
 								<decision model="submission.best.mayReviewLater" />
 								<compareDecision model="submission.best.assessment.review.timing" constant="graded" />
 							</included>
@@ -367,7 +367,7 @@
 						<navigation style="LINK" title="list-nav-review-not" disabled="TRUE" small="TRUE">
 							<included>
 								<decision model="submission.best.isComplete" />
-								<decision reversed="TRUE" model="submission.best.mayViewOrReview" />
+								<decision reversed="TRUE" model="submission.best.mayReview" />
 								<decision reversed="TRUE" model="submission.best.mayReviewLater" />
 							</included>
 						</navigation>
