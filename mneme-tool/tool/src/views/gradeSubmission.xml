@@ -64,24 +64,6 @@
 					<decision model="submission.assessment.hasPoints" />
 				</included>
 			</text>
-			<text>
-				<message selector="dates">
-					<model type="date" ref="submission.startDate" />
-					<model type="date" ref="submission.submittedDate" />
-				</message>
-				<included>
-					<decision reversed="TRUE" model="submission.isCompletedLate" />
-				</included>
-			</text>
-			<text>
-				<message selector="dates-late">
-					<model type="date" ref="submission.startDate" />
-					<model type="date" ref="submission.submittedDate" />
-				</message>
-				<included>
-					<decision model="submission.isCompletedLate" />
-				</included>
-			</text>
 		</container>
 	</subHeader>
 
@@ -165,6 +147,24 @@
 					</message>
 					<included>
 						<decision reversed="TRUE" model="submission.assessment.anonymous" />
+					</included>
+				</text>
+				<text>
+					<message selector="dates">
+						<model type="date" ref="submission.startDate" />
+						<model type="date" ref="submission.submittedDate" />
+					</message>
+					<included>
+						<decision reversed="TRUE" model="submission.isCompletedLate" />
+					</included>
+				</text>
+				<text>
+					<message selector="dates-late">
+						<model type="date" ref="submission.startDate" />
+						<model type="date" ref="submission.submittedDate" />
+					</message>
+					<included>
+						<decision model="submission.isCompletedLate" />
 					</included>
 				</text>
 				<text>
