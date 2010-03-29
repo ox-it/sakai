@@ -157,4 +157,34 @@ public class HtmlHelper
 
 		return sb.toString();
 	}
+	
+	/**
+	 * Remove any Link tags from the data.
+	 *
+	 * @param data
+	 *        the html data.
+	 * @return The cleaned up data.
+	 */
+	public static String stripLinks(String data)
+	{
+		if (data == null) return data;
+
+		// quick check for any link or meta tags
+		if (data.indexOf("<link ") == -1 && data.indexOf("<meta ") == -1) return data;
+
+		// pattern to find link/meta tags
+		Pattern p = Pattern.compile("<(link|meta)\\s+.*?/>", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
+
+		Matcher m = p.matcher(data);
+		StringBuffer sb = new StringBuffer();
+
+		while (m.find())
+		{
+			m.appendReplacement(sb, "");
+		}
+
+		m.appendTail(sb);
+
+		return sb.toString();
+	}
 }
