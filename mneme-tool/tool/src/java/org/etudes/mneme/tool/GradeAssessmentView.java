@@ -128,18 +128,40 @@ public class GradeAssessmentView extends ControllerImpl
 		}
 
 		// official or all
-		Boolean official = Boolean.TRUE;
-		String allUid = "official";
-		if ((params.length > 6) && (!params[6].equals("official")))
+		// Boolean official = Boolean.TRUE;
+		// String allUid = "official";
+		// if ((params.length > 6) && (!params[6].equals("official")))
+		// {
+		// allUid = params[6];
+		// }
+
+		Boolean official = Boolean.FALSE;
+		String allUid = null;
+		if (params.length > 6)
 		{
-			allUid = params[6];
+			if ("official".equals(params[6])) official = Boolean.TRUE;
 		}
 
-		// for a survey, ignore official
-		if (assessment.getType() == AssessmentType.survey)
+		// for anon, ignore official
+		if (assessment.getAnonymous())
 		{
 			official = Boolean.FALSE;
 			allUid = null;
+		}
+
+		// view highest only decision (boolean string)
+		Value highest = this.uiService.newValue();
+		highest.setValue(Boolean.toString(official));
+		context.put("highest", highest);
+
+		// view option (official or all)
+		if (official.booleanValue())
+		{
+			context.put("view", "official");
+		}
+		else
+		{
+			context.put("view", "all");
 		}
 
 		// get the size
@@ -155,7 +177,6 @@ public class GradeAssessmentView extends ControllerImpl
 		List<Submission> submissions = this.submissionService.findAssessmentSubmissions(assessment, sort, official, allUid,
 				paging.getSize() == 0 ? null : paging.getCurrent(), paging.getSize() == 0 ? null : paging.getSize());
 		context.put("submissions", submissions);
-		context.put("view", allUid);
 
 		// pages sizes
 		if (this.pageSizes.size() > 1)
@@ -238,6 +259,10 @@ public class GradeAssessmentView extends ControllerImpl
 		});
 		context.put("submissions", submissions);
 
+		// view highest boolean holder
+		Value highest = this.uiService.newValue();
+		context.put("highest", highest);
+
 		// read form
 		String destination = this.uiService.decode(req, context);
 
@@ -312,6 +337,49 @@ public class GradeAssessmentView extends ControllerImpl
 		else if (destination.equals("SAVE"))
 		{
 			destination = context.getDestination();
+		}
+
+		else if (destination.equals("VIEW"))
+		{
+			// anon always gets view all
+			if (assessment.getAnonymous())
+			{
+				// just ignore this
+				destination = context.getDestination();
+			}
+			else
+			{
+				// build the new dest parameters
+				String[] dest = new String[7];
+				for (int i = 0; i < params.length; i++)
+				{
+					dest[i] = params[i];
+				}
+
+				// fill in missing sort
+				if (dest[4] == null)
+				{
+					dest[4] = "0A";
+				}
+
+				// fill in missing paging
+				if (dest[5] == null)
+				{
+					dest[5] = "1-" + Integer.toString(this.pageSizes.get(0));
+				}
+
+				// set the official / all
+				if ("true".equals(highest.getValue()))
+				{
+					dest[6] = "official";
+				}
+				else
+				{
+					dest[6] = "all";
+				}
+
+				destination = StringUtil.unsplit(dest, "/");
+			}
 		}
 
 		res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));

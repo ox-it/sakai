@@ -133,10 +133,15 @@ public class GradeSubmissionView extends ControllerImpl
 		}
 		if (sort != null)
 		{
-			// one submission per user (i.e. 'official' only), except for survey, where we consider them all
-			Boolean official = Boolean.valueOf(submission.getAssessment().getType() != AssessmentType.survey);
+			// check the "official / all" parameter from the return for "official", except for survey, where we consider them all			
+			Boolean official = Boolean.FALSE;
+			if ((params.length > 11) && ("official".equals(params[11])) && (submission.getAssessment().getType() != AssessmentType.survey))
+			{
+				official = Boolean.TRUE;
+			}
 
 			Ordering<String> nextPrev = submissionService.findPrevNextSubmissionIds(submission, sort, official);
+
 			if (nextPrev.getPrevious() != null) context.put("prev", nextPrev.getPrevious());
 			if (nextPrev.getNext() != null) context.put("next", nextPrev.getNext());
 			context.put("position", nextPrev.getPosition());
