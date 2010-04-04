@@ -1319,21 +1319,28 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		if (rv.size() == 0) return rv;
 
-		// find the best (only if released)
-		SubmissionImpl best = rv.get(rv.size() - 1);
-		for (int i = rv.size() - 2; i >= 0; i--)
+		// find the best (only if released) - the later ones win over prior ones
+		SubmissionImpl best = null;
+		for (int i = rv.size() - 1; i >= 0; i--)
 		{
 			SubmissionImpl candidate = rv.get(i);
-			if (candidate.getIsReleased().booleanValue() && candidateBetter(best, candidate))
+			if (candidate.getIsReleased())
 			{
-				best = candidate;
+				if (best == null)
+				{
+					best = candidate;
+				}
+				else if (candidateBetter(best, candidate))
+				{
+					best = candidate;
+				}
 			}
 		}
 
 		for (SubmissionImpl s : rv)
 		{
 			s.siblingCount = rv.size();
-			s.bestSubmissionId = best.getId();
+			if (best != null) s.bestSubmissionId = best.getId();
 		}
 
 		return rv;
