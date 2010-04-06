@@ -145,9 +145,9 @@ public class ReviewView extends ControllerImpl
 		if (prev != null) context.put("prevSubmissionId", prev.getId());
 		if (next != null) context.put("nextSubmissionId", next.getId());
 
-		// best is grade related, so only for released (and only if review is available)
-		if ((submission.getIsReleased().booleanValue()) && (allSubmissions.get(position - 1).getBest().equals(submission))
-				&& submission.getMayReview().booleanValue())
+		// best is grade related, so only for assessments with points, released, and only if review is available
+		if ((submission.getIsReleased().booleanValue()) && (submission.getAssessment().getHasPoints().booleanValue())
+				&& (allSubmissions.get(position - 1).getBest().equals(submission)) && submission.getMayReview().booleanValue())
 		{
 			context.put("best", Boolean.TRUE);
 		}
