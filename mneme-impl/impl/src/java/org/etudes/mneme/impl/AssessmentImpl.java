@@ -158,6 +158,9 @@ public class AssessmentImpl implements Assessment
 
 	protected AssessmentType type = AssessmentType.test;
 
+	/** Track the original type value. */
+	protected transient AssessmentType typeWas = AssessmentType.test;
+
 	protected transient UserDirectoryService userDirectoryService = null;
 
 	/**
@@ -704,11 +707,9 @@ public class AssessmentImpl implements Assessment
 	public void initType(AssessmentType type)
 	{
 		if (type == null) throw new IllegalArgumentException();
-		if (this.type.equals(type)) return;
 
 		this.type = type;
-
-		this.changed.setChanged();
+		this.typeWas = type;
 	}
 
 	/**
@@ -951,18 +952,6 @@ public class AssessmentImpl implements Assessment
 		}
 
 		this.type = type;
-
-		// some defaults for assessment
-		if (this.type == AssessmentType.assignment)
-		{
-			// assignments always are flexible
-			this.setRandomAccess(Boolean.TRUE);
-
-			// also default to "review available upon release" and "manual release"
-			this.getReview().setTiming(ReviewTiming.graded);
-			this.getGrading().setAutoRelease(Boolean.FALSE);
-		}
-
 		this.changed.setChanged();
 	}
 
@@ -1023,6 +1012,17 @@ public class AssessmentImpl implements Assessment
 	protected Boolean getTitleChanged()
 	{
 		Boolean rv = Boolean.valueOf(!this.title.equals(this.titleWas));
+		return rv;
+	}
+
+	/**
+	 * Check if the type was changed.
+	 * 
+	 * @return TRUE if changed, FALSE if not.
+	 */
+	protected Boolean getTypeChanged()
+	{
+		Boolean rv = Boolean.valueOf(!this.type.equals(this.typeWas));
 		return rv;
 	}
 
@@ -1283,6 +1283,7 @@ public class AssessmentImpl implements Assessment
 		this.titleWas = other.titleWas;
 		this.tries = other.tries;
 		this.type = other.type;
+		this.typeWas = other.typeWas;
 		this.userDirectoryService = other.userDirectoryService;
 	}
 }

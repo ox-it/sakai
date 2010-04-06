@@ -39,6 +39,7 @@ import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentPolicyException;
 import org.etudes.mneme.api.AssessmentService;
+import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.GradesRejectsAssessmentException;
 import org.etudes.mneme.api.GradesService;
@@ -49,6 +50,7 @@ import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionService;
+import org.etudes.mneme.api.ReviewTiming;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.SubmissionService;
 import org.etudes.util.api.Translation;
@@ -445,6 +447,17 @@ public class AssessmentServiceImpl implements AssessmentService
 
 		// check for empty special access
 		((AssessmentSpecialAccessImpl) assessment.getSpecialAccess()).consolidate();
+
+		// if the type is changed to assignment, enforce related settings changes
+		if ((((AssessmentImpl) assessment).getTypeChanged()) && (assessment.getType() == AssessmentType.assignment))
+		{
+			// assignments always are flexible
+			assessment.setRandomAccess(Boolean.TRUE);
+
+			// also default to "review available upon release" and "manual release"
+			assessment.getReview().setTiming(ReviewTiming.graded);
+			assessment.getGrading().setAutoRelease(Boolean.FALSE);
+		}
 
 		// if any changes made, clear mint
 		if (assessment.getIsChanged())
@@ -926,7 +939,7 @@ public class AssessmentServiceImpl implements AssessmentService
 					rv.poolId = null;
 				}
 			}
-			
+
 			// otherwise just clear our auto-pool (would happen on a copy assessment)
 			else
 			{
