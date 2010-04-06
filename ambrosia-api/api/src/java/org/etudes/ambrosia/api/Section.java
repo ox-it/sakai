@@ -48,6 +48,15 @@ public interface Section extends Container
 	Section setAnchor(String selection, PropertyReference... references);
 
 	/**
+	 * Set the section to not stand out from the surroundings
+	 * 
+	 * @param setting
+	 *        if true, be blended, else stand out some.
+	 * @return self.
+	 */
+	Section setBlended(boolean setting);
+
+	/**
 	 * Set the section contents as originally collapsed, click in the title to expand.
 	 * 
 	 * @param setting

@@ -556,6 +556,7 @@
 <!ATTLIST section title CDATA #IMPLIED >
 <!ATTLIST section treatment CDATA #IMPLIED >
 <!ATTLIST section collapsed (TRUE|FALSE) #IMPLIED>
+<!ATTLIST section blended (TRUE|FALSE) #IMPLIED>
 <!ATTLIST section maxHeight CDATA #IMPLIED >
 
 <!ELEMENT overlay (included | container)* >

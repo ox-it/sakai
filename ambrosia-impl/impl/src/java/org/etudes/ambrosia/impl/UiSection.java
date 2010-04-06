@@ -43,6 +43,9 @@ public class UiSection extends UiContainer implements Section
 	/** The message for the anchor. */
 	protected Message anchor = null;
 
+	/** To have the section not stand out from the surroundings. */
+	protected boolean blended = false;
+
 	/** To start out with the section body collapsed, expandable. */
 	protected boolean collapsed = false;
 
@@ -176,6 +179,13 @@ public class UiSection extends UiContainer implements Section
 		if (collapsed != null)
 		{
 			setCollapsed(Boolean.parseBoolean(collapsed));
+		}
+
+		// blended
+		String blended = StringUtil.trimToNull(xml.getAttribute("blended"));
+		if (blended != null)
+		{
+			setBlended(Boolean.parseBoolean(blended));
 		}
 
 		// focus
@@ -370,6 +380,15 @@ public class UiSection extends UiContainer implements Section
 	public Section setAnchor(String selection, PropertyReference... references)
 	{
 		this.anchor = new UiMessage().setMessage(selection, references);
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public UiSection setBlended(boolean setting)
+	{
+		this.blended = setting;
 		return this;
 	}
 
@@ -583,7 +602,7 @@ public class UiSection extends UiContainer implements Section
 			context.addScript("function act_" + id + "()\n{\n\tambrosiaToggleSection(\"" + targetId + "\",\"" + title1Id + "\",\"" + title2Id + "\","
 					+ maxHeight + ")\n}\n");
 		}
-		
+
 		// if not collapsed, but there's a max height
 		else if ((this.maxHeight != null) && (this.maxHeight > 0))
 		{
@@ -593,8 +612,11 @@ public class UiSection extends UiContainer implements Section
 			context.addScript("ambrosiaExpandSectionNow(\"" + targetId + "\"," + maxHeight + ");\n");
 		}
 
-		// start the section
-		response.println("<div class=\"ambrosiaSection\">");
+		// start the section - if blended, we don't include this so we fit into the surroundings beter
+		if (!this.blended)
+		{
+			response.println("<div class=\"ambrosiaSection\">");
+		}
 
 		// anchor
 		if (this.anchor != null)
@@ -705,6 +727,6 @@ public class UiSection extends UiContainer implements Section
 		}
 
 		// end the section
-		response.println("</div>");
+		if (!this.blended) response.println("</div>");
 	}
 }
