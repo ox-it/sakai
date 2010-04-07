@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -43,6 +43,9 @@ import org.w3c.dom.Element;
  */
 public class UiUserInfoPropertyReference extends UiPropertyReference implements UserInfoPropertyReference
 {
+	/** If set, include the eid with the display. */
+	protected boolean disambiguate = false;
+
 	/** The user info we want. */
 	protected UserInfoPropertyReference.Selector selector = UserInfoPropertyReference.Selector.displayName;
 
@@ -70,6 +73,13 @@ public class UiUserInfoPropertyReference extends UiPropertyReference implements 
 		String selector = StringUtil.trimToNull(xml.getAttribute("selector"));
 		if ("DISPLAYNAME".equals(selector)) setSelector(Selector.displayName);
 		if ("SORTNAME".equals(selector)) setSelector(Selector.sortName);
+
+		// disambiguate
+		String disambiguate = StringUtil.trimToNull(xml.getAttribute("disambiguate"));
+		if (disambiguate != null)
+		{
+			setDisambiguate(Boolean.parseBoolean(disambiguate));
+		}
 	}
 
 	/**
@@ -78,6 +88,15 @@ public class UiUserInfoPropertyReference extends UiPropertyReference implements 
 	public String getType()
 	{
 		return "userInfo";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public UserInfoPropertyReference setDisambiguate(boolean setting)
+	{
+		this.disambiguate = setting;
+		return this;
 	}
 
 	/**
@@ -111,6 +130,11 @@ public class UiUserInfoPropertyReference extends UiPropertyReference implements 
 				rv = user.getSortName();
 				break;
 			}
+		}
+
+		if (this.disambiguate)
+		{
+			rv = rv + " (" + user.getEid() + ")";
 		}
 
 		return Validator.escapeHtml(rv);

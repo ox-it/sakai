@@ -180,6 +180,7 @@
 <!ATTLIST userInfoModel tool CDATA #IMPLIED >
 <!ATTLIST userInfoModel missing CDATA #IMPLIED >
 <!ATTLIST userInfoModel selector (DISPLAYNAME|SORTNAME) #IMPLIED >
+<!ATTLIST userInfoModel disambiguate (TRUE|FALSE) #IMPLIED >
 
 <!ELEMENT enumModel (missingValues | model)* >
 <!ATTLIST enumModel ref CDATA #REQUIRED >

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -34,6 +34,15 @@ public interface UserInfoPropertyReference extends PropertyReference
 	{
 		displayName, sortName
 	}
+
+	/**
+	 * Set the disambiguate setting: if set, the user eid will be included in parens after the user name.
+	 * 
+	 * @param setting
+	 *        The setting.
+	 * @return self.
+	 */
+	UserInfoPropertyReference setDisambiguate(boolean setting);
 
 	/**
 	 * Set the User property to display.
