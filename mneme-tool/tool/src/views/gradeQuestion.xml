@@ -189,7 +189,7 @@
 							</included>
 						</navigation>
 					</entityNavigations>
-					<model type="userInfo" selector="SORTNAME" ref="answer.submission.userId" missing="no-username" />
+					<model type="userInfo" selector="SORTNAME" ref="answer.submission.userId" missing="no-username" disambiguate="TRUE"  />
 					<sort submit="TRUE">
 						<active>
 							<compareDecision model="sort_column" constant="0" />
