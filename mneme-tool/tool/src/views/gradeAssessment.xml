@@ -193,10 +193,8 @@
 					</container>
 					<entityIncluded>
 						<decision model="submission.hasUnscoredAnswers" />
-					</entityIncluded>
-					<included>
 						<decision model="assessment.hasPoints" />
-					</included>
+					</entityIncluded>
 				</column>
 				<modelColumn>
 					<title>
