@@ -660,6 +660,9 @@
 									<decision reversed="TRUE" model="assessment.hasPoints" />
 									<compareDecision reversed="TRUE" model="assessment.type" constant="survey" />
 								</selector>
+								<selector selector="confirm-publish-survey">
+									<compareDecision model="assessment.type" constant="survey" />
+								</selector>
 							</selectors>
 						</message>
 					</confirm>
