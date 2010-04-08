@@ -238,7 +238,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		List<PortalNode> parents = getNodesFromRoot(parentId);
 		for (PortalNode parentNode: parents) {
 			if (siteId.equals(parentNode.getSite().getId()))
-				throw new IllegalArgumentException("Site already used in parent.");
+				throw new IllegalArgumentException("Site: "+ siteId+ " already used in parent: "+ parentNode.getPath());
 		}
 		
 		HierarchyNode node = hierarchyService.addNode(hierarchyId, parentId);
