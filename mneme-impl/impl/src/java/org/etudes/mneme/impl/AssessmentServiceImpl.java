@@ -454,8 +454,8 @@ public class AssessmentServiceImpl implements AssessmentService
 			// assignments always are flexible
 			assessment.setRandomAccess(Boolean.TRUE);
 
-			// also default to "review available upon release" and "manual release"
-			assessment.getReview().setTiming(ReviewTiming.graded);
+			// also default to "review available upon submission" and "manual release"
+			assessment.getReview().setTiming(ReviewTiming.submitted);
 			assessment.getGrading().setAutoRelease(Boolean.FALSE);
 		}
 
