@@ -127,7 +127,7 @@
 								<decision model="question.hasUnscoredSubmissions" />
 							</entityIncluded>
 						</column>
-						<column>
+						<column percent="55">
 							<navigations>
 								<navigation style="LINK" submit="FALSE">
 									<title>
