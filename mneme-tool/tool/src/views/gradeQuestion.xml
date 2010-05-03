@@ -99,7 +99,7 @@
 		</navigationBar>
 
 		<section>
-			<title>
+			<title plain="TRUE">
 				<message selector="submission-question-pts">
 					<model ref="question.points" />
 				</message>
