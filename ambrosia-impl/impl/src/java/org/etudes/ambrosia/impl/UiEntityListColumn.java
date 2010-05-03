@@ -125,6 +125,9 @@ public class UiEntityListColumn implements EntityListColumn
 	/** The column width (in em). */
 	protected Integer widthEm = null;
 
+	/** The column width (in percent). */
+	protected Integer widthPercent = null;
+
 	/**
 	 * Public no-arg constructor.
 	 */
@@ -279,6 +282,19 @@ public class UiEntityListColumn implements EntityListColumn
 			try
 			{
 				setWidth(Integer.parseInt(width));
+			}
+			catch (NumberFormatException e)
+			{
+			}
+		}
+
+		// width - percent
+		String percent = StringUtil.trimToNull(xml.getAttribute("percent"));
+		if (percent != null)
+		{
+			try
+			{
+				setWidthPercent(Integer.parseInt(percent));
 			}
 			catch (NumberFormatException e)
 			{
@@ -708,6 +724,14 @@ public class UiEntityListColumn implements EntityListColumn
 	/**
 	 * {@inheritDoc}
 	 */
+	public Integer getWidthPercent()
+	{
+		return this.widthPercent;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean hasTitle(Context context, Object focus)
 	{
 		return this.title != null;
@@ -897,6 +921,15 @@ public class UiEntityListColumn implements EntityListColumn
 	public EntityListColumn setWidthEm(int width)
 	{
 		this.widthEm = new Integer(width);
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public EntityListColumn setWidthPercent(int percent)
+	{
+		this.widthPercent = new Integer(percent);
 		return this;
 	}
 }

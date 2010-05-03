@@ -311,6 +311,13 @@ public interface EntityListColumn
 	Integer getWidthEm();
 
 	/**
+	 * Access the column percent width.
+	 * 
+	 * @return The width (in percent) for this column, or null if no specific width is set.
+	 */
+	Integer getWidthPercent();
+
+	/**
 	 * Check if there is a title
 	 * 
 	 * @param context
@@ -483,4 +490,12 @@ public interface EntityListColumn
 	 */
 	EntityListColumn setWidthEm(int width);
 
+	/**
+	 * Set a width (in percent) for this column.
+	 * 
+	 * @param width
+	 *        The width (in percent), or null for no specific width.
+	 * @return self.
+	 */
+	EntityListColumn setWidthPercent(int width);
 }

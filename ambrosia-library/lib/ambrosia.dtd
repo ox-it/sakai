@@ -412,6 +412,7 @@
 <!ATTLIST column title CDATA #IMPLIED >
 <!ATTLIST column pixels CDATA #IMPLIED >
 <!ATTLIST column em CDATA #IMPLIED >
+<!ATTLIST column percent CDATA #IMPLIED >
 
 <!ELEMENT sort (active | direction | asc | desc)* >
 <!ATTLIST sort submit (TRUE|FALSE) #IMPLIED >
@@ -446,6 +447,7 @@
 <!ATTLIST modelColumn title CDATA #IMPLIED >
 <!ATTLIST modelColumn pixels CDATA #IMPLIED >
 <!ATTLIST modelColumn em CDATA #IMPLIED >
+<!ATTLIST modelColumn percent CDATA #IMPLIED >
 <!ATTLIST modelColumn model CDATA #IMPLIED >
 
 <!ELEMENT selectionColumn (value | singleSelect | readOnly | model | onEmptyAlert | label | asAlert | entityIncluded | included | sort | title | container | entityActions | entityNavigations | footnotes | navigations | correct | correctDecision)* >
@@ -457,6 +459,7 @@
 <!ATTLIST selectionColumn title CDATA #IMPLIED >
 <!ATTLIST selectionColumn pixels CDATA #IMPLIED >
 <!ATTLIST selectionColumn em CDATA #IMPLIED >
+<!ATTLIST selectionColumn percent CDATA #IMPLIED >
 <!ATTLIST selectionColumn multiple (TRUE|FALSE) #IMPLIED >
 <!ATTLIST selectionColumn single (TRUE|FALSE) #IMPLIED >
 <!ATTLIST selectionColumn model CDATA #IMPLIED >
