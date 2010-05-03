@@ -324,7 +324,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		questionSection.setTreatment("inlay");
 		questionSection.setCollapsed(true);
 		questionSection.add(question).add(attachments);
-		questionSection.setTitle("view-question", this.uiService.newIconPropertyReference().setIcon("/icons/question_view.png"));
+		questionSection.setTitle(getQuestionTitle(), this.uiService.newIconPropertyReference().setIcon("/icons/question_view.png"));
 		questionSection.setTitlePlain(this.uiService.newTrueDecision());
 		questionSection.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")));
 
@@ -594,7 +594,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		questionSection.setMaxHeight(400);
 		questionSection.setTreatment("inlay");
 		questionSection.setCollapsed(true);
-		questionSection.setTitle("view-question", this.uiService.newIconPropertyReference().setIcon("/icons/question_view.png"));
+		questionSection.setTitle(getQuestionTitle(), this.uiService.newIconPropertyReference().setIcon("/icons/question_view.png"));
 		questionSection.setTitlePlain(this.uiService.newTrueDecision());
 		questionSection.add(question).add(attachments);
 		questionSection.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")));
@@ -764,5 +764,13 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 	public void setUi(UiService service)
 	{
 		this.uiService = service;
+	}
+
+	/**
+	 * @return the message bundle selector for the title of the collapsed question text.
+	 */
+	protected String getQuestionTitle()
+	{
+		return "view-essay-question";
 	}
 }

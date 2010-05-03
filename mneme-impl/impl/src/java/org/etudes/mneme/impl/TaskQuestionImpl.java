@@ -166,7 +166,7 @@ public class TaskQuestionImpl extends EssayQuestionImpl
 		questionSection.setMaxHeight(400);
 		questionSection.setTreatment("inlay");
 		questionSection.setCollapsed(true);
-		questionSection.setTitle("view-question", this.uiService.newIconPropertyReference().setIcon("/icons/question_view.png"));
+		questionSection.setTitle(getQuestionTitle(), this.uiService.newIconPropertyReference().setIcon("/icons/question_view.png"));
 		questionSection.setTitlePlain(this.uiService.newTrueDecision());
 		questionSection.add(question).add(attachments);
 		questionSection.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")));
@@ -282,5 +282,13 @@ public class TaskQuestionImpl extends EssayQuestionImpl
 
 		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(typeSection).add(showModelAnswerSection).add(section)
 				.add(unansweredSection);
+	}
+
+	/**
+	 * @return the message bundle selector for the title of the collapsed question text.
+	 */
+	protected String getQuestionTitle()
+	{
+		return "view-task-question";
 	}
 }
