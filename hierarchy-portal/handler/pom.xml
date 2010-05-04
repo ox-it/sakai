@@ -84,6 +84,12 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-presence-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 			<version>1.0.4</version>

@@ -25,6 +25,7 @@ import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.StoredState;
+import org.sakaiproject.presence.cover.PresenceService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -324,6 +325,16 @@ public class HierarchyHandler extends SiteHandler {
 		{
 			// This request is the destination of the request
 			portalService.setStoredState(null);
+		}
+		try
+		{
+			boolean presenceEvents = ServerConfigurationService.getBoolean("presence.events.log", true);
+			if (presenceEvents)
+				PresenceService.setPresence(site.getId() + "-presence");
+		}
+		catch(Exception e)
+		{
+			log.info("Failed to set presence: "+ e.getMessage());
 		}
 	}
 	
