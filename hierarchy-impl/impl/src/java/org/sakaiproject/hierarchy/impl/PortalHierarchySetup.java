@@ -60,10 +60,10 @@ public class PortalHierarchySetup implements ApplicationListener {
 			securityService.pushAdvisor(new SecurityAdvisor(){
 				public SecurityAdvice isAllowed(String arg0, String arg1, String arg2) { return SecurityAdvice.ALLOWED;};}
 			);
-			usageSessionService.startSession("admin", null, null);
 			Session session = sessionManager.startSession();
 			session.setUserId("admin");
 			sessionManager.setCurrentSession(session);
+			usageSessionService.startSession("admin", null, null);
 			
 			siteService.getSite(hierarchySiteId);
 		} catch (IdUnusedException e) {
@@ -90,7 +90,10 @@ public class PortalHierarchySetup implements ApplicationListener {
 				log.warn(".anon roles already on site.");
 			}
 		} finally {
-			usageSessionService.logout();
+			Session session = sessionManager.getCurrentSession();
+			if (session != null) {
+				session.invalidate();
+			}
 			securityService.popAdvisor();
 		}
 	}
