@@ -419,14 +419,15 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		showModelAnswerSection.setTitle("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
 		showModelAnswerSection.setTitlePlain(this.uiService.newTrueDecision());
 		showModelAnswerSection.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.modelAnswer")), this.uiService.newDecision()
-				.setProperty(this.uiService.newPropertyReference().setReference("submission.assessment.showModelAnswer")), this.uiService
+				this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.modelAnswer")), this.uiService
 				.newOrDecision().setOptions(
 						this.uiService.newAndDecision()
 								.setRequirements(
 										this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("review")),
 										this.uiService.newDecision().setProperty(
-												this.uiService.newPropertyReference().setReference("submission.isReleased"))),
+												this.uiService.newPropertyReference().setReference("submission.isReleased")),
+										this.uiService.newDecision().setProperty(
+												this.uiService.newPropertyReference().setReference("submission.assessment.showModelAnswer"))),
 						this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"))));
 		showModelAnswerSection.add(modelAnswer);
 
