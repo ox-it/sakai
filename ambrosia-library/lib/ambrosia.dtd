@@ -581,6 +581,7 @@
 <!ATTLIST selection value CDATA #IMPLIED >
 <!ATTLIST selection orientation (HORIZONTAL|VERTICAL|DROPDOWN) #IMPLIED >
 <!ATTLIST selection readOnly (TRUE|FALSE) #IMPLIED >
+<!ATTLIST selection readOnlyCollapsed (TRUE|FALSE) #IMPLIED >
 <!ATTLIST selection height CDATA #IMPLIED >
 <!ATTLIST selection destination CDATA #IMPLIED >
 <!ATTLIST selection submitValue (TRUE|FALSE) #IMPLIED >

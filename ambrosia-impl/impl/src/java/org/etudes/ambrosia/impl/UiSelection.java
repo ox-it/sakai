@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -105,13 +105,15 @@ public class UiSelection extends UiComponent implements Selection
 	protected Orientation orientation = Orientation.vertical;
 
 	/**
-	 * The PropertyReference for encoding and decoding this selection - this is what will be updated with the end-user's selection choice, and what
-	 * value seeds the display.
+	 * The PropertyReference for encoding and decoding this selection - this is what will be updated with the end-user's selection choice, and what value seeds the display.
 	 */
 	protected PropertyReference propertyReference = null;
 
 	/** The read only decision. */
 	protected Decision readOnly = null;
+
+	/** The read only and show only the selected item (collapsed) decision. */
+	protected Decision readOnlyCollapsed = null;
 
 	/** If we should include select-all or not. */
 	protected boolean selectAll = true;
@@ -340,10 +342,18 @@ public class UiSelection extends UiComponent implements Selection
 			}
 		}
 
+		// read only shortcut
 		String readOnly = StringUtil.trimToNull(xml.getAttribute("readOnly"));
 		if ((readOnly != null) && ("TRUE".equals(readOnly)))
 		{
 			this.readOnly = new UiDecision().setProperty(new UiConstantPropertyReference().setValue("true"));
+		}
+
+		// read only collapsed shortcut
+		String readOnlyCollapsed = StringUtil.trimToNull(xml.getAttribute("readOnlyCollapsed"));
+		if ((readOnlyCollapsed != null) && ("TRUE".equals(readOnlyCollapsed)))
+		{
+			this.readOnlyCollapsed = new UiDecision().setProperty(new UiConstantPropertyReference().setValue("true"));
 		}
 
 		// read only
@@ -351,6 +361,13 @@ public class UiSelection extends UiComponent implements Selection
 		if (settingsXml != null)
 		{
 			this.readOnly = service.parseDecisions(settingsXml);
+		}
+
+		// read only collapsed
+		settingsXml = XmlHelper.getChildElementNamed(xml, "readOnlyCollapsed");
+		if (settingsXml != null)
+		{
+			this.readOnlyCollapsed = service.parseDecisions(settingsXml);
 		}
 
 		// single select
@@ -432,6 +449,14 @@ public class UiSelection extends UiComponent implements Selection
 		if (this.readOnly != null)
 		{
 			readOnly = this.readOnly.decide(context, focus);
+		}
+		
+		// read only collapsed?
+		boolean readOnlyCollapsed = false;
+		if (this.readOnlyCollapsed != null)
+		{
+			readOnlyCollapsed = this.readOnlyCollapsed.decide(context, focus);
+			if (readOnlyCollapsed) readOnly = true;
 		}
 
 		// single select?
@@ -754,6 +779,9 @@ public class UiSelection extends UiComponent implements Selection
 				}
 
 				boolean selected = value.contains(val);
+				
+				if ((!selected) && readOnlyCollapsed) continue;
+
 				if (selected)
 				{
 					startingValue = val;
@@ -995,6 +1023,15 @@ public class UiSelection extends UiComponent implements Selection
 	public Selection setReadOnly(Decision decision)
 	{
 		this.readOnly = decision;
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Selection setReadOnlyCollapsed(Decision decision)
+	{
+		this.readOnlyCollapsed = decision;
 		return this;
 	}
 
