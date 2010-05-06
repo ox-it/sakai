@@ -24,13 +24,7 @@
 
 package org.etudes.mneme.impl;
 
-import org.etudes.ambrosia.api.Attachments;
-import org.etudes.ambrosia.api.Component;
-import org.etudes.ambrosia.api.HtmlEdit;
-import org.etudes.ambrosia.api.PropertyReference;
-import org.etudes.ambrosia.api.Section;
 import org.etudes.ambrosia.api.Selection;
-import org.etudes.ambrosia.api.Text;
 import org.etudes.ambrosia.api.UiService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionPlugin;
@@ -88,200 +82,17 @@ public class TaskQuestionImpl extends EssayQuestionImpl
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Add the type options to the Selection.
+	 * 
+	 * @param type
+	 *        The selection.
 	 */
-	public Component getAuthoringUi()
+	protected void addTypeSelection(Selection type)
 	{
-		// submission type
-		Selection type = uiService.newSelection();
-		type.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.submissionType"));
 		type.addSelection(this.uiService.newMessage().setMessage("inline"), this.uiService.newMessage().setTemplate("inline"));
 		type.addSelection(this.uiService.newMessage().setMessage("inline-attachments"), this.uiService.newMessage().setTemplate("both"));
 		type.addSelection(this.uiService.newMessage().setMessage("attachments"), this.uiService.newMessage().setTemplate("attachments"));
 		type.addSelection(this.uiService.newMessage().setMessage("no-submission"), this.uiService.newMessage().setTemplate("none"));
-		type.setTitle("submission", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
-
-		Section typeSection = this.uiService.newSection();
-		typeSection.add(type);
-
-		// model answer
-		HtmlEdit modelAnswer = this.uiService.newHtmlEdit();
-		modelAnswer.setSize(HtmlEdit.Sizes.tall);
-		modelAnswer.setProperty(this.uiService.newHtmlPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer"));
-		modelAnswer.setTitle("model-answer-edit", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
-
-		Section modelAnswerSection = this.uiService.newSection();
-		modelAnswerSection.add(modelAnswer);
-
-		return this.uiService.newFragment().setMessages(this.messages).add(typeSection).add(modelAnswerSection);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Component getViewDeliveryUi()
-	{
-		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
-
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
-
-		Section questionSection = this.uiService.newSection();
-		questionSection.add(question).add(attachments);
-
-		// submission type
-		Selection type = uiService.newSelection();
-		type.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.submissionType"));
-		type.addSelection(this.uiService.newMessage().setMessage("inline"), this.uiService.newMessage().setTemplate("inline"));
-		type.addSelection(this.uiService.newMessage().setMessage("inline-attachments"), this.uiService.newMessage().setTemplate("both"));
-		type.addSelection(this.uiService.newMessage().setMessage("attachments"), this.uiService.newMessage().setTemplate("attachments"));
-		type.addSelection(this.uiService.newMessage().setMessage("no-submission"), this.uiService.newMessage().setTemplate("none"));
-		type.setReadOnly(this.uiService.newTrueDecision());
-		type.setTitle("submission", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
-
-		Section typeSection = this.uiService.newSection();
-		typeSection.add(type);
-
-		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(typeSection);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Component getViewQuestionUi()
-	{
-		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
-
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
-
-		// for grading
-		Section questionSection = this.uiService.newSection();
-		questionSection.setMaxHeight(400);
-		questionSection.setTreatment("inlay");
-		questionSection.setCollapsed(true);
-		questionSection.setTitle(getQuestionTitle(), this.uiService.newIconPropertyReference().setIcon("/icons/question_view.png"));
-		questionSection.setTitlePlain(this.uiService.newTrueDecision());
-		questionSection.add(question).add(attachments);
-		questionSection.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")));
-
-		// for not grading
-		Section questionSection2 = this.uiService.newSection();
-		questionSection2.add(question).add(attachments);
-		questionSection2.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"))
-				.setReversed());
-
-		// submission type
-		Selection type = uiService.newSelection();
-		type.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.submissionType"));
-		type.addSelection(this.uiService.newMessage().setMessage("inline"), this.uiService.newMessage().setTemplate("inline"));
-		type.addSelection(this.uiService.newMessage().setMessage("inline-attachments"), this.uiService.newMessage().setTemplate("both"));
-		type.addSelection(this.uiService.newMessage().setMessage("attachments"), this.uiService.newMessage().setTemplate("attachments"));
-		type.addSelection(this.uiService.newMessage().setMessage("no-submission"), this.uiService.newMessage().setTemplate("none"));
-		type.setReadOnly(this.uiService.newTrueDecision());
-		type.setTitle("submission", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
-
-		Section typeSection = this.uiService.newSection();
-		typeSection.add(type);
-
-		// model answer
-		Text modelAnswer = this.uiService.newText();
-		modelAnswer.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer"));
-
-		Section showModelAnswerSection = this.uiService.newSection();
-		showModelAnswerSection.setCollapsed(true);
-		showModelAnswerSection.setMaxHeight(400);
-		showModelAnswerSection.setTreatment("inlay");
-		showModelAnswerSection.setTitle("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
-		showModelAnswerSection.setTitlePlain(this.uiService.newTrueDecision());
-		showModelAnswerSection.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer")));
-		showModelAnswerSection.add(modelAnswer);
-
-		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(questionSection2).add(typeSection).add(
-				showModelAnswerSection);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Component getViewStatsUi()
-	{
-		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
-
-		Attachments attachments = this.uiService.newAttachments();
-		attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
-		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("question.presentation.attachments")));
-
-		Section questionSection = this.uiService.newSection();
-		questionSection.add(question).add(attachments);
-
-		// submission type
-		Selection type = uiService.newSelection();
-		type.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.submissionType"));
-		type.addSelection(this.uiService.newMessage().setMessage("inline"), this.uiService.newMessage().setTemplate("inline"));
-		type.addSelection(this.uiService.newMessage().setMessage("inline-attachments"), this.uiService.newMessage().setTemplate("both"));
-		type.addSelection(this.uiService.newMessage().setMessage("attachments"), this.uiService.newMessage().setTemplate("attachments"));
-		type.addSelection(this.uiService.newMessage().setMessage("no-submission"), this.uiService.newMessage().setTemplate("none"));
-		type.setReadOnly(this.uiService.newTrueDecision());
-		type.setTitle("submission", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
-
-		Section typeSection = this.uiService.newSection();
-		typeSection.add(type);
-
-		// model answer
-		Text modelAnswer = this.uiService.newText();
-		modelAnswer.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer"));
-
-		Section showModelAnswerSection = this.uiService.newSection();
-		showModelAnswerSection.setCollapsed(true);
-		showModelAnswerSection.setMaxHeight(400);
-		showModelAnswerSection.setTreatment("inlay");
-		showModelAnswerSection.setTitle("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
-		showModelAnswerSection.setTitlePlain(this.uiService.newTrueDecision());
-		showModelAnswerSection.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer")));
-		showModelAnswerSection.add(modelAnswer);
-
-		Text answer = this.uiService.newText();
-		answer.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.typeSpecificAnswer.answerData"));
-
-		Attachments uploaded = this.uiService.newAttachments();
-		uploaded.setAttachments(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded"), "attachment");
-		uploaded.setSize(false).setTimestamp(false);
-		uploaded.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded")));
-
-		Section section = this.uiService.newSection();
-		PropertyReference iteratorRef = this.uiService.newPropertyReference().setReference("submissions").setFormatDelegate(
-				this.uiService.getFormatDelegate("AccessSubmissionsQuestionAnswers", "sakai.mneme"));
-		section.setIterator(iteratorRef, "answer", this.uiService.newMessage().setMessage("no-answers"));
-		section.setEntityIncluded(this.uiService.newOrDecision().setOptions(
-				this.uiService.newHasValueDecision().setProperty(
-						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answerData")),
-				this.uiService.newHasValueDecision().setProperty(
-						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded"))));
-		section.add(answer).add(uploaded);
-		section.setTitle("answer-summary");
-
-		Section unansweredSection = this.uiService.newSection();
-		unansweredSection.setTitle("unanswered-summary");
-		Text unanswered = this.uiService.newText().setText(
-				null,
-				this.uiService.newHtmlPropertyReference().setFormatDelegate(
-						this.uiService.getFormatDelegate("FormatUnansweredPercent", "sakai.mneme")));
-		unansweredSection.add(unanswered);
-
-		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(typeSection).add(showModelAnswerSection).add(section)
-				.add(unansweredSection);
 	}
 
 	/**

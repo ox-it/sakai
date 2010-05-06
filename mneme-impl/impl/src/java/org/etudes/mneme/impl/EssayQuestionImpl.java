@@ -137,10 +137,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 	{
 		// submission type
 		Selection type = uiService.newSelection();
-		type.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.submissionType"));
-		type.addSelection(this.uiService.newMessage().setMessage("inline"), this.uiService.newMessage().setTemplate("inline"));
-		type.addSelection(this.uiService.newMessage().setMessage("inline-attachments"), this.uiService.newMessage().setTemplate("both"));
-		type.addSelection(this.uiService.newMessage().setMessage("attachments"), this.uiService.newMessage().setTemplate("attachments"));
+		this.addTypeSelection(type);
 		type.setTitle("submission", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
 
 		Section typeSection = this.uiService.newSection();
@@ -334,6 +331,14 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		questionSection2.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"))
 				.setReversed());
 
+		// submission type (grading only)
+		Selection type = uiService.newSelection();
+		type.setProperty(this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType"));
+		addTypeSelection(type);
+		type.setReadOnlyCollapsed(this.uiService.newTrueDecision());
+		type.setTitle("submission", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
+		type.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")));
+
 		Section answerSection = this.uiService.newSection();
 		answerSection.setTitle("answer", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
 
@@ -431,7 +436,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 						this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"))));
 		showModelAnswerSection.add(modelAnswer);
 
-		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(questionSection2).add(answerSection).add(
+		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(questionSection2).add(type).add(answerSection).add(
 				showModelAnswerSection);
 	}
 
@@ -565,10 +570,8 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		// submission type
 		Selection type = uiService.newSelection();
 		type.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.submissionType"));
-		type.addSelection(this.uiService.newMessage().setMessage("inline"), this.uiService.newMessage().setTemplate("inline"));
-		type.addSelection(this.uiService.newMessage().setMessage("inline-attachments"), this.uiService.newMessage().setTemplate("both"));
-		type.addSelection(this.uiService.newMessage().setMessage("attachments"), this.uiService.newMessage().setTemplate("attachments"));
-		type.setReadOnly(this.uiService.newTrueDecision());
+		addTypeSelection(type);
+		type.setReadOnlyCollapsed(this.uiService.newTrueDecision());
 		type.setTitle("submission", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
 
 		Section typeSection = this.uiService.newSection();
@@ -609,10 +612,8 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		// submission type
 		Selection type = uiService.newSelection();
 		type.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.submissionType"));
-		type.addSelection(this.uiService.newMessage().setMessage("inline"), this.uiService.newMessage().setTemplate("inline"));
-		type.addSelection(this.uiService.newMessage().setMessage("inline-attachments"), this.uiService.newMessage().setTemplate("both"));
-		type.addSelection(this.uiService.newMessage().setMessage("attachments"), this.uiService.newMessage().setTemplate("attachments"));
-		type.setReadOnly(this.uiService.newTrueDecision());
+		addTypeSelection(type);
+		type.setReadOnlyCollapsed(this.uiService.newTrueDecision());
 		type.setTitle("submission", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
 
 		Section typeSection = this.uiService.newSection();
@@ -655,10 +656,8 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		// submission type
 		Selection type = uiService.newSelection();
 		type.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.submissionType"));
-		type.addSelection(this.uiService.newMessage().setMessage("inline"), this.uiService.newMessage().setTemplate("inline"));
-		type.addSelection(this.uiService.newMessage().setMessage("inline-attachments"), this.uiService.newMessage().setTemplate("both"));
-		type.addSelection(this.uiService.newMessage().setMessage("attachments"), this.uiService.newMessage().setTemplate("attachments"));
-		type.setReadOnly(this.uiService.newTrueDecision());
+		addTypeSelection(type);
+		type.setReadOnlyCollapsed(this.uiService.newTrueDecision());
 		type.setTitle("submission", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
 
 		Section typeSection = this.uiService.newSection();
@@ -765,6 +764,19 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 	public void setUi(UiService service)
 	{
 		this.uiService = service;
+	}
+
+	/**
+	 * Add the type options to the Selection.
+	 * 
+	 * @param type
+	 *        The selection.
+	 */
+	protected void addTypeSelection(Selection type)
+	{
+		type.addSelection(this.uiService.newMessage().setMessage("inline"), this.uiService.newMessage().setTemplate("inline"));
+		type.addSelection(this.uiService.newMessage().setMessage("inline-attachments"), this.uiService.newMessage().setTemplate("both"));
+		type.addSelection(this.uiService.newMessage().setMessage("attachments"), this.uiService.newMessage().setTemplate("attachments"));
 	}
 
 	/**
