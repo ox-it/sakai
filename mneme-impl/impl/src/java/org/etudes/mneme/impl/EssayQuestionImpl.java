@@ -137,6 +137,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 	{
 		// submission type
 		Selection type = uiService.newSelection();
+		type.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.submissionType"));
 		this.addTypeSelection(type);
 		type.setTitle("submission", this.uiService.newIconPropertyReference().setIcon("/icons/answer.png"));
 
