@@ -830,14 +830,13 @@ function ambrosiaCountChecked(name)
 	return count;
 }
 
-function ambrosiaToggleSection(name, title1, title2, maxHeight)
+function ambrosiaToggleSection(name, title1, title2, maxHeight, minHeight)
 {
 	var el = document.getElementById(name);
 	if (el == null) return;
 	var titleEl1 = document.getElementById(title1);
 	var titleEl2 = document.getElementById(title2);
-
-	if (parseInt(el.style.height) == 0)
+	if (parseInt(el.style.height) == minHeight)
 	{
 		if (titleEl1 != null) titleEl1.style.display = "none";
 		if (titleEl2 != null) titleEl2.style.display = "block";
@@ -847,7 +846,7 @@ function ambrosiaToggleSection(name, title1, title2, maxHeight)
 	{
 		if (titleEl2 != null) titleEl2.style.display = "none";
 		if (titleEl1 != null) titleEl1.style.display = "block";
-		contractSection(name);
+		contractSection(name, minHeight);
 	}
 }
 
@@ -928,37 +927,37 @@ function ambrosiaExpandSectionNow(name, maxHeight)
 	}
 }
 
-function contractSection(name)
+function contractSection(name, minHeight)
 {
-	contractFromFullHeight(name);
+	contractFromFullHeight(name, minHeight);
 }
 
-function contractFromFullHeight(name)
+function contractFromFullHeight(name, minHeight)
 {
 	var el = document.getElementById(name);
 	if (el == null) return;
-	if (parseInt(el.style.height) - 60 > 0)
+	if (parseInt(el.style.height) - 60 > minHeight)
 	{
 		el.style.overflow = "hidden";
 		el.style.height = (parseInt(el.style.height) - 60) + "px";
 		ambrosiaAlterMainFrameHeight(-60);
-		setTimeout("contractFromFullHeight('" + name + "')",5);
+		setTimeout("contractFromFullHeight('" + name + "'," + minHeight + ")", 5);
 	}
 	else
 	{
-		var delta = parseInt(el.style.height) * -1;
-		el.style.height = "0px";
+		var delta = (parseInt(el.style.height) * -1) + minHeight;
+		el.style.height = minHeight + "px";
 		if (el.scrollTop) el.scrollTop = 0;
 		ambrosiaAlterMainFrameHeight(delta);
 	}
 }
 
-function contractFromFullHeightNow(name)
+function contractFromFullHeightNow(name, minHeight)
 {
 	var el = document.getElementById(name);
 	if (el == null) return;
 
-	el.style.height = "0px";
+	el.style.height = minHeight + "px";
 	if (el.scrollTop) el.scrollTop = 0;
 	el.style.overflow = "hidden";
 	setMainFrameHeightNow(null);

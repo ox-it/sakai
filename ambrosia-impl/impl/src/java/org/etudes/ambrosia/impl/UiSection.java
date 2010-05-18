@@ -73,6 +73,9 @@ public class UiSection extends UiContainer implements Section
 	/** The maximum pixel height of the section (scrolls if needed). */
 	protected Integer maxHeight = null;
 
+	/** The minimum pixel height of the section (if collapsed). */
+	protected Integer minHeight = null;
+
 	/** The message for the title. */
 	protected Message title = null;
 
@@ -241,6 +244,19 @@ public class UiSection extends UiContainer implements Section
 			try
 			{
 				this.maxHeight = Integer.parseInt(maxHeight);
+			}
+			catch (NumberFormatException e)
+			{
+			}
+		}
+
+		// min height
+		String minHeight = StringUtil.trimToNull(xml.getAttribute("minHeight"));
+		if (minHeight != null)
+		{
+			try
+			{
+				this.minHeight = Integer.parseInt(minHeight);
 			}
 			catch (NumberFormatException e)
 			{
@@ -442,6 +458,15 @@ public class UiSection extends UiContainer implements Section
 	/**
 	 * {@inheritDoc}
 	 */
+	public Section setMinHeight(int minHeight)
+	{
+		this.minHeight = Integer.valueOf(minHeight);
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Section setTitle(String selection, PropertyReference... references)
 	{
 		this.title = new UiMessage().setMessage(selection, references);
@@ -582,9 +607,20 @@ public class UiSection extends UiContainer implements Section
 		String title2IdString = "";
 		if (this.collapsed)
 		{
+			int maxHeight = 0;
+			if (this.maxHeight != null)
+			{
+				maxHeight = this.maxHeight.intValue();
+			}
+			int minHeight = 0;
+			if (this.minHeight != null)
+			{
+				minHeight = this.minHeight.intValue();
+			}
+
 			// id for the div that expands (start with 0 height, but we will get rendered, hidden, so we can check the scrollHeight to know the actual size)
 			String targetId = this.getClass().getSimpleName() + "_" + context.getUniqueId();
-			idString = " id=\"" + targetId + "\" style=\"height:0px;overflow:hidden;\"";
+			idString = " id=\"" + targetId + "\" style=\"height:" + Integer.toString(minHeight) + "px;overflow:hidden;\"";
 
 			// id for the two titles
 			String title1Id = this.getClass().getSimpleName() + "_" + context.getUniqueId();
@@ -594,13 +630,8 @@ public class UiSection extends UiContainer implements Section
 			title2IdString = " id=\"" + title2Id + "\"";
 
 			// the script
-			int maxHeight = 0;
-			if (this.maxHeight != null)
-			{
-				maxHeight = this.maxHeight.intValue();
-			}
 			context.addScript("function act_" + id + "()\n{\n\tambrosiaToggleSection(\"" + targetId + "\",\"" + title1Id + "\",\"" + title2Id + "\","
-					+ maxHeight + ")\n}\n");
+					+ maxHeight + "," + minHeight + ")\n}\n");
 		}
 
 		// if not collapsed, but there's a max height

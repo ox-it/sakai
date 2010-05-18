@@ -107,6 +107,15 @@ public interface Section extends Container
 	Section setMaxHeight(int maxHeight);
 
 	/**
+	 * Set the minimum height for the section. If collapsed, this many pixels of height will still be showing
+	 * 
+	 * @param maxHeight
+	 *        The minimum height (0 will cause full section collapse).
+	 * @return self.
+	 */
+	Section setMinHeight(int minHeight);
+
+	/**
 	 * Set the section title message.
 	 * 
 	 * @param selection

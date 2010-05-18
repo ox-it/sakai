@@ -562,6 +562,7 @@
 <!ATTLIST section collapsed (TRUE|FALSE) #IMPLIED>
 <!ATTLIST section blended (TRUE|FALSE) #IMPLIED>
 <!ATTLIST section maxHeight CDATA #IMPLIED >
+<!ATTLIST section minHeight CDATA #IMPLIED >
 
 <!ELEMENT overlay (included | container)* >
 <!ATTLIST overlay id CDATA #IMPLIED >
