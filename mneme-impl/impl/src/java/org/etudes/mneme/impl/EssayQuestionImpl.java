@@ -321,6 +321,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		questionSection.setMaxHeight(400);
 		questionSection.setTreatment("inlay");
 		questionSection.setCollapsed(true);
+		questionSection.setMinHeight(48);
 		questionSection.add(question).add(attachments);
 		questionSection.setTitle(getQuestionTitle(), this.uiService.newIconPropertyReference().setIcon("/icons/question_view.png"));
 		questionSection.setTitlePlain(this.uiService.newTrueDecision());
@@ -599,6 +600,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		questionSection.setMaxHeight(400);
 		questionSection.setTreatment("inlay");
 		questionSection.setCollapsed(true);
+		questionSection.setMinHeight(48);
 		questionSection.setTitle(getQuestionTitle(), this.uiService.newIconPropertyReference().setIcon("/icons/question_view.png"));
 		questionSection.setTitlePlain(this.uiService.newTrueDecision());
 		questionSection.add(question).add(attachments);
