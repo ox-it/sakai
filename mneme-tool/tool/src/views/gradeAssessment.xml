@@ -96,6 +96,23 @@
 				</message>
 			</title>
 			<container>
+				<!-- comments overlay -->
+				<overlay id="comments">
+					<container>
+						<htmlEdit size="FULL">
+							<model type="html" ref="submissionAdjustComments.value" />
+							<title>
+								<message selector="add-comments">
+									<model type="icon" icon="/icons/note.png" />
+								</message>
+							</title>
+						</htmlEdit>
+						<gap />
+						<toggle target="comments" title="close" style="LINK">
+							<icon icon="/icons/close.png" style="LEFT" />
+						</toggle>
+					</container>
+				</overlay>
 				<navigation title="release-evaluated" style="LINK" submit="TRUE" destination="RELEASEEVALUATED">
 					<icon icon="/icons/active.png" style="LEFT" />
 					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif" selector="confirm-release-evaluated" />
@@ -117,6 +134,13 @@
 						<decision model="assessment.hasPoints" />
 					</included>
 				</text>
+				<!-- toggle to show comments -->
+				<toggle target="comments" title="add-comments" style="LINK">
+					<icon icon="/icons/note.png" style="LEFT" />
+				</toggle>
+				
+				<!--  Note: if using inlay collapsed section instead of overlay, we use this:
+				
 				<section treatment="inlay" collapsed="TRUE" blended="TRUE">
 					<title plain="TRUE">
 						<message selector="add-comments">
@@ -129,6 +153,10 @@
 						</htmlEdit>
 					</container>
 				</section>
+				
+				in place of the coments overlay above, and do not need the toggle -ggolden
+				-->
+
 			</container>
 		</section>
 

@@ -62,7 +62,8 @@
 
 	<container>
 
-		<section treatment="inlay" collapsed="TRUE">
+		<!-- settings overlay -->
+		<overlay id="settings" >
 			<title plain="TRUE">
 				<message selector="edit-pool">
 					<model type="icon" icon="/icons/gear-edit.png" />
@@ -70,6 +71,10 @@
 			</title>
 
 			<container>
+
+				<toggle target="settings" title="close" style="LINK">
+					<icon icon="/icons/close.png" style="LEFT" />
+				</toggle>
 
 				<textEdit title="pool-title" cols="40">
 					<model type="text" ref="pool.title" />
@@ -131,8 +136,19 @@
 					</selectionChoices>
 				</selection>
 
+				<toggle target="settings" title="close" style="LINK">
+					<icon icon="/icons/close.png" style="LEFT" />
+				</toggle>
 			</container>
-		</section>
+		</overlay>
+<!--  Note: if using an inlay collapsed section instead of overlay, the above overlay would be a section:
+            section treatment="inlay" collapsed="TRUE"
+            and we don't need the toggle below or the close toggle in the section -ggolden -->
+
+		<!-- toggle to show settings -->
+		<toggle target="settings" title="edit-pool" style="LINK">
+			<icon icon="/icons/gear-edit.png" style="LEFT" />
+		</toggle>
 
 		<!-- the list of questions -->
 		<entityList style="FLAT">
