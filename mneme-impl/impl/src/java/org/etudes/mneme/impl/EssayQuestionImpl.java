@@ -316,7 +316,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		attachments.setIncluded(this.uiService.newHasValueDecision().setProperty(
 				this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments")));
 
-		// for grading
+		// for grading (single question assessments only) - in a collapsed section
 		Section questionSection = this.uiService.newSection();
 		questionSection.setMaxHeight(400);
 		questionSection.setTreatment("inlay");
@@ -325,13 +325,17 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		questionSection.add(question).add(attachments);
 		questionSection.setTitle(getQuestionTitle(), this.uiService.newIconPropertyReference().setIcon("/icons/question_view.png"));
 		questionSection.setTitlePlain(this.uiService.newTrueDecision());
-		questionSection.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")));
+		questionSection.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")),
+				this.uiService.newDecision().setProperty(
+						this.uiService.newPropertyReference().setReference("answer.submission.assessment.isSingleQuestion")));
 
-		// for not grading
+		// for not grading, or for multi-question assessments
 		Section questionSection2 = this.uiService.newSection();
 		questionSection2.add(question).add(attachments);
-		questionSection2.setIncluded(this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"))
-				.setReversed());
+		questionSection2.setIncluded(this.uiService.newOrDecision().setOptions(
+				this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")).setReversed(),
+				this.uiService.newDecision().setProperty(
+						this.uiService.newPropertyReference().setReference("answer.submission.assessment.isSingleQuestion")).setReversed()));
 
 		// submission type (grading only)
 		Selection type = uiService.newSelection();
