@@ -303,7 +303,7 @@ public class PoolDrawImpl extends PartDetailImpl implements PoolDraw
 		if (!getHasPoints().booleanValue()) return Float.valueOf(0);
 
 		// pool's point value * num questions
-		Pool pool = this.poolService.getPool(this.origPoolId);
+		Pool pool = this.poolService.getPool(this.poolId);
 		if (pool == null) return Float.valueOf(0);
 
 		float poolPoints = pool.getPoints().floatValue();
