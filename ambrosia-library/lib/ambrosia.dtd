@@ -41,11 +41,11 @@
 <!ELEMENT title (message | included | highlighted)* >
 <!ATTLIST title highlighted (TRUE|FALSE) #IMPLIED >
 
-<!ELEMENT header (message | container)* >
+<!ELEMENT header (message | container | included)* >
 
 <!ELEMENT description (message) >
 
-<!ELEMENT subHeader (message | container)* >
+<!ELEMENT subHeader (message | container | included)* >
 
 <!ELEMENT footer (message | container)* >
 

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -32,11 +32,11 @@ import java.util.regex.Pattern;
 
 import org.etudes.ambrosia.api.Component;
 import org.etudes.ambrosia.api.Context;
+import org.etudes.ambrosia.api.Decision;
 import org.etudes.ambrosia.api.Destination;
 import org.etudes.ambrosia.api.Interface;
 import org.etudes.ambrosia.api.Message;
 import org.etudes.ambrosia.api.PropertyReference;
-import org.etudes.ambrosia.api.UiService;
 import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -85,6 +85,12 @@ public class UiInterface extends UiContainer implements Interface
 
 	/** The message selector and properties for the title. */
 	protected Message title = null;
+
+	/** The include decision for header. */
+	protected Decision headerIncluded = null;
+
+	/** The include decision for sub-header. */
+	protected Decision subHeaderIncluded = null;
 
 	/**
 	 * Public no-arg constructor.
@@ -175,6 +181,13 @@ public class UiInterface extends UiContainer implements Interface
 			// let Message parse this
 			this.header = new UiMessage(service, settingsXml);
 
+			// included decision
+			Element includedXml = XmlHelper.getChildElementNamed(settingsXml, "included");
+			if (includedXml != null)
+			{
+				this.headerIncluded = service.parseDecisions(includedXml);
+			}
+
 			// contained
 			Element container = XmlHelper.getChildElementNamed(settingsXml, "container");
 			if (container != null)
@@ -203,6 +216,13 @@ public class UiInterface extends UiContainer implements Interface
 		{
 			// let Message parse this
 			this.subHeader = new UiMessage(service, settingsXml);
+
+			// included decision
+			Element includedXml = XmlHelper.getChildElementNamed(settingsXml, "included");
+			if (includedXml != null)
+			{
+				this.subHeaderIncluded = service.parseDecisions(includedXml);
+			}
 
 			// contained
 			Element container = XmlHelper.getChildElementNamed(settingsXml, "container");
@@ -445,39 +465,45 @@ public class UiInterface extends UiContainer implements Interface
 		// header, if defined
 		if ((this.header != null) || (!this.headerComponents.isEmpty()))
 		{
-			response.println("<div class=\"ambrosiaInterfaceHeader\">");
-
-			// the message, if defined
-			if (this.header != null)
+			if ((this.headerIncluded == null) || (this.headerIncluded.decide(context, focus)))
 			{
-				response.println(this.header.getMessage(context, focus));
-			}
+				response.println("<div class=\"ambrosiaInterfaceHeader\">");
 
-			// the components, if defined
-			for (Component c : this.headerComponents)
-			{
-				c.render(context, focus);
-			}
+				// the message, if defined
+				if (this.header != null)
+				{
+					response.println(this.header.getMessage(context, focus));
+				}
 
-			response.println("</div>");
+				// the components, if defined
+				for (Component c : this.headerComponents)
+				{
+					c.render(context, focus);
+				}
+
+				response.println("</div>");
+			}
 		}
 
 		// sub-header, even if not defined
 		response.println("<div class=\"ambrosiaInterfaceSubHeader\">");
 		if ((this.subHeader != null) || (!this.subHeaderComponents.isEmpty()))
 		{
-			// the message, if defined
-			if (this.subHeader != null)
+			if ((this.subHeaderIncluded == null) || (this.subHeaderIncluded.decide(context, focus)))
 			{
-				response.println(this.subHeader.getMessage(context, focus));
-			}
+				// the message, if defined
+				if (this.subHeader != null)
+				{
+					response.println(this.subHeader.getMessage(context, focus));
+				}
 
-			// the components, if defined
-			for (Component c : this.subHeaderComponents)
-			{
-				response.println("<div>");
-				c.render(context, focus);
-				response.println("</div>");
+				// the components, if defined
+				for (Component c : this.subHeaderComponents)
+				{
+					response.println("<div>");
+					c.render(context, focus);
+					response.println("</div>");
+				}
 			}
 		}
 		response.println("</div>");
@@ -536,7 +562,7 @@ public class UiInterface extends UiContainer implements Interface
 			anchorId = this.anchor.read(context, focus);
 		}
 		response.println("var ambrosiaAnchorId=" + ((anchorId == null) ? "null" : ("'" + anchorId + "'")) + ";");
-		
+
 		// validation
 		response.println("var enableValidate=true;");
 		response.println("function validate()");
