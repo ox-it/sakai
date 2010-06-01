@@ -279,9 +279,7 @@
 
 		<!-- review only - not graded alert -->
 		<alert>
-			<message selector="review-not-graded">
-				<model type="enum" messageRoot="assessment-type-lc-" ref="submission.assessment.type" />
-			</message>
+			<message selector="review-not-graded" />
 			<included>
 				<decision model="review" />
 				<decision model="submission.mayReview" />
