@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -315,6 +315,37 @@ public class AssessmentsView extends ControllerImpl
 					}
 				}
 			}
+		}
+
+		else if (destination.equals("PUBLISH"))
+		{
+			for (String id : values.getValues())
+			{
+				Assessment assessment = this.assessmentService.getAssessment(id);
+				if (assessment != null)
+				{
+					try
+					{
+						// for invalid assessments, the setPublished will be ignored
+						assessment.setPublished(Boolean.TRUE);
+						this.assessmentService.saveAssessment(assessment);
+					}
+					catch (AssessmentPermissionException e)
+					{
+						// redirect to error
+						res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+						return;
+					}
+					catch (AssessmentPolicyException e)
+					{
+						// redirect to error
+						res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.policy)));
+						return;
+					}
+				}
+			}
+
+			destination = context.getDestination();
 		}
 
 		else if (destination.equals("UNPUBLISH"))

@@ -821,6 +821,12 @@ public class AssessmentImpl implements Assessment
 		if (published == null) throw new IllegalArgumentException();
 		if (this.published.equals(published)) return;
 
+		// ignore a request to publish if not valid
+		if (published)
+		{
+			if (!getIsValid()) return;
+		}
+
 		this.published = published;
 
 		this.changed.setChanged();
