@@ -108,6 +108,9 @@ public class AssessmentImpl implements Assessment
 
 	protected Boolean needsPoints = Boolean.TRUE;
 
+	/** Track if we need a re-score after an edit. */
+	protected boolean needsRescore = false;
+
 	protected AssessmentPartsImpl parts = null;
 
 	protected AssessmentPassword password = null;
@@ -502,6 +505,14 @@ public class AssessmentImpl implements Assessment
 	}
 
 	/**
+	 * @return true if we have a change that would need a re-score of submissions.
+	 */
+	public boolean getNeedsRescore()
+	{
+		return this.needsRescore;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public AssessmentParts getParts()
@@ -788,12 +799,18 @@ public class AssessmentImpl implements Assessment
 		if (needsPoints == null) throw new IllegalArgumentException();
 		if (this.needsPoints.equals(needsPoints)) return;
 
-		// this is a change that cannot be made to live tests
-		this.lockedChanged = Boolean.TRUE;
-
 		this.needsPoints = needsPoints;
 
 		this.changed.setChanged();
+		this.setNeedsRescore();
+	}
+
+	/**
+	 * Set that we need a re-score.
+	 */
+	public void setNeedsRescore()
+	{
+		needsRescore = true;
 	}
 
 	/**
@@ -1102,6 +1119,17 @@ public class AssessmentImpl implements Assessment
 	}
 
 	/**
+	 * Establish the needsRescore setting.
+	 * 
+	 * @param needsRescore
+	 *        The needsRescore setting.
+	 */
+	protected void initNeedsRescore(boolean needsRescore)
+	{
+		this.needsRescore = needsRescore;
+	}
+
+	/**
 	 * Initialize the poolId field.
 	 * 
 	 * @param poolId
@@ -1268,6 +1296,7 @@ public class AssessmentImpl implements Assessment
 		this.publishedWas = other.publishedWas;
 		this.questionGrouping = other.questionGrouping;
 		this.questionService = other.questionService;
+		this.needsRescore = other.needsRescore;
 		this.randomAccess = other.randomAccess;
 		this.review = new AssessmentReviewImpl(this, (AssessmentReviewImpl) other.review, this.changed);
 		this.showHints = other.showHints;

@@ -120,7 +120,7 @@ public class QuestionPreviewView extends ControllerImpl
 			context.put("questions", questions);
 
 			// only if coming from pool_edit, we offer prev/next
-			if (destination.startsWith("/pool_edit"))
+			if (destination.startsWith("/pool_edit") || destination.startsWith("/pool_fix"))
 			{
 				figurePrevNextForPoolEdit(context, destination, question);
 			}
@@ -247,13 +247,13 @@ public class QuestionPreviewView extends ControllerImpl
 	protected void figurePrevNextForPoolEdit(Context context, String destination, Question question)
 	{
 		// Note: must match the parameter and sort logic of PoolEditView.get()
-		// /pool_edit/0A/1/1A/1-30
+		// /pool_edit/1/1A/1-30/...
 
 		String[] params = StringUtil.split(destination, "/");
-		if (params.length < 4) return;
+		if (params.length < 3) return;
 
 		// pool
-		String pid = params[3];
+		String pid = params[2];
 		Pool pool = this.poolService.getPool(pid);
 		if (pool == null) return;
 
@@ -261,7 +261,7 @@ public class QuestionPreviewView extends ControllerImpl
 
 		// sort
 		String sortCode = PoolEditView.DEFAULT_SORT;
-		if (params.length > 4) sortCode = params[4];
+		if (!"-".equals(params[3])) sortCode = params[3];
 		if ((sortCode == null) || (sortCode.length() != 2)) return;
 
 		// get questions

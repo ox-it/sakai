@@ -68,21 +68,31 @@ public class PoolEditView extends ControllerImpl
 	public static QuestionService.FindQuestionsSort findSort(String sortCode)
 	{
 		QuestionService.FindQuestionsSort sort = null;
+
+		// default 0A
+		if ("-".equals(sortCode))
+		{
+			sort = QuestionService.FindQuestionsSort.description_a;
+		}
+
 		// 0 is description
-		if ((sortCode.charAt(0) == '0') && (sortCode.charAt(1) == 'A'))
+		else if ((sortCode.charAt(0) == '0') && (sortCode.charAt(1) == 'A'))
 			sort = QuestionService.FindQuestionsSort.description_a;
 		else if ((sortCode.charAt(0) == '0') && (sortCode.charAt(1) == 'D'))
 			sort = QuestionService.FindQuestionsSort.description_d;
+
 		// 1 is type
 		else if ((sortCode.charAt(0) == '1') && (sortCode.charAt(1) == 'A'))
 			sort = QuestionService.FindQuestionsSort.type_a;
 		else if ((sortCode.charAt(0) == '1') && (sortCode.charAt(1) == 'D'))
 			sort = QuestionService.FindQuestionsSort.type_d;
+
 		// 2 is creation date
 		else if ((sortCode.charAt(0) == '2') && (sortCode.charAt(1) == 'A'))
 			sort = QuestionService.FindQuestionsSort.cdate_a;
 		else if ((sortCode.charAt(0) == '2') && (sortCode.charAt(1) == 'D'))
 			sort = QuestionService.FindQuestionsSort.cdate_d;
+
 		else
 		{
 			throw new IllegalArgumentException();
@@ -121,11 +131,30 @@ public class PoolEditView extends ControllerImpl
 	{
 		// Note: parameter and sort logic changes need to be coordinated with QuestionPreviewView.figurePrevNextForPoolEdit()
 
-		// pools sort, pool id, optional sort, optional paging
-		if ((params.length != 4) && (params.length != 5) && (params.length != 6))
+		// pool id, sort, paging, all the rest is return parameters
+		if (params.length < 5)
 		{
 			throw new IllegalArgumentException();
 		}
+
+		boolean fixMode = params[1].equals("pool_fix");
+		if (fixMode) context.put("fix", Boolean.TRUE);
+
+		String destination = null;
+		if (params.length > 5)
+		{
+			destination = "/" + StringUtil.unsplit(params, 5, params.length - 5, "/");
+		}
+
+		// if not specified, go to the main pools page
+		else
+		{
+			destination = "/pools";
+		}
+		context.put("return", destination);
+
+		// this view
+		context.put("view", params[1]);
 
 		if (!this.poolService.allowManagePools(toolManager.getCurrentPlacement().getContext()))
 		{
@@ -134,13 +163,8 @@ public class PoolEditView extends ControllerImpl
 			return;
 		}
 
-		// pools view sort
-		String poolsSortCode = null;
-		poolsSortCode = params[2];
-		context.put("poolsSortCode", poolsSortCode);
-
 		// pool
-		String pid = params[3];
+		String pid = params[2];
 		Pool pool = this.poolService.getPool(pid);
 		if (pool == null)
 		{
@@ -152,7 +176,7 @@ public class PoolEditView extends ControllerImpl
 
 		// sort
 		String sortCode = DEFAULT_SORT;
-		if (params.length > 4) sortCode = params[4];
+		if (!params[3].equals("-")) sortCode = params[3];
 		if ((sortCode == null) || (sortCode.length() != 2))
 		{
 			throw new IllegalArgumentException();
@@ -163,7 +187,7 @@ public class PoolEditView extends ControllerImpl
 
 		// paging
 		String pagingParameter = "1-" + Integer.toString(this.pageSizes.get(0));
-		if (params.length > 5) pagingParameter = params[5];
+		if (!params[4].equals("-")) pagingParameter = params[4];
 		Integer maxQuestions = this.questionService.countQuestions(pool, null, null, null, null);
 		Paging paging = uiService.newPaging();
 		paging.setMaxItems(maxQuestions);
@@ -206,8 +230,8 @@ public class PoolEditView extends ControllerImpl
 	 */
 	public void post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// pools sort, pool id, optional sort, optional paging
-		if ((params.length != 4) && (params.length != 5) && (params.length != 6))
+		// pool id, sort, paging, all the rest is return parameters
+		if (params.length < 5)
 		{
 			throw new IllegalArgumentException();
 		}
@@ -219,8 +243,10 @@ public class PoolEditView extends ControllerImpl
 			return;
 		}
 
+		boolean fixMode = params[1].equals("pool_fix");
+
 		// pool
-		String pid = params[3];
+		String pid = params[2];
 		Pool pool = this.poolService.getPool(pid);
 		if (pool == null)
 		{
@@ -248,7 +274,7 @@ public class PoolEditView extends ControllerImpl
 			return;
 		}
 
-		if (destination.equals("DELETE"))
+		if ((!fixMode) && destination.equals("DELETE"))
 		{
 			for (String id : values.getValues())
 			{
@@ -272,7 +298,7 @@ public class PoolEditView extends ControllerImpl
 			destination = context.getDestination();
 		}
 
-		else if (destination.trim().startsWith("DUPLICATE:"))
+		else if ((!fixMode) && destination.trim().startsWith("DUPLICATE:"))
 		{
 			String[] parts = StringUtil.split(destination, ":");
 			if (parts.length != 2)
@@ -300,7 +326,7 @@ public class PoolEditView extends ControllerImpl
 			}
 		}
 
-		else if ((destination.trim().startsWith("/question_copy")) || (destination.trim().startsWith("/question_move"))
+		else if ((!fixMode) && ((destination.trim().startsWith("/question_copy")) || (destination.trim().startsWith("/question_move")))
 				|| (destination.trim().startsWith("/question_preview")))
 		{
 			// add the selected ids to the destination
@@ -314,10 +340,16 @@ public class PoolEditView extends ControllerImpl
 			}
 			buf.setLength(buf.length() - 1);
 
+			// also add default sort parameter placeholder (for move and copy)
+			if (!destination.trim().startsWith("/question_preview"))
+			{
+				buf.append("/-");
+			}
+
 			destination = buf.toString();
 		}
 
-		else if ("ADD".equals(destination))
+		else if ((!fixMode) && "ADD".equals(destination))
 		{
 			// create a question - type? TODO:
 			String type = "mneme:MultipleChoice";

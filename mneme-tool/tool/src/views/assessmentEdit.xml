@@ -128,9 +128,6 @@
 								<model ref="sortcode" />
 								<model ref="assessment.id" />
 							</destination>
-							<readOnly>
-								<decision model="assessment.isLocked" />
-							</readOnly>
 							<included>
 								<decision model="assessment.allowedPoints" />
 							</included>
@@ -275,9 +272,6 @@
 											<message model="pos.position" />
 										</displayMessage>
 									</selectionModel>
-									<readOnly>
-										<decision model="assessment.isLocked" />
-									</readOnly>
 									<destination template="REORDER" />
 								</selection>
 							</container>
@@ -333,9 +327,6 @@
 									<included>
 										<decision model="detail.isSpecific" />
 									</included>
-									<disabled>
-										<decision model="assessment.isLocked" />
-									</disabled>
 									<destination template="/question_edit/{0}/{2}/{3}/assessment_edit/{1}/{2}">
 										<model ref="detail.questionId" />
 										<model ref="sortcode" />
@@ -344,6 +335,31 @@
 									</destination>
 								</navigation>
 							</entityNavigations>
+							<included>
+								<decision reversed="TRUE" model="assessment.isLocked" />
+							</included>
+						</modelColumn>
+						<modelColumn>
+							<title>
+								<message selector="description" />
+							</title>
+							<model ref="detail.description" type="html" max="60" />
+							<entityNavigations>
+								<navigation submit="TRUE">
+									<included>
+										<decision model="detail.isSpecific" />
+									</included>
+									<destination template="/question_fix/{0}/{2}/{3}/assessment_edit/{1}/{2}">
+										<model ref="detail.questionId" />
+										<model ref="sortcode" />
+										<model ref="assessment.id" />
+										<model ref="detail.part.id" />
+									</destination>
+								</navigation>
+							</entityNavigations>
+							<included>
+								<decision model="assessment.isLocked" />
+							</included>
 						</modelColumn>
 						<modelColumn em="10">
 							<title>
@@ -354,14 +370,59 @@
 							</entityIncluded>
 							<model ref="detail.type" />
 						</modelColumn>
+						<column pixels="16">
+							<entityIncluded>
+								<decision reversed="TRUE" model="detail.isSpecific" />
+							</entityIncluded>
+							<navigations>
+								<navigation style="LINK" submit="TRUE" description="question-preview">
+									<icon icon="/icons/preview.png" style="LEFT" />
+									<destination template="/question_preview/*/assessment_edit/{1}/{2}/*{0}">
+										<model ref="detail.poolId" />
+										<model ref="sortcode" />
+										<model ref="assessment.id" />
+									</destination>
+								</navigation>
+							</navigations>
+						</column>
 						<modelColumn>
 							<title>
-								<message selector="pool" />
+								<message selector="pool">
+									<selectors>
+										<selector selector="from-pool">
+											<decision model="assessment.isLocked" />
+										</selector>
+									</selectors>
+								</message>
 							</title>
 							<entityIncluded>
 								<decision reversed="TRUE" model="detail.isPhantom" />
 							</entityIncluded>
 							<model ref="detail.pool.title" type="text" missing="no-title" />
+							<entityNavigations>
+								<navigation submit="TRUE">
+									<included>
+										<decision reversed="TRUE" model="detail.isSpecific" />
+										<decision reversed="TRUE" model="assessment.isLocked" />
+									</included>
+									<destination template="/pool_edit/{0}/-/-/assessment_edit/{1}/{2}">
+										<model ref="detail.poolId" />
+										<model ref="sortcode" />
+										<model ref="assessment.id" />
+									</destination>
+								</navigation>
+								<navigation submit="TRUE">
+									<included>
+										<decision reversed="TRUE" model="detail.isSpecific" />
+										<decision model="assessment.isLocked" />
+									</included>
+									<destination template="/pool_fix/{0}/-/-/assessment_edit/{1}/{2}">
+										<model ref="detail.poolId" />
+										<model ref="sortcode" />
+										<model ref="assessment.id" />
+									</destination>
+								</navigation>
+							</entityNavigations>
 						</modelColumn>
 						<modelColumn>
 							<title>
@@ -375,9 +436,6 @@
 							</title>
 							<container>
 								<floatEdit model="detail.effectivePoints" cols="6" defaultValue="detail.nonOverridePoints" sumTo="total">
-									<readOnly>
-										<decision model="assessment.isLocked" />
-									</readOnly>
 									<minValue>
 										<model type="constant" value="0" />
 									</minValue>

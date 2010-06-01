@@ -1747,6 +1747,38 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	/**
 	 * {@inheritDoc}
 	 */
+	public void rescoreSubmission(Assessment assessment) throws AssessmentPermissionException
+	{
+		// TODO: secure
+		this.securityService.secure(this.sessionManager.getCurrentSessionUserId(), MnemeService.MANAGE_PERMISSION, assessment.getContext());
+
+		// get all the submissions answers to the assessment
+		List<SubmissionImpl> submissions = this.storage.getAssessmentSubmissions(assessment);
+
+		// collect any that changed
+		List<Answer> toSave = new ArrayList<Answer>();
+
+		// recompute the auto score for each answer
+		for (SubmissionImpl submission : submissions)
+		{
+			for (Answer answer : submission.getAnswers())
+			{
+				Float autoScore = ((AnswerImpl) answer).computeAutoScore();
+				if (Different.different(autoScore, answer.getAutoScore()))
+				{
+					((AnswerImpl) answer).initStoredAutoScore(autoScore);
+					toSave.add(answer);
+				}
+			}
+		}
+
+		// save any changed answers
+		this.storage.saveAnswers(toSave);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void retractSubmissions(Assessment assessment) throws AssessmentPermissionException
 	{
 		if (assessment == null) throw new IllegalArgumentException();

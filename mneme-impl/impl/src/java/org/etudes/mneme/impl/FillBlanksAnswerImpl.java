@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -435,24 +435,15 @@ public class FillBlanksAnswerImpl implements TypeSpecificAnswer
 			return rv;
 		}
 
-		// we have answers
-		if (this.answers.length != size)
-		{
-			M_log.warn("getEntryCorrects: answers length: " + this.answers.length + " != correct answers length: " + size + " question: "
-					+ this.answer.getQuestion().getId() + " submission: " + this.answer.getSubmission().getId());
-
-			// return as if nothing was entered correctly, since we don't know what is missing
-			for (int i = 0; i < size; i++)
-			{
-				rv.add(Boolean.FALSE);
-			}
-
-			return rv;
-		}
-
 		for (int i = 0; i < size; i++)
 		{
-			String answer = answers[i];
+			// get this answer - it might be that the answers are shorter than the corrects, with some answers missing
+			String answer = null;
+			if (i < answers.length)
+			{
+				answer = answers[i];
+			}
+
 			if (answer == null)
 			{
 				rv.add(Boolean.FALSE);

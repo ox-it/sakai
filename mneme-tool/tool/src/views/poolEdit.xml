@@ -42,6 +42,11 @@
 		<message selector="pool-edit-header">
 			<model type="icon" icon="/icons/basket_add.png" />
 			<model ref="pool.title" type="text" missing="no-title" />
+			<selectors>
+				<selector selector="pool-edit-header-historical">
+					<decision model="pool.isHistorical" />
+				</selector>
+			</selectors>
 		</message>
 	</header>
 
@@ -58,6 +63,9 @@
 				</message>
 			</text>
 		</container>
+		<included>
+			<hasValueDecision reversed="TRUE" model="fix" />
+		</included>
 	</subHeader>
 
 	<container>
@@ -69,6 +77,10 @@
 					<model type="icon" icon="/icons/gear-edit.png" />
 				</message>
 			</title>
+
+			<included>
+				<hasValueDecision reversed="TRUE" model="fix" />
+			</included>
 
 			<container>
 
@@ -148,6 +160,9 @@
 		<!-- toggle to show settings -->
 		<toggle target="settings" title="edit-pool" style="LINK">
 			<icon icon="/icons/gear-edit.png" style="LEFT" />
+			<included>
+				<hasValueDecision reversed="TRUE" model="fix" />
+			</included>
 		</toggle>
 
 		<!-- the list of questions -->
@@ -161,13 +176,14 @@
 					<navigations>
 						<navigation style="LINK" submit="TRUE" description="invalid-alt">
 							<icon icon="/icons/warning.png" style="LEFT" />
-							<destination template="/question_edit/{5}/0/0/pool_edit/{0}/{1}/{2}{3}/{4}">
-								<model ref="poolsSortCode" />
+							<destination template="/question_edit/{5}/0/0/{6}/{0}/{1}{2}/{3}{4}">
 								<model ref="pool.id" />
 								<model ref="sort_column" />
 								<model ref="sort_direction" />
 								<model type="paging" ref="paging" />
+								<model ref="return" />
 								<model ref="question.id" />
+								<model ref="view" />
 							</destination>
 							<included>
 								<decision reversed="TRUE" model="question.isValid" />
@@ -184,52 +200,68 @@
 						<navigation submit="TRUE" style="LINK" title="add-question-title">
 							<destination template="ADD" />
 							<icon icon="/icons/add_qst.png" style="LEFT" />
+							<included>
+								<hasValueDecision reversed="TRUE" model="fix" />
+							</included>
 						</navigation>
 						<navigation title="preview" selectRequirement="SOME" selectRequirementMessage="preview-failed-requirements" style="LINK"
 							disabled="FALSE" submit="TRUE">
 							<icon icon="/icons/preview.png" style="LEFT" />
-							<destination template="/question_preview/*/pool_edit/{0}/{1}/{2}{3}/{4}">
-								<model ref="poolsSortCode" />
+							<destination template="/question_preview/*/{5}/{0}/{1}{2}/{3}{4}">
 								<model ref="pool.id" />
 								<model ref="sort_column" />
 								<model ref="sort_direction" />
 								<model type="paging" ref="paging" />
+								<model ref="return" />
+								<model ref="view" />
 							</destination>
 						</navigation>
 						<navigation title="move-to-pool" selectRequirement="SOME" selectRequirementMessage="move-failed-requirements" style="LINK"
 							disabled="FALSE" submit="TRUE">
 							<icon icon="/icons/page_go.png" style="LEFT" />
-							<destination template="/question_move/{0}/{1}/{2}{3}/{4}">
-								<model ref="poolsSortCode" />
+							<destination template="/question_move/{5}/{0}/{1}{2}/{3}{4}">
 								<model ref="pool.id" />
 								<model ref="sort_column" />
 								<model ref="sort_direction" />
 								<model type="paging" ref="paging" />
+								<model ref="return" />
+								<model ref="view" />
 							</destination>
+							<included>
+								<hasValueDecision reversed="TRUE" model="fix" />
+							</included>
 						</navigation>
 						<navigation title="copy-to-pool" selectRequirement="SOME" selectRequirementMessage="copy-failed-requirements" style="LINK"
 							submit="TRUE">
 							<icon icon="/icons/copy.png" style="LEFT" />
-							<destination template="/question_copy/{0}/{1}/{2}{3}/{4}">
-								<model ref="poolsSortCode" />
+							<destination template="/question_copy/{5}/{0}/{1}{2}/{3}{4}">
 								<model ref="pool.id" />
 								<model ref="sort_column" />
 								<model ref="sort_direction" />
 								<model type="paging" ref="paging" />
+								<model ref="return" />
+								<model ref="view" />
 							</destination>
+							<included>
+								<hasValueDecision reversed="TRUE" model="fix" />
+							</included>
 						</navigation>
 						<navigation title="delete-title" selectRequirement="SOME" selectRequirementMessage="delete-failed-requirements" style="LINK"
 							submit="TRUE" destination="DELETE">
 							<icon icon="/icons/delete.png" style="LEFT" />
 							<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif" selector="confirm-delete" />
+							<included>
+								<hasValueDecision reversed="TRUE" model="fix" />
+							</included>
 						</navigation>
 						<pager paging="paging" submit="TRUE">
-							<destination template="/pool_edit/{0}/{1}/{2}{3}/{4}">
-								<model ref="poolsSortCode" />
+							<destination template="/{5}/{0}/{1}{2}/{3}{4}">
 								<model ref="pool.id" />
 								<model ref="sort_column" />
 								<model ref="sort_direction" />
 								<model type="paging" ref="paging" />
+								<model ref="return" />
+								<model ref="view" />
 							</destination>
 							<sizeOptions>
 								<model ref="pageSizes" />
@@ -241,13 +273,14 @@
 					<navigations>
 						<navigation style="LINK" description="view-question" submit="TRUE">
 							<icon icon="/icons/preview.png" style="LEFT" />
-							<destination template="/question_preview/{0}/pool_edit/{1}/{2}/{3}{4}/{5}">
-								<model ref="question.id" />
-								<model ref="poolsSortCode" />
+							<destination template="/question_preview/{5}/{6}/{0}/{1}{2}/{3}{4}">
 								<model ref="pool.id" />
 								<model ref="sort_column" />
 								<model ref="sort_direction" />
 								<model type="paging" ref="paging" />
+								<model ref="return" />
+								<model ref="question.id" />
+								<model ref="view" />
 							</destination>
 							<included>
 								<decision reversed="TRUE" model="question.isSurvey" />
@@ -255,13 +288,14 @@
 						</navigation>
 						<navigation style="LINK" description="view-survey" submit="TRUE">
 							<icon icon="/icons/survey_view.png" style="LEFT" />
-							<destination template="/question_preview/{0}/pool_edit/{1}/{2}/{3}{4}/{5}">
-								<model ref="question.id" />
-								<model ref="poolsSortCode" />
+							<destination template="/question_preview/{5}/{6}/{0}/{1}{2}/{3}{4}">
 								<model ref="pool.id" />
 								<model ref="sort_column" />
 								<model ref="sort_direction" />
 								<model type="paging" ref="paging" />
+								<model ref="return" />
+								<model ref="question.id" />
+								<model ref="view" />
 							</destination>
 							<included>
 								<decision model="question.isSurvey" />
@@ -276,14 +310,32 @@
 					<model type="text" ref="question.description" missing="no-title" stripHtml="TRUE" max="60" />
 					<entityNavigations>
 						<navigation submit="TRUE">
-							<destination template="/question_edit/{5}/0/0/pool_edit/{0}/{1}/{2}{3}/{4}">
-								<model ref="poolsSortCode" />
+							<destination template="/question_edit/{5}/0/0/{6}/{0}/{1}{2}/{3}{4}">
 								<model ref="pool.id" />
 								<model ref="sort_column" />
 								<model ref="sort_direction" />
 								<model type="paging" ref="paging" />
+								<model ref="return" />
 								<model ref="question.id" />
+								<model ref="view" />
 							</destination>
+							<included>
+								<hasValueDecision reversed="TRUE" model="fix" />
+							</included>
+						</navigation>
+						<navigation submit="TRUE">
+							<destination template="/question_fix/{5}/0/0/{6}/{0}/{1}{2}/{3}{4}">
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+								<model ref="return" />
+								<model ref="question.id" />
+								<model ref="view" />
+							</destination>
+							<included>
+								<hasValueDecision model="fix" />
+							</included>
 						</navigation>
 					</entityNavigations>
 					<sort submit="TRUE">
@@ -295,18 +347,20 @@
 						</direction>
 						<asc icon="/icons/sortascending.gif">
 							<message selector="asc" />
-							<destination template="/pool_edit/{0}/{1}/0A/{2}">
-								<model ref="poolsSortCode" />
+							<destination template="/{3}/{0}/0A/{1}{2}">
 								<model ref="pool.id" />
 								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="return" />
+								<model ref="view" />
 							</destination>
 						</asc>
 						<desc icon="/icons/sortdescending.gif">
 							<message selector="desc" />
-							<destination template="/pool_edit/{0}/{1}/0D/{2}">
-								<model ref="poolsSortCode" />
+							<destination template="/{3}/{0}/0D/{1}{2}">
 								<model ref="pool.id" />
 								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="return" />
+								<model ref="view" />
 							</destination>
 						</desc>
 					</sort>
@@ -325,18 +379,20 @@
 						</direction>
 						<asc icon="/icons/sortascending.gif">
 							<message selector="asc" />
-							<destination template="/pool_edit/{0}/{1}/1A/{2}">
-								<model ref="poolsSortCode" />
+							<destination template="/{3}/{0}/1A/{1}{2}">
 								<model ref="pool.id" />
 								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="return" />
+								<model ref="view" />
 							</destination>
 						</asc>
 						<desc icon="/icons/sortdescending.gif">
 							<message selector="desc" />
-							<destination template="/pool_edit/{0}/{1}/1D/{2}">
-								<model ref="poolsSortCode" />
+							<destination template="/{3}/{0}/1D/{1}{2}">
 								<model ref="pool.id" />
 								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="return" />
+								<model ref="view" />
 							</destination>
 						</desc>
 					</sort>
@@ -355,18 +411,20 @@
 						</direction>
 						<asc icon="/icons/sortascending.gif">
 							<message selector="asc" />
-							<destination template="/pool_edit/{0}/{1}/2A/{2}">
-								<model ref="poolsSortCode" />
+							<destination template="/{3}/{0}/2A/{1}{2}">
 								<model ref="pool.id" />
 								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="return" />
+								<model ref="view" />
 							</destination>
 						</asc>
 						<desc icon="/icons/sortdescending.gif">
 							<message selector="desc" />
-							<destination template="/pool_edit/{0}/{1}/2D/{2}">
-								<model ref="poolsSortCode" />
+							<destination template="/{3}/{0}/2D/{1}{2}">
 								<model ref="pool.id" />
 								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="return" />
+								<model ref="view" />
 							</destination>
 						</desc>
 					</sort>
@@ -380,6 +438,9 @@
 							</destination>
 						</navigation>
 					</navigations>
+					<included>
+						<hasValueDecision reversed="TRUE" model="fix" />
+					</included>
 				</modelColumn>
 			</columns>
 		</entityList>
@@ -389,9 +450,8 @@
 			<container>
 				<navigation title="return" accessKey="return-access" description="return-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/return.png" style="LEFT" />
-					<!--destination template="/pools" /-->
-					<destination template="/pools/{0}">
-						<model ref="poolsSortCode" />
+					<destination template="{0}">
+						<model ref="return" />
 					</destination>
 				</navigation>
 			</container>

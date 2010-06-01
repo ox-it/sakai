@@ -112,10 +112,10 @@
 					</sort>
 					<entityNavigations>
 						<navigation>
-							<destination template="/pool_edit/{0}{1}/{2}">
+							<destination template="/pool_edit/{0}/-/-/pools/{1}{2}">
+								<model ref="pool.id" />
 								<model ref="sort_column" />
 								<model ref="sort_direction" />
-								<model ref="pool.id" />
 							</destination>
 						</navigation>
 					</entityNavigations>

@@ -440,6 +440,43 @@ public class AssessmentServiceImpl implements AssessmentService
 	/**
 	 * {@inheritDoc}
 	 */
+	public void rescoreAssessment(Assessment assessment) throws AssessmentPermissionException, GradesRejectsAssessmentException
+	{
+		// secure
+		this.securityService.secure(this.sessionManager.getCurrentSessionUserId(), MnemeService.MANAGE_PERMISSION, assessment.getContext());
+
+		// ignore if locked
+		if (!assessment.getIsLocked()) return;
+
+		// pull the assessment from the grading authority
+		if (assessment.getIsValid() && assessment.getGradebookIntegration() && assessment.getPublished())
+		{
+			this.gradesService.retractAssessmentGrades(assessment);
+		}
+
+		// re-score
+		this.submissionService.rescoreSubmission(assessment);
+
+		// return to the grading authority
+		if (assessment.getIsValid() && assessment.getGradebookIntegration() && assessment.getPublished())
+		{
+			// we should not be in the gb!
+			if (this.gradesService.assessmentReported(assessment))
+			{
+				throw new GradesRejectsAssessmentException();
+			}
+
+			// try to get into the gb
+			this.gradesService.initAssessmentGrades(assessment);
+
+			// report any completed official submissions
+			this.gradesService.reportAssessmentGrades(assessment);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void saveAssessment(Assessment assessment) throws AssessmentPermissionException, AssessmentPolicyException
 	{
 		if (assessment == null) throw new IllegalArgumentException();
@@ -534,6 +571,10 @@ public class AssessmentServiceImpl implements AssessmentService
 		boolean gbIntegrationChanged = ((AssessmentGradingImpl) (assessment.getGrading())).getGradebookIntegrationChanged();
 		((AssessmentGradingImpl) (assessment.getGrading())).initGradebookIntegration(assessment.getGrading().getGradebookIntegration());
 
+		// see if we need to re-score (and clear)
+		boolean rescore = assessment.getIsLocked() && ((AssessmentImpl) assessment).getNeedsRescore();
+		((AssessmentImpl) assessment).initNeedsRescore(false);
+
 		// make sure we are not still considered invalid for gb - if we are, we will pick that up down below
 		((AssessmentGradingImpl) (assessment.getGrading())).initGradebookRejectedAssessment(Boolean.FALSE);
 
@@ -577,8 +618,9 @@ public class AssessmentServiceImpl implements AssessmentService
 		// or we are now invalid, or we have just been archived, or we are now not gradebook integrated,
 		// or we are releasing (we need to remove our entry so we can add it back without conflict)
 		// retract the assessment from the grades authority
-		if (titleChanged || dueChanged || retract || release || (publishedChanged && !assessment.getPublished()) || (validityChanged && !nowValid)
-				|| (archivedChanged && assessment.getArchived()) || (gbIntegrationChanged && !assessment.getGradebookIntegration()))
+		if (rescore || titleChanged || dueChanged || retract || release || (publishedChanged && !assessment.getPublished())
+				|| (validityChanged && !nowValid) || (archivedChanged && assessment.getArchived())
+				|| (gbIntegrationChanged && !assessment.getGradebookIntegration()))
 		{
 			// retract the entire assessment from grades - use the old information (title) (if we existed before this call)
 			// ONLY IF we were expecting to be in the gb based on current values
@@ -594,11 +636,17 @@ public class AssessmentServiceImpl implements AssessmentService
 			}
 		}
 
+		// re-score the submissions if needed
+		if (rescore)
+		{
+			this.submissionService.rescoreSubmission(assessment);
+		}
+
 		// if the name or due date has changed, or we are releasing submissions, or we are now published,
 		// or we are now valid (and are published), or we are now gradebook integrated,
 		// or we are retracting (we need to add the entry back in that we just removed)
 		// report the assessment and all completed submissions to the grades authority
-		if (titleChanged || dueChanged || release || retract || (publishedChanged && assessment.getPublished())
+		if (rescore || titleChanged || dueChanged || release || retract || (publishedChanged && assessment.getPublished())
 				|| (validityChanged && nowValid && assessment.getPublished()) || (gbIntegrationChanged && assessment.getGradebookIntegration()))
 		{
 			if (assessment.getIsValid() && assessment.getGradebookIntegration() && assessment.getPublished())

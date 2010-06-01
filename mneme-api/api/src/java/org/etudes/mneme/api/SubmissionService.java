@@ -301,6 +301,17 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	List<Float> getAssessmentScores(Assessment assessment);
 
 	/**
+	 * Access the set of completed submissions to this assessment from this user.
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 * @param uid
+	 *        The user id.
+	 * @return The List of submissions, in submit date order.
+	 */
+	List<? extends Submission> getMultipleSubmissions(Assessment assessment, String uid);
+
+	/**
 	 * Get either the in-progress submission, or a new one, to the assessment made by this user.<br />
 	 * The sibling count is set.
 	 * 
@@ -329,17 +340,6 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 * @return The submission object, or null if not found.
 	 */
 	Submission getSubmission(String id);
-
-	/**
-	 * Access the set of completed submissions to this assessment from this user.
-	 * 
-	 * @param assessment
-	 *        The assessment.
-	 * @param uid
-	 *        The user id.
-	 * @return The List of submissions, in submit date order.
-	 */
-	List<? extends Submission> getMultipleSubmissions(Assessment assessment, String uid);
 
 	/**
 	 * Find the "official" submission score for this user to this assessment. Defined as the one with the highest score, complete and released.
@@ -380,6 +380,16 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 *        if TRUE, release only evaluated submissions, otherwise do them all.
 	 */
 	void releaseSubmissions(Assessment assessment, Boolean evaluatedOnly) throws AssessmentPermissionException;
+
+	/**
+	 * Re-score any submissions that exist for this assessment, perhaps after a change in the assessment question points or correct markings
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 * @throws AssessmentPermissionException
+	 *         If the user does not have permission to re-score.
+	 */
+	void rescoreSubmission(Assessment assessment) throws AssessmentPermissionException;
 
 	/**
 	 * Retract (i.e. unrelease) all completed submissions to this assessment.

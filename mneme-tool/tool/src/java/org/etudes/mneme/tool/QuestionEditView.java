@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -40,9 +40,9 @@ import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentPolicyException;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AttachmentService;
+import org.etudes.mneme.api.GradesRejectsAssessmentException;
 import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Part;
-import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionPlugin;
 import org.etudes.mneme.api.QuestionService;
@@ -114,6 +114,9 @@ public class QuestionEditView extends ControllerImpl
 		String assessmentId = params[3];
 		String partId = params[4];
 
+		boolean fixMode = params[1].equals("question_fix");
+		if (fixMode) context.put("fix", Boolean.TRUE);
+
 		// get the question to work on
 		Question question = this.questionService.getQuestion(questionId);
 		if (question == null) throw new IllegalArgumentException();
@@ -130,14 +133,14 @@ public class QuestionEditView extends ControllerImpl
 		context.put("question", question);
 
 		// next/prev for pools (not assessment) editing
-		if (destination.startsWith("/pool_edit"))
+		if (destination.startsWith("/pool_edit") || destination.startsWith("/pool_fix"))
 		{
 			context.put("nextPrev", Boolean.TRUE);
 
 			// figure out the question id
 			String returnDestParts[] = StringUtil.split(destination, "/");
 			String sortCode = "0A";
-			if (returnDestParts.length > 4) sortCode = returnDestParts[4];
+			if (returnDestParts.length > 3 && (!"-".equals(returnDestParts[3]))) sortCode = returnDestParts[3];
 
 			QuestionService.FindQuestionsSort sort = PoolEditView.findSort(sortCode);
 
@@ -238,10 +241,11 @@ public class QuestionEditView extends ControllerImpl
 			returnDestination = "/pools";
 		}
 
+		boolean fixMode = params[1].equals("question_fix");
 		String questionId = params[2];
-
 		String assessmentId = params[3];
 		String partId = params[4];
+
 		String origPartId = partId;
 		Assessment assessment = null;
 		Part origPart = null;
@@ -327,7 +331,7 @@ public class QuestionEditView extends ControllerImpl
 		try
 		{
 			// save
-			if ("RETYPE".equals(destination))
+			if ((!fixMode) && "RETYPE".equals(destination))
 			{
 				// save and re-type
 				this.questionService.saveQuestionAsType(question, newType.getValue());
@@ -335,12 +339,19 @@ public class QuestionEditView extends ControllerImpl
 
 			else
 			{
-				// just save
-				this.questionService.saveQuestion(question);
+				// just save - even if historical
+				Boolean changed = question.getIsChanged();
+				this.questionService.saveQuestion(question, Boolean.TRUE);
+
+				// possible re-score needed if the assessment is locked
+				if (fixMode && changed && (assessment != null) && assessment.getIsLocked())
+				{
+					this.assessmentService.rescoreAssessment(assessment);
+				}
 			}
 
-			// update the assessment part details if the question is not mint
-			if ((assessment != null) && (!question.getMint()))
+			// update the assessment part details if the question is not mint (not for fix)
+			if ((!fixMode) && (assessment != null) && (!question.getMint()))
 			{
 				// see if the user changed the part from the original
 				String newPartId = value.getValue();
@@ -424,7 +435,7 @@ public class QuestionEditView extends ControllerImpl
 				}
 			}
 
-			if ("ADD".equals(destination))
+			if ((!fixMode) && "ADD".equals(destination))
 			{
 				destination = null;
 
@@ -434,7 +445,7 @@ public class QuestionEditView extends ControllerImpl
 					Question newQuestion = this.questionService.newQuestion(question.getPool(), question.getType());
 
 					// edit it
-					destination = "/question_edit/" + newQuestion.getId() + "/" + assessmentId + "/" + partId + "/" + returnDestination;
+					destination = "/" + params[1] + "/" + newQuestion.getId() + "/" + assessmentId + "/" + partId + "/" + returnDestination;
 				}
 				catch (AssessmentPermissionException e)
 				{
@@ -450,13 +461,19 @@ public class QuestionEditView extends ControllerImpl
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
 			return;
 		}
+		catch (GradesRejectsAssessmentException e)
+		{
+			// redirect to error
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
 
-		if ("NEXT".equals(destination) || "PREV".equals(destination))
+		if (("NEXT".equals(destination) || "PREV".equals(destination)))
 		{
 			// figure out the question id
 			String returnDestParts[] = StringUtil.split(returnDestination, "/");
 			String sortCode = "0A";
-			if (returnDestParts.length > 4) sortCode = returnDestParts[4];
+			if (!"-".equals(returnDestParts[3])) sortCode = returnDestParts[3];
 
 			QuestionService.FindQuestionsSort sort = PoolEditView.findSort(sortCode);
 
@@ -504,7 +521,7 @@ public class QuestionEditView extends ControllerImpl
 				qid = questions.get(pos).getId();
 			}
 
-			destination = "/question_edit/" + qid + "/" + assessmentId + "/" + partId + "/" + returnDestination;
+			destination = "/" + params[1] + "/" + qid + "/" + assessmentId + "/" + partId + "/" + returnDestination;
 		}
 
 		// if destination became null, or is the stay here
@@ -514,10 +531,10 @@ public class QuestionEditView extends ControllerImpl
 		}
 
 		// adjust destination for proper part
-		if (!partId.equals(origPartId))
+		if ((!fixMode) && (!partId.equals(origPartId)))
 		{
 			String[] destParts = StringUtil.split(destination, "/");
-			if (destParts[1].equals("question_edit"))
+			if (destParts[1].equals(params[1]))
 			{
 				destParts[4] = part.getId();
 				destination = StringUtil.unsplit(destParts, 0, destParts.length, "/");

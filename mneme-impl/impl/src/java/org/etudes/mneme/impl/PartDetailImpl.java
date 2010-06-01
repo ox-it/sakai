@@ -177,9 +177,6 @@ public abstract class PartDetailImpl implements PartDetail, Changeable
 
 			// mark as changed
 			((PartImpl) this.detail.part).setChanged();
-
-			// this is a change that cannot be made to live tests
-			((AssessmentImpl) this.detail.part.getAssessment()).lockedChanged = Boolean.TRUE;
 		}
 	}
 
@@ -372,6 +369,9 @@ public abstract class PartDetailImpl implements PartDetail, Changeable
 
 		this.points = points;
 		setChanged();
+
+		// a points change in a locked assessments needs a submission re-scoring
+		((AssessmentImpl) this.getPart().getAssessment()).setNeedsRescore();
 	}
 
 	/**

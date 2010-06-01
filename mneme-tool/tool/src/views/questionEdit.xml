@@ -47,6 +47,11 @@
 	<header>
 		<message selector="question-edit-header">
 			<model type="icon" icon="/icons/edit.png" />
+			<selectors>
+				<selector selector="question-edit-header-historical">
+					<decision model="question.isHistorical" />
+				</selector>
+			</selectors>
 		</message>
 	</header>
 
@@ -61,6 +66,9 @@
 			<text selector="pool-points" model="question.points" />
 			<text selector="pool-difficulty" model="question.pool.difficulty" />
 		</container>
+		<included>
+			<hasValueDecision reversed="TRUE" model="fix" />
+		</included>
 	</subHeader>
 
 	<container>
@@ -105,6 +113,9 @@
 				<navigation title="add" description="add-description" style="BUTTON" submit="TRUE">
 					<destination template="ADD" />
 					<icon icon="/icons/add.png" style="LEFT" />
+					<included>
+						<hasValueDecision reversed="TRUE" model="fix" />
+					</included>
 				</navigation>
 			</container>
 		</navigationBar>
@@ -112,6 +123,7 @@
 		<selection title="parts">
 			<included>
 				<hasValueDecision model="assessment" />
+				<hasValueDecision model="fix" reversed="TRUE" />
 			</included>
 			<model ref="partId.value" />
 			<selectionModel name="forpart" model="assessment.parts.parts">
@@ -135,6 +147,9 @@
 		</selection>
 
 		<selection title="question-types">
+			<included>
+				<hasValueDecision model="fix" reversed="TRUE" />
+			</included>
 			<model ref="selectedQuestionType.value" />
 			<selectionModel model="questionTypes" name="type">
 				<valueMessage>
@@ -190,7 +205,10 @@
 					</selectionChoices>
 					<model ref="question.isSurvey" />
 					<readOnly>
-						<decision model="question.typeSpecificQuestion.isSurvey" />
+						<orDecision>
+							<decision model="question.typeSpecificQuestion.isSurvey" />
+							<hasValueDecision model="fix" />
+						</orDecision>
 					</readOnly>
 					<destination template="STAY" />
 				</selection>
@@ -343,6 +361,9 @@
 				<navigation title="add" accessKey="add-access" description="add-description" style="BUTTON" submit="TRUE">
 					<destination template="ADD" />
 					<icon icon="/icons/add.png" style="LEFT" />
+					<included>
+						<hasValueDecision reversed="TRUE" model="fix" />
+					</included>
 				</navigation>
 			</container>
 		</navigationBar>

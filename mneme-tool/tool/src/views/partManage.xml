@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2009 Etudes, Inc.
+ * Copyright (c) 2009, 2010 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -126,9 +126,9 @@
 								<model ref="part.id" />
 							</value>
 							<model ref="assessment.parts.order" />
-							<included>
+							<!--  <included>
 								<decision reversed="TRUE" model="assessment.isLocked" />
-							</included>
+							</included> -->
 						</orderColumn>
 						<column pixels="16">
 							<entityIncluded>
@@ -169,9 +169,6 @@
 										</selectionChoice>
 									</selectionChoices>
 									<model ref="part.randomize" />
-									<readOnly>
-										<decision model="assessment.isLocked" />
-									</readOnly>
 								</selection>
 							</container>
 						</column>

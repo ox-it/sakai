@@ -74,8 +74,8 @@ public class QuestionsCopyMoveView extends ControllerImpl
 	 */
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// [2] pool_sort / [3] pool_id / [4] question_sort / [5] question_page / [6] question_ids / [7] sort
-		if ((params.length != 7) && (params.length != 8))
+		// [, question_move, pool_edit, 21(pool id), 2A, 1-30, pools, 0A, 56, -] - second to last parameter is the list of question ids, last is sort
+		if (params.length < 4)
 		{
 			throw new IllegalArgumentException();
 		}
@@ -88,14 +88,14 @@ public class QuestionsCopyMoveView extends ControllerImpl
 			return;
 		}
 
-		String questionIds = params[6];
+		String questionIds = params[params.length - 2];
 
-		// put the extra parameters all together
-		String extras = StringUtil.unsplit(params, 2, 4, "/");
-		context.put("extras", extras);
+		// if canceled, a place to return to
+		String returnDest = "/" + StringUtil.unsplit(params, 2, params.length - 4, "/");
+		context.put("return", returnDest);
 
 		// for sort, this destination without the sort
-		String here = "/" + params[1] + "/" + extras + "/" + questionIds;
+		String here = "/" + params[1] + returnDest + "/" + questionIds;
 		context.put("here", here);
 
 		// header and icon dependent on which function
@@ -112,7 +112,7 @@ public class QuestionsCopyMoveView extends ControllerImpl
 
 		// sort
 		String sortCode = "0A";
-		if (params.length > 7) sortCode = params[7];
+		if (!"-".equals(params[params.length - 1])) sortCode = params[params.length - 1];
 		if ((sortCode == null) || (sortCode.length() != 2))
 		{
 			throw new IllegalArgumentException();
@@ -165,8 +165,8 @@ public class QuestionsCopyMoveView extends ControllerImpl
 	 */
 	public void post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// [2] pool_sort / [3] pool_id / [4] question_sort / [5] question_page / [6] question_ids / [7] sort
-		if ((params.length != 7) && (params.length != 8))
+		// [, question_move, pool_edit, 21(pool id), 2A, 1-30, pools, 0A, 56] - last parameter is the list of question ids
+		if (params.length < 4)
 		{
 			throw new IllegalArgumentException();
 		}
@@ -179,11 +179,7 @@ public class QuestionsCopyMoveView extends ControllerImpl
 			return;
 		}
 
-		String questionIds = params[6];
-
-		// put the extra parameters all together
-		String extras = StringUtil.unsplit(params, 2, 4, "/");
-		context.put("extras", extras);
+		String questionIds = params[params.length - 2];
 
 		// for the selected pool
 		Value value = this.uiService.newValue();
@@ -200,7 +196,6 @@ public class QuestionsCopyMoveView extends ControllerImpl
 				Pool pool = this.poolService.getPool(selectedPoolId);
 				try
 				{
-					// question id's are in the params array at the index 7
 					String qids[] = StringUtil.split(questionIds, "+");
 					for (String qid : qids)
 					{
@@ -221,7 +216,7 @@ public class QuestionsCopyMoveView extends ControllerImpl
 					}
 
 					// back to the pool
-					destination = "/pool_edit/" + extras;
+					destination = "/" + StringUtil.unsplit(params, 2, params.length - 4, "/");
 				}
 				catch (AssessmentPermissionException e)
 				{

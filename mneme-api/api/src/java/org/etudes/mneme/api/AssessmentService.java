@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -92,7 +92,8 @@ public interface AssessmentService
 	void clearStaleMintAssessments();
 
 	/**
-	 * Create a new Assessment in the context that is a copy of another.<br /> The new assessment is non-archived and un-published.
+	 * Create a new Assessment in the context that is a copy of another.<br />
+	 * The new assessment is non-archived and un-published.
 	 * 
 	 * @param context
 	 *        The context in which the assessment lives.
@@ -175,6 +176,18 @@ public interface AssessmentService
 	 *         if the assessment may not be removed due to API policy.
 	 */
 	void removeAssessment(Assessment assessment) throws AssessmentPermissionException, AssessmentPolicyException;
+
+	/**
+	 * Re-compute the scores for all submissions in this assessment, updateing the grading authority if needed.
+	 * 
+	 * @param assessment
+	 *        The assessment to re-score.
+	 * @throws AssessmentPermissionException
+	 *         if the current user is not allowed to create assessments in this context.
+	 * @throws GradesRejectsAssessmentException
+	 *         if the assessment has trouble getting back into the gradebook.
+	 */
+	void rescoreAssessment(Assessment assessment) throws AssessmentPermissionException, GradesRejectsAssessmentException;
 
 	/**
 	 * Save changes made to this assessment.
