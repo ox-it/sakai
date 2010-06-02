@@ -146,7 +146,8 @@ public class ReviewView extends ControllerImpl
 		if (next != null) context.put("nextSubmissionId", next.getId());
 
 		// best is grade related, so only for assessments with points, released, and only if review is available
-		if ((submission.getIsReleased().booleanValue()) && (submission.getAssessment().getHasPoints().booleanValue())
+		// also only if there are multiple submissions
+		if ((size > 1) && (submission.getIsReleased().booleanValue()) && (submission.getAssessment().getHasPoints().booleanValue())
 				&& (allSubmissions.get(position - 1).getBest().equals(submission)) && submission.getMayReview().booleanValue())
 		{
 			context.put("best", Boolean.TRUE);
