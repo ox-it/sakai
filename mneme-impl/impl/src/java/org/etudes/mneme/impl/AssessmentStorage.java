@@ -164,4 +164,28 @@ public interface AssessmentStorage
 	 *        the assessment to save.
 	 */
 	void saveAssessment(AssessmentImpl assessment);
+	
+	/**
+	 * Get the earliest open date of assessments from the db
+	 * 
+	 * @param course_id
+	 *            The context(course id).
+	 * @return If open dates exist for assessment, returns the earliest open
+	 *         date, otherwise returns null.
+	 */
+	Date getMinStartDate(String course_id);
+
+	/**
+	 * Apply base date changes to open, due and accept until dates of this
+	 * course's unarchived assessments
+	 * 
+	 * @param course_id
+	 *            The context(course id).
+	 * @param time_diff
+	 *            The time difference in seconds
+	 * @throws IllegalArgumentException
+	 *             , RunTimeException
+	 */
+	void applyBaseDateTx(String course_id, int time_diff);	
+ 
 }

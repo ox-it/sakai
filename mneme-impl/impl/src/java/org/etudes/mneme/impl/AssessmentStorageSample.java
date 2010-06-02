@@ -836,4 +836,18 @@ public class AssessmentStorageSample implements AssessmentStorage
 			this.assessments.put(a.getId(), a);
 		}
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Date getMinStartDate(String course_id) {
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void applyBaseDateTx(String course_id, int time_diff) {
+		return;
+	}	
 }

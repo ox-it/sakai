@@ -1111,4 +1111,38 @@ public class AssessmentServiceImpl implements AssessmentService
 		// event
 		eventTrackingService.post(eventTrackingService.newEvent(event, getAssessmentReference(assessment.getId()), true));
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Date getMinStartDate(String course_id) {
+		Date minDate = null;
+		try {
+			// security check
+			securityService.secure(sessionManager.getCurrentSessionUserId(),
+					MnemeService.MANAGE_PERMISSION, course_id);
+
+			minDate = this.storage.getMinStartDate(course_id);
+		} catch (AssessmentPermissionException ape) {
+			throw new RuntimeException(
+					"getMinStartDate: security check failed " + ape.toString());
+		}
+		return minDate;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void applyBaseDateTx(String course_id, int time_diff) {
+		try {
+			// security check
+			securityService.secure(sessionManager.getCurrentSessionUserId(),
+					MnemeService.MANAGE_PERMISSION, course_id);
+
+			this.storage.applyBaseDateTx(course_id, time_diff);
+		} catch (AssessmentPermissionException ape) {
+			throw new RuntimeException(
+					"applyBaseDateTx: security check failed " + ape.toString());
+		}
+	}
 }
