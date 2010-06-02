@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -98,6 +98,15 @@ public class AssessmentStorageSample implements AssessmentStorage
 
 	/** Dependency: UserDirectoryService. */
 	protected UserDirectoryService userDirectoryService = null;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void applyBaseDateTx(String context, int time_diff)
+	{
+		// TODO: could be implemented
+		return;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -416,6 +425,15 @@ public class AssessmentStorageSample implements AssessmentStorage
 		}
 
 		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Date getMinStartDate(String context)
+	{
+		// TODO: could be implemented
+		return null;
 	}
 
 	/**
@@ -836,18 +854,4 @@ public class AssessmentStorageSample implements AssessmentStorage
 			this.assessments.put(a.getId(), a);
 		}
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public Date getMinStartDate(String course_id) {
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void applyBaseDateTx(String course_id, int time_diff) {
-		return;
-	}	
 }

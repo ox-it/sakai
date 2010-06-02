@@ -102,6 +102,40 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	/**
 	 * {@inheritDoc}
 	 */
+	public void applyBaseDateTx(String context, int time_diff)
+	{
+		if (context == null)
+		{
+			throw new IllegalArgumentException("applyBaseDateTx: course_id is null");
+		}
+		if (time_diff == 0)
+		{
+			return;
+		}
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("UPDATE MNEME_ASSESSMENT SET");
+		sql.append(" DATES_ACCEPT_UNTIL=DATES_ACCEPT_UNTIL + ?, DATES_DUE=DATES_DUE + ?, DATES_OPEN=DATES_OPEN + ?");
+		sql.append(" WHERE CONTEXT=? AND ARCHIVED=0");
+
+		Object[] fields = new Object[4];
+		int i = 0;
+		// Convert time difference into milliseconds before adding
+		long longTime = time_diff * 1000;
+		fields[i++] = longTime;
+		fields[i++] = longTime;
+		fields[i++] = longTime;
+		fields[i++] = context;
+
+		if (!this.sqlService.dbWrite(sql.toString(), fields))
+		{
+			throw new RuntimeException("applyBaseDateTx: db write failed");
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<String> clearStaleMintAssessments(final Date stale)
 	{
 		final List<String> rv = new ArrayList<String>();
@@ -311,6 +345,33 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		List<AssessmentImpl> rv = readAssessments(where, null, fields);
 
 		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Date getMinStartDate(String context)
+	{
+		Date retDate = null;
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT MIN(DATES_OPEN) ");
+		sql.append(" FROM MNEME_ASSESSMENT ");
+		sql.append(" WHERE CONTEXT = ?");
+		Object[] fields = new Object[1];
+		fields[0] = context;
+
+		List results = this.sqlService.dbRead(sql.toString(), fields, null);
+		if (results.size() > 0)
+		{
+			// Field returned is long value, so convert it
+			Long longDate = Long.parseLong((String) results.get(0));
+			if (longDate == 0)
+				retDate = null;
+			else
+				retDate = new Date(longDate);
+		}
+
+		return retDate;
 	}
 
 	/**
@@ -1373,62 +1434,4 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 			deleteAssessmentPartTx(part);
 		}
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Date getMinStartDate(String course_id) {
-		Date retDate = null;
-		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT MIN(DATES_OPEN) ");
-		sql.append(" FROM MNEME_ASSESSMENT ");
-		sql.append(" WHERE CONTEXT = ?");
-		Object[] fields = new Object[1];
-		fields[0] = course_id;
-
-		List results = this.sqlService.dbRead(sql.toString(), fields, null);
-		if (results.size() > 0) {
-			// Field returned is long value, so convert it
-			Long longDate = Long.parseLong((String) results.get(0));
-			if (longDate == 0)
-				retDate = null;
-			else
-				retDate = new Date(longDate);
-		}
-
-		return retDate;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void applyBaseDateTx(String course_id, int time_diff) {
-		StringBuilder sql = new StringBuilder();
-		if (course_id == null) {
-			throw new IllegalArgumentException(
-					"applyBaseDateTx: course_id is null");
-		}
-		if (time_diff == 0) {
-			return;
-		}
-		sql.append("UPDATE MNEME_ASSESSMENT SET");
-		sql
-				.append(" DATES_ACCEPT_UNTIL=DATES_ACCEPT_UNTIL + ?, DATES_DUE=DATES_DUE + ?, DATES_OPEN=DATES_OPEN + ?");
-		sql.append(" WHERE CONTEXT=? AND ARCHIVED=0");
-
-		Object[] fields = new Object[4];
-		int i = 0;
-		// Convert time difference into milliseconds before adding
-		long longTime = time_diff * 1000;
-		fields[i++] = longTime;
-		fields[i++] = longTime;
-		fields[i++] = longTime;
-		fields[i++] = course_id;
-
-		if (!this.sqlService.dbWrite(sql.toString(), fields)) {
-			throw new RuntimeException("applyBaseDateTx: db write failed");
-		}
-	}
-
-
 }

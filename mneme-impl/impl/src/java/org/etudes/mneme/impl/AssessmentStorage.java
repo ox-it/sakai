@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -37,6 +37,16 @@ import org.etudes.mneme.api.Question;
  */
 public interface AssessmentStorage
 {
+	/**
+	 * Apply base date changes to open, due and accept until dates of this context's unarchived assessments.
+	 * 
+	 * @param course_id
+	 *        The context.
+	 * @param time_diff
+	 *        The time difference in seconds
+	 */
+	void applyBaseDateTx(String context, int time_diff);
+
 	/**
 	 * Clear out any mint objects that are old enough to be considered abandoned.
 	 * 
@@ -114,6 +124,15 @@ public interface AssessmentStorage
 	List<AssessmentImpl> getContextGbInvalidAssessments(String context);
 
 	/**
+	 * Get the earliest open date of assessments in this context.
+	 * 
+	 * @param context
+	 *        The context.
+	 * @return If open dates exist for assessment, returns the earliest open date, otherwise returns null.
+	 */
+	Date getMinStartDate(String context);
+
+	/**
 	 * Initialize.
 	 */
 	void init();
@@ -164,28 +183,4 @@ public interface AssessmentStorage
 	 *        the assessment to save.
 	 */
 	void saveAssessment(AssessmentImpl assessment);
-	
-	/**
-	 * Get the earliest open date of assessments from the db
-	 * 
-	 * @param course_id
-	 *            The context(course id).
-	 * @return If open dates exist for assessment, returns the earliest open
-	 *         date, otherwise returns null.
-	 */
-	Date getMinStartDate(String course_id);
-
-	/**
-	 * Apply base date changes to open, due and accept until dates of this
-	 * course's unarchived assessments
-	 * 
-	 * @param course_id
-	 *            The context(course id).
-	 * @param time_diff
-	 *            The time difference in seconds
-	 * @throws IllegalArgumentException
-	 *             , RunTimeException
-	 */
-	void applyBaseDateTx(String course_id, int time_diff);	
- 
 }

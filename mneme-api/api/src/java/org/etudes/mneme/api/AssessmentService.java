@@ -24,8 +24,8 @@
 
 package org.etudes.mneme.api;
 
-import java.util.List;
 import java.util.Date;
+import java.util.List;
 
 import org.sakaiproject.user.api.User;
 
@@ -88,6 +88,16 @@ public interface AssessmentService
 	Boolean allowRemoveAssessment(Assessment assessment);
 
 	/**
+	 * Apply base date changes to open, due and accept until dates of this context's unarchived assessments
+	 * 
+	 * @param context
+	 *        The context.
+	 * @param time_diff
+	 *        The time difference in seconds
+	 */
+	void applyBaseDateTx(String context, int time_diff);
+
+	/**
 	 * Clear out any mint objects that are old enough to be considered abandoned.
 	 */
 	void clearStaleMintAssessments();
@@ -147,6 +157,15 @@ public interface AssessmentService
 	List<Assessment> getContextAssessments(String context, AssessmentsSort sort, Boolean publishedOnly);
 
 	/**
+	 * Get the earliest open date of assessments in the context.
+	 * 
+	 * @param context
+	 *        The context.
+	 * @return If open dates exist for assessment, returns the earliest open date, otherwise returns null.
+	 */
+	Date getMinStartDate(String context);
+
+	/**
 	 * Get a list of Users who can submit in this context.
 	 * 
 	 * @param context
@@ -201,27 +220,4 @@ public interface AssessmentService
 	 *         if the changes are not allowed to be saved due to policy violation.
 	 */
 	void saveAssessment(Assessment assessment) throws AssessmentPermissionException, AssessmentPolicyException;
-	
-	/**
-	 * Get the earliest open date of assessments from the db
-	 * 
-	 * @param course_id
-	 *            The context(course id).
-	 * @return If open dates exist for assessment, returns the earliest open
-	 *         date, otherwise returns null.
-	 */
-	Date getMinStartDate(String course_id);
-
-	/**
-	 * Apply base date changes to open, due and accept until dates of this
-	 * course's unarchived assessments
-	 * 
-	 * @param course_id
-	 *            The context(course id).
-	 * @param time_diff
-	 *            The time difference in seconds
-	 * @throws IllegalArgumentException
-	 *             , RunTimeException
-	 */
-	void applyBaseDateTx(String course_id, int time_diff);
 }
