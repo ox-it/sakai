@@ -58,17 +58,16 @@
 	<subHeader>
 		<container>
 			<text>
-				<message>
+				<message selector="question-pool">
 					<model ref="question.pool.title" type="text" missing="no-title" />
+					<selectors>
+						<selector selector="question-pool-historical">
+							<decision model="question.isHistorical" />
+						</selector>
+					</selectors>
 				</message>
 			</text>
-			<text selector="blank" />
-			<text selector="pool-points" model="question.points" />
-			<text selector="pool-difficulty" model="question.pool.difficulty" />
 		</container>
-		<included>
-			<hasValueDecision reversed="TRUE" model="fix" />
-		</included>
 	</subHeader>
 
 	<container>
