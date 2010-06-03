@@ -782,6 +782,14 @@ public class PartImpl implements Part, Changeable
 	 */
 	public void setTitle(String title)
 	{
+		// massage the title
+		if (title != null)
+		{
+			title = title.trim();
+			if (title.length() > 255) title = title.substring(0, 255);
+			if (title.length() == 0) title = null;
+		}
+
 		if (!Different.different(this.title, title)) return;
 
 		this.title = title;

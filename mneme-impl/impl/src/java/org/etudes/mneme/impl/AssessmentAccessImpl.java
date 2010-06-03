@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -580,6 +580,14 @@ public class AssessmentAccessImpl implements AssessmentAccess, Changeable
 	 */
 	public void setPasswordValue(String password)
 	{
+		// massage the password
+		if (password != null)
+		{
+			password = password.trim();
+			if (password.length() > 255) password = password.substring(0, 255);
+			if (password.length() == 0) password = null;
+		}
+
 		boolean override = false;
 		String pw = null;
 
