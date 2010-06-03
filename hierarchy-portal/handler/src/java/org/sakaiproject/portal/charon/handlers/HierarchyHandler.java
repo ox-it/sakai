@@ -208,16 +208,17 @@ public class HierarchyHandler extends SiteHandler {
 		Site hierarchySite = null;
 		
 		// default site if not set
-		if (site == null)
+		if (site == null || node == null)
 		{
 			portal.doError(req, res, session, Portal.ERROR_SITE);
 			return;
 		}
 
-		if (node !=null && !node.canView())
+		if (!node.canView())
 		{
+			String userId = session.getUserId();
 			// if not logged in, give them a chance
-			if (session.getUserId() == null)
+			if (userId == null)
 			{
 				StoredState ss = portalService.newStoredState("directtool", "tool");
 				ss.setRequest(req);
@@ -227,7 +228,19 @@ public class HierarchyHandler extends SiteHandler {
 			}
 			else
 			{
-				portal.doError(req, res, session, Portal.ERROR_SITE);
+				String siteId = site.getId();
+				
+				if (ServerConfigurationService.getBoolean("portal.redirectJoin", true) &&
+						userId != null && portal.getSiteHelper().isJoinable(siteId, userId))
+				{
+					String redirectUrl = Web.returnUrl(req, "/join/"+siteId);
+					res.sendRedirect(redirectUrl);
+					return;
+				}
+				else
+				{
+					portal.doError(req, res, session, Portal.ERROR_SITE);
+				}
 			}
 			return;
 		}
