@@ -602,6 +602,10 @@ public class AssessmentServiceImpl implements AssessmentService
 		boolean rescore = assessment.getIsLocked() && ((AssessmentImpl) assessment).getNeedsRescore();
 		((AssessmentImpl) assessment).initNeedsRescore(false);
 
+		// see if the type changed (and clear)
+		boolean typeChanged = ((AssessmentImpl) assessment).getTypeChanged();
+		assessment.initType(assessment.getType());
+
 		// make sure we are not still considered invalid for gb - if we are, we will pick that up down below
 		((AssessmentGradingImpl) (assessment.getGrading())).initGradebookRejectedAssessment(Boolean.FALSE);
 
@@ -644,10 +648,11 @@ public class AssessmentServiceImpl implements AssessmentService
 		// if the name or due date has changed, or we are retracting submissions, or we are now unpublished,
 		// or we are now invalid, or we have just been archived, or we are now not gradebook integrated,
 		// or we are releasing (we need to remove our entry so we can add it back without conflict)
+		// or we changed type to survey
 		// retract the assessment from the grades authority
 		if (rescore || titleChanged || dueChanged || retract || release || (publishedChanged && !assessment.getPublished())
 				|| (validityChanged && !nowValid) || (archivedChanged && assessment.getArchived())
-				|| (gbIntegrationChanged && !assessment.getGradebookIntegration()))
+				|| (gbIntegrationChanged && !assessment.getGradebookIntegration()) || (typeChanged && assessment.getType() == AssessmentType.survey))
 		{
 			// retract the entire assessment from grades - use the old information (title) (if we existed before this call)
 			// ONLY IF we were expecting to be in the gb based on current values
