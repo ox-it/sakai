@@ -37,6 +37,7 @@ import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentPolicyException;
 import org.etudes.mneme.api.AssessmentService;
+import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.GradesService;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.PartDetail;
@@ -202,6 +203,14 @@ public class AssessmentSettingsView extends ControllerImpl
 
 		else if ("SAVE".equals(destination))
 		{
+			destination = context.getDestination();
+		}
+
+		else if (destination.equals("SURVEY"))
+		{
+			// change to survey
+			assessment.setType(AssessmentType.survey);
+
 			destination = context.getDestination();
 		}
 

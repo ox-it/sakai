@@ -71,7 +71,7 @@
 				<section>
 					<container>
 
-						<!-- type -->
+						<!-- type - if not locked -->
 						<selection id="type" title="type">
 							<model ref="assessment.type" />
 							<selectionChoices>
@@ -100,15 +100,58 @@
 									</valueMessage>
 								</selectionChoice>
 							</selectionChoices>
-							<readOnly>
-								<decision model="assessment.isLocked" />
-								<compareDecision model="assessment.type" constant="survey" />
-							</readOnly>
+							<included>
+								<decision reversed="TRUE" model="assessment.isLocked" />
+							</included>
 							<destination template="/assessment_edit/{0}/{1}">
 								<model ref="sortcode" />
 								<model ref="assessment.id" />
 							</destination>
 						</selection>
+
+						<!-- type when locked & not survey -->
+						<selection id="type" title="type">
+							<model ref="assessment.type" />
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="assessment-type-test" />
+									</displayMessage>
+									<valueMessage>
+										<message template="test" />
+									</valueMessage>
+								</selectionChoice>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="assessment-type-assignment" />
+									</displayMessage>
+									<valueMessage>
+										<message template="assignment" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<included>
+								<decision model="assessment.isLocked" />
+								<compareDecision reversed="TRUE" model="assessment.type" constant="survey" />
+							</included>
+							<destination template="/assessment_edit/{0}/{1}">
+								<model ref="sortcode" />
+								<model ref="assessment.id" />
+							</destination>
+						</selection>
+
+						<!-- switch to survey when locked and not a survey -->
+						<navigation title="change-to-survey" description="change-to-survey-description" style="LINK" submit="TRUE">
+							<icon icon="/icons//survey_type.png" style="LEFT" />
+							<destination template="SURVEY" />
+							<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif">
+								<message selector="confirm-change-to-survey" />
+							</confirm>
+							<included>
+								<decision model="assessment.isLocked" />
+								<compareDecision reversed="TRUE" model="assessment.type" constant="survey" />
+							</included>
+						</navigation>
 
 						<selection title="needs-points">
 							<selectionChoices>

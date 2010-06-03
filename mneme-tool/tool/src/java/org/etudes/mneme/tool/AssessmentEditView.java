@@ -381,6 +381,17 @@ public class AssessmentEditView extends ControllerImpl
 				destination = "/detail_move/" + assessmentId + "/" + buf.toString() + "/assessment_edit/" + sort + "/" + assessmentId;
 			}
 
+			else if (destination.equals("SURVEY"))
+			{
+				// change to survey
+				assessment.setType(AssessmentType.survey);
+
+				// save
+				this.assessmentService.saveAssessment(assessment);
+
+				destination = context.getDestination();
+			}
+
 			else
 			{
 				this.assessmentService.saveAssessment(assessment);
