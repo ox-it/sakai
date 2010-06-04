@@ -210,7 +210,7 @@
 					<headings>
 						<heading>
 							<decision model="detail.ordering.isFirst" />
-							<navigation style="LINK">
+							<navigation style="LINK" wrap="TRUE">
 								<title>
 									<message selector="part-title">
 										<model type="component">

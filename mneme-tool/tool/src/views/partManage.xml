@@ -45,7 +45,6 @@
 		<container>
 			<text>
 				<message selector="partManage-subheader">
-					<model ref="part.title" missing="no-title" type="text" />
 					<model ref="assessment.title" type="text" missing="no-title" />
 				</message>
 			</text>
