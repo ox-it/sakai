@@ -65,7 +65,7 @@
 				</selectionColumn>
 				<column pixels="16">
 					<container>
-						<navigation style="LINK" submit="TRUE">
+						<navigation style="LINK">
 							<description>
 								<message selector="view-type">
 									<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
@@ -79,7 +79,7 @@
 								<compareDecision model="assessment.type" constant="test" />
 							</included>
 						</navigation>
-						<navigation style="LINK" submit="TRUE">
+						<navigation style="LINK">
 							<description>
 								<message selector="view-type">
 									<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
@@ -93,7 +93,7 @@
 								<compareDecision model="assessment.type" constant="assignment" />
 							</included>
 						</navigation>
-						<navigation style="LINK" submit="TRUE">
+						<navigation style="LINK">
 							<description>
 								<message selector="view-type">
 									<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
