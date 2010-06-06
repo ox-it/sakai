@@ -112,11 +112,17 @@ public class AssessmentPreviewView extends ControllerImpl
 			context.put("invalidMsg", AssessmentInvalidView.formatInvalidDisplay(assessment, this.messages));
 		}
 
+		// if coming from restore, offer prev/next based on the archived list
+		if (destination.startsWith("/assessments_restore"))
+		{
+			figurePrevNext(context, destination, assessment, true);
+		}
+
 		// if coming from assessments, we offer prev/next
 		// assessments/0A
-		if (destination.startsWith("/assessments"))
+		else if (destination.startsWith("/assessments"))
 		{
-			figurePrevNext(context, destination, assessment);
+			figurePrevNext(context, destination, assessment, false);
 		}
 
 		// render
@@ -182,21 +188,32 @@ public class AssessmentPreviewView extends ControllerImpl
 	 * @param question
 	 *        The question.
 	 */
-	protected void figurePrevNext(Context context, String destination, Assessment assessment)
+	protected void figurePrevNext(Context context, String destination, Assessment assessment, boolean restore)
 	{
-		// Note: must match the parameter and sort logic of AssessmentsView
-		// /assessments/0A
-		String[] params = StringUtil.split(destination, "/");
+		List<Assessment> assessments = null;
 
-		// default is due date, ascending
-		String sortCode = (params.length > 2) ? params[2] : "0A";
-		if (sortCode.length() != 2) return;
+		// if from the /assessments view
+		if (!restore)
+		{
+			// Note: must match the parameter and sort logic of AssessmentsView
+			// /assessments/0A
+			String[] params = StringUtil.split(destination, "/");
 
-		AssessmentService.AssessmentsSort sort = AssessmentsView.figureSort(sortCode);
+			// default is due date, ascending
+			String sortCode = (params.length > 2) ? params[2] : "0A";
+			if (sortCode.length() != 2) return;
 
-		// collect the assessments in this context
-		List<Assessment> assessments = this.assessmentService.getContextAssessments(this.toolManager.getCurrentPlacement().getContext(), sort,
-				Boolean.FALSE);
+			AssessmentService.AssessmentsSort sort = AssessmentsView.figureSort(sortCode);
+
+			// collect the assessments in this context
+			assessments = this.assessmentService.getContextAssessments(this.toolManager.getCurrentPlacement().getContext(), sort, Boolean.FALSE);
+		}
+
+		// if from assessments_restore view
+		else
+		{
+			assessments = this.assessmentService.getArchivedAssessments(this.toolManager.getCurrentPlacement().getContext());
+		}
 
 		// figure this one's position (0 based)
 		int position = 0;
