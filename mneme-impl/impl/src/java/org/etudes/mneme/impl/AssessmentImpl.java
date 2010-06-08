@@ -465,11 +465,7 @@ public class AssessmentImpl implements Assessment
 		if (!this.dates.getIsValid()) return Boolean.FALSE;
 
 		// parts valid
-		// Note: invalid assessments cannot be locked, and locked assessments cannot have their parts validity changed
-		if (!getIsLocked())
-		{
-			if (!this.parts.getIsValid()) return Boolean.FALSE;
-		}
+		if (!this.parts.getIsValid()) return Boolean.FALSE;
 
 		// grading valid
 		if (!this.grading.getIsValid()) return Boolean.FALSE;

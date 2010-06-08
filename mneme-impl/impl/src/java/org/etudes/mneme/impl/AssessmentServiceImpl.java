@@ -476,7 +476,7 @@ public class AssessmentServiceImpl implements AssessmentService
 		if (!assessment.getIsLocked()) return;
 
 		// pull the assessment from the grading authority
-		if (assessment.getIsValid() && assessment.getGradebookIntegration() && assessment.getPublished())
+		if (assessment.getGradebookIntegration() && assessment.getPublished())
 		{
 			this.gradesService.retractAssessmentGrades(assessment);
 		}
