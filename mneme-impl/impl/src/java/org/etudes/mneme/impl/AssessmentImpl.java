@@ -417,15 +417,8 @@ public class AssessmentImpl implements Assessment
 	 */
 	public Boolean getIsPointsValid()
 	{
-		// since we don't change points after publication, don't go invalid if published
-		// Note: before we checked for valid points if needed, assessment were published without any points.
-		if (this.getPublished())
-		{
-			return Boolean.TRUE;
-		}
-
-		// points if needed
-		else if (this.getHasPoints())
+		// only if we require points
+		if (this.getHasPoints())
 		{
 			// if we have questions
 			if (this.getParts().getNumQuestions() > 0)
