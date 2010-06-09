@@ -472,7 +472,7 @@ public class AssessmentServiceImpl implements AssessmentService
 		// secure
 		this.securityService.secure(this.sessionManager.getCurrentSessionUserId(), MnemeService.MANAGE_PERMISSION, assessment.getContext());
 
-		// ignore if locked
+		// ignore if not locked
 		if (!assessment.getIsLocked()) return;
 
 		// pull the assessment from the grading authority
