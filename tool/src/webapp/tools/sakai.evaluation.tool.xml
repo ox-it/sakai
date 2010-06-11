@@ -3,7 +3,7 @@
 <registration>
   <tool id="sakai.rsf.evaluation"
         title="Surveys"
-        description="For running evaluations/feedback and surveys.">
+        description="For course evaluation, surveys and general data gathering. NB: This tool is released as a Beta version and, as such, should be treated accordingly.">
      <category name="course" />
      <category name="project" />
      <category name="myworkspace" />
