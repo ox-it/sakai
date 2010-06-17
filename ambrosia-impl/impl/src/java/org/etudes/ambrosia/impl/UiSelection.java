@@ -450,7 +450,7 @@ public class UiSelection extends UiComponent implements Selection
 		{
 			readOnly = this.readOnly.decide(context, focus);
 		}
-		
+
 		// read only collapsed?
 		boolean readOnlyCollapsed = false;
 		if (this.readOnlyCollapsed != null)
@@ -779,7 +779,7 @@ public class UiSelection extends UiComponent implements Selection
 				}
 
 				boolean selected = value.contains(val);
-				
+
 				if ((!selected) && readOnlyCollapsed) continue;
 
 				if (selected)
@@ -917,7 +917,12 @@ public class UiSelection extends UiComponent implements Selection
 				dependency.setLength(dependency.length() - 1);
 				dependency.append("];\n");
 				context.addScript(dependency.toString());
-				context.addScript("ambrosiaSelectDependencies(\"" + startingValue + "\", " + dependencyId + ");\n");
+
+				// if read only, skip the initial setting
+				if (!readOnly)
+				{
+					context.addScript("ambrosiaSelectDependencies(\"" + startingValue + "\", " + dependencyId + ");\n");
+				}
 			}
 
 			// the decode directive
