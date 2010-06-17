@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -62,8 +62,7 @@ public class UiDateEdit extends UiComponent implements DateEdit
 	protected Message onEmptyAlertMsg = null;
 
 	/**
-	 * The PropertyReference for encoding and decoding this selection - this is what will be updated with the end-user's text edit, and what value
-	 * seeds the display.
+	 * The PropertyReference for encoding and decoding this selection - this is what will be updated with the end-user's text edit, and what value seeds the display.
 	 */
 	protected PropertyReference propertyReference = null;
 
@@ -302,9 +301,17 @@ public class UiDateEdit extends UiComponent implements DateEdit
 		{
 			// for the date picker popup
 			context.addScript("function popupPicker_" + id + "()\n{\n  ambrosiaPopupDate(\"" + id + "\");\n}\n");
-			response.print("<a href=\"#\" onclick=\"popupPicker_" + id + "();return false;\"><img id=\"" + id
-					+ "_picker\" style=\"display:inline;\" src=\"" + context.getUrl(this.icon) + "\" alt=\"" + alt + "\" title=\"" + alt
-					+ "\" /></a>");
+			if (readOnly)
+			{
+				response.print("<img id=\"" + id + "_picker\" style=\"display:inline;\" src=\"" + context.getUrl(this.icon) + "\" alt=\"" + alt
+						+ "\" title=\"" + alt + "\" />");
+			}
+			else
+			{
+				response.print("<a href=\"#\" onclick=\"popupPicker_" + id + "();return false;\"><img id=\"" + id
+						+ "_picker\" style=\"display:inline;\" src=\"" + context.getUrl(this.icon) + "\" alt=\"" + alt + "\" title=\"" + alt
+						+ "\" /></a>");
+			}
 			context.editComponentRendered(id + "_picker");
 		}
 
