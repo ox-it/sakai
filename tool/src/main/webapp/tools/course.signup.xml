@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="course.signup" title="Course Signup"
+		description="Tool for allowing people to signup to courses.">
+		<category name="project"/>
+	
+	</tool>
+</registration>
