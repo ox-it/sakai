@@ -29,7 +29,7 @@ public class TestCourseDAOImpl extends TestCase {
 			.setProperty("hubernate.connection.username", "test")
 			.setProperty("hibernate.show_sql", "true")
 			.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-		SessionFactory factory = cfg.buildSessionFactory();
+		factory = cfg.buildSessionFactory();
 		loadTestData(factory);
 		
 		courseDao = new CourseDAOImpl();
@@ -40,6 +40,10 @@ public class TestCourseDAOImpl extends TestCase {
 		Calendar cal = Calendar.getInstance();
 		cal.set(year, month, day);
 		return new Date(cal.getTimeInMillis());
+	}
+	
+	public void tearDown() throws Exception {
+		factory.close();
 	}
 	
 	private void loadTestData(SessionFactory factory) throws Exception {
