@@ -22,7 +22,7 @@
 
 	<filter-mapping>
 		<filter-name>sakai.request</filter-name>
-		<servlet-name>external.groups</servlet-name>
+		<servlet-name>course.signup</servlet-name>
 		<dispatcher>REQUEST</dispatcher>
 		<dispatcher>FORWARD</dispatcher>
 		<dispatcher>INCLUDE</dispatcher>
@@ -48,7 +48,7 @@
 	</servlet>
 
 	<servlet>
-		<servlet-name>external.groups</servlet-name>
+		<servlet-name>course.signup</servlet-name>
 		<servlet-class>uk.ac.cam.caret.sakai.WebappToolServlet</servlet-class>
 		<init-param>
 			<param-name>main-page</param-name>
