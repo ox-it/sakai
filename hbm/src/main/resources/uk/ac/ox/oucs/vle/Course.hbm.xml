@@ -13,10 +13,10 @@
 		<property name="status" type="string" length="20"/>
 		<property name="created" type="date" />
 		<set name="components" lazy="true" table="course_component_signup"
-			inverse="true">
-			<key column="signup" not-null="true" />
+			inverse="true" >
+			<key column="signup" not-null="true"/>
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO"
-				column="signup" />
+				column="component" />
 		</set>
 		<property name="supervisorId" type="string" length="99"
 			index="true" />
@@ -39,16 +39,11 @@
 		<property name="opens" type="date" />
 		<property name="closes" type="date" />
 		<property name="size" type="int" />
+		<property name="componentId" type="string" length="30"/><!-- The set (teaching_component) this component is from. -->
 		<set name="signups" lazy="true" table="course_component_signup">
 			<key column="component" not-null="true" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"
 				column="signup" />
-		</set>
-		<set name="groups" lazy="true" table="course_group_component"
-			inverse="true">
-			<key column="component" not-null="true" />
-			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO"
-				column="group" />
 		</set>
 		<set name="sets" inverse="true">
 			<key column="component"/>
@@ -68,6 +63,7 @@
 			<column name="id" />
 			<generator class="uuid" />
 		</id>
+		<property name="required" type="int"/><!-- Number of modules required for a signup. -->
 		<set name="components">
 			<key column="set"/>
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO" column="component"/>
@@ -84,9 +80,6 @@
 			<generator class="uuid" />
 		</id>
 		<property name="title" type="string" length="256" />
-		<property name="places" type="int"/> <!-- This is so we don't have to load the components. -->
-		<property name="opens" type="date" />
-		<property name="closes" type="date" />
 		<set name="sets" lazy="true" table="course_group_set">
 			<key column="group" />
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseSetDAO"/>
