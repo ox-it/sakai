@@ -88,6 +88,6 @@
 				</executions>
 			</plugin>
 		</plugins>
-		<sourceDirectory>${basedir}target/hibernate3/generated-sources</sourceDirectory>
+		<sourceDirectory>${basedir}/target/hibernate3/generated-sources</sourceDirectory>
 	</build>
 </project>
