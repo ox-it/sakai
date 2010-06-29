@@ -39,7 +39,7 @@
 		<property name="closes" type="date" />
 		<property name="size" type="int" />
 		<property name="taken" type="int" />
-		<property name="administrator" type="string"/><!-- The administrator who is looking after this component. -->
+		<property name="administrator" type="string" length="64"/><!-- The administrator who is looking after this component. -->
 		<property name="componentId" type="string" length="30"/><!-- The set (teaching_component) this component is from. -->
 		
 		<set name="signups" lazy="true" table="course_component_signup">
