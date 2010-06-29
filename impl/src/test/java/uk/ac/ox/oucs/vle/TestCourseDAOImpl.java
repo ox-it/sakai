@@ -17,11 +17,12 @@ public class TestCourseDAOImpl extends TestCase {
 	public void setUp() throws Exception {
 		Configuration cfg = new Configuration()
 			.addInputStream(getClass().getResourceAsStream("/uk/ac/ox/oucs/vle/Course.hbm.xml"))
-			.setProperty("hibernate.dialect", "org.hibernate.dialect.HSQLDialect")
-			.setProperty("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver")
-			.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:signup")
+			.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLInnoDBDialect")
+			.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver")
+			.setProperty("hibernate.connection.url", "jdbc:mysql://127.0.0.1:3306/test")
+			.setProperty("hubernate.connection.username", "test")
 			.setProperty("hibernate.show_sql", "true")
-			.setProperty("hibernate.hbm2ddl.auto", "create");
+			.setProperty("hibernate.hbm2ddl.auto", "create-drop");
 		SessionFactory factory = cfg.buildSessionFactory();
 		loadTestData(factory);
 		
