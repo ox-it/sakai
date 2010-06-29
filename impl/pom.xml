@@ -71,8 +71,17 @@
 			<version>3.8.2</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>1.8.0.7</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<build>
-		<testSourceDirectory>src/main/test</testSourceDirectory>
+		<testSourceDirectory>src/test/java</testSourceDirectory>
+		<testResources>
+			<testResource><directory>src/test/resources</directory></testResource>
+		</testResources>
 	</build>
 </project>
