@@ -20,9 +20,9 @@ public class TestCourseDAOImpl extends TestCase {
 			.setProperty("hibernate.dialect", "org.hibernate.dialect.HSQLDialect")
 			.setProperty("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver")
 			.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:signup")
-			.setProperty("hibernate.show_sql", "true");
+			.setProperty("hibernate.show_sql", "true")
+			.setProperty("hibernate.hbm2ddl.auto", "create");
 		SessionFactory factory = cfg.buildSessionFactory();
-		
 		loadTestData(factory);
 		
 		courseDao = new CourseDAOImpl();
@@ -41,7 +41,7 @@ public class TestCourseDAOImpl extends TestCase {
 			semicolon = buffer.indexOf(";");
 			if (semicolon > 0) {
 				String sql = buffer.substring(0, semicolon);
-				buffer.delete(0, semicolon);
+				buffer.delete(0, semicolon+1);
 				session.createSQLQuery(sql).executeUpdate();
 			}
 		}
