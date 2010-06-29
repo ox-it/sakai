@@ -65,9 +65,9 @@
 			<generator class="uuid" />
 		</id>
 		<property name="title" type="string" length="256" />
-		<set name="components" lazy="true" table="course_group_components">
+		<set name="components" lazy="true" table="course_group_component">
 			<key column="course_group" />
-			<one-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO"/>
+			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO"/>
 		</set>
 		<map name="properties" table="course_prop">
 			<key column="id" foreign-key="none"/>
