@@ -12,10 +12,10 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return null;
 	}
 
-	public CourseGroupDAO findAvailableCourseGroupById(String courseId, Date available) {
+	public CourseGroupDAO findUpcomingComponents(String courseId, Date available) {
 		List<CourseGroupDAO> courseGroups = getHibernateTemplate().findByNamedParam(
-				"from CourseGroup cg left join cg.sets.components as component where cg.id = :courseId and component.opens < :opens and component.closes > :closes",
-				new String[]{"courseId", "opens", "closes"}, new Object[]{courseId, available, available});
+				"select cg from CourseGroupDAO cg inner join fetch cg.components as component where cg.id = :courseId and component.closes > :closes",
+				new String[]{"courseId", "closes"}, new Object[]{courseId, available});
 		return (courseGroups.size() > 0)? courseGroups.get(0): null;
 	}
 
