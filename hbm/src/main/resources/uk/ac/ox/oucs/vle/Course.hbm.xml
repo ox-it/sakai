@@ -40,14 +40,15 @@
 		<property name="closes" type="date" />
 		<property name="size" type="int" />
 		<property name="componentId" type="string" length="30"/><!-- The set (teaching_component) this component is from. -->
+		
 		<set name="signups" lazy="true" table="course_component_signup">
 			<key column="component" not-null="true" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"
 				column="signup" />
 		</set>
-		<set name="sets" inverse="true">
-			<key column="component"/>
-			<many-to-many class="uk.ac.ox.oucs.vle.CourseSetDAO" column="set"/>
+		<set name="groups" inverse="true">
+			<key column="compomnent"/>
+			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO" column="course_group"/>
 		</set>
 		<map name="properties" table="course_prop">
 			<key column="id" foreign-key="none"/>
@@ -55,22 +56,6 @@
 			<element type="text" column="value"/>
 		</map>
 	</class>
-
-	<!-- This is a set of components that must be taken at the same time. -->
-	<class name="uk.ac.ox.oucs.vle.CourseSetDAO" table="course_set">
-		<!-- create the primary key id -->
-		<id name="id" type="string">
-			<column name="id" />
-			<generator class="uuid" />
-		</id>
-		<property name="required" type="int"/><!-- Number of modules required for a signup. -->
-		<set name="components">
-			<key column="set"/>
-			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO" column="component"/>
-		</set>
-		<one-to-one name="group" class="uk.ac.ox.oucs.vle.CourseGroupDAO"/>
-	</class>
-
 
 	<!--  A set of courses that can be taken. -->
 	<class name="uk.ac.ox.oucs.vle.CourseGroupDAO" table="course_group">
@@ -80,9 +65,9 @@
 			<generator class="uuid" />
 		</id>
 		<property name="title" type="string" length="256" />
-		<set name="sets" lazy="true" table="course_group_set">
-			<key column="group" />
-			<one-to-many class="uk.ac.ox.oucs.vle.CourseSetDAO"/>
+		<set name="components" lazy="true" table="course_group_components">
+			<key column="course_group" />
+			<one-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO"/>
 		</set>
 		<map name="properties" table="course_prop">
 			<key column="id" foreign-key="none"/>
