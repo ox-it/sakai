@@ -30,7 +30,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		CourseGroupDAO courseGroupDao = dao.findCourseGroupById(courseId);
 		CourseGroup courseGroup = null;
 		if (courseGroupDao != null) {
-			courseGroup = new CourseGroupImpl(courseGroupDao);
+			courseGroup = new CourseGroupImpl(courseGroupDao, dao);
 		}
 		return courseGroup;
 	}
@@ -62,6 +62,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public void withdraw(String signupId) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public CourseGroup getAvailableCourseGroup(String courseId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -1,6 +1,5 @@
 package uk.ac.ox.oucs.vle;
 
-import java.util.Date;
 
 public interface CourseGroup {
 
@@ -10,12 +9,7 @@ public interface CourseGroup {
 	
 	public String getDescription();
 	
-	public int getSize();
 	
-	public int getPlaces();
-	
-	public Date getSignupOpens();
-	
-	public Date getSignupCloses();
+	public boolean isAvailable();
 
 }
