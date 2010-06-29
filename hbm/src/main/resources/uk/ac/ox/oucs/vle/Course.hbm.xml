@@ -65,6 +65,7 @@
 			<generator class="uuid" />
 		</id>
 		<property name="title" type="string" length="256" />
+		<property name="dept" type="string" length="32" index="course_group_dept_idx"/>
 		<set name="components" lazy="true" table="course_group_component">
 			<key column="course_group" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO"/>
