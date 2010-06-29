@@ -3,6 +3,8 @@ package uk.ac.ox.oucs.vle;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Calendar;
+import java.util.Date;
 
 import junit.framework.TestCase;
 
@@ -13,6 +15,10 @@ import org.hibernate.cfg.Configuration;
 public class TestCourseDAOImpl extends TestCase {
 
 	private CourseDAOImpl courseDao;
+	
+	private final Date END_MIC_2010 = createDate(2010, 12, 4); 
+
+	private SessionFactory factory;
 
 	public void setUp() throws Exception {
 		Configuration cfg = new Configuration()
@@ -28,6 +34,12 @@ public class TestCourseDAOImpl extends TestCase {
 		
 		courseDao = new CourseDAOImpl();
 		courseDao.setSessionFactory(factory);
+	}
+
+	private static Date createDate(int year, int month, int day) {
+		Calendar cal = Calendar.getInstance();
+		cal.set(year, month, day);
+		return new Date(cal.getTimeInMillis());
 	}
 	
 	private void loadTestData(SessionFactory factory) throws Exception {
@@ -49,6 +61,9 @@ public class TestCourseDAOImpl extends TestCase {
 	}
 	
 	public void testAvailableCourses() {
-		//
+		CourseGroupDAO course = courseDao.findUpcomingComponents("course-1", END_MIC_2010);
+		assertNotNull(course);
+		assertNotNull(course.getComponents());
+		assertEquals(2, course.getComponents().size());
 	}
 }
