@@ -1,5 +1,7 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.Date;
+
 public interface CourseComponent {
 
 	public String getId();
@@ -15,6 +17,10 @@ public interface CourseComponent {
 	public String getPresenterEmail();
 	
 	public String getLocation();
+	
+	public Date getOpens();
+	
+	public Date getCloses();
 	
 	/**
 	 * The ID of the component set that this component belongs to.
