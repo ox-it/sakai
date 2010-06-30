@@ -35,15 +35,12 @@
 			<artifactId>jersey-server</artifactId>
 			<version>1.0.1</version>
 		</dependency>
+		
 		<dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-json</artifactId>
-			<version>1.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>20080701</version>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<type>jar</type>
+			<version>1.5.3</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
