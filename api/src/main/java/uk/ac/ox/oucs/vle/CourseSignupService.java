@@ -1,11 +1,14 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 public interface CourseSignupService {
 	
-	public static enum Status {PENDING, WITHDRAWN, APPROVED, ACCEPTED}; 
+	public static enum Status {PENDING, WITHDRAWN, APPROVED, ACCEPTED};
+	
+	public static enum Range {ALL, UPCOMING};
 
 	public CourseGroup getCourseGroup(String courseId);
 	
@@ -15,6 +18,8 @@ public interface CourseSignupService {
 	 * @return
 	 */
 	public CourseGroup getAvailableCourseGroup(String courseId);
+	
+	public List<CourseGroup> getCourseGroups(String deptId, Range range);
 	
 	public String findSupervisor(String search);
 	
@@ -34,4 +39,10 @@ public interface CourseSignupService {
 	
 	public void setSignupStatus(String signupId, Status status);
 	
+	/**
+	 * This is what the service should use when determining the current time.
+	 * This is to support testing the data against different times.
+	 * @return
+	 */
+	public Date getNow();
 }
