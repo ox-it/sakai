@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.List;
 
 public interface CourseGroup {
 
@@ -9,7 +10,7 @@ public interface CourseGroup {
 	
 	public String getDescription();
 	
-	
-	public boolean isAvailable();
+	public String getDepartmentCode();
 
+	public List<CourseComponent> getComponents();
 }
