@@ -67,10 +67,6 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>uk.ac.ox.oucs</groupId>
-			<artifactId>course-signup-api</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 		</dependency>
@@ -81,6 +77,23 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring</artifactId>
+		</dependency>
+		
+		
+		<dependency>
+			<groupId>uk.ac.ox.oucs</groupId>
+			<artifactId>course-signup-api</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>uk.ac.ox.oucs</groupId>
+			<artifactId>course-signup-hbm</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>uk.ac.ox.oucs</groupId>
+			<artifactId>course-signup-impl</artifactId>
+			<scope>compile</scope>
 		</dependency>
 
 	</dependencies>
