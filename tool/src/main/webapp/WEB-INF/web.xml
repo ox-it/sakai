@@ -5,6 +5,10 @@
                   http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 	<display-name>External Groups</display-name>
 
+
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
 	<!--
 		Use the Sakai Spring application context wrapper to reach components.
 	-->
@@ -38,17 +42,20 @@
 		<dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
 	 -->
-	<!-- 
 	<filter>
 		<filter-name>hibernate-session</filter-name>
 		<filter-class>org.springframework.orm.hibernate3.support.OpenSessionInViewFilter</filter-class>
+				<init-param>
+			<param-name>singleSession</param-name>
+			<param-value>true</param-value>
+		</init-param>
 	</filter>
 	
 	<filter-mapping>
 		<filter-name>hibernate-session</filter-name>
 		<servlet-name>Jersey Web Application</servlet-name>
 	</filter-mapping>
-	 -->
+	
 	<!-- Application class name -->
 	<servlet>
 		<servlet-name>Jersey Web Application</servlet-name>
