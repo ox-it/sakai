@@ -39,9 +39,14 @@ public class CourseGroupImpl implements CourseGroup {
 		return courseGroupDAO.getTitle();
 	}
 
-	public boolean isAvailable() {
+	public String getDepartmentCode() {
 		// TODO Auto-generated method stub
-		return false;
+		return null;
+	}
+
+	public List<CourseComponent> getComponents() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
