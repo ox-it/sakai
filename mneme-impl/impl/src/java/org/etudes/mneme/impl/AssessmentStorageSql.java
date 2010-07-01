@@ -113,6 +113,9 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 			return;
 		}
 
+		// convert time difference into milliseconds
+		long time_diff_ms = ((long) time_diff) * 1000l;
+
 		StringBuilder sql = new StringBuilder();
 		sql.append("UPDATE MNEME_ASSESSMENT SET");
 		sql.append(" DATES_ACCEPT_UNTIL=DATES_ACCEPT_UNTIL + ?, DATES_DUE=DATES_DUE + ?, DATES_OPEN=DATES_OPEN + ?");
@@ -120,11 +123,9 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 
 		Object[] fields = new Object[4];
 		int i = 0;
-		// Convert time difference into milliseconds before adding
-		long longTime = time_diff * 1000;
-		fields[i++] = longTime;
-		fields[i++] = longTime;
-		fields[i++] = longTime;
+		fields[i++] = time_diff_ms;
+		fields[i++] = time_diff_ms;
+		fields[i++] = time_diff_ms;
 		fields[i++] = context;
 
 		if (!this.sqlService.dbWrite(sql.toString(), fields))
