@@ -16,6 +16,7 @@ import javax.ws.rs.ext.ContextResolver;
 import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 
@@ -24,6 +25,7 @@ public class CourseResource {
 
 	private CourseSignupService courseService;
 	private JsonFactory jsonFactory;
+	private ObjectMapper objectMapper;
 
 	public CourseResource(@Context ContextResolver<Object> resolver) {
 		this.courseService = (CourseSignupService) resolver.getContext(CourseSignupService.class);
@@ -32,9 +34,14 @@ public class CourseResource {
 
 	@Path("/{id}")
 	@GET
-	public Response getCourse(@PathParam("id") String courseId) {
-
-		return null;
+	public StreamingOutput getCourse(@PathParam("id") final String courseId) {
+		return new StreamingOutput() {
+			
+			public void write(OutputStream output) throws IOException,
+					WebApplicationException {
+				objectMapper.writeValue(output, courseService.getCourseGroup(courseId));
+			}
+		};
 	}
 
 	// Need to get all the assessment units for a dept.
