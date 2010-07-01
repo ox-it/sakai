@@ -8,6 +8,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 
 	private CourseDAO dao;
 	
+	public void setDao(CourseDAO dao) {
+		this.dao = dao;
+	}
+
 	public void approve(String signupId) {
 		
 	}
