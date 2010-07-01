@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -65,6 +66,16 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public CourseGroup getAvailableCourseGroup(String courseId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public List<CourseGroup> getCourseGroups(String deptId, Range range) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Date getNow() {
 		// TODO Auto-generated method stub
 		return null;
 	}
