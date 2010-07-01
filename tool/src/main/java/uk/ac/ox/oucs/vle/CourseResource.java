@@ -33,16 +33,21 @@ public class CourseResource {
 	public CourseResource(@Context ContextResolver<Object> resolver) {
 		this.courseService = (CourseSignupService) resolver.getContext(CourseSignupService.class);
 		jsonFactory = new JsonFactory();
+		objectMapper = new ObjectMapper();
 	}
 
 	@Path("/{id}")
 	@GET
+	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getCourse(@PathParam("id") final String courseId) {
+		final CourseGroup course = courseService.getCourseGroup(courseId);
+		if (course == null) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
 		return new StreamingOutput() {
-			
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
-				objectMapper.writeValue(output, courseService.getCourseGroup(courseId));
+				objectMapper.writeValue(output, course);
 			}
 		};
 	}

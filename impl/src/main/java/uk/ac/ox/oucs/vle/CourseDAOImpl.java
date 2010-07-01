@@ -3,13 +3,13 @@ package uk.ac.ox.oucs.vle;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.Hibernate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 	public CourseGroupDAO findCourseGroupById(String courseId) {
-		// TODO Auto-generated method stub
-		return null;
+		return (CourseGroupDAO) getHibernateTemplate().get(CourseGroupDAO.class, courseId);
 	}
 
 	public CourseGroupDAO findUpcomingComponents(String courseId, Date available) {

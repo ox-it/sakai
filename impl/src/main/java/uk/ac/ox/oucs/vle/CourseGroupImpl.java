@@ -2,6 +2,9 @@ package uk.ac.ox.oucs.vle;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
+import org.hibernate.Hibernate;
 
 public class CourseGroupImpl implements CourseGroup {
 
@@ -14,7 +17,11 @@ public class CourseGroupImpl implements CourseGroup {
 	}
 
 	public String getDescription() {
-		return courseGroupDAO.getProperties().get("description");
+		return getProperties().get("description");
+	}
+
+	private Map<String, String> getProperties() {
+		return courseGroupDAO.getProperties();
 	}
 
 	public String getId() {
