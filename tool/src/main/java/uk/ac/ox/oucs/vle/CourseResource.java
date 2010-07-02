@@ -71,6 +71,8 @@ public class CourseResource {
 	@GET
 	public StreamingOutput getCoursesUpcoming(@PathParam("deptId") final String deptId) {
 		
+		final List<CourseGroup> courses = courseService.getCourseGroups(deptId, Range.UPCOMING);
+		
 		return new StreamingOutput() {
 			
 			public void write(OutputStream out) throws IOException {
@@ -78,7 +80,6 @@ public class CourseResource {
 				Date now = courseService.getNow();
 				
 				JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
-				List<CourseGroup> courses = courseService.getCourseGroups(deptId, Range.UPCOMING);
 				gen.writeStartArray();
 				for (CourseGroup courseGroup : courses) {
 					gen.writeStartObject();
@@ -93,9 +94,9 @@ public class CourseResource {
 					gen.writeEndObject();
 				}
 				gen.writeEndArray();
+				gen.close();
 			}
 
-			
 		};
 	}
 	
@@ -121,8 +122,8 @@ public class CourseResource {
 
 	private String summary(Date now, CourseGroup courseGroup) {
 		// Calculate the summary based on the available components.
-		Date nextOpen = now;
-		Date willClose = now;
+		Date nextOpen = new Date(Long.MAX_VALUE);
+		Date willClose = new Date(0);
 		boolean isOneOpen = false;
 		for (CourseComponent component: courseGroup.getComponents()) {
 			// Check if component is the earliest one opening in the future.

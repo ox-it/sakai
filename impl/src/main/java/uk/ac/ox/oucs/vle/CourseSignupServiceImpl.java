@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -75,13 +76,16 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public List<CourseGroup> getCourseGroups(String deptId, Range range) {
-		// TODO Auto-generated method stub
-		return null;
+		List<CourseGroupDAO> cgDaos = dao.findCourseGroupByDept(deptId);
+		List<CourseGroup> cgs = new ArrayList<CourseGroup>(cgDaos.size());
+		for (CourseGroupDAO cgDao: cgDaos) {
+			cgs.add(new CourseGroupImpl(cgDao, dao));
+		}
+		return cgs;
 	}
 
 	public Date getNow() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Date();
 	}
 
 }

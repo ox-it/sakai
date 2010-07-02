@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ public class CourseGroupImpl implements CourseGroup {
 
 	private CourseGroupDAO courseGroupDAO;
 	private CourseDAO dao;
+	private List<CourseComponent> components;
 	
 	public CourseGroupImpl(CourseGroupDAO courseGroupDAO, CourseDAO dao) {
 		this.courseGroupDAO = courseGroupDAO;
@@ -34,14 +36,6 @@ public class CourseGroupImpl implements CourseGroup {
 		return 0;
 	}
 
-	protected void getOpenComponents(Date at) {
-		// This should filter the sets so we only get ones for this course.
-		List<CourseComponentDAO> courseComponentDAOs = dao.findOpenComponents(courseGroupDAO.getId(), at);
-		for (CourseComponentDAO component: courseComponentDAOs) {
-			
-		}
-	}
-
 	public String getTitle() {
 		return courseGroupDAO.getTitle();
 	}
@@ -52,8 +46,13 @@ public class CourseGroupImpl implements CourseGroup {
 	}
 
 	public List<CourseComponent> getComponents() {
-		// TODO Auto-generated method stub
-		return null;
+		if (components == null) {
+			components = new ArrayList<CourseComponent>();
+			for(CourseComponentDAO component:  courseGroupDAO.getComponents()) {
+				components.add(new CourseComponentImpl(component));
+			}
+		}
+		return components;
 	}
 
 }
