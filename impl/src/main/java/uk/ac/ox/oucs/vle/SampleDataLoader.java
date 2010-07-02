@@ -7,6 +7,12 @@ import java.io.InputStreamReader;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+/**
+ * Simple data loader that takes a set of SQL statements and runs them against a DB.
+ * Uses a hibernate session to connect to the DB.
+ * @author buckett
+ *
+ */
 public class SampleDataLoader {
 
 	private SessionFactory factory;
