@@ -143,7 +143,7 @@ public class CourseResource {
 			long remaining = willClose.getTime() - now.getTime();
 			detail = "close in "+ formatDuration(remaining);  
 		} else {
-			long until = willClose.getTime() - now.getTime();
+			long until = nextOpen.getTime() - now.getTime();
 			detail = "open in "+ formatDuration(until);
 		}
 		return detail;
