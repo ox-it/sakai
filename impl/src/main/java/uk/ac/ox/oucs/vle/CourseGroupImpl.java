@@ -10,16 +10,16 @@ import org.hibernate.Hibernate;
 public class CourseGroupImpl implements CourseGroup {
 
 	private CourseGroupDAO courseGroupDAO;
-	private CourseDAO dao;
+	private CourseSignupServiceImpl impl;
 	private List<CourseComponent> components;
 	
-	public CourseGroupImpl(CourseGroupDAO courseGroupDAO, CourseDAO dao) {
+	public CourseGroupImpl(CourseGroupDAO courseGroupDAO, CourseSignupServiceImpl impl) {
 		this.courseGroupDAO = courseGroupDAO;
-		this.dao = dao;
+		this.impl = impl;
 	}
 
 	public String getDescription() {
-		return getProperties().get("description");
+		return getProperties().get("desc");
 	}
 
 	private Map<String, String> getProperties() {
@@ -28,12 +28,6 @@ public class CourseGroupImpl implements CourseGroup {
 
 	public String getId() {
 		return courseGroupDAO.getId();
-	}
-
-	public int getSize() {
-		
-		// Calculated.
-		return 0;
 	}
 
 	public String getTitle() {
@@ -49,7 +43,7 @@ public class CourseGroupImpl implements CourseGroup {
 		if (components == null) {
 			components = new ArrayList<CourseComponent>();
 			for(CourseComponentDAO component:  courseGroupDAO.getComponents()) {
-				components.add(new CourseComponentImpl(component));
+				components.add(new CourseComponentImpl(component, impl));
 			}
 		}
 		return components;

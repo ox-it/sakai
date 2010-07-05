@@ -19,11 +19,17 @@ public interface CourseSignupService {
 	 */
 	public CourseGroup getAvailableCourseGroup(String courseId);
 	
+	/**
+	 * Finds all course groups 
+	 * @param deptId
+	 * @param range
+	 * @return
+	 */
 	public List<CourseGroup> getCourseGroups(String deptId, Range range);
 	
 	public String findSupervisor(String search);
 	
-	public void signup(Set<String> components, String superviorId, String message);
+	public void signup(Set<String> components, String supervisorEmail, String message);
 	
 	public void withdraw(String signupId);
 	

@@ -7,9 +7,15 @@ import uk.ac.ox.oucs.vle.proxy.User;
 public class CourseComponentImpl implements CourseComponent {
 	
 	private CourseComponentDAO dao;
+	private CourseSignupServiceImpl impl;
 	
-	public CourseComponentImpl(CourseComponentDAO dao) {
+	/// Local caches.
+	private transient Date opens;
+	private transient Date closes;
+	
+	public CourseComponentImpl(CourseComponentDAO dao, CourseSignupServiceImpl impl) {
 		this.dao = dao;
+		this.impl = impl;
 	}
 
 	public String getId() {
@@ -48,10 +54,16 @@ public class CourseComponentImpl implements CourseComponent {
 	}
 
 	public Date getOpens() {
-		return dao.getOpens();
+		// Jackson doesn't like java.sql.Date.
+		if (opens == null)
+			opens = new Date(dao.getOpens().getTime());
+		return opens;
 	}
 
 	public Date getCloses() {
+		// Jackson doesn't like java.sql.Date.
+		if(closes == null)
+			closes = new Date(dao.getCloses().getTime());
 		return dao.getCloses();
 	}
 

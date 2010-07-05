@@ -2,6 +2,7 @@ package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -20,6 +21,9 @@ import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 
@@ -34,6 +38,9 @@ public class CourseResource {
 		this.courseService = (CourseSignupService) resolver.getContext(CourseSignupService.class);
 		jsonFactory = new JsonFactory();
 		objectMapper = new ObjectMapper();
+		objectMapper.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
+		objectMapper.configure(SerializationConfig.Feature.USE_STATIC_TYPING, true);
+		objectMapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 	}
 
 	@Path("/{id}")

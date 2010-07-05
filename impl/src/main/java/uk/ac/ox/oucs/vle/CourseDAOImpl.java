@@ -3,6 +3,7 @@ package uk.ac.ox.oucs.vle;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -23,9 +24,16 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 	public CourseGroupDAO findUpcomingComponents(String courseId, Date available) {
 		List<CourseGroupDAO> courseGroups = getHibernateTemplate().findByNamedParam(
-				"select cg from CourseGroupDAO cg left join fetch cg.components as component with component.closes > :closes where cg.id = :courseId",
+				"select cg from CourseGroupDAO cg left join fetch cg.components as component where cg.id = :courseId and component.closes > :closes",
 				new String[]{"courseId", "closes"}, new Object[]{courseId, available});
-		return (courseGroups.size() > 0)? courseGroups.get(0): null;
+		int results = courseGroups.size();
+		if (results > 0) {
+			if (results > 1) {
+				throw new IllegalStateException("To many results ("+ results + ") found for "+ courseId );
+			}
+			return courseGroups.get(0);
+		}
+		return null;
 	}
 
 	public List<CourseComponentDAO> findOpenComponents(String id, Date at) {
@@ -51,6 +59,23 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			}
 			
 		});
+	}
+
+	public CourseComponentDAO findCourseComponent(String id) {
+		return (CourseComponentDAO) getHibernateTemplate().get(CourseComponentDAO.class, id);
+	}
+
+	public CourseSignupDAO newSignup(String userId, String supervisorId) {
+		CourseSignupDAO signupDao = new CourseSignupDAO(userId, supervisorId);
+		return signupDao;
+	}
+
+	public void save(CourseSignupDAO signupDao) {
+		getHibernateTemplate().save(signupDao);
+	}
+
+	public void save(CourseComponentDAO componentDao) {
+		getHibernateTemplate().save(componentDao);
 	}
 
 }

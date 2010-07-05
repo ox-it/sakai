@@ -26,14 +26,28 @@
 			</value>
 		</property>
 	</bean>
-	
+
 	<bean class="uk.ac.ox.oucs.vle.SampleDataLoader" init-method="init">
-		<property name="sessionFactory" ref="sessionFactory"/>
+		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 
-	<bean name="uk.ac.ox.oucs.vle.CourseSignupService" class="uk.ac.ox.oucs.vle.CourseSignupServiceImpl">
-		<property name="dao">
-			<ref bean="uk.ac.ox.oucs.vle.CourseDAO" />
+	<bean name="uk.ac.ox.oucs.vle.CourseSignupService"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="target">
+			<bean class="uk.ac.ox.oucs.vle.CourseSignupServiceImpl">
+				<property name="dao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
+				<property name="proxy" ref="uk.ac.ox.oucs.vle.sakai.SakaiProxy" />
+			</bean>
+		</property>
+		<property name="transactionManager">
+			<bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+				<property name="dataSource" ref="dataSource"/>
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<value>
+				signup=PROPAGATION_REQUIRED
+			</value>
 		</property>
 	</bean>
 
@@ -41,5 +55,8 @@
 		<property name="sessionFactory">
 			<ref bean="sessionFactory" />
 		</property>
+	</bean>
+
+	<bean name="uk.ac.ox.oucs.vle.sakai.SakaiProxy" class="uk.ac.ox.oucs.vle.proxy.SakaiProxy">
 	</bean>
 </beans>
