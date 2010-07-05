@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- Just so we can set date properties in spring config. -->
+	<bean id="customEditorConfigurer"
+		class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+		<property name="customEditors">
+			<map>
+				<entry key="java.util.Date">
+					<bean class="org.springframework.beans.propertyeditors.CustomDateEditor">
+						<constructor-arg index="0">
+							<bean class="java.text.SimpleDateFormat">
+								<constructor-arg>
+									<value>d/M/yy</value>
+								</constructor-arg>
+							</bean>
+						</constructor-arg>
+						<constructor-arg index="1">
+							<value>true</value>
+						</constructor-arg>
+					</bean>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	
+	<bean name="uk.ac.ox.oucs.vle.CourseSignupService"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="target">
+			<bean class="uk.ac.ox.oucs.vle.CourseSignupServiceTest">
+				<property name="dao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
+				<property name="proxy" ref="uk.ac.ox.oucs.vle.sakai.SakaiProxy" />
+				<property name="now">
+					<value>1/10/2010</value>
+				</property>
+			</bean>
+		</property>
+		<property name="transactionManager">
+			<bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+				<property name="dataSource" ref="dataSource"/>
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<value>
+				signup=PROPAGATION_REQUIRED
+			</value>
+		</property>
+	</bean>
+
+</beans>

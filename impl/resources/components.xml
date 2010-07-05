@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://127.0.0.1:3306/test" />
+	</bean>
+
+	<bean id="sessionFactory" name="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mappingResources">
+			<list>
+				<value>/uk/ac/ox/oucs/vle/Course.hbm.xml</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<value>
+				hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect
+				hibernate.show_sql=true
+				hibernate.use_sql_comments=true
+				hibernate.hbm2ddl.auto=create-drop
+			</value>
+		</property>
+	</bean>
+
+	<bean class="uk.ac.ox.oucs.vle.SampleDataLoader" init-method="init">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<bean name="uk.ac.ox.oucs.vle.CourseSignupService"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="target">
+			<bean class="uk.ac.ox.oucs.vle.CourseSignupServiceImpl">
+				<property name="dao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
+				<property name="proxy" ref="uk.ac.ox.oucs.vle.sakai.SakaiProxy" />
+			</bean>
+		</property>
+		<property name="transactionManager">
+			<bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+				<property name="dataSource" ref="dataSource"/>
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<value>
+				signup=PROPAGATION_REQUIRED
+			</value>
+		</property>
+	</bean>
+
+	<bean name="uk.ac.ox.oucs.vle.CourseDAO" class="uk.ac.ox.oucs.vle.CourseDAOImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean name="uk.ac.ox.oucs.vle.sakai.SakaiProxy" class="uk.ac.ox.oucs.vle.proxy.SakaiProxy">
+	</bean>
+</beans>

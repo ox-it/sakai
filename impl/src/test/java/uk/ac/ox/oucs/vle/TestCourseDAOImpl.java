@@ -10,10 +10,8 @@ public class TestCourseDAOImpl extends TestOnSampleData {
 	
 	private final Date END_MIC_2010 = createDate(2010, 12, 4); 
 
-	public void setUp() throws Exception {
-		super.setUp();
-		courseDao = new CourseDAOImpl();
-		courseDao.setSessionFactory(factory);
+	public void onSetUp() throws Exception {
+		courseDao = (CourseDAOImpl) getApplicationContext().getBean("uk.ac.ox.oucs.vle.CourseDAO");
 	}
 	
 	private static Date createDate(int year, int month, int day) {
