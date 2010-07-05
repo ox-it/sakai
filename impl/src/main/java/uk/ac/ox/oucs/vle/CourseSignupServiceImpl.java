@@ -88,4 +88,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return new Date();
 	}
 
+	/**
+	 * Loads details about a user.
+	 * @return
+	 */
+	User loadUser(String id) {
+		return proxy.findUserById(id);
+	}
+
 }

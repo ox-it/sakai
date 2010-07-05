@@ -2,6 +2,8 @@ package uk.ac.ox.oucs.vle;
 
 import java.util.Date;
 
+import uk.ac.ox.oucs.vle.proxy.User;
+
 public class CourseComponentImpl implements CourseComponent {
 	
 	private CourseComponentDAO dao;
@@ -26,14 +28,19 @@ public class CourseComponentImpl implements CourseComponent {
 		return dao.getSize();
 	}
 
-	public String getPresenter() {
+	public Person getPresenter() {
+		if (dao.getProperties().containsKey("teacher.name")) {
+			return new PersonImpl(null, dao.getProperties().get("teacher.name"), dao.getProperties().get("teacher.email"));
+		}
 		return null;
 	}
-
-	public String getPresenterEmail() {
-		// TODO Auto-generated method stub
-		return null;
+	
+	public Person getAdministrator() {
+		String adminId = dao.getAdministrator();
+		User user = impl.loadUser(adminId);
+		return (user != null)?new PersonImpl(user.getId(), user.getName(), user.getEmail()):null;
 	}
+	
 
 	public String getLocation() {
 		// TODO Auto-generated method stub

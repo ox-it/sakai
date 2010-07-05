@@ -12,16 +12,16 @@ public interface CourseComponent {
 	
 	public int getSize();
 	
-	public String getPresenter();
+	public Person getPresenter();
 	
-	public String getPresenterEmail();
+	public Person getAdministrator();
 	
 	public String getLocation();
 	
 	public Date getOpens();
 	
 	public Date getCloses();
-	
+
 	/**
 	 * The ID of the component set that this component belongs to.
 	 * This is used when there are multiple copies of a component running at once to discover
