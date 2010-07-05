@@ -1,6 +1,8 @@
 package uk.ac.ox.oucs.vle;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class TestCourseSignupServiceImpl extends TestOnSampleData {
 	
@@ -12,6 +14,13 @@ public class TestCourseSignupServiceImpl extends TestOnSampleData {
 	
 	public void testSignupGood() {
 		service.signup(Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);
+	}
+	
+	public void testSignupGoodSet() {
+		Set<String> componentIds = new HashSet<String>();
+		componentIds.add("comp-1");
+		componentIds.add("comp-2");
+		service.signup(componentIds, "test.user.1@dept.ox.ac.uk", null);
 	}
 	
 	public void testSignupFuture() {
