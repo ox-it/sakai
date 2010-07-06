@@ -7,11 +7,15 @@ import java.util.Set;
 public class TestCourseSignupServiceImpl extends TestOnSampleData {
 	
 	private CourseSignupService service;
-	
-	public void onSetUp() throws Exception {
-		service = (CourseSignupService) getApplicationContext().getBean(CourseSignupService.class.getName());
+
+	public CourseSignupService getService() {
+		return service;
 	}
-	
+
+	public void setService(CourseSignupService service) {
+		this.service = service;
+	}
+
 	public void testSignupGood() {
 		service.signup(Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);
 	}
@@ -21,6 +25,13 @@ public class TestCourseSignupServiceImpl extends TestOnSampleData {
 		componentIds.add("comp-1");
 		componentIds.add("comp-2");
 		service.signup(componentIds, "test.user.1@dept.ox.ac.uk", null);
+	}
+	
+	public void testSignupMultiple() {
+		// TODO This should fail as it's always the same user.
+		for (int i = 1; i<=15; i++) {
+			service.signup(Collections.singleton("comp-3"), "test.user.1@dept.ox.ac.uk", null);
+		}
 	}
 	
 	public void testSignupFuture() {

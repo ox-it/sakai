@@ -91,6 +91,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		
 		// Check they are valid as a choice (in signup period (student), not for same component in same term)
 		Date now = getNow();
+		String userId = proxy.getCurrentUser().getId();
 		for(CourseComponentDAO componentDao: componentDaos) {
 			if(componentDao.getOpens().after(now) || componentDao.getCloses().before(now)) {
 				throw new IllegalStateException("Component isn't currently open: "+ componentDao.getId());
@@ -98,7 +99,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			if ( (componentDao.getSize()-componentDao.getTaken()) < 1) {
 				throw new IllegalStateException("No places left on: "+ componentDao.getId());
 			}
-			// TODO Check for duplicate signups for the same component;
+			// TODO If state is withdrawn ignore it.
+			for (CourseSignupDAO signupDao: componentDao.getSignups()) {
+				if (userId.equals(signupDao.getUserId())) {
+					throw new IllegalStateException("User "+ userId+ " already has a place on component: "+ componentDao.getId());
+				}
+			}
 		}
 		// Set the supervisor
 		User supervisor = proxy.findUserByEmail(supervisorEmail);
@@ -106,9 +112,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			throw new IllegalArgumentException("Can't find a supervisor with email: "+ supervisorEmail);
 		}
 		
-		//TODO Do in transaction.
 		// Create the signup.
-		String userId = proxy.getCurrentUser().getId();
 		String supervisorId = supervisor.getId();
 		CourseSignupDAO signupDao = dao.newSignup(userId, supervisorId);
 		signupDao.getProperties().put("message", message);

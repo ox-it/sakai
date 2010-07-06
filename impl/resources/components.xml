@@ -39,16 +39,16 @@
 				<property name="proxy" ref="uk.ac.ox.oucs.vle.sakai.SakaiProxy" />
 			</bean>
 		</property>
-		<property name="transactionManager">
-			<bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-				<property name="dataSource" ref="dataSource"/>
-			</bean>
-		</property>
+		<property name="transactionManager" ref="trasactionManager"/>
 		<property name="transactionAttributes">
 			<value>
 				signup=PROPAGATION_REQUIRED
 			</value>
 		</property>
+	</bean>
+				
+	<bean name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+			<property name="dataSource" ref="dataSource"/>
 	</bean>
 
 	<bean name="uk.ac.ox.oucs.vle.CourseDAO" class="uk.ac.ox.oucs.vle.CourseDAOImpl">
@@ -57,6 +57,6 @@
 		</property>
 	</bean>
 
-	<bean name="uk.ac.ox.oucs.vle.sakai.SakaiProxy" class="uk.ac.ox.oucs.vle.proxy.SakaiProxy">
+	<bean name="uk.ac.ox.oucs.vle.sakai.SakaiProxy" class="uk.ac.ox.oucs.vle.proxy.SakaiProxyTest">
 	</bean>
 </beans>
