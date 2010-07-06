@@ -3,26 +3,32 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 
+	<typedef name="SignupStatus" class="uk.ac.ox.oucs.vle.GenericEnumUserType">
+		<param name="enumClass">uk.ac.ox.oucs.vle.CourseSignupService$Status</param>
+	</typedef>
+
 	<class name="uk.ac.ox.oucs.vle.CourseSignupDAO" table="course_signup">
 		<!-- create the primary key id -->
 		<id name="id" type="string">
 			<column name="id" />
 			<generator class="uuid" />
 		</id>
-		<property name="userId" type="string" length="99" not-null="true" index="course_signup_user_idx" />
-		<property name="status" type="string" length="20"/>
+		<property name="userId" type="string" length="99" not-null="true"
+			index="course_signup_user_idx" />
+		<property name="status" type="SignupStatus"/>
 		<property name="created" type="date" />
 		<set name="components" lazy="true" table="course_component_signup"
-			inverse="true" >
-			<key column="signup" not-null="true"/>
+			inverse="true">
+			<key column="signup" not-null="true" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO"
 				column="component" />
 		</set>
-		<property name="supervisorId" type="string" length="99" not-null="true" index="course_signup_supervisor_idx" />
+		<property name="supervisorId" type="string" length="99"
+			not-null="true" index="course_signup_supervisor_idx" />
 		<map name="properties" table="course_prop">
-			<key column="id" foreign-key="none"/>
-			<map-key type="string" length="20" column="name"/>
-			<element type="text" column="value"/>
+			<key column="id" foreign-key="none" />
+			<map-key type="string" length="20" column="name" />
+			<element type="text" column="value" />
 		</map>
 	</class>
 
@@ -39,26 +45,30 @@
 		<property name="closes" type="date" />
 		<property name="size" type="int" />
 		<property name="taken" type="int" />
-		<property name="administrator" type="string" length="64"/><!-- The administrator who is looking after this component. -->
-		<property name="componentId" type="string" length="30"/><!-- The set (teaching_component) this component is from. -->
-		
+		<property name="administrator" type="string" length="64" /><!-- 
+			The administrator who is looking after this component. -->
+		<property name="componentId" type="string" length="30" /><!-- 
+			The set (teaching_component) this component is from. -->
+
 		<set name="signups" lazy="true" table="course_component_signup">
 			<key column="component" not-null="true" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"
 				column="signup" />
 		</set>
-		<set name="groups" inverse="true" table="course_group_component" lazy="true">
-			<key column="component"/>
-			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO" column="course_group"/>
+		<set name="groups" inverse="true" table="course_group_component"
+			lazy="true">
+			<key column="component" />
+			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO"
+				column="course_group" />
 		</set>
 		<map name="properties" table="course_prop">
-			<key column="id" foreign-key="none"/>
-			<map-key type="string" length="20" column="name"/>
-			<element type="text" column="value"/>
+			<key column="id" foreign-key="none" />
+			<map-key type="string" length="20" column="name" />
+			<element type="text" column="value" />
 		</map>
 	</class>
 
-	<!--  A set of courses that can be taken. -->
+	<!-- A set of courses that can be taken. -->
 	<class name="uk.ac.ox.oucs.vle.CourseGroupDAO" table="course_group">
 		<!-- create the primary key id -->
 		<id name="id" type="string">
@@ -66,16 +76,19 @@
 			<generator class="uuid" />
 		</id>
 		<property name="title" type="string" length="256" />
-		<property name="dept" type="string" length="32" index="course_group_dept_idx"/>
-		<set name="components" lazy="true" table="course_group_component" fetch="join">
+		<property name="dept" type="string" length="32"
+			index="course_group_dept_idx" />
+		<set name="components" lazy="true" table="course_group_component"
+			fetch="join">
 			<key column="course_group" />
-			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO" column="component"/>
+			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO"
+				column="component" />
 		</set>
 		<map name="properties" table="course_prop">
-			<key column="id" foreign-key="none"/>
-			<map-key type="string" length="20" column="name"/>
-			<element type="text" column="value"/>
+			<key column="id" foreign-key="none" />
+			<map-key type="string" length="20" column="name" />
+			<element type="text" column="value" />
 		</map>
 	</class>
-	
+
 </hibernate-mapping>
