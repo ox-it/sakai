@@ -4,9 +4,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import uk.ac.ox.oucs.vle.proxy.SakaiProxyTest;
+
 public class TestCourseSignupServiceImpl extends TestOnSampleData {
 	
 	private CourseSignupService service;
+	
+	private SakaiProxyTest proxy;
 
 	public CourseSignupService getService() {
 		return service;
@@ -14,6 +18,14 @@ public class TestCourseSignupServiceImpl extends TestOnSampleData {
 
 	public void setService(CourseSignupService service) {
 		this.service = service;
+	}
+
+	public SakaiProxyTest getProxy() {
+		return proxy;
+	}
+
+	public void setProxy(SakaiProxyTest proxy) {
+		this.proxy = proxy;
 	}
 
 	public void testSignupGood() {
@@ -28,8 +40,9 @@ public class TestCourseSignupServiceImpl extends TestOnSampleData {
 	}
 	
 	public void testSignupMultiple() {
-		// TODO This should fail as it's always the same user.
+		// TODO This affects all further tests.
 		for (int i = 1; i<=15; i++) {
+			proxy.setCurrentUser(proxy.findUserById("id"+i));
 			service.signup(Collections.singleton("comp-3"), "test.user.1@dept.ox.ac.uk", null);
 		}
 	}

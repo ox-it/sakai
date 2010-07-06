@@ -40,6 +40,10 @@ public class SakaiProxyTest implements SakaiProxy {
 		return current;
 	}
 	
+	public void setCurrentUser(User user) {
+		this.current = user;
+	}
+	
 	/* (non-Javadoc)
 	 * @see uk.ac.ox.oucs.vle.proxy.SakaiProxy#findUserById(java.lang.String)
 	 */
