@@ -1,6 +1,7 @@
 package uk.ac.ox.oucs.vle;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -46,10 +47,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return null;
 	}
 	
-	public List<CourseSignup> getMySignups() {
-		// Was going to use this to find out if a user has already signed up for a component.
-		// but most of this can be done in DB.
-		return null;
+	public List<CourseSignup> getMySignups(Set<Status> statuses) {
+		String userId = proxy.getCurrentUser().getId();
+		List<CourseSignup> signups = dao.findSignupForUser(userId, (statuses==null)?Collections.EMPTY_SET:statuses);
+		return signups;
 	}
 
 	public CourseGroup getCourseGroup(String courseId) {
@@ -115,6 +116,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		// Create the signup.
 		String supervisorId = supervisor.getId();
 		CourseSignupDAO signupDao = dao.newSignup(userId, supervisorId);
+		signupDao.setStatus(Status.PENDING);
 		signupDao.getProperties().put("message", message);
 		dao.save(signupDao);
 		
@@ -129,8 +131,17 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public void withdraw(String signupId) {
-		// TODO Auto-generated method stub
-
+		CourseSignupDAO signupDao = dao.findSignupById(signupId);
+		if (signupDao == null) {
+			throw new IllegalArgumentException("Could not find signup: "+ signupId);
+		}
+		if (Status.PENDING.equals(signupDao.getStatus())) {
+			throw new IllegalStateException("Can only withdraw from pending signups: "+ signupId);
+		}
+		signupDao.setStatus(Status.WITHDRAWN);
+		for (CourseComponentDAO componentDao: signupDao.getComponents()) {
+			componentDao.setTaken(componentDao.getTaken()-1);
+		}
 	}
 
 	public CourseGroup getAvailableCourseGroup(String courseId) {

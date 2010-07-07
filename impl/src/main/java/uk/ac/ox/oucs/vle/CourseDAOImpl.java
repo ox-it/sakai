@@ -15,6 +15,8 @@ import org.hibernate.transform.ResultTransformer;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import uk.ac.ox.oucs.vle.CourseSignupService.Status;
+
 public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 	
@@ -76,6 +78,25 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 	public void save(CourseComponentDAO componentDao) {
 		getHibernateTemplate().save(componentDao);
+	}
+
+	public CourseSignupDAO findSignupById(String signupId) {
+		return (CourseSignupDAO) getHibernateTemplate().get(CourseSignupDAO.class, signupId);
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<CourseSignup> findSignupForUser(final String userId, final Set<Status> statuses) {
+		return (List<CourseSignup>)getHibernateTemplate().executeFind(new HibernateCallback() {
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Criteria criteria = session.createCriteria(CourseSignupDAO.class);
+				criteria.add(Expression.eq("userId", userId));
+				criteria.add(Expression.in("status", statuses.toArray()));
+				criteria.setFetchMode("components", FetchMode.JOIN);
+				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+				return criteria.list();
+			}
+		});
 	}
 
 }

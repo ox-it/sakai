@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import uk.ac.ox.oucs.vle.CourseSignupService.Status;
+
 public interface CourseDAO {
 
 	CourseGroupDAO findCourseGroupById(String courseId);
@@ -23,6 +25,10 @@ public interface CourseDAO {
 	void save(CourseSignupDAO signupDao);
 
 	void save(CourseComponentDAO componentDao);
+
+	CourseSignupDAO findSignupById(String signupId);
+
+	List<CourseSignup> findSignupForUser(String userId, Set<Status> statuses);
 	
 
 }
