@@ -39,14 +39,13 @@
 				<property name="proxy" ref="uk.ac.ox.oucs.vle.sakai.SakaiProxy" />
 			</bean>
 		</property>
-		<property name="transactionManager" ref="trasactionManager"/>
+		<property name="transactionManager" ref="transactionManager"/>
 		<property name="transactionAttributes">
 			<value>
 				signup=PROPAGATION_REQUIRED
 			</value>
 		</property>
 	</bean>
-				
 	<bean name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 			<property name="dataSource" ref="dataSource"/>
 	</bean>
