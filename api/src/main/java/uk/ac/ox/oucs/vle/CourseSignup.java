@@ -1,6 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
-import org.sakaiproject.user.api.User;
+import java.util.Set;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
@@ -8,12 +8,14 @@ public interface CourseSignup {
 
 	public String getId();
 	
-	public User getUser();
+	public Person getUser();
 	
-	public User getSupervisor();
+	public Person getSupervisor();
 	
 	public String getNotes();
 	
 	public Status getStatus();
+	
+	public Set<CourseComponent> getComponents();
 
 }

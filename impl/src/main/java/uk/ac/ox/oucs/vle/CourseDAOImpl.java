@@ -85,13 +85,15 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<CourseSignup> findSignupForUser(final String userId, final Set<Status> statuses) {
-		return (List<CourseSignup>)getHibernateTemplate().executeFind(new HibernateCallback() {
+	public List<CourseSignupDAO> findSignupForUser(final String userId, final Set<Status> statuses) {
+		return (List<CourseSignupDAO>)getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Criteria criteria = session.createCriteria(CourseSignupDAO.class);
 				criteria.add(Expression.eq("userId", userId));
-				criteria.add(Expression.in("status", statuses.toArray()));
+				if (!statuses.isEmpty()) {
+					criteria.add(Expression.in("status", statuses.toArray()));
+				}
 				criteria.setFetchMode("components", FetchMode.JOIN);
 				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 				return criteria.list();

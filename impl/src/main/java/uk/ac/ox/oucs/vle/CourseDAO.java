@@ -28,7 +28,7 @@ public interface CourseDAO {
 
 	CourseSignupDAO findSignupById(String signupId);
 
-	List<CourseSignup> findSignupForUser(String userId, Set<Status> statuses);
+	List<CourseSignupDAO> findSignupForUser(String userId, Set<Status> statuses);
 	
 
 }

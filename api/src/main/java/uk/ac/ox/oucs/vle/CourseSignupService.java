@@ -51,4 +51,6 @@ public interface CourseSignupService {
 	 * @return
 	 */
 	public Date getNow();
+
+	public List<CourseSignup> getMySignups(Set<Status> statuses);
 }

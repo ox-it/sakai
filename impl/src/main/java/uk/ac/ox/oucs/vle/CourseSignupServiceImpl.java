@@ -49,7 +49,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	public List<CourseSignup> getMySignups(Set<Status> statuses) {
 		String userId = proxy.getCurrentUser().getId();
-		List<CourseSignup> signups = dao.findSignupForUser(userId, (statuses==null)?Collections.EMPTY_SET:statuses);
+		List<CourseSignup> signups = new ArrayList<CourseSignup>();
+		for (CourseSignupDAO signupDao:  dao.findSignupForUser(userId, (statuses==null)?Collections.EMPTY_SET:statuses)) {
+			signups.add(new CourseSignupImpl(signupDao, this));
+		}
 		return signups;
 	}
 
