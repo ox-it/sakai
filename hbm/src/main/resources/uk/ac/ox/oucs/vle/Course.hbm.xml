@@ -15,7 +15,7 @@
 		</id>
 		<property name="userId" type="string" length="99" not-null="true"
 			index="course_signup_user_idx" />
-		<property name="status" type="SignupStatus"/>
+		<property name="status" type="SignupStatus" index="course_signup_user_idx"/>
 		<property name="created" type="date" />
 		<set name="components" lazy="true" table="course_component_signup"
 			inverse="true">
