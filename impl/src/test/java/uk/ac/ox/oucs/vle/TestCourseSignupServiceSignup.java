@@ -4,30 +4,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import uk.ac.ox.oucs.vle.proxy.SakaiProxyTest;
 
-public class TestCourseSignupServiceImpl extends TestOnSampleData {
+public class TestCourseSignupServiceSignup extends TestOnSampleData {
 	
-	private CourseSignupService service;
-	
-	private SakaiProxyTest proxy;
-
-	public CourseSignupService getService() {
-		return service;
-	}
-
-	public void setService(CourseSignupService service) {
-		this.service = service;
-	}
-
-	public SakaiProxyTest getProxy() {
-		return proxy;
-	}
-
-	public void setProxy(SakaiProxyTest proxy) {
-		this.proxy = proxy;
-	}
-
 	public void testSignupGood() {
 		service.signup(Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);
 	}
