@@ -1,0 +1,94 @@
+{
+	"id": "1",
+	"title": "Structural Biology",
+	"department": "Doctoral Training School",
+	"places": "12",
+	"signup": {
+		"from": "13th September 2010",
+		"to": "29th September 2010",
+		"now": "27th August 2010"
+	},
+	"parts": [
+		{
+		"type": {
+					"id": "seminar",
+					"name": "Seminars"
+		},
+		"options": [
+			{
+				"id": "1",
+				"time": "Monday 10am (1 hour)",
+				"sessions": 8,
+				"term": "Michaelmas 2010",
+				"lecturer": {
+					"id": "1",
+					"name": "John Smith",
+					"email": "john.smith@dept.ox.ac.uk"
+				},
+				"places": "9"
+			},
+			{
+				"id": "2",
+				"time": "Thursday 3pm (1 hour)",
+				"sessions": 8,
+				"term": "Michaelmas 2010",
+				"lecturer": {
+					"id": "2",
+					"name": "Dr Pat Body",
+					"email": "patrick.body@dept.ox.ac.uk"
+				},
+				"places": "3"
+			}
+		]
+		},
+		{
+		"type": {
+					"id": "lectures",
+					"name": "Lectures"
+		},
+		"options": [
+			{
+				"id": "3",
+				"time": "Tuesday 2pm (1 hour)",
+				"sessions": "9",
+				"term": "Michaelmas 2010",
+				"lecturer": {
+					"id": "1",
+					"name": "John Smith",
+					"email": "john.smith@dept.ox.ac.uk"
+				},
+				"places": "15",
+				"type": {
+					"id": "lecture",
+					"name": "Lectures"
+				}
+			}
+		]
+		}
+	],
+	"administrators": [
+		{
+			"id": "1",
+			"name": "Jane Broad",
+			"email": "jane.broad@dept.ox.ac.uk"
+		},
+		{
+			"id": "2",
+			"name": "Emily Cope",
+			"email": "emily.cope@dept.ox.ac.uk"
+		}
+	],
+	"teachers": [
+		{
+			"id": "3",
+			"name": "Dr J. Smith",
+			"email": "john.smith@dept.ox.ac.uk"
+		},
+		{
+			"id": "4",
+			"name": "Dr. Pat Body",
+			"email": "patrick.body@dept.ox.ac.uk"
+		}
+	],
+	"description": "This course provides the student with an introduction to the theory and techniques of structural biology. Topic areas include protein structure, structure determination (theory) molecular dynamics, free enerygy methods, homology modelling and electrostatics."
+}

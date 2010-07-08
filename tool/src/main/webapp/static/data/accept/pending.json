@@ -1,0 +1,59 @@
+[
+		{
+			"student": {
+				"id": 123,
+				"name": "John Smith",
+				"email": "john.smith@coll.ox.ac.uk"
+			},
+			"course": {
+				"id" : "1.1.1",
+				"title": "Structural Biology",
+				"parts": []
+			},
+			"department": "Doctoral Training School",
+			"notes": "I think this is currently a good idea as...",
+			"date": "1277467381",
+			"term": {
+				"id": 34,
+				"name": "Michaelmas 2010"
+			}
+		},
+		{
+			"student": {
+				"id": 122,
+				"name": "Peter Lake",
+				"email": "peter.lake@coll.ox.ac.uk"
+			},
+			"course": {
+				"id" : "1.1.1",
+				"title": "Structural Biology",
+				"parts": []
+			},
+			"department": "Doctoral Training School",
+			"notes": "I think this is currently a good idea as...",
+			"date": "1277467381",
+			"term": {
+				"id": 34,
+				"name": "Michaelmas 2010"
+			}
+		},
+		{
+			"student": {
+				"id": 124,
+				"name": "Susan Plant",
+				"email": "susan.plant@coll.ox.ac.uk"
+			},
+			"course": {
+				"id" : "1.1.1",
+				"title": "Structural Biology",
+				"parts": []
+			},
+			"department": "Doctoral Training School",
+			"notes": "I think this is currently a good idea as...",
+			"date": "1277467381",
+			"term": {
+				"id": 34,
+				"name": "Michaelmas 2010"
+			}
+		}
+]

@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Pending Acceptances</title>
+		
+		<link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css"/>
+		<link rel="stylesheet" type="text/css" href="tool_base.css"/>
+		<link rel="stylesheet" type="text/css" href="tool.css"/>
+		<link rel="stylesheet" type="text/css" href="lib/dataTables-1.6/media/demo_table.css"/>
+		
+		
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">
+		</script>
+		<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js">
+		</script>
+		<script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js">
+		</script>
+		<script type="text/javascript" src="lib/dataTables-1.6/media/js/jquery.dataTables.js">
+		</script>
+		
+		<script type="text/javascript">
+			jQuery(function(){
+				jQuery("#pending-table").dataTable( {
+					bProcessing: true,
+					sAjaxSource: "data/accept/pending.json",
+					fnServerData: function( sSource, aoData, fnCallback ) {
+						jQuery.ajax( {
+							dataType: "json",
+							type: "GET",
+							url: sSource,
+							success: function(data) {
+								console.log(data);
+								return {
+									
+								}
+							}
+						})
+					}
+				} );
+			});
+		</script>
+		
+        <style type="text/css">
+        
+        </style>
+    </head>
+    <body>
+    	<div id="toolbar" >
+        	<ul class="navIntraTool actionToolBar">
+            <li><span><a href="#">Course Signup</a></span></li>
+            <li><span>My Courses</span></li>
+            <li><span><a href="#">Pending Acceptances</a></span></li>
+            <li><span><a href="#">Course Administration</a></span></li>
+			</ul>
+        </div>
+		<div>
+			<p>These are the students who have signed up for a course that need your approval.</p>
+		</div>
+		<table id="pending-table">
+			<thead>
+				<tr>
+				<th>1</th>
+				<th>2</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+		
+		
+    </body>
+</html>

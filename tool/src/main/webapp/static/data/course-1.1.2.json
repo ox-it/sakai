@@ -1,0 +1,94 @@
+{
+	"id": "1",
+	"title": "Scientific Computing in Matlab",
+	"department": "Doctoral Training School",
+	"places": "0",
+	"signup": {
+		"from": "13th September 2010",
+		"to": "29th September 2010",
+		"now": "27th August 2010"
+	},
+	"parts": [
+		{
+		"type": {
+					"id": "seminar",
+					"name": "Seminars"
+		},
+		"options": [
+			{
+				"id": "1",
+				"time": "Monday 10am (1 hour)",
+				"sessions": 8,
+				"term": "Michaelmas 2010",
+				"lecturer": {
+					"id": "1",
+					"name": "John Smith",
+					"email": "john.smith@dept.ox.ac.uk"
+				},
+				"places": "1"
+			},
+			{
+				"id": "2",
+				"time": "Thursday 3pm (1 hour)",
+				"sessions": 8,
+				"term": "Michaelmas 2010",
+				"lecturer": {
+					"id": "2",
+					"name": "Dr Pat Body",
+					"email": "patrick.body@dept.ox.ac.uk"
+				},
+				"places": "0"
+			}
+		]
+		},
+		{
+		"type": {
+					"id": "lecture",
+					"name": "Lectures"
+		},
+		"options": [
+			{
+				"id": "3",
+				"time": "Tuesday 2pm (1 hour)",
+				"sessions": "9",
+				"term": "Michaelmas 2010",
+				"lecturer": {
+					"id": "1",
+					"name": "John Smith",
+					"email": "john.smith@dept.ox.ac.uk"
+				},
+				"places": "0",
+				"type": {
+					"id": "lecture",
+					"name": "Lectures"
+				}
+			}
+		]
+		}
+	],
+	"administrators": [
+		{
+			"id": "1",
+			"name": "Jane Broad",
+			"email": "jane.broad@dept.ox.ac.uk"
+		},
+		{
+			"id": "2",
+			"name": "Emily Cope",
+			"email": "emily.cope@dept.ox.ac.uk"
+		}
+	],
+	"teachers": [
+		{
+			"id": "3",
+			"name": "Dr J. Smith",
+			"email": "john.smith@dept.ox.ac.uk"
+		},
+		{
+			"id": "4",
+			"name": "Dr. Pat Body",
+			"email": "patrick.body@dept.ox.ac.uk"
+		}
+	],
+	"description": "Introduction to matlab; introduction to scientific programming. Revision of elementary mathematics including: basic statistical analyses and data summary; functions; numerical linear algebra; numerical solution of ordinary differential equations; discrete and stochastic modelling; analytical methods in applied mathematics including dimensional analysis and asymptotic methods;  principles of software engineering."
+}
