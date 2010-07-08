@@ -129,6 +129,9 @@ public class CourseResource {
 
 	private String summary(Date now, CourseGroup courseGroup) {
 		// Calculate the summary based on the available components.
+		if (courseGroup.getComponents().isEmpty()) {
+			return "none available";
+		}
 		Date nextOpen = new Date(Long.MAX_VALUE);
 		Date willClose = new Date(0);
 		boolean isOneOpen = false;

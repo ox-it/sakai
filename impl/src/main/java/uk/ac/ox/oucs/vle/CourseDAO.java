@@ -29,6 +29,10 @@ public interface CourseDAO {
 	CourseSignupDAO findSignupById(String signupId);
 
 	List<CourseSignupDAO> findSignupForUser(String userId, Set<Status> statuses);
+
+	CourseGroupDAO newCourseGroup(String id, String title, String dept);
+
+	void save(CourseGroupDAO groupDao);
 	
 
 }

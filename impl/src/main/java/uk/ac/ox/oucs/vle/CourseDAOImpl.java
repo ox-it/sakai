@@ -7,11 +7,10 @@ import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
-import org.hibernate.transform.ResultTransformer;
+import org.hibernate.criterion.Order;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -57,6 +56,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				criteria.add(Expression.eq("dept", deptId));
 				criteria.setFetchMode("components", FetchMode.JOIN);
 				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+				criteria.addOrder(Order.asc("title"));
 				return criteria.list();
 			}
 			
@@ -99,6 +99,18 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				return criteria.list();
 			}
 		});
+	}
+
+	public CourseGroupDAO newCourseGroup(String id, String title, String dept) {
+		CourseGroupDAO groupDao = new CourseGroupDAO();
+		groupDao.setId(id);
+		groupDao.setTitle(title);
+		groupDao.setDept(dept);
+		return groupDao;
+	}
+
+	public void save(CourseGroupDAO groupDao) {
+		getHibernateTemplate().save(groupDao);
 	}
 
 }

@@ -71,4 +71,12 @@ public class CourseComponentImpl implements CourseComponent {
 		return dao.getComponentId(); 
 	}
 
+	public String getWhen() {
+		return dao.getProperties().get("when");
+	}
+
+	public String getSessions() {
+		return dao.getProperties().get("sessions");
+	}
+
 }

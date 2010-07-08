@@ -21,6 +21,10 @@ public interface CourseComponent {
 	public Date getOpens();
 	
 	public Date getCloses();
+	
+	public String getWhen();
+	
+	public String getSessions();
 
 	/**
 	 * The ID of the component set that this component belongs to.

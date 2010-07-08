@@ -35,8 +35,7 @@ public class CourseGroupImpl implements CourseGroup {
 	}
 
 	public String getDepartmentCode() {
-		// TODO Auto-generated method stub
-		return null;
+		return courseGroupDAO.getDept();
 	}
 
 	public List<CourseComponent> getComponents() {
