@@ -28,13 +28,13 @@
 						jQuery.getJSON("/course-signup/rest/course/"+ id, {range: "UPCOMING"}, function(data){
 							// Preprocess the data.
 							data.full = data.places < 1;
-							data.teachers = [];
+							data.presenters = [];
 							data.administrators = [];
 							var parts = [];
 							for(var componentIdx in data.components) {
 								var component = data.components[componentIdx];
 								if (component.presenter) {
-									data.teachers.push(component.presenter);
+									data.presenters.push(component.presenter);
 								}
 								if(component.administrator) {
 									data.administrators.push(component.administrator);
@@ -291,8 +291,8 @@
                             Lecturers
                         </th>
                         <td>
-                            {for teacher in teachers}
-								<a href="mailto:${teacher.email}">${teacher.name}</a>
+                            {for presenter in presenters}
+								<a href="mailto:${presenter.email}">${presenter.name}</a>
 							{/for}
                         </td>
                     </tr>
