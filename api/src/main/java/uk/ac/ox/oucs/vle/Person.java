@@ -11,7 +11,7 @@ public interface Person {
 
 	public String getId();
 	
-	public String getDisplayName();
+	public String getName();
 	
 	public String getEmail();
 }

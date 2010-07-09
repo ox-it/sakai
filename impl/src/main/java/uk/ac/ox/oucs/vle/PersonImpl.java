@@ -15,7 +15,7 @@ public class PersonImpl implements Person {
 	public String getId() {
 		return id;
 	}
-	public String getDisplayName() {
+	public String getName() {
 		return displayName;
 	}
 	public String getEmail() {
