@@ -28,10 +28,10 @@ INSERT INTO course_prop(id,name,value) VALUES ('course-1', 'desc', 'Lorem ipsum 
 INSERT INTO course_prop(id,name,value) VALUES ('course-2', 'desc', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus tortor sapien, vestibulum non vestibulum eget, scelerisque quis enim. Donec congue sollicitudin magna, sagittis facilisis metus commodo sit amet. Fusce egestas, dolor ac suscipit condimentum, ipsum lacus iaculis mi, non facilisis felis tortor blandit libero. In euismod lorem ac dolor fringilla viverra. Maecenas varius viverra pretium. Ut eu massa neque. Aliquam erat volutpat. Morbi eget metus ac sem accumsan mattis vitae ac dolor. Praesent sed pellentesque dui. Praesent non faucibus nisl. Vestibulum purus purus, porttitor et sodales eu, sollicitudin at velit. Suspendisse potenti.');
 
 INSERT INTO course_prop(id, name, value) VALUES ('comp-1','teacher.email', 'some.body@dep.ox.ac.uk');
-INSERT INTO course_prop(id, name, value) VALUES ('comp-1','teacher.name', 'some.body@dep.ox.ac.uk');
+INSERT INTO course_prop(id, name, value) VALUES ('comp-1','teacher.name', 'Some Body');
 
 INSERT INTO course_prop(id, name, value) VALUES ('comp-2','teacher.email', 'some.body@dep.ox.ac.uk');
-INSERT INTO course_prop(id, name, value) VALUES ('comp-2','teacher.name', 'some.body@dep.ox.ac.uk');
+INSERT INTO course_prop(id, name, value) VALUES ('comp-2','teacher.name', 'Some Body');
 
 INSERT INTO course_prop(id, name, value) VALUES ('comp-2', 'sessions', '8');
 INSERT INTO course_prop(id, name, value) VALUES ('comp-2', 'when', 'Monday 1pm (1 hour)');
