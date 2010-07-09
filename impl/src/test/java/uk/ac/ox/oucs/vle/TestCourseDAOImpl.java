@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import uk.ac.ox.oucs.vle.CourseSignupService.Range;
+
 public class TestCourseDAOImpl extends TestOnSampleData {
 
 	CourseDAOImpl courseDao;
@@ -28,7 +30,7 @@ public class TestCourseDAOImpl extends TestOnSampleData {
 	}
 	
 	public void testCoursesInDept() {
-		List<CourseGroupDAO> groups = courseDao.findCourseGroupByDept("3C05");
+		List<CourseGroupDAO> groups = courseDao.findCourseGroupByDept("3C05", Range.UPCOMING, END_MIC_2010);
 		assertEquals(2, groups.size());
 	}
 	

@@ -56,8 +56,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return signups;
 	}
 
-	public CourseGroup getCourseGroup(String courseId) {
-		CourseGroupDAO courseGroupDao = dao.findCourseGroupById(courseId);
+	public CourseGroup getCourseGroup(String courseId, Range range) {
+		CourseGroupDAO courseGroupDao = dao.findCourseGroupById(courseId, range, getNow());
 		CourseGroup courseGroup = null;
 		if (courseGroupDao != null) {
 			courseGroup = new CourseGroupImpl(courseGroupDao, this);
@@ -153,7 +153,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public List<CourseGroup> getCourseGroups(String deptId, Range range) {
-		List<CourseGroupDAO> cgDaos = dao.findCourseGroupByDept(deptId);
+		List<CourseGroupDAO> cgDaos = dao.findCourseGroupByDept(deptId, range, getNow());
 		List<CourseGroup> cgs = new ArrayList<CourseGroup>(cgDaos.size());
 		for (CourseGroupDAO cgDao: cgDaos) {
 			cgs.add(new CourseGroupImpl(cgDao, this));

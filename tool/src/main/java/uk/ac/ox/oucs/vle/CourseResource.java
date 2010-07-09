@@ -10,6 +10,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -46,8 +47,8 @@ public class CourseResource {
 	@Path("/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public StreamingOutput getCourse(@PathParam("id") final String courseId) {
-		final CourseGroup course = courseService.getCourseGroup(courseId);
+	public StreamingOutput getCourse(@PathParam("id") final String courseId, @QueryParam("range") final Range range) {
+		final CourseGroup course = courseService.getCourseGroup(courseId, range);
 		if (course == null) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
@@ -59,52 +60,19 @@ public class CourseResource {
 		};
 	}
 
-	// Need to get all the assessment units for a dept.
-	@Path("/dept/{deptId}")
-	@GET
-	public Response getCourses(@PathParam("deptId") String deptId) {
-		courseService.getCourseGroups(deptId, Range.ALL);
-		return null;
-	}
-
 	/**
 	 * This gets all the courses for a department that have upcoming
 	 * parts.
 	 * @param deptId The department to load the courses for.
 	 * @return An array of jsTree nodes.
 	 */
-	@Path("/dept/{deptId}/upcoming")
+	@Path("/dept/{deptId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@GET
-	public StreamingOutput getCoursesUpcoming(@PathParam("deptId") final String deptId) {
+	public StreamingOutput getCoursesUpcoming(@PathParam("deptId") final String deptId, @QueryParam("components") final Range range) {
 		
-		final List<CourseGroup> courses = courseService.getCourseGroups(deptId, Range.UPCOMING);
-		
-		return new StreamingOutput() {
-			
-			public void write(OutputStream out) throws IOException {
-				
-				Date now = courseService.getNow();
-				
-				JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
-				gen.writeStartArray();
-				for (CourseGroup courseGroup : courses) {
-					gen.writeStartObject();
-					
-					gen.writeObjectFieldStart("attr");
-					gen.writeObjectField("id", courseGroup.getId());
-					gen.writeEndObject();
-					
-					String detail = summary(now, courseGroup);
-					gen.writeObjectField("data", courseGroup.getTitle() + " ("+detail+")");
-					
-					gen.writeEndObject();
-				}
-				gen.writeEndArray();
-				gen.close();
-			}
-
-		};
+		final List<CourseGroup> courses = courseService.getCourseGroups(deptId, range);
+		return new GroupsStreamingOutput(courses, deptId, range.name());
 	}
 	
 
@@ -157,5 +125,43 @@ public class CourseResource {
 			detail = "open in "+ formatDuration(until);
 		}
 		return detail;
+	}
+
+	private class GroupsStreamingOutput implements StreamingOutput {
+		private final List<CourseGroup> courses;
+		private final String deptId;
+		private final String range;
+	
+		private GroupsStreamingOutput(List<CourseGroup> courses, String deptId, String range) {
+			this.courses = courses;
+			this.deptId = deptId;
+			this.range = range;
+		}
+	
+		public void write(OutputStream out) throws IOException {
+			
+			Date now = courseService.getNow();
+			
+			JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
+			gen.writeStartObject();
+			gen.writeObjectField("dept", deptId);
+			gen.writeObjectField("range", range);
+			gen.writeArrayFieldStart("tree");
+			for (CourseGroup courseGroup : courses) {
+				gen.writeStartObject();
+				
+				gen.writeObjectFieldStart("attr");
+				gen.writeObjectField("id", courseGroup.getId());
+				gen.writeEndObject();
+				
+				String detail = summary(now, courseGroup);
+				gen.writeObjectField("data", courseGroup.getTitle() + " ("+detail+")");
+				
+				gen.writeEndObject();
+			}
+			gen.writeEndArray();
+			gen.writeEndObject();
+			gen.close();
+		}
 	}
 }

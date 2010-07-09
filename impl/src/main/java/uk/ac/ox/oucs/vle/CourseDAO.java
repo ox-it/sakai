@@ -4,15 +4,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 public interface CourseDAO {
 
+	CourseGroupDAO findCourseGroupById(String courseId, Range range, Date now);
+	
 	CourseGroupDAO findCourseGroupById(String courseId);
 	
 	CourseGroupDAO findAvailableCourseGroupById(String courseId);
 	
-	List<CourseGroupDAO> findCourseGroupByDept(String dept);
+	List<CourseGroupDAO> findCourseGroupByDept(String dept, Range range, Date now);
 
 	List<CourseComponentDAO> findOpenComponents(String id, Date at);
 

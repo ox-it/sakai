@@ -8,9 +8,9 @@ public interface CourseSignupService {
 	
 	public static enum Status {PENDING, WITHDRAWN, APPROVED, ACCEPTED};
 	
-	public static enum Range {ALL, UPCOMING};
+	public static enum Range {ALL, UPCOMING, PREVIOUS};
 
-	public CourseGroup getCourseGroup(String courseId);
+	public CourseGroup getCourseGroup(String courseId, Range range);
 	
 	/**
 	 * This loads a course group with only the data that is available at the moment.

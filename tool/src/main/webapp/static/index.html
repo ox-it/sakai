@@ -22,11 +22,10 @@
 		<script type="text/javascript">
 			jQuery(function() {
 				jQuery.getJSON("data/department-tree.json", function(treedata) {
-					jQuery("#tree")
-					.bind("select_node.jstree", function(event, data) {
-			 		    console.log(data.inst.get_selected()[0].id);
+					jQuery("#tree").bind("select_node.jstree", function(event, data) {
+			 		    //console.log(data.inst.get_selected()[0].id);
 						var id = data.inst.get_selected()[0].id;
-						jQuery.getJSON("/course-signup/rest/course/"+ id, function(data){
+						jQuery.getJSON("/course-signup/rest/course/"+ id, {range: "UPCOMING"}, function(data){
 							// Preprocess the data.
 							data.full = data.places < 1;
 							data.teachers = [];
@@ -62,7 +61,7 @@
 							data.parts = parts;
 							
 							var output = TrimPath.processDOMTemplate("details-tpl", data);
-							console.log(output.toString());
+							//console.log(output.toString());
                             jQuery("#details").html(output);
                             jQuery("#signup").submit(function(){
                                 var radioSelected = {};
@@ -100,14 +99,36 @@
                             });
 						});
 					 })
+					.bind("open_node.jstree", function (event, data) {
+						console.log(data);
+						console.log(event);
+					})
 				 	.jstree({
 						json_data: {
 							data: treedata,
 							ajax: {
 								url: function (n) {
-									return "/course-signup/rest/course/dept/"+ n.attr("id") + "/upcoming";
+									var id = n.attr("id");
+									id = id.replace(/-PREVIOUS$/, "");
+									return "/course-signup/rest/course/dept/"+ id;
 								},
-								dataType: "json"
+								data: function(n) {
+									if (n.attr("id").match(/-PREVIOUS$/)) {
+										return {components: "PREVIOUS"};
+									}
+									return {components: "UPCOMING"};
+								},
+								dataType: "json",
+								success: function (data) {
+									if ("UPCOMING" == data.range) {
+										data.tree.push({
+											"attr":{"id": data.dept+"-PREVIOUS"},
+											"data":"Old",
+											"state": "closed"
+										})
+									}
+									return data.tree;
+								}
 							}
 							//correct_state: true
 						},
