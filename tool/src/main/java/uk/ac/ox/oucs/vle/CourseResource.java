@@ -103,6 +103,7 @@ public class CourseResource {
 		Date nextOpen = new Date(Long.MAX_VALUE);
 		Date willClose = new Date(0);
 		boolean isOneOpen = false;
+		boolean areSomePlaces = false;
 		for (CourseComponent component: courseGroup.getComponents()) {
 			// Check if component is the earliest one opening in the future.
 			if (component.getOpens().after(now) && component.getOpens().before(nextOpen)) {
@@ -114,12 +115,19 @@ public class CourseResource {
 			}
 			if (!isOneOpen && component.getOpens().before(now) && component.getCloses().after(now)) {
 				isOneOpen = true;
+				if (component.getPlaces() > 0) {
+					areSomePlaces = true;
+				}
 			}
 		}
 		String detail = null;
 		if (isOneOpen) {
-			long remaining = willClose.getTime() - now.getTime();
-			detail = "close in "+ formatDuration(remaining);  
+			if (areSomePlaces) {
+				long remaining = willClose.getTime() - now.getTime();
+				detail = "close in "+ formatDuration(remaining);
+			} else {
+				detail = "full";
+			}
 		} else {
 			long until = nextOpen.getTime() - now.getTime();
 			detail = "open in "+ formatDuration(until);
