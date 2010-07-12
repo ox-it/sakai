@@ -747,18 +747,31 @@ public class UiSelection extends UiComponent implements Selection
 					break;
 				}
 			}
-			if (hasContained)
+
+			if (this.submitDestination != null)
 			{
-				onclick = "onclick=\"ambrosiaSelectDependencies(this.value, " + dependencyId + ")\" ";
-			}
-			else if (this.submitDestination != null)
-			{
+				onclick = "onclick=\"";
+				if (hasContained)
+				{
+					onclick += "ambrosiaSelectDependencies(this.value, " + dependencyId + ");";
+				}
+
 				String destination = this.submitDestination.getDestination(context, focus);
-				onclick = "onclick=\"ambrosiaSubmit('" + destination + "')\" ";
+				onclick += "ambrosiaSubmit('" + destination + "')\" ";
 			}
 			else if (this.submitValue)
 			{
-				onclick = "onclick=\"ambrosiaSubmit(this.value)\" ";
+				onclick = "onclick=\"";
+				if (hasContained)
+				{
+					onclick += "ambrosiaSelectDependencies(this.value, " + dependencyId + ");";
+				}
+
+				onclick += "ambrosiaSubmit(this.value)\" ";
+			}
+			else if (hasContained)
+			{
+				onclick = "onclick=\"ambrosiaSelectDependencies(this.value, " + dependencyId + ")\" ";
 			}
 			else if (includeSelectAll)
 			{
