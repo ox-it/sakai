@@ -98,6 +98,16 @@ Items in a container.
 }
 
 /*
+Items in a container - indented.
+*/
+.ambrosiaContainerComponentIndented
+{
+	margin-bottom: 1em;
+	clear: both;
+	margin-left: 2em;
+}
+
+/*
 For component titles.
 */
 .ambrosiaComponentTitle

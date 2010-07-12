@@ -56,15 +56,18 @@ public class UiSelection extends UiComponent implements Selection
 	{
 		Container container;
 
+		boolean indented = false;
+
 		boolean reversed = false;
 
 		boolean separate = false;
 
-		ContainerRef(Container c, boolean separate, boolean reversed)
+		ContainerRef(Container c, boolean separate, boolean reversed, boolean indented)
 		{
 			this.container = c;
 			this.separate = separate;
 			this.reversed = reversed;
+			this.indented = indented;
 		}
 	}
 
@@ -290,6 +293,7 @@ public class UiSelection extends UiComponent implements Selection
 						Container container = null;
 						boolean separate = false;
 						boolean reversed = false;
+						boolean indented = false;
 						Element containerXml = XmlHelper.getChildElementNamed(innerXml, "container");
 						if (containerXml != null)
 						{
@@ -299,9 +303,12 @@ public class UiSelection extends UiComponent implements Selection
 							String reversedCode = StringUtil.trimToNull(containerXml.getAttribute("reversed"));
 							reversed = "TRUE".equals(reversedCode);
 
+							String indentedCode = StringUtil.trimToNull(containerXml.getAttribute("indented"));
+							indented = "TRUE".equals(indentedCode);
+
 							container = new UiContainer(service, innerXml);
 						}
-						this.selectionContainers.add(new ContainerRef(container, separate, reversed));
+						this.selectionContainers.add(new ContainerRef(container, separate, reversed, indented));
 					}
 				}
 			}
@@ -431,7 +438,7 @@ public class UiSelection extends UiComponent implements Selection
 	{
 		this.selectionValues.add(value);
 		this.selectionMessages.add(selector);
-		this.selectionContainers.add(new ContainerRef(new UiContainer(), false, false));
+		this.selectionContainers.add(new ContainerRef(new UiContainer(), false, false, false));
 
 		return this;
 	}
@@ -866,7 +873,17 @@ public class UiSelection extends UiComponent implements Selection
 					// render the dependent components
 					for (Component c : containerRef.container.getContained())
 					{
-						if (containerRef.separate) response.println("<div class=\"ambrosiaContainerComponent\">");
+						if (containerRef.separate)
+						{
+							if (containerRef.indented)
+							{
+								response.println("<div class=\"ambrosiaContainerComponentIndented\">");
+							}
+							else
+							{
+								response.println("<div class=\"ambrosiaContainerComponent\">");
+							}
+						}
 						c.render(context, focus);
 						if (containerRef.separate) response.println("</div>");
 					}

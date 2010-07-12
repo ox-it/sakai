@@ -199,6 +199,7 @@
 <!ELEMENT container (alert | alias | attachments | attachmentsEdit | container | countEdit | countdownTimer | courier | dateEdit | durationEdit | divider | entityActionBar | entityDisplay | entityList | floatEdit | htmlEdit | fileUpload | fillIn | finePrint | gap | iconKey | instructions | match | menuBar | modelComponent | modeBar | navigation | navigationBar | overlay | pager | password | section | selection | text | textEdit | toggle)* >
 <!ATTLIST container separate (TRUE|FALSE) #IMPLIED>
 <!ATTLIST container reversed (TRUE|FALSE) #IMPLIED>
+<!ATTLIST container indented (TRUE|FALSE) #IMPLIED>
 
 <!ELEMENT modeContainer (alert | alias | attachments | attachmentsEdit | countEdit | countdownTimer | courier | dateEdit | durationEdit | divider | entityActionBar | entityDisplay | entityList | floatEdit | htmlEdit | fileUpload | fillIn | finePrint | gap | iconKey | instructions | match | menuBar | modelComponent | modeBar | navigation | navigationBar | overlay | pager | password | section | selection | text | textEdit | toggle)* >
 
