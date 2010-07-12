@@ -75,6 +75,10 @@ public class CourseComponentImpl implements CourseComponent {
 		return dao.getProperties().get("when");
 	}
 
+	public String getSlot() {
+		return dao.getProperties().get("slot");
+	}
+
 	public String getSessions() {
 		return dao.getProperties().get("sessions");
 	}

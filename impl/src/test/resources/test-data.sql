@@ -34,7 +34,8 @@ INSERT INTO course_prop(id, name, value) VALUES ('comp-2','teacher.email', 'some
 INSERT INTO course_prop(id, name, value) VALUES ('comp-2','teacher.name', 'Some Body');
 
 INSERT INTO course_prop(id, name, value) VALUES ('comp-2', 'sessions', '8');
-INSERT INTO course_prop(id, name, value) VALUES ('comp-2', 'when', 'Monday 1pm (1 hour)');
+INSERT INTO course_prop(id, name, value) VALUES ('comp-2', 'slot', 'Monday 1pm (1 hour)');
+INSERT INTO course_prop(id, name, value) VALUES ('comp-2', 'when', 'Michaelmas 2010');
 
 INSERT INTO course_signup(id, userId, status, supervisorId) VALUES ('signup1', 'current', 'ACCEPTED', '1');
 

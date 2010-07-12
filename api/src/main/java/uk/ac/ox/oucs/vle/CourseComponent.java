@@ -22,9 +22,13 @@ public interface CourseComponent {
 	
 	public Date getCloses();
 	
+	public String getSlot();
+	
 	public String getWhen();
 	
 	public String getSessions();
+	
+	
 
 	/**
 	 * The ID of the component set that this component belongs to.
