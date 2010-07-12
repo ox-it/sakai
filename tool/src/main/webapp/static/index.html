@@ -21,6 +21,77 @@
 		
 		<script type="text/javascript">
 			jQuery(function() {
+				
+				/**
+				 * Compare two users to see if they are equal.
+				 * @param {Object} user1
+				 * @param {Object} user2
+				 */
+				var compareUser = function(user1, user2) {
+					return (user1.id == user2.id && user1.name == user2.name && user1.email == user2.email);
+				}
+				
+				/**
+				 * Check is an object exists as a value in an array.
+				 * @param {Object} array The array to look in.
+				 * @param {Object} object To object to look for.
+				 * @param {Object} compare A function to compare objects which returns true when they are the same.
+				 */
+				var inArray = function(array, object, compare) {
+					for (var i in array) {
+						if (compare(object, array[i])) {
+							return true;
+						}
+					}
+					return false;
+				}
+				
+                var confirmSetup = function(){
+                    var signupConfirm = jQuery("#signup-confirm");
+                    
+                    signupConfirm.find(".cancel").click(function(event){
+                        jQuery("#parts-confirm").jqmHide();
+                        event.stopPropagation();
+                        return false;
+                    });
+                    signupConfirm.submit(function(event){
+                        // Need todo validation 
+                        var form = jQuery(this);
+                        var error = false;
+                        form.find(".error").remove();
+                        form.find(".msg").remove()
+                        form.find(".valid-email").each(function(){
+                            console.log(this);
+                            var current = jQuery(this);
+                            if (current.val().length == 0) {
+                                current.after('<span class="error">* required</span>');
+                                error = true;
+                            }
+                            else {
+                                if (!/^([a-zA-Z0-9_.-])+@([a-zA-Z0-9_.-])+\.([a-zA-Z])+([a-zA-Z])+/.test(current.val())) {
+                                    current.after('<span class="error">not a valid email</span>');
+                                    error = true;
+                                }
+                            }
+                        });
+                        
+                        if (error) {
+                            return false;
+                        }
+                        
+                        //form.find("input:submit:first").attr("disabled", "true").before('<img class="loader" src="images/loader.gif"/>');
+                        var components = jQuery("#parts-confirm").data("components");
+                        var email = jQuery("input[name=supervisor-email]").first().val();
+                        var note = jQuery("input[name=supervisor-note]").first().val();
+						console.log(form.serialize());
+                        jQuery.post("/course-signup/rest/signup/new", form.serialize(), function(){
+                            form.find("input:submit").removeAttr("disabled");
+                            form.find(".loader").remove();
+                        });
+                        return false;
+                    });
+                };
+				
 				jQuery.getJSON("data/department-tree.json", function(treedata) {
 					jQuery("#tree").bind("select_node.jstree", function(event, data) {
 			 		    //console.log(data.inst.get_selected()[0].id);
@@ -33,10 +104,10 @@
 							var parts = [];
 							for(var componentIdx in data.components) {
 								var component = data.components[componentIdx];
-								if (component.presenter) {
+								if (component.presenter && !inArray(data.presenters, component.presenter, compareUser)) {
 									data.presenters.push(component.presenter);
 								}
-								if(component.administrator) {
+								if(component.administrator && !inArray(data.administrators, component.administrator, compareUser)) {
 									data.administrators.push(component.administrator);
 								}
 								if (component.componentSet) {
@@ -64,38 +135,51 @@
 							//console.log(output.toString());
                             jQuery("#details").html(output);
                             jQuery("#signup").submit(function(){
-                                var radioSelected = {};
-                                var errorFound = false;
-								var selectedParts = [];
-                                jQuery("#signup input:radio").each(function(){
-                                    var name = this.name;
-                                    if (!radioSelected[name]) {
-                                        radioSelected[name] = this.checked;
-										// Save the selected parts so we can populate the popup.
-										if (this.checked) {
-											selectedParts[selectedParts.length]=jQuery(this).parents("tr:first").find(".option-details").html();
+								try {
+									var radioSelected = {};
+									var errorFound = false;
+									var selectedParts = [];
+									var selectedPartIds = [];
+									jQuery("#signup input:radio").each(function(){
+										var name = this.name;
+										if (!radioSelected[name]) {
+											radioSelected[name] = this.checked;
+											// Save the selected parts so we can populate the popup.
+											if (this.checked && this.value != "none") {
+												selectedParts[selectedParts.length] = jQuery(this).parents("tr:first").find(".option-details").html();
+												selectedPartIds.push(this.value);
+											}
 										}
-                                    }
-                                    console.log(name + " " + radioSelected[name]);
-                                });
-                                for (radio in radioSelected) {
-                                    if (!radioSelected[radio]) {
-                                        errorFound = true;
-                                        jQuery("#parts .error").show().html("Error");
-                                    }
-                                }
-                                if (!errorFound) {
-                                    jQuery("#parts .error").hide();
-									var listNode = jQuery("#parts-confirm-details").empty()
-										.append( jQuery("#summary h3").clone() )
-										.append("<ul><li>"+ selectedParts.join("</li><li>") + "</li></ul>");
-									
-									// Actually show the dialogue (resized first)
-                                    var dialog = jQuery("#parts-confirm");
-									dialog.height(dialog.innerHeight());
-									dialog.jqmShow();
-                                }
-                                return false;
+										console.log(name + " " + radioSelected[name]);
+									});
+									for (radio in radioSelected) {
+										if (!radioSelected[radio]) {
+											errorFound = true;
+											jQuery("#parts .error").show().html("Error");
+										}
+									}
+									if (!errorFound) {
+										jQuery("#parts .error").hide();
+										var listNode = jQuery("#parts-confirm-details").empty().append(jQuery("#summary h3").clone()).append("<ul><li>" + selectedParts.join("</li><li>") + "</li></ul>");
+										
+										// Actually show the dialogue (resized first)
+										var dialog = jQuery("#parts-confirm");
+										dialog.height(dialog.innerHeight());
+										dialog.data("components", selectedPartIds);
+										var templateData = {
+											"components": selectedParts,
+											"componentIds": selectedPartIds
+										};
+										var confirmText = TrimPath.processDOMTemplate("parts-confirm-tpl", templateData);
+										dialog.html(confirmText);
+										confirmSetup();
+										dialog.jqmShow();
+									}
+									return false;
+								} catch (e) {
+									console.log(e);
+									return false;
+								}
                             });
 						});
 					 })
@@ -146,46 +230,7 @@
 				}
 			);
 			
-			jQuery(function() {
-				var signupConfirm = jQuery("#signup-confirm");
-				
-				signupConfirm.find(".cancel").click(function(event){
-					jQuery("#parts-confirm").jqmHide();
-					event.stopPropagation();
-					return false;
-				});
-				signupConfirm.submit(function(event) {
-					// Need todo validation 
-					var form = jQuery(this);
-					var error = false;
-					form.find(".error").remove();
-					form.find(".msg").remove()
-					form.find(".valid-email").each(function() {
-						console.log(this);
-						var current = jQuery(this);
-						if (current.val().length == 0) {
-							current.after('<span class="error">* required</span>');
-							error = true;
-						} else {
-							if(!/^([a-zA-Z0-9_.-])+@([a-zA-Z0-9_.-])+\.([a-zA-Z])+([a-zA-Z])+/.test(current.val())){
-								current.after('<span class="error">not a valid email</span>');
-								error = true;
-							}
-						}
-					});
-					
-					if (error) {
-						return false;
-					}
-					
-					form.find("input:submit:first").attr("disabled", "true").before('<img class="loader" src="images/loader.gif"/>');
-					setTimeout(function() {
-						form.find("input:submit").removeAttr("disabled");
-						form.find(".loader").remove();
-					}, 1000);
-					return false;
-				});
-			});
+			jQuery();
 		</script>
 		
         <style type="text/css">
@@ -256,29 +301,42 @@
 				
 		<!-- Hidden extra bits -->
 		<div id="parts-confirm"  class="jqmWindow" style="display: none">
-			<div id="parts-confirm-details">
+			
+		</div>
+		
+		<textarea id="parts-confirm-tpl" style="display: none;" rows="0" cols="0">
+			{var textarea = "textarea"}
+			<div>
+				<ul>
+				{for component in components}
+					<li>${component}</li>
+				{/for}
+				</ul>
 			</div>
 			<div>
 			<form id="signup-confirm" action="#">
+				{for componentId in componentIds}
+				<input type="hidden" name="components" value="${componentId}"/>
+				{/for}
 				<table>
 					<tr>
 						<th>
 							<label for="supervisor-email">Supervisor Email</label>
 						</th>
-						<td><input type="text" class="valid-email" name="supervisor-email" id="supervisor-email" size="40"/></td>
+						<td><input type="text" class="valid-email" name="email" id="supervisor-email" size="40"/></td>
 					</tr>
 					<tr>
 						<th>
 							<label for="supervisor-note">Message to supervisor</label>
 						</th>
-						<td><textarea name="supervisor-note" id="supervisor-note" cols="40" rows="8"></textarea></td>
+						<td><${textarea} name="message" id="supervisor-note" cols="40" rows="8"></${textarea}></td>
 					</tr>
 				</table>
 				<input type="submit" value="Confirm Signup"/>
 				<input type="submit" class="cancel" value="Cancel"/>
 			</form>
 			</div>
-		</div>
+		</textarea>
 		
 		<!-- ** Template for displaying a course ** -->
 		<textarea id="details-tpl" style="display:none" rows="0" cols="0">
@@ -342,7 +400,7 @@
 						{for option in part.options}
                         <tr>
                             <td class="option-details">
-                                <label for="seminar-1">${option.when} for ${option.sessions} sessions in ${option.term},
+                                <label for="option-${option.id}">${option.slot} for ${option.sessions} sessions in ${option.when},
 								{if option.presenter}<a href="mailto:${option.presenter.email}">${option.presenter.name}</a>{/if}
 								</label>
                                 <br/>
@@ -352,12 +410,20 @@
                                 ${option.places} places
                             </td>
                             <td>
-                                <input type="radio" name="${part.type.id}" id="option-${option.id}" value="option-${option.id}"
-								 {if part.options.length == 1}checked="true"{/if}
+                                <input type="radio" name="${part.type.id}" id="option-${option.id}" value="${option.id}"
 								 {if full}disabled="true"{/if}/>
                             </td>
                         </tr>
 						{/for}
+						{if parts.length > 1}
+						<tr>
+							<td class="option-details">
+								<label for="option-none-${part.type.id}">Nothing for this option</label>
+							</td>
+							<td>N/A</td>
+							<td><input type="radio" name="${part.type.id}" id="option-none-${part.type.id}" value="none"/></td>
+						</tr>
+						{/if}
 						{/for}
                     </table><input type="submit" value="Signup" {if full}disabled="true"{/if}/>
                 </form>
