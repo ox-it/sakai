@@ -98,12 +98,16 @@
 						var id = data.inst.get_selected()[0].id;
 						jQuery.getJSON("/course-signup/rest/course/"+ id, {range: "UPCOMING"}, function(data){
 							// Preprocess the data.
-							data.full = data.places < 1;
+							var now = new Date().getTime(); //TODO Get this from the server.
+							data.full = true;
+							data.open = false;
 							data.presenters = [];
 							data.administrators = [];
 							var parts = [];
 							for(var componentIdx in data.components) {
 								var component = data.components[componentIdx];
+								
+								// Sort components into sets.
 								if (component.presenter && !inArray(data.presenters, component.presenter, compareUser)) {
 									data.presenters.push(component.presenter);
 								}
@@ -127,6 +131,17 @@
 											}
 										});
 									}
+								}
+								
+								// Work out if it's open.
+								component.open = (now > component.opens && now < component.closes);
+								if (!data.open && component.open) {
+									data.open = true;
+								}
+								// Is there space.
+								component.full = (component.places < 1);
+								if (data.full && !component.full) {
+									data.full = false; // At least one is open 
 								}
 							}
 							data.parts = parts;
@@ -230,7 +245,6 @@
 				}
 			);
 			
-			jQuery();
 		</script>
 		
         <style type="text/css">
@@ -397,6 +411,7 @@
                                 ${part.type.name}
                             </th>
                         </tr>
+						{var oneOpen = false}
 						{for option in part.options}
                         <tr>
                             <td class="option-details">
@@ -404,18 +419,22 @@
 								{if option.presenter}<a href="mailto:${option.presenter.email}">${option.presenter.name}</a>{/if}
 								</label>
                                 <br/>
-                                <span class="location">in Doctoral Training Centre, Rex Richards Building</span>
+                                <span class="location">${option.location}</span>
                             </td>
                             <td>
-                                ${option.places} places
+                            	{if option.full}
+									full
+								{else}
+									${option.places} places
+								{/if}
                             </td>
                             <td>
                                 <input type="radio" name="${part.type.id}" id="option-${option.id}" value="${option.id}"
-								 {if full}disabled="true"{/if}/>
+								 {if option.full || !option.open }disabled="true"{else}{var oneOpen = true}{/if}/>
                             </td>
                         </tr>
 						{/for}
-						{if parts.length > 1}
+						{if parts.length > 1 && oneOpen}
 						<tr>
 							<td class="option-details">
 								<label for="option-none-${part.type.id}">Nothing for this option</label>
@@ -425,7 +444,7 @@
 						</tr>
 						{/if}
 						{/for}
-                    </table><input type="submit" value="Signup" {if full}disabled="true"{/if}/>
+                    </table><input type="submit" value="Signup" {if full || !open}disabled="true"{/if}/>
                 </form>
             </div>
 		</textarea>
