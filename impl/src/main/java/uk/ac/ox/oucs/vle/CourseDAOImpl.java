@@ -165,7 +165,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
-				Query query = session.createQuery(" select distinct cs from CourseSignupDAO cs left join fetch cs.components cc left join fetch cc.groups cg where cc.administrator = :userId and cg.id = :courseId");
+				Query query = session.createQuery(" select distinct cs from CourseSignupDAO cs left join cs.components cc inner join fetch cs.components cc1 left join fetch cc1.groups cg where cc.administrator = :userId and cg.id = :courseId");
 				query.setString("userId", userId);
 				query.setString("courseId", courseId);
 				return query.list();
