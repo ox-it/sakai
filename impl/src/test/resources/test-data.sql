@@ -10,7 +10,7 @@ INSERT INTO course_component(id, title, termcode, opens, closes, size, taken, ad
 INSERT INTO course_component(id, title, termcode, opens, closes, size, taken, administrator, componentId) VALUES('comp-4', 'Lecture on Politics of Brazil', '2011-HIL', DATE_SUB('2011-10-10', INTERVAL 3 WEEK), DATE_SUB('2011-10-10', INTERVAL 1 WEEK), 40, 0, 'd86d9720-eba4-40eb-bda3-91b3145729da', 'tc-1');
 INSERT INTO course_component(id, title, termcode, opens, closes, size, taken, administrator, componentId) VALUES('comp-5', 'Seminar on South American Politics', '2011-HIL', DATE_SUB('2011-10-10', INTERVAL 3 WEEK), DATE_SUB('2011-10-10', INTERVAL 1 WEEK), 45, 0, 'd86d9720-eba4-40eb-bda3-91b3145729da', 'tc-3');
 INSERT INTO course_component(id, title, termcode, opens, closes, size, taken, administrator, componentId) VALUES('comp-6', 'Lecture on Politics of Brazil', '2009-HIL', DATE_SUB('2009-10-10', INTERVAL 3 WEEK), DATE_SUB('2009-10-10', INTERVAL 1 WEEK), 40, 1, 'd86d9720-eba4-40eb-bda3-91b3145729da', 'tc-1');
-INSERT INTO course_component(id, title, termcode, opens, closes, size, taken, administrator, componentId) VALUES('comp-7', 'Seminar on South American Politics', '2009-HIL', DATE_SUB('2009-10-10', INTERVAL 3 WEEK), DATE_SUB('2009-10-10', INTERVAL 1 WEEK), 45, 1, 'c10cdf4b-7c10-423c-8319-2d477051a94e', 'tc-3');
+INSERT INTO course_component(id, title, termcode, opens, closes, size, taken, administrator, componentId) VALUES('comp-7', 'Seminar on South American Politics', '2009-HIL', DATE_SUB('2009-10-10', INTERVAL 3 WEEK), DATE_SUB('2009-10-10', INTERVAL 1 WEEK), 45, 2, 'c10cdf4b-7c10-423c-8319-2d477051a94e', 'tc-3');
 
 INSERT INTO course_component(id, title, termcode, opens, closes, size, taken, administrator, componentId) VALUES('comp-8', 'Seminar on South American Politics', '2010-HIL', DATE_SUB('2010-10-10', INTERVAL 3 WEEK), DATE_SUB('2010-10-10', INTERVAL 1 WEEK), 5, 5, 'd86d9720-eba4-40eb-bda3-91b3145729da', 'tc-3');
 
@@ -50,6 +50,9 @@ INSERT INTO course_prop(id, name, value) VALUES ('comp-9', 'slot', 'Monday 1pm (
 INSERT INTO course_prop(id, name, value) VALUES ('comp-9', 'when', 'Michaelmas 2010');
 
 INSERT INTO course_signup(id, userId, status, supervisorId) VALUES ('signup1', 'current', 'ACCEPTED', '1');
+INSERT INTO course_signup(id, userId, status, supervisorId) VALUES ('signup2', 'current', 'ACCEPTED', '1');
 
 INSERT INTO course_component_signup(signup, component) VALUES ('signup1', 'comp-6');
 INSERT INTO course_component_signup(signup, component) VALUES ('signup1', 'comp-7');
+
+INSERT INTO course_component_signup(signup, component) VALUES ('signup2', 'comp-7');

@@ -31,7 +31,19 @@ public class TestCourseDAOImpl extends TestOnSampleData {
 	
 	public void testCoursesInDept() {
 		List<CourseGroupDAO> groups = courseDao.findCourseGroupByDept("3C05", Range.UPCOMING, END_MIC_2010);
-		assertEquals(2, groups.size());
+		assertEquals(1, groups.size());
+	}
+	
+	public void testAdminCourseGroups() {
+		List<CourseGroupDAO> groups = courseDao.findAdminCourseGroups("d86d9720-eba4-40eb-bda3-91b3145729da");
+		assertEquals(3, groups.size());
+		groups = courseDao.findAdminCourseGroups("c10cdf4b-7c10-423c-8319-2d477051a94e");
+		assertEquals(1, groups.size());
+	}
+	
+	public void testFindSignupByCourse() {
+		List<CourseSignupDAO> signups = courseDao.findSignupByCourse("d86d9720-eba4-40eb-bda3-91b3145729da", "course-1");
+		assertEquals(1,signups.size());
 	}
 	
 }

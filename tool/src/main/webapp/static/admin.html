@@ -1,0 +1,333 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Course Signup</title>
+		
+		<link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css"/>
+		<link rel="stylesheet" type="text/css" href="tool_base.css"/>
+		<link rel="stylesheet" type="text/css" href="tool.css"/>
+		
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">
+		</script>
+		<script type="text/javascript" src="lib/jstree-1.0rc/_lib/jquery.cookie.js">
+		</script>
+		<script type="text/javascript" src="lib/jstree-1.0rc/jquery.jstree.js">
+		</script>
+		<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js">
+		</script>
+		<script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js">
+		</script>
+		<script type="text/javascript" src="lib/dataTables-1.6/js/jquery.dataTables.js">
+		</script>
+		
+		<script type="text/javascript">
+			$(function(){
+
+				var processSignupRow = function(item) {
+					var components = $.map(item.components, function(component) {
+						return component.title;
+					}).join(" ");
+					return [
+							'<a href="mailto:'+item.user.email+ '">'+item.user.name +'</a>',
+							item.supervisor.name,
+							components,
+							item.status,
+							""
+					];
+				};
+
+				var getActions = function(status) {
+					switch (status) {
+					case "PENDING": 
+						return [
+							{
+								"name": "Accept",
+								"action": "/course-signup/rest/signup/accept"
+							},
+							{
+								"name": "Reject",
+								"action": "/course-sgnup/rest/signup/reject"
+							}
+					case "
+					}
+				};
+				// 
+				$("#course-list").html('<table cellpadding="0" cellspacing="0" border="0" class="display" id="course-list-table"></table>');
+				var courseList = $("#course-list-table").dataTable( {
+					"aaData": [
+						["My Test Course", "course-1"],
+						["Another Course", "course-2"]	
+					],
+					"aoColumns": [
+						{
+							"sTitle": "Course"
+						},
+						{
+							"sTitle": "Code",
+							"bVisible": true
+						}
+					],
+					"fnRowCallback": function(nRow, aData, iIndex) {
+						$(nRow).bind("click", {code: aData[1]}, function(e) {
+							var code = e.data.code;
+							// Need to load data about this course. (load the components) and the pending signups.
+							
+							console.log(code);
+							$.getJSON("/course-signup/rest/course/"+code, {range: "ALL"}, function(data) {
+								//console.log(data);
+							});
+							$("#signups").html('<table cellpadding="0" cellspacing="0" border="0" class="display" id="signups-table"></table>');
+							var signups = $("#signups-table").dataTable( {
+								"bProcessing": true,
+								"bPaginate": false,
+								"bLengthChange": false,
+								"bFilter": false,
+								"bSort": false,
+								"bInfo": false,
+								"sAjaxSource": "/course-signup/rest/signup/course/",
+								"aoColumns": [ // Need to have this here at init.
+								              {"sTitle": "Student"},
+								              {"sTitle": "Supervisor"},
+								              {"sTitle": "Components"},
+								              {"sTitle": "Status"},
+								              {"sTitle": "Actions"}
+								],
+								"fnServerData": function(sSource, aoData, fnCallback) {
+									// Load the data an process it.
+									$.getJSON(sSource+code, [], function(data) {
+										console.log(data);
+										var tableData = { // Data for datatables.
+											"aaData": []
+										};
+										for(i in data) {
+											var item = processSignupRow(data[i]);
+											tableData.aaData.push(item);
+										}
+										console.log(tableData);
+										fnCallback(tableData);
+									});
+								}
+							}); 
+						});
+						return nRow;
+					},
+					"bPaginate": false,
+					"bLengthChange": false,
+					"bFilter": false,
+					"bSort": false,
+					"bInfo": false,
+					"bAutoWidth": false
+				});
+			});
+			
+		</script>
+		
+        <style type="text/css">
+            .location {
+                font-size: smaller;
+            }
+			.error {
+				color: red;
+			}
+            
+            table th {
+                text-align: left;
+            }
+            
+            #summary {
+                background: #bbb;
+            }
+			
+			#parts table th {
+				padding: 0.5em;
+			}
+			
+			#parts table td {
+				vertical-align: top;
+				/* Indent all but first line */
+				padding-left: 3em;
+				text-indent: -3em;
+			}
+			
+			#browse {
+				width: 30%;
+				float: left;
+				overflow: hidden;
+			}
+			#details {
+				width: 69%;
+				float: right;
+			}
+			.loader {
+				float: left;
+			}
+			
+			.jqmWindow {
+				z-index: 1000; /* To keep below autocomplete */
+				background: white;
+				overflow: auto;
+				height: 300px;
+			}
+        </style>
+    </head>
+    <body>
+    	<div id="toolbar" >
+        	<ul class="navIntraTool actionToolBar">
+            <li><span><a href="index.html">Course Signup</a></span></li>
+            <li><span><a href="#">My Courses</a></span></li>
+            <li><span><a href="#">Pending Acceptances</a></span></li>
+            <li><span>Course Administration</span></li>
+			</ul>
+        </div>
+		
+        <div id="course-list">
+            <!-- Browse the areas which there are courses -->
+			<div id="tree"></div>
+        </div>
+        <div id="details">
+            <!-- Show details of the course -->
+            <div id="summary">
+            </div>
+            <div id="signups">
+            </div>
+		</div>
+				
+		<!-- Hidden extra bits -->
+		<div id="parts-confirm"  class="jqmWindow" style="display: none">
+			
+		</div>
+		
+		<textarea id="parts-confirm-tpl" style="display: none;" rows="0" cols="0">
+			{var textarea = "textarea"}
+			<div>
+				<ul>
+				{for component in components}
+					<li>${component}</li>
+				{/for}
+				</ul>
+			</div>
+			<div>
+			<form id="signup-confirm" action="#">
+				{for componentId in componentIds}
+				<input type="hidden" name="components" value="${componentId}"/>
+				{/for}
+				<table>
+					<tr>
+						<th>
+							<label for="supervisor-email">Supervisor Email</label>
+						</th>
+						<td><input type="text" class="valid-email" name="email" id="supervisor-email" size="40"/></td>
+					</tr>
+					<tr>
+						<th>
+							<label for="supervisor-note">Message to supervisor</label>
+						</th>
+						<td><${textarea} name="message" id="supervisor-note" cols="40" rows="8"></${textarea}></td>
+					</tr>
+				</table>
+				<input type="submit" value="Confirm Signup"/>
+				<input type="submit" class="cancel" value="Cancel"/>
+			</form>
+			</div>
+		</textarea>
+		
+		<!-- ** Template for displaying a course ** -->
+		<textarea id="details-tpl" style="display:none" rows="0" cols="0">
+            <!-- Show details of the course -->
+            <div id="summary" class="">
+                <h3>${title}</h3>
+                <table width="100%">
+                	<tr>
+                        <th>
+                            Lecturers
+                        </th>
+                        <td>
+                            {for presenter in presenters}
+								<a href="mailto:${presenter.email}">${presenter.name}</a>
+							{/for}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Course Administrators
+                        </th>
+                        <td>
+                            {for admin in administrators}
+								<a href="mailto:${admin.email}">${admin.name}</a>
+							{/for}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Department
+                        </th>
+                        <td>
+                            ${departmentCode}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Signup Available
+                        </th>
+                        <td>
+                            13th September 2010 to 29th September 2010 (opens in 34 days)
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id="description">
+            	<h4>Description</h4>
+				${description}
+            </div>
+			<div id="parts">
+                <h4>Course Parts</h4>
+				<span class="error" style="display:none"></span>
+                <form id="signup" action="#">
+                    <table width="100%">
+                    	{for part in parts}
+						<tr>
+                            <th colspan="3">
+                                ${part.type.name}
+                            </th>
+                        </tr>
+						{var oneOpen = false}
+						{for option in part.options}
+                        <tr>
+                            <td class="option-details">
+                                <label for="option-${option.id}">${option.slot} for ${option.sessions} sessions in ${option.when},
+								{if option.presenter}<a href="mailto:${option.presenter.email}">${option.presenter.name}</a>{/if}
+								</label>
+                                <br/>
+                                <span class="location">${option.location}</span>
+                            </td>
+                            <td>
+                            	{if option.full}
+									full
+								{else}
+									${option.places} places
+								{/if}
+                            </td>
+                            <td>
+                                <input type="radio" name="${part.type.id}" id="option-${option.id}" value="${option.id}"
+								 {if option.full || !option.open }disabled="true"{else}{var oneOpen = true}{/if}/>
+                            </td>
+                        </tr>
+						{/for}
+						{if parts.length > 1 && oneOpen}
+						<tr>
+							<td class="option-details">
+								<label for="option-none-${part.type.id}">Nothing for this option</label>
+							</td>
+							<td>N/A</td>
+							<td><input type="radio" name="${part.type.id}" id="option-none-${part.type.id}" value="none"/></td>
+						</tr>
+						{/if}
+						{/for}
+                    </table><input type="submit" value="Signup" {if full || !open}disabled="true"{/if}/>
+                </form>
+            </div>
+		</textarea>
+		
+    </body>
+</html>

@@ -38,7 +38,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public List<CourseGroup> getAdministering() {
-		// TODO Auto-generated method stub
+		String userId = proxy.getCurrentUser().getId();
+		List <CourseGroupDAO> groupDaos = dao.findAdminCourseGroups(userId);
 		return null;
 	}
 
@@ -57,6 +58,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public CourseGroup getCourseGroup(String courseId, Range range) {
+		if (range == null) {
+			range = Range.UPCOMING;
+		}
 		CourseGroupDAO courseGroupDao = dao.findCourseGroupById(courseId, range, getNow());
 		CourseGroup courseGroup = null;
 		if (courseGroupDao != null) {
@@ -66,8 +70,15 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public List<CourseSignup> getCourseSignups(String courseId) {
-		// TODO Auto-generated method stub
-		return null;
+		// Find all the components and then find all the signups.
+		String userId = proxy.getCurrentUser().getId();
+
+		List<CourseSignupDAO> signupDaos = dao.findSignupByCourse(userId, courseId);
+		List<CourseSignup> signups = new ArrayList<CourseSignup>(signupDaos.size());
+		for(CourseSignupDAO signupDao: signupDaos) {
+			signups.add(new CourseSignupImpl(signupDao, this));
+		}
+		return signups;
 	}
 
 	public void reject(String signupId) {

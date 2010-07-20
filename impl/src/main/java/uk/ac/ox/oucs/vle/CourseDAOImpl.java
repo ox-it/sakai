@@ -8,6 +8,7 @@ import java.util.Set;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
@@ -49,7 +50,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 	public CourseGroupDAO findUpcomingComponents(String courseId, Date available) {
 		List<CourseGroupDAO> courseGroups = getHibernateTemplate().findByNamedParam(
-				"select cg from CourseGroupDAO cg left join fetch cg.components as component where cg.id = :courseId and component.closes > :closes",
+				"select distinct cg from CourseGroupDAO cg left join fetch cg.components as component where cg.id = :courseId and component.closes > :closes",
 				new String[]{"courseId", "closes"}, new Object[]{courseId, available});
 		int results = courseGroups.size();
 		if (results > 0) {
@@ -143,6 +144,34 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 	public void save(CourseGroupDAO groupDao) {
 		getHibernateTemplate().save(groupDao);
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<CourseGroupDAO> findAdminCourseGroups(final String userId) {
+		// Finds all the coursegroups this user can admin.
+		return getHibernateTemplate().executeFind(new HibernateCallback(){
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query query = session.createQuery("select distinct cg from CourseGroupDAO cg left join cg.components c where c.administrator = :userId");
+				query.setString("userId", userId);
+				return query.list();
+			}
+			
+		});
+	}
+
+	public List<CourseSignupDAO> findSignupByCourse(final String userId, final String courseId) {
+		return getHibernateTemplate().executeFind(new HibernateCallback() {
+
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query query = session.createQuery(" select distinct cs from CourseSignupDAO cs left join fetch cs.components cc left join fetch cc.groups cg where cc.administrator = :userId and cg.id = :courseId");
+				query.setString("userId", userId);
+				query.setString("courseId", courseId);
+				return query.list();
+			}
+			
+		});
 	}
 
 }

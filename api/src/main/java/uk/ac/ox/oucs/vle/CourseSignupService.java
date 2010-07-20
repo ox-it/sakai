@@ -41,6 +41,10 @@ public interface CourseSignupService {
 	
 	public void reject(String signupId);
 	
+	/**
+	 * Gets all the CourseGroups that the current user can administer.
+	 * @return
+	 */
 	public List<CourseGroup> getAdministering();
 	
 	public void setSignupStatus(String signupId, Status status);

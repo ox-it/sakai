@@ -36,6 +36,10 @@ public interface CourseDAO {
 	CourseGroupDAO newCourseGroup(String id, String title, String dept);
 
 	void save(CourseGroupDAO groupDao);
+
+	List<CourseGroupDAO> findAdminCourseGroups(String userId);
+
+	List<CourseSignupDAO> findSignupByCourse(String userId, String courseId);
 	
 
 }
