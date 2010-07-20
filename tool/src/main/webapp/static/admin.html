@@ -32,7 +32,7 @@
 				var processSignupRow = function(item) {
 					var components = $.map(item.components, function(component) {
 						return component.title;
-					}).join(" ");
+					}).join("<br>");
 					return [
 							'<a href="mailto:'+item.user.email+ '">'+item.user.name +'</a>',
 							item.supervisor.name,
