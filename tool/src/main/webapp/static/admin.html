@@ -97,13 +97,42 @@
 					"fnRowCallback": function(nRow, aData, iIndex) {
 						$(nRow).bind("click", {code: aData[1]}, function(e) {
 							var code = e.data.code;
-							// Need to load data about this course. (load the components) and the pending signups.
+
+							// Table showing the components.
+							$("#summary").html('<table border="0" class="display" id="summary-table"></table>');
+							var summary = $("#summary-table").dataTable( {
+								"bProcessing": true,
+								"bPaginate": false,
+								"bLengthChange": false,
+								"bFilter": false,
+								"bSort": false,
+								"bInfo": false,
+								"bAutoWidth": false,
+								"sAjaxSource": "/course-signup/rest/course/",
+								"aoColumns": [
+								              {"sTitle": "Component"},
+								              {"sTitle": "Places"},
+								              {"sTitle": "Status"}
+								              ],
+								"fnServerData": function(sSource, aoData, fnCallback) {
+									$.getJSON(sSource+code, [], function(data) {
+										var tableData = {
+												"aaData": []
+										};
+										for(var i in data.components) {
+											var component = data.components[i];
+											tableData.aaData.push([ component.title, component.places, ""]);
+										}
+										fnCallback(tableData);
+									});
+								}
+							});
 							
 							console.log(code);
 							$.getJSON("/course-signup/rest/course/"+code, {range: "ALL"}, function(data) {
 								//console.log(data);
 							});
-							$("#signups").html('<table cellpadding="0" cellspacing="0" border="0" class="display" id="signups-table"></table>');
+							$("#signups").html('<table border="0" class="display" id="signups-table"></table>');
 							var signups = $("#signups-table").dataTable( {
 								"bProcessing": true,
 								"bPaginate": false,
@@ -123,7 +152,6 @@
 								"fnServerData": function(sSource, aoData, fnCallback) {
 									// Load the data an process it.
 									$.getJSON(sSource+code, [], function(data) {
-										console.log(data);
 										var tableData = { // Data for datatables.
 											"aaData": []
 										};

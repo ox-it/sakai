@@ -1,6 +1,7 @@
 package uk.ac.ox.oucs.vle.proxy;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -14,12 +15,13 @@ public class SakaiProxyTest implements SakaiProxy {
 
 	private List<User> users = new ArrayList<User>();
 	
+	public List<Email> emailLog = new ArrayList<Email>();
+	
 	private User current;
 	
 	public SakaiProxyTest() {
 		
 		users.add(new User("current", "user", "Current User", "current.user@coll.ox.ac.uk"));
-		current = users.get(0);
 		
 		users.add(new User("1", "user0001", "Test User One", "test.user.1@dept.ox.ac.uk"));
 		users.add(new User("2", "user0002", "Test User Two", "test.user.2@dept.ox.ac.uk"));
@@ -31,6 +33,7 @@ public class SakaiProxyTest implements SakaiProxy {
 		for (int i = 1; i <=50; i++) {
 			users.add(new User("id"+i, "eid"+i, "Full Name "+ i, "user"+i+"@dept.ox.ac.uk"));
 		}
+		current = users.get(3);
 	}
 		
 	/* (non-Javadoc)
@@ -66,5 +69,13 @@ public class SakaiProxyTest implements SakaiProxy {
 			}
 		}
 		return null;
+	}
+	
+	public void sendEmail(String to, String subject, String body) {
+		emailLog.add(new Email(to, subject, body));
+	}
+	
+	public List<Email> getEmails() {
+		return Collections.unmodifiableList(emailLog);
 	}
 }

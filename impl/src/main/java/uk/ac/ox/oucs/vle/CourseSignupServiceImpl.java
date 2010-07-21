@@ -1,14 +1,20 @@
 package uk.ac.ox.oucs.vle;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.util.ResourceLoader;
 
 import uk.ac.ox.oucs.vle.proxy.SakaiProxy;
 import uk.ac.ox.oucs.vle.proxy.User;
@@ -16,9 +22,12 @@ import uk.ac.ox.oucs.vle.proxy.User;
 public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	private final static Log log = LogFactory.getLog(CourseSignupServiceImpl.class);
+	
+	private final static ResourceBundle rb = ResourceBundle.getBundle("messages");
 
 	private CourseDAO dao;
 	private SakaiProxy proxy;
+	
 	
 	public void setDao(CourseDAO dao) {
 		this.dao = dao;
@@ -29,7 +38,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public void approve(String signupId) {
-		
+		// Will need to decremnt places on a course.
 	}
 
 	public String findSupervisor(String search) {
@@ -105,6 +114,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		
 		// Check they are valid as a choice (in signup period (student), not for same component in same term)
+		// TODO Check they are all have a common course group.
 		Date now = getNow();
 		String userId = proxy.getCurrentUser().getId();
 		for(CourseComponentDAO componentDao: componentDaos) {
@@ -134,14 +144,40 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.getProperties().put("message", message);
 		dao.save(signupDao);
 		
-		// Decrement the places.
+		// For each course admin store all the components they are responsible for.
+		Map<String,Collection<String>> admins = new HashMap<String,Collection<String>>();
+		// We're going to decrement the places on acceptance.
 		for (CourseComponentDAO componentDao: componentDaos) {
-			componentDao.getSignups().add(signupDao); // Link to the signup
-			componentDao.setTaken(componentDao.getTaken()+1); // Increment places 
+			//componentDao.getSignups().add(signupDao); // Link to the signup
+			//componentDao.setTaken(componentDao.getTaken()+1); // Increment places taken
+			String admin = componentDao.getAdministrator();
+			if (!admins.containsKey(admin)) {
+				admins.put(admin, new ArrayList<String>());
+			}
+			admins.get(admin).add(componentDao.getTitle());
 			dao.save(componentDao);
 		}
 		
-		// TODO Send out email message.
+		for (Map.Entry<String, Collection<String>>entry : admins.entrySet()) {
+			String subject = MessageFormat.format(rb.getString("signup.admin.subject"), new Object[]{proxy.getCurrentUser().getName(), null});
+			String adminId = entry.getKey();
+			User user = proxy.findUserById(adminId);
+			if (user == null) {
+				log.warn("Failed to find user for signup: "+ adminId);
+				continue;
+			}
+			String to = user.getEmail();
+			StringBuilder components = new StringBuilder();
+			for(String component : entry.getValue()) {
+				components.append(component);
+				components.append('\n');
+			}
+			String body = MessageFormat.format(rb.getString("signup.admin.body"), new Object[] {
+					proxy.getCurrentUser().getName(),
+					components.toString()
+			});
+			proxy.sendEmail(to, subject, body);
+		} 
 	}
 
 	public void withdraw(String signupId) {
