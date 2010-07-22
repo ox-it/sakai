@@ -14,7 +14,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.util.ResourceLoader;
 
 import uk.ac.ox.oucs.vle.proxy.SakaiProxy;
 import uk.ac.ox.oucs.vle.proxy.User;
@@ -100,18 +99,28 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 
 	}
 
-	public void signup(Set<String> componentIds, String supervisorEmail,
+	public void signup(String courseId, Set<String> componentIds, String supervisorEmail,
 			String message){
+
+		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
+		if (groupDao == null) {
+			throw new IllegalArgumentException("Failed to find group with ID: "+ courseId);
+		}
+		
 		// Need to find all the components.
 		Set<CourseComponentDAO> componentDaos = new HashSet<CourseComponentDAO>(componentIds.size());
 		for(String componentId: componentIds) {
 			CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
 			if (componentDao != null) {
 				componentDaos.add(componentDao);
+				if (!componentDao.getGroups().contains(groupDao)) { // Check that the component is actually part of the set.
+					throw new IllegalArgumentException("The component: "+ componentId+ " is not part of the course: "+ courseId);
+				}
 			} else {
 				throw new IllegalArgumentException("Failed to find component with ID: "+ componentId);
 			}
 		}
+		
 		
 		// Check they are valid as a choice (in signup period (student), not for same component in same term)
 		// TODO Check they are all have a common course group.
@@ -140,6 +149,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		// Create the signup.
 		String supervisorId = supervisor.getId();
 		CourseSignupDAO signupDao = dao.newSignup(userId, supervisorId);
+		signupDao.setGroup(groupDao);
 		signupDao.setStatus(Status.PENDING);
 		signupDao.getProperties().put("message", message);
 		dao.save(signupDao);
@@ -159,7 +169,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		
 		for (Map.Entry<String, Collection<String>>entry : admins.entrySet()) {
-			String subject = MessageFormat.format(rb.getString("signup.admin.subject"), new Object[]{proxy.getCurrentUser().getName(), null});
+			String subject = MessageFormat.format(rb.getString("signup.admin.subject"), new Object[]{proxy.getCurrentUser().getName(), groupDao.getTitle()});
 			String adminId = entry.getKey();
 			User user = proxy.findUserById(adminId);
 			if (user == null) {
@@ -174,7 +184,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			}
 			String body = MessageFormat.format(rb.getString("signup.admin.body"), new Object[] {
 					proxy.getCurrentUser().getName(),
-					components.toString()
+					components.toString(),
+					groupDao.getTitle()
 			});
 			proxy.sendEmail(to, subject, body);
 		} 

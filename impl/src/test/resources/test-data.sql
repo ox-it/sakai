@@ -22,6 +22,7 @@ INSERT INTO course_group_component(course_group, component) VALUES('course-1', '
 INSERT INTO course_group_component(course_group, component) VALUES('course-1', 'comp-5');
 INSERT INTO course_group_component(course_group, component) VALUES('course-1', 'comp-6');
 INSERT INTO course_group_component(course_group, component) VALUES('course-1', 'comp-7');
+INSERT INTO course_group_component(course_group, component) VALUES('course-1', 'comp-8');
 
 INSERT INTO course_group_component(course_group, component) VALUES('course-2', 'comp-2');
 INSERT INTO course_group_component(course_group, component) VALUES('course-2', 'comp-3');
@@ -49,8 +50,8 @@ INSERT INTO course_prop(id, name, value) VALUES ('comp-9', 'sessions', '8');
 INSERT INTO course_prop(id, name, value) VALUES ('comp-9', 'slot', 'Monday 1pm (1 hour)');
 INSERT INTO course_prop(id, name, value) VALUES ('comp-9', 'when', 'Michaelmas 2010');
 
-INSERT INTO course_signup(id, userId, status, supervisorId) VALUES ('signup1', 'current', 'ACCEPTED', '1');
-INSERT INTO course_signup(id, userId, status, supervisorId) VALUES ('signup2', 'current', 'ACCEPTED', '1');
+INSERT INTO course_signup(id, userId, status, supervisorId, groupId) VALUES ('signup1', 'current', 'ACCEPTED', '1', 'course-1');
+INSERT INTO course_signup(id, userId, status, supervisorId, groupId) VALUES ('signup2', 'current', 'ACCEPTED', '1', 'course-1');
 
 INSERT INTO course_component_signup(signup, component) VALUES ('signup1', 'comp-6');
 INSERT INTO course_component_signup(signup, component) VALUES ('signup1', 'comp-7');

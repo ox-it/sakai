@@ -83,6 +83,7 @@
                         
                         //form.find("input:submit:first").attr("disabled", "true").before('<img class="loader" src="images/loader.gif"/>');
                         var components = jQuery("#parts-confirm").data("components");
+                        var courseId = jQuery("input[name=courseId]", this).first().val();
                         var email = jQuery("input[name=supervisor-email]").first().val();
                         var note = jQuery("input[name=supervisor-note]").first().val();
 						console.log(form.serialize());
@@ -185,7 +186,9 @@
 										dialog.data("components", selectedPartIds);
 										var templateData = {
 											"components": selectedParts,
-											"componentIds": selectedPartIds
+											"componentIds": selectedPartIds,
+											"course": data.title,
+											"courseId": id
 										};
 										var confirmText = TrimPath.processDOMTemplate("parts-confirm-tpl", templateData);
 										dialog.html(confirmText);
@@ -322,6 +325,7 @@
 		</div>
 		
 		<textarea id="parts-confirm-tpl" style="display: none;" rows="0" cols="0">
+			<h2>Signup to: ${course}</h2>
 			{var textarea = "textarea"}
 			<div>
 				<ul>
@@ -335,6 +339,7 @@
 				{for componentId in componentIds}
 				<input type="hidden" name="components" value="${componentId}"/>
 				{/for}
+				<input type="hidden" name="courseId" value="${courseId}"/>
 				<table>
 					<tr>
 						<th>

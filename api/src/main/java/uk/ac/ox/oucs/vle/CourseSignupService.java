@@ -29,7 +29,7 @@ public interface CourseSignupService {
 	
 	public String findSupervisor(String search);
 	
-	public void signup(Set<String> components, String supervisorEmail, String message);
+	public void signup(String courseId, Set<String> components, String supervisorEmail, String message);
 	
 	public void withdraw(String signupId);
 	

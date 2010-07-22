@@ -30,6 +30,7 @@
 			<map-key type="string" length="20" column="name" />
 			<element type="text" column="value" />
 		</map>
+		<many-to-one name="group" column="groupId" class="uk.ac.ox.oucs.vle.CourseGroupDAO"/>
 	</class>
 
 	<class name="uk.ac.ox.oucs.vle.CourseComponentDAO" table="course_component">
@@ -83,6 +84,10 @@
 			<key column="course_group" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO"
 				column="component" />
+		</set>
+		<set name="signups" inverse="true">
+			<key column="groupId"/>
+			<one-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"/>
 		</set>
 		<map name="properties" table="course_prop">
 			<key column="id" foreign-key="none" />

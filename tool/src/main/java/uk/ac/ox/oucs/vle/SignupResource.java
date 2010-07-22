@@ -60,8 +60,8 @@ public class SignupResource {
 	
 	@Path("/new")
 	@POST
-	public Response signup(@FormParam("components")Set<String> components, @FormParam("email")String email, @FormParam("message")String message) {
-		courseService.signup(components, email, message);
+	public Response signup(@FormParam("courseId") String courseId, @FormParam("components")Set<String> components, @FormParam("email")String email, @FormParam("message")String message) {
+		courseService.signup(courseId, components, email, message);
 		return Response.ok().build();
 	}
 	
