@@ -65,6 +65,34 @@ public class SignupResource {
 		return Response.ok().build();
 	}
 	
+	@Path("{id}/accept")
+	@POST
+	public Response accept(@PathParam("id") final String signupId) {
+		courseService.accept(signupId);
+		return Response.ok().build();
+	}
+
+	@Path("{id}/reject")
+	@POST
+	public Response reject(@PathParam("id") final String signupId) {
+		courseService.reject(signupId);
+		return Response.ok().build();
+	}
+
+	@Path("{id}/withdraw")
+	@POST
+	public Response withdraw(@PathParam("id") final String signupId) {
+		courseService.withdraw(signupId);
+		return Response.ok().build();
+	}
+
+	@Path("{id}/approve")
+	@POST
+	public Response approve(@PathParam("id") final String signupId) {
+		courseService.approve(signupId);
+		return Response.ok().build();
+	}
+	
 	@Path("/course/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

@@ -17,5 +17,7 @@ public interface CourseSignup {
 	public Status getStatus();
 	
 	public Set<CourseComponent> getComponents();
+	
+	public CourseGroup getGroup();
 
 }

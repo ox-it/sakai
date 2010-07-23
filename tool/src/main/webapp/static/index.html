@@ -48,7 +48,7 @@
 					return false;
 				}
 				
-                var confirmSetup = function(){
+                var confirmSetup = function(dialog){
                     var signupConfirm = jQuery("#signup-confirm");
                     
                     signupConfirm.find(".cancel").click(function(event){
@@ -86,10 +86,11 @@
                         var courseId = jQuery("input[name=courseId]", this).first().val();
                         var email = jQuery("input[name=supervisor-email]").first().val();
                         var note = jQuery("input[name=supervisor-note]").first().val();
-						console.log(form.serialize());
                         jQuery.post("/course-signup/rest/signup/new", form.serialize(), function(){
                             form.find("input:submit").removeAttr("disabled");
                             form.find(".loader").remove();
+                            dialog.jqmHide();
+                            // TODO Need to reload data.
                         });
                         return false;
                     });
@@ -192,7 +193,7 @@
 										};
 										var confirmText = TrimPath.processDOMTemplate("parts-confirm-tpl", templateData);
 										dialog.html(confirmText);
-										confirmSetup();
+										confirmSetup(dialog);
 										dialog.jqmShow();
 									}
 									return false;
@@ -304,7 +305,7 @@
     	<div id="toolbar" >
         	<ul class="navIntraTool actionToolBar">
             <li><span>Course Signup</span></li>
-            <li><span><a href="#">My Courses</a></span></li>
+            <li><span><a href="my.html">My Courses</a></span></li>
             <li><span><a href="#">Pending Acceptances</a></span></li>
             <li><span><a href="admin.html">Course Administration</a></span></li>
             <li><span><a href="debug.html">Debug</a></span></li>

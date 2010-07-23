@@ -27,8 +27,80 @@
 		</script>
 
 <script type="text/javascript">
-			$(function(){
+	$(function() {
 
+		var getActions = function(status, id) {
+			switch (status) {
+				case "PENDING": 
+					return [
+						{
+							"name": "Withdraw",
+							"url": "/course-signup/rest/signup/"+id+"/withdraw"
+							}
+					];
+			}
+			return [];
+		};
+
+		
+		$.getJSON("/course-signup/rest/signup/all", function(data) {
+			// 
+			console.log(data);
+			$("#signups").html('<table border="0" class="display" id="signups-table"></table>');
+			var signups = $("#signups-table").dataTable({
+				"aoColumns": [
+					{"sTitle": "Course"},
+					{"sTitle": "Department"},
+					{"sTitle": "Status"},
+					{"sTitle": "Actions"}
+				],
+				"sAjaxSource": "/course-signup/rest/signup/all",
+				"fnServerData": function(sSource, aoData, fnCallback) {
+					$.getJSON(sSource, function(data) {
+						var tableData = {
+							"aaData": []
+						};
+						$.each(data, function(index, value) {
+							var course = value.group.title +"<br>";
+							if (value.components.length > 0) {
+								course += "<ul>";
+								for(var i in value.components) {
+									var component = value.components[i];
+									course += "<li>"+component.title+"</li>"; // TODO Format component correctly
+								}
+								course += "</ul>";
+							}
+							tableData.aaData.push([course, value.group.departmentCode, value.status,
+								$.map(getActions(value.status, value.id), function(action) {
+									return '<a class="action" href="'+ action.url+ '">'+ action.name+ '</a>';
+								}).join(" / ")
+							]);
+						});
+						console.log(tableData);
+						fnCallback(tableData);
+					});
+				},
+
+				"fnRowCallback": function(nRow, aData, iDisplayIndex) {
+					$("a.action", nRow).bind("click", function(e) {
+						var url = $(this).attr("href");
+						$.ajax({
+							"url": url,
+							"type": "POST",
+							"success": function(data) {
+								console.log("cool, now reload");// TODO Reload page
+							}
+						});
+						return false;
+					});
+					return nRow;
+				}
+			});
+			
+		});
+	});
+			$(function(){
+				return;
 				var processSignupRow = function(item) {
 					var components = $.map(item.components, function(component) {
 						return component.title;
@@ -45,40 +117,6 @@
 					];
 				};
 
-				
-				var getActions = function(status, id) {
-					switch (status) {
-					case "PENDING": 
-						return [
-							{
-								"name": "Accept",
-								"url": "/course-signup/rest/signup/"+id+"/accept"
-							},
-							{
-								"name": "Reject",
-								"url": "/course-sgnup/rest/signup/"+id+"/reject"
-							}
-						];
-					case "ACCEPTED":
-						return [
-							{
-								"name": "Approve",
-								"url": "/course-signup/rest/signup/"+id+"/approve"
-							},
-							{
-								"name": "Reject",
-								"url": "/course-signup/rest/signup/"+id+"/reject"
-							}
-						];
-					case "APPROVED":
-						return [];
-					case "REJECTED":
-						return [];
-					case "WITHDRAWN":
-						return [];
-					}
-					return [];
-				};
 				// 
 				$("#course-list").html('<table cellpadding="0" cellspacing="0" border="0" class="display" id="course-list-table"></table>');
 				var courseList = $("#course-list-table").dataTable( {
@@ -258,19 +296,14 @@ table th {
 <div id="toolbar">
 <ul class="navIntraTool actionToolBar">
 	<li><span><a href="index.html">Course Signup</a></span></li>
-	<li><span><a href="my.html">My Courses</a></span></li>
+	<li><span>My Courses</span></li>
 	<li><span><a href="#">Pending Acceptances</a></span></li>
-	<li><span>Course Administration</span></li>
+	<li><span><a href="admin.html">Course Administration</a></span></li>
 	<li><span><a href="debug.html">Debug</a></span></li>
 </ul>
 </div>
 
-<div id="course-list"><!-- Browse the areas which there are courses -->
-<div id="tree"></div>
-</div>
-<div id="details"><!-- Show details of the course -->
-<div id="summary"></div>
-<div id="signups"></div>
+<div id="signups"><!-- Browse the areas which there are courses -->
 </div>
 
 <!-- Hidden extra bits -->

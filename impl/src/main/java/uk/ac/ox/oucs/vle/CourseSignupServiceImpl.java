@@ -2,6 +2,7 @@ package uk.ac.ox.oucs.vle;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -37,7 +38,58 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public void approve(String signupId) {
-		// Will need to decremnt places on a course.
+		CourseSignupDAO signupDao = dao.findSignupById(signupId);
+		String currentUserId = proxy.getCurrentUser().getId();
+		boolean canApprove = false;
+		if (currentUserId.equals(signupDao)) {
+			canApprove = true;
+		} else {
+			canApprove = isAdministrator(signupDao, currentUserId, canApprove);
+		}
+		if (!canApprove) {
+			throw new IllegalStateException("You are not alloed to approve this signup: "+ signupId);
+		}
+		signupDao.setStatus(Status.APPROVED);
+		dao.save(signupDao);
+		// Send email to student?
+	}
+	
+	public void accept(String signupId) {
+		CourseSignupDAO signupDao = dao.findSignupById(signupId);
+		if (signupDao == null) {
+			// Todo need a notfound runtime exception that can me mapped to a 404 at the resource layer.
+		}
+		String currentUserId = proxy.getCurrentUser().getId();
+		boolean canAccept = false;
+		// If is course admin on one of the components.
+		canAccept = isAdministrator(signupDao, currentUserId, canAccept);
+		if (!canAccept) {
+			throw new IllegalStateException("You aren't an admin on any on the component for signup: "+ signupId);
+		}
+		if (!Status.PENDING.equals(signupDao.getStatus())) {
+			throw new IllegalStateException("You can only accept signups that are pending.");
+		}
+		for (CourseComponentDAO componentDao : signupDao.getComponents()) {
+			componentDao.setTaken(componentDao.getTaken()+1);
+			dao.save(componentDao);
+		}
+		signupDao.setStatus(Status.ACCEPTED);
+		dao.save(signupDao);
+		
+		String supervisorId = signupDao.getSupervisorId();
+		
+		sendSignupEmail(supervisorId, signupDao, "approval.supervisor.subject", "approval.supervisor.body", null);
+	}
+
+	private boolean isAdministrator(CourseSignupDAO signupDao,
+			String currentUserId, boolean canAccept) {
+		for (CourseComponentDAO componentDao : signupDao.getComponents()) {
+			if (componentDao.getAdministrator().equals(currentUserId)) {
+				canAccept = true;
+				break;
+			}
+		}
+		return canAccept;
 	}
 
 	public String findSupervisor(String search) {
@@ -48,7 +100,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public List<CourseGroup> getAdministering() {
 		String userId = proxy.getCurrentUser().getId();
 		List <CourseGroupDAO> groupDaos = dao.findAdminCourseGroups(userId);
-		return null;
+		List<CourseGroup> groups = new ArrayList<CourseGroup>(groupDaos.size());
+		for(CourseGroupDAO groupDao : groupDaos) {
+			groups.add(new CourseGroupImpl(groupDao, this));
+		}
+		return groups;
 	}
 
 	public List<CourseSignup> getApprovals() {
@@ -90,7 +146,33 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public void reject(String signupId) {
-		// TODO Auto-generated method stub
+		String userId = proxy.getCurrentUser().getId();
+		CourseSignupDAO signupDao = dao.findSignupById(signupId);
+		if (signupDao == null) {
+			// TODO Need runtime exception.
+		}
+
+		if (Status.PENDING.equals(signupDao.getStatus())) { // Rejected by administrator.
+			if (isAdministrator(signupDao, userId, false)) {
+				signupDao.setStatus(Status.REJECTED);
+				dao.save(signupDao);
+				// Mail out to student
+				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-admin.student.subject", "reject-admin.student.body", new Object[] {proxy.getCurrentUser().getName()});
+			} else {
+				throw new IllegalStateException("You are not allowed to reject this signup: "+ signupId);
+			}
+		} else if (Status.ACCEPTED.equals(signupDao.getStatus())) {// Rejected by lecturer.
+			if (isAdministrator(signupDao, userId, userId.equals(signupDao.getSupervisorId()))) {
+				signupDao.setStatus(Status.REJECTED);
+				dao.save(signupDao);
+				// Mail out to student
+				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-supervisor.student.subject", "reject-supervisor.student.body", new Object[] {proxy.getCurrentUser().getName()});
+			} else {
+				throw new IllegalStateException("You are not allowed to reject this signup: "+ signupId);
+			}
+		} else {
+			throw new IllegalStateException("You can only reject signups that are PENDING or ACCEPTED");
+		}
 
 	}
 
@@ -165,30 +247,50 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				admins.put(admin, new ArrayList<String>());
 			}
 			admins.get(admin).add(componentDao.getTitle());
+			componentDao.getSignups().add(signupDao);
+			signupDao.getComponents().add(componentDao); // So when sending out email we know the components.
 			dao.save(componentDao);
 		}
 		
 		for (Map.Entry<String, Collection<String>>entry : admins.entrySet()) {
-			String subject = MessageFormat.format(rb.getString("signup.admin.subject"), new Object[]{proxy.getCurrentUser().getName(), groupDao.getTitle()});
-			String adminId = entry.getKey();
-			User user = proxy.findUserById(adminId);
-			if (user == null) {
-				log.warn("Failed to find user for signup: "+ adminId);
-				continue;
-			}
-			String to = user.getEmail();
-			StringBuilder components = new StringBuilder();
-			for(String component : entry.getValue()) {
-				components.append(component);
-				components.append('\n');
-			}
-			String body = MessageFormat.format(rb.getString("signup.admin.body"), new Object[] {
-					proxy.getCurrentUser().getName(),
-					components.toString(),
-					groupDao.getTitle()
-			});
-			proxy.sendEmail(to, subject, body);
-		} 
+			sendSignupEmail(entry.getKey(), signupDao, "signup.admin.subject", "signup.admin.body", null);
+		}
+	}
+	
+	/**
+	 * Generic method for sending out a signup email.
+	 * @param userId The ID of the user who the message should be sent to.
+	 * @param signupDao The signup the message is about.
+	 * @param subjectKey The resource bundle key for the subject
+	 * @param bodyKey The resource bundle key for the body.
+	 * @param url The URL the user should be directed to.
+	 */
+	public void sendSignupEmail(String userId, CourseSignupDAO signupDao, String subjectKey, String bodyKey, Object[] additionalBodyData) {
+		User user = proxy.findUserById(userId);
+		if (user == null) {
+			log.warn("Failed to find user for sending email: "+ userId);
+			return;
+		}
+		String to = user.getEmail();
+		String subject = MessageFormat.format(rb.getString(subjectKey), new Object[]{proxy.getCurrentUser().getName(), signupDao.getGroup().getTitle()});
+		StringBuilder components = new StringBuilder();
+		for(CourseComponentDAO componentDao: signupDao.getComponents()) {
+			components.append(componentDao.getTitle());
+			components.append('\n');
+		}
+		Object[] baseBodyData = new Object[] {
+				proxy.getCurrentUser().getName(),
+				components.toString(),
+				signupDao.getGroup().getTitle()
+		};
+		Object[] bodyData = baseBodyData;
+		if (additionalBodyData != null) {
+			bodyData = new Object[bodyData.length + additionalBodyData.length];
+			System.arraycopy(baseBodyData, 0, bodyData, 0, baseBodyData.length);
+			System.arraycopy(additionalBodyData, 0, bodyData, baseBodyData.length, additionalBodyData.length);
+		}
+		String body = MessageFormat.format(rb.getString(bodyKey), bodyData);
+		proxy.sendEmail(to, subject, body);
 	}
 
 	public void withdraw(String signupId) {
@@ -196,13 +298,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (signupDao == null) {
 			throw new IllegalArgumentException("Could not find signup: "+ signupId);
 		}
-		if (Status.PENDING.equals(signupDao.getStatus())) {
+		if (!Status.PENDING.equals(signupDao.getStatus())) {
 			throw new IllegalStateException("Can only withdraw from pending signups: "+ signupId);
 		}
 		signupDao.setStatus(Status.WITHDRAWN);
-		for (CourseComponentDAO componentDao: signupDao.getComponents()) {
-			componentDao.setTaken(componentDao.getTaken()-1);
-		}
+		dao.save(signupDao);
 	}
 
 	public CourseGroup getAvailableCourseGroup(String courseId) {

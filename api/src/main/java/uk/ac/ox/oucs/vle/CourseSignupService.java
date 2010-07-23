@@ -6,7 +6,7 @@ import java.util.Set;
 
 public interface CourseSignupService {
 	
-	public static enum Status {PENDING, WITHDRAWN, APPROVED, ACCEPTED};
+	public static enum Status {PENDING, WITHDRAWN, APPROVED, ACCEPTED, REJECTED};
 	
 	public static enum Range {ALL, UPCOMING, PREVIOUS};
 
@@ -31,7 +31,6 @@ public interface CourseSignupService {
 	
 	public void signup(String courseId, Set<String> components, String supervisorEmail, String message);
 	
-	public void withdraw(String signupId);
 	
 	public List<CourseSignup> getCourseSignups(String courseId);
 	
@@ -39,7 +38,11 @@ public interface CourseSignupService {
 	
 	public void approve(String signupId);
 	
+	public void accept(String signupId);
+	
 	public void reject(String signupId);
+
+	public void withdraw(String signupId);
 	
 	/**
 	 * Gets all the CourseGroups that the current user can administer.

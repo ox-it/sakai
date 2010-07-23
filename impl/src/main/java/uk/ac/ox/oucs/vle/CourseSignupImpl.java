@@ -54,4 +54,8 @@ public class CourseSignupImpl implements CourseSignup {
 		return components;
 	}
 
+	public CourseGroup getGroup() {
+		return new CourseGroupImpl(dao.getGroup(), service);
+	}
+
 }

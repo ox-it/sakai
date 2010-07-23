@@ -51,6 +51,10 @@
 		<property name="transactionAttributes">
 			<value>
 				signup=PROPAGATION_REQUIRED
+				accept=PROPAGATION_REQUIRED
+				withdraw=PROPAGATION_REQUIRED
+				approve=PROPAGATION_REQUIRED
+				reject=PROPAGATION_REQUIRED
 			</value>
 		</property>
 	</bean>

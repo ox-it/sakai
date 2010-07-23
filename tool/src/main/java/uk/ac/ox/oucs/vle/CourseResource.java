@@ -20,11 +20,14 @@ import javax.ws.rs.ext.ContextResolver;
 
 import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import org.codehaus.jackson.map.type.TypeFactory;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 
@@ -75,6 +78,15 @@ public class CourseResource {
 		return new GroupsStreamingOutput(courses, deptId, range.name());
 	}
 	
+	@Path("/admin")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getAdminCourse() throws JsonGenerationException, JsonMappingException, IOException {
+		List <CourseGroup> groups = courseService.getAdministering();
+		// TODO Just return the coursegroups (no nested objects).
+		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
+		
+	}
 
 	/**
 	 * Formats a duration sensibly.
