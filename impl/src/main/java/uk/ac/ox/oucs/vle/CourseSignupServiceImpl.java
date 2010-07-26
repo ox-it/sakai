@@ -44,7 +44,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (currentUserId.equals(signupDao)) {
 			canApprove = true;
 		} else {
-			canApprove = isAdministrator(signupDao, currentUserId, canApprove);
+			canApprove = isAdministrator(signupDao.getComponents(), currentUserId, canApprove);
 		}
 		if (!canApprove) {
 			throw new IllegalStateException("You are not alloed to approve this signup: "+ signupId);
@@ -62,7 +62,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		String currentUserId = proxy.getCurrentUser().getId();
 		boolean canAccept = false;
 		// If is course admin on one of the components.
-		canAccept = isAdministrator(signupDao, currentUserId, canAccept);
+		canAccept = isAdministrator(signupDao.getComponents(), currentUserId, canAccept);
 		if (!canAccept) {
 			throw new IllegalStateException("You aren't an admin on any on the component for signup: "+ signupId);
 		}
@@ -81,15 +81,15 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		sendSignupEmail(supervisorId, signupDao, "approval.supervisor.subject", "approval.supervisor.body", null);
 	}
 
-	private boolean isAdministrator(CourseSignupDAO signupDao,
-			String currentUserId, boolean canAccept) {
-		for (CourseComponentDAO componentDao : signupDao.getComponents()) {
+	private boolean isAdministrator(Collection<CourseComponentDAO> components, String currentUserId, boolean defaultValue) {
+		boolean isAdmin = defaultValue;
+		for (CourseComponentDAO componentDao : components) {
 			if (componentDao.getAdministrator().equals(currentUserId)) {
-				canAccept = true;
+				isAdmin = true;
 				break;
 			}
 		}
-		return canAccept;
+		return isAdmin;
 	}
 
 	public String findSupervisor(String search) {
@@ -136,7 +136,15 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public List<CourseSignup> getCourseSignups(String courseId) {
 		// Find all the components and then find all the signups.
 		String userId = proxy.getCurrentUser().getId();
-
+		
+		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
+		if (groupDao == null) {
+			throw new IllegalStateException("Cannot find courseId: "+ courseId);
+		}
+		if(!isAdministrator(groupDao.getComponents(), userId, false)) {
+			throw new IllegalStateException("You aren't an admin for course: "+ courseId);
+		}
+		
 		List<CourseSignupDAO> signupDaos = dao.findSignupByCourse(userId, courseId);
 		List<CourseSignup> signups = new ArrayList<CourseSignup>(signupDaos.size());
 		for(CourseSignupDAO signupDao: signupDaos) {
@@ -153,7 +161,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 
 		if (Status.PENDING.equals(signupDao.getStatus())) { // Rejected by administrator.
-			if (isAdministrator(signupDao, userId, false)) {
+			if (isAdministrator(signupDao.getComponents(), userId, false)) {
 				signupDao.setStatus(Status.REJECTED);
 				dao.save(signupDao);
 				// Mail out to student
@@ -162,7 +170,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				throw new IllegalStateException("You are not allowed to reject this signup: "+ signupId);
 			}
 		} else if (Status.ACCEPTED.equals(signupDao.getStatus())) {// Rejected by lecturer.
-			if (isAdministrator(signupDao, userId, userId.equals(signupDao.getSupervisorId()))) {
+			if (isAdministrator(signupDao.getComponents(), userId, userId.equals(signupDao.getSupervisorId()))) {
 				signupDao.setStatus(Status.REJECTED);
 				dao.save(signupDao);
 				// Mail out to student
