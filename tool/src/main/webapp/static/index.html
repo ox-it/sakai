@@ -7,7 +7,6 @@
 		<link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css"/>
 		<link rel="stylesheet" type="text/css" href="tool_base.css"/>
 		<link rel="stylesheet" type="text/css" href="tool.css"/>
-		
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">
 		</script>
 		<script type="text/javascript" src="lib/jstree-1.0rc/_lib/jquery.cookie.js">
@@ -20,8 +19,7 @@
 		</script>
 		<script type="text/javascript" src="lib/dataTables-1.6/js/jquery.dataTables.js">
 		</script>
-		
-		<script type="text/javascript">
+		<script type="text/javascript" language="JavaScript">
 			jQuery(function() {
 				
 				/**
@@ -31,7 +29,7 @@
 				 */
 				var compareUser = function(user1, user2) {
 					return (user1.id == user2.id && user1.name == user2.name && user1.email == user2.email);
-				}
+				};
 				
 				/**
 				 * Check is an object exists as a value in an array.
@@ -46,7 +44,69 @@
 						}
 					}
 					return false;
-				}
+				};
+
+				/**
+				 * Returns a summary about signup for this group.
+				 * @param The components to produce a summary for.
+				 */
+				var signupSummary = function(components) {
+					var now = new Date().getTime(); // TODO Get this from server.
+					var nextOpen = Number.MAX_VALUE;
+					var willClose = 0;
+					var isOneOpen = false;
+					var areSomePlaces = false;
+					for(var i in components) {
+						var component = components[i];
+						var isOpen = component.opens < now && component.closes > now;
+						if (component.opens > now && component.opens < nextOpen) {
+							nextOpen = component.opens;
+						}
+						if (component.opens < now && component.closes > willClose) {
+							willClose = component.closes;
+						}
+						if (isOpen) {
+							isOneOpen = true;
+							if (component.places > 0) {
+								areSomePlaces = true;
+							}
+						}
+					}
+					var message = "";
+					if (isOneOpen) {
+						if (areSomePlaces) {
+							var remaining = willClose - now;
+							message = "close in "+ formatDuration(remaining);
+						} else {
+							message = "full";
+						}
+					} else {
+						var until = nextOpen - now;
+						message = "open in "+ formatDuration(until);
+					}
+					return message;
+				};
+                
+                /**
+                 * Formats a durations to display to the user.
+                 * @param {Object} duration Duration in milliseconds.
+                 */
+                var formatDuration = function(remaining){
+                    if (remaining < 1000) {
+                        return "< 1 second";
+                    } else 
+                        if (remaining < 60000) {
+                            return Math.floor(remaining / 1000) + " seconds";
+                        } else 
+                            if (remaining < 3600000) {
+                                return Math.floor(remaining / 60000) + " minutes";
+                            } else 
+                                if (remaining < 86400000) {
+                                    return Math.floor(remaining / 3600000) + " hours";
+                                } else {
+                                    return Math.floor(remaining / 86400000) + " days";
+                                }
+                };
 				
                 var confirmSetup = function(dialog){
                     var signupConfirm = jQuery("#signup-confirm");
@@ -148,6 +208,9 @@
 									data.full = false; // At least one is open 
 								}
 							}
+							
+							data.signup = signupSummary(data.components);
+							
 							data.parts = parts;
 							
 							var output = TrimPath.processDOMTemplate("details-tpl", data);
@@ -400,7 +463,7 @@
                             Signup Available
                         </th>
                         <td>
-                            13th September 2010 to 29th September 2010 (opens in 34 days)
+                            ${signup}
                         </td>
                     </tr>
                 </table>
