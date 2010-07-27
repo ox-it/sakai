@@ -61,24 +61,38 @@ public class Populator {
 			con = ds.getConnection();
 			Statement st = con.createStatement();
 			// Import all course groups (from assessment units)
-			ResultSet rs = st.executeQuery("SELECT distinct au.unit_id, au.code, au.title title, au.department_code, au.description FROM Assessment_Unit au INNER JOIN Teaching_Component tc ON ( tc.assessment_unit_code LIKE concat(concat('%',au.code),'%') AND length(tc.assessment_unit_code) > 0)");
+			ResultSet rs = st.executeQuery(
+					"SELECT distinct au.unit_id, au.code, au.title, au.department_code, d.name as department_name, au.description\n" + 
+					"FROM\n" + 
+					"  Assessment_Unit au\n" + 
+					"  INNER JOIN Teaching_Component tc ON\n" + 
+					"  ( tc.assessment_unit_code LIKE concat(concat('%',au.code),'%') AND length(tc.assessment_unit_code) > 0)\n" + 
+					"  INNER JOIN Department d ON au.department_code = d.code\n" + 
+					";");
 			while(rs.next()) {
 				groupSeen++;
 				String code = rs.getString("code");
 				String title = rs.getString("title");
 				String departmentCode = rs.getString("department_code");
 				String description = rs.getString("description");
+				String departmentName = rs.getString("department_name");
 				CourseGroupDAO groupDao = dao.findCourseGroupById(code);
+				boolean created = false;
 				if (groupDao == null) {
-					groupCreated++;
 					groupDao = dao.newCourseGroup(code, title, departmentCode);
+					created = true;
 				} else {
-					groupUpdated++;
 					groupDao.setDept(departmentCode);
 					groupDao.setTitle(title);
 				}
 				groupDao.getProperties().put("desc", description);
+				groupDao.getProperties().put("department", departmentName);
 				dao.save(groupDao);
+				if (created) {
+					groupCreated++;
+				} else {
+					groupUpdated++;
+				}
 			}
 			// Now import all the course components ( from teaching (instances/components))
 			String sql = "SELECT\n" + 
@@ -88,7 +102,7 @@ public class Populator {
 					"  t.code as term_code, t.label as term_name,\n" + 
 					"  c.title,\n" + 
 					"  admin.webauth_id as admin,\n" + 
-					"  teacher.webauth_id as teacher\n" + 
+					"  concat_ws(' ', teacher.forename, teacher.surname) as teacher_name, teacher.email as teacher_email\n" + 
 					"\n" + 
 					"FROM\n" + 
 					"  Teaching_Instance ti\n" + 
@@ -126,15 +140,6 @@ public class Populator {
 				if (admin == null) {
 					logFailure(id, "Failed to find admin with id: "+ adminEid);
 					continue;
-				}
-				String teacherEid = rs.getString("teacher");
-				if (teacherEid == null || teacherEid.trim().length() == 0) {
-					logFailure(id, "No teachering user set.");
-					continue;
-				}
-				User teacher = proxy.findUserByEid(teacherEid);
-				if(teacher == null) {
-					logFailure(id, "Failed to find teacher with id: "+ teacherEid);
 				}
 				String title = rs.getString("title");
 				if (title == null || title.trim().length() == 0) {
@@ -178,6 +183,34 @@ public class Populator {
 				componentDao.setSize(capacity);
 				componentDao.setTermcode(termCode);
 				componentDao.setComponentId(teachingComponentId+":"+termCode);
+				
+				// Populate teacher details.
+				String teacherName = rs.getString("teacher_name");
+				if (teacherName != null && teacherName.trim().length() > 0) {
+					componentDao.getProperties().put("teacher.name", teacherName);
+					String teacherEmail = rs.getString("teacher_email");
+					if (teacherEmail != null && teacherName.trim().length() > 0) {
+						componentDao.getProperties().put("teacher.email", teacherEmail);
+					}
+				}
+				
+				// When they are happening.
+				String sessionDates = rs.getString("session_dates");
+				if (sessionDates != null && sessionDates.trim().length() > 0) {
+					componentDao.getProperties().put("when", sessionDates);
+				}
+				
+				// How many sessions
+				String sessions = rs.getString("sessions");
+				if (sessions != null && sessions.trim().length() > 0) {
+					componentDao.getProperties().put("sessions", sessions);
+				}
+				
+				// Where?
+				String location = rs.getString("location");
+				if (location != null && location.trim().length() > 0) {
+					componentDao.getProperties().put("location", location);
+				}
 				
 				// Cleanout existing ones.
 				componentDao.setGroups(new HashSet<CourseGroupDAO>());

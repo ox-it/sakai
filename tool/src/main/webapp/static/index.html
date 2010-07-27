@@ -508,7 +508,11 @@
                             Department
                         </th>
                         <td>
-                            ${departmentCode}
+                        	{if defined('department')}
+                            	${department}
+							{else}
+								${departmentCode}
+							{/if}
                         </td>
                     </tr>
                     <tr>

@@ -49,8 +49,7 @@ public class CourseComponentImpl implements CourseComponent {
 	
 
 	public String getLocation() {
-		// TODO Auto-generated method stub
-		return null;
+		return dao.getProperties().get("location");
 	}
 
 	public Date getOpens() {

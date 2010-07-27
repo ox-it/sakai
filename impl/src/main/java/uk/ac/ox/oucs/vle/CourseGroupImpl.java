@@ -34,6 +34,10 @@ public class CourseGroupImpl implements CourseGroup {
 		return courseGroupDAO.getTitle();
 	}
 
+	public String getDepartment() {
+		return courseGroupDAO.getProperties().get("department");
+	}
+
 	public String getDepartmentCode() {
 		return courseGroupDAO.getDept();
 	}

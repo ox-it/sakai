@@ -10,6 +10,8 @@ public interface CourseGroup {
 	
 	public String getDescription();
 	
+	public String getDepartment();
+	
 	public String getDepartmentCode();
 
 	public List<CourseComponent> getComponents();
