@@ -174,6 +174,12 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 	}
 
+	public CourseComponentDAO newCourseComponent(String id) {
+		CourseComponentDAO componentDao = new CourseComponentDAO();
+		componentDao.setId(id);
+		return componentDao;
+	}
+
 }
 
 

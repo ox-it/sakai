@@ -25,9 +25,13 @@ public class SakaiProxyTest implements SakaiProxy {
 		
 		users.add(new User("1", "user0001", "Test User One", "test.user.1@dept.ox.ac.uk"));
 		users.add(new User("2", "user0002", "Test User Two", "test.user.2@dept.ox.ac.uk"));
+
+		// So some imports work.
+		users.add(new User("3", "bras1760", "Katherine Allen", "katherine.allen@bnc.ox.ac.uk"));
 		
 		users.add(new User("d86d9720-eba4-40eb-bda3-91b3145729da", "socs0001", "Course Admin 1", "course.admin.1@dept.ox.ac.uk"));
 		users.add(new User("c10cdf4b-7c10-423c-8319-2d477051a94e", "socs0002", "Course Admin 2", "course.admin.2@dept.ox.ac.uk"));
+		
 		
 		// Bulk load of users.
 		for (int i = 1; i <=50; i++) {
@@ -65,6 +69,15 @@ public class SakaiProxyTest implements SakaiProxy {
 	public User findUserByEmail(String email) {
 		for (User user : users) {
 			if (email.equals(user.getEmail())) {
+				return user;
+			}
+		}
+		return null;
+	}
+	
+	public User findUserByEid(String eid) {
+		for (User user : users) {
+			if (eid.equals(user.getEid())) {
 				return user;
 			}
 		}

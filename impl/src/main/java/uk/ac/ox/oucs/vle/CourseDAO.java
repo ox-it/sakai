@@ -22,6 +22,8 @@ public interface CourseDAO {
 	CourseGroupDAO findUpcomingComponents(String courseId, Date available);
 	
 	CourseComponentDAO findCourseComponent(String id);
+	
+	CourseComponentDAO newCourseComponent(String id);
 
 	CourseSignupDAO newSignup(String userId, String supervisorId);
 

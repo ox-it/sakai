@@ -71,9 +71,27 @@
 	<bean name="uk.ac.ox.oucs.vle.sakai.SakaiProxy" class="uk.ac.ox.oucs.vle.proxy.SakaiProxyTest">
 	</bean>
 	
-	<bean class="uk.ac.ox.oucs.vle.CourseGroupPopulator" init-method="update" lazy-init="false">
-		<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO"/>
-		<property name="dataSource" ref="daisyDataSource"/>
+	
+	<bean class="uk.ac.ox.oucs.vle.PopulatorInit" init-method="init">
+		<property name="populator" ref="uk.ac.ox.oucs.vle.Populator"/>
+	</bean>
+	
+	<bean id="uk.ac.ox.oucs.vle.Populator"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="target">
+			<bean class="uk.ac.ox.oucs.vle.Populator">
+				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO"/>
+				<property name="dataSource" ref="daisyDataSource"/>
+				<property name="proxy" ref="uk.ac.ox.oucs.vle.sakai.SakaiProxy"/>
+			</bean>
+		</property>
+		<property name="transactionManager" ref="transactionManager"/>
+		<property name="transactionAttributes">
+			<value>
+				update=PROPAGATION_REQUIRED
+			</value>
+		</property>
 	</bean>
 	
 </beans>
+
