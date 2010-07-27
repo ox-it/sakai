@@ -43,7 +43,7 @@
 		};
 
 		
-		$.getJSON("/course-signup/rest/signup/all", function(data) {
+		$.getJSON("/course-signup/rest/signup/my", function(data) {
 			// 
 			console.log(data);
 			$("#signups").html('<table border="0" class="display" id="signups-table"></table>');
@@ -54,7 +54,7 @@
 					{"sTitle": "Status"},
 					{"sTitle": "Actions"}
 				],
-				"sAjaxSource": "/course-signup/rest/signup/all",
+				"sAjaxSource": "/course-signup/rest/signup/my",
 				"fnServerData": function(sSource, aoData, fnCallback) {
 					$.getJSON(sSource, function(data) {
 						var tableData = {

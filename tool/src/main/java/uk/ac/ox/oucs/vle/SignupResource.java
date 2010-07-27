@@ -2,6 +2,7 @@ package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -45,7 +46,7 @@ public class SignupResource {
 		objectMapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 	}
 	
-	@Path("/all")
+	@Path("/my")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getMySignups() {
@@ -56,6 +57,25 @@ public class SignupResource {
 				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
 			}
 		};
+	}
+	
+	@Path("/my/course/{id}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public StreamingOutput getMyCourseSignups(@PathParam("id") String courseId) {
+		final List<CourseSignup> signups = courseService.getMySignups(null);
+		final List<CourseSignup> courseSignups = new ArrayList<CourseSignup>();
+		for(CourseSignup signup: signups) {
+			if (courseId.equals(signup.getGroup().getId())) {
+				courseSignups.add(signup);
+			}
+		}
+		return new StreamingOutput() {
+			public void write(OutputStream output) throws IOException,
+					WebApplicationException {
+				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, courseSignups);
+			}
+		}; 
 	}
 	
 	@Path("/new")
