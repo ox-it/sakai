@@ -37,7 +37,6 @@
 		<!-- create the primary key id -->
 		<id name="id" type="string">
 			<column name="id" />
-			<generator class="uuid" />
 		</id>
 		<property name="title" type="string" length="256" />
 		<property name="termcode" type="string" length="30"
@@ -56,7 +55,7 @@
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"
 				column="signup" />
 		</set>
-		<set name="groups" inverse="true" table="course_group_component"
+		<set name="groups" table="course_group_component"
 			lazy="true">
 			<key column="component" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO"
@@ -74,12 +73,11 @@
 		<!-- create the primary key id -->
 		<id name="id" type="string">
 			<column name="id" />
-			<generator class="uuid" />
 		</id>
 		<property name="title" type="string" length="256" />
 		<property name="dept" type="string" length="32"
 			index="course_group_dept_idx" />
-		<set name="components" lazy="true" table="course_group_component"
+		<set name="components" inverse="true" lazy="true" table="course_group_component"
 			fetch="join">
 			<key column="course_group" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO"
