@@ -20,6 +20,31 @@
 		<script type="text/javascript" src="lib/dataTables-1.6/js/jquery.dataTables.js">
 		</script>
 		<script type="text/javascript" language="JavaScript">
+		// Small jQuery plugin to get dates from server.
+        (function($){
+			
+			var serverDate;
+			var init = function() {
+				if (!serverDate) {
+					$.ajax({
+						"url": "/course-signup/rest/user/current",
+						"type": "GET",
+						"async": false,
+						"dataType": "json",
+						"success": function(data) {
+							serverDate = data.date;
+						}
+					});
+				}
+			};
+			
+            $.serverDate = function(){
+                init();
+                return serverDate;
+                
+            };
+        })(jQuery);
+			
 			jQuery(function() {
 				
 				/**
@@ -51,7 +76,7 @@
 				 * @param The components to produce a summary for.
 				 */
 				var signupSummary = function(components) {
-					var now = new Date().getTime(); // TODO Get this from server.
+					var now = $.serverDate(); // TODO Get this from server.
 					var nextOpen = Number.MAX_VALUE;
 					var willClose = 0;
 					var isOneOpen = false;
@@ -156,13 +181,20 @@
                     });
                 };
 				
+				// Load the static data.
 				jQuery.getJSON("data/department-tree.json", function(treedata) {
-					jQuery("#tree").bind("select_node.jstree", function(event, data) {
-			 		    //console.log(data.inst.get_selected()[0].id);
-						var id = data.inst.get_selected()[0].id;
-						jQuery.getJSON("/course-signup/rest/course/"+ id, {range: "UPCOMING"}, function(data){
-							// Preprocess the data.
-							var now = new Date().getTime(); //TODO Get this from the server.
+					var courseData;
+					var signupData;
+					
+					var showCourse = function(){
+							// Check we have all our data.
+							if (!courseData || !signupData) {
+								return;
+							}
+							
+							var data = courseData; // From refactoring...
+							var now = $.serverDate();
+							var id = data.id;
 							data.full = true;
 							data.open = false;
 							data.presenters = [];
@@ -178,6 +210,18 @@
 								if(component.administrator && !inArray(data.administrators, component.administrator, compareUser)) {
 									data.administrators.push(component.administrator);
 								}
+								// Check it we're signed up to this one
+								$.each(signupData, function() {
+									// For all the components check...
+									console.log(this);
+									$.each(this.components, function() {
+										if (component.id = this.id) {
+											component.signup = this;
+											console.log("Match "+ this.id);
+										}
+									});
+								});
+								
 								if (component.componentSet) {
 									var found = false;
 									for (var part in parts) {
@@ -265,11 +309,20 @@
 									return false;
 								}
                             });
+						};
+					
+					jQuery("#tree").bind("select_node.jstree", function(event, data) {
+						var id = data.inst.get_selected()[0].id;
+						courseData = undefined;
+						signupData = undefined;
+						jQuery.getJSON("/course-signup/rest/course/"+ id, {range: "UPCOMING"}, function(data) {
+							courseData = data;
+							showCourse();
 						});
-					 })
-					.bind("open_node.jstree", function (event, data) {
-						console.log(data);
-						console.log(event);
+						jQuery.getJSON("/course-signup/rest/signup/my/course/"+ id, {}, function(data) {
+							signupData = data;
+							showCourse();
+						});
 					})
 				 	.jstree({
 						json_data: {
