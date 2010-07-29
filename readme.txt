@@ -1,5 +1,9 @@
 Course signup tool.
 
+-- Setup --
+
+course-signup.from=weblearn-nomail@oucs.ox.ac.uk or leave blank to use the current user.
+
 -- TODO --
 
 When clicking on a department load a file from resources.
