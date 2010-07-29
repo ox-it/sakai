@@ -25,6 +25,9 @@
 <script type="text/javascript"
 	src="lib/dataTables-1.6/js/jquery.dataTables.js">
 		</script>
+<script type="text/javascript"
+	src="lib/dataTables-1.6/js/jquery.dataTables.reloadAjax.js">
+		</script>
 
 <script type="text/javascript">
 	$(function() {
@@ -44,8 +47,6 @@
 
 		
 		$.getJSON("/course-signup/rest/signup/my", function(data) {
-			// 
-			console.log(data);
 			$("#signups").html('<table border="0" class="display" id="signups-table"></table>');
 			var signups = $("#signups-table").dataTable({
 				"aoColumns": [
@@ -76,7 +77,6 @@
 								}).join(" / ")
 							]);
 						});
-						console.log(tableData);
 						fnCallback(tableData);
 					});
 				},
@@ -88,157 +88,25 @@
 							"url": url,
 							"type": "POST",
 							"success": function(data) {
-								console.log("cool, now reload");// TODO Reload page
+								// Reload the datatable.
+								signups.fnReloadAjax();
 							}
 						});
 						return false;
 					});
 					return nRow;
-				}
+				},
+				
+				"bPaginate": false,
+				"bLengthChange": false,
+				"bFilter": false,
+				"bSort": true,
+				"bAutoWidth": false
 			});
 			
 		});
 	});
-			$(function(){
-				return;
-				var processSignupRow = function(item) {
-					var components = $.map(item.components, function(component) {
-						return component.title;
-					}).join("<br>");
-					return [
-							'<a href="mailto:'+item.user.email+ '">'+item.user.name +'</a>',
-							item.id,
-							item.supervisor.name,
-							components,
-							item.status,
-							$.map(getActions(item.status, item.id), function(action) {
-								return '<a class="action" href="'+ action.url+ '">'+ action.name+ '</a>';
-							}).join(" / ")
-					];
-				};
-
-				// 
-				$("#course-list").html('<table cellpadding="0" cellspacing="0" border="0" class="display" id="course-list-table"></table>');
-				var courseList = $("#course-list-table").dataTable( {
-					"aoColumns": [
-						{
-							"sTitle": "Course"
-						},
-						{
-							"sTitle": "Code",
-							"bVisible": false
-						}
-					],
-					"sAjaxSource": "/course-signup/rest/course/admin",
-					"fnServerData": function(sSource, aoData, fnCallback) {
-						$.getJSON(sSource, [], function(data) {
-							var tableData = {
-										"aaData": []
-							};
-							$.each(data, function(index, value) {
-								tableData.aaData.push([value.title, value.id]);
-							});
-							fnCallback(tableData);
-						});
-					},
-					"fnRowCallback": function(nRow, aData, iIndex) {
-						$(nRow).bind("click", {code: aData[1]}, function(e) {
-							var code = e.data.code;
-
-							// Table showing the components.
-							$("#summary").html('<table border="0" class="display" id="summary-table"></table>');
-							var summary = $("#summary-table").dataTable( {
-								"bProcessing": true,
-								"bPaginate": false,
-								"bLengthChange": false,
-								"bFilter": false,
-								"bSort": false,
-								"bInfo": false,
-								"bAutoWidth": false,
-								"sAjaxSource": "/course-signup/rest/course/",
-								"aoColumns": [
-								              {"sTitle": "Component"},
-								              {"sTitle": "Places"},
-								              {"sTitle": "Status"}
-								              ],
-								"fnServerData": function(sSource, aoData, fnCallback) {
-									$.getJSON(sSource+code, [], function(data) {
-										var tableData = {
-												"aaData": []
-										};
-										for(var i in data.components) {
-											var component = data.components[i];
-											tableData.aaData.push([ component.title, component.places, ""]);
-										}
-										fnCallback(tableData);
-									});
-								}
-							});
-							
-							console.log(code);
-							$.getJSON("/course-signup/rest/course/"+code, {range: "ALL"}, function(data) {
-								//console.log(data);
-							});
-							$("#signups").html('<table border="0" class="display" id="signups-table"></table>');
-							var signups = $("#signups-table").dataTable( {
-								"bProcessing": true,
-								"bPaginate": false,
-								"bLengthChange": false,
-								"bFilter": false,
-								"bSort": false,
-								"bInfo": false,
-								"bAutoWidth": false,
-								"sAjaxSource": "/course-signup/rest/signup/course/",
-								"aoColumns": [ // Need to have this here at init.
-								              {"sTitle": "Student"},
-								              {"sTitle": "Signup Code", "bVisible": false},
-								              {"sTitle": "Supervisor"},
-								              {"sTitle": "Components"},
-								              {"sTitle": "Status"},
-								              {"sTitle": "Actions"}
-								],
-								"fnServerData": function(sSource, aoData, fnCallback) {
-									// Load the data an process it.
-									$.getJSON(sSource+code, [], function(data) {
-										var tableData = { // Data for datatables.
-											"aaData": []
-										};
-										for(i in data) {
-											var item = processSignupRow(data[i]);
-											tableData.aaData.push(item);
-										}
-										console.log(tableData);
-										fnCallback(tableData);
-									});
-								},
-								"fnRowCallback": function(nRow, aData, iDisplayIndex) {
-									$("a.action", nRow).bind("click", function(e) {
-										var url = $(this).attr("href");
-										var signupId = aData[1];
-										$.ajax({
-											"url": url,
-											"type": "POST",
-											"success": function(data) {
-												console.log("cool, now reload");// TODO Reload page
-											}
-										});
-										return false;
-									});
-									return nRow;
-								}
-							}); 
-						});
-						return nRow;
-					},
-					"bPaginate": false,
-					"bLengthChange": false,
-					"bFilter": false,
-					"bSort": false,
-					"bInfo": false,
-					"bAutoWidth": false
-				});
-			});
-			
+		
 		</script>
 
 <style type="text/css">
