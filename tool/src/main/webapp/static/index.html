@@ -334,11 +334,26 @@
                         return false;
                     });
                 };
+				
+				var loadNodeDetails = function(id) {
+					$.get("/course-signup/static/data/html/"+id+".html", function(data) {
+						$("#details").html(data);
+					});
+				};
 					
-					jQuery("#tree").bind("select_node.jstree", function(event, data) {
+					jQuery("#tree")
+					.bind("select_node.jstree", function(event, data) {
 						// Starts the loading of course details.
-						var id = data.inst.get_selected()[0].id;
-						loadCourse(id);
+						var currentNode = data.rslt.obj[0];
+						var id = currentNode.id;
+						if ($(currentNode).is(".jstree-leaf")) {
+							loadCourse(id);
+						} else {
+							loadNodeDetails(id);
+						}
+					})
+					.delegate(".jstree-closed a", "click", function(e) {
+						$("#tree").jstree("open_node", this);
 					})
 				 	.jstree({
 						json_data: {
