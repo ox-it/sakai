@@ -26,7 +26,7 @@ import org.codehaus.jackson.map.type.TypeFactory;
 
 import uk.ac.ox.oucs.vle.proxy.Email;
 import uk.ac.ox.oucs.vle.proxy.SakaiProxyTest;
-import uk.ac.ox.oucs.vle.proxy.User;
+import uk.ac.ox.oucs.vle.proxy.UserProxy;
 
 @Path("/debug")
 public class DebugResource {
@@ -63,7 +63,7 @@ public class DebugResource {
 	@Path("/user")
 	@POST
 	public Response setUser(@FormParam("id")String id) {
-		User user = proxy.findUserById(id);
+		UserProxy user = proxy.findUserById(id);
 		if (user != null) {
 			proxy.setCurrentUser(user);
 			return Response.ok().build();

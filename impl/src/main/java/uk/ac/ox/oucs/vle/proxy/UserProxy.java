@@ -1,13 +1,13 @@
 package uk.ac.ox.oucs.vle.proxy;
 
-public class User {
+public class UserProxy {
 
 	private String id;
 	private String eid;
 	private String name;
 	private String email;
 	
-	public User(String id, String eid, String name, String email) {
+	public UserProxy(String id, String eid, String name, String email) {
 		this.id = id;
 		this.eid = eid;
 		this.name = name;

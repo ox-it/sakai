@@ -14,7 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import uk.ac.ox.oucs.vle.proxy.SakaiProxy;
-import uk.ac.ox.oucs.vle.proxy.User;
+import uk.ac.ox.oucs.vle.proxy.UserProxy;
 
 /**
  * The idea is this class populates the course group rows.
@@ -136,7 +136,7 @@ public class Populator {
 					logFailure(id, "No admin user set.");
 					continue;
 				}
-				User admin = proxy.findUserByEid(adminEid);
+				UserProxy admin = proxy.findUserByEid(adminEid);
 				if (admin == null) {
 					logFailure(id, "Failed to find admin with id: "+ adminEid);
 					continue;
@@ -194,10 +194,13 @@ public class Populator {
 					}
 				}
 				
+				// Which term
+				componentDao.getProperties().put("when", termName);
+				
 				// When they are happening.
 				String sessionDates = rs.getString("session_dates");
 				if (sessionDates != null && sessionDates.trim().length() > 0) {
-					componentDao.getProperties().put("when", sessionDates);
+					componentDao.getProperties().put("slot", sessionDates);
 				}
 				
 				// How many sessions

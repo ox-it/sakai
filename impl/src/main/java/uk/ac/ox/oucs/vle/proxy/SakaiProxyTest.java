@@ -13,29 +13,29 @@ import java.util.List;
  */
 public class SakaiProxyTest implements SakaiProxy {
 
-	private List<User> users = new ArrayList<User>();
+	private List<UserProxy> users = new ArrayList<UserProxy>();
 	
 	public List<Email> emailLog = new ArrayList<Email>();
 	
-	private User current;
+	private UserProxy current;
 	
 	public SakaiProxyTest() {
 		
-		users.add(new User("current", "user", "Current User", "current.user@coll.ox.ac.uk"));
+		users.add(new UserProxy("current", "user", "Current User", "current.user@coll.ox.ac.uk"));
 		
-		users.add(new User("1", "user0001", "Test User One", "test.user.1@dept.ox.ac.uk"));
-		users.add(new User("2", "user0002", "Test User Two", "test.user.2@dept.ox.ac.uk"));
+		users.add(new UserProxy("1", "user0001", "Test User One", "test.user.1@dept.ox.ac.uk"));
+		users.add(new UserProxy("2", "user0002", "Test User Two", "test.user.2@dept.ox.ac.uk"));
 
 		// So some imports work.
-		users.add(new User("3", "bras1760", "Katherine Allen", "katherine.allen@bnc.ox.ac.uk"));
+		users.add(new UserProxy("3", "bras1760", "Katherine Allen", "katherine.allen@bnc.ox.ac.uk"));
 		
-		users.add(new User("d86d9720-eba4-40eb-bda3-91b3145729da", "socs0001", "Course Admin 1", "course.admin.1@dept.ox.ac.uk"));
-		users.add(new User("c10cdf4b-7c10-423c-8319-2d477051a94e", "socs0002", "Course Admin 2", "course.admin.2@dept.ox.ac.uk"));
+		users.add(new UserProxy("d86d9720-eba4-40eb-bda3-91b3145729da", "socs0001", "Course Admin 1", "course.admin.1@dept.ox.ac.uk"));
+		users.add(new UserProxy("c10cdf4b-7c10-423c-8319-2d477051a94e", "socs0002", "Course Admin 2", "course.admin.2@dept.ox.ac.uk"));
 		
 		
 		// Bulk load of users.
 		for (int i = 1; i <=50; i++) {
-			users.add(new User("id"+i, "eid"+i, "Full Name "+ i, "user"+i+"@dept.ox.ac.uk"));
+			users.add(new UserProxy("id"+i, "eid"+i, "Full Name "+ i, "user"+i+"@dept.ox.ac.uk"));
 		}
 		current = users.get(3);
 	}
@@ -43,19 +43,19 @@ public class SakaiProxyTest implements SakaiProxy {
 	/* (non-Javadoc)
 	 * @see uk.ac.ox.oucs.vle.proxy.SakaiProxy#getCurrentUser()
 	 */
-	public User getCurrentUser() {
+	public UserProxy getCurrentUser() {
 		return current;
 	}
 	
-	public void setCurrentUser(User user) {
+	public void setCurrentUser(UserProxy user) {
 		this.current = user;
 	}
 	
 	/* (non-Javadoc)
 	 * @see uk.ac.ox.oucs.vle.proxy.SakaiProxy#findUserById(java.lang.String)
 	 */
-	public User findUserById(String id) {
-		for (User user : users) {
+	public UserProxy findUserById(String id) {
+		for (UserProxy user : users) {
 			if (id.equals(user.getId())) {
 				return user;
 			}
@@ -66,8 +66,8 @@ public class SakaiProxyTest implements SakaiProxy {
 	/* (non-Javadoc)
 	 * @see uk.ac.ox.oucs.vle.proxy.SakaiProxy#findUserByEmail(java.lang.String)
 	 */
-	public User findUserByEmail(String email) {
-		for (User user : users) {
+	public UserProxy findUserByEmail(String email) {
+		for (UserProxy user : users) {
 			if (email.equals(user.getEmail())) {
 				return user;
 			}
@@ -75,8 +75,8 @@ public class SakaiProxyTest implements SakaiProxy {
 		return null;
 	}
 	
-	public User findUserByEid(String eid) {
-		for (User user : users) {
+	public UserProxy findUserByEid(String eid) {
+		for (UserProxy user : users) {
 			if (eid.equals(user.getEid())) {
 				return user;
 			}

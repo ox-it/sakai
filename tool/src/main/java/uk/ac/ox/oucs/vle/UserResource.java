@@ -20,7 +20,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.node.ObjectNode;
 
 import uk.ac.ox.oucs.vle.proxy.SakaiProxy;
-import uk.ac.ox.oucs.vle.proxy.User;
+import uk.ac.ox.oucs.vle.proxy.UserProxy;
 
 /**
  * Class to allow details of the current user to be returned.
@@ -51,7 +51,7 @@ public class UserResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getCurrent() throws JsonGenerationException, JsonMappingException, IOException {
-		User user = proxy.getCurrentUser();
+		UserProxy user = proxy.getCurrentUser();
 		Date now = courseService.getNow();
 		ObjectNode rootNode = objectMapper.createObjectNode();
 		rootNode.putPOJO("user", user);

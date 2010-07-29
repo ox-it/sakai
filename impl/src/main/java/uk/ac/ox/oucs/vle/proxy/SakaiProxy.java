@@ -2,13 +2,13 @@ package uk.ac.ox.oucs.vle.proxy;
 
 public interface SakaiProxy {
 
-	public User getCurrentUser();
+	public UserProxy getCurrentUser();
 
-	public User findUserById(String id);
+	public UserProxy findUserById(String id);
 
-	public User findUserByEmail(String email);
+	public UserProxy findUserByEmail(String email);
 	
-	public User findUserByEid(String eid);
+	public UserProxy findUserByEid(String eid);
 	
 	public void sendEmail(String to, String subject, String body);
 

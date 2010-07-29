@@ -2,7 +2,7 @@ package uk.ac.ox.oucs.vle;
 
 import java.util.Date;
 
-import uk.ac.ox.oucs.vle.proxy.User;
+import uk.ac.ox.oucs.vle.proxy.UserProxy;
 
 public class CourseComponentImpl implements CourseComponent {
 	
@@ -43,7 +43,7 @@ public class CourseComponentImpl implements CourseComponent {
 	
 	public Person getAdministrator() {
 		String adminId = dao.getAdministrator();
-		User user = impl.loadUser(adminId);
+		UserProxy user = impl.loadUser(adminId);
 		return (user != null)?new PersonImpl(user.getId(), user.getName(), user.getEmail()):null;
 	}
 	

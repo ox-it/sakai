@@ -17,7 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import uk.ac.ox.oucs.vle.proxy.SakaiProxy;
-import uk.ac.ox.oucs.vle.proxy.User;
+import uk.ac.ox.oucs.vle.proxy.UserProxy;
 
 public class CourseSignupServiceImpl implements CourseSignupService {
 	
@@ -27,7 +27,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 
 	private CourseDAO dao;
 	private SakaiProxy proxy;
-	
 	
 	public void setDao(CourseDAO dao) {
 		this.dao = dao;
@@ -231,7 +230,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			}
 		}
 		// Set the supervisor
-		User supervisor = proxy.findUserByEmail(supervisorEmail);
+		UserProxy supervisor = proxy.findUserByEmail(supervisorEmail);
 		if (supervisor == null) {
 			throw new IllegalArgumentException("Can't find a supervisor with email: "+ supervisorEmail);
 		}
@@ -274,7 +273,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * @param url The URL the user should be directed to.
 	 */
 	public void sendSignupEmail(String userId, CourseSignupDAO signupDao, String subjectKey, String bodyKey, Object[] additionalBodyData) {
-		User user = proxy.findUserById(userId);
+		UserProxy user = proxy.findUserById(userId);
 		if (user == null) {
 			log.warn("Failed to find user for sending email: "+ userId);
 			return;
@@ -335,7 +334,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * Loads details about a user.
 	 * @return
 	 */
-	User loadUser(String id) {
+	UserProxy loadUser(String id) {
 		return proxy.findUserById(id);
 	}
 

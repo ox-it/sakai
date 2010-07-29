@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
-import uk.ac.ox.oucs.vle.proxy.User;
+import uk.ac.ox.oucs.vle.proxy.UserProxy;
 
 public class CourseSignupImpl implements CourseSignup {
 
@@ -21,7 +21,7 @@ public class CourseSignupImpl implements CourseSignup {
 	}
 
 	public Person getUser() {
-		User user = service.loadUser(dao.getUserId());
+		UserProxy user = service.loadUser(dao.getUserId());
 		Person person = null;
 		if (user != null) {
 			person = new PersonImpl(user.getId(), user.getName(), user.getEmail());
@@ -30,7 +30,7 @@ public class CourseSignupImpl implements CourseSignup {
 	}
 
 	public Person getSupervisor() {
-		User user = service.loadUser(dao.getSupervisorId());
+		UserProxy user = service.loadUser(dao.getSupervisorId());
 		Person person = null;
 		if (user != null) {
 			person = new PersonImpl(user.getId(), user.getName(), user.getEmail());
