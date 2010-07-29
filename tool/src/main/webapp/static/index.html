@@ -133,58 +133,28 @@
                                 }
                 };
 				
-                var confirmSetup = function(dialog){
-                    var signupConfirm = jQuery("#signup-confirm");
-                    
-                    signupConfirm.find(".cancel").click(function(event){
-                        jQuery("#parts-confirm").jqmHide();
-                        event.stopPropagation();
-                        return false;
-                    });
-                    signupConfirm.submit(function(event){
-                        // Need todo validation 
-                        var form = jQuery(this);
-                        var error = false;
-                        form.find(".error").remove();
-                        form.find(".msg").remove()
-                        form.find(".valid-email").each(function(){
-                            console.log(this);
-                            var current = jQuery(this);
-                            if (current.val().length == 0) {
-                                current.after('<span class="error">* required</span>');
-                                error = true;
-                            }
-                            else {
-                                if (!/^([a-zA-Z0-9_.-])+@([a-zA-Z0-9_.-])+\.([a-zA-Z])+([a-zA-Z])+/.test(current.val())) {
-                                    current.after('<span class="error">not a valid email</span>');
-                                    error = true;
-                                }
-                            }
-                        });
-                        
-                        if (error) {
-                            return false;
-                        }
-                        
-                        //form.find("input:submit:first").attr("disabled", "true").before('<img class="loader" src="images/loader.gif"/>');
-                        var components = jQuery("#parts-confirm").data("components");
-                        var courseId = jQuery("input[name=courseId]", this).first().val();
-                        var email = jQuery("input[name=supervisor-email]").first().val();
-                        var note = jQuery("input[name=supervisor-note]").first().val();
-                        jQuery.post("/course-signup/rest/signup/new", form.serialize(), function(){
-                            form.find("input:submit").removeAttr("disabled");
-                            form.find(".loader").remove();
-                            dialog.jqmHide();
-                            // TODO Need to reload data.
-                        });
-                        return false;
-                    });
-                };
+
 				
 				// Load the static data.
 				jQuery.getJSON("data/department-tree.json", function(treedata) {
 					var courseData;
 					var signupData;
+					
+					var loadCourse = function(id){
+							// Reset the data in-case someone clicked two items before we're loaded.
+							courseData = undefined;
+							signupData = undefined;
+							jQuery.getJSON("/course-signup/rest/course/" + id, {
+								range: "UPCOMING"
+							}, function(data){
+								courseData = data;
+								showCourse();
+							});
+							jQuery.getJSON("/course-signup/rest/signup/my/course/" + id, {}, function(data){
+								signupData = data;
+								showCourse();
+							});
+						};
 					
 					var showCourse = function(){
 							// Check we have all our data.
@@ -213,11 +183,10 @@
 								// Check it we're signed up to this one
 								$.each(signupData, function() {
 									// For all the components check...
-									console.log(this);
+									var signup = this; // So we can get at it.
 									$.each(this.components, function() {
-										if (component.id = this.id) {
-											component.signup = this;
-											console.log("Match "+ this.id);
+										if (component.id == this.id) {
+											component.signup = signup;
 										}
 									});
 								});
@@ -226,16 +195,18 @@
 									var found = false;
 									for (var part in parts) {
 										if (parts[part].type.id == component.componentSet) {
+											parts[part].signup = (component.signup)?component.signup:null;
 											parts[part].options.push(component);
 											found = true;
 										}
 									}
 									if (!found) {
 										parts.push({
-											options: [ component ],
-											type: {
-												id: component.componentSet,
-												name: component.title
+											"options": [ component ],
+											"signup": (component.signup)?component.signup:null,
+											"type": {
+												"id": component.componentSet,
+												"name": component.title
 											}
 										});
 									}
@@ -256,7 +227,7 @@
 							data.signup = signupSummary(data.components);
 							
 							data.parts = parts;
-							
+							console.log(data);
 							var output = TrimPath.processDOMTemplate("details-tpl", data);
 							//console.log(output.toString());
                             jQuery("#details").html(output);
@@ -310,19 +281,64 @@
 								}
                             });
 						};
+				
+				/**
+				 * This handles the dialogue box for confirming a signup.
+				 * @param {Object} dialog
+				 */
+				var confirmSetup = function(dialog){
+                    var signupConfirm = jQuery("#signup-confirm");
+                    
+                    signupConfirm.find(".cancel").click(function(event){
+                        jQuery("#parts-confirm").jqmHide();
+                        event.stopPropagation();
+                        return false;
+                    });
+					
+                    signupConfirm.submit(function(event){
+                        // Need todo validation 
+                        var form = jQuery(this);
+                        var error = false;
+                        form.find(".error").remove();
+                        form.find(".msg").remove()
+                        form.find(".valid-email").each(function(){
+                            console.log(this);
+                            var current = jQuery(this);
+                            if (current.val().length == 0) {
+                                current.after('<span class="error">* required</span>');
+                                error = true;
+                            }
+                            else {
+                                if (!/^([a-zA-Z0-9_.-])+@([a-zA-Z0-9_.-])+\.([a-zA-Z])+([a-zA-Z])+/.test(current.val())) {
+                                    current.after('<span class="error">not a valid email</span>');
+                                    error = true;
+                                }
+                            }
+                        });
+                        
+                        if (error) {
+                            return false;
+                        }
+                        
+                        //form.find("input:submit:first").attr("disabled", "true").before('<img class="loader" src="images/loader.gif"/>');
+                        var components = jQuery("#parts-confirm").data("components");
+                        var courseId = jQuery("input[name=courseId]", this).first().val();
+                        var email = jQuery("input[name=supervisor-email]").first().val();
+                        var note = jQuery("input[name=supervisor-note]").first().val();
+                        jQuery.post("/course-signup/rest/signup/new", form.serialize(), function(){
+                            form.find("input:submit").removeAttr("disabled");
+                            form.find(".loader").remove();
+                            dialog.jqmHide();
+							loadCourse(courseId); // Not in scope.
+                        });
+                        return false;
+                    });
+                };
 					
 					jQuery("#tree").bind("select_node.jstree", function(event, data) {
+						// Starts the loading of course details.
 						var id = data.inst.get_selected()[0].id;
-						courseData = undefined;
-						signupData = undefined;
-						jQuery.getJSON("/course-signup/rest/course/"+ id, {range: "UPCOMING"}, function(data) {
-							courseData = data;
-							showCourse();
-						});
-						jQuery.getJSON("/course-signup/rest/signup/my/course/"+ id, {}, function(data) {
-							signupData = data;
-							showCourse();
-						});
+						loadCourse(id);
 					})
 				 	.jstree({
 						json_data: {
@@ -541,6 +557,7 @@
                             </th>
                         </tr>
 						{var oneOpen = false}
+						{var signup = part.signup}
 						{for option in part.options}
                         <tr>
                             <td class="option-details">
@@ -558,8 +575,13 @@
 								{/if}
                             </td>
                             <td>
+                            	
+								{if option.signup}
+									Signup: ${option.signup.status}
+								{else}
                                 <input type="radio" name="${part.type.id}" id="option-${option.id}" value="${option.id}"
 								 {if option.full || !option.open }disabled="true"{else}{var oneOpen = true}{/if}/>
+								{/if}
                             </td>
                         </tr>
 						{/for}
