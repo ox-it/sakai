@@ -20,6 +20,9 @@
 		</script>
 		<script type="text/javascript" src="lib/dataTables-1.6/js/jquery.dataTables.js">
 		</script>
+		<script type="text/javascript" src="lib/datejs/date-en-GB.js">
+		</script>
+		
 		
 		<script type="text/javascript">
 			$(function() {
@@ -29,6 +32,7 @@
 						$("#user").html(output);
 						$("#user-frm").bind("submit", function(e) {
 							var id = $("[name=id]", this).val();
+							var form = this;
 							$.ajax({
 								url: "/course-signup/rest/debug/user",
 								type: "POST",
@@ -38,7 +42,7 @@
 									loadUser();
 								},
 								error: function() {
-									$("input[type=text]").after("<span>Couldn't find user</span>");
+									$("input[type=text]", form).after("<span>Couldn't find user</span>");
 								},
 								async: true
 							});
@@ -56,6 +60,26 @@
 					});
 				};
 				loadEmails();
+				
+				var loadNow = function() {
+					$.getJSON("/course-signup/rest/debug/date", [], function(data) {
+						data.now = new Date(data.now);
+						var output = TrimPath.processDOMTemplate("now-tpl", data);
+						$("#now").html(output);
+						$("#now-frm").bind("submit", function(event) {
+							var date = Date.parse($("#now-datetime").val());
+							if (date !== null) {
+								$.post("/course-signup/rest/debug/date", {"now": date.getTime()}, function() {
+									loadNow();
+								});
+							} else {
+								$("input[type=text]", this).after("<span>Failed to parse date.</span>");
+							}
+							return false;
+						});
+					});
+				}
+				loadNow();
 			});
 		</script>
 		
@@ -119,6 +143,7 @@
         </div>
 		
         <div id="user"></div>
+		<div id="now"></div>
         <div id="emails"></div>
 
 		<textarea id="user-tpl" style="display:none" rows="0" cols="0">
@@ -133,6 +158,15 @@
 				New ID:
 				<input type="text" name="id">
 				<input type="submit" value="Change">
+			</form>
+		</textarea>
+		
+		<textarea id="now-tpl" style="display:none" rows="0" cols="0">
+			<h2>Time/Date</h2>
+			Current: ${now}<br>
+			<form id="now-frm" action="#">
+				New: <input type="text" name="datatime" id="now-datetime">
+				<input type="submit" value="Update">
 			</form>
 		</textarea>
 		

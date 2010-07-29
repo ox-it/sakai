@@ -27,6 +27,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 
 	private CourseDAO dao;
 	private SakaiProxy proxy;
+
+	private Date now;
 	
 	public void setDao(CourseDAO dao) {
 		this.dao = dao;
@@ -327,7 +329,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public Date getNow() {
-		return new Date();
+		return (now==null)?new Date():now;
+	}
+	
+	public void setNow(Date now) {
+		this.now = now;
 	}
 
 	/**

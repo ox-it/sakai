@@ -58,6 +58,11 @@ public interface CourseSignupService {
 	 * @return
 	 */
 	public Date getNow();
+	
+	/**
+	 * Allow setting the date. This should be removed once out of development.
+	 */
+	public void setNow(Date date);
 
 	public List<CourseSignup> getMySignups(Set<Status> statuses);
 }

@@ -3,6 +3,7 @@ package uk.ac.ox.oucs.vle;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.FormParam;
@@ -23,6 +24,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
+import org.codehaus.jackson.node.ObjectNode;
 
 import uk.ac.ox.oucs.vle.proxy.Email;
 import uk.ac.ox.oucs.vle.proxy.SakaiProxyTest;
@@ -78,6 +80,23 @@ public class DebugResource {
 		List<Email> emails = proxy.getEmails();
 		String json = objectMapper.typedWriter(TypeFactory.collectionType(List.class, Email.class)).writeValueAsString(emails);
 		return Response.ok(json).build();
-		
+	}
+	
+	@Path("/date")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getDate() throws JsonGenerationException, JsonMappingException, IOException {
+		Date now = courseService.getNow();
+		ObjectNode node = objectMapper.createObjectNode();
+		node.put("now", now.getTime());
+		return Response.ok(objectMapper.writeValueAsString(node)).build();
+	}
+	
+	@Path("/date")
+	@POST
+	public Response setDate(@FormParam("now")long newNow) {
+		Date now = new Date(newNow);
+		courseService.setNow(now);
+		return Response.ok().build();
 	}
 }
