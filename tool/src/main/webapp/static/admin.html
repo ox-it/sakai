@@ -25,7 +25,10 @@
 <script type="text/javascript"
 	src="lib/dataTables-1.6/js/jquery.dataTables.js">
 		</script>
-
+<script type="text/javascript"
+	src="lib/dataTables-1.6/js/jquery.dataTables.reloadAjax.js">
+		</script>
+		
 <script type="text/javascript">
 			$(function(){
 
@@ -181,7 +184,7 @@
 											"url": url,
 											"type": "POST",
 											"success": function(data) {
-												console.log("cool, now reload");// TODO Reload page
+												signups.fnReloadAjax();
 											}
 										});
 										return false;
