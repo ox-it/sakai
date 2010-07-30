@@ -19,6 +19,8 @@
 		</script>
 		<script type="text/javascript" src="lib/dataTables-1.6/js/jquery.dataTables.js">
 		</script>
+		<script type="text/javascript" src="lib/Text.js">
+		</script>
 		<script type="text/javascript" language="JavaScript">
 		// Small jQuery plugin to get dates from server.
         (function($){
@@ -76,7 +78,7 @@
 				 * @param The components to produce a summary for.
 				 */
 				var signupSummary = function(components) {
-					var now = $.serverDate(); // TODO Get this from server.
+					var now = $.serverDate();
 					var nextOpen = Number.MAX_VALUE;
 					var willClose = 0;
 					var isOneOpen = false;
@@ -169,6 +171,7 @@
 							data.open = false;
 							data.presenters = [];
 							data.administrators = [];
+							data.description = Text.toHtml(data.description);
 							var parts = [];
 							for(var componentIdx in data.components) {
 								var component = data.components[componentIdx];
