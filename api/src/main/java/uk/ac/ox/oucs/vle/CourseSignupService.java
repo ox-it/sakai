@@ -52,6 +52,8 @@ public interface CourseSignupService {
 	
 	public void setSignupStatus(String signupId, Status status);
 	
+	public List<CourseGroup> search(String search);
+	
 	/**
 	 * This is what the service should use when determining the current time.
 	 * This is to support testing the data against different times.

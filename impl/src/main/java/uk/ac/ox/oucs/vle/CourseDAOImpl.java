@@ -11,6 +11,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
+import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.sql.JoinFragment;
 import org.hibernate.transform.ResultTransformer;
@@ -178,6 +179,31 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		CourseComponentDAO componentDao = new CourseComponentDAO();
 		componentDao.setId(id);
 		return componentDao;
+	}
+
+	public List<CourseGroupDAO> findCourseGroupByWords(final String[] words, final Range range, final Date date) {
+		return getHibernateTemplate().executeFind(new HibernateCallback() {
+
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
+				for(String word: words) {
+					criteria.add(Expression.ilike("title", word, MatchMode.ANYWHERE));
+				}
+				switch(range) {
+					case UPCOMING:
+						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("closes", date));
+						break;
+					case PREVIOUS:
+						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(Expression.le("closes", date));
+						break;
+				}
+				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+				return criteria.list();
+			}
+			
+		});
+		
 	}
 
 }

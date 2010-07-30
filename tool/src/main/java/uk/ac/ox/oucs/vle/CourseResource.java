@@ -87,6 +87,17 @@ public class CourseResource {
 		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
 		
 	}
+	
+	@Path("/search")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response setCourses(@QueryParam("terms") String terms) throws JsonGenerationException, JsonMappingException, IOException {
+		if (terms == null) {
+			throw new WebApplicationException();
+		}
+		List<CourseGroup> groups = courseService.search(terms);
+		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
+	}
 
 	/**
 	 * Formats a duration sensibly.
