@@ -10,7 +10,7 @@ public class TestCourseSignupServiceMySignups extends TestOnSampleData {
 	public void testMySignups() {
 		List<CourseSignup> signups = service.getMySignups(null);
 		assertNotNull(signups);
-		assertEquals(1, signups.size());
+		assertEquals(2, signups.size());
 		CourseSignup accepted = signups.get(0);
 		assertEquals(Status.ACCEPTED, accepted.getStatus());
 		assertEquals(2, accepted.getComponents().size());

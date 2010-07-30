@@ -37,7 +37,7 @@ public class SakaiProxyTest implements SakaiProxy {
 		for (int i = 1; i <=50; i++) {
 			users.add(new UserProxy("id"+i, "eid"+i, "Full Name "+ i, "user"+i+"@dept.ox.ac.uk"));
 		}
-		current = users.get(3);
+		current = users.get(0);
 	}
 		
 	/* (non-Javadoc)
