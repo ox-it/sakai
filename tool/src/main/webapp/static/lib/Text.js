@@ -4,7 +4,7 @@ var Text = (function() {
 	var emailRegex = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}/ig;
 	var emailReplacement = '<a class="email" href="mailto:$&">$&</a>';
 	var urlRegex = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/ig
-	var urlReplacement = '<a class="url" href="$&">$&</a>';
+	var urlReplacement = '<a class="url" href="$&" target="_blank">$&</a>';
 	var lineRegex = /\n/g;
 	var lineReplacement = '<br>';
 	
