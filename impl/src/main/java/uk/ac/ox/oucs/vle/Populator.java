@@ -126,6 +126,9 @@ public class Populator {
 					logFailure(id, "No close date set");
 					continue;
 				}
+				if (openDate.after(closeDate)){
+					logFailure(id, "Open date is before close date");
+				}
 				int capacity = rs.getInt("capacity");
 				if (capacity < 1) {
 					logFailure(id, "Capacity isn't set or is zero");
