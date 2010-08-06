@@ -685,7 +685,11 @@
 		function ( sData )
 		{
 			/* Sanity check that we are dealing with a string or quick return for a number */
-			if ( typeof sData == 'number' )
+			if (!sData)
+			{
+				return null;
+			}
+			else if ( typeof sData == 'number' )
 			{
 				return 'numeric';
 			}
