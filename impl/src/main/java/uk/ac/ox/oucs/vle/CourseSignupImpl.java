@@ -31,6 +31,10 @@ public class CourseSignupImpl implements CourseSignup {
 	}
 
 	public Person getSupervisor() {
+		String supervisorId = dao.getSupervisorId();
+		if (supervisorId == null) {
+			return null;
+		}
 		UserProxy user = service.loadUser(dao.getSupervisorId());
 		Person person = null;
 		if (user != null) {
