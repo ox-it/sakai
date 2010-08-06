@@ -241,6 +241,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		// Create the signup.
 		String supervisorId = supervisor.getId();
 		CourseSignupDAO signupDao = dao.newSignup(userId, supervisorId);
+		signupDao.setCreated(getNow());
 		signupDao.setGroup(groupDao);
 		signupDao.setStatus(Status.PENDING);
 		signupDao.getProperties().put("message", message);
