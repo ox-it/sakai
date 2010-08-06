@@ -31,8 +31,17 @@ public interface CourseSignupService {
 	
 	public void signup(String courseId, Set<String> components, String supervisorEmail, String message);
 	
+	/**
+	 * A signup made
+	 * @param userId
+	 * @param courseId
+	 * @param components
+	 */
+	public void signup(String userId, String courseId, Set<String> components);
 	
 	public List<CourseSignup> getCourseSignups(String courseId);
+	
+	public List<CourseSignup> getComponentSignups(String componentId);
 	
 	public List<CourseSignup> getApprovals();
 	

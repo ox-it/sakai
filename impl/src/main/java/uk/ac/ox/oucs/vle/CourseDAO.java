@@ -44,6 +44,10 @@ public interface CourseDAO {
 	List<CourseSignupDAO> findSignupByCourse(String userId, String courseId);
 
 	List<CourseGroupDAO> findCourseGroupByWords(String[] words, Range range, Date date);
+
+	List<CourseSignupDAO> findSignupByComponent(String componentId);
+
+	List<CourseSignupDAO> findSignupPending(String currentUser);
 	
 
 }

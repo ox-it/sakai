@@ -174,6 +174,30 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			
 		});
 	}
+	
+	public List<CourseSignupDAO> findSignupByComponent(final String componentId) {
+		return getHibernateTemplate().executeFind(new HibernateCallback() {
+
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query query = session.createQuery("select cs from CourseSignupDAO cs inner join fetch cs.components cc where cc.id = :componentId");
+				query.setString("componentId", componentId);
+				return query.list();
+			}
+		});
+	}
+	
+	public List<CourseSignupDAO> findSignupPending(final String userId) {
+		return getHibernateTemplate().executeFind(new HibernateCallback() {
+			public Object doInHibernate(Session session) {
+				Query query = session.createQuery("select cs from CourseSignupDAO cs inner join fetch cs.components cc where (cc.administrator = :userId and cs.status = :adminStatus) or (cs.supervisorId = :userId and cs.status = :supervisorStatus)");
+				query.setString("userId", userId);
+				query.setParameter("adminStatus", Status.PENDING);
+				query.setParameter("supervisorStatus", Status.ACCEPTED);
+				return query.list();
+			}
+		});
+	}
 
 	public CourseComponentDAO newCourseComponent(String id) {
 		CourseComponentDAO componentDao = new CourseComponentDAO();

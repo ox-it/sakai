@@ -2,7 +2,6 @@ package uk.ac.ox.oucs.vle;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -52,7 +51,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		signupDao.setStatus(Status.APPROVED);
 		dao.save(signupDao);
-		// Send email to student?
+		// TODO Send email to student?
 	}
 	
 	public void accept(String signupId) {
@@ -110,8 +109,13 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public List<CourseSignup> getApprovals() {
-		// TODO Auto-generated method stub
-		return null;
+		String currentUser = proxy.getCurrentUser().getId();
+		List <CourseSignupDAO> signupDaos = dao.findSignupPending(currentUser);
+		List<CourseSignup> signups = new ArrayList<CourseSignup>(signupDaos.size());
+		for(CourseSignupDAO signupDao : signupDaos) {
+			signups.add(new CourseSignupImpl(signupDao, this));
+		}
+		return signups;
 	}
 	
 	public List<CourseSignup> getMySignups(Set<Status> statuses) {
@@ -154,6 +158,24 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		return signups;
 	}
+	
+	public List<CourseSignup> getComponentSignups(String componentId) {
+		CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
+		if (componentDao == null) {
+			throw new IllegalStateException("Cannot find componentId: "+ componentId);
+		}
+		String userId = proxy.getCurrentUser().getId();
+		if (!isAdministrator(Collections.singleton(componentDao), userId, false)) {
+			throw new IllegalStateException("You aren't an admin for component: "+ componentId);
+		}
+		List<CourseSignupDAO> signupDaos = dao.findSignupByComponent(componentId);
+		List<CourseSignup> signups = new ArrayList<CourseSignup>(signupDaos.size());
+		for(CourseSignupDAO signupDao : signupDaos) {
+			signups.add(new CourseSignupImpl(signupDao, this));
+		}
+		return signups;
+	}
+		
 
 	public void reject(String signupId) {
 		String userId = proxy.getCurrentUser().getId();
@@ -189,6 +211,39 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public void setSignupStatus(String signupId, Status status) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	public void signup(String userId, String courseId, Set<String> componentIds) {
+		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
+		if (groupDao == null) {
+			throw new IllegalArgumentException("Failed to find group with ID: "+ courseId);
+		}
+		// Need to find all the components.
+		Set<CourseComponentDAO> componentDaos = new HashSet<CourseComponentDAO>(componentIds.size());
+		for(String componentId: componentIds) {
+			CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
+			if (componentDao != null) {
+				componentDaos.add(componentDao);
+				if (!componentDao.getGroups().contains(groupDao)) { // Check that the component is actually part of the set.
+					throw new IllegalArgumentException("The component: "+ componentId+ " is not part of the course: "+ courseId);
+				}
+			} else {
+				throw new IllegalArgumentException("Failed to find component with ID: "+ componentId);
+			}
+		}
+		String currentUserId = proxy.getCurrentUser().getId();
+		if (!isAdministrator(componentDaos, currentUserId, false)) {
+			throw new IllegalStateException("You are not an administrator for these components"); // TODO I think this needs to be handled through the UI.
+		}
+		CourseSignupDAO signupDao = dao.newSignup(userId, null);
+		signupDao.setCreated(getNow());
+		signupDao.setGroup(groupDao);
+		signupDao.setStatus(Status.PENDING);
+		dao.save(signupDao);
+		for (CourseComponentDAO componentDao: componentDaos) {
+			componentDao.getSignups().add(signupDao);
+			dao.save(componentDao);
+		}
 	}
 
 	public void signup(String courseId, Set<String> componentIds, String supervisorEmail,
