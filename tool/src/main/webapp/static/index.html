@@ -21,31 +21,12 @@
 		</script>
 		<script type="text/javascript" src="lib/Text.js">
 		</script>
+		<script type="text/javascript" src="lib/serverDate.js">
+		</script>
+		<script type="text/javascript" src="lib/signup.js">
+		</script>
 		<script type="text/javascript" language="JavaScript">
-		// Small jQuery plugin to get dates from server.
-        (function($){
-			
-			var serverDate;
-			var init = function() {
-				if (!serverDate) {
-					$.ajax({
-						"url": "/course-signup/rest/user/current",
-						"type": "GET",
-						"async": false,
-						"dataType": "json",
-						"success": function(data) {
-							serverDate = data.date;
-						}
-					});
-				}
-			};
-			
-            $.serverDate = function(){
-                init();
-                return serverDate;
-                
-            };
-        })(jQuery);
+		
 			
 			jQuery(function() {
 				
@@ -103,40 +84,17 @@
 					if (isOneOpen) {
 						if (areSomePlaces) {
 							var remaining = willClose - now;
-							message = "close in "+ formatDuration(remaining);
+							message = "close in "+ Signup.util.formatDuration(remaining);
 						} else {
 							message = "full";
 						}
 					} else {
 						var until = nextOpen - now;
-						message = "open in "+ formatDuration(until);
+						message = "open in "+ Signup.util.formatDuration(until);
 					}
 					return message;
 				};
-                
-                /**
-                 * Formats a durations to display to the user.
-                 * @param {Object} duration Duration in milliseconds.
-                 */
-                var formatDuration = function(remaining){
-                    if (remaining < 1000) {
-                        return "< 1 second";
-                    } else 
-                        if (remaining < 60000) {
-                            return Math.floor(remaining / 1000) + " seconds";
-                        } else 
-                            if (remaining < 3600000) {
-                                return Math.floor(remaining / 60000) + " minutes";
-                            } else 
-                                if (remaining < 86400000) {
-                                    return Math.floor(remaining / 3600000) + " hours";
-                                } else {
-                                    return Math.floor(remaining / 86400000) + " days";
-                                }
-                };
-				
-
-				
+        				
 				// Load the static data.
 				jQuery.getJSON("data/department-tree.json", function(treedata) {
 					var courseData;
@@ -328,7 +286,7 @@
                         var courseId = jQuery("input[name=courseId]", this).first().val();
                         var email = jQuery("input[name=supervisor-email]").first().val();
                         var note = jQuery("input[name=supervisor-note]").first().val();
-                        jQuery.post("/course-signup/rest/signup/new", form.serialize(), function(){
+                        jQuery.post("/course-signup/rest/signup/my/new", form.serialize(), function(){
                             form.find("input:submit").removeAttr("disabled");
                             form.find(".loader").remove();
                             dialog.jqmHide();
@@ -456,7 +414,7 @@
         	<ul class="navIntraTool actionToolBar">
             <li><span>Course Signup</span></li>
             <li><span><a href="my.html">My Courses</a></span></li>
-            <li><span><a href="#">Pending Acceptances</a></span></li>
+            <li><span><a href="pending.html">Pending Acceptances</a></span></li>
             <li><span><a href="admin.html">Course Administration</a></span></li>
             <li><span><a href="debug.html">Debug</a></span></li>
 			</ul>

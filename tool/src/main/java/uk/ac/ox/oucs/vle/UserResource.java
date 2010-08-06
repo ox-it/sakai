@@ -6,9 +6,12 @@ import java.util.Date;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ContextResolver;
 
 import org.codehaus.jackson.JsonFactory;
@@ -59,5 +62,26 @@ public class UserResource {
 		return Response.ok(objectMapper.writeValueAsString(rootNode)).build();
 	}
 	
+	@Path("/find")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUsers(@QueryParam("search")String search) throws JsonGenerationException, JsonMappingException, IOException {
+		if (search == null) {
+			throw new WebApplicationException(Status.BAD_REQUEST);
+		}
+		UserProxy user = proxy.findUserById(search);
+		if (user == null) {
+			user = proxy.findUserByEid(search);
+			if (user == null) {
+				user = proxy.findUserByEmail(search);
+			}
+		}
+		// Now process.
+		if (user == null) {
+			return Response.status(Status.NOT_FOUND).build();
+		} else {
+			return Response.ok(objectMapper.writeValueAsString(user)).build();
+		}
+	}
 	
 }

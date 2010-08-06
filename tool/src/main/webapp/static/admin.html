@@ -28,18 +28,22 @@
 <script type="text/javascript"
 	src="lib/dataTables-1.6/js/jquery.dataTables.reloadAjax.js">
 		</script>
+		<script type="text/javascript" src="lib/serverDate.js">
+		</script>
+		<script type="text/javascript" src="lib/signup.js">
+		</script>
 		
 <script type="text/javascript">
 			$(function(){
 
 				var processSignupRow = function(item) {
 					var components = $.map(item.components, function(component) {
-						return component.title;
+						return component.title+ " "+ component.slot+ "<br>("+ component.places+ " places)";
 					}).join("<br>");
 					return [
 							'<a href="mailto:'+item.user.email+ '">'+item.user.name +'</a>',
 							item.id,
-							item.supervisor.name,
+							(item.supervisor)?item.supervisor.name:"",
 							components,
 							item.status,
 							$.map(getActions(item.status, item.id), function(action) {
@@ -82,6 +86,22 @@
 					}
 					return [];
 				};
+				
+				/**
+				 * Gets the status of a component. This is used on the admin page to show what state the component is in.
+				 * @param {Object} component
+				 * @return A string to represent the status of this component.
+				 */
+				var getComponentStatus = function(opens, closes) {
+					var now = $.serverDate();
+					if (now < opens) {
+						return "Pending";
+					} else if (now < closes) {
+						return "Open";
+					} else {
+						return "Closed";
+					}
+				};
 				// 
 				$("#course-list").html('<table cellpadding="0" cellspacing="0" border="0" class="display" id="course-list-table"></table>');
 				var courseList = $("#course-list-table").dataTable( {
@@ -107,11 +127,12 @@
 						});
 					},
 					"fnRowCallback": function(nRow, aData, iIndex) {
-						$(nRow).bind("click", {code: aData[1]}, function(e) {
+						$(nRow).bind("click", {"code": aData[1], "name": aData[0]}, function(e) {
 							var code = e.data.code;
+							var name = e.data.name;
 
 							// Table showing the components.
-							$("#summary").html('<table border="0" class="display" id="summary-table"></table>');
+							$("#summary").html('<h3>'+ name +'</h3><table border="0" class="display" id="summary-table"></table>');
 							var summary = $("#summary-table").dataTable( {
 								"bProcessing": true,
 								"bPaginate": false,
@@ -123,28 +144,168 @@
 								"sAjaxSource": "/course-signup/rest/course/",
 								"aoColumns": [
 								              {"sTitle": "Component"},
+											  {"sTitle": "Size"},
 								              {"sTitle": "Places"},
-								              {"sTitle": "Status"}
+											  {
+											  	"sTitle": "Signup Period",
+												"fnRender": function(aObj) {
+													return new Date(aObj.aData[3]).toDateString() + " (for "+ Signup.util.formatDuration(aObj.aData[8] - aObj.aData[3])+ ")";
+												},
+												"bUseRendered": false
+											  },
+											  {"sTitle": "Term"},
+								              {
+											  	"sTitle": "Status",
+												"fnRender": function(aObj) {
+													return getComponentStatus(aObj.aData[3], aObj.aData[8]);
+												}
+											  },
+											  {"bVisible": false},
+											  {"bVisible": false},
+											  {"bVisible": false}
 								              ],
+					
 								"fnServerData": function(sSource, aoData, fnCallback) {
-									$.getJSON(sSource+code, [], function(data) {
+									$.getJSON(sSource+code, {"range": "ALL"}, function(data) {
 										var tableData = {
 												"aaData": []
 										};
 										for(var i in data.components) {
 											var component = data.components[i];
-											tableData.aaData.push([ component.title, component.places, ""]);
+											tableData.aaData.push([
+											 component.title,
+											 component.size,
+											 component.places,
+											 component.opens,
+											 component.when, //4
+											 component.sessions,
+											 component.presenter,
+											 component.administrator,
+											 component.closes, //8
+											]);
 										}
 										fnCallback(tableData);
 									});
 								}
 							});
 							
-							console.log(code);
-							$.getJSON("/course-signup/rest/course/"+code, {range: "ALL"}, function(data) {
-								//console.log(data);
+							$("#signups").html('<table border="0" class="display" id="signups-table"></table><a href="#" id="signup-add">Add</a>');
+							
+							var signupAddUser = $("#signup-add-user-win");
+							signupAddUser.resize(function(e){
+								// Calculate size.
+								console.log("reseize");
 							});
-							$("#signups").html('<table border="0" class="display" id="signups-table"></table>');
+							signupAddUser.jqm({
+								onShow: function(objs) {
+									$("body").css("overflow", "hidden");
+									objs.w.css('opacity',1).show();
+								},
+								onHide: function(objs) {
+									$("body").css("overflow", "auto");
+									objs.w.fadeOut('250',function(){ objs.o.remove(); });
+								}
+							});
+							$("#signup-add").click(function(){
+								signupAddUser.jqmShow();
+								console.log(signupAddUser.height());
+								console.log(signupAddUser.innerHeight());
+								// Need to resize to content.
+								var windowHeight = $(window).height();
+								var positionTop = signupAddUser[0].offsetTop;
+								if (windowHeight < signupAddUser.outerHeight() + positionTop) {
+									// Too big.
+									var newHeight = windowHeight - (signupAddUser.outerHeight(false) - signupAddUser.height()) -2;
+									signupAddUser.height(newHeight);
+									signupAddUser.css("top", "1px"); // Move almost to the top.
+									
+									console.log("resize "+ windowHeight+ " "+newHeight );
+								};
+								
+							});
+							$(window).resize(function(){
+								var windowHeight = $(window).height();
+								var positionTop = signupAddUser[0].offsetTop;
+								if (windowHeight < signupAddUser.outerHeight() + positionTop) {
+									// Too big.
+									var newHeight = windowHeight - (signupAddUser.outerHeight(false) - signupAddUser.height()) -2;
+									signupAddUser.height(newHeight);
+									signupAddUser.css("top", "1px"); // Move almost to the top.
+									
+									console.log("resize "+ windowHeight+ " "+newHeight );
+								};
+							});
+							
+							signupAddUser.bind("submit", function(e) {
+								var users = e.target.users.value;
+								// Need error handling when empty.
+								var goodUsers = [];
+								var badUsers = [];
+								$.each(users.split(/\s+/), function() {
+									var that = this;
+									if (!this || this.length < 1) {
+										return;
+									}
+									$.ajax({
+										"url": "/course-signup/rest/user/find",
+										"method": "GET",
+										"async": false, // So we don't overload the server.
+										"data": {"search": this.toString()},
+										"success": function(data) {
+											goodUsers.push(data);
+										},
+										"error": function() {
+											badUsers.push(that.toString());
+										}
+									})
+								});
+								if (badUsers.length > 0) {
+									// Display list of bad user.
+									$(".errors",this).html("Couldn't find user"+ (badUsers.length > 1?"s":"")+ ": "+ badUsers.join(", "));
+								} else {
+									// Show next page...
+									$.getJSON("/course-signup/rest/course/"+code, {"range": "ALL"}, function(data){
+										var components = data.components;
+										var output = TrimPath.processDOMTemplate("signup-add-components-tpl", data);
+										signupAddUser.jqmHide();
+										var window = $("#signup-add-components-win");
+										window.html(output);
+										window.jqm();
+										window.jqmShow();
+										// Bind on the form submit.
+										$("#signup-add-components").bind("submit", function(e){
+											//
+											var components = [];
+											$("[type=checkbox]", this).each(function() {
+												if(this.checked) {
+													components.push(this.id.substring(7)); // Remove 'option-' prefix
+												}
+											});
+											if (components.length == 0) {
+												//error.
+											}
+											// Go sign them up.
+											$.each(goodUsers, function() {
+												var user = this;
+												$.ajax({
+													"url": "/course-signup/rest/signup/new",
+													"type": "POST",
+													"async": false,
+													"traditional": true,
+													"data": {"userId": user.id, "courseId": code, "components": components},
+													"success": function(data) {
+														console.log("Good for "+ user.id);
+													}
+												});
+											});
+											return false;
+										});
+									});
+								}
+								
+								return false;
+							});
+							
 							var signups = $("#signups-table").dataTable( {
 								"bProcessing": true,
 								"bPaginate": false,
@@ -253,7 +414,6 @@ table th {
 	z-index: 1000; /* To keep below autocomplete */
 	background: white;
 	overflow: auto;
-	height: 300px;
 }
 </style>
 </head>
@@ -262,7 +422,7 @@ table th {
 <ul class="navIntraTool actionToolBar">
 	<li><span><a href="index.html">Course Signup</a></span></li>
 	<li><span><a href="my.html">My Courses</a></span></li>
-	<li><span><a href="#">Pending Acceptances</a></span></li>
+	<li><span><a href="pending.html">Pending Acceptances</a></span></li>
 	<li><span>Course Administration</span></li>
 	<li><span><a href="debug.html">Debug</a></span></li>
 </ul>
@@ -276,8 +436,42 @@ table th {
 <div id="signups"></div>
 </div>
 
+
+
 <!-- Hidden extra bits -->
-<div id="parts-confirm" class="jqmWindow" style="display: none"></div>
+<!-- Popup window for finding users.-->
+<div id="signup-add-user-win" class="jqmWindow" style="display: none">
+	<h2>Find users</h2>
+	<form id="signup-add-user">
+		<div class="errors"></div>
+		<textarea name="users" id="add-users" cols="30" rows="8"></textarea><br>
+		<input type="submit" value="Find">
+	</form>
+</div>
+
+<!-- Popup window for selecting components. -->
+<div id="signup-add-components-win" class="jqmWindow" style="display:none">
+
+</div>
+
+<textarea id="signup-add-components-tpl" style="display:none" rows="0" cols="0">
+	<h2>Select components</h2>
+	<form id="signup-add-components">
+	<ul>
+	{for component in components}
+		<li>
+			<input type="checkbox" name="${component.id}" id="option-${component.id}" value="true">
+			<label for="component-${component.id}">${component.title} - ${component.slot} for ${component.sessions} sessions in ${component.when},
+					{if component.presenter}<a href="mailto:${component.presenter.email}">${component.presenter.name}</a>{/if}
+					</label>
+                                <br />
+                                <span class="location">${component.location}</span>
+		</li>
+	{/for}
+	</ul>
+		<input type="submit" value="Add">
+	</form>
+</textarea>
 
 <textarea id="parts-confirm-tpl" style="display: none;" rows="0"
 	cols="0">

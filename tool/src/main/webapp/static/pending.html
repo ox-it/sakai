@@ -10,28 +10,98 @@
 		<link rel="stylesheet" type="text/css" href="lib/dataTables-1.6/media/demo_table.css"/>
 		
 		
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">
-		</script>
-		<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js">
-		</script>
-		<script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js">
-		</script>
+        <link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css" />
+        <link rel="stylesheet" type="text/css" href="tool_base.css" />
+        <link rel="stylesheet" type="text/css" href="tool.css" />
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">
+        </script>
+        <script type="text/javascript" src="lib/jstree-1.0rc/_lib/jquery.cookie.js">
+        </script>
+        <script type="text/javascript" src="lib/jstree-1.0rc/jquery.jstree.js">
+        </script>
+        <script type="text/javascript" src="lib/jqmodal-r14/jqModal.js">
+        </script>
+        <script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js">
+        </script>
+        <script type="text/javascript" src="lib/dataTables-1.6/js/jquery.dataTables.js">
+        </script>
+        <script type="text/javascript" src="lib/dataTables-1.6/js/jquery.dataTables.reloadAjax.js">
+        </script>
+        <script type="text/javascript" src="lib/serverDate.js">
+        </script>
+        <script type="text/javascript" src="lib/signup.js">
+        </script>
 		
 		<script type="text/javascript">
-			jQuery(function(){
+			$(function(){
+				// Support sorting based on a user.
+				$.fn.dataTableExt.oSort["user-asc"] = function(x, y) {
+					return $.fn.dataTableExt.oSort["string-asc"](x.name, y.name);
+				};
+				$.fn.dataTableExt.oSort["user-desc"] = function(x, y) {
+					return $.fn.dataTableExt.oSort["string-desc"](x.name, y.name);
+				}
+				
 				jQuery("#pending-table").dataTable( {
 					bProcessing: true,
-					sAjaxSource: "data/accept/pending.json",
+					"bAutoWidth": false,
+					sAjaxSource: "/course-signup/rest/signup/pending",
+					aoColumns: [
+						{"bVisible": false,},
+						{
+							"sTitle": "Created",
+							"fnRender": function(aObj){
+								return Signup.util.formatDuration($.serverDate() - aObj.aData[1])+ " ago"; 
+							},
+							"bUseRendered": false				
+						},
+						{
+							"sTitle": "Student",
+							"sType": "user",
+							"bUseRendered": false,
+							"fnRender": function(aObj){
+								return aObj.aData[2].name;
+							}},
+						{"sTitle": "Component"},
+						{
+							"sTitle": "Supervisor",
+							"sType": "user",
+							"bUseRendered": false,
+							"fnRender": function(aObj){
+								var user = aObj.aData[4];
+								return (user)?'<a href="mailto:'+ user.email+ '">'+ user.name+ '</a>':"";
+							}
+						},
+						{"sTitle": "Notes"},
+						{"sTitle": "Status"},
+						{"sTitle": "Actions"}
+					],
 					fnServerData: function( sSource, aoData, fnCallback ) {
 						jQuery.ajax( {
 							dataType: "json",
 							type: "GET",
 							url: sSource,
-							success: function(data) {
-								console.log(data);
-								return {
-									
-								}
+							success: function(result) {
+								var data = [];
+								$.each(result, function(){
+									var course = this.group.title+"<br>" +
+										$.map(this.components, function(component){
+											return component.title+ " "+ component.slot + " in "+ component.when;
+										}).join("<br>");
+									data.push([
+										this.id,
+										this.created,
+										this.user,
+										course, //TODO Need lots of other bits.
+										this.supervisor?this.supervisor:"", // can be null
+										this.notes?this.notes:"", // can be null
+										this.status,
+										""										
+									]);
+								});
+								fnCallback({
+									"aaData": data 
+								});
 							}
 						})
 					}
@@ -46,23 +116,17 @@
     <body>
     	<div id="toolbar" >
         	<ul class="navIntraTool actionToolBar">
-            <li><span><a href="#">Course Signup</a></span></li>
-            <li><span>My Courses</span></li>
-            <li><span><a href="#">Pending Acceptances</a></span></li>
-            <li><span><a href="#">Course Administration</a></span></li>
+            <li><span><a href="index.html">Course Signup</a></span></li>
+            <li><span><a href="my.html">My Courses</a></span></li>
+            <li><span>Pending Acceptances</span></li>
+            <li><span><a href="admin.html">Course Administration</a></span></li>
+			<li><span><a href="debug.html">Debug</a></span></li>
 			</ul>
         </div>
 		<div>
 			<p>These are the students who have signed up for a course that need your approval.</p>
 		</div>
 		<table id="pending-table">
-			<thead>
-				<tr>
-				<th>1</th>
-				<th>2</th>
-				</tr>
-			</thead>
-			<tbody></tbody>
 		</table>
 		
 		

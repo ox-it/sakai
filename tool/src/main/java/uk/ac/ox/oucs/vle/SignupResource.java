@@ -78,12 +78,20 @@ public class SignupResource {
 		}; 
 	}
 	
-	@Path("/new")
+	@Path("/my/new")
 	@POST
 	public Response signup(@FormParam("courseId") String courseId, @FormParam("components")Set<String> components, @FormParam("email")String email, @FormParam("message")String message) {
 		courseService.signup(courseId, components, email, message);
 		return Response.ok().build();
 	}
+	
+	@Path("/new")
+	@POST
+	public Response signup(@FormParam("userId")String userId, @FormParam("courseId") String courseId, @FormParam("components")Set<String> components) {
+		courseService.signup(userId, courseId, components);
+		return Response.ok().build();
+	}
+	
 	
 	@Path("{id}/accept")
 	@POST
@@ -126,5 +134,35 @@ public class SignupResource {
 				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
 			}
 		};
+	}
+	
+	@Path("/component/{id}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public StreamingOutput getComponentSignups(@PathParam("id") final String componentId) {
+		return new StreamingOutput() {
+
+			public void write(OutputStream output) throws IOException,
+					WebApplicationException {
+				List<CourseSignup> signups = courseService.getComponentSignups(componentId);
+				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
+			}
+			
+		};
+	}
+	
+	@Path("/pending")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public StreamingOutput getPendingSignups() {
+		return new StreamingOutput() {
+
+			public void write(OutputStream output) throws IOException,
+					WebApplicationException {
+				List<CourseSignup> signups = courseService.getApprovals();
+				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
+			}
+			
+		}; 
 	}
 }
