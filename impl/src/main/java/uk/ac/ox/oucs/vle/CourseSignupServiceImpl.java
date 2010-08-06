@@ -78,8 +78,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		dao.save(signupDao);
 		
 		String supervisorId = signupDao.getSupervisorId();
-		
-		sendSignupEmail(supervisorId, signupDao, "approval.supervisor.subject", "approval.supervisor.body", null);
+		if (supervisorId != null) {
+			sendSignupEmail(supervisorId, signupDao, "approval.supervisor.subject", "approval.supervisor.body", null);
+		}
 	}
 
 	private boolean isAdministrator(Collection<CourseComponentDAO> components, String currentUserId, boolean defaultValue) {

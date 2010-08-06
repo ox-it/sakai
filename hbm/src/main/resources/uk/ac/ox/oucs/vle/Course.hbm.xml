@@ -23,8 +23,7 @@
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO"
 				column="component" />
 		</set>
-		<property name="supervisorId" type="string" length="99"
-			not-null="true" index="course_signup_supervisor_idx" />
+		<property name="supervisorId" type="string" length="99" index="course_signup_supervisor_idx" />
 		<map name="properties" table="course_prop">
 			<key column="id" foreign-key="none" />
 			<map-key type="string" length="20" column="name" />
