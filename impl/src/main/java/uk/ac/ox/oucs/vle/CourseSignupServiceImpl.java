@@ -215,7 +215,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		
 		
 		// Check they are valid as a choice (in signup period (student), not for same component in same term)
-		// TODO Check they are all have a common course group.
 		Date now = getNow();
 		String userId = proxy.getCurrentUser().getId();
 		for(CourseComponentDAO componentDao: componentDaos) {
@@ -225,9 +224,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			if ( (componentDao.getSize()-componentDao.getTaken()) < 1) {
 				throw new IllegalStateException("No places left on: "+ componentDao.getId());
 			}
-			// TODO If state is withdrawn ignore it.
 			for (CourseSignupDAO signupDao: componentDao.getSignups()) {
-				if (userId.equals(signupDao.getUserId())) {
+				if (!signupDao.getStatus().equals(Status.WITHDRAWN) && userId.equals(signupDao.getUserId())) {
 					throw new IllegalStateException("User "+ userId+ " already has a place on component: "+ componentDao.getId());
 				}
 			}
