@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -56,6 +57,10 @@ public class CourseSignupImpl implements CourseSignup {
 
 	public CourseGroup getGroup() {
 		return new CourseGroupImpl(dao.getGroup(), service);
+	}
+
+	public Date getCreated() {
+		return dao.getCreated();
 	}
 
 }
