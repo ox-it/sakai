@@ -16,7 +16,7 @@
 		<property name="userId" type="string" length="99" not-null="true"
 			index="course_signup_user_idx" />
 		<property name="status" type="SignupStatus" index="course_signup_user_idx"/>
-		<property name="created" type="date" />
+		<property name="created" type="timestamp" />
 		<set name="components" lazy="true" table="course_component_signup"
 			inverse="true">
 			<key column="signup" not-null="true" />
@@ -40,8 +40,8 @@
 		<property name="title" type="string" length="256" />
 		<property name="termcode" type="string" length="30"
 			index="course_component_term_idx" />
-		<property name="opens" type="date" />
-		<property name="closes" type="date" />
+		<property name="opens" type="timestamp" />
+		<property name="closes" type="timestamp" />
 		<property name="size" type="int" />
 		<property name="taken" type="int" />
 		<property name="administrator" type="string" length="64" /><!-- 
