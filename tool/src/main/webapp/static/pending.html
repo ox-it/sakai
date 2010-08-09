@@ -7,12 +7,16 @@
 		<link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css"/>
 		<link rel="stylesheet" type="text/css" href="tool_base.css"/>
 		<link rel="stylesheet" type="text/css" href="tool.css"/>
-		<link rel="stylesheet" type="text/css" href="lib/dataTables-1.6/media/demo_table.css"/>
+		<link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table.css"/>
+		<link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css"/>
+		<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.2.custom/css/smoothness/jquery-ui-1.8.2.custom.css"/>
 		
 		
         <link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css" />
         <link rel="stylesheet" type="text/css" href="tool_base.css" />
         <link rel="stylesheet" type="text/css" href="tool.css" />
+		
+		
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">
         </script>
         <script type="text/javascript" src="lib/jstree-1.0rc/_lib/jquery.cookie.js">
@@ -23,12 +27,13 @@
         </script>
         <script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js">
         </script>
-        <script type="text/javascript" src="lib/dataTables-1.6/js/jquery.dataTables.js">
+        <script type="text/javascript" src="lib/dataTables-1.7/js/jquery.dataTables.js">
         </script>
         <script type="text/javascript" src="lib/dataTables-1.6/js/jquery.dataTables.reloadAjax.js">
         </script>
         <script type="text/javascript" src="lib/serverDate.js">
         </script>
+		<script type="text/javascript" src="lib/Text.js"></script>
         <script type="text/javascript" src="lib/signup.js">
         </script>
 		
@@ -42,9 +47,15 @@
 					return $.fn.dataTableExt.oSort["string-desc"](x.name, y.name);
 				}
 				
+				var renderUser =  function(user) {
+					return (user)?'<a href="mailto:'+ user.email+ '">'+ user.name+ '</a>':"";
+				}
+				
 				jQuery("#pending-table").dataTable( {
+					"bJQueryUI": true,
+					"sPaginationType": "full_numbers",
 					bProcessing: true,
-					"bAutoWidth": false,
+					"bAutoWidth": true,
 					sAjaxSource: "/course-signup/rest/signup/pending",
 					aoColumns: [
 						{"bVisible": false,},
@@ -55,24 +66,10 @@
 							},
 							"bUseRendered": false				
 						},
-						{
-							"sTitle": "Student",
-							"sType": "user",
-							"bUseRendered": false,
-							"fnRender": function(aObj){
-								return aObj.aData[2].name;
-							}},
+						{"sTitle": "Student"},
 						{"sTitle": "Component"},
-						{
-							"sTitle": "Supervisor",
-							"sType": "user",
-							"bUseRendered": false,
-							"fnRender": function(aObj){
-								var user = aObj.aData[4];
-								return (user)?'<a href="mailto:'+ user.email+ '">'+ user.name+ '</a>':"";
-							}
-						},
-						{"sTitle": "Notes"},
+						{"sTitle": "Supervisor"},
+						{"sTitle": "Notes", "sWidth": "20%", "sClass": "signup-notes"},
 						{"sTitle": "Status"},
 						{"sTitle": "Actions"}
 					],
@@ -84,19 +81,20 @@
 							success: function(result) {
 								var data = [];
 								$.each(result, function(){
-									var course = this.group.title+"<br>" +
-										$.map(this.components, function(component){
-											return component.title+ " "+ component.slot + " in "+ component.when;
-										}).join("<br>");
+									var course = ['<span class="course-group">'+this.group.title+"</span>"].concat(
+										$.map(this.components.concat(), function(component){
+											return '<span class="course-component">'+ component.title+ " "+ component.slot + " in "+ component.when+ '</span>';
+										})).join("<br>");
+									var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id)); 
 									data.push([
 										this.id,
 										this.created,
-										this.user,
+										renderUser(this.user),
 										course, //TODO Need lots of other bits.
-										this.supervisor?this.supervisor:"", // can be null
-										this.notes?this.notes:"", // can be null
+										renderUser(this.supervisor),
+										Signup.signup.formatNotes(this.notes),
 										this.status,
-										""										
+										actions										
 									]);
 								});
 								fnCallback({
@@ -106,10 +104,54 @@
 						})
 					}
 				} );
+				
+				$("#pending-table a.action" ).live("click", function(e) {
+					var url = $(this).attr("href");
+					$.ajax({
+						"url": url,
+						"type": "POST",
+						"success": function(data) {
+							$("#pending-table").dataTable().fnReloadAjax();
+						}
+					});
+					return false;
+				});
 			});
 		</script>
 		
         <style type="text/css">
+        	.course-group { /* Used for formatting the summary of the signup. */
+        		font-weight: bold;
+				line-height: 180%;
+        	}
+			.course-component {
+				margin-left: 1em;
+			}
+			
+			/* From http://psacake.com/web/jl.asp */
+            .more {
+                position: relative; /*this is the key*/
+                font-weight: bold;
+            }
+			
+			.more .full{
+				display: none;
+                z-index: 24;
+			}
+			
+            .more:hover .full {
+                display: block;
+                position: absolute;
+				font-weight: normal;
+                top: 1em;
+                left: -30em;
+                width: 30em;
+                border: 1px solid #000;
+				padding: 0.5em;
+                background-color: #fff;
+                color: #000;
+                text-align: left;
+            }
         
         </style>
     </head>
@@ -126,8 +168,10 @@
 		<div>
 			<p>These are the students who have signed up for a course that need your approval.</p>
 		</div>
-		<table id="pending-table">
+		<div style="margin:2%; width:95%" >
+		<table id="pending-table" style="width:95%">
 		</table>
+		</div>
 		
 		
     </body>

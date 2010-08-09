@@ -8,6 +8,9 @@
 	href="lib/jqmodal-r14/jqModal.css" />
 <link rel="stylesheet" type="text/css" href="tool_base.css" />
 <link rel="stylesheet" type="text/css" href="tool.css" />
+		<link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table.css"/>
+		<link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css"/>
+		<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.2.custom/css/smoothness/jquery-ui-1.8.2.custom.css"/>
 
 <script type="text/javascript"
 	src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">
@@ -23,7 +26,7 @@
 	src="lib/trimpath-template-1.0.38/trimpath-template.js">
 		</script>
 <script type="text/javascript"
-	src="lib/dataTables-1.6/js/jquery.dataTables.js">
+	src="lib/dataTables-1.7/js/jquery.dataTables.js">
 		</script>
 <script type="text/javascript"
 	src="lib/dataTables-1.6/js/jquery.dataTables.reloadAjax.js">
@@ -46,45 +49,8 @@
 							(item.supervisor)?item.supervisor.name:"",
 							components,
 							item.status,
-							$.map(getActions(item.status, item.id), function(action) {
-								return '<a class="action" href="'+ action.url+ '">'+ action.name+ '</a>';
-							}).join(" / ")
+							Signup.signup.formatActions(Signup.signup.getActions(item.status, item.id))
 					];
-				};
-
-				
-				var getActions = function(status, id) {
-					switch (status) {
-					case "PENDING": 
-						return [
-							{
-								"name": "Accept",
-								"url": "/course-signup/rest/signup/"+id+"/accept"
-							},
-							{
-								"name": "Reject",
-								"url": "/course-signup/rest/signup/"+id+"/reject"
-							}
-						];
-					case "ACCEPTED":
-						return [
-							{
-								"name": "Approve",
-								"url": "/course-signup/rest/signup/"+id+"/approve"
-							},
-							{
-								"name": "Reject",
-								"url": "/course-signup/rest/signup/"+id+"/reject"
-							}
-						];
-					case "APPROVED":
-						return [];
-					case "REJECTED":
-						return [];
-					case "WITHDRAWN":
-						return [];
-					}
-					return [];
 				};
 				
 				/**
