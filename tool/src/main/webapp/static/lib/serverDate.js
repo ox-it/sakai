@@ -1,16 +1,20 @@
 // Small jQuery plugin to get dates from server.
 (function($){
 
-    var serverDate;
+	// Work out the difference between client time and server time.
+    var adjustment;
+	
     var init = function(){
-        if (!serverDate) {
+        if (!adjustment) {
             $.ajax({
                 "url": "/course-signup/rest/user/current",
                 "type": "GET",
                 "async": false,
                 "dataType": "json",
                 "success": function(data){
-                    serverDate = data.date;
+                    var serverDate = data.date;
+					var clientDate = new Date().getTime();
+					adjustment = serverDate - clientDate;
                 }
             });
         }
@@ -18,7 +22,7 @@
     
     $.serverDate = function(){
         init();
-        return serverDate;
+        return (new Date().getTime() + adjustment);
         
     };
 })(jQuery);
