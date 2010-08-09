@@ -43,7 +43,7 @@ public class CourseSignupImpl implements CourseSignup {
 		return person;	}
 
 	public String getNotes() {
-		return dao.getProperties().get("notes");
+		return dao.getProperties().get("message");
 	}
 
 	public Status getStatus() {
