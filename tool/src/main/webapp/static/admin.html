@@ -115,7 +115,8 @@
 											  {
 											  	"sTitle": "Signup Period",
 												"fnRender": function(aObj) {
-													return new Date(aObj.aData[3]).toDateString() + " (for "+ Signup.util.formatDuration(aObj.aData[8] - aObj.aData[3])+ ")";
+													// Hack to force the data back to being a int.
+													return new Date(+aObj.aData[3]).toDateString() + " (for "+ Signup.util.formatDuration(aObj.aData[8] - aObj.aData[3])+ ")";
 												},
 												"bUseRendered": false
 											  },
@@ -395,7 +396,6 @@ table th {
 </div>
 
 <div id="course-list"><!-- Browse the areas which there are courses -->
-<div id="tree"></div>
 </div>
 <div id="details"><!-- Show details of the course -->
 <div id="summary"></div>
