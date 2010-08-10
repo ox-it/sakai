@@ -102,7 +102,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 
 	public CourseSignupDAO newSignup(String userId, String supervisorId) {
-		CourseSignupDAO signupDao = new CourseSignupDAO(userId, supervisorId);
+		CourseSignupDAO signupDao = new CourseSignupDAO();
+		signupDao.setUserId(userId);
+		signupDao.setSupervisorId(supervisorId);
 		return signupDao;
 	}
 
@@ -153,7 +155,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return getHibernateTemplate().executeFind(new HibernateCallback(){
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
-				Query query = session.createQuery("select distinct cg from CourseGroupDAO cg left join cg.components c where c.administrator = :userId");
+				Query query = session.createQuery("select distinct cg from CourseGroupDAO cg where cg.administrator = :userId");
 				query.setString("userId", userId);
 				return query.list();
 			}
@@ -166,7 +168,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
-				Query query = session.createQuery(" select distinct cs from CourseComponentDAO cc inner join cc.signups cs inner join cs.group cg where cc.administrator = :userId and cg.id = :courseId");
+				Query query = session.createQuery(" select distinct cs from CourseComponentDAO cc inner join cc.signups cs inner join cs.group cg where cg.administrator = :userId and cg.id = :courseId");
 				query.setString("userId", userId);
 				query.setString("courseId", courseId);
 				return query.list();
@@ -190,7 +192,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public List<CourseSignupDAO> findSignupPending(final String userId) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
-				Query query = session.createQuery("select cs from CourseSignupDAO cs inner join fetch cs.components cc where (cc.administrator = :userId and cs.status = :adminStatus) or (cs.supervisorId = :userId and cs.status = :supervisorStatus)");
+				Query query = session.createQuery("select cs from CourseSignupDAO cs inner join fetch cs.components cc inner join fetch cs.group cg where (cg.administrator = :userId and cs.status = :adminStatus) or (cs.supervisorId = :userId and cs.status = :supervisorStatus)");
 				query.setString("userId", userId);
 				query.setParameter("adminStatus", Status.PENDING);
 				query.setParameter("supervisorStatus", Status.ACCEPTED);

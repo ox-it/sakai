@@ -44,7 +44,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (currentUserId.equals(signupDao)) {
 			canApprove = true;
 		} else {
-			canApprove = isAdministrator(signupDao.getComponents(), currentUserId, canApprove);
+			canApprove = isAdministrator(signupDao.getGroup(), currentUserId, canApprove);
 		}
 		if (!canApprove) {
 			throw new IllegalStateException("You are not alloed to approve this signup: "+ signupId);
@@ -62,7 +62,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		String currentUserId = proxy.getCurrentUser().getId();
 		boolean canAccept = false;
 		// If is course admin on one of the components.
-		canAccept = isAdministrator(signupDao.getComponents(), currentUserId, canAccept);
+		canAccept = isAdministrator(signupDao.getGroup(), currentUserId, canAccept);
 		if (!canAccept) {
 			throw new IllegalStateException("You aren't an admin on any on the component for signup: "+ signupId);
 		}
@@ -80,17 +80,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (supervisorId != null) {
 			sendSignupEmail(supervisorId, signupDao, "approval.supervisor.subject", "approval.supervisor.body", null);
 		}
-	}
-
-	private boolean isAdministrator(Collection<CourseComponentDAO> components, String currentUserId, boolean defaultValue) {
-		boolean isAdmin = defaultValue;
-		for (CourseComponentDAO componentDao : components) {
-			if (componentDao.getAdministrator().equals(currentUserId)) {
-				isAdmin = true;
-				break;
-			}
-		}
-		return isAdmin;
 	}
 
 	public String findSupervisor(String search) {
@@ -147,7 +136,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (groupDao == null) {
 			throw new IllegalStateException("Cannot find courseId: "+ courseId);
 		}
-		if(!isAdministrator(groupDao.getComponents(), userId, false)) {
+		if(!isAdministrator(groupDao, userId, false)) {
 			throw new IllegalStateException("You aren't an admin for course: "+ courseId);
 		}
 		
@@ -165,7 +154,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			throw new IllegalStateException("Cannot find componentId: "+ componentId);
 		}
 		String userId = proxy.getCurrentUser().getId();
-		if (!isAdministrator(Collections.singleton(componentDao), userId, false)) {
+		if (!isAdministrator(componentDao, userId, false)) {
 			throw new IllegalStateException("You aren't an admin for component: "+ componentId);
 		}
 		List<CourseSignupDAO> signupDaos = dao.findSignupByComponent(componentId);
@@ -177,6 +166,24 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 		
 
+	private boolean isAdministrator(CourseGroupDAO groupGroup, String currentUserId, boolean defaultValue) {
+		boolean isAdmin = defaultValue;
+		if(groupGroup.getAdministrator().equals(currentUserId)) {
+				isAdmin = true;
+		}
+		return isAdmin;
+	}
+
+	private boolean isAdministrator(CourseComponentDAO componentDao,
+			String userId, boolean defaultValue) {
+		for (CourseGroupDAO groupDao: componentDao.getGroups()) {
+			if (groupDao.getAdministrator().equals(userId)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public void reject(String signupId) {
 		String userId = proxy.getCurrentUser().getId();
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
@@ -185,7 +192,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 
 		if (Status.PENDING.equals(signupDao.getStatus())) { // Rejected by administrator.
-			if (isAdministrator(signupDao.getComponents(), userId, false)) {
+			if (isAdministrator(signupDao.getGroup(), userId, false)) {
 				signupDao.setStatus(Status.REJECTED);
 				dao.save(signupDao);
 				// Mail out to student
@@ -194,7 +201,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				throw new IllegalStateException("You are not allowed to reject this signup: "+ signupId);
 			}
 		} else if (Status.ACCEPTED.equals(signupDao.getStatus())) {// Rejected by lecturer.
-			if (isAdministrator(signupDao.getComponents(), userId, userId.equals(signupDao.getSupervisorId()))) {
+			if (isAdministrator(signupDao.getGroup(), userId, userId.equals(signupDao.getSupervisorId()))) {
 				signupDao.setStatus(Status.REJECTED);
 				dao.save(signupDao);
 				// Mail out to student
@@ -232,7 +239,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			}
 		}
 		String currentUserId = proxy.getCurrentUser().getId();
-		if (!isAdministrator(componentDaos, currentUserId, false)) {
+		if (!isAdministrator(groupDao, currentUserId, false)) {
 			throw new IllegalStateException("You are not an administrator for these components"); // TODO I think this needs to be handled through the UI.
 		}
 		CourseSignupDAO signupDao = dao.newSignup(userId, null);
@@ -300,24 +307,20 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.getProperties().put("message", message);
 		dao.save(signupDao);
 		
-		// For each course admin store all the components they are responsible for.
-		Map<String,Collection<String>> admins = new HashMap<String,Collection<String>>();
 		// We're going to decrement the places on acceptance.
 		for (CourseComponentDAO componentDao: componentDaos) {
 			//componentDao.getSignups().add(signupDao); // Link to the signup
 			//componentDao.setTaken(componentDao.getTaken()+1); // Increment places taken
-			String admin = componentDao.getAdministrator();
-			if (!admins.containsKey(admin)) {
-				admins.put(admin, new ArrayList<String>());
-			}
-			admins.get(admin).add(componentDao.getTitle());
 			componentDao.getSignups().add(signupDao);
 			signupDao.getComponents().add(componentDao); // So when sending out email we know the components.
 			dao.save(componentDao);
 		}
-		
-		for (Map.Entry<String, Collection<String>>entry : admins.entrySet()) {
-			sendSignupEmail(entry.getKey(), signupDao, "signup.admin.subject", "signup.admin.body", null);
+		String adminId = groupDao.getAdministrator();
+		UserProxy admin = loadUser(adminId);
+		if (admin != null && admin.getEmail() != null) {
+			sendSignupEmail(admin.getEmail(), signupDao, "signup.admin.subject", "signup.admin.body", null);
+		} else {
+			log.warn("Failed to find user for signup: "+ adminId);
 		}
 	}
 	

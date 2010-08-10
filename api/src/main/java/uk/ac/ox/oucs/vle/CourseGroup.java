@@ -13,6 +13,8 @@ public interface CourseGroup {
 	public String getDepartment();
 	
 	public String getDepartmentCode();
+	
+	public Person getAdministrator();
 
 	public List<CourseComponent> getComponents();
 }

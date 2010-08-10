@@ -41,13 +41,6 @@ public class CourseComponentImpl implements CourseComponent {
 		return null;
 	}
 	
-	public Person getAdministrator() {
-		String adminId = dao.getAdministrator();
-		UserProxy user = impl.loadUser(adminId);
-		return (user != null)?new PersonImpl(user.getId(), user.getName(), user.getEmail()):null;
-	}
-	
-
 	public String getLocation() {
 		return dao.getProperties().get("location");
 	}

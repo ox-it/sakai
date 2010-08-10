@@ -42,10 +42,10 @@
 			index="course_component_term_idx" />
 		<property name="opens" type="timestamp" />
 		<property name="closes" type="timestamp" />
+		<property name="expires" type="timestamp" />
+		<property name="bookable" type="boolean" not-null="true" />
 		<property name="size" type="int" />
 		<property name="taken" type="int" />
-		<property name="administrator" type="string" length="64" /><!-- 
-			The administrator who is looking after this component. -->
 		<property name="componentId" type="string" length="30" /><!-- 
 			The set (teaching_component) this component is from. -->
 
@@ -76,6 +76,9 @@
 		<property name="title" type="string" length="256" />
 		<property name="dept" type="string" length="32"
 			index="course_group_dept_idx" />
+			
+		<property name="administrator" type="string" length="64" /><!-- 
+			The administrator who is looking after this component. -->
 		<set name="components" inverse="true" lazy="true" table="course_group_component"
 			fetch="join">
 			<key column="course_group" />

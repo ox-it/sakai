@@ -14,8 +14,6 @@ public interface CourseComponent {
 	
 	public Person getPresenter();
 	
-	public Person getAdministrator();
-	
 	public String getLocation();
 	
 	public Date getOpens();

@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Hibernate;
+import org.sakaiproject.user.api.User;
+
+import uk.ac.ox.oucs.vle.proxy.UserProxy;
 
 public class CourseGroupImpl implements CourseGroup {
 
@@ -50,6 +53,11 @@ public class CourseGroupImpl implements CourseGroup {
 			}
 		}
 		return components;
+	}
+
+	public Person getAdministrator() {
+		UserProxy user = impl.loadUser(courseGroupDAO.getAdministrator());
+		return (user != null)? new PersonImpl(user.getId(), user.getName(), user.getEmail()):null;
 	}
 
 }

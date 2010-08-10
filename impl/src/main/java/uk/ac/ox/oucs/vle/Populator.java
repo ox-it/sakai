@@ -62,9 +62,11 @@ public class Populator {
 			Statement st = con.createStatement();
 			// Import all course groups (from assessment units)
 			ResultSet rs = st.executeQuery(
-					"SELECT distinct au.unit_id, au.code, au.title, au.department_code, d.name as department_name, au.description\n" + 
+					"SELECT distinct au.unit_id, au.code, au.title, au.department_code, d.name as department_name, au.description,\n" +
+					"  admin.webauth_id as admin\n" +
 					"FROM\n" + 
 					"  Assessment_Unit au\n" + 
+					"  LEFT JOIN Staff_OpenDoor admin ON au.course_administrator = admin.employee_number\n" + 
 					"  INNER JOIN Teaching_Component tc ON\n" + 
 					"  ( tc.assessment_unit_code LIKE concat(concat('%',au.code),'%') AND length(tc.assessment_unit_code) > 0)\n" + 
 					"  INNER JOIN Department d ON au.department_code = d.code\n" + 
@@ -76,6 +78,16 @@ public class Populator {
 				String departmentCode = rs.getString("department_code");
 				String description = rs.getString("description");
 				String departmentName = rs.getString("department_name");
+				String administrator = rs.getString("admin");
+				if (administrator == null || administrator.trim().length() == 0) {
+					logFailure(code, "No administrator set");
+					continue;
+				}
+				UserProxy user = proxy.findUserByEid(administrator);
+				if (user == null) {
+					logFailure(code, "Failed to find administrator");
+					continue;
+				}
 				CourseGroupDAO groupDao = dao.findCourseGroupById(code);
 				boolean created = false;
 				if (groupDao == null) {
@@ -85,6 +97,7 @@ public class Populator {
 					groupDao.setDept(departmentCode);
 					groupDao.setTitle(title);
 				}
+				groupDao.setAdministrator(user.getId());
 				groupDao.getProperties().put("desc", description);
 				groupDao.getProperties().put("department", departmentName);
 				dao.save(groupDao);
@@ -96,12 +109,11 @@ public class Populator {
 			}
 			// Now import all the course components ( from teaching (instances/components))
 			String sql = "SELECT\n" + 
-					"  ti.teaching_instance_id, ti.open_date, ti.close_date, ti.sessions, ti.session_dates, ti.capacity,\n" + 
-					"  tc.assessment_unit_code as assessment_unit_codes, tc.bookable, tc.teaching_component_id,\n" + 
+					"  ti.teaching_instance_id, ti.open_date, ti.close_date, ti.expiry_date, ti.sessions, ti.session_dates, ti.capacity, ti.bookable,\n" + 
+					"  tc.assessment_unit_code as assessment_unit_codes, tc.teaching_component_id,\n" + 
 					"  l.label location,\n" + 
 					"  t.code as term_code, t.label as term_name,\n" + 
 					"  c.title,\n" + 
-					"  admin.webauth_id as admin,\n" + 
 					"  concat_ws(' ', teacher.forename, teacher.surname) as teacher_name, teacher.email as teacher_email\n" + 
 					"\n" + 
 					"FROM\n" + 
@@ -110,11 +122,13 @@ public class Populator {
 					"  LEFT JOIN Term t ON ti.term_code = t.code\n" + 
 					"  LEFT JOIN Location l ON ti.location_id = l.id\n" + 
 					"  LEFT JOIN Component_Type c ON tc.component_type = c.component_type_id\n" + 
-					"  LEFT JOIN Staff_OpenDoor admin ON tc.course_administrator = admin.employee_number\n" + 
 					"  LEFT JOIN Staff_OpenDoor teacher ON ti.employee_number = teacher.employee_number\n";
 			rs = st.executeQuery(sql);
 			while(rs.next()) {
 				componentSeen++;
+				String bookableString = rs.getString("bookable");
+				boolean bookable = bookableString == null || bookableString.trim().length() == 0 || bookableString.equals("TRUE");
+				
 				String id = rs.getString("teaching_instance_id");
 				Date openDate = getDate(rs, "open_date");
 				if (openDate == null) { 
@@ -126,22 +140,21 @@ public class Populator {
 					logFailure(id, "No close date set");
 					continue;
 				}
+				Date expiryDate = getDate(rs, "expiry_date");
+				if (expiryDate == null) {
+					expiryDate = closeDate;
+				}
 				if (openDate.after(closeDate)){
-					logFailure(id, "Open date is before close date");
+					logFailure(id, "Open date is after close date");
+					continue;
+				}
+				if(expiryDate.before(closeDate)){
+					logFailure(id, "Expiry date is before close date");
+					continue;
 				}
 				int capacity = rs.getInt("capacity");
-				if (capacity < 1) {
+				if (bookable && capacity < 1) {
 					logFailure(id, "Capacity isn't set or is zero");
-					continue;
-				}
-				String adminEid = rs.getString("admin");
-				if (adminEid == null || adminEid.trim().length() == 0) {
-					logFailure(id, "No admin user set.");
-					continue;
-				}
-				UserProxy admin = proxy.findUserByEid(adminEid);
-				if (admin == null) {
-					logFailure(id, "Failed to find admin with id: "+ adminEid);
 					continue;
 				}
 				String title = rs.getString("title");
@@ -180,9 +193,10 @@ public class Populator {
 					created = true;
 				}
 				componentDao.setTitle(title);
-				componentDao.setAdministrator(admin.getId());
 				componentDao.setOpens(openDate);
 				componentDao.setCloses(closeDate);
+				componentDao.setExpires(expiryDate);
+				componentDao.setBookable(bookable);
 				componentDao.setSize(capacity);
 				componentDao.setTermcode(termCode);
 				componentDao.setComponentId(teachingComponentId+":"+termCode);
