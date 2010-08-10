@@ -17,6 +17,9 @@ var Text = (function() {
 		 * @returns The escape/marked up version.
 		 */
 		"toHtml": function(source) {
+			if (!source) {
+				return "";
+			}
 			var dest = source.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/, "&quot;");
 			dest = dest.replace(urlRegex, urlReplacement);
 			dest = dest.replace(emailRegex, emailReplacement);
