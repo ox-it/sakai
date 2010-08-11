@@ -80,6 +80,15 @@
 					});
 				}
 				loadNow();
+				
+				$("#data-frm").submit(function(e){
+					var form = this;
+					$("input[type=submit]", form).attr("disabled", "true");
+					$.post("/course-signup/rest/debug/reload", [], function(data) {
+						$("input[type=submit]", form).removeAttr("disabled");
+					});
+					return false;
+				});
 			});
 		</script>
 		
@@ -141,7 +150,12 @@
             <li><span>Debug</span></li>
 			</ul>
         </div>
-		
+		<div id="data">
+			<h2>Data</h2>
+			<form id="data-frm" action="#">
+				<input type="submit" value="Reload Data">
+			</form>
+		</div>
         <div id="user"></div>
 		<div id="now"></div>
         <div id="emails"></div>

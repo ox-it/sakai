@@ -36,11 +36,13 @@ public class DebugResource {
 	
 	private JsonFactory jsonFactory;
 	private CourseSignupService courseService;
+	private Populator populator;
 	private SakaiProxyTest proxy;
 	private ObjectMapper objectMapper;
 
 	public DebugResource(@Context ContextResolver<Object> resolver) {
 		this.courseService = (CourseSignupService) resolver.getContext(CourseSignupService.class);
+		this.populator = (Populator)resolver.getContext(Populator.class);
 		this.proxy = (SakaiProxyTest) resolver.getContext(SakaiProxyTest.class);
 		this.objectMapper = new ObjectMapper();
 	}
@@ -97,6 +99,13 @@ public class DebugResource {
 	public Response setDate(@FormParam("now")long newNow) {
 		Date now = new Date(newNow);
 		courseService.setNow(now);
+		return Response.ok().build();
+	}
+	
+	@Path("/reload")
+	@POST
+	public Response reload() {
+		populator.update();
 		return Response.ok().build();
 	}
 }
