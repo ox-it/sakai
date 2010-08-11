@@ -41,13 +41,13 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
 		String currentUserId = proxy.getCurrentUser().getId();
 		boolean canApprove = false;
-		if (currentUserId.equals(signupDao)) {
+		if (currentUserId.equals(signupDao.getSupervisorId())) {
 			canApprove = true;
 		} else {
 			canApprove = isAdministrator(signupDao.getGroup(), currentUserId, canApprove);
 		}
 		if (!canApprove) {
-			throw new IllegalStateException("You are not alloed to approve this signup: "+ signupId);
+			throw new IllegalStateException("You are not allowed to approve this signup: "+ signupId);
 		}
 		signupDao.setStatus(Status.APPROVED);
 		dao.save(signupDao);
