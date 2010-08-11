@@ -67,41 +67,17 @@
 						return "Closed";
 					}
 				};
-				// 
-				$("#course-list").html('<table cellpadding="0" cellspacing="0" border="0" class="display" id="course-list-table"></table>');
-				var courseList = $("#course-list-table").dataTable( {
-					"aoColumns": [
-						{
-							"sTitle": "Course"
-						},
-						{
-							"sTitle": "Code",
-							"bVisible": false
-						}
-					],
-					"sAjaxSource": "/course-signup/rest/course/admin",
-					"fnServerData": function(sSource, aoData, fnCallback) {
-						$.getJSON(sSource, [], function(data) {
-							var tableData = {
-										"aaData": []
-							};
-							$.each(data, function(index, value) {
-								tableData.aaData.push([value.title, value.id]);
-							});
-							fnCallback(tableData);
-						});
-					},
-					"fnRowCallback": function(nRow, aData, iIndex) {
-						$(nRow).bind("click", {"code": aData[1], "name": aData[0]}, function(e) {
-							var code = e.data.code;
-							var name = e.data.name;
+				
+				var loadCourse = function(code, name) {
 
 							// Table showing the components.
 							$("#summary").html('<h3>'+ name +'</h3><table border="0" class="display" id="summary-table"></table>');
 							var summary = $("#summary-table").dataTable( {
+								"bJQueryUI": true,
 								"bProcessing": true,
-								"bPaginate": false,
+								"bPaginate": true,
 								"bLengthChange": false,
+								"iDisplayLength": 5,
 								"bFilter": false,
 								"bSort": false,
 								"bInfo": false,
@@ -155,7 +131,7 @@
 								}
 							});
 							
-							$("#signups").html('<table border="0" class="display" id="signups-table"></table><a href="#" id="signup-add">Add</a>');
+							$("#signups").html('<h3>Signups</h3><table border="0" class="display" id="signups-table"></table><a href="#" id="signup-add">Add</a>');
 							
 							var signupAddUser = $("#signup-add-user-win");
 							signupAddUser.resize(function(e){
@@ -273,6 +249,7 @@
 							});
 							
 							var signups = $("#signups-table").dataTable( {
+								"bJQueryUI": true,
 								"bProcessing": true,
 								"bPaginate": false,
 								"bLengthChange": false,
@@ -319,21 +296,44 @@
 									return nRow;
 								}
 							}); 
-						});
-						return nRow;
-					},
-					"bPaginate": false,
-					"bLengthChange": false,
-					"bFilter": false,
-					"bSort": false,
-					"bInfo": false,
-					"bAutoWidth": false
+						};
+				//
+				// Switch to dropdown list.
+				$.getJSON("/course-signup/rest/course/admin", function(data) {
+					var options = "";
+					data.sort(function(x,y){
+						var a = x.title;
+						var b = y.title;
+						if (a === b) {
+							return 0;
+						} else if ( a < b) {
+							return -1;
+						} else {
+							return 1;
+						}
+					});
+					$.each(data, function(index, value) {
+						options += '<option value="'+ value.id+ '">'+ value.title+ '</option>';
+					});
+									
+					$("#course-list").html('<form>Select a course: <select id="admin-course" name="course">'+ options+ '</select></form>');
+					if (data.length > 0) {
+						loadCourse(data[0].id, data[0].title);
+					}
+				});
+				$("#admin-course").live("change", function(e) {
+					var courseId = this.options[this.selectedIndex].value;
+					var courseTitle = this.options[this.selectedIndex].text;
+					loadCourse(courseId, courseTitle);
 				});
 			});
 			
 		</script>
 
 <style type="text/css">
+	.dataTables_wrapper {
+		margin: 2%;
+	}
 .location {
 	font-size: smaller;
 }
@@ -344,10 +344,6 @@
 
 table th {
 	text-align: left;
-}
-
-#summary {
-	background: #bbb;
 }
 
 #parts table th {
@@ -365,11 +361,6 @@ table th {
 	width: 30%;
 	float: left;
 	overflow: hidden;
-}
-
-#details {
-	width: 69%;
-	float: right;
 }
 
 .loader {
