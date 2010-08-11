@@ -26,7 +26,6 @@
 		<script type="text/javascript" src="lib/signup.js">
 		</script>
 		<script type="text/javascript" language="JavaScript">
-		
 			
 			jQuery(function() {
 				
@@ -137,9 +136,6 @@
 								// Sort components into sets.
 								if (component.presenter && !inArray(data.presenters, component.presenter, compareUser)) {
 									data.presenters.push(component.presenter);
-								}
-								if(component.administrator && !inArray(data.administrators, component.administrator, compareUser)) {
-									data.administrators.push(component.administrator);
 								}
 								// Check it we're signed up to this one
 								$.each(signupData, function() {
@@ -487,12 +483,10 @@
                     </tr>
                     <tr>
                         <th>
-                            Course Administrators
+                            Course Administrator
                         </th>
                         <td>
-                            {for admin in administrators}
-								<a href="mailto:${admin.email}">${admin.name}</a>
-							{/for}
+							<a href="mailto:${administrator.email}">${administrator.name}</a>
                         </td>
                     </tr>
                     <tr>
