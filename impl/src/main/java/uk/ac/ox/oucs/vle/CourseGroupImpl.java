@@ -1,6 +1,7 @@
 package uk.ac.ox.oucs.vle;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,7 @@ public class CourseGroupImpl implements CourseGroup {
 
 	public Person getAdministrator() {
 		UserProxy user = impl.loadUser(courseGroupDAO.getAdministrator());
-		return (user != null)? new PersonImpl(user.getId(), user.getName(), user.getEmail()):null;
+		return (user != null)? new PersonImpl(user.getId(), user.getName(), user.getEmail(), Collections.EMPTY_LIST):null;
 	}
 
 }

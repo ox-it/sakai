@@ -1,5 +1,7 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.List;
+
 
 /**
  * Simple representation of a person.
@@ -14,4 +16,6 @@ public interface Person {
 	public String getName();
 	
 	public String getEmail();
+	
+	public List<String> getUnits();
 }

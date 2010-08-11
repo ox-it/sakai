@@ -1,6 +1,8 @@
 package uk.ac.ox.oucs.vle.proxy;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -124,7 +126,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 		if(sakaiUser == null) {
 			return null;
 		}
-		return new UserProxy(sakaiUser.getId(), sakaiUser.getEid(), sakaiUser.getDisplayName(), sakaiUser.getEmail());
+		List<String> units = sakaiUser.getProperties().getPropertyList("units");
+		return new UserProxy(sakaiUser.getId(), sakaiUser.getEid(), sakaiUser.getDisplayName(), sakaiUser.getEmail(), (units == null)?Collections.EMPTY_LIST:units);
 	}
 
 }

@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.Collections;
 import java.util.Date;
 
 import uk.ac.ox.oucs.vle.proxy.UserProxy;
@@ -36,7 +37,7 @@ public class CourseComponentImpl implements CourseComponent {
 
 	public Person getPresenter() {
 		if (dao.getProperties().containsKey("teacher.name")) {
-			return new PersonImpl(null, dao.getProperties().get("teacher.name"), dao.getProperties().get("teacher.email"));
+			return new PersonImpl(null, dao.getProperties().get("teacher.name"), dao.getProperties().get("teacher.email"), Collections.EMPTY_LIST);
 		}
 		return null;
 	}
