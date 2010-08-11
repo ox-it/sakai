@@ -48,8 +48,15 @@
 				}
 				
 				var renderUser =  function(user) {
-					return (user)?'<a href="mailto:'+ user.email+ '">'+ user.name+ '</a>':"";
-				}
+					var details = "";
+					if (user) {
+						details += '<a href="mailto:' + user.email + '">' + user.name + '</a>';
+						if (user.units && user.units.length > 0) {
+							details += '<br>'+ user.units.join(" / ");
+						}
+					}
+					return details;
+				};
 				
 				jQuery("#pending-table").dataTable( {
 					"bJQueryUI": true,
@@ -168,8 +175,8 @@
 		<div>
 			<p>These are the students who have signed up for a course that need your approval.</p>
 		</div>
-		<div style="margin:2%; width:95%" >
-		<table id="pending-table" style="width:95%">
+		<div style="margin:2%" >
+		<table id="pending-table">
 		</table>
 		</div>
 		
