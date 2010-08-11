@@ -21,7 +21,7 @@ public class SakaiProxyTest implements SakaiProxy {
 	
 	public SakaiProxyTest() {
 		
-		users.add(new UserProxy("current", "user", "Current User", "current.user@coll.ox.ac.uk", Collections.EMPTY_LIST));
+		users.add(new UserProxy("current", "user", "Current User", "current.user@coll.ox.ac.uk", Collections.singletonList("Some College")));
 		
 		users.add(new UserProxy("1", "user0001", "Test User One", "test.user.1@dept.ox.ac.uk", Collections.EMPTY_LIST));
 		users.add(new UserProxy("2", "user0002", "Test User Two", "test.user.2@dept.ox.ac.uk", Collections.EMPTY_LIST));
