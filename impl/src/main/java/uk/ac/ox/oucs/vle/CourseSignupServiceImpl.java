@@ -332,11 +332,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			dao.save(componentDao);
 		}
 		String adminId = groupDao.getAdministrator();
-		UserProxy admin = loadUser(adminId);
-		if (admin != null && admin.getEmail() != null) {
-			sendSignupEmail(admin.getEmail(), signupDao, "signup.admin.subject", "signup.admin.body", null);
+		if (adminId != null) {
+			sendSignupEmail(adminId, signupDao, "signup.admin.subject", "signup.admin.body", null);
 		} else {
-			log.warn("Failed to find user for signup: "+ adminId);
+			log.warn("Failed to send email as no administrator set for: "+ groupDao.getId());
 		}
 	}
 	
