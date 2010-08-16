@@ -8,6 +8,9 @@
 	href="lib/jqmodal-r14/jqModal.css" />
 <link rel="stylesheet" type="text/css" href="tool_base.css" />
 <link rel="stylesheet" type="text/css" href="tool.css" />
+		<link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css"/>
+		<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.2.custom/css/smoothness/jquery-ui-1.8.2.custom.css"/>
+		
 
 <script type="text/javascript"
 	src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">
@@ -23,11 +26,18 @@
 	src="lib/trimpath-template-1.0.38/trimpath-template.js">
 		</script>
 <script type="text/javascript"
-	src="lib/dataTables-1.6/js/jquery.dataTables.js">
+	src="lib/dataTables-1.7/js/jquery.dataTables.js">
 		</script>
 <script type="text/javascript"
 	src="lib/dataTables-1.6/js/jquery.dataTables.reloadAjax.js">
 		</script>
+		<script type="text/javascript" src="lib/signup.js">
+		</script>
+		<script type="text/javascript" src="lib/Text.js">
+		</script>
+		<script type="text/javascript" src="lib/serverDate.js">
+		</script>
+		
 
 <script type="text/javascript">
 	$(function() {
@@ -44,67 +54,8 @@
 			}
 			return [];
 		};
-
-		
-		$.getJSON("/course-signup/rest/signup/my", function(data) {
-			$("#signups").html('<table border="0" class="display" id="signups-table"></table>');
-			var signups = $("#signups-table").dataTable({
-				"aoColumns": [
-					{"sTitle": "Course"},
-					{"sTitle": "Department"},
-					{"sTitle": "Status"},
-					{"sTitle": "Actions"}
-				],
-				"sAjaxSource": "/course-signup/rest/signup/my",
-				"fnServerData": function(sSource, aoData, fnCallback) {
-					$.getJSON(sSource, function(data) {
-						var tableData = {
-							"aaData": []
-						};
-						$.each(data, function(index, value) {
-							var course = value.group.title +"<br>";
-							if (value.components.length > 0) {
-								course += "<ul>";
-								for(var i in value.components) {
-									var component = value.components[i];
-									course += "<li>"+component.title+"</li>"; // TODO Format component correctly
-								}
-								course += "</ul>";
-							}
-							tableData.aaData.push([course, value.group.departmentCode, value.status,
-								$.map(getActions(value.status, value.id), function(action) {
-									return '<a class="action" href="'+ action.url+ '">'+ action.name+ '</a>';
-								}).join(" / ")
-							]);
-						});
-						fnCallback(tableData);
-					});
-				},
-
-				"fnRowCallback": function(nRow, aData, iDisplayIndex) {
-					$("a.action", nRow).bind("click", function(e) {
-						var url = $(this).attr("href");
-						$.ajax({
-							"url": url,
-							"type": "POST",
-							"success": function(data) {
-								// Reload the datatable.
-								signups.fnReloadAjax();
-							}
-						});
-						return false;
-					});
-					return nRow;
-				},
-				
-				"bPaginate": false,
-				"bLengthChange": false,
-				"bFilter": false,
-				"bSort": true,
-				"bAutoWidth": false
-			});
-			
-		});
+		$("#signups").html('<table border="0" class="display" id="signups-table"></table>');
+		var signups = $("#signups-table").signupTable("/course-signup/rest/signup/my", false);
 	});
 		
 		</script>

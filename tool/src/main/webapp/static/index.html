@@ -95,6 +95,9 @@
 							message = "full";
 						}
 					} else {
+						if (nextOpen === Number.MAX_VALUE) {
+							return null;
+						}
 						var until = nextOpen - now;
 						message = "open in "+ Signup.util.formatDuration(until);
 					}
@@ -106,12 +109,13 @@
 					var courseData;
 					var signupData;
 					
-					var loadCourse = function(id){
+					var loadCourse = function(id, old){
 							// Reset the data in-case someone clicked two items before we're loaded.
+							// TODO Need to find out if we're looking for an old one.
 							courseData = undefined;
 							signupData = undefined;
 							jQuery.getJSON("/course-signup/rest/course/" + id, {
-								range: "UPCOMING"
+								range: (old)?"PREVIOUS":"UPCOMING"
 							}, function(data){
 								courseData = data;
 								showCourse();
@@ -311,7 +315,7 @@
 						var currentNode = data.rslt.obj[0];
 						var id = currentNode.id;
 						if ($(currentNode).is(".jstree-leaf")) {
-							loadCourse(id);
+							loadCourse(id, $(currentNode).hasClass("old"));
 						} else {
 							loadNodeDetails(id);
 						}
@@ -342,6 +346,10 @@
 											"data":"Old",
 											"state": "closed"
 										})
+									} else {
+										$.each(data.tree, function() {
+											this.attr.class = "old";
+										});
 									}
 									return data.tree;
 								}
@@ -508,6 +516,7 @@
 							{/if}
                         </td>
                     </tr>
+					{if signup}
                     <tr>
                         <th>
                             Signup Available
@@ -516,6 +525,7 @@
                             ${signup}
                         </td>
                     </tr>
+					{/if}
                 </table>
             </div>
             <div id="description">
@@ -534,7 +544,6 @@
                             </th>
                         </tr>
 						{var oneOpen = false}
-						{var signup = part.signup}
 						{for option in part.options}
                         <tr>
                             <td class="option-details">
@@ -555,11 +564,13 @@
                             </td>
                             <td>
                             	
-								{if option.signup}
+								{if option.signup && option.signup.status != "WITHDRAWN"}
 									Signup: ${option.signup.status}
 								{else}
+								{if signup}
                                 <input type="radio" name="${part.type.id}" id="option-${option.id}" value="${option.id}"
 								 {if option.full || !option.open }disabled="true"{else}{var oneOpen = true}{/if}/>
+								 {/if}
 								{/if}
                             </td>
                         </tr>
@@ -574,7 +585,10 @@
 						</tr>
 						{/if}
 						{/for}
-                    </table><input type="submit" value="Signup" {if full || !open}disabled="true"{/if}/>
+                    </table>
+					{if signup}
+						<input type="submit" value="Signup" {if full || !open}disabled="true"{/if}/>
+					{/if}
                 </form>
             </div>
 		</textarea>

@@ -7,7 +7,6 @@
 		<link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css"/>
 		<link rel="stylesheet" type="text/css" href="tool_base.css"/>
 		<link rel="stylesheet" type="text/css" href="tool.css"/>
-		<link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table.css"/>
 		<link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css"/>
 		<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.2.custom/css/smoothness/jquery-ui-1.8.2.custom.css"/>
 		
@@ -46,83 +45,9 @@
 				$.fn.dataTableExt.oSort["user-desc"] = function(x, y) {
 					return $.fn.dataTableExt.oSort["string-desc"](x.name, y.name);
 				}
+
 				
-				var renderUser =  function(user) {
-					var details = "";
-					if (user) {
-						details += '<a href="mailto:' + user.email + '">' + user.name + '</a>';
-						if (user.units && user.units.length > 0) {
-							details += '<br>'+ user.units.join(" / ");
-						}
-					}
-					return details;
-				};
-				
-				jQuery("#pending-table").dataTable( {
-					"bJQueryUI": true,
-					"sPaginationType": "full_numbers",
-					bProcessing: true,
-					"bAutoWidth": true,
-					sAjaxSource: "/course-signup/rest/signup/pending",
-					aoColumns: [
-						{"bVisible": false,},
-						{
-							"sTitle": "Created",
-							"fnRender": function(aObj){
-								return Signup.util.formatDuration($.serverDate() - aObj.aData[1])+ " ago"; 
-							},
-							"bUseRendered": false				
-						},
-						{"sTitle": "Student"},
-						{"sTitle": "Component"},
-						{"sTitle": "Supervisor"},
-						{"sTitle": "Notes", "sWidth": "20%", "sClass": "signup-notes"},
-						{"sTitle": "Status"},
-						{"sTitle": "Actions"}
-					],
-					fnServerData: function( sSource, aoData, fnCallback ) {
-						jQuery.ajax( {
-							dataType: "json",
-							type: "GET",
-							url: sSource,
-							success: function(result) {
-								var data = [];
-								$.each(result, function(){
-									var course = ['<span class="course-group">'+this.group.title+"</span>"].concat(
-										$.map(this.components.concat(), function(component){
-											return '<span class="course-component">'+ component.title+ " "+ component.slot + " in "+ component.when+ '</span>';
-										})).join("<br>");
-									var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id)); 
-									data.push([
-										this.id,
-										this.created,
-										renderUser(this.user),
-										course, //TODO Need lots of other bits.
-										renderUser(this.supervisor),
-										Signup.signup.formatNotes(this.notes),
-										this.status,
-										actions										
-									]);
-								});
-								fnCallback({
-									"aaData": data 
-								});
-							}
-						})
-					}
-				} );
-				
-				$("#pending-table a.action" ).live("click", function(e) {
-					var url = $(this).attr("href");
-					$.ajax({
-						"url": url,
-						"type": "POST",
-						"success": function(data) {
-							$("#pending-table").dataTable().fnReloadAjax();
-						}
-					});
-					return false;
-				});
+				$("#pending-table").signupTable("/course-signup/rest/signup/pending", true);
 			});
 		</script>
 		
@@ -176,7 +101,7 @@
 			<p>These are the students who have signed up for a course that need your approval.</p>
 		</div>
 		<div style="margin:2%" >
-		<table id="pending-table">
+		<table id="pending-table" class="display">
 		</table>
 		</div>
 		

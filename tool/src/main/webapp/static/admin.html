@@ -34,6 +34,8 @@
 		</script>
 		<script type="text/javascript" src="lib/signup.js">
 		</script>
+		<script type="text/javascript" src="lib/Text.js">
+		</script>
 		
 <script type="text/javascript">
 			$(function(){
@@ -43,9 +45,10 @@
 						return component.title+ " "+ component.slot+ "<br>("+ component.places+ " places)";
 					}).join("<br>");
 					return [
-							'<a href="mailto:'+item.user.email+ '">'+item.user.name +'</a>',
 							item.id,
-							(item.supervisor)?item.supervisor.name:"",
+							item.created,
+							Signup.user.render(item.user),
+							Signup.user.render(item.supervisor),
 							components,
 							item.status,
 							Signup.signup.formatActions(Signup.signup.getActions(item.status, item.id))
@@ -79,10 +82,10 @@
 								"bLengthChange": false,
 								"iDisplayLength": 5,
 								"bFilter": false,
-								"bSort": false,
 								"bInfo": false,
 								"bAutoWidth": false,
 								"sAjaxSource": "/course-signup/rest/course/",
+								"aaSorting": [[3,'desc']], // Sort on the signup date.
 								"aoColumns": [
 								              {"sTitle": "Component"},
 											  {"sTitle": "Size"},
@@ -131,7 +134,7 @@
 								}
 							});
 							
-							$("#signups").html('<h3>Signups</h3><table border="0" class="display" id="signups-table"></table><a href="#" id="signup-add">Add</a>');
+							$("#signups").html('<h3>Signups</h3><table border="0" class="display" id="signups-table"></table><a href="#" id="signup-add">Add Signup</a>');
 							
 							var signupAddUser = $("#signup-add-user-win");
 							signupAddUser.resize(function(e){
@@ -210,10 +213,10 @@
 										var components = data.components;
 										var output = TrimPath.processDOMTemplate("signup-add-components-tpl", data);
 										signupAddUser.jqmHide();
-										var window = $("#signup-add-components-win");
-										window.html(output);
-										window.jqm();
-										window.jqmShow();
+										var dialog = $("#signup-add-components-win");
+										dialog.html(output);
+										dialog.jqm();
+										dialog.jqmShow();
 										// Bind on the form submit.
 										$("#signup-add-components").bind("submit", function(e){
 											//
@@ -236,11 +239,14 @@
 													"traditional": true,
 													"data": {"userId": user.id, "courseId": code, "components": components},
 													"success": function(data) {
-														console.log("Good for "+ user.id);
+														//console.log("Good for "+ user.id);
 													}
 												});
 											});
+											dialog.jqmHide(); // Hide the popup.
+											loadCourse(code); // Reload the course data.
 											return false;
+											
 										});
 									});
 								}
@@ -248,54 +254,32 @@
 								return false;
 							});
 							
-							var signups = $("#signups-table").dataTable( {
-								"bJQueryUI": true,
-								"bProcessing": true,
-								"bPaginate": false,
-								"bLengthChange": false,
-								"bFilter": false,
-								"bSort": false,
-								"bInfo": false,
-								"bAutoWidth": false,
-								"sAjaxSource": "/course-signup/rest/signup/course/",
-								"aoColumns": [ // Need to have this here at init.
-								              {"sTitle": "Student"},
-								              {"sTitle": "Signup Code", "bVisible": false},
-								              {"sTitle": "Supervisor"},
-								              {"sTitle": "Components"},
-								              {"sTitle": "Status"},
-								              {"sTitle": "Actions"}
-								],
-								"fnServerData": function(sSource, aoData, fnCallback) {
-									// Load the data an process it.
-									$.getJSON(sSource+code, [], function(data) {
-										var tableData = { // Data for datatables.
-											"aaData": []
-										};
-										for(i in data) {
-											var item = processSignupRow(data[i]);
-											tableData.aaData.push(item);
-										}
-										console.log(tableData);
-										fnCallback(tableData);
-									});
-								},
-								"fnRowCallback": function(nRow, aData, iDisplayIndex) {
-									$("a.action", nRow).bind("click", function(e) {
-										var url = $(this).attr("href");
-										var signupId = aData[1];
-										$.ajax({
-											"url": url,
-											"type": "POST",
-											"success": function(data) {
-												signups.fnReloadAjax();
+							
+							// Load the signups.
+							var signups = $("#signups-table").signupTable("/course-signup/rest/signup/course/"+code, true);
+							 
+							 return;
+							// Handlers to decide what actions you can do when selecting multiple items.
+							$("#signups-table input[type=checkbox]").live("change", function(e) {
+								
+								var matchingStatus;
+								var allMatching = true;
+								
+								$("#signups-table input[type=checkbox]").each(function() {
+									if (this.checked) {
+										var row = this.value;
+										var status = $("#signups-table").dataTable().fnGetData(row)[4];
+										if(matchingStatus) {
+											if(allMatching) {
+												allMatching = matchingStatus == status;
 											}
-										});
-										return false;
-									});
-									return nRow;
-								}
-							}); 
+										} else {
+											matchingStatus = status;
+										}
+									}	
+								});
+								console.log("Do they match?"+ allMatching);
+							});
 						};
 				//
 				// Switch to dropdown list.
@@ -316,9 +300,11 @@
 						options += '<option value="'+ value.id+ '">'+ value.title+ '</option>';
 					});
 									
-					$("#course-list").html('<form>Select a course: <select id="admin-course" name="course">'+ options+ '</select></form>');
 					if (data.length > 0) {
+						$("#course-list").html('<form>Select a course: <select id="admin-course" name="course">'+ options+ '</select></form>');
 						loadCourse(data[0].id, data[0].title);
+					} else {
+						$("#course-list").html('You are not an administrator on any courses.');
 					}
 				});
 				$("#admin-course").live("change", function(e) {
@@ -330,10 +316,44 @@
 			
 		</script>
 
-<style type="text/css">
-	.dataTables_wrapper {
-		margin: 2%;
-	}
+        <style type="text/css">
+        	.dataTables_wrapper {
+        		margin: 2%;
+        	}
+			
+            .course-group { /* Used for formatting the summary of the signup. */
+                font-weight: bold;
+                line-height: 180%;
+            }
+            
+            .course-component {
+                margin-left: 1em;
+            }
+            
+            /* From http://psacake.com/web/jl.asp */
+            .more {
+                position: relative; /*this is the key*/
+                font-weight: bold;
+            }
+            
+            .more .full {
+                display: none;
+                z-index: 24;
+            }
+            
+            .more:hover .full {
+                display: block;
+                position: absolute;
+                font-weight: normal;
+                top: 1em;
+                left: -30em;
+                width: 30em;
+                border: 1px solid #000;
+                padding: 0.5em;
+                background-color: #fff;
+                color: #000;
+                text-align: left;
+            }
 .location {
 	font-size: smaller;
 }
@@ -398,9 +418,11 @@ table th {
 <!-- Popup window for finding users.-->
 <div id="signup-add-user-win" class="jqmWindow" style="display: none">
 	<h2>Find users</h2>
+	<div>Enter one or more username or email addresses.</div>
 	<form id="signup-add-user">
-		<div class="errors"></div>
-		<textarea name="users" id="add-users" cols="30" rows="8"></textarea><br>
+		<textarea name="users" id="add-users" cols="30" rows="8"></textarea>
+		<span class="errors"></span>
+		<br>
 		<input type="submit" value="Find">
 	</form>
 </div>
@@ -465,106 +487,6 @@ table th {
 			</div>
 		</textarea>
 
-<!-- ** Template for displaying a course ** -->
-<textarea id="details-tpl" style="display: none" rows="0" cols="0">
-            <!-- Show details of the course -->
-            <div id="summary" class="">
-                <h3>${title}</h3>
-                <table width="100%">
-                	<tr>
-                        <th>
-                            Lecturers
-                        </th>
-                        <td>
-                            {for presenter in presenters}
-								<a href="mailto:${presenter.email}">${presenter.name}</a>
-							{/for}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>
-                            Course Administrators
-                        </th>
-                        <td>
-                            {for admin in administrators}
-								<a href="mailto:${admin.email}">${admin.name}</a>
-							{/for}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>
-                            Department
-                        </th>
-                        <td>
-                            ${departmentCode}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>
-                            Signup Available
-                        </th>
-                        <td>
-                            13th September 2010 to 29th September 2010 (opens in 34 days)
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <div id="description">
-            	<h4>Description</h4>
-				${description}
-            </div>
-			<div id="parts">
-                <h4>Course Parts</h4>
-				<span class="error" style="display: none"></span>
-                <form id="signup" action="#">
-                    <table width="100%">
-                    	{for part in parts}
-						<tr>
-                            <th colspan="3">
-                                ${part.type.name}
-                            </th>
-                        </tr>
-						{var oneOpen = false}
-						{for option in part.options}
-                        <tr>
-                            <td class="option-details">
-                                <label for="option-${option.id}">${option.slot} for ${option.sessions} sessions in ${option.when},
-								{if option.presenter}<a href="mailto:${option.presenter.email}">${option.presenter.name}</a>{/if}
-								</label>
-                                <br />
-                                <span class="location">${option.location}</span>
-                            </td>
-                            <td>
-                            	{if option.full}
-									full
-								{else}
-									${option.places} places
-								{/if}
-                            </td>
-                            <td>
-                                <input type="radio"
-			name="${part.type.id}" id="option-${option.id}" value="${option.id}"
-			{if option.full || !option.open }disabled="true" {else}{var
-			oneOpen=true}{/if} />
-                            </td>
-                        </tr>
-						{/for}
-						{if parts.length > 1 && oneOpen}
-						<tr>
-							<td class="option-details">
-								<label for="option-none-${part.type.id}">Nothing for this option</label>
-							</td>
-							<td>N/A</td>
-							<td><input type="radio" name="${part.type.id}"
-			id="option-none-${part.type.id}" value="none" /></td>
-						</tr>
-						{/if}
-						{/for}
-                    </table><input type="submit" value="Signup" {if
-	full || !open}disabled="true" {/if}/>
-                </form>
-            </div>
-		</textarea>
 
 </body>
 </html>

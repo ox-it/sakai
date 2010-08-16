@@ -27,36 +27,40 @@ var Signup = function(){
             }
         },
 		"signup": {
-			"getActions": function(status, id) {
-				switch (status) {
-					case "PENDING": 
-						return [
-							{
+			"getActions": function(status, id, admin) {
+				if (admin) {
+					switch (status) {
+						case "PENDING":
+							return [{
 								"name": "Accept",
-								"url": "/course-signup/rest/signup/"+id+"/accept"
-							},
-							{
+								"url": "/course-signup/rest/signup/" + id + "/accept"
+							}, {
 								"name": "Reject",
-								"url": "/course-signup/rest/signup/"+id+"/reject"
-							}
-						];
-					case "ACCEPTED":
-						return [
-							{
+								"url": "/course-signup/rest/signup/" + id + "/reject"
+							}];
+						case "ACCEPTED":
+							return [{
 								"name": "Approve",
-								"url": "/course-signup/rest/signup/"+id+"/approve"
-							},
-							{
+								"url": "/course-signup/rest/signup/" + id + "/approve"
+							}, {
 								"name": "Reject",
-								"url": "/course-signup/rest/signup/"+id+"/reject"
-							}
-						];
-					case "APPROVED":
-						return [];
-					case "REJECTED":
-						return [];
-					case "WITHDRAWN":
-						return [];
+								"url": "/course-signup/rest/signup/" + id + "/reject"
+							}];
+						case "APPROVED":
+							return [];
+						case "REJECTED":
+							return [];
+						case "WITHDRAWN":
+							return [];
+					}
+				} else {
+					switch (status) {
+						case "PENDING": 
+							return [{
+								"name": "Withdraw",
+								"url": "/course-signup/rest/signup/"+id+"/withdraw"
+							}];
+					}
 				}
 				return [];
 			},
@@ -76,8 +80,107 @@ var Signup = function(){
 					return Text.toHtml(notes);
 				}
 			}
+		},
+		"user": {
+			"render": function(user){
+				var details = "";
+				if (user) {
+					details += '<a href="mailto:' + user.email + '">' + user.name + '</a>';
+					if (user.units && user.units.length > 0) {
+						details += '<br>' + user.units.join(" / ");
+					}
+				}
+				return details;
+			}
 		}
     };
 }();
+
+/**
+ * jQuery plugin to make a signup table.
+ */
+(function($){
+    	
+    $.fn.signupTable = function(url, isAdmin){
+		var element = this;
+		var table = this.dataTable( {
+					"bJQueryUI": true,
+					"sPaginationType": "full_numbers",
+					"bProcessing": true,
+					"sAjaxSource": url,
+					"bAutoWidth": false,
+					"aaSorting": [[1, "desc"]],
+					"aoColumns": [
+						{
+							"sTitle": "",
+							"bSortable": false,
+							"fnRender": function(aObj) {
+								return '<input type="checkbox" value="'+ aObj.aData[0]+'">';
+							}
+						},
+						{
+							"sTitle": "Created",
+							"fnRender": function(aObj){
+								return Signup.util.formatDuration($.serverDate() - aObj.aData[1])+ " ago"; 
+							},
+							"bUseRendered": false				
+						},
+						{"sTitle": "Student"},
+						{"sTitle": "Component"},
+						{"sTitle": "Supervisor"},
+						{"sTitle": "Notes", "sWidth": "20%", "sClass": "signup-notes"},
+						{"sTitle": "Status"},
+						{"sTitle": "Actions"}
+					],
+					"fnServerData": function( sSource, aoData, fnCallback ) {
+						jQuery.ajax( {
+							dataType: "json",
+							type: "GET",
+							url: sSource,
+							success: function(result) {
+								var data = [];
+								$.each(result, function(){
+									var course = ['<span class="course-group">'+this.group.title+"</span>"].concat(
+										$.map(this.components.concat(), function(component){
+											return '<span class="course-component">'+ component.title+ " "+ component.slot + " in "+ component.when+ ' ('+ component.places+ '&nbsp;places)</span>';
+										})).join("<br>");
+									var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, isAdmin)); 
+									data.push([
+										this.id,
+										this.created,
+										Signup.user.render(this.user),
+										course,
+										Signup.user.render(this.supervisor),
+										Signup.signup.formatNotes(this.notes),
+										this.status,
+										actions						
+									]);
+								});
+								fnCallback({
+									"aaData": data 
+								});
+							}
+						})
+					}
+				} );
+			$("a.action", this).live("click", function(e) {
+					var url = $(this).attr("href");
+					$.ajax({
+						"url": url,
+						"type": "POST",
+						"success": function(data) {
+							console.log(data);
+							element.dataTable().fnReloadAjax();
+						}
+					});
+					return false;
+				});
+		return table;
+        
+    };
+})(jQuery);
+
+// Stop browsers without console.log from crashing.
+var console = console || {"log":function(){}};
 
 
