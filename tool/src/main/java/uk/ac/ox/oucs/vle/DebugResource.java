@@ -68,6 +68,12 @@ public class DebugResource {
 	@POST
 	public Response setUser(@FormParam("id")String id) {
 		UserProxy user = proxy.findUserById(id);
+		if (user == null) {
+			user = proxy.findUserByEid(id);
+			if (user == null) {
+				user = proxy.findUserByEmail(id);
+			}
+		}
 		if (user != null) {
 			proxy.setCurrentUser(user);
 			return Response.ok().build();
