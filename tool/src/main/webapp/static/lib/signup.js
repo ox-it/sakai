@@ -121,7 +121,11 @@ var Signup = function(){
 						{
 							"sTitle": "Created",
 							"fnRender": function(aObj){
-								return Signup.util.formatDuration($.serverDate() - aObj.aData[1])+ " ago"; 
+								if (aObj.aData[1]) {
+									return Signup.util.formatDuration($.serverDate() - aObj.aData[1]) + " ago";
+								} else {
+									return "unknown";
+								} 
 							},
 							"bUseRendered": false				
 						},
@@ -147,7 +151,7 @@ var Signup = function(){
 									var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, isAdmin)); 
 									data.push([
 										this.id,
-										this.created,
+										(this.created)?this.created:"",
 										Signup.user.render(this.user),
 										course,
 										Signup.user.render(this.supervisor),
