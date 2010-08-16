@@ -62,6 +62,7 @@
 					var nextOpen = Number.MAX_VALUE;
 					var willClose = 0;
 					var isOneOpen = false;
+					var isOneBookable = false;
 					var areSomePlaces = false;
 					for(var i in components) {
 						var component = components[i];
@@ -78,8 +79,14 @@
 								areSomePlaces = true;
 							}
 						}
+						if (!isOneBookable) {
+							isOneBookable = component.bookable;
+						}
 					}
 					var message = "";
+					if (!isOneBookable) {
+						return null;
+					}
 					if (isOneOpen) {
 						if (areSomePlaces) {
 							var remaining = willClose - now;
@@ -538,10 +545,12 @@
                                 <span class="location">${option.location}</span>
                             </td>
                             <td>
-                            	{if option.full}
-									full
-								{else}
-									${option.places} places
+                            	{if option.bookable}
+                            		{if option.full}
+										full
+									{else}
+										${option.places} places
+									{/if}
 								{/if}
                             </td>
                             <td>

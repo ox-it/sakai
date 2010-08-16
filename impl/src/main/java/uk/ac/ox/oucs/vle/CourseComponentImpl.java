@@ -75,5 +75,9 @@ public class CourseComponentImpl implements CourseComponent {
 	public String getSessions() {
 		return dao.getProperties().get("sessions");
 	}
+	
+	public boolean getBookable() {
+		return dao.isBookable();
+	}
 
 }

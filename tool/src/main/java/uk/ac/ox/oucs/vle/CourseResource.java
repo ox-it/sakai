@@ -126,8 +126,12 @@ public class CourseResource {
 		Date nextOpen = new Date(Long.MAX_VALUE);
 		Date willClose = new Date(0);
 		boolean isOneOpen = false;
+		boolean isOneBookable = false;
 		boolean areSomePlaces = false;
 		for (CourseComponent component: courseGroup.getComponents()) {
+			if (!isOneBookable) {
+				isOneBookable = component.getBookable();
+			}
 			// Check if component is the earliest one opening in the future.
 			if (component.getOpens().after(now) && component.getOpens().before(nextOpen)) {
 				nextOpen = component.getOpens();
@@ -144,6 +148,9 @@ public class CourseResource {
 			}
 		}
 		String detail = null;
+		if (!isOneBookable) {
+			return null; // No signup available.
+		}
 		if (isOneOpen) {
 			if (areSomePlaces) {
 				long remaining = willClose.getTime() - now.getTime();
@@ -152,6 +159,9 @@ public class CourseResource {
 				detail = "full";
 			}
 		} else {
+			if (nextOpen.getTime() == Long.MAX_VALUE) {
+				return null; // Didn't find one open
+			}
 			long until = nextOpen.getTime() - now.getTime();
 			detail = "open in "+ formatDuration(until);
 		}
@@ -186,7 +196,9 @@ public class CourseResource {
 				gen.writeEndObject();
 				
 				String detail = summary(now, courseGroup);
-				gen.writeObjectField("data", courseGroup.getTitle() + " ("+detail+")");
+				gen.writeObjectField("data", courseGroup.getTitle() + 
+						(detail == null?"":(" ("+detail+")"))
+				);
 				
 				gen.writeEndObject();
 			}

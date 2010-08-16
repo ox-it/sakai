@@ -26,7 +26,7 @@ public interface CourseComponent {
 	
 	public String getSessions();
 	
-	
+	public boolean getBookable();
 
 	/**
 	 * The ID of the component set that this component belongs to.
