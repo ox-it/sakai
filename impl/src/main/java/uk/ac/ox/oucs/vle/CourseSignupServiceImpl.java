@@ -279,6 +279,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		// Check they are valid as a choice (in signup period (student), not for same component in same term)
 		Date now = getNow();
 		String userId = proxy.getCurrentUser().getId();
+		
+		List<CourseSignupDAO> existingSignups = new ArrayList<CourseSignupDAO>();
 		for(CourseComponentDAO componentDao: componentDaos) {
 			if(componentDao.getOpens().after(now) || componentDao.getCloses().before(now)) {
 				throw new IllegalStateException("Component isn't currently open: "+ componentDao.getId());
@@ -287,9 +289,23 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				throw new IllegalStateException("No places left on: "+ componentDao.getId());
 			}
 			for (CourseSignupDAO signupDao: componentDao.getSignups()) {
-				if (!signupDao.getStatus().equals(Status.WITHDRAWN) && userId.equals(signupDao.getUserId())) {
-					throw new IllegalStateException("User "+ userId+ " already has a place on component: "+ componentDao.getId());
+				// Look for exisiting signups for these components
+				if ( userId.equals(signupDao.getUserId())) {
+					existingSignups.add(signupDao);
+					if(!signupDao.getStatus().equals(Status.WITHDRAWN)) {
+						throw new IllegalStateException("User "+ userId+ " already has a place on component: "+ componentDao.getId());
+					}
 				}
+			}
+		}
+		for (CourseSignupDAO existingSignup :existingSignups) {
+			for (CourseComponentDAO componentDao: existingSignup.getComponents()) {
+				componentDao.getSignups().remove(existingSignup);
+				existingSignup.getComponents().remove(componentDao);
+				dao.save(componentDao);
+			}
+			if (existingSignup.getComponents().size() == 0) {
+				dao.remove(existingSignup);
 			}
 		}
 		// Set the supervisor

@@ -232,6 +232,16 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		
 	}
 
+	public void remove(CourseSignupDAO existingSignup) {
+		getHibernateTemplate().delete(existingSignup);
+	}
+
+	/**
+	 * Used by tests to simulate another request being made.
+	 */
+	public void flush() {
+		getHibernateTemplate().flush();
+	}
 }
 
 

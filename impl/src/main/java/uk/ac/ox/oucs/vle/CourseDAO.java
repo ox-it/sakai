@@ -48,6 +48,8 @@ public interface CourseDAO {
 	List<CourseSignupDAO> findSignupByComponent(String componentId);
 
 	List<CourseSignupDAO> findSignupPending(String currentUser);
+
+	void remove(CourseSignupDAO existingSignup);
 	
 
 }
