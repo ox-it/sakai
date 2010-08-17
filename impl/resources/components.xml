@@ -55,6 +55,7 @@
 				withdraw=PROPAGATION_REQUIRED
 				approve=PROPAGATION_REQUIRED
 				reject=PROPAGATION_REQUIRED
+				*=PROPAGATION_REQUIRED,readOnly
 			</value>
 		</property>
 	</bean>
