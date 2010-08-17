@@ -304,8 +304,12 @@
                 };
 				
 				var loadNodeDetails = function(id) {
-					$.get("/course-signup/static/data/html/"+id+".html", function(data) {
-						$("#details").html(data);
+					$.ajax( {
+						"url": "/course-signup/static/data/html/"+id+".html",
+						"cache": false,
+						"success": function(data) {
+							$("#details").html(data);
+						}
 					});
 				};
 					
