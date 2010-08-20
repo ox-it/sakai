@@ -62,8 +62,8 @@
 				var loadCourse = function(code, name) {
 
 							// Table showing the components.
-							$("#summary").html('<h3>'+ name +'</h3><table border="0" class="display" id="summary-table"></table>');
-							var summary = $("#summary-table").dataTable( {
+							$("#course-details").html('<h3>'+ name +'</h3><table border="0" class="display" id="course-details-table"></table>');
+							var summary = $("#course-details-table").dataTable( {
 								"bJQueryUI": true,
 								"bProcessing": true,
 								"bPaginate": true,
@@ -321,8 +321,7 @@
 
 <div id="course-list"><!-- Browse the areas which there are courses -->
 </div>
-<div id="details"><!-- Show details of the course -->
-<div id="summary"></div>
+<div id="course-details"></div><!-- Show details of the course -->
 <div id="signups"></div>
 </div>
 
