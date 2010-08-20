@@ -1,0 +1,86 @@
+.location {
+    font-size: smaller;
+}
+
+.error {
+    color: red;
+}
+
+table th {
+    text-align: left;
+}
+
+#summary {
+    background: #bbb;
+}
+
+#parts table th {
+    padding: 0.5em;
+}
+
+#parts table td {
+    vertical-align: top;
+    /* Indent all but first line */
+    padding-left: 3em;
+    text-indent: -3em;
+}
+
+#browse {
+    width: 40%;
+    float: left;
+    overflow: hidden;
+}
+
+#details {
+    width: 59%;
+    float: right;
+}
+
+.loader {
+    float: left;
+}
+
+.jqmWindow {
+    z-index: 1000; /* To keep below autocomplete */
+    background: white;
+    overflow: auto;
+    height: 300px;
+}
+
+.dataTables_wrapper {
+    margin: 2%;
+}
+
+.course-group { /* Used for formatting the summary of the signup. */
+    font-weight: bold;
+    line-height: 180%;
+}
+
+.course-component {
+    margin-left: 1em;
+}
+
+/* From http://psacake.com/web/jl.asp */
+.more {
+    position: relative; /*this is the key*/
+    font-weight: bold;
+}
+
+.more .full {
+    display: none;
+    z-index: 24;
+}
+
+.more:hover .full {
+    display: block;
+    position: absolute;
+    font-weight: normal;
+    top: 1em;
+    left: -30em;
+    width: 30em;
+    border: 1px solid #000;
+    padding: 0.5em;
+    background-color: #fff;
+    color: #000;
+    text-align: left;
+}

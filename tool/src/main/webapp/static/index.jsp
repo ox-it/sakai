@@ -1,33 +1,31 @@
+<%@ page import="org.sakaiproject.component.cover.ServerConfigurationService" %>
+<%@ page session="false" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>Course Signup</title>
-		
-		<link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css"/>
-		<link rel="stylesheet" type="text/css" href="tool_base.css"/>
-		<link rel="stylesheet" type="text/css" href="tool.css"/>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">
-		</script>
-		<script type="text/javascript" src="lib/jstree-1.0rc/_lib/jquery.cookie.js">
-		</script>
-		<script type="text/javascript" src="lib/jstree-1.0rc/jquery.jstree.js">
-		</script>
-		<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js">
-		</script>
-		<script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js">
-		</script>
-		<script type="text/javascript" src="lib/dataTables-1.6/js/jquery.dataTables.js">
-		</script>
-		<script type="text/javascript" src="lib/Text.js">
-		</script>
-		<script type="text/javascript" src="lib/serverDate.js">
-		</script>
-		<script type="text/javascript" src="lib/signup.js">
-		</script>
-		<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script> 
-		<script type="text/javascript" language="JavaScript">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Course Signup</title>
+
+	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/<%= ServerConfigurationService.getString("skin.default", "default") %>/tool.css" type="text/css" rel="stylesheet" media="all" />
+
+	<link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css" />
+	<link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css"/>
+	<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.2.custom/css/smoothness/jquery-ui-1.8.2.custom.css"/>
+	<link rel="stylesheet" type="text/css" href="lib/tool.css" />
+	
+	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="lib/jstree-1.0rc/_lib/jquery.cookie.js"></script>
+	<script type="text/javascript" src="lib/jstree-1.0rc/jquery.jstree.js"></script>
+	<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
+	<script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js"></script>
+	<script type="text/javascript" src="lib/dataTables-1.7/js/jquery.dataTables.js"></script>
+	<script type="text/javascript" src="lib/dataTables-1.6/js/jquery.dataTables.reloadAjax.js"></script>
+	<script type="text/javascript" src="lib/signup.js"></script>
+	<script type="text/javascript" src="lib/Text.js"></script>
+	<script type="text/javascript" src="lib/serverDate.js"></script>
 			
+	<script type="text/javascript">
 			jQuery(function() {
 				
 				/**
@@ -382,62 +380,15 @@
 			
 		</script>
 		
-        <style type="text/css">
-            .location {
-                font-size: smaller;
-            }
-			.error {
-				color: red;
-			}
-            
-            table th {
-                text-align: left;
-            }
-            
-            #summary {
-                background: #bbb;
-            }
-			
-			#parts table th {
-				padding: 0.5em;
-			}
-			
-			#parts table td {
-				vertical-align: top;
-				/* Indent all but first line */
-				padding-left: 3em;
-				text-indent: -3em;
-			}
-			
-			#browse {
-				width: 40%;
-				overflow: hidden;
-				float: left;
-			}
-			#details {
-				width: 59%;
-				float: right;
-			}
-			.loader {
-				float: left;
-			}
-			
-			.jqmWindow {
-				z-index: 1000; /* To keep below autocomplete */
-				background: white;
-				overflow: auto;
-				height: 300px;
-			}
-        </style>
     </head>
     <body>
     	<div id="toolbar" >
         	<ul class="navIntraTool actionToolBar">
             <li><span>Course Signup</span></li>
-            <li><span><a href="my.html">My Courses</a></span></li>
-            <li><span><a href="pending.html">Pending Acceptances</a></span></li>
-            <li><span><a href="admin.html">Course Administration</a></span></li>
-            <li><span><a href="debug.html">Debug</a></span></li>
+            <li><span><a href="my.jsp">My Courses</a></span></li>
+            <li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
+            <li><span><a href="admin.jsp">Course Administration</a></span></li>
+            <li><span><a href="debug.jsp">Debug</a></span></li>
 			</ul>
         </div>
 		
@@ -456,21 +407,21 @@
 		</div>
 		
 		<textarea id="parts-confirm-tpl" style="display: none;" rows="0" cols="0">
-			<h2>Signup to: ${course}</h2>
+			<h2>Signup to: \${course}</h2>
 			{var textarea = "textarea"}
 			<div>
 				<ul>
 				{for component in components}
-					<li>${component}</li>
+					<li>\${component}</li>
 				{/for}
 				</ul>
 			</div>
 			<div>
 			<form id="signup-confirm" action="#">
 				{for componentId in componentIds}
-				<input type="hidden" name="components" value="${componentId}"/>
+				<input type="hidden" name="components" value="\${componentId}"/>
 				{/for}
-				<input type="hidden" name="courseId" value="${courseId}"/>
+				<input type="hidden" name="courseId" value="\${courseId}"/>
 				<table>
 					<tr>
 						<th>
@@ -482,7 +433,7 @@
 						<th>
 							<label for="supervisor-note">Message to supervisor</label>
 						</th>
-						<td><${textarea} name="message" id="supervisor-note" cols="40" rows="8"></${textarea}></td>
+						<td><\${textarea} name="message" id="supervisor-note" cols="40" rows="8"></\${textarea}></td>
 					</tr>
 				</table>
 				<input type="submit" value="Confirm Signup"/>
@@ -495,7 +446,7 @@
 		<textarea id="details-tpl" style="display:none" rows="0" cols="0">
             <!-- Show details of the course -->
             <div id="summary" class="">
-                <h3>${title}</h3>
+                <h3>\${title}</h3>
                 <table width="100%">
                 	<tr>
                         <th>
@@ -503,7 +454,7 @@
                         </th>
                         <td>
                             {for presenter in presenters}
-								<a href="mailto:${presenter.email}">${presenter.name}</a>
+								<a href="mailto:\${presenter.email}">\${presenter.name}</a>
 							{/for}
                         </td>
                     </tr>
@@ -512,7 +463,7 @@
                             Course Administrator
                         </th>
                         <td>
-							<a href="mailto:${administrator.email}">${administrator.name}</a>
+							<a href="mailto:\${administrator.email}">\${administrator.name}</a>
                         </td>
                     </tr>
                     <tr>
@@ -521,9 +472,9 @@
                         </th>
                         <td>
                         	{if defined('department')}
-                            	${department}
+                            	\${department}
 							{else}
-								${departmentCode}
+								\${departmentCode}
 							{/if}
                         </td>
                     </tr>
@@ -533,7 +484,7 @@
                             Signup Available
                         </th>
                         <td>
-                            ${signup}
+                            \${signup}
                         </td>
                     </tr>
 					{/if}
@@ -541,7 +492,7 @@
             </div>
             <div id="description">
             	<h4>Description</h4>
-				${description}
+				\${description}
             </div>
 			<div id="parts">
                 <h4>Course Parts</h4>
@@ -551,35 +502,35 @@
                     	{for part in parts}
 						<tr>
                             <th colspan="3">
-                                ${part.type.name}
+                                \${part.type.name}
                             </th>
                         </tr>
 						{var oneOpen = false}
 						{for option in part.options}
                         <tr>
                             <td class="option-details">
-                                <label for="option-${option.id}">${option.slot} for ${option.sessions} sessions starts in ${option.when},
-								{if option.presenter}<a href="mailto:${option.presenter.email}">${option.presenter.name}</a>{/if}
+                                <label for="option-\${option.id}">\${option.slot} for \${option.sessions} sessions starts in \${option.when},
+								{if option.presenter}<a href="mailto:\${option.presenter.email}">\${option.presenter.name}</a>{/if}
 								</label>
                                 <br/>
-                                <span class="location">${option.location}</span>
+                                <span class="location">\${option.location}</span>
                             </td>
                             <td>
                             	{if option.bookable}
                             		{if option.full}
 										full
 									{else}
-										${option.places} places
+										\${option.places} places
 									{/if}
 								{/if}
                             </td>
                             <td>
                             	
 								{if option.signup && option.signup.status != "WITHDRAWN"}
-									Signup: ${option.signup.status}
+									Signup: \${option.signup.status}
 								{else}
 								{if signup}
-                                <input type="radio" name="${part.type.id}" id="option-${option.id}" value="${option.id}"
+                                <input type="radio" name="\${part.type.id}" id="option-\${option.id}" value="\${option.id}"
 								 {if option.full || !option.open }disabled="true"{else}{var oneOpen = true}{/if}/>
 								 {/if}
 								{/if}
@@ -589,10 +540,10 @@
 						{if parts.length > 1 && oneOpen}
 						<tr>
 							<td class="option-details">
-								<label for="option-none-${part.type.id}">Nothing for this option</label>
+								<label for="option-none-\${part.type.id}">Nothing for this option</label>
 							</td>
 							<td>N/A</td>
-							<td><input type="radio" name="${part.type.id}" id="option-none-${part.type.id}" value="none"/></td>
+							<td><input type="radio" name="\${part.type.id}" id="option-none-\${part.type.id}" value="none"/></td>
 						</tr>
 						{/if}
 						{/for}

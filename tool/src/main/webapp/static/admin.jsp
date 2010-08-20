@@ -1,41 +1,29 @@
+<%@ page import="org.sakaiproject.component.cover.ServerConfigurationService" %>
+<%@ page session="false" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Course Signup</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Course Signup</title>
 
-<link rel="stylesheet" type="text/css"
-	href="lib/jqmodal-r14/jqModal.css" />
-<link rel="stylesheet" type="text/css" href="tool_base.css" />
-<link rel="stylesheet" type="text/css" href="tool.css" />
-		<link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css"/>
-		<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.2.custom/css/smoothness/jquery-ui-1.8.2.custom.css"/>
+	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/<%= ServerConfigurationService.getString("skin.default", "default") %>/tool.css" type="text/css" rel="stylesheet" media="all" />
 
-<script type="text/javascript"
-	src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">
-		</script>
-<script type="text/javascript"
-	src="lib/jstree-1.0rc/_lib/jquery.cookie.js">
-		</script>
-<script type="text/javascript" src="lib/jstree-1.0rc/jquery.jstree.js">
-		</script>
-<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js">
-		</script>
-<script type="text/javascript"
-	src="lib/trimpath-template-1.0.38/trimpath-template.js">
-		</script>
-<script type="text/javascript"
-	src="lib/dataTables-1.7/js/jquery.dataTables.js">
-		</script>
-<script type="text/javascript"
-	src="lib/dataTables-1.6/js/jquery.dataTables.reloadAjax.js">
-		</script>
-		<script type="text/javascript" src="lib/serverDate.js">
-		</script>
-		<script type="text/javascript" src="lib/signup.js">
-		</script>
-		<script type="text/javascript" src="lib/Text.js">
-		</script>
+	<link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css" />
+	<link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css"/>
+	<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.2.custom/css/smoothness/jquery-ui-1.8.2.custom.css"/>
+	<link rel="stylesheet" type="text/css" href="lib/tool.css" />
+	
+	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="lib/jstree-1.0rc/_lib/jquery.cookie.js"></script>
+	<script type="text/javascript" src="lib/jstree-1.0rc/jquery.jstree.js"></script>
+	<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
+	<script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js"></script>
+	<script type="text/javascript" src="lib/dataTables-1.7/js/jquery.dataTables.js"></script>
+	<script type="text/javascript" src="lib/dataTables-1.6/js/jquery.dataTables.reloadAjax.js"></script>
+	<script type="text/javascript" src="lib/signup.js"></script>
+	<script type="text/javascript" src="lib/Text.js"></script>
+	<script type="text/javascript" src="lib/serverDate.js"></script>
 		
 <script type="text/javascript">
 			$(function(){
@@ -319,92 +307,15 @@
 			
 		</script>
 
-        <style type="text/css">
-        	.dataTables_wrapper {
-        		margin: 2%;
-        	}
-			
-            .course-group { /* Used for formatting the summary of the signup. */
-                font-weight: bold;
-                line-height: 180%;
-            }
-            
-            .course-component {
-                margin-left: 1em;
-            }
-            
-            /* From http://psacake.com/web/jl.asp */
-            .more {
-                position: relative; /*this is the key*/
-                font-weight: bold;
-            }
-            
-            .more .full {
-                display: none;
-                z-index: 24;
-            }
-            
-            .more:hover .full {
-                display: block;
-                position: absolute;
-                font-weight: normal;
-                top: 1em;
-                left: -30em;
-                width: 30em;
-                border: 1px solid #000;
-                padding: 0.5em;
-                background-color: #fff;
-                color: #000;
-                text-align: left;
-            }
-.location {
-	font-size: smaller;
-}
-
-.error {
-	color: red;
-}
-
-table th {
-	text-align: left;
-}
-
-#parts table th {
-	padding: 0.5em;
-}
-
-#parts table td {
-	vertical-align: top;
-	/* Indent all but first line */
-	padding-left: 3em;
-	text-indent: -3em;
-}
-
-#browse {
-	width: 30%;
-	float: left;
-	overflow: hidden;
-}
-
-.loader {
-	float: left;
-}
-
-.jqmWindow {
-	z-index: 1000; /* To keep below autocomplete */
-	background: white;
-	overflow: auto;
-}
-</style>
 </head>
 <body>
 <div id="toolbar">
 <ul class="navIntraTool actionToolBar">
-	<li><span><a href="index.html">Course Signup</a></span></li>
-	<li><span><a href="my.html">My Courses</a></span></li>
-	<li><span><a href="pending.html">Pending Acceptances</a></span></li>
+	<li><span><a href="index.jsp">Course Signup</a></span></li>
+	<li><span><a href="my.jsp">My Courses</a></span></li>
+	<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
 	<li><span>Course Administration</span></li>
-	<li><span><a href="debug.html">Debug</a></span></li>
+	<li><span><a href="debug.jsp">Debug</a></span></li>
 </ul>
 </div>
 
@@ -441,12 +352,12 @@ table th {
 	<ul>
 	{for component in components}
 		<li>
-			<input type="checkbox" name="${component.id}" id="option-${component.id}" value="true">
-			<label for="component-${component.id}">${component.title} - ${component.slot} for ${component.sessions} sessions in ${component.when},
-					{if component.presenter}<a href="mailto:${component.presenter.email}">${component.presenter.name}</a>{/if}
+			<input type="checkbox" name="\${component.id}" id="option-\${component.id}" value="true">
+			<label for="component-\${component.id}">\${component.title} - \${component.slot} for \${component.sessions} sessions in \${component.when},
+					{if component.presenter}<a href="mailto:\${component.presenter.email}">\${component.presenter.name}</a>{/if}
 					</label>
                                 <br />
-                                <span class="location">${component.location}</span>
+                                <span class="location">\${component.location}</span>
 		</li>
 	{/for}
 	</ul>
@@ -460,14 +371,14 @@ table th {
 			<div>
 				<ul>
 				{for component in components}
-					<li>${component}</li>
+					<li>\${component}</li>
 				{/for}
 				</ul>
 			</div>
 			<div>
 			<form id="signup-confirm" action="#">
 				{for componentId in componentIds}
-				<input type="hidden" name="components" value="${componentId}" />
+				<input type="hidden" name="components" value="\${componentId}" />
 				{/for}
 				<table>
 					<tr>
@@ -481,7 +392,7 @@ table th {
 						<th>
 							<label for="supervisor-note">Message to supervisor</label>
 						</th>
-						<td><${textarea} name="message" id="supervisor-note" cols="40" rows="8"></${textarea}></td>
+						<td><\${textarea} name="message" id="supervisor-note" cols="40" rows="8"></\${textarea}></td>
 					</tr>
 				</table>
 				<input type="submit" value="Confirm Signup" />
