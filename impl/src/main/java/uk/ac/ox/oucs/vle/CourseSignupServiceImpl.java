@@ -14,15 +14,14 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.util.ResourceLoader;
 
-import uk.ac.ox.oucs.vle.proxy.SakaiProxy;
-import uk.ac.ox.oucs.vle.proxy.UserProxy;
 
 public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	private final static Log log = LogFactory.getLog(CourseSignupServiceImpl.class);
 	
-	private final static ResourceBundle rb = ResourceBundle.getBundle("messages");
+	private final static ResourceLoader rb = new ResourceLoader("messages");
 
 	private CourseDAO dao;
 	private SakaiProxy proxy;
@@ -109,6 +108,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	public List<CourseSignup> getMySignups(Set<Status> statuses) {
 		String userId = proxy.getCurrentUser().getId();
+		if (log.isDebugEnabled()) {
+			log.debug("Loading all signups for : "+ userId+ " of status "+ statuses);
+		}
 		List<CourseSignup> signups = new ArrayList<CourseSignup>();
 		for (CourseSignupDAO signupDao:  dao.findSignupForUser(userId, (statuses==null)?Collections.EMPTY_SET:statuses)) {
 			signups.add(new CourseSignupImpl(signupDao, this));
@@ -331,6 +333,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			signupDao.getComponents().add(componentDao); // So when sending out email we know the components.
 			dao.save(componentDao);
 		}
+		
+		
 		String adminId = groupDao.getAdministrator();
 		if (adminId != null) {
 			sendSignupEmail(adminId, signupDao, "signup.admin.subject", "signup.admin.body", null);

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="uk.ac.ox.oucs.vle.DaisyDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url"
+			value="jdbc:mysql://daisy.nsms.ox.ac.uk:3306/daisydb" />
+		<property name="username" value="" /> <!-- Should be set through config. -->
+		<property name="password" value="" /> <!-- Should be set through config. -->
+	</bean>
+
+	<bean id="uk.ac.ox.oucs.vle.signup.hibernate.AdditionalHibernateMappings"
+		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+			<list>
+				<value>/uk/ac/ox/oucs/vle/Course.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+
+
+	<bean name="uk.ac.ox.oucs.vle.CourseSignupService"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="target">
+			<bean class="uk.ac.ox.oucs.vle.CourseSignupServiceImpl">
+				<property name="dao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
+				<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
+			</bean>
+		</property>
+		<property name="transactionManager"
+			ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="transactionAttributes">
+			<value>
+				signup=PROPAGATION_REQUIRED
+				accept=PROPAGATION_REQUIRED
+				withdraw=PROPAGATION_REQUIRED
+				approve=PROPAGATION_REQUIRED
+				reject=PROPAGATION_REQUIRED
+				*=PROPAGATION_REQUIRED,readOnly
+			</value>
+		</property>
+	</bean>
+
+	<bean name="uk.ac.ox.oucs.vle.CourseDAO" class="uk.ac.ox.oucs.vle.CourseDAOImpl">
+		<property name="sessionFactory">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		</property>
+	</bean>
+
+
+
+	<bean name="uk.ac.ox.oucs.vle.SakaiProxy" class="uk.ac.ox.oucs.vle.proxy.SakaiProxyImpl">
+		<property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+		<property name="eventService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+	</bean>
+
+
+	<bean class="uk.ac.ox.oucs.vle.SampleDataLoader" init-method="init">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+	</bean>
+
+	<!-- We don't populate on startup as the job scheduler will do it.
+	<bean class="uk.ac.ox.oucs.vle.PopulatorInit" init-method="init">
+		<property name="populator" ref="uk.ac.ox.oucs.vle.Populator" />
+	</bean>
+	 -->
+
+	<bean id="uk.ac.ox.oucs.vle.Populator"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="target">
+			<bean class="uk.ac.ox.oucs.vle.PopulatorImpl">
+				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
+				<property name="dataSource" ref="uk.ac.ox.oucs.vle.DaisyDataSource" />
+				<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
+			</bean>
+		</property>
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="transactionAttributes">
+			<value>
+				update=PROPAGATION_REQUIRED
+			</value>
+		</property>
+	</bean>
+	
+	<bean id="uk.ac.ox.oucs.vle.PopulatorJob"
+		class="uk.ac.ox.oucs.vle.PopulatorJob">
+		<property name="populator" ref="uk.ac.ox.oucs.vle.Populator"/>
+	</bean>
+	
+	<bean id="uk.ac.ox.oucs.vle.PopulatorJobWrapper"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		singleton="true" init-method="init">
+		<property name="beanId" value="uk.ac.ox.oucs.vle.PopulatorJob"/>
+		<property name="jobName" value="Update course signups"/>
+		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+		
+   </bean>
+
+</beans>
+

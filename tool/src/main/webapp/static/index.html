@@ -25,6 +25,7 @@
 		</script>
 		<script type="text/javascript" src="lib/signup.js">
 		</script>
+		<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script> 
 		<script type="text/javascript" language="JavaScript">
 			
 			jQuery(function() {
@@ -114,13 +115,13 @@
 							// TODO Need to find out if we're looking for an old one.
 							courseData = undefined;
 							signupData = undefined;
-							jQuery.getJSON("/course-signup/rest/course/" + id, {
+							jQuery.getJSON("../rest/course/" + id, {
 								range: (old)?"PREVIOUS":"UPCOMING"
 							}, function(data){
 								courseData = data;
 								showCourse();
 							});
-							jQuery.getJSON("/course-signup/rest/signup/my/course/" + id, {}, function(data){
+							jQuery.getJSON("../rest/signup/my/course/" + id, {}, function(data){
 								signupData = data;
 								showCourse();
 							});
@@ -324,6 +325,9 @@
 							loadNodeDetails(id);
 						}
 					})
+					.bind("open_node.jstree close_node.jstree", function(event, data) {
+
+					})
 					.delegate(".jstree-closed a", "click", function(e) {
 						$("#tree").jstree("open_node", this);
 					})
@@ -367,12 +371,26 @@
 					});	
 				});
 			});
-			jQuery(
-				function() {
-					jQuery("#parts-confirm").jqm({modal:false});
-			
-				}
-			);
+            jQuery(function(){
+                jQuery("#parts-confirm").jqm({
+                    modal: false
+                });
+                
+                var onDocChange = function(){
+					var previousInnerHTML = document.body.innerHTML;
+                    return function(change){
+                        if (document.body.innerHTML !== previousInnerHTML) {
+							previousInnerHTML = document.body.innerHTML;
+                    		console.log("Resizing");
+                    		Signup.util.resize(window.name);
+                		}
+                        setTimeout(arguments.callee, 100);
+                    }
+                }();
+                
+                onDocChange();
+            });
+            
 			
 		</script>
 		
@@ -404,12 +422,12 @@
 			}
 			
 			#browse {
-				width: 30%;
-				float: left;
+				width: 40%;
 				overflow: hidden;
+				float: left;
 			}
 			#details {
-				width: 69%;
+				width: 59%;
 				float: right;
 			}
 			.loader {
@@ -442,6 +460,7 @@
         <div id="details">
             <!-- Show details of the course -->
 		</div>
+		<br clear="all"/>
 				
 		<!-- Hidden extra bits -->
 		<div id="parts-confirm"  class="jqmWindow" style="display: none">

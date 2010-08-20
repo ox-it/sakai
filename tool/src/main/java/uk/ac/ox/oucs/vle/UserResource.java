@@ -22,8 +22,6 @@ import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.node.ObjectNode;
 
-import uk.ac.ox.oucs.vle.proxy.SakaiProxy;
-import uk.ac.ox.oucs.vle.proxy.UserProxy;
 
 /**
  * Class to allow details of the current user to be returned.

@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.vle.proxy;
+package uk.ac.ox.oucs.vle;
 
 import java.util.List;
 

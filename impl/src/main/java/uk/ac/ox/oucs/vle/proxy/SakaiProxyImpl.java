@@ -17,6 +17,9 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
+import uk.ac.ox.oucs.vle.SakaiProxy;
+import uk.ac.ox.oucs.vle.UserProxy;
+
 /**
  * This is the actual Sakai proxy which talks to the Sakai services.
  * @author buckett

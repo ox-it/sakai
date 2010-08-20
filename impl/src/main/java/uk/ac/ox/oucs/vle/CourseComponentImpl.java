@@ -3,7 +3,6 @@ package uk.ac.ox.oucs.vle;
 import java.util.Collections;
 import java.util.Date;
 
-import uk.ac.ox.oucs.vle.proxy.UserProxy;
 
 public class CourseComponentImpl implements CourseComponent {
 	

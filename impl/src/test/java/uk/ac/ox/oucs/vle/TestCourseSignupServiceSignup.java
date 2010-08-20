@@ -2,7 +2,10 @@ package uk.ac.ox.oucs.vle;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 
 public class TestCourseSignupServiceSignup extends TestOnSampleData {
@@ -24,6 +27,37 @@ public class TestCourseSignupServiceSignup extends TestOnSampleData {
 			proxy.setCurrentUser(proxy.findUserById("id"+i));
 			service.signup("course-1", Collections.singleton("comp-3"), "test.user.1@dept.ox.ac.uk", null);
 		}
+	}
+
+	public void testSignupSignupSingle() {
+		service.signup("course-1", Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);
+		dao.flush();
+		List<CourseSignup> signups = service.getMySignups(Collections.singleton(Status.PENDING));
+		assertEquals(1, signups.size());
+		try {
+			service.signup("course-1", Collections.singleton("comp-1"), "test.user.2@dept.ox.ac.uk", null);
+			fail("Shouldn't be able to signup twice.");
+		} catch (Exception e) {}
+		dao.flush();
+		signups = service.getMySignups(Collections.singleton(Status.PENDING));
+		assertEquals("test.user.1@dept.ox.ac.uk", signups.get(0).getSupervisor().getEmail());
+	}
+	
+	public void testSignupWithdrawSignupSingle() {
+		service.signup("course-1", Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);
+		dao.flush();
+		List<CourseSignup> signups = service.getMySignups(Collections.singleton(Status.PENDING));
+		assertEquals(1, signups.size());
+		service.withdraw(signups.get(0).getId());
+		dao.flush();
+		service.signup("course-1", Collections.singleton("comp-1"), "test.user.2@dept.ox.ac.uk", null);
+		dao.flush();
+		signups = service.getMySignups(Collections.singleton(Status.PENDING));
+		assertEquals("test.user.2@dept.ox.ac.uk", signups.get(0).getSupervisor().getEmail());
+	}
+	
+	public void testSignupWithdrawSignupMultiple() {
+		
 	}
 	
 	public void testSignupFuture() {

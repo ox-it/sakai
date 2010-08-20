@@ -5,14 +5,12 @@
                   http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 	<display-name>External Groups</display-name>
 
-
 	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+		<listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
 	</listener>
 	<!--
 		Use the Sakai Spring application context wrapper to reach components.
-	-->
-	<!-- 
+	--> 
 	<listener>
 		<listener-class>org.sakaiproject.util.ToolListener</listener-class>
 	</listener>
@@ -22,6 +20,10 @@
 		<init-param>
 			<param-name>upload.enabled</param-name>
 			<param-value>false</param-value>
+		</init-param>
+		<init-param><!-- This stops the filter from trying to detect/put the placement from/in the url. -->
+			<param-name>tool.placement</param-name>
+			<param-value>true</param-value>
 		</init-param>
 	</filter>
 	
@@ -41,19 +43,25 @@
 		<dispatcher>FORWARD</dispatcher>
 		<dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
-	 -->
 	<filter>
 		<filter-name>hibernate-session</filter-name>
 		<filter-class>org.springframework.orm.hibernate3.support.OpenSessionInViewFilter</filter-class>
-				<init-param>
+		<init-param>
 			<param-name>singleSession</param-name>
 			<param-value>true</param-value>
+		</init-param>
+		<init-param>
+			<param-name>sessionFactoryBeanName</param-name>
+			<param-value>org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory</param-value>
 		</init-param>
 	</filter>
 	
 	<filter-mapping>
 		<filter-name>hibernate-session</filter-name>
 		<servlet-name>Jersey Web Application</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
 	
 	<!-- Application class name -->
@@ -72,7 +80,11 @@
 		<servlet-class>uk.ac.cam.caret.sakai.WebappToolServlet</servlet-class>
 		<init-param>
 			<param-name>main-page</param-name>
-			<param-value>/static/search.html</param-value>
+			<param-value>/static/index.html</param-value>
+		</init-param>
+		<init-param>
+			<param-name>tool-native-url</param-name>
+			<param-value>true</param-value>
 		</init-param>
 	</servlet>
 
@@ -81,4 +93,5 @@
 		<servlet-name>Jersey Web Application</servlet-name>
 		<url-pattern>/rest/*</url-pattern>
 	</servlet-mapping>
+	
 </web-app>

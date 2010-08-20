@@ -61,7 +61,7 @@ public class CourseResource {
 				objectMapper.writeValue(output, course);
 			}
 		};
-	}
+	} 
 
 	/**
 	 * This gets all the courses for a department that have upcoming
@@ -77,7 +77,7 @@ public class CourseResource {
 		final List<CourseGroup> courses = courseService.getCourseGroups(deptId, range);
 		return new GroupsStreamingOutput(courses, deptId, range.name());
 	}
-	
+
 	@Path("/admin")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

@@ -12,6 +12,7 @@
 		<module>api</module>
 		<module>hbm</module>
 		<module>impl</module>
+		<module>pack</module>
 		<module>tool</module>
 	</modules>
 

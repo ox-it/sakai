@@ -33,6 +33,13 @@
 			<artifactId>course-signup-hbm</artifactId>
 		</dependency>
 
+		<!-- Needed to generate the static listing of departments. -->
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<type>jar</type>
+			<version>1.5.3</version>
+		</dependency>
 
 		<dependency>
 			<groupId>commons-logging</groupId>
@@ -40,9 +47,14 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate</artifactId>
-			<scope>compile</scope>
+			<scope>provided</scope>
 			<exclusions>
 				<!-- Needed to get hibernate and Jersey in the same classloader. -->
 				<exclusion>
@@ -63,29 +75,20 @@
 			<groupId>cglib</groupId>
 			<artifactId>cglib-nodep</artifactId>
 			<version>2.1_3</version>
+			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring</artifactId>
-			<scope>compile</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-core-asl</artifactId>
-			<type>jar</type>
-			<version>1.5.3</version>
-		</dependency>
-
+		
 		<dependency>
 			<groupId>commons-dbcp</groupId>
 			<artifactId>commons-dbcp</artifactId>
 			<version>1.3</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.0.8</version>
+			<scope>test</scope>
 		</dependency>
 		
 		<dependency>
@@ -106,7 +109,20 @@
 			<version>2.5.6.SEC01</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>quartz</groupId>
+			<artifactId>quartz</artifactId>
+			<version>1.5.2</version>
+		</dependency>
 	</dependencies>
+	<profiles>
+		<profile>
+			<id>standalone</id>
+			<dependencies>
+			
+			</dependencies>
+		</profile>
+	</profiles>
 	<build>
 		<resources>
 			<resource><directory>src/main/resources</directory></resource>

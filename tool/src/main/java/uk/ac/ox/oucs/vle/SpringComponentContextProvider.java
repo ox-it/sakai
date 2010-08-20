@@ -9,7 +9,7 @@ import javax.ws.rs.ext.Provider;
 
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-@Provider
+//@Provider
 public class SpringComponentContextProvider implements ContextResolver<Object> {
 
 	private ServletContext context;

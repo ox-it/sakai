@@ -25,6 +25,8 @@
 		</dependency>
 	</dependencies>
 	<build>
+		<!-- Currently the autogeneration of java code is disabled as it doesn't currently generate the enum fields at the moment.
+		     It used to but isn't working at the moment. -->
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -43,18 +45,18 @@
 				<executions>
 					<!-- This generates the Java -->
 					<execution>
-						<phase>process-resources</phase>
+						 <phase>process-resources</phase> 
 						<goals>
-							<goal>hbm2java</goal>
+<!--							<goal>hbm2java</goal>-->
 						</goals>
 					</execution>
 
 					<!-- This generates the SQL -->
 					<execution>
 						<id>export-hsqldb</id>
-						<phase>process-classes</phase>
+						 <phase>process-classes</phase> 
 						<goals>
-							<goal>hbm2ddl</goal>
+<!--							<goal>hbm2ddl</goal>-->
 						</goals>
 						<configuration>
 							<componentProperties>
@@ -67,7 +69,7 @@
 						<id>export-mysql</id>
 						<phase>process-classes</phase>
 						<goals>
-							<goal>hbm2ddl</goal>
+<!--							<goal>hbm2ddl</goal>-->
 						</goals>
 						<configuration>
 							<componentProperties>
@@ -80,7 +82,7 @@
 						<id>export-oracle</id>
 						<phase>process-classes</phase>
 						<goals>
-							<goal>hbm2ddl</goal>
+<!--							<goal>hbm2ddl</goal>-->
 						</goals>
 						<configuration>
 							<componentProperties>
@@ -98,9 +100,9 @@
 				<executions>
 					<execution>
 						<id>add-source</id>
-						<phase>generate-sources</phase>
+						 <phase>generate-sources</phase> 
 						<goals>
-							<goal>add-source</goal>
+<!--							<goal>add-source</goal>-->
 						</goals>
 						<configuration>
 							<sources>

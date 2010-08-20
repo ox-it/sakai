@@ -8,13 +8,10 @@ import java.sql.Statement;
 import java.util.HashSet;
 
 import javax.sql.DataSource;
-import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import uk.ac.ox.oucs.vle.proxy.SakaiProxy;
-import uk.ac.ox.oucs.vle.proxy.UserProxy;
 
 /**
  * The idea is this class populates the course group rows.
@@ -22,9 +19,9 @@ import uk.ac.ox.oucs.vle.proxy.UserProxy;
  * @author buckett
  * 
  */
-public class Populator {
+public class PopulatorImpl implements Populator{
 
-	private static final Log log = LogFactory.getLog(Populator.class);
+	private static final Log log = LogFactory.getLog(PopulatorImpl.class);
 	
 	/**
 	 * The source to pull the data from.
@@ -53,6 +50,9 @@ public class Populator {
 		this.proxy = proxy;
 	}
 
+	/* (non-Javadoc)
+	 * @see uk.ac.ox.oucs.vle.Populator#update()
+	 */
 	public void update() {
 		Connection con = null;
 		int groupSeen = 0, groupUpdated = 0, groupCreated = 0;
@@ -114,7 +114,7 @@ public class Populator {
 					"  l.label location,\n" + 
 					"  t.code as term_code, t.label as term_name,\n" + 
 					"  c.title,\n" + 
-					"  concat_ws(' ', teacher.forename, teacher.surname) as teacher_name, teacher.email as teacher_email\n" + 
+					"  teacher.webauth_id as teacher_id, concat_ws(' ', teacher.forename, teacher.surname) as teacher_name, teacher.email as teacher_email\n" + 
 					"\n" + 
 					"FROM\n" + 
 					"  Teaching_Instance ti\n" + 
@@ -202,10 +202,25 @@ public class Populator {
 				componentDao.setComponentId(teachingComponentId+":"+termCode);
 				
 				// Populate teacher details.
-				String teacherName = rs.getString("teacher_name");
+				// Look for details in WebLearn first then fallback to details in DAISY.
+				String teacherName = null;
+				String teacherEmail = null;
+				String teacherId = rs.getString("teacher_id");
+				if (teacherId != null && teacherId.length() > 0) {
+					UserProxy teacher = proxy.findUserByEid(teacherId);
+					if (teacher != null) {
+						teacherName = teacher.getName();
+						teacherEmail = teacher.getEmail();
+					}
+				}
+				if (teacherName == null) {
+					teacherName = rs.getString("teacher_name");
+				}
 				if (teacherName != null && teacherName.trim().length() > 0) {
 					componentDao.getProperties().put("teacher.name", teacherName);
-					String teacherEmail = rs.getString("teacher_email");
+					if (teacherEmail == null) {
+						teacherEmail = rs.getString("teacher_email");
+					}
 					if (teacherEmail != null && teacherName.trim().length() > 0) {
 						componentDao.getProperties().put("teacher.email", teacherEmail);
 					}
@@ -293,4 +308,5 @@ public class Populator {
 	private void logWarning(String id, String reason) {
 		log.warn("Import issue for "+ id+ " because: "+ reason);
 	}
+
 }

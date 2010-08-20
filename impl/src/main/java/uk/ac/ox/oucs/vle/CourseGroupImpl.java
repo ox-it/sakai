@@ -9,7 +9,6 @@ import java.util.Map;
 import org.hibernate.Hibernate;
 import org.sakaiproject.user.api.User;
 
-import uk.ac.ox.oucs.vle.proxy.UserProxy;
 
 public class CourseGroupImpl implements CourseGroup {
 

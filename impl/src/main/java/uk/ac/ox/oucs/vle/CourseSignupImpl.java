@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
-import uk.ac.ox.oucs.vle.proxy.UserProxy;
 
 public class CourseSignupImpl implements CourseSignup {
 

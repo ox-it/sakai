@@ -24,7 +24,62 @@ var Signup = function(){
                             else {
                                 return Math.floor(remaining / 86400000) + " days";
                             }
-            }
+            },
+			"resize": function(){
+				var id = window.name;
+				var frame = parent.document.getElementById(id);
+				if (frame) {
+					// reset the scroll
+					//parent.window.scrollTo(0, 0);
+					
+					var objToResize = (frame.style) ? frame.style : frame;
+					
+					var height;
+					var offsetH = document.body.offsetHeight;
+					var innerDocScrollH = null;
+					
+					if (typeof(frame.contentDocument) != 'undefined' || typeof(frame.contentWindow) != 'undefined') {
+						// very special way to get the height from IE on Windows!
+						// note that the above special way of testing for undefined variables is necessary for older browsers
+						// (IE 5.5 Mac) to not choke on the undefined variables.
+						var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
+						innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
+					}
+					
+					if (document.all && innerDocScrollH != null) {
+						// IE on Windows only
+						height = innerDocScrollH;
+					}
+					else {
+						// every other browser!
+						height = offsetH;
+					}
+					// here we fudge to get a little bigger
+					var newHeight = height + 40;
+					
+					// but not too big!
+					if (newHeight > 32760) 
+						newHeight = 32760;
+					
+					// capture my current scroll position
+					var scroll = findScroll();
+					
+					// resize parent frame (this resets the scroll as well)
+					objToResize.height = newHeight + "px";
+					
+					// reset the scroll, unless it was y=0)
+					if (scroll[1] > 0) {
+						var position = findPosition(frame);
+						parent.window.scrollTo(position[0] + scroll[0], position[1] + scroll[1]);
+					}
+					
+					// optional hook triggered after the head script fires.
+					
+					if (parent.postIframeResize) {
+						parent.postIframeResize(id);
+					}
+				}
+			}
         },
 		"signup": {
 			"getActions": function(status, id, admin) {

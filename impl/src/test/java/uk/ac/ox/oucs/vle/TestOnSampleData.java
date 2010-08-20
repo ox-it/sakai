@@ -12,7 +12,11 @@ public abstract class TestOnSampleData extends AbstractTransactionalSpringContex
 	private SessionFactory factory;
 	protected CourseSignupService service;
 	protected SakaiProxyTest proxy;
+	protected CourseDAOImpl dao;
 
+	protected void onSetUpBeforeTransaction() {
+		transactionManager.toString();
+	}
 
 	protected String[] getConfigPaths() {
 		return new String[]{"/components.xml", "/test-components.xml"};
@@ -40,6 +44,10 @@ public abstract class TestOnSampleData extends AbstractTransactionalSpringContex
 
 	public void setProxy(SakaiProxyTest proxy) {
 		this.proxy = proxy;
+	}
+
+	public void setDao(CourseDAOImpl dao) {
+		this.dao = dao;
 	}
 	
 

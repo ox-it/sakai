@@ -26,9 +26,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
 import org.codehaus.jackson.node.ObjectNode;
 
-import uk.ac.ox.oucs.vle.proxy.Email;
-import uk.ac.ox.oucs.vle.proxy.SakaiProxyTest;
-import uk.ac.ox.oucs.vle.proxy.UserProxy;
 
 @Path("/debug")
 public class DebugResource {
@@ -37,13 +34,13 @@ public class DebugResource {
 	private JsonFactory jsonFactory;
 	private CourseSignupService courseService;
 	private Populator populator;
-	private SakaiProxyTest proxy;
+	private SakaiProxy proxy;
 	private ObjectMapper objectMapper;
 
 	public DebugResource(@Context ContextResolver<Object> resolver) {
 		this.courseService = (CourseSignupService) resolver.getContext(CourseSignupService.class);
 		this.populator = (Populator)resolver.getContext(Populator.class);
-		this.proxy = (SakaiProxyTest) resolver.getContext(SakaiProxyTest.class);
+		this.proxy = (SakaiProxy) resolver.getContext(SakaiProxy.class);
 		this.objectMapper = new ObjectMapper();
 	}
 	
@@ -62,32 +59,6 @@ public class DebugResource {
 		} catch (IOException e) {
 			throw new WebApplicationException(e);
 		}
-	}
-	
-	@Path("/user")
-	@POST
-	public Response setUser(@FormParam("id")String id) {
-		UserProxy user = proxy.findUserById(id);
-		if (user == null) {
-			user = proxy.findUserByEid(id);
-			if (user == null) {
-				user = proxy.findUserByEmail(id);
-			}
-		}
-		if (user != null) {
-			proxy.setCurrentUser(user);
-			return Response.ok().build();
-		}
-		return Response.status(Status.NOT_FOUND).build();
-	}
-	
-	@Path("/emails")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getEmails() throws JsonGenerationException, JsonMappingException, IOException {
-		List<Email> emails = proxy.getEmails();
-		String json = objectMapper.typedWriter(TypeFactory.collectionType(List.class, Email.class)).writeValueAsString(emails);
-		return Response.ok(json).build();
 	}
 	
 	@Path("/date")

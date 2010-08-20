@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import uk.ac.ox.oucs.vle.SakaiProxy;
+import uk.ac.ox.oucs.vle.UserProxy;
+
 /**
  * Proxy through which all calls to Sakai are made.
  * This should allow us to run outside Sakai, if it starts dealing with more than just

@@ -45,8 +45,17 @@
 		<property name="transactionAttributes">
 			<value>
 				signup=PROPAGATION_REQUIRED
+				accept=PROPAGATION_REQUIRED
+				withdraw=PROPAGATION_REQUIRED
+				approve=PROPAGATION_REQUIRED
+				reject=PROPAGATION_REQUIRED
+				*=PROPAGATION_REQUIRED,readOnly
 			</value>
 		</property>
+	</bean>
+
+	<bean class="uk.ac.ox.oucs.vle.PopulatorInit">
+		<property name="populator" ref="uk.ac.ox.oucs.vle.Populator"/>
 	</bean>
 
 </beans>

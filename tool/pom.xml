@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-server</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.3.1</version>
 		</dependency>
 		
 		<dependency>
@@ -56,17 +56,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-jsp-adapter</artifactId>
-			<version>0.8-M2</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.sakaiproject</groupId>
-					<artifactId>sakai-tool-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 		</dependency>
@@ -83,18 +72,56 @@
 		<dependency>
 			<groupId>uk.ac.ox.oucs</groupId>
 			<artifactId>course-signup-api</artifactId>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>uk.ac.ox.oucs</groupId>
-			<artifactId>course-signup-hbm</artifactId>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>uk.ac.ox.oucs</groupId>
-			<artifactId>course-signup-impl</artifactId>
-			<scope>compile</scope>
 		</dependency>
 
 	</dependencies>
+	<profiles>
+		<profile>
+			<id>standalone</id>
+			<!-- Profile which should pull everything into the war so it can be run without Sakai. -->
+			<dependencies>
+			<dependency>
+				<groupId>uk.ac.ox.oucs</groupId>
+				<artifactId>course-signup-hbm</artifactId>
+				<scope>compile</scope>
+			</dependency>
+				<dependency>
+					<groupId>uk.ac.ox.oucs</groupId>
+					<artifactId>course-signup-impl</artifactId>
+					<scope>compile</scope>
+				</dependency>
+				<!-- Sakai services -->
+				<dependency>
+					<groupId>org.sakaiproject.kernel</groupId>
+					<artifactId>sakai-kernel-api</artifactId>
+					<scope>compile</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject.kernel</groupId>
+					<artifactId>sakai-component-manager</artifactId>
+					<scope>compile</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject.kernel</groupId>
+					<artifactId>sakai-kernel-util</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+					<version>1.0.4</version>
+					<scope>compile</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.hibernate</groupId>
+					<artifactId>hibernate</artifactId>
+					<scope>compile</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring</artifactId>
+					<scope>compile</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 </project>

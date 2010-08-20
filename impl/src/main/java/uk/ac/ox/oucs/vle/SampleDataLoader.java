@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -34,8 +35,10 @@ public class SampleDataLoader {
 
 		Session session = factory.openSession();
 		String sql = "";
+		boolean firstStatement = true;
 		try {
-			InputStream stream = getClass().getResourceAsStream(
+			log.info("Loading sample data from :"+ dataFile);
+			InputStream stream = this.getClass().getResourceAsStream(
 					dataFile);
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 					stream));
@@ -49,11 +52,16 @@ public class SampleDataLoader {
 					sql = buffer.substring(0, semicolon);
 					buffer.delete(0, semicolon + 1);
 					session.createSQLQuery(sql).executeUpdate();
+					firstStatement=false;
 				}
 			}
-		} catch (Exception e) {
-			log.warn("Problem while executing statement: "+ sql);
-			throw e;
+		} catch (HibernateException e) {
+			if (firstStatement) {
+				log.info("Not doing DDL as already done: "+ dataFile);
+			} else {
+				log.warn("Problem while executing statement: "+ sql);
+				throw e;
+			}
 		} finally {
 			session.close();
 		}

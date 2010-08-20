@@ -77,22 +77,22 @@ public class SignupResource {
 			}
 		}; 
 	}
-	
+
 	@Path("/my/new")
 	@POST
 	public Response signup(@FormParam("courseId") String courseId, @FormParam("components")Set<String> components, @FormParam("email")String email, @FormParam("message")String message) {
+		String user = courseService.findSupervisor(email);
 		courseService.signup(courseId, components, email, message);
 		return Response.ok().build();
 	}
-	
+
 	@Path("/new")
 	@POST
 	public Response signup(@FormParam("userId")String userId, @FormParam("courseId") String courseId, @FormParam("components")Set<String> components) {
 		courseService.signup(userId, courseId, components);
 		return Response.ok().build();
 	}
-	
-	
+
 	@Path("{id}/accept")
 	@POST
 	public Response accept(@PathParam("id") final String signupId) {
@@ -106,7 +106,7 @@ public class SignupResource {
 		courseService.reject(signupId);
 		return Response.ok().build();
 	}
-
+ 
 	@Path("{id}/withdraw")
 	@POST
 	public Response withdraw(@PathParam("id") final String signupId) {
