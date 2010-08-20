@@ -51,6 +51,26 @@
 					}
 					return false;
 				};
+                
+				/**
+				 * Used for sorting a jsTree. 
+				 * @param {Object} x
+				 * @param {Object} y
+				 */
+                var treeSort = function(x, y){
+                    var a = x.data;
+                    var b = y.data;
+                    if (a === b) {
+                        return 0;
+                    }
+                    else 
+                        if (a < b) {
+                            return -1;
+                        }
+                        else {
+                            return 1;
+                        }
+                };
 
 				/**
 				 * Returns a summary about signup for this group.
@@ -346,6 +366,7 @@
 								},
 								dataType: "json",
 								success: function (data) {
+                                    data.tree.sort(treeSort);
 									if ("UPCOMING" == data.range) {
 										data.tree.push({
 											"attr":{"id": data.dept+"-PREVIOUS"},
@@ -357,7 +378,7 @@
 											this.attr.class = "old";
 										});
 									}
-									return data.tree;
+                                    return data.tree;
 								}
 							}
 							//correct_state: true
