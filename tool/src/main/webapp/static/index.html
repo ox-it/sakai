@@ -376,19 +376,7 @@
                     modal: false
                 });
                 
-                var onDocChange = function(){
-					var previousInnerHTML = document.body.innerHTML;
-                    return function(change){
-                        if (document.body.innerHTML !== previousInnerHTML) {
-							previousInnerHTML = document.body.innerHTML;
-                    		console.log("Resizing");
-                    		Signup.util.resize(window.name);
-                		}
-                        setTimeout(arguments.callee, 100);
-                    }
-                }();
-                
-                onDocChange();
+  				Signup.util.autoresize();
             });
             
 			
