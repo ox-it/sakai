@@ -215,7 +215,7 @@
 							
 							data.parts = parts;
 							console.log(data);
-							var output = TrimPath.processDOMTemplate("details-tpl", data);
+							var output = TrimPath.processDOMTemplate("details-tpl", data, {throwExceptions: true});
 							//console.log(output.toString());
                             jQuery("#details").html(output);
                             jQuery("#signup").submit(function(){
@@ -256,7 +256,7 @@
 											"course": data.title,
 											"courseId": id
 										};
-										var confirmText = TrimPath.processDOMTemplate("parts-confirm-tpl", templateData);
+										var confirmText = TrimPath.processDOMTemplate("parts-confirm-tpl", templateData, {throwExceptions: true});
 										dialog.html(confirmText);
 										confirmSetup(dialog);
 										dialog.jqmShow();
