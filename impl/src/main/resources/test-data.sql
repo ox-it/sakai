@@ -1,6 +1,6 @@
-INSERT INTO course_group(id, dept, title, administrator) VALUES('course-1', '3C05', 'The Politics of Brazil', 'd86d9720-eba4-40eb-bda3-91b3145729da' );
-INSERT INTO course_group(id, dept, title, administrator) VALUES('course-2', '3C05', 'The Politics of Mexico', 'd86d9720-eba4-40eb-bda3-91b3145729da' );
-INSERT INTO course_group(id, dept, title, administrator) VALUES('course-3', '3C05', 'Testing of Open', 'c10cdf4b-7c10-423c-8319-2d477051a94e' );
+INSERT INTO course_group(id, dept, title, administrator) VALUES('course-1', '3C05', 'The Politics of Brazil', 'admin' );
+INSERT INTO course_group(id, dept, title, administrator) VALUES('course-2', '3C05', 'The Politics of Mexico', 'admin' );
+INSERT INTO course_group(id, dept, title, administrator) VALUES('course-3', '3C05', 'Testing of Open', 'admin' );
 
 
 INSERT INTO course_component(id, bookable, title, termcode, opens, closes, size, taken, componentId) VALUES('comp-1', true, 'Lecture on Politics of Brazil', '2010-HIL', DATE_SUB('2010-10-10', INTERVAL 3 WEEK), DATE_SUB('2010-10-10', INTERVAL 1 WEEK), 40, 0, 'tc-1');
