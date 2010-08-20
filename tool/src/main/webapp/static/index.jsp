@@ -384,7 +384,10 @@
 							//correct_state: true
 						},
 						core: {
-							initially_open: ["root", "3C", "3C05"] // Open up MPLS for testing.
+							initially_open: ["root", "4D"] // Open up MPLS for testing.
+						},
+						ui: {
+							initially_select: ["4D"]
 						},
 						plugins: ["themes", "json_data", "ui"]
 					});	
