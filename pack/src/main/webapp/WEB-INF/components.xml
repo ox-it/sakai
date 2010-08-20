@@ -64,12 +64,6 @@
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 	</bean>
 
-	<!-- We don't populate on startup as the job scheduler will do it.
-	<bean class="uk.ac.ox.oucs.vle.PopulatorInit" init-method="init">
-		<property name="populator" ref="uk.ac.ox.oucs.vle.Populator" />
-	</bean>
-	 -->
-
 	<bean id="uk.ac.ox.oucs.vle.Populator"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="target">
