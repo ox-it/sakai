@@ -123,6 +123,11 @@
 							});
 							
 							$("#signups").html('<h3>Signups</h3><table border="0" class="display" id="signups-table"></table><a href="#" id="signup-add">Add Signup</a>');
+							// Load the signups.
+							var signups = $("#signups-table").signupTable("/course-signup/rest/signup/course/"+code, true);
+							signups.bind("reload", function() {
+								summary.fnReloadAjax();
+							})
 							
 							var signupAddUser = $("#signup-add-user-win");
 							signupAddUser.resize(function(e){
@@ -227,7 +232,8 @@
 												});
 											});
 											dialog.jqmHide(); // Hide the popup.
-											loadCourse(code); // Reload the course data.
+											summary.fnReloadAjax(); 
+											signups.rnReloadAjax();
 											return false;
 											
 										});
@@ -238,8 +244,6 @@
 							});
 							
 							
-							// Load the signups.
-							var signups = $("#signups-table").signupTable("/course-signup/rest/signup/course/"+code, true);
 							 
 							 return;
 							// Handlers to decide what actions you can do when selecting multiple items.

@@ -237,6 +237,7 @@ var Signup = function(){
                 "type": "POST",
                 "success": function(data){
                     element.dataTable().fnReloadAjax();
+					$(table).trigger("reload"); // Custom event type;
                 }
             });
             return false;
