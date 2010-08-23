@@ -32,6 +32,13 @@
 			<groupId>uk.ac.ox.oucs</groupId>
 			<artifactId>course-signup-hbm</artifactId>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-portal-api</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
 		<!-- Needed to generate the static listing of departments. -->
 		<dependency>

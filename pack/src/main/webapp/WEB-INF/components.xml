@@ -56,6 +56,8 @@
 		<property name="eventService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="portalService" ref="org.sakaiproject.portal.api.PortalService"/>
 	</bean>
 
 

@@ -12,5 +12,12 @@ public interface SakaiProxy {
 	public UserProxy findUserByEid(String eid);
 	
 	public void sendEmail(String to, String subject, String body);
+	
+	/**
+	 * Get a URL that a user can click on to go to approve/reject a signup.
+	 * @param signupId
+	 * @return
+	 */
+	public String getConfirmUrl(String signupId);
 
 }

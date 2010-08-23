@@ -181,7 +181,8 @@ var Signup = function(){
                 "bSortable": false,
                 "fnRender": function(aObj){
                     return '<input type="checkbox" value="' + aObj.aData[0] + '">';
-                }
+                },
+               "bUseRendered": false
             }, {
                 "sTitle": "Created",
                 "fnRender": function(aObj){

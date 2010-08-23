@@ -1,8 +1,13 @@
 package uk.ac.ox.oucs.vle.proxy;
 
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -11,6 +16,9 @@ import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -39,6 +47,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	private ServerConfigurationService serverConfigurationService;
 	
+	private SiteService siteService;
+	
+	private PortalService portalService;
+	
 	private String fromAddress;
 	
 	public void setUserService(UserDirectoryService userService) {
@@ -55,6 +67,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	public void setToolManager(ToolManager toolManager) {
 		this.toolManager = toolManager;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
+	public void setPortalService(PortalService portalService) {
+		this.portalService = portalService;
 	}
 
 	public void init() {
@@ -131,6 +151,27 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		List<String> units = sakaiUser.getProperties().getPropertyList("units");
 		return new UserProxy(sakaiUser.getId(), sakaiUser.getEid(), sakaiUser.getDisplayName(), sakaiUser.getEmail(), (units == null)?Collections.EMPTY_LIST:units);
+	}
+
+	public String getConfirmUrl(String signupId) {
+		Placement currentPlacement = toolManager.getCurrentPlacement();
+		String siteId = currentPlacement.getContext();
+		ToolConfiguration toolConfiguration = siteService.findTool(currentPlacement.getId());
+		String pageUrl = toolConfiguration.getContainingPage().getUrl();
+		Map<String, String[]> encodedToolState = portalService.encodeToolState(currentPlacement.getId(), "/static/pending.jsp#"+ signupId);
+		StringBuilder params = new StringBuilder();
+		for (Entry<String, String[]> entry : encodedToolState.entrySet()) {
+			for(String value: entry.getValue()) {
+				params.append("&");
+				params.append(entry.getKey());
+				params.append("=");
+				params.append(URLEncoder.encode(value));
+			}
+		}
+		if (params.length() > 0) {
+			pageUrl += "?"+ params.substring(1); // Trim the leading &
+		}
+		return pageUrl;
 	}
 
 }

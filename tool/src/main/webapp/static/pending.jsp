@@ -34,9 +34,17 @@
 					return $.fn.dataTableExt.oSort["string-desc"](x.name, y.name);
 				}
 
-				
-				$("#pending-table").signupTable("/course-signup/rest/signup/pending", true);
+				var table = $("#pending-table").signupTable("/course-signup/rest/signup/pending", true);
 				Signup.util.autoresize();
+				
+				// Need to see if we have an anchor in the URL and if so just display that row
+				if (location.hash) {
+					var signupId = location.hash.substr(1); // Trim the leading #
+					table.fnFilter(signupId,0);
+					
+					//TODO Need to have a show all button and have the filter cancel when the table reloads.
+				}
+				
 			});
 			
 		</script>

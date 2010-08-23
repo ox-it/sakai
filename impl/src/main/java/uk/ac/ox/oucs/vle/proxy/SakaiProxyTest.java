@@ -94,4 +94,8 @@ public class SakaiProxyTest implements SakaiProxy {
 	public List<Email> getEmails() {
 		return Collections.unmodifiableList(emailLog);
 	}
+
+	public String getConfirmUrl(String signupId) {
+		return "/someurl/"+ signupId;
+	}
 }
