@@ -461,7 +461,7 @@
 						<td><\${textarea} name="message" id="supervisor-note" cols="40" rows="8">
 Reason for requesting to attend this course: 
 
-Other comments</\${textarea}></td>
+Other comments: </\${textarea}></td>
 					</tr>
 				</table>
 				<input type="submit" value="Confirm Signup"/>
