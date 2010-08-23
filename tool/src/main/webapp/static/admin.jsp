@@ -138,6 +138,7 @@
 									objs.w.fadeOut('250',function(){ objs.o.remove(); });
 								}
 							});
+							signupAddUser.jqmAddClose("input.cancel");
 							$("#signup-add").click(function(){
 								signupAddUser.jqmShow();
 								// Need to resize to content.
@@ -197,6 +198,7 @@
 										var dialog = $("#signup-add-components-win");
 										dialog.html(output);
 										dialog.jqm();
+										dialog.jqmAddClose("input.cancel");
 										dialog.jqmShow();
 										// Bind on the form submit.
 										$("#signup-add-components").bind("submit", function(e){
@@ -329,6 +331,7 @@
 		<span class="errors"></span>
 		<br>
 		<input type="submit" value="Find">
+		<input type="button" class="cancel" value="Cancel">
 	</form>
 </div>
 
@@ -353,6 +356,7 @@
 	{/for}
 	</ul>
 		<input type="submit" value="Add">
+		<input type="button" class="cancel" value="Cancel">
 	</form>
 </textarea>
 
