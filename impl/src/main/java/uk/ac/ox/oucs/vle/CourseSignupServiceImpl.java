@@ -247,7 +247,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		CourseSignupDAO signupDao = dao.newSignup(userId, null);
 		signupDao.setCreated(getNow());
 		signupDao.setGroup(groupDao);
-		signupDao.setStatus(Status.PENDING);
+		signupDao.setStatus(Status.ACCEPTED);
 		dao.save(signupDao);
 		for (CourseComponentDAO componentDao: componentDaos) {
 			componentDao.getSignups().add(signupDao);
