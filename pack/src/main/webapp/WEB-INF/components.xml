@@ -10,6 +10,7 @@
 			value="jdbc:mysql://daisy.nsms.ox.ac.uk:3306/daisydb" />
 		<property name="username" value="" /> <!-- Should be set through config. -->
 		<property name="password" value="" /> <!-- Should be set through config. -->
+		<property name="maxIdle" value="0"/><!-- Don't actually do any pooling -->
 	</bean>
 
 	<bean id="uk.ac.ox.oucs.vle.signup.hibernate.AdditionalHibernateMappings"
@@ -50,8 +51,6 @@
 		</property>
 	</bean>
 
-
-
 	<bean name="uk.ac.ox.oucs.vle.SakaiProxy" class="uk.ac.ox.oucs.vle.proxy.SakaiProxyImpl">
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
 		<property name="eventService" ref="org.sakaiproject.event.api.EventTrackingService"/>
@@ -81,19 +80,47 @@
 		</property>
 	</bean>
 	
+	<!-- Should be replaced by MethodInvokingJobDetailFactoryBean -->
 	<bean id="uk.ac.ox.oucs.vle.PopulatorJob"
 		class="uk.ac.ox.oucs.vle.PopulatorJob">
 		<property name="populator" ref="uk.ac.ox.oucs.vle.Populator"/>
 	</bean>
-	
+
 	<bean id="uk.ac.ox.oucs.vle.PopulatorJobWrapper"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
 		singleton="true" init-method="init">
-		<property name="beanId" value="uk.ac.ox.oucs.vle.PopulatorJob"/>
-		<property name="jobName" value="Update course signups"/>
-		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
-		
-   </bean>
+		<property name="beanId" value="uk.ac.ox.oucs.vle.PopulatorJob" />
+		<property name="jobName" value="Update course signups" />
+		<property name="schedulerManager"
+			ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+	</bean>
+
+
+	<bean id="uk.ac.ox.oucs.vle.GenerateTree"
+		class="uk.ac.ox.oucs.vle.GenerateTree">
+		<property name="dataSource" ref="uk.ac.ox.oucs.vle.DaisyDataSource"/>
+		<property name="factory">
+			<bean class="org.codehaus.jackson.JsonFactory"/>
+		</property>
+	</bean>
+	
+	<bean id="uk.ac.ox.oucs.vle.GenerateTreeJob"
+		class="uk.ac.ox.oucs.vle.GenerateTreeJob">
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="generateTree" ref="uk.ac.ox.oucs.vle.GenerateTree"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+	</bean>
+	
+	<bean id="uk.ac.ox.oucs.vle.GenerateTreeJobWrapper"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		singleton="true" init-method="init">
+		<property name="beanId" value="uk.ac.ox.oucs.vle.GenerateTreeJob"/>
+		<property name="jobName" value="Generate the department JSON"/>
+		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+	</bean>
 
 </beans>
 
