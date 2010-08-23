@@ -236,7 +236,6 @@ var Signup = function(){
                 "url": url,
                 "type": "POST",
                 "success": function(data){
-                    console.log(data);
                     element.dataTable().fnReloadAjax();
                 }
             });

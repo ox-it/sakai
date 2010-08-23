@@ -127,7 +127,6 @@
 							var signupAddUser = $("#signup-add-user-win");
 							signupAddUser.resize(function(e){
 								// Calculate size.
-								console.log("reseize");
 							});
 							signupAddUser.jqm({
 								onShow: function(objs) {
@@ -141,8 +140,6 @@
 							});
 							$("#signup-add").click(function(){
 								signupAddUser.jqmShow();
-								console.log(signupAddUser.height());
-								console.log(signupAddUser.innerHeight());
 								// Need to resize to content.
 								var windowHeight = $(window).height();
 								var positionTop = signupAddUser[0].offsetTop;
@@ -151,8 +148,6 @@
 									var newHeight = windowHeight - (signupAddUser.outerHeight(false) - signupAddUser.height()) -2;
 									signupAddUser.height(newHeight);
 									signupAddUser.css("top", "1px"); // Move almost to the top.
-									
-									console.log("resize "+ windowHeight+ " "+newHeight );
 								};
 								
 							});
@@ -164,8 +159,6 @@
 									var newHeight = windowHeight - (signupAddUser.outerHeight(false) - signupAddUser.height()) -2;
 									signupAddUser.height(newHeight);
 									signupAddUser.css("top", "1px"); // Move almost to the top.
-									
-									console.log("resize "+ windowHeight+ " "+newHeight );
 								};
 							});
 							
@@ -266,7 +259,6 @@
 										}
 									}	
 								});
-								console.log("Do they match?"+ allMatching);
 							});
 						};
 				//

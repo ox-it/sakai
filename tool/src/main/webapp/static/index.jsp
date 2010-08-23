@@ -219,7 +219,6 @@
 							data.signup = signupSummary(data.components);
 							
 							data.parts = parts;
-							console.log(data);
 							var output = TrimPath.processDOMTemplate("details-tpl", data, {throwExceptions: true});
 							//console.log(output.toString());
                             jQuery("#details").html(output);
@@ -239,7 +238,6 @@
 												selectedPartIds.push(this.value);
 											}
 										}
-										console.log(name + " " + radioSelected[name]);
 									});
 									for (radio in radioSelected) {
 										if (!radioSelected[radio]) {
@@ -268,7 +266,6 @@
 									}
 									return false;
 								} catch (e) {
-									console.log(e);
 									return false;
 								}
                             });
@@ -294,7 +291,6 @@
                         form.find(".error").remove();
                         form.find(".msg").remove()
                         form.find(".valid-email").each(function(){
-                            console.log(this);
                             var current = jQuery(this);
                             if (current.val().length == 0) {
                                 current.after('<span class="error">* required</span>');
