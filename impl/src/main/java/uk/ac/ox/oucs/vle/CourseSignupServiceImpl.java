@@ -206,6 +206,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			if (isAdministrator(signupDao.getGroup(), userId, userId.equals(signupDao.getSupervisorId()))) {
 				signupDao.setStatus(Status.REJECTED);
 				dao.save(signupDao);
+				for (CourseComponentDAO componentDao: signupDao.getComponents()) {
+					componentDao.setTaken(componentDao.getTaken()-1);
+					dao.save(componentDao);
+				}
 				// Mail out to student
 				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-supervisor.student.subject", "reject-supervisor.student.body", new Object[] {proxy.getCurrentUser().getName()});
 			} else {
