@@ -255,6 +255,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		dao.save(signupDao);
 		for (CourseComponentDAO componentDao: componentDaos) {
 			componentDao.getSignups().add(signupDao);
+			componentDao.setTaken(componentDao.getTaken()-1);
 			dao.save(componentDao);
 		}
 	}
