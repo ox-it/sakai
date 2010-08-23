@@ -458,7 +458,10 @@
 						<th>
 							<label for="supervisor-note">Message to supervisor</label>
 						</th>
-						<td><\${textarea} name="message" id="supervisor-note" cols="40" rows="8"></\${textarea}></td>
+						<td><\${textarea} name="message" id="supervisor-note" cols="40" rows="8">
+Reason for requesting to attend this course: 
+
+Other comments</\${textarea}></td>
 					</tr>
 				</table>
 				<input type="submit" value="Confirm Signup"/>
