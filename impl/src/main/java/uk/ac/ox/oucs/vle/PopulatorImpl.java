@@ -68,6 +68,7 @@ public class PopulatorImpl implements Populator{
 					"  Assessment_Unit au\n" + 
 					"  LEFT JOIN Staff_OpenDoor admin ON au.course_administrator = admin.employee_number\n" + 
 					"  INNER JOIN Teaching_Component tc ON\n" + 
+					// The LIKE is here because there can be multiple entries seperated by commas
 					"  ( tc.assessment_unit_code LIKE concat(concat('%',au.code),'%') AND length(tc.assessment_unit_code) > 0)\n" + 
 					"  INNER JOIN Department d ON au.department_code = d.code\n" + 
 					";");
