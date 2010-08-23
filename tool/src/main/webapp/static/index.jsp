@@ -317,7 +317,7 @@
                         var courseId = jQuery("input[name=courseId]", this).first().val();
                         var email = jQuery("input[name=supervisor-email]").first().val();
                         var note = jQuery("input[name=supervisor-note]").first().val();
-                        jQuery.post("/course-signup/rest/signup/my/new", form.serialize(), function(){
+                        jQuery.post("../rest/signup/my/new", form.serialize(), function(){
                             form.find("input:submit").removeAttr("disabled");
                             form.find(".loader").remove();
                             dialog.jqmHide();
@@ -361,7 +361,7 @@
 								url: function (n) {
 									var id = n.attr("id");
 									id = id.replace(/-PREVIOUS$/, "");
-									return "/course-signup/rest/course/dept/"+ id;
+									return "../rest/course/dept/"+ id;
 								},
 								data: function(n) {
 									if (n.attr("id").match(/-PREVIOUS$/)) {
