@@ -28,6 +28,11 @@
 	<script type="text/javascript">
 			jQuery(function() {
 				
+				// The site to load the static files from.
+				var signupSiteId = "/access/content/group/<%= ServerConfigurationService.getString("course-signup.site-id", "course-signup") %>";
+				
+				
+				
 				/**
 				 * Compare two users to see if they are equal.
 				 * @param {Object} user1
@@ -124,7 +129,7 @@
 				};
         				
 				// Load the static data.
-				jQuery.getJSON("data/department-tree.json", function(treedata) {
+				jQuery.getJSON(signupSiteId+"/departments.json", function(treedata) {
 					var courseData;
 					var signupData;
 					
@@ -324,7 +329,7 @@
 				
 				var loadNodeDetails = function(id) {
 					$.ajax( {
-						"url": "/course-signup/static/data/html/"+id+".html",
+						"url": signupSiteId+"/html/"+id+".html",
 						"cache": false,
 						"success": function(data) {
 							$("#details").html(data);
