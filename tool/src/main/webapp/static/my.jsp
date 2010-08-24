@@ -34,14 +34,14 @@
 					return [
 						{
 							"name": "Withdraw",
-							"url": "/course-signup/rest/signup/"+id+"/withdraw"
+							"url": "../rest/signup/"+id+"/withdraw"
 							}
 					];
 			}
 			return [];
 		};
 		$("#signups").html('<table border="0" class="display" id="signups-table"></table>');
-		var signups = $("#signups-table").signupTable("/course-signup/rest/signup/my", false);
+		var signups = $("#signups-table").signupTable("../rest/signup/my", false);
 		Signup.util.autoresize();
 
 	});

@@ -97,18 +97,18 @@ var Signup = function(){
                         case "PENDING":
                             return [{
                                 "name": "Accept",
-                                "url": "/course-signup/rest/signup/" + id + "/accept"
+                                "url": "../rest/signup/" + id + "/accept"
                             }, {
                                 "name": "Reject",
-                                "url": "/course-signup/rest/signup/" + id + "/reject"
+                                "url": "../rest/signup/" + id + "/reject"
                             }];
                         case "ACCEPTED":
                             return [{
                                 "name": "Approve",
-                                "url": "/course-signup/rest/signup/" + id + "/approve"
+                                "url": "../rest/signup/" + id + "/approve"
                             }, {
                                 "name": "Reject",
-                                "url": "/course-signup/rest/signup/" + id + "/reject"
+                                "url": "../rest/signup/" + id + "/reject"
                             }];
                         case "APPROVED":
                             return [];
@@ -123,7 +123,7 @@ var Signup = function(){
                         case "PENDING":
                             return [{
                                 "name": "Withdraw",
-                                "url": "/course-signup/rest/signup/" + id + "/withdraw"
+                                "url": "../rest/signup/" + id + "/withdraw"
                             }];
                     }
                 }
