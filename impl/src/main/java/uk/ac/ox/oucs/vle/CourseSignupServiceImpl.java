@@ -306,15 +306,14 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				}
 			}
 		}
+		
+		// Remove all traces of the existing signup.
 		for (CourseSignupDAO existingSignup :existingSignups) {
 			for (CourseComponentDAO componentDao: existingSignup.getComponents()) {
 				componentDao.getSignups().remove(existingSignup);
-				existingSignup.getComponents().remove(componentDao);
 				dao.save(componentDao);
 			}
-			if (existingSignup.getComponents().size() == 0) {
-				dao.remove(existingSignup);
-			}
+			dao.remove(existingSignup);
 		}
 		// Set the supervisor
 		UserProxy supervisor = proxy.findUserByEmail(supervisorEmail);
@@ -467,6 +466,24 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			groups.add(new CourseGroupImpl(groupDao, this));
 		}
 		return groups;
+	}
+	
+	public CourseSignup getCourseSignup(String signupId) {
+		CourseSignupDAO signupDao = dao.findSignupById(signupId);
+		if (signupDao == null) {
+			return null;
+		}
+		
+		String currentUserId = proxy.getCurrentUser().getId();
+		if (
+				currentUserId.equals(signupDao.getUserId()) ||
+				currentUserId.equals(signupDao.getSupervisorId()) ||
+				isAdministrator(signupDao.getGroup(), currentUserId, false)
+			) {
+			return new CourseSignupImpl(signupDao, this);
+		} else {
+			throw new RuntimeException("Permission Denied");
+		}
 	}
 
 }
