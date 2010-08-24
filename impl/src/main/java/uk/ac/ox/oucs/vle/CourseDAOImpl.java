@@ -108,12 +108,12 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return signupDao;
 	}
 
-	public void save(CourseSignupDAO signupDao) {
-		getHibernateTemplate().save(signupDao);
+	public String save(CourseSignupDAO signupDao) {
+		return getHibernateTemplate().save(signupDao).toString();
 	}
 
-	public void save(CourseComponentDAO componentDao) {
-		getHibernateTemplate().save(componentDao);
+	public String save(CourseComponentDAO componentDao) {
+		return getHibernateTemplate().save(componentDao).toString();
 	}
 
 	public CourseSignupDAO findSignupById(String signupId) {

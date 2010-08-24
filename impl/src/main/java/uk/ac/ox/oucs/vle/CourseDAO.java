@@ -27,9 +27,9 @@ public interface CourseDAO {
 
 	CourseSignupDAO newSignup(String userId, String supervisorId);
 
-	void save(CourseSignupDAO signupDao);
+	String save(CourseSignupDAO signupDao);
 
-	void save(CourseComponentDAO componentDao);
+	String save(CourseComponentDAO componentDao);
 
 	CourseSignupDAO findSignupById(String signupId);
 
