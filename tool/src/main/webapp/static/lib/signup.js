@@ -230,7 +230,7 @@ var Signup = function(){
                 })
             }
         });
-        $("a.action", this).live("click", function(e){
+        $("a.action", this).die().live("click", function(e){
             var url = $(this).attr("href");
             $.ajax({
                 "url": url,

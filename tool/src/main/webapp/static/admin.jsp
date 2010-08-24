@@ -233,7 +233,7 @@
 											});
 											dialog.jqmHide(); // Hide the popup.
 											summary.fnReloadAjax(); 
-											signups.rnReloadAjax();
+											signups.fnReloadAjax();
 											return false;
 											
 										});
@@ -321,7 +321,6 @@
 </div>
 <div id="course-details"></div><!-- Show details of the course -->
 <div id="signups"></div>
-</div>
 
 
 
