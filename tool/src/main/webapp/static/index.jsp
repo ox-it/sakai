@@ -220,8 +220,12 @@
 							
 							data.parts = parts;
 							var output = TrimPath.processDOMTemplate("details-tpl", data, {throwExceptions: true});
-							//console.log(output.toString());
                             jQuery("#details").html(output);
+							// If there is only one checkbox tick it.
+							var radioButtons = $("#signup input:radio:enabled");
+							if (radioButtons.length == 1) {
+								radioButtons.first().attr("checked", true);
+							}
                             jQuery("#signup").submit(function(){
 								try {
 									var radioSelected = {};
@@ -242,7 +246,7 @@
 									for (radio in radioSelected) {
 										if (!radioSelected[radio]) {
 											errorFound = true;
-											jQuery("#parts .error").show().html("Error");
+											jQuery("#parts .error").show().html("You need to select which components you wish to take.");
 										}
 									}
 									if (!errorFound) {
