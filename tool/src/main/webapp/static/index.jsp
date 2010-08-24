@@ -277,6 +277,7 @@
 				 */
 				var confirmSetup = function(dialog){
                     var signupConfirm = jQuery("#signup-confirm");
+					var noteOriginal = $("textarea[name=message]").first().val();
                     
                     signupConfirm.find(".cancel").click(function(event){
                         jQuery("#parts-confirm").jqmHide();
@@ -303,16 +304,18 @@
                                 }
                             }
                         });
+						var noteObj = $("textarea[name=message]").first();
+						if (noteOriginal == noteObj.val()) {
+							noteObj.after('<span class="error">please enter some reasons for your choice</span>');
+							error = true;
+						}
                         
                         if (error) {
                             return false;
                         }
                         
                         //form.find("input:submit:first").attr("disabled", "true").before('<img class="loader" src="images/loader.gif"/>');
-                        var components = jQuery("#parts-confirm").data("components");
                         var courseId = jQuery("input[name=courseId]", this).first().val();
-                        var email = jQuery("input[name=supervisor-email]").first().val();
-                        var note = jQuery("input[name=supervisor-note]").first().val();
                         jQuery.post("../rest/signup/my/new", form.serialize(), function(){
                             form.find("input:submit").removeAttr("disabled");
                             form.find(".loader").remove();
