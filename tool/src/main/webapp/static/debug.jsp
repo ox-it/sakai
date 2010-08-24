@@ -83,6 +83,18 @@
 					});
 					return false;
 				});
+                var loadEmails = function() {
+                        $.getJSON("/course-signup/rest/debug/emails", [], function(emails) {
+								$.each(emails, function(){
+									this.body = Text.toHtml(this.body);
+								});
+                                var data = {"emails": emails};
+                                var output = TrimPath.processDOMTemplate("emails-tpl", data);
+                                $("#emails").html(output);
+                        });
+                };
+                loadEmails();
+			
 				Signup.util.autoresize();
 
 			});

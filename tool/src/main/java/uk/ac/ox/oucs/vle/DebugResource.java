@@ -70,7 +70,7 @@ public class DebugResource {
 		node.put("now", now.getTime());
 		return Response.ok(objectMapper.writeValueAsString(node)).build();
 	}
-	
+
 	@Path("/date")
 	@POST
 	public Response setDate(@FormParam("now")long newNow) {
@@ -85,4 +85,17 @@ public class DebugResource {
 		populator.update();
 		return Response.ok().build();
 	}
+
+	@Path("/emails")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getEmails() throws JsonGenerationException,
+			JsonMappingException, IOException {
+		List<Email> emails = proxy.getEmails();
+		String json = objectMapper.typedWriter(
+				TypeFactory.collectionType(List.class, Email.class))
+				.writeValueAsString(emails);
+		return Response.ok(json).build();
+	}
+
 }

@@ -76,8 +76,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		dao.save(signupDao);
 		
 		String supervisorId = signupDao.getSupervisorId();
+		String url = proxy.getConfirmUrl(signupId);
 		if (supervisorId != null) {
-			sendSignupEmail(supervisorId, signupDao, "approval.supervisor.subject", "approval.supervisor.body", null);
+			sendSignupEmail(supervisorId, signupDao, "approval.supervisor.subject", "approval.supervisor.body", new Object[]{url});
 		}
 	}
 
@@ -198,7 +199,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				signupDao.setStatus(Status.REJECTED);
 				dao.save(signupDao);
 				// Mail out to student
-				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-admin.student.subject", "reject-admin.student.body", new Object[] {proxy.getCurrentUser().getName()});
+				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-admin.student.subject", "reject-admin.student.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
 			} else {
 				throw new IllegalStateException("You are not allowed to reject this signup: "+ signupId);
 			}
@@ -211,7 +212,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					dao.save(componentDao);
 				}
 				// Mail out to student
-				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-supervisor.student.subject", "reject-supervisor.student.body", new Object[] {proxy.getCurrentUser().getName()});
+				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-supervisor.student.subject", "reject-supervisor.student.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
 			} else {
 				throw new IllegalStateException("You are not allowed to reject this signup: "+ signupId);
 			}
@@ -328,7 +329,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setGroup(groupDao);
 		signupDao.setStatus(Status.PENDING);
 		signupDao.getProperties().put("message", message);
-		dao.save(signupDao);
+		String signupId = dao.save(signupDao);
 		
 		// We're going to decrement the places on acceptance.
 		for (CourseComponentDAO componentDao: componentDaos) {
@@ -341,8 +342,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		
 		
 		String adminId = groupDao.getAdministrator();
+		String url = proxy.getConfirmUrl(signupId);
 		if (adminId != null) {
-			sendSignupEmail(adminId, signupDao, "signup.admin.subject", "signup.admin.body", null);
+			sendSignupEmail(adminId, signupDao, "signup.admin.subject", "signup.admin.body", new Object[]{url});
 		} else {
 			log.warn("Failed to send email as no administrator set for: "+ groupDao.getId());
 		}
@@ -354,7 +356,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * @param signupDao The signup the message is about.
 	 * @param subjectKey The resource bundle key for the subject
 	 * @param bodyKey The resource bundle key for the body.
-	 * @param url The URL the user should be directed to.
+	 * @param additionalBodyData Additional objects used to format the email body. Typically used for the confirm URL.
 	 */
 	public void sendSignupEmail(String userId, CourseSignupDAO signupDao, String subjectKey, String bodyKey, Object[] additionalBodyData) {
 		UserProxy user = proxy.findUserById(userId);
@@ -364,14 +366,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		String to = user.getEmail();
 		String subject = MessageFormat.format(rb.getString(subjectKey), new Object[]{proxy.getCurrentUser().getName(), signupDao.getGroup().getTitle()});
-		StringBuilder components = new StringBuilder();
-		for(CourseComponentDAO componentDao: signupDao.getComponents()) {
-			components.append(componentDao.getTitle());
-			components.append('\n');
-		}
+		String componentDetails = formatSignup(signupDao);
 		Object[] baseBodyData = new Object[] {
 				proxy.getCurrentUser().getName(),
-				components.toString(),
+				componentDetails,
 				signupDao.getGroup().getTitle()
 		};
 		Object[] bodyData = baseBodyData;
@@ -382,6 +380,41 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		String body = MessageFormat.format(rb.getString(bodyKey), bodyData);
 		proxy.sendEmail(to, subject, body);
+	}
+	
+	// Computer-Aided Formal Verification (Computing Laboratory)
+	// - Lectures: 16 lectures for 16 sessions starts in Michaelmas 2010 with Daniel Kroening
+	
+	/**
+	 * This formats the details of a signup into plain text.
+	 * 
+	 * @param signupDao
+	 * @return
+	 */
+	public String formatSignup(CourseSignupDAO signupDao) {
+		CourseSignup signup = new CourseSignupImpl(signupDao, this); // wrap is up to make it easier to handle.
+		StringBuilder output = new StringBuilder(); // TODO Maybe should use resource bundle.
+		output.append(signup.getGroup().getTitle());
+		output.append(" (");
+		output.append(signup.getGroup().getDepartment());
+		output.append(" )\n");
+		for(CourseComponent component: signup.getComponents()) {
+			output.append("  - ");
+			output.append(component.getTitle());
+			output.append(": ");
+			output.append(component.getSlot());
+			output.append(" for ");
+			output.append(component.getSessions());
+			output.append(" starts in ");
+			output.append(component.getWhen());
+			Person presenter = component.getPresenter();
+			if(presenter != null) {
+				output.append(" with ");
+				output.append(presenter.getName());
+			}
+			output.append("\n");
+		}
+		return output.toString();
 	}
 
 	public void withdraw(String signupId) {

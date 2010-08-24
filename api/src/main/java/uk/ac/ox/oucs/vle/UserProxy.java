@@ -2,6 +2,11 @@ package uk.ac.ox.oucs.vle;
 
 import java.util.List;
 
+/**
+ * Wrapper around a normal Sakai user. 
+ * @author buckett
+ *
+ */
 public class UserProxy {
 
 	private String id;

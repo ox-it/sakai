@@ -3,6 +3,7 @@ package uk.ac.ox.oucs.vle.proxy;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +26,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
+import uk.ac.ox.oucs.vle.Email;
 import uk.ac.ox.oucs.vle.SakaiProxy;
 import uk.ac.ox.oucs.vle.UserProxy;
 
@@ -52,6 +54,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private PortalService portalService;
 	
 	private String fromAddress;
+	
+	public List<Email> emailLog = new ArrayList<Email>();
 	
 	public void setUserService(UserDirectoryService userService) {
 		this.userService = userService;
@@ -132,6 +136,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				null, // Reply to string
 				null // Additional headers
 		);
+		emailLog.add(new Email(to, subject, body));
 	}
 	
 	// TODO needs more work.
@@ -154,11 +159,19 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	public String getConfirmUrl(String signupId) {
+		return getUrl("/static/pending.jsp#"+ signupId);
+	}
+
+	public String getMyUrl() {
+		return getUrl("/static/my.jsp");
+	}
+
+	private String getUrl(String toolState) {
 		Placement currentPlacement = toolManager.getCurrentPlacement();
 		String siteId = currentPlacement.getContext();
 		ToolConfiguration toolConfiguration = siteService.findTool(currentPlacement.getId());
 		String pageUrl = toolConfiguration.getContainingPage().getUrl();
-		Map<String, String[]> encodedToolState = portalService.encodeToolState(currentPlacement.getId(), "/static/pending.jsp#"+ signupId);
+		Map<String, String[]> encodedToolState = portalService.encodeToolState(currentPlacement.getId(), toolState);
 		StringBuilder params = new StringBuilder();
 		for (Entry<String, String[]> entry : encodedToolState.entrySet()) {
 			for(String value: entry.getValue()) {
@@ -172,6 +185,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 			pageUrl += "?"+ params.substring(1); // Trim the leading &
 		}
 		return pageUrl;
+	}
+
+	public List<Email> getEmails() {
+		return Collections.unmodifiableList(emailLog);
 	}
 
 }

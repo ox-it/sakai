@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import uk.ac.ox.oucs.vle.Email;
 import uk.ac.ox.oucs.vle.SakaiProxy;
 import uk.ac.ox.oucs.vle.UserProxy;
 
@@ -97,5 +98,9 @@ public class SakaiProxyTest implements SakaiProxy {
 
 	public String getConfirmUrl(String signupId) {
 		return "/someurl/"+ signupId;
+	}
+
+	public String getMyUrl() {
+		return "/my/";
 	}
 }
