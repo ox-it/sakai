@@ -87,8 +87,9 @@
                         $.getJSON("/course-signup/rest/debug/emails", [], function(emails) {
 								$.each(emails, function(){
 									this.body = Text.toHtml(this.body);
+									this.created = new Date(this.created).toLocaleString(); 
 								});
-                                var data = {"emails": emails};
+                                var data = {"emails": emails.reverse()};
                                 var output = TrimPath.processDOMTemplate("emails-tpl", data);
                                 $("#emails").html(output);
                         });
