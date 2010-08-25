@@ -30,14 +30,14 @@
 		<script type="text/javascript">
 			$(function() {
 				var loadUser = function() { 
-					$.getJSON("/course-signup/rest/debug/user", [], function(data) {
+					$.getJSON("../rest/debug/user", [], function(data) {
 						var output = TrimPath.processDOMTemplate("user-tpl", data);
 						$("#user").html(output);
 						$("#user-frm").bind("submit", function(e) {
 							var id = $("[name=id]", this).val();
 							var form = this;
 							$.ajax({
-								url: "/course-signup/rest/debug/user",
+								url: "../rest/debug/user",
 								type: "POST",
 								data: {"id": id},
 								success: function(data) {
@@ -56,14 +56,14 @@
 				loadUser();
 				
 				var loadNow = function() {
-					$.getJSON("/course-signup/rest/debug/date", [], function(data) {
+					$.getJSON("../rest/debug/date", [], function(data) {
 						data.now = new Date(data.now);
 						var output = TrimPath.processDOMTemplate("now-tpl", data);
 						$("#now").html(output);
 						$("#now-frm").bind("submit", function(event) {
 							var date = Date.parse($("#now-datetime").val());
 							if (date !== null) {
-								$.post("/course-signup/rest/debug/date", {"now": date.getTime()}, function() {
+								$.post("../rest/debug/date", {"now": date.getTime()}, function() {
 									loadNow();
 								});
 							} else {
@@ -78,13 +78,13 @@
 				$("#data-frm").submit(function(e){
 					var form = this;
 					$("input[type=submit]", form).attr("disabled", "true");
-					$.post("/course-signup/rest/debug/reload", [], function(data) {
+					$.post("../rest/debug/reload", [], function(data) {
 						$("input[type=submit]", form).removeAttr("disabled");
 					});
 					return false;
 				});
                 var loadEmails = function() {
-                        $.getJSON("/course-signup/rest/debug/emails", [], function(emails) {
+                        $.getJSON("../rest/debug/emails", [], function(emails) {
 								$.each(emails, function(){
 									this.body = Text.toHtml(this.body);
 									this.created = new Date(this.created).toLocaleString(); 

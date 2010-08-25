@@ -34,7 +34,7 @@
 					return $.fn.dataTableExt.oSort["string-desc"](x.name, y.name);
 				}
 
-				var table = $("#pending-table").signupTable("/course-signup/rest/signup/pending", true);
+				var table = $("#pending-table").signupTable("../rest/signup/pending", true);
 				Signup.util.autoresize();
 				
 				// Need to see if we have an anchor in the URL and if so just display that row

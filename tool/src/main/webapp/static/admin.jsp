@@ -72,7 +72,7 @@
 								"bFilter": false,
 								"bInfo": false,
 								"bAutoWidth": false,
-								"sAjaxSource": "/course-signup/rest/course/",
+								"sAjaxSource": "../rest/course/",
 								"aaSorting": [[3,'desc']], // Sort on the signup date.
 								"aoColumns": [
 								              {"sTitle": "Component"},
@@ -124,7 +124,7 @@
 							
 							$("#signups").html('<h3>Signups</h3><table border="0" class="display" id="signups-table"></table><a href="#" id="signup-add">Add Signup</a>');
 							// Load the signups.
-							var signups = $("#signups-table").signupTable("/course-signup/rest/signup/course/"+code, true);
+							var signups = $("#signups-table").signupTable("../rest/signup/course/"+code, true);
 							signups.bind("reload", function() {
 								summary.fnReloadAjax();
 							})
@@ -179,7 +179,7 @@
 										return;
 									}
 									$.ajax({
-										"url": "/course-signup/rest/user/find",
+										"url": "../rest/user/find",
 										"method": "GET",
 										"async": false, // So we don't overload the server.
 										"data": {"search": this.toString()},
@@ -196,7 +196,7 @@
 									$(".errors",this).html("Couldn't find user"+ (badUsers.length > 1?"s":"")+ ": "+ badUsers.join(", "));
 								} else {
 									// Show next page...
-									$.getJSON("/course-signup/rest/course/"+code, {"range": "ALL"}, function(data){
+									$.getJSON("../rest/course/"+code, {"range": "ALL"}, function(data){
 										var components = data.components;
 										var output = TrimPath.processDOMTemplate("signup-add-components-tpl", data);
 										signupAddUser.jqmHide();
@@ -221,7 +221,7 @@
 											$.each(goodUsers, function() {
 												var user = this;
 												$.ajax({
-													"url": "/course-signup/rest/signup/new",
+													"url": "../rest/signup/new",
 													"type": "POST",
 													"async": false,
 													"traditional": true,
@@ -269,7 +269,7 @@
 						};
 				//
 				// Switch to dropdown list.
-				$.getJSON("/course-signup/rest/course/admin", function(data) {
+				$.getJSON("../rest/course/admin", function(data) {
 					var options = "";
 					data.sort(function(x,y){
 						var a = x.title;
