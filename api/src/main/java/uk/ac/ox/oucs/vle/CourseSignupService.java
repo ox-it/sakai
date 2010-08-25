@@ -4,6 +4,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+
+/**
+ * Generally most methods which are getters will attempts to get the thing you are
+ * after or will return null if it can't be found. If you don't have permission to
+ * see the item then you may get a {@link PermissionDeniedException}. Most of the 
+ * actions are void and will throw a {@link NotFoundException} when you supply an 
+ * invalid id. If you attempt todo something which isn't allowed due to business 
+ * rules then you will get an {@link IllegalStateException}.
+ * 
+ * @author buckett
+ *
+ */
 public interface CourseSignupService {
 	
 	public static enum Status {PENDING, WITHDRAWN, APPROVED, ACCEPTED, REJECTED};
@@ -84,4 +96,12 @@ public interface CourseSignupService {
 	public void setNow(Date date);
 
 	public List<CourseSignup> getMySignups(Set<Status> statuses);
+	
+	/**
+	 * Find a particular signup.
+	 * @param signupId The signup to load.
+	 * @return The signup or null if it couldn't be found.
+	 */
+	public CourseSignup getCourseSignup(String signupId);
+
 }
