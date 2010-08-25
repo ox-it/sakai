@@ -34,12 +34,10 @@ public class SignupResource {
 
 	
 	private CourseSignupService courseService;
-	private JsonFactory jsonFactory;
 	private ObjectMapper objectMapper;
 
 	public SignupResource(@Context ContextResolver<Object> resolver) {
 		this.courseService = (CourseSignupService) resolver.getContext(CourseSignupService.class);
-		jsonFactory = new JsonFactory();
 		objectMapper = new ObjectMapper();
 		objectMapper.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
 		objectMapper.configure(SerializationConfig.Feature.USE_STATIC_TYPING, true);
