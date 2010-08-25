@@ -20,6 +20,20 @@ public interface SakaiProxy {
 	
 	public UserProxy findUserByEid(String eid);
 	
+	/**
+	 * Log an event happening. It is assumed that the person perfoming the 
+	 * event is the current user.
+	 * @param resource The resources to which the event is happening.
+	 * @param eventType The type of event.
+	 */
+	public void logEvent(String resource, String eventType);
+	
+	/**
+	 * Send an email out.
+	 * @param to The address of the reciptient.
+	 * @param subject The subject of the email.
+	 * @param body The body of the email.
+	 */
 	public void sendEmail(String to, String subject, String body);
 	
 	/**

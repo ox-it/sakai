@@ -9,6 +9,14 @@ public interface CourseSignupService {
 	public static enum Status {PENDING, WITHDRAWN, APPROVED, ACCEPTED, REJECTED};
 	
 	public static enum Range {ALL, UPCOMING, PREVIOUS};
+	
+	// List of events
+	public static final String EVENT_SIGNUP = "coursesignup.signup";
+	public static final String EVENT_ACCEPT = "coursesignup.accept";
+	public static final String EVENT_WITHDRAW = "coursesignup.withdraw";
+	public static final String EVENT_APPROVE = "coursesignup.approve";
+	public static final String EVENT_REJECT = "coursesignup.reject";
+	
 
 	public CourseGroup getCourseGroup(String courseId, Range range);
 	

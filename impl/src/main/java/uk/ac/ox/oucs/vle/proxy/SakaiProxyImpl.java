@@ -139,13 +139,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		emailLog.add(new Email(to, subject, body));
 	}
 	
-	// TODO needs more work.
-	public void logEvent(String eventType) {
-		// This won't work as we're not going through a normal tool. 
+	public void logEvent(String resourceId, String eventType) {
 		Placement placement = toolManager.getCurrentPlacement();
-		String context = (placement != null)? placement.getContext():null;
-		// Need find out what the resource is.
-		String resource = null;
+		String context = placement.getContext();
+		String resource = "/coursesignup/group/"+ resourceId;
 		Event event = eventService.newEvent(eventType, resource, context, false, NotificationService.NOTI_OPTIONAL);
 		eventService.post(event);
 	}

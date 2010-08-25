@@ -38,12 +38,13 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 
 	public void approve(String signupId) {
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
+		CourseGroupDAO groupDao = signupDao.getGroup();
 		String currentUserId = proxy.getCurrentUser().getId();
 		boolean canApprove = false;
 		if (currentUserId.equals(signupDao.getSupervisorId())) {
 			canApprove = true;
 		} else {
-			canApprove = isAdministrator(signupDao.getGroup(), currentUserId, canApprove);
+			canApprove = isAdministrator(groupDao, currentUserId, canApprove);
 		}
 		if (!canApprove) {
 			throw new IllegalStateException("You are not allowed to approve this signup: "+ signupId);
@@ -51,6 +52,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setStatus(Status.APPROVED);
 		dao.save(signupDao);
 		// TODO Send email to student?
+		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP);
 	}
 	
 	public void accept(String signupId) {
@@ -74,6 +76,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		signupDao.setStatus(Status.ACCEPTED);
 		dao.save(signupDao);
+		proxy.logEvent(signupDao.getGroup().getId(), EVENT_ACCEPT);
 		
 		String supervisorId = signupDao.getSupervisorId();
 		String url = proxy.getConfirmUrl(signupId);
@@ -198,7 +201,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			if (isAdministrator(signupDao.getGroup(), userId, false)) {
 				signupDao.setStatus(Status.REJECTED);
 				dao.save(signupDao);
-				// Mail out to student
+				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT);
 				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-admin.student.subject", "reject-admin.student.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
 			} else {
 				throw new IllegalStateException("You are not allowed to reject this signup: "+ signupId);
@@ -211,6 +214,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					componentDao.setTaken(componentDao.getTaken()-1);
 					dao.save(componentDao);
 				}
+				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT);
 				// Mail out to student
 				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-supervisor.student.subject", "reject-supervisor.student.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
 			} else {
@@ -254,6 +258,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setGroup(groupDao);
 		signupDao.setStatus(Status.ACCEPTED);
 		dao.save(signupDao);
+		proxy.logEvent(signupDao.getGroup().getId(), EVENT_ACCEPT);
 		for (CourseComponentDAO componentDao: componentDaos) {
 			componentDao.getSignups().add(signupDao);
 			componentDao.setTaken(componentDao.getTaken()+1);
@@ -338,7 +343,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			signupDao.getComponents().add(componentDao); // So when sending out email we know the components.
 			dao.save(componentDao);
 		}
-		
+		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP);
 		
 		String adminId = groupDao.getAdministrator();
 		String url = proxy.getConfirmUrl(signupId);
@@ -426,6 +431,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		signupDao.setStatus(Status.WITHDRAWN);
 		dao.save(signupDao);
+		proxy.logEvent(signupDao.getGroup().getId(), EVENT_WITHDRAW);
 	}
 
 	public CourseGroup getAvailableCourseGroup(String courseId) {

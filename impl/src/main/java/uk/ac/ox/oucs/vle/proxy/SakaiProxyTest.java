@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import uk.ac.ox.oucs.vle.Email;
 import uk.ac.ox.oucs.vle.SakaiProxy;
 import uk.ac.ox.oucs.vle.UserProxy;
@@ -16,6 +19,8 @@ import uk.ac.ox.oucs.vle.UserProxy;
  *
  */
 public class SakaiProxyTest implements SakaiProxy {
+	
+	private final static Log log = LogFactory.getLog(SakaiProxyTest.class);
 
 	private List<UserProxy> users = new ArrayList<UserProxy>();
 	
@@ -102,5 +107,10 @@ public class SakaiProxyTest implements SakaiProxy {
 
 	public String getMyUrl() {
 		return "/my/";
+	}
+	
+	public void logEvent(String resource, String eventType) {
+		log.info("Event - user: "+getCurrentUser().getId()+ " resource:"+
+				resource+ " type "+ eventType);
 	}
 }
