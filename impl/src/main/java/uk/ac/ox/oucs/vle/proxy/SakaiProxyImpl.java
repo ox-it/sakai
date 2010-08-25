@@ -140,11 +140,25 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	public void logEvent(String resourceId, String eventType) {
-		Placement placement = toolManager.getCurrentPlacement();
+		Placement placement = getPlacement();
 		String context = placement.getContext();
 		String resource = "/coursesignup/group/"+ resourceId;
 		Event event = eventService.newEvent(eventType, resource, context, false, NotificationService.NOTI_OPTIONAL);
 		eventService.post(event);
+	}
+
+	/**
+	 * Just get the current placement.
+	 * @return The current placement.
+	 * @throws RunTimeException If there isn't a current placement, this happens
+	 * when a request comes through that isn't processed by the portal.
+	 */
+	private Placement getPlacement() {
+		Placement placement = toolManager.getCurrentPlacement();
+		if (placement == null) {
+			throw new RuntimeException("No current tool placement set.");
+		}
+		return placement;
 	}
 
 	private UserProxy wrapUserProxy(User sakaiUser) {
@@ -164,7 +178,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	private String getUrl(String toolState) {
-		Placement currentPlacement = toolManager.getCurrentPlacement();
+		Placement currentPlacement = getPlacement();
 		String siteId = currentPlacement.getContext();
 		ToolConfiguration toolConfiguration = siteService.findTool(currentPlacement.getId());
 		String pageUrl = toolConfiguration.getContainingPage().getUrl();
