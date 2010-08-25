@@ -41,8 +41,11 @@
 				if (location.hash) {
 					var signupId = location.hash.substr(1); // Trim the leading #
 					table.fnFilter(signupId,0);
-					
-					//TODO Need to have a show all button and have the filter cancel when the table reloads.
+					// Problem is that datatables doesn't fire off events once it's loaded, so initially there won't be any data.
+					// It has callbacks... and so we can fire the events in the class
+					table.bind("tableInit", function() {
+						console.log($("tr td", table).length);
+					});
 				}
 				
 			});

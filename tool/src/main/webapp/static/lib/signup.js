@@ -227,8 +227,12 @@ var Signup = function(){
                             "aaData": data
                         });
                     }
-                })
-            }
+                });
+            },
+			// This is useful as when loading the data async we might want to handle it later.
+			"fnInitComplete": function() {
+				table.trigger("tableInit");
+			}
         });
         $("a.action", this).die().live("click", function(e){
             var url = $(this).attr("href");
