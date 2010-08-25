@@ -38,6 +38,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 
 	public void approve(String signupId) {
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
+		if (signupDao == null) {
+			throw new NotFoundException(signupId);
+		}
 		CourseGroupDAO groupDao = signupDao.getGroup();
 		String currentUserId = proxy.getCurrentUser().getId();
 		boolean canApprove = false;
@@ -47,25 +50,24 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			canApprove = isAdministrator(groupDao, currentUserId, canApprove);
 		}
 		if (!canApprove) {
-			throw new IllegalStateException("You are not allowed to approve this signup: "+ signupId);
+			throw new PermissionDeniedException(currentUserId);
 		}
 		signupDao.setStatus(Status.APPROVED);
 		dao.save(signupDao);
-		// TODO Send email to student?
 		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP);
 	}
 	
 	public void accept(String signupId) {
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
 		if (signupDao == null) {
-			// Todo need a notfound runtime exception that can me mapped to a 404 at the resource layer.
+			throw new NotFoundException(signupId);
 		}
 		String currentUserId = proxy.getCurrentUser().getId();
 		boolean canAccept = false;
 		// If is course admin on one of the components.
 		canAccept = isAdministrator(signupDao.getGroup(), currentUserId, canAccept);
 		if (!canAccept) {
-			throw new IllegalStateException("You aren't an admin on any on the component for signup: "+ signupId);
+			throw new PermissionDeniedException(currentUserId);
 		}
 		if (!Status.PENDING.equals(signupDao.getStatus())) {
 			throw new IllegalStateException("You can only accept signups that are pending.");
@@ -140,10 +142,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		
 		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
 		if (groupDao == null) {
-			throw new IllegalStateException("Cannot find courseId: "+ courseId);
+			return null;
 		}
 		if(!isAdministrator(groupDao, userId, false)) {
-			throw new IllegalStateException("You aren't an admin for course: "+ courseId);
+			throw new PermissionDeniedException(userId);
 		}
 		
 		List<CourseSignupDAO> signupDaos = dao.findSignupByCourse(userId, courseId);
@@ -157,11 +159,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public List<CourseSignup> getComponentSignups(String componentId) {
 		CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
 		if (componentDao == null) {
-			throw new IllegalStateException("Cannot find componentId: "+ componentId);
+			return null;
 		}
-		String userId = proxy.getCurrentUser().getId();
-		if (!isAdministrator(componentDao, userId, false)) {
-			throw new IllegalStateException("You aren't an admin for component: "+ componentId);
+		String currentUserId = proxy.getCurrentUser().getId();
+		if (!isAdministrator(componentDao, currentUserId, false)) {
+			throw new PermissionDeniedException(currentUserId);
 		}
 		List<CourseSignupDAO> signupDaos = dao.findSignupByComponent(componentId);
 		List<CourseSignup> signups = new ArrayList<CourseSignup>(signupDaos.size());
@@ -191,23 +193,23 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public void reject(String signupId) {
-		String userId = proxy.getCurrentUser().getId();
+		String currentUserId = proxy.getCurrentUser().getId();
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
 		if (signupDao == null) {
-			// TODO Need runtime exception.
+			throw new NotFoundException(signupId);
 		}
 
 		if (Status.PENDING.equals(signupDao.getStatus())) { // Rejected by administrator.
-			if (isAdministrator(signupDao.getGroup(), userId, false)) {
+			if (isAdministrator(signupDao.getGroup(), currentUserId, false)) {
 				signupDao.setStatus(Status.REJECTED);
 				dao.save(signupDao);
 				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT);
 				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-admin.student.subject", "reject-admin.student.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
 			} else {
-				throw new IllegalStateException("You are not allowed to reject this signup: "+ signupId);
+				throw new PermissionDeniedException(currentUserId);
 			}
 		} else if (Status.ACCEPTED.equals(signupDao.getStatus())) {// Rejected by lecturer.
-			if (isAdministrator(signupDao.getGroup(), userId, userId.equals(signupDao.getSupervisorId()))) {
+			if (isAdministrator(signupDao.getGroup(), currentUserId, currentUserId.equals(signupDao.getSupervisorId()))) {
 				signupDao.setStatus(Status.REJECTED);
 				dao.save(signupDao);
 				for (CourseComponentDAO componentDao: signupDao.getComponents()) {
@@ -218,7 +220,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				// Mail out to student
 				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-supervisor.student.subject", "reject-supervisor.student.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
 			} else {
-				throw new IllegalStateException("You are not allowed to reject this signup: "+ signupId);
+				throw new PermissionDeniedException(currentUserId);
 			}
 		} else {
 			throw new IllegalStateException("You can only reject signups that are PENDING or ACCEPTED");
@@ -234,7 +236,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public void signup(String userId, String courseId, Set<String> componentIds) {
 		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
 		if (groupDao == null) {
-			throw new IllegalArgumentException("Failed to find group with ID: "+ courseId);
+			throw new NotFoundException(courseId);
 		}
 		// Need to find all the components.
 		Set<CourseComponentDAO> componentDaos = new HashSet<CourseComponentDAO>(componentIds.size());
@@ -246,12 +248,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					throw new IllegalArgumentException("The component: "+ componentId+ " is not part of the course: "+ courseId);
 				}
 			} else {
-				throw new IllegalArgumentException("Failed to find component with ID: "+ componentId);
+				throw new NotFoundException(componentId);
 			}
 		}
 		String currentUserId = proxy.getCurrentUser().getId();
 		if (!isAdministrator(groupDao, currentUserId, false)) {
-			throw new IllegalStateException("You are not an administrator for these components"); // TODO I think this needs to be handled through the UI.
+			throw new PermissionDeniedException(currentUserId);
 		}
 		CourseSignupDAO signupDao = dao.newSignup(userId, null);
 		signupDao.setCreated(getNow());
@@ -271,7 +273,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 
 		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
 		if (groupDao == null) {
-			throw new IllegalArgumentException("Failed to find group with ID: "+ courseId);
+			throw new NotFoundException(courseId);
 		}
 		
 		// Need to find all the components.
@@ -284,7 +286,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					throw new IllegalArgumentException("The component: "+ componentId+ " is not part of the course: "+ courseId);
 				}
 			} else {
-				throw new IllegalArgumentException("Failed to find component with ID: "+ componentId);
+				throw new NotFoundException(componentId);
 			}
 		}
 		
@@ -424,7 +426,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public void withdraw(String signupId) {
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
 		if (signupDao == null) {
-			throw new IllegalArgumentException("Could not find signup: "+ signupId);
+			throw new NotFoundException(signupId);
 		}
 		if (!Status.PENDING.equals(signupDao.getStatus())) {
 			throw new IllegalStateException("Can only withdraw from pending signups: "+ signupId);
@@ -488,7 +490,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			) {
 			return new CourseSignupImpl(signupDao, this);
 		} else {
-			throw new RuntimeException("Permission Denied");
+			throw new PermissionDeniedException(currentUserId);
 		}
 	}
 
