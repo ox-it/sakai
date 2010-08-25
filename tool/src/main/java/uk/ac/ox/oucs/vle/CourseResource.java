@@ -63,6 +63,22 @@ public class CourseResource {
 		};
 	} 
 
+	@Path("/all")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public StreamingOutput getCourses(@QueryParam("range") final Range range) {
+		final List<CourseGroup> groups = courseService.search("");
+		if (groups == null) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
+		return new StreamingOutput() {
+			public void write(OutputStream output) throws IOException,
+					WebApplicationException {
+				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValue(output, groups);
+			}
+		};
+	}
+	
 	/**
 	 * This gets all the courses for a department that have upcoming
 	 * parts.
