@@ -133,15 +133,19 @@ public class CourseResource {
 				isOneBookable = component.getBookable();
 			}
 			// Check if component is the earliest one opening in the future.
-			if (component.getOpens().after(now) && component.getOpens().before(nextOpen)) {
+			boolean isGoingToOpen = component.getOpens().after(now) && component.getOpens().before(nextOpen);
+			if (isGoingToOpen) {
 				nextOpen = component.getOpens();
 			}
 			// Check if the component is open and is open for the longest.
 			if (component.getOpens().before(now) && component.getCloses().after(willClose)) {
 				willClose = component.getCloses();
 			}
-			if (!isOneOpen && component.getOpens().before(now) && component.getCloses().after(now)) {
+			boolean isOpen = component.getOpens().before(now) && component.getCloses().after(now);
+			if (!isOneOpen && isOpen) {
 				isOneOpen = true;
+			}
+			if (isOpen) {
 				if (component.getPlaces() > 0) {
 					areSomePlaces = true;
 				}
