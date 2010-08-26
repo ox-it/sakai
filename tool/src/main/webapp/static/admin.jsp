@@ -169,7 +169,7 @@
 							});
 							
 							signupAddUser.bind("submit", function(e) {
-								var users = e.target.users.value;
+								var users = $("textarea[name=users]", signupAddUser).val();
 								// Need error handling when empty.
 								var goodUsers = [];
 								var badUsers = [];
