@@ -106,7 +106,7 @@
 										for(var i in data.components) {
 											var component = data.components[i];
 											tableData.aaData.push([
-											 component.title,
+											 component.title, //0
 											 component.size,
 											 component.places,
 											 component.opens,
@@ -114,7 +114,7 @@
 											 component.sessions,
 											 component.presenter,
 											 component.administrator,
-											 component.closes, //8
+											 component.closes //8
 											]);
 										}
 										fnCallback(tableData);
