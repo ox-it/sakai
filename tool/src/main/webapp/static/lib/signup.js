@@ -42,6 +42,9 @@ var Signup = function(){
 			 */
             "resize": function(){
                 var id = window.name;
+				if (!id) {
+					return;
+				}
                 var frame = parent.document.getElementById(id);
                 if (frame) {
                     // reset the scroll
