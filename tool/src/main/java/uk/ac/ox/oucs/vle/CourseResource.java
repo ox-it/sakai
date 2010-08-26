@@ -118,11 +118,12 @@ public class CourseResource {
 		}
 	}
 
-	private String summary(Date now, CourseGroup courseGroup) {
+	private CourseSummary summary(Date now, CourseGroup courseGroup) {
 		// Calculate the summary based on the available components.
 		if (courseGroup.getComponents().isEmpty()) {
-			return "none available";
+			return new CourseSummary("none available", CourseState.UNKNOWN);
 		}
+		CourseState state = CourseState.UNKNOWN;
 		Date nextOpen = new Date(Long.MAX_VALUE);
 		Date willClose = new Date(0);
 		boolean isOneOpen = false;
@@ -153,23 +154,50 @@ public class CourseResource {
 		}
 		String detail = null;
 		if (!isOneBookable) {
-			return null; // No signup available.
+			return new CourseSummary(null, CourseState.UNBOOKABLE);
 		}
 		if (isOneOpen) {
 			if (areSomePlaces) {
 				long remaining = willClose.getTime() - now.getTime();
 				detail = "close in "+ formatDuration(remaining);
+				state = CourseState.OPEN;
 			} else {
 				detail = "full";
+				state = CourseState.FULL;
 			}
 		} else {
 			if (nextOpen.getTime() == Long.MAX_VALUE) {
-				return null; // Didn't find one open
+				state = CourseState.UNBOOKABLE;
+			} else {
+				long until = nextOpen.getTime() - now.getTime();
+				detail = "open in "+ formatDuration(until);
 			}
-			long until = nextOpen.getTime() - now.getTime();
-			detail = "open in "+ formatDuration(until);
 		}
-		return detail;
+		return new CourseSummary(detail, state);
+	}
+	
+	
+
+	// Maybe I should have just implemented a tuple.
+	static enum CourseState {OPEN, FULL, UNBOOKABLE, UNKNOWN}
+
+	class CourseSummary {
+		
+		private String detail;
+		private CourseState state;
+		
+		CourseSummary(String detail, CourseState state) {
+			this.detail = detail;
+			this.state = state;
+		}
+		
+		String getDetail() {
+			return this.detail;
+		}
+		
+		CourseState getCourseState() {
+			return this.state;
+		}
 	}
 
 	private class GroupsStreamingOutput implements StreamingOutput {
@@ -195,13 +223,15 @@ public class CourseResource {
 			for (CourseGroup courseGroup : courses) {
 				gen.writeStartObject();
 				
+
+				CourseSummary state = summary(now, courseGroup);
 				gen.writeObjectFieldStart("attr");
 				gen.writeObjectField("id", courseGroup.getId());
+				gen.writeObjectField("class", state.getCourseState().toString().toLowerCase());
 				gen.writeEndObject();
 				
-				String detail = summary(now, courseGroup);
 				gen.writeObjectField("data", courseGroup.getTitle() + 
-						(detail == null?"":(" ("+detail+")"))
+						(state.getDetail() == null?"":(" ("+state.getDetail()+")"))
 				);
 				
 				gen.writeEndObject();

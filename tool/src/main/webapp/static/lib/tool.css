@@ -84,3 +84,11 @@ table th {
     color: #000;
     text-align: left;
 }
+
+/* These are for colour coding the jsTree of dept/courses */
+li.full a {
+	color: red;
+}
+li.open a {
+	color: green;
+}
