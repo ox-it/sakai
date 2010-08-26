@@ -284,6 +284,10 @@
 				var confirmSetup = function(dialog){
 					var signupConfirm = jQuery("#signup-confirm");
 					var noteOriginal = $("textarea[name=message]").first().val();
+					var supervisor = $.cookie('coursesignup.supervisor');
+					if (supervisor) {
+						$("input[name=email]").val(supervisor);
+					}
 					
 					signupConfirm.find(".cancel").click(function(event){
 						jQuery("#parts-confirm").jqmHide();
@@ -323,6 +327,9 @@
 										url: "../rest/user/find",
 										data: {
 											search: value
+										},
+										success: function() {
+											$.cookie('coursesignup.supervisor', value);
 										},
 										error: function(){
 											current.after('<span class="error">* could not find a user with this email</span>');
