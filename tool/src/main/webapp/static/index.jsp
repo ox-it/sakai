@@ -434,7 +434,7 @@
 										})
 									} else {
 										$.each(data.tree, function() {
-											this.attr.class = "old";
+											this.attr["class"] = "old";
 										});
 									}
                                     return data.tree;
