@@ -225,6 +225,8 @@
 							var radioButtons = $("#signup input:radio:enabled");
 							if (radioButtons.length == 1) {
 								radioButtons.first().attr("checked", true);
+							} else if (radioButtons.length == 0) {
+								$("#signup :submit").attr("disabled", "true");
 							}
                             jQuery("#signup").submit(function(){
 								try {
