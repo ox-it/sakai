@@ -92,3 +92,21 @@ li.full a {
 li.open a {
 	color: green;
 }
+
+/* Styling of the signup table */
+
+#signup-confirm table {
+	width: 100%;
+}
+#signup-confirm table th {
+	width: 25%;
+	padding: 0.1em;
+}
+#signup-confirm table td {
+	padding: 0.1em;
+}
+
+#signup-confirm textarea, #signup-confirm input[type=text] {
+	float: left; /* So the error message wraps on the right */
+	margin-top: 0px; /* Overright tool_base.css */
+}

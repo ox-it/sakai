@@ -282,55 +282,97 @@
 				 * @param {Object} dialog
 				 */
 				var confirmSetup = function(dialog){
-                    var signupConfirm = jQuery("#signup-confirm");
+					var signupConfirm = jQuery("#signup-confirm");
 					var noteOriginal = $("textarea[name=message]").first().val();
-                    
-                    signupConfirm.find(".cancel").click(function(event){
-                        jQuery("#parts-confirm").jqmHide();
-                        event.stopPropagation();
-                        return false;
-                    });
 					
-                    signupConfirm.submit(function(event){
-                        // Need todo validation 
-                        var form = jQuery(this);
-                        var error = false;
-                        form.find(".error").remove();
-                        form.find(".msg").remove()
-                        form.find(".valid-email").each(function(){
-                            var current = jQuery(this);
-                            if (current.val().length == 0) {
-                                current.after('<span class="error">* required</span>');
-                                error = true;
-                            }
-                            else {
-                                if (!/^([a-zA-Z0-9_.-])+@([a-zA-Z0-9_.-])+\.([a-zA-Z])+([a-zA-Z])+/.test(current.val())) {
-                                    current.after('<span class="error">not a valid email</span>');
-                                    error = true;
-                                }
-                            }
-                        });
-						var noteObj = $("textarea[name=message]").first();
-						if (noteOriginal == noteObj.val()) {
-							noteObj.after('<span class="error">please enter some reasons for your choice</span>');
-							error = true;
+					signupConfirm.find(".cancel").click(function(event){
+						jQuery("#parts-confirm").jqmHide();
+						event.stopPropagation();
+						return false;
+					});
+					
+					// Prevent double validation as we listen to two events on the same element.
+					var isValidated = function(element){
+						var value = element.val();
+						if (value == element.data("validated")) {
+							return true;
 						}
-                        
-                        if (error) {
-                            return false;
-                        }
-                        
-                        //form.find("input:submit:first").attr("disabled", "true").before('<img class="loader" src="images/loader.gif"/>');
-                        var courseId = jQuery("input[name=courseId]", this).first().val();
-                        jQuery.post("../rest/signup/my/new", form.serialize(), function(){
-                            form.find("input:submit").removeAttr("disabled");
-                            form.find(".loader").remove();
-                            dialog.jqmHide();
-							loadCourse(courseId); // Not in scope.
-                        });
-                        return false;
-                    });
-                };
+						element.data("validated", value);
+						return false;
+					}
+					
+					// Change doesn't always fire, but now we have two event which both fire.
+					$(".valid-email", signupConfirm).bind("change", function(e){
+						var current = $(this);
+						if (isValidated(current)) {
+							return true;
+						}
+						var value = current.val();
+						current.nextUntil(":not(.error)").remove(); // Remove any existing errors.
+						if (value.length == 0) {
+							current.after('<span class="error">* required</span>');
+						}
+						else {
+							if (!/^([a-zA-Z0-9_.-])+@([a-zA-Z0-9_.-])+\.([a-zA-Z])+([a-zA-Z])+/.test(value)) {
+								current.after('<span class="error">* not a valid email</span>');
+							}
+							else {
+								// This has a potential problem in that it might not complete before user clicks submit.
+								if (!current.data("req")) {
+									current.data("req", $.ajax({ // Need to use error handler.
+										url: "../rest/user/find",
+										data: {
+											search: value
+										},
+										error: function(){
+											current.after('<span class="error">* could not find a user with this email</span>');
+										},
+										complete: function(){
+											delete current.data()["req"];
+										}
+									}));
+								}
+							}
+						}
+					});
+					
+					$("textarea[name=message]").bind("change", function(e){
+						var current = $(this);
+						if (isValidated(current)) {
+							return true;
+						}
+						current.nextUntil(":not(.error)").remove(); // Remove any existing errors.
+						if (noteOriginal == current.val()) {
+							current.after('<span class="error">* please enter some reasons for your choice</span>');
+						}
+					});
+					
+					signupConfirm.submit(function(event){
+						var form = jQuery(this);
+						$(":text, textarea", form).trigger("change"); // Fire all the validation.
+						// The AJAX validator probably won't have returned but it doesn't matter too much as the request will just fail.
+						// TODO When we have better error handling we need to fix this.
+						if ($(".error", form).length > 0) {
+							return false;
+						}
+						
+						var submit = form.find("input:submit:first").attr("disabled", "true").before('<img class="loader" src="images/loader.gif"/>');
+						var courseId = jQuery("input[name=courseId]", this).first().val();
+						$.ajax({
+							type: "POST",
+							url: "../rest/signup/my/new",
+							data: form.serialize(),
+							success: function(){
+								dialog.jqmHide();
+								loadCourse(courseId); // Not in scope.
+							},
+							complete: function(){
+								submit.removeAttr("disabled").prev("img").remove();
+							}
+						});
+						return false;
+					});
+				};
 				
 				var loadNodeDetails = function(id) {
 					$.ajax( {
