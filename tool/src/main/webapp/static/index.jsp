@@ -138,15 +138,26 @@
 							// TODO Need to find out if we're looking for an old one.
 							courseData = undefined;
 							signupData = undefined;
-							jQuery.getJSON("../rest/course/" + id, {
-								range: (old)?"PREVIOUS":"UPCOMING"
-							}, function(data){
-								courseData = data;
-								showCourse();
+							$.ajax({
+								url: "../rest/course/" + id,
+								data: {
+									range: (old) ? "PREVIOUS" : "UPCOMING"
+								},
+								dataType: "json",
+								cache: false,
+								success: function(data){
+									courseData = data;
+									showCourse();
+								}
 							});
-							jQuery.getJSON("../rest/signup/my/course/" + id, {}, function(data){
-								signupData = data;
-								showCourse();
+							$.ajax({
+								url: "../rest/signup/my/course/" + id,
+								dataType: "json",
+								cache: false,
+								success: function(data){
+									signupData = data;
+									showCourse();
+								}
 							});
 						};
 					
@@ -418,10 +429,11 @@
 									return "../rest/course/dept/"+ id;
 								},
 								data: function(n) {
+									var data = {components: "UPCOMING", ts: new Date().getTime()};
 									if (n.attr("id").match(/-PREVIOUS$/)) {
-										return {components: "PREVIOUS"};
+										data.components = "PREVIOUS";
 									}
-									return {components: "UPCOMING"};
+									return data;
 								},
 								dataType: "json",
 								success: function (data) {
