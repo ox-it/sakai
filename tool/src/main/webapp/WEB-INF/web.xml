@@ -26,6 +26,10 @@
 			<param-value>true</param-value>
 		</init-param>
 	</filter>
+	<filter>
+		<filter-name>require.authentication</filter-name>
+		<filter-class>uk.ac.ox.oucs.vle.AuthenticatedRequestFilter</filter-class>
+	</filter>
 	
 
 	<filter-mapping>
@@ -43,6 +47,15 @@
 		<dispatcher>FORWARD</dispatcher>
 		<dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
+	
+	<filter-mapping>
+		<filter-name>require.authentication</filter-name>
+		<servlet-name>Jersey Web Application</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+	
 	<filter>
 		<filter-name>hibernate-session</filter-name>
 		<filter-class>org.springframework.orm.hibernate3.support.OpenSessionInViewFilter</filter-class>
