@@ -219,7 +219,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					dao.save(componentDao);
 				}
 				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT);
-				// Mail out to student
 				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-supervisor.student.subject", "reject-supervisor.student.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
 			} else {
 				throw new PermissionDeniedException(currentUserId);
