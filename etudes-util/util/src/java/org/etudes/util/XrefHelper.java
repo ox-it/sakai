@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2009 Etudes, Inc.
+ * Copyright (c) 2009,2010 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1626,5 +1626,46 @@ public class XrefHelper
 		}
 
 		return "";
+	}
+	
+	/**
+	 * For email notifications, revise embedded media relative url to full url.
+	 * 
+	 * @param data
+	 *        The message data with relative urls.
+	 * @return data with full urls.
+	 */
+	public static String fullUrls(String data)
+	{
+		if (data == null) return data;
+
+		Pattern p = getPattern();
+		Matcher m = p.matcher(data);
+		StringBuffer sb = new StringBuffer();
+		String serverUrl = ServerConfigurationService.getServerUrl();
+
+		// for the relative access check: matches /access/ 
+		Pattern relAccessPattern = Pattern.compile("/access/.*");
+
+		// process each "harvested" string (avoiding like strings that are not in src= or href= patterns)
+		while (m.find())
+		{
+			if (m.groupCount() == 3)
+			{
+				String ref = m.group(2);
+				String terminator = m.group(3);
+
+				// if this is an access to our own server, make it full URL (i.e. starting with "/access")
+				Matcher relAccessMatcher = relAccessPattern.matcher(ref);
+				if (relAccessMatcher.matches())
+				{			
+					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + serverUrl +ref + terminator));
+				}
+			}
+		}
+
+		m.appendTail(sb);
+
+		return sb.toString();
 	}
 }
