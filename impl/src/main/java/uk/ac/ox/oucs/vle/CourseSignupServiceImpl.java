@@ -55,6 +55,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setStatus(Status.APPROVED);
 		dao.save(signupDao);
 		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP);
+		String url = proxy.getMyUrl();
+		sendSignupEmail(signupDao.getUserId(), signupDao, "approved.student.subject","approved.student.body", new Object[]{url});
 	}
 	
 	public void accept(String signupId) {
