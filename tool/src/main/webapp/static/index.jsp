@@ -548,7 +548,7 @@ Other comments: </\${textarea}></td>
                 <table width="100%">
                 	<tr>
                         <th>
-                            Lecturers
+                            Lecturer(s)
                         </th>
                         <td>
                             {for presenter in presenters}
