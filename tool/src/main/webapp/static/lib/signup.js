@@ -200,7 +200,7 @@ var Signup = function(){
             }, {
                 "sTitle": "Student"
             }, {
-                "sTitle": "Component"
+                "sTitle": "Module"
             }, {
                 "sTitle": "Supervisor"
             }, {

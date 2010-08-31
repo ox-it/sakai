@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>Course Signup</title>
+	<title>Module Signup</title>
 
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/<%= ServerConfigurationService.getString("skin.default", "default") %>/tool.css" type="text/css" rel="stylesheet" media="all" />
@@ -479,10 +479,10 @@
     <body>
     	<div id="toolbar" >
         	<ul class="navIntraTool actionToolBar">
-            <li><span>Course Signup</span></li>
-            <li><span><a href="my.jsp">My Courses</a></span></li>
+            <li><span>Module Signup</span></li>
+            <li><span><a href="my.jsp">My Modules</a></span></li>
             <li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
-            <li><span><a href="admin.jsp">Course Administration</a></span></li>
+            <li><span><a href="admin.jsp">Module Administration</a></span></li>
             <li><span><a href="debug.jsp">Debug</a></span></li>
 			</ul>
         </div>
@@ -529,7 +529,7 @@
 							<label for="supervisor-note">Message to supervisor</label>
 						</th>
 						<td><\${textarea} name="message" id="supervisor-note" cols="40" rows="8">
-Reason for requesting to attend this course: 
+Reason for requesting to attend this module: 
 
 Other comments: </\${textarea}></td>
 					</tr>
@@ -562,7 +562,7 @@ Other comments: </\${textarea}></td>
                     </tr>
                     <tr>
                         <th>
-                            Course Administrator
+                            Module Administrator
                         </th>
                         <td>
                         	{if administrator.email}
@@ -601,7 +601,7 @@ Other comments: </\${textarea}></td>
 				\${description}
             </div>
 			<div id="parts">
-                <h4>Course Parts</h4>
+                <h4>Module Parts</h4>
 				<span class="error" style="display:none"></span>
                 <form id="signup" action="#">
                     <table width="100%">

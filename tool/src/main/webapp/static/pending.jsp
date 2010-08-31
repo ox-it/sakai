@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>Course Signup</title>
+	<title>Module Signup</title>
 
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/<%= ServerConfigurationService.getString("skin.default", "default") %>/tool.css" type="text/css" rel="stylesheet" media="all" />
@@ -56,15 +56,15 @@
     <body>
     	<div id="toolbar" >
         	<ul class="navIntraTool actionToolBar">
-            <li><span><a href="index.jsp">Course Signup</a></span></li>
-            <li><span><a href="my.jsp">My Courses</a></span></li>
+            <li><span><a href="index.jsp">Module Signup</a></span></li>
+            <li><span><a href="my.jsp">My Modules</a></span></li>
             <li><span>Pending Acceptances</span></li>
-            <li><span><a href="admin.jsp">Course Administration</a></span></li>
+            <li><span><a href="admin.jsp">Module Administration</a></span></li>
 			<li><span><a href="debug.jsp">Debug</a></span></li>
 			</ul>
         </div>
 		<div>
-			<p>These are the students who have signed up for a course that need your approval.</p>
+			<p>These are the students who have signed up for a module that need your approval.</p>
 		</div>
 		<div style="margin:2%" >
 		<table id="pending-table" class="display">

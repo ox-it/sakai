@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>Course Signup</title>
+	<title>Module Signup</title>
 
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/<%= ServerConfigurationService.getString("skin.default", "default") %>/tool.css" type="text/css" rel="stylesheet" media="all" />
@@ -287,10 +287,10 @@
 					});
 									
 					if (data.length > 0) {
-						$("#course-list").html('<form>Select a course: <select id="admin-course" name="course">'+ options+ '</select></form>');
+						$("#course-list").html('<form>Select a module: <select id="admin-course" name="course">'+ options+ '</select></form>');
 						loadCourse(data[0].id, data[0].title);
 					} else {
-						$("#course-list").html('You are not an administrator on any courses.');
+						$("#course-list").html('You are not an administrator on any modules.');
 					}
 				});
 				$("#admin-course").live("change", function(e) {
@@ -309,10 +309,10 @@
 <body>
 <div id="toolbar">
 <ul class="navIntraTool actionToolBar">
-	<li><span><a href="index.jsp">Course Signup</a></span></li>
-	<li><span><a href="my.jsp">My Courses</a></span></li>
+	<li><span><a href="index.jsp">Module Signup</a></span></li>
+	<li><span><a href="my.jsp">My Modules</a></span></li>
 	<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
-	<li><span>Course Administration</span></li>
+	<li><span>Module Administration</span></li>
 	<li><span><a href="debug.jsp">Debug</a></span></li>
 </ul>
 </div>

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>Course Signup</title>
+	<title>Module Signup</title>
 
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/<%= ServerConfigurationService.getString("skin.default", "default") %>/tool.css" type="text/css" rel="stylesheet" media="all" />
@@ -52,10 +52,10 @@
 <body>
 <div id="toolbar">
 <ul class="navIntraTool actionToolBar">
-	<li><span><a href="index.jsp">Course Signup</a></span></li>
-	<li><span>My Courses</span></li>
+	<li><span><a href="index.jsp">Module Signup</a></span></li>
+	<li><span>My Modules</span></li>
 	<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
-	<li><span><a href="admin.jsp">Course Administration</a></span></li>
+	<li><span><a href="admin.jsp">Module Administration</a></span></li>
 	<li><span><a href="debug.jsp">Debug</a></span></li>
 </ul>
 </div>
