@@ -552,7 +552,11 @@ Other comments: </\${textarea}></td>
                         </th>
                         <td>
                             {for presenter in presenters}
-								<a href="mailto:\${presenter.email}">\${presenter.name}</a>
+								{if presenter.email}
+									<a href="mailto:\${presenter.email}">\${presenter.name}</a>
+								{else}
+									\${presenter.name}
+								{/if}
 							{/for}
                         </td>
                     </tr>
@@ -561,7 +565,11 @@ Other comments: </\${textarea}></td>
                             Course Administrator
                         </th>
                         <td>
-							<a href="mailto:\${administrator.email}">\${administrator.name}</a>
+                        	{if administrator.email}
+								<a href="mailto:\${administrator.email}">\${administrator.name}</a>
+							{else}
+								\${administrator.name}
+							{/if}
                         </td>
                     </tr>
                     <tr>
@@ -608,7 +616,7 @@ Other comments: </\${textarea}></td>
                         <tr>
                             <td class="option-details">
                                 <label for="option-\${option.id}">\${option.slot} for \${option.sessions} sessions starts in \${option.when},
-								{if option.presenter}<a href="mailto:\${option.presenter.email}">\${option.presenter.name}</a>{/if}
+								{if option.presenter}{if option.presenter.email}<a href="mailto:\${option.presenter.email}">{/if}\${option.presenter.name}{if option.presenter.email}</a>{/if}{/if}
 								</label>
                                 <br/>
                                 <span class="location">\${option.location}</span>
