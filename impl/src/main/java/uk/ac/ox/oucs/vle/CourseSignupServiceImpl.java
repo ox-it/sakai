@@ -264,12 +264,32 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setGroup(groupDao);
 		signupDao.setStatus(Status.ACCEPTED);
 		dao.save(signupDao);
-		proxy.logEvent(signupDao.getGroup().getId(), EVENT_ACCEPT);
+		
 		for (CourseComponentDAO componentDao: componentDaos) {
+			List<CourseSignupDAO> signupsToRemove = new ArrayList<CourseSignupDAO>();
+			for(CourseSignupDAO componentSignupDao: componentDao.getSignups()) {
+				if (componentSignupDao.getUserId().equals(userId)) {
+					signupsToRemove.add(componentSignupDao);
+				}
+			}
+			Set <CourseSignupDAO> signupDaos = componentDao.getSignups();
+			for (CourseSignupDAO removeSignup: signupsToRemove) {
+				// If they had already been accepted then decrement the taken count.
+				if (removeSignup.getStatus().equals(Status.APPROVED) || removeSignup.getStatus().equals(Status.ACCEPTED)) {
+					for (CourseComponentDAO signupComponentDao : removeSignup.getComponents()) {
+						signupComponentDao.setTaken(signupComponentDao.getTaken()-1);
+						dao.save(signupComponentDao);
+					}
+				}
+				signupDaos.remove(removeSignup);
+				dao.remove(removeSignup);
+			}
+			
 			componentDao.getSignups().add(signupDao);
 			componentDao.setTaken(componentDao.getTaken()+1);
 			dao.save(componentDao);
 		}
+		proxy.logEvent(signupDao.getGroup().getId(), EVENT_ACCEPT);
 	}
 
 	public void signup(String courseId, Set<String> componentIds, String supervisorEmail,
