@@ -94,6 +94,12 @@ var Signup = function(){
             }
         },
         "signup": {
+			/**
+			 * The statuses that a signup can have.
+			 */
+			"statuses": ["PENDING", "ACCEPTED", "APPROVED", "REJECTED", "WITHDRAWN"],
+			
+			
             "getActions": function(status, id, admin){
                 if (admin) {
                     switch (status) {
@@ -132,6 +138,19 @@ var Signup = function(){
                 }
                 return [];
             },
+			/**
+			 * Displays an input selector listing the statuses with the current one selected.
+			 * @param {Object} currentId
+			 * @param {Object} currentStatus
+			 */
+			"selectStatus": function(currentId, currentStatus) {
+				var output = '<select class="status-select" name="status-'+ currentId+ '">';
+				$.each(Signup.signup.statuses, function() {
+					output += (currentStatus == this?'<option selected="true">':'<option>')+ this+ '</option>';
+				});
+				output += '</select>';
+				return output;
+			},
             "formatActions": function(actions){
                 return $.map(actions, function(action){
                     return '<a class="action" href="' + action.url + '">' + action.name + '</a>';
@@ -170,7 +189,8 @@ var Signup = function(){
  */
 (function($){
 
-    $.fn.signupTable = function(url, isAdmin){
+    $.fn.signupTable = function(url, isAdmin, allowChangeStatus){
+		allowChangeStatus = allowChangeStatus || false;
         var element = this;
         var table = this.dataTable({
             "bJQueryUI": true,
@@ -208,7 +228,10 @@ var Signup = function(){
                 "sWidth": "20%",
                 "sClass": "signup-notes"
             }, {
-                "sTitle": "Status"
+                "sTitle": "Status",
+				"fnRender": function(aObj) {
+					return allowChangeStatus?Signup.signup.selectStatus(aObj.aData[0], aObj.aData[6]):aObj.aData[6];
+				}
             }, {
                 "sTitle": "Actions"
             }],
@@ -249,6 +272,21 @@ var Signup = function(){
             });
             return false;
         });
+		$("select.status-select", this).die().live("change", function(e) {
+			var select = $(this);
+			var newStatus = select.val();
+			var id = select.attr("name").substr(7); // Trim the leading "signup-"
+			select.attr("disabled", true);
+			$.ajax({
+				url: "../rest/signup/"+id,
+				type: "POST",
+				data: {status: newStatus},
+				success: function(data) {
+					element.dataTable().fnReloadAjax();
+					$(table).trigger("reload");
+				}
+			});
+		});
         return table;
         
     };

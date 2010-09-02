@@ -229,9 +229,28 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 
 	}
 
-	public void setSignupStatus(String signupId, Status status) {
-		// TODO Auto-generated method stub
-
+	public void setSignupStatus(String signupId, Status newStatus) {
+		CourseSignupDAO signupDao = dao.findSignupById(signupId);
+		if (signupDao == null) {
+			throw new NotFoundException(signupId);
+		}
+		String currentUserId = proxy.getCurrentUser().getId();
+		if (isAdministrator(signupDao.getGroup(), currentUserId, false)) {
+			Status currentStatus = signupDao.getStatus();
+			if (!currentStatus.equals(newStatus)) { // Check it actually needs changing.
+				signupDao.setStatus(newStatus);
+				dao.save(signupDao);
+				int spaceAdjustment = (-currentStatus.getSpacesTaken()) + newStatus.getSpacesTaken();
+				if (spaceAdjustment != 0) {
+					for(CourseComponentDAO component: signupDao.getComponents()) {
+						component.setTaken(component.getTaken()+spaceAdjustment);
+						dao.save(component);
+					}
+				}
+			}
+		} else {
+			throw new PermissionDeniedException(currentUserId);
+		}
 	}
 	
 	public void signup(String userId, String courseId, Set<String> componentIds) {

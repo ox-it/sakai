@@ -18,7 +18,27 @@ import java.util.Set;
  */
 public interface CourseSignupService {
 	
-	public static enum Status {PENDING, WITHDRAWN, APPROVED, ACCEPTED, REJECTED};
+	public static enum Status {
+		PENDING(false),
+		WITHDRAWN(false),
+		APPROVED(true),
+		ACCEPTED(true),
+		REJECTED(false);
+		
+		private final boolean takeSpace;
+		
+		Status(boolean takeSpace) {
+			this.takeSpace = takeSpace;
+		}
+		
+		public boolean isTakingSpace() {
+			return takeSpace;
+		}
+		
+		public int getSpacesTaken() {
+			return (takeSpace)?1:0;
+		}
+	};
 	
 	public static enum Range {ALL, UPCOMING, PREVIOUS};
 	

@@ -124,7 +124,7 @@
 							
 							$("#signups").html('<h3>Signups</h3><table border="0" class="display" id="signups-table"></table><a href="#" id="signup-add">Add Signup</a>');
 							// Load the signups.
-							var signups = $("#signups-table").signupTable("../rest/signup/course/"+code, true);
+							var signups = $("#signups-table").signupTable("../rest/signup/course/"+code, true, true);
 							signups.bind("reload", function() {
 								summary.fnReloadAjax();
 							})

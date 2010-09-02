@@ -90,6 +90,13 @@ public class SignupResource {
 		courseService.signup(userId, courseId, components);
 		return Response.ok().build();
 	}
+	
+	
+	@Path("/{id}")
+	@POST // PUT Doesn't seem to make it through the portal :-(
+	public void updateSignup(@PathParam("id") final String signupId, @FormParam("status") final Status status){
+		courseService.setSignupStatus(signupId, status);
+	}
 
 	@Path("{id}/accept")
 	@POST
