@@ -10,6 +10,7 @@
                 "url": "/course-signup/rest/user/current",
                 "type": "GET",
                 "async": false,
+				"cache": false,
                 "dataType": "json",
                 "success": function(data){
                     var serverDate = data.date;
