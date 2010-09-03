@@ -11,7 +11,7 @@
 
 	<link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css" />
 	<link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css"/>
-	<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.2.custom/css/smoothness/jquery-ui-1.8.2.custom.css"/>
+	<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.4.custom/css/smoothness/jquery-ui-1.8.4.custom.css"/>
 	<link rel="stylesheet" type="text/css" href="lib/tool.css" />
 	
 	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
@@ -19,6 +19,7 @@
 	<script type="text/javascript" src="lib/jstree-1.0rc/jquery.jstree.js"></script>
 	<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
 	<script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js"></script>
+	<script type="text/javascript" src="lib/jquery-ui-1.8.4.custom/js/jquery-ui-1.8.4.custom.min.js"></script>
 	<script type="text/javascript" src="lib/dataTables-1.7/js/jquery.dataTables.js"></script>
 	<script type="text/javascript" src="lib/dataTables-1.6/js/jquery.dataTables.reloadAjax.js"></script>
 	<script type="text/javascript" src="lib/signup.js"></script>
@@ -137,6 +138,8 @@
 								onShow: function(objs) {
 									$("body").css("overflow", "hidden");
 									objs.w.css('opacity',1).show();
+									$("textarea", signupAddUser).val("");
+									$(":submit", signupAddUser).removeAttr("disabled");
 								},
 								onHide: function(objs) {
 									$("body").css("overflow", "auto");
@@ -168,98 +171,145 @@
 							});
 							
 							signupAddUser.bind("submit", function(e) {
-								var users = $("textarea[name=users]", signupAddUser).val();
+								var form = this;
+								var progressbar = $("#find-users-progress");
+								var users = $("textarea[name=users]", signupAddUser).val().replace(/,/g, " "); // Incase people use commas to seperate users.
 								// Need error handling when empty.
 								var goodUsers = [];
 								var badUsers = [];
-								users = users.replace(/,/g, " "); // Incase people use commas to seperate users.
-								$.each(users.split(/\s+/), function() {
-									var that = this; 
+								var userIds = users.split(/\s+/);
+								var originalUserIdSize = userIds.length; // Used in progressbar calc.
+								var continueSearch = true;
+								
+								/**
+								 * Callback once for once the users have been found and the components need to be selected.
+								 * @param {Object} data Details of the course components form the REST call.
+								 */
+								var selectComponents = function(data){
+									var components = data.components;
+									data.users = goodUsers;
+									var output = TrimPath.processDOMTemplate("signup-add-components-tpl", data);
+									signupAddUser.jqmHide();
+									var dialog = $("#signup-add-components-win");
+									dialog.html(output);
+									dialog.jqm();
+									dialog.jqmAddClose("input.cancel");
+									dialog.jqmShow();
+									// Bind on the form submit.
+									$("#signup-add-components").bind("submit", function(e){
+										var form = this;
+										var progressElement = $("#create-signups-progress");
+										var components = [];
+										var originalGoodUserSize = goodUsers.length;
+										
+										$(":submit", form).attr("disabled", "true");
+										progressElement.progressbar({value: 0});
+
+										
+										$("[type=checkbox]", this).each(function(){
+											if (this.checked) {
+												components.push(this.id.substring(7)); // Remove 'option-' prefix
+											}
+										});
+										if (components.length == 0) {
+											$(".errors", form).html("You need to select some modules.")
+											return false;
+										}
+										var postSignup = function() {
+											progressElement.progressbar("destroy");
+											dialog.jqmHide(); // Hide the popup.
+											summary.fnReloadAjax();
+											signups.fnReloadAjax();
+										};
+										
+										var doSignup = function(){
+											progressElement.progressbar("value", (originalGoodUserSize - goodUsers.length)/ originalGoodUserSize * 100);
+											var user = goodUsers.pop();
+											if (user === undefined) {
+												postSignup();
+											} else {
+												$.ajax({
+													"url": "../rest/signup/new",
+													"type": "POST",
+													"async": true,
+													"traditional": true,
+													"data": {
+														"userId": user.id,
+														"courseId": code,
+														"components": components
+													},
+													"complete": doSignup
+												});
+											}
+										};
+										doSignup();
+										return false;
+									});
+								};
+								
+								/**
+								 * Function for once all the users have been found.
+								 */
+								var foundUsers = function(){
+									progressbar.progressbar("destroy");
+									if (badUsers.length > 0) {
+										// Display list of bad user.
+										$(".errors", form).html("Couldn't find user" + (badUsers.length > 1 ? "s" : "") + ": " + badUsers.join(", "));
+									}
+									else 
+										if (goodUsers.length < 1) {
+											$(".errors", form).html("No users found.");
+										}
+										else {
+											// Make sure they are in order.
+											goodUsers = goodUsers.sort(Signup.user.sort);
+											// Show next page...
+											$.getJSON("../rest/course/" + code, {"range": "ALL"}, selectComponents);
+										}
+								}
+								
+								/**
+								 * Looks for a user. When all users have been processed calls foundUsers.
+								 */
+								var findUser = function() {
+									if (!continueSearch) {
+										progressbar.progressbar("destroy");
+										return;
+									}
+									progressbar.progressbar("value", (originalUserIdSize - userIds.length) / originalUserIdSize * 100);
+									var that = userIds.pop();
+									if (that === undefined) {
+										foundUsers();
+										return;
+									}
 									if (!that || that.length < 1) {
+										findUser();
 										return;
 									}
 									$.ajax({
 										"url": "../rest/user/find",
 										"method": "GET",
-										"async": false, // So we don't overload the server.
+										"async": true,
 										"data": {"search": that.toString()},
 										"success": function(data) {
 											goodUsers.push(data);
 										},
 										"error": function() {
 											badUsers.push(that.toString());
+										},
+										"complete": function() {
+											findUser();
 										}
-									})
-								});
-								if (badUsers.length > 0) {
-									// Display list of bad user.
-									$(".errors", this).html("Couldn't find user" + (badUsers.length > 1 ? "s" : "") + ": " + badUsers.join(", "));
-								}
-								else 
-									if (goodUsers.length < 1) {
-										$(".errors", this).html("No users found.");
-									}
-									else {
-										// Make sure they are in order.
-										goodUsers = goodUsers.sort(Signup.user.sort);
-										// Show next page...
-										$.getJSON("../rest/course/" + code, {
-											"range": "ALL"
-										}, function(data){
-											var components = data.components;
-											data.users = goodUsers;
-											var output = TrimPath.processDOMTemplate("signup-add-components-tpl", data);
-											signupAddUser.jqmHide();
-											var dialog = $("#signup-add-components-win");
-											dialog.html(output);
-											dialog.jqm();
-											dialog.jqmAddClose("input.cancel");
-											dialog.jqmShow();
-											// Bind on the form submit.
-											$("#signup-add-components").bind("submit", function(e){
-												//
-												var components = [];
-												$("[type=checkbox]", this).each(function(){
-													if (this.checked) {
-														components.push(this.id.substring(7)); // Remove 'option-' prefix
-													}
-												});
-												if (components.length == 0) {
-												//error.
-												}
-												// Go sign them up.
-												$.each(goodUsers, function(){
-													var user = this;
-													$.ajax({
-														"url": "../rest/signup/new",
-														"type": "POST",
-														"async": false,
-														"traditional": true,
-														"data": {
-															"userId": user.id,
-															"courseId": code,
-															"components": components
-														},
-														"success": function(data){
-														//console.log("Good for "+ user.id);
-														}
-													});
-												});
-												dialog.jqmHide(); // Hide the popup.
-												summary.fnReloadAjax();
-												signups.fnReloadAjax();
-												return false;
-												
-											});
-										});
-									}
-								
+									});
+								};
+								$(":submit", form).attr("disabled", "true");
+								$("input.cancel", form).one("click", function(){ continueSearch = false;});
+								progressbar.progressbar({value: 0});
+								findUser(); // Startoff the searching of users.
 								return false;
 							});
-							
-							
 							 
-							 return;
+							return;
 							// Handlers to decide what actions you can do when selecting multiple items.
 							$("#signups-table input[type=checkbox]").live("change", function(e) {
 								
@@ -348,13 +398,14 @@
 		<span class="errors"></span>
 		<br>
 		<input type="submit" value="Find">
-		<input type="button" class="cancel" value="Cancel">
+		<input type="button" class="cancel" value="Cancel"><br>
+		<div id="find-users-progress"></div>
 	</form>
 </div>
 
 <!-- Popup window for selecting components. -->
 <div id="signup-add-components-win" class="jqmWindow" style="display:none">
-
+	
 </div>
 
 <textarea id="signup-add-components-tpl" style="display:none" rows="0" cols="0">
@@ -364,9 +415,10 @@
 		<li>\${user.name} (\${user.email})</li>
 	{/for}
 	</ul>
-	<h2>Select components</h2>
+	<h2>Select Modules</h2>
 	
 	<form id="signup-add-components">
+	<span class="errors"></span>
 	<ul>
 	{for component in components}
 		<li>
@@ -381,6 +433,8 @@
 	</ul>
 		<input type="submit" value="Add">
 		<input type="button" class="cancel" value="Cancel">
+		<div id="create-signups-progress"></div>
+
 	</form>
 </textarea>
 
