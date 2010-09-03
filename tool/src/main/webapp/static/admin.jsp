@@ -172,16 +172,17 @@
 								// Need error handling when empty.
 								var goodUsers = [];
 								var badUsers = [];
+								users = users.replace(/,/g, " "); // Incase people use commas to seperate users.
 								$.each(users.split(/\s+/), function() {
-									var that = this;
-									if (!this || this.length < 1) {
+									var that = this; 
+									if (!that || that.length < 1) {
 										return;
 									}
 									$.ajax({
 										"url": "../rest/user/find",
 										"method": "GET",
 										"async": false, // So we don't overload the server.
-										"data": {"search": this.toString()},
+										"data": {"search": that.toString()},
 										"success": function(data) {
 											goodUsers.push(data);
 										},
