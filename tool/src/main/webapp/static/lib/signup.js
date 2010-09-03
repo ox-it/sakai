@@ -173,7 +173,11 @@ var Signup = function(){
             "render": function(user){
                 var details = "";
                 if (user) {
-                    details += '<a href="mailto:' + user.email + '">' + user.name + '</a>';
+					if (user.email) {
+						details += '<a href="mailto:' + user.email + '">' + user.name + '</a>';
+					} else {
+						details += user.name;
+					}
                     if (user.units && user.units.length > 0) {
                         details += '<br>' + user.units.join(" / ");
                     }
