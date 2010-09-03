@@ -155,7 +155,6 @@
 									signupAddUser.height(newHeight);
 									signupAddUser.css("top", "1px"); // Move almost to the top.
 								};
-								
 							});
 							$(window).resize(function(){
 								var windowHeight = $(window).height();
@@ -193,52 +192,66 @@
 								});
 								if (badUsers.length > 0) {
 									// Display list of bad user.
-									$(".errors",this).html("Couldn't find user"+ (badUsers.length > 1?"s":"")+ ": "+ badUsers.join(", "));
-								} else {
-									// Show next page...
-									$.getJSON("../rest/course/"+code, {"range": "ALL"}, function(data){
-										var components = data.components;
-										var output = TrimPath.processDOMTemplate("signup-add-components-tpl", data);
-										signupAddUser.jqmHide();
-										var dialog = $("#signup-add-components-win");
-										dialog.html(output);
-										dialog.jqm();
-										dialog.jqmAddClose("input.cancel");
-										dialog.jqmShow();
-										// Bind on the form submit.
-										$("#signup-add-components").bind("submit", function(e){
-											//
-											var components = [];
-											$("[type=checkbox]", this).each(function() {
-												if(this.checked) {
-													components.push(this.id.substring(7)); // Remove 'option-' prefix
-												}
-											});
-											if (components.length == 0) {
-												//error.
-											}
-											// Go sign them up.
-											$.each(goodUsers, function() {
-												var user = this;
-												$.ajax({
-													"url": "../rest/signup/new",
-													"type": "POST",
-													"async": false,
-													"traditional": true,
-													"data": {"userId": user.id, "courseId": code, "components": components},
-													"success": function(data) {
-														//console.log("Good for "+ user.id);
+									$(".errors", this).html("Couldn't find user" + (badUsers.length > 1 ? "s" : "") + ": " + badUsers.join(", "));
+								}
+								else 
+									if (goodUsers.length < 1) {
+										$(".errors", this).html("No users found.");
+									}
+									else {
+										// Make sure they are in order.
+										goodUsers = goodUsers.sort(Signup.user.sort);
+										// Show next page...
+										$.getJSON("../rest/course/" + code, {
+											"range": "ALL"
+										}, function(data){
+											var components = data.components;
+											data.users = goodUsers;
+											var output = TrimPath.processDOMTemplate("signup-add-components-tpl", data);
+											signupAddUser.jqmHide();
+											var dialog = $("#signup-add-components-win");
+											dialog.html(output);
+											dialog.jqm();
+											dialog.jqmAddClose("input.cancel");
+											dialog.jqmShow();
+											// Bind on the form submit.
+											$("#signup-add-components").bind("submit", function(e){
+												//
+												var components = [];
+												$("[type=checkbox]", this).each(function(){
+													if (this.checked) {
+														components.push(this.id.substring(7)); // Remove 'option-' prefix
 													}
 												});
+												if (components.length == 0) {
+												//error.
+												}
+												// Go sign them up.
+												$.each(goodUsers, function(){
+													var user = this;
+													$.ajax({
+														"url": "../rest/signup/new",
+														"type": "POST",
+														"async": false,
+														"traditional": true,
+														"data": {
+															"userId": user.id,
+															"courseId": code,
+															"components": components
+														},
+														"success": function(data){
+														//console.log("Good for "+ user.id);
+														}
+													});
+												});
+												dialog.jqmHide(); // Hide the popup.
+												summary.fnReloadAjax();
+												signups.fnReloadAjax();
+												return false;
+												
 											});
-											dialog.jqmHide(); // Hide the popup.
-											summary.fnReloadAjax(); 
-											signups.fnReloadAjax();
-											return false;
-											
 										});
-									});
-								}
+									}
 								
 								return false;
 							});
@@ -344,7 +357,14 @@
 </div>
 
 <textarea id="signup-add-components-tpl" style="display:none" rows="0" cols="0">
+	<h2>Users Found</h2>
+	<ul>
+	{for user in users}
+		<li>\${user.name} (\${user.email})</li>
+	{/for}
+	</ul>
 	<h2>Select components</h2>
+	
 	<form id="signup-add-components">
 	<ul>
 	{for component in components}

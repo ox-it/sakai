@@ -183,7 +183,22 @@ var Signup = function(){
                     }
                 }
                 return details;
-            }
+            },
+			/**
+			 * Standard function for sorting users. This basically just sorts based on the
+			 * name of the user and if they are the same sort on the ID so it remains consistent.
+			 * @param {Object} user1
+			 * @param {Object} user2
+			 */
+			"sort": function (user1, user2) {
+				if(user1.name < user2.name) {
+					return -1;
+				} else if ( user1.name > user2.name) {
+					return 1;
+				} else {
+					return (user2.id < user1.id)-(user1.id<user2.id); // Fallback to ID http://www.merlyn.demon.co.uk/js-order.htm
+				}
+			}
         }
     };
 }();
