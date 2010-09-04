@@ -23,52 +23,15 @@ package org.sakaiproject.oxford.shortenedurl.api;
 
 
 /**
- * This is the base service which all URL shortening services must implement
+ * The implementation. Matches Sakai's ShortenedUrlService for futureproofing.
  * 
- * You can specify the URL shortening scheme in sakai.properties
- * 
- * @author Steve Swinsburg (s.swinsburg@gmail.com)
+ * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
 public interface OxfordShortenedUrlService {
 
 	/**
-	 * Event fired if URL translation is ok
-	 */
-	public final String EVENT_GET_URL_OK = "shortenedurl.get.ok";
-	
-	/**
-	 * Event fired if URL does not exist
-	 */
-	public final String EVENT_GET_URL_BAD = "shortenedurl.get.bad";
-	
-	/**
-	 * Event fired if shortened URL is created ok
-	 */
-	public final String EVENT_CREATE_OK = "shortenedurl.create.ok";
-	
-	/**
-	 * Event fired if a shortened URL is requested to be created, but one for this URL already exists
-	 */
-	public final String EVENT_CREATE_EXISTS = "shortenedurl.create.exists";
-	
-	/**
-	 * Event fired if a shortened URL is created but it collides with an existing one for a different URL
-	 */
-	public final String EVENT_CREATE_COLLISION = "shortenedurl.create.collision";
-	
-	/**
-	 * The name of the property in sakai.properties. THe value of this is the implementation which is used preferentially
-	 */
-	public final String IMPLEMENTATION_PROP_NAME = "shortenedurl.implementation";
-	
-	/**
-	 * The default implementation of this service as a Spring bean reference 
-	 */
-	public final String DEFAULT_IMPLEMENTATION = "org.sakaiproject.shortenedurl.api.NoOpUrlService";
-
-	/**
-	 * Provide an implementation of this which generates a shortened URL given some other URL
+	 * Generates a shortened URL given some other URL
 	 * @param url
 	 * @return the full shortened URL
 	 */
@@ -76,8 +39,10 @@ public interface OxfordShortenedUrlService {
 	
 	
 	/**
-	 * Provide an implementation of this which generates a shortened URL given some other URL.
-	 * <p>This method also provides an optional flag which you can use to make your URL more secure.
+	 * Generates a shortened URL given some other URL
+	 * <p>This method also provides an optional flag which you can use to make your URL more secure.</p>
+	 * <p>Unused by this URL shortener</p>
+	 * 
 	 * @param url
 	 * @return the full shortened URL
 	 */
@@ -85,8 +50,8 @@ public interface OxfordShortenedUrlService {
 	
 	
 	/**
-	 * Provide an implementation of this to get the original URL for the given shortened URL.
-	 * 
+	 * Resolves the original URL for the given shortened URL.
+	 * <p>Unused by this URL shortener</p>
 	 * @param key - the shortened key
 	 * @return the original URL that maps to this key
 	 */
