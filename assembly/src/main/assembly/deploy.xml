@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+	<id>tomcat-overlay</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<dependencySets>
+		
+		<!-- shared -->
+		<dependencySet>
+			<outputDirectory>shared/lib</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
+				<include>org.sakaiproject.oxford.shortenedurl:oxford-shortenedurl-api:jar:*</include>
+			</includes>
+		</dependencySet>
+		
+		<!-- components -->
+		<dependencySet>
+			<outputDirectory>components/oxford-shortenedurl-pack</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
+				<include>org.sakaiproject.oxford.shortenedurl:oxford-shortenedurl-pack:war:*</include>
+			</includes>
+			<unpack>true</unpack>
+		</dependencySet>
+		
+		<!-- webapps -->
+		<dependencySet>
+            <outputDirectory>webapps/</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                 <include>org.sakaiproject.oxford.shortenedurl:mox:war:*</include>
+            </includes>
+            <unpack>false</unpack>
+        </dependencySet>
+	</dependencySets>
+	
+</assembly>
