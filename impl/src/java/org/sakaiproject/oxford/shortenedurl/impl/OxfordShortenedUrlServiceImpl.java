@@ -25,7 +25,7 @@ import org.sakaiproject.oxford.shortenedurl.api.OxfordShortenedUrlService;
 public class OxfordShortenedUrlServiceImpl implements OxfordShortenedUrlService {
 
 	private static Log log = LogFactory.getLog(OxfordShortenedUrlServiceImpl.class);
-	private final String BUNDLE_NAME = "org.sakaiproject.oxfordshortenedurl.impl.mappings";
+	private final String BUNDLE_NAME = "org.sakaiproject.oxford.shortenedurl.impl.mappings";
 	private final String MOX_BASE_URL = "https://m.ox.ac.uk/weblearn";
 	
 	/**
