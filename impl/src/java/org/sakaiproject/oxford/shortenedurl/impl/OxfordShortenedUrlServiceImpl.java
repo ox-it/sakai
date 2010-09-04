@@ -2,7 +2,9 @@ package org.sakaiproject.oxford.shortenedurl.impl;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
@@ -44,6 +46,8 @@ public class OxfordShortenedUrlServiceImpl implements OxfordShortenedUrlService 
 			log.error("Invalid path: " + path);
 			return null;
 		}
+		
+		//get query params map
 		
 		//get prefix, ignore any possible extension.
 		String prefix = StringUtils.substringBefore(pathParts[0], ".");
@@ -161,7 +165,12 @@ public class OxfordShortenedUrlServiceImpl implements OxfordShortenedUrlService 
         return MessageFormat.format(getMessage(key), arguments);
     }
 	
-	// helper to get the message from the bundle
+	/**
+	 * Get a standard message from the bundle
+	 * 
+	 * @param key
+	 * @return
+	 */
 	private String getMessage(String key) {
 		try {
 			return ResourceBundle.getBundle(BUNDLE_NAME).getString(key);
@@ -169,5 +178,26 @@ public class OxfordShortenedUrlServiceImpl implements OxfordShortenedUrlService 
 			return null;
 		}
 	}
+	
+	/**
+	 * Get a map of parameters given a query string like siteId=123&userId=abc.
+	 * The beginning ? should be already removed.
+	 * @param query
+	 * @return
+	 */
+	private Map<String,String> getQueryParameters(String query) {
+	
+		Map<String,String> params = new HashMap<String,String>();
+		
+		String[] pairs = StringUtils.split(query, '&');
+		for(int i=0; i< pairs.length; i++){
+			String[] p = StringUtils.split(pairs[i], '=');
+			params.put(p[0], p[1]);
+		}
+		
+		return params;
+	}
+	
+	
 
 }

@@ -102,6 +102,7 @@
 	
 	<properties>
 		<sakai.servletapi.version>2.4</sakai.servletapi.version>
+		<entitybroker.version>1.4.0-SNAPSHOT</entitybroker.version>
 		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/oxfordshortenedurl/${project.version}</url.localsite>
 	</properties>
     
