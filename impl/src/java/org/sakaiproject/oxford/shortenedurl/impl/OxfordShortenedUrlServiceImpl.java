@@ -85,6 +85,8 @@ public class OxfordShortenedUrlServiceImpl implements OxfordShortenedUrlService 
             if(!m.matches()) {
             	continue;
             }
+            
+            log.debug("path: " + path + " matches pattern: " + pattern);
            
             //check for path values we need to transfer
             String pathValuesProperty = prefix + ".path.values." + i;
@@ -97,7 +99,7 @@ public class OxfordShortenedUrlServiceImpl implements OxfordShortenedUrlService 
             	loadPathValues(pathParts, pathValuesExpression);
             }
             
-            log.debug("urlParts.length:" + urlParts.length);
+            log.debug("urlParts.length: " + urlParts.length);
             
             //check for query values we need to transfer
             if(urlParts.length > 1) {
@@ -225,7 +227,7 @@ public class OxfordShortenedUrlServiceImpl implements OxfordShortenedUrlService 
 		Map<String,String> params = splitQueryStringToMap(query);
 		
 		//now, split the expression into pairs
-		String[] pairs = StringUtils.split(query, ',');
+		String[] pairs = StringUtils.split(expression, ',');
 		
 		//foreach pair, the first value maps to a key in the map, the second maps to the position in the replacementValues list.
 		//so get the value map and load it into the list at the specified position
