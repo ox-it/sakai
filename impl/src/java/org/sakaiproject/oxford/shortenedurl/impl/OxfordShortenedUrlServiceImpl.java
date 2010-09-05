@@ -31,6 +31,7 @@ public class OxfordShortenedUrlServiceImpl implements OxfordShortenedUrlService 
 	private final String MOX_BASE_URL = "https://m.ox.ac.uk/weblearn";
 	
 	private List<String> replacementValues;
+	private final int INIT_LIST_SIZE = 10;
 
 	
 	/**
@@ -66,7 +67,7 @@ public class OxfordShortenedUrlServiceImpl implements OxfordShortenedUrlService 
 		
 		Pattern p = null;
 		Matcher m = null;
-		replacementValues = new ArrayList<String>();
+		replacementValues = setupList();
 		
 		//check each pattern to find a matching one
 		for(int i=1; i<= patternCount; i++){
@@ -114,11 +115,13 @@ public class OxfordShortenedUrlServiceImpl implements OxfordShortenedUrlService 
 	            }
             }
             
+            log.debug("replacementValues: " + replacementValues.toString());
+            
             //now get the final URL string we need and interpolate any values we have
             String urlProperty = prefix + ".url." + i;
             log.debug("urlProperty: " + urlProperty);
 
-            String url = getString(urlProperty, replacementValues.toArray());
+            String url = MOX_BASE_URL + getString(urlProperty, replacementValues.toArray());
             log.debug("url: " + url);
             
             return url;
@@ -211,7 +214,7 @@ public class OxfordShortenedUrlServiceImpl implements OxfordShortenedUrlService 
         	pathValue = StringUtils.substringBefore(pathValue, ".");
         	
         	//add this value to the list at the specified position
-        	replacementValues.add(secondIndex, pathValue);
+        	replacementValues.set(secondIndex, pathValue);
 			
 		}
 	}
@@ -241,7 +244,7 @@ public class OxfordShortenedUrlServiceImpl implements OxfordShortenedUrlService 
         	int index = Integer.parseInt(parts[1]);
 
         	//add the value from the map to the list at the specified position
-			replacementValues.add(index, params.get(key));
+			replacementValues.set(index, params.get(key));
 		}
 		
 	}
@@ -273,5 +276,21 @@ public class OxfordShortenedUrlServiceImpl implements OxfordShortenedUrlService 
 		
 	}
 	
+	/**
+	 * This sets up an ArrayList with 10 values, all null. This is required because we need to later insert
+	 * values at specified positions, but this is impossible if the list is not already populated (will throw IndexOutOfBoundsException).
+	 * 
+	 * <p>The size of 10 should be fine, if need more, then increase the constant.</p>
+	 * 
+	 * @return List of INIT_LIST_SIZE size, with all values null.
+	 */
+	private List<String> setupList(){
+		
+		List<String> l = new ArrayList<String>();
+		for(int i=0; i<INIT_LIST_SIZE; i++){
+			l.add(null);
+		}
+		return l;
+	}
 
 }
