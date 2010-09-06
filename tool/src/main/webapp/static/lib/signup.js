@@ -258,6 +258,7 @@ var Signup = function(){
                 jQuery.ajax({
                     dataType: "json",
                     type: "GET",
+					cache: false,
                     url: sSource,
                     success: function(result){
                         var data = [];
