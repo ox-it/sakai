@@ -44,7 +44,14 @@
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
-		
+        
+        <!-- sakai dependencies -->
+		<dependency>
+      		<groupId>org.sakaiproject.entitybroker</groupId>
+      		<artifactId>entitybroker-api</artifactId>
+      		<scope>provided</scope>
+   		</dependency>
+   		
 		<!-- test dependencies -->
 		<dependency>
             <groupId>org.springframework</groupId>
