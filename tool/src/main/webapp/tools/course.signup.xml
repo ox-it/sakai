@@ -2,6 +2,5 @@
 <registration>
 	<tool id="course.signup" title="Module Signup"
 		description="Tool for allowing people to signup to modules.">
-		<category name="project"/>
 	</tool>
 </registration>
