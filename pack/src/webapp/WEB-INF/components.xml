@@ -14,7 +14,7 @@
 	
 	<!--  entity provider config -->
 	<bean id="org.sakaiproject.oxford.shortenedurl.entityprovider.OxfordShortenedUrlEntityProvider" 
-		class="org.sakaiproject.oxford.shortenedurl.entityprovider.OxfordShortenedUrlEntityProvider">
+		class="org.sakaiproject.oxford.shortenedurl.entityprovider.OxfordShortenedUrlEntityProviderImpl">
 		<property name="service" ref="org.sakaiproject.oxford.shortenedurl.api.OxfordShortenedUrlService" />
 	</bean>
 	
