@@ -351,16 +351,17 @@
 					});
 									
 					if (data.length > 0) {
-						$("#course-list").html('<form>Select a module: <select id="admin-course" name="course">'+ options+ '</select></form>');
+						$("#course-list").html('<form>Select a module: <select id="admin-course" name="course">' + options + '</select></form>');
+						$("#admin-course").change(function(e){
+							var courseId = this.options[this.selectedIndex].value;
+							var courseTitle = this.options[this.selectedIndex].text;
+							loadCourse(courseId, courseTitle);
+						});
 						loadCourse(data[0].id, data[0].title);
-					} else {
+					}
+					else {
 						$("#course-list").html('You are not an administrator on any modules.');
 					}
-				});
-				$("#admin-course").live("change", function(e) {
-					var courseId = this.options[this.selectedIndex].value;
-					var courseTitle = this.options[this.selectedIndex].text;
-					loadCourse(courseId, courseTitle);
 				});
 				
 				Signup.util.autoresize();
