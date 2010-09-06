@@ -5,11 +5,17 @@
 <beans>
 
 	
-	<!-- OxfordShortenedUrlService config -->
+	<!-- service config -->
 	<bean id="org.sakaiproject.oxford.shortenedurl.api.OxfordShortenedUrlService"
     	class="org.sakaiproject.oxford.shortenedurl.impl.OxfordShortenedUrlServiceImpl"
     	singleton="true"
     	init-method="init">
+	</bean>
+	
+	<!--  entity provider config -->
+	<bean id="org.sakaiproject.oxford.shortenedurl.entityprovider.OxfordShortenedUrlEntityProvider" 
+		class="org.sakaiproject.oxford.shortenedurl.entityprovider.OxfordShortenedUrlEntityProvider">
+		<property name="service" ref="org.sakaiproject.oxford.shortenedurl.api.OxfordShortenedUrlService" />
 	</bean>
 	
 </beans>

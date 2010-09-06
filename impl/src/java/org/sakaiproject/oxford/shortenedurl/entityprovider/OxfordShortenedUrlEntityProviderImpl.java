@@ -15,7 +15,6 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEnt
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
-import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.oxford.shortenedurl.api.OxfordShortenedUrlService;
 
 /**
@@ -26,10 +25,8 @@ import org.sakaiproject.oxford.shortenedurl.api.OxfordShortenedUrlService;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class OxfordShortenedUrlEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
+public class OxfordShortenedUrlEntityProviderImpl implements OxfordShortenedUrlEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
 
-	public final static String ENTITY_PREFIX = "oxford";
-	
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
 	}

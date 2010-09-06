@@ -35,13 +35,6 @@
 			<scope>compile</scope>
 			<type>war</type>
       	</dependency>
-   		<dependency>
-   			<groupId>org.sakaiproject.oxford.shortenedurl</groupId>
-   			<artifactId>oxford-shortenedurl-entityprovider</artifactId>
-   			<version>${project.version}</version>
-   			<scope>compile</scope>
-   			<type>war</type>
-   		</dependency>
 	</dependencies>
 	<build>
 		<pluginManagement>

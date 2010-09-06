@@ -26,16 +26,6 @@
 			<unpack>true</unpack>
 		</dependencySet>
 		
-		<!-- webapps -->
-		<dependencySet>
-            <outputDirectory>webapps/</outputDirectory>
-            <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <includes>
-                 <include>org.sakaiproject.oxford.shortenedurl:oxford-shortenedurl-entityprovider:war:*</include>
-            </includes>
-            <unpack>false</unpack>
-        </dependencySet>
 	</dependencySets>
 	
 </assembly>
