@@ -136,7 +136,8 @@
 							});
 							signupAddUser.jqm({
 								onShow: function(objs) {
-									$("body").css("overflow", "hidden");
+									$("body").css("overflow", "hidden"); // Doesn't seem to work on IE7
+									objs.w.show();
 									$("textarea", signupAddUser).val("");
 									$(":submit", signupAddUser).removeAttr("disabled");
 									$(".errors",signupAddUser).html("");
