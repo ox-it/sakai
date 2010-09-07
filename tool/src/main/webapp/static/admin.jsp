@@ -139,6 +139,7 @@
 									$("body").css("overflow", "hidden");
 									$("textarea", signupAddUser).val("");
 									$(":submit", signupAddUser).removeAttr("disabled");
+									$(".errors",signupAddUser).html("");
 								},
 								onHide: function(objs) {
 									$("body").css("overflow", "auto");
