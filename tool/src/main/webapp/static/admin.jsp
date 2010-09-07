@@ -137,7 +137,6 @@
 							signupAddUser.jqm({
 								onShow: function(objs) {
 									$("body").css("overflow", "hidden");
-									objs.w.css('opacity',1).show();
 									$("textarea", signupAddUser).val("");
 									$(":submit", signupAddUser).removeAttr("disabled");
 								},
