@@ -251,6 +251,7 @@
 								 * Function for once all the users have been found.
 								 */
 								var foundUsers = function(){
+									$(":submit", form).removeAttr("disabled");
 									progressbar.progressbar("destroy");
 									if (badUsers.length > 0) {
 										// Display list of bad user.
