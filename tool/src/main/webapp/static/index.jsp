@@ -343,7 +343,7 @@
 											$.cookie('coursesignup.supervisor', value);
 										},
 										error: function(){
-											current.after('<span class="error">* could not find a user with this email</span>');
+											current.after('<span class="error">* no user exists in WebLearn with this email</span>');
 										},
 										complete: function(){
 											delete current.data()["req"];
