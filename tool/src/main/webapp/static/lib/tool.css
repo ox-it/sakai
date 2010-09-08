@@ -110,3 +110,32 @@ li.open a {
 	float: left; /* So the error message wraps on the right */
 	margin-top: 0px; /* Overright tool_base.css */
 }
+
+/* This is a floating message display */
+#messages {
+	position: absolute;
+	width: 100%;
+}
+
+.message {
+	margin-left: auto;
+	margin-right: auto;
+	//width: 15em;
+	position: relative;
+	text-align: center;
+	padding: 5px;
+	display: none; // Initially hidden.
+}
+
+.message span {
+		background-color: #eee;
+		font-weight: bold;
+		padding: 5px;
+}
+.message span.good {
+	background-color: #bfb; // For good messages.
+}
+
+.message span.bad {
+	background-color: #fbb; // For bad messages.
+}

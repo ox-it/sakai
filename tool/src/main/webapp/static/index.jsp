@@ -373,7 +373,7 @@
 						if ($(".error", form).length > 0) {
 							return false;
 						}
-						
+					
 						var submit = form.find("input:submit:first").attr("disabled", "true").before('<img class="loader" src="images/loader.gif"/>');
 						var courseId = jQuery("input[name=courseId]", this).first().val();
 						$.ajax({
@@ -382,7 +382,12 @@
 							data: form.serialize(),
 							success: function(){
 								dialog.jqmHide();
-								loadCourse(courseId); // Not in scope.
+								loadCourse(courseId);
+								$("#messages")
+									.append('<div class="message"><span class="good">Signup Successful</span></div>');
+								$("#messages .message:last").slideDown(300).delay(2600).slideUp(300, function() {
+									$(this).remove();
+								});
 							},
 							complete: function(){
 								submit.removeAttr("disabled").prev("img").remove();
@@ -485,6 +490,8 @@
             <li><span><a href="admin.jsp">Module Administration</a></span></li>
             <li><span><a href="debug.jsp">Debug</a></span></li>
 			</ul>
+        </div>
+		<div id="messages">
         </div>
 		
         <div id="browse">
