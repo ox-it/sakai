@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -103,7 +103,7 @@ public class UiIconPropertyReference extends UiPropertyReference implements Icon
 			if (title == null) title = "";
 		}
 
-		return "<img src=\"" + context.getUrl(iconName) + "\" alt=\"" + title + "\" title=\"" + title + "\" />";
+		return "<img src=\"" + context.getUrl(iconName) + "\" alt=\"" + title + "\" style=\"border-style: none;\" title=\"" + title + "\" />";
 	}
 
 	/**

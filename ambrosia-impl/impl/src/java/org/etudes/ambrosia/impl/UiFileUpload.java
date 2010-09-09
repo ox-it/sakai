@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -276,7 +276,7 @@ public class UiFileUpload extends UiComponent implements FileUpload
 				//
 				// if (this.icon != null)
 				// {
-				// response.print("<img style=\"vertical-align:text-bottom;\" src=\"" + context.getUrl(this.icon) + "\" " + "title=\""
+				// response.print("<img style=\"vertical-align:text-bottom; border-style: none;\" src=\"" + context.getUrl(this.icon) + "\" " + "title=\""
 				// + description + "\" " + "alt=\"" + description + "\" />");
 				// }
 				//
@@ -288,7 +288,7 @@ public class UiFileUpload extends UiComponent implements FileUpload
 				// if ((this.icon != null) && (this.iconStyle == IconStyle.left))
 				// {
 				// response.print("<a href=\"#\" onclick=\"act_" + id + "();return false;\">");
-				// response.print("<img style=\"vertical-align:text-bottom; padding-right:0.3em;\" src=\"" + context.getUrl(this.icon)
+				// response.print("<img style=\"vertical-align:text-bottom; padding-right:0.3em; border-style: none;\" src=\"" + context.getUrl(this.icon)
 				// + "\" " + "title=\"" + description + "\" " + "alt=\"" + description + "\" />");
 				// response.print("</a>");
 				// }
@@ -302,7 +302,7 @@ public class UiFileUpload extends UiComponent implements FileUpload
 				// if ((this.icon != null) && (this.iconStyle == IconStyle.right))
 				// {
 				// response.print("<a href=\"#\" onclick=\"act_" + id + "();return false;\">");
-				// response.print("<img style=\"vertical-align:text-bottom; padding-left:0.3em;\" src=\"" + context.getUrl(this.icon)
+				// response.print("<img style=\"vertical-align:text-bottom; padding-left:0.3em; border-style: none;\" src=\"" + context.getUrl(this.icon)
 				// + "\" " + "title=\"" + description + "\" " + "alt=\"" + description + "\" />");
 				// response.print("</a>");
 				// }

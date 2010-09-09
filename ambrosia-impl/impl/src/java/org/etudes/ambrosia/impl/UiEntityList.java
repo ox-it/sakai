@@ -492,8 +492,8 @@ public class UiEntityList extends UiComponent implements EntityList
 								+ sortId
 								+ "();return false;\">"
 								+ title
-								+ ((icon != null) ? ("&nbsp;<img src=\"" + context.getUrl(icon) + "\"" + " title=\"" + iconAlt + "\" alt=\""
-										+ iconAlt + "\"" + " />") : "") + "</a></th>");
+								+ ((icon != null) ? ("&nbsp;<img style=\"border-style: none;\" src=\"" + context.getUrl(icon) + "\"" + " title=\""
+										+ iconAlt + "\" alt=\"" + iconAlt + "\"" + " />") : "") + "</a></th>");
 					}
 
 					// not currently sorting... can we sort?

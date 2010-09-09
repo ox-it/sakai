@@ -361,15 +361,16 @@ public class UiAttachments extends UiComponent implements Attachments
 					// for folders
 					if (props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION))
 					{
-						response.print("<img src = \"/library/image/" + ContentTypeImageService.getContentTypeImage("folder") + "\" border=\"0\" />");
+						response.print("<img src = \"/library/image/" + ContentTypeImageService.getContentTypeImage("folder")
+								+ "\" style=\"border-style: none;\" />");
 					}
 
 					// otherwise lookup the icon from the mime type
 					else
 					{
 						String type = props.getProperty(ResourceProperties.PROP_CONTENT_TYPE);
-						response.print("<img src = \"/library/image/" + ContentTypeImageService.getContentTypeImage(type) + "\" border=\"0\" alt=\""
-								+ type + "\"/>");
+						response.print("<img src = \"/library/image/" + ContentTypeImageService.getContentTypeImage(type)
+								+ "\" style=\"border-style: none;\" alt=\"" + type + "\"/>");
 					}
 
 					// form the URL safely

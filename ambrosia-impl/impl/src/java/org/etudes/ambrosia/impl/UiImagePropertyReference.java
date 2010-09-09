@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -84,7 +84,7 @@ public class UiImagePropertyReference extends UiPropertyReference implements Ima
 		String url = super.read(context, focus);
 
 		StringBuilder rv = new StringBuilder();
-		rv.append("<img src=\"" + url + "\" />");
+		rv.append("<img src=\"" + url + "\" style=\"border-style: none;\" />");
 		String caption = null;
 		if (this.caption != null)
 		{

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -36,8 +36,7 @@ import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Element;
 
 /**
- * UiFillIn presents a set of text inputs for the user to edit embedded in a surrounding string. The string is formatted with "{}" where the fill-ins
- * are expected.<br />
+ * UiFillIn presents a set of text inputs for the user to edit embedded in a surrounding string. The string is formatted with "{}" where the fill-ins are expected.<br />
  * The values are taken from / returned to an array property by reference.
  */
 public class UiFillIn extends UiComponent implements FillIn
@@ -73,8 +72,7 @@ public class UiFillIn extends UiComponent implements FillIn
 	protected Message onEmptyAlertMsg = null;
 
 	/**
-	 * The PropertyReference for encoding and decoding this selection - this is what will be updated with the end-user's text edit, and what value
-	 * seeds the display.
+	 * The PropertyReference for encoding and decoding this selection - this is what will be updated with the end-user's text edit, and what value seeds the display.
 	 */
 	protected PropertyReference propertyReference = null;
 
@@ -349,7 +347,7 @@ public class UiFillIn extends UiComponent implements FillIn
 					{
 						if (this.correctIcon != null)
 						{
-							response.print("<img src=\"" + context.getUrl(this.correctIcon) + "\" alt=\""
+							response.print("<img style=\"border-style: none;\" src=\"" + context.getUrl(this.correctIcon) + "\" alt=\""
 									+ ((this.correctMessage != null) ? this.correctMessage.getMessage(context, focus) : "") + "\" />");
 						}
 					}
@@ -358,7 +356,7 @@ public class UiFillIn extends UiComponent implements FillIn
 					{
 						if (this.incorrectIcon != null)
 						{
-							response.print("<img src=\"" + context.getUrl(this.incorrectIcon) + "\" alt=\""
+							response.print("<img style=\"border-style: none;\" src=\"" + context.getUrl(this.incorrectIcon) + "\" alt=\""
 									+ ((this.incorrectMessage != null) ? this.incorrectMessage.getMessage(context, focus) : "") + "\" />");
 						}
 					}
@@ -389,7 +387,7 @@ public class UiFillIn extends UiComponent implements FillIn
 				{
 					if ((corrects[fillInParts.length - 1] != null) && (corrects[fillInParts.length - 1].booleanValue()))
 					{
-						response.print("<img src=\"" + context.getUrl(this.correctIcon) + "\" alt=\""
+						response.print("<img style=\"border-style: none;\" src=\"" + context.getUrl(this.correctIcon) + "\" alt=\""
 								+ ((this.correctMessage != null) ? this.correctMessage.getMessage(context, focus) : "") + "\" />");
 					}
 
@@ -397,7 +395,7 @@ public class UiFillIn extends UiComponent implements FillIn
 					{
 						if (this.incorrectIcon != null)
 						{
-							response.print("<img src=\"" + context.getUrl(this.incorrectIcon) + "\" alt=\""
+							response.print("<img style=\"border-style: none;\" src=\"" + context.getUrl(this.incorrectIcon) + "\" alt=\""
 									+ ((this.incorrectMessage != null) ? this.incorrectMessage.getMessage(context, focus) : "") + "\" />");
 						}
 					}

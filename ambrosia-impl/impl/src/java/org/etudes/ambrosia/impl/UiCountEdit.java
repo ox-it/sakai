@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -73,8 +73,7 @@ public class UiCountEdit extends UiComponent implements CountEdit
 	protected Message onEmptyAlertMsg = null;
 
 	/**
-	 * The PropertyReference for encoding and decoding this selection - this is what will be updated with the end-user's text edit, and what value
-	 * seeds the display.
+	 * The PropertyReference for encoding and decoding this selection - this is what will be updated with the end-user's text edit, and what value seeds the display.
 	 */
 	protected PropertyReference propertyReference = null;
 
@@ -436,17 +435,46 @@ public class UiCountEdit extends UiComponent implements CountEdit
 
 		// TODO: make the icon link to a popup picker!
 
-		response.print("<span style=\"white-space: nowrap;\"><input type=\"text\" id=\"" + id + "\" name=\"" + id + "\" size=\""
-				+ Integer.toString(numCols) + "\" value=\"" + value + "\"" + (readOnly ? " disabled=\"disabled\"" : "")
-				+ " onchange=\"ambrosiaCountChange(this, " + valueOrNull(shadowId) + ", " + valueOrNull(summaryId) + ", " + valueOrNull(minValue)
-				+ ", " + valueOrNull(maxValue) + ", 'invalid_" + id + "');\"" + " onkeyup=\"ambrosiaCountChange(this, " + valueOrNull(shadowId)
-				+ ", " + valueOrNull(summaryId) + ", " + valueOrNull(minValue) + ", " + valueOrNull(maxValue) + ", 'invalid_" + id + "');\"" + " />"
-				+ ((this.icon != null) ? " <img src=\"" + context.getUrl(this.icon) + "\" alt=\"" + alt + "\" title=\"" + alt + "\" />" : ""));
+		response.print("<span style=\"white-space: nowrap;\"><input type=\"text\" id=\""
+				+ id
+				+ "\" name=\""
+				+ id
+				+ "\" size=\""
+				+ Integer.toString(numCols)
+				+ "\" value=\""
+				+ value
+				+ "\""
+				+ (readOnly ? " disabled=\"disabled\"" : "")
+				+ " onchange=\"ambrosiaCountChange(this, "
+				+ valueOrNull(shadowId)
+				+ ", "
+				+ valueOrNull(summaryId)
+				+ ", "
+				+ valueOrNull(minValue)
+				+ ", "
+				+ valueOrNull(maxValue)
+				+ ", 'invalid_"
+				+ id
+				+ "');\""
+				+ " onkeyup=\"ambrosiaCountChange(this, "
+				+ valueOrNull(shadowId)
+				+ ", "
+				+ valueOrNull(summaryId)
+				+ ", "
+				+ valueOrNull(minValue)
+				+ ", "
+				+ valueOrNull(maxValue)
+				+ ", 'invalid_"
+				+ id
+				+ "');\""
+				+ " />"
+				+ ((this.icon != null) ? " <img style=\"border-style: none;\" src=\"" + context.getUrl(this.icon) + "\" alt=\"" + alt + "\" title=\""
+						+ alt + "\" />" : ""));
 
 		// validate failure alert (will display:inline when made visible)
 		response.print("<div style=\"display:none\" id=\"invalid_" + id + "\">");
 		response.print("<a href=\"#\" onclick=\"popupInvalid_" + id + "();return false;\" title=\"" + failureMsg + "\">");
-		response.print("<img style=\"vertical-align:text-bottom;\" src=\"" + context.getUrl(this.invalidIcon) + "\" />");
+		response.print("<img style=\"vertical-align:text-bottom;border-style: none;\" src=\"" + context.getUrl(this.invalidIcon) + "\" />");
 		response.print("</a></div>");
 
 		response.println("</span>");

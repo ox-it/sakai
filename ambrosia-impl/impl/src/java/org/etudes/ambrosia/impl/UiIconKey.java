@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -270,7 +270,7 @@ public class UiIconKey extends UiComponent implements IconKey
 				// Note: since the description follows, don't put it on the icon as well.
 				if (icon != null)
 				{
-					response.print("<img src=\"" + context.getUrl(icon) + "\" title=\"\" alt=\"\" />");
+					response.print("<img src=\"" + context.getUrl(icon) + "\" style=\"border-style: none;\" title=\"\" alt=\"\" />");
 				}
 
 				response.print("</td><td>");
@@ -324,7 +324,7 @@ public class UiIconKey extends UiComponent implements IconKey
 				// Note: since the description follows, don't put it on the icon as well.
 				if (icon != null)
 				{
-					response.print("<img src=\"" + context.getUrl(icon) + "\" title=\"\" alt=\"\" />");
+					response.print("<img src=\"" + context.getUrl(icon) + "\" style=\"border-style: none;\" title=\"\" alt=\"\" />");
 				}
 
 				response.print("</td><td>");

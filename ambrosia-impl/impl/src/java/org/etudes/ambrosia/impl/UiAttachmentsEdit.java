@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008. 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -321,7 +321,7 @@ public class UiAttachmentsEdit extends UiComponent implements AttachmentsEdit
 					if (props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION))
 					{
 						response.print("<li><img src = \"/library/image/" + ContentTypeImageService.getContentTypeImage("folder")
-								+ "\" border=\"0\" />");
+								+ "\" style=\"border-style: none;\" />");
 					}
 
 					// otherwise lookup the icon from the mime type
@@ -329,7 +329,7 @@ public class UiAttachmentsEdit extends UiComponent implements AttachmentsEdit
 					{
 						String type = props.getProperty(ResourceProperties.PROP_CONTENT_TYPE);
 						response.print("<li><img src = \"/library/image/" + ContentTypeImageService.getContentTypeImage(type)
-								+ "\" border=\"0\" alt=\"" + type + "\"/>");
+								+ "\" style=\"border-style: none;\" alt=\"" + type + "\"/>");
 					}
 
 					// the link

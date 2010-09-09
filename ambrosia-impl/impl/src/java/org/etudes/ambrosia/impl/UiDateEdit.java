@@ -303,14 +303,14 @@ public class UiDateEdit extends UiComponent implements DateEdit
 			context.addScript("function popupPicker_" + id + "()\n{\n  ambrosiaPopupDate(\"" + id + "\");\n}\n");
 			if (readOnly)
 			{
-				response.print("<img id=\"" + id + "_picker\" style=\"display:inline;\" src=\"" + context.getUrl(this.icon) + "\" alt=\"" + alt
-						+ "\" title=\"" + alt + "\" />");
+				response.print("<img id=\"" + id + "_picker\" style=\"display:inline;border-style: none;\" src=\"" + context.getUrl(this.icon)
+						+ "\" alt=\"" + alt + "\" title=\"" + alt + "\" />");
 			}
 			else
 			{
 				response.print("<a href=\"#\" onclick=\"popupPicker_" + id + "();return false;\"><img id=\"" + id
-						+ "_picker\" style=\"display:inline;\" src=\"" + context.getUrl(this.icon) + "\" alt=\"" + alt + "\" title=\"" + alt
-						+ "\" /></a>");
+						+ "_picker\" style=\"display:inline;border-style: none;\" src=\"" + context.getUrl(this.icon) + "\" alt=\"" + alt
+						+ "\" title=\"" + alt + "\" /></a>");
 			}
 			context.editComponentRendered(id + "_picker");
 		}
@@ -318,7 +318,7 @@ public class UiDateEdit extends UiComponent implements DateEdit
 		// validate failure alert (will display:inline when made visible)
 		response.print("<div style=\"display:none\" id=\"invalid_" + id + "\">");
 		response.print("<a href=\"#\" onclick=\"popupInvalid_" + id + "();return false;\" title=\"" + failureMsg + "\">");
-		response.print("<img style=\"vertical-align:text-bottom;\" src=\"" + context.getUrl(this.invalidIcon) + "\" />");
+		response.print("<img style=\"vertical-align:text-bottom;border-style: none;\" src=\"" + context.getUrl(this.invalidIcon) + "\" />");
 		response.print("</a></div>");
 
 		response.println("</span>");

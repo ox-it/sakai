@@ -681,8 +681,9 @@ public class UiSection extends UiContainer implements Section
 			// icon, if collapsed
 			if (this.collapsed)
 			{
-				response.print("<img style=\"vertical-align:text-bottom; padding-right:0.3em;\" src=\"" + context.getUrl(this.icon1) + "\" "
-				// "title=\"" + description + "\" " + "alt=\"" + description
+				response.print("<img style=\"vertical-align:text-bottom; padding-right:0.3em;border-style: none; \" src=\""
+						+ context.getUrl(this.icon1) + "\" "
+						// "title=\"" + description + "\" " + "alt=\"" + description
 						+ "/>");
 			}
 
@@ -717,8 +718,9 @@ public class UiSection extends UiContainer implements Section
 				response.print("<a href=\"#\" onclick=\"act_" + id + "();return false;\">");
 
 				// icon
-				response.print("<img style=\"vertical-align:text-bottom; padding-right:0.3em;\" src=\"" + context.getUrl(this.icon2) + "\" "
-				// "title=\"" + description + "\" " + "alt=\"" + description
+				response.print("<img style=\"vertical-align:text-bottom; padding-right:0.3em; border-style: none;\" src=\""
+						+ context.getUrl(this.icon2) + "\" "
+						// "title=\"" + description + "\" " + "alt=\"" + description
 						+ "/>");
 
 				response.print(this.title.getMessage(context, focus));

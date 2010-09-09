@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -348,13 +348,15 @@ public class UiSelectionColumn extends UiEntityListColumn implements SelectionCo
 
 				if (correct)
 				{
-					rv.append("<img src=\"" + context.getUrl(this.correctIcon) + "\" alt=\"" + this.correctMessage.getMessage(context, entity)
-							+ "\" title=\"" + this.correctMessage.getMessage(context, entity) + "\"/>");
+					rv.append("<img src=\"" + context.getUrl(this.correctIcon) + "\" style=\"border-style: none;\" alt=\""
+							+ this.correctMessage.getMessage(context, entity) + "\" title=\"" + this.correctMessage.getMessage(context, entity)
+							+ "\"/>");
 				}
 				else
 				{
-					rv.append("<img src=\"" + context.getUrl(this.incorrectIcon) + "\" alt=\"" + this.incorrectMessage.getMessage(context, entity)
-							+ "\" title=\"" + this.incorrectMessage.getMessage(context, entity) + "\"/>");
+					rv.append("<img src=\"" + context.getUrl(this.incorrectIcon) + "\" style=\"border-style: none;\" alt=\""
+							+ this.incorrectMessage.getMessage(context, entity) + "\" title=\"" + this.incorrectMessage.getMessage(context, entity)
+							+ "\"/>");
 				}
 			}
 

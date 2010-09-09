@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -132,7 +132,7 @@ public class UiWarning extends UiComponent implements Warning
 
 		// warning indicator
 		response.print("<a href=\"#\" onclick=\"popupWarning_" + id + "();return false;\" title=\"" + msg + "\">");
-		response.print("<img style=\"vertical-align:text-bottom;\" src=\"" + context.getUrl(this.warningIcon) + "\" />");
+		response.print("<img style=\"vertical-align:text-bottom; border-style: none;\" src=\"" + context.getUrl(this.warningIcon) + "\" />");
 		response.println("</a>");
 
 		return true;

@@ -280,7 +280,7 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 				response.print("<a style=\"text-decoration:none;\" id=\"toggle_" + id
 						+ "\" href=\"#\" onclick=\"ambrosiaEnableHtmlEdit(htmlComponent_" + id + ");return false;\" title=\""
 						+ this.editAlt.getMessage(context, focus) + "\">");
-				response.print("<img style=\"vertical-align:text-bottom;\" src=\"" + context.getUrl(this.editIcon) + "\" />");
+				response.print("<img style=\"vertical-align:text-bottom; border-style: none;\" src=\"" + context.getUrl(this.editIcon) + "\" />");
 				response.println("</a>");
 			}
 			response.println("</div>");

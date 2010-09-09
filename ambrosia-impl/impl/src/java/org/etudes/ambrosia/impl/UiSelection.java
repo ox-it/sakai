@@ -688,13 +688,13 @@ public class UiSelection extends UiComponent implements Selection
 
 					if (correct)
 					{
-						response.print("<img src=\"" + context.getUrl(this.correctIcon) + "\" alt=\""
+						response.print("<img src=\"" + context.getUrl(this.correctIcon) + "\" style=\"border-style: none;\" alt=\""
 								+ this.correctMessage.getMessage(context, focus) + "\" title=\"" + this.correctMessage.getMessage(context, focus)
 								+ "\"/>");
 					}
 					else
 					{
-						response.print("<img src=\"" + context.getUrl(this.incorrectIcon) + "\" alt=\""
+						response.print("<img src=\"" + context.getUrl(this.incorrectIcon) + "\" style=\"border-style: none;\" alt=\""
 								+ this.incorrectMessage.getMessage(context, focus) + "\" title=\"" + this.incorrectMessage.getMessage(context, focus)
 								+ "\"/>");
 					}
@@ -818,13 +818,13 @@ public class UiSelection extends UiComponent implements Selection
 
 						if (correct)
 						{
-							response.print("<img src=\"" + context.getUrl(this.correctIcon) + "\" alt=\""
+							response.print("<img src=\"" + context.getUrl(this.correctIcon) + "\" style=\"border-style: none;\" alt=\""
 									+ this.correctMessage.getMessage(context, focus) + "\" title=\"" + this.correctMessage.getMessage(context, focus)
 									+ "\"/>");
 						}
 						else
 						{
-							response.print("<img src=\"" + context.getUrl(this.incorrectIcon) + "\" alt=\""
+							response.print("<img src=\"" + context.getUrl(this.incorrectIcon) + "\" style=\"border-style: none;\" alt=\""
 									+ this.incorrectMessage.getMessage(context, focus) + "\" title=\""
 									+ this.incorrectMessage.getMessage(context, focus) + "\"/>");
 						}
