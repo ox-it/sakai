@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -59,7 +59,7 @@ public class SubmissionStatusDelegate extends FormatDelegateImpl
 		StringBuilder rv = new StringBuilder();
 		if (submission.getGradingStatus().equals(GradingSubmissionStatus.released))
 		{
-			rv.append("<img src=\"" + context.get("sakai.return.url") + "/icons/correct.png\" alt=\""
+			rv.append("<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/correct.png\" alt=\""
 					+ context.getMessages().getString("grade-status-released") + "\" />");
 			rv.append(" ");
 		}

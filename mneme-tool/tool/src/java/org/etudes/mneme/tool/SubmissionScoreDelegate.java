@@ -110,8 +110,8 @@ public class SubmissionScoreDelegate extends FormatDelegateImpl
 		if ((review != null) && review && (submission != null) && submission.getIsReleased())
 		{
 			// the total score
-			rv.append("<img src=\"" + context.get("sakai.return.url") + "/icons/grade.png\" alt=\"" + context.getMessages().getString("grade")
-					+ "\" />");
+			rv.append("<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/grade.png\" alt=\""
+					+ context.getMessages().getString("grade") + "\" />");
 			Float score = submission.getTotalScore();
 			rv.append(context.getMessages().getString("grade") + ":&nbsp;" + formatScore(score) + "&nbsp;&nbsp;&nbsp;");
 

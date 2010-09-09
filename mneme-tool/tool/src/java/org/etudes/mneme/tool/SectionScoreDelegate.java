@@ -125,8 +125,8 @@ public class SectionScoreDelegate extends FormatDelegateImpl
 				}
 			}
 
-			rv.append("<img src=\"" + context.get("sakai.return.url") + "/icons/grade.png\" alt=\"" + context.getMessages().getString("score")
-					+ "\" />");
+			rv.append("<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/grade.png\" alt=\""
+					+ context.getMessages().getString("score") + "\" />");
 			rv.append(context.getMessages().getString("score") + ":&nbsp;" + formatScore(score) + "&nbsp;&nbsp;&nbsp;");
 
 			selector = "of-points";

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -84,7 +84,7 @@ public class FormatQuestionDecorationDelegate extends FormatDelegateImpl
 		// if not found, or not answered, use the unanswered icon
 		if (!answered)
 		{
-			return "<img src=\"" + context.get("sakai.return.url") + "/icons/unanswered.png\" title=\""
+			return "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/unanswered.png\" title=\""
 					+ context.getMessages().getString("format-question-decoration-unanswered") + "\" alt=\""
 					+ context.getMessages().getString("format-question-decoration-unanswered") + "\"/>";
 		}
@@ -92,7 +92,7 @@ public class FormatQuestionDecorationDelegate extends FormatDelegateImpl
 		// if mark for review, use that icon
 		else if (markForReview)
 		{
-			return "<img src=\"" + context.get("sakai.return.url") + "/icons/markedforreview.png\" title=\""
+			return "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/markedforreview.png\" title=\""
 					+ context.getMessages().getString("format-question-decoration-mark-for-review") + "\" alt=\""
 					+ context.getMessages().getString("format-question-decoration-mark-for-review") + "\"/>";
 		}
@@ -100,7 +100,7 @@ public class FormatQuestionDecorationDelegate extends FormatDelegateImpl
 		// if rationale is needed and not present, use the no-rationale icon
 		else if (missingReason)
 		{
-			return "<img src=\"" + context.get("sakai.return.url") + "/icons/reason.png\" title=\""
+			return "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/reason.png\" title=\""
 					+ context.getMessages().getString("format-question-decoration-rationale") + "\" alt=\""
 					+ context.getMessages().getString("format-question-decoration-rationale") + "\"/>";
 		}

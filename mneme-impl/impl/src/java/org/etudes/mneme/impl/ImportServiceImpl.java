@@ -1436,15 +1436,16 @@ public class ImportServiceImpl implements ImportService
 				// for folders
 				if (props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION))
 				{
-					rv.append("<li><img src=\"/library/image/" + ContentTypeImageService.getContentTypeImage("folder") + "\" border=\"0\" />&nbsp;");
+					rv.append("<li><img src=\"/library/image/" + ContentTypeImageService.getContentTypeImage("folder")
+							+ "\" style=\"border-style: none;\" />&nbsp;");
 				}
 
 				// otherwise lookup the icon from the mime type
 				else
 				{
 					String type = props.getProperty(ResourceProperties.PROP_CONTENT_TYPE);
-					rv.append("<li><img src=\"/library/image/" + ContentTypeImageService.getContentTypeImage(type) + "\" border=\"0\" alt=\"" + type
-							+ "\"/>&nbsp;");
+					rv.append("<li><img src=\"/library/image/" + ContentTypeImageService.getContentTypeImage(type)
+							+ "\" style=\"border-style: none;\" alt=\"" + type + "\"/>&nbsp;");
 				}
 
 				// the link

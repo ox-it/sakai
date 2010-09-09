@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -114,12 +114,12 @@ public class FormatFillinPositionCorrectDelegate extends FormatDelegateImpl
 		{
 			if (correct)
 			{
-				return "<img src=\"" + context.get("sakai.return.url") + "/icons/correct.png\" alt=\"" + context.getMessages().getString("correct")
-						+ "\" title=\"" + context.getMessages().getString("correct") + "\"/>";
+				return "<img src=\"" + context.get("sakai.return.url") + "/icons/correct.png\" style=\"border-style: none;\" alt=\""
+						+ context.getMessages().getString("correct") + "\" title=\"" + context.getMessages().getString("correct") + "\"/>";
 			}
 			else
 			{
-				return "<img src=\"" + context.get("sakai.return.url") + "/icons/incorrect.png\" alt=\""
+				return "<img src=\"" + context.get("sakai.return.url") + "/icons/incorrect.png\" style=\"border-style: none;\" alt=\""
 						+ context.getMessages().getString("incorrect") + "\" title=\"" + context.getMessages().getString("incorrect") + "\"/>";
 			}
 		}
