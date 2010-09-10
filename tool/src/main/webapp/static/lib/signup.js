@@ -167,7 +167,71 @@ var Signup = function(){
                 else {
                     return Text.toHtml(notes);
                 }
-            }
+            },
+			
+			/**
+			 * Produces a summary based on the components in the signup.
+			 * @param {Object} components
+			 */
+			"summary": function(components){
+				var summary = {state: "unknown", message: null};
+				if (components.length == 0) {
+					summary.message = "No";
+					return summary; 
+				}
+				var now = $.serverDate();
+				var nextOpen = Number.MAX_VALUE;
+				var willClose = 0;
+				var isOneOpen = false;
+				var isOneBookable = false;
+				var areSomePlaces = false;
+				$.each(components, function() {
+					var component = this;
+					var isOpen = component.opens < now && component.closes > now;
+					if (component.opens > now && component.opens < nextOpen) {
+						nextOpen = component.opens;
+					}
+					if (component.opens < now && component.closes > willClose) {
+						willClose = component.closes;
+					}
+					if (isOpen) {
+						isOneOpen = true;
+						if (component.places > 0) {
+							areSomePlaces = true;
+						}
+					}
+					if (!isOneBookable) {
+						isOneBookable = component.bookable;
+					}
+				});
+				var message = "";
+				if (!isOneBookable) {
+					summary.state = "No";
+					return summary;
+				}
+				if (isOneOpen) {
+					if (areSomePlaces) {
+						var remaining = willClose - now;
+						summary.message = "close in " + Signup.util.formatDuration(remaining);
+						summary.state = "Yes";
+					}
+					else {
+						summary.message = "full";
+						summary.state = "No (Full)";
+					}
+				}
+				else {
+					if (nextOpen === Number.MAX_VALUE) {
+						summary.state = "No";
+					}
+					else {
+						var until = nextOpen - now;
+						summary.message = "open in " + Signup.util.formatDuration(until);
+						summary.state = "Later";
+					}
+				}
+				return summary;
+			}
         },
         "user": {
             "render": function(user){

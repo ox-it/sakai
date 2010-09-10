@@ -81,52 +81,7 @@
 				 * Returns a summary about signup for this group.
 				 * @param The components to produce a summary for.
 				 */
-				var signupSummary = function(components) {
-					var now = $.serverDate();
-					var nextOpen = Number.MAX_VALUE;
-					var willClose = 0;
-					var isOneOpen = false;
-					var isOneBookable = false;
-					var areSomePlaces = false;
-					for(var i in components) {
-						var component = components[i];
-						var isOpen = component.opens < now && component.closes > now;
-						if (component.opens > now && component.opens < nextOpen) {
-							nextOpen = component.opens;
-						}
-						if (component.opens < now && component.closes > willClose) {
-							willClose = component.closes;
-						}
-						if (isOpen) {
-							isOneOpen = true;
-							if (component.places > 0) {
-								areSomePlaces = true;
-							}
-						}
-						if (!isOneBookable) {
-							isOneBookable = component.bookable;
-						}
-					}
-					var message = "";
-					if (!isOneBookable) {
-						return null;
-					}
-					if (isOneOpen) {
-						if (areSomePlaces) {
-							var remaining = willClose - now;
-							message = "close in "+ Signup.util.formatDuration(remaining);
-						} else {
-							message = "full";
-						}
-					} else {
-						if (nextOpen === Number.MAX_VALUE) {
-							return null;
-						}
-						var until = nextOpen - now;
-						message = "open in "+ Signup.util.formatDuration(until);
-					}
-					return message;
-				};
+				var signupSummary = Signup.signup.summary;
         				
 				// Load the static data.
 				jQuery.getJSON(signupSiteId+"/departments.json", function(treedata) {
@@ -227,7 +182,7 @@
 								}
 							}
 							
-							data.signup = signupSummary(data.components);
+							data.signup = signupSummary(data.components)["message"];
 							
 							data.parts = parts;
 							var output = TrimPath.processDOMTemplate("details-tpl", data, {throwExceptions: true});
