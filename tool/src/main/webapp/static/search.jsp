@@ -11,7 +11,7 @@
 
 	<link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css" />
 	<link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css"/>
-	<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.2.custom/css/smoothness/jquery-ui-1.8.2.custom.css"/>
+	<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.4.custom/css/smoothness/jquery-ui-1.8.4.custom.css"/>
 	<link rel="stylesheet" type="text/css" href="lib/tool.css" />
 	<link href="../rest/course/all" type="application/json" rel="exhibit/data" ex:converter="courseConverter" />
 	<style type="text/css">
@@ -28,6 +28,7 @@
 	<script type="text/javascript" src="lib/jstree-1.0rc/_lib/jquery.cookie.js"></script>
 	<script type="text/javascript" src="lib/jstree-1.0rc/jquery.jstree.js"></script>
 	<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
+	<script type="text/javascript" src="lib/jquery-ui-1.8.4.custom/js/jquery-ui-1.8.4.custom.min.js"></script>
 	<script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js"></script>
 	<script type="text/javascript" src="lib/dataTables-1.7/js/jquery.dataTables.js"></script>
 	<script type="text/javascript" src="lib/dataTables-1.6/js/jquery.dataTables.reloadAjax.js"></script>
@@ -73,10 +74,19 @@
 				var form = this;
 				var id = $("input[name=id]", form).val();
 				// Need to signup from here.
-				alert(id);
+				var courseDetails = $("<div>My Content</div>").dialog({
+					autoOpen: false,
+					modal: true,
+					close: function(event, ui) { $(this).remove();} // Tidy up the DOM.
+				});
+				courseDetails.dialog("open");
 				return false;
 			});
 		});
+		
+		$(function(){                
+  				Signup.util.autoresize();
+        });
 	</script>
 
     <style>
@@ -115,22 +125,31 @@
 			
 		</div>
  	</div>
-	
-    <h1>Modules</h1>
+	<div id="toolbar" >
+      	<ul class="navIntraTool actionToolBar">
+  		    <li><span><a href="index.jsp">Module Signup</a></span></li>
+			<li><span>Module Search</span></li>
+            <li><span><a href="my.jsp">My Modules</a></span></li>
+            <li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
+            <li><span><a href="admin.jsp">Module Administration</a></span></li>
+            <li><span><a href="debug.jsp">Debug</a></span></li>
+		</ul>
+    </div>
     <table width="99%">
-        <tr valign="top">
-            <td ex:role="viewPanel">
-                <div ex:role="view" ex:showAll="false" ex:grouped="false">
-                </div>
+        <tr valign="top">	
+        	<td ex:role="viewPanel">
+                <div ex:role="view" ex:showAll="false" ex:grouped="false"></div>
             </td>
             <td width="25%">
-            	 <div ex:role="facet" ex:facetClass="TextSearch" ex:expressions=".label, .description"></div>
+            	
+        		 <div ex:role="facet" ex:facetClass="TextSearch" ex:facetLabel="Search" ex:expression=".label,.description"></div>
                  <div ex:role="facet" ex:expression=".department" ex:facetLabel="Department"></div>
-				 <div ex:role="facet" ex:expression=".bookable" ex:facetLabel="Bookable"></div>
+				 <div ex:role="facet" ex:expression=".bookable" ex:facetLabel="Bookable" ex:height="6em"></div>
 				 <div ex:role="facet" ex:expression=".administrator" ex:facetLabel="Administrator"></div>
 
             </td>
         </tr>
     </table>
+	
  </body>
  </html>
