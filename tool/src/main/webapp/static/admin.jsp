@@ -203,17 +203,14 @@
 										var components = [];
 										var originalGoodUserSize = goodUsers.length;
 										
-										$(":submit", form).attr("disabled", "true");
 										progressElement.progressbar({value: 0});
-
-										
 										$("[type=checkbox]", this).each(function(){
 											if (this.checked) {
 												components.push(this.id.substring(7)); // Remove 'option-' prefix
 											}
 										});
 										if (components.length == 0) {
-											$(".errors", form).html("You need to select some modules.")
+											$(".errors", form).html("You need to select some modules.");
 											return false;
 										}
 										var postSignup = function() {
@@ -243,6 +240,8 @@
 												});
 											}
 										};
+										// Disable the signup button.
+										$(":submit", form).attr("disabled", "true");
 										doSignup();
 										return false;
 									});
