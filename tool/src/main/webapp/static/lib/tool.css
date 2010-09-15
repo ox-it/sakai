@@ -113,6 +113,11 @@ li.open a {
 	margin-top: 0px; /* Overright tool_base.css */
 }
 
+/* A fix for IE/Firefox so that we get the correct text color */
+.jstree a:link {
+	color: black;
+}
+
 /* This is a floating message display */
 #messages {
 	position: absolute;
