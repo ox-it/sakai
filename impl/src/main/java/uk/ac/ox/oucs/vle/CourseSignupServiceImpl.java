@@ -161,7 +161,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public List<CourseSignup> getComponentSignups(String componentId) {
 		CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
 		if (componentDao == null) {
-			return null;
+			throw new NotFoundException(componentId);
 		}
 		String currentUserId = proxy.getCurrentUser().getId();
 		if (!isAdministrator(componentDao, currentUserId, false)) {
