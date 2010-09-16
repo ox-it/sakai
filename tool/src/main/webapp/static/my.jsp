@@ -27,26 +27,11 @@
 
 <script type="text/javascript">
 	$(function() {
-
-		var getActions = function(status, id) {
-			switch (status) {
-				case "PENDING": 
-					return [
-						{
-							"name": "Withdraw",
-							"url": "../rest/signup/"+id+"/withdraw"
-							}
-					];
-			}
-			return [];
-		};
 		$("#signups").html('<table border="0" class="display" id="signups-table"></table>');
 		var signups = $("#signups-table").signupTable("../rest/signup/my", false);
 		Signup.util.autoresize();
-
 	});
-		
-		</script>
+	</script>
 
 </head>
 <body>
@@ -63,7 +48,5 @@
 <div id="signups"><!-- Browse the areas which there are courses -->
 </div>
 
-<!-- Hidden extra bits -->
-<div id="parts-confirm" class="jqmWindow" style="display: none"></div>
 </body>
 </html>
