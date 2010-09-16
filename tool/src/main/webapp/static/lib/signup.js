@@ -547,6 +547,16 @@ var Signup = function(){
                     return Text.toHtml(notes);
                 }
             },
+			/**
+			 * This formats the available places.
+			 * If the user isn't an admin and there aren't any place left it displays full
+			 * rather than the number of places oversubscribed we are.
+			 * @param {Object} places
+			 * @param {Object} isAdmin
+			 */
+			formatPlaces: function(places, isAdmin) {
+				return '(' + ((!isAdmin && places < 1)?"full":places+ '&nbsp;places')+')';
+			},
 			
 			/**
 			 * Produces a summary based on the components in the signup.
@@ -707,7 +717,7 @@ var Signup = function(){
                         var data = [];
                         $.each(result, function(){
                             var course = ['<span class="course-group">' + this.group.title + "</span>"].concat($.map(this.components.concat(), function(component){
-                                return '<span class="course-component">' + component.title + " " + component.slot + " in " + component.when + ' (' + component.places + '&nbsp;places)</span>';
+                                return '<span class="course-component">' + component.title + " " + component.slot + " in " + component.when + ' '+ Signup.signup.formatPlaces(component.places, isAdmin)+'</span>';
                             })).join("<br>");
                             var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, isAdmin));
                             data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user), course, Signup.user.render(this.supervisor), Signup.signup.formatNotes(this.notes), this.status, actions]);
