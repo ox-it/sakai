@@ -1,5 +1,368 @@
 var Signup = function(){
     return {
+		/**
+		 * For dealing with courses.
+		 */
+		"course": {
+			/**
+			 * This shows details of the course.
+			 * @param {Object} dest A jQuery object of the element to put the content in.
+			 * @param {Object} id The ID of the course to load.
+			 * @param {Object} old If we should be showing upcoming or old data.
+			 */
+			show: function(dest, id, old, success){
+				var courseData;
+				var signupData;
+				var template;
+				
+				/**
+				 * Compare two users to see if they are equal.
+				 * @param {Object} user1
+				 * @param {Object} user2
+				 */
+				var compareUser = function(user1, user2) {
+					return (user1.id == user2.id && user1.name == user2.name && user1.email == user2.email);
+				};
+				
+				/**
+				 * Check is an object exists as a value in an array.
+				 * @param {Object} array The array to look in.
+				 * @param {Object} object To object to look for.
+				 * @param {Object} compare A function to compare objects which returns true when they are the same.
+				 */
+				var inArray = function(array, object, compare) {
+					for (var i in array) {
+						if (compare(object, array[i])) {
+							return true;
+						}
+					}
+					return false;
+				};
+				
+				/**
+				 * This is the entry point which gets called to fire off the AJAX requests.
+				 * @param {Object} id
+				 * @param {Object} old
+				 */
+				var loadCourse = function(){
+					// Reset the data in-case someone clicked two items before we're loaded.
+					courseData = undefined;
+					signupData = undefined;
+					$.ajax({
+						url: "../rest/course/" + id,
+						data: {
+							range: (old) ? "PREVIOUS" : "UPCOMING"
+						},
+						dataType: "json",
+						cache: false,
+						success: function(data){
+							courseData = data;
+							showCourse();
+						}
+					});
+					$.ajax({
+						url: "../rest/signup/my/course/" + id,
+						dataType: "json",
+						cache: false,
+						success: function(data){
+							signupData = data;
+							showCourse();
+						}
+					});
+					if (!template) { // When reloading we might already have the template loaded.
+						$.ajax({
+							url: "course.tpl",
+							dataType: "text",
+							cache: false,
+							success: function(data){
+								template = TrimPath.parseTemplate(data);
+								showCourse();
+							}
+						});
+					}
+				};
+				
+				/**
+				 * Shows the details of a course.
+		 		 * It loads both the details of the course and the users signups.
+		 		 */
+				var showCourse = function(){
+					// Check we have all our data.
+					if (!courseData || !signupData || !template) {
+						return;
+					}
+					
+					var data = courseData; // From refactoring...
+					var now = $.serverDate();
+					var id = data.id;
+					data.full = true;
+					data.open = false;
+					data.presenters = [];
+					data.administrators = [];
+					data.description = Text.toHtml(data.description);
+					var parts = [];
+					for (var componentIdx in data.components) {
+						var component = data.components[componentIdx];
+						
+						// Sort components into sets.
+						if (component.presenter && !inArray(data.presenters, component.presenter, compareUser)) {
+							data.presenters.push(component.presenter);
+						}
+						// Check it we're signed up to this one
+						$.each(signupData, function(){
+							// For all the components check...
+							var signup = this; // So we can get at it.
+							$.each(this.components, function(){
+								if (component.id == this.id) {
+									component.signup = signup;
+								}
+							});
+						});
+						
+						if (component.componentSet) {
+							var found = false;
+							$.each(parts, function() {
+								var part = this;
+								if (parts[part].type.id == component.componentSet) {
+									parts[part].signup = (component.signup) ? component.signup : null;
+									parts[part].options.push(component);
+									found = true;
+								}
+							});
+							if (!found) {
+								parts.push({
+									"options": [component],
+									"signup": (component.signup) ? component.signup : null,
+									"type": {
+										"id": component.componentSet,
+										"name": component.title
+									}
+								});
+							}
+						}
+						
+						// Work out if it's open.
+						component.open = (now > component.opens && now < component.closes);
+						if (!data.open && component.open) {
+							data.open = true;
+						}
+						// Is there space.
+						component.full = (component.places < 1);
+						if (data.full && !component.full) {
+							data.full = false; // At least one is open 
+						}
+					}
+					
+					data.signup = Signup.signup.summary(data.components)["message"];
+					
+					data.parts = parts;
+					var output = template.process(data, {throwExceptions: true});
+					dest.html(output);
+					// If there is only one checkbox tick it.
+					var radioButtons = $("input:radio:enabled", dest);
+					if (radioButtons.length == 1) {
+						radioButtons.first().attr("checked", true);
+					}
+					else 
+						if (radioButtons.length == 0) {
+							$(":submit", dest).attr("disabled", "true");
+						}
+					$("form", dest).submit(function(){
+						try {
+							var radioSelected = {};
+							var errorFound = false;
+							var selectedParts = [];
+							var selectedPartIds = [];
+							jQuery("input:radio", dest).each(function(){
+								var name = this.name;
+								if (!radioSelected[name]) {
+									radioSelected[name] = this.checked;
+									// Save the selected parts so we can populate the popup.
+									if (this.checked && this.value != "none") {
+										selectedParts[selectedParts.length] = jQuery(this).parents("tr:first").find(".option-details").html();
+										selectedPartIds.push(this.value);
+									}
+								}
+							});
+							for (radio in radioSelected) {
+								if (!radioSelected[radio]) {
+									errorFound = true;
+									jQuery("#parts .error", dest).show().html("You need to select which components you wish to take.");
+								}
+							}
+							// TODO This needs processing.
+							if (!errorFound) {
+								jQuery(".error", dest).hide();
+								var signup = Signup.course.signup({title: data.title, id: id}, {titles: selectedParts, ids: selectedPartIds});
+								signup.bind("ses.signup", function(){
+									loadCourse(); // Reload the course.
+									// Display a nice message. Should we keep the exising success()?
+									success = function(){
+										$(".messages", dest).append('<div class="message"><span class="good">Signup Successful</span></div>');
+										$(".messages .message:last", dest).slideDown(300).delay(2600).slideUp(300, function(){
+											$(this).remove();
+										});
+									};
+								});
+							}
+							return false;
+						} 
+						catch (e) {
+							return false;
+						}
+					});
+					success && success();
+				};
+			
+			loadCourse();	
+			},
+			/**
+			 * Handle the displaying of a confirmation page for a signup.
+			 */
+			signup: function(course, components){
+				// Return this and then trigger all events against it.
+				var signupDialog = $("<div></div>");
+								/**
+				 * This handles the dialogue box for confirming a signup.
+				 * @param {Object} dialog
+				 */
+				var confirmSetup = function(dialog){
+					var signupConfirm = $("form", dialog);
+					var noteOriginal = $("textarea[name=message]", dialog).first().val();
+					var supervisor = $.cookie('coursesignup.supervisor');
+					if (supervisor) {
+						$("input[name=email]", dialog).val(supervisor);
+					}
+					
+					signupConfirm.find(".cancel").click(function(event){
+						dialog.dialog("close");
+						event.stopPropagation();
+						return false;
+					});
+					
+					// Prevent double validation as we listen to two events on the same element.
+					var isValidated = function(element){
+						var value = element.val();
+						if (value == element.data("validated")) {
+							return true;
+						}
+						element.data("validated", value);
+						return false;
+					}
+					
+					// Change doesn't always fire, but now we have two event which both fire.
+					$(".valid-email", signupConfirm).bind("change", function(e){
+						var current = $(this);
+						if (isValidated(current)) {
+							return true;
+						}
+						var value = current.val();
+						current.nextUntil(":not(.error)").remove(); // Remove any existing errors.
+						if (value.length == 0) {
+							current.after('<span class="error">* required</span>');
+						}
+						else {
+							if (!/^([a-zA-Z0-9_.-])+@([a-zA-Z0-9_.-])+\.([a-zA-Z])+([a-zA-Z])+/.test(value)) {
+								current.after('<span class="error">* not a valid email</span>');
+							}
+							else {
+								// This has a potential problem in that it might not complete before user clicks submit.
+								if (!current.data("req")) {
+									current.data("req", $.ajax({ // Need to use error handler.
+										url: "../rest/user/find",
+										data: {
+											search: value
+										},
+										success: function(){
+											$.cookie('coursesignup.supervisor', value);
+										},
+										error: function(){
+											current.after('<span class="error">* no user exists in WebLearn with this email</span>');
+										},
+										complete: function(){
+											delete current.data()["req"];
+										}
+									}));
+								}
+							}
+						}
+					});
+					
+					$("textarea[name=message]", signupConfirm).bind("change", function(e){
+						var current = $(this);
+						if (isValidated(current)) {
+							return true;
+						}
+						current.nextUntil(":not(.error)").remove(); // Remove any existing errors.
+						if (noteOriginal == current.val()) {
+							current.after('<span class="error">* please enter some reasons for your choice</span>');
+						}
+					});
+					
+					signupConfirm.submit(function(event){
+						var form = jQuery(this);
+						$(":text, textarea", form).trigger("change"); // Fire all the validation.
+						// The AJAX validator probably won't have returned but it doesn't matter too much as the request will just fail.
+						// TODO When we have better error handling we need to fix this.
+						if ($(".error", form).length > 0) {
+							return false;
+						}
+						
+						var submit = form.find("input:submit:first").attr("disabled", "true").before('<img class="loader" src="images/loader.gif"/>');
+						var courseId = jQuery("input[name=courseId]", this).first().val();
+						$.ajax({
+							type: "POST",
+							url: "../rest/signup/my/new",
+							data: form.serialize(),
+							success: function(){
+								signupDialog.trigger("ses.signup");
+								dialog.dialog("close"); // Will remove it as well.
+							},
+							complete: function(){
+								submit.removeAttr("disabled").prev("img").remove();
+							}
+						});
+						return false;
+					});
+				};
+				// Load the template and then display the dialog.
+				$.ajax({
+					url: "signup.tpl",
+					dataType: "text",
+					success: function(data){
+						var position = Signup.util.dialogPosition();
+						signupDialog.dialog({
+							autoOpen: false,
+							modal: true,
+							stack: true,
+							position: position,
+							width: 600, // Would be nice to get inner content width.
+							close: function(event, ui){
+								signupDialog.remove(); // Tidy up the DOM.
+							}
+						});
+						var templateData = {
+							"components": components.titles,
+							"componentIds": components.ids,
+							"course": course.title,
+							"courseId": course.id
+						};
+						var template = TrimPath.parseTemplate(data, {
+							throwExceptions: true
+						});
+						var output = template.process(templateData);
+						signupDialog.html(output);
+						confirmSetup(signupDialog);
+						signupDialog.dialog("open");
+						
+					}
+					
+				});
+				
+
+				return signupDialog;
+			}
+		},
         "util": {
             /**
              * Formats a durations to display to the user.
@@ -91,7 +454,23 @@ var Signup = function(){
                         parent.postIframeResize(id);
                     }
                 }
-            }
+            },
+			/**
+			 * Creates a position object for a dialog.
+			 * The dialog is placed 5% down from the top of the page.
+			 * It also works within an iFrame (for Sakai).
+			 */
+			dialogPosition: function(){
+				var workingWindow = $(parent.window || window);
+				var position = ["center", workingWindow.scrollTop() + Math.round(workingWindow.height() * 0.05)];
+				if (window.name) { // If we're not running in a window created by Sakai.
+					var iframeOffset = $("#" + window.name, workingWindow.get(0).document).offset();
+					if (iframeOffset) { // If we are take account of the iframe location.
+						position[1] -= iframeOffset.top;
+					}
+				}
+				return position;	
+			}
         },
         "signup": {
 			/**

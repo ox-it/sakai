@@ -42,6 +42,10 @@
   
     <script src="lib/exhibit/exhibit-api.js?bundle=false" type="text/javascript"></script>
 	<script type="text/javascript">
+		/**
+		 * Used by the exhibit code to convert the JSON into 
+		 * @param {Object} courses
+		 */
 		function courseConverter(courses) {
 			var data = {
 				types: {
@@ -71,21 +75,38 @@
 		$(function() {
 			// Make the more details button work.
 			$("form.details").live("submit", function() {
-				var form = this;
-				var id = $("input[name=id]", form).val();
-				// Need to signup from here.
-				var courseDetails = $("<div>My Content</div>").dialog({
-					autoOpen: false,
-					modal: true,
-					close: function(event, ui) { $(this).remove();} // Tidy up the DOM.
-				});
-				courseDetails.dialog("open");
+				try {
+					var form = this;
+					var id = $("input[name=id]", form).val();
+					var workingWindow = parent.window || window;
+					var position = Signup.util.dialogPosition();
+					var height = Math.round($(workingWindow).height() * 0.9);
+					var width = Math.round($(window).width() * 0.9);
+										
+					var courseDetails = $("<div></div>").dialog({
+						autoOpen: false,
+						stack: true,
+						position: position,
+						width: width,
+						height: height,
+						modal: true,
+						close: function(event, ui){
+							courseDetails.remove(); // Tidy up the DOM.
+						}
+					});
+					Signup.course.show(courseDetails, id, false, function(){
+						courseDetails.dialog("open");
+					});
+				} catch (e) {
+					console.log(e);
+				}
 				return false;
 			});
 		});
 		
-		$(function(){                
-  				Signup.util.autoresize();
+		// Adjust with the content.
+		$(function(){
+  			Signup.util.autoresize();
         });
 	</script>
 
