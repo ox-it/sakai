@@ -171,7 +171,7 @@
 								};
 							});
 							
-							signupAddUser.bind("submit", function(e) {
+							signupAddUser.unbind("submit").bind("submit", function(e) {
 								var form = this;
 								var progressbar = $("#find-users-progress");
 								var users = $("textarea[name=users]", signupAddUser).val().replace(/,/g, " "); // Incase people use commas to seperate users.
