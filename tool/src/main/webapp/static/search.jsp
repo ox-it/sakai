@@ -135,12 +135,10 @@
 					<td ex:content=".summary"></td>
 				</tr>
 			</table>
-			<div ex:if=".bookable = 'Yes'">
-				<form class="details">
-					<input type="hidden" name="id" ex:value-content="value">
-					<input type="submit" value="More details">
-				</form>
-			</div>
+			<form class="details">
+				<input type="hidden" name="id" ex:value-content="value">
+				<input type="submit" value="More details">
+			</form>
 			<h3>Description</h3>
 			<div class="description" ex:content=".description"></div>
 			
