@@ -2,17 +2,19 @@ package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -20,13 +22,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.ext.ContextResolver;
 
-import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
 
-import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 @Path("/signup")
@@ -91,6 +93,16 @@ public class SignupResource {
 		return Response.ok().build();
 	}
 	
+	@Path("/{id}")
+	@GET
+	@Produces("application/json")
+	public Response getSignup(@PathParam("id") final String signupId) throws JsonGenerationException, JsonMappingException, IOException {
+		CourseSignup signup = courseService.getCourseSignup(signupId);
+		if (signup == null) {
+			return Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).build();
+		}
+		return Response.ok(objectMapper.writeValueAsString(signup)).build();
+	}
 	
 	@Path("/{id}")
 	@POST // PUT Doesn't seem to make it through the portal :-(
@@ -151,6 +163,28 @@ public class SignupResource {
 					WebApplicationException {
 				List<CourseSignup> signups = courseService.getComponentSignups(componentId);
 				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
+			}
+			
+		};
+	}
+	
+	@Path("/component/{id}.csv")
+	@GET
+	@Produces("text/comma-separated-values")
+	public StreamingOutput getComponentSignupsCSV(@PathParam("id") final String componentId, @Context final HttpServletResponse response) {
+		return new StreamingOutput() {
+
+			public void write(OutputStream output) throws IOException,
+					WebApplicationException {
+				List<CourseSignup> signups = courseService.getComponentSignups(componentId);
+				response.addHeader("Content-disposition", "attachment; filename="+componentId+".csv"); // Force a download
+				Writer writer = new OutputStreamWriter(output);
+				CSVWriter csvWriter = new CSVWriter(writer);
+				for(CourseSignup signup : signups) {
+					Person user = signup.getUser();
+					csvWriter.writeln(new String[]{user.getName(), user.getEmail(), signup.getStatus().toString()});
+				}
+				writer.flush();
 			}
 			
 		};

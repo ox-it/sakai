@@ -96,7 +96,13 @@
 											  },
 											  {"bVisible": false},
 											  {"bVisible": false},
-											  {"bVisible": false}
+											  {"bVisible": false},
+											  {
+											  	sTitle: "Export",
+												"fnRender": function(aObj) {
+													return '<a href="../rest/signup/component/'+ aObj.aData[9]+ '.csv">Export</a>';
+												}
+											  }
 								              ],
 					
 								"fnServerData": function(sSource, aoData, fnCallback) {
@@ -115,7 +121,8 @@
 											 component.sessions,
 											 component.presenter,
 											 component.administrator,
-											 component.closes //8
+											 component.closes, //8
+											 component.id
 											]);
 										}
 										fnCallback(tableData);
@@ -126,7 +133,7 @@
 							$("#signups").html('<h3>Signups</h3><table border="0" class="display" id="signups-table"></table><a href="#" id="signup-add">Add Signup</a>');
 							// Load the signups.
 							var signups = $("#signups-table").signupTable("../rest/signup/course/"+code, true, true);
-							signups.bind("reload", function() {
+							signups.bind("reload", function() { // Reload the summary when this table changes.
 								summary.fnReloadAjax(null, null, true);
 							})
 							
