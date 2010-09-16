@@ -127,7 +127,7 @@
 							// Load the signups.
 							var signups = $("#signups-table").signupTable("../rest/signup/course/"+code, true, true);
 							signups.bind("reload", function() {
-								summary.fnReloadAjax();
+								summary.fnReloadAjax(null, null, true);
 							})
 							
 							var signupAddUser = $("#signup-add-user-win");
@@ -216,8 +216,8 @@
 										var postSignup = function() {
 											progressElement.progressbar("destroy");
 											dialog.jqmHide(); // Hide the popup.
-											summary.fnReloadAjax();
-											signups.fnReloadAjax();
+											summary.fnReloadAjax(null, null, true);
+											signups.fnReloadAjax(null, null, true);
 										};
 										
 										var doSignup = function(){

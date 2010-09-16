@@ -739,7 +739,7 @@ var Signup = function(){
                 "url": url,
                 "type": "POST",
                 "success": function(data){
-                    element.dataTable().fnReloadAjax();
+                    element.dataTable().fnReloadAjax(null, null, true);
 					$(table).trigger("reload"); // Custom event type;
                 }
             });
@@ -755,7 +755,7 @@ var Signup = function(){
 				type: "POST",
 				data: {status: newStatus},
 				success: function(data) {
-					element.dataTable().fnReloadAjax();
+					element.dataTable().fnReloadAjax(null, null, true);
 					$(table).trigger("reload");
 				}
 			});
