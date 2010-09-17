@@ -439,8 +439,8 @@ var Signup = function(){
                     var newHeight = height + 40;
                     
                     // but not too big!
-                    if (newHeight > 32760) 
-                        newHeight = 32760;
+                    if (newHeight > 65520) 
+                        newHeight = 65520;
                     
                     // capture my current scroll position
 
