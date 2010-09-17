@@ -38,6 +38,7 @@
 <div id="toolbar">
 <ul class="navIntraTool actionToolBar">
 	<li><span><a href="index.jsp">Module Signup</a></span></li>
+	<li><span><a href="search.jsp">Module Search</a></span></li>
 	<li><span>My Modules</span></li>
 	<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
 	<li><span><a href="admin.jsp">Module Administration</a></span></li>
