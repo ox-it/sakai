@@ -144,10 +144,6 @@ public class HierarchyHandler extends SiteHandler {
 					{
 						if (session.getUserId() == null)
 						{
-							StoredState ss = portalService.newStoredState("directtool", "tool");
-							ss.setRequest(req);
-							ss.setToolContextPath(req.getServletPath());
-							portalService.setStoredState(ss);
 							portal.doLogin(req, res, session, req.getPathInfo(), Portal.LoginRoute.NONE);
 						}
 						else
