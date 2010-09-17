@@ -11,7 +11,7 @@
 
 	<link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css" />
 	<link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css"/>
-	<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.2.custom/css/smoothness/jquery-ui-1.8.2.custom.css"/>
+	<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.4.custom/css/smoothness/jquery-ui-1.8.4.custom.css"/>
 	<link rel="stylesheet" type="text/css" href="lib/tool.css" />
 	
 	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>

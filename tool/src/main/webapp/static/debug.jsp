@@ -15,8 +15,8 @@
 	<link rel="stylesheet" type="text/css" href="lib/tool.css" />
 	
 	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
-	<script type="text/javascript" src="lib/jstree-1.0rc/_lib/jquery.cookie.js"></script>
-	<script type="text/javascript" src="lib/jstree-1.0rc/jquery.jstree.js"></script>
+	<script type="text/javascript" src="lib/jstree-1.0rc2/_lib/jquery.cookie.js"></script>
+	<script type="text/javascript" src="lib/jstree-1.0rc2/jquery.jstree.js"></script>
 	<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
 	<script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js"></script>
 	<script type="text/javascript" src="lib/dataTables-1.7/js/jquery.dataTables.js"></script>
