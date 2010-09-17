@@ -21,7 +21,7 @@
 	<script type="text/javascript" src="lib/jquery-ui-1.8.4.custom/js/jquery-ui-1.8.4.custom.min.js"></script>
 	<script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js"></script>
 	<script type="text/javascript" src="lib/dataTables-1.7/js/jquery.dataTables.js"></script>
-	<script type="text/javascript" src="lib/dataTables-1.6/js/jquery.dataTables.reloadAjax.js"></script>
+	<script type="text/javascript" src="lib/dataTables.reloadAjax.js"></script>
 	<script type="text/javascript" src="lib/signup.js"></script>
 	<script type="text/javascript" src="lib/Text.js"></script>
 	<script type="text/javascript" src="lib/serverDate.js"></script>
