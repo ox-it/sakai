@@ -41,16 +41,18 @@
 							{/if}
                         </td>
                     </tr>
-					{if signup}
                     <tr>
                         <th>
                             Signup Available
                         </th>
                         <td>
-                            ${signup}
+							{if signup}
+                            	${signup}
+							{else}
+								Not bookable
+							{/if}		
                         </td>
                     </tr>
-					{/if}
                 </table>
             </div>
             <div id="description">
@@ -113,6 +115,8 @@
                     </table>
 					{if signup}
 						<input type="submit" value="Signup" {if full || !open}disabled="true"{/if}/>
+					{else}
+						<input type="submit" value="Not Bookable">
 					{/if}
                 </form>
             </div>
