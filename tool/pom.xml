@@ -124,4 +124,34 @@
 			</dependencies>
 		</profile>
 	</profiles>
+	<build>
+		<plugins>
+			<plugin>
+				<!-- This fires off the YUI compressor. -->
+				<groupId>com.samaxes.maven</groupId>
+				<artifactId>maven-minify-plugin</artifactId>
+				<version>1.2.1</version>
+				<executions>
+					<execution>
+						<!-- The exhibit source code has a small change to allow a conversion 
+							function when reading JSON. -->
+						<id>exhibit-re-compress</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>minify</goal>
+						</goals>
+						<configuration>
+							<jsSourceDir>static/lib/exhibit</jsSourceDir>
+							<jsSourceIncludes>scripts/**/*.js</jsSourceIncludes>
+							<jsSourceExcludes>scripts/create.js</jsSourceExcludes>
+							<jsFinalFile>exhibit-bundle.js</jsFinalFile>
+							<cssSourceDir>static/lib/exhibit</cssSourceDir>
+							<cssSourceIncludes>styles/**/*.css</cssSourceIncludes>
+							<cssFinalFile>exhibit-bundle.css</cssFinalFile>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>

@@ -188,7 +188,7 @@
          *  Core scripts and styles
          */
         if (Exhibit.params.bundle) {
-            scriptURLs.push(Exhibit.urlPrefix + "exhibit-bundle.js");
+            scriptURLs.push(Exhibit.urlPrefix + "exhibit-bundle.min.js");
             cssURLs.push(Exhibit.urlPrefix + "exhibit-bundle.css");
         } else {
             SimileAjax.prefixURLs(scriptURLs, Exhibit.urlPrefix + "scripts/", javascriptFiles);
@@ -235,9 +235,10 @@
     if (typeof SimileAjax == "undefined") {
         window.SimileAjax_onLoad = loadMe;
         
+		// We want all content to come from local server (mixed content issues).
         var url = useLocalResources ?
             "http://127.0.0.1:8888/ajax/api/simile-ajax-api.js?bundle=false" :
-            "http://static.simile.mit.edu/ajax/api-2.0/simile-ajax-api.js";
+            "../static/lib/ajax/simile-ajax-api.js"; // Can't use SmileAjax as it's not loaded yet.
             
         var createScriptElement = function() {
             var script = document.createElement("script");
