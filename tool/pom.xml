@@ -35,7 +35,7 @@
 			<artifactId>jersey-server</artifactId>
 			<version>1.0.3.1</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-core-asl</artifactId>
@@ -48,7 +48,7 @@
 			<type>jar</type>
 			<version>1.5.3</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
@@ -67,8 +67,8 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring</artifactId>
 		</dependency>
-		
-		
+
+
 		<dependency>
 			<groupId>uk.ac.ox.oucs</groupId>
 			<artifactId>course-signup-api</artifactId>
@@ -78,13 +78,14 @@
 	<profiles>
 		<profile>
 			<id>standalone</id>
-			<!-- Profile which should pull everything into the war so it can be run without Sakai. -->
+			<!-- Profile which should pull everything into the war so it can be run 
+				without Sakai. -->
 			<dependencies>
-			<dependency>
-				<groupId>uk.ac.ox.oucs</groupId>
-				<artifactId>course-signup-hbm</artifactId>
-				<scope>compile</scope>
-			</dependency>
+				<dependency>
+					<groupId>uk.ac.ox.oucs</groupId>
+					<artifactId>course-signup-hbm</artifactId>
+					<scope>compile</scope>
+				</dependency>
 				<dependency>
 					<groupId>uk.ac.ox.oucs</groupId>
 					<artifactId>course-signup-impl</artifactId>
