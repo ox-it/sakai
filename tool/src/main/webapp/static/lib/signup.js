@@ -161,7 +161,7 @@ var Signup = function(){
 					// If there is only one checkbox tick it.
 					var radioButtons = $("input:radio:enabled", dest);
 					if (radioButtons.length == 1) {
-						radioButtons.first().attr("checked", true);
+						radioButtons.first().attr("checked", true); // This seems to get lost in IE when doing the popup.
 					}
 					else 
 						if (radioButtons.length == 0) {
