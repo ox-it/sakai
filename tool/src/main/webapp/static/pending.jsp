@@ -40,11 +40,20 @@
 				// Need to see if we have an anchor in the URL and if so just display that row
 				if (location.hash) {
 					var signupId = location.hash.substr(1); // Trim the leading #
+					console.log(signupId);
 					table.fnFilter(signupId,0);
 					// Problem is that datatables doesn't fire off events once it's loaded, so initially there won't be any data.
 					// It has callbacks... and so we can fire the events in the class
 					table.bind("tableInit", function() {
-						console.log($("tr td", table).length);
+						var length = $("tbody tr td", table).length;
+						if (length > 1) {
+							table.one("reload", function() {
+								table.fnFilter("",0);
+							});
+						} else {
+							alert("Couldn't find signup. This is probably because the signup was withdrawn.");
+							table.fnFilter("",0);
+						}
 					});
 				}
 				
