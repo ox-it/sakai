@@ -198,7 +198,7 @@ var Signup = function(){
 									loadCourse(); // Reload the course.
 									// Display a nice message. Should we keep the exising success()?
 									success = function(){
-										$(".messages", dest).append('<div class="message"><span class="good">Signup Successful</span></div>');
+										$(".messages", dest).append('<div class="message"><span class="good">Signup Submitted</span></div>');
 										$(".messages .message:last", dest).slideDown(300).delay(2600).slideUp(300, function(){
 											$(this).remove();
 										});
