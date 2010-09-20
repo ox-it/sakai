@@ -40,7 +40,7 @@
 	<script type="text/javascript" src="lib/datejs/date-en-GB.js"></script>
 	
   
-    <script src="lib/exhibit/exhibit-api.js?bundle=false" type="text/javascript"></script>
+    <script src="lib/exhibit/exhibit-api.js?bundle=true" type="text/javascript"></script>
 	<script type="text/javascript">
 		/**
 		 * Used by the exhibit code to convert the JSON into 
