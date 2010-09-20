@@ -16,7 +16,7 @@
             <tr>
                 <th>
                     <label for="supervisor-email">
-                        Supervisor Email
+                        Your Supervisor's Email
                     </label>
                 </th>
                 <td>
