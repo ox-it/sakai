@@ -402,7 +402,7 @@
 <!-- Popup window for finding users.-->
 <div id="signup-add-user-win" class="jqmWindow" style="display: none">
 	<h2>Find users</h2>
-	<div>Enter one or more username or email addresses.</div>
+	<div>Enter one or more Oxford username or email addresses.</div>
 	<form id="signup-add-user">
 		<textarea name="users" id="add-users" cols="30" rows="8"></textarea>
 		<span class="errors"></span>
