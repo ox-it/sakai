@@ -15,6 +15,7 @@ public class CourseComponentDAO  implements java.io.Serializable {
 
 
      private String id;
+     private int version;
      private String title;
      private String termcode;
      private Date opens;
@@ -48,7 +49,17 @@ public class CourseComponentDAO  implements java.io.Serializable {
     public void setId(String id) {
         this.id = id;
     }
-    public String getTitle() {
+    public int getVersion() {
+		return version;
+	}
+
+
+	public void setVersion(int version) {
+		this.version = version;
+	}
+
+
+	public String getTitle() {
         return this.title;
     }
     

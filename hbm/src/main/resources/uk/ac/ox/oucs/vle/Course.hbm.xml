@@ -33,6 +33,8 @@
 		<id name="id" type="string">
 			<column name="id" />
 		</id>
+		<!-- We want to be sure the taken column isn't out of sync -->
+		<version name="version" column="version"/>
 		<property name="title" type="string" length="256" />
 		<property name="termcode" type="string" length="30"
 			index="course_component_term_idx" />
