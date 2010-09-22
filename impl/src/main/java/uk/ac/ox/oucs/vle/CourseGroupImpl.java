@@ -22,11 +22,7 @@ public class CourseGroupImpl implements CourseGroup {
 	}
 
 	public String getDescription() {
-		return getProperties().get("desc");
-	}
-
-	private Map<String, String> getProperties() {
-		return courseGroupDAO.getProperties();
+		return courseGroupDAO.getDescription();
 	}
 
 	public String getId() {
@@ -38,7 +34,7 @@ public class CourseGroupImpl implements CourseGroup {
 	}
 
 	public String getDepartment() {
-		return courseGroupDAO.getProperties().get("department");
+		return courseGroupDAO.getDepartmentName();
 	}
 
 	public String getDepartmentCode() {

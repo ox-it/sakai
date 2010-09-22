@@ -19,7 +19,8 @@ public class CourseGroupDAO  implements java.io.Serializable {
      private String administrator;
      private Set<CourseComponentDAO> components = new HashSet<CourseComponentDAO>(0);
      private Set<CourseSignupDAO> signups = new HashSet<CourseSignupDAO>(0);
-     private Map<String,String> properties = new HashMap<String,String>(0);
+	private String description;
+	private String departmentName;
 
     public CourseGroupDAO() {
     }
@@ -28,16 +29,6 @@ public class CourseGroupDAO  implements java.io.Serializable {
     public CourseGroupDAO(String id) {
         this.id = id;
     }
-    public CourseGroupDAO(String id, String title, String dept, String administrator, Set<CourseComponentDAO> components, Set<CourseSignupDAO> signups, Map<String,String> properties) {
-       this.id = id;
-       this.title = title;
-       this.dept = dept;
-       this.administrator = administrator;
-       this.components = components;
-       this.signups = signups;
-       this.properties = properties;
-    }
-   
     public String getId() {
         return this.id;
     }
@@ -80,16 +71,26 @@ public class CourseGroupDAO  implements java.io.Serializable {
     public void setSignups(Set<CourseSignupDAO> signups) {
         this.signups = signups;
     }
-    public Map<String,String> getProperties() {
-        return this.properties;
-    }
-    
-    public void setProperties(Map<String,String> properties) {
-        this.properties = properties;
-    }
 
 
+	public String getDescription() {
+		return description;
+	}
 
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+
+	public String getDepartmentName() {
+		return departmentName;
+	}
+
+
+	public void setDepartmentName(String departmentName) {
+		this.departmentName = departmentName;
+	}
 
 }
 

@@ -99,8 +99,8 @@ public class PopulatorImpl implements Populator{
 					groupDao.setTitle(title);
 				}
 				groupDao.setAdministrator(user.getId());
-				groupDao.getProperties().put("desc", description);
-				groupDao.getProperties().put("department", departmentName);
+				groupDao.setDescription(description);
+				groupDao.setDepartmentName(departmentName);
 				dao.save(groupDao);
 				if (created) {
 					groupCreated++;
@@ -218,34 +218,34 @@ public class PopulatorImpl implements Populator{
 					teacherName = rs.getString("teacher_name");
 				}
 				if (teacherName != null && teacherName.trim().length() > 0) {
-					componentDao.getProperties().put("teacher.name", teacherName);
+					componentDao.setTeacherName(teacherName);
 					if (teacherEmail == null) {
 						teacherEmail = rs.getString("teacher_email");
 					}
 					if (teacherEmail != null && teacherName.trim().length() > 0) {
-						componentDao.getProperties().put("teacher.email", teacherEmail);
+						componentDao.setTeacherEmail(teacherEmail);
 					}
 				}
 				
 				// Which term
-				componentDao.getProperties().put("when", termName);
+				componentDao.setWhen(termName);
 				
 				// When they are happening.
 				String sessionDates = rs.getString("session_dates");
 				if (sessionDates != null && sessionDates.trim().length() > 0) {
-					componentDao.getProperties().put("slot", sessionDates);
+					componentDao.setSlot(sessionDates);
 				}
 				
 				// How many sessions
 				String sessions = rs.getString("sessions");
 				if (sessions != null && sessions.trim().length() > 0) {
-					componentDao.getProperties().put("sessions", sessions);
+					componentDao.setSessions(sessions);
 				}
 				
 				// Where?
 				String location = rs.getString("location");
 				if (location != null && location.trim().length() > 0) {
-					componentDao.getProperties().put("location", location);
+					componentDao.setLocation(location);
 				}
 				
 				// Cleanout existing ones.

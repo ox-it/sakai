@@ -17,6 +17,7 @@
 			index="course_signup_user_idx" />
 		<property name="status" type="SignupStatus" index="course_signup_user_idx"/>
 		<property name="created" type="timestamp" />
+		<property name="message" type="string" length="4000"/>
 		<set name="components" lazy="true" table="course_component_signup"
 			inverse="true">
 			<key column="signup" not-null="true" />
@@ -24,11 +25,6 @@
 				column="component" />
 		</set>
 		<property name="supervisorId" type="string" length="99" index="course_signup_supervisor_idx" />
-		<map name="properties" table="course_prop">
-			<key column="id" foreign-key="none" />
-			<map-key type="string" length="20" column="name" />
-			<element type="text" column="value" />
-		</map>
 		<many-to-one name="group" column="groupId" class="uk.ac.ox.oucs.vle.CourseGroupDAO"/>
 	</class>
 
@@ -48,6 +44,12 @@
 		<property name="taken" type="int" />
 		<property name="componentId" type="string" length="30" /><!-- 
 			The set (teaching_component) this component is from. -->
+		<property name="teacherName" type="string" length="255"/>
+		<property name="teacherEmail" type="string" length="255"/>
+		<property name="when" column="happening" type="string" length="255"/>
+		<property name="slot" type="string" length="255"/>
+		<property name="sessions" type="string" length="255"/>
+		<property name="location" type="string" length="255"/>
 
 		<set name="signups" lazy="true" table="course_component_signup">
 			<key column="component" not-null="true" />
@@ -60,11 +62,6 @@
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO"
 				column="course_group" />
 		</set>
-		<map name="properties" table="course_prop">
-			<key column="id" foreign-key="none" />
-			<map-key type="string" length="20" column="name" />
-			<element type="text" column="value" />
-		</map>
 	</class>
 
 	<!-- A set of courses that can be taken. -->
@@ -76,9 +73,11 @@
 		<property name="title" type="string" length="256" />
 		<property name="dept" type="string" length="32"
 			index="course_group_dept_idx" />
+		<property name="departmentName" type="string" length="255"/>
 			
 		<property name="administrator" type="string" length="64" /><!-- 
 			The administrator who is looking after this component. -->
+		<property name="description" type="string" length="4000"/>
 		<set name="components" inverse="true" lazy="true" table="course_group_component"
 			fetch="join">
 			<key column="course_group" />
@@ -89,11 +88,6 @@
 			<key column="groupId"/>
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"/>
 		</set>
-		<map name="properties" table="course_prop">
-			<key column="id" foreign-key="none" />
-			<map-key type="string" length="20" column="name" />
-			<element type="text" column="value" />
-		</map>
 	</class>
 
 </hibernate-mapping>

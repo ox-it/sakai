@@ -24,9 +24,14 @@ public class CourseComponentDAO  implements java.io.Serializable {
      private int size;
      private int taken;
      private String componentId;
+     private String teacherName;
+     private String teacherEmail;
+     private String when;
+     private String slot;
+     private String sessions;
+     private String location;
      private Set<CourseSignupDAO> signups = new HashSet<CourseSignupDAO>(0);
      private Set<CourseGroupDAO> groups = new HashSet<CourseGroupDAO>(0);
-     private Map<String,String> properties = new HashMap<String,String>(0);
 
     public CourseComponentDAO() {
     }
@@ -36,22 +41,6 @@ public class CourseComponentDAO  implements java.io.Serializable {
         this.id = id;
         this.bookable = bookable;
     }
-    public CourseComponentDAO(String id, String title, String termcode, Date opens, Date closes, Date expires, boolean bookable, int size, int taken, String componentId, Set<CourseSignupDAO> signups, Set<CourseGroupDAO> groups, Map<String,String> properties) {
-       this.id = id;
-       this.title = title;
-       this.termcode = termcode;
-       this.opens = opens;
-       this.closes = closes;
-       this.expires = expires;
-       this.bookable = bookable;
-       this.size = size;
-       this.taken = taken;
-       this.componentId = componentId;
-       this.signups = signups;
-       this.groups = groups;
-       this.properties = properties;
-    }
-   
     public String getId() {
         return this.id;
     }
@@ -136,14 +125,66 @@ public class CourseComponentDAO  implements java.io.Serializable {
     public void setGroups(Set<CourseGroupDAO> groups) {
         this.groups = groups;
     }
-    public Map<String,String> getProperties() {
-        return this.properties;
-    }
-    
-    public void setProperties(Map<String,String> properties) {
-        this.properties = properties;
-    }
 
+
+	public String getTeacherName() {
+		return teacherName;
+	}
+
+
+	public void setTeacherName(String teacherName) {
+		this.teacherName = teacherName;
+	}
+
+
+	public String getTeacherEmail() {
+		return teacherEmail;
+	}
+
+
+	public void setTeacherEmail(String teacherEmail) {
+		this.teacherEmail = teacherEmail;
+	}
+
+
+	public String getWhen() {
+		return when;
+	}
+
+
+	public void setWhen(String when) {
+		this.when = when;
+	}
+
+
+	public String getSlot() {
+		return slot;
+	}
+
+
+	public void setSlot(String slot) {
+		this.slot = slot;
+	}
+
+
+	public String getSessions() {
+		return sessions;
+	}
+
+
+	public void setSessions(String sessions) {
+		this.sessions = sessions;
+	}
+
+
+	public String getLocation() {
+		return location;
+	}
+
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
 
 
 

@@ -35,14 +35,14 @@ public class CourseComponentImpl implements CourseComponent {
 	}
 
 	public Person getPresenter() {
-		if (dao.getProperties().containsKey("teacher.name")) {
-			return new PersonImpl(null, dao.getProperties().get("teacher.name"), dao.getProperties().get("teacher.email"), Collections.EMPTY_LIST);
+		if (dao.getTeacherName() != null) {
+			return new PersonImpl(null, dao.getTeacherName(), dao.getTeacherEmail(), Collections.EMPTY_LIST);
 		}
 		return null;
 	}
 	
 	public String getLocation() {
-		return dao.getProperties().get("location");
+		return dao.getLocation();
 	}
 
 	public Date getOpens() {
@@ -64,15 +64,15 @@ public class CourseComponentImpl implements CourseComponent {
 	}
 
 	public String getWhen() {
-		return dao.getProperties().get("when");
+		return dao.getWhen();
 	}
 
 	public String getSlot() {
-		return dao.getProperties().get("slot");
+		return dao.getSlot();
 	}
 
 	public String getSessions() {
-		return dao.getProperties().get("sessions");
+		return dao.getSessions();
 	}
 	
 	public boolean getBookable() {

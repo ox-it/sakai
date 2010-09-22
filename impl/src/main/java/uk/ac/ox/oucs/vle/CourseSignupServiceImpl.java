@@ -379,7 +379,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setCreated(getNow());
 		signupDao.setGroup(groupDao);
 		signupDao.setStatus(Status.PENDING);
-		signupDao.getProperties().put("message", message);
+		signupDao.setMessage(message);
 		String signupId = dao.save(signupDao);
 		
 		// We're going to decrement the places on acceptance.
