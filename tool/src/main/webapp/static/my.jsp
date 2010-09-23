@@ -42,7 +42,6 @@
 	<li><span>My Modules</span></li>
 	<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
 	<li><span><a href="admin.jsp">Module Administration</a></span></li>
-	<li><span><a href="debug.jsp">Debug</a></span></li>
 </ul>
 </div>
 

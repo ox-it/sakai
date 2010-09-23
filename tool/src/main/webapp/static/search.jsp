@@ -151,7 +151,6 @@
             <li><span><a href="my.jsp">My Modules</a></span></li>
             <li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
             <li><span><a href="admin.jsp">Module Administration</a></span></li>
-            <li><span><a href="debug.jsp">Debug</a></span></li>
 		</ul>
     </div>
     <table width="99%">
