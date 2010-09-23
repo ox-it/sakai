@@ -51,7 +51,7 @@
 								table.fnFilter("",0);
 							});
 						} else {
-							alert("Couldn't find signup. This is probably because the signup was withdrawn.");
+							alert("Couldn't find signup. This could be because it has already been accepted or has been withdrawn.");
 							table.fnFilter("",0);
 						}
 					});
