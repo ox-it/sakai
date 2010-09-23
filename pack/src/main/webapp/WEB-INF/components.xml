@@ -61,11 +61,6 @@
 		<property name="portalService" ref="org.sakaiproject.portal.api.PortalService"/>
 	</bean>
 
-
-	<bean class="uk.ac.ox.oucs.vle.SampleDataLoader" init-method="init">
-		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-	</bean>
-
 	<bean id="uk.ac.ox.oucs.vle.Populator"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="target">
