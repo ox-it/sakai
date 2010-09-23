@@ -1,16 +1,9 @@
 package uk.ac.ox.oucs.vle;
 
-import java.util.List;
 
 
 
 public interface SakaiProxy {
-
-	/**
-	 * Just used for testing, afterwards it can be dropped.
-	 * @return
-	 */
-	public List<Email> getEmails();
 	
 	public UserProxy getCurrentUser();
 

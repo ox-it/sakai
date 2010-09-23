@@ -55,8 +55,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	private String fromAddress;
 	
-	public List<Email> emailLog = new ArrayList<Email>();
-	
 	public void setUserService(UserDirectoryService userService) {
 		this.userService = userService;
 	}
@@ -136,7 +134,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 				null, // Reply to string
 				null // Additional headers
 		);
-		emailLog.add(new Email(to, subject, body));
 	}
 	
 	public void logEvent(String resourceId, String eventType) {
@@ -196,10 +193,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 			pageUrl += "?"+ params.substring(1); // Trim the leading &
 		}
 		return pageUrl;
-	}
-
-	public List<Email> getEmails() {
-		return Collections.unmodifiableList(emailLog);
 	}
 
 }
