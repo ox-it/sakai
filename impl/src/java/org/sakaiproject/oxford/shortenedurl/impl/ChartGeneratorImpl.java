@@ -1,6 +1,5 @@
 package org.sakaiproject.oxford.shortenedurl.impl;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +13,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -42,11 +40,11 @@ public class ChartGeneratorImpl implements ChartGenerator {
 		params.put("cht", "qr");
 		params.put("chs", size);
 		params.put("chl", s);
+		params.put("choe", "UTF-8");
 		
 		return doGet(CHART_URL, params);
 	}
 
-	
 	
 	/**
 	 * Make a GET request and append the Map of parameters onto the query string.
@@ -57,27 +55,32 @@ public class ChartGeneratorImpl implements ChartGenerator {
 	private byte[] doGet(String address, Map<String, String> parameters){
 		try {
 			
+			//setup params
 			List<NameValuePair> queryParams = new ArrayList<NameValuePair>();
-			
 			for (Map.Entry<String,String> entry : parameters.entrySet()) {
 				queryParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
 			}
 			
-			URI uri = URIUtils.createURI(null, address, -1, null, URLEncodedUtils.format(queryParams, "UTF-8"), null);
+			//n.b. HTTPClient was adding a trailing slash after the address and google charts was not liking that
+			//so I switched to manual URL construction.
+			//URI uri = URIUtils.createURI(null, address, -1, null, URLEncodedUtils.format(queryParams, "UTF-8"), null);
+			String uri = address + "?" + URLEncodedUtils.format(queryParams, "UTF-8");
 			
-			log.debug(uri.toString());
+			log.debug(uri);
 			
+			//execute
 			HttpClient httpclient = new DefaultHttpClient();
-			HttpGet httpget = new HttpGet(address);
+			HttpGet httpget = new HttpGet(uri);
 			HttpResponse response = httpclient.execute(httpget);
 			
-			//check reponse code
+			//check response
 			StatusLine status = response.getStatusLine();
 			if(status.getStatusCode() != 200) {
 				log.error("Error requesting URL. Status: " + status.getStatusCode() + ", reason: " + status.getReasonPhrase());
 				return null;
 			}
 			
+			//get response contents
 			HttpEntity entity = response.getEntity();
 			if (entity != null) {
 				return EntityUtils.toByteArray(entity);
@@ -90,5 +93,8 @@ public class ChartGeneratorImpl implements ChartGenerator {
 	}
 	
 	
+	public void init() {
+  		log.debug("ChartGenerator init().");
+  	}
 	
 }

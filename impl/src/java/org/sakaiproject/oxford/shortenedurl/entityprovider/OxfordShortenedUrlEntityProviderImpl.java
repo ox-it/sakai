@@ -1,5 +1,6 @@
 package org.sakaiproject.oxford.shortenedurl.entityprovider;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -13,8 +14,10 @@ import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.oxford.shortenedurl.api.ChartGenerator;
 import org.sakaiproject.oxford.shortenedurl.api.OxfordShortenedUrlService;
 
 /**
@@ -40,7 +43,7 @@ public class OxfordShortenedUrlEntityProviderImpl implements OxfordShortenedUrlE
 		}
 		
 		try {
-			String shortenedUrl = service.shorten(URLDecoder.decode(path, "UTF-8"));
+			String shortenedUrl = urlShortener.shorten(URLDecoder.decode(path, "UTF-8"));
 			if(StringUtils.isBlank(shortenedUrl)){
 				throw new EntityException("Couldn't shorten URL.", path);
 			}
@@ -51,14 +54,44 @@ public class OxfordShortenedUrlEntityProviderImpl implements OxfordShortenedUrlE
 	
 	}
 	
-	private OxfordShortenedUrlService service;
-	public void setService(OxfordShortenedUrlService service) {
-		this.service = service;
+	
+	@EntityCustomAction(action="qr",viewKey=EntityView.VIEW_LIST)
+	public Object generateQRCode(OutputStream out, EntityView view, Map<String, Object> params) {
+	
+		String s = (String)params.get("s");
+		String height = (String)params.get("height");
+		String width = (String)params.get("width");
+		if(StringUtils.isBlank(s) || StringUtils.isBlank(height) || StringUtils.isBlank(height)){
+			throw new EntityException("Invalid input.", params.toString());
+		}
+	
+		//get binary
+		byte[] bytes = chartGenerator.generateQRCode(s, Integer.parseInt(height), Integer.parseInt(width));
+
+		if(bytes != null && bytes.length > 0) {
+			try {
+				out.write(bytes);
+				ActionReturn actionReturn = new ActionReturn("UTF-8", "image/png", out);
+				return actionReturn;
+			} catch (IOException e) {
+				throw new EntityException("Error retrieving QR code : " + e.getMessage(), params.toString());
+			}
+		}
+		
+		return null;
 	}
 	
 	
 	
+	private OxfordShortenedUrlService urlShortener;
+	public void setUrlShortener(OxfordShortenedUrlService urlShortener) {
+		this.urlShortener = urlShortener;
+	}
 	
+	private ChartGenerator chartGenerator;
+	public void setChartGenerator(ChartGenerator chartGenerator) {
+		this.chartGenerator = chartGenerator;
+	}
 	
 	
 	public boolean entityExists(String eid) {

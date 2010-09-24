@@ -5,9 +5,16 @@
 <beans>
 
 	
-	<!-- service config -->
+	<!-- shortened url service config -->
 	<bean id="org.sakaiproject.oxford.shortenedurl.api.OxfordShortenedUrlService"
     	class="org.sakaiproject.oxford.shortenedurl.impl.OxfordShortenedUrlServiceImpl"
+    	singleton="true"
+    	init-method="init">
+	</bean>
+	
+	<!-- chart generator config -->
+	<bean id="org.sakaiproject.oxford.shortenedurl.api.ChartGenerator"
+    	class="org.sakaiproject.oxford.shortenedurl.impl.ChartGeneratorImpl"
     	singleton="true"
     	init-method="init">
 	</bean>
@@ -15,7 +22,8 @@
 	<!--  entity provider config -->
 	<bean id="org.sakaiproject.oxford.shortenedurl.entityprovider.OxfordShortenedUrlEntityProvider" 
 		class="org.sakaiproject.oxford.shortenedurl.entityprovider.OxfordShortenedUrlEntityProviderImpl">
-		<property name="service" ref="org.sakaiproject.oxford.shortenedurl.api.OxfordShortenedUrlService" />
+		<property name="urlShortener" ref="org.sakaiproject.oxford.shortenedurl.api.OxfordShortenedUrlService" />
+		<property name="chartGenerator" ref="org.sakaiproject.oxford.shortenedurl.api.ChartGenerator" />
 	</bean>
 	
 </beans>
