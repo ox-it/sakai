@@ -673,10 +673,7 @@ var Signup = function(){
             "aaSorting": [[1, "desc"]],
             "aoColumns": [{
                 "sTitle": "",
-                "bSortable": false,
-                "fnRender": function(aObj){
-                    return '<input type="checkbox" value="' + aObj.aData[0] + '">';
-                },
+                "bVisible": false,
                "bUseRendered": false
             }, {
                 "sTitle": "Created",
