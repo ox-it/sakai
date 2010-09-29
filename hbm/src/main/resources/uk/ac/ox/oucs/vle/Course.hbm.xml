@@ -48,10 +48,10 @@
 			The set (teaching_component) this component is from. -->
 		<property name="teacherName" type="string" length="255"/>
 		<property name="teacherEmail" type="string" length="255"/>
-		<property name="when" column="happening" type="string" length="255"/>
-		<property name="slot" type="string" length="255"/>
-		<property name="sessions" type="string" length="255"/>
-		<property name="location" type="string" length="255"/>
+		<property name="when" column="happening" type="string" length="4000"/>
+		<property name="slot" type="string" length="4000"/>
+		<property name="sessions" type="string" length="4000"/>
+		<property name="location" type="string" length="4000"/>
 
 		<set name="signups" lazy="true" table="course_component_signup">
 			<key column="component" not-null="true" />
