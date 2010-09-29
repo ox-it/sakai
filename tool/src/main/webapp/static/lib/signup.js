@@ -123,9 +123,9 @@ var Signup = function(){
 							var found = false;
 							$.each(parts, function() {
 								var part = this;
-								if (parts[part].type.id == component.componentSet) {
-									parts[part].signup = (component.signup) ? component.signup : null;
-									parts[part].options.push(component);
+								if (part.type.id == component.componentSet) {
+									part.signup = (component.signup) ? component.signup : null;
+									part.options.push(component);
 									found = true;
 								}
 							});
