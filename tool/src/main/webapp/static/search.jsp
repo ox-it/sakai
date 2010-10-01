@@ -15,9 +15,6 @@
 	<link rel="stylesheet" type="text/css" href="lib/tool.css" />
 	<link href="../rest/course/all" type="application/json" rel="exhibit/data" ex:converter="courseConverter" />
 	<style type="text/css">
-		.exhibit-toolboxWidget-popup {
-			display: none; // Hide the popup bit
-		}
 		.exhibit-text-facet {
 			padding-right: 4px; // Overflows a <table> because of <input> has border and padding
 		}
@@ -156,7 +153,7 @@
     <table width="99%">
         <tr valign="top">	
         	<td ex:role="viewPanel">
-                <div ex:role="view" ex:showAll="false" ex:grouped="false"></div>
+                <div ex:role="view" ex:showAll="false" ex:grouped="false" ex:showToolbox="false"></div>
             </td>
             <td width="25%">
             	
