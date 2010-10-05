@@ -123,9 +123,9 @@ var Signup = function(){
 							var found = false;
 							$.each(parts, function() {
 								var part = this;
-								if (parts[part].type.id == component.componentSet) {
-									parts[part].signup = (component.signup) ? component.signup : null;
-									parts[part].options.push(component);
+								if (part.type.id == component.componentSet) {
+									part.signup = (component.signup) ? component.signup : null;
+									part.options.push(component);
 									found = true;
 								}
 							});
@@ -673,10 +673,7 @@ var Signup = function(){
             "aaSorting": [[1, "desc"]],
             "aoColumns": [{
                 "sTitle": "",
-                "bSortable": false,
-                "fnRender": function(aObj){
-                    return '<input type="checkbox" value="' + aObj.aData[0] + '">';
-                },
+                "bVisible": false,
                "bUseRendered": false
             }, {
                 "sTitle": "Created",

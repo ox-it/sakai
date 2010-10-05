@@ -26,7 +26,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-import uk.ac.ox.oucs.vle.Email;
 import uk.ac.ox.oucs.vle.SakaiProxy;
 import uk.ac.ox.oucs.vle.UserProxy;
 
@@ -81,7 +80,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	public void init() {
 		if (fromAddress == null) {
-			fromAddress = serverConfigurationService.getString("course-signup.from");
+			fromAddress = serverConfigurationService.getString("course-signup.from", null);
 		}
 	}
 	
