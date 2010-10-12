@@ -92,10 +92,10 @@ public interface AssessmentService
 	 * 
 	 * @param context
 	 *        The context.
-	 * @param time_diff
-	 *        The time difference in seconds
+	 * @param days_diff
+	 *        The time difference in days
 	 */
-	void applyBaseDateTx(String context, int time_diff);
+	void applyBaseDateTx(String context, int days_diff);
 
 	/**
 	 * Clear out any mint objects that are old enough to be considered abandoned.

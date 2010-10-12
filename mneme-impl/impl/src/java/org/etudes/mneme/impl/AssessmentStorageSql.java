@@ -102,30 +102,28 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	/**
 	 * {@inheritDoc}
 	 */
-	public void applyBaseDateTx(String context, int time_diff)
+	public void applyBaseDateTx(String context, int days_diff)
 	{
 		if (context == null)
 		{
 			throw new IllegalArgumentException("applyBaseDateTx: course_id is null");
 		}
-		if (time_diff == 0)
+		if (days_diff == 0)
 		{
 			return;
 		}
 
-		// convert time difference into milliseconds
-		long time_diff_ms = ((long) time_diff) * 1000l;
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("UPDATE MNEME_ASSESSMENT SET");
-		sql.append(" DATES_ACCEPT_UNTIL=DATES_ACCEPT_UNTIL + ?, DATES_DUE=DATES_DUE + ?, DATES_OPEN=DATES_OPEN + ?");
+		sql.append(" DATES_ACCEPT_UNTIL=UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(DATES_ACCEPT_UNTIL/1000), INTERVAL ? DAY))*1000, DATES_DUE=UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(DATES_DUE/1000), INTERVAL ? DAY))*1000, DATES_OPEN=UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(DATES_OPEN/1000), INTERVAL ? DAY))*1000");
 		sql.append(" WHERE CONTEXT=? AND ARCHIVED=0");
 
 		Object[] fields = new Object[4];
 		int i = 0;
-		fields[i++] = time_diff_ms;
-		fields[i++] = time_diff_ms;
-		fields[i++] = time_diff_ms;
+		fields[i++] = days_diff;
+		fields[i++] = days_diff;
+		fields[i++] = days_diff;
 		fields[i++] = context;
 
 		if (!this.sqlService.dbWrite(sql.toString(), fields))

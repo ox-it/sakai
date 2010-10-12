@@ -102,7 +102,7 @@ public class AssessmentStorageSample implements AssessmentStorage
 	/**
 	 * {@inheritDoc}
 	 */
-	public void applyBaseDateTx(String context, int time_diff)
+	public void applyBaseDateTx(String context, int days_diff)
 	{
 		// TODO: could be implemented
 		return;

@@ -198,14 +198,14 @@ public class AssessmentServiceImpl implements AssessmentService
 	/**
 	 * {@inheritDoc}
 	 */
-	public void applyBaseDateTx(String context, int time_diff)
+	public void applyBaseDateTx(String context, int days_diff)
 	{
 		try
 		{
 			// security check
 			securityService.secure(sessionManager.getCurrentSessionUserId(), MnemeService.MANAGE_PERMISSION, context);
 
-			this.storage.applyBaseDateTx(context, time_diff);
+			this.storage.applyBaseDateTx(context, days_diff);
 		}
 		catch (AssessmentPermissionException ape)
 		{
