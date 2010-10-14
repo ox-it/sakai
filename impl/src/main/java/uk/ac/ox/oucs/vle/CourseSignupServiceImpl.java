@@ -410,18 +410,25 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * @param additionalBodyData Additional objects used to format the email body. Typically used for the confirm URL.
 	 */
 	public void sendSignupEmail(String userId, CourseSignupDAO signupDao, String subjectKey, String bodyKey, Object[] additionalBodyData) {
-		UserProxy user = proxy.findUserById(userId);
-		if (user == null) {
+		UserProxy recepient = proxy.findUserById(userId);
+		if (recepient == null) {
 			log.warn("Failed to find user for sending email: "+ userId);
 			return;
 		}
-		String to = user.getEmail();
-		String subject = MessageFormat.format(rb.getString(subjectKey), new Object[]{proxy.getCurrentUser().getName(), signupDao.getGroup().getTitle()});
+		UserProxy signupUser = proxy.findUserById(signupDao.getUserId());
+		if (signupUser == null) {
+			log.warn("Failed to find the user who made the signup: "+ signupDao.getUserId());
+			return;
+		}
+		
+		String to = recepient.getEmail();
+		String subject = MessageFormat.format(rb.getString(subjectKey), new Object[]{proxy.getCurrentUser().getName(), signupDao.getGroup().getTitle(), signupUser.getName()});
 		String componentDetails = formatSignup(signupDao);
 		Object[] baseBodyData = new Object[] {
 				proxy.getCurrentUser().getName(),
 				componentDetails,
-				signupDao.getGroup().getTitle()
+				signupDao.getGroup().getTitle(),
+				signupUser.getName()
 		};
 		Object[] bodyData = baseBodyData;
 		if (additionalBodyData != null) {
