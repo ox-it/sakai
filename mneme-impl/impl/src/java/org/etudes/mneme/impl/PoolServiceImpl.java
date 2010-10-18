@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -144,7 +145,7 @@ public class PoolServiceImpl implements PoolService
 		// security check
 		this.securityService.secure(sessionManager.getCurrentSessionUserId(), MnemeService.MANAGE_PERMISSION, context);
 
-		Pool rv = doCopyPool(context, pool, false, null, true, null, false);
+		Pool rv = doCopyPool(context, pool, false, null, true, null, false, null);
 
 		return rv;
 	}
@@ -541,10 +542,12 @@ public class PoolServiceImpl implements PoolService
 	 *        A list of Translations for attachments and embedded media.
 	 * @param merge
 	 *        if true, if there is an existing pool with the same title, use it and don't create a new pool.
+	 * @param includeQuestions
+	 *        if not null, only import the pool's question if its id is in the set.
 	 * @return The copied pool.
 	 */
 	protected Pool doCopyPool(String context, Pool pool, boolean asHistory, Map<String, String> oldToNew, boolean appendTitle,
-			List<Translation> attachmentTranslations, boolean merge)
+			List<Translation> attachmentTranslations, boolean merge, Set<String> includeQuestions)
 	{
 		String userId = sessionManager.getCurrentSessionUserId();
 		Date now = new Date();
@@ -601,7 +604,7 @@ public class PoolServiceImpl implements PoolService
 		}
 
 		// make a copy of the questions
-		this.questionService.copyPoolQuestions(pool, rv, asHistory, oldToNew, attachmentTranslations, merge);
+		this.questionService.copyPoolQuestions(pool, rv, asHistory, oldToNew, attachmentTranslations, merge, includeQuestions);
 
 		if (asHistory)
 		{
@@ -720,7 +723,7 @@ public class PoolServiceImpl implements PoolService
 
 		if (M_log.isDebugEnabled()) M_log.debug("makePoolHistory: " + pool.getId());
 
-		Pool rv = doCopyPool(pool.getContext(), pool, true, oldToNew, false, null, false);
+		Pool rv = doCopyPool(pool.getContext(), pool, true, oldToNew, false, null, false, null);
 
 		return rv;
 	}

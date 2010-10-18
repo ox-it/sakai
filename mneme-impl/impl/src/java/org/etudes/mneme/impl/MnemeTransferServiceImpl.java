@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -39,6 +39,7 @@ import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.Attachment;
 import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.MnemeService;
+import org.etudes.mneme.api.MnemeTransferService;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.PartDetail;
 import org.etudes.mneme.api.Pool;
@@ -67,7 +68,7 @@ import org.w3c.dom.Element;
 /**
  * MnemeServiceImpl implements MnemeService
  */
-public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProducer
+public class MnemeTransferServiceImpl implements MnemeTransferService, EntityTransferrer, EntityProducer
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(MnemeTransferServiceImpl.class);
@@ -172,6 +173,189 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 	public String getLabel()
 	{
 		return this.messages.getFormattedMessage("test-center", null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void importFromSite(String fromContext, String toContext, Set<String> assessmentsToImport)
+	{
+		if (M_log.isDebugEnabled()) M_log.debug("copy from: " + fromContext + " to: " + toContext);
+
+		// security check
+		if (!this.securityService.checkSecurity(sessionManager.getCurrentSessionUserId(), MnemeService.MANAGE_PERMISSION, toContext))
+		{
+			return;
+		}
+
+		// get assessment pool and question dependencies
+		Set<String> fullPoolsToImport = null;
+		Set<String> partialPoolsToImport = null;
+		Set<String> questionsToImport = null;
+		Set<String> allPoolsToImport = null;
+		if (assessmentsToImport != null)
+		{
+			fullPoolsToImport = new HashSet<String>();
+			partialPoolsToImport = new HashSet<String>();
+			questionsToImport = new HashSet<String>();
+			for (String id : assessmentsToImport)
+			{
+				Assessment assessment = this.assessmentService.getAssessment(id);
+				if (assessment != null)
+				{
+					findAssessmentDependencies(assessment, fullPoolsToImport, partialPoolsToImport, questionsToImport);
+				}
+			}
+
+			allPoolsToImport = new HashSet<String>();
+			if (fullPoolsToImport != null) allPoolsToImport.addAll(fullPoolsToImport);
+			if (partialPoolsToImport != null) allPoolsToImport.addAll(partialPoolsToImport);
+		}
+
+		// map from old pool ids to new ids
+		Map<String, String> pidMap = new HashMap<String, String>();
+
+		// map from old question ids to new ids
+		Map<String, String> qidMap = new HashMap<String, String>();
+
+		// get all pools in the from context
+		List<Pool> pools = this.poolService.getPools(fromContext);
+
+		// get all the assessments in the from context
+		List<Assessment> assessments = this.assessmentService.getContextAssessments(fromContext, null, Boolean.FALSE);
+
+		// which assessments are we going to skip?
+		Set<String> skippedAssessments = new HashSet<String>();
+		List<Assessment> existingAssessments = this.assessmentService.getContextAssessments(toContext, AssessmentService.AssessmentsSort.cdate_a,
+				Boolean.FALSE);
+		for (Assessment assessment : assessments)
+		{
+			// if the assessment is not in the list, skip over
+			if ((assessmentsToImport != null) && (!assessmentsToImport.contains(assessment.getId()))) continue;
+
+			// check if we have an assessment that matches (check title only)
+			for (Assessment candidate : existingAssessments)
+			{
+				if (!StringUtil.different(candidate.getTitle(), assessment.getTitle()))
+				{
+					skippedAssessments.add(assessment.getId());
+					break;
+				}
+			}
+		}
+
+		// collect media references
+		Set<String> refs = new HashSet<String>();
+
+		// pools
+		for (Pool pool : pools)
+		{
+			// skip if we are not needing this pool
+			if ((allPoolsToImport != null) && (!allPoolsToImport.contains(pool.getId()))) continue;
+
+			// from the pool description (Note: we might end up not taking this pool, if one exists in the destination, but we harvest anyway)
+			refs.addAll(this.attachmentService.harvestAttachmentsReferenced(pool.getDescription(), true));
+
+			List<String> qids = ((PoolImpl) pool).getAllQuestionIds(null, null);
+			for (String qid : qids)
+			{
+				// if this pool is not fully needed
+				if ((fullPoolsToImport != null) && (!fullPoolsToImport.contains(pool.getId())))
+				{
+					// if this question is not on the include list specifically
+					if ((questionsToImport != null) && (!questionsToImport.contains(qid)))
+					{
+						// then we don't want to process it
+						continue;
+					}
+				}
+
+				Question question = this.questionService.getQuestion(qid);
+				refs.addAll(this.attachmentService.harvestAttachmentsReferenced(question.getPresentation().getText(), true));
+				for (Reference attachment : question.getPresentation().getAttachments())
+				{
+					refs.add(attachment.getReference());
+				}
+				refs.addAll(this.attachmentService.harvestAttachmentsReferenced(question.getHints(), true));
+				refs.addAll(this.attachmentService.harvestAttachmentsReferenced(question.getFeedback(), true));
+				for (String data : question.getTypeSpecificQuestion().getData())
+				{
+					refs.addAll(this.attachmentService.harvestAttachmentsReferenced(data, true));
+				}
+			}
+		}
+
+		// assessments
+		for (Assessment assessment : assessments)
+		{
+			// if we are picking specific ones and this is not one, skip it
+			if ((assessmentsToImport != null) && (!assessmentsToImport.contains(assessment.getId()))) continue;
+
+			// if we are skipping this one, skip it
+			if (skippedAssessments.contains(assessment.getId())) continue;
+
+			refs.addAll(this.attachmentService.harvestAttachmentsReferenced(assessment.getPresentation().getText(), true));
+			for (Reference attachment : assessment.getPresentation().getAttachments())
+			{
+				refs.add(attachment.getReference());
+			}
+			refs.addAll(this.attachmentService.harvestAttachmentsReferenced(assessment.getSubmitPresentation().getText(), true));
+			for (Reference attachment : assessment.getSubmitPresentation().getAttachments())
+			{
+				refs.add(attachment.getReference());
+			}
+
+			for (Part part : assessment.getParts().getParts())
+			{
+				refs.addAll(this.attachmentService.harvestAttachmentsReferenced(part.getPresentation().getText(), true));
+				for (Reference attachment : part.getPresentation().getAttachments())
+				{
+					refs.add(attachment.getReference());
+				}
+			}
+		}
+
+		// any others in MnemeDocs for the site we have not yet covered - only if we are taking the whole set, not specific assessments
+		if (assessmentsToImport == null)
+		{
+			List<Attachment> attachments = this.attachmentService.findFiles(AttachmentService.MNEME_APPLICATION, fromContext,
+					AttachmentService.DOCS_AREA);
+			for (Attachment attachment : attachments)
+			{
+				refs.add(attachment.getReference());
+			}
+		}
+
+		// import all referenced and attached documents, translating any html to local references, creating translations
+		List<Translation> translations = this.attachmentService.importResources(AttachmentService.MNEME_APPLICATION, toContext,
+				AttachmentService.DOCS_AREA, AttachmentService.NameConflictResolution.keepExisting, refs, AttachmentService.MNEME_THUMB_POLICY,
+				AttachmentService.REFERENCE_ROOT);
+
+		// copy each pool, with all questions, merging
+		for (Pool pool : pools)
+		{
+			// skip if we are not needing this pool
+			if ((allPoolsToImport != null) && (!allPoolsToImport.contains(pool.getId()))) continue;
+
+			// we might just want the pool to exist, and take only some questions (those in the pool that are also in the questionsToImport set)
+			boolean partial = ((partialPoolsToImport != null) && (partialPoolsToImport.contains(pool.getId())));
+			Pool newPool = ((PoolServiceImpl) this.poolService).doCopyPool(toContext, pool, false, qidMap, false, translations, true,
+					partial ? questionsToImport : null);
+
+			pidMap.put(pool.getId(), newPool.getId());
+		}
+
+		// copy each assessment, unless we have a title conflict
+		for (Assessment assessment : assessments)
+		{
+			// if we are picking specific ones and this is not one, skip it
+			if ((assessmentsToImport != null) && (!assessmentsToImport.contains(assessment.getId()))) continue;
+
+			// if we are skipping this one, skip it
+			if (skippedAssessments.contains(assessment.getId())) continue;
+
+			((AssessmentServiceImpl) this.assessmentService).doCopyAssessment(toContext, assessment, pidMap, qidMap, false, translations);
+		}
 	}
 
 	/**
@@ -326,122 +510,7 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 	 */
 	public void transferCopyEntities(String fromContext, String toContext, List ids)
 	{
-		if (M_log.isDebugEnabled()) M_log.debug("copy from: " + fromContext + " to: " + toContext);
-
-		// security check
-		if (!this.securityService.checkSecurity(sessionManager.getCurrentSessionUserId(), MnemeService.MANAGE_PERMISSION, toContext))
-		{
-			return;
-		}
-
-		// assessments we are skipping
-		Set<String> skippedAssessments = new HashSet<String>();
-
-		// map from old pool ids to new ids
-		Map<String, String> pidMap = new HashMap<String, String>();
-
-		// map from old question ids to new ids
-		Map<String, String> qidMap = new HashMap<String, String>();
-
-		// get all pools in the from context
-		List<Pool> pools = this.poolService.getPools(fromContext);
-
-		// get all the assessments in the from context
-		List<Assessment> assessments = this.assessmentService.getContextAssessments(fromContext, null, Boolean.FALSE);
-
-		// collect media references
-		Set<String> refs = new HashSet<String>();
-
-		// pools
-		for (Pool pool : pools)
-		{
-			// from the pool description
-			refs.addAll(this.attachmentService.harvestAttachmentsReferenced(pool.getDescription(), true));
-
-			List<String> qids = ((PoolImpl) pool).getAllQuestionIds(null, null);
-			for (String qid : qids)
-			{
-				Question question = this.questionService.getQuestion(qid);
-				refs.addAll(this.attachmentService.harvestAttachmentsReferenced(question.getPresentation().getText(), true));
-				for (Reference attachment : question.getPresentation().getAttachments())
-				{
-					refs.add(attachment.getReference());
-				}
-				refs.addAll(this.attachmentService.harvestAttachmentsReferenced(question.getHints(), true));
-				refs.addAll(this.attachmentService.harvestAttachmentsReferenced(question.getFeedback(), true));
-				for (String data : question.getTypeSpecificQuestion().getData())
-				{
-					refs.addAll(this.attachmentService.harvestAttachmentsReferenced(data, true));
-				}
-			}
-		}
-
-		// assessments
-		for (Assessment assessment : assessments)
-		{
-			refs.addAll(this.attachmentService.harvestAttachmentsReferenced(assessment.getPresentation().getText(), true));
-			for (Reference attachment : assessment.getPresentation().getAttachments())
-			{
-				refs.add(attachment.getReference());
-			}
-			refs.addAll(this.attachmentService.harvestAttachmentsReferenced(assessment.getSubmitPresentation().getText(), true));
-			for (Reference attachment : assessment.getSubmitPresentation().getAttachments())
-			{
-				refs.add(attachment.getReference());
-			}
-
-			for (Part part : assessment.getParts().getParts())
-			{
-				refs.addAll(this.attachmentService.harvestAttachmentsReferenced(part.getPresentation().getText(), true));
-				for (Reference attachment : part.getPresentation().getAttachments())
-				{
-					refs.add(attachment.getReference());
-				}
-			}
-		}
-
-		// any others in MnemeDocs for the site we have not yet covered
-		List<Attachment> attachments = this.attachmentService
-				.findFiles(AttachmentService.MNEME_APPLICATION, fromContext, AttachmentService.DOCS_AREA);
-		for (Attachment attachment : attachments)
-		{
-			refs.add(attachment.getReference());
-		}
-
-		// import all referenced and attached documents, translating any html to local references, creating translations
-		List<Translation> translations = this.attachmentService.importResources(AttachmentService.MNEME_APPLICATION, toContext,
-				AttachmentService.DOCS_AREA, AttachmentService.NameConflictResolution.keepExisting, refs, AttachmentService.MNEME_THUMB_POLICY,
-				AttachmentService.REFERENCE_ROOT);
-
-		// copy each pool, with all questions, merging
-		for (Pool pool : pools)
-		{
-			Pool newPool = ((PoolServiceImpl) this.poolService).doCopyPool(toContext, pool, false, qidMap, false, translations, true);
-			pidMap.put(pool.getId(), newPool.getId());
-		}
-
-		// copy each assessment, unless we have a title conflict
-		for (Assessment assessment : assessments)
-		{
-			// check if we have an assessment that matches (check title only)
-			List<Assessment> existingAssessments = this.assessmentService.getContextAssessments(toContext, AssessmentService.AssessmentsSort.cdate_a,
-					Boolean.FALSE);
-			boolean skipping = false;
-			for (Assessment candidate : existingAssessments)
-			{
-				if (!StringUtil.different(candidate.getTitle(), assessment.getTitle()))
-				{
-					skipping = true;
-					skippedAssessments.add(assessment.getTitle());
-					break;
-				}
-			}
-
-			if (!skipping)
-			{
-				((AssessmentServiceImpl) this.assessmentService).doCopyAssessment(toContext, assessment, pidMap, qidMap, false, translations);
-			}
-		}
+		importFromSite(fromContext, toContext, null);
 	}
 
 	/**
@@ -450,7 +519,7 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
 	{
 		// TODO: implement cleanup?
-		transferCopyEntities(fromContext, toContext, ids);
+		importFromSite(fromContext, toContext, null);
 	}
 
 	/**
@@ -498,5 +567,48 @@ public class MnemeTransferServiceImpl implements EntityTransferrer, EntityProduc
 		}
 
 		return false;
+	}
+
+	/**
+	 * For the assessment, find the set of pools and questions that it uses. Consider the original (not historical) versions.
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 * @param fullPools
+	 *        The set of ids of the pools the assessment draws from (so it uses the entire pool).
+	 * @param partialPools
+	 *        The set of ids of the pools the assessment picks specific questions from.
+	 * @param questions
+	 *        The set of ids of the questions that the assessment uses (picks).
+	 */
+	protected void findAssessmentDependencies(Assessment assessment, Set<String> fullPools, Set<String> partialPools, Set<String> questions)
+	{
+		for (Part part : assessment.getParts().getParts())
+		{
+			for (PartDetail detail : part.getDetails())
+			{
+				if (detail instanceof PoolDraw)
+				{
+					PoolDraw draw = (PoolDraw) detail;
+					fullPools.add(draw.getOrigPoolId());
+					// also remove it from partial in case it was there
+					partialPools.remove(draw.getOrigPoolId());
+				}
+				else if (detail instanceof QuestionPick)
+				{
+					QuestionPick pick = (QuestionPick) detail;
+					Question question = this.questionService.getQuestion(pick.getOrigQuestionId());
+					if (question != null)
+					{
+						// unless we are already going to copy the full pool add it to the partial pool list and specific question list
+						if (!fullPools.contains(question.getPool().getId()))
+						{
+							partialPools.add(question.getPool().getId());
+							questions.add(question.getId());
+						}
+					}
+				}
+			}
+		}
 	}
 }

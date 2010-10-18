@@ -114,6 +114,13 @@ public class GradeSubmissionView extends ControllerImpl
 			return;
 		}
 
+		// check that the assessment is not a formal course evaluation
+		if (submission.getAssessment().getFormalCourseEval())
+		{
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+
 		context.put("submission", submission);
 
 		// next and prev, based on the sort
@@ -133,7 +140,7 @@ public class GradeSubmissionView extends ControllerImpl
 		}
 		if (sort != null)
 		{
-			// check the "official / all" parameter from the return for "official", except for survey, where we consider them all			
+			// check the "official / all" parameter from the return for "official", except for survey, where we consider them all
 			Boolean official = Boolean.FALSE;
 			if ((params.length > 11) && ("official".equals(params[11])) && (submission.getAssessment().getType() != AssessmentType.survey))
 			{
@@ -332,7 +339,7 @@ public class GradeSubmissionView extends ControllerImpl
 			params[4] = newAnchor;
 			destination = StringUtil.unsplit(params, "/");
 		}
-		
+
 		else if (destination.equals("SAVE"))
 		{
 			destination = context.getDestination();

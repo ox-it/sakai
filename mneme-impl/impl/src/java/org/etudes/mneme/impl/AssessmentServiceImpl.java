@@ -198,6 +198,23 @@ public class AssessmentServiceImpl implements AssessmentService
 	/**
 	 * {@inheritDoc}
 	 */
+
+	public Boolean allowSetFormalCourseEvaluation(String context)
+	{
+		if (context == null) throw new IllegalArgumentException();
+		String userId = sessionManager.getCurrentSessionUserId();
+
+		if (M_log.isDebugEnabled()) M_log.debug("allowSetFormalCourseEvaluation: " + context + ": " + userId);
+
+		// check permission - user must have COURSE_EVAL_PERMISSION in the context
+		boolean ok = securityService.checkSecurity(userId, MnemeService.COURSE_EVAL_PERMISSION, context);
+
+		return ok;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void applyBaseDateTx(String context, int days_diff)
 	{
 		try
@@ -304,6 +321,30 @@ public class AssessmentServiceImpl implements AssessmentService
 
 		// thread-local cache (a copy)
 		if (rv != null) this.threadLocalManager.set(key, this.storage.clone(rv));
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<Assessment> getAssessmentsNeedingResultsEmail()
+	{
+		List<Assessment> rv = new ArrayList<Assessment>();
+
+		// this gets the candidates - but does not check the close dates
+		List<AssessmentImpl> assessments = this.storage.getAssessmentsNeedingResultsEmail();
+
+		// TODO: security?
+
+		// filter in those that are closed now
+		for (Assessment a : assessments)
+		{
+			if (a.getDates().getIsClosed())
+			{
+				rv.add(a);
+			}
+		}
 
 		return rv;
 	}
@@ -521,6 +562,19 @@ public class AssessmentServiceImpl implements AssessmentService
 			// also default to "review available upon submission" and "manual release"
 			assessment.getReview().setTiming(ReviewTiming.submitted);
 			assessment.getGrading().setAutoRelease(Boolean.FALSE);
+		}
+
+		// if type is changed from survey, clear formal evaluation
+		if ((((AssessmentImpl) assessment).getTypeChanged()) && (assessment.getType() != AssessmentType.survey))
+		{
+			// formal course evaluation is only for surveys
+			assessment.setFormalCourseEval(Boolean.FALSE);
+		}
+
+		// enforce 1 try for formal course evaluation
+		if (assessment.getFormalCourseEval())
+		{
+			assessment.setTries(1);
 		}
 
 		// if any changes made, clear mint
@@ -759,6 +813,21 @@ public class AssessmentServiceImpl implements AssessmentService
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public void sendResults(Assessment assessment)
+	{
+		if (assessment == null) throw new IllegalArgumentException();
+
+		// must be set for email, and be closed
+		if (assessment.getResultsEmail() == null) return;
+		if (!assessment.getDates().getIsClosed()) return;
+
+		// do it - the submission service handles this
+		((SubmissionServiceImpl) this.submissionService).emailResults(assessment);
+	}
+
+	/**
 	 * Dependency: AttachmentService.
 	 * 
 	 * @param service
@@ -811,6 +880,18 @@ public class AssessmentServiceImpl implements AssessmentService
 	public void setQuestionService(QuestionService service)
 	{
 		questionService = service;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setResultsSent(Assessment assessment, Date date)
+	{
+		if (assessment == null) throw new IllegalArgumentException();
+		if (date == null) throw new IllegalArgumentException();
+
+		// TODO: security?
+		this.storage.setResultsSent(assessment.getId(), date);
 	}
 
 	/**
@@ -968,6 +1049,12 @@ public class AssessmentServiceImpl implements AssessmentService
 		rv.initLive(Boolean.FALSE);
 		rv.initLocked(Boolean.FALSE);
 
+		// email results not sent
+		rv.initResultsSent(null);
+
+		// newly copied are never formal course evaluation
+		rv.initFormalCourseEval(Boolean.FALSE);
+
 		((AssessmentGradingImpl) (rv.getGrading())).initGradebookRejectedAssessment(Boolean.FALSE);
 
 		// update created and last modified information
@@ -1107,7 +1194,10 @@ public class AssessmentServiceImpl implements AssessmentService
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Save the assessment
+	 * 
+	 * @param assessment
+	 *        The assessment.
 	 */
 	protected void save(AssessmentImpl assessment)
 	{

@@ -82,6 +82,24 @@
 
 				<section>
 					<included>
+						<decision model="mneme" />
+					</included>
+					<container>
+						<navigation title="import-mneme-sites" style="LINK">
+							<icon icon="/icons/import_assessment.png" style="LEFT" />
+							<destination template="/import_mneme_site/pools/{0}">
+								<model ref="poolsSort" />
+							</destination>
+						</navigation>
+						<instructions>
+							<message selector="import-mneme-sites-instructions" />
+						</instructions>
+						<gap />
+					</container>
+				</section>
+
+				<section>
+					<included>
 						<decision model="tq" />
 					</included>
 					<container>

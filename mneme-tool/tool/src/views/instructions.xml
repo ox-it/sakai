@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -197,6 +197,22 @@
 			</container>
 			<included>
 				<compareDecision model="submission.assessment.type" constant="survey" />
+				<decision reversed="TRUE" model="submission.assessment.formalCourseEval" />
+			</included>
+		</section>
+
+		<!-- course evaluation instructions -->
+		<section>
+			<container>
+				<instructions>
+					<message selector="course-eval-instructions">
+						<model type="icon" icon="/icons/survey_type.png" />
+					</message>
+				</instructions>
+			</container>
+			<included>
+				<compareDecision model="submission.assessment.type" constant="survey" />
+				<decision model="submission.assessment.formalCourseEval" />
 			</included>
 		</section>
 

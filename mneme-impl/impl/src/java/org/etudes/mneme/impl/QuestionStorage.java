@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -27,6 +27,7 @@ package org.etudes.mneme.impl;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.Question;
@@ -76,16 +77,17 @@ public interface QuestionStorage
 	 * @param asHistory
 	 *        If set, make the questions historical.
 	 * @param oldToNew
-	 *        A map, which, if present, will be filled in with the mapping of the source question id to the destination question id for each question
-	 *        copied.
+	 *        A map, which, if present, will be filled in with the mapping of the source question id to the destination question id for each question copied.
 	 * @param attachmentTranslations
 	 *        A list of Translations for attachments and embedded media.
 	 * @param merge
 	 *        if true, if there is question already in the pool that matches one to be copied, don't copy it and create a new question.
+	 * @param includeQuestions
+	 *        if not null, only import the pool's question if its id is in the set.
 	 * @return A List of the ids of the new questions created.
 	 */
 	List<String> copyPoolQuestions(String userId, Pool source, Pool destination, boolean asHistory, Map<String, String> oldToNew,
-			List<Translation> attachmentTranslations, boolean merge);
+			List<Translation> attachmentTranslations, boolean merge, Set<String> includeQuestions);
 
 	/**
 	 * Count the questions in this context.

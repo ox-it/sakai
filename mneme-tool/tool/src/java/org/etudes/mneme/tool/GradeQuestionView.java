@@ -112,6 +112,14 @@ public class GradeQuestionView extends ControllerImpl
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.invalid)));
 			return;
 		}
+
+		// check that the assessment is not a formal course evaluation
+		if (assessment.getFormalCourseEval())
+		{
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+
 		context.put("assessment", assessment);
 
 		// question
@@ -365,7 +373,7 @@ public class GradeQuestionView extends ControllerImpl
 					this.submissionService.evaluateSubmission(((Answer) a).getSubmission());
 				}
 			}
-			
+
 			// otherwise we can just save the answers
 			else
 			{

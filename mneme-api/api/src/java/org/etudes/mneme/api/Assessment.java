@@ -24,6 +24,7 @@
 
 package org.etudes.mneme.api;
 
+import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.user.api.User;
@@ -82,6 +83,11 @@ public interface Assessment
 	 * @return The availability dates for the assessment.
 	 */
 	AssessmentDates getDates();
+
+	/**
+	 * @return TRUE if this is marked as a formal course evaluation, FALSE if not.
+	 */
+	Boolean getFormalCourseEval();
 
 	/**
 	 * Check if grades are to be sent to the Gradebook application, considering type, points, hasPoints, and the grades setting.
@@ -257,6 +263,16 @@ public interface Assessment
 	Boolean getRequireHonorPledge();
 
 	/**
+	 * @return the email address string for sending results to.
+	 */
+	String getResultsEmail();
+
+	/**
+	 * @return the date when the results email was last sent, or null if it has not been sent.
+	 */
+	Date getResultsSent();
+
+	/**
 	 * Access the assessment review settings.
 	 * 
 	 * @return The assessment review settings.
@@ -370,6 +386,14 @@ public interface Assessment
 	void setContext(String context);
 
 	/**
+	 * Set the assessment's formal course evaluation setting.
+	 * 
+	 * @param setting
+	 *        The formal course evaluation setting.
+	 */
+	void setFormalCourseEval(Boolean setting);
+
+	/**
 	 * An alternate way to clear the time limit if set to false.
 	 * 
 	 * @param hasTimeLimit
@@ -424,6 +448,22 @@ public interface Assessment
 	 *        TRUE if this assessment requires an "honor pledge" from the user, FALSE if not.
 	 */
 	void setRequireHonorPledge(Boolean honorPledge);
+
+	/**
+	 * Set the email address for sending results to.
+	 * 
+	 * @param setting
+	 *        The email address string (comma separated email addresses) for sending results to.
+	 */
+	void setResultsEmail(String setting);
+
+	/**
+	 * Set when assessment results email was last sent.
+	 * 
+	 * @param date
+	 *        The date that the results email was last sent, or null to indicate that it was not sent.
+	 */
+	void setResultsSent(Date date);
 
 	/**
 	 * Set the "show hints" setting

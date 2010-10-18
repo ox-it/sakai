@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -44,7 +44,6 @@ import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.QuestionPoolService.FindQuestionsSort;
-import org.etudes.util.TranslationImpl;
 import org.etudes.util.api.Translation;
 import org.sakaiproject.util.StringUtil;
 
@@ -136,7 +135,7 @@ public abstract class QuestionStorageSample implements QuestionStorage
 	 * {@inheritDoc}
 	 */
 	public List<String> copyPoolQuestions(String userId, Pool source, Pool destination, boolean asHistory, Map<String, String> oldToNew,
-			List<Translation> attachmentTranslations, boolean merge)
+			List<Translation> attachmentTranslations, boolean merge, Set<String> includeQuestions)
 	{
 		List<String> rv = new ArrayList<String>();
 
@@ -145,6 +144,9 @@ public abstract class QuestionStorageSample implements QuestionStorage
 		{
 			if (!question.getMint() && question.getPool().equals(source))
 			{
+				// skip if we are being selective and don't want this one
+				if ((includeQuestions != null) && (!includeQuestions.contains(question.getId()))) continue;
+
 				QuestionImpl q = new QuestionImpl(question);
 
 				// set the destination as the pool

@@ -3,11 +3,8 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2010 Etudes, Inc.
  * 
- * Portions completed before September 1, 2008
- * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,33 +21,22 @@
 
 package org.etudes.mneme.api;
 
+import java.util.Set;
+
 /**
- * Ent is even smaller than Entity - just something with an id and description.
+ * MnemeTransferService provides support for import into Mneme from other Mneme sites.
  */
-public interface Ent
+public interface MnemeTransferService
 {
 	/**
-	 * Access the description.
+	 * Import items from one site to another, possibly limited to a set of assessments and their dependencies (pools, questions)
 	 * 
-	 * @return The description.
+	 * @param fromContext
+	 *        The source context.
+	 * @param toContext
+	 *        The destination context.
+	 * @param assessmentsToImport
+	 *        The set of assessment ids to import - if null, import all from the fromContext.
 	 */
-	String getDescription();
-
-	/**
-	 * Access the id.
-	 * 
-	 * @return The id;
-	 */
-	String getId();
-	
-	/**
-	 * @return if the Ent is marked
-	 */
-	Boolean getMarked();
-	
-	/**
-	 * Mark the End
-	 * @param marked The marking.
-	 */
-	void setMarked(Boolean marked);
+	void importFromSite(String fromContext, String toContext, Set<String> assessmentsToImport);
 }

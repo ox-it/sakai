@@ -98,6 +98,56 @@
 									<valueMessage>
 										<message template="survey" />
 									</valueMessage>
+									<container separate="TRUE" indented="TRUE">
+										<selection>
+											<selectionChoices>
+												<selectionChoice>
+													<displayMessage>
+														<message selector="formal-eval" />
+													</displayMessage>
+													<valueMessage>
+														<message template="true" />
+													</valueMessage>
+												</selectionChoice>
+											</selectionChoices>
+											<model ref="assessment.formalCourseEval" />
+											<readOnly>
+												<decision model="assessment.isLocked" />
+											</readOnly>
+											<included>
+												<compareDecision model="assessment.type" constant="survey" />
+												<hasValueDecision model="allowEval" />
+											</included>
+											<destination template="/assessment_edit/{0}/{1}">
+												<model ref="sortcode" />
+												<model ref="assessment.id" />
+											</destination>
+										</selection>
+										<textEdit title="results-email" cols="40">
+											<model ref="assessment.resultsEmail" type="text" />
+											<readOnly>
+												<decision model="assessment.formalCourseEval" />
+												<decision model="assessment.isLocked" />
+											</readOnly>
+											<included>
+												<compareDecision model="assessment.type" constant="survey" />
+												<decision model="assessment.formalCourseEval" />
+												<hasValueDecision model="allowEval" />
+											</included>
+										</textEdit>
+										<dateEdit id="ddate" title="due-date">
+											<model ref="assessment.dates.dueDate" type="date" />
+											<readOnly>
+												<decision model="assessment.formalCourseEval" />
+												<decision model="assessment.isLocked" />
+											</readOnly>
+											<included>
+												<compareDecision model="assessment.type" constant="survey" />
+												<decision model="assessment.formalCourseEval" />
+												<hasValueDecision model="allowEval" />
+											</included>
+										</dateEdit>											
+									</container>
 								</selectionChoice>
 							</selectionChoices>
 							<included>

@@ -24,6 +24,7 @@
 
 package org.etudes.mneme.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -149,18 +150,30 @@ public class SubmissionAssessmentImpl implements Assessment
 	 */
 	public AssessmentDates getDates()
 	{
-		// this might be overridden in the main assessment's special access
-		AssessmentAccess special = getAssessment().getSpecialAccess().getUserAccess(this.submission.getUserId());
-		if (special != null)
+		// formal course evaluation does not recognize special access
+		if (!getAssessment().getFormalCourseEval())
 		{
-			if (special.getOverrideAcceptUntilDate() || special.getOverrideDueDate() || special.getOverrideOpenDate())
+			// this might be overridden in the main assessment's special access
+			AssessmentAccess special = getAssessment().getSpecialAccess().getUserAccess(this.submission.getUserId());
+			if (special != null)
 			{
-				// return a special dates impl that knows how to override
-				return new AssessmentDatesOverrideImpl(getAssessment(), special);
+				if (special.getOverrideAcceptUntilDate() || special.getOverrideDueDate() || special.getOverrideOpenDate())
+				{
+					// return a special dates impl that knows how to override
+					return new AssessmentDatesOverrideImpl(getAssessment(), special);
+				}
 			}
 		}
 
 		return getAssessment().getDates();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getFormalCourseEval()
+	{
+		return this.getAssessment().getFormalCourseEval();
 	}
 
 	/**
@@ -203,13 +216,17 @@ public class SubmissionAssessmentImpl implements Assessment
 		// if the main (historical) has no limit, we ignore any special access defined
 		if (!getAssessment().getHasTimeLimit()) return Boolean.FALSE;
 
-		// this might be overridden in the main assessment's special access
-		AssessmentAccess special = getAssessment().getSpecialAccess().getUserAccess(this.submission.getUserId());
-		if (special != null)
+		// formal course evaluation does not recognize special access
+		if (!getAssessment().getFormalCourseEval())
 		{
-			if (special.getOverrideTimeLimit())
+			// this might be overridden in the main assessment's special access
+			AssessmentAccess special = getAssessment().getSpecialAccess().getUserAccess(this.submission.getUserId());
+			if (special != null)
 			{
-				return special.getHasTimeLimit();
+				if (special.getOverrideTimeLimit())
+				{
+					return special.getHasTimeLimit();
+				}
 			}
 		}
 
@@ -221,13 +238,17 @@ public class SubmissionAssessmentImpl implements Assessment
 	 */
 	public Boolean getHasTriesLimit()
 	{
-		// this might be overridden in the main assessment's special access
-		AssessmentAccess special = getAssessment().getSpecialAccess().getUserAccess(this.submission.getUserId());
-		if (special != null)
+		// formal course evaluation does not recognize special access
+		if (!getAssessment().getFormalCourseEval())
 		{
-			if (special.getOverrideTries())
+			// this might be overridden in the main assessment's special access
+			AssessmentAccess special = getAssessment().getSpecialAccess().getUserAccess(this.submission.getUserId());
+			if (special != null)
 			{
-				return special.getHasTriesLimit();
+				if (special.getOverrideTries())
+				{
+					return special.getHasTriesLimit();
+				}
 			}
 		}
 
@@ -351,13 +372,17 @@ public class SubmissionAssessmentImpl implements Assessment
 	 */
 	public AssessmentPassword getPassword()
 	{
-		// this might be overridden in the main assessment's special access
-		AssessmentAccess special = getAssessment().getSpecialAccess().getUserAccess(this.submission.getUserId());
-		if (special != null)
+		// formal course evaluation does not recognize special access
+		if (!getAssessment().getFormalCourseEval())
 		{
-			if (special.getOverridePassword())
+			// this might be overridden in the main assessment's special access
+			AssessmentAccess special = getAssessment().getSpecialAccess().getUserAccess(this.submission.getUserId());
+			if (special != null)
 			{
-				return special.getPassword();
+				if (special.getOverridePassword())
+				{
+					return special.getPassword();
+				}
 			}
 		}
 
@@ -410,6 +435,22 @@ public class SubmissionAssessmentImpl implements Assessment
 	public Boolean getRequireHonorPledge()
 	{
 		return getAssessment().getRequireHonorPledge();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getResultsEmail()
+	{
+		return this.getAssessment().getResultsEmail();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Date getResultsSent()
+	{
+		return this.getAssessment().getResultsSent();
 	}
 
 	/**
@@ -485,13 +526,17 @@ public class SubmissionAssessmentImpl implements Assessment
 		// if the main has no limit, we ignore any special access defined
 		if (!getAssessment().getHasTimeLimit()) return null;
 
-		// this might be overridden in the main assessment's special access
-		AssessmentAccess special = getAssessment().getSpecialAccess().getUserAccess(this.submission.getUserId());
-		if (special != null)
+		// formal course evaluation does not recognize special access
+		if (!getAssessment().getFormalCourseEval())
 		{
-			if (special.getOverrideTimeLimit())
+			// this might be overridden in the main assessment's special access
+			AssessmentAccess special = getAssessment().getSpecialAccess().getUserAccess(this.submission.getUserId());
+			if (special != null)
 			{
-				return special.getTimeLimit();
+				if (special.getOverrideTimeLimit())
+				{
+					return special.getTimeLimit();
+				}
 			}
 		}
 
@@ -511,13 +556,17 @@ public class SubmissionAssessmentImpl implements Assessment
 	 */
 	public Integer getTries()
 	{
-		// this might be overridden in the main assessment's special access
-		AssessmentAccess special = getAssessment().getSpecialAccess().getUserAccess(this.submission.getUserId());
-		if (special != null)
+		// formal course evaluation does not recognize special access
+		if (!getAssessment().getFormalCourseEval())
 		{
-			if (special.getOverrideTries())
+			// this might be overridden in the main assessment's special access
+			AssessmentAccess special = getAssessment().getSpecialAccess().getUserAccess(this.submission.getUserId());
+			if (special != null)
 			{
-				return special.getTries();
+				if (special.getOverrideTries())
+				{
+					return special.getTries();
+				}
 			}
 		}
 
@@ -560,6 +609,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	 * {@inheritDoc}
 	 */
 	public void setContext(String context)
+	{
+		throw new IllegalArgumentException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setFormalCourseEval(Boolean setting)
 	{
 		throw new IllegalArgumentException();
 	}
@@ -616,6 +673,22 @@ public class SubmissionAssessmentImpl implements Assessment
 	 * {@inheritDoc}
 	 */
 	public void setRequireHonorPledge(Boolean honorPledge)
+	{
+		throw new IllegalArgumentException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setResultsEmail(String setting)
+	{
+		throw new IllegalArgumentException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setResultsSent(Date setting)
 	{
 		throw new IllegalArgumentException();
 	}

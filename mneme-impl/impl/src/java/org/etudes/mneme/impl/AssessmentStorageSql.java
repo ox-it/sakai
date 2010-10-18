@@ -222,6 +222,16 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	/**
 	 * {@inheritDoc}
 	 */
+	public List<AssessmentImpl> getAssessmentsNeedingResultsEmail()
+	{
+		String where = "WHERE A.RESULTS_EMAIL IS NOT NULL AND A.PUBLISHED = '1' AND A.RESULTS_SENT IS NULL";
+
+		return readAssessments(where, null, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public AssessmentImpl getAssessment(String id)
 	{
 		return readAssessment(id);
@@ -470,6 +480,14 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 			}
 		}
 		((AssessmentPartsImpl) assessment.getParts()).clearDeleted();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setResultsSent(String id, Date date)
+	{
+		setResultsSentTx(id, date);
 	}
 
 	/**
@@ -921,8 +939,8 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT A.ARCHIVED, A.CONTEXT, A.CREATED_BY_DATE, A.CREATED_BY_USER,");
 		sql.append(" A.DATES_ACCEPT_UNTIL, A.DATES_ARCHIVED, A.DATES_DUE, A.DATES_OPEN,");
-		sql.append(" A.GRADING_ANONYMOUS, A.GRADING_AUTO_RELEASE, A.GRADING_GRADEBOOK, A.GRADING_REJECTED,");
-		sql.append(" A.HONOR_PLEDGE, A.ID, A.LIVE, A.LOCKED, A.MINT, A.MODIFIED_BY_DATE, A.MODIFIED_BY_USER,");
+		sql.append(" A.GRADING_ANONYMOUS, A.GRADING_AUTO_RELEASE, A.GRADING_GRADEBOOK, A.GRADING_REJECTED, A.FORMAL_EVAL, A.RESULTS_EMAIL,");
+		sql.append(" A.RESULTS_SENT, A.HONOR_PLEDGE, A.ID, A.LIVE, A.LOCKED, A.MINT, A.MODIFIED_BY_DATE, A.MODIFIED_BY_USER,");
 		sql.append(" A.PARTS_CONTINUOUS, A.PARTS_SHOW_PRES, A.PASSWORD, A.PRESENTATION_TEXT,");
 		sql.append(" A.PUBLISHED, A.QUESTION_GROUPING, A.RANDOM_ACCESS,");
 		sql.append(" A.REVIEW_DATE, A.REVIEW_SHOW_CORRECT, A.REVIEW_SHOW_FEEDBACK, A.REVIEW_TIMING,");
@@ -951,6 +969,9 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 					((AssessmentGradingImpl) (assessment.getGrading())).initAutoRelease(SqlHelper.readBoolean(result, i++));
 					((AssessmentGradingImpl) (assessment.getGrading())).initGradebookIntegration(SqlHelper.readBoolean(result, i++));
 					((AssessmentGradingImpl) (assessment.getGrading())).initGradebookRejectedAssessment(SqlHelper.readBoolean(result, i++));
+					assessment.initFormalCourseEval(SqlHelper.readBoolean(result, i++));
+					assessment.initResultsEmail(SqlHelper.readString(result, i++));
+					assessment.initResultsSent(SqlHelper.readDate(result, i++));
 					assessment.setRequireHonorPledge(SqlHelper.readBoolean(result, i++));
 					assessment.initId(SqlHelper.readId(result, i++));
 					assessment.initLive(SqlHelper.readBoolean(result, i++));
@@ -1233,6 +1254,28 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	}
 
 	/**
+	 * Update the assessment email results sent date (transaction code).
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 */
+	protected void setResultsSentTx(String id, Date date)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("UPDATE MNEME_ASSESSMENT SET RESULTS_SENT=? WHERE ID=?");
+
+		Object[] fields = new Object[2];
+		int i = 0;
+		fields[i++] = (date == null) ? null : date.getTime();
+		fields[i++] = Long.valueOf(id);
+
+		if (!this.sqlService.dbWrite(sql.toString(), fields))
+		{
+			throw new RuntimeException("setResultsSentTx: dbWrite failed");
+		}
+	}
+
+	/**
 	 * Update an existing assessment access record (transaction code).
 	 * 
 	 * @param assessment
@@ -1344,15 +1387,15 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		sql.append("UPDATE MNEME_ASSESSMENT SET");
 		sql.append(" ARCHIVED=?, CONTEXT=?,");
 		sql.append(" DATES_ACCEPT_UNTIL=?, DATES_ARCHIVED=?, DATES_DUE=?, DATES_OPEN=?,");
-		sql.append(" GRADING_ANONYMOUS=?, GRADING_AUTO_RELEASE=?, GRADING_GRADEBOOK=?, GRADING_REJECTED=?,");
-		sql.append(" HONOR_PLEDGE=?, LIVE=?, LOCKED=?, MINT=?, MODIFIED_BY_DATE=?, MODIFIED_BY_USER=?,");
+		sql.append(" GRADING_ANONYMOUS=?, GRADING_AUTO_RELEASE=?, GRADING_GRADEBOOK=?, GRADING_REJECTED=?, FORMAL_EVAL=?, RESULTS_EMAIL=?,");
+		sql.append(" RESULTS_SENT=?, HONOR_PLEDGE=?, LIVE=?, LOCKED=?, MINT=?, MODIFIED_BY_DATE=?, MODIFIED_BY_USER=?,");
 		sql.append(" PARTS_CONTINUOUS=?, PARTS_SHOW_PRES=?, PASSWORD=?, PRESENTATION_TEXT=?,");
 		sql.append(" PUBLISHED=?, QUESTION_GROUPING=?, RANDOM_ACCESS=?,");
 		sql.append(" REVIEW_DATE=?, REVIEW_SHOW_CORRECT=?, REVIEW_SHOW_FEEDBACK=?, REVIEW_TIMING=?,");
 		sql.append(" SHOW_HINTS=?, SHOW_MODEL_ANSWER=?, SUBMIT_PRES_TEXT=?, TIME_LIMIT=?, TITLE=?, TRIES=?, TYPE=?, POOL=?, NEEDSPOINTS=?");
 		sql.append(" WHERE ID=?");
 
-		Object[] fields = new Object[37];
+		Object[] fields = new Object[40];
 		int i = 0;
 		fields[i++] = assessment.getArchived() ? "1" : "0";
 		fields[i++] = assessment.getContext();
@@ -1364,6 +1407,9 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		fields[i++] = assessment.getGrading().getAutoRelease() ? "1" : "0";
 		fields[i++] = assessment.getGrading().getGradebookIntegration() ? "1" : "0";
 		fields[i++] = assessment.getGrading().getGradebookRejectedAssessment() ? "1" : "0";
+		fields[i++] = assessment.getFormalCourseEval() ? "1" : "0";
+		fields[i++] = assessment.getResultsEmail();
+		fields[i++] = (assessment.getResultsSent() == null) ? null : assessment.getResultsSent().getTime();
 		fields[i++] = assessment.getRequireHonorPledge() ? "1" : "0";
 		fields[i++] = assessment.getIsLive() ? "1" : "0";
 		fields[i++] = assessment.getIsLocked() ? "1" : "0";

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -37,11 +37,11 @@ import org.etudes.mneme.api.MnemeService;
 public abstract class AssessmentDatesBaseImpl implements AssessmentDates
 {
 	/** Link back to the assessment, to get at published and archived settings. */
-	protected Assessment assessessment = null;
+	protected Assessment assessment = null;
 
 	public AssessmentDatesBaseImpl(Assessment assessment)
 	{
-		this.assessessment = assessment;
+		this.assessment = assessment;
 	}
 
 	/**
@@ -104,8 +104,8 @@ public abstract class AssessmentDatesBaseImpl implements AssessmentDates
 	 */
 	public Boolean getIsClosed()
 	{
-		if (this.assessessment.getArchived()) return Boolean.TRUE;
-		if (!this.assessessment.getPublished()) return Boolean.TRUE;
+		if (this.assessment.getArchived()) return Boolean.TRUE;
+		if (!this.assessment.getPublished()) return Boolean.TRUE;
 
 		// if there is no end to submissions, we are never closed
 		if (getSubmitUntilDate() == null) return Boolean.FALSE;
@@ -138,8 +138,8 @@ public abstract class AssessmentDatesBaseImpl implements AssessmentDates
 	 */
 	public Boolean getIsOpen(Boolean withGrace)
 	{
-		if (this.assessessment.getArchived()) return Boolean.FALSE;
-		if (!this.assessessment.getPublished()) return Boolean.FALSE;
+		if (this.assessment.getArchived()) return Boolean.FALSE;
+		if (!this.assessment.getPublished()) return Boolean.FALSE;
 
 		Date now = new Date();
 		long grace = withGrace ? MnemeService.GRACE : 0l;

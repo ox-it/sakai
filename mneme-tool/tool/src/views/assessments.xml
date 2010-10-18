@@ -152,6 +152,13 @@
 								<model ref="sort_direction" />
 							</destination>
 						</navigation>
+						<navigation title="import-title" style="LINK" submit="TRUE">
+							<icon icon="/icons/import_assessment.png" style="LEFT" />
+							<destination template="/import_mneme_site/assessments/{0}{1}">
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+							</destination>
+						</navigation>
 					</entityActions>
 				</selectionColumn>
 				<modelColumn pixels="16" centered="TRUE">
@@ -294,6 +301,10 @@
 					<container>
 						<dateEdit>
 							<model ref="assessment.dates.dueDate" type="date" />
+							<readOnly>
+								<decision model="assessment.formalCourseEval" />
+								<decision model="assessment.isLocked" />
+							</readOnly>
 						</dateEdit>
 					</container>
 				</column>
@@ -304,6 +315,10 @@
 					<container>
 						<dateEdit>
 							<model ref="assessment.dates.acceptUntilDate" type="date" />
+							<readOnly>
+								<decision model="assessment.formalCourseEval" />
+								<decision model="assessment.isLocked" />
+							</readOnly>
 						</dateEdit>
 					</container>
 				</column>
@@ -352,7 +367,10 @@
 						</navigation>
 					</navigations>
 				</column>
-				<column centered="TRUE" pixels="64" wrap="FALSE">
+				<column centered="TRUE" pixels="16" wrap="FALSE">
+					<entityIncluded>
+						<decision reversed="TRUE" model="assessment.formalCourseEval" />
+					</entityIncluded>
 					<navigations>
 						<navigation style="LINK" submit="TRUE" description="special-access-view">
 							<icon icon="/icons/access_view.png" style="LEFT" />
@@ -376,7 +394,10 @@
 								<decision reversed="TRUE" model="assessment.specialAccess.isDefined" />
 							</included>
 						</navigation>
-						<text selector="blank" />
+					</navigations>
+				</column>
+				<column centered="TRUE" pixels="16" wrap="FALSE">
+					<navigations>
 						<navigation style="LINK" submit="TRUE" description="duplicate">
 							<icon icon="/icons/page_copy.png" style="LEFT" />
 							<destination template="DUPLICATE:{0}">

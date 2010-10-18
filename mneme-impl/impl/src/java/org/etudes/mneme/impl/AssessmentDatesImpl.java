@@ -111,6 +111,9 @@ public class AssessmentDatesImpl extends AssessmentDatesBaseImpl implements Asse
 		this.acceptUntil = date;
 
 		this.owner.setChanged();
+
+		// this is a change that cannot be made to locked assessments if set to a formal course evaluation
+		if (this.assessment.getFormalCourseEval()) ((AssessmentImpl) this.assessment).lockedChanged = Boolean.TRUE;
 	}
 
 	/**
@@ -123,6 +126,9 @@ public class AssessmentDatesImpl extends AssessmentDatesBaseImpl implements Asse
 		this.due = date;
 
 		this.owner.setChanged();
+
+		// this is a change that cannot be made to locked assessments if set to a formal course evaluation
+		if (this.assessment.getFormalCourseEval()) ((AssessmentImpl) this.assessment).lockedChanged = Boolean.TRUE;
 	}
 
 	/**

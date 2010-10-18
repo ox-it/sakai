@@ -88,6 +88,15 @@ public interface AssessmentService
 	Boolean allowRemoveAssessment(Assessment assessment);
 
 	/**
+	 * Check if the user is allowed to setup a formal course evaluation.
+	 * 
+	 * @param context
+	 *        The context.
+	 * @return TRUE if the user is allowed, FALSE if not.
+	 */
+	Boolean allowSetFormalCourseEvaluation(String context);
+
+	/**
 	 * Apply base date changes to open, due and accept until dates of this context's unarchived assessments
 	 * 
 	 * @param context
@@ -142,6 +151,11 @@ public interface AssessmentService
 	 * @return The assessment object, or null if not found.
 	 */
 	Assessment getAssessment(String id);
+
+	/**
+	 * @return the assessments that need to have their results email sent. These are set for results email, are closed, and not yet sent.
+	 */
+	List<Assessment> getAssessmentsNeedingResultsEmail();
 
 	/**
 	 * Get all the assessments for the context, sorted. Does not include archived assessments.
@@ -220,4 +234,22 @@ public interface AssessmentService
 	 *         if the changes are not allowed to be saved due to policy violation.
 	 */
 	void saveAssessment(Assessment assessment) throws AssessmentPermissionException, AssessmentPolicyException;
+
+	/**
+	 * If the assessment is setup for sending email results, and is closed, send the email.
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 */
+	void sendResults(Assessment assessment);
+
+	/**
+	 * Set the date that the results email was sent.
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 * @param date
+	 *        The date, or null to indicate not sent.
+	 */
+	void setResultsSent(Assessment assessment, Date date);
 }

@@ -43,6 +43,7 @@ import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentSpecialAccess;
 import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.Attribution;
+import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.PartDetail;
 import org.etudes.mneme.api.Pool;
@@ -67,7 +68,6 @@ public class AssessmentImpl implements Assessment
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(AssessmentImpl.class);
-
 	protected Boolean archived = Boolean.FALSE;
 
 	/** Track the original archived setting. */
@@ -83,6 +83,8 @@ public class AssessmentImpl implements Assessment
 	protected Attribution createdBy = null;
 
 	protected AssessmentDates dates = null;
+
+	protected Boolean formalCourseEval = Boolean.FALSE;
 
 	protected AssessmentGrading grading = null;
 
@@ -132,6 +134,10 @@ public class AssessmentImpl implements Assessment
 	protected transient QuestionService questionService = null;
 
 	protected Boolean randomAccess = Boolean.TRUE;
+
+	protected String resultsEmail = null;
+
+	protected Date resultsSent = null;
 
 	protected AssessmentReview review = null;
 
@@ -302,6 +308,14 @@ public class AssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getFormalCourseEval()
+	{
+		return this.formalCourseEval;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Boolean getGradebookIntegration()
 	{
 		// if not set for gb
@@ -466,6 +480,18 @@ public class AssessmentImpl implements Assessment
 		// points if needed
 		if (!this.getIsPointsValid()) return Boolean.FALSE;
 
+		// formal course evaluations must have the results email set
+		if (this.getFormalCourseEval())
+		{
+			if (this.getResultsEmail() == null) return Boolean.FALSE;
+		}
+
+		// results email feature needs a due or accept until date
+		if (this.getResultsEmail() != null)
+		{
+			if ((this.dates.getDueDate() == null) && (this.dates.getAcceptUntilDate() == null)) return Boolean.FALSE;
+		}
+
 		return Boolean.TRUE;
 	}
 
@@ -597,6 +623,22 @@ public class AssessmentImpl implements Assessment
 	public Boolean getRequireHonorPledge()
 	{
 		return this.honorPledge;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getResultsEmail()
+	{
+		return this.resultsEmail;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Date getResultsSent()
+	{
+		return this.resultsSent;
 	}
 
 	/**
@@ -753,6 +795,26 @@ public class AssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public void setFormalCourseEval(Boolean setting)
+	{
+		// for null, use the default FALSE
+		if (setting == null) setting = Boolean.FALSE;
+		if (this.formalCourseEval.equals(setting)) return;
+
+		// we need special permission (fail quietly)
+		if (!assessmentService.allowSetFormalCourseEvaluation(getContext())) return;
+
+		this.formalCourseEval = setting;
+
+		// this is a change that cannot be made to locked assessments
+		this.lockedChanged = Boolean.TRUE;
+
+		this.changed.setChanged();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setHasTimeLimit(Boolean hasTimeLimit)
 	{
 		if (hasTimeLimit == null) throw new IllegalArgumentException();
@@ -777,6 +839,9 @@ public class AssessmentImpl implements Assessment
 			this.tries = null;
 
 			this.changed.setChanged();
+
+			// this is a change that cannot be made to locked assessments if set to a formal course evaluation
+			if (this.formalCourseEval) this.lockedChanged = Boolean.TRUE;
 		}
 	}
 
@@ -869,6 +934,33 @@ public class AssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public void setResultsEmail(String setting)
+	{
+		if (!Different.different(this.resultsEmail, setting)) return;
+
+		this.resultsEmail = setting;
+
+		// this is a change that cannot be made to locked assessments if set to a formal course evaluation
+		if (this.formalCourseEval) this.lockedChanged = Boolean.TRUE;
+
+		this.changed.setChanged();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setResultsSent(Date date)
+	{
+		if (!Different.different(this.resultsSent, date)) return;
+
+		this.resultsSent = date;
+
+		this.changed.setChanged();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setShowHints(Boolean showHints)
 	{
 		if (showHints == null) throw new IllegalArgumentException();
@@ -945,6 +1037,9 @@ public class AssessmentImpl implements Assessment
 
 		this.tries = count;
 
+		// this is a change that cannot be made to locked assessments if set to a formal course evaluation
+		if (this.formalCourseEval) this.lockedChanged = Boolean.TRUE;
+
 		this.changed.setChanged();
 	}
 
@@ -964,6 +1059,8 @@ public class AssessmentImpl implements Assessment
 
 		this.type = type;
 		this.changed.setChanged();
+
+		// Note: for the settings that automatically get set when the type changes, see the AsessmentServiceImpl.java's saveAssessment() method -ggolden
 	}
 
 	/**
@@ -1047,6 +1144,20 @@ public class AssessmentImpl implements Assessment
 	{
 		this.archived = archived;
 		this.archivedWas = archived;
+	}
+
+	/**
+	 * Init the formal course evaluation setting.
+	 * 
+	 * @param setting
+	 *        The formal course evaluation setting.
+	 */
+	protected void initFormalCourseEval(Boolean setting)
+	{
+		// for null, use the default FALSE
+		if (setting == null) setting = Boolean.FALSE;
+
+		this.formalCourseEval = setting;
 	}
 
 	/**
@@ -1145,6 +1256,28 @@ public class AssessmentImpl implements Assessment
 	{
 		this.published = published;
 		this.publishedWas = published;
+	}
+
+	/**
+	 * Init the email address for sending results to.
+	 * 
+	 * @param setting
+	 *        The email address string (comma separated email addresses) for sending results to.
+	 */
+	protected void initResultsEmail(String setting)
+	{
+		this.resultsEmail = setting;
+	}
+
+	/**
+	 * Init the date that the last results email was sent.
+	 * 
+	 * @param date
+	 *        The date that the last results email was sent.
+	 */
+	protected void initResultsSent(Date date)
+	{
+		this.resultsSent = date;
 	}
 
 	/**
@@ -1272,6 +1405,7 @@ public class AssessmentImpl implements Assessment
 		this.context = other.context;
 		this.createdBy = new AttributionImpl((AttributionImpl) other.createdBy, this.changed);
 		this.dates = new AssessmentDatesImpl(this, (AssessmentDatesImpl) other.dates, this.changed);
+		this.formalCourseEval = other.formalCourseEval;
 		this.grading = new AssessmentGradingImpl((AssessmentGradingImpl) other.grading, this.changed);
 		this.honorPledge = other.honorPledge;
 		this.id = other.id;
@@ -1293,6 +1427,8 @@ public class AssessmentImpl implements Assessment
 		this.questionService = other.questionService;
 		this.needsRescore = other.needsRescore;
 		this.randomAccess = other.randomAccess;
+		this.resultsEmail = other.resultsEmail;
+		this.resultsSent = other.resultsSent;
 		this.review = new AssessmentReviewImpl(this, (AssessmentReviewImpl) other.review, this.changed);
 		this.showHints = other.showHints;
 		this.showModelAnswer = other.showModelAnswer;

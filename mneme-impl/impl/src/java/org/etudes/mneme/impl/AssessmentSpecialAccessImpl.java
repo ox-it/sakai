@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -103,6 +103,9 @@ public class AssessmentSpecialAccessImpl implements AssessmentSpecialAccess
 
 		this.owner.setChanged();
 
+		// this is a change that cannot be made to locked assessments if set to a formal course evaluation
+		if (this.assessment.getFormalCourseEval()) ((AssessmentImpl) this.assessment).lockedChanged = Boolean.TRUE;
+
 		return rv;
 	}
 
@@ -131,6 +134,9 @@ public class AssessmentSpecialAccessImpl implements AssessmentSpecialAccess
 			((AssessmentAccessImpl) access).id = null;
 			this.specialAccess.add(access);
 			this.owner.setChanged();
+
+			// this is a change that cannot be made to locked assessments if set to a formal course evaluation
+			if (this.assessment.getFormalCourseEval()) ((AssessmentImpl) this.assessment).lockedChanged = Boolean.TRUE;
 		}
 
 		// else we need to create a new one
@@ -206,6 +212,9 @@ public class AssessmentSpecialAccessImpl implements AssessmentSpecialAccess
 		this.specialAccess.clear();
 
 		this.owner.setChanged();
+
+		// this is a change that cannot be made to locked assessments if set to a formal course evaluation
+		if (this.assessment.getFormalCourseEval()) ((AssessmentImpl) this.assessment).lockedChanged = Boolean.TRUE;
 	}
 
 	/**
@@ -325,6 +334,9 @@ public class AssessmentSpecialAccessImpl implements AssessmentSpecialAccess
 				i.remove();
 				this.owner.setChanged();
 				this.deleted.add(access);
+
+				// this is a change that cannot be made to locked assessments if set to a formal course evaluation
+				if (this.assessment.getFormalCourseEval()) ((AssessmentImpl) this.assessment).lockedChanged = Boolean.TRUE;
 
 				return;
 			}

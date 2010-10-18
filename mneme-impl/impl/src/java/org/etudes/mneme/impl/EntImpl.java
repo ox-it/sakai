@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -34,6 +34,8 @@ public class EntImpl implements Ent
 	protected String description = null;
 
 	protected String id = null;
+
+	protected Boolean marked = Boolean.FALSE;
 
 	/**
 	 * Construct.
@@ -86,6 +88,14 @@ public class EntImpl implements Ent
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getMarked()
+	{
+		return this.marked;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setDescription(String description)
 	{
 		this.description = description;
@@ -100,6 +110,14 @@ public class EntImpl implements Ent
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public void setMarked(Boolean marked)
+	{
+		this.marked = marked;
+	}
+
+	/**
 	 * Set as a copy of the other.
 	 * 
 	 * @param other
@@ -109,5 +127,6 @@ public class EntImpl implements Ent
 	{
 		this.description = other.description;
 		this.id = other.id;
+		this.marked = other.marked;
 	}
 }

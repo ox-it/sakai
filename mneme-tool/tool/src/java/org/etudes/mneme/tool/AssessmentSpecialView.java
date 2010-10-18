@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -91,6 +91,14 @@ public class AssessmentSpecialView extends ControllerImpl
 			return;
 		}
 
+		// not for formal course evaluation
+		if (assessment.getFormalCourseEval())
+		{
+			// redirect to error
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+
 		// make sure any undefined user ids or users without permissions are removed
 		assessment.getSpecialAccess().assureValidUsers();
 
@@ -136,6 +144,14 @@ public class AssessmentSpecialView extends ControllerImpl
 
 		// security check
 		if (!assessmentService.allowEditAssessment(assessment))
+		{
+			// redirect to error
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+
+		// not for formal course evaluation
+		if (assessment.getFormalCourseEval())
 		{
 			// redirect to error
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));

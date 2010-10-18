@@ -28,5 +28,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/assignment-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/etudes-util-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/etudes-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/email-api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

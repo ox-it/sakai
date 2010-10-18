@@ -89,6 +89,20 @@
 			</container>
 			<included>
 				<compareDecision model="assessment.type" constant="survey" />
+				<decision reversed="TRUE" model="assessment.formalCourseEval" />
+			</included>
+		</section>
+		<section>
+			<container>
+				<instructions>
+					<message selector="course-eval-instructions">
+						<model type="icon" icon="/icons/survey_type.png" />
+					</message>
+				</instructions>
+			</container>
+			<included>
+				<compareDecision model="assessment.type" constant="survey" />
+				<decision model="assessment.formalCourseEval" />
 			</included>
 		</section>
 		<section>

@@ -102,6 +102,11 @@ public interface AssessmentStorage
 	AssessmentImpl getAssessment(String id);
 
 	/**
+	 * @return the assessments that *may* need to have their results email sent - set for email, not yet sent - but we are not sure if these are closed yet.
+	 */
+	List<AssessmentImpl> getAssessmentsNeedingResultsEmail();
+
+	/**
 	 * Get all the assessments defined in this context, sorted. Does not include archived assessments.
 	 * 
 	 * @param context
@@ -183,4 +188,14 @@ public interface AssessmentStorage
 	 *        the assessment to save.
 	 */
 	void saveAssessment(AssessmentImpl assessment);
+
+	/**
+	 * Set the date that the results email was sent.
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 * @param date
+	 *        The date, or null to indicate not sent.
+	 */
+	void setResultsSent(String id, Date date);
 }

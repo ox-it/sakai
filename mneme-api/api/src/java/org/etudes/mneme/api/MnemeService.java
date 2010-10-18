@@ -52,6 +52,9 @@ public interface MnemeService
 	/** Event tracking event for un-publishing an assessment. */
 	static final String ASSESSMENT_UNPUBLISH = "mneme.assessment.unpublish";
 
+	/** The security function used to check if users can setup a formal course evaluation. */
+	static final String COURSE_EVAL_PERMISSION = "mneme.course.eval";
+
 	/** Event tracking event for download submissions for question. */
 	static final String DOWNLOAD_SQ = "mneme.download.sq";
 

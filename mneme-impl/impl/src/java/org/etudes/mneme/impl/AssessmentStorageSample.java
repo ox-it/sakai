@@ -229,6 +229,12 @@ public class AssessmentStorageSample implements AssessmentStorage
 		return rv;
 	}
 
+	public List<AssessmentImpl> getAssessmentsNeedingResultsEmail()
+	{
+		// TODO:
+		return new ArrayList<AssessmentImpl>();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -609,7 +615,7 @@ public class AssessmentStorageSample implements AssessmentStorage
 			}
 		}
 
-		// TODO: assign part deatil ids
+		// TODO: assign part detail ids
 
 		// save a copy
 		AssessmentImpl copy = new AssessmentImpl(assessment);
@@ -659,6 +665,14 @@ public class AssessmentStorageSample implements AssessmentStorage
 	public void setQuestionService(QuestionService service)
 	{
 		this.questionService = service;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setResultsSent(String id, Date date)
+	{
+		// TODO:
 	}
 
 	/**

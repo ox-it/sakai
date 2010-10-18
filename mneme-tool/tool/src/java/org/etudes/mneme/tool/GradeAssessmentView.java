@@ -44,7 +44,6 @@ import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentService;
-import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -111,6 +110,14 @@ public class GradeAssessmentView extends ControllerImpl
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.invalid)));
 			return;
 		}
+
+		// check that the assessment is not a formal course evaluation
+		if (assessment.getFormalCourseEval())
+		{
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+
 		context.put("assessment", assessment);
 
 		// sort parameter

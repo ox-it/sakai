@@ -61,10 +61,12 @@ import org.etudes.mneme.api.SubmissionCompletedException;
 import org.etudes.mneme.api.SubmissionService;
 import org.etudes.mneme.api.TypeSpecificAnswer;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -72,6 +74,8 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.i18n.InternationalizedMessages;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -90,8 +94,10 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(SubmissionServiceImpl.class);
+
 	/** The chunk size used when streaming (100k). */
 	protected static final int STREAM_BUFFER_SIZE = 102400;
+
 	/** Dependency: AssessmentService */
 	protected AssessmentService assessmentService = null;
 
@@ -103,6 +109,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 	/** Dependency: ContentHostingService */
 	protected ContentHostingService contentHostingService = null;
+
+	/** Dependency: EmailService. */
+	protected EmailService emailService = null;
 
 	/** Dependency: EventTrackingService */
 	protected EventTrackingService eventTrackingService = null;
@@ -119,11 +128,17 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	/** Dependency: SecurityService */
 	protected org.sakaiproject.authz.api.SecurityService securityServiceSakai = null;
 
+	/** Dependency: ServerConfigurationService. */
+	protected ServerConfigurationService serverConfigurationService = null;
+
 	/** Dependency: SessionManager */
 	protected SessionManager sessionManager = null;
 
 	/** The submission id which is the last to get pre 1.0.6 shuffle behavior. If null, all get the new behavior. */
 	protected String shuffle106CrossoverId = null;
+
+	/** Dependency: SiteService. */
+	protected SiteService siteService = null;
 
 	/** Dependency: SqlService */
 	protected SqlService sqlService = null;
@@ -1681,13 +1696,24 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 			storage.init();
 
-			// start the checking thread
-			if (timeoutCheckMs > 0)
+			// if this is the app server configured to run the maintenance thread, get it started
+			String msg = "";
+			String id = serverConfigurationService.getServerId();
+			if (id != null)
 			{
-				start();
+				String maintenanceServerId = serverConfigurationService.getString("mneme.maintenance.server");
+				if (id.equals(maintenanceServerId))
+				{
+					// start the checking thread
+					if (timeoutCheckMs > 0)
+					{
+						start();
+						msg = " maintenance thread period: " + timeoutCheckMs / 1000;
+					}
+				}
 			}
 
-			M_log.info("init(): timout check seconds: " + timeoutCheckMs / 1000 + " storage: " + this.storage);
+			M_log.info("init():" + msg + " storage: " + this.storage);
 		}
 		catch (Throwable t)
 		{
@@ -1834,10 +1860,11 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		// loop till told to stop
 		while ((!threadStop) && (!Thread.currentThread().isInterrupted()))
 		{
+			if (M_log.isDebugEnabled()) M_log.debug("run: running");
+
+			// first, close as needed submissions
 			try
 			{
-				if (M_log.isDebugEnabled()) M_log.debug("run: running");
-
 				// get a list of submissions that are open, timed, and well expired (considering double our grace period),
 				// or open and past an accept-until date
 				List<Submission> submissions = getTimedOutSubmissions(2 * MnemeService.GRACE);
@@ -1864,6 +1891,29 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 					{
 						autoCompleteSubmission(over, submission);
 					}
+				}
+			}
+			catch (Throwable e)
+			{
+				M_log.warn("run: will continue: ", e);
+			}
+			finally
+			{
+				// clear out any current current bindings
+				this.threadLocalManager.clear();
+			}
+
+			// next, check for just closed assessments that need results email
+			try
+			{
+				// get a list of assessments that are set for automatic email, have not yet sent their email, and are now closed
+				// or open and past an accept-until date
+				List<Assessment> assessments = this.assessmentService.getAssessmentsNeedingResultsEmail();
+
+				// for each one, format the results and email
+				for (Assessment assessment : assessments)
+				{
+					emailResults(assessment);
 				}
 			}
 			catch (Throwable e)
@@ -1932,6 +1982,17 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	}
 
 	/**
+	 * Dependency: EmailService.
+	 * 
+	 * @param service
+	 *        The EmailService.
+	 */
+	public void setEmailService(EmailService service)
+	{
+		this.emailService = service;
+	}
+
+	/**
 	 * Dependency: EventTrackingService.
 	 * 
 	 * @param service
@@ -1976,6 +2037,17 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	}
 
 	/**
+	 * Dependency: ServerConfigurationService.
+	 * 
+	 * @param service
+	 *        The ServerConfigurationService.
+	 */
+	public void setServerConfigurationService(ServerConfigurationService service)
+	{
+		this.serverConfigurationService = service;
+	}
+
+	/**
 	 * Dependency: SessionManager.
 	 * 
 	 * @param service
@@ -1984,6 +2056,17 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	public void setSessionManager(SessionManager service)
 	{
 		this.sessionManager = service;
+	}
+
+	/**
+	 * Dependency: SiteService.
+	 * 
+	 * @param service
+	 *        The SiteService.
+	 */
+	public void setSiteService(SiteService service)
+	{
+		this.siteService = service;
 	}
 
 	/**
@@ -2042,7 +2125,10 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Dependency: UserDirectoryService.
+	 * 
+	 * @param service
+	 *        The UserDirectoryService.
 	 */
 	public void setUserDirectoryService(UserDirectoryService service)
 	{
@@ -2513,6 +2599,51 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		if (remaining < 0) remaining = 0;
 
 		return Integer.valueOf(remaining);
+	}
+
+	/**
+	 * Format and send a results email for this assessment.
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 */
+	protected void emailResults(Assessment assessment)
+	{
+		// to
+		String to = assessment.getResultsEmail();
+
+		// from
+		String from = "\"" + this.serverConfigurationService.getString("ui.service", "Sakai") + "\"<no-reply@"
+				+ this.serverConfigurationService.getServerName() + ">";
+
+		String siteTitle = "";
+		try
+		{
+			Site site = this.siteService.getSite(assessment.getContext());
+			siteTitle = site.getTitle();
+		}
+		catch (IdUnusedException e)
+		{
+		}
+
+		// subject
+		String subject = "Course Evaluation: " + siteTitle;
+
+		// for html
+		List<String> headers = new ArrayList<String>();
+		headers.add("content-type: text/html");
+
+		// collect all the submissions for the assessment
+		List<Submission> submissions = findAssessmentSubmissions(assessment, SubmissionService.FindAssessmentSubmissionsSort.sdate_a, Boolean.FALSE,
+				null, null, null);
+
+		ResultsFormatterImpl formatter = new ResultsFormatterImpl(this.messages);
+		String content = formatter.formatResults(assessment, submissions);
+
+		this.emailService.send(from, to, subject, content, null, null, headers);
+
+		// mark the assessment as having the results sent
+		this.assessmentService.setResultsSent(assessment, new Date());
 	}
 
 	/**

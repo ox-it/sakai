@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -192,7 +193,7 @@ public class QuestionServiceImpl implements QuestionService
 		// the new questions in the destination pool may invalidate test-drive submissions in the context
 		this.submissionService.removeTestDriveSubmissions(destination.getContext());
 
-		List<String> ids = this.storage.copyPoolQuestions(userId, source, destination, false, null, null, false);
+		List<String> ids = this.storage.copyPoolQuestions(userId, source, destination, false, null, null, false, null);
 
 		// generate events for any created
 		for (String id : ids)
@@ -887,14 +888,16 @@ public class QuestionServiceImpl implements QuestionService
 	 *        A list of Translations for attachments and embedded media.
 	 * @param merge
 	 *        if true, if a question already exists in the pool that matches one to be copied, don't copy.
+	 * @param includeQuestions
+	 *        if not null, only import the pool's question if its id is in the set.
 	 */
 	protected void copyPoolQuestions(Pool source, Pool destination, boolean asHistory, Map<String, String> oldToNew,
-			List<Translation> attachmentTranslations, boolean merge)
+			List<Translation> attachmentTranslations, boolean merge, Set<String> includeQuestions)
 	{
 		if (M_log.isDebugEnabled()) M_log.debug("copyPoolQuestionsHistorical: source: " + source.getId() + " destination: " + destination.getId());
 
 		List<String> ids = this.storage.copyPoolQuestions(sessionManager.getCurrentSessionUserId(), source, destination, asHistory, oldToNew,
-				attachmentTranslations, merge);
+				attachmentTranslations, merge, includeQuestions);
 
 		if (!asHistory)
 		{

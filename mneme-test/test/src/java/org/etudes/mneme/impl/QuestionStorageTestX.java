@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -184,13 +184,13 @@ public abstract class QuestionStorageTestX extends TestCase
 		Map<String, String> oldToNew = new HashMap<String, String>();
 		List<Translation> translations = new ArrayList<Translation>();
 
-		this.storage.copyPoolQuestions("admin", source, dest, false, null, null, false);
-		this.storage.copyPoolQuestions("admin", source, dest, false, oldToNew, null, false);
-		this.storage.copyPoolQuestions("admin", source, dest, false, null, translations, false);
+		this.storage.copyPoolQuestions("admin", source, dest, false, null, null, false, null);
+		this.storage.copyPoolQuestions("admin", source, dest, false, oldToNew, null, false, null);
+		this.storage.copyPoolQuestions("admin", source, dest, false, null, translations, false, null);
 
 		oldToNew.clear();
 		translations.clear();
-		this.storage.copyPoolQuestions("admin", source, dest, false, oldToNew, translations, false);
+		this.storage.copyPoolQuestions("admin", source, dest, false, oldToNew, translations, false, null);
 		assertTrue(oldToNew.isEmpty());
 		assertTrue(translations.isEmpty());
 
@@ -206,7 +206,7 @@ public abstract class QuestionStorageTestX extends TestCase
 
 		oldToNew.clear();
 		translations.clear();
-		this.storage.copyPoolQuestions("admin", source, dest, false, oldToNew, translations, false);
+		this.storage.copyPoolQuestions("admin", source, dest, false, oldToNew, translations, false, null);
 		assertTrue(oldToNew.isEmpty());
 
 		// make the mint not mint
@@ -216,7 +216,7 @@ public abstract class QuestionStorageTestX extends TestCase
 
 		oldToNew.clear();
 		translations.clear();
-		this.storage.copyPoolQuestions("admin", source, dest, false, oldToNew, translations, false);
+		this.storage.copyPoolQuestions("admin", source, dest, false, oldToNew, translations, false, null);
 		assertTrue(oldToNew.get(question.getId()) != null);
 	}
 

@@ -442,7 +442,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				catch (IdUnusedException e)
 				{
 				}
-				
+
 				// get the name extension from the messages (i.e. "_Submissions.zip")
 				String fileName = siteTitle + "_" + parts[1] + this.messages.getFormattedMessage("download_submissions_file_name", null);
 				fileName = fileName.replace(' ', '_');
@@ -509,7 +509,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				// decide on security
 				if (!checkSecurity(ref))
 				{
-					throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), "sampleAccess", ref.getReference());
+					throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), "access", ref.getReference());
 				}
 
 				// for download
@@ -1745,6 +1745,12 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			{
 				M_log.warn("handleAccessDownload: invalid assessment id: " + parts[0]);
 				return;
+			}
+
+			// check that this is not a formal course evaluation
+			if (assessment.getFormalCourseEval())
+			{
+				throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), "access", ref.getReference());
 			}
 
 			// question

@@ -118,6 +118,12 @@ public class AssessmentEditView extends ControllerImpl
 			return;
 		}
 
+		// check for formal course evaluation permission
+		if (assessmentService.allowSetFormalCourseEvaluation(assessment.getContext()))
+		{
+			context.put("allowEval", Boolean.TRUE);
+		}
+
 		// // clear the assessment of any empty parts (if not mint, which would end up causing it to become a stale mint and vanish!)
 		// if (!assessment.getMint())
 		// {

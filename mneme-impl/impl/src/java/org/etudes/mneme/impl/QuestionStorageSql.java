@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -118,14 +119,14 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	 * {@inheritDoc}
 	 */
 	public List<String> copyPoolQuestions(final String userId, final Pool source, final Pool destination, final boolean asHistory,
-			final Map<String, String> oldToNew, final List<Translation> attachmentTranslations, boolean merge)
+			final Map<String, String> oldToNew, final List<Translation> attachmentTranslations, boolean merge, Set<String> includeQuestions)
 	{
 		final List<String> rv = new ArrayList<String>();
 
 		// if merging, we need to do this internally, rather than in the db
-		if (merge)
+		if (merge || (includeQuestions != null))
 		{
-			rv.addAll(copyPoolQuestionsInternally(userId, source, destination, asHistory, oldToNew, attachmentTranslations, merge));
+			rv.addAll(copyPoolQuestionsInternally(userId, source, destination, asHistory, oldToNew, attachmentTranslations, merge, includeQuestions));
 		}
 
 		// otherwise we can use the db transactions
@@ -777,16 +778,21 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	 *        A list of Translations for attachments and embedded media.
 	 * @param merge
 	 *        if true, if there is question already in the pool that matches one to be copied, don't copy it and create a new question.
+	 * @param includeQuestions
+	 *        if not null, only import the pool's question if its id is in the set.
 	 * @return A List of the ids of the new questions created.
 	 */
 	protected List<String> copyPoolQuestionsInternally(String userId, Pool source, Pool destination, boolean asHistory, Map<String, String> oldToNew,
-			List<Translation> attachmentTranslations, boolean merge)
+			List<Translation> attachmentTranslations, boolean merge, Set<String> includeQuestions)
 	{
 		List<String> rv = new ArrayList<String>();
 
 		List<QuestionImpl> questions = findPoolQuestions(source, QuestionService.FindQuestionsSort.cdate_a, null, null, null, null, null);
 		for (QuestionImpl question : questions)
 		{
+			// skip if we are being selective and don't want this one
+			if ((includeQuestions != null) && (!includeQuestions.contains(question.getId()))) continue;
+
 			QuestionImpl q = new QuestionImpl(question);
 
 			// set the destination as the pool

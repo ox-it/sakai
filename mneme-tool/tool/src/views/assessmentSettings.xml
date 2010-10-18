@@ -92,6 +92,28 @@
 									<valueMessage>
 										<message template="survey" />
 									</valueMessage>
+									<container separate="TRUE" indented="TRUE">
+										<selection>
+											<selectionChoices>
+												<selectionChoice>
+													<displayMessage>
+														<message selector="formal-eval" />
+													</displayMessage>
+													<valueMessage>
+														<message template="true" />
+													</valueMessage>
+												</selectionChoice>
+											</selectionChoices>
+											<model ref="assessment.formalCourseEval" />
+											<readOnly>
+												<decision model="assessment.isLocked" />
+											</readOnly>
+										<included>
+											<compareDecision model="assessment.type" constant="survey" />
+											<hasValueDecision model="allowEval" />
+										</included>
+										</selection>
+									</container>
 								</selectionChoice>
 							</selectionChoices>
 							<included>
@@ -147,6 +169,39 @@
 							</included>
 						</navigation>
 
+						<!-- display formal course evaluation if locked -->
+						<section>
+							<included>
+								<decision model="assessment.isLocked" />
+								<decision model="assessment.formalCourseEval" />
+							</included>
+							<container>
+		
+								<selection>
+									<title>
+										<message selector="formal-eval-header">
+											<model type="icon" icon="/icons/survey_type.png" />
+										</message>
+									</title>
+									<selectionChoices>
+										<selectionChoice>
+											<displayMessage>
+												<message selector="formal-eval" />
+											</displayMessage>
+											<valueMessage>
+												<message template="true" />
+											</valueMessage>
+										</selectionChoice>
+									</selectionChoices>
+									<model ref="assessment.formalCourseEval" />
+									<readOnly>
+										<decision model="assessment.isLocked" />
+									</readOnly>
+								</selection>
+		
+							</container>
+						</section>
+
 						<selection title="needs-points">
 							<selectionChoices>
 								<selectionChoice>
@@ -176,15 +231,26 @@
 
 						<dateEdit id="ddate" title="due-date">
 							<model ref="assessment.dates.dueDate" type="date" />
+							<readOnly>
+								<decision model="assessment.formalCourseEval" />
+								<decision model="assessment.isLocked" />
+							</readOnly>
 						</dateEdit>
 
 						<dateEdit id="adate" title="test-acceptUntilDate">
 							<model ref="assessment.dates.acceptUntilDate" type="date" />
+							<readOnly>
+								<decision model="assessment.formalCourseEval" />
+								<decision model="assessment.isLocked" />
+							</readOnly>
 						</dateEdit>
 					</container>
 				</section>
 
 				<selection title="allowTries">
+					<included>
+						<decision reversed="TRUE" model="assessment.formalCourseEval" />
+					</included>
 					<model ref="assessment.hasTriesLimit" />
 					<selectionChoices>
 						<selectionChoice>
@@ -196,6 +262,9 @@
 							</valueMessage>
 							<container>
 								<countEdit>
+									<readOnly>
+										<decision model="assessment.formalCourseEval" />
+									</readOnly>
 									<model ref="assessment.tries" type="count" />
 									<minValue>
 										<model type="constant" value="1" />
@@ -441,6 +510,43 @@
 								<compareDecision reversed="TRUE" model="assessment.type" constant="survey" />
 							</included>
 						</selection>
+					</container>
+				</section>
+
+				<section treatment="indented">
+					<title>
+						<message selector="results-email-header">
+							<model type="icon" icon="/icons/grade.png" />
+						</message>
+					</title>
+					<container>
+
+						<textEdit title="results-email" cols="40">
+							<model ref="assessment.resultsEmail" type="text" />
+							<readOnly>
+								<decision model="assessment.formalCourseEval" />
+								<decision model="assessment.isLocked" />
+							</readOnly>
+						</textEdit>
+
+						<instructions>
+							<message selector="results-last-sent">
+								<model type="date" ref="assessment.resultsSent" />
+							</message>
+							<included>
+								<hasValueDecision model="assessment.resultsSent" />
+							</included>
+						</instructions>
+
+						<navigation title="send" description="send-description" style="BUTTON" submit="TRUE" destination="SEND">
+							<icon icon="/icons/email_go.png" style="LEFT" />
+							<included>
+								<hasValueDecision model="assessment.resultsSent" />
+								<hasValueDecision model="assessment.resultsEmail" />
+								<decision model="assessment.dates.isClosed" />
+							</included>
+						</navigation>
+
 					</container>
 				</section>
 
