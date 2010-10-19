@@ -63,6 +63,7 @@
 								<model ref="assessment.id" />
 							</destination>
 							<included>
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
 								<decision model="assessment.published" />
 								<decision model="assessment.isValid" />
 								<decision model="assessment.isLive" />
@@ -78,6 +79,7 @@
 								<model ref="assessment.id" />
 							</destination>
 							<included>
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
 								<decision model="assessment.published" />
 								<decision model="assessment.isValid" />
 								<decision model="assessment.isLive" />
