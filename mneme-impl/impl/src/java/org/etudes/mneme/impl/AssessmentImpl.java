@@ -801,8 +801,8 @@ public class AssessmentImpl implements Assessment
 		if (setting == null) setting = Boolean.FALSE;
 		if (this.formalCourseEval.equals(setting)) return;
 
-		// we need special permission (fail quietly)
-		if (!assessmentService.allowSetFormalCourseEvaluation(getContext())) return;
+		// we need special permission (fail quietly) to set this to true
+		if (setting && !assessmentService.allowSetFormalCourseEvaluation(getContext())) return;
 
 		this.formalCourseEval = setting;
 

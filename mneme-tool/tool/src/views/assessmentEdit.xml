@@ -203,6 +203,39 @@
 							</included>
 						</navigation>
 
+						<!-- display formal course evaluation if locked or the user does not have eval permission -->
+						<section>
+							<included>
+								<orDecision>
+									<decision model="assessment.isLocked" />
+									<hasValueDecision model="allowEval" reversed="TRUE" />
+								</orDecision>
+								<decision model="assessment.formalCourseEval" />
+							</included>
+							<container>
+		
+								<selection readOnly="TRUE">
+									<title>
+										<message selector="formal-eval-header">
+											<model type="icon" icon="/icons/survey_type.png" />
+										</message>
+									</title>
+									<selectionChoices>
+										<selectionChoice>
+											<displayMessage>
+												<message selector="formal-eval" />
+											</displayMessage>
+											<valueMessage>
+												<message template="true" />
+											</valueMessage>
+										</selectionChoice>
+									</selectionChoices>
+									<model ref="assessment.formalCourseEval" />
+								</selection>
+		
+							</container>
+						</section>
+
 						<selection title="needs-points">
 							<selectionChoices>
 								<selectionChoice>
