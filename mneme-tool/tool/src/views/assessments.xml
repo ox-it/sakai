@@ -105,8 +105,19 @@
 								<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
 							</message>
 							<included>
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
 								<decision model="assessment.isValid" />
 								<decision reversed="TRUE" model="assessment.published" />
+								<decision model="assessment.isLive" />
+							</included>
+						</warning>
+						<warning icon="/icons/grade_student.png">
+							<message selector="live-no-grading">
+								<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+							</message>
+							<included>
+								<decision model="assessment.isValid" />
+								<decision model="assessment.formalCourseEval" />
 								<decision model="assessment.isLive" />
 							</included>
 						</warning>
