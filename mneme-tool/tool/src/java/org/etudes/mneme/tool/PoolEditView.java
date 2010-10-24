@@ -131,8 +131,8 @@ public class PoolEditView extends ControllerImpl
 	{
 		// Note: parameter and sort logic changes need to be coordinated with QuestionPreviewView.figurePrevNextForPoolEdit()
 
-		// pool id, sort, paging, all the rest is return parameters
-		if (params.length < 5)
+		// pool id, sort, paging, assessment id, all the rest is return parameters
+		if (params.length < 6)
 		{
 			throw new IllegalArgumentException();
 		}
@@ -141,9 +141,9 @@ public class PoolEditView extends ControllerImpl
 		if (fixMode) context.put("fix", Boolean.TRUE);
 
 		String destination = null;
-		if (params.length > 5)
+		if (params.length > 6)
 		{
-			destination = "/" + StringUtil.unsplit(params, 5, params.length - 5, "/");
+			destination = "/" + StringUtil.unsplit(params, 6, params.length - 6, "/");
 		}
 
 		// if not specified, go to the main pools page
@@ -194,6 +194,10 @@ public class PoolEditView extends ControllerImpl
 		paging.setCurrentAndSize(pagingParameter);
 		context.put("paging", paging);
 
+		// assessment id (only if we are editing a historical pool in fix mode)
+		String aid = params[5];
+		context.put("aid", aid);
+
 		// get questions
 		List<Question> questions = questionService.findQuestions(pool, sort, null, null, paging.getSize() == 0 ? null : paging.getCurrent(), paging
 				.getSize() == 0 ? null : paging.getSize(), null, null);
@@ -231,7 +235,7 @@ public class PoolEditView extends ControllerImpl
 	public void post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
 		// pool id, sort, paging, all the rest is return parameters
-		if (params.length < 5)
+		if (params.length < 6)
 		{
 			throw new IllegalArgumentException();
 		}

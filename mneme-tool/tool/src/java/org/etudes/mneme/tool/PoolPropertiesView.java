@@ -161,7 +161,7 @@ public class PoolPropertiesView extends ControllerImpl
 			if (pool != null)
 			{
 				// send them to edit pool
-				destination = "/pool_edit/" + pool.getId() + "/-/-" + destination;
+				destination = "/pool_edit/" + pool.getId() + "/-/-/-" + destination;
 			}
 		}
 

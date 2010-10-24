@@ -250,7 +250,9 @@ public class QuestionEditView extends ControllerImpl
 		Assessment assessment = null;
 		Part origPart = null;
 		Part part = null;
-		if ((!"0".equals(assessmentId)) && (!"0".equals(partId)))
+
+		// get the assessment if specified
+		if ((!"0".equals(assessmentId)) && (!"-".equals(assessmentId)))
 		{
 			assessment = this.assessmentService.getAssessment(assessmentId);
 			if (assessment == null)
@@ -260,21 +262,25 @@ public class QuestionEditView extends ControllerImpl
 				return;
 			}
 
-			origPart = assessment.getParts().getPart(partId);
-			if (origPart == null)
-			{
-				// redirect to error
-				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.invalid)));
-				return;
-			}
-			part = origPart;
-
 			// security check for the assessment edit
 			if (!this.assessmentService.allowEditAssessment(assessment))
 			{
 				// redirect to error
 				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
 				return;
+			}
+
+			// get part id if specified
+			if ((!"0".equals(partId)) && (!"-".equals(partId)))
+			{
+				origPart = assessment.getParts().getPart(partId);
+				if (origPart == null)
+				{
+					// redirect to error
+					res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.invalid)));
+					return;
+				}
+				part = origPart;
 			}
 		}
 
@@ -351,7 +357,7 @@ public class QuestionEditView extends ControllerImpl
 			}
 
 			// update the assessment part details if the question is not mint (not for fix)
-			if ((!fixMode) && (assessment != null) && (!question.getMint()))
+			if ((!fixMode) && (assessment != null) && (origPart != null) && (!question.getMint()))
 			{
 				// see if the user changed the part from the original
 				String newPartId = value.getValue();

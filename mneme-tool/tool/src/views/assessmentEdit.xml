@@ -531,7 +531,7 @@
 										<decision reversed="TRUE" model="detail.isSpecific" />
 										<decision reversed="TRUE" model="assessment.isLocked" />
 									</included>
-									<destination template="/pool_edit/{0}/-/-/assessment_edit/{1}/{2}">
+									<destination template="/pool_edit/{0}/-/-/-/assessment_edit/{1}/{2}">
 										<model ref="detail.poolId" />
 										<model ref="sortcode" />
 										<model ref="assessment.id" />
@@ -542,7 +542,7 @@
 										<decision reversed="TRUE" model="detail.isSpecific" />
 										<decision model="assessment.isLocked" />
 									</included>
-									<destination template="/pool_fix/{0}/-/-/assessment_edit/{1}/{2}">
+									<destination template="/pool_fix/{0}/-/-/{2}/assessment_edit/{1}/{2}">
 										<model ref="detail.poolId" />
 										<model ref="sortcode" />
 										<model ref="assessment.id" />
