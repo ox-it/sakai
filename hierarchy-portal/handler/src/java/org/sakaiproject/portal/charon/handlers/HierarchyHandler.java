@@ -402,7 +402,7 @@ public class HierarchyHandler extends SiteHandler {
 		List<Site> childSites = new ArrayList<Site>();
 
 		for (PortalNode currentChild : portalHierarchyService.getNodeChildren(node.getId())) {
-			if (currentChild.canView()) {
+			if (currentChild.canView() || ((currentChild.getSite().isJoinable() && currentChild.getSite().isPublished()) && (loggedIn || currentChild.getSite().isPubView()))) {
 				childSites.add(currentChild.getSite());
 			}
 		}
