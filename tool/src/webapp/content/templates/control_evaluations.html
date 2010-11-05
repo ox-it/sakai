@@ -8,6 +8,10 @@
         <script type="text/javascript" rsf:id="scr=portal-matter" language="JavaScript" src="/library/js/headscripts.js">
         </script>
         <link href="../css/evaluation_base.css" type="text/css" rel="stylesheet" media="all" />
+        <link href="/library/js/jquery/ui/1.8.4/css/ui-lightness/jquery-ui-1.8.4.full.css" type="text/css" rel="stylesheet" media="all"/>
+        <script language="javascript" type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
+		<script language="javascript" type="text/javascript" src="/library/js/jquery/ui/1.8.4/jquery-ui-1.8.4.full.min.js"></script>
+		<script language="javascript" type="text/javascript" src="../js/eval.control.evaluations.js"></script>
     </head>
     <body>
         <div class="portletBody">
@@ -137,6 +141,9 @@
                             <th rsf:id="msg=controlevaluations.eval.title.header" width="40%">
                                 Evaluation Title
                             </th>
+                            <th rsf:id="msg=evaluation_mobile_title">
+                            	Mobile info
+                            </th>
                             <th rsf:id="msg=controlevaluations.eval.responses.header" width="10%">
                                 Responses
                             </th>
@@ -162,6 +169,9 @@
                                 <a rsf:id="active-eval-link" href="preview_eval.html">Evaluation Title 1</a>
                                 <span rsf:id="eval-direct-link" class="itemAction">(<a rsf:id="payload-component" href="take_eval.html" title="direct url to the evaluation" target="_blank">link</a>)</span>
                                 <span rsf:id="eval-category-direct-link">[<a rsf:id="payload-component" href="show_eval_category.html" title="direct url to the category" target="_blank">category</a>]</span>
+                            </td>
+                            <td headers="mobileinfo" class="centre">
+                            	<a href="#" rsf:id="eval-mobile-active" class="mobile-info-link" target="_blank"><img src="/library/image/m_ox.png" alt="m.ox info" /></a>    
                             </td>
                             <td nowrap="nowrap">
                                 <a rsf:id="responders-link" href="evaluation_responders.html">10/100</a>
@@ -257,5 +267,14 @@
                 No closed evaluations
             </p>
         </div>
+        
+        <!-- dialog for mobile oxford -->
+		<div id="dialog" title="Mobile Oxford" style="display:none;">
+			<h3 rsf:id="msg=evaluation_mobile_mox_url">m.ox url:</h3>
+			<code id="dialog-mox-url">url here</code>
+
+			<h3 rsf:id="msg=evaluation_mobile_qr_code">QR code:</h3>
+			<img id="dialog-qr-code" alt="QR code"/>
+		</div>
     </body>
 </html>
