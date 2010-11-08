@@ -142,12 +142,13 @@ ActionResultInterceptor {
         //            params.returnURL);
         //}
         
-        if (params.returnURL != null) {
-        UICommand.make(form, "return-link", UIMessage.make("modifyadhocgroup.backtoevalassign"),
-        		params.returnURL);
-        }
+        //if (params.returnURL != null) {
+        //UICommand.make(form, "return-link", UIMessage.make("modifyadhocgroup.backtoevalassign"),
+        //		params.returnURL);
+        //}
         
         UIMessage.make(form, "back-button", "general.back.button");
+        UIMessage.make(form, "return-link", "modifyadhocgroup.backtoevalassign");
         
     }
 
