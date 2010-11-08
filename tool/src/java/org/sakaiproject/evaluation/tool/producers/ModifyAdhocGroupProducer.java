@@ -143,7 +143,7 @@ ActionResultInterceptor {
         //}
         
         if (params.returnURL != null) {
-        UICommand.make(form, "back-button", UIMessage.make("modifyadhocgroup.backtoevalassign"),
+        UICommand.make(form, "return-link", UIMessage.make("modifyadhocgroup.backtoevalassign"),
         		params.returnURL);
         }
         
