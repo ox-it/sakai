@@ -147,6 +147,8 @@ ActionResultInterceptor {
         		params.returnURL);
         }
         
+        UIMessage.make(form, "back-button", "general.back.button");
+        
     }
 
     public ViewParameters getViewParameters() {
