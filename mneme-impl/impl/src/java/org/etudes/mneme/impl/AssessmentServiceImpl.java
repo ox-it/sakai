@@ -215,18 +215,21 @@ public class AssessmentServiceImpl implements AssessmentService
 	/**
 	 * {@inheritDoc}
 	 */
-	public void applyBaseDateTx(String context, int days_diff)
+	public void applyBaseDateTx(String context, int days)
 	{
+		if (context == null) throw new IllegalArgumentException("applyBaseDateTx: context is null");
+		if (days == 0) return;
+
 		try
 		{
 			// security check
 			securityService.secure(sessionManager.getCurrentSessionUserId(), MnemeService.MANAGE_PERMISSION, context);
 
-			this.storage.applyBaseDateTx(context, days_diff);
+			this.storage.applyBaseDate(context, days);
 		}
-		catch (AssessmentPermissionException ape)
+		catch (AssessmentPermissionException e)
 		{
-			throw new RuntimeException("applyBaseDateTx: security check failed " + ape.toString());
+			throw new RuntimeException("applyBaseDateTx: security check failed: " + e.toString());
 		}
 	}
 

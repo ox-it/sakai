@@ -102,34 +102,15 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	/**
 	 * {@inheritDoc}
 	 */
-	public void applyBaseDateTx(String context, int days_diff)
+	public void applyBaseDate(final String context, final int days)
 	{
-		if (context == null)
+		this.sqlService.transact(new Runnable()
 		{
-			throw new IllegalArgumentException("applyBaseDateTx: course_id is null");
-		}
-		if (days_diff == 0)
-		{
-			return;
-		}
-
-
-		StringBuilder sql = new StringBuilder();
-		sql.append("UPDATE MNEME_ASSESSMENT SET");
-		sql.append(" DATES_ACCEPT_UNTIL=UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(DATES_ACCEPT_UNTIL/1000), INTERVAL ? DAY))*1000, DATES_DUE=UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(DATES_DUE/1000), INTERVAL ? DAY))*1000, DATES_OPEN=UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(DATES_OPEN/1000), INTERVAL ? DAY))*1000");
-		sql.append(" WHERE CONTEXT=? AND ARCHIVED=0");
-
-		Object[] fields = new Object[4];
-		int i = 0;
-		fields[i++] = days_diff;
-		fields[i++] = days_diff;
-		fields[i++] = days_diff;
-		fields[i++] = context;
-
-		if (!this.sqlService.dbWrite(sql.toString(), fields))
-		{
-			throw new RuntimeException("applyBaseDateTx: db write failed");
-		}
+			public void run()
+			{
+				applyBaseDateTx(context, days);
+			}
+		}, "applyBaseDate: " + context);
 	}
 
 	/**
@@ -222,19 +203,19 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<AssessmentImpl> getAssessmentsNeedingResultsEmail()
+	public AssessmentImpl getAssessment(String id)
 	{
-		String where = "WHERE A.RESULTS_EMAIL IS NOT NULL AND A.PUBLISHED = '1' AND A.RESULTS_SENT IS NULL";
-
-		return readAssessments(where, null, null);
+		return readAssessment(id);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public AssessmentImpl getAssessment(String id)
+	public List<AssessmentImpl> getAssessmentsNeedingResultsEmail()
 	{
-		return readAssessment(id);
+		String where = "WHERE A.RESULTS_EMAIL IS NOT NULL AND A.PUBLISHED = '1' AND A.RESULTS_SENT IS NULL";
+
+		return readAssessments(where, null, null);
 	}
 
 	/**
@@ -361,26 +342,50 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	 */
 	public Date getMinStartDate(String context)
 	{
-		Date retDate = null;
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT MIN(DATES_OPEN) ");
-		sql.append(" FROM MNEME_ASSESSMENT ");
+		sql.append("SELECT MIN(DATES_ACCEPT_UNTIL), MIN(DATES_DUE), MIN(DATES_OPEN), MIN(REVIEW_DATE)");
+		sql.append(" FROM MNEME_ASSESSMENT");
 		sql.append(" WHERE CONTEXT = ?");
+
 		Object[] fields = new Object[1];
 		fields[0] = context;
 
-		List results = this.sqlService.dbRead(sql.toString(), fields, null);
+		List results = this.sqlService.dbRead(sql.toString(), fields, new SqlReader()
+		{
+			public Object readSqlResultRecord(ResultSet result)
+			{
+				try
+				{
+					Date rv = null;
+					for (int i = 1; i <= 4; i++)
+					{
+						Date d = SqlHelper.readDate(result, i);
+						if (rv == null)
+						{
+							rv = d;
+						}
+						else if ((d != null) && d.before(rv))
+						{
+							rv = d;
+						}
+					}
+
+					return rv;
+				}
+				catch (SQLException e)
+				{
+					M_log.warn("getMinStartDate: " + e);
+					return null;
+				}
+			}
+		});
+
 		if (results.size() > 0)
 		{
-			// Field returned is long value, so convert it
-			Long longDate = Long.parseLong((String) results.get(0));
-			if (longDate == 0)
-				retDate = null;
-			else
-				retDate = new Date(longDate);
+			return (Date) results.get(0);
 		}
 
-		return retDate;
+		return null;
 	}
 
 	/**
@@ -483,14 +488,6 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	}
 
 	/**
-	 * {@inheritDoc}
-	 */
-	public void setResultsSent(String id, Date date)
-	{
-		setResultsSentTx(id, date);
-	}
-
-	/**
 	 * Set the AssessmentService.
 	 * 
 	 * @param service
@@ -546,6 +543,14 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public void setResultsSent(String id, Date date)
+	{
+		setResultsSentTx(id, date);
+	}
+
+	/**
 	 * Set the SecurityService.
 	 * 
 	 * @param service
@@ -595,6 +600,38 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	public void setUserDirectoryService(UserDirectoryService service)
 	{
 		this.userDirectoryService = service;
+	}
+
+	/**
+	 * Update the dates in assessments in this context (transaction).
+	 * 
+	 * @param context
+	 *        The context.
+	 * @param days
+	 *        The # days to adjust the dates.
+	 */
+	protected void applyBaseDateTx(String context, int days)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("UPDATE MNEME_ASSESSMENT SET");
+		sql.append(" DATES_ACCEPT_UNTIL=UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(DATES_ACCEPT_UNTIL/1000), INTERVAL ? DAY))*1000,");
+		sql.append(" DATES_DUE=UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(DATES_DUE/1000), INTERVAL ? DAY))*1000,");
+		sql.append(" DATES_OPEN=UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(DATES_OPEN/1000), INTERVAL ? DAY))*1000,");
+		sql.append(" REVIEW_DATE=UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(REVIEW_DATE/1000), INTERVAL ? DAY))*1000");
+		sql.append(" WHERE CONTEXT=? AND ARCHIVED=0");
+
+		Object[] fields = new Object[5];
+		int i = 0;
+		fields[i++] = days;
+		fields[i++] = days;
+		fields[i++] = days;
+		fields[i++] = days;
+		fields[i++] = context;
+
+		if (!this.sqlService.dbWrite(sql.toString(), fields))
+		{
+			throw new RuntimeException("applyBaseDateTx: db write failed");
+		}
 	}
 
 	/**
@@ -1199,6 +1236,28 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	protected abstract void removeDependencyTx(Question question);
 
 	/**
+	 * Update the assessment email results sent date (transaction code).
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 */
+	protected void setResultsSentTx(String id, Date date)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("UPDATE MNEME_ASSESSMENT SET RESULTS_SENT=? WHERE ID=?");
+
+		Object[] fields = new Object[2];
+		int i = 0;
+		fields[i++] = (date == null) ? null : date.getTime();
+		fields[i++] = Long.valueOf(id);
+
+		if (!this.sqlService.dbWrite(sql.toString(), fields))
+		{
+			throw new RuntimeException("setResultsSentTx: dbWrite failed");
+		}
+	}
+
+	/**
 	 * Update an existing assessment.
 	 * 
 	 * @param assessment
@@ -1250,28 +1309,6 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		if (!this.sqlService.dbWrite(sql.toString(), fields))
 		{
 			throw new RuntimeException("updateAssessmentAccessTx: dbInsert failed");
-		}
-	}
-
-	/**
-	 * Update the assessment email results sent date (transaction code).
-	 * 
-	 * @param assessment
-	 *        The assessment.
-	 */
-	protected void setResultsSentTx(String id, Date date)
-	{
-		StringBuilder sql = new StringBuilder();
-		sql.append("UPDATE MNEME_ASSESSMENT SET RESULTS_SENT=? WHERE ID=?");
-
-		Object[] fields = new Object[2];
-		int i = 0;
-		fields[i++] = (date == null) ? null : date.getTime();
-		fields[i++] = Long.valueOf(id);
-
-		if (!this.sqlService.dbWrite(sql.toString(), fields))
-		{
-			throw new RuntimeException("setResultsSentTx: dbWrite failed");
 		}
 	}
 
