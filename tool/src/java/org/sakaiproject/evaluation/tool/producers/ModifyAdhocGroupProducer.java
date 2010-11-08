@@ -137,13 +137,15 @@ ActionResultInterceptor {
 
         // Handler return URL to go back to the Evaluation Wizard if specified. In the future
         // we'll probably want to generalize this system.
-        if (params.returnURL != null) {
-            UILink.make(tofill, "return-link", UIMessage.make("modifyadhocgroup.backtoevalassign"),
-                    params.returnURL);
-        }
+        //if (params.returnURL != null) {
+        //    UILink.make(tofill, "return-link", UIMessage.make("modifyadhocgroup.backtoevalassign"),
+        //            params.returnURL);
+        //}
         
+        if (params.returnURL != null) {
         UICommand.make(form, "back-button", UIMessage.make("modifyadhocgroup.backtoevalassign"),
         		params.returnURL);
+        }
         
     }
 
