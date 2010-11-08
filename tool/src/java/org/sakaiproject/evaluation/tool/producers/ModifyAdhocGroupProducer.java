@@ -142,13 +142,21 @@ ActionResultInterceptor {
         //            params.returnURL);
         //}
         
+        //Test
+        
         //if (params.returnURL != null) {
         //UICommand.make(form, "return-link", UIMessage.make("modifyadhocgroup.backtoevalassign"),
         //		params.returnURL);
         //}
         
-        UIMessage.make(form, "back-button", "general.back.button");
-        UIMessage.make(form, "return-link", "modifyadhocgroup.backtoevalassign");
+        if (params.returnURL != null) {
+        	//UIMessage.make(form, "return-link", "modifyadhocgroup.backtoevalassign");
+        	//UICommand saveButton = 
+        		
+        	UICommand.make(form, "return-link", UIMessage.make("modifyadhocgroup.backtoevalassign"));
+            //saveButton.parameters = new ParameterList(new UIELBinding("adhocGroupsBean.adhocGroupId",
+            //		params.returnURL));
+        }
         
     }
 
