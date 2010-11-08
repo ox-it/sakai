@@ -141,8 +141,11 @@ ActionResultInterceptor {
             UILink.make(tofill, "return-link", UIMessage.make("modifyadhocgroup.backtoevalassign"),
                     params.returnURL);
         }
+        
+        UICommand.make(form, "back-button", UIMessage.make("modifyadhocgroup.backtoevalassign"),
+        		params.returnURL);
+        
     }
-
 
     public ViewParameters getViewParameters() {
         return new AdhocGroupParams();
