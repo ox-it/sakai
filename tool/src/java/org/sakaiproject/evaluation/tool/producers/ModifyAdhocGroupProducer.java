@@ -137,10 +137,10 @@ ActionResultInterceptor {
 
         // Handler return URL to go back to the Evaluation Wizard if specified. In the future
         // we'll probably want to generalize this system.
-        //if (params.returnURL != null) {
-        //    UILink.make(tofill, "return-link", UIMessage.make("modifyadhocgroup.backtoevalassign"),
-        //            params.returnURL);
-        //}
+        if (params.returnURL != null) {
+            UILink.make(form, "return-link", UIMessage.make("modifyadhocgroup.backtoevalassign"),
+                    params.returnURL);
+        }
         
         //Test
         
@@ -149,14 +149,13 @@ ActionResultInterceptor {
         //		params.returnURL);
         //}
         
-        if (params.returnURL != null) {
+        //if (params.returnURL != null) {
         	//UIMessage.make(form, "return-link", "modifyadhocgroup.backtoevalassign");
-        	//UICommand saveButton = 
         		
-        	UICommand.make(form, "return-link", UIMessage.make("modifyadhocgroup.backtoevalassign"));
+        	//UICommand.make(form, "return-link", UIMessage.make("modifyadhocgroup.backtoevalassign"));
             //saveButton.parameters = new ParameterList(new UIELBinding("adhocGroupsBean.adhocGroupId",
             //		params.returnURL));
-        }
+        //}
         
     }
 
