@@ -308,6 +308,7 @@
 <!ATTLIST navigation submit (TRUE|FALSE|TRIGGER) #IMPLIED >
 <!ATTLIST navigation default (TRUE|FALSE) #IMPLIED >
 <!ATTLIST navigation disabled (TRUE|FALSE) #IMPLIED >
+<!ATTLIST navigation portal (TRUE|FALSE) #IMPLIED >
 <!ATTLIST navigation accessKey CDATA #IMPLIED >
 <!ATTLIST navigation description CDATA #IMPLIED >
 <!ATTLIST navigation selectRequirement (SINGLE|SOME|MULTIPLE) #IMPLIED>

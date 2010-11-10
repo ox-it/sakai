@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -199,6 +199,13 @@ public interface Navigation extends Component
 	 * @return self.
 	 */
 	Navigation setIterator(PropertyReference reference, String name);
+
+	/**
+	 * Set this link as a portal (i.e. full screen) link.
+	 * 
+	 * @return self.
+	 */
+	Navigation setPortal();
 
 	/**
 	 * Set the select requirement, used if the navigation is linked to a select column to declare what is valid.

@@ -85,7 +85,7 @@ public class UiNavigation extends UiComponent implements Navigation
 	 *        if set, use the destination as javascript to run.
 	 */
 	protected static void generateLinkScript(Context context, String id, boolean confirm, boolean validate, boolean submit, String destination,
-			String root, boolean requirements, boolean trigger)
+			String root, boolean requirements, boolean trigger, boolean parent)
 	{
 		// the act method call
 		String action = null;
@@ -93,7 +93,7 @@ public class UiNavigation extends UiComponent implements Navigation
 		{
 			action = "ambrosiaNavigate(enabled_" + id + ", 'enable_" + id + "()', " + Boolean.toString(confirm) + ", 'confirm_" + id + "', "
 					+ Boolean.toString(validate) + ", " + Boolean.toString(submit) + ", '" + escapeSingleQuote(destination) + "','" + root + "', "
-					+ (requirements ? "'requirements_" + id + "()','failure_" + id + "'" : "null, null") + ");";
+					+ (requirements ? "'requirements_" + id + "()','failure_" + id + "'" : "null, null") + ", " + (parent ? "true" : "false") + ");";
 		}
 		else
 		{
@@ -161,6 +161,9 @@ public class UiNavigation extends UiComponent implements Navigation
 	/** The reference to an entity to iterate over. */
 	protected PropertyReference iteratorReference = null;
 
+	/** Set if the link is a portal (i.e. full screen) link. */
+	protected boolean portal = false;
+
 	/** The icon for the requirements failed display. */
 	protected String requirementsOkIcon = "!/ambrosia_library/icons/ok.png";
 
@@ -208,7 +211,7 @@ public class UiNavigation extends UiComponent implements Navigation
 	 */
 	protected UiNavigation(UiServiceImpl service, Element xml)
 	{
-		// controll stuff
+		// control stuff
 		super(service, xml);
 
 		// short form for title - attribute "title" as the selector
@@ -262,9 +265,16 @@ public class UiNavigation extends UiComponent implements Navigation
 
 		// short form for default
 		String dflt = StringUtil.trimToNull(xml.getAttribute("default"));
-		if ((submit != null) && ("TRUE".equals(submit)))
+		if ((dflt != null) && ("TRUE".equals(dflt)))
 		{
 			setDefault();
+		}
+
+		// short form for parent
+		String portal = StringUtil.trimToNull(xml.getAttribute("portal"));
+		if ((portal != null) && ("TRUE".equals(portal)))
+		{
+			setPortal();
 		}
 
 		// short form for disabled
@@ -686,6 +696,15 @@ public class UiNavigation extends UiComponent implements Navigation
 	/**
 	 * {@inheritDoc}
 	 */
+	public Navigation setPortal()
+	{
+		this.portal = true;
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Navigation setSelectRequirement(SelectRequirement requirement)
 	{
 		this.selectRequirement = requirement;
@@ -901,8 +920,15 @@ public class UiNavigation extends UiComponent implements Navigation
 			// our action javascript
 			if (!disabled)
 			{
+				// usually use the return url as the root, but for portal, form the direct tool url for root
+				String root = (String) context.get("sakai.return.url");
+				if (this.portal)
+				{
+					// the navigation destination starts with /toolid/, continues with the tool parameters
+					root = ((String) context.get("sakai.server.url")) + "/portal/directtool";
+				}
 				generateLinkScript(context, id, confirm, validate, this.submit, (this.destination != null ? this.destination.getDestination(context,
-						focus) : ""), (String) context.get("sakai.return.url"), requirements, this.trigger);
+						focus) : ""), root, requirements, this.trigger, this.portal);
 			}
 
 			if (confirm)

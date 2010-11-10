@@ -467,7 +467,7 @@ function ambrosiaSubmit(destination)
 	document.form0.submit();
 }
 
-function ambrosiaNavigate(enabled, enableFunction, confirm, confirmDivId, validateFlag, submit, destination, root, requirementsFunction, requirementsDivId)
+function ambrosiaNavigate(enabled, enableFunction, confirm, confirmDivId, validateFlag, submit, destination, root, requirementsFunction, requirementsDivId, portal)
 {
 	if (requirementsFunction != null)
 	{
@@ -504,7 +504,14 @@ function ambrosiaNavigate(enabled, enableFunction, confirm, confirmDivId, valida
 		}
 		else
 		{
-			document.location=root + destination;
+			if (portal)
+			{
+				parent.location=root + destination;
+			}
+			else
+			{
+				document.location=root + destination;
+			}
 		}
 	}
 }

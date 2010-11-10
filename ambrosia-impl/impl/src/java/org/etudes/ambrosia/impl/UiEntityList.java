@@ -484,7 +484,7 @@ public class UiEntityList extends UiComponent implements EntityList
 						}
 
 						UiNavigation.generateLinkScript(context, sortId, false, false, submit, destination, (String) context.get("sakai.return.url"),
-								false, false);
+								false, false, false);
 						response.println("<th scope=\"col\""
 								+ (c.getCentered() ? " style=\"text-align:center\"" : "")
 								+ (c.getRight() ? " style=\"text-align:right\"" : "")
@@ -501,7 +501,7 @@ public class UiEntityList extends UiComponent implements EntityList
 							&& (c.getSortDestinationDesc() != null))
 					{
 						UiNavigation.generateLinkScript(context, sortId, false, false, submit, c.getSortDestinationAsc().getDestination(context,
-								focus), (String) context.get("sakai.return.url"), false, false);
+								focus), (String) context.get("sakai.return.url"), false, false, false);
 						response.println("<th scope=\"col\"" + (c.getCentered() ? " style=\"text-align:center\"" : "")
 								+ (c.getRight() ? " style=\"text-align:right\"" : "") + "><a href=\"#\" onclick=\"act_" + sortId
 								+ "();return false;\">" + title + "</a></th>");
@@ -693,7 +693,7 @@ public class UiEntityList extends UiComponent implements EntityList
 						{
 							String navId = id + "_r" + row + "_c_" + colNum;
 							UiNavigation.generateLinkScript(context, navId, false, false, c.getEntityNavigationSubmit(), href, (String) context
-									.get("sakai.return.url"), false, false);
+									.get("sakai.return.url"), false, false, false);
 							response.print("<a style=\"text-decoration:none !important\" href=\"#\" onclick=\"act_" + navId + "();return false;\">");
 						}
 

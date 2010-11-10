@@ -241,7 +241,7 @@ public class UiFileUpload extends UiComponent implements FileUpload
 
 				// our action javascript
 				UiNavigation.generateLinkScript(context, id, confirm, validate, true, (this.uploadDestination != null ? this.uploadDestination
-						.getDestination(context, focus) : ""), (String) context.get("sakai.return.url"), requirements, false);
+						.getDestination(context, focus) : ""), (String) context.get("sakai.return.url"), requirements, false, false);
 
 				response.print("<span class=\"ambrosiaNavNormal\">");
 
