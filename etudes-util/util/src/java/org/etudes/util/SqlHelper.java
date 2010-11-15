@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/contrib/etudes/etudes-util/trunk/etudes-util/util/src/java/org/etudes/util/SqlHelper.java $
- * $Id: SqlHelper.java 66932 2010-03-29 18:22:42Z rashmi@etudes.org $
+ * $URL: https://source.sakaiproject.org/contrib/etudes/mneme/trunk/mneme-impl/impl/src/java/org/etudes/mneme/impl/SqlHelper.java $
+ * $Id: SqlHelper.java 54965 2008-11-14 00:30:52Z ggolden@etudes.org $
  ***********************************************************************************
  *
  * Copyright (c) 2010 Etudes, Inc.
@@ -20,10 +20,19 @@
  **********************************************************************************/
 
 package org.etudes.util;
+
+import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.util.StringUtil;
+
 /**
- * Contains helper methods that can be used to convert data and store them in the database
+ * SqlHelper has some utility methods for working with database information.
  */
 public class SqlHelper
 {
@@ -63,6 +72,29 @@ public class SqlHelper
 	}
 
 	/**
+	 * Encode a list of References into a string array encoded string.
+	 * 
+	 * @param references
+	 *        The references.
+	 * @return The string array encoded string.
+	 */
+	public static String encodeReferences(List<Reference> references)
+	{
+		if ((references == null) || (references.isEmpty())) return null;
+
+		String[] refs = new String[references.size()];
+		int i = 0;
+		for (Reference ref : references)
+		{
+			refs[i++] = ref.getReference();
+		}
+
+		String encoded = encodeStringArray(refs);
+
+		return encoded;
+	}
+
+	/**
 	 * Encode a string array into a single string
 	 * 
 	 * @param data
@@ -75,7 +107,6 @@ public class SqlHelper
 		StringBuilder rv = new StringBuilder();
 		for (String s : data)
 		{
-			System.out.println("s is "+s);
 			rv.append((s == null) ? "0" : Integer.toString(s.length()));
 			rv.append(":");
 			if (s != null) rv.append(s);
@@ -84,4 +115,194 @@ public class SqlHelper
 		return rv.toString();
 	}
 
+	/**
+	 * Read a Boolean (encoded in a bit or tinyint or string field or whatever) from the results set.
+	 * 
+	 * @param results
+	 *        The result set.
+	 * @param index
+	 *        The index.
+	 * @return The Boolean.
+	 * @throws SQLException
+	 */
+	public static Boolean readBitBoolean(ResultSet result, int index) throws SQLException
+	{
+		Object o = result.getObject(index);
+		if (o == null) return null;
+
+		Boolean rv = null;
+		if (o instanceof Boolean)
+		{
+			rv = (Boolean) o;
+		}
+		else if (o instanceof Integer)
+		{
+			rv = Boolean.valueOf(((Integer) o).intValue() == 1);
+		}
+		else if (o instanceof BigDecimal)
+		{
+			rv = Boolean.valueOf(((BigDecimal) o).intValue() == 1);
+		}
+		else if (o instanceof String)
+		{
+			if (((String) o).length() > 0)
+			{
+				String s = (String) o;
+
+				if (s.equals("1") || s.equals("0"))
+				{
+					rv = Boolean.valueOf(s.equals("1"));
+				}
+				else if (s.equalsIgnoreCase("true") || s.equalsIgnoreCase("false"))
+				{
+					rv = Boolean.valueOf(s.equalsIgnoreCase("true"));
+				}
+				else
+				{
+					rv = Boolean.valueOf(((String) o).charAt(0) == '\u0001');
+				}
+			}
+		}
+
+		return rv;
+	}
+
+	/**
+	 * Read a Boolean (encoded as '0' '1') from the results set.
+	 * 
+	 * @param results
+	 *        The result set.
+	 * @param index
+	 *        The index.
+	 * @return The Boolean.
+	 * @throws SQLException
+	 */
+	public static Boolean readBoolean(ResultSet result, int index) throws SQLException
+	{
+		String s = result.getString(index);
+		if (s == null) return null;
+		Boolean rv = Boolean.valueOf(s.equals("1"));
+		return rv;
+	}
+
+	/**
+	 * Read a long from the result set, and convert to a null (if 0) or a Date.
+	 * 
+	 * @param results
+	 *        The result set.
+	 * @param index
+	 *        The index.
+	 * @return The Date or null.
+	 * @throws SQLException
+	 */
+	public static Date readDate(ResultSet result, int index) throws SQLException
+	{
+		long time = result.getLong(index);
+		if (time == 0) return null;
+		return new Date(time);
+	}
+
+	/**
+	 * Read a float from the results set. null is treated as null.
+	 * 
+	 * @param results
+	 *        The result set.
+	 * @param index
+	 *        The index.
+	 * @return The Float.
+	 * @throws SQLException
+	 */
+	public static Float readFloat(ResultSet result, int index) throws SQLException
+	{
+		String str = StringUtil.trimToNull(result.getString(index));
+		if (str == null) return null;
+		try
+		{
+			return Float.valueOf(str);
+		}
+		catch (NumberFormatException e)
+		{
+			return null;
+		}
+	}
+
+	/**
+	 * Read an id encoded as an unsigned long from the results set. 0 is treated as null.
+	 * 
+	 * @param results
+	 *        The result set.
+	 * @param index
+	 *        The index.
+	 * @return The id string.
+	 * @throws SQLException
+	 */
+	public static String readId(ResultSet result, int index) throws SQLException
+	{
+		long l = result.getLong(index);
+		if (l == 0) return null;
+		return Long.valueOf(l).toString();
+	}
+
+	/**
+	 * Read a Integer from the results set. null is treated as null.
+	 * 
+	 * @param results
+	 *        The result set.
+	 * @param index
+	 *        The index.
+	 * @return The Integer.
+	 * @throws SQLException
+	 */
+	public static Integer readInteger(ResultSet result, int index) throws SQLException
+	{
+		String str = StringUtil.trimToNull(result.getString(index));
+		if (str == null) return null;
+		try
+		{
+			return Integer.valueOf(str);
+		}
+		catch (NumberFormatException e)
+		{
+			return null;
+		}
+	}
+
+	/**
+	 * Read a Long from the results set. null is treated as null.
+	 * 
+	 * @param results
+	 *        The result set.
+	 * @param index
+	 *        The index.
+	 * @return The Long.
+	 * @throws SQLException
+	 */
+	public static Long readLong(ResultSet result, int index) throws SQLException
+	{
+		String str = StringUtil.trimToNull(result.getString(index));
+		if (str == null) return null;
+		try
+		{
+			return Long.valueOf(str);
+		}
+		catch (NumberFormatException e)
+		{
+			return null;
+		}
+	}
+
+	/**
+	 * Read a string from the result set, trimmed to null
+	 * 
+	 * @param results
+	 *        The result set.
+	 * @param index
+	 *        The index.
+	 * @return The String.
+	 * @throws SQLException
+	 */
+	public static String readString(ResultSet result, int index) throws SQLException
+	{
+		return StringUtil.trimToNull(result.getString(index));
+	}
 }
