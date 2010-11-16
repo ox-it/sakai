@@ -146,6 +146,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>etudes</groupId>
+			<artifactId>etudes-util-api</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util</artifactId>
 			<version>${sakai.version}</version>

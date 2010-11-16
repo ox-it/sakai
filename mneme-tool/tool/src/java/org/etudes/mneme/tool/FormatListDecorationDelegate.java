@@ -30,6 +30,8 @@ import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.FormatDelegateImpl;
 import org.etudes.mneme.api.AssessmentSubmissionStatus;
 import org.etudes.mneme.api.Submission;
+import org.etudes.util.api.AccessAdvisor;
+import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * The "FormatListDecoration" format delegate for the mneme tool.
@@ -58,80 +60,123 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 
 		AssessmentSubmissionStatus status = submission.getAssessmentSubmissionStatus();
 
+		String rv = null;
 		switch (status)
 		{
 			case future:
 			{
-				return "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/future.gif\" alt=\""
+				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/future.gif\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-future") + "\" title=\""
 						+ context.getMessages().getString("format-list-decoration-future") + "\" /><br /><span style=\"font-size:smaller\">"
 						+ context.getMessages().getString("format-list-decoration-future") + "</span>";
+				break;
 			}
 
 			case ready:
 			{
-				return "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
+				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-todo") + "\" title=\""
 						+ context.getMessages().getString("format-list-decoration-todo") + "\" /><br /><span style=\"font-size:smaller\">"
 						+ context.getMessages().getString("format-list-decoration-todo") + "</span>";
+				break;
 			}
 
 			case overdueReady:
 			{
-				return "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
+				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-inprogress") + "\" title=\""
 						+ context.getMessages().getString("format-list-decoration-inprogress") + "\" />"
 						+ "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/warning.png\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-urgent") + "\" title=\""
 						+ context.getMessages().getString("format-list-decoration-urgent") + "\" />" + "<br /><span style=\"font-size:smaller\">"
 						+ context.getMessages().getString("format-list-decoration-overdue-ready") + "</span>";
+				break;
 			}
 
 			case inProgressAlert:
 			{
-				return "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
+				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-inprogress") + "\" title=\""
 						+ context.getMessages().getString("format-list-decoration-inprogress") + "\" />"
 						+ "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/warning.png\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-urgent") + "\" title=\""
 						+ context.getMessages().getString("format-list-decoration-urgent") + "\" />" + "<br /><span style=\"font-size:smaller\">"
 						+ context.getMessages().getString("format-list-decoration-inprogress-urgent") + "</span>";
+				break;
 			}
 
 			case inProgress:
 			{
-				return "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
+				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-inprogress") + "\" title=\""
 						+ context.getMessages().getString("format-list-decoration-inprogress") + "\" /><br /><span style=\"font-size:smaller\">"
 						+ context.getMessages().getString("format-list-decoration-inprogress") + "</span>";
+				break;
 			}
 
 			case completeReady:
 			{
-				return "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
+				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
 						+ context.getMessages().getString("format-list-decoration-complete") + "\" />" + "<img style=\"border-style: none;\" src=\""
 						+ context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-repeat") + "\" title=\""
 						+ context.getMessages().getString("format-list-decoration-repeat") + "\" />" + "<br /><span style=\"font-size:smaller\">"
 						+ context.getMessages().getString("format-list-decoration-complete-repeat") + "</span>";
+				break;
 			}
 
 			case overdueCompleteReady:
 			{
-				return "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
+				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
 						+ context.getMessages().getString("format-list-decoration-complete") + "\" />" + "<img style=\"border-style: none;\" src=\""
 						+ context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-repeat") + "\" title=\""
 						+ context.getMessages().getString("format-list-decoration-repeat") + "\" />" + "<br /><span style=\"font-size:smaller\">"
 						+ context.getMessages().getString("format-list-decoration-complete-repeat-overdue") + "</span>";
+				break;
 			}
 
 			case complete:
 			{
-				return "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
+				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
 						+ context.getMessages().getString("format-list-decoration-complete") + "\" /><br /><span style=\"font-size:smaller\">"
 						+ context.getMessages().getString("format-list-decoration-complete") + "</span>";
+				break;
 			}
 			case over:
 			{
-				return "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/cancel.gif\" alt=\""
+				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/cancel.gif\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-overdue") + "\" title=\""
 						+ context.getMessages().getString("format-list-decoration-overdue") + "\" /><br /><span style=\"font-size:smaller\">"
 						+ context.getMessages().getString("format-list-decoration-overdue") + "</span>";
+				break;
 			}
 		}
 
-		return null;
+		if (this.accessAdvisor != null)
+		{
+			if (this.accessAdvisor.denyAccess("sakai.mneme", submission.getAssessment().getContext(), submission.getAssessment().getId(), submission
+					.getUserId()))
+			{
+				String block = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/lock.png\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-blocked") + "\" title=\""
+						+ context.getMessages().getString("format-list-decoration-blocked") + "\" />";
+
+				if (rv == null)
+				{
+					rv = block;
+				}
+				else
+				{
+					rv = block + rv;
+				}
+			}
+		}
+
+		return rv;
 	}
 
 	/**
@@ -142,12 +187,19 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 		return value;
 	}
 
+	/** Dependency (optional, self-injected): AccessAdvisor. */
+	protected transient AccessAdvisor accessAdvisor = null;
+
 	/**
 	 * Final initialization, once all dependencies are set.
 	 */
 	public void init()
 	{
 		super.init();
+
+		// check if there is an access advisor - if not, that's ok.
+		this.accessAdvisor = (AccessAdvisor) ComponentManager.get(AccessAdvisor.class);
+
 		M_log.info("init()");
 	}
 }

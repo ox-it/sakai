@@ -19,5 +19,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/ambrosia-util"/>
 	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-1.2.8.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-fileupload/jars/commons-fileupload-1.1.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/etudes-util-api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

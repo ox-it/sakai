@@ -58,6 +58,9 @@ public class SubmissionImpl implements Submission
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(SubmissionImpl.class);
 
+	/** Dependency (optional, self-injected): AccessAdvisor. */
+	protected transient AccessAdvisor accessAdvisor = null;
+
 	protected List<Answer> answers = new ArrayList<Answer>();
 
 	protected SubmissionAssessmentImpl assessment = null;
@@ -101,9 +104,6 @@ public class SubmissionImpl implements Submission
 	protected transient Boolean unscoredSiblings = null;
 
 	protected String userId = null;
-
-	/** Dependency (optional, self-injected): AccessAdvisor. */
-	protected transient AccessAdvisor accessAdvisor = null;
 
 	/**
 	 * Construct.

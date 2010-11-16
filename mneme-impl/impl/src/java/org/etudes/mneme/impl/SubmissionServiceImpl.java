@@ -60,6 +60,7 @@ import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionCompletedException;
 import org.etudes.mneme.api.SubmissionService;
 import org.etudes.mneme.api.TypeSpecificAnswer;
+import org.etudes.util.api.AccessAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -97,6 +98,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 	/** The chunk size used when streaming (100k). */
 	protected static final int STREAM_BUFFER_SIZE = 102400;
+
+	/** Dependency (optional, self-injected): AccessAdvisor. */
+	protected transient AccessAdvisor accessAdvisor = null;
 
 	/** Dependency: AssessmentService */
 	protected AssessmentService assessmentService = null;
@@ -293,6 +297,16 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		// if the user has a submission in progress, this is good
 		if (submission.getIsStarted() && (!submission.getIsComplete())) return Boolean.TRUE;
+
+		// If not in test drive, and we have an access advisor, see if it wants to block things
+		if ((this.accessAdvisor != null) && (!submission.getIsTestDrive()))
+		{
+			if (this.accessAdvisor.denyAccess("sakai.mneme", submission.getAssessment().getContext(), submission.getAssessment().getId(),
+					this.sessionManager.getCurrentSessionUserId()))
+			{
+				return Boolean.FALSE;
+			}
+		}
 
 		// if the user can submit a new one, this is good
 		Integer remaining = countRemainingSubmissions(submission);
@@ -1712,6 +1726,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 					}
 				}
 			}
+
+			// check if there is an access advisor - if not, that's ok.
+			this.accessAdvisor = (AccessAdvisor) ComponentManager.get(AccessAdvisor.class);
 
 			M_log.info("init():" + msg + " storage: " + this.storage);
 		}
