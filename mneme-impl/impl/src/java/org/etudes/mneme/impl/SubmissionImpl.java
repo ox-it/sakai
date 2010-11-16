@@ -34,7 +34,6 @@ import org.etudes.mneme.api.Answer;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentSubmissionStatus;
-import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.Changeable;
 import org.etudes.mneme.api.Expiration;
@@ -47,6 +46,8 @@ import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionEvaluation;
 import org.etudes.mneme.api.SubmissionService;
+import org.etudes.util.api.AccessAdvisor;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.api.SessionManager;
 
 /**
@@ -100,6 +101,9 @@ public class SubmissionImpl implements Submission
 	protected transient Boolean unscoredSiblings = null;
 
 	protected String userId = null;
+
+	/** Dependency (optional, self-injected): AccessAdvisor. */
+	protected transient AccessAdvisor accessAdvisor = null;
 
 	/**
 	 * Construct.
@@ -802,6 +806,16 @@ public class SubmissionImpl implements Submission
 			if ((getAssessment().getTries() != null) && (this.getSiblingCount() >= getAssessment().getTries())) return Boolean.FALSE;
 		}
 
+		// one last test! If not in test drive, and we have an access advisor, see if it wants to block things
+		if ((this.accessAdvisor != null) && (!getIsTestDrive()))
+		{
+			if (this.accessAdvisor.denyAccess("sakai.mneme", getAssessment().getContext(), getAssessment().getId(), this.sessionManager
+					.getCurrentSessionUserId()))
+			{
+				return Boolean.FALSE;
+			}
+		}
+
 		return Boolean.TRUE;
 	}
 
@@ -851,6 +865,16 @@ public class SubmissionImpl implements Submission
 		{
 			if (!this.securityService.checkSecurity(this.sessionManager.getCurrentSessionUserId(), MnemeService.MANAGE_PERMISSION, getAssessment()
 					.getContext())) return Boolean.FALSE;
+		}
+
+		// one last test! If not in test drive, and we have an access advisor, see if it wants to block things
+		if ((this.accessAdvisor != null) && (!getIsTestDrive()))
+		{
+			if (this.accessAdvisor.denyAccess("sakai.mneme", getAssessment().getContext(), getAssessment().getId(), this.sessionManager
+					.getCurrentSessionUserId()))
+			{
+				return Boolean.FALSE;
+			}
 		}
 
 		return Boolean.TRUE;
@@ -1109,6 +1133,9 @@ public class SubmissionImpl implements Submission
 	{
 		this.assessment = new SubmissionAssessmentImpl(null, this, this.assessmentService);
 		this.evaluation = new SubmissionEvaluationImpl(this, this.attachmentService);
+
+		// check if there is an access advisor - if not, that's ok.
+		this.accessAdvisor = (AccessAdvisor) ComponentManager.get(AccessAdvisor.class);
 	}
 
 	/**
