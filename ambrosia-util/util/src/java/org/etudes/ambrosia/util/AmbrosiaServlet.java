@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -25,6 +25,7 @@
 package org.etudes.ambrosia.util;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,6 +43,7 @@ import org.etudes.ambrosia.api.UiService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
 
 /**
@@ -150,8 +152,15 @@ public class AmbrosiaServlet extends HttpServlet
 		Context context = this.ui.prepareGet(req, res, getDefaultView());
 
 		// get and split up the tool destination: 0 parts means must "/", otherwise parts[0] = "", parts[1] = the first part, etc.
-		String path = context.getDestination();
 		String[] parts = context.getDestination().split("/");
+
+		// handle a top redirect
+		if ("!portal!".equals(parts[1]))
+		{
+			String url = "/portal/directtool/" + StringUtil.unsplit(parts, 2, parts.length - 2, "/");
+			sendTopRedirect(res, url);
+			return;
+		}
 
 		// which destination?
 		Controller destination = ui.getController(parts[1], this.toolId);
@@ -201,7 +210,6 @@ public class AmbrosiaServlet extends HttpServlet
 		Context context = ui.preparePost(req, res, getDefaultView());
 
 		// get and split up the tool destination: 0 parts means must "/", otherwise parts[0] = "", parts[1] = the first part, etc.
-		String path = context.getDestination();
 		String[] parts = context.getDestination().split("/");
 
 		// which destination?
@@ -250,5 +258,26 @@ public class AmbrosiaServlet extends HttpServlet
 	{
 		String error = Web.returnUrl(req, "/" + this.errorView);
 		res.sendRedirect(res.encodeRedirectURL(error));
+	}
+
+	/**
+	 * Send a redirect so our "top" ends up at the url, via javascript.
+	 * 
+	 * @param url
+	 *        The redirect url
+	 */
+	protected void sendTopRedirect(HttpServletResponse res, String url) throws IOException
+	{
+		res.setContentType("text/html; charset=UTF-8");
+		res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
+		res.addDateHeader("Last-Modified", System.currentTimeMillis());
+		res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
+		res.addHeader("Pragma", "no-cache");
+
+		// get the writer
+		PrintWriter out = res.getWriter();
+
+		// we are on deep under the main portal window
+		out.println("<html><heaad></head><body><script language=\"JavaScript\">parent.location.replace('" + url + "');</script></body></html>");
 	}
 }
