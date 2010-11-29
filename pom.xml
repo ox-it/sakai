@@ -62,30 +62,30 @@
 	</pluginRepositories>
 
 
-			<properties>
-				<kernel.version>1.0.12ox2-SNAPSHOT</kernel.version>
-				<sakai.version>2.6-SNAPSHOT</sakai.version>
-			</properties>
-			<dependencyManagement>
-				<dependencies>
-					<!--  Sakai services -->
-					<dependency>
-						<groupId>org.sakaiproject.kernel</groupId>
-						<artifactId>sakai-kernel-api</artifactId>
-						<version>${kernel.version}</version>
-						<scope>provided</scope>
-					</dependency>
-					<dependency>
-						<groupId>org.sakaiproject.kernel</groupId>
-						<artifactId>sakai-component-manager</artifactId>
-						<version>${kernel.version}</version>
-						<scope>provided</scope>
-					</dependency>
-					<dependency>
-						<groupId>org.sakaiproject.kernel</groupId>
-						<artifactId>sakai-kernel-util</artifactId>
-						<version>${kernel.version}</version>
-					</dependency>
+	<properties>
+		<kernel.version>1.0.12ox2-SNAPSHOT</kernel.version>
+		<sakai.version>2.6-SNAPSHOT</sakai.version>
+	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<!-- Sakai services -->
+			<dependency>
+				<groupId>org.sakaiproject.kernel</groupId>
+				<artifactId>sakai-kernel-api</artifactId>
+				<version>${kernel.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.kernel</groupId>
+				<artifactId>sakai-component-manager</artifactId>
+				<version>${kernel.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.kernel</groupId>
+				<artifactId>sakai-kernel-util</artifactId>
+				<version>${kernel.version}</version>
+			</dependency>
 
 			<!-- Internal project -->
 			<dependency>
