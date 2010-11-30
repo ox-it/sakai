@@ -1,0 +1,74 @@
+<html>
+<head>
+<script type="text/javascript" language="JavaScript">
+
+  var request = false;
+  try {
+    request = new XMLHttpRequest();
+  } catch (trymicrosoft) {
+    try {
+      request = new ActiveXObject("Msxml2.XMLHTTP");
+    } catch (othermicrosoft) {
+      try {
+        request = new ActiveXObject("Microsoft.XMLHTTP");
+      } catch (failed) {
+        request = false;
+      }
+    }
+  }
+
+  if (!request)
+    alert("Error initializing XMLHttpRequest!");
+
+function simpleHttpRequest(value) {
+
+  var pathname = "/library-availability";
+  var search1 = "id="+value;
+  var search2 = "format=json";
+  var url = location.protocol+"//"+location.host+pathname+"?"+search1+"&"+search2;
+
+  request.open("GET", url, true);
+  request.send(null);
+  request.onreadystatechange = function() {
+    if (request.readyState == 4) {
+      if (request.status == 200)
+        success(request.responseText);
+      else if (failure)
+        failure(request.status, request.statusText);
+    }
+  };
+}
+
+function success(responseText) {
+  var textarea = document.getElementById("textarea");
+  textarea.value = responseText;
+}
+
+function failure(responseStatus, responseText) {
+  var textarea = document.getElementById("textarea");
+  textarea.value = responseStatus + " " + responseText;
+}
+
+</script>
+</head>
+<body>
+<p>Test Page</p>
+<p>
+<table>
+  <tr>
+    <td valign="top">Enter Resource Id:</td>
+    <td>
+      <input type="text" name="id" onchange="simpleHttpRequest(this.value)" />
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">Response:</td>
+    <td>
+      <textarea name="textarea" id="textarea" cols="80" rows="25">
+      </textarea>
+   </td>
+  </tr>
+</table>
+</p>
+</body>
+</html>
