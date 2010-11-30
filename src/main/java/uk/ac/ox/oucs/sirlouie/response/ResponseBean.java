@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 
-import uk.ac.ox.oucs.sirlouie.reply.SearLibrary;
 import uk.ac.ox.oucs.sirlouie.reply.SearObject;
 
 public class ResponseBean {

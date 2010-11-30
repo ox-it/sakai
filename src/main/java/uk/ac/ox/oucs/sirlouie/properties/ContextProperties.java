@@ -1,7 +1,6 @@
 package uk.ac.ox.oucs.sirlouie.properties;
 
 import java.util.Enumeration;
-import java.util.Properties;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
