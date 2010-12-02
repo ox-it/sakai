@@ -64,14 +64,22 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 		String rv = null;
 
 		// see if we are blocked by an access advisor, and if so, prepare the blocked display - may be overridden below
-		boolean blocked = ((this.accessAdvisor != null) && (this.accessAdvisor.denyAccess("sakai.mneme", submission.getAssessment().getContext(),
-				submission.getAssessment().getId(), submission.getUserId())));
-		if (blocked)
+		boolean blocked = false;
+		if (this.accessAdvisor != null)
 		{
-			rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/lock.png\" alt=\""
-					+ context.getMessages().getString("format-list-decoration-blocked") + "\" title=\""
-					+ context.getMessages().getString("format-list-decoration-blocked") + "\" /><br /><span style=\"font-size:smaller\">"
-					+ context.getMessages().getString("format-list-decoration-blocked") + "</span>";
+			String blockedByTitle = this.accessAdvisor.message("sakai.mneme", submission.getAssessment().getContext(), submission.getAssessment()
+					.getId(), submission.getUserId());
+			if (blockedByTitle != null) blocked = true;
+
+			if (blocked)
+			{
+				Object[] args = new Object[1];
+				args[0] = blockedByTitle;
+				String msg = context.getMessages().getFormattedMessage("format-list-decoration-blocked", args);
+
+				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/lock.png\" alt=\"" + msg + "\" title=\""
+						+ msg + "\" /><br /><span style=\"font-size:smaller\">" + msg + "</span>";
+			}
 		}
 
 		// get the status
