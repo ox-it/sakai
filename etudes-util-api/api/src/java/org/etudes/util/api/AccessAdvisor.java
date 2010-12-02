@@ -40,4 +40,19 @@ public interface AccessAdvisor
 	 * @return TRUE if the advisor denies access, FALSE if not.
 	 */
 	Boolean denyAccess(String toolId, String context, String id, String userId);
+
+	/**
+	 * If the user should be denied access to the item, provide a message describing why.
+	 * 
+	 * @param toolId
+	 *        The tool id for the application (such as "sakai.mneme").
+	 * @param context
+	 *        The context in which the object lives.
+	 * @param id
+	 *        The object's id.
+	 * @param userId
+	 *        The user id.
+	 * @return The message string, or null if not denied access.
+	 */
+	String message(String toolId, String context, String id, String userId);
 }
