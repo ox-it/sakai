@@ -208,6 +208,15 @@ public interface Navigation extends Component
 	Navigation setPortal();
 
 	/**
+	 * Set the decision for requirements; if not met, an alert will show instead of having the navigation activated when clicked.
+	 * 
+	 * @param decision
+	 *        The decision, or set of decisions, all of which must pass as requirements.
+	 * @return self.
+	 */
+	Navigation setRequirements(Decision... decision);
+
+	/**
 	 * Set the select requirement, used if the navigation is linked to a select column to declare what is valid.
 	 * 
 	 * @param requirement

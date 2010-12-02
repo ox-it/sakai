@@ -218,6 +218,7 @@
 <!ELEMENT highlighted (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
 <!ELEMENT correctDecision (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
 <!ELEMENT colorize (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT requirements (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
 
 <!ATTLIST entityIncluded selector CDATA #IMPLIED >
 <!ATTLIST colorize color CDATA #IMPLIED >
@@ -300,7 +301,7 @@
 
 <!ELEMENT navigations (navigation | container)* >
 
-<!ELEMENT navigation (included | confirm | title | destination | disabled | default | validate | icon | iterator | description)* >
+<!ELEMENT navigation (included | confirm | title | destination | disabled | requirements | default | validate | icon | iterator | description)* >
 <!ATTLIST navigation id CDATA #IMPLIED >
 <!ATTLIST navigation title CDATA #IMPLIED >
 <!ATTLIST navigation style (BUTTON|LINK) #IMPLIED >
@@ -314,6 +315,7 @@
 <!ATTLIST navigation selectRequirement (SINGLE|SOME|MULTIPLE) #IMPLIED>
 <!ATTLIST navigation selectRequirementId CDATA #IMPLIED>
 <!ATTLIST navigation selectRequirementMessage CDATA #IMPLIED >
+<!ATTLIST navigation failedRequirementsMessage CDATA #IMPLIED >
 <!ATTLIST navigation small (TRUE|FALSE) #IMPLIED >
 <!ATTLIST navigation wrap (TRUE|FALSE) #IMPLIED >
 

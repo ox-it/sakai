@@ -164,6 +164,9 @@ public class UiNavigation extends UiComponent implements Navigation
 	/** Set if the link is a portal (i.e. full screen) link. */
 	protected boolean portal = false;
 
+	/** The requirements decision. */
+	protected Decision requirementsDecision = null;
+
 	/** The icon for the requirements failed display. */
 	protected String requirementsOkIcon = "!/ambrosia_library/icons/ok.png";
 
@@ -313,6 +316,13 @@ public class UiNavigation extends UiComponent implements Navigation
 			this.setFailedRequirmentsMessage(selectRequirementMessage);
 		}
 
+		// short form for select requirement message
+		selectRequirementMessage = StringUtil.trimToNull(xml.getAttribute("failedRequirementsMessage"));
+		if (selectRequirementMessage != null)
+		{
+			this.setFailedRequirmentsMessage(selectRequirementMessage);
+		}
+
 		// confirm
 		Element settingsXml = XmlHelper.getChildElementNamed(xml, "confirm");
 		if (settingsXml != null)
@@ -386,6 +396,12 @@ public class UiNavigation extends UiComponent implements Navigation
 		if (settingsXml != null)
 		{
 			this.disabledDecision = service.parseDecisions(settingsXml);
+		}
+
+		settingsXml = XmlHelper.getChildElementNamed(xml, "requirements");
+		if (settingsXml != null)
+		{
+			this.requirementsDecision = service.parseDecisions(settingsXml);
 		}
 
 		settingsXml = XmlHelper.getChildElementNamed(xml, "default");
@@ -468,8 +484,6 @@ public class UiNavigation extends UiComponent implements Navigation
 	 */
 	public boolean render(Context context, Object focus)
 	{
-		PrintWriter response = context.getResponseWriter();
-
 		// included?
 		if (!isIncluded(context, focus)) return false;
 
@@ -705,6 +719,26 @@ public class UiNavigation extends UiComponent implements Navigation
 	/**
 	 * {@inheritDoc}
 	 */
+	public Navigation setRequirements(Decision... decision)
+	{
+		if (decision != null)
+		{
+			if (decision.length == 1)
+			{
+				this.requirementsDecision = decision[0];
+			}
+			else
+			{
+				this.requirementsDecision = new UiAndDecision().setRequirements(decision);
+			}
+		}
+
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Navigation setSelectRequirement(SelectRequirement requirement)
 	{
 		this.selectRequirement = requirement;
@@ -818,6 +852,23 @@ public class UiNavigation extends UiComponent implements Navigation
 	}
 
 	/**
+	 * Check if this passes requirements.
+	 * 
+	 * @param context
+	 *        The Context.
+	 * @param focus
+	 *        The object focus.
+	 * @return true if this passes requirements, false if not.
+	 */
+	protected boolean passesRequirements(Context context, Object focus)
+	{
+		// if no requirements, all is well
+		if (this.requirementsDecision == null) return true;
+
+		return this.requirementsDecision.decide(context, focus);
+	}
+
+	/**
 	 * Render one iteration.
 	 * 
 	 * @param context
@@ -894,10 +945,11 @@ public class UiNavigation extends UiComponent implements Navigation
 			confirm = this.confirmDecision.decide(context, focus);
 		}
 
-		// are there requirements?
-		boolean requirements = (this.selectRequirement != SelectRequirement.none) && (this.failedRequirements != null);
+		// are there select requirements?
+		boolean selectRequirements = (this.selectRequirement != SelectRequirement.none) && (this.failedRequirements != null);
+		// TODO: also consider decision requirements
 		String relatedId = null;
-		if (requirements)
+		if (selectRequirements)
 		{
 			// use our configured target
 			relatedId = this.selectRequirementId;
@@ -909,7 +961,18 @@ public class UiNavigation extends UiComponent implements Navigation
 			}
 
 			// if still none, we have no requirements
-			if (relatedId == null) requirements = false;
+			if (relatedId == null) selectRequirements = false;
+		}
+
+		// are there other requirements?
+		boolean failedRequirements = false;
+		if (this.requirementsDecision != null)
+		{
+			// do they fail?
+			if (!passesRequirements(context, focus))
+			{
+				failedRequirements = true;
+			}
 		}
 
 		PrintWriter response = context.getResponseWriter();
@@ -927,15 +990,15 @@ public class UiNavigation extends UiComponent implements Navigation
 					// the navigation destination starts with /toolid/, continues with the tool parameters
 					root = ((String) context.get("sakai.server.url")) + "/portal/directtool";
 				}
-				generateLinkScript(context, id, confirm, validate, this.submit, (this.destination != null ? this.destination.getDestination(context,
-						focus) : ""), root, requirements, this.trigger, this.portal);
+				generateLinkScript(context, id, confirm, validate, this.submit,
+						(this.destination != null ? this.destination.getDestination(context, focus) : ""), root,
+						(selectRequirements | failedRequirements), this.trigger, this.portal);
 			}
 
 			if (confirm)
 			{
-				response
-						.println("<div class=\"ambrosiaConfirmPanel\" style=\"display:none; left:0px; top:0px; width:390px; height:130px\" id=\"confirm_"
-								+ id + "\">");
+				response.println("<div class=\"ambrosiaConfirmPanel\" style=\"display:none; left:0px; top:0px; width:390px; height:130px\" id=\"confirm_"
+						+ id + "\">");
 				response.println("<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr>");
 				response.println("<td colspan=\"2\" style=\"padding:1em; white-space:normal; line-height:1em; \" align=\"left\">"
 						+ this.confirmMsg.getMessage(context, focus) + "</td>");
@@ -959,12 +1022,11 @@ public class UiNavigation extends UiComponent implements Navigation
 				response.println("</tr></table></div>");
 			}
 
-			if (requirements)
+			if (selectRequirements || failedRequirements)
 			{
 				// the "failure" panel shown if requirements are not met
-				response
-						.println("<div class=\"ambrosiaConfirmPanel\" style=\"display:none; left:0px; top:0px; width:390px; height:130px\" id=\"failure_"
-								+ id + "\">");
+				response.println("<div class=\"ambrosiaConfirmPanel\" style=\"display:none; left:0px; top:0px; width:390px; height:130px\" id=\"failure_"
+						+ id + "\">");
 				response.println("<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr>");
 				response.println("<td colspan=\"2\" style=\"padding:1em; white-space:normal; line-height:1em; \" align=\"left\">"
 						+ this.failedRequirements.getMessage(context, focus) + "</td>");
@@ -982,25 +1044,36 @@ public class UiNavigation extends UiComponent implements Navigation
 				// validation function
 				StringBuffer script = new StringBuffer();
 				script.append("function requirements_" + id + "()\n{\n" + "");
-				script.append("\tcount = ambrosiaCountChecked('" + relatedId + "');\n");
-				switch (this.selectRequirement)
+
+				if (failedRequirements)
 				{
-					case multiple:
+					script.append("\treturn false;\n");
+				}
+
+				// the select requirements
+				else
+				{
+					script.append("\tcount = ambrosiaCountChecked('" + relatedId + "');\n");
+					switch (this.selectRequirement)
 					{
-						script.append("\treturn count > 1;\n");
-						break;
-					}
-					case single:
-					{
-						script.append("\treturn count == 1;\n");
-						break;
-					}
-					case some:
-					{
-						script.append("\treturn count > 0;\n");
-						break;
+						case multiple:
+						{
+							script.append("\treturn count > 1;\n");
+							break;
+						}
+						case single:
+						{
+							script.append("\treturn count == 1;\n");
+							break;
+						}
+						case some:
+						{
+							script.append("\treturn count > 0;\n");
+							break;
+						}
 					}
 				}
+
 				script.append("}\n");
 				context.addScript(script.toString());
 			}
@@ -1069,29 +1142,28 @@ public class UiNavigation extends UiComponent implements Navigation
 
 			case button:
 			{
-				response
-						.println("<input type=\"button\" "
-								+ (dflt ? "class=\"active\"" : "")
-								+ " name=\""
-								+ id
-								+ "\" id=\""
-								+ id
-								+ "\" value=\""
-								+ title
-								+ "\""
-								+ (disabled ? " disabled=\"disabled\"" : "")
-								+ " onclick=\"act_"
-								+ id
-								+ "();return false;\" "
-								+ ((accessKey == null) ? "" : "accesskey=\"" + accessKey.charAt(0) + "\" ")
-								+ "title=\""
-								+ description
-								+ "\" "
-								+ (((this.icon != null) && (this.iconStyle == IconStyle.left)) ? "style=\"padding-left:2em; background: #eee url('"
-										+ context.getUrl(this.icon) + "') .2em no-repeat;\"" : "")
-								+ (((this.icon != null) && (this.iconStyle == IconStyle.right)) ? "style=\"padding-left:.4em; padding-right:2em; background: #eee url('"
-										+ context.getUrl(this.icon) + "') right no-repeat;\""
-										: "") + "/>");
+				response.println("<input type=\"button\" "
+						+ (dflt ? "class=\"active\"" : "")
+						+ " name=\""
+						+ id
+						+ "\" id=\""
+						+ id
+						+ "\" value=\""
+						+ title
+						+ "\""
+						+ (disabled ? " disabled=\"disabled\"" : "")
+						+ " onclick=\"act_"
+						+ id
+						+ "();return false;\" "
+						+ ((accessKey == null) ? "" : "accesskey=\"" + accessKey.charAt(0) + "\" ")
+						+ "title=\""
+						+ description
+						+ "\" "
+						+ (((this.icon != null) && (this.iconStyle == IconStyle.left)) ? "style=\"padding-left:2em; background: #eee url('"
+								+ context.getUrl(this.icon) + "') .2em no-repeat;\"" : "")
+						+ (((this.icon != null) && (this.iconStyle == IconStyle.right)) ? "style=\"padding-left:.4em; padding-right:2em; background: #eee url('"
+								+ context.getUrl(this.icon) + "') right no-repeat;\""
+								: "") + "/>");
 
 				break;
 			}
