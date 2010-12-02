@@ -41,6 +41,9 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 	/** Our log. */
 	private static Log M_log = LogFactory.getLog(FormatListDecorationDelegate.class);
 
+	/** Dependency (optional, self-injected): AccessAdvisor. */
+	protected transient AccessAdvisor accessAdvisor = null;
+
 	/**
 	 * Shutdown.
 	 */
@@ -58,120 +61,112 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 		if (!(o instanceof Submission)) return value.toString();
 		Submission submission = (Submission) o;
 
-		AssessmentSubmissionStatus status = submission.getAssessmentSubmissionStatus();
-
 		String rv = null;
-		switch (status)
+		if ((this.accessAdvisor != null)
+				&& (this.accessAdvisor.denyAccess("sakai.mneme", submission.getAssessment().getContext(), submission.getAssessment().getId(),
+						submission.getUserId())))
 		{
-			case future:
-			{
-				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/future.gif\" alt=\""
-						+ context.getMessages().getString("format-list-decoration-future") + "\" title=\""
-						+ context.getMessages().getString("format-list-decoration-future") + "\" /><br /><span style=\"font-size:smaller\">"
-						+ context.getMessages().getString("format-list-decoration-future") + "</span>";
-				break;
-			}
-
-			case ready:
-			{
-				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
-						+ context.getMessages().getString("format-list-decoration-todo") + "\" title=\""
-						+ context.getMessages().getString("format-list-decoration-todo") + "\" /><br /><span style=\"font-size:smaller\">"
-						+ context.getMessages().getString("format-list-decoration-todo") + "</span>";
-				break;
-			}
-
-			case overdueReady:
-			{
-				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
-						+ context.getMessages().getString("format-list-decoration-inprogress") + "\" title=\""
-						+ context.getMessages().getString("format-list-decoration-inprogress") + "\" />"
-						+ "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/warning.png\" alt=\""
-						+ context.getMessages().getString("format-list-decoration-urgent") + "\" title=\""
-						+ context.getMessages().getString("format-list-decoration-urgent") + "\" />" + "<br /><span style=\"font-size:smaller\">"
-						+ context.getMessages().getString("format-list-decoration-overdue-ready") + "</span>";
-				break;
-			}
-
-			case inProgressAlert:
-			{
-				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
-						+ context.getMessages().getString("format-list-decoration-inprogress") + "\" title=\""
-						+ context.getMessages().getString("format-list-decoration-inprogress") + "\" />"
-						+ "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/warning.png\" alt=\""
-						+ context.getMessages().getString("format-list-decoration-urgent") + "\" title=\""
-						+ context.getMessages().getString("format-list-decoration-urgent") + "\" />" + "<br /><span style=\"font-size:smaller\">"
-						+ context.getMessages().getString("format-list-decoration-inprogress-urgent") + "</span>";
-				break;
-			}
-
-			case inProgress:
-			{
-				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
-						+ context.getMessages().getString("format-list-decoration-inprogress") + "\" title=\""
-						+ context.getMessages().getString("format-list-decoration-inprogress") + "\" /><br /><span style=\"font-size:smaller\">"
-						+ context.getMessages().getString("format-list-decoration-inprogress") + "</span>";
-				break;
-			}
-
-			case completeReady:
-			{
-				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
-						+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
-						+ context.getMessages().getString("format-list-decoration-complete") + "\" />" + "<img style=\"border-style: none;\" src=\""
-						+ context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
-						+ context.getMessages().getString("format-list-decoration-repeat") + "\" title=\""
-						+ context.getMessages().getString("format-list-decoration-repeat") + "\" />" + "<br /><span style=\"font-size:smaller\">"
-						+ context.getMessages().getString("format-list-decoration-complete-repeat") + "</span>";
-				break;
-			}
-
-			case overdueCompleteReady:
-			{
-				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
-						+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
-						+ context.getMessages().getString("format-list-decoration-complete") + "\" />" + "<img style=\"border-style: none;\" src=\""
-						+ context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
-						+ context.getMessages().getString("format-list-decoration-repeat") + "\" title=\""
-						+ context.getMessages().getString("format-list-decoration-repeat") + "\" />" + "<br /><span style=\"font-size:smaller\">"
-						+ context.getMessages().getString("format-list-decoration-complete-repeat-overdue") + "</span>";
-				break;
-			}
-
-			case complete:
-			{
-				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
-						+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
-						+ context.getMessages().getString("format-list-decoration-complete") + "\" /><br /><span style=\"font-size:smaller\">"
-						+ context.getMessages().getString("format-list-decoration-complete") + "</span>";
-				break;
-			}
-			case over:
-			{
-				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/cancel.gif\" alt=\""
-						+ context.getMessages().getString("format-list-decoration-overdue") + "\" title=\""
-						+ context.getMessages().getString("format-list-decoration-overdue") + "\" /><br /><span style=\"font-size:smaller\">"
-						+ context.getMessages().getString("format-list-decoration-overdue") + "</span>";
-				break;
-			}
+			rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/lock.png\" alt=\""
+					+ context.getMessages().getString("format-list-decoration-blocked") + "\" title=\""
+					+ context.getMessages().getString("format-list-decoration-blocked") + "\" /><br /><span style=\"font-size:smaller\">"
+					+ context.getMessages().getString("format-list-decoration-blocked") + "</span>";
 		}
 
-		if (this.accessAdvisor != null)
+		else
 		{
-			if (this.accessAdvisor.denyAccess("sakai.mneme", submission.getAssessment().getContext(), submission.getAssessment().getId(), submission
-					.getUserId()))
+			AssessmentSubmissionStatus status = submission.getAssessmentSubmissionStatus();
+			switch (status)
 			{
-				String block = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/lock.png\" alt=\""
-						+ context.getMessages().getString("format-list-decoration-blocked") + "\" title=\""
-						+ context.getMessages().getString("format-list-decoration-blocked") + "\" />";
-
-				if (rv == null)
+				case future:
 				{
-					rv = block;
+					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/future.gif\" alt=\""
+							+ context.getMessages().getString("format-list-decoration-future") + "\" title=\""
+							+ context.getMessages().getString("format-list-decoration-future") + "\" /><br /><span style=\"font-size:smaller\">"
+							+ context.getMessages().getString("format-list-decoration-future") + "</span>";
+					break;
 				}
-				else
+
+				case ready:
 				{
-					rv = block + rv;
+					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
+							+ context.getMessages().getString("format-list-decoration-todo") + "\" title=\""
+							+ context.getMessages().getString("format-list-decoration-todo") + "\" /><br /><span style=\"font-size:smaller\">"
+							+ context.getMessages().getString("format-list-decoration-todo") + "</span>";
+					break;
+				}
+
+				case overdueReady:
+				{
+					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
+							+ context.getMessages().getString("format-list-decoration-inprogress") + "\" title=\""
+							+ context.getMessages().getString("format-list-decoration-inprogress") + "\" />"
+							+ "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/warning.png\" alt=\""
+							+ context.getMessages().getString("format-list-decoration-urgent") + "\" title=\""
+							+ context.getMessages().getString("format-list-decoration-urgent") + "\" />" + "<br /><span style=\"font-size:smaller\">"
+							+ context.getMessages().getString("format-list-decoration-overdue-ready") + "</span>";
+					break;
+				}
+
+				case inProgressAlert:
+				{
+					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
+							+ context.getMessages().getString("format-list-decoration-inprogress") + "\" title=\""
+							+ context.getMessages().getString("format-list-decoration-inprogress") + "\" />"
+							+ "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/warning.png\" alt=\""
+							+ context.getMessages().getString("format-list-decoration-urgent") + "\" title=\""
+							+ context.getMessages().getString("format-list-decoration-urgent") + "\" />" + "<br /><span style=\"font-size:smaller\">"
+							+ context.getMessages().getString("format-list-decoration-inprogress-urgent") + "</span>";
+					break;
+				}
+
+				case inProgress:
+				{
+					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
+							+ context.getMessages().getString("format-list-decoration-inprogress") + "\" title=\""
+							+ context.getMessages().getString("format-list-decoration-inprogress") + "\" /><br /><span style=\"font-size:smaller\">"
+							+ context.getMessages().getString("format-list-decoration-inprogress") + "</span>";
+					break;
+				}
+
+				case completeReady:
+				{
+					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
+							+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
+							+ context.getMessages().getString("format-list-decoration-complete") + "\" />"
+							+ "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
+							+ context.getMessages().getString("format-list-decoration-repeat") + "\" title=\""
+							+ context.getMessages().getString("format-list-decoration-repeat") + "\" />" + "<br /><span style=\"font-size:smaller\">"
+							+ context.getMessages().getString("format-list-decoration-complete-repeat") + "</span>";
+					break;
+				}
+
+				case overdueCompleteReady:
+				{
+					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
+							+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
+							+ context.getMessages().getString("format-list-decoration-complete") + "\" />"
+							+ "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
+							+ context.getMessages().getString("format-list-decoration-repeat") + "\" title=\""
+							+ context.getMessages().getString("format-list-decoration-repeat") + "\" />" + "<br /><span style=\"font-size:smaller\">"
+							+ context.getMessages().getString("format-list-decoration-complete-repeat-overdue") + "</span>";
+					break;
+				}
+
+				case complete:
+				{
+					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
+							+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
+							+ context.getMessages().getString("format-list-decoration-complete") + "\" /><br /><span style=\"font-size:smaller\">"
+							+ context.getMessages().getString("format-list-decoration-complete") + "</span>";
+					break;
+				}
+				case over:
+				{
+					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/cancel.gif\" alt=\""
+							+ context.getMessages().getString("format-list-decoration-overdue") + "\" title=\""
+							+ context.getMessages().getString("format-list-decoration-overdue") + "\" /><br /><span style=\"font-size:smaller\">"
+							+ context.getMessages().getString("format-list-decoration-overdue") + "</span>";
+					break;
 				}
 			}
 		}
@@ -186,9 +181,6 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 	{
 		return value;
 	}
-
-	/** Dependency (optional, self-injected): AccessAdvisor. */
-	protected transient AccessAdvisor accessAdvisor = null;
 
 	/**
 	 * Final initialization, once all dependencies are set.
