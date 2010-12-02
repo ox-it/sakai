@@ -15,6 +15,12 @@
 		<module>pack</module>
 		<module>tool</module>
 	</modules>
+	
+	<scm>
+		<connection>git://git-repo.oucs.ox.ac.uk/git/repos/local-project/proxy</connection>
+		<developerConnection>scm:git:ssh://git-repo.oucs.ox.ac.uk/~git/repos/local-project/proxy</developerConnection>
+		<url>http://git-repo.oucs.ox.ac.uk/cgi-bin/gitweb.cgi?p=repos/local-project/proxy;a=summary</url>
+	</scm>
 
 	<build>
 		<plugins>
