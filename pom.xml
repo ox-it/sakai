@@ -15,12 +15,53 @@
 		<module>pack</module>
 		<module>tool</module>
 	</modules>
-	
+
 	<scm>
 		<connection>git://git-repo.oucs.ox.ac.uk/git/repos/local-project/proxy</connection>
 		<developerConnection>scm:git:ssh://git-repo.oucs.ox.ac.uk/~git/repos/local-project/proxy</developerConnection>
 		<url>http://git-repo.oucs.ox.ac.uk/cgi-bin/gitweb.cgi?p=repos/local-project/proxy;a=summary</url>
 	</scm>
+
+	<repositories>
+		<repository>
+			<id>sakai.maven2</id>
+			<name>Sakai Maven2 Repository</name>
+			<url>https://source.sakaiproject.org/maven2</url>
+		</repository>
+		<repository>
+			<id>maven-repo.oucs</id>
+			<name>OUCS Maven Repository</name>
+			<layout>default</layout>
+			<url>http://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>maven-repo.oucs</id>
+			<name>OUCS Maven Repository</name>
+			<layout>default</layout>
+			<url>http://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<distributionManagement>
+		<repository>
+			<id>maven-repo.oucs</id>
+			<url>http://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>maven-repo.oucs</id>
+			<url>http://maven-repo.oucs.ox.ac.uk/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 
 	<build>
 		<plugins>
@@ -43,30 +84,6 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<repositories>
-		<repository>
-			<id>maven2-repository.dev.java.net</id>
-			<name>Java.net Repository for Maven</name>
-			<url>http://download.java.net/maven/2/</url>
-			<layout>default</layout>
-		</repository>
-		<repository>
-			<id>sakai.maven2</id>
-			<name>Sakai Maven2 Repo</name>
-			<url>https://source.sakaiproject.org/maven2</url>
-		</repository>
-	</repositories>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<id>maven-repo.oucs</id>
-			<name>OUCS VLE Repository</name>
-			<url>http://maven-repo.oucs.ox.ac.uk/content/groups/public/</url>
-			<layout>default</layout>
-		</pluginRepository>
-
-	</pluginRepositories>
 
 
 	<properties>
