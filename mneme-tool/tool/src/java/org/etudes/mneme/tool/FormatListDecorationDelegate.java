@@ -62,9 +62,11 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 		Submission submission = (Submission) o;
 
 		String rv = null;
-		if ((this.accessAdvisor != null)
-				&& (this.accessAdvisor.denyAccess("sakai.mneme", submission.getAssessment().getContext(), submission.getAssessment().getId(),
-						submission.getUserId())))
+
+		// see if we are blocked by an access advisor, and if so, prepare the blocked display - may be overridden below
+		boolean blocked = ((this.accessAdvisor != null) && (this.accessAdvisor.denyAccess("sakai.mneme", submission.getAssessment().getContext(),
+				submission.getAssessment().getId(), submission.getUserId())));
+		if (blocked)
 		{
 			rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/lock.png\" alt=\""
 					+ context.getMessages().getString("format-list-decoration-blocked") + "\" title=\""
@@ -72,30 +74,34 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 					+ context.getMessages().getString("format-list-decoration-blocked") + "</span>";
 		}
 
-		else
+		// get the status
+		AssessmentSubmissionStatus status = submission.getAssessmentSubmissionStatus();
+		switch (status)
 		{
-			AssessmentSubmissionStatus status = submission.getAssessmentSubmissionStatus();
-			switch (status)
+			case future:
 			{
-				case future:
-				{
-					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/future.gif\" alt=\""
-							+ context.getMessages().getString("format-list-decoration-future") + "\" title=\""
-							+ context.getMessages().getString("format-list-decoration-future") + "\" /><br /><span style=\"font-size:smaller\">"
-							+ context.getMessages().getString("format-list-decoration-future") + "</span>";
-					break;
-				}
+				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/future.gif\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-future") + "\" title=\""
+						+ context.getMessages().getString("format-list-decoration-future") + "\" /><br /><span style=\"font-size:smaller\">"
+						+ context.getMessages().getString("format-list-decoration-future") + "</span>";
+				break;
+			}
 
-				case ready:
+			case ready:
+			{
+				if (!blocked)
 				{
 					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
 							+ context.getMessages().getString("format-list-decoration-todo") + "\" title=\""
 							+ context.getMessages().getString("format-list-decoration-todo") + "\" /><br /><span style=\"font-size:smaller\">"
 							+ context.getMessages().getString("format-list-decoration-todo") + "</span>";
-					break;
 				}
+				break;
+			}
 
-				case overdueReady:
+			case overdueReady:
+			{
+				if (!blocked)
 				{
 					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
 							+ context.getMessages().getString("format-list-decoration-inprogress") + "\" title=\""
@@ -104,10 +110,13 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 							+ context.getMessages().getString("format-list-decoration-urgent") + "\" title=\""
 							+ context.getMessages().getString("format-list-decoration-urgent") + "\" />" + "<br /><span style=\"font-size:smaller\">"
 							+ context.getMessages().getString("format-list-decoration-overdue-ready") + "</span>";
-					break;
 				}
+				break;
+			}
 
-				case inProgressAlert:
+			case inProgressAlert:
+			{
+				if (!blocked)
 				{
 					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
 							+ context.getMessages().getString("format-list-decoration-inprogress") + "\" title=\""
@@ -116,19 +125,25 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 							+ context.getMessages().getString("format-list-decoration-urgent") + "\" title=\""
 							+ context.getMessages().getString("format-list-decoration-urgent") + "\" />" + "<br /><span style=\"font-size:smaller\">"
 							+ context.getMessages().getString("format-list-decoration-inprogress-urgent") + "</span>";
-					break;
 				}
+				break;
+			}
 
-				case inProgress:
+			case inProgress:
+			{
+				if (!blocked)
 				{
 					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
 							+ context.getMessages().getString("format-list-decoration-inprogress") + "\" title=\""
 							+ context.getMessages().getString("format-list-decoration-inprogress") + "\" /><br /><span style=\"font-size:smaller\">"
 							+ context.getMessages().getString("format-list-decoration-inprogress") + "</span>";
-					break;
 				}
+				break;
+			}
 
-				case completeReady:
+			case completeReady:
+			{
+				if (!blocked)
 				{
 					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
 							+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
@@ -137,10 +152,13 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 							+ context.getMessages().getString("format-list-decoration-repeat") + "\" title=\""
 							+ context.getMessages().getString("format-list-decoration-repeat") + "\" />" + "<br /><span style=\"font-size:smaller\">"
 							+ context.getMessages().getString("format-list-decoration-complete-repeat") + "</span>";
-					break;
 				}
+				break;
+			}
 
-				case overdueCompleteReady:
+			case overdueCompleteReady:
+			{
+				if (!blocked)
 				{
 					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
 							+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
@@ -149,25 +167,25 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 							+ context.getMessages().getString("format-list-decoration-repeat") + "\" title=\""
 							+ context.getMessages().getString("format-list-decoration-repeat") + "\" />" + "<br /><span style=\"font-size:smaller\">"
 							+ context.getMessages().getString("format-list-decoration-complete-repeat-overdue") + "</span>";
-					break;
 				}
+				break;
+			}
 
-				case complete:
-				{
-					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
-							+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
-							+ context.getMessages().getString("format-list-decoration-complete") + "\" /><br /><span style=\"font-size:smaller\">"
-							+ context.getMessages().getString("format-list-decoration-complete") + "</span>";
-					break;
-				}
-				case over:
-				{
-					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/cancel.gif\" alt=\""
-							+ context.getMessages().getString("format-list-decoration-overdue") + "\" title=\""
-							+ context.getMessages().getString("format-list-decoration-overdue") + "\" /><br /><span style=\"font-size:smaller\">"
-							+ context.getMessages().getString("format-list-decoration-overdue") + "</span>";
-					break;
-				}
+			case complete:
+			{
+				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
+						+ context.getMessages().getString("format-list-decoration-complete") + "\" /><br /><span style=\"font-size:smaller\">"
+						+ context.getMessages().getString("format-list-decoration-complete") + "</span>";
+				break;
+			}
+			case over:
+			{
+				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/cancel.gif\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-overdue") + "\" title=\""
+						+ context.getMessages().getString("format-list-decoration-overdue") + "\" /><br /><span style=\"font-size:smaller\">"
+						+ context.getMessages().getString("format-list-decoration-overdue") + "</span>";
+				break;
 			}
 		}
 

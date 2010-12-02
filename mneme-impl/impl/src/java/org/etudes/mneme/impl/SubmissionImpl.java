@@ -922,6 +922,16 @@ public class SubmissionImpl implements Submission
 					.getContext())) return Boolean.FALSE;
 		}
 
+		// one last test! If not in test drive, and we have an access advisor, see if it wants to block things
+		if ((this.accessAdvisor != null) && (!getIsTestDrive()))
+		{
+			if (this.accessAdvisor.denyAccess("sakai.mneme", getAssessment().getContext(), getAssessment().getId(), this.sessionManager
+					.getCurrentSessionUserId()))
+			{
+				return Boolean.FALSE;
+			}
+		}
+
 		return Boolean.TRUE;
 	}
 
