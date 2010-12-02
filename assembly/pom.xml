@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>proxy-base</artifactId>
+    <groupId>uk.ac.ox.oucs</groupId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <groupId>uk.ac.ox.oucs</groupId>
+  <artifactId>proxy-assembly</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <name>Proxy Assembly</name>
+  <packaging>pom</packaging>
+  <dependencies>
+   <dependency>
+      <groupId>uk.ac.ox.oucs</groupId>
+      <artifactId>proxy-api</artifactId>
+      <type>jar</type>
+      <version>${project.version}</version>
+    </dependency>
+   <dependency>
+      <groupId>uk.ac.ox.oucs</groupId>
+      <artifactId>proxy-pack</artifactId>
+      <type>sakai-component</type>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.ac.ox.oucs</groupId>
+      <artifactId>proxy</artifactId>
+      <type>war</type>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptors>
+            <descriptor>src/main/assembly/deploy.xml</descriptor>
+          </descriptors>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id> <!-- this is used for inheritance merges -->
+            <phase>package</phase> <!-- append to the packaging phase. -->
+            <goals>
+              <goal>single</goal> <!-- goals == mojos -->
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

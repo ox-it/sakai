@@ -7,7 +7,7 @@
 		<artifactId>proxy-base</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
-	<groupId>uk.ac.ox.oucs.vle</groupId>
+	<groupId>uk.ac.ox.oucs</groupId>
 	<artifactId>proxy</artifactId>
 	<packaging>war</packaging>
 	<name>Proxy Webapp</name>
