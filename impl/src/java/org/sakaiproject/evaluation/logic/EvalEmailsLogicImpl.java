@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.evaluation.constant.EvalConstants;
 import org.sakaiproject.evaluation.logic.entity.EvalReportsEntityProvider;
+import org.sakaiproject.evaluation.logic.entity.EvaluationEntityProvider;
 import org.sakaiproject.evaluation.logic.model.EvalEmailMessage;
 import org.sakaiproject.evaluation.logic.model.EvalGroup;
 import org.sakaiproject.evaluation.logic.model.EvalReminderStatus;
@@ -36,6 +37,7 @@ import org.sakaiproject.evaluation.model.EvalEvaluation;
 import org.sakaiproject.evaluation.utils.ArrayUtils;
 import org.sakaiproject.evaluation.utils.EvalUtils;
 import org.sakaiproject.evaluation.utils.TextTemplateLogicUtils;
+import org.sakaiproject.oxford.shortenedurl.api.OxfordShortenedUrlService;
 
 /**
  * EvalEmailsLogic implementation,
@@ -70,6 +72,11 @@ public class EvalEmailsLogicImpl implements EvalEmailsLogic {
     public void setEvaluationService(EvalEvaluationService evaluationService) {
         this.evaluationService = evaluationService;
     }
+    
+    private OxfordShortenedUrlService urlShortener;
+	public void setUrlShortener(OxfordShortenedUrlService urlShortener) {
+		this.urlShortener = urlShortener;
+	}
 
 
     // INIT method
@@ -675,6 +682,10 @@ public class EvalEmailsLogicImpl implements EvalEmailsLogic {
         replacementValues.put("EvalToolTitle", "Evaluation System");
         replacementValues.put("EvalSite", groupTitle);
         replacementValues.put("MyWorkspaceDashboard", evalEntityURL);
+        
+        //m.ox URL
+        String evalUrl = "/" + EvaluationEntityProvider.ENTITY_PREFIX + "/" + eval.getId().toString();
+        replacementValues.put("MoxURLtoTakeEval", urlShortener.shorten(evalUrl));
 
         String message = TextTemplateLogicUtils.processTextTemplate(messageTemplate, replacementValues);
         String subject = null;

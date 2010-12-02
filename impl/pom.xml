@@ -156,6 +156,11 @@
                     <artifactId>sakai-scheduler-api</artifactId>
                     <version>${sakai.version}</version>
                 </dependency>
+                <dependency>
+         			<groupId>org.sakaiproject.oxford.shortenedurl</groupId>
+         			<artifactId>oxford-shortenedurl-api</artifactId>
+         			<version>1.0-SNAPSHOT</version>
+      			</dependency>
             </dependencies>
         </profile>
         <profile>
@@ -177,6 +182,11 @@
                     <groupId>org.sakaiproject.scheduler</groupId>
                     <artifactId>scheduler-api</artifactId>
                 </dependency>
+                <dependency>
+         			<groupId>org.sakaiproject.oxford.shortenedurl</groupId>
+         			<artifactId>oxford-shortenedurl-api</artifactId>
+         			<version>1.0-SNAPSHOT</version>
+      			</dependency>
             </dependencies>
         </profile>
     </profiles>
