@@ -87,8 +87,7 @@
 
 
 	<properties>
-		<kernel.version>1.0.12ox2-SNAPSHOT</kernel.version>
-		<sakai.version>2.6-SNAPSHOT</sakai.version>
+		<kernel.version>1.0.17</kernel.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
