@@ -18,6 +18,7 @@ import org.sakaiproject.evaluation.constant.EvalConstants;
 import org.sakaiproject.evaluation.model.EvalEmailTemplate;
 import org.sakaiproject.evaluation.test.EvalTestDataLoad;
 import org.sakaiproject.evaluation.test.mocks.MockEvalExternalLogic;
+import org.sakaiproject.evaluation.test.mocks.MockOxfordURLShortener;
 
 
 /**
@@ -53,6 +54,7 @@ public class EvalEmailsLogicImplTest extends BaseTestEvalLogic {
 		emailsLogic.setCommonLogic(commonLogic);
 		emailsLogic.setEvaluationService(evaluationService);
 		emailsLogic.setSettings(settings);
+		emailsLogic.setUrlShortener(new MockOxfordURLShortener());
 
 	}
 
