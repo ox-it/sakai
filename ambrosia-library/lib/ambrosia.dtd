@@ -41,6 +41,8 @@
 <!ELEMENT title (message | included | highlighted)* >
 <!ATTLIST title highlighted (TRUE|FALSE) #IMPLIED >
 
+<ELEMENT failedRequirementsMessage (message)* >
+
 <!ELEMENT header (message | container | included)* >
 
 <!ELEMENT description (message) >
@@ -301,7 +303,7 @@
 
 <!ELEMENT navigations (navigation | container)* >
 
-<!ELEMENT navigation (included | confirm | title | destination | disabled | requirements | default | validate | icon | iterator | description)* >
+<!ELEMENT navigation (included | confirm | title | destination | disabled | requirements | failedRequirementsMessage | default | validate | icon | iterator | description)* >
 <!ATTLIST navigation id CDATA #IMPLIED >
 <!ATTLIST navigation title CDATA #IMPLIED >
 <!ATTLIST navigation style (BUTTON|LINK) #IMPLIED >
