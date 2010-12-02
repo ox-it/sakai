@@ -429,6 +429,40 @@ public class SetupEvalBean {
 		}
 
 		EvalEvaluation eval = evaluationService.getEvaluationById(evaluationId);
+		
+		//TODO xxxselectedHierarchyNodeIDs
+		if(!EvalConstants.EVALUATION_AUTHCONTROL_NONE.equals(eval.getAuthControl())) {
+			String [] evalGroupIDs = 
+				new String[selectedHierarchyNodeIDs.length + selectedGroupIDs.length];
+		 
+			int i = 0;
+			for(i =0;i<selectedHierarchyNodeIDs.length;i++) {
+				evalGroupIDs[i] = selectedHierarchyNodeIDs[i]; 
+			}
+		
+			for(;i<selectedHierarchyNodeIDs.length+selectedGroupIDs.length;i++) {
+				evalGroupIDs[i] = selectedGroupIDs[i - selectedHierarchyNodeIDs.length];
+			}
+
+			Set<String> userIdsForEvalGroup = null;
+			for(i = 0;i<evalGroupIDs.length;i++) {
+			
+				userIdsForEvalGroup = commonLogic.getUserIdsForEvalGroup(evalGroupIDs[i], EvalConstants.PERM_BE_EVALUATED);
+				userIdsForEvalGroup.addAll(commonLogic.getUserIdsForEvalGroup(evalGroupIDs[i], EvalConstants.PERM_ASSISTANT_ROLE));
+				userIdsForEvalGroup.addAll(commonLogic.getUserIdsForEvalGroup(evalGroupIDs[i], EvalConstants.PERM_TAKE_EVALUATION));
+			}
+		
+			for (String userId : userIdsForEvalGroup) {
+				if(commonLogic.isUserAnonymous(userId)) {
+					messages.addMessage(new TargettedMessage(
+							"assigneval.invalid.user", new Object[] {userId},
+							TargettedMessage.SEVERITY_ERROR));
+					return "fail";
+				}
+			}
+		}
+		
+		
 		if (EvalConstants.EVALUATION_STATE_PARTIAL.equals(eval.getState())) {
 			// save eval and assign groups
 
