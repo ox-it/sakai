@@ -250,22 +250,37 @@ public class EvaluationAssignProducer implements ViewComponentProducer, ViewPara
         String currentSiteId = EntityReference.getIdFromRef(currentEvalGroupId);
 
         // get the groups that this user is allowed to assign evals to
-        List<EvalGroup> evalGroups = new ArrayList<EvalGroup>();
+        List<EvalGroup> assignEvalGroups = new ArrayList<EvalGroup>();
         // for backwards compatibility we will pull the list of groups the user is being evaluated in as well and merge it in
         List<EvalGroup> beEvalGroups = new ArrayList<EvalGroup>();
         
         Boolean isGroupFilterEnabled = (Boolean) settings.get(EvalSettings.ENABLE_FILTER_ASSIGNABLE_GROUPS);
 
         if( isGroupFilterEnabled ){
-	        evalGroups = commonLogic.getFilteredEvalGroupsForUser(commonLogic.getCurrentUserId(), EvalConstants.PERM_ASSIGN_EVALUATION, currentSiteId);  
+        	assignEvalGroups = commonLogic.getFilteredEvalGroupsForUser(commonLogic.getCurrentUserId(), EvalConstants.PERM_ASSIGN_EVALUATION, currentSiteId);  
 	        beEvalGroups = commonLogic.getFilteredEvalGroupsForUser(commonLogic.getCurrentUserId(), EvalConstants.PERM_BE_EVALUATED, currentSiteId);  
         }else{
-        	evalGroups = commonLogic.getEvalGroupsForUser(commonLogic.getCurrentUserId(), EvalConstants.PERM_ASSIGN_EVALUATION);
+        	assignEvalGroups = commonLogic.getEvalGroupsForUser(commonLogic.getCurrentUserId(), EvalConstants.PERM_ASSIGN_EVALUATION);
         	beEvalGroups = commonLogic.getEvalGroupsForUser(commonLogic.getCurrentUserId(), EvalConstants.PERM_BE_EVALUATED);
         }
         
+        
+        /*
+         * EVALSYS-987- Side effect
+         * remove ad hoc groups from view as they are handled already in another 
+         * section in the same view. 
+         */
+        List<EvalGroup> evalGroups = new ArrayList<EvalGroup>();
+        for (EvalGroup evalGroup : assignEvalGroups) {
+        	if (! evalGroups.contains(evalGroup)
+        			&& !EvalConstants.GROUP_TYPE_ADHOC.equals(evalGroup.type)) {
+        		evalGroups.add(evalGroup);
+        	}
+        }
+        
         for (EvalGroup evalGroup : beEvalGroups) {
-            if (! evalGroups.contains(evalGroup)) {
+            if (! evalGroups.contains(evalGroup)
+            		&& !EvalConstants.GROUP_TYPE_ADHOC.equals(evalGroup.type)) {
                 evalGroups.add(evalGroup);
             }
         }
