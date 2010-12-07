@@ -61,11 +61,13 @@ public class EvalTestDataLoad {
     // constants
     public final static String USER_NAME = "aaronz";
     public final static String USER_ID = "user-11111111";
+    public final static String USER4_ID = "user-44444444";
     public final static String USER_DISPLAY = "Aaron Zeckoski";
     public final static String ADMIN_USER_ID = "admin";
     public final static String ADMIN_USER_NAME = "admin";
     public final static String ADMIN_USER_DISPLAY = "Administrator";
     public final static String MAINT_USER_ID = "main-22222222";
+    public final static String MAINT_USER3_ID = "main-33333333";
     public final static String MAINT_USER_ID_3 = "main-33333333";
     public final static String MAINT_USER_NAME = "maintainer";
     public final static String MAINT_USER_DISPLAY = "Maint User";
@@ -86,6 +88,7 @@ public class EvalTestDataLoad {
     public final static String SITE2_REF = "/sites/ref-222222";
     public final static String SITE2_TITLE = "Site2 title";
     public final static String SITE3_REF = "/sites/ref-333333";
+    public final static String SITE4_REF = "/sites/ref-444444";
 
     public final static String ITEM_TEXT = "What do you think about this course?";
     public final static String ITEM_SCALE_CLASSIFICATION = EvalConstants.ITEM_TYPE_SCALED;
@@ -271,6 +274,11 @@ public class EvalTestDataLoad {
      */
     public EvalTemplate templateUser_4;    
     /**
+     * Template used for testing ignore view dates, private, USER4_ID owns, locked
+     * <br/>Uses {@link #item1} and {@link #item5}
+     */
+    public EvalTemplate templateUser4;
+    /**
      * Template not being used, private, USER_ID owns, unlocked, expert
      * <br/>Uses {@link #item6}
      */
@@ -349,6 +357,21 @@ public class EvalTestDataLoad {
      * Evaluation which is partial, has no auth not required and no assigned groups
      */
     public EvalEvaluation evaluationPartial_noAuthNoGroups;
+    
+    /**
+     * Evaluation which is active for testing view_ignore_date 
+     */
+    public EvalEvaluation evaluationActive_viewIgnoreDates;
+    
+    /**
+     * Evaluation which is due for testing view_ignore_date
+     */
+    public EvalEvaluation evaluationDue_viewIgnoreDates;
+    
+    /**
+     * Evaluation which is closed for testing evaluationClosed_viewIgnoreDates
+     */
+    public EvalEvaluation evaluationClosed_viewIgnoreDates;   
 
     // EMAIL TEMPLATES
 
@@ -407,10 +430,25 @@ public class EvalTestDataLoad {
      * Group Assignment: MAINT_USER_ID, SITE1_REF, {@link #evaluationClosedUntaken}
      */
     public EvalAssignGroup assign10;
+    
     /**
      * Group Assignment: MAIN_USER_ID, SITE1_REF, {@link #evaluationGracePeriod}
      */
     public EvalAssignGroup assign11;
+    
+    /**
+     * Group Assignment: MAIN_USER2, SITE4_REF. {@link #evaluationActive_viewIgnoreDates}
+     */
+    public EvalAssignGroup assign12;
+    /**
+     * Group Assignment: MAIN_USER2, SITE4_REF. {@link #evaluationDue_viewIgnoreDates}
+     */
+    public EvalAssignGroup assign13;
+    /**
+     * Group Assignment: MAIN_USER2, SITE4_REF. {@link #evaluationClosed_viewIgnoreDates}
+     */
+    public EvalAssignGroup assign14;
+    
     /**
      * Group Assignment: ADMIN_USER_ID, SITE2_REF, {@link #evaluationNewAdmin} + eid
      */
@@ -743,11 +781,17 @@ public class EvalTestDataLoad {
                 "Template user 4", "description", 
                 EvalConstants.SHARING_PRIVATE, NOT_EXPERT, "expert desc", 
                 null, LOCKED, false);
+        
+        templateUser4 = new EvalTemplate(USER4_ID, EvalConstants.TEMPLATE_TYPE_STANDARD, 
+                "Template user", "description", 
+                EvalConstants.SHARING_PRIVATE, NOT_EXPERT, "expert desc", 
+                null, LOCKED, false);
 
         templateEid = new EvalTemplate(ADMIN_USER_ID, EvalConstants.TEMPLATE_TYPE_STANDARD, 
                 "Template Eid", "description", 
                 EvalConstants.SHARING_PUBLIC, NOT_EXPERT, "expert desc",
                 null, UNLOCKED, false);
+        
         templateEid.setEid("test-template-1");
 
         // SAVE template (NOTE: resaving further down)
@@ -763,6 +807,7 @@ public class EvalTestDataLoad {
         dao.save(templateAdminBlock);
         dao.save(templateAdminComplex);
         dao.save(templateUser_4);
+        dao.save(templateUser4);
 
         dao.save(templateEid);
 
@@ -1112,6 +1157,24 @@ public class EvalTestDataLoad {
                 templateAdmin, null, Boolean.TRUE, Boolean.FALSE, Boolean.FALSE,
                 EvalTestDataLoad.LOCKED, EvalConstants.EVALUATION_AUTHCONTROL_NONE, null, null);
 
+        evaluationActive_viewIgnoreDates = new EvalEvaluation(EvalConstants.EVALUATION_TYPE_EVALUATION, MAINT_USER3_ID, "evaluationActive_viewIgnoreDates", null, 
+                yesterday, tomorrow, tomorrow, tomorrow, true, tomorrow, true, tomorrow, 
+                EvalConstants.EVALUATION_STATE_ACTIVE, EvalConstants.SHARING_PUBLIC, EvalConstants.INSTRUCTOR_REQUIRED, new Integer(0), null, null, null, null,
+                templateUser4, null, Boolean.TRUE, Boolean.FALSE, Boolean.FALSE,
+                UNLOCKED, EvalConstants.EVALUATION_AUTHCONTROL_AUTH_REQ, null, null);
+        
+        evaluationDue_viewIgnoreDates = new EvalEvaluation(EvalConstants.EVALUATION_TYPE_EVALUATION, MAINT_USER3_ID, "evaluationDue_viewIgnoreDates", null, 
+                threeDaysAgo, yesterday, tomorrow, tomorrow, true, tomorrow, true, tomorrow, 
+                EvalConstants.EVALUATION_STATE_GRACEPERIOD, EvalConstants.SHARING_PUBLIC, EvalConstants.INSTRUCTOR_REQUIRED, new Integer(0), null, null, null, null,
+                templateUser4, null, Boolean.TRUE, Boolean.FALSE, Boolean.FALSE,
+                UNLOCKED, EvalConstants.EVALUATION_AUTHCONTROL_AUTH_REQ, null, null);
+        
+        evaluationClosed_viewIgnoreDates = new EvalEvaluation(EvalConstants.EVALUATION_TYPE_EVALUATION, MAINT_USER3_ID, "evaluationClosed_viewIgnoreDates", null, 
+                fourDaysAgo, threeDaysAgo, yesterday, tomorrow, true, tomorrow, true, tomorrow, 
+                EvalConstants.EVALUATION_STATE_CLOSED, EvalConstants.SHARING_PUBLIC, EvalConstants.INSTRUCTOR_REQUIRED, new Integer(0), null, null, null, null,
+                templateUser4, null, Boolean.TRUE, Boolean.FALSE, Boolean.FALSE,
+                UNLOCKED, EvalConstants.EVALUATION_AUTHCONTROL_AUTH_REQ, null, null);
+        
         // email templates
         emailTemplate1 = new EvalEmailTemplate(ADMIN_USER_ID, EvalConstants.EMAIL_TEMPLATE_AVAILABLE, "Email Subject 1", "Email Template 1");
         evaluationNew.setAvailableEmailTemplate(emailTemplate1);
@@ -1125,7 +1188,7 @@ public class EvalTestDataLoad {
         emailTemplate1.setEid("Email-Template-EID-11111");
         emailTemplate2.setEid("Email-Template-EID-22222");
         emailTemplate3.setEid("Email-Template-EID-33333");
-
+        
         dao.save(emailTemplate1);
         dao.save(emailTemplate2);
         dao.save(emailTemplate3);
@@ -1140,10 +1203,14 @@ public class EvalTestDataLoad {
         dao.save(evaluationViewable);
         dao.save(evaluationProvided);
         dao.save(evaluationDeleted);
+        
         dao.save(evaluationGracePeriod);
         dao.save(evaluationPartial_noAuthNoGroups);
-
-
+        
+        dao.save(evaluationActive_viewIgnoreDates);
+        dao.save(evaluationDue_viewIgnoreDates);
+        dao.save(evaluationClosed_viewIgnoreDates);
+           
         // evalGroupId assignments
         assign1 = new EvalAssignGroup( MAINT_USER_ID, SITE1_REF, EvalConstants.GROUP_TYPE_SITE, 
                 evaluationActive, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
@@ -1164,17 +1231,22 @@ public class EvalTestDataLoad {
         assign9 = new EvalAssignGroup( MAINT_USER_ID, SITE1_REF, EvalConstants.GROUP_TYPE_SITE, 
                 evaluationDeleted, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
         assign10 = new EvalAssignGroup( MAINT_USER_ID, SITE1_REF, EvalConstants.GROUP_TYPE_SITE, 
-                evaluationClosedUntaken, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
+                evaluationClosedUntaken, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);  
         assign11 = new EvalAssignGroup(MAINT_USER_ID, SITE1_REF, EvalConstants.GROUP_TYPE_SITE,
         		evaluationGracePeriod, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
-        
+        assign12 = new EvalAssignGroup( MAINT_USER3_ID, SITE4_REF, EvalConstants.GROUP_TYPE_SITE, 
+                evaluationActive_viewIgnoreDates, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);
+        assign13 = new EvalAssignGroup( MAINT_USER3_ID, SITE4_REF, EvalConstants.GROUP_TYPE_SITE, 
+                evaluationDue_viewIgnoreDates, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);
+        assign14 = new EvalAssignGroup( MAINT_USER3_ID, SITE4_REF, EvalConstants.GROUP_TYPE_SITE, 
+                evaluationClosed_viewIgnoreDates, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);    
+           
         // Dick, you cannot assign 2 groups to an eval with the same evalGroupId... I have fixed this by making up a fake id -AZ
         assignGroupProvided = new EvalAssignGroup( ADMIN_USER_ID, "AZ-new-ref", EvalConstants.GROUP_TYPE_SITE, 
                 evaluationNewAdmin, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
         assignGroupProvided.setEid("test-eid");
 
         assignHier1 = new EvalAssignHierarchy( MAINT_USER_ID, "1", evaluationActive, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, null, null);
-
 
         dao.save(assign1);
         dao.save(assign2);
@@ -1187,6 +1259,10 @@ public class EvalTestDataLoad {
         dao.save(assign9);
         dao.save(assign10);
         dao.save(assign11);
+        dao.save(assign12);
+        dao.save(assign13);
+        dao.save(assign14);
+        
         dao.save(assignGroupProvided);
 
         dao.save(assignHier1);
@@ -1204,8 +1280,12 @@ public class EvalTestDataLoad {
         counter += makeUserAssigns(dao, assign9);
         counter += makeUserAssigns(dao, assign10);
         counter += makeUserAssigns(dao, assign11);
-        if (counter != 25) {
-            throw new IllegalStateException("Invalid user assignments creation, 25 != " + counter);
+        counter += makeUserAssigns(dao, assign12);
+        counter += makeUserAssigns(dao, assign13);
+        counter += makeUserAssigns(dao, assign14);
+        
+        if (counter != 31) {
+            throw new IllegalStateException("Invalid user assignments creation, 31 != " + counter);
         }
 
         // now init response data for the evaluationSetupService
@@ -1344,7 +1424,6 @@ public class EvalTestDataLoad {
 
         dao.save(group1);
         dao.save(group2);
-
     }
 
     private int makeUserAssigns(GenericDao dao, EvalAssignGroup assignGroup) {

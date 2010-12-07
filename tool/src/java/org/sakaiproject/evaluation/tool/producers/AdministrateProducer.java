@@ -309,6 +309,8 @@ public class AdministrateProducer implements ViewComponentProducer {
         makeBoolean(form, "general-expert-templates", EvalSettings.USE_EXPERT_TEMPLATES);
         makeBoolean(form, "general-expert-questions", EvalSettings.USE_EXPERT_ITEMS);	
 
+        makeBoolean(form, "general-view-results-ignore-dates", EvalSettings.VIEW_SURVEY_RESULTS_IGNORE_DATES);
+        
         makeBoolean(form, "general-enable-adhoc-groups", EvalSettings.ENABLE_ADHOC_GROUPS);
         makeBoolean(form, "general-enable-adhoc-users", EvalSettings.ENABLE_ADHOC_USERS); 
 

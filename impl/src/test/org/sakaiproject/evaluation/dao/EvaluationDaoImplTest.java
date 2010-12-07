@@ -302,7 +302,7 @@ public class EvaluationDaoImplTest extends AbstractTransactionalSpringContextTes
                 null, new String[] {EvalConstants.SHARING_PRIVATE}, 
                 props, values, comparisons, order, options, 0, 0);
         assertNotNull(l);
-        assertEquals(7, l.size());
+        assertEquals(8, l.size());
         ids = EvalTestDataLoad.makeIdList(l);
         assertTrue(ids.contains( etdl.templateAdmin.getId() ));
         assertTrue(ids.contains( etdl.templateAdminNoItems.getId() ));
@@ -311,6 +311,7 @@ public class EvaluationDaoImplTest extends AbstractTransactionalSpringContextTes
         assertTrue(ids.contains( etdl.templateUserUnused.getId() ));
         assertTrue(ids.contains( etdl.templateAdminBlock.getId() ));
         assertTrue(ids.contains( etdl.templateUser_4.getId() ));
+        assertTrue(ids.contains( etdl.templateUser4.getId() ));
 
         // all private non-empty templates
         l = evaluationDao.getSharedEntitiesForUser(EvalTemplate.class, 
@@ -341,7 +342,7 @@ public class EvaluationDaoImplTest extends AbstractTransactionalSpringContextTes
                 null, new String[] {EvalConstants.SHARING_PRIVATE, EvalConstants.SHARING_PUBLIC, EvalConstants.SHARING_SHARED, EvalConstants.SHARING_VISIBLE}, 
                 props, values, comparisons, order, options, 0, 0);
         assertNotNull(l);
-        assertEquals(10, l.size());
+        assertEquals(11, l.size());
 
         // all non-empty templates (admin would use this)
         l = evaluationDao.getSharedEntitiesForUser(EvalTemplate.class, 
@@ -394,7 +395,7 @@ public class EvaluationDaoImplTest extends AbstractTransactionalSpringContextTes
         count = evaluationDao.countSharedEntitiesForUser(EvalTemplate.class, 
                 null, new String[] {EvalConstants.SHARING_PRIVATE}, 
                 props, values, comparisons, options);
-        assertEquals(7, count);
+        assertEquals(8, count);
 
         // all private non-empty templates (admin only)
         count = evaluationDao.countSharedEntitiesForUser(EvalTemplate.class, 
@@ -412,7 +413,7 @@ public class EvaluationDaoImplTest extends AbstractTransactionalSpringContextTes
         count = evaluationDao.countSharedEntitiesForUser(EvalTemplate.class, 
                 null, new String[] {EvalConstants.SHARING_PRIVATE, EvalConstants.SHARING_PUBLIC, EvalConstants.SHARING_SHARED, EvalConstants.SHARING_VISIBLE}, 
                 props, values, comparisons, options);
-        assertEquals(10, count);
+        assertEquals(11, count);
 
         // all non-empty templates (admin would use this)
         count = evaluationDao.countSharedEntitiesForUser(EvalTemplate.class, 
@@ -632,35 +633,38 @@ public class EvaluationDaoImplTest extends AbstractTransactionalSpringContextTes
         // test getting all evals
         l = evaluationDao.getEvaluationsForOwnerAndGroups(null, null, null, 0, 0, false);
         assertNotNull(l);
-        assertEquals(10, l.size());
+        assertEquals(13, l.size());
         // check the order
         ids = EvalTestDataLoad.makeIdList(l);
         assertEquals(ids.get(0), etdl.evaluationViewable.getId() );
-        assertEquals(ids.get(1), etdl.evaluationClosed.getId() );
-        assertEquals(ids.get(2), etdl.evaluationClosedUntaken.getId() );
-        assertEquals(ids.get(3), etdl.evaluationGracePeriod.getId() );
-        assertEquals(ids.get(4), etdl.evaluationActive.getId() );
-        assertEquals(ids.get(5), etdl.evaluationProvided.getId() );
+        assertEquals(ids.get(1), etdl.evaluationClosed_viewIgnoreDates.getId() );
+        assertEquals(ids.get(2), etdl.evaluationClosed.getId() );
+        assertEquals(ids.get(3), etdl.evaluationClosedUntaken.getId() );
+        assertEquals(ids.get(4), etdl.evaluationGracePeriod.getId() );
+        assertEquals(ids.get(5), etdl.evaluationDue_viewIgnoreDates.getId() );
+        assertEquals(ids.get(6), etdl.evaluationActive.getId() );
+        assertEquals(ids.get(7), etdl.evaluationProvided.getId() );
 
         // test getting all evals with limit
-        l = evaluationDao.getEvaluationsForOwnerAndGroups(null, null, null, 0, 3, false);
+        l = evaluationDao.getEvaluationsForOwnerAndGroups(null, null, null, 0, 4, false);
         assertNotNull(l);
-        assertEquals(3, l.size());
+        assertEquals(4, l.size());
         ids = EvalTestDataLoad.makeIdList(l);
         // check order and return values
         assertEquals(ids.get(0), etdl.evaluationViewable.getId() );
-        assertEquals(ids.get(1), etdl.evaluationClosed.getId() );
-        assertEquals(ids.get(2), etdl.evaluationClosedUntaken.getId() );
+        assertEquals(ids.get(1), etdl.evaluationClosed_viewIgnoreDates.getId() );
+        assertEquals(ids.get(2), etdl.evaluationClosed.getId() );
+        assertEquals(ids.get(3), etdl.evaluationClosedUntaken.getId() );
 
-        l = evaluationDao.getEvaluationsForOwnerAndGroups(null, null, null, 2, 3, false);
+        l = evaluationDao.getEvaluationsForOwnerAndGroups(null, null, null, 3, 3, false);
         assertNotNull(l);
         assertEquals(3, l.size());
         ids = EvalTestDataLoad.makeIdList(l);
         // check order and return values
         assertEquals(ids.get(0), etdl.evaluationClosedUntaken.getId() );
         assertEquals(ids.get(1), etdl.evaluationGracePeriod.getId() );
-        assertEquals(ids.get(2), etdl.evaluationActive.getId() );
-
+        assertEquals(ids.get(2), etdl.evaluationDue_viewIgnoreDates.getId() );
+        
         // test filtering by owner
         l = evaluationDao.getEvaluationsForOwnerAndGroups(EvalTestDataLoad.ADMIN_USER_ID, null, null, 0, 0, false);
         assertNotNull(l);
