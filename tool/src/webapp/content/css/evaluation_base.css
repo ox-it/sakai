@@ -1049,11 +1049,3 @@ background-repeat : no-repeat !important;
 	font-size: 110%;
 	margin-left: 1em
 }
-
-/* m.ox styles */
-td.centre {
-	text-align:center;
-}
-.mobile-info-link img {
-	height: 50px;
-}

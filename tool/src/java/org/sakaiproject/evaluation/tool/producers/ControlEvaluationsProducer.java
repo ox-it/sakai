@@ -45,7 +45,6 @@ import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
-import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -291,10 +290,6 @@ public class ControlEvaluationsProducer implements ViewComponentProducer {
                      new UITooltipDecorator( UIMessage.make("general.category.link.tip", new Object[]{evaluation.getEvalCategory()}) ) );
             }
             
-            //mobile info - also add direct link to allow for fallback
-            UILink mobileLink =  UILink.make(evaluationRow, "eval-mobile-active", commonLogic.getEntityURL(evaluation));
-            mobileLink.decorate(new UIFreeAttributeDecorator("rel", evaluation.getId().toString()));
-            mobileLink.decorate(new UITooltipDecorator(UIMessage.make("action_view_mobile")));            
 
             UIInternalLink.make(evaluationRow, "notifications-link", 
                     new EvalViewParameters( EvaluationNotificationsProducer.VIEW_ID, evaluation.getId() ) );
