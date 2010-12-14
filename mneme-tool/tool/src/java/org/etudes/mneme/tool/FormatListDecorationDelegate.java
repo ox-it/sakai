@@ -63,23 +63,12 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 
 		String rv = null;
 
-		// see if we are blocked by an access advisor, and if so, prepare the blocked display - may be overridden below
+		// see if we are blocked by an access advisor
 		boolean blocked = false;
 		if (this.accessAdvisor != null)
 		{
-			String blockedByTitle = this.accessAdvisor.message("sakai.mneme", submission.getAssessment().getContext(), submission.getAssessment()
-					.getId(), submission.getUserId());
-			if (blockedByTitle != null) blocked = true;
-
-//			if (blocked)
-//			{
-//				Object[] args = new Object[1];
-//				args[0] = blockedByTitle;
-//				String msg = context.getMessages().getFormattedMessage("format-list-decoration-blocked", args);
-//
-//				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/lock.png\" alt=\"" + msg + "\" title=\""
-//						+ msg + "\" /><br /><span style=\"font-size:smaller\">" + msg + "</span>";
-//			}
+			blocked = this.accessAdvisor.denyAccess("sakai.mneme", submission.getAssessment().getContext(), submission.getAssessment().getId(),
+					submission.getUserId());
 		}
 
 		// get the status
