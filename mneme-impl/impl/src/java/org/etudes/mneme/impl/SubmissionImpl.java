@@ -415,6 +415,19 @@ public class SubmissionImpl implements Submission
 	/**
 	 * {@inheritDoc}
 	 */
+	public String getBlockedByTitle()
+	{
+		// if no advisor, not blocked
+		if (this.accessAdvisor == null) return null;
+
+		// check if we have blocked access - we will return this message if blocked (null if not blocked).
+		String blockedByTitle = this.accessAdvisor.message("sakai.mneme", getAssessment().getContext(), getAssessment().getId(), getUserId());
+		return blockedByTitle;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Long getElapsedTime()
 	{
 		if ((submittedDate == null) || (startDate == null)) return null;
@@ -809,8 +822,8 @@ public class SubmissionImpl implements Submission
 		// one last test! If not in test drive, and we have an access advisor, see if it wants to block things
 		if ((this.accessAdvisor != null) && (!getIsTestDrive()))
 		{
-			if (this.accessAdvisor.denyAccess("sakai.mneme", getAssessment().getContext(), getAssessment().getId(), this.sessionManager
-					.getCurrentSessionUserId()))
+			if (this.accessAdvisor.denyAccess("sakai.mneme", getAssessment().getContext(), getAssessment().getId(),
+					this.sessionManager.getCurrentSessionUserId()))
 			{
 				return Boolean.FALSE;
 			}
@@ -870,8 +883,8 @@ public class SubmissionImpl implements Submission
 		// one last test! If not in test drive, and we have an access advisor, see if it wants to block things
 		if ((this.accessAdvisor != null) && (!getIsTestDrive()))
 		{
-			if (this.accessAdvisor.denyAccess("sakai.mneme", getAssessment().getContext(), getAssessment().getId(), this.sessionManager
-					.getCurrentSessionUserId()))
+			if (this.accessAdvisor.denyAccess("sakai.mneme", getAssessment().getContext(), getAssessment().getId(),
+					this.sessionManager.getCurrentSessionUserId()))
 			{
 				return Boolean.FALSE;
 			}
@@ -925,8 +938,8 @@ public class SubmissionImpl implements Submission
 		// one last test! If not in test drive, and we have an access advisor, see if it wants to block things
 		if ((this.accessAdvisor != null) && (!getIsTestDrive()))
 		{
-			if (this.accessAdvisor.denyAccess("sakai.mneme", getAssessment().getContext(), getAssessment().getId(), this.sessionManager
-					.getCurrentSessionUserId()))
+			if (this.accessAdvisor.denyAccess("sakai.mneme", getAssessment().getContext(), getAssessment().getId(),
+					this.sessionManager.getCurrentSessionUserId()))
 			{
 				return Boolean.FALSE;
 			}

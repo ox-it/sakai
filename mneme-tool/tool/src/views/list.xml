@@ -169,6 +169,25 @@
 							</included>
 						</navigation>
 					</entityNavigations>
+					<navigations>
+						<navigation destination="X" description="prerequisite-description" title="prerequisite-title" small="TRUE">
+							<icon icon="/icons/lock.png" style="LEFT" />
+							<failedRequirementsMessage>
+								<message selector="prerequisite">
+									<model ref="submission.blockedByTitle" />
+								</message>
+							</failedRequirementsMessage>
+							<requirements>
+								<hasValueDecision model="submission" reversed="TRUE" />
+							</requirements>
+							<included>
+								<hasValueDecision model="submission.blockedByTitle" />
+								<compareDecision model="submission.assessmentSubmissionStatus" constant="future" reversed="TRUE"/>
+								<compareDecision model="submission.assessmentSubmissionStatus" constant="complete" reversed="TRUE"/>
+								<compareDecision model="submission.assessmentSubmissionStatus" constant="over" reversed="TRUE"/>
+							</included>
+						</navigation>
+					</navigations>
 				</modelColumn>
 				<modelColumn>
 					<title>

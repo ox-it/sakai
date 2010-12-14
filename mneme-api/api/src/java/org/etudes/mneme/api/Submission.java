@@ -106,6 +106,11 @@ public interface Submission
 	Submission getBest();
 
 	/**
+	 * @return The title of the item that is blocking access to this submission, if any, or null if not blocked.
+	 */
+	String getBlockedByTitle();
+
+	/**
 	 * Access the time taken to make this submission, in ms, based on the start and lastest submission dates.
 	 * 
 	 * @return The time taken to make this submission, in ms (or null if it was not timed or not available).
