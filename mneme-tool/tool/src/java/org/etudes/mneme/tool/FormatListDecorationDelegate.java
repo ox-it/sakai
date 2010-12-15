@@ -31,6 +31,7 @@ import org.etudes.ambrosia.util.FormatDelegateImpl;
 import org.etudes.mneme.api.AssessmentSubmissionStatus;
 import org.etudes.mneme.api.Submission;
 import org.etudes.util.api.AccessAdvisor;
+import org.etudes.util.api.MasteryAdvisor;
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
@@ -43,6 +44,9 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 
 	/** Dependency (optional, self-injected): AccessAdvisor. */
 	protected transient AccessAdvisor accessAdvisor = null;
+
+	/** Dependency (optional, self-injected): MasteryAdvisor. */
+	protected transient MasteryAdvisor masteryAdvisor = null;
 
 	/**
 	 * Shutdown.
@@ -69,6 +73,17 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 		{
 			blocked = this.accessAdvisor.denyAccess("sakai.mneme", submission.getAssessment().getContext(), submission.getAssessment().getId(),
 					submission.getUserId());
+		}
+
+		// check mastery level
+		boolean belowMastery = false;
+		Integer masteryPercent = null;
+		if (this.masteryAdvisor != null)
+		{
+			belowMastery = this.masteryAdvisor.failedToMaster("sakai.mneme", submission.getAssessment().getContext(), submission.getAssessment()
+					.getId(), submission.getUserId());
+			masteryPercent = this.masteryAdvisor.masteryLevelPercent("sakai.mneme", submission.getAssessment().getContext(), submission
+					.getAssessment().getId(), submission.getUserId());
 		}
 
 		// get the status
@@ -140,30 +155,50 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 
 			case completeReady:
 			{
+				String icon = "/icons/finish.gif";
+				String repeatMsg = context.getMessages().getString("format-list-decoration-complete-repeat");
+				if (belowMastery)
+				{
+					icon = "/icons/not-mastered.png";
+					Object[] args = new Object[1];
+					args[0] = masteryPercent;
+					repeatMsg = context.getMessages().getFormattedMessage("format-list-decoration-complete-repeat-mastery", args);
+				}
+
 				if (!blocked)
 				{
-					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
+					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + icon + "\" alt=\""
 							+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
 							+ context.getMessages().getString("format-list-decoration-complete") + "\" />"
 							+ "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
 							+ context.getMessages().getString("format-list-decoration-repeat") + "\" title=\""
 							+ context.getMessages().getString("format-list-decoration-repeat") + "\" />" + "<br /><span style=\"font-size:smaller\">"
-							+ context.getMessages().getString("format-list-decoration-complete-repeat") + "</span>";
+							+ repeatMsg + "</span>";
 				}
 				break;
 			}
 
 			case overdueCompleteReady:
 			{
+				String icon = "/icons/finish.gif";
+				String repeatMsg = context.getMessages().getString("format-list-decoration-complete-repeat-overdue");
+				if (belowMastery)
+				{
+					icon = "/icons/not-mastered.png";
+					Object[] args = new Object[1];
+					args[0] = masteryPercent;
+					repeatMsg = context.getMessages().getFormattedMessage("format-list-decoration-complete-repeat-overdue-mastery", args);
+				}
+
 				if (!blocked)
 				{
-					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
+					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + icon + "\" alt=\""
 							+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
 							+ context.getMessages().getString("format-list-decoration-complete") + "\" />"
 							+ "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
 							+ context.getMessages().getString("format-list-decoration-repeat") + "\" title=\""
 							+ context.getMessages().getString("format-list-decoration-repeat") + "\" />" + "<br /><span style=\"font-size:smaller\">"
-							+ context.getMessages().getString("format-list-decoration-complete-repeat-overdue") + "</span>";
+							+ repeatMsg + "</span>";
 				}
 				break;
 			}
@@ -206,6 +241,9 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 
 		// check if there is an access advisor - if not, that's ok.
 		this.accessAdvisor = (AccessAdvisor) ComponentManager.get(AccessAdvisor.class);
+
+		// check if there is an access advisor - if not, that's ok.
+		this.masteryAdvisor = (MasteryAdvisor) ComponentManager.get(MasteryAdvisor.class);
 
 		M_log.info("init()");
 	}
