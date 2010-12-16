@@ -29,6 +29,9 @@ public class LibraryAvailability {
 	ServletContext context;
 	@Context
 	ServletConfig config;
+	
+	private String FORMAT_JSON="json";
+	private String FORMAT_XML="xml";
 
 	@GET
 	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -45,26 +48,30 @@ public class LibraryAvailability {
 		    SirLouieProperties properties = 
 		    	(SirLouieProperties)myClass.getConstructor(ServletContext.class).newInstance(context);
 			
+		    if (null == format) {
+				throw new Exception("Response format not specified");
+			}
+		    
 			PrimoService service = new PrimoService(properties.getWebResourseURL());
 			
 			ResponseBean bean = service.getResource(id);
 			
-			if (format.equals("json")) {
+			if (format.equals(FORMAT_JSON)) {
 				ObjectMapper mapper = new ObjectMapper();
 				response = mapper
 					.defaultPrettyPrintingWriter()
 						.writeValueAsString(bean.toJSON());
 				
-			} else if (format.equals("xml")) {
+			} else if (format.equals(FORMAT_XML)) {
+				//TODO
+				
+			} else {	 
+				throw new Exception("Response format unknown ["+format+"]");
 				
 			}
 			
 		} catch (Exception e) {
-			System.out.println("getLibraryAvailability exception ["+e.getLocalizedMessage()+"]");
-			e.printStackTrace();
-			Response.status(Response.Status.BAD_REQUEST)
-				.entity("Failed to process attachments. Reason : " 
-						+ e.getLocalizedMessage()).type(MediaType.TEXT_PLAIN).build();
+			throw new SirLouieException(e.getLocalizedMessage());
 			
 		}
 		

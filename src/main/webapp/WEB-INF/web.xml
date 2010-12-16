@@ -9,7 +9,7 @@
 	
 	<context-param>
     	<param-name>webresourceURL</param-name>
-    	<param-value>http://localhost:1701/PrimoWebServices/xservice/getit</param-value>
+    	<param-value>http://primo-s-web-2.sers.ox.ac.uk:1701/PrimoWebServices/xservice/getit</param-value>
     	<param-type>java.lang.String</param-type>
   	</context-param>
   		
@@ -25,7 +25,6 @@
     	<init-param>	
     		<param-name>ConfigClass</param-name>
     		<param-value>uk.ac.ox.oucs.sirlouie.properties.SakaiProperties</param-value>
-    	
   		</init-param>
   		<load-on-startup>1</load-on-startup>
 	</servlet>

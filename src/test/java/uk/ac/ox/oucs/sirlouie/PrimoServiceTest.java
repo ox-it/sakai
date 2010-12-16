@@ -14,7 +14,7 @@ public class PrimoServiceTest extends TestCase {
 	
 	private String nameSpaceURI = "http://www.exlibrisgroup.com/xsd/jaguar/search";
 	
-	private String WEBRESOURCE_URL = "http://localhost:1701/PrimoWebServices/xservice/getit";
+	private String WEBRESOURCE_URL = "http://primo-s-web-2.sers.ox.ac.uk:1701/PrimoWebServices/xservice/getit";
 	
 	private String XML = "<SEGMENTS xmlns=\"http://www.exlibrisgroup.com/xsd/jaguar/search\">"
 		+"<JAGROOT>"
