@@ -2,5 +2,8 @@
 <registration>
 	<tool id="course.signup" title="Module Signup"
 		description="Tool for allowing people to signup to modules.">
+		
+		<configuration name="default-nodes" value="root" />
+		
 	</tool>
 </registration>

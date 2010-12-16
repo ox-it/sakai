@@ -1,3 +1,4 @@
+<%@page import="org.sakaiproject.tool.cover.ActiveToolManager"%>
 <%@ page import="org.sakaiproject.component.cover.ServerConfigurationService" %>
 <%@ page session="false" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -31,6 +32,7 @@
 				
 				// The site to load the static files from.
 				var signupSiteId = "/access/content/group/<%= ServerConfigurationService.getString("course-signup.site-id", "course-signup") %>";
+				var defaultNodes = "<%= ToolManager.getCurrentPlacement().getConfig().getProperty("default-nodes", "root")%>".split(",");
                
 				/**
 				 * Used for sorting a jsTree. 
@@ -140,10 +142,10 @@
 							}
 						},
 						core: {
-							initially_open: ["root", "4D"] // Open up MPLS for testing.
+							initially_open: defaultNodes //["root", "4D"] // Open up MPLS for testing.
 						},
 						ui: {
-							initially_select: ["4D"]
+							initially_select: [defaultNodes[defaultNodes.length-1]] // Open up the last one
 						},
 						plugins: ["ui", "themes", "json_data"]
 					});	
