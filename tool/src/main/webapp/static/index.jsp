@@ -1,4 +1,4 @@
-<%@page import="org.sakaiproject.tool.cover.ActiveToolManager"%>
+<%@page import="org.sakaiproject.tool.cover.ToolManager"%>
 <%@ page import="org.sakaiproject.component.cover.ServerConfigurationService" %>
 <%@ page session="false" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
