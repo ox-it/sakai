@@ -7,7 +7,7 @@ import javax.ws.rs.core.Response.Status;
 public class SirLouieException extends WebApplicationException {
 	
     /**
-     * Create a HTTP 401 (Unauthorized) exception.
+     * Create a HTTP 500 (Internal Server Error) exception.
     */
     public SirLouieException() {
         super(Response.status(Status.INTERNAL_SERVER_ERROR).build());
@@ -20,7 +20,5 @@ public class SirLouieException extends WebApplicationException {
     public SirLouieException(String message) {
         super(Response.status(Status.INTERNAL_SERVER_ERROR).entity(message).type("text/plain").build());
     }
-
-
 
 }
