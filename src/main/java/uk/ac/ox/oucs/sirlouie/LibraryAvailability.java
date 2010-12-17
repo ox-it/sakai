@@ -9,7 +9,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -48,13 +47,16 @@ public class LibraryAvailability {
 		    SirLouieProperties properties = 
 		    	(SirLouieProperties)myClass.getConstructor(ServletContext.class).newInstance(context);
 			
+		    
 		    if (null == format) {
 				throw new Exception("Response format not specified");
 			}
 		    
 			PrimoService service = new PrimoService(properties.getWebResourseURL());
 			
-			ResponseBean bean = service.getResource(id);
+			DaiaURI uri = new DaiaURI(id);
+			
+			ResponseBean bean = service.getResource(uri.getDoc());
 			
 			if (format.equals(FORMAT_JSON)) {
 				ObjectMapper mapper = new ObjectMapper();
