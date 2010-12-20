@@ -1,5 +1,7 @@
 package uk.ac.ox.oucs.sirlouie;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collection;
@@ -10,8 +12,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import uk.ac.ox.oucs.sirlouie.daia.ResponseBean;
 import uk.ac.ox.oucs.sirlouie.reply.SearObject;
-import uk.ac.ox.oucs.sirlouie.response.ResponseBean;
 
 import com.sun.jersey.api.client.*;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
@@ -43,7 +45,7 @@ public class PrimoService {
 	    
 	    String responseXML = webResource.queryParams(params).get(String.class);
 	    
-	    // for testing
+	    // for testing 
 	    /*
 	    try {
 	    	BufferedWriter out = new BufferedWriter(new FileWriter("response.xml"));

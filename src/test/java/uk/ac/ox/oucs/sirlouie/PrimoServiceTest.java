@@ -2,8 +2,8 @@ package uk.ac.ox.oucs.sirlouie;
 
 import java.util.Collection;
 
+import uk.ac.ox.oucs.sirlouie.daia.ResponseBean;
 import uk.ac.ox.oucs.sirlouie.reply.SearObject;
-import uk.ac.ox.oucs.sirlouie.response.ResponseBean;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -155,11 +155,11 @@ public class PrimoServiceTest extends TestCase {
 		super.tearDown();
 	}
 
-	/*
-	public void testGetResource() {
+	
+	public void testGetOLISResource() {
 		try {
 			long l = System.currentTimeMillis();
-			ResponseBean bean = service.getResource("UkOxUUkOxUb10108045");
+			ResponseBean bean = service.getResource("UkOxUUkOxUb15585873");
 			System.out.println("testGetResource("+(System.currentTimeMillis()-l)+")");
 			Assert.assertNotNull(bean);
 		
@@ -170,7 +170,21 @@ public class PrimoServiceTest extends TestCase {
 		}
 		
 	}
-	*/
+	
+	public void testGetORAResource() {
+		try {
+			long l = System.currentTimeMillis();
+			ResponseBean bean = service.getResource("ORAdebe641a-17ca-4196-ab2c-fe7565ced721");
+			System.out.println("testGetResource("+(System.currentTimeMillis()-l)+")");
+			Assert.assertNotNull(bean);
+		
+		} catch (Exception e) {
+			System.out.println("Exception caught ["+e.getLocalizedMessage()+"]");
+			e.printStackTrace();
+			Assert.fail("Exception caught ["+e.getLocalizedMessage()+"]");
+		}
+		
+	}
 	
 	public void testFilterResponse() {
 		

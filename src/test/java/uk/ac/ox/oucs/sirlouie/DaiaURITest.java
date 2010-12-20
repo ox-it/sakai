@@ -13,9 +13,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 
+import uk.ac.ox.oucs.sirlouie.daia.ResponseBean;
 import uk.ac.ox.oucs.sirlouie.reply.SearLibrary;
 import uk.ac.ox.oucs.sirlouie.reply.SearObject;
-import uk.ac.ox.oucs.sirlouie.response.ResponseBean;
 
 public class DaiaURITest extends TestCase {
 	

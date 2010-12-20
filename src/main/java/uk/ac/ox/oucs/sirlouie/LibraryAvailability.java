@@ -13,8 +13,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
+import uk.ac.ox.oucs.sirlouie.daia.ResponseBean;
 import uk.ac.ox.oucs.sirlouie.properties.SirLouieProperties;
-import uk.ac.ox.oucs.sirlouie.response.ResponseBean;
 
 //@Path("/library-availability")
 @Path("")
@@ -36,6 +36,7 @@ public class LibraryAvailability {
 	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 	public String getLibraryAvailability( @QueryParam("id") String id, @QueryParam("format") String format) {
 		
+		System.out.println("getLibraryAvailability ["+id+":"+format+"]");
 		String response = null;
 		
 		try {
