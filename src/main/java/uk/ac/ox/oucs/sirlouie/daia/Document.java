@@ -51,6 +51,26 @@ public class Document {
 		
 	}
 	
+	public void addItems(Collection<SearObject> beans) {
+		
+		for (SearObject bean : beans) {
+			
+			if (bean instanceof SearLibrary) {
+				SearLibrary library = (SearLibrary)bean;
+				Item item = new Item();
+				item.setStorage(library.getCollection());
+				item.setDepartment(new Department(library.getLibrary()));
+				items.add(item);
+			}
+			
+			if (bean instanceof SearError) {
+				SearError serror = (SearError)bean;
+				Message error = new Message(null, serror.getMessage(), Integer.toString(serror.getCode()));
+				errors.add(error);
+			}
+		}
+	}
+	
 	public void addItem(Item item) {
 		items.add(item);
 	}

@@ -155,7 +155,7 @@ public class PrimoServiceTest extends TestCase {
 		super.tearDown();
 	}
 
-	
+	/*
 	public void testGetOLISResource() {
 		try {
 			long l = System.currentTimeMillis();
@@ -185,7 +185,7 @@ public class PrimoServiceTest extends TestCase {
 		}
 		
 	}
-	
+	*/
 	public void testFilterResponse() {
 		
 		try {
