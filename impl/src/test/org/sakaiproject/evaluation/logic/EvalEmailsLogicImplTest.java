@@ -54,7 +54,7 @@ public class EvalEmailsLogicImplTest extends BaseTestEvalLogic {
 		emailsLogic.setCommonLogic(commonLogic);
 		emailsLogic.setEvaluationService(evaluationService);
 		emailsLogic.setSettings(settings);
-		emailsLogic.setUrlShortener(new MockOxfordURLShortener());
+		//emailsLogic.setUrlShortener(new MockOxfordURLShortener());
 
 	}
 
