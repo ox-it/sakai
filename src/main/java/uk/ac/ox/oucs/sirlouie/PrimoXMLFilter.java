@@ -9,14 +9,16 @@ import org.xml.sax.helpers.XMLFilterImpl;
 
 import uk.ac.ox.oucs.sirlouie.reply.SearError;
 import uk.ac.ox.oucs.sirlouie.reply.SearLibrary;
+import uk.ac.ox.oucs.sirlouie.reply.SearLink;
 import uk.ac.ox.oucs.sirlouie.reply.SearObject;
 
 public class PrimoXMLFilter extends XMLFilterImpl {
 	
 	private String nameSpaceURI;
 	private String tempVal;
+	
 	private SearLibrary searLibrary;
-	private SearError searError;
+	private SearLink searLink;
 	
 	private Collection<SearObject> beans = new ArrayList<SearObject>();
 	
@@ -53,11 +55,11 @@ public class PrimoXMLFilter extends XMLFilterImpl {
 	public void startElement(String uri, String localName, String qName, Attributes atts) 
 	throws SAXException {
 		
-		//System.out.println("PrimoXMLFilter.startElement ["+uri+":"+localName+"]");
+		System.out.println("PrimoXMLFilter.startElement ["+uri+":"+localName+"]");
 		tempVal="";
 		
 		if (uri.equals(nameSpaceURI) && localName.equals("ERROR")) {
-			searError = new SearError();
+			SearError searError = new SearError();
 			for (int i=0; i<atts.getLength(); i++) {
 				if (atts.getLocalName(i).equals("MESSAGE")) {
 					searError.setMessage(atts.getValue(i));
@@ -77,7 +79,7 @@ public class PrimoXMLFilter extends XMLFilterImpl {
 	public void endElement(String uri, String localName, String qName) 
 	throws SAXException {
 		
-		//System.out.println("PrimoXMLFilter.endElement  ["+qName+":"+localName+"]");
+		System.out.println("PrimoXMLFilter.endElement  ["+qName+":"+localName+"]");
 		
 		if (uri.equals(nameSpaceURI) && localName.equals("ERROR")) {
 			//throw new SAXException(searError.getMessage());
@@ -102,6 +104,11 @@ public class PrimoXMLFilter extends XMLFilterImpl {
 			
 		} else if (uri.equals(nameSpaceURI) && localName.equals("url")) {
 			searLibrary.setURL(tempVal);
+			
+		} else if (uri.equals(nameSpaceURI) && localName.equals("linktorsrc")) {
+			SearLink searLink = new SearLink();
+			searLink.setHref(tempVal);
+			beans.add(searLink);
 			
 		}
 	}

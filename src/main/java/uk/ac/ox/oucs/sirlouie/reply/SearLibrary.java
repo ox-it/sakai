@@ -1,8 +1,5 @@
 package uk.ac.ox.oucs.sirlouie.reply;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
-@XmlRootElement
 public class SearLibrary implements SearObject {
 	
 	private String callNumber;

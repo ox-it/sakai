@@ -29,9 +29,12 @@ public class ResponseBean {
 	}
 	
 	public void addSearObjects(Collection<SearObject> beans) {
-		if (!beans.isEmpty()) {
-			addDocument(new Document(id, beans));
-		}
+		Document document = new Document(id, null);
+		document.addItems(beans);
+		addDocument(document);
+		//if (!beans.isEmpty()) {
+		//	addDocument(new Document(id, beans));
+		//}
 		
 	}
 	

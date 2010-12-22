@@ -8,6 +8,7 @@ import java.util.Map;
 
 import uk.ac.ox.oucs.sirlouie.reply.SearError;
 import uk.ac.ox.oucs.sirlouie.reply.SearLibrary;
+import uk.ac.ox.oucs.sirlouie.reply.SearLink;
 import uk.ac.ox.oucs.sirlouie.reply.SearObject;
 
 public class Document {
@@ -26,6 +27,7 @@ public class Document {
 		this.href = href;
 	}
 	
+	/*
 	public Document(String id, Collection<SearObject> beans) {
 		this.id = id;
 		if (!beans.isEmpty()) {
@@ -50,8 +52,13 @@ public class Document {
 		}
 		
 	}
+	*/
 	
 	public void addItems(Collection<SearObject> beans) {
+		
+		if (null == this.href && !beans.isEmpty()) {
+			this.href = beans.iterator().next().getURL();
+		}
 		
 		for (SearObject bean : beans) {
 			
@@ -60,6 +67,13 @@ public class Document {
 				Item item = new Item();
 				item.setStorage(library.getCollection());
 				item.setDepartment(new Department(library.getLibrary()));
+				items.add(item);
+			}
+			
+			if (bean instanceof SearLink) {
+				SearLink link = (SearLink)bean;
+				Item item = new Item();
+				item.setHref(link.getHref());
 				items.add(item);
 			}
 			

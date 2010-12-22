@@ -16,6 +16,7 @@ public class Item {
 	private List<UnAvailable> unAvailableServices = new ArrayList<UnAvailable>();
 	private String storage;
 	private String limitation;
+	private String href;
 	
 	public Item() {	
 	}
@@ -51,12 +52,19 @@ public class Item {
 	public void setLimitation(String limitation) {
 		this.limitation=limitation;
 	}
+	
+	public void setHref(String href) {
+		this.href=href;
+	}
 
 	public Map<String, Object> toJSON() {
 		
 		Map <String, Object> data = new LinkedHashMap<String, Object>();
 		if (null != id) {
 			data.put("id", id);
+		}
+		if (null != href) {
+			data.put("href", href);
 		}
 		for (Message message : messages) {
 			data.put("message", message.toJSON());
