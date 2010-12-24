@@ -3,6 +3,8 @@ package uk.ac.ox.oucs.sirlouie;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -315,6 +317,11 @@ public class PrimoServiceTest extends TestCase {
 			ResponseBean bean = service.getResource("UkOxUUkOxUb15585873");
 			System.out.println("testGetResource("+(System.currentTimeMillis()-l)+")");
 			Assert.assertNotNull(bean);
+			
+			Map<String, Object> jsonData = bean.toJSON("2009-06-09T15:39:52.831+02:00");
+			ObjectMapper mapper = new ObjectMapper();
+			
+			Assert.assertEquals(OLIS_JSON, mapper.writeValueAsString(jsonData));
 		
 		} catch (Exception e) {
 			System.out.println("Exception caught ["+e.getLocalizedMessage()+"]");
@@ -330,6 +337,11 @@ public class PrimoServiceTest extends TestCase {
 			ResponseBean bean = service.getResource("ORAdebe641a-17ca-4196-ab2c-fe7565ced721");
 			System.out.println("testGetResource("+(System.currentTimeMillis()-l)+")");
 			Assert.assertNotNull(bean);
+			
+			Map<String, Object> jsonData = bean.toJSON("2009-06-09T15:39:52.831+02:00");
+			ObjectMapper mapper = new ObjectMapper();
+			
+			Assert.assertEquals(ORA_JSON, mapper.writeValueAsString(jsonData));
 		
 		} catch (Exception e) {
 			System.out.println("Exception caught ["+e.getLocalizedMessage()+"]");
@@ -339,6 +351,7 @@ public class PrimoServiceTest extends TestCase {
 		
 	}
 	*/
+	
 	public void testFilterOLISResponse() {
 		
 		try {
@@ -364,6 +377,17 @@ public class PrimoServiceTest extends TestCase {
 			e.printStackTrace();
 			Assert.fail("Exception caught ["+e.getLocalizedMessage()+"]");
 		}
+	}
+	
+	public void testParser() {
+		
+		String originalString = "<tag>This string is mine & yours <trouble &amp; strife></tag>"; 
+		
+		Pattern pattern = Pattern.compile("&(?!(amp|apos|quot|lt|gt);)"); 
+		Matcher mat = pattern.matcher(originalString);  
+		String result = mat.replaceAll("&amp;");
+		System.out.println("parser ["+result+"]");
+		Assert.assertEquals("<tag>This string is mine &amp; yours <trouble &amp; strife></tag>", result);
 	}
 	
 	public void testFilterErrorResponse() {

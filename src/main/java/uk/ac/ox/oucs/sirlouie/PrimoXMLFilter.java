@@ -55,7 +55,8 @@ public class PrimoXMLFilter extends XMLFilterImpl {
 	public void startElement(String uri, String localName, String qName, Attributes atts) 
 	throws SAXException {
 		
-		System.out.println("PrimoXMLFilter.startElement ["+uri+":"+localName+"]");
+		//System.out.println("PrimoXMLFilter.startElement ["+uri+":"+localName+"]");
+		
 		tempVal="";
 		
 		if (uri.equals(nameSpaceURI) && localName.equals("ERROR")) {
@@ -79,7 +80,7 @@ public class PrimoXMLFilter extends XMLFilterImpl {
 	public void endElement(String uri, String localName, String qName) 
 	throws SAXException {
 		
-		System.out.println("PrimoXMLFilter.endElement  ["+qName+":"+localName+"]");
+		//System.out.println("PrimoXMLFilter.endElement  ["+qName+":"+localName+"]");
 		
 		if (uri.equals(nameSpaceURI) && localName.equals("ERROR")) {
 			//throw new SAXException(searError.getMessage());
