@@ -196,14 +196,7 @@ public class MockEvalExternalLogic implements EvalExternalLogic {
 			} else {
 				// nothing
 			}
-		} else if ( EvalTestDataLoad.SITE4_REF.equals(context) ){
-			if ( EvalConstants.PERM_BE_EVALUATED.equals(permission) ) {
-				s.add(EvalTestDataLoad.MAINT_USER3_ID);
-			} else if ( EvalConstants.PERM_TAKE_EVALUATION.equals(permission) ) {
-				s.add(EvalTestDataLoad.USER4_ID);
-			}			
-		}
-		else {
+		} else {
 			// do nothing
 		}
 		return s;
