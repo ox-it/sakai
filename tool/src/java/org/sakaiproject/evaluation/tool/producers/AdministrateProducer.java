@@ -290,6 +290,13 @@ public class AdministrateProducer implements ViewComponentProducer {
                 sharingValues, 
                 sharingLabels, 
                 EvalSettings.TEMPLATE_SHARING_AND_VISIBILITY, true);
+        
+        //Select for whether all roles can take the survey
+        makeSelect(form, "all-roles-participate",
+                administrateConfigurableValues, 
+                administrateConfigurableLabels, 
+                EvalSettings.ALLOW_ALL_SITE_ROLES_TO_RESPOND, true);
+        UIMessage.make(form, "all-roles-participate-note","administrate.general.all.roles.participate.note");
 
         makeBoolean(form, "general-use-date-time",  EvalSettings.EVAL_USE_DATE_TIME);
         makeBoolean(form, "general-use-stop-date", EvalSettings.EVAL_USE_STOP_DATE); 

@@ -196,6 +196,36 @@ public class MockEvalExternalLogic implements EvalExternalLogic {
 			} else {
 				// nothing
 			}
+		} else if ( EvalTestDataLoad.SITE4_REF.equals(context) ) {
+			if ( EvalConstants.PERM_BE_EVALUATED.equals(permission) ) {
+				s.add(EvalTestDataLoad.MAINT_USER_ID_3);
+			} else if ( EvalConstants.PERM_TAKE_EVALUATION.equals(permission) ) {
+				s.add(EvalTestDataLoad.USER_ID_4);
+			} else {
+				// nothing
+			}
+		} else if ( EvalTestDataLoad.SITE5_REF.equals(context) ) {
+			if ( EvalConstants.PERM_BE_EVALUATED.equals(permission) ) {
+				s.add(EvalTestDataLoad.MAINT_USER_ID_3);
+			} else if ( EvalConstants.PERM_TAKE_EVALUATION.equals(permission) ) {
+				s.add(EvalTestDataLoad.USER_ID_4);
+			} else {
+				// nothing
+			}
+		} else if ( EvalTestDataLoad.SITE6_REF.equals(context) ) {
+			if ( EvalConstants.PERM_BE_EVALUATED.equals(permission) ) {
+				s.add(EvalTestDataLoad.MAINT_USER_ID_3);
+			} else if ( EvalConstants.PERM_TAKE_EVALUATION.equals(permission) ) {
+				s.add(EvalTestDataLoad.USER_ID_4);
+			} else {
+				// nothing
+			}
+		} else if ( EvalTestDataLoad.SITE7_REF.equals(context) ) {
+			if ( EvalConstants.PERM_TAKE_EVALUATION.equals(permission) ) {
+				s.add(EvalTestDataLoad.USER_ID_5);
+			} else {
+				// nothing
+			}
 		} else {
 			// do nothing
 		}

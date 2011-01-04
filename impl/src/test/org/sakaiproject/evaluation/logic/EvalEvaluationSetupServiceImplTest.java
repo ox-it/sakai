@@ -451,13 +451,14 @@ public class EvalEvaluationSetupServiceImplTest extends BaseTestEvalLogic {
         // get all evaluations for user
         evals = evaluationSetupService.getEvaluationsForUser(EvalTestDataLoad.USER_ID, null, null, true);
         assertNotNull(evals);
-        assertEquals(5, evals.size());
+        assertEquals(6, evals.size());
         ids = EvalTestDataLoad.makeIdList(evals);
         assertTrue(ids.contains( etdl.evaluationNewAdmin.getId() ));
         assertTrue(ids.contains( etdl.evaluationActive.getId() ));
         assertTrue(ids.contains( etdl.evaluationActiveUntaken.getId() ));
         assertTrue(ids.contains( etdl.evaluationClosed.getId() ));
         assertTrue(ids.contains( etdl.evaluationClosedUntaken.getId() ));
+        assertTrue(ids.contains( etdl.evaluationGracePeriod.getId() ));
 
         // check sorting
         Date lastDate = null;
@@ -477,11 +478,12 @@ public class EvalEvaluationSetupServiceImplTest extends BaseTestEvalLogic {
         // test get for another user
         evals = evaluationSetupService.getEvaluationsForUser(EvalTestDataLoad.STUDENT_USER_ID, null, null, true);
         assertNotNull(evals);
-        assertEquals(3, evals.size());
+        assertEquals(4, evals.size());
         ids = EvalTestDataLoad.makeIdList(evals);
         assertTrue(ids.contains( etdl.evaluationNewAdmin.getId() ));
         assertTrue(ids.contains( etdl.evaluationClosed.getId() ));
         assertTrue(ids.contains( etdl.evaluationActiveUntaken.getId() ));
+        assertTrue(ids.contains( etdl.evaluationGracePeriod.getId() ));
 
         // get only assigned evals for user
         evals = evaluationSetupService.getEvaluationsForUser(EvalTestDataLoad.STUDENT_USER_ID, null, null, null);
@@ -494,10 +496,11 @@ public class EvalEvaluationSetupServiceImplTest extends BaseTestEvalLogic {
         // get all active evaluations for user
         evals = evaluationSetupService.getEvaluationsForUser(EvalTestDataLoad.USER_ID, true, null, true);
         assertNotNull(evals);
-        assertEquals(2, evals.size());
+        assertEquals(3, evals.size());
         ids = EvalTestDataLoad.makeIdList(evals);
         assertTrue(ids.contains( etdl.evaluationActive.getId() ));
         assertTrue(ids.contains( etdl.evaluationActiveUntaken.getId() ));
+        assertTrue(ids.contains( etdl.evaluationGracePeriod.getId() ));
 
         // get assigned active evaluations for user
         evals = evaluationSetupService.getEvaluationsForUser(EvalTestDataLoad.STUDENT_USER_ID, true, null, null);
@@ -507,23 +510,39 @@ public class EvalEvaluationSetupServiceImplTest extends BaseTestEvalLogic {
         // test active evals for another user
         evals = evaluationSetupService.getEvaluationsForUser(EvalTestDataLoad.STUDENT_USER_ID, true, null, true);
         assertNotNull(evals);
-        assertEquals(1, evals.size());
+        assertEquals(2, evals.size());
         ids = EvalTestDataLoad.makeIdList(evals);
         assertTrue(ids.contains( etdl.evaluationActiveUntaken.getId() ));
+        assertTrue(ids.contains( etdl.evaluationGracePeriod.getId() ));
 
         // don't include taken evaluations
         evals = evaluationSetupService.getEvaluationsForUser(EvalTestDataLoad.USER_ID, true, true, true);
         assertNotNull(evals);
-        assertEquals(1, evals.size());
+        assertEquals(2, evals.size());
         ids = EvalTestDataLoad.makeIdList(evals);
         assertTrue(ids.contains( etdl.evaluationActiveUntaken.getId() ));
+        assertTrue(ids.contains( etdl.evaluationGracePeriod.getId() ));
 
         // try to get for invalid user
         evals = evaluationSetupService.getEvaluationsForUser(EvalTestDataLoad.INVALID_USER_ID, true, null, true);
         assertNotNull(evals);
-        assertEquals(1, evals.size());
+        assertEquals(2, evals.size());
         ids = EvalTestDataLoad.makeIdList(evals);
         assertTrue(ids.contains( etdl.evaluationActiveUntaken.getId() ));
+        assertTrue(ids.contains( etdl.evaluationGracePeriod.getId() ));
+    }
+    
+    public void testGetEvaluationsForUser_whenInGracePeriod() {
+      	List<EvalEvaluation> evals = null;
+        List<Long> ids = null;
+     	
+      	// try to get for invalid user
+       	evals = evaluationSetupService.getEvaluationsForUser(EvalTestDataLoad.USER_ID_5, true, null, false);
+       	assertNotNull(evals);
+       	assertEquals(2, evals.size());    	
+      	ids = EvalTestDataLoad.makeIdList(evals);    	
+       	assertTrue(ids.contains(etdl.evaluation_gracePeriod_inGracePeriod.getId()));
+       	assertTrue(ids.contains(etdl.evaluation_gracePeriod_notInGracePeriod.getId()));
     }
     
     /**
@@ -534,7 +553,7 @@ public class EvalEvaluationSetupServiceImplTest extends BaseTestEvalLogic {
     	
     	evals = this.evaluationSetupService.getEvaluationsForEvaluatee(EvalTestDataLoad.MAINT_USER_ID);
     	assertNotNull(evals);
-    	assertEquals(6, evals.size());
+    	assertEquals(7, evals.size());
     	
     	for(EvalEvaluation eval : evals) {
             List<EvalAssignUser> assignUsers = evaluationService.getParticipantsForEval(eval.getId(), EvalTestDataLoad.MAINT_USER_ID, 
@@ -571,12 +590,12 @@ public class EvalEvaluationSetupServiceImplTest extends BaseTestEvalLogic {
         // test getting visible evals for the admin user (should be all)
         evals = evaluationSetupService.getVisibleEvaluationsForUser(EvalTestDataLoad.ADMIN_USER_ID, false, false, false);
         assertNotNull(evals);
-        assertEquals(8, evals.size());
+        assertEquals(17, evals.size());
 
         // test getting recent closed evals for the admin user
         evals = evaluationSetupService.getVisibleEvaluationsForUser(EvalTestDataLoad.ADMIN_USER_ID, true, false, false);
         assertNotNull(evals);
-        assertEquals(7, evals.size());
+        assertEquals(16, evals.size());
         ids = EvalTestDataLoad.makeIdList(evals);
         assertTrue(! ids.contains( etdl.evaluationViewable.getId() ));
 
@@ -1177,6 +1196,313 @@ public class EvalEvaluationSetupServiceImplTest extends BaseTestEvalLogic {
         }
 
     }
+      
+    /**
+     * Test method for {@link org.sakaiproject.evaluation.logic.EvalEvaluationSetupServiceImpl#synchronizeUserAssignments(java.lang.Long, java.lang.String)}.
+     */
+    public void testSynchronizeUserAssignments_noAssignments_notAllRolesParticipate() {
+    	Long evaluationId = null;
+        List<EvalAssignUser> evalEvaluatorAssignments = null;
+        List<EvalAssignUser> evalAllAssignments = null;
+        int evalEvaluatorSize = -1;
+        int evalTotalSize = -1;
+        long allAssignmentsSize = -1;
+        long newAllAssignmentsSize = -1; 
+        int newEvalEvaluatorSize = -5;
+        long newEvalTotalSize = -5;
+
+        EvalEvaluation testedEvaluation = etdl.evaluation_noAssignments_notAllRolesParticipate;
+        
+		evaluationId = testedEvaluation.getId();
+        evalAllAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, null, null, null, null);
+        assertNotNull(evalAllAssignments);
+        evalTotalSize = evalAllAssignments.size();
+        evalEvaluatorAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, EvalAssignUser.TYPE_EVALUATOR, null, null, null);
+        assertNotNull(evalEvaluatorAssignments);
+        evalEvaluatorSize = evalEvaluatorAssignments.size();
+        
+        allAssignmentsSize = evaluationDao.countAll(EvalAssignUser.class);
+
+        evaluationSetupService.synchronizeUserAssignments(evaluationId, null);
+
+        evalAllAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, null, null, null, null);
+        assertNotNull(evalAllAssignments);
+        newEvalTotalSize = evalAllAssignments.size();
+        
+        evalEvaluatorAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, EvalAssignUser.TYPE_EVALUATOR, null, null, null);
+        assertNotNull(evalEvaluatorAssignments);        
+        newEvalEvaluatorSize = evalEvaluatorAssignments.size();
+        
+        newAllAssignmentsSize = evaluationDao.countAll(EvalAssignUser.class);
+
+        assertEquals(evalTotalSize + 2, newEvalTotalSize);
+        assertEquals(evalEvaluatorSize + 1, newEvalEvaluatorSize);
+        assertEquals(allAssignmentsSize + 2, newAllAssignmentsSize);
+    }
+    
+    /**
+     * Test method for {@link org.sakaiproject.evaluation.logic.EvalEvaluationSetupServiceImpl#synchronizeUserAssignments(java.lang.Long, java.lang.String)}.
+     */
+    public void testSynchronizeUserAssignments_noAssignments_allRolesParticipate() {
+    	Long evaluationId = null;
+        List<EvalAssignUser> evalEvaluatorAssignments = null;
+        List<EvalAssignUser> evalAllAssignments = null;
+        int evalEvaluatorSize = -1;
+        int evalTotalSize = -1;
+        long allAssignmentsSize = -1;
+        long newAllAssignmentsSize = -1; 
+        int newEvalEvaluatorSize = -5;
+        long newEvalTotalSize = -5;
+
+        EvalEvaluation testedEvaluation = etdl.evaluation_noAssignments_allRolesParticipate;
+        
+		evaluationId = testedEvaluation.getId();
+        evalAllAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, null, null, null, null);
+        assertNotNull(evalAllAssignments);
+        evalTotalSize = evalAllAssignments.size();
+        evalEvaluatorAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, EvalAssignUser.TYPE_EVALUATOR, null, null, null);
+        assertNotNull(evalEvaluatorAssignments);
+        evalEvaluatorSize = evalEvaluatorAssignments.size();
+        
+        allAssignmentsSize = evaluationDao.countAll(EvalAssignUser.class);
+
+        evaluationSetupService.synchronizeUserAssignments(evaluationId, null);
+
+        evalAllAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, null, null, null, null);
+        assertNotNull(evalAllAssignments);
+        newEvalTotalSize = evalAllAssignments.size();
+        
+        evalEvaluatorAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, EvalAssignUser.TYPE_EVALUATOR, null, null, null);
+        assertNotNull(evalEvaluatorAssignments);        
+        newEvalEvaluatorSize = evalEvaluatorAssignments.size();
+        
+        newAllAssignmentsSize = evaluationDao.countAll(EvalAssignUser.class);
+
+        assertEquals(evalTotalSize + 3, newEvalTotalSize);
+        assertEquals(evalEvaluatorSize + 2, newEvalEvaluatorSize);
+        assertEquals(allAssignmentsSize + 3, newAllAssignmentsSize);
+    }
+    
+    /**
+     * Test method for {@link org.sakaiproject.evaluation.logic.EvalEvaluationSetupServiceImpl#synchronizeUserAssignments(java.lang.Long, java.lang.String)}.
+     */
+    public void testSynchronizeUserAssignments_simpleAssignments_allRolesParticipate() {
+        Long evaluationId = null;
+        List<EvalAssignUser> evalEvaluatorAssignments = null;
+        List<EvalAssignUser> evalAllAssignments = null;
+        int evalEvaluatorSize = -1;
+        int evalTotalSize = -1;
+        long allAssignmentsSize = -1;
+        long newAllAssignmentsSize = -1; 
+        int newEvalEvaluatorSize = -5;
+        long newEvalTotalSize = -5;
+        evaluationId = etdl.evaluation_simpleAssignments_allRolesParticipate.getId();
+        evalAllAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, null, null, null, null);
+        assertNotNull(evalAllAssignments);
+        evalTotalSize = evalAllAssignments.size();
+        evalEvaluatorAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, EvalAssignUser.TYPE_EVALUATOR, null, null, null);
+        assertNotNull(evalEvaluatorAssignments);
+        evalEvaluatorSize = evalEvaluatorAssignments.size();
+         
+        allAssignmentsSize = evaluationDao.countAll(EvalAssignUser.class);
+
+        evaluationSetupService.synchronizeUserAssignments(evaluationId, null);
+
+        evalAllAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, null, null, null, null);
+        assertNotNull(evalAllAssignments);
+        newEvalTotalSize = evalAllAssignments.size();
+        
+        evalEvaluatorAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, EvalAssignUser.TYPE_EVALUATOR, null, null, null);
+        assertNotNull(evalEvaluatorAssignments);        
+        newEvalEvaluatorSize = evalEvaluatorAssignments.size();
+        
+        newAllAssignmentsSize = evaluationDao.countAll(EvalAssignUser.class);
+
+        assertEquals(evalTotalSize + 1, newEvalTotalSize);
+        assertEquals(evalEvaluatorSize + 1, newEvalEvaluatorSize);
+        assertEquals(allAssignmentsSize + 1, newAllAssignmentsSize);
+    }
+
+    /**
+     * Test method for {@link org.sakaiproject.evaluation.logic.EvalEvaluationSetupServiceImpl#synchronizeUserAssignments(java.lang.Long, java.lang.String)}.
+     */
+    public void testSynchronizeUserAssignments_allRoleAssignments_allRolesParticipate() {
+        Long evaluationId = null;
+        List<EvalAssignUser> evalEvaluatorAssignments = null;
+        List<EvalAssignUser> evalAllAssignments = null;
+        int evalEvaluatorSize = -1;
+        int evalTotalSize = -1;
+        long allAssignmentsSize = -1;
+        int newEvalEvaluatorSize = -1;
+        long newEvalTotal = -1; 
+        long newAllAssignmentsSize = -1;
+
+        EvalAssignGroup assignGroup = etdl.assign16;
+        
+        /*
+         * Insert new evaluator as it is not part of the group list
+         */
+        EvalAssignUser userAssign = new EvalAssignUser(EvalTestDataLoad.MAINT_USER_ID_3, 
+        		assignGroup.getEvalGroupId(), assignGroup.getOwner(), 
+        		EvalAssignUser.TYPE_EVALUATOR, EvalAssignUser.STATUS_LINKED);
+        
+        userAssign.setEvaluation(assignGroup.getEvaluation());
+        userAssign.setAssignGroupId(assignGroup.getId());
+        
+        evaluationDao.save(userAssign);
+        
+        evaluationId = etdl.evaluation_allRoleAssignments_allRolesParticipate.getId();
+        evalAllAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, null, null, null, null);
+        assertNotNull(evalAllAssignments);
+        evalTotalSize = evalAllAssignments.size();
+        evalEvaluatorAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, EvalAssignUser.TYPE_EVALUATOR, null, null, null);
+        assertNotNull(evalEvaluatorAssignments);
+        evalEvaluatorSize = evalEvaluatorAssignments.size();
+        
+        allAssignmentsSize = evaluationDao.countAll(EvalAssignUser.class);
+
+        
+        evaluationSetupService.synchronizeUserAssignments(evaluationId, null);
+
+        evalAllAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, null, null, null, null);
+        assertNotNull(evalAllAssignments);
+        newEvalTotal = evalAllAssignments.size();
+        
+        evalEvaluatorAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+               null, EvalAssignUser.TYPE_EVALUATOR, null, null, null);
+        assertNotNull(evalEvaluatorAssignments);        
+        newEvalEvaluatorSize = evalEvaluatorAssignments.size();
+        
+        newAllAssignmentsSize = evaluationDao.countAll(EvalAssignUser.class);
+
+        assertEquals(evalTotalSize, newEvalTotal);
+        assertEquals(evalEvaluatorSize, newEvalEvaluatorSize);
+        assertEquals(allAssignmentsSize, newAllAssignmentsSize);
+    }
+    
+    /**
+     * Test method for {@link org.sakaiproject.evaluation.logic.EvalEvaluationSetupServiceImpl#synchronizeUserAssignments(java.lang.Long, java.lang.String)}.
+     */
+    public void testSynchronizeUserAssignments_simpleAssignments_notAllRolesParticipate() {
+    	Long evaluationId = null;
+        List<EvalAssignUser> evalEvaluatorAssignments = null;
+        List<EvalAssignUser> evalAllAssignments = null;
+        int evalEvaluatorSize = -1;
+        int evalTotalSize = -1;
+        long allAssignmentsSize = -1;
+        long newAllAssignmentsSize = -1; 
+        int newEvalEvaluatorSize = -5;
+        long newEvalTotalSize = -5;
+
+        EvalEvaluation testEvalEvaluation = etdl.evaluation_simpleAssignments_notAllRolesParticipate;
+        
+        evaluationId = testEvalEvaluation.getId();
+        evalAllAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, null, null, null, null);
+        assertNotNull(evalAllAssignments);
+        evalTotalSize = evalAllAssignments.size();
+        evalEvaluatorAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, EvalAssignUser.TYPE_EVALUATOR, null, null, null);
+        assertNotNull(evalEvaluatorAssignments);
+        evalEvaluatorSize = evalEvaluatorAssignments.size();
+        
+        allAssignmentsSize = evaluationDao.countAll(EvalAssignUser.class);
+
+        evaluationSetupService.synchronizeUserAssignments(evaluationId, null);
+
+        evalAllAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, null, null, null, null);
+        assertNotNull(evalAllAssignments);
+        newEvalTotalSize = evalAllAssignments.size();
+        
+        evalEvaluatorAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, EvalAssignUser.TYPE_EVALUATOR, null, null, null);
+        assertNotNull(evalEvaluatorAssignments);        
+        newEvalEvaluatorSize = evalEvaluatorAssignments.size();
+        
+        newAllAssignmentsSize = evaluationDao.countAll(EvalAssignUser.class);
+
+        assertEquals(evalTotalSize, newEvalTotalSize);
+        assertEquals(evalEvaluatorSize, newEvalEvaluatorSize);
+        assertEquals(allAssignmentsSize, newAllAssignmentsSize);
+    }
+    
+    /**
+     * Test method for {@link org.sakaiproject.evaluation.logic.EvalEvaluationSetupServiceImpl#synchronizeUserAssignments(java.lang.Long, java.lang.String)}.
+     */
+    public void testSynchronizeUserAssignments_allRoleAssignments_notAllRolesParticipate() {
+        Long evaluationId = null;
+        List<EvalAssignUser> evalEvaluatorAssignments = null;
+        List<EvalAssignUser> evalAllAssignments = null;
+        int evalEvaluatorSize = -1;
+        int evalTotalSize = -1;
+        long allAssignmentsSize = -1;
+        long newAllAssignmentsSize = -1; 
+        int newEvalEvaluatorSize = -5;
+        long newEvalTotalSize = -5;
+
+        EvalAssignGroup assignGroup = etdl.assign17;
+        
+        /*
+         * Insert new evaluator as it is not part of the group list
+         */
+        EvalAssignUser userAssign = new EvalAssignUser(EvalTestDataLoad.MAINT_USER_ID_3, 
+        		assignGroup.getEvalGroupId(), assignGroup.getOwner(), 
+        		EvalAssignUser.TYPE_EVALUATOR, EvalAssignUser.STATUS_LINKED);
+        
+        userAssign.setEvaluation(assignGroup.getEvaluation());
+        userAssign.setAssignGroupId(assignGroup.getId());
+        
+        evaluationDao.save(userAssign);
+        
+        evaluationId = etdl.evaluation_allRoleAssignments_notAllRolesParticipate.getId();
+        
+        evalAllAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, null, null, null, null);
+        assertNotNull(evalAllAssignments);
+        evalTotalSize = evalAllAssignments.size();
+        
+        evalEvaluatorAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, EvalAssignUser.TYPE_EVALUATOR, null, null, null);
+        assertNotNull(evalEvaluatorAssignments);
+        evalEvaluatorSize = evalEvaluatorAssignments.size();
+        
+        allAssignmentsSize = evaluationDao.countAll(EvalAssignUser.class);
+     
+        evaluationSetupService.synchronizeUserAssignments(evaluationId, null);
+
+        evalAllAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, null, null, null, null);
+        assertNotNull(evalAllAssignments);
+        newEvalTotalSize = evalAllAssignments.size();
+        
+        evalEvaluatorAssignments = evaluationService.getParticipantsForEval(evaluationId, null, 
+                null, EvalAssignUser.TYPE_EVALUATOR, null, null, null);
+        assertNotNull(evalEvaluatorAssignments);        
+        newEvalEvaluatorSize = evalEvaluatorAssignments.size();
+        
+        newAllAssignmentsSize = evaluationDao.countAll(EvalAssignUser.class);
+
+        assertEquals(evalTotalSize - 1, newEvalTotalSize);
+        assertEquals(evalEvaluatorSize - 1, newEvalEvaluatorSize);
+        assertEquals(allAssignmentsSize - 1, newAllAssignmentsSize);
+    }
+    
 
     /**
      * Test method for {@link org.sakaiproject.evaluation.logic.EvalEvaluationSetupServiceImpl#synchronizeUserAssignmentsForced(org.sakaiproject.evaluation.model.EvalEvaluation, java.lang.String, boolean)}.

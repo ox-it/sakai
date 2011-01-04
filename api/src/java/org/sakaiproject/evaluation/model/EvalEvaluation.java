@@ -179,6 +179,11 @@ public class EvalEvaluation implements java.io.Serializable {
      */
     private Boolean modifyResponsesAllowed;
 
+    /**
+     * if true then all roles will be included in the list of evaluators
+     */
+    private Boolean allRolesParticipate;
+    
     private Boolean unregisteredAllowed;
 
     private Boolean locked;
@@ -282,13 +287,32 @@ public class EvalEvaluation implements java.io.Serializable {
             String reminderFromEmail, String termId, EvalEmailTemplate availableEmailTemplate,
             EvalEmailTemplate reminderEmailTemplate, EvalTemplate template,
             Set<EvalResponse> responses, Boolean blankResponsesAllowed,
-            Boolean modifyResponsesAllowed, Boolean unregisteredAllowed, Boolean locked,
+            Boolean modifyResponsesAllowed, Boolean unregisteredAllowed, Boolean locked, 
             String authControl, String evalCategory, String selectionSettings) {
     	
     	this(type, owner, title, instructions, startDate, dueDate, stopDate, viewDate, studentViewResults, studentsDate, instructorViewResults, instructorsDate, state,
                 resultsSharing, instructorOpt, reminderDays, reminderFromEmail, termId, availableEmailTemplate, reminderEmailTemplate, template,
-                responses, blankResponsesAllowed, modifyResponsesAllowed, unregisteredAllowed, locked,
-                authControl, evalCategory, selectionSettings, Boolean.TRUE);
+                responses, blankResponsesAllowed, modifyResponsesAllowed, unregisteredAllowed, locked, authControl,
+                evalCategory, selectionSettings, Boolean.TRUE);
+    }
+    
+    /**
+     * full constructor without all rolls can participate
+     */
+    public EvalEvaluation(String type, String owner, String title, String instructions,
+            Date startDate, Date dueDate, Date stopDate, Date viewDate, boolean studentViewResults,
+            Date studentsDate, boolean instructorViewResults, Date instructorsDate, String state,
+            String resultsSharing, String instructorOpt, Integer reminderDays,
+            String reminderFromEmail, String termId, EvalEmailTemplate availableEmailTemplate,
+            EvalEmailTemplate reminderEmailTemplate, EvalTemplate template,
+            Set<EvalResponse> responses, Boolean blankResponsesAllowed, Boolean modifyResponsesAllowed, 
+            Boolean unregisteredAllowed, Boolean locked, String authControl,
+            String evalCategory, String selectionSettings, Boolean emailOpenNotification){
+    	
+    	this(type, owner, title, instructions, startDate, dueDate, stopDate, viewDate, studentViewResults, studentsDate, instructorViewResults, instructorsDate, state,
+                resultsSharing, instructorOpt, reminderDays, reminderFromEmail, termId, availableEmailTemplate, reminderEmailTemplate, template,
+                responses, blankResponsesAllowed, modifyResponsesAllowed, unregisteredAllowed, Boolean.FALSE ,locked, authControl,
+                evalCategory, selectionSettings, Boolean.TRUE);
     }
     
     /**
@@ -300,9 +324,9 @@ public class EvalEvaluation implements java.io.Serializable {
             String resultsSharing, String instructorOpt, Integer reminderDays,
             String reminderFromEmail, String termId, EvalEmailTemplate availableEmailTemplate,
             EvalEmailTemplate reminderEmailTemplate, EvalTemplate template,
-            Set<EvalResponse> responses, Boolean blankResponsesAllowed,
-            Boolean modifyResponsesAllowed, Boolean unregisteredAllowed, Boolean locked,
-            String authControl, String evalCategory, String selectionSettings, Boolean emailOpenNotification) {
+            Set<EvalResponse> responses, Boolean blankResponsesAllowed, Boolean modifyResponsesAllowed, 
+            Boolean unregisteredAllowed, Boolean allRolesParticipate,  Boolean locked, String authControl,
+            String evalCategory, String selectionSettings, Boolean emailOpenNotification) {
     	
         this.lastModified = new Date();
         this.type = type;
@@ -329,6 +353,7 @@ public class EvalEvaluation implements java.io.Serializable {
         this.resultsSharing = resultsSharing;
         this.blankResponsesAllowed = blankResponsesAllowed;
         this.modifyResponsesAllowed = modifyResponsesAllowed;
+        this.allRolesParticipate = allRolesParticipate;
         this.unregisteredAllowed = unregisteredAllowed;
         this.locked = locked;
         this.authControl = authControl;
@@ -589,6 +614,14 @@ public class EvalEvaluation implements java.io.Serializable {
         this.modifyResponsesAllowed = modifyResponsesAllowed;
     }
 
+    public Boolean getAllRolesParticipate() {
+		return allRolesParticipate;
+	}
+    
+    public void setAllRolesParticipate(Boolean allRolesParticipate) {
+		this.allRolesParticipate = allRolesParticipate;
+	}
+    
     public String getOwner() {
         return owner;
     }

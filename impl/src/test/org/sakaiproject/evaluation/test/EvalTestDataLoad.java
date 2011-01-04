@@ -59,14 +59,18 @@ import org.sakaiproject.genericdao.api.GenericDao;
 public class EvalTestDataLoad {
 
     // constants
-    public final static String USER_NAME = "aaronz";
+	public final static String USER_NAME = "aaronz";
     public final static String USER_ID = "user-11111111";
+    public final static String USER_ID_4 = "user-44444444";
+    public final static String USER_ID_5 = "user-55555555";
     public final static String USER_DISPLAY = "Aaron Zeckoski";
     public final static String ADMIN_USER_ID = "admin";
+    public final static String ADMIN_USER_ID_2 = "admin_2";
     public final static String ADMIN_USER_NAME = "admin";
     public final static String ADMIN_USER_DISPLAY = "Administrator";
     public final static String MAINT_USER_ID = "main-22222222";
     public final static String MAINT_USER_ID_3 = "main-33333333";
+    public final static String MAINT_USER_ID_6 = "main-66666666";
     public final static String MAINT_USER_NAME = "maintainer";
     public final static String MAINT_USER_DISPLAY = "Maint User";
     public final static String STUDENT_USER_ID = "student-12121212";
@@ -86,6 +90,10 @@ public class EvalTestDataLoad {
     public final static String SITE2_REF = "/sites/ref-222222";
     public final static String SITE2_TITLE = "Site2 title";
     public final static String SITE3_REF = "/sites/ref-333333";
+    public final static String SITE4_REF = "/sites/ref-444444";
+    public final static String SITE5_REF = "/sites/ref-555555";
+    public final static String SITE6_REF = "/sites/ref-666666";
+    public final static String SITE7_REF = "/sites/ref-777777";    
 
     public final static String ITEM_TEXT = "What do you think about this course?";
     public final static String ITEM_SCALE_CLASSIFICATION = EvalConstants.ITEM_TYPE_SCALED;
@@ -341,6 +349,59 @@ public class EvalTestDataLoad {
      * Evaluation which has been deleted
      */
     public EvalEvaluation evaluationDeleted;
+    
+    /**
+     * Evaluation which is in its grace period 
+     */
+    public EvalEvaluation evaluationGracePeriod;
+    /**
+     * Evaluation which has allRolesCanParticipate set to true
+     * Site 3 group has 1 maintain and 1 access user
+     * maintain user with evaluatee assignment
+     * access user with evaluator assignment
+     */
+    public EvalEvaluation evaluation_simpleAssignments_allRolesParticipate;
+    /**
+     * Evaluation which has allRolesCanParticipate set to false
+     * Site 3 group has 1 maintain and 1 access user
+     * maintain user with evaluatee assignment
+     * access user with evaluator assignment
+     */
+    public EvalEvaluation evaluation_simpleAssignments_notAllRolesParticipate;
+    /**
+     * Evaluation which has allRolesCanParticipate set to true     
+     * Site 4 group has 1 maintain and 1 access user
+     */
+    public EvalEvaluation evaluation_noAssignments_allRolesParticipate;
+    /**
+     * Evaluation which has allRolesCanParticipate set to false
+     * Site 4 group has 1 maintain and 1 access user
+     */
+    public EvalEvaluation evaluation_noAssignments_notAllRolesParticipate;
+    /**
+     * Evaluation which has allRolesCanParticipate set to true     
+     * Site 5 group has 1 maintain and 1 access user
+     * maintain user with evaluatee AND avealuator assignment
+     * access user with evaluator assignment
+     */
+    public EvalEvaluation evaluation_allRoleAssignments_allRolesParticipate;
+    /**
+     * Evaluation which has allRolesCanParticipate set to false
+     * Site 5 group has 1 maintain and 1 access user
+     * maintain user with evaluatee AND avealuator assignment
+     * access user with evaluator assignment
+     */
+    public EvalEvaluation evaluation_allRoleAssignments_notAllRolesParticipate;
+    /**
+     * Evaluation for testing getEvaluationsForUser 
+     * evaluation in its grace period 
+     */
+    public EvalEvaluation evaluation_gracePeriod_inGracePeriod;
+    /**
+     * Evaluation for testing getEvaluationsForUser 
+     * evaluation NOT in its grace period 
+     */
+    public EvalEvaluation evaluation_gracePeriod_notInGracePeriod;
     /**
      * Evaluation which is partial, has no auth not required and no assigned groups
      */
@@ -404,8 +465,45 @@ public class EvalTestDataLoad {
      */
     public EvalAssignGroup assign10;
     /**
-     * Group Assignment: ADMIN_USER_ID, SITE2_REF, {@link #evaluationNewAdmin} + eid
+     * Group Assignment: MAIN_USER_ID, SITE1_REF, {@link #evaluationGracePeriod}
      */
+    public EvalAssignGroup assign11;
+    /**
+     * Group Assignment: MAIN_USER_ID_2, SITE4_REF, {@link #evaluation_simpleAssignments_allRolesParticipate}
+     */
+    public EvalAssignGroup assign12;
+    /**
+     * Group Assignment: MAIN_USER_ID_2, SITE4_REF, {@link #evaluation_simpleAssignments_notAllRolesParticipate}
+     */
+    public EvalAssignGroup assign13;
+    /**
+     * Group Assignment: MAIN_USER_ID_2, SITE5_REF, {@link #evaluation_noAssignments_allRolesParticipate}
+     */
+    public EvalAssignGroup assign14;
+    /**
+     * Group Assignment: MAIN_USER_ID_2, SITE5_REF, {@link #evaluation_noAssignments_notAllRolesParticipate}
+     */
+    public EvalAssignGroup assign15;
+    /**
+     * Group Assignment: MAIN_USER_ID_2, SITE6_REF, {@link #evaluation_allRoleAssignments_allRolesParticipate}
+     */
+    public EvalAssignGroup assign16;
+    /**
+     * Group Assignment: MAIN_USER_ID_2, SITE6_REF, {@link #evaluation_allRoleAssignments_notAllRolesParticipate}
+     */
+    public EvalAssignGroup assign17;
+   /**
+     * Group Assignment: MAIN_USER_ID_6, SITE7_REF
+     * {@link #evaluation_gracePeriod_inGracePeriod}
+     */
+    public EvalAssignGroup assign18;
+    /**
+     * Group Assignment: MAIN_USER_ID_6, SITE7_REF
+     * {@link #evaluation_gracePeriod_notInGracePeriod}
+     */
+    public EvalAssignGroup assign19;
+    
+    
     public EvalAssignGroup assignGroupProvided;
 
     /**
@@ -1093,6 +1191,128 @@ public class EvalTestDataLoad {
                 EvalConstants.EVALUATION_STATE_PARTIAL, EvalConstants.SHARING_PUBLIC, EvalConstants.INSTRUCTOR_REQUIRED, new Integer(0), null, null, null, null,
                 templateUser_4, null, Boolean.TRUE, Boolean.FALSE, Boolean.FALSE,
                 UNLOCKED, EvalConstants.EVALUATION_AUTHCONTROL_NONE, null, null);
+        
+        // evaluation Complete (ended yesterday, viewable tomorrow), recent close, still 
+        evaluationGracePeriod = new EvalEvaluation(EvalConstants.EVALUATION_TYPE_EVALUATION, 
+                EvalTestDataLoad.ADMIN_USER_ID, "Eval grace period two", null, 
+                threeDaysAgo, yesterday, 
+                tomorrow, tomorrow, false, null,
+                false, null, 
+                EvalConstants.EVALUATION_STATE_GRACEPERIOD, EvalConstants.SHARING_VISIBLE, EvalConstants.INSTRUCTOR_OPT_IN, Integer.valueOf(2), null, null, null, null,
+                templateAdmin, null, Boolean.TRUE, Boolean.FALSE, Boolean.FALSE, EvalTestDataLoad.LOCKED,
+                EvalConstants.EVALUATION_AUTHCONTROL_NONE, null, null);
+
+        /*
+         * Evaluation which has allRolesCanParticipate set to true
+         * Site 3 group has 1 maintain and 1 access user
+         * maintain user with evaluatee assignment
+         * access user with evaluator assignment
+         */
+        evaluation_simpleAssignments_allRolesParticipate = new EvalEvaluation(EvalConstants.EVALUATION_TYPE_EVALUATION, 
+                EvalTestDataLoad.ADMIN_USER_ID_2, "evaluation_simpleAssignments_allRolesParticipate", null, 
+                tomorrow, threeDaysFuture, null, null, false, null, false, null, 
+                EvalConstants.EVALUATION_STATE_INQUEUE, EvalConstants.SHARING_VISIBLE, 
+                EvalConstants.INSTRUCTOR_OPT_IN, Integer.valueOf(2), null, null, null, null,
+                templateAdmin, null, Boolean.TRUE, Boolean.FALSE, Boolean.TRUE,
+                Boolean.TRUE,
+                EvalTestDataLoad.LOCKED,
+                EvalConstants.EVALUATION_AUTHCONTROL_AUTH_REQ, null, null,Boolean.FALSE);
+        /*
+         * Evaluation which has allRolesCanParticipate set to false
+         * Site 3 group has 1 maintain and 1 access user
+         * maintain user with evaluatee assignment
+         * access user with evaluator assignment
+         */
+        evaluation_simpleAssignments_notAllRolesParticipate = new EvalEvaluation(EvalConstants.EVALUATION_TYPE_EVALUATION, 
+                EvalTestDataLoad.ADMIN_USER_ID_2, "evaluation_simpleAssignments_notAllRolesParticipate", null, 
+                tomorrow, threeDaysFuture, null, null, false, null, false, null, 
+                EvalConstants.EVALUATION_STATE_INQUEUE, EvalConstants.SHARING_VISIBLE, 
+                EvalConstants.INSTRUCTOR_OPT_IN, Integer.valueOf(2), null, null, null, null,
+                templateAdmin, null, Boolean.TRUE, Boolean.FALSE, Boolean.TRUE,
+                Boolean.FALSE,
+                EvalTestDataLoad.LOCKED,
+                EvalConstants.EVALUATION_AUTHCONTROL_AUTH_REQ, null, null,Boolean.FALSE);
+        /*
+         * Evaluation which has allRolesCanParticipate set to true     
+         * Site 4 group has 1 maintain and 1 access user
+         */
+        evaluation_noAssignments_allRolesParticipate = new EvalEvaluation(EvalConstants.EVALUATION_TYPE_EVALUATION, 
+                EvalTestDataLoad.ADMIN_USER_ID_2, "evaluation_noAssignments_allRolesParticipate", null, 
+                tomorrow, threeDaysFuture, null, null, false, null, false, null, 
+                EvalConstants.EVALUATION_STATE_INQUEUE, EvalConstants.SHARING_VISIBLE, 
+                EvalConstants.INSTRUCTOR_OPT_IN, Integer.valueOf(2), null, null, null, null,
+                templateAdmin, null, Boolean.TRUE, Boolean.FALSE, Boolean.TRUE,
+                Boolean.TRUE,
+                EvalTestDataLoad.LOCKED,
+                EvalConstants.EVALUATION_AUTHCONTROL_AUTH_REQ, null, null,Boolean.FALSE);
+        /*
+         * Evaluation which has allRolesCanParticipate set to false
+         * Site 4 group has 1 maintain and 1 access user
+         */
+        evaluation_noAssignments_notAllRolesParticipate = new EvalEvaluation(EvalConstants.EVALUATION_TYPE_EVALUATION, 
+                EvalTestDataLoad.ADMIN_USER_ID_2, "evaluation_noAssignments_notAllRolesParticipate", null, 
+                tomorrow, threeDaysFuture, null, null, false, null, false, null, 
+                EvalConstants.EVALUATION_STATE_INQUEUE, EvalConstants.SHARING_VISIBLE, 
+                EvalConstants.INSTRUCTOR_OPT_IN, Integer.valueOf(2), null, null, null, null,
+                templateAdmin, null, Boolean.TRUE, Boolean.FALSE, Boolean.TRUE,
+                Boolean.FALSE,
+                EvalTestDataLoad.LOCKED,
+                EvalConstants.EVALUATION_AUTHCONTROL_AUTH_REQ, null, null,Boolean.FALSE);
+        /*
+         * Evaluation which has allRolesCanParticipate set to true     
+         * Site 5 group has 1 maintain and 1 access user
+         * maintain user with evaluatee AND avealuator assignment
+         * access user with evaluator assignment
+         */
+        evaluation_allRoleAssignments_allRolesParticipate = new EvalEvaluation(EvalConstants.EVALUATION_TYPE_EVALUATION, 
+                EvalTestDataLoad.ADMIN_USER_ID_2, "evaluation_allRoleAssignments_allRolesParticipate", null, 
+                tomorrow, threeDaysFuture, null, null, false, null, false, null, 
+                EvalConstants.EVALUATION_STATE_INQUEUE, EvalConstants.SHARING_VISIBLE, 
+                EvalConstants.INSTRUCTOR_OPT_IN, Integer.valueOf(2), null, null, null, null,
+                templateAdmin, null, Boolean.TRUE, Boolean.FALSE, Boolean.TRUE,
+                Boolean.TRUE,
+                EvalTestDataLoad.LOCKED,
+                EvalConstants.EVALUATION_AUTHCONTROL_AUTH_REQ, null, null,Boolean.FALSE);
+        /*
+         * Evaluation which has allRolesCanParticipate set to false
+         * Site 5 group has 1 maintain and 1 access user
+         * maintain user with evaluatee AND avealuator assignment
+         * access user with evaluator assignment
+         */
+        evaluation_allRoleAssignments_notAllRolesParticipate = new EvalEvaluation(EvalConstants.EVALUATION_TYPE_EVALUATION, 
+                EvalTestDataLoad.ADMIN_USER_ID_2, "evaluation_allRoleAssignments_notAllRolesParticipate", null, 
+                tomorrow, threeDaysFuture, null, null, false, null, false, null, 
+                EvalConstants.EVALUATION_STATE_INQUEUE, EvalConstants.SHARING_VISIBLE, 
+                EvalConstants.INSTRUCTOR_OPT_IN, Integer.valueOf(2), null, null, null, null,
+                templateAdmin, null, Boolean.TRUE, Boolean.FALSE, Boolean.TRUE,
+                Boolean.FALSE,
+                EvalTestDataLoad.LOCKED,
+                EvalConstants.EVALUATION_AUTHCONTROL_AUTH_REQ, null, null,Boolean.FALSE);
+                /*
+         * Evaluation for testing getEvaluationsForUser 
+         * evaluation in its grace period 
+         */
+        evaluation_gracePeriod_inGracePeriod = new EvalEvaluation(EvalConstants.EVALUATION_TYPE_EVALUATION, 
+                EvalTestDataLoad.ADMIN_USER_ID, "evaluation_gracePeriod_inGracePeriod", null, 
+                threeDaysAgo, yesterday, 
+                tomorrow, null, false, null,
+                false, null, 
+                EvalConstants.EVALUATION_STATE_GRACEPERIOD, EvalConstants.SHARING_VISIBLE, EvalConstants.INSTRUCTOR_OPT_IN, Integer.valueOf(2), null, null, null, null,
+                templateAdmin, null, Boolean.TRUE, Boolean.FALSE, Boolean.FALSE,
+                EvalTestDataLoad.LOCKED, EvalConstants.EVALUATION_AUTHCONTROL_AUTH_REQ, null, null);
+        
+        /*
+         * Evaluation for testing getEvaluationsForUser 
+         * evaluation NOT in its grace period 
+         */
+        evaluation_gracePeriod_notInGracePeriod = new EvalEvaluation(EvalConstants.EVALUATION_TYPE_EVALUATION, 
+                EvalTestDataLoad.ADMIN_USER_ID, "evaluation_gracePeriod_notInGracePeriod", null, 
+                yesterday, tomorrow, 
+                threeDaysFuture, null, false, null,
+                false, null, 
+                EvalConstants.EVALUATION_STATE_ACTIVE, EvalConstants.SHARING_VISIBLE, EvalConstants.INSTRUCTOR_OPT_IN, Integer.valueOf(2), null, null, null, null,
+                templateAdmin, null, Boolean.TRUE, Boolean.FALSE, Boolean.FALSE,
+                EvalTestDataLoad.LOCKED, EvalConstants.EVALUATION_AUTHCONTROL_AUTH_REQ, null, null);
 
         // email templates
         emailTemplate1 = new EvalEmailTemplate(ADMIN_USER_ID, EvalConstants.EMAIL_TEMPLATE_AVAILABLE, "Email Subject 1", "Email Template 1");
@@ -1122,6 +1342,19 @@ public class EvalTestDataLoad {
         dao.save(evaluationViewable);
         dao.save(evaluationProvided);
         dao.save(evaluationDeleted);
+        
+        dao.save(evaluationGracePeriod);
+        //evaluation used to test allRolesCanParticipate property
+        dao.save(evaluation_simpleAssignments_allRolesParticipate);
+        dao.save(evaluation_simpleAssignments_notAllRolesParticipate);
+        dao.save(evaluation_noAssignments_allRolesParticipate);
+        dao.save(evaluation_noAssignments_notAllRolesParticipate);
+        dao.save(evaluation_allRoleAssignments_allRolesParticipate);
+        dao.save(evaluation_allRoleAssignments_notAllRolesParticipate);
+        //evaluationused to to accessibility when in grace period
+        dao.save(evaluation_gracePeriod_inGracePeriod);
+        dao.save(evaluation_gracePeriod_notInGracePeriod);
+        
         dao.save(evaluationPartial_noAuthNoGroups);
 
 
@@ -1146,6 +1379,25 @@ public class EvalTestDataLoad {
                 evaluationDeleted, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
         assign10 = new EvalAssignGroup( MAINT_USER_ID, SITE1_REF, EvalConstants.GROUP_TYPE_SITE, 
                 evaluationClosedUntaken, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
+        assign11 = new EvalAssignGroup(MAINT_USER_ID, SITE1_REF, EvalConstants.GROUP_TYPE_SITE,
+        		evaluationGracePeriod, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);                
+        assign12 = new EvalAssignGroup(MAINT_USER_ID_3, SITE4_REF, EvalConstants.GROUP_TYPE_SITE,
+        		evaluation_simpleAssignments_allRolesParticipate, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
+        assign13 = new EvalAssignGroup(MAINT_USER_ID_3, SITE4_REF, EvalConstants.GROUP_TYPE_SITE,
+           		evaluation_simpleAssignments_notAllRolesParticipate, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
+        assign14 = new EvalAssignGroup(MAINT_USER_ID_3, SITE5_REF, EvalConstants.GROUP_TYPE_SITE,
+           		evaluation_noAssignments_allRolesParticipate, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
+        assign15 = new EvalAssignGroup(MAINT_USER_ID_3, SITE5_REF, EvalConstants.GROUP_TYPE_SITE,
+        		evaluation_noAssignments_notAllRolesParticipate, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
+        assign16 = new EvalAssignGroup(MAINT_USER_ID_3, SITE6_REF, EvalConstants.GROUP_TYPE_SITE,
+           		evaluation_allRoleAssignments_allRolesParticipate, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
+        assign17 = new EvalAssignGroup(MAINT_USER_ID_3, SITE6_REF, EvalConstants.GROUP_TYPE_SITE,
+        		evaluation_allRoleAssignments_notAllRolesParticipate, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
+        assign18 = new EvalAssignGroup(MAINT_USER_ID_6, SITE7_REF, EvalConstants.GROUP_TYPE_SITE,
+        		evaluation_gracePeriod_inGracePeriod, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
+        assign19 = new EvalAssignGroup(MAINT_USER_ID_6, SITE7_REF, EvalConstants.GROUP_TYPE_SITE,
+        		evaluation_gracePeriod_notInGracePeriod, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
+        
         // Dick, you cannot assign 2 groups to an eval with the same evalGroupId... I have fixed this by making up a fake id -AZ
         assignGroupProvided = new EvalAssignGroup( ADMIN_USER_ID, "AZ-new-ref", EvalConstants.GROUP_TYPE_SITE, 
                 evaluationNewAdmin, Boolean.TRUE, Boolean.TRUE, Boolean.FALSE);
@@ -1164,6 +1416,15 @@ public class EvalTestDataLoad {
         dao.save(assign8);
         dao.save(assign9);
         dao.save(assign10);
+        dao.save(assign11);
+        dao.save(assign12);
+        dao.save(assign13);
+        dao.save(assign14);
+        dao.save(assign15);
+        dao.save(assign16);
+        dao.save(assign17);
+        dao.save(assign18);
+        dao.save(assign19);
         dao.save(assignGroupProvided);
 
         dao.save(assignHier1);
@@ -1180,8 +1441,16 @@ public class EvalTestDataLoad {
         counter += makeUserAssigns(dao, assign8);
         counter += makeUserAssigns(dao, assign9);
         counter += makeUserAssigns(dao, assign10);
-        if (counter != 23) {
-            throw new IllegalStateException("Invalid user assignments creation, 23 != " + counter);
+        counter += makeUserAssigns(dao, assign11);        
+        counter += makeUserAssigns(dao, assign12);
+        counter += makeUserAssigns(dao, assign13);        
+        counter += makeUserAssigns(dao, assign16);
+        counter += makeUserAssigns(dao, assign17);
+        counter += makeUserAssigns(dao, assign18);
+        counter += makeUserAssigns(dao, assign19);
+        
+        if (counter != 35) {
+            throw new IllegalStateException("Invalid user assignments creation, 35 != " + counter);
         }
 
         // now init response data for the evaluationSetupService

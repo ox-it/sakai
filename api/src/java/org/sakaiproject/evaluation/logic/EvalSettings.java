@@ -343,6 +343,8 @@ public interface EvalSettings {
      * if this is enabled/true, users can decide to disable the email notification sent out when the eval begins
      */
     public static final String ALLOW_EVALSPECIFIC_TOGGLE_EMAIL_NOTIFICATION = "ALLOW_EVALSPECIFIC_TOGGLE_EMAIL_NOTIFICATION:java.lang.Boolean";
+    
+    public static final String ALLOW_ALL_SITE_ROLES_TO_RESPOND = "ALLOW_ALL_SITE_ROLES_TO_RESPOND:java.lang.Boolean";
 
 
     /**
@@ -405,7 +407,8 @@ public interface EvalSettings {
         INSTRUCTOR_ALLOWED_VIEW_RESULTS,
         STUDENT_ALLOWED_LEAVE_UNANSWERED,
         STUDENT_MODIFY_RESPONSES,
-        STUDENT_ALLOWED_VIEW_RESULTS
+        STUDENT_ALLOWED_VIEW_RESULTS,
+        ALLOW_ALL_SITE_ROLES_TO_RESPOND
     };
 
     /**
