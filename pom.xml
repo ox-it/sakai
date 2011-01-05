@@ -5,7 +5,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2009 Etudes, Inc.
+ * Copyright (c) 2009, 2010, 2011 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,20 +29,19 @@
 	<parent>
 		<artifactId>base</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<!--version>M2</version-->
-		<version>2.6-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
+		<version>2.7.1</version>
 	</parent>
 
-	
-	<name>Etudes Util Project</name>
-	<groupId>org.etudes.util</groupId>
-	<artifactId>util</artifactId>
-	<version>1.0</version>
+	<name>etudes-util-base</name>
+	<groupId>org.etudes</groupId>
+	<artifactId>etudes-util-base</artifactId>
+	<version>${etudes.util.version}</version>
+
 	<packaging>pom</packaging>
 
 	<modules>
 		<module>etudes-util-api/api</module>
 		<module>etudes-util/util</module>
 	</modules>
+    
 </project>

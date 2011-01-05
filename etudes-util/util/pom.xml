@@ -6,7 +6,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2009 Etudes, Inc.
+ * Copyright (c) 2009, 2010, 2011 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,63 +27,24 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>util</artifactId>
-		<groupId>org.etudes.util</groupId>
-		<version>1.0</version>
-		<relativePath>../pom.xml</relativePath>
+		<artifactId>etudes-util-base</artifactId>
+		<groupId>org.etudes</groupId>
+		<version>${etudes.util.version}</version>
 	</parent>
 
-	<name>etudes-util</name>
-	<groupId>org.etudes.util</groupId>
-	<artifactId>etudes-util</artifactId>
+	<name>etudes-util-util</name>
+	<groupId>org.etudes</groupId>
+	<artifactId>etudes-util-util</artifactId>
+	<version>${etudes.util.version}</version>
+
 	<packaging>jar</packaging>
 
 	<dependencies>
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
-			<version>1.0.4</version>
-		</dependency>
-		
-		
-<!-- 
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-authz-api</artifactId>
-			<version>${sakai.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-component-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-entity-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-content-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		
-		-->
-		
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-util</artifactId>
@@ -100,16 +61,12 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.etudes.util</groupId>
+			<groupId>org.etudes</groupId>
 			<artifactId>etudes-util-api</artifactId>
-			<version>1.0</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-	<build>
-	
-		<sourceDirectory>src/java</sourceDirectory>
-	
+
+	<build>	
 	</build>
 
 </project>
