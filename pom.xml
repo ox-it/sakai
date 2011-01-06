@@ -6,11 +6,8 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2009, 2010, 2011 Etudes, Inc.
  * 
- * Portions completed before September 1, 2008
- * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,41 +26,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
 	<modelVersion>4.0.0</modelVersion>
 
-	<!-- for stand-alone building under test-center -->
-	<parent>
-		<groupId>org.etudes.test-center</groupId>
-		<artifactId>test-center</artifactId>
-		<version>1.2</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-
-	<!-- for embedded building withing sakai -->
-	<!-- Note: set the version to the Sakai version you are using -->
-	<!--
 	<parent>
 		<artifactId>base</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>2.5.3</version>
-		<relativePath>../pom.xml</relativePath>
+		<version>2.7.1</version>
 	</parent>
-	-->
 
-	<name>Ambrosia</name>
-	<groupId>org.etudes.ambrosia</groupId>
-	<artifactId>ambrosia</artifactId>
-	<version>1.2</version>
+	<name>etudes-ambrosia-base</name>
+	<groupId>org.etudes</groupId>
+	<artifactId>etudes-ambrosia-base</artifactId>
+	<version>pom</version>
+
 	<packaging>pom</packaging>
-
-	<properties>
-		<ambrosia.version>1.2</ambrosia.version>
-		<sakai.commons.logging.version>1.0.4</sakai.commons.logging.version>
-	</properties>
 
 	<modules>
 		<module>ambrosia-api/api</module>
+		<module>ambrosia-util/util</module>
 		<module>ambrosia-impl/impl</module>
 		<module>ambrosia-impl/pack</module>
-		<module>ambrosia-util/util</module>
 		<module>ambrosia-library/lib</module>
 	</modules>
 

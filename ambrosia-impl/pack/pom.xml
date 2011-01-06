@@ -6,11 +6,8 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2011 Etudes, Inc.
  * 
- * Portions completed before September 1, 2008
- * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,17 +27,17 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>ambrosia</artifactId>
-		<groupId>org.etudes.ambrosia</groupId>
-		<version>1.2</version>
-		<relativePath>../pom.xml</relativePath>
+		<artifactId>etudes-ambrosia-base</artifactId>
+		<groupId>org.etudes</groupId>
+		<version>pom</version>
 	</parent>
 
 	<name>etudes-ambrosia-pack</name>
-	<groupId>org.etudes.ambrosia</groupId>
+	<groupId>org.etudes</groupId>
 	<artifactId>etudes-ambrosia-pack</artifactId>
-	<packaging>sakai-component</packaging>
+	<version>${ambrosia.version}</version>
 
+	<packaging>sakai-component</packaging>
 	<properties>
 		<deploy.target>components</deploy.target>
 	</properties>
@@ -48,21 +45,19 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>org.etudes.ambrosia</groupId>
+			<groupId>org.etudes</groupId>
 			<artifactId>etudes-ambrosia-impl</artifactId>
 			<version>${ambrosia.version}</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.etudes.ambrosia</groupId>
+			<groupId>org.etudes</groupId>
 			<artifactId>etudes-ambrosia-util</artifactId>
-			<version>${ambrosia.version}</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util</artifactId>
-			<version>${sakai.version}</version>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-util</artifactId>
 		</dependency>
 
 	</dependencies>
