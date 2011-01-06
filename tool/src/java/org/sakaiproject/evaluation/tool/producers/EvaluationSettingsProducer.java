@@ -394,7 +394,7 @@ public class EvaluationSettingsProducer implements ViewComponentProducer, ViewPa
          * the evaluation was created OR on the administrator setting
          */
         else {
-        	if(evaluation.getAllRolesParticipate() || 
+        	if(null != evaluation.getAllRolesParticipate() || 
         			!Boolean.FALSE.equals(allRolesCanParticipate)) {
         		
         		UIBranchContainer showAllRolesCanParticipate = UIBranchContainer.make(form, "showAllRolesCanParticipate:");
