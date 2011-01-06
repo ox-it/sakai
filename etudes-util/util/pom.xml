@@ -6,7 +6,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2011 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 	<parent>
 		<artifactId>etudes-util-base</artifactId>
 		<groupId>org.etudes</groupId>
-		<version>${etudes.util.version}</version>
+		<version>pom</version>
 	</parent>
 
 	<name>etudes-util-util</name>

@@ -29,7 +29,7 @@
 	<parent>
 		<artifactId>etudes-util-base</artifactId>
 		<groupId>org.etudes</groupId>
-		<version>${etudes.util.version}</version>
+		<version>pom</version>
 	</parent>
 
 	<name>etudes-util-api</name>
