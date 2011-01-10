@@ -366,6 +366,20 @@ public class MockEvalExternalLogic implements EvalExternalLogic {
 		}
 		return true;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.evaluation.logic.externals.ExternalUsers#isUserAnonymous(java.lang.String)
+	 */
+	public boolean isUserAnonymousForSetupEvalBean(String userId) {
+		if (userId.equals(EvalTestDataLoad.USER_ID) 
+		      || userId.equals(EvalTestDataLoad.MAINT_USER_ID) 
+		      || userId.equals(EvalTestDataLoad.ADMIN_USER_ID)
+			  || userId.equals(EvalTestDataLoad.STUDENT_USER_ID)
+			  || userId.equals(EvalTestDataLoad.MAINT_USER_ID_3)) {
+			return false;
+		}
+		return true;
+	}
 
    public EvalUser getEvalUserById(String userId) {
       EvalUser user = new EvalUser(userId, EvalConstants.USER_TYPE_INVALID, null);

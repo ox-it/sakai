@@ -161,6 +161,9 @@ public class EvalCommonLogicImpl implements EvalCommonLogic {
     public boolean isUserAnonymous(String userId) {
         return externalLogic.isUserAnonymous(userId);
     }
+    public boolean isUserAnonymousForSetupEvalBean(String userId) {
+        return externalLogic.isUserAnonymousForSetupEvalBean(userId);
+    }
 
     public String getUserId(String username) {
         String userId = externalLogic.getUserId(username);

@@ -454,12 +454,15 @@ public class SetupEvalBean {
 			}
 		
 			for (String userId : userIdsForEvalGroup) {
-				if(commonLogic.isUserAnonymous(userId)) {
+				// temporary fix for WL-1431
+				//if(commonLogic.isUserAnonymous(userId)) {
+				if(commonLogic.isUserAnonymousForSetupEvalBean(userId)) {
 					messages.addMessage(new TargettedMessage(
 							"assigneval.invalid.user", new Object[] {userId},
 							TargettedMessage.SEVERITY_ERROR));
 					return "fail";
 				}
+				
 			}
 		}
 		

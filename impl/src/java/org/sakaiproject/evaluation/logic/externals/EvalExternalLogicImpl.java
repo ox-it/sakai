@@ -290,6 +290,31 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
         }
         return false;
     }
+    
+    /**
+     *  temporary fix for WL-1431
+     * @param userId
+     * @return
+     */
+    public boolean isUserAnonymousForSetupEvalBean(String userId) {
+        String currentUserId = sessionManager.getCurrentSessionUserId();
+        if (userId.equals(currentUserId)) {
+            return false;
+        }
+        Session session = sessionManager.getCurrentSession();
+        String sessionUserId = (String) session.getAttribute(ANON_USER_ATTRIBUTE);
+        if (userId.equals(sessionUserId)) {
+            return true;
+        }
+        // used up both cheap tests, now try the costly one
+        //try {
+        //    userDirectoryService.getUser(userId);
+        //} catch (UserNotDefinedException e) {
+        //    return true;
+        //}
+        return false;
+    }
+
 
     /* (non-Javadoc)
      * @see org.sakaiproject.evaluation.logic.externals.ExternalUsers#getUserId(java.lang.String)
