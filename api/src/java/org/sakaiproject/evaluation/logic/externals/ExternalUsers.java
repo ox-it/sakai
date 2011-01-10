@@ -47,6 +47,7 @@ public interface ExternalUsers {
      * @return true if we know who this user is, false otherwise
      */
     public boolean isUserAnonymous(String userId);
+    public boolean isUserAnonymousForSetupEvalBean(String userId);
 
     /**
      * @param username the login name for the user
