@@ -590,12 +590,12 @@ public class EvalEvaluationSetupServiceImplTest extends BaseTestEvalLogic {
         // test getting visible evals for the admin user (should be all)
         evals = evaluationSetupService.getVisibleEvaluationsForUser(EvalTestDataLoad.ADMIN_USER_ID, false, false, false);
         assertNotNull(evals);
-        assertEquals(17, evals.size());
+        assertEquals(20, evals.size());
 
         // test getting recent closed evals for the admin user
         evals = evaluationSetupService.getVisibleEvaluationsForUser(EvalTestDataLoad.ADMIN_USER_ID, true, false, false);
         assertNotNull(evals);
-        assertEquals(16, evals.size());
+        assertEquals(19, evals.size());
         ids = EvalTestDataLoad.makeIdList(evals);
         assertTrue(! ids.contains( etdl.evaluationViewable.getId() ));
 

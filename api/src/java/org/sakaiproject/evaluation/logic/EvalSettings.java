@@ -344,6 +344,12 @@ public interface EvalSettings {
      */
     public static final String ALLOW_EVALSPECIFIC_TOGGLE_EMAIL_NOTIFICATION = "ALLOW_EVALSPECIFIC_TOGGLE_EMAIL_NOTIFICATION:java.lang.Boolean";
     
+    /**
+     * if this is enabled/true, users who can see evaluation results will not be
+     * restricted by a view/due/stop date 
+     */
+    public static final String VIEW_SURVEY_RESULTS_IGNORE_DATES = "VIEW_SURVEY_RESULTS_IGNORE_DATES:java.lang.Boolean";
+    
     public static final String ALLOW_ALL_SITE_ROLES_TO_RESPOND = "ALLOW_ALL_SITE_ROLES_TO_RESPOND:java.lang.Boolean";
 
 
@@ -395,7 +401,8 @@ public interface EvalSettings {
         REQUIRE_COMMENTS_BLOCK,
         USE_ADMIN_AS_FROM_EMAIL,
         USE_EXPERT_ITEMS,
-        USE_EXPERT_TEMPLATES
+        USE_EXPERT_TEMPLATES,
+        VIEW_SURVEY_RESULTS_IGNORE_DATES,
     };
 
     /**
