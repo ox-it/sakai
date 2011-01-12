@@ -3,7 +3,7 @@
 -- $Id$
 --**********************************************************************************
 --
--- Copyright (c) 2009 Etudes, Inc.
+-- Copyright (c) 2009, 2010, 2011 Etudes, Inc.
 -- 
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 -- Mneme Question DDL changes between 1.1 and 1.2
 -----------------------------------------------------------------------------
 
--- TODO - this is mysql, make oracle
-
-ALTER TABLE MNEME_QUESTION
-	ADD (PRESENTATION_ATTACHMENTS LONGTEXT);
+ALTER TABLE MNEME_QUESTION ADD (PRESENTATION_ATTACHMENTS CLOB);
+	
+	

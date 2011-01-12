@@ -3,7 +3,7 @@
 -- $Id$
 --**********************************************************************************
 --
--- Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+-- Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
 -- 
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -24,14 +24,22 @@
 -----------------------------------------------------------------------------
 
 CREATE SEQUENCE MNEME_ASSESSMENT_DETAIL_SEQ;
+ALTER TABLE MNEME_ASSESSMENT_PART_DETAIL ADD (ID NUMBER PRIMARY KEY, SEQ NUMBER, POINTS FLOAT);
 
--- TODO:add to MNEME_ASSESSMENT_PART_DETAIL:	ID						NUMBER NOT NULL PRIMARY KEY
--- TODO: add to MNEME_ASSESSMENT_PART_DETAIL:	SEQ						NUMBER
+-- Populate the new ID field sequentially across the current set of detail records from the sequence
+UPDATE MNEME_ASSESSMENT_PART_DETAIL SET ID=MNEME_ASSESSMENT_DETAIL_SEQ.NEXT;
+ALTER TABLE MNEME_ASSESSMENT_PART_DETAIL MODIFY (ID NUMBER NOT NULL PRIMARY KEY);
 
--- then populate ID from the above sequence...
+ALTER TABLE MNEME_ASSESSMENT ADD (POOL NUMBER, NEEDSPOINTS CHAR(1), SHOW_MODEL_ANSWER CHAR(1));
 
 UPDATE MNEME_ASSESSMENT_PART_DETAIL SET SEQ=NUM_QUESTIONS_SEQ;
 
--- TODO: add to MNEME_ASSESSMENT POOL NUMBER NULL
--- TODO: add to MNEME_ASSESSMENT NEEDSPOINTS CHAR(1)
+CREATE INDEX MNEME_APD_IDX_QID ON MNEME_ASSESSMENT_PART_DETAIL
+(
+	QUESTION_ID	ASC
+);
 
+CREATE INDEX MNEME_APD_IDX_POOLID ON MNEME_ASSESSMENT_PART_DETAIL
+(
+	POOL_ID	ASC
+);

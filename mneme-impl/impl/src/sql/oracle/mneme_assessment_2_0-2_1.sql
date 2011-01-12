@@ -3,11 +3,8 @@
 -- $Id$
 --**********************************************************************************
 --
--- Copyright (c) 2008 Etudes, Inc.
+-- Copyright (c) 2010, 2011 Etudes, Inc.
 -- 
--- Portions completed before September 1, 2008
--- Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
---
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
 -- You may obtain a copy of the License at
@@ -23,25 +20,14 @@
 --*********************************************************************************/
 
 -----------------------------------------------------------------------------
--- Drops all Mneme Tables
+-- Mneme Assessment DDL changes between 2.0 and 2.1
 -----------------------------------------------------------------------------
 
-DROP TABLE MNEME_ANSWER;
-DROP TABLE MNEME_SUBMISSION;
-DROP SEQUENCE MNEME_SUBMISSION_SEQ;
-DROP SEQUENCE MNEME_ANSWER_SEQ;
+ALTER TABLE MNEME_ASSESSMENT ADD (FORMAL_EVAL CHAR (1), RESULTS_EMAIL VARCHAR2(255), RESULTS_SENT NUMBER);
 
-DROP TABLE MNEME_ASSESSMENT_PART_DETAIL;
-DROP TABLE MNEME_ASSESSMENT_PART;
-DROP TABLE MNEME_ASSESSMENT_ACCESS;
-DROP TABLE MNEME_ASSESSMENT;
-DROP SEQUENCE MNEME_ASSESSMENT_SEQ;
-DROP SEQUENCE MNEME_ASSESSMENT_ACCESS_SEQ;
-DROP SEQUENCE MNEME_ASSESSMENT_PART_SEQ;
-
-DROP TABLE MNEME_POOL;
-DROP SEQUENCE MNEME_POOL_SEQ;
-
-DROP TABLE MNEME_QUESTION;
-DROP SEQUENCE MNEME_QUESTION_SEQ;
-
+CREATE INDEX MNEME_ASSESSMENT_IDX_RESULTS ON MNEME_ASSESSMENT
+(
+	RESULTS_EMAIL	ASC,
+	PUBLISHED		ASC,
+	RESULTS_SENT	ASC
+);
