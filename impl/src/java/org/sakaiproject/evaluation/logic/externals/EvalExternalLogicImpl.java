@@ -323,9 +323,16 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
         String userId = null;
         try {
             userId = userDirectoryService.getUserId(username);
+            
         } catch(UserNotDefinedException ex) {
-            log.error("Could not get userId from username: " + username);
+        	try {
+        		userId = userDirectoryService.getUserByAid(username).getId();
+    		
+        	} catch(UserNotDefinedException e) {
+        		log.error("Could not get userId from username: " + username);
+        	}
         }
+    	
         return userId;
     }
 
