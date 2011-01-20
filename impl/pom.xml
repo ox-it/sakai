@@ -23,9 +23,6 @@
     <profiles>
         <profile>
             <id>full</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <dependencies>
                 <!-- Sakai util -->
                 <dependency>
