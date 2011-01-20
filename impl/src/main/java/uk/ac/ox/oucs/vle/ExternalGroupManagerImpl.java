@@ -53,6 +53,8 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 
 	private String memberAttribute = "member";
 
+	private Map<String, String> displayNames = new HashMap<String, String>();
+
 	public void init() {
 		log.debug("init()");
 		if (ldapConnectionManager == null && jldapDirectoryProvider == null) {
@@ -64,18 +66,6 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		if (mappedGroupDao == null) {
 			throw new IllegalStateException("MappedGroupDao must be set.");
 		}
-		Map<String, String> displayNames = new HashMap<String, String>();
-		displayNames.put("acserv", "ASUC");
-		displayNames.put("centadm", "Central Administration");
-		displayNames.put("college", "Colleges");
-		displayNames.put("conted", "Continuing Education");
-		displayNames.put("councildep", "Council Departments");
-		displayNames.put("human", "Humanities");
-		displayNames.put("mathsci", "Mathematical, Physical & Life Sciences");
-		displayNames.put("medsci", "Medical Sciences");
-		displayNames.put("payetc", "Payroll & Others");
-		displayNames.put("related", "Related");
-		displayNames.put("socsci", "Social Sciences");
 		
 		DisplayAdjuster da = new MappedDisplayAdaptor(displayNames);
 		
@@ -337,6 +327,10 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 
 	public void setGroupBase(String groupBase) {
 		this.groupBase = groupBase;
+	}
+
+	public void setDisplayNames(Map<String, String> displayNames) {
+		this.displayNames = displayNames;
 	}
 
 	Collection<String> findMembers(String externalId) {
