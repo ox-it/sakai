@@ -36,8 +36,8 @@
     <parent>
         <artifactId>master</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>2.5.4</version>
-        <relativePath>../master/pom.xml</relativePath>
+        <version>2.6-SNAPSHOT</version>
+        <relativePath>../../master/pom.xml</relativePath>
     </parent>
 
     <properties>
@@ -79,9 +79,6 @@
         </profile>
         <profile>
             <id>sakai2.5</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <modules>
                 <module>api</module>
                 <module>impl</module>
@@ -91,6 +88,9 @@
         </profile>
         <profile>
             <id>sakai2.6</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <modules>
                 <module>api</module>
                 <module>impl</module>
