@@ -26,42 +26,6 @@
 
     <profiles>
         <profile>
-            <id>full</id>
-            <dependencies>
-                <!-- Sakai dependencies -->
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-authz-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-content-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-entity-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-site-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-tool-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-util-api</artifactId>
-                </dependency>
-                <!-- Sakai util -->
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-util</artifactId>
-                    <version>${sakai.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
             <id>sakai2.5</id>
             <dependencies>
                 <!-- Sakai dependencies -->
