@@ -277,6 +277,7 @@ public class ControlEvaluationsProducer implements ViewComponentProducer {
          for (int i = 0; i < activeEvals.size(); i++) {
             EvalEvaluation evaluation = (EvalEvaluation) activeEvals.get(i);
 
+            System.out.println("Process Evaluation ["+evaluation.getTitle()+":"+viewResultsIgnoreDate+"]");
             UIBranchContainer evaluationRow = UIBranchContainer.make(evalListing, "active-eval-row:", evaluation.getId().toString());
 
             UIInternalLink evalTitleLink = UIInternalLink.make(evaluationRow, "active-eval-link", evaluation.getTitle(), 
@@ -323,17 +324,18 @@ public class ControlEvaluationsProducer implements ViewComponentProducer {
             if(viewResultsIgnoreDate) {
             	
               	UIOutput.make(evaluationRow, "active-eval-view-report-node");
-                	
+              	
                	if (responsesNeeded == 0) {                    
                    
-                    UIInternalLink.make(evaluationRow, "activeEvalViewReportLink", UIMessage.make("controlevaluations.active.report.title"), new ReportParameters(
+                    UIInternalLink.make(evaluationRow, "activeEvalViewReportLink", 
+                    		UIMessage.make("controlevaluations.active.report.title"), new ReportParameters(
                    		ReportChooseGroupsProducer.VIEW_ID, evaluation.getId()));
+                    
                 } else {
                     
                     UIMessage.make(evaluationRow, "active-eval-view-report-item", 
-                    		UIMessage.make(
-                    				"controlevaluations.eval.report.awaiting.responses", 
-                    				new Object[] { responsesNeeded }).getValue());
+                    		"controlevaluations.eval.report.awaiting.responses",
+                    		new Object[] { responsesNeeded }); 
                 }
             }
 
