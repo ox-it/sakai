@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -144,6 +144,9 @@ function showConfirm(name)
 	var el = document.getElementById(name);
 	if (el.style.display == "none")
 	{
+		el.setAttribute("aria-hidden", "false");
+		el.tabIndex = -1
+
 		el.style.left = ((document.body.scrollWidth / 2) - (parseInt(el.style.width) / 2)) + "px";
 		el.style.top = (-1 * (parseInt(el.style.height) + 10)) + "px";
 		if (parent)
@@ -170,6 +173,8 @@ function showConfirm(name)
 	{
 		el.style.top = "0px";
 	}
+	
+	el.focus();
 }
 
 var confirmedAction="";
@@ -180,6 +185,9 @@ function hideConfirm(name, action)
 {
 	if (action != "") confirmedAction = action;
 	var el = document.getElementById(name);
+	
+	el.setAttribute("aria-hidden", "true");
+	el.tabIndex = 0;
 
 	if (parseInt(el.style.top) > (-1 * (parseInt(el.style.height))))
 	{

@@ -444,7 +444,7 @@ public class UiInterface extends UiContainer implements Interface
 
 		// wrap up in a form - back to the current destination
 		String href = (String) context.get("sakai.destination.url");
-		response.println("<div class=\"ambrosiaInterface\">");
+		response.println("<div class=\"ambrosiaInterface\" aria-live=\"assertive\">");
 
 		// enable the following line for our excessive height fix
 		// response.println("<div id=\"ambrosiaInterfaceScroll\" class=\"ambrosiaInterfaceScroll\">");
