@@ -11,7 +11,7 @@
 	<modules>
 		<module>api</module>
 		<module>hbm</module>
-		<!--<module>help</module>-->
+		<module>help</module>
 		<module>impl</module>
 		<module>pack</module>
 		<module>tool</module>
