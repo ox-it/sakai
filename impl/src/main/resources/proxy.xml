@@ -5,6 +5,5 @@
 	<bean id="uk.ac.ox.oucs.vle.ProxyService"
 			class="uk.ac.ox.oucs.vle.ProxyServiceImpl"
 			init-method="init">
-		<property name="configService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 </beans>

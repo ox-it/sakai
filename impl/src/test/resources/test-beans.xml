@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springkernel.org/dtd/spring-beans.dtd">
-
-<beans>
-	<bean id="org.sakaiproject.component.api.ServerConfigurationService"
-		class="uk.ac.ox.oucs.vle.MockServerConfigurationService">
-		<property name="serverUrl" value="http://localhost/"/>
-	</bean>
-</beans>

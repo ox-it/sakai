@@ -11,7 +11,6 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.api.ServerConfigurationService;
 
 public class ProxyServiceImpl implements ProxyService {
 
@@ -25,8 +24,6 @@ public class ProxyServiceImpl implements ProxyService {
 
 	private String servletPrefix = "/proxy/";
 
-	private ServerConfigurationService configService;
-
 	public void setSecret(String secret) {
 		this.secret = secret;
 	}
@@ -39,10 +36,6 @@ public class ProxyServiceImpl implements ProxyService {
 		this.servletPrefix = servletPrefix;
 	}
 
-	public void setConfigService(ServerConfigurationService configService) {
-		this.configService = configService;
-	}
-	
 	public void init() {
 		if (secret == null || secret.length() == 0) {
 			log.warn("No secret supplied, autogenerating one, this may not work across a cluster.");
@@ -59,9 +52,8 @@ public class ProxyServiceImpl implements ProxyService {
 			String signature = getSignature(url);
 			if (signature != null) {
 				try {
-					StringBuilder proxyUrl = new StringBuilder(
-							configService.getServerUrl());
-					proxyUrl.append(servletPrefix);
+					// We don't include the hostname and protocol so it matches the containing page.
+					StringBuilder proxyUrl = new StringBuilder(servletPrefix);
 					proxyUrl.append("?");
 					proxyUrl.append("url=");
 

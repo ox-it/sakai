@@ -20,8 +20,7 @@ public class IntegrationProxyServiceTest extends AbstractDependencyInjectionSpri
 
 	protected String[] getConfigLocations() {
 		return new String[] {
-				"classpath:proxy.xml",
-				"classpath:test-beans.xml"
+				"classpath:proxy.xml"
 		};
 	}
 	

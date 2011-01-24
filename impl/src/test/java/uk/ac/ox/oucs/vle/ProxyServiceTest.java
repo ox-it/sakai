@@ -7,10 +7,7 @@ public class ProxyServiceTest extends TestCase {
 	private ProxyServiceImpl proxyService;
 	
 	public void setUp() {
-		MockServerConfigurationService configService = new MockServerConfigurationService();
-		configService.setServerUrl("http://myserver/");
 		proxyService = new ProxyServiceImpl();
-		proxyService.setConfigService(configService);
 		proxyService.setSecret("mysecret");
 		proxyService.init();
 	}
@@ -35,7 +32,7 @@ public class ProxyServiceTest extends TestCase {
 	
 	public void testProxyUrl() {
 		assertEquals(
-				"http://myserver//proxy/?url=http%3A%2F%2Fnews.bbc.co.uk&sig=Gctj_bZkGYAKG2fnw3z-OmM0UWE",
+				"/proxy/?url=http%3A%2F%2Fnews.bbc.co.uk&sig=Gctj_bZkGYAKG2fnw3z-OmM0UWE",
 				proxyService.getProxyURL("http://news.bbc.co.uk")
 				);
 	}

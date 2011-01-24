@@ -10,6 +10,10 @@ public interface ProxyService {
 
 	/**
 	 * Gets the proxy URL for the supplied URL.
+	 * The returned URL doesn't include the protocol or hostname so it can be put be
+	 * embedded in a page be it over http or https.
+	 * If you want a full URL use {@link org.sakaiproject.component.api.ServerConfigurationService#getServerUrl()}
+	 * with and append the result of this method.
 	 * This method should <bold>never</bold> be directly exposed over the web.
 	 * @param url The URL of some content on another site, it should already be URL encoded if it needs it,
 	 * for example spaces should already be encoded as %20. 
