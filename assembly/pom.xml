@@ -17,18 +17,21 @@
       <artifactId>proxy-api</artifactId>
       <type>jar</type>
       <version>${project.version}</version>
+      <scope>runtime</scope>
     </dependency>
    <dependency>
       <groupId>uk.ac.ox.oucs</groupId>
       <artifactId>proxy-pack</artifactId>
       <type>sakai-component</type>
       <version>${project.version}</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>uk.ac.ox.oucs</groupId>
       <artifactId>proxy</artifactId>
       <type>war</type>
       <version>${project.version}</version>
+      <scope>runtime</scope>
     </dependency>
   </dependencies>
   <build>
