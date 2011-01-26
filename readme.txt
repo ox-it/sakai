@@ -5,7 +5,7 @@ This is done by signing the URL, this is to allow content from outside the deplo
 
 This project has support for the maven release plugin. Todo a release first prepare the release:
 
-mvn release:prepare -DautoVersionSubmodules=true
+mvn release:prepare
 
 then if everything looks ok, perform the release:
 
