@@ -38,6 +38,7 @@ import org.sakaiproject.evaluation.logic.exceptions.InvalidDatesException;
 import org.sakaiproject.evaluation.logic.exceptions.InvalidEvalCategoryException;
 import org.sakaiproject.evaluation.logic.externals.ExternalHierarchyLogic;
 import org.sakaiproject.evaluation.logic.model.EvalHierarchyNode;
+import org.sakaiproject.evaluation.logic.model.EvalUser;
 import org.sakaiproject.evaluation.model.EvalAssignGroup;
 import org.sakaiproject.evaluation.model.EvalAssignHierarchy;
 import org.sakaiproject.evaluation.model.EvalAssignUser;
@@ -454,9 +455,15 @@ public class SetupEvalBean {
 			}
 		
 			for (String userId : userIdsForEvalGroup) {
-				// temporary fix for WL-1431
-				//if(commonLogic.isUserAnonymous(userId)) {
-				if(commonLogic.isUserAnonymousForSetupEvalBean(userId)) {
+				
+				//WL-1431 ignore invalid users
+                if(EvalUser.USER_TYPE_INVALID.equals(
+                		commonLogic.getEvalUsersByIds(
+                				new String[] {userId}).get(0).type)) {
+                    continue;
+                }
+                
+				if(commonLogic.isUserAnonymous(userId)) {
 					messages.addMessage(new TargettedMessage(
 							"assigneval.invalid.user", new Object[] {userId},
 							TargettedMessage.SEVERITY_ERROR));
