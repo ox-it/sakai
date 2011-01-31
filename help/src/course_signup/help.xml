@@ -3,13 +3,13 @@
 
 <beans>
 
-   <!-- Doesn't exist yet -->
+   <!-- Doesn't exist yet 
    <bean id="courseSignupOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>signup_ov</value></property>
       <property name="name"><value>Sign-up Overview</value></property>
       <property name="location"><value>/course_signup/signup_ov.html</value></property>
-      <property name="defaultForTool"><value>sakai.signup</value></property>
-   </bean>
+      <property name="defaultForTool"><value>course.signup</value></property>
+   </bean>-->
    
    <bean id="courseSignupBrowsing" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>ses_browsing</value></property>
@@ -93,10 +93,12 @@
       <property name="categories">
          <list>
             <bean id="courseSignupCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
-               <property name="name"><value>Student Enrollment Service</value></property>
+               <property name="name"><value>Student Enrollment System (SES)</value></property>
                <property name="resources">
                   <list>
+            <!-- Isn't written yet
 			<ref bean="courseSignupOverview"/>
+            -->
 			<ref bean="courseSignupBrowsing"/>
 			<ref bean="courseSignupModule"/>
 			<ref bean="courseSignupModuleFull"/>
@@ -106,8 +108,10 @@
 			<ref bean="courseSignupAdminApproving"/>
 			<ref bean="courseSignupAdminRejecting"/>
 			<ref bean="courseSignupAdminWithdrawing"/>
+            <!-- These aren't written yet.
 			<ref bean="courseSignupAdminUploading"/>
 			<ref bean="courseSignupAdminViewing"/>
+            -->
                   </list>
                </property>
             </bean>
