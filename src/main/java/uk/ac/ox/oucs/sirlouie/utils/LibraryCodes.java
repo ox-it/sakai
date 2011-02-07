@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.sirlouie;
+package uk.ac.ox.oucs.sirlouie.utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;

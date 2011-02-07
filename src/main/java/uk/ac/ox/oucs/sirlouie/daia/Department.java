@@ -1,9 +1,9 @@
 package uk.ac.ox.oucs.sirlouie.daia;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import uk.ac.ox.oucs.sirlouie.LibraryCodes;
+import uk.ac.ox.oucs.sirlouie.utils.LibraryCodes;
 
 public class Department {
 
@@ -20,16 +20,16 @@ public class Department {
 	}
 	
 
-	public Map<String, Object> toJSON() {
+	public JSONObject toJSON() throws JSONException {
 		
-		Map <String, Object> data = new LinkedHashMap<String, Object>();
+		JSONObject json = new JSONObject();
 		if (null != id) {
-			data.put("id", id);
+			json.put("id", id);
 		}
 		if (null != codes.get(id)) {
-			data.put("content", codes.get(id));
+			json.put("content", codes.get(id));
 		}
 
-		return data;
+		return json;
 	}
 }

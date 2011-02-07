@@ -2,9 +2,11 @@ package uk.ac.ox.oucs.sirlouie.daia;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import uk.ac.ox.oucs.sirlouie.reply.SearError;
 import uk.ac.ox.oucs.sirlouie.reply.SearLibrary;
@@ -27,33 +29,6 @@ public class Document {
 		this.href = href;
 	}
 	
-	/*
-	public Document(String id, Collection<SearObject> beans) {
-		this.id = id;
-		if (!beans.isEmpty()) {
-			this.href = beans.iterator().next().getURL();
-		}
-		
-		for (SearObject bean : beans) {
-			
-			if (bean instanceof SearLibrary) {
-				SearLibrary library = (SearLibrary)bean;
-				Item item = new Item();
-				item.setStorage(library.getCollection());
-				item.setDepartment(new Department(library.getLibrary()));
-				items.add(item);
-			}
-			
-			if (bean instanceof SearError) {
-				SearError serror = (SearError)bean;
-				Message error = new Message(null, serror.getMessage(), Integer.toString(serror.getCode()));
-				errors.add(error);
-			}
-		}
-		
-	}
-	*/
-	
 	public void addItems(Collection<SearObject> beans) {
 		
 		if (null == this.href && !beans.isEmpty()) {
@@ -65,8 +40,13 @@ public class Document {
 			if (bean instanceof SearLibrary) {
 				SearLibrary library = (SearLibrary)bean;
 				Item item = new Item();
+				item.setId(library.getId());
+				item.setHref(library.getURL());
+				item.setLabel(library.getLabel());
 				item.setStorage(library.getCollection());
-				item.setDepartment(new Department(library.getLibrary()));
+				if (null != library.getLibrary()) {
+					item.setDepartment(new Department(library.getLibrary()));
+				}
 				items.add(item);
 			}
 			
@@ -118,25 +98,25 @@ public class Document {
 	 *	]
 	 */
 
-	public Map<String, Object> toJSON() {
+	public JSONObject toJSON() throws JSONException {
 		
-		Map <String, Object> data = new LinkedHashMap<String, Object>();
-		data.put("id", id);
-		data.put("href", href);
+		JSONObject json = new JSONObject();
+		json.put("id", id);
+		json.put("href", href);
 		
-		List<Map<String, Object>> itemList = new ArrayList<Map<String, Object>>();
+		JSONArray itemList = new JSONArray();
 		for (Item item: items) {
-			itemList.add(item.toJSON());
+			itemList.put(item.toJSON());
 		}
 		
-		if (!itemList.isEmpty()) {
-			data.put("item", itemList);
+		if (itemList.length() != 0) {
+			json.put("item", itemList);
 		}
 		
 		for (Message error: errors) {
-			data.put("error", error.toJSON());
+			json.put("error", error.toJSON());
 		}
 		
-		return data;
+		return json;
 	}
 }

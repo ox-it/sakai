@@ -3,11 +3,12 @@ package uk.ac.ox.oucs.sirlouie.daia;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import uk.ac.ox.oucs.sirlouie.reply.SearObject;
 
@@ -32,10 +33,6 @@ public class ResponseBean {
 		Document document = new Document(id, null);
 		document.addItems(beans);
 		addDocument(document);
-		//if (!beans.isEmpty()) {
-		//	addDocument(new Document(id, beans));
-		//}
-		
 	}
 	
 	public void addDocument(Document document) {
@@ -81,41 +78,39 @@ public class ResponseBean {
 	 *	}
 	 */
 	
-	public Map <String, Object> toJSON() {
+	public JSONObject toJSON() throws JSONException {
 		return toJSON(null);
 	}
 	
-	public Map <String, Object> toJSON( String xsDateTime) {
+	public JSONObject toJSON( String xsDateTime) throws JSONException {
 		
-		Map <String, Object> jsonData = new LinkedHashMap<String, Object>();
-		jsonData.put("version", "0.5");
-		jsonData.put("schema", "http://ws.gbv.de/daia/");
+		JSONObject json = new JSONObject();
+		json.put("version", "0.5");
+		json.put("schema", "http://ws.gbv.de/daia/");
 		
 		if (null == xsDateTime) {
 			xsDateTime = DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.format(new Date());
 		}
-		jsonData.put("timestamp", xsDateTime);
+		json.put("timestamp", xsDateTime);
 		
-		Map <String, String> institutionData = new LinkedHashMap<String, String>();
+		JSONObject institutionData = new JSONObject();
 		institutionData.put("content", "University of Oxford");
 		institutionData.put("href", "http://www.ox.ac.uk");
-		jsonData.put("institution", institutionData);
+		json.put("institution", institutionData);
 		
-		List<Map<String, Object>> documentList = new ArrayList<Map<String, Object>>();
-		
+		JSONArray documentList = new JSONArray();
 		for (Document document: documents) {
-			documentList.add(document.toJSON());
+			documentList.put(document.toJSON());
 		}
 		
-		if (!documentList.isEmpty()) {
-			jsonData.put("document", documentList);
+		if (documentList.length() != 0) {
+			json.put("document", documentList);
 		}
 		
 		if (null != error) {
-			jsonData.put("error", error);
+			json.put("error", error);
 		}
 
-		return jsonData;
+		return json;
 	}
-	
 }

@@ -1,7 +1,7 @@
 package uk.ac.ox.oucs.sirlouie.daia;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Message {
 
@@ -19,18 +19,18 @@ public class Message {
 	}
 	
 
-	public Map<String, Object> toJSON() {
+	public JSONObject toJSON() throws JSONException {
 		
-		Map <String, Object> data = new LinkedHashMap<String, Object>();
+		JSONObject json = new JSONObject();
 		if (null != lang) {
-			data.put("lang", lang);
+			json.put("lang", lang);
 		}
 		if (null != content) {
-			data.put("content", content);
+			json.put("content", content);
 		}
 		if (null != errno) {
-			data.put("errno", errno);
+			json.put("errno", errno);
 		}
-		return data;
+		return json;
 	}
 }

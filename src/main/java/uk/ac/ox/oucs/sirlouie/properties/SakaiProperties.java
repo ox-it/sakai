@@ -1,10 +1,5 @@
 package uk.ac.ox.oucs.sirlouie.properties;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
@@ -12,6 +7,10 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 
 public class SakaiProperties extends SirLouieProperties {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public final static String CONFIG_LOCATION = "sirlouie.properties";
 	public final static String WEBRESOURCE_URL = "sirlouie.webresourceURL";
 	

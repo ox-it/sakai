@@ -1,19 +1,17 @@
 package uk.ac.ox.oucs.sirlouie;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.codehaus.jackson.map.ObjectMapper;
-
-import uk.ac.ox.oucs.sirlouie.daia.ResponseBean;
-import uk.ac.ox.oucs.sirlouie.reply.SearLibrary;
-import uk.ac.ox.oucs.sirlouie.reply.SearObject;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
+import org.json.JSONObject;
+
+import uk.ac.ox.oucs.sirlouie.daia.ResponseBean;
+import uk.ac.ox.oucs.sirlouie.primo.PrimoService;
+import uk.ac.ox.oucs.sirlouie.reply.SearObject;
 
 public class PrimoServiceTest extends TestCase {
 	
@@ -289,6 +287,7 @@ public class PrimoServiceTest extends TestCase {
 		+"\"item\":["
 		+"{\"href\":\"http://ora.ouls.ox.ac.uk/objects/uuid:debe641a-17ca-4196-ab2c-fe7565ced721\"}]}]}";
 
+	
 	private String OLIS_JSON = "{\"version\":\"0.5\",\"schema\":\"http://ws.gbv.de/daia/\","
 		+"\"timestamp\":\"2009-06-09T15:39:52.831+02:00\","
 		+"\"institution\":{\"content\":\"University of Oxford\","
@@ -300,7 +299,20 @@ public class PrimoServiceTest extends TestCase {
 		+"\"storage\":{\"content\":\"Main Libr\"}},"
 		+"{\"department\":{\"id\":\"BLL\",\"content\":\"Balliol College Library\"},"
 		+"\"storage\":{\"content\":\"Main Libr\"}}]}]}";
-
+	
+	/*
+	private String OLIS_JSON = "{\"version\":\"0.5\",\"schema\":\"http://ws.gbv.de/daia/\","
+		+"\"timestamp\":\"2009-06-09T15:39:52.831+02:00\","
+		+"\"institution\":{\"content\":\"University of Oxford\","
+		+"\"href\":\"http://www.ox.ac.uk\"},"
+		+"\"document\":[{\"id\":\"UkOxUUkOxUb15585873\","
+		+"\"href\":\"http://library.ox.ac.uk/cgi-bin/record_display_link.pl?id=15585873\","
+		+"\"item\":["
+		+"{\"department\":{\"id\":\"RSL\",\"content\":\"Radcliffe Science Library\"},"
+		+"\"storage\":{\"content\":\"Level 2\"}},"
+		+"{\"department\":{\"id\":\"STX\",\"content\":\"St Cross College Library\"},"
+		+"\"storage\":{\"content\":\"Main Libr\"}}]}]}";
+	*/
 	protected void setUp() throws Exception {
 		super.setUp();
 		service = new PrimoService(WEBRESOURCE_URL);
@@ -348,7 +360,6 @@ public class PrimoServiceTest extends TestCase {
 			e.printStackTrace();
 			Assert.fail("Exception caught ["+e.getLocalizedMessage()+"]");
 		}
-		
 	}
 	*/
 	
@@ -402,7 +413,7 @@ public class PrimoServiceTest extends TestCase {
 			Assert.fail("Exception caught ["+e.getLocalizedMessage()+"]");
 		}
 	}
-	
+/*
 	public void testOLISToJSON() {
 		try {
 			String id = "UkOxUUkOxUb15585873";
@@ -422,7 +433,7 @@ public class PrimoServiceTest extends TestCase {
 			Assert.fail("Exception caught ["+e.getLocalizedMessage()+"]");
 		}
 	}
-
+*/
 	public void testORAoJSON() {
 		try {
 			String id = "ORAdebe641a-17ca-4196-ab2c-fe7565ced721";
@@ -430,11 +441,8 @@ public class PrimoServiceTest extends TestCase {
 		    Collection<SearObject> beans = PrimoService.filterResponse(nameSpaceURI, ORA_XML);
 			responseBean.addSearObjects(beans);
 			
-			Map<String, Object> jsonData = responseBean.toJSON("2009-06-09T15:39:52.831+02:00");
-			ObjectMapper mapper = new ObjectMapper();
-			//mapper.writeValue(new File("response.json"), jsonData);
-			
-			Assert.assertEquals(ORA_JSON, mapper.writeValueAsString(jsonData));
+			JSONObject json = responseBean.toJSON("2009-06-09T15:39:52.831+02:00");
+			Assert.assertEquals(ORA_JSON.length(), json.toString().length());
 		
 		} catch (Exception e) {
 			System.out.println("Exception caught ["+e.getLocalizedMessage()+"]");

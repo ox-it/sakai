@@ -1,9 +1,10 @@
 package uk.ac.ox.oucs.sirlouie.daia;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class Available {
@@ -37,25 +38,25 @@ public class Available {
 		this.limitation=limitation;
 	}
 	
-	public Map<String, Object> toJSON() {
+	public JSONObject toJSON() throws JSONException {
 		
-		Map <String, Object> data = new LinkedHashMap<String, Object>();
+		JSONObject json = new JSONObject();
 		if (null != service) {
-			data.put("service", service);
+			json.put("service", service);
 		}
 		if (null != href) {
-			data.put("href", href);
+			json.put("href", href);
 		}
 		if (null != delay) {
-			data.put("delay", delay);
+			json.put("delay", delay);
 		}
 		for (Message message : messages) {
-			data.put("message", message.toJSON());
+			json.put("message", message.toJSON());
 		}
 		if (null != limitation) {
-			data.put("limitation", limitation);
+			json.put("limitation", limitation);
 		}
-		return data;
+		return json;
 	}
 
 }

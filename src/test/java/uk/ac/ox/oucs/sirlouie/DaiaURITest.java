@@ -1,21 +1,12 @@
 package uk.ac.ox.oucs.sirlouie;
 
-import java.net.URI;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 
-import uk.ac.ox.oucs.sirlouie.daia.ResponseBean;
-import uk.ac.ox.oucs.sirlouie.reply.SearLibrary;
-import uk.ac.ox.oucs.sirlouie.reply.SearObject;
+import uk.ac.ox.oucs.sirlouie.utils.DaiaURI;
 
 public class DaiaURITest extends TestCase {
 	

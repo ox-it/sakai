@@ -1,9 +1,10 @@
 package uk.ac.ox.oucs.sirlouie.daia;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class UnAvailable {
@@ -42,28 +43,28 @@ public class UnAvailable {
 		this.queue=queue;
 	}
 	
-	public Map<String, Object> toJSON() {
+	public JSONObject toJSON() throws JSONException {
 		
-		Map <String, Object> data = new LinkedHashMap<String, Object>();
+		JSONObject json = new JSONObject();
 		if (null != service) {
-			data.put("service", service);
+			json.put("service", service);
 		}
 		if (null != href) {
-			data.put("href", href);
+			json.put("href", href);
 		}
 		if (null != expected) {
-			data.put("expected", expected);
+			json.put("expected", expected);
 		}
 		for (Message message : messages) {
-			data.put("message", message.toJSON());
+			json.put("message", message.toJSON());
 		}
 		if (null != limitation) {
-			data.put("limitation", limitation);
+			json.put("limitation", limitation);
 		}
 		if (null != queue) {
-			data.put("queue", queue);
+			json.put("queue", queue);
 		}
-		return data;
+		return json;
 	}
 
 }

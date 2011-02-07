@@ -7,6 +7,11 @@ import javax.servlet.ServletException;
 
 public class ContextProperties extends SirLouieProperties {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public ContextProperties(ServletContext context) throws ServletException {
 		
 		super();

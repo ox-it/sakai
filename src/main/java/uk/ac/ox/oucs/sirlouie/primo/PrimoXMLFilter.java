@@ -1,8 +1,10 @@
-package uk.ac.ox.oucs.sirlouie;
+package uk.ac.ox.oucs.sirlouie.primo;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.XMLFilterImpl;
@@ -18,7 +20,6 @@ public class PrimoXMLFilter extends XMLFilterImpl {
 	private String tempVal;
 	
 	private SearLibrary searLibrary;
-	private SearLink searLink;
 	
 	private Collection<SearObject> beans = new ArrayList<SearObject>();
 	
@@ -55,7 +56,7 @@ public class PrimoXMLFilter extends XMLFilterImpl {
 	public void startElement(String uri, String localName, String qName, Attributes atts) 
 	throws SAXException {
 		
-		//System.out.println("PrimoXMLFilter.startElement ["+uri+":"+localName+"]");
+		//log.debug("startElement ["+uri+":"+localName+"]");
 		
 		tempVal="";
 		
@@ -80,7 +81,7 @@ public class PrimoXMLFilter extends XMLFilterImpl {
 	public void endElement(String uri, String localName, String qName) 
 	throws SAXException {
 		
-		//System.out.println("PrimoXMLFilter.endElement  ["+qName+":"+localName+"]");
+		//log.debug("endElement ["+qName+":"+localName+"]");
 		
 		if (uri.equals(nameSpaceURI) && localName.equals("ERROR")) {
 			//throw new SAXException(searError.getMessage());

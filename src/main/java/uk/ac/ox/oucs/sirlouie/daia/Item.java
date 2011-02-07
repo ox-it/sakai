@@ -1,9 +1,10 @@
 package uk.ac.ox.oucs.sirlouie.daia;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class Item {
@@ -57,40 +58,40 @@ public class Item {
 		this.href=href;
 	}
 
-	public Map<String, Object> toJSON() {
+	public JSONObject toJSON() throws JSONException {
 		
-		Map <String, Object> data = new LinkedHashMap<String, Object>();
+		JSONObject json = new JSONObject();
 		if (null != id) {
-			data.put("id", id);
+			json.put("id", id);
 		}
 		if (null != href) {
-			data.put("href", href);
+			json.put("href", href);
 		}
 		for (Message message : messages) {
-			data.put("message", message.toJSON());
+			json.put("message", message.toJSON());
 		}
 		if (null != department) {
-			data.put("department", department.toJSON());
+			json.put("department", department.toJSON());
 		}
 		if (null != label) {
-			data.put("label", label);
+			json.put("label", label);
 		}
 		for (Available service : availableServices) {
-			data.put("available", service.toJSON());
+			json.put("available", service.toJSON());
 		}
 		for (UnAvailable service : unAvailableServices) {
-			data.put("unavailable", service.toJSON());
+			json.put("unavailable", service.toJSON());
 		}
 		if (null != storage) {
-			Map <String, Object> storageData = new LinkedHashMap<String, Object>();
+			JSONObject storageData = new JSONObject();
 			storageData.put("content", storage);
-			data.put("storage", storageData);
+			json.put("storage", storageData);
 		}
 		if (null != limitation) {
-			Map <String, Object> limitationData = new LinkedHashMap<String, Object>();
+			JSONObject limitationData = new JSONObject();
 			limitationData.put("content", limitation);
-			data.put("limitation", limitationData);
+			json.put("limitation", limitationData);
 		}
-		return data;
+		return json;
 	}
 }
