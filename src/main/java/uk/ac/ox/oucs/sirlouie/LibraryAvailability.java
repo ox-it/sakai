@@ -51,16 +51,12 @@ public class LibraryAvailability {
 	@Produces({"application/x-javascript", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 	public Response get( 
 			@QueryParam("id") String id, 
-			@QueryParam("format") String format,
+			@QueryParam("format") @DefaultValue("json") String format,
 			@QueryParam("callback") @DefaultValue("callback") String callback) {
 		
 		log.debug(id+":"+format+":"+callback);
 		
 		try {
-		
-			if (null == format) {
-				throw new Exception("Response format not specified");
-			}
 			
 			PrimoService service = new PrimoService(getProperties().getWebResourseURL());
 			DaiaURI uri = new DaiaURI(id);

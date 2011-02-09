@@ -46,16 +46,12 @@ public class EiasAvailability {
 	@Produces({"application/x-javascript", MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 	public Response/*String*/ get( 
 			@QueryParam("id") String openurl, 
-			@QueryParam("format") String format,
+			@QueryParam("format") @DefaultValue("json") String format,
 			@QueryParam("callback") @DefaultValue("callback") String callback) {
 		
 		log.debug(openurl+":"+format+":"+callback);
 		
 		try {
-			
-			if (null == format) {
-				throw new Exception("Response format not specified");
-			}
 			
 			SFXService service = new SFXService(openurl);
 			OpenURI uri = new OpenURI(URLEncoder.encode(openurl, "UTF-8"));

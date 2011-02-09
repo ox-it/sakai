@@ -9,9 +9,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.XMLFilterImpl;
 
-import uk.ac.ox.oucs.sirlouie.daia.Department;
-import uk.ac.ox.oucs.sirlouie.daia.Item;
-import uk.ac.ox.oucs.sirlouie.daia.Message;
 import uk.ac.ox.oucs.sirlouie.reply.SearError;
 import uk.ac.ox.oucs.sirlouie.reply.SearLibrary;
 import uk.ac.ox.oucs.sirlouie.reply.SearLink;
