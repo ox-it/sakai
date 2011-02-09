@@ -49,4 +49,19 @@
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
+	<profiles>
+		<profile>
+			<activation>
+				<jdk>(,1.6)</jdk><!-- Before JDK 1.6 -->
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>com.sun.xml.stream</groupId>
+					<artifactId>sjsxp</artifactId>
+					<version>1.0.1</version>
+					<scope>compile</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 </project>

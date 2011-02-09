@@ -31,12 +31,17 @@ public class ProxyServlet extends HttpServlet{
 	
 	private ProxyService proxyService;
 	
+	private FilterFactory filterFactory;
+	
 	private String[] propogatedResponseHeaders = {"Expires", "Content-Type", "Cache-Control", "Content-Length"};
+	// When we are filtering the response we don't want the content length.
+	private String[] filteredResponseHeaders = {"Expires", "Content-Type", "Cache-Control"};
 	private String[] propogatedRequestHeaders = {"Accept", "Accept-Charset", "Cache-Control"};
 	private int lengthLimit = 5 * 1024 * 1024; // 5 MB
 	
 	public void init() {
 		proxyService = (ProxyService) ComponentManager.get(ProxyService.class.getName());
+		filterFactory = FilterFactory.newInstance();
 	}
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -80,16 +85,25 @@ public class ProxyServlet extends HttpServlet{
 			if (length > lengthLimit) {
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "We only proxy request up to "+ lengthLimit+ " bytes");
 			} else {
+				// Wrap up any filters.
+				String[] filters = request.getParameterValues("filter");
+				InputStream original = in = connection.getInputStream();
+				if (filters != null) { 
+					for (String filter: filters) {
+						in = filterFactory.getFilter(in, filter);
+					}
+				}
+				boolean filtered = !original.equals(in);
 				response.setStatus(connection.getResponseCode());
 				Map<String, List<String>> respHeaders = connection.getHeaderFields();
-				for(String header: propogatedResponseHeaders) {
+				for(String header: (filtered)?filteredResponseHeaders:propogatedResponseHeaders) {
 					List<String> values = respHeaders.get(header);
 					if (values != null) {
 						String value = join(values, ", "); // Multiple values are seperated by commas
 						response.setHeader(header, value);
 					}
 				}
-				in = connection.getInputStream();
+				
 				out = response.getOutputStream();
 				IOUtils.copy(in, out);
 			}
