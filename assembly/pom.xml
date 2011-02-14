@@ -4,11 +4,11 @@
   <parent>
     <artifactId>proxy-base</artifactId>
     <groupId>uk.ac.ox.oucs</groupId>
-    <version>1.3</version>
+    <version>1.4-SNAPSHOT</version>
   </parent>
   <groupId>uk.ac.ox.oucs</groupId>
   <artifactId>proxy-assembly</artifactId>
-  <version>1.3</version>
+  <version>1.4-SNAPSHOT</version>
   <name>Proxy Assembly</name>
   <packaging>pom</packaging>
   <dependencies>
