@@ -5,9 +5,9 @@ import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
@@ -16,10 +16,21 @@ import javax.imageio.stream.ImageInputStream;
 
 public class ImageResizeFilter extends ContentFilter {
 
-	private ByteArrayInputStream resized;
 
-	public ImageResizeFilter(InputStream in, int width, int height)
+	private InputStream in;
+	private OutputStream out;
+	private int width;
+	private int height;
+
+	public ImageResizeFilter(InputStream in, OutputStream out, int width, int height)
 			throws IOException {
+		this.in = in;
+		this.out = out;
+		this.width = width;
+		this.height = height;
+	}
+	
+	public void filter()  throws IOException {
 
 		// Don't use ImageIO.read() so we know what format we're dealing with.
 		ImageInputStream imageStream = ImageIO.createImageInputStream(in);
@@ -35,10 +46,7 @@ public class ImageResizeFilter extends ContentFilter {
 
 		BufferedImage buffer = getScaledInstance(image, width, height,
 				RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		ImageIO.write(buffer, format, output);
-
-		resized = new ByteArrayInputStream(output.toByteArray());
+		ImageIO.write(buffer, format, out);
 	}
 
 	/**
@@ -113,16 +121,6 @@ public class ImageResizeFilter extends ContentFilter {
 		} while (w != targetWidth || h != targetHeight);
 
 		return ret;
-	}
-
-	@Override
-	public int read() throws IOException {
-		return resized.read();
-	}
-
-	@Override
-	public int read(byte[] bytes, int offset, int len) {
-		return resized.read(bytes, offset, len);
 	}
 
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>uk.ac.ox.oucs</groupId>
@@ -51,8 +52,9 @@
 	</dependencies>
 	<profiles>
 		<profile>
+			<id>before-1.6</id>
 			<activation>
-				<jdk>(,1.6)</jdk><!-- Before JDK 1.6 -->
+				<jdk>1.5</jdk><!-- Before JDK 1.6 -->
 			</activation>
 			<dependencies>
 				<dependency>
@@ -61,7 +63,43 @@
 					<version>1.0.1</version>
 					<scope>compile</scope>
 				</dependency>
+				<dependency>
+					<groupId>org.codehaus.woodstox</groupId>
+					<artifactId>woodstox-core-asl</artifactId>
+					<version>4.1.1</version>
+				</dependency>
 			</dependencies>
+		</profile>
+		<profile>
+			<id>post-1.6</id>
+			<activation>
+				<jdk>1.6</jdk><!--Version ranges don't work in 2.0 -->
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.codehaus.woodstox</groupId>
+					<artifactId>woodstox-core-asl</artifactId>
+					<version>4.1.1</version>
+					<exclusions>
+						<exclusion>
+							<groupId>javax.xml.stream</groupId>
+							<artifactId>stax-api</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<!-- We do this so the eclipse:eclipse plugin sets the correct JRE -->
+						<configuration>
+							<source>1.6</source>
+							<target>1.6</target>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 	</profiles>
 </project>

@@ -85,27 +85,18 @@ public class ProxyServlet extends HttpServlet{
 			if (length > lengthLimit) {
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "We only proxy request up to "+ lengthLimit+ " bytes");
 			} else {
-				// Wrap up any filters.
-				String[] filters = request.getParameterValues("filter");
-				InputStream original = in = connection.getInputStream();
-				if (filters != null) { 
-					for (String filter: filters) {
-						in = filterFactory.getFilter(in, filter);
-					}
-				}
-				boolean filtered = !original.equals(in);
-				response.setStatus(connection.getResponseCode());
-				Map<String, List<String>> respHeaders = connection.getHeaderFields();
-				for(String header: (filtered)?filteredResponseHeaders:propogatedResponseHeaders) {
-					List<String> values = respHeaders.get(header);
-					if (values != null) {
-						String value = join(values, ", "); // Multiple values are seperated by commas
-						response.setHeader(header, value);
-					}
+				in = connection.getInputStream();
+				out = response.getOutputStream();
+				ContentFilter filter = filterFactory.getFilter(in, out, request.getParameter("filter"));
+				
+				if (filter != null) {
+					copyHeaders(response, connection, true);
+					filter.filter();
+				} else {
+					copyHeaders(response, connection, true);
+					IOUtils.copy(in, out);
 				}
 				
-				out = response.getOutputStream();
-				IOUtils.copy(in, out);
 			}
 			
 		} catch (IOException ioe) {
@@ -127,6 +118,19 @@ public class ProxyServlet extends HttpServlet{
 			}
 			if (connection != null) {
 				connection.disconnect();
+			}
+		}
+	}
+
+	private void copyHeaders(HttpServletResponse response,
+			HttpURLConnection connection, boolean filtered) throws IOException {
+		response.setStatus(connection.getResponseCode());
+		Map<String, List<String>> respHeaders = connection.getHeaderFields();
+		for(String header: (filtered)?filteredResponseHeaders:propogatedResponseHeaders) {
+			List<String> values = respHeaders.get(header);
+			if (values != null) {
+				String value = join(values, ", "); // Multiple values are seperated by commas
+				response.setHeader(header, value);
 			}
 		}
 	}

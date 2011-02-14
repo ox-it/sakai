@@ -2,6 +2,7 @@ package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,25 +29,25 @@ public class FilterFactory {
 		return new FilterFactory();
 	}
 	
-	public InputStream getFilter(InputStream in, String filter) throws IOException {
-		InputStream wrapped = in;
+	public ContentFilter getFilter(InputStream in, OutputStream out, String filter) throws IOException {
+		ContentFilter contentFilter = null;
 		if (filter != null) {
 			Matcher matcher = null;
 			matcher = rss.matcher(filter);
 			if (matcher.matches()) {
 				String width = matcher.group(1);
 				String height = matcher.group(2);
-				wrapped = new RSSProxyFilter(in, proxyService, width, height);
+				contentFilter = new RSSProxyFilter(in, out, proxyService, width, height);
 			} else {
 				matcher = image.matcher(filter);
 				if (matcher.matches()) {
 					int width = toInt(matcher.group(1));
 					int height = toInt(matcher.group(2));
-					wrapped = new ImageResizeFilter(in, width, height);
+					contentFilter = new ImageResizeFilter(in, out, width, height);
 				}
 			}
 		}
-		return wrapped;
+		return contentFilter;
 	}
 	
 	private int toInt(String str) {

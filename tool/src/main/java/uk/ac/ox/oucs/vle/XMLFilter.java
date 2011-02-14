@@ -1,93 +1,56 @@
 package uk.ac.ox.oucs.vle;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.XMLEvent;
 
-import org.apache.commons.io.input.NullInputStream;
+import org.codehaus.stax2.XMLInputFactory2;
+import org.codehaus.stax2.XMLOutputFactory2;
+import org.codehaus.stax2.XMLStreamReader2;
+import org.codehaus.stax2.XMLStreamWriter2;
 
+/**
+ * This is a fast XML filter which doesn't hold the whole XML document in memory.
+ * Woodstox is used as it allows simple copying of events from input to output without too much
+ * object creation.
+ * @author buckett
+ *
+ */
 public class XMLFilter extends ContentFilter {
-
-	private ByteArrayOutputStream out;
 	
-	private InputStream buffer;
+	// These are grabbed statically as getting them can be a little slow.
+	protected static XMLInputFactory inputFactory = XMLInputFactory2.newFactory("com.ctc.wstx.stax.WstxInputFactory", null);
+	protected static XMLOutputFactory outputFactory = XMLOutputFactory2.newFactory("com.ctc.wstx.stax.WstxOutputFactory", null);
 	
-	protected XMLEventReader xmlReader;
-	protected XMLEventWriter xmlWriter;
+	protected XMLStreamReader2 xmlReader;
+	protected XMLStreamWriter2 xmlWriter;
 
-	public XMLFilter(InputStream in) throws IOException {
-		this.out = new ByteArrayOutputStream();
-		this.buffer = new ByteArrayInputStream(new byte[0]);
+	public XMLFilter(InputStream in, OutputStream out) throws IOException {
 
 		try {
-			xmlReader = XMLInputFactory.newInstance().createXMLEventReader(in, "UTF-8");
-			xmlWriter = XMLOutputFactory.newInstance().createXMLEventWriter(out, "UTF-8");
+			xmlReader = (XMLStreamReader2) inputFactory.createXMLStreamReader(in);
+			xmlWriter = (XMLStreamWriter2) outputFactory.createXMLStreamWriter(out);
+			
 		} catch (XMLStreamException e) {
 			throw new IOException(e);
 		}
 	}
 
 	
-	public int readMore(int requested) throws IOException {
-
-		XMLEvent event;
+	public void filter() throws IOException {
 		try {
-			if (buffer.available() > 0 || buffer.read() >= 0) {
-				throw new IllegalStateException("Shouldn't readMore when data is still in the buffer.");
+			while (xmlReader.hasNext()) {
+				write();
+				xmlReader.next();
 			}
-			while (xmlReader.hasNext() && out.size() < requested) {
-				event = xmlReader.nextEvent();
-				write(event);
-				xmlWriter.flush(); // So the out holder is updated.
-			}
-			buffer = new ByteArrayInputStream(out.toByteArray());
-			int size = out.size();
-			out.reset();
-			return size;
+			xmlWriter.flush();
 		} catch (XMLStreamException e) {
 			throw new IOException(e);
 		}
-	}
-	
-	@Override
-	public int read() throws IOException {
-		int data = buffer.read();
-		if (data < 0) {
-			readMore(1);
-			data = buffer.read();
-		}
-		return data;
-	}
-	
-	@Override
-	public int read(byte[] b, int off, int len) throws IOException {
-		int totalRead = 0;
-
-		do {
-			int read = buffer.read(b, off+totalRead, len-totalRead);
-			if (read < 1) {
-				if (readMore(len-totalRead)> 0) {
-					continue;
-				} else {
-					if (totalRead == 0) {
-						totalRead = read;
-					}
-					break;
-				}
-			}
-			totalRead += read;
-		} while (totalRead < len); // Stop when we've read enough bytes.
-
-		return totalRead;
-
 	}
 	
 	/**
@@ -95,8 +58,8 @@ public class XMLFilter extends ContentFilter {
 	 * @param event
 	 * @throws XMLStreamException 
 	 */
-	public void write(XMLEvent event) throws XMLStreamException {
-		xmlWriter.add(event);
+	public void write() throws XMLStreamException {
+		xmlWriter.copyEventFromReader(xmlReader, false);
 	}
 }
 		

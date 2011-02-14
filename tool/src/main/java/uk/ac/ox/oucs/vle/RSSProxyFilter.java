@@ -2,68 +2,52 @@ package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
+import java.io.OutputStream;
+import java.util.Arrays;
 
-import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
 
 public class RSSProxyFilter extends XMLFilter {
 
-	private XMLEventFactory factory;
 	private ProxyService proxyService;
 	
 	private String newWidth;
 	private String newHeight;
+	
+	private String thumbnail = "thumbnail";
 
-	public RSSProxyFilter(InputStream in, ProxyService proxy, String width, String height) throws IOException {
-		super(in);
-		factory = XMLEventFactory.newInstance();
+	public RSSProxyFilter(InputStream in, OutputStream out, ProxyService proxy, String width, String height) throws IOException {
+		super(in,out);
 		this.proxyService = proxy;
 		this.newWidth = width;
 		this.newHeight = height;
 	}
 	
 	@Override
-	public void write(XMLEvent event) throws XMLStreamException {
-		if (event.isStartElement()) {
-			StartElement elementEvent = (StartElement)event;
-			if ("thumbnail".equals(elementEvent.getName().getLocalPart())) {
-				final Iterator<Attribute>origAttrs = elementEvent.getAttributes();
-				Iterator<Attribute> replAttrs = new Iterator<Attribute>() {
-					
-					public boolean hasNext() {
-						return origAttrs.hasNext();
-					}
-
-					public Attribute next() {
-						Attribute next = origAttrs.next();
-						String name = next.getName().getLocalPart();
+	public void write() throws XMLStreamException {
+		if (xmlReader.isStartElement()) {
+			
+			// Would be nice if there was a faster way to know if this was the matching element.
+			if (thumbnail.equals(xmlReader.getName().getLocalPart())) {				
+				xmlWriter.writeStartElement(xmlReader.getPrefix(), xmlReader.getLocalName(), null);
+				for (int i = 0; i < xmlReader.getAttributeCount(); i++) {
+						String name = xmlReader.getAttributeLocalName(i);
+						String value = xmlReader.getAttributeValue(i);
 						if ("url".equals(name)) {
-							return factory.createAttribute(next.getName(), proxyUrl(next.getValue()));
+							xmlWriter.writeAttribute(name, proxyUrl(value));
 						} else if ("height".equals(name)) {
-							return factory.createAttribute(next.getName(), height(next.getValue()));
+							xmlWriter.writeAttribute(name, height(value));
 						} else if ("width".equals(name)) {
-							return factory.createAttribute(next.getName(), width(next.getValue()));
+							xmlWriter.writeAttribute(name, width(value));
 						} else {
-							return next;
+							xmlWriter.writeAttribute(name, value);
 						}
 					}
-
-					public void remove() {
-						origAttrs.remove();
-						
-					}
-				};
-				StartElement replacement = factory.createStartElement(elementEvent.getName(), replAttrs, elementEvent.getNamespaces());
-				xmlWriter.add(replacement);
 			} else { 
-				xmlWriter.add(event);
+				super.write();
 			}
 		} else {
-			xmlWriter.add(event);
+			super.write();
 		}
 	}
 	

@@ -25,9 +25,9 @@ public class ImageResizeFilterTest extends TestCase {
 	public void testBadData() {
 		try {
 			CountingInputStream in = new CountingInputStream(ImageResizeFilterTest.class.getResourceAsStream("/random.jpg"));
-			ImageResizeFilter filter = new ImageResizeFilter(in, 10, 10);
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			IOUtils.copy(filter, out);
+			ImageResizeFilter filter = new ImageResizeFilter(in, out, 10, 10);
+			filter.filter();
 			fail("Should have thrown an error as it's not an image.");
 		} catch (IOException ioe) {
 			// Good.
@@ -36,9 +36,9 @@ public class ImageResizeFilterTest extends TestCase {
 
 	private void resizeResource(String resource) throws IOException {
 		CountingInputStream in = new CountingInputStream(ImageResizeFilterTest.class.getResourceAsStream(resource));
-		ImageResizeFilter filter = new ImageResizeFilter(in, 10, 10);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		IOUtils.copy(filter, out);
+		ImageResizeFilter filter = new ImageResizeFilter(in, out, 10, 10);
+		filter.filter();
 		assertTrue(in.getByteCount() > out.size());
 	}
 }

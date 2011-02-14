@@ -7,7 +7,6 @@ import java.io.OutputStream;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
 
 public class RSSProxyFilterTest extends TestCase {
@@ -18,19 +17,26 @@ public class RSSProxyFilterTest extends TestCase {
 		proxyService = new SimpleProxyService();
 	}
 
+	public void testProxyRSSNullOut() throws IOException {
+		InputStream source = RSSProxyFilterTest.class.getResourceAsStream("/podcastingnewsfeeds.xml");
+		OutputStream output = new NullOutputStream();
+		RSSProxyFilter proxy = new RSSProxyFilter(source, output, proxyService, "1", "1");
+		proxy.filter();
+	}
+	
 	public void testProxyRSS() throws IOException {
 		InputStream source = RSSProxyFilterTest.class.getResourceAsStream("/podcastingnewsfeeds.xml");
-		RSSProxyFilter proxy = new RSSProxyFilter(source, proxyService, "1", "1");
 		OutputStream output = new ByteArrayOutputStream();
-		IOUtils.copy(proxy, output);
+		RSSProxyFilter proxy = new RSSProxyFilter(source, output, proxyService, "1", "1");
+		proxy.filter();
 		String rss = output.toString();
 		assertTrue(rss.contains(proxyService.getProxyURL(null)));
 	}
 	
 	public void testLargeFile() throws IOException {
 		InputStream source = RSSProxyFilterTest.class.getResourceAsStream("/users-anon.xml");
-		RSSProxyFilter proxy = new RSSProxyFilter(source, proxyService, "1", "1");
 		OutputStream output = new NullOutputStream();
-		IOUtils.copy(proxy, output);
+		RSSProxyFilter proxy = new RSSProxyFilter(source, output, proxyService, "1", "1");
+		proxy.filter();
 	}
 }
