@@ -5,7 +5,7 @@
 	<artifactId>proxy-base</artifactId>
 	<packaging>pom</packaging>
 	<name>Proxy Base</name>
-	<version>1.3-SNAPSHOT</version>
+	<version>1.3</version>
 
 	<modules>
 		<module>api</module>
