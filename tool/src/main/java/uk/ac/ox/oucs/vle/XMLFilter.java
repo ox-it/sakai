@@ -8,8 +8,6 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 
-import org.codehaus.stax2.XMLInputFactory2;
-import org.codehaus.stax2.XMLOutputFactory2;
 import org.codehaus.stax2.XMLStreamReader2;
 import org.codehaus.stax2.XMLStreamWriter2;
 
@@ -23,8 +21,10 @@ import org.codehaus.stax2.XMLStreamWriter2;
 public class XMLFilter extends ContentFilter {
 	
 	// These are grabbed statically as getting them can be a little slow.
-	protected static XMLInputFactory inputFactory = XMLInputFactory2.newFactory("com.ctc.wstx.stax.WstxInputFactory", null);
-	protected static XMLOutputFactory outputFactory = XMLOutputFactory2.newFactory("com.ctc.wstx.stax.WstxOutputFactory", null);
+	// The newFactory methods only came in as part of JDK 6 update 18.
+	// http://www.oracle.com/technetwork/java/javase/6u18-142093.html
+	protected static XMLInputFactory inputFactory = XMLInputFactory.newFactory("com.ctc.wstx.stax.WstxInputFactory", null);
+	protected static XMLOutputFactory outputFactory = XMLOutputFactory.newFactory("com.ctc.wstx.stax.WstxOutputFactory", null);
 	
 	protected XMLStreamReader2 xmlReader;
 	protected XMLStreamWriter2 xmlWriter;
