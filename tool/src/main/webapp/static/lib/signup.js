@@ -1,3 +1,6 @@
+var placesErrorLimit = 0;
+var placesWarnPercent = 10;
+
 var Signup = function(){
     return {
 		/**
@@ -713,11 +716,24 @@ var Signup = function(){
                     success: function(result){
                         var data = [];
                         $.each(result, function(){
-                            var course = ['<span class="course-group">' + this.group.title + "</span>"].concat($.map(this.components.concat(), function(component){
-                                return '<span class="course-component">' + component.title + " " + component.slot + " in " + component.when + ' '+ Signup.signup.formatPlaces(component.places, isAdmin)+'</span>';
-                            })).join("<br>");
+                            var course = ['<span class="course-group">' + this.group.title + "</span>"].concat($.map(this.components.concat(), 
+                            		function(component){
+                            			var size = component.size;
+                            			var limit = size*placesWarnPercent/100;
+                            			var componentPlacesClass;
+                            			if (placesErrorLimit >= component.places) {
+                            				componentPlacesClass = "course-component-error";
+                            			} else if (limit >= component.places) {
+                            				componentPlacesClass = "course-component-warn";
+                            			} else {
+                            				componentPlacesClass = "course-component";
+                            			}
+                                		return '<span class="course-component">' + component.title + " " + component.slot + " in " + component.when + ' <span class='+componentPlacesClass+'>'+ Signup.signup.formatPlaces(component.places, isAdmin)+'</span></span>';
+                            		})).join("<br>");
+                            
                             var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, isAdmin));
                             data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user), course, Signup.user.render(this.supervisor), Signup.signup.formatNotes(this.notes), this.status, actions]);
+                            
                         });
                         fnCallback({
                             "aaData": data
@@ -731,7 +747,7 @@ var Signup = function(){
 			}
         });
         $("a.action", this).die().live("click", function(e){
-            var url = $(this).attr("href");
+            var url = $(this).attr("href");		
             $.ajax({
                 "url": url,
                 "type": "POST",

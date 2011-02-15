@@ -27,6 +27,7 @@
 	<script type="text/javascript" src="lib/serverDate.js"></script>
 		
 <script type="text/javascript">
+
 			$(function(){
 
 				var processSignupRow = function(item) {
@@ -59,7 +60,7 @@
 						return "Closed";
 					}
 				};
-				
+
 				var loadCourse = function(code, name) {
 
 							// Table showing the components.
@@ -78,7 +79,23 @@
 								"aoColumns": [
 								              {"sTitle": "Component"},
 											  {"sTitle": "Size"},
-								              {"sTitle": "Places"},
+								              {
+									            "sTitle": "Places",
+									             "fnRender": function(aObj) {
+												    var size = aObj.aData[1];
+										            var places = aObj.aData[2];
+										            var limit = size*placesWarnPercent/100
+										            var style;
+									            	if (placesErrorLimit >= aObj.aData[2]) {
+			                            				style="color: red";
+			                            			} else if (limit >= aObj.aData[2]) {
+			                            				style="color: orange";
+			                            			} else {
+			                            				style="color: black";
+			                            			}
+													return '<span style="'+style+'">'+aObj.aData[2]+'</span>';
+												}    
+										      },
 											  {
 											  	"sTitle": "Signup Period",
 												"fnRender": function(aObj) {
@@ -316,7 +333,7 @@
 								findUser(); // Startoff the searching of users.
 								return false;
 							});
-							 
+
 							return;
 							// Handlers to decide what actions you can do when selecting multiple items.
 							$("#signups-table input[type=checkbox]").live("change", function(e) {
@@ -394,7 +411,6 @@
 </div>
 <div id="course-details"></div><!-- Show details of the course -->
 <div id="signups"></div>
-
 
 
 <!-- Hidden extra bits -->

@@ -62,6 +62,18 @@ table th {
     margin-left: 1em;
 }
 
+.course-component-warn {
+    margin-left: 1em;
+    font-weight: bold;
+    color: orange;
+}
+
+.course-component-error {
+    margin-left: 1em;
+    font-weight: bold;
+    color: red;
+}
+
 /* From http://psacake.com/web/jl.asp */
 .more {
     position: relative; /*this is the key*/
