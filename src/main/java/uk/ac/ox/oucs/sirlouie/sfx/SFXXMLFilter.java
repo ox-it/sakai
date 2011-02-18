@@ -38,9 +38,14 @@ public class SFXXMLFilter extends XMLFilterImpl {
 		Collection<SearObject> myBeans = new ArrayList<SearObject>();
 		for (SearObject bean : beans) {
 			
+			if (!validString(bean.getURL())) {
+				continue;
+			}
+			
 			if (bean instanceof SearLibrary) {
-				//SearLibrary library = (SearLibrary)bean;
-				if (!validString(bean.getURL())) {
+				SearLibrary library = (SearLibrary)bean;
+				
+				if (!"getFullTxt".equals(library.getType())) {
 					continue;
 				}
 			}
@@ -114,6 +119,8 @@ public class SFXXMLFilter extends XMLFilterImpl {
 			
 		} else if (localName.equals("target_name")) {
 		} else if (localName.equals("service_type")) {
+			searLibrary.setType(tempVal.toString());
+			
 		} else if (localName.equals("parser")) {
 		} else if (localName.equals("parse_param")) {
 		} else if (localName.equals("proxy")) {
@@ -125,6 +132,7 @@ public class SFXXMLFilter extends XMLFilterImpl {
 			
 		} else if (localName.equals("target_url")) {
 			searLibrary.setURL(tempVal.toString());
+			searLibrary.setAvailableURL(tempVal.toString());
 			
 		} else if (localName.equals("linktorsrc")) {
 			SearLink searLink = new SearLink();

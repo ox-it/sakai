@@ -1,11 +1,16 @@
 package uk.ac.ox.oucs.sirlouie;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.json.JSONObject;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import uk.ac.ox.oucs.sirlouie.daia.Document;
+import uk.ac.ox.oucs.sirlouie.daia.ResponseBean;
 import uk.ac.ox.oucs.sirlouie.reply.SearObject;
 import uk.ac.ox.oucs.sirlouie.sfx.SFXService;
 
@@ -469,6 +474,16 @@ public class SFXServiceTest extends TestCase {
 		+ "</sfx_menu>";
 	
 
+	private String JSON = "{\"timestamp\":\"2011-02-18T09:42:46+00:00\","
+		+ "\"schema\":\"http://ws.gbv.de/daia/\","
+		+ "\"document\":[{\"id\":\"id\","
+		+ "\"item\":[{\"id\":\"1000000000001224\",\"label\":\"EBSCOhost Business Source Complete\","
+		+ "\"available\":[{\"service\":\"loan\","
+		+ "\"href\":\"http://ezproxy.ouls.ox.ac.uk:2048/login?url=http://openurl.ebscohost.com/linksvc/linking.aspx?sid=bth&volume=92&date=2009-8&aulast=Rajbhandari&atitle=Chemical+changes+that+predispose+smoked+Cheddar+cheese+to+calcium+lactate+crystallization&spage=3616&issn=0022-0302&stitle=&genre=article&issue=8&auinit=P&aufirst=&epage=3622&title=Journal+of+dairy+science\"}],"
+		+ "\"href\":\"http://ezproxy.ouls.ox.ac.uk:2048/login?url=http://openurl.ebscohost.com/linksvc/linking.aspx?sid=bth&volume=92&date=2009-8&aulast=Rajbhandari&atitle=Chemical+changes+that+predispose+smoked+Cheddar+cheese+to+calcium+lactate+crystallization&spage=3616&issn=0022-0302&stitle=&genre=article&issue=8&auinit=P&aufirst=&epage=3622&title=Journal+of+dairy+science\"}],"
+		+ "\"href\":\"http://ezproxy.ouls.ox.ac.uk:2048/login?url=http://openurl.ebscohost.com/linksvc/linking.aspx?sid=bth&volume=92&date=2009-8&aulast=Rajbhandari&atitle=Chemical+changes+that+predispose+smoked+Cheddar+cheese+to+calcium+lactate+crystallization&spage=3616&issn=0022-0302&stitle=&genre=article&issue=8&auinit=P&aufirst=&epage=3622&title=Journal+of+dairy+science\"}],"
+		+ "\"institution\":{\"content\":\"University of Oxford\",\"href\":\"http://www.ox.ac.uk\"},"
+		+ "\"version\":\"0.5\"}";
 	
 	private String errorXML = "<SEGMENTS xmlns=\"http://www.exlibrisgroup.com/xsd/jaguar/search\">"
 		+"<JAGROOT>"
@@ -493,7 +508,18 @@ public class SFXServiceTest extends TestCase {
 		try {
 			Collection<SearObject> beans =
 				SFXService.filterResponse(SFX_XML);
-			Assert.assertEquals(9, beans.size());
+			
+			Assert.assertEquals(1, beans.size());
+			
+			Document document = new Document("id", null);
+			document.addItems(beans);
+			
+			ResponseBean responseBean = new ResponseBean();
+			responseBean.addDocument(document);
+			JSONObject json = responseBean.toJSON();
+			System.out.println(json.toString());
+			
+			Assert.assertEquals(json.toString(), JSON);
 			
 		} catch (Exception e) {
 			System.out.println("Exception caught ["+e.getLocalizedMessage()+"]");

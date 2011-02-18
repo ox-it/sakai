@@ -44,6 +44,12 @@ public class Document {
 				item.setHref(library.getURL());
 				item.setLabel(library.getLabel());
 				item.setStorage(library.getCollection());
+				
+				if (null != library.getAvailableURL()) {
+					Available service = new Available("loan");
+					service.setHref(library.getAvailableURL());
+					item.addAvailableService(service);
+				}
 				if (null != library.getLibrary()) {
 					item.setDepartment(new Department(library.getLibrary()));
 				}

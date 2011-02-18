@@ -9,7 +9,9 @@ public class SearLibrary implements SearObject {
 	private String label;
 	private String library;
 	private String status;
+	private String type;
 	private String url;
+	private String availableURL;
 	
 	public SearLibrary() {}
 	
@@ -78,12 +80,28 @@ public class SearLibrary implements SearObject {
 		this.status = status;
 	}
 	
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+	
 	public String getURL() {
 		return url;
 	}
 
 	public void setURL(String url) {
 		this.url = url;
+	}
+	
+	public String getAvailableURL() {
+		return availableURL;
+	}
+
+	public void setAvailableURL(String url) {
+		this.availableURL = url;
 	}
 	
 	public String toString() {

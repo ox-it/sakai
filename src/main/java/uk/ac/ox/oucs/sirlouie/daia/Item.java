@@ -3,6 +3,7 @@ package uk.ac.ox.oucs.sirlouie.daia;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -76,12 +77,25 @@ public class Item {
 		if (null != label) {
 			json.put("label", label);
 		}
+		
+		JSONArray availableList = new JSONArray();
 		for (Available service : availableServices) {
-			json.put("available", service.toJSON());
+			availableList.put(service.toJSON());
 		}
+		
+		if (availableList.length() != 0) {
+			json.put("available", availableList);
+		}
+		
+		JSONArray unavailableList = new JSONArray();
 		for (UnAvailable service : unAvailableServices) {
-			json.put("unavailable", service.toJSON());
+			unavailableList.put(service.toJSON());
 		}
+		
+		if (unavailableList.length() != 0) {
+			json.put("unavailable", unavailableList);
+		}
+		
 		if (null != storage) {
 			JSONObject storageData = new JSONObject();
 			storageData.put("content", storage);

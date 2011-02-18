@@ -18,6 +18,10 @@ public class Available {
 	public Available() {	
 	}
 	
+	public Available(String service) {
+		this.service=service;
+	}
+	
 	public void addMesage(Message message) {
 		messages.add(message);
 	}
