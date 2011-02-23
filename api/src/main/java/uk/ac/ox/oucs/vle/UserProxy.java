@@ -14,13 +14,18 @@ public class UserProxy {
 	private String name;
 	private String email;
 	private List<String> units;
+	private String yearOfStudy;
+	private String type;
 	
-	public UserProxy(String id, String eid, String name, String email, List<String> units) {
+	public UserProxy(String id, String eid, String name, String email, 
+			String yearOfStudy, String type, List<String> units) {
 		this.id = id;
 		this.eid = eid;
 		this.name = name;
 		this.email = email;
 		this.units = units;
+		this.yearOfStudy = yearOfStudy;
+		this.type = type;
 	}
 
 	public String getId() {
@@ -41,5 +46,13 @@ public class UserProxy {
 	
 	public List<String> getUnits() {
 		return units;
+	}
+	
+	public String getYearOfStudy() {
+		return yearOfStudy;
+	}
+	
+	public String getType() {
+		return type;
 	}
 }

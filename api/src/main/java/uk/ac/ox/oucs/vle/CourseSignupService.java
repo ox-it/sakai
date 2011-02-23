@@ -112,6 +112,8 @@ public interface CourseSignupService {
 	
 	public List<CourseSignup> getMySignups(Set<Status> statuses);
 	
+	public List<CourseSignup> getUserComponentSignups(String userId, Set<Status> statuses);
+	
 	/**
 	 * Find a particular signup.
 	 * @param signupId The signup to load.

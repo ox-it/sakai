@@ -36,7 +36,7 @@ public class CourseComponentImpl implements CourseComponent {
 
 	public Person getPresenter() {
 		if (dao.getTeacherName() != null) {
-			return new PersonImpl(null, dao.getTeacherName(), dao.getTeacherEmail(), Collections.EMPTY_LIST);
+			return new PersonImpl(null, dao.getTeacherName(), dao.getTeacherEmail(), Collections.EMPTY_LIST, null, null);
 		}
 		return null;
 	}

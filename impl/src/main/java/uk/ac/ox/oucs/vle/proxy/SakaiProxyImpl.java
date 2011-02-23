@@ -161,8 +161,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 		if(sakaiUser == null) {
 			return null;
 		}
+		
 		List<String> units = sakaiUser.getProperties().getPropertyList("units");
-		return new UserProxy(sakaiUser.getId(), sakaiUser.getEid(), sakaiUser.getDisplayName(), sakaiUser.getEmail(), (units == null)?Collections.EMPTY_LIST:units);
+		return new UserProxy(sakaiUser.getId(), sakaiUser.getEid(), sakaiUser.getDisplayName(), 
+				sakaiUser.getEmail(), 
+				sakaiUser.getProperties().getProperty("yearOfStudy"), 
+				sakaiUser.getProperties().getProperty("oakStatus"), 
+				(units == null)?Collections.EMPTY_LIST:units);
 	}
 
 	public String getConfirmUrl(String signupId) {

@@ -626,7 +626,7 @@ var Signup = function(){
 			}
         },
         "user": {
-            "render": function(user){
+            "render": function(user, components){
                 var details = "";
                 if (user) {
 					if (user.email) {
@@ -635,8 +635,24 @@ var Signup = function(){
 						details += user.name;
 					}
                     if (user.units && user.units.length > 0) {
-                        details += '<br>' + user.units.join(" / ");
+                        details += '<br />' + user.units.join(" / ");
                     }
+                    if (user.yearOfStudy && user.yearOfStudy.length > 0) {
+                        details += '<br />Year of Study ' + user.yearOfStudy;
+                    }
+                    if (user.type && user.type.length > 0) {
+                        details += '<br />' + user.type;
+                    }
+                    
+                    if (components) {
+                    	details += '<br /><span class="previous-signup">Previous SignUps';
+                    	details += '<input class="userid" type="hidden" name="userid" value="'+user.id+'"/>';
+                    	$.each(components, function(){
+                    		details += '<input class="componentid" type="hidden" name="componentid" value="'+this.id+'"/>';
+                    	});
+                    }
+                    
+                    details += '</span>';
                 }
                 return details;
             },
@@ -690,7 +706,8 @@ var Signup = function(){
                 },
                 "bUseRendered": false
             }, {
-                "sTitle": "Student"
+                "sTitle": "Student",
+                "sWidth": "20%"
             }, {
                 "sTitle": "Module"
             }, {
@@ -732,7 +749,7 @@ var Signup = function(){
                             		})).join("<br>");
                             
                             var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, isAdmin));
-                            data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user), course, Signup.user.render(this.supervisor), Signup.signup.formatNotes(this.notes), this.status, actions]);
+                            data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.components), course, Signup.user.render(this.supervisor), Signup.signup.formatNotes(this.notes), this.status, actions]);
                             
                         });
                         fnCallback({
@@ -746,6 +763,38 @@ var Signup = function(){
 				table.trigger("tableInit");
 			}
         });
+        
+        $("span.previous-signup").die().live("mouseover", function(e){
+        	var span = $(this);
+        	var userId = span.children("input.userid").first().attr("value");
+        	var componentId = span.children("input.componentid").map(function() {
+        		return this.value;
+        	}).get().join(',');
+        	
+        	$.ajax({
+				url: "../rest/signup/previous/",
+				type: "GET",
+				data: {userid: userId,
+					   componentid: componentId
+					  },
+				success: function(result) {
+					$(span).tooltip({
+						bodyHandler: function() { 
+							var tip = "";
+							$.each(result, function(){
+								var signupStatus = this.status;
+								$.each(this.components, function(){
+									tip += this.title+" ("+this.id+") "+this.when+" "+signupStatus+"<br />";
+								});
+							});
+							return tip;
+						}
+					});	  
+				}
+			});
+			
+        });
+        
         $("a.action", this).die().live("click", function(e){
             var url = $(this).attr("href");		
             $.ajax({

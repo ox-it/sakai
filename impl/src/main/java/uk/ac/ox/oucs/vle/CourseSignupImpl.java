@@ -25,7 +25,7 @@ public class CourseSignupImpl implements CourseSignup {
 		UserProxy user = service.loadUser(dao.getUserId());
 		Person person = null;
 		if (user != null) {
-			person = new PersonImpl(user.getId(), user.getName(), user.getEmail(), user.getUnits());
+			person = new PersonImpl(user.getId(), user.getName(), user.getEmail(), user.getUnits(), user.getYearOfStudy(), user.getType());
 		}
 		return person;
 	}
@@ -38,7 +38,7 @@ public class CourseSignupImpl implements CourseSignup {
 		UserProxy user = service.loadUser(dao.getSupervisorId());
 		Person person = null;
 		if (user != null) {
-			person = new PersonImpl(user.getId(), user.getName(), user.getEmail(), Collections.EMPTY_LIST);
+			person = new PersonImpl(user.getId(), user.getName(), user.getEmail(), Collections.EMPTY_LIST, null, user.getType());
 		}
 		return person;	}
 

@@ -18,4 +18,9 @@ public interface Person {
 	public String getEmail();
 	
 	public List<String> getUnits();
+	
+	public String getYearOfStudy();
+	
+	public String getType();
+	
 }

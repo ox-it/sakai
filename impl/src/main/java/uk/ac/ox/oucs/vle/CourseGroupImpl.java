@@ -53,7 +53,7 @@ public class CourseGroupImpl implements CourseGroup {
 
 	public Person getAdministrator() {
 		UserProxy user = impl.loadUser(courseGroupDAO.getAdministrator());
-		return (user != null)? new PersonImpl(user.getId(), user.getName(), user.getEmail(), Collections.EMPTY_LIST):null;
+		return (user != null)? new PersonImpl(user.getId(), user.getName(), user.getEmail(), Collections.EMPTY_LIST, null, user.getType()):null;
 	}
 
 }

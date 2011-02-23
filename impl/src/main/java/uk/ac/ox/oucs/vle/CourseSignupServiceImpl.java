@@ -127,6 +127,17 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		return signups;
 	}
+	
+	public List<CourseSignup> getUserComponentSignups(String userId, Set<Status> statuses) {
+		if (log.isDebugEnabled()) {
+			log.debug("Loading all signups for : "+ userId+ " of status "+ statuses);
+		}
+		List<CourseSignup> signups = new ArrayList<CourseSignup>();
+		for (CourseSignupDAO signupDao:  dao.findSignupForUser(userId, (statuses==null)?Collections.EMPTY_SET:statuses)) {
+			signups.add(new CourseSignupImpl(signupDao, this));
+		}
+		return signups;
+	}
 
 	public CourseGroup getCourseGroup(String courseId, Range range) {
 		if (range == null) {

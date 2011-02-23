@@ -15,6 +15,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -203,5 +204,22 @@ public class SignupResource {
 			}
 			
 		}; 
+	}
+	
+	@Path("/previous")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public StreamingOutput getPreviousSignups(@QueryParam("userid") final String userId,
+											  @QueryParam("componentid") final String componentId) {
+		return new StreamingOutput() {
+
+			public void write(OutputStream output) throws IOException,
+					WebApplicationException {
+				List<CourseSignup> signups = courseService.getUserComponentSignups(userId, null);
+				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
+			}
+			
+		}; 
+		
 	}
 }

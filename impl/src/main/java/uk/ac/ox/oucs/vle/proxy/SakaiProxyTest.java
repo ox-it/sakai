@@ -30,21 +30,21 @@ public class SakaiProxyTest implements SakaiProxy {
 	
 	public SakaiProxyTest() {
 		
-		users.add(new UserProxy("current", "user", "Current User", "current.user@coll.ox.ac.uk", Collections.singletonList("Some College")));
+		users.add(new UserProxy("current", "user", "Current User", "current.user@coll.ox.ac.uk", null, null, Collections.singletonList("Some College")));
 		
-		users.add(new UserProxy("1", "user0001", "Test User One", "test.user.1@dept.ox.ac.uk", Collections.EMPTY_LIST));
-		users.add(new UserProxy("2", "user0002", "Test User Two", "test.user.2@dept.ox.ac.uk", Collections.EMPTY_LIST));
+		users.add(new UserProxy("1", "user0001", "Test User One", "test.user.1@dept.ox.ac.uk", null, null, Collections.EMPTY_LIST));
+		users.add(new UserProxy("2", "user0002", "Test User Two", "test.user.2@dept.ox.ac.uk", null, null, Collections.EMPTY_LIST));
 
 		// So some imports work.
-		users.add(new UserProxy("3", "bras1760", "Katherine Allen", "katherine.allen@bnc.ox.ac.uk", Collections.EMPTY_LIST));
+		users.add(new UserProxy("3", "bras1760", "Katherine Allen", "katherine.allen@bnc.ox.ac.uk", null, null, Collections.EMPTY_LIST));
 		
-		users.add(new UserProxy("d86d9720-eba4-40eb-bda3-91b3145729da", "socs0001", "Course Admin 1", "course.admin.1@dept.ox.ac.uk", Collections.EMPTY_LIST));
-		users.add(new UserProxy("c10cdf4b-7c10-423c-8319-2d477051a94e", "socs0002", "Course Admin 2", "course.admin.2@dept.ox.ac.uk", Collections.EMPTY_LIST));
+		users.add(new UserProxy("d86d9720-eba4-40eb-bda3-91b3145729da", "socs0001", "Course Admin 1", "course.admin.1@dept.ox.ac.uk", null, null, Collections.EMPTY_LIST));
+		users.add(new UserProxy("c10cdf4b-7c10-423c-8319-2d477051a94e", "socs0002", "Course Admin 2", "course.admin.2@dept.ox.ac.uk", null, null, Collections.EMPTY_LIST));
 		
 		
 		// Bulk load of users.
 		for (int i = 1; i <=50; i++) {
-			users.add(new UserProxy("id"+i, "eid"+i, "Full Name "+ i, "user"+i+"@dept.ox.ac.uk", Collections.EMPTY_LIST));
+			users.add(new UserProxy("id"+i, "eid"+i, "Full Name "+ i, "user"+i+"@dept.ox.ac.uk", null, null, Collections.EMPTY_LIST));
 		}
 		current = users.get(0);
 	}
