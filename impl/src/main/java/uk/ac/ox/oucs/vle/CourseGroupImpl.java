@@ -2,12 +2,7 @@ package uk.ac.ox.oucs.vle;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
-
-import org.hibernate.Hibernate;
-import org.sakaiproject.user.api.User;
 
 
 public class CourseGroupImpl implements CourseGroup {

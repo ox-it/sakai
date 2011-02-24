@@ -14,7 +14,6 @@ import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.sql.JoinFragment;
-import org.hibernate.transform.ResultTransformer;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -49,6 +48,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 	}
 
+	@SuppressWarnings("unchecked")
 	public CourseGroupDAO findUpcomingComponents(String courseId, Date available) {
 		List<CourseGroupDAO> courseGroups = getHibernateTemplate().findByNamedParam(
 				"select distinct cg from CourseGroupDAO cg left join fetch cg.components as component where cg.id = :courseId and component.closes > :closes",
@@ -163,6 +163,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<CourseSignupDAO> findSignupByCourse(final String userId, final String courseId) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 
@@ -177,6 +178,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<CourseSignupDAO> findSignupByComponent(final String componentId) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 
@@ -189,6 +191,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<CourseSignupDAO> findSignupPending(final String userId) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
@@ -207,6 +210,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return componentDao;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<CourseGroupDAO> findCourseGroupByWords(final String[] words, final Range range, final Date date) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 
