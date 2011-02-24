@@ -66,7 +66,7 @@
 				var loadCourse = function(code, name) {
 
 							// Table showing the components.
-							$("#course-details").html('<h3>'+ name +'</h3><table border="0" class="display" id="course-details-table"></table>');
+							$("#course-details").html('<h3>'+ name +'&nbsp;&nbsp;<img class="mailto-all-course" src="images/email-send.png" id="'+code+'"/></h3><table border="0" class="display" id="course-details-table"></table>');
 							var summary = $("#course-details-table").dataTable( {
 								"bJQueryUI": true,
 								"bProcessing": true,
@@ -393,6 +393,24 @@
 				
 				Signup.util.autoresize();
 
+				$("img.mailto-all-course", this).die().live("click", function(e){
+					var courseId = $(this).attr("id");
+	                $.ajax({
+	                	url: "../rest/signup/course/"+courseId,
+	    				type: "GET",
+	                    success: function(result){
+	                    	if (result.length > 0) {
+	                        	var users = [];
+	    	                	$.each(result, function(){
+		    	                	if (this.status == "ACCEPTED") {
+	                        			users.push([this.user.email]);
+		    	                	}
+	                        	});
+	                        	document.location.href="mailto:"+result[0].group.administrator.email+"?bcc="+users.join(';')+"&subject=Re "+result[0].group.department+" department course title "+result[0].group.title;
+	    	                }
+	                	}
+	                });
+				});
 			});
 			
 		</script>
