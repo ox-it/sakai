@@ -638,10 +638,11 @@ var Signup = function(){
                         details += '<br />' + user.units.join(" / ");
                     }
                     if (user.yearOfStudy && user.yearOfStudy.length > 0) {
-                        details += '<br />Year of Study ' + user.yearOfStudy;
+                        details += '<br />Year of Study: ' + user.yearOfStudy;
                     }
                     if (user.type && user.type.length > 0) {
-                        details += '<br />' + user.type;
+                    	var type = user.type.substr(0, 1).toUpperCase() + user.type.substr(1);
+                        details += '<br />Status: ' + type;
                     }
                     
                     if (components) {
