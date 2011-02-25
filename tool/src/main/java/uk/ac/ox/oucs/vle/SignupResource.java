@@ -5,6 +5,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -142,13 +144,17 @@ public class SignupResource {
 	@Path("/course/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public StreamingOutput getCourseSignups(@PathParam("id") final String courseId) {
+	public StreamingOutput getCourseSignups(@PathParam("id") final String courseId, @QueryParam("status") final Status status) {
 		// All the pending 
 		return new StreamingOutput() {
 			
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
-				List<CourseSignup> signups = courseService.getCourseSignups(courseId);
+				Set statuses = null;
+				if (null != status) {
+					statuses = Collections.singleton(status);
+				}
+				List<CourseSignup> signups = courseService.getCourseSignups(courseId, statuses);
 				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
 			}
 		};

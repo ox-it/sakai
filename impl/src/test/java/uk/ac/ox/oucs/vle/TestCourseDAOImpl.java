@@ -42,7 +42,7 @@ public class TestCourseDAOImpl extends TestOnSampleData {
 	}
 	
 	public void testFindSignupByCourse() {
-		List<CourseSignupDAO> signups = courseDao.findSignupByCourse("d86d9720-eba4-40eb-bda3-91b3145729da", "course-1");
+		List<CourseSignupDAO> signups = courseDao.findSignupByCourse("d86d9720-eba4-40eb-bda3-91b3145729da", "course-1", null);
 		assertEquals(1,signups.size());
 	}
 	

@@ -16,6 +16,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.util.ResourceLoader;
 
+import uk.ac.ox.oucs.vle.CourseSignupService.Status;
+
 
 public class CourseSignupServiceImpl implements CourseSignupService {
 	
@@ -151,7 +153,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return courseGroup;
 	}
 
-	public List<CourseSignup> getCourseSignups(String courseId) {
+	public List<CourseSignup> getCourseSignups(String courseId, Set<Status> statuses) {
 		// Find all the components and then find all the signups.
 		String userId = proxy.getCurrentUser().getId();
 		
@@ -163,7 +165,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			throw new PermissionDeniedException(userId);
 		}
 		
-		List<CourseSignupDAO> signupDaos = dao.findSignupByCourse(userId, courseId);
+		List<CourseSignupDAO> signupDaos = dao.findSignupByCourse(userId, courseId, statuses);
 		List<CourseSignup> signups = new ArrayList<CourseSignup>(signupDaos.size());
 		for(CourseSignupDAO signupDao: signupDaos) {
 			signups.add(new CourseSignupImpl(signupDao, this));

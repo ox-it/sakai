@@ -79,7 +79,7 @@ public interface CourseSignupService {
 	 */
 	public void signup(String userId, String courseId, Set<String> components);
 	
-	public List<CourseSignup> getCourseSignups(String courseId);
+	public List<CourseSignup> getCourseSignups(String courseId, Set<Status> statuses);
 	
 	public List<CourseSignup> getComponentSignups(String componentId);
 	

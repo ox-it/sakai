@@ -398,13 +398,12 @@
 	                $.ajax({
 	                	url: "../rest/signup/course/"+courseId,
 	    				type: "GET",
+	    				data: {status: "ACCEPTED"},
 	                    success: function(result){
 	                    	if (result.length > 0) {
 	                        	var users = [];
 	    	                	$.each(result, function(){
-		    	                	if (this.status == "ACCEPTED") {
-	                        			users.push([this.user.email]);
-		    	                	}
+	                        		users.push([this.user.email]);
 	                        	});
 	                        	document.location.href="mailto:"+result[0].group.administrator.email+"?bcc="+users.join(';')+"&subject=Re "+result[0].group.department+" department course title "+result[0].group.title;
 	    	                }
