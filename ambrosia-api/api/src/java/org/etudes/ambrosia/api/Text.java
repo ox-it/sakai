@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -49,4 +49,13 @@ public interface Text extends Component
 	 *        one or more (or an array) of UiPropertyReferences to form the additional values in the formatted message.
 	 */
 	Text setTitle(String selector, PropertyReference... references);
+
+	/**
+	 * Set the treatment.
+	 * 
+	 * @param treatment
+	 *        The section treatment.
+	 * @return self.
+	 */
+	Text setTreatment(String treatment);
 }

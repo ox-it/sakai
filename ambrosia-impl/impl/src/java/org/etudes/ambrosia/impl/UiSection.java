@@ -27,6 +27,7 @@ package org.etudes.ambrosia.impl;
 import java.io.PrintWriter;
 import java.util.Collection;
 
+import org.etudes.ambrosia.api.Component;
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.api.Decision;
 import org.etudes.ambrosia.api.Message;
@@ -599,6 +600,9 @@ public class UiSection extends UiContainer implements Section
 	{
 		PrintWriter response = context.getResponseWriter();
 
+		// blend if in columns
+		if ("columns".equals(this.treatment)) setBlended(true);
+
 		// generate id
 		String id = this.getClass().getSimpleName() + "_" + context.getUniqueId();
 
@@ -729,37 +733,92 @@ public class UiSection extends UiContainer implements Section
 			}
 		}
 
-		boolean closeDiv = false;
-		if ("evaluation".equals(this.treatment))
+		boolean rendered = false;
+
+		// special multi-column sections only rendering
+		// Note: anything contained that is not a section is ignored ???
+		if ("columns".equals(this.treatment))
 		{
-			response.println("<div" + idString + " class=\"ambrosiaSectionEvaluation\">");
-			closeDiv = true;
-		}
-		else if ("indented".equals(this.treatment))
-		{
-			response.println("<div" + idString + " class=\"ambrosiaSectionIndented\">");
-			closeDiv = true;
-		}
-		else if ("inlay".equals(this.treatment))
-		{
-			response.println("<div" + idString + " class=\"ambrosiaSectionInlay\">");
-			closeDiv = true;
-		}
-		else if (this.collapsed)
-		{
-			response.println("<div" + idString + ">");
-			closeDiv = true;
+			// count the sections
+			int numSections = countContainedSections();
+			if (numSections > 0)
+			{
+				int pct = 100 / numSections;
+
+				// put in a table with this many columns
+				response.println("<table style=\"width:80%; border-collapse:collapse;\"><tr>");
+
+				// render each section in a column
+				for (Component c : this.contained)
+				{
+					if (c instanceof UiSection)
+					{
+						// set the section as blended to better fit in the table
+						((UiSection) c).setBlended(true);
+
+						response.println("<td style=\"vertical-align:top; margin-top:0px; margin-bottom:0px; padding-top:0px; padding-bottom:0px; width:" + pct + "%\">");
+						c.render(context, focus);
+						response.println("</td>");
+					}
+				}
+
+				response.println("</tr></table>");
+			}
+
+			rendered = true;
 		}
 
+		// normal rendering
 		// body... being a container, let the base class render the contained
-		super.render(context, focus);
-
-		if (closeDiv)
+		if (!rendered)
 		{
-			response.println("</div>");
+			boolean closeDiv = false;
+			if ("evaluation".equals(this.treatment))
+			{
+				response.println("<div" + idString + " class=\"ambrosiaSectionEvaluation\">");
+				closeDiv = true;
+			}
+			else if ("indented".equals(this.treatment))
+			{
+				response.println("<div" + idString + " class=\"ambrosiaSectionIndented\">");
+				closeDiv = true;
+			}
+			else if ("inlay".equals(this.treatment))
+			{
+				response.println("<div" + idString + " class=\"ambrosiaSectionInlay\">");
+				closeDiv = true;
+			}
+			else if (this.collapsed)
+			{
+				response.println("<div" + idString + ">");
+				closeDiv = true;
+			}
+
+			super.render(context, focus);
+
+			if (closeDiv)
+			{
+				response.println("</div>");
+			}
+
+			rendered = true;
 		}
 
 		// end the section
 		if (!this.blended) response.println("</div>");
+	}
+
+	/**
+	 * @return a count of the number of section elements contained in this section - only counts those that are directly contained.
+	 */
+	protected int countContainedSections()
+	{
+		int rv = 0;
+		for (Component c : this.contained)
+		{
+			if (c instanceof UiSection) rv++;
+		}
+
+		return rv;
 	}
 }

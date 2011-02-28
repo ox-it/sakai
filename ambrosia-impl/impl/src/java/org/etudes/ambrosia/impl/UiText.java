@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -43,6 +43,9 @@ public class UiText extends UiComponent implements Text
 
 	/** The message that will provide title text. */
 	protected Message titleMessage = null;
+
+	/** The treatment. */
+	protected String treatment = null;
 
 	/**
 	 * Construct.
@@ -100,6 +103,13 @@ public class UiText extends UiComponent implements Text
 		{
 			this.message = new UiMessage(service, settingsXml);
 		}
+
+		// treatment
+		String treatment = xml.getAttribute("treatment");
+		if (treatment != null)
+		{
+			setTreatment(treatment);
+		}
 	}
 
 	/**
@@ -132,16 +142,25 @@ public class UiText extends UiComponent implements Text
 		// title
 		if (titleMsg != null)
 		{
-			response.print("<div class=\"ambrosiaComponentTitle\">");
-			response.print(titleMsg);
+			response.println("<div class=\"ambrosiaComponentTitle\">");
+			response.println(titleMsg);
 			response.println("</div>");
 		}
 
 		if (msg != null)
 		{
-			response.print("<span id=\"" + id + "\">");
-			response.println(msg);
-			response.println("</span>");
+			if ("header".equals(this.treatment))
+			{
+				response.println("<div id=\"" + id + "\" class=\"ambrosiaInterfaceHeader\">");
+				response.println(msg);
+				response.println("</div>");
+			}
+			else
+			{
+				response.print("<span id=\"" + id + "\">");
+				response.print(msg);
+				response.print("</span>");
+			}
 		}
 
 		return true;
@@ -162,6 +181,15 @@ public class UiText extends UiComponent implements Text
 	public Text setTitle(String selector, PropertyReference... references)
 	{
 		this.titleMessage = new UiMessage().setMessage(selector, references);
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Text setTreatment(String treatment)
+	{
+		this.treatment = treatment;
 		return this;
 	}
 }

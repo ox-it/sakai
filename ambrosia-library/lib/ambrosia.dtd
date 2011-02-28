@@ -487,6 +487,7 @@
 <!ATTLIST text selector CDATA #IMPLIED >
 <!ATTLIST text model CDATA #IMPLIED >
 <!ATTLIST text title CDATA #IMPLIED >
+<!ATTLIST section treatment CDATA #IMPLIED >
 
 <!ELEMENT fileUpload (included | onEmptyAlert | model | readOnly | title | upload)* >
 <!ATTLIST fileUpload id CDATA #IMPLIED >
