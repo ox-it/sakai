@@ -65,7 +65,7 @@ public class CourseResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getCourses(@QueryParam("range") final Range range) {
-		final List<CourseGroup> groups = courseService.search("");
+		final List<CourseGroup> groups = courseService.search("", range);
 		if (groups == null) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
@@ -109,7 +109,7 @@ public class CourseResource {
 		if (terms == null) {
 			throw new WebApplicationException();
 		}
-		List<CourseGroup> groups = courseService.search(terms);
+		List<CourseGroup> groups = courseService.search(terms, Range.UPCOMING);
 		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
 	}
 

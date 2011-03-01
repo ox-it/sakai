@@ -566,9 +566,10 @@ var Signup = function(){
 			 * @param {Object} components
 			 */
 			"summary": function(components){
-				var summary = {state: "unknown", message: null};
+				var summary = {state: "unknown", previous: "Current Courses", message: null};
 				if (components.length == 0) {
 					summary.message = "No";
+					summary.previous = "Old Courses";
 					return summary; 
 				}
 				var now = $.serverDate();
@@ -598,7 +599,13 @@ var Signup = function(){
 				});
 				var message = "";
 				if (!isOneBookable) {
-					summary.state = "No";
+					if (now > willClose) {
+						summary.state = "No"; // (Previous)";
+						summary.previous = "Old Courses";
+					}
+					else {
+						summary.state = "No"; // (Not Bookable)";
+					}
 					return summary;
 				}
 				if (isOneOpen) {
@@ -613,8 +620,9 @@ var Signup = function(){
 					}
 				}
 				else {
-					if (nextOpen === Number.MAX_VALUE) {
-						summary.state = "No";
+					if (nextOpen == Number.MAX_VALUE) {
+						summary.previous = "Old Courses";
+						summary.state = "No"; // (Never Opens)";
 					}
 					else {
 						var until = nextOpen - now;
@@ -622,6 +630,7 @@ var Signup = function(){
 						summary.state = "Later";
 					}
 				}
+				
 				return summary;
 			}
         },

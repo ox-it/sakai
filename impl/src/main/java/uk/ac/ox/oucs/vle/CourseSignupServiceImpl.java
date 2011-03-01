@@ -531,9 +531,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return proxy.findUserById(id);
 	}
 
-	public List<CourseGroup> search(String search) {
+	public List<CourseGroup> search(String search, Range range) {
 		String words[] = search.split(" ");
-		List<CourseGroupDAO> groupDaos = dao.findCourseGroupByWords(words, Range.UPCOMING, getNow());
+		List<CourseGroupDAO> groupDaos = dao.findCourseGroupByWords(words, range, getNow());
 		List<CourseGroup> groups = new ArrayList<CourseGroup>(groupDaos.size());
 		for(CourseGroupDAO groupDao: groupDaos) {
 			groups.add(new CourseGroupImpl(groupDao, this));

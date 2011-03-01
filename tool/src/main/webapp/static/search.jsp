@@ -13,7 +13,7 @@
 	<link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css"/>
 	<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.4.custom/css/smoothness/jquery-ui-1.8.4.custom.css"/>
 	<link rel="stylesheet" type="text/css" href="lib/tool.css" />
-	<link href="../rest/course/all" type="application/json" rel="exhibit/data" ex:converter="courseConverter" />
+	<link href="../rest/course/all?range=ALL" type="application/json" rel="exhibit/data" ex:converter="courseConverter" />
 	<style type="text/css">
 		.exhibit-text-facet {
 			padding-right: 4px; // Overflows a <table> because of <input> has border and padding
@@ -63,7 +63,8 @@
 					department: course.department,
 					description: Text.toHtml(course.description),
 					summary: summary.message,
-					bookable: summary.state
+					bookable: summary.state,
+					previous: summary.previous
 				});
 			});
 			return data;
@@ -131,6 +132,10 @@
 					<th>Signup</th>
 					<td ex:content=".summary"></td>
 				</tr>
+				<tr>
+					<th>Bookable</th>
+					<td ex:content=".bookable"></td>
+				</tr>
 			</table>
 			<form class="details">
 				<input type="hidden" name="id" ex:value-content="value">
@@ -160,6 +165,7 @@
         		 <div ex:role="facet" ex:facetClass="TextSearch" ex:facetLabel="Search" ex:expression=".label,.description"></div>
                  <div ex:role="facet" ex:expression=".department" ex:facetLabel="Department"></div>
 				 <div ex:role="facet" ex:expression=".bookable" ex:facetLabel="Bookable" ex:height="7em"></div>
+				 <div ex:role="facet" ex:expression=".previous" ex:facetLabel="Previous" ex:height="3.5em"></div>
 
             </td>
         </tr>

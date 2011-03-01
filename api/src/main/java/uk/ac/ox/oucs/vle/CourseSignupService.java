@@ -101,7 +101,7 @@ public interface CourseSignupService {
 	
 	public void setSignupStatus(String signupId, Status status);
 	
-	public List<CourseGroup> search(String search);
+	public List<CourseGroup> search(String search, Range range);
 	
 	/**
 	 * This is what the service should use when determining the current time.
