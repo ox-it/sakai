@@ -2,6 +2,7 @@ package uk.ac.ox.oucs.vle;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -43,6 +44,13 @@ public class CourseGroupImpl implements CourseGroup {
 				components.add(new CourseComponentImpl(component, impl));
 			}
 		}
+		
+		Collections.sort(components, new Comparator<CourseComponent>() {
+			public int compare(CourseComponent c1,CourseComponent c2) {
+				return c1.getId().compareTo(c2.getId());
+			}
+		});
+		
 		return components;
 	}
 
