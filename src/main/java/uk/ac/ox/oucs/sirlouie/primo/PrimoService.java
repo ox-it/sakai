@@ -42,6 +42,9 @@ public class PrimoService {
 	    params.add("isLoggedIn", "false");
 	    params.add("onCampus", "false");
 	     
+	    WebResource query = webResource.queryParams(params);
+	    System.out.println("Query ["+query.getURI().toString()+"]");
+	    
 	    String responseXML = webResource.queryParams(params).get(String.class);
 	    //log.debug("response ["+responseXML+"]");
 	    

@@ -330,10 +330,9 @@ public class PrimoServiceTest extends TestCase {
 			System.out.println("testGetResource("+(System.currentTimeMillis()-l)+")");
 			Assert.assertNotNull(bean);
 			
-			Map<String, Object> jsonData = bean.toJSON("2009-06-09T15:39:52.831+02:00");
-			ObjectMapper mapper = new ObjectMapper();
+			JSONObject jsonData = bean.toJSON("2009-06-09T15:39:52.831+02:00");
 			
-			Assert.assertEquals(OLIS_JSON, mapper.writeValueAsString(jsonData));
+			Assert.assertEquals(OLIS_JSON, jsonData.toString());
 		
 		} catch (Exception e) {
 			System.out.println("Exception caught ["+e.getLocalizedMessage()+"]");
@@ -350,10 +349,9 @@ public class PrimoServiceTest extends TestCase {
 			System.out.println("testGetResource("+(System.currentTimeMillis()-l)+")");
 			Assert.assertNotNull(bean);
 			
-			Map<String, Object> jsonData = bean.toJSON("2009-06-09T15:39:52.831+02:00");
-			ObjectMapper mapper = new ObjectMapper();
+			JSONObject jsonData = bean.toJSON("2009-06-09T15:39:52.831+02:00");
 			
-			Assert.assertEquals(ORA_JSON, mapper.writeValueAsString(jsonData));
+			Assert.assertEquals(ORA_JSON, jsonData.toString());
 		
 		} catch (Exception e) {
 			System.out.println("Exception caught ["+e.getLocalizedMessage()+"]");
