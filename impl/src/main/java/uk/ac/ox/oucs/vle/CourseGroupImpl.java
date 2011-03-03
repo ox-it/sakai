@@ -47,7 +47,7 @@ public class CourseGroupImpl implements CourseGroup {
 		
 		Collections.sort(components, new Comparator<CourseComponent>() {
 			public int compare(CourseComponent c1,CourseComponent c2) {
-				return c1.getId().compareTo(c2.getId());
+				return c1.getCloses().compareTo(c2.getCloses());
 			}
 		});
 		
