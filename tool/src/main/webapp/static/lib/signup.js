@@ -655,7 +655,7 @@ var Signup = function(){
                     }
                     
                     if (components) {
-                    	details += '<br /><span class="previous-signup">Previous SignUps';
+                    	details += '<br /><span class="previous-signup more">[Previous SignUps]';
                     	details += '<input class="userid" type="hidden" name="userid" value="'+user.id+'"/>';
                     	$.each(components, function(){
                     		details += '<input class="componentid" type="hidden" name="componentid" value="'+this.id+'"/>';
