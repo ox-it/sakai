@@ -20,6 +20,10 @@ public interface CourseComponent {
 	
 	public Date getCloses();
 	
+	public Date getStarts();
+	
+	public Date getEnds();
+	
 	public String getSlot();
 	
 	public String getWhen();

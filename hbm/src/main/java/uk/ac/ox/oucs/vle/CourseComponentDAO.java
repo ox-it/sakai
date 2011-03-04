@@ -21,6 +21,8 @@ public class CourseComponentDAO  implements java.io.Serializable {
      private Date opens;
      private Date closes;
      private Date expires;
+     private Date starts;
+     private Date ends;
      private boolean bookable;
      private int size;
      private int taken;
@@ -93,6 +95,20 @@ public class CourseComponentDAO  implements java.io.Serializable {
     
     public void setExpires(Date expires) {
         this.expires = expires;
+    }
+    public Date getStarts() {
+        return this.starts;
+    }
+    
+    public void setStarts(Date starts) {
+        this.starts = starts;
+    }
+    public Date getEnds() {
+        return this.ends;
+    }
+    
+    public void setEnds(Date ends) {
+        this.ends = ends;
     }
     public boolean isBookable() {
         return this.bookable;

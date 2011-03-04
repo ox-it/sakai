@@ -110,7 +110,7 @@ public class PopulatorImpl implements Populator{
 			}
 			// Now import all the course components ( from teaching (instances/components))
 			String sql = "SELECT\n" + 
-					"  ti.teaching_instance_id, ti.open_date, ti.close_date, ti.expiry_date, ti.sessions, ti.session_dates, ti.capacity, ti.bookable,\n" + 
+					"  ti.teaching_instance_id, ti.open_date, ti.close_date, ti.expiry_date, ti.start_date, ti.end_date, ti.sessions, ti.session_dates, ti.capacity, ti.bookable,\n" + 
 					"  tc.assessment_unit_code as assessment_unit_codes, tc.teaching_component_id,\n" + 
 					"  l.label location,\n" + 
 					"  t.code as term_code, t.label as term_name,\n" + 
@@ -144,6 +144,14 @@ public class PopulatorImpl implements Populator{
 				Date expiryDate = getDate(rs, "expiry_date");
 				if (expiryDate == null) {
 					expiryDate = closeDate;
+				}
+				Date startDate = getDate(rs, "start_date");
+				if (startDate == null) {
+					//startDate = closeDate;
+				}
+				Date endDate = getDate(rs, "end_date");
+				if (endDate == null) {
+					//endDate = closeDate;
 				}
 				if (openDate.after(closeDate)){
 					logFailure(id, "Open date is after close date");
@@ -197,6 +205,8 @@ public class PopulatorImpl implements Populator{
 				componentDao.setOpens(openDate);
 				componentDao.setCloses(closeDate);
 				componentDao.setExpires(expiryDate);
+				componentDao.setStarts(startDate);
+				componentDao.setEnds(endDate);
 				componentDao.setBookable(bookable);
 				componentDao.setSize(capacity);
 				componentDao.setTermcode(termCode);

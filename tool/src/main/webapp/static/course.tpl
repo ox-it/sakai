@@ -74,11 +74,18 @@
 						{for option in part.options}
                         <tr>
                             <td class="option-details">
-                                <label for="option-${option.id}">${option.slot} for ${option.sessions} sessions starts in ${option.when},
+                                <label for="option-${option.id}">${option.slot} for ${option.sessions} sessions starts in ${option.when}, 
 								{if option.presenter}{if option.presenter.email}<a href="mailto:${option.presenter.email}">{/if}${option.presenter.name}{if option.presenter.email}</a>{/if}{/if}
 								</label>
                                 <br/>
-                                <span class="location">${option.location}</span>
+                                <span class="location">
+                                	{if option.starts}teaching starts on ${new Date(option.starts).toDateString()}{/if}
+                                	{if option.ends} and ends on ${new Date(option.ends).toDateString()}{/if}
+                                	{if option.location}
+                                		{if option.starts || option.ends}, {/if}
+                                		${option.location}
+                                	{/if}
+                                </span>
                             </td>
                             <td>
                             	{if option.bookable}

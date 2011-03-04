@@ -12,6 +12,8 @@ public class CourseComponentImpl implements CourseComponent {
 	/// Local caches.
 	private transient Date opens;
 	private transient Date closes;
+	private transient Date starts;
+	private transient Date ends;
 	
 	public CourseComponentImpl(CourseComponentDAO dao, CourseSignupServiceImpl impl) {
 		this.dao = dao;
@@ -57,6 +59,22 @@ public class CourseComponentImpl implements CourseComponent {
 		if(closes == null)
 			closes = new Date(dao.getCloses().getTime());
 		return dao.getCloses();
+	}
+	
+	public Date getStarts() {
+		// Jackson doesn't like java.sql.Date.
+		if(starts == null && dao.getStarts() != null) {
+			starts = new Date(dao.getStarts().getTime());
+		}
+		return starts;
+	}
+
+	public Date getEnds() {
+		// Jackson doesn't like java.sql.Date.
+		if(ends == null && dao.getEnds() != null) {
+			ends = new Date(dao.getEnds().getTime());
+		}
+		return ends;
 	}
 
 	public String getComponentSet() {

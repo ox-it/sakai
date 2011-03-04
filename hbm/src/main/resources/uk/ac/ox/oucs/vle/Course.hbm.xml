@@ -41,6 +41,8 @@
 		<property name="opens" type="timestamp" />
 		<property name="closes" type="timestamp" />
 		<property name="expires" type="timestamp" />
+		<property name="starts" type="timestamp" />
+		<property name="ends" type="timestamp" />
 		<property name="bookable" type="boolean" not-null="true" />
 		<property name="size" type="int" />
 		<property name="taken" type="int" />
