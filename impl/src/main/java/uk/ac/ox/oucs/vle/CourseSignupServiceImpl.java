@@ -493,12 +493,25 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (signupDao == null) {
 			throw new NotFoundException(signupId);
 		}
-		if (!Status.PENDING.equals(signupDao.getStatus())) {
-			throw new IllegalStateException("Can only withdraw from pending signups: "+ signupId);
+		boolean sendEmail = false;
+		if (Status.ACCEPTED.equals(signupDao.getStatus()) || 
+				Status.APPROVED.equals(signupDao.getStatus())) {
+			sendEmail = true;
 		}
 		signupDao.setStatus(Status.WITHDRAWN);
 		dao.save(signupDao);
 		proxy.logEvent(signupDao.getGroup().getId(), EVENT_WITHDRAW);
+		
+		/**
+		 * @param userId The ID of the user who the message should be sent to.
+	     * @param signupDao The signup the message is about.
+	     * @param subjectKey The resource bundle key for the subject
+	     * @param bodyKey The resource bundle key for the body.
+	     * @param additionalBodyData Additional objects used to format the email body. Typically used for the confirm URL.
+		 */
+		if (sendEmail) {
+			sendSignupEmail(signupDao.getGroup().getAdministrator(), signupDao, "withdraw.admin.subject", "withdraw.admin.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
+		}
 	}
 
 	public CourseGroup getAvailableCourseGroup(String courseId) {

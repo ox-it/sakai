@@ -482,7 +482,7 @@ var Signup = function(){
 			"statuses": ["PENDING", "ACCEPTED", "APPROVED", "REJECTED", "WITHDRAWN"],
 			
 			
-            "getActions": function(status, id, admin){
+            "getActions": function(status, id, closes, admin){
                 if (admin) {
                     switch (status) {
                         case "PENDING":
@@ -516,6 +516,26 @@ var Signup = function(){
                                 "name": "Withdraw",
                                 "url": "../rest/signup/" + id + "/withdraw"
                             }];
+                        case "ACCEPTED":
+                        	var now = new Date().getTime();
+                        	if (closes > now) {
+                            return [{
+                                "name": "Withdraw",
+                                "url": "../rest/signup/" + id + "/withdraw"
+                            }];
+                        	} else {
+                        		return [];
+                        	}
+                        case "APPROVED":
+                        	var now = new Date().getTime();
+                        	if (closes > now) {
+                            return [{
+                                "name": "Withdraw",
+                                "url": "../rest/signup/" + id + "/withdraw"
+                            }];
+                        	} else {
+                        		return [];
+                        	}	
                     }
                 }
                 return [];
@@ -758,7 +778,15 @@ var Signup = function(){
                                 		return '<span class="course-component">' + component.title + " " + component.slot + " in " + component.when + ' <span class='+componentPlacesClass+'>'+ Signup.signup.formatPlaces(component.places, isAdmin)+'</span></span>';
                             		})).join("<br>");
                             
-                            var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, isAdmin));
+                            var closes = 0;
+                            $.each(this.components, 
+                            		function(){
+                            			if (closes != 0 && this.closes > closes) {
+                            				return;
+                            			}
+                            			closes = this.closes;
+                            });
+                            var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, isAdmin));
                             data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.components), course, Signup.user.render(this.supervisor), Signup.signup.formatNotes(this.notes), this.status, actions]);
                             
                         });
