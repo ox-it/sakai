@@ -82,7 +82,7 @@
                                 	{if option.starts}teaching starts on ${new Date(option.starts).toDateString()}{/if}
                                 	{if option.ends} and ends on ${new Date(option.ends).toDateString()}{/if}
                                 	{if option.location}
-                                		{if option.starts || option.ends}, {/if}
+                                		{if option.starts || option.ends}<br/>{/if}
                                 		${option.location}
                                 	{/if}
                                 </span>
