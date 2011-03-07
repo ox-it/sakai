@@ -335,6 +335,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		
 		// Need to find all the components.
+		if (componentIds == null) {
+			throw new IllegalArgumentException("You must specify some components to signup to.");
+		}
+		
 		Set<CourseComponentDAO> componentDaos = new HashSet<CourseComponentDAO>(componentIds.size());
 		for(String componentId: componentIds) {
 			CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
