@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -265,6 +265,24 @@ public abstract class SubmissionStorageSample implements SubmissionStorage
 		for (SubmissionImpl submission : this.submissions.values())
 		{
 			if (submission.getAssessment().equals(assessment) && (!submission.getIsTestDrive()))
+			{
+				rv.add(new SubmissionImpl(submission));
+			}
+		}
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<? extends SubmissionImpl> getContextSubmissions(String context)
+	{
+		List<SubmissionImpl> rv = new ArrayList<SubmissionImpl>();
+		for (SubmissionImpl submission : this.submissions.values())
+		{
+			// find those in the context, filter out archived assessments
+			if (submission.getAssessment().getContext().equals(context) && (!submission.getAssessment().getArchived()))
 			{
 				rv.add(new SubmissionImpl(submission));
 			}

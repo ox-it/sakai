@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -719,8 +719,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			}
 
 			// event track it as auto-complete and graded
-			eventTrackingService.post(eventTrackingService
-					.newEvent(MnemeService.SUBMISSION_AUTO_COMPLETE, getSubmissionReference(temp.getId()), true));
+			eventTrackingService
+					.post(eventTrackingService.newEvent(MnemeService.SUBMISSION_AUTO_COMPLETE, getSubmissionReference(temp.getId()), true));
 			eventTrackingService.post(eventTrackingService.newEvent(MnemeService.SUBMISSION_GRADE, getSubmissionReference(temp.getId()), true));
 
 			return;
@@ -1336,6 +1336,21 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	/**
 	 * {@inheritDoc}
 	 */
+	public List<? extends Submission> getContextSubmissions(String context)
+	{
+		if (context == null) throw new IllegalArgumentException();
+
+		if (M_log.isDebugEnabled()) M_log.debug("getContextSubmissions: context: " + context);
+
+		// read all the submissions for this context
+		List<? extends Submission> all = this.storage.getContextSubmissions(context);
+
+		return all;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<? extends Submission> getMultipleSubmissions(Assessment assessment, String uid)
 	{
 		// TODO: security!
@@ -1568,15 +1583,15 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 					}
 					case type_a:
 					{
-						rv = ((Submission) arg0).getAssessment().getType().getSortValue().compareTo(
-								((Submission) arg1).getAssessment().getType().getSortValue());
+						rv = ((Submission) arg0).getAssessment().getType().getSortValue()
+								.compareTo(((Submission) arg1).getAssessment().getType().getSortValue());
 						break;
 					}
 					case type_d:
 					{
 						rv = -1
-								* ((Submission) arg0).getAssessment().getType().getSortValue().compareTo(
-										((Submission) arg1).getAssessment().getType().getSortValue());
+								* ((Submission) arg0).getAssessment().getType().getSortValue()
+										.compareTo(((Submission) arg1).getAssessment().getType().getSortValue());
 						break;
 					}
 					case dueDate_a:
@@ -1597,8 +1612,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 							rv = -1;
 							break;
 						}
-						rv = ((Submission) arg0).getAssessment().getDates().getDueDate().compareTo(
-								((Submission) arg1).getAssessment().getDates().getDueDate());
+						rv = ((Submission) arg0).getAssessment().getDates().getDueDate()
+								.compareTo(((Submission) arg1).getAssessment().getDates().getDueDate());
 						break;
 					}
 					case dueDate_d:
@@ -1622,8 +1637,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 							break;
 						}
 						rv = -1
-								* ((Submission) arg0).getAssessment().getDates().getDueDate().compareTo(
-										((Submission) arg1).getAssessment().getDates().getDueDate());
+								* ((Submission) arg0).getAssessment().getDates().getDueDate()
+										.compareTo(((Submission) arg1).getAssessment().getDates().getDueDate());
 						break;
 					}
 				}

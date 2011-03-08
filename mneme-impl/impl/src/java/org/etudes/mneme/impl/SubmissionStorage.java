@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -120,6 +120,15 @@ public interface SubmissionStorage
 	 * @return A List<Submission> of the submissions for the assessment.
 	 */
 	List<SubmissionImpl> getAssessmentSubmissions(Assessment assessment);
+
+	/**
+	 * Get all the submissions in this context (non-test-drive, for non-archived assesments).
+	 * 
+	 * @param context
+	 *        The context.
+	 * @return The list of submissions in this context.
+	 */
+	List<? extends Submission> getContextSubmissions(String context);
 
 	/**
 	 * Access a set of (complete) submissions from this user for this assessment.

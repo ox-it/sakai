@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -299,6 +299,15 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 * @return A List containing all the scores for completed submissions to this assessment, or an empty list if there are none.
 	 */
 	List<Float> getAssessmentScores(Assessment assessment);
+
+	/**
+	 * Get all the non-test-drive submissions to all non-archived assessments in the context for all users.
+	 * 
+	 * @param context
+	 *        The context.
+	 * @return a List of Submission, one for each submission in the context.
+	 */
+	List<? extends Submission> getContextSubmissions(String context);
 
 	/**
 	 * Access the set of completed submissions to this assessment from this user.
