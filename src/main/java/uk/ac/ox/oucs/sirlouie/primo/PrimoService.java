@@ -28,14 +28,14 @@ public class PrimoService {
 	
 	public PrimoService(String webResourceURL) {
 	    
-		log.debug(webResourceURL);
+		//log.debug(webResourceURL);
 		client = Client.create();
 		webResource = client.resource(webResourceURL);
 	}
 	
 	public ResponseBean getResource(String id) throws Exception {
 		
-		log.debug("getResource ["+id+"]");
+		//log.debug("getResource ["+id+"]");
 	    MultivaluedMap<String, String> params = new MultivaluedMapImpl();
 	    params.add("institution", "OXVU1");
 	    params.add("docId", id);
@@ -43,9 +43,10 @@ public class PrimoService {
 	    params.add("onCampus", "false");
 	     
 	    WebResource query = webResource.queryParams(params);
-	    System.out.println("Query ["+query.getURI().toString()+"]");
+	    System.out.println("PrimoService.query ["+query.getURI().toString()+"]");
 	    
 	    String responseXML = webResource.queryParams(params).get(String.class);
+	    System.out.println("PrimoService.response ["+responseXML+"]");
 	    //log.debug("response ["+responseXML+"]");
 	    
 	    ResponseBean responseBean = new ResponseBean(id);
