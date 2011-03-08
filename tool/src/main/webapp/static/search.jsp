@@ -165,7 +165,7 @@
         		 <div ex:role="facet" ex:facetClass="TextSearch" ex:facetLabel="Search" ex:expression=".label,.description"></div>
                  <div ex:role="facet" ex:expression=".department" ex:facetLabel="Department"></div>
 				 <div ex:role="facet" ex:expression=".bookable" ex:facetLabel="Bookable" ex:height="7em"></div>
-				 <div ex:role="facet" ex:expression=".previous" ex:facetLabel="Previous" ex:height="3.5em"></div>
+				 <div ex:role="facet" ex:expression=".previous" ex:selection="Current Courses" ex:facetLabel="Previous" ex:height="3.5em"></div>
 
             </td>
         </tr>
