@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -159,6 +159,9 @@ public class ReviewView extends ControllerImpl
 
 		// in this special case, since there's no real action in the service to do this, we need to generate an event
 		eventTrackingService.post(eventTrackingService.newEvent(MnemeService.SUBMISSION_REVIEW, submission.getReference(), false));
+
+		// record the review date
+		submissionService.markReviewed(submission);
 
 		// for the tool navigation
 		if (this.assessmentService.allowManageAssessments(toolManager.getCurrentPlacement().getContext()))

@@ -184,6 +184,14 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	void evaluateSubmission(Submission submission) throws AssessmentPermissionException;
 
 	/**
+	 * Record the date that this submission was reviewed, if this is being reviewed by the submission's user.
+	 * 
+	 * @param submission
+	 *        The submission.
+	 */
+	void markReviewed(Submission submission);
+
+	/**
 	 * Apply an evaluation to all the official completed submissions to this assessment.
 	 * 
 	 * @param assessment

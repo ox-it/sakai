@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -89,6 +89,8 @@ public class SubmissionImpl implements Submission
 	protected transient Integer siblingCount = 0;
 
 	protected Date startDate = null;
+
+	protected Date reviewedDate = null;
 
 	protected transient SubmissionServiceImpl submissionService = null;
 
@@ -1061,6 +1063,14 @@ public class SubmissionImpl implements Submission
 	/**
 	 * {@inheritDoc}
 	 */
+	public Date getReviewedDate()
+	{
+		return this.reviewedDate;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Date getSubmittedDate()
 	{
 		return this.submittedDate;
@@ -1233,6 +1243,14 @@ public class SubmissionImpl implements Submission
 	public void setStartDate(Date startDate)
 	{
 		this.startDate = startDate;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setReviewedDate(Date date)
+	{
+		this.reviewedDate = date;
 	}
 
 	/**
@@ -1496,6 +1514,7 @@ public class SubmissionImpl implements Submission
 		this.releasedChanged = new ChangeableImpl(other.releasedChanged);
 		this.id = other.id;
 		this.isComplete = other.isComplete;
+		this.reviewedDate = other.reviewedDate;
 		this.securityService = other.securityService;
 		this.sessionManager = other.sessionManager;
 		this.siblingCount = other.siblingCount;

@@ -288,6 +288,14 @@ public interface SubmissionStorage
 	void saveSubmissionReleased(SubmissionImpl submission);
 
 	/**
+	 * Save changes made to this submission's reviewed setting.
+	 * 
+	 * @param submission
+	 *        the submission to save.
+	 */
+	void saveSubmissionReviewed(SubmissionImpl submission);
+
+	/**
 	 * Check if there are any submissions that are dependent on this question.
 	 * 
 	 * @param question

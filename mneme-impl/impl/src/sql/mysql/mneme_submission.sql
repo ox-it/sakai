@@ -3,7 +3,7 @@
 -- $Id$
 --**********************************************************************************
 --
--- Copyright (c) 2008 Etudes, Inc.
+-- Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
 -- 
 -- Portions completed before September 1, 2008
 -- Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -39,6 +39,7 @@ CREATE TABLE MNEME_SUBMISSION
 	EVAL_SCORE			FLOAT,
 	ID					BIGINT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
 	RELEASED			CHAR,
+	REVIEWED_DATE		BIGINT,
 	START_DATE			BIGINT,
 	SUBMITTED_DATE		BIGINT,
 	TEST_DRIVE			CHAR,

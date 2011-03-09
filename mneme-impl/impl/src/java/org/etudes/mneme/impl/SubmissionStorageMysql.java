@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -107,10 +107,10 @@ public abstract class SubmissionStorageMysql extends SubmissionStorageSql implem
 		StringBuilder sql = new StringBuilder();
 		sql.append("INSERT INTO MNEME_SUBMISSION (");
 		sql.append(" ASSESSMENT_ID, COMPLETE, CONTEXT, EVAL_ATRIB_DATE, EVAL_ATRIB_USER, EVAL_ATTACHMENTS,");
-		sql.append(" EVAL_COMMENT, EVAL_EVALUATED, EVAL_SCORE, RELEASED, START_DATE, SUBMITTED_DATE, TEST_DRIVE, USERID)");
-		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		sql.append(" EVAL_COMMENT, EVAL_EVALUATED, EVAL_SCORE, RELEASED, REVIEWED_DATE, START_DATE, SUBMITTED_DATE, TEST_DRIVE, USERID)");
+		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
-		Object[] fields = new Object[14];
+		Object[] fields = new Object[15];
 		fields[0] = Long.valueOf(submission.getAssessment().getId());
 		fields[1] = submission.getIsComplete() ? "1" : "0";
 		fields[2] = submission.getAssessment().getContext();
@@ -122,10 +122,11 @@ public abstract class SubmissionStorageMysql extends SubmissionStorageSql implem
 		fields[7] = submission.getEvaluation().getEvaluated() ? "1" : "0";
 		fields[8] = submission.getEvaluation().getScore() == null ? null : Float.valueOf(submission.getEvaluation().getScore());
 		fields[9] = submission.getIsReleased() ? "1" : "0";
-		fields[10] = (submission.getStartDate() == null) ? null : submission.getStartDate().getTime();
-		fields[11] = (submission.getSubmittedDate() == null) ? null : submission.getSubmittedDate().getTime();
-		fields[12] = submission.getIsTestDrive() ? "1" : "0";
-		fields[13] = submission.getUserId();
+		fields[10] = (submission.getReviewedDate() == null) ? null : submission.getReviewedDate().getTime();
+		fields[11] = (submission.getStartDate() == null) ? null : submission.getStartDate().getTime();
+		fields[12] = (submission.getSubmittedDate() == null) ? null : submission.getSubmittedDate().getTime();
+		fields[13] = submission.getIsTestDrive() ? "1" : "0";
+		fields[14] = submission.getUserId();
 
 		Long id = this.sqlService.dbInsert(null, sql.toString(), fields, "ID");
 		if (id == null)

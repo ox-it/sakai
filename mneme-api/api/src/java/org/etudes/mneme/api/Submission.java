@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -300,6 +300,13 @@ public interface Submission
 	String getReference();
 
 	/**
+	 * Access the last date the submitter reviewed this submission.
+	 * 
+	 * @return the review date for this submission, or null if there is none.
+	 */
+	Date getReviewedDate();
+
+	/**
 	 * Get the total count of submissions, including this one, to this same assignment from the same user. May not be known.
 	 * 
 	 * @return The total count of submissions to the assignment by the user, or NULL if not known.
@@ -357,6 +364,14 @@ public interface Submission
 	 *        True if the submission is released, False if it is not yet.
 	 */
 	void setIsReleased(Boolean released);
+
+	/**
+	 * Set the reviewed date for this submission - the most recent date the submitter reviewed the submission.
+	 * 
+	 * @param date
+	 *        the reviewed date for this submission.
+	 */
+	void setReviewedDate(Date date);
 
 	/**
 	 * Set the start date for this submission - the earliest date that this submission was altered by the submitter.

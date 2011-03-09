@@ -626,6 +626,22 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	/**
 	 * {@inheritDoc}
 	 */
+	public void markReviewed(Submission submission)
+	{
+		// only if the current user is the submission user
+		String userId = sessionManager.getCurrentSessionUserId();
+		if (!submission.getUserId().equals(userId)) return;
+
+		if (M_log.isDebugEnabled()) M_log.debug("markReviewed: " + submission.getId());
+
+		submission.setReviewedDate(new Date());
+
+		this.storage.saveSubmissionReviewed((SubmissionImpl) submission);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void evaluateSubmission(Submission submission) throws AssessmentPermissionException
 	{
 		Date now = new Date();

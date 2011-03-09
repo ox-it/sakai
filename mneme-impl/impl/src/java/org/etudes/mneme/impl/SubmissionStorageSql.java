@@ -308,6 +308,23 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 	/**
 	 * {@inheritDoc}
 	 */
+	public List<SubmissionImpl> getContextSubmissions(String context)
+	{
+		StringBuilder where = new StringBuilder();
+		where.append("JOIN MNEME_ASSESSMENT AA ON S.ASSESSMENT_ID=AA.ID AND AA.ARCHIVED='0'");
+		where.append(" WHERE S.CONTEXT=? AND TEST_DRIVE='0'");
+		String order = "ORDER BY S.SUBMITTED_DATE ASC";
+
+		Object[] fields = new Object[1];
+		fields[0] = context;
+
+		List<SubmissionImpl> rv = readSubmissions(where.toString(), order, fields, true);
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<SubmissionImpl> getMultipleSubmissions(Assessment assessment, String uid)
 	{
 		String where = "WHERE S.ASSESSMENT_ID=? AND S.USERID=? AND S.COMPLETE='1'";
@@ -508,23 +525,6 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<SubmissionImpl> getContextSubmissions(String context)
-	{
-		StringBuilder where = new StringBuilder();
-		where.append("JOIN MNEME_ASSESSMENT AA ON S.ASSESSMENT_ID=AA.ID AND AA.ARCHIVED='0'");
-		where.append(" WHERE S.CONTEXT=? AND TEST_DRIVE='0'");
-		String order = "ORDER BY S.SUBMITTED_DATE ASC";
-
-		Object[] fields = new Object[1];
-		fields[0] = context;
-
-		List<SubmissionImpl> rv = readSubmissions(where.toString(), order, fields, true);
-		return rv;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public List<SubmissionImpl> getUserContextSubmissions(String context, String userId, Boolean publishedOnly)
 	{
 		StringBuilder where = new StringBuilder();
@@ -653,7 +653,7 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 	{
 		if (submission.getId().startsWith(SubmissionService.PHANTOM_PREFIX))
 		{
-			// lets not save phanton submissions
+			// lets not save phantom submissions
 			throw new IllegalArgumentException();
 		}
 
@@ -670,7 +670,7 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 	{
 		if (submission.getId().startsWith(SubmissionService.PHANTOM_PREFIX))
 		{
-			// lets not save phanton submissions
+			// lets not save phantom submissions
 			throw new IllegalArgumentException();
 		}
 
@@ -678,6 +678,23 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 		if (submission.getId() == null) throw new IllegalArgumentException();
 
 		updateSubmissionReleased(submission);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void saveSubmissionReviewed(SubmissionImpl submission)
+	{
+		if (submission.getId().startsWith(SubmissionService.PHANTOM_PREFIX))
+		{
+			// lets not save phantom submissions
+			throw new IllegalArgumentException();
+		}
+
+		// has to be an existing saved submission
+		if (submission.getId() == null) throw new IllegalArgumentException();
+
+		updateSubmissionReviewed(submission);
 	}
 
 	/**
@@ -898,7 +915,7 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT S.ASSESSMENT_ID, S.COMPLETE, S.EVAL_ATRIB_DATE,");
 		sql.append(" S.EVAL_ATRIB_USER, S.EVAL_ATTACHMENTS, S.EVAL_COMMENT, S.EVAL_EVALUATED, S.EVAL_SCORE,");
-		sql.append(" S.ID, S.RELEASED, S.START_DATE, S.SUBMITTED_DATE, S.TEST_DRIVE, S.USERID");
+		sql.append(" S.ID, S.RELEASED, S.REVIEWED_DATE, S.START_DATE, S.SUBMITTED_DATE, S.TEST_DRIVE, S.USERID");
 		sql.append(" FROM MNEME_SUBMISSION S ");
 		sql.append(where);
 		if (order != null)
@@ -925,6 +942,7 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 					((EvaluationImpl) submission.getEvaluation()).initScore(SqlHelper.readFloat(result, i++));
 					submission.initId(SqlHelper.readId(result, i++));
 					submission.initReleased(SqlHelper.readBoolean(result, i++));
+					submission.setReviewedDate(SqlHelper.readDate(result, i++));
 					submission.setStartDate(SqlHelper.readDate(result, i++));
 					submission.setSubmittedDate(SqlHelper.readDate(result, i++));
 					submission.initTestDrive(SqlHelper.readBoolean(result, i++));
@@ -1167,6 +1185,46 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 		if (!this.sqlService.dbWrite(sql.toString(), fields))
 		{
 			throw new RuntimeException("updateSubmissionReleasedTx: db write failed");
+		}
+	}
+
+	/**
+	 * Update an existing submission's reviewed date.
+	 * 
+	 * @param submission
+	 *        The submission.
+	 */
+	protected void updateSubmissionReviewed(final SubmissionImpl submission)
+	{
+		this.sqlService.transact(new Runnable()
+		{
+			public void run()
+			{
+				updateSubmissionReviewedTx(submission);
+			}
+		}, "updateSubmissionReviewed: " + submission.getId());
+	}
+
+	/**
+	 * Update an existing submission's reviewed date (transaction code).
+	 * 
+	 * @param submission
+	 *        The submission.
+	 */
+	protected void updateSubmissionReviewedTx(SubmissionImpl submission)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("UPDATE MNEME_SUBMISSION SET");
+		sql.append(" REVIEWED_DATE=?");
+		sql.append(" WHERE ID=?");
+
+		Object[] fields = new Object[2];
+		fields[0] = (submission.getReviewedDate() == null) ? null : submission.getReviewedDate().getTime();
+		fields[1] = Long.valueOf(submission.getId());
+
+		if (!this.sqlService.dbWrite(sql.toString(), fields))
+		{
+			throw new RuntimeException("updateSubmissionReviewedTx: db write failed");
 		}
 	}
 
