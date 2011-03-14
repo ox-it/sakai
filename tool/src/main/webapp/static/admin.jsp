@@ -66,7 +66,7 @@
 				var loadCourse = function(code, name) {
 
 							// Table showing the components.
-							$("#course-details").html('<h3>'+ name +'&nbsp;&nbsp;<img class="mailto-all-course" src="images/email-send.png" id="'+code+'"/></h3><table border="0" class="display" id="course-details-table"></table>');
+							$("#course-details").html('<h3>'+ name +'</h3><table border="0" class="display" id="course-details-table"></table>');
 							var summary = $("#course-details-table").dataTable( {
 								"bJQueryUI": true,
 								"bProcessing": true,
@@ -121,6 +121,12 @@
 												"fnRender": function(aObj) {
 													return '<a href="../rest/signup/component/'+ aObj.aData[9]+ '.csv">Export</a>';
 												}
+											  },
+											  {
+												  sTitle: "Email",
+												"fnRender": function(aObj) {
+													return '<img class="mailto-all-course" id="'+aObj.aData[10]+'"src="images/email-send.png" />';
+												}
 											  }
 								              ],
 					
@@ -141,6 +147,7 @@
 											 component.presenter,
 											 component.administrator,
 											 component.closes, //8
+											 component.id,
 											 component.id
 											]);
 										}
@@ -396,7 +403,8 @@
 				$("img.mailto-all-course", this).die().live("click", function(e){
 					var courseId = $(this).attr("id");
 	                $.ajax({
-	                	url: "../rest/signup/course/"+courseId,
+	                	url: "../rest/signup/component/"+courseId,
+	                	//url: "../rest/signup/course/"+courseId,
 	    				type: "GET",
 	    				data: {status: "ACCEPTED"},
 	                    success: function(result){

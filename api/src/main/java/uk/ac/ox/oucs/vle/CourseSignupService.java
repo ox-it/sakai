@@ -81,7 +81,7 @@ public interface CourseSignupService {
 	
 	public List<CourseSignup> getCourseSignups(String courseId, Set<Status> statuses);
 	
-	public List<CourseSignup> getComponentSignups(String componentId);
+	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses);
 	
 	public List<CourseSignup> getApprovals();
 	

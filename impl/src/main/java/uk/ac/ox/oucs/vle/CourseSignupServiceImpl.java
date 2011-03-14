@@ -173,7 +173,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return signups;
 	}
 	
-	public List<CourseSignup> getComponentSignups(String componentId) {
+	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses) {
 		CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
 		if (componentDao == null) {
 			throw new NotFoundException(componentId);
@@ -182,7 +182,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (!isAdministrator(componentDao, currentUserId, false)) {
 			throw new PermissionDeniedException(currentUserId);
 		}
-		List<CourseSignupDAO> signupDaos = dao.findSignupByComponent(componentId);
+		List<CourseSignupDAO> signupDaos = dao.findSignupByComponent(componentId, statuses);
 		List<CourseSignup> signups = new ArrayList<CourseSignup>(signupDaos.size());
 		for(CourseSignupDAO signupDao : signupDaos) {
 			signups.add(new CourseSignupImpl(signupDao, this));

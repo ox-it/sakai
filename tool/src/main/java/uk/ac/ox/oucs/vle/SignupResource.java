@@ -163,12 +163,16 @@ public class SignupResource {
 	@Path("/component/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public StreamingOutput getComponentSignups(@PathParam("id") final String componentId) {
+	public StreamingOutput getComponentSignups(@PathParam("id") final String componentId, @QueryParam("status") final Status status) {
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
-				List<CourseSignup> signups = courseService.getComponentSignups(componentId);
+				Set statuses = null;
+				if (null != status) {
+					statuses = Collections.singleton(status);
+				}
+				List<CourseSignup> signups = courseService.getComponentSignups(componentId, statuses);
 				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
 			}
 			
@@ -183,7 +187,7 @@ public class SignupResource {
 
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
-				List<CourseSignup> signups = courseService.getComponentSignups(componentId);
+				List<CourseSignup> signups = courseService.getComponentSignups(componentId, null);
 				response.addHeader("Content-disposition", "attachment; filename="+componentId+".csv"); // Force a download
 				Writer writer = new OutputStreamWriter(output);
 				CSVWriter csvWriter = new CSVWriter(writer);
@@ -216,12 +220,18 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getPreviousSignups(@QueryParam("userid") final String userId,
-											  @QueryParam("componentid") final String componentId) {
+											  @QueryParam("componentid") final String componentId,
+											  @QueryParam("groupid") final String groupId) {
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
-				List<CourseSignup> signups = courseService.getUserComponentSignups(userId, null);
+				List<CourseSignup> signups = new ArrayList<CourseSignup>();
+				for (CourseSignup signup : courseService.getUserComponentSignups(userId, null)) {
+					if (signup.getGroup().getId().equals(groupId)) {
+						signups.add(signup);
+					}
+				}
 				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
 			}
 			

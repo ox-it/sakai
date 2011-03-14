@@ -185,12 +185,19 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<CourseSignupDAO> findSignupByComponent(final String componentId) {
+	public List<CourseSignupDAO> findSignupByComponent(final String componentId, final Set<Status> statuses) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
-				Query query = session.createQuery("select cs from CourseSignupDAO cs inner join fetch cs.components cc where cc.id = :componentId");
+				Query query;
+				if (null != statuses && !statuses.isEmpty()) {
+					query = session.createQuery("select cs from CourseSignupDAO cs inner join fetch cs.components cc where cc.id = :componentId and cs.status in (:statuses)");
+					query.setParameterList("statuses", statuses);
+				} else {
+					query = session.createQuery("select cs from CourseSignupDAO cs inner join fetch cs.components cc where cc.id = :componentId");
+				}
+				
 				query.setString("componentId", componentId);
 				return query.list();
 			}
