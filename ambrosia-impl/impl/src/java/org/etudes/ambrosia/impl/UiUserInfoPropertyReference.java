@@ -134,7 +134,7 @@ public class UiUserInfoPropertyReference extends UiPropertyReference implements 
 
 		if (this.disambiguate)
 		{
-			rv = rv + " (" + user.getDisplayId() + ")";
+			rv = rv + " (" + user.getDisplayId().trim() + ")";
 		}
 
 		return Validator.escapeHtml(rv);
