@@ -106,7 +106,7 @@ public class AssessmentStatsView extends ControllerImpl
 
 		// collect all the submissions for the assessment
 		List<Submission> submissions = this.submissionService.findAssessmentSubmissions(assessment,
-				SubmissionService.FindAssessmentSubmissionsSort.sdate_a, Boolean.FALSE, null, null, null);
+				SubmissionService.FindAssessmentSubmissionsSort.sdate_a, Boolean.FALSE, null, null, null, null);
 		context.put("submissions", submissions);
 
 		computePercentComplete(submissions, context);

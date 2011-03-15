@@ -182,7 +182,7 @@ public class GradeAssessmentView extends ControllerImpl
 
 		// get all Assessment submissions
 		List<Submission> submissions = this.submissionService.findAssessmentSubmissions(assessment, sort, official, allUid,
-				paging.getSize() == 0 ? null : paging.getCurrent(), paging.getSize() == 0 ? null : paging.getSize());
+				paging.getSize() == 0 ? null : paging.getCurrent(), paging.getSize() == 0 ? null : paging.getSize(), null);
 		context.put("submissions", submissions);
 
 		// pages sizes

@@ -224,10 +224,12 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 *        The page number (1 based) to display, or null to disable paging and get them all.
 	 * @param pageSize
 	 *        The number of items for the requested page, or null if we are not paging.
+	 * @param filterByPermission
+	 *        if null or TRUE, return submissions for only users currently permitted to submit, otherwise return all found submissions.
 	 * @return A sorted List<Submission> of the submissions for the assessment.
 	 */
 	List<Submission> findAssessmentSubmissions(Assessment assessment, FindAssessmentSubmissionsSort sort, Boolean official, String allUid,
-			Integer pageNum, Integer pageSize);
+			Integer pageNum, Integer pageSize, Boolean filterByPermission);
 
 	/**
 	 * Find the questions that have been used in submissions in this assessment part.<br />

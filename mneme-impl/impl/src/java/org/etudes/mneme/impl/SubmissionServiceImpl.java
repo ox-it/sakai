@@ -402,7 +402,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			M_log.debug("countAssessmentSubmissions: assessment: " + assessment.getId() + " official: " + official + " allUid: " + allUid);
 
 		// get the submissions to the assessment made by all possible submitters
-		List<SubmissionImpl> all = getAssessmentSubmissions(assessment, FindAssessmentSubmissionsSort.status_a, null);
+		List<SubmissionImpl> all = getAssessmentSubmissions(assessment, FindAssessmentSubmissionsSort.status_a, null, true);
 
 		// see if any needs to be completed based on time limit or dates
 		checkAutoComplete(all, asOf);
@@ -938,7 +938,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	 * {@inheritDoc}
 	 */
 	public List<Submission> findAssessmentSubmissions(Assessment assessment, FindAssessmentSubmissionsSort sort, Boolean official, String allUid,
-			Integer pageNum, Integer pageSize)
+			Integer pageNum, Integer pageSize, Boolean filterByPermission)
 	{
 		if (assessment == null) throw new IllegalArgumentException();
 		if (official == null) throw new IllegalArgumentException();
@@ -950,7 +950,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 					+ allUid);
 
 		// get the submissions to the assessment made by all possible submitters
-		List<SubmissionImpl> all = getAssessmentSubmissions(assessment, sort, null);
+		List<SubmissionImpl> all = getAssessmentSubmissions(assessment, sort, null,
+				((filterByPermission == null) ? true : filterByPermission.booleanValue()));
 
 		// see if any needs to be completed based on time limit or dates
 		checkAutoComplete(all, asOf);
@@ -1043,7 +1044,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		// get the submissions to the assessment made by all possible submitters
 		// TODO: we don't really need them all... no phantoms!
-		List<SubmissionImpl> all = getAssessmentSubmissions(submission.getAssessment(), sort, null);
+		List<SubmissionImpl> all = getAssessmentSubmissions(submission.getAssessment(), sort, null, true);
 
 		// see if any needs to be completed based on time limit or dates
 		checkAutoComplete(all, asOf);
@@ -1192,7 +1193,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			M_log.debug("findAssessmentSubmissions: assessment: " + assessment.getId() + " question: " + question.getId() + " sort: " + sort);
 
 		// read all the submissions for this assessment from all possible submitters
-		List<SubmissionImpl> all = getAssessmentSubmissions(assessment, sort, question);
+		List<SubmissionImpl> all = getAssessmentSubmissions(assessment, sort, question, true);
 
 		// see if any needs to be completed based on time limit or dates
 		checkAutoComplete(all, asOf);
@@ -2683,7 +2684,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		// collect all the submissions for the assessment
 		List<Submission> submissions = findAssessmentSubmissions(assessment, SubmissionService.FindAssessmentSubmissionsSort.sdate_a, Boolean.FALSE,
-				null, null, null);
+				null, null, null, null);
 
 		ResultsFormatterImpl formatter = new ResultsFormatterImpl(this.messages);
 		String content = formatter.formatResults(assessment, submissions);
@@ -2713,9 +2714,12 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	 *        The sort.
 	 * @param question
 	 *        An optional question, to use for sort-by-score (the score would be for this question in the submission, not the overall).
+	 * @param filterByPermission
+	 *        if true, return submissions only from users who are currently permitted to submit, otherwise return any submissions found.
 	 * @return A List<Submission> of the submissions for the assessment.
 	 */
-	protected List<SubmissionImpl> getAssessmentSubmissions(Assessment assessment, final FindAssessmentSubmissionsSort sort, final Question question)
+	protected List<SubmissionImpl> getAssessmentSubmissions(Assessment assessment, final FindAssessmentSubmissionsSort sort, final Question question,
+			boolean filterByPermission)
 	{
 		// collect the submissions to this assessment
 		List<SubmissionImpl> rv = this.storage.getAssessmentSubmissions(assessment);
@@ -2752,13 +2756,16 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		}
 
 		// filter out any submissions found that are not for one of the users in the userIds list (they may have lost permission)
-		for (Iterator i = rv.iterator(); i.hasNext();)
+		if (filterByPermission)
 		{
-			SubmissionImpl submission = (SubmissionImpl) i.next();
-
-			if (!userIds.contains(submission.getUserId()))
+			for (Iterator<SubmissionImpl> i = rv.iterator(); i.hasNext();)
 			{
-				i.remove();
+				SubmissionImpl submission = i.next();
+
+				if (!userIds.contains(submission.getUserId()))
+				{
+					i.remove();
+				}
 			}
 		}
 
