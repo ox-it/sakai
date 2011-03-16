@@ -108,10 +108,11 @@ public class PopulatorImpl implements Populator{
 					groupUpdated++;
 				}
 			}
+			
 			// Now import all the course components ( from teaching (instances/components))
 			String sql = "SELECT\n" + 
 					"  ti.teaching_instance_id, ti.open_date, ti.close_date, ti.expiry_date, ti.start_date, ti.end_date, ti.sessions, ti.session_dates, ti.capacity, ti.bookable,\n" + 
-					"  tc.assessment_unit_code as assessment_unit_codes, tc.teaching_component_id,\n" + 
+					"  tc.assessment_unit_code as assessment_unit_codes, tc.teaching_component_id, tc.subject,\n" + 
 					"  l.label location,\n" + 
 					"  t.code as term_code, t.label as term_name,\n" + 
 					"  c.title,\n" + 
@@ -166,6 +167,11 @@ public class PopulatorImpl implements Populator{
 					logFailure(id, "Capacity isn't set or is zero");
 					continue;
 				}
+				String subject = rs.getString("subject");
+				if (subject == null || subject.trim().length() == 0) {
+					logFailure(id, "Subject isn't set.");
+					continue;
+				}
 				String title = rs.getString("title");
 				if (title == null || title.trim().length() == 0) {
 					logFailure(id, "Title isn't set.");
@@ -202,6 +208,7 @@ public class PopulatorImpl implements Populator{
 					created = true;
 				}
 				componentDao.setTitle(title);
+				componentDao.setSubject(subject);
 				componentDao.setOpens(openDate);
 				componentDao.setCloses(closeDate);
 				componentDao.setExpires(expiryDate);

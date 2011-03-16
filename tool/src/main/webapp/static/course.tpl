@@ -65,10 +65,17 @@
                 <form id="signup" action="#">
                     <table width="100%">
                     	{for part in parts}
-						<tr>
-                            <th colspan="3">
-                                ${part.type.name}
-                            </th>
+                    	{if part.subject}
+							<tr>
+                            	<th colspan="3">
+                            		${part.subject}
+                            	</th>
+                        	</tr>
+                        {/if}
+                        <tr>
+                            <td colspan="3">
+                                &nbsp;&nbsp;${part.type.name}
+                            </td>
                         </tr>
 						{var oneOpen = false}
 						{for option in part.options}

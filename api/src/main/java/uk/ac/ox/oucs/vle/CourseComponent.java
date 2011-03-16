@@ -6,6 +6,8 @@ public interface CourseComponent {
 
 	public String getId();
 	
+	public String getSubject();
+	
 	public String getTitle();
 	
 	public int getPlaces();

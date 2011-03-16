@@ -136,6 +136,7 @@ var Signup = function(){
 								parts.push({
 									"options": [component],
 									"signup": (component.signup) ? component.signup : null,
+									"subject": component.subject,
 									"type": {
 										"id": component.componentSet,
 										"name": component.title
@@ -481,7 +482,6 @@ var Signup = function(){
 			 */
 			"statuses": ["PENDING", "ACCEPTED", "APPROVED", "REJECTED", "WITHDRAWN"],
 			
-			
             "getActions": function(status, id, closes, admin){
                 if (admin) {
                     switch (status) {
@@ -655,8 +655,31 @@ var Signup = function(){
 			}
         },
         "user": {
-            "render": function(user, components){
+            "render": function(user, group, components){
                 var details = "";
+                
+ 			    var previous = function(userid, groupid){
+ 		 		    var tip = "";
+ 		 	   		$.ajax({
+ 		 	   			url: "../rest/signup/previous/",
+ 		 	   			type: "GET",
+ 		 	   			data: {	userid: userid,
+ 		 				   		componentid: "",
+ 		 				   		groupid: groupid
+ 		 				  		},
+ 		 				success: function(result) {	
+ 		 					$.each(result, function(){
+ 		 						var signupStatus = this.status;
+ 		 						var signupGroup = this.group;
+ 		 						$.each(this.components, function(){
+ 		 							tip += signupGroup.title+" "+this.title+" ("+this.id+") "+this.when+" "+signupStatus+"<br />";
+ 		 						});
+ 		 					});	
+ 		 				}
+ 		 	   		});
+ 		 	   		return tip;
+ 		 	    };
+                
                 if (user) {
 					if (user.email) {
 						details += '<a href="mailto:' + user.email + '">' + user.name + '</a>';
@@ -674,9 +697,23 @@ var Signup = function(){
                         details += '<br />Status: ' + type;
                     }
                     
+                    //Start frig
+                    /**
+                    if (group.id) {
+                    	var tip = previous(user.id, group.id);
+                    	if (tip.length != 0) {
+                    		details += '<br /><span class="more">[Previous SignUps]<span class="full">' + tip + '</span></span>';
+                    	} else {
+                    		details += '<br /><span>[Previous SignUps]</span>';
+                    	}
+                    }
+                    */
+                    //End Frig
+                    
                     if (components) {
                     	details += '<br /><span class="previous-signup more">[Previous SignUps]';
                     	details += '<input class="userid" type="hidden" name="userid" value="'+user.id+'"/>';
+                    	details += '<input class="groupid" type="hidden" name="groupid" value="'+group.id+'"/>';
                     	$.each(components, function(){
                     		details += '<input class="componentid" type="hidden" name="componentid" value="'+this.id+'"/>';
                     	});
@@ -703,6 +740,7 @@ var Signup = function(){
 			}
         }
     };
+    
 }();
 
 /**
@@ -787,7 +825,7 @@ var Signup = function(){
                             			closes = this.closes;
                             });
                             var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, isAdmin));
-                            data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.components), course, Signup.user.render(this.supervisor), Signup.signup.formatNotes(this.notes), this.status, actions]);
+                            data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.user.render(this.supervisor), Signup.signup.formatNotes(this.notes), this.status, actions]);
                             
                         });
                         fnCallback({
@@ -805,6 +843,7 @@ var Signup = function(){
         $("span.previous-signup").die().live("mouseover", function(e){
         	var span = $(this);
         	var userId = span.children("input.userid").first().attr("value");
+        	var groupId = span.children("input.groupid").first().attr("value");
         	var componentId = span.children("input.componentid").map(function() {
         		return this.value;
         	}).get().join(',');
@@ -813,18 +852,23 @@ var Signup = function(){
 				url: "../rest/signup/previous/",
 				type: "GET",
 				data: {userid: userId,
-					   componentid: componentId
+					   componentid: componentId,
+					   groupid: groupId
 					  },
 				success: function(result) {
-					$(span).tooltip({
+					$("span.previous-signup").tooltip({
 						bodyHandler: function() { 
 							var tip = "";
 							$.each(result, function(){
 								var signupStatus = this.status;
+								var signupGroup = this.group;
 								$.each(this.components, function(){
-									tip += this.title+" ("+this.id+") "+this.when+" "+signupStatus+"<br />";
+									tip += signupGroup.title+" "+this.title+" ("+this.id+") "+this.when+" "+signupStatus+"<br />";
 								});
 							});
+							if (tip.length == 0) {
+								tip = "none";
+							}
 							return tip;
 						}
 					});	  
@@ -863,6 +907,7 @@ var Signup = function(){
         return table;
         
     };
+    
 })(jQuery);
 
 // Stop browsers without console.log from crashing.

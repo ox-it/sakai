@@ -23,6 +23,10 @@ public class CourseComponentImpl implements CourseComponent {
 	public String getId() {
 		return dao.getId();
 	}
+	
+	public String getSubject() {
+		return dao.getSubject();
+	}
 
 	public String getTitle() {
 		return dao.getTitle();
