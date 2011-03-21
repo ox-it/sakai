@@ -626,22 +626,6 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	/**
 	 * {@inheritDoc}
 	 */
-	public void markReviewed(Submission submission)
-	{
-		// only if the current user is the submission user
-		String userId = sessionManager.getCurrentSessionUserId();
-		if (!submission.getUserId().equals(userId)) return;
-
-		if (M_log.isDebugEnabled()) M_log.debug("markReviewed: " + submission.getId());
-
-		submission.setReviewedDate(new Date());
-
-		this.storage.saveSubmissionReviewed((SubmissionImpl) submission);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public void evaluateSubmission(Submission submission) throws AssessmentPermissionException
 	{
 		Date now = new Date();
@@ -1518,196 +1502,17 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	/**
 	 * {@inheritDoc}
 	 */
+	public List<Submission> getUnfilteredUserContextSubmissions(String context, String userId, GetUserContextSubmissionsSort sortParam)
+	{
+		return getUserContextSubmissions(context, userId, sortParam, false);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<Submission> getUserContextSubmissions(String context, String userId, GetUserContextSubmissionsSort sortParam)
 	{
-		if (context == null) throw new IllegalArgumentException();
-		if (userId == null) userId = sessionManager.getCurrentSessionUserId();
-		if (sortParam == null) sortParam = GetUserContextSubmissionsSort.title_a;
-		final GetUserContextSubmissionsSort sort = sortParam;
-		Date asOf = new Date();
-
-		if (M_log.isDebugEnabled()) M_log.debug("getUserContextSubmissions: context: " + context + " userId: " + userId + ": " + sort);
-
-		// if we are in a test drive situation, use unpublished as well
-		Boolean publishedOnly = Boolean.TRUE;
-		if (securityService.checkSecurity(userId, MnemeService.MANAGE_PERMISSION, context)
-				&& (!securityService.checkSecurity(userId, MnemeService.SUBMIT_PERMISSION, context)))
-		{
-			publishedOnly = Boolean.FALSE;
-		}
-
-		// read all the submissions for this user in the context
-		List<SubmissionImpl> all = this.storage.getUserContextSubmissions(context, userId, publishedOnly);
-
-		// filter out invalid assessments
-		for (Iterator i = all.iterator(); i.hasNext();)
-		{
-			Submission s = (Submission) i.next();
-			if (!s.getAssessment().getIsValid())
-			{
-				i.remove();
-			}
-		}
-
-		// get all the assessments for this context
-		List<Assessment> assessments = this.assessmentService
-				.getContextAssessments(context, AssessmentService.AssessmentsSort.title_a, publishedOnly);
-
-		// if any valid assessment is not represented in the submissions we found, add an empty submission for it
-		for (Assessment a : assessments)
-		{
-			if (!a.getIsValid()) continue;
-
-			boolean found = false;
-			for (Submission s : all)
-			{
-				if (s.getAssessment().equals(a))
-				{
-					found = true;
-					break;
-				}
-			}
-
-			if (!found)
-			{
-				SubmissionImpl s = this.getPhantomSubmission(userId, a);
-				all.add(s);
-			}
-		}
-
-		// sort
-		// status sorts first by due date descending, then status final sorting is done in the service
-		Collections.sort(all, new Comparator()
-		{
-			public int compare(Object arg0, Object arg1)
-			{
-				int rv = 0;
-				switch (sort)
-				{
-					case title_a:
-					{
-						String s0 = StringUtil.trimToZero(((Submission) arg0).getAssessment().getTitle());
-						String s1 = StringUtil.trimToZero(((Submission) arg1).getAssessment().getTitle());
-						rv = s0.compareToIgnoreCase(s1);
-						break;
-					}
-					case title_d:
-					{
-						String s0 = StringUtil.trimToZero(((Submission) arg0).getAssessment().getTitle());
-						String s1 = StringUtil.trimToZero(((Submission) arg1).getAssessment().getTitle());
-						rv = -1 * s0.compareToIgnoreCase(s1);
-						break;
-					}
-					case type_a:
-					{
-						rv = ((Submission) arg0).getAssessment().getType().getSortValue()
-								.compareTo(((Submission) arg1).getAssessment().getType().getSortValue());
-						break;
-					}
-					case type_d:
-					{
-						rv = -1
-								* ((Submission) arg0).getAssessment().getType().getSortValue()
-										.compareTo(((Submission) arg1).getAssessment().getType().getSortValue());
-						break;
-					}
-					case dueDate_a:
-					{
-						// no due date sorts high
-						if (((Submission) arg0).getAssessment().getDates().getDueDate() == null)
-						{
-							if (((Submission) arg1).getAssessment().getDates().getDueDate() == null)
-							{
-								rv = 0;
-								break;
-							}
-							rv = 1;
-							break;
-						}
-						if (((Submission) arg1).getAssessment().getDates().getDueDate() == null)
-						{
-							rv = -1;
-							break;
-						}
-						rv = ((Submission) arg0).getAssessment().getDates().getDueDate()
-								.compareTo(((Submission) arg1).getAssessment().getDates().getDueDate());
-						break;
-					}
-					case dueDate_d:
-					case status_a:
-					case status_d:
-					{
-						// no due date sorts high
-						if (((Submission) arg0).getAssessment().getDates().getDueDate() == null)
-						{
-							if (((Submission) arg1).getAssessment().getDates().getDueDate() == null)
-							{
-								rv = 0;
-								break;
-							}
-							rv = -1;
-							break;
-						}
-						if (((Submission) arg1).getAssessment().getDates().getDueDate() == null)
-						{
-							rv = 1;
-							break;
-						}
-						rv = -1
-								* ((Submission) arg0).getAssessment().getDates().getDueDate()
-										.compareTo(((Submission) arg1).getAssessment().getDates().getDueDate());
-						break;
-					}
-				}
-
-				return rv;
-			}
-		});
-
-		// see if any needs to be completed based on time limit or dates
-		checkAutoComplete(all, asOf);
-
-		// pick one for each assessment - the one in progress, or the official complete one
-		List<Submission> official = officializeByAssessment(all);
-
-		// // if sorting by due date, fix it so null due dates are LARGE not SMALL
-		// if (sort == GetUserContextSubmissionsSort.dueDate_a || sort == GetUserContextSubmissionsSort.dueDate_d
-		// || sort == GetUserContextSubmissionsSort.status_a || sort == GetUserContextSubmissionsSort.status_d)
-		// {
-		// // pull out the null date entries
-		// List<Submission> nulls = new ArrayList<Submission>();
-		// for (Iterator i = official.iterator(); i.hasNext();)
-		// {
-		// Submission s = (Submission) i.next();
-		// if (s.getAssessment().getDates().getDueDate() == null)
-		// {
-		// nulls.add(s);
-		// i.remove();
-		// }
-		// }
-		//
-		// // for ascending, treat the null dates as LARGE so put them at the end
-		// if ((sort == GetUserContextSubmissionsSort.dueDate_a) || (sort == GetUserContextSubmissionsSort.status_d))
-		// {
-		// official.addAll(nulls);
-		// }
-		//
-		// // for descending, (all status is first sorted date descending) treat the null dates as LARGE so put them at the beginning
-		// else
-		// {
-		// nulls.addAll(official);
-		// official.clear();
-		// official.addAll(nulls);
-		// }
-		// }
-
-		// if sorting by status, do that sort
-		if (sort == GetUserContextSubmissionsSort.status_a || sort == GetUserContextSubmissionsSort.status_d)
-		{
-			official = sortByAssessmentSubmissionStatus((sort == GetUserContextSubmissionsSort.status_d), official);
-		}
-
-		return official;
+		return getUserContextSubmissions(context, userId, sortParam, true);
 	}
 
 	/**
@@ -1768,6 +1573,22 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		{
 			M_log.warn("init(): ", t);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void markReviewed(Submission submission)
+	{
+		// only if the current user is the submission user
+		String userId = sessionManager.getCurrentSessionUserId();
+		if (!submission.getUserId().equals(userId)) return;
+
+		if (M_log.isDebugEnabled()) M_log.debug("markReviewed: " + submission.getId());
+
+		submission.setReviewedDate(new Date());
+
+		this.storage.saveSubmissionReviewed((SubmissionImpl) submission);
 	}
 
 	/**
@@ -3210,6 +3031,224 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		}
 
 		return rv;
+	}
+
+	/**
+	 * Get the submissions to assessments in this context made by this user. Consider:
+	 * <ul>
+	 * <li>published and valid assessments (if filtering)</li>
+	 * <li>assessments in this context</li>
+	 * <li>assessments this user can submit to and have submitted to</li>
+	 * <li>the one (of many for this user) submission that will be the official (graded) (depending on the assessment settings, and submission time and score)</li>
+	 * </ul>
+	 * 
+	 * @param context
+	 *        The context to use.
+	 * @param userId
+	 *        The user id - if null, use the current user.
+	 * @param sortParam
+	 *        The sort order.
+	 * @param filter
+	 *        - if true, filter away invalid and unpublished, else include them.
+	 * @return A List<Submission> of the submissions that are the official submissions for assessments in the context by this user, sorted.
+	 */
+	protected List<Submission> getUserContextSubmissions(String context, String userId, GetUserContextSubmissionsSort sortParam, boolean filter)
+	{
+		if (context == null) throw new IllegalArgumentException();
+		if (userId == null) userId = sessionManager.getCurrentSessionUserId();
+		if (sortParam == null) sortParam = GetUserContextSubmissionsSort.title_a;
+		final GetUserContextSubmissionsSort sort = sortParam;
+		Date asOf = new Date();
+
+		if (M_log.isDebugEnabled()) M_log.debug("getUserContextSubmissions: context: " + context + " userId: " + userId + ": " + sort);
+
+		// if we are in a test drive situation, or not filtering, use unpublished as well
+		Boolean publishedOnly = Boolean.TRUE;
+		if (securityService.checkSecurity(userId, MnemeService.MANAGE_PERMISSION, context)
+				&& (!securityService.checkSecurity(userId, MnemeService.SUBMIT_PERMISSION, context)))
+		{
+			publishedOnly = Boolean.FALSE;
+		}
+		else if (!filter)
+		{
+			publishedOnly = Boolean.FALSE;
+		}
+
+		// read all the submissions for this user in the context
+		List<SubmissionImpl> all = this.storage.getUserContextSubmissions(context, userId, publishedOnly);
+
+		// filter out invalid assessments
+		if (filter)
+		{
+			for (Iterator i = all.iterator(); i.hasNext();)
+			{
+				Submission s = (Submission) i.next();
+				if (!s.getAssessment().getIsValid())
+				{
+					i.remove();
+				}
+			}
+		}
+
+		// get all the assessments for this context
+		List<Assessment> assessments = this.assessmentService
+				.getContextAssessments(context, AssessmentService.AssessmentsSort.title_a, publishedOnly);
+
+		// if any valid assessment is not represented in the submissions we found, add an empty submission for it
+		for (Assessment a : assessments)
+		{
+			if (!a.getIsValid()) continue;
+
+			boolean found = false;
+			for (Submission s : all)
+			{
+				if (s.getAssessment().equals(a))
+				{
+					found = true;
+					break;
+				}
+			}
+
+			if (!found)
+			{
+				SubmissionImpl s = this.getPhantomSubmission(userId, a);
+				all.add(s);
+			}
+		}
+
+		// sort
+		// status sorts first by due date descending, then status final sorting is done in the service
+		Collections.sort(all, new Comparator()
+		{
+			public int compare(Object arg0, Object arg1)
+			{
+				int rv = 0;
+				switch (sort)
+				{
+					case title_a:
+					{
+						String s0 = StringUtil.trimToZero(((Submission) arg0).getAssessment().getTitle());
+						String s1 = StringUtil.trimToZero(((Submission) arg1).getAssessment().getTitle());
+						rv = s0.compareToIgnoreCase(s1);
+						break;
+					}
+					case title_d:
+					{
+						String s0 = StringUtil.trimToZero(((Submission) arg0).getAssessment().getTitle());
+						String s1 = StringUtil.trimToZero(((Submission) arg1).getAssessment().getTitle());
+						rv = -1 * s0.compareToIgnoreCase(s1);
+						break;
+					}
+					case type_a:
+					{
+						rv = ((Submission) arg0).getAssessment().getType().getSortValue()
+								.compareTo(((Submission) arg1).getAssessment().getType().getSortValue());
+						break;
+					}
+					case type_d:
+					{
+						rv = -1
+								* ((Submission) arg0).getAssessment().getType().getSortValue()
+										.compareTo(((Submission) arg1).getAssessment().getType().getSortValue());
+						break;
+					}
+					case dueDate_a:
+					{
+						// no due date sorts high
+						if (((Submission) arg0).getAssessment().getDates().getDueDate() == null)
+						{
+							if (((Submission) arg1).getAssessment().getDates().getDueDate() == null)
+							{
+								rv = 0;
+								break;
+							}
+							rv = 1;
+							break;
+						}
+						if (((Submission) arg1).getAssessment().getDates().getDueDate() == null)
+						{
+							rv = -1;
+							break;
+						}
+						rv = ((Submission) arg0).getAssessment().getDates().getDueDate()
+								.compareTo(((Submission) arg1).getAssessment().getDates().getDueDate());
+						break;
+					}
+					case dueDate_d:
+					case status_a:
+					case status_d:
+					{
+						// no due date sorts high
+						if (((Submission) arg0).getAssessment().getDates().getDueDate() == null)
+						{
+							if (((Submission) arg1).getAssessment().getDates().getDueDate() == null)
+							{
+								rv = 0;
+								break;
+							}
+							rv = -1;
+							break;
+						}
+						if (((Submission) arg1).getAssessment().getDates().getDueDate() == null)
+						{
+							rv = 1;
+							break;
+						}
+						rv = -1
+								* ((Submission) arg0).getAssessment().getDates().getDueDate()
+										.compareTo(((Submission) arg1).getAssessment().getDates().getDueDate());
+						break;
+					}
+				}
+
+				return rv;
+			}
+		});
+
+		// see if any needs to be completed based on time limit or dates
+		checkAutoComplete(all, asOf);
+
+		// pick one for each assessment - the one in progress, or the official complete one
+		List<Submission> official = officializeByAssessment(all);
+
+		// // if sorting by due date, fix it so null due dates are LARGE not SMALL
+		// if (sort == GetUserContextSubmissionsSort.dueDate_a || sort == GetUserContextSubmissionsSort.dueDate_d
+		// || sort == GetUserContextSubmissionsSort.status_a || sort == GetUserContextSubmissionsSort.status_d)
+		// {
+		// // pull out the null date entries
+		// List<Submission> nulls = new ArrayList<Submission>();
+		// for (Iterator i = official.iterator(); i.hasNext();)
+		// {
+		// Submission s = (Submission) i.next();
+		// if (s.getAssessment().getDates().getDueDate() == null)
+		// {
+		// nulls.add(s);
+		// i.remove();
+		// }
+		// }
+		//
+		// // for ascending, treat the null dates as LARGE so put them at the end
+		// if ((sort == GetUserContextSubmissionsSort.dueDate_a) || (sort == GetUserContextSubmissionsSort.status_d))
+		// {
+		// official.addAll(nulls);
+		// }
+		//
+		// // for descending, (all status is first sorted date descending) treat the null dates as LARGE so put them at the beginning
+		// else
+		// {
+		// nulls.addAll(official);
+		// official.clear();
+		// official.addAll(nulls);
+		// }
+		// }
+
+		// if sorting by status, do that sort
+		if (sort == GetUserContextSubmissionsSort.status_a || sort == GetUserContextSubmissionsSort.status_d)
+		{
+			official = sortByAssessmentSubmissionStatus((sort == GetUserContextSubmissionsSort.status_d), official);
+		}
+
+		return official;
 	}
 
 	/**

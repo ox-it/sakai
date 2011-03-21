@@ -184,14 +184,6 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	void evaluateSubmission(Submission submission) throws AssessmentPermissionException;
 
 	/**
-	 * Record the date that this submission was reviewed, if this is being reviewed by the submission's user.
-	 * 
-	 * @param submission
-	 *        The submission.
-	 */
-	void markReviewed(Submission submission);
-
-	/**
 	 * Apply an evaluation to all the official completed submissions to this assessment.
 	 * 
 	 * @param assessment
@@ -372,6 +364,24 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	Float getSubmissionOfficialScore(Assessment assessment, String userId);
 
 	/**
+	 * Get the submissions to assessments in this context made by this user. The list includes unpublished and invalid assessments. Consider:
+	 * <ul>
+	 * <li>assessments in this context</li>
+	 * <li>assessments this user can submit to and have submitted to</li>
+	 * <li>the one (of many for this user) submission that will be the official (graded) (depending on the assessment settings, and submission time and score)</li>
+	 * </ul>
+	 * 
+	 * @param context
+	 *        The context to use.
+	 * @param userId
+	 *        The user id - if null, use the current user.
+	 * @param sort
+	 *        The sort order.
+	 * @return A List<Submission> of the submissions that are the official submissions for assessments in the context by this user, sorted.
+	 */
+	List<Submission> getUnfilteredUserContextSubmissions(String context, String userId, GetUserContextSubmissionsSort sort);
+
+	/**
 	 * Get the submissions to assessments in this context made by this user. Consider:
 	 * <ul>
 	 * <li>published and valid assessments</li>
@@ -389,6 +399,14 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 * @return A List<Submission> of the submissions that are the official submissions for assessments in the context by this user, sorted.
 	 */
 	List<Submission> getUserContextSubmissions(String context, String userId, GetUserContextSubmissionsSort sort);
+
+	/**
+	 * Record the date that this submission was reviewed, if this is being reviewed by the submission's user.
+	 * 
+	 * @param submission
+	 *        The submission.
+	 */
+	void markReviewed(Submission submission);
 
 	/**
 	 * Release all, or all evaluated, official completed submissions to this assessment.
