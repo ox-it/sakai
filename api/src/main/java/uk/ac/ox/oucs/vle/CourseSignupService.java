@@ -77,7 +77,7 @@ public interface CourseSignupService {
 	 * @param courseId
 	 * @param components
 	 */
-	public void signup(String userId, String courseId, Set<String> components);
+	public void signup(String userId, String courseId, Set<String> components, String supervisorId);
 	
 	public List<CourseSignup> getCourseSignups(String courseId, Set<Status> statuses);
 	
