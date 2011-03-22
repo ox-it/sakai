@@ -268,7 +268,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 	}
 	
-	public void signup(String userId, String courseId, Set<String> componentIds) {
+	public void signup(String userId, String courseId, Set<String> componentIds, String supervisorId) {
 		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
 		if (groupDao == null) {
 			throw new NotFoundException(courseId);
@@ -293,7 +293,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (!isAdministrator(groupDao, currentUserId, false)) {
 			throw new PermissionDeniedException(currentUserId);
 		}
-		CourseSignupDAO signupDao = dao.newSignup(userId, null);
+		
+		// Create the signup.
+		CourseSignupDAO signupDao = dao.newSignup(userId, supervisorId);
 		signupDao.setCreated(getNow());
 		signupDao.setGroup(groupDao);
 		signupDao.setStatus(Status.ACCEPTED);
@@ -524,7 +526,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public List<CourseGroup> getCourseGroups(String deptId, Range range) {
-		List<CourseGroupDAO> cgDaos = dao.findCourseGroupByDept(deptId, range, getNow());
+		List<CourseGroupDAO> cgDaos = dao.findCourseGroupBySubunit(deptId, range, getNow());
 		List<CourseGroup> cgs = new ArrayList<CourseGroup>(cgDaos.size());
 		for (CourseGroupDAO cgDao: cgDaos) {
 			cgs.add(new CourseGroupImpl(cgDao, this));
