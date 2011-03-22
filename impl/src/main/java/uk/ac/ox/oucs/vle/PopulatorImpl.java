@@ -62,7 +62,8 @@ public class PopulatorImpl implements Populator{
 			Statement st = con.createStatement();
 			// Import all course groups (from assessment units)
 			ResultSet rs = st.executeQuery(
-					"SELECT distinct au.unit_id, au.code, au.title, au.department_code, d.name as department_name, au.description,\n" +
+					"SELECT distinct au.unit_id, au.code, au.title, au.department_code," +
+					" d.name as department_name, au.sub_unit_code, su.name as subunit_name, au.description,\n" +
 					"  admin.webauth_id as admin\n" +
 					"FROM\n" + 
 					"  Assessment_Unit au\n" + 
@@ -71,36 +72,41 @@ public class PopulatorImpl implements Populator{
 					// The LIKE is here because there can be multiple entries seperated by commas
 					"  ( tc.assessment_unit_code LIKE concat(concat('%',au.code),'%') AND length(tc.assessment_unit_code) > 0)\n" + 
 					"  INNER JOIN Department d ON au.department_code = d.code\n" + 
+					"  INNER JOIN Sub_Unit su ON au.sub_unit_code = su.code\n" + 
 					";");
 			while(rs.next()) {
 				groupSeen++;
 				String code = rs.getString("code");
 				String title = rs.getString("title");
 				String departmentCode = rs.getString("department_code");
-				String description = rs.getString("description");
 				String departmentName = rs.getString("department_name");
+				String subunitCode = rs.getString("sub_unit_code");
+				String subunitName = rs.getString("subunit_name");
+				String description = rs.getString("description");
 				String administrator = rs.getString("admin");
 				if (administrator == null || administrator.trim().length() == 0) {
-					logFailure(code, "No administrator set");
+					logFailure(null, code, "No administrator set");
 					continue;
 				}
-				UserProxy user = proxy.findUserByEid(administrator);
+				UserProxy user = proxy.findUserByEid(administrator); 
 				if (user == null) {
-					logFailure(code, "Failed to find administrator");
+					logFailure(null, code, "Failed to find administrator");
 					continue;
 				}
 				CourseGroupDAO groupDao = dao.findCourseGroupById(code);
 				boolean created = false;
 				if (groupDao == null) {
-					groupDao = dao.newCourseGroup(code, title, departmentCode);
+					groupDao = dao.newCourseGroup(code, title, departmentCode, subunitCode);
 					created = true;
 				} else {
 					groupDao.setDept(departmentCode);
+					groupDao.setSubunit(subunitCode);
 					groupDao.setTitle(title);
 				}
 				groupDao.setAdministrator(user.getId());
 				groupDao.setDescription(description);
 				groupDao.setDepartmentName(departmentName);
+				groupDao.setSubunitName(subunitName);
 				dao.save(groupDao);
 				if (created) {
 					groupCreated++;
@@ -132,14 +138,15 @@ public class PopulatorImpl implements Populator{
 				boolean bookable = bookableString == null || bookableString.trim().length() == 0 || bookableString.equals("TRUE");
 				
 				String id = rs.getString("teaching_instance_id");
+				String assessmentUnitCodes = rs.getString("assessment_unit_codes");
 				Date openDate = getDate(rs, "open_date");
 				if (openDate == null) { 
-					logFailure(id, "No open date set");
+					logFailure(assessmentUnitCodes, id, "No open date set");
 					continue;
 				}
 				Date closeDate = getDate(rs, "close_date");
 				if (closeDate == null) {
-					logFailure(id, "No close date set");
+					logFailure(assessmentUnitCodes, id, "No close date set");
 					continue;
 				}
 				Date expiryDate = getDate(rs, "expiry_date");
@@ -155,48 +162,48 @@ public class PopulatorImpl implements Populator{
 					//endDate = closeDate;
 				}
 				if (openDate.after(closeDate)){
-					logFailure(id, "Open date is after close date");
+					logFailure(assessmentUnitCodes, id, "Open date is after close date");
 					continue;
 				}
 				if(expiryDate.before(closeDate)){
-					logFailure(id, "Expiry date is before close date");
+					logFailure(assessmentUnitCodes, id, "Expiry date is before close date");
 					continue;
 				}
 				int capacity = rs.getInt("capacity");
 				if (bookable && capacity < 1) {
-					logFailure(id, "Capacity isn't set or is zero");
+					logFailure(assessmentUnitCodes, id, "Capacity isn't set or is zero");
 					continue;
 				}
 				String subject = rs.getString("subject");
 				if (subject == null || subject.trim().length() == 0) {
-					logFailure(id, "Subject isn't set.");
+					logFailure(assessmentUnitCodes, id, "Subject isn't set.");
 					continue;
 				}
 				String title = rs.getString("title");
 				if (title == null || title.trim().length() == 0) {
-					logFailure(id, "Title isn't set.");
+					logFailure(assessmentUnitCodes, id, "Title isn't set.");
 					continue;
 				}
 				String termCode = rs.getString("term_code");
 				if (termCode == null || termCode.trim().length() == 0) {
-					logFailure(id, "Term code can't be empty");
+					logFailure(assessmentUnitCodes, id, "Term code can't be empty");
 					continue;
 				}
 				String termName = rs.getString("term_name");
 				if (termName == null || termName.trim().length() == 0) {
-					logFailure(id, "Term name can't be empty");
+					logFailure(assessmentUnitCodes, id, "Term name can't be empty");
 					continue;
 				}
 				
 				String teachingComponentId = rs.getString("teaching_component_id");
 				if (teachingComponentId == null || teachingComponentId.trim().length()==0) {
-					logFailure(id, "No teaching component ID found.");
+					logFailure(assessmentUnitCodes, id, "No teaching component ID found.");
 					continue;
 				}
 
-				String assessmentUnitCodes = rs.getString("assessment_unit_codes");
+				//String assessmentUnitCodes = rs.getString("assessment_unit_codes");
 				if (assessmentUnitCodes == null || assessmentUnitCodes.trim().length() == 0) {
-					logFailure(id, "No assessment unit codes set.");
+					logFailure(assessmentUnitCodes, id, "No assessment unit codes set.");
 					continue;
 				}
 				
@@ -278,7 +285,7 @@ public class PopulatorImpl implements Populator{
 					componentDao.getGroups().add(groupDao);
 				}
 				if (componentDao.getGroups().isEmpty()) {
-					logFailure(id, "Isn't part of any groups.");
+					logFailure(assessmentUnitCodes, id, "Isn't part of any groups.");
 					continue;
 				}
 				if (created) {
@@ -319,8 +326,12 @@ public class PopulatorImpl implements Populator{
 		}
 	}
 	
-	private void logFailure(String id, String reason) {
-		log.warn("Import failed for "+ id+ " because: "+ reason);
+	private void logFailure(String assessmentUnitCodes, String id, String reason) {
+		if (null == assessmentUnitCodes) {
+			log.warn("Import failed for "+ id+ " because: "+ reason);
+		} else {
+			log.warn("Import failed for "+ assessmentUnitCodes+":"+id+ " because: "+ reason);
+		}
 	}
 	
 	private void logWarning(String id, String reason) {

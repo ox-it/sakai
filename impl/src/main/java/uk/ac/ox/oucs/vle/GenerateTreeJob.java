@@ -79,11 +79,12 @@ public class GenerateTreeJob implements Job {
 		setupSite();
 		String json = generateTree.generateDepartmentTree();
 		String jsonResourceId = contentHostingService.getSiteCollection(getSiteId())+ "departments.json";
+		ContentResourceEdit cre = null;
+		
 		try {
-			ContentResourceEdit cre = null;
 			try {
 				// editResource() doesn't throw IdUnusedExcpetion but PermissionException
-				// when the resource is missing so we first just try to find it.
+				// when the resource is missing so we first just tco to find it.
 				contentHostingService.getResource(jsonResourceId);
 				cre = contentHostingService.editResource(jsonResourceId);
 			} catch (IdUnusedException e) {
@@ -129,6 +130,10 @@ public class GenerateTreeJob implements Job {
 		} catch (ServerOverloadException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			if (null != cre && cre.isActiveEdit()) {
+				contentHostingService.cancelResource(cre);
+			}
 		}
 		
 	}

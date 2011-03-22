@@ -44,9 +44,18 @@ public class GenerateTree {
 			JsonGenerator generator = factory.createJsonGenerator(writer);
 			connection = ds.getConnection();
 			st = connection.createStatement();
-			if(st.execute("SELECT Division.name, Division.id, Department.name, Department.code FROM Division, Department WHERE  Department.code LIKE CONCAT(Division.ID,'%') ORDER BY 1,3")) {
+			
+			if(st.execute("SELECT Division.name, Division.id, "+
+					  "Department.name, Department.code, Sub_Unit.name, Sub_Unit.code "+
+					  "FROM Division "+
+					  "INNER JOIN Department ON Department.Division = Division.id "+
+					  "INNER JOIN Sub_Unit ON Sub_Unit.Department_Code = Department.code "+
+					  "WHERE Department.code LIKE CONCAT(Division.ID,'%') "+
+					  "ORDER BY 1,3,5")) {
+			
 				rs = st.getResultSet();
 				String lastDivisionId = null;
+				String lastDepartmentCode = null;
 				generator.writeStartArray();
 				startNode(generator, "root", "University of Oxford");
 				while (rs.next()) {
@@ -54,14 +63,31 @@ public class GenerateTree {
 					String divisionId = rs.getString(2);
 					String departmentName = rs.getString(3);
 					String departmentCode = rs.getString(4);
-					if (!divisionId.equals(lastDivisionId)) {
-						if (lastDivisionId != null) {
+					
+					String subUnitName = rs.getString(5);
+					String subUnitCode = rs.getString(6);
+					
+					if (!departmentCode.equals(lastDepartmentCode)) {
+						if (lastDepartmentCode != null) {
 							endNode(generator);
 						}
-						startNode(generator,divisionId, divisionName);
-						lastDivisionId = divisionId;
+						
+						if (!divisionId.equals(lastDivisionId)) {
+							if (lastDivisionId != null) {
+								endNode(generator);
+							}
+							startNode(generator,divisionId, divisionName);
+							lastDivisionId = divisionId;
+						}
+						
+						startNode(generator,departmentCode, departmentName);
+						lastDepartmentCode = departmentCode;
 					}
-					startNode(generator, departmentCode, departmentName);
+					startNode(generator, subUnitCode, subUnitName);
+					endNode(generator);
+					
+				}
+				if (lastDepartmentCode != null) {
 					endNode(generator);
 				}
 				if (lastDivisionId != null) {

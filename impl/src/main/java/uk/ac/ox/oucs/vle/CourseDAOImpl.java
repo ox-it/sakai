@@ -96,6 +96,30 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			
 		});
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<CourseGroupDAO> findCourseGroupBySubunit(final String subunitId, final Range range, final Date now) {
+		return getHibernateTemplate().executeFind(new HibernateCallback() {
+			// Need the DISTINCT ROOT ENTITY filter.
+			public Object doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
+				criteria.add(Expression.eq("subunit", subunitId));
+				switch (range) { 
+					case UPCOMING:
+						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("closes", now));
+						break;
+					case PREVIOUS:
+						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(Expression.le("closes", now));
+						break;
+				}
+				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+				criteria.addOrder(Order.asc("title"));
+				return criteria.list();
+			}
+			
+		});
+	}
 
 	public CourseComponentDAO findCourseComponent(String id) {
 		return (CourseComponentDAO) getHibernateTemplate().get(CourseComponentDAO.class, id);
@@ -137,11 +161,12 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 	}
 
-	public CourseGroupDAO newCourseGroup(String id, String title, String dept) {
+	public CourseGroupDAO newCourseGroup(String id, String title, String dept, String subunit) {
 		CourseGroupDAO groupDao = new CourseGroupDAO();
 		groupDao.setId(id);
 		groupDao.setTitle(title);
 		groupDao.setDept(dept);
+		groupDao.setSubunit(subunit);
 		return groupDao;
 	}
 

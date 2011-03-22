@@ -13,14 +13,16 @@ import java.util.Set;
 public class CourseGroupDAO  implements java.io.Serializable {
 
 
-     private String id;
-     private String title;
-     private String dept;
-     private String administrator;
-     private Set<CourseComponentDAO> components = new HashSet<CourseComponentDAO>(0);
-     private Set<CourseSignupDAO> signups = new HashSet<CourseSignupDAO>(0);
+    private String id;
+    private String title;
+    private String dept;
+    private String administrator;
+    private Set<CourseComponentDAO> components = new HashSet<CourseComponentDAO>(0);
+    private Set<CourseSignupDAO> signups = new HashSet<CourseSignupDAO>(0);
 	private String description;
 	private String departmentName;
+	private String subunit;
+	private String subunitName;
 
     public CourseGroupDAO() {
     }
@@ -29,6 +31,8 @@ public class CourseGroupDAO  implements java.io.Serializable {
     public CourseGroupDAO(String id) {
         this.id = id;
     }
+    
+    
     public String getId() {
         return this.id;
     }
@@ -36,6 +40,8 @@ public class CourseGroupDAO  implements java.io.Serializable {
     public void setId(String id) {
         this.id = id;
     }
+    
+    
     public String getTitle() {
         return this.title;
     }
@@ -43,6 +49,8 @@ public class CourseGroupDAO  implements java.io.Serializable {
     public void setTitle(String title) {
         this.title = title;
     }
+    
+    
     public String getDept() {
         return this.dept;
     }
@@ -50,6 +58,17 @@ public class CourseGroupDAO  implements java.io.Serializable {
     public void setDept(String dept) {
         this.dept = dept;
     }
+    
+    
+    public String getSubunit() {
+        return this.subunit;
+    }
+    
+    public void setSubunit(String subunit) {
+        this.subunit = subunit;
+    }
+    
+    
     public String getAdministrator() {
         return this.administrator;
     }
@@ -57,6 +76,8 @@ public class CourseGroupDAO  implements java.io.Serializable {
     public void setAdministrator(String administrator) {
         this.administrator = administrator;
     }
+    
+    
     public Set<CourseComponentDAO> getComponents() {
         return this.components;
     }
@@ -77,7 +98,6 @@ public class CourseGroupDAO  implements java.io.Serializable {
 		return description;
 	}
 
-
 	public void setDescription(String description) {
 		this.description = description;
 	}
@@ -87,9 +107,17 @@ public class CourseGroupDAO  implements java.io.Serializable {
 		return departmentName;
 	}
 
-
 	public void setDepartmentName(String departmentName) {
 		this.departmentName = departmentName;
+	}
+	
+	
+	public String getSubunitName() {
+		return subunitName;
+	}
+
+	public void setSubunitName(String subunitName) {
+		this.subunitName = subunitName;
 	}
 
 }

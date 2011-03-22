@@ -79,6 +79,10 @@
 		<property name="dept" type="string" length="32"
 			index="course_group_dept_idx" />
 		<property name="departmentName" type="string" length="255"/>
+		
+		<property name="subunit" type="string" length="255"
+			index="course_group_subunit_idx" />
+		<property name="subunitName" type="string" length="255"/>
 			
 		<property name="administrator" type="string" length="64" /><!-- 
 			The administrator who is looking after this component. -->
