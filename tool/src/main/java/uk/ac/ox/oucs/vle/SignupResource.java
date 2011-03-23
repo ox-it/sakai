@@ -5,7 +5,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -88,11 +87,18 @@ public class SignupResource {
 		courseService.signup(courseId, components, email, message);
 		return Response.ok().build();
 	}
-
+	
 	@Path("/new")
 	@POST
-	public Response signup(@FormParam("userId")String userId, @FormParam("courseId") String courseId, @FormParam("components")Set<String> components) {
-		courseService.signup(userId, courseId, components);
+	public Response signup(@FormParam("userId")String userId, @FormParam("courseId") String courseId, @FormParam("components")Set<String> components, @FormParam("supervisorId")String supervisorId) {
+		courseService.signup(userId, courseId, components, supervisorId);
+		return Response.ok().build();
+	}
+	
+	@Path("/supervisor")
+	@POST
+	public Response signup(@FormParam("signupId")String signupId, @FormParam("supervisorId")String supervisorId) {
+		courseService.setSupervisor(signupId, supervisorId);
 		return Response.ok().build();
 	}
 	

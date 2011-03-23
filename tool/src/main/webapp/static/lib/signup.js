@@ -738,6 +738,23 @@ var Signup = function(){
 					return (user2.id < user1.id)-(user1.id<user2.id); // Fallback to ID http://www.merlyn.demon.co.uk/js-order.htm
 				}
 			}
+        },
+        "supervisor": {
+        	"render": function(supervisor, signup, admin){
+        		var details = "";
+        		if (supervisor) {
+        			if (supervisor.email) {
+        				details += '<a href="mailto:' + supervisor.email + '">' + supervisor.name + '</a>';
+        			} else {
+        				details += supervisor.name;
+        			}
+        		} else {
+        			if (admin) {
+        				details += '<a class="supervisor" user="'+signup.user.name+'" id="'+signup.id+'" href="#">Add Supervisor</a>';
+        			}
+        		}
+        		return details;
+        	}
         }
     };
     
@@ -825,7 +842,7 @@ var Signup = function(){
                             			closes = this.closes;
                             });
                             var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, isAdmin));
-                            data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.user.render(this.supervisor), Signup.signup.formatNotes(this.notes), this.status, actions]);
+                            data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions]);
                             
                         });
                         fnCallback({
@@ -877,6 +894,26 @@ var Signup = function(){
 			
         });
         
+        $("a.supervisor", this).die().live("click", function(e){
+        	//var userName = $(this).attr("user");
+        	signupAddSupervisor.attr("username", $(this).attr("user"));
+        	signupAddSupervisor.attr("signupid", $(this).attr("id"));
+    		signupAddSupervisor.jqmShow();
+    		
+    		/**
+    		// Need to resize to content.
+    		var windowHeight = $(window).height();
+    		var positionTop = signupAddSupervisor[0].offsetTop;
+    		if (windowHeight < signupAddSupervisor.outerHeight() + positionTop) {
+    			// Too big.
+    			var newHeight = windowHeight - (signupAddSupervisor.outerHeight(false) - signupAddSupervisor.height()) -2;
+    			signupAddSupervisor.height(newHeight);
+    			signupAddSupervisor.css("top", "1px"); // Move almost to the top.
+    		};
+    		*/
+        });
+        
+        
         $("a.action", this).die().live("click", function(e){
             var url = $(this).attr("href");		
             $.ajax({
@@ -889,6 +926,7 @@ var Signup = function(){
             });
             return false;
         });
+        
 		$("select.status-select", this).die().live("change", function(e) {
 			var select = $(this);
 			var newStatus = select.val();
@@ -904,6 +942,123 @@ var Signup = function(){
 				}
 			});
 		});
+		
+		var html = '<div id="signup-add-supervisor-win" class="jqmWindow" style="display: none">'
+		html += '<form id="signup-add-supervisor">';
+		html += '<h2></h2>'
+		html += '<p>Enter the Supervisor email.<br />';
+		html += '<input type="text" name="supervisor" id="add-supervisor" size="28" />';
+		html += '</p>';
+		html += '<span class="errors"></span>';
+		html += '<br>';
+		html += '<input type="submit" value="Submit">';
+		html += '<input type="button" class="cancel" value="Cancel"><br>';
+		html += '</form>';
+		html += '</div>';
+		$("body").append(html);
+		
+    	var signupAddSupervisor = $("#signup-add-supervisor-win");
+    	signupAddSupervisor.resize(function(e){
+			// Calculate size.
+		});
+    	signupAddSupervisor.jqm({
+			onShow: function(objs) {
+				$("body").css("overflow", "hidden"); // Doesn't seem to work on IE7
+				objs.w.css("height", 150);
+				objs.w.show();
+				$("h2", signupAddSupervisor).html("Add Supervisor for " + signupAddSupervisor.attr("username"));
+				$("input[name=supervisor]", signupAddSupervisor).val("");
+				$(":submit", signupAddSupervisor).removeAttr("disabled");
+				$(".errors", signupAddSupervisor).html("");
+			},
+			onHide: function(objs) {
+				$("body").css("overflow", "auto");
+				objs.w.fadeOut('250',function(){ objs.o.remove(); });
+			}
+		});
+    	signupAddSupervisor.jqmAddClose("input.cancel");
+		
+		$(window).resize(function(){
+			var windowHeight = $(window).height();
+			var positionTop = signupAddSupervisor[0].offsetTop;
+			if (windowHeight < signupAddSupervisor.outerHeight() + positionTop) {
+				// Too big.
+				var newHeight = windowHeight - (signupAddSupervisor.outerHeight(false) - signupAddSupervisor.height()) -2;
+				signupAddSupervisor.height(newHeight);
+				signupAddSupervisor.css("top", "1px"); // Move almost to the top.
+			};
+		});
+		
+		signupAddSupervisor.unbind("submit").bind("submit", function(e) {
+			var form = this;
+			var supervisor = $("input[name=supervisor]", signupAddSupervisor).val();
+			var user = signupAddSupervisor.attr("username");
+			var signup = signupAddSupervisor.attr("signupid");
+			var badSupervisor = true;
+			var goodSupervisor;
+			var continueSearch = true;
+			
+			var postSignup = function() {
+				signupAddSupervisor.jqmHide(); // Hide the popup.
+				//summary.fnReloadAjax(null, null, true);
+				//signups.fnReloadAjax(null, null, true);
+				element.dataTable().fnReloadAjax(null, null, true);
+				$(table).trigger("reload"); // Custom event type;
+			};
+			
+			var doSignup = function(){
+				var supervisorId;
+				if (goodSupervisor) {
+					supervisorId = goodSupervisor.id;
+				
+					$.ajax({
+						"url": "../rest/signup/supervisor",
+						"type": "POST",
+						"async": true,
+						"traditional": true,
+						"data": {
+							"signupId": signup,
+							"supervisorId": supervisorId,
+						},
+						"complete": function() {
+							postSignup();
+						}
+					});
+				}
+				
+			};
+
+			var findSupervisor = function() {
+				$.ajax({
+					"url": "../rest/user/find",
+					"method": "GET",
+					"async": true,
+					"data": {"search": supervisor},
+					"success": function(data) {
+						goodSupervisor = data;
+						badSupervisor = false;
+					},
+					"error": function() {
+						badSupervisor = true;
+					},
+					"complete": function() {
+						$(":submit", form).removeAttr("disabled");
+						if (badSupervisor) {
+							$(".errors", form).html("Couldn't find supervisor " + supervisor);
+						} else {
+							doSignup();
+						}
+					}
+				});
+			}; 
+			
+			$(":submit", form).attr("disabled", "true");
+			$("input.cancel", form).one("click", function(){ continueSearch = false;});
+			findSupervisor();  
+			return false;
+		});
+		//EndOf
+		
         return table;
         
     };

@@ -97,6 +97,26 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public void setSupervisor(String signupId, String supervisorId) {
+		
+		CourseSignupDAO signupDao = dao.findSignupById(signupId);
+		if (signupDao == null) {
+			throw new NotFoundException(signupId);
+		}
+		
+		String currentUserId = proxy.getCurrentUser().getId();
+		if (!isAdministrator(signupDao.getGroup(), currentUserId, false)) {
+			throw new PermissionDeniedException(currentUserId);
+		}
+		
+		String currentSupervisorId = signupDao.getSupervisorId();
+		if (null == currentSupervisorId) {
+			signupDao.setSupervisorId(supervisorId);
+			dao.save(signupDao);
+		}
+	}
+	
 
 	public List<CourseGroup> getAdministering() {
 		String userId = proxy.getCurrentUser().getId();

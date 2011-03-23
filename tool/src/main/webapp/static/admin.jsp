@@ -170,7 +170,9 @@
 							signupAddUser.jqm({
 								onShow: function(objs) {
 									$("body").css("overflow", "hidden"); // Doesn't seem to work on IE7
+									objs.w.css("height", 330);
 									objs.w.show();
+									$("input[name=supervisor]", signupAddUser).val("");
 									$("textarea", signupAddUser).val("");
 									$(":submit", signupAddUser).removeAttr("disabled");
 									$(".errors",signupAddUser).html("");
@@ -207,6 +209,9 @@
 							signupAddUser.unbind("submit").bind("submit", function(e) {
 								var form = this;
 								var progressbar = $("#find-users-progress");
+								var supervisor = $("input[name=supervisor]", signupAddUser).val();
+								var goodSupervisor;
+								var badSupervisor;
 								var users = $("textarea[name=users]", signupAddUser).val().replace(/,/g, " "); // Incase people use commas to seperate users.
 								// Need error handling when empty.
 								var goodUsers = [];
@@ -255,6 +260,10 @@
 										
 										var doSignup = function(){
 											progressElement.progressbar("value", (originalGoodUserSize - goodUsers.length)/ originalGoodUserSize * 100);
+											var supervisorId;
+											if (goodSupervisor) {
+												supervisorId = goodSupervisor.id;
+											}
 											var user = goodUsers.pop();
 											if (user === undefined) {
 												postSignup();
@@ -266,6 +275,7 @@
 													"traditional": true,
 													"data": {
 														"userId": user.id,
+														"supervisorId": supervisorId,
 														"courseId": code,
 														"components": components
 													},
@@ -286,20 +296,26 @@
 								var foundUsers = function(){
 									$(":submit", form).removeAttr("disabled");
 									progressbar.progressbar("destroy");
+									var html = "";
+									if (badSupervisor) {
+										html += "Couldn't find supervisor " + badSupervisor;
+									}
 									if (badUsers.length > 0) {
 										// Display list of bad user.
-										$(".errors", form).html("Couldn't find user" + (badUsers.length > 1 ? "s" : "") + ": " + badUsers.join(", "));
-									}
-									else 
+										html += (html.length > 0 ? ", " : "") + "Couldn't find user" + (badUsers.length > 1 ? "s" : "") + ": " + badUsers.join(", ");
+									} else {
 										if (goodUsers.length < 1) {
-											$(".errors", form).html("No users found.");
+											html += (html.length > 0 ? ", " : "") + "No users found.";
 										}
-										else {
-											// Make sure they are in order.
-											goodUsers = goodUsers.sort(Signup.user.sort);
-											// Show next page...
-											$.getJSON("../rest/course/" + code, {"range": "ALL"}, selectComponents);
-										}
+									}
+									if (html.length > 0) {
+										$(".errors", form).html(html);
+									} else {
+										// Make sure they are in order.
+										goodUsers = goodUsers.sort(Signup.user.sort);
+										// Show next page...
+										$.getJSON("../rest/course/" + code, {"range": "ALL"}, selectComponents);
+									}
 								}
 								
 								/**
@@ -336,10 +352,30 @@
 										}
 									});
 								};
+
+								var findSupervisor = function() {
+									$.ajax({
+										"url": "../rest/user/find",
+										"method": "GET",
+										"async": true,
+										"data": {"search": supervisor},
+										"success": function(data) {
+											goodSupervisor = data;
+										},
+										"error": function() {
+											badSupervisor = supervisor;
+										},
+										"complete": function() {
+											findUser();	// Startoff the searching of users.
+										}
+									});
+								}; 
+								
 								$(":submit", form).attr("disabled", "true");
 								$("input.cancel", form).one("click", function(){ continueSearch = false;});
 								progressbar.progressbar({value: 0});
-								findUser(); // Startoff the searching of users.
+								findSupervisor();  // Startoff validating the form
+								//findUser(); // Startoff the searching of users.
 								return false;
 							});
 
@@ -444,9 +480,13 @@
 <!-- Popup window for finding users.-->
 <div id="signup-add-user-win" class="jqmWindow" style="display: none">
 	<h2>Find users</h2>
-	<div>Enter one or more Oxford username or email addresses.</div>
 	<form id="signup-add-user">
+		<p>Enter the Supervisor email.<br />
+		<input type="text" name="supervisor" id="add-supervisor" size="28" />
+		</p>
+		<p>Enter one or more Oxford username or email addresses.<br />
 		<textarea name="users" id="add-users" cols="30" rows="8"></textarea>
+		</p>
 		<span class="errors"></span>
 		<br>
 		<input type="submit" value="Find">

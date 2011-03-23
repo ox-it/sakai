@@ -85,6 +85,8 @@ public interface CourseSignupService {
 	
 	public List<CourseSignup> getApprovals();
 	
+	public void setSupervisor(String signupId, String supervisorId);
+	
 	public void approve(String signupId);
 	
 	public void accept(String signupId);
