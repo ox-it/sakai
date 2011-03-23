@@ -16,6 +16,8 @@ public interface CourseDAO {
 	CourseGroupDAO findAvailableCourseGroupById(String courseId);
 	
 	List<CourseGroupDAO> findCourseGroupByDept(String dept, Range range, Date now);
+	
+	List<CourseGroupDAO> findCourseGroupBySubunit(String subunit, Range range, Date now);
 
 	List<CourseComponentDAO> findOpenComponents(String id, Date at);
 
@@ -35,7 +37,7 @@ public interface CourseDAO {
 
 	List<CourseSignupDAO> findSignupForUser(String userId, Set<Status> statuses);
 
-	CourseGroupDAO newCourseGroup(String id, String title, String dept);
+	CourseGroupDAO newCourseGroup(String id, String title, String dept, String subunit);
 
 	void save(CourseGroupDAO groupDao);
 
