@@ -875,17 +875,22 @@ var Signup = function(){
 					  },
 				success: function(result) {
 						var tip = "";
+						var lines = 0;
 						$.each(result, function(){
 							var signupStatus = this.status;
 							var signupGroup = this.group;
 							$.each(this.components, function(){
 								tip += signupGroup.title+" "+this.title+" ("+this.id+") "+this.when+" "+signupStatus+"<br />";
+								lines++;
 							});
 						});
 						if (tip.length == 0) {
-							tip = "none";
+							$("span.previous-signup-tooltip", span).html("None");
+							$("span.previous-signup-tooltip", span).css("width", "3em");
+						} else {
+							$("span.previous-signup-tooltip", span).html(tip); 
+							$("span.previous-signup-tooltip", span).css("width", (tip.length/lines)*0.5+"em");
 						}
-						$("span.previous-signup-tooltip", span).html(tip); 
 				}
 			});
 			

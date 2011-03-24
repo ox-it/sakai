@@ -5,7 +5,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -232,13 +234,19 @@ public class SignupResource {
 
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
-				List<CourseSignup> signups = new ArrayList<CourseSignup>();
+				List<String> componentIds = Arrays.asList(componentId.split(","));
+				Set<CourseSignup> signups = new HashSet<CourseSignup>();
 				for (CourseSignup signup : courseService.getUserComponentSignups(userId, null)) {
 					if (signup.getGroup().getId().equals(groupId)) {
-						signups.add(signup);
+						for (CourseComponent component : signup.getComponents()) {
+							if (!componentIds.contains(component.getId())) {
+								signups.add(signup);
+							}
+						}
+					
 					}
 				}
-				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
+				objectMapper.typedWriter(TypeFactory.collectionType(Set.class, CourseSignup.class)).writeValue(output, signups);
 			}
 			
 		}; 
