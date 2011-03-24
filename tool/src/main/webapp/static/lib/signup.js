@@ -712,23 +712,9 @@ var Signup = function(){
                         details += '<br />Status: ' + type;
                     }
                     
-                    //Start frig
-                    /**
-                    if (group.id) {
-                    	var tip = previous(user.id, group.id);
-                    	if (tip.length != 0) {
-                    		details += '<br /><span class="more">[Previous SignUps]<span class="full">' + tip + '</span></span>';
-                    	} else {
-                    		details += '<br /><span>[Previous SignUps]</span>';
-                    	}
-                    }
-                    */
-                    //End Frig
-                    
                     if (components) {
-                    	details += '<br /><span class="previous-signup more">[Previous SignUps]';
-                    	details += '<input class="userid" type="hidden" name="userid" value="'+user.id+'"/>';
-                    	details += '<input class="groupid" type="hidden" name="groupid" value="'+group.id+'"/>';
+                    	details += '<br /><span class="previous-signup more" userid="'+user.id+'" groupid="'+group.id+'">[Previous SignUps]';
+                    	details += '<span class="previous-signup-tooltip"></span>';
                     	$.each(components, function(){
                     		details += '<input class="componentid" type="hidden" name="componentid" value="'+this.id+'"/>';
                     	});
@@ -874,9 +860,9 @@ var Signup = function(){
         
         $("span.previous-signup").die().live("mouseover", function(e){
         	var span = $(this);
-        	var userId = span.children("input.userid").first().attr("value");
-        	var groupId = span.children("input.groupid").first().attr("value");
-        	var componentId = span.children("input.componentid").map(function() {
+        	var userId = $(this).attr("userid");
+        	var groupId = $(this).attr("groupid");
+        	var componentId = $(this).children("input.componentid").map(function() {
         		return this.value;
         	}).get().join(',');
         	
@@ -888,22 +874,18 @@ var Signup = function(){
 					   groupid: groupId
 					  },
 				success: function(result) {
-					$("span.previous-signup").tooltip({
-						bodyHandler: function() { 
-							var tip = "";
-							$.each(result, function(){
-								var signupStatus = this.status;
-								var signupGroup = this.group;
-								$.each(this.components, function(){
-									tip += signupGroup.title+" "+this.title+" ("+this.id+") "+this.when+" "+signupStatus+"<br />";
-								});
+						var tip = "";
+						$.each(result, function(){
+							var signupStatus = this.status;
+							var signupGroup = this.group;
+							$.each(this.components, function(){
+								tip += signupGroup.title+" "+this.title+" ("+this.id+") "+this.when+" "+signupStatus+"<br />";
 							});
-							if (tip.length == 0) {
-								tip = "none";
-							}
-							return tip;
+						});
+						if (tip.length == 0) {
+							tip = "none";
 						}
-					});	  
+						$("span.previous-signup-tooltip", span).html(tip); 
 				}
 			});
 			

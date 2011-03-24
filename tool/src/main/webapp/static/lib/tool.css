@@ -99,6 +99,25 @@ table th {
     text-align: left;
 }
 
+.more .previous-signup-tooltip {
+    display: none;
+    z-index: 24;
+}
+
+.more:hover .previous-signup-tooltip {
+    display: block;
+    position: absolute;
+    font-weight: normal;
+    top: 1em;
+    left: 5em;
+    width: 42em;
+    border: 1px solid #000;
+    padding: 0.5em;
+    background-color: #fff;
+    color: #000;
+    text-align: left;
+}
+
 /* These are for colour coding the jsTree of dept/courses */
 .jstree li.full a {
 	color: red;
