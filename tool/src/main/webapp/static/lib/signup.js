@@ -163,12 +163,18 @@ var Signup = function(){
 					var output = template.process(data, {throwExceptions: true});
 					dest.html(output);
 					// If there is only one checkbox tick it.
-					var radioButtons = $("input:radio:enabled", dest);
-					if (radioButtons.length == 1) {
-						radioButtons.first().attr("checked", true); // This seems to get lost in IE when doing the popup.
+					
+					var radioButtons = $("input:radio", dest);
+					var radioButtonsEnabled = $("input:radio:enabled", dest);
+					
+					var checkboxButtons = $("input:checkbox", dest);
+					var checkboxButtonsEnabled = $("input:checkbox:enabled", dest);
+					
+					if (radioButtonsEnabled.length == 1) {
+						radioButtonsEnabled.first().attr("checked", true); // This seems to get lost in IE when doing the popup.
 					}
 					else 
-						if (radioButtons.length == 0) {
+						if (radioButtonsEnabled.length == 0 && checkboxButtonsEnabled.length == 0) {
 							$(":submit", dest).attr("disabled", "true");
 						}
 					$("form", dest).submit(function(){
@@ -177,6 +183,15 @@ var Signup = function(){
 							var errorFound = false;
 							var selectedParts = [];
 							var selectedPartIds = [];
+							
+							jQuery("input:checkbox", dest).each(function(){
+								var name = this.name;
+								if (this.checked && this.value != "none") {
+									selectedParts[selectedParts.length] = jQuery(this).parents("tr:first").find(".option-details").html();
+									selectedPartIds.push(this.value);
+								}
+							});
+							
 							jQuery("input:radio", dest).each(function(){
 								var name = this.name;
 								if (!radioSelected[name]) {
@@ -895,12 +910,11 @@ var Signup = function(){
         });
         
         $("a.supervisor", this).die().live("click", function(e){
-        	//var userName = $(this).attr("user");
         	signupAddSupervisor.attr("username", $(this).attr("user"));
         	signupAddSupervisor.attr("signupid", $(this).attr("id"));
     		signupAddSupervisor.jqmShow();
     		
-    		/**
+    		/** this doesn't seem to do anything
     		// Need to resize to content.
     		var windowHeight = $(window).height();
     		var positionTop = signupAddSupervisor[0].offsetTop;
@@ -1000,8 +1014,6 @@ var Signup = function(){
 			
 			var postSignup = function() {
 				signupAddSupervisor.jqmHide(); // Hide the popup.
-				//summary.fnReloadAjax(null, null, true);
-				//signups.fnReloadAjax(null, null, true);
 				element.dataTable().fnReloadAjax(null, null, true);
 				$(table).trigger("reload"); // Custom event type;
 			};
@@ -1057,7 +1069,6 @@ var Signup = function(){
 			findSupervisor();  
 			return false;
 		});
-		//EndOf
 		
         return table;
         

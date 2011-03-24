@@ -108,15 +108,20 @@
 								{if option.signup && option.signup.status != "WITHDRAWN"}
 									Signup: ${option.signup.status}
 								{else}
-								{if signup}
-                                <input type="radio" name="${part.type.id}" id="option-${option.id}" value="${option.id}"
-								 {if option.full || !option.open }disabled="true"{else}{var oneOpen = true}{/if}/>
-								 {/if}
+									{if signup}
+                                		{if part.options.length = 1}
+											<input type="checkbox" name="${part.type.id}" id="option-${option.id}" value="${option.id}" 
+											{if option.full || !option.open }disabled="true"{else}{var oneOpen = true}checked="yes"{/if}/>
+										{else}
+                							<input type="radio" name="${part.type.id}" id="option-${option.id}" value="${option.id}"
+											{if option.full || !option.open }disabled="true"{else}{var oneOpen = true}{/if}/>
+										{/if}
+								 	{/if}
 								{/if}
                             </td>
                         </tr>
 						{/for}
-						{if parts.length > 1 && oneOpen}
+						{if parts.length > 1 && part.options.length > 1 && oneOpen}
 						<tr>
 							<td class="option-details">
 								<label for="option-none-${part.type.id}">Nothing for this option</label>
