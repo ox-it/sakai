@@ -110,7 +110,7 @@ table th {
     font-weight: normal;
     top: 1em;
     left: 5em;
-    width: 42em;
+    width: auto;
     border: 1px solid #000;
     padding: 0.5em;
     background-color: #fff;

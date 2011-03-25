@@ -884,13 +884,13 @@ var Signup = function(){
 								lines++;
 							});
 						});
+						var tooltip = $("span.previous-signup-tooltip", span);
 						if (tip.length == 0) {
-							$("span.previous-signup-tooltip", span).html("None");
-							$("span.previous-signup-tooltip", span).css("width", "3em");
+							tooltip.html("None");
 						} else {
-							$("span.previous-signup-tooltip", span).html(tip); 
-							$("span.previous-signup-tooltip", span).css("width", (tip.length/lines)*0.5+"em");
-						}
+							tooltip.html(tip); 
+							tooltip.css("width", ((tip.length/lines)-6)*0.5+"em");
+						}	
 				}
 			});
 			
