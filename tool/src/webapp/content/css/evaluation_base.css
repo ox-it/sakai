@@ -427,10 +427,6 @@ td.fullDisplayHorizontalColoredWrapper {
 	padding-left: 2em;
 	background: transparent url(../images/table_go.png) center left no-repeat
 }
-.emailItem{
-    padding-left: 2em;
-    background: transparent url(../images/email-send.png) center left no-repeat
-}
 /*see block items*/
 .steppedRowContainer{ border-collapse: collapse }
 .steppedRowContainer tr:hover{ background: #eee }
