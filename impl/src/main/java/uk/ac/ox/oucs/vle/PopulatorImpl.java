@@ -170,10 +170,6 @@ public class PopulatorImpl implements Populator{
 					continue;
 				}
 				int capacity = rs.getInt("capacity");
-				if (bookable && capacity < 1) {
-					logFailure(assessmentUnitCodes, id, "Capacity isn't set or is zero");
-					continue;
-				}
 				String subject = rs.getString("subject");
 				if (subject == null || subject.trim().length() == 0) {
 					logFailure(assessmentUnitCodes, id, "Subject isn't set.");
