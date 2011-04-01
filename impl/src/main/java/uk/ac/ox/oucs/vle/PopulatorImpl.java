@@ -62,28 +62,25 @@ public class PopulatorImpl implements Populator{
 			Statement st = con.createStatement();
 			// Import all course groups (from assessment units)
 			ResultSet rs = st.executeQuery(
-					"SELECT distinct au.unit_id, au.code, au.title, au.department_code," +
-					" d.name as department_name, au.sub_unit_code, su.name as subunit_name, au.description,\n" +
-					"  admin.webauth_id as admin\n" +
-					"FROM\n" + 
-					"  Assessment_Unit au\n" + 
-					"  LEFT JOIN Staff_OpenDoor admin ON au.course_administrator = admin.employee_number\n" + 
-					"  INNER JOIN Teaching_Component tc ON\n" + 
-					// The LIKE is here because there can be multiple entries seperated by commas
-					"  ( tc.assessment_unit_code LIKE concat(concat('%',au.code),'%') AND length(tc.assessment_unit_code) > 0)\n" + 
-					"  INNER JOIN Department d ON au.department_code = d.code\n" + 
-					"  INNER JOIN Sub_Unit su ON au.sub_unit_code = su.code\n" + 
-					";");
+					"SELECT DISTINCT au.id, au.assessment_unit_code, au.title, " +
+					" au.department_code, Department.department_name, " +
+					" au.sub_unit_code, SubUnit.sub_unit_name, " +
+					" au.description, Employee.webauth_code " +
+					" FROM AssessmentUnit au " + 
+					" LEFT JOIN Employee ON au.course_administrator_employee_id = Employee.id " + 
+					" INNER JOIN TeachingComponent tc ON tc.assessment_unit_id = au.id " + 
+					" INNER JOIN Department ON au.department_code = Department.department_code " + 
+					" LEFT JOIN SubUnit ON au.sub_unit_id = SubUnit.id;");
 			while(rs.next()) {
 				groupSeen++;
-				String code = rs.getString("code");
+				String code = rs.getString("assessment_unit_code");
 				String title = rs.getString("title");
 				String departmentCode = rs.getString("department_code");
 				String departmentName = rs.getString("department_name");
 				String subunitCode = rs.getString("sub_unit_code");
-				String subunitName = rs.getString("subunit_name");
+				String subunitName = rs.getString("sub_unit_name");
 				String description = rs.getString("description");
-				String administrator = rs.getString("admin");
+				String administrator = rs.getString("webauth_code");
 				if (administrator == null || administrator.trim().length() == 0) {
 					logFailure(null, code, "No administrator set");
 					continue;
@@ -116,29 +113,31 @@ public class PopulatorImpl implements Populator{
 			}
 			
 			// Now import all the course components ( from teaching (instances/components))
-			String sql = "SELECT\n" + 
-					"  ti.teaching_instance_id, ti.open_date, ti.close_date, ti.expiry_date, ti.start_date, ti.end_date, ti.sessions, ti.session_dates, ti.capacity, ti.bookable,\n" + 
-					"  tc.assessment_unit_code as assessment_unit_codes, tc.teaching_component_id, tc.subject,\n" + 
-					"  l.label location,\n" + 
-					"  t.code as term_code, t.label as term_name,\n" + 
-					"  c.title,\n" + 
-					"  teacher.webauth_id as teacher_id, concat_ws(' ', teacher.forename, teacher.surname) as teacher_name, teacher.email as teacher_email\n" + 
-					"\n" + 
-					"FROM\n" + 
-					"  Teaching_Instance ti\n" + 
-					"  LEFT JOIN Teaching_Component tc ON tc.teaching_component_id = ti.teaching_component_id\n" + 
-					"  LEFT JOIN Term t ON ti.term_code = t.code\n" + 
-					"  LEFT JOIN Location l ON ti.location_id = l.id\n" + 
-					"  LEFT JOIN Component_Type c ON tc.component_type = c.component_type_id\n" + 
-					"  LEFT JOIN Staff_OpenDoor teacher ON ti.employee_number = teacher.employee_number\n";
+			String sql = "SELECT" + 
+					" ti.id, ti.open_date, ti.close_date, ti.expiry_date, ti.start_date, ti.end_date, " +
+					" ti.sessions, ti.session_dates, ti.teaching_capacity, ti.bookable, " + 
+					" tc.assessment_unit_code, tc.id as teaching_component_id, tc.subject, " + 
+					" Location.location_name, " + 
+					" Term.term_code, Term.label, " + 
+					" c.title, " + 
+					" Employee.webauth_code, " +
+					" concat_ws(' ', Employee.forename, Employee.surname) as teacher_name, " +
+					" Employee.email as teacher_email " + 
+					" FROM " + 
+					" TeachingInstance ti " + 
+					" LEFT JOIN TeachingComponent tc ON tc.id = ti.teaching_component_id " + 
+					" LEFT JOIN Term ON ti.term_code = Term.term_code " + 
+					" LEFT JOIN Location ON ti.location_id = Location.id " + 
+					" LEFT JOIN TeachingComponentType c ON tc.teaching_component_type_id = c.id " + 
+					" LEFT JOIN Employee ON ti.employee_id = Employee.id;";
 			rs = st.executeQuery(sql);
 			while(rs.next()) {
 				componentSeen++;
 				String bookableString = rs.getString("bookable");
 				boolean bookable = bookableString == null || bookableString.trim().length() == 0 || bookableString.equals("TRUE");
 				
-				String id = rs.getString("teaching_instance_id");
-				String assessmentUnitCodes = rs.getString("assessment_unit_codes");
+				String id = rs.getString("id");
+				String assessmentUnitCodes = rs.getString("assessment_unit_code");
 				Date openDate = getDate(rs, "open_date");
 				if (openDate == null) { 
 					logFailure(assessmentUnitCodes, id, "No open date set");
@@ -154,13 +153,8 @@ public class PopulatorImpl implements Populator{
 					expiryDate = closeDate;
 				}
 				Date startDate = getDate(rs, "start_date");
-				if (startDate == null) {
-					//startDate = closeDate;
-				}
 				Date endDate = getDate(rs, "end_date");
-				if (endDate == null) {
-					//endDate = closeDate;
-				}
+				
 				if (openDate.after(closeDate)){
 					logFailure(assessmentUnitCodes, id, "Open date is after close date");
 					continue;
@@ -169,7 +163,9 @@ public class PopulatorImpl implements Populator{
 					logFailure(assessmentUnitCodes, id, "Expiry date is before close date");
 					continue;
 				}
-				int capacity = rs.getInt("capacity");
+				
+				int capacity = rs.getInt("teaching_capacity");
+				
 				String subject = rs.getString("subject");
 				if (subject == null || subject.trim().length() == 0) {
 					logFailure(assessmentUnitCodes, id, "Subject isn't set.");
@@ -185,7 +181,7 @@ public class PopulatorImpl implements Populator{
 					logFailure(assessmentUnitCodes, id, "Term code can't be empty");
 					continue;
 				}
-				String termName = rs.getString("term_name");
+				String termName = rs.getString("label");
 				if (termName == null || termName.trim().length() == 0) {
 					logFailure(assessmentUnitCodes, id, "Term name can't be empty");
 					continue;
@@ -226,7 +222,7 @@ public class PopulatorImpl implements Populator{
 				// Look for details in WebLearn first then fallback to details in DAISY.
 				String teacherName = null;
 				String teacherEmail = null;
-				String teacherId = rs.getString("teacher_id");
+				String teacherId = rs.getString("webauth_code");
 				if (teacherId != null && teacherId.length() > 0) {
 					UserProxy teacher = proxy.findUserByEid(teacherId);
 					if (teacher != null) {
@@ -263,7 +259,7 @@ public class PopulatorImpl implements Populator{
 				}
 				
 				// Where?
-				String location = rs.getString("location");
+				String location = rs.getString("location_name");
 				if (location != null && location.trim().length() > 0) {
 					componentDao.setLocation(location);
 				}

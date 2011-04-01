@@ -45,12 +45,12 @@ public class GenerateTree {
 			connection = ds.getConnection();
 			st = connection.createStatement();
 			
-			if(st.execute("SELECT Division.name, Division.id, "+
-					  "Department.name, Department.code, Sub_Unit.name, Sub_Unit.code "+
+			if(st.execute("SELECT Division.division_name, Division.division_code, "+
+					  "Department.department_name, Department.department_code, "+
+					  "SubUnit.sub_unit_code, SubUnit.sub_unit_name "+
 					  "FROM Division "+
-					  "INNER JOIN Department ON Department.Division = Division.id "+
-					  "INNER JOIN Sub_Unit ON Sub_Unit.Department_Code = Department.code "+
-					  "WHERE Department.code LIKE CONCAT(Division.ID,'%') "+
+					  "INNER JOIN Department ON Department.division_code = Division.division_code "+
+					  "INNER JOIN SubUnit ON SubUnit.department_code = Department.department_code "+
 					  "ORDER BY 1,3,5")) {
 			
 				rs = st.getResultSet();
@@ -64,8 +64,8 @@ public class GenerateTree {
 					String departmentName = rs.getString(3);
 					String departmentCode = rs.getString(4);
 					
-					String subUnitName = rs.getString(5);
-					String subUnitCode = rs.getString(6);
+					//String subUnitName = rs.getString(5);
+					//String subUnitCode = rs.getString(6);
 					
 					if (!departmentCode.equals(lastDepartmentCode)) {
 						if (lastDepartmentCode != null) {
@@ -83,8 +83,8 @@ public class GenerateTree {
 						startNode(generator,departmentCode, departmentName);
 						lastDepartmentCode = departmentCode;
 					}
-					startNode(generator, subUnitCode, subUnitName);
-					endNode(generator);
+					//startNode(generator, subUnitCode, subUnitName);
+					//endNode(generator);
 					
 				}
 				if (lastDepartmentCode != null) {

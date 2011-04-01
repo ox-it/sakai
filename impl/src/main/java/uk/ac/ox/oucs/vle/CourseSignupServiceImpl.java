@@ -2,21 +2,15 @@ package uk.ac.ox.oucs.vle;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.util.ResourceLoader;
-
-import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 
 public class CourseSignupServiceImpl implements CourseSignupService {
@@ -546,7 +540,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public List<CourseGroup> getCourseGroups(String deptId, Range range) {
-		List<CourseGroupDAO> cgDaos = dao.findCourseGroupBySubunit(deptId, range, getNow());
+		List<CourseGroupDAO> cgDaos = dao.findCourseGroupByDept(deptId, range, getNow());
 		List<CourseGroup> cgs = new ArrayList<CourseGroup>(cgDaos.size());
 		for (CourseGroupDAO cgDao: cgDaos) {
 			cgs.add(new CourseGroupImpl(cgDao, this));
