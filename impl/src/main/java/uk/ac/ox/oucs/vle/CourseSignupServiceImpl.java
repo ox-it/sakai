@@ -22,8 +22,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	private CourseDAO dao;
 	private SakaiProxy proxy;
 
-	private Date now;
-
 	private long adjustment;
 	
 	public void setDao(CourseDAO dao) {
@@ -539,13 +537,31 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return null;
 	}
 
-	public List<CourseGroup> getCourseGroups(String deptId, Range range) {
+	public List<CourseGroup> getCourseGroupsByDept(String deptId, Range range) {
 		List<CourseGroupDAO> cgDaos = dao.findCourseGroupByDept(deptId, range, getNow());
 		List<CourseGroup> cgs = new ArrayList<CourseGroup>(cgDaos.size());
 		for (CourseGroupDAO cgDao: cgDaos) {
 			cgs.add(new CourseGroupImpl(cgDao, this));
 		}
 		return cgs;
+	}
+	
+	public List<CourseGroup> getCourseGroupsBySubUnit(String subunitId, Range range) {
+		List<CourseGroupDAO> cgDaos = dao.findCourseGroupBySubUnit(subunitId, range, getNow());
+		List<CourseGroup> cgs = new ArrayList<CourseGroup>(cgDaos.size());
+		for (CourseGroupDAO cgDao: cgDaos) {
+			cgs.add(new CourseGroupImpl(cgDao, this));
+		}
+		return cgs;
+	}
+	
+	public List<SubUnit> getSubUnitsByDept(String deptId) {
+		List<Object[]> subNodes = dao.findSubUnitByDept(deptId);
+		List<SubUnit> subUnits = new ArrayList<SubUnit>(subNodes.size());
+		for (Object[] subNode : subNodes) {
+			subUnits.add(new SubUnitImpl((String)subNode[0], (String)subNode[1]));
+		}
+		return subUnits;
 	}
 
 	public Date getNow() {

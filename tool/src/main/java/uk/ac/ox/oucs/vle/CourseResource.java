@@ -2,6 +2,8 @@ package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -87,9 +89,20 @@ public class CourseResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@GET
 	public StreamingOutput getCoursesUpcoming(@PathParam("deptId") final String deptId, @QueryParam("components") final Range range) {
-		
-		final List<CourseGroup> courses = courseService.getCourseGroups(deptId, range);
-		return new GroupsStreamingOutput(courses, deptId, range.name());
+	
+		if (deptId.length() == 4) { 
+			if (range.equals(Range.PREVIOUS)) {
+				List<CourseGroup> courses = courseService.getCourseGroupsByDept(deptId, range);
+				return new GroupsStreamingOutput(Collections.EMPTY_LIST, courses, deptId, range.name());
+			} else {
+				List<SubUnit> subUnits = courseService.getSubUnitsByDept(deptId);
+				List<CourseGroup> courses = courseService.getCourseGroupsByDept(deptId, range);
+				return new GroupsStreamingOutput(subUnits, courses, deptId, range.name());
+			}
+		} else {
+			List<CourseGroup> courses = courseService.getCourseGroupsBySubUnit(deptId, range);
+			return new GroupsStreamingOutput(Collections.EMPTY_LIST, courses, deptId, range.name());
+		}
 	}
 
 	@Path("/admin")
@@ -133,7 +146,7 @@ public class CourseResource {
 	}
 
 	private CourseSummary summary(Date now, CourseGroup courseGroup) {
-		// Calculate the summary based on the available components.
+		// Calculate the summary based on the available components.	
 		if (courseGroup.getComponents().isEmpty()) {
 			return new CourseSummary("none available", CourseState.UNKNOWN);
 		}
@@ -170,6 +183,7 @@ public class CourseResource {
 		if (!isOneBookable) {
 			return new CourseSummary(null, CourseState.UNBOOKABLE);
 		}
+	
 		if (isOneOpen) {
 			if (areSomePlaces) {
 				long remaining = willClose.getTime() - now.getTime();
@@ -215,11 +229,13 @@ public class CourseResource {
 	}
 
 	private class GroupsStreamingOutput implements StreamingOutput {
+		private final List<SubUnit> subUnits;
 		private final List<CourseGroup> courses;
 		private final String deptId;
 		private final String range;
 	
-		private GroupsStreamingOutput(List<CourseGroup> courses, String deptId, String range) {
+		private GroupsStreamingOutput(List<SubUnit> subUnits, List<CourseGroup> courses, String deptId, String range) {
+			this.subUnits = subUnits;
 			this.courses = courses;
 			this.deptId = deptId;
 			this.range = range;
@@ -234,10 +250,21 @@ public class CourseResource {
 			gen.writeObjectField("dept", deptId);
 			gen.writeObjectField("range", range);
 			gen.writeArrayFieldStart("tree");
+			for (SubUnit subUnit : subUnits) {
+				gen.writeStartObject();
+				gen.writeObjectFieldStart("attr");
+				gen.writeStringField("id", subUnit.getCode());
+				gen.writeEndObject();
+				gen.writeStringField("data", (String)subUnit.getName());
+				gen.writeStringField("state", "closed");
+				gen.writeArrayFieldStart("children");
+				gen.writeEndArray();
+				gen.writeEndObject();
+			}
+			
 			for (CourseGroup courseGroup : courses) {
 				gen.writeStartObject();
 				
-
 				CourseSummary state = summary(now, courseGroup);
 				gen.writeObjectFieldStart("attr");
 				gen.writeObjectField("id", courseGroup.getId());

@@ -81,6 +81,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					SQLException {
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
 				criteria.add(Expression.eq("dept", deptId));
+				criteria.add(Expression.or(Expression.isNull("subunit"),Expression.eq("subunit", "")));
 				switch (range) { 
 					case UPCOMING:
 						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("closes", now));
@@ -98,7 +99,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<CourseGroupDAO> findCourseGroupBySubunit(final String subunitId, final Range range, final Date now) {
+	public List<CourseGroupDAO> findCourseGroupBySubUnit(final String subunitId, final Range range, final Date now) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			// Need the DISTINCT ROOT ENTITY filter.
 			public Object doInHibernate(Session session) throws HibernateException,
@@ -116,6 +117,20 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 				criteria.addOrder(Order.asc("title"));
 				return criteria.list();
+			}
+			
+		});
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Object[]> findSubUnitByDept(final String deptId) {
+		return getHibernateTemplate().executeFind(new HibernateCallback() {
+			// Need the DISTINCT ROOT ENTITY filter.
+			public Object doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Query query = session.createQuery("select distinct subunit, subunitName from CourseGroupDAO cg where cg.dept = :deptId and cg.subunit <> '' order by 2");
+				query.setString("deptId", deptId);
+				return query.list();
 			}
 			
 		});
