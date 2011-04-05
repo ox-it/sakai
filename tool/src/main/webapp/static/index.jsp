@@ -40,18 +40,29 @@
 				 * @param {Object} y
 				 */
                 var treeSort = function(x, y){
-                    var a = x.data;
-                    var b = y.data;
-                    if (a === b) {
-                        return 0;
+
+	                var a = 9;
+	                if (x.state) {
+		                a=0;
+	                }
+	                var b = 9;
+	                if (y.state) {
+		                b=0;
+	                }
+	                var c = x.data;
+                    var d = y.data;
+	                
+	                if (a < b) {
+	                    return -1;
+	                } else if (a > b) {
+	                    return 1;
+                    } else if (c < d) {
+                        return -1;
+                    } else if (c > d) {
+                        return 1;
+                    } else {
+                        return 0; 
                     }
-                    else 
-                        if (a < b) {
-                            return -1;
-                        }
-                        else {
-                            return 1;
-                        }
                 };
 
 				/**
@@ -102,7 +113,8 @@
 						$("#tree").jstree("open_node", this);
 					})
 				 	.jstree({
-						json_data: {
+						json_data: {	//private Date now;
+						
 							data: treedata,
 							ajax: {
 								url: function(n){

@@ -65,7 +65,11 @@ public interface CourseSignupService {
 	 * @param range
 	 * @return
 	 */
-	public List<CourseGroup> getCourseGroups(String deptId, Range range);
+	public List<CourseGroup> getCourseGroupsByDept(String deptId, Range range);
+	
+	public List<CourseGroup> getCourseGroupsBySubUnit(String subunitId, Range range);
+	
+	public List<SubUnit> getSubUnitsByDept(String deptId);
 	
 	public String findSupervisor(String search);
 	

@@ -17,7 +17,9 @@ public interface CourseDAO {
 	
 	List<CourseGroupDAO> findCourseGroupByDept(String dept, Range range, Date now);
 	
-	List<CourseGroupDAO> findCourseGroupBySubunit(String subunit, Range range, Date now);
+	List<CourseGroupDAO> findCourseGroupBySubUnit(String subunit, Range range, Date now);
+	
+	List<Object[]> findSubUnitByDept(String dept);
 
 	List<CourseComponentDAO> findOpenComponents(String id, Date at);
 
