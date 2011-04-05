@@ -3,119 +3,189 @@
 
 <beans>
 
-   <!-- Doesn't exist yet 
-   <bean id="courseSignupOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>signup_ov</value></property>
-      <property name="name"><value>Sign-up Overview</value></property>
-      <property name="location"><value>/course_signup/signup_ov.html</value></property>
-      <property name="defaultForTool"><value>course.signup</value></property>
-   </bean>-->
-   
-   <bean id="courseSignupBrowsing" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ses_browsing</value></property>
-      <property name="name"><value>Browsing Modules</value></property>
-      <property name="location"><value>/course_signup/ses_browsing.html</value></property>
-      <property name="defaultForTool"><value>course.signup</value></property>
-   </bean>
-   
-   <bean id="courseSignupModule" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ses_signup</value></property>
-      <property name="name"><value>Signing Up for a Module</value></property>
-      <property name="location"><value>/course_signup/ses_signup.html</value></property>
-      <property name="defaultForTool"><value>course.signup</value></property>
-   </bean>
-   
-   <bean id="courseSignupModuleFull" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ses_modulefull</value></property>
-      <property name="name"><value>What to do if a Module is Full</value></property>
-      <property name="location"><value>/course_signup/ses_modulefull.html</value></property>
-      <property name="defaultForTool"><value>course.signup</value></property>
-   </bean>
-   
-   <bean id="courseSignupMyStatus" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ses_mystatus</value></property>
-      <property name="name"><value>Checking My Status on a Module</value></property>
-      <property name="location"><value>/course_signup/ses_mystatus.html</value></property>
-      <property name="defaultForTool"><value>course.signup</value></property>
-   </bean>
-   
-   <bean id="courseSignupWithdrawing" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ses_withdrawing</value></property>
-      <property name="name"><value>Withdrawing from a Module</value></property>
-      <property name="location"><value>/course_signup/ses_withdrawing.html</value></property>
-      <property name="defaultForTool"><value>course.signup</value></property>
-   </bean>
-   
-   <bean id="courseSignupMyModules" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ses_mymodules</value></property>
-      <property name="name"><value>Viewing My Modules</value></property>
-      <property name="location"><value>/course_signup/ses_mymodules.html</value></property>
-      <property name="defaultForTool"><value>course.signup</value></property>
-   </bean>
-   
-   <bean id="courseSignupAdminApproving" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ses_admin_approving</value></property>
-      <property name="name"><value>Approving a Student to Attend a Module</value></property>
-      <property name="location"><value>/course_signup/ses_admin_approving.html</value></property>
-      <property name="defaultForTool"><value>course.signup</value></property>
-   </bean>
-   
-   <bean id="courseSignupAdminRejecting" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ses_admin_rejecting</value></property>
-      <property name="name"><value>Rejecting a Student's Application to Attend a Module</value></property>
-      <property name="location"><value>/course_signup/ses_admin_rejecting.html</value></property>
-      <property name="defaultForTool"><value>course.signup</value></property>
-   </bean>
-   
-   <bean id="courseSignupAdminWithdrawing" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ses_admin_withdrawing</value></property>
-      <property name="name"><value>Withdrawing a Student from a Module</value></property>
-      <property name="location"><value>/course_signup/ses_admin_withdrawing.html</value></property>
-      <property name="defaultForTool"><value>course.signup</value></property>
-   </bean>
-   
-   <bean id="courseSignupAdminUploading" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ses_admin_uploading</value></property>
-      <property name="name"><value>Uploading Students onto a Module</value></property>
-      <property name="location"><value>/course_signup/ses_admin_uploading.html</value></property>
-      <property name="defaultForTool"><value>course.signup</value></property>
-   </bean>
-   
-   <bean id="courseSignupAdminViewing" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ses_admin_viewing</value></property>
-      <property name="name"><value>Viewing All Students Attending a Module</value></property>
-      <property name="location"><value>/course_signup/ses_admin_viewing.html</value></property>
-      <property name="defaultForTool"><value>course.signup</value></property>
-   </bean>
-    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
-          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
-      <property name="name"><value>root</value></property>
-      <property name="categories">
-         <list>
-            <bean id="courseSignupCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
-               <property name="name"><value>Student Enrollment System (SES)</value></property>
-               <property name="resources">
-                  <list>
-            <!-- Isn't written yet
-			<ref bean="courseSignupOverview"/>
-            -->
-			<ref bean="courseSignupBrowsing"/>
-			<ref bean="courseSignupModule"/>
-			<ref bean="courseSignupModuleFull"/>
-			<ref bean="courseSignupMyStatus"/>
-			<ref bean="courseSignupWithdrawing"/>
-			<ref bean="courseSignupMyModules"/>
-			<ref bean="courseSignupAdminApproving"/>
-			<ref bean="courseSignupAdminRejecting"/>
-			<ref bean="courseSignupAdminWithdrawing"/>
-            <!-- These aren't written yet.
-			<ref bean="courseSignupAdminUploading"/>
-			<ref bean="courseSignupAdminViewing"/>
-            -->
-                  </list>
-               </property>
-            </bean>
-           </list>
-         </property>
-       </bean>     
+	<bean id="sesOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>ses_overview</value>
+		</property>
+		<property name="name">
+			<value>Student Enrolment System Overview</value>
+		</property>
+		<property name="location">
+			<value>/course_signup/ses_overview.html</value>
+		</property>
+		<property name="defaultForTool">
+			<value>course.signup</value>
+		</property>
+	</bean>
+
+	<bean id="sesBrowsing" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>ses_browsing</value>
+		</property>
+		<property name="name">
+			<value>Browsing / Searching for a Module</value>
+		</property>
+		<property name="location">
+			<value>/course_signup/ses_browsing.html</value>
+		</property>
+	</bean>
+
+	<bean id="sesModule" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>ses_signup</value>
+		</property>
+		<property name="name">
+			<value>Signing Up for a Module</value>
+		</property>
+		<property name="location">
+			<value>/course_signup/ses_signup.html</value>
+		</property>
+	</bean>
+
+	<bean id="sesModuleFull" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>ses_modulefull</value>
+		</property>
+		<property name="name">
+			<value>What to do if a Module is Full</value>
+		</property>
+		<property name="location">
+			<value>/course_signup/ses_modulefull.html</value>
+		</property>
+	</bean>
+
+	<bean id="sesMyStatus" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>ses_mystatus</value>
+		</property>
+		<property name="name">
+			<value>Checking My Status on a Module</value>
+		</property>
+		<property name="location">
+			<value>/course_signup/ses_mystatus.html</value>
+		</property>
+	</bean>
+
+	<bean id="sesWithdrawing" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>ses_withdrawing</value>
+		</property>
+		<property name="name">
+			<value>Withdrawing from a Module</value>
+		</property>
+		<property name="location">
+			<value>/course_signup/ses_withdrawing.html</value>
+		</property>
+	</bean>
+	
+	<bean id="sesAdminAccepting" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>ses_admin_accepting</value>
+		</property>
+		<property name="name">
+			<value>Accepting, Approving, and Rejecting Students on a Module</value>
+		</property>
+		<property name="location">
+			<value>/course_signup/ses_admin_accepting.html</value>
+		</property>
+	</bean>
+
+	<bean id="sesAdminWithdrawing" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>ses_admin_withdrawing</value>
+		</property>
+		<property name="name">
+			<value>Withdrawing a Student from a Module</value>
+		</property>
+		<property name="location">
+			<value>/course_signup/ses_admin_withdrawing.html</value>
+		</property>
+	</bean>
+
+	<bean id="sesAdminUploading" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>ses_admin_uploading</value>
+		</property>
+		<property name="name">
+			<value>Uploading Students onto a Module</value>
+		</property>
+		<property name="location">
+			<value>/course_signup/ses_admin_uploading.html</value>
+		</property>
+	</bean>
+
+	<bean id="sesAdminViewing" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>ses_admin_viewing</value>
+		</property>
+		<property name="name">
+			<value>Viewing All Students Attending a Module</value>
+		</property>
+		<property name="location">
+			<value>/course_signup/ses_admin_viewing.html</value>
+		</property>
+	</bean>
+	
+	<bean id="sesSupApproving" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>ses_sup_approving</value>
+		</property>
+		<property name="name">
+			<value>Approving and Rejecting Students on a Module for Supervisors </value>
+		</property>
+		<property name="location">
+			<value>/course_signup/ses_sup_approving.html</value>
+		</property>
+	</bean>
+	
+	<bean id="sesSupViewing" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>ses_sup_viewing</value>
+		</property>
+		<property name="name">
+			<value>Viewing Students Attending Modules</value>
+		</property>
+		<property name="location">
+			<value>/course_signup/ses_sup_viewing.html</value>
+		</property>
+	</bean>
+	
+	<bean id="org.sakaiproject.api.app.help.TableOfContents"
+		class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+		<property name="name">
+			<value>root</value>
+		</property>
+		<property name="categories">
+			<list>
+				<bean id="sesCategory"
+					class="org.sakaiproject.component.app.help.model.CategoryBean">
+					<property name="name">
+						<value>Student Enrollment System (SES)</value>
+					</property>
+					<property name="resources">
+						<list>
+							<ref bean="sesOverview" />
+
+							<!-- Student pages -->
+							<ref bean="sesBrowsing" />
+							<ref bean="sesModule" />
+							<ref bean="sesModuleFull" />
+							<ref bean="sesMyStatus" />
+							<ref bean="sesWithdrawing" />
+
+							<!--  Admin pages -->
+							<ref bean="sesAdminAccepting" />
+							<ref bean="sesAdminWithdrawing" />
+							<ref bean="sesAdminUploading" />
+							<ref bean="sesAdminViewing" />
+
+							<!--  Supervisor pages -->
+							<ref bean="sesSupApproving" />
+							<ref bean="sesSupViewing" />
+						</list>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
 </beans>
