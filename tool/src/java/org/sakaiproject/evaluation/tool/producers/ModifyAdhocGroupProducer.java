@@ -92,11 +92,12 @@ ActionResultInterceptor {
          * because they are submit buttons, and enter on group-name-input submitted the form
          * with the first remove user selected
          */
-        UICommand dummyButton = UICommand.make(form, "dummy-button", UIMessage
+        if (evalAdhocGroup != null) {
+        	UICommand dummyButton = UICommand.make(form, "dummy-button", UIMessage
                 .make("modifyadhocgroup.update"), "adhocGroupsBean.addUsersToAdHocGroup");
-        dummyButton.parameters = new ParameterList(new UIELBinding("adhocGroupsBean.adhocGroupId",
+        	dummyButton.parameters = new ParameterList(new UIELBinding("adhocGroupsBean.adhocGroupId",
                 evalAdhocGroup.getId()));
-        
+        }
         /*
          * If this is not a new group, then we render a table containing all the current group
          * members, along with a button on each row to remove that particular member.
