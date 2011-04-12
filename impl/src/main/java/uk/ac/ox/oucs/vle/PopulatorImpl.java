@@ -68,8 +68,9 @@ public class PopulatorImpl implements Populator{
 					" au.description, Employee.webauth_code " +
 					" FROM AssessmentUnit au " + 
 					" LEFT JOIN Employee ON au.course_administrator_employee_id = Employee.id " + 
-					" INNER JOIN TeachingComponent tc ON tc.assessment_unit_id = au.id " + 
-					" INNER JOIN Department ON au.department_code = Department.department_code " + 
+					" INNER JOIN TeachingComponentAssessmentUnit ta ON ta.assessment_unit_id = au.id " +
+					" INNER JOIN TeachingComponent tc ON tc.id = ta.teaching_component_id " +
+					" INNER JOIN Department ON au.department_id = Department.id " + 
 					" LEFT JOIN SubUnit ON au.sub_unit_id = SubUnit.id;");
 			while(rs.next()) {
 				groupSeen++;
@@ -116,180 +117,206 @@ public class PopulatorImpl implements Populator{
 			String sql = "SELECT" + 
 					" ti.id, ti.open_date, ti.close_date, ti.expiry_date, ti.start_date, ti.end_date, " +
 					" ti.sessions, ti.session_dates, ti.teaching_capacity, ti.bookable, " + 
-					" tc.assessment_unit_code, tc.id as teaching_component_id, tc.subject, " + 
+					" au.assessment_unit_code, tc.id as teaching_component_id, tc.subject, " + 
 					" Location.location_name, " + 
 					" Term.term_code, Term.label, " + 
 					" c.title, " + 
 					" Employee.webauth_code, " +
 					" concat_ws(' ', Employee.forename, Employee.surname) as teacher_name, " +
 					" Employee.email as teacher_email " + 
-					" FROM " + 
-					" TeachingInstance ti " + 
+					" FROM TeachingInstance ti " + 
 					" LEFT JOIN TeachingComponent tc ON tc.id = ti.teaching_component_id " + 
+					" LEFT JOIN TeachingComponentAssessmentUnit ta ON ta.teaching_component_id = tc.id " + 
+					" LEFT JOIN AssessmentUnit au ON au.id = ta.assessment_unit_id " +
 					" LEFT JOIN Term ON ti.term_code = Term.term_code " + 
 					" LEFT JOIN Location ON ti.location_id = Location.id " + 
 					" LEFT JOIN TeachingComponentType c ON tc.teaching_component_type_id = c.id " + 
 					" LEFT JOIN Employee ON ti.employee_id = Employee.id;";
 			rs = st.executeQuery(sql);
+			String lastId = null;
+			CourseComponentDAO componentDao = null;
+			boolean created = false;
+			
 			while(rs.next()) {
 				componentSeen++;
-				String bookableString = rs.getString("bookable");
-				boolean bookable = bookableString == null || bookableString.trim().length() == 0 || bookableString.equals("TRUE");
 				
 				String id = rs.getString("id");
-				String assessmentUnitCodes = rs.getString("assessment_unit_code");
-				Date openDate = getDate(rs, "open_date");
-				if (openDate == null) { 
-					logFailure(assessmentUnitCodes, id, "No open date set");
-					continue;
-				}
-				Date closeDate = getDate(rs, "close_date");
-				if (closeDate == null) {
-					logFailure(assessmentUnitCodes, id, "No close date set");
-					continue;
-				}
-				Date expiryDate = getDate(rs, "expiry_date");
-				if (expiryDate == null) {
-					expiryDate = closeDate;
-				}
-				Date startDate = getDate(rs, "start_date");
-				Date endDate = getDate(rs, "end_date");
-				
-				if (openDate.after(closeDate)){
-					logFailure(assessmentUnitCodes, id, "Open date is after close date");
-					continue;
-				}
-				if(expiryDate.before(closeDate)){
-					logFailure(assessmentUnitCodes, id, "Expiry date is before close date");
+				String assessmentUnitCode = rs.getString("assessment_unit_code");
+				if (null == assessmentUnitCode) {
+					logFailure(assessmentUnitCode, id, "No assessment unit code set.");
 					continue;
 				}
 				
-				int capacity = rs.getInt("teaching_capacity");
-				
-				String subject = rs.getString("subject");
-				if (subject == null || subject.trim().length() == 0) {
-					logFailure(assessmentUnitCodes, id, "Subject isn't set.");
-					continue;
-				}
-				String title = rs.getString("title");
-				if (title == null || title.trim().length() == 0) {
-					logFailure(assessmentUnitCodes, id, "Title isn't set.");
-					continue;
-				}
-				String termCode = rs.getString("term_code");
-				if (termCode == null || termCode.trim().length() == 0) {
-					logFailure(assessmentUnitCodes, id, "Term code can't be empty");
-					continue;
-				}
-				String termName = rs.getString("label");
-				if (termName == null || termName.trim().length() == 0) {
-					logFailure(assessmentUnitCodes, id, "Term name can't be empty");
-					continue;
-				}
-				
-				String teachingComponentId = rs.getString("teaching_component_id");
-				if (teachingComponentId == null || teachingComponentId.trim().length()==0) {
-					logFailure(assessmentUnitCodes, id, "No teaching component ID found.");
-					continue;
-				}
-
-				//String assessmentUnitCodes = rs.getString("assessment_unit_codes");
-				if (assessmentUnitCodes == null || assessmentUnitCodes.trim().length() == 0) {
-					logFailure(assessmentUnitCodes, id, "No assessment unit codes set.");
-					continue;
-				}
-				
-				// Now find the component.
-				boolean created = false;
-				CourseComponentDAO componentDao = dao.findCourseComponent(id);
-				if (componentDao == null) {
-					componentDao = dao.newCourseComponent(id);
-					created = true;
-				}
-				componentDao.setTitle(title);
-				componentDao.setSubject(subject);
-				componentDao.setOpens(openDate);
-				componentDao.setCloses(closeDate);
-				componentDao.setExpires(expiryDate);
-				componentDao.setStarts(startDate);
-				componentDao.setEnds(endDate);
-				componentDao.setBookable(bookable);
-				componentDao.setSize(capacity);
-				componentDao.setTermcode(termCode);
-				componentDao.setComponentId(teachingComponentId+":"+termCode);
-				
-				// Populate teacher details.
-				// Look for details in WebLearn first then fallback to details in DAISY.
-				String teacherName = null;
-				String teacherEmail = null;
-				String teacherId = rs.getString("webauth_code");
-				if (teacherId != null && teacherId.length() > 0) {
-					UserProxy teacher = proxy.findUserByEid(teacherId);
-					if (teacher != null) {
-						teacherName = teacher.getName();
-						teacherEmail = teacher.getEmail();
+				if (!id.equals(lastId)) {
+					
+					if (null != lastId && null != componentDao) {
+						if (created) {
+							componentCreated++;
+						} else {
+							componentUpdated++;
+						}
+						dao.save(componentDao);
+						componentDao = null;
 					}
-				}
-				if (teacherName == null) {
-					teacherName = rs.getString("teacher_name");
-				}
-				if (teacherName != null && teacherName.trim().length() > 0) {
-					componentDao.setTeacherName(teacherName);
-					if (teacherEmail == null) {
-						teacherEmail = rs.getString("teacher_email");
+					
+					lastId = id;
+					String bookableString = rs.getString("bookable");
+					boolean bookable = bookableString == null || bookableString.trim().length() == 0 || bookableString.equals("TRUE");
+					
+					Date openDate = getDate(rs, "open_date");
+					if (openDate == null) { 
+						logFailure(assessmentUnitCode, id, "No open date set");
+						continue;
 					}
-					if (teacherEmail != null && teacherName.trim().length() > 0) {
-						componentDao.setTeacherEmail(teacherEmail);
+					Date closeDate = getDate(rs, "close_date");
+					if (closeDate == null) {
+						logFailure(assessmentUnitCode, id, "No close date set");
+						continue;
 					}
-				}
-				
-				// Which term
-				componentDao.setWhen(termName);
-				
-				// When they are happening.
-				String sessionDates = rs.getString("session_dates");
-				if (sessionDates != null && sessionDates.trim().length() > 0) {
-					componentDao.setSlot(sessionDates);
-				}
-				
-				// How many sessions
-				String sessions = rs.getString("sessions");
-				if (sessions != null && sessions.trim().length() > 0) {
-					componentDao.setSessions(sessions);
-				}
-				
-				// Where?
-				String location = rs.getString("location_name");
-				if (location != null && location.trim().length() > 0) {
-					componentDao.setLocation(location);
-				}
-				
-				// Cleanout existing ones.
-				componentDao.setGroups(new HashSet<CourseGroupDAO>());
-				// For each assessment unit we'll need a link.
-				for(String assessmentUnitCode: assessmentUnitCodes.split(",")) {
+					Date expiryDate = getDate(rs, "expiry_date");
+					if (expiryDate == null) {
+						expiryDate = closeDate;
+					}
+					Date startDate = getDate(rs, "start_date");
+					Date endDate = getDate(rs, "end_date");
+					
+					if (openDate.after(closeDate)){
+						logFailure(assessmentUnitCode, id, "Open date is after close date");
+						continue;
+					}
+					if(expiryDate.before(closeDate)){
+						logFailure(assessmentUnitCode, id, "Expiry date is before close date");
+						continue;
+					}
+					
+					int capacity = rs.getInt("teaching_capacity");
+					
+					String subject = rs.getString("subject");
+					if (subject == null || subject.trim().length() == 0) {
+						logFailure(assessmentUnitCode, id, "Subject isn't set.");
+						continue;
+					}
+					String title = rs.getString("title");
+					if (title == null || title.trim().length() == 0) {
+						logFailure(assessmentUnitCode, id, "Title isn't set.");
+						continue;
+					}
+					String termCode = rs.getString("term_code");
+					if (termCode == null || termCode.trim().length() == 0) {
+						logFailure(assessmentUnitCode, id, "Term code can't be empty");
+						continue;
+					}
+					String termName = rs.getString("label");
+					if (termName == null || termName.trim().length() == 0) {
+						logFailure(assessmentUnitCode, id, "Term name can't be empty");
+						continue;
+					}
+					
+					String teachingComponentId = rs.getString("teaching_component_id");
+					if (teachingComponentId == null || teachingComponentId.trim().length()==0) {
+						logFailure(assessmentUnitCode, id, "No teaching component ID found.");
+						continue;
+					}
+					
+					// Now find the component.
+					componentDao = dao.findCourseComponent(id);
+					if (componentDao == null) {
+						componentDao = dao.newCourseComponent(id);
+						created = true;
+					}
+					componentDao.setTitle(title);
+					componentDao.setSubject(subject);
+					componentDao.setOpens(openDate);
+					componentDao.setCloses(closeDate);
+					componentDao.setExpires(expiryDate);
+					componentDao.setStarts(startDate);
+					componentDao.setEnds(endDate);
+					componentDao.setBookable(bookable);
+					componentDao.setSize(capacity);
+					componentDao.setTermcode(termCode);
+					componentDao.setComponentId(teachingComponentId+":"+termCode);
+					
+					// Cleanout existing groups.
+					componentDao.setGroups(new HashSet<CourseGroupDAO>());
+					
+					// Populate teacher details.
+					// Look for details in WebLearn first then fallback to details in DAISY.
+					String teacherName = null;
+					String teacherEmail = null;
+					String teacherId = rs.getString("webauth_code");
+					if (teacherId != null && teacherId.length() > 0) {
+						UserProxy teacher = proxy.findUserByEid(teacherId);
+						if (teacher != null) {
+							teacherName = teacher.getName();
+							teacherEmail = teacher.getEmail();
+						}
+					}
+					if (teacherName == null) {
+						teacherName = rs.getString("teacher_name");
+					}
+					if (teacherName != null && teacherName.trim().length() > 0) {
+						componentDao.setTeacherName(teacherName);
+						if (teacherEmail == null) {
+							teacherEmail = rs.getString("teacher_email");
+						}
+						if (teacherEmail != null && teacherName.trim().length() > 0) {
+							componentDao.setTeacherEmail(teacherEmail);
+						}
+					}
+					
+					// Which term
+					componentDao.setWhen(termName);
+					
+					// When they are happening.
+					String sessionDates = rs.getString("session_dates");
+					if (sessionDates != null && sessionDates.trim().length() > 0) {
+						componentDao.setSlot(sessionDates);
+					}
+					
+					// How many sessions
+					String sessions = rs.getString("sessions");
+					if (sessions != null && sessions.trim().length() > 0) {
+						componentDao.setSessions(sessions);
+					}
+					
+					// Where?
+					String location = rs.getString("location_name");
+					if (location != null && location.trim().length() > 0) {
+						componentDao.setLocation(location);
+					}
+					
 					assessmentUnitCode = assessmentUnitCode.trim();
 					CourseGroupDAO groupDao = dao.findCourseGroupById(assessmentUnitCode);
 					if (groupDao == null) {
 						logWarning(id, "Couldn't find course group of: "+ assessmentUnitCode);
-						continue;
+					} else {
+						componentDao.getGroups().add(groupDao);
 					}
-					componentDao.getGroups().add(groupDao);
+				} 
+			
+				if (null != componentDao) { // may have failed validation
+					assessmentUnitCode = assessmentUnitCode.trim();
+					CourseGroupDAO groupDao = dao.findCourseGroupById(assessmentUnitCode);
+					if (groupDao == null) {
+						logWarning(id, "Couldn't find course group of: "+ assessmentUnitCode);
+					} else {
+						componentDao.getGroups().add(groupDao);
+					}
 				}
-				if (componentDao.getGroups().isEmpty()) {
-					logFailure(assessmentUnitCodes, id, "Isn't part of any groups.");
-					continue;
-				}
+			}
+			
+			if (null != lastId && null != componentDao) {
 				if (created) {
 					componentCreated++;
 				} else {
 					componentUpdated++;
 				}
-				
 				dao.save(componentDao);
 			}
+			
 		} catch (SQLException e) {
 			log.warn("Problem importing.", e);
+			
 		} finally {
 			log.info("CourseGroups (seen: "+ groupSeen+ " created: "+ groupCreated+ ", updated: "+ groupUpdated+")");
 			log.info("CourseComponents (seen: "+ componentSeen+ " created: "+ componentCreated+ ", updated: "+ componentUpdated+")");
