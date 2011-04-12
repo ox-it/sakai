@@ -34,7 +34,7 @@
 			<column name="id" />
 		</id>
 		<!-- We want to be sure the taken column isn't out of sync -->
-		<version name="version" column="version" insert="false"/>
+		<version name="version" column="version"/>
 		<property name="subject" type="string" length="256" />
 		<property name="title" type="string" length="256" />
 		<property name="termcode" type="string" length="30"
