@@ -43,10 +43,10 @@ public class PrimoService {
 	    params.add("onCampus", "false");
 	     
 	    WebResource query = webResource.queryParams(params);
-	    System.out.println("PrimoService.query ["+query.getURI().toString()+"]");
+	    //System.out.println("PrimoService.query ["+query.getURI().toString()+"]");
 	    
 	    String responseXML = webResource.queryParams(params).get(String.class);
-	    System.out.println("PrimoService.response ["+responseXML+"]");
+	    //System.out.println("PrimoService.response ["+responseXML+"]");
 	    //log.debug("response ["+responseXML+"]");
 	    
 	    ResponseBean responseBean = new ResponseBean(id);

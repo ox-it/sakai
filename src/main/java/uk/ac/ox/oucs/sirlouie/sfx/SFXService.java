@@ -39,11 +39,11 @@ public class SFXService {
 	    params.add("sfx.response_type", "simplexml");
 	    
 	    WebResource query = webResource.queryParams(params);
-	    System.out.println("SFXService.query ["+query.getURI().toString()+"]");
+	    //System.out.println("SFXService.query ["+query.getURI().toString()+"]");
 	    //log.debug("Query ["+query.getURI().toString()+"]");
 	    
 	    String responseXML = webResource.queryParams(params).get(String.class);
-	    System.out.println("SFXService.response ["+responseXML+"]");
+	    //System.out.println("SFXService.response ["+responseXML+"]");
 	    //log.debug("response ["+responseXML+"]");
 	    
 	    Collection<SearObject> beans = filterResponse(responseXML);
