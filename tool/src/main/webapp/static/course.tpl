@@ -47,7 +47,11 @@
                         </th>
                         <td>
 							{if signup}
-                            	${signup}
+							    {if signup == "full"}
+							    	Waiting List of ${waiting}
+							    {else}
+                            		${signup} ${waiting}
+                            	{/if}
 							{else}
 								Not bookable
 							{/if}		
@@ -111,10 +115,10 @@
 									{if signup}
                                 		{if part.options.length = 1}
 											<input type="checkbox" name="${part.type.id}" id="option-${option.id}" value="${option.id}" 
-											{if option.full || !option.open }disabled="true"{else}{var oneOpen = true}checked="yes"{/if}/>
+											{if !option.open }disabled="true"{else}{var oneOpen = true}checked="yes"{/if}/>
 										{else}
                 							<input type="radio" name="${part.type.id}" id="option-${option.id}" value="${option.id}"
-											{if option.full || !option.open }disabled="true"{else}{var oneOpen = true}{/if}/>
+											{if !option.open }disabled="true"{else}{var oneOpen = true}{/if}/>
 										{/if}
 								 	{/if}
 								{/if}
@@ -133,7 +137,11 @@
 						{/for}
                     </table>
 					{if signup}
-						<input type="submit" value="Signup" {if full || !open}disabled="true"{/if}/>
+						{if full || waiting}
+							<input type="submit" value="Join Waiting List" />
+						{else}
+							<input type="submit" value="Signup" {if !open}disabled="true"{/if}/>
+						{/if}
 					{else}
 						<input type="submit" value="Not Bookable">
 					{/if}

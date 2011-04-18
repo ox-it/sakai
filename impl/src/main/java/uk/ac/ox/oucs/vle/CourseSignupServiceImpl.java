@@ -12,6 +12,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.util.ResourceLoader;
 
+import uk.ac.ox.oucs.vle.CourseSignupService.Status;
+
 
 public class CourseSignupServiceImpl implements CourseSignupService {
 	
@@ -183,6 +185,15 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			signups.add(new CourseSignupImpl(signupDao, this));
 		}
 		return signups;
+	}
+	
+	public Integer getCountCourseSignups(String courseId, Set<Status> statuses) {
+		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
+		if (groupDao == null) {
+			return null;
+		}
+		
+		return dao.countSignupByCourse(courseId, statuses);
 	}
 	
 	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses) {
@@ -371,13 +382,15 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		Date now = getNow();
 		String userId = proxy.getCurrentUser().getId();
 		
+		boolean full = false;
 		List<CourseSignupDAO> existingSignups = new ArrayList<CourseSignupDAO>();
 		for(CourseComponentDAO componentDao: componentDaos) {
 			if(componentDao.getOpens().after(now) || componentDao.getCloses().before(now)) {
 				throw new IllegalStateException("Component isn't currently open: "+ componentDao.getId());
 			}
 			if ( (componentDao.getSize()-componentDao.getTaken()) < 1) {
-				throw new IllegalStateException("No places left on: "+ componentDao.getId());
+				full = true;
+			//	throw new IllegalStateException("No places left on: "+ componentDao.getId());
 			}
 			for (CourseSignupDAO signupDao: componentDao.getSignups()) {
 				// Look for exisiting signups for these components
@@ -409,7 +422,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		CourseSignupDAO signupDao = dao.newSignup(userId, supervisorId);
 		signupDao.setCreated(getNow());
 		signupDao.setGroup(groupDao);
-		signupDao.setStatus(Status.PENDING);
+		if (full) {
+			signupDao.setStatus(Status.WAITING);
+		} else {
+			signupDao.setStatus(Status.PENDING);
+		}
 		signupDao.setMessage(message);
 		String signupId = dao.save(signupDao);
 		

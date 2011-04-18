@@ -15,6 +15,7 @@ var Signup = function(){
 			 */
 			show: function(dest, id, old, success){
 				var courseData;
+				var waitingList;
 				var signupData;
 				var template;
 				
@@ -51,6 +52,7 @@ var Signup = function(){
 					// Reset the data in-case someone clicked two items before we're loaded.
 					courseData = undefined;
 					signupData = undefined;
+					waitingList = undefined;
 					$.ajax({
 						url: "../rest/course/" + id,
 						data: {
@@ -63,6 +65,20 @@ var Signup = function(){
 							showCourse();
 						}
 					});
+					
+					$.ajax({
+						url: "../rest/signup/count/course/signups/" + id,
+						data: {
+							status: "WAITING"
+						},
+						dataType: "json",
+						cache: false,
+						success: function(data){
+							waitingList = data;
+							showCourse();
+						}
+					});
+					
 					$.ajax({
 						url: "../rest/signup/my/course/" + id,
 						dataType: "json",
@@ -91,18 +107,19 @@ var Signup = function(){
 		 		 */
 				var showCourse = function(){
 					// Check we have all our data.
-					if (!courseData || !signupData || !template) {
+					if (!courseData || !signupData || !template || (undefined == waitingList)) {
 						return;
 					}
 					
 					var data = courseData; // From refactoring...
 					var now = $.serverDate();
 					var id = data.id;
-					data.full = true;
+					data.full = false;
 					data.open = false;
 					data.presenters = [];
 					data.administrators = [];
 					data.description = Text.toHtml(data.description);
+					data.waiting = waitingList;
 					var parts = [];
 					for (var componentIdx in data.components) {
 						var component = data.components[componentIdx];
@@ -152,8 +169,8 @@ var Signup = function(){
 						}
 						// Is there space.
 						component.full = (component.places < 1);
-						if (data.full && !component.full) {
-							data.full = false; // At least one is open 
+						if (component.full) {
+							data.full = true; // At least one component is full 
 						}
 					}
 					
@@ -495,11 +512,19 @@ var Signup = function(){
 			/**
 			 * The statuses that a signup can have.
 			 */
-			"statuses": ["PENDING", "ACCEPTED", "APPROVED", "REJECTED", "WITHDRAWN"],
+			"statuses": ["WAITING", "PENDING", "ACCEPTED", "APPROVED", "REJECTED", "WITHDRAWN"],
 			
             "getActions": function(status, id, closes, admin){
                 if (admin) {
                     switch (status) {
+                    	case "WAITING":
+                    		return [{
+                    			"name": "Accept",
+                    			"url": "../rest/signup/" + id + "/accept"
+                    		}, {
+                    			"name": "Reject",
+                    			"url": "../rest/signup/" + id + "/reject"
+                    		}];
                         case "PENDING":
                             return [{
                                 "name": "Accept",
@@ -526,6 +551,11 @@ var Signup = function(){
                 }
                 else {
                     switch (status) {
+                    	case "WAITING":
+                    		return [{
+                    			"name": "Withdraw",
+                    			"url": "../rest/signup/" + id + "/withdraw"
+                    		}];
                         case "PENDING":
                             return [{
                                 "name": "Withdraw",
@@ -809,6 +839,9 @@ var Signup = function(){
 				}
             }, {
                 "sTitle": "Actions"
+            }, {
+                "sTitle": "Status",
+                "bVisible": false
             }],
             "fnServerData": function(sSource, aoData, fnCallback){
                 jQuery.ajax({
@@ -843,7 +876,7 @@ var Signup = function(){
                             			closes = this.closes;
                             });
                             var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, isAdmin));
-                            data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions]);
+                            data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions, this.status]);
                             
                         });
                         fnCallback({
@@ -900,18 +933,6 @@ var Signup = function(){
         	signupAddSupervisor.attr("username", $(this).attr("user"));
         	signupAddSupervisor.attr("signupid", $(this).attr("id"));
     		signupAddSupervisor.jqmShow();
-    		
-    		/** this doesn't seem to do anything
-    		// Need to resize to content.
-    		var windowHeight = $(window).height();
-    		var positionTop = signupAddSupervisor[0].offsetTop;
-    		if (windowHeight < signupAddSupervisor.outerHeight() + positionTop) {
-    			// Too big.
-    			var newHeight = windowHeight - (signupAddSupervisor.outerHeight(false) - signupAddSupervisor.height()) -2;
-    			signupAddSupervisor.height(newHeight);
-    			signupAddSupervisor.css("top", "1px"); // Move almost to the top.
-    		};
-    		*/
         });
         
         
@@ -942,6 +963,11 @@ var Signup = function(){
 					$(table).trigger("reload");
 				}
 			});
+		});
+		
+		$("select.signups-table-status-filter").die().live("change", function(e) {
+			var filterStatus = $(this).val();
+			table.fnFilter(filterStatus, 8);
 		});
 		
 		var html = '<div id="signup-add-supervisor-win" class="jqmWindow" style="display: none">'

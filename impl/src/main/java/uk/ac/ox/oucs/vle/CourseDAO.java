@@ -46,6 +46,8 @@ public interface CourseDAO {
 	List<CourseGroupDAO> findAdminCourseGroups(String userId);
 
 	List<CourseSignupDAO> findSignupByCourse(String userId, String courseId, Set<Status> statuses);
+	
+	Integer countSignupByCourse(String courseId, Set<Status> statuses);
 
 	List<CourseGroupDAO> findCourseGroupByWords(String[] words, Range range, Date date);
 

@@ -23,7 +23,8 @@ public interface CourseSignupService {
 		WITHDRAWN(false),
 		APPROVED(true),
 		ACCEPTED(true),
-		REJECTED(false);
+		REJECTED(false),
+		WAITING(false);
 		
 		private final boolean takeSpace;
 		
@@ -48,6 +49,7 @@ public interface CourseSignupService {
 	public static final String EVENT_WITHDRAW = "coursesignup.withdraw";
 	public static final String EVENT_APPROVE = "coursesignup.approve";
 	public static final String EVENT_REJECT = "coursesignup.reject";
+	public static final String EVENT_WAITING = "coursesignup.reject";
 	
 
 	public CourseGroup getCourseGroup(String courseId, Range range);
@@ -84,6 +86,8 @@ public interface CourseSignupService {
 	public void signup(String userId, String courseId, Set<String> components, String supervisorId);
 	
 	public List<CourseSignup> getCourseSignups(String courseId, Set<Status> statuses);
+	
+	public Integer getCountCourseSignups(String courseId, Set<Status> statuses);
 	
 	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses);
 	

@@ -168,6 +168,19 @@ public class SignupResource {
 		};
 	}
 	
+	@Path("/count/course/signups/{id}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getCountCourseSignup(@PathParam("id") final String courseId, @QueryParam("status") final Status status) throws JsonGenerationException, JsonMappingException, IOException {
+		// All the pending 
+		Set statuses = null;
+		if (null != status) {
+			statuses = Collections.singleton(status);
+		}
+		Integer signups = courseService.getCountCourseSignups(courseId, statuses);
+		return Response.ok(objectMapper.writeValueAsString(signups)).build();
+	}
+	
 	@Path("/component/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

@@ -224,6 +224,21 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 	}
 	
+	public Integer countSignupByCourse(final String courseId, final Set<Status> statuses) {
+		List results = getHibernateTemplate().findByNamedParam(
+				"select count(*) from CourseSignupDAO where groupId = :courseId and status in (:statuses)",
+				new String[]{"courseId", "statuses"}, new Object[]{courseId, statuses});
+		int count = results.size();
+		if (count > 0) {
+			if (count > 1) {
+				throw new IllegalStateException("To many results ("+ results + ") found for "+ courseId );
+			}
+			System.out.println("countSignupByCourse ["+(Integer)results.get(0)+":"+results.get(0).getClass().getSimpleName()+"]");
+			return (Integer)results.get(0);
+		}
+		return null;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public List<CourseSignupDAO> findSignupByComponent(final String componentId, final Set<Status> statuses) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {

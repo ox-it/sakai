@@ -77,7 +77,7 @@
 								"bInfo": false,
 								"bAutoWidth": false,
 								"sAjaxSource": "../rest/course/",
-								"aaSorting": [[3,'desc']], // Sort on the signup date.
+								"aaSorting": [[8,'asc']], // Sort on the signup date.
 								"aoColumns": [
 								              {"sTitle": "Component"},
 											  {"sTitle": "Size"},
@@ -155,8 +155,21 @@
 									});
 								}
 							});
-							
-							$("#signups").html('<h3>Signups</h3><table border="0" class="display" id="signups-table"></table><a href="#" id="signup-add">Add Signup</a>');
+
+							var html = '<h3 style="display:inline">Signups</h3>';
+							html += '<span style="float:right; padding-right:20px;">Status Filter <select class="signups-table-status-filter">';
+							html += '<option selected="true" value = "">All</option>';
+							html += '<option value="WAITING">WAITING</option>';
+							html += '<option value="PENDING">PENDING</option>';
+							html += '<option value="ACCEPTED">ACCEPTED</option>';
+							html += '<option value="APPROVED">APPROVED</option>';
+							html += '<option value="REJECTED">REJECTED</option>';
+							html += '<option value="WITHDRAWN">WITHDRAWN</option>';
+							html += '</select></span>';
+							html += '<table border="0" class="display" id="signups-table"></table>';
+							html += '<a href="#" id="signup-add">Add Signup</a>';
+							$("#signups").html(html);
+							//$("#signups").html('<h3>Signups</h3><table border="0" class="display" id="signups-table"></table><a href="#" id="signup-add">Add Signup</a>');
 							// Load the signups.
 							var signups = $("#signups-table").signupTable("../rest/signup/course/"+code, true, true);
 							signups.bind("reload", function() { // Reload the summary when this table changes.
