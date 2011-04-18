@@ -324,10 +324,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setStatus(Status.ACCEPTED);
 		dao.save(signupDao);
 		
+		
 		for (CourseComponentDAO componentDao: componentDaos) {
 			List<CourseSignupDAO> signupsToRemove = new ArrayList<CourseSignupDAO>();
 			for(CourseSignupDAO componentSignupDao: componentDao.getSignups()) {
 				if (componentSignupDao.getUserId().equals(userId)) {
+					System.out.println("ToRemove ["+componentSignupDao.getId()+"]");
 					signupsToRemove.add(componentSignupDao);
 				}
 			}
@@ -337,6 +339,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				if (removeSignup.getStatus().equals(Status.APPROVED) || removeSignup.getStatus().equals(Status.ACCEPTED)) {
 					for (CourseComponentDAO signupComponentDao : removeSignup.getComponents()) {
 						signupComponentDao.setTaken(signupComponentDao.getTaken()-1);
+						signupComponentDao.getSignups().remove(removeSignup);  
 						dao.save(signupComponentDao);
 					}
 				}
@@ -348,6 +351,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			componentDao.setTaken(componentDao.getTaken()+1);
 			dao.save(componentDao);
 		}
+		
 		proxy.logEvent(signupDao.getGroup().getId(), EVENT_ACCEPT);
 	}
 

@@ -233,7 +233,6 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			if (count > 1) {
 				throw new IllegalStateException("To many results ("+ results + ") found for "+ courseId );
 			}
-			System.out.println("countSignupByCourse ["+(Integer)results.get(0)+":"+results.get(0).getClass().getSimpleName()+"]");
 			return (Integer)results.get(0);
 		}
 		return null;
