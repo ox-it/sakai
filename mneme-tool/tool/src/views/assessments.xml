@@ -257,7 +257,7 @@
 									<model type="text" ref="assessment.title" missing="no-title" />
 								</message>
 							</title>
-							<destination template="/assessment_edit/{0}{1}/{2}">
+							<destination template="/assessment_edit/{2}/assessments/{0}{1}">
 								<model ref="sort_column" />
 								<model ref="sort_direction" />
 								<model ref="assessment.id" />

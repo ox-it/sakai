@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -278,7 +278,7 @@ public class AssessmentsView extends ControllerImpl
 			try
 			{
 				Assessment assessment = this.assessmentService.newAssessment(this.toolManager.getCurrentPlacement().getContext());
-				destination = "/assessment_edit/" + sort + "/" + assessment.getId();
+				destination = "/assessment_edit/" + assessment.getId() + "/assessments/" + sort;
 			}
 			catch (AssessmentPermissionException e)
 			{

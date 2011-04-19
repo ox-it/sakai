@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -55,8 +55,8 @@
 			<container>
 				<navigation title="done" description="done-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/return.png" style="LEFT" />
-					<destination template="/assessments/{0}">
-						<model ref="sortcode" />
+					<destination template="{0}">
+						<model ref="return" />
 					</destination>
 				</navigation>
 				<divider />
@@ -118,9 +118,9 @@
 												<compareDecision model="assessment.type" constant="survey" />
 												<hasValueDecision model="allowEval" />
 											</included>
-											<destination template="/assessment_edit/{0}/{1}">
-												<model ref="sortcode" />
+											<destination template="/assessment_edit/{0}{1}">
 												<model ref="assessment.id" />
+												<model ref="return" />
 											</destination>
 										</selection>
 										<textEdit title="results-email" cols="40">
@@ -153,9 +153,9 @@
 							<included>
 								<decision reversed="TRUE" model="assessment.isLocked" />
 							</included>
-							<destination template="/assessment_edit/{0}/{1}">
-								<model ref="sortcode" />
+							<destination template="/assessment_edit/{0}{1}">
 								<model ref="assessment.id" />
+								<model ref="return" />
 							</destination>
 						</selection>
 
@@ -184,9 +184,9 @@
 								<decision model="assessment.isLocked" />
 								<compareDecision reversed="TRUE" model="assessment.type" constant="survey" />
 							</included>
-							<destination template="/assessment_edit/{0}/{1}">
-								<model ref="sortcode" />
+							<destination template="/assessment_edit/{0}{1}">
 								<model ref="assessment.id" />
+								<model ref="return" />
 							</destination>
 						</selection>
 
@@ -250,9 +250,9 @@
 								</selectionChoice>
 							</selectionChoices>
 							<model ref="assessment.needsPoints" />
-							<destination template="/assessment_edit/{0}/{1}">
-								<model ref="sortcode" />
+							<destination template="/assessment_edit/{0}{1}">
 								<model ref="assessment.id" />
+								<model ref="return" />
 							</destination>
 							<included>
 								<decision model="assessment.allowedPoints" />
@@ -421,10 +421,10 @@
 							<navigations>
 								<navigation style="LINK" submit="TRUE" description="question-preview">
 									<icon icon="/icons/preview.png" style="LEFT" />
-									<destination template="/question_preview/{0}/assessment_edit/{1}/{2}">
+									<destination template="/question_preview/{0}/assessment_edit/{1}{2}">
 										<model ref="detail.questionId" />
-										<model ref="sortcode" />
 										<model ref="assessment.id" />
+										<model ref="return" />
 									</destination>
 									<included>
 										<decision reversed="TRUE" model="detail.question.isSurvey" />
@@ -432,10 +432,10 @@
 								</navigation>
 								<navigation style="LINK" submit="TRUE" description="survey-preview">
 									<icon icon="/icons/survey_view.png" style="LEFT" />
-									<destination template="/question_preview/{0}/assessment_edit/{1}/{2}">
+									<destination template="/question_preview/{0}/assessment_edit/{1}{2}">
 										<model ref="detail.questionId" />
-										<model ref="sortcode" />
 										<model ref="assessment.id" />
+										<model ref="return" />
 									</destination>
 									<included>
 										<decision model="detail.question.isSurvey" />
@@ -453,11 +453,11 @@
 									<included>
 										<decision model="detail.isSpecific" />
 									</included>
-									<destination template="/question_edit/{0}/{2}/{3}/assessment_edit/{1}/{2}">
+									<destination template="/question_edit/{0}/{1}/{2}/assessment_edit/{1}{3}">
 										<model ref="detail.questionId" />
-										<model ref="sortcode" />
 										<model ref="assessment.id" />
 										<model ref="detail.part.id" />
+										<model ref="return" />
 									</destination>
 								</navigation>
 							</entityNavigations>
@@ -475,11 +475,11 @@
 									<included>
 										<decision model="detail.isSpecific" />
 									</included>
-									<destination template="/question_fix/{0}/{2}/{3}/assessment_edit/{1}/{2}">
+									<destination template="/question_fix/{0}/{1}/{2}/assessment_edit/{1}{3}">
 										<model ref="detail.questionId" />
-										<model ref="sortcode" />
 										<model ref="assessment.id" />
 										<model ref="detail.part.id" />
+										<model ref="return" />
 									</destination>
 								</navigation>
 							</entityNavigations>
@@ -503,10 +503,10 @@
 							<navigations>
 								<navigation style="LINK" submit="TRUE" description="question-preview">
 									<icon icon="/icons/preview.png" style="LEFT" />
-									<destination template="/question_preview/*/assessment_edit/{1}/{2}/*{0}">
+									<destination template="/question_preview/*/assessment_edit/{1}{2}/*{0}">
 										<model ref="detail.poolId" />
-										<model ref="sortcode" />
 										<model ref="assessment.id" />
+										<model ref="return" />
 									</destination>
 								</navigation>
 							</navigations>
@@ -531,10 +531,10 @@
 										<decision reversed="TRUE" model="detail.isSpecific" />
 										<decision reversed="TRUE" model="assessment.isLocked" />
 									</included>
-									<destination template="/pool_edit/{0}/-/-/-/assessment_edit/{1}/{2}">
+									<destination template="/pool_edit/{0}/-/-/-/assessment_edit/{1}{2}">
 										<model ref="detail.poolId" />
-										<model ref="sortcode" />
 										<model ref="assessment.id" />
+										<model ref="return" />
 									</destination>
 								</navigation>
 								<navigation submit="TRUE">
@@ -542,10 +542,10 @@
 										<decision reversed="TRUE" model="detail.isSpecific" />
 										<decision model="assessment.isLocked" />
 									</included>
-									<destination template="/pool_fix/{0}/-/-/{2}/assessment_edit/{1}/{2}">
+									<destination template="/pool_fix/{0}/-/-/{1}/assessment_edit/{1}{2}">
 										<model ref="detail.poolId" />
-										<model ref="sortcode" />
 										<model ref="assessment.id" />
+										<model ref="return" />
 									</destination>
 								</navigation>
 							</entityNavigations>
@@ -604,8 +604,8 @@
 			<container>
 				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/return.png" style="LEFT" />
-					<destination template="/assessments/{0}">
-						<model ref="sortcode" />
+					<destination template="{0}">
+						<model ref="return" />
 					</destination>
 				</navigation>
 				<divider />
