@@ -181,6 +181,7 @@
 								<hasValueDecision model="submission" reversed="TRUE" />
 							</requirements>
 							<included>
+								<decision model="submission.isTestDrive" reversed="TRUE" />
 								<hasValueDecision model="submission.blockedByTitle" />
 								<compareDecision model="submission.assessmentSubmissionStatus" constant="future" reversed="TRUE"/>
 								<compareDecision model="submission.assessmentSubmissionStatus" constant="complete" reversed="TRUE"/>

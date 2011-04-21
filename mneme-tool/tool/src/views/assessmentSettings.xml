@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -45,7 +45,7 @@
 
 	<header>
 		<message selector="testSettings-header">
-			<model type="icon" icon="/icons/folder_page.png" />
+			<model type="icon" icon="/icons/gear-edit.png" />
 		</message>
 	</header>
 
@@ -119,9 +119,9 @@
 							<included>
 								<decision reversed="TRUE" model="assessment.isLocked" />
 							</included>
-							<destination template="/assessment_settings/{0}/{1}">
-								<model ref="sort" />
+							<destination template="/assessment_settings/{0}{1}">
 								<model ref="assessment.id" />
+								<model ref="return" />
 							</destination>
 						</selection>
 
@@ -150,9 +150,9 @@
 								<decision model="assessment.isLocked" />
 								<compareDecision reversed="TRUE" model="assessment.type" constant="survey" />
 							</included>
-							<destination template="/assessment_settings/{0}/{1}">
-								<model ref="sort" />
+							<destination template="/assessment_settings/{0}{1}">
 								<model ref="assessment.id" />
+								<model ref="return" />
 							</destination>
 						</selection>
 
@@ -216,9 +216,9 @@
 								</selectionChoice>
 							</selectionChoices>
 							<model ref="assessment.needsPoints" />
-							<destination template="/assessment_settings/{0}/{1}">
-								<model ref="sort" />
+							<destination template="/assessment_settings/{0}{1}">
 								<model ref="assessment.id" />
+								<model ref="return" />
 							</destination>
 							<included>
 								<decision model="assessment.allowedPoints" />
@@ -779,8 +779,8 @@
 		<navigationBar>
 			<container>
 				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
-					<destination template="/assessments/{0}">
-						<model ref="sort" />
+					<destination template="{0}">
+						<model ref="return" />
 					</destination>
 					<icon icon="/icons/return.png" style="LEFT" />
 				</navigation>
@@ -825,8 +825,8 @@
 		<navigationBar>
 			<container>
 				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
-					<destination template="/assessments/{0}">
-						<model ref="sort" />
+					<destination template="{0}">
+						<model ref="return" />
 					</destination>
 					<icon icon="/icons/return.png" style="LEFT" />
 				</navigation>

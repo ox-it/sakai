@@ -272,6 +272,14 @@
 							<icon icon="/icons/manage-parts.png" style="LEFT" />
 						</navigation>
 
+						<navigation title="edit-properties" style="LINK" submit="TRUE">
+							<destination template="/assessment_settings/{0}/assessment_edit/{0}{1}">
+								<model ref="assessment.id" />
+								<model ref="return" />
+							</destination>
+							<icon icon="/icons/gear-edit.png" style="LEFT" />
+						</navigation>
+
 					</container>
 				</section>
 			</container>

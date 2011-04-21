@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -71,14 +71,25 @@ public class AssessmentSettingsView extends ControllerImpl
 	 */
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// sort, aid
-		if (params.length != 4)
+		// aid and return
+		if (params.length < 3)
 		{
 			throw new IllegalArgumentException();
 		}
 
-		String sort = params[2];
-		String assessmentId = params[3];
+		String assessmentId = params[2];
+		String destination = null;
+		if (params.length > 3)
+		{
+			destination = "/" + StringUtil.unsplit(params, 3, params.length - 3, "/");
+		}
+
+		// if not specified, go to the main assessment view
+		else
+		{
+			destination = "/assessments";
+		}
+		context.put("return", destination);
 
 		Assessment assessment = assessmentService.getAssessment(assessmentId);
 		if (assessment == null)
@@ -142,7 +153,6 @@ public class AssessmentSettingsView extends ControllerImpl
 
 		// collect information: the selected assessment
 		context.put("assessment", assessment);
-		context.put("sort", sort);
 
 		// check if we have gradebook
 		context.put("gradebookAvailable", this.gradesService.available(assessment.getContext()));
@@ -169,14 +179,25 @@ public class AssessmentSettingsView extends ControllerImpl
 	 */
 	public void post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// sort, aid
-		if (params.length != 4)
+		// aid and return
+		if (params.length < 3)
 		{
 			throw new IllegalArgumentException();
 		}
 
-		String sort = params[2];
-		String assessmentId = params[3];
+		String assessmentId = params[2];
+
+		String returnDestination = null;
+		if (params.length > 3)
+		{
+			returnDestination = "/" + StringUtil.unsplit(params, 3, params.length - 3, "/");
+		}
+
+		// if not specified, go to the main assessment view
+		else
+		{
+			returnDestination = "/assessments";
+		}
 
 		Assessment assessment = assessmentService.getAssessment(assessmentId);
 		if (assessment == null)
@@ -206,7 +227,7 @@ public class AssessmentSettingsView extends ControllerImpl
 		if ("PUBLISH".equals(destination))
 		{
 			assessment.setPublished(Boolean.TRUE);
-			destination = "/assessments/" + sort;
+			destination = returnDestination;
 		}
 
 		else if ("SAVE".equals(destination))
@@ -292,5 +313,4 @@ public class AssessmentSettingsView extends ControllerImpl
 	{
 		this.gradesService = service;
 	}
-
 }
