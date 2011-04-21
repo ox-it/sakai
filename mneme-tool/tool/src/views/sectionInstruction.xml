@@ -73,9 +73,10 @@
 			<container>
 				<navigation title="prev" description="prev-description" style="BUTTON">
 					<icon icon="/icons/prev.gif" style="LEFT" />
-					<destination template="/question/{0}/q{1}">
+					<destination template="/question/{0}/q{1}/-{2}">
 						<model ref="submission.id" />
 						<model ref="part.ordering.previous.lastQuestion.id" />
+						<model ref="return" />
 					</destination>
 					<disabled>
 						<orDecision>
@@ -86,20 +87,27 @@
 				</navigation>
 				<navigation title="toc" description="toc-description" style="BUTTON">
 					<icon icon="/icons/contents.gif" style="LEFT" />
-					<destination template="/toc/{0}" model="submission.id" />
+					<destination template="/toc/{0}{1}">
+						<model ref="submission.id" />
+						<model ref="return" />
+					</destination>
 					<disabled>
 						<decision reversed="TRUE" model="submission.assessment.randomAccess" />
 					</disabled>
 				</navigation>
 				<navigation title="next" description="next-description" style="BUTTON" default="TRUE">
 					<icon icon="/icons/next.gif" style="RIGHT" />
-					<destination template="/question/{0}/q{1}">
+					<destination template="/question/{0}/q{1}/-{2}">
 						<model ref="submission.id" />
 						<model ref="part.firstQuestion.id" />
+						<model ref="return" />
 					</destination>
 				</navigation>
 				<divider />
-				<navigation title="save-exit" description="save-exit-description" style="BUTTON" destination="/list">
+				<navigation title="save-exit" description="save-exit-description" style="BUTTON">
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
 					<icon icon="/icons/exit.gif" style="LEFT" />
 				</navigation>
 				<navigation title="finish-exam" description="finish-exam-description" style="BUTTON" submit="TRUE"
@@ -136,8 +144,9 @@
 			<timeTillExpire>
 				<model ref="submission.expiration.duration" />
 			</timeTillExpire>
-			<destination template="/submitted/{0}">
+			<destination template="/submitted/{0}{1}">
 				<model ref="submission.id" />
+				<model ref="return" />
 			</destination>
 			<included>
 				<decision model="review" reversed="TRUE" />
@@ -160,8 +169,9 @@
 			<timeTillExpire>
 				<model ref="submission.expiration.duration" />
 			</timeTillExpire>
-			<destination template="/submitted/{0}">
+			<destination template="/submitted/{0}{1}">
 				<model ref="submission.id" />
+				<model ref="return" />
 			</destination>
 			<included>
 				<decision model="review" reversed="TRUE" />
@@ -216,9 +226,10 @@
 			<container>
 				<navigation title="prev" accessKey="prev-access" description="prev-description" style="BUTTON">
 					<icon icon="/icons/prev.gif" style="LEFT" />
-					<destination template="/question/{0}/q{1}">
+					<destination template="/question/{0}/q{1}/-{2}">
 						<model ref="submission.id" />
 						<model ref="part.ordering.previous.lastQuestion.id" />
+						<model ref="return" />
 					</destination>
 					<disabled>
 						<orDecision>
@@ -229,20 +240,27 @@
 				</navigation>
 				<navigation title="toc" accessKey="toc-access" description="toc-description" style="BUTTON">
 					<icon icon="/icons/contents.gif" style="LEFT" />
-					<destination template="/toc/{0}" model="submission.id" />
+					<destination template="/toc/{0}{1}">
+						<model ref="submission.id" />
+						<model ref="return" />
+					</destination>
 					<disabled>
 						<decision reversed="TRUE" model="submission.assessment.randomAccess" />
 					</disabled>
 				</navigation>
 				<navigation title="next" accessKey="next-access" description="next-description" style="BUTTON" default="TRUE">
 					<icon icon="/icons/next.gif" style="RIGHT" />
-					<destination template="/question/{0}/q{1}">
+					<destination template="/question/{0}/q{1}/-{2}">
 						<model ref="submission.id" />
 						<model ref="part.firstQuestion.id" />
+						<model ref="return" />
 					</destination>
 				</navigation>
 				<divider />
-				<navigation title="save-exit" accessKey="save-exit-access" description="save-exit-description" style="BUTTON" destination="/list">
+				<navigation title="save-exit" accessKey="save-exit-access" description="save-exit-description" style="BUTTON">
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
 					<icon icon="/icons/exit.gif" style="LEFT" />
 				</navigation>
 				<navigation title="finish-exam" accessKey="finish-exam-access" description="finish-exam-description" style="BUTTON" submit="TRUE"

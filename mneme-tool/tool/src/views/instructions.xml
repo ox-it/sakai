@@ -82,8 +82,9 @@
 			<timeTillExpire>
 				<model ref="submission.expiration.duration" />
 			</timeTillExpire>
-			<destination template="/submitted/{0}">
+			<destination template="/submitted/{0}{1}">
 				<model ref="submission.id" />
+				<model ref="return" />
 			</destination>
 			<included>
 				<decision model="review" reversed="TRUE" />
@@ -106,8 +107,9 @@
 			<timeTillExpire>
 				<model ref="submission.expiration.duration" />
 			</timeTillExpire>
-			<destination template="/submitted/{0}">
+			<destination template="/submitted/{0}{1}">
 				<model ref="submission.id" />
+				<model ref="return" />
 			</destination>
 			<included>
 				<decision model="review" reversed="TRUE" />

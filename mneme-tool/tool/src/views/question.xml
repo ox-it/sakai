@@ -6,7 +6,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -92,8 +92,9 @@
 					<disabled>
 						<hasValueDecision reversed="TRUE" model="prevSubmissionId" />
 					</disabled>
-					<destination template="/review/{0}">
+					<destination template="/review/{0}{1}">
 						<model ref="prevSubmissionId" />
+						<model ref="return" />
 					</destination>
 				</navigation>
 				<text>
@@ -107,12 +108,16 @@
 					<disabled>
 						<hasValueDecision reversed="TRUE" model="nextSubmissionId" />
 					</disabled>
-					<destination template="/review/{0}">
+					<destination template="/review/{0}{1}">
 						<model ref="nextSubmissionId" />
+						<model ref="return" />
 					</destination>
 				</navigation>
 				<divider />
-				<navigation title="return" accessKey="return-access" description="return-description" style="BUTTON" destination="/list">
+				<navigation title="return" accessKey="return-access" description="return-description" style="BUTTON">
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
 					<icon icon="/icons/return.png" style="LEFT" />
 				</navigation>
 				<text>
@@ -157,7 +162,10 @@
 				</navigation>
 				<navigation title="toc" description="toc-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/contents.gif" style="LEFT" />
-					<destination template="/toc/{0}" model="submission.id" />
+					<destination template="/toc/{0}{1}">
+						<model ref="submission.id" />
+						<model ref="return" />
+					</destination>
 					<included>
 						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
 					</included>
@@ -196,8 +204,7 @@
 						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
 					</included>
 				</divider>
-				<navigation title="save-exit" description="save-exit-description" style="BUTTON" submit="TRUE"
-					destination="/list">
+				<navigation title="save-exit" description="save-exit-description" style="BUTTON" submit="TRUE" destination="LIST">
 					<icon icon="/icons/exit.gif" style="LEFT" />
 					<validate>
 						<trueDecision reversed="TRUE" />
@@ -243,8 +250,9 @@
 			<timeTillExpire>
 				<model ref="submission.expiration.duration" />
 			</timeTillExpire>
-			<destination template="/submitted/{0}">
+			<destination template="/submitted/{0}{1}">
 				<model ref="submission.id" />
+				<model ref="return" />
 			</destination>
 			<included>
 				<decision model="review" reversed="TRUE" />
@@ -267,8 +275,9 @@
 			<timeTillExpire>
 				<model ref="submission.expiration.duration" />
 			</timeTillExpire>
-			<destination template="/submitted/{0}">
+			<destination template="/submitted/{0}{1}">
 				<model ref="submission.id" />
+				<model ref="return" />
 			</destination>
 			<included>
 				<decision model="review" reversed="TRUE" />
@@ -661,8 +670,9 @@
 					<disabled>
 						<hasValueDecision reversed="TRUE" model="prevSubmissionId" />
 					</disabled>
-					<destination template="/review/{0}">
+					<destination template="/review/{0}{1}">
 						<model ref="prevSubmissionId" />
+						<model ref="return" />
 					</destination>
 				</navigation>
 				<text>
@@ -676,12 +686,16 @@
 					<disabled>
 						<hasValueDecision reversed="TRUE" model="nextSubmissionId" />
 					</disabled>
-					<destination template="/review/{0}">
+					<destination template="/review/{0}{1}">
 						<model ref="nextSubmissionId" />
+						<model ref="return" />
 					</destination>
 				</navigation>
 				<divider />
-				<navigation title="return" description="return-description" style="BUTTON" destination="/list">
+				<navigation title="return" description="return-description" style="BUTTON">
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
 					<icon icon="/icons/return.png" style="LEFT" />
 				</navigation>
 				<text>
@@ -727,7 +741,10 @@
 				</navigation>
 				<navigation title="toc" accessKey="toc-access" description="toc-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/contents.gif" style="LEFT" />
-					<destination template="/toc/{0}" model="submission.id" />
+					<destination template="/toc/{0}{1}">
+						<model ref="submission.id" />
+						<model ref="return" />
+					</destination>
 					<included>
 						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
 					</included>
@@ -766,8 +783,7 @@
 						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
 					</included>
 				</divider>
-				<navigation title="save-exit" accessKey="save-exit-access" description="save-exit-description" style="BUTTON" submit="TRUE"
-					destination="/list">
+				<navigation title="save-exit" accessKey="save-exit-access" description="save-exit-description" style="BUTTON" submit="TRUE" destination="LIST">
 					<icon icon="/icons/exit.gif" style="LEFT" />
 					<validate>
 						<trueDecision reversed="TRUE" />

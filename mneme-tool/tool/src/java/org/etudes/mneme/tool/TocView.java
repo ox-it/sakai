@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -37,11 +37,11 @@ import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.AssessmentClosedException;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentService;
-import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionCompletedException;
 import org.etudes.mneme.api.SubmissionService;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
 
 /**
@@ -63,9 +63,15 @@ public class TocView extends ControllerImpl
 	 *        The UiContext.
 	 * @param submissionId
 	 *        the selected submission id.
+	 * @param uiService
+	 *        the UI service.
+	 * @param assessmentService
+	 *        the Assessment service.
+	 * @param returnDestination
+	 *        The final return destination path.
 	 */
 	protected static void submissionCompletePost(HttpServletRequest req, HttpServletResponse res, Context context, String submissionId,
-			UiService uiService, SubmissionService assessmentService) throws IOException
+			UiService uiService, SubmissionService assessmentService, String returnDestination) throws IOException
 	{
 		// if (!context.getPostExpected())
 		// {
@@ -84,14 +90,14 @@ public class TocView extends ControllerImpl
 			// if linear, or the submission is all answered, we can go to submitted
 			if ((!submission.getAssessment().getRandomAccess()) || (submission.getIsAnswered()))
 			{
-				destination = "/submitted/" + submissionId;
+				destination = "/submitted/" + submissionId + returnDestination;
 				// we will complete below
 			}
 
 			// if not linear, and there are unanswered parts, send to final review
 			else
 			{
-				destination = "/final_review/" + submissionId;
+				destination = "/final_review/" + submissionId + returnDestination;
 
 				// we do not want to complete - redirect now
 				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
@@ -152,13 +158,25 @@ public class TocView extends ControllerImpl
 	 */
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// we need one parameter (sid)
-		if (params.length != 3)
+		// we need one parameter (sid) then return
+		if (params.length < 3)
 		{
 			throw new IllegalArgumentException();
 		}
 
 		String submissionId = params[2];
+		String destination = null;
+		if (params.length > 3)
+		{
+			destination = "/" + StringUtil.unsplit(params, 3, params.length - 3, "/");
+		}
+
+		// if not specified, go to the main list view
+		else
+		{
+			destination = "/list";
+		}
+		context.put("return", destination);
 
 		Submission submission = submissionService.getSubmission(submissionId);
 		if (submission == null)
@@ -212,10 +230,22 @@ public class TocView extends ControllerImpl
 	 */
 	public void post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// we need two parameters (sid/quesiton selector)
-		if (params.length != 3)
+		// sid then return
+		if (params.length < 3)
 		{
 			throw new IllegalArgumentException();
+		}
+
+		String returnDestination = null;
+		if (params.length > 3)
+		{
+			returnDestination = "/" + StringUtil.unsplit(params, 3, params.length - 3, "/");
+		}
+
+		// if not specified, go to the main list view
+		else
+		{
+			returnDestination = "/list";
 		}
 
 		// read form
@@ -231,7 +261,7 @@ public class TocView extends ControllerImpl
 		String submissionId = params[2];
 
 		// this post is from the timer, or the "submit" button, and completes the submission
-		submissionCompletePost(req, res, context, submissionId, this.uiService, this.submissionService);
+		submissionCompletePost(req, res, context, submissionId, this.uiService, this.submissionService, returnDestination);
 	}
 
 	/**

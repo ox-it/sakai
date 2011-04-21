@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -34,7 +34,6 @@ import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.AssessmentService;
-import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -71,7 +70,7 @@ public class InstructionsView extends ControllerImpl
 	 */
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// we need two parameters (submissionId, sectionId)
+		// sid and return
 		if (params.length < 4)
 		{
 			throw new IllegalArgumentException();
@@ -95,6 +94,23 @@ public class InstructionsView extends ControllerImpl
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
 			return;
 		}
+
+		// Separate out the final return path from the immediate return - the timers that submit need to know the final return path (like /list)
+		// Note: this is nasty hard coded to all the places that instructions can be called from.
+		String finalReturn = "/list";
+		if ("part_instructions".equals(params[3]))
+		{
+			finalReturn = "/" + StringUtil.unsplit(params, 6, params.length - 6, "/");
+		}
+		else if ("question".equals(params[3]))
+		{
+			finalReturn = "/" + StringUtil.unsplit(params, 7, params.length - 7, "/");
+		}
+		else if ("toc".equals(params[3]))
+		{
+			finalReturn = "/" + StringUtil.unsplit(params, 5, params.length - 5, "/");
+		}
+		context.put("return", finalReturn);
 
 		context.put("submission", submission);
 		context.put("destination", returnDestination);
@@ -123,13 +139,15 @@ public class InstructionsView extends ControllerImpl
 	 */
 	public void post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// we need two parameters (submissionId, sectionId)
+		// sid and return
 		if (params.length < 4)
 		{
 			throw new IllegalArgumentException();
 		}
 
 		String submissionId = params[2];
+
+		String returnDestination = "/" + StringUtil.unsplit(params, 3, params.length - 3, "/");
 
 		// read form
 		String destination = this.uiService.decode(req, context);
@@ -142,7 +160,8 @@ public class InstructionsView extends ControllerImpl
 		}
 
 		// this post is from the timer, and completes the submission
-		TocView.submissionCompletePost(req, res, context, submissionId, this.uiService, this.submissionService);
+		// TODO: this returnDestination may not be quite right -ggolden
+		TocView.submissionCompletePost(req, res, context, submissionId, this.uiService, this.submissionService, returnDestination);
 	}
 
 	/**

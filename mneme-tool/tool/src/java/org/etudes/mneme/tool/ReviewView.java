@@ -41,6 +41,7 @@ import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
 
 /**
@@ -76,13 +77,25 @@ public class ReviewView extends ControllerImpl
 	 */
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// we need two parameters (submission id/question selector)
-		if (params.length != 3)
+		// sid and return
+		if (params.length < 3)
 		{
 			throw new IllegalArgumentException();
 		}
 
 		String submissionId = params[2];
+		String destination = null;
+		if (params.length > 3)
+		{
+			destination = "/" + StringUtil.unsplit(params, 3, params.length - 3, "/");
+		}
+
+		// if not specified, go to the main list view
+		else
+		{
+			destination = "/list";
+		}
+		context.put("return", destination);
 
 		// yes feedback, and we are in review
 		context.put("review", Boolean.TRUE);

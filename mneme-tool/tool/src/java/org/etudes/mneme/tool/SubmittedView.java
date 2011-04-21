@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -34,10 +34,10 @@ import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.AssessmentService;
-import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
 
 /**
@@ -70,13 +70,25 @@ public class SubmittedView extends ControllerImpl
 	 */
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// we need a single parameter (sid)
-		if (params.length != 3)
+		// we need a single parameter (sid) then return
+		if (params.length < 3)
 		{
 			throw new IllegalArgumentException();
 		}
 
 		String submissionId = params[2];
+		String destination = null;
+		if (params.length > 3)
+		{
+			destination = "/" + StringUtil.unsplit(params, 3, params.length - 3, "/");
+		}
+
+		// if not specified, go to the main list view
+		else
+		{
+			destination = "/list";
+		}
+		context.put("return", destination);
 
 		Submission submission = submissionService.getSubmission(submissionId);
 		if (submission == null)
@@ -97,11 +109,11 @@ public class SubmittedView extends ControllerImpl
 		// if we have no authored submitted presentation, skip right to ...
 		if (submission.getAssessment().getSubmitPresentation() == null)
 		{
-			// if the assessment review is allowed, go to review, else to list
-			String dest = "/list";
+			// if the assessment review is allowed, go to review, else to the return destination
+			String dest = destination;
 			if (submission.getMayReview())
 			{
-				dest = "/review/" + submission.getId();
+				dest = "/review/" + submission.getId() + destination;
 			}
 
 			// redirect

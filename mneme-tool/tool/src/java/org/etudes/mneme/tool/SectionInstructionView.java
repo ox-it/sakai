@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -39,6 +39,7 @@ import org.etudes.mneme.api.QuestionGrouping;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
 
 /**
@@ -71,14 +72,27 @@ public class SectionInstructionView extends ControllerImpl
 	 */
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// we need two parameters (submissionId, partId)
-		if (params.length != 4)
+		// we need two parameters (submissionId, partId) then return
+		if (params.length < 4)
 		{
 			throw new IllegalArgumentException();
 		}
 
 		String submissionId = params[2];
 		String partId = params[3];
+
+		String destination = null;
+		if (params.length > 4)
+		{
+			destination = "/" + StringUtil.unsplit(params, 4, params.length - 4, "/");
+		}
+
+		// if not specified, go to the main list view
+		else
+		{
+			destination = "/list";
+		}
+		context.put("return", destination);
 
 		// collect the submission
 		Submission submission = submissionService.getSubmission(submissionId);
@@ -140,10 +154,22 @@ public class SectionInstructionView extends ControllerImpl
 	 */
 	public void post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// we need two parameters (submissionId, sectionId)
-		if (params.length != 4)
+		// we need two parameters (submissionId, sectionId) then return
+		if (params.length < 4)
 		{
 			throw new IllegalArgumentException();
+		}
+
+		String returnDestination = null;
+		if (params.length > 3)
+		{
+			returnDestination = "/" + StringUtil.unsplit(params, 3, params.length - 3, "/");
+		}
+
+		// if not specified, go to the main list view
+		else
+		{
+			returnDestination = "/list";
 		}
 
 		// read form
@@ -159,7 +185,7 @@ public class SectionInstructionView extends ControllerImpl
 		String submissionId = params[2];
 
 		// this post is from the timer, and completes the submission
-		TocView.submissionCompletePost(req, res, context, submissionId, this.uiService, this.submissionService);
+		TocView.submissionCompletePost(req, res, context, submissionId, this.uiService, this.submissionService, returnDestination);
 	}
 
 	/**

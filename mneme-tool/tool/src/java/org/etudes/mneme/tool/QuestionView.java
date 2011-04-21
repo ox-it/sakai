@@ -81,9 +81,9 @@ public class QuestionView extends ControllerImpl
 	 */
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// we need two parameters (sid/question selector) and optional anchor
+		// sid/question selector/anchor and return
 		// question selector may end in "!" for "last chance" - linear repeat question when it was not answered
-		if ((params.length != 4) && (params.length != 5))
+		if (params.length < 5)
 		{
 			throw new IllegalArgumentException();
 		}
@@ -96,15 +96,24 @@ public class QuestionView extends ControllerImpl
 			questionSelector = questionSelector.substring(0, questionSelector.length() - 1);
 			lastChance = true;
 		}
-		String anchor = (params.length == 5) ? params[4] : null;
+		String anchor = params[4];
+		if (anchor.equals("-")) anchor = null;
+
+		String destination = null;
+		if (params.length > 5)
+		{
+			destination = "/" + StringUtil.unsplit(params, 5, params.length - 5, "/");
+		}
+		// if not specified, go to the main list view
+		else
+		{
+			destination = "/list";
+		}
+		context.put("return", destination);
 
 		// adjust the current destination to remove the anchor
-		String curDestination = context.getDestination();
-		if (anchor != null)
-		{
-			int pos = curDestination.lastIndexOf("/");
-			curDestination = curDestination.substring(0, pos);
-		}
+		params[4] = "-";
+		String curDestination = "/" + StringUtil.unsplit(params, 1, params.length - 1, "/");
 		context.put("curDestination", curDestination);
 
 		Submission submission = submissionService.getSubmission(submissionId);
@@ -154,7 +163,7 @@ public class QuestionView extends ControllerImpl
 				return;
 			}
 
-			redirectToQuestion(req, res, submission, true, false);
+			redirectToQuestion(req, res, submission, true, false, destination);
 			return;
 		}
 
@@ -208,7 +217,7 @@ public class QuestionView extends ControllerImpl
 	{
 		// we need two parameters (sid/question selector) and optional anchor
 		// question selector may end in "!" for "last chance" - linear repeat question when it was not answered
-		if ((params.length != 4) && (params.length != 5))
+		if (params.length < 5)
 		{
 			throw new IllegalArgumentException();
 		}
@@ -221,14 +230,16 @@ public class QuestionView extends ControllerImpl
 			questionSelector = questionSelector.substring(0, questionSelector.length() - 1);
 			lastChance = true;
 		}
-		String anchor = (params.length == 5) ? params[4] : null;
 
-		// adjust the current destination to remove the anchor
-		String curDestination = context.getDestination();
-		if (anchor != null)
+		String returnDestination = null;
+		if (params.length > 5)
 		{
-			int pos = curDestination.lastIndexOf("/");
-			curDestination = curDestination.substring(0, pos);
+			returnDestination = "/" + StringUtil.unsplit(params, 5, params.length - 5, "/");
+		}
+		// if not specified, go to the main list view
+		else
+		{
+			returnDestination = "/list";
 		}
 
 		// if (!context.getPostExpected())
@@ -271,7 +282,7 @@ public class QuestionView extends ControllerImpl
 
 		// unless we are going to list, instructions, or this very same question, or we have a file upload error, mark the
 		// answers as complete
-		Boolean answersComplete = Boolean.valueOf(!(uploadError || destination.startsWith("/list") || destination.startsWith("STAY")
+		Boolean answersComplete = Boolean.valueOf(!(uploadError || destination.startsWith("LIST") || destination.startsWith("STAY")
 				|| destination.startsWith("/instructions") || destination.equals(context.getPreviousDestination())));
 
 		// and if we are working in a random access test, answers are always complete
@@ -306,7 +317,7 @@ public class QuestionView extends ControllerImpl
 		}
 
 		// where are we going?
-		destination = questionChooseDestination(context, destination, questionSelector, submissionId, curDestination, repeat);
+		destination = questionChooseDestination(context, destination, questionSelector, submissionId, params, repeat, returnDestination);
 
 		// submit all answers
 		try
@@ -326,17 +337,18 @@ public class QuestionView extends ControllerImpl
 				submission = submissionService.getSubmission(submissionId);
 
 				// if linear, or the submission is all answered, or this is a single question assessment, we can complete the submission and go to submitted
-				if ((!submission.getAssessment().getRandomAccess()) || (submission.getIsAnswered()) || (submission.getAssessment().getIsSingleQuestion()))
+				if ((!submission.getAssessment().getRandomAccess()) || (submission.getIsAnswered())
+						|| (submission.getAssessment().getIsSingleQuestion()))
 				{
 					submissionService.completeSubmission(submission);
 
-					destination = "/submitted/" + submissionId;
+					destination = "/submitted/" + submissionId + returnDestination;
 				}
 
 				// if not linear, and there are unanswered parts, send to final review
 				else
 				{
-					destination = "/final_review/" + submissionId;
+					destination = "/final_review/" + submissionId + returnDestination;
 				}
 			}
 
@@ -400,13 +412,15 @@ public class QuestionView extends ControllerImpl
 	 *        Which question(s) to put on the page: q followed by a questionId picks one, s followed by a sectionId picks a sections
 	 * @param submisssionId
 	 *        The selected submission id.
-	 * @param curDestination
-	 *        The current destination, adjusted to remove anchor.
+	 * @param params
+	 *        The current destination parameters.
 	 * @param repeat
 	 *        If true, and we would be sending the user to another question, repeat the current question.
+	 * @param returnDestination
+	 *        The final return destination path.
 	 */
-	protected String questionChooseDestination(Context context, String destination, String questionSelector, String submissionId,
-			String curDestination, boolean repeat)
+	protected String questionChooseDestination(Context context, String destination, String questionSelector, String submissionId, String[] params,
+			boolean repeat, String returnDestination)
 	{
 		// get the submission
 		Submission submission = submissionService.getSubmission(submissionId);
@@ -415,21 +429,28 @@ public class QuestionView extends ControllerImpl
 			return "/error/" + Errors.invalid;
 		}
 
-		// if we are staying heres
+		// for LIST do the return destination
+		if (destination.startsWith("LIST"))
+		{
+			return returnDestination;
+		}
+
+		// if we are staying here
 		if (destination.startsWith("STAY_"))
 		{
-			String rv = curDestination;
-
 			String[] parts = StringUtil.splitFirst(destination, ":");
 			if (parts.length == 2)
 			{
 				String[] anchor = StringUtil.splitFirst(parts[1], ":");
 				if (anchor.length > 0)
 				{
-					rv += "/" + anchor[0];
+					// replace the original anchor
+					params[4] = anchor[0];
 				}
 			}
-			return rv;
+
+			String curDestination = "/" + StringUtil.unsplit(params, 1, params.length - 1, "/");
+			return curDestination;
 		}
 
 		// for requests for a single question
@@ -453,13 +474,13 @@ public class QuestionView extends ControllerImpl
 				// only for NEXT, if repeat, do the question again with a "!" to indicate a second chance
 				if (repeat)
 				{
-					return "/question/" + submissionId + "/q" + question.getId() + "!";
+					return "/question/" + submissionId + "/q" + question.getId() + "!" + "/-" + returnDestination;
 				}
 
 				// if the question is not the last of the part, go to the next question
 				if (!question.getPartOrdering().getIsLast())
 				{
-					return "/question/" + submissionId + "/q" + question.getAssessmentOrdering().getNext().getId();
+					return "/question/" + submissionId + "/q" + question.getAssessmentOrdering().getNext().getId() + "/-" + returnDestination;
 				}
 
 				// if there's a next part
@@ -470,11 +491,11 @@ public class QuestionView extends ControllerImpl
 					if (submission.getAssessment().getParts().getShowPresentation())
 					{
 						// choose the part instructions
-						return "/part_instructions/" + submissionId + "/" + next.getId();
+						return "/part_instructions/" + submissionId + "/" + next.getId() + returnDestination;
 					}
 
 					// otherwise choose the first question of the next part
-					return "/question/" + submissionId + "/q" + next.getFirstQuestion().getId();
+					return "/question/" + submissionId + "/q" + next.getFirstQuestion().getId() + "/-" + returnDestination;
 				}
 
 				// no next part, this is an error
@@ -483,10 +504,10 @@ public class QuestionView extends ControllerImpl
 
 			else if ("PREV".equals(destination))
 			{
-				// if the question is not the first of the part, go to the prev quesiton
+				// if the question is not the first of the part, go to the prev question
 				if (!question.getPartOrdering().getIsFirst())
 				{
-					return "/question/" + submissionId + "/q" + question.getAssessmentOrdering().getPrevious().getId();
+					return "/question/" + submissionId + "/q" + question.getAssessmentOrdering().getPrevious().getId() + "/-" + returnDestination;
 				}
 
 				// prev into this part's instructions... if showing part presentation
@@ -494,14 +515,14 @@ public class QuestionView extends ControllerImpl
 				if (submission.getAssessment().getParts().getShowPresentation())
 				{
 					// choose the part instructions
-					return "/part_instructions/" + submissionId + "/" + part.getId();
+					return "/part_instructions/" + submissionId + "/" + part.getId() + returnDestination;
 				}
 
 				// otherwise choose the last question of the prev part, if we have one
 				Part prev = part.getOrdering().getPrevious();
 				if (prev != null)
 				{
-					return "/question/" + submissionId + "/q" + prev.getLastQuestion().getId();
+					return "/question/" + submissionId + "/q" + prev.getLastQuestion().getId() + "/-" + returnDestination;
 				}
 
 				// no prev part, this is an error
@@ -531,7 +552,7 @@ public class QuestionView extends ControllerImpl
 				if (!part.getOrdering().getIsLast())
 				{
 					Part next = part.getOrdering().getNext();
-					return "/question/" + submissionId + "/p" + next.getId();
+					return "/question/" + submissionId + "/p" + next.getId() + "/-" + returnDestination;
 				}
 
 				// no next part, this is an error
@@ -544,7 +565,7 @@ public class QuestionView extends ControllerImpl
 				if (!part.getOrdering().getIsFirst())
 				{
 					Part prev = part.getOrdering().getPrevious();
-					return "/question/" + submissionId + "/p" + prev.getId();
+					return "/question/" + submissionId + "/p" + prev.getId() + "/-" + returnDestination;
 				}
 
 				// no prev part, this is an error
@@ -666,9 +687,11 @@ public class QuestionView extends ControllerImpl
 	 *        if true, send to TOC if possible (not possible for linear).
 	 * @param instructions
 	 *        if true, send to part instructions for first question.
+	 * @param returnDestination
+	 *        The final return destination path.
 	 */
-	protected void redirectToQuestion(HttpServletRequest req, HttpServletResponse res, Submission submission, boolean toc, boolean instructions)
-			throws IOException
+	protected void redirectToQuestion(HttpServletRequest req, HttpServletResponse res, Submission submission, boolean toc, boolean instructions,
+			String returnDestination) throws IOException
 	{
 		String destination = null;
 		Assessment assessment = submission.getAssessment();
@@ -676,7 +699,7 @@ public class QuestionView extends ControllerImpl
 		// if we are random access, and not a single question, and allowed, send to TOC
 		if (toc && assessment.getRandomAccess() && !assessment.getIsSingleQuestion())
 		{
-			destination = "/toc/" + submission.getId();
+			destination = "/toc/" + submission.getId() + returnDestination;
 		}
 
 		else
@@ -695,11 +718,11 @@ public class QuestionView extends ControllerImpl
 			{
 				if (!assessment.getRandomAccess())
 				{
-					destination = "/final_review/" + submission.getId();
+					destination = "/final_review/" + submission.getId() + returnDestination;
 				}
 				else
 				{
-					destination = "/toc/" + submission.getId();
+					destination = "/toc/" + submission.getId() + returnDestination;
 				}
 			}
 
@@ -710,7 +733,7 @@ public class QuestionView extends ControllerImpl
 						&& (assessment.getQuestionGrouping() == QuestionGrouping.question))
 				{
 					// to instructions
-					destination = "/part_instructions/" + submission.getId() + "/" + question.getPart().getId();
+					destination = "/part_instructions/" + submission.getId() + "/" + question.getPart().getId() + returnDestination;
 				}
 
 				// or to the question
@@ -718,7 +741,7 @@ public class QuestionView extends ControllerImpl
 				{
 					if (assessment.getQuestionGrouping() == QuestionGrouping.question)
 					{
-						destination = "/question/" + submission.getId() + "/q" + question.getId();
+						destination = "/question/" + submission.getId() + "/q" + question.getId() + "/-" + returnDestination;
 					}
 					else if (assessment.getQuestionGrouping() == QuestionGrouping.part)
 					{
@@ -729,6 +752,12 @@ public class QuestionView extends ControllerImpl
 						{
 							destination = destination + "/" + question.getId();
 						}
+						else
+						{
+							destination = destination + "/-";
+						}
+
+						destination = destination + returnDestination;
 					}
 					else
 					{
@@ -739,6 +768,12 @@ public class QuestionView extends ControllerImpl
 						{
 							destination = destination + "/" + question.getId();
 						}
+						else
+						{
+							destination = destination + "/-";
+						}
+
+						destination = destination + returnDestination;
 					}
 				}
 			}

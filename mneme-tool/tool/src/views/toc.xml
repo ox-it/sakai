@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -58,8 +58,10 @@
 		<!-- repeat the nav up top w/o access key -->
 		<navigationBar>
 			<container>
-				<navigation title="save-exit" description="save-exit-description" style="BUTTON" destination="/list"
-					default="TRUE">
+				<navigation title="save-exit" description="save-exit-description" style="BUTTON" default="TRUE">
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
 					<icon icon="/icons/exit.gif" style="LEFT" />
 				</navigation>
 				<navigation title="finish-exam" description="finish-exam-description" style="BUTTON" submit="TRUE"
@@ -70,7 +72,10 @@
 							<model type="enum" messageRoot="assessment-type-" ref="submission.assessment.type" />
 						</message>
 					</confirm>
-					<destination template="/submitted/{0}" model="submission.id" />
+					<destination template="/submitted/{0}{1}">
+						<model ref="submission.id" />
+						<model ref="return" />
+					</destination>
 				</navigation>
 				<divider />
 				<navigation title="instructions" style="LINK">
@@ -97,8 +102,9 @@
 			<timeTillExpire>
 				<model ref="submission.expiration.duration" />
 			</timeTillExpire>
-			<destination template="/submitted/{0}">
+			<destination template="/submitted/{0}{1}">
 				<model ref="submission.id" />
+				<model ref="return" />
 			</destination>
 			<included>
 				<decision model="review" reversed="TRUE" />
@@ -121,8 +127,9 @@
 			<timeTillExpire>
 				<model ref="submission.expiration.duration" />
 			</timeTillExpire>
-			<destination template="/submitted/{0}">
+			<destination template="/submitted/{0}{1}">
 				<model ref="submission.id" />
+				<model ref="return" />
 			</destination>
 			<included>
 				<decision model="review" reversed="TRUE" />
@@ -197,9 +204,10 @@
 										<constant value="part" />
 									</compareDecision>
 								</disabled>
-								<destination template="/part_instructions/{0}/{1}">
+								<destination template="/part_instructions/{0}/{1}{2}">
 									<model ref="submission.id" />
 									<model ref="question.part.id" />
+									<model ref="return" />
 								</destination>
 							</navigation>
 						</heading>
@@ -229,9 +237,10 @@
 							</message>
 							<entityNavigations>
 								<navigation>
-									<destination template="/question/{0}/q{1}">
+									<destination template="/question/{0}/q{1}/-{2}">
 										<model ref="submission.id" />
 										<model ref="question.id" />
+										<model ref="return" />
 									</destination>
 								</navigation>
 							</entityNavigations>
@@ -257,10 +266,11 @@
 							</message>
 							<entityNavigations>
 								<navigation>
-									<destination template="/question/{0}/p{1}/{2}">
+									<destination template="/question/{0}/p{1}/{2}{3}">
 										<model ref="submission.id" />
 										<model ref="question.part.id" />
 										<model ref="question.id" />
+										<model ref="return" />
 									</destination>
 								</navigation>
 							</entityNavigations>
@@ -286,9 +296,10 @@
 							</message>
 							<entityNavigations>
 								<navigation>
-									<destination template="/question/{0}/a/{1}">
+									<destination template="/question/{0}/a/{1}{2}">
 										<model ref="submission.id" />
 										<model ref="question.id" />
+										<model ref="return" />
 									</destination>
 								</navigation>
 							</entityNavigations>
@@ -324,8 +335,10 @@
 		<!-- nav bar -->
 		<navigationBar id="nav">
 			<container>
-				<navigation title="save-exit" accessKey="save-exit-access" description="save-exit-description" style="BUTTON" destination="/list"
-					default="TRUE">
+				<navigation title="save-exit" accessKey="save-exit-access" description="save-exit-description" style="BUTTON" default="TRUE">
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
 					<icon icon="/icons/exit.gif" style="LEFT" />
 				</navigation>
 				<navigation title="finish-exam" accessKey="finish-exam-access" description="finish-exam-description" style="BUTTON" submit="TRUE"
@@ -336,7 +349,10 @@
 							<model type="enum" messageRoot="assessment-type-" ref="submission.assessment.type" />
 						</message>
 					</confirm>
-					<destination template="/submitted/{0}" model="submission.id" />
+					<destination template="/submitted/{0}{1}">
+						<model ref="submission.id" />
+						<model ref="return" />
+					</destination>
 				</navigation>
 				<divider />
 				<navigation title="instructions" accessKey="instructions-access" style="LINK">

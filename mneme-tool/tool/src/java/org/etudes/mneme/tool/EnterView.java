@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -44,6 +44,7 @@ import org.etudes.mneme.api.QuestionGrouping;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
 
 /**
@@ -75,13 +76,25 @@ public class EnterView extends ControllerImpl
 	 */
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// we need a single parameter (aid)
-		if (params.length != 3)
+		// we need a single parameter (aid), then return
+		if (params.length < 3)
 		{
 			throw new IllegalArgumentException();
 		}
 
 		String assessmentId = params[2];
+		String destination = null;
+		if (params.length > 3)
+		{
+			destination = "/" + StringUtil.unsplit(params, 3, params.length - 3, "/");
+		}
+
+		// if not specified, go to the main list view
+		else
+		{
+			destination = "/list";
+		}
+		context.put("return", destination);
 
 		// get the assessment
 		Assessment assessment = assessmentService.getAssessment(assessmentId);
@@ -148,12 +161,23 @@ public class EnterView extends ControllerImpl
 	public void post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
 		// we need a single parameter (aid)
-		if (params.length != 3)
+		if (params.length < 3)
 		{
 			throw new IllegalArgumentException();
 		}
 
 		String assessmentId = params[2];
+		String returnDestination = null;
+		if (params.length > 3)
+		{
+			returnDestination = "/" + StringUtil.unsplit(params, 3, params.length - 3, "/");
+		}
+
+		// if not specified, go to the main list view
+		else
+		{
+			returnDestination = "/list";
+		}
 
 		// // check expected
 		// if (!context.getPostExpected())
@@ -216,7 +240,7 @@ public class EnterView extends ControllerImpl
 			return;
 		}
 
-		enterSubmission(req, res, submission);
+		enterSubmission(req, res, submission, returnDestination);
 	}
 
 	/**
@@ -259,9 +283,12 @@ public class EnterView extends ControllerImpl
 	 *        Servlet response.
 	 * @param submission
 	 *        The submission set for the user to the assessment so far.
+	 * @param returnDestination
+	 *        The final return destination path.
 	 * @throws IOException
 	 */
-	protected void enterSubmission(HttpServletRequest req, HttpServletResponse res, Submission submission) throws IOException
+	protected void enterSubmission(HttpServletRequest req, HttpServletResponse res, Submission submission, String returnDestination)
+			throws IOException
 	{
 		Submission enterSubmission = null;
 		try
@@ -285,7 +312,7 @@ public class EnterView extends ControllerImpl
 			return;
 		}
 
-		redirectToQuestion(req, res, enterSubmission, false, true);
+		redirectToQuestion(req, res, enterSubmission, false, true, returnDestination);
 	}
 
 	/**
@@ -301,9 +328,11 @@ public class EnterView extends ControllerImpl
 	 *        if true, send to TOC if possible (not possible for linear).
 	 * @param instructions
 	 *        if true, send to section instructions for first question.
+	 * @param returnDestination
+	 *        The final return destination path.
 	 */
-	protected void redirectToQuestion(HttpServletRequest req, HttpServletResponse res, Submission submission, boolean toc, boolean instructions)
-			throws IOException
+	protected void redirectToQuestion(HttpServletRequest req, HttpServletResponse res, Submission submission, boolean toc, boolean instructions,
+			String returnDestination) throws IOException
 	{
 		String destination = null;
 		Assessment assessment = submission.getAssessment();
@@ -311,7 +340,7 @@ public class EnterView extends ControllerImpl
 		// if we are random access, and allowed, and more than a single question, send to TOC
 		if (toc && assessment.getRandomAccess() && !assessment.getIsSingleQuestion())
 		{
-			destination = "/toc/" + submission.getId();
+			destination = "/toc/" + submission.getId() + returnDestination;
 		}
 
 		else
@@ -330,11 +359,11 @@ public class EnterView extends ControllerImpl
 			{
 				if (!assessment.getRandomAccess())
 				{
-					destination = "/final_review/" + submission.getId();
+					destination = "/final_review/" + submission.getId() + returnDestination;
 				}
 				else
 				{
-					destination = "/toc/" + submission.getId();
+					destination = "/toc/" + submission.getId() + returnDestination;
 				}
 			}
 
@@ -346,7 +375,7 @@ public class EnterView extends ControllerImpl
 						&& (!question.getPart().getPresentation().getIsEmpty()) && (assessment.getQuestionGrouping() == QuestionGrouping.question))
 				{
 					// to instructions
-					destination = "/part_instructions/" + submission.getId() + "/" + question.getPart().getId();
+					destination = "/part_instructions/" + submission.getId() + "/" + question.getPart().getId() + returnDestination;
 				}
 
 				// or to the question
@@ -354,27 +383,39 @@ public class EnterView extends ControllerImpl
 				{
 					if (assessment.getQuestionGrouping() == QuestionGrouping.question)
 					{
-						destination = "/question/" + submission.getId() + "/q" + question.getId();
+						destination = "/question/" + submission.getId() + "/q" + question.getId() + "/-" + returnDestination;
 					}
 					else if (assessment.getQuestionGrouping() == QuestionGrouping.part)
 					{
 						destination = "/question/" + submission.getId() + "/p" + question.getPart().getId();
 
-						// include the question target if not the first quesiton in the section
+						// include the question target if not the first question in the section
 						if (!question.getPartOrdering().getIsFirst())
 						{
-							destination = destination + "#" + question.getId();
+							destination = destination + "/" + question.getId();
 						}
+						else
+						{
+							destination = destination + "/-";
+						}
+
+						destination = destination + returnDestination;
 					}
 					else
 					{
 						destination = "/question/" + submission.getId() + "/a";
 
-						// include the question target if not the first quesiton in the assessment
+						// include the question target if not the first question in the assessment
 						if (!question.getAssessmentOrdering().getIsFirst().booleanValue())
 						{
-							destination = destination + "#" + question.getId();
+							destination = destination + "/" + question.getId();
 						}
+						else
+						{
+							destination = destination + "/-";
+						}
+
+						destination = destination + returnDestination;
 					}
 				}
 			}
