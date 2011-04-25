@@ -278,6 +278,6 @@ public class AmbrosiaServlet extends HttpServlet
 		PrintWriter out = res.getWriter();
 
 		// we are on deep under the main portal window
-		out.println("<html><heaad></head><body><script language=\"JavaScript\">parent.location.replace('" + url + "');</script></body></html>");
+		out.println("<html><head></head><body><script language=\"JavaScript\">parent.location.replace('" + url + "');</script></body></html>");
 	}
 }
