@@ -363,6 +363,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			throw new NotFoundException(courseId);
 		}
 		
+		boolean full = false;
+		Set<Status> statuses = Collections.singleton(Status.WAITING);
+		if (dao.countSignupByCourse(courseId, statuses).intValue() > 0) {
+			full = true;
+		}
+		
 		// Need to find all the components.
 		if (componentIds == null) {
 			throw new IllegalArgumentException("You must specify some components to signup to.");
@@ -383,10 +389,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		
 		
 		// Check they are valid as a choice (in signup period (student), not for same component in same term)
-		Date now = getNow();
 		String userId = proxy.getCurrentUser().getId();
-		
-		boolean full = false;
+		Date now = getNow();
 		List<CourseSignupDAO> existingSignups = new ArrayList<CourseSignupDAO>();
 		for(CourseComponentDAO componentDao: componentDaos) {
 			if(componentDao.getOpens().after(now) || componentDao.getCloses().before(now)) {
@@ -447,9 +451,19 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		String adminId = groupDao.getAdministrator();
 		String url = proxy.getConfirmUrl(signupId);
 		if (adminId != null) {
-			sendSignupEmail(adminId, signupDao, "signup.admin.subject", "signup.admin.body", new Object[]{url});
+			sendSignupEmail(adminId, signupDao, 
+					"signup.admin.subject", 
+					"signup.admin.body", 
+					new Object[]{url});
 		} else {
 			log.warn("Failed to send email as no administrator set for: "+ groupDao.getId());
+		}
+		
+		if (full) {
+			sendSignupWaitingEmail(adminId, signupDao, 
+					"signup.waiting.subject", 
+					"signup.waiting.body", 
+					new Object[]{url});
 		}
 	}
 	
@@ -470,6 +484,37 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		UserProxy signupUser = proxy.findUserById(signupDao.getUserId());
 		if (signupUser == null) {
 			log.warn("Failed to find the user who made the signup: "+ signupDao.getUserId());
+			return;
+		}
+		
+		String to = recepient.getEmail();
+		String subject = MessageFormat.format(rb.getString(subjectKey), new Object[]{proxy.getCurrentUser().getName(), signupDao.getGroup().getTitle(), signupUser.getName()});
+		String componentDetails = formatSignup(signupDao);
+		Object[] baseBodyData = new Object[] {
+				proxy.getCurrentUser().getName(),
+				componentDetails,
+				signupDao.getGroup().getTitle(),
+				signupUser.getName()
+		};
+		Object[] bodyData = baseBodyData;
+		if (additionalBodyData != null) {
+			bodyData = new Object[bodyData.length + additionalBodyData.length];
+			System.arraycopy(baseBodyData, 0, bodyData, 0, baseBodyData.length);
+			System.arraycopy(additionalBodyData, 0, bodyData, baseBodyData.length, additionalBodyData.length);
+		}
+		String body = MessageFormat.format(rb.getString(bodyKey), bodyData);
+		proxy.sendEmail(to, subject, body);
+	}
+	
+	public void sendSignupWaitingEmail(String userId, CourseSignupDAO signupDao, String subjectKey, String bodyKey, Object[] additionalBodyData) {
+		UserProxy recepient = proxy.findUserById(signupDao.getUserId());
+		if (recepient == null) {
+			log.warn("Failed to find the user who made the signup: "+ signupDao.getUserId());
+			return;
+		}
+		UserProxy signupUser = proxy.findUserById(userId);
+		if (signupUser == null) {
+			log.warn("Failed to find user for sending email: "+ userId);
 			return;
 		}
 		

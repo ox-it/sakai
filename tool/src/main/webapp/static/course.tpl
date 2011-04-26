@@ -47,10 +47,10 @@
                         </th>
                         <td>
 							{if signup}
-							    {if signup == "full"}
+							    {if signup == "full" || waiting}
 							    	Waiting List of ${waiting}
 							    {else}
-                            		${signup} ${waiting}
+                            		${signup} 
                             	{/if}
 							{else}
 								Not bookable
