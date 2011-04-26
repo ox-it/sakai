@@ -6,11 +6,16 @@ import org.sakaiproject.user.api.User;
 
 /**
  * Object to represent an external group which could then be used to form site membership.
+ * This is an interface so the specifics of LDAP or some other service aren't exposed through.
  * @author buckett
  *
  */
 public interface ExternalGroup {
 
+	/**
+	 * The external group ID.
+	 * @return
+	 */
 	public String getId();
 	
 	/**
