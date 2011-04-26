@@ -103,7 +103,11 @@
                             		{if option.full}
 										full
 									{else}
-										${option.places} places
+										{if waiting}
+											Waiting List (${waiting})
+										{else}
+											${option.places} places
+										{/if}
 									{/if}
 								{/if}
                             </td>
