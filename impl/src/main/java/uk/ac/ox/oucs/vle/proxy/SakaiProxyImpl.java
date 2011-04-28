@@ -77,6 +77,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public void setPortalService(PortalService portalService) {
 		this.portalService = portalService;
 	}
+	
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
 
 	public void init() {
 		if (fromAddress == null) {

@@ -52,13 +52,14 @@
 		</property>
 	</bean>
 
-	<bean name="uk.ac.ox.oucs.vle.SakaiProxy" class="uk.ac.ox.oucs.vle.proxy.SakaiProxyImpl">
+	<bean name="uk.ac.ox.oucs.vle.SakaiProxy" class="uk.ac.ox.oucs.vle.proxy.SakaiProxyImpl" init-method="init">
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
 		<property name="eventService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="portalService" ref="org.sakaiproject.portal.api.PortalService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 
 	<bean id="uk.ac.ox.oucs.vle.Populator"
@@ -118,6 +119,38 @@
 		<property name="beanId" value="uk.ac.ox.oucs.vle.GenerateTreeJob"/>
 		<property name="jobName" value="Generate the department JSON"/>
 		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+	</bean>
+	
+	
+	<bean id="uk.ac.ox.oucs.vle.Module"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="target">
+			<bean class="uk.ac.ox.oucs.vle.ModuleImpl">
+				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
+				<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
+			</bean>
+		</property>
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="transactionAttributes">
+			<value>
+				update=PROPAGATION_REQUIRED
+			</value>
+		</property>
+	</bean>
+	
+	<!-- Should be replaced by MethodInvokingJobDetailFactoryBean -->
+	<bean id="uk.ac.ox.oucs.vle.ModuleJob"
+		class="uk.ac.ox.oucs.vle.ModuleJob">
+		<property name="module" ref="uk.ac.ox.oucs.vle.Module"/>
+	</bean>
+
+	<bean id="uk.ac.ox.oucs.vle.ModuleJobWrapper"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		singleton="true" init-method="init">
+		<property name="beanId" value="uk.ac.ox.oucs.vle.ModuleJob" />
+		<property name="jobName" value="Close Signup Module Action" />
+		<property name="schedulerManager"
+			ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
 	</bean>
 
 </beans>

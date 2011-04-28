@@ -637,7 +637,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public void setNow(Date newNow) {
 		adjustment = newNow.getTime() - new Date().getTime();
 	}
-
+	
 	/**
 	 * Loads details about a user.
 	 * @return
