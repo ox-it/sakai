@@ -1043,7 +1043,7 @@ var Signup = function(){
 						"traditional": true,
 						"data": {
 							"signupId": signup,
-							"supervisorId": supervisorId,
+							"supervisorId": supervisorId
 						},
 						"complete": function() {
 							postSignup();
