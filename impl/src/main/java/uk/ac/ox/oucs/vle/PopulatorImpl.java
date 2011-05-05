@@ -128,7 +128,7 @@ public class PopulatorImpl implements Populator{
 					" LEFT JOIN TeachingComponent tc ON tc.id = ti.teaching_component_id " + 
 					" LEFT JOIN TeachingComponentAssessmentUnit ta ON ta.teaching_component_id = tc.id " + 
 					" LEFT JOIN AssessmentUnit au ON au.id = ta.assessment_unit_id " +
-					" LEFT JOIN Term ON ti.term_code = Term.term_code " + 
+					" LEFT JOIN Term ON ti.term_id = Term.id " + 
 					" LEFT JOIN Location ON ti.location_id = Location.id " + 
 					" LEFT JOIN TeachingComponentType c ON tc.teaching_component_type_id = c.id " + 
 					" LEFT JOIN Employee ON ti.employee_id = Employee.id;";
