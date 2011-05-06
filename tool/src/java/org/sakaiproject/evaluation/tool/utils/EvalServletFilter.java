@@ -23,8 +23,7 @@ public class EvalServletFilter implements Filter {
 		
 		HttpServletResponse httpServletResponse = (HttpServletResponse)response;
 		
-		httpServletResponse.setHeader("Cache-Control","no-cache");
-		httpServletResponse.setHeader("Pragma","no-cache");
+		httpServletResponse.setHeader("Cache-Control","private, max-age=0");
 		httpServletResponse.setDateHeader ("Expires", 0);
 		
         chain.doFilter(request, httpServletResponse);
