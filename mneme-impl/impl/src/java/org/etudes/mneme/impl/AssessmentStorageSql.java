@@ -345,7 +345,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT MIN(DATES_ACCEPT_UNTIL), MIN(DATES_DUE), MIN(DATES_OPEN), MIN(REVIEW_DATE)");
 		sql.append(" FROM MNEME_ASSESSMENT");
-		sql.append(" WHERE CONTEXT = ?");
+		sql.append(" WHERE CONTEXT = ? AND ARCHIVED=0");
 
 		Object[] fields = new Object[1];
 		fields[0] = context;
