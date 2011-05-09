@@ -63,8 +63,8 @@ public class PopulatorImpl implements Populator{
 			// Import all course groups (from assessment units)
 			ResultSet rs = st.executeQuery(
 					"SELECT DISTINCT au.id, au.assessment_unit_code, au.title, " +
-					" au.department_code, Department.department_name, " +
-					" au.sub_unit_code, SubUnit.sub_unit_name, " +
+					" Department.department_code, Department.department_name, " +
+					" SubUnit.sub_unit_code, SubUnit.sub_unit_name, " +
 					" au.description, Employee.webauth_code " +
 					" FROM AssessmentUnit au " + 
 					" LEFT JOIN Employee ON au.course_administrator_employee_id = Employee.id " + 
