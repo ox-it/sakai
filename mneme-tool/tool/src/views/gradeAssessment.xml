@@ -312,7 +312,7 @@
 						<text>
 							<message selector="format-submission-tries">
 								<model ref="submission.siblingCount" />
-								<model ref="submission.assessment.tries" missing="infinite" />
+								<model ref="submission.assessment.tries" missing="unlimited" />
 							</message>
 						</text>
 					</container>

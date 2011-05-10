@@ -132,7 +132,7 @@
 					<title>
 						<message selector="time-limit" />
 					</title>
-					<model ref="access.timeLimit" type="duration" missing="infinite" />
+					<model ref="access.timeLimit" type="duration" missing="unlimited" />
 					<entityIncluded>
 						<decision model="access.overrideTimeLimit" />
 						<message selector="default" />
@@ -145,7 +145,7 @@
 					<title>
 						<message selector="tries" />
 					</title>
-					<model ref="access.tries" type="count" missing="infinite" />
+					<model ref="access.tries" type="count" missing="unlimited" />
 					<entityIncluded>
 						<decision model="access.overrideTries" />
 						<message selector="default" />
