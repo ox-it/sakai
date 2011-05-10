@@ -194,7 +194,7 @@
 					<title>
 						<message selector="list-header-open" />
 					</title>
-					<model type="date" twoLine="TRUE" missing="assume-open" ref="submission.assessment.dates.openDate" />
+					<model type="date" twoLine="TRUE" missing="dash" ref="submission.assessment.dates.openDate" />
 				</modelColumn>
 
 				<!-- due date -->
@@ -221,7 +221,7 @@
 					<container>
 						<text>
 							<message>
-								<model type="date" twoLine="TRUE" missing="assume-open" ref="submission.assessment.dates.dueDate" />
+								<model type="date" twoLine="TRUE" missing="dash" ref="submission.assessment.dates.dueDate" />
 							</message>
 							<included>
 								<andDecision reversed="TRUE">
@@ -288,7 +288,7 @@
 					<container>
 						<text>
 							<message>
-								<model type="duration" concise="TRUE" missing="infinite" ref="submission.assessment.timeLimit" />
+								<model type="duration" concise="TRUE" missing="dash" ref="submission.assessment.timeLimit" />
 							</message>
 							<included>
 								<decision reversed="TRUE" model="submission.mayContinue" />
@@ -321,7 +321,7 @@
 						<text>
 							<message selector="list-format-tries">
 								<model ref="submission.siblingCount" />
-								<model ref="submission.assessment.tries" missing="infinite" />
+								<model ref="submission.assessment.tries" missing="unlimited" />
 							</message>
 						</text>
 					</container>
