@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -1168,22 +1168,22 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 				{
 					String aid = SqlHelper.readId(result, 1);
 					AssessmentImpl a = assessments.get(aid);
-					AssessmentAccess access = a.getSpecialAccess().addAccess();
+					AssessmentAccessImpl access = (AssessmentAccessImpl) a.getSpecialAccess().addAccess();
 
-					access.setAcceptUntilDate(SqlHelper.readDate(result, 2));
-					access.setDueDate(SqlHelper.readDate(result, 3));
-					access.setOpenDate(SqlHelper.readDate(result, 4));
-					((AssessmentAccessImpl) access).initId(SqlHelper.readId(result, 5));
-					access.setOverrideAcceptUntilDate(SqlHelper.readBoolean(result, 6));
-					access.setOverrideDueDate(SqlHelper.readBoolean(result, 7));
-					access.setOverrideOpenDate(SqlHelper.readBoolean(result, 8));
-					access.setOverridePassword(SqlHelper.readBoolean(result, 9));
-					access.setOverrideTimeLimit(SqlHelper.readBoolean(result, 10));
-					access.setOverrideTries(SqlHelper.readBoolean(result, 11));
-					access.setPasswordValue(SqlHelper.readString(result, 12));
-					access.setTimeLimit(SqlHelper.readLong(result, 13));
-					access.setTries(SqlHelper.readInteger(result, 14));
-					((AssessmentAccessImpl) access).initUsers(Arrays.asList(SqlHelper.decodeStringArray(SqlHelper.readString(result, 15))));
+					access.initAcceptUntilDate(SqlHelper.readDate(result, 2));
+					access.initDueDate(SqlHelper.readDate(result, 3));
+					access.initOpenDate(SqlHelper.readDate(result, 4));
+					access.initId(SqlHelper.readId(result, 5));
+					access.initOverrideAcceptUntilDate(SqlHelper.readBoolean(result, 6));
+					access.initOverrideDueDate(SqlHelper.readBoolean(result, 7));
+					access.initOverrideOpenDate(SqlHelper.readBoolean(result, 8));
+					access.initOverridePassword(SqlHelper.readBoolean(result, 9));
+					access.initOverrideTimeLimit(SqlHelper.readBoolean(result, 10));
+					access.initOverrideTries(SqlHelper.readBoolean(result, 11));
+					access.initPasswordValue(SqlHelper.readString(result, 12));
+					access.initTimeLimit(SqlHelper.readLong(result, 13));
+					access.initTries(SqlHelper.readInteger(result, 14));
+					access.initUsers(Arrays.asList(SqlHelper.decodeStringArray(SqlHelper.readString(result, 15))));
 
 					a.changed.clearChanged();
 

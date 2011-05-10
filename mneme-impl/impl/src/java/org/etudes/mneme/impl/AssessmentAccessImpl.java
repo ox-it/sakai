@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -292,6 +292,17 @@ public class AssessmentAccessImpl implements AssessmentAccess, Changeable
 	public int hashCode()
 	{
 		return this.id == null ? "null".hashCode() : this.id.hashCode();
+	}
+
+	/**
+	 * Init the override password.
+	 * 
+	 * @param override
+	 *        The override.
+	 */
+	public void initOverridePassword(Boolean override)
+	{
+		this.overridePassword = override;
 	}
 
 	/**
@@ -671,21 +682,6 @@ public class AssessmentAccessImpl implements AssessmentAccess, Changeable
 	}
 
 	/**
-	 * Init the user list.
-	 * 
-	 * @param ids
-	 *        The user list.
-	 */
-	protected void initUsers(List<String> ids)
-	{
-		this.userIds.clear();
-		if (ids != null)
-		{
-			this.userIds.addAll(ids);
-		}
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	public void setUsers(List<String> newIds)
@@ -733,6 +729,28 @@ public class AssessmentAccessImpl implements AssessmentAccess, Changeable
 	}
 
 	/**
+	 * Init the accept until date.
+	 * 
+	 * @param date
+	 *        The date.
+	 */
+	protected void initAcceptUntilDate(Date date)
+	{
+		this.acceptUntilDate = date;
+	}
+
+	/**
+	 * Init the due date.
+	 * 
+	 * @param date
+	 *        The date.
+	 */
+	protected void initDueDate(Date date)
+	{
+		this.dueDate = date;
+	}
+
+	/**
 	 * Establish the id.
 	 * 
 	 * @param id
@@ -741,6 +759,128 @@ public class AssessmentAccessImpl implements AssessmentAccess, Changeable
 	protected void initId(String id)
 	{
 		this.id = id;
+	}
+
+	/**
+	 * Init the open date.
+	 * 
+	 * @param date
+	 *        The date.
+	 */
+	protected void initOpenDate(Date date)
+	{
+		this.openDate = date;
+	}
+
+	/**
+	 * Init the override accept until date.
+	 * 
+	 * @param override
+	 *        The override.
+	 */
+	protected void initOverrideAcceptUntilDate(Boolean override)
+	{
+		this.overrideAcceptUntilDate = override;
+	}
+
+	/**
+	 * Init the override due date.
+	 * 
+	 * @param override
+	 *        The override.
+	 */
+	protected void initOverrideDueDate(Boolean override)
+	{
+		this.overrideDueDate = override;
+	}
+
+	/**
+	 * Init the override open date.
+	 * 
+	 * @param override
+	 *        The override.
+	 */
+	protected void initOverrideOpenDate(Boolean override)
+	{
+		this.overrideOpenDate = override;
+	}
+
+	/**
+	 * Init the override time limit.
+	 * 
+	 * @param override
+	 *        The override.
+	 */
+	protected void initOverrideTimeLimit(Boolean override)
+	{
+		this.overrideTimeLimit = override;
+	}
+
+	/**
+	 * Init the override tries.
+	 * 
+	 * @param override
+	 *        The override.
+	 */
+	protected void initOverrideTries(Boolean override)
+	{
+		this.overrideTries = override;
+	}
+
+	/**
+	 * Init the password.
+	 * 
+	 * @param password
+	 *        The password.
+	 */
+	protected void initPasswordValue(String password)
+	{
+		// massage the password
+		if (password != null)
+		{
+			password = password.trim();
+			if (password.length() > 255) password = password.substring(0, 255);
+			if (password.length() == 0) password = null;
+		}
+
+		this.password.setPassword(password);
+	}
+
+	/**
+	 * Init the time limit.
+	 * 
+	 * @param limit
+	 *        The time limit.
+	 */
+	protected void initTimeLimit(Long limit)
+	{
+		this.timeLimit = limit;
+	}
+
+	/**
+	 * Init the tries.
+	 * 
+	 * @param tries
+	 *        The tries.
+	 */
+	protected void initTries(Integer tries)
+	{
+		this.tries = tries;
+	}
+
+	/**
+	 * Init the user list.
+	 * 
+	 * @param ids
+	 *        The user list.
+	 */
+	protected void initUsers(List<String> ids)
+	{
+		this.userIds.clear();
+		if (ids != null)
+		{
+			this.userIds.addAll(ids);
+		}
 	}
 
 	/**
