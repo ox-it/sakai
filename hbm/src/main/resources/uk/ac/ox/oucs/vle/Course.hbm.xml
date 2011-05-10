@@ -87,6 +87,7 @@
 		<property name="administrator" type="string" length="64" /><!-- 
 			The administrator who is looking after this component. -->
 		<property name="description" type="string" length="4000"/>
+		<property name="hideExternal" type="boolean" not-null="true" />
 		<set name="components" inverse="true" lazy="true" table="course_group_component"
 			fetch="join">
 			<key column="course_group" />

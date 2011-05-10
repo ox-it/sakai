@@ -54,7 +54,7 @@ public class ModuleImpl implements Module {
 		System.out.println("Next Midnight using calendar object ["+DateFormat.getInstance().format(nextMidnight)+"]");
 		
 		String[] words = new String[0];
-		final List<CourseGroupDAO> groups = dao.findCourseGroupByWords(words, Range.ALL, new Date());
+		final List<CourseGroupDAO> groups = dao.findCourseGroupByWords(words, Range.ALL, new Date(), false);
 		
 		for (CourseGroupDAO group : groups) {
 			final Set<CourseComponentDAO> components = group.getComponents();

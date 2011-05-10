@@ -603,8 +603,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return null;
 	}
 
-	public List<CourseGroup> getCourseGroupsByDept(String deptId, Range range) {
-		List<CourseGroupDAO> cgDaos = dao.findCourseGroupByDept(deptId, range, getNow());
+	public List<CourseGroup> getCourseGroupsByDept(String deptId, Range range, boolean externalUser) {
+		List<CourseGroupDAO> cgDaos = dao.findCourseGroupByDept(deptId, range, getNow(), externalUser);
 		List<CourseGroup> cgs = new ArrayList<CourseGroup>(cgDaos.size());
 		for (CourseGroupDAO cgDao: cgDaos) {
 			cgs.add(new CourseGroupImpl(cgDao, this));
@@ -612,8 +612,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return cgs;
 	}
 	
-	public List<CourseGroup> getCourseGroupsBySubUnit(String subunitId, Range range) {
-		List<CourseGroupDAO> cgDaos = dao.findCourseGroupBySubUnit(subunitId, range, getNow());
+	public List<CourseGroup> getCourseGroupsBySubUnit(String subunitId, Range range, boolean externalUser) {
+		List<CourseGroupDAO> cgDaos = dao.findCourseGroupBySubUnit(subunitId, range, getNow(), externalUser);
 		List<CourseGroup> cgs = new ArrayList<CourseGroup>(cgDaos.size());
 		for (CourseGroupDAO cgDao: cgDaos) {
 			cgs.add(new CourseGroupImpl(cgDao, this));
@@ -646,9 +646,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return proxy.findUserById(id);
 	}
 
-	public List<CourseGroup> search(String search, Range range) {
+	public List<CourseGroup> search(String search, Range range, boolean external) {
 		String words[] = search.split(" ");
-		List<CourseGroupDAO> groupDaos = dao.findCourseGroupByWords(words, range, getNow());
+		List<CourseGroupDAO> groupDaos = dao.findCourseGroupByWords(words, range, getNow(), external);
 		List<CourseGroup> groups = new ArrayList<CourseGroup>(groupDaos.size());
 		for(CourseGroupDAO groupDao: groupDaos) {
 			groups.add(new CourseGroupImpl(groupDao, this));

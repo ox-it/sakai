@@ -30,7 +30,7 @@ public class TestCourseDAOImpl extends TestOnSampleData {
 	}
 	
 	public void testCoursesInDept() {
-		List<CourseGroupDAO> groups = courseDao.findCourseGroupByDept("3C05", Range.UPCOMING, END_MIC_2010);
+		List<CourseGroupDAO> groups = courseDao.findCourseGroupByDept("3C05", Range.UPCOMING, END_MIC_2010, false);
 		assertEquals(1, groups.size());
 	}
 	

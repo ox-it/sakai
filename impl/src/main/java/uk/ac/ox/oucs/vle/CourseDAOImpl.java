@@ -74,7 +74,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<CourseGroupDAO> findCourseGroupByDept(final String deptId, final Range range, final Date now) {
+	public List<CourseGroupDAO> findCourseGroupByDept(final String deptId, final Range range, final Date now, final boolean external) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			// Need the DISTINCT ROOT ENTITY filter.
 			public Object doInHibernate(Session session) throws HibernateException,
@@ -82,6 +82,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
 				criteria.add(Expression.eq("dept", deptId));
 				criteria.add(Expression.or(Expression.isNull("subunit"),Expression.eq("subunit", "")));
+				if (external) {
+					criteria.add(Expression.eq("hideExternal", false));
+				}
 				switch (range) { 
 					case UPCOMING:
 						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("closes", now));
@@ -99,13 +102,16 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<CourseGroupDAO> findCourseGroupBySubUnit(final String subunitId, final Range range, final Date now) {
+	public List<CourseGroupDAO> findCourseGroupBySubUnit(final String subunitId, final Range range, final Date now, final boolean external) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			// Need the DISTINCT ROOT ENTITY filter.
 			public Object doInHibernate(Session session) throws HibernateException,
 					SQLException {
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
 				criteria.add(Expression.eq("subunit", subunitId));
+				if (external) {
+					criteria.add(Expression.eq("hideExternal", false));
+				}
 				switch (range) { 
 					case UPCOMING:
 						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("closes", now));
@@ -278,7 +284,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<CourseGroupDAO> findCourseGroupByWords(final String[] words, final Range range, final Date date) {
+	public List<CourseGroupDAO> findCourseGroupByWords(final String[] words, 
+			final Range range, final Date date, final boolean external) {
+		
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 
 			public Object doInHibernate(Session session)
@@ -286,6 +294,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
 				for(String word: words) {
 					criteria.add(Expression.ilike("title", word, MatchMode.ANYWHERE));
+				}
+				if (external) {
+					criteria.add(Expression.eq("hideExternal", false));
 				}
 				switch(range) {
 					case UPCOMING:

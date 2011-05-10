@@ -14,6 +14,8 @@ public interface CourseGroup {
 	
 	public String getDepartmentCode();
 	
+	public boolean getHideExternal();
+	
 	public Person getAdministrator();
 
 	public List<CourseComponent> getComponents();

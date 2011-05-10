@@ -15,9 +15,9 @@ public interface CourseDAO {
 	
 	CourseGroupDAO findAvailableCourseGroupById(String courseId);
 	
-	List<CourseGroupDAO> findCourseGroupByDept(String dept, Range range, Date now);
+	List<CourseGroupDAO> findCourseGroupByDept(String dept, Range range, Date now, boolean external);
 	
-	List<CourseGroupDAO> findCourseGroupBySubUnit(String subunit, Range range, Date now);
+	List<CourseGroupDAO> findCourseGroupBySubUnit(String subunit, Range range, Date now, boolean external);
 	
 	List<Object[]> findSubUnitByDept(String dept);
 
@@ -49,7 +49,7 @@ public interface CourseDAO {
 	
 	Integer countSignupByCourse(String courseId, Set<Status> statuses);
 
-	List<CourseGroupDAO> findCourseGroupByWords(String[] words, Range range, Date date);
+	List<CourseGroupDAO> findCourseGroupByWords(String[] words, Range range, Date date, boolean external);
 
 	List<CourseSignupDAO> findSignupByComponent(String componentId, Set<Status> statuses);
 

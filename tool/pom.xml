@@ -53,7 +53,7 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 			<version>2.4</version>
-			<scope>provided</scope>
+			
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
@@ -68,11 +68,24 @@
 			<artifactId>spring</artifactId>
 		</dependency>
 
-
 		<dependency>
 			<groupId>uk.ac.ox.oucs</groupId>
 			<artifactId>course-signup-api</artifactId>
 		</dependency>
+		
+		<dependency>
+    		<groupId>javax.servlet</groupId>
+    		<artifactId>jstl</artifactId>
+    		<version>1.1.2</version>
+    		<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+    		<groupId>taglibs</groupId>
+    		<artifactId>standard</artifactId>
+    		<version>1.1.2</version>
+		</dependency>
+		
 
 	</dependencies>
 	<profiles>

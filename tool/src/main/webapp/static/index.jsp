@@ -1,6 +1,16 @@
-<%@page import="org.sakaiproject.tool.cover.ToolManager"%>
+<%@ page import="org.sakaiproject.tool.cover.ToolManager"%>
 <%@ page import="org.sakaiproject.component.cover.ServerConfigurationService" %>
-<%@ page session="false" %>
+<%@ page import="org.sakaiproject.user.cover.UserDirectoryService" %>
+<%@ page session="false" %> 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core"  prefix="c" %>
+<%
+if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+	pageContext.setAttribute("externalUser",true);
+} else {
+	pageContext.setAttribute("externalUser",false);
+}
+%>
+<c:set var="isExternalUser" value="${externalUser}" />
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -33,7 +43,8 @@
 				// The site to load the static files from.
 				var signupSiteId = "/access/content/group/<%= ServerConfigurationService.getString("course-signup.site-id", "course-signup") %>";
 				var defaultNodes = "<%= ToolManager.getCurrentPlacement().getConfig().getProperty("default-nodes", "root")%>".split(",");
-               
+				var externalUser = <c:out value="${externalUser}" />;
+	               
 				/**
 				 * Used for sorting a jsTree. 
 				 * @param {Object} x
@@ -75,7 +86,7 @@
 					
 					
                     var loadCourse = function(id, old){
-						Signup.course.show($("#details"), id, false);
+						Signup.course.show($("#details"), id, old, externalUser);
 					};
 				/**
 				 * This loads details about a node in the tree.
@@ -176,9 +187,11 @@
         	<ul class="navIntraTool actionToolBar">
             <li><span>Module Signup</span></li>
 			<li><span><a href="search.jsp">Module Search</a></span></li>
-            <li><span><a href="my.jsp">My Modules</a></span></li>
-            <li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
-            <li><span><a href="admin.jsp">Module Administration</a></span></li>
+			<c:if test="${!isExternalUser}" >
+            	<li><span><a href="my.jsp">My Modules</a></span></li>
+            	<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
+            	<li><span><a href="admin.jsp">Module Administration</a></span></li>
+            </c:if>
 			</ul>
         </div>
 		<div id="messages">

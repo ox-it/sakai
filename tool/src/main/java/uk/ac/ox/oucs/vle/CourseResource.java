@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -28,6 +29,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 
@@ -51,6 +53,7 @@ public class CourseResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getCourse(@PathParam("id") final String courseId, @QueryParam("range") final Range range) {
+		
 		final CourseGroup course = courseService.getCourseGroup(courseId, range);
 		if (course == null) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -67,7 +70,11 @@ public class CourseResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getCourses(@QueryParam("range") final Range range) {
-		final List<CourseGroup> groups = courseService.search("", range);
+		boolean externalUser = false;
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			externalUser = true;
+		}
+		final List<CourseGroup> groups = courseService.search("", range, externalUser);
 		if (groups == null) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
@@ -89,18 +96,21 @@ public class CourseResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@GET
 	public StreamingOutput getCoursesUpcoming(@PathParam("deptId") final String deptId, @QueryParam("components") final Range range) {
-	
+		boolean externalUser = false;
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			externalUser = true;
+		}
 		if (deptId.length() == 4) { 
 			if (range.equals(Range.PREVIOUS)) {
-				List<CourseGroup> courses = courseService.getCourseGroupsByDept(deptId, range);
+				List<CourseGroup> courses = courseService.getCourseGroupsByDept(deptId, range, externalUser);
 				return new GroupsStreamingOutput(Collections.EMPTY_LIST, courses, deptId, range.name());
 			} else {
 				List<SubUnit> subUnits = courseService.getSubUnitsByDept(deptId);
-				List<CourseGroup> courses = courseService.getCourseGroupsByDept(deptId, range);
+				List<CourseGroup> courses = courseService.getCourseGroupsByDept(deptId, range, externalUser);
 				return new GroupsStreamingOutput(subUnits, courses, deptId, range.name());
 			}
 		} else {
-			List<CourseGroup> courses = courseService.getCourseGroupsBySubUnit(deptId, range);
+			List<CourseGroup> courses = courseService.getCourseGroupsBySubUnit(deptId, range, externalUser);
 			return new GroupsStreamingOutput(Collections.EMPTY_LIST, courses, deptId, range.name());
 		}
 	}
@@ -109,6 +119,9 @@ public class CourseResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAdminCourse() throws JsonGenerationException, JsonMappingException, IOException {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		List <CourseGroup> groups = courseService.getAdministering();
 		// TODO Just return the coursegroups (no nested objects).
 		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
@@ -119,10 +132,13 @@ public class CourseResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response setCourses(@QueryParam("terms") String terms) throws JsonGenerationException, JsonMappingException, IOException {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		if (terms == null) {
 			throw new WebApplicationException();
 		}
-		List<CourseGroup> groups = courseService.search(terms, Range.UPCOMING);
+		List<CourseGroup> groups = courseService.search(terms, Range.UPCOMING, false);
 		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
 	}
 

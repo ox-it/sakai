@@ -32,6 +32,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
@@ -54,6 +55,9 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getMySignups() {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		final List<CourseSignup> signups = courseService.getMySignups(null);
 		return new StreamingOutput() {
 			public void write(OutputStream output) throws IOException,
@@ -67,6 +71,9 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getMyCourseSignups(@PathParam("id") String courseId) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		final List<CourseSignup> signups = courseService.getMySignups(null);
 		final List<CourseSignup> courseSignups = new ArrayList<CourseSignup>();
 		for(CourseSignup signup: signups) {
@@ -85,6 +92,9 @@ public class SignupResource {
 	@Path("/my/new")
 	@POST
 	public Response signup(@FormParam("courseId") String courseId, @FormParam("components")Set<String> components, @FormParam("email")String email, @FormParam("message")String message) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		String user = courseService.findSupervisor(email);
 		courseService.signup(courseId, components, email, message);
 		return Response.ok().build();
@@ -93,6 +103,9 @@ public class SignupResource {
 	@Path("/new")
 	@POST
 	public Response signup(@FormParam("userId")String userId, @FormParam("courseId") String courseId, @FormParam("components")Set<String> components, @FormParam("supervisorId")String supervisorId) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		courseService.signup(userId, courseId, components, supervisorId);
 		return Response.ok().build();
 	}
@@ -100,6 +113,9 @@ public class SignupResource {
 	@Path("/supervisor")
 	@POST
 	public Response signup(@FormParam("signupId")String signupId, @FormParam("supervisorId")String supervisorId) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		courseService.setSupervisor(signupId, supervisorId);
 		return Response.ok().build();
 	}
@@ -108,6 +124,9 @@ public class SignupResource {
 	@GET
 	@Produces("application/json")
 	public Response getSignup(@PathParam("id") final String signupId) throws JsonGenerationException, JsonMappingException, IOException {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		CourseSignup signup = courseService.getCourseSignup(signupId);
 		if (signup == null) {
 			return Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).build();
@@ -118,12 +137,18 @@ public class SignupResource {
 	@Path("/{id}")
 	@POST // PUT Doesn't seem to make it through the portal :-(
 	public void updateSignup(@PathParam("id") final String signupId, @FormParam("status") final Status status){
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		courseService.setSignupStatus(signupId, status);
 	}
 
 	@Path("{id}/accept")
 	@POST
 	public Response accept(@PathParam("id") final String signupId) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		courseService.accept(signupId);
 		return Response.ok().build();
 	}
@@ -131,6 +156,9 @@ public class SignupResource {
 	@Path("{id}/reject")
 	@POST
 	public Response reject(@PathParam("id") final String signupId) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		courseService.reject(signupId);
 		return Response.ok().build();
 	}
@@ -138,6 +166,9 @@ public class SignupResource {
 	@Path("{id}/withdraw")
 	@POST
 	public Response withdraw(@PathParam("id") final String signupId) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		courseService.withdraw(signupId);
 		return Response.ok().build();
 	}
@@ -145,6 +176,9 @@ public class SignupResource {
 	@Path("{id}/approve")
 	@POST
 	public Response approve(@PathParam("id") final String signupId) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		courseService.approve(signupId);
 		return Response.ok().build();
 	}
@@ -153,6 +187,9 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getCourseSignups(@PathParam("id") final String courseId, @QueryParam("status") final Status status) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		// All the pending 
 		return new StreamingOutput() {
 			
@@ -172,6 +209,9 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getCountCourseSignup(@PathParam("id") final String courseId, @QueryParam("status") final Status status) throws JsonGenerationException, JsonMappingException, IOException {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		// All the pending 
 		Set statuses = null;
 		if (null != status) {
@@ -185,6 +225,9 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getComponentSignups(@PathParam("id") final String componentId, @QueryParam("status") final Status status) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
@@ -204,6 +247,9 @@ public class SignupResource {
 	@GET
 	@Produces("text/comma-separated-values")
 	public StreamingOutput getComponentSignupsCSV(@PathParam("id") final String componentId, @Context final HttpServletResponse response) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
@@ -226,6 +272,9 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getPendingSignups() {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
@@ -243,6 +292,10 @@ public class SignupResource {
 	public StreamingOutput getPreviousSignups(@QueryParam("userid") final String userId,
 											  @QueryParam("componentid") final String componentId,
 											  @QueryParam("groupid") final String groupId) {
+		
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,

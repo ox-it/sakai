@@ -36,6 +36,10 @@ public class CourseGroupImpl implements CourseGroup {
 	public String getDepartmentCode() {
 		return courseGroupDAO.getDept();
 	}
+	
+	public boolean getHideExternal() {
+		return courseGroupDAO.getHideExternal();
+	}
 
 	public List<CourseComponent> getComponents() {
 		if (components == null) {

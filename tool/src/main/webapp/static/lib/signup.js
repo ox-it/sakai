@@ -13,7 +13,7 @@ var Signup = function(){
 			 * @param {Object} id The ID of the course to load.
 			 * @param {Object} old If we should be showing upcoming or old data.
 			 */
-			show: function(dest, id, old, success){
+			show: function(dest, id, old, externalUser, success){
 				var courseData;
 				var waitingList;
 				var signupData;
@@ -53,6 +53,7 @@ var Signup = function(){
 					courseData = undefined;
 					signupData = undefined;
 					waitingList = undefined;
+					
 					$.ajax({
 						url: "../rest/course/" + id,
 						data: {
@@ -66,28 +67,35 @@ var Signup = function(){
 						}
 					});
 					
-					$.ajax({
-						url: "../rest/signup/count/course/signups/" + id,
-						data: {
-							status: "WAITING"
-						},
-						dataType: "json",
-						cache: false,
-						success: function(data){
-							waitingList = data;
-							showCourse();
-						}
-					});
+					if (!externalUser) {
+						$.ajax({
+							url: "../rest/signup/count/course/signups/" + id,
+							data: {
+								status: "WAITING"
+							},
+							dataType: "json",
+							cache: false,
+							success: function(data){
+								waitingList = data;
+								showCourse();
+							}
+						});
 					
-					$.ajax({
-						url: "../rest/signup/my/course/" + id,
-						dataType: "json",
-						cache: false,
-						success: function(data){
-							signupData = data;
-							showCourse();
-						}
-					});
+						$.ajax({
+							url: "../rest/signup/my/course/" + id,
+							dataType: "json",
+							cache: false,
+							success: function(data){
+								signupData = data;
+								showCourse();
+							}
+						});
+					} else {
+						signupData = [];
+						waitingList = 0;
+						showCourse();
+					}
+					
 					if (!template) { // When reloading we might already have the template loaded.
 						$.ajax({
 							url: "course.tpl",
@@ -107,15 +115,19 @@ var Signup = function(){
 		 		 */
 				var showCourse = function(){
 					// Check we have all our data.
-					if (!courseData || !signupData || !template || (undefined == waitingList)) {
+					if (!courseData || !signupData || !template || (undefined == waitingList))
+					//	|| (externalUser && (!courseData || !template))) 
+					{
 						return;
 					}
 					
+					//var userExternal = false;
 					var data = courseData; // From refactoring...
 					var now = $.serverDate();
 					var id = data.id;
 					data.full = false;
 					data.open = false;
+					data.hide = externalUser; // for externally visible courses
 					data.presenters = [];
 					data.administrators = [];
 					data.description = Text.toHtml(data.description);

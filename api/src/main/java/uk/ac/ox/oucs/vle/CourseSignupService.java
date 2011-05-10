@@ -67,9 +67,9 @@ public interface CourseSignupService {
 	 * @param range
 	 * @return
 	 */
-	public List<CourseGroup> getCourseGroupsByDept(String deptId, Range range);
+	public List<CourseGroup> getCourseGroupsByDept(String deptId, Range range, boolean externalUser);
 	
-	public List<CourseGroup> getCourseGroupsBySubUnit(String subunitId, Range range);
+	public List<CourseGroup> getCourseGroupsBySubUnit(String subunitId, Range range, boolean externalUser);
 	
 	public List<SubUnit> getSubUnitsByDept(String deptId);
 	
@@ -111,7 +111,7 @@ public interface CourseSignupService {
 	
 	public void setSignupStatus(String signupId, Status status);
 	
-	public List<CourseGroup> search(String search, Range range);
+	public List<CourseGroup> search(String search, Range range, boolean external);
 	
 	/**
 	 * This is what the service should use when determining the current time.

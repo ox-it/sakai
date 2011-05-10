@@ -1,5 +1,15 @@
 <%@ page import="org.sakaiproject.component.cover.ServerConfigurationService" %>
+<%@ page import="org.sakaiproject.user.cover.UserDirectoryService" %>
 <%@ page session="false" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core"  prefix="c" %>
+<%
+if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+	pageContext.setAttribute("externalUser",true);
+} else {
+	pageContext.setAttribute("externalUser",false);
+}
+%>
+<c:set var="isExternalUser" value="${externalUser}" />
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -39,6 +49,8 @@
   
     <script src="lib/exhibit/exhibit-api.js?bundle=true" type="text/javascript"></script>
 	<script type="text/javascript">
+
+		var externalUser = <c:out value="${externalUser}" />;
 		/**
 		 * Used by the exhibit code to convert the JSON into 
 		 * @param {Object} courses
@@ -92,7 +104,7 @@
 							courseDetails.remove(); // Tidy up the DOM.
 						}
 					});
-					Signup.course.show(courseDetails, id, false, function(){
+					Signup.course.show(courseDetails, id, false, externalUser, function(){
 						courseDetails.dialog("open");
 					});
 				} catch (e) {
@@ -150,9 +162,11 @@
       	<ul class="navIntraTool actionToolBar">
   		    <li><span><a href="index.jsp">Module Signup</a></span></li>
 			<li><span>Module Search</span></li>
-            <li><span><a href="my.jsp">My Modules</a></span></li>
-            <li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
-            <li><span><a href="admin.jsp">Module Administration</a></span></li>
+			<c:if test="${!isExternalUser}" >
+            	<li><span><a href="my.jsp">My Modules</a></span></li>
+            	<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
+            	<li><span><a href="admin.jsp">Module Administration</a></span></li>
+            </c:if>
 		</ul>
     </div>
     <table width="99%">
