@@ -105,7 +105,7 @@
 					<model ref="access.openDate" type="date" twoLine="TRUE" missing="assume-open" />
 					<entityIncluded>
 						<decision model="access.overrideOpenDate" />
-						<message selector="dash" />
+						<message selector="default" />
 					</entityIncluded>
 				</modelColumn>
 				<modelColumn>
@@ -115,7 +115,7 @@
 					<model ref="access.dueDate" type="date" twoLine="TRUE" missing="assume-open" />
 					<entityIncluded>
 						<decision model="access.overrideDueDate" />
-						<message selector="dash" />
+						<message selector="default" />
 					</entityIncluded>
 				</modelColumn>
 				<modelColumn>
@@ -125,7 +125,7 @@
 					<model ref="access.acceptUntilDate" type="date" twoLine="TRUE" missing="assume-due" />
 					<entityIncluded>
 						<decision model="access.overrideAcceptUntilDate" />
-						<message selector="dash" />
+						<message selector="default" />
 					</entityIncluded>
 				</modelColumn>
 				<modelColumn>
@@ -135,7 +135,7 @@
 					<model ref="access.timeLimit" type="duration" missing="infinite" />
 					<entityIncluded>
 						<decision model="access.overrideTimeLimit" />
-						<message selector="dash" />
+						<message selector="default" />
 					</entityIncluded>
 					<included>
 						<decision model="assessment.hasTimeLimit" />
@@ -148,7 +148,7 @@
 					<model ref="access.tries" type="count" missing="infinite" />
 					<entityIncluded>
 						<decision model="access.overrideTries" />
-						<message selector="dash" />
+						<message selector="default" />
 					</entityIncluded>
 				</modelColumn>
 				<modelColumn>
@@ -158,7 +158,7 @@
 					<model ref="access.password.password" missing="none" />
 					<entityIncluded>
 						<decision model="access.overridePassword" />
-						<message selector="dash" />
+						<message selector="default" />
 					</entityIncluded>
 				</modelColumn>
 			</columns>
