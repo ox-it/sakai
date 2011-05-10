@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -215,6 +215,21 @@ public class AssessmentAccessView extends ControllerImpl
 
 		// read the form
 		String destination = uiService.decode(req, context);
+
+		if ("DELETE".equals(destination))
+		{
+			if (params.length > 5)
+			{
+				destination = "/" + StringUtil.unsplit(params, 5, params.length - 5, "/");
+			}
+			else
+			{
+				destination = "/assessment_special/" + sort + "/" + assessment.getId();
+			}
+
+			// delete
+			assessment.getSpecialAccess().removeAccess(access);
+		}
 
 		// save
 		try
