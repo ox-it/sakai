@@ -115,10 +115,10 @@
 				<dateEdit title="open-date">
 					<model ref="access.openDate" type="date" />
 				</dateEdit>
-				<dateEdit title="due-date">
+				<dateEdit title="due-date" late="TRUE">
 					<model ref="access.dueDate" type="date" />
 				</dateEdit>
-				<dateEdit title="accept-until">
+				<dateEdit title="accept-until" late="TRUE">
 					<model ref="access.acceptUntilDate" type="date" />
 				</dateEdit>
 				<selection title="timeLimit">

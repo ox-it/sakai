@@ -312,7 +312,7 @@
 						</desc>
 					</sort>
 					<container>
-						<dateEdit>
+						<dateEdit late="TRUE">
 							<model ref="assessment.dates.dueDate" type="date" />
 							<readOnly>
 								<decision model="assessment.formalCourseEval" />
@@ -326,7 +326,7 @@
 						<message selector="assessment-adate" />
 					</title>
 					<container>
-						<dateEdit>
+						<dateEdit late="TRUE">
 							<model ref="assessment.dates.acceptUntilDate" type="date" />
 							<readOnly>
 								<decision model="assessment.formalCourseEval" />

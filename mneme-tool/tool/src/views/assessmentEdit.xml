@@ -135,7 +135,7 @@
 												<hasValueDecision model="allowEval" />
 											</included>
 										</textEdit>
-										<dateEdit id="ddate" title="due-date">
+										<dateEdit id="ddate" title="due-date" late="TRUE">
 											<model ref="assessment.dates.dueDate" type="date" />
 											<readOnly>
 												<decision model="assessment.formalCourseEval" />
