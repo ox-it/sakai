@@ -18,7 +18,7 @@ var BUL_YEARSCROLL = true;
 var calendars = [];
 var RE_NUM = /^\-?\d+$/;
 
-function calendar2(obj_target) {
+function calendar2(obj_target,earlyLate) {
 
 	// assigning methods
 	this.gen_date = ambrosia_format_date; //cal_gen_date2;
@@ -30,7 +30,11 @@ function calendar2(obj_target) {
 	this.prs_ampm = ambrosia_parse_am_pm; // cal_prs_ampm2;
 	this.popup    = cal_popup2;
 	this.month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-	this.gen_now = ambrosia_now;
+
+	if (earlyLate == 0)
+		this.gen_now = ambrosia_now_early;
+	else
+		this.gen_now = ambrosia_now_late;
 
 	// validate input parameters
 	if (!obj_target)
@@ -44,13 +48,48 @@ function calendar2(obj_target) {
 	// register in global collections
 	this.id = calendars.length;
 	calendars[this.id] = this;
+	
+	this.targetValue = this.target.value;
+	if (this.targetValue.length == 0)
+	{
+		var d = new Date();
+		var amPm = "AM";
+		if (earlyLate == 0)
+		{
+			d.setHours(8);
+			d.setMinutes(0);
+		}
+		else
+		{
+			d.setHours(11);
+			d.setMinutes(59);
+			amPm = "PM";
+		}
+		d.setSeconds(0);
+		d.setMilliseconds(0);
+		
+		var sd = this.gen_date(d);
+		var st = this.gen_time(d);
+		var ss = sd + " " + st + " " + amPm;
+		this.targetValue = ss;
+	}
 }
 
-function ambrosia_now()
+function ambrosia_now_early()
 {
 	var rv = new Date();
-	rv.setHours(12);
+	rv.setHours(8);
 	rv.setMinutes(0);
+	rv.setSeconds(0);
+	rv.setMilliseconds(0);
+	return rv;
+}
+
+function ambrosia_now_late()
+{
+	var rv = new Date();
+	rv.setHours(23);
+	rv.setMinutes(59);
 	rv.setSeconds(0);
 	rv.setMilliseconds(0);
 	return rv;
@@ -58,12 +97,12 @@ function ambrosia_now()
 
 function cal_popup2 (str_datetime) {
 
-	this.dt_current = this.prs_tsmp(str_datetime ? str_datetime : this.target.value);
+	this.dt_current = this.prs_tsmp(str_datetime ? str_datetime : this.targetValue);
 	if (!this.dt_current) return;
 	
 	if (!str_datetime)
 	{
-	  this.ampm_val = this.prs_ampm(this.target.value);
+	  this.ampm_val = this.prs_ampm(this.targetValue);
 	}
 
         //alert('dt current value in popup is '+this.dt_current.valueOf());

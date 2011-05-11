@@ -55,6 +55,9 @@ public class UiDateEdit extends UiComponent implements DateEdit
 	/** The message selector for the invalid dismiss message. */
 	protected Message invalidOk = new UiMessage().setMessage("ok");
 
+	/** The late in the date setting for default dates. */
+	protected boolean late = false;
+
 	/** The decision to control the onEmptyAlert. */
 	protected Decision onEmptyAlertDecision = null;
 
@@ -187,6 +190,10 @@ public class UiDateEdit extends UiComponent implements DateEdit
 			}
 		}
 
+		// late default date
+		String late = StringUtil.trimToNull(xml.getAttribute("late"));
+		if (late != null) setLate();
+
 		// submitDestination
 		settingsXml = XmlHelper.getChildElementNamed(xml, "destination");
 		if (settingsXml != null)
@@ -297,10 +304,13 @@ public class UiDateEdit extends UiComponent implements DateEdit
 				+ id + "\" value=\"" + value + "\"" + (readOnly ? " disabled=\"disabled\"" : "") + " onchange=\"ambrosiaDateChange(this, 'invalid_"
 				+ id + "'," + submitOnChange + ");\"" + " />");
 
+		String earlyLate = "0";
+		if (this.late) earlyLate = "1";
+
 		if (this.icon != null)
 		{
 			// for the date picker popup
-			context.addScript("function popupPicker_" + id + "()\n{\n  ambrosiaPopupDate(\"" + id + "\");\n}\n");
+			context.addScript("function popupPicker_" + id + "()\n{\n  ambrosiaPopupDate(\"" + id + "\"," + earlyLate + ");\n}\n");
 			if (readOnly)
 			{
 				response.print("<img id=\"" + id + "_picker\" style=\"display:inline;border-style: none;\" src=\"" + context.getUrl(this.icon)
@@ -381,6 +391,15 @@ public class UiDateEdit extends UiComponent implements DateEdit
 		this.icon = icon;
 		this.iconAlt = new UiMessage().setMessage(selector, references);
 
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public DateEdit setLate()
+	{
+		this.late = true;
 		return this;
 	}
 

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -59,6 +59,13 @@ public interface DateEdit extends Component
 	 * @return self.
 	 */
 	DateEdit setIcon(String url, String selector, PropertyReference... references);
+
+	/**
+	 * Set the default time for the later in the date time. Default is the earlier in the date time.
+	 * 
+	 * @return self.
+	 */
+	DateEdit setLate();
 
 	/**
 	 * Set an alert that will triger once on submit if the field is empty.

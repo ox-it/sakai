@@ -1283,7 +1283,7 @@ function ambrosiaEnableHtmlEdit(htmlComponent)
 	}
 }
 
-function ambrosiaPopupDate(id)
+function ambrosiaPopupDate(id,earlyLate)
 {
 	// get the current date value
 	var el = document.getElementById(id);
@@ -1292,7 +1292,7 @@ function ambrosiaPopupDate(id)
 	var timeStamp = new Date(el.value);
 	if (isNaN(timeStamp)) timeStamp = new Date();
 
-	var popup = new calendar2(el);
+	var popup = new calendar2(el,earlyLate);
 	if (popup == null) return;
 	popup.popup();
 	//el.select();
