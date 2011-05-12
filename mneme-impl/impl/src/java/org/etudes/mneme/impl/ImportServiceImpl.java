@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -2104,7 +2104,20 @@ public class ImportServiceImpl implements ImportService
 	 */
 	protected boolean tableExists(String table)
 	{
-		String sql = "SHOW TABLES LIKE '" + table + "'";
+		String sql = null;
+
+		// for Oracle
+		if (this.sqlService.getVendor().equals("oracle"))
+		{
+			sql = "SELECT TABLE_NAME FROM USER_TABLES WHERE TABLE_NAME = '" + table + "'";
+		}
+
+		// for MySQL
+		else
+		{
+			sql = "SHOW TABLES LIKE '" + table + "'";
+		}
+
 		List rv = this.sqlService.dbRead(sql);
 		return !rv.isEmpty();
 	}
