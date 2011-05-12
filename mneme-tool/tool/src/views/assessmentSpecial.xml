@@ -65,6 +65,16 @@
 				<message selector="no-access" />
 			</emptyTitle>
 			<columns>
+				<column pixels="16">
+					<container>
+						<warning icon="/icons/warning.png">
+							<message selector="access-invalid" />
+							<included>
+								<decision reversed="TRUE" model="access.isValid" />
+							</included>
+						</warning>
+					</container>
+				</column>
 				<selectionColumn multiple="TRUE">
 					<value>
 						<model type="text" ref="access.id" />

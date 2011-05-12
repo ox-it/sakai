@@ -536,6 +536,20 @@
 						</desc>
 					</sort>
 				</column>
+				<column pixels="16">
+					<container>
+						<warning icon="/icons/warning.png">
+							<message selector="access-invalid" />
+							<included>
+								<hasValueDecision model="submission.specialAccess" />
+								<decision reversed="TRUE" model="submission.specialAccess.isValid" />
+							</included>
+						</warning>
+					</container>
+					<included>
+						<decision reversed="TRUE" model="assessment.anonymous" />
+					</included>
+				</column>
 				<column pixels="32">
 					<navigations>
 						<navigation style="LINK" submit="TRUE" description="special-access-view">
@@ -546,7 +560,8 @@
 								<model ref="sakai_destination" />
 							</destination>
 							<included>
-								<decision model="submission" delegate="UserSpecialAccess" tool="sakai.mneme" />
+								<hasValueDecision model="submission.specialAccess" />
+<!--								<decision model="submission" delegate="UserSpecialAccess" tool="sakai.mneme" />-->
 							</included>
 						</navigation>
 						<navigation style="LINK" submit="TRUE" description="special-access-add">
@@ -557,7 +572,8 @@
 								<model ref="sakai_destination" />
 							</destination>
 							<included>
-								<decision reversed="TRUE" model="submission" delegate="UserSpecialAccess" tool="sakai.mneme" />
+								<hasValueDecision reversed="TRUE" model="submission.specialAccess" />
+<!--								<decision reversed="TRUE" model="submission" delegate="UserSpecialAccess" tool="sakai.mneme" />-->
 							</included>
 						</navigation>
 					</navigations>

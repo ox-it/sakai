@@ -380,6 +380,19 @@
 						</navigation>
 					</navigations>
 				</column>
+				<column pixels="16">
+					<entityIncluded>
+						<decision reversed="TRUE" model="assessment.formalCourseEval" />
+					</entityIncluded>
+					<container>
+						<warning icon="/icons/warning.png">
+							<message selector="access-invalid" />
+							<included>
+								<decision reversed="TRUE" model="assessment.specialAccess.isValid" />
+							</included>
+						</warning>
+					</container>
+				</column>
 				<column centered="TRUE" pixels="16" wrap="FALSE">
 					<entityIncluded>
 						<decision reversed="TRUE" model="assessment.formalCourseEval" />

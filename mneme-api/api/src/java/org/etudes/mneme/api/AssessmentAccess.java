@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -48,7 +48,7 @@ public interface AssessmentAccess
 	Date getDueDate();
 
 	/**
-	 * Check if we have a time limmit.
+	 * Check if we have a time limit.
 	 * 
 	 * @return TRUE if a time limit is defined, FALSE if not.
 	 */
@@ -67,6 +67,11 @@ public interface AssessmentAccess
 	 * @return The id.
 	 */
 	String getId();
+
+	/**
+	 * @return TRUE if the access is valid, FALSE if not.
+	 */
+	Boolean getIsValid();
 
 	/**
 	 * Access the open date. Only after this date (if defined) is the assessment open for submission.<br />
@@ -165,14 +170,16 @@ public interface AssessmentAccess
 	/**
 	 * Set the accept until date.
 	 * 
-	 * @apram date The accept until date, or null if there is none.
+	 * @param date
+	 *        The accept until date, or null if there is none.
 	 */
 	void setAcceptUntilDate(Date date);
 
 	/**
 	 * Set the due date.
 	 * 
-	 * @apram date The due date, or null if there is none.
+	 * @param date
+	 *        The due date, or null if there is none.
 	 */
 	void setDueDate(Date date);
 
@@ -195,7 +202,8 @@ public interface AssessmentAccess
 	/**
 	 * Set the open date.
 	 * 
-	 * @apram date The open date, or null if there is none.
+	 * @param date
+	 *        The open date, or null if there is none.
 	 */
 	void setOpenDate(Date date);
 

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -54,11 +54,11 @@ public class AssessmentSpecialAccessImpl implements AssessmentSpecialAccess
 	/** For container change tracking. */
 	protected Changeable owner = null;
 
-	/** The special access definitions. */
-	protected List<AssessmentAccess> specialAccess = new ArrayList<AssessmentAccess>();
-
 	/** Dependency: SecurityService. */
 	protected transient SecurityService securityService = null;
+
+	/** The special access definitions. */
+	protected List<AssessmentAccess> specialAccess = new ArrayList<AssessmentAccess>();
 
 	/** Dependency: UserDirectoryService. */
 	protected transient UserDirectoryService userDirectoryService = null;
@@ -172,9 +172,9 @@ public class AssessmentSpecialAccessImpl implements AssessmentSpecialAccess
 		for (AssessmentAccess access : this.specialAccess)
 		{
 			List<String> accessUsers = new ArrayList<String>(access.getUsers());
-			for (Iterator i = accessUsers.iterator(); i.hasNext();)
+			for (Iterator<String> i = accessUsers.iterator(); i.hasNext();)
 			{
-				String uid = (String) i.next();
+				String uid = i.next();
 
 				if (!userIds.contains(uid))
 				{
@@ -249,28 +249,39 @@ public class AssessmentSpecialAccessImpl implements AssessmentSpecialAccess
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getIsValid()
+	{
+		for (AssessmentAccess access : this.specialAccess)
+		{
+			if (!access.getIsValid()) return Boolean.FALSE;
+		}
+
+		return Boolean.TRUE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<AssessmentAccess> getOrderedAccess()
 	{
 		List<AssessmentAccess> rv = new ArrayList<AssessmentAccess>(this.specialAccess);
 
 		// sort
-		Collections.sort(rv, new Comparator()
+		Collections.sort(rv, new Comparator<AssessmentAccess>()
 		{
-			public int compare(Object arg0, Object arg1)
+			public int compare(AssessmentAccess a0, AssessmentAccess a1)
 			{
-				AssessmentAccess a0 = (AssessmentAccess) arg0;
-				AssessmentAccess a1 = (AssessmentAccess) arg1;
 				List<User> users0 = userDirectoryService.getUsers(a0.getUsers());
 				List<User> users1 = userDirectoryService.getUsers(a1.getUsers());
 
 				// sort the multiple lists to find the first one to use
 				if (users0.size() > 1)
 				{
-					Collections.sort(users0, new Comparator()
+					Collections.sort(users0, new Comparator<User>()
 					{
-						public int compare(Object arg0, Object arg1)
+						public int compare(User arg0, User arg1)
 						{
-							int rv = ((User) arg0).getSortName().compareTo(((User) arg1).getSortName());
+							int rv = arg0.getSortName().compareTo(arg1.getSortName());
 							return rv;
 						}
 					});
@@ -278,11 +289,11 @@ public class AssessmentSpecialAccessImpl implements AssessmentSpecialAccess
 
 				if (users1.size() > 1)
 				{
-					Collections.sort(users1, new Comparator()
+					Collections.sort(users1, new Comparator<User>()
 					{
-						public int compare(Object arg0, Object arg1)
+						public int compare(User arg0, User arg1)
 						{
-							int rv = ((User) arg0).getSortName().compareTo(((User) arg1).getSortName());
+							int rv = arg0.getSortName().compareTo(arg1.getSortName());
 							return rv;
 						}
 					});
@@ -325,9 +336,9 @@ public class AssessmentSpecialAccessImpl implements AssessmentSpecialAccess
 	 */
 	public void removeAccess(AssessmentAccess remove)
 	{
-		for (Iterator i = this.specialAccess.iterator(); i.hasNext();)
+		for (Iterator<AssessmentAccess> i = this.specialAccess.iterator(); i.hasNext();)
 		{
-			AssessmentAccess access = (AssessmentAccess) i.next();
+			AssessmentAccess access = i.next();
 
 			if (access.equals(remove))
 			{
@@ -399,9 +410,9 @@ public class AssessmentSpecialAccessImpl implements AssessmentSpecialAccess
 	protected void consolidate()
 	{
 		// if any stored definitions override nothing, or have no users, remove them
-		for (Iterator i = this.specialAccess.iterator(); i.hasNext();)
+		for (Iterator<AssessmentAccess> i = this.specialAccess.iterator(); i.hasNext();)
 		{
-			AssessmentAccess access = (AssessmentAccess) i.next();
+			AssessmentAccess access = i.next();
 			if (access.getId() == null) continue;
 
 			boolean remove = access.getUsers().isEmpty();

@@ -314,6 +314,11 @@ public interface Submission
 	Integer getSiblingCount();
 
 	/**
+	 * @return The defined special access for the submitter to this assessment, or null if not defined.
+	 */
+	AssessmentAccess getSpecialAccess();
+
+	/**
 	 * Access the start date for this submission.
 	 * 
 	 * @return the start date for this submission, or null if there is none.

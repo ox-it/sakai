@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.mneme.api.Answer;
 import org.etudes.mneme.api.Assessment;
+import org.etudes.mneme.api.AssessmentAccess;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentSubmissionStatus;
 import org.etudes.mneme.api.AttachmentService;
@@ -82,6 +83,8 @@ public class SubmissionImpl implements Submission
 	/** Track changes. */
 	protected transient Changeable releasedChanged = new ChangeableImpl();
 
+	protected Date reviewedDate = null;
+
 	protected transient SecurityService securityService = null;
 
 	protected transient SessionManager sessionManager = null;
@@ -89,8 +92,6 @@ public class SubmissionImpl implements Submission
 	protected transient Integer siblingCount = 0;
 
 	protected Date startDate = null;
-
-	protected Date reviewedDate = null;
 
 	protected transient SubmissionServiceImpl submissionService = null;
 
@@ -1047,6 +1048,14 @@ public class SubmissionImpl implements Submission
 	/**
 	 * {@inheritDoc}
 	 */
+	public Date getReviewedDate()
+	{
+		return this.reviewedDate;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Integer getSiblingCount()
 	{
 		return this.siblingCount;
@@ -1055,17 +1064,17 @@ public class SubmissionImpl implements Submission
 	/**
 	 * {@inheritDoc}
 	 */
-	public Date getStartDate()
+	public AssessmentAccess getSpecialAccess()
 	{
-		return this.startDate;
+		return getAssessment().getSpecialAccess().getUserAccess(getUserId());
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public Date getReviewedDate()
+	public Date getStartDate()
 	{
-		return this.reviewedDate;
+		return this.startDate;
 	}
 
 	/**
@@ -1216,6 +1225,14 @@ public class SubmissionImpl implements Submission
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public void setReviewedDate(Date date)
+	{
+		this.reviewedDate = date;
+	}
+
+	/**
 	 * Dependency: SecurityService.
 	 * 
 	 * @param service
@@ -1243,14 +1260,6 @@ public class SubmissionImpl implements Submission
 	public void setStartDate(Date startDate)
 	{
 		this.startDate = startDate;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setReviewedDate(Date date)
-	{
-		this.reviewedDate = date;
 	}
 
 	/**

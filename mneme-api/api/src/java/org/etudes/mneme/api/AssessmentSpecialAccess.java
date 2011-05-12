@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -79,6 +79,11 @@ public interface AssessmentSpecialAccess
 	 * @return TRUE if special access is defined, FALSE if not.
 	 */
 	Boolean getIsDefined();
+
+	/**
+	 * @return TRUE if all the definitions are valid, FALSE if any are invalid.
+	 */
+	Boolean getIsValid();
 
 	/**
 	 * Access the special access defined for the assessment, sorted by user sort display.

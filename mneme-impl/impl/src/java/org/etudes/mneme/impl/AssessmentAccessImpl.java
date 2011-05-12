@@ -183,6 +183,21 @@ public class AssessmentAccessImpl implements AssessmentAccess, Changeable
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getIsValid()
+	{
+		// open, if defined, must be before acceptUntil and due, if defined
+		if ((getOpenDate() != null) && (getDueDate() != null) && (!getOpenDate().before(getDueDate()))) return Boolean.FALSE;
+		if ((getOpenDate() != null) && (getAcceptUntilDate() != null) && (!getOpenDate().before(getAcceptUntilDate()))) return Boolean.FALSE;
+
+		// due, if defined, must be not after acceptUntil, if defined
+		if ((getDueDate() != null) && (getAcceptUntilDate() != null) && (getDueDate().after(getAcceptUntilDate()))) return Boolean.FALSE;
+
+		return Boolean.TRUE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Date getOpenDate()
 	{
 		if (!this.overrideOpenDate) return this.assessment.getDates().getOpenDate();
