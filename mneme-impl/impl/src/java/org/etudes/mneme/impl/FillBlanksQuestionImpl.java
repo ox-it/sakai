@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -205,8 +205,8 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		instructions.add(this.uiService.newToggle().setTarget("instructions").setTitle("close")
 				.setIcon("/icons/close.png", Navigation.IconStyle.left));
 
-		Toggle viewInstructions = this.uiService.newToggle().setTarget("instructions").setTitle("view-instructions").setIcon("/icons/test.png",
-				Navigation.IconStyle.left);
+		Toggle viewInstructions = this.uiService.newToggle().setTarget("instructions").setTitle("view-instructions")
+				.setIcon("/icons/test.png", Navigation.IconStyle.left);
 
 		Section questionSection = this.uiService.newSection();
 		questionSection.add(question).add(instructions).add(viewInstructions);
@@ -583,20 +583,21 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		second.add(answerKey);
 
 		Section positions = this.uiService.newSection();
-		PropertyReference iteratorRef = this.uiService.newPropertyReference().setReference("question").setFormatDelegate(
-				this.uiService.getFormatDelegate("AccessFillinPositions", "sakai.mneme"));
+		PropertyReference iteratorRef = this.uiService.newPropertyReference().setReference("question")
+				.setFormatDelegate(this.uiService.getFormatDelegate("AccessFillinPositions", "sakai.mneme"));
 		positions.setIterator(iteratorRef, "position", null);
 		positions.setTitle("position", this.uiService.newPropertyReference().setReference("position"));
 
 		EntityList entityList = this.uiService.newEntityList();
 		entityList.setStyle(EntityList.Style.form);
-		entityList.setIterator(this.uiService.newPropertyReference().setFormatDelegate(
-				this.uiService.getFormatDelegate("AccessFillinPositionValues", "sakai.mneme")), "answer");
+		entityList.setIterator(
+				this.uiService.newPropertyReference()
+						.setFormatDelegate(this.uiService.getFormatDelegate("AccessFillinPositionValues", "sakai.mneme")), "answer");
 		entityList.setEmptyTitle("no-answer");
 
 		PropertyColumn propCol = this.uiService.newPropertyColumn();
-		propCol.setProperty(this.uiService.newPropertyReference().setReference("answer").setFormatDelegate(
-				this.uiService.getFormatDelegate("FormatFillinPositionCorrect", "sakai.mneme")));
+		propCol.setProperty(this.uiService.newPropertyReference().setReference("answer")
+				.setFormatDelegate(this.uiService.getFormatDelegate("FormatFillinPositionCorrect", "sakai.mneme")));
 		entityList.addColumn(propCol);
 
 		propCol = this.uiService.newPropertyColumn();
@@ -605,14 +606,14 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 
 		propCol = this.uiService.newPropertyColumn();
 		propCol.setRight();
-		propCol.setProperty(this.uiService.newPropertyReference().setReference("answer").setFormatDelegate(
-				this.uiService.getFormatDelegate("FormatFillinPositionPercents", "sakai.mneme")));
+		propCol.setProperty(this.uiService.newPropertyReference().setReference("answer")
+				.setFormatDelegate(this.uiService.getFormatDelegate("FormatFillinPositionPercents", "sakai.mneme")));
 		entityList.addColumn(propCol);
 
 		propCol = this.uiService.newPropertyColumn();
 		propCol.setRight();
-		propCol.setProperty(this.uiService.newPropertyReference().setReference("answer").setFormatDelegate(
-				this.uiService.getFormatDelegate("FormatFillinPositionCount", "sakai.mneme")));
+		propCol.setProperty(this.uiService.newPropertyReference().setReference("answer")
+				.setFormatDelegate(this.uiService.getFormatDelegate("FormatFillinPositionCount", "sakai.mneme")));
 		entityList.addColumn(propCol);
 
 		positions.add(entityList);
@@ -743,6 +744,19 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	}
 
 	/**
+	 * Trim the source from any blanks, and convert any html blanks to real ones.
+	 * 
+	 * @param source
+	 *        The source string.
+	 * @return The trimmed source.
+	 */
+	protected static String trim(String source)
+	{
+		String rv = source.replace("&nbsp;", " ").trim();
+		return rv;
+	}
+
+	/**
 	 * Check the text for a valid fill-in question.
 	 * 
 	 * @param text
@@ -838,8 +852,60 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 			}
 		}
 
+		// if otherwise valid, check for numeric
+		// Note: lets not subject parseCorrectAnswers() to invalid
+		boolean invalidNumeric = false;
+		boolean invalidNumericRange = false;
+		if (!(invalidOutsideEmpty || invalidUnbalanced || invalidNoFillins || invalidOpenAnswerInAssessment) && !this.responseTextual)
+		{
+			List<String> correctAnswers = new ArrayList<String>();
+			parseCorrectAnswers(correctAnswers);
+
+			for (String answer : correctAnswers)
+			{
+				// allow dot or comma for decimal point
+				// TODO: this needs to be changed to respect locale, not just replace commas! -ggolden
+				answer = answer.replace(',', '.');
+
+				// if not numeric, we are in trouble
+				try
+				{
+					// form the range of correct answers
+					Float[] range = new Float[2];
+
+					// if there's a bar in the correct pattern, split and use the first two as the range
+					if (answer.indexOf("|") != -1)
+					{
+						String[] parts = answer.split("\\|");
+						if (parts.length == 2)
+						{
+							range[0] = Float.parseFloat(trim(parts[0]));
+							range[1] = Float.parseFloat(trim(parts[1]));
+						}
+						else
+						{
+							invalidNumericRange = true;
+							break;
+						}
+					}
+
+					// otherwise use the single value for both sides of the range
+					else
+					{
+						range[0] = range[1] = Float.parseFloat(trim(answer));
+					}
+				}
+				catch (NumberFormatException e)
+				{
+					invalidNumeric = true;
+					break;
+				}
+			}
+		}
+
 		// if we are valid
-		if (!(invalidOutsideEmpty || invalidUnbalanced || invalidNoFillins || invalidOpenAnswerInAssessment)) return null;
+		if (!(invalidOutsideEmpty || invalidUnbalanced || invalidNoFillins || invalidOpenAnswerInAssessment || invalidNumeric || invalidNumericRange))
+			return null;
 
 		// collect the errors
 		StringBuilder rv = new StringBuilder();
@@ -858,6 +924,14 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		if (invalidOpenAnswerInAssessment)
 		{
 			rv.append(this.messages.getString("invalid-open-assessment"));
+		}
+		else if (invalidNumeric)
+		{
+			rv.append(this.messages.getString("invalid-numeric"));
+		}
+		else if (invalidNumericRange)
+		{
+			rv.append(this.messages.getString("invalid-numeric-range"));
 		}
 
 		return "<ul>" + rv.toString() + "</ul>";
