@@ -170,11 +170,12 @@ public class EvaluationAssignConfirmProducer implements ViewComponentProducer, V
                 }
             }
         }
-
+        
         // get all evaluator user assignments to count the total enrollments
         HashMap<String, List<EvalAssignUser>> groupIdToEAUList = new HashMap<String, List<EvalAssignUser>>();
         List<EvalAssignUser> userAssignments = evaluationService.getParticipantsForEval(evaluationId, null, null, 
                 EvalAssignUser.TYPE_EVALUATOR, null, null, null);
+        
         for (EvalAssignUser evalAssignUser : userAssignments) {
             String groupId = evalAssignUser.getEvalGroupId();
             if (! groupIdToEAUList.containsKey(groupId)) {
@@ -253,7 +254,18 @@ public class EvaluationAssignConfirmProducer implements ViewComponentProducer, V
                                     commonLogic.getEntityURL(AssignGroupEntityProvider.ENTITY_PREFIX, assignGroupId.toString()));
                         }
                     }
-                    int enrollmentCount = groupIdToEAUList.get(evalGroupId) == null ? 0 : groupIdToEAUList.get(evalGroupId).size();
+                    
+                    //int enrollmentCount = groupIdToEAUList.get(evalGroupId) == null ? 0 : groupIdToEAUList.get(evalGroupId).size();
+                    int enrollmentCount = 0;
+                    if (groupIdToEAUList.get(evalGroupId) == null) {
+                        //enrollmentCount = 0;
+                        // Since no users have been added to the eval YET, get the number of members that WILL be added
+                        // this number is more intuative for the instructor than 0.
+                        enrollmentCount = commonLogic.countUserIdsForEvalGroup(evalGroupId, EvalConstants.PERM_TAKE_EVALUATION);
+                    } else {
+                        enrollmentCount = groupIdToEAUList.get(evalGroupId).size();
+                    }
+                    
                     UIOutput.make(groupRow, "enrollment", enrollmentCount + "");
                 }
             } else {

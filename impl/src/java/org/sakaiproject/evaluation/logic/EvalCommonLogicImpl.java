@@ -297,7 +297,7 @@ public class EvalCommonLogicImpl implements EvalCommonLogic {
                 c = null;
             }
         }
-
+        
         if (c == null) {
             // try to get the adhoc group
             EvalAdhocGroup adhocGroup = adhocSupportLogic.getAdhocGroupById(EvalAdhocGroup.getIdFromAdhocEvalGroupId(evalGroupId));
