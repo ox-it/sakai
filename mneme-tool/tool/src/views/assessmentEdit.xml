@@ -506,6 +506,7 @@
 						</modelColumn>
 						<column pixels="16">
 							<entityIncluded>
+								<decision reversed="TRUE" model="detail.isPhantom" />
 								<decision reversed="TRUE" model="detail.isSpecific" />
 							</entityIncluded>
 							<navigations>
