@@ -281,6 +281,7 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.typeSpecificQuestion.questionText"))
 				.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answers")).setWidth(20);
 		fillIn.setWidth(20);
+		if (!responseTextual) fillIn.setNumeric();
 
 		Section section = this.uiService.newSection();
 		section.add(fillIn);
