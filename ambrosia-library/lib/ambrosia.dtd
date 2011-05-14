@@ -6,7 +6,7 @@
  * $Id: pom.xml 54815 2008-11-10 23:34:57Z ggolden@etudes.org $
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -499,6 +499,7 @@
 <!ATTLIST fillIn id CDATA #IMPLIED >
 <!ATTLIST fillIn cols CDATA #IMPLIED >
 <!ATTLIST fillIn correct CDATA #IMPLIED >
+<!ATTLIST fillIn numeric (TRUE|FALSE) #IMPLIED>
 
 <!ELEMENT correctMarker (model | decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
 <!ATTLIST correctMarker correctIcon CDATA #IMPLIED >

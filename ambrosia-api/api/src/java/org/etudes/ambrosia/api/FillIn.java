@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -25,8 +25,7 @@
 package org.etudes.ambrosia.api;
 
 /**
- * UiFillIn presents a set of text inputs for the user to edit embedded in a surrounding string. The string is formatted with "{}" where the fill-ins
- * are expected.<br />
+ * UiFillIn presents a set of text inputs for the user to edit embedded in a surrounding string. The string is formatted with "{}" where the fill-ins are expected.<br />
  * The values are taken from / returned to an array property by reference.
  */
 public interface FillIn extends Component
@@ -77,6 +76,13 @@ public interface FillIn extends Component
 	 * @return self.
 	 */
 	FillIn setFocus(Decision decision);
+
+	/**
+	 * Set for numeric answers.
+	 * 
+	 * @return self.
+	 */
+	FillIn setNumeric();
 
 	/**
 	 * Set an alert that will triger once on submit if the field is empty.

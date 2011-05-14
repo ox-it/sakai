@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -62,8 +62,17 @@ public class UiFillIn extends UiComponent implements FillIn
 	/** The incorrect message. */
 	protected Message incorrectMessage = new UiMessage().setMessage("incorrect");
 
+	/** Icon for showing invalid. */
+	protected String invalidIcon = "!/ambrosia_library/icons/warning.png";
+
+	/** The message selector for the invalid dismiss message. */
+	protected Message invalidOk = new UiMessage().setMessage("ok");
+
 	/** The number of columns per row for each text input. */
 	protected int numCols = 50;
+
+	/** Numeric answers expected. */
+	protected boolean numericAnswers = false;
 
 	/** The decision to control the onEmptyAlert. */
 	protected Decision onEmptyAlertDecision = null;
@@ -84,6 +93,9 @@ public class UiFillIn extends UiComponent implements FillIn
 
 	/** The message that will provide title text. */
 	protected Message titleMessage = null;
+
+	/** The message for the validation alert. */
+	protected Message validationMsg = new UiMessage().setMessage("float-edit-validate");
 
 	/**
 	 * Public no-arg constructor.
@@ -128,6 +140,13 @@ public class UiFillIn extends UiComponent implements FillIn
 			if (incorrectSelector != null) this.incorrectMessage = new UiMessage().setMessage(incorrectSelector);
 
 			this.correctDecision = service.parseDecisions(settingsXml);
+		}
+
+		// reversed
+		String numeric = StringUtil.trimToNull(xml.getAttribute("numeric"));
+		if ((numeric != null) && ("TRUE".equals(numeric)))
+		{
+			setNumeric();
 		}
 
 		// short for correct
@@ -265,6 +284,27 @@ public class UiFillIn extends UiComponent implements FillIn
 			response.println(this.titleMessage.getMessage(context, focus) + "<br />");
 		}
 
+		// the validation failure message
+		String failureMsg = this.validationMsg.getMessage(context, focus);
+
+		// the "failure" panel shown if requirements are not met
+		if (this.numericAnswers && !readOnly)
+		{
+			response.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; left:0px; top:0px; width:340px; height:120px\" id=\"failure_"
+					+ id + "\">");
+			response.println("<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr>");
+			response.println("<td colspan=\"2\" style=\"padding:1em; white-space:normal; line-height:1em; \" align=\"left\">" + failureMsg + "</td>");
+			response.println("</tr><tr>");
+			response.println("<td style=\"padding:1em\" align=\"left\"><input type=\"button\" value=\"" + this.invalidOk.getMessage(context, focus)
+					+ "\" onclick=\"hideConfirm('failure_" + id + "','');return false;\" " + "/></td>");
+			response.println("</tr></table></div>");
+
+			// validation function
+			StringBuffer script = new StringBuffer();
+			script.append("function popupInvalid_" + id + "()\n{\n  showConfirm('failure_" + id + "');\n}\n");
+			context.addScript(script.toString());
+		}
+
 		// read the text
 		String fillInText = null;
 		String[] fillInParts = null;
@@ -362,15 +402,43 @@ public class UiFillIn extends UiComponent implements FillIn
 					}
 				}
 
+				String actionsScripts = "";
+				if (this.numericAnswers && !readOnly)
+				{
+					actionsScripts = " onchange=\"ambrosiaFloatChange(this, null, null, null, null, null, 'invalid_" + id + Integer.toString(i)
+							+ "');\"" + " onkeyup=\"ambrosiaFloatChange(this, null, null, null, null, null, 'invalid_" + id + Integer.toString(i)
+							+ "');\"";
+				}
+
 				// input
-				response.print("<input type=\"text\" name=\"" + id + "\" id=\"" + id + Integer.toString(i) + "\" size=\""
-						+ Integer.toString(this.numCols) + "\" value=\"");
+				response.print("<span style=\"white-space: nowrap;\"><input type=\"text\" name=\"" + id + "\" id=\"" + id + Integer.toString(i)
+						+ "\" size=\"" + Integer.toString(this.numCols) + "\"" + actionsScripts + " value=\"");
+
 				boxCount++;
 				if ((values != null) && (values.length > i) && (values[i] != null))
 				{
 					response.print(values[i]);
 				}
 				response.print("\"" + (readOnly ? " disabled=\"disabled\"" : "") + " />");
+
+				if (this.numericAnswers && !readOnly)
+				{
+					// validate failure alert (will display:inline when made visible)
+					response.print("<div style=\"display:none\" id=\"invalid_" + id + Integer.toString(i) + "\">");
+					response.print("<a href=\"#\" onclick=\"popupInvalid_" + id + "();return false;\" title=\"" + failureMsg + "\">");
+					response.print("<img style=\"vertical-align:text-bottom; border-style: none;\" src=\"" + context.getUrl(this.invalidIcon)
+							+ "\" />");
+					response.print("</a></div>");
+				}
+
+				response.print("</span>");
+
+				if (this.numericAnswers && !readOnly)
+				{
+					// pre-validate
+					context.addScript("ambrosiaValidateFloat(document.getElementById('" + id + Integer.toString(i) + "'), null, null, 'invalid_" + id
+							+ Integer.toString(i) + "');\n");
+				}
 			}
 
 			// the last text
@@ -401,14 +469,43 @@ public class UiFillIn extends UiComponent implements FillIn
 					}
 				}
 
-				response.print("<input type=\"text\" name=\"" + id + "\" id=\"" + id + Integer.toString(fillInParts.length - 1) + "\" size=\""
-						+ Integer.toString(this.numCols) + "\" value=\"");
+				String actionsScripts = "";
+				if (this.numericAnswers && !readOnly)
+				{
+					actionsScripts = " onchange=\"ambrosiaFloatChange(this, null, null, null, null, null, 'invalid_" + id
+							+ Integer.toString(fillInParts.length - 1) + "');\""
+							+ " onkeyup=\"ambrosiaFloatChange(this, null, null, null, null, null, 'invalid_" + id
+							+ Integer.toString(fillInParts.length - 1) + "');\"";
+				}
+
+				response.print("<span style=\"white-space: nowrap;\"><input type=\"text\" name=\"" + id + "\" id=\"" + id
+						+ Integer.toString(fillInParts.length - 1) + "\" size=\"" + Integer.toString(this.numCols) + "\"" + actionsScripts
+						+ " value=\"");
 				boxCount++;
 				if ((values != null) && (values.length > fillInParts.length - 1) && (values[fillInParts.length - 1] != null))
 				{
 					response.print(values[fillInParts.length - 1]);
 				}
 				response.print("\"" + (readOnly ? " disabled=\"disabled\"" : "") + " />");
+
+				if (this.numericAnswers && !readOnly)
+				{
+					// validate failure alert (will display:inline when made visible)
+					response.print("<div style=\"display:none\" id=\"invalid_" + id + Integer.toString(fillInParts.length - 1) + "\">");
+					response.print("<a href=\"#\" onclick=\"popupInvalid_" + id + "();return false;\" title=\"" + failureMsg + "\">");
+					response.print("<img style=\"vertical-align:text-bottom; border-style: none;\" src=\"" + context.getUrl(this.invalidIcon)
+							+ "\" />");
+					response.print("</a></div>");
+				}
+
+				response.print("</span>");
+
+				if (this.numericAnswers && !readOnly)
+				{
+					// pre-validate
+					context.addScript("ambrosiaValidateFloat(document.getElementById('" + id + Integer.toString(fillInParts.length - 1)
+							+ "'), null, null, 'invalid_" + id + Integer.toString(fillInParts.length - 1) + "');\n");
+				}
 			}
 		}
 
@@ -499,6 +596,15 @@ public class UiFillIn extends UiComponent implements FillIn
 	{
 		this.focusDecision = decision;
 
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public FillIn setNumeric()
+	{
+		this.numericAnswers = true;
 		return this;
 	}
 
