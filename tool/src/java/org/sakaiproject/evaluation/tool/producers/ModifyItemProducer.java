@@ -107,7 +107,7 @@ public class ModifyItemProducer implements ViewComponentProducer, ViewParamsRepo
      * @see uk.org.ponder.rsf.view.ComponentProducer#fillComponents(uk.org.ponder.rsf.components.UIContainer, uk.org.ponder.rsf.viewstate.ViewParameters, uk.org.ponder.rsf.view.ComponentChecker)
      */
     public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
-
+    	
         // local variables used in the render logic
         String currentUserId = commonLogic.getCurrentUserId();
         boolean userAdmin = commonLogic.isUserAdmin(currentUserId);
@@ -356,10 +356,11 @@ public class ModifyItemProducer implements ViewComponentProducer, ViewParamsRepo
                     UIMessage.make("modifyscale.add.scale.option.button"));
             boundedDynamicListInputEvolver.setMinimumLength(2);
             boundedDynamicListInputEvolver.setMaximumLength(40);
-
+            
             UIInputMany modifypoints = UIInputMany.make(showItemChoices, 
                     "modify-scale-points:", scaleOTP + "options",
-                    (scaleId == null ? EvalToolConstants.defaultInitialScaleValues : null) );
+                    (scaleId == null ? new String[] {"",""} : null) );
+                    //(scaleId == null ? EvalToolConstants.defaultInitialScaleValues : null));
             boundedDynamicListInputEvolver.evolve(modifypoints);
             // force the scale to bind to adhoc mode
             form.parameters.add( new UIELBinding(scaleOTP + "mode", EvalConstants.SCALE_MODE_ADHOC) );
@@ -568,6 +569,7 @@ public class ModifyItemProducer implements ViewComponentProducer, ViewParamsRepo
         if (saveBinding != null) {
             UICommand.make(form, "save-item-action", UIMessage.make("modifyitem.save.button"), saveBinding);
         }
+        
     }
 
 

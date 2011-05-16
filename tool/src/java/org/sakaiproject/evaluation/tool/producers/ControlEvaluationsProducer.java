@@ -277,7 +277,6 @@ public class ControlEvaluationsProducer implements ViewComponentProducer {
          for (int i = 0; i < activeEvals.size(); i++) {
             EvalEvaluation evaluation = (EvalEvaluation) activeEvals.get(i);
 
-            System.out.println("Process Evaluation ["+evaluation.getTitle()+":"+viewResultsIgnoreDate+"]");
             UIBranchContainer evaluationRow = UIBranchContainer.make(evalListing, "active-eval-row:", evaluation.getId().toString());
 
             UIInternalLink evalTitleLink = UIInternalLink.make(evaluationRow, "active-eval-link", evaluation.getTitle(), 
