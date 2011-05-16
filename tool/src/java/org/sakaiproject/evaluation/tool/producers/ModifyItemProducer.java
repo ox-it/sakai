@@ -16,6 +16,7 @@ package org.sakaiproject.evaluation.tool.producers;
 
 import static org.sakaiproject.evaluation.utils.EvalUtils.safeBool;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.sakaiproject.evaluation.constant.EvalConstants;
@@ -359,8 +360,7 @@ public class ModifyItemProducer implements ViewComponentProducer, ViewParamsRepo
             
             UIInputMany modifypoints = UIInputMany.make(showItemChoices, 
                     "modify-scale-points:", scaleOTP + "options",
-                    (scaleId == null ? new String[] {"",""} : null) );
-                    //(scaleId == null ? EvalToolConstants.defaultInitialScaleValues : null));
+                    (scaleId == null ? EvalToolConstants.defaultInitialScaleValues : null) );
             boundedDynamicListInputEvolver.evolve(modifypoints);
             // force the scale to bind to adhoc mode
             form.parameters.add( new UIELBinding(scaleOTP + "mode", EvalConstants.SCALE_MODE_ADHOC) );
