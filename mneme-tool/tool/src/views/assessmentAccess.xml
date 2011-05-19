@@ -60,8 +60,15 @@
 	<container>
 
 		<!-- top nav bar -->
-		<navigationBar id="nav">
+		<navigationBar>
 			<container>
+				<navigation title="done" description="done-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<divider />
 				<navigation destination="DELETE" title="delete-title" description="delete-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/delete.png" style="LEFT" />
 					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif">
@@ -189,20 +196,27 @@
 					<model type="text" ref="access.passwordValue" />
 				</textEdit>
 
-				<!-- navigation -->
-				<navigationBar id="nav">
-					<container>
-						<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
-							<icon icon="/icons/return.png" style="LEFT" />
-							<destination template="{0}">
-								<model ref="return" />
-							</destination>
-						</navigation>
-					</container>
-				</navigationBar>
-
 			</container>
 		</section>
+
+		<!-- navigation -->
+		<navigationBar>
+			<container>
+				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation destination="DELETE" title="delete-title" description="delete-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/delete.png" style="LEFT" />
+					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif">
+						<message selector="confirm-delete" />
+					</confirm>
+				</navigation>
+			</container>
+		</navigationBar>
 
 	</container>
 
