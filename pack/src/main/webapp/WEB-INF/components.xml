@@ -69,6 +69,9 @@
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="dataSource" ref="uk.ac.ox.oucs.vle.DaisyDataSource" />
 				<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
+				<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+				<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+				<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
 			</bean>
 		</property>
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />

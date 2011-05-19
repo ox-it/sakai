@@ -1,16 +1,38 @@
 package uk.ac.ox.oucs.vle;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashSet;
 
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.OverQuotaException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 
 
 /**
@@ -23,6 +45,9 @@ public class PopulatorImpl implements Populator{
 
 	private static final Log log = LogFactory.getLog(PopulatorImpl.class);
 	
+	private ContentHostingService contentHostingService;
+	private ServerConfigurationService serverConfigurationService;
+	private SessionManager sessionManager;
 	/**
 	 * The source to pull the data from.
 	 */
@@ -38,6 +63,13 @@ public class PopulatorImpl implements Populator{
 	 */
 	private SakaiProxy proxy;
 	
+	private Writer writer;
+	
+	private String preHTMLa = "<html><head></head><body>" +
+		"<h3>Errors and Warnings from SES Import ";
+	private String preHTMLb = "</h3><pre>";
+	private String postHTML = "</pre></body></html>";
+	
 	public void setDataSource(DataSource ds) {
 		this.ds = ds;
 	}
@@ -49,12 +81,99 @@ public class PopulatorImpl implements Populator{
 	public void setProxy(SakaiProxy proxy) {
 		this.proxy = proxy;
 	}
+	
+	public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
+	}
+	
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+	
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
 
 	/* (non-Javadoc)
 	 * @see uk.ac.ox.oucs.vle.Populator#update()
 	 */
 	public void update() {
+		switchUser();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		writer = new OutputStreamWriter(out);
+		ContentResourceEdit cre = null;
+		
+		try {
+			writer.write(preHTMLa);
+			writer.write(now());
+			writer.write(preHTMLb);
+			updater();
+			writer.write(postHTML);
+			writer.flush();
+			writer.close();
+		
+			String jsonResourceId = contentHostingService.getSiteCollection(getSiteId())+ "import.html";
+		
+			try {
+				// editResource() doesn't throw IdUnusedExcpetion but PermissionException
+				// when the resource is missing so we first just tco to find it.
+				contentHostingService.getResource(jsonResourceId);
+				cre = contentHostingService.editResource(jsonResourceId);
+			} catch (IdUnusedException e) {
+				try {
+					cre = contentHostingService.addResource(jsonResourceId);
+					ResourceProperties props = cre.getPropertiesEdit();
+					props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, "importlog.html");
+					cre.setContentType("text/html");
+				} catch (IdUsedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IdInvalidException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (InconsistentException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ServerOverloadException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			
+			cre.setContent(out.toByteArray());
+			// Don't notify anyone about this resource.
+			contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+		} catch (PermissionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  catch (TypeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InUseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (OverQuotaException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ServerOverloadException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (null != cre && cre.isActiveEdit()) {
+				contentHostingService.cancelResource(cre);
+			}
+		}
+		
+		
+	}
+	
+	public void updater() {
 		Connection con = null;
+		
 		int groupSeen = 0, groupUpdated = 0, groupCreated = 0;
 		int componentSeen = 0, componentUpdated = 0, componentCreated = 0;
 		try {
@@ -83,12 +202,12 @@ public class PopulatorImpl implements Populator{
 				String description = rs.getString("description");
 				String administrator = rs.getString("webauth_code");
 				if (administrator == null || administrator.trim().length() == 0) {
-					logFailure(null, code, "No administrator set");
+					logFailure(code, null, "No administrator set");
 					continue;
 				}
 				UserProxy user = proxy.findUserByEid(administrator); 
 				if (user == null) {
-					logFailure(null, code, "Failed to find administrator");
+					logFailure(code, null, "Failed to find administrator " + administrator);
 					continue;
 				}
 				CourseGroupDAO groupDao = dao.findCourseGroupById(code);
@@ -314,6 +433,9 @@ public class PopulatorImpl implements Populator{
 				dao.save(componentDao);
 			}
 			
+		} catch (IOException e) {
+			log.warn("Problem importing.", e);
+			
 		} catch (SQLException e) {
 			log.warn("Problem importing.", e);
 			
@@ -345,16 +467,42 @@ public class PopulatorImpl implements Populator{
 		}
 	}
 	
-	private void logFailure(String assessmentUnitCodes, String id, String reason) {
-		if (null == assessmentUnitCodes) {
-			log.warn("Import failed for "+ id+ " because: "+ reason);
+	private void logFailure(String codes, String id, String reason) throws IOException {
+		String message;
+		if (null == id) {
+			message = new String("Import failed for Assessment Unit(s) "+ codes +" because: "+ reason);
+		} else if (null == codes) {
+				message = new String("Import failed for Teaching Instance "+ id +" because: "+ reason);
 		} else {
-			log.warn("Import failed for "+ assessmentUnitCodes+":"+id+ " because: "+ reason);
+			message = new String("Import failed for Teaching Instance "+ id +" on Assessment Unit(s) "+codes +" because: "+ reason);
 		}
+		log.warn(message);
+		writer.write(message+"\n");
 	}
 	
-	private void logWarning(String id, String reason) {
-		log.warn("Import issue for "+ id+ " because: "+ reason);
+	private void logWarning(String id, String reason) throws IOException {
+		String message = new String("Import issue for "+ id+ " because: "+ reason);
+		log.warn(message);
+		writer.write(message+"\n");
+	}
+	
+	private String now() {
+		Calendar cal = Calendar.getInstance();
+	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	    return sdf.format(cal.getTime());
+	}
+	
+	/**
+	 * This sets up the user for the current request.
+	 */
+	private void switchUser() {
+		Session session = sessionManager.getCurrentSession();
+		session.setUserEid("admin");
+		session.setUserId("admin");
+	}
+
+	protected String getSiteId() {
+		return serverConfigurationService.getString("course-signup.site-id", "course-signup");
 	}
 
 }
