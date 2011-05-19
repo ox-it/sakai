@@ -28,23 +28,27 @@ public class SFXService {
 	
 	public SFXService(String webResourceURL) {
 	    
-		log.debug(webResourceURL);
+		//log.debug(webResourceURL);
 		client = Client.create();
 		webResource = client.resource(webResourceURL);
 	}
 	
 	public ResponseBean getResource(String id) throws Exception {
 		
-		log.debug("getResource");
 	    MultivaluedMap<String, String> params = new MultivaluedMapImpl();
 	    params.add("sfx.response_type", "simplexml");
 	    
-	    String responseXML = webResource.queryParams(params).get(String.class);
-	    log.debug("response ["+responseXML+"]");
+	    WebResource query = webResource.queryParams(params);
+	    //System.out.println("SFXService.query ["+query.getURI().toString()+"]");
+	    //log.debug("Query ["+query.getURI().toString()+"]");
 	    
-	    ResponseBean responseBean = new ResponseBean();
+	    String responseXML = webResource.queryParams(params).get(String.class);
+	    //System.out.println("SFXService.response ["+responseXML+"]");
+	    //log.debug("response ["+responseXML+"]");
+	    
 	    Collection<SearObject> beans = filterResponse(responseXML);
 		
+	    ResponseBean responseBean = new ResponseBean();
 		Document document = new Document(id, null);
 		document.addItems(beans);
 		responseBean.addDocument(document);
