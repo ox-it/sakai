@@ -296,6 +296,7 @@
 <!ATTLIST attachments title CDATA #IMPLIED>
 <!ATTLIST attachments model CDATA #IMPLIED>
 <!ATTLIST attachments name CDATA #IMPLIED>
+<!ATTLIST attachments icon CDATA #IMPLIED>
 <!ATTLIST attachments raw (TRUE|FALSE) #IMPLIED>
 <!ATTLIST attachments list (TRUE|FALSE) #IMPLIED>
 <!ATTLIST attachments size (TRUE|FALSE) #IMPLIED>

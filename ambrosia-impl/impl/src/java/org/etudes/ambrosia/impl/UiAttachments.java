@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -54,23 +54,25 @@ public class UiAttachments extends UiComponent implements Attachments
 	/** The attachments reference. */
 	protected PropertyReference attachments = null;
 
+	/** Full URL to the icon. */
+	protected String icon = null;
+
 	/** The context name for the currently iterated attachment. */
 	protected String iteratorName = null;
+
+	/** If set, show items in a list (ul) */
+	protected boolean list = true;
 
 	protected List<Navigation> navigations = new ArrayList<Navigation>();
 
 	/** If set, show only the reference strings, with no checking. */
 	protected boolean raw = false;
 
-	/** If set, show items in a list (ul) */
-	protected boolean list = true;
-
 	/** If set, include the size display. */
 	protected boolean size = false;
 
 	/** If set, include a timestamp dispay. */
 	protected boolean timestamp = false;
-
 	/** The message that will provide title to display. */
 	protected Message title = null;
 
@@ -143,6 +145,10 @@ public class UiAttachments extends UiComponent implements Attachments
 		{
 			setTimestamp(Boolean.parseBoolean(timestamp));
 		}
+
+		// icon
+		String icon = StringUtil.trimToNull(xml.getAttribute("icon"));
+		if (icon != null) setIcon(icon);
 
 		Element settingsXml = XmlHelper.getChildElementNamed(xml, "title");
 		if (settingsXml != null)
@@ -266,9 +272,9 @@ public class UiAttachments extends UiComponent implements Attachments
 	/**
 	 * {@inheritDoc}
 	 */
-	public Attachments setRaw(boolean setting)
+	public Attachments setIcon(String icon)
 	{
-		this.raw = setting;
+		this.icon = icon;
 		return this;
 	}
 
@@ -278,6 +284,15 @@ public class UiAttachments extends UiComponent implements Attachments
 	public Attachments setList(boolean setting)
 	{
 		this.list = setting;
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Attachments setRaw(boolean setting)
+	{
+		this.raw = setting;
 		return this;
 	}
 
@@ -358,19 +373,28 @@ public class UiAttachments extends UiComponent implements Attachments
 				{
 					if (this.list) response.print("<li>");
 
-					// for folders
-					if (props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION))
+					// the icon
+					if (this.icon != null)
 					{
-						response.print("<img src = \"/library/image/" + ContentTypeImageService.getContentTypeImage("folder")
-								+ "\" style=\"border-style: none;\" />");
+						response.print("<img src = \"" + context.getUrl(this.icon)
+								+ "\" style=\"vertical-align:text-bottom; padding-right:0.3em; border-style: none;\" />");
 					}
-
-					// otherwise lookup the icon from the mime type
 					else
 					{
-						String type = props.getProperty(ResourceProperties.PROP_CONTENT_TYPE);
-						response.print("<img src = \"/library/image/" + ContentTypeImageService.getContentTypeImage(type)
-								+ "\" style=\"border-style: none;\" alt=\"" + type + "\"/>");
+						// for folders
+						if (props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION))
+						{
+							response.print("<img src = \"/library/image/" + ContentTypeImageService.getContentTypeImage("folder")
+									+ "\" style=\"vertical-align:text-bottom; padding-right:0.3em; border-style: none;\" />");
+						}
+
+						// otherwise lookup the icon from the mime type
+						else
+						{
+							String type = props.getProperty(ResourceProperties.PROP_CONTENT_TYPE);
+							response.print("<img src = \"/library/image/" + ContentTypeImageService.getContentTypeImage(type)
+									+ "\" style=\"vertical-align:text-bottom; padding-right:0.3em; border-style: none;\" alt=\"" + type + "\"/>");
+						}
 					}
 
 					// form the URL safely

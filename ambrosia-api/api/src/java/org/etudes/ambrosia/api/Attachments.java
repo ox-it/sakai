@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -48,6 +48,15 @@ public interface Attachments extends Component
 	 * @return self.
 	 */
 	Attachments setAttachments(PropertyReference attachments, String name);
+
+	/**
+	 * Set the icon for the navigation
+	 * 
+	 * @param url
+	 *        The full URL to the icon.
+	 * @return self.
+	 */
+	Attachments setIcon(String icon);
 
 	/**
 	 * Set the display to include only the raw reference strings as defined, with no checking to see if they are valid.
