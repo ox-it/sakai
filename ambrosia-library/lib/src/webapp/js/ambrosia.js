@@ -429,6 +429,35 @@ function ambrosiaValidateFloat(source, min, max, validateId)
 	return true;
 }
 
+function ambrosiaValidateFloats(id, count, validateId)
+{
+	for (i=0; i<count; i++)
+	{
+		var el = document.getElementById(id+i);
+		if (el != null)
+		{
+			var str = trim(el.value);
+			if (str != "")
+			{
+				var value = parseFloat(str, 10);
+				if (isNaN(value))
+				{
+					ambrosiaShowInline(validateId);
+					return false;
+				}
+				if (value != str)
+				{
+					ambrosiaShowInline(validateId);
+					return false;
+				}
+			}
+		}
+	}
+	
+	ambrosiaHideInline(validateId);
+	return true;
+}
+
 function ambrosiaCountSummaryFloat(source, shadowId, summaryId, defaultValue)
 {
 	// get the objects
