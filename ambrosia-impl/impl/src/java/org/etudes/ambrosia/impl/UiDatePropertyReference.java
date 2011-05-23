@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -26,6 +26,7 @@ package org.etudes.ambrosia.impl;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -183,6 +184,13 @@ public class UiDatePropertyReference extends UiPropertyReference implements Date
 		try
 		{
 			Date date = format.parse(addSeconds(value));
+
+			// sanity check year - must be between 2000 and 2099
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(date);
+			int year = cal.get(Calendar.YEAR);
+			if ((year < 2000) || (year > 2099)) throw new IllegalArgumentException();
+
 			return Long.toString(date.getTime());
 		}
 		catch (ParseException e)
