@@ -16,6 +16,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.TwoFactorAuthentication;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -25,6 +27,7 @@ import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.StoredState;
+import org.sakaiproject.portal.api.Portal.LoginRoute;
 import org.sakaiproject.presence.cover.PresenceService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -213,6 +216,9 @@ public class HierarchyHandler extends SiteHandler {
 		if (!node.canView())
 		{
 			String userId = session.getUserId();
+			TwoFactorAuthentication twoFactorAuthentication = 
+				(TwoFactorAuthentication)ComponentManager.get(TwoFactorAuthentication.class);
+			
 			// if not logged in, give them a chance
 			if (userId == null)
 			{
@@ -222,6 +228,13 @@ public class HierarchyHandler extends SiteHandler {
 				portalService.setStoredState(ss);
 				portal.doLogin(req, res, session, req.getPathInfo(), Portal.LoginRoute.NONE);
 			}
+			
+			else if (twoFactorAuthentication.isTwoFactorRequired("/site/"+site.getId())
+					&& !twoFactorAuthentication.hasTwoFactor())
+			{
+				portal.doLogin(req, res, session, req.getPathInfo(), LoginRoute.TWOFACTOR);
+			}
+			
 			else
 			{
 				String siteId = site.getId();

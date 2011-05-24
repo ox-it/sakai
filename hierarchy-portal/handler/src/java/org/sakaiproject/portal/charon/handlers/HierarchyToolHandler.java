@@ -7,11 +7,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.TwoFactorAuthentication;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.Portal.LoginRoute;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -99,6 +102,8 @@ public class HierarchyToolHandler extends ToolHandler {
 		// bypass)
 		if (tool.getAccessSecurity() == Tool.AccessSecurity.PORTAL)
 		{
+			TwoFactorAuthentication twoFactorAuthentication = 
+				(TwoFactorAuthentication)ComponentManager.get(TwoFactorAuthentication.class);
 			Site site = null;
 			try
 			{
@@ -115,6 +120,11 @@ public class HierarchyToolHandler extends ToolHandler {
 				if (session.getUserId() == null)
 				{
 					portal.doLogin(req, res, session, req.getPathInfo(), false);
+				}
+				else if (twoFactorAuthentication.isTwoFactorRequired("/site/"+siteTool.getSiteId())
+						&& !twoFactorAuthentication.hasTwoFactor())
+				{
+					portal.doLogin(req, res, session, req.getPathInfo(), LoginRoute.TWOFACTOR);
 				}
 				else
 				{
