@@ -958,9 +958,6 @@ public class SubmissionImpl implements Submission
 	{
 		// ASSSUMPTION: this will be a placeholder submission
 
-		// not yet started
-		if (getStartDate() != null) return Boolean.FALSE;
-
 		// published
 		if (!getAssessment().getPublished()) return Boolean.FALSE;
 
