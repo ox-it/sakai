@@ -49,13 +49,27 @@ evalsys.instrumentBlockItem = function(){
     
     $('.blockItemGroup').each(function(x){
         var headerCol = [];
-        /*
+	/*
          add to the headerCol array the header string values for the choices
          */
         $(this).find('.actualHeader').each(function(){
             headerCol.push($(this).text());
         });
-        /*
+
+	/*
+	Fix tool tips for Rating Scale items without an N/A value
+	*/        
+	var foundNA = false;
+        jQuery.each(headerCol, function(i,value) {
+        	if (value == 'N/A') {
+            foundNA = true;
+        	}
+        });
+        if (!foundNA) {
+        	headerCol.push("");
+        }
+
+	/*
          add to the headerCol the header string values for the NA choice if present
          */
         $(this).find('.actualHeaderNA').each(function(){
