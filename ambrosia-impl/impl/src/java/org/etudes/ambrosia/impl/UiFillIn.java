@@ -97,6 +97,9 @@ public class UiFillIn extends UiComponent implements FillIn
 	/** The message for the validation alert. */
 	protected Message validationMsg = new UiMessage().setMessage("float-edit-validate");
 
+	/** The message for the validation alert. */
+	protected Message validationPluralMsg = new UiMessage().setMessage("float-edit-validate-plural");
+
 	/**
 	 * Public no-arg constructor.
 	 */
@@ -284,9 +287,6 @@ public class UiFillIn extends UiComponent implements FillIn
 			response.println(this.titleMessage.getMessage(context, focus) + "<br />");
 		}
 
-		// the validation failure message
-		String failureMsg = this.validationMsg.getMessage(context, focus);
-
 		// read the text
 		String fillInText = null;
 		String[] fillInParts = null;
@@ -459,6 +459,9 @@ public class UiFillIn extends UiComponent implements FillIn
 		// numeric validation display
 		if (this.numericAnswers && !readOnly)
 		{
+			// the validation failure message (plural or singular)
+			String failureMsg = (boxCount > 1) ? this.validationPluralMsg.getMessage(context, focus) : this.validationMsg.getMessage(context, focus);
+
 			// validate failure alert (will display:inline when made visible)
 			response.print("<div style=\"display:none\" id=\"invalid_" + id + "\">");
 			response.print("<img style=\"vertical-align:text-bottom; border-style: none;\" src=\"" + context.getUrl(this.invalidIcon) + "\" />");
