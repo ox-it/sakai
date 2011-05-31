@@ -185,11 +185,11 @@ public class UiDatePropertyReference extends UiPropertyReference implements Date
 		{
 			Date date = format.parse(addSeconds(value));
 
-			// sanity check year - must be between 2000 and 2099
+			// sanity check year - must be between 1000 and 9999 (matched mysql DATE and DATETIME types validation)
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(date);
 			int year = cal.get(Calendar.YEAR);
-			if ((year < 2000) || (year > 2099)) throw new IllegalArgumentException();
+			if ((year < 1000) || (year > 9999)) throw new IllegalArgumentException();
 
 			return Long.toString(date.getTime());
 		}
