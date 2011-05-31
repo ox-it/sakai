@@ -29,12 +29,12 @@ table th {
     width: 40%;
 	height: 400px;
     float: left;
-	overflow-x: hidden;
-	overflow-y: auto;
+    overflow: auto;
 }
 
 #details {
     width: 59%;
+    
     float: right;
 }
 
