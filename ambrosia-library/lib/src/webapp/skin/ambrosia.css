@@ -318,7 +318,7 @@ Divider in a navigation bar between navigations (use in a span around a &nbsp;)
 
 /*
 Instructions (Instructions)
-Sakai ~ insruction
+Sakai ~ instruction
 */
 .ambrosiaInstructions
 {
@@ -332,7 +332,7 @@ Section treatment = "evaluation"
 {
 	padding: 0em 1em 0em 1em;
 	border: 3px double #A00000;
-	width: 70%;
+	width: 90%;
 }
 
 /*
