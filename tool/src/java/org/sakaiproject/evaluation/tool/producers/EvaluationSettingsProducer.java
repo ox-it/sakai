@@ -370,7 +370,7 @@ public class EvaluationSettingsProducer implements ViewComponentProducer, ViewPa
         UIBranchContainer showModifyResponsesAllowedToStu = UIBranchContainer.make(form, "showModifyResponsesAllowedToStu:");
         generateSettingsControlledCheckbox(showModifyResponsesAllowedToStu, 
                 "modifyResponsesAllowed", evaluationOTP + "modifyResponsesAllowed", studentModifyReponses, form,
-                EvalUtils.checkStateAfter(currentEvalState, EvalConstants.EVALUATION_STATE_ACTIVE, true) );
+                EvalUtils.checkStateAfter(currentEvalState, EvalConstants.EVALUATION_STATE_ACTIVE, true), true );
         
         Boolean allRolesCanParticipate = (Boolean) settings.get(EvalSettings.ALLOW_ALL_SITE_ROLES_TO_RESPOND);
         
@@ -573,11 +573,19 @@ public class EvaluationSettingsProducer implements ViewComponentProducer, ViewPa
      * @param systemSetting the system setting value which controls this checkbox
      * @param form the form which the control is part of
      * @param disabled if true then disable the control, else it is enabled (for disabling based on state)
+     * @param checked default setting for this checkbox
      */
     protected void generateSettingsControlledCheckbox(UIContainer parent, String rsfId, 
             String binding, Boolean systemSetting, UIForm form, boolean disabled) {
+    	
+    	generateSettingsControlledCheckbox(parent, rsfId, 
+                binding, systemSetting, form, disabled, false);
+    }
+    
+    protected void generateSettingsControlledCheckbox(UIContainer parent, String rsfId, 
+            String binding, Boolean systemSetting, UIForm form, boolean disabled, boolean checked) {
         if (systemSetting == null) {
-            UIBoundBoolean checkbox = UIBoundBoolean.make(parent, rsfId, binding);
+            UIBoundBoolean checkbox = UIBoundBoolean.make(parent, rsfId, binding, checked);
             UIMessage.make(parent, rsfId + "_label", "evalsettings." + rsfId + ".label")
             .decorate( new UILabelTargetDecorator(checkbox) );
             if (disabled) {
