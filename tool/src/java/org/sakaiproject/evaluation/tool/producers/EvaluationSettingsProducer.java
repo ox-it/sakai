@@ -324,7 +324,12 @@ public class EvaluationSettingsProducer implements ViewComponentProducer, ViewPa
             UISelectLabel.make(radiobranch, "radioLabel", resultsSharingId, i)
             .decorate( new UILabelTargetDecorator(choice) );
         }
-
+        
+        //WL-1632 
+        boolean hierarchyOptions = (Boolean) settings.get(EvalSettings.DISPLAY_HIERARCHY_OPTIONS);
+        if (((Boolean) settings.get(EvalSettings.DISPLAY_HIERARCHY_OPTIONS)).booleanValue()) {
+        	UIMessage.make(form, "resultsviewableadminnote", "evalsettings.results.viewable.admin.note");
+        }
 
         // show the view date only if allowed by system settings
         if (((Boolean) settings.get(EvalSettings.EVAL_USE_VIEW_DATE)).booleanValue()) {
