@@ -67,12 +67,6 @@ public class NavBarRenderer {
         }
         
         renderLink(joint, SummaryProducer.VIEW_ID, "summary.page.title");
-
-        System.out.println("NavbarRenderer adminAllowedToSee ["+adminAllowedToSee+"]");
-        System.out.println("NavbarRenderer showMyToplinks ["+showMyToplinks+"]");
-        System.out.println("NavbarRenderer canBeginEvaluation ["+canBeginEvaluation+"]");
-        System.out.println("NavbarRenderer canCreateTemplate ["+canCreateTemplate+"]");
-        System.out.println("NavbarRenderer hideQuestionBank ["+hideQuestionBank+"]");
         
         if(adminAllowedToSee || showMyToplinks) {
         	
@@ -82,10 +76,10 @@ public class NavBarRenderer {
         	
         	if (adminAllowedToSee || canCreateTemplate) {
         		renderLink(joint, ControlTemplatesProducer.VIEW_ID, "controltemplates.page.title");
-        		//if (adminAllowedToSee || ! hideQuestionBank) {
+        		if (adminAllowedToSee || ! hideQuestionBank) {
         			renderLink(joint, ControlItemsProducer.VIEW_ID, "controlitems.page.title");
-        			renderLink(joint, ControlScalesProducer.VIEW_ID, "controlscales.page.title");
-        		//}
+        		}
+        		renderLink(joint, ControlScalesProducer.VIEW_ID, "controlscales.page.title");
         	}
 
         	if (adminAllowedToSee || canBeginEvaluation) {
