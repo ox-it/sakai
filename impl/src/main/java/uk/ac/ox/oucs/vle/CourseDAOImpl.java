@@ -83,7 +83,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				criteria.add(Expression.eq("dept", deptId));
 				criteria.add(Expression.or(Expression.isNull("subunit"),Expression.eq("subunit", "")));
 				if (external) {
-					criteria.add(Expression.eq("hideExternal", false));
+					criteria.add(Expression.eq("publicView", true));
 				}
 				switch (range) { 
 					case UPCOMING:
@@ -110,7 +110,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
 				criteria.add(Expression.eq("subunit", subunitId));
 				if (external) {
-					criteria.add(Expression.eq("hideExternal", false));
+					criteria.add(Expression.eq("publicView", true));
 				}
 				switch (range) { 
 					case UPCOMING:
@@ -296,7 +296,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					criteria.add(Expression.ilike("title", word, MatchMode.ANYWHERE));
 				}
 				if (external) {
-					criteria.add(Expression.eq("hideExternal", false));
+					criteria.add(Expression.eq("publicView", true));
 				}
 				switch(range) {
 					case UPCOMING:

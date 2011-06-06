@@ -37,8 +37,8 @@ public class CourseGroupImpl implements CourseGroup {
 		return courseGroupDAO.getDept();
 	}
 	
-	public boolean getHideExternal() {
-		return courseGroupDAO.getHideExternal();
+	public boolean getPublicView() {
+		return courseGroupDAO.getPublicView();
 	}
 
 	public List<CourseComponent> getComponents() {

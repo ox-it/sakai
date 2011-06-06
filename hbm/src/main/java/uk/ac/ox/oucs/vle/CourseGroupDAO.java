@@ -23,7 +23,7 @@ public class CourseGroupDAO  implements java.io.Serializable {
 	private String departmentName;
 	private String subunit;
 	private String subunitName;
-	private boolean hideExternal;
+	private boolean publicView;
 
     public CourseGroupDAO() {
     }
@@ -121,12 +121,12 @@ public class CourseGroupDAO  implements java.io.Serializable {
 		this.subunitName = subunitName;
 	}
 	
-	public boolean getHideExternal() {
-		return hideExternal;
+	public boolean getPublicView() {
+		return publicView;
 	}
 
-	public void setHideExternal(boolean hideExternal) {
-		this.hideExternal = hideExternal;
+	public void setPublicView(boolean publicView) {
+		this.publicView = publicView;
 	}
 
 }

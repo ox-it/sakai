@@ -184,7 +184,7 @@ public class PopulatorImpl implements Populator{
 					"SELECT DISTINCT au.id, au.assessment_unit_code, au.title, " +
 					" Department.department_code, Department.department_name, " +
 					" SubUnit.sub_unit_code, SubUnit.sub_unit_name, " +
-					" au.description, Employee.webauth_code " +
+					" au.description, au.public_view, Employee.webauth_code " +
 					" FROM AssessmentUnit au " + 
 					" LEFT JOIN Employee ON au.course_administrator_employee_id = Employee.id " + 
 					" INNER JOIN TeachingComponentAssessmentUnit ta ON ta.assessment_unit_id = au.id " +
@@ -199,6 +199,7 @@ public class PopulatorImpl implements Populator{
 				String departmentName = rs.getString("department_name");
 				String subunitCode = rs.getString("sub_unit_code");
 				String subunitName = rs.getString("sub_unit_name");
+				int publicViewInt = rs.getInt("public_view");
 				String description = rs.getString("description");
 				String administrator = rs.getString("webauth_code");
 				if (administrator == null || administrator.trim().length() == 0) {
@@ -224,6 +225,8 @@ public class PopulatorImpl implements Populator{
 				groupDao.setDescription(description);
 				groupDao.setDepartmentName(departmentName);
 				groupDao.setSubunitName(subunitName);
+				groupDao.setPublicView(publicViewInt > 1 ? false : true );
+				System.out.println("PopulatorImpl publicView ["+groupDao.getId()+":"+publicViewInt+":"+groupDao.getPublicView()+"]");
 				dao.save(groupDao);
 				if (created) {
 					groupCreated++;
