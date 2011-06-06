@@ -441,6 +441,31 @@ public class SubmissionImpl implements Submission
 	/**
 	 * {@inheritDoc}
 	 */
+	public Date getEvaluatedDate()
+	{
+		Date rv = this.getEvaluation().getAttribution().getDate();
+		for (Answer answer : this.answers)
+		{
+			Date d = answer.getEvaluation().getAttribution().getDate();
+			if (d != null)
+			{
+				if (rv == null)
+				{
+					rv = d;
+				}
+				else if (d.after(rv))
+				{
+					rv = d;
+				}
+			}
+		}
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public SubmissionEvaluation getEvaluation()
 	{
 		return this.evaluation;

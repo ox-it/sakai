@@ -118,6 +118,11 @@ public interface Submission
 	Long getElapsedTime();
 
 	/**
+	 * @return The date of the latest evaluation in any answer or overall.  May return NULL if there have been none.
+	 */
+	Date getEvaluatedDate();
+
+	/**
 	 * Access the evaluation for the overall submission.
 	 * 
 	 * @return The evaluation for the overall submission, or null if there is none.
