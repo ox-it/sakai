@@ -1580,6 +1580,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	 */
 	public void markReviewed(Submission submission)
 	{
+		// only if the submission is released
+		if (!submission.getIsReleased()) return;
+
 		// only if the current user is the submission user
 		String userId = sessionManager.getCurrentSessionUserId();
 		if (!submission.getUserId().equals(userId)) return;
