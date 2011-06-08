@@ -217,8 +217,7 @@ public class LocalTemplateLogic {
       EvalScale currScale = new EvalScale(commonLogic.getCurrentUserId(), 
             null, EvalConstants.SCALE_MODE_SCALE, 
             EvalConstants.SHARING_PRIVATE, Boolean.FALSE);
-      currScale.setOptions(Arrays.copyOf(EvalToolConstants.defaultInitialScaleValues, 
-      		EvalToolConstants.defaultInitialScaleValues.length));
+      currScale.setOptions((String[]) arrayCopy(EvalToolConstants.defaultInitialScaleValues));
       currScale.setIdeal(EvalToolConstants.NULL); // TODO - temp until RSF 0.7.3
       return currScale;
    }
@@ -278,6 +277,13 @@ public class LocalTemplateLogic {
             item.setScale(null);            
          }
       }
+   }
+   
+   private Object[] arrayCopy(Object[] original) {
+		Class arrayType = original.getClass().getComponentType();
+		Object[] copy = (Object[])java.lang.reflect.Array.newInstance(arrayType, original.length);
+		System.arraycopy(original, 0, copy, 0, original.length);
+		return copy;
    }
 
 
