@@ -11,6 +11,7 @@ public class CourseGroupImpl implements CourseGroup {
 	private CourseGroupDAO courseGroupDAO;
 	private CourseSignupServiceImpl impl;
 	private List<CourseComponent> components;
+	private List<Person> administrators;
 	
 	public CourseGroupImpl(CourseGroupDAO courseGroupDAO, CourseSignupServiceImpl impl) {
 		this.courseGroupDAO = courseGroupDAO;
@@ -58,9 +59,19 @@ public class CourseGroupImpl implements CourseGroup {
 		return components;
 	}
 
-	public Person getAdministrator() {
-		UserProxy user = impl.loadUser(courseGroupDAO.getAdministrator());
-		return (user != null)? new PersonImpl(user.getId(), user.getName(), user.getEmail(), Collections.EMPTY_LIST, null, user.getType()):null;
+	public List<Person> getAdministrators() {
+		if (administrators == null) {
+			administrators = new ArrayList<Person>();
+			for (String component:  courseGroupDAO.getAdministrators()) {
+				UserProxy user = impl.loadUser(component);
+				if (null != user) {
+					Person person = new PersonImpl(user.getId(), user.getName(), user.getEmail(), Collections.EMPTY_LIST, null, user.getType());
+					administrators.add(person);
+				}
+			}
+		}
+		
+		return administrators;
 	}
 
 }

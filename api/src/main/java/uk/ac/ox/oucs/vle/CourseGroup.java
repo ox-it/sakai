@@ -15,8 +15,8 @@ public interface CourseGroup {
 	public String getDepartmentCode();
 	
 	public boolean getPublicView();
-	
-	public Person getAdministrator();
 
 	public List<CourseComponent> getComponents();
+	
+	public List<Person> getAdministrators();
 }

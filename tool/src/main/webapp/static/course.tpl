@@ -23,11 +23,13 @@
                             Module Administrator
                         </th>
                         <td>
-                        	{if administrator.email}
-								<a href="mailto:${administrator.email}">${administrator.name}</a>
-							{else}
-								${administrator.name}
-							{/if}
+                        	{for administrator in administrators}
+                        		{if administrator.email}
+									<a href="mailto:${administrator.email}">${administrator.name}</a>
+								{else}
+									${administrator.name}
+								{/if}
+							{/for}
                         </td>
                     </tr>
                     <tr>

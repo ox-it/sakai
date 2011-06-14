@@ -70,8 +70,8 @@ public class ModuleImpl implements Module {
 			
 			if (!closings.isEmpty()) {
 				
-				if (validString(group.getAdministrator())) {
-					sendModuleClosingEmail(group, closings, 
+				for (String administrator : group.getAdministrators()) {
+					sendModuleClosingEmail(administrator, group, closings, 
 							"signup.closing.subject", 
 							"signup.closing.body");
 				}
@@ -79,14 +79,14 @@ public class ModuleImpl implements Module {
 		}
 	}
 	
-	private void sendModuleClosingEmail(CourseGroupDAO group, 
+	private void sendModuleClosingEmail(String administrator, CourseGroupDAO group, 
 			Collection<CourseComponentDAO> components, 
 			String subjectKey, 
 			String bodyKey) {
 		
-		UserProxy recepient = proxy.findUserById(group.getAdministrator());
+		UserProxy recepient = proxy.findUserById(administrator);
 		if (recepient == null) {
-			log.warn("Failed to find user for sending email: "+ group.getAdministrator());
+			log.warn("Failed to find user for sending email: "+ administrator);
 			return;
 		}
 		

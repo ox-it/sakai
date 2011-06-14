@@ -216,7 +216,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 
 	private boolean isAdministrator(CourseGroupDAO groupGroup, String currentUserId, boolean defaultValue) {
 		boolean isAdmin = defaultValue;
-		if(groupGroup.getAdministrator().equals(currentUserId)) {
+		if (groupGroup.getAdministrators().contains(currentUserId)) {
 				isAdmin = true;
 		}
 		return isAdmin;
@@ -225,7 +225,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	private boolean isAdministrator(CourseComponentDAO componentDao,
 			String userId, boolean defaultValue) {
 		for (CourseGroupDAO groupDao: componentDao.getGroups()) {
-			if (groupDao.getAdministrator().equals(userId)) {
+			if (groupDao.getAdministrators().contains(userId)) {
 				return true;
 			}
 		}
@@ -448,22 +448,22 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP);
 		
-		String adminId = groupDao.getAdministrator();
 		String url = proxy.getConfirmUrl(signupId);
-		if (adminId != null) {
+		
+		for (String adminId : groupDao.getAdministrators()) {
 			sendSignupEmail(adminId, signupDao, 
 					"signup.admin.subject", 
 					"signup.admin.body", 
 					new Object[]{url});
-		} else {
-			log.warn("Failed to send email as no administrator set for: "+ groupDao.getId());
 		}
 		
 		if (full) {
-			sendSignupWaitingEmail(adminId, signupDao, 
+			for (String adminId : groupDao.getAdministrators()) {
+				sendSignupWaitingEmail(adminId, signupDao, 
 					"signup.waiting.subject", 
 					"signup.waiting.body", 
 					new Object[]{url});
+			}
 		}
 	}
 	
@@ -594,7 +594,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	     * @param additionalBodyData Additional objects used to format the email body. Typically used for the confirm URL.
 		 */
 		if (sendEmail) {
-			sendSignupEmail(signupDao.getGroup().getAdministrator(), signupDao, "withdraw.admin.subject", "withdraw.admin.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
+			for (String administrator : signupDao.getGroup().getAdministrators())
+			sendSignupEmail(administrator, signupDao, "withdraw.admin.subject", "withdraw.admin.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
 		}
 	}
 

@@ -83,16 +83,17 @@
 		<property name="subunit" type="string" length="255"
 			index="course_group_subunit_idx" />
 		<property name="subunitName" type="string" length="255"/>
-			
-		<property name="administrator" type="string" length="64" /><!-- 
-			The administrator who is looking after this component. -->
 		<property name="description" type="string" length="4000"/>
-		<property name="publicView" type="boolean" not-null="true" />
+		<property name="publicView" type="boolean"/>
 		<set name="components" inverse="true" lazy="true" table="course_group_component"
 			fetch="join">
 			<key column="course_group" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO"
 				column="component" />
+		</set>
+		<set name="administrators" inverse="false" lazy="true" table="course_group_administrator">
+			<key column="course_group" not-null="true"/>
+			<element column="administrator" type="string" length="64" />
 		</set>
 		<set name="signups" inverse="true">
 			<key column="groupId"/>

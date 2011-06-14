@@ -11,7 +11,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -177,6 +179,17 @@ public class PopulatorImpl implements Populator{
 		int groupSeen = 0, groupUpdated = 0, groupCreated = 0;
 		int componentSeen = 0, componentUpdated = 0, componentCreated = 0;
 		try {
+			Set<String> administrators = new HashSet<String>();
+			String code = null;
+			String lastCode = null;
+			String grouptitle = null;
+			String departmentCode = null;
+			String departmentName = null;
+			String subunitCode = null;
+			String subunitName = null;
+			int publicViewInt = 0;
+			String description = null;
+			
 			con = ds.getConnection();
 			Statement st = con.createStatement();
 			// Import all course groups (from assessment units)
@@ -184,23 +197,43 @@ public class PopulatorImpl implements Populator{
 					"SELECT DISTINCT au.id, au.assessment_unit_code, au.title, " +
 					" Department.department_code, Department.department_name, " +
 					" SubUnit.sub_unit_code, SubUnit.sub_unit_name, " +
-					" au.description, au.public_view, Employee.webauth_code " +
+					" au.description, au.public_view, " +
+					" Employee.webauth_code " +
 					" FROM AssessmentUnit au " + 
-					" LEFT JOIN Employee ON au.course_administrator_employee_id = Employee.id " + 
+					" INNER JOIN AssessmentUnitEmployee ae ON au.id = ae.assessment_unit_id " +
+					" INNER JOIN Employee ON ae.employee_id = Employee.id  " + 
 					" INNER JOIN TeachingComponentAssessmentUnit ta ON ta.assessment_unit_id = au.id " +
 					" INNER JOIN TeachingComponent tc ON tc.id = ta.teaching_component_id " +
 					" INNER JOIN Department ON au.department_id = Department.id " + 
 					" LEFT JOIN SubUnit ON au.sub_unit_id = SubUnit.id;");
 			while(rs.next()) {
-				groupSeen++;
-				String code = rs.getString("assessment_unit_code");
-				String title = rs.getString("title");
-				String departmentCode = rs.getString("department_code");
-				String departmentName = rs.getString("department_name");
-				String subunitCode = rs.getString("sub_unit_code");
-				String subunitName = rs.getString("sub_unit_name");
-				int publicViewInt = rs.getInt("public_view");
-				String description = rs.getString("description");
+				
+				code = rs.getString("assessment_unit_code");
+				if (!code.equals(lastCode)) {
+					
+					groupSeen++;
+					
+					if (lastCode != null && !administrators.isEmpty()) {
+						
+						if (updateGroup(lastCode, grouptitle, departmentCode, subunitCode, description,
+							departmentName, subunitName, publicViewInt, administrators)) {
+							groupCreated++;
+						} else {
+							groupUpdated++;
+						}
+					}
+					
+					lastCode = code;
+					grouptitle = rs.getString("title");
+					departmentCode = rs.getString("department_code");
+					departmentName = rs.getString("department_name");
+					subunitCode = rs.getString("sub_unit_code");
+					subunitName = rs.getString("sub_unit_name");
+					publicViewInt = rs.getInt("public_view");
+					description = rs.getString("description");
+					administrators = new HashSet<String>();
+				}
+				
 				String administrator = rs.getString("webauth_code");
 				if (administrator == null || administrator.trim().length() == 0) {
 					logFailure(code, null, "No administrator set");
@@ -211,24 +244,14 @@ public class PopulatorImpl implements Populator{
 					logFailure(code, null, "Failed to find administrator " + administrator);
 					continue;
 				}
-				CourseGroupDAO groupDao = dao.findCourseGroupById(code);
-				boolean created = false;
-				if (groupDao == null) {
-					groupDao = dao.newCourseGroup(code, title, departmentCode, subunitCode);
-					created = true;
-				} else {
-					groupDao.setDept(departmentCode);
-					groupDao.setSubunit(subunitCode);
-					groupDao.setTitle(title);
-				}
-				groupDao.setAdministrator(user.getId());
-				groupDao.setDescription(description);
-				groupDao.setDepartmentName(departmentName);
-				groupDao.setSubunitName(subunitName);
-				groupDao.setPublicView(publicViewInt > 1 ? false : true );
-				System.out.println("PopulatorImpl publicView ["+groupDao.getId()+":"+publicViewInt+":"+groupDao.getPublicView()+"]");
-				dao.save(groupDao);
-				if (created) {
+				
+				administrators.add(user.getId());
+			}
+			
+			// End of ResultSet write the last coursegroup
+			if (lastCode != null && !administrators.isEmpty()) {
+				if (updateGroup(lastCode, grouptitle, departmentCode, subunitCode, description,
+						departmentName, subunitName, publicViewInt, administrators)) {
 					groupCreated++;
 				} else {
 					groupUpdated++;
@@ -408,21 +431,21 @@ public class PopulatorImpl implements Populator{
 					}
 					
 					assessmentUnitCode = assessmentUnitCode.trim();
-					CourseGroupDAO groupDao = dao.findCourseGroupById(assessmentUnitCode);
-					if (groupDao == null) {
+					CourseGroupDAO courseDao = dao.findCourseGroupById(assessmentUnitCode);
+					if (courseDao == null) {
 						logWarning(id, "Couldn't find course group of: "+ assessmentUnitCode);
 					} else {
-						componentDao.getGroups().add(groupDao);
+						componentDao.getGroups().add(courseDao);
 					}
 				} 
 			
 				if (null != componentDao) { // may have failed validation
 					assessmentUnitCode = assessmentUnitCode.trim();
-					CourseGroupDAO groupDao = dao.findCourseGroupById(assessmentUnitCode);
-					if (groupDao == null) {
+					CourseGroupDAO courseDao = dao.findCourseGroupById(assessmentUnitCode);
+					if (courseDao == null) {
 						logWarning(id, "Couldn't find course group of: "+ assessmentUnitCode);
 					} else {
-						componentDao.getGroups().add(groupDao);
+						componentDao.getGroups().add(courseDao);
 					}
 				}
 			}
@@ -453,6 +476,32 @@ public class PopulatorImpl implements Populator{
 			}
 		}
 
+	}
+	
+	private boolean updateGroup(String code, String title, String departmentCode, String subunitCode, 
+			String description, String departmentName, String subunitName, 
+			int publicView, Set<String> administrators) {
+		
+		System.out.println("Updategroup ["+code+":"+administrators.size()+":"+administrators.iterator().next()+"]");
+		
+		CourseGroupDAO groupDao = dao.findCourseGroupById(code);
+		boolean created = false;
+		if (groupDao == null) {
+			groupDao = dao.newCourseGroup(code, title, departmentCode, subunitCode);
+			created = true;
+		} else {
+			groupDao.setDept(departmentCode);
+			groupDao.setSubunit(subunitCode);
+			groupDao.setTitle(title);
+		}
+		groupDao.setDescription(description);
+		groupDao.setDepartmentName(departmentName);
+		groupDao.setSubunitName(subunitName);
+		groupDao.setPublicView(publicView > 1 ? false : true );
+		groupDao.setAdministrators(administrators);
+		dao.save(groupDao);
+		
+		return created;
 	}
 
 	/**

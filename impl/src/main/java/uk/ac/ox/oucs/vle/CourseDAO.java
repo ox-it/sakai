@@ -56,6 +56,5 @@ public interface CourseDAO {
 	List<CourseSignupDAO> findSignupPending(String currentUser);
 
 	void remove(CourseSignupDAO existingSignup);
-	
 
 }
