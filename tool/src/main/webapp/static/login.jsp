@@ -12,7 +12,7 @@
 			 <p>
 			 	<img style="float: left; margin: 0 10px 0 10px;" src="images/exclamation.gif" ></img>
 			 	<span style="font-family: 'Trebuchet MS',Verdana,Geneva,Arial,Helvetica,sans-serif; font-size: 80%; color: #FF5555;">
-			 		Sorry! You need to login first you plonker!
+			 		Sorry! You need to login before you can access this page.
 			 	</span>
 			 </p>
 		</div>
