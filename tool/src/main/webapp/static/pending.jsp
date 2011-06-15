@@ -1,5 +1,12 @@
 <%@ page import="org.sakaiproject.component.cover.ServerConfigurationService" %>
+<%@ page import="org.sakaiproject.user.cover.UserDirectoryService" %>
 <%@ page session="false" %>
+<%
+if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+	String redirectURL = "login.jsp";
+    response.sendRedirect(redirectURL);
+}
+%>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>

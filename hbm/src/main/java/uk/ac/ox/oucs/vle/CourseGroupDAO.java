@@ -20,6 +20,7 @@ public class CourseGroupDAO  implements java.io.Serializable {
 	private String departmentName;
 	private String subunit;
 	private String subunitName;
+	private String contactEmail;
 	private boolean publicView;
 
     public CourseGroupDAO() {
@@ -117,6 +118,14 @@ public class CourseGroupDAO  implements java.io.Serializable {
 
 	public void setPublicView(boolean publicView) {
 		this.publicView = publicView;
+	}
+	
+	public String getContactEmail() {
+		return contactEmail;
+	}
+
+	public void setContactEmail(String contactEmail) {
+		this.contactEmail = contactEmail;
 	}
 
 }

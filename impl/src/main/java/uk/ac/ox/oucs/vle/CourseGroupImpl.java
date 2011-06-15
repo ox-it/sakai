@@ -41,6 +41,10 @@ public class CourseGroupImpl implements CourseGroup {
 	public boolean getPublicView() {
 		return courseGroupDAO.getPublicView();
 	}
+	
+	public String getContactEmail() {
+		return courseGroupDAO.getContactEmail();
+	}
 
 	public List<CourseComponent> getComponents() {
 		if (components == null) {

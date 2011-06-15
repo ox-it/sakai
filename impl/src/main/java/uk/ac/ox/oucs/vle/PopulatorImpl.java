@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -187,6 +186,7 @@ public class PopulatorImpl implements Populator{
 			String departmentName = null;
 			String subunitCode = null;
 			String subunitName = null;
+			String divisionEmail = null;
 			int publicViewInt = 0;
 			String description = null;
 			
@@ -197,6 +197,7 @@ public class PopulatorImpl implements Populator{
 					"SELECT DISTINCT au.id, au.assessment_unit_code, au.title, " +
 					" Department.department_code, Department.department_name, " +
 					" SubUnit.sub_unit_code, SubUnit.sub_unit_name, " +
+					" Division.division_wide_email, " +
 					" au.description, au.public_view, " +
 					" Employee.webauth_code " +
 					" FROM AssessmentUnit au " + 
@@ -205,7 +206,8 @@ public class PopulatorImpl implements Populator{
 					" INNER JOIN TeachingComponentAssessmentUnit ta ON ta.assessment_unit_id = au.id " +
 					" INNER JOIN TeachingComponent tc ON tc.id = ta.teaching_component_id " +
 					" INNER JOIN Department ON au.department_id = Department.id " + 
-					" LEFT JOIN SubUnit ON au.sub_unit_id = SubUnit.id;");
+					" LEFT JOIN SubUnit ON au.sub_unit_id = SubUnit.id " +
+					" INNER JOIN Division ON Department.division_id = Division.id;");
 			while(rs.next()) {
 				
 				code = rs.getString("assessment_unit_code");
@@ -216,7 +218,7 @@ public class PopulatorImpl implements Populator{
 					if (lastCode != null && !administrators.isEmpty()) {
 						
 						if (updateGroup(lastCode, grouptitle, departmentCode, subunitCode, description,
-							departmentName, subunitName, publicViewInt, administrators)) {
+							departmentName, subunitName, publicViewInt, divisionEmail, administrators)) {
 							groupCreated++;
 						} else {
 							groupUpdated++;
@@ -229,6 +231,7 @@ public class PopulatorImpl implements Populator{
 					departmentName = rs.getString("department_name");
 					subunitCode = rs.getString("sub_unit_code");
 					subunitName = rs.getString("sub_unit_name");
+					divisionEmail = rs.getString("division_wide_email");
 					publicViewInt = rs.getInt("public_view");
 					description = rs.getString("description");
 					administrators = new HashSet<String>();
@@ -251,7 +254,7 @@ public class PopulatorImpl implements Populator{
 			// End of ResultSet write the last coursegroup
 			if (lastCode != null && !administrators.isEmpty()) {
 				if (updateGroup(lastCode, grouptitle, departmentCode, subunitCode, description,
-						departmentName, subunitName, publicViewInt, administrators)) {
+						departmentName, subunitName, publicViewInt, divisionEmail, administrators)) {
 					groupCreated++;
 				} else {
 					groupUpdated++;
@@ -480,7 +483,7 @@ public class PopulatorImpl implements Populator{
 	
 	private boolean updateGroup(String code, String title, String departmentCode, String subunitCode, 
 			String description, String departmentName, String subunitName, 
-			int publicView, Set<String> administrators) {
+			int publicView, String divisionEmail, Set<String> administrators) {
 		
 		System.out.println("Updategroup ["+code+":"+administrators.size()+":"+administrators.iterator().next()+"]");
 		
@@ -498,6 +501,7 @@ public class PopulatorImpl implements Populator{
 		groupDao.setDepartmentName(departmentName);
 		groupDao.setSubunitName(subunitName);
 		groupDao.setPublicView(publicView > 1 ? false : true );
+		groupDao.setContactEmail(divisionEmail);
 		groupDao.setAdministrators(administrators);
 		dao.save(groupDao);
 		

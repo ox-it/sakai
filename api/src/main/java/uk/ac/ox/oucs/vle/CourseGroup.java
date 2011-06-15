@@ -15,6 +15,8 @@ public interface CourseGroup {
 	public String getDepartmentCode();
 	
 	public boolean getPublicView();
+	
+	public String getContactEmail();
 
 	public List<CourseComponent> getComponents();
 	
