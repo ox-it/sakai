@@ -139,6 +139,24 @@
 								<model ref="sort_direction" />
 								<model ref="assessment.id" />
 							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="survey" reversed="TRUE" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE">
+							<title>
+								<message>
+									<model ref="assessment.title" type="text" missing="no-title" />
+								</message>
+							</title>
+							<destination template="/assessment_stats/{0}{1}/{2}">
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="survey" />
+							</included>
 						</navigation>
 					</container>
 				</column>
@@ -202,6 +220,7 @@
 								<model ref="assessment.id" />
 							</destination>
 							<included>
+								<compareDecision model="assessment.type" constant="survey" reversed="TRUE" />
 								<decision model="assessment.hasPoints" />
 								<decision model="assessment.hasUnscoredSubmissions" />
 							</included>
@@ -214,6 +233,36 @@
 								<model ref="assessment.id" />
 							</destination>
 							<included>
+								<compareDecision model="assessment.type" constant="survey" reversed="TRUE" />
+								<decision model="assessment.isLive" />
+								<orDecision>
+									<decision reversed="TRUE" model="assessment.hasPoints" />
+									<decision reversed="TRUE" model="assessment.hasUnscoredSubmissions" />
+								</orDecision>
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="unscored-alt">
+							<icon icon="/icons/grade.png" />
+							<destination template="/assessment_stats/{0}{1}/{2}">
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="survey" />
+								<decision model="assessment.hasPoints" />
+								<decision model="assessment.hasUnscoredSubmissions" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="live-alt">
+							<icon icon="/icons/grade_student.png" />
+							<destination template="/assessment_stats/{0}{1}/{2}">
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="survey" />
 								<decision model="assessment.isLive" />
 								<orDecision>
 									<decision reversed="TRUE" model="assessment.hasPoints" />

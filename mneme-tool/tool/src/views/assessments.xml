@@ -63,6 +63,7 @@
 								<model ref="assessment.id" />
 							</destination>
 							<included>
+								<compareDecision model="assessment.type" constant="survey" reversed="TRUE" />
 								<decision reversed="TRUE" model="assessment.formalCourseEval" />
 								<decision model="assessment.published" />
 								<decision model="assessment.isValid" />
@@ -79,6 +80,39 @@
 								<model ref="assessment.id" />
 							</destination>
 							<included>
+								<compareDecision model="assessment.type" constant="survey" reversed="TRUE" />
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+								<decision model="assessment.published" />
+								<decision model="assessment.isValid" />
+								<decision model="assessment.isLive" />
+								<decision model="assessment.hasPoints" />
+								<decision model="assessment.hasUnscoredSubmissions" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="live-alt">
+							<icon icon="/icons/grade_student.png" style="LEFT" />
+							<destination template="/assessment_stats/0A/{0}">
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="survey" />
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+								<decision model="assessment.published" />
+								<decision model="assessment.isValid" />
+								<decision model="assessment.isLive" />
+								<orDecision>
+									<decision reversed="TRUE" model="assessment.hasPoints" />
+									<decision reversed="TRUE" model="assessment.hasUnscoredSubmissions" />
+								</orDecision>
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="unscored-alt">
+							<icon icon="/icons/grade.png" style="LEFT" />
+							<destination template="/assessment_stats/0A/{0}">
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="survey" />
 								<decision reversed="TRUE" model="assessment.formalCourseEval" />
 								<decision model="assessment.published" />
 								<decision model="assessment.isValid" />

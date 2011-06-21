@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -38,6 +38,7 @@ import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentService;
+import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -109,7 +110,7 @@ public class AssessmentStatsView extends ControllerImpl
 				SubmissionService.FindAssessmentSubmissionsSort.sdate_a, Boolean.FALSE, null, null, null, null);
 		context.put("submissions", submissions);
 
-		computePercentComplete(submissions, context);
+		computePercentComplete(assessment, submissions, context);
 
 		uiService.render(ui, context);
 	}
@@ -167,12 +168,14 @@ public class AssessmentStatsView extends ControllerImpl
 	/**
 	 * Compute the percent complete for the set of submission.
 	 * 
+	 * @param assessment
+	 *        The assessment.
 	 * @param submissions
 	 *        The submissions.
 	 * @param context
 	 *        The context.
 	 */
-	protected void computePercentComplete(List<Submission> submissions, Context context)
+	protected void computePercentComplete(Assessment assessment, List<Submission> submissions, Context context)
 	{
 		Set<String> users = new HashSet<String>();
 		int complete = 0;
@@ -197,5 +200,8 @@ public class AssessmentStatsView extends ControllerImpl
 		context.put("complete-percent", Integer.valueOf(pct));
 		context.put("complete-complete", Integer.valueOf(complete));
 		context.put("complete-total", Integer.valueOf(users.size()));
+
+		// if >= 3 submissions, we can show survey results - we can show results from other types with any count
+		context.put("complete-show", Boolean.valueOf((assessment.getType() != AssessmentType.survey) || (complete >= 3)));
 	}
 }

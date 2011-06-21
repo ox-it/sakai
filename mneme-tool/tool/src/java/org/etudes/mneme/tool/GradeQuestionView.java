@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -43,6 +43,7 @@ import org.etudes.mneme.api.Answer;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentService;
+import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.SubmissionService;
@@ -120,6 +121,13 @@ public class GradeQuestionView extends ControllerImpl
 			return;
 		}
 
+		// nor a survey
+		if (assessment.getType() == AssessmentType.survey)
+		{
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+
 		context.put("assessment", assessment);
 
 		// question
@@ -191,8 +199,8 @@ public class GradeQuestionView extends ControllerImpl
 		context.put("paging", paging);
 
 		// get the answers - from all submissions
-		List<Answer> answers = this.submissionService.findSubmissionAnswers(assessment, question, sort, paging.getSize() == 0 ? null : paging
-				.getCurrent(), paging.getSize() == 0 ? null : paging.getSize());
+		List<Answer> answers = this.submissionService.findSubmissionAnswers(assessment, question, sort,
+				paging.getSize() == 0 ? null : paging.getCurrent(), paging.getSize() == 0 ? null : paging.getSize());
 		context.put("answers", answers);
 
 		// so we know we are grading
