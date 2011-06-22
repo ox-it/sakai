@@ -14,7 +14,14 @@
 
 package org.sakaiproject.evaluation.tool;
 
+import java.util.HashMap;
+
+import org.sakaiproject.email.api.EmailMessage;
 import org.sakaiproject.evaluation.logic.EvalEmailsLogic;
+import org.sakaiproject.evaluation.logic.EvalEvaluationService;
+import org.sakaiproject.evaluation.logic.model.EvalEmailMessage;
+import org.sakaiproject.evaluation.logic.model.EvalGroup;
+import org.sakaiproject.evaluation.model.EvalEvaluation;
 import org.sakaiproject.evaluation.utils.EvalUtils;
 
 import uk.org.ponder.messageutil.TargettedMessage;
@@ -41,6 +48,11 @@ public class SendEmailsBean {
     private EvalEmailsLogic emailsLogic;
     public void setEmailsLogic(EvalEmailsLogic emailsLogic) {
         this.emailsLogic = emailsLogic;
+    }
+    
+    private EvalEvaluationService evalEvaluationService;
+    public void setEvalEvaluationService(EvalEvaluationService evalEvaluationService) {
+    	this.evalEvaluationService = evalEvaluationService;
     }
 
     private TargettedMessageList messages;
@@ -69,8 +81,10 @@ public class SendEmailsBean {
         if (evalGroupId != null) {
             evalGroupIds = new String[] {evalGroupId};
         }
-        //String[] sent = emailsLogic.sendEmailMessages(message, subject, evaluationId, evalGroupIds, sendToConstant);
-        String[] sent = emailsLogic.sendEmailMessages(message, subject, evaluationId, evalGroupIds, sendTo);
+        EvalEvaluation evaluation = evalEvaluationService.getEvaluationById(evaluationId);
+        
+        EvalEmailMessage emailMessage = emailsLogic.makeEmailMessage(message, subject, evaluation, null, new HashMap<String, String>());
+        String sent[] = emailsLogic.sendEmailMessages(emailMessage.message, emailMessage.subject, evaluationId, evalGroupIds, sendTo);
         
         messages.addMessage( new TargettedMessage("evalnotify.sent.mails",
                 new Object[] { sent.length }, TargettedMessage.SEVERITY_INFO));
