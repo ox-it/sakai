@@ -36,15 +36,24 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<script type="text/javascript" src="lib/signup.js"></script>
 	<script type="text/javascript" src="lib/Text.js"></script>
 	<script type="text/javascript" src="lib/serverDate.js"></script>
+	<script type="text/javascript" src="lib/QueryData.js"></script>
 			
 	<script type="text/javascript">
 			jQuery(function() {
+
+				// extract the GET data
+				var getData = new QueryData();
+				var defaultNodes = "<%= ToolManager.getCurrentPlacement().getConfig().getProperty("default-nodes", "root")%>".split(",");
+				var openCourse;
 				
 				// The site to load the static files from.
 				var signupSiteId = "/access/content/group/<%= ServerConfigurationService.getString("course-signup.site-id", "course-signup") %>";
-				var defaultNodes = "<%= ToolManager.getCurrentPlacement().getConfig().getProperty("default-nodes", "root")%>".split(",");
 				var externalUser = <c:out value="${externalUser}" />;
-	               
+	
+				if ('openCourse' in getData){
+					openCourse = getData.openCourse;
+				}
+				 
 				/**
 				 * Used for sorting a jsTree. 
 				 * @param {Object} x
@@ -83,29 +92,40 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 				var signupSummary = Signup.signup.summary;		
 				// Load the static data.
 				jQuery.getJSON(signupSiteId+"/departments.json", function(treedata) {
-					
-					
-                    var loadCourse = function(id, old){
+
+					var loadCourse = function(id, old){
 						Signup.course.show($("#details"), id, old, externalUser);
 					};
-				/**
-				 * This loads details about a node in the tree.
-				 * This basically loads a HTML files and shows the user.
-				 * @param {Object} id
-				 */
-				var loadNodeDetails = function(id) {
-					$.ajax( {
-						"url": signupSiteId + "/html/" + id + ".html",
-						"cache": false,
-						"success": function(data){
-							// This is because we now top and tail files in Sakai.
-							data = data.replace(/^(.|\n)*<body[^>]*>/im, "");
-							data = data.replace(/<\/body[^>]*>(.|\n)*$/im, "");
-							$("#details").html(data);
-						}
-					});
-				};
 					
+                    var openAtCourse = function(id){
+						Signup.course.show($("#details"), id, true, externalUser, function(courseData){
+							$("#tree").jstree("open_node", $("#"+courseData.departmentCode.substr(0,2)), function() {
+								$("#tree").jstree("open_node", $("#"+courseData.departmentCode), function() {
+									$("#tree").jstree("open_node", $("#"+courseData.subUnitCode));
+								});
+							});
+							
+						});
+					};
+					
+					/**
+					* This loads details about a node in the tree.
+				 	* This basically loads a HTML files and shows the user.
+				 	* @param {Object} id
+				 	*/
+					var loadNodeDetails = function(id) {
+						$.ajax( {
+							"url": signupSiteId + "/html/" + id + ".html",
+							"cache": false,
+							"success": function(data){
+								// This is because we now top and tail files in Sakai.
+								data = data.replace(/^(.|\n)*<body[^>]*>/im, "");
+								data = data.replace(/<\/body[^>]*>(.|\n)*$/im, "");
+								$("#details").html(data);
+							}
+						});
+					};
+		
 					jQuery("#tree")
 					.bind("select_node.jstree", function(event, data) {
 						// Starts the loading of course details.
@@ -119,6 +139,11 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 					})
 					.bind("open_node.jstree close_node.jstree", function(event, data) {
 
+					})
+					.bind("loaded.jstree", function(event, data) {
+						if (openCourse != null && openCourse != "") {
+							openAtCourse(openCourse);
+						}
 					})
 					.delegate(".jstree-closed a", "click", function(e) {
 						$("#tree").jstree("open_node", this);
@@ -168,7 +193,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 							initially_open: defaultNodes //["root", "4D"] // Open up MPLS for testing.
 						},
 						ui: {
-							initially_select: [defaultNodes[defaultNodes.length-1]] // Open up the last one
+							initially_select: defaultNodes[defaultNodes.length-1]
 						},
 						plugins: ["ui", "themes", "json_data"]
 					});	

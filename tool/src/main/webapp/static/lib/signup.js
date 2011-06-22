@@ -18,6 +18,7 @@ var Signup = function(){
 				var waitingList;
 				var signupData;
 				var template;
+				var courseURL;
 				
 				/**
 				 * Compare two users to see if they are equal.
@@ -53,11 +54,12 @@ var Signup = function(){
 					courseData = undefined;
 					signupData = undefined;
 					waitingList = undefined;
+					courseURL = undefined;
 					
 					$.ajax({
 						url: "../rest/course/" + id,
 						data: {
-							range: (old) ? "PREVIOUS" : "UPCOMING"
+							range: (old) ? "ALL" : "UPCOMING"
 						},
 						dataType: "json",
 						cache: false,
@@ -68,6 +70,16 @@ var Signup = function(){
 					});
 					
 					if (!externalUser) {
+						$.ajax({
+							url: "../rest/course/url/" + id,
+							dataType: "json",
+							cache: false,
+							success: function(data){
+								courseURL = data;
+								showCourse();
+							}
+						});
+						
 						$.ajax({
 							url: "../rest/signup/count/course/signups/" + id,
 							data: {
@@ -93,6 +105,7 @@ var Signup = function(){
 					} else {
 						signupData = [];
 						waitingList = 0;
+						courseURL = "";
 						showCourse();
 					}
 					
@@ -115,13 +128,10 @@ var Signup = function(){
 		 		 */
 				var showCourse = function(){
 					// Check we have all our data.
-					if (!courseData || !signupData || !template || (undefined == waitingList))
-					//	|| (externalUser && (!courseData || !template))) 
-					{
+					if (!courseData || !signupData || !template || (undefined == waitingList))	{
 						return;
 					}
 					
-					//var userExternal = false;
 					var data = courseData; // From refactoring...
 					var now = $.serverDate();
 					var id = data.id;
@@ -131,6 +141,8 @@ var Signup = function(){
 					data.presenters = [];
 					data.description = Text.toHtml(data.description);
 					data.waiting = waitingList;
+					data.url = courseURL;
+					
 					var parts = [];
 					for (var componentIdx in data.components) {
 						var component = data.components[componentIdx];
@@ -258,10 +270,10 @@ var Signup = function(){
 							return false;
 						}
 					});
-					success && success();
+					success && success(courseData);
 				};
 			
-			loadCourse();	
+				loadCourse();
 			},
 			/**
 			 * Handle the displaying of a confirmation page for a signup.

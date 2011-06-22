@@ -109,6 +109,8 @@ public interface CourseSignupService {
 	 */
 	public List<CourseGroup> getAdministering();
 	
+	public boolean isAdministrator(Set<String> administrators);
+	
 	public void setSignupStatus(String signupId, Status status);
 	
 	public List<CourseGroup> search(String search, Range range, boolean external);
@@ -130,5 +132,7 @@ public interface CourseSignupService {
 	 * @return The signup or null if it couldn't be found.
 	 */
 	public CourseSignup getCourseSignup(String signupId);
+	
+	public String getDirectUrl(String courseId);
 
 }

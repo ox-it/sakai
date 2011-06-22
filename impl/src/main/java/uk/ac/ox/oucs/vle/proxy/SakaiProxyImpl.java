@@ -177,6 +177,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public String getConfirmUrl(String signupId) {
 		return getUrl("/static/pending.jsp#"+ signupId);
 	}
+	
+	public String getDirectUrl(String courseId) {
+		return getUrl("/static/index.jsp?openCourse="+ courseId);
+	}
 
 	public String getMyUrl() {
 		return getUrl("/static/my.jsp");

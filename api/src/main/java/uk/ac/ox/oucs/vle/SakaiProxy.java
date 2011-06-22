@@ -36,6 +36,8 @@ public interface SakaiProxy {
 	 */
 	public String getConfirmUrl(String signupId);
 	
+	public String getDirectUrl(String courseId);
+	
 	/**
 	 * Gets a URL to the page which shows a users signups.
 	 */

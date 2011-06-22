@@ -196,6 +196,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return dao.countSignupByCourse(courseId, statuses);
 	}
 	
+	public String getDirectUrl(String courseId) {
+		return proxy.getDirectUrl(courseId);
+	}
+	
 	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses) {
 		CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
 		if (componentDao == null) {
@@ -213,7 +217,14 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return signups;
 	}
 		
-
+	public boolean isAdministrator(Set<String> administrators) {
+		String currentUserId = proxy.getCurrentUser().getId();
+		if (administrators.contains(currentUserId)) {
+				return true;
+		}
+		return false;
+	}
+	
 	private boolean isAdministrator(CourseGroupDAO groupGroup, String currentUserId, boolean defaultValue) {
 		boolean isAdmin = defaultValue;
 		if (groupGroup.getAdministrators().contains(currentUserId)) {

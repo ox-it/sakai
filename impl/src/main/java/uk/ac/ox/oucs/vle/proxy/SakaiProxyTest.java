@@ -104,6 +104,10 @@ public class SakaiProxyTest implements SakaiProxy {
 	public String getConfirmUrl(String signupId) {
 		return "/someurl/"+ signupId;
 	}
+	
+	public String getDirectUrl(String signupId) {
+		return "/someurl/"+ signupId;
+	}
 
 	public String getMyUrl() {
 		return "/my/";

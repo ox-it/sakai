@@ -14,6 +14,10 @@ public interface CourseGroup {
 	
 	public String getDepartmentCode();
 	
+	public String getSubUnit();
+	
+	public String getSubUnitCode();
+	
 	public boolean getPublicView();
 	
 	public String getContactEmail();
@@ -21,4 +25,6 @@ public interface CourseGroup {
 	public List<CourseComponent> getComponents();
 	
 	public List<Person> getAdministrators();
+	
+	public boolean getIsAdmin();
 }

@@ -12,10 +12,12 @@ public class CourseGroupImpl implements CourseGroup {
 	private CourseSignupServiceImpl impl;
 	private List<CourseComponent> components;
 	private List<Person> administrators;
+	private boolean isAdmin;
 	
 	public CourseGroupImpl(CourseGroupDAO courseGroupDAO, CourseSignupServiceImpl impl) {
 		this.courseGroupDAO = courseGroupDAO;
 		this.impl = impl;
+		this.isAdmin = impl.isAdministrator(courseGroupDAO.getAdministrators());
 	}
 
 	public String getDescription() {
@@ -36,6 +38,14 @@ public class CourseGroupImpl implements CourseGroup {
 
 	public String getDepartmentCode() {
 		return courseGroupDAO.getDept();
+	}
+	
+	public String getSubUnit() {
+		return courseGroupDAO.getSubunitName();
+	}
+
+	public String getSubUnitCode() {
+		return courseGroupDAO.getSubunit();
 	}
 	
 	public boolean getPublicView() {
@@ -76,6 +86,10 @@ public class CourseGroupImpl implements CourseGroup {
 		}
 		
 		return administrators;
+	}
+	
+	public boolean getIsAdmin() {
+		return isAdmin;
 	}
 
 }

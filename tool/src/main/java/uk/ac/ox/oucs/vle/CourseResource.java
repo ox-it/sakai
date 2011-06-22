@@ -141,6 +141,23 @@ public class CourseResource {
 		List<CourseGroup> groups = courseService.search(terms, Range.UPCOMING, false);
 		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
 	}
+	
+	@Path("/url/{id}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public StreamingOutput getCourseURL(@PathParam("id") final String courseId) 
+	throws JsonGenerationException, JsonMappingException, IOException {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
+		final String url = courseService.getDirectUrl(courseId);
+		return new StreamingOutput() {
+			public void write(OutputStream output) throws IOException,
+					WebApplicationException {
+				objectMapper.typedWriter(TypeFactory.fromClass(String.class)).writeValue(output, url);
+			}
+		};
+	}
 
 	/**
 	 * Formats a duration sensibly.

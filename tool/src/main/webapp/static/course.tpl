@@ -156,6 +156,7 @@
 						{else}
 							<input type="submit" value="Not Bookable">
 						{/if}
+						
 					{else}
 						<p>To see more details you must login.<br />
 						   Non Oxford users cannot be given a username.</p>
@@ -167,3 +168,10 @@
 					
                 </form>
             </div>
+            {if isAdmin}
+            	<div id="directLink">
+            		<h4>Direct Link</h4> 
+					${url}
+            	</div>
+            {/if}
+    
