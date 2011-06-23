@@ -459,8 +459,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 				$("img.mailto-all-course", this).die().live("click", function(e){
 					var courseId = $(this).attr("id");
 	                $.ajax({
-	                	url: "../rest/signup/component/"+courseId,
-	                	//url: "../rest/signup/course/"+courseId,
+	                	url: "../rest/signup/component/"+courseId,                	
 	    				type: "GET",
 	    				data: {status: "ACCEPTED"},
 	                    success: function(result){
@@ -469,7 +468,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	    	                	$.each(result, function(){
 	                        		users.push([this.user.email]);
 	                        	});
-	                        	document.location.href="mailto:"+result[0].group.administrator.email+"?bcc="+users.join(';')+"&subject=Re "+result[0].group.department+" department course title "+result[0].group.title;
+	                        	document.location.href="mailto:?bcc="+users.join(';')+"&subject=Re "+result[0].group.department+" department course title "+result[0].group.title;
 	    	                }
 	                	}
 	                });
