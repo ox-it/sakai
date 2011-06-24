@@ -127,42 +127,16 @@ public class PopulatorImpl implements Populator{
 					ResourceProperties props = cre.getPropertiesEdit();
 					props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, "importlog.html");
 					cre.setContentType("text/html");
-				} catch (IdUsedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IdInvalidException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (InconsistentException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (ServerOverloadException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				} catch (Exception e1) {
+					log.warn("Failed to create the import log file.", e1);
 				}
 			}
 			
 			cre.setContent(out.toByteArray());
 			// Don't notify anyone about this resource.
 			contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
-		} catch (PermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}  catch (TypeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InUseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (OverQuotaException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ServerOverloadException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
+			log.warn("Failed to write content to logfile.", e);
 		} finally {
 			if (null != cre && cre.isActiveEdit()) {
 				contentHostingService.cancelResource(cre);
@@ -485,7 +459,7 @@ public class PopulatorImpl implements Populator{
 			String description, String departmentName, String subunitName, 
 			int publicView, String divisionEmail, Set<String> administrators) {
 		
-		System.out.println("Updategroup ["+code+":"+administrators.size()+":"+administrators.iterator().next()+"]");
+		log.info("Updategroup ["+code+":"+administrators.size()+":"+administrators.iterator().next()+"]");
 		
 		CourseGroupDAO groupDao = dao.findCourseGroupById(code);
 		boolean created = false;
