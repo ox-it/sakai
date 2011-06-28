@@ -450,7 +450,7 @@ public class EvaluationSettingsProducer implements ViewComponentProducer, ViewPa
 
         // email available template link
         UIInternalLink.make(form, "emailAvailable_link", UIMessage.make("evalsettings.available.mail.link"), 
-                new EmailViewParameters(PreviewEmailProducer.VIEW_ID, null, EvalConstants.EMAIL_TEMPLATE_AVAILABLE, evaluation.getId()) );
+                new EmailViewParameters(ModifyEmailProducer.VIEW_ID, null, EvalConstants.EMAIL_TEMPLATE_AVAILABLE, evaluation.getId()) );
 
         // toggle opening email
         Boolean allowEmailOpenNotification = (Boolean) settings.get(EvalSettings.ALLOW_EVALSPECIFIC_TOGGLE_EMAIL_NOTIFICATION);
@@ -471,7 +471,7 @@ public class EvaluationSettingsProducer implements ViewComponentProducer, ViewPa
 
         // email reminder template link
         UIInternalLink.make(form, "emailReminder_link", UIMessage.make("evalsettings.reminder.mail.link"), 
-                new EmailViewParameters(PreviewEmailProducer.VIEW_ID, null, EvalConstants.EMAIL_TEMPLATE_REMINDER, evaluation.getId()) );
+                new EmailViewParameters(ModifyEmailProducer.VIEW_ID, null, EvalConstants.EMAIL_TEMPLATE_REMINDER, evaluation.getId()) );
 
         // email from address control
         //      String defaultEmail = (String) settings.get(EvalSettings.FROM_EMAIL_ADDRESS);
