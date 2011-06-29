@@ -368,7 +368,7 @@ public class EvaluationSettingsProducer implements ViewComponentProducer, ViewPa
         UIBranchContainer showBlankQuestionAllowedToStut = UIBranchContainer.make(form, "showBlankQuestionAllowedToStut:");
         generateSettingsControlledCheckbox(showBlankQuestionAllowedToStut, 
                 "blankResponsesAllowed", evaluationOTP + "blankResponsesAllowed", studentUnanswersAllowed, form, 
-                EvalUtils.checkStateAfter(currentEvalState, EvalConstants.EVALUATION_STATE_ACTIVE, true) );
+                EvalUtils.checkStateAfter(currentEvalState, EvalConstants.EVALUATION_STATE_ACTIVE, true), true );
 
 
         // Student Modify Responses
