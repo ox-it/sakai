@@ -161,7 +161,7 @@
 						<p>To see more details you must login.<br />
 						   Non Oxford users cannot be given a username.</p>
 					
-						{if contactEmail}
+						{if defined('contactEmail')}
 							<a href="mailto:${contactEmail}">Make an Enquiry</a>
 						{/if}
 					{/if}
