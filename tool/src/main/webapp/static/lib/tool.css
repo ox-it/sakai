@@ -148,7 +148,7 @@ table th {
 .messages {
 	position: relative;
 	width: 100%;
-	height: 0px; // Hack to stop IE7 expanding it out.
+	height: 0px; /* Hack to stop IE7 expanding it out. */
 }
 
 .message {
@@ -167,9 +167,9 @@ table th {
 		padding: 5px;
 }
 .message span.good {
-	background-color: #bfb; // For good messages.
+	background-color: #bfb; /* For good messages. */
 }
 
 .message span.bad {
-	background-color: #fbb; // For bad messages.
+	background-color: #fbb; /* For bad messages. */
 }

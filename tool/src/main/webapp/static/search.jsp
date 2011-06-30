@@ -14,6 +14,11 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	
+	<!--  IE8 runnung in IE7 compatability mode breaks this page 
+	       work around is the line below --> 
+	<meta http-equiv="X-UA-Compatible" content="IE=8" />
+	
 	<title>Module Search</title>
 
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/tool_base.css" type="text/css" rel="stylesheet" media="all" />
@@ -26,7 +31,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<link href="../rest/course/all?range=ALL" type="application/json" rel="exhibit/data" ex:converter="courseConverter" />
 	<style type="text/css">
 		.exhibit-text-facet {
-			padding-right: 4px; // Overflows a <table> because of <input> has border and padding
+			padding-right: 4px; /* Overflows a <table> because of <input> has border and padding */
 		}
 	</style>
   
@@ -43,14 +48,13 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<script type="text/javascript" src="lib/Text.js"></script>
 	<script type="text/javascript" src="lib/serverDate.js"></script>
 		
-	
 	<script type="text/javascript" src="lib/datejs/date-en-GB.js"></script>
 	
-  
     <script src="lib/exhibit/exhibit-api.js?bundle=true" type="text/javascript"></script>
 	<script type="text/javascript">
 
 		var externalUser = <c:out value="${externalUser}" />;
+
 		/**
 		 * Used by the exhibit code to convert the JSON into 
 		 * @param {Object} courses
@@ -66,7 +70,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 			};
 			$.each(courses, function(){
 				var course = this;
-				var summary =  Signup.signup.summary(course.components); // This is a bit of a performance killer on IE.;
+				var summary =  Signup.signup.summary(course.components); /* This is a bit of a performance killer on IE.; */
 				data.items.push({
 					label: course.title,
 					id: course.id,
@@ -83,8 +87,12 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		}
 		
 		$(function() {
-			// Make the more details button work.
-			$("form.details").live("submit", function() {
+			/* Make the more details button work.*/
+			/* IE has all sorts of problems with .live("submit".. ! 
+			    http://forum.jquery.com/topic/ie-specific-issues-with-live-submit */
+			/* $("form.details").live("submit", function() { */
+			
+			$("body").delegate("form","submit", function() {
 				try {
 					var form = this;
 					var id = $("input[name=id]", form).val();
@@ -101,7 +109,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 						height: height,
 						modal: true,
 						close: function(event, ui){
-							courseDetails.remove(); // Tidy up the DOM.
+							courseDetails.remove(); /* Tidy up the DOM. */
 						}
 					});
 					Signup.course.show(courseDetails, id, false, externalUser, function(){
@@ -114,7 +122,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 			});
 		});
 		
-		// Adjust with the content.
+		/* Adjust with the content. */
 		$(function(){
   			Signup.util.autoresize();
         });
