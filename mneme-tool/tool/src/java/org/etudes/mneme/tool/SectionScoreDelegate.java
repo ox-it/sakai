@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -40,35 +40,6 @@ public class SectionScoreDelegate extends FormatDelegateImpl
 {
 	/** Our log. */
 	private static Log M_log = LogFactory.getLog(SectionScoreDelegate.class);
-
-	/**
-	 * Format a score to 2 decimal places, trimming ".0" if present.
-	 * 
-	 * @param score
-	 *        The score to format.
-	 * @return The formatted score
-	 */
-	protected static String formatScore(Float score)
-	{
-		if (score == null) return "-";
-
-		// round to a single place
-		String rv = Float.toString(Math.round(score * 100.0f) / 100.0f);
-
-		// get rid of ".00"
-		if (rv.endsWith(".00"))
-		{
-			rv = rv.substring(0, rv.length() - 3);
-		}
-
-		// get rid of ".0"
-		if (rv.endsWith(".0"))
-		{
-			rv = rv.substring(0, rv.length() - 2);
-		}
-
-		return rv;
-	}
 
 	/**
 	 * Shutdown.
@@ -127,7 +98,7 @@ public class SectionScoreDelegate extends FormatDelegateImpl
 
 			rv.append("<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/grade.png\" alt=\""
 					+ context.getMessages().getString("score") + "\" />");
-			rv.append(context.getMessages().getString("score") + ":&nbsp;" + formatScore(score) + "&nbsp;&nbsp;&nbsp;");
+			rv.append(context.getMessages().getString("score") + ":&nbsp;" + FormatScoreDelegate.formatScore(score) + "&nbsp;&nbsp;&nbsp;");
 
 			selector = "of-points";
 			if (partial)
@@ -143,7 +114,7 @@ public class SectionScoreDelegate extends FormatDelegateImpl
 			selector += "-singular";
 		}
 		Object[] args = new Object[1];
-		args[0] = formatScore(score);
+		args[0] = FormatScoreDelegate.formatScore(score);
 		rv.append(context.getMessages().getFormattedMessage(selector, args));
 
 		return rv.toString();

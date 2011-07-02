@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -52,22 +52,7 @@ public class QuestionScoreDelegate extends FormatDelegateImpl
 	{
 		if (score == null) return context.getMessages().getString("question-score-ungraded");
 
-		// round to a single place
-		String rv = Float.toString(Math.round(score * 100.0f) / 100.0f);
-
-		// get rid of ".00"
-		if (rv.endsWith(".00"))
-		{
-			rv = rv.substring(0, rv.length() - 3);
-		}
-
-		// get rid of ".0"
-		if (rv.endsWith(".0"))
-		{
-			rv = rv.substring(0, rv.length() - 2);
-		}
-
-		return rv;
+		return FormatScoreDelegate.formatScore(score);
 	}
 
 	/**

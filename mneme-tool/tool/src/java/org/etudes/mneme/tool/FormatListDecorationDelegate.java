@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -77,13 +77,15 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 
 		// check mastery level
 		boolean belowMastery = false;
-		Integer masteryPercent = null;
+		String masteryPoints = null;
 		if (this.masteryAdvisor != null)
 		{
 			belowMastery = this.masteryAdvisor.failedToMaster("sakai.mneme", submission.getAssessment().getContext(), submission.getAssessment()
 					.getId(), submission.getUserId());
-			masteryPercent = this.masteryAdvisor.masteryLevelPercent("sakai.mneme", submission.getAssessment().getContext(), submission
+			Integer masteryPercent = this.masteryAdvisor.masteryLevelPercent("sakai.mneme", submission.getAssessment().getContext(), submission
 					.getAssessment().getId(), submission.getUserId());
+			masteryPoints = FormatScoreDelegate.formatScore(Float.valueOf(submission.getAssessment().getParts().getTotalPoints().floatValue()
+					* (masteryPercent.floatValue() / 100.0f)));
 		}
 
 		// get the status
@@ -161,7 +163,7 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 				{
 					icon = "/icons/not-mastered.png";
 					Object[] args = new Object[1];
-					args[0] = masteryPercent;
+					args[0] = masteryPoints;
 					repeatMsg = context.getMessages().getFormattedMessage("format-list-decoration-complete-repeat-mastery", args);
 				}
 
@@ -186,7 +188,7 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 				{
 					icon = "/icons/not-mastered.png";
 					Object[] args = new Object[1];
-					args[0] = masteryPercent;
+					args[0] = masteryPoints;
 					repeatMsg = context.getMessages().getFormattedMessage("format-list-decoration-complete-repeat-overdue-mastery", args);
 				}
 

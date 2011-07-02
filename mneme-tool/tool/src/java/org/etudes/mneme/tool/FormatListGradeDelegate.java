@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -28,7 +28,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.FormatDelegateImpl;
-import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.Submission;
 
 /**
@@ -38,35 +37,6 @@ public class FormatListGradeDelegate extends FormatDelegateImpl
 {
 	/** Our log. */
 	private static Log M_log = LogFactory.getLog(FormatListGradeDelegate.class);
-
-	/**
-	 * Format a score to 2 decimal places, trimming ".0" if present.
-	 * 
-	 * @param score
-	 *        The score to format.
-	 * @return The formatted score
-	 */
-	protected static String formatScore(Float score)
-	{
-		if (score == null) return "-";
-
-		// round to a single place
-		String rv = Float.toString(Math.round(score * 100.0f) / 100.0f);
-
-		// get rid of ".00"
-		if (rv.endsWith(".00"))
-		{
-			rv = rv.substring(0, rv.length() - 3);
-		}
-
-		// get rid of ".0"
-		if (rv.endsWith(".0"))
-		{
-			rv = rv.substring(0, rv.length() - 2);
-		}
-
-		return rv;
-	}
 
 	/**
 	 * Shutdown.
@@ -93,12 +63,12 @@ public class FormatListGradeDelegate extends FormatDelegateImpl
 				if (submission.getHasUnscoredAnswers())
 				{
 					Object[] args = new Object[1];
-					args[0] = formatScore(submission.getTotalScore());
+					args[0] = FormatScoreDelegate.formatScore(submission.getTotalScore());
 					return context.getMessages().getFormattedMessage("format-list-grade-partial", args);
 				}
 				else
 				{
-					return formatScore(submission.getTotalScore());
+					return FormatScoreDelegate.formatScore(submission.getTotalScore());
 				}
 			}
 			else
