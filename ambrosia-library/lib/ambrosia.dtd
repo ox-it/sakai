@@ -80,6 +80,7 @@
 <!ATTLIST model messageRoot CDATA #IMPLIED >
 <!ATTLIST model stripP (TRUE|FALSE) #IMPLIED >
 <!ATTLIST model edit (TRUE|FALSE) #IMPLIED >
+<!ATTLIST model stripHtml (TRUE|FALSE) #IMPLIED >
 
 <!ELEMENT missingValues (missing)* >
 <!ELEMENT missing EMPTY >
@@ -131,6 +132,7 @@
 <!ATTLIST floatModel delegate CDATA #IMPLIED>
 <!ATTLIST floatModel tool CDATA #IMPLIED >
 <!ATTLIST floatModel missing CDATA #IMPLIED >
+<!ATTLIST floatModel stripHtml (TRUE|FALSE) #IMPLIED >
 
 <!ELEMENT htmlModel (missingValues | model)* >
 <!ATTLIST htmlModel ref CDATA #REQUIRED >
