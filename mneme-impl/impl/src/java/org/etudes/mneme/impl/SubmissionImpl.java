@@ -431,6 +431,19 @@ public class SubmissionImpl implements Submission
 	/**
 	 * {@inheritDoc}
 	 */
+	public String getBlockedByDetails()
+	{
+		// if no advisor, not blocked
+		if (this.accessAdvisor == null) return null;
+
+		// check if we have blocked access - we will return this message if blocked (null if not blocked).
+		String blockedByTitle = this.accessAdvisor.details("sakai.mneme", getAssessment().getContext(), getAssessment().getId(), getUserId());
+		return blockedByTitle;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Long getElapsedTime()
 	{
 		if ((submittedDate == null) || (startDate == null)) return null;

@@ -174,6 +174,7 @@
 							<icon icon="/icons/lock.png" style="LEFT" />
 							<failedRequirementsMessage>
 								<message selector="prerequisite">
+									<model ref="submission.blockedByDetails" />
 									<model ref="submission.blockedByTitle" />
 								</message>
 							</failedRequirementsMessage>
