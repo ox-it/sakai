@@ -42,7 +42,7 @@ public interface AccessAdvisor
 	Boolean denyAccess(String toolId, String context, String id, String userId);
 
 	/**
-	 * If the user should be denied access to the item, provide a message describing why.
+	 * If the user should be denied access to the item, provide a message describing why (item title).
 	 * 
 	 * @param toolId
 	 *        The tool id for the application (such as "sakai.mneme").
@@ -55,4 +55,19 @@ public interface AccessAdvisor
 	 * @return The message string, or null if not denied access.
 	 */
 	String message(String toolId, String context, String id, String userId);
+
+	/**
+	 * If the user should be denied access to the item, provide a message describing why (item completion details).
+	 * 
+	 * @param toolId
+	 *        The tool id for the application (such as "sakai.mneme").
+	 * @param context
+	 *        The context in which the object lives.
+	 * @param id
+	 *        The object's id.
+	 * @param userId
+	 *        The user id.
+	 * @return The message string, or null if not denied access.
+	 */
+	String details(String toolId, String context, String id, String userId);
 }
