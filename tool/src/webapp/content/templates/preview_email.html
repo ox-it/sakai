@@ -23,6 +23,14 @@
 			Please note when sending the email the bracketed values will be substituted with actual values.
 		</p>
 		<div style="width:70%">
+              <div>
+                  <span rsf:id="msg=modifyemail.template.subject">Subject:</span>
+                  <span rsf:id="emailSubject">The message subject</span>
+              </div>
+			  <div class="highlightPanel"  style="background:#eee">
+                  <div rsf:id="emailMessage">The email message would go here</div>
+              </div>
+              
               <div rsf:id="email_templates_fieldhints" class="highlightPanel" style="background:#eee;">
 ${EvalTitle} - the title of this evaluation <br/>
 ${EvalStartDate} - the start date of this evaluation <br/>
@@ -36,13 +44,6 @@ ${URLtoViewResults} - the direct URL to view results for this evaluation <br/>
 ${URLtoSystem} - the main URL to the system this is running in <br/>
 ${URLtoAddItems} - the direct URL to add items to an evaluation <br/>
 ${URLtoOptOut} - the direct URL for evaluators to opt in to use this evaluation
-              </div>
-              <div>
-                  <span rsf:id="msg=modifyemail.template.subject">Subject:</span>
-                  <span rsf:id="emailSubject">The message subject</span>
-              </div>
-			  <div class="highlightPanel"  style="background:#eee">
-                  <div rsf:id="emailMessage">The email message would go here</div>
               </div>
 		</div>	
 		<p class="act">
