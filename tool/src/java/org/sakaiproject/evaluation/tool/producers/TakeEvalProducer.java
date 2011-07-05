@@ -382,10 +382,23 @@ public class TakeEvalProducer implements ViewComponentProducer, ViewParamsReport
                 if (studentAllowedLeaveUnanswered == null) {
                     studentAllowedLeaveUnanswered = EvalUtils.safeBool(eval.getBlankResponsesAllowed(), false);
                 }
+                Boolean studentModifyResponses = (Boolean) evalSettings.get(EvalSettings.STUDENT_MODIFY_RESPONSES);
+                if (studentModifyResponses == null) {
+                	studentModifyResponses = EvalUtils.safeBool(eval.getModifyResponsesAllowed(), false);
+                }
+                
+                UIBranchContainer note = UIBranchContainer.make(tofill, "show-eval-note:");
+               
                 // show a warning to the user if all items must be filled in
                 if ( studentAllowedLeaveUnanswered == false ) {
-                    UIBranchContainer note = UIBranchContainer.make(tofill, "show-eval-note:");
                     UIMessage.make(note, "eval-note-text", "takeeval.user.must.answer.all.note");   
+                }
+                
+                // show a warning to the user if responses can be modified
+                if ( studentModifyResponses == false ) {
+                    UIMessage.make(note, "eval-note2-text", "takeeval.user.modify.responses.false");  
+                } else {
+                	UIMessage.make(note, "eval-note2-text", "takeeval.user.modify.responses.true"); 
                 }
 
                 UIBranchContainer formBranch = UIBranchContainer.make(tofill, "form-branch:");
