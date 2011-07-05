@@ -104,7 +104,7 @@ public class SubmissionImpl implements Submission
 
 	protected transient boolean totalScoreToBeSet = false;
 
-	protected transient Boolean unscoredSiblings = null;
+	protected transient Boolean ungradedSiblings = null;
 
 	protected String userId = null;
 
@@ -418,19 +418,6 @@ public class SubmissionImpl implements Submission
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getBlockedByTitle()
-	{
-		// if no advisor, not blocked
-		if (this.accessAdvisor == null) return null;
-
-		// check if we have blocked access - we will return this message if blocked (null if not blocked).
-		String blockedByTitle = this.accessAdvisor.message("sakai.mneme", getAssessment().getContext(), getAssessment().getId(), getUserId());
-		return blockedByTitle;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public String getBlockedByDetails()
 	{
 		// if no advisor, not blocked
@@ -438,6 +425,19 @@ public class SubmissionImpl implements Submission
 
 		// check if we have blocked access - we will return this message if blocked (null if not blocked).
 		String blockedByTitle = this.accessAdvisor.details("sakai.mneme", getAssessment().getContext(), getAssessment().getId(), getUserId());
+		return blockedByTitle;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getBlockedByTitle()
+	{
+		// if no advisor, not blocked
+		if (this.accessAdvisor == null) return null;
+
+		// check if we have blocked access - we will return this message if blocked (null if not blocked).
+		String blockedByTitle = this.accessAdvisor.message("sakai.mneme", getAssessment().getContext(), getAssessment().getId(), getUserId());
 		return blockedByTitle;
 	}
 
@@ -667,6 +667,14 @@ public class SubmissionImpl implements Submission
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getHasUngradedSiblings()
+	{
+		return this.ungradedSiblings;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Boolean getHasUnscoredAnswers()
 	{
 		if (!getIsComplete()) return Boolean.FALSE;
@@ -684,14 +692,6 @@ public class SubmissionImpl implements Submission
 		}
 
 		return Boolean.FALSE;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Boolean getHasUnscoredSiblings()
-	{
-		return this.unscoredSiblings;
 	}
 
 	/**
@@ -1482,11 +1482,11 @@ public class SubmissionImpl implements Submission
 	}
 
 	/**
-	 * Initialize the unscored siblings setting.
+	 * Initialize the ungraded siblings setting.
 	 */
-	protected void initUnscoredSiblings(Boolean unscoredSiblings)
+	protected void initUngradedSiblings(Boolean unscoredSiblings)
 	{
-		this.unscoredSiblings = unscoredSiblings;
+		this.ungradedSiblings = unscoredSiblings;
 	}
 
 	/**
@@ -1566,7 +1566,7 @@ public class SubmissionImpl implements Submission
 		this.submissionService = other.submissionService;
 		this.submittedDate = other.submittedDate;
 		this.testDrive = other.testDrive;
-		this.unscoredSiblings = other.unscoredSiblings;
+		this.ungradedSiblings = other.ungradedSiblings;
 		this.userId = other.userId;
 	}
 }

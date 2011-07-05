@@ -3310,8 +3310,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 				}
 			}
 
-			// track if any have unscored answers
-			boolean unscoredSiblings = submission.getHasUnscoredAnswers().booleanValue();
+			// track if any are not completely graded and released
+			boolean ungradedSiblings = (submission.getIsComplete() && !submission.getIsReleased()) || submission.getHasUnscoredAnswers();
 
 			// remove all others with this one's assessment id - keeping track of the best score if complete
 			for (Iterator i = all.iterator(); i.hasNext();)
@@ -3341,8 +3341,10 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 					// if not in progress, then see if it has the best score so far
 					else
 					{
-						// track if any have unscored answers
-						if (!unscoredSiblings) unscoredSiblings = candidateSub.getHasUnscoredAnswers().booleanValue();
+						// track if any are not completely graded and released
+						if (!ungradedSiblings)
+							ungradedSiblings = (candidateSub.getIsComplete() && !candidateSub.getIsReleased())
+									|| candidateSub.getHasUnscoredAnswers();
 
 						// consider for "best" if candidate is released
 						if (candidateSub.getIsReleased())
@@ -3402,7 +3404,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			winner.initSiblingCount(new Integer(count));
 
 			// set the winner's unscored sibling
-			winner.initUnscoredSiblings(Boolean.valueOf(unscoredSiblings));
+			winner.initUngradedSiblings(Boolean.valueOf(ungradedSiblings));
 
 			// set the winner's best
 			if (bestSubmission != null)
@@ -3451,8 +3453,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 				count++;
 			}
 
-			// track if any have unscored answers
-			boolean unscoredSiblings = submission.getHasUnscoredAnswers().booleanValue();
+			// track if any are not completely graded and released
+			boolean ungradedSiblings = (submission.getIsComplete() && !submission.getIsReleased()) || submission.getHasUnscoredAnswers();
 
 			String uid = submission.getUserId();
 			SubmissionImpl bestSubmission = null;
@@ -3513,8 +3515,10 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 					// if not in progress, then see if it has the best score so far
 					else
 					{
-						// track if any have unscored answers
-						if (!unscoredSiblings) unscoredSiblings = candidateSub.getHasUnscoredAnswers().booleanValue();
+						// track if any are not completely graded and released
+						if (!ungradedSiblings)
+							ungradedSiblings = (candidateSub.getIsComplete() && !candidateSub.getIsReleased())
+									|| candidateSub.getHasUnscoredAnswers();
 
 						if (bestSubmission == null)
 						{
@@ -3564,7 +3568,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			winner.initSiblingCount(new Integer(count));
 
 			// set the winner's unscored sibling
-			winner.initUnscoredSiblings(Boolean.valueOf(unscoredSiblings));
+			winner.initUngradedSiblings(Boolean.valueOf(ungradedSiblings));
 
 			// set the winner's best
 			if (bestSubmission != null)

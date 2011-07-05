@@ -123,7 +123,7 @@ public interface Submission
 	Long getElapsedTime();
 
 	/**
-	 * @return The date of the latest evaluation in any answer or overall.  May return NULL if there have been none.
+	 * @return The date of the latest evaluation in any answer or overall. May return NULL if there have been none.
 	 */
 	Date getEvaluatedDate();
 
@@ -171,18 +171,18 @@ public interface Submission
 	GradingSubmissionStatus getGradingStatus();
 
 	/**
+	 * Get if any of the submissions, including this one, to this same assignment from the same user, are not fully graded and released. May not be known.
+	 * 
+	 * @return The TRUE if any of the submissions, including this one, to this same assignment from the same user, are not fully graded and released, FALSE if not, or NULL if not known.
+	 */
+	Boolean getHasUngradedSiblings();
+
+	/**
 	 * Check if there are any null scores for answered answers for this assessment (only if complete).
 	 * 
 	 * @return TRUE if there are unscored answers, FALSE if not.
 	 */
 	Boolean getHasUnscoredAnswers();
-
-	/**
-	 * Get if any of the submissions, including this one, to this same assignment from the same user, has unscored answers. May not be known.
-	 * 
-	 * @return The TRUE if any of the submissions, including this one, to this same assignment from the same user, has unscored answers, FALSE if not, or NULL if not known.
-	 */
-	Boolean getHasUnscoredSiblings();
 
 	/**
 	 * Access the id of this submission.
