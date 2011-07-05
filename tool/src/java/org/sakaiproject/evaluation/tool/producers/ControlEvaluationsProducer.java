@@ -16,6 +16,7 @@ package org.sakaiproject.evaluation.tool.producers;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -368,6 +369,7 @@ public class ControlEvaluationsProducer implements ViewComponentProducer {
 
       // create closed evaluations header and link
       if (closedEvals.size() > 0) {
+    	 Collections.sort(closedEvals);
          UIBranchContainer evalListing = UIBranchContainer.make(tofill, "closed-eval-listing:");
 
          for (int i = 0; i < closedEvals.size(); i++) {

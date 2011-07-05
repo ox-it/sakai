@@ -15,7 +15,7 @@ import org.sakaiproject.evaluation.utils.EvalUtils;
 /**
  * Defines an evaluation itself (this is an instance which can be taken by evaluators)
  */
-public class EvalEvaluation implements java.io.Serializable {
+public class EvalEvaluation implements Comparable<EvalEvaluation>, java.io.Serializable {
 
     // Fields
 
@@ -835,5 +835,9 @@ public class EvalEvaluation implements java.io.Serializable {
     public void setReminderStatus(String reminderStatus) {
         this.reminderStatus = reminderStatus;
     }
+
+	public int compareTo(EvalEvaluation o) {
+		return o.getDueDate().compareTo(getDueDate());
+	}
 
 }
