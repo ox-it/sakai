@@ -82,10 +82,16 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 		{
 			belowMastery = this.masteryAdvisor.failedToMaster("sakai.mneme", submission.getAssessment().getContext(), submission.getAssessment()
 					.getId(), submission.getUserId());
-			Integer masteryPercent = this.masteryAdvisor.masteryLevelPercent("sakai.mneme", submission.getAssessment().getContext(), submission
-					.getAssessment().getId(), submission.getUserId());
-			masteryPoints = FormatScoreDelegate.formatScore(Float.valueOf(submission.getAssessment().getParts().getTotalPoints().floatValue()
-					* (masteryPercent.floatValue() / 100.0f)));
+			if (belowMastery)
+			{
+				Integer masteryPercent = this.masteryAdvisor.masteryLevelPercent("sakai.mneme", submission.getAssessment().getContext(), submission
+						.getAssessment().getId(), submission.getUserId());
+				if (masteryPercent != null)
+				{
+					masteryPoints = FormatScoreDelegate.formatScore(Float.valueOf(submission.getAssessment().getParts().getTotalPoints().floatValue()
+							* (masteryPercent.floatValue() / 100.0f)));
+				}
+			}
 		}
 
 		// get the status
