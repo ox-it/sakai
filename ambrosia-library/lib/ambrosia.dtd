@@ -306,7 +306,7 @@
 
 <!ELEMENT navigations (navigation | container)* >
 
-<!ELEMENT navigation (included | confirm | title | destination | disabled | requirements | failedRequirementsMessage | default | validate | icon | iterator | description)* >
+<!ELEMENT navigation (included | confirm | title | destination | disabled | requirements | failedRequirementsMessage | default | validate | icon | icons | iterator | description)* >
 <!ATTLIST navigation id CDATA #IMPLIED >
 <!ATTLIST navigation title CDATA #IMPLIED >
 <!ATTLIST navigation style (BUTTON|LINK) #IMPLIED >
@@ -359,7 +359,7 @@
 
 <!ELEMENT attachmentPicker (destination)* >
 
-<!ELEMENT icon (message)* >
+<!ELEMENT icon (message | decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
 <!ATTLIST icon icon CDATA #IMPLIED >
 <!ATTLIST icon style (LEFT|RIGHT) #IMPLIED >
 <!ATTLIST icon message CDATA #IMPLIED >

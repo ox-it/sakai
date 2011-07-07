@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -25,8 +25,7 @@
 package org.etudes.ambrosia.api;
 
 /**
- * Navigation presents a navigation control (button or text link) to the user. The result of the press is a navigation to some tool destination. A
- * form submit is optional.
+ * Navigation presents a navigation control (button or text link) to the user. The result of the press is a navigation to some tool destination. A form submit is optional.
  */
 public interface Navigation extends Component
 {
@@ -47,6 +46,17 @@ public interface Navigation extends Component
 	{
 		button, link
 	};
+
+	/**
+	 * Add an alternate icon, used if this decision is true.
+	 * 
+	 * @param icon
+	 *        The alternate icon.
+	 * @param decision
+	 *        The decision.
+	 * @return
+	 */
+	Navigation addIcon(String icon, Decision decision);
 
 	/**
 	 * Access the tool destination for the navigation.

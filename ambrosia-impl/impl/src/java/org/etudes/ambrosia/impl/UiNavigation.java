@@ -25,7 +25,9 @@
 package org.etudes.ambrosia.impl;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.api.Decision;
@@ -35,6 +37,8 @@ import org.etudes.ambrosia.api.Navigation;
 import org.etudes.ambrosia.api.PropertyReference;
 import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * UiNavigation presents a navigation control (button or text link) to the user. The result of the press is a navigation to some tool destination.
@@ -112,6 +116,12 @@ public class UiNavigation extends UiComponent implements Navigation
 
 	/** Message to form the access key. */
 	protected Message accessKey = null;
+
+	/** A list of alternate icon decisions. */
+	protected List<Decision> alternateIconDecisions = new ArrayList<Decision>();
+
+	/** A list of alternate icons. */
+	protected List<String> alternateIcons = new ArrayList<String>();
 
 	/** The icon for the "cancel" in a confirm. */
 	protected String confirmCancelIcon = null;
@@ -460,6 +470,38 @@ public class UiNavigation extends UiComponent implements Navigation
 				this.iteratorReference = service.parsePropertyReference(innerXml);
 			}
 		}
+
+		// alternate icons
+		Element iconsXml = XmlHelper.getChildElementNamed(xml, "icons");
+		if (iconsXml != null)
+		{
+			NodeList contained = iconsXml.getChildNodes();
+			for (int i = 0; i < contained.getLength(); i++)
+			{
+				Node node = contained.item(i);
+				if (node.getNodeType() == Node.ELEMENT_NODE)
+				{
+					Element containedXml = (Element) node;
+					if ("icon".equals(containedXml.getTagName()))
+					{
+						Decision d = service.parseDecisions(containedXml);
+						String altIcon = StringUtil.trimToNull(containedXml.getAttribute("icon"));
+						addIcon(altIcon, d);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public UiNavigation addIcon(String icon, Decision decision)
+	{
+		this.alternateIcons.add(icon);
+		this.alternateIconDecisions.add(decision);
+
+		return this;
 	}
 
 	/**
@@ -982,6 +1024,18 @@ public class UiNavigation extends UiComponent implements Navigation
 			}
 		}
 
+		// the icon
+		String selectedIcon = this.icon;
+		for (int i = 0; i < this.alternateIconDecisions.size(); i++)
+		{
+			Decision d = this.alternateIconDecisions.get(i);
+			if (d.decide(context, focus))
+			{
+				selectedIcon = this.alternateIcons.get(i);
+				break;
+			}
+		}
+
 		PrintWriter response = context.getResponseWriter();
 
 		// generate the script and confirm stuff only if not an alias
@@ -1021,9 +1075,9 @@ public class UiNavigation extends UiComponent implements Navigation
 								+ context.getUrl(this.confirmCancelIcon) + "') .2em no-repeat;\"" : "") + "/></td>");
 				response.print("<td style=\"padding:1em\" align=\"right\"><input type=\"button\" value=\"" + title
 						+ "\" onclick=\"hideConfirm('confirm_" + id + "','act_" + id + "();');return false;\"");
-				if (this.icon != null)
+				if (selectedIcon != null)
 				{
-					response.print(" style=\"padding-left:2em; background: #eee url('" + context.getUrl(this.icon) + "') .2em no-repeat;\"");
+					response.print(" style=\"padding-left:2em; background: #eee url('" + context.getUrl(selectedIcon) + "') .2em no-repeat;\"");
 				}
 				response.println("/></td>");
 				response.println("</tr></table></div>");
@@ -1108,9 +1162,9 @@ public class UiNavigation extends UiComponent implements Navigation
 				{
 					if (!disabled) response.print("<a href=\"#\" onclick=\"act_" + id + "();return false;\">");
 
-					if (this.icon != null)
+					if (selectedIcon != null)
 					{
-						response.print("<img style=\"vertical-align:text-bottom; border-style: none;\" src=\"" + context.getUrl(this.icon) + "\" "
+						response.print("<img style=\"vertical-align:text-bottom; border-style: none;\" src=\"" + context.getUrl(selectedIcon) + "\" "
 								+ "title=\"" + description + "\" " + "alt=\"" + description + "\" />");
 					}
 
@@ -1119,11 +1173,11 @@ public class UiNavigation extends UiComponent implements Navigation
 
 				else
 				{
-					if ((this.icon != null) && (this.iconStyle == IconStyle.left))
+					if ((selectedIcon != null) && (this.iconStyle == IconStyle.left))
 					{
 						if (!disabled) response.print("<a href=\"#\" onclick=\"act_" + id + "();return false;\">");
 						response.print("<img style=\"vertical-align:text-bottom; padding-right:0.3em; border-style: none;\" src=\""
-								+ context.getUrl(this.icon) + "\" " + "title=\"" + description + "\" " + "alt=\"" + description + "\" />");
+								+ context.getUrl(selectedIcon) + "\" " + "title=\"" + description + "\" " + "alt=\"" + description + "\" />");
 						if (!disabled) response.print("</a>");
 					}
 
@@ -1133,11 +1187,11 @@ public class UiNavigation extends UiComponent implements Navigation
 
 					if (!disabled) response.print("</a>");
 
-					if ((this.icon != null) && (this.iconStyle == IconStyle.right))
+					if ((selectedIcon != null) && (this.iconStyle == IconStyle.right))
 					{
 						if (!disabled) response.print("<a href=\"#\" onclick=\"act_" + id + "();return false;\">");
 						response.print("<img style=\"vertical-align:text-bottom; padding-left:0.3em; border-style: none;\" src=\""
-								+ context.getUrl(this.icon) + "\" " + "title=\"" + description + "\" " + "alt=\"" + description + "\" />");
+								+ context.getUrl(selectedIcon) + "\" " + "title=\"" + description + "\" " + "alt=\"" + description + "\" />");
 						if (!disabled) response.print("</a>");
 					}
 				}
@@ -1166,10 +1220,10 @@ public class UiNavigation extends UiComponent implements Navigation
 						+ "title=\""
 						+ description
 						+ "\" "
-						+ (((this.icon != null) && (this.iconStyle == IconStyle.left)) ? "style=\"padding-left:2em; background: #eee url('"
-								+ context.getUrl(this.icon) + "') .2em no-repeat;\"" : "")
-						+ (((this.icon != null) && (this.iconStyle == IconStyle.right)) ? "style=\"padding-left:.4em; padding-right:2em; background: #eee url('"
-								+ context.getUrl(this.icon) + "') right no-repeat;\""
+						+ (((selectedIcon != null) && (this.iconStyle == IconStyle.left)) ? "style=\"padding-left:2em; background: #eee url('"
+								+ context.getUrl(selectedIcon) + "') .2em no-repeat;\"" : "")
+						+ (((selectedIcon != null) && (this.iconStyle == IconStyle.right)) ? "style=\"padding-left:.4em; padding-right:2em; background: #eee url('"
+								+ context.getUrl(selectedIcon) + "') right no-repeat;\""
 								: "") + "/>");
 
 				break;
