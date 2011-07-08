@@ -87,12 +87,15 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		}
 		
 		$(function() {
-			/* Make the more details button work.*/
-			/* IE has all sorts of problems with .live("submit".. ! 
-			    http://forum.jquery.com/topic/ie-specific-issues-with-live-submit */
-			/* $("form.details").live("submit", function() { */
-			
-			$("body").delegate("form","submit", function() {
+			/* Make the more details button work.
+			 * IE has all sorts of problems with .live("submit".. ! 
+			 * http://forum.jquery.com/topic/ie-specific-issues-with-live-submit
+			 * $("form.details").live("submit", function() {
+			 * The form class attributes don't work for these elements in IE, so we have to use
+			 * a parent selector to make sure it doesn't fire for other forms in the page.
+			 */
+			$("body").delegate(".exhibit-viewPanel form","submit", function(e) {
+				e.preventDefault();
 				try {
 					var form = this;
 					var id = $("input[name=id]", form).val();
@@ -118,7 +121,6 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 				} catch (e) {
 					console.log(e);
 				}
-				return false;
 			});
 		});
 		
