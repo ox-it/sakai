@@ -212,6 +212,7 @@
 <!ELEMENT default (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
 <!ELEMENT validate (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
 <!ELEMENT entityIncluded (message | decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT entityRowIncluded (message | decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
 <!ELEMENT titleIncluded (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
 <!ELEMENT asAlert (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
 <!ELEMENT active (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
@@ -398,7 +399,7 @@
 <!ATTLIST row title CDATA #IMPLIED >
 <!ATTLIST row model CDATA #IMPLIED >
 
-<!ELEMENT entityList (included | emptyTitle | entityActions | entityIncluded | colorize | iterator | title | titleIncluded | columns | headings | pager | anchor)* >
+<!ELEMENT entityList (included | emptyTitle | entityActions | entityIncluded | entityRowIncluded | colorize | iterator | title | titleIncluded | columns | headings | pager | anchor)* >
 <!ATTLIST entityList id CDATA #IMPLIED >
 <!ATTLIST entityList style (FLAT|FORM) #IMPLIED >
 <!ATTLIST entityList title CDATA #IMPLIED >
@@ -442,6 +443,9 @@
 <!ELEMENT footnote EMPTY >
 
 <!ELEMENT headings (heading)* >
+<!ATTLIST headings color CDATA #IMPLIED >
+<!ATTLIST headings padding (TRUE|FALSE) #IMPLIED >
+
 <!ELEMENT heading (message | navigation | decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
 
 <!ELEMENT autoColumn (model)* >
