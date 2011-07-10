@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -69,8 +69,14 @@ public class UiEntityList extends UiComponent implements EntityList
 	/** The entity actions defined related to this column. */
 	protected List<Component> entityActions = new ArrayList<Component>();
 
-	/** The inclusion decision for each entity. */
+	/** The inclusion decision for each entity - if not included, blocked from headers and item rows. */
 	protected Decision entityIncluded = null;
+
+	/** The inclusion decision for each entity - if not, it IS part of headers, not part of rows. */
+	protected Decision entityRowIncluded = null;
+
+	/** The color for heading rows. */
+	protected String headingBackgroundColor = null;
 
 	/** A single decision for each possible heading - order matches that in headingMessages. */
 	protected List<Decision> headingDecisions = new ArrayList<Decision>();
@@ -80,6 +86,9 @@ public class UiEntityList extends UiComponent implements EntityList
 
 	/** A navigation for each possible heading - order matches that in headingDecisions. */
 	protected List<Navigation> headingNavigations = new ArrayList<Navigation>();
+
+	/** Include padding in headings or not. */
+	protected boolean headingNoPad = false;
 
 	/** The context name for the current iteration object. */
 	protected String iteratorName = null;
@@ -132,6 +141,14 @@ public class UiEntityList extends UiComponent implements EntityList
 		{
 			Decision decision = service.parseDecisions(settingsXml);
 			this.entityIncluded = decision;
+		}
+
+		// row included
+		settingsXml = XmlHelper.getChildElementNamed(xml, "entityRowIncluded");
+		if (settingsXml != null)
+		{
+			Decision decision = service.parseDecisions(settingsXml);
+			this.entityRowIncluded = decision;
 		}
 
 		// colorize
@@ -238,6 +255,13 @@ public class UiEntityList extends UiComponent implements EntityList
 		settingsXml = XmlHelper.getChildElementNamed(xml, "headings");
 		if (settingsXml != null)
 		{
+			// color?
+			this.headingBackgroundColor = StringUtil.trimToNull(settingsXml.getAttribute("color"));
+
+			// no padding?
+			String setting = StringUtil.trimToNull(settingsXml.getAttribute("padding"));
+			if ("FALSE".equals(setting)) this.headingNoPad = true;
+
 			NodeList contained = settingsXml.getChildNodes();
 			for (int i = 0; i < contained.getLength(); i++)
 			{
@@ -500,8 +524,9 @@ public class UiEntityList extends UiComponent implements EntityList
 					else if ((c.getSortingDecision() != null) && (c.getSortingAscDecision() != null) && (c.getSortDestinationAsc() != null)
 							&& (c.getSortDestinationDesc() != null))
 					{
-						UiNavigation.generateLinkScript(context, sortId, false, false, submit, c.getSortDestinationAsc().getDestination(context,
-								focus), (String) context.get("sakai.return.url"), false, false, false);
+						UiNavigation.generateLinkScript(context, sortId, false, false, submit,
+								c.getSortDestinationAsc().getDestination(context, focus), (String) context.get("sakai.return.url"), false, false,
+								false);
 						response.println("<th scope=\"col\"" + (c.getCentered() ? " style=\"text-align:center\"" : "")
 								+ (c.getRight() ? " style=\"text-align:right\"" : "") + "><a href=\"#\" onclick=\"act_" + sortId
 								+ "();return false;\">" + title + "</a></th>");
@@ -593,6 +618,16 @@ public class UiEntityList extends UiComponent implements EntityList
 				row++;
 
 				// insert any heading that applies, each as a separate row
+				String rowBackground = "";
+				if (this.headingBackgroundColor != null)
+				{
+					rowBackground = " bgcolor=\"" + this.headingBackgroundColor + "\"";
+				}
+				String padding = "";
+				if (!this.headingNoPad)
+				{
+					padding = " style=\"padding:1em;\"";
+				}
 				int h = 0;
 				for (Decision headingDecision : this.headingDecisions)
 				{
@@ -601,8 +636,8 @@ public class UiEntityList extends UiComponent implements EntityList
 						Message headingMessage = this.headingMessages.get(h);
 						if (headingMessage != null)
 						{
-							response.println("<tr><td style=\"padding:1em;\" colspan=\"" + cols + "\">" + headingMessage.getMessage(context, entity)
-									+ "</td></tr>");
+							response.println("<tr" + rowBackground + "><td" + padding + " colspan=\"" + cols + "\">"
+									+ headingMessage.getMessage(context, entity) + "</td></tr>");
 						}
 
 						else
@@ -610,7 +645,7 @@ public class UiEntityList extends UiComponent implements EntityList
 							Navigation nav = this.headingNavigations.get(h);
 							if (nav != null)
 							{
-								response.print("<tr><td style=\"padding:1em;\" colspan=\"" + cols + "\">");
+								response.print("<tr" + rowBackground + "><td " + padding + " colspan=\"" + cols + "\">");
 								nav.render(context, entity);
 								response.println("</td></tr>");
 							}
@@ -618,6 +653,9 @@ public class UiEntityList extends UiComponent implements EntityList
 					}
 					h++;
 				}
+
+				// skip entities that are not row included
+				if ((this.entityRowIncluded != null) && (!this.entityRowIncluded.decide(context, entity))) continue;
 
 				// start the row, possibly colorizing
 				if ((this.colorizeBkg != null) && (this.colorizeDecision != null) && (this.colorizeDecision.decide(context, entity)))
@@ -692,8 +730,8 @@ public class UiEntityList extends UiComponent implements EntityList
 						if (href != null)
 						{
 							String navId = id + "_r" + row + "_c_" + colNum;
-							UiNavigation.generateLinkScript(context, navId, false, false, c.getEntityNavigationSubmit(), href, (String) context
-									.get("sakai.return.url"), false, false, false);
+							UiNavigation.generateLinkScript(context, navId, false, false, c.getEntityNavigationSubmit(), href,
+									(String) context.get("sakai.return.url"), false, false, false);
 							response.print("<a style=\"text-decoration:none !important\" href=\"#\" onclick=\"act_" + navId + "();return false;\">");
 						}
 
@@ -810,8 +848,7 @@ public class UiEntityList extends UiComponent implements EntityList
 		{
 			if (f.getText() != null)
 			{
-				response
-						.println("<div class =\"ambrosiaInstructions\">" + footnotes.get(f) + " " + f.getText().getMessage(context, focus) + "</div>");
+				response.println("<div class =\"ambrosiaInstructions\">" + footnotes.get(f) + " " + f.getText().getMessage(context, focus) + "</div>");
 			}
 		}
 
@@ -855,6 +892,33 @@ public class UiEntityList extends UiComponent implements EntityList
 	public EntityList setEntityIncluded(Decision inclusionDecision)
 	{
 		this.entityIncluded = inclusionDecision;
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public EntityList setEntityRowIncluded(Decision inclusionDecision)
+	{
+		this.entityRowIncluded = inclusionDecision;
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public EntityList setHeadingColor(String color)
+	{
+		this.headingBackgroundColor = color;
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public EntityList setHeadingNoPadding()
+	{
+		this.headingNoPad = true;
 		return this;
 	}
 

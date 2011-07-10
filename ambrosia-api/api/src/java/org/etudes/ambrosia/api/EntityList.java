@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -115,6 +115,31 @@ public interface EntityList extends Component
 	 * @return self.
 	 */
 	EntityList setEntityIncluded(Decision inclusionDecision);
+
+	/**
+	 * Set the decision to include each entity at the row level - even if excluded here, the entity will be considered for the headings.
+	 * 
+	 * @param inclusionDecision
+	 *        The decision for inclusion of each entity.
+	 * @return self.
+	 */
+	EntityList setEntityRowIncluded(Decision inclusionDecision);
+
+	/**
+	 * Set the background color for heading rows.
+	 * 
+	 * @param color
+	 *        The CSS color.
+	 * @return self.
+	 */
+	EntityList setHeadingColor(String color);
+
+	/**
+	 * Set no padding for heading rows.
+	 * 
+	 * @return self.
+	 */
+	EntityList setHeadingNoPadding();
 
 	/**
 	 * Set a reference to an array of Collection of entities to iterate over for the rows.
