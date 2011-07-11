@@ -243,11 +243,9 @@ var Signup = function(){
 									}
 								}
 							});
-							for (radio in radioSelected) {
-								if (!radioSelected[radio]) {
-									errorFound = true;
-									jQuery("#parts .error", dest).show().html("You need to select which components you wish to take.");
-								}
+							if (selectedPartIds.length < 1) {
+								errorFound = true;
+								jQuery("#parts .error", dest).show().html("You need to select which components you wish to take.");
 							}
 							// TODO This needs processing.
 							if (!errorFound) {
