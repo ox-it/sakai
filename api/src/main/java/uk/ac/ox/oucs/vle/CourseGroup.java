@@ -26,5 +26,7 @@ public interface CourseGroup {
 	
 	public List<Person> getAdministrators();
 	
+	public List<Person> getSuperusers();
+	
 	public boolean getIsAdmin();
 }

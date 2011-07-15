@@ -11,7 +11,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -152,6 +155,40 @@ public class PopulatorImpl implements Populator{
 		int groupSeen = 0, groupUpdated = 0, groupCreated = 0;
 		int componentSeen = 0, componentUpdated = 0, componentCreated = 0;
 		try {
+			Map<String, Set<String>> divisionalSuperusers = new HashMap<String, Set<String>>();
+			Set<String> superusers = new HashSet<String>();
+			
+			con = ds.getConnection();
+			String suDivisionCode = null;
+			String lastSuDivisionCode = null;
+			
+			Statement st = con.createStatement();
+			ResultSet rs = st.executeQuery(
+					"SELECT DISTINCT Division.division_code, " +
+					" Employee.webauth_code " +
+					" FROM Employee " + 
+					" INNER JOIN Department ON Employee.department_id = Department.id " + 
+					" INNER JOIN Division ON Department.division_id = Division.id" +
+					" WHERE Employee.ses_superuser = 1" +
+					" ORDER BY Division.division_code;");
+			while(rs.next()) {
+				suDivisionCode = rs.getString("division_code");
+				
+				if (!suDivisionCode.equals(lastSuDivisionCode)) {
+					
+					if (lastSuDivisionCode != null && !superusers.isEmpty()) {
+						divisionalSuperusers.put(lastSuDivisionCode, superusers);
+						superusers = new HashSet<String>();
+					}
+					lastSuDivisionCode = suDivisionCode;
+					superusers.add(rs.getString("webauth_code"));
+				}
+			}
+			
+			if (lastSuDivisionCode != null && !superusers.isEmpty()) {
+				divisionalSuperusers.put(lastSuDivisionCode, superusers);
+			}
+			
 			Set<String> administrators = new HashSet<String>();
 			String code = null;
 			String lastCode = null;
@@ -160,18 +197,18 @@ public class PopulatorImpl implements Populator{
 			String departmentName = null;
 			String subunitCode = null;
 			String subunitName = null;
+			String divisionCode = null;
 			String divisionEmail = null;
 			int publicViewInt = 0;
 			String description = null;
 			
-			con = ds.getConnection();
-			Statement st = con.createStatement();
+			//con = ds.getConnection();
+			//Statement st = con.createStatement();
 			// Import all course groups (from assessment units)
-			ResultSet rs = st.executeQuery(
-					"SELECT DISTINCT au.id, au.assessment_unit_code, au.title, " +
+			String sql = ("SELECT DISTINCT au.id, au.assessment_unit_code, au.title, " +
 					" Department.department_code, Department.department_name, " +
 					" SubUnit.sub_unit_code, SubUnit.sub_unit_name, " +
-					" Division.division_wide_email, " +
+					" Division.division_code, Division.division_wide_email, " +
 					" au.description, au.public_view, " +
 					" Employee.webauth_code " +
 					" FROM AssessmentUnit au " + 
@@ -182,6 +219,7 @@ public class PopulatorImpl implements Populator{
 					" INNER JOIN Department ON au.department_id = Department.id " + 
 					" LEFT JOIN SubUnit ON au.sub_unit_id = SubUnit.id " +
 					" INNER JOIN Division ON Department.division_id = Division.id;");
+			rs = st.executeQuery(sql);
 			while(rs.next()) {
 				
 				code = rs.getString("assessment_unit_code");
@@ -192,7 +230,8 @@ public class PopulatorImpl implements Populator{
 					if (lastCode != null && !administrators.isEmpty()) {
 						
 						if (updateGroup(lastCode, grouptitle, departmentCode, subunitCode, description,
-							departmentName, subunitName, publicViewInt, divisionEmail, administrators)) {
+							departmentName, subunitName, publicViewInt, divisionEmail, administrators, 
+							divisionalSuperusers.get(divisionCode))) {
 							groupCreated++;
 						} else {
 							groupUpdated++;
@@ -205,6 +244,7 @@ public class PopulatorImpl implements Populator{
 					departmentName = rs.getString("department_name");
 					subunitCode = rs.getString("sub_unit_code");
 					subunitName = rs.getString("sub_unit_name");
+					divisionCode = rs.getString("division_code");
 					divisionEmail = rs.getString("division_wide_email");
 					publicViewInt = rs.getInt("public_view");
 					description = rs.getString("description");
@@ -228,7 +268,8 @@ public class PopulatorImpl implements Populator{
 			// End of ResultSet write the last coursegroup
 			if (lastCode != null && !administrators.isEmpty()) {
 				if (updateGroup(lastCode, grouptitle, departmentCode, subunitCode, description,
-						departmentName, subunitName, publicViewInt, divisionEmail, administrators)) {
+						departmentName, subunitName, publicViewInt, divisionEmail, administrators,
+						divisionalSuperusers.get(divisionCode))) {
 					groupCreated++;
 				} else {
 					groupUpdated++;
@@ -236,7 +277,7 @@ public class PopulatorImpl implements Populator{
 			}
 			
 			// Now import all the course components ( from teaching (instances/components))
-			String sql = "SELECT" + 
+			sql = "SELECT" + 
 					" ti.id, ti.open_date, ti.close_date, ti.expiry_date, ti.start_date, ti.end_date, " +
 					" ti.sessions, ti.session_dates, ti.teaching_capacity, ti.bookable, " + 
 					" au.assessment_unit_code, tc.id as teaching_component_id, tc.subject, " + 
@@ -457,7 +498,7 @@ public class PopulatorImpl implements Populator{
 	
 	private boolean updateGroup(String code, String title, String departmentCode, String subunitCode, 
 			String description, String departmentName, String subunitName, 
-			int publicView, String divisionEmail, Set<String> administrators) {
+			int publicView, String divisionEmail, Set<String> administrators, Set<String> superusers) {
 		
 		log.info("Updategroup ["+code+":"+administrators.size()+":"+administrators.iterator().next()+"]");
 		
@@ -477,6 +518,10 @@ public class PopulatorImpl implements Populator{
 		groupDao.setPublicView(publicView > 1 ? false : true );
 		groupDao.setContactEmail(divisionEmail);
 		groupDao.setAdministrators(administrators);
+		if (null==superusers) {
+			superusers = Collections.EMPTY_SET;
+		}
+		groupDao.setSuperusers(superusers);
 		dao.save(groupDao);
 		
 		return created;
