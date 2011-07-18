@@ -192,7 +192,6 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 
 	public void save(CourseGroupDAO groupDao) {
-		System.out.println("CourseDAOImpl.save ["+groupDao.getId()+":"+groupDao.getAdministrators().size()+"]");
 		getHibernateTemplate().save(groupDao);
 	}
 
@@ -218,12 +217,10 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					throws HibernateException, SQLException {
 				Query query;
 				if (null != statuses && !statuses.isEmpty()) {
-					//query = session.createSQLQuery("select * from course_signup cs inner join course_group cg on cg.id = cs.groupId inner join course_group_administrator ca on cg.id = ca.course_group where cs.groupId = :courseId and ca.administrator = :userId and cs.status in (:statuses)").addEntity(CourseSignupDAO.class);
 					query = session.createSQLQuery("select * from course_signup, (select course_group from course_group_administrator where administrator = :userId union select course_group from course_group_superuser where superuser = :userId) admins where course_signup.groupId = admins.course_group and course_signup.groupId = :courseId and cs.status in (:statuses)").addEntity(CourseSignupDAO.class);
 					
 					query.setParameterList("statuses", statuses);
 				} else {
-					//query = session.createSQLQuery("select * from course_signup cs inner join course_group cg on cg.id = cs.groupId inner join course_group_administrator ca on cg.id = ca.course_group where cs.groupId = :courseId and ca.administrator = :userId").addEntity(CourseSignupDAO.class);
 					query = session.createSQLQuery("select * from course_signup, (select course_group from course_group_administrator where administrator = :userId union select course_group from course_group_superuser where superuser = :userId) admins where course_signup.groupId = admins.course_group and course_signup.groupId = :courseId").addEntity(CourseSignupDAO.class);
 				}
 				query.setString("userId", userId);

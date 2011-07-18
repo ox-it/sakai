@@ -181,7 +181,15 @@ public class PopulatorImpl implements Populator{
 						superusers = new HashSet<String>();
 					}
 					lastSuDivisionCode = suDivisionCode;
-					superusers.add(rs.getString("webauth_code"));
+					
+					String superuser = rs.getString("webauth_code");
+					UserProxy user = proxy.findUserByEid(superuser); 
+					if (user == null) {
+						logFailure(suDivisionCode, null, "Failed to find superuser " + superuser);
+						continue;
+					}
+					
+					superusers.add(user.getId());
 				}
 			}
 			
