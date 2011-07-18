@@ -102,20 +102,6 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	/**
 	 * {@inheritDoc}
 	 */
-	public void applyBaseDate(final String context, final int days)
-	{
-		this.sqlService.transact(new Runnable()
-		{
-			public void run()
-			{
-				applyBaseDateTx(context, days);
-			}
-		}, "applyBaseDate: " + context);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public List<String> clearStaleMintAssessments(final Date stale)
 	{
 		final List<String> rv = new ArrayList<String>();
@@ -600,38 +586,6 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	public void setUserDirectoryService(UserDirectoryService service)
 	{
 		this.userDirectoryService = service;
-	}
-
-	/**
-	 * Update the dates in assessments in this context (transaction).
-	 * 
-	 * @param context
-	 *        The context.
-	 * @param days
-	 *        The # days to adjust the dates.
-	 */
-	protected void applyBaseDateTx(String context, int days)
-	{
-		StringBuilder sql = new StringBuilder();
-		sql.append("UPDATE MNEME_ASSESSMENT SET");
-		sql.append(" DATES_ACCEPT_UNTIL=UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(DATES_ACCEPT_UNTIL/1000), INTERVAL ? DAY))*1000,");
-		sql.append(" DATES_DUE=UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(DATES_DUE/1000), INTERVAL ? DAY))*1000,");
-		sql.append(" DATES_OPEN=UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(DATES_OPEN/1000), INTERVAL ? DAY))*1000,");
-		sql.append(" REVIEW_DATE=UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME(REVIEW_DATE/1000), INTERVAL ? DAY))*1000");
-		sql.append(" WHERE CONTEXT=? AND ARCHIVED=0");
-
-		Object[] fields = new Object[5];
-		int i = 0;
-		fields[i++] = days;
-		fields[i++] = days;
-		fields[i++] = days;
-		fields[i++] = days;
-		fields[i++] = context;
-
-		if (!this.sqlService.dbWrite(sql.toString(), fields))
-		{
-			throw new RuntimeException("applyBaseDateTx: db write failed");
-		}
 	}
 
 	/**

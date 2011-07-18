@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -37,16 +37,6 @@ import org.etudes.mneme.api.Question;
  */
 public interface AssessmentStorage
 {
-	/**
-	 * Apply base date changes to open, due and accept until and all other dates of this context's unarchived assessments.
-	 * 
-	 * @param course_id
-	 *        The context.
-	 * @param days_diff
-	 *        The time difference in days
-	 */
-	void applyBaseDate(String context, int days_diff);
-
 	/**
 	 * Clear out any mint objects that are old enough to be considered abandoned.
 	 * 

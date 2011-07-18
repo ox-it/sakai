@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -25,9 +25,11 @@
 package org.etudes.mneme.impl;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -225,7 +227,59 @@ public class AssessmentServiceImpl implements AssessmentService
 			// security check
 			securityService.secure(sessionManager.getCurrentSessionUserId(), MnemeService.MANAGE_PERMISSION, context);
 
-			this.storage.applyBaseDate(context, days);
+			// do this the slow way (i.e. not all in SQL) to avoid the y2038 bug and assure proper gradebook integration
+			// see Etudes Jira MN-1125
+
+			// get all assessments
+			List<Assessment> assessments = getContextAssessments(context, AssessmentsSort.odate_a, Boolean.FALSE);
+
+			GregorianCalendar gc = new GregorianCalendar();
+
+			// for each one, apply the base date change
+			for (Assessment assessment : assessments)
+			{
+				if (assessment.getDates().getAcceptUntilDate() != null)
+				{
+					gc.setTime(assessment.getDates().getAcceptUntilDate());
+					gc.add(Calendar.DATE, days);
+					assessment.getDates().setAcceptUntilDate(gc.getTime());
+				}
+
+				if (assessment.getDates().getDueDate() != null)
+				{
+					gc.setTime(assessment.getDates().getDueDate());
+					gc.add(Calendar.DATE, days);
+					assessment.getDates().setDueDate(gc.getTime());
+				}
+
+				if (assessment.getDates().getOpenDate() != null)
+				{
+					gc.setTime(assessment.getDates().getOpenDate());
+					gc.add(Calendar.DATE, days);
+					assessment.getDates().setOpenDate(gc.getTime());
+				}
+
+				if (assessment.getReview().getDate() != null)
+				{
+					gc.setTime(assessment.getReview().getDate());
+					gc.add(Calendar.DATE, days);
+					assessment.getReview().setDate(gc.getTime());
+				}
+
+				// save
+				try
+				{
+					saveAssessment(assessment);
+				}
+				catch (AssessmentPermissionException e)
+				{
+					M_log.warn("applyBaseDateTx: " + assessment.getId() + " exception: " + e.toString());
+				}
+				catch (AssessmentPolicyException e)
+				{
+					M_log.warn("applyBaseDateTx: " + assessment.getId() + " exception: " + e.toString());
+				}
+			}
 		}
 		catch (AssessmentPermissionException e)
 		{
