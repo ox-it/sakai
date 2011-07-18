@@ -40,15 +40,17 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			throw new NotFoundException(signupId);
 		}
 		CourseGroupDAO groupDao = signupDao.getGroup();
-		String currentUserId = proxy.getCurrentUser().getId();
-		boolean canApprove = false;
-		if (currentUserId.equals(signupDao.getSupervisorId())) {
-			canApprove = true;
-		} else {
-			canApprove = isAdministrator(groupDao, currentUserId, canApprove);
-		}
-		if (!canApprove) {
-			throw new PermissionDeniedException(currentUserId);
+		if (groupDao.getSupervisorApproval()) {
+			String currentUserId = proxy.getCurrentUser().getId();
+			boolean canApprove = false;
+			if (currentUserId.equals(signupDao.getSupervisorId())) {
+				canApprove = true;
+			} else {
+				canApprove = isAdministrator(groupDao, currentUserId, canApprove);
+			}
+			if (!canApprove) {
+				throw new PermissionDeniedException(currentUserId);
+			}
 		}
 		signupDao.setStatus(Status.APPROVED);
 		dao.save(signupDao);
@@ -62,13 +64,17 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (signupDao == null) {
 			throw new NotFoundException(signupId);
 		}
-		String currentUserId = proxy.getCurrentUser().getId();
-		boolean canAccept = false;
-		// If is course admin on one of the components.
-		canAccept = isAdministrator(signupDao.getGroup(), currentUserId, canAccept);
-		if (!canAccept) {
-			throw new PermissionDeniedException(currentUserId);
+		CourseGroupDAO groupDao = signupDao.getGroup();
+		if (groupDao.getAdministratorApproval()) {
+			String currentUserId = proxy.getCurrentUser().getId();
+			boolean canAccept = false;
+			// If is course admin on one of the components.
+			canAccept = isAdministrator(signupDao.getGroup(), currentUserId, canAccept);
+			if (!canAccept) {
+				throw new PermissionDeniedException(currentUserId);
+			}
 		}
+		
 		if (!Status.PENDING.equals(signupDao.getStatus())) {
 			throw new IllegalStateException("You can only accept signups that are pending.");
 		}
@@ -80,10 +86,15 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		dao.save(signupDao);
 		proxy.logEvent(signupDao.getGroup().getId(), EVENT_ACCEPT);
 		
-		String supervisorId = signupDao.getSupervisorId();
-		String url = proxy.getConfirmUrl(signupId);
-		if (supervisorId != null) {
-			sendSignupEmail(supervisorId, signupDao, "approval.supervisor.subject", "approval.supervisor.body", new Object[]{url});
+		if (groupDao.getSupervisorApproval()) {
+			String supervisorId = signupDao.getSupervisorId();
+			String url = proxy.getConfirmUrl(signupId);
+			if (supervisorId != null) {
+				sendSignupEmail(supervisorId, signupDao, "approval.supervisor.subject", "approval.supervisor.body", new Object[]{url});
+			}
+			
+		} else {
+			approve(signupId);
 		}
 	}
 
@@ -220,23 +231,28 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public boolean isAdministrator(Set<String> administrators) {
 		String currentUserId = proxy.getCurrentUser().getId();
 		if (administrators.contains(currentUserId)) {
-				return true;
+			return true;
 		}
 		return false;
 	}
 	
 	private boolean isAdministrator(CourseGroupDAO groupGroup, String currentUserId, boolean defaultValue) {
-		boolean isAdmin = defaultValue;
 		if (groupGroup.getAdministrators().contains(currentUserId)) {
-				isAdmin = true;
+			return true;
 		}
-		return isAdmin;
+		if (groupGroup.getSuperusers().contains(currentUserId)) {
+			return true;
+	}
+		return defaultValue;
 	}
 
 	private boolean isAdministrator(CourseComponentDAO componentDao,
 			String userId, boolean defaultValue) {
 		for (CourseGroupDAO groupDao: componentDao.getGroups()) {
 			if (groupDao.getAdministrators().contains(userId)) {
+				return true;
+			}
+			if (groupDao.getSuperusers().contains(userId)) {
 				return true;
 			}
 		}
@@ -446,13 +462,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		} else {
 			signupDao.setStatus(Status.PENDING);
 		}
+		
 		signupDao.setMessage(message);
 		String signupId = dao.save(signupDao);
 		
 		// We're going to decrement the places on acceptance.
 		for (CourseComponentDAO componentDao: componentDaos) {
-			//componentDao.getSignups().add(signupDao); // Link to the signup
-			//componentDao.setTaken(componentDao.getTaken()+1); // Increment places taken
 			componentDao.getSignups().add(signupDao);
 			signupDao.getComponents().add(componentDao); // So when sending out email we know the components.
 			dao.save(componentDao);
@@ -461,20 +476,24 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		
 		String url = proxy.getConfirmUrl(signupId);
 		
-		for (String adminId : groupDao.getAdministrators()) {
-			sendSignupEmail(adminId, signupDao, 
-					"signup.admin.subject", 
-					"signup.admin.body", 
-					new Object[]{url});
-		}
-		
 		if (full) {
 			for (String adminId : groupDao.getAdministrators()) {
 				sendSignupWaitingEmail(adminId, signupDao, 
-					"signup.waiting.subject", 
-					"signup.waiting.body", 
-					new Object[]{url});
+							"signup.waiting.subject", 
+							"signup.waiting.body", 
+							new Object[]{url});
 			}
+		} else if (groupDao.getAdministratorApproval()) {
+			
+			for (String adminId : groupDao.getAdministrators()) {
+				sendSignupEmail(adminId, signupDao, 
+						"signup.admin.subject", 
+						"signup.admin.body", 
+						new Object[]{url});
+			}
+		
+		} else {
+			accept(signupId);
 		}
 	}
 	

@@ -51,6 +51,18 @@ public class CourseGroupImpl implements CourseGroup {
 		return courseGroupDAO.getPublicView();
 	}
 	
+	public boolean getSupervisorApproval() {
+		return courseGroupDAO.getSupervisorApproval();
+	}
+	
+	public boolean getAdministratorApproval() {
+		return courseGroupDAO.getAdministratorApproval();
+	}
+	
+	public boolean getHomeApproval() {
+		return courseGroupDAO.getHomeApproval();
+	}
+	
 	public String getContactEmail() {
 		return courseGroupDAO.getContactEmail();
 	}

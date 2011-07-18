@@ -85,6 +85,9 @@
 		<property name="subunitName" type="string" length="255"/>
 		<property name="description" type="string" length="4000"/>
 		<property name="publicView" type="boolean"/>
+		<property name="supervisorApproval" type="boolean"/>
+		<property name="administratorApproval" type="boolean"/>
+		<property name="homeApproval" type="boolean"/>
 		<property name="contactEmail" type="string" length="255"/>
 		<set name="components" inverse="true" lazy="true" table="course_group_component"
 			fetch="join">

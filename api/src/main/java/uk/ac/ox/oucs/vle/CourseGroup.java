@@ -20,6 +20,12 @@ public interface CourseGroup {
 	
 	public boolean getPublicView();
 	
+	public boolean getSupervisorApproval();
+	
+	public boolean getAdministratorApproval();
+	
+	public boolean getHomeApproval();
+	
 	public String getContactEmail();
 
 	public List<CourseComponent> getComponents();
