@@ -13,6 +13,7 @@ public class CourseGroupImpl implements CourseGroup {
 	private List<CourseComponent> components;
 	private List<Person> administrators;
 	private List<Person> superusers;
+	private List<String> otherDepartments;
 	
 	public CourseGroupImpl(CourseGroupDAO courseGroupDAO, CourseSignupServiceImpl impl) {
 		this.courseGroupDAO = courseGroupDAO;
@@ -112,6 +113,16 @@ public class CourseGroupImpl implements CourseGroup {
 		}
 		
 		return administrators;
+	}
+	
+	public List<String> getOtherDepartments() {
+		if (otherDepartments == null) {
+			otherDepartments = new ArrayList<String>();
+			for (String otherDepartment:  courseGroupDAO.getOtherDepartments()) {
+				otherDepartments.add(otherDepartment);
+			}
+		}
+		return otherDepartments;
 	}
 	
 	public boolean getIsAdmin() {

@@ -6,6 +6,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -198,6 +199,7 @@ public class PopulatorImpl implements Populator{
 			}
 			
 			Set<String> administrators = new HashSet<String>();
+			Set<String> otherDepartments = new HashSet<String>();
 			String code = null;
 			String lastCode = null;
 			String grouptitle = null;
@@ -212,6 +214,10 @@ public class PopulatorImpl implements Populator{
 			int administratorApprovalInt = 0;
 			int homeApprovalInt = 0;
 			String description = null;
+			
+			PreparedStatement pstmt = con.prepareStatement("SELECT DISTINCT " +
+					" other_department_id FROM AssessmentUnitOtherDepartment " +
+					" WHERE assessment_unit_id = ?");
 			
 			//con = ds.getConnection();
 			//Statement st = con.createStatement();
@@ -245,7 +251,7 @@ public class PopulatorImpl implements Populator{
 							departmentName, subunitName, publicViewInt, 
 							supervisorApprovalInt, administratorApprovalInt, homeApprovalInt,
 							divisionEmail, administrators, 
-							divisionalSuperusers.get(divisionCode))) {
+							divisionalSuperusers.get(divisionCode), otherDepartments)) {
 							groupCreated++;
 						} else {
 							groupUpdated++;
@@ -266,6 +272,16 @@ public class PopulatorImpl implements Populator{
 					homeApprovalInt = rs.getInt("home_dept_approval");
 					description = rs.getString("description");
 					administrators = new HashSet<String>();
+					otherDepartments = new HashSet<String>();
+					
+					//PreparedStatement pstmt = con.prepareStatement("SELECT DISTINCT " +
+					//		" otherDepartment FROM course_group_otherDepartment " +
+					//		" WHERE course_group = ?");
+					pstmt.setString(1, lastCode);
+					ResultSet innerRS = pstmt.executeQuery();
+					while(innerRS.next()) {
+						otherDepartments.add(rs.getString("otherDepartment"));
+					}
 				}
 				
 				String administrator = rs.getString("webauth_code");
@@ -288,7 +304,7 @@ public class PopulatorImpl implements Populator{
 						departmentName, subunitName, publicViewInt, 
 						supervisorApprovalInt, administratorApprovalInt, homeApprovalInt,
 						divisionEmail, administrators,
-						divisionalSuperusers.get(divisionCode))) {
+						divisionalSuperusers.get(divisionCode), otherDepartments)) {
 					groupCreated++;
 				} else {
 					groupUpdated++;
@@ -518,7 +534,8 @@ public class PopulatorImpl implements Populator{
 	private boolean updateGroup(String code, String title, String departmentCode, String subunitCode, 
 			String description, String departmentName, String subunitName, 
 			int publicView, int supervisorApproval, int administratorApproval, int homeApproval,
-			String divisionEmail, Set<String> administrators, Set<String> superusers) {
+			String divisionEmail, 
+			Set<String> administrators, Set<String> superusers, Set<String> otherDepartments) {
 		
 		log.info("Updategroup ["+code+":"+administrators.size()+":"+administrators.iterator().next()+"]");
 		
@@ -545,6 +562,10 @@ public class PopulatorImpl implements Populator{
 			superusers = Collections.EMPTY_SET;
 		}
 		groupDao.setSuperusers(superusers);
+		if (null==otherDepartments) {
+			otherDepartments = Collections.EMPTY_SET;
+		}
+		groupDao.setOtherDepartments(otherDepartments);
 		dao.save(groupDao);
 		
 		return created;

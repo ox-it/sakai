@@ -13,6 +13,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinFragment;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -79,25 +80,63 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			// Need the DISTINCT ROOT ENTITY filter.
 			public Object doInHibernate(Session session) throws HibernateException,
 					SQLException {
-				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
-				criteria.add(Expression.eq("dept", deptId));
-				criteria.add(Expression.or(Expression.isNull("subunit"),Expression.eq("subunit", "")));
+				
+				StringBuffer querySQL = new StringBuffer();
+				querySQL.append("SELECT * FROM course_group cg ");
+				querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.course_group = cg.id ");
+				querySQL.append("LEFT JOIN course_group_component cgc on cgc.course_group = cg.id ");
+				querySQL.append("LEFT JOIN course_component cc on cgc.component = cc.id ");
+				querySQL.append("WHERE ");
+				
 				if (external) {
-					criteria.add(Expression.eq("publicView", true));
+					querySQL.append("publicView = true AND ");
+				}
+				
+				switch (range) { 
+					case UPCOMING:
+						querySQL.append("closes > NOW() AND ");
+						break;
+					case PREVIOUS:
+						querySQL.append("closes < NOW() AND ");
+						break;
+				}
+				
+				querySQL.append("(otherDepartment = :deptId ");
+				querySQL.append("OR (dept = :deptId and (subunit is NULL or subunit = ''))) ");
+				querySQL.append("ORDER BY cg.title ");
+				
+				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
+				query.setString("deptId", deptId);
+				return query.list();
+			
+				//you can't use Criteria to query against a collection of value types
+			/*
+				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
+				
+				criteria.add(
+					Restrictions.or(
+							Restrictions.and(
+									Restrictions.eq("dept", deptId), 
+									Restrictions.or(Restrictions.isNull("subunit"),Restrictions.eq("subunit", ""))),
+							Restrictions.eq("otherDepartment", deptId)));
+				
+				if (external) {
+					criteria.add(Restrictions.eq("publicView", true));
 				}
 				switch (range) { 
 					case UPCOMING:
-						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("closes", now));
+						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Restrictions.gt("closes", now));
 						break;
 					case PREVIOUS:
-						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(Expression.le("closes", now));
+						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(Restrictions.le("closes", now));
 						break;
 				}
+				
 				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 				criteria.addOrder(Order.asc("title"));
 				return criteria.list();
-			}
-			
+			*/
+			}	
 		});
 	}
 	
@@ -108,9 +147,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			public Object doInHibernate(Session session) throws HibernateException,
 					SQLException {
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
-				criteria.add(Expression.eq("subunit", subunitId));
+				criteria.add(Restrictions.eq("subunit", subunitId));
 				if (external) {
-					criteria.add(Expression.eq("publicView", true));
+					criteria.add(Restrictions.eq("publicView", true));
 				}
 				switch (range) { 
 					case UPCOMING:

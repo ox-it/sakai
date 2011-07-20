@@ -34,5 +34,7 @@ public interface CourseGroup {
 	
 	public List<Person> getSuperusers();
 	
+	public List<String> getOtherDepartments();
+	
 	public boolean getIsAdmin();
 }

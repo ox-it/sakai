@@ -103,6 +103,10 @@
 			<key column="course_group" not-null="true"/>
 			<element column="superuser" type="string" length="64" />
 		</set>
+		<set name="otherDepartments" inverse="false" lazy="true" table="course_group_otherDepartment">
+			<key column="course_group" not-null="true"/>
+			<element column="otherDepartment" type="string" length="32" />
+		</set>
 		<set name="signups" inverse="true">
 			<key column="groupId"/>
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"/>
