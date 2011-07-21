@@ -660,6 +660,15 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		return subUnits;
 	}
+	
+	public List<Department> getDepartments() {
+		List<DepartmentDAO> subNodes = dao.findAllDepartments();
+		List<Department> departments = new ArrayList<Department>(subNodes.size());
+		for (DepartmentDAO departmentDAO : subNodes) {
+			departments.add(new DepartmentImpl(departmentDAO.getCode(), departmentDAO.getName()));
+		}
+		return departments;
+	}
 
 	public Date getNow() {
 		return (adjustment != 0)?new Date(new Date().getTime() + adjustment):new Date();

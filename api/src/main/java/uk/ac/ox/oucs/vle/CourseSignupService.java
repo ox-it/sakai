@@ -115,6 +115,8 @@ public interface CourseSignupService {
 	
 	public List<CourseGroup> search(String search, Range range, boolean external);
 	
+	public List<Department> getDepartments();
+	
 	/**
 	 * This is what the service should use when determining the current time.
 	 * This is to support testing the data against different times.

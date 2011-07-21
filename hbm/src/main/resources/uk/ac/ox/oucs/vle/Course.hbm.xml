@@ -7,6 +7,14 @@
 		<param name="enumClass">uk.ac.ox.oucs.vle.CourseSignupService$Status</param>
 	</typedef>
 
+	<class name="uk.ac.ox.oucs.vle.DepartmentDAO" table="department">
+		<!-- create the primary key id -->
+		<id name="code" type="string">
+			<column name="code" />
+		</id>
+		<property name="name" type="string" length="256" />
+	</class>
+	
 	<class name="uk.ac.ox.oucs.vle.CourseSignupDAO" table="course_signup">
 		<!-- create the primary key id -->
 		<id name="id" type="string">

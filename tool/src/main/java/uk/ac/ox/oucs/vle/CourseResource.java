@@ -74,16 +74,12 @@ public class CourseResource {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			externalUser = true;
 		}
+		final List<Department> departments = courseService.getDepartments();
 		final List<CourseGroup> groups = courseService.search("", range, externalUser);
 		if (groups == null) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
-		return new StreamingOutput() {
-			public void write(OutputStream output) throws IOException,
-					WebApplicationException {
-				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValue(output, groups);
-			}
-		};
+		return new AllGroupsStreamingOutput(departments, groups);
 	}
 	
 	/**
@@ -313,6 +309,106 @@ public class CourseResource {
 			gen.writeEndArray();
 			gen.writeEndObject();
 			gen.close();
+		}
+	}
+	
+	private class AllGroupsStreamingOutput implements StreamingOutput {
+		private final List<Department> departments;
+		private final List<CourseGroup> courses;
+	
+		private AllGroupsStreamingOutput(List<Department> departments, List<CourseGroup> courses) {
+			this.departments = departments;
+			this.courses = courses;
+		}
+	
+		public void write(OutputStream out) throws IOException {
+			
+			JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
+			gen.writeStartArray();
+			
+			for (CourseGroup courseGroup : courses) {
+				gen.writeStartObject();
+				
+				gen.writeObjectField("id", courseGroup.getId());
+				gen.writeObjectField("description", courseGroup.getDescription());
+				//gen.writeObjectField("supervisorApproval", courseGroup.getSupervisorApproval());
+				//gen.writeObjectField("administratorApproval", courseGroup.getAdministratorApproval());
+				gen.writeObjectField("title", courseGroup.getTitle());
+				
+				gen.writeArrayFieldStart("components");
+				for (CourseComponent component : courseGroup.getComponents()) {
+					gen.writeStartObject();
+					gen.writeObjectField("id", component.getId());
+					gen.writeObjectField("location", component.getLocation());
+					gen.writeObjectField("slot", component.getSlot());
+					gen.writeObjectField("size", component.getSize());
+					gen.writeObjectField("subject", component.getSubject());
+					gen.writeObjectField("opens", component.getOpens().getTime());
+					gen.writeObjectField("closes", component.getCloses().getTime());
+					gen.writeObjectField("title", component.getTitle());
+					gen.writeObjectField("sessions", component.getSessions());
+					gen.writeObjectField("when", component.getWhen());
+					gen.writeObjectField("bookable", component.getBookable());
+					gen.writeObjectField("places", component.getPlaces());
+					gen.writeObjectField("componentSet", component.getComponentSet());
+					if (null != component.getPresenter()) {
+						gen.writeObjectFieldStart("presenter");
+						gen.writeObjectField("name", component.getPresenter().getName());
+						gen.writeObjectField("email", component.getPresenter().getEmail());
+						//gen.writeObjectField("units", component.getPresenter().getUnits());
+						gen.writeEndObject();
+					}
+					gen.writeEndObject();
+				}
+				gen.writeEndArray();
+				
+				gen.writeArrayFieldStart("administrators");
+				for (Person administrator : courseGroup.getAdministrators()) {
+					gen.writeStartObject();
+					gen.writeObjectField("id", administrator.getId());
+					gen.writeObjectField("name", administrator.getName());
+					gen.writeObjectField("type", administrator.getType());
+					gen.writeObjectField("email", administrator.getEmail());
+					//gen.writeObjectField("units", administrator.getUnits());
+					gen.writeEndObject();
+				}
+				gen.writeEndArray();
+				
+				gen.writeArrayFieldStart("superusers");
+				for (Person superuser : courseGroup.getSuperusers()) {
+					gen.writeStartObject();
+					gen.writeObjectField("id", superuser.getId());
+					gen.writeObjectField("name", superuser.getName());
+					gen.writeObjectField("type", superuser.getType());
+					gen.writeObjectField("email", superuser.getEmail());
+					//gen.writeObjectField("units", superuser.getUnits());
+					gen.writeEndObject();
+				}
+				gen.writeEndArray();
+				
+				gen.writeArrayFieldStart("department");
+				gen.writeObject(getDepartmentName(courseGroup.getDepartmentCode()));
+				for (String code : courseGroup.getOtherDepartments()) {
+					gen.writeObject(getDepartmentName(code));
+				}
+				gen.writeEndArray();
+				
+				//gen.writeObjectField("publicView", courseGroup.getPublicView());
+				//gen.writeObjectField("homeApproval", courseGroup.getHomeApproval());
+				//gen.writeObjectField("isAdmin", courseGroup.getIsAdmin());
+				gen.writeEndObject();
+			}
+			gen.writeEndArray();
+			gen.close();
+		}
+		
+		private String getDepartmentName(String code) {
+			for (Department department : departments) {
+				if (department.getCode().equals(code)) {
+					return department.getName();
+				}
+			}
+			return  "";
 		}
 	}
 }

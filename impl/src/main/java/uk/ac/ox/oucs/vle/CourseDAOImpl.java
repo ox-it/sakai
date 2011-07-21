@@ -180,6 +180,19 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			
 		});
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<DepartmentDAO> findAllDepartments() {
+		return getHibernateTemplate().executeFind(new HibernateCallback() {
+			// Need the DISTINCT ROOT ENTITY filter.
+			public Object doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Query query = session.createSQLQuery("select * from department").addEntity(DepartmentDAO.class);
+				return query.list();
+			}
+			
+		});
+	}
 
 	public CourseComponentDAO findCourseComponent(String id) {
 		return (CourseComponentDAO) getHibernateTemplate().get(CourseComponentDAO.class, id);
@@ -352,6 +365,14 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			
 		});
 		
+	}
+	
+	public DepartmentDAO findDepartmentByCode(String code) {
+		return (DepartmentDAO) getHibernateTemplate().get(DepartmentDAO.class, code);
+	}
+	
+	public void save(DepartmentDAO departmentDao) {
+		getHibernateTemplate().save(departmentDao).toString();
 	}
 	
 	public void remove(CourseSignupDAO existingSignup) {

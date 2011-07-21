@@ -163,8 +163,23 @@ public class PopulatorImpl implements Populator{
 			String suDivisionCode = null;
 			String lastSuDivisionCode = null;
 			
+			// Departments
 			Statement st = con.createStatement();
 			ResultSet rs = st.executeQuery(
+					"SELECT department_code, department_name " +
+					" FROM Department;");
+			while(rs.next()) {
+				String code = rs.getString("department_code");
+				DepartmentDAO departmentDao = dao.findDepartmentByCode(code);
+				if (null == departmentDao) {
+					departmentDao = new DepartmentDAO(code);
+				}
+				departmentDao.setName(rs.getString("department_name"));
+				dao.save(departmentDao);
+			}
+				
+			// Divisional Superusers
+			rs = st.executeQuery(
 					"SELECT DISTINCT Division.division_code, " +
 					" Employee.webauth_code " +
 					" FROM Employee " + 
