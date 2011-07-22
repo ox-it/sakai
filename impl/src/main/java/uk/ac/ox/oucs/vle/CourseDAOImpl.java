@@ -82,7 +82,11 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					SQLException {
 				
 				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("SELECT * FROM course_group cg ");
+				querySQL.append("SELECT DISTINCT ");
+				querySQL.append("cg.id, cg.title, cg.dept, cg.departmentName, ");
+				querySQL.append("cg.subunit, cg.subunitName, cg.description, cg.publicView, ");
+				querySQL.append("cg.supervisorApproval, cg.administratorApproval, cg.homeApproval, cg.contactEmail ");
+				querySQL.append("FROM course_group cg ");
 				querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.course_group = cg.id ");
 				querySQL.append("LEFT JOIN course_group_component cgc on cgc.course_group = cg.id ");
 				querySQL.append("LEFT JOIN course_component cc on cgc.component = cc.id ");
