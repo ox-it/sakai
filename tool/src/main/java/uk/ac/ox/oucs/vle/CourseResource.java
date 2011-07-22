@@ -2,12 +2,11 @@ package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -74,7 +73,7 @@ public class CourseResource {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			externalUser = true;
 		}
-		final List<Department> departments = courseService.getDepartments();
+		final Map<String, String> departments = courseService.getDepartments();
 		final List<CourseGroup> groups = courseService.search("", range, externalUser);
 		if (groups == null) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -313,10 +312,10 @@ public class CourseResource {
 	}
 	
 	private class AllGroupsStreamingOutput implements StreamingOutput {
-		private final List<Department> departments;
+		private final Map<String, String> departments;
 		private final List<CourseGroup> courses;
 	
-		private AllGroupsStreamingOutput(List<Department> departments, List<CourseGroup> courses) {
+		private AllGroupsStreamingOutput(Map<String, String> departments, List<CourseGroup> courses) {
 			this.departments = departments;
 			this.courses = courses;
 		}
@@ -331,9 +330,12 @@ public class CourseResource {
 				
 				gen.writeObjectField("id", courseGroup.getId());
 				gen.writeObjectField("description", courseGroup.getDescription());
+				gen.writeObjectField("title", courseGroup.getTitle());
 				//gen.writeObjectField("supervisorApproval", courseGroup.getSupervisorApproval());
 				//gen.writeObjectField("administratorApproval", courseGroup.getAdministratorApproval());
-				gen.writeObjectField("title", courseGroup.getTitle());
+				//gen.writeObjectField("publicView", courseGroup.getPublicView());
+				//gen.writeObjectField("homeApproval", courseGroup.getHomeApproval());
+				//gen.writeObjectField("isAdmin", courseGroup.getIsAdmin());
 				
 				gen.writeArrayFieldStart("components");
 				for (CourseComponent component : courseGroup.getComponents()) {
@@ -387,28 +389,15 @@ public class CourseResource {
 				gen.writeEndArray();
 				
 				gen.writeArrayFieldStart("department");
-				gen.writeObject(getDepartmentName(courseGroup.getDepartmentCode()));
+				gen.writeObject(departments.get(courseGroup.getDepartmentCode()));
 				for (String code : courseGroup.getOtherDepartments()) {
-					gen.writeObject(getDepartmentName(code));
+					gen.writeObject(departments.get(code));
 				}
 				gen.writeEndArray();
-				
-				//gen.writeObjectField("publicView", courseGroup.getPublicView());
-				//gen.writeObjectField("homeApproval", courseGroup.getHomeApproval());
-				//gen.writeObjectField("isAdmin", courseGroup.getIsAdmin());
 				gen.writeEndObject();
 			}
 			gen.writeEndArray();
 			gen.close();
-		}
-		
-		private String getDepartmentName(String code) {
-			for (Department department : departments) {
-				if (department.getCode().equals(code)) {
-					return department.getName();
-				}
-			}
-			return  "";
 		}
 	}
 }

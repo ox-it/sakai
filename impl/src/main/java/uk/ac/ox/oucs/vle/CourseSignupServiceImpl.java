@@ -4,8 +4,10 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -661,11 +663,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return subUnits;
 	}
 	
-	public List<Department> getDepartments() {
+	public Map<String, String> getDepartments() {
 		List<DepartmentDAO> subNodes = dao.findAllDepartments();
-		List<Department> departments = new ArrayList<Department>(subNodes.size());
+		Map<String, String> departments = new HashMap<String, String>();
 		for (DepartmentDAO departmentDAO : subNodes) {
-			departments.add(new DepartmentImpl(departmentDAO.getCode(), departmentDAO.getName()));
+			departments.put(departmentDAO.getCode(), departmentDAO.getName());
 		}
 		return departments;
 	}

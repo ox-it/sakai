@@ -2,6 +2,7 @@ package uk.ac.ox.oucs.vle;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -115,7 +116,7 @@ public interface CourseSignupService {
 	
 	public List<CourseGroup> search(String search, Range range, boolean external);
 	
-	public List<Department> getDepartments();
+	public Map<String, String> getDepartments();
 	
 	/**
 	 * This is what the service should use when determining the current time.
