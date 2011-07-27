@@ -441,6 +441,15 @@ public class AssessmentStorageSample implements AssessmentStorage
 		// TODO: could be implemented
 		return null;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Date getMaxStartDate(String context)
+	{
+		// TODO: could be implemented
+		return null;
+	}	
 
 	/**
 	 * Final initialization, once all dependencies are set.

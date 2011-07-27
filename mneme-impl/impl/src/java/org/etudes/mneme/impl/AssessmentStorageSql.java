@@ -373,6 +373,57 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 
 		return null;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Date getMaxStartDate(String context)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT MAX(DATES_ACCEPT_UNTIL), MAX(DATES_DUE), MAX(DATES_OPEN), MAX(REVIEW_DATE)");
+		sql.append(" FROM MNEME_ASSESSMENT");
+		sql.append(" WHERE CONTEXT = ? AND ARCHIVED=0");
+
+		Object[] fields = new Object[1];
+		fields[0] = context;
+
+		List results = this.sqlService.dbRead(sql.toString(), fields, new SqlReader()
+		{
+			public Object readSqlResultRecord(ResultSet result)
+			{
+				try
+				{
+					Date rv = null;
+					for (int i = 1; i <= 4; i++)
+					{
+						Date d = SqlHelper.readDate(result, i);
+						if (rv == null)
+						{
+							rv = d;
+						}
+						else if ((d != null) && d.before(rv))
+						{
+							rv = d;
+						}
+					}
+
+					return rv;
+				}
+				catch (SQLException e)
+				{
+					M_log.warn("getMaxStartDate: " + e);
+					return null;
+				}
+			}
+		});
+
+		if (results.size() > 0)
+		{
+			return (Date) results.get(0);
+		}
+
+		return null;
+	}	
 
 	/**
 	 * {@inheritDoc}

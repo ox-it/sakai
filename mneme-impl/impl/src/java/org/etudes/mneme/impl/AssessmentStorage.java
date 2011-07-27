@@ -126,6 +126,15 @@ public interface AssessmentStorage
 	 * @return If open dates exist for assessment, returns the earliest open date, otherwise returns null.
 	 */
 	Date getMinStartDate(String context);
+	
+	/**
+	 * Get the latest open date of assessments in this context.
+	 * 
+	 * @param context
+	 *        The context.
+	 * @return If open dates exist for assessment, returns the latest open date, otherwise returns null.
+	 */
+	Date getMaxStartDate(String context);	
 
 	/**
 	 * Initialize.

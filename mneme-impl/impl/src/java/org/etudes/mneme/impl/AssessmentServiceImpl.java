@@ -438,6 +438,15 @@ public class AssessmentServiceImpl implements AssessmentService
 		Date minDate = this.storage.getMinStartDate(context);
 		return minDate;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Date getMaxStartDate(String context)
+	{
+		Date maxDate = this.storage.getMaxStartDate(context);
+		return maxDate;
+	}	
 
 	/**
 	 * {@inheritDoc}
