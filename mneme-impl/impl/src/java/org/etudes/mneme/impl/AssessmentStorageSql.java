@@ -401,7 +401,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 						{
 							rv = d;
 						}
-						else if ((d != null) && d.before(rv))
+						else if ((d != null) && d.after(rv))
 						{
 							rv = d;
 						}
