@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2010 Etudes, Inc.
+ * Copyright (c) 2010, 2011 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ public class ResultsFormatterImpl
 				if (count == 0) continue;
 
 				String answersText = (count == 1) ? format("results-answer") : format("results-answers", count);
-				String pointsText = (question.getPoints() > 0) ? format("results-worth", question.getPoints()) : "";
+				String pointsText = (question.getPoints() > 0) ? format("results-question-worth", question.getPoints()) : "";
 
 				content
 						.append("<div style=\"background: #EEEEEE;border: 1px solid #bbb;padding-left: 0.5em;font-weight: bold;line-height: 1.5em;\">");
