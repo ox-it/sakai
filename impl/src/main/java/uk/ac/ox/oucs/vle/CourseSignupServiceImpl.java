@@ -62,9 +62,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		boolean departmentApproval = false;
 		if (null != signupDao.getDepartment()) {
 			DepartmentDAO departmentDao = dao.findDepartmentByCode(signupDao.getDepartment());
-			departmentApproval = departmentDao.getApprove();
-			if (departmentDao.getApprovers().isEmpty()) {
-				departmentApproval = false;
+			if (null != departmentDao) {
+				departmentApproval = departmentDao.getApprove();
+				if (departmentDao.getApprovers().isEmpty()) {
+					departmentApproval = false;
+				}
 			}
 		}
 		
@@ -122,10 +124,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void confirm(String signupId) {
-		System.out.println("CourseSignupServiceImpl.confirm ["+signupId+"]");
 		
 		String currentUserId = proxy.getCurrentUser().getId();
-		List<DepartmentDAO> departments = dao.findApproverDepartments(currentUserId);
 		
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
 		if (signupDao == null) {
@@ -133,23 +133,28 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		CourseGroupDAO groupDao = signupDao.getGroup();
 		
+		boolean departmentApproval = false;
 		if (null != signupDao.getDepartment()) {
 			DepartmentDAO department = dao.findDepartmentByCode(signupDao.getDepartment());
 			if (null != department) {
-				if (department.getApprove()) {
-					boolean canConfirm = false;
-					for (DepartmentDAO dept : departments) {
-						if (dept.getCode().equals(signupDao.getDepartment())) {
-							canConfirm = true;
-							break;
-						}
-					}
-					if (!canConfirm) {
-						throw new PermissionDeniedException(currentUserId);
-					}
-				}
+				departmentApproval = department.getApprove();
 			}
 		}
+			
+		if (departmentApproval) {
+			List<DepartmentDAO> departments = dao.findApproverDepartments(currentUserId);
+			boolean canConfirm = false;
+			for (DepartmentDAO dept : departments) {
+				if (dept.getCode().equals(signupDao.getDepartment())) {
+					canConfirm = true;
+					break;
+				}
+			}
+			if (!canConfirm) {
+				throw new PermissionDeniedException(currentUserId);
+			}
+		}
+
 		signupDao.setStatus(Status.CONFIRMED);
 		dao.save(signupDao);
 		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP);
@@ -358,7 +363,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void reject(String signupId) {
-		System.out.println("CourseSignupServiceImpl.reject ["+signupId+"]");
+		
 		String currentUserId = proxy.getCurrentUser().getId();
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
 		if (signupDao == null) {
@@ -471,7 +476,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			List<CourseSignupDAO> signupsToRemove = new ArrayList<CourseSignupDAO>();
 			for(CourseSignupDAO componentSignupDao: componentDao.getSignups()) {
 				if (componentSignupDao.getUserId().equals(userId)) {
-					System.out.println("ToRemove ["+componentSignupDao.getId()+"]");
 					signupsToRemove.add(componentSignupDao);
 				}
 			}
