@@ -139,7 +139,6 @@ public class PopulatorImpl implements Populator{
 			}
 		}
 		
-		
 	}
 	
 	public void updater() {
@@ -148,62 +147,11 @@ public class PopulatorImpl implements Populator{
 		int groupSeen = 0, groupUpdated = 0, groupCreated = 0;
 		int componentSeen = 0, componentUpdated = 0, componentCreated = 0;
 		try {
-			Map<String, Set<String>> divisionalSuperusers = new HashMap<String, Set<String>>();
-			Set<String> superusers = new HashSet<String>();
-			
 			con = ds.getConnection();
-			String suDivisionCode = null;
-			String lastSuDivisionCode = null;
-			
-			// Departments
 			Statement st = con.createStatement();
-			ResultSet rs = st.executeQuery(
-					"SELECT department_code, department_name " +
-					" FROM Department;");
-			while(rs.next()) {
-				String code = rs.getString("department_code");
-				DepartmentDAO departmentDao = dao.findDepartmentByCode(code);
-				if (null == departmentDao) {
-					departmentDao = new DepartmentDAO(code);
-				}
-				departmentDao.setName(rs.getString("department_name"));
-				dao.save(departmentDao);
-			}
-				
-			// Divisional Superusers
-			rs = st.executeQuery(
-					"SELECT DISTINCT Division.division_code, " +
-					" Employee.webauth_code " +
-					" FROM Employee " + 
-					" INNER JOIN Department ON Employee.department_id = Department.id " + 
-					" INNER JOIN Division ON Department.division_id = Division.id" +
-					" WHERE Employee.ses_superuser = 1" +
-					" ORDER BY Division.division_code;");
-			while(rs.next()) {
-				suDivisionCode = rs.getString("division_code");
-				
-				if (!suDivisionCode.equals(lastSuDivisionCode)) {
-					
-					if (lastSuDivisionCode != null && !superusers.isEmpty()) {
-						divisionalSuperusers.put(lastSuDivisionCode, superusers);
-						superusers = new HashSet<String>();
-					}
-					lastSuDivisionCode = suDivisionCode;
-					
-					String superuser = rs.getString("webauth_code");
-					UserProxy user = proxy.findUserByEid(superuser); 
-					if (user == null) {
-						logFailure(suDivisionCode, null, "Failed to find superuser " + superuser);
-						continue;
-					}
-					
-					superusers.add(user.getId());
-				}
-			}
 			
-			if (lastSuDivisionCode != null && !superusers.isEmpty()) {
-				divisionalSuperusers.put(lastSuDivisionCode, superusers);
-			}
+			departmentTable(st);
+			Map<String, Set<String>> divisionalSuperusers = this.superUsersTable(st);
 			
 			Set<String> administrators = new HashSet<String>();
 			Set<String> otherDepartments = new HashSet<String>();
@@ -219,7 +167,6 @@ public class PopulatorImpl implements Populator{
 			int publicViewInt = 0;
 			int supervisorApprovalInt = 0;
 			int administratorApprovalInt = 0;
-			int homeApprovalInt = 0;
 			String description = null;
 			
 			PreparedStatement pstmt = con.prepareStatement("SELECT DISTINCT " +
@@ -228,13 +175,13 @@ public class PopulatorImpl implements Populator{
 			
 			//con = ds.getConnection();
 			//Statement st = con.createStatement();
-			// Import all course groups (from assessment units)
+			// Import all course groups (from assessment units)department
 			String sql = ("SELECT DISTINCT au.id, au.assessment_unit_code, au.title, " +
 					" Department.department_code, Department.department_name, " +
 					" SubUnit.sub_unit_code, SubUnit.sub_unit_name, " +
 					" Division.division_code, Division.division_wide_email, " +
 					" au.description, au.public_view, " +
-					" au.supervisor_approval, au.module_approval, au.home_dept_approval, " +
+					" au.supervisor_approval, au.module_approval, " +
 					" Employee.webauth_code " +
 					" FROM AssessmentUnit au " + 
 					" INNER JOIN AssessmentUnitEmployee ae ON au.id = ae.assessment_unit_id " +
@@ -244,7 +191,7 @@ public class PopulatorImpl implements Populator{
 					" INNER JOIN Department ON au.department_id = Department.id " + 
 					" LEFT JOIN SubUnit ON au.sub_unit_id = SubUnit.id " +
 					" INNER JOIN Division ON Department.division_id = Division.id;");
-			rs = st.executeQuery(sql);
+			ResultSet rs = st.executeQuery(sql);
 			while(rs.next()) {
 				
 				code = rs.getString("assessment_unit_code");
@@ -256,7 +203,7 @@ public class PopulatorImpl implements Populator{
 						
 						if (updateGroup(lastCode, grouptitle, departmentCode, subunitCode, description,
 							departmentName, subunitName, publicViewInt, 
-							supervisorApprovalInt, administratorApprovalInt, homeApprovalInt,
+							supervisorApprovalInt, administratorApprovalInt,
 							divisionEmail, administrators, 
 							divisionalSuperusers.get(divisionCode), otherDepartments)) {
 							groupCreated++;
@@ -276,7 +223,6 @@ public class PopulatorImpl implements Populator{
 					publicViewInt = rs.getInt("public_view");
 					supervisorApprovalInt = rs.getInt("supervisor_approval");
 					administratorApprovalInt = rs.getInt("module_approval");
-					homeApprovalInt = rs.getInt("home_dept_approval");
 					description = rs.getString("description");
 					administrators = new HashSet<String>();
 					otherDepartments = new HashSet<String>();
@@ -309,7 +255,7 @@ public class PopulatorImpl implements Populator{
 			if (lastCode != null && !administrators.isEmpty()) {
 				if (updateGroup(lastCode, grouptitle, departmentCode, subunitCode, description,
 						departmentName, subunitName, publicViewInt, 
-						supervisorApprovalInt, administratorApprovalInt, homeApprovalInt,
+						supervisorApprovalInt, administratorApprovalInt,
 						divisionEmail, administrators,
 						divisionalSuperusers.get(divisionCode), otherDepartments)) {
 					groupCreated++;
@@ -538,9 +484,109 @@ public class PopulatorImpl implements Populator{
 
 	}
 	
+	/**
+	 * Departments
+	 * @param con
+	 * @throws SQLException
+	 */
+	private void departmentTable(Statement st) throws SQLException {
+		
+		String departmentCode = null;
+		String lastDepartment = null;
+		String departmentName = null;
+		int approveInt = 2;
+		Set<String> approvers = new HashSet<String>();
+		ResultSet rs = st.executeQuery(
+				"SELECT Department.department_code, Department.department_name, " +
+				"Employee.webauth_code " +
+				"FROM Department " +
+				"LEFT JOIN Employee ON Department.id = Employee.department_id " +
+				"AND Employee.ses_approver = 1;");
+		while(rs.next()) {
+			departmentCode = rs.getString("department_code");
+			if (!departmentCode.equals(lastDepartment)) {
+				if (lastDepartment != null) {
+					DepartmentDAO departmentDao = dao.findDepartmentByCode(lastDepartment);
+					if (null == departmentDao) {
+						departmentDao = new DepartmentDAO(lastDepartment);
+					}
+					departmentDao.setName(departmentName);
+					departmentDao.setApprove((approveInt > 1 ? false : true ));
+					departmentDao.setApprovers(approvers);
+					dao.save(departmentDao);
+				}
+				
+				lastDepartment = departmentCode;
+				departmentName = rs.getString("department_name");
+				//approveInt = rs.getInt("approve");
+			}
+		}
+		
+		if (lastDepartment != null) {
+			DepartmentDAO departmentDao = dao.findDepartmentByCode(lastDepartment);
+			if (null == departmentDao) {
+				departmentDao = new DepartmentDAO(lastDepartment);
+			}
+			departmentDao.setName(departmentName);
+			departmentDao.setApprove((approveInt > 1 ? false : true ));
+			departmentDao.setApprovers(approvers);
+			dao.save(departmentDao);
+		}
+	}
+	
+	/**
+	 * Divisional Superusers
+	 * @param con
+	 * @throws SQLException
+	 */
+	private Map<String, Set<String>> superUsersTable(Statement st) throws SQLException {
+		
+		Map<String, Set<String>> divisionalSuperusers = new HashMap<String, Set<String>>();
+		Set<String> superusers = new HashSet<String>();
+		
+		String suDivisionCode = null;
+		String lastSuDivisionCode = null;
+		ResultSet rs = st.executeQuery(
+				"SELECT DISTINCT Division.division_code, " +
+				" Employee.webauth_code " +
+				" FROM Employee " + 
+				" INNER JOIN Department ON Employee.department_id = Department.id " + 
+				" INNER JOIN Division ON Department.division_id = Division.id" +
+				" WHERE Employee.ses_superuser = 1" +
+				" ORDER BY Division.division_code;");
+		while(rs.next()) {
+			suDivisionCode = rs.getString("division_code");
+			
+			if (!suDivisionCode.equals(lastSuDivisionCode)) {
+				
+				if (lastSuDivisionCode != null && !superusers.isEmpty()) {
+					divisionalSuperusers.put(lastSuDivisionCode, superusers);
+					superusers = new HashSet<String>();
+				}
+				lastSuDivisionCode = suDivisionCode;
+				
+				String superuser = rs.getString("webauth_code");
+				UserProxy user = proxy.findUserByEid(superuser); 
+				if (user == null) {
+					//logFailure(suDivisionCode, null, "Failed to find superuser " + superuser);
+					continue;
+				}
+				
+				superusers.add(user.getId());
+			}
+		}
+		
+		if (lastSuDivisionCode != null && !superusers.isEmpty()) {
+			divisionalSuperusers.put(lastSuDivisionCode, superusers);
+		}
+		
+		return divisionalSuperusers;
+		
+	}
+	
 	private boolean updateGroup(String code, String title, String departmentCode, String subunitCode, 
 			String description, String departmentName, String subunitName, 
-			int publicView, int supervisorApproval, int administratorApproval, int homeApproval,
+			int publicView, int supervisorApproval, int administratorApproval,
 			String divisionEmail, 
 			Set<String> administrators, Set<String> superusers, Set<String> otherDepartments) {
 		
@@ -562,7 +608,6 @@ public class PopulatorImpl implements Populator{
 		groupDao.setPublicView(publicView > 1 ? false : true );
 		groupDao.setSupervisorApproval(supervisorApproval > 1 ? false : true );
 		groupDao.setAdministratorApproval(administratorApproval > 1 ? false : true );
-		groupDao.setHomeApproval(homeApproval > 1 ? false : true );
 		groupDao.setContactEmail(divisionEmail);
 		groupDao.setAdministrators(administrators);
 		if (null==superusers) {

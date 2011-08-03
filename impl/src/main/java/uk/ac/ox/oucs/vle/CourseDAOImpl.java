@@ -85,7 +85,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				querySQL.append("SELECT DISTINCT ");
 				querySQL.append("cg.id, cg.title, cg.dept, cg.departmentName, ");
 				querySQL.append("cg.subunit, cg.subunitName, cg.description, cg.publicView, ");
-				querySQL.append("cg.supervisorApproval, cg.administratorApproval, cg.homeApproval, cg.contactEmail ");
+				querySQL.append("cg.supervisorApproval, cg.administratorApproval, cg.contactEmail ");
 				querySQL.append("FROM course_group cg ");
 				querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.course_group = cg.id ");
 				querySQL.append("LEFT JOIN course_group_component cgc on cgc.course_group = cg.id ");
@@ -325,10 +325,22 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public List<CourseSignupDAO> findSignupPending(final String userId) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
-				Query query = session.createSQLQuery("select * from course_signup cs left join course_group_administrator ca on cs.groupId = ca.course_group inner join course_component_signup cp on cs.id = cp.signup inner join course_component cc on cp.component = cc.id where (ca.administrator = :userId and cs.status = :adminStatus) or (cs.supervisorId = :userId and cs.status = :supervisorStatus)").addEntity(CourseSignupDAO.class);
+				Query query = session.createSQLQuery("select distinct cs.id, cs.userId, cs.status, cs.created, cs.message, cs.supervisorId, cs.groupId, cs.department from course_signup cs left join course_group_administrator ca on cs.groupId = ca.course_group inner join course_component_signup cp on cs.id = cp.signup inner join course_component cc on cp.component = cc.id where (ca.administrator = :userId and cs.status = :adminStatus) or (cs.supervisorId = :userId and cs.status = :supervisorStatus)").addEntity(CourseSignupDAO.class);
 				query.setString("userId", userId);
 				query.setParameter("adminStatus", Status.PENDING.name());
 				query.setParameter("supervisorStatus", Status.ACCEPTED.name());
+				return query.list();
+			}
+		});
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<CourseSignupDAO> findSignupApproval(final String userId) {
+		return getHibernateTemplate().executeFind(new HibernateCallback() {
+			public Object doInHibernate(Session session) {
+				Query query = session.createSQLQuery("select distinct cs.id, cs.userId, cs.status, cs.created, cs.message, cs.supervisorId, cs.groupId, cs.department from course_signup cs left join course_group_administrator ca on cs.groupId = ca.course_group inner join course_component_signup cp on cs.id = cp.signup inner join course_component cc on cp.component = cc.id inner join department_approver da on da.department = cs.department where da.approver = :userId and cs.status = :approverStatus").addEntity(CourseSignupDAO.class);
+				query.setString("userId", userId);
+				query.setParameter("approverStatus", Status.APPROVED.name());
 				return query.list();
 			}
 		});
@@ -369,6 +381,34 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			
 		});
 		
+	}
+
+	/**
+	 * 
+	 */
+	@SuppressWarnings("unchecked")
+	public List<DepartmentDAO> findApproverDepartments(final String userId) {
+		return getHibernateTemplate().executeFind(new HibernateCallback() {
+			public Object doInHibernate(Session session) {
+				Query query = session.createSQLQuery("select * from department_approver left join department on code = department where approver = :userId").addEntity(DepartmentDAO.class);
+				query.setString("userId", userId);
+				return query.list();
+			}
+		});
+	}
+	
+	/**
+	 * 
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Object[]> findDepartmentApprovers(final String department) {
+		return getHibernateTemplate().executeFind(new HibernateCallback() {
+			public Object doInHibernate(Session session) {
+				Query query = session.createSQLQuery("select approver from department_approver where department = :deptId");
+				query.setString("deptId", department);
+				return query.list();
+			}
+		});
 	}
 	
 	public DepartmentDAO findDepartmentByCode(String code) {

@@ -24,6 +24,7 @@ public interface CourseSignupService {
 		WITHDRAWN(false),
 		APPROVED(true),
 		ACCEPTED(true),
+		CONFIRMED(true),
 		REJECTED(false),
 		WAITING(false);
 		
@@ -49,8 +50,9 @@ public interface CourseSignupService {
 	public static final String EVENT_ACCEPT = "coursesignup.accept";
 	public static final String EVENT_WITHDRAW = "coursesignup.withdraw";
 	public static final String EVENT_APPROVE = "coursesignup.approve";
+	public static final String EVENT_CONFIRM = "coursesignup.confirm";
 	public static final String EVENT_REJECT = "coursesignup.reject";
-	public static final String EVENT_WAITING = "coursesignup.reject";
+	public static final String EVENT_WAITING = "coursesignup.waiting";
 	
 
 	public CourseGroup getCourseGroup(String courseId, Range range);
@@ -94,11 +96,15 @@ public interface CourseSignupService {
 	
 	public List<CourseSignup> getApprovals();
 	
+	public List<CourseSignup> getPendings();
+	
 	public void setSupervisor(String signupId, String supervisorId);
 	
 	public void approve(String signupId);
 	
 	public void accept(String signupId);
+	
+	public void confirm(String signupId);
 	
 	public void reject(String signupId);
 

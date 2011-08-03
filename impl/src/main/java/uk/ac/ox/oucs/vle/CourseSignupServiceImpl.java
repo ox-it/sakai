@@ -14,9 +14,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.util.ResourceLoader;
 
-import uk.ac.ox.oucs.vle.CourseSignupService.Status;
-
-
 public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	private final static Log log = LogFactory.getLog(CourseSignupServiceImpl.class);
@@ -36,6 +33,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		this.proxy = proxy;
 	}
 
+	/**
+	 * 
+	 */
 	public void approve(String signupId) {
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
 		if (signupDao == null) {
@@ -57,10 +57,28 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setStatus(Status.APPROVED);
 		dao.save(signupDao);
 		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP);
-		String url = proxy.getMyUrl();
-		sendSignupEmail(signupDao.getUserId(), signupDao, "approved.student.subject","approved.student.body", new Object[]{url});
+		
+		//departmental approval
+		boolean departmentApproval = false;
+		if (null != signupDao.getDepartment()) {
+			DepartmentDAO departmentDao = dao.findDepartmentByCode(signupDao.getDepartment());
+			departmentApproval = departmentDao.getApprove();
+			if (departmentDao.getApprovers().isEmpty()) {
+				departmentApproval = false;
+			}
+		}
+		
+		if (!departmentApproval) {
+			confirm(signupId);
+		}
+		
+		//String url = proxy.getMyUrl();
+		//sendSignupEmail(signupDao.getUserId(), signupDao, "approved.student.subject","approved.student.body", new Object[]{url});
 	}
 	
+	/**
+	 * 
+	 */
 	public void accept(String signupId) {
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
 		if (signupDao == null) {
@@ -99,12 +117,57 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			approve(signupId);
 		}
 	}
+	
+	/**
+	 * 
+	 */
+	public void confirm(String signupId) {
+		System.out.println("CourseSignupServiceImpl.confirm ["+signupId+"]");
+		
+		String currentUserId = proxy.getCurrentUser().getId();
+		List<DepartmentDAO> departments = dao.findApproverDepartments(currentUserId);
+		
+		CourseSignupDAO signupDao = dao.findSignupById(signupId);
+		if (signupDao == null) {
+			throw new NotFoundException(signupId);
+		}
+		CourseGroupDAO groupDao = signupDao.getGroup();
+		
+		if (null != signupDao.getDepartment()) {
+			DepartmentDAO department = dao.findDepartmentByCode(signupDao.getDepartment());
+			if (null != department) {
+				if (department.getApprove()) {
+					boolean canConfirm = false;
+					for (DepartmentDAO dept : departments) {
+						if (dept.getCode().equals(signupDao.getDepartment())) {
+							canConfirm = true;
+							break;
+						}
+					}
+					if (!canConfirm) {
+						throw new PermissionDeniedException(currentUserId);
+					}
+				}
+			}
+		}
+		signupDao.setStatus(Status.CONFIRMED);
+		dao.save(signupDao);
+		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP);
+		String url = proxy.getMyUrl();
+		sendSignupEmail(signupDao.getUserId(), signupDao, "confirmed.student.subject","confirmed.student.body", new Object[]{url});
+	}
 
+	/**
+	 * 
+	 */
 	public String findSupervisor(String search) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	
+	/**
+	 * 
+	 */
 	public void setSupervisor(String signupId, String supervisorId) {
 		
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
@@ -124,7 +187,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 	}
 	
-
+	/**
+	 * 
+	 */
 	public List<CourseGroup> getAdministering() {
 		String userId = proxy.getCurrentUser().getId();
 		List <CourseGroupDAO> groupDaos = dao.findAdminCourseGroups(userId);
@@ -135,7 +200,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return groups;
 	}
 
-	public List<CourseSignup> getApprovals() {
+	/**
+	 * 
+	 */
+	public List<CourseSignup> getPendings() {
 		String currentUser = proxy.getCurrentUser().getId();
 		List <CourseSignupDAO> signupDaos = dao.findSignupPending(currentUser);
 		List<CourseSignup> signups = new ArrayList<CourseSignup>(signupDaos.size());
@@ -145,6 +213,22 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return signups;
 	}
 	
+	/**
+	 * 
+	 */
+	public List<CourseSignup> getApprovals() {
+		String currentUser = proxy.getCurrentUser().getId();
+		List <CourseSignupDAO> signupDaos = dao.findSignupApproval(currentUser);
+		List<CourseSignup> signups = new ArrayList<CourseSignup>(signupDaos.size());
+		for(CourseSignupDAO signupDao : signupDaos) {
+			signups.add(new CourseSignupImpl(signupDao, this));
+		}
+		return signups;
+	}
+	
+	/**
+	 * 
+	 */
 	public List<CourseSignup> getMySignups(Set<Status> statuses) {
 		String userId = proxy.getCurrentUser().getId();
 		if (log.isDebugEnabled()) {
@@ -157,6 +241,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return signups;
 	}
 	
+	/**
+	 * 
+	 */
 	public List<CourseSignup> getUserComponentSignups(String userId, Set<Status> statuses) {
 		if (log.isDebugEnabled()) {
 			log.debug("Loading all signups for : "+ userId+ " of status "+ statuses);
@@ -168,6 +255,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return signups;
 	}
 
+	/**
+	 * 
+	 */
 	public CourseGroup getCourseGroup(String courseId, Range range) {
 		if (range == null) {
 			range = Range.UPCOMING;
@@ -180,6 +270,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return courseGroup;
 	}
 
+	/**
+	 * 
+	 */
 	public List<CourseSignup> getCourseSignups(String courseId, Set<Status> statuses) {
 		// Find all the components and then find all the signups.
 		String userId = proxy.getCurrentUser().getId();
@@ -261,7 +354,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return false;
 	}
 
+	/**
+	 * 
+	 */
 	public void reject(String signupId) {
+		System.out.println("CourseSignupServiceImpl.reject ["+signupId+"]");
 		String currentUserId = proxy.getCurrentUser().getId();
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
 		if (signupDao == null) {
@@ -277,8 +374,19 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			} else {
 				throw new PermissionDeniedException(currentUserId);
 			}
-		} else if (Status.ACCEPTED.equals(signupDao.getStatus())) {// Rejected by lecturer.
-			if (isAdministrator(signupDao.getGroup(), currentUserId, currentUserId.equals(signupDao.getSupervisorId()))) {
+			
+		} else if (Status.ACCEPTED.equals(signupDao.getStatus())) { // Rejected by administrator.
+				if (isAdministrator(signupDao.getGroup(), currentUserId, currentUserId.equals(signupDao.getSupervisorId()))) {
+					signupDao.setStatus(Status.REJECTED);
+					dao.save(signupDao);
+					proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT);
+					sendSignupEmail(signupDao.getUserId(), signupDao, "reject-supervisor.student.subject", "reject-supervisor.student.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
+				} else {
+					throw new PermissionDeniedException(currentUserId);
+				}
+				
+		} else if (Status.APPROVED.equals(signupDao.getStatus())) {// Rejected by approver.
+			if (isAdministrator(signupDao.getGroup(), currentUserId, dao.findDepartmentApprovers(signupDao.getDepartment()).contains(currentUserId))) {
 				signupDao.setStatus(Status.REJECTED);
 				dao.save(signupDao);
 				for (CourseComponentDAO componentDao: signupDao.getComponents()) {
@@ -286,12 +394,13 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					dao.save(componentDao);
 				}
 				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT);
-				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-supervisor.student.subject", "reject-supervisor.student.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
+				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-approver.student.subject", "reject-approver.student.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
 			} else {
 				throw new PermissionDeniedException(currentUserId);
 			}
+			
 		} else {
-			throw new IllegalStateException("You can only reject signups that are PENDING or ACCEPTED");
+			throw new IllegalStateException("You can only reject signups that are PENDING, ACCEPTED or APPROVED");
 		}
 
 	}
@@ -325,6 +434,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (groupDao == null) {
 			throw new NotFoundException(courseId);
 		}
+		
+		Set<CourseComponentDAO> componentDaos = parseComponents(componentIds, groupDao); 
+		/*
 		// Need to find all the components.
 		if (componentIds == null) {
 			throw new IllegalArgumentException("You must specify some components to signup to.");
@@ -341,6 +453,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				throw new NotFoundException(componentId);
 			}
 		}
+		*/
 		String currentUserId = proxy.getCurrentUser().getId();
 		if (!isAdministrator(groupDao, currentUserId, false)) {
 			throw new PermissionDeniedException(currentUserId);
@@ -398,6 +511,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			full = true;
 		}
 		
+		Set<CourseComponentDAO> componentDaos = parseComponents(componentIds, groupDao); 
+		
+		/*
 		// Need to find all the components.
 		if (componentIds == null) {
 			throw new IllegalArgumentException("You must specify some components to signup to.");
@@ -415,7 +531,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				throw new NotFoundException(componentId);
 			}
 		}
-		
+		*/
 		
 		// Check they are valid as a choice (in signup period (student), not for same component in same term)
 		String userId = proxy.getCurrentUser().getId();
@@ -497,6 +613,28 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		} else {
 			accept(signupId);
 		}
+	}
+	
+	
+	// Need to find all the components.
+	private Set<CourseComponentDAO> parseComponents(Set<String> componentIds, CourseGroupDAO groupDao) {
+		if (componentIds == null) {
+			throw new IllegalArgumentException("You must specify some components to signup to.");
+		}
+	
+		Set<CourseComponentDAO> componentDaos = new HashSet<CourseComponentDAO>(componentIds.size());
+		for(String componentId: componentIds) {
+			CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
+			if (componentDao != null) {
+				componentDaos.add(componentDao);
+				if (!componentDao.getGroups().contains(groupDao)) { // Check that the component is actually part of the set.
+					throw new IllegalArgumentException("The component: "+ componentId+ " is not part of the course: "+ groupDao.getId());
+				}
+			} else {
+				throw new NotFoundException(componentId);
+			}
+		}
+		return componentDaos;
 	}
 	
 	/**
@@ -715,5 +853,5 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			throw new PermissionDeniedException(currentUserId);
 		}
 	}
-
+	
 }

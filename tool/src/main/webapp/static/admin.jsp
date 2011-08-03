@@ -485,6 +485,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<li><span><a href="search.jsp">Module Search</a></span></li>
 	<li><span><a href="my.jsp">My Modules</a></span></li>
 	<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
+	<li><span><a href="approve.jsp">Pending Confirmations</a></span></li>
 	<li><span>Module Administration</span></li>
 </ul>
 </div>

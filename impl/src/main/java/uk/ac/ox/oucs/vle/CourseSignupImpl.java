@@ -66,5 +66,9 @@ public class CourseSignupImpl implements CourseSignup {
 	public Date getCreated() {
 		return dao.getCreated();
 	}
+	
+	public String getDepartment() {
+		return dao.getDepartment();
+	}
 
 }

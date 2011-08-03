@@ -175,6 +175,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 			<c:if test="${!isExternalUser}" >
             	<li><span><a href="my.jsp">My Modules</a></span></li>
             	<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
+            	<li><span><a href="approve.jsp">Pending Confirmations</a></span></li>
             	<li><span><a href="admin.jsp">Module Administration</a></span></li>
             </c:if>
 		</ul>

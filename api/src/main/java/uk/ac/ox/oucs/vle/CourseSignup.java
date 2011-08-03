@@ -19,6 +19,8 @@ public interface CourseSignup {
 	
 	public Date getCreated();
 	
+	public String getDepartment();
+	
 	public Set<CourseComponent> getComponents();
 	
 	public CourseGroup getGroup();

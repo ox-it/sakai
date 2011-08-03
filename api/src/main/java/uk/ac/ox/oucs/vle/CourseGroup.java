@@ -24,8 +24,6 @@ public interface CourseGroup {
 	
 	public boolean getAdministratorApproval();
 	
-	public boolean getHomeApproval();
-	
 	public String getContactEmail();
 
 	public List<CourseComponent> getComponents();

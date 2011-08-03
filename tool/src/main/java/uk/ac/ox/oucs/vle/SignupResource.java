@@ -183,6 +183,16 @@ public class SignupResource {
 		return Response.ok().build();
 	}
 	
+	@Path("{id}/confirm")
+	@POST
+	public Response confirm(@PathParam("id") final String signupId) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
+		courseService.confirm(signupId);
+		return Response.ok().build();
+	}
+	
 	@Path("/course/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -279,6 +289,24 @@ public class SignupResource {
 
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
+				List<CourseSignup> signups = courseService.getPendings();
+				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
+			}
+			
+		}; 
+	}
+	
+	@Path("/approve")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public StreamingOutput getApproveSignups() {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
+		return new StreamingOutput() {
+
+			public void write(OutputStream output) throws IOException,
+					WebApplicationException {
 				List<CourseSignup> signups = courseService.getApprovals();
 				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
 			}
@@ -318,4 +346,5 @@ public class SignupResource {
 		}; 
 		
 	}
+	
 }

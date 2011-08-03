@@ -21,6 +21,7 @@ public class CourseSignupDAO  implements java.io.Serializable {
      private Date created;
      private Set<CourseComponentDAO> components = new HashSet<CourseComponentDAO>(0);
      private String supervisorId;
+     private String department;
      private CourseGroupDAO group;
      private String message;
 
@@ -34,59 +35,62 @@ public class CourseSignupDAO  implements java.io.Serializable {
     public String getId() {
         return this.id;
     }
-    
     public void setId(String id) {
         this.id = id;
     }
+    
     public String getUserId() {
         return this.userId;
     }
-    
     public void setUserId(String userId) {
         this.userId = userId;
     }
+    
     public CourseSignupService.Status getStatus() {
         return this.status;
     }
-    
     public void setStatus(CourseSignupService.Status status) {
         this.status = status;
     }
+    
     public Date getCreated() {
         return this.created;
     }
-    
     public void setCreated(Date created) {
         this.created = created;
     }
+    
     public Set<CourseComponentDAO> getComponents() {
         return this.components;
     }
-    
     public void setComponents(Set<CourseComponentDAO> components) {
         this.components = components;
     }
+    
     public String getSupervisorId() {
         return this.supervisorId;
     }
-    
     public void setSupervisorId(String supervisorId) {
         this.supervisorId = supervisorId;
     }
+    
+    public String getDepartment() {
+        return this.department;
+    }
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+    
     public CourseGroupDAO getGroup() {
         return this.group;
     }
-    
     public void setGroup(CourseGroupDAO group) {
         this.group = group;
     }
 
-
 	public String getMessage() {
 		return message;
 	}
-
-
 	public void setMessage(String message) {
 		this.message = message;
 	}

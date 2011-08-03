@@ -60,10 +60,6 @@ public class CourseGroupImpl implements CourseGroup {
 		return courseGroupDAO.getAdministratorApproval();
 	}
 	
-	public boolean getHomeApproval() {
-		return courseGroupDAO.getHomeApproval();
-	}
-	
 	public String getContactEmail() {
 		return courseGroupDAO.getContactEmail();
 	}
