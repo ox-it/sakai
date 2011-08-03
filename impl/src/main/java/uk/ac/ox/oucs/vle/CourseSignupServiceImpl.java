@@ -384,6 +384,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				if (isAdministrator(signupDao.getGroup(), currentUserId, currentUserId.equals(signupDao.getSupervisorId()))) {
 					signupDao.setStatus(Status.REJECTED);
 					dao.save(signupDao);
+					for (CourseComponentDAO componentDao: signupDao.getComponents()) {
+						componentDao.setTaken(componentDao.getTaken()-1);
+						dao.save(componentDao);
+					}
 					proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT);
 					sendSignupEmail(signupDao.getUserId(), signupDao, "reject-supervisor.student.subject", "reject-supervisor.student.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
 				} else {
@@ -441,24 +445,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		
 		Set<CourseComponentDAO> componentDaos = parseComponents(componentIds, groupDao); 
-		/*
-		// Need to find all the components.
-		if (componentIds == null) {
-			throw new IllegalArgumentException("You must specify some components to signup to.");
-		}
-		Set<CourseComponentDAO> componentDaos = new HashSet<CourseComponentDAO>(componentIds.size());
-		for(String componentId: componentIds) {
-			CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
-			if (componentDao != null) {
-				componentDaos.add(componentDao);
-				if (!componentDao.getGroups().contains(groupDao)) { // Check that the component is actually part of the set.
-					throw new IllegalArgumentException("The component: "+ componentId+ " is not part of the course: "+ courseId);
-				}
-			} else {
-				throw new NotFoundException(componentId);
-			}
-		}
-		*/
+		
 		String currentUserId = proxy.getCurrentUser().getId();
 		if (!isAdministrator(groupDao, currentUserId, false)) {
 			throw new PermissionDeniedException(currentUserId);
@@ -468,9 +455,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		CourseSignupDAO signupDao = dao.newSignup(userId, supervisorId);
 		signupDao.setCreated(getNow());
 		signupDao.setGroup(groupDao);
-		signupDao.setStatus(Status.ACCEPTED);
-		dao.save(signupDao);
-		
+		signupDao.setStatus(Status.PENDING);
+		String signupId = dao.save(signupDao);
 		
 		for (CourseComponentDAO componentDao: componentDaos) {
 			List<CourseSignupDAO> signupsToRemove = new ArrayList<CourseSignupDAO>();
@@ -482,7 +468,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			Set <CourseSignupDAO> signupDaos = componentDao.getSignups();
 			for (CourseSignupDAO removeSignup: signupsToRemove) {
 				// If they had already been accepted then decrement the taken count.
-				if (removeSignup.getStatus().equals(Status.APPROVED) || removeSignup.getStatus().equals(Status.ACCEPTED)) {
+				if (removeSignup.getStatus().equals(Status.APPROVED) || 
+					removeSignup.getStatus().equals(Status.ACCEPTED) || 
+					removeSignup.getStatus().equals(Status.CONFIRMED)) {
 					for (CourseComponentDAO signupComponentDao : removeSignup.getComponents()) {
 						signupComponentDao.setTaken(signupComponentDao.getTaken()-1);
 						signupComponentDao.getSignups().remove(removeSignup);  
@@ -498,7 +486,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			dao.save(componentDao);
 		}
 		
-		proxy.logEvent(signupDao.getGroup().getId(), EVENT_ACCEPT);
+		accept(signupId);
 	}
 
 	public void signup(String courseId, Set<String> componentIds, String supervisorEmail,
@@ -516,26 +504,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		
 		Set<CourseComponentDAO> componentDaos = parseComponents(componentIds, groupDao); 
-		
-		/*
-		// Need to find all the components.
-		if (componentIds == null) {
-			throw new IllegalArgumentException("You must specify some components to signup to.");
-		}
-		
-		Set<CourseComponentDAO> componentDaos = new HashSet<CourseComponentDAO>(componentIds.size());
-		for(String componentId: componentIds) {
-			CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
-			if (componentDao != null) {
-				componentDaos.add(componentDao);
-				if (!componentDao.getGroups().contains(groupDao)) { // Check that the component is actually part of the set.
-					throw new IllegalArgumentException("The component: "+ componentId+ " is not part of the course: "+ courseId);
-				}
-			} else {
-				throw new NotFoundException(componentId);
-			}
-		}
-		*/
 		
 		// Check they are valid as a choice (in signup period (student), not for same component in same term)
 		String userId = proxy.getCurrentUser().getId();
@@ -753,7 +721,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		boolean sendEmail = false;
 		if (Status.ACCEPTED.equals(signupDao.getStatus()) || 
-				Status.APPROVED.equals(signupDao.getStatus())) {
+			Status.APPROVED.equals(signupDao.getStatus()) ||
+			Status.CONFIRMED.equals(signupDao.getStatus())) {
 			sendEmail = true;
 		}
 		signupDao.setStatus(Status.WITHDRAWN);
