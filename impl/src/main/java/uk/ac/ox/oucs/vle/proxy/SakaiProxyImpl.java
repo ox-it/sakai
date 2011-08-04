@@ -170,7 +170,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return new UserProxy(sakaiUser.getId(), sakaiUser.getEid(), sakaiUser.getDisplayName(), 
 				sakaiUser.getEmail(), 
 				sakaiUser.getProperties().getProperty("yearOfStudy"), 
-				sakaiUser.getProperties().getProperty("oakStatus"), 
+				sakaiUser.getProperties().getProperty("oakStatus"),
+				null,
 				(units == null)?Collections.EMPTY_LIST:units);
 	}
 

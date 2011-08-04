@@ -482,10 +482,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		
 		// Create the signup.
+		UserProxy user = proxy.findUserById(userId);
 		CourseSignupDAO signupDao = dao.newSignup(userId, supervisorId);
 		signupDao.setCreated(getNow());
 		signupDao.setGroup(groupDao);
 		signupDao.setStatus(Status.PENDING);
+		signupDao.setDepartment(user.getDepartment());
 		String signupId = dao.save(signupDao);
 		
 		for (CourseComponentDAO componentDao: componentDaos) {
@@ -539,7 +541,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		Set<CourseComponentDAO> componentDaos = parseComponents(componentIds, groupDao); 
 		
 		// Check they are valid as a choice (in signup period (student), not for same component in same term)
-		String userId = proxy.getCurrentUser().getId();
+		UserProxy user = proxy.getCurrentUser();
 		Date now = getNow();
 		List<CourseSignupDAO> existingSignups = new ArrayList<CourseSignupDAO>();
 		for(CourseComponentDAO componentDao: componentDaos) {
@@ -552,10 +554,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			}
 			for (CourseSignupDAO signupDao: componentDao.getSignups()) {
 				// Look for exisiting signups for these components
-				if ( userId.equals(signupDao.getUserId())) {
+				if (user.getId().equals(signupDao.getUserId())) {
 					existingSignups.add(signupDao);
 					if(!signupDao.getStatus().equals(Status.WITHDRAWN)) {
-						throw new IllegalStateException("User "+ userId+ " already has a place on component: "+ componentDao.getId());
+						throw new IllegalStateException("User "+ user.getId()+ " already has a place on component: "+ componentDao.getId());
 					}
 				}
 			}
@@ -577,7 +579,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		
 		// Create the signup.
 		String supervisorId = supervisor.getId();
-		CourseSignupDAO signupDao = dao.newSignup(userId, supervisorId);
+		CourseSignupDAO signupDao = dao.newSignup(user.getId(), supervisorId);
 		signupDao.setCreated(getNow());
 		signupDao.setGroup(groupDao);
 		if (full) {
@@ -585,8 +587,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		} else {
 			signupDao.setStatus(Status.PENDING);
 		}
-		
 		signupDao.setMessage(message);
+		signupDao.setDepartment(user.getDepartment());
 		String signupId = dao.save(signupDao);
 		
 		// We're going to decrement the places on acceptance.
