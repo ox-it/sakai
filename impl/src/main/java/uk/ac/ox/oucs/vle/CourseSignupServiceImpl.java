@@ -108,6 +108,29 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		dao.save(signupDao);
 		proxy.logEvent(signupDao.getGroup().getId(), EVENT_ACCEPT);
 		
+		/**
+		 * SESii WP11.1 When module administrators register students who are not in 
+		 * host department the third level acceptance person will receive notification.
+		 */
+		
+		if (null != signupDao.getDepartment()) {
+			
+			DepartmentDAO department = dao.findDepartmentByCode(signupDao.getDepartment());
+		
+			if (null != department) {
+				if (groupDao.getDept().equals(signupDao.getDepartment())) {
+					String url = proxy.getConfirmUrl(signupId);
+		
+					for (String approverId : department.getApprovers()) {
+						sendSignupWaitingEmail(approverId, signupDao, 
+							"signup.approver.subject", 
+							"signup.approver.body", 
+							new Object[]{url});
+					}
+				}
+			}
+		}
+		
 		if (groupDao.getSupervisorApproval()) {
 			String supervisorId = signupDao.getSupervisorId();
 			String url = proxy.getConfirmUrl(signupId);
@@ -414,6 +437,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 
 	}
 
+	/**
+	 * 
+	 */
 	public void setSignupStatus(String signupId, Status newStatus) {
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
 		if (signupDao == null) {
@@ -438,7 +464,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 	}
 	
+	/**
+	 * 
+	 */
 	public void signup(String userId, String courseId, Set<String> componentIds, String supervisorId) {
+		
 		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
 		if (groupDao == null) {
 			throw new NotFoundException(courseId);
@@ -489,6 +519,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		accept(signupId);
 	}
 
+	/**
+	 * 
+	 */
 	public void signup(String courseId, Set<String> componentIds, String supervisorEmail,
 			String message){
 
