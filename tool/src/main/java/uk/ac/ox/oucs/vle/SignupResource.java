@@ -95,7 +95,7 @@ public class SignupResource {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			throw new WebApplicationException(Response.Status.FORBIDDEN);
 		}
-		String user = courseService.findSupervisor(email);
+		//String user = courseService.findSupervisor(email);
 		courseService.signup(courseId, components, email, message);
 		return Response.ok().build();
 	}

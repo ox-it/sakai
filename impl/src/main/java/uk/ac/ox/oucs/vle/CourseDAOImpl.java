@@ -287,8 +287,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 	}
 	
+	@SuppressWarnings("unchecked")
 	public Integer countSignupByCourse(final String courseId, final Set<Status> statuses) {
-		List results = getHibernateTemplate().findByNamedParam(
+		List<Object> results = getHibernateTemplate().findByNamedParam(
 				"select count(*) from CourseSignupDAO where groupId = :courseId and status in (:statuses)",
 				new String[]{"courseId", "statuses"}, new Object[]{courseId, statuses});
 		int count = results.size();

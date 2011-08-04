@@ -122,7 +122,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					String url = proxy.getConfirmUrl(signupId);
 		
 					for (String approverId : department.getApprovers()) {
-						sendSignupWaitingEmail(approverId, signupDao, 
+						sendSignupEmail(approverId, signupDao, 
 							"signup.approver.subject", 
 							"signup.approver.body", 
 							new Object[]{url});

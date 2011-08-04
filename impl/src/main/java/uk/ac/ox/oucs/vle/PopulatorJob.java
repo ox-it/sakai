@@ -1,7 +1,5 @@
 package uk.ac.ox.oucs.vle;
 
-import java.io.InputStream;
-
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
