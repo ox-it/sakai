@@ -461,7 +461,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	                $.ajax({
 	                	url: "../rest/signup/component/"+courseId,                	
 	    				type: "GET",
-	    				data: {status: "ACCEPTED"},
+	    				data: {status: "CONFIRMED"},
 	                    success: function(result){
 	                    	if (result.length > 0) {
 	                        	var users = [];
