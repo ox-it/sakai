@@ -117,7 +117,6 @@ public class HierarchyHandler extends SiteHandler {
 		{
 			// This is so that when the site service builds URLs it uses hierarchy. 
 			session.setAttribute("sakai-controlling-portal", getUrlFragment());
-			PortalHierarchyService phs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
 			PortalNode node = null;
 			Site site = null;
 			String pageId = null;
@@ -129,7 +128,7 @@ public class HierarchyHandler extends SiteHandler {
 				end -=2;
 			}
 			String hierarchyPath = buildPath(parts, start, end);
-			node = phs.getNode(hierarchyPath);
+			node = portalHierarchyService.getNode(hierarchyPath);
 			if (node == null)
 			{
 				if (end - start > 0)
@@ -145,25 +144,19 @@ public class HierarchyHandler extends SiteHandler {
 					}
 					catch (PermissionException pe)
 					{
-						if (session.getUserId() == null)
-						{
-							portal.doLogin(req, res, session, req.getPathInfo(), Portal.LoginRoute.NONE);
-						}
-						else
-						{
-							portal.doError(req, res, session, Portal.ERROR_SITE);
-						}
+						site = siteService.getSite(parts[start]);
+						doPermissionDenied(req, res, session, site, req.getContextPath()+req.getServletPath());
 						return END;
 					}
 				}
 				else
 				{
-					node = phs.getNode(null);
+					node = portalHierarchyService.getNode(null);
 				}
 			}
 			
 			if (node != null){
-				phs.setCurrentPortalNode(node);
+				portalHierarchyService.setCurrentPortalNode(node);
 				site = node.getSite();
 			}
 			
@@ -216,41 +209,7 @@ public class HierarchyHandler extends SiteHandler {
 		if (!node.canView())
 		{
 			String userId = session.getUserId();
-			TwoFactorAuthentication twoFactorAuthentication = 
-				(TwoFactorAuthentication)ComponentManager.get(TwoFactorAuthentication.class);
-			
-			// if not logged in, give them a chance
-			if (userId == null)
-			{
-				StoredState ss = portalService.newStoredState("directtool", "tool");
-				ss.setRequest(req);
-				ss.setToolContextPath(toolContextPath);
-				portalService.setStoredState(ss);
-				portal.doLogin(req, res, session, req.getPathInfo(), Portal.LoginRoute.NONE);
-			}
-			
-			else if (twoFactorAuthentication.isTwoFactorRequired("/site/"+site.getId())
-					&& !twoFactorAuthentication.hasTwoFactor())
-			{
-				portal.doLogin(req, res, session, req.getPathInfo(), LoginRoute.TWOFACTOR);
-			}
-			
-			else
-			{
-				String siteId = site.getId();
-				
-				if (ServerConfigurationService.getBoolean("portal.redirectJoin", true) &&
-						userId != null && portal.getSiteHelper().isJoinable(siteId, userId))
-				{
-					String redirectUrl = Web.returnUrl(req, "/join/"+siteId);
-					res.sendRedirect(redirectUrl);
-					return;
-				}
-				else
-				{
-					portal.doError(req, res, session, Portal.ERROR_SITE);
-				}
-			}
+			doPermissionDenied(req, res, session, site, toolContextPath);
 			return;
 		}
 		try
@@ -357,6 +316,48 @@ public class HierarchyHandler extends SiteHandler {
 		catch(Exception e)
 		{
 			log.info("Failed to set presence: "+ e.getMessage());
+		}
+	}
+
+	private void doPermissionDenied(HttpServletRequest req,
+			HttpServletResponse res, Session session, final Site site,
+			String toolContextPath) throws ToolException,
+			IOException {
+		TwoFactorAuthentication twoFactorAuthentication = 
+			(TwoFactorAuthentication)ComponentManager.get(TwoFactorAuthentication.class);
+		String userId = session.getUserId();
+		
+		// if not logged in, give them a chance
+		if (userId == null)
+		{
+			StoredState ss = portalService.newStoredState("directtool", "tool");
+			ss.setRequest(req);
+			ss.setToolContextPath(toolContextPath);
+			portalService.setStoredState(ss);
+			portal.doLogin(req, res, session, req.getPathInfo(), Portal.LoginRoute.NONE);
+		}
+		
+		else if (twoFactorAuthentication.isTwoFactorRequired(site.getReference())
+				&& !twoFactorAuthentication.hasTwoFactor())
+		{
+			portal.doLogin(req, res, session, req.getPathInfo(), LoginRoute.TWOFACTOR);
+		}
+		
+		else
+		{
+			String siteId = site.getId();
+			
+			if (ServerConfigurationService.getBoolean("portal.redirectJoin", true) &&
+					userId != null && portal.getSiteHelper().isJoinable(siteId, userId))
+			{
+				String redirectUrl = Web.returnUrl(req, "/join/"+siteId);
+				res.sendRedirect(redirectUrl);
+				return;
+			}
+			else
+			{
+				portal.doError(req, res, session, Portal.ERROR_SITE);
+			}
 		}
 	}
 	
