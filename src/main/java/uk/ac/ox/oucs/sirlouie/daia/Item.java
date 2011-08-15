@@ -101,7 +101,9 @@ public class Item {
 		if (null != id) {
 			json.put("id", id);
 		}
-		if (null != href) {
+		// The library system was returning  OVP for the URL, which is presented as a relative URL
+		// and doesn't work. So only output if it looks sensible.
+		if (null != href && href.startsWith("http")) {
 			json.put("href", href);
 		}
 		for (Message message : messages) {

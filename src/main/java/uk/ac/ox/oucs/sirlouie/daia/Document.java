@@ -124,7 +124,10 @@ public class Document {
 		
 		JSONObject json = new JSONObject();
 		json.put("id", id);
-		json.put("href", href);
+		// We started getting bad URLs back and this prevents us from outputting bad linkes.
+		if (href != null && href.startsWith("http")) {
+			json.put("href", href);
+		}
 		
 		JSONArray itemList = new JSONArray();
 		for (Item item: items) {
