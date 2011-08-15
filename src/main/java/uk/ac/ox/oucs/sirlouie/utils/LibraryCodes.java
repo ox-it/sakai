@@ -9,6 +9,22 @@ import java.util.HashMap;
 import java.util.StringTokenizer;
 
 
+/**
+ * This maps the library codes onto nice library names. The best place to get a up to data
+ * mapping is from http://data.ox.ac.uk/ with a SPARQL query of:
+ * <pre>
+ * PREFIX dc: <http://purl.org/dc/elements/1.1/>
+ * PREFIX dcterms: <http://purl.org/dc/terms/>
+ * PREFIX oxp: <http://ns.ox.ac.uk/namespace/oxpoints/2009/02/owl#>
+ * 
+ * SELECT ?code ?title WHERE {
+ *  ?library a oxp:Library .
+ *  ?library dc:title ?title .
+ *  ?library oxp:hasOLISAlephCode ?code .
+ * }
+ * 	</pre>
+ *
+ */
 public class LibraryCodes extends HashMap<String, String> {
 	
 	private static final long serialVersionUID = 1L;
