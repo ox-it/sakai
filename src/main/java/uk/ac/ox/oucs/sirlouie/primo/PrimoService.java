@@ -43,12 +43,16 @@ public class PrimoService {
 	    params.add("onCampus", "false");
 	     
 	    WebResource query = webResource.queryParams(params);
-	    //System.out.println("PrimoService.query ["+query.getURI().toString()+"]");
+	    if (log.isDebugEnabled()) {
+	    	log.debug("Making request: "+ query.getURI().toString());
+	    }
 	    
-	    String responseXML = webResource.queryParams(params).get(String.class);
-	    //System.out.println("PrimoService.response ["+responseXML+"]");
-	    //log.debug("response ["+responseXML+"]");
+	    String responseXML = query.get(String.class);
+	    if (log.isDebugEnabled()) {
+	    	log.debug("Got response: "+ responseXML);
+	    }
 	    
+	    // Create a DAIA response.
 	    ResponseBean responseBean = new ResponseBean(id);
 	    Collection<SearObject> beans = filterResponse(nameSpaceURI, responseXML);
 		responseBean.addSearObjects(beans);
