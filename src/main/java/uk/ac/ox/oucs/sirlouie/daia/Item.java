@@ -23,6 +23,42 @@ public class Item {
 	public Item() {	
 	}
 	
+	public String getId() {
+		return id;
+	}
+
+	public List<Message> getMessages() {
+		return messages;
+	}
+
+	public Department getDepartment() {
+		return department;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public List<Available> getAvailableServices() {
+		return availableServices;
+	}
+
+	public List<UnAvailable> getUnAvailableServices() {
+		return unAvailableServices;
+	}
+
+	public String getStorage() {
+		return storage;
+	}
+
+	public String getLimitation() {
+		return limitation;
+	}
+
+	public String getHref() {
+		return href;
+	}
+
 	public void addMesage(Message message) {
 		messages.add(message);
 	}

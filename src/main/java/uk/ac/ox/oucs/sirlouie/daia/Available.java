@@ -26,6 +26,26 @@ public class Available {
 		messages.add(message);
 	}
 	
+	public String getService() {
+		return service;
+	}
+
+	public String getHref() {
+		return href;
+	}
+
+	public String getDelay() {
+		return delay;
+	}
+
+	public List<Message> getMessages() {
+		return messages;
+	}
+
+	public String getLimitation() {
+		return limitation;
+	}
+
 	public void setService(String service) {
 		this.service=service;
 	}

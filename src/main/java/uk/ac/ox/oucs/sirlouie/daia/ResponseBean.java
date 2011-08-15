@@ -12,8 +12,15 @@ import org.json.JSONObject;
 
 import uk.ac.ox.oucs.sirlouie.reply.SearObject;
 
+/**
+ * This is the container for a DAIA response.
+ *
+ * @see http://www.gbv.de/wikis/cls/DAIA_-_Document_Availability_Information_API
+ *
+ */
 public class ResponseBean {
 	
+	// Required
 	private String id;
 	private List<Document> documents = new ArrayList<Document>();
 	private String error;
@@ -29,6 +36,11 @@ public class ResponseBean {
 		this.error = message;
 	}
 	
+	/**
+	 * This is the method that takes the response of availability and builds a 
+	 * set of DAIA objects representing it.
+	 * @param beans
+	 */
 	public void addSearObjects(Collection<SearObject> beans) {
 		Document document = new Document(id, null);
 		document.addItems(beans);
@@ -37,6 +49,10 @@ public class ResponseBean {
 	
 	public void addDocument(Document document) {
 		documents.add(document);
+	}
+	
+	public Collection<Document> getDocuments() {
+		return this.documents;
 	}
 	
 	/*

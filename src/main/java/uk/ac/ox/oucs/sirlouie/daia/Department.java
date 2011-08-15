@@ -14,11 +14,17 @@ public class Department {
 	}
 	
 	public Department(String id) {
-		
 		this.id=id;
 		codes=LibraryCodes.getInstance();
 	}
-	
+
+	public String getId() {
+		return id;
+	}
+
+	public String getName() {
+		return codes.get(id);
+	}
 
 	public JSONObject toJSON() throws JSONException {
 		
@@ -26,8 +32,8 @@ public class Department {
 		if (null != id) {
 			json.put("id", id);
 		}
-		if (null != codes.get(id)) {
-			json.put("content", codes.get(id));
+		if (null != getName()) {
+			json.put("content", getName());
 		}
 
 		return json;

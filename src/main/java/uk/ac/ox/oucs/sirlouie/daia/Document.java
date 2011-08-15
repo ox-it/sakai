@@ -29,6 +29,22 @@ public class Document {
 		this.href = href;
 	}
 	
+	public String getId() {
+		return id;
+	}
+
+	public String getHref() {
+		return href;
+	}
+
+	public List<Item> getItems() {
+		return items;
+	}
+
+	public List<Message> getErrors() {
+		return errors;
+	}
+
 	public void addItems(Collection<SearObject> beans) {
 		
 		if (null == this.href && !beans.isEmpty()) {

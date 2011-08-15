@@ -19,6 +19,30 @@ public class UnAvailable {
 	public UnAvailable() {	
 	}
 	
+	public String getService() {
+		return service;
+	}
+
+	public String getHref() {
+		return href;
+	}
+
+	public String getExpected() {
+		return expected;
+	}
+
+	public List<Message> getMessages() {
+		return messages;
+	}
+
+	public String getLimitation() {
+		return limitation;
+	}
+
+	public String getQueue() {
+		return queue;
+	}
+
 	public void addMesage(Message message) {
 		messages.add(message);
 	}
