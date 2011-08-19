@@ -288,7 +288,6 @@ public class PrimoServiceTest extends TestCase {
 		+"\"institution\":{\"content\":\"University of Oxford\","
 		+"\"href\":\"http://www.ox.ac.uk\"},"
 		+"\"document\":[{\"id\":\"ORAdebe641a-17ca-4196-ab2c-fe7565ced721\","
-		+"\"href\":\"\","
 		+"\"item\":["
 		+"{\"href\":\"http://ora.ouls.ox.ac.uk/objects/uuid:debe641a-17ca-4196-ab2c-fe7565ced721\"}]}]}";
 
