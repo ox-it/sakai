@@ -282,8 +282,9 @@ public class PopulatorImpl implements Populator{
 					}
 					
 					lastId = id;
-					String bookableString = rs.getString("bookable");
-					boolean bookable = bookableString == null || bookableString.trim().length() == 0 || bookableString.equals("TRUE");
+					// Since the refactoring (from string to int)
+					// of the table we can just treat the int column like a boolean
+					boolean bookable = rs.getBoolean("bookable");
 					
 					Date openDate = getDate(rs, "open_date");
 					if (openDate == null) { 

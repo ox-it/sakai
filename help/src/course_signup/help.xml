@@ -126,6 +126,18 @@
 		</property>
 	</bean>
 	
+	<bean id="sesAdminBulkEmail" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>ses_admin_bulk_email</value>
+		</property>
+		<property name="name">
+			<value>Bulk Emailing Students on a Module</value>
+		</property>
+		<property name="location">
+			<value>/course_signup/ses_admin_bulk_email.html</value>
+		</property>
+	</bean>
+	
 	<bean id="sesSupApproving" class="org.sakaiproject.component.app.help.model.ResourceBean">
 		<property name="docId">
 			<value>ses_sup_approving</value>
@@ -178,6 +190,7 @@
 							<ref bean="sesAdminWithdrawing" />
 							<ref bean="sesAdminUploading" />
 							<ref bean="sesAdminViewing" />
+							<ref bean="sesAdminBulkEmail" />
 
 							<!--  Supervisor pages -->
 							<ref bean="sesSupApproving" />
