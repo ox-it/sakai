@@ -106,7 +106,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 							});
 							
 						});
-					};
+					};				
 					
 					/**
 					* This loads details about a node in the tree.
@@ -125,26 +125,24 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 							}
 						});
 					};
-		
+
 					jQuery("#tree")
 					.bind("select_node.jstree", function(event, data) {
 						// Starts the loading of course details.
 						var currentNode = data.rslt.obj[0];
 						var id = currentNode.id;
-						if ($(currentNode).is(".jstree-leaf")) {
+						if (openCourse != null && openCourse != "") {
+							openAtCourse(openCourse);
+							openCourse = "";
+						} else if ($(currentNode).is(".jstree-leaf")) {
 							loadCourse(id, $(currentNode).hasClass("old"));
 						} else {
 							loadNodeDetails(id);
 						}
 					})
 					.bind("open_node.jstree close_node.jstree", function(event, data) {
-
 					})
-					.bind("loaded.jstree", function(event, data) {
-						if (openCourse != null && openCourse != "") {
-							openAtCourse(openCourse);
-						}
-					})
+					
 					.delegate(".jstree-closed a", "click", function(e) {
 						$("#tree").jstree("open_node", this);
 					})
