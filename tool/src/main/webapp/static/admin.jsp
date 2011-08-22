@@ -132,7 +132,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 											  {
 												  sTitle: "Email",
 												"fnRender": function(aObj) {
-													return '<img class="mailto-all-course" id="'+aObj.aData[10]+'"src="images/email-send.png" />';
+													return '<img class="mailto-all-course" id="'+aObj.aData[10]+'"src="images/email-send.png" title="send email to all CONFIRMED signups" />';
 												}
 											  }
 								              ],
