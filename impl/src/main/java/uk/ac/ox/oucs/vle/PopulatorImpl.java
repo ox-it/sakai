@@ -242,7 +242,7 @@ public class PopulatorImpl implements Populator{
 					" au.assessment_unit_code, tc.id as teaching_component_id, tc.subject, " + 
 					" Location.location_name, " + 
 					" Term.term_code, Term.label, " + 
-					" c.title, " + 
+					" c.display_title, " + 
 					" Employee.webauth_code, " +
 					" concat_ws(' ', Employee.forename, Employee.surname) as teacher_name, " +
 					" Employee.email as teacher_email " + 
@@ -319,7 +319,7 @@ public class PopulatorImpl implements Populator{
 						logFailure(assessmentUnitCode, id, "Subject isn't set.");
 						continue;
 					}
-					String title = rs.getString("title");
+					String title = rs.getString("display_title");
 					if (title == null || title.trim().length() == 0) {
 						logFailure(assessmentUnitCode, id, "Title isn't set.");
 						continue;
