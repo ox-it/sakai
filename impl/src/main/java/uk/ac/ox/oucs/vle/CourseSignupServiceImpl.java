@@ -97,8 +97,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			}
 		}
 		
-		if (!Status.PENDING.equals(signupDao.getStatus())) {
-			throw new IllegalStateException("You can only accept signups that are pending.");
+		if (!Status.PENDING.equals(signupDao.getStatus()) &&
+			!Status.WAITING.equals(signupDao.getStatus())) {
+			throw new IllegalStateException("You can only accept signups that are waiting or pending.");
 		}
 		for (CourseComponentDAO componentDao : signupDao.getComponents()) {
 			componentDao.setTaken(componentDao.getTaken()+1);
@@ -393,7 +394,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			throw new NotFoundException(signupId);
 		}
 
-		if (Status.PENDING.equals(signupDao.getStatus())) { // Rejected by administrator.
+		if (Status.PENDING.equals(signupDao.getStatus()) || Status.WAITING.equals(signupDao.getStatus())) { // Rejected by administrator.
 			if (isAdministrator(signupDao.getGroup(), currentUserId, false)) {
 				signupDao.setStatus(Status.REJECTED);
 				dao.save(signupDao);
@@ -432,7 +433,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			}
 			
 		} else {
-			throw new IllegalStateException("You can only reject signups that are PENDING, ACCEPTED or APPROVED");
+			throw new IllegalStateException("You can only reject signups that are WAITING, PENDING, ACCEPTED or APPROVED");
 		}
 
 	}
