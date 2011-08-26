@@ -335,6 +335,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return proxy.getDirectUrl(courseId);
 	}
 	
+	public CourseComponent getCourseComponent(String componentId) {
+		CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
+		return new CourseComponentImpl(componentDao, this);
+	}
 	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses) {
 		CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
 		if (componentDao == null) {
@@ -399,7 +403,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				signupDao.setStatus(Status.REJECTED);
 				dao.save(signupDao);
 				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT);
-				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-admin.student.subject", "reject-admin.student.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
+				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-admin.student.subject", "reject-admin.student.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
 			} else {
 				throw new PermissionDeniedException(currentUserId);
 			}
@@ -413,7 +417,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 						dao.save(componentDao);
 					}
 					proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT);
-					sendSignupEmail(signupDao.getUserId(), signupDao, "reject-supervisor.student.subject", "reject-supervisor.student.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
+					sendSignupEmail(signupDao.getUserId(), signupDao, "reject-supervisor.student.subject", "reject-supervisor.student.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
 				} else {
 					throw new PermissionDeniedException(currentUserId);
 				}
@@ -427,7 +431,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					dao.save(componentDao);
 				}
 				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT);
-				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-approver.student.subject", "reject-approver.student.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
+				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-approver.student.subject", "reject-approver.student.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
 			} else {
 				throw new PermissionDeniedException(currentUserId);
 			}
@@ -666,13 +670,13 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		
 		String to = recepient.getEmail();
-		String subject = MessageFormat.format(rb.getString(subjectKey), new Object[]{proxy.getCurrentUser().getName(), signupDao.getGroup().getTitle(), signupUser.getName()});
+		String subject = MessageFormat.format(rb.getString(subjectKey), new Object[]{proxy.getCurrentUser().getDisplayName(), signupDao.getGroup().getTitle(), signupUser.getDisplayName()});
 		String componentDetails = formatSignup(signupDao);
 		Object[] baseBodyData = new Object[] {
-				proxy.getCurrentUser().getName(),
+				proxy.getCurrentUser().getDisplayName(),
 				componentDetails,
 				signupDao.getGroup().getTitle(),
-				signupUser.getName()
+				signupUser.getDisplayName()
 		};
 		Object[] bodyData = baseBodyData;
 		if (additionalBodyData != null) {
@@ -697,13 +701,13 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		
 		String to = recepient.getEmail();
-		String subject = MessageFormat.format(rb.getString(subjectKey), new Object[]{proxy.getCurrentUser().getName(), signupDao.getGroup().getTitle(), signupUser.getName()});
+		String subject = MessageFormat.format(rb.getString(subjectKey), new Object[]{proxy.getCurrentUser().getDisplayName(), signupDao.getGroup().getTitle(), signupUser.getDisplayName()});
 		String componentDetails = formatSignup(signupDao);
 		Object[] baseBodyData = new Object[] {
-				proxy.getCurrentUser().getName(),
+				proxy.getCurrentUser().getDisplayName(),
 				componentDetails,
 				signupDao.getGroup().getTitle(),
-				signupUser.getName()
+				signupUser.getDisplayName()
 		};
 		Object[] bodyData = baseBodyData;
 		if (additionalBodyData != null) {
@@ -774,7 +778,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		 */
 		if (sendEmail) {
 			for (String administrator : signupDao.getGroup().getAdministrators())
-			sendSignupEmail(administrator, signupDao, "withdraw.admin.subject", "withdraw.admin.body", new Object[] {proxy.getCurrentUser().getName(), proxy.getMyUrl()});
+			sendSignupEmail(administrator, signupDao, "withdraw.admin.subject", "withdraw.admin.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
 		}
 	}
 

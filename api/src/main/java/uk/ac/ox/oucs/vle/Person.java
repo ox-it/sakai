@@ -13,6 +13,10 @@ public interface Person {
 
 	public String getId();
 	
+	public String getFirstName();
+	
+	public String getLastName();
+	
 	public String getName();
 	
 	public String getEmail();

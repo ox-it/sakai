@@ -124,15 +124,24 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 											  {"bVisible": false},
 											  {"bVisible": false},
 											  {
-											  	sTitle: "Export",
+											  	"sTitle": "Export",
+											  	"bSortable": false,
 												"fnRender": function(aObj) {
 													return '<a href="../rest/signup/component/'+ aObj.aData[9]+ '.csv">Export</a>';
 												}
 											  },
 											  {
-												  sTitle: "Email",
+												"sTitle": "Email",
+												"bSortable": false,
 												"fnRender": function(aObj) {
 													return '<img class="mailto-all-course" id="'+aObj.aData[10]+'"src="images/email-send.png" title="send email to all CONFIRMED signups" />';
+												}
+											  },
+											  {
+												"sTitle": "Attendance",
+												"bSortable": false,
+												"fnRender": function(aObj) {
+													return '<a href="../rest/signup/component/'+ aObj.aData[11]+ '.pdf">Register</a>';
 												}
 											  }
 								              ],
@@ -155,6 +164,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 											 component.administrator,
 											 component.closes, //8
 											 component.id,
+											 component.id,
 											 component.id
 											]);
 										}
@@ -175,6 +185,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 							html += '</select></span>';
 							html += '<table border="0" class="display" id="signups-table"></table>';
 							html += '<a href="#" id="signup-add">Add Signup</a>';
+							html += '<span style="float:right; padding-right:20px;"><input type="button" id="syncButton" value="Sync with DAISY"></span>';
 							$("#signups").html(html);
 							//$("#signups").html('<h3>Signups</h3><table border="0" class="display" id="signups-table"></table><a href="#" id="signup-add">Add Signup</a>');
 							// Load the signups.
@@ -215,6 +226,22 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 									signupAddUser.css("top", "1px"); // Move almost to the top.
 								};
 							});
+
+							/**
+							 * Sync attendance with Daisy
+							 */
+							$("#syncButton").click(function(){
+								alert("Sync with Daisy pressed ["+code+"]");
+								
+								$.ajax({
+									"url": "../rest/signup/"+code+"/sync",
+									"type": "POST",
+									"async": true,
+									"traditional": true
+								})
+								
+							});
+							
 							$(window).resize(function(){
 								var windowHeight = $(window).height();
 								var positionTop = signupAddUser[0].offsetTop;

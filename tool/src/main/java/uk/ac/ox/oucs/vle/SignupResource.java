@@ -6,7 +6,9 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -276,6 +278,57 @@ public class SignupResource {
 			}
 			
 		};
+	}
+	
+	@Path("/component/{id}.pdf")
+	@GET
+	@Produces("application/pdf")
+	public StreamingOutput getComponentSignupsPDF(@PathParam("id") final String componentId, @Context final HttpServletResponse response) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
+		return new StreamingOutput() {
+
+			public void write(OutputStream output) throws IOException,
+					WebApplicationException {
+				
+				System.out.println("/rest/signup/component/"+componentId+"/pdf");
+				
+				CourseComponent courseComponent = courseService.getCourseComponent(componentId);
+				List<CourseSignup> signups = courseService.getComponentSignups(
+						componentId, Collections.singleton(Status.CONFIRMED));
+				List<Person> persons = new ArrayList<Person>();
+				for (CourseSignup signup : signups) {
+					persons.add(signup.getUser());
+				}
+				Collections.sort(persons, new Comparator<Person>() {
+					public int compare(Person p1,Person p2) {
+						return p1.getLastName().compareTo(p2.getLastName());
+					}
+				});
+				
+				response.addHeader("Content-disposition", "attachment; filename="+componentId+".pdf"); // Force a download
+				
+				PDFWriter pdfWriter = new PDFWriter(output);
+				CourseSignup courseSignup = signups.iterator().next();
+				pdfWriter.writeHead(signups.iterator().next().getGroup(), courseComponent.getPresenter());
+				pdfWriter.writeTable(persons);
+				pdfWriter.close();
+			}
+		};
+	}
+	
+	@Path("{id}/sync")
+	@POST
+	public Response sync(@PathParam("id") final String courseId) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
+		System.out.println("/rest/signup/sync/"+courseId);
+		List<CourseSignup> signups = courseService.getCourseSignups(
+				courseId, Collections.singleton(Status.CONFIRMED));
+		
+		return Response.ok().build();
 	}
 	
 	@Path("/pending")

@@ -398,7 +398,7 @@ public class PopulatorImpl implements Populator{
 					if (teacherId != null && teacherId.length() > 0) {
 						UserProxy teacher = proxy.findUserByEid(teacherId);
 						if (teacher != null) {
-							teacherName = teacher.getName();
+							teacherName = teacher.getDisplayName();
 							teacherEmail = teacher.getEmail();
 						}
 					}

@@ -167,7 +167,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		
 		List<String> units = sakaiUser.getProperties().getPropertyList("units");
-		return new UserProxy(sakaiUser.getId(), sakaiUser.getEid(), sakaiUser.getDisplayName(), 
+		return new UserProxy(sakaiUser.getId(), sakaiUser.getEid(), 
+				sakaiUser.getFirstName(), sakaiUser.getLastName(), sakaiUser.getDisplayName(), 
 				sakaiUser.getEmail(), 
 				sakaiUser.getProperties().getProperty("yearOfStudy"), 
 				sakaiUser.getProperties().getProperty("oakStatus"),
