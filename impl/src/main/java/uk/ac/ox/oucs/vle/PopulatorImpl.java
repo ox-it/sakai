@@ -164,9 +164,9 @@ public class PopulatorImpl implements Populator{
 			String subunitName = null;
 			String divisionCode = null;
 			String divisionEmail = null;
-			int publicViewInt = 0;
-			int supervisorApprovalInt = 0;
-			int administratorApprovalInt = 0;
+			boolean publicView = true;
+			boolean supervisorApproval = true;
+			boolean administratorApproval = true;
 			String description = null;
 			
 			PreparedStatement pstmt = con.prepareStatement("SELECT DISTINCT " +
@@ -202,8 +202,8 @@ public class PopulatorImpl implements Populator{
 					if (lastCode != null && !administrators.isEmpty()) {
 						
 						if (updateGroup(lastCode, grouptitle, departmentCode, subunitCode, description,
-							departmentName, subunitName, publicViewInt, 
-							supervisorApprovalInt, administratorApprovalInt,
+							departmentName, subunitName, publicView, 
+							supervisorApproval, administratorApproval,
 							divisionEmail, administrators, 
 							divisionalSuperusers.get(divisionCode), otherDepartments)) {
 							groupCreated++;
@@ -220,9 +220,9 @@ public class PopulatorImpl implements Populator{
 					subunitName = rs.getString("sub_unit_name");
 					divisionCode = rs.getString("division_code");
 					divisionEmail = rs.getString("division_wide_email");
-					publicViewInt = rs.getInt("public_view");
-					supervisorApprovalInt = rs.getInt("supervisor_approval");
-					administratorApprovalInt = rs.getInt("module_approval");
+					publicView = rs.getBoolean("public_view");
+					supervisorApproval = rs.getBoolean("supervisor_approval");
+					administratorApproval = rs.getBoolean("module_approval");
 					description = rs.getString("description");
 					administrators = new HashSet<String>();
 					otherDepartments = new HashSet<String>();
@@ -254,8 +254,8 @@ public class PopulatorImpl implements Populator{
 			// End of ResultSet write the last coursegroup
 			if (lastCode != null && !administrators.isEmpty()) {
 				if (updateGroup(lastCode, grouptitle, departmentCode, subunitCode, description,
-						departmentName, subunitName, publicViewInt, 
-						supervisorApprovalInt, administratorApprovalInt,
+						departmentName, subunitName, publicView, 
+						supervisorApproval, administratorApproval,
 						divisionEmail, administrators,
 						divisionalSuperusers.get(divisionCode), otherDepartments)) {
 					groupCreated++;
@@ -311,8 +311,7 @@ public class PopulatorImpl implements Populator{
 					}
 					
 					lastId = id;
-					String bookableString = rs.getString("bookable");
-					boolean bookable = bookableString == null || bookableString.trim().length() == 0 || bookableString.equals("TRUE");
+					boolean bookable = rs.getBoolean("bookable");
 					
 					Date openDate = getDate(rs, "open_date");
 					if (openDate == null) { 
@@ -586,7 +585,7 @@ public class PopulatorImpl implements Populator{
 	
 	private boolean updateGroup(String code, String title, String departmentCode, String subunitCode, 
 			String description, String departmentName, String subunitName, 
-			int publicView, int supervisorApproval, int administratorApproval,
+			boolean publicView, boolean supervisorApproval, boolean administratorApproval,
 			String divisionEmail, 
 			Set<String> administrators, Set<String> superusers, Set<String> otherDepartments) {
 		
@@ -605,9 +604,9 @@ public class PopulatorImpl implements Populator{
 		groupDao.setDescription(description);
 		groupDao.setDepartmentName(departmentName);
 		groupDao.setSubunitName(subunitName);
-		groupDao.setPublicView(publicView > 1 ? false : true );
-		groupDao.setSupervisorApproval(supervisorApproval > 1 ? false : true );
-		groupDao.setAdministratorApproval(administratorApproval > 1 ? false : true );
+		groupDao.setPublicView(publicView);
+		groupDao.setSupervisorApproval(supervisorApproval);
+		groupDao.setAdministratorApproval(administratorApproval);
 		groupDao.setContactEmail(divisionEmail);
 		groupDao.setAdministrators(administrators);
 		if (null==superusers) {
