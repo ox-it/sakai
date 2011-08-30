@@ -374,6 +374,10 @@ public class UiInterface extends UiContainer implements Interface
 			// our js
 			response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ambrosia_library/js/ambrosia.js\"></script>\n");
 
+			// jquery, used for, among possibly other things, drag and drop entity list reordering
+			response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ambrosia_library/js/jquery-1.6.2.min.js\"></script>\n");
+			response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ambrosia_library/js/jquery-ui-1.8.16.custom.min.js\"></script>\n");
+			
 			// for rich editing - tiny
 			if (this.popup)
 			{

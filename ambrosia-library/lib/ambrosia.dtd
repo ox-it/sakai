@@ -403,6 +403,8 @@
 <!ATTLIST entityList id CDATA #IMPLIED >
 <!ATTLIST entityList style (FLAT|FORM) #IMPLIED >
 <!ATTLIST entityList title CDATA #IMPLIED >
+<!ATTLIST entityList reorder CDATA #IMPLIED >
+<!ATTLIST entityList orderModel CDATA #IMPLIED >
 
 <!ELEMENT emptyTitle (message) >
 <!ELEMENT empty (message) >

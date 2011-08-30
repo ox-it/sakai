@@ -1346,3 +1346,18 @@ function ambrosiaSetFocus(elements)
 	}
 	sakaiSetFocus(elements);
 }
+
+function ambrosiaTableRowIds(tableId, fieldId)
+{
+	var table = document.getElementById(tableId);
+	var field = document.getElementById(fieldId);
+	if ((table == null) || (field == null)) return;
+
+	var rows = table.tBodies[0].rows;
+	var rv = "";
+	for (var i=0; i<rows.length; i++)
+	{
+		rv += rows[i].id+" ";
+	}
+	field.value = rv;
+}

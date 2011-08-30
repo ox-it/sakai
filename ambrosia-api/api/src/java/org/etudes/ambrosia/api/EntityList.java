@@ -153,6 +153,15 @@ public interface EntityList extends Component
 	EntityList setIterator(PropertyReference reference, String name);
 
 	/**
+	 * Set the table row index order reference for update when submitting (write only).
+	 * 
+	 * @param ref
+	 *        The property reference.
+	 * @return self.
+	 */
+	EntityList setOrderProperty(PropertyReference ref);
+
+	/**
 	 * Set the pager for the list.
 	 * 
 	 * @param pager

@@ -63,6 +63,9 @@ public class UiEntityList extends UiComponent implements EntityList
 	/** Columns for this list. */
 	protected List<EntityListColumn> columns = new ArrayList<EntityListColumn>();
 
+	/** If we are doing drag and drop reordering. */
+	protected boolean dndReorder = false;
+
 	/** Text message to use if there are no items to show in the list. */
 	protected Message emptyTitle = null;
 
@@ -95,6 +98,9 @@ public class UiEntityList extends UiComponent implements EntityList
 
 	/** The reference to an entity to iterate over. */
 	protected PropertyReference iteratorReference = null;
+
+	/** The PropertyReference for encoding and decoding the new order of table row indexes. */
+	protected PropertyReference orderPropertyReference = null;
 
 	/** The pager for the list. */
 	protected Pager pager = null;
@@ -225,7 +231,7 @@ public class UiEntityList extends UiComponent implements EntityList
 			this.title = new UiMessage(service, settingsXml);
 		}
 
-		// title includede
+		// title included
 		settingsXml = XmlHelper.getChildElementNamed(xml, "titleIncluded");
 		if (settingsXml != null)
 		{
@@ -331,6 +337,18 @@ public class UiEntityList extends UiComponent implements EntityList
 			this.anchor = new UiMessage(service, settingsXml);
 		}
 
+		// reorder
+		String reorder = StringUtil.trimToNull(xml.getAttribute("reorder"));
+		if ("DND".equals(reorder)) this.dndReorder = true;
+
+		// model ref for final table order indexes
+		String orderModel = StringUtil.trimToNull(xml.getAttribute("orderModel"));
+		if (orderModel != null)
+		{
+			PropertyReference pRef = service.newPropertyReference().setReference(orderModel);
+			setOrderProperty(pRef);
+		}
+
 		// we need an id
 		if (this.id == null) autoId();
 	}
@@ -425,8 +443,31 @@ public class UiEntityList extends UiComponent implements EntityList
 
 		response.println("<div class=\"ambrosiaEntityList\">");
 
+		// enable the dnd reordering if desired
+		if (this.dndReorder)
+		{
+			// the decode directive
+			if (this.orderPropertyReference != null)
+			{
+				// decode directive to set the order property with the final table row index order
+				String decodeId = "decode_" + idRoot;
+				response.println("<input type=\"hidden\" name=\"" + decodeId + "\" value =\"tableOrder_" + id + "\" />"
+						+ "<input type=\"hidden\" name=\"" + "prop_" + decodeId + "\" value=\""
+						+ this.orderPropertyReference.getFullReference(context) + "\" />" + "<input type=\"hidden\" name=\"" + "type_" + decodeId
+						+ "\" value=\"" + this.orderPropertyReference.getType() + "\" />");
+			}
+
+			// a place to put the final table row index values
+			response.println("<input type=\"hidden\" name=\"tableOrder_" + id + "\" id=\"tableOrder_" + id + "\" value =\"\" />");
+
+			// make the table sortable
+			context.addScript("$(function() {$(\"#table_" + id
+					+ " tbody\").sortable({axis:'y', stop:function(event, ui){ambrosiaTableRowIds(\"table_" + id + "\",\"tableOrder_" + id
+					+ "\");}});});\n");
+		}
+
 		// start the table
-		response.println("<table class=\"ambrosiaEntityListTable "
+		response.println("<table id=\"table_" + id + "\" class=\"ambrosiaEntityListTable "
 				+ ((this.style == Style.flat) ? "ambrosiaEntityListFlat" : "ambrosiaEntityListForm") + "\" cellpadding=\"0\" cellspacing=\"0\" >");
 
 		// do we need headers? not if we have no headers defined
@@ -660,11 +701,11 @@ public class UiEntityList extends UiComponent implements EntityList
 				// start the row, possibly colorizing
 				if ((this.colorizeBkg != null) && (this.colorizeDecision != null) && (this.colorizeDecision.decide(context, entity)))
 				{
-					response.println("<tr bgcolor=\"" + this.colorizeBkg + "\">");
+					response.println("<tr id=\"" + index + "\" bgcolor=\"" + this.colorizeBkg + "\">");
 				}
 				else
 				{
-					response.println("<tr>");
+					response.println("<tr id=\"" + index + "\" >");
 				}
 
 				colNum = 0;
@@ -880,6 +921,15 @@ public class UiEntityList extends UiComponent implements EntityList
 	/**
 	 * {@inheritDoc}
 	 */
+	public EntityList setDndReorder()
+	{
+		this.dndReorder = true;
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public EntityList setEmptyTitle(String selector, PropertyReference... properties)
 	{
 		this.emptyTitle = new UiMessage().setMessage(selector, properties);
@@ -929,6 +979,15 @@ public class UiEntityList extends UiComponent implements EntityList
 	{
 		this.iteratorReference = reference;
 		this.iteratorName = name;
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public EntityList setOrderProperty(PropertyReference ref)
+	{
+		this.orderPropertyReference = ref;
 		return this;
 	}
 
