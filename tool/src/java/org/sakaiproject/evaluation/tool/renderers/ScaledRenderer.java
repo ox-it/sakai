@@ -34,6 +34,7 @@ import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UISelectLabel;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
+import uk.org.ponder.rsf.components.decorators.UIColourDecorator;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
 
@@ -103,11 +104,11 @@ public class ScaledRenderer implements ItemRenderer {
 
             if (colored) {
                 compactStartContainer.decorators =
-                    new DecoratorList( new UIStyleDecorator("compactDisplayStart") );// must match the existing CSS class
-                //new DecoratorList(new UIColourDecorator(null, ScaledUtils.getStartColor(scale)));
+                    //new DecoratorList( new UIStyleDecorator("compactDisplayStart") );// must match the existing CSS class
+                new DecoratorList(new UIColourDecorator(null, ScaledUtils.getStartColor(scale)));
                 compactEndContainer.decorators =
-                    new DecoratorList( new UIStyleDecorator("compactDisplayEnd") );// must match the existing CSS class
-                //new DecoratorList(new UIColourDecorator(null, ScaledUtils.getEndColor(scale)));
+                    //new DecoratorList( new UIStyleDecorator("compactDisplayEnd") );// must match the existing CSS class
+                new DecoratorList(new UIColourDecorator(null, ScaledUtils.getEndColor(scale)));
             }
 
             // For the radio buttons
