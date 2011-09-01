@@ -34,7 +34,9 @@ var evalTemplateData = (function() {
             //Validate text
             if (fckEditorValue === null || fckEditorValue.length === 0) {
                 alert( evalTemplateUtils.messageLocator("general.blank.required.field.user.message",
-                                       evalTemplateUtils.messageLocator('modifytemplatetitledesc.title.header')));
+                                       	evalTemplateUtils.messageLocator('modifyitem.item.text.header')));
+                						//WL-1520 evalTemplateUtils.messageLocator('modifytemplatetitledesc.title.header')));
+                
                 return false;
             }
 
