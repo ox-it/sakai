@@ -123,7 +123,13 @@ public class EvaluationVPInferrer implements EntityViewParamsInferrer {
             log.info("Note: User ("+currentUserId+") accessing authenticated evaluation: " + evaluationId + " in state ("+EvalUtils.getEvaluationState(evaluation, false)+") for group: " + evalGroupId);
 
             // eval has not started
+            // WL-1699 Show the preview of the Survey before it is released
             if ( EvalUtils.checkStateBefore(EvalUtils.getEvaluationState(evaluation, false), EvalConstants.EVALUATION_STATE_INQUEUE, true) ) {
+            	EvalViewParameters vp = new EvalViewParameters(PreviewEvalProducer.VIEW_ID, evaluationId);
+                vp.external = true;
+                return vp;
+            }
+            /*
                 // go to the add instructor items view if permission
                 // NOTE: the checks below are slightly expensive and should probably be reworked to use the newer participants methods
                 if (evalGroupId == null) {
@@ -150,7 +156,7 @@ public class EvaluationVPInferrer implements EntityViewParamsInferrer {
                 // else just require auth
                 throw new SecurityException("User must be authenticated to access this page");
             }
-
+			*/
             // finally, try to go to the take evals view
             if (! commonLogic.isUserAnonymous(currentUserId) ) {
                 // check perms if not anonymous
