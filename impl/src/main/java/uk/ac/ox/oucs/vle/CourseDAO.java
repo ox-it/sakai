@@ -54,6 +54,18 @@ public interface CourseDAO {
 	List<CourseSignupDAO> findSignupByComponent(String componentId, Set<Status> statuses);
 
 	List<CourseSignupDAO> findSignupPending(String currentUser);
+	
+	List<CourseSignupDAO> findSignupApproval(String currentUser);
+	
+	List<DepartmentDAO> findApproverDepartments(String currentUserId);
+	
+	List<Object[]> findDepartmentApprovers(final String department);
+	
+	List<DepartmentDAO> findAllDepartments();
+	
+	DepartmentDAO findDepartmentByCode(String code);
+	
+	void save(DepartmentDAO departmentDao);
 
 	void remove(CourseSignupDAO existingSignup);
 

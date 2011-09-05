@@ -20,11 +20,19 @@ public interface CourseGroup {
 	
 	public boolean getPublicView();
 	
+	public boolean getSupervisorApproval();
+	
+	public boolean getAdministratorApproval();
+	
 	public String getContactEmail();
 
 	public List<CourseComponent> getComponents();
 	
 	public List<Person> getAdministrators();
+	
+	public List<Person> getSuperusers();
+	
+	public List<String> getOtherDepartments();
 	
 	public boolean getIsAdmin();
 }

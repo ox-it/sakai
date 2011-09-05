@@ -29,12 +29,13 @@ table th {
     width: 40%;
 	height: 400px;
     float: left;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    /* overflow: auto; */
 }
 
 #details {
     width: 59%;
-    
     float: right;
 }
 
@@ -124,6 +125,9 @@ table th {
 }
 .jstree li.open a {
 	color: green;
+	white-space: normal !important;
+	padding-top: 4px;
+	padding-right: 2em;
 }
 
 /* Styling of the signup table */

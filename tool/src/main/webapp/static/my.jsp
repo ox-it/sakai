@@ -50,6 +50,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<li><span><a href="search.jsp">Module Search</a></span></li>
 	<li><span>My Modules</span></li>
 	<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
+	<li><span><a href="approve.jsp">Pending Confirmations</a></span></li>
 	<li><span><a href="admin.jsp">Module Administration</a></span></li>
 </ul>
 </div>

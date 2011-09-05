@@ -6,7 +6,9 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,6 +36,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
+import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 @Path("/signup")
@@ -95,7 +98,7 @@ public class SignupResource {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			throw new WebApplicationException(Response.Status.FORBIDDEN);
 		}
-		String user = courseService.findSupervisor(email);
+		//String user = courseService.findSupervisor(email);
 		courseService.signup(courseId, components, email, message);
 		return Response.ok().build();
 	}
@@ -180,6 +183,16 @@ public class SignupResource {
 			throw new WebApplicationException(Response.Status.FORBIDDEN);
 		}
 		courseService.approve(signupId);
+		return Response.ok().build();
+	}
+	
+	@Path("{id}/confirm")
+	@POST
+	public Response confirm(@PathParam("id") final String signupId) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
+		courseService.confirm(signupId);
 		return Response.ok().build();
 	}
 	
@@ -268,10 +281,91 @@ public class SignupResource {
 		};
 	}
 	
+	@Path("/component/{id}.pdf")
+	@GET
+	@Produces("application/pdf")
+	public StreamingOutput getComponentSignupsPDF(@PathParam("id") final String componentId, @Context final HttpServletResponse response) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
+		return new StreamingOutput() {
+
+			public void write(OutputStream output) throws IOException,
+					WebApplicationException {
+				
+				System.out.println("/rest/signup/component/"+componentId+"/pdf");
+				
+				CourseComponent courseComponent = courseService.getCourseComponent(componentId);
+				List<CourseSignup> signups = courseService.getComponentSignups(
+						componentId, Collections.singleton(Status.CONFIRMED));
+				List<Person> persons = new ArrayList<Person>();
+				for (CourseSignup signup : signups) {
+					persons.add(signup.getUser());
+				}
+				Collections.sort(persons, new Comparator<Person>() {
+					public int compare(Person p1,Person p2) {
+						return p1.getLastName().compareTo(p2.getLastName());
+					}
+				});
+				
+				response.addHeader("Content-disposition", "attachment; filename="+componentId+".pdf"); // Force a download
+				
+				PDFWriter pdfWriter = new PDFWriter(output);
+				CourseSignup courseSignup = signups.iterator().next();
+				pdfWriter.writeHead(signups.iterator().next().getGroup(), courseComponent.getPresenter());
+				pdfWriter.writeTable(persons);
+				pdfWriter.close();
+			}
+		};
+	}
+	
+	@Path("{id}/sync")
+	@POST
+	public Response sync(@PathParam("id") final String courseId) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
+
+		System.out.println("/rest/signup/sync/"+courseId);
+		
+		CourseGroup group = courseService.getCourseGroup(courseId, Range.ALL);
+		AttendanceWriter attendance = new AttendanceWriter(group);
+		
+		for (CourseComponent component : group.getComponents()) {
+			
+			Collection<CourseSignup> signups = 
+				courseService.getComponentSignups(component.getId(), 
+						Collections.singleton(Status.CONFIRMED));
+			
+			attendance.addSignups(component, signups);
+		}
+		attendance.close();
+
+		return Response.ok().build();
+	}
+	
 	@Path("/pending")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getPendingSignups() {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
+		return new StreamingOutput() {
+
+			public void write(OutputStream output) throws IOException,
+					WebApplicationException {
+				List<CourseSignup> signups = courseService.getPendings();
+				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
+			}
+			
+		}; 
+	}
+	
+	@Path("/approve")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public StreamingOutput getApproveSignups() {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			throw new WebApplicationException(Response.Status.FORBIDDEN);
 		}
@@ -318,4 +412,5 @@ public class SignupResource {
 		}; 
 		
 	}
+	
 }

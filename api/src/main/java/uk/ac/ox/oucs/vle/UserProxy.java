@@ -11,21 +11,27 @@ public class UserProxy {
 
 	private String id;
 	private String eid;
-	private String name;
+	private String firstname;
+	private String lastname;
+	private String displayname;
 	private String email;
 	private List<String> units;
 	private String yearOfStudy;
 	private String type;
+	private String department;
 	
-	public UserProxy(String id, String eid, String name, String email, 
-			String yearOfStudy, String type, List<String> units) {
+	public UserProxy(String id, String eid, String firstname, String lastname, String name, String email, 
+			String yearOfStudy, String type, String department, List<String> units) {
 		this.id = id;
 		this.eid = eid;
-		this.name = name;
+		this.firstname = firstname;
+		this.lastname = lastname;
+		this.displayname = name;
 		this.email = email;
 		this.units = units;
 		this.yearOfStudy = yearOfStudy;
 		this.type = type;
+		this.department = department;
 	}
 
 	public String getId() {
@@ -36,8 +42,16 @@ public class UserProxy {
 		return eid;
 	}
 
-	public String getName() {
-		return name;
+	public String getFirstName() {
+		return firstname;
+	}
+	
+	public String getLastName() {
+		return lastname;
+	}
+	
+	public String getDisplayName() {
+		return displayname;
 	}
 
 	public String getEmail() {
@@ -54,5 +68,9 @@ public class UserProxy {
 	
 	public String getType() {
 		return type;
+	}
+	
+	public String getDepartment() {
+		return department;
 	}
 }

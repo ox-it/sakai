@@ -86,6 +86,18 @@
     		<version>1.1.2</version>
 		</dependency>
 		
+		<dependency>
+    		<groupId>org.jdom</groupId>
+    		<artifactId>jdom</artifactId>
+    		<version>1.1</version>
+		</dependency>
+		
+		 <!-- Needed for generating PDF Files for export -->
+		<dependency>
+    		<groupId>com.itextpdf</groupId>
+    		<artifactId>itextpdf</artifactId>
+    		<version>5.1.2</version>
+		</dependency>
 
 	</dependencies>
 	<profiles>

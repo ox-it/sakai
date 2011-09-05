@@ -7,6 +7,19 @@
 		<param name="enumClass">uk.ac.ox.oucs.vle.CourseSignupService$Status</param>
 	</typedef>
 
+	<class name="uk.ac.ox.oucs.vle.DepartmentDAO" table="department">
+		<!-- create the primary key id -->
+		<id name="code" type="string">
+			<column name="code" />
+		</id>
+		<property name="name" type="string" length="256" />
+		<property name="approve" type="boolean"/>
+		<set name="approvers" inverse="false" lazy="true" table="department_approver">
+			<key column="department" not-null="true"/>
+			<element column="approver" type="string" length="64" />
+		</set>
+	</class>
+	
 	<class name="uk.ac.ox.oucs.vle.CourseSignupDAO" table="course_signup">
 		<!-- create the primary key id -->
 		<id name="id" type="string">
@@ -25,6 +38,7 @@
 				column="component" />
 		</set>
 		<property name="supervisorId" type="string" length="99" index="course_signup_supervisor_idx" />
+		<property name="department" type="string" length="32" />
 		<many-to-one name="group" column="groupId" class="uk.ac.ox.oucs.vle.CourseGroupDAO"/>
 	</class>
 
@@ -85,6 +99,8 @@
 		<property name="subunitName" type="string" length="255"/>
 		<property name="description" type="string" length="4000"/>
 		<property name="publicView" type="boolean"/>
+		<property name="supervisorApproval" type="boolean"/>
+		<property name="administratorApproval" type="boolean"/>
 		<property name="contactEmail" type="string" length="255"/>
 		<set name="components" inverse="true" lazy="true" table="course_group_component"
 			fetch="join">
@@ -95,6 +111,14 @@
 		<set name="administrators" inverse="false" lazy="true" table="course_group_administrator">
 			<key column="course_group" not-null="true"/>
 			<element column="administrator" type="string" length="64" />
+		</set>
+		<set name="superusers" inverse="false" lazy="true" table="course_group_superuser">
+			<key column="course_group" not-null="true"/>
+			<element column="superuser" type="string" length="64" />
+		</set>
+		<set name="otherDepartments" inverse="false" lazy="true" table="course_group_otherDepartment">
+			<key column="course_group" not-null="true"/>
+			<element column="otherDepartment" type="string" length="32" />
 		</set>
 		<set name="signups" inverse="true">
 			<key column="groupId"/>

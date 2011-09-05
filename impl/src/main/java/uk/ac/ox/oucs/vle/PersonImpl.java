@@ -7,6 +7,8 @@ import java.util.List;
 public class PersonImpl implements Person {
 
 	private String id;
+	private String firstName;
+	private String lastName;
 	private String displayName;
 	private String email;
 	private List<String> units;
@@ -14,9 +16,11 @@ public class PersonImpl implements Person {
 	private String yearOfStudy;
 	private String type;
 	
-	public PersonImpl(String id, String displayName, String email, List<String> units, 
+	public PersonImpl(String id, String firstName, String lastName, String displayName, String email, List<String> units, 
 			String yearOfStudy, String type) {
 		this.id = id;
+		this.firstName = firstName;
+		this.lastName = lastName;
 		this.displayName = displayName;
 		this.email = email;
 		this.units = new ArrayList<String>(units);
@@ -26,6 +30,12 @@ public class PersonImpl implements Person {
 	
 	public String getId() {
 		return id;
+	}
+	public String getFirstName() {
+		return firstName;
+	}
+	public String getLastName() {
+		return lastName;
 	}
 	public String getName() {
 		return displayName;
@@ -44,5 +54,4 @@ public class PersonImpl implements Person {
 	public String getType() {
 		return type;
 	}
-	
 }

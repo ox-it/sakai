@@ -2,6 +2,7 @@ package uk.ac.ox.oucs.vle;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -23,6 +24,7 @@ public interface CourseSignupService {
 		WITHDRAWN(false),
 		APPROVED(true),
 		ACCEPTED(true),
+		CONFIRMED(true),
 		REJECTED(false),
 		WAITING(false);
 		
@@ -48,8 +50,9 @@ public interface CourseSignupService {
 	public static final String EVENT_ACCEPT = "coursesignup.accept";
 	public static final String EVENT_WITHDRAW = "coursesignup.withdraw";
 	public static final String EVENT_APPROVE = "coursesignup.approve";
+	public static final String EVENT_CONFIRM = "coursesignup.confirm";
 	public static final String EVENT_REJECT = "coursesignup.reject";
-	public static final String EVENT_WAITING = "coursesignup.reject";
+	public static final String EVENT_WAITING = "coursesignup.waiting";
 	
 
 	public CourseGroup getCourseGroup(String courseId, Range range);
@@ -89,15 +92,21 @@ public interface CourseSignupService {
 	
 	public Integer getCountCourseSignups(String courseId, Set<Status> statuses);
 	
+	public CourseComponent getCourseComponent(String componentId);
+	
 	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses);
 	
 	public List<CourseSignup> getApprovals();
+	
+	public List<CourseSignup> getPendings();
 	
 	public void setSupervisor(String signupId, String supervisorId);
 	
 	public void approve(String signupId);
 	
 	public void accept(String signupId);
+	
+	public void confirm(String signupId);
 	
 	public void reject(String signupId);
 
@@ -114,6 +123,8 @@ public interface CourseSignupService {
 	public void setSignupStatus(String signupId, Status status);
 	
 	public List<CourseGroup> search(String search, Range range, boolean external);
+	
+	public Map<String, String> getDepartments();
 	
 	/**
 	 * This is what the service should use when determining the current time.

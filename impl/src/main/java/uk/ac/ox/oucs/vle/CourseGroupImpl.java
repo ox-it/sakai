@@ -12,12 +12,12 @@ public class CourseGroupImpl implements CourseGroup {
 	private CourseSignupServiceImpl impl;
 	private List<CourseComponent> components;
 	private List<Person> administrators;
-	private boolean isAdmin;
+	private List<Person> superusers;
+	private List<String> otherDepartments;
 	
 	public CourseGroupImpl(CourseGroupDAO courseGroupDAO, CourseSignupServiceImpl impl) {
 		this.courseGroupDAO = courseGroupDAO;
 		this.impl = impl;
-		this.isAdmin = impl.isAdministrator(courseGroupDAO.getAdministrators());
 	}
 
 	public String getDescription() {
@@ -52,6 +52,14 @@ public class CourseGroupImpl implements CourseGroup {
 		return courseGroupDAO.getPublicView();
 	}
 	
+	public boolean getSupervisorApproval() {
+		return courseGroupDAO.getSupervisorApproval();
+	}
+	
+	public boolean getAdministratorApproval() {
+		return courseGroupDAO.getAdministratorApproval();
+	}
+	
 	public String getContactEmail() {
 		return courseGroupDAO.getContactEmail();
 	}
@@ -79,7 +87,7 @@ public class CourseGroupImpl implements CourseGroup {
 			for (String component:  courseGroupDAO.getAdministrators()) {
 				UserProxy user = impl.loadUser(component);
 				if (null != user) {
-					Person person = new PersonImpl(user.getId(), user.getName(), user.getEmail(), Collections.EMPTY_LIST, null, user.getType());
+					Person person = new PersonImpl(user.getId(), user.getFirstName(), user.getLastName(), user.getDisplayName(), user.getEmail(), Collections.EMPTY_LIST, null, user.getType());
 					administrators.add(person);
 				}
 			}
@@ -88,7 +96,36 @@ public class CourseGroupImpl implements CourseGroup {
 		return administrators;
 	}
 	
+	public List<Person> getSuperusers() {
+		if (superusers == null) {
+			superusers = new ArrayList<Person>();
+			for (String component:  courseGroupDAO.getSuperusers()) {
+				UserProxy user = impl.loadUser(component);
+				if (null != user) {
+					Person person = new PersonImpl(user.getId(), user.getFirstName(), user.getLastName(), user.getDisplayName(), user.getEmail(), Collections.EMPTY_LIST, null, user.getType());
+					superusers.add(person);
+				}
+			}
+		}
+		
+		return administrators;
+	}
+	
+	public List<String> getOtherDepartments() {
+		if (otherDepartments == null) {
+			otherDepartments = new ArrayList<String>();
+			for (String otherDepartment:  courseGroupDAO.getOtherDepartments()) {
+				otherDepartments.add(otherDepartment);
+			}
+		}
+		return otherDepartments;
+	}
+	
 	public boolean getIsAdmin() {
+		boolean isAdmin = impl.isAdministrator(courseGroupDAO.getAdministrators());
+		if (!isAdmin) {
+			isAdmin = impl.isAdministrator(courseGroupDAO.getSuperusers());
+		}
 		return isAdmin;
 	}
 

@@ -533,7 +533,7 @@ var Signup = function(){
 			/**
 			 * The statuses that a signup can have.
 			 */
-			"statuses": ["WAITING", "PENDING", "ACCEPTED", "APPROVED", "REJECTED", "WITHDRAWN"],
+			"statuses": ["WAITING", "PENDING", "ACCEPTED", "APPROVED", "CONFIRMED", "REJECTED", "WITHDRAWN"],
 			
             "getActions": function(status, id, closes, admin){
                 if (admin) {
