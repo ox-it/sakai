@@ -231,8 +231,6 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 							 * Sync attendance with Daisy
 							 */
 							$("#syncButton").click(function(){
-								alert("Sync with Daisy pressed ["+code+"]");
-								
 								$.ajax({
 									"url": "../rest/signup/"+code+"/sync",
 									"type": "POST",

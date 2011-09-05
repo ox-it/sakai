@@ -1,18 +1,17 @@
 package uk.ac.ox.oucs.vle;
 
-import java.io.Writer;
-import java.util.regex.Pattern;
-
-import java.awt.Graphics2D;
-import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
-import org.jfree.chart.JFreeChart;
-import com.itextpdf.text.*;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.MultiColumnText;
-import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -46,11 +45,9 @@ public class PDFWriter
     private Font tableHeadFontBold;
     private Font tableFont;
     private Font tableFontBold;
-    private Font frontTitleFont;
-    private Font frontAuthorFont;
-    private Font frontInfoFont;
-    
-    private PdfPTable table;
+    private Font titleFont;
+    private Font authorFont;
+    private Font infoFont;
   
     /**
      * Create the writer wrapping up an existing writer.
@@ -77,9 +74,9 @@ public class PDFWriter
             tableHeadFontBold = FontFactory.getFont(FontFactory.TIMES_ROMAN, 12, Font.BOLD);
             tableFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 11, Font.NORMAL);
             tableFontBold = FontFactory.getFont(FontFactory.TIMES_ROMAN, 11, Font.BOLD);
-            frontTitleFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 18, Font.NORMAL);
-            frontAuthorFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 12, Font.NORMAL);
-            frontInfoFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 12, Font.NORMAL);
+            titleFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 18, Font.NORMAL);
+            authorFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 12, Font.NORMAL);
+            infoFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 12, Font.NORMAL);
             
         } catch (Exception e) {
             throw new IOException("Unable to start PDF Report");
@@ -103,26 +100,41 @@ public class PDFWriter
 
     		//Paragraph emptyPara = new Paragraph(" ");
     		//emptyPara.setSpacingAfter(100.0f);
+    		Paragraph paragraph;
+    		Phrase phrase;
 
     		// Title
-    		Paragraph titlePara = new Paragraph("\n" + group.getTitle(), frontTitleFont);
-    		titlePara.setAlignment(Element.ALIGN_CENTER);
-    		document.add(titlePara);
+    		paragraph = new Paragraph();
+    		phrase = new Phrase("\n" + group.getTitle(), titleFont);
+    		paragraph.add(phrase);
+    		paragraph.setAlignment(Element.ALIGN_CENTER);
+    		document.add(paragraph);
     		
     		// Presenter
-    		Paragraph presenterPara = new Paragraph("\nPresenter: " + presenter.getName(), frontAuthorFont);
-    		presenterPara.setAlignment(Element.ALIGN_LEFT);
-    		document.add(presenterPara);
+    		paragraph = new Paragraph();
+    		phrase = new Phrase("\nPresenter: " + presenter.getName(), authorFont);
+    		paragraph.add(phrase);
+    		paragraph.setIndentationLeft(25);
+    		paragraph.setIndentationRight(25);
+    		paragraph.setAlignment(Element.ALIGN_LEFT);
+    		document.add(paragraph);
     		
     		// Date
-    		Paragraph datePara = new Paragraph("Date/Time: ...........................................", frontInfoFont);
-    		datePara.setAlignment(Element.ALIGN_LEFT);
-    		document.add(datePara);
+    		paragraph = new Paragraph();
+    		phrase = new Phrase("Date/Time: ...........................................", infoFont);
+    		paragraph.add(phrase);
+    		paragraph.setIndentationLeft(25);
+    		paragraph.setIndentationRight(25);
+    		document.add(paragraph);
     		
     		// info
-    		Paragraph infoPara = new Paragraph("Please sign to confirm that you have attended this session", frontInfoFont);
-    		infoPara.setAlignment(Element.ALIGN_LEFT);
-    		document.add(infoPara);
+    		paragraph = new Paragraph();
+    		phrase = new Phrase("Please sign to confirm that you have attended this session", infoFont);
+    		paragraph.add(phrase);
+    		paragraph.setIndentationLeft(25);
+    		paragraph.setIndentationRight(25);
+    		paragraph.setAlignment(Element.ALIGN_LEFT);
+    		document.add(paragraph);
     	
     	} catch (DocumentException e) {
             throw new IOException("Unable to write Document Header.");
@@ -133,15 +145,17 @@ public class PDFWriter
     {
     	try {
 			
-    		Paragraph para = new Paragraph(" ");
-    		table = new PdfPTable(new float[]{1f, 2f});
+    		PdfPTable table = new PdfPTable(new float[]{1f, 2f});
+    		table.setWidthPercentage(90);
+    		table.setSpacingBefore(10f);
+    		Paragraph paragraph = new Paragraph();
 
     		// t.setBorderColor(BaseColor.GRAY);
     		// t.setPadding(4);
     		// t.setSpacing(4);
     		// t.setBorderWidth(1);
 
-    		table.addCell(headCell("Table Header 1", tableHeadFont));
+    		table.addCell(headCell("Name", tableHeadFont));
     		table.addCell(headCell("I confirm that I attended this session", tableHeadFont));
 
     		table.setHeaderRows(1);
@@ -156,9 +170,9 @@ public class PDFWriter
     			table.addCell(nameCell("", tableFont));
     		}
     	
-    		para.add(table);
-    		para.setAlignment(Element.ALIGN_CENTER);
-    		document.add(para);
+    		paragraph.add(table);
+    		paragraph.setAlignment(Element.ALIGN_CENTER);
+    		document.add(paragraph);
     	
 		} catch (DocumentException e) {
 			throw new IOException("Unable to write Document table.");

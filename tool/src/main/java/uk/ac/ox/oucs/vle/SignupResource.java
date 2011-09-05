@@ -36,6 +36,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
+import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 @Path("/signup")
@@ -324,10 +325,22 @@ public class SignupResource {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			throw new WebApplicationException(Response.Status.FORBIDDEN);
 		}
+
 		System.out.println("/rest/signup/sync/"+courseId);
-		List<CourseSignup> signups = courseService.getCourseSignups(
-				courseId, Collections.singleton(Status.CONFIRMED));
 		
+		CourseGroup group = courseService.getCourseGroup(courseId, Range.ALL);
+		AttendanceWriter attendance = new AttendanceWriter(group);
+		
+		for (CourseComponent component : group.getComponents()) {
+			
+			Collection<CourseSignup> signups = 
+				courseService.getComponentSignups(component.getId(), 
+						Collections.singleton(Status.CONFIRMED));
+			
+			attendance.addSignups(component, signups);
+		}
+		attendance.close();
+
 		return Response.ok().build();
 	}
 	
