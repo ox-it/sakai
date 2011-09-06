@@ -79,10 +79,10 @@ public class EvaluationAssignSelectProducer implements ViewComponentProducer, Vi
 			isAssistant = EvalAssignGroup.SELECTION_TYPE_ASSISTANT.equals(selectType);
 			Set<String> users;
 			if(isInstructor){
-				users = commonLogic.getUserIdsForEvalGroup(evalGroupId, EvalConstants.PERM_BE_EVALUATED);
+				users = commonLogic.getUserIdsForEvalGroup(evalGroupId, EvalConstants.PERM_BE_EVALUATED, false);
 				actionBeanVariable = actionBeanVariable+"deselectedInstructors";
 			}else if(isAssistant){
-				users = commonLogic.getUserIdsForEvalGroup(evalGroupId, EvalConstants.PERM_ASSISTANT_ROLE);	
+				users = commonLogic.getUserIdsForEvalGroup(evalGroupId, EvalConstants.PERM_ASSISTANT_ROLE, false);	
 				actionBeanVariable = actionBeanVariable+"deselectedAssistants";
 			}else{
 				throw new InvalidParameterException("Cannot handle this selection type: "+selectType);

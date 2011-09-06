@@ -205,7 +205,9 @@ public class EvaluationAssignConfirmProducer implements ViewComponentProducer, V
                     //enrollmentCount = 0;
                     // Since no users have been added to the eval YET, get the number of members that WILL be added
                     // this number is more intuative for the instructor than 0.
-                    enrollmentCount = commonLogic.countUserIdsForEvalGroup(evalGroupId, EvalConstants.PERM_TAKE_EVALUATION);
+                	enrollmentCount = commonLogic.countUserIdsForEvalGroup(evalGroupId, 
+                			EvalConstants.PERM_TAKE_EVALUATION, evaluation.getAllRolesParticipate());
+                	
                 } else {
                     enrollmentCount = groupIdToEAUList.get(evalGroupId).size();
                 }
@@ -261,7 +263,7 @@ public class EvaluationAssignConfirmProducer implements ViewComponentProducer, V
                         //enrollmentCount = 0;
                         // Since no users have been added to the eval YET, get the number of members that WILL be added
                         // this number is more intuative for the instructor than 0.
-                        enrollmentCount = commonLogic.countUserIdsForEvalGroup(evalGroupId, EvalConstants.PERM_TAKE_EVALUATION);
+                    	enrollmentCount = commonLogic.countUserIdsForEvalGroup(evalGroupId, EvalConstants.PERM_TAKE_EVALUATION, false);
                     } else {
                         enrollmentCount = groupIdToEAUList.get(evalGroupId).size();
                     }

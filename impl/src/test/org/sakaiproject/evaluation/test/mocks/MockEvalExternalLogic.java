@@ -168,7 +168,7 @@ public class MockEvalExternalLogic implements EvalExternalLogic {
 	 * 2) CONTEXT2/SITE2_ID -
 	 * USER_ID and STUDENT_USER_ID can take eval, MAINT_USER_ID can be evaluated but can not admin (cannot take)<br/>
 	 */
-	public Set<String> getUserIdsForEvalGroup(String context, String permission) {
+	public Set<String> getUserIdsForEvalGroup(String context, String permission, boolean allRoles) {
 		Set<String> s = new HashSet<String>();
 		// Maybe should add the admin user here? -AZ
 		if ( EvalTestDataLoad.SITE1_REF.equals(context) ) {
@@ -242,9 +242,9 @@ public class MockEvalExternalLogic implements EvalExternalLogic {
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.evaluation.logic.externals.ExternalContexts#countUserIdsForContext(java.lang.String, java.lang.String)
 	 */
-	public int countUserIdsForEvalGroup(String context, String permission) {
+	public int countUserIdsForEvalGroup(String context, String permission, boolean allRoles) {
 		// just use the other stub method
-		return getUserIdsForEvalGroup(context, permission).size();
+		return getUserIdsForEvalGroup(context, permission, allRoles).size();
 	}
 
 	/**

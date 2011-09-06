@@ -924,9 +924,9 @@ public class EvalEvaluationSetupServiceImpl implements EvalEvaluationSetupServic
             String egid = evalAssignGroup.getEvalGroupId();
             evalGroupIdsFromEvals.add(egid);
             // get all the users who currently have permission for this group
-            Set<String> currentEvaluated = commonLogic.getUserIdsForEvalGroup(egid, EvalConstants.PERM_BE_EVALUATED);
-            Set<String> currentAssistants = commonLogic.getUserIdsForEvalGroup(egid, EvalConstants.PERM_ASSISTANT_ROLE);
-            Set<String> currentTakers = commonLogic.getUserIdsForEvalGroup(egid, EvalConstants.PERM_TAKE_EVALUATION);
+            Set<String> currentEvaluated = commonLogic.getUserIdsForEvalGroup(egid, EvalConstants.PERM_BE_EVALUATED, false);
+            Set<String> currentAssistants = commonLogic.getUserIdsForEvalGroup(egid, EvalConstants.PERM_ASSISTANT_ROLE, false);
+            Set<String> currentTakers = commonLogic.getUserIdsForEvalGroup(egid, EvalConstants.PERM_TAKE_EVALUATION, evaluation.getAllRolesParticipate());
             
             if(evaluation.getAllRolesParticipate()) {
             	currentTakers.addAll(currentAssistants);

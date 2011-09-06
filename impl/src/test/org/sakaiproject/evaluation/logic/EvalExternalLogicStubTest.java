@@ -159,7 +159,7 @@ public class EvalExternalLogicStubTest extends TestCase {
 	 */
 	public void testGetUserIdsForEvalGroup() {
 
-		Set<String> s = external.getUserIdsForEvalGroup(EvalTestDataLoad.SITE1_REF, EvalConstants.PERM_WRITE_TEMPLATE);
+		Set<String> s = external.getUserIdsForEvalGroup(EvalTestDataLoad.SITE1_REF, EvalConstants.PERM_WRITE_TEMPLATE, false);
 		Assert.assertNotNull(s);
 		Assert.assertEquals(1, s.size());
 		Assert.assertTrue(s.contains(EvalTestDataLoad.MAINT_USER_ID));
@@ -172,7 +172,7 @@ public class EvalExternalLogicStubTest extends TestCase {
 	 */
 	public void testCountUserIdsForEvalGroup() {
 
-		int count = external.countUserIdsForEvalGroup(EvalTestDataLoad.SITE1_REF, EvalConstants.PERM_WRITE_TEMPLATE);
+		int count = external.countUserIdsForEvalGroup(EvalTestDataLoad.SITE1_REF, EvalConstants.PERM_WRITE_TEMPLATE, false);
 		Assert.assertEquals(1, count);
 
 	}

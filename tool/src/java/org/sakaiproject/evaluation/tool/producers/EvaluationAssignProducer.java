@@ -372,7 +372,7 @@ public class EvaluationAssignProducer implements ViewComponentProducer, ViewPara
             	boolean hasEvaluators = true;
             	
             	if (! EvalConstants.EVALUATION_AUTHCONTROL_NONE.equals(evaluation.getAuthControl())){
-                	int numEvaluatorsInSite = commonLogic.countUserIdsForEvalGroup(evalGroupId, EvalConstants.PERM_TAKE_EVALUATION);
+                	int numEvaluatorsInSite = commonLogic.countUserIdsForEvalGroup(evalGroupId, EvalConstants.PERM_TAKE_EVALUATION, false);
                 	hasEvaluators = numEvaluatorsInSite > 0;
             	}
             	
@@ -445,7 +445,7 @@ public class EvaluationAssignProducer implements ViewComponentProducer, ViewPara
 	            
 	            if (useSelectionOptions){
 		            if( hasEvaluators ){
-		                int totalUsers = commonLogic.countUserIdsForEvalGroup(evalGroupId, EvalConstants.PERM_BE_EVALUATED);
+		                int totalUsers = commonLogic.countUserIdsForEvalGroup(evalGroupId, EvalConstants.PERM_BE_EVALUATED, false);
 		                if(totalUsers > 0){
 		                	int currentUsers = deselectedInsructorIds.size() >= 0 ? ( totalUsers-deselectedInsructorIds.size() ) : totalUsers;
 		                	UIInternalLink link = UIInternalLink.make(checkboxRow, "select-instructors", UIMessage.make("assignselect.instructors.select", 
@@ -454,7 +454,7 @@ public class EvaluationAssignProducer implements ViewComponentProducer, ViewPara
 		                	link.decorate(new UIStyleDecorator("addItem total:"+totalUsers));
 		                	link.decorate(new UITooltipDecorator(messageLocator.getMessage("assignselect.instructors.page.title")));
 		                }
-		                totalUsers = commonLogic.countUserIdsForEvalGroup(evalGroup.evalGroupId, EvalConstants.PERM_ASSISTANT_ROLE);
+		                totalUsers = commonLogic.countUserIdsForEvalGroup(evalGroup.evalGroupId, EvalConstants.PERM_ASSISTANT_ROLE, false);
 		                if(totalUsers > 0){
 		                	int currentUsers = deselectedAssistantIds.size() >= 0 ? ( totalUsers-deselectedAssistantIds.size() ) : totalUsers;
 		                	UIInternalLink link = UIInternalLink.make(checkboxRow, "select-tas", UIMessage.make("assignselect.tas.select", 

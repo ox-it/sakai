@@ -59,7 +59,7 @@ public interface ExternalEvalGroups {
 	 * @param permission a permission string constant
 	 * @return a Set of Strings which represent the user Ids of all users in the site with that permission
 	 */
-	public Set<String> getUserIdsForEvalGroup(String evalGroupId, String permission);
+	public Set<String> getUserIdsForEvalGroup(String evalGroupId, String permission, boolean allRoles);
 
 	/**
 	 * Get a count of all user ids that have a specific permission in a evalGroupId
@@ -68,7 +68,7 @@ public interface ExternalEvalGroups {
 	 * @param permission a permission string constant
 	 * @return a count of the users
 	 */
-	public int countUserIdsForEvalGroup(String evalGroupId, String permission);
+	public int countUserIdsForEvalGroup(String evalGroupId, String permission, boolean allRoles);
 
 	/**
 	 * Get a list of all eval groups that a user has a specific permission in

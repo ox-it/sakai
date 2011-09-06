@@ -39,8 +39,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.scheduler.DelayedInvocation;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -676,31 +678,47 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
     /* (non-Javadoc)
      * @see org.sakaiproject.evaluation.logic.externals.ExternalEvalGroups#countUserIdsForEvalGroup(java.lang.String, java.lang.String)
      */
-    public int countUserIdsForEvalGroup(String evalGroupId, String permission) {
+    public int countUserIdsForEvalGroup(String evalGroupId, String permission, boolean allRoles) {
         // get the count from the method which retrieves all the groups,
         // this method might be better to retire
-        return getUserIdsForEvalGroup(evalGroupId, permission).size();
+        return getUserIdsForEvalGroup(evalGroupId, permission, allRoles).size();
     }
 
     /* (non-Javadoc)
      * @see org.sakaiproject.evaluation.logic.externals.ExternalEvalGroups#getUserIdsForEvalGroup(java.lang.String, java.lang.String)
      */
     @SuppressWarnings("unchecked")
-    public Set<String> getUserIdsForEvalGroup(String evalGroupId, String permission) {
+    public Set<String> getUserIdsForEvalGroup(String evalGroupId, String permission, boolean allRoles) {
         Set<String> userIds = new HashSet<String>();
 
-        // only go on to check the Sakai sites/groups if nothing was found
-        if (userIds.size() == 0) {
-            String reference = evalGroupId;
-            List<String> azGroups = new ArrayList<String>();
-            azGroups.add(reference);
-            userIds.addAll( authzGroupService.getUsersIsAllowed(permission, azGroups) );
-            // need to remove the admin user or else they show up in unwanted places
-            if (userIds.contains(ADMIN_USER_ID)) {
-                userIds.remove(ADMIN_USER_ID);
-            }
-        }
-
+        try {
+        	// only go on to check the Sakai sites/groups if nothing was found
+        	if (userIds.size() == 0) {
+        		String reference = evalGroupId;
+        		List<String> azGroups = new ArrayList<String>();
+        		azGroups.add(reference);
+        		Collection<String> userStrings = new HashSet<String>();
+        
+            	if (allRoles) {
+            		AuthzGroup group = authzGroupService.getAuthzGroup(evalGroupId);
+					userStrings.addAll(group.getUsers());
+            	} else {
+            		userStrings.addAll(authzGroupService.getUsersIsAllowed(permission, azGroups));
+            	}
+            
+            	Collection<User> users = userDirectoryService.getUsers(userStrings);
+            	for (User user : users) {
+            		userIds.add(user.getId());
+            	}
+            	// need to remove the admin user or else they show up in unwanted places
+            	if (userIds.contains(ADMIN_USER_ID)) {
+            		userIds.remove(ADMIN_USER_ID);
+            	}
+        	}
+        } catch (GroupNotDefinedException e) {
+        	// TODO Auto-generated catch block
+        	e.printStackTrace();
+        }	
         return userIds;
     }
 
@@ -1124,6 +1142,12 @@ public class EvalExternalLogicImpl implements EvalExternalLogic {
 			} 
 		}
 		return isEvalGroupPublished;
+	}
+
+	public Set<String> getUserIdsForEvalGroup(String evalGroupId,
+			String permission) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

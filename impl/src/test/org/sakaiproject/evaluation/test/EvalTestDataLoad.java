@@ -1674,17 +1674,17 @@ public class EvalTestDataLoad {
         List<String> userIds = new ArrayList<String>();
         List<String> userTypes = new ArrayList<String>();
         // make the list of users and types from the perms
-        Set<String> instIds = externalLogic.getUserIdsForEvalGroup(assignGroup.getEvalGroupId(), EvalConstants.PERM_BE_EVALUATED);
+        Set<String> instIds = externalLogic.getUserIdsForEvalGroup(assignGroup.getEvalGroupId(), EvalConstants.PERM_BE_EVALUATED, false);
         for (String userId : instIds) {
             userIds.add(userId);
             userTypes.add(EvalAssignUser.TYPE_EVALUATEE);
         }
-        Set<String> assistantIds = externalLogic.getUserIdsForEvalGroup(assignGroup.getEvalGroupId(), EvalConstants.PERM_ASSISTANT_ROLE);
+        Set<String> assistantIds = externalLogic.getUserIdsForEvalGroup(assignGroup.getEvalGroupId(), EvalConstants.PERM_ASSISTANT_ROLE, false);
         for (String userId : assistantIds) {
             userIds.add(userId);
             userTypes.add(EvalAssignUser.TYPE_ASSISTANT);
         }
-        Set<String> takerIds = externalLogic.getUserIdsForEvalGroup(assignGroup.getEvalGroupId(), EvalConstants.PERM_TAKE_EVALUATION);
+        Set<String> takerIds = externalLogic.getUserIdsForEvalGroup(assignGroup.getEvalGroupId(), EvalConstants.PERM_TAKE_EVALUATION, false);
         for (String userId : takerIds) {
             userIds.add(userId);
             userTypes.add(EvalAssignUser.TYPE_EVALUATOR);

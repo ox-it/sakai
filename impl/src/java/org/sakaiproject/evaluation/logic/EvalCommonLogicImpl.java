@@ -408,13 +408,13 @@ public class EvalCommonLogicImpl implements EvalCommonLogic {
         return l;
     }
 
-    public int countUserIdsForEvalGroup(String evalGroupId, String permission) {
+    public int countUserIdsForEvalGroup(String evalGroupId, String permission, boolean allRoles) {
         // get the count from the method which retrieves all the groups,
         // this method might be better to retire
-        return getUserIdsForEvalGroup(evalGroupId, permission).size();
+        return getUserIdsForEvalGroup(evalGroupId, permission, allRoles).size();
     }
 
-    public Set<String> getUserIdsForEvalGroup(String evalGroupId, String permission) {
+    public Set<String> getUserIdsForEvalGroup(String evalGroupId, String permission, boolean allRoles) {
         Set<String> userIds = new HashSet<String>();
 
         /* NOTE: we are assuming there is not much chance that there will be some users stored in
@@ -423,7 +423,7 @@ public class EvalCommonLogicImpl implements EvalCommonLogic {
          */
 
         // check external
-        userIds.addAll( externalLogic.getUserIdsForEvalGroup(evalGroupId, permission) );
+        userIds.addAll( externalLogic.getUserIdsForEvalGroup(evalGroupId, permission, allRoles) );
 
         // only go on to check the internal adhocs if nothing was found
         if (userIds.size() == 0) {
