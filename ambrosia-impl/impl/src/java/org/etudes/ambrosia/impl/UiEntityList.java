@@ -99,6 +99,12 @@ public class UiEntityList extends UiComponent implements EntityList
 	/** The reference to an entity to iterate over. */
 	protected PropertyReference iteratorReference = null;
 
+	/** The opacity level (1..10) for opaque rows */
+	protected String opaqueBkg = null;
+
+	/** The decision for opaque rows. */
+	protected Decision opaqueDecision = null;
+
 	/** The PropertyReference for encoding and decoding the new order of table row indexes. */
 	protected PropertyReference orderPropertyReference = null;
 
@@ -167,6 +173,18 @@ public class UiEntityList extends UiComponent implements EntityList
 			// decision
 			Decision decision = service.parseDecisions(settingsXml);
 			this.colorizeDecision = decision;
+		}
+
+		// opaque
+		settingsXml = XmlHelper.getChildElementNamed(xml, "opaque");
+		if (settingsXml != null)
+		{
+			// color
+			this.opaqueBkg = StringUtil.trimToNull(settingsXml.getAttribute("opaque"));
+
+			// decision
+			Decision decision = service.parseDecisions(settingsXml);
+			this.opaqueDecision = decision;
 		}
 
 		// iterator
@@ -698,14 +716,21 @@ public class UiEntityList extends UiComponent implements EntityList
 				// skip entities that are not row included
 				if ((this.entityRowIncluded != null) && (!this.entityRowIncluded.decide(context, entity))) continue;
 
+				// for opaque
+				String opaque = "";
+				if ((this.opaqueBkg != null) && (this.opaqueDecision != null) && (this.opaqueDecision.decide(context, entity)))
+				{
+					opaque = " style=\"opacity:0." + this.opaqueBkg + ";filter:alpha(opacity=" + this.opaqueBkg + "0);\"";
+				}
+
 				// start the row, possibly colorizing
 				if ((this.colorizeBkg != null) && (this.colorizeDecision != null) && (this.colorizeDecision.decide(context, entity)))
 				{
-					response.println("<tr id=\"" + index + "\" bgcolor=\"" + this.colorizeBkg + "\">");
+					response.println("<tr id=\"" + index + "\" bgcolor=\"" + this.colorizeBkg + "\"" + opaque + ">");
 				}
 				else
 				{
-					response.println("<tr id=\"" + index + "\" >");
+					response.println("<tr id=\"" + index + "\"" + opaque + ">");
 				}
 
 				colNum = 0;
@@ -979,6 +1004,17 @@ public class UiEntityList extends UiComponent implements EntityList
 	{
 		this.iteratorReference = reference;
 		this.iteratorName = name;
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public EntityList setOpaque(Decision decision, String opaque)
+	{
+		this.opaqueDecision = decision;
+		this.opaqueBkg = opaque;
+
 		return this;
 	}
 

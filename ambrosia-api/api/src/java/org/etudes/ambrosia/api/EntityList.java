@@ -153,6 +153,17 @@ public interface EntityList extends Component
 	EntityList setIterator(PropertyReference reference, String name);
 
 	/**
+	 * Set some entity rows, those that meet the decision criteria, to be opaque.
+	 * 
+	 * @param decision
+	 *        The criteria for entity opaque.
+	 * @param opaque
+	 *        The opaque value - 1 through 9 (unset is 100%), for 0.1 through 0.9
+	 * @return self.
+	 */
+	EntityList setOpaque(Decision decision, String opaque);
+
+	/**
 	 * Set the table row index order reference for update when submitting (write only).
 	 * 
 	 * @param ref
