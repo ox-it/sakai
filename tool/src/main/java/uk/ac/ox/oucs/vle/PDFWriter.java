@@ -2,6 +2,7 @@ package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.List;
 
 import com.itextpdf.text.Document;
@@ -11,7 +12,6 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
-import com.itextpdf.text.pdf.MultiColumnText;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -37,14 +37,11 @@ public class PDFWriter
 
     private Document document;
     private PdfWriter pdfWriter;
-    private MultiColumnText responseArea;
+    private PdfPTable table;
 
-    private Font paragraphFont;
-    private Font paragraphFontBold;
     private Font tableHeadFont;
-    private Font tableHeadFontBold;
     private Font tableFont;
-    private Font tableFontBold;
+   
     private Font titleFont;
     private Font authorFont;
     private Font infoFont;
@@ -62,18 +59,8 @@ public class PDFWriter
             pdfWriter.setStrictImageSequence(true);
             document.open();
 
-            // attempting to handle i18n chars better
-            // BaseFont evalBF = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.IDENTITY_H,
-            // BaseFont.EMBEDDED);
-            // paragraphFont = new Font(evalBF, 9, Font.NORMAL);
-            // paragraphFont = new Font(Font.TIMES_ROMAN, 9, Font.NORMAL);
-
-            paragraphFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 9, Font.NORMAL);
-            paragraphFontBold = FontFactory.getFont(FontFactory.TIMES_ROMAN, 9, Font.BOLD);
             tableHeadFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 12, Font.NORMAL);
-            tableHeadFontBold = FontFactory.getFont(FontFactory.TIMES_ROMAN, 12, Font.BOLD);
             tableFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 11, Font.NORMAL);
-            tableFontBold = FontFactory.getFont(FontFactory.TIMES_ROMAN, 11, Font.BOLD);
             titleFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 18, Font.NORMAL);
             authorFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 12, Font.NORMAL);
             infoFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 12, Font.NORMAL);
@@ -84,7 +71,6 @@ public class PDFWriter
     }
     
     public void close() throws IOException {
-        //document.add(responseArea);
 		document.close();
     }
 
@@ -92,27 +78,32 @@ public class PDFWriter
      * Write a single data value to the CSV file.
      * @param data The data to write to the CSV file
      */
-    public void writeHead(CourseGroup group, Person presenter) throws IOException
-    {
+    public void writeHead(Collection<CourseGroup> courseGroups, CourseComponent courseComponent) throws IOException {
     	try {
-    		//PdfContentByte cb = pdfWriter.getDirectContent();
-    		//float docMiddle = (document.right() - document.left()) / 2 + document.leftMargin();
-
-    		//Paragraph emptyPara = new Paragraph(" ");
-    		//emptyPara.setSpacingAfter(100.0f);
     		Paragraph paragraph;
     		Phrase phrase;
 
     		// Title
     		paragraph = new Paragraph();
-    		phrase = new Phrase("\n" + group.getTitle(), titleFont);
-    		paragraph.add(phrase);
+    		for (CourseGroup courseGroup : courseGroups) {
+    			phrase = new Phrase("\n" + courseGroup.getTitle(), titleFont);
+    			paragraph.add(phrase);
+    		}
     		paragraph.setAlignment(Element.ALIGN_CENTER);
+    		document.add(paragraph);
+    		
+    		// Component
+    		paragraph = new Paragraph();
+    		phrase = new Phrase("\nComponent: " + courseComponent.getTitle(), authorFont);
+    		paragraph.add(phrase);
+    		paragraph.setIndentationLeft(25);
+    		paragraph.setIndentationRight(25);
+    		paragraph.setAlignment(Element.ALIGN_LEFT);
     		document.add(paragraph);
     		
     		// Presenter
     		paragraph = new Paragraph();
-    		phrase = new Phrase("\nPresenter: " + presenter.getName(), authorFont);
+    		phrase = new Phrase("\nPresenter: " + courseComponent.getPresenter(), authorFont);
     		paragraph.add(phrase);
     		paragraph.setIndentationLeft(25);
     		paragraph.setIndentationRight(25);
@@ -141,42 +132,39 @@ public class PDFWriter
         }
     }
     
-    public void writeTable(List<Person> people) throws IOException
-    {
-    	try {
-			
-    		PdfPTable table = new PdfPTable(new float[]{1f, 2f});
-    		table.setWidthPercentage(90);
-    		table.setSpacingBefore(10f);
-    		Paragraph paragraph = new Paragraph();
+    public void writeTableHead() throws IOException {
+    	
+    	table = new PdfPTable(new float[]{1f, 2f});
+    	table.setWidthPercentage(90);
+    	table.setSpacingBefore(10f);
 
-    		// t.setBorderColor(BaseColor.GRAY);
-    		// t.setPadding(4);
-    		// t.setSpacing(4);
-    		// t.setBorderWidth(1);
+    	table.addCell(headCell("Name", tableHeadFont));
+    	table.addCell(headCell("I confirm that I attended this session", tableHeadFont));
 
-    		table.addCell(headCell("Name", tableHeadFont));
-    		table.addCell(headCell("I confirm that I attended this session", tableHeadFont));
-
-    		table.setHeaderRows(1);
-    		
-    		for (Person person : people) {
-    			table.addCell(nameCell(person.getName(), tableFont));
-    			table.addCell(nameCell("", tableFont));
-    		}
+    	table.setHeaderRows(1);
+    }
     
+    public void writeTableBody(List<Person> people) throws IOException {
+    	for (Person person : people) {
+    		table.addCell(nameCell(person.getName(), tableFont));
+    		table.addCell(nameCell("", tableFont));
+    	}
+    }
+    
+    public void writeTableFoot() throws IOException {
+    	try {
     		for (int i = 0; i < 5; i++) {
     			table.addCell(nameCell("", tableFont));
     			table.addCell(nameCell("", tableFont));
     		}
-    	
+    		
+    		Paragraph paragraph = new Paragraph();
     		paragraph.add(table);
     		paragraph.setAlignment(Element.ALIGN_CENTER);
     		document.add(paragraph);
-    	
-		} catch (DocumentException e) {
-			throw new IOException("Unable to write Document table.");
-		}
+    	} catch (DocumentException e) {
+    		throw new IOException("Unable to write Document table.");
+    	}
     }
     
     private PdfPCell headCell(String name, Font font) {

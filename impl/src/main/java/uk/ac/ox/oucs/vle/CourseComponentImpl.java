@@ -1,7 +1,9 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 
 
 public class CourseComponentImpl implements CourseComponent {
@@ -42,7 +44,7 @@ public class CourseComponentImpl implements CourseComponent {
 
 	public Person getPresenter() {
 		if (dao.getTeacherName() != null) {
-			return new PersonImpl(null, null, null, dao.getTeacherName(), dao.getTeacherEmail(), Collections.EMPTY_LIST, null, null);
+			return new PersonImpl(null, null, null, dao.getTeacherName(), dao.getTeacherEmail(), Collections.EMPTY_LIST, null, null, null);
 		}
 		return null;
 	}

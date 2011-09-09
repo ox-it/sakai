@@ -87,7 +87,7 @@ public class CourseGroupImpl implements CourseGroup {
 			for (String component:  courseGroupDAO.getAdministrators()) {
 				UserProxy user = impl.loadUser(component);
 				if (null != user) {
-					Person person = new PersonImpl(user.getId(), user.getFirstName(), user.getLastName(), user.getDisplayName(), user.getEmail(), Collections.EMPTY_LIST, null, user.getType());
+					Person person = new PersonImpl(user.getId(), user.getFirstName(), user.getLastName(), user.getDisplayName(), user.getEmail(), Collections.EMPTY_LIST, user.getWebauthId(), null, user.getType());
 					administrators.add(person);
 				}
 			}
@@ -102,7 +102,7 @@ public class CourseGroupImpl implements CourseGroup {
 			for (String component:  courseGroupDAO.getSuperusers()) {
 				UserProxy user = impl.loadUser(component);
 				if (null != user) {
-					Person person = new PersonImpl(user.getId(), user.getFirstName(), user.getLastName(), user.getDisplayName(), user.getEmail(), Collections.EMPTY_LIST, null, user.getType());
+					Person person = new PersonImpl(user.getId(), user.getFirstName(), user.getLastName(), user.getDisplayName(), user.getEmail(), Collections.EMPTY_LIST, user.getWebauthId(), null, user.getType());
 					superusers.add(person);
 				}
 			}

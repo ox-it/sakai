@@ -74,6 +74,8 @@ public interface CourseSignupService {
 	
 	public List<CourseGroup> getCourseGroupsBySubUnit(String subunitId, Range range, boolean externalUser);
 	
+	public List<CourseGroup> getCourseGroupsByComponent(String componentId);
+	
 	public List<SubUnit> getSubUnitsByDept(String deptId);
 	
 	public String findSupervisor(String search);
@@ -93,6 +95,8 @@ public interface CourseSignupService {
 	public Integer getCountCourseSignups(String courseId, Set<Status> statuses);
 	
 	public CourseComponent getCourseComponent(String componentId);
+	
+	public List<CourseComponent> getAllComponents();
 	
 	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses);
 	

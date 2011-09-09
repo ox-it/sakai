@@ -19,6 +19,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	private final static Log log = LogFactory.getLog(CourseSignupServiceImpl.class);
 	
 	private final static ResourceLoader rb = new ResourceLoader("messages");
+	
+	private final static String DAISYUSER = "admin";
 
 	private CourseDAO dao;
 	private SakaiProxy proxy;
@@ -335,10 +337,26 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return proxy.getDirectUrl(courseId);
 	}
 	
+	/**
+	 * 
+	 */
 	public CourseComponent getCourseComponent(String componentId) {
 		CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
 		return new CourseComponentImpl(componentDao, this);
 	}
+	
+	public List<CourseComponent> getAllComponents() {
+		List<CourseComponentDAO> componentDaos = dao.findAllComponents();
+		List<CourseComponent> courseComponents = new ArrayList<CourseComponent>();
+		for (CourseComponentDAO componentDao : componentDaos) {
+			courseComponents.add(new CourseComponentImpl(componentDao, this));
+		}
+		return courseComponents;
+	}
+	
+	/**
+	 * 
+	 */
 	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses) {
 		CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
 		if (componentDao == null) {
@@ -376,6 +394,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 
 	private boolean isAdministrator(CourseComponentDAO componentDao,
 			String userId, boolean defaultValue) {
+		
+		if (userId.equals(DAISYUSER)) {
+			return true;
+		}
 		for (CourseGroupDAO groupDao: componentDao.getGroups()) {
 			if (groupDao.getAdministrators().contains(userId)) {
 				return true;
@@ -798,6 +820,15 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	public List<CourseGroup> getCourseGroupsBySubUnit(String subunitId, Range range, boolean externalUser) {
 		List<CourseGroupDAO> cgDaos = dao.findCourseGroupBySubUnit(subunitId, range, getNow(), externalUser);
+		List<CourseGroup> cgs = new ArrayList<CourseGroup>(cgDaos.size());
+		for (CourseGroupDAO cgDao: cgDaos) {
+			cgs.add(new CourseGroupImpl(cgDao, this));
+		}
+		return cgs;
+	}
+	
+	public List<CourseGroup> getCourseGroupsByComponent(String componentId) {
+		List<CourseGroupDAO> cgDaos = dao.findCourseGroupByComponent(componentId);
 		List<CourseGroup> cgs = new ArrayList<CourseGroup>(cgDaos.size());
 		for (CourseGroupDAO cgDao: cgDaos) {
 			cgs.add(new CourseGroupImpl(cgDao, this));

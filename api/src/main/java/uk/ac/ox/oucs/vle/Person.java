@@ -23,6 +23,8 @@ public interface Person {
 	
 	public List<String> getUnits();
 	
+	public String getWebauthId();
+	
 	public String getYearOfStudy();
 	
 	public String getType();

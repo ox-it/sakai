@@ -36,7 +36,6 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
-import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 @Path("/signup")
@@ -296,52 +295,84 @@ public class SignupResource {
 				System.out.println("/rest/signup/component/"+componentId+"/pdf");
 				
 				CourseComponent courseComponent = courseService.getCourseComponent(componentId);
+				Collection<CourseGroup> courseGroups = courseService.getCourseGroupsByComponent(componentId);
+				
 				List<CourseSignup> signups = courseService.getComponentSignups(
 						componentId, Collections.singleton(Status.CONFIRMED));
-				List<Person> persons = new ArrayList<Person>();
-				for (CourseSignup signup : signups) {
-					persons.add(signup.getUser());
-				}
-				Collections.sort(persons, new Comparator<Person>() {
-					public int compare(Person p1,Person p2) {
-						return p1.getLastName().compareTo(p2.getLastName());
-					}
-				});
 				
 				response.addHeader("Content-disposition", "attachment; filename="+componentId+".pdf"); // Force a download
-				
 				PDFWriter pdfWriter = new PDFWriter(output);
-				CourseSignup courseSignup = signups.iterator().next();
-				pdfWriter.writeHead(signups.iterator().next().getGroup(), courseComponent.getPresenter());
-				pdfWriter.writeTable(persons);
+				pdfWriter.writeHead(courseGroups, courseComponent);
+				pdfWriter.writeTableHead();
+				
+				if (!signups.isEmpty()) {
+				
+					List<Person> persons = new ArrayList<Person>();
+					for (CourseSignup signup : signups) {
+						persons.add(signup.getUser());
+					}
+					Collections.sort(persons, new Comparator<Person>() {
+						public int compare(Person p1,Person p2) {
+							return p1.getLastName().compareTo(p2.getLastName());
+						}
+					});
+				
+					pdfWriter.writeTableBody(persons);
+					
+				}
+				pdfWriter.writeTableFoot();
 				pdfWriter.close();
 			}
 		};
 	}
 	
-	@Path("{id}/sync")
-	@POST
-	public Response sync(@PathParam("id") final String courseId) {
+	@Path("/component/{id}.xml")
+	@GET
+	@Produces(MediaType.TEXT_XML)
+	public StreamingOutput syncComponent(@PathParam("id") final String componentId) {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			throw new WebApplicationException(Response.Status.FORBIDDEN);
 		}
-
-		System.out.println("/rest/signup/sync/"+courseId);
-		
-		CourseGroup group = courseService.getCourseGroup(courseId, Range.ALL);
-		AttendanceWriter attendance = new AttendanceWriter(group);
-		
-		for (CourseComponent component : group.getComponents()) {
-			
-			Collection<CourseSignup> signups = 
-				courseService.getComponentSignups(component.getId(), 
-						Collections.singleton(Status.CONFIRMED));
-			
-			attendance.addSignups(component, signups);
+		return new StreamingOutput() {
+			public void write(OutputStream output) throws IOException,
+			WebApplicationException {
+				
+				CourseComponent courseComponent = courseService.getCourseComponent(componentId);
+				List<CourseSignup> signups = courseService.getComponentSignups(
+						componentId, Collections.singleton(Status.CONFIRMED));
+				
+				Collection<CourseGroup> courseGroups = courseService.getCourseGroupsByComponent(componentId);
+				AttendanceWriter attendance = new AttendanceWriter(output);
+				attendance.writeTeachingInstance(courseGroups, courseComponent, signups);
+				attendance.close();
+			}
+		};
+	}
+	
+	@Path("/attendance")
+	@GET
+	@Produces(MediaType.TEXT_XML)
+	public StreamingOutput sync() {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
 		}
-		attendance.close();
-
-		return Response.ok().build();
+		return new StreamingOutput() {
+			public void write(OutputStream output) throws IOException,
+			WebApplicationException {
+				
+				AttendanceWriter attendance = new AttendanceWriter(output);
+				Collection<CourseComponent> courseComponents = courseService.getAllComponents();
+				for (CourseComponent courseComponent : courseComponents) {
+				
+					List<CourseSignup> signups = courseService.getComponentSignups(
+							courseComponent.getId(), Collections.singleton(Status.CONFIRMED));
+					Collection<CourseGroup> courseGroups = 
+						courseService.getCourseGroupsByComponent(courseComponent.getId());
+					attendance.writeTeachingInstance(courseGroups, courseComponent, signups);
+				}
+				attendance.close();
+			}
+		};
 	}
 	
 	@Path("/pending")

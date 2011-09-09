@@ -68,6 +68,11 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<CourseComponentDAO> findAllComponents() {
+		return getHibernateTemplate().loadAll(CourseComponentDAO.class);
+	}
 
 	public CourseGroupDAO findAvailableCourseGroupById(String courseId) {
 		// TODO Auto-generated method stub
@@ -168,6 +173,20 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				return criteria.list();
 			}
 			
+		});
+	}
+	
+	/**
+	 * Find all courseGroups that share a component with Id componentId
+	 */
+	@SuppressWarnings("unchecked")
+	public List<CourseGroupDAO> findCourseGroupByComponent(final String componentId) {
+		return getHibernateTemplate().executeFind(new HibernateCallback() {
+			public Object doInHibernate(Session session) {
+				Query query = session.createSQLQuery("select distinct id, title, dept, departmentname, subunit, subunitName, description, publicView, supervisorApproval, administratorApproval, contactEmail from course_group left join course_group_component cc on cc.course_group = course_group.id where cc.component = :componentId").addEntity(CourseGroupDAO.class);
+				query.setString("componentId", componentId);
+				return query.list();
+			}
 		});
 	}
 	

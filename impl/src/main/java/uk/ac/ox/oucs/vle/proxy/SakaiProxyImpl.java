@@ -1,9 +1,6 @@
 package uk.ac.ox.oucs.vle.proxy;
 
-import java.net.URI;
-import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -161,6 +158,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return placement;
 	}
 
+	@SuppressWarnings("unchecked")
 	private UserProxy wrapUserProxy(User sakaiUser) {
 		if(sakaiUser == null) {
 			return null;
@@ -169,7 +167,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 		List<String> units = sakaiUser.getProperties().getPropertyList("units");
 		return new UserProxy(sakaiUser.getId(), sakaiUser.getEid(), 
 				sakaiUser.getFirstName(), sakaiUser.getLastName(), sakaiUser.getDisplayName(), 
-				sakaiUser.getEmail(), 
+				sakaiUser.getEmail(),
+				sakaiUser.getDisplayId(),
+				sakaiUser.getProperties().getProperty("oakOSSID"), 
 				sakaiUser.getProperties().getProperty("yearOfStudy"), 
 				sakaiUser.getProperties().getProperty("oakStatus"),
 				null,

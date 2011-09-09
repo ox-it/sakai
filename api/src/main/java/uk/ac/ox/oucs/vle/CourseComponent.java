@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.Collection;
 import java.util.Date;
 
 public interface CourseComponent {
@@ -41,4 +42,5 @@ public interface CourseComponent {
 	 * @return
 	 */ 
 	public String getComponentSet();
+	
 }

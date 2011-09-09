@@ -185,7 +185,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 							html += '</select></span>';
 							html += '<table border="0" class="display" id="signups-table"></table>';
 							html += '<a href="#" id="signup-add">Add Signup</a>';
-							html += '<span style="float:right; padding-right:20px;"><input type="button" id="syncButton" value="Sync with DAISY"></span>';
+							//html += '<span style="float:right; padding-right:20px;"><input type="button" id="syncButton" value="Sync with DAISY"></span>';
 							$("#signups").html(html);
 							//$("#signups").html('<h3>Signups</h3><table border="0" class="display" id="signups-table"></table><a href="#" id="signup-add">Add Signup</a>');
 							// Load the signups.
@@ -230,6 +230,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 							/**
 							 * Sync attendance with Daisy
 							 */
+							 /*
 							$("#syncButton").click(function(){
 								$.ajax({
 									"url": "../rest/signup/"+code+"/sync",
@@ -239,7 +240,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 								})
 								
 							});
-							
+							*/
 							$(window).resize(function(){
 								var windowHeight = $(window).height();
 								var positionTop = signupAddUser[0].offsetTop;
