@@ -1103,7 +1103,7 @@ function ambrosiaTinyInit(picker, mode)
 				theme_advanced_buttons2: "fullscreen,separator,undo,redo,separator,link,unlink,separator,pastetext,pasteword,separator,image,emotions,charmap,separator,code",
 				theme_advanced_buttons3: "",
 				extended_valid_elements: "+a[id|style|rel|rev|charset|hreflang|dir|lang|tabindex|accesskey|type|name|href|target:_blank|title|class|onfocus|onblur|onclick|" + 
-										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup]",
+										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup],embed[type|width|height|src|*]",
 				fullscreen_new_window : true,
 				fullscreen_settings :
 					{
@@ -1132,7 +1132,7 @@ function ambrosiaTinyInit(picker, mode)
 				theme_advanced_buttons2: "fullscreen,separator,undo,redo,separator,link,unlink,separator,pastetext,pasteword,separator,image,emotions,charmap,separator,code",
 				theme_advanced_buttons3: "",
 				extended_valid_elements: "+a[id|style|rel|rev|charset|hreflang|dir|lang|tabindex|accesskey|type|name|href|target:_blank|title|class|onfocus|onblur|onclick|" + 
-										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup]",
+										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup],embed[type|width|height|src|*]",
 				fullscreen_new_window : true,
 				fullscreen_settings :
 					{
@@ -1162,7 +1162,7 @@ function ambrosiaTinyInit(picker, mode)
 				theme_advanced_buttons2: "bullist,numlist,fontselect,fontsizeselect,forecolor,backcolor",
 				theme_advanced_buttons3: "fullscreen,separator,undo,redo,separator,link,unlink,separator,pastetext,pasteword,separator,image,emotions,charmap,separator,code",
 				extended_valid_elements: "+a[id|style|rel|rev|charset|hreflang|dir|lang|tabindex|accesskey|type|name|href|target:_blank|title|class|onfocus|onblur|onclick|" + 
-										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup]",
+										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup],embed[type|width|height|src|*]",
 				fullscreen_new_window : true,
 				fullscreen_settings :
 					{
@@ -1196,7 +1196,7 @@ function ambrosiaTinyInit(picker, mode)
 				theme_advanced_buttons3: "",
 				file_browser_callback: "ambrosiaFileBrowser",
 				extended_valid_elements: "+a[id|style|rel|rev|charset|hreflang|dir|lang|tabindex|accesskey|type|name|href|target:_blank|title|class|onfocus|onblur|onclick|" + 
-										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup]",
+										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup],embed[type|width|height|src|*]",
 				fullscreen_new_window : true,
 				fullscreen_settings :
 					{
@@ -1226,7 +1226,7 @@ function ambrosiaTinyInit(picker, mode)
 				theme_advanced_buttons3: "",
 				file_browser_callback: "ambrosiaFileBrowser",
 				extended_valid_elements: "+a[id|style|rel|rev|charset|hreflang|dir|lang|tabindex|accesskey|type|name|href|target:_blank|title|class|onfocus|onblur|onclick|" + 
-										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup]",
+										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup],embed[type|width|height|src|*]",
 				fullscreen_new_window : true,
 				fullscreen_settings :
 					{
@@ -1256,7 +1256,7 @@ function ambrosiaTinyInit(picker, mode)
 				theme_advanced_buttons3: "fullscreen,separator,undo,redo,separator,link,unlink,separator,pastetext,pasteword,separator,image,emotions,charmap,separator,code",
 				file_browser_callback: "ambrosiaFileBrowser",
 				extended_valid_elements: "+a[id|style|rel|rev|charset|hreflang|dir|lang|tabindex|accesskey|type|name|href|target:_blank|title|class|onfocus|onblur|onclick|" + 
-										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup]",
+										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup],embed[type|width|height|src|*]",
 				fullscreen_new_window : true,
 				fullscreen_settings :
 					{
