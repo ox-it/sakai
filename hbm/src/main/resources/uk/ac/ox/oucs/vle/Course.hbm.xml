@@ -10,7 +10,7 @@
 	<class name="uk.ac.ox.oucs.vle.DepartmentDAO" table="department">
 		<!-- create the primary key id -->
 		<id name="code" type="string">
-			<column name="code" />
+			<column name="code" length="32"/>
 		</id>
 		<property name="name" type="string" length="256" />
 		<property name="approve" type="boolean"/>
@@ -18,6 +18,28 @@
 			<key column="department" not-null="true"/>
 			<element column="approver" type="string" length="64" />
 		</set>
+	</class>
+	
+	<class name="uk.ac.ox.oucs.vle.SubunitDAO" table="subunit">
+		<!-- create the primary key id -->
+		<id name="subunitCode" type="string">
+			<column name="subunitCode" length="32"/>
+		</id>
+		<property name="subunitName" type="string" length="256" />
+		<property name="departmentCode" type="string" length="32"/>
+	</class>
+	
+	<class name="uk.ac.ox.oucs.vle.OucsDepartmentDAO" table="oucs_department">
+		<!-- create the primary key id -->
+		<id name="cardCode" type="string">
+			<column name="cardCode" length="6"/>
+		</id>
+		<property name="oucsCode" type="string" length="32" />
+		<property name="nickName" type="string" length="256" />
+		<property name="fullName" type="string" length="256" />
+		<property name="f4Char" type="string" length="4" />
+		<property name="mailer" type="string" length="32" />
+		<property name="t2Char" type="string" length="2" />
 	</class>
 	
 	<class name="uk.ac.ox.oucs.vle.CourseSignupDAO" table="course_signup">

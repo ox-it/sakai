@@ -514,7 +514,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setCreated(getNow());
 		signupDao.setGroup(groupDao);
 		signupDao.setStatus(Status.PENDING);
-		signupDao.setDepartment(user.getDepartment());
+		signupDao.setDepartment(findPracDepartment(user.getPrimaryOrgUnit()));
 		String signupId = dao.save(signupDao);
 		
 		for (CourseComponentDAO componentDao: componentDaos) {
@@ -615,7 +615,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			signupDao.setStatus(Status.PENDING);
 		}
 		signupDao.setMessage(message);
-		signupDao.setDepartment(user.getDepartment());
+		signupDao.setDepartment(findPracDepartment(user.getPrimaryOrgUnit()));
 		String signupId = dao.save(signupDao);
 		
 		// We're going to decrement the places on acceptance.
@@ -868,6 +868,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 */
 	UserProxy loadUser(String id) {
 		return proxy.findUserById(id);
+	}
+	
+	public String findPracDepartment(String primaryOrgUnit) {
+		return dao.findDepartmentByPrimaryOrgUnit(primaryOrgUnit);
 	}
 
 	public List<CourseGroup> search(String search, Range range, boolean external) {

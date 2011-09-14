@@ -431,12 +431,65 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 	}
 	
+	/**
+	 * 
+	 */
 	public DepartmentDAO findDepartmentByCode(String code) {
 		return (DepartmentDAO) getHibernateTemplate().get(DepartmentDAO.class, code);
 	}
 	
+	/**
+	 * 
+	 */
 	public void save(DepartmentDAO departmentDao) {
 		getHibernateTemplate().save(departmentDao).toString();
+	}
+	
+	/**
+	 * 
+	 */
+	public SubunitDAO findSubunitByCode(String code) {
+		return (SubunitDAO) getHibernateTemplate().get(SubunitDAO.class, code);
+	}
+	
+	/**
+	 * 
+	 */
+	public void save(SubunitDAO subunitDao) {
+		getHibernateTemplate().save(subunitDao).toString();
+	}
+	
+	/**
+	 * 
+	 */
+	public OucsDepartmentDAO findOucsDeptByCode(String code) {
+		return (OucsDepartmentDAO) getHibernateTemplate().get(OucsDepartmentDAO.class, code);
+	}
+	
+	/**
+	 * select departmentCode from subunit left join oucs_department on t2Char = subunitCode where oucsCode = 'histfac'
+	 */
+	@SuppressWarnings("unchecked")
+	public String findDepartmentByPrimaryOrgUnit(final String primaryOrgUnit) {
+		
+		List<Object> results = getHibernateTemplate().executeFind(new HibernateCallback() {
+			public Object doInHibernate(Session session) {
+				Query query = session.createSQLQuery("select departmentCode from subunit left join oucs_department on t2Char = subunitCode where oucsCode = :oucsDept");
+				query.setString("oucsDept", primaryOrgUnit);
+				return query.list();
+			}
+		});
+		if (!results.isEmpty()) {
+			return (String)results.get(0);
+		}
+		return null;
+	}
+	
+	/**
+	 * 
+	 */
+	public void save(OucsDepartmentDAO oucsDao) {
+		getHibernateTemplate().save(oucsDao).toString();
 	}
 	
 	public void remove(CourseSignupDAO existingSignup) {

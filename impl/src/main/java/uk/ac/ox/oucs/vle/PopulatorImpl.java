@@ -151,6 +151,7 @@ public class PopulatorImpl implements Populator{
 			Statement st = con.createStatement();
 			
 			departmentTable(st);
+			subunitTable(st);
 			Map<String, Set<String>> divisionalSuperusers = this.superUsersTable(st);
 			
 			Set<String> administrators = new HashSet<String>();
@@ -496,7 +497,7 @@ public class PopulatorImpl implements Populator{
 		String departmentCode = null;
 		String lastDepartment = null;
 		String departmentName = null;
-		int approveInt = 2;
+		boolean approve = true;
 		Set<String> approvers = new HashSet<String>();
 		ResultSet rs = st.executeQuery(
 				"SELECT Department.department_code, Department.department_name, " +
@@ -513,14 +514,14 @@ public class PopulatorImpl implements Populator{
 						departmentDao = new DepartmentDAO(lastDepartment);
 					}
 					departmentDao.setName(departmentName);
-					departmentDao.setApprove((approveInt > 1 ? false : true ));
+					departmentDao.setApprove(approve);
 					departmentDao.setApprovers(approvers);
 					dao.save(departmentDao);
 				}
 				
 				lastDepartment = departmentCode;
 				departmentName = rs.getString("department_name");
-				//approveInt = rs.getInt("approve");
+				approve = rs.getBoolean("approve");
 			}
 		}
 		
@@ -530,9 +531,39 @@ public class PopulatorImpl implements Populator{
 				departmentDao = new DepartmentDAO(lastDepartment);
 			}
 			departmentDao.setName(departmentName);
-			departmentDao.setApprove((approveInt > 1 ? false : true ));
+			departmentDao.setApprove(approve);
 			departmentDao.setApprovers(approvers);
 			dao.save(departmentDao);
+		}
+	}
+	
+	/**
+	 * subunits
+	 * @param st
+	 * @throws SQLException
+	 */
+	private void subunitTable(Statement st) throws SQLException {
+		
+		String subunitCode = null;
+		String subunitName = null;
+		String departmentCode = null;
+		
+		Set<String> approvers = new HashSet<String>();
+		ResultSet rs = st.executeQuery(
+				"SELECT sub_unit_code, sub_unit_name, department_code " +
+				"FROM SubUnit;");
+		while(rs.next()) {
+			subunitCode = rs.getString("sub_unit_code");
+			subunitName = rs.getString("sub_unit_name");
+			departmentCode = rs.getString("department_code");
+			
+			SubunitDAO subunitDao = dao.findSubunitByCode(subunitCode);
+			if (null == subunitDao) {
+				subunitDao = new SubunitDAO(subunitCode);
+			}
+			subunitDao.setSubunitName(subunitName);
+			subunitDao.setDepartmentCode(departmentCode);
+			dao.save(subunitDao);
 		}
 	}
 	

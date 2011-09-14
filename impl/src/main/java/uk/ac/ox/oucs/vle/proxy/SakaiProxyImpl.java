@@ -172,7 +172,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				sakaiUser.getProperties().getProperty("oakOSSID"), 
 				sakaiUser.getProperties().getProperty("yearOfStudy"), 
 				sakaiUser.getProperties().getProperty("oakStatus"),
-				null,
+				sakaiUser.getProperties().getProperty("primaryOrgUnit"),
 				(units == null)?Collections.EMPTY_LIST:units);
 	}
 

@@ -126,7 +126,7 @@
 	</bean>
 	
 	
-	<bean id="uk.ac.ox.oucs.vle.Module"
+	<bean id="uk.ac.ox.oucs.vle.ModuleImpl"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="target">
 			<bean class="uk.ac.ox.oucs.vle.ModuleImpl">
@@ -145,7 +145,7 @@
 	<!-- Should be replaced by MethodInvokingJobDetailFactoryBean -->
 	<bean id="uk.ac.ox.oucs.vle.ModuleJob"
 		class="uk.ac.ox.oucs.vle.ModuleJob">
-		<property name="module" ref="uk.ac.ox.oucs.vle.Module"/>
+		<property name="module" ref="uk.ac.ox.oucs.vle.ModuleImpl"/>
 	</bean>
 
 	<bean id="uk.ac.ox.oucs.vle.ModuleJobWrapper"
@@ -153,6 +153,37 @@
 		singleton="true" init-method="init">
 		<property name="beanId" value="uk.ac.ox.oucs.vle.ModuleJob" />
 		<property name="jobName" value="Close Signup Module Action" />
+		<property name="schedulerManager"
+			ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+	</bean>
+	
+	<bean id="uk.ac.ox.oucs.vle.OucsDeptImpl"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="target">
+			<bean class="uk.ac.ox.oucs.vle.OucsDeptImpl">
+				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
+				<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+			</bean>
+		</property>
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="transactionAttributes">
+			<value>
+				update=PROPAGATION_REQUIRED
+			</value>
+		</property>
+	</bean>
+	
+	<!-- Should be replaced by MethodInvokingJobDetailFactoryBean -->
+	<bean id="uk.ac.ox.oucs.vle.OucsDeptJob"
+		class="uk.ac.ox.oucs.vle.OucsDeptJob">
+		<property name="module" ref="uk.ac.ox.oucs.vle.OucsDeptImpl"/>
+	</bean>
+	
+	<bean id="uk.ac.ox.oucs.vle.OucsDeptJobWrapper"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		singleton="true" init-method="init">
+		<property name="beanId" value="uk.ac.ox.oucs.vle.OucsDeptJob" />
+		<property name="jobName" value="Generate the OUCS Department data" />
 		<property name="schedulerManager"
 			ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
 	</bean>
