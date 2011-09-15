@@ -1390,3 +1390,9 @@ function ambrosiaScrollHelper(e, tr)
 	});
 	return $helper;
 };
+
+function ambrosiaHideColumn(id,n)
+{
+	if (n == 0) return;
+	$("#" + id + " tr td:nth-child(" + n + "), #" + id + " tr th:nth-child(" + n + ")").hide();
+}

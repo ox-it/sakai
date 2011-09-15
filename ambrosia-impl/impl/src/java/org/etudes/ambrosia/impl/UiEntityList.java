@@ -63,6 +63,9 @@ public class UiEntityList extends UiComponent implements EntityList
 	/** Columns for this list. */
 	protected List<EntityListColumn> columns = new ArrayList<EntityListColumn>();
 
+	/** Column # to hide when dnd kicks in - leave 0 to disable . */
+	protected int dndColHide = 0;
+
 	/** If we are doing drag and drop reordering. */
 	protected boolean dndReorder = false;
 
@@ -359,6 +362,19 @@ public class UiEntityList extends UiComponent implements EntityList
 		String reorder = StringUtil.trimToNull(xml.getAttribute("reorder"));
 		if ("DND".equals(reorder)) this.dndReorder = true;
 
+		// DND column hiding
+		String colHide = StringUtil.trimToNull(xml.getAttribute("dndColHide"));
+		if (colHide != null)
+		{
+			try
+			{
+				this.dndColHide = Integer.valueOf(colHide).intValue();
+			}
+			catch (NumberFormatException e)
+			{
+			}
+		}
+
 		// model ref for final table order indexes
 		String orderModel = StringUtil.trimToNull(xml.getAttribute("orderModel"));
 		if (orderModel != null)
@@ -483,7 +499,7 @@ public class UiEntityList extends UiComponent implements EntityList
 					+ id
 					+ " tbody\").sortable({axis:'y', containment:'parent', distance:4, tolerance:'pointer', sort:function(event, ui){ambrosiaParentScroll(event,20,20);},"
 					+ " helper:ambrosiaScrollHelper, stop:function(event, ui){ambrosiaTableRowIds(\"table_" + id + "\",\"tableOrder_" + id
-					+ "\");}});});\n");
+					+ "\");ambrosiaHideColumn(\"table_" + id + "\"," + this.dndColHide + ");}});});\n");
 		}
 
 		// start the table
@@ -942,6 +958,15 @@ public class UiEntityList extends UiComponent implements EntityList
 		this.colorizeDecision = decision;
 		this.colorizeBkg = color;
 
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public EntityList setDndColHide(int col)
+	{
+		this.dndColHide = col;
 		return this;
 	}
 

@@ -36,6 +36,15 @@ public interface EntityList extends Component
 	};
 
 	/**
+	 * Set the column # that will be hidden if DND is used
+	 * 
+	 * @param col
+	 *        The column # (1 based), or 0 to disable.
+	 * @return self.
+	 */
+	public EntityList setDndColHide(int col);
+
+	/**
 	 * Add a column to display some selector of each entity.
 	 * 
 	 * @param column
