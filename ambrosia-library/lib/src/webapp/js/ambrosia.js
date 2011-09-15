@@ -1361,3 +1361,21 @@ function ambrosiaTableRowIds(tableId, fieldId)
 	}
 	field.value = rv;
 }
+
+function ambrosiaParentScroll(event, sensitivity, speed)
+{
+	var myIframe = parent.document.getElementById(window.name);
+	if (myIframe)
+	{
+		var parentScrollTop = $(parent.document).scrollTop();
+		var parentHeight = $(parent.window).height();
+		var myParentPosition = $(myIframe).position();
+		var myParentY = myParentPosition.top;
+		var eventParentY = event.pageY + myParentY;
+
+		if(eventParentY - parentScrollTop < sensitivity)
+			$(parent.document).scrollTop(parentScrollTop - speed);
+		else if(parentHeight - (eventParentY - parentScrollTop) < sensitivity)
+			$(parent.document).scrollTop(parentScrollTop + speed);
+	}
+}
