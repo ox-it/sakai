@@ -482,7 +482,8 @@ public class UiEntityList extends UiComponent implements EntityList
 			context.addScript("$(function() {$(\"#table_"
 					+ id
 					+ " tbody\").sortable({axis:'y', containment:'parent', distance:4, tolerance:'pointer', sort:function(event, ui){ambrosiaParentScroll(event,20,20);},"
-					+ " stop:function(event, ui){ambrosiaTableRowIds(\"table_" + id + "\",\"tableOrder_" + id + "\");}});});\n");
+					+ " helper:ambrosiaScrollHelper, stop:function(event, ui){ambrosiaTableRowIds(\"table_" + id + "\",\"tableOrder_" + id
+					+ "\");}});});\n");
 		}
 
 		// start the table
