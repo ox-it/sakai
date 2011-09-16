@@ -63,8 +63,8 @@ public class UiEntityList extends UiComponent implements EntityList
 	/** Columns for this list. */
 	protected List<EntityListColumn> columns = new ArrayList<EntityListColumn>();
 
-	/** Column # to hide when dnd kicks in - leave 0 to disable . */
-	protected int dndColHide = 0;
+	/** Column id to hide when dnd kicks in - leave null to disable . */
+	protected String dndColHide = null;
 
 	/** If we are doing drag and drop reordering. */
 	protected boolean dndReorder = false;
@@ -368,7 +368,7 @@ public class UiEntityList extends UiComponent implements EntityList
 		{
 			try
 			{
-				this.dndColHide = Integer.valueOf(colHide).intValue();
+				this.dndColHide = colHide;
 			}
 			catch (NumberFormatException e)
 			{
@@ -494,12 +494,31 @@ public class UiEntityList extends UiComponent implements EntityList
 			// a place to put the final table row index values
 			response.println("<input type=\"hidden\" name=\"tableOrder_" + id + "\" id=\"tableOrder_" + id + "\" value =\"\" />");
 
+			// look for a column to hide
+			int colHide = 0;
+			if (this.dndColHide != null)
+			{
+				// columns one time text
+				colNum = 0;
+				for (EntityListColumn c : this.columns)
+				{
+					// included?
+					if (!c.included(context)) continue;
+					colNum++;
+					if ((c.getId() != null) && (c.getId().equals(this.dndColHide)))
+					{
+						colHide = colNum;
+						break;
+					}
+				}
+			}
+
 			// make the table sortable
 			context.addScript("$(function() {$(\"#table_"
 					+ id
 					+ " tbody\").sortable({axis:'y', containment:'parent', distance:4, tolerance:'pointer', sort:function(event, ui){ambrosiaParentScroll(event,20,20);},"
 					+ " helper:ambrosiaScrollHelper, stop:function(event, ui){ambrosiaTableRowIds(\"table_" + id + "\",\"tableOrder_" + id
-					+ "\");ambrosiaHideColumn(\"table_" + id + "\"," + this.dndColHide + ");}});});\n");
+					+ "\");ambrosiaHideColumn(\"table_" + id + "\"," + colHide + ");}});});\n");
 		}
 
 		// start the table
@@ -964,9 +983,9 @@ public class UiEntityList extends UiComponent implements EntityList
 	/**
 	 * {@inheritDoc}
 	 */
-	public EntityList setDndColHide(int col)
+	public EntityList setDndColHide(String id)
 	{
-		this.dndColHide = col;
+		this.dndColHide = id;
 		return this;
 	}
 

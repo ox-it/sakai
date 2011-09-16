@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -70,6 +70,9 @@ public class UiEntityListColumn implements EntityListColumn
 
 	/** Footnotes for this column. */
 	protected List<Footnote> footnotes = new ArrayList<Footnote>();
+
+	/** The id of this element - can be referenced by an alias, for instance. */
+	protected String id = null;
 
 	/** The include decision. */
 	protected Decision included = null;
@@ -152,6 +155,10 @@ public class UiEntityListColumn implements EntityListColumn
 			Decision decision = service.parseDecisions(settingsXml);
 			setAlert(decision);
 		}
+
+		// id
+		String id = StringUtil.trimToNull(xml.getAttribute("id"));
+		if (id != null) setId(id);
 
 		// short form for centered
 		String centered = StringUtil.trimToNull(xml.getAttribute("centered"));
@@ -557,6 +564,14 @@ public class UiEntityListColumn implements EntityListColumn
 	/**
 	 * {@inheritDoc}
 	 */
+	public String getId()
+	{
+		return this.id;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean getIsEntityIncluded(Context context, Object focus)
 	{
 		if ((this.entityIncluded != null) && (!this.entityIncluded.decide(context, focus))) return false;
@@ -817,6 +832,15 @@ public class UiEntityListColumn implements EntityListColumn
 	{
 		this.entityIncluded = inclusionDecision;
 		this.notIncludedMsg = notIncludedMsg;
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public EntityListColumn setId(String id)
+	{
+		this.id = id;
 		return this;
 	}
 

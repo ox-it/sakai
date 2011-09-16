@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -147,6 +147,13 @@ public interface EntityListColumn
 	 * @return The list of footnotes.
 	 */
 	List<Footnote> getFootnotes();
+
+	/**
+	 * Access the id.
+	 * 
+	 * @return The id.
+	 */
+	String getId();
 
 	/**
 	 * Check if the entity is included for display in this column.
@@ -387,6 +394,15 @@ public interface EntityListColumn
 	 * @return self.
 	 */
 	EntityListColumn setEntityIncluded(Decision inclusionDecision, Message notIncludedMsg);
+
+	/**
+	 * Set the id of this component, which can be referenced by an Alias, for example.
+	 * 
+	 * @param id
+	 *        The component's id.
+	 * @return self.
+	 */
+	EntityListColumn setId(String id);
 
 	/**
 	 * Set the decision to include the entire column.
