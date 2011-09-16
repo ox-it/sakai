@@ -240,7 +240,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 			</ul>
         </div>
 		<div>
-			<p>These are the students who have signed up for a module that need your approval.
+			<p>These students have signed up for a module that needs your approval.
 			<span style="float:right; margin-right:4%;">
 			<input type='button' class="reject-selected" value="Reject Selected" name="name"></input>
 			<input type='button' class="confirm-selected" value="Confirm Selected" name="name"></input>

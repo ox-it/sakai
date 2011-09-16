@@ -358,7 +358,14 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public List<CourseSignupDAO> findSignupApproval(final String userId) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
-				Query query = session.createSQLQuery("select distinct cs.id, cs.userId, cs.status, cs.created, cs.message, cs.supervisorId, cs.groupId, cs.department from course_signup cs left join course_group_administrator ca on cs.groupId = ca.course_group inner join course_component_signup cp on cs.id = cp.signup inner join course_component cc on cp.component = cc.id inner join department_approver da on da.department = cs.department where da.approver = :userId and cs.status = :approverStatus").addEntity(CourseSignupDAO.class);
+				Query query = session.createSQLQuery(
+						"select distinct cs.id, cs.userId, cs.status, cs.created, cs.message, cs.supervisorId, cs.groupId, cs.department " +
+						"from course_signup cs " +
+						"left join course_group_administrator ca on cs.groupId = ca.course_group " +
+						"inner join course_component_signup cp on cs.id = cp.signup " +
+						"inner join course_component cc on cp.component = cc.id " +
+						"inner join department_approver da on da.department = cs.department " +
+						"where da.approver = :userId and cs.status = :approverStatus").addEntity(CourseSignupDAO.class);
 				query.setString("userId", userId);
 				query.setParameter("approverStatus", Status.APPROVED.name());
 				return query.list();
@@ -410,7 +417,10 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public List<DepartmentDAO> findApproverDepartments(final String userId) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
-				Query query = session.createSQLQuery("select * from department_approver left join department on code = department where approver = :userId").addEntity(DepartmentDAO.class);
+				Query query = session.createSQLQuery(
+						"select * from department_approver " +
+						"left join department on department.code = department_approver.department " +
+						"where approver = :userId").addEntity(DepartmentDAO.class);
 				query.setString("userId", userId);
 				return query.list();
 			}
@@ -424,7 +434,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public List<Object[]> findDepartmentApprovers(final String department) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
-				Query query = session.createSQLQuery("select approver from department_approver where department = :deptId");
+				Query query = session.createSQLQuery(
+						"select approver from department_approver " +
+						"where department = :deptId");
 				query.setString("deptId", department);
 				return query.list();
 			}
@@ -474,7 +486,12 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		
 		List<Object> results = getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
-				Query query = session.createSQLQuery("select departmentCode from subunit left join oucs_department on t2Char = subunitCode where oucsCode = :oucsDept");
+				Query query = session.createSQLQuery(
+						"select department.code " +
+						"from department " +
+						"left join subunit on subunit.departmentCode = department.code " +
+						"left join oucs_department on t2Char = subunitCode " +
+						"where oucsCode = :oucsDept");
 				query.setString("oucsDept", primaryOrgUnit);
 				return query.list();
 			}

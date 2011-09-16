@@ -66,8 +66,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			DepartmentDAO departmentDao = dao.findDepartmentByCode(signupDao.getDepartment());
 			if (null != departmentDao) {
 				departmentApproval = departmentDao.getApprove();
-				if (departmentDao.getApprovers().isEmpty()) {
-					departmentApproval = false;
+				if (!departmentDao.getApprovers().isEmpty()) {
+					departmentApproval = true;
 				}
 			}
 		}
@@ -445,7 +445,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				}
 				
 		} else if (Status.APPROVED.equals(signupDao.getStatus())) {// Rejected by approver.
-			if (isAdministrator(signupDao.getGroup(), currentUserId, dao.findDepartmentApprovers(signupDao.getDepartment()).contains(currentUserId))) {
+			boolean isApprover = dao.findDepartmentApprovers(signupDao.getDepartment()).contains(currentUserId);
+			if (isAdministrator(signupDao.getGroup(), currentUserId, isApprover)) {
 				signupDao.setStatus(Status.REJECTED);
 				dao.save(signupDao);
 				for (CourseComponentDAO componentDao: signupDao.getComponents()) {
@@ -461,7 +462,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		} else {
 			throw new IllegalStateException("You can only reject signups that are WAITING, PENDING, ACCEPTED or APPROVED");
 		}
-
 	}
 
 	/**

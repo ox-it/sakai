@@ -14,7 +14,7 @@ public class DepartmentDAO implements java.io.Serializable {
     }
     
     public DepartmentDAO(String code) {
-        this.code = code;
+    	this.code = code;
         this.approve = true;
     }
     

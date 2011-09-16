@@ -491,8 +491,9 @@ public class PopulatorImpl implements Populator{
 	 * Departments
 	 * @param con
 	 * @throws SQLException
+	 * @throws IOException 
 	 */
-	private void departmentTable(Statement st) throws SQLException {
+	private void departmentTable(Statement st) throws SQLException, IOException {
 		
 		String departmentCode = null;
 		String lastDepartment = null;
@@ -517,11 +518,21 @@ public class PopulatorImpl implements Populator{
 					departmentDao.setApprove(approve);
 					departmentDao.setApprovers(approvers);
 					dao.save(departmentDao);
+					approvers = new HashSet<String>();
 				}
 				
 				lastDepartment = departmentCode;
 				departmentName = rs.getString("department_name");
-				approve = rs.getBoolean("approve");
+				//approve = rs.getBoolean("approve");
+			}
+			String approver = rs.getString("webauth_code");
+			if (null != approver) {
+				UserProxy user = proxy.findUserByEid(approver); 
+				if (user == null) {
+					logFailure(lastDepartment, null, "Failed to find departmental approver " + approver);
+					continue;
+				}
+				approvers.add(user.getId());
 			}
 		}
 		
@@ -548,10 +559,10 @@ public class PopulatorImpl implements Populator{
 		String subunitName = null;
 		String departmentCode = null;
 		
-		Set<String> approvers = new HashSet<String>();
 		ResultSet rs = st.executeQuery(
-				"SELECT sub_unit_code, sub_unit_name, department_code " +
-				"FROM SubUnit;");
+				"SELECT sub_unit_code, sub_unit_name, Department.department_code " +
+				"FROM SubUnit " +
+				"left join Department on Department.id = SubUnit.department_id;");
 		while(rs.next()) {
 			subunitCode = rs.getString("sub_unit_code");
 			subunitName = rs.getString("sub_unit_name");

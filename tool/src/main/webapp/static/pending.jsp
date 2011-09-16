@@ -81,7 +81,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 			</ul>
         </div>
 		<div>
-			<p>These are the students who have signed up for a module that need your approval.</p>
+			<p>These students have signed up for a module that needs your approval.</p>
 		</div>
 		<div style="margin:2%" >
 		<table id="pending-table" class="display">
