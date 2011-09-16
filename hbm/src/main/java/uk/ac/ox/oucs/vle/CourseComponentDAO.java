@@ -12,28 +12,32 @@ import java.util.Set;
 public class CourseComponentDAO  implements java.io.Serializable {
 
 
-     private String id;
-     private int version;
-     private String title;
-     private String subject;
-     private String termcode;
-     private Date opens;
-     private Date closes;
-     private Date expires;
-     private Date starts;
-     private Date ends;
-     private boolean bookable;
-     private int size;
-     private int taken;
-     private String componentId;
-     private String teacherName;
-     private String teacherEmail;
-     private String when;
-     private String slot;
-     private String sessions;
-     private String location;
-     private Set<CourseSignupDAO> signups = new HashSet<CourseSignupDAO>(0);
-     private Set<CourseGroupDAO> groups = new HashSet<CourseGroupDAO>(0);
+     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String id;
+    private int version;
+    private String title;
+    private String subject;
+    private String termcode;
+    private Date opens;
+    private Date closes;
+    private Date expires;
+    private Date starts;
+    private Date ends;
+    private boolean bookable;
+    private int size;
+    private int taken;
+    private String componentId;
+    private String teacherName;
+    private String teacherEmail;
+    private String when;
+    private String slot;
+    private String sessions;
+    private String location;
+    private Set<CourseSignupDAO> signups = new HashSet<CourseSignupDAO>(0);
+    private Set<CourseGroupDAO> groups = new HashSet<CourseGroupDAO>(0);
 
     public CourseComponentDAO() {
     }

@@ -655,11 +655,11 @@ public class PopulatorImpl implements Populator{
 		groupDao.setContactEmail(divisionEmail);
 		groupDao.setAdministrators(administrators);
 		if (null==superusers) {
-			superusers = Collections.EMPTY_SET;
+			superusers = Collections.<String>emptySet();
 		}
 		groupDao.setSuperusers(superusers);
 		if (null==otherDepartments) {
-			otherDepartments = Collections.EMPTY_SET;
+			otherDepartments = Collections.<String>emptySet();
 		}
 		groupDao.setOtherDepartments(otherDepartments);
 		dao.save(groupDao);

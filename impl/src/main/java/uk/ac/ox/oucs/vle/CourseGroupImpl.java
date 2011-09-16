@@ -89,8 +89,8 @@ public class CourseGroupImpl implements CourseGroup {
 				if (null != user) {
 					Person person = new PersonImpl(user.getId(), 
 							user.getFirstName(), user.getLastName(), user.getDisplayName(), 
-							user.getEmail(), Collections.EMPTY_LIST, 
-							user.getWebauthId(), null, /*impl.findPracDepartment(user.getPrimaryOrgUnit()), */user.getType());
+							user.getEmail(), Collections.<String>emptyList(), 
+							user.getWebauthId(), null, user.getType());
 					administrators.add(person);
 				}
 			}
@@ -107,8 +107,8 @@ public class CourseGroupImpl implements CourseGroup {
 				if (null != user) {
 					Person person = new PersonImpl(user.getId(), 
 							user.getFirstName(), user.getLastName(), user.getDisplayName(), 
-							user.getEmail(), Collections.EMPTY_LIST, 
-							user.getWebauthId(), null, /*impl.findPracDepartment(user.getPrimaryOrgUnit()), */user.getType());
+							user.getEmail(), Collections.<String>emptyList(), 
+							user.getWebauthId(), null, user.getType());
 					superusers.add(person);
 				}
 			}

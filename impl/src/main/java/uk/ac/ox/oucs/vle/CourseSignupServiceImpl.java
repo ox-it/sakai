@@ -266,7 +266,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			log.debug("Loading all signups for : "+ userId+ " of status "+ statuses);
 		}
 		List<CourseSignup> signups = new ArrayList<CourseSignup>();
-		for (CourseSignupDAO signupDao:  dao.findSignupForUser(userId, (statuses==null)?Collections.EMPTY_SET:statuses)) {
+		for (CourseSignupDAO signupDao:  dao.findSignupForUser(userId, (statuses==null)?Collections.<Status>emptySet():statuses)) {
 			signups.add(new CourseSignupImpl(signupDao, this));
 		}
 		return signups;
@@ -280,7 +280,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			log.debug("Loading all signups for : "+ userId+ " of status "+ statuses);
 		}
 		List<CourseSignup> signups = new ArrayList<CourseSignup>();
-		for (CourseSignupDAO signupDao:  dao.findSignupForUser(userId, (statuses==null)?Collections.EMPTY_SET:statuses)) {
+		for (CourseSignupDAO signupDao:  dao.findSignupForUser(userId, (statuses==null)?Collections.<Status>emptySet():statuses)) {
 			signups.add(new CourseSignupImpl(signupDao, this));
 		}
 		return signups;
@@ -649,8 +649,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 	}
 	
-	
-	// Need to find all the components.
+	/**
+	 * Need to find all the components.
+	 * @param componentIds
+	 * @param groupDao
+	 * @return
+	 */
 	private Set<CourseComponentDAO> parseComponents(Set<String> componentIds, CourseGroupDAO groupDao) {
 		if (componentIds == null) {
 			throw new IllegalArgumentException("You must specify some components to signup to.");

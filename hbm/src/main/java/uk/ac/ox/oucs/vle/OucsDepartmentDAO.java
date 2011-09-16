@@ -1,10 +1,12 @@
 package uk.ac.ox.oucs.vle;
 
-import java.util.HashSet;
-import java.util.Set;
 
 public class OucsDepartmentDAO implements java.io.Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String oucsCode;
     private String nickName;
     private String fullName;

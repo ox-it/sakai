@@ -98,7 +98,7 @@ public class CourseResource {
 		if (deptId.length() == 4) { 
 			if (range.equals(Range.PREVIOUS)) {
 				List<CourseGroup> courses = courseService.getCourseGroupsByDept(deptId, range, externalUser);
-				return new GroupsStreamingOutput(Collections.EMPTY_LIST, courses, deptId, range.name());
+				return new GroupsStreamingOutput(Collections.<SubUnit>emptyList(), courses, deptId, range.name());
 			} else {
 				List<SubUnit> subUnits = courseService.getSubUnitsByDept(deptId);
 				List<CourseGroup> courses = courseService.getCourseGroupsByDept(deptId, range, externalUser);
@@ -106,7 +106,7 @@ public class CourseResource {
 			}
 		} else {
 			List<CourseGroup> courses = courseService.getCourseGroupsBySubUnit(deptId, range, externalUser);
-			return new GroupsStreamingOutput(Collections.EMPTY_LIST, courses, deptId, range.name());
+			return new GroupsStreamingOutput(Collections.<SubUnit>emptyList(), courses, deptId, range.name());
 		}
 	}
 

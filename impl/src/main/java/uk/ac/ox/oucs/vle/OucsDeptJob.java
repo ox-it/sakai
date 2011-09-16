@@ -1,11 +1,8 @@
 package uk.ac.ox.oucs.vle;
 
-import java.net.MalformedURLException;
-
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.sakaiproject.component.api.ServerConfigurationService;
 
 /**
  * Simple bean that allows the populator to be called from Quartz.

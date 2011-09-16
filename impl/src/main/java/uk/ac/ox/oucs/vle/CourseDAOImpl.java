@@ -117,34 +117,6 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
 				query.setString("deptId", deptId);
 				return query.list();
-			
-				//you can't use Criteria to query against a collection of value types
-			/*
-				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
-				
-				criteria.add(
-					Restrictions.or(
-							Restrictions.and(
-									Restrictions.eq("dept", deptId), 
-									Restrictions.or(Restrictions.isNull("subunit"),Restrictions.eq("subunit", ""))),
-							Restrictions.eq("otherDepartment", deptId)));
-				
-				if (external) {
-					criteria.add(Restrictions.eq("publicView", true));
-				}
-				switch (range) { 
-					case UPCOMING:
-						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Restrictions.gt("closes", now));
-						break;
-					case PREVIOUS:
-						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(Restrictions.le("closes", now));
-						break;
-				}
-				
-				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-				criteria.addOrder(Order.asc("title"));
-				return criteria.list();
-			*/
 			}	
 		});
 	}
@@ -329,10 +301,16 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					throws HibernateException, SQLException {
 				Query query;
 				if (null != statuses && !statuses.isEmpty()) {
-					query = session.createQuery("select cs from CourseSignupDAO cs inner join fetch cs.components cc where cc.id = :componentId and cs.status in (:statuses)");
+					query = session.createQuery(
+							"select cs from CourseSignupDAO cs " +
+							"inner join fetch cs.components cc " +
+							"where cc.id = :componentId and cs.status in (:statuses)");
 					query.setParameterList("statuses", statuses);
 				} else {
-					query = session.createQuery("select cs from CourseSignupDAO cs inner join fetch cs.components cc where cc.id = :componentId");
+					query = session.createQuery(
+							"select cs from CourseSignupDAO cs " +
+							"inner join fetch cs.components cc " +
+							"where cc.id = :componentId");
 				}
 				
 				query.setString("componentId", componentId);
@@ -345,7 +323,13 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public List<CourseSignupDAO> findSignupPending(final String userId) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
-				Query query = session.createSQLQuery("select distinct cs.id, cs.userId, cs.status, cs.created, cs.message, cs.supervisorId, cs.groupId, cs.department from course_signup cs left join course_group_administrator ca on cs.groupId = ca.course_group inner join course_component_signup cp on cs.id = cp.signup inner join course_component cc on cp.component = cc.id where (ca.administrator = :userId and cs.status = :adminStatus) or (cs.supervisorId = :userId and cs.status = :supervisorStatus)").addEntity(CourseSignupDAO.class);
+				Query query = session.createSQLQuery(
+						"select distinct cs.id, cs.userId, cs.status, cs.created, cs.message, cs.supervisorId, cs.groupId, cs.department " +
+						"from course_signup cs " +
+						"left join course_group_administrator ca on cs.groupId = ca.course_group " +
+						"inner join course_component_signup cp on cs.id = cp.signup " +
+						"inner join course_component cc on cp.component = cc.id " +
+						"where (ca.administrator = :userId and cs.status = :adminStatus) or (cs.supervisorId = :userId and cs.status = :supervisorStatus)").addEntity(CourseSignupDAO.class);
 				query.setString("userId", userId);
 				query.setParameter("adminStatus", Status.PENDING.name());
 				query.setParameter("supervisorStatus", Status.ACCEPTED.name());

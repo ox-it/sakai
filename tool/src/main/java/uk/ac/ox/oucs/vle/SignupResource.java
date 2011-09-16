@@ -207,7 +207,7 @@ public class SignupResource {
 			
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
-				Set statuses = null;
+				Set<Status> statuses = null;
 				if (null != status) {
 					statuses = Collections.singleton(status);
 				}
@@ -225,7 +225,7 @@ public class SignupResource {
 			throw new WebApplicationException(Response.Status.FORBIDDEN);
 		}
 		// All the pending 
-		Set statuses = null;
+		Set<Status> statuses = null;
 		if (null != status) {
 			statuses = Collections.singleton(status);
 		}
@@ -244,7 +244,7 @@ public class SignupResource {
 
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
-				Set statuses = null;
+				Set<Status> statuses = null;
 				if (null != status) {
 					statuses = Collections.singleton(status);
 				}

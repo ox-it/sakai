@@ -10,7 +10,11 @@ import java.util.Set;
  */
 public class CourseGroupDAO implements java.io.Serializable {
 
-    private String id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String id;
     private String title;
     private String dept;
     private Set<CourseComponentDAO> components = new HashSet<CourseComponentDAO>(0);
