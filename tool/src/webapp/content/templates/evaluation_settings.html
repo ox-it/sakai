@@ -188,25 +188,6 @@
 				</fieldset>
 
 				<fieldset class="visibleFS">
-					<legend rsf:id="msg=evalsettings.student.completion.settings.header">Student Completion Settings:</legend>
-					<div rsf:id="showBlankQuestionAllowedToStut:"  class="checkbox">
-						<input rsf:id="blankResponsesAllowed" type="checkbox" name="blankResponsesAllowed" id="blankResponsesAllowed" />
-						<label rsf:id="blankResponsesAllowed_label" for="blankResponsesAllowed">Blank non-text question responses allowed:</label>
-						<p rsf:id="msg=evalsettings.blank.responses.allowed.note" class="instruction textPanelFooter indnt2">Participants are not warned when responses are left blank if unchecked</p>
-					</div>	
-					<div rsf:id="showModifyResponsesAllowedToStu:" class="checkbox">
-						<input rsf:id="modifyResponsesAllowed" type="checkbox" name="modifyResponsesAllowed" id="modifyResponsesAllowed" />
-						<label rsf:id="modifyResponsesAllowed_label" for="modifyResponsesAllowed">Modification of responses allowed:</label>
-						<p rsf:id="msg=evalsettings.modify.responses.allowed.note"  class="instruction textPanelFooter indnt2">Participants may submit responses once only if unchecked</p>
-					</div>
-					<div rsf:id="showAllRolesCanParticipate:" class="checkbox">
-						<input rsf:id="allRolesParticipate" type="checkbox" name="allRolesParticipate" id="allRolesParticipate" />
-						<label rsf:id="allRolesParticipate_label" for="evaluatorsParticipate">All Roles Can Participate:</label>
-						<p rsf:id="msg=evalsettings.all.roles.participate.note"  class="instruction textPanelFooter indnt2">This setting allows all roles to take the survey</p>
-					</div>
-				</fieldset>
-
-				<fieldset class="visibleFS">
 					<legend rsf:id="msg=evalsettings.admin.settings.header">Administrative Settings</legend>
 					<p rsf:id="msg=evalsettings.auth.control.instructions" class="instruction">
 						This setting allows you to choose whether to require authentication to take this evaluation
@@ -232,6 +213,25 @@
 						<!--//gsilver: what is this?  This shows the system option when the select is disabled -AZ -->
 						<span rsf:id="instructorOptLabel" style="font-weight:bold;"></span>
 					</p>
+				</fieldset>
+				
+				<fieldset class="visibleFS">
+					<legend rsf:id="msg=evalsettings.student.completion.settings.header">Student Completion Settings:</legend>
+					<div rsf:id="showBlankQuestionAllowedToStut:"  class="checkbox">
+						<input rsf:id="blankResponsesAllowed" type="checkbox" name="blankResponsesAllowed" id="blankResponsesAllowed" />
+						<label rsf:id="blankResponsesAllowed_label" for="blankResponsesAllowed">Blank non-text question responses allowed:</label>
+						<p rsf:id="msg=evalsettings.blank.responses.allowed.note" class="instruction textPanelFooter indnt2">Participants are not warned when responses are left blank if unchecked</p>
+					</div>	
+					<div rsf:id="showModifyResponsesAllowedToStu:" class="checkbox">
+						<input rsf:id="modifyResponsesAllowed" type="checkbox" name="modifyResponsesAllowed" id="modifyResponsesAllowed" />
+						<label rsf:id="modifyResponsesAllowed_label" for="modifyResponsesAllowed">Modification of responses allowed:</label>
+						<p rsf:id="msg=evalsettings.modify.responses.allowed.note"  class="instruction textPanelFooter indnt2">Participants may submit responses once only if unchecked</p>
+					</div>
+					<div rsf:id="showAllRolesCanParticipate:" class="checkbox">
+						<input rsf:id="allRolesParticipate" type="checkbox" name="allRolesParticipate" id="allRolesParticipate" />
+						<label rsf:id="allRolesParticipate_label" for="evaluatorsParticipate">All Roles Can Participate:</label>
+						<p rsf:id="msg=evalsettings.all.roles.participate.note"  class="instruction textPanelFooter indnt2">This setting allows all roles to take the survey</p>
+					</div>
 				</fieldset>
 
                 <fieldset rsf:id="selectInstructorTA:" class="visibleFS">
