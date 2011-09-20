@@ -385,11 +385,8 @@ public class EvaluationSettingsProducer implements ViewComponentProducer, ViewPa
          * only 
          */
         if(EvalUtils.checkStateBefore(currentEvalState, EvalConstants.EVALUATION_STATE_ACTIVE, false) ) {
-        	
         	if(!Boolean.FALSE.equals(allRolesCanParticipate)) {
-        		
         		UIBranchContainer showAllRolesCanParticipate = UIBranchContainer.make(form, "showAllRolesCanParticipate:");
-        		
         		generateSettingsControlledCheckbox(showAllRolesCanParticipate, 
         				"allRolesParticipate", evaluationOTP + "allRolesParticipate", allRolesCanParticipate, form,
         				EvalUtils.checkStateAfter(currentEvalState, EvalConstants.EVALUATION_STATE_ACTIVE, true));
@@ -402,9 +399,7 @@ public class EvaluationSettingsProducer implements ViewComponentProducer, ViewPa
         else {
         	if(null != evaluation.getAllRolesParticipate() || 
         			!Boolean.FALSE.equals(allRolesCanParticipate)) {
-        		
         		UIBranchContainer showAllRolesCanParticipate = UIBranchContainer.make(form, "showAllRolesCanParticipate:");
-        		
         		generateSettingsControlledCheckbox(showAllRolesCanParticipate, 
         				"allRolesParticipate", evaluationOTP + "allRolesParticipate", allRolesCanParticipate, form,
         				EvalUtils.checkStateAfter(currentEvalState, EvalConstants.EVALUATION_STATE_ACTIVE, true));
