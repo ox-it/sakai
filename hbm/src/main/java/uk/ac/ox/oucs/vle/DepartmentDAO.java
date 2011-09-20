@@ -5,6 +5,10 @@ import java.util.Set;
 
 public class DepartmentDAO implements java.io.Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String code;
     private String name;
     private boolean approve;

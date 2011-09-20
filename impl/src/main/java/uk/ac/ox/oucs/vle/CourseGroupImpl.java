@@ -90,7 +90,8 @@ public class CourseGroupImpl implements CourseGroup {
 					Person person = new PersonImpl(user.getId(), 
 							user.getFirstName(), user.getLastName(), user.getDisplayName(), 
 							user.getEmail(), Collections.<String>emptyList(), 
-							user.getWebauthId(), null, user.getType());
+							user.getWebauthId(), null, 
+							impl.findPracDepartment(user.getPrimaryOrgUnit()).getName(), user.getType());
 					administrators.add(person);
 				}
 			}
@@ -108,7 +109,8 @@ public class CourseGroupImpl implements CourseGroup {
 					Person person = new PersonImpl(user.getId(), 
 							user.getFirstName(), user.getLastName(), user.getDisplayName(), 
 							user.getEmail(), Collections.<String>emptyList(), 
-							user.getWebauthId(), null, user.getType());
+							user.getWebauthId(), null, 
+							impl.findPracDepartment(user.getPrimaryOrgUnit()).getName(), user.getType());
 					superusers.add(person);
 				}
 			}

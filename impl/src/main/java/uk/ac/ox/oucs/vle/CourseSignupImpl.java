@@ -24,11 +24,18 @@ public class CourseSignupImpl implements CourseSignup {
 	public Person getUser() {
 		UserProxy user = service.loadUser(dao.getUserId());
 		Person person = null;
+		String departmentName = null;
+		if (null != user.getPrimaryOrgUnit()) {
+			Department department = service.findPracDepartment(user.getPrimaryOrgUnit());
+			if (null != department) {
+				departmentName = department.getName();
+			}
+		}
 		if (user != null) {
 			person = new PersonImpl(user.getId(), 
 					user.getFirstName(), user.getLastName(), user.getDisplayName(), 
 					user.getEmail(), user.getUnits(), user.getWebauthId(), 
-					user.getYearOfStudy(), user.getType());
+					user.getYearOfStudy(), departmentName, user.getType());
 		}
 		return person;
 	}
@@ -44,7 +51,7 @@ public class CourseSignupImpl implements CourseSignup {
 			person = new PersonImpl(user.getId(), 
 					user.getFirstName(), user.getLastName(), user.getDisplayName(), 
 					user.getEmail(), Collections.<String>emptyList(), 
-					user.getWebauthId(), null, 
+					user.getWebauthId(), null, null, 
 					user.getType());
 		}
 		return person;	}

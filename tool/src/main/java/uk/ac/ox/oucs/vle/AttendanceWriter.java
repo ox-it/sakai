@@ -17,7 +17,7 @@ public class AttendanceWriter {
 	
 	public AttendanceWriter(OutputStream out) {
 		outputStream = out;
-		root = new Element("attendance");
+		root = new Element("TeachingInstances");
 		document = new Document(root);
 	}
 	
@@ -25,29 +25,40 @@ public class AttendanceWriter {
 										 CourseComponent courseComponent, 
 										 Collection<CourseSignup> signups) {
 		
-		Element teachingInstance = new Element("teachingInstance");
-		teachingInstance.setAttribute("id", courseComponent.getId());
+		Element teachingInstance = new Element("TeachingInstance");
 		
+		Element tid = new Element("id");
+		tid.setText(courseComponent.getId());
+		teachingInstance.addContent(tid);
+		
+		/*
 		for (CourseGroup courseGroup : courseGroups) {
 			Element element = new Element("assessmentUnit");
 			element.setAttribute("id", courseGroup.getId());
 			element.setAttribute("title", courseGroup.getTitle());
 			teachingInstance.addContent(element);
 		}
+		*/
 		
-		Element component = new Element("teachingComponent");
-		component.setAttribute("id", courseComponent.getComponentSet());
+		Element students = new Element("students");
+		//component.setAttribute("id", courseComponent.getComponentSet());
 		
 		for (CourseSignup signup : signups) {
-			Element attendee = new Element("signup");
-			attendee.setAttribute("webauthid", signup.getUser().getWebauthId());
-			attendee.setAttribute("surname", signup.getUser().getLastName());
-			attendee.setAttribute("forename", signup.getUser().getFirstName());
-			attendee.setAttribute("displayname", signup.getUser().getName());
-			component.addContent(attendee);
+			Element attendee = new Element("student");
+			Element sid = new Element("webauth_id");
+			sid.setText(signup.getUser().getWebauthId());
+			attendee.addContent(sid);
+			Element sst = new Element("status");
+			sst.setText(signup.getStatus().name());
+			attendee.addContent(sst);
+			
+			//attendee.setAttribute("surname", signup.getUser().getLastName());
+			//attendee.setAttribute("forename", signup.getUser().getFirstName());
+			//attendee.setAttribute("displayname", signup.getUser().getName());
+			students.addContent(attendee);
 		}
 		
-		teachingInstance.addContent(component);
+		teachingInstance.addContent(students);
 		root.addContent(teachingInstance);
 		return teachingInstance;
 	}

@@ -329,7 +329,7 @@ public class SignupResource {
 	@Path("/component/{id}.xml")
 	@GET
 	@Produces(MediaType.TEXT_XML)
-	public StreamingOutput syncComponent(@PathParam("id") final String componentId) {
+	public StreamingOutput syncComponent(@PathParam("id") final String componentId, @PathParam("status") final Status status) {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			throw new WebApplicationException(Response.Status.FORBIDDEN);
 		}
@@ -338,8 +338,17 @@ public class SignupResource {
 			WebApplicationException {
 				
 				CourseComponent courseComponent = courseService.getCourseComponent(componentId);
+				
+				Set<Status> statuses = new HashSet<Status>();
+				if (null != status) {
+					statuses = Collections.singleton(status);
+				} else {
+					statuses.add(Status.CONFIRMED);
+					statuses.add(Status.WITHDRAWN);
+				}
+				
 				List<CourseSignup> signups = courseService.getComponentSignups(
-						componentId, Collections.singleton(Status.CONFIRMED));
+						componentId, statuses);
 				
 				Collection<CourseGroup> courseGroups = courseService.getCourseGroupsByComponent(componentId);
 				AttendanceWriter attendance = new AttendanceWriter(output);

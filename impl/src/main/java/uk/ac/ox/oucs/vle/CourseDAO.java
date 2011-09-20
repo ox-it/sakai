@@ -69,7 +69,7 @@ public interface CourseDAO {
 	
 	DepartmentDAO findDepartmentByCode(String code);
 	
-	String findDepartmentByPrimaryOrgUnit(String primaryorgUnit);
+	DepartmentDAO findDepartmentByPrimaryOrgUnit(String primaryorgUnit);
 	
 	void save(DepartmentDAO departmentDao);
 	

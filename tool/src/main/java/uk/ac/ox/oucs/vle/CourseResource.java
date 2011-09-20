@@ -157,7 +157,7 @@ public class CourseResource {
 	/**
 	 * Formats a duration sensibly.
 	 * @param remaining Time remaining in milliseconds.
-	 * @return a String roughly representing the durnation.
+	 * @return a String roughly representing the duration.
 	 */
 	private String formatDuration(long remaining) {
 		if (remaining < 1000) {

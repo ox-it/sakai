@@ -14,12 +14,12 @@ public class PersonImpl implements Person {
 	private List<String> units;
 	private String webauthId;
 	private String yearOfStudy;
-	//private String department;
+	private String departmentName;
 	private String type;
 	
 	public PersonImpl(String id, String firstName, String lastName, String displayName, 
 			String email, List<String> units, 
-			String webauthId, String yearOfStudy, /*String department, */String type) {
+			String webauthId, String yearOfStudy, String departmentName, String type) {
 		this.id = id;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -28,7 +28,7 @@ public class PersonImpl implements Person {
 		this.units = new ArrayList<String>(units);
 		this.webauthId = webauthId;
 		this.yearOfStudy = yearOfStudy;
-		//this.department = department;
+		this.departmentName = departmentName;
 		this.type = type;
 	}
 	
@@ -58,9 +58,9 @@ public class PersonImpl implements Person {
 	public String getYearOfStudy() {
 		return yearOfStudy;
 	}
-	//public String getDepartment() {
-	//	return department;
-	//}
+	public String getDepartmentName() {
+		return departmentName;
+	}
 	public String getType() {
 		return type;
 	}

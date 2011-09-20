@@ -12,15 +12,19 @@ import java.util.Set;
 public class CourseSignupDAO  implements java.io.Serializable {
 
 
-     private String id;
-     private String userId;
-     private CourseSignupService.Status status;
-     private Date created;
-     private Set<CourseComponentDAO> components = new HashSet<CourseComponentDAO>(0);
-     private String supervisorId;
-     private String department;
-     private CourseGroupDAO group;
-     private String message;
+     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String id;
+    private String userId;
+    private CourseSignupService.Status status;
+    private Date created;
+    private Set<CourseComponentDAO> components = new HashSet<CourseComponentDAO>(0);
+    private String supervisorId;
+    private String department;
+    private CourseGroupDAO group;
+    private String message;
 
     public CourseSignupDAO() {
     }

@@ -130,7 +130,7 @@ public interface CourseSignupService {
 	
 	public Map<String, String> getDepartments();
 	
-	public String findPracDepartment(String primaryOrgUnit);
+	public Department findPracDepartment(String primaryOrgUnit);
 	
 	/**
 	 * This is what the service should use when determining the current time.

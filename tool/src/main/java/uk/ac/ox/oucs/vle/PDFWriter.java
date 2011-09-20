@@ -103,7 +103,7 @@ public class PDFWriter
     		
     		// Presenter
     		paragraph = new Paragraph();
-    		phrase = new Phrase("\nPresenter: " + courseComponent.getPresenter(), authorFont);
+    		phrase = new Phrase("\nPresenter: " + courseComponent.getPresenter().getName(), authorFont);
     		paragraph.add(phrase);
     		paragraph.setIndentationLeft(25);
     		paragraph.setIndentationRight(25);
@@ -134,12 +134,14 @@ public class PDFWriter
     
     public void writeTableHead() throws IOException {
     	
-    	table = new PdfPTable(new float[]{1f, 2f});
+    	table = new PdfPTable(new float[]{1f, 1f, 1f, 2f});
     	table.setWidthPercentage(90);
     	table.setSpacingBefore(10f);
 
     	table.addCell(headCell("Name", tableHeadFont));
-    	table.addCell(headCell("I confirm that I attended this session", tableHeadFont));
+    	table.addCell(headCell("Department", tableHeadFont));
+    	table.addCell(headCell("OSS Number", tableHeadFont));
+    	table.addCell(headCell("I confirm that I attended", tableHeadFont));
 
     	table.setHeaderRows(1);
     }
@@ -147,6 +149,8 @@ public class PDFWriter
     public void writeTableBody(List<Person> people) throws IOException {
     	for (Person person : people) {
     		table.addCell(nameCell(person.getName(), tableFont));
+    		table.addCell(nameCell(person.getDepartmentName(), tableFont));
+    		table.addCell(nameCell(person.getWebauthId(), tableFont));
     		table.addCell(nameCell("", tableFont));
     	}
     }
@@ -154,6 +158,8 @@ public class PDFWriter
     public void writeTableFoot() throws IOException {
     	try {
     		for (int i = 0; i < 5; i++) {
+    			table.addCell(nameCell("", tableFont));
+    			table.addCell(nameCell("", tableFont));
     			table.addCell(nameCell("", tableFont));
     			table.addCell(nameCell("", tableFont));
     		}
