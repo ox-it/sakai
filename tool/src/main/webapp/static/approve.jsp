@@ -87,7 +87,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		                "fnRender": function(aObj){
 		                	return "<input type='checkbox' name='"+aObj.aData[0]+"' />";
 		            	}
-		            },],
+		            }],
 		            "fnServerData": function(sSource, aoData, fnCallback){
 		                jQuery.ajax({
 		                    dataType: "json",
