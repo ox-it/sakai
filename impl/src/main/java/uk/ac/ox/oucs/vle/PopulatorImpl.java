@@ -502,6 +502,7 @@ public class PopulatorImpl implements Populator{
 		Set<String> approvers = new HashSet<String>();
 		ResultSet rs = st.executeQuery(
 				"SELECT Department.department_code, Department.department_name, " +
+				"Department.third_level_approval, " +
 				"Employee.webauth_code " +
 				"FROM Department " +
 				"LEFT JOIN Employee ON Department.id = Employee.department_id " +
@@ -523,7 +524,7 @@ public class PopulatorImpl implements Populator{
 				
 				lastDepartment = departmentCode;
 				departmentName = rs.getString("department_name");
-				//approve = rs.getBoolean("approve");
+				approve = rs.getBoolean("third_level_approval");
 			}
 			String approver = rs.getString("webauth_code");
 			if (null != approver) {
