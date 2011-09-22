@@ -449,7 +449,15 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 						};
 				//
 				// Switch to dropdown list.
-				$.getJSON("../rest/course/admin", function(data) {
+				$.ajax({"url": "../rest/course/admin",
+						"type": "GET",
+						"async": true,
+						"cache": false,
+						"success": 
+				
+				//$.getJSON("../rest/course/admin", 
+				
+				function(data) {
 					var options = "";
 					data.sort(function(x,y){
 						var a = x.title;
@@ -478,6 +486,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 					else {
 						$("#course-list").html('You are not an administrator on any modules.');
 					}
+				}
 				});
 				
 				Signup.util.autoresize();
