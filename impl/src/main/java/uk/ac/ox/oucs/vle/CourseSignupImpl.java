@@ -25,13 +25,13 @@ public class CourseSignupImpl implements CourseSignup {
 		UserProxy user = service.loadUser(dao.getUserId());
 		Person person = null;
 		String departmentName = null;
-		if (null != user.getPrimaryOrgUnit()) {
-			Department department = service.findPracDepartment(user.getPrimaryOrgUnit());
-			if (null != department) {
-				departmentName = department.getName();
-			}
-		}
 		if (user != null) {
+			if (null != user.getPrimaryOrgUnit()) {
+				Department department = service.findPracDepartment(user.getPrimaryOrgUnit());
+				if (null != department) {
+					departmentName = department.getName();
+				}
+			}
 			person = new PersonImpl(user.getId(), 
 					user.getFirstName(), user.getLastName(), user.getDisplayName(), 
 					user.getEmail(), user.getUnits(), user.getWebauthId(), 

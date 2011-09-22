@@ -87,11 +87,18 @@ public class CourseGroupImpl implements CourseGroup {
 			for (String component:  courseGroupDAO.getAdministrators()) {
 				UserProxy user = impl.loadUser(component);
 				if (null != user) {
+					String departmentName = null;
+					if (null != user.getPrimaryOrgUnit()) {
+						Department department = impl.findPracDepartment(user.getPrimaryOrgUnit());
+						if (null != department) {
+							departmentName = department.getName();
+						}
+					}
 					Person person = new PersonImpl(user.getId(), 
 							user.getFirstName(), user.getLastName(), user.getDisplayName(), 
 							user.getEmail(), Collections.<String>emptyList(), 
 							user.getWebauthId(), null, 
-							impl.findPracDepartment(user.getPrimaryOrgUnit()).getName(), user.getType());
+							departmentName, user.getType());
 					administrators.add(person);
 				}
 			}
@@ -106,11 +113,18 @@ public class CourseGroupImpl implements CourseGroup {
 			for (String component:  courseGroupDAO.getSuperusers()) {
 				UserProxy user = impl.loadUser(component);
 				if (null != user) {
+					String departmentName = null;
+					if (null != user.getPrimaryOrgUnit()) {
+						Department department = impl.findPracDepartment(user.getPrimaryOrgUnit());
+						if (null != department) {
+							departmentName = department.getName();
+						}
+					}
 					Person person = new PersonImpl(user.getId(), 
 							user.getFirstName(), user.getLastName(), user.getDisplayName(), 
 							user.getEmail(), Collections.<String>emptyList(), 
 							user.getWebauthId(), null, 
-							impl.findPracDepartment(user.getPrimaryOrgUnit()).getName(), user.getType());
+							departmentName, user.getType());
 					superusers.add(person);
 				}
 			}
