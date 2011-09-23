@@ -45,9 +45,15 @@ public class AttendanceWriter {
 		
 		for (CourseSignup signup : signups) {
 			Element attendee = new Element("student");
+			
 			Element sid = new Element("webauth_id");
 			sid.setText(signup.getUser().getWebauthId());
 			attendee.addContent(sid);
+			
+			Element ssn = new Element("name");
+			ssn.setText(signup.getUser().getName());
+			attendee.addContent(ssn);
+			
 			Element sst = new Element("status");
 			sst.setText(signup.getStatus().name());
 			attendee.addContent(sst);
