@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -221,6 +221,20 @@ public interface Context
 	String getScript();
 
 	/**
+	 * Get any text collected on the secondary stream. Cancels the secondary stream collection.
+	 * 
+	 * @return The text, or an empty string if nothing was collected.
+	 */
+	String getSecondaryCollected();
+
+	/**
+	 * Access the secondary output writer.
+	 * 
+	 * @return The secondary output writer if defined, otherwise the primary.
+	 */
+	PrintWriter getSecondaryResponseWriter();
+
+	/**
 	 * Get the top component of the interface being rendered.
 	 * 
 	 * @return The top component of the interface being rendered.
@@ -347,6 +361,11 @@ public interface Context
 	 *        The the previous tool destination.
 	 */
 	void setPreviousDestination(String destination);
+
+	/**
+	 * Go into secondary collecting mode : any text that would be sent to the secondary writer is separately collected.
+	 */
+	void setSecondaryCollecting();
 
 	/**
 	 * Set the top component of the interface being rendered.

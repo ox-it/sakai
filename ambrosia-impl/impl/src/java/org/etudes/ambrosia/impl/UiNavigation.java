@@ -1058,13 +1058,15 @@ public class UiNavigation extends UiComponent implements Navigation
 
 			if (confirm)
 			{
-				response.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; left:0px; top:0px; width:390px; height:130px\" id=\"confirm_"
+				//  - put it on the secondary output stream
+				PrintWriter secondary = context.getSecondaryResponseWriter();
+				secondary.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; left:0px; top:0px; width:390px; height:130px\" id=\"confirm_"
 						+ id + "\">");
-				response.println("<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr>");
-				response.println("<td colspan=\"2\" style=\"padding:1em; white-space:normal; line-height:1em; \" align=\"left\">"
+				secondary.println("<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr>");
+				secondary.println("<td colspan=\"2\" style=\"padding:1em; white-space:normal; line-height:1em; \" align=\"left\">"
 						+ this.confirmMsg.getMessage(context, focus) + "</td>");
-				response.println("</tr><tr>");
-				response.println("<td style=\"padding:1em\" align=\"left\"><input type=\"button\" value=\""
+				secondary.println("</tr><tr>");
+				secondary.println("<td style=\"padding:1em\" align=\"left\"><input type=\"button\" value=\""
 						+ this.confirmCancelMsg.getMessage(context, focus)
 						+ "\" onclick=\"hideConfirm('confirm_"
 						+ id
@@ -1073,26 +1075,27 @@ public class UiNavigation extends UiComponent implements Navigation
 						+ "()');return false;\" "
 						+ ((this.confirmCancelIcon != null) ? "style=\"padding-left:2em; background: #eee url('"
 								+ context.getUrl(this.confirmCancelIcon) + "') .2em no-repeat;\"" : "") + "/></td>");
-				response.print("<td style=\"padding:1em\" align=\"right\"><input type=\"button\" value=\"" + title
+				secondary.print("<td style=\"padding:1em\" align=\"right\"><input type=\"button\" value=\"" + title
 						+ "\" onclick=\"hideConfirm('confirm_" + id + "','act_" + id + "();');return false;\"");
 				if (selectedIcon != null)
 				{
-					response.print(" style=\"padding-left:2em; background: #eee url('" + context.getUrl(selectedIcon) + "') .2em no-repeat;\"");
+					secondary.print(" style=\"padding-left:2em; background: #eee url('" + context.getUrl(selectedIcon) + "') .2em no-repeat;\"");
 				}
-				response.println("/></td>");
-				response.println("</tr></table></div>");
+				secondary.println("/></td>");
+				secondary.println("</tr></table></div>");
 			}
 
 			if (selectRequirements || failedRequirements)
 			{
-				// the "failure" panel shown if requirements are not met
-				response.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; left:0px; top:0px; width:390px; height:130px\" id=\"failure_"
+				// the "failure" panel shown if requirements are not met - put it on the secondary output stream
+				PrintWriter secondary = context.getSecondaryResponseWriter();
+				secondary.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; left:0px; top:0px; width:390px; height:130px\" id=\"failure_"
 						+ id + "\">");
-				response.println("<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr>");
-				response.println("<td colspan=\"2\" style=\"padding:1em; white-space:normal; line-height:1em; \" align=\"left\">"
+				secondary.println("<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr>");
+				secondary.println("<td colspan=\"2\" style=\"padding:1em; white-space:normal; line-height:1em; \" align=\"left\">"
 						+ this.failedRequirements.getMessage(context, focus) + "</td>");
-				response.println("</tr><tr>");
-				response.println("<td style=\"padding:1em\" align=\"left\"><input type=\"button\" value=\""
+				secondary.println("</tr><tr>");
+				secondary.println("<td style=\"padding:1em\" align=\"left\"><input type=\"button\" value=\""
 						+ this.failedRequirementsOk.getMessage(context, focus)
 						+ "\" onclick=\"hideConfirm('failure_"
 						+ id
@@ -1100,7 +1103,7 @@ public class UiNavigation extends UiComponent implements Navigation
 						// TODO: do we need confirm cancel? -ggolden
 						+ ((this.requirementsOkIcon != null) ? "style=\"padding-left:2em; background: #eee url('"
 								+ context.getUrl(this.requirementsOkIcon) + "') .2em no-repeat;\"" : "") + "/></td>");
-				response.println("</tr></table></div>");
+				secondary.println("</tr></table></div>");
 
 				// validation function
 				StringBuffer script = new StringBuffer();

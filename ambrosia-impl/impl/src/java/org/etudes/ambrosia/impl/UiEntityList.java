@@ -521,6 +521,9 @@ public class UiEntityList extends UiComponent implements EntityList
 					+ "\");ambrosiaHideColumn(\"table_" + id + "\"," + colHide + ");}});});\n");
 		}
 
+		// collect secondary output to go *after* the table
+		context.setSecondaryCollecting();
+
 		// start the table
 		response.println("<table id=\"table_" + id + "\" class=\"ambrosiaEntityListTable "
 				+ ((this.style == Style.flat) ? "ambrosiaEntityListFlat" : "ambrosiaEntityListForm") + "\" cellpadding=\"0\" cellspacing=\"0\" >");
@@ -956,6 +959,10 @@ public class UiEntityList extends UiComponent implements EntityList
 		}
 
 		response.println("</div>");
+
+		// now output any secondary text collected
+		String more = context.getSecondaryCollected();
+		response.print(more);
 
 		return true;
 	}

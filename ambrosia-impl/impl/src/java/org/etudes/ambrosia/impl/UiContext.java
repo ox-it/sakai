@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -281,6 +281,12 @@ public class UiContext implements Context
 	/** Collect various javascript. */
 	protected StringBuffer scriptCode = new StringBuffer();
 
+	/** The stream collecting the bytes behind the secondaryWriter. */
+	protected ByteArrayOutputStream secondaryStream = null;
+
+	/** A print write to use to collect a secondary output stream. */
+	protected PrintWriter secondaryWriter = null;
+
 	/** The UiService. */
 	protected UiService service = null;
 
@@ -546,6 +552,51 @@ public class UiContext implements Context
 	/**
 	 * {@inheritDoc}
 	 */
+	public String getSecondaryCollected()
+	{
+		if (this.secondaryStream == null) return "";
+
+		String rv = "";
+
+		// close the stream
+		try
+		{
+			// flush
+			this.secondaryWriter.flush();
+
+			// read
+			rv = this.secondaryStream.toString();
+
+			// close the writer
+			this.secondaryWriter.close();
+
+			// close the stream
+			this.secondaryStream.close();
+		}
+		catch (IOException e)
+		{
+		}
+
+		// clear out of secondary collection mode
+		this.secondaryStream = null;
+		this.secondaryWriter = null;
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public PrintWriter getSecondaryResponseWriter()
+	{
+		if (this.secondaryWriter != null) return this.secondaryWriter;
+
+		return getResponseWriter();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Component getUi()
 	{
 		return this.ui;
@@ -712,6 +763,15 @@ public class UiContext implements Context
 	public void setResponseWriter(PrintWriter writer)
 	{
 		this.writer = writer;
+	}
+
+	public void setSecondaryCollecting()
+	{
+		if (this.secondaryStream == null)
+		{
+			this.secondaryStream = new ByteArrayOutputStream();
+			this.secondaryWriter = new PrintWriter(this.secondaryStream);
+		}
 	}
 
 	/**

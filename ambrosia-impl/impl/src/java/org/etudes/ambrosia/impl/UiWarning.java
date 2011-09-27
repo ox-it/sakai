@@ -115,15 +115,16 @@ public class UiWarning extends UiComponent implements Warning
 			msg = this.message.getMessage(context, focus);
 		}
 
-		// the "failure" panel shown if requirements are not met
-		response.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; left:0px; top:0px; width:340px; height:120px\" id=\"warning_"
+		// the "failure" panel shown if requirements are not met - put it on the secondary output stream
+		PrintWriter secondary = context.getSecondaryResponseWriter();
+		secondary.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; left:0px; top:0px; width:340px; height:120px\" id=\"warning_"
 				+ id + "\">");
-		response.println("<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr>");
-		response.println("<td colspan=\"2\" style=\"padding:1em; white-space:normal; line-height:1em; \" align=\"left\">" + msg + "</td>");
-		response.println("</tr><tr>");
-		response.println("<td style=\"padding:1em\" align=\"left\"><input type=\"button\" value=\"" + this.okMsg.getMessage(context, focus)
+		secondary.println("<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr>");
+		secondary.println("<td colspan=\"2\" style=\"padding:1em; white-space:normal; line-height:1em; \" align=\"left\">" + msg + "</td>");
+		secondary.println("</tr><tr>");
+		secondary.println("<td style=\"padding:1em\" align=\"left\"><input type=\"button\" value=\"" + this.okMsg.getMessage(context, focus)
 				+ "\" onclick=\"hideConfirm('warning_" + id + "','');return false;\" " + "/></td>");
-		response.println("</tr></table></div>");
+		secondary.println("</tr></table></div>");
 
 		// popup function
 		StringBuffer script = new StringBuffer();
