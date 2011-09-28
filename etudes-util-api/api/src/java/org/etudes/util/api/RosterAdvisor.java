@@ -28,16 +28,23 @@ import java.util.List;
  */
 public interface RosterAdvisor
 {
+	enum RosterAccessType
+	{
+		user, alert, syllabus, melete, jforum, mneme
+	};
+
 	/**
 	 * Create a well formatted roster access code.
 	 * 
 	 * @param context
 	 *        The site id.
-	 * @param userId
-	 *        For sending to a single user, set this, else leave it null.
+	 * @param type
+	 *        The type of roster access requested.
+	 * @param id
+	 *        id related to the type.
 	 * @return The roster access code.
 	 */
-	String encode(String context, String userId);
+	String encode(String context, RosterAccessType type, String id);
 
 	/**
 	 * Access a set of users based on a roster access code.
