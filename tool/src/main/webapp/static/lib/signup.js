@@ -563,6 +563,14 @@ var Signup = function(){
                                 "url": "../rest/signup/" + id + "/reject"
                             }];
                         case "APPROVED":
+                        	return [{
+                                "name": "Confirm",
+                                "url": "../rest/signup/" + id + "/confirm"
+                            }, {
+                                "name": "Reject",
+                                "url": "../rest/signup/" + id + "/reject"
+                            }];
+                        case "CONFIRMED":
                             return [];
                         case "REJECTED":
                             return [];
