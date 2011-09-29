@@ -32,6 +32,10 @@
 		<filter-class>uk.ac.ox.oucs.vle.AuthenticatedRequestFilter</filter-class>
 	</filter>
 	-->
+	<filter>
+		<filter-name>require.basicauthentication</filter-name>
+		<filter-class>uk.ac.ox.oucs.vle.BasicAuthenticatedRequestFilter</filter-class>
+	</filter>
 
 	<filter-mapping>
 		<filter-name>sakai.request</filter-name>
@@ -57,6 +61,13 @@
 		<dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
 	-->
+	<filter-mapping>
+		<filter-name>require.basicauthentication</filter-name>
+		<servlet-name>Jersey Web BasicAuth Application</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
 	<filter>
 		<filter-name>hibernate-session</filter-name>
 		<filter-class>org.springframework.orm.hibernate3.support.OpenSessionInViewFilter</filter-class>
@@ -88,6 +99,16 @@
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>Jersey Web BasicAuth Application</servlet-name>
+		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+		<init-param>
+			<param-name>com.sun.jersey.config.property.packages</param-name>
+			<param-value>uk.ac.ox.oucs.vle</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
 
 	<servlet>
 		<servlet-name>course.signup</servlet-name>
@@ -106,6 +127,12 @@
 		<!--  So we can access the static content. -->
 		<servlet-name>Jersey Web Application</servlet-name>
 		<url-pattern>/rest/*</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<!--  So we can access the static content. -->
+		<servlet-name>Jersey Web BasicAuth Application</servlet-name>
+		<url-pattern>/auth_rest/*</url-pattern>
 	</servlet-mapping>
 	
 </web-app>

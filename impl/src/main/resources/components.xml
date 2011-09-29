@@ -47,6 +47,7 @@
 			<bean class="uk.ac.ox.oucs.vle.CourseSignupServiceImpl">
 				<property name="dao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="proxy" ref="uk.ac.ox.oucs.vle.sakai.SakaiProxy" />
+				<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 			</bean>
 		</property>
 		<property name="transactionManager" ref="transactionManager"/>

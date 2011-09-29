@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
 public class CourseSignupServiceImpl implements CourseSignupService {
@@ -20,10 +21,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	private final static ResourceLoader rb = new ResourceLoader("messages");
 	
-	private final static String DAISYUSER = "admin";
-
 	private CourseDAO dao;
 	private SakaiProxy proxy;
+	private ServerConfigurationService serverConfigurationService;
 
 	private long adjustment;
 	
@@ -33,6 +33,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	public void setProxy(SakaiProxy proxy) {
 		this.proxy = proxy;
+	}
+	
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
 	}
 
 	/**
@@ -395,7 +400,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	private boolean isAdministrator(CourseComponentDAO componentDao,
 			String userId, boolean defaultValue) {
 		
-		if (userId.equals(DAISYUSER)) {
+		if (userId.equals(this.getDaisyAdmin())) {
 			return true;
 		}
 		for (CourseGroupDAO groupDao: componentDao.getGroups()) {
@@ -908,6 +913,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		} else {
 			throw new PermissionDeniedException(currentUserId);
 		}
+	}
+	
+	protected String getDaisyAdmin() {
+		return serverConfigurationService.getString("daisy.administrator", "admin");
 	}
 	
 }
