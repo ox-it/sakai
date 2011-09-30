@@ -61,25 +61,25 @@ public interface CourseDAO {
 	
 	List<CourseSignupDAO> findSignupApproval(String currentUser);
 	
-	List<DepartmentDAO> findApproverDepartments(String currentUserId);
+	List<CourseDepartmentDAO> findApproverDepartments(String currentUserId);
 	
 	List<Object[]> findDepartmentApprovers(final String department);
 	
-	List<DepartmentDAO> findAllDepartments();
+	List<CourseDepartmentDAO> findAllDepartments();
 	
-	DepartmentDAO findDepartmentByCode(String code);
+	CourseDepartmentDAO findDepartmentByCode(String code);
 	
-	DepartmentDAO findDepartmentByPrimaryOrgUnit(String primaryorgUnit);
+	CourseDepartmentDAO findDepartmentByPrimaryOrgUnit(String primaryorgUnit);
 	
-	void save(DepartmentDAO departmentDao);
+	void save(CourseDepartmentDAO departmentDao);
 	
 	CourseSubunitDAO findSubunitByCode(String code);
 	
 	void save(CourseSubunitDAO subunitDao);
 	
-	OucsDepartmentDAO findOucsDeptByCode(String code);
+	CourseOucsDepartmentDAO findOucsDeptByCode(String code);
 	
-	void save(OucsDepartmentDAO oucsDao);
+	void save(CourseOucsDepartmentDAO oucsDao);
 
 	void remove(CourseSignupDAO existingSignup);
 

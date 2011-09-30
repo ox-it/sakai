@@ -7,14 +7,14 @@
 		<param name="enumClass">uk.ac.ox.oucs.vle.CourseSignupService$Status</param>
 	</typedef>
 
-	<class name="uk.ac.ox.oucs.vle.DepartmentDAO" table="department">
+	<class name="uk.ac.ox.oucs.vle.CourseDepartmentDAO" table="course_department">
 		<!-- create the primary key id -->
 		<id name="code" type="string">
 			<column name="code" length="32"/>
 		</id>
 		<property name="name" type="string" length="256" />
 		<property name="approve" type="boolean"/>
-		<set name="approvers" inverse="false" lazy="true" table="department_approver">
+		<set name="approvers" inverse="false" lazy="true" table="course_department_approver">
 			<key column="department" not-null="true"/>
 			<element column="approver" type="string" length="64" />
 		</set>
@@ -29,7 +29,7 @@
 		<property name="departmentCode" type="string" length="32"/>
 	</class>
 	
-	<class name="uk.ac.ox.oucs.vle.OucsDepartmentDAO" table="oucs_department">
+	<class name="uk.ac.ox.oucs.vle.CourseOucsDepartmentDAO" table="course_oucs_department">
 		<!-- create the primary key id -->
 		<id name="cardCode" type="string">
 			<column name="cardCode" length="6"/>

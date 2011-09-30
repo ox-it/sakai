@@ -511,9 +511,9 @@ public class PopulatorImpl implements Populator{
 			departmentCode = rs.getString("department_code");
 			if (!departmentCode.equals(lastDepartment)) {
 				if (lastDepartment != null) {
-					DepartmentDAO departmentDao = dao.findDepartmentByCode(lastDepartment);
+					CourseDepartmentDAO departmentDao = dao.findDepartmentByCode(lastDepartment);
 					if (null == departmentDao) {
-						departmentDao = new DepartmentDAO(lastDepartment);
+						departmentDao = new CourseDepartmentDAO(lastDepartment);
 					}
 					departmentDao.setName(departmentName);
 					departmentDao.setApprove(approve);
@@ -538,9 +538,9 @@ public class PopulatorImpl implements Populator{
 		}
 		
 		if (lastDepartment != null) {
-			DepartmentDAO departmentDao = dao.findDepartmentByCode(lastDepartment);
+			CourseDepartmentDAO departmentDao = dao.findDepartmentByCode(lastDepartment);
 			if (null == departmentDao) {
-				departmentDao = new DepartmentDAO(lastDepartment);
+				departmentDao = new CourseDepartmentDAO(lastDepartment);
 			}
 			departmentDao.setName(departmentName);
 			departmentDao.setApprove(approve);

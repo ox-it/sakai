@@ -177,12 +177,12 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<DepartmentDAO> findAllDepartments() {
+	public List<CourseDepartmentDAO> findAllDepartments() {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			// Need the DISTINCT ROOT ENTITY filter.
 			public Object doInHibernate(Session session) throws HibernateException,
 					SQLException {
-				Query query = session.createSQLQuery("select * from department").addEntity(DepartmentDAO.class);
+				Query query = session.createSQLQuery("select * from course_department").addEntity(CourseDepartmentDAO.class);
 				return query.list();
 			}
 			
@@ -348,7 +348,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 						"left join course_group_administrator ca on cs.groupId = ca.course_group " +
 						"inner join course_component_signup cp on cs.id = cp.signup " +
 						"inner join course_component cc on cp.component = cc.id " +
-						"inner join department_approver da on da.department = cs.department " +
+						"inner join course_department_approver da on da.department = cs.department " +
 						"where da.approver = :userId and cs.status = :approverStatus").addEntity(CourseSignupDAO.class);
 				query.setString("userId", userId);
 				query.setParameter("approverStatus", Status.APPROVED.name());
@@ -398,13 +398,13 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
-	public List<DepartmentDAO> findApproverDepartments(final String userId) {
+	public List<CourseDepartmentDAO> findApproverDepartments(final String userId) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				Query query = session.createSQLQuery(
-						"select * from department_approver " +
-						"left join department on department.code = department_approver.department " +
-						"where approver = :userId").addEntity(DepartmentDAO.class);
+						"select * from course_department_approver " +
+						"left join course_department on course_department.code = course_department_approver.department " +
+						"where approver = :userId").addEntity(CourseDepartmentDAO.class);
 				query.setString("userId", userId);
 				return query.list();
 			}
@@ -419,7 +419,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				Query query = session.createSQLQuery(
-						"select approver from department_approver " +
+						"select approver from course_department_approver " +
 						"where department = :deptId");
 				query.setString("deptId", department);
 				return query.list();
@@ -430,14 +430,14 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	/**
 	 * 
 	 */
-	public DepartmentDAO findDepartmentByCode(String code) {
-		return (DepartmentDAO) getHibernateTemplate().get(DepartmentDAO.class, code);
+	public CourseDepartmentDAO findDepartmentByCode(String code) {
+		return (CourseDepartmentDAO) getHibernateTemplate().get(CourseDepartmentDAO.class, code);
 	}
 	
 	/**
 	 * 
 	 */
-	public void save(DepartmentDAO departmentDao) {
+	public void save(CourseDepartmentDAO departmentDao) {
 		getHibernateTemplate().save(departmentDao).toString();
 	}
 	
@@ -458,29 +458,29 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	/**
 	 * 
 	 */
-	public OucsDepartmentDAO findOucsDeptByCode(String code) {
-		return (OucsDepartmentDAO) getHibernateTemplate().get(OucsDepartmentDAO.class, code);
+	public CourseOucsDepartmentDAO findOucsDeptByCode(String code) {
+		return (CourseOucsDepartmentDAO) getHibernateTemplate().get(CourseOucsDepartmentDAO.class, code);
 	}
 	
 	/**
-	 * select departmentCode from course_subunit left join oucs_department on t2Char = subunitCode where oucsCode = 'histfac'
+	 * select departmentCode from course_subunit left join course_oucs_department on t2Char = subunitCode where oucsCode = 'histfac'
 	 */
 	@SuppressWarnings("unchecked")
-	public DepartmentDAO findDepartmentByPrimaryOrgUnit(final String primaryOrgUnit) {
+	public CourseDepartmentDAO findDepartmentByPrimaryOrgUnit(final String primaryOrgUnit) {
 		
 		List<Object> results = getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				Query query = session.createSQLQuery(
-						"select * from department " +
-						"left join course_subunit on course_subunit.departmentCode = department.code " +
-						"left join oucs_department on t2Char = subunitCode " +
-						"where oucsCode = :oucsDept").addEntity(DepartmentDAO.class);
+						"select * from course_department " +
+						"left join course_subunit on course_subunit.departmentCode = course_department.code " +
+						"left join course_oucs_department on t2Char = subunitCode " +
+						"where oucsCode = :oucsDept").addEntity(CourseDepartmentDAO.class);
 				query.setString("oucsDept", primaryOrgUnit);
 				return query.list();
 			}
 		});
 		if (!results.isEmpty()) {
-			return (DepartmentDAO)results.get(0);
+			return (CourseDepartmentDAO)results.get(0);
 		}
 		return null;
 	}
@@ -488,7 +488,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	/**
 	 * 
 	 */
-	public void save(OucsDepartmentDAO oucsDao) {
+	public void save(CourseOucsDepartmentDAO oucsDao) {
 		getHibernateTemplate().save(oucsDao).toString();
 	}
 	

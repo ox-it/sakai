@@ -68,7 +68,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		//departmental approval
 		boolean departmentApproval = false;
 		if (null != signupDao.getDepartment()) {
-			DepartmentDAO departmentDao = dao.findDepartmentByCode(signupDao.getDepartment());
+			CourseDepartmentDAO departmentDao = dao.findDepartmentByCode(signupDao.getDepartment());
 			if (null != departmentDao) {
 				departmentApproval = departmentDao.getApprove();
 				if (!departmentDao.getApprovers().isEmpty()) {
@@ -123,7 +123,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		
 		if (null != signupDao.getDepartment()) {
 			
-			DepartmentDAO department = dao.findDepartmentByCode(signupDao.getDepartment());
+			CourseDepartmentDAO department = dao.findDepartmentByCode(signupDao.getDepartment());
 		
 			if (null != department) {
 				if (groupDao.getDept().equals(signupDao.getDepartment())) {
@@ -166,16 +166,16 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		
 		boolean departmentApproval = false;
 		if (null != signupDao.getDepartment()) {
-			DepartmentDAO department = dao.findDepartmentByCode(signupDao.getDepartment());
+			CourseDepartmentDAO department = dao.findDepartmentByCode(signupDao.getDepartment());
 			if (null != department) {
 				departmentApproval = department.getApprove();
 			}
 		}
 			
 		if (departmentApproval) {
-			List<DepartmentDAO> departments = dao.findApproverDepartments(currentUserId);
+			List<CourseDepartmentDAO> departments = dao.findApproverDepartments(currentUserId);
 			boolean canConfirm = false;
-			for (DepartmentDAO dept : departments) {
+			for (CourseDepartmentDAO dept : departments) {
 				if (dept.getCode().equals(signupDao.getDepartment())) {
 					canConfirm = true;
 					break;
@@ -865,9 +865,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 	
 	public Map<String, String> getDepartments() {
-		List<DepartmentDAO> subNodes = dao.findAllDepartments();
+		List<CourseDepartmentDAO> subNodes = dao.findAllDepartments();
 		Map<String, String> departments = new HashMap<String, String>();
-		for (DepartmentDAO departmentDAO : subNodes) {
+		for (CourseDepartmentDAO departmentDAO : subNodes) {
 			departments.put(departmentDAO.getCode(), departmentDAO.getName());
 		}
 		return departments;
@@ -890,7 +890,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 	
 	public Department findPracDepartment(String primaryOrgUnit) {
-		DepartmentDAO department = dao.findDepartmentByPrimaryOrgUnit(primaryOrgUnit);
+		CourseDepartmentDAO department = dao.findDepartmentByPrimaryOrgUnit(primaryOrgUnit);
 		if (null == department) {
 			return null;
 		}

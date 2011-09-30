@@ -16,7 +16,7 @@ public class DepartmentImpl implements Department {
 		this.name = name;
 	}
 	
-	public DepartmentImpl(DepartmentDAO dao) {
+	public DepartmentImpl(CourseDepartmentDAO dao) {
 		this.pracCode = dao.getCode();
 		this.name = dao.getName();
 		this.approve = dao.getApprove();

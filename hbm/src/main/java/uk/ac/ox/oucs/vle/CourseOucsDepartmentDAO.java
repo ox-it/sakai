@@ -1,7 +1,7 @@
 package uk.ac.ox.oucs.vle;
 
 
-public class OucsDepartmentDAO implements java.io.Serializable {
+public class CourseOucsDepartmentDAO implements java.io.Serializable {
 	
 	/**
 	 * 
@@ -15,10 +15,10 @@ public class OucsDepartmentDAO implements java.io.Serializable {
     private String t2Char;
     private String cardCode;
     
-    public OucsDepartmentDAO() {
+    public CourseOucsDepartmentDAO() {
     }
     
-    public OucsDepartmentDAO(String code) {
+    public CourseOucsDepartmentDAO(String code) {
         this.cardCode = code;
     }
     

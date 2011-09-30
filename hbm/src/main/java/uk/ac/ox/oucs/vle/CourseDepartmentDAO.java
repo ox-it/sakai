@@ -3,7 +3,7 @@ package uk.ac.ox.oucs.vle;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DepartmentDAO implements java.io.Serializable {
+public class CourseDepartmentDAO implements java.io.Serializable {
 	
 	/**
 	 * 
@@ -14,10 +14,10 @@ public class DepartmentDAO implements java.io.Serializable {
     private boolean approve;
     private Set<String> approvers  = new HashSet<String>(0);
     
-    public DepartmentDAO() {
+    public CourseDepartmentDAO() {
     }
     
-    public DepartmentDAO(String code) {
+    public CourseDepartmentDAO(String code) {
     	this.code = code;
         this.approve = true;
     }

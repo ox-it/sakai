@@ -89,9 +89,9 @@ public class OucsDeptImpl implements Module {
 			}
 		}
 		
-		OucsDepartmentDAO oucsDao = dao.findOucsDeptByCode(card_code);
+		CourseOucsDepartmentDAO oucsDao = dao.findOucsDeptByCode(card_code);
 		if (null == oucsDao) {
-			oucsDao = new OucsDepartmentDAO(card_code);
+			oucsDao = new CourseOucsDepartmentDAO(card_code);
 		}
 		oucsDao.setOucsCode(oucs_code);
 		oucsDao.setNickName(nickname);
