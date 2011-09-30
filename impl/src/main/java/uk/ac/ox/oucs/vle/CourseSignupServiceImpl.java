@@ -519,7 +519,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setCreated(getNow());
 		signupDao.setGroup(groupDao);
 		signupDao.setStatus(Status.PENDING);
-		signupDao.setDepartment(findPracDepartment(user.getPrimaryOrgUnit()).getPracCode());
+		Department department = findPracDepartment(user.getPrimaryOrgUnit());
+		if (null != department) {
+			signupDao.setDepartment(department.getPracCode());
+		} else {
+			signupDao.setDepartment(null);
+		}
 		String signupId = dao.save(signupDao);
 		
 		for (CourseComponentDAO componentDao: componentDaos) {
@@ -620,7 +625,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			signupDao.setStatus(Status.PENDING);
 		}
 		signupDao.setMessage(message);
-		signupDao.setDepartment(findPracDepartment(user.getPrimaryOrgUnit()).getPracCode());
+		Department department = findPracDepartment(user.getPrimaryOrgUnit());
+		if (null != department) {
+			signupDao.setDepartment(department.getPracCode());
+		} else {
+			signupDao.setDepartment(null);
+		}
 		String signupId = dao.save(signupDao);
 		
 		// We're going to decrement the places on acceptance.
