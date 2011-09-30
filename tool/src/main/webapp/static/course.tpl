@@ -117,12 +117,11 @@
 									{/if}
                             	</td>
                             	<td>
-                            	
 									{if option.signup && option.signup.status != "WITHDRAWN"}
 										Signup: ${option.signup.status}
 									{else}
 										{if signup}
-                                			{if part.options.length = 1}
+                                			{if part.options.length == 1}
 												<input type="checkbox" name="${part.type.id}" id="option-${option.id}" value="${option.id}" 
 												{if !option.open }disabled="true"{else}{var oneOpen = true}checked="yes"{/if}/>
 											{else}
@@ -130,7 +129,7 @@
 												{if !option.open }disabled="true"{else}{var oneOpen = true}{/if}/>
 											{/if}
 								 		{/if}
-									{/if}
+									{/if}	
                             	</td>
                         	</tr>
 							{/for}
