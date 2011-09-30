@@ -444,14 +444,14 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	/**
 	 * 
 	 */
-	public SubunitDAO findSubunitByCode(String code) {
-		return (SubunitDAO) getHibernateTemplate().get(SubunitDAO.class, code);
+	public CourseSubunitDAO findSubunitByCode(String code) {
+		return (CourseSubunitDAO) getHibernateTemplate().get(CourseSubunitDAO.class, code);
 	}
 	
 	/**
 	 * 
 	 */
-	public void save(SubunitDAO subunitDao) {
+	public void save(CourseSubunitDAO subunitDao) {
 		getHibernateTemplate().save(subunitDao).toString();
 	}
 	
@@ -463,7 +463,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 	
 	/**
-	 * select departmentCode from subunit left join oucs_department on t2Char = subunitCode where oucsCode = 'histfac'
+	 * select departmentCode from course_subunit left join oucs_department on t2Char = subunitCode where oucsCode = 'histfac'
 	 */
 	@SuppressWarnings("unchecked")
 	public DepartmentDAO findDepartmentByPrimaryOrgUnit(final String primaryOrgUnit) {
@@ -472,7 +472,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			public Object doInHibernate(Session session) {
 				Query query = session.createSQLQuery(
 						"select * from department " +
-						"left join subunit on subunit.departmentCode = department.code " +
+						"left join course_subunit on course_subunit.departmentCode = department.code " +
 						"left join oucs_department on t2Char = subunitCode " +
 						"where oucsCode = :oucsDept").addEntity(DepartmentDAO.class);
 				query.setString("oucsDept", primaryOrgUnit);

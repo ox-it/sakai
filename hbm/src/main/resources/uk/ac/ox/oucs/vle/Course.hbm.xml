@@ -20,7 +20,7 @@
 		</set>
 	</class>
 	
-	<class name="uk.ac.ox.oucs.vle.SubunitDAO" table="subunit">
+	<class name="uk.ac.ox.oucs.vle.CourseSubunitDAO" table="course_subunit">
 		<!-- create the primary key id -->
 		<id name="subunitCode" type="string">
 			<column name="subunitCode" length="32"/>

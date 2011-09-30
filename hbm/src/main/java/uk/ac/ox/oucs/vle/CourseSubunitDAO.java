@@ -1,7 +1,7 @@
 package uk.ac.ox.oucs.vle;
 
 
-public class SubunitDAO implements java.io.Serializable {
+public class CourseSubunitDAO implements java.io.Serializable {
 	
 	/**
 	 * 
@@ -11,10 +11,10 @@ public class SubunitDAO implements java.io.Serializable {
     private String subunitName;
     private String departmentCode;
     
-    public SubunitDAO() {
+    public CourseSubunitDAO() {
     }
     
-    public SubunitDAO(String code) {
+    public CourseSubunitDAO(String code) {
         this.subunitCode = code;
     }
     

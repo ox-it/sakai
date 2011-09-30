@@ -73,9 +73,9 @@ public interface CourseDAO {
 	
 	void save(DepartmentDAO departmentDao);
 	
-	SubunitDAO findSubunitByCode(String code);
+	CourseSubunitDAO findSubunitByCode(String code);
 	
-	void save(SubunitDAO subunitDao);
+	void save(CourseSubunitDAO subunitDao);
 	
 	OucsDepartmentDAO findOucsDeptByCode(String code);
 	

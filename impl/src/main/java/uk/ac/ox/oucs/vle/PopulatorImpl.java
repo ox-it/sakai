@@ -569,9 +569,9 @@ public class PopulatorImpl implements Populator{
 			subunitName = rs.getString("sub_unit_name");
 			departmentCode = rs.getString("department_code");
 			
-			SubunitDAO subunitDao = dao.findSubunitByCode(subunitCode);
+			CourseSubunitDAO subunitDao = dao.findSubunitByCode(subunitCode);
 			if (null == subunitDao) {
-				subunitDao = new SubunitDAO(subunitCode);
+				subunitDao = new CourseSubunitDAO(subunitCode);
 			}
 			subunitDao.setSubunitName(subunitName);
 			subunitDao.setDepartmentCode(departmentCode);
