@@ -45,22 +45,28 @@ public class AttendanceWriter {
 		
 		for (CourseSignup signup : signups) {
 			Element attendee = new Element("student");
+			Person person = signup.getUser();
 			
 			Element sid = new Element("webauth_id");
-			sid.setText(signup.getUser().getWebauthId());
+			sid.setText(person.getWebauthId());
 			attendee.addContent(sid);
 			
+			Element sod = new Element("ossid");
+			if (null == person.getOssId()) {
+				sod.setText("null");
+			} else {
+				sod.setText(person.getOssId());
+			}
+			attendee.addContent(sod);
+			
 			Element ssn = new Element("name");
-			ssn.setText(signup.getUser().getName());
+			ssn.setText(person.getName());
 			attendee.addContent(ssn);
 			
 			Element sst = new Element("status");
 			sst.setText(signup.getStatus().name());
 			attendee.addContent(sst);
 			
-			//attendee.setAttribute("surname", signup.getUser().getLastName());
-			//attendee.setAttribute("forename", signup.getUser().getFirstName());
-			//attendee.setAttribute("displayname", signup.getUser().getName());
 			students.addContent(attendee);
 		}
 		

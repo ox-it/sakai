@@ -25,6 +25,8 @@ public interface Person {
 	
 	public String getWebauthId();
 	
+	public String getOssId();
+	
 	public String getYearOfStudy();
 	
 	public String getDepartmentName();
