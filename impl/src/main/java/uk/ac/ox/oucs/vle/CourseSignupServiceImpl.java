@@ -367,9 +367,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (componentDao == null) {
 			throw new NotFoundException(componentId);
 		}
-		String currentUserId = proxy.getCurrentUser().getId();
-		if (!isAdministrator(componentDao, currentUserId, false)) {
-			throw new PermissionDeniedException(currentUserId);
+		UserProxy currentUser = proxy.getCurrentUser();
+		if (!isAdministrator(componentDao, currentUser, false)) {
+			throw new PermissionDeniedException(currentUser.getId());
 		}
 		List<CourseSignupDAO> signupDaos = dao.findSignupByComponent(componentId, statuses);
 		List<CourseSignup> signups = new ArrayList<CourseSignup>(signupDaos.size());
@@ -398,16 +398,19 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	private boolean isAdministrator(CourseComponentDAO componentDao,
-			String userId, boolean defaultValue) {
+			UserProxy user, boolean defaultValue) {
 		
-		if (userId.equals(this.getDaisyAdmin())) {
+		if (null == user) {
+			return false;
+		}
+		if (user.getEid().equals(this.getDaisyAdmin())) {
 			return true;
 		}
 		for (CourseGroupDAO groupDao: componentDao.getGroups()) {
-			if (groupDao.getAdministrators().contains(userId)) {
+			if (groupDao.getAdministrators().contains(user.getId())) {
 				return true;
 			}
-			if (groupDao.getSuperusers().contains(userId)) {
+			if (groupDao.getSuperusers().contains(user.getId())) {
 				return true;
 			}
 		}
