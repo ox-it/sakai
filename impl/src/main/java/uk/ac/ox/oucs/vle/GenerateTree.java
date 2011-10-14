@@ -9,6 +9,8 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonGenerator;
@@ -21,6 +23,8 @@ import org.codehaus.jackson.JsonGenerator;
  */
 public class GenerateTree {
 
+	private static final Log log = LogFactory.getLog(GenerateTree.class);
+	
 	private DataSource ds;
 	private JsonFactory factory;
 	
@@ -45,13 +49,11 @@ public class GenerateTree {
 			connection = ds.getConnection();
 			st = connection.createStatement();
 			
-			if(st.execute("SELECT Division.division_name, Division.division_code, "+
-					  "Department.department_name, Department.department_code, "+
-					  "SubUnit.sub_unit_code, SubUnit.sub_unit_name "+
-					  "FROM Division "+
-					  "INNER JOIN Department ON Department.division_code = Division.division_code "+
-					  "INNER JOIN SubUnit ON SubUnit.department_code = Department.department_code "+
-					  "ORDER BY 1,3,5")) {
+			if(st.execute("SELECT Division.division_name, Division.division_code, " + 
+					"  Department.department_name, Department.department_code " +  
+					"  FROM Division " + 
+					"  INNER JOIN Department ON Department.division_id = Division.id " + 
+					"  ORDER BY 1,3")) {
 			
 				rs = st.getResultSet();
 				String lastDivisionId = null;
@@ -63,9 +65,6 @@ public class GenerateTree {
 					String divisionId = rs.getString(2);
 					String departmentName = rs.getString(3);
 					String departmentCode = rs.getString(4);
-					
-					//String subUnitName = rs.getString(5);
-					//String subUnitCode = rs.getString(6);
 					
 					if (!departmentCode.equals(lastDepartmentCode)) {
 						if (lastDepartmentCode != null) {
@@ -83,8 +82,6 @@ public class GenerateTree {
 						startNode(generator,departmentCode, departmentName);
 						lastDepartmentCode = departmentCode;
 					}
-					//startNode(generator, subUnitCode, subUnitName);
-					//endNode(generator);
 					
 				}
 				if (lastDepartmentCode != null) {
@@ -100,14 +97,11 @@ public class GenerateTree {
 			}
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.warn("SQL Error", e);
 		} catch (JsonGenerationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.warn("Problem writing tree file.", e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.warn("Problem writing tree file.", e);
 		} finally {
 			if (rs != null) {
 				try {
