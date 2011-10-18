@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.List;
 
+import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
@@ -12,6 +13,7 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfChunk;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -40,7 +42,8 @@ public class PDFWriter
     private PdfPTable table;
 
     private Font tableHeadFont;
-    private Font tableFont;
+    private Font tableNameFont;
+    private Font tableOtherFont;
    
     private Font titleFont;
     private Font authorFont;
@@ -60,7 +63,8 @@ public class PDFWriter
             document.open();
 
             tableHeadFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 12, Font.NORMAL);
-            tableFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 11, Font.NORMAL);
+            tableNameFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 11, Font.NORMAL);
+            tableOtherFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 9, Font.NORMAL);
             titleFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 18, Font.NORMAL);
             authorFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 12, Font.NORMAL);
             infoFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 12, Font.NORMAL);
@@ -134,13 +138,11 @@ public class PDFWriter
     
     public void writeTableHead() throws IOException {
     	
-    	table = new PdfPTable(new float[]{1f, 1f, 1f, 2f});
+    	table = new PdfPTable(new float[]{3f, 2f});
     	table.setWidthPercentage(90);
     	table.setSpacingBefore(10f);
 
     	table.addCell(headCell("Name", tableHeadFont));
-    	table.addCell(headCell("Department", tableHeadFont));
-    	table.addCell(headCell("OSS Number", tableHeadFont));
     	table.addCell(headCell("I confirm that I attended", tableHeadFont));
 
     	table.setHeaderRows(1);
@@ -148,20 +150,16 @@ public class PDFWriter
     
     public void writeTableBody(List<Person> people) throws IOException {
     	for (Person person : people) {
-    		table.addCell(nameCell(person.getName(), tableFont));
-    		table.addCell(nameCell(person.getDepartmentName(), tableFont));
-    		table.addCell(nameCell(person.getWebauthId(), tableFont));
-    		table.addCell(nameCell("", tableFont));
+    		table.addCell(nameCell(person.getName(), person.getWebauthId(), person.getDepartmentName()));
+    		table.addCell("");
     	}
     }
     
     public void writeTableFoot() throws IOException {
     	try {
     		for (int i = 0; i < 5; i++) {
-    			table.addCell(nameCell("", tableFont));
-    			table.addCell(nameCell("", tableFont));
-    			table.addCell(nameCell("", tableFont));
-    			table.addCell(nameCell("", tableFont));
+    			table.addCell(nameCell("", "", ""));
+    			table.addCell("");
     		}
     		
     		Paragraph paragraph = new Paragraph();
@@ -174,8 +172,9 @@ public class PDFWriter
     }
     
     private PdfPCell headCell(String name, Font font) {
+    	
     	PdfPCell pdfCell = new PdfPCell(new Phrase(name, font));
-    	pdfCell.setFixedHeight(font.getSize()*2f);
+    	pdfCell.setMinimumHeight(font.getSize()*2f);
     	pdfCell.setHorizontalAlignment(Element.ALIGN_LEFT);
     	pdfCell.setVerticalAlignment(Element.ALIGN_CENTER);
     	pdfCell.setPaddingBottom(font.getSize()*0.5f);
@@ -184,16 +183,22 @@ public class PDFWriter
     	pdfCell.setPaddingRight(font.getSize());
     	return pdfCell;
     }
-    
-    private PdfPCell nameCell(String name, Font font) {
-    	PdfPCell pdfCell = new PdfPCell(new Phrase(name, font));
-    	pdfCell.setFixedHeight(font.getSize()*2f);
+   
+    private PdfPCell nameCell(String name, String ossId, String department) {
+    	
+    	Phrase phrase = new Phrase();
+    	phrase.add(new Chunk(name, tableNameFont));
+    	phrase.add(Chunk.NEWLINE);
+    	phrase.add(new Chunk(ossId+"  "+department, tableOtherFont));
+    	
+    	PdfPCell pdfCell = new PdfPCell(phrase);
+    	pdfCell.setMinimumHeight(tableNameFont.getSize()*2f);
     	pdfCell.setHorizontalAlignment(Element.ALIGN_LEFT);
     	pdfCell.setVerticalAlignment(Element.ALIGN_CENTER);
-    	pdfCell.setPaddingBottom(font.getSize()*0.5f);
-    	pdfCell.setPaddingTop(font.getSize()*0.5f);
-    	pdfCell.setPaddingLeft(font.getSize());
-    	pdfCell.setPaddingRight(font.getSize());
+    	pdfCell.setPaddingBottom(tableNameFont.getSize()*0.5f);
+    	pdfCell.setPaddingTop(tableNameFont.getSize()*0.5f);
+    	pdfCell.setPaddingLeft(tableNameFont.getSize());
+    	pdfCell.setPaddingRight(tableNameFont.getSize());
     	return pdfCell;
     }
 }
