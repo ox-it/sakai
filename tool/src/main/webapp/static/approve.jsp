@@ -31,7 +31,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<script type="text/javascript" src="lib/signup.js"></script>
 	<script type="text/javascript" src="lib/Text.js"></script>
 	<script type="text/javascript" src="lib/serverDate.js"></script>
-		<script type="text/javascript">
+	<script type="text/javascript">
 
 		$(function(){
 

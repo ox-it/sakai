@@ -211,6 +211,10 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public CourseSignupDAO findSignupById(String signupId) {
 		return (CourseSignupDAO) getHibernateTemplate().get(CourseSignupDAO.class, signupId);
 	}
+	
+	public CourseSignupDAO findSignupByEncryptId(String signupId) {
+		return (CourseSignupDAO) getHibernateTemplate().get(CourseSignupDAO.class, signupId);
+	}
 
 	@SuppressWarnings("unchecked")
 	public List<CourseSignupDAO> findSignupForUser(final String userId, final Set<Status> statuses) {

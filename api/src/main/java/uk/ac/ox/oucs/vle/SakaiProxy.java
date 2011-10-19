@@ -1,5 +1,7 @@
 package uk.ac.ox.oucs.vle;
 
+import java.io.UnsupportedEncodingException;
+
 
 
 
@@ -19,7 +21,7 @@ public interface SakaiProxy {
 	 * @param resource The resources to which the event is happening.
 	 * @param eventType The type of event.
 	 */
-	public void logEvent(String resource, String eventType);
+	public void logEvent(String resource, String eventType, String placementId);
 	
 	/**
 	 * Send an email out.
@@ -34,13 +36,28 @@ public interface SakaiProxy {
 	 * @param signupId
 	 * @return
 	 */
+	public String getApproveUrl(String signupId);
+	
+	public String getApproveUrl(String signupId, String placementId);
+	
 	public String getConfirmUrl(String signupId);
 	
+	public String getConfirmUrl(String signupId, String placementId);
+	
 	public String getDirectUrl(String courseId);
+	
+	public String getAdvanceUrl(String signupId, String status, String placementId);
+	
+	public String encode(String uncoded);
+	
+	public String uncode(String encoded);
 	
 	/**
 	 * Gets a URL to the page which shows a users signups.
 	 */
 	public String getMyUrl();
+	
+	public String getMyUrl(String placementId);
+	
 
 }

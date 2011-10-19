@@ -100,20 +100,48 @@ public class SakaiProxyTest implements SakaiProxy {
 	public List<Email> getEmails() {
 		return Collections.unmodifiableList(emailLog);
 	}
+	
+	public String getApproveUrl(String signupId) {
+		return getApproveUrl(signupId, null);
+	}
+	
+	public String getApproveUrl(String signupId, String placementId) {
+		return "/someurl/"+ signupId;
+	}
 
 	public String getConfirmUrl(String signupId) {
+		return getConfirmUrl(signupId, null);
+	}
+	
+	public String getConfirmUrl(String signupId, String placementId) {
 		return "/someurl/"+ signupId;
 	}
 	
 	public String getDirectUrl(String signupId) {
 		return "/someurl/"+ signupId;
 	}
+	
+	public String getAdvanceUrl(String signupId, String status, String placementId) {
+		return "/someurl/"+ signupId;
+	}
+	
+	public String encode(String uncoded) {
+		return uncoded;
+	}
+	
+	public String uncode(String encrypted) {
+		return encrypted;
+	}
 
 	public String getMyUrl() {
+		return getMyUrl(null);
+	}
+	
+	public String getMyUrl(String placementId) {
 		return "/my/";
 	}
 	
-	public void logEvent(String resource, String eventType) {
+	public void logEvent(String resource, String eventType, String placementId) {
 		log.info("Event - user: "+getCurrentUser().getId()+ " resource:"+
 				resource+ " type "+ eventType);
 	}

@@ -9,8 +9,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +37,8 @@ import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
 import org.sakaiproject.user.cover.UserDirectoryService;
+
+import com.sun.jersey.api.view.Viewable;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
@@ -450,7 +454,77 @@ public class SignupResource {
 			}
 			
 		}; 
-		
 	}
 	
+	@Path("/advance/{id}")
+	@GET
+	@Produces("text/html")
+	public Response advanceGet(@PathParam("id") final String encoded) {
+		
+		String[] params = courseService.getCourseSignupFromEncrypted(encoded);
+		for (int i=0; i<params.length; i++) {
+			System.out.println("decoded parameter ["+params[i]+"]");
+		}
+		CourseSignup signup = courseService.getCourseSignupAnyway(params[0]);
+		Map<String, Object> model = new HashMap<String, Object>();
+		model.put("signup", signup);
+		model.put("encoded", encoded);
+		model.put("status", params[1]);
+		
+		return Response.ok(new Viewable("/static/advance", model)).build();
+	}
+	
+	@Path("/advance/{id}")
+	@POST
+	@Produces("text/html")
+	public Response advancePost(@PathParam("id") final String encoded, 
+								@FormParam("formStatus") final String formStatus) {
+		
+		if (null == encoded) {
+			return Response.noContent().build();
+		}
+		String[] params = courseService.getCourseSignupFromEncrypted(encoded);
+		for (int i=0; i<params.length; i++) {
+			System.out.println("decoded parameter ["+params[i]+"]");
+		}
+		String signupId = params[0];
+		//String status = params[1];
+		String placementId = params[2];
+		
+		CourseSignup signup = courseService.getCourseSignupAnyway(signupId);
+		if (null == signup) {
+			return Response.noContent().build();
+		}
+		
+		switch (getIndex(new String[]{"accept", "approve", "confirm", "reject"}, formStatus.toLowerCase())) {
+		
+			case 0: 
+				courseService.accept(signupId, true, placementId);
+				break;
+			case 1: 
+				courseService.approve(signupId, true, placementId);
+				break;
+			case 2: 
+				courseService.confirm(signupId, true, placementId);
+				break;
+			case 3: 
+				courseService.reject(signupId, true, placementId);
+				break;
+			default:
+				return Response.noContent().build();
+		}
+		
+		Map<String, Object> model = new HashMap<String, Object>();
+		model.put("signup", signup);
+		return Response.ok(new Viewable("/static/ok", model)).build();
+	}
+	
+	protected int getIndex(String[] array, String value){
+		for(int i=0; i<array.length; i++){
+			if(array[i].equals(value)){
+				return i;
+			}
+		}
+		return -1;
+	} 
 }

@@ -108,11 +108,19 @@ public interface CourseSignupService {
 	
 	public void approve(String signupId);
 	
+	public void approve(String signupId, boolean skipAuth, String placementId);
+	
 	public void accept(String signupId);
+	
+	public void accept(String signupId, boolean skipAuth, String placementId);
 	
 	public void confirm(String signupId);
 	
+	public void confirm(String signupId, boolean skipAuth, String placementId);
+	
 	public void reject(String signupId);
+	
+	public void reject(String signupId, boolean skipAuth, String placementId);
 
 	public void withdraw(String signupId);
 	
@@ -149,6 +157,10 @@ public interface CourseSignupService {
 	 * @return The signup or null if it couldn't be found.
 	 */
 	public CourseSignup getCourseSignup(String signupId);
+	
+	public CourseSignup getCourseSignupAnyway(String signupId);
+	
+	public String[] getCourseSignupFromEncrypted(String encrypted);
 	
 	public String getDirectUrl(String courseId);
 

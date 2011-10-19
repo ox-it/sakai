@@ -40,6 +40,8 @@ public interface CourseDAO {
 	String save(CourseComponentDAO componentDao);
 
 	CourseSignupDAO findSignupById(String signupId);
+	
+	CourseSignupDAO findSignupByEncryptId(String signupId);
 
 	List<CourseSignupDAO> findSignupForUser(String userId, Set<Status> statuses);
 

@@ -44,63 +44,85 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void approve(String signupId) {
+		approve(signupId, false, null);
+	}
+	
+	public void approve(String signupId, boolean skipAuth, String placementId) {
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
 		if (signupDao == null) {
 			throw new NotFoundException(signupId);
 		}
 		CourseGroupDAO groupDao = signupDao.getGroup();
-		if (groupDao.getSupervisorApproval()) {
-			String currentUserId = proxy.getCurrentUser().getId();
-			boolean canApprove = false;
-			if (currentUserId.equals(signupDao.getSupervisorId())) {
-				canApprove = true;
-			} else {
-				canApprove = isAdministrator(groupDao, currentUserId, canApprove);
-			}
-			if (!canApprove) {
-				throw new PermissionDeniedException(currentUserId);
+		if (!skipAuth) {
+			if (groupDao.getSupervisorApproval()) {
+				String currentUserId = proxy.getCurrentUser().getId();
+				boolean canApprove = false;
+				if (currentUserId.equals(signupDao.getSupervisorId())) {
+					canApprove = true;
+				} else {
+					canApprove = isAdministrator(groupDao, currentUserId, canApprove);
+				}
+				if (!canApprove) {
+					throw new PermissionDeniedException(currentUserId);
+				}
 			}
 		}
 		signupDao.setStatus(Status.APPROVED);
 		dao.save(signupDao);
-		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP);
+		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP, placementId);
 		
 		//departmental approval
 		boolean departmentApproval = false;
+		CourseDepartmentDAO departmentDao = null;
 		if (null != signupDao.getDepartment()) {
-			CourseDepartmentDAO departmentDao = dao.findDepartmentByCode(signupDao.getDepartment());
+			departmentDao = dao.findDepartmentByCode(signupDao.getDepartment());
 			if (null != departmentDao) {
-				departmentApproval = departmentDao.getApprove();
-				if (!departmentDao.getApprovers().isEmpty()) {
-					departmentApproval = true;
+				if (departmentDao.getApprove()) {
+					if (!departmentDao.getApprovers().isEmpty()) {
+						departmentApproval = true;
+					}
 				}
 			}
 		}
 		
-		if (!departmentApproval) {
-			confirm(signupId);
+		if (departmentApproval) {
+			for (String approverId : departmentDao.getApprovers()) {
+				String url = proxy.getApproveUrl(signupId, placementId);
+				String advanceUrl = proxy.getAdvanceUrl(signupDao.getId(), "confirm", placementId);
+				if (approverId != null) {
+					sendSignupEmail(approverId, signupDao, "approval.supervisor.subject", "approval.supervisor.body", new Object[]{url, advanceUrl});
+				}
+			}
+		} else {
+			confirm(signupId, skipAuth, placementId);
 		}
 		
-		//String url = proxy.getMyUrl();
-		//sendSignupEmail(signupDao.getUserId(), signupDao, "approved.student.subject","approved.student.body", new Object[]{url});
+		String url = proxy.getMyUrl(placementId);
+		sendSignupEmail(signupDao.getUserId(), signupDao, "approved.student.subject","approved.student.body", new Object[]{url});
 	}
 	
 	/**
 	 * 
 	 */
 	public void accept(String signupId) {
+		accept(signupId, false, null);
+	}
+	
+	public void accept(String signupId, boolean skipAuth, String placementId) {
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
 		if (signupDao == null) {
 			throw new NotFoundException(signupId);
 		}
 		CourseGroupDAO groupDao = signupDao.getGroup();
-		if (groupDao.getAdministratorApproval()) {
-			String currentUserId = proxy.getCurrentUser().getId();
-			boolean canAccept = false;
-			// If is course admin on one of the components.
-			canAccept = isAdministrator(signupDao.getGroup(), currentUserId, canAccept);
-			if (!canAccept) {
-				throw new PermissionDeniedException(currentUserId);
+		if (!skipAuth) {
+			if (groupDao.getAdministratorApproval()) {
+					String currentUserId = proxy.getCurrentUser().getId();
+				boolean canAccept = false;
+				// If is course admin on one of the components.
+				canAccept = isAdministrator(signupDao.getGroup(), currentUserId, canAccept);
+				if (!canAccept) {
+					throw new PermissionDeniedException(currentUserId);
+				}
 			}
 		}
 		
@@ -114,7 +136,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		signupDao.setStatus(Status.ACCEPTED);
 		dao.save(signupDao);
-		proxy.logEvent(signupDao.getGroup().getId(), EVENT_ACCEPT);
+		proxy.logEvent(signupDao.getGroup().getId(), EVENT_ACCEPT, placementId);
 		
 		/**
 		 * SESii WP11.1 When module administrators register students who are not in 
@@ -127,7 +149,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		
 			if (null != department) {
 				if (groupDao.getDept().equals(signupDao.getDepartment())) {
-					String url = proxy.getConfirmUrl(signupId);
+					String url = proxy.getConfirmUrl(signupId, placementId);
 		
 					for (String approverId : department.getApprovers()) {
 						sendSignupEmail(approverId, signupDao, 
@@ -141,13 +163,14 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		
 		if (groupDao.getSupervisorApproval()) {
 			String supervisorId = signupDao.getSupervisorId();
-			String url = proxy.getConfirmUrl(signupId);
+			String url = proxy.getConfirmUrl(signupId, placementId);
+			String advanceUrl = proxy.getAdvanceUrl(signupDao.getId(), "approve", placementId);
 			if (supervisorId != null) {
-				sendSignupEmail(supervisorId, signupDao, "approval.supervisor.subject", "approval.supervisor.body", new Object[]{url});
+				sendSignupEmail(supervisorId, signupDao, "approval.supervisor.subject", "approval.supervisor.body", new Object[]{url, advanceUrl});
 			}
 			
 		} else {
-			approve(signupId);
+			approve(signupId, skipAuth, placementId);
 		}
 	}
 	
@@ -155,6 +178,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void confirm(String signupId) {
+		confirm(signupId, false, null);
+	}
+	public void confirm(String signupId, boolean skipAuth, String placementId) {
 		
 		String currentUserId = proxy.getCurrentUser().getId();
 		
@@ -172,24 +198,26 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			}
 		}
 			
-		if (departmentApproval) {
-			List<CourseDepartmentDAO> departments = dao.findApproverDepartments(currentUserId);
-			boolean canConfirm = false;
-			for (CourseDepartmentDAO dept : departments) {
-				if (dept.getCode().equals(signupDao.getDepartment())) {
-					canConfirm = true;
-					break;
+		if (!skipAuth) {
+			if (departmentApproval) {
+				List<CourseDepartmentDAO> departments = dao.findApproverDepartments(currentUserId);
+				boolean canConfirm = false;
+				for (CourseDepartmentDAO dept : departments) {
+					if (dept.getCode().equals(signupDao.getDepartment())) {
+						canConfirm = true;
+						break;
+					}
 				}
-			}
-			if (!canConfirm) {
-				throw new PermissionDeniedException(currentUserId);
+				if (!canConfirm) {
+					throw new PermissionDeniedException(currentUserId);
+				}
 			}
 		}
 
 		signupDao.setStatus(Status.CONFIRMED);
 		dao.save(signupDao);
-		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP);
-		String url = proxy.getMyUrl();
+		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP, placementId);
+		String url = proxy.getMyUrl(placementId);
 		sendSignupEmail(signupDao.getUserId(), signupDao, "confirmed.student.subject","confirmed.student.body", new Object[]{url});
 	}
 
@@ -421,6 +449,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void reject(String signupId) {
+		reject(signupId, false, null);
+	}
+	public void reject(String signupId, boolean skipAuth, String placementId) {
 		
 		String currentUserId = proxy.getCurrentUser().getId();
 		CourseSignupDAO signupDao = dao.findSignupById(signupId);
@@ -432,8 +463,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			if (isAdministrator(signupDao.getGroup(), currentUserId, false)) {
 				signupDao.setStatus(Status.REJECTED);
 				dao.save(signupDao);
-				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT);
-				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-admin.student.subject", "reject-admin.student.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
+				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT, placementId);
+				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-admin.student.subject", "reject-admin.student.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
 			} else {
 				throw new PermissionDeniedException(currentUserId);
 			}
@@ -446,8 +477,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 						componentDao.setTaken(componentDao.getTaken()-1);
 						dao.save(componentDao);
 					}
-					proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT);
-					sendSignupEmail(signupDao.getUserId(), signupDao, "reject-supervisor.student.subject", "reject-supervisor.student.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
+					proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT, placementId);
+					sendSignupEmail(signupDao.getUserId(), signupDao, "reject-supervisor.student.subject", "reject-supervisor.student.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
 				} else {
 					throw new PermissionDeniedException(currentUserId);
 				}
@@ -461,8 +492,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					componentDao.setTaken(componentDao.getTaken()-1);
 					dao.save(componentDao);
 				}
-				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT);
-				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-approver.student.subject", "reject-approver.student.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
+				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT, placementId);
+				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-approver.student.subject", "reject-approver.student.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
 			} else {
 				throw new PermissionDeniedException(currentUserId);
 			}
@@ -500,7 +531,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 	
 	/**
-	 * 
+	 * Signup by Administrator
 	 */
 	public void signup(String userId, String courseId, Set<String> componentIds, String supervisorId) {
 		
@@ -558,11 +589,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			dao.save(componentDao);
 		}
 		
-		accept(signupId);
+		accept(signupId, false, null);
 	}
 
 	/**
-	 * 
+	 * Signup by Student
 	 */
 	public void signup(String courseId, Set<String> componentIds, String supervisorEmail,
 			String message){
@@ -642,7 +673,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			signupDao.getComponents().add(componentDao); // So when sending out email we know the components.
 			dao.save(componentDao);
 		}
-		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP);
+		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP, null);
 		
 		String url = proxy.getConfirmUrl(signupId);
 		
@@ -655,15 +686,16 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			}
 		} else if (groupDao.getAdministratorApproval()) {
 			
+			String advanceUrl = proxy.getAdvanceUrl(signupDao.getId(), "accept", null);
 			for (String adminId : groupDao.getAdministrators()) {
 				sendSignupEmail(adminId, signupDao, 
 						"signup.admin.subject", 
 						"signup.admin.body", 
-						new Object[]{url});
+						new Object[]{url, advanceUrl});
 			}
 		
 		} else {
-			accept(signupId);
+			accept(signupId, false, null);
 		}
 	}
 	
@@ -811,7 +843,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		signupDao.setStatus(Status.WITHDRAWN);
 		dao.save(signupDao);
-		proxy.logEvent(signupDao.getGroup().getId(), EVENT_WITHDRAW);
+		proxy.logEvent(signupDao.getGroup().getId(), EVENT_WITHDRAW, null);
 		
 		/**
 		 * @param userId The ID of the user who the message should be sent to.
@@ -926,6 +958,20 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		} else {
 			throw new PermissionDeniedException(currentUserId);
 		}
+	}
+	
+	public CourseSignup getCourseSignupAnyway(String signupId) {
+		CourseSignupDAO signupDao = dao.findSignupById(signupId);
+		if (signupDao == null) {
+			return null;
+		} else {
+			return new CourseSignupImpl(signupDao, this);
+		}
+	}
+	
+	public String[] getCourseSignupFromEncrypted(String encrypted) {
+		String string = proxy.uncode(encrypted);
+		return string.split("\\$");
 	}
 	
 	protected String getDaisyAdmin() {

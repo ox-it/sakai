@@ -1,12 +1,20 @@
 package uk.ac.ox.oucs.vle.proxy;
 
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -136,8 +144,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 		);
 	}
 	
-	public void logEvent(String resourceId, String eventType) {
-		Placement placement = getPlacement();
+	public void logEvent(String resourceId, String eventType, String placementId) {
+		Placement placement = getPlacement(placementId);
 		String context = placement.getContext();
 		String resource = "/coursesignup/group/"+ resourceId;
 		Event event = eventService.newEvent(eventType, resource, context, false, NotificationService.NOTI_OPTIONAL);
@@ -150,8 +158,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * @throws RunTimeException If there isn't a current placement, this happens
 	 * when a request comes through that isn't processed by the portal.
 	 */
-	private Placement getPlacement() {
-		Placement placement = toolManager.getCurrentPlacement();
+	private Placement getPlacement(String placementId) {
+		Placement placement = null;
+		if (null == placementId) {
+			placement = toolManager.getCurrentPlacement();
+		} else {
+			placement = siteService.findTool(placementId);
+		}
 		if (placement == null) {
 			throw new RuntimeException("No current tool placement set.");
 		}
@@ -177,20 +190,58 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	public String getConfirmUrl(String signupId) {
-		return getUrl("/static/pending.jsp#"+ signupId);
+		return getConfirmUrl(signupId, null);
+	}
+	
+	public String getConfirmUrl(String signupId, String placementId) {
+		return getUrl("/static/pending.jsp#"+ signupId, placementId);
 	}
 	
 	public String getDirectUrl(String courseId) {
 		return getUrl("/static/index.jsp?openCourse="+ courseId);
 	}
+	
+	public String getApproveUrl(String signupId) {
+		return getApproveUrl(signupId, null);
+	}
+	
+	public String getApproveUrl(String signupId, String placementId) {
+		return getUrl("/static/approve.jsp#"+ signupId, placementId);
+	}
+	
+	public String getAdvanceUrl(String signupId, String status, String placementId) {
+		String urlSafe = encode(signupId+"$"+status+"$"+getPlacement(placementId).getId());
+		return serverConfigurationService.getServerUrl() +
+			"/course-signup/rest/signup/advance/"+urlSafe;
+			
+	}
+	
+	public String encode(String uncoded) {
+		byte[] encrypted = encrypt(uncoded);
+		String base64String = new String(Base64.encodeBase64(encrypted));	
+		return base64String.replace('+','-').replace('/','_');
+	}
+	
+	public String uncode(String encoded) {
+		String base64String = encoded.replace('-','+').replace('_','/');
+		byte[] encrypted = Base64.decodeBase64(base64String.getBytes());
+		return decrypt(encrypted);
+	}
 
 	public String getMyUrl() {
-		return getUrl("/static/my.jsp");
+		return getMyUrl(null);
+	}
+	
+	public String getMyUrl(String placementId) {
+		return getUrl("/static/my.jsp", placementId);
 	}
 
 	private String getUrl(String toolState) {
-		Placement currentPlacement = getPlacement();
-		String siteId = currentPlacement.getContext();
+		return getUrl(toolState, null);
+	}
+	private String getUrl(String toolState, String placementId) {
+		Placement currentPlacement = getPlacement(placementId);
+		//String siteId = currentPlacement.getContext();
 		ToolConfiguration toolConfiguration = siteService.findTool(currentPlacement.getId());
 		String pageUrl = toolConfiguration.getContainingPage().getUrl();
 		Map<String, String[]> encodedToolState = portalService.encodeToolState(currentPlacement.getId(), toolState);
@@ -208,5 +259,39 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return pageUrl;
 	}
+
+	protected String getSecretKey() {
+		return serverConfigurationService.getString("aes.secret.key", "se1?r2eFM8rC5u2K");
+	}
+	
+	protected byte[] encrypt(String string) {
+		SecretKeySpec skeySpec = new SecretKeySpec(getSecretKey().getBytes(), "AES");
+		try {
+			// Instantiate the cipher
+			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+			cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+			byte[] bytes = cipher.doFinal(string.getBytes());
+			return bytes;
+		
+		} catch (Exception e) {
+			System.out.println("encrypt Exception ["+e.getLocalizedMessage()+"]"); 
+		}
+		return null;
+	}
+	
+	protected String decrypt(byte[] bytes) {
+		SecretKeySpec skeySpec = new SecretKeySpec(getSecretKey().getBytes(), "AES");
+		try {
+			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+			cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+			byte[] original = cipher.doFinal(bytes);
+			return new String(original);
+		
+		} catch (Exception e) {	
+			System.out.println("decrypt Exception ["+e.getLocalizedMessage()+"]"); 
+		}	
+		return null;
+	}
+	
 
 }
