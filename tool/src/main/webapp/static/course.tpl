@@ -103,7 +103,7 @@
                                 		{/if}
                                 	</span>
                             	</td>
-                            	<td>
+                            	<td style="width:6em">
                             		{if option.bookable}
                             			{if option.full}
 											full
@@ -111,7 +111,7 @@
 											{if waiting}
 												Waiting List (${waiting})
 											{else}
-												${option.places} places
+												${option.places} of ${option.size} places
 											{/if}
 										{/if}
 									{/if}
