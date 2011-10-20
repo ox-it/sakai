@@ -20,6 +20,7 @@ public class CourseSignupDAO  implements java.io.Serializable {
     private String userId;
     private CourseSignupService.Status status;
     private Date created;
+    private Date amended;
     private Set<CourseComponentDAO> components = new HashSet<CourseComponentDAO>(0);
     private String supervisorId;
     private String department;
@@ -59,6 +60,13 @@ public class CourseSignupDAO  implements java.io.Serializable {
     }
     public void setCreated(Date created) {
         this.created = created;
+    }
+    
+    public Date getAmended() {
+        return this.amended;
+    }
+    public void setAmended(Date amended) {
+        this.amended = amended;
     }
     
     public Set<CourseComponentDAO> getComponents() {

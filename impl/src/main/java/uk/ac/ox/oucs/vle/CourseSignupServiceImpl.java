@@ -68,6 +68,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			}
 		}
 		signupDao.setStatus(Status.APPROVED);
+		signupDao.setAmended(getNow());
 		dao.save(signupDao);
 		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP, placementId);
 		
@@ -135,6 +136,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			dao.save(componentDao);
 		}
 		signupDao.setStatus(Status.ACCEPTED);
+		signupDao.setAmended(getNow());
 		dao.save(signupDao);
 		proxy.logEvent(signupDao.getGroup().getId(), EVENT_ACCEPT, placementId);
 		
@@ -215,6 +217,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 
 		signupDao.setStatus(Status.CONFIRMED);
+		signupDao.setAmended(getNow());
 		dao.save(signupDao);
 		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP, placementId);
 		String url = proxy.getMyUrl(placementId);
@@ -462,6 +465,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (Status.PENDING.equals(signupDao.getStatus()) || Status.WAITING.equals(signupDao.getStatus())) { // Rejected by administrator.
 			if (isAdministrator(signupDao.getGroup(), currentUserId, false)) {
 				signupDao.setStatus(Status.REJECTED);
+				signupDao.setAmended(getNow());
 				dao.save(signupDao);
 				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT, placementId);
 				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-admin.student.subject", "reject-admin.student.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
@@ -472,6 +476,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		} else if (Status.ACCEPTED.equals(signupDao.getStatus())) { // Rejected by administrator.
 				if (isAdministrator(signupDao.getGroup(), currentUserId, currentUserId.equals(signupDao.getSupervisorId()))) {
 					signupDao.setStatus(Status.REJECTED);
+					signupDao.setAmended(getNow());
 					dao.save(signupDao);
 					for (CourseComponentDAO componentDao: signupDao.getComponents()) {
 						componentDao.setTaken(componentDao.getTaken()-1);
@@ -487,6 +492,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			boolean isApprover = dao.findDepartmentApprovers(signupDao.getDepartment()).contains(currentUserId);
 			if (isAdministrator(signupDao.getGroup(), currentUserId, isApprover)) {
 				signupDao.setStatus(Status.REJECTED);
+				signupDao.setAmended(getNow());
 				dao.save(signupDao);
 				for (CourseComponentDAO componentDao: signupDao.getComponents()) {
 					componentDao.setTaken(componentDao.getTaken()-1);
@@ -516,6 +522,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			Status currentStatus = signupDao.getStatus();
 			if (!currentStatus.equals(newStatus)) { // Check it actually needs changing.
 				signupDao.setStatus(newStatus);
+				signupDao.setAmended(getNow());
 				dao.save(signupDao);
 				int spaceAdjustment = (-currentStatus.getSpacesTaken()) + newStatus.getSpacesTaken();
 				if (spaceAdjustment != 0) {
@@ -553,6 +560,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setCreated(getNow());
 		signupDao.setGroup(groupDao);
 		signupDao.setStatus(Status.PENDING);
+		signupDao.setAmended(getNow());
 		Department department = findPracDepartment(user.getPrimaryOrgUnit());
 		if (null != department) {
 			signupDao.setDepartment(department.getPracCode());
@@ -658,6 +666,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		} else {
 			signupDao.setStatus(Status.PENDING);
 		}
+		signupDao.setAmended(getNow());
 		signupDao.setMessage(message);
 		Department department = findPracDepartment(user.getPrimaryOrgUnit());
 		if (null != department) {
@@ -842,6 +851,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			sendEmail = true;
 		}
 		signupDao.setStatus(Status.WITHDRAWN);
+		signupDao.setAmended(getNow());
 		dao.save(signupDao);
 		proxy.logEvent(signupDao.getGroup().getId(), EVENT_WITHDRAW, null);
 		

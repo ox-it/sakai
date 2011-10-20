@@ -52,6 +52,7 @@
 			index="course_signup_user_idx" />
 		<property name="status" type="SignupStatus" index="course_signup_user_idx"/>
 		<property name="created" type="timestamp" />
+		<property name="amended" type="timestamp" />
 		<property name="message" type="string" length="4000"/>
 		<set name="components" lazy="true" table="course_component_signup"
 			inverse="true">
