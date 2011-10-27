@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<body>
+<wicket:extend>
+		
+	<h3>Database items:</h3>
+	<a wicket:id="newExamPaper">New Exam Paper</a>
+	<a wicket:id="importData">Import Data</a>
+	<table wicket:id="examPapersTable">
+	</table>
+	
+	<style type="text/css">
+	/* style the Wicket FeedbackPanel to remove the list */
+	.alertMessage ul, .success ul {
+		list-style-type: none !important;
+		margin-left: -40px;
+		margin-bottom: 0px;
+		margin-top: 0px;
+	}
+	</style>
+	
+</wicket:extend>
+</body>
+</html>

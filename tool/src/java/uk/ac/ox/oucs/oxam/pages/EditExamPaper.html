@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<body>
+<wicket:extend>
+
+		<h3>Exam Paper</h3>
+	<form wicket:id="examPaperForm">
+	<table>
+		<tr>
+			<td><wicket:message key="label.exam.title" /></td>
+			<td><input type="text" wicket:id="examTitle"/></td>
+			<td><span wicket:id="examTitleFeedback"></span></td>
+		</tr>
+		<tr>
+			<td><wicket:message key="label.exam.code" /></td>
+			<td><input type="text" wicket:id="examCode"/></td>
+			<td><span wicket:id="examCodeFeedback"></span></td>
+		</tr>
+		<tr>
+			<td><wicket:message key="label.paper.title" /></td>
+			<td><input type="text" wicket:id="paperTitle"/></td>
+			<td><span wicket:id="paperTitleFeedback"></span></td>
+		</tr>
+		<tr>
+			<td><wicket:message key="label.paper.code" /></td>
+			<td><input type="text" wicket:id="paperCode"/></td>
+			<td><span wicket:id="paperCodeFeedback"></span></td>
+		</tr>
+		<tr>
+			<td><wicket:message key="label.paper.file" /></td>
+			<td><input type="text" wicket:id="paperFile"/></td>
+			<td><span wicket:id="paperFileFeedback"></span></td>
+		</tr>
+		<tr>
+			<td><wicket:message key="label.year" /></td>
+			<td><input type="text" wicket:id="year"/></td>
+			<td><span wicket:id="yearFeedback"></span></td>
+		</tr>
+		<tr>
+			<td><wicket:message key="label.term" /></td>
+			<td><input type="text" wicket:id="term"/></td>
+			<td><span wicket:id="termFeedback"></span></td>
+		</tr>
+	</table>
+	<div>
+		<input type="submit" wicket:id="submitButton" value="Save" />
+		<input type="submit" wicket:id="cancelButton" value="Cancel"/>
+	</div>
+	</form>
+	<style type="text/css">
+	/* style the Wicket FeedbackPanel to remove the list */
+	.alertMessage ul, .success ul {
+		list-style-type: none !important;
+		margin-left: -40px;
+		margin-bottom: 0px;
+		margin-top: 0px;
+	}
+	</style>
+	
+</wicket:extend>
+</body>
+</html>

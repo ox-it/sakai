@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+        <artifactId>oxam</artifactId>
+        <groupId>uk.ac.ox.oucs.vle</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+	
+	<name>oxam - Components</name>
+	<groupId>uk.ac.ox.oucs.vle</groupId>
+	<artifactId>oxam-pack</artifactId>
+
+	<packaging>sakai-component</packaging>
+
+	<properties>
+    	<deploy.target>components</deploy.target>
+  	</properties>
+  	
+  	<dependencies>
+
+        <!-- internal dependencies -->
+        <dependency>
+            <groupId>uk.ac.ox.oucs.vle</groupId>
+		<artifactId>oxam-impl</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build />
+
+
+</project>

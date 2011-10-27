@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="
+  http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+  http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+  http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+  
+  
+    <bean id="examPaperService" class="uk.ac.ox.oucs.oxam.logic.ExamPaperServiceImpl"
+        init-method="init" autowire="byType">
+    </bean>
+  
+    <!-- DAO Stuff -->
+    <bean id="statementStore" class="uk.ac.ox.oucs.oxam.dao.StatementStore" init-method="init">
+        <property name="vendor" value="derby"/>
+    </bean>
+
+    <bean id="paperDao" class="uk.ac.ox.oucs.oxam.dao.PaperDaoImpl"
+        init-method="init">
+        <property name="dataSource" ref="dataSource" />
+        <property name="statementStore" ref="statementStore"/>
+    </bean>
+
+    <bean id="categoryDao" class="uk.ac.ox.oucs.oxam.dao.CategoryDaoImpl"
+        init-method="init">
+        <property name="dataSource" ref="dataSource" />
+        <property name="statementStore" ref="statementStore"/>
+    </bean>
+    
+    <bean id="examPaperDao" class="uk.ac.ox.oucs.oxam.dao.ExamPaperDaoImpl"
+        init-method="init">
+        <property name="dataSource" ref="dataSource" />
+        <property name="statementStore" ref="statementStore"/>
+    </bean>
+    
+    <bean id="solrServer" class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer">
+        <constructor-arg>
+            <value>http://localhost:8983/solr/</value>
+        </constructor-arg>
+    </bean>
+  
+  
+</beans>
