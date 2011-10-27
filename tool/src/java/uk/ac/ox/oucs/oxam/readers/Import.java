@@ -115,8 +115,8 @@ public class Import {
 		for (PaperRow paperRow: paperRows.values()) {
 			// If the paper is included with another.
 			if(paperRow.inc != null && paperRow.inc.length() > 0) {
-				if (paperRow.code.equals(paperRow.inc)) {
-					System.out.println("Paper can't reference itself.");
+				if (paperRow.code.equals(paperRow.inc)) { 
+					System.out.println("Paper can't reference itself: "+ paperRow.code);
 				}
 				if (!paperRows.containsKey(paperRow.inc)) {
 					System.out.println("Not found in paperRows: "+ paperRow.inc);

@@ -10,8 +10,8 @@ public class SheetReaderCSV implements SheetReader {
 	
 	private CSVReader reader;
 	private String[] row;
-	private int currentColumn = 0;
-	private int currentRow = 0;
+	private int currentColumn = -1;
+	private int currentRow = -1;
 
 	public SheetReaderCSV(InputStream source) {
 		reader = new CSVReader(new InputStreamReader(source));
@@ -23,6 +23,7 @@ public class SheetReaderCSV implements SheetReader {
 			row = reader.readNext();
 			if(row != null) {
 				currentRow++;
+				currentColumn = -1;
 				return true;
 			}
 			return false;
@@ -32,18 +33,19 @@ public class SheetReaderCSV implements SheetReader {
 	}
 
 	public boolean nextColumn() {
-		if (++currentColumn < row.length) {
+		if (currentColumn + 1 < row.length) {
+			currentColumn++;
 			return true;
 		}
 		return false;
 	}
 
 	public int getRow() {
-		return currentRow;
+		return currentRow+1;
 	}
 
 	public int getColumn() {
-		return currentColumn;
+		return currentColumn+1;
 	}
 
 	public String getContents() {
