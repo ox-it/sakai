@@ -328,7 +328,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				Query query = session.createSQLQuery(
-						"select distinct cs.id, cs.userId, cs.status, cs.created, cs.message, cs.supervisorId, cs.groupId, cs.department " +
+						"select distinct cs.id, cs.userId, cs.status, cs.created, cs.amended, cs.message, cs.supervisorId, cs.groupId, cs.department " +
 						"from course_signup cs " +
 						"left join course_group_administrator ca on cs.groupId = ca.course_group " +
 						"inner join course_component_signup cp on cs.id = cp.signup " +
@@ -343,11 +343,33 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 	
 	@SuppressWarnings("unchecked")
+	public List<CourseSignupDAO> findSignupStillPendingOrAccepted(final Integer period) {
+		return getHibernateTemplate().executeFind(new HibernateCallback() {
+			public Object doInHibernate(Session session) {
+				Query query = session.createSQLQuery(
+						"select distinct cs.id, cs.userId, cs.status, cs.created, cs.amended, cs.message, cs.supervisorId, cs.groupId, cs.department " +
+						"from course_signup cs " +
+						"left join course_group_administrator ca on cs.groupId = ca.course_group " +
+						"inner join course_component_signup cp on cs.id = cp.signup " +
+						"inner join course_component cc on cp.component = cc.id " +
+						"where (date_sub(curdate(), interval :period day) >= cs.amended " +
+						"or date_sub(curdate(), interval :period day) <= cc.starts) " +
+						"and (curdate() < cc.starts) " +
+						"and ((cs.status = :adminStatus) or (cs.status = :supervisorStatus))").addEntity(CourseSignupDAO.class);
+				query.setInteger("period", period);
+				query.setParameter("adminStatus", Status.PENDING.name());
+				query.setParameter("supervisorStatus", Status.ACCEPTED.name());
+				return query.list();
+			}
+		});
+	}
+	
+	@SuppressWarnings("unchecked")
 	public List<CourseSignupDAO> findSignupApproval(final String userId) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				Query query = session.createSQLQuery(
-						"select distinct cs.id, cs.userId, cs.status, cs.created, cs.message, cs.supervisorId, cs.groupId, cs.department " +
+						"select distinct cs.id, cs.userId, cs.status, cs.created, cs.amended, cs.message, cs.supervisorId, cs.groupId, cs.department " +
 						"from course_signup cs " +
 						"left join course_group_administrator ca on cs.groupId = ca.course_group " +
 						"inner join course_component_signup cp on cs.id = cp.signup " +

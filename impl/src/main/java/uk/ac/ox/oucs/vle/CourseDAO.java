@@ -63,6 +63,8 @@ public interface CourseDAO {
 	
 	List<CourseSignupDAO> findSignupApproval(String currentUser);
 	
+	List<CourseSignupDAO> findSignupStillPendingOrAccepted(final Integer period);
+	
 	List<CourseDepartmentDAO> findApproverDepartments(String currentUserId);
 	
 	List<Object[]> findDepartmentApprovers(final String department);
