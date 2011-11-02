@@ -59,6 +59,7 @@
 				approve=PROPAGATION_REQUIRED
 				confirm=PROPAGATION_REQUIRED
 				reject=PROPAGATION_REQUIRED
+				waiting=PROPAGATION_REQUIRED
 				*=PROPAGATION_REQUIRED,readOnly
 			</value>
 		</property>

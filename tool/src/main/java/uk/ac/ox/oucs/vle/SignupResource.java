@@ -178,6 +178,16 @@ public class SignupResource {
 		courseService.withdraw(signupId);
 		return Response.ok().build();
 	}
+	
+	@Path("{id}/waiting")
+	@POST
+	public Response waiting(@PathParam("id") final String signupId) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
+		courseService.waiting(signupId);
+		return Response.ok().build();
+	}
 
 	@Path("{id}/approve")
 	@POST

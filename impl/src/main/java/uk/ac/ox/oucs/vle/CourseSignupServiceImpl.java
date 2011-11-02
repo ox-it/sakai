@@ -223,6 +223,50 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		String url = proxy.getMyUrl(placementId);
 		sendSignupEmail(signupDao.getUserId(), signupDao, "confirmed.student.subject","confirmed.student.body", new Object[]{url});
 	}
+	
+	/**
+	 * 
+	 */
+	public void waiting(String signupId) {
+		waiting(signupId, false, null);
+	}
+	
+	public void waiting(String signupId, boolean skipAuth, String placementId) {
+		CourseSignupDAO signupDao = dao.findSignupById(signupId);
+		if (signupDao == null) {
+			throw new NotFoundException(signupId);
+		}
+		CourseGroupDAO groupDao = signupDao.getGroup();
+		if (!skipAuth) {
+			if (groupDao.getAdministratorApproval()) {
+					String currentUserId = proxy.getCurrentUser().getId();
+				boolean canAccept = false;
+				// If is course admin on one of the components.
+				canAccept = isAdministrator(signupDao.getGroup(), currentUserId, canAccept);
+				if (!canAccept) {
+					throw new PermissionDeniedException(currentUserId);
+				}
+			}
+		}
+		
+		if (!Status.PENDING.equals(signupDao.getStatus())) {
+			throw new IllegalStateException("You can only accept signups that are waiting or pending.");
+		}
+		for (CourseComponentDAO componentDao : signupDao.getComponents()) {
+			componentDao.setTaken(componentDao.getTaken()+1);
+			dao.save(componentDao);
+		}
+		signupDao.setStatus(Status.WAITING);
+		signupDao.setAmended(getNow());
+		dao.save(signupDao);
+		proxy.logEvent(signupDao.getGroup().getId(), EVENT_WAITING, placementId);
+		String url = proxy.getMyUrl(placementId);
+		
+		sendSignupEmail(signupDao.getUserId(), signupDao, 
+			"waiting-admin.student.subject", 
+			"waiting-admin.student.body", 
+			new Object[]{url});
+	}
 
 	/**
 	 * 

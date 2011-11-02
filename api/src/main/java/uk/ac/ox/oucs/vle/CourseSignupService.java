@@ -122,6 +122,10 @@ public interface CourseSignupService {
 	
 	public void reject(String signupId, boolean skipAuth, String placementId);
 
+	public void waiting(String signupId);
+	
+	public void waiting(String signupId, boolean skipAuth, String placementId);
+	
 	public void withdraw(String signupId);
 	
 	/**

@@ -553,6 +553,9 @@ var Signup = function(){
                             }, {
                                 "name": "Reject",
                                 "url": "../rest/signup/" + id + "/reject"
+                            }, {
+                                "name": "Waiting",
+                                "url": "../rest/signup/" + id + "/waiting"
                             }];
                         case "ACCEPTED":
                             return [{

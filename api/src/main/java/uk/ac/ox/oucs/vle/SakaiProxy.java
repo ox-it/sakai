@@ -1,10 +1,5 @@
 package uk.ac.ox.oucs.vle;
 
-import java.io.UnsupportedEncodingException;
-
-
-
-
 public interface SakaiProxy {
 	
 	public UserProxy getCurrentUser();
