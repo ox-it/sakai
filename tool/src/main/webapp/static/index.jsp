@@ -177,7 +177,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 											"attr": {
 												"id": data.dept + "-PREVIOUS"
 											},
-											"data": "Old",
+											"data": "Previous",
 											"state": "closed"
 										})
 									}
