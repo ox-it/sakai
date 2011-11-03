@@ -98,15 +98,22 @@ public class CourseResource {
 		if (deptId.length() == 4) { 
 			if (range.equals(Range.PREVIOUS)) {
 				List<CourseGroup> courses = courseService.getCourseGroupsByDept(deptId, range, externalUser);
-				return new GroupsStreamingOutput(Collections.<SubUnit>emptyList(), courses, deptId, range.name());
+				return new GroupsStreamingOutput(Collections.<SubUnit>emptyList(), courses, deptId, range.name(), false);
 			} else {
 				List<SubUnit> subUnits = courseService.getSubUnitsByDept(deptId);
 				List<CourseGroup> courses = courseService.getCourseGroupsByDept(deptId, range, externalUser);
-				return new GroupsStreamingOutput(subUnits, courses, deptId, range.name());
+				List<CourseGroup> previous = courseService.getCourseGroupsByDept(deptId, Range.PREVIOUS, externalUser);
+				return new GroupsStreamingOutput(subUnits, courses, deptId, range.name(), !previous.isEmpty());
 			}
 		} else {
-			List<CourseGroup> courses = courseService.getCourseGroupsBySubUnit(deptId, range, externalUser);
-			return new GroupsStreamingOutput(Collections.<SubUnit>emptyList(), courses, deptId, range.name());
+			if (range.equals(Range.PREVIOUS)) {
+				List<CourseGroup> courses = courseService.getCourseGroupsBySubUnit(deptId, range, externalUser);
+				return new GroupsStreamingOutput(Collections.<SubUnit>emptyList(), courses, deptId, range.name(), false);
+			} else {
+				List<CourseGroup> courses = courseService.getCourseGroupsBySubUnit(deptId, range, externalUser);
+				List<CourseGroup> previous = courseService.getCourseGroupsBySubUnit(deptId, Range.PREVIOUS, externalUser);
+				return new GroupsStreamingOutput(Collections.<SubUnit>emptyList(), courses, deptId, range.name(), !previous.isEmpty());
+			}
 		}
 	}
 
@@ -261,12 +268,14 @@ public class CourseResource {
 		private final List<CourseGroup> courses;
 		private final String deptId;
 		private final String range;
+		private final boolean previous;
 	
-		private GroupsStreamingOutput(List<SubUnit> subUnits, List<CourseGroup> courses, String deptId, String range) {
+		private GroupsStreamingOutput(List<SubUnit> subUnits, List<CourseGroup> courses, String deptId, String range, boolean previous) {
 			this.subUnits = subUnits;
 			this.courses = courses;
 			this.deptId = deptId;
 			this.range = range;
+			this.previous = previous;
 		}
 	
 		public void write(OutputStream out) throws IOException {
@@ -303,6 +312,18 @@ public class CourseResource {
 						(state.getDetail() == null?"":(" ("+state.getDetail()+")"))
 				);
 				
+				gen.writeEndObject();
+			}
+			
+			if (previous) {
+				gen.writeStartObject();
+				gen.writeObjectFieldStart("attr");
+				gen.writeStringField("id", deptId+"-PREVIOUS");
+				gen.writeEndObject();
+				gen.writeStringField("data", "Previous");
+				gen.writeStringField("state", "closed");
+				//gen.writeArrayFieldStart("children");
+				//gen.writeEndArray();
 				gen.writeEndObject();
 			}
 			gen.writeEndArray();

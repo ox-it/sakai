@@ -63,31 +63,45 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 				 * @param {Object} y
 				 */
                 var treeSort = function(x, y){
-
-	                var a = 9;
+					
+					var a = 0;
+		            if (x.data == "Previous") {
+		                a=9;
+		            }
+		            var b = 0;
+		            if (y.data == "Previous") {
+		                b=9;
+		            }
+		                
+	                var c = 9;
 	                if (x.state) {
-		                a=0;
+		                c=0;
 	                }
-	                var b = 9;
+	                var d = 9;
 	                if (y.state) {
-		                b=0;
+		                d=0;
 	                }
-	                var c = x.data;
-                    var d = y.data;
 	                
-	                if (a < b) {
+	                var e = x.data;
+                    var f = y.data;
+	                
+                    if (a < b) {
 	                    return -1;
 	                } else if (a > b) {
 	                    return 1;
-                    } else if (c < d) {
+	                } else if (c < d) {
+	                    return -1;
+	                } else if (c > d) {
+	                    return 1;
+                    } else if (e < f) {
                         return -1;
-                    } else if (c > d) {
+                    } else if (e > f) {
                         return 1;
                     } else {
                         return 0; 
                     }
                 };
-
+				
 				/**
 				 * Returns a summary about signup for this group.
 				 * @param The components to produce a summary for.
@@ -97,11 +111,15 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 				jQuery.getJSON(signupSiteId+"/departments.json", function(treedata) {
 
 					var loadCourse = function(id, old){
-						Signup.course.show($("#details"), id, old, externalUser);
+						if (old) {
+							Signup.course.show($("#details"), id, "PREVIOUS", externalUser);
+						} else {
+							Signup.course.show($("#details"), id, "UPCOMING", externalUser);
+						}
 					};
 					
                     var openAtCourse = function(id){
-						Signup.course.show($("#details"), id, true, externalUser, function(courseData){
+						Signup.course.show($("#details"), id, "ALL", externalUser, function(courseData){
 							$("#tree").jstree("open_node", $("#"+courseData.departmentCode.substr(0,2)), function() {
 								$("#tree").jstree("open_node", $("#"+courseData.departmentCode), function() {
 									$("#tree").jstree("open_node", $("#"+courseData.subUnitCode));
@@ -109,8 +127,8 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 							});
 							
 						});
-					};				
-					
+					};	
+
 					/**
 					* This loads details about a node in the tree.
 				 	* This basically loads a HTML files and shows the user.
@@ -172,16 +190,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 								dataType: "json",
 								success: function(data){
 									data.tree.sort(treeSort);
-									if ("UPCOMING" == data.range) {
-										data.tree.push({
-											"attr": {
-												"id": data.dept + "-PREVIOUS"
-											},
-											"data": "Previous",
-											"state": "closed"
-										})
-									}
-									else {
+									if ("UPCOMING" != data.range) {
 										$.each(data.tree, function(){
 											this.attr["class"] = "old";
 										});
@@ -205,6 +214,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
                 
   				Signup.util.autoresize();
             });
+            
 		</script>
 		
     </head>

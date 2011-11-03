@@ -115,7 +115,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 							courseDetails.remove(); /* Tidy up the DOM. */
 						}
 					});
-					Signup.course.show(courseDetails, id, true, externalUser, function(){
+					Signup.course.show(courseDetails, id, "ALL", externalUser, function(){
 						courseDetails.dialog("open");
 					});
 				} catch (e) {

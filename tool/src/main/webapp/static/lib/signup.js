@@ -59,7 +59,8 @@ var Signup = function(){
 					$.ajax({
 						url: "../rest/course/" + id,
 						data: {
-							range: (old) ? "ALL" : "UPCOMING"
+							//range: (old) ? "PREVIOUS" : "UPCOMING"
+							range: old
 						},
 						dataType: "json",
 						cache: false,
