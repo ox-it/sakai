@@ -737,6 +737,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 							"signup.waiting.body", 
 							new Object[]{url});
 			}
+			
 		} else if (groupDao.getAdministratorApproval()) {
 			
 			String advanceUrl = proxy.getAdvanceUrl(signupDao.getId(), "accept", null);
@@ -746,6 +747,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 						"signup.admin.body", 
 						new Object[]{url, advanceUrl});
 			}
+			
+			String myUrl = proxy.getMyUrl();
+			sendStudentSignupEmail(signupDao, 
+					"signup.student.subject", 
+					"signup.student.body", 
+					new Object[]{myUrl});
 		
 		} else {
 			accept(signupId, false, null);
@@ -817,7 +824,52 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		proxy.sendEmail(to, subject, body);
 	}
 	
+	/**
+	 * 
+	 * @param signupDao
+	 * @param subjectKey
+	 * @param bodyKey
+	 * @param additionalBodyData
+	 */
+	public void sendStudentSignupEmail(CourseSignupDAO signupDao, String subjectKey, String bodyKey, Object[] additionalBodyData) {
+		
+		UserProxy signupUser = proxy.findUserById(signupDao.getUserId());
+		if (signupUser == null) {
+			log.warn("Failed to find the user who made the signup: "+ signupDao.getUserId());
+			return;
+		}
+		
+		String to = signupUser.getEmail();
+		String subject = MessageFormat.format(
+				rb.getString(subjectKey), new Object[]{signupDao.getGroup().getTitle()});
+		
+		String componentDetails = formatSignup(signupDao);
+		Object[] baseBodyData = new Object[] {
+				signupUser.getDisplayName(),
+				signupDao.getGroup().getTitle(),
+				componentDetails,
+		};
+		
+		Object[] bodyData = baseBodyData;
+		if (additionalBodyData != null) {
+			bodyData = new Object[bodyData.length + additionalBodyData.length];
+			System.arraycopy(baseBodyData, 0, bodyData, 0, baseBodyData.length);
+			System.arraycopy(additionalBodyData, 0, bodyData, baseBodyData.length, additionalBodyData.length);
+		}
+		String body = MessageFormat.format(rb.getString(bodyKey), bodyData);
+		proxy.sendEmail(to, subject, body);
+	}
+	
+	/**
+	 * 
+	 * @param userId
+	 * @param signupDao
+	 * @param subjectKey
+	 * @param bodyKey
+	 * @param additionalBodyData
+	 */
 	public void sendSignupWaitingEmail(String userId, CourseSignupDAO signupDao, String subjectKey, String bodyKey, Object[] additionalBodyData) {
+		
 		UserProxy recepient = proxy.findUserById(signupDao.getUserId());
 		if (recepient == null) {
 			log.warn("Failed to find the user who made the signup: "+ signupDao.getUserId());
