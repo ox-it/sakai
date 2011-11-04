@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
@@ -33,14 +34,8 @@ public class ModuleImpl implements Module {
 	private final static ResourceLoader rb = new ResourceLoader("messages");
 	
 	private Date lastMidnight;
-	private Date todayMidnight;
-	private Date tomorrowMidnight;
-	private Date lastWeekMidnight;
-	
-	private final int todayInt = 1;
-	private final int tomorrowInt = 3;
-	private final int lastWeekInt = -7;
-	private final int unActionedInt = 7;
+	private Date aboutToStart;
+	private Date aboutToClose;
 	
 	/**
 	 * The DAO to update our entries through.
@@ -52,36 +47,9 @@ public class ModuleImpl implements Module {
 	 */
 	private SakaiProxy proxy;
 	
-	public void initialise() {
-		
-		Calendar calendar = new GregorianCalendar();
-		calendar.set(Calendar.HOUR, 0);
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
-		lastMidnight = (Date)calendar.getTime();
-		
-		Calendar lastWeek = (Calendar)calendar.clone();
-		lastWeek.add(Calendar.DATE, lastWeekInt);
-		lastWeekMidnight = (Date) lastWeek.getTime();
-		
-		Calendar today = (Calendar)calendar.clone();
-		today.add(Calendar.DATE, todayInt);
-		todayMidnight = (Date) today.getTime();
-		
-		Calendar tomorrow = (Calendar)calendar.clone();
-		tomorrow.add(Calendar.DATE, tomorrowInt);
-		tomorrowMidnight = (Date) tomorrow.getTime();
-		
-		System.out.println("ModuleImpl.initialise");
-		System.out.println("Last Midnight ["+
-				DateFormat.getInstance().format(lastMidnight)+"]");
-		System.out.println("Today Midnight ["+
-				DateFormat.getInstance().format(todayMidnight)+"]");
-		System.out.println("Tomorrow Midnight ["+
-				DateFormat.getInstance().format(tomorrowMidnight)+"]");
-		System.out.println("Last Week Midnight ["+
-				DateFormat.getInstance().format(lastWeekMidnight)+"]");
-	}
+	private ServerConfigurationService serverConfigurationService;
+	
+	
 	
 	public void setCourseDao(CourseDAO dao) {
 		this.dao = dao;
@@ -91,6 +59,44 @@ public class ModuleImpl implements Module {
 		this.proxy = proxy;
 	}
 	
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+	
+	/**
+	 * 
+	 */
+	public void initialise() {
+		
+		Calendar calendar = new GregorianCalendar();
+		calendar.set(Calendar.HOUR, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		lastMidnight = (Date)calendar.getTime();
+		
+		int aboutToCloseDays = getAboutToCloseDays();
+		Calendar today = (Calendar)calendar.clone();
+		today.add(Calendar.DATE, aboutToCloseDays);
+		aboutToClose = (Date) today.getTime();
+		
+		int aboutToStartDays = getAboutToStartDays();
+		Calendar tomorrow = (Calendar)calendar.clone();
+		tomorrow.add(Calendar.DATE, aboutToStartDays);
+		aboutToStart = (Date) tomorrow.getTime();
+		
+		System.out.println("ModuleImpl.initialise");
+		System.out.println("Last Midnight ["+
+				DateFormat.getInstance().format(lastMidnight)+"]");
+		System.out.println("Today Midnight ["+
+				DateFormat.getInstance().format(aboutToClose)+"]");
+		System.out.println("Tomorrow Midnight ["+
+				DateFormat.getInstance().format(aboutToStart)+"]");
+	}
+	
+	/**
+	 * 
+	 */
 	public void update() {
 		
 		initialise();
@@ -99,54 +105,9 @@ public class ModuleImpl implements Module {
 		
 		modulesClosing(groups);
 		modulesStarting(groups);
-		attentionSignups();
-		/*
-		for (CourseGroupDAO group : groups) {
-			
-			final Set<CourseComponentDAO> components = group.getComponents();
-			final Set<CourseComponentDAO> componentsClosing = new HashSet<CourseComponentDAO>();
-			final Set<CourseComponentDAO> componentsStarting = new HashSet<CourseComponentDAO>();
-			
-			for (CourseComponentDAO component : components) {
-				
-				if (isToday(component.getCloses())) {
-					// Component is about to close
-					System.out.println("Component is about to close ["+
-							component.getId()+":"+
-							DateFormat.getInstance().format(component.getCloses())+":"+
-							component.getSubject()+"]");
-					componentsClosing.add(component);
-				}
-				
-				if (isTomorrow(component.getStarts())) {
-					// Component is about to start
-					System.out.println("Component is about to start ["+
-							component.getId()+":"+
-							DateFormat.getInstance().format(component.getCloses())+":"+
-							component.getSubject()+"]");
-					componentsStarting.add(component);
-				}
-			}
-			
-			if (!componentsClosing.isEmpty()) {
-				for (String administrator : group.getAdministrators()) {
-					sendModuleClosingEmail(administrator, group, componentsClosing, 
-							"signup.closing.subject", 
-							"signup.closing.body");
-				}
-			}
-			
-			for (CourseComponentDAO component : componentsStarting) {
-				for (CourseSignupDAO signup : component.getSignups()) {
-					if (Status.CONFIRMED == signup.getStatus()) {
-						sendModuleStartingEmail(signup, component, 
-							"signup.starting.subject", 
-							"signup.starting.body");
-					}
-				}
-			}
-		}
-		*/
+		
+		int reminderDays = getReminderDays();
+		attentionSignups(reminderDays);
 	}
 	
 	/**
@@ -195,7 +156,7 @@ public class ModuleImpl implements Module {
 			
 			for (CourseComponentDAO component : components) {
 				
-				if (isTomorrow(component.getStarts())) {
+				if (isAboutToStart(component.getStarts())) {
 					// Component is about to start
 					System.out.println("Component is about to start ["+
 							component.getId()+":"+
@@ -220,9 +181,9 @@ public class ModuleImpl implements Module {
 	/**
 	 * SESii 16.2 Automated email to remind Supervisor and Administrator of any pending approvals
 	 */
-	private void attentionSignups() {
+	private void attentionSignups(int reminderDays) {
 		
-		List<CourseSignupDAO> signups = dao.findSignupStillPendingOrAccepted(unActionedInt);
+		List<CourseSignupDAO> signups = dao.findSignupStillPendingOrAccepted(reminderDays);
 		System.out.println("ModuleImpl.attentionSignups ["+signups.size()+"]");
 		
 		Map<String, Collection<CourseSignupDAO>> supervisors = 
@@ -268,9 +229,6 @@ public class ModuleImpl implements Module {
 					administrators.put(admin, set);
 				}
 				
-				//sendBumpAdministratorEmail(signup, 
-				//		"bump.admin.subject", 
-				//		"bump.admin.body");
 			}
 		}
 		
@@ -287,22 +245,21 @@ public class ModuleImpl implements Module {
 									"bump.admin.subject", 
 									"bump.admin.body");
 		}
-		//sendBumpSupervisorEmail(signup, 
-		//		"bump.supervisor.subject", 
-		//		"bump.supervisor.body");
+		
 	}
 	
 	private boolean isToday(Date date) {
 		if (null != date) {
-			if (date.after(lastMidnight) && date.before(todayMidnight)) {
+			if (date.after(lastMidnight) && date.before(aboutToClose)) {
 				return true;
 			}
 		}
 		return false;
 	}
-	private boolean isTomorrow(Date date) {
+	
+	private boolean isAboutToStart(Date date) {
 		if (null != date) {
-			if (date.after(todayMidnight) && date.before(tomorrowMidnight)) {
+			if (date.after(lastMidnight) && date.before(aboutToStart)) {
 				return true;
 			}
 		}
@@ -359,46 +316,6 @@ public class ModuleImpl implements Module {
 		String body = MessageFormat.format(rb.getString(bodyKey), bodyData);
 		proxy.sendEmail(to, subject, body);
 	}
-	/*
-	private void sendBumpAdministratorEmail(CourseSignupDAO signup, 
-			String subjectKey, 
-			String bodyKey) {
-		
-		CourseGroupDAO group = signup.getGroup();
-		UserProxy student = proxy.findUserById(signup.getUserId());
-		Set<String> administrators = group.getAdministrators(); 
-		
-		for (String administrator : administrators) {
-			UserProxy recepient = proxy.findUserById(administrator);
-			if (recepient == null) {
-				log.warn("Failed to find user for sending email: "+ administrator);
-				return;
-			}
-			String to = recepient.getEmail();
-			String subject = MessageFormat.format(rb.getString(subjectKey), new Object[]{group.getTitle()});
-		
-			StringBuffer componentDetails = new StringBuffer();
-			for (CourseComponentDAO component : signup.getComponents()) {
-				componentDetails.append("\n");
-				componentDetails.append(formatComponent(component));
-			}
-			
-			String url = null;//proxy.getConfirmUrl(signup.getId());
-			String advanceUrl = null;//proxy.getAdvanceUrl(signup.getId(), "accept", null);
-			
-			Object[] bodyData = new Object[] {
-				student.getDisplayName(),
-				group.getTitle(),
-				componentDetails.toString(),
-				url,
-				advanceUrl
-			};
-			
-			String body = MessageFormat.format(rb.getString(bodyKey), bodyData);
-			proxy.sendEmail(to, subject, body);
-		}
-	}
-	*/
 	
 	/**
 	 * 
@@ -439,40 +356,6 @@ public class ModuleImpl implements Module {
 		proxy.sendEmail(to, subject, body);
 	}
 	
-	/*
-	private void sendBumpSupervisorEmail(CourseSignupDAO signup, 
-			String subjectKey, 
-			String bodyKey) {
-		
-		CourseGroupDAO group = signup.getGroup();
-		UserProxy recepient = proxy.findUserById(signup.getSupervisorId());
-		if (recepient == null) {
-			log.warn("Failed to find user for sending email: "+ signup.getSupervisorId());
-			return;
-		}
-		String to = recepient.getEmail();
-		String subject = MessageFormat.format(rb.getString(subjectKey), new Object[]{group.getTitle()});
-		
-		StringBuffer componentDetails = new StringBuffer();
-		for (CourseComponentDAO component : signup.getComponents()) {
-			componentDetails.append("\n");
-			componentDetails.append(formatComponent(component));
-		}
-		
-		String url = null;//proxy.getConfirmUrl(signup.getId());
-		String advanceUrl = null;//proxy.getAdvanceUrl(signup.getId(), "approve", null);
-		
-		Object[] bodyData = new Object[] {
-			group.getTitle(),
-			componentDetails.toString(),
-			url,
-			advanceUrl
-		};
-		
-		String body = MessageFormat.format(rb.getString(bodyKey), bodyData);
-		proxy.sendEmail(to, subject, body);
-	}
-	*/
 	/**
 	 * 
 	 * @param supervisorId
@@ -556,6 +439,21 @@ public class ModuleImpl implements Module {
 		return output.toString();
 	}
 	
+	protected int getTodayInt() {
+		return new Integer(serverConfigurationService.getString("course-signup.site-id", "1")).intValue();
+	}
+	
+	protected int getReminderDays() {
+		return new Integer(serverConfigurationService.getString("reminder.days", "7")).intValue();
+	}
+	
+	protected int getAboutToStartDays() {
+		return new Integer(serverConfigurationService.getString("abouttostart.days", "3")).intValue();
+	}
+	
+	protected int getAboutToCloseDays() {
+		return new Integer(serverConfigurationService.getString("abouttoclose.days", "1")).intValue();
+	}
 	
 	public boolean validString(String string) {
 		if (null != string && string.trim().length() > 0) {
