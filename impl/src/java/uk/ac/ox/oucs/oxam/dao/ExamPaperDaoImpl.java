@@ -28,14 +28,14 @@ public class ExamPaperDaoImpl extends JdbcDaoSupport implements ExamPaperDao {
 		public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
 			ExamPaper examPaper = new ExamPaper();
 			examPaper.setId(rs.getLong("id"));
-			examPaper.setCategory(rs.getLong("category"));
+			examPaper.setCategory(rs.getString("category"));
 			examPaper.setExamTitle(rs.getString("exam_title"));
 			examPaper.setExamCode(rs.getString("exam_code"));
 			examPaper.setPaperTitle(rs.getString("paper_title"));
 			examPaper.setPaperCode(rs.getString("paper_code"));
 			examPaper.setPaperFile(rs.getString("paper_file"));
 			examPaper.setYear(rs.getInt("academic_year"));
-			examPaper.setTerm(rs.getInt("term"));
+			examPaper.setTerm(rs.getString("term"));
 			return examPaper;
 		}
 
@@ -60,10 +60,12 @@ public class ExamPaperDaoImpl extends JdbcDaoSupport implements ExamPaperDao {
 
 		if (ddl) {
 			String createSql = statements.getStatement("exampaper.create");
+			String indexSql = statements.getStatement("exampaper.index");
 			try {
 				getJdbcTemplate().execute(createSql);
+				getJdbcTemplate().execute(indexSql);
 			} catch (BadSqlGrammarException bsge) {
-				throw new RuntimeException("SQL is incorrect: " + createSql,
+				throw new RuntimeException("SQL is incorrect.",
 						bsge);
 			} catch (DataAccessException dae) {
 				throw dae;
@@ -82,6 +84,10 @@ public class ExamPaperDaoImpl extends JdbcDaoSupport implements ExamPaperDao {
 				statements.getStatement("exampaper.select.range"),
 				new Object[] { start, length }, mapper);
 	}
+	
+	public void deleteExamPaper(long id) {
+		getJdbcTemplate().update(statements.getStatement("exampaper.delete"), new Object[]{id});
+	}
 
 	public void saveExamPaper(final ExamPaper examPaper) throws RuntimeException {
 		if (examPaper.getId() != 0) {
@@ -99,14 +105,14 @@ public class ExamPaperDaoImpl extends JdbcDaoSupport implements ExamPaperDao {
 							PreparedStatement stmt = con.prepareStatement(
 									statements.getStatement("exampaper.insert"),
 									Statement.RETURN_GENERATED_KEYS);
-							stmt.setLong(1, examPaper.getCategory());
+							stmt.setString(1, examPaper.getCategory());
 							stmt.setString(2, examPaper.getExamTitle());
 							stmt.setString(3, examPaper.getExamCode());
 							stmt.setString(4, examPaper.getPaperTitle());
 							stmt.setString(5, examPaper.getPaperCode());
 							stmt.setString(6, examPaper.getPaperFile());;
 							stmt.setInt(7, examPaper.getYear());
-							stmt.setInt(8, examPaper.getTerm());
+							stmt.setString(8, examPaper.getTerm());
 							return stmt;
 						}
 					}, new PreparedStatementCallback() {

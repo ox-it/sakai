@@ -11,23 +11,16 @@
     <bean id="examPaperService" class="uk.ac.ox.oucs.oxam.logic.ExamPaperServiceImpl"
         init-method="init" autowire="byType">
     </bean>
+    
+    <bean id="paperFileService" class="uk.ac.ox.oucs.oxam.logic.PaperFileServiceImpl">
+        <property name="fileSystemLocation" ref="location"/>
+    </bean>
   
     <!-- DAO Stuff -->
     <bean id="statementStore" class="uk.ac.ox.oucs.oxam.dao.StatementStore" init-method="init">
         <property name="vendor" value="derby"/>
     </bean>
 
-    <bean id="paperDao" class="uk.ac.ox.oucs.oxam.dao.PaperDaoImpl"
-        init-method="init">
-        <property name="dataSource" ref="dataSource" />
-        <property name="statementStore" ref="statementStore"/>
-    </bean>
-
-    <bean id="categoryDao" class="uk.ac.ox.oucs.oxam.dao.CategoryDaoImpl"
-        init-method="init">
-        <property name="dataSource" ref="dataSource" />
-        <property name="statementStore" ref="statementStore"/>
-    </bean>
     
     <bean id="examPaperDao" class="uk.ac.ox.oucs.oxam.dao.ExamPaperDaoImpl"
         init-method="init">
@@ -37,9 +30,18 @@
     
     <bean id="solrServer" class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer">
         <constructor-arg>
-            <value>http://localhost:8983/solr/</value>
+            <value>http://localhost:8080/oxam-solr/</value>
         </constructor-arg>
     </bean>
   
+  <bean id="termService" class="uk.ac.ox.oucs.oxam.logic.TermServiceImpl"
+    init-method="init">
+    <property name="valueSource" ref="termValueSource"/>
+  </bean>
+  
+    <bean id="categoryService" class="uk.ac.ox.oucs.oxam.logic.CategoryServiceImpl"
+    init-method="init">
+    <property name="valueSource" ref="categoryValueSource"/>
+  </bean>
   
 </beans>

@@ -34,6 +34,7 @@ public class ExamPapersPage extends BasePage {
 		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("Paper Title"), "paperTitle"));
 		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("Paper Code"), "paperCode"));
 		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("Paper File"), "paperFile"));
+		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("Category"), "category"));
 		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("Year"), "year"));
 		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("Term"), "term"));
 		columns.add(new AbstractColumn<ExamPaper>(new ResourceModel("Edit")) {

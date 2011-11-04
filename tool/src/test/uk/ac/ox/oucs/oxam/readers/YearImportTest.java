@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import uk.ac.ox.oucs.oxam.readers.Import.ExamPaperRow;
 
-public class ImportTest {
+public class YearImportTest {
 
 	private Import import1;
 
@@ -29,8 +29,6 @@ public class ImportTest {
 	
 	@Test
 	public void testImporter() {
-
-		
 		InputStream paperInput = getClass().getResourceAsStream("/Papercodes.xlsx");
 		import1.readPapers(paperInput, "/Papercodes.xlsx");
 		InputStream examInput = getClass().getResourceAsStream("/Examcodes.xlsx");
@@ -38,13 +36,15 @@ public class ImportTest {
 		InputStream examPaperInput = getClass().getResourceAsStream("/ExamPapersMerged.xlsx");
 		import1.readExamPapers(examPaperInput, "/ExamPapersMerged.xlsx");
 		
-		for (Set<ConstraintViolation<ExamPaperRow>> voilation :import1.getExamPaperRowViolations().values()) {
+		
+		import1.resolve();
+		
+		for (ErrorMessages<ExamPaperRow> voilation :import1.getExamPaperRowErrors().values()) {
 			System.out.println(voilation);
 			
 		}
 		System.out.println("Count: "+ import1.getExamPaperRows().size());
-		
-		import1.resolve();
+
 		
 	}
 

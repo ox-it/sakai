@@ -16,7 +16,7 @@ public class PaperServiceImpl implements PaperService {
 		this.dao = dao;
 	}
 	
-	private void setSakaiProxy(SakaiProxy proxy) {
+	public void setSakaiProxy(SakaiProxy proxy) {
 		this.proxy = proxy;
 	}
 	
@@ -32,13 +32,18 @@ public class PaperServiceImpl implements PaperService {
 		dao.savePaper(paper);
 	}
 
-	public String mapToFile(int year, String term, String paper) {
+	public Upload mapToUpload(int year, String term, String paper) {
 		
-		return year+ "/"+ term.toLowerCase()+ "/"+ paper.toLowerCase();
+		return null;//  year+ "/"+ term.toLowerCase()+ "/"+ paper.toLowerCase();
 	}
 
-	public void depositFile(String path, Callback<OutputStream> callback) {
-		proxy.depositFile(path, callback);
+	public void depositUpload(Upload path, Callback<OutputStream> callback) {
+		//proxy.depositFile(path, callback);
+	}
+
+	public boolean uploadExists(Upload upload) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

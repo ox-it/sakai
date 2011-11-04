@@ -1,33 +1,27 @@
 package uk.ac.ox.oucs.oxam.model;
 
+import java.io.Serializable;
+
 /**
- * These remain reasonably static, but need to be read from the DB and editable.
+ * These remain reasonably static but need to be editable.
  * @author buckett
  *
  */
-public class Category {
+public class Category implements Serializable {
 
-	private long id;
-	private String title;
-	private String code;
+	private final String name;
+	private final String code;
 	
-	public long getId() {
-		return id;
-	}
-	public void setId(long id) {
-		this.id = id;
-	}
-	public String getTitle() {
-		return title;
-	}
-	public void setTitle(String title) {
-		this.title = title;
-	}
-	public String getCode() {
-		return code;
-	}
-	public void setCode(String code) {
+	public Category(String code, String name) {
+		this.name = name;
 		this.code = code;
 	}
 	
+	public String getName() {
+		return name;
+	}
+	
+	public String getCode() {
+		return code;
+	}	
 }

@@ -9,7 +9,7 @@ public class ExamPaper implements Serializable{
 	private long id;
 
 	// Category, closely linked to the exam title.
-	private long category;
+	private String category;
 	
 	// From the exam.
 	private String examTitle;
@@ -22,7 +22,7 @@ public class ExamPaper implements Serializable{
 	
 	// From terms.
 	private Integer year;
-	private Integer term;
+	private String term;
 
 	public long getId() {
 		return id;
@@ -30,10 +30,10 @@ public class ExamPaper implements Serializable{
 	public void setId(long id) {
 		this.id = id;
 	}
-	public long getCategory() {
+	public String getCategory() {
 		return category;
 	}
-	public void setCategory(long category) {
+	public void setCategory(String category) {
 		this.category = category;
 	}
 	public String getExamTitle() {
@@ -72,10 +72,10 @@ public class ExamPaper implements Serializable{
 	public void setYear(Integer year) {
 		this.year = year;
 	}
-	public Integer getTerm() {
+	public String getTerm() {
 		return term;
 	}
-	public void setTerm(Integer term) {
+	public void setTerm(String term) {
 		this.term = term;
 	}
 }

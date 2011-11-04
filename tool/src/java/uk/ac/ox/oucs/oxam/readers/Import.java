@@ -1,164 +1,180 @@
 package uk.ac.ox.oucs.oxam.readers;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import uk.ac.ox.oucs.oxam.readers.SheetImporter.Format;
+import uk.ac.ox.oucs.oxam.model.ExamPaper;
 
 public class Import {
 
-	private Map<String, PaperRow>paperRows;
-	private Map<Integer, Set<ConstraintViolation<PaperRow>>>paperRowViolations = new HashMap<Integer, Set<ConstraintViolation<PaperRow>>>();
-	
-	private Map<String, ExamRow>examRows;
-	private Map<Integer, Set<ConstraintViolation<ExamRow>>>examRowViolations = new HashMap<Integer, Set<ConstraintViolation<ExamRow>>>();
-	
-	private List<ExamPaperRow>examPaperRows;
-	private Map<Integer, Set<ConstraintViolation<ExamPaperRow>>>examPaperRowViolations = new HashMap<Integer, Set<ConstraintViolation<ExamPaperRow>>>();
-	
 	private Importer importer;
+	
+	private KeyedSheetImporter<PaperRow> paperRowImporter;
+	private KeyedSheetImporter<ExamRow> examRowImporter;
+	private KeyedSheetImporter<ExamPaperRow> examPaperRowImporter;
+	
+	// This finds the source files.
+	private PaperResolver resolver;
 
 	Import(Importer importer) {
 		this.importer = importer;
 	}
 
 	public void readPapers(InputStream source, String filename) {
-		this.paperRows = new HashMap<String,PaperRow>();
-		
-		Format format = getFormat(filename);
-		
-		SheetImporter sheetImporter = new SheetImporter();
-		List<PaperRow> paperRows = sheetImporter.importSheet(source, format, PaperRow.class);
-		
-		for (PaperRow paperRow: paperRows) {
-			Set<ConstraintViolation<PaperRow>> violations = importer.validate(paperRow);
-			if (violations.isEmpty()) {
-				this.paperRows.put(paperRow.code, paperRow);
-			} else {
-				paperRowViolations.put(paperRow.row, violations);
-			}
-		}
+		paperRowImporter = new KeyedSheetImporter<PaperRow>(PaperRow.class, importer);
+		paperRowImporter.read(source, filename);
 	}
 	
 	public void readExams(InputStream source, String filename) {
-		// WorkbookFactory needs support for mark/reset.
-		this.examRows = new HashMap<String,ExamRow>();
-		
-		Format format = getFormat(filename);
-		
-		SheetImporter sheetImporter = new SheetImporter();
-		List<ExamRow> examRows = sheetImporter.importSheet(source, format, ExamRow.class);
-		
-		for (ExamRow examRow: examRows) {
-			Set<ConstraintViolation<ExamRow>> violations = importer.validate(examRow);
-			if (violations.isEmpty()) {
-				this.examRows.put(examRow.code, examRow);
-			} else {
-				this.examRowViolations.put(examRow.row, violations);
-			}
-		}
+		examRowImporter = new KeyedSheetImporter<ExamRow>(ExamRow.class, importer);
+		examRowImporter.read(source, filename);
 	}
 	public void readExamPapers(InputStream source, String filename) {
-		// WorkbookFactory needs support for mark/reset.
-		this.examPaperRows = new ArrayList<ExamPaperRow>();
-		
-		Format format = getFormat(filename);
-		
-		SheetImporter sheetImporter = new SheetImporter();
-		List<ExamPaperRow> examPaperRows = sheetImporter.importSheet(source, format, ExamPaperRow.class);
-		
-		for (ExamPaperRow examPaperRow: examPaperRows) {
-			Set<ConstraintViolation<ExamPaperRow>> violations = importer.validate(examPaperRow);
-			if (violations.isEmpty()) {
-				this.examPaperRows.add(examPaperRow);
-			} else {
-				this.examPaperRowViolations.put(examPaperRow.row, violations);
-			}
-		}
+		examPaperRowImporter = new KeyedSheetImporter<ExamPaperRow>(ExamPaperRow.class, importer);
+		examPaperRowImporter.read(source, filename);
+	}
+	
+	public void setPaperResolver(PaperResolver resolver) {
+		this.resolver = resolver;
 	}
 	
 	public Map<String, PaperRow> getPaperRows() {
-		return paperRows;
+		return paperRowImporter.getRows();
 	}
 
-	public Map<Integer, Set<ConstraintViolation<PaperRow>>> getPaperRowViolations() {
-		return paperRowViolations;
+	public Map<Integer, ErrorMessages<PaperRow>> getPaperRowErrors() {
+		return paperRowImporter.getErrors();
 	}
 
 	public Map<String, ExamRow> getExamRows() {
-		return examRows;
+		return examRowImporter.getRows();
 	}
 
-	public Map<Integer, Set<ConstraintViolation<ExamRow>>> getExamRowViolations() {
-		return examRowViolations;
+	public Map<Integer, ErrorMessages<ExamRow>> getExamRowErrors() {
+		return examRowImporter.getErrors();
 	}
 
-	public List<ExamPaperRow> getExamPaperRows() {
-		return examPaperRows;
+	public Map<String, ExamPaperRow> getExamPaperRows() {
+		return examPaperRowImporter.getRows();
 	}
 
-	public Map<Integer, Set<ConstraintViolation<ExamPaperRow>>> getExamPaperRowViolations() {
-		return examPaperRowViolations;
+	public Map<Integer, ErrorMessages<ExamPaperRow>> getExamPaperRowErrors() {
+		return examPaperRowImporter.getErrors();
 	}
 
 	// Here we lookup everything to make sure it all matches up.
 	public void resolve() {
+		Map<String, PaperRow> paperRows = paperRowImporter.getRows();
+		Map<String, ExamPaperRow> examPaperRows = examPaperRowImporter.getRows();
+		Map<String, ExamRow> examRows = examRowImporter.getRows();
+		
+		// Should the resolver remove data which isn't good?
 		for (PaperRow paperRow: paperRows.values()) {
+
+			if (!importer.checkTerm(paperRow)) {
+				paperRowImporter.addError(paperRow, "Not a valid term code.");
+			}
+			
+			int year = parseYear(paperRow.year);
+			if (year < 0) {
+				paperRowImporter.addError(paperRow, "Not a valid year.");
+			}
 			// If the paper is included with another.
+			
+			// Need to be careful of a circular loop (paper A inc B, paper B inc A)
 			if(paperRow.inc != null && paperRow.inc.length() > 0) {
 				if (paperRow.code.equals(paperRow.inc)) { 
-					System.out.println("Paper can't reference itself: "+ paperRow.code);
+					paperRowImporter.addError(paperRow, "Paper can't reference itself");
 				}
-				if (!paperRows.containsKey(paperRow.inc)) {
-					System.out.println("Not found in paperRows: "+ paperRow.inc);
-					//paperRowViolations.put(paperRow.row, null);
+				if (!paperRows.containsKey(paperRow.inc+paperRow.year+paperRow.term)) {
+					paperRowImporter.addError(paperRow, "Not found in paperRows: "+ paperRow.inc);
 				}
 			} else {
-				// Todo need to validate PDF links.
+				PaperResolutionResult result = resolver.getPaper(year, paperRow.term, paperRow.code);
+				if (result == null) {
+					paperRowImporter.addError(paperRow,  "Not enough good information to locate file.");
+				} else {
+					if (!result.isFound()) {
+						paperRowImporter.addError(paperRow, "Couldn't find file: "+ result.getPath());
+					}
+				}
 			}
 		}
-		for (ExamPaperRow examPaperRow: examPaperRows) {
-			if (!examRows.containsKey(examPaperRow.examCode)) {
-				System.out.println("Not found in examRows: "+ examPaperRow.examCode);
-				examPaperRowViolations.put(examPaperRow.row, null);
+		for (ExamPaperRow examPaperRow: examPaperRows.values()) {
+			boolean error = false;
+			ExamRow examRow = examRows.get(examPaperRow.getExamKey());
+			if (examRow == null) {
+				examPaperRowImporter.addError(examPaperRow, "Failed to find referenced exam");
+				error = true;
 			}
-			if (!paperRows.containsKey(examPaperRow.paperCode)) {
-				System.out.println("Not found in paperRows: "+ examPaperRow.paperCode);
-				examPaperRowViolations.put(examPaperRow.row, null);
+			PaperRow paperRow = paperRows.get(examPaperRow.getPaperKey());
+			if (paperRow == null) {
+				examPaperRowImporter.addError(examPaperRow, "Failed to find referenced paper");
+				error = true;
+			}
+			// Parse year.
+			int year = parseYear(examPaperRow.year);
+			if (year < 0) {
+				examPaperRowImporter.addError(examPaperRow, "Failed to understand date");
+				error = true;
+			}
+			if (!importer.checkTerm(examPaperRow)) {
+				examPaperRowImporter.addError(examPaperRow, "Not a valid term code.");
+				error = true;
+			}
+			if (!importer.checkCategory(examRow)) {
+				examRowImporter.addError(examRow, "Category is not valid");
+				error = true;
+			}
+			
+			if (!error) {
+				PaperResolutionResult paper = resolver.getPaper(year, examPaperRow.term, examPaperRow.paperCode);
+				if(paper.isFound()) {
+					ExamPaper examPaper = new ExamPaper();
+					examPaper.setExamCode(examPaperRow.examCode);
+					examPaper.setPaperCode(examPaperRow.paperCode);
+					examPaper.setYear(year);
+					examPaper.setTerm(examPaperRow.term);
+					examPaper.setPaperTitle(paperRow.title);
+					examPaper.setExamTitle(examRow.title);
+					examPaper.setCategory(examRow.category);
+					importer.persist(examPaper, paper.getStream());
+				} else {
+					examPaperRowImporter.addError(examPaperRow, "File for paper is missing: "+ paper.getPath());
+				}
 			}
 		}
 	}
 	
 
-	private Format getFormat(String filename) {
-		Format format = null;
-		if (filename != null) {
-			if (filename.endsWith(".xls")) {
-				format = Format.XLS;
-			} else if (filename.endsWith(".xlsx")) {
-				format = Format.XLSX;
-			} else if (filename.endsWith(".csv")) {
-				format = Format.CSV;
-			}
+	private int parseYear(String year) {
+		int pos = year.indexOf('-');
+		try {
+			return Integer.parseInt((pos > 0)?year.substring(0,pos):year);
+		} catch (NumberFormatException nfe) {
 		}
-		if (format == null) {
-			throw new IllegalArgumentException("Unrecognised file extension: "+ filename);
-		}
-		return format;
+		return -1;
+	}
+
+	static abstract class KeyedRow {
+		abstract int getRow();
+		
+		abstract String getKey();
 	}
 	
-	static class ExamPaperRow {
+	static class ExamPaperRow  extends KeyedRow {
+
 		@RowNumber
 		int row;
+		
+		@Override
+		int getRow() {
+			return row;
+		}
 		
 		@ColumnMapping("exam code")
 		@NotNull @Size(min=1)
@@ -175,12 +191,46 @@ public class Import {
 		@ColumnMapping("year")
 		@NotNull @Pattern(regexp="\\d{4}(-\\d{4})?")
 		String year;
+		
+		String getExamKey() {
+			ExamRow examRow = new ExamRow();
+			examRow.code = examCode;
+			examRow.year = year;
+			return examRow.getKey();
+		}
+		
+		String getPaperKey() {
+			PaperRow paperRow = new PaperRow();
+			paperRow.code = paperCode;
+			paperRow.year = year;
+			paperRow.term = term;
+			return paperRow.getKey();
+		}
+		
+		@Override
+		public String getKey() {
+			return paperCode+ examCode+ year+ term;
+		}
+
+		@Override
+		public String toString() {
+			return "ExamPaperRow [row=" + row + ", examCode=" + examCode
+					+ ", paperCode=" + paperCode + ", term=" + term + ", year="
+					+ year + "]";
+		}
+		
 	}
 	
 	
-	static class ExamRow {
+	static class ExamRow extends KeyedRow {
+		
 		@RowNumber
 		int row;
+		
+		@Override
+		int getRow() {
+			return row;
+		}
 		
 		@ColumnMapping("examcode")
 		@NotNull @Size(min=1)
@@ -197,13 +247,30 @@ public class Import {
 		@ColumnMapping("cat_code")
 		@NotNull @Size(min=1)
 		String category;
+		
+		@Override
+		public String getKey() {
+			return code+year;
+		}
+
+		@Override
+		public String toString() {
+			return "ExamRow [row=" + row + ", code=" + code + ", title="
+					+ title + ", year=" + year + ", category=" + category + "]";
+		}
 	}
 	
 	// Hold all the paper information from the sheet.
 	// Needs to be static so the SheetImporter can create new instances.
-	static class PaperRow {
+	static class PaperRow extends KeyedRow {
+	
 		@RowNumber
 		int row;
+		
+		@Override
+		int getRow() {
+			return row;
+		}
 		
 		@ColumnMapping("paper code")
 		@NotNull @Size(min=1)
@@ -214,7 +281,6 @@ public class Import {
 		String title;
 		
 		@ColumnMapping("inc with")
-		@Size(min=1)
 		String inc;
 		
 		@ColumnMapping("term")
@@ -224,6 +290,18 @@ public class Import {
 		@ColumnMapping("year")
 		@NotNull @Pattern(regexp="\\d{4}(-\\d{4})?")
 		String year;
+		
+		@Override
+		public String getKey() {
+			return code+year+term;
+		}
+
+		@Override
+		public String toString() {
+			return "PaperRow [row=" + row + ", code=" + code + ", title="
+					+ title + ", inc=" + inc + ", term=" + term + ", year="
+					+ year + "]";
+		}
 	}
 
 }

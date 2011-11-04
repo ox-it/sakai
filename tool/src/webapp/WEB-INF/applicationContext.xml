@@ -6,5 +6,7 @@
 	<!-- We need this file to satisfy Spring, but we don't need anything in it since we use Wicket's dependency injection -->
     <import resource="classpath:/standalone-beans.xml"/>
     <import resource="classpath:/oxam-beans.xml"/>
+    
+    <bean id="location" class="uk.ac.ox.oucs.oxam.logic.ServletLocation"/>
        
 </beans>

@@ -15,7 +15,6 @@ public class SheetReaderCSV implements SheetReader {
 
 	public SheetReaderCSV(InputStream source) {
 		reader = new CSVReader(new InputStreamReader(source));
-
 	}
 
 	public boolean nextRow() {

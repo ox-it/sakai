@@ -13,53 +13,79 @@ import uk.ac.ox.oucs.oxam.model.ExamPaper;
 
 public class ExamPaperServiceImpl implements ExamPaperService {
 
-
 	private ExamPaperDao dao;
 	private SolrServer solr;
-	
+	private TermService termService;
+	private CategoryService categoryService;
+
+	boolean indexing = false;
+
 	public void init() {
-		
+
 	}
-	
+
 	public void setExamPaperDao(ExamPaperDao dao) {
 		this.dao = dao;
 	}
-	
+
 	public void setSolrServer(SolrServer solr) {
 		this.solr = solr;
 	}
-	
+
+	public void setTermService(TermService termService) {
+		this.termService = termService;
+	}
+
+	public void setCategoryService(CategoryService categoryService) {
+		this.categoryService = categoryService;
+	}
+
 	public ExamPaper getExamPaper(long id) {
 		return dao.getExamPaper(id);
 	}
-	
+
 	public List<ExamPaper> getExamPapers(int start, int length) {
 		return dao.getExamPapers(start, length);
 	}
 
-	public void saveExamPaper(ExamPaper examPaper) throws RuntimeException {
-		dao.saveExamPaper(examPaper);
-		
-		// This needs much better handling.
-		// Retry and better transaction management.
-		SolrInputDocument doc = new SolrInputDocument();
-		doc.addField("id", examPaper.getId());
-		doc.addField("exam_title", examPaper.getExamTitle());
-		doc.addField("exam_code", examPaper.getExamCode());
-		doc.addField("paper_title", examPaper.getPaperTitle());
-		doc.addField("paper_code", examPaper.getPaperCode());
-		doc.addField("year", examPaper.getYear());
-		doc.addField("term", "Tinity");//TODO
+	public void deleteExamPaper(long id) {
+		dao.deleteExamPaper(id);
 		try {
-			UpdateResponse resp = solr.add(doc);
-			solr.commit();
+			solr.deleteById(Long.toString(id));
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			
+		}
+	}
+
+	public void saveExamPaper(ExamPaper examPaper) throws RuntimeException {
+
+		dao.saveExamPaper(examPaper);
+		if (indexing) {
+			// This needs much better handling.
+			// Retry and better transaction management.
+			SolrInputDocument doc = new SolrInputDocument();
+			doc.addField("id", examPaper.getId());
+			doc.addField("exam_title", examPaper.getExamTitle());
+			doc.addField("exam_code", examPaper.getExamCode());
+			doc.addField("paper_title", examPaper.getPaperTitle());
+			doc.addField("paper_code", examPaper.getPaperCode());
+			doc.addField("paper_file", examPaper.getPaperFile());
+			doc.addField("year", examPaper.getYear());
+			doc.addField("term", termService.getByCode(examPaper.getTerm()));
+			try {
+				UpdateResponse resp = solr.add(doc);
+				solr.commit();
+			} catch (SolrServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 

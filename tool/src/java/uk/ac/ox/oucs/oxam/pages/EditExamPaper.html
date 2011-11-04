@@ -4,28 +4,33 @@
 <body>
 <wicket:extend>
 
-		<h3>Exam Paper</h3>
+	<h3>Exam Paper</h3>
 	<form wicket:id="examPaperForm">
 	<table>
+		<tr>
+			<td><wicket:message key="label.exam.code" /></td>
+			<td><input type="text" wicket:id="examCode" size="4" maxlength="4"/></td>
+			<td><span wicket:id="examCodeFeedback"></span></td>
+		</tr>
 		<tr>
 			<td><wicket:message key="label.exam.title" /></td>
 			<td><input type="text" wicket:id="examTitle"/></td>
 			<td><span wicket:id="examTitleFeedback"></span></td>
 		</tr>
 		<tr>
-			<td><wicket:message key="label.exam.code" /></td>
-			<td><input type="text" wicket:id="examCode"/></td>
-			<td><span wicket:id="examCodeFeedback"></span></td>
+			<td><wicket:message key="label.category" /></td>
+			<td><select wicket:id="category" size="1"></select></td>
+			<td><span wicket:id="categoryFeedback"></span></td>
+		</tr>
+		<tr>
+			<td><wicket:message key="label.paper.code" /></td>
+			<td><input type="text" wicket:id="paperCode" size="4" maxlength="4"/></td>
+			<td><span wicket:id="paperCodeFeedback"></span></td>
 		</tr>
 		<tr>
 			<td><wicket:message key="label.paper.title" /></td>
 			<td><input type="text" wicket:id="paperTitle"/></td>
 			<td><span wicket:id="paperTitleFeedback"></span></td>
-		</tr>
-		<tr>
-			<td><wicket:message key="label.paper.code" /></td>
-			<td><input type="text" wicket:id="paperCode"/></td>
-			<td><span wicket:id="paperCodeFeedback"></span></td>
 		</tr>
 		<tr>
 			<td><wicket:message key="label.paper.file" /></td>
@@ -34,14 +39,15 @@
 		</tr>
 		<tr>
 			<td><wicket:message key="label.year" /></td>
-			<td><input type="text" wicket:id="year"/></td>
+			<td><input type="text" wicket:id="year" size="4" maxlength="4"/></td>
 			<td><span wicket:id="yearFeedback"></span></td>
 		</tr>
 		<tr>
 			<td><wicket:message key="label.term" /></td>
-			<td><input type="text" wicket:id="term"/></td>
+			<td><select wicket:id="term" size="1"></select></td>
 			<td><span wicket:id="termFeedback"></span></td>
 		</tr>
+		
 	</table>
 	<div>
 		<input type="submit" wicket:id="submitButton" value="Save" />

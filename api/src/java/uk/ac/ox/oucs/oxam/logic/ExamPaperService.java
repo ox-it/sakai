@@ -12,5 +12,7 @@ public interface ExamPaperService {
 	
 	public void saveExamPaper(ExamPaper paper) throws RuntimeException;
 
+	public void deleteExamPaper(long id);
+	
 	
 }

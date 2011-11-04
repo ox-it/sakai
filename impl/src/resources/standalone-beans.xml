@@ -23,5 +23,21 @@
         class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource" />
     </bean>
+    
+    <!-- Get the term data from the classpath -->
+    <bean id="termValueSource"
+        class="uk.ac.ox.oucs.oxam.logic.ClasspathValueSource">
+        <property name="resource" value="/terms.csv"/>
+    </bean>
+    
+    <!-- Get the categories data from the classpath -->
+    <bean id="categoryValueSource"
+        class="uk.ac.ox.oucs.oxam.logic.ClasspathValueSource">
+        <property name="resource" value="/categories.csv"/>
+    </bean>
+    
+    <!-- This bean allows us to get at the servlet context and so know where we are.
+         This bean should get injected with the servlet context on startup -->
+    <!--  <bean id="fsLocation" class="uk.ac.ox.oucs.oxam.logic.FileSystemLocation"/> -->
 </beans>
   

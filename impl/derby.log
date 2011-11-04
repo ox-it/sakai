@@ -1,0 +1,10 @@
+----------------------------------------------------------------
+Wed Nov 02 12:24:39 GMT 2011:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.8.1.2 - (1095077): instance a816c00e-0133-643d-00d4-000004a51760 
+on database directory memory:/Users/buckett/work/git/oxford-2.6.x/extras/oxam/impl/test  with class loader sun.misc.Launcher$AppClassLoader@53004901 
+Loaded from file:/Users/buckett/.m2/repository/org/apache/derby/derby/10.8.1.2/derby-10.8.1.2.jar
+java.vendor=Apple Inc.
+java.runtime.version=1.6.0_26-b03-383-11A511
+user.dir=/Users/buckett/work/git/oxford-2.6.x/extras/oxam/impl
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''

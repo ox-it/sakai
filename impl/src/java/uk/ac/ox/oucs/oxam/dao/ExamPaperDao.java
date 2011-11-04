@@ -11,4 +11,6 @@ public interface ExamPaperDao {
 	public List<ExamPaper> getExamPapers(int start, int length);
 	
 	public void saveExamPaper(ExamPaper examPaper);
+
+	public void deleteExamPaper(long id);
 }

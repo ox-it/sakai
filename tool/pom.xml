@@ -41,6 +41,11 @@
             <artifactId>wicket-spring</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-extensions</artifactId>
+            <version>1.4.17</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
@@ -128,11 +133,12 @@
             <groupId>dom4j</groupId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-extensions</artifactId>
-            <version>1.4.17</version>
-        </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>1.4</version>
+                <scope>compile</scope>
+            </dependency>
     </dependencies>
 
 
@@ -153,6 +159,7 @@
                 <directory>src/resources</directory>
                 <includes>
                     <include>*.properties</include>
+                    <include>*.xml</include>
                 </includes>
             </resource>
         </resources>

@@ -28,13 +28,13 @@ public class ExamPaperDaoImplTest {
 		assertEquals(0, dao.getExamPapers(0, 10).size());
 	
 		ExamPaper examPaper = new ExamPaper();
-		examPaper.setCategory(0);
+		examPaper.setCategory("A");
 		examPaper.setExamCode("EXAMCODE");
 		examPaper.setExamTitle("Exam Title");
 		examPaper.setPaperCode("PAPERCODE");
 		examPaper.setPaperTitle("Paper Title");
 		examPaper.setPaperFile("/some/file/url");
-		examPaper.setTerm(0);
+		examPaper.setTerm("T");
 		examPaper.setYear(2011);
 
 		dao.saveExamPaper(examPaper);

@@ -10,9 +10,6 @@ import uk.ac.ox.oucs.oxam.readers.Import;
 import uk.ac.ox.oucs.oxam.readers.Importer;
 
 public class ImportData extends BasePage {
-
-
-
 	// Think this class needs to change so you upload each file one at a time and then process them later.
 	private class ImportDataForm extends Form<Void> {
 
@@ -52,11 +49,6 @@ public class ImportData extends BasePage {
 			} catch (IOException ioe) {
 				
 			}
-		}
-		
-		@Override
-		protected void onDetach() {
-			
 		}
 	}
 

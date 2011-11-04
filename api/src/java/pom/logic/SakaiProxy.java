@@ -74,6 +74,6 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public String getConfigParam(String param, String dflt);
+
 	
-	public void depositFile(String path, Callback<OutputStream> callback);
 }

@@ -15,8 +15,10 @@ public interface PaperService {
 	
 	
 	
-	public String mapToFile(int year, String term, String paper);
+	public Upload mapToUpload(int year, String term, String paper);
 	
-	public void depositFile(String url, Callback<OutputStream> callback);
+	public void depositUpload(Upload upload, Callback<OutputStream> callback);
+	
+	public boolean uploadExists(Upload upload);
 	
 }
