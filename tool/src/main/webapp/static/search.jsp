@@ -99,6 +99,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 				try {
 					var form = this;
 					var id = $("input[name=id]", form).val();
+					var previous = $("input[name=previous]", form).val();
 					var workingWindow = parent.window || window;
 					var position = Signup.util.dialogPosition();
 					var height = Math.round($(workingWindow).height() * 0.9);
@@ -115,7 +116,11 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 							courseDetails.remove(); /* Tidy up the DOM. */
 						}
 					});
-					Signup.course.show(courseDetails, id, "ALL", externalUser, function(){
+					var range = "UPCOMING";
+					if (previous == "Old Courses") {
+						range = "PREVIOUS";
+					}
+					Signup.course.show(courseDetails, id, range, externalUser, function(){
 						courseDetails.dialog("open");
 					});
 				} catch (e) {
@@ -161,6 +166,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 			</table>
 			<form class="details">
 				<input type="hidden" name="id" ex:value-content="value">
+				<input type="hidden" name="previous" ex:value-content=".previous">
 				<input type="submit" value="More details">
 			</form>
 			<h3>Description</h3>
