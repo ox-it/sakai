@@ -125,10 +125,6 @@ table th {
 }
 .jstree li.open a {
 	color: green;
-	white-space: normal !important;
-	padding-top: 4px;
-	padding-right: 2em;
-	height: 100%;
 }
 
 /* Styling of the signup table */

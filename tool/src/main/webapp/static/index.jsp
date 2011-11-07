@@ -44,6 +44,9 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<script type="text/javascript">
 			jQuery(function() {
 
+				var css_string = '.jstree a { height:auto; padding:0px 2em 0px 0px !important; border: 1px solid #ffffff; vertical-align: top !important; white-space: normal !important;}';
+				$.vakata.css.add_sheet({ str : css_string });
+				
 				// extract the GET data
 				var getData = new QueryData();
 				var defaultNodes = "<%= ToolManager.getCurrentPlacement().getConfig().getProperty("default-nodes", "root")%>".split(",");
