@@ -462,9 +462,10 @@ public class SetupEvalBean {
                     continue;
                 }
                 
-				if(commonLogic.isUserAnonymous(userId)) {
+                if(commonLogic.isUserAnonymous(userId)) {
+					EvalUser user = commonLogic.getEvalUsersByIds(new String[] {userId}).get(0);
 					messages.addMessage(new TargettedMessage(
-							"assigneval.invalid.user", new Object[] {userId},
+							"assigneval.invalid.user", new Object[] {user.username},
 							TargettedMessage.SEVERITY_ERROR));
 					return "fail";
 				}
