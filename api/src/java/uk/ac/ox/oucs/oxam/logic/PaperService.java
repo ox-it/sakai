@@ -12,9 +12,7 @@ public interface PaperService {
 	public List<Paper> getPapers(int start, int length);
 	
 	public void savePaper(Paper paper) throws RuntimeException;
-	
-	
-	
+		
 	public Upload mapToUpload(int year, String term, String paper);
 	
 	public void depositUpload(Upload upload, Callback<OutputStream> callback);

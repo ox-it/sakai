@@ -14,7 +14,7 @@
 		</tr>
 		<tr>
 			<td><wicket:message key="label.exam.title" /></td>
-			<td><input type="text" wicket:id="examTitle"/></td>
+			<td><input type="text" wicket:id="examTitle" size="50"/></td>
 			<td><span wicket:id="examTitleFeedback"></span></td>
 		</tr>
 		<tr>
@@ -29,13 +29,16 @@
 		</tr>
 		<tr>
 			<td><wicket:message key="label.paper.title" /></td>
-			<td><input type="text" wicket:id="paperTitle"/></td>
+			<td><input type="text" wicket:id="paperTitle" size="50"/></td>
 			<td><span wicket:id="paperTitleFeedback"></span></td>
 		</tr>
 		<tr>
 			<td><wicket:message key="label.paper.file" /></td>
-			<td><input type="text" wicket:id="paperFile"/></td>
-			<td><span wicket:id="paperFileFeedback"></span></td>
+			<td>
+				Existing File: <a wicket:id="paperFile">/Link/</a><br/>
+				Replacement: <input type="file" wicket:id="file"/><br/>
+				Link to:<input type="text" wicket:id="included" size="4" maxlength="4"/>
+			</td>
 		</tr>
 		<tr>
 			<td><wicket:message key="label.year" /></td>

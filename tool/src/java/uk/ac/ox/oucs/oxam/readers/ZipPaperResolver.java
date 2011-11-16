@@ -11,11 +11,11 @@ import uk.ac.ox.oucs.oxam.model.Term;
 public class ZipPaperResolver implements PaperResolver {
 	
 	//Always use / with zipfiles
-	private static final String ZIP_SEPERATOR = "/";
-	private final TermService termService;
-	private String extension;
-	private ZipFile zipFile;
-	private String zipPrefix;
+	protected static final String ZIP_SEPERATOR = "/";
+	protected final TermService termService;
+	protected String extension;
+	protected ZipFile zipFile;
+	protected String zipPrefix;
 
 	public ZipPaperResolver(String filePath, String zipPrefix, TermService termService, String extension) throws IOException {
 		zipFile = new ZipFile(filePath);

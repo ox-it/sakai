@@ -3,6 +3,7 @@ package uk.ac.ox.oucs.oxam.pages;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
@@ -10,7 +11,9 @@ import org.apache.wicket.markup.html.form.ListChoice;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -78,13 +81,16 @@ public class EditExamPaper extends BasePage {
 			FeedbackLabel paperCodeFeedback = new FeedbackLabel("paperCodeFeedback", paperCode);
 			add(paperCodeFeedback);
 			
-			TextField<String> paperFile = new TextField<String>("paperFile");
-			paperFile.setRequired(true);
-			add(paperFile);
-			FeedbackLabel paperFileFeedback = new FeedbackLabel("paperFileFeedback", paperFile);
-			add(paperFileFeedback);
+			ExternalLink link = new ExternalLink("paperFile", new Model<String>(examPaper.getPaperFile()), new Model<String>(examPaper.getPaperFile()));
+			link.setVisible(link.getDefaultModelObject() != null);
+			add(link);
 			
-			FileUploadField upload = new FileUploadField("file");
+			
+			FileUploadField upload = new FileUploadField("file", new Model());
+			add(upload);
+			
+			TextField<String> included = new TextField<String>("included", new Model());
+			add(included);
 			
 			TextField<Integer> year = new TextField<Integer>("year");
 			year.setRequired(true);
@@ -154,4 +160,5 @@ public class EditExamPaper extends BasePage {
 		}
 		
 	}
+	
 }

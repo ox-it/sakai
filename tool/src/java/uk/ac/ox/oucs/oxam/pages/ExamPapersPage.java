@@ -7,7 +7,10 @@ import java.util.List;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.HeaderlessColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -29,15 +32,16 @@ public class ExamPapersPage extends BasePage {
 	
 	public ExamPapersPage() {
 		List<IColumn<?>> columns = new ArrayList<IColumn<?>>();
-		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("Exam Title"), "examTitle"));
-		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("Exam Code"), "examCode"));
-		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("Paper Title"), "paperTitle"));
-		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("Paper Code"), "paperCode"));
-		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("Paper File"), "paperFile"));
-		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("Category"), "category"));
-		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("Year"), "year"));
-		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("Term"), "term"));
-		columns.add(new AbstractColumn<ExamPaper>(new ResourceModel("Edit")) {
+		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("label.exam.title"), "examTitle"));
+		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("label.exam.code"), "examCode"));
+		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("label.paper.title"), "paperTitle"));
+		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("label.paper.code"), "paperCode"));
+		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("label.paper.file"), "paperFile"));
+		//columns.add(new )
+		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("label.category"), "category"));
+		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("label.year"), "year"));
+		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel("label.term"), "term"));
+		columns.add(new HeaderlessColumn<ExamPaper>() {
 			private static final long serialVersionUID = 1L;
 			public void populateItem(Item<ICellPopulator<ExamPaper>> cellItem,
 					String componentId, IModel<ExamPaper> rowModel) {
@@ -45,7 +49,11 @@ public class ExamPapersPage extends BasePage {
 			}
 		});
 		
-		add(new DataTable<ExamPaper>("examPapersTable", columns.toArray(new IColumn[0]), getDataProvider(), 5));
+		DataTable<ExamPaper> table = new DataTable<ExamPaper>(
+				"examPapersTable", columns.toArray(new IColumn[0]), getDataProvider(), 5);
+		table.addBottomToolbar(new NavigationToolbar(table));
+		table.addTopToolbar(new HeadersToolbar(table, null));
+		add(table);
 		
 		add(new Link<Void>("importData") {
 			private static final long serialVersionUID = 1L;
@@ -61,10 +69,18 @@ public class ExamPapersPage extends BasePage {
 				setResponsePage(new EditExamPaper(new ExamPaper()));
 			}
 		});
+		add(new Link<Void>("reindex") {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onClick() {
+				setResponsePage(ReindexPage.class);;
+			}
+		});
 	}
 	
 	private class ExamActionPanel extends Panel {
-		
+		private static final long serialVersionUID = 1L;
+
 		public ExamActionPanel(String id, final IModel<ExamPaper> model) {
 			super(id, model);
 			add(new Link<String>("edit") {
@@ -89,8 +105,6 @@ public class ExamPapersPage extends BasePage {
 			private static final long serialVersionUID = 1L;
 
 			public void detach() {
-				// TODO Auto-generated method stub
-				
 			}
 
 			public Iterator<? extends ExamPaper> iterator(int first, int count) {
@@ -98,8 +112,7 @@ public class ExamPapersPage extends BasePage {
 			}
 
 			public int size() {
-				// TODO Auto-generated method stub
-				return 10000;
+				return examPaperService.count();
 			}
 
 			public IModel<ExamPaper> model(ExamPaper object) {

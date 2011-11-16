@@ -10,6 +10,7 @@
   
     <bean id="examPaperService" class="uk.ac.ox.oucs.oxam.logic.ExamPaperServiceImpl"
         init-method="init" autowire="byType">
+        <property name="indexing" value="true"/>
     </bean>
     
     <bean id="paperFileService" class="uk.ac.ox.oucs.oxam.logic.PaperFileServiceImpl">

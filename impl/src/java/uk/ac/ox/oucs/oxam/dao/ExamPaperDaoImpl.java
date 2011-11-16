@@ -5,18 +5,25 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import pom.logic.SakaiProxy;
+import uk.ac.ox.oucs.oxam.logic.Callback;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 
 public class ExamPaperDaoImpl extends JdbcDaoSupport implements ExamPaperDao {
@@ -133,6 +140,53 @@ public class ExamPaperDaoImpl extends JdbcDaoSupport implements ExamPaperDao {
 				throw new IllegalStateException("Failed to generate key");
 			}
 		}
+	}
+
+	public Map<String, String> resolvePaperCodes(String[] codes) {
+		String stmt = statements.getStatement("exampaper.papercodes.begin");
+		stmt = stmt+ StringUtils.repeat("?", ", ", codes.length);
+		stmt = stmt + statements.getStatement("exampaper.papercodes.end");
+		return resolveCodes(codes, stmt);
+	}
+	
+	public Map<String, String> resolveExamCodes(String[] codes) {
+		String stmt = statements.getStatement("exampaper.examcodes.begin");
+		stmt = stmt+ StringUtils.repeat("?", ", ", codes.length);
+		stmt = stmt + statements.getStatement("exampaper.examcodes.end");
+		return resolveCodes(codes, stmt);
+	}
+
+	private Map<String, String> resolveCodes(String[] codes, String stmt) {
+		final Map<String, String> resolved = new HashMap<String, String>();
+		getJdbcTemplate().query(stmt, codes, new RowCallbackHandler() {
+			
+			public void processRow(ResultSet rs) throws SQLException {
+				String code = rs.getString(1);
+				String title = rs.getString(2);
+				resolved.put(code, title);
+			}
+
+		});
+		return resolved;
+	}
+
+	public int count() {
+		String stmt = statements.getStatement("exampaper.count");
+		return (Integer) getJdbcTemplate().queryForInt(stmt);
+	}
+
+	public void all(final Callback<ExamPaper> callback) {
+		String stmt = statements.getStatement("exampaper.select.all");
+		getJdbcTemplate().query(stmt, new RowCallbackHandler() {
+			// We could use a preparedstatement and get the resultset to track this,
+			// but doing it ourselves is much simpler.
+			int row = 1;
+			public void processRow(ResultSet rs) throws SQLException {
+				ExamPaper examPaper = (ExamPaper) mapper.mapRow(rs, row++);
+				callback.callback(examPaper);
+			}
+		});
+		
 	}
 
 }

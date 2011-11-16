@@ -30,7 +30,7 @@ public class SheetImporterTest {
 	@Test
 	public void testImportSheetCSV() {
 		SheetImporter importer = new SheetImporter();
-		InputStream input = getClass().getResourceAsStream("/terms.csv");
+		InputStream input = getClass().getResourceAsStream("/sheet-terms.csv");
 		List<TermRow>rows = importer.importSheet(input, Format.CSV, TermRow.class);
 		TermRow termRow = rows.get(0);
 		assertEquals("T", termRow.code);

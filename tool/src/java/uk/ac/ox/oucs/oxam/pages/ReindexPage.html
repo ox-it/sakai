@@ -3,17 +3,14 @@
 
 <body>
 <wicket:extend>
-<h3>Import Data</h3>
-<form wicket:id="importDataForm">
-<table>
-	<tr>
-		<td>Zip</td>
-		<td><input type="file" wicket:id="examFile"/></td>
-	</tr>
-
-</table>
+<h3>Reindex Data</h3>
+<form wicket:id="reindexForm">
+<div class="instructions">
+This will re-index all the content that users search based on the contents of the database. This will take a
+short while.
+</div>
 <div>
-	<input type="submit" value="Upload"/>
+	<input type="submit" value="Re-index"/>
 </div>
 </form>
 </wicket:extend>

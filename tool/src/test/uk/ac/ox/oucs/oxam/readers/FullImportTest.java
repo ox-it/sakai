@@ -20,7 +20,7 @@ import uk.ac.ox.oucs.oxam.readers.Import.ExamPaperRow;
 
 // TODO Look at @Parameterized for MySQL/Derby testing.
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations= {"/standalone-beans.xml","/oxam-beans.xml"})
+@ContextConfiguration(locations= {"/context.xml","/oxam-beans.xml"})
 @Transactional
 public class FullImportTest {
 

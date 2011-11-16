@@ -166,7 +166,7 @@ public class Import {
 		abstract String getKey();
 	}
 	
-	static class ExamPaperRow  extends KeyedRow {
+	public static class ExamPaperRow  extends KeyedRow {
 
 		@RowNumber
 		int row;
@@ -222,7 +222,7 @@ public class Import {
 	}
 	
 	
-	static class ExamRow extends KeyedRow {
+	public static class ExamRow extends KeyedRow {
 		
 		@RowNumber
 		int row;
@@ -262,7 +262,7 @@ public class Import {
 	
 	// Hold all the paper information from the sheet.
 	// Needs to be static so the SheetImporter can create new instances.
-	static class PaperRow extends KeyedRow {
+	public static class PaperRow extends KeyedRow {
 	
 		@RowNumber
 		int row;
