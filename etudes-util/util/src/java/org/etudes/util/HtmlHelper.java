@@ -21,6 +21,9 @@
 
 package org.etudes.util;
 
+import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,12 +46,72 @@ public class HtmlHelper
 	 */
 	public static boolean compareHtml(String oneHtml, String otherHtml)
 	{
-		// TODO: need to normalize to deal with:
-		// - inner-tag formatting and attribute order
-		// - script tag body text formatting
+		//inner-tag formatting and attribute order
+		oneHtml = normalizeTagsofHtml(oneHtml);
+		otherHtml = normalizeTagsofHtml(otherHtml);
+		
+		//TODO: - script tag body text formatting
 		return !Different.different(oneHtml, otherHtml);
 	}
 
+	/**
+	 * Normalizes the text. Finds all of the html tag in the text and for each tag parses its attributes and writes back in sorted order.
+	 * 
+	 * @param content1
+	 *        HTML Content
+	 * @return normalize HTML Content
+	 */
+	public static String normalizeTagsofHtml(String content1)
+	{
+		if (content1 == null || content1.length() == 0) return content1;
+		// to get all html tags
+		Pattern p1 = Pattern.compile("<.*?>", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
+		// to get tag name
+		Pattern p_tagName = Pattern.compile("(<.+?[\\s]+)(.*?[^#]*)(/*>)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
+		// to get the list of attributes
+		Pattern p2 = Pattern.compile("[\\s]*(.*?)[\\s]*=[\\s]*\"([^#\"]*)([#\"])", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+		// to parse css style
+		Pattern p_css = Pattern.compile("(.*?[^#]*)(:)(.*?[^#]*)(;)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
+		Matcher m = p1.matcher(content1);
+		StringBuffer sb = new StringBuffer();
+
+		while (m.find())
+		{
+			Matcher m_tag = p_tagName.matcher(m.group(0));
+
+			while (m_tag.find())
+			{
+				// write the tag name
+				String tagsContent = new String();
+				tagsContent = tagsContent.concat(m_tag.group(1).trim() + " ");
+
+				// find attributes of tag
+				Matcher m2 = p2.matcher(m_tag.group(2));
+				HashMap<String, String> attribs = new HashMap<String, String>(0);
+				while (m2.find())
+				{
+					attribs.put(m2.group(1), m2.group(2));
+				}
+
+				// write the attributes in sorted format
+				TreeMap<String, String> sort_attribs = new TreeMap<String, String>(attribs);
+				Set<String> sort_keys = sort_attribs.keySet();
+				for (String k : sort_keys)
+				{
+					// TODO:parse value to fix space formatting on css styles but not disturbing src,href values
+					// ex: mce_style="font-size: 10pt; font-family: Verdana;"
+					String value = attribs.get(k);
+					tagsContent = tagsContent.concat(" " + k.trim() + "=\"" + value + "\" ");
+				}
+				tagsContent = tagsContent.concat(m_tag.group(3).trim());
+				m.appendReplacement(sb, tagsContent);
+			}
+		}
+		m.appendTail(sb);
+		return sb.toString();
+	}
+	
 	/**
 	 * Remove any characters from the data that will cause mysql to reject the record because of encoding errors<br />
 	 * (java.sql.SQLException: Incorrect string value) if they are present.
