@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2010 Etudes, Inc.
+ * Copyright (c) 2010, 2011 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,23 @@ public class HtmlHelper
 {
 	/** Our log. */
 	// private static Log M_log = LogFactory.getLog(HtmlHelper.class);
+
+	/**
+	 * Compare two HTML fragment strings and see if they are essentially the same or not.
+	 * 
+	 * @param oneHtml
+	 *        One HTML fragment string.
+	 * @param otherHtml
+	 *        The other HTML fragment string.
+	 * @return true if these are essentially the same, false if they are essentially different.
+	 */
+	public static boolean compareHtml(String oneHtml, String otherHtml)
+	{
+		// TODO: need to normalize to deal with:
+		// - inner-tag formatting and attribute order
+		// - script tag body text formatting
+		return !Different.different(oneHtml, otherHtml);
+	}
 
 	/**
 	 * Remove any characters from the data that will cause mysql to reject the record because of encoding errors<br />
@@ -157,10 +174,10 @@ public class HtmlHelper
 
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Remove any Link tags from the data.
-	 *
+	 * 
 	 * @param data
 	 *        the html data.
 	 * @return The cleaned up data.
