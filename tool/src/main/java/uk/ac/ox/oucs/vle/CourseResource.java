@@ -57,12 +57,16 @@ public class CourseResource {
 		if (course == null) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
+		return new GroupStreamingOutput(course);
+		/*
 		return new StreamingOutput() {
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
 				objectMapper.writeValue(output, course);
 			}
 		};
+		
+		*/
 	} 
 
 	@Path("/all")
@@ -415,9 +419,143 @@ public class CourseResource {
 					gen.writeObject(departments.get(code));
 				}
 				gen.writeEndArray();
+				
+				gen.writeArrayFieldStart("categories_rdf");
+				for (CourseCategory category : courseGroup.getCategories(CourseGroup.Category_Type.RDF)) {
+					gen.writeObject(category.getName());
+				}
+				gen.writeEndArray();
+				
+				gen.writeArrayFieldStart("categories_jacs");
+				for (CourseCategory category : courseGroup.getCategories(CourseGroup.Category_Type.JACS)) {
+					gen.writeObject(category.getName());
+				}
+				gen.writeEndArray();
+				
+				gen.writeArrayFieldStart("categories_rm");
+				for (CourseCategory category : courseGroup.getCategories(CourseGroup.Category_Type.RM)) {
+					gen.writeObject(category.getName());
+				}
+				gen.writeEndArray();
+				
 				gen.writeEndObject();
 			}
 			gen.writeEndArray();
+			gen.close();
+		}
+	}
+	
+	private class GroupStreamingOutput implements StreamingOutput {
+		
+		private final CourseGroup course;
+	
+		private GroupStreamingOutput(CourseGroup course) {
+			
+			this.course = course;
+		}
+	
+		public void write(OutputStream out) throws IOException {
+			
+			JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
+			
+			gen.writeStartObject();
+			gen.writeObjectField("id", course.getId());
+			gen.writeObjectField("description", course.getDescription());
+			gen.writeObjectField("title", course.getTitle());
+			gen.writeObjectField("supervisorApproval", course.getSupervisorApproval());
+			gen.writeObjectField("administratorApproval", course.getAdministratorApproval());
+			gen.writeObjectField("publicView", course.getPublicView());
+			//gen.writeObjectField("homeApproval", courseGroup.getHomeApproval());
+			gen.writeObjectField("isAdmin", course.getIsAdmin());
+			gen.writeObjectField("department", course.getDepartment());
+			gen.writeObjectField("departmentCode", course.getDepartmentCode());
+			gen.writeObjectField("subUnit", course.getSubUnit());
+			gen.writeObjectField("subUnitCode", course.getSubUnitCode());
+				
+			gen.writeArrayFieldStart("components");
+			for (CourseComponent component : course.getComponents()) {
+				gen.writeStartObject();
+				gen.writeObjectField("id", component.getId());
+				gen.writeObjectField("location", component.getLocation());
+				gen.writeObjectField("slot", component.getSlot());
+				gen.writeObjectField("size", component.getSize());
+				gen.writeObjectField("subject", component.getSubject());
+				gen.writeObjectField("opens", component.getOpens().getTime());
+				gen.writeObjectField("closes", component.getCloses().getTime());
+				gen.writeObjectField("title", component.getTitle());
+				gen.writeObjectField("sessions", component.getSessions());
+				gen.writeObjectField("when", component.getWhen());
+				gen.writeObjectField("bookable", component.getBookable());
+				gen.writeObjectField("places", component.getPlaces());
+				gen.writeObjectField("componentSet", component.getComponentSet());
+				if (null != component.getPresenter()) {
+					gen.writeObjectFieldStart("presenter");
+					gen.writeObjectField("name", component.getPresenter().getName());
+					gen.writeObjectField("email", component.getPresenter().getEmail());
+					//gen.writeObjectField("units", component.getPresenter().getUnits());
+					gen.writeEndObject();
+				}
+				gen.writeEndObject();
+			}
+			gen.writeEndArray();
+				
+			gen.writeArrayFieldStart("administrators");
+			for (Person administrator : course.getAdministrators()) {
+				gen.writeStartObject();
+				gen.writeObjectField("id", administrator.getId());
+				gen.writeObjectField("name", administrator.getName());
+				gen.writeObjectField("type", administrator.getType());
+				gen.writeObjectField("email", administrator.getEmail());
+				gen.writeObjectField("firstName", administrator.getFirstName());
+				gen.writeObjectField("lastName", administrator.getLastName());
+				gen.writeObjectField("departmentName", administrator.getDepartmentName());
+				//gen.writeObjectField("units", administrator.getUnits());
+				gen.writeObjectField("webauthId", administrator.getWebauthId());
+				gen.writeEndObject();
+			}
+			gen.writeEndArray();
+				
+			gen.writeArrayFieldStart("superusers");
+			for (Person superuser : course.getSuperusers()) {
+				gen.writeStartObject();
+				gen.writeObjectField("id", superuser.getId());
+				gen.writeObjectField("name", superuser.getName());
+				gen.writeObjectField("type", superuser.getType());
+				gen.writeObjectField("email", superuser.getEmail());
+				gen.writeObjectField("firstName", superuser.getFirstName());
+				gen.writeObjectField("lastName", superuser.getLastName());
+				gen.writeObjectField("departmentName", superuser.getDepartmentName());
+				//gen.writeObjectField("units", superuser.getUnits());
+				gen.writeObjectField("webauthId", superuser.getWebauthId());
+				gen.writeEndObject();
+			}
+			gen.writeEndArray();
+				
+			gen.writeArrayFieldStart("otherDepartments");
+			for (String code : course.getOtherDepartments()) {
+				gen.writeObject(code);
+			}
+			gen.writeEndArray();
+				
+			gen.writeArrayFieldStart("categories_rdf");
+			for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.RDF)) {
+				gen.writeObject(category.getName());
+			}
+			gen.writeEndArray();
+				
+			gen.writeArrayFieldStart("categories_jacs");
+			for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.JACS)) {
+				gen.writeObject(category.getName());
+			}
+			gen.writeEndArray();
+				
+			gen.writeArrayFieldStart("categories_rm");
+			for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.RM)) {
+				gen.writeObject(category.getName());
+			}
+			gen.writeEndArray();
+				
+			gen.writeEndObject();
 			gen.close();
 		}
 	}

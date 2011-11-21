@@ -42,6 +42,17 @@
 		<property name="t2Char" type="string" length="2" />
 	</class>
 	
+	<class name="uk.ac.ox.oucs.vle.CourseCategoryDAO" table="course_group_category">
+		<!-- create the primary key id -->
+		<id name="categoryId" type="string">
+			<column name="categoryId" />
+		</id>
+		<property name="groupId" type="string" length="256" />
+		<property name="categoryType" type="string" length="6" />
+		<property name="categoryCode" type="string" length="32" />
+		<property name="categoryName" type="string" length="256" />
+	</class>
+	
 	<class name="uk.ac.ox.oucs.vle.CourseSignupDAO" table="course_signup">
 		<!-- create the primary key id -->
 		<id name="id" type="string">
@@ -125,11 +136,9 @@
 		<property name="supervisorApproval" type="boolean"/>
 		<property name="administratorApproval" type="boolean"/>
 		<property name="contactEmail" type="string" length="255"/>
-		<set name="components" inverse="true" lazy="true" table="course_group_component"
-			fetch="join">
+		<set name="components" inverse="true" lazy="true" table="course_group_component" fetch="join">
 			<key column="course_group" />
-			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO"
-				column="component" />
+			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO" column="component" />
 		</set>
 		<set name="administrators" inverse="false" lazy="true" table="course_group_administrator">
 			<key column="course_group" not-null="true"/>
@@ -146,6 +155,10 @@
 		<set name="signups" inverse="true">
 			<key column="groupId"/>
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"/>
+		</set>
+		<set name="categories" inverse="true" lazy="true" table="course_group_category" fetch="select">
+			<key column="groupId"/>
+			<one-to-many class="uk.ac.ox.oucs.vle.CourseCategoryDAO"/>
 		</set>
 	</class>
 

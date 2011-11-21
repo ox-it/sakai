@@ -78,6 +78,9 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 					administrator: course.administrator?course.administrator.name:null,
 					department: course.department,
 					description: Text.toHtml(course.description),
+					categories_rdf: course.categories_rdf,
+					categories_jacs: course.categories_jacs,
+					categories_rm: course.categories_rm,
 					summary: summary.message,
 					bookable: summary.state,
 					previous: summary.previous
@@ -195,6 +198,9 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
             	
         		 <div ex:role="facet" ex:facetClass="TextSearch" ex:facetLabel="Search" ex:expression=".label,.description"></div>
                  <div ex:role="facet" ex:expression=".department" ex:facetLabel="Department"></div>
+                 <div ex:role="facet" ex:expression=".categories_rdf" ex:facetLabel="Skills Categories" ex:showMissing="false" ex:height="7em"></div>
+                 <div ex:role="facet" ex:expression=".categories_jacs" ex:facetLabel="Subject Categories" ex:showMissing="false" ex:height="7em"></div>
+                 <div ex:role="facet" ex:expression=".categories_rm" ex:facetLabel="Research Methods" ex:showMissing="false" ex:height="7em"></div>
 				 <div ex:role="facet" ex:expression=".bookable" ex:facetLabel="Bookable" ex:height="7em"></div>
 				 <div ex:role="facet" ex:expression=".previous" ex:selection="Current Courses" ex:facetLabel="Previous" ex:height="3.5em"></div>
 

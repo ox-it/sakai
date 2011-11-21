@@ -4,6 +4,8 @@ import java.util.List;
 
 public interface CourseGroup {
 
+	public static enum Category_Type {RDF, JACS, RM};
+	
 	public String getId();
 	
 	public String getTitle();
@@ -27,6 +29,10 @@ public interface CourseGroup {
 	public String getContactEmail();
 
 	public List<CourseComponent> getComponents();
+	
+	public List<CourseCategory> getCategories();
+	
+	public List<CourseCategory> getCategories(Category_Type categoryType);
 	
 	public List<Person> getAdministrators();
 	

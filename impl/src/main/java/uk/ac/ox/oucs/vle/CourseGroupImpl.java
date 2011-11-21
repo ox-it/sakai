@@ -5,12 +5,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-
 public class CourseGroupImpl implements CourseGroup {
 
 	private CourseGroupDAO courseGroupDAO;
 	private CourseSignupServiceImpl impl;
 	private List<CourseComponent> components;
+	private List<CourseCategory> categories;
 	private List<Person> administrators;
 	private List<Person> superusers;
 	private List<String> otherDepartments;
@@ -149,6 +149,38 @@ public class CourseGroupImpl implements CourseGroup {
 			isAdmin = impl.isAdministrator(courseGroupDAO.getSuperusers());
 		}
 		return isAdmin;
+	}
+
+	public List<CourseCategory> getCategories() {
+		if (categories == null) {
+			categories = new ArrayList<CourseCategory>();
+			for(CourseCategoryDAO category:  courseGroupDAO.getCategories()) {
+				categories.add(new CourseCategoryImpl(category));
+			}
+		
+			Collections.sort(categories, new Comparator<CourseCategory>() {
+				public int compare(CourseCategory c1,CourseCategory c2) {
+					return c1.getName().compareTo(c2.getName());
+				}
+			});
+		}
+		return categories;
+	}
+	
+	public List<CourseCategory> getCategories(Category_Type categoryType) {
+		List<CourseCategory> cats = new ArrayList<CourseCategory>();
+		for(CourseCategory category:  getCategories()) {
+			if (category.getType().equals(categoryType.name())) {
+				cats.add(category);
+			}
+		}
+		
+		Collections.sort(cats, new Comparator<CourseCategory>() {
+			public int compare(CourseCategory c1,CourseCategory c2) {
+				return c1.getName().compareTo(c2.getName());
+			}
+		});
+		return cats;
 	}
 
 }

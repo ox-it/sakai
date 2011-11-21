@@ -22,6 +22,7 @@ public class CourseGroupDAO implements java.io.Serializable {
     private Set<String> administrators = new HashSet<String>(0);
     private Set<String> superusers = new HashSet<String>(0);
     private Set<String> otherDepartments = new HashSet<String>(0);
+    private Set<CourseCategoryDAO> categories = new HashSet<CourseCategoryDAO>(0);
 	private String description;
 	private String departmentName;
 	private String subunit;
@@ -108,6 +109,14 @@ public class CourseGroupDAO implements java.io.Serializable {
     
     public void setOtherDepartments(Set<String> otherDepartments) {
         this.otherDepartments = otherDepartments;
+    }
+    
+    public Set<CourseCategoryDAO> getCategories() {
+        return categories;
+    }
+    
+    public void setCategories(Set<CourseCategoryDAO> categories) {
+        this.categories = categories;
     }
 
 	public String getDescription() {

@@ -60,10 +60,51 @@
 							{/if}		
                         </td>
                     </tr>
+                    
+                    {if categories_rdf.length > 0}
+                    	<tr>
+                        	<th>
+                            	Skills Categories
+                        	</th>
+                        	<td>
+								{for category in categories_rdf}
+									${category}
+								{/for}
+                        	</td>
+                    	</tr>
+                    {/if}
+                    
+                    {if categories_jacs.length > 0}
+                    	<tr>
+                        	<th>
+                            	Subject categories
+                        	</th>
+                        	<td>
+								{for category in categories_jacs}
+									${category}
+								{/for}
+                        	</td>
+                    	</tr>
+                    {/if}
+                    
+                    {if categories_rm.length > 0}
+                    	<tr>
+                        	<th>
+                            	Research Methods
+                        	</th>
+                        	<td>
+								{for category in categories_rm}
+									${category}
+								{/for}
+                        	</td>
+                    	</tr>
+                    {/if}
+                    
                 </table>
                 {/if}
             </div>
-            <div id="description">
+            
+			<div id="description">
             	<h4>Description</h4>
 				${description}
             </div>
