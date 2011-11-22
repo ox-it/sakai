@@ -378,7 +378,7 @@ public class SignupResource {
 					attendance.close();
 				
 				} catch (NotFoundException e) {
-					throw new WebApplicationException(Response.Status.FORBIDDEN);
+					throw new WebApplicationException(Response.Status.NOT_FOUND);
 				}
 			}
 		};
