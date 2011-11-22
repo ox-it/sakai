@@ -98,7 +98,8 @@ public interface CourseSignupService {
 	
 	public List<CourseComponent> getAllComponents();
 	
-	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses);
+	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses)
+		throws NotFoundException;
 	
 	public List<CourseSignup> getApprovals();
 	

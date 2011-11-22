@@ -437,7 +437,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	/**
 	 * 
 	 */
-	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses) {
+	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses) 
+	throws NotFoundException {
 		CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
 		if (componentDao == null) {
 			throw new NotFoundException(componentId);

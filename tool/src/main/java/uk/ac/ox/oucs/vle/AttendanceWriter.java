@@ -21,8 +21,7 @@ public class AttendanceWriter {
 		document = new Document(root);
 	}
 	
-	public Element writeTeachingInstance(Collection<CourseGroup> courseGroups, 
-										 CourseComponent courseComponent, 
+	public Element writeTeachingInstance(CourseComponent courseComponent, 
 										 Collection<CourseSignup> signups) {
 		
 		Element teachingInstance = new Element("TeachingInstance");
@@ -31,17 +30,7 @@ public class AttendanceWriter {
 		tid.setText(courseComponent.getId());
 		teachingInstance.addContent(tid);
 		
-		/*
-		for (CourseGroup courseGroup : courseGroups) {
-			Element element = new Element("assessmentUnit");
-			element.setAttribute("id", courseGroup.getId());
-			element.setAttribute("title", courseGroup.getTitle());
-			teachingInstance.addContent(element);
-		}
-		*/
-		
 		Element students = new Element("students");
-		//component.setAttribute("id", courseComponent.getComponentSet());
 		
 		for (CourseSignup signup : signups) {
 			Element attendee = new Element("student");

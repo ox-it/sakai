@@ -361,13 +361,25 @@ public class SignupResource {
 					statuses.add(Status.WITHDRAWN);
 				}
 				
-				List<CourseSignup> signups = courseService.getComponentSignups(
-						componentId, statuses);
+				try {
+					List<CourseSignup> signups = courseService.getComponentSignups(
+							componentId, statuses);
 				
-				Collection<CourseGroup> courseGroups = courseService.getCourseGroupsByComponent(componentId);
-				AttendanceWriter attendance = new AttendanceWriter(output);
-				attendance.writeTeachingInstance(courseGroups, courseComponent, signups);
-				attendance.close();
+					Collections.sort(signups, new Comparator<CourseSignup>() {
+						public int compare(CourseSignup s1,CourseSignup s2) {
+							Person p1 = s1.getUser();
+							Person p2 = s2.getUser();
+							return p1.getLastName().compareTo(p2.getLastName());
+						}
+					});
+				
+					AttendanceWriter attendance = new AttendanceWriter(output);
+					attendance.writeTeachingInstance(courseComponent, signups);
+					attendance.close();
+				
+				} catch (NotFoundException e) {
+					throw new WebApplicationException(Response.Status.FORBIDDEN);
+				}
 			}
 		};
 	}
@@ -389,9 +401,8 @@ public class SignupResource {
 				
 					List<CourseSignup> signups = courseService.getComponentSignups(
 							courseComponent.getId(), Collections.singleton(Status.CONFIRMED));
-					Collection<CourseGroup> courseGroups = 
-						courseService.getCourseGroupsByComponent(courseComponent.getId());
-					attendance.writeTeachingInstance(courseGroups, courseComponent, signups);
+					
+					attendance.writeTeachingInstance(courseComponent, signups);
 				}
 				attendance.close();
 			}
