@@ -53,6 +53,7 @@ public class GenerateTree {
 					"  Department.department_name, Department.department_code " +  
 					"  FROM Division " + 
 					"  INNER JOIN Department ON Department.division_id = Division.id " + 
+					"  WHERE department_code != 'XXXX' " +
 					"  ORDER BY 1,3")) {
 			
 				rs = st.getResultSet();
