@@ -97,9 +97,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		} else {
 			confirm(signupId, skipAuth, placementId);
 		}
-		
-		String url = proxy.getMyUrl(placementId);
-		sendSignupEmail(signupDao.getUserId(), signupDao, "approved.student.subject","approved.student.body", new Object[]{url});
 	}
 	
 	/**
@@ -681,7 +678,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				if (user.getId().equals(signupDao.getUserId())) {
 					existingSignups.add(signupDao);
 					if(!signupDao.getStatus().equals(Status.WITHDRAWN)) {
-						throw new IllegalStateException("User "+ user.getId()+ " already has a place on component: "+ componentDao.getId());
+						throw new IllegalStateException(
+								"User "+ user.getId()+ " already has a place on component: "+ componentDao.getId());
 					}
 				}
 			}
@@ -696,13 +694,18 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			dao.remove(existingSignup);
 		}
 		// Set the supervisor
+		String supervisorId = null;
 		UserProxy supervisor = proxy.findUserByEmail(supervisorEmail);
 		if (supervisor == null) {
-			throw new IllegalArgumentException("Can't find a supervisor with email: "+ supervisorEmail);
+			if (groupDao.getSupervisorApproval()) {
+				throw new IllegalArgumentException(
+						"Can't find a supervisor with email: "+ supervisorEmail);
+			}
+		} else {
+			supervisorId = supervisor.getId();
 		}
 		
 		// Create the signup.
-		String supervisorId = supervisor.getId();
 		CourseSignupDAO signupDao = dao.newSignup(user.getId(), supervisorId);
 		signupDao.setCreated(getNow());
 		signupDao.setGroup(groupDao);
@@ -847,8 +850,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		String componentDetails = formatSignup(signupDao);
 		Object[] baseBodyData = new Object[] {
 				signupUser.getDisplayName(),
-				signupDao.getGroup().getTitle(),
 				componentDetails,
+				signupDao.getGroup().getTitle(),
 		};
 		
 		Object[] bodyData = baseBodyData;
@@ -963,6 +966,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			for (String administrator : signupDao.getGroup().getAdministrators())
 			sendSignupEmail(administrator, signupDao, "withdraw.admin.subject", "withdraw.admin.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
 		}
+		sendSignupEmail(signupDao.getUserId(), signupDao, "withdraw.student.subject", "withdraw.student.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
 	}
 
 	public CourseGroup getAvailableCourseGroup(String courseId) {
