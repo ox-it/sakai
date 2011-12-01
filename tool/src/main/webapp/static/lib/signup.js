@@ -251,7 +251,7 @@ var Signup = function(){
 							// TODO This needs processing.
 							if (!errorFound) {
 								jQuery(".error", dest).hide();
-								var signup = Signup.course.signup({title: data.title, id: id}, {titles: selectedParts, ids: selectedPartIds});
+								var signup = Signup.course.signup({title: data.title, id: id, approval: data.supervisorApproval}, {titles: selectedParts, ids: selectedPartIds});
 								signup.bind("ses.signup", function(){
 									loadCourse(); // Reload the course.
 									// Display a nice message. Should we keep the exising success()?
@@ -316,31 +316,34 @@ var Signup = function(){
 						}
 						var value = current.val();
 						current.nextUntil(":not(.error)").remove(); // Remove any existing errors.
-						if (value.length == 0) {
-							current.after('<span class="error">* required</span>');
-						}
-						else {
-							if (!/^([a-zA-Z0-9_.-])+@([a-zA-Z0-9_.-])+\.([a-zA-Z])+([a-zA-Z])+/.test(value)) {
-								current.after('<span class="error">* not a valid email</span>');
+						
+						if (course.approval) {
+							if (value.length == 0) {
+								current.after('<span class="error">* required</span>');
 							}
 							else {
-								// This has a potential problem in that it might not complete before user clicks submit.
-								if (!current.data("req")) {
-									current.data("req", $.ajax({ // Need to use error handler.
-										url: "../rest/user/find",
-										data: {
-											search: value
-										},
-										success: function(){
-											$.cookie('coursesignup.supervisor', value);
-										},
-										error: function(){
-											current.after('<span class="error">* no user exists in WebLearn with this email</span>');
-										},
-										complete: function(){
-											delete current.data()["req"];
-										}
-									}));
+								if (!/^([a-zA-Z0-9_.-])+@([a-zA-Z0-9_.-])+\.([a-zA-Z])+([a-zA-Z])+/.test(value)) {
+									current.after('<span class="error">* not a valid email</span>');
+								}
+								else {
+									// This has a potential problem in that it might not complete before user clicks submit.
+									if (!current.data("req")) {
+										current.data("req", $.ajax({ // Need to use error handler.
+											url: "../rest/user/find",
+											data: {
+												search: value
+											},
+											success: function(){
+												$.cookie('coursesignup.supervisor', value);
+											},
+											error: function(){
+												current.after('<span class="error">* no user exists in WebLearn with this email</span>');
+											},
+											complete: function(){
+												delete current.data()["req"];
+											}
+										}));
+									}
 								}
 							}
 						}
@@ -403,7 +406,8 @@ var Signup = function(){
 							"components": components.titles,
 							"componentIds": components.ids,
 							"course": course.title,
-							"courseId": course.id
+							"courseId": course.id,
+							"courseApproval": course.approval
 						};
 						var template = TrimPath.parseTemplate(data, {
 							throwExceptions: true

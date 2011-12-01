@@ -1,4 +1,4 @@
-<h2>Signup to: ${course}</h2>
+<h2>Signup to: ${course} </h2>
 {var textarea = "textarea"}
 <div>
     <ul>
@@ -13,6 +13,7 @@
     <form id="signup-confirm" action="#">
         {for componentId in componentIds}<input type="hidden" name="components" value="${componentId}"/>{/for}<input type="hidden" name="courseId" value="${courseId}"/>
         <table>
+        	{if courseApproval}
             <tr>
                 <th>
                     <label for="supervisor-email">
@@ -23,10 +24,11 @@
                     <input type="text" class="valid-email" name="email" id="supervisor-email" size="40"/>
                 </td>
             </tr>
+            {/if}
             <tr>
                 <th>
                     <label for="supervisor-note">
-                        Message to supervisor
+                        Please enter your reason/s for enrolling for module
                     </label>
                 </th>
                 <td>
