@@ -60,6 +60,10 @@ public class CourseGroupImpl implements CourseGroup {
 		return courseGroupDAO.getAdministratorApproval();
 	}
 	
+	public boolean getHideGroup() {
+		return courseGroupDAO.getHideGroup();
+	}
+	
 	public String getContactEmail() {
 		return courseGroupDAO.getContactEmail();
 	}
@@ -130,7 +134,7 @@ public class CourseGroupImpl implements CourseGroup {
 			}
 		}
 		
-		return administrators;
+		return superusers;
 	}
 	
 	public List<String> getOtherDepartments() {
@@ -149,6 +153,10 @@ public class CourseGroupImpl implements CourseGroup {
 			isAdmin = impl.isAdministrator(courseGroupDAO.getSuperusers());
 		}
 		return isAdmin;
+	}
+	
+	public boolean getIsSuperuser() {
+		return impl.isAdministrator(courseGroupDAO.getSuperusers());
 	}
 
 	public List<CourseCategory> getCategories() {

@@ -298,6 +298,15 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	/**
 	 * 
 	 */
+	public void setHideCourse(String courseId, boolean hideGroup) {
+		CourseGroupDAO courseGroupDao = dao.findCourseGroupById(courseId);
+		courseGroupDao.setHideGroup(hideGroup);
+		dao.save(courseGroupDao);
+	}
+	
+	/**
+	 * 
+	 */
 	public List<CourseGroup> getAdministering() {
 		String userId = proxy.getCurrentUser().getId();
 		List <CourseGroupDAO> groupDaos = dao.findAdminCourseGroups(userId);

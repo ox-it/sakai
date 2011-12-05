@@ -26,6 +26,8 @@ public interface CourseGroup {
 	
 	public boolean getAdministratorApproval();
 	
+	public boolean getHideGroup();
+	
 	public String getContactEmail();
 
 	public List<CourseComponent> getComponents();
@@ -41,4 +43,6 @@ public interface CourseGroup {
 	public List<String> getOtherDepartments();
 	
 	public boolean getIsAdmin();
+	
+	public boolean getIsSuperuser();
 }

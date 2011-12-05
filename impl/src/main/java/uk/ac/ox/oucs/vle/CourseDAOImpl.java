@@ -1,7 +1,9 @@
 package uk.ac.ox.oucs.vle;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -90,7 +92,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				querySQL.append("SELECT DISTINCT ");
 				querySQL.append("cg.id, cg.title, cg.dept, cg.departmentName, ");
 				querySQL.append("cg.subunit, cg.subunitName, cg.description, cg.publicView, ");
-				querySQL.append("cg.supervisorApproval, cg.administratorApproval, cg.contactEmail ");
+				querySQL.append("cg.supervisorApproval, cg.administratorApproval, cg.hideGroup, cg.contactEmail ");
 				querySQL.append("FROM course_group cg ");
 				querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.course_group = cg.id ");
 				querySQL.append("LEFT JOIN course_group_component cgc on cgc.course_group = cg.id ");
@@ -100,6 +102,8 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				if (external) {
 					querySQL.append("publicView = true AND ");
 				}
+
+				querySQL.append("hideGroup = false AND ");
 				
 				switch (range) { 
 					case UPCOMING:
@@ -132,6 +136,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				if (external) {
 					criteria.add(Restrictions.eq("publicView", true));
 				}
+				criteria.add(Restrictions.eq("hideGroup", false));
 				switch (range) { 
 					case UPCOMING:
 						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("closes", now));
@@ -155,7 +160,13 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public List<CourseGroupDAO> findCourseGroupByComponent(final String componentId) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
-				Query query = session.createSQLQuery("select distinct id, title, dept, departmentname, subunit, subunitName, description, publicView, supervisorApproval, administratorApproval, contactEmail from course_group left join course_group_component cc on cc.course_group = course_group.id where cc.component = :componentId").addEntity(CourseGroupDAO.class);
+				Query query = session.createSQLQuery(
+						"select distinct id, title, dept, departmentname, subunit, subunitName, " +
+						"description, publicView, supervisorApproval, administratorApproval, " +
+						"hideGroup, contactEmail " +
+						"from course_group " +
+						"left join course_group_component cc on cc.course_group = course_group.id " +
+						"where cc.component = :componentId").addEntity(CourseGroupDAO.class);
 				query.setString("componentId", componentId);
 				return query.list();
 			}
@@ -168,7 +179,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			// Need the DISTINCT ROOT ENTITY filter.
 			public Object doInHibernate(Session session) throws HibernateException,
 					SQLException {
-				Query query = session.createQuery("select distinct subunit, subunitName from CourseGroupDAO cg where cg.dept = :deptId and cg.subunit <> '' order by 2");
+				Query query = session.createQuery("select distinct subunit, subunitName " +
+						"from CourseGroupDAO cg " +
+						"where cg.dept = :deptId and cg.subunit <> '' order by 2");
 				query.setString("deptId", deptId);
 				return query.list();
 			}
@@ -249,6 +262,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	@SuppressWarnings("unchecked")
 	public List<CourseGroupDAO> findAdminCourseGroups(final String userId) {
 		// Finds all the coursegroups this user can admin.
+		/*
 		return getHibernateTemplate().executeFind(new HibernateCallback(){
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
@@ -257,6 +271,48 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					"where administrator = :userId union select course_group from course_group_superuser " +
 					"where superuser = :userId) " +
 					"admins where course_group.id = admins.course_group").addEntity(CourseGroupDAO.class);
+				query.setString("userId", userId);
+				return query.list();
+			}
+			
+		});
+		*/
+		List<CourseGroupDAO> adminGroups = findAdministratorCourseGroups(userId);
+		List<CourseGroupDAO> superGroups = findSuperUserCourseGroups(userId);
+		
+		Set<CourseGroupDAO> allGroups = new HashSet<CourseGroupDAO>(superGroups);
+		allGroups.addAll(adminGroups);
+		return new ArrayList<CourseGroupDAO>(allGroups);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<CourseGroupDAO> findAdministratorCourseGroups(final String userId) {
+		// Finds all the coursegroups this user can admin.
+		return getHibernateTemplate().executeFind(new HibernateCallback(){
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query query = session.createSQLQuery("select * from course_group, " +
+					"(select course_group from course_group_administrator " +
+					"where administrator = :userId) admins " +
+					"where course_group.id = admins.course_group " +
+					"and course_group.hideGroup = false").addEntity(CourseGroupDAO.class);
+				query.setString("userId", userId);
+				return query.list();
+			}
+			
+		});
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<CourseGroupDAO> findSuperUserCourseGroups(final String userId) {
+		// Finds all the coursegroups this user can superuser.
+		return getHibernateTemplate().executeFind(new HibernateCallback(){
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query query = session.createSQLQuery("select * from course_group, " +
+					"(select course_group from course_group_superuser " +
+					"where superuser = :userId) admins " +
+					"where course_group.id = admins.course_group").addEntity(CourseGroupDAO.class);
 				query.setString("userId", userId);
 				return query.list();
 			}
@@ -421,6 +477,8 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				if (external) {
 					criteria.add(Expression.eq("publicView", true));
 				}
+				criteria.add(Expression.eq("hideGroup", false));
+				
 				switch(range) {
 					case UPCOMING:
 						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("closes", date));

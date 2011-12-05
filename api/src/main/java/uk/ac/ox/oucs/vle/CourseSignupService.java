@@ -107,6 +107,8 @@ public interface CourseSignupService {
 	
 	public void setSupervisor(String signupId, String supervisorId);
 	
+	public void setHideCourse(String courseId, boolean hideCourse);
+	
 	public void approve(String signupId);
 	
 	public void approve(String signupId, boolean skipAuth, String placementId);

@@ -7,7 +7,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -163,6 +165,16 @@ public class CourseResource {
 				objectMapper.typedWriter(TypeFactory.fromClass(String.class)).writeValue(output, url);
 			}
 		};
+	}
+	
+	@Path("/hide")
+	@POST
+	public Response hide(@FormParam("courseId")String courseId, @FormParam("hideCourse")String hideCourse) {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
+		courseService.setHideCourse(courseId, Boolean.parseBoolean(hideCourse));
+		return Response.ok().build();
 	}
 
 	/**
@@ -467,6 +479,7 @@ public class CourseResource {
 			gen.writeObjectField("publicView", course.getPublicView());
 			//gen.writeObjectField("homeApproval", courseGroup.getHomeApproval());
 			gen.writeObjectField("isAdmin", course.getIsAdmin());
+			gen.writeObjectField("isSuperuser", course.getIsSuperuser());
 			gen.writeObjectField("department", course.getDepartment());
 			gen.writeObjectField("departmentCode", course.getDepartmentCode());
 			gen.writeObjectField("subUnit", course.getSubUnit());

@@ -37,6 +37,8 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		
 <script type="text/javascript">
 
+			var courseData;
+
 			$(function(){
 
 				var processSignupRow = function(item) {
@@ -69,82 +71,98 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 						return "Closed";
 					}
 				};
-
-				var loadCourse = function(code, name) {
-
-							// Table showing the components.
-							$("#course-details").html('<h3>'+ name +'</h3><table border="0" class="display" id="course-details-table"></table>');
-							var summary = $("#course-details-table").dataTable( {
-								"bJQueryUI": true,
-								"bProcessing": true,
-								"bPaginate": true,
-								"bLengthChange": false,
-								"iDisplayLength": 5,
-								"bFilter": false,
-								"bInfo": false,
-								"bAutoWidth": false,
-								"sAjaxSource": "../rest/course/",
-								"aaSorting": [[8,'asc']], // Sort on the signup date.
-								"aoColumns": [
-								              {"sTitle": "Component"},
-											  {"sTitle": "Size"},
-								              {
-									            "sTitle": "Places",
-									             "fnRender": function(aObj) {
-												    var size = aObj.aData[1];
-										            var places = aObj.aData[2];
-										            var limit = size*placesWarnPercent/100
-										            var style;
-									            	if (placesErrorLimit >= aObj.aData[2]) {
-			                            				style="color: red";
-			                            			} else if (limit >= aObj.aData[2]) {
-			                            				style="color: orange";
-			                            			} else {
-			                            				style="color: black";
-			                            			}
-													return '<span style="'+style+'">'+aObj.aData[2]+'</span>';
-												}    
-										      },
-											  {
-											  	"sTitle": "Signup Period",
-												"fnRender": function(aObj) {
-													// Hack to force the data back to being a int.
-													return new Date(+aObj.aData[3]).toDateString() + " (for "+ Signup.util.formatDuration(aObj.aData[8] - aObj.aData[3])+ ")";
-												},
-												"bUseRendered": false
-											  },
-											  {"sTitle": "Term"},
-								              {
-											  	"sTitle": "Status",
-												"fnRender": function(aObj) {
-													return getComponentStatus(aObj.aData[3], aObj.aData[8]);
-												}
-											  },
-											  {"bVisible": false},
-											  {"bVisible": false},
-											  {"bVisible": false},
-											  {
-											  	"sTitle": "Export",
-											  	"bSortable": false,
-												"fnRender": function(aObj) {
-													return '<a href="../rest/signup/component/'+ aObj.aData[9]+ '.csv">Export</a>';
-												}
-											  },
-											  {
-												"sTitle": "Email",
-												"bSortable": false,
-												"fnRender": function(aObj) {
-													return '<img class="mailto-all-course" id="'+aObj.aData[10]+'"src="images/email-send.png" title="send email to all CONFIRMED signups" />';
-												}
-											  },
-											  {
-												"sTitle": "Attendance",
-												"bSortable": false,
-												"fnRender": function(aObj) {
-													return '<a href="../rest/signup/component/'+ aObj.aData[11]+ '.pdf">Register</a>';
-												}
-											  }
-								              ],
+				
+				var loadCourse = function(object) {	
+					
+					var code = object.id;
+					var name = object.title;
+					var superuser = object.isSuperuser;
+							
+					var hideValue = "Hide Course";
+					if (object.hideGroup) {
+						hideValue = "Show Course";
+					}
+					// Table showing the components.
+					var html = '<h3 style="display:inline">'+ name + '</h3>';
+					if (superuser) {
+						html += '<span style="float:right; padding-right:20px;">';
+						html += '<input class="show-hide-button" type="button" id="'+code+'" value="'+hideValue+'"/>';
+						html += '</span>';
+					} 
+					html += '<table border="0" class="display" id="course-details-table"></table>';
+					$("#course-details").html(html);
+									
+					var summary = $("#course-details-table").dataTable( {
+						"bJQueryUI": true,
+						"bProcessing": true,
+						"bPaginate": true,
+						"bLengthChange": false,
+						"iDisplayLength": 5,
+						"bFilter": false,
+						"bInfo": false,
+						"bAutoWidth": false,
+						"sAjaxSource": "../rest/course/",
+						"aaSorting": [[8,'asc']], // Sort on the signup date.
+						"aoColumns": [
+						              {"sTitle": "Component"},
+									  {"sTitle": "Size"},
+						              {
+							            "sTitle": "Places",
+							             "fnRender": function(aObj) {
+										    var size = aObj.aData[1];
+								            var places = aObj.aData[2];
+								            var limit = size*placesWarnPercent/100
+								            var style;
+							            	if (placesErrorLimit >= aObj.aData[2]) {
+			                          				style="color: red";
+			                          			} else if (limit >= aObj.aData[2]) {
+			                          				style="color: orange";
+			                          			} else {
+			                          				style="color: black";
+			                          			}
+											return '<span style="'+style+'">'+aObj.aData[2]+'</span>';
+										}    
+								      },
+									  {
+									  	"sTitle": "Signup Period",
+										"fnRender": function(aObj) {
+											// Hack to force the data back to being a int.
+											return new Date(+aObj.aData[3]).toDateString() + " (for "+ Signup.util.formatDuration(aObj.aData[8] - aObj.aData[3])+ ")";
+										},
+										"bUseRendered": false
+									  },
+									  {"sTitle": "Term"},
+						              {
+									  	"sTitle": "Status",
+										"fnRender": function(aObj) {
+											return getComponentStatus(aObj.aData[3], aObj.aData[8]);
+										}
+									  },
+									  {"bVisible": false},
+									  {"bVisible": false},
+									  {"bVisible": false},
+									  {
+									  	"sTitle": "Export",
+									  	"bSortable": false,
+										"fnRender": function(aObj) {
+											return '<a href="../rest/signup/component/'+ aObj.aData[9]+ '.csv">Export</a>';
+										}
+									  },
+									  {
+										"sTitle": "Email",
+										"bSortable": false,
+										"fnRender": function(aObj) {
+											return '<img class="mailto-all-course" id="'+aObj.aData[10]+'"src="images/email-send.png" title="send email to all CONFIRMED signups" />';
+										}
+									  },
+									  {
+										"sTitle": "Attendance",
+										"bSortable": false,
+										"fnRender": function(aObj) {
+											return '<a href="../rest/signup/component/'+ aObj.aData[11]+ '.pdf">Register</a>';
+										}
+									  }
+						              ],
 					
 								"fnServerData": function(sSource, aoData, fnCallback) {
 									$.getJSON(sSource+code, {"range": "ALL"}, function(data) {
@@ -180,12 +198,12 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 							html += '<option value="PENDING">PENDING</option>';
 							html += '<option value="ACCEPTED">ACCEPTED</option>';
 							html += '<option value="APPROVED">APPROVED</option>';
+							html += '<option value="CONFIRMED">CONFIRMED</option>';
 							html += '<option value="REJECTED">REJECTED</option>';
 							html += '<option value="WITHDRAWN">WITHDRAWN</option>';
 							html += '</select></span>';
 							html += '<table border="0" class="display" id="signups-table"></table>';
 							html += '<a href="#" id="signup-add">Add Signup</a>';
-							//html += '<span style="float:right; padding-right:20px;"><input type="button" id="syncButton" value="Sync with DAISY"></span>';
 							$("#signups").html(html);
 							//$("#signups").html('<h3>Signups</h3><table border="0" class="display" id="signups-table"></table><a href="#" id="signup-add">Add Signup</a>');
 							// Load the signups.
@@ -227,20 +245,6 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 								};
 							});
 
-							/**
-							 * Sync attendance with Daisy
-							 */
-							 /*
-							$("#syncButton").click(function(){
-								$.ajax({
-									"url": "../rest/signup/"+code+"/sync",
-									"type": "POST",
-									"async": true,
-									"traditional": true
-								})
-								
-							});
-							*/
 							$(window).resize(function(){
 								var windowHeight = $(window).height();
 								var positionTop = signupAddUser[0].offsetTop;
@@ -459,7 +463,8 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 				
 				function(data) {
 					var options = "";
-					data.sort(function(x,y){
+					courseData = data;
+					courseData.sort(function(x,y){
 						var a = x.title;
 						var b = y.title;
 						if (a === b) {
@@ -470,18 +475,27 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 							return 1;
 						}
 					});
-					$.each(data, function(index, value) {
-						options += '<option value="'+ value.id+ '">'+ value.title+ '</option>';
+					$.each(courseData, function(index, value) {
+						var title = value.title;
+						if (value.isSuperuser && value.hideGroup) {
+							title = "(hidden) " + title;
+						}
+						options += '<option value="'+ value.id + '">'+ title+ '</option>';
 					});
 									
 					if (data.length > 0) {
 						$("#course-list").html('<form>Select a module: <select id="admin-course" name="course">' + options + '</select></form>');
 						$("#admin-course").change(function(e){
 							var courseId = this.options[this.selectedIndex].value;
-							var courseTitle = this.options[this.selectedIndex].text;
-							loadCourse(courseId, courseTitle);
+							for (var i in courseData) {
+								var dataId = courseData[i].id;
+								if (dataId === courseId) {
+									loadCourse(courseData[i]);
+									return;
+								}
+							}
 						});
-						loadCourse(data[0].id, data[0].title);
+						loadCourse(courseData[0]);
 					}
 					else {
 						$("#course-list").html('You are not an administrator on any modules.');
@@ -508,6 +522,48 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	                	}
 	                });
 				});
+				
+				
+				$("input.show-hide-button", this).die().live("click", function(e){
+					var button = $(this);
+					var code = button.attr("id");
+					var hideValue = button.attr("value");
+					var hide = false;
+					if (hideValue === "Hide Course") {
+						hide = true;
+					}
+	                $.ajax({
+	    				"url": "../rest/course/hide",
+						"type": "POST",
+						"async": true,
+						"traditional": true,
+						"data": {
+							"courseId": code,
+							"hideCourse": hide
+						},
+						"success": function(result) {
+							if (hide) {
+								button.attr("value", "Show Course");
+							} else {
+								button.attr("value", "Hide Course");
+							}
+							
+							for (var i in courseData) {
+								var course = courseData[i];
+								var courseId = course.id;
+								if (courseId === code) {
+									course.hideGroup = hide;
+									var title = course.title;
+									if (course.isSuperuser && course.hideGroup) {
+										title = "(hidden) " + title;
+									}
+									$("#admin-course option[value="+code+"]").html(title);
+									break;
+								}
+							}
+						}
+	                });
+				});
 			});
 			
 		</script>
@@ -527,7 +583,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 
 <div id="course-list"><!-- Browse the areas which there are courses -->
 </div>
-<div id="course-details"></div><!-- Show details of the course -->
+<div id="course-details" style="margin-top:14px;"></div><!-- Show details of the course -->
 <div id="signups"></div>
 
 

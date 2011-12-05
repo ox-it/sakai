@@ -31,6 +31,7 @@ public class CourseGroupDAO implements java.io.Serializable {
 	private boolean publicView;
 	private boolean supervisorApproval;
 	private boolean administratorApproval;
+	private boolean hideGroup;
 
     public CourseGroupDAO() {
     }
@@ -167,6 +168,14 @@ public class CourseGroupDAO implements java.io.Serializable {
 
 	public void setAdministratorApproval(boolean administratorApproval) {
 		this.administratorApproval = administratorApproval;
+	}
+	
+	public boolean getHideGroup() {
+		return hideGroup;
+	}
+
+	public void setHideGroup(boolean hideGroup) {
+		this.hideGroup = hideGroup;
 	}
 	
 	public String getContactEmail() {
