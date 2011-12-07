@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="course.admin" title="Run Quartx Job"
+		description="Tool for allowing administratord to run the quartz ses update job.">
+		
+		<configuration name="default-nodes" value="root" />
+		
+	</tool>
+</registration>

@@ -122,6 +122,11 @@
 			<param-value>true</param-value>
 		</init-param>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>course.admin</servlet-name>
+		<servlet-class>uk.ac.ox.oucs.vle.SchedulerTool</servlet-class>
+	</servlet>
 
 	<servlet-mapping>
 		<!--  So we can access the static content. -->
