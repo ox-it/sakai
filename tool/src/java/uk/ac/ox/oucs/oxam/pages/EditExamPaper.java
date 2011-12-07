@@ -87,22 +87,17 @@ public class EditExamPaper extends BasePage {
 			
 			included = new TextField<String>("included", new Model());
 			add(included);
-			
-			List<String> terms = new ArrayList<String>();
-			for (Term term: termService.getAll()) {
-				terms.add(term.getCode());
-			}
-			
-			ListChoice<String> term = new ListChoice<String>("term", terms, new ChoiceRenderer<String>() {
+						
+			ListChoice<Term> term = new ListChoice<Term>("term", new ArrayList<Term>(termService.getAll()), new ChoiceRenderer<Term>() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
-				public Object getDisplayValue(String code) {
-					return termService.getByCode(code).getName();
+				public Object getDisplayValue(Term term) {
+					return term.getName();
 				}
 				
-				public String getIdValue(String code, int index) {
-					return code;
+				public String getIdValue(Term term, int index) {
+					return term.getCode();
 				}
 
 			});

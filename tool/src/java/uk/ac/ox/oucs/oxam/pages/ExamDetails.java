@@ -56,19 +56,16 @@ public class ExamDetails extends Panel {
 		examCodeFeedback.setOutputMarkupId(true);
 		add(examCodeFeedback);
 		
-		List<String> categories = new ArrayList<String>();
-		for (Category category: categoryService.getAll()) {
-			categories.add(category.getCode());
-		}
-		final ListChoice<String> category = new ListChoice<String>("category", categories, new ChoiceRenderer<String>() {
+		List<Category> categories = new ArrayList<Category>(categoryService.getAll());
+		final ListChoice<Category> category = new ListChoice<Category>("category", categories, new ChoiceRenderer<Category>() {
 			private static final long serialVersionUID = 1L;
 			
-			public Object getDisplayValue(String code) {
-				return categoryService.getByCode(code).getName();
+			public Object getDisplayValue(Category code) {
+				return code.getName();
 			}
 
-			public String getIdValue(String code, int index) {
-				return code;
+			public String getIdValue(Category code, int index) {
+				return code.getCode();
 			}
 		});
 		
