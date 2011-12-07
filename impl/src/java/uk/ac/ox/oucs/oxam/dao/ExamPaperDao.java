@@ -11,14 +11,6 @@ public interface ExamPaperDao {
 	public ExamPaper getExamPaper(long id);
 	
 	public List<ExamPaper> getExamPapers(int start, int length);
-	
-	public void saveExamPaper(ExamPaper examPaper);
-
-	public void deleteExamPaper(long id);
-
-	public Map<String, String> resolvePaperCodes(String[] codes);
-
-	public Map<String, String> resolveExamCodes(String[] codes);
 
 	public int count();
 

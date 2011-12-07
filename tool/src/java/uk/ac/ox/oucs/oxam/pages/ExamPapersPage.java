@@ -66,7 +66,7 @@ public class ExamPapersPage extends BasePage {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick() {
-				setResponsePage(new EditExamPaper(new ExamPaper()));
+				setResponsePage(EditExamPaper.class);
 			}
 		});
 		add(new Link<Void>("reindex") {

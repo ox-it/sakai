@@ -5,8 +5,7 @@ public class Paper {
 	private long id;
 	private String code;
 	private String title;
-	private String file;
-	private boolean active;
+	private int year;
 	
 	public long getId() {
 		return id;
@@ -26,18 +25,11 @@ public class Paper {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-
-	public String getFile() {
-		return file;
+	public int getYear() {
+		return year;
 	}
-	public void setFile(String file) {
-		this.file = file;
-	}
-	public boolean isActive() {
-		return active;
-	}
-	public void setActive(boolean active) {
-		this.active = active;
+	public void setYear(int year) {
+		this.year = year;
 	}
 
 	@Override

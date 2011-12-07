@@ -3,7 +3,9 @@ package uk.ac.ox.oucs.oxam.logic;
 import java.util.List;
 import java.util.Map;
 
+import uk.ac.ox.oucs.oxam.model.Exam;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
+import uk.ac.ox.oucs.oxam.model.Paper;
 
 public interface ExamPaperService {
 
@@ -17,10 +19,16 @@ public interface ExamPaperService {
 
 	public void deleteExamPaper(long id);
 	
-	public Map<String, String> resolveExamCodes(String[] codes);
+	/**
+	 * This return exams details for a set of exam codes. 
+	 * @param codes An array of codes to looks for or <code>null</code> for all the latest exams.
+	 * @return
+	 */
+	public Map<String, Exam> getLatestExams(String[] codes);
 	
-	public Map<String, String> resolvePaperCodes(String[] codes);
+	public Map<String, Paper> getLatestPapers(String[] codes);
 
 	public int reindex();
-	
+
+	public ExamPaper newExamPaper();
 }

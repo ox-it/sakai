@@ -57,6 +57,10 @@ public class BulkImportTest {
 			System.out.println(voilation);
 		}
 		
+		System.out.println("PaperRowErrors: "+ import1.getPaperRowErrors().size());
+		System.out.println("ExamRowErrors: "+ import1.getExamRowErrors().size());
+		System.out.println("ExamPaperRowErrors: "+ import1.getExamPaperRowErrors().size());
+		
 	}
 
 }

@@ -167,6 +167,16 @@
 		</pluginRepository>
 	</pluginRepositories>
 	
+
+    <build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <version>2.1.1</version>
+        </plugin>
+    </plugins>
+</build>
 	
 	
   <modules>
@@ -174,5 +184,6 @@
     <module>api</module>
     <module>impl</module>
     <module>pack</module>
+    <module>solr</module>
   </modules>
 </project>

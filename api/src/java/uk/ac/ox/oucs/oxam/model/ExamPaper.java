@@ -9,20 +9,22 @@ public class ExamPaper implements Serializable{
 	private long id;
 
 	// Category, closely linked to the exam title.
-	private String category;
+	private Category category;
 	
 	// From the exam.
+	private long examId;
 	private String examTitle;
 	private String examCode;
 	
 	// From the Paper
+	private long paperId; // Shouldn't be in API.
 	private String paperTitle;
 	private String paperCode;
 	private String paperFile;
 	
 	// From terms.
 	private Integer year;
-	private String term;
+	private Term term;
 
 	public long getId() {
 		return id;
@@ -30,10 +32,10 @@ public class ExamPaper implements Serializable{
 	public void setId(long id) {
 		this.id = id;
 	}
-	public String getCategory() {
+	public Category getCategory() {
 		return category;
 	}
-	public void setCategory(String category) {
+	public void setCategory(Category category) {
 		this.category = category;
 	}
 	public String getExamTitle() {
@@ -72,10 +74,22 @@ public class ExamPaper implements Serializable{
 	public void setYear(Integer year) {
 		this.year = year;
 	}
-	public String getTerm() {
+	public Term getTerm() {
 		return term;
 	}
-	public void setTerm(String term) {
+	public void setTerm(Term term) {
 		this.term = term;
+	}
+	public long getExamId() {
+		return examId;
+	}
+	public void setExamId(long examId) {
+		this.examId = examId;
+	}
+	public long getPaperId() {
+		return paperId;
+	}
+	public void setPaperId(long paperId) {
+		this.paperId = paperId;
 	}
 }

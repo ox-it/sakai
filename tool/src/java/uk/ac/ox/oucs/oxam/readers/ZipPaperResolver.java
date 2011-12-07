@@ -8,6 +8,11 @@ import java.util.zip.ZipFile;
 import uk.ac.ox.oucs.oxam.logic.TermService;
 import uk.ac.ox.oucs.oxam.model.Term;
 
+/**
+ * This looks for paper files in a zipfile.
+ * @author buckett
+ *
+ */
 public class ZipPaperResolver implements PaperResolver {
 	
 	//Always use / with zipfiles

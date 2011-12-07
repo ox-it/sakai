@@ -1,0 +1,22 @@
+<wicket:panel>
+		<tr>
+			<td><wicket:message key="label.exam.code" /></td>
+			<td>
+				<form wicket:id="examForm">
+				<input type="text" wicket:id="examCode" size="4" maxlength="4"/>
+				<input type="submit" wicket:id="examLookup" value="Lookup"/>
+				</form>
+			</td>
+			<td><span wicket:id="examCodeFeedback"></span></td>
+		</tr>
+		<tr>
+			<td><wicket:message key="label.exam.title" /></td>
+			<td><input type="text" wicket:id="examTitle" size="50"/></td>
+			<td><span wicket:id="examTitleFeedback"></span></td>
+		</tr>
+		<tr>
+			<td><wicket:message key="label.category" /></td>
+			<td><select wicket:id="category" size="1"></select></td>
+			<td><span wicket:id="categoryFeedback"></span></td>
+		</tr>
+</wicket:panel>

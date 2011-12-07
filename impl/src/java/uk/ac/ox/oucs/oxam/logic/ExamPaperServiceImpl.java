@@ -9,53 +9,70 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
 
+import uk.ac.ox.oucs.oxam.dao.ExamDao;
 import uk.ac.ox.oucs.oxam.dao.ExamPaperDao;
+import uk.ac.ox.oucs.oxam.dao.ExamPaperFileDao;
+import uk.ac.ox.oucs.oxam.dao.PaperDao;
+import uk.ac.ox.oucs.oxam.model.Exam;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
+import uk.ac.ox.oucs.oxam.model.ExamPaperFile;
+import uk.ac.ox.oucs.oxam.model.Paper;
 import uk.ac.ox.oucs.oxam.model.Term;
 
 public class ExamPaperServiceImpl implements ExamPaperService {
 
-	private ExamPaperDao dao;
+	private ExamPaperDao examPaperDao;
+	private ExamPaperFileDao examPaperFileDao;
+	private PaperDao paperDao;
+	private ExamDao examDao;
 	private SolrServer solr;
-	private TermService termService;
-	private CategoryService categoryService;
 
 	boolean indexing = false;
 
 	public void init() {
-
+		// Nothing todo.
 	}
 
 	public void setExamPaperDao(ExamPaperDao dao) {
-		this.dao = dao;
+		this.examPaperDao = dao;
 	}
 
 	public void setSolrServer(SolrServer solr) {
 		this.solr = solr;
 	}
-
-	public void setTermService(TermService termService) {
-		this.termService = termService;
-	}
-
-	public void setCategoryService(CategoryService categoryService) {
-		this.categoryService = categoryService;
-	}
 	
+	public void setExamPaperFileDao(ExamPaperFileDao examPaperFileDao) {
+		this.examPaperFileDao = examPaperFileDao;
+	}
+
+	public void setPaperDao(PaperDao paperDao) {
+		this.paperDao = paperDao;
+	}
+
+	public void setExamDao(ExamDao examDao) {
+		this.examDao = examDao;
+	}
+
 	public void setIndexing(boolean indexing) {
 		this.indexing = indexing;
 	}
 
 	public ExamPaper getExamPaper(long id) {
-		return dao.getExamPaper(id);
+		// Loads using the join.
+		return examPaperDao.getExamPaper(id);
+	}
+	
+	public ExamPaper newExamPaper() {
+		return new ExamPaper();
 	}
 
 	public List<ExamPaper> getExamPapers(int start, int length) {
-		return dao.getExamPapers(start, length);
+		return examPaperDao.getExamPapers(start, length);
 	}
 
 	public void deleteExamPaper(long id) {
-		dao.deleteExamPaper(id);
+		examPaperFileDao.delete(id);
+		// We don't delete stuff out of referenced tables.
 		if (indexing) {
 			try {
 				solr.deleteById(Long.toString(id));
@@ -70,8 +87,56 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 	}
 
 	public void saveExamPaper(ExamPaper examPaper) throws RuntimeException {
-
-		dao.saveExamPaper(examPaper);
+		// Need to see what has changed.
+		// ExamTitle, PaperTitle. PaperFile.
+		Paper paper = null;
+		if (examPaper.getPaperId() != 0) {
+			paper = paperDao.getPaper(examPaper.getPaperId());
+		}
+		if (paper == null) {
+			try {
+				paper = paperDao.get(examPaper.getPaperCode(), examPaper.getYear());
+			} catch (Exception e) {
+				paper = new Paper();
+				paper.setYear(examPaper.getYear());
+			}
+		}
+		paper.setCode(examPaper.getPaperCode());
+		paper.setTitle(examPaper.getPaperTitle());
+		paperDao.savePaper(paper);
+		
+		Exam exam = null;
+		if (examPaper.getExamId() != 0) {
+			exam = examDao.getExam(examPaper.getExamId());
+		}
+		if (exam == null) {
+			try {
+				exam = examDao.getExam(examPaper.getExamCode(), examPaper.getYear());
+			} catch (Exception e) {
+				exam = new Exam();
+				exam.setYear(examPaper.getYear());
+			}
+		}
+		exam.setCategory(examPaper.getCategory().getCode());
+		exam.setCode(examPaper.getExamCode());
+		exam.setTitle(examPaper.getExamTitle());
+		examDao.saveExam(exam);
+		
+		ExamPaperFile examPaperFile = null;
+		try {
+			 examPaperFile = examPaperFileDao.get(examPaper.getId());
+		} catch (Exception e) {
+			examPaperFile = new ExamPaperFile();
+		}
+		examPaperFile.setFile(examPaper.getPaperFile());
+		examPaperFile.setExam(exam.getId());
+		examPaperFile.setPaper(paper.getId());
+		examPaperFile.setTerm(examPaper.getTerm().getCode());
+		examPaperFile.setYear(examPaper.getYear());
+		examPaperFileDao.save(examPaperFile);
+		examPaper.setId(examPaperFile.getId());
+		examPaper.setPaperId(paper.getId());
+		examPaper.setExamId(exam.getId());
 		if (indexing) {
 			// This needs much better handling.
 			// Retry and better transaction management.
@@ -98,7 +163,8 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 		doc.addField("paper_code", examPaper.getPaperCode());
 		doc.addField("paper_file", examPaper.getPaperFile());
 		doc.addField("year", examPaper.getYear());
-		Term term = termService.getByCode(examPaper.getTerm());
+		
+		Term term = examPaper.getTerm();
 		if (term != null) {
 			doc.addField("term", term.getName());
 		}
@@ -110,7 +176,7 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 		if (indexing) {
 			try {
 				solr.deleteByQuery("*:*");
-				dao.all(new Callback<ExamPaper>() {
+				examPaperDao.all(new Callback<ExamPaper>() {
 
 					public void callback(ExamPaper value) {
 						SolrInputDocument doc = index(value);
@@ -138,17 +204,17 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 	}
 	
 	public int count() {
-		return dao.count();
+		return examPaperDao.count();
 	}
 	
-	public Map<String, String> resolvePaperCodes(String[] codes) {
+	public Map<String, Paper> getLatestPapers(String[] codes) {
 		// TODO Caching?
-		return dao.resolvePaperCodes(codes);
+		return paperDao.getCodes(codes);
 	}
 	
-	public Map<String, String> resolveExamCodes(String[] codes) {
+	public Map<String, Exam> getLatestExams(String[] codes) {
 		// TODO Caching?
-		return dao.resolveExamCodes(codes);
+		return examDao.getCodes(codes);
 	}
 
 }

@@ -24,20 +24,15 @@ public class PaperDaoImplTest {
 	// We do tests in one method so we don't have the setup dummy data.
 	@Test
 	public void testAllOperations() {
-		// Check it's empty.
-		assertEquals(0, dao.getPapers(0, 10).size());
 	
 		Paper paper = new Paper();
 		paper.setTitle("Title");
-		paper.setActive(true);
 		paper.setCode("CODE");
-		paper.setFile("/my/file/name.txt");
 		
 		dao.savePaper(paper);
 		
 		assertFalse(paper.getId() == 0);
 		
-		assertEquals(1, dao.getPapers(0, 10).size());
 		
 		paper.setTitle("New Title");
 		dao.savePaper(paper);
@@ -45,11 +40,4 @@ public class PaperDaoImplTest {
 		Paper paperFromDb = dao.getPaper(paper.getId());
 		assertEquals("New Title", paperFromDb.getTitle());
 	}
-	
-	@Test
-	public void testTransactions() {
-		// Check it's empty.
-		assertEquals(0, dao.getPapers(0, 10).size());
-	}
-
 }

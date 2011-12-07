@@ -8,10 +8,23 @@
   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
   
   
-    <bean id="examPaperService" class="uk.ac.ox.oucs.oxam.logic.ExamPaperServiceImpl"
-        init-method="init" autowire="byType">
-        <property name="indexing" value="true"/>
+    <bean id="examPaperService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean ">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target">
+            <bean class="uk.ac.ox.oucs.oxam.logic.ExamPaperServiceImpl"
+             init-method="init" autowire="byType">
+             <property name="indexing" value="false" />
+             </bean>
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="count*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+             </props>
+        </property>
     </bean>
+    
     
     <bean id="paperFileService" class="uk.ac.ox.oucs.oxam.logic.PaperFileServiceImpl">
         <property name="fileSystemLocation" ref="location"/>
@@ -24,6 +37,26 @@
 
     
     <bean id="examPaperDao" class="uk.ac.ox.oucs.oxam.dao.ExamPaperDaoImpl"
+        init-method="init">
+        <property name="termService" ref="termService"/>
+        <property name="categoryService" ref="categoryService"/>
+        <property name="dataSource" ref="dataSource" />
+        <property name="statementStore" ref="statementStore"/>
+    </bean>
+    
+    <bean id="examPaperFileDao" class="uk.ac.ox.oucs.oxam.dao.ExamPaperFileDaoImpl"
+        init-method="init">
+        <property name="dataSource" ref="dataSource" />
+        <property name="statementStore" ref="statementStore"/>
+    </bean>
+    
+    <bean id="examDao" class="uk.ac.ox.oucs.oxam.dao.ExamDaoImpl"
+        init-method="init">
+        <property name="dataSource" ref="dataSource" />
+        <property name="statementStore" ref="statementStore"/>
+    </bean>
+    
+    <bean id="paperDao" class="uk.ac.ox.oucs.oxam.dao.PaperDaoImpl"
         init-method="init">
         <property name="dataSource" ref="dataSource" />
         <property name="statementStore" ref="statementStore"/>

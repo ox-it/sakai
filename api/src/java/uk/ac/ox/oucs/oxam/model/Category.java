@@ -24,5 +24,10 @@ public class Category implements Serializable {
 	
 	public String getCode() {
 		return code;
-	}	
+	}
+
+	@Override
+	public String toString() {
+		return "Category [name=" + name + ", code=" + code + "]";
+	}
 }

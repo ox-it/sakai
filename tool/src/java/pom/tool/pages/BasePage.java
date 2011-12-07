@@ -160,7 +160,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.renderJavascriptReference("/library/js/headscripts.js");
 		response.renderCSSReference(toolBaseCSS);
 		response.renderCSSReference(toolCSS);
-		response.renderOnLoadJavascript("setMainFrameHeight( window.name )");
+		response.renderOnLoadJavascript("if (typeof setMainFramHeight !== 'undefined'){setMainFrameHeight( window.name );}");
 		
 		//Tool additions (at end so we can override if required)
 		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");

@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.oxam.readers;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import javax.validation.Validation;
@@ -15,12 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ox.oucs.oxam.logic.CategoryService;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
+import uk.ac.ox.oucs.oxam.logic.PaperFileServiceImpl;
 import uk.ac.ox.oucs.oxam.logic.TermService;
 import uk.ac.ox.oucs.oxam.readers.Import.ExamPaperRow;
 
 // TODO Look at @Parameterized for MySQL/Derby testing.
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations= {"/context.xml","/oxam-beans.xml"})
+@ContextConfiguration(locations= {"/context.xml", "/standalone-beans.xml","/oxam-beans.xml"})
 @Transactional
 public class FullImportTest {
 
@@ -44,19 +46,21 @@ public class FullImportTest {
 		importer.setExamPaperService(service);
 		importer.setCategoryService(categoryService);
 		importer.setTermService(termService);
+		importer.setPaperFileService(new PaperFileServiceImpl());
 		
 		import1 = importer.newImport();
 	}
 	
 	@Test
-	public void testImporter() {
+	public void testImporter() throws IOException {
 		InputStream paperInput = getClass().getResourceAsStream("/Papercodes.xlsx");
 		import1.readPapers(paperInput, "/Papercodes.xlsx");
 		InputStream examInput = getClass().getResourceAsStream("/Examcodes.xlsx");
 		import1.readExams(examInput, "/Examcodes.xlsx");
 		InputStream examPaperInput = getClass().getResourceAsStream("/ExamPapersMerged.xlsx");
 		import1.readExamPapers(examPaperInput, "/ExamPapersMerged.xlsx");
-		
+		PaperResolver resolver = new ZipPaperResolver(getClass().getResource("/papers.zip").getFile(), "papers", termService, "pdf");
+		import1.setPaperResolver(resolver);
 		
 		import1.resolve();
 		

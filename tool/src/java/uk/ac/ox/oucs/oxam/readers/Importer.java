@@ -10,6 +10,8 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import uk.ac.ox.oucs.oxam.logic.Callback;
 import uk.ac.ox.oucs.oxam.logic.CategoryService;
@@ -17,12 +19,16 @@ import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.logic.PaperFile;
 import uk.ac.ox.oucs.oxam.logic.PaperFileServiceImpl;
 import uk.ac.ox.oucs.oxam.logic.TermService;
+import uk.ac.ox.oucs.oxam.model.Category;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
+import uk.ac.ox.oucs.oxam.model.Term;
 import uk.ac.ox.oucs.oxam.readers.Import.ExamPaperRow;
 import uk.ac.ox.oucs.oxam.readers.Import.ExamRow;
 import uk.ac.ox.oucs.oxam.readers.Import.PaperRow;
 
 public class Importer {
+	
+	public static final Log LOG = LogFactory.getLog(Importer.class);
 	
 	private Validator validator;
 	private ExamPaperService examPaperService;
@@ -61,15 +67,17 @@ public class Importer {
 	public void persist(ExamPaper examPaper, final InputStream inputStream) {
 		// Need to map it to a URL, then upload it.
 		// Must then set the URL on the examPaper.
-		PaperFile file = paperFileService.get(examPaper.getYear().toString(), examPaper.getTerm(), examPaper.getPaperCode(), "pdf");
+		PaperFile file = paperFileService.get(examPaper.getYear().toString(), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
 		
 		paperFileService.deposit(file, new Callback<OutputStream>() {
 			public void callback(OutputStream output) {
 				try {
 					IOUtils.copy(inputStream, output);
-				} catch (IOException ioe) {
+				} catch (IOException e) {
 					// TODO Need to deal with this error;
 					// Maybe should be in the import so we can collect errors.
+				} finally {
+					// We don't close the streams here as we didn't create them here.
 				}
 			}
 		});
@@ -78,7 +86,7 @@ public class Importer {
 	}
 	
 	public boolean paperExists(ExamPaper examPaper) {
-		PaperFile file = paperFileService.get(examPaper.getYear().toString(), examPaper.getTerm(), examPaper.getPaperCode(), "pdf");
+		PaperFile file = paperFileService.get(examPaper.getYear().toString(), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
 		return paperFileService.exists(file);
 	}
 
@@ -86,12 +94,12 @@ public class Importer {
 		return row != null && termService.getByCode(row.term)!= null; 
 	}
 
-	public boolean checkTerm(ExamPaperRow row) {
-		return row != null && termService.getByCode(row.term) != null;
+	public Term checkTerm(ExamPaperRow row) {
+		return (row != null)?termService.getByCode(row.term):null;
 	}
 	
-	public boolean checkCategory(ExamRow row) {
-		return row != null && categoryService.getByCode(row.category) != null;
+	public Category checkCategory(ExamRow row) {
+		return (row != null)?categoryService.getByCode(row.category):null;
 	}
 
 }

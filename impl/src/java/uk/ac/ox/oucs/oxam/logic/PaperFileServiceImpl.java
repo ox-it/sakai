@@ -29,20 +29,34 @@ public class PaperFileServiceImpl {
 		return new File(path).exists();
 	}
 	
+	
 	public void deposit(PaperFile paperFile, Callback<OutputStream> callback) {
 		PaperFileImpl impl = castToImpl(paperFile);
 		String path = impl.getPath();
 		File file = new File(path);
+		OutputStream out = null;
 		try {
 			// Create containing directory
 			createPath(file);
 			file.createNewFile();
-			callback.callback(new FileOutputStream(file));
+			out = new FileOutputStream(file);
+			callback.callback(out);
+			LOG.debug("Sucessfully copied file to: "+ file.getAbsolutePath());
 		} catch (FileNotFoundException e) {
 			LOG.error("Creation should have failed for: "+ file.getAbsolutePath(), e);
 		} catch (IOException e) {
 			LOG.error("Problem creation directory/file for: "+ file.getAbsolutePath(), e);
+		} finally {
+			// Close the stream here as this is where it's created.
+			if(out != null) {
+				try {
+					out.close();
+				} catch (IOException e) {
+					LOG.info("Problem closing file: "+ e.getMessage());
+				}
+			}
 		}
+		
 	}
 
 	private void createPath(File file) throws IOException {
@@ -57,7 +71,7 @@ public class PaperFileServiceImpl {
 
 	private PaperFileImpl castToImpl(PaperFile paperFile) {
 		if (!(paperFile instanceof PaperFileImpl)) {
-			throw new IllegalArgumentException("PaperFile must have been retrieved from this service.");
+			throw new IllegalArgumentException("PaperFile must have been retrieved from this service using get(String, String, String).");
 		}
 		return (PaperFileImpl)paperFile;
 	}

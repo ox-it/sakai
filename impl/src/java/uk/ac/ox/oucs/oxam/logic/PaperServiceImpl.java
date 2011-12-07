@@ -24,10 +24,6 @@ public class PaperServiceImpl implements PaperService {
 		return dao.getPaper(id);
 	}
 
-	public List<Paper> getPapers(int start, int length) {
-		return dao.getPapers(start, length);
-	}
-
 	public void savePaper(Paper paper) throws RuntimeException {
 		dao.savePaper(paper);
 	}

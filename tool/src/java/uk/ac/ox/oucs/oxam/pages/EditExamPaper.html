@@ -7,31 +7,8 @@
 	<h3>Exam Paper</h3>
 	<form wicket:id="examPaperForm">
 	<table>
-		<tr>
-			<td><wicket:message key="label.exam.code" /></td>
-			<td><input type="text" wicket:id="examCode" size="4" maxlength="4"/></td>
-			<td><span wicket:id="examCodeFeedback"></span></td>
-		</tr>
-		<tr>
-			<td><wicket:message key="label.exam.title" /></td>
-			<td><input type="text" wicket:id="examTitle" size="50"/></td>
-			<td><span wicket:id="examTitleFeedback"></span></td>
-		</tr>
-		<tr>
-			<td><wicket:message key="label.category" /></td>
-			<td><select wicket:id="category" size="1"></select></td>
-			<td><span wicket:id="categoryFeedback"></span></td>
-		</tr>
-		<tr>
-			<td><wicket:message key="label.paper.code" /></td>
-			<td><input type="text" wicket:id="paperCode" size="4" maxlength="4"/></td>
-			<td><span wicket:id="paperCodeFeedback"></span></td>
-		</tr>
-		<tr>
-			<td><wicket:message key="label.paper.title" /></td>
-			<td><input type="text" wicket:id="paperTitle" size="50"/></td>
-			<td><span wicket:id="paperTitleFeedback"></span></td>
-		</tr>
+		<wicket:container wicket:id="examDetails"/>
+		<wicket:container wicket:id="paperDetails"/>
 		<tr>
 			<td><wicket:message key="label.paper.file" /></td>
 			<td>

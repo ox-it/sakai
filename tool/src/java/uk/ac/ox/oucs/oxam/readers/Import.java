@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.oxam.readers;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -7,10 +8,17 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import uk.ac.ox.oucs.oxam.model.Category;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
+import uk.ac.ox.oucs.oxam.model.Term;
 
 public class Import {
 
+	private static final Log LOG = LogFactory.getLog(Import.class);
+	
 	private Importer importer;
 	
 	private KeyedSheetImporter<PaperRow> paperRowImporter;
@@ -122,11 +130,13 @@ public class Import {
 				examPaperRowImporter.addError(examPaperRow, "Failed to understand date");
 				error = true;
 			}
-			if (!importer.checkTerm(examPaperRow)) {
+			Term term = importer.checkTerm(examPaperRow);
+			if (term == null) {
 				examPaperRowImporter.addError(examPaperRow, "Not a valid term code.");
 				error = true;
 			}
-			if (!importer.checkCategory(examRow)) {
+			Category category = importer.checkCategory(examRow);
+			if (category == null) {
 				examRowImporter.addError(examRow, "Category is not valid");
 				error = true;
 			}
@@ -138,11 +148,22 @@ public class Import {
 					examPaper.setExamCode(examPaperRow.examCode);
 					examPaper.setPaperCode(examPaperRow.paperCode);
 					examPaper.setYear(year);
-					examPaper.setTerm(examPaperRow.term);
+					examPaper.setTerm(term);
 					examPaper.setPaperTitle(paperRow.title);
 					examPaper.setExamTitle(examRow.title);
-					examPaper.setCategory(examRow.category);
-					importer.persist(examPaper, paper.getStream());
+					examPaper.setCategory(category);
+					InputStream input = paper.getStream();
+					try {
+						importer.persist(examPaper, input);
+					} finally {
+						if (input != null) {
+							try {
+								input.close();
+							} catch (IOException ioe) {
+								LOG.info("Failed to close input stream: "+ ioe.getMessage());
+							}
+						}
+					}
 				} else {
 					examPaperRowImporter.addError(examPaperRow, "File for paper is missing: "+ paper.getPath());
 				}
