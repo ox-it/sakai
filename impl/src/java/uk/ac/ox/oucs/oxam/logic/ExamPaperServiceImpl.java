@@ -1,13 +1,14 @@
 package uk.ac.ox.oucs.oxam.logic;
 
-import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.UpdateResponse;
-import org.apache.solr.common.SolrInputDocument;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import uk.ac.ox.oucs.oxam.dao.ExamDao;
 import uk.ac.ox.oucs.oxam.dao.ExamPaperDao;
@@ -17,15 +18,16 @@ import uk.ac.ox.oucs.oxam.model.Exam;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 import uk.ac.ox.oucs.oxam.model.ExamPaperFile;
 import uk.ac.ox.oucs.oxam.model.Paper;
-import uk.ac.ox.oucs.oxam.model.Term;
 
 public class ExamPaperServiceImpl implements ExamPaperService {
 
+	private static final Log LOG = LogFactory.getLog(ExamPaperServiceImpl.class);
+	
 	private ExamPaperDao examPaperDao;
 	private ExamPaperFileDao examPaperFileDao;
 	private PaperDao paperDao;
 	private ExamDao examDao;
-	private SolrServer solr;
+	private IndexingService indexer;
 
 	boolean indexing = false;
 
@@ -37,8 +39,8 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 		this.examPaperDao = dao;
 	}
 
-	public void setSolrServer(SolrServer solr) {
-		this.solr = solr;
+	public void setIndexingService(IndexingService indexer) {
+		this.indexer = indexer;
 	}
 	
 	public void setExamPaperFileDao(ExamPaperFileDao examPaperFileDao) {
@@ -72,18 +74,7 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 
 	public void deleteExamPaper(long id) {
 		examPaperFileDao.delete(id);
-		// We don't delete stuff out of referenced tables.
-		if (indexing) {
-			try {
-				solr.deleteById(Long.toString(id));
-			} catch (SolrServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		indexer.delete(Long.toString(id));
 	}
 
 	public void saveExamPaper(ExamPaper examPaper) throws RuntimeException {
@@ -137,70 +128,75 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 		examPaper.setId(examPaperFile.getId());
 		examPaper.setPaperId(paper.getId());
 		examPaper.setExamId(exam.getId());
-		if (indexing) {
-			// This needs much better handling.
-			// Retry and better transaction management.
-			SolrInputDocument doc = index(examPaper);
-			try {
-				UpdateResponse resp = solr.add(doc);
-				solr.commit();
-			} catch (SolrServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		indexer.index(examPaper);
 	}
 
-	private SolrInputDocument index(ExamPaper examPaper) {
-		SolrInputDocument doc = new SolrInputDocument();
-		doc.addField("id", examPaper.getId());
-		doc.addField("exam_title", examPaper.getExamTitle());
-		doc.addField("exam_code", examPaper.getExamCode());
-		doc.addField("paper_title", examPaper.getPaperTitle());
-		doc.addField("paper_code", examPaper.getPaperCode());
-		doc.addField("paper_file", examPaper.getPaperFile());
-		doc.addField("year", examPaper.getYear());
-		
-		Term term = examPaper.getTerm();
-		if (term != null) {
-			doc.addField("term", term.getName());
-		}
-		return doc;
-	}
+	
 	
 	public synchronized int reindex() {
-		// This isn't cluster safe, but it shouldn't matter.
-		if (indexing) {
-			try {
-				solr.deleteByQuery("*:*");
-				examPaperDao.all(new Callback<ExamPaper>() {
+		Reindex iterator = new Reindex();
+		Thread dbReader = new Thread(iterator, "ExamPaper DB loader");
+		dbReader.start();
+		indexer.reindex(iterator);
+		return 0;
+	}
+	
+	/**
+	 * This is not thread safe, it can't be used as an iterator by multiple consumers.
+	 * This means we don't have to iterate the DB on the request thread.
+	 * @author buckett
+	 *
+	 */
+	private class Reindex implements Runnable, Iterator<ExamPaper> {
 
-					public void callback(ExamPaper value) {
-						SolrInputDocument doc = index(value);
-						try {
-							solr.add(doc);
-						} catch (SolrServerException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+		BlockingQueue<ExamPaper> queue = new ArrayBlockingQueue<ExamPaper>(10);
+		
+		// So we know when the queue is empty.
+		private final ExamPaper empty = new ExamPaper();
+		// Holds the value we've just taken from the queve.
+		private ExamPaper next;
+		
+		public void run() {
+			// Just adds items to the queue, waiting if the queue is full.
+			examPaperDao.all(new Callback<ExamPaper>() {
+				public void callback(ExamPaper value) {
+					try {
+						queue.put(value); // Add to queue, waiting if full
+					} catch (InterruptedException e) {
+						LOG.warn("Failed to add item to queue: "+ value, e);
 					}
-				});
-				solr.commit();
-			} catch (SolrServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				}
+			});
+			try {
+				queue.put(empty);
+			} catch (InterruptedException e) {
+				LOG.warn("Failed to add empty item to list", e);
 			}
 		}
-		return 0;
+
+		public boolean hasNext() {
+			if (next == null) {
+				try {
+					next = queue.take();
+				} catch (InterruptedException e) {
+				}
+			}
+			return empty != next;
+		}
+
+		public ExamPaper next() {
+			if (hasNext()) {
+				ExamPaper examPaper = next;
+				next = null;
+				return examPaper;
+			}
+			throw new NoSuchElementException();
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+		
 	}
 	
 	public int count() {
