@@ -131,7 +131,12 @@
 							{for option in part.options}
                         	<tr>
                             	<td class="option-details">
-                                	<label for="option-${option.id}">${option.slot} for ${option.sessions} sessions starts in ${option.when}, 
+                                	<label for="option-${option.id}">
+                                		{if option.slot}${option.slot} for 
+                                	{else}
+                                		For
+                                	{/if}
+                                	${option.sessions} sessions starts in ${option.when}, 
 									{if option.presenter}{if option.presenter.email}<a href="mailto:${option.presenter.email}">{/if}${option.presenter.name}{if option.presenter.email}</a>{/if}{/if}
 									</label>
                                 	<br/>
