@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.oxam.logic;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import uk.ac.ox.oucs.oxam.model.Exam;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 import uk.ac.ox.oucs.oxam.model.ExamPaperFile;
 import uk.ac.ox.oucs.oxam.model.Paper;
+import uk.ac.ox.oucs.oxam.model.Term;
 
 public class ExamPaperServiceImpl implements ExamPaperService {
 
@@ -71,6 +73,23 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 	public List<ExamPaper> getExamPapers(int start, int length) {
 		return examPaperDao.getExamPapers(start, length);
 	}
+	
+	public ExamPaper get(String examCode, String paperCode, int year, Term term) {
+		ExamPaper example = new ExamPaper();
+		example.setExamCode(examCode);
+		example.setPaperCode(paperCode);
+		example.setYear(year);
+		example.setTerm(term);
+		List<ExamPaper> results = examPaperDao.findAll(example);
+		if(results.isEmpty()) {
+			return null;
+		} else {
+			if (results.size() > 1) {
+				LOG.warn("More than one ExamPaper found, index should prevent this.");
+			}
+			return results.get(0);
+		}
+	}
 
 	public void deleteExamPaper(long id) {
 		examPaperFileDao.delete(id);
@@ -80,39 +99,45 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 	public void saveExamPaper(ExamPaper examPaper) throws RuntimeException {
 		// Need to see what has changed.
 		// ExamTitle, PaperTitle. PaperFile.
+		// Things affected by this change which need indexing.
+		
+		
+		// Update the paper.
 		Paper paper = null;
 		if (examPaper.getPaperId() != 0) {
 			paper = paperDao.getPaper(examPaper.getPaperId());
 		}
-		if (paper == null) {
+		// If no paper was found or the paper code has changed.
+		if (paper == null || !paper.getCode().equals(examPaper.getPaperCode())) {
 			try {
 				paper = paperDao.get(examPaper.getPaperCode(), examPaper.getYear());
 			} catch (Exception e) {
-				paper = new Paper();
-				paper.setYear(examPaper.getYear());
+				paper = new Paper(examPaper.getPaperCode(), examPaper.getYear());
 			}
 		}
-		paper.setCode(examPaper.getPaperCode());
 		paper.setTitle(examPaper.getPaperTitle());
 		paperDao.savePaper(paper);
 		
+		
+		// Update the exam.
 		Exam exam = null;
 		if (examPaper.getExamId() != 0) {
 			exam = examDao.getExam(examPaper.getExamId());
 		}
-		if (exam == null) {
+		// If no exam or exam code has changed.
+		if (exam == null || !exam.getCode().equals(examPaper.getExamCode())) {
 			try {
 				exam = examDao.getExam(examPaper.getExamCode(), examPaper.getYear());
 			} catch (Exception e) {
-				exam = new Exam();
-				exam.setYear(examPaper.getYear());
+				exam = new Exam(examPaper.getExamCode(), examPaper.getYear());
 			}
 		}
 		exam.setCategory(examPaper.getCategory().getCode());
-		exam.setCode(examPaper.getExamCode());
 		exam.setTitle(examPaper.getExamTitle());
 		examDao.saveExam(exam);
 		
+		
+		// Update the exampaperfile
 		ExamPaperFile examPaperFile = null;
 		try {
 			 examPaperFile = examPaperFileDao.get(examPaper.getId());
@@ -128,7 +153,26 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 		examPaper.setId(examPaperFile.getId());
 		examPaper.setPaperId(paper.getId());
 		examPaper.setExamId(exam.getId());
-		indexer.index(examPaper);
+		
+		
+		// Re-index the stuff.
+		ExamPaper example = new ExamPaper();
+		if (paper.hasChanged()) {
+			example.setPaperId(paper.getId());
+		}
+		if(exam.hasChanged()) {
+			example.setExamId(exam.getId());
+		}
+		
+		// All exampapers affected by this change need re-indexing.
+		List<ExamPaper> changed = (exam.hasChanged() || paper.hasChanged()) ?
+				examPaperDao.findAny(example) :
+				Collections.singletonList(examPaper);
+		;
+		for(ExamPaper toIndex: changed) {
+			indexer.index(toIndex);
+		}
+		LOG.info("Re-indexed: "+ changed.size());
 	}
 
 	

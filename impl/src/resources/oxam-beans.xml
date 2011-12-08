@@ -32,7 +32,7 @@
   
     <!-- DAO Stuff -->
     <bean id="statementStore" class="uk.ac.ox.oucs.oxam.dao.StatementStore" init-method="init">
-        <property name="vendor" value="derby"/>
+        <property name="vendor" value="mysql"/>
     </bean>
 
     

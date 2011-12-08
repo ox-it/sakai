@@ -8,7 +8,6 @@ import java.sql.Statement;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCallback;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 
 import uk.ac.ox.oucs.oxam.model.ExamPaperFile;

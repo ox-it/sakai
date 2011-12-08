@@ -30,11 +30,8 @@ public class PaperDaoImpl extends BaseDao implements PaperDao {
 	private RowMapper mapper = new RowMapper() {
 
 		public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-			Paper paper = new Paper();
-			paper.setId(rs.getLong("id"));
+			Paper paper = new Paper(rs.getLong("id"), rs.getString("code"), rs.getInt("academic_year"));
 			paper.setTitle(rs.getString("title"));
-			paper.setCode(rs.getString("code"));
-			paper.setYear(rs.getInt("academic_year"));
 			return paper;
 		}
 	};

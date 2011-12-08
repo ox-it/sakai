@@ -7,14 +7,22 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.validation.IValidationError;
+import org.apache.wicket.validation.ValidationError;
 import org.apache.wicket.validation.validator.StringValidator;
 
 import uk.ac.ox.oucs.oxam.components.FeedbackLabel;
+import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
+import uk.ac.ox.oucs.oxam.model.Paper;
 
 public class PaperDetails extends Panel {
 
 	private static final long serialVersionUID = 1L;
+	
+	@SpringBean
+	private ExamPaperService examPaperService;
 
 	public PaperDetails(String id, IModel<ExamPaper> model) {
 		super(id, model);
@@ -48,8 +56,15 @@ public class PaperDetails extends Panel {
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				
 				String code = paperCode.getModelObject();
-				paperTitle.setModelValue(new String[]{"Book"+ code}); //TODO
-				target.addComponent(paperTitle);
+				Paper paper = examPaperService.getLatestPapers(new String[]{code}).get(code);
+				if (paper != null) {
+					// Need to clear input so re-submit works.
+					paperTitle.clearInput();
+					paperTitle.setModelValue(new String[]{paper.getTitle()});
+					target.addComponent(paperTitle);
+				} else {
+					paperCode.error((IValidationError)new ValidationError().addMessageKey("paper.code.not.found"));
+				}
 				target.addComponent(paperCodeFeedback);
 			}
 			

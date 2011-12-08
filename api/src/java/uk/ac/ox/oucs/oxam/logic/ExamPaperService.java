@@ -6,12 +6,15 @@ import java.util.Map;
 import uk.ac.ox.oucs.oxam.model.Exam;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 import uk.ac.ox.oucs.oxam.model.Paper;
+import uk.ac.ox.oucs.oxam.model.Term;
 
 public interface ExamPaperService {
 
 	public ExamPaper getExamPaper(long id);
 	
 	public List<ExamPaper> getExamPapers(int start, int length);
+	
+	public ExamPaper get(String examCode, String paperCode, int year, Term term);
 	
 	public int count();
 	

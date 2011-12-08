@@ -1,7 +1,6 @@
 package uk.ac.ox.oucs.oxam.dao;
 
 import java.util.List;
-import java.util.Map;
 
 import uk.ac.ox.oucs.oxam.logic.Callback;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
@@ -11,7 +10,11 @@ public interface ExamPaperDao {
 	public ExamPaper getExamPaper(long id);
 	
 	public List<ExamPaper> getExamPapers(int start, int length);
-
+	
+	public List<ExamPaper> findAll(ExamPaper example);
+	
+	public List<ExamPaper> findAny(ExamPaper example);
+	
 	public int count();
 
 	/**

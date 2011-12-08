@@ -144,11 +144,14 @@ public class Import {
 			if (!error) {
 				PaperResolutionResult paper = resolver.getPaper(year, examPaperRow.term, examPaperRow.paperCode);
 				if(paper.isFound()) {
-					ExamPaper examPaper = new ExamPaper();
-					examPaper.setExamCode(examPaperRow.examCode);
-					examPaper.setPaperCode(examPaperRow.paperCode);
-					examPaper.setYear(year);
-					examPaper.setTerm(term);
+					ExamPaper examPaper = importer.get(examPaperRow.examCode, examPaperRow.paperCode, year, term);
+					if (examPaper == null) {
+						examPaper = new ExamPaper();
+						examPaper.setExamCode(examPaperRow.examCode);
+						examPaper.setPaperCode(examPaperRow.paperCode);
+						examPaper.setYear(year);
+						examPaper.setTerm(term);
+					}
 					examPaper.setPaperTitle(paperRow.title);
 					examPaper.setExamTitle(examRow.title);
 					examPaper.setCategory(category);

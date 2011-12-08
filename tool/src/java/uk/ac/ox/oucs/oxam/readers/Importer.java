@@ -102,4 +102,8 @@ public class Importer {
 		return (row != null)?categoryService.getByCode(row.category):null;
 	}
 
+	public ExamPaper get(String examCode, String paperCode, int year, Term term) {
+		return examPaperService.get(examCode, paperCode, year, term);
+	}
+
 }

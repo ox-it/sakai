@@ -40,8 +40,11 @@ public abstract class BaseDao extends JdbcDaoSupport {
 			try {
 				getJdbcTemplate().execute(createSql);
 			} catch (BadSqlGrammarException bsge) {
-				throw new RuntimeException("SQL is incorrect.",
-						bsge);
+				// MySQL Table exists.
+				if (1050 != bsge.getSQLException().getErrorCode()) { 
+					throw new RuntimeException("SQL is incorrect.",
+							bsge);
+				}
 			} catch (DataAccessException dae) {
 				throw dae;
 			}
@@ -49,8 +52,11 @@ public abstract class BaseDao extends JdbcDaoSupport {
 				String indexSql = getStatement("index");
 				getJdbcTemplate().execute(indexSql);
 			} catch (BadSqlGrammarException bsge) {
-				throw new RuntimeException("SQL is incorrect.",
-						bsge);
+				// MySQL duplicate index name.
+				if (1061 != bsge.getSQLException().getErrorCode()) {
+					throw new RuntimeException("SQL is incorrect.",
+							bsge);
+				}
 			} catch (DataAccessException dae) {
 				throw dae;
 			} catch (IllegalArgumentException iae) {

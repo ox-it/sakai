@@ -12,6 +12,7 @@ import org.apache.wicket.markup.html.form.ListChoice;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.IValidationError;
@@ -20,7 +21,9 @@ import org.apache.wicket.validation.validator.StringValidator;
 
 import uk.ac.ox.oucs.oxam.components.FeedbackLabel;
 import uk.ac.ox.oucs.oxam.logic.CategoryService;
+import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.model.Category;
+import uk.ac.ox.oucs.oxam.model.Exam;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 
 public class ExamDetails extends Panel {
@@ -29,6 +32,9 @@ public class ExamDetails extends Panel {
 	
 	@SpringBean
 	private CategoryService categoryService;
+	
+	@SpringBean
+	private ExamPaperService examPaperService;
 	
 	public ExamDetails(String id, IModel<ExamPaper> model) {
 		super(id, model);
@@ -45,7 +51,6 @@ public class ExamDetails extends Panel {
 		examTitleFeedback.setOutputMarkupId(true);
 		add(examTitleFeedback);
 		
-		setOutputMarkupId(true); // For AJAX
 		
 		final TextField<String> examCode = new TextField<String>("examCode");
 		examCode.setLabel(new ResourceModel("label.exam.code"));
@@ -71,6 +76,7 @@ public class ExamDetails extends Panel {
 		
 		category.setRequired(true);
 		category.setOutputMarkupId(true);
+		category.add(new ChangeValidator<Category>(category, "warning.category.changed"));
 		add(category);
 		FeedbackLabel categoryFeedback = new FeedbackLabel("categoryFeedback", category);
 		
@@ -84,13 +90,19 @@ public class ExamDetails extends Panel {
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				
 				String code = examCode.getModelObject();
-				examTitle.setModelValue(new String[]{"Book"+ code});
-				category.setModelValue(new String[]{"B"});
-				examTitle.error((IValidationError)new ValidationError().addMessageKey("not found")); // TODO
-				target.addComponent(examTitle);
-				target.addComponent(this);
+				Exam exam = examPaperService.getLatestExams(new String[]{code}).get(code);
+				if (exam != null) {
+					// Need to clear input so re-submit works.
+					examTitle.clearInput();
+					category.clearInput();
+					examTitle.setModelValue(new String[]{exam.getTitle()});
+					category.setModelValue(new String[]{exam.getCategory()});
+					target.addComponent(examTitle);
+					target.addComponent(category);
+				} else {
+					examCode.error((IValidationError)new ValidationError().addMessageKey("exam.code.not.found"));
+				}
 				target.addComponent(examCodeFeedback);
-				target.addComponent(category);
 			}
 			
 			@Override

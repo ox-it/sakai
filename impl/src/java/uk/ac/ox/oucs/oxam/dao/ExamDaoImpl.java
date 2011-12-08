@@ -22,12 +22,9 @@ public class ExamDaoImpl extends BaseDao implements ExamDao {
 
 	private RowMapper mapper = new RowMapper() {
 		public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-			Exam exam = new Exam();
-			exam.setId(rs.getLong("id"));
+			Exam exam = new Exam(rs.getLong("id"), rs.getString("code"), rs.getInt("academic_year"));
 			exam.setCategory(rs.getString("category"));
-			exam.setCode(rs.getString("code"));
 			exam.setTitle(rs.getString("title"));
-			exam.setYear(rs.getInt("academic_year"));
 			return exam;
 		}
 	};

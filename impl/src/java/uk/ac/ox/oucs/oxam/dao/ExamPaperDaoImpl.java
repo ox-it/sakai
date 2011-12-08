@@ -7,11 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import uk.ac.ox.oucs.oxam.logic.Callback;
 import uk.ac.ox.oucs.oxam.logic.CategoryService;
@@ -24,6 +27,8 @@ public class ExamPaperDaoImpl extends BaseDao implements ExamPaperDao {
 
 	private static final Log LOG = LogFactory.getLog(ExamPaperDaoImpl.class);
 	
+	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
 	private TermService termService;
 	private CategoryService categoryService;
 
@@ -58,7 +63,9 @@ public class ExamPaperDaoImpl extends BaseDao implements ExamPaperDao {
 	};
 	
 	public void init() {
-		// Don't need any DDL.
+		// Don't need any DDL as the tables are created by other classes.
+		// Can't override setDatasource, so do setup of namedparameter here.
+		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(getDataSource());
 	}
 	
 	protected String getStatementPrefix() {
@@ -72,9 +79,10 @@ public class ExamPaperDaoImpl extends BaseDao implements ExamPaperDao {
 	}
 
 	public List<ExamPaper> getExamPapers(int start, int length) {
-		return (List<ExamPaper>) getJdbcTemplate().query(
-				getStatement("select.range"),
-				new Object[] { start, length }, mapper);
+		Map<String, Object> params = new HashMap<String,Object>();
+		params.put("start", start);
+		params.put("length", length);
+		return (List<ExamPaper>) namedParameterJdbcTemplate.query(getStatement("select.range"), params, mapper);
 	}
 	
 
@@ -96,54 +104,78 @@ public class ExamPaperDaoImpl extends BaseDao implements ExamPaperDao {
 		});
 	}
 	
-	public List<ExamPaper> find(ExamPaper example) {
-		StringBuilder stmt = new StringBuilder(getStatement("select.example"));
-		SQLBuilder sql = new SQLBuilder(getStatement("select.example"), " AND ");
+	public List<ExamPaper> findAny(ExamPaper example) {
+		return find(example, "OR");
+	}
+	
+	public List<ExamPaper> findAll(ExamPaper example) {
+		return find(example, "AND");
+	}
+		
+	public List<ExamPaper> find(ExamPaper example, String operation) {
+		SQLBuilder sql = new SQLBuilder(getStatement("select.example.begin"), getStatement("select.example.end"), " "+ operation+ " ");
 		
 		sql.addParam(getStatement("select.id"), example.getId());
-		sql.addParam(getStatement("select.category"), example.getCategory());
+		if (example.getCategory() != null) {
+			sql.addParam(getStatement("select.category"), example.getCategory().getCode());
+		}
+		sql.addParam(getStatement("select.exam_id"), example.getExamId());
 		sql.addParam(getStatement("select.exam_title"), example.getExamTitle());
 		sql.addParam(getStatement("select.exam_code"), example.getExamCode());
+		sql.addParam(getStatement("select.paper_id"), example.getPaperId());
 		sql.addParam(getStatement("select.paper_title"), example.getPaperTitle());
 		sql.addParam(getStatement("select.paper_code"), example.getPaperCode());
 		sql.addParam(getStatement("select.paper_file"), example.getPaperFile());
 		sql.addParam(getStatement("select.year"), example.getYear());
-		sql.addParam(getStatement("select.term"), example.getTerm());
+		if (example.getTerm() != null) {
+			sql.addParam(getStatement("select.term"), example.getTerm().getCode());
+		}
 		
 		List<ExamPaper> examPapers = (List<ExamPaper>)getJdbcTemplate().query(sql.getStmt(), sql.getParams(), mapper);
 		return examPapers;
 	}
 	
+
 	private class SQLBuilder {
 		StringBuilder stmt;
+		String end;
 		String join;
 		List<Object> params;
 		boolean firstParam = true;
 		
-		SQLBuilder(String start, String join) {
+		SQLBuilder(String start, String end, String join) {
 			stmt = new StringBuilder(start);
 			params = new ArrayList<Object>();
+			this.join = join;
+			this.end = end; 
 		}
-		// This method work reasonably well, except int/long < 0 are like null. Watch out.		
+		// This method work reasonably well, except int/long <= 0 are like null. Watch out.		
 		void addParam(String sql, Object value) {
 			if (value == null) {
 				return;
 			}
-			if (value instanceof Long || value instanceof Integer) {
+			if (value instanceof Long) {
 				Long longValue = (Long)value;
-				if (longValue < 0) {
+				if (longValue <= 0) {
+					return;
+				}
+			} else if (value instanceof Integer) {
+				Integer intValue = (Integer)value;
+				if (intValue <= 0) {
 					return;
 				}
 			}
 			if (!firstParam) {
 				stmt.append(join);
+			} else {
+				firstParam = false;
 			}
 			stmt.append(sql);
 			params.add(value);
 		}
 		
 		String getStmt() {
-			return stmt.toString();
+			return stmt.toString()+ end;
 		}
 		
 		Object[] getParams() {
