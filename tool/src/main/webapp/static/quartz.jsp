@@ -7,7 +7,6 @@
 <%
 pageContext.setAttribute("jobName", ServerConfigurationService.getString("ses.import.job", "gobbledegoup"));
 %>
-<c:set var="jobName" value="${jobName}" />
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -21,8 +20,10 @@ pageContext.setAttribute("jobName", ServerConfigurationService.getString("ses.im
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/<%= ServerConfigurationService.getString("skin.default", "default") %>/tool.css" type="text/css" rel="stylesheet" media="all" />
 	
+	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+    
     </head>
-    <body>
+    <body onload="setMainFrameHeight(window.name)">
     	<div>
     	
 		<div id="messages">
