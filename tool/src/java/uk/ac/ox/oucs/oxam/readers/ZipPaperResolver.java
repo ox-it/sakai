@@ -66,8 +66,8 @@ public class ZipPaperResolver implements PaperResolver {
 			return null;
 		}
 
-		public String getPath() {
-			return path;
+		public String[] getPaths() {
+			return new String[]{path};
 		}
 
 		

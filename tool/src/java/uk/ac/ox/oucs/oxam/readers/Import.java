@@ -2,18 +2,21 @@ package uk.ac.ox.oucs.oxam.readers;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import uk.ac.ox.oucs.oxam.model.Category;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 import uk.ac.ox.oucs.oxam.model.Term;
+import uk.ac.ox.oucs.oxam.readers.SheetImporter.Format;
 
 public class Import {
 
@@ -32,18 +35,18 @@ public class Import {
 		this.importer = importer;
 	}
 
-	public void readPapers(InputStream source, String filename) {
+	public void readPapers(InputStream source, Format format) {
 		paperRowImporter = new KeyedSheetImporter<PaperRow>(PaperRow.class, importer);
-		paperRowImporter.read(source, filename);
+		paperRowImporter.read(source, format);
 	}
 	
-	public void readExams(InputStream source, String filename) {
+	public void readExams(InputStream source, Format format) {
 		examRowImporter = new KeyedSheetImporter<ExamRow>(ExamRow.class, importer);
-		examRowImporter.read(source, filename);
+		examRowImporter.read(source, format);
 	}
-	public void readExamPapers(InputStream source, String filename) {
+	public void readExamPapers(InputStream source, Format format) {
 		examPaperRowImporter = new KeyedSheetImporter<ExamPaperRow>(ExamPaperRow.class, importer);
-		examPaperRowImporter.read(source, filename);
+		examPaperRowImporter.read(source, format);
 	}
 	
 	public void setPaperResolver(PaperResolver resolver) {
@@ -107,7 +110,7 @@ public class Import {
 					paperRowImporter.addError(paperRow,  "Not enough good information to locate file.");
 				} else {
 					if (!result.isFound()) {
-						paperRowImporter.addError(paperRow, "Couldn't find file: "+ result.getPath());
+						paperRowImporter.addError(paperRow, "Couldn't find file: "+ StringUtils.join(result.getPaths(), " or "));
 					}
 				}
 			}
@@ -158,6 +161,9 @@ public class Import {
 					InputStream input = paper.getStream();
 					try {
 						importer.persist(examPaper, input);
+					} catch (Exception e) {
+						// This shouldn't really happen and indicates a low-level problem.
+						examPaperRowImporter.addError(examPaperRow, e.getMessage());
 					} finally {
 						if (input != null) {
 							try {
@@ -168,10 +174,25 @@ public class Import {
 						}
 					}
 				} else {
-					examPaperRowImporter.addError(examPaperRow, "File for paper is missing: "+ paper.getPath());
+					examPaperRowImporter.addError(examPaperRow, "File for paper is missing: "+ StringUtils.join(paper.getPaths(), " or "));
 				}
 			}
 		}
+	}
+	
+	public void writeExamError(OutputStream out, Format format) throws IOException {
+		SheetExporter exporter = new SheetExporter();
+		exporter.writeSheet(out, Format.CSV, getExamRowErrors().values());
+	}
+	
+	public void writePaperError(OutputStream out, Format format) throws IOException {
+		SheetExporter exporter = new SheetExporter();
+		exporter.writeSheet(out, format, getPaperRowErrors().values());
+	}
+	
+	public void writeExamPaperError(OutputStream out, Format format) throws IOException {
+		SheetExporter exporter = new SheetExporter();
+		exporter.writeSheet(out, format, getExamPaperRowErrors().values());
 	}
 	
 

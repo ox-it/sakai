@@ -102,6 +102,7 @@ public class EditExamPaper extends BasePage {
 
 			});
 			term.setRequired(true);
+			term.add(new ChangeValidator<Term>(term, "warning.term.changed"));
 			add(term);
 			FeedbackLabel termFeedback = new FeedbackLabel("termFeedback", term);
 			add(termFeedback);
@@ -146,28 +147,27 @@ public class EditExamPaper extends BasePage {
 						try {
 							IOUtils.copy(fileUpload.getInputStream(), value);
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							error(getString("file.upload.failed"));
 						}
 					}
-					
 				});
 				examPaper.setPaperFile(paperFile.getURL());
 			}
 			if (included.getModelObject() != null) {
 				String reusePaper = included.getModelObject();
-				ExamPaper example = new ExamPaper();
-				example.setYear(examPaper.getYear());
-				example.setTerm(examPaper.getTerm());
-				example.setPaperCode(reusePaper);
-				// TODO.
-				//examPaperService.find(example);
+				PaperFile paperFile = paperFileService.get(examPaper.getYear().toString(), examPaper.getTerm().getCode(), reusePaper, "pdf");
+				if (paperFileService.exists(paperFile)) {
+					examPaper.setPaperFile(paperFile.getURL());
+				} else {
+					included.error((IValidationError)new ValidationError().addMessageKey("no.paper.found"));
+				}
 			}
-			
-			examPaperService.saveExamPaper(examPaper);
-			getSession().info(new StringResourceModel("exampaper.added", null).getString());
-			// Some people say this is bad?
-			setResponsePage(ExamPapersPage.class);
+			if (!hasError()) {
+				examPaperService.saveExamPaper(examPaper);
+				getSession().info(new StringResourceModel("exampaper.added", null).getString());
+				// Some people say this is bad?
+				setResponsePage(ExamPapersPage.class);
+			}
 		}
 		
 	}

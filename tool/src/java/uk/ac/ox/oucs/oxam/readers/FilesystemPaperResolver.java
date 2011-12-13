@@ -55,8 +55,8 @@ public class FilesystemPaperResolver implements PaperResolver {
 			return null;
 		}
 
-		public String getPath() {
-			return file.getAbsolutePath();
+		public String[] getPaths() {
+			return new String[]{file.getAbsolutePath()};
 		}
 
 		

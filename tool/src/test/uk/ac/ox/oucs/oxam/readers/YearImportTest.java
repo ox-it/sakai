@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.ox.oucs.oxam.readers.Import.ExamPaperRow;
+import uk.ac.ox.oucs.oxam.readers.SheetImporter.Format;
 
 public class YearImportTest {
 
@@ -30,11 +31,11 @@ public class YearImportTest {
 	@Test
 	public void testImporter() {
 		InputStream paperInput = getClass().getResourceAsStream("/Papercodes.xlsx");
-		import1.readPapers(paperInput, "/Papercodes.xlsx");
+		import1.readPapers(paperInput, Format.XLSX);
 		InputStream examInput = getClass().getResourceAsStream("/Examcodes.xlsx");
-		import1.readExams(examInput, "/Examcodes.xlsx");
+		import1.readExams(examInput, Format.XLSX);
 		InputStream examPaperInput = getClass().getResourceAsStream("/ExamPapersMerged.xlsx");
-		import1.readExamPapers(examPaperInput, "/ExamPapersMerged.xlsx");
+		import1.readExamPapers(examPaperInput, Format.XLSX);
 		
 		
 		import1.resolve();

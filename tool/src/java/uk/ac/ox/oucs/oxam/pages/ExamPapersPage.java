@@ -32,6 +32,8 @@ import uk.ac.ox.oucs.oxam.model.ExamPaperFile;
 
 public class ExamPapersPage extends BasePage {
 	
+	private int itemsPerPage = 20;
+	
 	@SpringBean(name="examPaperService")
 	protected ExamPaperService examPaperService;
 	
@@ -57,10 +59,9 @@ public class ExamPapersPage extends BasePage {
 					String componentId, IModel<ExamPaper> rowModel) {
 					cellItem.add( new ExamActionPanel(componentId, rowModel));
 			}
-		});
-		
+		}); 
 		DataTable<ExamPaper> table = new DataTable<ExamPaper>(
-				"examPapersTable", columns.toArray(new IColumn[0]), getDataProvider(), 20);
+				"examPapersTable", columns.toArray(new IColumn[0]), getDataProvider(), itemsPerPage);
 		table.addBottomToolbar(new NavigationToolbar(table));
 		table.addTopToolbar(new HeadersToolbar(table, null));
 		add(table);

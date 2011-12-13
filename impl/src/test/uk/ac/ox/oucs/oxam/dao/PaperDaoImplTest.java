@@ -25,9 +25,8 @@ public class PaperDaoImplTest {
 	@Test
 	public void testAllOperations() {
 	
-		Paper paper = new Paper();
+		Paper paper = new Paper("CODE", 2000);
 		paper.setTitle("Title");
-		paper.setCode("CODE");
 		
 		dao.savePaper(paper);
 		

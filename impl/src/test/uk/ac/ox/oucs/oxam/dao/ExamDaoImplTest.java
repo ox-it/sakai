@@ -21,11 +21,9 @@ public class ExamDaoImplTest {
 	
 	@Test
 	public void testAllOpertations() {
-		Exam exam = new Exam();
+		Exam exam = new Exam("CODE", 2000);
 		exam.setCategory("AA");
 		exam.setTitle("Title");
-		exam.setCode("CODE");
-		exam.setYear(2000);
 		dao.saveExam(exam);
 		assertFalse(exam.getId() == 0);
 		

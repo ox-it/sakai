@@ -6,12 +6,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation 
+ * This annotation marks the field should be included as well by looking inside
+ * the target class for @ColumnMapping and @Include annotations.
  * @author buckett
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
-public @interface ColumnMapping {
-	String value();
+@Target({ElementType.FIELD,ElementType.METHOD})
+public @interface Include {
+
 }

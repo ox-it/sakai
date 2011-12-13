@@ -172,7 +172,9 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 		for(ExamPaper toIndex: changed) {
 			indexer.index(toIndex);
 		}
-		LOG.info("Re-indexed: "+ changed.size());
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Re-indexed: "+ changed.size());
+		}
 	}
 
 	

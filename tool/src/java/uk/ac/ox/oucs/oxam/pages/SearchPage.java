@@ -1,6 +1,10 @@
 package uk.ac.ox.oucs.oxam.pages;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -26,10 +30,17 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
+import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
+import uk.ac.ox.oucs.oxam.model.Exam;
+import uk.ac.ox.oucs.oxam.model.Paper;
+
 public class SearchPage extends WebPage {
 
 	@SpringBean(name="solrServer")
 	private SolrServer solr;
+	
+	@SpringBean
+	private ExamPaperService examPaperService;
 
 	private TextField<String> query;
 
@@ -44,8 +55,6 @@ public class SearchPage extends WebPage {
 		private transient QueryResponse response;
 
 		public void detach() {
-			// TODO Auto-generated method stub
-
 		}
 
 		public Iterator<SolrDocument> iterator(int first, int count) {
@@ -79,28 +88,49 @@ public class SearchPage extends WebPage {
 			try {
 				response = solr.query(solrQuery);
 			} catch (SolrServerException sse) {
-				// TODO put error for something.
+				// TODO Better exception and handling.
+				throw new RuntimeException("Search Failed");
 			}
 		}
 		
-		public ListView<Count> getFacet(String id, String facet) {
+		public <T> ListView<Count> getFacet(String id, String facet, final Resolver<T> resolver) {
 			if (response == null) {
 				doSearch();
 			}
-			return new ListView<Count>(id, response.getFacetField(facet).getValues()) {
+			final Map<String, T> displayValues;
+			List<Count> values = response.getFacetField(facet).getValues();
+			if (resolver != null && values != null) {
+				ArrayList<String> lookups = new ArrayList<String>();
+				for (Count value: values) {
+					lookups.add(value.getName());
+				}
+				 displayValues = resolver.lookup(lookups);
+			} else {
+				displayValues = Collections.emptyMap();
+			}
+			
+			return new ListView<Count>(id, values) {
 				private static final long serialVersionUID = 1L;
 				@Override
 				protected void populateItem(ListItem<Count> item) {
 					Count count = item.getModelObject();
-					item.add(new Label("name", count.getName()));
+					if (displayValues.containsKey((count.getName()))) {
+						item.add(new Label("name", resolver.display(displayValues.get(count.getName()))));
+					} else {
+						item.add(new Label("name", count.getName()));
+					}
 					item.add(new Label("count", Long.toString(count.getCount())));
 				}
 			};
 		}
 
 	}
-
-
+	
+	interface Resolver<T> {
+		Map<String, T> lookup(List<String> values);
+		String display(T value);
+	}
+	
 	public SearchPage(final PageParameters p) {
 		query = new TextField<String>("query", new Model<String>(p.getString("query")));
 
@@ -122,15 +152,36 @@ public class SearchPage extends WebPage {
 				item.add(new Label("exam_title", document.getFieldValue("exam_title").toString()));
 			}
 		};
-		dataView.setItemsPerPage(10);
+		dataView.setItemsPerPage(20);
 		add(dataView);
 		add(new PagingNavigator("resultsNavigation", dataView));
 		add(new NavigatorLabel("resultsLabel", dataView));
 		
-		add(provider.getFacet("paper_code_facet", "paper_code"));
-		add(provider.getFacet("exam_code_facet", "exam_code"));
-		add(provider.getFacet("year_facet", "year"));
-		add(provider.getFacet("term_facet", "term"));
+		add(provider.getFacet("paper_code_facet", "paper_code", new Resolver<Paper>() {
+
+			public Map<String, Paper> lookup(List<String> values) {
+				return examPaperService.getLatestPapers(values.toArray(new String[]{}));
+			}
+
+			public String display(Paper value) {
+				return value.getTitle();
+			}
+
+			
+		}));
+		add(provider.getFacet("exam_code_facet", "exam_code", new Resolver<Exam>() {
+
+			public Map<String, Exam> lookup(List<String> values) {
+				return examPaperService.getLatestExams(values.toArray(new String[]{}));
+			}
+
+			public String display(Exam value) {
+				return value.getTitle();
+			}
+			
+		}));
+		add(provider.getFacet("year_facet", "year", null));
+		add(provider.getFacet("term_facet", "term", null));
 
 		setStatelessHint(true);
 		query.setRequired(true);
