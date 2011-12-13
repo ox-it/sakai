@@ -74,8 +74,7 @@ public class Importer {
 				try {
 					IOUtils.copy(inputStream, output);
 				} catch (IOException e) {
-					// TODO Need to deal with this error;
-					// Maybe should be in the import so we can collect errors.
+					throw new RuntimeException("Failed to copy file: "+ e.getMessage());
 				} finally {
 					// We don't close the streams here as we didn't create them here.
 				}

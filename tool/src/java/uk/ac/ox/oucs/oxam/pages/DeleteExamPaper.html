@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<body>
+<wicket:extend>
+<h3>Delete Exam Paper</h3>
+<form wicket:id="deleteForm">
+<div>
+	<span wicket:message key="delete.instructions"></span> 
+</div>
+<table>
+	<tr>
+		<td><wicket:message key="label.exam.code" /></td>
+		<td><span wicket:id="examCode"></span></td>
+	</tr>
+	<tr>
+		<td><wicket:message key="label.exam.title"/></td>
+		<td><span wicket:id="examTitle"></span></td>
+	</tr>
+	<tr>
+		<td><wicket:message key="label.category"/></td>
+		<td><span wicket:id="category.name"></span></td>
+	</tr>
+	<tr>
+		<td><wicket:message key="label.paper.code"/></td>
+		<td><span wicket:id="paperCode"></span></td>
+	</tr>
+	<tr>
+		<td><wicket:message key="label.paper.title"/></td>
+		<td><span wicket:id="paperTitle"></span></td>
+	</tr>
+	<tr>
+		<td><wicket:message key="label.paper.file"/></td>
+		<td><a wicket:id="paperFile" href="#"></a></td>
+	</tr>
+	<tr>
+		<td><wicket:message key="label.year"/></td>
+		<td><span wicket:id="year"></span></td>
+	</tr>
+	<tr>
+		<td><wicket:message key="label.term"/></td>
+		<td><span wicket:id="term.name"></span></td>
+	</tr>
+
+</table>
+<div>
+	<input type="submit" wicket:id="delete" value="Confirm"/>
+	<input type="submit" wicket:id="cancel" value="Cancel"/>
+</div>
+</form>
+</wicket:extend>
+</body>
+</html>

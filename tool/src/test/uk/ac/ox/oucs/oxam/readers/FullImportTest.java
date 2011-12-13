@@ -19,6 +19,7 @@ import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.logic.PaperFileServiceImpl;
 import uk.ac.ox.oucs.oxam.logic.TermService;
 import uk.ac.ox.oucs.oxam.readers.Import.ExamPaperRow;
+import uk.ac.ox.oucs.oxam.readers.SheetImporter.Format;
 
 // TODO Look at @Parameterized for MySQL/Derby testing.
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -54,11 +55,11 @@ public class FullImportTest {
 	@Test
 	public void testImporter() throws IOException {
 		InputStream paperInput = getClass().getResourceAsStream("/Papercodes.xlsx");
-		import1.readPapers(paperInput, "/Papercodes.xlsx");
+		import1.readPapers(paperInput, Format.XLSX);
 		InputStream examInput = getClass().getResourceAsStream("/Examcodes.xlsx");
-		import1.readExams(examInput, "/Examcodes.xlsx");
+		import1.readExams(examInput, Format.XLSX);
 		InputStream examPaperInput = getClass().getResourceAsStream("/ExamPapersMerged.xlsx");
-		import1.readExamPapers(examPaperInput, "/ExamPapersMerged.xlsx");
+		import1.readExamPapers(examPaperInput, Format.XLSX);
 		PaperResolver resolver = new ZipPaperResolver(getClass().getResource("/papers.zip").getFile(), "papers", termService, "pdf");
 		import1.setPaperResolver(resolver);
 		

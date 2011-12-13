@@ -14,5 +14,5 @@ public interface PaperResolutionResult {
 
 	public boolean isFound();
 	public InputStream getStream();
-	public String getPath();
+	public String[] getPaths();
 }

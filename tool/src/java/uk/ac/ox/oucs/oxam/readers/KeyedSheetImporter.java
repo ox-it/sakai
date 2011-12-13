@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.validation.ConstraintViolation;
 
@@ -25,8 +26,8 @@ public class KeyedSheetImporter<T extends KeyedRow> {
 	
 	// Good data.
 	private Map<String, T>rows;
-	// Other errors
-	private Map<Integer, ErrorMessages<T>> errors = new HashMap<Integer, ErrorMessages<T>>();
+	// Other errors, Use a treemap so it's sorted based on the line number.
+	private Map<Integer, ErrorMessages<T>> errors = new TreeMap<Integer, ErrorMessages<T>>();
 
 	/**
 	 * @param clazz The class is needed so we still have the type at runtime so we can create new instances.
@@ -45,11 +46,9 @@ public class KeyedSheetImporter<T extends KeyedRow> {
 	}
 	
 
-	public void read(InputStream source, String filename) {
+	public void read(InputStream source, Format format) {
 		this.rows = new HashMap<String, T>();
-		
-		Format format = getFormat(filename);
-		
+
 		SheetImporter sheetImporter = new SheetImporter();
 		List<T> paperRows = sheetImporter.importSheet(source, format, clazz);
 		
@@ -85,21 +84,5 @@ public class KeyedSheetImporter<T extends KeyedRow> {
 	}
 
 
-	private Format getFormat(String filename) {
-		Format format = null;
-		if (filename != null) {
-			if (filename.endsWith(".xls")) {
-				format = Format.XLS;
-			} else if (filename.endsWith(".xlsx")) {
-				format = Format.XLSX;
-			} else if (filename.endsWith(".csv")) {
-				format = Format.CSV;
-			}
-		}
-		if (format == null) {
-			throw new IllegalArgumentException("Unrecognised file extension: "+ filename);
-		}
-		return format;
-	}
 	
 }
