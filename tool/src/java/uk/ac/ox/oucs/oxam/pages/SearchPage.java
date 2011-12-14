@@ -12,12 +12,14 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigatorLabel;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -86,7 +88,8 @@ public class SearchPage extends WebPage {
 				return;
 			}
 			SolrQuery solrQuery = new SolrQuery().
-					setQuery(query.getValue().length() > 0?query.getValue():"*:*").
+					
+					setQuery(query.getValue().length() > 0?ClientUtils.escapeQueryChars(query.getValue()):"*:*").
 					setStart(first).
 					setRows(count).
 					setFacet(true).
@@ -95,7 +98,11 @@ public class SearchPage extends WebPage {
 					addFacetField("exam_code", "paper_code", "year", "term");
 			
 			if (facet != null) {
-				solrQuery.setFilterQueries(facet);
+				String[] escapedFilters = new String[facet.length];
+				for(int i = 0; i < facet.length && i < escapedFilters.length; i++) {
+					escapedFilters[i] = ClientUtils.escapeQueryChars(facet[i]);
+				}
+				solrQuery.setFilterQueries(escapedFilters);
 			}
 
 			try {
@@ -214,17 +221,9 @@ public class SearchPage extends WebPage {
 		add(provider.getFacet("term_facet", "term", null, p));
 
 		setStatelessHint(true);
-		query.setRequired(true);
 		final StatelessForm<Void> form = new StatelessForm<Void>("searchForm") {
 			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onSubmit() {
-				PageParameters p = new PageParameters();
-				p.put("query", query.getValue());
-				setResponsePage(SearchPage.class, p);
-			}
-
+			
 			@Override
 			protected String getMethod() {
 				return "post"; // Must be post to clear out the parameters from paging.
@@ -232,6 +231,20 @@ public class SearchPage extends WebPage {
 
 		};
 		form.add(query);
+		form.add(new Button("search") {
+			@Override
+			public void onSubmit() {
+				PageParameters p = new PageParameters();
+				p.put("query", query.getValue());
+				setResponsePage(SearchPage.class, p);
+			}
+		});
+		form.add(new Button("cancel") {
+			@Override
+			public void onSubmit() {
+				setResponsePage(SearchPage.class, new PageParameters());
+			}
+		});
 		add(form);
 	}
 
