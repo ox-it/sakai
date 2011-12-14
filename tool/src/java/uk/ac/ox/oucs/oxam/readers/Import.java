@@ -145,7 +145,8 @@ public class Import {
 			}
 			
 			if (!error) {
-				PaperResolutionResult paper = resolver.getPaper(year, examPaperRow.term, examPaperRow.paperCode);
+				String paperCode = (paperRow.inc != null && paperRow.inc.length() > 0)?paperRow.inc:paperRow.code;
+				PaperResolutionResult paper = resolver.getPaper(year, examPaperRow.term, paperCode);
 				if(paper.isFound()) {
 					ExamPaper examPaper = importer.get(examPaperRow.examCode, examPaperRow.paperCode, year, term);
 					if (examPaper == null) {
@@ -182,7 +183,7 @@ public class Import {
 	
 	public void writeExamError(OutputStream out, Format format) throws IOException {
 		SheetExporter exporter = new SheetExporter();
-		exporter.writeSheet(out, Format.CSV, getExamRowErrors().values());
+		exporter.writeSheet(out, format, getExamRowErrors().values());
 	}
 	
 	public void writePaperError(OutputStream out, Format format) throws IOException {

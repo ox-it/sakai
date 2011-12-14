@@ -15,8 +15,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.management.RuntimeErrorException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -39,7 +37,7 @@ public class SheetExporter {
 		// Generics mean we need an actual instance.
 		T object = objects.next();
 		Class<?> clazz = object.getClass();
-		SheetWriter writer = new SheetWriterCSV(out);
+		SheetWriter writer = getSheetWriter(out, format);
 		
 		walkClass(columnToField, object, null, null);
 		// Now we should have all the headers, so lets write them out.
@@ -65,6 +63,19 @@ public class SheetExporter {
 			
 		} while (objects.hasNext() && (object = objects.next()) != null);
 		writer.flush();
+	}
+
+
+	protected SheetWriter getSheetWriter(OutputStream out, Format format) {
+		if (Format.CSV.equals(format)) {
+			return new SheetWriterCSV(out);
+		} else if (Format.XLS.equals(format)) {
+			return new SheetWriterExcelXLS(out);
+		} else if (Format.XLSX.equals(format)) {
+			return new SheetWriterExcelXLSX(out);
+		} else {
+			throw new RuntimeException("Unsupported format requested: "+ format);
+		}
 	}
 
 
