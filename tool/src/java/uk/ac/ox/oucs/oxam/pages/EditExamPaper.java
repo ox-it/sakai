@@ -125,17 +125,6 @@ public class EditExamPaper extends BasePage {
 		}
 		
 		@Override
-		protected void onValidate() {
-			super.onValidate();
-			if (!hasError()) {
-				// If we don't already have a paper.
-				if  (examPaper.getPaperFile() == null && upload.getConvertedInput() == null && included.getConvertedInput() == null) {
-					upload.error((IValidationError)new ValidationError().addMessageKey("must")); 
-				}
-			}
-		}
-		
-		@Override
 		protected void onSubmit() {
 			final FileUpload fileUpload = upload.getFileUpload();
 			if (fileUpload != null && fileUpload.getSize() > 0) {
@@ -162,9 +151,18 @@ public class EditExamPaper extends BasePage {
 					included.error((IValidationError)new ValidationError().addMessageKey("no.paper.found"));
 				}
 			}
+			// If we don't have 
+			if (examPaper.getPaperFile() == null) {
+				PaperFile paperFile = paperFileService.get(examPaper.getYear().toString(), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
+				if(!paperFileService.exists(paperFile)) {
+					error(getString("no.exsiting.file", getModel()));
+				} else {
+					examPaper.setPaperFile(paperFile.getURL());
+				}
+			}
 			if (!hasError()) {
 				examPaperService.saveExamPaper(examPaper);
-				getSession().info(new StringResourceModel("exampaper.added", null).getString());
+				info(new StringResourceModel("exampaper.added", null).getString());
 				// Some people say this is bad?
 				setResponsePage(ExamPapersPage.class);
 			}
