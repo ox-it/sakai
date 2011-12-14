@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.lang.StringUtils;
@@ -22,7 +23,9 @@ import org.apache.wicket.validation.IValidationError;
 import org.apache.wicket.validation.ValidationError;
 
 import pom.tool.pages.BasePage;
+import uk.ac.ox.oucs.oxam.components.RawFileUploadField;
 import uk.ac.ox.oucs.oxam.logic.TermService;
+import uk.ac.ox.oucs.oxam.readers.ArchivePaperResolver;
 import uk.ac.ox.oucs.oxam.readers.DualPaperResolver;
 import uk.ac.ox.oucs.oxam.readers.ExtraZipPaperResolver;
 import uk.ac.ox.oucs.oxam.readers.FlatZipPaperResolver;
@@ -56,11 +59,11 @@ public class ImportData extends BasePage {
 	private class ImportDataForm extends Form<Void> {
 
 		private static final long serialVersionUID = 1L;
-		private FileUploadField examFile;
+		private transient RawFileUploadField examFile;
 
 		protected ImportDataForm(String id) {
 			super(id);
-			examFile = new FileUploadField("examFile");
+			examFile = new RawFileUploadField("examFile");
 			examFile.setRequired(true);
 			add(examFile);
 		}
@@ -70,8 +73,7 @@ public class ImportData extends BasePage {
 			final Import examImporter = importer.newImport();
 			File file = null;
 			try {
-				FileUpload fileUpload = examFile.getFileUpload();
-				file = fileUpload.writeToTempFile();
+				file = examFile.getFile();
 				ZipFile zipFile = new ZipFile(file);
 				try {
 					final ZipEntry examEntry = getEntry(zipFile, EXAM_FILE_NAMES);
@@ -110,7 +112,10 @@ public class ImportData extends BasePage {
 					// TODO Should be injected.
 					examImporter.setPaperResolver(new DualPaperResolver(
 							new ExtraZipPaperResolver(file.getAbsolutePath(), papersFolderEntry.getName(), termService, PAPER_FILE_TYPE),
-							new FlatZipPaperResolver(file.getAbsolutePath(), papersFolderEntry.getName(), termService, PAPER_FILE_TYPE)
+							new DualPaperResolver(
+									new FlatZipPaperResolver(file.getAbsolutePath(), papersFolderEntry.getName(), termService, PAPER_FILE_TYPE),
+									new ArchivePaperResolver(file.getAbsolutePath(), "papers", termService, PAPER_FILE_TYPE)
+									)
 					));
 					
 					examImporter.resolve();
@@ -124,16 +129,21 @@ public class ImportData extends BasePage {
 								OutputStream out = response.getOutputStream();
 								response.setContentType("application/zip");
 								ZipOutputStream zip = new ZipOutputStream(out);
-								ZipEntry examErrors = new ZipEntry(getErrorFile(examEntry.getName()));
-								zip.putNextEntry(examErrors);
-								examImporter.writeExamError(zip, examFormat);
-								zip.closeEntry();
-								zip.putNextEntry(new ZipEntry(getErrorFile(paperEntry.getName())));
-								examImporter.writePaperError(zip, paperFormat);
-								zip.closeEntry();
-								zip.putNextEntry(new ZipEntry(getErrorFile(examPaperEntry.getName())));
-								examImporter.writeExamPaperError(zip, paperFormat);
-								zip.closeEntry();
+								if (!examImporter.getExamRowErrors().isEmpty()) {
+									zip.putNextEntry(new ZipEntry(getErrorFile(examEntry.getName())));
+									examImporter.writeExamError(zip, examFormat);
+									zip.closeEntry();
+								}
+								if (!examImporter.getPaperRowErrors().isEmpty()) {
+									zip.putNextEntry(new ZipEntry(getErrorFile(paperEntry.getName())));
+									examImporter.writePaperError(zip, paperFormat);
+									zip.closeEntry();
+								}
+								if (!examImporter.getExamPaperRowErrors().isEmpty()) {
+									zip.putNextEntry(new ZipEntry(getErrorFile(examPaperEntry.getName())));
+									examImporter.writeExamPaperError(zip, examPaperFormat);
+									zip.closeEntry();
+								}
 								zip.close();
 							} catch (IOException ioe) {
 								throw new RuntimeException(ioe);
