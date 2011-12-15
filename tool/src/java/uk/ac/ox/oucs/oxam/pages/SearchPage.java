@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -14,7 +16,6 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.params.CommonParams;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigatorLabel;
 import org.apache.wicket.markup.html.WebPage;
@@ -42,6 +43,8 @@ import uk.ac.ox.oucs.oxam.model.Paper;
 
 public class SearchPage extends WebPage {
 
+	private final static Log LOG = LogFactory.getLog(SearchPage.class);
+	
 	@SpringBean(name="solrServer")
 	private SolrServer solr;
 	
@@ -50,7 +53,7 @@ public class SearchPage extends WebPage {
 
 	private TextField<String> query;
 	
-	private String[] facet;
+	private String[] filters;
 
 	// query string, facet restrictions (parsed), current page, 
 	// AbstractPageableView to manage this, getItemModels() needs to call through to Solr.
@@ -95,14 +98,15 @@ public class SearchPage extends WebPage {
 					setFacet(true).
 					setFacetMinCount(1).
 					setFacetLimit(10).
+					//setSortField("year", ORDER.desc).
 					addFacetField("exam_code", "paper_code", "year", "term");
 			
-			if (facet != null) {
-				String[] escapedFilters = new String[facet.length];
-				for(int i = 0; i < facet.length && i < escapedFilters.length; i++) {
-					escapedFilters[i] = ClientUtils.escapeQueryChars(facet[i]);
+			if (filters != null) {
+				String[] escapedFilters = new String[filters.length];
+				for(int i = 0; i < filters.length && i < escapedFilters.length; i++) {
+					escapedFilters[i] = ClientUtils.escapeQueryChars(filters[i]);
 				}
-				solrQuery.setFilterQueries(escapedFilters);
+				solrQuery.setFilterQueries(filters);
 			}
 
 			try {
@@ -137,7 +141,8 @@ public class SearchPage extends WebPage {
 					String displayValue = (displayValues.containsKey((count.getName())))?
 							resolver.display(displayValues.get(count.getName())):
 							count.getName();
-					//item.add(new Label("name", resolver.display(displayValues.get(count.getName()))));
+					
+					// TODO BookmarkablePageLink needs a nice way to add params which doesn't do crazy stuff.
 					PageParameters linkParams = new PageParameters(pp);
 					String[] filters = linkParams.getStringArray("filter");
 					String filterQuery = facet+ ":"+count.getName();
@@ -168,7 +173,7 @@ public class SearchPage extends WebPage {
 	public SearchPage(final PageParameters p) {
 		query = new TextField<String>("query", new Model<String>(p.getString("query")));
 		// Need to parse the filter Query.
-		facet = p.getStringArray("filter");
+		filters = p.getStringArray("filter");
 
 		SolrProvider provider = new SolrProvider();
 
@@ -193,6 +198,31 @@ public class SearchPage extends WebPage {
 		add(dataView);
 		add(new StatelessSimplePagingNavigator("resultsNavigation", SearchPage.class, p, dataView, 10));
 		add(new NavigatorLabel("resultsLabel", dataView));
+		
+		// TODO Refactor out 
+		ListView<String> filterList = new ListView<String>("filters", (List<String>)((filters == null)?Collections.emptyList():Arrays.asList(filters))) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void populateItem(ListItem<String> item) {
+				if (item.getModelObject() == null) {
+					LOG.warn("Shouldn't happen");
+					return;
+				}
+				item.add(new Label("name", item.getModelObject()));
+				PageParameters linkParams = new PageParameters(p);
+				ArrayList<String> reduced = new ArrayList<String>(filters.length);
+				String[] filters = linkParams.getStringArray("filter");
+				for (String filter: filters) {
+					if (!filter.equals(item.getModelObject()))
+						reduced.add(filter);
+				}
+				linkParams.put("filter", reduced.toArray(new String[]{}));
+				item.add(new BookmarkablePageLink<Void>("link", SearchPage.class, linkParams));
+			}
+			
+		};
+		add(filterList);
 		
 		add(provider.getFacet("paper_code_facet", "paper_code", new Resolver<Paper>() {
 
@@ -232,6 +262,8 @@ public class SearchPage extends WebPage {
 		};
 		form.add(query);
 		form.add(new Button("search") {
+			private static final long serialVersionUID = 1L;
+			
 			@Override
 			public void onSubmit() {
 				PageParameters p = new PageParameters();
@@ -240,6 +272,8 @@ public class SearchPage extends WebPage {
 			}
 		});
 		form.add(new Button("cancel") {
+			private static final long serialVersionUID = 1L;
+			
 			@Override
 			public void onSubmit() {
 				setResponsePage(SearchPage.class, new PageParameters());

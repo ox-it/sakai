@@ -17,12 +17,16 @@
 
 		<h3>Search Page</h3>
 	<form method="get" wicket:id="searchForm">
-		<div>
+	<div>
 		<input type="text" wicket:id="query"/>
 		<input wicket:id="search" type="submit" value="Search"/>
 		<input wicket:id="cancel" type="submit" value="Clear"/>
 	</div>
 	</form>
+	<div id="filters">
+	<ul wicket:id="filters">
+		<li><span wicket:id="name">Filter Name</span><a wicket:id="link">Remove</a></li>
+	</ul></div>
 	
 	<div class="sidebar">
 	<div class="facet">
