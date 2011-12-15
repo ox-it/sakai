@@ -259,4 +259,8 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 		return examDao.getCodes(codes);
 	}
 
+	public List<String> getYears() {
+		return examPaperDao.getYears();
+	}
+
 }

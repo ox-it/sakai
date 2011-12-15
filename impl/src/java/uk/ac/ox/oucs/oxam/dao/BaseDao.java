@@ -36,33 +36,41 @@ public abstract class BaseDao extends JdbcDaoSupport {
 		}
 	
 		if (ddl) {
-			String createSql = getStatement("create");
-			try {
-				getJdbcTemplate().execute(createSql);
-			} catch (BadSqlGrammarException bsge) {
-				// MySQL Table exists.
-				if (1050 != bsge.getSQLException().getErrorCode()) { 
-					throw new RuntimeException("SQL is incorrect.",
-							bsge);
-				}
-			} catch (DataAccessException dae) {
-				throw dae;
-			}
-			try {
-				String indexSql = getStatement("index");
-				getJdbcTemplate().execute(indexSql);
-			} catch (BadSqlGrammarException bsge) {
-				// MySQL duplicate index name.
-				if (1061 != bsge.getSQLException().getErrorCode()) {
-					throw new RuntimeException("SQL is incorrect.",
-							bsge);
-				}
-			} catch (DataAccessException dae) {
-				throw dae;
-			} catch (IllegalArgumentException iae) {
-				LOG.debug("No index creation statement: "+ iae.getMessage());
-			}
+			createTable();
+			createIndex("index");
 
+		}
+	}
+
+	protected void createTable() {
+		String createSql = getStatement("create");
+		try {
+			getJdbcTemplate().execute(createSql);
+		} catch (BadSqlGrammarException bsge) {
+			// MySQL Table exists.
+			if (1050 != bsge.getSQLException().getErrorCode()) { 
+				throw new RuntimeException("SQL is incorrect.",
+						bsge);
+			}
+		} catch (DataAccessException dae) {
+			throw dae;
+		}
+	}
+
+	protected void createIndex(String index) {
+		try {
+			String indexSql = getStatement(index);
+			getJdbcTemplate().execute(indexSql);
+		} catch (BadSqlGrammarException bsge) {
+			// MySQL duplicate index name.
+			if (1061 != bsge.getSQLException().getErrorCode()) {
+				throw new RuntimeException("SQL is incorrect.",
+						bsge);
+			}
+		} catch (DataAccessException dae) {
+			throw dae;
+		} catch (IllegalArgumentException iae) {
+			LOG.debug("No index creation statement: "+ iae.getMessage());
 		}
 	}
 

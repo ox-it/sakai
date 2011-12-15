@@ -25,4 +25,6 @@ public interface ExamPaperDao {
 	 * @param callback
 	 */
 	public void all(Callback<ExamPaper> callback);
+
+	public List<String> getYears();
 }

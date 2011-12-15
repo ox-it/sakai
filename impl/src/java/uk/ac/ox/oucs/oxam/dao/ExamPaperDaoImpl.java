@@ -184,4 +184,9 @@ public class ExamPaperDaoImpl extends BaseDao implements ExamPaperDao {
 	}
 
 
+	public List<String> getYears() {
+		return getJdbcTemplate().queryForList(getStatement("years"), String.class);
+	}
+
+
 }

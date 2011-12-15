@@ -34,4 +34,6 @@ public interface ExamPaperService {
 	public int reindex();
 
 	public ExamPaper newExamPaper();
+
+	public List<String> getYears();
 }

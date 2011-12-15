@@ -36,6 +36,10 @@ public class ExamPaperFileDaoImpl extends BaseDao implements ExamPaperFileDao {
 	@Override
 	public void init() {
 		super.init();
+		// Extra indexes.
+		createIndex("index.1");
+		createIndex("index.2");
+		createIndex("index.3");
 	}
 
 	public ExamPaperFile get(long id) {

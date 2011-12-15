@@ -83,9 +83,14 @@ public class ExamDaoImpl extends BaseDao implements ExamDao {
 	}
 	
 	public Map<String, Exam> getCodes(String[] codes) {
-		String stmt = getStatement("codes.begin");
-		stmt = stmt+ StringUtils.repeat("?", ", ", codes.length);
-		stmt = stmt + getStatement("codes.end");
+		String stmt;
+		if (codes == null || codes.length == 0) {
+			stmt = getStatement("codes");
+		} else {
+			stmt = getStatement("codes.begin");
+			stmt = stmt+ StringUtils.repeat("?", ", ", codes.length);
+			stmt = stmt + getStatement("codes.end");
+		}
 		final Map<String, Exam> resolved = new HashMap<String, Exam>();
 		List<Exam> exams = getJdbcTemplate().query(stmt, codes, mapper);
 		for (Exam exam: exams) {
