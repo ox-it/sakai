@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<head>
+<style type="text/css">
+	.sidebar {
+		float:left;
+		width: 350px;
+	}
+	.content {
+		margin-left: 350px;
+	}
+</style>
+</head>
+
+<body>
+
+	<h3>Search Page</h3>
+	<form wicket:id="form" method="post" >
+	<div>
+		<select wicket:id="exam">
+		</select>
+		<select wicket:id="year">
+		</select>
+		<input  type="submit" value="Search"/>
+		<input  type="submit" value="Clear"/>
+	</div>
+	</form>
+	<div id="filters">
+	<ul >
+		<li><span >Filter Name</span><a >Remove</a></li>
+	</ul></div>
+	
+	<div class="sidebar">
+	<div class="facet">
+		<h3>Papers</h3>
+		<ul >
+			<li><a  href="#"><span >Facet Name</span>(<span >1</span>)</a></li>
+		</ul>
+	</div>
+	
+	<div class="facet">
+		<h3>Exams</h3>
+		<ul >
+			<li><a  href="#"><span >Facet Name</span>(<span >1</span>)</a></li>
+		</ul>
+	</div>
+	
+	<div class="facet">
+		<h3>Year</h3>
+		<ul >
+			<li><a  href="#"><span >Facet Name</span>(<span >1</span>)</a></li>
+		</ul>
+	</div>
+	
+	<div class="facet">
+		<h3>Term</h3>
+		<ul >
+			<li><a  href="#"><span >Facet Name</span>(<span >1</span>)</a></li>
+		</ul>
+	</div>
+	</div>
+	<div class="content">
+	<div class="results">
+		<h3>Results</h3>
+		<ul >
+			<li>
+				<a  href="#">
+				<span >Paper Code</span>
+				<span >Paper Title</span>
+				</a>
+				<br/>
+				<span >2001</span>
+				<span >Trinity</span>
+				<br/>
+				<span >Exam Code</span>
+				<span >Exam Title</span>
+			</li>
+		</ul>
+		<div  style="float: right">Showing 1 to 2 of 8</div>
+		<div ></div>
+	</div>
+	</div>
+</body>
+</html>

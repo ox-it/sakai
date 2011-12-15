@@ -10,6 +10,7 @@ import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 
+import uk.ac.ox.oucs.oxam.pages.AdvancedSearchPage;
 import uk.ac.ox.oucs.oxam.pages.SearchPage;
 
 /**
@@ -45,6 +46,8 @@ public class BrowseApplication extends WebApplication {
 		
 		//to put this app into deployment mode, see web.xml
 		mountBookmarkablePage("/search", SearchPage.class);
+		mountBookmarkablePage("/advanced", AdvancedSearchPage.class);
+
 	}
 	
 	/**
