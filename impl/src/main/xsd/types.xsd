@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+ xmlns:xs="http://www.w3.org/2001/XMLSchema"  
+ xmlns:xhtml="http://www.w3.org/1999/xhtml"
+ xmlns:xml="http://www.w3.org/XML/1998/namespace"
+ elementFormDefault="qualified">
+ 
+ 	<xs:import namespace="http://www.w3.org/1999/xhtml"	schemaLocation="http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd" />
+ 	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+ 	
+ 	<!-- This schema defines some common type definitions reused in other schemas -->
+ 	<!-- Note this is a "chameleon" schema - the types will take  on the NS of the schema that includes them -->
+ 	 
+ 	<xs:simpleType name="dateOrDateTimeDType">
+		<xs:union memberTypes="xs:date xs:dateTime" />
+	</xs:simpleType>
+
+	<xs:complexType name="descriptionDType" mixed="true">
+		<xs:sequence>
+			<xs:element ref="xhtml:div" minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute ref="xml:lang" use="optional" />
+		<xs:attribute name="href" type="xs:anyURI" use="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="vocabularyDType" mixed="true">
+		<xs:attribute ref="xml:lang" use="optional" />
+		<xs:attribute name="identifier" use="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="subjectDType" mixed="true">
+		<xs:attribute ref="xml:lang" use="optional" />
+		<xs:attribute name="identifier" use="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="temporalDType" mixed="true">
+		<xs:attribute name="dtf" use="optional" type="dateOrDateTimeDType"/>
+	</xs:complexType>
+ 
+</xs:schema>

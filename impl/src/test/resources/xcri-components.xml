@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="sessionFactory" name="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mappingResources">
+			<list>
+				<value>/uk/ac/ox/oucs/vle/Course.hbm.xml</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<value>
+				hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect
+				hibernate.show_sql=true
+				hibernate.use_sql_comments=true
+				hibernate.hbm2ddl.auto=create-drop
+			</value>
+		</property>
+	</bean>
+	
+	<bean name="uk.ac.ox.oucs.vle.CourseDAO" class="uk.ac.ox.oucs.vle.CourseDAOImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<bean name="uk.ac.ox.oucs.vle.sakai.SakaiProxy" class="uk.ac.ox.oucs.vle.proxy.SakaiProxyTest">
+	</bean>
+
+	<bean class="uk.ac.ox.oucs.vle.PopulatorInit">
+		<property name="populator" ref="uk.ac.ox.oucs.vle.Populator"/>
+	</bean>
+	
+	<bean id="uk.ac.ox.oucs.vle.Populator"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="target">
+			<bean class="uk.ac.ox.oucs.vle.XcriPopulatorImpl">
+				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO"/>
+				<property name="proxy" ref="uk.ac.ox.oucs.vle.sakai.SakaiProxy"/>
+			</bean>
+		</property>
+		<property name="transactionManager" ref="transactionManager"/>
+		<property name="transactionAttributes">
+			<value>
+				update=PROPAGATION_REQUIRED
+			</value>
+		</property>
+	</bean>
+
+</beans>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+
+ xmlns="http://purl.org/net/mlo"
+ xmlns:xml="http://www.w3.org/XML/1998/namespace"
+ xmlns:dc="http://purl.org/dc/elements/1.1/"
+ xmlns:credit="http://purl.org/net/cm"
+ xmlns:xcri="http://xcri.org/profiles/1.2/catalog"
+ xmlns:xs="http://www.w3.org/2001/XMLSchema"
+ xmlns:dcterms="http://purl.org/dc/terms/"
+ xmlns:xhtml="http://www.w3.org/1999/xhtml"
+ targetNamespace="http://purl.org/net/mlo"
+
+ elementFormDefault="qualified">
+ 	<xs:annotation>
+ 	<xs:documentation>
+ 	This is the profile of MLO used in XCRI; this schema redefines some of the base types in MLO adding
+ 	additional attributes and/or specifying child elements defined by other schemas
+ 	</xs:documentation>
+ 	</xs:annotation>
+ 
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+	<xs:import namespace="http://purl.org/dc/terms/" schemaLocation="dcterms.xsd"/>
+	<xs:import namespace="http://purl.org/dc/elements/1.1/" schemaLocation="dc.xsd"/>
+	<xs:import namespace="http://purl.org/net/cm" schemaLocation="educationalcredit.xsd" />
+	<xs:import namespace="http://xcri.org/profiles/1.2/catalog" schemaLocation="xcri_cap_1_2.xsd"/>
+	<xs:import namespace="http://www.w3.org/1999/xhtml"	schemaLocation="http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd" />
+	<xs:include	schemaLocation="types.xsd"></xs:include>
+ 
+ 	<xs:redefine schemaLocation="mlo-strict.xsd">
+ 			<xs:complexType name="qualificationDType">
+ 			<xs:complexContent>
+ 			<xs:extension base="qualificationDType">
+			<xs:sequence>
+			<xs:element ref="dc:identifier" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element ref="dc:title" minOccurs="1" maxOccurs="unbounded" />
+			<xs:element ref="xcri:abbr"  minOccurs="0" maxOccurs="1" />
+			<xs:element ref="dc:description" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element ref="dcterms:educationLevel" minOccurs="0" />
+			<xs:element ref="dc:type" minOccurs="0" maxOccurs="1" />
+			<xs:element ref="url" minOccurs="0" maxOccurs="1" />		
+			<xs:element ref="xcri:awardedBy" minOccurs="0" maxOccurs="1" />
+			<xs:element ref="xcri:accreditedBy" minOccurs="0" maxOccurs="1" />
+			</xs:sequence> 
+			</xs:extension>
+ 			</xs:complexContent>
+			</xs:complexType>
+	</xs:redefine>
+	
+	<xs:redefine schemaLocation="mlo-strict.xsd">
+ 			<xs:complexType name="creditDType">
+ 			<xs:complexContent>
+ 			<xs:extension base="creditDType">
+			<xs:sequence>
+			<xs:element ref="credit:scheme" maxOccurs="unbounded" minOccurs="0" />
+			<xs:element ref="credit:level" maxOccurs="unbounded" minOccurs="0" />
+			<xs:element ref="credit:value" maxOccurs="unbounded" minOccurs="0" />
+			</xs:sequence>
+			</xs:extension>
+ 			</xs:complexContent>
+			</xs:complexType>
+	</xs:redefine>
+	
+	<xs:redefine schemaLocation="mlo-strict.xsd">
+ 			<xs:complexType name="locationDType">
+ 			<xs:complexContent>
+ 			<xs:extension base="locationDType">
+			<xs:sequence>
+			<xs:element name="street" type="xs:string" minOccurs="0" />
+			<xs:element name="town" type="xs:string" minOccurs="0" />
+			<xs:element name="postcode" type="xs:string" minOccurs="0" />
+			<xs:element name="address" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="phone" type="xs:string" minOccurs="0" />
+			<xs:element name="fax" type="xs:string" minOccurs="0" />
+			<xs:element name="email" type="xs:string" minOccurs="0" />
+			<xs:element name="url" type="xs:string" minOccurs="0" />
+			</xs:sequence>
+			</xs:extension>
+ 			</xs:complexContent>
+			</xs:complexType>
+	</xs:redefine>
+	
+	<xs:redefine schemaLocation="mlo-strict.xsd">
+ 			<xs:complexType name="startDType" mixed="true">
+ 			<xs:complexContent>
+ 			<xs:extension base="startDType">
+			<xs:attribute name="dtf" type="dateOrDateTimeDType"/>
+			</xs:extension>
+ 			</xs:complexContent>
+			</xs:complexType>
+	</xs:redefine>
+	
+	 <xs:redefine schemaLocation="mlo-strict.xsd">
+ 			<xs:complexType name="durationDType" mixed="true">
+ 			<xs:complexContent>
+ 			<xs:extension base="durationDType">
+			<xs:attribute name="interval"/>
+			</xs:extension>
+ 			</xs:complexContent>
+			</xs:complexType>
+	</xs:redefine>
+	
+	<xs:redefine schemaLocation="mlo-strict.xsd">
+ 			<xs:complexType name="prerequisiteDType">
+ 			<xs:complexContent>
+ 			<xs:extension base="prerequisiteDType">
+ 			<xs:sequence>
+			<xs:element ref="xhtml:div" minOccurs="0" />
+			</xs:sequence>
+			<xs:attribute ref="xml:lang" use="optional" />
+			<xs:attribute name="href" type="xs:anyURI" use="optional" />
+ 			</xs:extension>
+ 			</xs:complexContent>
+			</xs:complexType>
+	</xs:redefine>
+	
+	<xs:redefine schemaLocation="mlo-strict.xsd">
+ 			<xs:complexType name="assessmentDType">
+ 			<xs:complexContent>
+ 			<xs:extension base="assessmentDType">
+ 			<xs:sequence>
+			<xs:element ref="xhtml:div" minOccurs="0" />
+			</xs:sequence>
+			<xs:attribute ref="xml:lang" use="optional" />
+			<xs:attribute name="href" type="xs:anyURI" use="optional" />
+ 			</xs:extension>
+ 			</xs:complexContent>
+			</xs:complexType>
+	</xs:redefine>
+
+	<xs:redefine schemaLocation="mlo-strict.xsd">
+ 			<xs:complexType name="objectiveDType">
+ 			<xs:complexContent>
+ 			<xs:extension base="objectiveDType">
+ 			<xs:sequence>
+			<xs:element ref="xhtml:div" minOccurs="0" />
+			</xs:sequence>
+			<xs:attribute ref="xml:lang" use="optional" />
+			<xs:attribute name="href" type="xs:anyURI" use="optional" />
+ 			</xs:extension>
+ 			</xs:complexContent>
+			</xs:complexType>
+	</xs:redefine>
+ 
+</xs:schema>

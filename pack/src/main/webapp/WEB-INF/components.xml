@@ -65,12 +65,12 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 
-	<bean id="uk.ac.ox.oucs.vle.Populator"
+	<bean id="uk.ac.ox.oucs.vle.XcriPopulator"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="target">
-			<bean class="uk.ac.ox.oucs.vle.PopulatorImpl">
+		<bean class="uk.ac.ox.oucs.vle.XcriPopulatorImpl">
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
-				<property name="dataSource" ref="uk.ac.ox.oucs.vle.DaisyDataSource" />
+				<property name="source" value="http://localhost:8080/test/XCRI_test.xml"/>
 				<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
 				<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 				<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
@@ -88,7 +88,7 @@
 	<!-- Should be replaced by MethodInvokingJobDetailFactoryBean -->
 	<bean id="uk.ac.ox.oucs.vle.PopulatorJob"
 		class="uk.ac.ox.oucs.vle.PopulatorJob">
-		<property name="populator" ref="uk.ac.ox.oucs.vle.Populator"/>
+		<property name="populator" ref="uk.ac.ox.oucs.vle.XcriPopulator"/>
 	</bean>
 
 	<bean id="uk.ac.ox.oucs.vle.PopulatorJobWrapper"
@@ -101,9 +101,9 @@
 	</bean>
 
 
-	<bean id="uk.ac.ox.oucs.vle.GenerateTree"
-		class="uk.ac.ox.oucs.vle.GenerateTree">
-		<property name="dataSource" ref="uk.ac.ox.oucs.vle.DaisyDataSource"/>
+	<bean id="uk.ac.ox.oucs.vle.XcriGenerateTree"
+		class="uk.ac.ox.oucs.vle.XcriGenerateTree">
+		<property name="source" value="http://localhost:8080/test/XCRI_test.xml"/>
 		<property name="factory">
 			<bean class="org.codehaus.jackson.JsonFactory"/>
 		</property>
@@ -112,7 +112,7 @@
 	<bean id="uk.ac.ox.oucs.vle.GenerateTreeJob"
 		class="uk.ac.ox.oucs.vle.GenerateTreeJob">
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
-		<property name="generateTree" ref="uk.ac.ox.oucs.vle.GenerateTree"/>
+		<property name="generateTree" ref="uk.ac.ox.oucs.vle.XcriGenerateTree"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>

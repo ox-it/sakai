@@ -69,7 +69,6 @@ public class SchedulerTool extends HttpServlet {
   				JobDetailWrapper jobDetailWrapper = new JobDetailWrapperImpl();
   				jobDetailWrapper.setJobDetail(
   						scheduler.getJobDetail(jobNames[i],	Scheduler.DEFAULT_GROUP));
-  				
   				Trigger[] triggerArr = scheduler.getTriggersOfJob(jobNames[i],
   						Scheduler.DEFAULT_GROUP);
   				List<TriggerWrapper> triggerWrapperList = new ArrayList<TriggerWrapper>();

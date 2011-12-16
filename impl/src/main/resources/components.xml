@@ -85,7 +85,7 @@
 	<bean id="uk.ac.ox.oucs.vle.Populator"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="target">
-			<bean class="uk.ac.ox.oucs.vle.Populator">
+			<bean class="uk.ac.ox.oucs.vle.PopulatorImpl">
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO"/>
 				<property name="dataSource" ref="daisyDataSource"/>
 				<property name="proxy" ref="uk.ac.ox.oucs.vle.sakai.SakaiProxy"/>
