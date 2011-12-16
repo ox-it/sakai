@@ -499,6 +499,12 @@ public class CourseResource {
 				gen.writeObjectField("sessions", component.getSessions());
 				gen.writeObjectField("when", component.getWhen());
 				gen.writeObjectField("bookable", component.getBookable());
+				if (null != component.getStarts()) {
+					gen.writeObjectField("starts", component.getStarts().getTime());
+				}
+				if (null != component.getEnds()) {
+					gen.writeObjectField("ends", component.getEnds().getTime());
+				}
 				gen.writeObjectField("places", component.getPlaces());
 				gen.writeObjectField("componentSet", component.getComponentSet());
 				if (null != component.getPresenter()) {
