@@ -17,6 +17,13 @@ public class CourseCategoryDAO implements java.io.Serializable {
     public CourseCategoryDAO() {
     }
     
+    public CourseCategoryDAO(String groupId, CourseGroup.Category_Type type, String code, String name) {
+    	this.groupId = groupId;
+    	this.categoryType = type.name();
+    	this.categoryCode = code;
+    	this.categoryName = name;
+    }
+    
     public String getCategoryId() {
         return this.categoryId;
     }
