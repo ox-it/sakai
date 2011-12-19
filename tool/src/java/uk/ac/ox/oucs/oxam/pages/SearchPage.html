@@ -15,7 +15,7 @@
 
 <body>
 
-		<h3>Search Page</h3>
+	<h3>Search Page</h3>
 	<form method="get" wicket:id="searchForm">
 	<div>
 		<input type="text" wicket:id="query"/>
@@ -24,58 +24,43 @@
 	</div>
 	</form>
 	<div id="filters">
-	<ul wicket:id="filters">
-		<li><span wicket:id="name">Filter Name</span><a wicket:id="link">Remove</a></li>
-	</ul></div>
+		<h3>Applied Filters</h3>
+		<ul wicket:id="filters">
+			<li><span wicket:id="name">Filter Name</span><a wicket:id="link">Remove</a></li>
+		</ul>
+	</div>
 	
 	<div class="sidebar">
 	<div class="facet">
 		<h3>Papers</h3>
 		<ul wicket:id="paper_code_facet">
-			<li><a wicket:id="link" href="#"><span wicket:id="name">Facet Name</span>(<span wicket:id="count">1</span>)</a></li>
+			<li><a wicket:id="link" href="#"><span wicket:id="name">Facet Name</span> (<span wicket:id="count">1</span>)</a></li>
 		</ul>
 	</div>
 	
 	<div class="facet">
 		<h3>Exams</h3>
 		<ul wicket:id="exam_code_facet">
-			<li><a wicket:id="link" href="#"><span wicket:id="name">Facet Name</span>(<span wicket:id="count">1</span>)</a></li>
+			<li><a wicket:id="link" href="#"><span wicket:id="name">Facet Name</span> (<span wicket:id="count">1</span>)</a></li>
 		</ul>
 	</div>
 	
 	<div class="facet">
 		<h3>Year</h3>
 		<ul wicket:id="year_facet">
-			<li><a wicket:id="link" href="#"><span wicket:id="name">Facet Name</span>(<span wicket:id="count">1</span>)</a></li>
+			<li><a wicket:id="link" href="#"><span wicket:id="name">Facet Name</span> (<span wicket:id="count">1</span>)</a></li>
 		</ul>
 	</div>
 	
 	<div class="facet">
 		<h3>Term</h3>
 		<ul wicket:id="term_facet">
-			<li><a wicket:id="link" href="#"><span wicket:id="name">Facet Name</span>(<span wicket:id="count">1</span>)</a></li>
+			<li><a wicket:id="link" href="#"><span wicket:id="name">Facet Name</span> (<span wicket:id="count">1</span>)</a></li>
 		</ul>
 	</div>
 	</div>
 	<div class="content">
-	<div class="results">
-		<h3>Results</h3>
-		<ul wicket:id="results">
-			<li>
-				<a wicket:id="paper_file" href="#">
-				<span wicket:id="paper_code">Paper Code</span>
-				<span wicket:id="paper_title">Paper Title</span>
-				</a>
-				<br/>
-				<span wicket:id="year">2001</span>
-				<span wicket:id="term">Trinity</span>
-				<br/>
-				<span wicket:id="exam_code">Exam Code</span>
-				<span wicket:id="exam_title">Exam Title</span>
-			</li>
-		</ul>
-		<div wicket:id="resultsLabel" style="float: right">Showing 1 to 2 of 8</div>
-		<div wicket:id="resultsNavigation"></div>
+	<div class="results" wicket:id="results">
 	</div>
 	</div>
 </body>

@@ -12,7 +12,7 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
  */
 public abstract class StatelessDataView<T> extends DataView<T> {
 	private static final long serialVersionUID = 1L;
-	private PageParameters pp;
+	protected PageParameters pp;
 
 	@Override
 	protected boolean getStatelessHint() {
