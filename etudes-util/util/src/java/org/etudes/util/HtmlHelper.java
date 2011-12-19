@@ -21,11 +21,23 @@
 
 package org.etudes.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.jaxen.JaxenException;
+import org.jaxen.XPath;
+import org.jaxen.dom.DOMXPath;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.tidy.Tidy;
 
 /**
  * Stripper has helper methods for stripping out junk from user entered HTML
@@ -266,5 +278,66 @@ public class HtmlHelper
 		m.appendTail(sb);
 
 		return sb.toString();
+	}
+	
+	/**
+	 * Clean some user entered HTML. Assures well formed XML. Assures all anchor tags have target=_blank.
+	 * 
+	 * @param source
+	 *        The source HTML
+	 * @return The cleaned up HTML.
+	 */
+	public static String clean(String source)
+	{
+		if (source == null) return null;
+
+		try
+		{
+			// parse possibly dirty html
+			Tidy tidy = new Tidy();
+			ByteArrayInputStream bais = new ByteArrayInputStream(source.getBytes("UTF-8"));
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			PrintWriter pw = new PrintWriter(baos);
+			tidy.setErrout(pw);
+			tidy.setQuiet(true);
+			tidy.setXHTML(true);
+			Document doc = tidy.parseDOM(bais, null);
+
+			// assure target=_blank in all anchors
+			XPath x = new DOMXPath("//a");
+			List l = x.selectNodes(doc);
+			for (Object o : l)
+			{
+				Element e = (Element) o;
+				e.setAttribute("target", "_blank");
+			}
+
+			// get the whole thing in a string
+			baos = new ByteArrayOutputStream();
+			tidy.pprint(doc, baos);
+			String all = baos.toString("UTF-8");
+			String rv = null;
+
+			// find the substring between <body> and </body>
+			int start = all.indexOf("<body>");
+			if (start != -1)
+			{
+				start += "<body>".length();
+				int end = all.lastIndexOf("</body>");
+				rv = all.substring(start, end);
+			}
+
+			return rv;
+		}
+		catch (IOException e)
+		{
+			//M_log.warn(e);
+		}
+		catch (JaxenException e)
+		{
+			//M_log.warn(e);
+		}
+
+		return null;
 	}
 }
