@@ -12,9 +12,9 @@ public class MockTermService  implements TermService{
 	Map<String, Term> terms = new LinkedHashMap<String, Term>();
 	
 	public MockTermService() {
-		addTerm(new Term("H", "Hilary"));
-		addTerm(new Term("M","Michaelmas"));
-		addTerm(new Term("T","Trinity"));
+		addTerm(new Term("M","Michaelmas",1,false));
+		addTerm(new Term("T","Trinity",2,true));
+		addTerm(new Term("H", "Hilary",3,true));
 	}
 	
 	private void addTerm(Term term) {

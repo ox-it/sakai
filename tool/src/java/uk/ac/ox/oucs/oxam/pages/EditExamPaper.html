@@ -28,7 +28,10 @@
 		</tr>
 		<tr>
 			<td><wicket:message key="label.year" /></td>
-			<td><input type="text" wicket:id="year" size="4" maxlength="4"/></td>
+			<td>
+				<select wicket:id="year" size="1"></select><br/>
+				<input type="text" wicket:id="newYear" size="9" maxlength="9"/>
+			</td>
 			<td><span wicket:id="yearFeedback"></span></td>
 		</tr>
 		<tr>

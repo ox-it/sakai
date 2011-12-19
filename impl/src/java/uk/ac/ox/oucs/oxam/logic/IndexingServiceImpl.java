@@ -15,6 +15,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
 
+import uk.ac.ox.oucs.oxam.model.AcademicYear;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 import uk.ac.ox.oucs.oxam.model.Term;
 
@@ -31,6 +32,11 @@ public class IndexingServiceImpl implements IndexingService {
 	
 	private int batchSize = 100;
 	
+	// The maximum term order in year.
+	// This should be set once the terms have loaded.
+	// We'd rather not have a dependency on the term service so we need it set.
+	private int maxTerm = 1000;
+	
 	// Contains all the ExamPapers we need to index and the items to remove.
 	// Having one queue makes it easier to process.
 	private BlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
@@ -46,6 +52,10 @@ public class IndexingServiceImpl implements IndexingService {
 
 	public void setServer(SolrServer server) {
 		this.server = server;
+	}
+	
+	public void setMaxTerm(int maxTerm) {
+		this.maxTerm = maxTerm;
 	}
 
 	public void init() {
@@ -185,12 +195,28 @@ public class IndexingServiceImpl implements IndexingService {
 			doc.addField("paper_title", examPaper.getPaperTitle());
 			doc.addField("paper_code", examPaper.getPaperCode());
 			doc.addField("paper_file", examPaper.getPaperFile());
-			doc.addField("year", examPaper.getYear());
-			
 			Term term = examPaper.getTerm();
 			if (term != null) {
 				doc.addField("term", term.getName());
 			}
+			AcademicYear year = examPaper.getYear();
+			if (year != null) {
+				doc.addField("academic_year", year.toString());
+				float sortYear = (float)year.getYear();
+				if (term != null) {
+					// Make sure it's < 1
+					float termOrder = ((float)term.getOrderInYear())/(maxTerm+1);
+					if (termOrder > 1) {
+						LOG.warn("Term order is more than one "+ termOrder+ " for term "+ term);
+					}
+					if (termOrder < 0) {
+						LOG.warn("Term order is less than zero "+ termOrder+ " for term "+ term);
+					}
+					sortYear += termOrder;
+				}
+				doc.addField("sort_year", sortYear);
+			}
+			
 			return doc;
 		}
 	}

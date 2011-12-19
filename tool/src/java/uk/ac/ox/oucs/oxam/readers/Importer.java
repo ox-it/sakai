@@ -13,12 +13,14 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import uk.ac.ox.oucs.oxam.logic.AcademicYearService;
 import uk.ac.ox.oucs.oxam.logic.Callback;
 import uk.ac.ox.oucs.oxam.logic.CategoryService;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.logic.PaperFile;
 import uk.ac.ox.oucs.oxam.logic.PaperFileServiceImpl;
 import uk.ac.ox.oucs.oxam.logic.TermService;
+import uk.ac.ox.oucs.oxam.model.AcademicYear;
 import uk.ac.ox.oucs.oxam.model.Category;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 import uk.ac.ox.oucs.oxam.model.Term;
@@ -35,6 +37,8 @@ public class Importer {
 	private PaperFileServiceImpl paperFileService;
 	private TermService termService;
 	private CategoryService categoryService;
+
+	private AcademicYearService academicYearService;
 
 	public void setValidatorFactory(ValidatorFactory validator) {
 		this.validator = validator.getValidator();
@@ -54,6 +58,10 @@ public class Importer {
 	
 	public void setPaperFileService(PaperFileServiceImpl paperFileService) {
 		this.paperFileService = paperFileService;
+	}
+	
+	public void setAcademicYearService(AcademicYearService academicYearService) {
+		this.academicYearService = academicYearService;
 	}
 
 	public Import newImport() {
@@ -101,8 +109,19 @@ public class Importer {
 		return (row != null)?categoryService.getByCode(row.category):null;
 	}
 
-	public ExamPaper get(String examCode, String paperCode, int year, Term term) {
+	public ExamPaper get(String examCode, String paperCode, AcademicYear year, Term term) {
 		return examPaperService.get(examCode, paperCode, year, term);
 	}
+
+	public AcademicYear checkYear(String year) {
+		int pos = year.indexOf('-');
+		try {
+			int yearNum = Integer.parseInt((pos > 0)?year.substring(0,pos):year);
+			return academicYearService.getAcademicYear(yearNum);
+		} catch (NumberFormatException nfe) {
+		}
+		return null;
+	}
+
 
 }

@@ -7,18 +7,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import uk.ac.ox.oucs.oxam.logic.AcademicYearService;
 import uk.ac.ox.oucs.oxam.logic.Callback;
 import uk.ac.ox.oucs.oxam.logic.CategoryService;
 import uk.ac.ox.oucs.oxam.logic.TermService;
+import uk.ac.ox.oucs.oxam.model.AcademicYear;
 import uk.ac.ox.oucs.oxam.model.Category;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 import uk.ac.ox.oucs.oxam.model.Term;
@@ -31,6 +30,7 @@ public class ExamPaperDaoImpl extends BaseDao implements ExamPaperDao {
 
 	private TermService termService;
 	private CategoryService categoryService;
+	private AcademicYearService academicYearService;
 
 	public void setTermService(TermService termService) {
 		this.termService = termService;
@@ -38,6 +38,10 @@ public class ExamPaperDaoImpl extends BaseDao implements ExamPaperDao {
 
 	public void setCategoryService(CategoryService categoryService) {
 		this.categoryService = categoryService;
+	}
+	
+	public void setAcademicYearService(AcademicYearService acadmicYearService) {
+		this.academicYearService = acadmicYearService;
 	}
 
 	private RowMapper mapper = new RowMapper() {
@@ -54,7 +58,7 @@ public class ExamPaperDaoImpl extends BaseDao implements ExamPaperDao {
 			examPaper.setPaperTitle(rs.getString("paper_title"));
 			examPaper.setPaperCode(rs.getString("paper_code"));
 			examPaper.setPaperFile(rs.getString("paper_file"));
-			examPaper.setYear(rs.getInt("academic_year"));
+			examPaper.setYear(academicYearService.getAcademicYear(rs.getInt("academic_year")));
 			Term term = termService.getByCode(rs.getString("term"));
 			examPaper.setTerm(term);
 			return examPaper;
@@ -184,8 +188,13 @@ public class ExamPaperDaoImpl extends BaseDao implements ExamPaperDao {
 	}
 
 
-	public List<String> getYears() {
-		return getJdbcTemplate().queryForList(getStatement("years"), String.class);
+	public List<AcademicYear> getYears() {
+		return getJdbcTemplate().query(getStatement("years"),new RowMapper() {
+			
+			public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return academicYearService.getAcademicYear(rs.getInt("academic_year"));
+			}
+		});
 	}
 
 

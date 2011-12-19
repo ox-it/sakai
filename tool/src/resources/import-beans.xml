@@ -7,6 +7,7 @@
   http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
   
+  <!-- This is the importer bean that is used to import spreadsheets of data. -->
   <bean id="importer" class="uk.ac.ox.oucs.oxam.readers.Importer">
     <property name="validatorFactory">
         <bean
@@ -17,6 +18,7 @@
     <property name="paperFileService" ref="paperFileService"/>
     <property name="termService" ref="termService"/>
     <property name="categoryService" ref="categoryService"/>
+    <property name="academicYearService" ref="academicYearService"/>
   </bean>
   
   <bean id="location" class="uk.ac.ox.oucs.oxam.readers.TempLocation"/>

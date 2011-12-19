@@ -14,6 +14,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.params.FacetParams;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -98,10 +99,11 @@ class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 				setStart(first).
 				setRows(count).
 				setFacet(true).
+				//setFacetSort(FacetParams.FACET_SORT_INDEX).
 				setFacetMinCount(1).
 				setFacetLimit(10).
-				setSortField("year", ORDER.desc).
-				addFacetField("exam_code", "paper_code", "year", "term");
+				setSortField("sort_year", ORDER.desc).
+				addFacetField("exam_code", "paper_code", "academic_year", "term");
 		
 		if (filters != null) {
 			solrQuery.setFilterQueries(filters);
@@ -143,6 +145,7 @@ class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 				// TODO BookmarkablePageLink needs a nice way to add params which doesn't do crazy stuff.
 				PageParameters linkParams = new PageParameters(pp);
 				String[] filters = linkParams.getStringArray("filter");
+				linkParams.remove("items"); // Reset to first page.
 				String filterQuery = facet+ ":"+count.getName();
 				if (filters != null) {
 					if (!Arrays.asList(filters).contains(filterQuery)) {

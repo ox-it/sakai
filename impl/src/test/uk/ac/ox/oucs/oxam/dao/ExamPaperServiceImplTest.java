@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ox.oucs.oxam.logic.CategoryService;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.logic.TermService;
+import uk.ac.ox.oucs.oxam.model.AcademicYear;
 import uk.ac.ox.oucs.oxam.model.Category;
 import uk.ac.ox.oucs.oxam.model.Exam;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
@@ -58,7 +59,7 @@ public class ExamPaperServiceImplTest {
 		examPaper.setPaperCode("PAPER");
 		examPaper.setPaperTitle("Paper Title");
 		examPaper.setPaperFile("/file");
-		examPaper.setYear(2000);
+		examPaper.setYear(new AcademicYear(2000));
 		examPaper.setTerm(termService.getAll().iterator().next());
 		service.saveExamPaper(examPaper);
 		assertNotNull(service.getExamPaper(examPaper.getId()));
@@ -96,8 +97,8 @@ public class ExamPaperServiceImplTest {
 		examPaper.setPaperCode("PAPERCODE");
 		examPaper.setPaperTitle("Paper Title");
 		examPaper.setPaperFile("/some/file/url");
-		examPaper.setTerm(new Term("Y", "Y Term"));
-		examPaper.setYear(year);
+		examPaper.setTerm(new Term("Y", "Y Term", 1, false));
+		examPaper.setYear(new AcademicYear(year));
 		service.saveExamPaper(examPaper);
 	}
 	
@@ -120,8 +121,8 @@ public class ExamPaperServiceImplTest {
 		examPaper.setPaperCode(paperCode);
 		examPaper.setPaperTitle(paperTitle);
 		examPaper.setPaperFile("/some/file/url");
-		examPaper.setTerm(new Term("Y", "Y Term"));
-		examPaper.setYear(year);
+		examPaper.setTerm(new Term("Y", "Y Term", 1, false));
+		examPaper.setYear(new AcademicYear(year));
 		service.saveExamPaper(examPaper);
 	}
 

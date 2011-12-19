@@ -25,9 +25,16 @@ public class TermServiceImpl implements TermService, Reloadable {
 	private Map<String, Term> terms;
 
 	private ValueSource valueSource;
+	
+	// This is so we can tell the indexing service what the max term order is.
+	private IndexingServiceImpl indexingServiceImpl;
 
 	public void setValueSource(ValueSource valueSource) {
 		this.valueSource = valueSource;
+	}
+	
+	public void setIndexingServiceImpl(IndexingServiceImpl indexingServiceImpl) {
+		this.indexingServiceImpl = indexingServiceImpl;
 	}
 	
 	public void init() {
@@ -50,13 +57,14 @@ public class TermServiceImpl implements TermService, Reloadable {
 			for (String line = reader.readLine(); line != null; line = reader
 					.readLine()) {
 				String[] parts = line.split(",");
-				if (parts.length != 2) {
+				if (parts.length != 3) {
 					LOG.warn("When reading line " + reader.getLineNumber()
 							+ " which contains '" + line + "'");
 				} else {
 					String code = parts[0];
 					String name = parts[1];
-					Term newTerm = new Term(code, name);
+					boolean inSecondYear = Boolean.parseBoolean(parts[2]);
+					Term newTerm = new Term(code, name, reader.getLineNumber(), inSecondYear);
 					Term oldTerm = newTerms.put(code, newTerm);
 					if (oldTerm != null) {
 						LOG.warn("Replaced old term value of " + oldTerm
@@ -67,10 +75,33 @@ public class TermServiceImpl implements TermService, Reloadable {
 				}
 			}
 			if (newTerms.size() > 0) {
+				// Validate the SecondYear terms;
+				// Here we check that all terms in the first academic year are before the second one.
+				boolean foundSecondYearTerm = false;
+				for (Term term: newTerms.values()) {
+					if (!foundSecondYearTerm) {
+						foundSecondYearTerm = term.inSecondYear();
+					} else {
+						if (!term.inSecondYear()) {
+							LOG.warn(term.getName()+ " term is in the position.");
+						}
+					}
+				}
 				terms = newTerms;
 				LOG.info("Successfully load new term data.");
 			} else {
 				LOG.warn("Failed to find any values in data, not replacing existing data.");
+			}
+			
+			// Now tell the indexing service what the max is.
+			if (indexingServiceImpl != null) {
+				int max = 0;
+				for (Term term: getAll()) {
+					if (max < term.getOrderInYear()) {
+						max = term.getOrderInYear();
+					}
+				}
+				indexingServiceImpl.setMaxTerm(max);
 			}
 		} catch (IOException ioe) {
 			LOG.warn("Problem reading data.", ioe);

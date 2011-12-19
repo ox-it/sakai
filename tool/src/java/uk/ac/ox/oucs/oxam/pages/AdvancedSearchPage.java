@@ -6,19 +6,26 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.StatelessForm;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.apache.wicket.util.string.Strings;
 
+import uk.ac.ox.oucs.oxam.logic.AcademicYearService;
 import uk.ac.ox.oucs.oxam.logic.CategoryService;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
+import uk.ac.ox.oucs.oxam.model.AcademicYear;
 import uk.ac.ox.oucs.oxam.model.Category;
 import uk.ac.ox.oucs.oxam.model.Exam;
 
@@ -37,8 +44,14 @@ public class AdvancedSearchPage extends WebPage {
 	@SpringBean
 	private CategoryService categoryService;
 	
+	@SpringBean
+	private AcademicYearService academicYearService;
+	
+	@SpringBean(name="solrServer")
+	private SolrServer solr;
+	
 	private Exam exam;
-	private String year;
+	private AcademicYear year;
 
 	private Comparator<Exam> examCompare = new Comparator<Exam>() {
 
@@ -55,8 +68,13 @@ public class AdvancedSearchPage extends WebPage {
 		}
 	};
 
-	public AdvancedSearchPage(PageParameters pp) {
+	public AdvancedSearchPage(final PageParameters pp) {
 		setStatelessHint(true);
+		
+		// The feedback.
+        FeedbackPanel feedbackPanel = new FeedbackPanel("feedback");
+        add(feedbackPanel);
+		
 				
 		Map<String, Exam> latestExams = examPaperService.getLatestExams(null);
 		List<Exam> examList = new ArrayList<Exam>(latestExams.values());
@@ -90,6 +108,7 @@ public class AdvancedSearchPage extends WebPage {
 			@Override
 			protected void appendOptionHtml(AppendingStringBuffer buffer,
 					Exam choice, int index, String selected) {
+				
 				if (isNewGroup(choice)) {
 					if (!isFirst(index)) {
 						buffer.append("</optgroup>");
@@ -121,27 +140,81 @@ public class AdvancedSearchPage extends WebPage {
 		});
 		examChoice.setEscapeModelStrings(false); // We want &nbsp; in the option values.
 		examChoice.setRequired(true);
-		//examChoice.setModelValue(new String[]{exam});
+		examChoice.setLabel(new ResourceModel("label.exam"));
 		
 		
-		List<String> years = examPaperService.getYears();
+		List<AcademicYear> years = examPaperService.getYears();
 		
-		final DropDownChoice<String> yearChoice = new DropDownChoice<String>("year", years);
+		final DropDownChoice<AcademicYear> yearChoice = new DropDownChoice<AcademicYear>("year", years);
+		yearChoice.setLabel(new ResourceModel("label.year"));
+	
+		final SolrProvider provider = new SolrProvider(solr);
+		final SolrExamResults results = new SolrExamResults("results", AdvancedSearchPage.class, provider, pp);
+		results.setVisible(false);
 		
-		
-		Form<AdvancedSearchPage> form = new StatelessForm<AdvancedSearchPage>("form", new CompoundPropertyModel<AdvancedSearchPage>(this)) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onSubmit() {
-				// Do a solr search
-			}
-		};
+		Form<AdvancedSearchPage> form = new StatelessForm<AdvancedSearchPage>("form", new CompoundPropertyModel<AdvancedSearchPage>(this));
 		add(form);
 		form.add(examChoice);
 		form.add(yearChoice);
+		form.add(new Button("search") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onSubmit() {
+				PageParameters pp = new PageParameters();
+				if (year != null) {
+					pp.add(yearChoice.getInputName(), Integer.toString(year.getYear()));
+				}
+				if (exam != null) {
+					pp.add(examChoice.getInputName(), exam.getCode());
+				}
+				results.setVisible(false);
+				setResponsePage(AdvancedSearchPage.class, pp);
+			}
+		});
+		form.add(new Button("reset") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onSubmit() {
+				setResponsePage(AdvancedSearchPage.class, new PageParameters());
+			}
+		});
+
+		// This is a little crazy, I can't seem to 
+		String examCodeTerm = pp.getString("exam");
+		String yearTerm = pp.getString("year");
+		if (examCodeTerm != null && examCodeTerm.length() > 0) {
+			Exam foundExam = latestExams.get(examCodeTerm);
+			String query = "exam_code:"+ ClientUtils.escapeQueryChars(examCodeTerm);
+			if (exam == null) {
+				exam = foundExam;
+			}
+			if (yearTerm != null && yearTerm.length() > 0) {
+				AcademicYear yearFound = lookupAcademicYear(yearTerm);
+				if (yearFound != null) {
+					query = query + " academic_year:"+ ClientUtils.escapeQueryChars(yearFound.toString());
+					if (year == null) {
+						year = yearFound;
+					}
+				}
+			}
+			provider.setQuery(query);
+			results.setVisible(true);
+		}
+		add(results);
+
 	}
 
+	protected AcademicYear lookupAcademicYear(String yearTerm) {
+		try {
+			int year = Integer.parseInt(yearTerm);
+			return academicYearService.getAcademicYear(year);
+		} catch (NumberFormatException nfe) {
+			return null;
+		}
+	}
+	
 	public Exam getExam() {
 		return exam;
 	}
@@ -150,11 +223,11 @@ public class AdvancedSearchPage extends WebPage {
 		this.exam = exam;
 	}
 
-	public String getYear() {
+	public AcademicYear getYear() {
 		return year;
 	}
 
-	public void setYear(String year) {
+	public void setYear(AcademicYear year) {
 		this.year = year;
 	}
 	

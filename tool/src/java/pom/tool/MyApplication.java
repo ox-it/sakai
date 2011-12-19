@@ -1,5 +1,6 @@
 package pom.tool;
 
+import org.apache.wicket.IConverterLocator;
 import org.apache.wicket.Page;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
@@ -9,8 +10,11 @@ import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
+import org.apache.wicket.util.convert.ConverterLocator;
 
 import pom.tool.pages.FirstPage;
+import uk.ac.ox.oucs.oxam.components.AcademicYearConverter;
+import uk.ac.ox.oucs.oxam.model.AcademicYear;
 
 /**
  * Main application class for our app
@@ -80,5 +84,11 @@ public class MyApplication extends WebApplication {
 	}
 	
 	
+	@Override
+	protected IConverterLocator newConverterLocator() {
+		ConverterLocator locator = new ConverterLocator();
+		locator.set(AcademicYear.class, new AcademicYearConverter());
+		return locator;
+	}
 
 }

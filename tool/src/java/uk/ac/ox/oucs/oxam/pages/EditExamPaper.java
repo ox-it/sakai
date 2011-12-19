@@ -3,7 +3,6 @@ package uk.ac.ox.oucs.oxam.pages;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.wicket.markup.html.form.Button;
@@ -22,7 +21,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.IValidationError;
 import org.apache.wicket.validation.ValidationError;
-import org.apache.wicket.validation.validator.RangeValidator;
+import org.apache.wicket.validation.validator.PatternValidator;
 
 import pom.tool.pages.BasePage;
 import uk.ac.ox.oucs.oxam.components.FeedbackLabel;
@@ -31,6 +30,7 @@ import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.logic.PaperFile;
 import uk.ac.ox.oucs.oxam.logic.PaperFileServiceImpl;
 import uk.ac.ox.oucs.oxam.logic.TermService;
+import uk.ac.ox.oucs.oxam.model.AcademicYear;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 import uk.ac.ox.oucs.oxam.model.Term;
 
@@ -61,14 +61,17 @@ public class EditExamPaper extends BasePage {
 		private static final long serialVersionUID = 1L;
 		private TextField<String> included;
 		private FileUploadField upload;
+		private TextField<AcademicYear> newYear;
+		private ListChoice<AcademicYear> year;
 		
 		public ExamPaperForm(String id, final IModel<ExamPaper> examPaper) {
 			super(id, examPaper);
 			
-			final TextField<Integer> year = new TextField<Integer>("year");
-			year.setRequired(true);
+			newYear = new TextField<AcademicYear>("newYear", new Model<AcademicYear>(), AcademicYear.class);
+			newYear.setEnabled(examPaper.getObject().getId() == 0); // Only for new ones.
+			add(newYear);
+			year = new ListChoice<AcademicYear>("year", examPaperService.getYears());
 			year.setEnabled(examPaper.getObject().getId() == 0); // Only for new ones.
-			year.add(new RangeValidator<Integer>(1900,2050));
 			add(year);
 			FeedbackLabel yearFeedback = new FeedbackLabel("yearFeedback", year);
 			add(yearFeedback);
@@ -82,10 +85,10 @@ public class EditExamPaper extends BasePage {
 			add(link);
 			
 			
-			upload = new FileUploadField("file", new Model());
+			upload = new FileUploadField("file", new Model<FileUpload>());
 			add(upload);
 			
-			included = new TextField<String>("included", new Model());
+			included = new TextField<String>("included", new Model<String>());
 			add(included);
 						
 			ListChoice<Term> term = new ListChoice<Term>("term", new ArrayList<Term>(termService.getAll()), new ChoiceRenderer<Term>() {
@@ -124,8 +127,24 @@ public class EditExamPaper extends BasePage {
 			add(submit);
 		}
 		
+		protected void onValidate() {
+			super.onValidate();
+			if (!hasError()) {
+				// Only check if we don't have other errors.
+				if (year.getModelObject() == null && !(year.getConvertedInput() != null || newYear.getConvertedInput() != null)) {
+					error(getString("year.required"));
+				}
+			}
+		}
+		
 		@Override
 		protected void onSubmit() {
+			if (newYear.getModelObject() == null) {
+				examPaper.setYear(year.getModelObject());
+			} else {
+				examPaper.setYear(newYear.getModelObject());
+			}
+			
 			final FileUpload fileUpload = upload.getFileUpload();
 			if (fileUpload != null && fileUpload.getSize() > 0) {
 				//fileUpload.

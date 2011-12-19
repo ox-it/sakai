@@ -482,7 +482,10 @@
    <field name="paper_title" type="text_general" indexed="true" stored="true" required="true"/>
    <field name="paper_code" type="string" indexed="true" stored="true" required="true"/>
    <field name="paper_file" type="string" indexed="false" stored="true"/>
-   <field name="year" type="int" indexed="true" stored="true" required="true"/>
+   <!-- The year allows sorting based on year and term, but it isn't stored. -->
+   <field name="sort_year" type="float" indexed="true" stored="false" required="true"/>
+   <!-- The academic year in which the exam took place -->
+   <field name="academic_year" type="string" indexed="true" stored="true" required="true"/>
    <field name="term" type="string" indexed="true" stored="true" required="true"/>
 
    
@@ -589,7 +592,7 @@
    <copyField source="exam_code" dest="text"/>
    <copyField source="paper_title" dest="text"/>
    <copyField source="paper_code" dest="text"/>
-   <copyField source="year" dest="text"/>
+   <copyField source="academic_year" dest="text"/>
    <copyField source="term" dest="text"/>
 	
    <!-- Above, multiple source fields are copied to the [text] field. 

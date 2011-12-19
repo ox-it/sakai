@@ -35,7 +35,7 @@ class SolrExamResults extends Panel {
 				item.add(link);
 				link.add(new Label("paper_code", document.getFieldValue("paper_code").toString()));
 				link.add(new Label("paper_title", document.getFieldValue("paper_title").toString()));
-				item.add(new Label("year", document.getFieldValue("year").toString()));
+				item.add(new Label("year", document.getFieldValue("academic_year").toString()));
 				item.add(new Label("term", document.getFieldValue("term").toString()));
 				item.add(new Label("exam_code", document.getFieldValue("exam_code").toString()));
 				item.add(new Label("exam_title", document.getFieldValue("exam_title").toString()));

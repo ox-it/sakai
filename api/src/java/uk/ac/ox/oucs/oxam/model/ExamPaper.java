@@ -23,7 +23,7 @@ public class ExamPaper implements Serializable{
 	private String paperFile;
 	
 	// From terms.
-	private Integer year;
+	private AcademicYear year;
 	private Term term;
 
 	public long getId() {
@@ -68,10 +68,10 @@ public class ExamPaper implements Serializable{
 	public void setPaperFile(String paperFile) {
 		this.paperFile = paperFile;
 	}
-	public Integer getYear() {
+	public AcademicYear getYear() {
 		return year;
 	}
-	public void setYear(Integer year) {
+	public void setYear(AcademicYear year) {
 		this.year = year;
 	}
 	public Term getTerm() {

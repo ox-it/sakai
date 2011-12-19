@@ -15,6 +15,7 @@ import uk.ac.ox.oucs.oxam.dao.ExamDao;
 import uk.ac.ox.oucs.oxam.dao.ExamPaperDao;
 import uk.ac.ox.oucs.oxam.dao.ExamPaperFileDao;
 import uk.ac.ox.oucs.oxam.dao.PaperDao;
+import uk.ac.ox.oucs.oxam.model.AcademicYear;
 import uk.ac.ox.oucs.oxam.model.Exam;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 import uk.ac.ox.oucs.oxam.model.ExamPaperFile;
@@ -74,7 +75,7 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 		return examPaperDao.getExamPapers(start, length);
 	}
 	
-	public ExamPaper get(String examCode, String paperCode, int year, Term term) {
+	public ExamPaper get(String examCode, String paperCode, AcademicYear year, Term term) {
 		ExamPaper example = new ExamPaper();
 		example.setExamCode(examCode);
 		example.setPaperCode(paperCode);
@@ -110,9 +111,9 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 		// If no paper was found or the paper code has changed.
 		if (paper == null || !paper.getCode().equals(examPaper.getPaperCode())) {
 			try {
-				paper = paperDao.get(examPaper.getPaperCode(), examPaper.getYear());
+				paper = paperDao.get(examPaper.getPaperCode(), examPaper.getYear().getYear());
 			} catch (Exception e) {
-				paper = new Paper(examPaper.getPaperCode(), examPaper.getYear());
+				paper = new Paper(examPaper.getPaperCode(), examPaper.getYear().getYear());
 			}
 		}
 		paper.setTitle(examPaper.getPaperTitle());
@@ -127,9 +128,9 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 		// If no exam or exam code has changed.
 		if (exam == null || !exam.getCode().equals(examPaper.getExamCode())) {
 			try {
-				exam = examDao.getExam(examPaper.getExamCode(), examPaper.getYear());
+				exam = examDao.getExam(examPaper.getExamCode(), examPaper.getYear().getYear());
 			} catch (Exception e) {
-				exam = new Exam(examPaper.getExamCode(), examPaper.getYear());
+				exam = new Exam(examPaper.getExamCode(), examPaper.getYear().getYear());
 			}
 		}
 		exam.setCategory(examPaper.getCategory().getCode());
@@ -148,7 +149,7 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 		examPaperFile.setExam(exam.getId());
 		examPaperFile.setPaper(paper.getId());
 		examPaperFile.setTerm(examPaper.getTerm().getCode());
-		examPaperFile.setYear(examPaper.getYear());
+		examPaperFile.setYear(examPaper.getYear().getYear());
 		examPaperFileDao.save(examPaperFile);
 		examPaper.setId(examPaperFile.getId());
 		examPaper.setPaperId(paper.getId());
@@ -259,7 +260,7 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 		return examDao.getCodes(codes);
 	}
 
-	public List<String> getYears() {
+	public List<AcademicYear> getYears() {
 		return examPaperDao.getYears();
 	}
 

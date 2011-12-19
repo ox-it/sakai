@@ -1,5 +1,5 @@
-T,Trinity
-H,Hilary
-E,Easter
-L,Long
-M,Michaelmas
+M,Michaelmas,false
+H,Hilary,true
+E,Easter,true
+T,Trinity,true
+L,Long,true

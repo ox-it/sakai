@@ -40,6 +40,7 @@
         init-method="init">
         <property name="termService" ref="termService"/>
         <property name="categoryService" ref="categoryService"/>
+        <property name="academicYearService" ref="academicYearService"/>
         <property name="dataSource" ref="dataSource" />
         <property name="statementStore" ref="statementStore"/>
     </bean>
@@ -76,11 +77,16 @@
   <bean id="termService" class="uk.ac.ox.oucs.oxam.logic.TermServiceImpl"
     init-method="init">
     <property name="valueSource" ref="termValueSource"/>
+    <!-- Used to tell the indexing service what the max number for a term order is. -->
+    <property name="indexingServiceImpl" ref="indexingService"/>
   </bean>
   
     <bean id="categoryService" class="uk.ac.ox.oucs.oxam.logic.CategoryServiceImpl"
     init-method="init">
     <property name="valueSource" ref="categoryValueSource"/>
   </bean>
+  
+  <bean id="academicYearService" class="uk.ac.ox.oucs.oxam.logic.AcademicYearServiceImpl"/>
+  
   
 </beans>

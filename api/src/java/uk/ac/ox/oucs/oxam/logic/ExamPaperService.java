@@ -3,6 +3,7 @@ package uk.ac.ox.oucs.oxam.logic;
 import java.util.List;
 import java.util.Map;
 
+import uk.ac.ox.oucs.oxam.model.AcademicYear;
 import uk.ac.ox.oucs.oxam.model.Exam;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 import uk.ac.ox.oucs.oxam.model.Paper;
@@ -14,7 +15,7 @@ public interface ExamPaperService {
 	
 	public List<ExamPaper> getExamPapers(int start, int length);
 	
-	public ExamPaper get(String examCode, String paperCode, int year, Term term);
+	public ExamPaper get(String examCode, String paperCode, AcademicYear year, Term term);
 	
 	public int count();
 	
@@ -35,5 +36,5 @@ public interface ExamPaperService {
 
 	public ExamPaper newExamPaper();
 
-	public List<String> getYears();
+	public List<AcademicYear> getYears();
 }

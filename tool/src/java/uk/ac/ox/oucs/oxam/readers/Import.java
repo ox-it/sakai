@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import uk.ac.ox.oucs.oxam.model.AcademicYear;
 import uk.ac.ox.oucs.oxam.model.Category;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 import uk.ac.ox.oucs.oxam.model.Term;
@@ -90,8 +91,8 @@ public class Import {
 				paperRowImporter.addError(paperRow, "Not a valid term code.");
 			}
 			
-			int year = parseYear(paperRow.year);
-			if (year < 0) {
+			AcademicYear year = importer.checkYear(paperRow.year);
+			if (year == null) {
 				paperRowImporter.addError(paperRow, "Not a valid year.");
 			}
 			// If the paper is included with another.
@@ -105,7 +106,7 @@ public class Import {
 					paperRowImporter.addError(paperRow, "Not found in paperRows: "+ paperRow.inc);
 				}
 			} else {
-				PaperResolutionResult result = resolver.getPaper(year, paperRow.term, paperRow.code);
+				PaperResolutionResult result = resolver.getPaper(year.getYear(), paperRow.term, paperRow.code);
 				if (result == null) {
 					paperRowImporter.addError(paperRow,  "Not enough good information to locate file.");
 				} else {
@@ -128,8 +129,8 @@ public class Import {
 				error = true;
 			}
 			// Parse year.
-			int year = parseYear(examPaperRow.year);
-			if (year < 0) {
+			AcademicYear year = importer.checkYear(examPaperRow.year);
+			if (year == null) {
 				examPaperRowImporter.addError(examPaperRow, "Failed to understand date");
 				error = true;
 			}
@@ -146,7 +147,7 @@ public class Import {
 			
 			if (!error) {
 				String paperCode = (paperRow.inc != null && paperRow.inc.length() > 0)?paperRow.inc:paperRow.code;
-				PaperResolutionResult paper = resolver.getPaper(year, examPaperRow.term, paperCode);
+				PaperResolutionResult paper = resolver.getPaper(year.getYear(), examPaperRow.term, paperCode);
 				if(paper.isFound()) {
 					ExamPaper examPaper = importer.get(examPaperRow.examCode, examPaperRow.paperCode, year, term);
 					if (examPaper == null) {
@@ -197,15 +198,6 @@ public class Import {
 	}
 	
 
-	private int parseYear(String year) {
-		int pos = year.indexOf('-');
-		try {
-			return Integer.parseInt((pos > 0)?year.substring(0,pos):year);
-		} catch (NumberFormatException nfe) {
-		}
-		return -1;
-	}
-
 	static abstract class KeyedRow {
 		abstract int getRow();
 		
@@ -241,7 +233,6 @@ public class Import {
 		String getExamKey() {
 			ExamRow examRow = new ExamRow();
 			examRow.code = examCode;
-			examRow.year = year;
 			return examRow.getKey();
 		}
 		
@@ -285,24 +276,20 @@ public class Import {
 		@ColumnMapping("exam")
 		@NotNull @Size(min=2, max=255)
 		String title;
-		
-		@ColumnMapping("year")
-		@NotNull @Pattern(regexp="\\d{4}(-\\d{4})?")
-		String year;
-		
+
 		@ColumnMapping("cat_code")
 		@NotNull @Size(min=1)
 		String category;
 		
 		@Override
 		public String getKey() {
-			return code+year;
+			return code;
 		}
 
 		@Override
 		public String toString() {
 			return "ExamRow [row=" + row + ", code=" + code + ", title="
-					+ title + ", year=" + year + ", category=" + category + "]";
+					+ title + ", category=" + category + "]";
 		}
 	}
 	

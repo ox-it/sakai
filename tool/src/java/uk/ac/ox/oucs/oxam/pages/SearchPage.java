@@ -78,6 +78,7 @@ public class SearchPage extends WebPage {
 				}
 				item.add(new Label("name", item.getModelObject()));
 				PageParameters linkParams = new PageParameters(p);
+				linkParams.remove("items");
 				ArrayList<String> reduced = new ArrayList<String>(filters.length);
 				String[] filters = linkParams.getStringArray("filter");
 				for (String filter: filters) {
@@ -114,7 +115,7 @@ public class SearchPage extends WebPage {
 			}
 			
 		}, p));
-		add(provider.getFacet("year_facet", "year", null, p));
+		add(provider.getFacet("year_facet", "academic_year", null, p));
 		add(provider.getFacet("term_facet", "term", null, p));
 
 		setStatelessHint(true);
