@@ -2,8 +2,10 @@ package uk.ac.ox.oucs.vle;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -16,6 +18,13 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.xmlbeans.XmlObject;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -29,14 +38,6 @@ import org.xcri.profiles.x12.catalog.CatalogDocument;
 
 
 public class XcriPopulatorImpl implements Populator {
-	
-	/**
-	 * 
-	 */
-	private String inputSource;
-	public void setSource(String inputSource) {
-		this.inputSource = inputSource;
-	}
 	
 	/**
 	 * The DAO to update our entries through.
@@ -81,7 +82,7 @@ public class XcriPopulatorImpl implements Populator {
 	
 	private static final Log log = LogFactory.getLog(XcriPopulatorImpl.class);
 	
-	private final static String XCRI_URL = "http://localhost:8080/test/courses.xml"; 
+	private final static String XCRI_URL = "http://localhost:8080/test/courses.xml";
 
 	private Writer writer;
 	
@@ -109,15 +110,64 @@ public class XcriPopulatorImpl implements Populator {
 	private String lastGroup = null;
 	
 	
+	/**
+	 * 
+	 */
 	public void update() {
+		
+		DefaultHttpClient httpclient = new DefaultHttpClient();
+		
+		try {
+			URL xcri = new URL(getXcriURL());
+		
+			HttpHost targetHost = new HttpHost(xcri.getHost(), xcri.getPort(), xcri.getProtocol());
+
+	        httpclient.getCredentialsProvider().setCredentials(
+	                new AuthScope(targetHost.getHostName(), targetHost.getPort()),
+	                new UsernamePasswordCredentials(getXcriAuthUser(), getXcriAuthPassword()));
+
+            HttpGet httpget = new HttpGet(xcri.getPath());
+
+            HttpResponse response = httpclient.execute(targetHost, httpget);
+            HttpEntity entity = response.getEntity();
+               
+            process(entity.getContent());
+
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+        } catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+		} finally {
+            // When HttpClient instance is no longer needed,
+            // shut down the connection manager to ensure
+            // immediate deallocation of all system resources
+            httpclient.getConnectionManager().shutdown();
+        }
+		
+	}
+	
+	/**
+	 * 
+	 * @param inputStream
+	 */
+	public void process(InputStream inputStream) {
 		
 		switchUser();
 		ContentResourceEdit cre = null;
 		
 		try {
 			// Bind the incoming XML to an XMLBeans type.
-			URL xcri = new URL(inputSource);
-			CatalogDocument catalog = CatalogDocument.Factory.parse(xcri.openStream());
+			//URL xcri = new URL(inputSource);
+			//CatalogDocument catalog = CatalogDocument.Factory.parse(xcri.openStream());
+			CatalogDocument catalog = CatalogDocument.Factory.parse(inputStream);
 
 			String generated = null;
 			XmlObject[] objects = XcriUtils.selectPath(catalog, "catalog");
@@ -215,8 +265,9 @@ public class XcriPopulatorImpl implements Populator {
 	 * 
 	 * @param provider
 	 * @param createGroups
+	 * @throws IOException 
 	 */
-	private void provider(XmlObject provider, boolean createGroups) {
+	private void provider(XmlObject provider, boolean createGroups) throws IOException {
 		
 		String departmentName = XcriUtils.getString(provider, "providerTitle");
 		String departmentCode = XcriUtils.getString(provider, "providerIdentifier");
@@ -271,11 +322,12 @@ public class XcriPopulatorImpl implements Populator {
 	 * @param divisionEmail
 	 * @param divisionSuperUsers
 	 * @param createComponents
+	 * @throws IOException 
 	 */
 	private void course(XmlObject course, 
 			String departmentCode, String departmentName, 
 			String divisionEmail, Collection<String> divisionSuperUsers,
-			boolean createComponents) {
+			boolean createComponents) throws IOException {
 		
 		String assessmentunitCode = XcriUtils.getString(course, "courseIdentifierCode");
 		String teachingcomponentId = XcriUtils.getString(course, "courseIdentifierComponent");
@@ -338,9 +390,10 @@ public class XcriPopulatorImpl implements Populator {
 	 * @param presentation
 	 * @param teachingcomponentId
 	 * @param groups
+	 * @throws IOException 
 	 */
 	private void presentation(XmlObject presentation, 
-			String assessmentunitCode, String teachingcomponentId) {
+			String assessmentunitCode, String teachingcomponentId) throws IOException {
 		
 		String id = XcriUtils.getString(presentation, "presentationIdentifier");
 		String subject = XcriUtils.getString(presentation, "presentationTitle");
@@ -513,13 +566,14 @@ public class XcriPopulatorImpl implements Populator {
 	 * @param superusers
 	 * @param otherDepartments
 	 * @return
+	 * @throws IOException 
 	 */
 	private boolean updateGroup(String code, String title, String departmentCode, String subunitCode, 
 			String description, String departmentName, String subunitName, 
 			boolean publicView, boolean supervisorApproval, boolean administratorApproval,
 			String divisionEmail, 
 			Set<String> administrators, Set<String> superusers, Set<String> otherDepartments,
-			Set<String> researchCategories, Set<String> skillsCategories) {
+			Set<String> researchCategories, Set<String> skillsCategories) throws IOException {
 		
 		boolean created = false;
 		
@@ -565,6 +619,12 @@ public class XcriPopulatorImpl implements Populator {
 			groupDao.setCategories(categories);
 			
 			dao.save(groupDao);
+		}
+		
+		if (created) {
+			logMe("Log Success created ["+code+":"+title);
+		} else {
+			logMe("Log Success updated ["+code+":"+title);
 		}
 		return created;
 	}
@@ -690,6 +750,7 @@ public class XcriPopulatorImpl implements Populator {
 	 * @param location
 	 * @param groups
 	 * @return
+	 * @throws IOException 
 	 */
 	private boolean updateComponent(String id, String title, String subject, 
 			Date openDate, Date closeDate, Date expiryDate, Date startDate, Date endDate,
@@ -697,7 +758,7 @@ public class XcriPopulatorImpl implements Populator {
 			String termCode,  String teachingComponentId, String termName,
 			String teacherId, String teacherName, String teacherEmail,
 			String sessionDates, String sessions, String location,
-			Set<CourseGroupDAO> groups) {
+			Set<CourseGroupDAO> groups) throws IOException {
 		
 		boolean created = false;
 		if (null != dao) {
@@ -738,6 +799,12 @@ public class XcriPopulatorImpl implements Populator {
 			componentDao.setLocation(location);
 			componentDao.setGroups(groups);
 			dao.save(componentDao);
+		}
+		
+		if (created) {
+			logMe("Log Success created ["+id+":"+subject);
+		} else {
+			logMe("Log Success updated ["+id+":"+subject);
 		}
 		return created;
 	}
@@ -831,6 +898,28 @@ public class XcriPopulatorImpl implements Populator {
 		return "course-signup";
 	}
 	
+	protected String getXcriURL() {
+		if (null != serverConfigurationService) {
+			return serverConfigurationService.getString("xcri.url", 
+					"http://daisy-feed.socsci.ox.ac.uk/XCRI_course_feed.php");
+		}
+		return "http://daisy-feed.socsci.ox.ac.uk/XCRI_course_feed.php";
+	}
+	
+	protected String getXcriAuthUser() {
+		if (null != serverConfigurationService) {
+			return serverConfigurationService.getString("xcri.auth.user", "sesuser");
+		}
+		return "sesuser";
+	}
+	
+	protected String getXcriAuthPassword() {
+		if (null != serverConfigurationService) {
+			return serverConfigurationService.getString("xcri.auth.password", "blu3D0lph1n");
+		}
+		return "blu3D0lph1n";
+	}
+	
 	/**
 	 * This sets up the user for the current request.
 	 */
@@ -845,11 +934,6 @@ public class XcriPopulatorImpl implements Populator {
 	public static void main(String[] args) {
 		try {	
 			XcriPopulatorImpl reader = new XcriPopulatorImpl();
-			
-			reader.setSource(XCRI_URL);
-			
-			//CourseDAO courseDao = new CourseDAOImpl();
-			//reader.setCourseDao(courseDao);
 			
 			reader.update();
 		

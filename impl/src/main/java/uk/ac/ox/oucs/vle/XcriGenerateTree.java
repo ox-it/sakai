@@ -1,7 +1,9 @@
 package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Set;
@@ -9,11 +11,25 @@ import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.impl.auth.DigestScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.util.EntityUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonGenerator;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.xcri.profiles.x12.catalog.CatalogDocument;
 
 
@@ -24,31 +40,33 @@ public class XcriGenerateTree implements GenerateTree {
 	/**
 	 * 
 	 */
-	private String inputSource;
-	public void setSource(String inputSource) {
-		this.inputSource = inputSource;
-	}
-	
-	/**
-	 * 
-	 */
 	private JsonFactory factory;
 	public void setFactory(JsonFactory factory) {
 		this.factory = factory;
 	}
 	
+	/**
+	 * 
+	 */
+	private ServerConfigurationService serverConfigurationService;
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+	
 	private JsonGenerator generator;
 	
-	private final static String XCRI_URL = "http://localhost:8080/test/XCRI_test.xml"; 
-
-	public String generateDepartmentTree() {
+	/**
+	 * 
+	 * @param inputStream
+	 * @return
+	 */
+	public String process(InputStream inputStream) {
 		
 		StringWriter writer = new StringWriter();
 		
 		try {
-			// Bind the incoming XML to an XMLBeans type.
-			URL xcri = new URL(inputSource);
-			CatalogDocument catalog = CatalogDocument.Factory.parse(xcri.openStream());
+			CatalogDocument catalog = CatalogDocument.Factory.parse(inputStream);
 		
 			Set<MyDepartment> myDepartments = new TreeSet<MyDepartment>();
 			
@@ -93,6 +111,7 @@ public class XcriGenerateTree implements GenerateTree {
 					
 			generator.writeEndArray();
 			generator.close();
+			
 			return writer.toString();
 			
 		} catch (XmlException e) {
@@ -133,12 +152,78 @@ public class XcriGenerateTree implements GenerateTree {
 		generator.writeEndArray();
 		generator.writeEndObject();
 	}
+		
+	/**
+	 * 
+	 */
+	public	String generateDepartmentTree() {
+			
+		DefaultHttpClient httpclient = new DefaultHttpClient();
+		
+		try {
+			URL xcri = new URL(getXcriURL());
+		
+			HttpHost targetHost = new HttpHost(xcri.getHost(), xcri.getPort(), xcri.getProtocol());
+
+	        httpclient.getCredentialsProvider().setCredentials(
+	                new AuthScope(targetHost.getHostName(), targetHost.getPort()),
+	                new UsernamePasswordCredentials(getXcriAuthUser(), getXcriAuthPassword()));
+
+            HttpGet httpget = new HttpGet(xcri.getPath());
+
+            HttpResponse response = httpclient.execute(targetHost, httpget);
+            HttpEntity entity = response.getEntity();
+            
+            return process(entity.getContent());
+
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+        } catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+		} finally {
+            // When HttpClient instance is no longer needed,
+            // shut down the connection manager to ensure
+            // immediate deallocation of all system resources
+            httpclient.getConnectionManager().shutdown();
+        }
+		
+		return null;
+	}
+	
+	protected String getXcriURL() {
+		if (null != serverConfigurationService) {
+			return serverConfigurationService.getString("xcri.url", 
+					"http://daisy-feed.socsci.ox.ac.uk/XCRI_course_feed.php");
+		}
+		return "http://daisy-feed.socsci.ox.ac.uk/XCRI_course_feed.php";
+	}
+	
+	protected String getXcriAuthUser() {
+		if (null != serverConfigurationService) {
+			return serverConfigurationService.getString("xcri.auth.user", "sesuser");
+		}
+		return "sesuser";
+	}
+	
+	protected String getXcriAuthPassword() {
+		if (null != serverConfigurationService) {
+			return serverConfigurationService.getString("xcri.auth.password", "blu3D0lph1n");
+		}
+		return "blu3D0lph1n";
+	}
 	
 	public static void main(String[] args) {
 		String json = null;
 		try {	
 			XcriGenerateTree reader = new XcriGenerateTree();
-			reader.setSource(XCRI_URL);
 			reader.setFactory(new JsonFactory());
 			json = reader.generateDepartmentTree();
 			System.out.println(json);

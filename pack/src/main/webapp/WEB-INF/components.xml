@@ -70,7 +70,6 @@
 		<property name="target">
 		<bean class="uk.ac.ox.oucs.vle.XcriPopulatorImpl">
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
-				<property name="source" value="http://localhost:8080/test/XCRI_test.xml"/>
 				<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
 				<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 				<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
@@ -103,7 +102,7 @@
 
 	<bean id="uk.ac.ox.oucs.vle.XcriGenerateTree"
 		class="uk.ac.ox.oucs.vle.XcriGenerateTree">
-		<property name="source" value="http://localhost:8080/test/XCRI_test.xml"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<property name="factory">
 			<bean class="org.codehaus.jackson.JsonFactory"/>
 		</property>
