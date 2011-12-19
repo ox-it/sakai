@@ -40,8 +40,23 @@ public class SearchPage extends WebPage {
 	
 	String[] filters;
 
+	/**
+	 * This interface is for looking up facet results to transform them to nicer values.
+	 * @author buckett
+	 *
+	 * @param <T>
+	 */
 	interface Resolver<T> {
+		/**
+		 * Resolve all the values, this is so we can load all the data we need in one go.
+		 * @param values The values to lookup.
+		 * @return
+		 */
 		Map<String, T> lookup(List<String> values);
+		
+		/**
+		 * Display one of the resolved values.
+		 */
 		String display(T value);
 	}
 	

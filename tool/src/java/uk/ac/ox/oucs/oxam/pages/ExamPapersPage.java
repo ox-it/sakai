@@ -12,6 +12,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.HeaderlessCo
 import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.NoRecordsToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.Markup;
 import org.apache.wicket.markup.MarkupStream;
@@ -64,6 +65,8 @@ public class ExamPapersPage extends BasePage {
 				"examPapersTable", columns.toArray(new IColumn[0]), getDataProvider(), itemsPerPage);
 		table.addBottomToolbar(new NavigationToolbar(table));
 		table.addTopToolbar(new HeadersToolbar(table, null));
+		table.addBottomToolbar(new NoRecordsToolbar(table));
+
 		add(table);
 		
 		add(new Link<Void>("importData") {
