@@ -771,6 +771,9 @@ var Signup = function(){
                     if (user.units && user.units.length > 0) {
                         details += '<br />' + user.units.join(" / ");
                     }
+                    if (user.degreeProgram && user.degreeProgram.length > 0) {
+                        details += '<br />Degree Program: ' + user.degreeProgram;
+                    }
                     if (user.yearOfStudy && user.yearOfStudy.length > 0) {
                         details += '<br />Year of Study: ' + user.yearOfStudy;
                     }
