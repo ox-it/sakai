@@ -3,9 +3,11 @@ package uk.ac.ox.oucs.oxam.pages;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.comparators.ReverseComparator;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -14,12 +16,13 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
 import uk.ac.ox.oucs.oxam.pages.SearchPage.Resolver;
 
 public class SolrFacet<T> extends Panel {
+	
+	
 
 	public static final int FACET_LIMIT = 40;
 	
@@ -27,22 +30,24 @@ public class SolrFacet<T> extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
-	public SolrFacet(String id, final String facet, ResourceModel title, List<Count> values, final Resolver<T> resolver, final PageParameters pp) {
+	public SolrFacet(String id, final String facet, ResourceModel title, List<Count> values, FacetSort order, final Resolver<T> resolver, final PageParameters pp) {
 		super(id);
 		boolean hasTooMany = values.size() > FACET_LIMIT;
 		
 		final Map<String, T> displayValues;
 
+		// Preload display values.
 		if (resolver != null && values != null) {
 			ArrayList<String> lookups = new ArrayList<String>();
 			for (Count value: values) {
 				lookups.add(value.getName());
 			}
-			 displayValues = resolver.lookup(lookups);
+			 displayValues = resolver.load(lookups);
 		} else {
 			displayValues = Collections.emptyMap();
 		}
 		
+		Collections.sort(values, getSort(order));
 		
 		add(new Label("title", title));
 		
@@ -66,6 +71,50 @@ public class SolrFacet<T> extends Panel {
 		WebMarkupContainer tooMany = new WebMarkupContainer("too_many");
 		tooMany.setVisible(hasTooMany);
 		add(tooMany);
+	}
+
+	final static Comparator<Count> valueComparator = new Comparator<Count>() {
+		public int compare(Count o1, Count o2) {
+			return o1.getName().compareTo(o2.getName());
+		}
+	};
+	
+	final static Comparator<Count> countComparator = new Comparator<Count>() {
+		public int compare(Count o1, Count o2) {
+			return Long.signum(o1.getCount() - o2.getCount());
+		}
+	};
+	
+	class ComparatorChain<T> implements Comparator<T>  {
+
+		private Comparator<T> first;
+		private Comparator<T> second;
+
+		public ComparatorChain(Comparator<T> first, Comparator<T> second) {
+			this.first = first;
+			this.second = second;
+		}
+
+		public int compare(T o1, T o2) {
+			int result = first.compare(o1, o2);
+			if (result == 0) {
+				result = second.compare(o1, o2);
+			}
+			return result;
+		}
+	}
+	
+	
+	
+	private Comparator<? super Count> getSort(FacetSort order) {
+		Comparator<Count> first = (FacetSort.On.COUNT.equals(order.getOn()))?countComparator:valueComparator;
+		Comparator<Count> second = (FacetSort.On.COUNT.equals(order.getOn()))?valueComparator:countComparator;
+		
+		Comparator<Count> result = new ComparatorChain<Count>(first, second);
+		if(FacetSort.Order.DESC.equals(order.getOrder())) {
+			result = Collections.reverseOrder(result);
+		}
+		return result;
 	}
 
 	private class FacetListView extends ListView<Count> {

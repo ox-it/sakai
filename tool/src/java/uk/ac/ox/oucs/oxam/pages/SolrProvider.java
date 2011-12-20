@@ -1,7 +1,10 @@
 package uk.ac.ox.oucs.oxam.pages;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -9,13 +12,17 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
 import uk.ac.ox.oucs.oxam.components.AdvancedIDataProvider;
@@ -24,9 +31,16 @@ import uk.ac.ox.oucs.oxam.pages.SearchPage.Resolver;
 class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 {
 
+	private static final long serialVersionUID = 1L;
+
 	private SolrServer solr;
 	private String query;
-	private String[] filters;
+	private ArrayList<Filter> filters;
+	private Map<String, Resolver<? extends Object>>resolvers = new HashMap<String, Resolver<? extends Object>>();
+
+	private int first = 0;
+	private int count = 10;
+	private transient QueryResponse response;
 
 	public SolrProvider(SolrServer solr) {
 		this.solr = solr;
@@ -35,30 +49,31 @@ class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 	public SolrProvider(SolrServer solr, String query, String[] filters) {
 		this.solr = solr;
 		this.query = query;
-		this.filters = filters;
+		setFilters(filters);
 	}
 	
-	public String getQuery() {
-		return query;
-	}
-
 	public void setQuery(String query) {
 		this.query = query;
 	}
 
-	public String[] getFilters() {
-		return filters;
-	}
-
 	public void setFilters(String[] filters) {
-		this.filters = filters;
+		this.filters = new ArrayList<Filter>(filters.length);
+		for(int i = 0; i < filters.length; i++) {
+			String[] parts = filters[i].split(":");
+			if (parts != null && parts.length == 2) {
+				this.filters.add(new Filter(parts[0], parts[1]));
+			}
+		}
+	}
+	
+	public void setResolver(String facet, Resolver<? extends Object> resolver) {
+		this.resolvers.put(facet, resolver);
+	}
+	
+	protected Resolver<?> getResolver(String facet) {
+		return resolvers.get(facet);
 	}
 
-
-	private static final long serialVersionUID = 1L;
-	private int first = 0;
-	private int count = 10;
-	private transient QueryResponse response;
 
 	public void detach() {
 	}
@@ -102,7 +117,11 @@ class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 				addFacetField("exam_code", "paper_code", "academic_year", "term");
 		
 		if (filters != null) {
-			solrQuery.setFilterQueries(filters);
+			String[] filterQuery = new String[filters.size()];
+			for(int i = 0; i < filterQuery.length && i < filters.size(); i++) {
+				filterQuery[i] = filters.get(i).getQuery();
+			}
+			solrQuery.setFilterQueries(filterQuery);
 		}
 
 		try {
@@ -113,18 +132,69 @@ class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 		}
 	}
 	
-	public <T> Panel getFacet(String id, final String facet, final Resolver<T> resolver, final PageParameters pp) {
-		if (response == null) {
-			doSearch();
-		}
+	public <T> Panel getFacet(String id, final String facet, FacetSort sort, final Resolver<T> resolver, final PageParameters pp) {
+		doSearch();
 		List<Count> values = response.getFacetField(facet).getValues();
 		ResourceModel title = getFacetTitle(facet);
-		Panel panel = (values == null)?new EmptyPanel(id):new SolrFacet<T>(id, facet, title, values, resolver, pp);
+		Panel panel = (values == null || values.size() < 2 || values.size() > SolrFacet.FACET_LIMIT)?
+				new EmptyPanel(id):
+				new SolrFacet<T>(id, facet, title, values, sort, resolver, pp);
 		return panel;
+	}
+	
+	public ListView<?> getFilters(String id, final PageParameters pp) {
+		doSearch();
+		
+		final ListView<Filter> filterList = new ListView<Filter>(id, filters){
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void populateItem(ListItem<Filter> item) {
+				Filter filter = item.getModelObject();
+				item.add(new Label("field", filter.getFieldDisplay()));
+				item.add(new Label("value", filter.getValueDisplay()));
+				PageParameters linkParams = new PageParameters(pp);
+				linkParams.remove("items");
+				ArrayList<String> reduced = new ArrayList<String>(filters.size());
+				for (String filterParam: linkParams.getStringArray("filter")) {
+					if (!filterParam.equals(filter.field+":"+filter.value))
+						reduced.add(filterParam);
+				}
+				linkParams.put("filter", reduced.toArray(new String[]{}));
+				item.add(new BookmarkablePageLink<Void>("link", SearchPage.class, linkParams));
+			}
+
+		};
+		
+		return filterList;
+	}
+	
+	class Filter {
+		String field;
+		String value;
+		
+		Filter(String field, String value) {
+			this.field = field;
+			this.value = value;
+		}
+		
+		String getQuery() {
+			return field +":"+ ClientUtils.escapeQueryChars(value);
+		}
+		
+		ResourceModel getFieldDisplay() {
+			return getFacetTitle(field);
+		}
+		
+		String getValueDisplay() {
+			Resolver<?> resolver = getResolver(field);
+			return (resolver != null)?resolver.lookupDisplay(value):value;
+		}
+		
 	}
 
 	protected ResourceModel getFacetTitle(String facet) {
-		return new ResourceModel("label.facet."+facet);
+		return new ResourceModel("label.facet."+facet, "Unknown");
 	}
 
 	public void setFirst(int first) {

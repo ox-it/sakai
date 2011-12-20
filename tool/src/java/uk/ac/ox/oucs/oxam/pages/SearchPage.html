@@ -20,29 +20,30 @@
 	<div>
 		<input type="text" wicket:id="query"/>
 		<input wicket:id="search" type="submit" value="Search"/>
-		<input wicket:id="cancel" type="submit" value="Clear"/>
+		<input wicket:id="cancel" type="submit" value="Reset"/>
 	</div>
 	</form>
-	<div id="filters">
-		<h3>Applied Filters</h3>
-		<ul wicket:id="filters">
-			<li><span wicket:id="name">Filter Name</span><a wicket:id="link">Remove</a></li>
-		</ul>
-	</div>
-	
+
+
 	<div class="sidebar">
-	<div class="facet" wicket:id="paper_code_facet">
+		<div id="filters">
+			<h3>Applied Filters</h3>
+			<ul wicket:id="filters">
+				<li>
+					<span wicket:id="field">Paper</span> = 
+					<span wicket:id="value">A Paper</span> <a wicket:id="link">Remove</a>
+				</li>
+			</ul>
+		</div>
+		<div class="facet" wicket:id="paper_code_facet"></div>
+
+		<div class="facet" wicket:id="exam_code_facet"></div>
+
+		<div class="facet" wicket:id="year_facet"></div>
+
+		<div class="facet" wicket:id="term_facet"></div>
 	</div>
-	
-	<div class="facet" wicket:id="exam_code_facet">
-	</div>
-	
-	<div class="facet" wicket:id="year_facet">
-	</div>
-	
-	<div class="facet"  wicket:id="term_facet">
-	</div>
-	</div>
+
 	<div class="content">
 	<div class="results" wicket:id="results">
 	</div>
