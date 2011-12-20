@@ -29,6 +29,8 @@ public interface Person {
 	
 	public String getYearOfStudy();
 	
+	public String getDegreeProgram();
+	
 	public String getDepartmentName();
 	
 	public String getType();

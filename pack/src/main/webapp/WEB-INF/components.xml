@@ -62,6 +62,7 @@
 		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="portalService" ref="org.sakaiproject.portal.api.PortalService"/>
+		<property name="additionalUserDetails" ref="uk.ac.ox.oucs.vle.AdditionalUserDetails"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 

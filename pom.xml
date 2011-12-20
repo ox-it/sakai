@@ -13,6 +13,7 @@
 		<module>hbm</module>
 		<module>help</module>
 		<module>impl</module>
+		<module>ldap</module>
 		<module>pack</module>
 		<module>tool</module>
 	</modules>

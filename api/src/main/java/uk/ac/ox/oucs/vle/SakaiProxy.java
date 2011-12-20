@@ -5,6 +5,8 @@ public interface SakaiProxy {
 	public UserProxy getCurrentUser();
 
 	public UserProxy findUserById(String id);
+	
+	public UserProxy findStudentById(String id);
 
 	public UserProxy findUserByEmail(String email);
 	

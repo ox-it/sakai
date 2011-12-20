@@ -31,6 +31,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
+import uk.ac.ox.oucs.vle.AdditionalUserDetails;
 import uk.ac.ox.oucs.vle.SakaiProxy;
 import uk.ac.ox.oucs.vle.UserProxy;
 
@@ -56,6 +57,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private SiteService siteService;
 	
 	private PortalService portalService;
+	
+	private AdditionalUserDetails additionalUserDetails;
 	
 	private String fromAddress;
 	
@@ -83,6 +86,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		this.portalService = portalService;
 	}
 	
+	public void setAdditionalUserDetails(AdditionalUserDetails additionalUserDetails) {
+		this.additionalUserDetails = additionalUserDetails;
+	}
+	
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
 	}
@@ -102,6 +109,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public UserProxy findUserById(String id) {
 		try {
 			return wrapUserProxy(userService.getUser(id));
+		} catch (UserNotDefinedException unde) {
+			return null;
+		}
+	}
+	
+	public UserProxy findStudentById(String id) {
+		try {
+			return wrapStudentProxy(userService.getUser(id));
 		} catch (UserNotDefinedException unde) {
 			return null;
 		}
@@ -186,6 +201,25 @@ public class SakaiProxyImpl implements SakaiProxy {
 				sakaiUser.getProperties().getProperty("yearOfStudy"), 
 				sakaiUser.getProperties().getProperty("oakStatus"),
 				sakaiUser.getProperties().getProperty("primaryOrgUnit"),
+				null,
+				(units == null)?Collections.EMPTY_LIST:units);
+	}
+	
+	private UserProxy wrapStudentProxy(User sakaiUser) {
+		if(sakaiUser == null) {
+			return null;
+		}
+		
+		List<String> units = sakaiUser.getProperties().getPropertyList("units");
+		return new UserProxy(sakaiUser.getId(), sakaiUser.getEid(), 
+				sakaiUser.getFirstName(), sakaiUser.getLastName(), sakaiUser.getDisplayName(), 
+				sakaiUser.getEmail(),
+				sakaiUser.getDisplayId(),
+				sakaiUser.getProperties().getProperty("oakOSSID"), 
+				sakaiUser.getProperties().getProperty("yearOfStudy"), 
+				sakaiUser.getProperties().getProperty("oakStatus"),
+				sakaiUser.getProperties().getProperty("primaryOrgUnit"),
+				additionalUserDetails.getDegreeProgram(sakaiUser.getEid()),
 				(units == null)?Collections.EMPTY_LIST:units);
 	}
 

@@ -101,7 +101,7 @@ public class CourseGroupImpl implements CourseGroup {
 					Person person = new PersonImpl(user.getId(), 
 							user.getFirstName(), user.getLastName(), user.getDisplayName(), 
 							user.getEmail(), Collections.<String>emptyList(), 
-							user.getWebauthId(), user.getOssId(), null, 
+							user.getWebauthId(), user.getOssId(), null, null,
 							departmentName, user.getType());
 					administrators.add(person);
 				}
@@ -127,7 +127,7 @@ public class CourseGroupImpl implements CourseGroup {
 					Person person = new PersonImpl(user.getId(), 
 							user.getFirstName(), user.getLastName(), user.getDisplayName(), 
 							user.getEmail(), Collections.<String>emptyList(), 
-							user.getWebauthId(), user.getOssId(), null, 
+							user.getWebauthId(), user.getOssId(), null, null,
 							departmentName, user.getType());
 					superusers.add(person);
 				}

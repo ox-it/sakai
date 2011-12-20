@@ -1037,11 +1037,19 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 	
 	/**
-	 * Loads details about a user.
+	 * Loads details about a user without additionalUserDetails.
 	 * @return
 	 */
 	UserProxy loadUser(String id) {
 		return proxy.findUserById(id);
+	}
+	
+	/**
+	 * Loads details about a user with additionalUserDetails.
+	 * @return
+	 */
+	UserProxy loadStudent(String id) {
+		return proxy.findStudentById(id);
 	}
 	
 	public Department findPracDepartment(String primaryOrgUnit) {
