@@ -72,6 +72,15 @@ public class SakaiProxyTest implements SakaiProxy {
 		return null;
 	}
 	
+	public UserProxy findStudentById(String id) {
+		for (UserProxy user : users) {
+			if (id.equals(user.getId())) {
+				return user;
+			}
+		}
+		return null;
+	}
+	
 	/* (non-Javadoc)
 	 * @see uk.ac.ox.oucs.vle.proxy.SakaiProxy#findUserByEmail(java.lang.String)
 	 */
