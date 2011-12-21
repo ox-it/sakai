@@ -22,7 +22,7 @@ public class CourseSignupImpl implements CourseSignup {
 	}
 
 	public Person getUser() {
-		UserProxy user = service.loadUser(dao.getUserId());
+		UserProxy user = service.loadStudent(dao.getUserId());
 		Person person = null;
 		String departmentName = null;
 		if (user != null) {

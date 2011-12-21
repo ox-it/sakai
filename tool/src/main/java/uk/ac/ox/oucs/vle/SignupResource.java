@@ -505,9 +505,7 @@ public class SignupResource {
 			return Response.noContent().build();
 		}
 		String[] params = courseService.getCourseSignupFromEncrypted(encoded);
-		for (int i=0; i<params.length; i++) {
-			System.out.println("decoded parameter ["+params[i]+"]");
-		}
+		
 		String signupId = params[0];
 		//String status = params[1];
 		String placementId = params[2];

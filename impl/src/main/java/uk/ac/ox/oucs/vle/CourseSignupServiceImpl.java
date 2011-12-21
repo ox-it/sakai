@@ -812,7 +812,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			log.warn("Failed to find user for sending email: "+ userId);
 			return;
 		}
-		UserProxy signupUser = proxy.findUserById(signupDao.getUserId());
+		UserProxy signupUser = proxy.findStudentById(signupDao.getUserId());
 		if (signupUser == null) {
 			log.warn("Failed to find the user who made the signup: "+ signupDao.getUserId());
 			return;
@@ -825,7 +825,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				proxy.getCurrentUser().getDisplayName(),
 				componentDetails,
 				signupDao.getGroup().getTitle(),
-				signupUser.getDisplayName()
+				signupUser.getDisplayName(),
+				signupUser.getDegreeProgram()
 		};
 		Object[] bodyData = baseBodyData;
 		if (additionalBodyData != null) {
