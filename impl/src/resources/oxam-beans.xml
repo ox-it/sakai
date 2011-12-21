@@ -6,84 +6,101 @@
   http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
   http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
-  
-  
-    <bean id="examPaperService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean ">
-        <property name="transactionManager" ref="transactionManager"/>
+
+
+    <bean id="examPaperService"
+        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean ">
+        <property name="transactionManager" ref="transactionManager" />
         <property name="target">
             <bean class="uk.ac.ox.oucs.oxam.logic.ExamPaperServiceImpl"
-             init-method="init" autowire="byType">
-             <property name="indexing" value="false" />
-             </bean>
+                init-method="init" autowire="byType">
+                <property name="indexing" value="false" />
+            </bean>
         </property>
         <property name="transactionAttributes">
             <props>
                 <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
                 <prop key="count*">PROPAGATION_REQUIRED,readOnly</prop>
                 <prop key="*">PROPAGATION_REQUIRED</prop>
-             </props>
+            </props>
         </property>
     </bean>
-    
 
-  
+
+
     <!-- DAO Stuff -->
-    <bean id="statementStore" class="uk.ac.ox.oucs.oxam.dao.StatementStore" init-method="init">
-        <property name="vendor" value="mysql"/>
+    <bean id="statementStore" class="uk.ac.ox.oucs.oxam.dao.StatementStore"
+        init-method="init">
+        <property name="vendor" value="mysql" />
     </bean>
 
-    
+
     <bean id="examPaperDao" class="uk.ac.ox.oucs.oxam.dao.ExamPaperDaoImpl"
         init-method="init">
-        <property name="termService" ref="termService"/>
-        <property name="categoryService" ref="categoryService"/>
-        <property name="academicYearService" ref="academicYearService"/>
+        <property name="termService" ref="termService" />
+        <property name="categoryService" ref="categoryService" />
+        <property name="academicYearService" ref="academicYearService" />
         <property name="dataSource" ref="dataSource" />
-        <property name="statementStore" ref="statementStore"/>
+        <property name="statementStore" ref="statementStore" />
     </bean>
-    
+
     <bean id="examPaperFileDao" class="uk.ac.ox.oucs.oxam.dao.ExamPaperFileDaoImpl"
         init-method="init">
         <property name="dataSource" ref="dataSource" />
-        <property name="statementStore" ref="statementStore"/>
+        <property name="statementStore" ref="statementStore" />
     </bean>
-    
+
     <bean id="examDao" class="uk.ac.ox.oucs.oxam.dao.ExamDaoImpl"
         init-method="init">
         <property name="dataSource" ref="dataSource" />
-        <property name="statementStore" ref="statementStore"/>
+        <property name="statementStore" ref="statementStore" />
     </bean>
-    
+
     <bean id="paperDao" class="uk.ac.ox.oucs.oxam.dao.PaperDaoImpl"
         init-method="init">
         <property name="dataSource" ref="dataSource" />
-        <property name="statementStore" ref="statementStore"/>
+        <property name="statementStore" ref="statementStore" />
     </bean>
-    
+
     <bean id="indexingService" class="uk.ac.ox.oucs.oxam.logic.IndexingServiceImpl"
         init-method="init" destroy-method="destroy">
-        <property name="server" ref="solrServer"/>
+        <property name="server" ref="solrServer" />
     </bean>
-    
-    <bean id="solrServer" class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer">
+
+    <bean id="solrServer"
+        class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer">
         <constructor-arg>
-            <value>http://localhost:8080/oxam-solr/</value>
+            <!-- Get the solr server from the config -->
+            <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                <property name="targetObject">
+                    <ref bean="sakaiProxy"/>
+                </property>
+                <property name="targetMethod">
+                    <value>getConfigParam</value>
+                </property>
+                <property name="arguments">
+                    <list>
+                        <value>solr.server</value>
+                    </list>
+                </property>
+            </bean>
         </constructor-arg>
     </bean>
-  
-  <bean id="termService" class="uk.ac.ox.oucs.oxam.logic.TermServiceImpl"
-    init-method="init">
-    <property name="valueSource" ref="termValueSource"/>
-    <!-- Used to tell the indexing service what the max number for a term order is. -->
-    <property name="indexingServiceImpl" ref="indexingService"/>
-  </bean>
-  
+
+    <bean id="termService" class="uk.ac.ox.oucs.oxam.logic.TermServiceImpl"
+        init-method="init">
+        <property name="valueSource" ref="termValueSource" />
+        <!-- Used to tell the indexing service what the max number for a
+            term order is. -->
+        <property name="indexingServiceImpl" ref="indexingService" />
+    </bean>
+
     <bean id="categoryService" class="uk.ac.ox.oucs.oxam.logic.CategoryServiceImpl"
-    init-method="init">
-    <property name="valueSource" ref="categoryValueSource"/>
-  </bean>
-  
-  <bean id="academicYearService" class="uk.ac.ox.oucs.oxam.logic.AcademicYearServiceImpl"/>
-  
-  
+        init-method="init">
+        <property name="valueSource" ref="categoryValueSource" />
+    </bean>
+
+    <bean id="academicYearService" class="uk.ac.ox.oucs.oxam.logic.AcademicYearServiceImpl" />
+
+
 </beans>

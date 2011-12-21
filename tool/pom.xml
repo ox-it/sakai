@@ -22,13 +22,15 @@
         <dependency>
             <groupId>uk.ac.ox.oucs.vle</groupId>
             <artifactId>oxam-api</artifactId>
-            <scope>compile</scope>
         </dependency>
-
+        
         <dependency>
+            <!-- This is so we can easily test the importer.
+                 It means Eclipse doesn't flag up incorrect usage, but a command line build maven build
+                 should show any problems as it has proper classpath isolation for different scopes. -->
             <groupId>uk.ac.ox.oucs.vle</groupId>
             <artifactId>oxam-impl</artifactId>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
 
         <!-- third party dependencies -->
@@ -75,9 +77,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- Want the WorkbookFactory class.
-            This is used for reading in the Excel files for importing large
-            ammounts of data. -->
         <!-- Used for validating the imports -->
         <dependency>
             <groupId>org.apache.bval</groupId>
@@ -107,14 +106,28 @@
             <version>2.0</version>
         </dependency>
         <dependency>
+            <!-- Could be in the API, but SolrJ has quite a few dependencies.
+                 So we're duplicating it in components and in the tool. The other option would
+                 have been to write a custom API which wraps the SolrJ API but this is too much
+                 work. -->
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-solrj</artifactId>
+        </dependency>
+        
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring</artifactId>
-            <scope>compile</scope>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
 
 

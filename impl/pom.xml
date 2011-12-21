@@ -43,11 +43,11 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
         </dependency>
-
         <dependency>
+            <!-- Could be in the API, but SolrJ has quite a few dependencies.
+                 However SolrJ has quite a few dependencies. -->
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
-            <version>3.4.0</version>
             <exclusions>
                 <!-- We don't use this, would be nice to be optional in solr.
                      It pulls in other things as well which is why I'm excluding it -->
@@ -113,4 +113,13 @@
         </resources>
     </build>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr-solrj</artifactId>
+                <version>3.4.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

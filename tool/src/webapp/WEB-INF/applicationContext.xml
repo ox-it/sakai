@@ -9,5 +9,26 @@
     <import resource="classpath:/import-beans.xml"/>
     
     <bean id="location" class="uk.ac.ox.oucs.oxam.logic.ServletLocation"/>
+    
+    <!-- This should be identical to the one in the implmentation. -->
+    <bean id="solrServer"
+        class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer">
+        <constructor-arg>
+            <!-- Get the solr server from the config -->
+            <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                <property name="targetObject">
+                    <ref bean="sakaiProxy"/>
+                </property>
+                <property name="targetMethod">
+                    <value>getConfigParam</value>
+                </property>
+                <property name="arguments">
+                    <list>
+                        <value>solr.server</value>
+                    </list>
+                </property>
+            </bean>
+        </constructor-arg>
+    </bean>
        
 </beans>

@@ -77,17 +77,7 @@ public class Importer {
 		// Must then set the URL on the examPaper.
 		PaperFile file = paperFileService.get(examPaper.getYear().toString(), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
 		
-		paperFileService.deposit(file, new Callback<OutputStream>() {
-			public void callback(OutputStream output) {
-				try {
-					IOUtils.copy(inputStream, output);
-				} catch (IOException e) {
-					throw new RuntimeException("Failed to copy file: "+ e.getMessage());
-				} finally {
-					// We don't close the streams here as we didn't create them here.
-				}
-			}
-		});
+		paperFileService.deposit(file,inputStream);
 		examPaper.setPaperFile(file.getURL());
 		examPaperService.saveExamPaper(examPaper);
 	}
