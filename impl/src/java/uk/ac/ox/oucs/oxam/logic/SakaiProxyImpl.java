@@ -11,7 +11,6 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-import pom.logic.SakaiProxy;
 
 /**
  * Implementation of our SakaiProxy API
@@ -142,8 +141,5 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
 	}
-	
-	public void depositFile(String path, Callback<OutputStream> callback) {
-		
-	}
+
 }

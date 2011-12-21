@@ -1,8 +1,7 @@
-package pom.logic;
+package uk.ac.ox.oucs.oxam.logic;
 
 import java.io.OutputStream;
 
-import uk.ac.ox.oucs.oxam.logic.Callback;
 
 /**
  * An interface to abstract all Sakai related API calls in a central method that can be injected into our app.

@@ -21,14 +21,13 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.IValidationError;
 import org.apache.wicket.validation.ValidationError;
-import org.apache.wicket.validation.validator.PatternValidator;
 
 import pom.tool.pages.BasePage;
 import uk.ac.ox.oucs.oxam.components.FeedbackLabel;
 import uk.ac.ox.oucs.oxam.logic.Callback;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.logic.PaperFile;
-import uk.ac.ox.oucs.oxam.logic.PaperFileServiceImpl;
+import uk.ac.ox.oucs.oxam.logic.PaperFileService;
 import uk.ac.ox.oucs.oxam.logic.TermService;
 import uk.ac.ox.oucs.oxam.model.AcademicYear;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
@@ -40,7 +39,7 @@ public class EditExamPaper extends BasePage {
 	private ExamPaperService examPaperService;
 	
 	@SpringBean
-	private PaperFileServiceImpl paperFileService;
+	private PaperFileService paperFileService;
 	
 	@SpringBean
 	private TermService termService;
@@ -149,16 +148,11 @@ public class EditExamPaper extends BasePage {
 			if (fileUpload != null && fileUpload.getSize() > 0) {
 				//fileUpload.
 				PaperFile paperFile = paperFileService.get(examPaper.getYear().toString(), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
-				paperFileService.deposit(paperFile, new Callback<OutputStream>() {
-
-					public void callback(OutputStream value) {
-						try {
-							IOUtils.copy(fileUpload.getInputStream(), value);
-						} catch (IOException e) {
-							error(getString("file.upload.failed"));
-						}
-					}
-				});
+				try {
+					paperFileService.deposit(paperFile, fileUpload.getInputStream());
+				} catch (IOException e) {
+					error(getString("file.upload.failed"));
+				}
 				examPaper.setPaperFile(paperFile.getURL());
 			}
 			if (included.getModelObject() != null) {

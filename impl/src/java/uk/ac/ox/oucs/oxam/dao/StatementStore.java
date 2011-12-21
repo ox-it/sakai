@@ -7,7 +7,7 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import pom.logic.SakaiProxy;
+import uk.ac.ox.oucs.oxam.logic.SakaiProxy;
 
 /**
  * Class to load SQL statements, statements can be overridden with vendor specific versions.

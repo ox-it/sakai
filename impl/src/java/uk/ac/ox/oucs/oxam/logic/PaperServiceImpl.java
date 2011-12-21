@@ -3,7 +3,6 @@ package uk.ac.ox.oucs.oxam.logic;
 import java.io.OutputStream;
 import java.util.List;
 
-import pom.logic.SakaiProxy;
 import uk.ac.ox.oucs.oxam.dao.PaperDao;
 import uk.ac.ox.oucs.oxam.model.Paper;
 
@@ -26,20 +25,6 @@ public class PaperServiceImpl implements PaperService {
 
 	public void savePaper(Paper paper) throws RuntimeException {
 		dao.savePaper(paper);
-	}
-
-	public Upload mapToUpload(int year, String term, String paper) {
-		
-		return null;//  year+ "/"+ term.toLowerCase()+ "/"+ paper.toLowerCase();
-	}
-
-	public void depositUpload(Upload path, Callback<OutputStream> callback) {
-		//proxy.depositFile(path, callback);
-	}
-
-	public boolean uploadExists(Upload upload) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 }

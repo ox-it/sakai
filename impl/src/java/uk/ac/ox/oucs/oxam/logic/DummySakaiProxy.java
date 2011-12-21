@@ -5,7 +5,6 @@ import java.io.OutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import pom.logic.SakaiProxy;
 
 public class DummySakaiProxy implements SakaiProxy {
 	

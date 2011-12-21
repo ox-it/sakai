@@ -1,28 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
         <artifactId>oxam</artifactId>
         <groupId>uk.ac.ox.oucs.vle</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-	
-	<name>oxam - Components</name>
-	<groupId>uk.ac.ox.oucs.vle</groupId>
-	<artifactId>oxam-pack</artifactId>
 
-	<packaging>sakai-component</packaging>
+    <name>oxam - Components</name>
+    <groupId>uk.ac.ox.oucs.vle</groupId>
+    <artifactId>oxam-pack</artifactId>
 
-	<properties>
-    	<deploy.target>components</deploy.target>
-  	</properties>
-  	
-  	<dependencies>
+    <packaging>sakai-component</packaging>
+
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+
+    <dependencies>
 
         <!-- internal dependencies -->
         <dependency>
             <groupId>uk.ac.ox.oucs.vle</groupId>
-		<artifactId>oxam-impl</artifactId>
+            <artifactId>oxam-impl</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.sf.ehcache</groupId>
+                    <artifactId>ehcache-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>zookeeper</artifactId>
+                    <groupId>org.apache.zookeeper</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>

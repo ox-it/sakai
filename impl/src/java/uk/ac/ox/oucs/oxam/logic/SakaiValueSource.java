@@ -20,7 +20,8 @@ import org.sakaiproject.exception.TypeException;
 
 public class SakaiValueSource implements ValueSource, Observer {
 
-	private static final String OXAM_CONTENT_SITE_ID = "oxam.content.site.id";
+	// TODO Move somewhere better.
+	public static final String OXAM_CONTENT_SITE_ID = "oxam.content.site.id";
 
 	private final static Log LOG = LogFactory.getLog(SakaiValueSource.class);
 	
@@ -125,7 +126,7 @@ public class SakaiValueSource implements ValueSource, Observer {
 			return null;
 		}
 		String siteCollection = chs.getSiteCollection(siteId);
-		String filePath = siteCollection+ "/"+ file;
+		String filePath = siteCollection+ file;
 		return filePath;
 	}
 

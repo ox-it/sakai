@@ -1,54 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
         <artifactId>oxam</artifactId>
         <groupId>uk.ac.ox.oucs.vle</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-	
-	<name>oxam - Implementation</name>
-	<groupId>uk.ac.ox.oucs.vle</groupId>
-		<artifactId>oxam-impl</artifactId>
 
-	<packaging>jar</packaging>
-	
-  	<dependencies>
+    <name>OXAM - Implementation</name>
+    <groupId>uk.ac.ox.oucs.vle</groupId>
+    <artifactId>oxam-impl</artifactId>
 
-    	<!-- project dependencies -->
-    	<dependency>
-			<groupId>uk.ac.ox.oucs.vle</groupId>
-		<artifactId>oxam-api</artifactId>
-		</dependency>
-    	
-    	<!-- third party dependencies -->
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>commons-configuration</groupId>
-			<artifactId>commons-configuration</artifactId>
-		</dependency>
+    <packaging>jar</packaging>
+
+    <dependencies>
+
+        <!-- project dependencies -->
+        <dependency>
+            <groupId>uk.ac.ox.oucs.vle</groupId>
+            <artifactId>oxam-api</artifactId>
+        </dependency>
+
+        <!-- third party dependencies -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
         </dependency>
-		
-		<!-- Sakai dependencies -->
+
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-solrj</artifactId>
+            <version>3.4.0</version>
+            <exclusions>
+                <!-- We don't use this, would be nice to be optional in solr.
+                     It pulls in other things as well which is why I'm excluding it -->
+                <exclusion>
+                    <artifactId>zookeeper</artifactId>
+                    <groupId>org.apache.zookeeper</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Sakai dependencies -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
@@ -58,9 +68,9 @@
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
         <dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-  			<artifactId>sakai-kernel-util</artifactId>
-		</dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
@@ -70,11 +80,13 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <version>10.8.1.2</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -82,19 +94,14 @@
             <version>5.1.18</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-solrj</artifactId>
-            <version>3.4.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <scope>test</scope>
         </dependency>
-  	</dependencies>
-  	
-	<build>
-		<resources>
+    </dependencies>
+
+    <build>
+        <resources>
             <resource>
                 <directory>${basedir}/src/resources</directory>
                 <includes>
@@ -104,6 +111,6 @@
                 </includes>
             </resource>
         </resources>
-	</build>
-	
+    </build>
+
 </project>

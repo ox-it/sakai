@@ -15,12 +15,9 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-import pom.logic.ProjectLogic;
-import pom.logic.SakaiProxy;
-import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
+import uk.ac.ox.oucs.oxam.logic.SakaiProxy;
 import uk.ac.ox.oucs.oxam.pages.ExamPapersPage;
 
 
@@ -40,10 +37,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	
 	@SpringBean(name="sakaiProxy")
 	protected SakaiProxy sakaiProxy;
-	
-//	@SpringBean(name="pom.logic.ProjectLogic")
-	protected ProjectLogic projectLogic;
-	
+		
 	Link<Void> firstLink;
 	Link<Void> secondLink;
 	Link<Void> thirdLink;
@@ -68,30 +62,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		add(firstLink);
 		
 		
-		
-		//second link
-		secondLink = new Link<Void>("secondLink") {
-			private static final long serialVersionUID = 1L;
-			public void onClick() {
-				setResponsePage(new SecondPage());
-			}
-		};
-		secondLink.add(new Label("secondLinkLabel",new ResourceModel("link.second")).setRenderBodyOnly(true));
-		secondLink.add(new AttributeModifier("title", true, new ResourceModel("link.second.tooltip")));
-		add(secondLink);
-		
-		
-		
-		//third link
-		thirdLink = new Link<Void>("thirdLink") {
-			private static final long serialVersionUID = 1L;
-			public void onClick() {
-				setResponsePage(new ExamPapersPage());
-			}
-		};
-		thirdLink.add(new Label("thirdLinkLabel",new StringResourceModel("link.third", null, new String[] {"3"})).setRenderBodyOnly(true));
-		thirdLink.add(new AttributeModifier("title", true, new ResourceModel("link.third.tooltip")));
-		add(thirdLink);
 		
 		examPapers = new Link<Void>("examPapers") {
 			private static final long serialVersionUID = 1L;

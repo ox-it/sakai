@@ -7,7 +7,7 @@ public class PaperFileImpl implements PaperFile {
 	private Location location;
 	
 	public PaperFileImpl(String year, String term, String paperCode, String extension, Location location) {
-		this.path = "/uploads"+ year + "/"+ term+ "/"+ paperCode.toLowerCase()+ "."+ extension;
+		this.path = "/uploads/"+ year + "/"+ term+ "/"+ paperCode.toLowerCase()+ "."+ extension;
 		this.location = location;
 	}
 

@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ox.oucs.oxam.logic.CategoryService;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
-import uk.ac.ox.oucs.oxam.logic.PaperFileServiceImpl;
+import uk.ac.ox.oucs.oxam.logic.LocalPaperFileServiceImpl;
 import uk.ac.ox.oucs.oxam.logic.TermService;
 import uk.ac.ox.oucs.oxam.readers.Import.ExamPaperRow;
 import uk.ac.ox.oucs.oxam.readers.SheetImporter.Format;
@@ -47,7 +47,7 @@ public class FullImportTest {
 		importer.setExamPaperService(service);
 		importer.setCategoryService(categoryService);
 		importer.setTermService(termService);
-		importer.setPaperFileService(new PaperFileServiceImpl());
+		importer.setPaperFileService(new LocalPaperFileServiceImpl());
 		
 		import1 = importer.newImport();
 	}

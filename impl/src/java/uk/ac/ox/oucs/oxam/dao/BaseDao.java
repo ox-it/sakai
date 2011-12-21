@@ -12,7 +12,7 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
-import pom.logic.SakaiProxy;
+import uk.ac.ox.oucs.oxam.logic.SakaiProxy;
 
 public abstract class BaseDao extends JdbcDaoSupport {
 

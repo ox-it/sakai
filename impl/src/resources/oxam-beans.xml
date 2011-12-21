@@ -25,10 +25,7 @@
         </property>
     </bean>
     
-    
-    <bean id="paperFileService" class="uk.ac.ox.oucs.oxam.logic.PaperFileServiceImpl">
-        <property name="fileSystemLocation" ref="location"/>
-    </bean>
+
   
     <!-- DAO Stuff -->
     <bean id="statementStore" class="uk.ac.ox.oucs.oxam.dao.StatementStore" init-method="init">

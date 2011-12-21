@@ -23,6 +23,41 @@
         <property name="serverConfigurationService"
             ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-
     </bean>
+    
+    <!-- Todo should really just use this one raw. -->
+    <alias name="javax.sql.DataSource" alias="dataSource"/>
+    
+    <!--Don't want to use the hibernate transaction manager in Sakai so create our own. -->
+    <bean id="transactionManager"
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    
+    <bean id="location" class="uk.ac.ox.oucs.oxam.logic.SakaiLocation"
+        init-method="init">
+        <property name="contentHostingservice" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
+    
+        <!-- Get the term data from the classpath -->
+    <bean id="termValueSource"
+        class="uk.ac.ox.oucs.oxam.logic.SakaiValueSource">
+        <property name="contentHostingservice" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="resource" value="/terms.csv"/>
+    </bean>
+    
+    <!-- Get the categories data from the classpath -->
+    <bean id="categoryValueSource"
+        class="uk.ac.ox.oucs.oxam.logic.SakaiValueSource">
+        <property name="contentHostingservice" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="resource" value="/categories.csv"/>
+    </bean>
+    
 </beans>

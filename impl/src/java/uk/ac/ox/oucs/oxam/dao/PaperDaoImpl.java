@@ -19,7 +19,7 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
-import pom.logic.SakaiProxy;
+import uk.ac.ox.oucs.oxam.logic.SakaiProxy;
 import uk.ac.ox.oucs.oxam.model.Exam;
 import uk.ac.ox.oucs.oxam.model.Paper;
 

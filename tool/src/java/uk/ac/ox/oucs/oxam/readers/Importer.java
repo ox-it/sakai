@@ -18,7 +18,7 @@ import uk.ac.ox.oucs.oxam.logic.Callback;
 import uk.ac.ox.oucs.oxam.logic.CategoryService;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.logic.PaperFile;
-import uk.ac.ox.oucs.oxam.logic.PaperFileServiceImpl;
+import uk.ac.ox.oucs.oxam.logic.PaperFileService;
 import uk.ac.ox.oucs.oxam.logic.TermService;
 import uk.ac.ox.oucs.oxam.model.AcademicYear;
 import uk.ac.ox.oucs.oxam.model.Category;
@@ -34,7 +34,7 @@ public class Importer {
 	
 	private Validator validator;
 	private ExamPaperService examPaperService;
-	private PaperFileServiceImpl paperFileService;
+	private PaperFileService paperFileService;
 	private TermService termService;
 	private CategoryService categoryService;
 
@@ -56,7 +56,7 @@ public class Importer {
 		this.categoryService = categoryService;
 	}
 	
-	public void setPaperFileService(PaperFileServiceImpl paperFileService) {
+	public void setPaperFileService(PaperFileService paperFileService) {
 		this.paperFileService = paperFileService;
 	}
 	
