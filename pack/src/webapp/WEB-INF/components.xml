@@ -2,22 +2,9 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-
-	<!--  SakaiProxy -->
- 	<bean id="pom.logic.SakaiProxy"
-    	class="pom.logic.SakaiProxyImpl"
-        init-method="init">
-        
-        <!-- API injection -->
-        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
-        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-		
-	</bean>
+    
+    <import resource="classpath:/sakai-beans.xml"/>
+    <import resource="classpath:/oxam-beans.xml"/>
 
 
 	<!-- Cache: ttl=1 hour -->

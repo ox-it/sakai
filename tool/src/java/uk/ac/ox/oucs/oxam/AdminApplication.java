@@ -1,4 +1,4 @@
-package pom.tool;
+package uk.ac.ox.oucs.oxam;
 
 import org.apache.wicket.IConverterLocator;
 import org.apache.wicket.Page;
@@ -22,7 +22,7 @@ import uk.ac.ox.oucs.oxam.model.AcademicYear;
  * @author Steve Swinsburg (steve.swinsburg@anu.edu.au)
  *
  */
-public class MyApplication extends WebApplication {    
+public class AdminApplication extends WebApplication {    
    
 	/**
 	 * Configure your app here
@@ -79,7 +79,7 @@ public class MyApplication extends WebApplication {
 	/**
      * Constructor
      */
-	public MyApplication()
+	public AdminApplication()
 	{
 	}
 	

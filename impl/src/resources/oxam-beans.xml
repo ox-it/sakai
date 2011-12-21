@@ -31,7 +31,8 @@
     <!-- DAO Stuff -->
     <bean id="statementStore" class="uk.ac.ox.oucs.oxam.dao.StatementStore"
         init-method="init">
-        <property name="vendor" value="mysql" />
+        <!-- Just use the value from the Sakai Proxy.  -->
+        <!-- <property name="vendor" value="mysql" />  -->
     </bean>
 
 
@@ -81,6 +82,7 @@
                 <property name="arguments">
                     <list>
                         <value>solr.server</value>
+                        <null></null>
                     </list>
                 </property>
             </bean>

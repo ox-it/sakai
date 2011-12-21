@@ -28,7 +28,7 @@ import uk.ac.ox.oucs.oxam.model.Term;
 
 //TODO Look at @Parameterized for MySQL/Derby testing.
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations= {"/context.xml","/oxam-beans.xml"})
+@ContextConfiguration(locations= {"/oxam-beans.xml", "/context.xml"})
 @Transactional
 public class ExamPaperServiceImplTest {
 

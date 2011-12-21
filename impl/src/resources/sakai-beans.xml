@@ -7,10 +7,10 @@
   http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
   
-  <!-- This is the proxy for when we're running in Sakai. -->
+    <!-- This is the proxy for when we're running in Sakai. -->
 
     <bean id="sakaiProxy" class="uk.ac.oucs.oxam.logic.SakaiProxyImpl"
-        init-method="init">
+    init-method="init">
         <property name="securityService"
             ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="sessionManager"

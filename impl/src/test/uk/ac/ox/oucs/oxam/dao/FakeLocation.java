@@ -2,7 +2,7 @@ package uk.ac.ox.oucs.oxam.dao;
 
 import uk.ac.ox.oucs.oxam.logic.Location;
 
-public class TestLocation implements Location {
+public class FakeLocation implements Location {
 
 	public String getPrefix() {
 		return "";

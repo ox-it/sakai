@@ -4,15 +4,14 @@
 	 xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
 	 version="2.4">
 
-	<display-name>sakai.oxam</display-name>
+	<display-name>OXAM</display-name>
 
-	<!--  This application's servlet class -->
 	<servlet>
 		<servlet-name>sakai.oxam.admin</servlet-name>
 	    <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
 	    <init-param>
 	      	<param-name>applicationClassName</param-name>
-	      	<param-value>pom.tool.MyApplication</param-value>
+	      	<param-value>uk.ac.ox.oucs.oxam.AdminApplication</param-value>
 	    </init-param>
 		<load-on-startup>1</load-on-startup>
   	</servlet>
@@ -46,39 +45,40 @@
 
 
 	<!-- Sakai Request Filter -->
-<!-- 	<filter> -->
-<!-- 		<filter-name>sakai.request</filter-name> -->
-<!-- 		<filter-class>org.sakaiproject.util.RequestFilter</filter-class> -->
-<!-- 	</filter> -->
-<!-- 	<filter-mapping> -->
-<!-- 		<filter-name>sakai.request</filter-name> -->
-<!-- 		<servlet-name>sakai.oxam.browse</servlet-name> -->
-<!-- 		<dispatcher>REQUEST</dispatcher> -->
-<!-- 		<dispatcher>FORWARD</dispatcher> -->
-<!-- 		<dispatcher>INCLUDE</dispatcher> -->
-<!-- 	</filter-mapping> -->
-<!--    <filter-mapping> -->
-<!--        <filter-name>sakai.request</filter-name> -->
-<!--        <servlet-name>sakai.oxam.admin</servlet-name> -->
-<!--        <dispatcher>REQUEST</dispatcher> -->
-<!--        <dispatcher>FORWARD</dispatcher> -->
-<!--        <dispatcher>INCLUDE</dispatcher> -->
-<!--    </filter-mapping> -->
+	<filter>
+		<filter-name>sakai.request</filter-name>
+		<filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>sakai.request</filter-name>
+		<servlet-name>sakai.oxam.browse</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+   <filter-mapping>
+       <filter-name>sakai.request</filter-name>
+       <servlet-name>sakai.oxam.admin</servlet-name>
+       <dispatcher>REQUEST</dispatcher>
+       <dispatcher>FORWARD</dispatcher>
+       <dispatcher>INCLUDE</dispatcher>
+   </filter-mapping>
 	
 	
 	<!-- Sakai Tool Listener -->
-<!-- 	<listener> -->
-<!-- 		<listener-class>org.sakaiproject.util.ToolListener</listener-class> -->
-<!-- 	</listener> -->
+	<listener>
+		<listener-class>org.sakaiproject.util.ToolListener</listener-class>
+	</listener>
 	
 	<!-- Sakai Spring Listener -->
-<!-- 	<listener> -->
-<!-- 		<listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class> -->
-<!-- 	</listener> -->
+	<listener>
+		<listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+	</listener>
 
-   <listener>
-       <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-   </listener>
+    <!-- Stanard Spring loader, for use outside Sakai -->
+<!--    <listener> -->
+<!--        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class> -->
+<!--    </listener> -->
 	
 	
 

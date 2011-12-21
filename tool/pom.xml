@@ -11,7 +11,6 @@
     </parent>
 
     <name>OXAM - Tool</name>
-    <groupId>uk.ac.ox.oucs.vle</groupId>
     <artifactId>oxam-tool</artifactId>
 
     <packaging>war</packaging>
@@ -127,7 +126,7 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
 
 

@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ox.oucs.oxam.model.Exam;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/context.xml", "/oxam-beans.xml"})
+@ContextConfiguration(locations={"/oxam-beans.xml", "/context.xml"})
 @Transactional
 public class ExamDaoImplTest {
 

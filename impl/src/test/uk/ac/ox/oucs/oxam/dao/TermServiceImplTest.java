@@ -25,9 +25,9 @@ public class TermServiceImplTest {
 		assertNull(termService.getByCode("P"));
 		assertEquals(5, termService.getAll().size());
 		// Check first
-		assertEquals("T", termService.getAll().iterator().next().getCode());
+		assertEquals("M", termService.getAll().iterator().next().getCode());
 		// Check last
-		assertEquals("M", termService.getAll().toArray(new Term[]{})[4].getCode());
+		assertEquals("L", termService.getAll().toArray(new Term[]{})[4].getCode());
 	}
 	
 }

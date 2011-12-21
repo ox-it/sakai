@@ -53,6 +53,7 @@ public class StatementStore {
 			if (stream != null) {
 				try {
 					statements.load(stream);
+					LOG.info("Statements file loaded: "+ file);
 				} catch (IOException e) {
 					throw new RuntimeException("Failed to load vendor file");
 				}
