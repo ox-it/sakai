@@ -1,7 +1,5 @@
 package uk.ac.ox.oucs.oxam.logic;
 
-import java.io.OutputStream;
-
 import org.apache.log4j.Logger;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;

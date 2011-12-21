@@ -63,12 +63,12 @@
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
@@ -130,25 +130,27 @@
         </dependency>
 
 
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
-            <scope>compile</scope>
-        </dependency>
+<!--         <dependency> -->
+<!--             <groupId>cglib</groupId> -->
+<!--             <artifactId>cglib-nodep</artifactId> -->
+<!--             <scope>compile</scope> -->
+<!--         </dependency> -->
+<!--         <dependency> -->
+<!--             <artifactId>dom4j</artifactId> -->
+<!--             <groupId>dom4j</groupId> -->
+<!--             <scope>compile</scope> -->
+<!--         </dependency> -->
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <artifactId>dom4j</artifactId>
-            <groupId>dom4j</groupId>
-            <scope>compile</scope>
-        </dependency>
+
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <scope>compile</scope>
+            <version>1.4</version>
         </dependency>
     </dependencies>
 

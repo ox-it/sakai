@@ -9,7 +9,7 @@
   
     <!-- This is the proxy for when we're running in Sakai. -->
 
-    <bean id="sakaiProxy" class="uk.ac.oucs.oxam.logic.SakaiProxyImpl"
+    <bean id="sakaiProxy" class="uk.ac.ox.oucs.oxam.logic.SakaiProxyImpl"
     init-method="init">
         <property name="securityService"
             ref="org.sakaiproject.authz.api.SecurityService" />
@@ -34,30 +34,35 @@
         <property name="dataSource" ref="dataSource" />
     </bean>
     
+    <bean id="paperFileService" class="uk.ac.ox.oucs.oxam.logic.SakaiPaperFileServiceImpl">
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="fileSystemLocation" ref="location"/>
+    </bean>
+    
     <bean id="location" class="uk.ac.ox.oucs.oxam.logic.SakaiLocation"
         init-method="init">
-        <property name="contentHostingservice" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     </bean>
     
         <!-- Get the term data from the classpath -->
     <bean id="termValueSource"
         class="uk.ac.ox.oucs.oxam.logic.SakaiValueSource">
-        <property name="contentHostingservice" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-        <property name="resource" value="/terms.csv"/>
+        <property name="file" value="/terms.csv"/>
     </bean>
     
     <!-- Get the categories data from the classpath -->
     <bean id="categoryValueSource"
         class="uk.ac.ox.oucs.oxam.logic.SakaiValueSource">
-        <property name="contentHostingservice" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-        <property name="resource" value="/categories.csv"/>
+        <property name="file" value="/categories.csv"/>
     </bean>
     
 </beans>

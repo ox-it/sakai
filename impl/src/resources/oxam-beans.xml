@@ -13,7 +13,12 @@
         <property name="transactionManager" ref="transactionManager" />
         <property name="target">
             <bean class="uk.ac.ox.oucs.oxam.logic.ExamPaperServiceImpl"
-                init-method="init" autowire="byType">
+                init-method="init">
+                <property name="examDao" ref="examDao"/>
+                <property name="examPaperDao" ref="examPaperDao"/>
+                <property name="examPaperFileDao" ref="examPaperFileDao"/>
+                <property name="indexingService" ref="indexingService"/>
+                <property name="paperDao" ref="paperDao"/>  
                 <property name="indexing" value="false" />
             </bean>
         </property>

@@ -20,7 +20,4 @@
     <property name="categoryService" ref="categoryService"/>
     <property name="academicYearService" ref="academicYearService"/>
   </bean>
-  
-  <bean id="location" class="uk.ac.ox.oucs.oxam.readers.TempLocation"/>
-  
 </beans>

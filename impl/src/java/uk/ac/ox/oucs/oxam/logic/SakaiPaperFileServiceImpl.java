@@ -4,7 +4,6 @@ import java.io.InputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.exception.IdInvalidException;
@@ -92,9 +91,6 @@ public class SakaiPaperFileServiceImpl implements PaperFileService {
 			resource.setContent(in);
 			contentHostingService.commitResource(resource);
 			LOG.debug("Sucessfully copied file to: "+ path);
-		} catch (VirusFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (OverQuotaException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

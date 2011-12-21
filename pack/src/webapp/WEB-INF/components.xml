@@ -3,8 +3,9 @@
 
 <beans>
     
-    <import resource="classpath:/sakai-beans.xml"/>
+
     <import resource="classpath:/oxam-beans.xml"/>
+    <import resource="classpath:/sakai-beans.xml"/>
 
 
 	<!-- Cache: ttl=1 hour -->
