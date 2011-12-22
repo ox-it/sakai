@@ -2,10 +2,14 @@ package uk.ac.ox.oucs.oxam.logic;
 
 import java.io.InputStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.api.Notification;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -88,10 +92,15 @@ public class SakaiPaperFileServiceImpl implements PaperFileService {
 				// As they are too serious to continue.
 			} catch (IdUnusedException iue) {
 				// Will attempt to create containing folders.
+				
 				resource = contentHostingService.addResource(path);
+				// Like the basename function.
+				String filename = StringUtils.substringAfterLast(path, "/");
+				ResourceProperties props = resource.getPropertiesEdit();
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, filename);	
 			}
 			resource.setContent(in);
-			contentHostingService.commitResource(resource);
+			contentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
 			LOG.debug("Sucessfully copied file to: "+ path);
 		} catch (OverQuotaException e) {
 			// TODO Auto-generated catch block
