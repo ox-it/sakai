@@ -75,7 +75,7 @@ public class Importer {
 	public void persist(ExamPaper examPaper, final InputStream inputStream) {
 		// Need to map it to a URL, then upload it.
 		// Must then set the URL on the examPaper.
-		PaperFile file = paperFileService.get(examPaper.getYear().toString(), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
+		PaperFile file = paperFileService.get(Integer.toString(examPaper.getYear().getYear()), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
 		
 		paperFileService.deposit(file,inputStream);
 		examPaper.setPaperFile(file.getURL());
@@ -83,7 +83,7 @@ public class Importer {
 	}
 	
 	public boolean paperExists(ExamPaper examPaper) {
-		PaperFile file = paperFileService.get(examPaper.getYear().toString(), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
+		PaperFile file = paperFileService.get(Integer.toString(examPaper.getYear().getYear()), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
 		return paperFileService.exists(file);
 	}
 

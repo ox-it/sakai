@@ -147,7 +147,7 @@ public class EditExamPaper extends BasePage {
 			final FileUpload fileUpload = upload.getFileUpload();
 			if (fileUpload != null && fileUpload.getSize() > 0) {
 				//fileUpload.
-				PaperFile paperFile = paperFileService.get(examPaper.getYear().toString(), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
+				PaperFile paperFile = paperFileService.get(Integer.toString(examPaper.getYear().getYear()), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
 				try {
 					paperFileService.deposit(paperFile, fileUpload.getInputStream());
 				} catch (IOException e) {
@@ -157,7 +157,7 @@ public class EditExamPaper extends BasePage {
 			}
 			if (included.getModelObject() != null) {
 				String reusePaper = included.getModelObject();
-				PaperFile paperFile = paperFileService.get(examPaper.getYear().toString(), examPaper.getTerm().getCode(), reusePaper, "pdf");
+				PaperFile paperFile = paperFileService.get(Integer.toString(examPaper.getYear().getYear()), examPaper.getTerm().getCode(), reusePaper, "pdf");
 				if (paperFileService.exists(paperFile)) {
 					examPaper.setPaperFile(paperFile.getURL());
 				} else {
@@ -166,7 +166,7 @@ public class EditExamPaper extends BasePage {
 			}
 			// If we don't have 
 			if (examPaper.getPaperFile() == null) {
-				PaperFile paperFile = paperFileService.get(examPaper.getYear().toString(), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
+				PaperFile paperFile = paperFileService.get(Integer.toString(examPaper.getYear().getYear()), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
 				if(!paperFileService.exists(paperFile)) {
 					error(getString("no.exsiting.file", getModel()));
 				} else {
