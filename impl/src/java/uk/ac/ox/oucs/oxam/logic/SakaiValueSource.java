@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.Observable;
 import java.util.Observer;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -17,6 +18,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+
+import uk.ac.ox.oucs.oxam.utils.Utils;
 
 public class SakaiValueSource implements ValueSource, Observer {
 
@@ -126,7 +129,7 @@ public class SakaiValueSource implements ValueSource, Observer {
 			return null;
 		}
 		String siteCollection = chs.getSiteCollection(siteId);
-		String filePath = siteCollection+ file;
+		String filePath = Utils.joinPaths("/", siteCollection, file);
 		return filePath;
 	}
 

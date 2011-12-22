@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import uk.ac.ox.oucs.oxam.logic.SakaiProxy;
 import uk.ac.ox.oucs.oxam.model.Exam;
 import uk.ac.ox.oucs.oxam.model.Paper;
+import uk.ac.ox.oucs.oxam.utils.Utils;
 
 public class PaperDaoImpl extends BaseDao implements PaperDao {
 
@@ -98,7 +100,7 @@ public class PaperDaoImpl extends BaseDao implements PaperDao {
 	
 	public Map<String, Paper> getCodes(String[] codes) {
 		String stmt = getStatement("codes.begin");
-		stmt = stmt+ StringUtils.repeat("?", ", ", codes.length);
+		stmt = stmt+ Utils.repeat("?", ", ", codes.length);
 		stmt = stmt + getStatement("codes.end");
 		final Map<String, Paper> resolved = new HashMap<String, Paper>();
 		List<Paper> papers = getJdbcTemplate().query(stmt, codes, mapper);

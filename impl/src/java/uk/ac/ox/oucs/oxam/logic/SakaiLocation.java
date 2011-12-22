@@ -3,6 +3,8 @@ package uk.ac.ox.oucs.oxam.logic;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 
+import uk.ac.ox.oucs.oxam.utils.Utils;
+
 /**
  * This is a Sakai implementation for locating uploaded paper files. 
  * @author buckett
@@ -40,8 +42,7 @@ public class SakaiLocation implements Location {
 	}
 
 	public String getPath(String path) {
-		// TODO do we need to worry about pathSeperator?
-		String fullPath = sitePath + path;
+		String fullPath = Utils.joinPaths("/", sitePath, path);
 		return fullPath;
 	}
 

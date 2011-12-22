@@ -80,11 +80,13 @@ public class SakaiPaperFileServiceImpl implements PaperFileService {
 		String path = impl.getPath();
 		ContentResourceEdit resource = null;
 		try {
+			
 			try {
+				contentHostingService.checkResource(path);
 				resource = contentHostingService.editResource(path);
 				// Ignore PermissionException, IdUnusedException, TypeException
 				// As they are too serious to continue.
-			} catch (InUseException iue) {
+			} catch (IdUnusedException iue) {
 				// Will attempt to create containing folders.
 				resource = contentHostingService.addResource(path);
 			}
@@ -100,7 +102,7 @@ public class SakaiPaperFileServiceImpl implements PaperFileService {
 		} catch (PermissionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IdUnusedException e) {
+		} catch (InUseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (TypeException e) {

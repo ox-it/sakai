@@ -17,6 +17,7 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 
 import uk.ac.ox.oucs.oxam.model.Exam;
+import uk.ac.ox.oucs.oxam.utils.Utils;
 
 public class ExamDaoImpl extends BaseDao implements ExamDao {
 
@@ -88,7 +89,7 @@ public class ExamDaoImpl extends BaseDao implements ExamDao {
 			stmt = getStatement("codes");
 		} else {
 			stmt = getStatement("codes.begin");
-			stmt = stmt+ StringUtils.repeat("?", ", ", codes.length);
+			stmt = stmt+ Utils.repeat("?", ", ", codes.length);
 			stmt = stmt + getStatement("codes.end");
 		}
 		final Map<String, Exam> resolved = new HashMap<String, Exam>();

@@ -53,6 +53,7 @@
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="file" value="/terms.csv"/>
+        <property name="reloadable" ref="termService"/>
     </bean>
     
     <!-- Get the categories data from the classpath -->
@@ -63,6 +64,7 @@
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="file" value="/categories.csv"/>
+        <property name="reloadable" ref="categoryService"/>
     </bean>
     
 </beans>

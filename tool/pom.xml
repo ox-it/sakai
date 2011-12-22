@@ -22,11 +22,13 @@
             <groupId>uk.ac.ox.oucs.vle</groupId>
             <artifactId>oxam-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <!-- This is so we can easily test the importer.
-                 It means Eclipse doesn't flag up incorrect usage, but a command line build maven build
-                 should show any problems as it has proper classpath isolation for different scopes. -->
+                It means Eclipse doesn't flag up incorrect usage, but a command 
+                line build maven build
+                should show any problems as it has proper classpath isolation 
+                for different scopes. -->
             <groupId>uk.ac.ox.oucs.vle</groupId>
             <artifactId>oxam-impl</artifactId>
             <scope>test</scope>
@@ -106,13 +108,15 @@
         </dependency>
         <dependency>
             <!-- Could be in the API, but SolrJ has quite a few dependencies.
-                 So we're duplicating it in components and in the tool. The other option would
-                 have been to write a custom API which wraps the SolrJ API but this is too much
-                 work. -->
+                So we're duplicating it in components and in the tool. The 
+                other option would
+                have been to write a custom API which wraps the SolrJ API 
+                but this is too much
+                work. -->
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring</artifactId>
@@ -129,17 +133,23 @@
             <scope>provided</scope>
         </dependency>
 
-
-<!--         <dependency> -->
-<!--             <groupId>cglib</groupId> -->
-<!--             <artifactId>cglib-nodep</artifactId> -->
-<!--             <scope>compile</scope> -->
-<!--         </dependency> -->
-<!--         <dependency> -->
-<!--             <artifactId>dom4j</artifactId> -->
-<!--             <groupId>dom4j</groupId> -->
-<!--             <scope>compile</scope> -->
-<!--         </dependency> -->
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <version>2.1_3</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- <dependency> -->
+        <!-- <groupId>cglib</groupId> -->
+        <!-- <artifactId>cglib-nodep</artifactId> -->
+        <!-- <scope>compile</scope> -->
+        <!-- <version>2.2.2</version> -->
+        <!-- </dependency> -->
+        <!-- <dependency> -->
+        <!-- <artifactId>dom4j</artifactId> -->
+        <!-- <groupId>dom4j</groupId> -->
+        <!-- <scope>compile</scope> -->
+        <!-- </dependency> -->
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
