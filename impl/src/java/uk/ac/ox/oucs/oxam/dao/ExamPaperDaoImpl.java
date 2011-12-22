@@ -130,7 +130,9 @@ public class ExamPaperDaoImpl extends BaseDao implements ExamPaperDao {
 		sql.addParam(getStatement("select.paper_title"), example.getPaperTitle());
 		sql.addParam(getStatement("select.paper_code"), example.getPaperCode());
 		sql.addParam(getStatement("select.paper_file"), example.getPaperFile());
-		sql.addParam(getStatement("select.year"), example.getYear());
+		if (example.getYear() != null) {
+			sql.addParam(getStatement("select.year"), example.getYear().getYear());
+		}
 		if (example.getTerm() != null) {
 			sql.addParam(getStatement("select.term"), example.getTerm().getCode());
 		}
