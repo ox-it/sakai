@@ -20,7 +20,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.IValidationError;
 import org.apache.wicket.validation.ValidationError;
 
-import pom.tool.pages.BasePage;
 import uk.ac.ox.oucs.oxam.components.FeedbackLabel;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.logic.PaperFile;
@@ -30,7 +29,7 @@ import uk.ac.ox.oucs.oxam.model.AcademicYear;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 import uk.ac.ox.oucs.oxam.model.Term;
 
-public class EditExamPaper extends BasePage {
+public class EditExamPaper extends AdminPage {
 	
 	@SpringBean
 	private ExamPaperService examPaperService;

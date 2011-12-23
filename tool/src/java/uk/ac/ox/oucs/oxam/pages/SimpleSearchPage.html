@@ -2,6 +2,7 @@
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
 
 <head>
+<wicket:head>
 <style type="text/css">
 	.sidebar {
 		float:left;
@@ -11,10 +12,11 @@
 		margin-left: 350px;
 	}
 </style>
+</wicket:head>
 </head>
-
 <body>
 
+<wicket:extend>
 	<h3>Search Page</h3>
 	<form method="get" wicket:id="searchForm">
 	<div>
@@ -48,5 +50,7 @@
 	<div class="results" wicket:id="results">
 	</div>
 	</div>
+	<div style="clear: both;"></div>
+</wicket:extend>
 </body>
 </html>

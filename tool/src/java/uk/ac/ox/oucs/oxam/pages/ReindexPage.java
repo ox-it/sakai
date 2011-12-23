@@ -4,7 +4,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-import pom.tool.pages.BasePage;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 
 /**
@@ -13,7 +12,7 @@ import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
  * @author buckett
  *
  */
-public class ReindexPage extends BasePage {
+public class ReindexPage extends AdminPage {
 
 	@SpringBean
 	private ExamPaperService examPaperService;

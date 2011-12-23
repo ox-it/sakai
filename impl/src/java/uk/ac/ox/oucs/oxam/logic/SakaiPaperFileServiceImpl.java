@@ -162,6 +162,7 @@ public class SakaiPaperFileServiceImpl implements PaperFileService {
 	}
 
 	private PaperFileImpl castToImpl(PaperFile paperFile) {
+		// TODO Move paperfile to API as there doen't need to be differing implementations.
 		if (!(paperFile instanceof PaperFileImpl)) {
 			throw new IllegalArgumentException("PaperFile must have been retrieved from this service using get(String, String, String).");
 		}

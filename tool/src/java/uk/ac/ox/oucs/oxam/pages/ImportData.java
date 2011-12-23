@@ -22,7 +22,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.IValidationError;
 import org.apache.wicket.validation.ValidationError;
 
-import pom.tool.pages.BasePage;
 import uk.ac.ox.oucs.oxam.components.RawFileUploadField;
 import uk.ac.ox.oucs.oxam.logic.TermService;
 import uk.ac.ox.oucs.oxam.readers.ArchivePaperResolver;
@@ -33,7 +32,7 @@ import uk.ac.ox.oucs.oxam.readers.Import;
 import uk.ac.ox.oucs.oxam.readers.Importer;
 import uk.ac.ox.oucs.oxam.readers.SheetImporter.Format;
 
-public class ImportData extends BasePage {
+public class ImportData extends AdminPage {
 	
 	private static final Log LOG = LogFactory.getLog(ImportData.class);
 	

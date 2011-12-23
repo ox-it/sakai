@@ -11,7 +11,7 @@ import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 
 import uk.ac.ox.oucs.oxam.pages.AdvancedSearchPage;
-import uk.ac.ox.oucs.oxam.pages.SearchPage;
+import uk.ac.ox.oucs.oxam.pages.SimpleSearchPage;
 
 /**
  * Main application class for our app
@@ -41,11 +41,11 @@ public class BrowseApplication extends WebApplication {
 		getMarkupSettings().setDefaultAfterDisabledLink(null);
 				
 		// On Wicket session timeout, redirect to main page
-		getApplicationSettings().setPageExpiredErrorPage(SearchPage.class);
-		getApplicationSettings().setAccessDeniedPage(SearchPage.class);
+		getApplicationSettings().setPageExpiredErrorPage(SimpleSearchPage.class);
+		getApplicationSettings().setAccessDeniedPage(SimpleSearchPage.class);
 		
 		//to put this app into deployment mode, see web.xml
-		mountBookmarkablePage("/search", SearchPage.class);
+		mountBookmarkablePage("/search", SimpleSearchPage.class);
 		mountBookmarkablePage("/advanced", AdvancedSearchPage.class);
 
 	}
@@ -71,7 +71,7 @@ public class BrowseApplication extends WebApplication {
 	 * @see org.apache.wicket.Application#getHomePage()
 	 */
 	public Class<? extends Page> getHomePage() {
-		return SearchPage.class;
+		return SimpleSearchPage.class;
 	}
 	
 	

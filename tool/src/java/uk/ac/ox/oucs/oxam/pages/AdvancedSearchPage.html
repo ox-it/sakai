@@ -7,11 +7,8 @@
 </head>
 
 <body>
-
+<wicket:extend>
 	<h3>Search Page</h3>
-	
-	<div wicket:id="feedback">feedback messages will be put here</div>
-	
 	<form wicket:id="form" method="post" >
 	<div>
 		<label for="exam"><wicket:message key="label.exam" />:</label>
@@ -30,5 +27,8 @@
 	<div wicket:id="results">
 	</div>
 	</div>
+	<div style="clear: both;"></div>
+	
+</wicket:extend>
 </body>
 </html>

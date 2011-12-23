@@ -17,7 +17,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 
-import uk.ac.ox.oucs.oxam.pages.SearchPage.Resolver;
+import uk.ac.ox.oucs.oxam.pages.SimpleSearchPage.Resolver;
 
 public class SolrFacet<T> extends Panel {
 	
@@ -52,7 +52,7 @@ public class SolrFacet<T> extends Panel {
 		
 		WebMarkupContainer results = new WebMarkupContainer("results");
 		results.setVisible(!hasTooMany);
-		boolean hasHidden = values.size() >= FACET_DISPLAY;
+		boolean hasHidden = values.size() > FACET_DISPLAY;
 		List<Count> visible = hasHidden?values.subList(0, FACET_DISPLAY):values;
 		results.add(new FacetListView("result", visible, resolver, facet, pp, displayValues));
 		WebMarkupContainer hiddenContainer = new WebMarkupContainer("hidden");
@@ -152,7 +152,7 @@ public class SolrFacet<T> extends Panel {
 			} else {
 				linkParams.add("filter", filterQuery);
 			}
-			BookmarkablePageLink<T> link = new BookmarkablePageLink<T>("link", SearchPage.class, linkParams);
+			BookmarkablePageLink<T> link = new BookmarkablePageLink<T>("link", SimpleSearchPage.class, linkParams);
 			link.add(new Label("name", displayValue));
 			
 			item.add(new Label("count", Long.toString(count.getCount())));

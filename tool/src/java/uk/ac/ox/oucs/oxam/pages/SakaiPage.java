@@ -1,4 +1,4 @@
-package pom.tool.pages;
+package uk.ac.ox.oucs.oxam.pages;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
@@ -9,16 +9,18 @@ import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import uk.ac.ox.oucs.oxam.logic.SakaiProxy;
-import uk.ac.ox.oucs.oxam.pages.ExamPapersPage;
 
 
 /**
@@ -31,48 +33,24 @@ import uk.ac.ox.oucs.oxam.pages.ExamPapersPage;
  * @author Steve Swinsburg (steve.swinsburg@anu.edu.au)
  *
  */
-public class BasePage extends WebPage implements IHeaderContributor {
+public class SakaiPage extends WebPage implements IHeaderContributor {
 
-	private static final Logger log = Logger.getLogger(BasePage.class); 
+	private static final Logger log = Logger.getLogger(SakaiPage.class); 
 	
 	@SpringBean(name="sakaiProxy")
 	protected SakaiProxy sakaiProxy;
-		
-	Link<Void> firstLink;
-	Link<Void> secondLink;
-	Link<Void> thirdLink;
-	Link<Void> examPapers;
 	
 	FeedbackPanel feedbackPanel;
 	
-	public BasePage() {
+	// Any links to be added to the page.
+	private RepeatingView links;
+		
+	public SakaiPage() {
 		
 		log.debug("BasePage()");
 		
-		
-    	//first link
-		firstLink = new Link<Void>("firstLink") {
-			private static final long serialVersionUID = 1L;
-			public void onClick() {
-				setResponsePage(new FirstPage());
-			}
-		};
-		firstLink.add(new Label("firstLinkLabel",new ResourceModel("link.first")).setRenderBodyOnly(true));
-		firstLink.add(new AttributeModifier("title", true, new ResourceModel("link.first.tooltip")));
-		add(firstLink);
-		
-		
-		
-		examPapers = new Link<Void>("examPapers") {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void onClick() {
-				setResponsePage(ExamPapersPage.class);
-			}
-		};
-		examPapers.add(new Label("examPapersLabel", new ResourceModel("link.exampapers")).setRenderBodyOnly(true));
-		add(examPapers);
-		
+		links = new RepeatingView("link");
+		add(links);
 		
 		// Add a FeedbackPanel for displaying our messages
         feedbackPanel = new FeedbackPanel("feedback"){
@@ -148,7 +126,15 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		l.setRenderBodyOnly(true);
 		l.setEnabled(false);
 	}
-	
-	
-	
+
+	protected void addLink(Class clazz, String title, String tooltip) {
+		WebMarkupContainer parent = new WebMarkupContainer(links.newChildId());
+		links.add(parent);
+		Link<Void>link = new BookmarkablePageLink<Void>("anchor", clazz);
+		link.add(new Label("label", new ResourceModel(title)).setRenderBodyOnly(true));
+		if (tooltip != null) {
+			link.add(new AttributeModifier("title", true, new ResourceModel(tooltip)));
+		}
+		parent.add(link);
+	}
 }

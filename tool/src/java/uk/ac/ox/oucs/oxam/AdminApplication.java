@@ -12,9 +12,9 @@ import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.apache.wicket.util.convert.ConverterLocator;
 
-import pom.tool.pages.FirstPage;
 import uk.ac.ox.oucs.oxam.components.AcademicYearConverter;
 import uk.ac.ox.oucs.oxam.model.AcademicYear;
+import uk.ac.ox.oucs.oxam.pages.ExamPapersPage;
 
 /**
  * Main application class for our app
@@ -44,8 +44,8 @@ public class AdminApplication extends WebApplication {
 		getMarkupSettings().setDefaultAfterDisabledLink(null);
 				
 		// On Wicket session timeout, redirect to main page
-		getApplicationSettings().setPageExpiredErrorPage(FirstPage.class);
-		getApplicationSettings().setAccessDeniedPage(FirstPage.class);
+		getApplicationSettings().setPageExpiredErrorPage(ExamPapersPage.class);
+		getApplicationSettings().setAccessDeniedPage(ExamPapersPage.class);
 		
 		//to put this app into deployment mode, see web.xml
 		
@@ -71,8 +71,8 @@ public class AdminApplication extends WebApplication {
 	 * 
 	 * @see org.apache.wicket.Application#getHomePage()
 	 */
-	public Class<FirstPage> getHomePage() {
-		return FirstPage.class;
+	public Class<? extends Page> getHomePage() {
+		return ExamPapersPage.class;
 	}
 	
 	

@@ -9,7 +9,6 @@ import java.util.Map;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -36,7 +35,7 @@ import uk.ac.ox.oucs.oxam.model.Exam;
  * @author buckett
  * 
  */
-public class AdvancedSearchPage extends WebPage {
+public class AdvancedSearchPage extends SearchPage {
 
 	@SpringBean
 	private ExamPaperService examPaperService;
@@ -71,11 +70,6 @@ public class AdvancedSearchPage extends WebPage {
 	public AdvancedSearchPage(final PageParameters pp) {
 		setStatelessHint(true);
 		
-		// The feedback.
-        FeedbackPanel feedbackPanel = new FeedbackPanel("feedback");
-        add(feedbackPanel);
-		
-				
 		Map<String, Exam> latestExams = examPaperService.getLatestExams(null);
 		List<Exam> examList = new ArrayList<Exam>(latestExams.values());
 		Collections.sort(examList, examCompare);

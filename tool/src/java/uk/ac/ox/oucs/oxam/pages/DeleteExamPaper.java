@@ -7,12 +7,11 @@ import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-import pom.tool.pages.BasePage;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 
 
-public class DeleteExamPaper extends BasePage {
+public class DeleteExamPaper extends AdminPage {
 	
 	@SpringBean
 	private ExamPaperService examPaperService;

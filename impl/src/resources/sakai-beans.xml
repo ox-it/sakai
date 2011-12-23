@@ -37,6 +37,16 @@
     <bean id="paperFileService" class="uk.ac.ox.oucs.oxam.logic.SakaiPaperFileServiceImpl" init-method="init">
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
         <property name="fileSystemLocation" ref="location"/>
+        <property name="mimeTypes">
+            <!-- The default map has pdfs going to application/x-pdf, which doesn't work well -->
+            <bean class="uk.ac.ox.oucs.oxam.utils.CustomFileTypeMap">
+                <constructor-arg>
+                    <list>
+                        <value>application/pdf pdf PDF</value>
+                    </list>
+                </constructor-arg>
+            </bean>
+        </property>
     </bean>
     
     <bean id="location" class="uk.ac.ox.oucs.oxam.logic.SakaiLocation"

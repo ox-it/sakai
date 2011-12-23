@@ -26,7 +26,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
 import uk.ac.ox.oucs.oxam.components.AdvancedIDataProvider;
-import uk.ac.ox.oucs.oxam.pages.SearchPage.Resolver;
+import uk.ac.ox.oucs.oxam.pages.SimpleSearchPage.Resolver;
 
 class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 {
@@ -161,7 +161,7 @@ class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 						reduced.add(filterParam);
 				}
 				linkParams.put("filter", reduced.toArray(new String[]{}));
-				item.add(new BookmarkablePageLink<Void>("link", SearchPage.class, linkParams));
+				item.add(new BookmarkablePageLink<Void>("link", SimpleSearchPage.class, linkParams));
 			}
 
 		};
