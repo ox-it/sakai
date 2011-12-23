@@ -48,9 +48,10 @@
 	<filter>
 		<filter-name>sakai.request</filter-name>
 		<filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+        <!-- Let wicket handle multipart requests itself. -->
         <init-param>
-            <param-name>CONFIG_UPLOAD_MAX</param-name>
-            <param-value>4096</param-value>
+            <param-name>upload.enabled</param-name>
+            <param-value>false</param-value>
         </init-param>
 	</filter>
     

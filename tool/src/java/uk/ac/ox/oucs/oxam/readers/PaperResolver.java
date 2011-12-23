@@ -5,6 +5,8 @@ package uk.ac.ox.oucs.oxam.readers;
  * Simple interface which is passed to a Import when a paper is wanted.
  * This interface is so that we can resolve files out of the filesystem,
  * or directly out of a zipfile.
+ * Resolvers probably want todo caching, as MD5 calculations are expensive.
+ * 
  * @author buckett
  */
 public interface PaperResolver {

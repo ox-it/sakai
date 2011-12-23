@@ -2,19 +2,17 @@ package uk.ac.ox.oucs.oxam.readers;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import uk.ac.ox.oucs.oxam.Utils;
 import uk.ac.ox.oucs.oxam.logic.AcademicYearService;
-import uk.ac.ox.oucs.oxam.logic.Callback;
 import uk.ac.ox.oucs.oxam.logic.CategoryService;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.logic.PaperFile;
@@ -28,6 +26,12 @@ import uk.ac.ox.oucs.oxam.readers.Import.ExamPaperRow;
 import uk.ac.ox.oucs.oxam.readers.Import.ExamRow;
 import uk.ac.ox.oucs.oxam.readers.Import.PaperRow;
 
+/**
+ * This allows imports to happen and proxies all the request to the other services.
+ * This is a singleton.
+ * @author buckett
+ *
+ */
 public class Importer {
 	
 	public static final Log LOG = LogFactory.getLog(Importer.class);
@@ -76,9 +80,14 @@ public class Importer {
 		// Need to map it to a URL, then upload it.
 		// Must then set the URL on the examPaper.
 		PaperFile file = paperFileService.get(Integer.toString(examPaper.getYear().getYear()), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
-		
 		paperFileService.deposit(file,inputStream);
 		examPaper.setPaperFile(file.getURL());
+	}
+	public void save(ExamPaper examPaper) {
+		if (examPaper.getPaperFile() == null) {
+			PaperFile file = paperFileService.get(Integer.toString(examPaper.getYear().getYear()), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
+			examPaper.setPaperFile(file.getURL());
+		}
 		examPaperService.saveExamPaper(examPaper);
 	}
 	
@@ -111,6 +120,30 @@ public class Importer {
 		} catch (NumberFormatException nfe) {
 		}
 		return null;
+	}
+
+	public String getMD5(PaperFile file) {
+		if (paperFileService.exists(file)) {
+			InputStream inputStream = null;
+			try {
+				inputStream = paperFileService.getInputStream(file);
+				return Utils.getMD5(inputStream);
+			} finally {
+				if (inputStream != null) {
+					try {
+						inputStream.close();
+					} catch (IOException ioe) {
+						LOG.info("Failed to close stream for file: "+ file.getPath());
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public PaperFile getPaperFile(ExamPaper examPaper) {
+		PaperFile file = paperFileService.get(Integer.toString(examPaper.getYear().getYear()), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
+		return file;
 	}
 
 

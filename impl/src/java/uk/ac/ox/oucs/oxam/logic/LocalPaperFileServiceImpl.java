@@ -1,6 +1,7 @@
 package uk.ac.ox.oucs.oxam.logic;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -42,6 +43,16 @@ public class LocalPaperFileServiceImpl implements PaperFileService {
 		return new File(path).exists();
 	}
 	
+	public InputStream getInputStream(PaperFile paperFile) {
+		PaperFileImpl impl = castToImpl(paperFile);
+		String path = impl.getPath();
+		try {
+			return new FileInputStream(new File(path));
+		} catch (FileNotFoundException e) {
+			LOG.info("Couldn't find file: "+ path);
+		}
+		return null;
+	}
 	
 	/* (non-Javadoc)
 	 * @see uk.ac.ox.oucs.oxam.logic.PaperFileService#deposit(uk.ac.ox.oucs.oxam.logic.PaperFile, uk.ac.ox.oucs.oxam.logic.Callback)

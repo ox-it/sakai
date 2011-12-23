@@ -8,6 +8,13 @@ public interface PaperFileService {
 			String extension);
 
 	public boolean exists(PaperFile paperFile);
+	
+	/**
+	 * This is used so that calling code can calculate a checksum if it want.
+	 * @param paperFiler
+	 * @return
+	 */
+	public InputStream getInputStream(PaperFile paperFiler);
 
 	public void deposit(PaperFile paperFile, InputStream source);
 

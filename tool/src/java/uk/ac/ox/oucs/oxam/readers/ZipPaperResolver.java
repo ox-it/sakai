@@ -2,9 +2,12 @@ package uk.ac.ox.oucs.oxam.readers;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import uk.ac.ox.oucs.oxam.Utils;
 import uk.ac.ox.oucs.oxam.logic.TermService;
 import uk.ac.ox.oucs.oxam.model.Term;
 
@@ -21,6 +24,7 @@ public class ZipPaperResolver implements PaperResolver {
 	protected String extension;
 	protected ZipFile zipFile;
 	protected String zipPrefix;
+	protected Map<String, Result> cached = new HashMap<String, Result>();
 
 	public ZipPaperResolver(String filePath, String zipPrefix, TermService termService, String extension) throws IOException {
 		zipFile = new ZipFile(filePath);
@@ -35,7 +39,16 @@ public class ZipPaperResolver implements PaperResolver {
 		if (term != null && paperCode != null) {
 			
 			String filename = zipPrefix+ ZIP_SEPERATOR+ year+ ZIP_SEPERATOR+ term.getName().toLowerCase()+ ZIP_SEPERATOR+ paperCode.toLowerCase()+ "."+ extension;
-			return new Result(filename);
+			Result result;
+			if (cached.containsKey(filename)) {
+				result = cached.get(filename);
+			} else {
+				result = new Result(filename);
+				if (result.entry != null) { // Only cache good ones.
+					cached.put(filename, result);
+				}
+			}
+			return result;
 		}
 		return null;
 	}
@@ -44,6 +57,7 @@ public class ZipPaperResolver implements PaperResolver {
 		
 		private ZipEntry entry;
 		private String path;
+		private String md5;
 		
 		public Result(String filename) {
 			this.path = filename; // As if the entry isn't found we won't know the path.
@@ -70,6 +84,25 @@ public class ZipPaperResolver implements PaperResolver {
 			return new String[]{path};
 		}
 
+		public String getMD5() {
+			if (md5 == null) {
+				InputStream in = null;
+				try {
+					in = getStream();
+					md5 = Utils.getMD5(in);
+				} finally { 
+					if (in != null) {
+						try {
+							in.close();
+						} catch (IOException e) {
+							// Ignore
+						}
+					}
+				}
+			}
+			return md5;
+		}
+		
 		
 	}
 

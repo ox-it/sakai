@@ -2,13 +2,16 @@ package uk.ac.ox.oucs.oxam.logic;
 
 import java.io.InputStream;
 
+import javax.activation.FileTypeMap;
+import javax.activation.MimetypesFileTypeMap;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -38,12 +41,24 @@ public class SakaiPaperFileServiceImpl implements PaperFileService {
 
 	private ContentHostingService contentHostingService;
 	
+	private FileTypeMap mimeTypes;
+	
 	public void setFileSystemLocation(Location location) {
 		this.location = location;
 	}
 	
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
+	}
+	
+	public void setMimeTypes(FileTypeMap mimeTypes) {
+		this.mimeTypes = mimeTypes;
+	}
+
+	public void init() {
+		if (mimeTypes == null) {
+			mimeTypes = new MimetypesFileTypeMap();
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -63,16 +78,26 @@ public class SakaiPaperFileServiceImpl implements PaperFileService {
 			contentHostingService.checkResource(path);
 			return true;
 		} catch (PermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.warn("Problem checking resource: "+path + " "+e.getMessage());
 		} catch (IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// Expected.
 		} catch (TypeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error("Wrong sort of resource at path: "+ path+ " "+ e.getMessage());
 		}
 		return false;
+	}
+	
+	public InputStream getInputStream(PaperFile paperFile) {
+		PaperFileImpl impl = castToImpl(paperFile);
+		String path = impl.getPath();
+		try {
+			ContentResource resource = contentHostingService.getResource(path);
+			return resource.streamContent();
+		} catch (Exception e) {
+			LOG.info("Failed to get stream for: "+ path);
+		}
+		return null;
+		
 	}
 	
 	
@@ -97,7 +122,8 @@ public class SakaiPaperFileServiceImpl implements PaperFileService {
 				// Like the basename function.
 				String filename = StringUtils.substringAfterLast(path, "/");
 				ResourceProperties props = resource.getPropertiesEdit();
-				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, filename);	
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, filename);
+				resource.setContentType(mimeTypes.getContentType(filename));
 			}
 			resource.setContent(in);
 			contentHostingService.commitResource(resource, NotificationService.NOTI_NONE);

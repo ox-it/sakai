@@ -1,10 +1,8 @@
 package uk.ac.ox.oucs.oxam.pages;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
@@ -24,7 +22,6 @@ import org.apache.wicket.validation.ValidationError;
 
 import pom.tool.pages.BasePage;
 import uk.ac.ox.oucs.oxam.components.FeedbackLabel;
-import uk.ac.ox.oucs.oxam.logic.Callback;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.logic.PaperFile;
 import uk.ac.ox.oucs.oxam.logic.PaperFileService;

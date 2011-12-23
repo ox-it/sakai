@@ -3,6 +3,7 @@ package uk.ac.ox.oucs.oxam.readers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
@@ -13,12 +14,18 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import uk.ac.ox.oucs.oxam.logic.PaperFile;
 import uk.ac.ox.oucs.oxam.model.AcademicYear;
 import uk.ac.ox.oucs.oxam.model.Category;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 import uk.ac.ox.oucs.oxam.model.Term;
 import uk.ac.ox.oucs.oxam.readers.SheetImporter.Format;
 
+/**
+ * A new instance of this class is created for each import.
+ * @author buckett
+ *
+ */
 public class Import {
 
 	private static final Log LOG = LogFactory.getLog(Import.class);
@@ -28,6 +35,8 @@ public class Import {
 	private KeyedSheetImporter<PaperRow> paperRowImporter;
 	private KeyedSheetImporter<ExamRow> examRowImporter;
 	private KeyedSheetImporter<ExamPaperRow> examPaperRowImporter;
+	
+	private Map<PaperFile, String>cachedMD5s = new HashMap<PaperFile, String>();
 	
 	// This finds the source files.
 	private PaperResolver resolver;
@@ -148,7 +157,7 @@ public class Import {
 			if (!error) {
 				String paperCode = (paperRow.inc != null && paperRow.inc.length() > 0)?paperRow.inc:paperRow.code;
 				PaperResolutionResult paper = resolver.getPaper(year.getYear(), examPaperRow.term, paperCode);
-				if(paper.isFound()) {
+				if(paper.isFound()) { // It's available to import from the ZIPfile.
 					ExamPaper examPaper = importer.get(examPaperRow.examCode, examPaperRow.paperCode, year, term);
 					if (examPaper == null) {
 						examPaper = new ExamPaper();
@@ -162,7 +171,20 @@ public class Import {
 					examPaper.setCategory(category);
 					InputStream input = paper.getStream();
 					try {
-						importer.persist(examPaper, input);
+						String existingMD5 = getPaperMD5(examPaper);
+						if (existingMD5 != null) { // May be null if doesn't exist yet.
+							String newMD5 = paper.getMD5();
+							if (!existingMD5.equals(newMD5)) { // If they don't match, import it.
+								importer.persist(examPaper, input);
+								LOG.debug("Saved replacement paper for: "+ examPaper.getPaperFile());
+							} else {
+								LOG.debug("No change for paper: "+ examPaper.getPaperFile());
+							}
+						} else {
+							importer.persist(examPaper, input);
+							LOG.debug("Saved new paper for: "+ examPaper.getPaperFile());
+						}
+						importer.save(examPaper);
 					} catch (Exception e) {
 						// This shouldn't really happen and indicates a low-level problem.
 						examPaperRowImporter.addError(examPaperRow, e.getMessage());
@@ -180,6 +202,19 @@ public class Import {
 				}
 			}
 		}
+	}
+
+	public String getPaperMD5(ExamPaper examPaper) {
+		// This needs to be handled here as we want a cache of MD5s per import.
+		String md5 = null;
+		PaperFile paperFile = importer.getPaperFile(examPaper);
+		if (cachedMD5s.containsKey(paperFile)) {
+			md5 = cachedMD5s.get(paperFile);
+		} else {
+			md5 = importer.getMD5(paperFile);
+			cachedMD5s.put(paperFile, md5);
+		}
+		return md5;
 	}
 	
 	public void writeExamError(OutputStream out, Format format) throws IOException {

@@ -118,9 +118,11 @@
         </dependency>
 
         <dependency>
+            <!-- This is so that we get autowiring during test. -->
             <groupId>org.springframework</groupId>
             <artifactId>spring</artifactId>
             <scope>test</scope>
+            <version>2.5.6.SEC03</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

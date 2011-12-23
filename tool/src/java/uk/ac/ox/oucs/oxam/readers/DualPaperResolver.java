@@ -58,6 +58,10 @@ public class DualPaperResolver implements PaperResolver {
 		public String[] getPaths() {
 			return allPaths;
 		}
+
+		public String getMD5() {
+			return null;
+		}
 		
 	}
 

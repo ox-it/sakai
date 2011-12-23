@@ -15,4 +15,9 @@ public interface PaperResolutionResult {
 	public boolean isFound();
 	public InputStream getStream();
 	public String[] getPaths();
+	
+	/**
+	 * Get the MD5 sum Base64 encoded for this paper.
+	 */
+	public String getMD5();
 }
