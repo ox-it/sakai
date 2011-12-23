@@ -427,9 +427,9 @@
    -->
 
    <field name="id" type="string" indexed="true" stored="true" required="true" />
-   <field name="exam_title" type="text_general" indexed="true" stored="true" required="true"/>
+   <field name="exam_title" type="textgen" indexed="true" stored="true" required="true"/>
    <field name="exam_code" type="string" indexed="true" stored="true" required="true"/>
-   <field name="paper_title" type="text_general" indexed="true" stored="true" required="true"/>
+   <field name="paper_title" type="textgen" indexed="true" stored="true" required="true"/>
    <field name="paper_code" type="string" indexed="true" stored="true" required="true"/>
    <field name="paper_file" type="string" indexed="false" stored="true"/>
    <!-- The year allows sorting based on year and term, but it isn't stored. -->
@@ -439,10 +439,10 @@
    <field name="term" type="string" indexed="true" stored="true" required="true"/>
 
    
-   <field name="name" type="text_general" indexed="true" stored="true"/>
+   <field name="name" type="textgen" indexed="true" stored="true"/>
    <field name="alphaNameSort" type="alphaOnlySort" indexed="true" stored="false"/>
-   <field name="features" type="text_general" indexed="true" stored="true" multiValued="true"/>
-   <field name="includes" type="text_general" indexed="true" stored="true" termVectors="true" termPositions="true" termOffsets="true" />
+   <field name="features" type="textgen" indexed="true" stored="true" multiValued="true"/>
+   <field name="includes" type="textgen" indexed="true" stored="true" termVectors="true" termPositions="true" termOffsets="true" />
 
    <field name="popularity" type="int" indexed="true" stored="true" />
 
@@ -451,13 +451,13 @@
      Some fields are multiValued only because Tika currently may return
      multiple values for them.
    -->
-   <field name="title" type="text_general" indexed="true" stored="true" multiValued="true"/>
-   <field name="subject" type="text_general" indexed="true" stored="true"/>
-   <field name="description" type="text_general" indexed="true" stored="true"/>
-   <field name="comments" type="text_general" indexed="true" stored="true"/>
-   <field name="author" type="text_general" indexed="true" stored="true"/>
-   <field name="keywords" type="text_general" indexed="true" stored="true"/>
-   <field name="category" type="text_general" indexed="true" stored="true"/>
+   <field name="title" type="textgen" indexed="true" stored="true" multiValued="true"/>
+   <field name="subject" type="textgen" indexed="true" stored="true"/>
+   <field name="description" type="textgen" indexed="true" stored="true"/>
+   <field name="comments" type="textgen" indexed="true" stored="true"/>
+   <field name="author" type="textgen" indexed="true" stored="true"/>
+   <field name="keywords" type="textgen" indexed="true" stored="true"/>
+   <field name="category" type="textgen" indexed="true" stored="true"/>
    <field name="content_type" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="last_modified" type="date" indexed="true" stored="true"/>
    <field name="links" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -465,11 +465,7 @@
 
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
-   <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
-
-   <!-- catchall text field that indexes tokens both normally and in reverse for efficient
-        leading wildcard queries. -->
-   <field name="text_rev" type="text_general_rev" indexed="true" stored="false" multiValued="true"/>
+   <field name="text" type="textgen" indexed="true" stored="false" multiValued="true"/>
 
    <!-- Uncommenting the following will create a "timestamp" field using
         a default value of "NOW" to indicate when each document was indexed.
