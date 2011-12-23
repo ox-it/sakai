@@ -675,6 +675,11 @@ public class EvalEmailsLogicImpl implements EvalEmailsLogic {
         replacementValues.put("EvalToolTitle", "Evaluation System");
         replacementValues.put("EvalSite", groupTitle);
         replacementValues.put("MyWorkspaceDashboard", evalEntityURL);
+        
+        if (! replacementValues.containsKey("HelpdeskEmail")) {
+            replacementValues.put("HelpdeskEmail", 
+            		commonLogic.getConfigurationSetting("support.email", "helpdesk@institution.edu"));
+        }
 
         String message = TextTemplateLogicUtils.processTextTemplate(messageTemplate, replacementValues);
         String subject = null;
