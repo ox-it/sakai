@@ -1,0 +1,9 @@
+/* This are elements that should look clickable */
+.control:hover {
+	cursor: pointer;
+}
+.control {
+	text-decoration: underline;
+	color: #33F;
+	margin-left: 2em;
+}

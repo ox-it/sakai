@@ -2,14 +2,15 @@
 	<div class="facet">
 		<h3 wicket:id="title">Papers</h3>
 		<div wicket:id="results">
-			<ul>
+			<ul class="first">
 				<li wicket:id="result"><a wicket:id="link" href="#"><span
 						wicket:id="name">Facet Name</span></a> (<span wicket:id="count">1</span>)
 				</li>
 			</ul>
 			<div wicket:id="hidden">
-				<div>+ Show More</div>
-				<ul>
+				<div class="control">+ Show More</div>
+				<div class="control hidden">- Show Less</div>
+				<ul class="more hidden">
 					<li wicket:id="result"><a wicket:id="link" href="#"><span
 							wicket:id="name">Facet Name</span></a> (<span wicket:id="count">1</span>)
 					</li>

@@ -19,7 +19,7 @@ import uk.ac.ox.oucs.oxam.pages.SimpleSearchPage;
  * @author Steve Swinsburg (steve.swinsburg@anu.edu.au)
  *
  */
-public class BrowseApplication extends WebApplication {    
+public class BrowseApplication extends WebApplication {
    
 	/**
 	 * Configure your app here
@@ -47,6 +47,7 @@ public class BrowseApplication extends WebApplication {
 		//to put this app into deployment mode, see web.xml
 		mountBookmarkablePage("/search", SimpleSearchPage.class);
 		mountBookmarkablePage("/advanced", AdvancedSearchPage.class);
+		
 
 	}
 	

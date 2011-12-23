@@ -4,15 +4,11 @@
 <body>
 <wicket:head>
 	<!-- Uppercase all boxes we case about, use onblur so we don't move the cursor when changing chars -->
-	<script src="js/jquery-1.7.1.min.js" type="text/javascript"></script>
-	<script type="text/javascript">
-	$(function() {
-		$("input.uppercase").css("text-transform","uppercase").blur(function(){ this.value = this.value.toUpperCase(); });
-	});
-	</script>
+
 </wicket:head>
 <wicket:extend>
 
+	
 	<h3>Exam Paper</h3>
 	<form wicket:id="examPaperForm">
 	<table>
