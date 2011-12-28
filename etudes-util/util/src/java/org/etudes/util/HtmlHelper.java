@@ -281,6 +281,41 @@ public class HtmlHelper
 	}
 	
 	/**
+	 * Removes tags that don't have balanced double quotes
+	 * 
+	 * @param content1
+	 *        The source html
+	 * @return The cleaned up html after removing faulty tags
+	 */
+	public static String fixDoubleQuotes(String content1)
+	{
+		Pattern p1 = Pattern.compile("<.*?>", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
+		Pattern pDouble = Pattern.compile("\"");
+
+		if (content1 == null) return content1;
+		Matcher m = p1.matcher(content1);
+		StringBuffer sb = new StringBuffer();
+
+		while (m.find())
+		{
+			int countDblQuotes = 0;
+			Matcher mDub = pDouble.matcher(m.group(0));
+			while (mDub.find())
+			{
+				countDblQuotes = countDblQuotes + 1;
+			}
+			if (countDblQuotes > 0 && ((countDblQuotes % 2) != 0))
+			{
+				m.appendReplacement(sb, "");
+			}
+		}
+
+		m.appendTail(sb);
+		return sb.toString();
+
+	}
+	
+	/**
 	 * Clean some user entered HTML. Assures well formed XML. Assures all anchor tags have target=_blank.
 	 * 
 	 * @param source
@@ -290,7 +325,7 @@ public class HtmlHelper
 	public static String clean(String source)
 	{
 		if (source == null) return null;
-
+		source = fixDoubleQuotes(source);
 		try
 		{
 			// parse possibly dirty html
@@ -325,6 +360,7 @@ public class HtmlHelper
 				start += "<body>".length();
 				int end = all.lastIndexOf("</body>");
 				rv = all.substring(start, end);
+				
 			}
 
 			return rv;
@@ -340,4 +376,5 @@ public class HtmlHelper
 
 		return null;
 	}
+
 }
