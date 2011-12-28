@@ -18,7 +18,7 @@ import uk.ac.ox.oucs.oxam.model.AcademicYear;
 public class AcademicYearConverter implements IConverter {
 
 	private static final long serialVersionUID = 1L;
-	private Pattern pattern = Pattern.compile("(\\d{4})(-\\d{4})?");
+	private Pattern pattern = Pattern.compile("(\\d{4})(?:-(\\d{4}))?");
 
 	public Object convertToObject(String value, Locale locale) {
 		if (value != null && value.trim().length() > 0) {

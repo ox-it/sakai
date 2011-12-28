@@ -76,12 +76,7 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 	}
 	
 	public ExamPaper get(String examCode, String paperCode, AcademicYear year, Term term) {
-		ExamPaper example = new ExamPaper();
-		example.setExamCode(examCode);
-		example.setPaperCode(paperCode);
-		example.setYear(year);
-		example.setTerm(term);
-		List<ExamPaper> results = examPaperDao.findAll(example);
+		List<ExamPaper> results = getExamPapers(examCode, paperCode, year, term, -1, -1);
 		if(results.isEmpty()) {
 			return null;
 		} else {
@@ -90,6 +85,18 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 			}
 			return results.get(0);
 		}
+	}
+
+	@Override
+	public List<ExamPaper> getExamPapers(String examCode, String paperCode,
+			AcademicYear year, Term term, int start, int length) {
+		ExamPaper example = new ExamPaper();
+		example.setExamCode(examCode);
+		example.setPaperCode(paperCode);
+		example.setYear(year);
+		example.setTerm(term);
+		List<ExamPaper> results = examPaperDao.findAll(example, start, length);
+		return results;
 	}
 
 	public void deleteExamPaper(long id) {
@@ -246,8 +253,13 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 		
 	}
 	
-	public int count() {
-		return examPaperDao.count();
+	public int count(String examCode, String paperCode, AcademicYear year, Term term) {
+		ExamPaper example = new ExamPaper();
+		example.setExamCode(examCode);
+		example.setPaperCode(paperCode);
+		example.setYear(year);
+		example.setTerm(term);
+		return examPaperDao.count(example);
 	}
 	
 	public Map<String, Paper> getLatestPapers(String[] codes) {
@@ -263,5 +275,6 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 	public List<AcademicYear> getYears() {
 		return examPaperDao.getYears();
 	}
+
 
 }

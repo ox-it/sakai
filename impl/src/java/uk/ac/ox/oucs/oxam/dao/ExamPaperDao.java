@@ -12,11 +12,11 @@ public interface ExamPaperDao {
 	
 	public List<ExamPaper> getExamPapers(int start, int length);
 	
-	public List<ExamPaper> findAll(ExamPaper example);
+	public List<ExamPaper> findAll(ExamPaper example, int start, int length);
 	
 	public List<ExamPaper> findAny(ExamPaper example);
 	
-	public int count();
+	public int count(ExamPaper example);
 
 	/**
 	 * For all the items execute this callback.

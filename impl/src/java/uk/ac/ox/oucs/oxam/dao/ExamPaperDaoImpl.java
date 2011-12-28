@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,9 +92,39 @@ public class ExamPaperDaoImpl extends BaseDao implements ExamPaperDao {
 	}
 	
 
-	public int count() {
+	public int count(ExamPaper example) {
 		String stmt = getStatement("count");
-		return (Integer) getJdbcTemplate().queryForInt(stmt);
+		
+		SQLBuilder sql = new SQLBuilder(getStatement("select.example.begin"), getStatement("select.example.end"), " AND ");
+		
+		sql.addParam(getStatement("select.id"), example.getId());
+		if (example.getCategory() != null) {
+			sql.addParam(getStatement("select.category"), example.getCategory().getCode());
+		}
+		sql.addParam(getStatement("select.exam_id"), example.getExamId());
+		sql.addParam(getStatement("select.exam_title"), example.getExamTitle());
+		sql.addParam(getStatement("select.exam_code"), example.getExamCode());
+		sql.addParam(getStatement("select.paper_id"), example.getPaperId());
+		sql.addParam(getStatement("select.paper_title"), example.getPaperTitle());
+		sql.addParam(getStatement("select.paper_code"), example.getPaperCode());
+		sql.addParam(getStatement("select.paper_file"), example.getPaperFile());
+		if (example.getYear() != null) {
+			sql.addParam(getStatement("select.year"), example.getYear().getYear());
+		}
+		if (example.getTerm() != null) {
+			sql.addParam(getStatement("select.term"), example.getTerm().getCode());
+		}
+		
+		Map<String, Object> params = sql.getParams();
+		if (params.size() > 0) {
+			// We only use the joined count when we have something to search for.
+			stmt = getStatement("count.where")+  sql.getStmt();
+			return (Integer) namedParameterJdbcTemplate.queryForInt(stmt, params);
+		} else {
+
+			return (Integer) getJdbcTemplate().queryForInt(stmt);
+		}
+		
 	}
 
 	public void all(final Callback<ExamPaper> callback) {
@@ -109,14 +141,14 @@ public class ExamPaperDaoImpl extends BaseDao implements ExamPaperDao {
 	}
 	
 	public List<ExamPaper> findAny(ExamPaper example) {
-		return find(example, "OR");
+		return find(example, "OR", -1, -1);
 	}
 	
-	public List<ExamPaper> findAll(ExamPaper example) {
-		return find(example, "AND");
+	public List<ExamPaper> findAll(ExamPaper example, int start, int length) {
+		return find(example, "AND", start, length);
 	}
 		
-	public List<ExamPaper> find(ExamPaper example, String operation) {
+	public List<ExamPaper> find(ExamPaper example, String operation, int start, int length) {
 		SQLBuilder sql = new SQLBuilder(getStatement("select.example.begin"), getStatement("select.example.end"), " "+ operation+ " ");
 		
 		sql.addParam(getStatement("select.id"), example.getId());
@@ -137,21 +169,34 @@ public class ExamPaperDaoImpl extends BaseDao implements ExamPaperDao {
 			sql.addParam(getStatement("select.term"), example.getTerm().getCode());
 		}
 		
-		List<ExamPaper> examPapers = (List<ExamPaper>)getJdbcTemplate().query(sql.getStmt(), sql.getParams(), mapper);
+		Map params = sql.getParams();
+		String statement = getStatement("select");
+		if (params.size() > 0) {
+			statement += sql.getStmt();
+		}
+		// Add on the start and limit if required.
+		if (start >= 0) {
+			params.put("start", start);
+			params.put("length", length);
+			statement += getStatement("select.range");
+		}
+		
+		List<ExamPaper> examPapers = (List<ExamPaper>)namedParameterJdbcTemplate.query(statement, params, mapper);
 		return examPapers;
 	}
 	
 
-	private class SQLBuilder {
+	private static class SQLBuilder {
 		StringBuilder stmt;
 		String end;
 		String join;
-		List<Object> params;
+		Map<String, Object> params;
 		boolean firstParam = true;
+		Pattern pattern = Pattern.compile(":(\\S+)");
 		
 		SQLBuilder(String start, String end, String join) {
 			stmt = new StringBuilder(start);
-			params = new ArrayList<Object>();
+			params = new HashMap<String, Object>();
 			this.join = join;
 			this.end = end; 
 		}
@@ -171,21 +216,31 @@ public class ExamPaperDaoImpl extends BaseDao implements ExamPaperDao {
 					return;
 				}
 			}
+			String param = getKey(sql);
 			if (!firstParam) {
 				stmt.append(join);
 			} else {
 				firstParam = false;
 			}
 			stmt.append(sql);
-			params.add(value);
+			params.put(param, value);
+		}
+		
+		String getKey(String sql) {
+			Matcher matcher = pattern.matcher(sql);
+			if (!matcher.find()) {
+				throw new IllegalArgumentException(
+						"The supplied string doesn't contain a parameter to subsitute: "+ sql);
+			}
+			return matcher.group(1); // Trimming the colon.
 		}
 		
 		String getStmt() {
 			return stmt.toString()+ end;
 		}
 		
-		Object[] getParams() {
-			return params.toArray();
+		Map<String,Object> getParams() {
+			return params;
 		}
 	}
 
