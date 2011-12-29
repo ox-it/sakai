@@ -133,6 +133,50 @@ public interface QuestionService extends QuestionPoolService, QuestionGetService
 	void moveQuestion(Question question, Pool pool) throws AssessmentPermissionException;
 
 	/**
+	 * Create a new essay type question.
+	 * 
+	 * @param pool
+	 *        The pool where the question will live.
+	 * @return The new question.
+	 * @throws AssessmentPermissionException
+	 *         if the current user is not allowed to create a new question.
+	 */
+	EssayQuestion newEssayQuestion(Pool pool) throws AssessmentPermissionException;
+
+	/**
+	 * Create a new fill blanks type question.
+	 * 
+	 * @param pool
+	 *        The pool where the question will live.
+	 * @return The new question.
+	 * @throws AssessmentPermissionException
+	 *         if the current user is not allowed to create a new question.
+	 */
+	FillBlanksQuestion newFillBlanksQuestion(Pool pool) throws AssessmentPermissionException;
+
+	/**
+	 * Create a new match type question.
+	 * 
+	 * @param pool
+	 *        The pool where the question will live.
+	 * @return The new question.
+	 * @throws AssessmentPermissionException
+	 *         if the current user is not allowed to create a new question.
+	 */
+	MatchQuestion newMatchQuestion(Pool pool) throws AssessmentPermissionException;
+
+	/**
+	 * Create a multiple choice type question.
+	 * 
+	 * @param pool
+	 *        The pool where the question will live.
+	 * @return The new question.
+	 * @throws AssessmentPermissionException
+	 *         if the current user is not allowed to create a new question.
+	 */
+	MultipleChoiceQuestion newMultipleChoiceQuestion(Pool pool) throws AssessmentPermissionException;
+
+	/**
 	 * Create a new question.
 	 * 
 	 * @param pool
@@ -144,6 +188,28 @@ public interface QuestionService extends QuestionPoolService, QuestionGetService
 	 *         if the current user is not allowed to create a new question.
 	 */
 	Question newQuestion(Pool pool, String type) throws AssessmentPermissionException;
+
+	/**
+	 * Create a task type question.
+	 * 
+	 * @param pool
+	 *        The pool where the question will live.
+	 * @return The new question.
+	 * @throws AssessmentPermissionException
+	 *         if the current user is not allowed to create a new question.
+	 */
+	Question newTaskQuestion(Pool pool) throws AssessmentPermissionException;
+
+	/**
+	 * Create a new true false type question.
+	 * 
+	 * @param pool
+	 *        The pool where the question will live.
+	 * @return The new question.
+	 * @throws AssessmentPermissionException
+	 *         if the current user is not allowed to create a new question.
+	 */
+	TrueFalseQuestion newTrueFalseQuestion(Pool pool) throws AssessmentPermissionException;
 
 	/**
 	 * Pre-count and thread-cache all the questions in all the pools in the context, separating survey and non-survey.<br />

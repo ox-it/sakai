@@ -237,6 +237,16 @@ public interface AttachmentService
 			boolean makeThumb, String altRef);
 
 	/**
+	 * Return a relative url to an item that has been added to Mneme's content hosting section
+	 * 
+	 * @param ref
+	 *        Resource id of item
+	 * @return Url of item
+	 * 
+	 */
+	String processMnemeUrls(String ref);
+
+	/**
 	 * Remove this attachment.
 	 * 
 	 * @param ref

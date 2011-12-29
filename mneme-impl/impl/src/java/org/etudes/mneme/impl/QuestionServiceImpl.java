@@ -34,12 +34,17 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.mneme.api.AssessmentPermissionException;
+import org.etudes.mneme.api.EssayQuestion;
+import org.etudes.mneme.api.FillBlanksQuestion;
+import org.etudes.mneme.api.MatchQuestion;
 import org.etudes.mneme.api.MnemeService;
+import org.etudes.mneme.api.MultipleChoiceQuestion;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionPlugin;
 import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.SecurityService;
+import org.etudes.mneme.api.TrueFalseQuestion;
 import org.etudes.mneme.api.TypeSpecificQuestion;
 import org.etudes.util.api.Translation;
 import org.sakaiproject.db.api.SqlService;
@@ -568,6 +573,66 @@ public class QuestionServiceImpl implements QuestionService
 	/**
 	 * {@inheritDoc}
 	 */
+	public EssayQuestion newEssayQuestion(Pool pool) throws AssessmentPermissionException
+	{
+		// create the question
+		Question baseQuestion = newQuestion(pool, "mneme:Essay");
+
+		// this will hold the question, properly typed for return
+		EssayQuestionTypeImpl rv = new EssayQuestionTypeImpl();
+		rv.set((QuestionImpl) baseQuestion);
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public FillBlanksQuestion newFillBlanksQuestion(Pool pool) throws AssessmentPermissionException
+	{
+		// create the question
+		Question baseQuestion = newQuestion(pool, "mneme:FillBlanks");
+
+		// this will hold the question, properly typed for return
+		FillBlanksQuestionTypeImpl rv = new FillBlanksQuestionTypeImpl();
+		rv.set((QuestionImpl) baseQuestion);
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public MatchQuestion newMatchQuestion(Pool pool) throws AssessmentPermissionException
+	{
+		// create the question
+		Question baseQuestion = newQuestion(pool, "mneme:Match");
+
+		// this will hold the question, properly typed for return
+		MatchQuestionTypeImpl rv = new MatchQuestionTypeImpl();
+		rv.set((QuestionImpl) baseQuestion);
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public MultipleChoiceQuestion newMultipleChoiceQuestion(Pool pool) throws AssessmentPermissionException
+	{
+		// create the question
+		Question baseQuestion = newQuestion(pool, "mneme:MultipleChoice");
+
+		// this will hold the question, properly typed for return
+		MultipleChoiceQuestionTypeImpl rv = new MultipleChoiceQuestionTypeImpl();
+		rv.set((QuestionImpl) baseQuestion);
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Question newQuestion(Pool pool, String type) throws AssessmentPermissionException
 	{
 		if (pool == null) throw new IllegalArgumentException();
@@ -596,6 +661,32 @@ public class QuestionServiceImpl implements QuestionService
 		doSave(question);
 
 		return question;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Question newTaskQuestion(Pool pool) throws AssessmentPermissionException
+	{
+		// create the question
+		Question baseQuestion = newQuestion(pool, "mneme:Task");
+
+		return baseQuestion;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public TrueFalseQuestion newTrueFalseQuestion(Pool pool) throws AssessmentPermissionException
+	{
+		// create the question
+		Question baseQuestion = newQuestion(pool, "mneme:TrueFalse");
+
+		// this will hold the question, properly typed for return
+		TrueFalseQuestionTypeImpl rv = new TrueFalseQuestionTypeImpl();
+		rv.set((QuestionImpl) baseQuestion);
+
+		return rv;
 	}
 
 	/**

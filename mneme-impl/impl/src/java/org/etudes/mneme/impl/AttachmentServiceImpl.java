@@ -842,6 +842,20 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	/**
 	 * {@inheritDoc}
 	 */
+	public String processMnemeUrls(String ref)
+	{
+		if (ref == null) return null;
+		String translated = decodeUrl(ref);
+		if (translated == null) return null;
+		// URL encode translated
+		String escaped = EscapeRefUrl.escapeUrl(translated);
+		if (escaped == null) return null;
+		return "/access/mneme" + escaped;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void removeAttachment(Reference ref)
 	{
 		pushAdvisor();
@@ -1586,8 +1600,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 				String escapedUrl = EscapeRefUrl.escapeRefUrl(ref, url);
 
-				Attachment a = new AttachmentImpl(doc.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME), ref, escapedUrl, doc
-						.getContentType());
+				Attachment a = new AttachmentImpl(doc.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME), ref, escapedUrl,
+						doc.getContentType());
 				attachments.add(a);
 			}
 		}
@@ -2076,7 +2090,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				String terminator = m.group(3);
 
 				if (ref != null) ref = ref.trim();
-
+				
 				// expand to a full reference if relative
 				ref = adjustRelativeReference(ref, parentRef);
 
@@ -2126,7 +2140,6 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		}
 
 		m.appendTail(sb);
-
 		return sb.toString();
 	}
 
