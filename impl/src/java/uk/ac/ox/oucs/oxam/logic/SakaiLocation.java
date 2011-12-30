@@ -42,7 +42,10 @@ public class SakaiLocation implements Location {
 	public String getPrefix() {
 		if (prefix == null) {
 			try {
-				prefix = contentHostingService.getCollection(sitePath).getUrl(true);
+				// This is so that we can have a relative path, without the hostname.
+				String siteUrl = contentHostingService.getCollection(sitePath).getUrl(true);
+				String prefix = serverConfigurationService.getString("accessPath", "/access");
+				this.prefix = Utils.joinPaths("/", prefix, siteUrl);
 				// Ignore all the exceptions.
 			} catch (PermissionException e) {
 				//
