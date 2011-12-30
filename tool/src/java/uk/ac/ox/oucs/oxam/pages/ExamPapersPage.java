@@ -172,7 +172,8 @@ public class ExamPapersPage extends AdminPage {
 
 				@Override
 				public void onClick() {
-					setResponsePage(new EditExamPaper(model.getObject()));
+					// We pass in the current page so if we have some state, when clicking 
+					setResponsePage(new EditExamPaper(model.getObject(), ExamPapersPage.this));
 				}
 			});
 			add(new Link<String>("delete") {
@@ -180,7 +181,7 @@ public class ExamPapersPage extends AdminPage {
 
 				@Override
 				public void onClick() {
-					setResponsePage(new DeleteExamPaper(model.getObject()));
+					setResponsePage(new DeleteExamPaper(model.getObject(), ExamPapersPage.this));
 				}
 			});
 		}

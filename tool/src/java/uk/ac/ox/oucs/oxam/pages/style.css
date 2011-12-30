@@ -13,6 +13,15 @@ tr.headers th, .nowrap {
 	white-space: nowrap;
 }
 
+/* This disables the double separator caused by a disabled link changing <a> to <span> */
+.navIntraTool li span span {
+	border-left: none;
+}
+
+/* Removes extra padding on clear button, which comes from Sakai. */
+input.clear {
+	margin: 0em;
+}
 
 /* style the Wicket FeedbackPanel to remove the list */
 .alertMessage ul,.success ul {

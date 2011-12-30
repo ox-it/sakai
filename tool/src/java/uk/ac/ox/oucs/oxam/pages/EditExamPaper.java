@@ -3,6 +3,7 @@ package uk.ac.ox.oucs.oxam.pages;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.apache.wicket.Page;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
@@ -41,14 +42,18 @@ public class EditExamPaper extends AdminPage {
 	private TermService termService;
 	
 	private ExamPaper examPaper;
+	
+	// This is the previous page we were on so we can go back 
+	private Page previous;
 
 	public EditExamPaper() {
-		this(new ExamPaper());
+		this(null, null);
 	}
 	
-	public EditExamPaper(ExamPaper examPaper) {
-		this.examPaper = examPaper;
-		IModel<ExamPaper> model = new CompoundPropertyModel<ExamPaper>(examPaper);
+	public EditExamPaper(ExamPaper examPaper, Page previous) {
+		this.examPaper = (examPaper == null)?new ExamPaper():examPaper;
+		this.previous = previous;
+		IModel<ExamPaper> model = new CompoundPropertyModel<ExamPaper>(this.examPaper);
 		add(new ExamPaperForm("examPaperForm", model));
 	}
 	
@@ -112,7 +117,11 @@ public class EditExamPaper extends AdminPage {
 
 				@Override
 				public void onSubmit() {
-					setResponsePage(ExamPapersPage.class);
+					if (previous != null) {
+						setResponsePage(previous);
+					} else {
+						setResponsePage(ExamPapersPage.class);
+					}
 				}
 			};
 			cancel.setDefaultFormProcessing(false);

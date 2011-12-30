@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.oxam.pages;
 
+import org.apache.wicket.Page;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
@@ -16,16 +17,24 @@ public class DeleteExamPaper extends AdminPage {
 	@SpringBean
 	private ExamPaperService examPaperService;
 	
+	private Page previous;
+	
 	private long id;
 
-	public DeleteExamPaper(ExamPaper object) {
+	public DeleteExamPaper(ExamPaper object, Page previous) {
 		this.id = object.getId();
+		this.previous = previous;
+		
 		Form<ExamPaper> form = new Form<ExamPaper>("deleteForm", new CompoundPropertyModel<ExamPaper>(object)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onSubmit() {
-				setResponsePage(ExamPapersPage.class);
+				if(DeleteExamPaper.this.previous != null) {
+					setResponsePage(DeleteExamPaper.this.previous);
+				} else {
+					setResponsePage(ExamPapersPage.class);
+				}
 			}
 		};
 		add(form);
@@ -43,6 +52,7 @@ public class DeleteExamPaper extends AdminPage {
 			@Override
 			public void onSubmit() {
 				examPaperService.deleteExamPaper(id);
+				info(getString("action.delete.ok"));
 			}
 			
 		});

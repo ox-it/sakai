@@ -16,6 +16,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.link.PageLink;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.Model;
@@ -139,15 +140,21 @@ public class SakaiPage extends WebPage implements IHeaderContributor {
 
 	protected void addLink(Class<? extends Page> clazz, String title,
 			String tooltip) {
-		WebMarkupContainer parent = new WebMarkupContainer(links.newChildId());
-		links.add(parent);
 		Link<Page> link = new BookmarkablePageLink<Page>("anchor", clazz);
+		link.setEnabled(!getClass().equals(clazz));
+		addLink(link, title, tooltip);
+	}
+	
+	protected void addLink(final Link<Page> link, String title,
+			String tooltip) {
+		WebMarkupContainer parent = new WebMarkupContainer(links.newChildId());
+		links.add(parent); 
 		link.add(new Label("label", new ResourceModel(title))
 				.setRenderBodyOnly(true));
 		if (tooltip != null) {
 			link.add(new AttributeModifier("title", true, new ResourceModel(
 					tooltip)));
-		}
+		};
 		parent.add(link);
 	}
 }
