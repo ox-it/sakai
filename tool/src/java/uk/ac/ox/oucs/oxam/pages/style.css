@@ -8,6 +8,12 @@
 	margin-left: 2em;
 }
 
+/* Used to prevent things wrapping. */
+tr.headers th, .nowrap {
+	white-space: nowrap;
+}
+
+
 /* style the Wicket FeedbackPanel to remove the list */
 .alertMessage ul,.success ul {
 	list-style-type: none !important;

@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.HeaderlessColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
@@ -20,7 +20,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.Filte
 import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.GoAndClearFilter;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.IFilterStateLocator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.TextFilteredPropertyColumn;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -46,8 +45,6 @@ public class ExamPapersPage extends AdminPage {
 		List<IColumn<?>> columns = new ArrayList<IColumn<?>>();
 		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel(
 				"label.exam.title"), "examTitle"));
-		// columns.add(new PropertyColumn<ExamPaper>(new
-		// ResourceModel("label.exam.code"), "examCode"));
 		columns.add(new TextFilteredPropertyColumn<ExamPaper, String>(
 				new ResourceModel("label.exam.code"), "examCode"));
 		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel(
@@ -80,6 +77,7 @@ public class ExamPapersPage extends AdminPage {
 			@Override
 			public Component getFilter(String id, final FilterForm<?> form) {
 				GoAndClearFilter filter = new GoAndClearFilter(id, form);
+				filter.add(new AttributeModifier("class", new Model("nowrap")));
 				return filter;
 			}
 		});
