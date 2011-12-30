@@ -78,6 +78,12 @@ public class SakaiPage extends WebPage implements IHeaderContributor {
 
 				return newMessageDisplayComponent;
 			}
+			
+			// If we don't link up visibility to having messages, then when changing the filter after displaying
+			// the message, the message disappears but they surrounding box remains.
+			public boolean isVisible() {
+				return anyMessage();
+			}
 		};
 		feedbackPanel.setFilter(new IFeedbackMessageFilter() {
 

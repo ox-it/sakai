@@ -24,8 +24,6 @@ public class AdminPage extends SakaiPage {
 			public void onClick() {
 				setResponsePage(new EditExamPaper(null, AdminPage.this));
 			}
-			
-			
 		};
 		editLink.setEnabled(!getClass().equals(EditExamPaper.class));
 		addLink(editLink, "link.new", null);
