@@ -19,6 +19,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.Filte
 import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.FilteredAbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.GoAndClearFilter;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.IFilterStateLocator;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.TextFilter;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.TextFilteredPropertyColumn;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
@@ -30,6 +31,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
+import uk.ac.ox.oucs.oxam.components.CodeTextFilter;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.model.AcademicYear;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
@@ -46,11 +48,26 @@ public class ExamPapersPage extends AdminPage {
 		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel(
 				"label.exam.title"), "examTitle"));
 		columns.add(new TextFilteredPropertyColumn<ExamPaper, String>(
-				new ResourceModel("label.exam.code"), "examCode"));
+				new ResourceModel("label.exam.code"), "examCode"){
+			private static final long serialVersionUID = 1L;
+
+			public Component getFilter(String componentId, FilterForm<?> form) {
+				// This is to we get small box and uppercasing.
+				return new CodeTextFilter<String>(componentId, getFilterModel(form), form);
+			}
+
+		});
 		columns.add(new PropertyColumn<ExamPaper>(new ResourceModel(
 				"label.paper.title"), "paperTitle"));
 		columns.add(new TextFilteredPropertyColumn<ExamPaper, String>(
-				new ResourceModel("label.paper.code"), "paperCode"));
+				new ResourceModel("label.paper.code"), "paperCode"){
+			private static final long serialVersionUID = 1L;
+
+			public Component getFilter(String componentId, FilterForm<?> form) {
+				// This is to we get small box and uppercasing.
+				return new CodeTextFilter<String>(componentId, getFilterModel(form), form);
+			}
+});
 		columns.add(new AbstractColumn<ExamPaper>(new ResourceModel(
 				"label.paper.file")) {
 			private static final long serialVersionUID = 1L;
