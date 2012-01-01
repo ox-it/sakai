@@ -52,7 +52,7 @@ public class SakaiPage extends WebPage implements IHeaderContributor {
 
 	public SakaiPage() {
 
-		log.debug("BasePage()");
+		log.debug("SakaiPage()");
 
 		links = new RepeatingView("link");
 		add(links);
