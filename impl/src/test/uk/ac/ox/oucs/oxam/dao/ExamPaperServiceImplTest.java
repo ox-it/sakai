@@ -51,7 +51,7 @@ public class ExamPaperServiceImplTest {
 	
 	@Test
 	public void test() {
-		assertEquals(0, service.count());
+		assertEquals(0, service.count(null,null,null,null));
 		ExamPaper examPaper = service.newExamPaper();
 		examPaper.setCategory(categoryService.getAll().iterator().next());
 		examPaper.setExamCode("EXAM");
@@ -63,7 +63,7 @@ public class ExamPaperServiceImplTest {
 		examPaper.setTerm(termService.getAll().iterator().next());
 		service.saveExamPaper(examPaper);
 		assertNotNull(service.getExamPaper(examPaper.getId()));
-		assertEquals(1, service.count());
+		assertEquals(1, service.count(null,null,null,null));
 		examPaper.setPaperFile("/other");
 		service.saveExamPaper(examPaper);
 		assertTrue(examPaper.getId() != 0);

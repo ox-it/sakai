@@ -15,6 +15,7 @@ import uk.ac.ox.oucs.oxam.dao.ExamDao;
 import uk.ac.ox.oucs.oxam.dao.ExamPaperDao;
 import uk.ac.ox.oucs.oxam.dao.ExamPaperFileDao;
 import uk.ac.ox.oucs.oxam.dao.PaperDao;
+import uk.ac.ox.oucs.oxam.logic.IndexerStatus.Status;
 import uk.ac.ox.oucs.oxam.model.AcademicYear;
 import uk.ac.ox.oucs.oxam.model.Exam;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
@@ -33,6 +34,10 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 	private IndexingService indexer;
 
 	boolean indexing = false;
+
+	private Thread dbReader;
+
+	private Reindex reindexer;
 
 	public void init() {
 		// Nothing todo.
@@ -187,12 +192,35 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 
 	
 	
-	public synchronized int reindex() {
-		Reindex iterator = new Reindex();
-		Thread dbReader = new Thread(iterator, "ExamPaper DB loader");
-		dbReader.start();
-		indexer.reindex(iterator);
-		return 0;
+	public synchronized void reindex() {
+		if (!indexer.isReindexing()) {
+			if (reindexer != null && reindexer.status() != 1f) {
+				LOG.warn("The indexer doesn't think it has anything todo but the reinder hasn't finished.");
+			}
+			if (dbReader != null && dbReader.isAlive()) {
+				LOG.warn("The indexer doesn't think it has anything todo but the database reader is still running.");
+			}
+			reindexer = new Reindex();
+			dbReader = new Thread(reindexer, "ExamPaper DB loader");
+			dbReader.start();
+			indexer.reindex(reindexer);
+			LOG.info("Started new re-index");
+		}
+	}
+	
+	public IndexerStatus reindexStatus() {
+		return new IndexerStatus() {
+			
+			@Override
+			public Status getStatus() {
+				return (indexer.isReindexing())?Status.RUNNING:Status.STOPPED;
+			}
+			
+			@Override
+			public float getProgress() {
+				return reindexer != null && indexer.isReindexing()?reindexer.status():0;
+			}
+		};
 	}
 	
 	/**
@@ -210,7 +238,13 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 		// Holds the value we've just taken from the queve.
 		private ExamPaper next;
 		
+		private int total;
+		private int done;
+		
 		public void run() {
+			// Count how many we have in total.
+			total = examPaperDao.count(null);
+			
 			// Just adds items to the queue, waiting if the queue is full.
 			examPaperDao.all(new Callback<ExamPaper>() {
 				public void callback(ExamPaper value) {
@@ -222,6 +256,7 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 				}
 			});
 			try {
+				// Mark the queue as empty.
 				queue.put(empty);
 			} catch (InterruptedException e) {
 				LOG.warn("Failed to add empty item to list", e);
@@ -240,6 +275,7 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 
 		public ExamPaper next() {
 			if (hasNext()) {
+				done++;
 				ExamPaper examPaper = next;
 				next = null;
 				return examPaper;
@@ -249,6 +285,11 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 
 		public void remove() {
 			throw new UnsupportedOperationException();
+		}
+		
+		public float status() {
+			// Don't want a divide by zero or to report more than one.
+			return (total ==0)? 0f: (done > total? 1f : ((float)done) / total);
 		}
 		
 	}

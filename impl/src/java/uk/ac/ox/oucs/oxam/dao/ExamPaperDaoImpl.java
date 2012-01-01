@@ -96,25 +96,25 @@ public class ExamPaperDaoImpl extends BaseDao implements ExamPaperDao {
 		String stmt = getStatement("count");
 		
 		SQLBuilder sql = new SQLBuilder(getStatement("select.example.begin"), getStatement("select.example.end"), " AND ");
-		
-		sql.addParam(getStatement("select.id"), example.getId());
-		if (example.getCategory() != null) {
-			sql.addParam(getStatement("select.category"), example.getCategory().getCode());
+		if (example != null) {
+			sql.addParam(getStatement("select.id"), example.getId());
+			if (example.getCategory() != null) {
+				sql.addParam(getStatement("select.category"), example.getCategory().getCode());
+			}
+			sql.addParam(getStatement("select.exam_id"), example.getExamId());
+			sql.addParam(getStatement("select.exam_title"), example.getExamTitle());
+			sql.addParam(getStatement("select.exam_code"), example.getExamCode());
+			sql.addParam(getStatement("select.paper_id"), example.getPaperId());
+			sql.addParam(getStatement("select.paper_title"), example.getPaperTitle());
+			sql.addParam(getStatement("select.paper_code"), example.getPaperCode());
+			sql.addParam(getStatement("select.paper_file"), example.getPaperFile());
+			if (example.getYear() != null) {
+				sql.addParam(getStatement("select.year"), example.getYear().getYear());
+			}
+			if (example.getTerm() != null) {
+				sql.addParam(getStatement("select.term"), example.getTerm().getCode());
+			}
 		}
-		sql.addParam(getStatement("select.exam_id"), example.getExamId());
-		sql.addParam(getStatement("select.exam_title"), example.getExamTitle());
-		sql.addParam(getStatement("select.exam_code"), example.getExamCode());
-		sql.addParam(getStatement("select.paper_id"), example.getPaperId());
-		sql.addParam(getStatement("select.paper_title"), example.getPaperTitle());
-		sql.addParam(getStatement("select.paper_code"), example.getPaperCode());
-		sql.addParam(getStatement("select.paper_file"), example.getPaperFile());
-		if (example.getYear() != null) {
-			sql.addParam(getStatement("select.year"), example.getYear().getYear());
-		}
-		if (example.getTerm() != null) {
-			sql.addParam(getStatement("select.term"), example.getTerm().getCode());
-		}
-		
 		Map<String, Object> params = sql.getParams();
 		if (params.size() > 0) {
 			// We only use the joined count when we have something to search for.

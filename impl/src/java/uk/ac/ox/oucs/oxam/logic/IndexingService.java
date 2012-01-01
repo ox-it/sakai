@@ -12,4 +12,5 @@ public interface IndexingService {
 	
 	public void reindex(Iterator<ExamPaper> examPapers);
 	
+	public boolean isReindexing();
 }

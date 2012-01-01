@@ -1,18 +1,26 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
-
+<wicket:head>
+	<style type="text/css">
+	input.action {
+		margin: 1em;
+	}
+	</style>
+</wicket:head>
 <body>
 <wicket:extend>
 <h3>Reindex Data</h3>
-<form wicket:id="reindexForm">
+
 <div class="instructions">
 This will re-index all the content that users search based on the contents of the database. This will take a
-short while.
+short while. The re-indexing will be done in the background and once started you don't have to stay on this page.
 </div>
 <div>
-	<input type="submit" value="Re-index"/>
-</div>
+<form wicket:id="reindexForm">
+	<div class="progress" wicket:id="bar">[Progress]</div>
+	<input class="action" wicket:id="submit" type="button" value="Re-index"/>
 </form>
+</div>
 </wicket:extend>
 </body>
 </html>

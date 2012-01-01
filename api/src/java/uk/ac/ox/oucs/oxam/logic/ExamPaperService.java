@@ -64,7 +64,9 @@ public interface ExamPaperService {
 	
 	public Map<String, Paper> getLatestPapers(String[] codes);
 
-	public int reindex();
+	public void reindex();
+	
+	public IndexerStatus reindexStatus();
 
 	public ExamPaper newExamPaper();
 

@@ -90,6 +90,10 @@ public class IndexingServiceImpl implements IndexingService {
 		queue.add(id);
 	}
 	
+	public boolean isReindexing() {
+		return examPapers != null;
+	}
+	
 	/**
 	 * The job that submits documents to SOLR in batches.
 	 * Run in a seperate thread so we don't block callers.
@@ -107,7 +111,7 @@ public class IndexingServiceImpl implements IndexingService {
 		// posts them to solr.
 		public void run() {
 			while(!stop) {
-				if (examPapers != null) {
+				if (isReindexing()) {
 					reindex();
 				} else {
 					try {
