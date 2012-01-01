@@ -120,7 +120,7 @@ public class EditExamPaper extends AdminPage {
 					if (previous != null) {
 						setResponsePage(previous);
 					} else {
-						setResponsePage(ExamPapersPage.class);
+						setResponsePage(new ExamPapersPage());
 					}
 				}
 			};
@@ -179,10 +179,15 @@ public class EditExamPaper extends AdminPage {
 				}
 			}
 			if (!hasError()) {
+				boolean isNew = examPaper.getId() == 0;
 				examPaperService.saveExamPaper(examPaper);
-				info(new StringResourceModel("exampaper.added", null).getString());
+				info(getString((isNew)?"action.added.ok":"action.updated.ok"));
 				// Some people say this is bad?
-				setResponsePage(ExamPapersPage.class);
+				if (previous != null) {
+					setResponsePage(previous);
+				} else {
+					setResponsePage(new ExamPapersPage());
+				}
 			}
 		}
 		
