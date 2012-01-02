@@ -49,6 +49,13 @@ public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 		this.solr = solr;
 	}
 	
+	/**
+	 * 
+	 * @param solr
+	 * @param query The escaped query. The caller must escape the query string as only it 
+	 * know which parts of the query should be escaped.
+	 * @param filters
+	 */
 	public SolrProvider(SolrServer solr, String query, String[] filters) {
 		this.solr = solr;
 		this.query = query;
