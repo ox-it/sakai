@@ -265,7 +265,7 @@ public class HtmlHelper
 		if (data.indexOf("<link ") == -1 && data.indexOf("<meta ") == -1) return data;
 
 		// pattern to find link/meta tags
-		Pattern p = Pattern.compile("<(link|meta)\\s+.*?/>", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
+		Pattern p = Pattern.compile("<(link|meta)\\s+.*?(/*>)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
 
 		Matcher m = p.matcher(data);
 		StringBuffer sb = new StringBuffer();
