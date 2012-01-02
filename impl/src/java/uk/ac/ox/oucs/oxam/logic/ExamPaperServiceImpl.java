@@ -304,11 +304,17 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 	}
 	
 	public Map<String, Paper> getLatestPapers(String[] codes) {
+		if (codes.length == 0) {
+			return Collections.emptyMap();
+		}
 		// TODO Caching?
 		return paperDao.getCodes(codes);
 	}
 	
 	public Map<String, Exam> getLatestExams(String[] codes) {
+		if (codes.length == 0) {
+			return Collections.emptyMap();
+		}
 		// TODO Caching?
 		return examDao.getCodes(codes);
 	}
