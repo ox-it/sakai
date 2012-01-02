@@ -8,6 +8,7 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.request.target.coding.QueryStringUrlCodingStrategy;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 
 import uk.ac.ox.oucs.oxam.pages.AdvancedSearchPage;
@@ -45,9 +46,10 @@ public class BrowseApplication extends WebApplication {
 		getApplicationSettings().setAccessDeniedPage(SimpleSearchPage.class);
 		
 		//to put this app into deployment mode, see web.xml
-		mountBookmarkablePage("/search", SimpleSearchPage.class);
-		mountBookmarkablePage("/advanced", AdvancedSearchPage.class);
-		
+		// We don't use mountBookmarkablePage as it's URL coding strategy doesn't cope
+		// with space in the URL.
+		mount(new QueryStringUrlCodingStrategy("/search", SimpleSearchPage.class));
+		mount(new QueryStringUrlCodingStrategy("/advanced", AdvancedSearchPage.class));
 
 	}
 	
