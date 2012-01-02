@@ -1,6 +1,7 @@
 package uk.ac.ox.oucs.oxam.components;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -14,9 +15,9 @@ import org.apache.wicket.markup.html.navigation.paging.PagingNavigation;
  * @see http://letsgetdugg.com/2009/05/27/wicket-stateless-pagination/
  *
  */
-public class StatelessSimplePagingNavigator extends SimplePagingNavigator {
+public class StatelessSimplePagingNavigator<T extends Page> extends SimplePagingNavigator {
 	private static final long serialVersionUID = 1L;
-	private Class clazz;
+	private Class<T> clazz;
 	private PageParameters pp;
 	private IPageable pageable;
 	private String anchor;
@@ -26,13 +27,13 @@ public class StatelessSimplePagingNavigator extends SimplePagingNavigator {
 		return true;
 	}
 
-	public StatelessSimplePagingNavigator(final String id, final Class clazz,
+	public StatelessSimplePagingNavigator(final String id, final Class<T> clazz,
 			final PageParameters pp, final IPageable pageable,
 			final int viewsize) {
 		this(id, clazz, pp, pageable, viewsize, false);
 	}
 
-	public StatelessSimplePagingNavigator(final String id, final Class clazz,
+	public StatelessSimplePagingNavigator(final String id, final Class<T> clazz,
 			final PageParameters pp, final IPageable pageable,
 			final int viewsize, final boolean anchorSelf) {
 		super(id, pageable, viewsize, anchorSelf);
@@ -41,7 +42,7 @@ public class StatelessSimplePagingNavigator extends SimplePagingNavigator {
 		this.pageable = pageable;
 	}
 
-	public StatelessSimplePagingNavigator(final String id, final Class clazz,
+	public StatelessSimplePagingNavigator(final String id, final Class<T> clazz,
 			final PageParameters pp, final IPageable pageable,
 			final int viewsize, final String anchor) {
 		super(id, pageable, viewsize, false);
@@ -68,13 +69,13 @@ public class StatelessSimplePagingNavigator extends SimplePagingNavigator {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected Link newPagingNavigationLink(final String id,
+			protected Link<Void> newPagingNavigationLink(final String id,
 					final IPageable pageable, final int pageIndex) {
 				Component c = (Component) pageable;
 				// PageParameters p1 = new PageParameters();
 				// p1.putAll(pp);
 				//pp.put(c.getId(), String.valueOf(pageIndex));
-				BookmarkablePageLink<Object> lnk = new BookmarkablePageLink<Object>(
+				BookmarkablePageLink<Void> lnk = new BookmarkablePageLink<Void>(
 						id, clazz, pp) {
 					private static final long serialVersionUID = 1L;
 
@@ -125,12 +126,9 @@ public class StatelessSimplePagingNavigator extends SimplePagingNavigator {
 		return link;
 	}
 
-	protected Link<Object> newStatelessPagingNavigationLink(final String id,
+	protected Link<Void> newStatelessPagingNavigationLink(final String id,
 			final String pageableId, final int currentPage, final int increment) {
-		// PageParameters p1 = new PageParameters();
-		// p1.putAll(pp);
-		//pp.put(pageableId, String.valueOf(currentPage + increment));
-		BookmarkablePageLink link = new BookmarkablePageLink<Object>(id, clazz, pp) {
+		BookmarkablePageLink<Void> link = new BookmarkablePageLink<Void>(id, clazz, pp) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -144,13 +142,9 @@ public class StatelessSimplePagingNavigator extends SimplePagingNavigator {
 	}
 
 	@Override
-	protected Link<Object> newPagingNavigationLink(final String id,
+	protected Link<Void> newPagingNavigationLink(final String id,
 			final IPageable pageable, final int pageNumber) {
-		Component c = (Component) pageable;
-		// PageParameters p1 = new PageParameters();
-		// p1.putAll(pp);
-		//pp.put(c.getId(), String.valueOf(pageNumber));
-		BookmarkablePageLink link = new BookmarkablePageLink(id, clazz, pp);
+		BookmarkablePageLink<Void> link = new BookmarkablePageLink<Void>(id, clazz, pp);
 		return link;
 	}
 

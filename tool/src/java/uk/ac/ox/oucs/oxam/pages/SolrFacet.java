@@ -20,8 +20,6 @@ import org.apache.wicket.model.ResourceModel;
 import uk.ac.ox.oucs.oxam.pages.SimpleSearchPage.Resolver;
 
 public class SolrFacet<T> extends Panel {
-	
-	
 
 	public static final int FACET_LIMIT = 40;
 	
@@ -52,6 +50,7 @@ public class SolrFacet<T> extends Panel {
 		
 		WebMarkupContainer results = new WebMarkupContainer("results");
 		results.setVisible(!hasTooMany);
+		// We split the list into the inital set and then the hidden ones.
 		boolean hasHidden = values.size() > FACET_DISPLAY;
 		List<Count> visible = hasHidden?values.subList(0, FACET_DISPLAY):values;
 		results.add(new FacetListView("result", visible, resolver, facet, pp, displayValues));

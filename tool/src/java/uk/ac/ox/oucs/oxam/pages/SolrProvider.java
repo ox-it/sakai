@@ -1,11 +1,14 @@
 package uk.ac.ox.oucs.oxam.pages;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.lucene.search.Query;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServer;
@@ -28,7 +31,7 @@ import org.apache.wicket.model.ResourceModel;
 import uk.ac.ox.oucs.oxam.components.AdvancedIDataProvider;
 import uk.ac.ox.oucs.oxam.pages.SimpleSearchPage.Resolver;
 
-class SolrProvider implements AdvancedIDataProvider<SolrDocument>
+public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 {
 
 	private static final long serialVersionUID = 1L;
@@ -106,11 +109,10 @@ class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 		}
 		SolrQuery solrQuery = new SolrQuery().
 				
-				setQuery(query.length() > 0?query:"*:*").
+				setQuery(query).
 				setStart(first).
 				setRows(count).
 				setFacet(true).
-				//setFacetSort(FacetParams.FACET_SORT_INDEX).
 				setFacetMinCount(1).
 				setFacetLimit(SolrFacet.FACET_LIMIT+1). // So we know if we have too many.
 				setSortField("sort_year", ORDER.desc).
@@ -131,19 +133,21 @@ class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 			throw new RuntimeException("Search Failed");
 		}
 	}
-	
+
 	public <T> Panel getFacet(String id, final String facet, FacetSort sort, final Resolver<T> resolver, final PageParameters pp) {
+		// TODO The doSearch should happen just before the render.
 		doSearch();
 		List<Count> values = response.getFacetField(facet).getValues();
+		if (values == null) {
+			values = Collections.emptyList();
+		}
 		ResourceModel title = getFacetTitle(facet);
-		Panel panel = (values == null || values.size() < 2 || values.size() > SolrFacet.FACET_LIMIT)?
-				new EmptyPanel(id):
-				new SolrFacet<T>(id, facet, title, values, sort, resolver, pp);
+		Panel panel = new SolrFacet<T>(id, facet, title, values, sort, resolver, pp);
+		panel.setVisible(values.size() > 1 && values.size() <= SolrFacet.FACET_LIMIT);
 		return panel;
 	}
 	
 	public ListView<?> getFilters(String id, final PageParameters pp) {
-		doSearch();
 		
 		final ListView<Filter> filterList = new ListView<Filter>(id, filters){
 			private static final long serialVersionUID = 1L;
@@ -162,6 +166,13 @@ class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 				}
 				linkParams.put("filter", reduced.toArray(new String[]{}));
 				item.add(new BookmarkablePageLink<Void>("link", SimpleSearchPage.class, linkParams));
+			}
+			
+			@Override
+			protected void onBeforeRender() {
+				// Only do the search if we're rendering.
+				super.onBeforeRender();
+				doSearch();
 			}
 
 		};

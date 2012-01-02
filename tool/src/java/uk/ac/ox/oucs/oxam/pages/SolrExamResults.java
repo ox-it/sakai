@@ -1,6 +1,7 @@
 package uk.ac.ox.oucs.oxam.pages;
 
 import org.apache.solr.common.SolrDocument;
+import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigatorLabel;
 import org.apache.wicket.markup.html.basic.Label;
@@ -8,19 +9,22 @@ import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.model.Model;
 
 import uk.ac.ox.oucs.oxam.components.AdvancedIDataProvider;
 import uk.ac.ox.oucs.oxam.components.AdvancedStatelessDataView;
+import uk.ac.ox.oucs.oxam.components.EmptyMessage;
 import uk.ac.ox.oucs.oxam.components.StatelessSimplePagingNavigator;
 
-class SolrExamResults extends Panel {
+class SolrExamResults<T extends Page> extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	private DataView<SolrDocument> dataView;
-	private StatelessSimplePagingNavigator pager;
+	private StatelessSimplePagingNavigator<T> pager;
 	private NavigatorLabel pagerLabel;
+	private EmptyMessage emptyMessage;
 
-	public SolrExamResults(String id,Class clazz, AdvancedIDataProvider<SolrDocument> provider, PageParameters pp) {
+	public SolrExamResults(String id, Class<T> clazz, AdvancedIDataProvider<SolrDocument> provider, PageParameters pp) {
 		// TODO need to deal with no matches.
 		
 		super(id);
@@ -43,12 +47,22 @@ class SolrExamResults extends Panel {
 		};
 		
 		dataView.setItemsPerPage(20);
-		pager = new StatelessSimplePagingNavigator("resultsNavigation", clazz, pp, dataView, 10);
-		pagerLabel = new NavigatorLabel("resultsLabel", dataView);
+		pager = new StatelessSimplePagingNavigator<T>("resultsNavigation", clazz, pp, dataView, 10);
+		pagerLabel = new NavigatorLabel("resultsLabel", dataView) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return dataView.getRowCount() != 0;
+			}
+		};
+		
+		emptyMessage = new EmptyMessage("emptyMessage", dataView, new Model<String>(getString("no.results.found")));
 		
 		add(dataView);
 		add(pager);
 		add(pagerLabel);
+		add(emptyMessage);
 	}
 	
 }
