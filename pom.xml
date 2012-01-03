@@ -239,6 +239,7 @@
         <module>api</module>
         <module>impl</module>
         <module>pack</module>
-        <module>solr</module>
+        <!-- This is not part of the standard build, but is useful for development setups. -->
+        <!-- <module>solr</module> -->
     </modules>
 </project>

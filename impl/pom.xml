@@ -41,6 +41,8 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring</artifactId>
+            <version>2.0.6</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
@@ -49,6 +51,10 @@
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -81,15 +87,9 @@
             <version>4.4</version>
         </dependency>
         <dependency>
-            <!-- This is so that we get autowiring during test. -->
             <groupId>org.springframework</groupId>
-            <artifactId>spring</artifactId>
-            <scope>test</scope>
-            <version>2.5.6.SEC03</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
+            <artifactId>spring-mock</artifactId>
+            <version>2.0.6</version>
             <scope>test</scope>
         </dependency>
         <dependency>
