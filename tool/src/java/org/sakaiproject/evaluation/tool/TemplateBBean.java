@@ -168,7 +168,10 @@ public class TemplateBBean {
         
         EvalTemplate template = authoringService.getTemplateById(templateId);
         
-        if (!authoringService.canModifyTemplate(ownerId, templateId)) {
+        if (!authoringService.canCreateTemplate(userId) ||
+        	!authoringService.canModifyTemplate(ownerId, templateId)) {
+        	messages.addMessage( new TargettedMessage("controltemplates.chown.permission.message", 
+                    new Object[] {template.getTitle(), templateOwner}, TargettedMessage.SEVERITY_ERROR) );
             return "failed";
         }
         
