@@ -103,6 +103,7 @@ public class TemplateBBean {
     public String blockTextChoice;
     public String orderedChildIds;
     public String templateItemIds;
+    public String templateOwner;
     
     public Long groupItemId;
 
@@ -151,6 +152,30 @@ public class TemplateBBean {
         authoringService.deleteTemplate(templateId, ownerId);
         messages.addMessage( new TargettedMessage("controltemplates.remove.user.message", 
                 new Object[] {template.getTitle()}, TargettedMessage.SEVERITY_INFO) );
+        return "success";
+    }
+    
+    /**
+     * Chown a template and create a user message,
+     * templateId must be set
+     */
+    public String chownTemplate() {
+        String ownerId = commonLogic.getCurrentUserId();
+        String userId = commonLogic.getUserId(templateOwner);
+        if (null == userId) {
+        	return "failed";
+        }
+        
+        EvalTemplate template = authoringService.getTemplateById(templateId);
+        
+        if (!authoringService.canModifyTemplate(ownerId, templateId)) {
+            return "failed";
+        }
+        
+        template.setOwner(userId);
+        authoringService.saveTemplate(template, userId);
+        messages.addMessage( new TargettedMessage("controltemplates.chown.user.message", 
+                new Object[] {template.getTitle(), templateOwner}, TargettedMessage.SEVERITY_INFO) );
         return "success";
     }
 
@@ -363,7 +388,7 @@ public class TemplateBBean {
      */
     public String saveBlockItemAction() {
         log.debug("Save Block items");
-
+        	
         Map<String, EvalTemplateItem> delivered = templateItemWBL.getDeliveredBeans();
         
         // Note: Arrays.asList() produces lists that do not support add() or remove(), however set() is supported
@@ -527,6 +552,7 @@ public class TemplateBBean {
             }
             return parent.getId().toString();
         }
+        
         return "success";
     }
     
