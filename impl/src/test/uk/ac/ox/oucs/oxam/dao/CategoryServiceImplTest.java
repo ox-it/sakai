@@ -1,25 +1,23 @@
 package uk.ac.ox.oucs.oxam.dao;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 import uk.ac.ox.oucs.oxam.logic.CategoryServiceImpl;
 import uk.ac.ox.oucs.oxam.model.Category;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
-public class CategoryServiceImplTest {
+public class CategoryServiceImplTest extends AbstractDependencyInjectionSpringContextTests{
 	
-	@Autowired
-	private CategoryServiceImpl categoryService;
 
-	@Test
+	private CategoryServiceImpl categoryService;
+	
+	public void setCategoryService(CategoryServiceImpl categoryService) {
+		this.categoryService = categoryService;
+	}
+
+	protected String[] getConfigLocations() {
+		return new String[] { "classpath:uk/ac/ox/oucs/oxam/dao/CategoryServiceImplTest-context.xml" };
+	}
+	
 	public void testLoaded() {
 		// Simple test which just checks the data got loaded.
 		assertEquals("Qualifying Examinations", categoryService.getByCode("T").getName());

@@ -1,25 +1,21 @@
 package uk.ac.ox.oucs.oxam.dao;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.AbstractTransactionalDataSourceSpringContextTests;
 
 import uk.ac.ox.oucs.oxam.model.Exam;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/oxam-beans.xml", "/context.xml"})
-@Transactional
-public class ExamDaoImplTest {
+public class ExamDaoImplTest extends AbstractTransactionalDataSourceSpringContextTests {
 
-	@Autowired
-	private ExamDaoImpl dao;
+	private ExamDao dao;
+
+	public void setDao(ExamDao dao) {
+		this.dao = dao;
+	}
+
+	protected String[] getConfigLocations() {
+		return new String[] { "classpath:/oxam-beans.xml", "classpath:/context.xml" };
+	}
 	
-	@Test
 	public void testAllOpertations() {
 		Exam exam = new Exam("CODE", 2000);
 		exam.setCategory("AA");

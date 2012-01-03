@@ -1,28 +1,21 @@
 package uk.ac.ox.oucs.oxam.dao;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.AbstractTransactionalDataSourceSpringContextTests;
 
 import uk.ac.ox.oucs.oxam.model.Paper;
 
-// TODO Look at @Parameterized for MySQL/Derby testing.
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/oxam-beans.xml", "/context.xml"})
-@Transactional
-public class PaperDaoImplTest {
+public class PaperDaoImplTest extends AbstractTransactionalDataSourceSpringContextTests {
 
-	@Autowired
 	private PaperDaoImpl dao;
-	
-	// We do tests in one method so we don't have the setup dummy data.
-	@Test
+
+	public void setDao(PaperDaoImpl dao) {
+		this.dao = dao;
+	}
+
+	protected String[] getConfigLocations() {
+		return new String[] { "classpath:/oxam-beans.xml", "classpath:/context.xml" };
+	}
+
 	public void testAllOperations() {
 	
 		Paper paper = new Paper("CODE", 2000);

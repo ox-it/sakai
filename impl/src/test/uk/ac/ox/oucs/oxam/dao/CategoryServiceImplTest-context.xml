@@ -13,7 +13,7 @@
     </bean>
     
     <bean id="categoryService" class="uk.ac.ox.oucs.oxam.logic.CategoryServiceImpl"
-        init-method="init">
+        init-method="init" autowire-candidate="true">
         <property name="valueSource" ref="categoryValueSource" />
     </bean>
 </beans>

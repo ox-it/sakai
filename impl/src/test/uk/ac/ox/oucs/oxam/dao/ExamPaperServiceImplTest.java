@@ -1,19 +1,11 @@
 package uk.ac.ox.oucs.oxam.dao;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Map;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.test.AbstractTransactionalDataSourceSpringContextTests;
 import org.springframework.test.annotation.ExpectedException;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ox.oucs.oxam.logic.CategoryService;
@@ -26,30 +18,31 @@ import uk.ac.ox.oucs.oxam.model.ExamPaper;
 import uk.ac.ox.oucs.oxam.model.Paper;
 import uk.ac.ox.oucs.oxam.model.Term;
 
-//TODO Look at @Parameterized for MySQL/Derby testing.
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations= {"/oxam-beans.xml", "/context.xml"})
-@Transactional
-public class ExamPaperServiceImplTest {
+public class ExamPaperServiceImplTest extends AbstractTransactionalDataSourceSpringContextTests {
 
-	@Autowired
-	private ApplicationContext ac;
-	
 	// Autowiring doesn't work as the proxy means it can't wire by type 
 	private ExamPaperService service;
 	
-	@Autowired
 	private CategoryService categoryService;
 	
-	@Autowired
 	private TermService termService;
 	
-	@Before
-	public void setUp() {
-		service = (ExamPaperService) ac.getBean("examPaperService");
+	public void setService(ExamPaperService service) {
+		this.service = service;
+	}
+
+	public void setCategoryService(CategoryService categoryService) {
+		this.categoryService = categoryService;
+	}
+
+	public void setTermService(TermService termService) {
+		this.termService = termService;
+	}
+
+	protected String[] getConfigLocations() {
+		return new String[] { "classpath:/oxam-beans.xml", "classpath:/context.xml" };
 	}
 	
-	@Test
 	public void test() {
 		assertEquals(0, service.count(null,null,null,null));
 		ExamPaper examPaper = service.newExamPaper();
@@ -73,13 +66,15 @@ public class ExamPaperServiceImplTest {
 		service.saveExamPaper(examPaper);
 	}
 	
-	@Test
-	@ExpectedException(RuntimeException.class)
 	public void testMissing() {
-		service.getExamPaper(1);
+		try {
+			service.getExamPaper(1);
+			fail("Should have thrown an exception.");
+		} catch (Exception e) {
+			
+		}
 	}
 
-	@Test
 	public void testGetExamCodes() {
 		newExam("ABC1", "My Exam Title", 2011);
 		newExam("ABC1", "Other Exam Title", 2010);
@@ -102,7 +97,6 @@ public class ExamPaperServiceImplTest {
 		service.saveExamPaper(examPaper);
 	}
 	
-	@Test
 	public void testGetPaperCodes() {
 		newPaper("PAP1", "Paper 1", 2000);
 		newPaper("PAP2", "Paper 2", 2000);

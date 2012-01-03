@@ -7,9 +7,11 @@
   http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
 
+    <!-- The autowiring in this file is for the test setup. -->
 
     <bean id="examPaperService"
-        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean ">
+        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean "
+        autowire-candidate="true">
         <property name="transactionManager" ref="transactionManager" />
         <property name="target">
             <bean class="uk.ac.ox.oucs.oxam.logic.ExamPaperServiceImpl"
@@ -31,8 +33,6 @@
         </property>
     </bean>
 
-
-
     <!-- DAO Stuff -->
     <bean id="statementStore" class="uk.ac.ox.oucs.oxam.dao.StatementStore"
         init-method="init">
@@ -51,19 +51,19 @@
     </bean>
 
     <bean id="examPaperFileDao" class="uk.ac.ox.oucs.oxam.dao.ExamPaperFileDaoImpl"
-        init-method="init">
+        init-method="init" autowire-candidate="true">
         <property name="dataSource" ref="dataSource" />
         <property name="statementStore" ref="statementStore" />
     </bean>
 
     <bean id="examDao" class="uk.ac.ox.oucs.oxam.dao.ExamDaoImpl"
-        init-method="init">
+        init-method="init" autowire-candidate="true">
         <property name="dataSource" ref="dataSource" />
         <property name="statementStore" ref="statementStore" />
     </bean>
 
     <bean id="paperDao" class="uk.ac.ox.oucs.oxam.dao.PaperDaoImpl"
-        init-method="init">
+        init-method="init" autowire-candidate="true">
         <property name="dataSource" ref="dataSource" />
         <property name="statementStore" ref="statementStore" />
     </bean>
@@ -95,7 +95,7 @@
     </bean>
 
     <bean id="termService" class="uk.ac.ox.oucs.oxam.logic.TermServiceImpl"
-        init-method="init">
+        init-method="init" autowire-candidate="true">
         <property name="valueSource" ref="termValueSource" />
         <!-- Used to tell the indexing service what the max number for a
             term order is. -->
@@ -103,7 +103,7 @@
     </bean>
 
     <bean id="categoryService" class="uk.ac.ox.oucs.oxam.logic.CategoryServiceImpl"
-        init-method="init">
+        init-method="init" autowire-candidate="true">
         <property name="valueSource" ref="categoryValueSource" />
     </bean>
 
