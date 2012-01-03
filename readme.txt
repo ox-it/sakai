@@ -42,6 +42,7 @@ This was my first project with Wicket, so if something looks wrong in the tool i
 
 The search tool is designed to be used by 100s of people concurrently and doesn't use session state at all to keep nice URLs and to make sure the performance is good. The admin tool does use session state as it's only going to be used by one person infrequently so the extra memory overhead doesn't matter too much.
 
+When doing development you can put wicket into development mode by editing the web.xml, just remember not to commit this change back.
 
 
 Todo

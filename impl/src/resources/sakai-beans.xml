@@ -57,7 +57,7 @@
     
         <!-- Get the term data from the classpath -->
     <bean id="termValueSource"
-        class="uk.ac.ox.oucs.oxam.logic.SakaiValueSource">
+        class="uk.ac.ox.oucs.oxam.logic.SakaiValueSource" init-method="init">
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
@@ -68,7 +68,7 @@
     
     <!-- Get the categories data from the classpath -->
     <bean id="categoryValueSource"
-        class="uk.ac.ox.oucs.oxam.logic.SakaiValueSource">
+        class="uk.ac.ox.oucs.oxam.logic.SakaiValueSource" init-method="init">
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
