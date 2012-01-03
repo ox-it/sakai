@@ -8,6 +8,18 @@ Background
 
 Prior to this being hosted in WebLearn there was an application hosted by BSP built on an Oracle database and PL/SQL stored procedures. The tool was moved to WebLearn as the old application was unmaintained and didn't allow Exam School staff to change the database without producing a spreadsheet which was manually loaded by database administrators.
 
+Configuration
+-------------
+
+When running inside Sakai two properties need to be configured, these can be put in sakai.properties or local.properties
+
+# The Solr instance into which the documents are posted and which searches are made against.
+solr.server=http://localhost:8080/oxam-solr/
+
+# The Site ID which the OXAM tools are deployed into
+oxam.content.site.id=debc9c83-c890-4336-8c3a-ed742a49d7a6
+
+
 Technical Setup
 ---------------
 
