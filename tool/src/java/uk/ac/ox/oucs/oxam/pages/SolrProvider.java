@@ -29,7 +29,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
 import uk.ac.ox.oucs.oxam.components.AdvancedIDataProvider;
-import uk.ac.ox.oucs.oxam.pages.SimpleSearchPage.Resolver;
 
 public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 {
@@ -177,9 +176,9 @@ public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 			
 			@Override
 			protected void onBeforeRender() {
+				doSearch();
 				// Only do the search if we're rendering.
 				super.onBeforeRender();
-				doSearch();
 			}
 
 		};

@@ -304,7 +304,7 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 	}
 	
 	public Map<String, Paper> getLatestPapers(String[] codes) {
-		if (codes.length == 0) {
+		if (codes != null && codes.length == 0) {
 			return Collections.emptyMap();
 		}
 		// TODO Caching?
@@ -312,7 +312,7 @@ public class ExamPaperServiceImpl implements ExamPaperService {
 	}
 	
 	public Map<String, Exam> getLatestExams(String[] codes) {
-		if (codes.length == 0) {
+		if (codes != null && codes.length == 0) {
 			return Collections.emptyMap();
 		}
 		// TODO Caching?
