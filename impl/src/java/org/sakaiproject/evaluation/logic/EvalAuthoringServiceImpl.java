@@ -1879,8 +1879,7 @@ public class EvalAuthoringServiceImpl implements EvalAuthoringService {
         }
 
         return copy.getId();
-    }
-
+    }   
 
     public List<EvalItem> getItemsUsingScale(Long scaleId) {
         if (getScaleById(scaleId) == null) {

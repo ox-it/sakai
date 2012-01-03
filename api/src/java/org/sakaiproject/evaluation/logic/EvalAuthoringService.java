@@ -535,7 +535,7 @@ public interface EvalAuthoringService {
     * @throws IllegalArgumentException if the template id is invalid
     */
    public Long copyTemplate(Long templateId, String title, String ownerId, boolean hidden, boolean includeChildren);
-
+   
    /**
     * Makes a copy of a set of template items,
     * also copies all related items and scales if specified

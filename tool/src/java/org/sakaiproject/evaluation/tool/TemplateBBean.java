@@ -175,8 +175,13 @@ public class TemplateBBean {
             return "failed";
         }
         
-        template.setOwner(userId);
-        authoringService.saveTemplate(template, userId);
+        authoringService.copyTemplate(templateId, 
+        		template.getTitle()+ " (shared)", userId, false, true);
+        
+        authoringService.deleteTemplate(templateId, ownerId);
+        
+        //template.setOwner(userId);
+        //authoringService.saveTemplate(template, userId);
         messages.addMessage( new TargettedMessage("controltemplates.chown.user.message", 
                 new Object[] {template.getTitle(), templateOwner}, TargettedMessage.SEVERITY_INFO) );
         return "success";
