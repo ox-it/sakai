@@ -19,6 +19,8 @@ solr.server=http://localhost:8080/oxam-solr/
 # The Site ID which the OXAM tools are deployed into
 oxam.content.site.id=debc9c83-c890-4336-8c3a-ed742a49d7a6
 
+Into the OXAM site you will also want to copy the terms.csv and catagories.csv from impl/src/resources, these are loaded and startup and provide the data about terms and categories that should be used. If you change any of these files you will want to re-index the database as data from these files is stored in the database.
+
 
 Technical Setup
 ---------------
