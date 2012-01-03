@@ -1,34 +1,46 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+<html
+	xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
 
-<head>
+<wicket:head>
 <style type="text/css">
+label {
+	width: 7em; /*Or however much space you need for the form’s labels*/
+	float: left;
+}
+.formRow {
+	margin: 0.5em;
+}
 </style>
-</head>
+</wicket:head>
 
 <body>
-<wicket:extend>
-	<h3>Search Page</h3>
-	<form wicket:id="form" method="post" >
-	<div>
-		<label for="exam"><wicket:message key="label.exam" />:</label>
-		<select id="exam" wicket:id="exam">
-		</select>
-		<br/>
-		<label for="year"><wicket:message key="label.year" />:</label>
-		<select id="year" wicket:id="year">
-		</select>
-		<br/>
-		<input wicket:id="search" type="submit" value="Search"/>
-		<input wicket:id="reset" type="submit" value="Reset"/>
-	</div>
-	</form>
-	<div class="content">
-	<div wicket:id="results">
-	</div>
-	</div>
-	<div style="clear: both;"></div>
-	
-</wicket:extend>
+	<wicket:extend>
+		<h3>Search Page</h3>
+		<div class="instruction">
+		Choose year and examination and then click the Search Button.
+		</div>
+		<form wicket:id="form" method="post">
+			<div class="formRow">
+				<label for="exam"><wicket:message key="label.exam" />:</label>
+				<select id="exam" wicket:id="exam">
+				</select>
+			</div>
+			<div class="formRow">
+				<label for="year"><wicket:message key="label.year" />:</label>
+				<select id="year" wicket:id="year">
+				</select>
+			</div>
+			<div class="formRow">
+				<input wicket:id="search" type="submit" value="Search" />
+				<input wicket:id="reset" type="submit" value="Reset" />
+			</div>
+		</form>
+		<div class="content">
+			<div wicket:id="results"></div>
+		</div>
+		<div style="clear: both;"></div>
+
+	</wicket:extend>
 </body>
 </html>

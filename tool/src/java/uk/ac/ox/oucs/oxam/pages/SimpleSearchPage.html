@@ -11,6 +11,15 @@
 	.content {
 		margin-left: 350px;
 	}
+	input {
+		margin: 1em 0.2em;
+	}
+	.instruction {
+		padding: 2em;
+	}
+	h3 {
+		margin-bottom: 2em;
+	}
 </style>
 </wicket:head>
 </head>
@@ -20,7 +29,7 @@
 	<h3>Search Page</h3>
 	<form method="get" wicket:id="searchForm">
 	<div>
-		<input type="text" size="30" wicket:id="query"/>
+		<input type="text" size="40" wicket:id="query"/>
 		<input wicket:id="search" type="submit" value="Search"/>
 		<input wicket:id="cancel" type="submit" value="Reset"/>
 	</div>
@@ -30,9 +39,9 @@
 		We either put the results here or if we're not searching then we show the instructions.
 	</div>
 	<wicket:fragment wicket:id="instructions">
-	<div class="instructions">
+	<div class="instruction">
 		To find exam papers just search for part of the examination/paper title/code. You can also search for papers in a
-		particular year and term.
+		particular year and term. If you don't find any results try searching for something more generic.
 	</div>
 	</wicket:fragment>
 	

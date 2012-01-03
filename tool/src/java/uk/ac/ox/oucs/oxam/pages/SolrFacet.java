@@ -17,8 +17,6 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 
-import uk.ac.ox.oucs.oxam.pages.SimpleSearchPage.Resolver;
-
 public class SolrFacet<T> extends Panel {
 
 	public static final int FACET_LIMIT = 40;

@@ -9,7 +9,7 @@ import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 
 import uk.ac.ox.oucs.oxam.components.AdvancedIDataProvider;
 import uk.ac.ox.oucs.oxam.components.AdvancedStatelessDataView;
@@ -25,8 +25,6 @@ class SolrExamResults<T extends Page> extends Panel {
 	private EmptyMessage emptyMessage;
 
 	public SolrExamResults(String id, Class<T> clazz, AdvancedIDataProvider<SolrDocument> provider, PageParameters pp) {
-		// TODO need to deal with no matches.
-		
 		super(id);
 		dataView = new AdvancedStatelessDataView<SolrDocument>("items", provider, pp)  {
 			private static final long serialVersionUID = 1L;
@@ -57,7 +55,8 @@ class SolrExamResults<T extends Page> extends Panel {
 			}
 		};
 		
-		emptyMessage = new EmptyMessage("emptyMessage", dataView, new Model<String>(getString("no.results.found")));
+		// When we have no matches.
+		emptyMessage = new EmptyMessage("emptyMessage", dataView, new ResourceModel("no.results.found"));
 		
 		add(dataView);
 		add(pager);

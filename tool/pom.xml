@@ -15,6 +15,16 @@
 
     <packaging>war</packaging>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>dom4j</groupId>
+                <artifactId>dom4j</artifactId>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
     <dependencies>
 
         <!-- project dependencies -->
@@ -25,9 +35,9 @@
 
         <dependency>
             <!-- This is so we can easily test the importer.
-                It means Eclipse doesn't flag up incorrect usage, but a command 
+                It means Eclipse doesn't flag up incorrect usage, but a command
                 line build maven build
-                should show any problems as it has proper classpath isolation 
+                should show any problems as it has proper classpath isolation
                 for different scopes. -->
             <groupId>uk.ac.ox.oucs.vle</groupId>
             <artifactId>oxam-impl</artifactId>
@@ -113,9 +123,9 @@
         </dependency>
         <dependency>
             <!-- Could be in the API, but SolrJ has quite a few dependencies.
-                So we're duplicating it in components and in the tool. The 
+                So we're duplicating it in components and in the tool. The
                 other option would
-                have been to write a custom API which wraps the SolrJ API 
+                have been to write a custom API which wraps the SolrJ API
                 but this is too much
                 work. -->
             <groupId>org.apache.solr</groupId>
@@ -160,13 +170,13 @@
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <scope>compile</scope>
+            <scope>provided</scope>
             <version>1.4</version>
         </dependency>
     </dependencies>

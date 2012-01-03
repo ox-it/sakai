@@ -95,6 +95,10 @@ public class SimpleSearchPage extends SearchPage {
 		add(form);
 	}
 	
+	/**
+	 * We do this in before render so that we don't end up performing a search when just submitting the form, as
+	 * the form submit just issues a redirect.
+	 */
 	@Override
 	public void onBeforeRender() {
 		

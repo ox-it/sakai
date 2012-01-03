@@ -84,7 +84,8 @@ public class Importer {
 		examPaper.setPaperFile(file.getURL());
 	}
 	public void save(ExamPaper examPaper) {
-		if (examPaper.getPaperFile() == null) {
+		// Not sure we always want to set the paper file.
+		if (true) {
 			PaperFile file = paperFileService.get(Integer.toString(examPaper.getYear().getYear()), examPaper.getTerm().getCode(), examPaper.getPaperCode(), "pdf");
 			examPaper.setPaperFile(file.getURL());
 		}
