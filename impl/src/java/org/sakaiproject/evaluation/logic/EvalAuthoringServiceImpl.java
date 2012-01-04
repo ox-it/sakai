@@ -1871,7 +1871,7 @@ public class EvalAuthoringServiceImpl implements EvalAuthoringService {
             // now copy the template items and save the new linkages
             Long[] originalTIIds = TemplateItemUtils.makeTemplateItemsIdsArray(original.getTemplateItems());
             // https://bugs.caret.cam.ac.uk/browse/CTL-1531 - hide all the internal things which are copied (do not pass through the hidden variable)
-            Long[] templateItemIds = copyTemplateItems(originalTIIds, ownerId, true, copy.getId(), includeChildren);
+            Long[] templateItemIds = copyTemplateItems(originalTIIds, ownerId, hidden, copy.getId(), includeChildren);
             List<EvalTemplateItem> templateItemsList = dao.findBySearch(EvalTemplateItem.class, 
                     new Search("id", templateItemIds));
             copy.setTemplateItems( new HashSet<EvalTemplateItem>(templateItemsList) );
