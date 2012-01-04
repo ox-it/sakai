@@ -111,28 +111,40 @@ public class IndexingServiceImpl implements IndexingService {
 		// posts them to solr.
 		public void run() {
 			while(!stop) {
-				if (isReindexing()) {
-					reindex();
-				} else {
-					try {
-						if (batch.size() < batchSize) {
-							// Take one from the queue and add it to our batch
-							Object item = queue.poll(100, TimeUnit.MILLISECONDS);
-							if (item != null) {
-								batch.add(item);
-							} else {
-								// No element came from queue.
-								if (!batch.isEmpty()) {
-									LOG.trace("Posting documents due to timeout");
-									post();
+				try {
+					if (isReindexing()) {
+						reindex();
+					} else {
+						try {
+							if (batch.size() < batchSize) {
+								// Take one from the queue and add it to our batch
+								Object item = queue.poll(100, TimeUnit.MILLISECONDS);
+								if (item != null) {
+									batch.add(item);
+								} else {
+									// No element came from queue.
+									if (!batch.isEmpty()) {
+										LOG.trace("Posting documents due to timeout");
+										post();
+									}
 								}
+							} else {
+								LOG.trace("Posting documents to batch size being exceeded");
+								post();
 							}
-						} else {
-							LOG.trace("Posting documents to batch size being exceeded");
-							post();
+						} catch (InterruptedException e) {
+							LOG.info("Interrupted", e);
 						}
-					} catch (InterruptedException e) {
-						LOG.info("Interrupted", e);
+					}
+				} catch (Exception e) {
+					LOG.warn("Indxing thread threw exception.", e);
+					// Stop re-indexing if we are.
+					examPapers = null;
+					try {
+						// This is so if things are going wrong we don't run round the loop filling logs.
+						Thread.sleep(10000);
+					} catch (InterruptedException e1) {
+						// Ignore
 					}
 				}
 			}
