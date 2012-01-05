@@ -21,10 +21,12 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -35,6 +37,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.xcri.profiles.x12.catalog.CatalogDocument;
+import org.xml.sax.SAXParseException;
 
 
 public class XcriPopulatorImpl implements Populator {
@@ -130,20 +133,21 @@ public class XcriPopulatorImpl implements Populator {
 
             HttpResponse response = httpclient.execute(targetHost, httpget);
             HttpEntity entity = response.getEntity();
-               
+             
+            if (HttpStatus.SC_OK != response.getStatusLine().getStatusCode()) {
+            	throw new IllegalStateException(
+            			"Invalid response ["+response.getStatusLine().getStatusCode()+"]");
+            }
             process(entity.getContent());
 
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.warn("MalformedURLException ["+getXcriURL()+"]", e);
 			
         } catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+        	log.warn("IllegalStateException ["+getXcriURL()+"]", e);
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.warn("IOException ["+getXcriURL()+"]", e);
 			
 		} finally {
             // When HttpClient instance is no longer needed,
@@ -250,6 +254,15 @@ public class XcriPopulatorImpl implements Populator {
 				// Don't notify anyone about this resource.
 				contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
 			}
+			
+		} catch (XmlException e) {
+			Throwable currExp = e.getCause();
+			if (currExp instanceof SAXParseException) {
+				log.error("SAXParseException thrown ["+
+						((SAXParseException) currExp).getLineNumber() + "," +
+						((SAXParseException) currExp).getColumnNumber() + "]");
+			}
+			log.warn("Failed to write content to logfile.", e);
 			
 		} catch (Exception e) {
 			log.warn("Failed to write content to logfile.", e);
@@ -457,8 +470,10 @@ public class XcriPopulatorImpl implements Populator {
 	 */
 	private boolean updateDepartment(String code, String name, boolean approve, Set<String> approvers) {
 		
-		System.out.println("XcriPopulatorImpl.updateDepartment ["+code+":"+name+":"+
+		if (log.isDebugEnabled()) {
+			System.out.println("XcriPopulatorImpl.updateDepartment ["+code+":"+name+":"+
 				approve+":"+approvers.iterator().next()+"]");
+		}
 		
 		boolean created = false;
 		
@@ -487,8 +502,10 @@ public class XcriPopulatorImpl implements Populator {
 	 */
 	private boolean updateSubUnit(String code, String name, String departmentCode) {
 		
-		System.out.println("XcriPopulatorImpl.updateSubUnit ["+
+		if (log.isDebugEnabled()) {
+			System.out.println("XcriPopulatorImpl.updateSubUnit ["+
 				code+":"+name+":"+departmentCode+"]");
+		}
 		
 		boolean created = false;
 		
@@ -519,12 +536,14 @@ public class XcriPopulatorImpl implements Populator {
 			Set<String> administrators, Set<String> superusers, Set<String> otherDepartments,
 			Set<String> researchCategories, Set<String> skillsCategories) {
 		
-		System.out.println("XcriPopulatorImpl.validGroup ["+code+":"+title+":"+departmentCode+":"+subunitCode+":"+ 
-			description+":"+departmentName+":"+subunitName+":"+ 
-			publicView+":"+supervisorApproval+":"+administratorApproval+":"+
-			divisionEmail+":"+ 
-			administrators.size()+":"+superusers.size()+":"+otherDepartments.size()+":"+
-			researchCategories.size()+":"+skillsCategories.size()+"]");
+		if (log.isDebugEnabled()) {
+			System.out.println("XcriPopulatorImpl.validGroup ["+code+":"+title+":"+departmentCode+":"+subunitCode+":"+ 
+					description+":"+departmentName+":"+subunitName+":"+ 
+					publicView+":"+supervisorApproval+":"+administratorApproval+":"+
+					divisionEmail+":"+ 
+					administrators.size()+":"+superusers.size()+":"+otherDepartments.size()+":"+
+					researchCategories.size()+":"+skillsCategories.size()+"]");
+		}
 		
 		int i=0;
 		
@@ -651,14 +670,16 @@ public class XcriPopulatorImpl implements Populator {
 			String sessionDates, String sessions, String location,
 			Set<CourseGroupDAO> groups) {
 		
-		 System.out.println("XcriPopulatorImpl.validComponent ["+id+":"+title+":"+subject+":"+
+		if (log.isDebugEnabled()) {
+			System.out.println("XcriPopulatorImpl.validComponent ["+id+":"+title+":"+subject+":"+
 				viewDate(openDate)+":"+viewDate(closeDate)+":"+viewDate(expiryDate)+":"+viewDate(startDate)+":"+viewDate(endDate)+":"+
 				bookable+":"+capacity+":"+
 				termCode+":"+teachingComponentId+":"+termName+":"+
 				teacherId+":"+teacherName+":"+teacherEmail+":"+
 				sessionDates+":"+sessions+":"+location+":"+
 				groups.size()+"]");
-		 
+		}
+		
 		int i=0;
 		
 		try {
