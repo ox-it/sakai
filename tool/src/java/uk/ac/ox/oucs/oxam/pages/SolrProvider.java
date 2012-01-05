@@ -133,7 +133,7 @@ public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 			response = solr.query(solrQuery);
 		} catch (SolrServerException sse) {
 			// TODO Better exception and handling.
-			throw new RuntimeException("Search Failed");
+			throw new RuntimeException("Search Failed", sse);
 		}
 	}
 
