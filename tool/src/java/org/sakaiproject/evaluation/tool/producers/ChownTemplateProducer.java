@@ -91,6 +91,7 @@ public class ChownTemplateProducer implements ViewComponentProducer, NavigationC
 
 				UIForm form = UIForm.make(chownDiv, "chown-template-form");
 				UIMessage.make(form, "chown-template-newownerlabel", "chowntemplate.chown.label");
+				UIMessage.make(form, "chown-template-newownertext", "chowntemplate.chown.text");
 				UIInput.make(form, "chown-template-newowner", new String(actionBean + "templateOwner"));
 				UICommand chownCmd = UICommand.make(form, "chown-template-button", 
 						UIMessage.make("chowntemplate.chown.button"), actionBean + "chownTemplate");
