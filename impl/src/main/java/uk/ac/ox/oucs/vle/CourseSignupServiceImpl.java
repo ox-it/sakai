@@ -704,14 +704,16 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		// Set the supervisor
 		String supervisorId = null;
-		UserProxy supervisor = proxy.findUserByEmail(supervisorEmail);
-		if (supervisor == null) {
-			if (groupDao.getSupervisorApproval()) {
-				throw new IllegalArgumentException(
+		if (null != supervisorEmail) {
+			UserProxy supervisor = proxy.findUserByEmail(supervisorEmail);
+			if (supervisor == null) {
+				if (groupDao.getSupervisorApproval()) {
+					throw new IllegalArgumentException(
 						"Can't find a supervisor with email: "+ supervisorEmail);
+				}
+			} else {
+				supervisorId = supervisor.getId();
 			}
-		} else {
-			supervisorId = supervisor.getId();
 		}
 		
 		// Create the signup.
