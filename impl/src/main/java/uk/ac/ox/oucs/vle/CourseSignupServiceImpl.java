@@ -1101,7 +1101,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 	
 	public String[] getCourseSignupFromEncrypted(String encrypted) {
+		
 		String string = proxy.uncode(encrypted);
+		if (null == string){
+			throw new IllegalStateException("the encryptied string cannot be decyphered");
+		}
 		return string.split("\\$");
 	}
 	
