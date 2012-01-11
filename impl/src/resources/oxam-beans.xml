@@ -87,7 +87,8 @@
                 <property name="arguments">
                     <list>
                         <value>solr.server</value>
-                        <null></null>
+                        <!-- The default value probably won't be any use but it allows startup -->
+                        <value>http://localhost:8080/oxam-solr/</value>
                     </list>
                 </property>
             </bean>
