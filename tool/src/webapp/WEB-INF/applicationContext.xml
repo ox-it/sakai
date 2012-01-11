@@ -27,7 +27,7 @@
                 <property name="arguments">
                     <list>
                         <value>solr.server</value>
-                        <null></null>
+                        <value>http://localhost:8080/oxam-solr/</value>
                     </list>
                 </property>
             </bean>
