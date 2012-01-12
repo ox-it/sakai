@@ -68,7 +68,7 @@
                         	</th>
                         	<td>
 								{for category in categories_rdf}
-									${category}
+									${category}{if category_index != categories_rdf.length-1},{/if}
 								{/for}
                         	</td>
                     	</tr>
@@ -81,7 +81,7 @@
                         	</th>
                         	<td>
 								{for category in categories_jacs}
-									${category}
+									${category}{if category_index != categories_jacs.length-1},{/if}
 								{/for}
                         	</td>
                     	</tr>
@@ -94,7 +94,7 @@
                         	</th>
                         	<td>
 								{for category in categories_rm}
-									${category}
+									${category}{if category_index != categories_rm.length-1},{/if}
 								{/for}
                         	</td>
                     	</tr>
