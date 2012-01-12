@@ -8,7 +8,7 @@ public class CourseCategoryDAO implements java.io.Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private String categoryId;
+	private int categoryId;
 	private String groupId;
 	private String categoryCode;
     private String categoryName;
@@ -24,11 +24,29 @@ public class CourseCategoryDAO implements java.io.Serializable {
     	this.categoryName = name;
     }
     
-    public String getCategoryId() {
+    public boolean equals(Object other){  
+        if (this == other) return true;  
+        if (!(other instanceof CourseCategoryDAO)) return false;  
+        final CourseCategoryDAO that = (CourseCategoryDAO) other;  
+        if (this.getCategoryType().equals(that.getCategoryType()) && 
+        	this.getCategoryName().equals(that.getCategoryName())) {
+        	return true;  
+        }
+        return false;
+   }  
+     
+   public int hashCode(){  
+	   int hash = 1;
+	   hash = hash * 31 + getCategoryType().hashCode();
+	   hash = hash * 31 + (getCategoryName() == null ? 0 : getCategoryName().hashCode());
+	    return hash; 
+   }  
+    
+    public int getCategoryId() {
         return this.categoryId;
     }
     
-    public void setCategoryId(String categoryId) {
+    public void setCategoryId(int categoryId) {
         this.categoryId = categoryId;
        }
     	

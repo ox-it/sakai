@@ -44,8 +44,9 @@
 	
 	<class name="uk.ac.ox.oucs.vle.CourseCategoryDAO" table="course_group_category">
 		<!-- create the primary key id -->
-		<id name="categoryId" type="string">
+		<id name="categoryId" type="int">
 			<column name="categoryId" />
+			<generator class="increment"/>
 		</id>
 		<property name="groupId" type="string" length="256" />
 		<property name="categoryType" type="string" length="6" />
@@ -157,7 +158,8 @@
 			<key column="groupId"/>
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"/>
 		</set>
-		<set name="categories" inverse="true" lazy="true" table="course_group_category" fetch="select">
+		<!-- cascade="all-delete-orphan" -->
+		<set name="categories" inverse="false" lazy="true" cascade="all-delete-orphan" table="course_group_category" fetch="select">
 			<key column="groupId"/>
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseCategoryDAO"/>
 		</set>

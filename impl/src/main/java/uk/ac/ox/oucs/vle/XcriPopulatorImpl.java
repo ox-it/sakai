@@ -635,7 +635,20 @@ public class XcriPopulatorImpl implements Populator {
 				categories.add(new CourseCategoryDAO(
 						code, CourseGroup.Category_Type.RM, "", category));
 			}
-			groupDao.setCategories(categories);
+			
+			//remove unwanted categories
+			for (CourseCategoryDAO category : groupDao.getCategories()) {
+				if (!categories.contains(category)) {
+					groupDao.getCategories().remove(category);
+				}
+			}
+			
+			//add any new categories
+			for (CourseCategoryDAO category : categories) {
+				if (!groupDao.getCategories().contains(category)) {
+					groupDao.getCategories().add(category);
+				}
+			}
 			
 			dao.save(groupDao);
 		}
