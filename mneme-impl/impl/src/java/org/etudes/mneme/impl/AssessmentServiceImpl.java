@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -438,7 +438,7 @@ public class AssessmentServiceImpl implements AssessmentService
 		Date minDate = this.storage.getMinStartDate(context);
 		return minDate;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -446,7 +446,7 @@ public class AssessmentServiceImpl implements AssessmentService
 	{
 		Date maxDate = this.storage.getMaxStartDate(context);
 		return maxDate;
-	}	
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -1110,6 +1110,9 @@ public class AssessmentServiceImpl implements AssessmentService
 
 		// start out unpublished
 		rv.initPublished(Boolean.FALSE);
+
+		// clear frozen
+		rv.initFrozen(Boolean.FALSE);
 
 		// and not-live, non-locked
 		rv.initLive(Boolean.FALSE);

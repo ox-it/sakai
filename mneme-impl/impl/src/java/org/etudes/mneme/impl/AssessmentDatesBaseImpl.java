@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -106,6 +106,7 @@ public abstract class AssessmentDatesBaseImpl implements AssessmentDates
 	{
 		if (this.assessment.getArchived()) return Boolean.TRUE;
 		if (!this.assessment.getPublished()) return Boolean.TRUE;
+		if (this.assessment.getFrozen()) return Boolean.TRUE;
 
 		// if there is no end to submissions, we are never closed
 		if (getSubmitUntilDate() == null) return Boolean.FALSE;
@@ -140,6 +141,7 @@ public abstract class AssessmentDatesBaseImpl implements AssessmentDates
 	{
 		if (this.assessment.getArchived()) return Boolean.FALSE;
 		if (!this.assessment.getPublished()) return Boolean.FALSE;
+		if (this.assessment.getFrozen()) return Boolean.FALSE;
 
 		Date now = new Date();
 		long grace = withGrace ? MnemeService.GRACE : 0l;

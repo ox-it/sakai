@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -100,9 +100,6 @@
 		</navigationBar>
 
 		<section>
-			<included>
-				<decision model="complete-show" />
-			</included>
 			<iterator name="part" model="assessment.parts.parts">
 				<empty>
 					<message selector="no-parts" />
@@ -157,15 +154,6 @@
 
 					</container>
 				</section>
-			</container>
-		</section>
-		
-		<section>
-			<included>
-				<decision model="complete-show" reversed="TRUE" />
-			</included>
-			<container>
-				<instructions selector="not-enough-submissions" />
 			</container>
 		</section>
 

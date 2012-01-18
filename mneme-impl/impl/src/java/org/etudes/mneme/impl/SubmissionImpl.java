@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -348,13 +348,13 @@ public class SubmissionImpl implements Submission
 		Assessment assessment = getAssessment();
 
 		// if not open yet...
-		if ((assessment.getDates().getOpenDate() != null) && now.before(assessment.getDates().getOpenDate()))
+		if ((assessment.getDates().getOpenDate() != null) && now.before(assessment.getDates().getOpenDate()) && (!assessment.getFrozen()))
 		{
 			return AssessmentSubmissionStatus.future;
 		}
 
-		// are we past the hard end date?
-		boolean over = ((assessment.getDates().getSubmitUntilDate() != null) && (now.after(assessment.getDates().getSubmitUntilDate())));
+		// are we past the hard end date? Or frozen?
+		boolean over = ((assessment.getFrozen()) || ((assessment.getDates().getSubmitUntilDate() != null) && (now.after(assessment.getDates().getSubmitUntilDate()))));
 
 		// todo (not over, not started)
 		if ((getStartDate() == null) && !over)
@@ -778,6 +778,10 @@ public class SubmissionImpl implements Submission
 		// set the time to now if missing
 		if (asOf == null) asOf = new Date();
 
+		// if frozen, it's over
+		if (getAssessment().getFrozen()) return Boolean.TRUE;
+
+		// otherwise check the date
 		return Boolean.valueOf(asOf.getTime() > over.getTime() + grace);
 	}
 
@@ -834,6 +838,12 @@ public class SubmissionImpl implements Submission
 
 		// valid
 		if (!getAssessment().getIsValid()) return Boolean.FALSE;
+
+		// not frozen
+		if (!getIsTestDrive())
+		{
+			if (getAssessment().getFrozen()) return Boolean.FALSE;
+		}
 
 		// assessment is open (allow test drive submissions to skip this)
 		if (!getIsTestDrive())
@@ -894,6 +904,12 @@ public class SubmissionImpl implements Submission
 
 		// valid
 		if (!getAssessment().getIsValid()) return Boolean.FALSE;
+
+		// not frozen
+		if (!getIsTestDrive())
+		{
+			if (getAssessment().getFrozen()) return Boolean.FALSE;
+		}
 
 		// assessment is open (allow test drive submissions to skip this)
 		if (!getIsTestDrive())
@@ -956,6 +972,12 @@ public class SubmissionImpl implements Submission
 
 		// valid
 		if (!getAssessment().getIsValid()) return Boolean.FALSE;
+
+		// not frozen
+		if (!getIsTestDrive())
+		{
+			if (getAssessment().getFrozen()) return Boolean.FALSE;
+		}
 
 		// assessment is open (allow test drive submissions to skip this)
 		if (!getIsTestDrive())
@@ -1190,6 +1212,13 @@ public class SubmissionImpl implements Submission
 					rv = a.getDates().getSubmitUntilDate();
 				}
 			}
+		}
+
+		// if frozen
+		if (a.getFrozen())
+		{
+			// use now
+			rv = new Date();
 		}
 
 		return rv;

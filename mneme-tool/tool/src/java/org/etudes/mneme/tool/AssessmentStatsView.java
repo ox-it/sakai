@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -103,6 +103,13 @@ public class AssessmentStatsView extends ControllerImpl
 			return;
 		}
 
+		// check that if a survey, the assessment has been frozen
+		if ((assessment.getType() == AssessmentType.survey) && (!assessment.getFrozen()))
+		{
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+
 		context.put("assessment", assessment);
 
 		// collect all the submissions for the assessment
@@ -175,7 +182,7 @@ public class AssessmentStatsView extends ControllerImpl
 	 * @param context
 	 *        The context.
 	 */
-	protected void computePercentComplete(Assessment assessment, List<Submission> submissions, Context context)
+	protected static void computePercentComplete(Assessment assessment, List<Submission> submissions, Context context)
 	{
 		Set<String> users = new HashSet<String>();
 		int complete = 0;
@@ -200,8 +207,5 @@ public class AssessmentStatsView extends ControllerImpl
 		context.put("complete-percent", Integer.valueOf(pct));
 		context.put("complete-complete", Integer.valueOf(complete));
 		context.put("complete-total", Integer.valueOf(users.size()));
-
-		// if >= 3 submissions, we can show survey results - we can show results from other types with any count
-		context.put("complete-show", Boolean.valueOf((assessment.getType() != AssessmentType.survey) || (complete >= 3)));
 	}
 }

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -174,6 +174,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	public Boolean getFormalCourseEval()
 	{
 		return this.getAssessment().getFormalCourseEval();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getFrozen()
+	{
+		return getAssessment().getFrozen();
 	}
 
 	/**
@@ -617,6 +625,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	 * {@inheritDoc}
 	 */
 	public void setFormalCourseEval(Boolean setting)
+	{
+		throw new IllegalArgumentException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setFrozen()
 	{
 		throw new IllegalArgumentException();
 	}

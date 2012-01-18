@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -88,6 +88,13 @@ public interface Assessment
 	 * @return TRUE if this is marked as a formal course evaluation, FALSE if not.
 	 */
 	Boolean getFormalCourseEval();
+
+	/**
+	 * Check if the assessment is frozen - closed to new submissions, unable to thaw.
+	 * 
+	 * @return TRUE if the assessment is frozen, FALSE if not.
+	 */
+	Boolean getFrozen();
 
 	/**
 	 * Check if grades are to be sent to the Gradebook application, considering type, points, hasPoints, and the grades setting.
@@ -392,6 +399,11 @@ public interface Assessment
 	 *        The formal course evaluation setting.
 	 */
 	void setFormalCourseEval(Boolean setting);
+
+	/**
+	 * Freeze an assessment. No further submissions will be accepted. This cannot be undone.
+	 */
+	void setFrozen();
 
 	/**
 	 * An alternate way to clear the time limit if set to false.

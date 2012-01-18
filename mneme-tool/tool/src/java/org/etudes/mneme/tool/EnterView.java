@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -114,10 +114,10 @@ public class EnterView extends ControllerImpl
 			return;
 		}
 
-		// check for closed (test drive can skip this)
+		// check for closed or frozen (test drive can skip this)
 		if (!submission.getIsTestDrive())
 		{
-			if (submission.getAssessment().getDates().getIsClosed().booleanValue())
+			if (submission.getAssessment().getDates().getIsClosed().booleanValue() || submission.getAssessment().getFrozen().booleanValue())
 			{
 				// redirect to error
 				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.closed)));

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -43,7 +43,6 @@ import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentSpecialAccess;
 import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.Attribution;
-import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.PartDetail;
 import org.etudes.mneme.api.Pool;
@@ -85,6 +84,8 @@ public class AssessmentImpl implements Assessment
 	protected AssessmentDates dates = null;
 
 	protected Boolean formalCourseEval = Boolean.FALSE;
+
+	protected Boolean frozen = Boolean.FALSE;
 
 	protected AssessmentGrading grading = null;
 
@@ -228,6 +229,7 @@ public class AssessmentImpl implements Assessment
 	{
 		if (this.archived) return AcceptSubmitStatus.closed;
 		if (!this.published) return AcceptSubmitStatus.closed;
+		if (getFrozen()) return AcceptSubmitStatus.closed;
 
 		Date now = new Date();
 
@@ -311,6 +313,20 @@ public class AssessmentImpl implements Assessment
 	public Boolean getFormalCourseEval()
 	{
 		return this.formalCourseEval;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getFrozen()
+	{
+		// formal evals are automatically considered frozen once their due date is passed
+		if (getFormalCourseEval())
+		{
+			if (new Date().after(getDates().getSubmitUntilDate())) return Boolean.TRUE;
+		}
+
+		return this.frozen;
 	}
 
 	/**
@@ -815,6 +831,18 @@ public class AssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public void setFrozen()
+	{
+		if (this.frozen) return;
+
+		this.frozen = Boolean.TRUE;
+
+		this.changed.setChanged();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setHasTimeLimit(Boolean hasTimeLimit)
 	{
 		if (hasTimeLimit == null) throw new IllegalArgumentException();
@@ -1161,6 +1189,18 @@ public class AssessmentImpl implements Assessment
 	}
 
 	/**
+	 * Establish the frozen setting.
+	 * 
+	 * @param frozen
+	 *        The frozen setting.
+	 */
+	protected void initFrozen(Boolean frozen)
+	{
+		if (frozen == null) frozen = Boolean.FALSE;
+		this.frozen = frozen;
+	}
+
+	/**
 	 * Initialize the id property.
 	 * 
 	 * @param id
@@ -1406,6 +1446,7 @@ public class AssessmentImpl implements Assessment
 		this.createdBy = new AttributionImpl((AttributionImpl) other.createdBy, this.changed);
 		this.dates = new AssessmentDatesImpl(this, (AssessmentDatesImpl) other.dates, this.changed);
 		this.formalCourseEval = other.formalCourseEval;
+		this.frozen = other.frozen;
 		this.grading = new AssessmentGradingImpl((AssessmentGradingImpl) other.grading, this.changed);
 		this.honorPledge = other.honorPledge;
 		this.id = other.id;

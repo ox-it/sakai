@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2012 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+	<header>
+		<message selector="freeze-header">
+			<model type="icon" icon="/icons/grade.png" />
+		</message>
+	</header>
+	<title>
+		<message selector="freeze-title" />
+	</title>
+
+	<subHeader>
+		<container>
+			<section treatment="columns">
+				<container>
+					<section>
+						<container>
+							<text>
+								<message selector="title">
+									<model type="text" ref="assessment.title" />
+								</message>
+							</text>
+							<text>
+								<message selector="open">
+									<selectors>
+										<selector selector="closed">
+											<decision model="assessment.dates.isClosed" />
+										</selector>
+									</selectors>
+								</message>
+							</text>
+							<text>
+								<message selector="assessment-pct-complete">
+									<model ref="complete-percent" />
+									<model ref="complete-complete" />
+									<model ref="complete-total" />
+								</message>
+							</text>
+							<text>
+								<message selector="incomplete" />
+								<included>
+									<decision model="incomplete" />
+								</included>
+							</text>
+							<text>
+								<message selector="no-incomplete" />
+								<included>
+									<decision model="incomplete" reversed="TRUE" />
+								</included>
+							</text>
+						</container>
+					</section>
+					<section>
+						<container>
+							<text>
+								<message selector="dates">
+									<model type="date" ref="assessment.dates.openDate" missing="not-set" />
+									<model type="date" ref="assessment.dates.dueDate" missing="not-set" />
+									<model type="date" ref="assessment.dates.acceptUntilDate" missing="not-set" />
+								</message>
+							</text>
+							<text>
+								<message selector="special-access-close">
+									<model type="date" ref="specialClose" missing="not-set" />
+								</message>
+								<included>
+									<hasValueDecision model="specialClose" />
+								</included>
+							</text>
+						</container>
+					</section>
+				</container>
+			</section>
+		</container>
+	</subHeader>
+
+	<container>
+
+		<text selector="freeze-instructions" />
+		<alert>
+			<message selector="freeze-alert">
+				<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+			</message>
+			<included>
+				<decision model="assessment.isLocked" />
+			</included>
+		</alert>
+		<text selector="freeze-instructions2" />
+
+		<!--navigation-->
+		<navigationBar id="nav">
+			<container>
+				<navigation title="return" style="BUTTON" accessKey="return-access" description="return-description" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="/grades/{0}">
+						<model ref="sort_grades" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation title="freeze" accessKey="freeze-access" description="freeze-description" style="BUTTON" submit="TRUE" destination="FREEZE">
+					<icon icon="/icons/survey_view.png" style="LEFT" />
+					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif" selector="confirm-freeze">
+						<message selector="confirm-freeze">
+						</message>
+					</confirm>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>

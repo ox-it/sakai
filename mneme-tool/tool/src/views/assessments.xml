@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -100,6 +100,7 @@
 								<decision model="assessment.published" />
 								<decision model="assessment.isValid" />
 								<decision model="assessment.isLive" />
+								<decision model="assessment.frozen" />
 								<orDecision>
 									<decision reversed="TRUE" model="assessment.hasPoints" />
 									<decision reversed="TRUE" model="assessment.hasUnscoredSubmissions" />
@@ -119,6 +120,41 @@
 								<decision model="assessment.isLive" />
 								<decision model="assessment.hasPoints" />
 								<decision model="assessment.hasUnscoredSubmissions" />
+								<decision model="assessment.frozen" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="live-alt">
+							<icon icon="/icons/grade_student.png" style="LEFT" />
+							<destination template="/freeze/0A/{0}">
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="survey" />
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+								<decision model="assessment.published" />
+								<decision model="assessment.isValid" />
+								<decision model="assessment.isLive" />
+								<decision model="assessment.frozen" reversed = "TRUE" />
+								<orDecision>
+									<decision reversed="TRUE" model="assessment.hasPoints" />
+									<decision reversed="TRUE" model="assessment.hasUnscoredSubmissions" />
+								</orDecision>
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="unscored-alt">
+							<icon icon="/icons/grade.png" style="LEFT" />
+							<destination template="/freeze/0A/{0}">
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="survey" />
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+								<decision model="assessment.published" />
+								<decision model="assessment.isValid" />
+								<decision model="assessment.isLive" />
+								<decision model="assessment.hasPoints" />
+								<decision model="assessment.hasUnscoredSubmissions" />
+								<decision model="assessment.frozen" reversed = "TRUE" />
 							</included>
 						</navigation>
 						<navigation style="LINK" submit="TRUE" description="invalid-alt">
@@ -430,6 +466,7 @@
 				<column centered="TRUE" pixels="16" wrap="FALSE">
 					<entityIncluded>
 						<decision reversed="TRUE" model="assessment.formalCourseEval" />
+						<decision reversed="TRUE" model="assessment.frozen" />
 					</entityIncluded>
 					<navigations>
 						<navigation style="LINK" submit="TRUE" description="special-access-view">
