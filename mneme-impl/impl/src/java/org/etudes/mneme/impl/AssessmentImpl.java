@@ -321,7 +321,7 @@ public class AssessmentImpl implements Assessment
 	public Boolean getFrozen()
 	{
 		// formal evals are automatically considered frozen once their due date is passed
-		if (getFormalCourseEval())
+		if (getFormalCourseEval() && (getDates().getSubmitUntilDate() != null) && getPublished())
 		{
 			if (new Date().after(getDates().getSubmitUntilDate())) return Boolean.TRUE;
 		}
