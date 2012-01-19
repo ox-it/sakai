@@ -514,6 +514,12 @@
 				</section>
 
 				<section treatment="indented">
+					<included>
+						<orDecision>
+							<decision model="assessment.formalCourseEval" />
+							<compareDecision reversed="TRUE" model="assessment.type" constant="survey" />
+						</orDecision>
+					</included>
 					<title>
 						<message selector="results-email-header">
 							<model type="icon" icon="/icons/grade.png" />

@@ -394,9 +394,12 @@ public class AssessmentServiceImpl implements AssessmentService
 
 		// TODO: security?
 
-		// filter in those that are closed now
+		// filter in those that are closed now, and filter out any that are surveys but not formal course evaluations
 		for (Assessment a : assessments)
 		{
+			// surveys that are not formal evals do not support this feature
+			if ((a.getType() == AssessmentType.survey) && (!a.getFormalCourseEval())) continue;
+
 			if (a.getDates().getIsClosed())
 			{
 				rv.add(a);
@@ -641,6 +644,12 @@ public class AssessmentServiceImpl implements AssessmentService
 		if (assessment.getFormalCourseEval())
 		{
 			assessment.setTries(1);
+		}
+
+		// enforce surveys that are not formal evals cannot have results email
+		if ((assessment.getType() == AssessmentType.survey) && (!assessment.getFormalCourseEval()))
+		{
+			assessment.setResultsEmail(null);
 		}
 
 		// if any changes made, clear mint
@@ -1123,6 +1132,12 @@ public class AssessmentServiceImpl implements AssessmentService
 
 		// newly copied are never formal course evaluation
 		rv.initFormalCourseEval(Boolean.FALSE);
+
+		// surveys can't have auto-send results email
+		if ((rv.getType() == AssessmentType.survey) && (!rv.getFormalCourseEval()))
+		{
+			rv.initResultsEmail(null);
+		}
 
 		((AssessmentGradingImpl) (rv.getGrading())).initGradebookRejectedAssessment(Boolean.FALSE);
 
