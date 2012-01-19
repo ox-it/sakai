@@ -94,9 +94,6 @@
 		<property name="sessionManager">
 			<ref bean="org.sakaiproject.tool.api.SessionManager"/>
 		</property>
-        <property name="activeToolManager">
-            <ref bean="org.sakaiproject.tool.api.ActiveToolManager"/>
-        </property>
 	</bean>
 	
 	

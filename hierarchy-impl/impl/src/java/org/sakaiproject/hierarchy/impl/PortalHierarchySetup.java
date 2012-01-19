@@ -41,7 +41,6 @@ public class PortalHierarchySetup implements ApplicationListener {
 	private UsageSessionService usageSessionService;
 	private SiteService siteService;
 	private SessionManager sessionManager;
-	private ActiveToolManager activeToolManager;
 
 
 	public void onApplicationEvent(ApplicationEvent event) {
@@ -103,8 +102,7 @@ public class PortalHierarchySetup implements ApplicationListener {
 	private void addPage(Site site, String title, String toolId) {
 		SitePage page = site.addPage();
 		page.setTitle(title);
-		Tool tool = activeToolManager.getTool(toolId);
-		page.addTool(tool);
+		page.addTool(toolId);
 	}
 
 	public String getHierarchySiteId() {
