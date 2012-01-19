@@ -137,14 +137,6 @@ public class PortalHierarchySetup implements ApplicationListener {
 		this.siteService = siteService;
 	}
 
-	public ActiveToolManager getActiveToolManager() {
-		return activeToolManager;
-	}
-
-	public void setActiveToolManager(ActiveToolManager activeToolManager) {
-		this.activeToolManager = activeToolManager;
-	}
-
 	public boolean isAutoDDL() {
 		return autoDDL;
 	}
