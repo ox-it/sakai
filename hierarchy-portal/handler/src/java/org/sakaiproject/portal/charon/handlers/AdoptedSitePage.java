@@ -67,6 +67,10 @@ public class AdoptedSitePage implements SitePage {
 	public String getTitle() {
 		return original.getTitle();
 	}
+	
+	public boolean getTitleCustom() {
+		return original.getTitleCustom();
+	}
 
 	public ToolConfiguration getTool(String id) {
 		ToolConfiguration toolConfig = original.getTool(id);
@@ -172,6 +176,10 @@ public class AdoptedSitePage implements SitePage {
 	}
 
 	public void setTitle(String title) {
+		throw new UnsupportedOperationException();
+	}
+	
+	public void setTitleCustom(boolean custom) {
 		throw new UnsupportedOperationException();
 	}
 

@@ -16,7 +16,8 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.util.Tool;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ActiveToolManager;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -40,6 +41,7 @@ public class PortalHierarchySetup implements ApplicationListener {
 	private UsageSessionService usageSessionService;
 	private SiteService siteService;
 	private SessionManager sessionManager;
+	private ActiveToolManager activeToolManager;
 
 
 	public void onApplicationEvent(ApplicationEvent event) {
@@ -101,9 +103,7 @@ public class PortalHierarchySetup implements ApplicationListener {
 	private void addPage(Site site, String title, String toolId) {
 		SitePage page = site.addPage();
 		page.setTitle(title);
-		Tool tool = new Tool();
-		tool.setId(toolId);	
-		tool.setTitle(title);
+		Tool tool = activeToolManager.getTool(toolId);
 		page.addTool(tool);
 	}
 
@@ -137,6 +137,14 @@ public class PortalHierarchySetup implements ApplicationListener {
 
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
+	}
+
+	public ActiveToolManager getActiveToolManager() {
+		return activeToolManager;
+	}
+
+	public void setActiveToolManager(ActiveToolManager activeToolManager) {
+		this.activeToolManager = activeToolManager;
 	}
 
 	public boolean isAutoDDL() {
