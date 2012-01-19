@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -232,16 +232,26 @@
 						<dateEdit id="ddate" title="due-date" late="TRUE">
 							<model ref="assessment.dates.dueDate" type="date" />
 							<readOnly>
-								<decision model="assessment.formalCourseEval" />
-								<decision model="assessment.isLocked" />
+								<orDecision>
+									<decision model="assessment.frozen" />
+									<andDecision>
+										<decision model="assessment.formalCourseEval" />
+										<decision model="assessment.isLocked" />
+									</andDecision>
+								</orDecision>
 							</readOnly>
 						</dateEdit>
 
 						<dateEdit id="adate" title="test-acceptUntilDate" late="TRUE">
 							<model ref="assessment.dates.acceptUntilDate" type="date" />
 							<readOnly>
-								<decision model="assessment.formalCourseEval" />
-								<decision model="assessment.isLocked" />
+								<orDecision>
+									<decision model="assessment.frozen" />
+									<andDecision>
+										<decision model="assessment.formalCourseEval" />
+										<decision model="assessment.isLocked" />
+									</andDecision>
+								</orDecision>
 							</readOnly>
 						</dateEdit>
 					</container>

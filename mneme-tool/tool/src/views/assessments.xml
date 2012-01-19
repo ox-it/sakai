@@ -335,6 +335,17 @@
 						</navigation>
 					</container>
 				</column>
+				<modelColumn pixels="16" centered="TRUE">
+					<navigations>
+						<navigation style="LINK" submit="TRUE" description="item-closed" disabled="TRUE">
+							<icon icon="/icons/cancel.gif" style="LEFT" />
+							<included>
+								<decision model="assessment.published" />
+								<decision model="assessment.dates.isClosed" />
+							</included>
+						</navigation>
+					</navigations>
+				</modelColumn>
 				<column em="8">
 					<title>
 						<message selector="assessment-odate" />
@@ -385,8 +396,13 @@
 						<dateEdit late="TRUE">
 							<model ref="assessment.dates.dueDate" type="date" />
 							<readOnly>
-								<decision model="assessment.formalCourseEval" />
-								<decision model="assessment.isLocked" />
+								<orDecision>
+									<decision model="assessment.frozen" />
+									<andDecision>
+										<decision model="assessment.formalCourseEval" />
+										<decision model="assessment.isLocked" />
+									</andDecision>
+								</orDecision>
 							</readOnly>
 						</dateEdit>
 					</container>
@@ -399,8 +415,13 @@
 						<dateEdit late="TRUE">
 							<model ref="assessment.dates.acceptUntilDate" type="date" />
 							<readOnly>
-								<decision model="assessment.formalCourseEval" />
-								<decision model="assessment.isLocked" />
+								<orDecision>
+									<decision model="assessment.frozen" />
+									<andDecision>
+										<decision model="assessment.formalCourseEval" />
+										<decision model="assessment.isLocked" />
+									</andDecision>
+								</orDecision>
 							</readOnly>
 						</dateEdit>
 					</container>
@@ -464,10 +485,6 @@
 					</container>
 				</column>
 				<column centered="TRUE" pixels="16" wrap="FALSE">
-					<entityIncluded>
-						<decision reversed="TRUE" model="assessment.formalCourseEval" />
-						<decision reversed="TRUE" model="assessment.frozen" />
-					</entityIncluded>
 					<navigations>
 						<navigation style="LINK" submit="TRUE" description="special-access-view">
 							<icon icon="/icons/access_view.png" style="LEFT" />
@@ -477,6 +494,8 @@
 								<model ref="assessment.id" />
 							</destination>
 							<included>
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+								<decision reversed="TRUE" model="assessment.frozen" />
 								<decision model="assessment.specialAccess.isDefined" />
 							</included>
 						</navigation>
@@ -488,7 +507,18 @@
 								<model ref="assessment.id" />
 							</destination>
 							<included>
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+								<decision reversed="TRUE" model="assessment.frozen" />
 								<decision reversed="TRUE" model="assessment.specialAccess.isDefined" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="special-access-locked" disabled="TRUE" >
+							<icon icon="/icons/access_locked.png" style="LEFT" />
+							<included>
+								<orDecision>
+									<decision model="assessment.formalCourseEval" />
+									<decision model="assessment.frozen" />
+								</orDecision>
 							</included>
 						</navigation>
 					</navigations>
