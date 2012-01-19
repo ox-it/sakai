@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -469,6 +469,36 @@
 						<model ref="return" />
 					</destination>
 				</navigation>
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<pager paging="paging" submit="TRUE">
+					<destination template="/{5}/{0}/{1}{2}/{3}/{6}{4}">
+						<model ref="pool.id" />
+						<model ref="sort_column" />
+						<model ref="sort_direction" />
+						<model type="paging" ref="paging" />
+						<model ref="return" />
+						<model ref="view" />
+						<model ref="aid" />
+					</destination>
+					<sizeOptions>
+						<model ref="pageSizes" />
+					</sizeOptions>
+				</pager>
 			</container>
 		</navigationBar>
 
