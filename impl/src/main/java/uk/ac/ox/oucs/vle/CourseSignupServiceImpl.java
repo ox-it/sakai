@@ -13,6 +13,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.util.ResourceLoader;
 
 public class CourseSignupServiceImpl implements CourseSignupService {
@@ -44,7 +45,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void approve(String signupId) {
-		approve(signupId, false, null);
+		approve(signupId, false, proxy.getPlacement(null).getId());
 	}
 	
 	public void approve(String signupId, boolean skipAuth, String placementId) {
@@ -91,7 +92,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				String url = proxy.getApproveUrl(signupId, placementId);
 				String advanceUrl = proxy.getAdvanceUrl(signupDao.getId(), "confirm", placementId);
 				if (approverId != null) {
-					sendSignupEmail(approverId, signupDao, "approval.supervisor.subject", "approval.supervisor.body", new Object[]{url, advanceUrl});
+					sendSignupEmail(
+							approverId, signupDao, 
+							"approval.supervisor.subject", 
+							"approval.supervisor.body", 
+							new Object[]{url, advanceUrl});
+					savePlacement(approverId, placementId);
 				}
 			}
 		} else {
@@ -103,7 +109,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void accept(String signupId) {
-		accept(signupId, false, null);
+		accept(signupId, false, proxy.getPlacement(null).getId());
 	}
 	
 	public void accept(String signupId, boolean skipAuth, String placementId) {
@@ -155,6 +161,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 							"signup.approver.subject", 
 							"signup.approver.body", 
 							new Object[]{url});
+						
+						savePlacement(approverId, placementId);
 					}
 				}
 			}
@@ -165,7 +173,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			String url = proxy.getConfirmUrl(signupId, placementId);
 			String advanceUrl = proxy.getAdvanceUrl(signupDao.getId(), "approve", placementId);
 			if (supervisorId != null) {
-				sendSignupEmail(supervisorId, signupDao, "approval.supervisor.subject", "approval.supervisor.body", new Object[]{url, advanceUrl});
+				sendSignupEmail(supervisorId, signupDao, 
+						"approval.supervisor.subject", 
+						"approval.supervisor.body", 
+						new Object[]{url, advanceUrl});
+				savePlacement(supervisorId, placementId);
 			}
 			
 		} else {
@@ -177,7 +189,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void confirm(String signupId) {
-		confirm(signupId, false, null);
+		confirm(signupId, false, proxy.getPlacement(null).getId());
 	}
 	public void confirm(String signupId, boolean skipAuth, String placementId) {
 		
@@ -225,7 +237,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void waiting(String signupId) {
-		waiting(signupId, false, null);
+		waiting(signupId, false, proxy.getPlacement(null).getId());
 	}
 	
 	public void waiting(String signupId, boolean skipAuth, String placementId) {
@@ -503,7 +515,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void reject(String signupId) {
-		reject(signupId, false, null);
+		reject(signupId, false, proxy.getPlacement(null).getId());
 	}
 	public void reject(String signupId, boolean skipAuth, String placementId) {
 		
@@ -519,7 +531,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				signupDao.setAmended(getNow());
 				dao.save(signupDao);
 				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT, placementId);
-				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-admin.student.subject", "reject-admin.student.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
+				sendSignupEmail(
+						signupDao.getUserId(), signupDao, 
+						"reject-admin.student.subject", 
+						"reject-admin.student.body", 
+						new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
 			} else {
 				throw new PermissionDeniedException(currentUserId);
 			}
@@ -534,7 +550,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 						dao.save(componentDao);
 					}
 					proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT, placementId);
-					sendSignupEmail(signupDao.getUserId(), signupDao, "reject-supervisor.student.subject", "reject-supervisor.student.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
+					sendSignupEmail(
+							signupDao.getUserId(), signupDao, 
+							"reject-supervisor.student.subject", 
+							"reject-supervisor.student.body", 
+							new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
 				} else {
 					throw new PermissionDeniedException(currentUserId);
 				}
@@ -550,7 +570,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					dao.save(componentDao);
 				}
 				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT, placementId);
-				sendSignupEmail(signupDao.getUserId(), signupDao, "reject-approver.student.subject", "reject-approver.student.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
+				sendSignupEmail(
+						signupDao.getUserId(), signupDao, 
+						"reject-approver.student.subject", 
+						"reject-approver.student.body", 
+						new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
 			} else {
 				throw new PermissionDeniedException(currentUserId);
 			}
@@ -743,24 +767,29 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP, null);
 		
+		String placementId = proxy.getPlacement(null).getId();
 		String url = proxy.getConfirmUrl(signupId);
 		
 		if (full) {
 			for (String adminId : groupDao.getAdministrators()) {
-				sendSignupWaitingEmail(adminId, signupDao, 
-							"signup.waiting.subject", 
-							"signup.waiting.body", 
-							new Object[]{url});
+				sendSignupWaitingEmail(
+						adminId, signupDao, 
+						"signup.waiting.subject", 
+						"signup.waiting.body", 
+						new Object[]{url});
+				savePlacement(adminId, placementId);
 			}
 			
 		} else if (groupDao.getAdministratorApproval()) {
 			
 			String advanceUrl = proxy.getAdvanceUrl(signupDao.getId(), "accept", null);
 			for (String adminId : groupDao.getAdministrators()) {
-				sendSignupEmail(adminId, signupDao, 
+				sendSignupEmail(
+						adminId, signupDao, 
 						"signup.admin.subject", 
 						"signup.admin.body", 
 						new Object[]{url, advanceUrl});
+				savePlacement(adminId, placementId);
 			}
 			
 			String myUrl = proxy.getMyUrl();
@@ -975,8 +1004,14 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	     * @param additionalBodyData Additional objects used to format the email body. Typically used for the confirm URL.
 		 */
 		if (sendEmail) {
-			for (String administrator : signupDao.getGroup().getAdministrators())
-			sendSignupEmail(administrator, signupDao, "withdraw.admin.subject", "withdraw.admin.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
+			for (String administrator : signupDao.getGroup().getAdministrators()) {
+				sendSignupEmail(
+					administrator, signupDao, 
+					"withdraw.admin.subject", 
+					"withdraw.admin.body", 
+					new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
+				savePlacement(administrator, proxy.getPlacement(null).getId());
+			}
 		}
 		sendSignupEmail(signupDao.getUserId(), signupDao, "withdraw.student.subject", "withdraw.student.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
 	}
@@ -1098,6 +1133,16 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		} else {
 			return new CourseSignupImpl(signupDao, this);
 		}
+	}
+	
+	private CourseUserPlacementDAO savePlacement(String userId, String placementId) {
+		CourseUserPlacementDAO placementDao = dao.findUserPlacement(userId);
+		if (null == placementDao) {
+			placementDao = new CourseUserPlacementDAO(userId);
+		}
+		placementDao.setPlacementId(placementId);
+		dao.save(placementDao);
+		return placementDao;
 	}
 	
 	public String[] getCourseSignupFromEncrypted(String encrypted) {

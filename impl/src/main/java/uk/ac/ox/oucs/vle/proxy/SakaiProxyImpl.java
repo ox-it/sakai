@@ -173,7 +173,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * @throws RunTimeException If there isn't a current placement, this happens
 	 * when a request comes through that isn't processed by the portal.
 	 */
-	private Placement getPlacement(String placementId) {
+	public Placement getPlacement(String placementId) {
 		Placement placement = null;
 		if (null == placementId) {
 			placement = toolManager.getCurrentPlacement();

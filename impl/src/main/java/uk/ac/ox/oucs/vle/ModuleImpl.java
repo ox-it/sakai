@@ -344,7 +344,13 @@ public class ModuleImpl implements Module {
 			signupsDetails.append("\n");
 		}
 		
-		String url = null;//proxy.getConfirmUrl(signup.getId());
+		CourseUserPlacementDAO placementDao = dao.findUserPlacement(administratorId);
+		if (null == placementDao) {
+			log.warn("Failed to find placement for sending email: "+ administratorId);
+			return;
+		}
+		String placementId = placementDao.getPlacementId();
+		String url = proxy.getConfirmUrl(signups.iterator().next().getId(), placementId);
 		String advanceUrl = null;//proxy.getAdvanceUrl(signup.getId(), "accept", null);
 		
 		Object[] bodyData = new Object[] {
@@ -383,7 +389,13 @@ public class ModuleImpl implements Module {
 			signupsDetails.append("\n");
 		}
 		
-		String url = null;//proxy.getConfirmUrl(signup.getId());
+		CourseUserPlacementDAO placementDao = dao.findUserPlacement(supervisorId);
+		if (null == placementDao) {
+			log.warn("Failed to find placement for sending email: "+ supervisorId);
+			return;
+		}
+		String placementId = placementDao.getPlacementId();
+		String url = proxy.getApproveUrl(signups.iterator().next().getId(), placementId);
 		String advanceUrl = null;//proxy.getAdvanceUrl(signup.getId(), "accept", null);
 		
 		Object[] bodyData = new Object[] {

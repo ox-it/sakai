@@ -42,6 +42,14 @@
 		<property name="t2Char" type="string" length="2" />
 	</class>
 	
+		<class name="uk.ac.ox.oucs.vle.CourseUserPlacementDAO" table="course_user_placement">
+		<!-- create the primary key id -->
+		<id name="userId" type="string">
+			<column name="userId" length="64"/>
+		</id>
+		<property name="placementId" type="string" length="256" />
+	</class>
+	
 	<class name="uk.ac.ox.oucs.vle.CourseCategoryDAO" table="course_group_category">
 		<!-- create the primary key id -->
 		<id name="categoryId" type="int">

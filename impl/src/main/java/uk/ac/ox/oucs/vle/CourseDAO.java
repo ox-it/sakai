@@ -86,5 +86,9 @@ public interface CourseDAO {
 	void save(CourseOucsDepartmentDAO oucsDao);
 
 	void remove(CourseSignupDAO existingSignup);
+	
+	CourseUserPlacementDAO findUserPlacement(String userId);
+	
+	void save(CourseUserPlacementDAO placementDao);
 
 }

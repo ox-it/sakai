@@ -1,5 +1,7 @@
 package uk.ac.ox.oucs.vle;
 
+import org.sakaiproject.tool.api.Placement;
+
 public interface SakaiProxy {
 	
 	public UserProxy getCurrentUser();
@@ -27,6 +29,8 @@ public interface SakaiProxy {
 	 * @param body The body of the email.
 	 */
 	public void sendEmail(String to, String subject, String body);
+	
+	public Placement getPlacement(String placementId);
 	
 	/**
 	 * Get a URL that a user can click on to go to approve/reject a signup.

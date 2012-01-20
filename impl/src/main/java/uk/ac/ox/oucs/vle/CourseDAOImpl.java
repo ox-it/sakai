@@ -603,6 +603,27 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public void flush() {
 		getHibernateTemplate().flush();
 	}
+
+	@SuppressWarnings("unchecked")
+	public CourseUserPlacementDAO findUserPlacement(final String userId) {
+		List<Object> results = getHibernateTemplate().executeFind(new HibernateCallback() {
+			public Object doInHibernate(Session session) {
+				Query query = session.createSQLQuery(
+						"select * from course_user_placement " +
+						"where userId = :userId").addEntity(CourseUserPlacementDAO.class);
+				query.setString("userId", userId);
+				return query.list();
+			}
+		});
+		if (!results.isEmpty()) {
+			return (CourseUserPlacementDAO)results.get(0);
+		}
+		return null;
+	}
+
+	public void save(CourseUserPlacementDAO placementDao) {
+		getHibernateTemplate().save(placementDao).toString();
+	}
 }
 
 
