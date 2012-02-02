@@ -63,9 +63,6 @@
         </profile>
         <profile>
             <id>sakai2.6</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <dependencies>
                 <dependency>
                     <groupId>org.sakaiproject.kernel</groupId>
@@ -79,6 +76,22 @@
         </profile>
         <profile>
             <id>sakai2.7</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.sakaiproject.kernel</groupId>
+                    <artifactId>sakai-kernel-api</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.kernel</groupId>
+                    <artifactId>sakai-kernel-util</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>sakai2.8</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <dependencies>
                 <dependency>
                     <groupId>org.sakaiproject.kernel</groupId>

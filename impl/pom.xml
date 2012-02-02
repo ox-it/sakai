@@ -79,9 +79,6 @@
         </profile>
         <profile>
             <id>sakai2.6</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <dependencies>
                 <dependency>
                     <groupId>org.sakaiproject.kernel</groupId>
@@ -104,6 +101,30 @@
         </profile>
         <profile>
             <id>sakai2.7</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.sakaiproject.kernel</groupId>
+                    <artifactId>sakai-kernel-api</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.kernel</groupId>
+                    <artifactId>sakai-kernel-util</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.kernel</groupId>
+                    <artifactId>sakai-component-manager</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.scheduler</groupId>
+                    <artifactId>scheduler-api</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>sakai2.8</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <dependencies>
                 <dependency>
                     <groupId>org.sakaiproject.kernel</groupId>
@@ -185,7 +206,7 @@
 
         <!-- Quartz dependencies -->
         <dependency>
-            <groupId>quartz</groupId>
+            <groupId>org.opensymphony.quartz</groupId>
             <artifactId>quartz</artifactId>
         </dependency>
 
