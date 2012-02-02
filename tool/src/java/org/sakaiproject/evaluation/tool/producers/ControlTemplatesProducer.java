@@ -116,6 +116,7 @@ public class ControlTemplatesProducer implements ViewComponentProducer, ViewPara
                 UIMessage.make(templateBranch, "template-modify-dummy", "general.command.edit")
                 .decorate( new UITooltipDecorator( UIMessage.make("controltemplates.template.inuse.note") ) );
             }
+            
             if ( ! template.getLocked().booleanValue() &&
                     authoringService.canRemoveTemplate(currentUserId, template.getId()) ) {
                 UIInternalLink.make(templateBranch, "template-delete-link", UIMessage.make("general.command.delete"),
@@ -124,6 +125,7 @@ public class ControlTemplatesProducer implements ViewComponentProducer, ViewPara
                 UIMessage.make(templateBranch, "template-delete-dummy", "general.command.delete")
                 .decorate( new UITooltipDecorator( UIMessage.make("controltemplates.template.inuse.note") ) );
             }
+            
             UIInternalLink.make(templateBranch, "template-preview-link", UIMessage.make("general.command.preview"),
                     new EvalViewParameters( PreviewEvalProducer.VIEW_ID, null, template.getId() ));
 
@@ -140,6 +142,16 @@ public class ControlTemplatesProducer implements ViewComponentProducer, ViewPara
             UICommand copy = UICommand.make(templateBranch, "template-copy-link", 
                     UIMessage.make("general.copy"), "templateBBean.copyTemplate");
             copy.parameters.add(new UIELBinding("templateBBean.templateId", template.getId()));
+            
+            // WL-1369 change owner
+            if ( ! template.getLocked().booleanValue() &&
+                    authoringService.canModifyTemplate(currentUserId, template.getId()) ) {
+                UIInternalLink.make(templateBranch, "template-chown-link", UIMessage.make("general.command.chown"),
+                        new TemplateViewParameters( ChownTemplateProducer.VIEW_ID, template.getId() ));
+            } else {
+                UIMessage.make(templateBranch, "template-chown-dummy", "general.command.chown")
+                .decorate( new UITooltipDecorator( UIMessage.make("controltemplates.template.inuse.note") ) );
+            }
         }
         else{
             // page title
@@ -212,6 +224,15 @@ public class ControlTemplatesProducer implements ViewComponentProducer, ViewPara
                             UIMessage.make("general.copy"), "templateBBean.copyTemplate");
                     copy.parameters.add(new UIELBinding("templateBBean.templateId", template.getId()));
 
+                 // WL-1369 change owner
+                    if ( ! template.getLocked().booleanValue() &&
+                            authoringService.canModifyTemplate(currentUserId, template.getId()) ) {
+                        UIInternalLink.make(templateBranch, "template-chown-link", UIMessage.make("general.command.chown"), 
+                                new TemplateViewParameters( ChownTemplateProducer.VIEW_ID, template.getId() ));
+                    } else {
+                        UIMessage.make(templateBranch, "template-chown-dummy", "general.command.chown")
+                        .decorate( new UITooltipDecorator( UIMessage.make("controltemplates.template.inuse.note") ) );
+                    }
                 }	
             } else {
                 UIMessage.make(tofill, "no-templates", "controltemplates.templates.none");

@@ -24,12 +24,15 @@ import org.sakaiproject.evaluation.constant.EvalConstants;
 import org.sakaiproject.evaluation.logic.EvalAuthoringService;
 import org.sakaiproject.evaluation.logic.EvalCommonLogic;
 import org.sakaiproject.evaluation.logic.exceptions.BlankRequiredFieldException;
+import org.sakaiproject.evaluation.logic.model.EvalUser;
+import org.sakaiproject.evaluation.model.EvalAdhocUser;
 import org.sakaiproject.evaluation.model.EvalTemplate;
 import org.sakaiproject.evaluation.model.EvalTemplateItem;
 import org.sakaiproject.evaluation.tool.locators.ItemBeanWBL;
 import org.sakaiproject.evaluation.tool.locators.ScaleBeanLocator;
 import org.sakaiproject.evaluation.tool.locators.TemplateBeanLocator;
 import org.sakaiproject.evaluation.tool.locators.TemplateItemWBL;
+import org.sakaiproject.evaluation.utils.EvalUtils;
 import org.sakaiproject.evaluation.utils.TemplateItemUtils;
 
 import uk.org.ponder.messageutil.TargettedMessage;
@@ -103,6 +106,7 @@ public class TemplateBBean {
     public String blockTextChoice;
     public String orderedChildIds;
     public String templateItemIds;
+    public String templateOwner;
     
     public Long groupItemId;
 
@@ -151,6 +155,62 @@ public class TemplateBBean {
         authoringService.deleteTemplate(templateId, ownerId);
         messages.addMessage( new TargettedMessage("controltemplates.remove.user.message", 
                 new Object[] {template.getTitle()}, TargettedMessage.SEVERITY_INFO) );
+        return "success";
+    }
+    
+    /**
+     * Chown a template and create a user message,
+     * templateId must be set
+     */
+    public String chownTemplate() {
+        String ownerId = commonLogic.getCurrentUserId();
+        
+        // check if this is a valid username for an existing user
+        String userId = null;
+        String internalUserId = commonLogic.getUserId(templateOwner);
+        if (internalUserId == null) {
+           internalUserId = templateOwner;
+        }
+        // look up the username by their internal id
+        EvalUser user = commonLogic.getEvalUserById(internalUserId);
+        if (EvalConstants.USER_TYPE_EXTERNAL.equals(user.type)
+              || EvalConstants.USER_TYPE_INTERNAL.equals(user.type)) {
+           userId = user.userId;
+           templateOwner = user.displayName;
+        } else {
+           // check if this is an email belonging to an existing user
+           user = commonLogic.getEvalUserByEmail(templateOwner);
+           if (EvalConstants.USER_TYPE_EXTERNAL.equals(user.type)
+                 || EvalConstants.USER_TYPE_INTERNAL.equals(user.type)) {
+              userId = user.userId;
+              templateOwner = user.displayName;
+           } 
+        }
+        
+        EvalTemplate template = authoringService.getTemplateById(templateId);
+        
+        if (null == userId) {
+        	messages.addMessage( new TargettedMessage("controltemplates.chown.nouser.message", 
+                    new Object[] {template.getTitle(), templateOwner}, TargettedMessage.SEVERITY_ERROR) );
+         	return "failed";
+        }
+        
+        if (!authoringService.canCreateTemplate(userId) ||
+        	!authoringService.canModifyTemplate(ownerId, templateId)) {
+        	messages.addMessage( new TargettedMessage("controltemplates.chown.permission.message", 
+                    new Object[] {template.getTitle(), templateOwner}, TargettedMessage.SEVERITY_ERROR) );
+            return "failed";
+        }
+        
+        authoringService.copyTemplate(templateId, 
+        		template.getTitle()+ " (shared)", userId, false, true);
+        
+        authoringService.deleteTemplate(templateId, ownerId);
+        
+        //template.setOwner(userId);
+        //authoringService.saveTemplate(template, userId);
+        messages.addMessage( new TargettedMessage("controltemplates.chown.user.message", 
+                new Object[] {template.getTitle(), templateOwner}, TargettedMessage.SEVERITY_INFO) );
         return "success";
     }
 
@@ -363,7 +423,7 @@ public class TemplateBBean {
      */
     public String saveBlockItemAction() {
         log.debug("Save Block items");
-
+        	
         Map<String, EvalTemplateItem> delivered = templateItemWBL.getDeliveredBeans();
         
         // Note: Arrays.asList() produces lists that do not support add() or remove(), however set() is supported
@@ -527,6 +587,7 @@ public class TemplateBBean {
             }
             return parent.getId().toString();
         }
+        
         return "success";
     }
     

@@ -148,7 +148,8 @@ public class EvaluationVPInferrer implements EntityViewParamsInferrer {
                     }
                 }
                 // else just require auth
-                throw new SecurityException("User must be authenticated to access this page");
+                // WL-1699 Show preview of a survey rather than SecurityException
+                //throw new SecurityException("User must be authenticated to access this page");
             }
 
             // finally, try to go to the take evals view
