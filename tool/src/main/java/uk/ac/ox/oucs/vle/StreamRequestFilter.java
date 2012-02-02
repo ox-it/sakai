@@ -139,7 +139,7 @@ public class StreamRequestFilter extends RequestFilter
 		//sessionId = req.getParameter(ATTR_SESSION);
 
 		// find our session id from our cookie
-		Cookie c = findCookie(req, SESSION_COOKIE, suffix);
+		Cookie c = findCookie(req, cookieName, suffix);
 
 		if (sessionId == null && c != null)
 		{
@@ -223,7 +223,7 @@ public class StreamRequestFilter extends RequestFilter
 		if ((s == null) && (c != null))
 		{
 			// remove the cookie
-			c = new Cookie(SESSION_COOKIE, "");
+			c = new Cookie(cookieName, "");
 			c.setPath("/");
 			c.setMaxAge(0);
 			res.addCookie(c);
@@ -239,7 +239,7 @@ public class StreamRequestFilter extends RequestFilter
 			if ((c == null) || (!c.getValue().equals(sessionId)))
 			{
 				// set the cookie
-				c = new Cookie(SESSION_COOKIE, sessionId);
+				c = new Cookie(cookieName, sessionId);
 				c.setPath("/");
 				c.setMaxAge(-1);
 				res.addCookie(c);
