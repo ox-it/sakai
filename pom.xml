@@ -73,8 +73,8 @@
     </distributionManagement>
 
     <scm>
-        <connection>scm:git:git://git-repo.oucs.ox.ac.uk/git/repos/local-project/auto-import.git</connection>
-        <developerConnection>scm:git:ssh://git-repo.oucs.ox.ac.uk/~git/repos/local-project/auto-import.git</developerConnection>
+        <connection>scm:git:git://git-repo.oucs.ox.ac.uk/git/repos/local-project/auto-import</connection>
+        <developerConnection>scm:git:ssh://git-repo.oucs.ox.ac.uk/~git/repos/local-project/auto-import</developerConnection>
     </scm>
 
     <modules>
