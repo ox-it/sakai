@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.logging.Log;
@@ -66,6 +67,7 @@ public class AutoImport {
 	public void init() {
 		thread = new Thread(new ImportContent());
 		thread.setDaemon(true); // Don't bother the cleanup.
+		thread.setName("AutoImport");
 		thread.start();
 	}
 
@@ -96,7 +98,10 @@ public class AutoImport {
 					// Now make the connection.
 					connection.connect();
 					inputStream = connection.getInputStream();
-					ZipUtils.expandZip(inputStream, archiveHome);
+					List<ZipExpansionError> errors = ZipUtils.expandZip(inputStream, archiveHome);
+					for (ZipExpansionError error: errors) {
+						LOG.info(error);
+					}
 				} catch (IOException ioe) {
 					LOG.warn("Problem with "+ archive+ " "+ ioe.getMessage());
 				} finally {
@@ -107,7 +112,6 @@ public class AutoImport {
 					}
 				}
 			}
-			
 
 			// No idea why this is deprecated. To me this is better than depending on Spring.
 			// Don't import stuff until the component manager is started.
