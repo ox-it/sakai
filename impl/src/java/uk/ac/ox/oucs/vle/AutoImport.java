@@ -87,14 +87,18 @@ public class AutoImport {
 
 			// Download and expand all the folders, we don't need Sakai yet.
 			for (String archive : archives) {
+				if (archive == null || archive.trim().length() == 0) {
+					LOG.warn("Empty archive setting.");
+					continue;
+				}
 				LOG.info("Attempting to import: "+ archive);
 				InputStream inputStream = null;
 				try {
 					URL url = new URL(archive);
 					URLConnection connection = url.openConnection();
 					connection.setRequestProperty("User-Agent", "Sakai Content Importer");
-					connection.setConnectTimeout(30);
-					connection.setReadTimeout(30);
+					connection.setConnectTimeout(3000);
+					connection.setReadTimeout(3000);
 					// Now make the connection.
 					connection.connect();
 					inputStream = connection.getInputStream();
