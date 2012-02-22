@@ -97,8 +97,8 @@ public class AutoImport {
 					URL url = new URL(archive);
 					URLConnection connection = url.openConnection();
 					connection.setRequestProperty("User-Agent", "Sakai Content Importer");
-					connection.setConnectTimeout(3000);
-					connection.setReadTimeout(3000);
+					connection.setConnectTimeout(30000);
+					connection.setReadTimeout(30000);
 					// Now make the connection.
 					connection.connect();
 					inputStream = connection.getInputStream();
