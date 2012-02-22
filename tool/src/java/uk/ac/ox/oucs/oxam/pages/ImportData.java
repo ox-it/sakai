@@ -3,6 +3,7 @@ package uk.ac.ox.oucs.oxam.pages;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -85,8 +86,8 @@ public class ImportData extends AdminPage {
 					if (examPaperEntry == null) {
 						examFile.error(new StringResourceModel("not.in.zipfile", null, new String[] {"exam paper file", StringUtils.join(EXAMPAPER_FILE_NAMES, ", ")}).getString());
 					}
-					ZipEntry papersFolderEntry = getEntry(zipFile,  PAPERS_FOLDER_NAMES);
-					if (papersFolderEntry == null) {
+					String papersFolder = getEntryFolder(zipFile,  PAPERS_FOLDER_NAMES);
+					if (papersFolder == null) {
 						examFile.error(new StringResourceModel("not.in.zipfile", null, new String[] {"papers folder", StringUtils.join(PAPERS_FOLDER_NAMES, ", ")}).getString());
 					}
 					// Shortcut if we've found errors
@@ -107,9 +108,9 @@ public class ImportData extends AdminPage {
 					// We want to look for the term specific one first and if that doesn't exist fallback to the generic one.
 					// TODO Should be injected.
 					examImporter.setPaperResolver(new DualPaperResolver(
-							new ExtraZipPaperResolver(file.getAbsolutePath(), papersFolderEntry.getName(), termService, PAPER_FILE_TYPE),
+							new ExtraZipPaperResolver(file.getAbsolutePath(), papersFolder, termService, PAPER_FILE_TYPE),
 							new DualPaperResolver(
-									new FlatZipPaperResolver(file.getAbsolutePath(), papersFolderEntry.getName(), termService, PAPER_FILE_TYPE),
+									new FlatZipPaperResolver(file.getAbsolutePath(), papersFolder, termService, PAPER_FILE_TYPE),
 									new ArchivePaperResolver(file.getAbsolutePath(), "papers", termService, PAPER_FILE_TYPE)
 									)
 					));
@@ -178,6 +179,29 @@ public class ImportData extends AdminPage {
 				ZipEntry entry = zipFile.getEntry(name);
 				if (entry != null) {
 					return entry;
+				}
+			}
+			return null;
+		}
+		
+		/**
+		 * This looks through the entries in the zip to see if any start with any of the names.
+		 * We use this method because Windows when it creates zipfiles doesn't create entries for
+		 * folders so we just have to look to see if any of the files have the prefix in their path 
+		 * that we are interested in.
+		 * 
+		 * @param zipFile The zipfile to search in.
+		 * @param names The directories to look for.
+		 * @return The found name.
+		 */
+		protected String getEntryFolder(ZipFile zipFile, String[] names) {
+			Enumeration<? extends ZipEntry> entries = zipFile.entries();
+			while (entries.hasMoreElements()) {
+				ZipEntry entry = entries.nextElement();
+				for (String name: names) {
+					if (entry.getName().startsWith(name)) {
+						return name;
+					}
 				}
 			}
 			return null;
