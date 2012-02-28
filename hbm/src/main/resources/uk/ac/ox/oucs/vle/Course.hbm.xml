@@ -56,7 +56,7 @@
 			<column name="categoryId" />
 			<generator class="increment"/>
 		</id>
-		<property name="groupId" type="string" length="256" />
+		<property name="groupId" type="string" length="255" />
 		<property name="categoryType" type="string" length="6" />
 		<property name="categoryCode" type="string" length="32" />
 		<property name="categoryName" type="string" length="256" />
