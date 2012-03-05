@@ -169,8 +169,7 @@ public class XcriPopulatorImpl implements Populator {
 		
 		try {
 			// Bind the incoming XML to an XMLBeans type.
-			//URL xcri = new URL(inputSource);
-			//CatalogDocument catalog = CatalogDocument.Factory.parse(xcri.openStream());
+			//String xml = convertStreamToString(inputStream);
 			CatalogDocument catalog = CatalogDocument.Factory.parse(inputStream);
 
 			String generated = null;
@@ -968,7 +967,6 @@ public class XcriPopulatorImpl implements Populator {
 	public static void main(String[] args) {
 		try {	
 			XcriPopulatorImpl reader = new XcriPopulatorImpl();
-			
 			reader.update();
 		
 		} catch (Exception e) {
