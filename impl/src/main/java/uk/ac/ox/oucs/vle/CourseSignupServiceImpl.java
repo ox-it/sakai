@@ -990,6 +990,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			Status.APPROVED.equals(signupDao.getStatus()) ||
 			Status.CONFIRMED.equals(signupDao.getStatus())) {
 			sendEmail = true;
+			
+			for (CourseComponentDAO componentDao: signupDao.getComponents()) {
+				componentDao.setTaken(componentDao.getTaken()-1);
+				dao.save(componentDao);
+			}
 		}
 		signupDao.setStatus(Status.WITHDRAWN);
 		signupDao.setAmended(getNow());
