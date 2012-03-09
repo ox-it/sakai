@@ -20,9 +20,8 @@ public abstract class AbstractTermConverterService implements TermConverterServi
      * </p>
      * <p>
      * It's NOT possible to know for sure when the academic year will be only on 52 weeks (or less!).
-     * </p>
-     *
      * TODO: Extract this data from {@link #getWeekNames()}? This way 52 weeks calendars can be easily made.
+     * </p>
      */
     public static final int WEEKS_IN_YEAR = 53;
 
@@ -133,13 +132,15 @@ public abstract class AbstractTermConverterService implements TermConverterServi
 
     /**
      * {@inheritDoc}
+     *
      * @return {@inheritDoc} in a BiMap to fetch both names and number
      */
     public abstract BiMap<Integer, String> getWeekNames();
 
     /**
      * Get the smallest positive congruent number of two numbers
-     * @param number number on which the modulo should be applied
+     *
+     * @param number  number on which the modulo should be applied
      * @param modulus
      * @return smallest positive integer congruent to number % modulus
      */

@@ -8,8 +8,9 @@ import static junit.framework.Assert.assertEquals;
 
 /**
  * Test BSG term converter
- * <p/>
+ * <p>
  * Yes, methods names and variables are unconventional, but it easier to read and it's only for unit tests
+ * </p>
  *
  * @author Colin Hebert
  */
