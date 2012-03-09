@@ -23,6 +23,7 @@
         <module>api</module>
         <module>impl</module>
         <module>pack</module>
+        <module>assembly</module>
     </modules>
 
     <dependencyManagement>
@@ -36,6 +37,12 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>termdates-impl</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>termdates-pack</artifactId>
+                <version>${project.version}</version>
+                <type>sakai-component</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -86,6 +93,25 @@
                     <configuration>
                         <deployDirectory>${maven.tomcat.home}</deployDirectory>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.3</version>
+                    <configuration>
+                        <descriptors>
+                            <descriptor>src/main/assembly/deploy.xml</descriptor>
+                        </descriptors>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>make-assembly</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
