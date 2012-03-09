@@ -9,6 +9,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>termdates-assembly</artifactId>
+    <name>Termdates assembly</name>
+    <description>Assembly project for Termdates and Sakai</description>
     <packaging>pom</packaging>
 
     <dependencies>

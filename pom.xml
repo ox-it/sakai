@@ -6,6 +6,8 @@
     <groupId>uk.ac.ox.oucs.termdates</groupId>
     <artifactId>termdates</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>Termdates</name>
+    <description>Converter between dates and term weeks in an academic year</description>
     <packaging>pom</packaging>
 
     <properties>

@@ -10,6 +10,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>termdates-impl</artifactId>
+    <name>Termdates implementation</name>
+    <description>Implementation of Termdates for BSG and Oxford</description>
 
     <dependencies>
         <dependency>
