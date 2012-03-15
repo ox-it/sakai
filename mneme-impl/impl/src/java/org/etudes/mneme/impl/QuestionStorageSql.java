@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -39,8 +39,8 @@ import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
-import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.QuestionPoolService.FindQuestionsSort;
+import org.etudes.mneme.api.QuestionService;
 import org.etudes.util.api.Translation;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
@@ -232,40 +232,33 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	/**
 	 * {@inheritDoc}
 	 */
-	public Pool.PoolCounts countPoolQuestions(Pool pool, String questionType, Boolean valid)
+	public Pool.PoolCounts countPoolQuestions(Pool pool, String questionType)
 	{
 		int extras = 0;
 
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT Q.SURVEY, COUNT(1) FROM MNEME_QUESTION Q");
+		sql.append("SELECT Q.SURVEY, Q.VALID, COUNT(1) FROM MNEME_QUESTION Q");
 		sql.append(" WHERE Q.MINT='0' AND Q.HISTORICAL IN ('0','1') AND Q.POOL_ID=?");
-		if (valid != null)
-		{
-			sql.append(" AND Q.VALID=?");
-			extras++;
-		}
 		if (questionType != null)
 		{
 			sql.append(" AND Q.TYPE=?");
 			extras++;
 		}
-		sql.append(" GROUP BY Q.SURVEY");
+		sql.append(" GROUP BY Q.SURVEY, Q.VALID");
 
 		Object[] fields = new Object[1 + extras];
 		fields[0] = Long.valueOf(pool.getId());
 		int pos = 1;
-		if (valid != null)
-		{
-			fields[pos++] = valid ? "1" : "0";
-		}
 		if (questionType != null)
 		{
 			fields[pos++] = questionType;
 		}
 
 		final Pool.PoolCounts rv = new Pool.PoolCounts();
-		rv.assessment = 0;
-		rv.survey = 0;
+		rv.validAssessment = 0;
+		rv.validSurvey = 0;
+		rv.invalidAssessment = 0;
+		rv.invalidSurvey = 0;
 		List results = this.sqlService.dbRead(sql.toString(), fields, new SqlReader()
 		{
 			public Object readSqlResultRecord(ResultSet result)
@@ -273,16 +266,28 @@ public abstract class QuestionStorageSql implements QuestionStorage
 				try
 				{
 					Boolean survey = SqlHelper.readBoolean(result, 1);
-					Integer count = SqlHelper.readInteger(result, 2);
-					if (count != null)
+					Boolean valid = SqlHelper.readBoolean(result, 2);
+					Integer count = SqlHelper.readInteger(result, 3);
+					if (survey)
 					{
-						if ((survey != null) && survey)
+						if (valid)
 						{
-							rv.survey += count;
+							rv.validSurvey += count;
 						}
 						else
 						{
-							rv.assessment += count;
+							rv.invalidSurvey += count;
+						}
+					}
+					else
+					{
+						if (valid)
+						{
+							rv.validAssessment += count;
+						}
+						else
+						{
+							rv.invalidAssessment += count;
 						}
 					}
 
@@ -302,28 +307,19 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	/**
 	 * {@inheritDoc}
 	 */
-	public Map<String, Pool.PoolCounts> countPoolQuestions(String context, Boolean valid)
+	public Map<String, Pool.PoolCounts> countPoolQuestions(String context)
 	{
 		int extras = 0;
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT P.ID, Q.SURVEY, COUNT(Q.ID)");
+		sql.append("SELECT P.ID, Q.SURVEY, Q.VALID, COUNT(Q.ID)");
 		sql.append(" FROM MNEME_POOL P");
 		sql.append(" LEFT OUTER JOIN MNEME_QUESTION Q");
 		sql.append(" ON Q.MINT='0' AND Q.HISTORICAL='0' AND Q.POOL_ID=P.ID");
-		if (valid != null)
-		{
-			sql.append(" AND Q.VALID=?");
-			extras++;
-		}
 		sql.append(" WHERE P.CONTEXT=? AND P.MINT='0' AND P.HISTORICAL='0'");
-		sql.append(" GROUP BY P.ID, Q.SURVEY");
+		sql.append(" GROUP BY P.ID, Q.SURVEY, Q.VALID");
 
 		Object[] fields = new Object[1 + extras];
 		int pos = 0;
-		if (valid != null)
-		{
-			fields[pos++] = valid ? "1" : "0";
-		}
 		fields[pos++] = context;
 
 		final Map<String, Pool.PoolCounts> rv = new HashMap<String, Pool.PoolCounts>();
@@ -335,26 +331,43 @@ public abstract class QuestionStorageSql implements QuestionStorage
 				{
 					String id = SqlHelper.readId(result, 1);
 					Boolean survey = SqlHelper.readBoolean(result, 2);
-					Integer count = SqlHelper.readInteger(result, 3);
+					Boolean valid = SqlHelper.readBoolean(result, 3);
+					Integer count = SqlHelper.readInteger(result, 4);
 
 					Pool.PoolCounts counts = rv.get(id);
 					if (counts == null)
 					{
 						counts = new Pool.PoolCounts();
-						counts.assessment = 0;
-						counts.survey = 0;
+						counts.validAssessment = 0;
+						counts.validSurvey = 0;
+						counts.invalidAssessment = 0;
+						counts.invalidSurvey = 0;
 						rv.put(id, counts);
 					}
 
-					if (count != null)
+					if ((count != null) && (count.intValue() > 0))
 					{
-						if ((survey != null) && survey)
+						if (survey)
 						{
-							counts.survey += count;
+							if (valid)
+							{
+								counts.validSurvey += count.intValue();
+							}
+							else
+							{
+								counts.invalidSurvey += count.intValue();
+							}
 						}
 						else
 						{
-							counts.assessment += count;
+							if (valid)
+							{
+								counts.validAssessment += count.intValue();
+							}
+							else
+							{
+								counts.invalidAssessment += count.intValue();
+							}
 						}
 					}
 

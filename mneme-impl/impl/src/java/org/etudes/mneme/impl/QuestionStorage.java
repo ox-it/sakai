@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -105,28 +105,24 @@ public interface QuestionStorage
 	Integer countContextQuestions(String context, String questionType, Boolean survey, Boolean valid);
 
 	/**
-	 * Count the questions in this pool - separate counts for survey and non-survey.
+	 * Count the questions in this pool - separate counts for survey and non-survey, valid and invalid.
 	 * 
 	 * @param pool
 	 *        The pool.
 	 * @param questionType
 	 *        The (optional) question type; if specified, only questions of this type are included.
-	 * @param valid
-	 *        if TRUE, include only valid questions, if FALSE, include only invalid questions, if NULL, include both.
 	 * @return The questions in this pool with this criteria, separate assessment and survey counts.
 	 */
-	Pool.PoolCounts countPoolQuestions(Pool pool, String questionType, Boolean valid);
+	Pool.PoolCounts countPoolQuestions(Pool pool, String questionType);
 
 	/**
 	 * Count the questions in the non-historical pools of this context - separate counts for survey and non-survey.
 	 * 
 	 * @param context
 	 *        The context.
-	 * @param valid
-	 *        if TRUE, include only valid questions, if FALSE, include only invalid questions, if NULL, include both.
 	 * @return A Map of the pool id -> count, separate assessment and survey counts.
 	 */
-	Map<String, Pool.PoolCounts> countPoolQuestions(String context, Boolean valid);
+	Map<String, Pool.PoolCounts> countPoolQuestions(String context);
 
 	/**
 	 * Check if a question by this id exists.

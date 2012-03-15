@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -34,9 +34,13 @@ public interface Pool
 	/** for getNumQuestionsSurvey. */
 	public class PoolCounts
 	{
-		public Integer assessment;
+		public Integer invalidAssessment;
 
-		public Integer survey;
+		public Integer invalidSurvey;
+
+		public Integer validAssessment;
+
+		public Integer validSurvey;
 	};
 
 	/**
@@ -100,6 +104,13 @@ public interface Pool
 	String getDescription();
 
 	/**
+	 * Access the number of valid questions currently defined in the pool, counting survey and non-survey, valid and invalid separately.
+	 * 
+	 * @return the number of assessment questions and the number of survey questions.
+	 */
+	PoolCounts getDetailedNumQuestions();
+
+	/**
 	 * Access the difficulty value for the questions in this pool.<br />
 	 * Values range from 1 (hardest) to 5 (easiest).
 	 * 
@@ -131,7 +142,7 @@ public interface Pool
 	/**
 	 * Access the modified-by (owner / date)
 	 * 
-	 * @return The pool's modified-bt.
+	 * @return The pool's modified-by.
 	 */
 	Attribution getModifiedBy();
 
@@ -141,13 +152,6 @@ public interface Pool
 	 * @return The number of questions currently defined in the pool.
 	 */
 	Integer getNumQuestions();
-
-	/**
-	 * Access the number of valid questions currently defined in the pool, counting survey and non-survey separately.
-	 * 
-	 * @return the number of assessment questions and the number of survey questions.
-	 */
-	PoolCounts getNumQuestionsSurvey();
 
 	/**
 	 * Access the number of points for each question in this pool.
@@ -182,7 +186,7 @@ public interface Pool
 	 * Set the description of the pool.
 	 * 
 	 * @param description
-	 *        html text.  Must be well formed HTML or plain text.
+	 *        html text. Must be well formed HTML or plain text.
 	 */
 	void setDescription(String description);
 
@@ -200,7 +204,7 @@ public interface Pool
 	/**
 	 * Set the number of points for each question in this pool.
 	 * 
-	 * @param points.
+	 * @param points
 	 *        The number of points for each question in this pool.<br />
 	 *        Must be >= 0, <= 10000, otherwise set to nearest valid value. May not be null.
 	 */
@@ -209,7 +213,7 @@ public interface Pool
 	/**
 	 * Set the number of points for each question in this pool.
 	 * 
-	 * @param points.
+	 * @param points
 	 *        The number of points for each question in this pool, or null to have none set.<br />
 	 *        Must be >= 0, <= 10000, otherwise set to nearest valid value. May be null.
 	 */

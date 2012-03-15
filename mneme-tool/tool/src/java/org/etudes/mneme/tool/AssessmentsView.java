@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -35,9 +35,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.api.PopulatingSet;
-import org.etudes.ambrosia.api.Values;
 import org.etudes.ambrosia.api.PopulatingSet.Factory;
 import org.etudes.ambrosia.api.PopulatingSet.Id;
+import org.etudes.ambrosia.api.Values;
 import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
@@ -112,7 +112,7 @@ public class AssessmentsView extends ControllerImpl
 		context.put("disableAssessments", Boolean.TRUE);
 
 		// pre-read question counts per pool
-		this.questionService.preCountContextQuestions(toolManager.getCurrentPlacement().getContext(), Boolean.TRUE);
+		this.questionService.preCountContextQuestions(toolManager.getCurrentPlacement().getContext());
 
 		// render
 		uiService.render(ui, context);

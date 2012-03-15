@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -212,15 +212,13 @@ public interface QuestionService extends QuestionPoolService, QuestionGetService
 	TrueFalseQuestion newTrueFalseQuestion(Pool pool) throws AssessmentPermissionException;
 
 	/**
-	 * Pre-count and thread-cache all the questions in all the pools in the context, separating survey and non-survey.<br />
+	 * Pre-count and thread-cache all the questions in all the pools in the context, separating survey and non-survey, valid and invalid.<br />
 	 * Good if we are going to subsequently call on these counts for each pool in this request.
 	 * 
 	 * @param context
 	 *        The context.
-	 * @param valid
-	 *        if TRUE, include only valid questions, if FALSE, include only invalid questions, if NULL, include both.
 	 */
-	void preCountContextQuestions(String context, Boolean valid);
+	void preCountContextQuestions(String context);
 
 	/**
 	 * Remove this question.

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -117,6 +117,14 @@ public class ReviewView extends ControllerImpl
 			return;
 		}
 
+		// validity check
+		if (!submission.getAssessment().getIsValid())
+		{
+			// redirect to error
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+
 		context.put("submission", submission);
 
 		// collect the other submissions from this user to the assessment
@@ -167,7 +175,7 @@ public class ReviewView extends ControllerImpl
 		}
 
 		// collect all the answers for review
-		List<Answer> answers = submission.getAnswersOrdered();
+		List<Answer> answers = submission.getAnswers();
 		context.put("answers", answers);
 
 		// in this special case, since there's no real action in the service to do this, we need to generate an event

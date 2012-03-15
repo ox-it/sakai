@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -978,7 +978,7 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 			sql.append(" FROM MNEME_ANSWER A");
 			sql.append(" JOIN MNEME_SUBMISSION S ON A.SUBMISSION_ID=S.ID ");
 			sql.append(where);
-			sql.append(" ORDER BY A.SUBMISSION_ID ASC");
+			sql.append(" ORDER BY A.SUBMISSION_ID ASC, A.ID ASC");
 
 			this.sqlService.dbRead(sql.toString(), fields, new SqlReader()
 			{

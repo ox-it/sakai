@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -155,9 +155,9 @@ public class PoolDrawImpl extends PartDetailImpl implements PoolDraw
 		if ((assessment == null) && (this.part != null)) assessment = this.part.getAssessment();
 
 		// for a uniform pool, draw from any survey or not; otherwise match the draw to the assessment type
-		Pool.PoolCounts counts = pool.getNumQuestionsSurvey();
+		Pool.PoolCounts counts = pool.getDetailedNumQuestions();
 		Boolean survey = null;
-		if ((counts.assessment != 0) && (counts.survey != 0) && (assessment != null))
+		if ((counts.validAssessment != 0) && (counts.validSurvey != 0) && (assessment != null))
 		{
 			survey = Boolean.valueOf(assessment.getType() == AssessmentType.survey);
 		}
@@ -226,8 +226,8 @@ public class PoolDrawImpl extends PartDetailImpl implements PoolDraw
 		if (assessment == null) return Boolean.FALSE;
 		if (assessment.getType() == AssessmentType.survey) return Boolean.FALSE;
 
-		Pool.PoolCounts counts = pool.getNumQuestionsSurvey();
-		if (counts.assessment != 0) return Boolean.TRUE;
+		Pool.PoolCounts counts = pool.getDetailedNumQuestions();
+		if (counts.validAssessment != 0) return Boolean.TRUE;
 
 		return Boolean.FALSE;
 	}
@@ -251,6 +251,15 @@ public class PoolDrawImpl extends PartDetailImpl implements PoolDraw
 			Object[] args = new Object[1];
 			args[0] = p.getTitle();
 			return ((PartImpl) this.part).messages.getFormattedMessage("invalid-detail-overdraw", args);
+		}
+
+		// the pool must be completely valid
+		Pool.PoolCounts counts = p.getDetailedNumQuestions();
+		if (counts.invalidAssessment + counts.invalidSurvey > 0)
+		{
+			Object[] args = new Object[1];
+			args[0] = p.getTitle();
+			return ((PartImpl) this.part).messages.getFormattedMessage("invalid-detail-invalid-pool", args);
 		}
 
 		return null;
@@ -289,6 +298,13 @@ public class PoolDrawImpl extends PartDetailImpl implements PoolDraw
 		if (getPoolNumAvailableQuestions() < getNumQuestions())
 		{
 			return Boolean.FALSE;
+		}
+
+		// if the assessment is locked, the pool must be completely valid
+		if (this.getPart().getAssessment().getIsLocked())
+		{
+			Pool.PoolCounts counts = p.getDetailedNumQuestions();
+			if (counts.invalidAssessment + counts.invalidSurvey > 0) return Boolean.FALSE;
 		}
 
 		return Boolean.TRUE;
@@ -354,9 +370,9 @@ public class PoolDrawImpl extends PartDetailImpl implements PoolDraw
 			if ((assessment == null) && (this.part != null)) assessment = this.part.getAssessment();
 
 			// for a uniform pool, draw from any survey or not; otherwise match the draw to the assessment type
-			Pool.PoolCounts counts = pool.getNumQuestionsSurvey();
+			Pool.PoolCounts counts = pool.getDetailedNumQuestions();
 			Boolean survey = null;
-			if ((counts.assessment != 0) && (counts.survey != 0) && (assessment != null))
+			if ((counts.validAssessment != 0) && (counts.validSurvey != 0) && (assessment != null))
 			{
 				survey = Boolean.valueOf(assessment.getType() == AssessmentType.survey);
 			}
@@ -366,7 +382,7 @@ public class PoolDrawImpl extends PartDetailImpl implements PoolDraw
 			// if uniform, count them all
 			if (survey == null)
 			{
-				size = counts.assessment + counts.survey;
+				size = counts.validAssessment + counts.validSurvey;
 			}
 
 			// if not uniform, use the count that matches the assessment
@@ -374,11 +390,11 @@ public class PoolDrawImpl extends PartDetailImpl implements PoolDraw
 			{
 				if (survey)
 				{
-					size = counts.survey;
+					size = counts.validSurvey;
 				}
 				else
 				{
-					size = counts.assessment;
+					size = counts.validAssessment;
 				}
 			}
 

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -32,6 +32,7 @@ import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.etudes.mneme.api.Answer;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.Changeable;
 import org.etudes.mneme.api.Ordering;
@@ -427,13 +428,38 @@ public class PartImpl implements Part, Changeable
 	 */
 	public Question getFirstQuestion()
 	{
-		List<QuestionPick> order = getQuestionPickOrder();
-		QuestionImpl question = (QuestionImpl) this.questionService.getQuestion(order.get(0).getQuestionId());
+		QuestionImpl question = null;
 
-		// set the assessment, part and submission context
-		question.initSubmissionContext(this.assessment.getSubmissionContext());
-		question.initPartContext(this);
-		question.initPartDetailContext(((QuestionPickImpl) order.get(0)).getRelatedDetail());
+		// if we are under a submission context, use the questions for the submission answers that are for this part
+		if (getAssessment().getSubmissionContext() != null)
+		{
+			String questionId = null;
+			for (Answer answer : getAssessment().getSubmissionContext().getAnswers())
+			{
+				if (((AnswerImpl) answer).getPartId().equals(getId()))
+				{
+					questionId = ((AnswerImpl) answer).questionId;
+					break;
+				}
+			}
+
+			if (questionId != null)
+			{
+				question = (QuestionImpl) getQuestion(questionId);
+			}
+		}
+
+		else
+		{
+			List<QuestionPick> order = getQuestionPickOrder();
+			question = (QuestionImpl) this.questionService.getQuestion(order.get(0).getQuestionId());
+
+			// set the assessment, part and submission context
+			question.initSubmissionContext(this.assessment.getSubmissionContext());
+			question.initPartContext(this);
+			question.initPartDetailContext(((QuestionPickImpl) order.get(0)).getRelatedDetail());
+		}
+
 		return question;
 	}
 
@@ -505,13 +531,36 @@ public class PartImpl implements Part, Changeable
 	 */
 	public Question getLastQuestion()
 	{
-		List<QuestionPick> order = getQuestionPickOrder();
-		QuestionImpl question = (QuestionImpl) this.questionService.getQuestion(order.get(order.size() - 1).getQuestionId());
+		QuestionImpl question = null;
 
-		// set the assessment, part and submission context
-		question.initSubmissionContext(this.assessment.getSubmissionContext());
-		question.initPartContext(this);
-		question.initPartDetailContext(((QuestionPickImpl) order.get(order.size() - 1)).getRelatedDetail());
+		// if we are under a submission context, use the questions for the submission answers that are for this part
+		if (getAssessment().getSubmissionContext() != null)
+		{
+			String questionId = null;
+			for (Answer answer : getAssessment().getSubmissionContext().getAnswers())
+			{
+				if (((AnswerImpl) answer).getPartId().equals(getId()))
+				{
+					questionId = ((AnswerImpl) answer).questionId;
+				}
+			}
+
+			if (questionId != null)
+			{
+				question = (QuestionImpl) getQuestion(questionId);
+			}
+		}
+
+		else
+		{
+			List<QuestionPick> order = getQuestionPickOrder();
+			question = (QuestionImpl) this.questionService.getQuestion(order.get(order.size() - 1).getQuestionId());
+
+			// set the assessment, part and submission context
+			question.initSubmissionContext(this.assessment.getSubmissionContext());
+			question.initPartContext(this);
+			question.initPartDetailContext(((QuestionPickImpl) order.get(order.size() - 1)).getRelatedDetail());
+		}
 
 		return question;
 	}
@@ -551,34 +600,7 @@ public class PartImpl implements Part, Changeable
 	 */
 	public Question getQuestion(String questionId)
 	{
-		// collect the questions
-		List<QuestionPick> questions = null;
-
-		// if under a submission context, use the actual set of questions for this submission
-		if (this.assessment.getSubmissionContext() != null)
-		{
-			// get the actual list of question picks
-			questions = getQuestionPickOrder();
-		}
-
-		// else use all possible questions
-		else
-		{
-			questions = getPossibleQuestionPicks();
-		}
-
-		// make sure this is one of our questions
-		QuestionPick found = null;
-		for (QuestionPick pick : questions)
-		{
-			if (pick.getQuestionId().equals(questionId))
-			{
-				found = pick;
-				break;
-			}
-		}
-		if (found == null) return null;
-
+		// get the question
 		QuestionImpl question = (QuestionImpl) this.questionService.getQuestion(questionId);
 		if (question == null)
 		{
@@ -586,12 +608,87 @@ public class PartImpl implements Part, Changeable
 			return null;
 		}
 
-		// set the question contexts
-		question.initSubmissionContext(this.assessment.getSubmissionContext());
-		question.initPartContext(this);
-		question.initPartDetailContext(((QuestionPickImpl) found).getRelatedDetail());
+		// figure out what part detail it belongs to - picks first, then draws
+		// if not found in any, it is not in our part
+		boolean found = false;
+		for (PartDetail detail : getDetails())
+		{
+			if (detail instanceof QuestionPick)
+			{
+				QuestionPick pick = (QuestionPick) detail;
+				if (questionId.equals(pick.getQuestionId()))
+				{
+					// set some context
+					question.initSubmissionContext(this.assessment.getSubmissionContext());
+					question.initPartContext(this);
+					question.initPartDetailContext(detail);
 
-		return question;
+					return question;
+				}
+			}
+		}
+
+		if (!found)
+		{
+			for (PartDetail detail : getDetails())
+			{
+				if (detail instanceof PoolDraw)
+				{
+					PoolDraw draw = (PoolDraw) detail;
+					if (((QuestionImpl) question).poolId.equals(draw.getPoolId()))
+					{
+						// set some context
+						question.initSubmissionContext(this.assessment.getSubmissionContext());
+						question.initPartContext(this);
+						question.initPartDetailContext(detail);
+
+						return question;
+					}
+				}
+			}
+		}
+
+		// // collect the questions
+		// List<QuestionPick> questions = null;
+		//
+		// // if under a submission context, use the actual set of questions for this submission
+		// if (this.assessment.getSubmissionContext() != null)
+		// {
+		// // get the actual list of question picks
+		// questions = getQuestionPickOrder();
+		// }
+		//
+		// // else use all possible questions
+		// else
+		// {
+		// questions = getPossibleQuestionPicks();
+		// }
+		//
+		// // make sure this is one of our questions
+		// QuestionPick found = null;
+		// for (QuestionPick pick : questions)
+		// {
+		// if (pick.getQuestionId().equals(questionId))
+		// {
+		// found = pick;
+		// break;
+		// }
+		// }
+		// if (found == null) return null;
+		//
+		// QuestionImpl question = (QuestionImpl) this.questionService.getQuestion(questionId);
+		// if (question == null)
+		// {
+		// M_log.warn("getQuestion: question not defined: " + questionId);
+		// return null;
+		// }
+		//
+		// // set the question contexts
+		// question.initSubmissionContext(this.assessment.getSubmissionContext());
+		// question.initPartContext(this);
+		// question.initPartDetailContext(((QuestionPickImpl) found).getRelatedDetail());
+
+		return null;
 	}
 
 	/**
@@ -599,22 +696,38 @@ public class PartImpl implements Part, Changeable
 	 */
 	public List<Question> getQuestions()
 	{
-		List<QuestionPick> order = getQuestionPickOrder();
-		List<Question> rv = new ArrayList<Question>(order.size());
-		for (QuestionPick pick : order)
-		{
-			QuestionImpl question = (QuestionImpl) this.questionService.getQuestion(pick.getQuestionId());
-			if (question != null)
-			{
-				// set the question contexts
-				question.initSubmissionContext(this.assessment.getSubmissionContext());
-				question.initPartContext(this);
-				question.initPartDetailContext(((QuestionPickImpl) pick).getRelatedDetail());
+		List<Question> rv = new ArrayList<Question>();
 
-				rv.add(question);
+		// if we are under a submission context which has answers, use the questions for the submission answers that are for this part
+		if ((getAssessment().getSubmissionContext() != null) && (!getAssessment().getSubmissionContext().getAnswers().isEmpty()))
+		{
+			for (Answer answer : getAssessment().getSubmissionContext().getAnswers())
+			{
+				if (((AnswerImpl) answer).getPartId().equals(getId()))
+				{
+					rv.add(getQuestion(((AnswerImpl) answer).questionId));
+				}
 			}
 		}
 
+		// otherwise we need to pick questions
+		else
+		{
+			List<QuestionPick> order = getQuestionPickOrder();
+			for (QuestionPick pick : order)
+			{
+				QuestionImpl question = (QuestionImpl) this.questionService.getQuestion(pick.getQuestionId());
+				if (question != null)
+				{
+					// set the question contexts
+					question.initSubmissionContext(this.assessment.getSubmissionContext());
+					question.initPartContext(this);
+					question.initPartDetailContext(((QuestionPickImpl) pick).getRelatedDetail());
+
+					rv.add(question);
+				}
+			}
+		}
 		return rv;
 	}
 

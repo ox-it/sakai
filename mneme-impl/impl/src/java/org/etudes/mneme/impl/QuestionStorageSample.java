@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -42,8 +42,8 @@ import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
-import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.QuestionPoolService.FindQuestionsSort;
+import org.etudes.mneme.api.QuestionService;
 import org.etudes.util.api.Translation;
 import org.sakaiproject.util.StringUtil;
 
@@ -247,24 +247,39 @@ public abstract class QuestionStorageSample implements QuestionStorage
 	/**
 	 * {@inheritDoc}
 	 */
-	public Pool.PoolCounts countPoolQuestions(Pool pool, String questionType, Boolean valid)
+	public Pool.PoolCounts countPoolQuestions(Pool pool, String questionType)
 	{
 		Pool.PoolCounts counts = new Pool.PoolCounts();
-		counts.assessment = 0;
-		counts.survey = 0;
+		counts.validAssessment = 0;
+		counts.validSurvey = 0;
+		counts.invalidAssessment = 0;
+		counts.invalidSurvey = 0;
 		for (QuestionImpl question : this.questions.values())
 		{
 			if (question.getMint()) continue;
 			if (!question.getPool().equals(pool)) continue;
 			if ((questionType != null) && (!question.getType().equals(questionType))) continue;
-			if ((valid != null) && (question.getIsValid() != valid)) continue;
 			if (question.getIsSurvey())
 			{
-				counts.survey++;
+				if (question.getIsValid())
+				{
+					counts.validSurvey++;
+				}
+				else
+				{
+					counts.invalidSurvey++;
+				}
 			}
 			else
 			{
-				counts.assessment++;
+				if (question.getIsValid())
+				{
+					counts.validAssessment++;
+				}
+				else
+				{
+					counts.invalidAssessment++;
+				}
 			}
 		}
 
@@ -274,7 +289,7 @@ public abstract class QuestionStorageSample implements QuestionStorage
 	/**
 	 * {@inheritDoc}
 	 */
-	public Map<String, Pool.PoolCounts> countPoolQuestions(String context, Boolean valid)
+	public Map<String, Pool.PoolCounts> countPoolQuestions(String context)
 	{
 		Map<String, Pool.PoolCounts> rv = new HashMap<String, Pool.PoolCounts>();
 		List<Pool> pools = this.poolService.findPools(context, null, null);
@@ -282,7 +297,7 @@ public abstract class QuestionStorageSample implements QuestionStorage
 		{
 			if (!pool.getIsHistorical())
 			{
-				rv.put(pool.getId(), countPoolQuestions(pool, null, valid));
+				rv.put(pool.getId(), countPoolQuestions(pool, null));
 			}
 		}
 
@@ -692,8 +707,8 @@ public abstract class QuestionStorageSample implements QuestionStorage
 					{
 						// compare based on the localized type name
 						rv = -1
-								* ((Question) arg0).getTypeSpecificQuestion().getPlugin().getPopularity().compareTo(
-										((Question) arg1).getTypeSpecificQuestion().getPlugin().getPopularity());
+								* ((Question) arg0).getTypeSpecificQuestion().getPlugin().getPopularity()
+										.compareTo(((Question) arg1).getTypeSpecificQuestion().getPlugin().getPopularity());
 						if (rv == 0)
 						{
 							rv = ((Question) arg0).getTypeName().compareTo(((Question) arg1).getTypeName());

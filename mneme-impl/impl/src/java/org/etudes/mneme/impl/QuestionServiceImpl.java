@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -264,7 +264,7 @@ public class QuestionServiceImpl implements QuestionService
 		if (pool == null) throw new IllegalArgumentException();
 
 		String key = cacheKeyPoolCount(pool.getId());
-		String secondaryKey = questionType + ":" + valid;
+		String secondaryKey = (questionType == null) ? "*" : questionType;
 		Pool.PoolCounts counts = null;
 
 		// check the thread-local cache
@@ -278,7 +278,7 @@ public class QuestionServiceImpl implements QuestionService
 		// if not, check storage
 		if (counts == null)
 		{
-			counts = this.storage.countPoolQuestions(pool, questionType, valid);
+			counts = this.storage.countPoolQuestions(pool, questionType);
 
 			// cache
 			if (cached == null)
@@ -289,18 +289,63 @@ public class QuestionServiceImpl implements QuestionService
 			cached.map.put(secondaryKey, counts);
 		}
 
-		// get the part of counts we want based on survey
+		// get the part of counts we want based on survey, valid
 		if (survey == null)
 		{
-			return Integer.valueOf(counts.assessment + counts.survey);
+			// combine survey and assessment
+			if (valid == null)
+			{
+				// combine valid and invalid
+				return Integer.valueOf(counts.validAssessment + counts.invalidAssessment + counts.validSurvey + counts.invalidSurvey);
+			}
+			else if (valid.booleanValue())
+			{
+				// just valid
+				return Integer.valueOf(counts.validAssessment + counts.validSurvey);
+			}
+			else
+			{
+				// just invalid
+				return Integer.valueOf(counts.invalidAssessment + counts.invalidSurvey);
+			}
 		}
-		else if (survey)
+		else if (survey.booleanValue())
 		{
-			return counts.survey;
+			// just survey
+			if (valid == null)
+			{
+				// combine valid and invalid
+				return Integer.valueOf(counts.validSurvey + counts.invalidSurvey);
+			}
+			else if (valid.booleanValue())
+			{
+				// just valid
+				return Integer.valueOf(counts.validSurvey);
+			}
+			else
+			{
+				// just invalid
+				return Integer.valueOf(counts.invalidSurvey);
+			}
 		}
 		else
 		{
-			return counts.assessment;
+			// just assessment
+			if (valid == null)
+			{
+				// combine valid and invalid
+				return Integer.valueOf(counts.validAssessment + counts.invalidAssessment);
+			}
+			else if (valid.booleanValue())
+			{
+				// just valid
+				return Integer.valueOf(counts.validAssessment);
+			}
+			else
+			{
+				// just invalid
+				return Integer.valueOf(counts.invalidAssessment);
+			}
 		}
 	}
 
@@ -692,15 +737,15 @@ public class QuestionServiceImpl implements QuestionService
 	/**
 	 * {@inheritDoc}
 	 */
-	public void preCountContextQuestions(String context, Boolean valid)
+	public void preCountContextQuestions(String context)
 	{
-		Map<String, Pool.PoolCounts> rv = this.storage.countPoolQuestions(context, valid);
+		Map<String, Pool.PoolCounts> rv = this.storage.countPoolQuestions(context);
 		for (String poolId : rv.keySet())
 		{
 			Pool.PoolCounts counts = rv.get(poolId);
 
 			String key = cacheKeyPoolCount(poolId);
-			String secondaryKey = null + ":" + valid;
+			String secondaryKey = "*";
 
 			QuestionCountsPool cached = (QuestionCountsPool) this.threadLocalManager.get(key);
 			if (cached == null)

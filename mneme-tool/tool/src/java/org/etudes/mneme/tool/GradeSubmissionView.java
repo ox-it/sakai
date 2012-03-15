@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -121,6 +121,13 @@ public class GradeSubmissionView extends ControllerImpl
 			return;
 		}
 
+		// validity check
+		if (!submission.getAssessment().getIsValid())
+		{
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+
 		context.put("submission", submission);
 
 		// next and prev, based on the sort
@@ -190,7 +197,7 @@ public class GradeSubmissionView extends ControllerImpl
 		}
 
 		// pick the page of answers
-		List<Answer> answers = submission.getAnswersOrdered();
+		List<Answer> answers = submission.getAnswers();
 		if (paging.getSize() != 0)
 		{
 			// start at ((pageNum-1)*pageSize)

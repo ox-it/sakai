@@ -574,11 +574,12 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		// set the attribution for each answer
 		List<Answer> work = new ArrayList<Answer>(answers);
 		Set<Submission> submissions = new HashSet<Submission>();
-		for (Iterator i = work.iterator(); i.hasNext();)
+		for (Iterator<Answer> i = work.iterator(); i.hasNext();)
 		{
-			Answer answer = (Answer) i.next();
+			Answer answer = i.next();
 
-			if ((((EvaluationImpl) answer.getEvaluation()).getIsChanged()) || answer.getIsChanged())
+			// if the answer has changed, but only if the submission for the answer is not marked as having a stale edit
+			if (((((EvaluationImpl) answer.getEvaluation()).getIsChanged()) || answer.getIsChanged()) && (!answer.getSubmission().getIsStaleEdit()))
 			{
 				// set attribution
 				answer.getEvaluation().getAttribution().setDate(now);
@@ -594,6 +595,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 				submissions.add(answer.getSubmission());
 			}
+			
+			// for those we don't want to / need to save
 			else
 			{
 				i.remove();
@@ -631,6 +634,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		Date now = new Date();
 		String userId = sessionManager.getCurrentSessionUserId();
 		if (submission == null) throw new IllegalArgumentException();
+
+		//  if the submission is marked as having a stale edit, ignore it quietly
+		if (submission.getIsStaleEdit()) return;
 
 		if (M_log.isDebugEnabled()) M_log.debug("evaluateSubmission: " + submission.getId());
 

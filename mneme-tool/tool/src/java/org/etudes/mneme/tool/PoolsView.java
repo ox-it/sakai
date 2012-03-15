@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -120,7 +120,7 @@ public class PoolsView extends ControllerImpl
 		context.put("disablePools", Boolean.TRUE);
 
 		// pre-read question counts per pool
-		this.questionService.preCountContextQuestions(toolManager.getCurrentPlacement().getContext(), null);
+		this.questionService.preCountContextQuestions(toolManager.getCurrentPlacement().getContext());
 
 		// render
 		uiService.render(ui, context);

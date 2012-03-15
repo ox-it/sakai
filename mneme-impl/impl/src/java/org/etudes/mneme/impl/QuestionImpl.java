@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -26,6 +26,7 @@ package org.etudes.mneme.impl;
 
 import java.util.List;
 
+import org.etudes.mneme.api.Answer;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.Attribution;
@@ -65,11 +66,11 @@ public class QuestionImpl implements Question
 		 */
 		public Boolean getIsFirst()
 		{
-			if (question.partContext == null) return true;
+			if (this.question.partContext == null) return true;
 
-			if (!question.getPart().getOrdering().getIsFirst()) return false;
+			if (!this.question.getPart().getOrdering().getIsFirst()) return false;
 
-			return question.getPartOrdering().getIsFirst();
+			return this.question.getPartOrdering().getIsFirst();
 		}
 
 		/**
@@ -77,11 +78,11 @@ public class QuestionImpl implements Question
 		 */
 		public Boolean getIsLast()
 		{
-			if (question.partContext == null) return true;
+			if (this.question.partContext == null) return true;
 
-			if (!question.getPart().getOrdering().getIsLast()) return false;
+			if (!this.question.getPart().getOrdering().getIsLast()) return false;
 
-			return question.getPartOrdering().getIsLast();
+			return this.question.getPartOrdering().getIsLast();
 		}
 
 		/**
@@ -89,12 +90,12 @@ public class QuestionImpl implements Question
 		 */
 		public Question getNext()
 		{
-			if (question.partContext == null) return null;
+			if (this.question.partContext == null) return null;
 
-			Question rv = question.getPartOrdering().getNext();
+			Question rv = this.question.getPartOrdering().getNext();
 			if (rv != null) return rv;
 
-			Part part = question.getPart().getOrdering().getNext();
+			Part part = this.question.getPart().getOrdering().getNext();
 			if (part == null) return null;
 
 			return part.getFirstQuestion();
@@ -105,15 +106,15 @@ public class QuestionImpl implements Question
 		 */
 		public Integer getPosition()
 		{
-			if (question.partContext == null) return new Integer(1);
+			if (this.question.partContext == null) return new Integer(1);
 
 			// position in this part
-			int pos = question.getPartOrdering().getPosition();
+			int pos = this.question.getPartOrdering().getPosition();
 
 			// count up questions in preceding parts
-			for (Part part : question.getPart().getAssessment().getParts().getParts())
+			for (Part part : this.question.getPart().getAssessment().getParts().getParts())
 			{
-				if (part.equals(question.partContext)) break;
+				if (part.equals(this.question.partContext)) break;
 				pos += part.getNumQuestions();
 			}
 
@@ -125,12 +126,12 @@ public class QuestionImpl implements Question
 		 */
 		public Question getPrevious()
 		{
-			if (question.partContext == null) return null;
+			if (this.question.partContext == null) return null;
 
-			Question rv = question.getPartOrdering().getPrevious();
+			Question rv = this.question.getPartOrdering().getPrevious();
 			if (rv != null) return rv;
 
-			Part part = question.getPart().getOrdering().getPrevious();
+			Part part = this.question.getPart().getOrdering().getPrevious();
 			if (part == null) return null;
 
 			return part.getLastQuestion();
@@ -138,9 +139,9 @@ public class QuestionImpl implements Question
 
 		public Integer getSize()
 		{
-			if (question.partContext == null) return new Integer(1);
+			if (this.question.partContext == null) return new Integer(1);
 
-			return question.getPart().getAssessment().getParts().getNumQuestions();
+			return this.question.getPart().getAssessment().getParts().getNumQuestions();
 		}
 	}
 
@@ -158,10 +159,28 @@ public class QuestionImpl implements Question
 		 */
 		public Boolean getIsFirst()
 		{
-			if (question.partContext == null) return true;
+			if (this.question.partContext == null) return true;
 
-			List<QuestionPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
-			if (question.getId().equals(questions.get(0).getQuestionId())) return true;
+			if (this.question.getPart().getAssessment().getSubmissionContext() != null)
+			{
+				String questionId = null;
+				for (Answer answer : this.question.getPart().getAssessment().getSubmissionContext().getAnswers())
+				{
+					if (((AnswerImpl) answer).getPartId().equals(this.question.getPart().getId()))
+					{
+						questionId = ((AnswerImpl) answer).questionId;
+						break;
+					}
+				}
+
+				return (this.question.getId().equals(questionId));
+			}
+
+			else
+			{
+				List<QuestionPick> questions = ((PartImpl) this.question.getPart()).getQuestionPickOrder();
+				if (this.question.getId().equals(questions.get(0).getQuestionId())) return true;
+			}
 
 			return false;
 		}
@@ -171,10 +190,27 @@ public class QuestionImpl implements Question
 		 */
 		public Boolean getIsLast()
 		{
-			if (question.partContext == null) return true;
+			if (this.question.partContext == null) return true;
 
-			List<QuestionPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
-			if (question.getId().equals(questions.get(questions.size() - 1).getQuestionId())) return true;
+			if (this.question.getPart().getAssessment().getSubmissionContext() != null)
+			{
+				String questionId = null;
+				for (Answer answer : this.question.getPart().getAssessment().getSubmissionContext().getAnswers())
+				{
+					if (((AnswerImpl) answer).getPartId().equals(this.question.getPart().getId()))
+					{
+						questionId = ((AnswerImpl) answer).questionId;
+					}
+				}
+
+				return (this.question.getId().equals(questionId));
+			}
+
+			else
+			{
+				List<QuestionPick> questions = ((PartImpl) this.question.getPart()).getQuestionPickOrder();
+				if (this.question.getId().equals(questions.get(questions.size() - 1).getQuestionId())) return true;
+			}
 
 			return false;
 		}
@@ -184,22 +220,54 @@ public class QuestionImpl implements Question
 		 */
 		public Question getNext()
 		{
-			if (question.partContext == null) return null;
+			Question rv = null;
 
-			List<QuestionPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
-			int index = 0;
-			for (QuestionPick pick : questions)
+			if (this.question.partContext == null) return rv;
+
+			if (this.question.getPart().getAssessment().getSubmissionContext() != null)
 			{
-				if (pick.getQuestionId().equals(question.getId()))
+				String nextQid = null;
+				String prevQid = null;
+				boolean found = false;
+				for (Answer answer : this.question.getPart().getAssessment().getSubmissionContext().getAnswers())
 				{
-					break;
+					if (((AnswerImpl) answer).getPartId().equals(this.question.getPart().getId()))
+					{
+						nextQid = ((AnswerImpl) answer).questionId;
+						if (this.question.getId().equals(prevQid))
+						{
+							found = true;
+							break;
+						}
+						prevQid = nextQid;
+					}
 				}
-				index++;
-			}
-			if (index == questions.size() - 1) return null;
 
-			// TODO: set the question context (pool? from question?)
-			return question.questionService.getQuestion(questions.get(index + 1).getQuestionId());
+				if (found)
+				{
+					rv = this.question.getPart().getQuestion(nextQid);
+				}
+			}
+
+			else
+			{
+				List<QuestionPick> questions = ((PartImpl) this.question.getPart()).getQuestionPickOrder();
+				int index = 0;
+				for (QuestionPick pick : questions)
+				{
+					if (pick.getQuestionId().equals(this.question.getId()))
+					{
+						break;
+					}
+					index++;
+				}
+				if (index == questions.size() - 1) return null;
+
+				// TODO: set the question context (pool? from question?)
+				rv = this.question.questionService.getQuestion(questions.get(index + 1).getQuestionId());
+			}
+
+			return rv;
 		}
 
 		/**
@@ -207,17 +275,36 @@ public class QuestionImpl implements Question
 		 */
 		public Integer getPosition()
 		{
-			if (question.partContext == null) return new Integer(1);
+			if (this.question.partContext == null) return new Integer(1);
 
-			List<QuestionPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
 			int index = 0;
-			for (QuestionPick pick : questions)
+
+			if (this.question.getPart().getAssessment().getSubmissionContext() != null)
 			{
-				if (pick.getQuestionId().equals(question.getId()))
+				for (Answer answer : this.question.getPart().getAssessment().getSubmissionContext().getAnswers())
 				{
-					break;
+					if (((AnswerImpl) answer).getPartId().equals(this.question.getPart().getId()))
+					{
+						if (this.question.getId().equals(((AnswerImpl) answer).questionId))
+						{
+							break;
+						}
+						index++;
+					}
 				}
-				index++;
+			}
+
+			else
+			{
+				List<QuestionPick> questions = ((PartImpl) this.question.getPart()).getQuestionPickOrder();
+				for (QuestionPick pick : questions)
+				{
+					if (pick.getQuestionId().equals(this.question.getId()))
+					{
+						break;
+					}
+					index++;
+				}
 			}
 
 			return index + 1;
@@ -228,22 +315,52 @@ public class QuestionImpl implements Question
 		 */
 		public Question getPrevious()
 		{
-			if (question.partContext == null) return null;
+			Question rv = null;
 
-			List<QuestionPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
-			int index = 0;
-			for (QuestionPick pick : questions)
+			if (this.question.partContext == null) return rv;
+
+			if (this.question.getPart().getAssessment().getSubmissionContext() != null)
 			{
-				if (pick.getQuestionId().equals(question.getId()))
+				String prevQid = null;
+				boolean found = false;
+				for (Answer answer : this.question.getPart().getAssessment().getSubmissionContext().getAnswers())
 				{
-					break;
+					if (((AnswerImpl) answer).getPartId().equals(this.question.getPart().getId()))
+					{
+						if (this.question.getId().equals(((AnswerImpl) answer).questionId))
+						{
+							found = true;
+							break;
+						}
+						prevQid = ((AnswerImpl) answer).questionId;
+					}
 				}
-				index++;
-			}
-			if (index == 0) return null;
 
-			// TODO: set context (pool? from question?)
-			return question.questionService.getQuestion(questions.get(index - 1).getQuestionId());
+				if (found && (prevQid != null))
+				{
+					rv = this.question.getPart().getQuestion(prevQid);
+				}
+			}
+
+			else
+			{
+				List<QuestionPick> questions = ((PartImpl) this.question.getPart()).getQuestionPickOrder();
+				int index = 0;
+				for (QuestionPick pick : questions)
+				{
+					if (pick.getQuestionId().equals(this.question.getId()))
+					{
+						break;
+					}
+					index++;
+				}
+				if (index == 0) return null;
+
+				// TODO: set context (pool? from question?)
+				rv = this.question.questionService.getQuestion(questions.get(index - 1).getQuestionId());
+			}
+
+			return rv;
 		}
 
 		/**
@@ -251,10 +368,9 @@ public class QuestionImpl implements Question
 		 */
 		public Integer getSize()
 		{
-			if (question.partContext == null) return new Integer(1);
+			if (this.question.partContext == null) return new Integer(1);
 
-			List<QuestionPick> questions = ((PartImpl) question.getPart()).getQuestionPickOrder();
-			return Integer.valueOf(questions.size());
+			return (this.question.getPart().getNumQuestions());
 		}
 	}
 

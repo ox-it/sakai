@@ -110,6 +110,13 @@ public class AssessmentStatsView extends ControllerImpl
 			return;
 		}
 
+		// validity check
+		if (!assessment.getIsValid())
+		{
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+
 		context.put("assessment", assessment);
 
 		// collect all the submissions for the assessment

@@ -133,6 +133,14 @@ public class EnterView extends ControllerImpl
 			return;
 		}
 
+		// validity check
+		if (!assessment.getIsValid())
+		{
+			// redirect to error
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+
 		// collect information: the selected assessment (id the request)
 		context.put("assessment", submission.getAssessment());
 

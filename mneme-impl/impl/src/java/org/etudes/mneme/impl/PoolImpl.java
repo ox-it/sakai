@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -68,6 +68,15 @@ public class PoolImpl implements Pool
 
 	/**
 	 * Construct.
+	 */
+	public PoolImpl()
+	{
+		this.createdBy = new AttributionImpl(this.changed);
+		this.modifiedBy = new AttributionImpl(this.changed);
+	}
+
+	/**
+	 * Construct.
 	 * 
 	 * @param other
 	 *        The other to copy.
@@ -75,15 +84,6 @@ public class PoolImpl implements Pool
 	public PoolImpl(PoolImpl other)
 	{
 		set(other);
-	}
-
-	/**
-	 * Construct.
-	 */
-	public PoolImpl()
-	{
-		this.createdBy = new AttributionImpl(this.changed);
-		this.modifiedBy = new AttributionImpl(this.changed);
 	}
 
 	/**
@@ -165,6 +165,20 @@ public class PoolImpl implements Pool
 	/**
 	 * {@inheritDoc}
 	 */
+	public PoolCounts getDetailedNumQuestions()
+	{
+		PoolCounts rv = new PoolCounts();
+		rv.validAssessment = this.questionService.countQuestions(this, null, null, Boolean.FALSE, Boolean.TRUE);
+		rv.validSurvey = this.questionService.countQuestions(this, null, null, Boolean.TRUE, Boolean.TRUE);
+		rv.invalidAssessment = this.questionService.countQuestions(this, null, null, Boolean.FALSE, Boolean.FALSE);
+		rv.invalidSurvey = this.questionService.countQuestions(this, null, null, Boolean.TRUE, Boolean.FALSE);
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Integer getDifficulty()
 	{
 		return this.difficulty;
@@ -208,18 +222,6 @@ public class PoolImpl implements Pool
 	public Integer getNumQuestions()
 	{
 		Integer rv = this.questionService.countQuestions(this, null, null, null, null);
-
-		return rv;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public PoolCounts getNumQuestionsSurvey()
-	{
-		PoolCounts rv = new PoolCounts();
-		rv.assessment = this.questionService.countQuestions(this, null, null, Boolean.FALSE, Boolean.TRUE);
-		rv.survey = this.questionService.countQuestions(this, null, null, Boolean.TRUE, Boolean.TRUE);
 
 		return rv;
 	}

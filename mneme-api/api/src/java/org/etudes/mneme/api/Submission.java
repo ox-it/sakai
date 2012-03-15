@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -64,9 +64,9 @@ public interface Submission
 	Answer getAnswer(String answerId);
 
 	/**
-	 * Access the submission's answers. Order is not specified.
+	 * Access the submission's answers in assessment order.
 	 * 
-	 * @return The submission's answers in some order.
+	 * @return The submission's answers in order.
 	 */
 	List<Answer> getAnswers();
 
@@ -76,13 +76,6 @@ public interface Submission
 	 * @return The auto score for this submission, or 0 if there is none.
 	 */
 	Float getAnswersAutoScore();
-
-	/**
-	 * Access the submission's answers in assessment delivery order.
-	 * 
-	 * @return The submission's answers in assessment delivery order.
-	 */
-	List<Answer> getAnswersOrdered();
 
 	/**
 	 * Access the assessment that this is a submission to.
@@ -141,6 +134,11 @@ public interface Submission
 	 * @return TRUE if the evaluation is used, FALSE if not.
 	 */
 	Boolean getEvaluationUsed();
+
+	/**
+	 * @return a code representing the time stamp of the latest evaluation of the submission or any answer.
+	 */
+	String getEvaluationVersion();
 
 	/**
 	 * Access the expiration information for the submission.
@@ -245,6 +243,13 @@ public interface Submission
 	 * @return TRUE if the submission has been released, FALSE if not.
 	 */
 	Boolean getIsReleased();
+
+	/**
+	 * Check if the submission (evaluation) was edited based on stale data.
+	 * 
+	 * @return TRUE if the submission (evaluation) was edited based on stale data, FALSE if not.
+	 */
+	Boolean getIsStaleEdit();
 
 	/**
 	 * Check if the submission has been started.
@@ -363,6 +368,14 @@ public interface Submission
 	 * @return The 'over' time for the submission, or NULL if there is none.
 	 */
 	Date getWhenOver();
+
+	/**
+	 * Set the evaluation version; to compare to the computed evaluation version - if they do not match, then we might be dealing with old data being edited.
+	 * 
+	 * @param version
+	 *        the evaluation version expected for this submission.
+	 */
+	void setEvaluationVersion(String version);
 
 	/**
 	 * Set the complete flag for the submission.

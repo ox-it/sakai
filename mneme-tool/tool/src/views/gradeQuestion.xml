@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -249,6 +249,9 @@
 						<message selector="submission-answer" />
 					</title>
 					<container>
+						<!-- Note: this hidden could be anywhere that will make it into the UI -->
+						<hidden model="answer.submission.evaluationVersion" />
+
 						<!-- completed date -->
 						<text>
 							<message selector="submission-finished-date">

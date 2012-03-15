@@ -91,6 +91,8 @@ public class SubmissionImpl implements Submission
 
 	protected transient Integer siblingCount = 0;
 
+	protected transient boolean staleEdit = false;
+
 	protected Date startDate = null;
 
 	protected transient SubmissionServiceImpl submissionService = null;
@@ -313,27 +315,6 @@ public class SubmissionImpl implements Submission
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<Answer> getAnswersOrdered()
-	{
-		List<Answer> answers = new ArrayList<Answer>();
-		for (Part part : getAssessment().getParts().getParts())
-		{
-			for (Question question : part.getQuestions())
-			{
-				Answer answer = getAnswer(question);
-				if (answer != null)
-				{
-					answers.add(answer);
-				}
-			}
-		}
-
-		return answers;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public Assessment getAssessment()
 	{
 		return this.assessment;
@@ -354,7 +335,8 @@ public class SubmissionImpl implements Submission
 		}
 
 		// are we past the hard end date? Or frozen?
-		boolean over = ((assessment.getFrozen()) || ((assessment.getDates().getSubmitUntilDate() != null) && (now.after(assessment.getDates().getSubmitUntilDate()))));
+		boolean over = ((assessment.getFrozen()) || ((assessment.getDates().getSubmitUntilDate() != null) && (now.after(assessment.getDates()
+				.getSubmitUntilDate()))));
 
 		// todo (not over, not started)
 		if ((getStartDate() == null) && !over)
@@ -493,6 +475,34 @@ public class SubmissionImpl implements Submission
 		if ((this.answers.size() > 1) || (this.getEvaluation().getDefined()) || this.getIsPhantom()) return Boolean.TRUE;
 
 		return Boolean.FALSE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getEvaluationVersion()
+	{
+		// start with the overall submission date (could be null)
+		Date rv = getEvaluation().getAttribution().getDate();
+
+		// see if any answer evaluation date is later
+		for (Answer answer : getAnswers())
+		{
+			if (answer.getEvaluation().getAttribution().getDate() != null)
+			{
+				if (rv == null)
+				{
+					rv = answer.getEvaluation().getAttribution().getDate();
+				}
+				else if (answer.getEvaluation().getAttribution().getDate().after(rv))
+				{
+					rv = answer.getEvaluation().getAttribution().getDate();
+				}
+			}
+		}
+
+		if (rv == null) return null;
+		return Long.toString(rv.getTime());
 	}
 
 	/**
@@ -799,6 +809,14 @@ public class SubmissionImpl implements Submission
 	public Boolean getIsReleased()
 	{
 		return this.released;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getIsStaleEdit()
+	{
+		return this.staleEdit;
 	}
 
 	/**
@@ -1264,6 +1282,19 @@ public class SubmissionImpl implements Submission
 	public void setAttachmentService(AttachmentService service)
 	{
 		this.attachmentService = service;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setEvaluationVersion(String version)
+	{
+		// if this date is not the same as the current computed evaluation date, we may be dealing with old data being edited
+		String expected = getEvaluationVersion();
+		if (Different.different(version, expected))
+		{
+			this.staleEdit = true;
+		}
 	}
 
 	/**
