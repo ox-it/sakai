@@ -6,7 +6,7 @@
  * $Id: pom.xml 54815 2008-11-10 23:34:57Z ggolden@etudes.org $
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -200,12 +200,12 @@
 <!ATTLIST pagingModel missing CDATA #IMPLIED >
 <!ATTLIST pagingModel selector (FIRST|NEXT|LAST|PREV) #IMPLIED >
 
-<!ELEMENT container (alert | alias | attachments | attachmentsEdit | container | countEdit | countdownTimer | courier | dateEdit | durationEdit | divider | entityActionBar | entityDisplay | entityList | floatEdit | htmlEdit | fileUpload | fillIn | finePrint | gap | iconKey | instructions | match | menuBar | modelComponent | modeBar | navigation | navigationBar | overlay | pager | password | section | selection | text | textEdit | toggle)* >
+<!ELEMENT container (alert | alias | attachments | attachmentsEdit | container | countEdit | countdownTimer | courier | dateEdit | durationEdit | divider | entityActionBar | entityDisplay | entityList | floatEdit | htmlEdit | fileUpload | fillIn | finePrint | gap | iconKey | instructions | match | menuBar | modelComponent | modeBar | navigation | navigationBar | overlay | pager | password | section | selection | text | textEdit | toggle | hidden)* >
 <!ATTLIST container separate (TRUE|FALSE) #IMPLIED>
 <!ATTLIST container reversed (TRUE|FALSE) #IMPLIED>
 <!ATTLIST container indented (TRUE|FALSE) #IMPLIED>
 
-<!ELEMENT modeContainer (alert | alias | attachments | attachmentsEdit | countEdit | countdownTimer | courier | dateEdit | durationEdit | divider | entityActionBar | entityDisplay | entityList | floatEdit | htmlEdit | fileUpload | fillIn | finePrint | gap | iconKey | instructions | match | menuBar | modelComponent | modeBar | navigation | navigationBar | overlay | pager | password | section | selection | text | textEdit | toggle)* >
+<!ELEMENT modeContainer (alert | alias | attachments | attachmentsEdit | countEdit | countdownTimer | courier | dateEdit | durationEdit | divider | entityActionBar | entityDisplay | entityList | floatEdit | htmlEdit | fileUpload | fillIn | finePrint | gap | iconKey | instructions | match | menuBar | modelComponent | modeBar | navigation | navigationBar | overlay | pager | password | section | selection | text | textEdit | toggle | hidden)* >
 
 <!ELEMENT included (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
 <!ELEMENT disabled (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
@@ -628,6 +628,10 @@
 <!ATTLIST textEdit readOnly (TRUE|FALSE) #IMPLIED >
 <!ATTLIST textEdit options CDATA #IMPLIED >
 <!ATTLIST textEdit destination CDATA #IMPLIED >
+
+<!ELEMENT hidden (model)* >
+<!ATTLIST hidden id CDATA #IMPLIED >
+<!ATTLIST hidden model CDATA #IMPLIED >
 
 <!ELEMENT options (model)* >
 

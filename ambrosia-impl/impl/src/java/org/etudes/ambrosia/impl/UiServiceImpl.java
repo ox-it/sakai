@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -89,6 +89,7 @@ import org.etudes.ambrosia.api.FragmentDelegate;
 import org.etudes.ambrosia.api.Gap;
 import org.etudes.ambrosia.api.Grid;
 import org.etudes.ambrosia.api.HasValueDecision;
+import org.etudes.ambrosia.api.Hidden;
 import org.etudes.ambrosia.api.HtmlEdit;
 import org.etudes.ambrosia.api.HtmlPropertyReference;
 import org.etudes.ambrosia.api.IconKey;
@@ -111,6 +112,8 @@ import org.etudes.ambrosia.api.PagingPropertyReference;
 import org.etudes.ambrosia.api.Password;
 import org.etudes.ambrosia.api.PastDateDecision;
 import org.etudes.ambrosia.api.PopulatingSet;
+import org.etudes.ambrosia.api.PopulatingSet.Factory;
+import org.etudes.ambrosia.api.PopulatingSet.Id;
 import org.etudes.ambrosia.api.PropertyColumn;
 import org.etudes.ambrosia.api.PropertyReference;
 import org.etudes.ambrosia.api.Section;
@@ -127,8 +130,6 @@ import org.etudes.ambrosia.api.UserInfoPropertyReference;
 import org.etudes.ambrosia.api.Value;
 import org.etudes.ambrosia.api.Values;
 import org.etudes.ambrosia.api.Warning;
-import org.etudes.ambrosia.api.PopulatingSet.Factory;
-import org.etudes.ambrosia.api.PopulatingSet.Id;
 import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.ActiveTool;
@@ -154,75 +155,31 @@ public class UiServiceImpl implements UiService
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(UiServiceImpl.class);
 
-	/** Localized messages. */
-	protected InternationalizedMessages messages = null;
+	/** Registered views - keyed by toolId-viewId. */
+	protected Map<String, Controller> m_controllers = new HashMap<String, Controller>();
 
 	/*************************************************************************************************************************************************
 	 * Abstractions, etc.
 	 ************************************************************************************************************************************************/
 
-	/**
-	 * Recognize a path that is a resource request. It must have an "extension", i.e. a dot followed by characters that do not include a slash.
-	 * 
-	 * @param prefixes
-	 *        a set of prefix strings; one of which must match the first part of the path.
-	 * @param path
-	 *        The path to check
-	 * @return true if the path is a resource request, false if not.
-	 */
-	protected boolean isResourceRequest(Set<String> prefixes, String path)
-	{
-		// we need some path
-		if ((path == null) || (path.length() <= 1)) return false;
-
-		// the first part of the path needs to be present in the prefixes
-		String[] prefix = StringUtil.splitFirst(path.substring(1), "/");
-		if (!prefixes.contains(prefix[0])) return false;
-
-		// we need a last dot
-		int pos = path.lastIndexOf(".");
-		if (pos == -1) return false;
-
-		// we need that last dot to be the end of the path, not burried in the path somewhere (i.e. no more slashes after the last
-		// dot)
-		String ext = path.substring(pos);
-		if (ext.indexOf("/") != -1) return false;
-
-		// ok, it's a resource request
-		return true;
-	}
+	/** Registered decision delegates - keyed by toolId-id. */
+	protected Map<String, DecisionDelegate> m_decisionDelegates = new HashMap<String, DecisionDelegate>();
 
 	/*************************************************************************************************************************************************
 	 * Dependencies
 	 ************************************************************************************************************************************************/
+
+	/** Registered format delegates - keyed by toolId-id. */
+	protected Map<String, FormatDelegate> m_formatDelegates = new HashMap<String, FormatDelegate>();
+
+	/** Registered fragment delegates - keyed by toolId-id. */
+	protected Map<String, FragmentDelegate> m_fragmentDelegates = new HashMap<String, FragmentDelegate>();
 
 	/** Dependency: SessionManager */
 	protected SessionManager m_sessionManager = null;
 
 	/** Dependency: ThreadLocal */
 	protected ThreadLocalManager m_threadLocalManager = null;
-
-	/**
-	 * Dependency: SessionManager.
-	 * 
-	 * @param service
-	 *        The SessionManager.
-	 */
-	public void setSessionManager(SessionManager service)
-	{
-		m_sessionManager = service;
-	}
-
-	/**
-	 * Dependency: ThreadLocalManager.
-	 * 
-	 * @param service
-	 *        The ThreadLocalManager.
-	 */
-	public void setThreadLocalManager(ThreadLocalManager service)
-	{
-		m_threadLocalManager = service;
-	}
 
 	/*************************************************************************************************************************************************
 	 * Configuration
@@ -232,12 +189,96 @@ public class UiServiceImpl implements UiService
 	 * Init and Destroy
 	 ************************************************************************************************************************************************/
 
+	/** Localized messages. */
+	protected InternationalizedMessages messages = null;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String decode(HttpServletRequest req, Context context)
+	{
+		Decoder decoder = newDecoder();
+		String destination = decoder.decode(req, context);
+
+		return destination;
+	}
+
+	/*************************************************************************************************************************************************
+	 * UiService implementation
+	 ************************************************************************************************************************************************/
+
+	/*************************************************************************************************************************************************
+	 * Component factory methods
+	 ************************************************************************************************************************************************/
+
 	/**
 	 * Returns to uninitialized state.
 	 */
 	public void destroy()
 	{
 		M_log.info("destroy()");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean dispatchResource(HttpServletRequest req, HttpServletResponse res, ServletContext context, Set<String> prefixes)
+			throws IOException, ServletException
+	{
+		// see if we have a resource request
+		String path = req.getPathInfo();
+		if (isResourceRequest(prefixes, path))
+		{
+			// get a dispatcher to the path
+			RequestDispatcher resourceDispatcher = context.getRequestDispatcher(path);
+			if (resourceDispatcher != null)
+			{
+				resourceDispatcher.forward(req, res);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Controller getController(String id, String toolId)
+	{
+		return m_controllers.get(toolId + "-" + id);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public DecisionDelegate getDecisionDelegate(String id, String toolId)
+	{
+		return m_decisionDelegates.get(toolId + "-" + id);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public FormatDelegate getFormatDelegate(String id, String toolId)
+	{
+		return m_formatDelegates.get(toolId + "-" + id);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public FragmentDelegate getFragmentDelegate(String id, String toolId)
+	{
+		return m_fragmentDelegates.get(toolId + "-" + id);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public InternationalizedMessages getMessages()
+	{
+		return this.messages;
 	}
 
 	/**
@@ -250,14 +291,6 @@ public class UiServiceImpl implements UiService
 
 		M_log.info("init()");
 	}
-
-	/*************************************************************************************************************************************************
-	 * UiService implementation
-	 ************************************************************************************************************************************************/
-
-	/*************************************************************************************************************************************************
-	 * Component factory methods
-	 ************************************************************************************************************************************************/
 
 	/**
 	 * {@inheritDoc}
@@ -590,6 +623,38 @@ public class UiServiceImpl implements UiService
 	/**
 	 * {@inheritDoc}
 	 */
+	public Fragment newFragment(InputStream in)
+	{
+		UiFragment frag = null;
+		Document doc = Xml.readDocumentFromStream(in);
+		if ((doc == null) || (!doc.hasChildNodes())) return frag;
+
+		// allowing for comments, use the first element node that is our fragment
+		NodeList nodes = doc.getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++)
+		{
+			Node node = nodes.item(i);
+			if (node.getNodeType() != Node.ELEMENT_NODE) continue;
+			if (!(((Element) node).getTagName().equals("fragment"))) continue;
+
+			// build the fragment from this element
+			frag = new UiFragment(this, (Element) node);
+			break;
+		}
+
+		// else we have an invalid
+		if (frag == null)
+		{
+			M_log.warn("newFragment: element \"fragment\" not found in stream xml");
+			frag = new UiFragment();
+		}
+
+		return frag;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Gap newGap()
 	{
 		return new UiGap();
@@ -609,6 +674,14 @@ public class UiServiceImpl implements UiService
 	public HasValueDecision newHasValueDecision()
 	{
 		return new UiHasValueDecision();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Hidden newHidden()
+	{
+		return new UiHidden();
 	}
 
 	/**
@@ -670,6 +743,38 @@ public class UiServiceImpl implements UiService
 	/**
 	 * {@inheritDoc}
 	 */
+	public Interface newInterface(InputStream in)
+	{
+		UiInterface iface = null;
+		Document doc = Xml.readDocumentFromStream(in);
+		if ((doc == null) || (!doc.hasChildNodes())) return iface;
+
+		// allowing for comments, use the first element node that is our interface
+		NodeList nodes = doc.getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++)
+		{
+			Node node = nodes.item(i);
+			if (node.getNodeType() != Node.ELEMENT_NODE) continue;
+			if (!(((Element) node).getTagName().equals("interface"))) continue;
+
+			// build the interface from this element
+			iface = new UiInterface(this, (Element) node);
+			break;
+		}
+
+		// else we have an invalid
+		if (iface == null)
+		{
+			M_log.warn("newInterface: element \"interface\" not found in stream xml");
+			iface = new UiInterface();
+		}
+
+		return iface;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public MenuBar newMenuBar()
 	{
 		return new UiMenuBar();
@@ -686,17 +791,17 @@ public class UiServiceImpl implements UiService
 	/**
 	 * {@inheritDoc}
 	 */
-	public ModelComponent newModelComponent()
+	public ModeBar newModeBar()
 	{
-		return new UiModelComponent();
+		return new UiModeBar();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public ModeBar newModeBar()
+	public ModelComponent newModelComponent()
 	{
-		return new UiModeBar();
+		return new UiModelComponent();
 	}
 
 	/**
@@ -766,17 +871,17 @@ public class UiServiceImpl implements UiService
 	/**
 	 * {@inheritDoc}
 	 */
-	public PastDateDecision newPastDateDecision()
+	public Password newPassword()
 	{
-		return new UiPastDateDecision();
+		return new UiPassword();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public Password newPassword()
+	public PastDateDecision newPastDateDecision()
 	{
-		return new UiPassword();
+		return new UiPastDateDecision();
 	}
 
 	/**
@@ -827,6 +932,10 @@ public class UiServiceImpl implements UiService
 		return new UiSelectionColumn();
 	}
 
+	/*************************************************************************************************************************************************
+	 * Interface loading from XML
+	 ************************************************************************************************************************************************/
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -870,17 +979,17 @@ public class UiServiceImpl implements UiService
 	/**
 	 * {@inheritDoc}
 	 */
-	public UserInfoPropertyReference newUserInfoPropertyReference()
+	public UrlPropertyReference newUrlPropertyReference()
 	{
-		return new UiUserInfoPropertyReference();
+		return new UiUrlPropertyReference();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public UrlPropertyReference newUrlPropertyReference()
+	public UserInfoPropertyReference newUserInfoPropertyReference()
 	{
-		return new UiUrlPropertyReference();
+		return new UiUserInfoPropertyReference();
 	}
 
 	/**
@@ -908,411 +1017,8 @@ public class UiServiceImpl implements UiService
 	}
 
 	/*************************************************************************************************************************************************
-	 * Interface loading from XML
-	 ************************************************************************************************************************************************/
-
-	/**
-	 * Check the element's tag for a known Component tag, and create the component from the tag.
-	 * 
-	 * @param xml
-	 *        The element.
-	 */
-	protected Component parseComponent(Element xml)
-	{
-		if (xml.getTagName().equals("alert")) return new UiAlert(this, xml);
-		if (xml.getTagName().equals("alias")) return new UiAlias(this, xml);
-		if (xml.getTagName().equals("attachments")) return new UiAttachments(this, xml);
-		if (xml.getTagName().equals("attachmentsEdit")) return new UiAttachmentsEdit(this, xml);
-		if (xml.getTagName().equals("countdownTimer")) return new UiCountdownTimer(this, xml);
-		if (xml.getTagName().equals("countEdit")) return new UiCountEdit(this, xml);
-		if (xml.getTagName().equals("courier")) return new UiCourier(this, xml);
-		if (xml.getTagName().equals("container")) return new UiContainer(this, xml);
-		if (xml.getTagName().equals("dateEdit")) return new UiDateEdit(this, xml);
-		if (xml.getTagName().equals("divider")) return new UiDivider(this, xml);
-		if (xml.getTagName().equals("durationEdit")) return new UiDurationEdit(this, xml);
-		if (xml.getTagName().equals("entityActionBar")) return new UiEntityActionBar(this, xml);
-		if (xml.getTagName().equals("entityDisplay")) return new UiEntityDisplay(this, xml);
-		if (xml.getTagName().equals("entityList")) return new UiEntityList(this, xml);
-		if (xml.getTagName().equals("floatEdit")) return new UiFloatEdit(this, xml);
-		if (xml.getTagName().equals("fileUpload")) return new UiFileUpload(this, xml);
-		if (xml.getTagName().equals("fillIn")) return new UiFillIn(this, xml);
-		if (xml.getTagName().equals("finePrint")) return new UiFinePrint(this, xml);
-		if (xml.getTagName().equals("fragment")) return new UiFragment(this, xml);
-		if (xml.getTagName().equals("gap")) return new UiGap(this, xml);
-		if (xml.getTagName().equals("htmlEdit")) return new UiHtmlEdit(this, xml);
-		if (xml.getTagName().equals("iconKey")) return new UiIconKey(this, xml);
-		if (xml.getTagName().equals("instructions")) return new UiInstructions(this, xml);
-		if (xml.getTagName().equals("interface")) return new UiInterface(this, xml);
-		if (xml.getTagName().equals("menuBar")) return new UiMenuBar();
-		if (xml.getTagName().equals("modeBar")) return new UiModeBar(this, xml);
-		if (xml.getTagName().equals("modelComponent")) return new UiModelComponent(this, xml);
-		if (xml.getTagName().equals("navigation")) return new UiNavigation(this, xml);
-		if (xml.getTagName().equals("navigationBar")) return new UiNavigationBar(this, xml);
-		if (xml.getTagName().equals("overlay")) return new UiOverlay(this, xml);
-		if (xml.getTagName().equals("pager")) return new UiPager(this, xml);
-		if (xml.getTagName().equals("password")) return new UiPassword(this, xml);
-		if (xml.getTagName().equals("section")) return new UiSection(this, xml);
-		if (xml.getTagName().equals("selection")) return new UiSelection(this, xml);
-		if (xml.getTagName().equals("text")) return new UiText(this, xml);
-		if (xml.getTagName().equals("textEdit")) return new UiTextEdit(this, xml);
-		if (xml.getTagName().equals("toggle")) return new UiToggle(this, xml);
-		if (xml.getTagName().equals("view")) return new UiInterface(this, xml);
-		if (xml.getTagName().equals("warning")) return new UiWarning(this, xml);
-
-		return null;
-	}
-
-	/**
-	 * Create the appropriate Decision based on the XML element.
-	 * 
-	 * @param xml
-	 *        The xml element.
-	 * @return a Decision object.
-	 */
-	protected Decision parseDecision(Element xml)
-	{
-		if (xml == null) return null;
-
-		if (xml.getTagName().equals("hasValueDecision")) return new UiHasValueDecision(this, xml);
-		if (xml.getTagName().equals("compareDecision")) return new UiCompareDecision(this, xml);
-		if (xml.getTagName().equals("andDecision")) return new UiAndDecision(this, xml);
-		if (xml.getTagName().equals("orDecision")) return new UiOrDecision(this, xml);
-		if (xml.getTagName().equals("pastDateDecision")) return new UiPastDateDecision(this, xml);
-		if (xml.getTagName().equals("trueDecision")) return new UiTrueDecision(this, xml);
-
-		if (!xml.getTagName().equals("decision")) return null;
-
-		String type = StringUtil.trimToNull(xml.getAttribute("type"));
-		if ("hasValue".equals(type)) return new UiHasValueDecision(this, xml);
-		if ("compare".equals(type)) return new UiCompareDecision(this, xml);
-		if ("and".equals(type)) return new UiAndDecision(this, xml);
-		if ("or".equals(type)) return new UiOrDecision(this, xml);
-		if ("pastDate".equals(type)) return new UiPastDateDecision(this, xml);
-		if ("true".equals(type)) return new UiTrueDecision(this, xml);
-
-		return new UiDecision(this, xml);
-	}
-
-	/**
-	 * Parse a set of decisions from this element and its children.
-	 * 
-	 * @param xml
-	 *        The element tree to parse.
-	 * @return An array of decisions, or null if there are none.
-	 */
-	protected Decision[] parseArrayDecisions(Element xml)
-	{
-		Decision[] rv = null;
-
-		List<Decision> decisions = new ArrayList<Decision>();
-
-		// short form for decision is TRUE
-		String decisionTrue = StringUtil.trimToNull(xml.getAttribute("decision"));
-		if ("TRUE".equals(decisionTrue))
-		{
-			Decision decision = new UiDecision().setProperty(new UiConstantPropertyReference().setValue("true"));
-			decisions.add(decision);
-		}
-
-		NodeList contained = xml.getChildNodes();
-		for (int i = 0; i < contained.getLength(); i++)
-		{
-			Node node = contained.item(i);
-			if (node.getNodeType() == Node.ELEMENT_NODE)
-			{
-				Element containedXml = (Element) node;
-
-				// let the service parse this as a decision
-				Decision decision = parseDecision(containedXml);
-				if (decision != null) decisions.add(decision);
-			}
-		}
-
-		if (!decisions.isEmpty())
-		{
-			rv = decisions.toArray(new Decision[decisions.size()]);
-		}
-
-		return rv;
-	}
-
-	/**
-	 * Parse a set of decisions from this element and its children into a single AND decision.
-	 * 
-	 * @param xml
-	 *        The element tree to parse.
-	 * @return The decisions wrapped in a single AND decision, or null if there are none.
-	 */
-	protected Decision parseDecisions(Element xml)
-	{
-		Decision[] decisions = parseArrayDecisions(xml);
-		if (decisions == null) return null;
-
-		if (decisions.length == 1)
-		{
-			return decisions[0];
-		}
-
-		AndDecision rv = new UiAndDecision().setRequirements(decisions);
-		return rv;
-	}
-
-	/**
-	 * Create the appropriate PropertyReference based on type.
-	 * 
-	 * @param xml
-	 *        The xml element.
-	 * @return a PropertyReference object.
-	 */
-	protected PropertyReference getTypedPropertyReference(String type)
-	{
-		if ("boolean".equals(type)) return new UiBooleanPropertyReference();
-		if ("constant".equals(type)) return new UiConstantPropertyReference();
-		if ("contextInfo".equals(type)) return new UiContextInfoPropertyReference();
-		if ("count".equals(type)) return new UiCountPropertyReference();
-		if ("date".equals(type)) return new UiDatePropertyReference();
-		if ("duration".equals(type)) return new UiDurationPropertyReference();
-		if ("html".equals(type)) return new UiHtmlPropertyReference();
-		if ("icon".equals(type)) return new UiIconPropertyReference();
-		if ("image".equals(type)) return new UiImagePropertyReference();
-		if ("text".equals(type)) return new UiTextPropertyReference();
-		if ("url".equals(type)) return new UiUrlPropertyReference();
-		if ("userInfo".equals(type)) return new UiUserInfoPropertyReference();
-		if ("enum".equals(type)) return new UiEnumPropertyReference();
-
-		return new UiPropertyReference();
-	}
-
-	/**
-	 * Create the appropriate PropertyReference based on the XML element.
-	 * 
-	 * @param xml
-	 *        The xml element.
-	 * @return a PropertyReference object.
-	 */
-	protected PropertyReference parsePropertyReference(Element xml)
-	{
-		if (xml == null) return null;
-
-		if (xml.getTagName().equals("booleanModel")) return new UiBooleanPropertyReference(this, xml);
-		if (xml.getTagName().equals("constantModel")) return new UiConstantPropertyReference(this, xml);
-		if (xml.getTagName().equals("contextInfoModel")) return new UiContextInfoPropertyReference(this, xml);
-		if (xml.getTagName().equals("countModel")) return new UiCountPropertyReference(this, xml);
-		if (xml.getTagName().equals("dateModel")) return new UiDatePropertyReference(this, xml);
-		if (xml.getTagName().equals("durationModel")) return new UiDurationPropertyReference(this, xml);
-		if (xml.getTagName().equals("floatModel")) return new UiFloatPropertyReference(this, xml);
-		if (xml.getTagName().equals("htmlModel")) return new UiHtmlPropertyReference(this, xml);
-		if (xml.getTagName().equals("iconModel")) return new UiIconPropertyReference(this, xml);
-		if (xml.getTagName().equals("imageModel")) return new UiImagePropertyReference(this, xml);
-		if (xml.getTagName().equals("pagingModel")) return new UiPagingPropertyReference(this, xml);
-		if (xml.getTagName().equals("textModel")) return new UiTextPropertyReference(this, xml);
-		if (xml.getTagName().equals("urlModel")) return new UiUrlPropertyReference(this, xml);
-		if (xml.getTagName().equals("userInfoModel")) return new UiUserInfoPropertyReference(this, xml);
-		if (xml.getTagName().equals("enumModel")) return new UiEnumPropertyReference(this, xml);
-		if (xml.getTagName().equals("componentModel")) return new UiComponentPropertyReference(this, xml);
-
-		if (!xml.getTagName().equals("model")) return null;
-
-		String type = StringUtil.trimToNull(xml.getAttribute("type"));
-		if ("boolean".equals(type)) return new UiBooleanPropertyReference(this, xml);
-		if ("constant".equals(type)) return new UiConstantPropertyReference(this, xml);
-		if ("contextInfo".equals(type)) return new UiContextInfoPropertyReference(this, xml);
-		if ("count".equals(type)) return new UiCountPropertyReference(this, xml);
-		if ("date".equals(type)) return new UiDatePropertyReference(this, xml);
-		if ("duration".equals(type)) return new UiDurationPropertyReference(this, xml);
-		if ("float".equals(type)) return new UiFloatPropertyReference(this, xml);
-		if ("html".equals(type)) return new UiHtmlPropertyReference(this, xml);
-		if ("icon".equals(type)) return new UiIconPropertyReference(this, xml);
-		if ("image".equals(type)) return new UiImagePropertyReference(this, xml);
-		if ("paging".equals(type)) return new UiPagingPropertyReference(this, xml);
-		if ("text".equals(type)) return new UiTextPropertyReference(this, xml);
-		if ("url".equals(type)) return new UiUrlPropertyReference(this, xml);
-		if ("userInfo".equals(type)) return new UiUserInfoPropertyReference(this, xml);
-		if ("enum".equals(type)) return new UiEnumPropertyReference(this, xml);
-		if ("component".equals(type)) return new UiComponentPropertyReference(this, xml);
-
-		return new UiPropertyReference(this, xml);
-	}
-
-	/**
-	 * Create the appropriate EntityListColumn based on the XML element.
-	 * 
-	 * @param xml
-	 *        The xml element.
-	 * @return a EntityListColumn object.
-	 */
-	protected EntityListColumn parseEntityListColumn(Element xml)
-	{
-		if (xml == null) return null;
-
-		if (xml.getTagName().equals("autoColumn")) return new UiAutoColumn(this, xml);
-		if (xml.getTagName().equals("modelColumn")) return new UiPropertyColumn(this, xml);
-		if (xml.getTagName().equals("orderColumn")) return new UiOrderColumnSelect(this, xml);
-		if (xml.getTagName().equals("selectionColumn")) return new UiSelectionColumn(this, xml);
-
-		if (!xml.getTagName().equals("column")) return null;
-
-		String type = StringUtil.trimToNull(xml.getAttribute("type"));
-		if ("auto".equals(type)) return new UiAutoColumn(this, xml);
-		if ("model".equals(type)) return new UiPropertyColumn(this, xml);
-		if ("order".equals(type)) return new UiOrderColumnSelect(this, xml);
-		if ("selection".equals(type)) return new UiSelectionColumn(this, xml);
-
-		return new UiEntityListColumn(this, xml);
-	}
-
-	/**
-	 * Create the appropriate EntityDisplayRow based on the XML element.
-	 * 
-	 * @param xml
-	 *        The xml element.
-	 * @return a PropertyRow object.
-	 */
-	protected EntityDisplayRow parseEntityDisplayRow(Element xml)
-	{
-		if (xml == null) return null;
-
-		// if (xml.getTagName().equals("modelColumn")) return new UiPropertyColumn(this, xml);
-
-		if (!xml.getTagName().equals("row")) return null;
-
-		// TODO: support types?
-		String type = StringUtil.trimToNull(xml.getAttribute("type"));
-		// if ("model".equals(type)) return new UiPropertyColumn(this, xml);
-
-		return new UiEntityDisplayRow(this, xml);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Interface newInterface(InputStream in)
-	{
-		UiInterface iface = null;
-		Document doc = Xml.readDocumentFromStream(in);
-		if ((doc == null) || (!doc.hasChildNodes())) return iface;
-
-		// allowing for comments, use the first element node that is our interface
-		NodeList nodes = doc.getChildNodes();
-		for (int i = 0; i < nodes.getLength(); i++)
-		{
-			Node node = nodes.item(i);
-			if (node.getNodeType() != Node.ELEMENT_NODE) continue;
-			if (!(((Element) node).getTagName().equals("interface"))) continue;
-
-			// build the interface from this element
-			iface = new UiInterface(this, (Element) node);
-			break;
-		}
-
-		// else we have an invalid
-		if (iface == null)
-		{
-			M_log.warn("newInterface: element \"interface\" not found in stream xml");
-			iface = new UiInterface();
-		}
-
-		return iface;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Fragment newFragment(InputStream in)
-	{
-		UiFragment frag = null;
-		Document doc = Xml.readDocumentFromStream(in);
-		if ((doc == null) || (!doc.hasChildNodes())) return frag;
-
-		// allowing for comments, use the first element node that is our fragment
-		NodeList nodes = doc.getChildNodes();
-		for (int i = 0; i < nodes.getLength(); i++)
-		{
-			Node node = nodes.item(i);
-			if (node.getNodeType() != Node.ELEMENT_NODE) continue;
-			if (!(((Element) node).getTagName().equals("fragment"))) continue;
-
-			// build the fragment from this element
-			frag = new UiFragment(this, (Element) node);
-			break;
-		}
-
-		// else we have an invalid
-		if (frag == null)
-		{
-			M_log.warn("newFragment: element \"fragment\" not found in stream xml");
-			frag = new UiFragment();
-		}
-
-		return frag;
-	}
-
-	/*************************************************************************************************************************************************
 	 * Response handling methods
 	 ************************************************************************************************************************************************/
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public String decode(HttpServletRequest req, Context context)
-	{
-		Decoder decoder = newDecoder();
-		String destination = decoder.decode(req, context);
-
-		return destination;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean dispatchResource(HttpServletRequest req, HttpServletResponse res, ServletContext context, Set<String> prefixes)
-			throws IOException, ServletException
-	{
-		// see if we have a resource request
-		String path = req.getPathInfo();
-		if (isResourceRequest(prefixes, path))
-		{
-			// get a dispatcher to the path
-			RequestDispatcher resourceDispatcher = context.getRequestDispatcher(path);
-			if (resourceDispatcher != null)
-			{
-				resourceDispatcher.forward(req, res);
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean redirectToCurrentDestination(HttpServletRequest req, HttpServletResponse res, String home) throws IOException
-	{
-		// get the Tool session
-		ToolSession toolSession = m_sessionManager.getCurrentToolSession();
-
-		// check the path in the request - if null, we will either send them home or to the current destination
-		String destination = req.getPathInfo();
-		if (destination == null)
-		{
-			// do we have a current destination?
-			destination = (String) toolSession.getAttribute(ActiveTool.TOOL_ATTR_CURRENT_DESTINATION);
-
-			// if not, set it to home
-			if (destination == null)
-			{
-				destination = "/" + ((home != null) ? home : "");
-			}
-
-			// redirect
-			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
-
-			return true;
-		}
-
-		return false;
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -1386,21 +1092,6 @@ public class UiServiceImpl implements UiService
 	/**
 	 * {@inheritDoc}
 	 */
-	public void undoPrepareGet(HttpServletRequest req, HttpServletResponse res)
-	{
-		// get the Tool session
-		ToolSession toolSession = m_sessionManager.getCurrentToolSession();
-
-		String destination = (String) m_threadLocalManager.get("ambrosia_" + ActiveTool.TOOL_ATTR_CURRENT_DESTINATION);
-		toolSession.setAttribute(ActiveTool.TOOL_ATTR_CURRENT_DESTINATION, destination);
-
-		String expected = (String) m_threadLocalManager.get("ambrosia_" + ActiveTool.TOOL_ATTR_CURRENT_DESTINATION + ".expected");
-		toolSession.setAttribute(ActiveTool.TOOL_ATTR_CURRENT_DESTINATION + ".expected", expected);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public Context preparePost(HttpServletRequest req, HttpServletResponse res, String home)
 	{
 		// get the Tool session
@@ -1450,27 +1141,32 @@ public class UiServiceImpl implements UiService
 	/**
 	 * {@inheritDoc}
 	 */
-	public void render(Component ui, Context context)
+	public boolean redirectToCurrentDestination(HttpServletRequest req, HttpServletResponse res, String home) throws IOException
 	{
-		context.setUi(ui);
-		ui.render(context, null);
+		// get the Tool session
+		ToolSession toolSession = m_sessionManager.getCurrentToolSession();
+
+		// check the path in the request - if null, we will either send them home or to the current destination
+		String destination = req.getPathInfo();
+		if (destination == null)
+		{
+			// do we have a current destination?
+			destination = (String) toolSession.getAttribute(ActiveTool.TOOL_ATTR_CURRENT_DESTINATION);
+
+			// if not, set it to home
+			if (destination == null)
+			{
+				destination = "/" + ((home != null) ? home : "");
+			}
+
+			// redirect
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
+
+			return true;
+		}
+
+		return false;
 	}
-
-	/*************************************************************************************************************************************************
-	 * View methods
-	 ************************************************************************************************************************************************/
-
-	/** Registered views - keyed by toolId-viewId. */
-	protected Map<String, Controller> m_controllers = new HashMap<String, Controller>();
-
-	/** Registered format delegates - keyed by toolId-id. */
-	protected Map<String, FormatDelegate> m_formatDelegates = new HashMap<String, FormatDelegate>();
-
-	/** Registered decision delegates - keyed by toolId-id. */
-	protected Map<String, DecisionDelegate> m_decisionDelegates = new HashMap<String, DecisionDelegate>();
-
-	/** Registered fragment delegates - keyed by toolId-id. */
-	protected Map<String, FragmentDelegate> m_fragmentDelegates = new HashMap<String, FragmentDelegate>();
 
 	/**
 	 * {@inheritDoc}
@@ -1478,30 +1174,6 @@ public class UiServiceImpl implements UiService
 	public void registerController(Controller controller, String toolId)
 	{
 		m_controllers.put(toolId + "-" + controller.getPath(), controller);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public Controller getController(String id, String toolId)
-	{
-		return m_controllers.get(toolId + "-" + id);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void registerFormatDelegate(FormatDelegate delegate, String id, String toolId)
-	{
-		m_formatDelegates.put(toolId + "-" + id, delegate);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public FormatDelegate getFormatDelegate(String id, String toolId)
-	{
-		return m_formatDelegates.get(toolId + "-" + id);
 	}
 
 	/**
@@ -1515,9 +1187,9 @@ public class UiServiceImpl implements UiService
 	/**
 	 * {@inheritDoc}
 	 */
-	public DecisionDelegate getDecisionDelegate(String id, String toolId)
+	public void registerFormatDelegate(FormatDelegate delegate, String id, String toolId)
 	{
-		return m_decisionDelegates.get(toolId + "-" + id);
+		m_formatDelegates.put(toolId + "-" + id, delegate);
 	}
 
 	/**
@@ -1528,14 +1200,6 @@ public class UiServiceImpl implements UiService
 		m_fragmentDelegates.put(toolId + "-" + id, delegate);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public FragmentDelegate getFragmentDelegate(String id, String toolId)
-	{
-		return m_fragmentDelegates.get(toolId + "-" + id);
-	}
-
 	/*************************************************************************************************************************************************
 	 * View methods
 	 ************************************************************************************************************************************************/
@@ -1543,8 +1207,354 @@ public class UiServiceImpl implements UiService
 	/**
 	 * {@inheritDoc}
 	 */
-	public InternationalizedMessages getMessages()
+	public void render(Component ui, Context context)
 	{
-		return this.messages;
+		context.setUi(ui);
+		ui.render(context, null);
+	}
+
+	/**
+	 * Dependency: SessionManager.
+	 * 
+	 * @param service
+	 *        The SessionManager.
+	 */
+	public void setSessionManager(SessionManager service)
+	{
+		m_sessionManager = service;
+	}
+
+	/**
+	 * Dependency: ThreadLocalManager.
+	 * 
+	 * @param service
+	 *        The ThreadLocalManager.
+	 */
+	public void setThreadLocalManager(ThreadLocalManager service)
+	{
+		m_threadLocalManager = service;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void undoPrepareGet(HttpServletRequest req, HttpServletResponse res)
+	{
+		// get the Tool session
+		ToolSession toolSession = m_sessionManager.getCurrentToolSession();
+
+		String destination = (String) m_threadLocalManager.get("ambrosia_" + ActiveTool.TOOL_ATTR_CURRENT_DESTINATION);
+		toolSession.setAttribute(ActiveTool.TOOL_ATTR_CURRENT_DESTINATION, destination);
+
+		String expected = (String) m_threadLocalManager.get("ambrosia_" + ActiveTool.TOOL_ATTR_CURRENT_DESTINATION + ".expected");
+		toolSession.setAttribute(ActiveTool.TOOL_ATTR_CURRENT_DESTINATION + ".expected", expected);
+	}
+
+	/**
+	 * Create the appropriate PropertyReference based on type.
+	 * 
+	 * @param xml
+	 *        The xml element.
+	 * @return a PropertyReference object.
+	 */
+	protected PropertyReference getTypedPropertyReference(String type)
+	{
+		if ("boolean".equals(type)) return new UiBooleanPropertyReference();
+		if ("constant".equals(type)) return new UiConstantPropertyReference();
+		if ("contextInfo".equals(type)) return new UiContextInfoPropertyReference();
+		if ("count".equals(type)) return new UiCountPropertyReference();
+		if ("date".equals(type)) return new UiDatePropertyReference();
+		if ("duration".equals(type)) return new UiDurationPropertyReference();
+		if ("html".equals(type)) return new UiHtmlPropertyReference();
+		if ("icon".equals(type)) return new UiIconPropertyReference();
+		if ("image".equals(type)) return new UiImagePropertyReference();
+		if ("text".equals(type)) return new UiTextPropertyReference();
+		if ("url".equals(type)) return new UiUrlPropertyReference();
+		if ("userInfo".equals(type)) return new UiUserInfoPropertyReference();
+		if ("enum".equals(type)) return new UiEnumPropertyReference();
+
+		return new UiPropertyReference();
+	}
+
+	/**
+	 * Recognize a path that is a resource request. It must have an "extension", i.e. a dot followed by characters that do not include a slash.
+	 * 
+	 * @param prefixes
+	 *        a set of prefix strings; one of which must match the first part of the path.
+	 * @param path
+	 *        The path to check
+	 * @return true if the path is a resource request, false if not.
+	 */
+	protected boolean isResourceRequest(Set<String> prefixes, String path)
+	{
+		// we need some path
+		if ((path == null) || (path.length() <= 1)) return false;
+
+		// the first part of the path needs to be present in the prefixes
+		String[] prefix = StringUtil.splitFirst(path.substring(1), "/");
+		if (!prefixes.contains(prefix[0])) return false;
+
+		// we need a last dot
+		int pos = path.lastIndexOf(".");
+		if (pos == -1) return false;
+
+		// we need that last dot to be the end of the path, not burried in the path somewhere (i.e. no more slashes after the last
+		// dot)
+		String ext = path.substring(pos);
+		if (ext.indexOf("/") != -1) return false;
+
+		// ok, it's a resource request
+		return true;
+	}
+
+	/**
+	 * Parse a set of decisions from this element and its children.
+	 * 
+	 * @param xml
+	 *        The element tree to parse.
+	 * @return An array of decisions, or null if there are none.
+	 */
+	protected Decision[] parseArrayDecisions(Element xml)
+	{
+		Decision[] rv = null;
+
+		List<Decision> decisions = new ArrayList<Decision>();
+
+		// short form for decision is TRUE
+		String decisionTrue = StringUtil.trimToNull(xml.getAttribute("decision"));
+		if ("TRUE".equals(decisionTrue))
+		{
+			Decision decision = new UiDecision().setProperty(new UiConstantPropertyReference().setValue("true"));
+			decisions.add(decision);
+		}
+
+		NodeList contained = xml.getChildNodes();
+		for (int i = 0; i < contained.getLength(); i++)
+		{
+			Node node = contained.item(i);
+			if (node.getNodeType() == Node.ELEMENT_NODE)
+			{
+				Element containedXml = (Element) node;
+
+				// let the service parse this as a decision
+				Decision decision = parseDecision(containedXml);
+				if (decision != null) decisions.add(decision);
+			}
+		}
+
+		if (!decisions.isEmpty())
+		{
+			rv = decisions.toArray(new Decision[decisions.size()]);
+		}
+
+		return rv;
+	}
+
+	/**
+	 * Check the element's tag for a known Component tag, and create the component from the tag.
+	 * 
+	 * @param xml
+	 *        The element.
+	 */
+	protected Component parseComponent(Element xml)
+	{
+		if (xml.getTagName().equals("alert")) return new UiAlert(this, xml);
+		if (xml.getTagName().equals("alias")) return new UiAlias(this, xml);
+		if (xml.getTagName().equals("attachments")) return new UiAttachments(this, xml);
+		if (xml.getTagName().equals("attachmentsEdit")) return new UiAttachmentsEdit(this, xml);
+		if (xml.getTagName().equals("countdownTimer")) return new UiCountdownTimer(this, xml);
+		if (xml.getTagName().equals("countEdit")) return new UiCountEdit(this, xml);
+		if (xml.getTagName().equals("courier")) return new UiCourier(this, xml);
+		if (xml.getTagName().equals("container")) return new UiContainer(this, xml);
+		if (xml.getTagName().equals("dateEdit")) return new UiDateEdit(this, xml);
+		if (xml.getTagName().equals("divider")) return new UiDivider(this, xml);
+		if (xml.getTagName().equals("durationEdit")) return new UiDurationEdit(this, xml);
+		if (xml.getTagName().equals("entityActionBar")) return new UiEntityActionBar(this, xml);
+		if (xml.getTagName().equals("entityDisplay")) return new UiEntityDisplay(this, xml);
+		if (xml.getTagName().equals("entityList")) return new UiEntityList(this, xml);
+		if (xml.getTagName().equals("floatEdit")) return new UiFloatEdit(this, xml);
+		if (xml.getTagName().equals("fileUpload")) return new UiFileUpload(this, xml);
+		if (xml.getTagName().equals("fillIn")) return new UiFillIn(this, xml);
+		if (xml.getTagName().equals("finePrint")) return new UiFinePrint(this, xml);
+		if (xml.getTagName().equals("fragment")) return new UiFragment(this, xml);
+		if (xml.getTagName().equals("gap")) return new UiGap(this, xml);
+		if (xml.getTagName().equals("hidden")) return new UiHidden(this, xml);
+		if (xml.getTagName().equals("htmlEdit")) return new UiHtmlEdit(this, xml);
+		if (xml.getTagName().equals("iconKey")) return new UiIconKey(this, xml);
+		if (xml.getTagName().equals("instructions")) return new UiInstructions(this, xml);
+		if (xml.getTagName().equals("interface")) return new UiInterface(this, xml);
+		if (xml.getTagName().equals("menuBar")) return new UiMenuBar();
+		if (xml.getTagName().equals("modeBar")) return new UiModeBar(this, xml);
+		if (xml.getTagName().equals("modelComponent")) return new UiModelComponent(this, xml);
+		if (xml.getTagName().equals("navigation")) return new UiNavigation(this, xml);
+		if (xml.getTagName().equals("navigationBar")) return new UiNavigationBar(this, xml);
+		if (xml.getTagName().equals("overlay")) return new UiOverlay(this, xml);
+		if (xml.getTagName().equals("pager")) return new UiPager(this, xml);
+		if (xml.getTagName().equals("password")) return new UiPassword(this, xml);
+		if (xml.getTagName().equals("section")) return new UiSection(this, xml);
+		if (xml.getTagName().equals("selection")) return new UiSelection(this, xml);
+		if (xml.getTagName().equals("text")) return new UiText(this, xml);
+		if (xml.getTagName().equals("textEdit")) return new UiTextEdit(this, xml);
+		if (xml.getTagName().equals("toggle")) return new UiToggle(this, xml);
+		if (xml.getTagName().equals("view")) return new UiInterface(this, xml);
+		if (xml.getTagName().equals("warning")) return new UiWarning(this, xml);
+
+		return null;
+	}
+
+	/**
+	 * Create the appropriate Decision based on the XML element.
+	 * 
+	 * @param xml
+	 *        The xml element.
+	 * @return a Decision object.
+	 */
+	protected Decision parseDecision(Element xml)
+	{
+		if (xml == null) return null;
+
+		if (xml.getTagName().equals("hasValueDecision")) return new UiHasValueDecision(this, xml);
+		if (xml.getTagName().equals("compareDecision")) return new UiCompareDecision(this, xml);
+		if (xml.getTagName().equals("andDecision")) return new UiAndDecision(this, xml);
+		if (xml.getTagName().equals("orDecision")) return new UiOrDecision(this, xml);
+		if (xml.getTagName().equals("pastDateDecision")) return new UiPastDateDecision(this, xml);
+		if (xml.getTagName().equals("trueDecision")) return new UiTrueDecision(this, xml);
+
+		if (!xml.getTagName().equals("decision")) return null;
+
+		String type = StringUtil.trimToNull(xml.getAttribute("type"));
+		if ("hasValue".equals(type)) return new UiHasValueDecision(this, xml);
+		if ("compare".equals(type)) return new UiCompareDecision(this, xml);
+		if ("and".equals(type)) return new UiAndDecision(this, xml);
+		if ("or".equals(type)) return new UiOrDecision(this, xml);
+		if ("pastDate".equals(type)) return new UiPastDateDecision(this, xml);
+		if ("true".equals(type)) return new UiTrueDecision(this, xml);
+
+		return new UiDecision(this, xml);
+	}
+
+	/**
+	 * Parse a set of decisions from this element and its children into a single AND decision.
+	 * 
+	 * @param xml
+	 *        The element tree to parse.
+	 * @return The decisions wrapped in a single AND decision, or null if there are none.
+	 */
+	protected Decision parseDecisions(Element xml)
+	{
+		Decision[] decisions = parseArrayDecisions(xml);
+		if (decisions == null) return null;
+
+		if (decisions.length == 1)
+		{
+			return decisions[0];
+		}
+
+		AndDecision rv = new UiAndDecision().setRequirements(decisions);
+		return rv;
+	}
+
+	/**
+	 * Create the appropriate EntityDisplayRow based on the XML element.
+	 * 
+	 * @param xml
+	 *        The xml element.
+	 * @return a PropertyRow object.
+	 */
+	protected EntityDisplayRow parseEntityDisplayRow(Element xml)
+	{
+		if (xml == null) return null;
+
+		// if (xml.getTagName().equals("modelColumn")) return new UiPropertyColumn(this, xml);
+
+		if (!xml.getTagName().equals("row")) return null;
+
+		// TODO: support types?
+		String type = StringUtil.trimToNull(xml.getAttribute("type"));
+		// if ("model".equals(type)) return new UiPropertyColumn(this, xml);
+
+		return new UiEntityDisplayRow(this, xml);
+	}
+
+	/**
+	 * Create the appropriate EntityListColumn based on the XML element.
+	 * 
+	 * @param xml
+	 *        The xml element.
+	 * @return a EntityListColumn object.
+	 */
+	protected EntityListColumn parseEntityListColumn(Element xml)
+	{
+		if (xml == null) return null;
+
+		if (xml.getTagName().equals("autoColumn")) return new UiAutoColumn(this, xml);
+		if (xml.getTagName().equals("modelColumn")) return new UiPropertyColumn(this, xml);
+		if (xml.getTagName().equals("orderColumn")) return new UiOrderColumnSelect(this, xml);
+		if (xml.getTagName().equals("selectionColumn")) return new UiSelectionColumn(this, xml);
+
+		if (!xml.getTagName().equals("column")) return null;
+
+		String type = StringUtil.trimToNull(xml.getAttribute("type"));
+		if ("auto".equals(type)) return new UiAutoColumn(this, xml);
+		if ("model".equals(type)) return new UiPropertyColumn(this, xml);
+		if ("order".equals(type)) return new UiOrderColumnSelect(this, xml);
+		if ("selection".equals(type)) return new UiSelectionColumn(this, xml);
+
+		return new UiEntityListColumn(this, xml);
+	}
+
+	/*************************************************************************************************************************************************
+	 * View methods
+	 ************************************************************************************************************************************************/
+
+	/**
+	 * Create the appropriate PropertyReference based on the XML element.
+	 * 
+	 * @param xml
+	 *        The xml element.
+	 * @return a PropertyReference object.
+	 */
+	protected PropertyReference parsePropertyReference(Element xml)
+	{
+		if (xml == null) return null;
+
+		if (xml.getTagName().equals("booleanModel")) return new UiBooleanPropertyReference(this, xml);
+		if (xml.getTagName().equals("constantModel")) return new UiConstantPropertyReference(this, xml);
+		if (xml.getTagName().equals("contextInfoModel")) return new UiContextInfoPropertyReference(this, xml);
+		if (xml.getTagName().equals("countModel")) return new UiCountPropertyReference(this, xml);
+		if (xml.getTagName().equals("dateModel")) return new UiDatePropertyReference(this, xml);
+		if (xml.getTagName().equals("durationModel")) return new UiDurationPropertyReference(this, xml);
+		if (xml.getTagName().equals("floatModel")) return new UiFloatPropertyReference(this, xml);
+		if (xml.getTagName().equals("htmlModel")) return new UiHtmlPropertyReference(this, xml);
+		if (xml.getTagName().equals("iconModel")) return new UiIconPropertyReference(this, xml);
+		if (xml.getTagName().equals("imageModel")) return new UiImagePropertyReference(this, xml);
+		if (xml.getTagName().equals("pagingModel")) return new UiPagingPropertyReference(this, xml);
+		if (xml.getTagName().equals("textModel")) return new UiTextPropertyReference(this, xml);
+		if (xml.getTagName().equals("urlModel")) return new UiUrlPropertyReference(this, xml);
+		if (xml.getTagName().equals("userInfoModel")) return new UiUserInfoPropertyReference(this, xml);
+		if (xml.getTagName().equals("enumModel")) return new UiEnumPropertyReference(this, xml);
+		if (xml.getTagName().equals("componentModel")) return new UiComponentPropertyReference(this, xml);
+
+		if (!xml.getTagName().equals("model")) return null;
+
+		String type = StringUtil.trimToNull(xml.getAttribute("type"));
+		if ("boolean".equals(type)) return new UiBooleanPropertyReference(this, xml);
+		if ("constant".equals(type)) return new UiConstantPropertyReference(this, xml);
+		if ("contextInfo".equals(type)) return new UiContextInfoPropertyReference(this, xml);
+		if ("count".equals(type)) return new UiCountPropertyReference(this, xml);
+		if ("date".equals(type)) return new UiDatePropertyReference(this, xml);
+		if ("duration".equals(type)) return new UiDurationPropertyReference(this, xml);
+		if ("float".equals(type)) return new UiFloatPropertyReference(this, xml);
+		if ("html".equals(type)) return new UiHtmlPropertyReference(this, xml);
+		if ("icon".equals(type)) return new UiIconPropertyReference(this, xml);
+		if ("image".equals(type)) return new UiImagePropertyReference(this, xml);
+		if ("paging".equals(type)) return new UiPagingPropertyReference(this, xml);
+		if ("text".equals(type)) return new UiTextPropertyReference(this, xml);
+		if ("url".equals(type)) return new UiUrlPropertyReference(this, xml);
+		if ("userInfo".equals(type)) return new UiUserInfoPropertyReference(this, xml);
+		if ("enum".equals(type)) return new UiEnumPropertyReference(this, xml);
+		if ("component".equals(type)) return new UiComponentPropertyReference(this, xml);
+
+		return new UiPropertyReference(this, xml);
 	}
 }

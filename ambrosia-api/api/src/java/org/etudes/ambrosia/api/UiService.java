@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -45,6 +45,85 @@ public interface UiService
 	/*************************************************************************************************************************************************
 	 * Component factory methods
 	 ************************************************************************************************************************************************/
+
+	/**
+	 * Decode any input parametes from the request into the context.
+	 * 
+	 * @param req
+	 *        The servlet request.
+	 * @param context
+	 *        The context.
+	 * @return The tool destination as encoded in the request.
+	 */
+	String decode(HttpServletRequest req, Context context);
+
+	/**
+	 * Dispatch the request to a static resource, if it is for one.<br />
+	 * A static resource is a request to a path that looks like a pathed file name (with an extension).
+	 * 
+	 * @param req
+	 *        The servlet request.
+	 * @param res
+	 *        The servlet response.
+	 * @param context
+	 *        The servlet context.
+	 * @param prefixes
+	 *        A set of prefix strings which identify the paths that may contain resources.
+	 * @return true if we dispatched, false if not.
+	 */
+	boolean dispatchResource(HttpServletRequest req, HttpServletResponse res, ServletContext context, Set<String> prefixes) throws IOException,
+			ServletException;
+
+	/**
+	 * Find the controller with this id in this tool.
+	 * 
+	 * @param id
+	 *        The destination id.
+	 * @param toolId
+	 *        The tool id.
+	 * @return The Controller, or null if none found.
+	 */
+	Controller getController(String id, String toolId);
+
+	/**
+	 * Find the decision delegate with this id in this tool.
+	 * 
+	 * @param id
+	 *        The id.
+	 * @param toolId
+	 *        The tool id.
+	 * @return The DecisionDelegate, or null if none found.
+	 */
+	DecisionDelegate getDecisionDelegate(String id, String toolId);
+
+	/**
+	 * Find the format delegate with this id in this tool.
+	 * 
+	 * @param id
+	 *        The id.
+	 * @param toolId
+	 *        The tool id.
+	 * @return The FormatDelegate, or null if none found.
+	 */
+	FormatDelegate getFormatDelegate(String id, String toolId);
+
+	/**
+	 * Find the fragment delegate with this id in this tool.
+	 * 
+	 * @param id
+	 *        The id.
+	 * @param toolId
+	 *        The tool id.
+	 * @return The FragmentDelegate, or null if none found.
+	 */
+	FragmentDelegate getFragmentDelegate(String id, String toolId);
+
+	/**
+	 * Access the internationalized messages.
+	 * 
+	 * @return The internationalized messages.
+	 */
+	InternationalizedMessages getMessages();
 
 	/**
 	 * Construct a new Alert
@@ -334,6 +413,15 @@ public interface UiService
 	Fragment newFragment();
 
 	/**
+	 * Construct a new Fragment from XML in this stream.
+	 * 
+	 * @param in
+	 *        The XML input stream.
+	 * @return a new Interface
+	 */
+	Fragment newFragment(InputStream in);
+
+	/**
 	 * Construct a new Gap
 	 * 
 	 * @return a new Gap
@@ -341,11 +429,25 @@ public interface UiService
 	Gap newGap();
 
 	/**
+	 * Construct a new Grid
+	 * 
+	 * @return a new Grid
+	 */
+	Grid newGrid();
+
+	/**
 	 * Construct a new HasValueDecision
 	 * 
 	 * @return a new HasValueDecision
 	 */
 	HasValueDecision newHasValueDecision();
+
+	/**
+	 * Construct a new Hidden
+	 * 
+	 * @return a new Hidden
+	 */
+	Hidden newHidden();
 
 	/**
 	 * Construct a new HtmlEdit
@@ -406,22 +508,6 @@ public interface UiService
 	Interface newInterface(InputStream in);
 
 	/**
-	 * Construct a new Fragment from XML in this stream.
-	 * 
-	 * @param in
-	 *        The XML input stream.
-	 * @return a new Interface
-	 */
-	Fragment newFragment(InputStream in);
-
-	/**
-	 * Construct a new Grid
-	 * 
-	 * @return a new Grid
-	 */
-	Grid newGrid();
-
-	/**
 	 * Construct a new MenuBar
 	 * 
 	 * @return a new MenuBar
@@ -436,18 +522,18 @@ public interface UiService
 	Message newMessage();
 
 	/**
-	 * Construct a new ModelComponent
-	 * 
-	 * @return a new ModelComponent
-	 */
-	ModelComponent newModelComponent();
-
-	/**
 	 * Construct a new ModeBar
 	 * 
 	 * @return a new ModeBar
 	 */
 	ModeBar newModeBar();
+
+	/**
+	 * Construct a new ModelComponent
+	 * 
+	 * @return a new ModelComponent
+	 */
+	ModelComponent newModelComponent();
 
 	/**
 	 * Construct a new Navigation
@@ -506,18 +592,18 @@ public interface UiService
 	PagingPropertyReference newPagingPropertyReference();
 
 	/**
-	 * Construct a new PastDateDecision
-	 * 
-	 * @return a new PastDateDecision
-	 */
-	PastDateDecision newPastDateDecision();
-
-	/**
 	 * Construct a new Password
 	 * 
 	 * @return a new Password
 	 */
 	Password newPassword();
+
+	/**
+	 * Construct a new PastDateDecision
+	 * 
+	 * @return a new PastDateDecision
+	 */
+	PastDateDecision newPastDateDecision();
 
 	/**
 	 * Construct a new PopulatingSet
@@ -586,6 +672,10 @@ public interface UiService
 	 */
 	TextPropertyReference newTextPropertyReference();
 
+	/*************************************************************************************************************************************************
+	 * Response handling methods
+	 ************************************************************************************************************************************************/
+
 	/**
 	 * Construct a new Toggle
 	 * 
@@ -636,36 +726,8 @@ public interface UiService
 	Warning newWarning();
 
 	/*************************************************************************************************************************************************
-	 * Response handling methods
+	 * View methods
 	 ************************************************************************************************************************************************/
-
-	/**
-	 * Decode any input parametes from the request into the context.
-	 * 
-	 * @param req
-	 *        The servlet request.
-	 * @param context
-	 *        The context.
-	 * @return The tool destination as encoded in the request.
-	 */
-	String decode(HttpServletRequest req, Context context);
-
-	/**
-	 * Dispatch the request to a static resource, if it is for one.<br />
-	 * A static resource is a request to a path that looks like a pathed file name (with an extension).
-	 * 
-	 * @param req
-	 *        The servlet request.
-	 * @param res
-	 *        The servlet response.
-	 * @param context
-	 *        The servlet context.
-	 * @param prefixes
-	 *        A set of prefix strings which identify the paths that may contain resources.
-	 * @return true if we dispatched, false if not.
-	 */
-	boolean dispatchResource(HttpServletRequest req, HttpServletResponse res, ServletContext context, Set<String> prefixes) throws IOException,
-			ServletException;
 
 	/**
 	 * For an HTTP GET response, start the response and return the context that can be populated and sent into render() to complete the response.
@@ -681,18 +743,7 @@ public interface UiService
 	Context prepareGet(HttpServletRequest req, HttpServletResponse res, String home) throws IOException;
 
 	/**
-	 * Undo state changes from a prepareGet previously called in this thread.
-	 * 
-	 * @param req
-	 *        The servlet request.
-	 * @param res
-	 *        The servlet response.
-	 */
-	void undoPrepareGet(HttpServletRequest req, HttpServletResponse res);
-
-	/**
-	 * For an HTTP POST response, start the response and return the context that can be populated and sent into decode() (then redirect) to complete
-	 * the response.
+	 * For an HTTP POST response, start the response and return the context that can be populated and sent into decode() (then redirect) to complete the response.
 	 * 
 	 * @param req
 	 *        The servlet request.
@@ -720,20 +771,6 @@ public interface UiService
 	boolean redirectToCurrentDestination(HttpServletRequest req, HttpServletResponse res, String home) throws IOException;
 
 	/**
-	 * Render the response described in the ui component tree and context. Call prepareGet() first to get started and get the context.
-	 * 
-	 * @param ui
-	 *        The top component of a ui tree.
-	 * @param context
-	 *        The context.
-	 */
-	void render(Component ui, Context context);
-
-	/*************************************************************************************************************************************************
-	 * View methods
-	 ************************************************************************************************************************************************/
-
-	/**
 	 * Register a controller in a tool.
 	 * 
 	 * @param controller
@@ -742,40 +779,6 @@ public interface UiService
 	 *        The tool id.
 	 */
 	void registerController(Controller controller, String toolId);
-
-	/**
-	 * Find the controller with this id in this tool.
-	 * 
-	 * @param id
-	 *        The destination id.
-	 * @param toolId
-	 *        The tool id.
-	 * @return The Controller, or null if none found.
-	 */
-	Controller getController(String id, String toolId);
-
-	/**
-	 * Register a format delegate in a tool.
-	 * 
-	 * @param delegate
-	 *        The FormatDelegate.
-	 * @param id
-	 *        The id of the delegate.
-	 * @param toolId
-	 *        The tool id.
-	 */
-	void registerFormatDelegate(FormatDelegate delegate, String id, String toolId);
-
-	/**
-	 * Find the format delegate with this id in this tool.
-	 * 
-	 * @param id
-	 *        The id.
-	 * @param toolId
-	 *        The tool id.
-	 * @return The FormatDelegate, or null if none found.
-	 */
-	FormatDelegate getFormatDelegate(String id, String toolId);
 
 	/**
 	 * Register a decision delegate in a tool.
@@ -790,15 +793,16 @@ public interface UiService
 	void registerDecisionDelegate(DecisionDelegate delegate, String id, String toolId);
 
 	/**
-	 * Find the decision delegate with this id in this tool.
+	 * Register a format delegate in a tool.
 	 * 
+	 * @param delegate
+	 *        The FormatDelegate.
 	 * @param id
-	 *        The id.
+	 *        The id of the delegate.
 	 * @param toolId
 	 *        The tool id.
-	 * @return The DecisionDelegate, or null if none found.
 	 */
-	DecisionDelegate getDecisionDelegate(String id, String toolId);
+	void registerFormatDelegate(FormatDelegate delegate, String id, String toolId);
 
 	/**
 	 * Register a fragment delegate in a tool.
@@ -813,24 +817,26 @@ public interface UiService
 	void registerFragmentDelegate(FragmentDelegate delegate, String id, String toolId);
 
 	/**
-	 * Find the fragment delegate with this id in this tool.
+	 * Render the response described in the ui component tree and context. Call prepareGet() first to get started and get the context.
 	 * 
-	 * @param id
-	 *        The id.
-	 * @param toolId
-	 *        The tool id.
-	 * @return The FragmentDelegate, or null if none found.
+	 * @param ui
+	 *        The top component of a ui tree.
+	 * @param context
+	 *        The context.
 	 */
-	FragmentDelegate getFragmentDelegate(String id, String toolId);
+	void render(Component ui, Context context);
 
 	/*************************************************************************************************************************************************
 	 * Etc
 	 ************************************************************************************************************************************************/
 
 	/**
-	 * Access the internationalized messages.
+	 * Undo state changes from a prepareGet previously called in this thread.
 	 * 
-	 * @return The internationalized messages.
+	 * @param req
+	 *        The servlet request.
+	 * @param res
+	 *        The servlet response.
 	 */
-	InternationalizedMessages getMessages();
+	void undoPrepareGet(HttpServletRequest req, HttpServletResponse res);
 }
