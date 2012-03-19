@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -622,14 +622,14 @@ public class LikertScaleQuestionImpl implements TypeSpecificQuestion
 
 		propCol = this.uiService.newPropertyColumn();
 		propCol.setRight();
-		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.id").setFormatDelegate(
-				this.uiService.getFormatDelegate("FormatPercent", "sakai.mneme")));
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.id")
+				.setFormatDelegate(this.uiService.getFormatDelegate("FormatPercent", "sakai.mneme")));
 		entityList.addColumn(propCol);
 
 		propCol = this.uiService.newPropertyColumn();
 		propCol.setRight();
-		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.id").setFormatDelegate(
-				this.uiService.getFormatDelegate("FormatCount", "sakai.mneme")));
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.id")
+				.setFormatDelegate(this.uiService.getFormatDelegate("FormatCount", "sakai.mneme")));
 		entityList.addColumn(propCol);
 
 		Text unanswered = this.uiService.newText().setText(
@@ -640,7 +640,19 @@ public class LikertScaleQuestionImpl implements TypeSpecificQuestion
 		Section section = this.uiService.newSection();
 		section.add(question)/* .add(attachments) */.add(entityList).add(unanswered);
 
-		return this.uiService.newFragment().setMessages(this.messages).add(section);
+		// show collected reasons, if reason is being collected
+		Section reasonSection = this.uiService.newSection();
+		PropertyReference iteratorRef = this.uiService.newPropertyReference().setReference("submissions")
+				.setFormatDelegate(this.uiService.getFormatDelegate("AccessSubmissionsQuestionReasons", "sakai.mneme"));
+		reasonSection.setIterator(iteratorRef, "answer", this.uiService.newMessage().setMessage("no-reasons"));
+		Text reason = this.uiService.newText();
+		reason.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.reason"));
+		reasonSection.add(reason);
+		reasonSection.setTitle("answer-reason");
+		reasonSection.setIncluded(this.uiService.newDecision().setProperty(
+				this.uiService.newPropertyReference().setReference("question.explainReason")));
+
+		return this.uiService.newFragment().setMessages(this.messages).add(section).add(reasonSection);
 	}
 
 	/**

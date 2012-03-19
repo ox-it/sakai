@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -450,8 +450,8 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		Navigation nav = this.uiService.newNavigation();
 		Destination destination = this.uiService.newDestination();
 		destination.setDestination("DEL:{0}", this.uiService.newPropertyReference().setReference("choice.id"));
-		nav.setTitle("delete").setIcon("/icons/delete.png", Navigation.IconStyle.left).setStyle(Navigation.Style.link).setSubmit().setDestination(
-				destination);
+		nav.setTitle("delete").setIcon("/icons/delete.png", Navigation.IconStyle.left).setStyle(Navigation.Style.link).setSubmit()
+				.setDestination(destination);
 		deleteCol.add(nav);
 		choicesList.addColumn(deleteCol);
 
@@ -466,8 +466,8 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		addMore.setOrientation(Selection.Orientation.dropdown);
 		addMore.setSubmitValue();
 		addMore.setTitle("more-choices");
-		addMore.setIncluded(this.uiService.newDecision().setReversed().setProperty(
-				this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.choicesMaxedOut")));
+		addMore.setIncluded(this.uiService.newDecision().setReversed()
+				.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.choicesMaxedOut")));
 
 		Instructions noMore = uiService.newInstructions();
 		noMore.setText("no-more");
@@ -1038,9 +1038,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		selCol.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.correctAnswers"));
 		selCol.setReadOnly(this.uiService.newTrueDecision());
 		selCol.setCorrect(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.correctAnswers"));
-		selCol
-				.setCorrectDecision(this.uiService.newDecision().setProperty(
-						this.uiService.newPropertyReference().setReference("question.hasCorrect")));
+		selCol.setCorrectDecision(this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("question.hasCorrect")));
 		entityList.addColumn(selCol);
 
 		AutoColumn autoCol = this.uiService.newAutoColumn();
@@ -1102,9 +1100,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		selCol.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.correctAnswers"));
 		selCol.setReadOnly(this.uiService.newTrueDecision());
 		selCol.setCorrect(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.correctAnswers"));
-		selCol
-				.setCorrectDecision(this.uiService.newDecision().setProperty(
-						this.uiService.newPropertyReference().setReference("question.hasCorrect")));
+		selCol.setCorrectDecision(this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("question.hasCorrect")));
 		entityList.addColumn(selCol);
 
 		AutoColumn autoCol = this.uiService.newAutoColumn();
@@ -1120,15 +1116,15 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		propCol = this.uiService.newPropertyColumn();
 		propCol.setRight();
 		propCol.setTopped();
-		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.id").setFormatDelegate(
-				this.uiService.getFormatDelegate("FormatPercent", "sakai.mneme")));
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.id")
+				.setFormatDelegate(this.uiService.getFormatDelegate("FormatPercent", "sakai.mneme")));
 		entityList.addColumn(propCol);
 
 		propCol = this.uiService.newPropertyColumn();
 		propCol.setRight();
 		propCol.setTopped();
-		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.id").setFormatDelegate(
-				this.uiService.getFormatDelegate("FormatCount", "sakai.mneme")));
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.id")
+				.setFormatDelegate(this.uiService.getFormatDelegate("FormatCount", "sakai.mneme")));
 		entityList.addColumn(propCol);
 
 		Text answerKey = this.uiService.newText();
@@ -1149,7 +1145,19 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		second.setIncluded(this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("question.hasCorrect")));
 		second.add(answerKey);
 
-		return this.uiService.newFragment().setMessages(this.messages).add(first).add(second);
+		// show collected reasons, if reason is being collected
+		Section reasonSection = this.uiService.newSection();
+		PropertyReference iteratorRef = this.uiService.newPropertyReference().setReference("submissions")
+				.setFormatDelegate(this.uiService.getFormatDelegate("AccessSubmissionsQuestionReasons", "sakai.mneme"));
+		reasonSection.setIterator(iteratorRef, "answer", this.uiService.newMessage().setMessage("no-reasons"));
+		Text reason = this.uiService.newText();
+		reason.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.reason"));
+		reasonSection.add(reason);
+		reasonSection.setTitle("answer-reason");
+		reasonSection.setIncluded(this.uiService.newDecision().setProperty(
+				this.uiService.newPropertyReference().setReference("question.explainReason")));
+
+		return this.uiService.newFragment().setMessages(this.messages).add(first).add(second).add(reasonSection);
 	}
 
 	/**

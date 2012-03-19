@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -624,7 +624,22 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 				this.uiService.newHtmlPropertyReference().setFormatDelegate(
 						this.uiService.getFormatDelegate("FormatUnansweredPercent", "sakai.mneme")));
 
-		return this.uiService.newFragment().setMessages(this.messages).add(first).add(second).add(positions).add(unanswered);
+		Section section = this.uiService.newSection();
+		section.add(first).add(second).add(positions).add(unanswered);
+
+		// show collected reasons, if reason is being collected
+		Section reasonSection = this.uiService.newSection();
+		PropertyReference iteratorRefR = this.uiService.newPropertyReference().setReference("submissions")
+				.setFormatDelegate(this.uiService.getFormatDelegate("AccessSubmissionsQuestionReasons", "sakai.mneme"));
+		reasonSection.setIterator(iteratorRefR, "answer", this.uiService.newMessage().setMessage("no-reasons"));
+		Text reason = this.uiService.newText();
+		reason.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.reason"));
+		reasonSection.add(reason);
+		reasonSection.setTitle("answer-reason");
+		reasonSection.setIncluded(this.uiService.newDecision().setProperty(
+				this.uiService.newPropertyReference().setReference("question.explainReason")));
+
+		return this.uiService.newFragment().setMessages(this.messages).add(section).add(reasonSection);
 	}
 
 	/**

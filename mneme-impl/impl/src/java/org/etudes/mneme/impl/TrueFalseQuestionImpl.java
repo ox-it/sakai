@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -539,9 +539,7 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 		selCol.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.correctAnswer"));
 		selCol.setReadOnly(this.uiService.newTrueDecision());
 		selCol.setCorrect(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.correctAnswer"));
-		selCol
-				.setCorrectDecision(this.uiService.newDecision().setProperty(
-						this.uiService.newPropertyReference().setReference("question.hasCorrect")));
+		selCol.setCorrectDecision(this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("question.hasCorrect")));
 		entityList.addColumn(selCol);
 
 		PropertyColumn propCol = this.uiService.newPropertyColumn();
@@ -550,14 +548,14 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 
 		propCol = this.uiService.newPropertyColumn();
 		propCol.setRight();
-		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.id").setFormatDelegate(
-				this.uiService.getFormatDelegate("FormatPercent", "sakai.mneme")));
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.id")
+				.setFormatDelegate(this.uiService.getFormatDelegate("FormatPercent", "sakai.mneme")));
 		entityList.addColumn(propCol);
 
 		propCol = this.uiService.newPropertyColumn();
 		propCol.setRight();
-		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.id").setFormatDelegate(
-				this.uiService.getFormatDelegate("FormatCount", "sakai.mneme")));
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.id")
+				.setFormatDelegate(this.uiService.getFormatDelegate("FormatCount", "sakai.mneme")));
 		entityList.addColumn(propCol);
 
 		Text answerKey = this.uiService.newText();
@@ -578,7 +576,19 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 		second.setIncluded(this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("question.hasCorrect")));
 		second.add(answerKey);
 
-		return this.uiService.newFragment().setMessages(this.messages).add(first).add(second);
+		// show collected reasons, if reason is being collected
+		Section reasonSection = this.uiService.newSection();
+		PropertyReference iteratorRef = this.uiService.newPropertyReference().setReference("submissions")
+				.setFormatDelegate(this.uiService.getFormatDelegate("AccessSubmissionsQuestionReasons", "sakai.mneme"));
+		reasonSection.setIterator(iteratorRef, "answer", this.uiService.newMessage().setMessage("no-reasons"));
+		Text reason = this.uiService.newText();
+		reason.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.reason"));
+		reasonSection.add(reason);
+		reasonSection.setTitle("answer-reason");
+		reasonSection.setIncluded(this.uiService.newDecision().setProperty(
+				this.uiService.newPropertyReference().setReference("question.explainReason")));
+
+		return this.uiService.newFragment().setMessages(this.messages).add(first).add(second).add(reasonSection);
 	}
 
 	/**
