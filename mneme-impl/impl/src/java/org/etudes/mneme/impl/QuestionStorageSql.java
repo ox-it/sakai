@@ -132,8 +132,12 @@ public abstract class QuestionStorageSql implements QuestionStorage
 		// otherwise we can use the db transactions
 		else
 		{
+			// use only valid questions if we are making a copy for history
+			Boolean valid = null;
+			if (asHistory) valid = Boolean.TRUE;
+
 			// get source's question ids
-			final List<String> poolQids = source.getAllQuestionIds(null, null);
+			final List<String> poolQids = source.getAllQuestionIds(null, valid);
 
 			this.sqlService.transact(new Runnable()
 			{
@@ -807,6 +811,9 @@ public abstract class QuestionStorageSql implements QuestionStorage
 			if ((includeQuestions != null) && (!includeQuestions.contains(question.getId()))) continue;
 
 			QuestionImpl q = new QuestionImpl(question);
+
+			// skip if asHistory and the question is invalid
+			if ((asHistory) && (!q.getIsValid())) continue;
 
 			// set the destination as the pool
 			q.setPool(destination);
