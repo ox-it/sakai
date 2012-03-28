@@ -11,6 +11,7 @@ import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -54,7 +55,7 @@ public class SimpleSignupMeetingLogic {
 		}
 		
 		//convert to SignupMeeting
-		SignupMeeting s = convertSimpleSignupMeeting(si);
+		SignupMeeting s = convertSignupMeeting(si);
 		
 		if(s == null) {
 			//already logged
@@ -79,6 +80,19 @@ public class SimpleSignupMeetingLogic {
 	}
 	
 	/**
+	 * Retrieve a signup meeting object. 
+	 * If it is too complex to be represented as a simple object (ie is tied to multiple sites or has multiple timeslots, 
+	 * then it will not be returned.
+	 * 
+	 * @param id the id of the meeting
+	 * @return SimpleSignupmeeting object representation, or null if it is too complex
+	 */
+	public SimpleSignupMeeting getSignupMeeting(long id){
+		//TODO
+		return null;
+	}
+	
+	/**
 	 * Is current user allowed to create a signup meeting in this site?
 	 * @param siteId	siteId
 	 * @return true or false
@@ -100,10 +114,10 @@ public class SimpleSignupMeetingLogic {
 	
 	/**
 	 * Helper to convert between objects. A lot of stuff is set as defaults.
-	 * @param simple
+	 * @param simple the SimpleSignupMeeting object to convert
 	 * @return
 	 */
-	private SignupMeeting convertSimpleSignupMeeting(SimpleSignupMeeting simple) {
+	private SignupMeeting convertSignupMeeting(SimpleSignupMeeting simple) {
 		
 		SignupMeeting s = new SignupMeeting();
 		
@@ -187,6 +201,43 @@ public class SimpleSignupMeetingLogic {
 		s.setSignupTimeSlots(Collections.singletonList(ts));
 		
 		return s;
+	}
+	
+	/**
+	 * Helper to convert between objects. A lot of data is discarded.
+	 * @param signup 	the SignupMeeting object to convert
+	 * @return
+	 */
+	private SimpleSignupMeeting convertSignupMeeting(SignupMeeting signup) {
+		
+		SimpleSignupMeeting s = new SimpleSignupMeeting();
+		
+		//convert the basic data
+		s.setTitle(signup.getTitle());
+		s.setDescription(signup.getDescription());
+		s.setLocation(signup.getLocation());
+		s.setCategory(signup.getCategory());
+		
+		//deal with sites. if we have multiple then this cannot be represented in the simple signup object
+		List<SignupSite> sites = signup.getSignupSites();
+		if(sites.size()>1) {
+			log.error("More than one site attached to this signup meeting. This cannot be represenated as a SimpleSignupMeeting object");
+			return null;
+		}
+		s.setSiteId(sites.get(0).getSiteId());
+		
+		//deal with dates
+		s.setStartTime(DateFormatUtils.format(signup.getStartTime(), DATE_FORMAT));
+		s.setEndTime(DateFormatUtils.format(signup.getEndTime(), DATE_FORMAT));
+		s.setSignupBegins(DateFormatUtils.format(signup.getSignupBegins(), DATE_FORMAT));
+		s.setSignupBegins(DateFormatUtils.format(signup.getSignupDeadline(), DATE_FORMAT));
+		
+		//deal with participants, same as sites, if we have more than one timeslot, it cannot be represented. 
+		//TODO
+		//private List<String> participants;
+		
+		return s;
+		
 	}
 	
 	/** 
