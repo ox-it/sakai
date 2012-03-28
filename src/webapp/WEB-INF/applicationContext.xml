@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.signup.extensions.simple.SimpleSignupMeetingEntityProvider">
+		<property name="logic" ref="org.sakaiproject.signup.extensions.simple.SimpleSignupMeetingLogic" />
+	</bean>
+		
+	<bean class="org.sakaiproject.signup.extensions.simple.SimpleSignupMeetingLogic">
+		<property name="signupMeetingService" ref="org.sakaiproject.signup.logic.SignupMeetingService" />
+		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
+		
+	</bean>
+		
+</beans>
