@@ -648,45 +648,73 @@ public class PartImpl implements Part, Changeable
 			}
 		}
 
-		// // collect the questions
-		// List<QuestionPick> questions = null;
-		//
-		// // if under a submission context, use the actual set of questions for this submission
-		// if (this.assessment.getSubmissionContext() != null)
-		// {
-		// // get the actual list of question picks
-		// questions = getQuestionPickOrder();
-		// }
-		//
-		// // else use all possible questions
-		// else
-		// {
-		// questions = getPossibleQuestionPicks();
-		// }
-		//
-		// // make sure this is one of our questions
-		// QuestionPick found = null;
-		// for (QuestionPick pick : questions)
-		// {
-		// if (pick.getQuestionId().equals(questionId))
-		// {
-		// found = pick;
-		// break;
-		// }
-		// }
-		// if (found == null) return null;
-		//
-		// QuestionImpl question = (QuestionImpl) this.questionService.getQuestion(questionId);
-		// if (question == null)
-		// {
-		// M_log.warn("getQuestion: question not defined: " + questionId);
-		// return null;
-		// }
-		//
-		// // set the question contexts
-		// question.initSubmissionContext(this.assessment.getSubmissionContext());
-		// question.initPartContext(this);
-		// question.initPartDetailContext(((QuestionPickImpl) found).getRelatedDetail());
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Question getQuestionInDraw(String questionId)
+	{
+		// get the question
+		QuestionImpl question = (QuestionImpl) this.questionService.getQuestion(questionId);
+		if (question == null)
+		{
+			M_log.warn("getQuestionInDraw: question not defined: " + questionId);
+			return null;
+		}
+
+		// figure out what part detail it belongs to - draws only
+		for (PartDetail detail : getDetails())
+		{
+			if (detail instanceof PoolDraw)
+			{
+				PoolDraw draw = (PoolDraw) detail;
+				if (((QuestionImpl) question).poolId.equals(draw.getPoolId()))
+				{
+					// set some context
+					question.initSubmissionContext(this.assessment.getSubmissionContext());
+					question.initPartContext(this);
+					question.initPartDetailContext(detail);
+
+					return question;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Question getQuestionInPick(String questionId)
+	{
+		// get the question
+		QuestionImpl question = (QuestionImpl) this.questionService.getQuestion(questionId);
+		if (question == null)
+		{
+			M_log.warn("getQuestionInPick: question not defined: " + questionId);
+			return null;
+		}
+
+		// figure out what part detail it belongs to - picks only
+		for (PartDetail detail : getDetails())
+		{
+			if (detail instanceof QuestionPick)
+			{
+				QuestionPick pick = (QuestionPick) detail;
+				if (questionId.equals(pick.getQuestionId()))
+				{
+					// set some context
+					question.initSubmissionContext(this.assessment.getSubmissionContext());
+					question.initPartContext(this);
+					question.initPartDetailContext(detail);
+
+					return question;
+				}
+			}
+		}
 
 		return null;
 	}

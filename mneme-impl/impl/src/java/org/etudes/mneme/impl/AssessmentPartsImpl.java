@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -159,28 +159,6 @@ public class AssessmentPartsImpl implements AssessmentParts
 		for (Part part : getParts())
 		{
 			rv.addAll(part.getDetails());
-		}
-
-		return rv;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public List<PartDetail> getPhantomDetails()
-	{
-		List<PartDetail> rv = new ArrayList<PartDetail>();
-
-		for (Part part : getParts())
-		{
-			if (part.getDetails().isEmpty())
-			{
-				rv.add(new EmptyPartDetailImpl(part));
-			}
-			else
-			{
-				rv.addAll(part.getDetails());
-			}
 		}
 
 		return rv;
@@ -416,12 +394,43 @@ public class AssessmentPartsImpl implements AssessmentParts
 	/**
 	 * {@inheritDoc}
 	 */
+	public List<PartDetail> getPhantomDetails()
+	{
+		List<PartDetail> rv = new ArrayList<PartDetail>();
+
+		for (Part part : getParts())
+		{
+			if (part.getDetails().isEmpty())
+			{
+				rv.add(new EmptyPartDetailImpl(part));
+			}
+			else
+			{
+				rv.addAll(part.getDetails());
+			}
+		}
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Question getQuestion(String questionId)
 	{
 		if (questionId == null) throw new IllegalArgumentException();
+
+		// look in all the parts - first considering only picks
 		for (Part part : this.parts)
 		{
-			Question question = part.getQuestion(questionId);
+			Question question = part.getQuestionInPick(questionId);
+			if (question != null) return question;
+		}
+
+		// if we didn't find this question as a pick in some part, see if it might be part of a draw
+		for (Part part : this.parts)
+		{
+			Question question = part.getQuestionInDraw(questionId);
 			if (question != null) return question;
 		}
 

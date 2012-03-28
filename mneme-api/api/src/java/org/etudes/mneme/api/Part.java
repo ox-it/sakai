@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -131,6 +131,24 @@ public interface Part
 	Question getQuestion(String questionId);
 
 	/**
+	 * Access one of the questions, by question id, if it is in the part in a draw (not pick).
+	 * 
+	 * @param questionId
+	 *        The question id.
+	 * @return the question, or null if the question is not defined or not part of the Part as a draw.
+	 */
+	Question getQuestionInDraw(String questionId);
+
+	/**
+	 * Access one of the questions, by question id, if it is in the part in a pick (not draw).
+	 * 
+	 * @param questionId
+	 *        The question id.
+	 * @return the question, or null if the question is not defined or not part of the Part as a pick.
+	 */
+	Question getQuestionInPick(String questionId);
+
+	/**
 	 * Access the questions in delivery order.
 	 * 
 	 * @return The questions in delivery order.
@@ -156,7 +174,7 @@ public interface Part
 	 * @return a non empty string describing the part; either the title, or text based on the part position.
 	 */
 	String getTag();
-	
+
 	/**
 	 * Access the title.
 	 * 
