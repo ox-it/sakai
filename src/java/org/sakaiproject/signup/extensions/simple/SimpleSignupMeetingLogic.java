@@ -1,5 +1,6 @@
 package org.sakaiproject.signup.extensions.simple;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -10,6 +11,7 @@ import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.time.DateUtils;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SakaiFacade;
@@ -36,7 +38,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 @CommonsLog
 public class SimpleSignupMeetingLogic {
 
-	
+	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
+
 	/**
 	 * Create a SignupMeeting from a simple object
 	 * @param simple
@@ -84,6 +87,16 @@ public class SimpleSignupMeetingLogic {
 		return signupMeetingService.isAllowedToCreateinSite(sakaiFacade.getCurrentUserId(), siteId);
 	}
 	
+	/**
+	 * Is the given user allowed to attend a signup meeting in the given site?
+	 * @param userId	userId
+	 * @param siteId	siteId
+	 * @return true or false
+	 */
+	private boolean isAllowedToAttend(String userId, String siteId) {
+		return sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_ATTEND, siteId);
+	}
+	
 	
 	/**
 	 * Helper to convert between objects. A lot of stuff is set as defaults.
@@ -100,11 +113,15 @@ public class SimpleSignupMeetingLogic {
 		s.setLocation(simple.getLocation());
 		s.setCategory(simple.getCategory());
 		
-		//TODO FIX THIS
-		s.setStartTime(new Date());
-		s.setEndTime(new Date());
-		s.setSignupBegins(new Date());
-		s.setSignupDeadline(new Date());
+		try {
+			s.setStartTime(DateUtils.parseDate(simple.getStartTime(), new String[] {DATE_FORMAT}));
+			s.setEndTime(DateUtils.parseDate(simple.getEndTime(), new String[] {DATE_FORMAT}));
+			s.setSignupBegins(DateUtils.parseDate(simple.getSignupBegins(), new String[] {DATE_FORMAT}));
+			s.setSignupDeadline(DateUtils.parseDate(simple.getSignupDeadline(), new String[] {DATE_FORMAT}));
+		} catch (ParseException e) {
+			log.error("The date format was invalid. It must be " + DATE_FORMAT);
+			return null;
+		}
 		
 		// defaults
 		s.setCreatorUserId(sakaiFacade.getCurrentUserId());
@@ -136,9 +153,8 @@ public class SimpleSignupMeetingLogic {
 		
 		//TIMESLOT, same time as meeting itself
 		SignupTimeslot ts = new SignupTimeslot();
-		ts.setStartTime(new Date());
-		ts.setEndTime(new Date());
-		ts.setMaxNoOfAttendees(1); //change this to allow the participants
+		ts.setStartTime(s.getStartTime());
+		ts.setEndTime(s.getEndTime());
 		
 		//ATTENDEES
 		List<SignupAttendee> attendees = new ArrayList<SignupAttendee>();
@@ -146,12 +162,22 @@ public class SimpleSignupMeetingLogic {
 			SignupAttendee sa = new SignupAttendee();
 			String userId = getUserId(p);
 			if(StringUtils.isNotBlank(userId)){
-				sa.setAttendeeUserId(userId);
-				sa.setSignupSiteId(site.getId());
+				
+				//check if user has permission to attend
+				if(isAllowedToAttend(userId, site.getId())) {
+					sa.setAttendeeUserId(userId);
+					sa.setSignupSiteId(site.getId());
+					
+					attendees.add(sa);
+				} else {
+					log.debug("User: " + p + "does not have permission to attend meetings in site: " + site.getId());
+				}
 			}
-			attendees.add(sa);
 		}
 		ts.setAttendees(attendees);
+		
+		//set to the number of participants provided
+		ts.setMaxNoOfAttendees(attendees.size()); 
 		
 		//defaults
 		ts.setDisplayAttendees(false);
@@ -159,8 +185,6 @@ public class SimpleSignupMeetingLogic {
 		ts.setLocked(false);
 		
 		s.setSignupTimeSlots(Collections.singletonList(ts));
-		
-		
 		
 		return s;
 	}
@@ -192,6 +216,14 @@ public class SimpleSignupMeetingLogic {
 			log.error("Error retrieving userid for: " + eid + ": " + e.getClass() + ": " + e.getMessage());
 			return null;
 		}
+	}
+	
+	/**
+	 * Helper to check if the user is currently logged in or not.
+	 * @return
+	 */
+	protected boolean isLoggedIn() {
+		return StringUtils.isNotBlank(sakaiFacade.getCurrentUserId());
 	}
 	
 	

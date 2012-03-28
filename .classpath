@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="src" path="src/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="M2_REPO/org/projectlombok/lombok/0.10.8/lombok-0.10.8.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/signup/signup-api/1.0-SNAPSHOT/signup-api-1.0-SNAPSHOT.jar"/>

@@ -24,11 +24,11 @@ public class SimpleSignupMeeting {
 	private String siteId;
 	private List<String> participants;
 	
-	/*
-	private Date startTime;
-	private Date endTime;
-	private Date signupBegins;
-	private Date signupDeadline;
-	*/
+	//strings so we can set the format, later transformed into Dates
+	private String startTime;
+	private String endTime;
+	private String signupBegins;
+	private String signupDeadline;
+	
 	
 }
