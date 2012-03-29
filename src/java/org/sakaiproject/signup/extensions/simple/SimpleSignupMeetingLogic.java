@@ -54,6 +54,9 @@ public class SimpleSignupMeetingLogic {
 			return null;
 		}
 		
+		log.debug("Simple signup object before transform: " + ToStringBuilder.reflectionToString(si));
+
+		
 		//convert to SignupMeeting
 		SignupMeeting s = convertSignupMeeting(si);
 		
@@ -88,8 +91,15 @@ public class SimpleSignupMeetingLogic {
 	 * @return SimpleSignupmeeting object representation, or null if it is too complex
 	 */
 	public SimpleSignupMeeting getSignupMeeting(long id){
-		//TODO
-		return null;
+		
+		//this is a bit of a workaround. We do not know the site so we cannot pass it in.
+		//it is only used for the permission checks which are stored into the object, which we do not need anyway
+		SignupMeeting signup = signupMeetingService.loadSignupMeeting(id, sakaiFacade.getCurrentUserId(),null);
+		
+		log.debug("Signup object before transform: " + ToStringBuilder.reflectionToString(signup));
+		
+		return convertSignupMeeting(signup);
+		
 	}
 	
 	/**
@@ -184,7 +194,7 @@ public class SimpleSignupMeetingLogic {
 					
 					attendees.add(sa);
 				} else {
-					log.debug("User: " + p + "does not have permission to attend meetings in site: " + site.getId());
+					log.error("User: " + p + "does not have permission to attend meetings in site: " + site.getId());
 				}
 			}
 		}
@@ -230,14 +240,22 @@ public class SimpleSignupMeetingLogic {
 		s.setStartTime(DateFormatUtils.format(signup.getStartTime(), DATE_FORMAT));
 		s.setEndTime(DateFormatUtils.format(signup.getEndTime(), DATE_FORMAT));
 		s.setSignupBegins(DateFormatUtils.format(signup.getSignupBegins(), DATE_FORMAT));
-		s.setSignupBegins(DateFormatUtils.format(signup.getSignupDeadline(), DATE_FORMAT));
+		s.setSignupDeadline(DateFormatUtils.format(signup.getSignupDeadline(), DATE_FORMAT));
 		
 		//deal with participants, same as sites, if we have more than one timeslot, it cannot be represented. 
-		//TODO
-		//private List<String> participants;
+		List<SignupTimeslot> ts = signup.getSignupTimeSlots();
+		if(ts.size()>1) {
+			log.error("More than one timeslot attached to this signup meeting. This cannot be represenated as a SimpleSignupMeeting object");
+			return null;
+		}
+		
+		List<String> participants = new ArrayList<String>();
+		for(SignupAttendee attendee: ts.get(0).getAttendees()) {
+			participants.add(getUserEid(attendee.getAttendeeUserId()));
+		}
+		s.setParticipants(participants);
 		
 		return s;
-		
 	}
 	
 	/** 
@@ -267,6 +285,15 @@ public class SimpleSignupMeetingLogic {
 			log.error("Error retrieving userid for: " + eid + ": " + e.getClass() + ": " + e.getMessage());
 			return null;
 		}
+	}
+	
+	/**
+	 * Simple helper to get an eid for a given userId
+	 * @param userId
+	 * @return
+	 */
+	private String getUserEid(String userId) {
+		return sakaiFacade.getUser(userId).getEid();
 	}
 	
 	/**

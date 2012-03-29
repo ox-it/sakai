@@ -67,45 +67,31 @@ public class SimpleSignupMeetingEntityProvider extends AbstractEntityProvider im
 	}
 
 
-
+	@Override
 	public boolean entityExists(String id) {
 		return true;
 	}
 
+	@Override
 	public String[] getHandledInputFormats() {
         return new String[] { Formats.JSON };
     }
 
+	@Override
     public String[] getHandledOutputFormats() {
         return new String[] { Formats.JSON };
     }
 
+    @Override
 	public Object getEntity(EntityReference ref) {
 		
-		//TODO get actual signup object and transform into simple object
+		SimpleSignupMeeting s = logic.getSignupMeeting(Long.valueOf(ref.getId()));
 		
-		SimpleSignupMeeting s = new SimpleSignupMeeting();
-		s.setTitle("title here");
-		s.setCategory("some cat");
-		s.setDescription("blah blah blah");
-		s.setLocation("somewhere");
-		s.setSiteId("2db8fa88-0012-4f09-92a3-291d67381db1");
-		
-		List<String> p = new ArrayList<String>();
-		p.add("test");
-		p.add("steve");
-		
-		s.setParticipants(p);
-		
-		Calendar c = Calendar.getInstance();
-		
-		
-		s.setStartTime(DateFormatUtils.format(c, "yyyy-MM-dd HH:mm"));
-		s.setEndTime(DateFormatUtils.format(c, "yyyy-MM-dd HH:mm"));
-		s.setSignupBegins(DateFormatUtils.format(c, "yyyy-MM-dd HH:mm"));
-		s.setSignupDeadline(DateFormatUtils.format(c, "yyyy-MM-dd HH:mm"));
-		
-		return s;
+		if(s == null){
+			throw new EntityException("Couldn't retrieve entity", ref.getReference(), 404);
+		} else {
+			return s;
+		}
 	}
 
 	
