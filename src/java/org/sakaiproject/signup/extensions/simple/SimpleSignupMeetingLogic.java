@@ -3,7 +3,6 @@ package org.sakaiproject.signup.extensions.simple;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import lombok.Setter;
@@ -13,16 +12,21 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupMeetingService;
+import org.sakaiproject.signup.logic.SignupMessageTypes;
 import org.sakaiproject.signup.model.MeetingTypes;
 import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
@@ -68,11 +72,22 @@ public class SimpleSignupMeetingLogic {
 		//create and return id of meeting
 		try {
 			Long id = signupMeetingService.saveMeeting(s, sakaiFacade.getCurrentUserId());
+			log.info("Created signup meeting with id: " + id);
+			if(log.isDebugEnabled()){
+				log.debug("Created meeting: " + ToStringBuilder.reflectionToString(s));
+			}
 			
-			//TODO send email, post to calendar, etc, everything from CreateMeetings.
-			//should these bits be moved into the API or just copied for now?
-
-			log.debug("Created meeting: " + ToStringBuilder.reflectionToString(s));
+			//send email
+			sendEmail(s);
+			
+			//post to calendar
+			postToCalendar(s);
+			
+			//in CreateMeetings it also posts an event to the eventTrackingService but that code is part of the tool
+			//and we have no site context here, so this is not done.
+			
+			//it also creates the groups which we dont do here (needs a setting to be changed if that is required).
+			//simple objects don't ened groups to be created at this stage.
 			
 			return Long.toString(id);
 		} catch (PermissionException e) {
@@ -231,7 +246,7 @@ public class SimpleSignupMeetingLogic {
 		//deal with sites. if we have multiple then this cannot be represented in the simple signup object
 		List<SignupSite> sites = signup.getSignupSites();
 		if(sites.size()>1) {
-			log.error("More than one site attached to this signup meeting. This cannot be represenated as a SimpleSignupMeeting object");
+			log.error("More than one site attached to this signup meeting. This cannot be represented as a SimpleSignupMeeting object");
 			return null;
 		}
 		s.setSiteId(sites.get(0).getSiteId());
@@ -245,7 +260,7 @@ public class SimpleSignupMeetingLogic {
 		//deal with participants, same as sites, if we have more than one timeslot, it cannot be represented. 
 		List<SignupTimeslot> ts = signup.getSignupTimeSlots();
 		if(ts.size()>1) {
-			log.error("More than one timeslot attached to this signup meeting. This cannot be represenated as a SimpleSignupMeeting object");
+			log.error("More than one timeslot attached to this signup meeting. This cannot be represented as a SimpleSignupMeeting object");
 			return null;
 		}
 		
@@ -303,6 +318,70 @@ public class SimpleSignupMeetingLogic {
 	protected boolean isLoggedIn() {
 		return StringUtils.isNotBlank(sakaiFacade.getCurrentUserId());
 	}
+	
+	/**
+	 * Helper to send an email notification about the new meeting
+	 * @param signup SignupMeeting
+	 */
+	private void sendEmail(SignupMeeting signup) {
+		try {
+			signupMeetingService.sendEmail(signup, SignupMessageTypes.SIGNUP_NEW_MEETING);
+		} catch (Exception e){
+			log.error("Error sending email notification: " + e.getClass() + ": " + e.getMessage());
+		}
+	}
+	
+	/**
+	 * Helper to post the new meeting event to the calendar
+	 * 
+	 * This does not use the API as that required the context to be set, which it isn't for entity providers
+	 * @param signup SignupMeeting
+	 */
+	private void postToCalendar(SignupMeeting signup) {
+		
+		try {
+			//this should be safe since we have already checked the data
+			SignupSite ss = signup.getSignupSites().get(0);
+			String siteId = ss.getSiteId();
+			
+			//get calendar
+			Calendar cal = sakaiFacade.getCalendar(siteId);
+			if (cal == null) {
+				log.error("Site: " + siteId + " does not have a calendar so cannot add event");
+				return;
+			}
+			
+			//create the event and set the details
+			CalendarEventEdit event = cal.addEvent();
+			event.setType("Meeting");
+			
+			event.setDescription(signup.getDescription());
+			event.setLocation(signup.getLocation());
+			event.setDisplayName(signup.getTitle());
+			
+			TimeService timeService = sakaiFacade.getTimeService();
+			Time start = timeService.newTime(signup.getStartTime().getTime());
+			Time end = timeService.newTime(signup.getEndTime().getTime());
+			event.setRange(timeService.newTimeRange(start, end, true, false));
+			
+			//save event
+			cal.commitEvent(event);
+			
+			//update the SignupSite object with the details of the calendar for this site
+			ss.setCalendarEventId(event.getId());
+			ss.setCalendarId(cal.getId());
+			
+			//now we need to update the SignupMeeting since we  have an updated SignupSite object within it (!)
+			signup.setSignupSites(Collections.singletonList(ss));
+			signupMeetingService.updateSignupMeeting(signup, true);
+			
+			log.info("Created calendar event for signup meeting: " + signup.getId());
+			
+		} catch (Exception e){
+			log.error("Error posting event to calendar: " + e.getClass() + ": " + e.getMessage());
+		}
+	}
+	
 	
 	
 	@Setter

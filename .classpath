@@ -10,5 +10,6 @@
 	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/entitybroker/entitybroker-api/1.4.3/entitybroker-api-1.4.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/entitybroker/entitybroker-utils/1.4.3/entitybroker-utils-1.4.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring/2.5.6.SEC02/spring-2.5.6.SEC02.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/calendar/sakai-calendar-api/2.9-SNAPSHOT/sakai-calendar-api-2.9-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
