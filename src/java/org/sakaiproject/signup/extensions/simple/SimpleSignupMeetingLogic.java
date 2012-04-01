@@ -77,11 +77,17 @@ public class SimpleSignupMeetingLogic {
 				log.debug("Created meeting: " + ToStringBuilder.reflectionToString(s));
 			}
 			
+			//post to calendar
+			postToCalendar(s);
+			
+			//if we have an emailDescription, override it here so it is included in the email
+			if(StringUtils.isNotBlank(si.getEmailDescription())) {
+				s.setDescription(si.getEmailDescription());
+			}
+			
 			//send email
 			sendEmail(s);
 			
-			//post to calendar
-			postToCalendar(s);
 			
 			//in CreateMeetings it also posts an event to the eventTrackingService but that code is part of the tool
 			//and we have no site context here, so this is not done.

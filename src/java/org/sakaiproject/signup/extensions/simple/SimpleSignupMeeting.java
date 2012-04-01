@@ -19,6 +19,7 @@ public class SimpleSignupMeeting {
 	
 	private String title;
 	private String description;
+	private String emailDescription; //optional, used only when emails are sent
 	private String location;
 	private String category;
 	private String siteId;
