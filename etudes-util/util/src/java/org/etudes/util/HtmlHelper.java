@@ -301,6 +301,7 @@ public class HtmlHelper
 			tidy.setErrout(pw);
 			tidy.setQuiet(true);
 			tidy.setXHTML(true);
+			tidy.setCharEncoding(org.w3c.tidy.Configuration.UTF8); 
 			Document doc = tidy.parseDOM(bais, null);
 
 			// assure target=_blank in all anchors
