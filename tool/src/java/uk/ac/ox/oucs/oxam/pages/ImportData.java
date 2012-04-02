@@ -17,8 +17,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.validation.IValidationError;
-import org.apache.wicket.validation.ValidationError;
 
 import uk.ac.ox.oucs.oxam.components.RawFileUploadField;
 import uk.ac.ox.oucs.oxam.logic.TermService;
@@ -96,13 +94,29 @@ public class ImportData extends AdminPage {
 					}
 					
 					// Shouldn't ever find files we don't support as we only look for limited set of files.
+
 					final Format examFormat = getFormat(examEntry.getName());
 					final Format examPaperFormat = getFormat(examPaperEntry.getName());
 					final Format paperFormat = getFormat(paperEntry.getName());
 
-					examImporter.readExams(zipFile.getInputStream(examEntry), examFormat);
-					examImporter.readPapers(zipFile.getInputStream(paperEntry), paperFormat);
-					examImporter.readExamPapers(zipFile.getInputStream(examPaperEntry), examPaperFormat);
+					try {
+						examImporter.readExams(zipFile.getInputStream(examEntry), examFormat);
+					} catch (RuntimeException re) {
+						examFile.error(new StringResourceModel("no.format.found", null, new String[]{ examEntry.getName()}).getString());
+					}
+					try {
+						examImporter.readPapers(zipFile.getInputStream(paperEntry), paperFormat);
+					} catch (RuntimeException re) {
+						examFile.error(new StringResourceModel("no.format.found", null, new String[]{ paperEntry.getName()}).getString());
+					}
+					try {
+						examImporter.readExamPapers(zipFile.getInputStream(examPaperEntry), examPaperFormat);
+					} catch (RuntimeException re) {
+						examFile.error(new StringResourceModel("no.format.found", null, new String[]{ examPaperEntry.getName()}).getString());
+					}
+					if (hasError()) {
+						return;
+					}
 
 					// This is a chain of resolvers so it looks for 1234.pdf and if that doesn't exist 1234(T).pdf
 					// We want to look for the term specific one first and if that doesn't exist fallback to the generic one.
@@ -142,6 +156,9 @@ public class ImportData extends AdminPage {
 									zip.closeEntry();
 								}
 								zip.close();
+								
+								// This doesn't get rendered as we are returning a zip.
+								info(getString("action.import.ok"));
 							} catch (IOException ioe) {
 								throw new RuntimeException(ioe);
 							}
@@ -155,7 +172,7 @@ public class ImportData extends AdminPage {
 					throw new RuntimeException(ioe);
 				}
 			} catch (IOException ioe) {
-				examFile.error((IValidationError)new ValidationError().addMessageKey("not.zipfile"));
+				examFile.error(new StringResourceModel("not.zipfile", null).getString());
 			}
 			 finally {
 				if (file != null) {
@@ -164,8 +181,6 @@ public class ImportData extends AdminPage {
 					}
 				}
 			}
-			// This doesn't get rendered as we are returning a zip.
-			info(getString("action.import.ok"));
 		}
 
 		/**
