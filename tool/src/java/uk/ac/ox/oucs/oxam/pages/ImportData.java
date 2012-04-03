@@ -3,6 +3,8 @@ package uk.ac.ox.oucs.oxam.pages;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -131,6 +133,7 @@ public class ImportData extends AdminPage {
 					
 					examImporter.resolve();
 					
+					// 
 					// Need to use this so that we don't get exception because response is committed.
 					getRequestCycle().setRequestTarget(new IRequestTarget() {
 						
@@ -140,6 +143,13 @@ public class ImportData extends AdminPage {
 								OutputStream out = response.getOutputStream();
 								response.setContentType("application/zip");
 								ZipOutputStream zip = new ZipOutputStream(out);
+								zip.putNextEntry(new ZipEntry("messages.txt"));
+								Writer messagesWriter = new OutputStreamWriter(zip);
+								messagesWriter.write("Messages from Import\n\n");
+								messagesWriter.write(examImporter.getMessages());
+								messagesWriter.flush(); // Don't close.
+								zip.closeEntry();
+								
 								if (!examImporter.getExamRowErrors().isEmpty()) {
 									zip.putNextEntry(new ZipEntry(getErrorFile(examEntry.getName())));
 									examImporter.writeExamError(zip, examFormat);

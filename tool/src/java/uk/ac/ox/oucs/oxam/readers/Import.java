@@ -36,6 +36,8 @@ public class Import {
 	private KeyedSheetImporter<ExamRow> examRowImporter;
 	private KeyedSheetImporter<ExamPaperRow> examPaperRowImporter;
 	
+	private StringBuilder messages;
+	
 	private Map<PaperFile, String>cachedMD5s = new HashMap<PaperFile, String>();
 	
 	// This finds the source files.
@@ -43,6 +45,7 @@ public class Import {
 
 	Import(Importer importer) {
 		this.importer = importer;
+		this.messages = new StringBuilder();
 	}
 
 	public void readPapers(InputStream source, Format format) {
@@ -85,6 +88,14 @@ public class Import {
 
 	public Map<Integer, ErrorMessages<ExamPaperRow>> getExamPaperRowErrors() {
 		return examPaperRowImporter.getErrors();
+	}
+	
+	/**
+	 * Log messages from the import.
+	 * @return A string of log messages from the import.
+	 */
+	public String getMessages() {
+		return messages.toString();
 	}
 
 	// Here we lookup everything to make sure it all matches up.
@@ -158,8 +169,10 @@ public class Import {
 				String paperCode = (paperRow.inc != null && paperRow.inc.length() > 0)?paperRow.inc:paperRow.code;
 				PaperResolutionResult paper = resolver.getPaper(year.getYear(), examPaperRow.term, paperCode);
 				if(paper.isFound()) { // It's available to import from the ZIPfile.
+					
 					ExamPaper examPaper = importer.get(examPaperRow.examCode, examPaperRow.paperCode, year, term);
-					if (examPaper == null) {
+					boolean isNew = examPaper == null;
+					if (isNew) {
 						examPaper = new ExamPaper();
 						examPaper.setExamCode(examPaperRow.examCode);
 						examPaper.setPaperCode(examPaperRow.paperCode);
@@ -185,6 +198,9 @@ public class Import {
 							LOG.debug("Saved new paper for: "+ examPaper.getPaperFile());
 						}
 						importer.save(examPaper);
+						messages.append((isNew?"Added":"Updated"));
+						messages.append(" exam paper. ExamCode: "+ examPaper.getExamCode()+ " PaperCode: "+ examPaper.getPaperCode());
+						messages.append(" Year: "+ examPaper.getYear()+ " Term: "+ examPaper.getTerm().getName()+ "\n");
 					} catch (Exception e) {
 						// This shouldn't really happen and indicates a low-level problem.
 						examPaperRowImporter.addError(examPaperRow, e.getMessage());
