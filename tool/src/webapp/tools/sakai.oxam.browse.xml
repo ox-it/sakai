@@ -18,5 +18,42 @@
 		<!--  <configuration name="functions.require" value="some.permission"/> -->
 		
     </tool>
+    
+        <tool id="sakai.oxam.search.simple" 
+        title="OXAM Search" 
+        description="This is the end user search interface to OXAM">
+
+        <!--  This tool will be made available to the following site types via Site Info > Edit Tools -->
+        <!--
+        <category name="course" />
+        <category name="project" />
+        -->
+        <!--
+        <category name="myworkspace" />
+        <category name="sakai.admin" />
+        -->
+
+        <!--  If the visibility/access of this tool should be dependent on a user permission, you can list that here -->
+        <!--  <configuration name="functions.require" value="some.permission"/> -->
+        
+    </tool>
+    <tool id="sakai.oxam.search.adv" 
+        title="OXAM Advanced Search" 
+        description="This is the end user search interface to OXAM">
+
+        <!--  This tool will be made available to the following site types via Site Info > Edit Tools -->
+        <!--
+        <category name="course" />
+        <category name="project" />
+        -->
+        <!--
+        <category name="myworkspace" />
+        <category name="sakai.admin" />
+        -->
+
+        <!--  If the visibility/access of this tool should be dependent on a user permission, you can list that here -->
+        <!--  <configuration name="functions.require" value="some.permission"/> -->
+        
+    </tool>
 </registration>
 

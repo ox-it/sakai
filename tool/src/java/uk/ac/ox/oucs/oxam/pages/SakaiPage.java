@@ -1,6 +1,7 @@
 package uk.ac.ox.oucs.oxam.pages;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.Application;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -23,6 +24,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
+import uk.ac.ox.oucs.oxam.SakaiApplication;
 import uk.ac.ox.oucs.oxam.logic.SakaiProxy;
 
 /**
@@ -85,6 +87,11 @@ public class SakaiPage extends WebPage implements IHeaderContributor {
 				return anyMessage();
 			}
 		};
+		Application application = getApplication();
+		if (application instanceof SakaiApplication) {
+			SakaiApplication sakaiApplication = (SakaiApplication) application;
+			links.setVisible(sakaiApplication.isToolbarEnabled());
+		}
 		feedbackPanel.setFilter(new IFeedbackMessageFilter() {
 
 			private static final long serialVersionUID = 1L;
