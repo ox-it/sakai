@@ -54,27 +54,45 @@
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     </bean>
-    
-        <!-- Get the term data from the classpath -->
-    <bean id="termValueSource"
-        class="uk.ac.ox.oucs.oxam.logic.SakaiValueSource" init-method="init">
-        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
-        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-        <property name="file" value="/terms.csv"/>
-        <property name="reloadable" ref="termService"/>
+
+    <!-- Get the term data from the sakai or fallback to the classpath -->
+    <bean id="termValueSource" class="uk.ac.ox.oucs.oxam.logic.ChainedValueSource">
+        <constructor-arg index="0">
+            <bean class="uk.ac.ox.oucs.oxam.logic.SakaiValueSource"
+                init-method="init">
+                <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+                <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+                <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+                <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+                <property name="file" value="/terms.csv" />
+                <property name="reloadable" ref="termService" />
+            </bean>
+        </constructor-arg>
+        <constructor-arg index="1">
+            <bean class="uk.ac.ox.oucs.oxam.logic.ClasspathValueSource">
+                <property name="resource" value="/terms.csv" />
+            </bean>
+        </constructor-arg>
     </bean>
-    
-    <!-- Get the categories data from the classpath -->
-    <bean id="categoryValueSource"
-        class="uk.ac.ox.oucs.oxam.logic.SakaiValueSource" init-method="init">
-        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
-        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-        <property name="file" value="/categories.csv"/>
-        <property name="reloadable" ref="categoryService"/>
+
+    <!-- Get the categories data from the sakai site, or fallback to the classpath. -->
+    <bean id="categoryValueSource" class="uk.ac.ox.oucs.oxam.logic.ChainedValueSource">
+        <constructor-arg index="0">
+            <bean class="uk.ac.ox.oucs.oxam.logic.SakaiValueSource"
+                init-method="init">
+                <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+                <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+                <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+                <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+                <property name="file" value="/categories.csv" />
+                <property name="reloadable" ref="categoryService" />
+            </bean>
+        </constructor-arg>
+        <constructor-arg index="1">
+            <bean class="uk.ac.ox.oucs.oxam.logic.ClasspathValueSource">
+                <property name="resource" value="/categories.csv" />
+            </bean>
+        </constructor-arg>
     </bean>
     
 </beans>
