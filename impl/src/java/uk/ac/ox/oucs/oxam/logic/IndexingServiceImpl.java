@@ -194,6 +194,10 @@ public class IndexingServiceImpl implements IndexingService {
 						toAdd.clear();
 					}
 				}
+				// Make sure if we have some more in our queue we push them through.
+				if (toAdd.size() > 0) {
+					server.add(toAdd);
+				}
 				server.commit();
 			} catch (SolrServerException e) {
 				LOG.warn(e);
