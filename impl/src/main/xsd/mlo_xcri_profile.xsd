@@ -24,7 +24,7 @@
 	<xs:import namespace="http://purl.org/dc/elements/1.1/" schemaLocation="dc.xsd"/>
 	<xs:import namespace="http://purl.org/net/cm" schemaLocation="educationalcredit.xsd" />
 	<xs:import namespace="http://xcri.org/profiles/1.2/catalog" schemaLocation="xcri_cap_1_2.xsd"/>
-	<xs:import namespace="http://www.w3.org/1999/xhtml"	schemaLocation="http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd" />
+	<xs:import namespace="http://www.w3.org/1999/xhtml"	schemaLocation="xhtml1-strict.xsd" />
 	<xs:include	schemaLocation="types.xsd"></xs:include>
  
  	<xs:redefine schemaLocation="mlo-strict.xsd">

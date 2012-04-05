@@ -5,7 +5,7 @@
  xmlns:xml="http://www.w3.org/XML/1998/namespace"
  elementFormDefault="qualified">
  
- 	<xs:import namespace="http://www.w3.org/1999/xhtml"	schemaLocation="http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd" />
+ 	<xs:import namespace="http://www.w3.org/1999/xhtml"	schemaLocation="xhtml1-strict.xsd" />
  	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
  	
  	<!-- This schema defines some common type definitions reused in other schemas -->
