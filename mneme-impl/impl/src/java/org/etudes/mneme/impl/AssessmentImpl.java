@@ -604,6 +604,14 @@ public class AssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public String getPoolId()
+	{
+		return this.poolId;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Presentation getPresentation()
 	{
 		return this.presentation;
@@ -893,6 +901,20 @@ public class AssessmentImpl implements Assessment
 	public void setNeedsRescore()
 	{
 		needsRescore = true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setPool(Pool pool)
+	{
+		if (pool == null) throw new IllegalArgumentException();
+
+		// just ignore if already set
+		if (this.poolId != null) return;
+
+		this.poolId = pool.getId();
+		this.changed.setChanged();
 	}
 
 	/**

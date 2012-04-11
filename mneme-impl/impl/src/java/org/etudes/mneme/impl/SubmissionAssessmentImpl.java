@@ -408,6 +408,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public String getPoolId()
+	{
+		return getAssessment().getPoolId();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Presentation getPresentation()
 	{
 		return getAssessment().getPresentation();
@@ -659,6 +667,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	public void setNeedsPoints(Boolean needsPoints)
 	{
 		throw new IllegalArgumentException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setPool(Pool pool)
+	{
+		getAssessment().setPool(pool);
 	}
 
 	/**

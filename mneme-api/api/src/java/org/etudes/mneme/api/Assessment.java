@@ -235,6 +235,13 @@ public interface Assessment
 	Pool getPool();
 
 	/**
+	 * Get the auto-pool id for the assessment; the one to hold the assessment's unique questions.
+	 * 
+	 * @return The assessment's auto-pool id, or null if there is none (will NOT create if missing).
+	 */
+	String getPoolId();
+
+	/**
 	 * Access the assessment's presentation; the rich text and attachments that describe the assessment.
 	 * 
 	 * @return The assessment's presentation.
@@ -428,6 +435,14 @@ public interface Assessment
 	 *        The needsPoints setting.
 	 */
 	void setNeedsPoints(Boolean needsPoints);
+
+	/**
+	 * Set the assessment's auto-pool to this pool - ignored if it already has an auto-pool.
+	 * 
+	 * @param pool
+	 *        The Pool to use for questions created inside the assessment.
+	 */
+	void setPool(Pool pool);
 
 	/**
 	 * Set the assessment's published setting.
