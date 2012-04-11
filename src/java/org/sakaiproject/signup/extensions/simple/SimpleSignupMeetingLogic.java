@@ -291,7 +291,7 @@ public class SimpleSignupMeetingLogic {
 		
 		List<String> participants = new ArrayList<String>();
 		for(SignupAttendee attendee: ts.get(0).getAttendees()) {
-			participants.add(getUserEid(attendee.getAttendeeUserId()));
+			participants.add(getUserDisplayId(attendee.getAttendeeUserId()));
 		}
 		s.setParticipants(participants);
 		
@@ -328,12 +328,13 @@ public class SimpleSignupMeetingLogic {
 	}
 	
 	/**
-	 * Simple helper to get an eid for a given userId
+	 * Simple helper to get the display Id for a given userId
+	 * This is generally the eid but may be something else according to the provider.
 	 * @param userId
 	 * @return
 	 */
-	private String getUserEid(String userId) {
-		return sakaiFacade.getUser(userId).getEid();
+	private String getUserDisplayId(String userId) {
+		return sakaiFacade.getUser(userId).getDisplayId();
 	}
 	
 	/**
