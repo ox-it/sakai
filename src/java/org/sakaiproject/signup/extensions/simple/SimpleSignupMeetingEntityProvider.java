@@ -85,6 +85,10 @@ public class SimpleSignupMeetingEntityProvider extends AbstractEntityProvider im
     @Override
 	public Object getEntity(EntityReference ref) {
 		
+    	if(!logic.isLoggedIn()) {
+			throw new SecurityException("You must be logged in to retrieve a signup meeting.");
+		}
+    	
 		SimpleSignupMeeting s = logic.getSignupMeeting(Long.valueOf(ref.getId()));
 		
 		if(s == null){

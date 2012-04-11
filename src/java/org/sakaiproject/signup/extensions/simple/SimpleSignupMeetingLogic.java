@@ -119,8 +119,17 @@ public class SimpleSignupMeetingLogic {
 		
 		log.debug("Signup object before transform: " + ToStringBuilder.reflectionToString(signup));
 		
-		return convertSignupMeeting(signup);
+		SimpleSignupMeeting si = convertSignupMeeting(signup);
 		
+		//permission check - needs to be here since we only have access to the data at this point
+		if(si != null) {
+			if(!isAllowedToView(sakaiFacade.getCurrentUserId(), si.getSiteId())) {
+				log.error("User: " + sakaiFacade.getCurrentUserId() + " requested meeting: " + si.getSiteId() + " but is not allowed");
+				return null;
+			}
+		}	
+		
+		return si;
 	}
 	
 	/**
@@ -140,6 +149,16 @@ public class SimpleSignupMeetingLogic {
 	 */
 	private boolean isAllowedToAttend(String userId, String siteId) {
 		return sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_ATTEND, siteId);
+	}
+	
+	/**
+	 * Is the given user allowed to view a signup meeting in the given site?
+	 * @param userId	userId
+	 * @param siteId	siteId
+	 * @return true or false
+	 */
+	private boolean isAllowedToView(String userId, String siteId) {
+		return sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_VIEW, siteId);
 	}
 	
 	
@@ -215,7 +234,7 @@ public class SimpleSignupMeetingLogic {
 					
 					attendees.add(sa);
 				} else {
-					log.error("User: " + p + "does not have permission to attend meetings in site: " + site.getId());
+					log.error("User: " + p + " does not have permission to attend meetings in site: " + site.getId());
 				}
 			}
 		}
