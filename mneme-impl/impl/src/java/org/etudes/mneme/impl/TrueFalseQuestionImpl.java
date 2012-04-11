@@ -618,6 +618,8 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 		{
 			this.correctAnswer = Boolean.valueOf(data[0]);
 		}
+
+		this.question.setChanged();
 	}
 
 	/**

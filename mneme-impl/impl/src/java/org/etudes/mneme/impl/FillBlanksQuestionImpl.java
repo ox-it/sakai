@@ -683,6 +683,8 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 			this.caseSensitive = Boolean.valueOf(data[1]);
 			this.responseTextual = Boolean.valueOf(data[2]);
 			this.text = data[3];
+
+			this.question.setChanged();
 		}
 	}
 

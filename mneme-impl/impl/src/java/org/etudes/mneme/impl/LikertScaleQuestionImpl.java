@@ -663,6 +663,8 @@ public class LikertScaleQuestionImpl implements TypeSpecificQuestion
 		if ((data != null) && (data.length == 1))
 		{
 			this.scale = Integer.valueOf(data[0]);
+
+			this.question.setChanged();
 		}
 	}
 

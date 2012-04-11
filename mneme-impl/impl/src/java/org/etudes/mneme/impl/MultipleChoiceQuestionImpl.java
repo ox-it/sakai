@@ -1282,6 +1282,8 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 				choice.correct = Boolean.valueOf(data[i++]);
 				this.answerChoices.add(choice);
 			}
+
+			this.question.setChanged();
 		}
 	}
 

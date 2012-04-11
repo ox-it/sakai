@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -460,8 +460,8 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		Navigation nav = this.uiService.newNavigation();
 		Destination destination = this.uiService.newDestination();
 		destination.setDestination("DEL:{0}", this.uiService.newPropertyReference().setReference("pair.id"));
-		nav.setTitle("delete").setIcon("/icons/delete.png", Navigation.IconStyle.left).setStyle(Navigation.Style.link).setSubmit().setDestination(
-				destination);
+		nav.setTitle("delete").setIcon("/icons/delete.png", Navigation.IconStyle.left).setStyle(Navigation.Style.link).setSubmit()
+				.setDestination(destination);
 		col.add(nav);
 		choices.addColumn(col);
 
@@ -480,8 +480,8 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		addMore.setOrientation(Selection.Orientation.dropdown);
 		addMore.setSubmitValue();
 		addMore.setTitle("more-choices");
-		addMore.setIncluded(this.uiService.newDecision().setReversed().setProperty(
-				this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.pairsMaxedOut")));
+		addMore.setIncluded(this.uiService.newDecision().setReversed()
+				.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.pairsMaxedOut")));
 
 		Instructions noMore = uiService.newInstructions();
 		noMore.setText("no-more");
@@ -563,8 +563,8 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 
 		// match
 		Selection selection = this.uiService.newSelection();
-		selection.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answer.{0}.value").addProperty(
-				this.uiService.newPropertyReference().setReference("pair.id")));
+		selection.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answer.{0}.value")
+				.addProperty(this.uiService.newPropertyReference().setReference("pair.id")));
 		selection.setSelectionModel(this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.pairsForDelivery"),
 				"choice", this.uiService.newMessage().setMessage(null, this.uiService.newPropertyReference().setReference("choice.choiceId")),
 				this.uiService.newMessage().setMessage(null, this.uiService.newPropertyReference().setReference("choice.choiceLabel")));
@@ -843,23 +843,28 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		// correct / incorrect
 		Text correct = this.uiService.newText();
 		correct.setText(null, this.uiService.newIconPropertyReference().setIcon("!/ambrosia_library/icons/correct.png"));
-		correct.setIncluded(this.uiService.newCompareDecision().setEqualsProperty(
-				this.uiService.newPropertyReference().setReference("pair.correctChoiceId")).setProperty(
-				this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answer.{0}.value").addProperty(
-						this.uiService.newPropertyReference().setReference("pair.id"))));
+		correct.setIncluded(this.uiService
+				.newCompareDecision()
+				.setEqualsProperty(this.uiService.newPropertyReference().setReference("pair.correctChoiceId"))
+				.setProperty(
+						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answer.{0}.value")
+								.addProperty(this.uiService.newPropertyReference().setReference("pair.id"))));
 
 		Text incorrect = this.uiService.newText();
 		incorrect.setText(null, this.uiService.newIconPropertyReference().setIcon("!/ambrosia_library/icons/incorrect.png"));
-		incorrect.setIncluded(this.uiService.newCompareDecision().setEqualsProperty(
-				this.uiService.newPropertyReference().setReference("pair.correctChoiceId")).setReversed().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answer.{0}.value").addProperty(
-						this.uiService.newPropertyReference().setReference("pair.id"))));
+		incorrect.setIncluded(this.uiService
+				.newCompareDecision()
+				.setEqualsProperty(this.uiService.newPropertyReference().setReference("pair.correctChoiceId"))
+				.setReversed()
+				.setProperty(
+						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answer.{0}.value")
+								.addProperty(this.uiService.newPropertyReference().setReference("pair.id"))));
 
 		EntityListColumn correctCol = this.uiService.newEntityListColumn();
 		correctCol.setTopped();
 		correctCol.setWidth(16);
-		correctCol.setEntityIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("pair.match")), null);
+		correctCol.setEntityIncluded(
+				this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("pair.match")), null);
 		correctCol.add(correct).add(incorrect);
 
 		// should we show correct marks?
@@ -889,8 +894,8 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 
 		// match
 		Selection selection = this.uiService.newSelection();
-		selection.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answer.{0}.value").addProperty(
-				this.uiService.newPropertyReference().setReference("pair.id")));
+		selection.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answer.{0}.value")
+				.addProperty(this.uiService.newPropertyReference().setReference("pair.id")));
 		selection.setSelectionModel(this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.pairsForDelivery"),
 				"choice", this.uiService.newMessage().setMessage(null, this.uiService.newPropertyReference().setReference("choice.choiceId")),
 				this.uiService.newMessage().setMessage(null, this.uiService.newPropertyReference().setReference("choice.choiceLabel")));
@@ -1008,23 +1013,28 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		// correct / incorrect
 		Text correct = this.uiService.newText();
 		correct.setText(null, this.uiService.newIconPropertyReference().setIcon("!/ambrosia_library/icons/correct.png"));
-		correct.setIncluded(this.uiService.newCompareDecision().setEqualsProperty(
-				this.uiService.newPropertyReference().setReference("pair.correctChoiceId")).setProperty(
-				this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answer.{0}.value").addProperty(
-						this.uiService.newPropertyReference().setReference("pair.id"))));
+		correct.setIncluded(this.uiService
+				.newCompareDecision()
+				.setEqualsProperty(this.uiService.newPropertyReference().setReference("pair.correctChoiceId"))
+				.setProperty(
+						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answer.{0}.value")
+								.addProperty(this.uiService.newPropertyReference().setReference("pair.id"))));
 
 		Text incorrect = this.uiService.newText();
 		incorrect.setText(null, this.uiService.newIconPropertyReference().setIcon("!/ambrosia_library/icons/incorrect.png"));
-		incorrect.setIncluded(this.uiService.newCompareDecision().setEqualsProperty(
-				this.uiService.newPropertyReference().setReference("pair.correctChoiceId")).setReversed().setProperty(
-				this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answer.{0}.value").addProperty(
-						this.uiService.newPropertyReference().setReference("pair.id"))));
+		incorrect.setIncluded(this.uiService
+				.newCompareDecision()
+				.setEqualsProperty(this.uiService.newPropertyReference().setReference("pair.correctChoiceId"))
+				.setReversed()
+				.setProperty(
+						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answer.{0}.value")
+								.addProperty(this.uiService.newPropertyReference().setReference("pair.id"))));
 
 		EntityListColumn correctCol = this.uiService.newEntityListColumn();
 		correctCol.setTopped();
 		correctCol.setWidth(16);
-		correctCol.setEntityIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("pair.match")), null);
+		correctCol.setEntityIncluded(
+				this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("pair.match")), null);
 		correctCol.add(correct).add(incorrect);
 		correctCol.setIncluded(this.uiService.newDecision().setProperty(
 				this.uiService.newPropertyReference().setReference("answer.question.hasCorrect")));
@@ -1032,8 +1042,8 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 
 		// match
 		Selection selection = this.uiService.newSelection();
-		selection.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answer.{0}.value").addProperty(
-				this.uiService.newPropertyReference().setReference("pair.id")));
+		selection.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answer.{0}.value")
+				.addProperty(this.uiService.newPropertyReference().setReference("pair.id")));
 		selection.setSelectionModel(this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.pairsForDelivery"),
 				"choice", this.uiService.newMessage().setMessage(null, this.uiService.newPropertyReference().setReference("choice.choiceId")),
 				this.uiService.newMessage().setMessage(null, this.uiService.newPropertyReference().setReference("choice.choiceLabel")));
@@ -1237,16 +1247,19 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		quesitonSection.add(question)/* .add(attachments) */;
 
 		Section matches = this.uiService.newSection();
-		PropertyReference iteratorRef = this.uiService.newPropertyReference().setReference("question").setFormatDelegate(
-				this.uiService.getFormatDelegate("AccessMatchMatches", "sakai.mneme"));
+		PropertyReference iteratorRef = this.uiService.newPropertyReference().setReference("question")
+				.setFormatDelegate(this.uiService.getFormatDelegate("AccessMatchMatches", "sakai.mneme"));
 		matches.setIterator(iteratorRef, "match", null);
-		matches.setTitle("match-summary", this.uiService.newHtmlPropertyReference().setStripP().setReference("match").setFormatDelegate(
-				this.uiService.getFormatDelegate("FormatMatchMatch", "sakai.mneme")));
+		matches.setTitle(
+				"match-summary",
+				this.uiService.newHtmlPropertyReference().setStripP().setReference("match")
+						.setFormatDelegate(this.uiService.getFormatDelegate("FormatMatchMatch", "sakai.mneme")));
 
 		EntityList entityList = this.uiService.newEntityList();
 		entityList.setStyle(EntityList.Style.form);
-		entityList.setIterator(this.uiService.newPropertyReference().setReference("question").setFormatDelegate(
-				this.uiService.getFormatDelegate("AccessMatchChoices", "sakai.mneme")), "choice");
+		entityList.setIterator(
+				this.uiService.newPropertyReference().setReference("question")
+						.setFormatDelegate(this.uiService.getFormatDelegate("AccessMatchChoices", "sakai.mneme")), "choice");
 
 		PropertyColumn propCol = this.uiService.newPropertyColumn();
 		propCol.setTopped();
@@ -1255,8 +1268,8 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		entityList.addColumn(propCol);
 
 		propCol = this.uiService.newPropertyColumn();
-		propCol.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("choice").setFormatDelegate(
-				this.uiService.getFormatDelegate("FormatMatchChoice", "sakai.mneme")));
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("choice")
+				.setFormatDelegate(this.uiService.getFormatDelegate("FormatMatchChoice", "sakai.mneme")));
 		entityList.addColumn(propCol);
 
 		propCol = this.uiService.newPropertyColumn();
@@ -1311,6 +1324,8 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 				id = data[i++];
 				this.pairs.add(new MatchQuestionPair(this.question, choice, choiceId, match, id, this.pairs.size()));
 			}
+
+			this.question.setChanged();
 		}
 	}
 
