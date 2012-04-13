@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
+import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -357,9 +358,10 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	
 	@SuppressWarnings("unchecked")
 	public Integer countSignupByCourse(final String courseId, final Set<Status> statuses) {
+		/*
 		List<Object> results = getHibernateTemplate().findByNamedParam(
 				"select count(*) from CourseSignupDAO where groupId = :courseId and status in (:statuses)",
-				new String[]{"courseId", "statuses"}, new Object[]{courseId, statuses});
+				new String[]{"courseId", "statuses"}, new Object[]{courseId, statuses});	
 		int count = results.size();
 		if (count > 0) {
 			if (count > 1) {
@@ -368,6 +370,40 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			return (Integer)results.get(0);
 		}
 		return null;
+		*/
+		/*
+		select count(*) from course_signup 
+		left join course_component_signup on signup = id 
+		left join course_component on course_component.id = component 
+		where groupId = '4D00D40072' 
+		and starts < NOW() 
+		and status = 'WAITING';
+		*/
+		return (Integer)getHibernateTemplate().execute(new HibernateCallback() {
+
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query query = session.createSQLQuery("select count(*) from course_signup " +
+							"left join course_component_signup on course_component_signup.signup = course_signup.id " +
+							"left join course_component on course_component.id = course_component_signup.component " +
+							"where course_signup.groupId = :courseId " +
+							"and course_component.starts > NOW() " +
+							"and course_signup.status in (:statuses)");
+					
+				query.setParameterList("statuses", statuses);
+				query.setString("courseId", courseId);
+				List<Object> results = query.list();
+				int count = results.size();
+				if (count > 0) {
+					if (count > 1) {
+						throw new IllegalStateException("To many results ("+ results + ") found for "+ courseId );
+					}
+					return ((BigInteger)results.get(0)).intValue();
+				}
+				return null;
+			}
+			
+		});
 	}
 	
 	@SuppressWarnings("unchecked")
