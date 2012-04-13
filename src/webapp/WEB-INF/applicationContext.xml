@@ -12,7 +12,7 @@
 	<bean class="org.sakaiproject.signup.extensions.simple.SimpleSignupMeetingLogic">
 		<property name="signupMeetingService" ref="org.sakaiproject.signup.logic.SignupMeetingService" />
 		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
-		
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 	</bean>
 		
 </beans>

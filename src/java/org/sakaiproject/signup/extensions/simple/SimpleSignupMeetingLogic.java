@@ -27,6 +27,8 @@ import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
@@ -115,7 +117,13 @@ public class SimpleSignupMeetingLogic {
 		
 		//this is a bit of a workaround. We do not know the site so we cannot pass it in.
 		//it is only used for the permission checks which are stored into the object, which we do not need anyway
-		SignupMeeting signup = signupMeetingService.loadSignupMeeting(id, sakaiFacade.getCurrentUserId(),null);
+		SignupMeeting signup;
+		try {
+			signup = signupMeetingService.loadSignupMeeting(id, sakaiFacade.getCurrentUserId(),null);
+		} catch (Exception e) {
+			log.error("Error retrieving signup meeting with ID: " + id);
+			return null;
+		}
 		
 		log.debug("Signup object before transform: " + ToStringBuilder.reflectionToString(signup));
 		
@@ -314,17 +322,46 @@ public class SimpleSignupMeetingLogic {
 	}
 	
 	/**
-	 * Simple helper to get a userId for a given eid
-	 * @param eid
+	 * Simple helper to get a userId for a given id. This ID could be anything so we need to do a few checks to
+	 * see if we can find a user based on it.
+	 * <p>
+	 * There is support for the following:
+	 * </p>
+	 * <ul>
+	 * <li>EID. This is of the form 5030.</li>
+	 * <li>AID. This is of the form 'npeu008'. Also maps to display id.</li>
+	 * <li>email (not yet implemented)</li>
+	 * <li>uuid (not yet implemented)</li>
+	 * </ul>
+	 * <p>Notes: External users who login with their email address have their email address as their eid so this should be handled already.
+	 * The display ID tries to map to AID for Oxford users but falls back to EID.
+	 * @param suppliedId - some type of ID. We look them up in turn to see if we can find a match.
 	 * @return
 	 */
-	private String getUserId(String eid) {
-		try {
-			return sakaiFacade.getUserId(eid);
-		} catch (UserNotDefinedException e) {
-			log.error("Error retrieving userid for: " + eid + ": " + e.getClass() + ": " + e.getMessage());
-			return null;
+	private String getUserId(String suppliedId) {
+		
+		User u = null;
+		
+		//1. check if they have supplied an eid
+		u = sakaiFacade.getUserByEid(suppliedId);
+		if(u != null) {
+			return u.getId();
 		}
+		
+		//2. check if they have supplied an aid (display id)
+		//note that this should eventually have a sakaiFacade wrapper method so they we can remove this dependency
+		//but that won't happen until the support for displayId lookups is in the kernel
+		try {
+			u = userDirectoryService.getUserByAid(suppliedId);
+			return u.getId();
+		} catch (UserNotDefinedException e) {
+			//ignore since we want to try the next one
+		}
+		
+		//failed to retrieve
+		log.error("Couldn't retrieve a matching user for: " + suppliedId);
+		return null;
+		
 	}
 	
 	/**
@@ -336,7 +373,7 @@ public class SimpleSignupMeetingLogic {
 	private String getUserDisplayId(String userId) {
 		return sakaiFacade.getUser(userId).getDisplayId();
 	}
-	
+		
 	/**
 	 * Helper to check if the user is currently logged in or not.
 	 * @return
@@ -415,5 +452,11 @@ public class SimpleSignupMeetingLogic {
 	
 	@Setter
 	private SakaiFacade sakaiFacade;
+	
+	/**
+	 * Injection required because we are using the custom oxford kernel and have no wrapper method
+	 */
+	@Setter
+	private UserDirectoryService userDirectoryService;
 	
 }

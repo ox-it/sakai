@@ -67,22 +67,46 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
+		<repository>
+			<id>oxford-snapshots</id>
+			<name>Oxford Maven repo</name>
+			<layout>default</layout>
+			<url>http://maven-repo.oucs.ox.ac.uk/content/repositories/snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
 	</repositories>
 
 	<dependencies>
 
 		<!--  Sakai dependencies -->
+		
+		<!-- this is currently bound to the oxford kernel since we need the getUserByAid method.
+		Therefore, that kernel needs to be deployed to Tomcat for this to work.
+		When the required parts are in the main kernel, remove the repo declaration above
+		and remove the versions and scope from the kernel dependencies below. -->
+		
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-api</artifactId>
+			<version>1.2.5ox1-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-util</artifactId>
+			<version>1.2.5ox1-SNAPSHOT</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-component-manager</artifactId>
+			<version>1.2.5ox1-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.entitybroker</groupId>
