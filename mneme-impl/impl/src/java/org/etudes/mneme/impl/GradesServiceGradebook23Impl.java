@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -157,8 +157,8 @@ public class GradesServiceGradebook23Impl implements GradesService
 				String url = null;
 
 				// make an entry for the assessment
-				gradebookService.addExternalAssessment(assessment.getContext(), assessment.getTitle(), url, assessment.getTitle(), assessment
-						.getParts().getTotalPoints(), assessment.getDates().getDueDate(), APPLICATION_NAME);
+				gradebookService.addExternalAssessment(assessment.getContext(), assessment.getTitle(), url, assessment.getTitle(),
+						toDoubleScore(assessment.getParts().getTotalPoints()), assessment.getDates().getDueDate(), APPLICATION_NAME);
 				return Boolean.TRUE;
 			}
 		}
@@ -213,7 +213,7 @@ public class GradesServiceGradebook23Impl implements GradesService
 				{
 					String key = (String) entry.getKey();
 					Float total = (Float) entry.getValue();
-					dScores.put(key, (total == null) ? null : Double.valueOf(total.doubleValue()));
+					dScores.put(key, (total == null) ? null : Double.valueOf(toDoubleScore(total)));
 				}
 
 				// report them
@@ -266,7 +266,7 @@ public class GradesServiceGradebook23Impl implements GradesService
 					Float score = this.submissionService.getSubmissionOfficialScore(assessment, submission.getUserId());
 					if (score != null)
 					{
-						dScore = Double.valueOf(score.doubleValue());
+						dScore = Double.valueOf(toDoubleScore(score));
 					}
 
 					// report it
@@ -432,5 +432,25 @@ public class GradesServiceGradebook23Impl implements GradesService
 	public void setUserDirectoryService(UserDirectoryService service)
 	{
 		this.userDirectoryService = service;
+	}
+
+	/**
+	 * Convert the points / score value into a double, without picking up float to double conversion junk
+	 * 
+	 * @param score
+	 *        The value to convert.
+	 * @return The converted value.
+	 */
+	protected double toDoubleScore(Float score)
+	{
+		if (score == null) return 0.0d;
+
+		// we want only .xx precision, and we don't want any double junk from the float to double conversion
+		float times100 = score.floatValue() * 100f;
+
+		Double rv = (double) times100;
+
+		rv = rv / 100d;
+		return rv;
 	}
 }
