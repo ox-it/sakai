@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="uk.ac.ox.oucs.vle.contentsync.hibernate.AdditionalHibernateMappings"
+		  class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+			<list>
+				<value>/uk/ac/ox/oucs/vle/contentsync/ContentSync.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean name="uk.ac.ox.oucs.vle.contentsync.ContentSyncDAO" 
+		  class="uk.ac.ox.oucs.vle.contentsync.ContentSyncDAOImpl">
+		<property name="sessionFactory">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		</property>
+	</bean>
+    
+    <bean id="uk.ac.ox.oucs.vle.contentsync.ContentSyncTracker"
+          class="uk.ac.ox.oucs.vle.contentsync.ContentSyncTracker" 
+          singleton="true" init-method="init" lazy-init="false" destroy-method="destroy">
+        <property name="serverConfigurationService">
+            <ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
+        </property>
+        <property name="entityManager">
+            <ref bean="org.sakaiproject.entity.api.EntityManager"/>
+        </property>
+        <property name="eventTrackingService">
+            <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
+        </property>
+        <property name="contentSyncDao" ref="uk.ac.ox.oucs.vle.contentsync.ContentSyncDAO" />
+    </bean>
+    
+    <bean id="uk.ac.ox.oucs.vle.contentsync.ContentSyncEntityProvider" 
+    	  class="uk.ac.ox.oucs.vle.contentsync.ContentSyncEntityProviderImpl">
+    	<property name="contentSyncDao" 
+    			ref="uk.ac.ox.oucs.vle.contentsync.ContentSyncDAO" />
+    	<property name="contentHostingService" 
+    			ref="org.sakaiproject.content.api.ContentHostingService"/>
+    </bean>
+
+</beans>

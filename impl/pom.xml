@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>uk.ac.ox.oucs</groupId>
+		<artifactId>content-sync-base</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+	<groupId>uk.ac.ox.oucs</groupId>
+	<artifactId>content-sync-impl</artifactId>
+	<name>Content Synchronisation Implementation</name>
+	<packaging>jar</packaging>
+	<dependencies>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-component-manager</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-util</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.sakaiproject.entitybroker</groupId>
+			<artifactId>entitybroker-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.entitybroker</groupId>
+			<artifactId>entitybroker-utils</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>uk.ac.ox.oucs</groupId>
+			<artifactId>content-sync-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>uk.ac.ox.oucs</groupId>
+			<artifactId>content-sync-hbm</artifactId>
+		</dependency>
+		
+		<!-- Needed to generate the static listing of departments. -->
+		
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>1.8.0.7</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate</artifactId>
+			<scope>provided</scope>
+			<exclusions>
+				<!-- Needed to get hibernate and Jersey in the same classloader. -->
+				<exclusion>
+					<artifactId>cglib</artifactId>
+					<groupId>cglib</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>asm</artifactId>
+					<groupId>asm</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>asm-attrs</artifactId>
+					<groupId>asm</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>2.5.6.SEC01</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<profiles>
+		<profile>
+			<id>standalone</id>
+			<dependencies>
+			
+			</dependencies>
+		</profile>
+	</profiles>
+	<build>
+		<resources>
+			<resource><directory>src/main/resources</directory></resource>
+		</resources>
+		<testSourceDirectory>src/test/java</testSourceDirectory>
+		<testResources>
+			<testResource><directory>src/test/resources</directory></testResource>
+		</testResources>
+		
+		<plugins>
+		
+    	</plugins>
+		
+	</build>
+</project>

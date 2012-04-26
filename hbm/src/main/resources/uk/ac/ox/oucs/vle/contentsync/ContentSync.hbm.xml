@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<!--  
+	<typedef name="SignupStatus" class="uk.ac.ox.oucs.vle.GenericEnumUserType">
+		<param name="enumClass">uk.ac.ox.oucs.vle.CourseSignupService$Status</param>
+	</typedef>
+	-->
+	<class name="uk.ac.ox.oucs.vle.contentsync.ContentSyncTableDAO" table="content_sync">
+		<!-- create the primary key id -->
+		<id name="id" type="string">
+			<column name="id" />
+			<generator class="uuid" />
+		</id>
+		<property name="timeStamp" type="timestamp" />
+		<property name="event" type="string" length="32" />
+		<property name="context" type="string" length="99"/>
+		<property name="reference" type="string" length="256"/>
+	</class>
+
+</hibernate-mapping>
