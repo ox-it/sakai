@@ -351,7 +351,13 @@ public class SignupResource {
 			public void write(OutputStream output) throws IOException,
 			WebApplicationException {
 				
-				CourseComponent courseComponent = courseService.getCourseComponent(componentId);
+				Collection<CourseComponent> courseComponents = new ArrayList<CourseComponent>();
+				
+				if ("all".equals(componentId)) {
+					courseComponents = courseService.getAllComponents();
+				} else {
+					courseComponents.add(courseService.getCourseComponent(componentId));
+				}
 				
 				Set<Status> statuses = new HashSet<Status>();
 				if (null != status) {
@@ -361,25 +367,29 @@ public class SignupResource {
 					statuses.add(Status.WITHDRAWN);
 				}
 				
-				try {
-					List<CourseSignup> signups = courseService.getComponentSignups(
-							componentId, statuses);
+				AttendanceWriter attendance = new AttendanceWriter(output);
 				
-					Collections.sort(signups, new Comparator<CourseSignup>() {
-						public int compare(CourseSignup s1,CourseSignup s2) {
-							Person p1 = s1.getUser();
-							Person p2 = s2.getUser();
-							return p1.getLastName().compareTo(p2.getLastName());
-						}
-					});
+				for (CourseComponent courseComponent : courseComponents) {
 				
-					AttendanceWriter attendance = new AttendanceWriter(output);
-					attendance.writeTeachingInstance(courseComponent, signups);
-					attendance.close();
+					try {
+						List<CourseSignup> signups = courseService.getComponentSignups(
+								courseComponent.getId(), statuses);
 				
-				} catch (NotFoundException e) {
-					throw new WebApplicationException(Response.Status.NOT_FOUND);
+						Collections.sort(signups, new Comparator<CourseSignup>() {
+							public int compare(CourseSignup s1,CourseSignup s2) {
+								Person p1 = s1.getUser();
+								Person p2 = s2.getUser();
+								return p1.getLastName().compareTo(p2.getLastName());
+							}
+						});
+					
+						attendance.writeTeachingInstance(courseComponent, signups);
+				
+					} catch (NotFoundException e) {
+						throw new WebApplicationException(Response.Status.NOT_FOUND);
+					}
 				}
+				attendance.close();
 			}
 		};
 	}
