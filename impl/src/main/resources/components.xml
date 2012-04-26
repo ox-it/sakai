@@ -10,15 +10,7 @@
 		<property name="username" value="root"/>
 		<property name="password" value="user"/>
 	</bean>
-
-	<bean id="daisyDataSource" class="org.apache.commons.dbcp.BasicDataSource"
-		destroy-method="close">
-		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="jdbc:mysql://daisy.nsms.ox.ac.uk:3306/daisydb" />
-		<property name="username" value="readonlyuser"/>
-		<property name="password" value="readonly"/>
-	</bean>
-
+	
 	<bean id="sessionFactory" name="sessionFactory"
 		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />
@@ -77,29 +69,9 @@
 	<bean name="uk.ac.ox.oucs.vle.sakai.SakaiProxy" class="uk.ac.ox.oucs.vle.proxy.SakaiProxyTest">
 	</bean>
 	
-	
+	 
 	<bean class="uk.ac.ox.oucs.vle.PopulatorInit" init-method="init">
 		<property name="populator" ref="uk.ac.ox.oucs.vle.Populator"/>
-	</bean>
-	
-	<bean id="uk.ac.ox.oucs.vle.Populator"
-		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-		<property name="target">
-			<bean class="uk.ac.ox.oucs.vle.PopulatorImpl">
-				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO"/>
-				<property name="dataSource" ref="daisyDataSource"/>
-				<property name="proxy" ref="uk.ac.ox.oucs.vle.sakai.SakaiProxy"/>
-				<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
-				<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-				<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-			</bean>
-		</property>
-		<property name="transactionManager" ref="transactionManager"/>
-		<property name="transactionAttributes">
-			<value>
-				update=PROPAGATION_REQUIRED
-			</value>
-		</property>
 	</bean>
 	
 </beans>
