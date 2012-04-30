@@ -157,7 +157,7 @@
 											{if waiting}
 												Waiting List (${waiting})
 											{else}
-												${option.places} of ${option.size} places
+												${option.places} of ${option.size} available
 											{/if}
 										{/if}
 									{/if}
