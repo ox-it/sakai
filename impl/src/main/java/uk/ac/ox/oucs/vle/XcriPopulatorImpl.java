@@ -548,12 +548,12 @@ public class XcriPopulatorImpl implements Populator {
 		
 		try {
 			if (null == code) {
-				logMe("Log Failure ["+code+":"+"No AssessmentUnit code");
+				logMe("Log Failure Assessment Unit ["+code+"] No AssessmentUnit code");
 				i++;
 			}
 		
 			if (administrators.isEmpty()) {
-				logMe("Log Failure ["+code+":"+"No Group Administrators");
+				logMe("Log Failure Assessment Unit ["+code+"] No Group Administrators");
 				i++;
 			}
 		
@@ -653,9 +653,9 @@ public class XcriPopulatorImpl implements Populator {
 		}
 		
 		if (created) {
-			logMe("Log Success created ["+code+":"+title);
+			logMe("Log Success Course Group created ["+code+":"+title+"]");
 		} else {
-			logMe("Log Success updated ["+code+":"+title);
+			logMe("Log Success Course Group updated ["+code+":"+title+"]");
 		}
 		return created;
 	}
@@ -697,56 +697,56 @@ public class XcriPopulatorImpl implements Populator {
 		try {
 			
 			if (null == openDate) { 
-				logMe("Log Failure ["+id+":"+"No open date set");
+				logMe("Log Failure Instance ["+id+"] No open date set");
 				i++;
 			}
 		
 			if (null == closeDate) {
-				logMe("Log Failure ["+id+":"+"No close date set");
+				logMe("Log Failure Instance ["+id+"] No close date set");
 				i++;
 			}
 		
 			if (null != openDate && null != closeDate) {
 				if (openDate.after(closeDate)){
-					logMe("Log Failure ["+id+":"+"Open date is after close date");
+					logMe("Log Failure Instance ["+id+"] Open date is after close date");
 					i++;
 				}
 			}
 		
 			if (null != expiryDate && null != closeDate) {
 				if(expiryDate.before(closeDate)){
-					logMe("Log Failure ["+id+":"+"Expiry date is before close date");
+					logMe("Log Failure Instance ["+id+"] Expiry date is before close date");
 					i++;
 				}
 			}
 		
 			if (subject == null || subject.trim().length() == 0) {
-				logMe("Log Failure ["+id+":"+"Subject isn't set.");
+				logMe("Log Failure Instance ["+id+"] Subject isn't set");
 				i++;
 			}
 		
 			if (title == null || title.trim().length() == 0) {
-				logMe("Log Failure ["+id+":"+"Title isn't set.");
+				logMe("Log Failure Instance ["+id+"] Title isn't set");
 				i++;
 			}
 		
 			if (termCode == null || termCode.trim().length() == 0) {
-				logMe("Log Failure ["+id+":"+"Term code can't be empty");
+				logMe("Log Failure Instance ["+id+"] Term code can't be empty");
 				i++;
 			}
 		
 			if (termName == null || termName.trim().length() == 0) {
-				logMe("Log Failure ["+id+":"+"Term name can't be empty");
+				logMe("Log Failure Instance ["+id+"] Term name can't be empty");
 				i++;
 			}
 		
 			if (teachingComponentId == null || teachingComponentId.trim().length()==0) {
-				logMe("Log Failure ["+id+":"+"No teaching component ID found.");
+				logMe("Log Failure Instance ["+id+"] No teaching component ID found");
 				i++;
 			}
 		
 			if (groups.isEmpty()) {
-				logMe("Log Failure ["+id+":"+"No Assessment Unit codes.");
+				logMe("Log Failure Instance ["+id+"] No Assessment Unit codes");
 				i++;
 			}
 		
@@ -835,9 +835,9 @@ public class XcriPopulatorImpl implements Populator {
 		}
 		
 		if (created) {
-			logMe("Log Success created ["+id+":"+subject);
+			logMe("Log Success Course Component created ["+id+":"+subject+"]");
 		} else {
-			logMe("Log Success updated ["+id+":"+subject);
+			logMe("Log Success Course Component updated ["+id+":"+subject+"]");
 		}
 		return created;
 	}
