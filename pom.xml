@@ -75,6 +75,7 @@
 		<kernel.version>1.2.5ox1-SNAPSHOT</kernel.version>
 		<sakai.version>2.8-SNAPSHOT</sakai.version>
 		<entitybroker.version>1.4.3ox1-SNAPSHOT</entitybroker.version>
+		<msgcntr.version>2.8.2ox1-SNAPSHOT</msgcntr.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -105,6 +106,16 @@
 				<groupId>org.sakaiproject.entitybroker</groupId>
 				<artifactId>entitybroker-utils</artifactId>
 				<version>${entitybroker.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.msgcntr</groupId>
+				<artifactId>messageforums-api</artifactId>
+				<version>${msgcntr.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.msgcntr</groupId>
+				<artifactId>messageforums-component-impl</artifactId>
+				<version>${msgcntr.version}</version>
 			</dependency>
 
 			<!-- Internal project -->

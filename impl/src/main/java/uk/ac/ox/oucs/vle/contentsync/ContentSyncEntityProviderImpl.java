@@ -6,13 +6,23 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
+import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
+import org.sakaiproject.component.app.messageforums.entity.DecoratedMessage;
+import org.sakaiproject.component.app.messageforums.entity.DecoratedTopicInfo;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -57,6 +67,22 @@ public class ContentSyncEntityProviderImpl
 		this.contentService = contentService;
 	}
 	
+	/**
+	 * 
+	 */
+	private DiscussionForumManager forumManager;
+	public void setForumManager(DiscussionForumManager forumManager) {
+		this.forumManager = forumManager;
+	}
+	
+	/**
+	 * 
+	 */
+	private UIPermissionsManager uiPermissionsManager;
+	public void setUiPermissionsManager(UIPermissionsManager uiPermissionsManager) {
+		this.uiPermissionsManager = uiPermissionsManager;
+	}
+	
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
 	}
@@ -83,14 +109,14 @@ public class ContentSyncEntityProviderImpl
 	}
 	
     @EntityCustomAction(action="resources", viewKey=EntityView.VIEW_LIST)
-	public Collection<ContentSyncObject> getResources(EntityView view, Map<String, Object> params) 
+	public Collection<ContentSyncObject> getResources(EntityView view, Map<String, Object> params)
 			throws EntityPermissionException {
 		
 		// This is all more complicated because entitybroker isn't very flexible and announcements can only be loaded once you've got the
 		// channel in which they reside first.
     	
     	String userId = UserDirectoryService.getCurrentUser().getId();
-        if (userId == null) {
+        if (userId == null || userId == "") {
             throw new SecurityException(
             "This action is not accessible to anon and there is no current user.");
         }
@@ -115,22 +141,40 @@ public class ContentSyncEntityProviderImpl
 		Collection<ContentSyncTableDAO> collection = dao.findResourceTrackers(context, timestamp);
 		
 		Collection<ContentSyncObject> syncObjects = new ArrayList<ContentSyncObject>();
-		//ContentSyncObject syncObject = new ContentSyncObject();
 		
 		for (ContentSyncTableDAO contentSync : collection) {
 
-			ContentEntity entity = null;
+			Object entity = null;
+			
 			try {
 				String entityId = contentService.getReference(contentSync.getReference());
 				Reference reference = EntityManager.newReference(entityId);
-				entity = (ContentEntity)contentService.getEntity(reference);
+				
+				if (resourcesEntity(contentSync.getEvent())) {		
+					ContentEntity content = (ContentEntity)contentService.getEntity(reference);
+					entity = EntityDataUtils.getResourceDetails(content);
+					
+				} else if (forumsMessageEntity(contentSync.getEvent(), reference.getId())) {
+					entity = getMessageEntity(reference, userId);
+				
+				} else if (forumsTopicEntity(contentSync.getEvent(), reference.getId())) {
+					entity = getTopicEntity(reference, userId);
+					
+				} else {
+					/*
+					Do Something else [forums.reviseforum:/group/forums/site/d0c31496-d5b9-41fd-9ea9-349a7ac3a01a/Forum/2/11a2a3d7-73bc-4939-95ab-581d5ce2158a]
+					Do Something else [forums.reviseforum:/group/forums/site/d0c31496-d5b9-41fd-9ea9-349a7ac3a01a/Forum/2/11a2a3d7-73bc-4939-95ab-581d5ce2158a]
+					Do Something else [forums.revisetopic:/group/site/d0c31496-d5b9-41fd-9ea9-349a7ac3a01a/Topic/64/11a2a3d7-73bc-4939-95ab-581d5ce2158a]
+					*/
+					System.out.println("Do Something else ["+contentSync.getEvent()+":"+ reference.getId()+"]");
+				}
+				
 			} catch(Exception e) {	
+				entity = null;
 			}
 			
 			if (null != entity) {
-				syncObjects.add(
-						new ContentSyncObject(
-								contentSync.getEvent(), EntityDataUtils.getResourceDetails(entity)));
+				syncObjects.add(new ContentSyncObject(contentSync.getEvent(), entity));
 			}	
 		}
 		
@@ -144,13 +188,12 @@ public class ContentSyncEntityProviderImpl
 	}
 
 	public Object getSampleEntity() {
-		return new EntityContent();
+		return new ContentSyncObject();
 	}
 
 	public void updateEntity(EntityReference ref, Object entity,
 			Map<String, Object> params) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	public Object getEntity(EntityReference ref) {
@@ -160,7 +203,6 @@ public class ContentSyncEntityProviderImpl
 
 	public void deleteEntity(EntityReference ref, Map<String, Object> params) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	public List<?> getEntities(EntityReference ref, Search search) {
@@ -178,12 +220,10 @@ public class ContentSyncEntityProviderImpl
 
 	public void setRequestGetter(RequestGetter requestGetter) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	public void setRequestStorage(RequestStorage requestStorage) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	/**
@@ -229,4 +269,163 @@ public class ContentSyncEntityProviderImpl
 		return null;
 	}
 	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	private long getMessageId(String id) {
+		String[] strings = id.split("/");
+		for (int i = 0; i<strings.length; i++) {
+			if ("Message".equals(strings[i])) {
+				return new Long(strings[i+1]);
+			}
+		}
+		return new Long(0);
+	}
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	private long getTopicId(String id) {
+		String[] strings = id.split("/");
+		for (int i = 0; i<strings.length; i++) {
+			if ("Topic".equals(strings[i])) {
+				return new Long(strings[i+1]);
+			}
+		}
+		return new Long(0);
+	}
+	
+	/**
+	 * 
+	 * @param message
+	 * @return
+	 */
+	private DecoratedMessage getMessageEntity(Reference reference, String userId) {
+		
+		DecoratedMessage dMessage = null;
+		
+		Message message = forumManager.getMessageById(getMessageId(reference.getId()));
+		if (null == message) {
+			throw new IllegalArgumentException("IdUnusedException in Resource Entity Provider");
+		}
+		if (null == message.getTopic()) {
+			throw new IllegalArgumentException("IdInvalidException in Resource Entity Provider");
+		}
+		
+		if (!message.getDeleted()){
+			  
+			List<String> attachments = new ArrayList<String>();
+			if(message.getHasAttachments()){
+				for(Attachment attachment : (List<Attachment>) message.getAttachments()){
+					attachments.add(attachment.getAttachmentName());
+				}
+			}
+
+			Map msgIdReadStatusMap = forumManager.getReadStatusForMessagesWithId(
+					Collections.singletonList(message.getId()), userId);
+			Boolean readStatus = (Boolean)msgIdReadStatusMap.get(message.getId());
+			if(readStatus == null)
+				readStatus = Boolean.FALSE;
+
+			dMessage = new DecoratedMessage(
+							message.getId(), message.getTopic().getId(), message.getTitle(),
+							message.getBody(), "" + message.getModified().getTime(),
+							attachments, Collections.EMPTY_LIST, message.getAuthor(), 
+							message.getInReplyTo() == null ? null : message.getInReplyTo().getId(),
+									"" + message.getCreated().getTime(), readStatus.booleanValue(), "", "");
+		}
+		
+		return dMessage;
+	}
+	
+	private DecoratedTopicInfo getTopicEntity(Reference reference, String userId) {
+		
+		DecoratedTopicInfo dTopic = null;
+		
+		DiscussionTopic topic = forumManager.getTopicById(getTopicId(reference.getId()));
+		if (null == topic) {
+			throw new IllegalArgumentException("IdUnusedException in Resource Entity Provider");
+		}
+		
+		DiscussionForum forum = forumManager.getForumById(topic.getBaseForum().getId());
+	    if (forum == null) {
+	    	  throw new IllegalArgumentException("Invalid entity for creation, no forum found");
+	    }
+	    String siteId = forumManager.getContextForForumById(forum.getId());
+		
+		int unreadMessages = 0;
+		int totalMessages = 0;
+		
+		if (topic.getDraft().equals(Boolean.FALSE)) {
+			
+			if (uiPermissionsManager.isRead(topic.getId(), topic.getDraft(), forum.getDraft(), userId, siteId)) {
+				/*
+				if (!topic.getModerated().booleanValue()
+						|| (topic.getModerated().booleanValue() && 
+							uiPermissionsManager.isModeratePostings(topic.getId(), forum.getLocked(), forum.getDraft(), topic.getLocked(), topic.getDraft(), userId, siteId))){
+
+					unreadMessages = getMessageManager().findUnreadMessageCountByTopicIdByUserId(topic.getId(), userId);										
+				
+				} else {	
+					// b/c topic is moderated and user does not have mod perm, user may only
+					// see approved msgs or pending/denied msgs authored by user
+					unreadMessages = getMessageManager().findUnreadViewableMessageCountByTopicIdByUserId(topic.getId(), userId);
+				}
+			
+				totalMessages = getMessageManager().findViewableMessageCountByTopicIdByUserId(topic.getId(), userId);
+			    */
+				dTopic = new DecoratedTopicInfo(
+					topic.getId(), topic.getTitle(), unreadMessages, totalMessages, "", 
+					topic.getBaseForum().getId(), topic.getShortDescription(), "");
+				
+			} else {
+				throw new SecurityException("Could not get entity, permission denied: " + topic);
+			}
+			
+		}
+		
+		return dTopic;
+	}
+	
+	/**
+	 * 
+	 * @param event
+	 * @return
+	 */
+	private boolean resourcesEntity(String event) {
+		if (event.startsWith("content.")) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 
+	 * @param event
+	 * @param id
+	 * @return
+	 */
+	private boolean forumsMessageEntity(String event, String id) {
+		if (event.startsWith("forums.") && getMessageId(id) > 0) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 
+	 * @param event
+	 * @param id
+	 * @return
+	 */
+	private boolean forumsTopicEntity(String event, String id) {
+		if (event.startsWith("forums.") && getTopicId(id) > 0) {
+			return true;
+		}
+		return false;
+	}
 }

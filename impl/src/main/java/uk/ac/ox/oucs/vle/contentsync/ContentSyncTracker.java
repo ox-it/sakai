@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
@@ -96,6 +97,7 @@ public class ContentSyncTracker implements Observer {
 		 
 		if (arg instanceof Event) {
 			Event event = (Event)arg;
+			
 			if (ContentHostingService.EVENT_RESOURCE_ADD.equals(event.getEvent()) || 
 				ContentHostingService.EVENT_RESOURCE_READ.equals(event.getEvent()) ||
 				ContentHostingService.EVENT_RESOURCE_WRITE.equals(event.getEvent()) ||
@@ -110,7 +112,42 @@ public class ContentSyncTracker implements Observer {
 					System.out.println("Interrupted! " + 
 			                "Last one out, turn out the lights!");
 				}
+				
+			} else if (DiscussionForumService.EVENT_FORUMS_ADD.equals(event.getEvent()) ||
+					   DiscussionForumService.EVENT_FORUMS_FORUM_ADD.equals(event.getEvent()) ||
+					   DiscussionForumService.EVENT_FORUMS_FORUM_REMOVE.equals(event.getEvent()) ||
+					   DiscussionForumService.EVENT_FORUMS_FORUM_REVISE.equals(event.getEvent()) ||
+					   
+					   DiscussionForumService.EVENT_FORUMS_GRADE.equals(event.getEvent()) ||
+				  //   DiscussionForumService.EVENT_FORUMS_READ.equals(event.getEvent()) ||
+					   DiscussionForumService.EVENT_FORUMS_REMOVE.equals(event.getEvent()) ||
+					   DiscussionForumService.EVENT_FORUMS_RESPONSE.equals(event.getEvent()) ||
+					   DiscussionForumService.EVENT_FORUMS_REVISE.equals(event.getEvent()) ||
+					   
+					   DiscussionForumService.EVENT_FORUMS_TOPIC_ADD.equals(event.getEvent()) ||
+					   DiscussionForumService.EVENT_FORUMS_TOPIC_REMOVE.equals(event.getEvent()) ||
+					   DiscussionForumService.EVENT_FORUMS_TOPIC_REVISE.equals(event.getEvent()) ||
+					   
+					   DiscussionForumService.EVENT_MESSAGES_ADD.equals(event.getEvent()) ||
+					   DiscussionForumService.EVENT_MESSAGES_FOLDER_ADD.equals(event.getEvent()) ||
+					   DiscussionForumService.EVENT_MESSAGES_FOLDER_REMOVE.equals(event.getEvent()) ||
+					   DiscussionForumService.EVENT_MESSAGES_FOLDER_REVISE.equals(event.getEvent()) ||
+					   DiscussionForumService.EVENT_MESSAGES_FORWARD.equals(event.getEvent()) ||
+					   DiscussionForumService.EVENT_MESSAGES_READ.equals(event.getEvent()) ||
+					   DiscussionForumService.EVENT_MESSAGES_REMOVE.equals(event.getEvent()) ||
+					   DiscussionForumService.EVENT_MESSAGES_RESPONSE.equals(event.getEvent()) ||
+					   DiscussionForumService.EVENT_MESSAGES_UNREAD.equals(event.getEvent())) {
+				
+				try {
+					queue.put(new ContentSyncToken(event.getEvent(), event.getResource(), event.getContext()));
+					
+				} catch (InterruptedException e) {
+					System.out.println("Interrupted! " + 
+			                "Last one out, turn out the lights!");
+				}
+				
 			}
+			
 		}
 	}
 }

@@ -1,13 +1,14 @@
 package uk.ac.ox.oucs.vle.contentsync;
 
-import org.sakaiproject.entitybroker.util.model.EntityContent;
-
 public class ContentSyncObject {
 
-	private EntityContent entity;
+	private Object entity;
 	private String type;
 		
-	public ContentSyncObject(String type, EntityContent entity) {
+	public ContentSyncObject() {
+	}
+	
+	public ContentSyncObject(String type, Object entity) {
 		this.type = type;
 		this.entity = entity;
 	}
@@ -15,8 +16,12 @@ public class ContentSyncObject {
 	public String getType() {
 		return this.type;
 	}
+	
+	public String getEntityType() {
+		return this.entity.getClass().getSimpleName();
+	}
 		
-	public EntityContent getEntity() {
+	public Object getEntity() {
 		return this.entity;
 	}
 }

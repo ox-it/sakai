@@ -19,7 +19,7 @@
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		</property>
 	</bean>
-    
+
     <bean id="uk.ac.ox.oucs.vle.contentsync.ContentSyncTracker"
           class="uk.ac.ox.oucs.vle.contentsync.ContentSyncTracker" 
           singleton="true" init-method="init" lazy-init="false" destroy-method="destroy">
@@ -41,6 +41,15 @@
     			ref="uk.ac.ox.oucs.vle.contentsync.ContentSyncDAO" />
     	<property name="contentHostingService" 
     			ref="org.sakaiproject.content.api.ContentHostingService"/>
+    	<property name="forumManager" 
+    			ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+    	<property name="uiPermissionsManager"
+    			ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
+    	<!--  
+    	<property name="uiPermissionsManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
+        </property>
+        -->
     </bean>
 
 </beans>

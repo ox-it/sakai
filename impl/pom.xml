@@ -44,6 +44,15 @@
 			<artifactId>content-sync-hbm</artifactId>
 		</dependency>
 		
+		<dependency>
+      		<groupId>org.sakaiproject.msgcntr</groupId>
+      		<artifactId>messageforums-api</artifactId>
+    	</dependency>
+    	<dependency>
+      		<groupId>org.sakaiproject.msgcntr</groupId>
+      		<artifactId>messageforums-component-impl</artifactId>
+    	</dependency>
+		
 		<!-- Needed to generate the static listing of departments. -->
 		
 		<dependency>
