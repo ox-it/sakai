@@ -618,6 +618,16 @@ var Signup = function(){
                         	} else {
                         		return [];
                         	}	
+                        case "CONFIRMED":
+                        	var now = new Date().getTime();
+                        	if (closes > now) {
+                            return [{
+                                "name": "Withdraw",
+                                "url": "../rest/signup/" + id + "/withdraw"
+                            }];
+                        	} else {
+                        		return [];
+                        	}	
                     }
                 }
                 return [];
