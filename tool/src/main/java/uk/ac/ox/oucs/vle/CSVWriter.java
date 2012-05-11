@@ -69,10 +69,13 @@ public class CSVWriter
     
     private String formatData(String data)
     {
-        if (shouldQuote.matcher(data).find())
-        {
+    	if (null == data) {
+    		return "\"\"";
+    	}
+        //if (shouldQuote.matcher(data).find())
+        //{
             data = "\""+ doubleQuote.matcher(data).replaceAll("\"\"")+ "\"";
-        }
+        //}
         return data;
     }
 

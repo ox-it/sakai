@@ -280,13 +280,21 @@ public class SignupResource {
 
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
+				CourseComponent component = courseService.getCourseComponent(componentId);
 				List<CourseSignup> signups = courseService.getComponentSignups(componentId, null);
-				response.addHeader("Content-disposition", "attachment; filename="+componentId+".csv"); // Force a download
+				response.addHeader("Content-disposition", "attachment; filename="+getFileName(component)+".csv"); // Force a download
 				Writer writer = new OutputStreamWriter(output);
 				CSVWriter csvWriter = new CSVWriter(writer);
+				csvWriter.writeln(new String[]{
+						component.getSubject(), component.getWhen()});
+				csvWriter.writeln(new String[]{
+						"Surname", "Forname", "Email", "SES Status",
+						"Year of Study", "Degree Programme", "Affiliation"});
 				for(CourseSignup signup : signups) {
 					Person user = signup.getUser();
-					csvWriter.writeln(new String[]{user.getName(), user.getEmail(), signup.getStatus().toString()});
+					csvWriter.writeln(new String[]{
+							user.getLastName(), user.getFirstName(), user.getEmail(), signup.getStatus().toString(),
+							user.getYearOfStudy(), user.getDegreeProgram(), buildString(user.getUnits())});
 				}
 				writer.flush();
 			}
@@ -556,4 +564,22 @@ public class SignupResource {
 		}
 		return -1;
 	} 
+	
+	private String buildString(Collection<String> collection) {
+		StringBuilder sb = new StringBuilder();
+		for(String s: collection) {
+			sb.append(s).append('/');
+		}
+		sb.deleteCharAt(sb.length()-1); //delete last comma
+		return sb.toString();
+	}
+
+	private String getFileName(CourseComponent component) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(component.getSubject().replaceAll(" ", "_"));
+		sb.append("_");
+		sb.append(component.getWhen().replaceAll(" ", "_"));
+		return sb.toString();
+	}
+
 }
