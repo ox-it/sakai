@@ -387,7 +387,11 @@ public class SignupResource {
 							public int compare(CourseSignup s1,CourseSignup s2) {
 								Person p1 = s1.getUser();
 								Person p2 = s2.getUser();
-								return p1.getLastName().compareTo(p2.getLastName());
+								
+								int ret = s1.getGroup().getId().compareTo(s2.getGroup().getId());
+								return ret == 0 ? p1.getLastName().compareTo(p2.getLastName()) : ret;
+								
+								//return p1.getLastName().compareTo(p2.getLastName());
 							}
 						});
 					
