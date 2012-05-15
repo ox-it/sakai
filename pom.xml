@@ -9,6 +9,17 @@
 	<packaging>war</packaging>
 
 
+	<pluginRepositories>
+		<pluginRepository>
+			<id>maven-repo.oucs</id>
+			<name>OUCS Maven Repository</name>
+			<layout>default</layout>
+			<url>http://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 	<build>
 		<plugins>
 			<plugin>
