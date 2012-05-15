@@ -17,6 +17,17 @@
 		<module>hierarchy-portal/impl</module>
 		<module>hierarchy-portal/pack</module>
 	</modules>
+	<pluginRepositories>
+		<pluginRepository>
+            <id>maven-repo.oucs</id>
+            <name>OUCS Maven Repository</name>
+            <layout>default</layout>
+            <url>http://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
