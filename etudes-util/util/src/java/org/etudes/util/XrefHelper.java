@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2009,2010 Etudes, Inc.
+ * Copyright (c) 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,6 +83,47 @@ public class XrefHelper
 	{
 		ThreadLocalManager.set(XrefHelper.THREAD_TRANSLATIONS_BODY_KEY, null);
 		ThreadLocalManager.set(XrefHelper.THREAD_TRANSLATIONS_KEY, null);
+	}
+
+	/**
+	 * For email notifications, revise embedded media relative url to full url.
+	 * 
+	 * @param data
+	 *        The message data with relative urls.
+	 * @return data with full urls.
+	 */
+	public static String fullUrls(String data)
+	{
+		if (data == null) return data;
+
+		Pattern p = getPattern();
+		Matcher m = p.matcher(data);
+		StringBuffer sb = new StringBuffer();
+		String serverUrl = ServerConfigurationService.getServerUrl();
+
+		// for the relative access check: matches /access/
+		Pattern relAccessPattern = Pattern.compile("/access/.*");
+
+		// process each "harvested" string (avoiding like strings that are not in src= or href= patterns)
+		while (m.find())
+		{
+			if (m.groupCount() == 3)
+			{
+				String ref = m.group(2);
+				String terminator = m.group(3);
+
+				// if this is an access to our own server, make it full URL (i.e. starting with "/access")
+				Matcher relAccessMatcher = relAccessPattern.matcher(ref);
+				if (relAccessMatcher.matches())
+				{
+					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + serverUrl + ref + terminator));
+				}
+			}
+		}
+
+		m.appendTail(sb);
+
+		return sb.toString();
 	}
 
 	/**
@@ -377,6 +418,7 @@ public class XrefHelper
 	 *        Reference of the resource that has data as body.
 	 * @return The translated html data.
 	 */
+	@SuppressWarnings("unchecked")
 	public static String translateEmbeddedReferences(String data, Collection<Translation> translations, String siteId, String parentRef)
 	{
 		if (data == null) return data;
@@ -575,6 +617,133 @@ public class XrefHelper
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public static void translateUrl(Reference ref, Collection<Translation> translations, String context, boolean shortenUrls)
+	{
+		// ref is the destination ("to" in the translations) resource - we need the "parent ref" from the source ("from" in the translations) resource
+		String parentRef = ref.getReference();
+		for (Translation translation : translations)
+		{
+			parentRef = translation.reverseTranslate(parentRef);
+		}
+
+		// get our thread-local list of translations made in this thread (if any)
+		List<Translation> threadTranslations = (List<Translation>) ThreadLocalManager.get(THREAD_TRANSLATIONS_KEY);
+
+		// bypass security when reading the resource to copy
+		SecurityService.pushAdvisor(new SecurityAdvisor()
+		{
+			public SecurityAdvice isAllowed(String userId, String function, String reference)
+			{
+				return SecurityAdvice.ALLOWED;
+			}
+		});
+
+		try
+		{
+			// Reference does not know how to make the id from a private docs reference.
+			String id = ref.getId();
+			if (id.startsWith("/content/"))
+			{
+				id = id.substring("/content".length());
+			}
+
+			// get the resource
+			ContentResource resource = ContentHostingService.getResource(id);
+			String type = resource.getContentType();
+
+			// translate if we are url
+			if (type.equals("text/url"))
+			{
+				byte[] body = resource.getContent();
+				if (body != null)
+				{
+					String bodyString = new String(body, "UTF-8");
+
+					// expand to a full reference if relative
+					bodyString = adjustRelativeReference(bodyString, parentRef);
+
+					// harvest any content hosting reference
+					int index = indexContentReference(bodyString);
+					if (index != -1)
+					{
+						// except those we don't want to harvest
+						if (exception(bodyString, context)) index = -1;
+					}
+
+					if (index != -1)
+					{
+						// translate just the reference part (i.e. after the /access);
+						String normal = bodyString.substring(index + 7);
+
+						// deal with %20, &amp;, and other encoded URL stuff
+						normal = decodeUrl(normal);
+
+						// translate the normal form
+						String translated = normal;
+						for (Translation translation : translations)
+						{
+							translated = translation.translate(translated);
+						}
+
+						// also translate with our global list
+						if (threadTranslations != null)
+						{
+							for (Translation translation : threadTranslations)
+							{
+								translated = translation.translate(translated);
+							}
+						}
+
+						// if changed, replace
+						if (!normal.equals(translated))
+						{
+							// URL encode translated
+							bodyString = escapeUrl("/access/" + translated);
+							body = bodyString.getBytes("UTF-8");
+
+							ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
+							edit.setContent(body);
+							ContentHostingService.commitResource(edit, 0);
+						}
+					}
+				}
+			}
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			M_log.warn("translateHtmlBody: " + e.toString());
+		}
+		catch (PermissionException e)
+		{
+			M_log.warn("translateHtmlBody: " + e.toString());
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.warn("translateHtmlBody: " + e.toString());
+		}
+		catch (TypeException e)
+		{
+			M_log.warn("translateHtmlBody: " + e.toString());
+		}
+		catch (ServerOverloadException e)
+		{
+			M_log.warn("translateHtmlBody: " + e.toString());
+		}
+		catch (InUseException e)
+		{
+			M_log.warn("translateHtmlBody: " + e.toString());
+		}
+		catch (OverQuotaException e)
+		{
+			M_log.warn("translateHtmlBody: " + e.toString());
+		}
+		finally
+		{
+			SecurityService.popAdvisor();
+		}
+	}
+
 	/**
 	 * Add an attachment in content hosting that is a copy of another resource.
 	 * 
@@ -608,7 +777,6 @@ public class XrefHelper
 
 			ContentResource resource = ContentHostingService.getResource(id);
 			String type = resource.getContentType();
-			long size = resource.getContentLength();
 			byte[] body = resource.getContent();
 			String name = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 
@@ -891,7 +1059,6 @@ public class XrefHelper
 			// get the source
 			ContentResource resource = ContentHostingService.getResource(id);
 			String type = resource.getContentType();
-			long size = resource.getContentLength();
 			byte[] body = resource.getContent();
 
 			String[] parts = StringUtil.split(id, "/");
@@ -998,7 +1165,6 @@ public class XrefHelper
 			// get the source
 			ContentResource resource = ContentHostingService.getResource(id);
 			String type = resource.getContentType();
-			long size = resource.getContentLength();
 			byte[] body = resource.getContent();
 
 			String[] parts = StringUtil.split(id, "/");
@@ -1090,6 +1256,7 @@ public class XrefHelper
 	 *        The destination context.
 	 * @return A reference to the new or found resource, or null if it was not created.
 	 */
+	@SuppressWarnings("unchecked")
 	protected static Reference importResourceIfNoMatch(Reference resourceRef, String context)
 	{
 		// bypass security when reading the resource to copy
@@ -1296,6 +1463,7 @@ public class XrefHelper
 	 *        if true, full references to resources on this server are shortened.
 	 * @return a Translation list for each embedded document to its location in this context.
 	 */
+	@SuppressWarnings("unchecked")
 	protected static List<Translation> importResources(Set<String> refs, String context, String tool, boolean translate, boolean shortenUrls)
 	{
 		// get our thread-local list of translations made in this thread
@@ -1626,46 +1794,5 @@ public class XrefHelper
 		}
 
 		return "";
-	}
-	
-	/**
-	 * For email notifications, revise embedded media relative url to full url.
-	 * 
-	 * @param data
-	 *        The message data with relative urls.
-	 * @return data with full urls.
-	 */
-	public static String fullUrls(String data)
-	{
-		if (data == null) return data;
-
-		Pattern p = getPattern();
-		Matcher m = p.matcher(data);
-		StringBuffer sb = new StringBuffer();
-		String serverUrl = ServerConfigurationService.getServerUrl();
-
-		// for the relative access check: matches /access/ 
-		Pattern relAccessPattern = Pattern.compile("/access/.*");
-
-		// process each "harvested" string (avoiding like strings that are not in src= or href= patterns)
-		while (m.find())
-		{
-			if (m.groupCount() == 3)
-			{
-				String ref = m.group(2);
-				String terminator = m.group(3);
-
-				// if this is an access to our own server, make it full URL (i.e. starting with "/access")
-				Matcher relAccessMatcher = relAccessPattern.matcher(ref);
-				if (relAccessMatcher.matches())
-				{			
-					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + serverUrl +ref + terminator));
-				}
-			}
-		}
-
-		m.appendTail(sb);
-
-		return sb.toString();
 	}
 }
