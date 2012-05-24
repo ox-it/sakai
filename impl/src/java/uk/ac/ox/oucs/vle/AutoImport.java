@@ -82,6 +82,10 @@ public class AutoImport {
 			// The component manager also needs to have fully started up before we start this.
 			
 			String[] archives = serverConfigurationService.getStrings("import.archives");
+			if (archives == null) {
+				thread = null;
+				return;
+			}
 			String sakaiHome = serverConfigurationService.getSakaiHomePath();
 			String archiveHome = sakaiHome+"archive";
 
