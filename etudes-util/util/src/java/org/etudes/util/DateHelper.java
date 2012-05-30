@@ -56,6 +56,21 @@ public class DateHelper
 	}
 
 	/**
+	 * Format a date for display to a user, in the default time zone.
+	 * 
+	 * @param date
+	 *        The date.
+	 * @return The formatted date.
+	 */
+	public static String formatDateToDefault(Date date)
+	{
+		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault());
+		format.setTimeZone(TimeZone.getDefault());
+		String rv = format.format(date);
+		return rv;
+	}
+
+	/**
 	 * Access this user's preferred time zone. If not set to a recognized value, or there is no user passed in or currently set, use GMT.
 	 * 
 	 * @param userId
@@ -69,7 +84,6 @@ public class DateHelper
 		if (userId == null) userId = SessionManager.getCurrentSessionUserId();
 		if (userId != null)
 		{
-
 			Preferences prefs = PreferencesService.getPreferences(userId);
 			ResourceProperties localeProps = prefs.getProperties("sakai:resourceloader");
 			String localeString = localeProps.getProperty("locale");
@@ -123,14 +137,17 @@ public class DateHelper
 			ResourceProperties tzProps = prefs.getProperties(TimeService.APPLICATION_ID);
 			String timeZoneId = tzProps.getProperty(TimeService.TIMEZONE_KEY);
 
-			// defaults to GMT is the zone id is not recognized
-			rv = TimeZone.getTimeZone(timeZoneId);
+			if (timeZoneId != null)
+			{
+				// defaults to GMT is the zone id is not recognized
+				rv = TimeZone.getTimeZone(timeZoneId);
+			}
 		}
 
-		// if no user, default to GMT
+		// if no user, use default
 		if (rv == null)
 		{
-			TimeZone.getTimeZone("GMT");
+			rv = TimeZone.getDefault();
 		}
 
 		return rv;
@@ -152,6 +169,24 @@ public class DateHelper
 		if ((dateString == null) || (dateString.trim().length() == 0)) return null;
 		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, getPreferredLocale(userId));
 		format.setTimeZone(getPreferredTimeZone(userId));
+		Date rv = format.parse(dateString);
+		return rv;
+	}
+
+	/**
+	 * Parse a string in standard input format, in the default time zone, into a Date.
+	 * 
+	 * @param dateString
+	 *        The input string
+	 * @return The Date.
+	 * @throws ParseException
+	 *         if the date is not in the proper format.
+	 */
+	public static Date parseDateFromDefault(String dateString) throws ParseException
+	{
+		if ((dateString == null) || (dateString.trim().length() == 0)) return null;
+		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault());
+		format.setTimeZone(TimeZone.getDefault());
 		Date rv = format.parse(dateString);
 		return rv;
 	}
