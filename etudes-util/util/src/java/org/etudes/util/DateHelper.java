@@ -149,6 +149,7 @@ public class DateHelper
 	 */
 	public static Date parseDate(String dateString, String userId) throws ParseException
 	{
+		if ((dateString == null) || (dateString.trim().length() == 0)) return null;
 		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, getPreferredLocale(userId));
 		format.setTimeZone(getPreferredTimeZone(userId));
 		Date rv = format.parse(dateString);
