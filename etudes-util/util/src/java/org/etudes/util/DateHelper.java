@@ -88,6 +88,32 @@ public class DateHelper
 	}
 
 	/**
+	 * Format a date for display to this user in a two line (date then time) format, in the user's preferred time zone.
+	 * 
+	 * @param date
+	 *        The date.
+	 * @param userId
+	 *        The user id - leave as null to use the current session user.
+	 * @return The formatted date.
+	 */
+	public static String formatDateTwoLine(Date date, String userId)
+	{
+		Locale userLocale = getPreferredLocale(userId);
+		TimeZone userZone = getPreferredTimeZone(userId);
+
+		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, userLocale);
+		dateFormat.setTimeZone(userZone);
+
+		DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT, userLocale);
+		timeFormat.setTimeZone(userZone);
+
+		String rv = "<span style=\"white-space: nowrap;\">" + dateFormat.format(date) + "</span><br /><span style=\"white-space: nowrap;\">"
+				+ timeFormat.format(date) + "</span>";
+
+		return rv;
+	}
+
+	/**
 	 * Access this user's preferred time zone. If not set to a recognized value, or there is no user passed in or currently set, use GMT.
 	 * 
 	 * @param userId
