@@ -56,6 +56,23 @@ public class DateHelper
 	}
 
 	/**
+	 * Format a date ONLY (no time) for display to this user, in the user's preferred time zone.
+	 * 
+	 * @param date
+	 *        The date.
+	 * @param userId
+	 *        The user id - leave as null to use the current session user.
+	 * @return The formatted date.
+	 */
+	public static String formatDateOnly(Date date, String userId)
+	{
+		DateFormat format = DateFormat.getDateInstance(DateFormat.MEDIUM, getPreferredLocale(userId));
+		format.setTimeZone(getPreferredTimeZone(userId));
+		String rv = format.format(date);
+		return rv;
+	}
+
+	/**
 	 * Format a date for display to a user, in the default time zone.
 	 * 
 	 * @param date
@@ -187,6 +204,26 @@ public class DateHelper
 		if ((dateString == null) || (dateString.trim().length() == 0)) return null;
 		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault());
 		format.setTimeZone(TimeZone.getDefault());
+		Date rv = format.parse(dateString);
+		return rv;
+	}
+
+	/**
+	 * Parse a string in standard input format, in the user's preferred time zone, into a Date (Date only, not time component).
+	 * 
+	 * @param dateString
+	 *        The input string
+	 * @param userId
+	 *        The user id - leave as null to use the current session user.
+	 * @return The Date.
+	 * @throws ParseException
+	 *         if the date is not in the proper format.
+	 */
+	public static Date parseDateOnly(String dateString, String userId) throws ParseException
+	{
+		if ((dateString == null) || (dateString.trim().length() == 0)) return null;
+		DateFormat format = DateFormat.getDateInstance(DateFormat.MEDIUM, getPreferredLocale(userId));
+		format.setTimeZone(getPreferredTimeZone(userId));
 		Date rv = format.parse(dateString);
 		return rv;
 	}
