@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -60,6 +61,7 @@ import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionCompletedException;
 import org.etudes.mneme.api.SubmissionService;
 import org.etudes.mneme.api.TypeSpecificAnswer;
+import org.etudes.util.DateHelper;
 import org.etudes.util.api.AccessAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -595,7 +597,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 				submissions.add(answer.getSubmission());
 			}
-			
+
 			// for those we don't want to / need to save
 			else
 			{
@@ -635,7 +637,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		String userId = sessionManager.getCurrentSessionUserId();
 		if (submission == null) throw new IllegalArgumentException();
 
-		//  if the submission is marked as having a stale edit, ignore it quietly
+		// if the submission is marked as having a stale edit, ignore it quietly
 		if (submission.getIsStaleEdit()) return;
 
 		if (M_log.isDebugEnabled()) M_log.debug("evaluateSubmission: " + submission.getId());
@@ -2291,8 +2293,12 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 				TypeSpecificAnswer a = answer.getTypeSpecificAnswer();
 				if (a instanceof EssayAnswerImpl)
 				{
-					// format the submit date
-					DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.US);
+					// format the submit date using the end-user's locale and time zone prefs
+					Locale userLocale = DateHelper.getPreferredLocale(null);
+					TimeZone userZone = DateHelper.getPreferredTimeZone(null);
+					DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, userLocale);
+					format.setTimeZone(userZone);
+
 					String dateDisplay = removeSeconds(format.format(answer.getSubmission().getSubmittedDate()));
 
 					indexHtml.append("<div>" + user.getSortName() + " (" + user.getEid() + ") " + dateDisplay + "\n<ul>\n");

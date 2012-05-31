@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2010, 2011, 2012 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import org.etudes.mneme.api.Answer;
@@ -36,6 +37,7 @@ import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.TypeSpecificAnswer;
 import org.etudes.mneme.impl.MatchQuestionImpl.MatchQuestionPair;
+import org.etudes.util.DateHelper;
 import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.util.FormattedText;
 
@@ -113,8 +115,7 @@ public class ResultsFormatterImpl
 				String answersText = (count == 1) ? format("results-answer") : format("results-answers", count);
 				String pointsText = (question.getPoints() > 0) ? format("results-question-worth", question.getPoints()) : "";
 
-				content
-						.append("<div style=\"background: #EEEEEE;border: 1px solid #bbb;padding-left: 0.5em;font-weight: bold;line-height: 1.5em;\">");
+				content.append("<div style=\"background: #EEEEEE;border: 1px solid #bbb;padding-left: 0.5em;font-weight: bold;line-height: 1.5em;\">");
 				content.append(format("results-question-header", pointsText, answersText));
 
 				content.append("</div>\n");
@@ -284,7 +285,13 @@ public class ResultsFormatterImpl
 	 */
 	protected String formatDate(Date date)
 	{
-		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.US);
+		// use the end-user's locale and time zone prefs
+		Locale userLocale = DateHelper.getPreferredLocale(null);
+		TimeZone userZone = DateHelper.getPreferredTimeZone(null);
+
+		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, userLocale);
+		format.setTimeZone(userZone);
+
 		String display = format.format(date);
 
 		// remove seconds

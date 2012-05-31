@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -28,8 +28,10 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,6 +42,7 @@ import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.SecurityService;
+import org.etudes.util.DateHelper;
 import org.etudes.util.api.Translation;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -497,8 +500,12 @@ public class PoolServiceImpl implements PoolService
 	 */
 	protected String addDate(String selector, String source, Date date)
 	{
-		// format the date
-		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+		// format the date using the end-user's locale and time zone prefs
+		Locale userLocale = DateHelper.getPreferredLocale(null);
+		TimeZone userZone = DateHelper.getPreferredTimeZone(null);
+		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.FULL, userLocale);
+		format.setTimeZone(userZone);
+
 		String fmt = format.format(date);
 
 		// the args

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -35,7 +35,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 
 import org.apache.commons.logging.Log;
@@ -57,6 +59,7 @@ import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.ReviewTiming;
 import org.etudes.mneme.api.SecurityService;
+import org.etudes.util.DateHelper;
 import org.etudes.util.api.Translation;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentContent;
@@ -799,8 +802,12 @@ public class ImportServiceImpl implements ImportService
 	 */
 	protected String addDate(String selector, String source, Date date)
 	{
-		// format the date
-		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+		// format the date using the end-user's locale and time zone prefs
+		Locale userLocale = DateHelper.getPreferredLocale(null);
+		TimeZone userZone = DateHelper.getPreferredTimeZone(null);
+		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.FULL, userLocale);
+		format.setTimeZone(userZone);
+
 		String fmt = format.format(date);
 
 		// the args
