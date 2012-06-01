@@ -26,7 +26,6 @@ package org.etudes.mneme.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,10 +35,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -2293,13 +2290,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 				TypeSpecificAnswer a = answer.getTypeSpecificAnswer();
 				if (a instanceof EssayAnswerImpl)
 				{
-					// format the submit date using the end-user's locale and time zone prefs
-					Locale userLocale = DateHelper.getPreferredLocale(null);
-					TimeZone userZone = DateHelper.getPreferredTimeZone(null);
-					DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, userLocale);
-					format.setTimeZone(userZone);
-
-					String dateDisplay = removeSeconds(format.format(answer.getSubmission().getSubmittedDate()));
+					String dateDisplay = DateHelper.formatDate(answer.getSubmission().getSubmittedDate(), null);
 
 					indexHtml.append("<div>" + user.getSortName() + " (" + user.getEid() + ") " + dateDisplay + "\n<ul>\n");
 
@@ -3645,22 +3636,6 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 				return SecurityAdvice.ALLOWED;
 			}
 		});
-	}
-
-	/**
-	 * Remove the ":xx" seconds part of a MEDIUM date format display.
-	 * 
-	 * @param display
-	 *        The MEDIUM formatted date.
-	 * @return The MEDIUM formatted date with the seconds removed.
-	 */
-	protected String removeSeconds(String display)
-	{
-		int i = display.lastIndexOf(":");
-		if ((i == -1) || ((i + 3) >= display.length())) return display;
-
-		String rv = display.substring(0, i) + display.substring(i + 3);
-		return rv;
 	}
 
 	/**

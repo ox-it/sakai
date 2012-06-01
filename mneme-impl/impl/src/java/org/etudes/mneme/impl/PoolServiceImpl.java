@@ -24,14 +24,11 @@
 
 package org.etudes.mneme.impl;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -500,13 +497,7 @@ public class PoolServiceImpl implements PoolService
 	 */
 	protected String addDate(String selector, String source, Date date)
 	{
-		// format the date using the end-user's locale and time zone prefs
-		Locale userLocale = DateHelper.getPreferredLocale(null);
-		TimeZone userZone = DateHelper.getPreferredTimeZone(null);
-		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.FULL, userLocale);
-		format.setTimeZone(userZone);
-
-		String fmt = format.format(date);
+		String fmt = DateHelper.formatDateForName(date, null);
 
 		// the args
 		Object[] args = new Object[2];

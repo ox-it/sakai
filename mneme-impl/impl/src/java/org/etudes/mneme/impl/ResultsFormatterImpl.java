@@ -21,13 +21,10 @@
 
 package org.etudes.mneme.impl;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import org.etudes.mneme.api.Answer;
@@ -285,21 +282,7 @@ public class ResultsFormatterImpl
 	 */
 	protected String formatDate(Date date)
 	{
-		// use the end-user's locale and time zone prefs
-		Locale userLocale = DateHelper.getPreferredLocale(null);
-		TimeZone userZone = DateHelper.getPreferredTimeZone(null);
-
-		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, userLocale);
-		format.setTimeZone(userZone);
-
-		String display = format.format(date);
-
-		// remove seconds
-		int i = display.lastIndexOf(":");
-		if ((i == -1) || ((i + 3) >= display.length())) return display;
-
-		String rv = display.substring(0, i) + display.substring(i + 3);
-		return rv;
+		return DateHelper.formatDate(date, null);
 	}
 
 	/**
