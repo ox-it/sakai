@@ -56,6 +56,24 @@ public class DateHelper
 	}
 
 	/**
+	 * Format a date for adding to a item name, in the user's preferred time zone.
+	 * 
+	 * @param date
+	 *        The date.
+	 * @param userId
+	 *        The user id - leave as null to use the current session user.
+	 * @return The formatted date.
+	 */
+	public static String formatDateForName(Date date, String userId)
+	{
+		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.FULL, getPreferredLocale(userId));
+		format.setTimeZone(getPreferredTimeZone(userId));
+
+		String rv = format.format(date);
+		return rv;
+	}
+
+	/**
 	 * Format a date ONLY (no time) for display to this user, in the user's preferred time zone.
 	 * 
 	 * @param date
