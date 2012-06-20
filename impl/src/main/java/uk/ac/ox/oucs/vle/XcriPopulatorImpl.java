@@ -13,6 +13,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -628,18 +630,20 @@ public class XcriPopulatorImpl implements Populator {
 			Set<CourseCategoryDAO> categories = new HashSet<CourseCategoryDAO>();
 			for (String category : researchCategories) {
 				categories.add(new CourseCategoryDAO(
-						code, CourseGroup.Category_Type.RDF, "", category));
+						code, CourseGroup.Category_Type.RM, "", category));
 			}
 			for (String category : skillsCategories) {
 				categories.add(new CourseCategoryDAO(
-						code, CourseGroup.Category_Type.RM, "", category));
+						code, CourseGroup.Category_Type.RDF, "", category));
 			}
 			
 			//remove unwanted categories
-			for (CourseCategoryDAO category : groupDao.getCategories()) {
+			// done this way to avoid java.util.ConcurrentModificationException 
+			for (Iterator<CourseCategoryDAO> itr = groupDao.getCategories().iterator(); itr.hasNext();) {
+				CourseCategoryDAO category = itr.next();
 				if (!categories.contains(category)) {
-					groupDao.getCategories().remove(category);
-				}
+			        itr.remove();
+			    }
 			}
 			
 			//add any new categories

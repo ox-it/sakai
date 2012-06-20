@@ -4,6 +4,8 @@ import java.util.List;
 
 public interface CourseGroup {
 
+	//RM Research Methods
+	//RDF Skills
 	public static enum Category_Type {RDF, JACS, RM};
 	
 	public String getId();
