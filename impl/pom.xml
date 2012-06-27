@@ -54,7 +54,12 @@
     	</dependency>
 		
 		<!-- Needed to generate the static listing of departments. -->
-		
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.5.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
@@ -100,6 +105,7 @@
 			<version>2.5.6.SEC01</version>
 			<scope>test</scope>
 		</dependency>
+		
 	</dependencies>
 	<profiles>
 		<profile>
