@@ -71,6 +71,7 @@ public class ImportData extends AdminPage {
 			File file = null;
 			try {
 				file = examFile.getFile();
+				final String originalFileName = examFile.getFileUpload().getClientFileName();
 				ZipFile zipFile = new ZipFile(file);
 				try {
 					final ZipEntry examEntry = getEntry(zipFile, EXAM_FILE_NAMES);
@@ -132,7 +133,6 @@ public class ImportData extends AdminPage {
 					));
 					
 					examImporter.resolve();
-					
 					// 
 					// Need to use this so that we don't get exception because response is committed.
 					getRequestCycle().setRequestTarget(new IRequestTarget() {
@@ -142,6 +142,7 @@ public class ImportData extends AdminPage {
 								WebResponse response = (WebResponse) requestCycle.getResponse();
 								OutputStream out = response.getOutputStream();
 								response.setContentType("application/zip");
+								response.setHeader("Content-Disposition", "attachment; filename="+getResultFile(originalFileName));
 								ZipOutputStream zip = new ZipOutputStream(out);
 								zip.putNextEntry(new ZipEntry("messages.txt"));
 								Writer messagesWriter = new OutputStreamWriter(zip);
@@ -234,6 +235,24 @@ public class ImportData extends AdminPage {
 		
 		private String getErrorFile(String sourceFilename) {
 			return "error"+ sourceFilename;
+		}
+		
+		/**
+		 * Gets the filename to send the results back as.
+		 * @param sourceFilename The original filename supplied by the user.
+		 * @return A filename to set in the HTTP headers for the results.
+		 */
+		private String getResultFile(String sourceFilename) {
+			String filename = "details";
+			if (sourceFilename != null && sourceFilename.length() > 0) {
+				int lastDot = sourceFilename.lastIndexOf('.');
+				if (lastDot != -1) {
+					filename = sourceFilename.substring(0, lastDot);
+				} else {
+					filename = sourceFilename;
+				}
+			}
+			return "results-"+ filename+ ".zip";
 		}
 
 		private Format getFormat(String filename) {
