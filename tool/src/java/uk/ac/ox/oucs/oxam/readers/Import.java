@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -104,6 +106,9 @@ public class Import {
 		Map<String, ExamPaperRow> examPaperRows = examPaperRowImporter.getRows();
 		Map<String, ExamRow> examRows = examRowImporter.getRows();
 		
+		// Report is wanted on which rows aren't used.
+		Set<PaperRow> usedPaperRows = new HashSet<PaperRow>();
+		
 		// Should the resolver remove data which isn't good?
 		for (PaperRow paperRow: paperRows.values()) {
 
@@ -168,6 +173,8 @@ public class Import {
 			if (!error) {
 				String paperCode = (paperRow.inc != null && paperRow.inc.length() > 0)?paperRow.inc:paperRow.code;
 				PaperResolutionResult paper = resolver.getPaper(year.getYear(), examPaperRow.term, paperCode);
+				// Flag the paper as having been used.
+				usedPaperRows.add(paperRow);
 				if(paper.isFound()) { // It's available to import from the ZIPfile.
 					
 					ExamPaper examPaper = importer.get(examPaperRow.examCode, examPaperRow.paperCode, year, term);
@@ -219,6 +226,13 @@ public class Import {
 				} else {
 					examPaperRowImporter.addError(examPaperRow, "File for paper is missing: "+ StringUtils.join(paper.getPaths(), " or "));
 				}
+			}
+		}
+		
+		// Check for unused papers.
+		for(PaperRow paperRow: paperRows.values()) {
+			if (!usedPaperRows.contains(paperRow)) {
+				paperRowImporter.addError(paperRow, "This row is never used by an exam paper.");
 			}
 		}
 	}
