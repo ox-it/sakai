@@ -4,6 +4,12 @@ import java.io.IOException;
 
 import uk.ac.ox.oucs.oxam.logic.TermService;
 
+/**
+ * Looks for a paper inside the papers folder.
+ * Eg: /papers/1234.pdf
+ * @author buckett
+ *
+ */
 public class FlatZipPaperResolver extends ZipPaperResolver {
 
 	public FlatZipPaperResolver(String filePath, String zipPrefix,

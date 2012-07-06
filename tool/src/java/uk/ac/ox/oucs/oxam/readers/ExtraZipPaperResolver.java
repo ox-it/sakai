@@ -4,6 +4,13 @@ import java.io.IOException;
 
 import uk.ac.ox.oucs.oxam.logic.TermService;
 
+/**
+ * This resolves extra papers in the flat structure and is useful when there
+ * is more than one copy of the paper taken in a year.
+ * Eg /papers/1234(T).pdf
+ * @author buckett
+ *
+ */
 public class ExtraZipPaperResolver extends ZipPaperResolver {
 
 	public ExtraZipPaperResolver(String filePath, String zipPrefix,
