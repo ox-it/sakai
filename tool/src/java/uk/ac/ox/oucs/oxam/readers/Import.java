@@ -182,8 +182,9 @@ public class Import {
 					examPaper.setPaperTitle(paperRow.title);
 					examPaper.setExamTitle(examRow.title);
 					examPaper.setCategory(category);
-					InputStream input = paper.getStream();
+					InputStream input = null;
 					try {
+						input = paper.getStream();
 						String existingMD5 = getPaperMD5(examPaper);
 						if (existingMD5 != null) { // May be null if doesn't exist yet.
 							String newMD5 = paper.getMD5();
@@ -201,6 +202,8 @@ public class Import {
 						messages.append((isNew?"Added":"Updated"));
 						messages.append(" exam paper. ExamCode: "+ examPaper.getExamCode()+ " PaperCode: "+ examPaper.getPaperCode());
 						messages.append(" Year: "+ examPaper.getYear()+ " Term: "+ examPaper.getTerm().getName()+ "\n");
+					} catch (IOException ioe) {
+						examPaperRowImporter.addError(examPaperRow, "Problem reading paper: "+ ioe.getMessage());
 					} catch (Exception e) {
 						// This shouldn't really happen and indicates a low-level problem.
 						examPaperRowImporter.addError(examPaperRow, e.getMessage());

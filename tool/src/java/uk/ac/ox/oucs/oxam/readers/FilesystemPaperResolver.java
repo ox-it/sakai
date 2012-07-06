@@ -64,23 +64,19 @@ public class FilesystemPaperResolver implements PaperResolver {
 			return file.exists();
 		}
 
-		public InputStream getStream() {
-			try {
-				return new FileInputStream(file);
-			} catch (FileNotFoundException e) {
-				// The calling code should check the file exist first.
-			}
-			return null;
+		public InputStream getStream() throws FileNotFoundException {
+			return new FileInputStream(file);
 		}
 
 		public String[] getPaths() {
 			return new String[]{file.getAbsolutePath()};
 		}
 
-		public String getMD5() {
+		public String getMD5() throws FileNotFoundException {
 			if (md5 == null) {
 				InputStream in = null;
 				try {
+					in = getStream();
 					md5 = Utils.getMD5(in);
 				} finally { 
 					if (in != null) {

@@ -68,14 +68,9 @@ public class ZipPaperResolver implements PaperResolver {
 			return entry != null;
 		}
 
-		public InputStream getStream() {
-			try {
-				if (entry != null) {
-					return zipFile.getInputStream(entry);
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		public InputStream getStream() throws IOException {
+			if (entry != null) {
+				return zipFile.getInputStream(entry);
 			}
 			return null;
 		}
@@ -84,7 +79,7 @@ public class ZipPaperResolver implements PaperResolver {
 			return new String[]{path};
 		}
 
-		public String getMD5() {
+		public String getMD5() throws IOException {
 			if (md5 == null) {
 				InputStream in = null;
 				try {

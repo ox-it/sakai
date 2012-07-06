@@ -178,7 +178,8 @@ public class ImportData extends AdminPage {
 						public void detach(RequestCycle requestCycle) {
 						}
 					});
-					
+				} catch (DuplicateFoundException e) {
+					examFile.error(new StringResourceModel("duplicate.in.zipfile", null, new String[] {e.getOriginal(), e.getDuplicate()}).getString());
 				} catch (IOException ioe) {
 					throw new RuntimeException(ioe);
 				}
@@ -200,14 +201,23 @@ public class ImportData extends AdminPage {
 		 * @param names The names to look for.
 		 * @return <code>null</code> if none of the names are found.
 		 */
-		protected ZipEntry getEntry(ZipFile zipFile, String[] names) {
-			for (String name: names) {
-				ZipEntry entry = zipFile.getEntry(name);
-				if (entry != null) {
-					return entry;
+		protected ZipEntry getEntry(ZipFile zipFile, String[] names) throws DuplicateFoundException {
+			Enumeration<? extends ZipEntry> entries = zipFile.entries();
+			ZipEntry found = null;
+			while (entries.hasMoreElements()) {
+				ZipEntry entry = entries.nextElement();
+				for (String name: names) {
+					if (entry.getName().equalsIgnoreCase(name)) {
+						if (found != null) {
+							// Throw an error saying the which files clash.
+							throw new DuplicateFoundException(found.getName(), entry.getName());
+						} else {
+							found = entry;
+						}
+					}
 				}
 			}
-			return null;
+			return found;
 		}
 		
 		/**
@@ -225,7 +235,7 @@ public class ImportData extends AdminPage {
 			while (entries.hasMoreElements()) {
 				ZipEntry entry = entries.nextElement();
 				for (String name: names) {
-					if (entry.getName().startsWith(name)) {
+					if (entry.getName().startsWith(name+"/")) {
 						return name;
 					}
 				}

@@ -2,6 +2,8 @@ package uk.ac.ox.oucs.oxam.readers;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,7 +21,7 @@ public class FilesystemPaperResolverTest {
 	}
 
 	@Test
-	public void testGood() {
+	public void testGood() throws IOException {
 		PaperResolutionResult good = resolver.getPaper(2009, "H", "4f52");
 		assertTrue(good.isFound());
 		assertNotNull(good.getStream());
@@ -33,7 +35,7 @@ public class FilesystemPaperResolverTest {
 	}
 	
 	@Test
-	public void testMissing() {
+	public void testMissing() throws IOException {
 		PaperResolutionResult missing = resolver.getPaper(2009, "H", "4f51");
 		assertFalse(missing.isFound());
 		assertNull(missing.getStream());

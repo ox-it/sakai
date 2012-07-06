@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.oxam.readers;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -13,11 +14,12 @@ import java.io.InputStream;
 public interface PaperResolutionResult {
 
 	public boolean isFound();
-	public InputStream getStream();
+	public InputStream getStream() throws IOException;
 	public String[] getPaths();
 	
 	/**
 	 * Get the MD5 sum Base64 encoded for this paper.
+	 * @throws IOException 
 	 */
-	public String getMD5();
+	public String getMD5() throws IOException;
 }
