@@ -21,7 +21,7 @@
     
         <tool id="sakai.oxam.search.simple" 
         title="OXAM Search" 
-        description="This is the end user search interface to OXAM">
+        description="Provides a simple text search to OXAM papers.">
 
         <!--  This tool will be made available to the following site types via Site Info > Edit Tools -->
         <!--
@@ -39,7 +39,7 @@
     </tool>
     <tool id="sakai.oxam.search.adv" 
         title="OXAM Advanced Search" 
-        description="This is the end user search interface to OXAM">
+        description="Allows users to select from a dropdown for the Exam and Year.">
 
         <!--  This tool will be made available to the following site types via Site Info > Edit Tools -->
         <!--
