@@ -112,96 +112,131 @@
                 <h4>Module Parts</h4>
 				<span class="error" style="display:none"></span>
                 <form id="signup" action="#">
+                	{var anyOpenParts = false}
                     <table width="100%">
                     	{for part in parts}
-                    	{if part.subject}
-							<tr>
-                            	<th colspan="3">
-                            		${part.subject}
-                            	</th>
-                        	</tr>
-                        {/if}
-                        {if !hide}
-                        	<tr>
-                            	<td colspan="3">
-                                	&nbsp;&nbsp;${part.type.name}
-                            	</td>
-                        	</tr>
-							{var oneOpen = false}
-							{for option in part.options}
-                        	<tr>
-                            	<td class="option-details">
-                                	<label for="option-${option.id}">
-                                		{if option.slot}${option.slot} for 
-                                	{else}
-                                		For
-                                	{/if}
-                                	${option.sessions} sessions starts in ${option.when}, 
-									{if option.presenter}{if option.presenter.email}<a href="mailto:${option.presenter.email}">{/if}${option.presenter.name}{if option.presenter.email}</a>{/if}{/if}
-									</label>
-                                	<br/>
-                                	<span class="location">
-                                		{if option.starts}teaching starts on ${new Date(option.starts).toDateString()}{/if}
-                                		{if option.ends} and ends on ${new Date(option.ends).toDateString()}{/if}
-                                		{if option.location}
-                                			{if option.starts || option.ends}<br/>{/if}
-                                			${option.location}
-                                		{/if}
-                                	</span>
-                            	</td>
-                            	<td style="width:6em">
-                            		{if option.bookable}
-                            			{if option.full}
-											full
-										{else}
-											{if waiting}
-												Waiting List (${waiting})
-											{else}
-												${option.places} of ${option.size} places remaining 
+                    		{if part.subject}
+								<tr>
+                     	       		<th colspan="3">
+                     	       			${part.subject}
+                            		</th>
+                        		</tr>
+                       		{/if}
+                        	{if !hide}
+                        		<tr>
+                            		<td colspan="3">
+                                		&nbsp;&nbsp;${part.type.name}
+                            		</td>
+                        		</tr>
+								{var oneOpen = false}
+								{for option in part.options}
+                        			<tr>
+                            			<td class="option-details">
+                                			<label for="option-${option.id}">
+                                			{if option.slot}${option.slot} 
+                                				for 
+                                			{else}
+                                				For
+                                			{/if}
+                                			${option.sessions} sessions starts in ${option.when}, 
+											{if option.presenter}
+												{if option.presenter.email}
+													<a href="mailto:${option.presenter.email}">
+												{/if}
+												${option.presenter.name}
+												{if option.presenter.email}
+													</a>
+												{/if}
 											{/if}
-										{/if}
-									{/if}
-                            	</td>
-                            	<td>
-									{if option.signup && option.signup.status != "WITHDRAWN"}
-										Signup: ${option.signup.status}
-									{else}
-										{if signup}
-                                			{if part.options.length == 1}
-												<input type="checkbox" name="${part.type.id}" id="option-${option.id}" value="${option.id}" 
-												{if !option.open }disabled="true"
-												{else}{var oneOpen = true}
-													{if parts.length == 1}
-														checked="yes"
+											</label>
+                                			<br/>
+                                			<span class="location">
+                                			{if option.starts}
+                                				teaching starts on ${new Date(option.starts).toDateString()}
+                                			{/if}
+                                			{if option.ends} 
+                                				and ends on ${new Date(option.ends).toDateString()}
+                                			{/if}
+                                			{if option.location}
+                                				{if option.starts || option.ends}
+                                					<br/>
+                                				{/if}
+                                				${option.location}
+                                			{/if}
+                                			</span>
+                            			</td>
+                            			<td style="width:6em">
+                            				{if option.bookable}
+                            					{if option.full}
+													full
+												{else}
+													{if waiting}
+														Waiting List (${waiting})
+													{else}
+														{var anyOpenParts = true}
+														${option.places} of ${option.size} places remaining 
 													{/if}
-												{/if}/>
-											{else}
-                								<input type="radio" name="${part.type.id}" id="option-${option.id}" value="${option.id}"
-												{if !option.open }disabled="true"{else}{var oneOpen = true}{/if}/>
+												{/if}
 											{/if}
-								 		{/if}
-									{/if}	
-                            	</td>
-                        	</tr>
-							{/for}
-							{if parts.length > 1 && part.options.length > 1 && oneOpen}
-							<tr>
-								<td class="option-details">
-									<label for="option-none-${part.type.id}">Nothing for this option</label>
-								</td>
-								<td>N/A</td>
-								<td><input type="radio" name="${part.type.id}" id="option-none-${part.type.id}" value="none"/></td>
-							</tr>
-							{/if}
+                            			</td>
+                            			<td>
+											{if option.signup && option.signup.status != "WITHDRAWN"}
+												Signup: ${option.signup.status}
+											{else}
+												{if signup}
+                                					{if part.options.length == 1}
+														<input type="checkbox" 
+															name="${part.type.id}" 
+															id="option-${option.id}" 
+															value="${option.id}" 
+															{if !option.open}
+																disabled="true"
+															{else}
+																{var oneOpen = true}
+																{if parts.length == 1}
+																	checked="yes"
+																{/if}
+															{/if}/>
+													{else}
+                										<input type="radio" 
+                											name="${part.type.id}" 
+                											id="option-${option.id}" 
+                											value="${option.id}"
+															{if !option.open }
+																disabled="true"
+															{else}
+																{var oneOpen = true}
+															{/if}/>
+													{/if}
+								 				{/if}
+											{/if}	
+                            			</td>
+                        			</tr>
+								{/for}
+								{if parts.length > 1 && part.options.length > 1 && oneOpen}
+									<tr>
+										<td class="option-details">
+											<label for="option-none-${part.type.id}">Nothing for this option</label>
+										</td>
+										<td>N/A</td>
+										<td>
+											<input type="radio" name="${part.type.id}" id="option-none-${part.type.id}" value="none"/>
+										</td>
+									</tr>
+								{/if}
 							{/for}
 						{/if}
                     </table>
+                    
                     {if !hide}
 						{if signup}
-							{if full || waiting}
+                    		{if !anyOpenParts}
 								<input type="submit" value="Join Waiting List" />
 							{else}
-								<input type="submit" value="Signup" {if !open}disabled="true"{/if}/>
+								<input type="submit" value="Signup" 
+								{if !open}
+									disabled="true"
+								{/if}/>
 							{/if}
 						{else}
 							<input type="submit" value="Not Bookable">

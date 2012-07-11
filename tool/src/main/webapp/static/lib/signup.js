@@ -203,21 +203,21 @@ var Signup = function(){
 					data.parts = parts;
 					var output = template.process(data, {throwExceptions: true});
 					dest.html(output);
+					
 					// If there is only one checkbox tick it.
+					//var radioButtons = $("input:radio", dest);
+					//var radioButtonsEnabled = $("input:radio:enabled", dest);
 					
-					var radioButtons = $("input:radio", dest);
-					var radioButtonsEnabled = $("input:radio:enabled", dest);
+					//var checkboxButtons = $("input:checkbox", dest);
+					//var checkboxButtonsEnabled = $("input:checkbox:enabled", dest);
 					
-					var checkboxButtons = $("input:checkbox", dest);
-					var checkboxButtonsEnabled = $("input:checkbox:enabled", dest);
-					
-					if (radioButtonsEnabled.length == 1) {
-						radioButtonsEnabled.first().attr("checked", true); // This seems to get lost in IE when doing the popup.
-					}
-					else 
-						if (radioButtonsEnabled.length == 0 && checkboxButtonsEnabled.length == 0) {
-							$(":submit", dest).attr("disabled", "true");
-						}
+					//if (radioButtonsEnabled.length == 1) {
+					//	radioButtonsEnabled.first().attr("checked", true); // This seems to get lost in IE when doing the popup.
+					//}
+					//else 
+					//	if (radioButtonsEnabled.length == 0 && checkboxButtonsEnabled.length == 0) {
+					//		$(":submit", dest).attr("disabled", "true");
+					//	}
 					$("form", dest).submit(function(){
 						try {
 							var radioSelected = {};
