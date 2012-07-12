@@ -11,7 +11,10 @@
 </div>
 <div>
     <form id="signup-confirm" action="#">
-        {for componentId in componentIds}<input type="hidden" name="components" value="${componentId}"/>{/for}<input type="hidden" name="courseId" value="${courseId}"/>
+        {for componentId in componentIds}
+        	<input type="hidden" name="components" value="${componentId}"/>
+        {/for}
+        <input type="hidden" name="courseId" value="${courseId}"/>
         <table>
         	{if courseApproval}
             <tr>
@@ -38,6 +41,8 @@ Other comments: </${textarea}>
                 </td>
             </tr>
         </table>
-        <input type="submit" value="Confirm Signup"/><input type="submit" class="cancel" value="Cancel"/>
+        <p>Note that your place is not guaranteed until you receive a confirmation email</p>
+        <input type="submit" value="Confirm Signup"/>
+        <input type="submit" class="cancel" value="Cancel"/>
     </form>
 </div>
