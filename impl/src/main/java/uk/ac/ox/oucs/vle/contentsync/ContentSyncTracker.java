@@ -10,8 +10,6 @@ import java.util.concurrent.BlockingQueue;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
-import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.content.api.ContentHostingService;

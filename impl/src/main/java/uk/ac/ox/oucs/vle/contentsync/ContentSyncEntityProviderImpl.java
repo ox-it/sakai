@@ -18,11 +18,11 @@ import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.messageforums.entity.DecoratedMessage;
 import org.sakaiproject.component.app.messageforums.entity.DecoratedTopicInfo;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -40,7 +40,6 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
-import org.sakaiproject.entitybroker.util.model.EntityContent;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -81,6 +80,15 @@ public class ContentSyncEntityProviderImpl
 	private UIPermissionsManager uiPermissionsManager;
 	public void setUiPermissionsManager(UIPermissionsManager uiPermissionsManager) {
 		this.uiPermissionsManager = uiPermissionsManager;
+	}
+	
+	/**
+  	 * 
+  	 */
+	private ServerConfigurationService serverConfigurationService;
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
 	}
 	
 	public String getEntityPrefix() {
@@ -334,7 +342,8 @@ public class ContentSyncEntityProviderImpl
 			dMessage = new DecoratedMessage(
 							message.getId(), message.getTopic().getId(), message.getTitle(),
 							message.getBody(), "" + message.getModified().getTime(),
-							attachments, Collections.EMPTY_LIST, message.getAuthor(), 
+							attachments, Collections.EMPTY_LIST, 
+							message.getAuthor(), getProfileImageURL(message.getAuthorId()),
 							message.getInReplyTo() == null ? null : message.getInReplyTo().getId(),
 									"" + message.getCreated().getTime(), readStatus.booleanValue(), "", "");
 		}
@@ -427,5 +436,18 @@ public class ContentSyncEntityProviderImpl
 			return true;
 		}
 		return false;
+	}
+	
+	private String getProfileImageURL(String authorId) {
+	  
+	    if (null == authorId || authorId.trim().length() == 0 ) {
+		    return null;
+	    }	
+	    StringBuffer sb = new StringBuffer();
+	    sb.append(serverConfigurationService.getServerUrl());
+	    sb.append("/direct/profile/");
+	    sb.append(authorId);
+	    sb.append("/image/thumb");
+	    return sb.toString();
 	}
 }

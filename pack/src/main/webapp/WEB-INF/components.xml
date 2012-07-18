@@ -58,6 +58,9 @@
     			ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
     	<property name="uiPermissionsManager"
     			ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
+    	<property name="serverConfigurationService">
+            <ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
+        </property>
     	<!--  
     	<property name="uiPermissionsManager">
             <ref bean="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
