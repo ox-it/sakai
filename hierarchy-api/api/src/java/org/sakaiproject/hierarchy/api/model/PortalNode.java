@@ -10,7 +10,11 @@ import org.sakaiproject.site.api.Site;
 public interface PortalNode {
 
 	public String getId();
-		
+	
+	/**
+	 * The site associated with the current node.
+	 * @return The site, this will never by <code>null</code>
+	 */
 	public Site getSite();
 	
 	public Site getManagementSite();
@@ -21,6 +25,9 @@ public interface PortalNode {
 	
 	public String getTitle();
 	
+	/**
+	 * Can the user access this node.
+	 */
 	public boolean canView();
 	
 	public boolean canModify();

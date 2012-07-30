@@ -10,6 +10,10 @@ public interface PortalHierarchyService {
 	String EVENT_NEW = "portal_hierarchy.new";
 	String EVENT_DELETE = "portal_hierarchy.delete";
 	String EVENT_MODIFY = "portal_hierarchy.modify";
+	
+	String SECURE_NEW = "portal.hierarchy.new";
+	String SECURE_DELETE = "portal.hierarchy.delete";
+	String SECURE_MODIFY = "portal.hierarchy.modify";
 
 	String getCurrentPortalPath();
 
@@ -60,10 +64,25 @@ public interface PortalHierarchyService {
 	
 	boolean canDeleteNode(String id);
 	
+	/**
+	 * Can the current user add a new node to the node?
+	 * @param parentId The nodeId of the parent.
+	 * @return <code>true</code> if the node can be added.
+	 */
 	boolean canNewNode(String parentId);
 	
+	/**
+	 * Can the current user rename the current node.
+	 * @param id
+	 * @return
+	 */
 	boolean canRenameNode(String id);
 	
+	/**
+	 * Can the current user move the node to another location?
+	 * @param id
+	 * @return
+	 */
 	boolean canMoveNode(String id);
 	
 	boolean canChangeSite(String id);

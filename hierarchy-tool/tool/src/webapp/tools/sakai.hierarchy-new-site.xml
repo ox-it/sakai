@@ -8,7 +8,7 @@
 		description="Create a new site in the hierarchy">
 			
 		<category name="hierarchy" />
-		<configuration name="functions.require" value="site.upd,site.add|site.upd,site.add.managed"/>
+		<configuration name="functions.require" value="portal.hierarchy.new"/>
 		
 		<!-- Configuration for worksite setup which we dispatch to -->
 		<!-- types are seperated by , don't forget to put corresponding type_categories.xml into the reg folder-->

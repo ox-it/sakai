@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -40,6 +41,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	private SecurityService securityService;
 	private SessionManager sessionManager;
 	private EventTrackingService eventTrackingService;
+	private FunctionManager functionManager;
 
 	private String hierarchyId;
 	
@@ -48,10 +50,13 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	private boolean autoDDL;
 	
 	public void changeSite(String id, String newSiteId) throws PermissionException {
-		unlockNodeSite(id);
 		PortalPersistentNode node = dao.findById(id);
 		try {
 			Site site = siteService.getSite(newSiteId);
+			if (!canChangeSite(id)) {
+				throw new PermissionException(sessionManager.getCurrentSession().getUserEid(), SECURE_MODIFY, site.getReference());
+			}
+			
 			if (!securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
 				throw new PermissionException(sessionManager.getCurrentSession().getUserEid(), SiteService.SECURE_UPDATE_SITE, site.getReference());
 			}
@@ -63,9 +68,9 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		eventTrackingService.post(eventTrackingService.newEvent(EVENT_MODIFY, id, true));
 	}
 
-	public void deleteNode(String id) {
+	public void deleteNode(String id) throws PermissionException {
 		if (!canDeleteNode(id)) {
-			throw new IllegalStateException("Can't delete this node.");
+			throw new PermissionException(sessionManager.getCurrentSession().getUserEid(), SECURE_DELETE, getSiteReference(id));
 		}
 		List<PortalNode> children = getNodeChildren(id);
 		// Remove children.
@@ -198,7 +203,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 	public void moveNode(String id, String newParentId) throws PermissionException {
 		if (!canMoveNode(id)) {
-			throw new PermissionException(sessionManager.getCurrentSessionUserId(), null, id);
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_MODIFY, getSiteReference(id));
 		}
 		PortalNode toMove = getNodeById(id);
 		PortalNode newParent = getNodeById(newParentId);
@@ -220,13 +225,16 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	}
 
 	public PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId) throws PermissionException {
-		unlockNodeSite(parentId);
 		if (!siteService.siteExists(siteId))
 			throw new IllegalArgumentException("Site does not exist: "+ siteId);
 		
 		PortalNode parent = getNodeById(parentId);
 		if (parent == null)
 			throw new IllegalArgumentException("Parent site could not be found: "+ parentId);
+		
+		if (!canNewNode(parentId)) {
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_NEW, parent.getSite().getReference());
+		}
 		
 		String childPath = (parent.getPath().equals("/"))?"/" + childName: parent.getPath() + "/" + childName;
 		List<PortalNode> children =  getNodeChildren(parentId);
@@ -331,40 +339,20 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		return encoded;
 	}
 
-	public PortalPersistentNodeDao getDao() {
-		return dao;
-	}
-
 	public void setDao(PortalPersistentNodeDao dao) {
 		this.dao = dao;
-	}
-
-	public HierarchyService getHierarchyService() {
-		return hierarchyService;
 	}
 
 	public void setHierarchyService(HierarchyService hierarchyService) {
 		this.hierarchyService = hierarchyService;
 	}
 
-	public SiteService getSiteService() {
-		return siteService;
-	}
-
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
 	}
 
-	public SecurityService getSecurityService() {
-		return securityService;
-	}
-
 	public void setSecurityService(SecurityService securityService) {
 		this.securityService = securityService;
-	}
-
-	public SessionManager getSessionManager() {
-		return sessionManager;
 	}
 
 	public void setSessionManager(SessionManager sessionManager) {
@@ -375,12 +363,12 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		this.eventTrackingService = eventTrackingService;
 	}
 
-	public EventTrackingService getEventTrackingService() {
-		return eventTrackingService;
+	public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+		this.threadLocalManager = threadLocalManager;
 	}
 
-	public String getHierarchyId() {
-		return hierarchyId;
+	public void setFunctionManager(FunctionManager functionManager) {
+		this.functionManager = functionManager;
 	}
 
 	public void setHierarchyId(String hierarchyId) {
@@ -393,6 +381,9 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 			initDefaultContent();
 		}
 		
+		functionManager.registerFunction(SECURE_DELETE);
+		functionManager.registerFunction(SECURE_MODIFY);
+		functionManager.registerFunction(SECURE_NEW);
 	}
 
 	private void initDefaultContent() {
@@ -416,13 +407,6 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		}
 	}
 
-	public ThreadLocalManager getThreadLocalManager() {
-		return threadLocalManager;
-	}
-
-	public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
-		this.threadLocalManager = threadLocalManager;
-	}
 
 	public String getMissingSiteId()
 	{
@@ -434,38 +418,30 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		this.missingSiteId = missingSiteId;
 	}
 
-	private void unlockNodeSite(String id) throws PermissionException {
-		PortalNode node = getNodeById(id);
-		if (node != null) {
-			Site site = node.getSite();
-			if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
-				return;
-			} else {
-				throw new PermissionException(sessionManager.getCurrentSession().getUserEid(), SiteService.SECURE_UPDATE_SITE, site.getReference());
-			}
-		}
-		throw new PermissionException(sessionManager.getCurrentSession().getUserEid(), SiteService.SECURE_UPDATE_SITE, null);
+	public void setAutoDDL(boolean autoDDL) {
+		this.autoDDL = autoDDL;
 	}
-	
-	private boolean unlockCheckNodeSite(String id) {
-		PortalNode node = getNodeById(id);
-		if (node != null) {
-			Site site = node.getSite();
-			return securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference());
-		}
-		return false;
-	}
-	
-	private String getSiteId(String nodeId) {
+
+	private String getSiteReference(String nodeId) {
 		PortalNode node = getNodeById(nodeId);
 		if (node != null) {
-			return node.getSite().getId();
+			Site site = node.getSite();
+			return site.getReference();
 		}
 		return null;
 	}
+	
+	private boolean unlockCheckNodeSite(String id, String lock) {
+		PortalNode node = getNodeById(id);
+		if (node != null) {
+			Site site = node.getSite();
+			return securityService.unlock(lock, site.getReference());
+		}
+		return false;
+	}
 
 	public boolean canChangeSite(String id) {
-		return unlockCheckNodeSite(id);
+		return unlockCheckNodeSite(id, SECURE_MODIFY);
 	}
 
 	/**
@@ -476,8 +452,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		if (nodes.size() > 0) {
 			return securityService.isSuperUser();
 		}
-		String siteId = getSiteId(id);
-		return siteService.allowRemoveSite(siteId);
+		return unlockCheckNodeSite(id, SECURE_DELETE);
 	}
 
 	public boolean canMoveNode(String id) {
@@ -485,19 +460,11 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	}
 
 	public boolean canNewNode(String parentId) {
-		return unlockCheckNodeSite(parentId);
+		return unlockCheckNodeSite(parentId, SECURE_NEW);
 	}
 
 	public boolean canRenameNode(String id) {
-		return unlockCheckNodeSite(id);
-	}
-
-	public boolean isAutoDDL() {
-		return autoDDL;
-	}
-
-	public void setAutoDDL(boolean autoDDL) {
-		this.autoDDL = autoDDL;
+		return unlockCheckNodeSite(id, SECURE_MODIFY);
 	}
 
 }

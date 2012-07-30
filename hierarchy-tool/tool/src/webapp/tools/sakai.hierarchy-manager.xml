@@ -8,7 +8,7 @@
 		description="Hierarchy Manager ">
 		
 		<category name="hierarchy" />
-		<configuration name="functions.require" value="site.upd"/>
+		<configuration name="functions.require" value="portal.hierarchy.modify"/>
 		
 
 	</tool>
