@@ -455,6 +455,14 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		}
 		return false;
 	}
+	
+	private String getSiteId(String nodeId) {
+		PortalNode node = getNodeById(nodeId);
+		if (node != null) {
+			return node.getSite().getId();
+		}
+		return null;
+	}
 
 	public boolean canChangeSite(String id) {
 		return unlockCheckNodeSite(id);
@@ -468,7 +476,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		if (nodes.size() > 0) {
 			return securityService.isSuperUser();
 		}
-		return unlockCheckNodeSite(id);
+		String siteId = getSiteId(id);
+		return siteService.allowRemoveSite(siteId);
 	}
 
 	public boolean canMoveNode(String id) {
