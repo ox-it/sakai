@@ -17,7 +17,18 @@
 		#springMessage("delete.intro")
 	</p>
 	#end
+	<p class="instruction">
+		#springMessage("delete.site.intro")
+	</p>
 	<form method="POST">
+	#if (!$hasChildren)
+	<p class="instructions"
+		<label for="deleteSite">#springMessage("delete.site")</label>
+		#springBind("command.deleteSite")
+		<input type="checkbox" id="${status.expression}" name="${status.expression}">
+		<br/>
+	</p>
+	#end
 	<input type="submit" value="#springMessage("delete.button")"/>
 	</form>
 	<form method="GET" action="$rootUrl">

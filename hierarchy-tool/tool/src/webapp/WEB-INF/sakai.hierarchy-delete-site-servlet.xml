@@ -4,114 +4,15 @@
 
 <beans>
 
-
 	<bean id="urlMapping"
 		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
-		<property name="mappings">
-			<props>
-				<prop key="/*">deleteSiteController</prop>
-			</props>
+		<property name="urlMap">
+			<map>
+				<entry key="/*"><ref bean="deleteSiteController"/></entry>
+			</map>
 		</property>
 		<property name="urlPathHelper">
 			<bean class="org.sakaiproject.hierarchy.tool.vm.PathInfoHelper"></bean>
-		</property>
-	</bean>
-
-	<bean id="deleteSiteController"
-		class="org.sakaiproject.hierarchy.tool.vm.DeleteSiteController">
-		<property name="formView" value="delete"/>
-		<property name="successView" value="redirect"/>
-	</bean>
-
-	<!-- 
-		View resolvers can also be configured with ResourceBundles or XML files. If you need 
-		different view resolving based on Locale, you have to use the resource bundle resolver. 
-	-->
-	
-	<!-- Need internal resolved for redirects, unlike UrlBasedViewResolver this doesn't have to be last -->
-	<bean id="redirectViewResolver" class="org.sakaiproject.hierarchy.tool.vm.RedirectViewResolver">
-		<property name="order" value="1"/>
-	</bean>
-	
-	<!-- Because velocity view resolver is done with a dispatch always has to be last in the chain. -->
-	<bean id="viewResolver"
-		class="org.sakaiproject.hierarchy.tool.vm.spring.VelocityViewResolver">
-		<property name="cache">
-			<value>true</value>
-		</property>
-		<property name="prefix">
-			<value />
-		</property>
-		<property name="suffix">
-			<value>.vm</value>
-		</property>
-		<property name="velocityConfig" >
-			<ref bean="velocityConfig" />
-		</property>
-		<property name="exposeSpringMacroHelpers"><value>true</value></property>
-	</bean>
-	
-	
-	<bean id="velocityConfig"
-		class="org.sakaiproject.hierarchy.tool.vm.spring.VelocityConfigurer"
-		init-method="init"  >
-		<!--  this comes from the application context, and is set by a context listener -->
-		<property name="servletContextHolder" ><ref bean="servletContextHolder" /></property>
-		<property name="velocityProperties">
-			<props>
-				<prop key="resource.loader">file, class</prop>
-				<prop key="file.resource.loader.description">
-					Velocity File Resource Loader
-				</prop>
-				<prop key="file.resource.loader.class">
-					org.sakaiproject.hierarchy.tool.vm.spring.WebappLoader
-				</prop>
-				<prop key="file.resource.loader.cache">true</prop>
-				<prop
-					key="file.resource.loader.modificationCheckInterval">
-					60
-				</prop>
-				<prop key="file.resource.loader.path">
-					/WEB-INF/velocity
-				</prop>
-
-				<prop key="class.resource.loader.description">
-					Velocity Classpath Resource Loader
-				</prop>
-				<prop key="class.resource.loader.class">
-					org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
-				</prop>
-				<prop key="class.resource.loader.cache">true</prop>
-				<prop
-					key="class.resource.loader.modificationCheckInterval">
-					0
-				</prop>
-				<prop key="input.encoding">UTF-8</prop>
-				<prop key="output.encoding">UTF-8</prop>
-				<prop key="runtime.log.logsystem.class">
-					org.apache.velocity.runtime.log.SimpleLog4JLogSystem
-				</prop>
-				<prop key="runtime.log.logsystem.log4j.category">
-					portal.vm
-				</prop>
-				<prop key="velocimacro.library">
-					 VM_chef_library.vm,org/sakaiproject/hierarchy/tool/vm/spring/spring.vm
-				</prop>
-				<prop key="velocimacro.permissions.allow.inline">
-					true
-				</prop>
-				<prop
-					key="velocimacro.permissions.allow.inline.override">
-					true
-				</prop>
-			</props>
-		</property>
-	</bean>
-
-	<bean id="messageSource"
-		class="org.springframework.context.support.ResourceBundleMessageSource">
-		<property name="basename">
-			<value>messages</value>
 		</property>
 	</bean>
 

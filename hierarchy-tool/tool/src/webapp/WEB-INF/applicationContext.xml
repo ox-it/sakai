@@ -2,4 +2,183 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
     <bean id="servletContextHolder" class="org.sakaiproject.hierarchy.tool.vm.spring.ServletContextHolder" />
+    
+	<bean id="deleteSiteController"
+		class="org.sakaiproject.hierarchy.tool.vm.DeleteSiteController" init-method="init">
+		<property name="formView" value="delete"/>
+		<property name="successView" value="redirect"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+	</bean>
+
+	<bean id="managerController"
+		class="org.sakaiproject.hierarchy.tool.vm.ManagerController"
+		init-method="init">
+		<property name="portalHierarchyService" ref="org.sakaiproject.hierarchy.api.PortalHierarchyService"/>
+	</bean>
+		
+	<bean id="siteBrowserHelper"
+		class="org.sakaiproject.hierarchy.tool.vm.HelperController">
+		<property name="helperId"><value>sakai.sitebrowser</value></property>
+	</bean>
+
+	<bean id="newSiteController"
+		class="org.sakaiproject.hierarchy.tool.vm.NewSiteController"
+		init-method="init">
+		<property name="formView" value="newsite"/>
+		<property name="successView" value="redirect:/helper"/>
+		<property name="sessionForm" value="true"/>
+		<property name="returnPath" value="/create"/>
+		<property name="validator">
+			<ref bean="newSiteValidator"/>
+		</property>
+		<property name="titleMaxLength">
+			<ref bean="titleMaxLength"/>
+		</property>
+	</bean>
+
+	<bean id="newSiteValidator"
+		class="org.sakaiproject.hierarchy.tool.vm.NewSiteValidator">
+		<property name="maxTitleLength">
+			<ref bean="titleMaxLength"/>
+		</property>
+	</bean>
+
+	<bean id="siteCreationHelper"
+		class="org.sakaiproject.hierarchy.tool.vm.HelperController">
+		<property name="helperId"><value>sakai.sitesetup</value></property>
+	</bean>
+	
+	<bean id="createSiteController"
+		class="org.sakaiproject.hierarchy.tool.vm.CreateSiteController"
+		init-method="init">
+		<property name="canceledView" value="redirect:/"/>
+		<property name="successView" value="redirect"/>
+		<property name="failureView" value="failure"/>
+	</bean>
+
+	<bean id="bringSiteController"
+		class="org.sakaiproject.hierarchy.tool.vm.BringSiteController">
+		<property name="formView" value="bring"/>
+		<property name="successView" value="redirect:/helper"/>
+		<property name="sessionForm" value="true"/>
+		<property name="returnPath" value="/reuse"/>
+		<property name="securityService">
+			<ref bean="org.sakaiproject.authz.api.SecurityService"/>
+		</property>
+	</bean>
+
+	<bean id="reuseSiteController"
+		class="org.sakaiproject.hierarchy.tool.vm.ReuseSiteController">
+		<property name="cancelledView" value="redirect:/" />
+		<property name="formView" value="newsite" />
+		<property name="successView" value="redirect" />
+		<property name="bindOnNewForm" value="true" />
+		<property name="sessionForm" value="true" />
+		<property name="titleMaxLength">
+			<ref bean="titleMaxLength"/>
+		</property>
+		<property name="validator">
+			<bean
+				class="org.sakaiproject.hierarchy.tool.vm.ReuseSiteValidator">
+				<property name="maxTitleLength">
+					<ref bean="titleMaxLength" />
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="titleMaxLength"
+		factory-bean="org.sakaiproject.component.api.ServerConfigurationService"
+		factory-method="getInt">
+		<constructor-arg value="site.title.maxlength" />
+		<constructor-arg value="20" />
+	</bean>
+
+	<!-- Need internal resolved for redirects, unlike UrlBasedViewResolver this doesn't have to be last -->
+	<bean id="redirectViewResolver" class="org.sakaiproject.hierarchy.tool.vm.RedirectViewResolver">
+		<property name="order" value="1"/>
+	</bean>
+	
+	<!-- Because velocity view resolver is done with a dispatch always has to be last in the chain. -->
+	<bean id="viewResolver"
+		class="org.sakaiproject.hierarchy.tool.vm.spring.VelocityViewResolver">
+		<property name="cache">
+			<value>true</value>
+		</property>
+		<property name="prefix">
+			<value />
+		</property>
+		<property name="suffix">
+			<value>.vm</value>
+		</property>
+		<property name="velocityConfig" >
+			<ref bean="velocityConfig" />
+		</property>
+		<property name="exposeSpringMacroHelpers"><value>true</value></property>
+	</bean>
+
+	<!-- We mustn't init this class as the servletContext won't have been set.
+	     The first time this bean gets used it does an init. -->
+	<bean id="velocityConfig"
+		class="org.sakaiproject.hierarchy.tool.vm.spring.VelocityConfigurer">
+		<!--  this comes from the application context, and is set by a context listener -->
+		<property name="servletContextHolder" ><ref bean="servletContextHolder" /></property>
+		<property name="velocityProperties">
+			<props>
+				<prop key="resource.loader">file, class</prop>
+				<prop key="file.resource.loader.description">
+					Velocity File Resource Loader
+				</prop>
+				<prop key="file.resource.loader.class">
+					org.sakaiproject.hierarchy.tool.vm.spring.WebappLoader
+				</prop>
+				<prop key="file.resource.loader.cache">false</prop>
+				<prop
+					key="file.resource.loader.modificationCheckInterval">
+					60
+				</prop>
+				<prop key="file.resource.loader.path">
+					/WEB-INF/velocity
+				</prop>
+
+				<prop key="class.resource.loader.description">
+					Velocity Classpath Resource Loader
+				</prop>
+				<prop key="class.resource.loader.class">
+					org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+				</prop>
+				<prop key="class.resource.loader.cache">true</prop>
+				<prop
+					key="class.resource.loader.modificationCheckInterval">
+					0
+				</prop>
+				<prop key="input.encoding">UTF-8</prop>
+				<prop key="output.encoding">UTF-8</prop>
+				<prop key="runtime.log.logsystem.class">
+					org.apache.velocity.runtime.log.SimpleLog4JLogSystem
+				</prop>
+				<prop key="runtime.log.logsystem.log4j.category">
+					portal.vm
+				</prop>
+				<prop key="velocimacro.library">
+					 VM_chef_library.vm,org/sakaiproject/hierarchy/tool/vm/spring/spring.vm
+				</prop>
+				<prop key="velocimacro.permissions.allow.inline">
+					true
+				</prop>
+				<prop
+					key="velocimacro.permissions.allow.inline.override">
+					true
+				</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename">
+			<value>messages</value>
+		</property>
+	</bean>
+	
 </beans>
