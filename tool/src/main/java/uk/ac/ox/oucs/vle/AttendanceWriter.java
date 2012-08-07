@@ -50,30 +50,34 @@ public class AttendanceWriter {
 		
 			for (CourseSignup signup : (Collection<CourseSignup>)pairs.getValue()) {
 			
-				Element attendee = new Element("student");
 				Person person = signup.getUser();
+				
+				if (null != person) {
+				
+					Element attendee = new Element("student");
 			
-				Element sid = new Element("webauth_id");
-				sid.setText(person.getWebauthId());
-				attendee.addContent(sid);
+					Element sid = new Element("webauth_id");
+					sid.setText(person.getWebauthId());
+					attendee.addContent(sid);
 			
-				Element sod = new Element("ossid");
-				if (null == person.getOssId()) {
-					sod.setText("null");
-				} else {
-					sod.setText(person.getOssId());
+					Element sod = new Element("ossid");
+					if (null == person.getOssId()) {
+						sod.setText("null");
+					} else {
+						sod.setText(person.getOssId());
+					}
+					attendee.addContent(sod);
+			
+					Element ssn = new Element("name");
+					ssn.setText(person.getName());
+					attendee.addContent(ssn);
+			
+					Element sst = new Element("status");
+					sst.setText(signup.getStatus().name());
+					attendee.addContent(sst);
+			
+					students.addContent(attendee);
 				}
-				attendee.addContent(sod);
-			
-				Element ssn = new Element("name");
-				ssn.setText(person.getName());
-				attendee.addContent(ssn);
-			
-				Element sst = new Element("status");
-				sst.setText(signup.getStatus().name());
-				attendee.addContent(sst);
-			
-				students.addContent(attendee);
 			}
 			group.addContent(students);
 			teachingInstance.addContent(group);

@@ -389,9 +389,28 @@ public class SignupResource {
 								Person p2 = s2.getUser();
 								
 								int ret = s1.getGroup().getId().compareTo(s2.getGroup().getId());
-								return ret == 0 ? p1.getLastName().compareTo(p2.getLastName()) : ret;
 								
-								//return p1.getLastName().compareTo(p2.getLastName());
+								// this line is giving a NullPointerException
+								//return ret == 0 ? p1.getLastName().compareTo(p2.getLastName()) : ret;
+								if (ret != 0) {
+									return ret;
+								}
+								
+								if (p1 == null) {
+							        return (p2 == null) ? 0 : -1;
+							    }
+							    if (p2 == null) {
+							        return 1;
+							    }
+							    
+								if (p1.getLastName() == null) {
+							        return (p2.getLastName() == null) ? 0 : -1;
+							    }
+							    if (p2.getLastName() == null) {
+							        return 1;
+							    }
+							    
+							    return p1.getLastName().compareTo(p2.getLastName());
 							}
 						});
 					
