@@ -89,7 +89,7 @@
                     However SolrJ has quite a few dependencies. -->
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-solrj</artifactId>
-                <version>1.4.1</version>
+                <version>3.4.0</version>
                 <exclusions>
                     <!-- We don't use this, would be nice to be optional
                         in solr.
