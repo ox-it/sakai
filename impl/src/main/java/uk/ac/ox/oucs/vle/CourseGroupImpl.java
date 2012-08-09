@@ -1,8 +1,11 @@
 package uk.ac.ox.oucs.vle;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class CourseGroupImpl implements CourseGroup {

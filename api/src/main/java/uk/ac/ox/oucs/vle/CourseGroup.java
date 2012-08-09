@@ -31,7 +31,7 @@ public interface CourseGroup {
 	public boolean getHideGroup();
 	
 	public String getContactEmail();
-
+	
 	public List<CourseComponent> getComponents();
 	
 	public List<CourseCategory> getCategories();

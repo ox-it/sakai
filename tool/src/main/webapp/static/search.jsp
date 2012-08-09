@@ -54,6 +54,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<script type="text/javascript">
 
 		var externalUser = <c:out value="${externalUser}" />;
+		var recentDays = "<%= ServerConfigurationService.getString("recent.days", "14") %>";
 
 		/**
 		 * Used by the exhibit code to convert the JSON into 
@@ -70,7 +71,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 			};
 			$.each(courses, function(){
 				var course = this;
-				var summary =  Signup.signup.summary(course.components); /* This is a bit of a performance killer on IE.; */
+				var summary =  Signup.signup.summary(course.components, recentDays); /* This is a bit of a performance killer on IE.; */
 				data.items.push({
 					label: course.title,
 					id: course.id,
@@ -203,8 +204,8 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
                   div ex:role="facet" ex:expression=".categories_jacs" ex:facetLabel="Subject Categories" ex:showMissing="false" ex:height="7em"></div
                   -->
                  <div ex:role="facet" ex:expression=".categories_rm" ex:facetLabel="Research Methods" ex:showMissing="false" ex:height="7em"></div>
-				 <div ex:role="facet" ex:expression=".bookable" ex:facetLabel="Bookable" ex:height="7em"></div>
-				 <div ex:role="facet" ex:expression=".previous" ex:selection="Current Courses" ex:facetLabel="Previous" ex:height="3.5em"></div>
+				 <div ex:role="facet" ex:expression=".bookable" ex:facetLabel="Bookable" ex:height="5em"></div>
+				 <div ex:role="facet" ex:expression=".previous" ex:selection="Current Courses" ex:facetLabel="Time Frame" ex:height="5em"></div>
 
             </td>
         </tr>

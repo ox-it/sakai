@@ -677,11 +677,11 @@ var Signup = function(){
 			 * Produces a summary based on the components in the signup.
 			 * @param {Object} components
 			 */
-			"summary": function(components){
-				var summary = {state: "unknown", previous: "Current Courses", message: null};
+			"summary": function(components, recentDays){
+				var summary = {state: "unknown", previous: ["Current Courses"], message: null};
 				if (components.length == 0) {
 					summary.message = "No";
-					summary.previous = "Old Courses";
+					summary.previous[0] = "Old Courses";
 					return summary; 
 				}
 				var now = $.serverDate();
@@ -690,6 +690,7 @@ var Signup = function(){
 				var isOneOpen = false;
 				var isOneBookable = false;
 				var areSomePlaces = false;
+				var newCourse = false;
 				$.each(components, function() {
 					var component = this;
 					var isOpen = component.opens < now && component.closes > now;
@@ -708,12 +709,20 @@ var Signup = function(){
 					if (!isOneBookable) {
 						isOneBookable = component.bookable;
 					}
+					
+					if (component.id == "19549") {
+						var testIt = "";
+					}
+					var newDate = now - (recentDays * 24 * 60 * 60 * 1000);
+					if (component.created > newDate) {
+						newCourse = true;
+					}
 				});
 				var message = "";
 				if (!isOneBookable) {
 					if (now > willClose) {
 						summary.state = "No"; // (Previous)";
-						summary.previous = "Old Courses";
+						summary.previous[0] = "Old Courses";
 					}
 					else {
 						summary.state = "No"; // (Not Bookable)";
@@ -733,7 +742,7 @@ var Signup = function(){
 				}
 				else {
 					if (nextOpen == Number.MAX_VALUE) {
-						summary.previous = "Old Courses";
+						summary.previous[0] = "Old Courses";
 						summary.state = "No"; // (Never Opens)";
 					}
 					else {
@@ -741,6 +750,10 @@ var Signup = function(){
 						summary.message = "open in " + Signup.util.formatDuration(until);
 						summary.state = "Later";
 					}
+				}
+				
+				if (newCourse) {
+					summary.previous[1] = "New Courses";
 				}
 				
 				return summary;
