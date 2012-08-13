@@ -48,12 +48,12 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>1.5.8</version>
+                <version>1.6.4</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.5.8</version>
+                <version>1.6.4</version>
             </dependency>
             <dependency>
                 <groupId>log4j</groupId>
@@ -89,7 +89,7 @@
                     However SolrJ has quite a few dependencies. -->
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-solrj</artifactId>
-                <version>3.4.0</version>
+                <version>3.6.1</version>
                 <exclusions>
                     <!-- We don't use this, would be nice to be optional
                         in solr.
