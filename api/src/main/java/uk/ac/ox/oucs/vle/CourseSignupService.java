@@ -170,7 +170,5 @@ public interface CourseSignupService {
 	public String[] getCourseSignupFromEncrypted(String encrypted);
 	
 	public String getDirectUrl(String courseId);
-	
-	public Integer getRecentDays();
 
 }

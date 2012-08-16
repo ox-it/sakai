@@ -1159,20 +1159,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return string.split("\\$");
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	protected String getDaisyAdmin() {
 		return serverConfigurationService.getString("daisy.administrator", "admin");
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public Integer getRecentDays() {
-		return Integer.parseInt(serverConfigurationService.getString("recent.days", "14"));
 	}
 	
 }

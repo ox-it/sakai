@@ -42,7 +42,7 @@ import org.xcri.profiles.x12.catalog.CatalogDocument;
 import org.xml.sax.SAXParseException;
 
 
-public class XcriPopulatorImpl extends XCRIImport implements Populator {
+public class XcriPopulatorImpl implements Populator {
 	
 	/**
 	 * The DAO to update our entries through.
@@ -71,13 +71,12 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 	/**
 	 * 
 	 */
-	/*
 	private ServerConfigurationService serverConfigurationService;
 	public void setServerConfigurationService(
 			ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
 	}
-	*/
+	
 	/**
 	 * 
 	 */
@@ -935,7 +934,7 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 		}
 		return "course-signup";
 	}
-	/*
+	
 	protected String getXcriURL() {
 		if (null != serverConfigurationService) {
 			return serverConfigurationService.getString("xcri.url", 
@@ -957,7 +956,7 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 		}
 		return "blu3D0lph1n";
 	}
-	*/
+	
 	/**
 	 * This sets up the user for the current request.
 	 */

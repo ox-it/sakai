@@ -2,12 +2,8 @@ package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 
@@ -203,19 +199,14 @@ public class CourseResource {
 	private CourseSummary summary(Date now, CourseGroup courseGroup) {
 		// Calculate the summary based on the available components.	
 		if (courseGroup.getComponents().isEmpty()) {
-			return new CourseSummary("none available", Collections.singletonList(CourseState.UNKNOWN));
+			return new CourseSummary("none available", CourseState.UNKNOWN);
 		}
-		
-		Integer recentDays = courseService.getRecentDays();
-		Collection<CourseState> states = new ArrayList<CourseState>();
-		//CourseState state = CourseState.UNKNOWN;
+		CourseState state = CourseState.UNKNOWN;
 		Date nextOpen = new Date(Long.MAX_VALUE);
 		Date willClose = new Date(0);
 		boolean isOneOpen = false;
 		boolean isOneBookable = false;
 		boolean areSomePlaces = false;
-		boolean isNew = false;
-		
 		for (CourseComponent component: courseGroup.getComponents()) {
 			if (!isOneBookable) {
 				isOneBookable = component.getBookable();
@@ -238,70 +229,53 @@ public class CourseResource {
 					areSomePlaces = true;
 				}
 			}
-			Calendar recent = new GregorianCalendar();
-			recent.setTime(component.getCreated());
-			recent.add(Calendar.DATE, (recentDays));
-			
-			if (now.before(recent.getTime())) {
-				isNew = true;
-			}
 		}
 		String detail = null;
-		if (isNew) {
-			states.add(CourseState.NEW);
-		}
-		//String newCourse = isNew ? "*NEW*" : "";
 		if (!isOneBookable) {
-			states.add(CourseState.UNBOOKABLE);
-			return new CourseSummary(null, states);
+			return new CourseSummary(null, CourseState.UNBOOKABLE);
 		}
 	
 		if (isOneOpen) {
 			if (areSomePlaces) {
 				long remaining = willClose.getTime() - now.getTime();
 				detail = "close in "+ formatDuration(remaining);
-				states.add(CourseState.OPEN);
+				state = CourseState.OPEN;
 			} else {
 				detail = "full";
-				states.add(CourseState.FULL);
+				state = CourseState.FULL;
 			}
 		} else {
 			if (nextOpen.getTime() == Long.MAX_VALUE) {
-				states.add(CourseState.UNBOOKABLE);
+				state = CourseState.UNBOOKABLE;
 			} else {
 				long until = nextOpen.getTime() - now.getTime();
 				detail = "open in "+ formatDuration(until);
 			}
 		}
-		return new CourseSummary(detail, states);
+		return new CourseSummary(detail, state);
 	}
 	
 	
 
 	// Maybe I should have just implemented a tuple.
-	static enum CourseState {OPEN, FULL, UNBOOKABLE, UNKNOWN, NEW}
+	static enum CourseState {OPEN, FULL, UNBOOKABLE, UNKNOWN}
 
 	class CourseSummary {
 		
 		private String detail;
-		private Collection<CourseState> states;
+		private CourseState state;
 		
-		CourseSummary(String detail, Collection<CourseState> states) {
+		CourseSummary(String detail, CourseState state) {
 			this.detail = detail;
-			this.states = states;
+			this.state = state;
 		}
 		
 		String getDetail() {
 			return this.detail;
 		}
 		
-		String getCourseState() {
-			StringBuffer sb = new StringBuffer();
-			for (CourseState state : states) {
-				sb.append(state.toString().toLowerCase());
-				sb.append(" ");
-			}
-			return sb.toString();
+		CourseState getCourseState() {
+			return this.state;
 		}
 	}
 
@@ -350,10 +324,8 @@ public class CourseResource {
 				gen.writeObjectField("class", state.getCourseState().toString().toLowerCase());
 				gen.writeEndObject();
 				
-				gen.writeObjectField("data", 
-						courseGroup.getTitle() + 
-						(state.getDetail() == null ? "" : (" ("+state.getDetail()+")")) 
-						//(state.getNew() == null ? "" : " " + (state.getNew()))
+				gen.writeObjectField("data", courseGroup.getTitle() + 
+						(state.getDetail() == null?"":(" ("+state.getDetail()+")"))
 				);
 				
 				gen.writeEndObject();
@@ -417,7 +389,6 @@ public class CourseResource {
 					gen.writeObjectField("when", component.getWhen());
 					gen.writeObjectField("bookable", component.getBookable());
 					gen.writeObjectField("places", component.getPlaces());
-					gen.writeObjectField("created", component.getCreated().getTime());
 					gen.writeObjectField("componentSet", component.getComponentSet());
 					if (null != component.getPresenter()) {
 						gen.writeObjectFieldStart("presenter");

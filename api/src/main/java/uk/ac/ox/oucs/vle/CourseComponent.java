@@ -26,8 +26,6 @@ public interface CourseComponent {
 	
 	public Date getEnds();
 	
-	public Date getCreated();
-	
 	public String getSlot();
 	
 	public String getWhen();

@@ -33,7 +33,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.xcri.profiles.x12.catalog.CatalogDocument;
 
 
-public class XcriGenerateTree extends XCRIImport implements GenerateTree {
+public class XcriGenerateTree implements GenerateTree {
 	
 	private static final Log log = LogFactory.getLog(XcriGenerateTree.class);
 	
@@ -48,13 +48,12 @@ public class XcriGenerateTree extends XCRIImport implements GenerateTree {
 	/**
 	 * 
 	 */
-	/*
 	private ServerConfigurationService serverConfigurationService;
 	public void setServerConfigurationService(
 			ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
 	}
-	*/
+	
 	private JsonGenerator generator;
 	
 	/**
@@ -198,13 +197,13 @@ public class XcriGenerateTree extends XCRIImport implements GenerateTree {
 		
 		return null;
 	}
-	/*
+	
 	protected String getXcriURL() {
 		if (null != serverConfigurationService) {
 			return serverConfigurationService.getString("xcri.url", 
-					"http://daisy-feed.socsci.ox.ac.uk/XCRI_SES.php");
+					"http://daisy-feed.socsci.ox.ac.uk/XCRI_course_feed.php");
 		}
-		return "http://daisy-feed.socsci.ox.ac.uk/XCRI_SES.php";
+		return "http://daisy-feed.socsci.ox.ac.uk/XCRI_course_feed.php";
 	}
 	
 	protected String getXcriAuthUser() {
@@ -220,7 +219,7 @@ public class XcriGenerateTree extends XCRIImport implements GenerateTree {
 		}
 		return "blu3D0lph1n";
 	}
-	*/
+	
 	public static void main(String[] args) {
 		String json = null;
 		try {	
