@@ -1,7 +1,9 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 
 public class CourseComponentImpl implements CourseComponent {
@@ -14,6 +16,9 @@ public class CourseComponentImpl implements CourseComponent {
 	private transient Date closes;
 	private transient Date starts;
 	private transient Date ends;
+	private transient Date created;
+	
+	private static int YEARSAGO = -1825;
 	
 	public CourseComponentImpl(CourseComponentDAO dao, CourseSignupServiceImpl impl) {
 		this.dao = dao;
@@ -82,6 +87,19 @@ public class CourseComponentImpl implements CourseComponent {
 			ends = new Date(dao.getEnds().getTime());
 		}
 		return ends;
+	}
+	
+	public Date getCreated() {
+		// Jackson doesn't like java.sql.Date.
+		if(created == null && dao.getCreated() != null) {
+			created = new Date(dao.getCreated().getTime());
+		}
+		if (null == created) {
+			GregorianCalendar cal = new GregorianCalendar();  
+			cal.add(Calendar.DATE, YEARSAGO);   
+			return cal.getTime();
+		}
+		return created;
 	}
 
 	public String getComponentSet() {

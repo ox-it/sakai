@@ -3,7 +3,9 @@ package uk.ac.ox.oucs.vle;
 import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -495,6 +497,8 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public CourseComponentDAO newCourseComponent(String id) {
 		CourseComponentDAO componentDao = new CourseComponentDAO();
 		componentDao.setId(id);
+		Calendar now = GregorianCalendar.getInstance();
+		componentDao.setCreated(now.getTime());
 		return componentDao;
 	}
 
