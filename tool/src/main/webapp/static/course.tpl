@@ -64,7 +64,7 @@
                     {if categories_rdf.length > 0}
                     	<tr>
                         	<th>
-                            	Research Methods
+                            	Skills Categories
                         	</th>
                         	<td>
 								{for category in categories_rdf}
@@ -90,7 +90,7 @@
                     {if categories_rm.length > 0}
                     	<tr>
                         	<th>
-                            	Skills Categories
+                            	Research Methods
                         	</th>
                         	<td>
 								{for category in categories_rm}
@@ -259,3 +259,4 @@
 					${url}
             	</div>
             {/if}
+    
