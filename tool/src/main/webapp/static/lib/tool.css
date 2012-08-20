@@ -121,7 +121,7 @@ table th {
 
 /* These are for colour coding the jsTree of dept/courses */
 .jstree li.new a ins {
-	background-image: url('/course-signup/static/images/exclamation.gif');
+	background-image: url('/library/image/silk/new.png');
 	background-position: 0 0;
 }
 .jstree li.full a {
