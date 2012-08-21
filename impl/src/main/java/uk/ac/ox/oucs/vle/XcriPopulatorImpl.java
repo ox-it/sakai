@@ -3,18 +3,14 @@ package uk.ac.ox.oucs.vle;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,7 +26,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -71,16 +66,6 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 	/**
 	 * 
 	 */
-	/*
-	private ServerConfigurationService serverConfigurationService;
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
-	*/
-	/**
-	 * 
-	 */
 	private SessionManager sessionManager;
 	public void setSessionManager(SessionManager sessionManager) {
 		this.sessionManager = sessionManager;
@@ -90,16 +75,9 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 	
 	private final static String XCRI_URL = "http://localhost:8080/test/courses.xml";
 
-	private Writer writer;
-	
-	private String preHTMLa = "<html><head></head><body>" +
-		"<h3>Errors and Warnings from SES Import ";
-	private String preHTMLb = "</h3>";
-	private String preHTMLc = "<h3>Using the XCRI file generated on ";
-	private String preHTMLd = "</h3>";
-	private String preHTML = "<pre>";
-	private String postHTML = "</pre></body></html>";
-	
+	private XcriErrorWriter eWriter;
+	private XcriInfoWriter iWriter;
+
 	private int departmentSeen;
 	private int departmentCreated;
 	private int departmentUpdated;
@@ -114,7 +92,6 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 	private int componentUpdated;
 	
 	private String lastGroup = null;
-	
 	
 	/**
 	 * 
@@ -169,6 +146,7 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 		
 		switchUser();
 		ContentResourceEdit cre = null;
+		ContentResourceEdit cri = null;
 		
 		try {
 			// Bind the incoming XML to an XMLBeans type.
@@ -176,25 +154,19 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 			CatalogDocument catalog = CatalogDocument.Factory.parse(inputStream);
 
 			String generated = null;
+			String source = "Daisy";
 			XmlObject[] objects = XcriUtils.selectPath(catalog, "catalog");
 			for (int i=0; i<objects.length; i++) {
 				XmlObject object = objects[i];
 				generated = XcriUtils.getAttribute(object.newCursor(), "generated");
 			}
 		
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			writer = new OutputStreamWriter(out);
+			ByteArrayOutputStream eOut = new ByteArrayOutputStream();
+			ByteArrayOutputStream iOut = new ByteArrayOutputStream();
 			
-			writer.write(preHTMLa);
-			writer.write(now());
-			writer.write(preHTMLb);
-			if (null != generated) {
-				writer.write(preHTMLc);
-				writer.write(generated);
-				writer.write(preHTMLd);
-			}
-			writer.write(preHTML);
-		
+			eWriter = new XcriErrorWriter(eOut, source, generated);
+			iWriter = new XcriInfoWriter(iOut, source, generated);
+			
 			departmentSeen = 0;
 			departmentCreated = 0;
 			departmentUpdated = 0;
@@ -222,39 +194,67 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 				provider(providers[i], false);		
 			}
 		
-			logMe("CourseDepartments (seen: "+ departmentSeen+ " created: "+ departmentCreated+ ", updated: "+ departmentUpdated+")");
-			logMe("CourseSubUnits (seen: "+ subunitSeen+ " created: "+ subunitCreated+ ", updated: "+ subunitUpdated+")");
-			logMe("CourseGroups (seen: "+ groupSeen+ " created: "+ groupCreated+ ", updated: "+ groupUpdated+")");
-			logMe("CourseComponents (seen: "+ componentSeen+ " created: "+ componentCreated+ ", updated: "+ componentUpdated+")");
+			logMs("CourseDepartments (seen: "+ departmentSeen+ " created: "+ departmentCreated+ ", updated: "+ departmentUpdated+")");
+			logMs("CourseSubUnits (seen: "+ subunitSeen+ " created: "+ subunitCreated+ ", updated: "+ subunitUpdated+")");
+			logMs("CourseGroups (seen: "+ groupSeen+ " created: "+ groupCreated+ ", updated: "+ groupUpdated+")");
+			logMs("CourseComponents (seen: "+ componentSeen+ " created: "+ componentCreated+ ", updated: "+ componentUpdated+")");
 	
-			writer.write(postHTML);
-			writer.flush();
-			writer.close();
+			eWriter.flush();
+			eWriter.close();
+			
+			iWriter.flush();
+			iWriter.close();
 			
 			if (null != contentHostingService) {
 					
-				String jsonResourceId = contentHostingService.getSiteCollection(getSiteId())+ "import.html";
+				String jsonResourceEId = contentHostingService.getSiteCollection(getSiteId())+ eWriter.getIdName();
 
 				try {
 					// editResource() doesn't throw IdUnusedExcpetion but PermissionException
 					// when the resource is missing so we first just tco to find it.
-					contentHostingService.getResource(jsonResourceId);
-					cre = contentHostingService.editResource(jsonResourceId);
+					contentHostingService.getResource(jsonResourceEId);
+					cre = contentHostingService.editResource(jsonResourceEId);
 				
 				} catch (IdUnusedException e) {
 					try {
-						cre = contentHostingService.addResource(jsonResourceId);
+						cre = contentHostingService.addResource(jsonResourceEId);
 						ResourceProperties props = cre.getPropertiesEdit();
-						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, "importlog.html");
+						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, eWriter.getDisplayName());
 						cre.setContentType("text/html");
 					} catch (Exception e1) {
 						log.warn("Failed to create the import log file.", e1);
 					}
 				}
 			
-				cre.setContent(out.toByteArray());
+				cre.setContent(eOut.toByteArray());
 				// Don't notify anyone about this resource.
 				contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+			}
+			
+			if (null != contentHostingService) {
+				
+				String jsonResourceSId = contentHostingService.getSiteCollection(getSiteId())+ iWriter.getIdName();
+
+				try {
+					// editResource() doesn't throw IdUnusedExcpetion but PermissionException
+					// when the resource is missing so we first just try to find it.
+					contentHostingService.getResource(jsonResourceSId);
+					cri = contentHostingService.editResource(jsonResourceSId);
+				
+				} catch (IdUnusedException e) {
+					try {
+						cri = contentHostingService.addResource(jsonResourceSId);
+						ResourceProperties props = cri.getPropertiesEdit();
+						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, iWriter.getDisplayName());
+						cri.setContentType("text/html");
+					} catch (Exception e1) {
+						log.warn("Failed to create the import log file.", e1);
+					}
+				}
+			
+				cri.setContent(iOut.toByteArray());
+				// Don't notify anyone about this resource.
+				contentHostingService.commitResource(cri, NotificationService.NOTI_NONE);
 			}
 			
 		} catch (XmlException e) {
@@ -272,6 +272,9 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 		} finally {
 			if (null != cre && cre.isActiveEdit()) {
 				contentHostingService.cancelResource(cre);
+			}
+			if (null != cri && cri.isActiveEdit()) {
+				contentHostingService.cancelResource(cri);
 			}
 		}
 	}
@@ -658,9 +661,9 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 		}
 		
 		if (created) {
-			logMe("Log Success Course Group created ["+code+":"+title+"]");
+			logMs("Log Success Course Group created ["+code+":"+title+"]");
 		} else {
-			logMe("Log Success Course Group updated ["+code+":"+title+"]");
+			logMs("Log Success Course Group updated ["+code+":"+title+"]");
 		}
 		return created;
 	}
@@ -702,56 +705,56 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 		try {
 			
 			if (null == openDate) { 
-				logMe("Log Failure Instance ["+id+"] No open date set");
+				logMe("Log Failure Teaching Instance ["+id+"] No open date set");
 				i++;
 			}
 		
 			if (null == closeDate) {
-				logMe("Log Failure Instance ["+id+"] No close date set");
+				logMe("Log Failure Teaching Instance ["+id+"] No close date set");
 				i++;
 			}
 		
 			if (null != openDate && null != closeDate) {
 				if (openDate.after(closeDate)){
-					logMe("Log Failure Instance ["+id+"] Open date is after close date");
+					logMe("Log Failure Teaching Instance ["+id+"] Open date is after close date");
 					i++;
 				}
 			}
 		
 			if (null != expiryDate && null != closeDate) {
 				if(expiryDate.before(closeDate)){
-					logMe("Log Failure Instance ["+id+"] Expiry date is before close date");
+					logMe("Log Failure Teaching Instance ["+id+"] Expiry date is before close date");
 					i++;
 				}
 			}
 		
 			if (subject == null || subject.trim().length() == 0) {
-				logMe("Log Failure Instance ["+id+"] Subject isn't set");
+				logMe("Log Failure Teaching Instance ["+id+"] Subject isn't set");
 				i++;
 			}
 		
 			if (title == null || title.trim().length() == 0) {
-				logMe("Log Failure Instance ["+id+"] Title isn't set");
+				logMe("Log Failure Teaching Instance ["+id+"] Title isn't set");
 				i++;
 			}
 		
 			if (termCode == null || termCode.trim().length() == 0) {
-				logMe("Log Failure Instance ["+id+"] Term code can't be empty");
+				logMe("Log Failure Teaching Instance ["+id+"] Term code can't be empty");
 				i++;
 			}
 		
 			if (termName == null || termName.trim().length() == 0) {
-				logMe("Log Failure Instance ["+id+"] Term name can't be empty");
+				logMe("Log Failure Teaching Instance ["+id+"] Term name can't be empty");
 				i++;
 			}
 		
 			if (teachingComponentId == null || teachingComponentId.trim().length()==0) {
-				logMe("Log Failure Instance ["+id+"] No teaching component ID found");
+				logMe("Log Failure Teaching Instance ["+id+"] No teaching component ID found");
 				i++;
 			}
 		
 			if (groups.isEmpty()) {
-				logMe("Log Failure Instance ["+id+"] No Assessment Unit codes");
+				logMe("Log Failure Teaching Instance ["+id+"] No Assessment Unit codes");
 				i++;
 			}
 		
@@ -840,17 +843,31 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 		}
 		
 		if (created) {
-			logMe("Log Success Course Component created ["+id+":"+subject+"]");
+			logMs("Log Success Course Component created ["+id+":"+subject+"]");
 		} else {
-			logMe("Log Success Course Component updated ["+id+":"+subject+"]");
+			logMs("Log Success Course Component updated ["+id+":"+subject+"]");
 		}
 		return created;
 	}
 	
-
+	/**
+	 * Log errors and warnings
+	 * @param message
+	 * @throws IOException
+	 */
 	private void logMe(String message) throws IOException {
 		log.warn(message);
-		writer.write(message+"\n");
+		eWriter.write(message+"\n");
+	}
+	
+	/**
+	 * Log successes
+	 * @param message
+	 * @throws IOException
+	 */
+	private void logMs(String message) throws IOException {
+		log.warn(message);
+		iWriter.write(message+"\n");
 	}
 	
 	/**
@@ -922,42 +939,14 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 	    return sdf.format(date);
 	}
-	
-	private String now() {
-		Calendar cal = Calendar.getInstance();
-	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	    return sdf.format(cal.getTime());
-	}
-	
+
 	protected String getSiteId() {
 		if (null != serverConfigurationService) {
 			return serverConfigurationService.getString("course-signup.site-id", "course-signup");
 		}
 		return "course-signup";
 	}
-	/*
-	protected String getXcriURL() {
-		if (null != serverConfigurationService) {
-			return serverConfigurationService.getString("xcri.url", 
-					"http://daisy-feed.socsci.ox.ac.uk/XCRI_course_feed.php");
-		}
-		return "http://daisy-feed.socsci.ox.ac.uk/XCRI_course_feed.php";
-	}
-	
-	protected String getXcriAuthUser() {
-		if (null != serverConfigurationService) {
-			return serverConfigurationService.getString("xcri.auth.user", "sesuser");
-		}
-		return "sesuser";
-	}
-	
-	protected String getXcriAuthPassword() {
-		if (null != serverConfigurationService) {
-			return serverConfigurationService.getString("xcri.auth.password", "blu3D0lph1n");
-		}
-		return "blu3D0lph1n";
-	}
-	*/
+
 	/**
 	 * This sets up the user for the current request.
 	 */
