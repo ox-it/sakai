@@ -85,12 +85,12 @@ public class ModuleImpl implements Module {
 		tomorrow.add(Calendar.DATE, aboutToStartDays);
 		aboutToStart = (Date) tomorrow.getTime();
 		
-		System.out.println("ModuleImpl.initialise");
-		System.out.println("Last Midnight ["+
+		log.info("ModuleImpl.initialise");
+		log.info("Last Midnight ["+
 				DateFormat.getInstance().format(lastMidnight)+"]");
-		System.out.println("Today Midnight ["+
+		log.info("Today Midnight ["+
 				DateFormat.getInstance().format(aboutToClose)+"]");
-		System.out.println("Tomorrow Midnight ["+
+		log.info("Tomorrow Midnight ["+
 				DateFormat.getInstance().format(aboutToStart)+"]");
 	}
 	
@@ -125,7 +125,7 @@ public class ModuleImpl implements Module {
 				
 				if (isToday(component.getCloses())) {
 					// Component is about to close
-					System.out.println("Component is about to close ["+
+					log.info("Component is about to close ["+
 							component.getId()+":"+
 							DateFormat.getInstance().format(component.getCloses())+":"+
 							component.getSubject()+"]");
@@ -158,7 +158,7 @@ public class ModuleImpl implements Module {
 				
 				if (isAboutToStart(component.getStarts())) {
 					// Component is about to start
-					System.out.println("Component is about to start ["+
+					log.info("Component is about to start ["+
 							component.getId()+":"+
 							DateFormat.getInstance().format(component.getStarts())+":"+
 							component.getSubject()+"]");
@@ -184,7 +184,7 @@ public class ModuleImpl implements Module {
 	private void attentionSignups(int reminderDays) {
 		
 		List<CourseSignupDAO> signups = dao.findSignupStillPendingOrAccepted(reminderDays);
-		System.out.println("ModuleImpl.attentionSignups ["+signups.size()+"]");
+		log.info("ModuleImpl.attentionSignups ["+signups.size()+"]");
 		
 		Map<String, Collection<CourseSignupDAO>> supervisors = 
 				new HashMap<String, Collection<CourseSignupDAO>>();
