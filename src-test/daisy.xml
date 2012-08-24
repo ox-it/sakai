@@ -1,0 +1,209 @@
+<catalog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:ukrlp="http://www.ukrlp.co.uk"
+         xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos"
+         xmlns:credit="http://purl.org/net/cm"
+         xmlns:xcri12terms="http://xcri.org/profiles/1.2/catalog/terms" xmlns:mlo="http://purl.org/net/mlo"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:dcterms="http://purl.org/dc/terms/"
+         xmlns:daisy="http://www.oucs.ox.ac.uk"
+         xsi:schemaLocation="http://xcri.org/profiles/1.2/catalog xcri_cap_1_2.xsd 
+                             http://xcri.org/profiles/1.2/catalog/terms xcri_cap_terms_1_2.xsd 
+                             http://purl.org/net/mlo mlo_xcri_profile.xsd 
+                             http://purl.org/dc/elements/1.1/ dc.xsd 
+                             http://purl.org/dc/terms/ dcterms.xsd"
+         generated="2011-03-21T20:00:23Z" xmlns="http://xcri.org/profiles/1.2/catalog">
+        
+<!--
+<catalog xsi:schemaLocation="http://xcri.org/profiles/1.2/catalog/xcricap12.xsd 
+            				 http://xcri.org/profiles/1.2/catalog/terms/xcricapterms12.xsd 
+                             http://purl.org/net/mlo/mloxcriprofile.xsd             
+                             http://purl.org/dc/elements/1.1/dc.xsd             
+                             http://purl.org/dc/terms/dcterms.xsd" 
+         generated="2012-07-16T12:07:29Z">
+-->
+           
+	<dc:identifier>http://course.data.ox.ac.uk/id/daisy/catalog</dc:identifier>
+	<provider>
+		<dc:title>Anthropology</dc:title>
+		<dc:identifier>3C11</dc:identifier>
+		<mlo:url>http://www.ox.ac.uk/ </mlo:url>
+		<daisy:webAuthCode daisy:type="superUser">bjtaylor</daisy:webAuthCode>
+		<daisy:webAuthCode daisy:type="superUser">admn2367</daisy:webAuthCode>
+		<daisy:departmentalSubUnit daisy:code="AE"><![CDATA[Social &amp; Cultural Anthropology]]></daisy:departmentalSubUnit>
+		<daisy:departmentalSubUnit daisy:code="AG"><![CDATA[School of Anthropology]]></daisy:departmentalSubUnit>
+		<daisy:departmentalSubUnit daisy:code="ME"><![CDATA[Human Sciences Committee]]></daisy:departmentalSubUnit>
+		<daisy:departmentThirdLevelApproval>0</daisy:departmentThirdLevelApproval>
+		<daisy:division code="3C">Social Sciences</daisy:division>
+		<daisy:divisionWideEmail></daisy:divisionWideEmail>
+		<course>
+			<dc:identifier daisy:type="teachingComponentId">8622</dc:identifier>
+			<dc:identifier daisy:type="assessmentUnitId">97792</dc:identifier>
+			<dc:identifier daisy:type="assessmentUnitCode">3C11AE0004</dc:identifier>
+			<daisy:courseSubUnit code="AG">School of Anthropology</daisy:courseSubUnit>
+			<dc:title>Field research methods Class</dc:title>
+			<dc:subject>Field research methods class</dc:subject>
+			<dc:description>Fieldwork: Theories and Methods: Lectures
+
+A series of eight lectures, open to all members of the University. The course is designed for graduate students in the School of Anthropology and Museum Ethnography (SAME), whether planning to undertake fieldwork or not, as an introduction to the methods used in the field by social anthropologists, but should be of interest to any doctoral students in social sciences and humanities interested in anthropological field methods.
+
+Topics covered include research design, entering the field, ethics, multi-sited fieldwork, visual methods, and other topics. There are no pre-requisites or pre-course work, though those unfamiliar with anthropological theory and practice should read an introductory text such as T H Eriksens Small places, large issues (Pluto Press, 2001).
+
+Fieldwork Theories and Methods: Class 
+(Students must enrol to attend these classes, please note that there are only 6 places available to graduate students outside of the Anthropology department))
+
+A series of eight classes, several involving practical exercises, for students planning to undertake long-term qualitative fieldwork; the course is designed for doctoral students in anthropology but does not presume a detailed anthropological knowledge and would be suitable for most doctoral students in social sciences and humanities.
+
+Topics covered include risk assessment and ethical considerations, interviewing skills, survey design, making fieldnotes, participant observation, using images and objects in field research. There are no pre-requisites or pre-course work, but all participants must undertake the out of class assignments (there are only 2-3 of these and take only 2-3 hours maximum) and be prepared to discuss them in class. Some SAME students submit write-ups of exercises for assessment; non-SAME students enrolling through the DTC should discuss possible assessment, if required, with the Course Provider.
+			</dc:description>
+			<daisy:otherDepartments>
+			</daisy:otherDepartments>
+			<daisy:publicView>1</daisy:publicView>
+			<daisy:supervisorApproval>1</daisy:supervisorApproval>
+			<daisy:moduleApproval>1</daisy:moduleApproval>
+			<daisy:webAuthCode daisy:type="administrator">soca0118</daisy:webAuthCode>
+			<presentation>
+				<dc:identifier>15320</dc:identifier>
+				<dc:title>Field research methods Class</dc:title>
+				<attendanceMode>1.5 hr class/seminar</attendanceMode>
+				<attendancePattern>T 10-11.30</attendancePattern>
+				<mlo:places>0</mlo:places>
+				<mlo:start dtf="2012-01-15 00:00:00">Sunday 15th of January 2012</mlo:start>
+				<end dtf="2012-01-15 00:00:00">Sunday 15th of January 2012</end>
+				<applyFrom dtf="2012-01-15 00:00:00">Sunday 15th of January 2012 00:00:00</applyFrom>
+				<applyUntil dtf="2012-01-15 00:00:00">Sunday 15th of January 2012 00:00:00</applyUntil>
+				<daisy:expiryDate dtf="2012-01-15 00:00:00">Sunday 15th of January 2012</daisy:expiryDate>
+				<daisy:sessions>3</daisy:sessions>
+				<daisy:bookable>1</daisy:bookable>
+				<daisy:termCode>HT12</daisy:termCode>
+				<daisy:termLabel>Hilary 2012</daisy:termLabel>
+				<daisy:webAuthCode daisy:type="presenter">banks</daisy:webAuthCode>
+				<daisy:employeeName>Marcus Banks</daisy:employeeName>
+				<daisy:employeeEmail><![CDATA[marcus.banks@anthro.ox.ac.uk]]></daisy:employeeEmail>
+				<venue>
+					<dc:title>61 Banbury Road</dc:title>
+				</venue>
+			</presentation>
+			<presentation><dc:identifier>15321</dc:identifier>
+				<dc:title>Field research methods Class</dc:title>
+				<attendanceMode>1.5 hr class/seminar</attendanceMode>
+				<attendancePattern>Th 10-11.30</attendancePattern>
+				<mlo:places>0</mlo:places>
+				<mlo:start dtf="2012-01-15 00:00:00">Sunday 15th of January 2012</mlo:start>
+				<end dtf="2012-01-15 00:00:00">Sunday 15th of January 2012</end>
+				<applyFrom dtf="2012-01-15 00:00:00">Sunday 15th of January 2012 00:00:00</applyFrom>
+				<applyUntil dtf="2012-01-15 00:00:00">Sunday 15th of January 2012 00:00:00</applyUntil>
+				<daisy:expiryDate dtf="2012-01-15 00:00:00">Sunday 15th of January 2012</daisy:expiryDate>
+				<daisy:sessions>1</daisy:sessions>
+				<daisy:bookable>1</daisy:bookable>
+				<daisy:termCode>HT12</daisy:termCode>
+				<daisy:termLabel>Hilary 2012</daisy:termLabel>
+				<daisy:webAuthCode daisy:type="presenter">soca0043</daisy:webAuthCode>
+				<daisy:employeeName>Elisabeth Hsu</daisy:employeeName>
+				<daisy:employeeEmail><![CDATA[elisabeth.hsu@anthro.ox.ac.uk]]></daisy:employeeEmail>
+				<venue>
+					<dc:title>61 Banbury Road</dc:title>
+				</venue>
+			</presentation>
+			<presentation>
+				<dc:identifier>15322</dc:identifier>
+				<dc:title>Field research methods Class</dc:title>
+				<attendanceMode>1.5 hr class/seminar</attendanceMode>
+				<attendancePattern>Th 10-11.30</attendancePattern>
+				<mlo:places>0</mlo:places>
+				<mlo:start dtf="2012-01-15 00:00:00">Sunday 15th of January 2012</mlo:start>
+				<end dtf="2012-01-15 00:00:00">Sunday 15th of January 2012</end>
+				<applyFrom dtf="2012-01-15 00:00:00">Sunday 15th of January 2012 00:00:00</applyFrom>
+				<applyUntil dtf="2012-01-15 00:00:00">Sunday 15th of January 2012 00:00:00</applyUntil>
+				<daisy:expiryDate dtf="2012-01-15 00:00:00">Sunday 15th of January 2012</daisy:expiryDate>
+				<daisy:sessions>1</daisy:sessions>
+				<daisy:bookable>1</daisy:bookable>
+				<daisy:termCode>HT12</daisy:termCode>
+				<daisy:termLabel>Hilary 2012</daisy:termLabel>
+				<daisy:webAuthCode daisy:type="presenter">soca0075</daisy:webAuthCode>
+				<daisy:employeeName>Elizabeth Ewart</daisy:employeeName>
+				<daisy:employeeEmail><![CDATA[elizabeth.ewart@anthro.ox.ac.uk]]></daisy:employeeEmail>
+				<venue>
+					<dc:title>61 Banbury Road</dc:title>
+				</venue>
+			</presentation>
+			<presentation>
+				<dc:identifier>16028</dc:identifier>
+				<dc:title>Field research methods Class</dc:title>
+				<attendanceMode>1.5 hr class/seminar</attendanceMode>
+				<attendancePattern></attendancePattern>
+				<mlo:places>0</mlo:places>
+				<mlo:start dtf=""></mlo:start>
+				<end dtf=""></end>
+				<applyFrom dtf="2012-01-15 00:00:00">Sunday 15th of January 2012 00:00:00</applyFrom>
+				<applyUntil dtf="2012-01-15 00:00:00">Sunday 15th of January 2012 00:00:00</applyUntil>
+				<!-- 
+				<applyFrom dtf=""></applyFrom> 
+				<applyUntil dtf=""></applyUntil>
+				-->
+				<daisy:expiryDate dtf=""></daisy:expiryDate>
+				<daisy:sessions>1</daisy:sessions>
+				<daisy:bookable>1</daisy:bookable>
+				<daisy:termCode>HT12</daisy:termCode>
+				<daisy:termLabel>Hilary 2012</daisy:termLabel>
+				<daisy:webAuthCode daisy:type="presenter">wolf2728</daisy:webAuthCode>
+				<daisy:employeeName>David Zeitlyn</daisy:employeeName>
+				<daisy:employeeEmail><![CDATA[david.zeitlyn@anthro.ox.ac.uk]]></daisy:employeeEmail>
+				<venue>
+					<dc:title></dc:title>
+				</venue>
+			</presentation>
+			<presentation>
+				<dc:identifier>16083</dc:identifier>
+				<dc:title>Field research methods Class</dc:title>
+				<attendanceMode>1.5 hr class/seminar</attendanceMode>
+				<attendancePattern></attendancePattern>
+				<mlo:places>0</mlo:places>
+				<mlo:start dtf=""></mlo:start>
+				<end dtf=""></end>
+				<applyFrom dtf="2012-01-15 00:00:00">Sunday 15th of January 2012 00:00:00</applyFrom>
+				<applyUntil dtf="2012-01-15 00:00:00">Sunday 15th of January 2012 00:00:00</applyUntil>
+				<!-- 
+				<applyFrom dtf=""></applyFrom> 
+				<applyUntil dtf=""></applyUntil>
+				-->
+				<daisy:expiryDate dtf=""></daisy:expiryDate>
+				<daisy:sessions>1</daisy:sessions>
+				<daisy:bookable>1</daisy:bookable>
+				<daisy:termCode>HT12</daisy:termCode>
+				<daisy:termLabel>Hilary 2012</daisy:termLabel>
+				<daisy:webAuthCode daisy:type="presenter">soca0042</daisy:webAuthCode>
+				<daisy:employeeName>Bridget Anderson</daisy:employeeName>
+				<daisy:employeeEmail><![CDATA[bridget.anderson@anthro.ox.ac.uk]]></daisy:employeeEmail>
+				<venue>
+					<dc:title></dc:title>
+				</venue>
+			</presentation>
+			<presentation>
+				<dc:identifier>16084</dc:identifier>
+				<dc:title>Field research methods Class</dc:title>
+				<attendanceMode>1.5 hr class/seminar</attendanceMode>
+				<attendancePattern></attendancePattern>
+				<mlo:places>0</mlo:places>
+				<mlo:start dtf=""></mlo:start>
+				<end dtf=""></end>
+				<applyFrom dtf="2012-01-15 00:00:00">Sunday 15th of January 2012 00:00:00</applyFrom>
+				<applyUntil dtf="2012-01-15 00:00:00">Sunday 15th of January 2012 00:00:00</applyUntil>
+				<!-- 
+				<applyFrom dtf=""></applyFrom> 
+				<applyUntil dtf=""></applyUntil>
+				-->
+				<daisy:expiryDate dtf=""></daisy:expiryDate>
+				<daisy:sessions>1</daisy:sessions>
+				<daisy:bookable>1</daisy:bookable>
+				<daisy:termCode>HT12</daisy:termCode>
+				<daisy:termLabel>Hilary 2012</daisy:termLabel>
+				<daisy:webAuthCode daisy:type="presenter"></daisy:webAuthCode>
+				<daisy:employeeName>Anthropology VACANCY</daisy:employeeName>
+				<daisy:employeeEmail></daisy:employeeEmail>
+				<venue>
+					<dc:title></dc:title>
+				</venue>
+			</presentation>
+		</course>
+	</provider>
+</catalog>

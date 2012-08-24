@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.Element;
+import org.xcri.Extension;
 import org.xcri.Namespaces;
 import org.xcri.common.*;
 import org.xcri.exceptions.InvalidElementException;
@@ -198,11 +199,35 @@ public abstract class CommonType extends XcriElement {
 		}
 		this.setUrls(urls.toArray(new Url[urls.size()]));
 		
+		//
+		// Check custom extensions
+		//
+		ArrayList<Extension> extensions = new ArrayList<Extension>();
+		for (Extension extension : ExtensionManager.getExtensions()) {
+			for (Element obj : Lax.getChildrenQuietly(
+					element, extension.getName(), extension.getNamespace(), log)) {
+				
+				try {
+					Extension myExtension = extension.getClass().newInstance();
+					myExtension.fromXml(obj);
+					extensions.add(myExtension);
+				} catch (InvalidElementException e) {
+					log.error(e.getMessage());
+				} catch (InstantiationException e) {
+					log.error(e.getMessage());
+				} catch (IllegalAccessException e) {
+					log.error(e.getMessage());
+				}
+				extension.fromXml(obj);
+			}
+		}
+		this.setExtensions(extensions.toArray(new Extension[extensions.size()]));
+		
 	}
-	
 	
 	private Contributor[] contributors;
 	private Description[] descriptions;
+	private Extension[] extensions;
 	private Identifier[] identifiers;
 	protected Title[] titles;
 	private Subject[] subjects;
@@ -246,6 +271,20 @@ public abstract class CommonType extends XcriElement {
 	public void setDescriptions(Description[] descriptions) {
 		this.descriptions = descriptions;
 	}
+	
+	/**
+	 * @return the extensions
+	 */
+	public Extension[] getExtensions() {
+		return extensions;
+	}
+	/**
+	 * @param extentions the extensions to set
+	 */
+	public void setExtensions(Extension[] extensions) {
+		this.extensions = extensions;
+	}
+	
 	/**
 	 * @return the identifiers
 	 */
@@ -330,6 +369,5 @@ public abstract class CommonType extends XcriElement {
 	public void setUrls(Url[] urls) {
 		this.urls = urls;
 	}
-	
 	
 }

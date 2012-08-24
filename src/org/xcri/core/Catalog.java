@@ -41,11 +41,11 @@ public class Catalog extends CommonType{
 
 	private Date generated;
 	private Provider[] providers;
-
+	
 	public void fromXml(Document document) throws InvalidElementException{
 		this.fromXml(document.getRootElement());
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see org.xcri.types.Common#toXml()
 	 */
