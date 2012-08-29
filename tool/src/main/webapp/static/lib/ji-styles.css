@@ -1,0 +1,374 @@
+/*
+
+leave the toolbar alone for now, to preserve consistancy with other WebLearn tools
+
+
+#toolbar {
+
+	
+
+	border-bottom-style: none;
+
+	
+
+}
+
+
+#toolbar ul.navIntraTool {
+
+	background-color: #dfdfdf;
+	border-bottom-style: none;
+	margin-bottom: 0px;
+	padding: 2px 0px 0px 10px;
+	
+
+}
+
+
+
+
+#toolbar ul.navIntraTool li a,
+#toolbar ul.navIntraTool li span{
+
+	background-color: #ededed;
+	border: 1px solid #aaa;
+	border-bottom-color: #eee;
+	-moz-border-radius: 5px 5px 0px 0px ;
+	-webkit-border-radius: 5px 5px 0px 0px ;
+	border-radius: 5px 5px 0px 0px ;
+	color: #333;
+	font-family: 'Trebuchet MS',Verdana,Geneva,Arial,Helvetica,sans-serif;
+	font-weight: bold;
+	margin: 0px;
+	padding: 5px 7px 1px 5px;
+
+
+}
+
+#toolbar ul.navIntraTool li a {
+
+	text-decoration: none;
+
+}
+
+#toolbar ul.navIntraTool li :hover,
+#toolbar ul.navIntraTool li :focus{
+
+	text-decoration: underline;
+
+}
+
+
+#toolbar ul.navIntraTool li span.youAreHere {
+
+	background-color: #fff;
+	border-bottom-color: #fff;
+	color: #000;
+	padding-bottom: 3px;
+
+}
+
+*/
+
+/* home page */
+
+
+div.wrapper {
+
+	padding: 0px 10px 10px 10px;
+
+}
+
+
+
+
+
+ul.options {
+
+	padding: 0px;
+	
+	
+	}
+	
+	
+ul.options li {
+
+	background: #FDFEFE;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdfdfd', endColorstr='#f7f7f7');
+	background: -webkit-gradient(linear, left top, left bottom, from(#fdfdfd), to(#f7f7f7));
+	background: -moz-linear-gradient(top, #fdfdfd, #f7f7f7);
+	border: 1px solid #DFE2E4;
+	border-bottom-width: 3px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	display: block;
+	float: left;
+	list-style: none;
+	margin: 2px 2px;
+	min-height:8em;
+	padding: 2px 10px;
+	width: 200px;
+	
+	
+	}
+
+ul.options li a{
+
+    background: transparent url('https://weblearn.ox.ac.uk/access/content/public/images/silk/tick.png') no-repeat top left;
+
+	clear: both;
+	display: block;
+	font-size: 1.2em;
+	font-weight: bold;
+	padding: 0px 0px 5px 20px;
+	
+}
+
+ul.options li.search a{
+
+    background-image:  url('https://weblearn.ox.ac.uk/access/content/public/images/silk/magnifier.png') ;
+
+}
+
+
+ul.options li.browse a{
+
+    background-image:  url('https://weblearn.ox.ac.uk/access/content/public/images/silk/text_columns.png') ;
+
+}
+
+ul.options li.myModules a{
+
+    background-image:  url('https://weblearn.ox.ac.uk/access/content/public/images/silk/user.png') ;
+
+}
+
+
+ul.options li.admin a{
+
+    background-image:  url('https://weblearn.ox.ac.uk/access/content/public/images/silk/wrench.png') ;
+
+}
+
+
+
+
+
+
+
+ul.admin {
+	
+	clear: both;
+	padding-top: 1em;
+	
+	
+}
+
+
+/*  search results page */
+
+
+.exhibit-ui-protection div .exhibit-collectionView-header,
+.filterColumn,
+div.search
+{
+    background: #FDFEFE;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdfdfd', endColorstr='#f7f7f7');
+	background: -webkit-gradient(linear, left top, left bottom, from(#fdfdfd), to(#f7f7f7));
+	background: -moz-linear-gradient(top, #fdfdfd, #f7f7f7);
+border: 1px solid #DFE2E4;
+border-bottom-width: 3px;
+-moz-border-radius: 5px;
+-webkit-border-radius: 5px;
+border-radius: 5px;
+clear: both;
+margin: 5px 5px 15px 5px;
+padding: 2px 10px;
+}
+
+
+.exhibit-ui-protection div .exhibit-collectionView-header,
+div.search {
+    
+
+    background: #fff1e0;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff1e0', endColorstr='#ffce92');
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff1e0), to(#ffce92));
+	background: -moz-linear-gradient(top, #fff1e0, #ffce92);
+	
+	border-color: #ffbc68;
+    }
+    
+
+
+.exhibit-ui-protection div .exhibit-collectionView-header a {
+
+	color: #a65d81;
+	
+	}
+span.exhibit-collectionSummaryWidget-count {
+
+	color: #a65d81;
+	font-size: 1.4em;
+	font-weight: bold;
+	
+}
+
+
+.exhibit-collectionView-header div.exhibit-collectionview-header-sortcontrols {
+	font-weight: bold;
+	margin: 1em 0;
+	text-align: left;
+}
+
+
+.exhibit-collectionView-header div.exhibit-collectionview-header-sortcontrols span{
+	font-weight: normal;
+
+}
+
+
+.filterColumn {
+
+	margin: 5px 5px 5px 5px;
+	padding: 0px;
+}
+
+
+.filterColumn h2{
+
+	background: #FDFEFE;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdfdfd', endColorstr='#f7f7f7');
+	background: -webkit-gradient(linear, left top, left bottom, from(#fdfdfd), to(#f7f7f7));
+	background: -moz-linear-gradient(top, #fdfdfd, #f7f7f7);
+	border-bottom: 1px solid #DFE2E4;
+	
+	margin: 0px  5px;
+	
+}
+
+.filterColumn div {
+	margin: 2px;
+}
+
+
+
+
+.filterColumn div.exhibit-facet-value-count {
+		
+		color: #666;
+		color: #a65d81;
+		display: inline;
+		float: none;
+		font-weight: bold;
+		text-align: right;
+		width: inherit;
+		
+}
+
+
+/* TextSearch */
+
+div.search .exhibit-facet-header-title  {
+
+	color: #a65d81;
+    font-weight: bold;
+}
+
+
+
+.exhibit-facet-body {
+	background-color: #fff;
+}
+
+
+ol.exhibit-tileView-body li {
+
+
+	font-size: 1.3em;
+	font-weight: bold;
+
+}
+
+ol.exhibit-tileView-body li div.course-item {
+
+font-size: 0.75em;
+font-weight: normal;
+
+}
+
+
+.exhibit-ui-protection div.course-item {
+
+background: #FDFEFE;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdfdfd', endColorstr='#f7f7f7');
+	background: -webkit-gradient(linear, left top, left bottom, from(#fdfdfd), to(#f7f7f7));
+	background: -moz-linear-gradient(top, #fdfdfd, #f7f7f7);
+border: 1px solid #DFE2E4;
+border-bottom-width: 3px;
+-moz-border-radius: 5px;
+-webkit-border-radius: 5px;
+border-radius: 5px;
+clear: both;
+margin: 5px 5px 15px 5px;
+padding: 2px 10px;
+}
+
+
+	
+div.course-item h3 {
+
+font-weight: normal;
+
+}
+
+div.course-item h3 .course-title{
+
+	color: #000;
+	font-weight: bold;
+
+}
+
+div.course-item h3 .course-dept{
+
+	color: #000;
+	font-style: italic;
+
+}
+
+div.course-item h3 .course-bookable{
+
+
+	font-weight: bold;
+
+}
+
+
+div.course-item h3 .course-signup{
+
+
+	color: #4f1230;
+
+}
+
+
+
+
+.exhibit-ui-protection div.course-actions  {
+
+	padding: 5px;
+
+}
+
+
+div.course-actions form {
+
+	display: inline;
+	margin: 5px;
+
+}
+
+
+
+

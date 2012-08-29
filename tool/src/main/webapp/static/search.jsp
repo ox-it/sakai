@@ -180,8 +180,9 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
  	</div>
 	<div id="toolbar" >
       	<ul class="navIntraTool actionToolBar">
-  		    <li><span><a href="index.jsp">Module Signup</a></span></li>
+  		    <li><span><a href="index.jsp">Home</a></span></li>
 			<li><span>Module Search</span></li>
+			<li><span><a href="browse.jsp">Browse bt Department</a></span></li>
 			<c:if test="${!isExternalUser}" >
             	<li><span><a href="my.jsp">My Modules</a></span></li>
             	<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
