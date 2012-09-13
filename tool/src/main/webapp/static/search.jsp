@@ -19,7 +19,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	       work around is the line below --> 
 	<meta http-equiv="X-UA-Compatible" content="IE=8" />
 	
-	<title>Module Search</title>
+	<title>Search Modules</title>
 
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/<%= ServerConfigurationService.getString("skin.default", "default") %>/tool.css" type="text/css" rel="stylesheet" media="all" />
@@ -181,8 +181,11 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<div id="toolbar" >
       	<ul class="navIntraTool actionToolBar">
   		    <li><span><a href="index.jsp">Home</a></span></li>
-			<li><span>Module Search</span></li>
-			<li><span><a href="browse.jsp">Browse bt Department</a></span></li>
+			<li><span>Search Modules</span></li>
+			<li><span><a href="browse.jsp">Browse by Department</a></span></li>
+			<!--  
+			<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
+			-->
 			<c:if test="${!isExternalUser}" >
             	<li><span><a href="my.jsp">My Modules</a></span></li>
             	<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>

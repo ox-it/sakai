@@ -18,7 +18,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<!-- Make the page render as IE8 for wrapping in jstree -->
 	<meta http-equiv="X-UA-Compatible" content="IE=8" >
 	
-	<title>Module Signup</title>
+	<title>Browse by Department</title>
 
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/<%= ServerConfigurationService.getString("skin.default", "default") %>/tool.css" type="text/css" rel="stylesheet" media="all" />
@@ -228,8 +228,11 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
     	<div id="toolbar" >
         	<ul class="navIntraTool actionToolBar">
         	<li><span><a href="index.jsp">Home</a></span></li>
-			<li><span><a href="search.jsp">Module Search</a></span></li>
+			<li><span><a href="search.jsp">Search Modules</a></span></li>
 			<li><span>Browse by Department</span></li>
+			<!--  
+			<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
+			-->
 			<c:if test="${!isExternalUser}" >
             	<li><span><a href="my.jsp">My Modules</a></span></li>
             	<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>

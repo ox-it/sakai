@@ -115,7 +115,7 @@ ul.options li {
 
 ul.options li a{
 
-    background: transparent url('https://weblearn.ox.ac.uk/access/content/public/images/silk/tick.png') no-repeat top left;
+    background: transparent url('/library/image/silk/tick.png') no-repeat top left;
 
 	clear: both;
 	display: block;
@@ -127,27 +127,33 @@ ul.options li a{
 
 ul.options li.search a{
 
-    background-image:  url('https://weblearn.ox.ac.uk/access/content/public/images/silk/magnifier.png') ;
+    background-image:  url('/library/image/silk/magnifier.png') ;
 
 }
 
 
 ul.options li.browse a{
 
-    background-image:  url('https://weblearn.ox.ac.uk/access/content/public/images/silk/text_columns.png') ;
+    background-image:  url('/library/image/silk/text_columns.png') ;
+
+}
+
+ul.options li.calendar a{
+
+    background-image:  url('/library/image/silk/calendar.png') ;
 
 }
 
 ul.options li.myModules a{
 
-    background-image:  url('https://weblearn.ox.ac.uk/access/content/public/images/silk/user.png') ;
+    background-image:  url('/library/image/silk/user.png') ;
 
 }
 
 
 ul.options li.admin a{
 
-    background-image:  url('https://weblearn.ox.ac.uk/access/content/public/images/silk/wrench.png') ;
+    background-image:  url('/library/image/silk/wrench.png') ;
 
 }
 
