@@ -40,6 +40,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
+import org.sakaiproject.entitybroker.util.model.EntityContent;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -160,7 +161,14 @@ public class ContentSyncEntityProviderImpl
 				
 				if (resourcesEntity(contentSync.getEvent())) {		
 					ContentEntity content = (ContentEntity)contentService.getEntity(reference);
-					entity = EntityDataUtils.getResourceDetails(content);
+					 // still need to report deleted content
+					if (null == content) {             
+						EntityContent thisEntity = new EntityContent();
+						thisEntity.setResourceId(entityId);
+						entity = thisEntity;
+					} else {
+						entity = EntityDataUtils.getResourceDetails(content);
+					}
 					
 				} else if (forumsMessageEntity(contentSync.getEvent(), reference.getId())) {
 					entity = getMessageEntity(reference, userId);
