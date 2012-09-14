@@ -183,14 +183,14 @@ div.search
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdfdfd', endColorstr='#f7f7f7');
 	background: -webkit-gradient(linear, left top, left bottom, from(#fdfdfd), to(#f7f7f7));
 	background: -moz-linear-gradient(top, #fdfdfd, #f7f7f7);
-border: 1px solid #DFE2E4;
-border-bottom-width: 3px;
--moz-border-radius: 5px;
--webkit-border-radius: 5px;
-border-radius: 5px;
-clear: both;
-margin: 5px 5px 15px 5px;
-padding: 2px 10px;
+	border: 1px solid #DFE2E4;
+	border-bottom-width: 3px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	clear: both;
+	margin: 5px 5px 15px 5px;
+	padding: 2px 10px;
 }
 
 
@@ -263,13 +263,13 @@ span.exhibit-collectionSummaryWidget-count {
 
 .filterColumn div.exhibit-facet-value-count {
 		
-		color: #666;
-		color: #a65d81;
-		display: inline;
-		float: none;
-		font-weight: bold;
-		text-align: right;
-		width: inherit;
+	color: #666;
+	color: #a65d81;
+	display: inline;
+	float: none;
+	font-weight: bold;
+	text-align: right;
+	width: inherit;
 		
 }
 
@@ -299,26 +299,26 @@ ol.exhibit-tileView-body li {
 
 ol.exhibit-tileView-body li div.course-item {
 
-font-size: 0.75em;
-font-weight: normal;
+	font-size: 0.75em;
+	font-weight: normal;
 
 }
 
 
 .exhibit-ui-protection div.course-item {
 
-background: #FDFEFE;
+	background: #FDFEFE;
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdfdfd', endColorstr='#f7f7f7');
 	background: -webkit-gradient(linear, left top, left bottom, from(#fdfdfd), to(#f7f7f7));
 	background: -moz-linear-gradient(top, #fdfdfd, #f7f7f7);
-border: 1px solid #DFE2E4;
-border-bottom-width: 3px;
--moz-border-radius: 5px;
--webkit-border-radius: 5px;
-border-radius: 5px;
-clear: both;
-margin: 5px 5px 15px 5px;
-padding: 2px 10px;
+	border: 1px solid #DFE2E4;
+	border-bottom-width: 3px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	clear: both;
+	margin: 5px 5px 15px 5px;
+	padding: 2px 10px;
 }
 
 
@@ -374,6 +374,150 @@ div.course-actions form {
 	margin: 5px;
 
 }
+
+
+#details {
+    
+    /* margin: 1em; */
+    /* undo styles from the browse tool, where I captured the macp-up from */
+    /* float: none; */
+    /* width: auto; */
+}
+
+#summary  {
+    
+    background-color: white;
+}
+
+
+h1,
+h2 {
+    
+    border-radius: 2px;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+
+}
+
+
+
+h1 {
+    
+    background: #fff1e0;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff1e0', endColorstr='#ffce92');
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff1e0), to(#ffce92));
+	background: -moz-linear-gradient(top, #fff1e0, #ffce92);
+	
+	border-top: 1px solid #ffbc68;
+	border-bottom: 3px solid #ffbc68;
+	
+    /* clear: both; */
+    margin: 0px 0px 10px 0px;
+    margin-bottom: 10px;
+    padding: 5px;
+    
+	font-size: 130%;
+}
+
+h2 {
+	
+	background: #FDFEFE;	
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdfdfd', endColorstr='#f7f7f7');
+	background: -webkit-gradient(linear, left top, left bottom, from(#fdfdfd), to(#f7f7f7));
+	background: -moz-linear-gradient(top, #fdfdfd, #f7f7f7);
+	border: 1px solid #DFE2E4;
+	
+    clear: both;
+    margin: 1em 0px 0 0px;
+    margin-bottom: 10px;
+    padding: 5px;
+    
+
+    
+}
+
+
+	
+table,
+#summary div.noAuth,
+a.login {
+
+	background: #FDFEFE;	
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdfdfd', endColorstr='#f7f7f7');
+	background: -webkit-gradient(linear, left top, left bottom, from(#fdfdfd), to(#f7f7f7));
+	background: -moz-linear-gradient(top, #fdfdfd, #f7f7f7);
+	border: 1px solid #DFE2E4;
+	
+	border-bottom-width: 3px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	margin: 2px 2px;
+	padding: 2px 10px;
+
+	
+	
+	}
+
+
+
+a.login {
+    
+    color: #8f3a64;
+    clear: both;
+    margin: 0.5em 0;
+    padding-top: 5px;
+    text-decoration: none;
+    
+    
+}
+
+div.noAuth {
+    
+    padding: 1em 0;
+}	
+	
+	
+	
+
+#summary div.noAuth {
+    
+    padding: 1em ;
+}	
+	
+	
+	
+	
+div.noAuth a  {
+    
+    font-weight: bold;
+}	
+	
+
+table th {
+    	
+    	font-size: 1.2em;
+    	color: #555555;
+	}
+	
+	
+
+
+#signup table, a.login  {
+    
+    background: #fff1e0; 
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff1e0', endColorstr='#ffce92');
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff1e0), to(#ffce92));
+	background: -moz-linear-gradient(top, #fff1e0, #ffce92);
+	
+	border-color: #ffbc68;
+}
+
+#signup table a {
+    
+    	color: #8f3a64;
+}
+
 
 
 

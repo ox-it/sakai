@@ -29,7 +29,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<link rel="stylesheet" type="text/css" href="lib/tool.css" />
 	
 	<!-- styles for mock-up -->
-	<link rel="stylesheet" type="text/css" href="lib/jt-styles.css">
+	<link rel="stylesheet" type="text/css" href="lib/jz-styles.css">
 	
 	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
 	<script type="text/javascript" src="lib/jstree-1.0rc2/_lib/jquery.cookie.js"></script>

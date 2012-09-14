@@ -26,7 +26,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/<%= ServerConfigurationService.getString("skin.default", "default") %>/tool.css" type="text/css" rel="stylesheet" media="all" />
 	<link rel="stylesheet" type="text/css" href="lib/tool.css">
     <!-- styles for mock-up -->
-	<link rel="stylesheet" type="text/css" href="lib/ji-styles.css">
+	<link rel="stylesheet" type="text/css" href="lib/jz-styles.css">
   	
   	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
   	<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
@@ -53,10 +53,10 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 
 		<li><span>Home</span></li>
 		<li><span><a href="search.jsp">Search Modules</a></span></li>
-		<li><span><a href="browse.jsp">Browse by Department</a></span></li> 
+		<li><span><a href="browse.jsp">Browse by Department</a></span></li>  
 		<!--  
 		<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
-		-->
+		--> 
 		<c:if test="${!isExternalUser}" >
 			<li><span><a href="my.jsp">My Modules</a></span></li>
 			<li><span><a href="approve.jsp">Pending Confirmations</a></span></li>
@@ -82,7 +82,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 			<a href="browse.jsp">Browse by Department</a> 
 			<span class="info">Browse for modules by division, department etc.</span>
 		</li>
-		<!--  
+		<!--    
 		<li class="calendar" >
 			<a href="calendar.jsp">Browse by Calendar</a> 
 			<span class="info">Browse for modules by course start date.</span>
