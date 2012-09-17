@@ -172,7 +172,7 @@
 				<bean id="sesCategory"
 					class="org.sakaiproject.component.app.help.model.CategoryBean">
 					<property name="name">
-						<value>Student Enrollment System (SES)</value>
+						<value>Student Enrolment System (SES)</value>
 					</property>
 					<property name="resources">
 						<list>
