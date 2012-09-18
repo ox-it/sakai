@@ -407,6 +407,8 @@ public class ResultsFormatterImpl
 		content.append("</tr>\n");
 
 		content.append("</table>\n");
+
+		formatReasons(content, question, submissions);
 	}
 
 	/**
@@ -441,6 +443,8 @@ public class ResultsFormatterImpl
 		content.append("</tr>\n");
 
 		content.append("</table>\n");
+
+		formatReasons(content, question, submissions);
 	}
 
 	/**
@@ -594,6 +598,41 @@ public class ResultsFormatterImpl
 		content.append("</tr>\n");
 
 		content.append("</table>\n");
+
+		formatReasons(content, question, submissions);
+	}
+
+	/**
+	 * Format the reason for answer values from submissions
+	 * 
+	 * @param content
+	 *        the building response.
+	 * @param question
+	 *        The question.
+	 * @param submissions
+	 *        The submissions.
+	 */
+	protected void formatReasons(StringBuilder content, Question question, List<Submission> submissions)
+	{
+		// only if we are collecting a reason for the question
+		if (!question.getExplainReason()) return;
+
+		for (Submission s : submissions)
+		{
+			if (s.getIsPhantom()) continue;
+			if (!s.getIsComplete()) continue;
+
+			Answer a = s.getAnswer(question);
+			if (a != null)
+			{
+				if (a.getReason() != null)
+				{
+					content.append("<hr>\n");
+					content.append(a.getReason());
+					content.append("\n");
+				}
+			}
+		}
 	}
 
 	/**
@@ -686,6 +725,8 @@ public class ResultsFormatterImpl
 		content.append("</tr>\n");
 
 		content.append("</table>\n");
+
+		formatReasons(content, question, submissions);
 	}
 
 	/**
