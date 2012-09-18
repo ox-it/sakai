@@ -36,9 +36,8 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	</style>
   
 	
-	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script> 
 	<script type="text/javascript" src="lib/jstree-1.0rc2/_lib/jquery.cookie.js"></script>
-	<script type="text/javascript" src="lib/jstree-1.0rc2/jquery.jstree.js"></script>
 	<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
 	<script type="text/javascript" src="lib/jquery-ui-1.8.4.custom/js/jquery-ui-1.8.4.custom.min.js"></script>
 	<script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js"></script>
@@ -182,10 +181,8 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
       	<ul class="navIntraTool actionToolBar">
   		    <li><span><a href="index.jsp">Home</a></span></li>
 			<li><span>Search Modules</span></li>
-			<li><span><a href="browse.jsp">Browse by Department</a></span></li>
-			<!--  
+			<li><span><a href="browse.jsp">Browse by Department</a></span></li>  
 			<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
-			-->
 			<c:if test="${!isExternalUser}" >
             	<li><span><a href="my.jsp">My Modules</a></span></li>
             	<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>

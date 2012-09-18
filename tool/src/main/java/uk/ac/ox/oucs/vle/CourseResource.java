@@ -154,6 +154,32 @@ public class CourseResource {
 		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
 	}
 	
+	@Path("/calendar")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getCourseCalendar() throws JsonGenerationException, JsonMappingException, IOException {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
+		List <CourseGroup> groups = courseService.getCourseCalendar(null);
+		// TODO Just return the coursegroups (no nested objects).
+		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
+		
+	}
+	
+	@Path("/nodates")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getCourseNoDates() throws JsonGenerationException, JsonMappingException, IOException {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebApplicationException(Response.Status.FORBIDDEN);
+		}
+		List <CourseGroup> groups = courseService.getCourseNoDates(null);
+		// TODO Just return the coursegroups (no nested objects).
+		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
+		
+	}
+	
 	@Path("/url/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

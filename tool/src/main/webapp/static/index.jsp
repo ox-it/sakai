@@ -54,9 +54,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		<li><span>Home</span></li>
 		<li><span><a href="search.jsp">Search Modules</a></span></li>
 		<li><span><a href="browse.jsp">Browse by Department</a></span></li>  
-		<!--  
 		<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
-		--> 
 		<c:if test="${!isExternalUser}" >
 			<li><span><a href="my.jsp">My Modules</a></span></li>
 			<li><span><a href="approve.jsp">Pending Confirmations</a></span></li>
@@ -81,13 +79,11 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		<li class="browse" >
 			<a href="browse.jsp">Browse by Department</a> 
 			<span class="info">Browse for modules by division, department etc.</span>
-		</li>
-		<!--    
+		</li>   
 		<li class="calendar" >
 			<a href="calendar.jsp">Browse by Calendar</a> 
 			<span class="info">Browse for modules by course start date.</span>
 		</li>
-		-->
 		<c:if test="${!isExternalUser}" >
 			<li class="myModules" >
 				<a href="my.jsp">My Modules</a> 

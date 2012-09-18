@@ -664,6 +664,38 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public void save(CourseUserPlacementDAO placementDao) {
 		getHibernateTemplate().save(placementDao).toString();
 	}
+
+	public List<CourseGroupDAO> findCourseGroupsByCalendar(String providerId) {
+		return getHibernateTemplate().executeFind(new HibernateCallback() {
+			public Object doInHibernate(Session session) {
+				Query query = session.createSQLQuery(
+						"select distinct cg.id, cg.title, cg.dept, cg.departmentname, cg.subunit, cg.subunitName, " +
+						"cg.description, cg.publicView, cg.supervisorApproval, cg.administratorApproval, " +
+						"cg.hideGroup, cg.contactEmail " +
+						"from course_group cg " +
+						"left join course_group_component cgc on cgc.course_group = cg.id " +
+						"left join course_component cc on cgc.component = cc.id " +
+						"where cc.starts > NOW()").addEntity(CourseGroupDAO.class);
+				return query.list();
+			}
+		});
+	}
+	
+	public List<CourseGroupDAO> findCourseGroupsByNoDates(String providerId) {
+		return getHibernateTemplate().executeFind(new HibernateCallback() {
+			public Object doInHibernate(Session session) {
+				Query query = session.createSQLQuery(
+						"select distinct cg.id, cg.title, cg.dept, cg.departmentname, cg.subunit, cg.subunitName, " +
+						"cg.description, cg.publicView, cg.supervisorApproval, cg.administratorApproval, " +
+						"cg.hideGroup, cg.contactEmail " +
+						"from course_group cg " +
+						"left join course_group_component cgc on cgc.course_group = cg.id " +
+						"left join course_component cc on cgc.component = cc.id " +
+						"where cc.starts is NULL and cc.closes > NOW()").addEntity(CourseGroupDAO.class);
+				return query.list();
+			}
+		});
+	}
 }
 
 

@@ -710,9 +710,6 @@ var Signup = function(){
 						isOneBookable = component.bookable;
 					}
 					
-					if (component.id == "19549") {
-						var testIt = "";
-					}
 					var newDate = now - (recentDays * 24 * 60 * 60 * 1000);
 					if (component.created > newDate) {
 						newCourse = true;
@@ -1138,7 +1135,7 @@ var Signup = function(){
 						}
 					}
 				});
-			}; 
+			}; /* $.datepicker.formatDate('yy-mm-dd', new Date(2007, 1 - 1, 26)); */
 			
 			$(":submit", form).attr("disabled", "true");
 			$("input.cancel", form).one("click", function(){ continueSearch = false;});

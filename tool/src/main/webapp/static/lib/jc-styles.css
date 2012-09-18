@@ -1,0 +1,113 @@
+h1, h2 {
+    border-radius: 2px 2px 2px 2px;
+}
+h1 {
+    clear: both;
+    margin: 0 0 10px;
+    padding: 5px;
+    text-align: center;
+}
+
+div.dataTables_wrapper {
+    margin: 2px 2px 2px 2px;
+}
+
+div.panel, div.tableCloth {
+    display: block;
+    margin: auto;
+    padding: 0;
+}
+div.tableCloth {
+    max-width: 1210px;
+    width: 95%;
+}
+div.panel {
+    margin: 0.5em auto 0;
+    max-width: 1200px;
+    padding: 0.2em;
+    width: 94%;
+}
+.ui-widget-header {
+	background: #E6EEEE;
+	border: 1px solid #DFE2E4;
+}
+
+table th {
+    font-size: 1.3em;
+}
+a.action, div.panel, table.display th, table.display td {
+    background: -moz-linear-gradient(center top , #FDFDFD, #F7F7F7) repeat scroll 0 0 transparent;
+    border: 1px solid #DFE2E4;
+}
+table.display th {
+    background: -moz-linear-gradient(center top , #E6EEEE, #E2E4E5) repeat scroll 0 0 transparent;
+    font-weight: bold;
+}
+table.display {
+    padding: 0;
+    width: 100%;
+    border-collapse: separate;
+}
+table.display th, table.display td {
+    margin: 0;
+    padding: 0.2em;
+}
+table.display td.date {
+    text-align: left;
+}
+div.top {
+    /*  padding-top: 1em; */
+}
+div.leftGroup {
+    float: left;
+    width: 50%;
+}
+.paging ul, .paging p {
+    display: inline;
+    font-size: 1.2em;
+    margin: 0;
+    padding: 5px;
+}
+.paging ul {
+    margin-left: 1em;
+}
+a.action, .paging p, .paging ul {
+    margin: 1em 0 0 1em;
+}
+.top ul {
+    padding: 0.7em;
+}
+.paging ul li {
+    display: inline;
+    font-weight: bold;
+    list-style: none outside none;
+}
+.paging ul li a {
+    color: #A65D81;
+}
+.paging form {
+    float: right;
+    padding: 0.3em;
+    text-align: right;
+    width: 400px;
+}
+.paging form.filter label {
+    font-weight: bold;
+}
+a.action {
+    background: -moz-linear-gradient(center top , #FFF1E0, #FFCE92) repeat scroll 0 0 transparent;
+    border-color: #FFBC68;
+    clear: both;
+    color: #000000;
+    display: block;
+    float: left;
+    font-weight: bold;
+    margin: 0.5em 5px 0.5em 1em;
+    padding: 0.2em;
+    text-align: center;
+    text-decoration: none;
+    width: 19em;
+}
+strong.number {
+    font-size: 1.3em;
+}

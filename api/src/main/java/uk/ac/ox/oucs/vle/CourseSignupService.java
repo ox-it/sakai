@@ -143,6 +143,18 @@ public interface CourseSignupService {
 	
 	public List<CourseGroup> search(String search, Range range, boolean external);
 	
+	/**
+	 * Get upcoming course groups by start date
+	 * @return
+	 */
+	public List<CourseGroup> getCourseCalendar(String providerId);
+	
+	/**
+	 * Get upcoming course groups with no start date
+	 * @return
+	 */
+	public List<CourseGroup> getCourseNoDates(String providerId);
+	
 	public Map<String, String> getDepartments();
 	
 	public Department findPracDepartment(String primaryOrgUnit);

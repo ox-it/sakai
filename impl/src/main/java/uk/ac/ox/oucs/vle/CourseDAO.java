@@ -21,6 +21,10 @@ public interface CourseDAO {
 	
 	List<CourseGroupDAO> findCourseGroupByComponent(String componentId);
 	
+	List<CourseGroupDAO> findCourseGroupsByCalendar(String providerId);
+	
+	List<CourseGroupDAO> findCourseGroupsByNoDates(String providerId);
+	
 	List<Object[]> findSubUnitByDept(String dept);
 
 	List<CourseComponentDAO> findOpenComponents(String id, Date at);
