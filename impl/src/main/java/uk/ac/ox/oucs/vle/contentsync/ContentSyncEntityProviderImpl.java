@@ -164,7 +164,7 @@ public class ContentSyncEntityProviderImpl
 					 // still need to report deleted content
 					if (null == content) {             
 						EntityContent thisEntity = new EntityContent();
-						thisEntity.setResourceId(entityId);
+						thisEntity.setResourceId(reference.getId());
 						entity = thisEntity;
 					} else {
 						entity = EntityDataUtils.getResourceDetails(content);
