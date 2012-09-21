@@ -323,7 +323,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 													"type": "POST",
 													"async": true,
 													"traditional": true,
-													 -->		"data": {
+													 "data": {
 														"userId": user.id,
 														"supervisorId": supervisorId,
 														"courseId": code,
