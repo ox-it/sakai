@@ -170,7 +170,19 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		        	var providers = new Array();
 		        	$.each(tableData, function(){
 		        		var provider = this[2];
-		        		if (providers.indexOf(provider) == -1) {providers.push(provider);}
+		        		
+		        		//this doesn't work in ie
+		        		//if (providers.indexOf(provider) == -1) {providers.push(provider);}
+		        		
+		        		var x = -1;
+		        		for (var i = 0, j = providers.length; i < j; i++) {
+		        	        if (providers[i] === provider) { 
+		        	        	x = i;
+		        	        	return; 
+		        	        }
+		        	     }
+		        		if (x == -1) {providers.push(provider);}
+		        		
 		        	});
 		        	
 		        	var selectElement = $('#filterByProvider');
