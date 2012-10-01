@@ -185,7 +185,7 @@ public class CourseGroupDAO implements java.io.Serializable {
 	public void setContactEmail(String contactEmail) {
 		this.contactEmail = contactEmail;
 	}
-
+	
 }
 
 

@@ -675,7 +675,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 						"from course_group cg " +
 						"left join course_group_component cgc on cgc.course_group = cg.id " +
 						"left join course_component cc on cgc.component = cc.id " +
-						"where cc.starts > NOW()").addEntity(CourseGroupDAO.class);
+						"where cc.starts > NOW() and cg.hideGroup = false").addEntity(CourseGroupDAO.class);
 				return query.list();
 			}
 		});
@@ -691,7 +691,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 						"from course_group cg " +
 						"left join course_group_component cgc on cgc.course_group = cg.id " +
 						"left join course_component cc on cgc.component = cc.id " +
-						"where cc.starts is NULL and cc.closes > NOW()").addEntity(CourseGroupDAO.class);
+						"where cc.starts is NULL and cc.closes > NOW() and cg.hideGroup = false").addEntity(CourseGroupDAO.class);
 				return query.list();
 			}
 		});
