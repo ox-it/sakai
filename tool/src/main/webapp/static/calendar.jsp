@@ -61,6 +61,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		            "sAjaxSource": url,
 		            "bAutoWidth": false,
 		            "bLengthChange": false, 
+		            "iDisplayLength": 50, 
 		            "sDom": 'lrt<"F"ip>',
 		            "aaSorting": [[0, "asc"]],
 		            "aoColumns": [{
