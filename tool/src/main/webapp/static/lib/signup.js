@@ -450,12 +450,12 @@ var Signup = function(){
                                 return Math.floor(remaining / 86400000) + " days";
                             }
             },
-            "autoresize": function(){
+            "autoresize": function(name){
                 var previousInnerHTML = document.body.innerHTML;
                 return function(change){
                     if (document.body.innerHTML !== previousInnerHTML) {
                         previousInnerHTML = document.body.innerHTML;
-                        Signup.util.resize(window.name);
+                        Signup.util.resize();
                     }
                     setTimeout(arguments.callee, 100);
                 }();
@@ -465,7 +465,14 @@ var Signup = function(){
 			 * This is normally in the Sakai script but we don't want to scroll the page when resizing
 			 * so we have our own copy. We also assume the window name contains the ID of the parent frame.
 			 */
-            "resize": function(){
+            "resize": function(name, minHeight){
+            	if (minHeight) {
+            		$(document.body).data("min-height", minHeight);
+            	} else {
+            		if ( $(document.body).data("min-height") ) {
+            			minHeight = $(document.body).data("min-height");
+            		}
+            	}
                 var id = window.name;
 				if (!id) {
 					return;
@@ -498,6 +505,12 @@ var Signup = function(){
                         height = offsetH;
                     }
                     // here we fudge to get a little bigger
+                    if (minHeight) {
+                    	if (height < minHeight) {
+                    		height = minHeight;
+                    	}
+                    }
+                    
                     var newHeight = height + 40;
                     
                     // but not too big!

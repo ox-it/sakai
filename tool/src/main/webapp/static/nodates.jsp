@@ -156,12 +156,6 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 					// This is useful as when loading the data async we might want to handle it later.
 					"fnInitComplete": function() {
 						table.trigger("tableInit");
-					//},
-		            //"fnRowCallback": function( nRow, aData, iDisplayIndex ) {
-		    		//	if ( jQuery.inArray(aData.DT_RowId, aSelected) !== -1 ) {
-		    		//		$(nRow).addClass('row_selected');
-		    		//	}
-		    		//	return nRow;
 		    		}
 					
 		    	});
@@ -234,8 +228,13 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 						stack: true,
 						position: position,
 						width: width,
-						height: height,
+						height: "auto",
 						modal: true,
+						open: function(){
+							if ($(this).height() > $(window).height()) {
+								Signup.util.resize(window.name, $(this).height());
+							}
+						},
 						close: function(event, ui){
 							courseDetails.remove(); 
 						}
@@ -244,6 +243,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 					Signup.course.show(courseDetails, id, "UPCOMING", externalUser, function() {
 						courseDetails.dialog("open");
 					});
+					
 				} catch (e) {
 					console.log(e);
 				}
