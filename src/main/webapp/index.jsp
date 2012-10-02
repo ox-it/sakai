@@ -1,8 +1,7 @@
 <%@page
 	import="org.sakaiproject.component.api.ServerConfigurationService"%>
 <%@page import="java.util.Set"%>
-<%@page import="java.util.TreeSet"%>
-<%@page import="java.util.SortedSet"%>
+<%@page import="java.util.HashSet"%>
 <%@page import="java.util.ArrayList"%>
 <%@ page language="java" session="false"%>
 <%@page import="java.util.List"%>
@@ -12,10 +11,13 @@
 	pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
+<!-- This way we keep old servers in the list -->
+<jsp:useBean id="servers" scope="application" class="java.util.concurrent.ConcurrentSkipListSet" type="java.util.Set"/>
+ 
 <%
 	ClusterService cluster = (ClusterService) ComponentManager
 			.get(ClusterService.class);
-	Set<String> servers = new TreeSet<String>();
+	Set<String> current = new HashSet<String>();
 	// Trim off the timestamp
 	for (String server : cluster.getServers()) {
 		int pos = server.lastIndexOf("-");
@@ -23,8 +25,11 @@
 			server = server.substring(0, pos);
 		}
 		servers.add(server);
+		current.add(server);
 	}
-	request.setAttribute("servers", servers);
+	
+	request.setAttribute("current", current);
+	
 	if ("POST".equals(request.getMethod())) {
 		// Look at switching servers then
 		String newServer = request.getParameter("server");
@@ -69,7 +74,7 @@
 			Server:<br>
 			<c:forEach var="server" items="${servers}">
 				<input type="radio" name="server" value="${server}" id="${server}">
-				<label for="${server}">${server}</label>
+				<label for="${server}">${server} <%= current.contains(pageContext.getAttribute("server"))?"(live)":"" %></label>
 				<br>
 			</c:forEach>
 			<input type="submit" value="Switch">
