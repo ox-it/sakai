@@ -111,6 +111,10 @@ public class SakaiProxyTest implements SakaiProxy {
 		return Collections.unmodifiableList(emailLog);
 	}
 	
+	public String getAdminUrl() {
+		return "/someurl/";
+	}
+	
 	public String getApproveUrl(String signupId) {
 		return getApproveUrl(signupId, null);
 	}

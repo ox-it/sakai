@@ -232,7 +232,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		dao.save(signupDao);
 		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP, placementId);
 		String url = proxy.getMyUrl(placementId);
-		sendSignupEmail(signupDao.getUserId(), signupDao, "confirmed.student.subject","confirmed.student.body", new Object[]{url});
+		sendStudentSignupEmail(signupDao, 
+				"confirmed.student.subject",
+				"confirmed.student.body", 
+				new Object[]{url});
 	}
 	
 	/**
@@ -271,12 +274,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setAmended(getNow());
 		dao.save(signupDao);
 		proxy.logEvent(signupDao.getGroup().getId(), EVENT_WAITING, placementId);
-		String url = proxy.getMyUrl(placementId);
 		
-		sendSignupEmail(signupDao.getUserId(), signupDao, 
+		sendStudentSignupEmail(signupDao, 
 			"waiting-admin.student.subject", 
 			"waiting-admin.student.body", 
-			new Object[]{url});
+			new Object[]{proxy.getMyUrl(placementId)});
 	}
 
 	/**
@@ -533,8 +535,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				signupDao.setAmended(getNow());
 				dao.save(signupDao);
 				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT, placementId);
-				sendSignupEmail(
-						signupDao.getUserId(), signupDao, 
+				sendStudentSignupEmail(
+						signupDao, 
 						"reject-admin.student.subject", 
 						"reject-admin.student.body", 
 						new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
@@ -552,8 +554,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 						dao.save(componentDao);
 					}
 					proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT, placementId);
-					sendSignupEmail(
-							signupDao.getUserId(), signupDao, 
+					sendStudentSignupEmail(
+							signupDao, 
 							"reject-supervisor.student.subject", 
 							"reject-supervisor.student.body", 
 							new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
@@ -572,8 +574,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					dao.save(componentDao);
 				}
 				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT, placementId);
-				sendSignupEmail(
-						signupDao.getUserId(), signupDao, 
+				sendStudentSignupEmail(
+						signupDao, 
 						"reject-approver.student.subject", 
 						"reject-approver.student.body", 
 						new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
@@ -839,7 +841,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * @param bodyKey The resource bundle key for the body.
 	 * @param additionalBodyData Additional objects used to format the email body. Typically used for the confirm URL.
 	 */
-	public void sendSignupEmail(String userId, CourseSignupDAO signupDao, String subjectKey, String bodyKey, Object[] additionalBodyData) {
+	public void sendSignupEmail(String userId, CourseSignupDAO signupDao, String subjectKey, 
+			String bodyKey, 
+			Object[] additionalBodyData) {
+		
 		UserProxy recepient = proxy.findUserById(userId);
 		if (recepient == null) {
 			log.warn("Failed to find user for sending email: "+ userId);
@@ -852,22 +857,23 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		
 		String to = recepient.getEmail();
-		String subject = MessageFormat.format(rb.getString(subjectKey), new Object[]{proxy.getCurrentUser().getDisplayName(), signupDao.getGroup().getTitle(), signupUser.getDisplayName()});
 		String componentDetails = formatSignup(signupDao);
 		Object[] baseBodyData = new Object[] {
 				proxy.getCurrentUser().getDisplayName(),
 				componentDetails,
 				signupDao.getGroup().getTitle(),
 				signupUser.getDisplayName(),
-				signupUser.getDegreeProgram()
+				(null == signupUser.getDegreeProgram()) ? "unknown" : signupUser.getDegreeProgram()
 		};
-		Object[] bodyData = baseBodyData;
+		Object[] data = baseBodyData;
 		if (additionalBodyData != null) {
-			bodyData = new Object[bodyData.length + additionalBodyData.length];
-			System.arraycopy(baseBodyData, 0, bodyData, 0, baseBodyData.length);
-			System.arraycopy(additionalBodyData, 0, bodyData, baseBodyData.length, additionalBodyData.length);
+			data = new Object[data.length + additionalBodyData.length];
+			System.arraycopy(baseBodyData, 0, data, 0, baseBodyData.length);
+			System.arraycopy(additionalBodyData, 0, data, baseBodyData.length, additionalBodyData.length);
 		}
-		String body = MessageFormat.format(rb.getString(bodyKey), bodyData);
+		
+		String subject = MessageFormat.format(rb.getString(subjectKey), data);
+		String body = MessageFormat.format(rb.getString(bodyKey), data);
 		proxy.sendEmail(to, subject, body);
 	}
 	
@@ -878,7 +884,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * @param bodyKey
 	 * @param additionalBodyData
 	 */
-	public void sendStudentSignupEmail(CourseSignupDAO signupDao, String subjectKey, String bodyKey, Object[] additionalBodyData) {
+	public void sendStudentSignupEmail(CourseSignupDAO signupDao, String subjectKey, 
+			String bodyKey, 
+			Object[] additionalBodyData) {
 		
 		UserProxy signupUser = proxy.findUserById(signupDao.getUserId());
 		if (signupUser == null) {
@@ -887,9 +895,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		
 		String to = signupUser.getEmail();
-		String subject = MessageFormat.format(
-				rb.getString(subjectKey), new Object[]{signupDao.getGroup().getTitle()});
-		
 		String componentDetails = formatSignup(signupDao);
 		Object[] baseBodyData = new Object[] {
 				signupUser.getDisplayName(),
@@ -897,13 +902,14 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				signupDao.getGroup().getTitle(),
 		};
 		
-		Object[] bodyData = baseBodyData;
+		Object[] data = baseBodyData;
 		if (additionalBodyData != null) {
-			bodyData = new Object[bodyData.length + additionalBodyData.length];
-			System.arraycopy(baseBodyData, 0, bodyData, 0, baseBodyData.length);
-			System.arraycopy(additionalBodyData, 0, bodyData, baseBodyData.length, additionalBodyData.length);
+			data = new Object[data.length + additionalBodyData.length];
+			System.arraycopy(baseBodyData, 0, data, 0, baseBodyData.length);
+			System.arraycopy(additionalBodyData, 0, data, baseBodyData.length, additionalBodyData.length);
 		}
-		String body = MessageFormat.format(rb.getString(bodyKey), bodyData);
+		String subject = MessageFormat.format(rb.getString(subjectKey), data);
+		String body = MessageFormat.format(rb.getString(bodyKey), data);
 		proxy.sendEmail(to, subject, body);
 	}
 	
@@ -1016,11 +1022,14 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					administrator, signupDao, 
 					"withdraw.admin.subject", 
 					"withdraw.admin.body", 
-					new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
+					new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getAdminUrl()});
 				savePlacement(administrator, proxy.getPlacement(null).getId());
 			}
 		}
-		sendSignupEmail(signupDao.getUserId(), signupDao, "withdraw.student.subject", "withdraw.student.body", new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
+		sendStudentSignupEmail(signupDao, 
+				               "withdraw.student.subject", 
+				               "withdraw.student.body", 
+				               new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
 	}
 
 	public CourseGroup getAvailableCourseGroup(String courseId) {

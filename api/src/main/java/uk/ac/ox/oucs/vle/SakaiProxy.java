@@ -37,6 +37,8 @@ public interface SakaiProxy {
 	 * @param signupId
 	 * @return
 	 */
+	public String getAdminUrl();
+	
 	public String getApproveUrl(String signupId);
 	
 	public String getApproveUrl(String signupId, String placementId);

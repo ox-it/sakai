@@ -1,10 +1,6 @@
 package uk.ac.ox.oucs.vle.proxy;
 
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -223,6 +219,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 				(units == null)?Collections.EMPTY_LIST:units);
 	}
 
+	public String getAdminUrl() {
+		return getUrl("/static/admin.jsp");
+	}
+	
 	public String getConfirmUrl(String signupId) {
 		return getConfirmUrl(signupId, null);
 	}
