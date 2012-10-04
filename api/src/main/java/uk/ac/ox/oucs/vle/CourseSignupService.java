@@ -43,7 +43,7 @@ public interface CourseSignupService {
 		}
 	};
 	
-	public static enum Range {ALL, UPCOMING, PREVIOUS};
+	public static enum Range {ALL, UPCOMING, PREVIOUS, NOTSTARTED};
 	
 	// List of events
 	public static final String EVENT_SIGNUP = "coursesignup.signup";

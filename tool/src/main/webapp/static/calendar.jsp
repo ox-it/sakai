@@ -253,7 +253,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 						}
 					});
 					
-					Signup.course.show(courseDetails, id, "UPCOMING", externalUser, function() {
+					Signup.course.show(courseDetails, id, "NOTSTARTED", externalUser, function() {
 						courseDetails.dialog("open");
 					});
 					
