@@ -119,7 +119,7 @@
 		<servlet-class>uk.ac.cam.caret.sakai.WebappToolServlet</servlet-class>
 		<init-param>
 			<param-name>main-page</param-name>
-			<param-value>/static/index.jsp</param-value>
+			<param-value>/static/home.jsp</param-value>
 		</init-param>
 		<init-param>
 			<param-name>tool-native-url</param-name>
