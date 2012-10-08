@@ -232,7 +232,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	public String getDirectUrl(String courseId) {
-		return getUrl("/static/browse.jsp?openCourse="+ courseId);
+		return getUrl("/static/index.jsp?openCourse="+ courseId);
 	}
 	
 	public String getApproveUrl(String signupId) {
