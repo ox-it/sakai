@@ -11,9 +11,13 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Vector;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.entity.api.Entity;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
@@ -296,5 +300,86 @@ public class ContentSyncPushServiceImpl implements ContentSyncPushService {
 	public Collection stats() {
 		return Collections.EMPTY_LIST;
 	}
+	
+	
+	/**
+	 * 
+	 */
+	private ContentSyncSessionBean contentSyncSessionBean;
+	public void setContentSyncSessionBean(ContentSyncSessionBean contentSyncSessionBean) {
+		this.contentSyncSessionBean = contentSyncSessionBean;
+	}
+	
+	public void broadcastToken(ContentSyncToken token) {
+		if (token.getResourceEvent().startsWith(ContentHostingService.REFERENCE_ROOT.substring(1))) {
+			broadcast("{\"aps\":{\"badge\":\"+1\"}}");
+		}
+		
+		if (DiscussionForumService.EVENT_FORUMS_TOPIC_ADD.equals(token.getResourceEvent())) {	
+			broadcast("{\"aps\":{\"badge\":\"+1\"}}");
+		}
+		if (DiscussionForumService.EVENT_FORUMS_TOPIC_REMOVE.equals(token.getResourceEvent())) {	
+			broadcast("{\"aps\":{\"badge\":\"+1\"}}");
+		}
+		
+		if (DiscussionForumService.EVENT_FORUMS_REMOVE.equals(token.getResourceEvent())) {
+			long id = contentSyncSessionBean.getTopicId(
+					new Long(parseReference(token.getResourceReference())));
+			if (0 != id) {
+				broadcast("{\"message\":\""+token.getResourceEvent()+"\",\"title\":\""+id+"\"}");
+			}
+		}
+		
+		if (DiscussionForumService.EVENT_FORUMS_ADD.equals(token.getResourceEvent())) {
+			long id = contentSyncSessionBean.getTopicId(
+					new Long(parseReference(token.getResourceReference())));
+			if (0 != id) {
+				broadcast("{\"message\":\""+token.getResourceEvent()+"\",\"title\":\""+id+"\"}");
+			}
+		}
+	}
+	private static String REFERENCE_ROOT = Entity.SEPARATOR + "forums";
+	
+	public long parseReference(String reference) {
+		// Where was this copied from?
+		if (reference.startsWith(REFERENCE_ROOT)) {
+			// /syllabus/siteid/syllabusid
+			String[] parts = split(reference, Entity.SEPARATOR);
+
+			String id = null;
+
+			if (parts.length > 5) {
+				id = parts[5];
+			}
+
+			return new Long(id);
+		}
+
+		return 0;
+	}
+	
+	protected String[] split(String source, String splitter) {
+		// hold the results as we find them
+		Vector rv = new Vector();
+		int last = 0;
+		int next = 0;
+		do {
+			// find next splitter in source
+			next = source.indexOf(splitter, last);
+			if (next != -1)	{
+				// isolate from last thru before next
+				rv.add(source.substring(last, next));
+				last = next + splitter.length();
+			}
+		}
+		while (next != -1);
+		if (last < source.length())	{
+			rv.add(source.substring(last, source.length()));
+		}
+
+		// convert to array
+		return (String[]) rv.toArray(new String[rv.size()]);
+
+	} // split
 	
 }

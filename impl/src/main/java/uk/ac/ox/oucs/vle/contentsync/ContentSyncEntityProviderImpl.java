@@ -59,6 +59,11 @@ public class ContentSyncEntityProviderImpl
 		this.dao = dao;
 	}
 	
+	private ContentSyncService contentSyncService;
+	public void setContentSyncService(ContentSyncService contentSyncService) {
+		this.contentSyncService = contentSyncService;
+	}
+
 	/**
 	 * The DAO to update our entries through.
 	 */
@@ -146,6 +151,10 @@ public class ContentSyncEntityProviderImpl
 			entityUrl.append("/"+segments[i]);
 		}
 		entityUrl.append("/");
+		
+		if (!contentSyncService.isSiteTracked(context)) {
+			throw new RuntimeException("Tracking content isn't enabled on this site.");
+		}
 
 		Collection<ContentSyncTableDAO> collection = dao.findResourceTrackers(context, timestamp);
 		

@@ -12,7 +12,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class ContentSyncDAOImpl extends HibernateDaoSupport implements ContentSyncDAO {
 
 	public void save(ContentSyncTableDAO resourceTrackerDao) {
-		getHibernateTemplate().save(resourceTrackerDao).toString();
+		getHibernateTemplate().save(resourceTrackerDao);
 	}
 	
 	/**
