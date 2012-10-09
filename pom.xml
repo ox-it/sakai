@@ -9,7 +9,6 @@
 	<version>1.0-SNAPSHOT</version>
 
 	<modules>
-		<module>api</module>
 		<module>hbm</module>
 		<module>impl</module>
 		<module>pack</module>
@@ -32,14 +31,6 @@
 				<extensions>true</extensions>
 				<configuration>
 					<deployDirectory>${maven.tomcat.home}</deployDirectory>
-				</configuration>
-			</plugin>
-			<plugin>
-				<!-- The tests in the impl are failing at the moment. -->
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<skip>true</skip>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -28,6 +28,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
@@ -46,8 +47,11 @@ import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 public class ContentSyncEntityProviderImpl 
-	implements ContentSyncEntityProvider, AutoRegisterEntityProvider, PropertyProvideable, 
+	implements EntityProvider, AutoRegisterEntityProvider, PropertyProvideable, 
 				RESTful, RequestStorable, RequestAware, ActionsExecutable {
+	
+	  public final static String ENTITY_PREFIX = "content_sync";
+
 	
 	private static final String PARAMETER_TIMESTAMP = "timestamp";
 
