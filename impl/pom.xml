@@ -37,10 +37,6 @@
 		
 		<dependency>
 			<groupId>uk.ac.ox.oucs</groupId>
-			<artifactId>content-sync-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>uk.ac.ox.oucs</groupId>
 			<artifactId>content-sync-hbm</artifactId>
 		</dependency>
 		
