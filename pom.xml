@@ -52,12 +52,11 @@
 
 	<pluginRepositories>
 		<pluginRepository>
-			<id>oucs-vle</id>
+			<id>maven-repo.oucs</id>
 			<name>OUCS VLE Repository</name>
 			<url>http://maven-repo.oucs.ox.ac.uk/content/repositories/releases/</url>
 			<layout>default</layout>
 		</pluginRepository>
-
 	</pluginRepositories>
 
 
@@ -109,12 +108,6 @@
 			</dependency>
 
 			<!-- Internal project -->
-			<dependency>
-				<groupId>uk.ac.ox.oucs</groupId>
-				<artifactId>content-sync-api</artifactId>
-				<version>${project.version}</version>
-				<scope>provided</scope>
-			</dependency>
 			<dependency>
 				<groupId>uk.ac.ox.oucs</groupId>
 				<artifactId>content-sync-hbm</artifactId>
