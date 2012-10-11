@@ -13,9 +13,9 @@
 			<column name="id" />
 			<generator class="uuid" />
 		</id>
-		<property name="timeStamp" type="timestamp" />
+		<property name="context" type="string" length="99" index="content_sync_idx"/>
+		<property name="timeStamp" type="timestamp" index="content_sync_idx"/>
 		<property name="event" type="string" length="32" />
-		<property name="context" type="string" length="99"/>
 		<property name="reference" type="string" length="256"/>
 	</class>
 

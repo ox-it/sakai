@@ -20,9 +20,12 @@
 	</bean>
 
 	<bean name="uk.ac.ox.oucs.vle.contentsync.ContentSyncDAO" 
-		  class="uk.ac.ox.oucs.vle.contentsync.ContentSyncDAOImpl">
+		  class="uk.ac.ox.oucs.vle.contentsync.ContentSyncDAOImpl" init-method="init">
 		<property name="sessionFactory">
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		</property>
+		<property name="serverConfigurationService">
+			<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
 		</property>
 	</bean>
 	
