@@ -179,6 +179,19 @@
 		<property name="schedulerManager"
 			ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
 	</bean>
+	
+	<!-- Automatically setup the tool. -->
+	<bean class="uk.ac.ox.oucs.vle.AutoSetup" init-method="init" lazy-init="false">
+		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="jobs">
+			<list>
+				<ref bean="uk.ac.ox.oucs.vle.OucsDeptJobWrapper"/>
+				<ref bean="uk.ac.ox.oucs.vle.GenerateTreeJobWrapper"/>
+				<ref bean="uk.ac.ox.oucs.vle.PopulatorJobWrapper"/>
+			</list>
+		</property>
+	</bean>
 
 </beans>
 
