@@ -122,7 +122,7 @@ public class SakaiProxyTest implements SakaiProxy {
 	public String getApproveUrl(String signupId, String placementId) {
 		return "/someurl/"+ signupId;
 	}
-
+	
 	public String getConfirmUrl(String signupId) {
 		return getConfirmUrl(signupId, null);
 	}

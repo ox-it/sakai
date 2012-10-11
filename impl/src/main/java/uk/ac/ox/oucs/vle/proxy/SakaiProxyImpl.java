@@ -228,6 +228,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	public String getConfirmUrl(String signupId, String placementId) {
+		if (null == signupId) {
+			return getUrl("/static/pending.jsp", placementId);
+		}
 		return getUrl("/static/pending.jsp#"+ signupId, placementId);
 	}
 	
@@ -240,6 +243,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	public String getApproveUrl(String signupId, String placementId) {
+		if (null == signupId) {
+			return getUrl("/static/approve.jsp", placementId);
+		}
 		return getUrl("/static/approve.jsp#"+ signupId, placementId);
 	}
 	

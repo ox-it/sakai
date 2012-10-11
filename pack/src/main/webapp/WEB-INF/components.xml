@@ -144,7 +144,7 @@
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
 		singleton="true" init-method="init">
 		<property name="beanId" value="uk.ac.ox.oucs.vle.ModuleJob" />
-		<property name="jobName" value="Close Signup Module Action" />
+		<property name="jobName" value="Module Signup (SES) Overnight Jobs" />
 		<property name="schedulerManager"
 			ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
 	</bean>
