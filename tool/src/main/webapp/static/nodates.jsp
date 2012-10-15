@@ -232,7 +232,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 						modal: true,
 						open: function(){
 							if ($(this).height() > $(window).height()) {
-								Signup.util.resize(window.name, $(this).height());
+								Signup.util.resize(window.name, ($(this).height()+40));
 							}
 						},
 						close: function(event, ui){
