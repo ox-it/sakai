@@ -125,7 +125,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 					};
 					
                     var openAtCourse = function(id){
-						Signup.course.show($("#details"), id, "ALL", externalUser, function(courseData){
+						Signup.course.show($("#details"), id, "UPCOMING", externalUser, function(courseData){
 							$("#tree").jstree("open_node", $("#"+courseData.departmentCode.substr(0,2)), function() {
 								$("#tree").jstree("open_node", $("#"+courseData.departmentCode), function() {
 									$("#tree").jstree("open_node", $("#"+courseData.subUnitCode));
