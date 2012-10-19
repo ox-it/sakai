@@ -18,29 +18,12 @@ public abstract class AdvancedStatelessDataView<T> extends StatelessDataView<T> 
 
 	public AdvancedStatelessDataView(String id, AdvancedIDataProvider<T> dataProvider,
 			int itemsPerPage, PageParameters pp) {
-		super(id, dataProvider, itemsPerPage, pp);
-		this.dataProvider = dataProvider;
-	}
-	
-	public AdvancedStatelessDataView(String id, AdvancedIDataProvider<T> dataProvider, PageParameters pp) {
 		super(id, dataProvider, pp);
 		this.dataProvider = dataProvider;
-	}
-	
-	public AdvancedIDataProvider<T> getDataProvider() {
-		return dataProvider;
-	}
-	
-	public void setItemsPerPage(int count) {
-		super.setItemsPerPage(count);
-		dataProvider.setCount(count);
+		setItemsPerPage(itemsPerPage);
 		
-	}
-	
-	@Override
-	public void onInitialize() {
-		// This needs to happen before things like the PagingNavigator
-		String id = getId();
+		// This all needs to happen early so that when the search is done the page is set correctly.
+		
 		// This is here so that we can call setItemPerPage.
 		if (pp.getString(id) != null) {
 			int pageNum = getPageNumber(pp.getString(id));
@@ -52,7 +35,15 @@ public abstract class AdvancedStatelessDataView<T> extends StatelessDataView<T> 
 				}
 			}
 		}
-		super.onInitialize();
+	}
+	
+	public AdvancedIDataProvider<T> getDataProvider() {
+		return dataProvider;
+	}
+	
+	public void setItemsPerPage(int count) {
+		super.setItemsPerPage(count);
+		dataProvider.setCount(count);
 	}
 
 }

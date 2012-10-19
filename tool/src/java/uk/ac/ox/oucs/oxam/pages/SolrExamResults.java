@@ -26,7 +26,7 @@ class SolrExamResults<T extends Page> extends Panel {
 
 	public SolrExamResults(String id, Class<T> clazz, AdvancedIDataProvider<SolrDocument> provider, PageParameters pp) {
 		super(id);
-		dataView = new AdvancedStatelessDataView<SolrDocument>("items", provider, pp)  {
+		dataView = new AdvancedStatelessDataView<SolrDocument>("items", provider, 20, pp)  {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -44,7 +44,6 @@ class SolrExamResults<T extends Page> extends Panel {
 			}
 		};
 		
-		dataView.setItemsPerPage(20);
 		pager = new StatelessSimplePagingNavigator<T>("resultsNavigation", clazz, pp, dataView, 10);
 		pagerLabel = new NavigatorLabel("resultsLabel", dataView) {
 			private static final long serialVersionUID = 1L;
