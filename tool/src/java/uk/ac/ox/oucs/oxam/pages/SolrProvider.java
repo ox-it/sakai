@@ -25,15 +25,30 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
+import uk.ac.ox.oucs.oxam.Tuple;
 import uk.ac.ox.oucs.oxam.components.AdvancedIDataProvider;
 
+/**
+ * This wraps up a SOLR search into a provider which allows results to be returned.
+ * @author buckett
+ *
+ */
 public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 {
 
 	private static final long serialVersionUID = 1L;
+	private static final List<Tuple<String,ORDER>> DEFAULT_ORDER;
+	static {
+		// Setup the default order to sort thing by.
+		List<Tuple<String,ORDER>> order = new ArrayList<Tuple<String,ORDER>>();
+		order.add(new Tuple<String,ORDER>("paper_code", ORDER.asc));
+		order.add(new Tuple<String,ORDER>("sort_year", ORDER.desc));
+		DEFAULT_ORDER = Collections.unmodifiableList(order);
+	}
 
 	private SolrServer solr;
 	private String query;
+	private List<Tuple<String,ORDER>> order;
 	private ArrayList<Filter> filters;
 	private Map<String, Resolver<? extends Object>>resolvers = new HashMap<String, Resolver<? extends Object>>();
 
@@ -41,7 +56,12 @@ public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 	private int count = 10;
 	private transient QueryResponse response;
 
+	private SolrProvider() {
+		order = DEFAULT_ORDER; 
+	}
+	
 	public SolrProvider(SolrServer solr) {
+		this();
 		this.solr = solr;
 	}
 	
@@ -53,13 +73,18 @@ public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 	 * @param filters
 	 */
 	public SolrProvider(SolrServer solr, String query, String[] filters) {
-		this.solr = solr;
+		this(solr);
 		this.query = query;
 		setFilters(filters);
 	}
 	
 	public void setQuery(String query) {
 		this.query = query;
+	}
+	
+	public void setSort(List<Tuple<String,ORDER>> order) {
+		// Play it safe and take a copy.
+		this.order = new ArrayList<Tuple<String,ORDER>>(order);
 	}
 
 	public void setFilters(String[] filters) {
@@ -71,7 +96,7 @@ public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 			}
 		}
 	}
-	
+
 	public void setResolver(String facet, Resolver<? extends Object> resolver) {
 		this.resolvers.put(facet, resolver);
 	}
@@ -118,8 +143,12 @@ public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 				setFacet(true).
 				setFacetMinCount(1).
 				setFacetLimit(SolrFacet.FACET_LIMIT+1). // So we know if we have too many.
-				setSortField("sort_year", ORDER.desc).
 				addFacetField("exam_code", "paper_code", "academic_year", "term");
+		if (order != null) {
+			for(Tuple<String,ORDER> tuple: order) {
+				solrQuery.addSortField(tuple.x, tuple.y);
+			}
+		}
 		
 		if (filters != null) {
 			String[] filterQuery = new String[filters.size()];
