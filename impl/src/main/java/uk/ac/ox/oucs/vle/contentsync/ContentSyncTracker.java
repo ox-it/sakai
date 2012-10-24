@@ -12,14 +12,9 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
-import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
 
 /**
  * This service watches for changes announced through the event system and stores interesting ones 
@@ -67,15 +62,20 @@ public class ContentSyncTracker implements Observer {
 	private BlockingQueue<ContentSyncToken> queue = new ArrayBlockingQueue<ContentSyncToken>(1024, true);
 	
 	private Thread thread;
-	private volatile boolean runThread = true;
+	private volatile boolean runThread = false;
 
 	public void init() {
 		if (contentSyncService.isContentSyncEnabled()) {
-			log.info("Starting event listener so we sync content.");
-			eventTrackingService.addLocalObserver(this);
-			thread = new Thread(new ContentSyncPersister());
-			thread.setDaemon(true); // Don't hold up shutdown waiting on this thread.
-			thread.start();	
+			if (runThread == true) {
+				log.warn("Thread already started.");
+			} else {
+				log.info("Starting event listener so we sync content.");
+				eventTrackingService.addLocalObserver(this);
+				thread = new Thread(new ContentSyncPersister());
+				thread.setDaemon(true); // Don't hold up shutdown waiting on this thread.
+				runThread = true;
+				thread.start();
+			}
 		} else {
 			log.info("Content sync is not enabled.");
 		}
