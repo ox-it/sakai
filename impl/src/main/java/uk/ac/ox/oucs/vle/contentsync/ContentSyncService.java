@@ -9,7 +9,7 @@ public class ContentSyncService {
 	
 	public static final String CONTENT_SYNC_ENABLED = "content.sync.enabled";
 
-	private static final String TRACK_CONTENT = "trackContent";
+	public static final String TRACK_CONTENT = "trackContent";
 	
 	private SiteService siteService;
 	public void setSiteService(SiteService siteService) {

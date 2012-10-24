@@ -24,7 +24,7 @@
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-util</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.sakaiproject.entitybroker</groupId>
 			<artifactId>entitybroker-api</artifactId>
@@ -34,21 +34,22 @@
 			<groupId>org.sakaiproject.entitybroker</groupId>
 			<artifactId>entitybroker-utils</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>uk.ac.ox.oucs</groupId>
 			<artifactId>content-sync-hbm</artifactId>
+			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
-      		<groupId>org.sakaiproject.msgcntr</groupId>
-      		<artifactId>messageforums-api</artifactId>
-    	</dependency>
-    	<dependency>
-      		<groupId>org.sakaiproject.msgcntr</groupId>
-      		<artifactId>messageforums-component-impl</artifactId>
-    	</dependency>
-		
+			<groupId>org.sakaiproject.msgcntr</groupId>
+			<artifactId>messageforums-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.msgcntr</groupId>
+			<artifactId>messageforums-component-impl</artifactId>
+		</dependency>
+
 		<!-- Needed to generate the static listing of departments. -->
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
@@ -61,7 +62,7 @@
 			<artifactId>commons-logging</artifactId>
 			<scope>compile</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring</artifactId>
@@ -73,28 +74,13 @@
 			<version>1.8.0.7</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate</artifactId>
 			<scope>provided</scope>
-			<exclusions>
-				<!-- Needed to get hibernate and Jersey in the same classloader. -->
-				<exclusion>
-					<artifactId>cglib</artifactId>
-					<groupId>cglib</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>asm</artifactId>
-					<groupId>asm</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>asm-attrs</artifactId>
-					<groupId>asm</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
@@ -109,9 +95,34 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.2.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.10</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<!-- This is needed for the org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl -->
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-private</artifactId>
+			<version>${kernel.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>1.6.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.14</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -119,22 +130,26 @@
 		<profile>
 			<id>standalone</id>
 			<dependencies>
-			
+
 			</dependencies>
 		</profile>
 	</profiles>
 	<build>
 		<resources>
-			<resource><directory>src/main/resources</directory></resource>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
 		</resources>
 		<testSourceDirectory>src/test/java</testSourceDirectory>
 		<testResources>
-			<testResource><directory>src/test/resources</directory></testResource>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
 		</testResources>
-		
+
 		<plugins>
-		
-    	</plugins>
-		
+
+		</plugins>
+
 	</build>
 </project>

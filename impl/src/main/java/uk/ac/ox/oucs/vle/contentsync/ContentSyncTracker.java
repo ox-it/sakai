@@ -136,7 +136,7 @@ public class ContentSyncTracker implements Observer {
 	public class ContentSyncPersister implements Runnable {
 
 		public void run() {
-
+			log.info("Persiter thread started.");
 			try {
 				ContentSyncToken token = null;
 				do {
@@ -159,7 +159,7 @@ public class ContentSyncTracker implements Observer {
 			} catch (InterruptedException intEx) {
 				log.warn("We got interrupted.");
 			} finally {
-				log.info("Persiter thread stopped");
+				log.info("Persiter thread stopped.");
 			}
 		}
 
