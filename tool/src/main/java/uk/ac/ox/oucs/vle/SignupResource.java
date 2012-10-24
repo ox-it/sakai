@@ -292,6 +292,9 @@ public class SignupResource {
 						"Year of Study", "Degree Programme", "Affiliation"});
 				for(CourseSignup signup : signups) {
 					Person user = signup.getUser();
+					if (null == user) {
+						continue;
+					}
 					csvWriter.writeln(new String[]{
 							user.getLastName(), user.getFirstName(), user.getEmail(), signup.getStatus().toString(),
 							user.getYearOfStudy(), user.getDegreeProgram(), buildString(user.getUnits())});
@@ -331,7 +334,9 @@ public class SignupResource {
 				
 					List<Person> persons = new ArrayList<Person>();
 					for (CourseSignup signup : signups) {
-						persons.add(signup.getUser());
+						if (null != signup.getUser()) {
+							persons.add(signup.getUser());
+						}
 					}
 					Collections.sort(persons, new Comparator<Person>() {
 						public int compare(Person p1,Person p2) {
@@ -590,10 +595,11 @@ public class SignupResource {
 	
 	private String buildString(Collection<String> collection) {
 		StringBuilder sb = new StringBuilder();
-		for(String s: collection) {
-			sb.append(s).append('/');
+		if (!collection.isEmpty()) {
+			for(String s: collection) {
+				sb.append(s).append('/');
+			}
 		}
-		sb.deleteCharAt(sb.length()-1); //delete last comma
 		return sb.toString();
 	}
 
