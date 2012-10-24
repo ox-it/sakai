@@ -1,6 +1,6 @@
 package uk.ac.ox.oucs.vle.contentsync;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -11,7 +11,6 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.time.api.Time;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -55,7 +54,7 @@ public class ContentSyncDAOImpl extends HibernateDaoSupport implements ContentSy
 	 * Find all ResourceTracker since timestamp
 	 */
 	@SuppressWarnings("unchecked")
-	public List<ContentSyncTableDAO> findResourceTrackers(final String context, final Time time) {
+	public List<ContentSyncTableDAO> findResourceTrackers(final String context, final Date time) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				Query query = session.createSQLQuery(
@@ -65,8 +64,7 @@ public class ContentSyncDAOImpl extends HibernateDaoSupport implements ContentSy
 						"timeStamp > :timestamp").addEntity(ContentSyncTableDAO.class);
 				
 				query.setString("context", context);
-				Timestamp timestamp = new Timestamp(time.getTime());
-				query.setTimestamp("timestamp", timestamp);
+				query.setTimestamp("timestamp", time);
 				return query.list();
 			}
 		});

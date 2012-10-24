@@ -140,7 +140,7 @@ public class ContentSyncEntityProviderImpl
         }
 		
     	Map<String, Object> parameters = getQueryMap((String)params.get("queryString"));
-    	Time timestamp = getTime((String)parameters.get(PARAMETER_TIMESTAMP));
+    	Date timestamp = getTime((String)parameters.get(PARAMETER_TIMESTAMP));
     	
 		String[] segments = view.getPathSegments();
 		String context = segments[segments.length-1];
@@ -279,21 +279,18 @@ public class ContentSyncEntityProviderImpl
 	 * @param timestamp  use formatter A: yyyyMMddHHmmssSSS
 	 * @return
 	 */
-	private Time getTime(String timestamp) {
+	private Date getTime(String timestamp) {
 		
 		try {
 			
 			if (null != timestamp) {
 				DateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 				Date date = format.parse(timestamp);
-				Calendar c = Calendar.getInstance();
-				c.setTime(date);
-				
-				return TimeService.newTime(c.getTimeInMillis());
+				return date;
 			}
 		
 		} catch (ParseException e) {
-			return TimeService.newTimeGmt("20201231235959999");
+			return new Date(2020,12,31);
 		}
 		return null;
 	}
