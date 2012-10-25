@@ -143,4 +143,7 @@ public class ExternalGroupProvider implements GroupProvider, DisplayGroupProvide
 		return null;
 	}
 	
+	public boolean groupExists(String groupId) {
+		return externalGroupManager.findExternalGroupId(groupId) != null;
+	}
 }
