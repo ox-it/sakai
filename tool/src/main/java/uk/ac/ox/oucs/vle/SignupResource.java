@@ -42,7 +42,8 @@ import com.sun.jersey.api.view.Viewable;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
-@Path("/signup")
+//@Path("/signup")
+@Path("signup{cobomo:(/cobomo)?}")
 public class SignupResource {
 
 	

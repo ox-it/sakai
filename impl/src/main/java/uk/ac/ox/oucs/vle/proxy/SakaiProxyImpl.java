@@ -19,9 +19,11 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -169,6 +171,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * @throws RunTimeException If there isn't a current placement, this happens
 	 * when a request comes through that isn't processed by the portal.
 	 */
+
 	public Placement getPlacement(String placementId) {
 		Placement placement = null;
 		if (null == placementId) {
@@ -177,9 +180,30 @@ public class SakaiProxyImpl implements SakaiProxy {
 			placement = siteService.findTool(placementId);
 		}
 		if (placement == null) {
+			try {
+				String defaultSiteId = getSiteId();
+				if (null == defaultSiteId) {
+					throw new RuntimeException("No default tool placement set.");
+				}
+				Site site = siteService.getSite(defaultSiteId);
+				placement = site.getToolForCommonId("course.signup");
+				
+			} catch(Exception e) {
+				throw new RuntimeException("No current tool placement set.");
+			}
+		}
+		
+		if (placement == null) {
 			throw new RuntimeException("No current tool placement set.");
 		}
 		return placement;
+	}
+	
+	protected String getSiteId() {
+		if (null != serverConfigurationService) {
+			return serverConfigurationService.getString("ses.default.siteId", "d0c31496-d5b9-41fd-9ea9-349a7ac3a01a");
+		}
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")

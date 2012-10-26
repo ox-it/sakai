@@ -11,6 +11,10 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -38,7 +42,8 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 
-@Path("/course/")
+//@Path("/course/")
+@Path("course{cobomo:(/cobomo)?}")
 public class CourseResource {
 
 	private CourseSignupService courseService;
@@ -64,15 +69,21 @@ public class CourseResource {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
 		return new GroupStreamingOutput(course);
-		/*
-		return new StreamingOutput() {
-			public void write(OutputStream output) throws IOException,
-					WebApplicationException {
-				objectMapper.writeValue(output, course);
-			}
-		};
+	} 
+	
+	@Path("/{id}")
+	@GET
+	@Produces(MediaType.APPLICATION_XHTML_XML)
+	public String getCoursePage(
+			@PathParam("id") final String courseId, 
+			@QueryParam("range") final Range range,
+			@Context final HttpServletRequest request,
+		    @Context final HttpServletResponse response) throws ServletException, IOException {
 		
-		*/
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/static/course.jsp");
+		request.setAttribute("openCourse", courseId);
+		dispatcher.forward(request, response);
+		return "";
 	} 
 
 	@Path("/all")
