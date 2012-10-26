@@ -12,6 +12,9 @@
     <artifactId>termdates-api</artifactId>
     <name>Termdates API</name>
     <description>API of Termdates project</description>
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
 
     <dependencies>
         <dependency>
