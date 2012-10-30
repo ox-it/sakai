@@ -34,15 +34,16 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 			padding-right: 4px; /* Overflows a <table> because of <input> has border and padding */
 		}
 	</style>
-  
 	
 	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script> 
 	<script type="text/javascript" src="lib/jstree-1.0rc2/_lib/jquery.cookie.js"></script>
 	<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
 	<script type="text/javascript" src="lib/jquery-ui-1.8.4.custom/js/jquery-ui-1.8.4.custom.min.js"></script>
 	<script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js"></script>
+	<!-- 
 	<script type="text/javascript" src="lib/dataTables-1.7/js/jquery.dataTables.js"></script>
 	<script type="text/javascript" src="lib/dataTables.reloadAjax.js"></script>
+	 -->
 	<script type="text/javascript" src="lib/signup.js"></script>
 	<script type="text/javascript" src="lib/Text.js"></script>
 	<script type="text/javascript" src="lib/serverDate.js"></script>
@@ -83,7 +84,8 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 					categories_rm: course.categories_rm,
 					summary: summary.message,
 					bookable: summary.state,
-					previous: summary.previous
+					previous: summary.previous,
+					newCourse: summary.previous[1]?true:null
 				});
 			});
 			return data;
@@ -144,7 +146,15 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
  <body>
  	<div ex:role="lens" ex:itemTypes="Course" style="display:none">
  		<div class="course-item">
-			<h3 ex:content=".label"></h3>
+ 			<!-- <h3 ex:content=".label"></h3> -->
+ 						 
+			<h3>
+				<span ex:if-exists=".newCourse">
+					<image src=/library/image/silk/new.png />
+				</span>
+				<span ex:content=".label"></span>
+			</h3>
+			
 			<table>
 				<tr ex:if-exists=".lecturer">
 					<th>Lecturer</th>

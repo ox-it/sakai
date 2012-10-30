@@ -42,6 +42,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<script type="text/javascript">
 	
 		var externalUser = <c:out value="${externalUser}" />;
+		var recentDays = "<%= ServerConfigurationService.getString("recent.days", "14") %>";
 	
 		$(function(){
 
@@ -69,7 +70,11 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		            }, {
 		                "sTitle": "Title",
 		                "fnRender": function(aObj) {
-							return '<a class="more-details-link" href="'+aObj.aData[4]+'">'+aObj.aData[1]+'</a>';
+		                	if (aObj.aData[5]) {
+								return '<a class="more-details-link" href="'+aObj.aData[4]+'"><image src="/library/image/silk/new.png" />'+aObj.aData[1]+'</a>';
+		                	} else {
+		                		return '<a class="more-details-link" href="'+aObj.aData[4]+'">'+aObj.aData[1]+'</a>';
+		                	}
 						},
 		                "bSortable": false
 		            }, {
@@ -78,6 +83,8 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		            }, {
 		                "sTitle": "Status",
 		                "bSortable": false
+		            }, {
+		            	"bVisible": false
 		            }, {
 		            	"bVisible": false
 		            }],
@@ -93,12 +100,6 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		                        	
 		                        	var term = "";
 		                        	var summary = "";
-		                        	
-		                            $.each(this.components, 
-		                            		function(){
-		                            			term = this.when;
-		                            });
-		                            
 		                            var now = $.serverDate();
 		                        	var nextOpen = Number.MAX_VALUE;
 		            				var willClose = 0;
@@ -110,6 +111,8 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		                            $.each(this.components, 
 		                            		function(){
 		                            	
+		                            			term = this.when;
+		                            			
 		                            			var isOpen = this.opens < now && this.closes > now;
 		            							if (this.opens > now && this.opens < nextOpen) {
 		            								nextOpen = this.opens;
@@ -125,6 +128,11 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		            							}
 		            							if (!isOneBookable) {
 		            								isOneBookable = this.bookable;
+		            							}
+		            							
+		            							var newDate = now - (recentDays * 24 * 60 * 60 * 1000); 
+		            							if (this.created > newDate) {
+		            								newCourse = true;
 		            							}
 		                            });
 		                            
@@ -145,7 +153,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		            					}
 		            				}
 		                            
-		                            data.push([term, this.title, this.department, summary, this.id ]);
+		                            data.push([term, this.title, this.department, summary, this.id, newCourse ]);
 		                        });
 		                        fnCallback({
 		                            "aaData": data
@@ -270,7 +278,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 </ul>
 </div>
 
-<div style="margin:2%" >
+<div style="margin:2%">
   <div class="panel paging top" >
 	<div class="leftGroup">  
         <a class="action" href="calendar.jsp" >browse by calendar</a>

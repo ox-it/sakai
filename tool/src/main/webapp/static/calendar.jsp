@@ -44,6 +44,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<script type="text/javascript">
 	
 		var externalUser = <c:out value="${externalUser}" />;
+		var recentDays = "<%= ServerConfigurationService.getString("recent.days", "14") %>";
 	
 		$(function(){
 
@@ -80,7 +81,11 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		            }, {
 		                "sTitle": "Title",
 		                "fnRender": function(aObj) {
-							return '<a class="more-details-link" href="'+aObj.aData[4]+'">'+aObj.aData[1]+'</a>';
+		                	if (aObj.aData[5]) {
+								return '<a class="more-details-link" href="'+aObj.aData[4]+'"><image src="/library/image/silk/new.png" />'+aObj.aData[1]+'</a>';
+		                	} else {
+		                		return '<a class="more-details-link" href="'+aObj.aData[4]+'">'+aObj.aData[1]+'</a>';
+		                	}
 						},
 		                "bSortable": false
 		            }, {
@@ -89,6 +94,8 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		            }, {
 		                "sTitle": "Status",
 		                "bSortable": false
+		            }, {
+		            	"bVisible": false
 		            }, {
 		            	"bVisible": false
 		            }],
@@ -103,16 +110,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		                        $.each(result, function(){
 		                        	
 		                        	var starts = 0;
-		                        	var summary = "";
-		                        	
-		                            $.each(this.components, 
-		                            		function(){
-		                            			if (starts != 0 && this.starts < starts) {
-		                            				return;
-		                            			}
-		                            			starts = this.starts;
-		                            });
-		                            
+		                        	var summary = "";                            
 		                            var now = $.serverDate();
 		                        	var nextOpen = Number.MAX_VALUE;
 		            				var willClose = 0;
@@ -123,7 +121,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		                        	
 		                            $.each(this.components, 
 		                            		function(){
-		                            	
+                            			
 		                            			var isOpen = this.opens < now && this.closes > now;
 		            							if (this.opens > now && this.opens < nextOpen) {
 		            								nextOpen = this.opens;
@@ -140,6 +138,15 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		            							if (!isOneBookable) {
 		            								isOneBookable = this.bookable;
 		            							}
+		            							var newDate = now - (recentDays * 24 * 60 * 60 * 1000); 
+		            							if (this.created > newDate) {
+		            								newCourse = true;
+		            							}
+		            							
+		            							if (starts != 0 && this.starts < starts) {
+		                            				return;
+		                            			}
+		                            			starts = this.starts;
 		                            });
 		                            
 		                            if (!isOneBookable) {
@@ -159,7 +166,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		            					}
 		            				}
 		                            
-		                            data.push([starts, this.title, this.department, summary, this.id ]);
+		                            data.push([starts, this.title, this.department, summary, this.id, newCourse ]);
 		                        });
 		                        fnCallback({
 		                            "aaData": data
@@ -283,7 +290,8 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 </ul>
 </div>
 
-<div style="margin:2%" >
+
+<div style="margin:2%;">
   <div class="panel paging top" >
 	<div class="leftGroup">  
         <a class="action" href="nodates.jsp" >view courses without specific dates</a>
@@ -299,10 +307,10 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
     
     <div class="clear"></div>
   </div>
-  	<div class="tableCloth"> 
-		<table id="ses-calendar" class="display">
-		</table>
-  	</div>
+  <div class="tableCloth"> 
+	<table id="ses-calendar" class="display">
+	</table>
   </div>
+</div>
 </body>
 </html>
