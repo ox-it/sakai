@@ -1,6 +1,5 @@
 package uk.ac.ox.oucs.vle;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -9,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,20 +24,45 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
+import org.jdom.Document;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.xcri.profiles.x12.catalog.CatalogDocument;
-import org.xml.sax.SAXParseException;
+import org.sakaiproject.util.FormattedText;
+import org.xcri.Extension;
+import org.xcri.common.ExtensionManager;
+import org.xcri.common.OverrideManager;
+import org.xcri.common.Subject;
+import org.xcri.core.Catalog;
+import org.xcri.core.Course;
+import org.xcri.core.Presentation;
+import org.xcri.core.Provider;
+import org.xcri.exceptions.InvalidElementException;
+import org.xcri.extensions.daisy.Bookable;
+import org.xcri.extensions.daisy.CourseSubUnit;
+import org.xcri.extensions.daisy.DaisyIdentifier;
+import org.xcri.extensions.daisy.DepartmentThirdLevelApproval;
+import org.xcri.extensions.daisy.DepartmentalSubUnit;
+import org.xcri.extensions.daisy.Division;
+import org.xcri.extensions.daisy.DivisionWideEmail;
+import org.xcri.extensions.daisy.EmployeeEmail;
+import org.xcri.extensions.daisy.EmployeeName;
+import org.xcri.extensions.daisy.ModuleApproval;
+import org.xcri.extensions.daisy.OtherDepartment;
+import org.xcri.extensions.daisy.PublicView;
+import org.xcri.extensions.daisy.Sessions;
+import org.xcri.extensions.daisy.SupervisorApproval;
+import org.xcri.extensions.daisy.TermCode;
+import org.xcri.extensions.daisy.TermLabel;
+import org.xcri.extensions.daisy.WebAuthCode;
+import org.xcri.extensions.oxcap.OxcapCourse;
+import org.xcri.extensions.oxcap.OxcapPresentation;
 
 
-public class XcriPopulatorImpl extends XCRIImport implements Populator {
+public class XcriOxCapPopulatorImpl implements Populator {
 	
 	/**
 	 * The DAO to update our entries through.
@@ -58,6 +83,15 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 	/**
 	 * 
 	 */
+	protected ServerConfigurationService serverConfigurationService;
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+	
+	/**
+	 * 
+	 */
 	private ContentHostingService contentHostingService;
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
@@ -71,43 +105,31 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 		this.sessionManager = sessionManager;
 	}
 	
-	private static final Log log = LogFactory.getLog(XcriPopulatorImpl.class);
-	
-	private final static String XCRI_URL = "http://localhost:8080/test/courses.xml";
+	private static final Log log = LogFactory.getLog(XcriOxCapPopulatorImpl.class);
 
-	private XcriErrorWriter eWriter;
-	private XcriInfoWriter iWriter;
-
-	private int departmentSeen;
-	private int departmentCreated;
-	private int departmentUpdated;
-	private int subunitSeen;
-	private int subunitCreated;
-	private int subunitUpdated;
-	private int groupSeen;
-	private int groupCreated;
-	private int groupUpdated;
-	private int componentSeen;
-	private int componentCreated;
-	private int componentUpdated;
+	XcriOxcapPopulatorInstanceData data;
 	
-	private String lastGroup = null;
+	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM yyyy  hh:mm");
+	
+	private String SUBJECTTYPE_RDF = "ox-rdf:notation";
+	private String SUBJECTTYPE_JACS = "ox-jacs:notation";
+	private String SUBJECTTYPE_RM = "ox-rm:notation";
 	
 	/**
 	 * 
 	 */
-	public void update() {
+	public void update(PopulatorContext context) {
 		
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 		
 		try {
-			URL xcri = new URL(getXcriURL());
+			URL xcri = new URL(context.getURI());
 		
 			HttpHost targetHost = new HttpHost(xcri.getHost(), xcri.getPort(), xcri.getProtocol());
 
 	        httpclient.getCredentialsProvider().setCredentials(
 	                new AuthScope(targetHost.getHostName(), targetHost.getPort()),
-	                new UsernamePasswordCredentials(getXcriAuthUser(), getXcriAuthPassword()));
+	                new UsernamePasswordCredentials(context.getUser(), context.getPassword()));
 
             HttpGet httpget = new HttpGet(xcri.getPath());
 
@@ -118,16 +140,16 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
             	throw new IllegalStateException(
             			"Invalid response ["+response.getStatusLine().getStatusCode()+"]");
             }
-            process(entity.getContent());
+            process(context.getName(), entity.getContent());
 
 		} catch (MalformedURLException e) {
-			log.warn("MalformedURLException ["+getXcriURL()+"]", e);
+			log.warn("MalformedURLException ["+context.getURI()+"]", e);
 			
         } catch (IllegalStateException e) {
-        	log.warn("IllegalStateException ["+getXcriURL()+"]", e);
+        	log.warn("IllegalStateException ["+context.getURI()+"]", e);
 			
 		} catch (IOException e) {
-			log.warn("IOException ["+getXcriURL()+"]", e);
+			log.warn("IOException ["+context.getURI()+"]", e);
 			
 		} finally {
             // When HttpClient instance is no longer needed,
@@ -135,147 +157,71 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
             // immediate deallocation of all system resources
             httpclient.getConnectionManager().shutdown();
         }
-		
+        
+		//xcri = new DaisyInput();
+		//process(xcri.getInputStream());
 	}
 	
 	/**
 	 * 
 	 * @param inputStream
 	 */
-	public void process(InputStream inputStream) {
+	public void process(String name, InputStream inputStream) {
 		
 		switchUser();
-		ContentResourceEdit cre = null;
-		ContentResourceEdit cri = null;
 		
 		try {
-			// Bind the incoming XML to an XMLBeans type.
-			//String xml = convertStreamToString(inputStream);
-			CatalogDocument catalog = CatalogDocument.Factory.parse(inputStream);
-
-			String generated = null;
-			String source = "Daisy";
-			XmlObject[] objects = XcriUtils.selectPath(catalog, "catalog");
-			for (int i=0; i<objects.length; i++) {
-				XmlObject object = objects[i];
-				generated = XcriUtils.getAttribute(object.newCursor(), "generated");
-			}
-		
-			ByteArrayOutputStream eOut = new ByteArrayOutputStream();
-			ByteArrayOutputStream iOut = new ByteArrayOutputStream();
 			
-			eWriter = new XcriErrorWriter(eOut, source, generated);
-			iWriter = new XcriInfoWriter(iOut, source, generated);
+			ExtensionManager.registerExtension(new WebAuthCode());
+			ExtensionManager.registerExtension(new DepartmentalSubUnit());
+			ExtensionManager.registerExtension(new DepartmentThirdLevelApproval());
+			ExtensionManager.registerExtension(new Division());
+			ExtensionManager.registerExtension(new DivisionWideEmail());
+			ExtensionManager.registerExtension(new CourseSubUnit());
+			ExtensionManager.registerExtension(new PublicView());
+			ExtensionManager.registerExtension(new ModuleApproval());
+			ExtensionManager.registerExtension(new SupervisorApproval());
+			ExtensionManager.registerExtension(new OtherDepartment());
+			ExtensionManager.registerExtension(new Sessions());
+			ExtensionManager.registerExtension(new Bookable());
+			ExtensionManager.registerExtension(new TermCode());
+			ExtensionManager.registerExtension(new TermLabel());
+			ExtensionManager.registerExtension(new EmployeeName());
+			ExtensionManager.registerExtension(new EmployeeEmail());
+			ExtensionManager.registerExtension(new DaisyIdentifier());
 			
-			departmentSeen = 0;
-			departmentCreated = 0;
-			departmentUpdated = 0;
-			subunitSeen = 0;
-			subunitCreated = 0;
-			subunitUpdated = 0;
-			groupSeen = 0;
-			groupCreated = 0;
-			groupUpdated = 0;
-			componentSeen = 0;
-			componentCreated = 0;
-			componentUpdated = 0;
+			OverrideManager.registerOverride(Course.class, new OxcapCourse());
+			OverrideManager.registerOverride(Presentation.class, new OxcapPresentation());
 			
-			lastGroup = null;
-		
-			XmlObject[] providers = XcriUtils.selectPath(catalog, "provider");
+			Catalog catalog = new Catalog();
+			SAXBuilder builder = new SAXBuilder();
+			Document document = builder.build(inputStream);
+			catalog.fromXml(document);
+			
+			data = new XcriOxcapPopulatorInstanceData(contentHostingService, getSiteId(), name, simpleDateFormat.format(catalog.getGenerated()));
+			
+			Provider[] providers = catalog.getProviders();
 		
 			// First pass to create course groups
-			for (int i=0; i<providers.length; i++) {
-				provider(providers[i], true);		
+			for (Provider provider : providers) {
+				provider(provider, true);		
 			}
 		
 			// Second pass to create course components
-			for (int i=0; i<providers.length; i++) {
-				provider(providers[i], false);		
-			}
-		
-			logMs("CourseDepartments (seen: "+ departmentSeen+ " created: "+ departmentCreated+ ", updated: "+ departmentUpdated+")");
-			logMs("CourseSubUnits (seen: "+ subunitSeen+ " created: "+ subunitCreated+ ", updated: "+ subunitUpdated+")");
-			logMs("CourseGroups (seen: "+ groupSeen+ " created: "+ groupCreated+ ", updated: "+ groupUpdated+")");
-			logMs("CourseComponents (seen: "+ componentSeen+ " created: "+ componentCreated+ ", updated: "+ componentUpdated+")");
-	
-			eWriter.flush();
-			eWriter.close();
-			
-			iWriter.flush();
-			iWriter.close();
-			
-			if (null != contentHostingService) {
-					
-				String jsonResourceEId = contentHostingService.getSiteCollection(getSiteId())+ eWriter.getIdName();
-
-				try {
-					// editResource() doesn't throw IdUnusedExcpetion but PermissionException
-					// when the resource is missing so we first just tco to find it.
-					contentHostingService.getResource(jsonResourceEId);
-					cre = contentHostingService.editResource(jsonResourceEId);
-				
-				} catch (IdUnusedException e) {
-					try {
-						cre = contentHostingService.addResource(jsonResourceEId);
-						ResourceProperties props = cre.getPropertiesEdit();
-						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, eWriter.getDisplayName());
-						cre.setContentType("text/html");
-					} catch (Exception e1) {
-						log.warn("Failed to create the import log file.", e1);
-					}
-				}
-			
-				cre.setContent(eOut.toByteArray());
-				// Don't notify anyone about this resource.
-				contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+			for (Provider provider : providers) {
+				provider(provider, false);
 			}
 			
-			if (null != contentHostingService) {
-				
-				String jsonResourceSId = contentHostingService.getSiteCollection(getSiteId())+ iWriter.getIdName();
-
-				try {
-					// editResource() doesn't throw IdUnusedExcpetion but PermissionException
-					// when the resource is missing so we first just try to find it.
-					contentHostingService.getResource(jsonResourceSId);
-					cri = contentHostingService.editResource(jsonResourceSId);
-				
-				} catch (IdUnusedException e) {
-					try {
-						cri = contentHostingService.addResource(jsonResourceSId);
-						ResourceProperties props = cri.getPropertiesEdit();
-						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, iWriter.getDisplayName());
-						cri.setContentType("text/html");
-					} catch (Exception e1) {
-						log.warn("Failed to create the import log file.", e1);
-					}
-				}
+			data.finalise();
 			
-				cri.setContent(iOut.toByteArray());
-				// Don't notify anyone about this resource.
-				contentHostingService.commitResource(cri, NotificationService.NOTI_NONE);
-			}
+		} catch (IOException e) {
+			e.printStackTrace();
 			
-		} catch (XmlException e) {
-			Throwable currExp = e.getCause();
-			if (currExp instanceof SAXParseException) {
-				log.error("SAXParseException thrown ["+
-						((SAXParseException) currExp).getLineNumber() + "," +
-						((SAXParseException) currExp).getColumnNumber() + "]");
-			}
-			log.warn("Failed to write content to logfile.", e);
+		} catch (JDOMException e) {
+			e.printStackTrace();
 			
-		} catch (Exception e) {
-			log.warn("Failed to write content to logfile.", e);
-			
-		} finally {
-			if (null != cre && cre.isActiveEdit()) {
-				contentHostingService.cancelResource(cre);
-			}
-			if (null != cri && cri.isActiveEdit()) {
-				contentHostingService.cancelResource(cri);
-			}
+		} catch (InvalidElementException e) {
+			e.printStackTrace();
 		}
 	}
 		
@@ -285,49 +231,70 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 	 * @param createGroups
 	 * @throws IOException 
 	 */
-	private void provider(XmlObject provider, boolean createGroups) throws IOException {
+	private void provider(Provider provider, boolean createGroups) 
+			throws IOException {
 		
-		String departmentName = XcriUtils.getString(provider, "providerTitle");
-		String departmentCode = XcriUtils.getString(provider, "providerIdentifier");
-		String divisionEmail = XcriUtils.getString(provider, "providerDivisionEmail");
-		boolean departmentApproval = XcriUtils.getBoolean(provider, "providerDepartmentApproval", false);
-		String departmentApprover = XcriUtils.getString(provider, "providerApprover");
-		Collection<String> divisionSuperUsers = XcriUtils.getSet(provider, "providerSuperUser");
-		Map<String, String> subunits = XcriUtils.getMap(provider, "providerSubUnit", "code");
+		String departmentName = provider.getTitles()[0].getValue();
+		String departmentCode = provider.getIdentifiers()[0].getValue();
+		String divisionEmail = null;
+		boolean departmentApproval = false;
+		String departmentApprover = null;
+		Collection<String> divisionSuperUsers = new HashSet<String>();
+		Map<String, String> subunits = new HashMap<String, String>();
+		
+		for (Extension extension : provider.getExtensions()) {
+			
+			if (extension instanceof DivisionWideEmail) {
+				divisionEmail = extension.getValue();
+			}
+			
+			if (extension instanceof DepartmentThirdLevelApproval) {
+				departmentApproval = parseBoolean(extension.getValue());
+			}
+			
+			if (extension instanceof ModuleApproval) {
+				departmentApprover = extension.getValue();
+			}
+			
+			if (extension instanceof WebAuthCode) {
+				WebAuthCode webAuthCode = (WebAuthCode) extension;
+				
+				if (webAuthCode.getWebAuthCodeType() == WebAuthCode.WebAuthCodeType.superUser) {
+					divisionSuperUsers.add(webAuthCode.getValue());
+				}
+			}
+			
+			if (extension instanceof DepartmentalSubUnit) {
+				DepartmentalSubUnit subUnit = (DepartmentalSubUnit) extension;
+				subunits.put(subUnit.getCode(), subUnit.getValue());
+			}
+		}
 		
 		Collection<String> superusers = getUsers(divisionSuperUsers);
 		String approver = getUser(departmentApprover);
 		
 		if (createGroups) {
 			
-			departmentSeen++;
+			data.incrDepartmentSeen();
 			if (updateDepartment(departmentCode, departmentName, departmentApproval, 
 				(Set<String>)Collections.singleton(approver))) {
-				departmentCreated++;;
+				data.incrDepartmentCreated();;
 			} else {
-				departmentUpdated++;
+				data.incrDepartmentUpdated();
 			}
 			
 			for (Map.Entry<String, String> entry : subunits.entrySet()) {
-				subunitSeen++;
+				data.incrSubunitSeen();
 				if (updateSubUnit(entry.getKey(), entry.getValue(), departmentCode)) {
-					subunitCreated++;;
+					data.incrSubunitCreated();;
 				} else {
-					subunitUpdated++;
+					data.incrSubunitUpdated();
 				}
 			}
 		}
 		
-		XmlObject[] courses = XcriUtils.selectPath(provider, "providerCourse");
-		
-		if (createGroups) {
-			for (int i=0; i<courses.length; i++) {
-				course(courses[i], departmentCode, departmentName, divisionEmail, superusers, false);
-			}
-		} else {
-			for (int i=0; i<courses.length; i++) {
-				course(courses[i], departmentCode, departmentName, divisionEmail, superusers, true);
-			}
+		for (Course course : provider.getCourses()) {
+			course(course, departmentCode, departmentName, divisionEmail, superusers, !createGroups);
 		}
 	}
 		
@@ -342,32 +309,84 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 	 * @param createComponents
 	 * @throws IOException 
 	 */
-	private void course(XmlObject course, 
+	private void course(Course course, 
 			String departmentCode, String departmentName, 
 			String divisionEmail, Collection<String> divisionSuperUsers,
-			boolean createComponents) throws IOException {
+			boolean createComponents) 
+					throws IOException {
 		
-		String assessmentunitCode = XcriUtils.getString(course, "courseIdentifierCode");
-		String teachingcomponentId = XcriUtils.getString(course, "courseIdentifierComponent");
-		String title = XcriUtils.getString(course, "courseSubject");
-		String description = XcriUtils.getString(course, "courseDescription");
-		boolean publicView = XcriUtils.getBoolean(course, "coursePublicView", true);
-		boolean supervisorApproval = XcriUtils.getBoolean(course, "courseSupervisorApproval", true);
-		boolean administratorApproval = XcriUtils.getBoolean(course, "courseModuleApproval", true);
-	
-		Map.Entry<String, String> subunit = XcriUtils.getEntry(course, "courseSubUnit", "code");
+		String title = course.getTitles()[0].getValue();
+		String description = parseToPlainText(course.getDescriptions()[0].getValue());
 		
-		Collection<String> researchCategories = XcriUtils.getSet(course, "courseCategoryResearch");
-		Collection<String> skillsCategories = XcriUtils.getSet(course, "courseCategorySkills");
+		Collection<String> researchCategories = new HashSet<String>();
+		Collection<String> skillsCategories = new HashSet<String>();
 		
-		Collection<String> administratorCodes = XcriUtils.getSet(course, "courseAdministrator");
-		Collection<String> otherDepartments = XcriUtils.getSet(course, "courseOtherDepartment");
+		for (Subject subject : course.getSubjects()) {
+			if (SUBJECTTYPE_RDF.equals(subject.getType())) {
+				skillsCategories.add(subject.getValue());
+			}
+			if (SUBJECTTYPE_RM.equals(subject.getType())) {
+				researchCategories.add(subject.getValue());
+			}
+		}
+		
+		String assessmentunitCode = null;
+		String teachingcomponentId = null;
+		boolean publicView = true;
+		boolean supervisorApproval = true;
+		boolean administratorApproval = true;
+		String subunitCode = null;
+		String subunitName = null;
+		Collection<String> administratorCodes = new HashSet<String>();
+		Collection<String> otherDepartments = new HashSet<String>();
+		
+		for (Extension extension : course.getExtensions()) {
+			
+			if (extension instanceof DaisyIdentifier) {
+				DaisyIdentifier identifier = (DaisyIdentifier) extension;
+				if ("assessmentUnitCode".equals(identifier.getType())) {
+					assessmentunitCode = identifier.getValue();
+				}
+				if ("teachingComponentId".equals(identifier.getType())) {
+					teachingcomponentId = identifier.getValue();
+				}
+			}
+			
+			if (extension instanceof PublicView) {
+				publicView = parseBoolean(extension.getValue());
+			}
+			
+			if (extension instanceof SupervisorApproval) {
+				supervisorApproval = parseBoolean(extension.getValue());
+			}
+			
+			if (extension instanceof ModuleApproval) {
+				administratorApproval = parseBoolean(extension.getValue());
+			}
+			
+			if (extension instanceof CourseSubUnit) {
+				CourseSubUnit subUnit = (CourseSubUnit)extension;
+				subunitCode = subUnit.getCode();
+				subunitName = subUnit.getValue();
+			}
+			
+			if (extension instanceof WebAuthCode) {
+				WebAuthCode webAuthCode = (WebAuthCode) extension;
+				if (webAuthCode.getWebAuthCodeType() == WebAuthCode.WebAuthCodeType.administrator) {
+					administratorCodes.add(webAuthCode.getValue());
+				}
+			}
+			
+			if (extension instanceof OtherDepartment) {
+				otherDepartments.add(extension.getValue());
+			}
+		}
 		
 		Collection<String> administrators = getUsers(administratorCodes);
 		
 		if (createComponents) {
 			
-			XmlObject[] presentations = XcriUtils.selectPath(course, "coursePresentation");
+			Presentation[] presentations = course.getPresentations();
 			for (int i=0; i<presentations.length; i++) {
 				presentation(presentations[i], 
 						assessmentunitCode, teachingcomponentId);
@@ -375,27 +394,27 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 			
 		} else {
 			
-			if (!assessmentunitCode.equals(lastGroup)) {
+			if (!assessmentunitCode.equals(data.getLastGroup())) {
 				
-				groupSeen++;
-				lastGroup = assessmentunitCode;
+				data.incrGroupSeen();
+				data.setLastGroup(assessmentunitCode);
 			
-				if (validGroup(assessmentunitCode, title, departmentCode, subunit.getKey(), description,
-						departmentName, subunit.getValue(), publicView, 
+				if (validGroup(assessmentunitCode, title, departmentCode, subunitCode, description,
+						departmentName, subunitName, publicView, 
 						supervisorApproval, administratorApproval,
 						divisionEmail, (Set<String>) administrators, 
 						(Set<String>) divisionSuperUsers, (Set<String>) otherDepartments,
 						(Set<String>) researchCategories, (Set<String>) skillsCategories)) {
 			
-					if (updateGroup(assessmentunitCode, title, departmentCode, subunit.getKey(), description,
-							departmentName, subunit.getValue(), publicView, 
+					if (updateGroup(assessmentunitCode, title, departmentCode, subunitCode, description,
+							departmentName, subunitName, publicView, 
 							supervisorApproval, administratorApproval,
 							divisionEmail, (Set<String>) administrators, 
 							(Set<String>) divisionSuperUsers, (Set<String>) otherDepartments,
 							(Set<String>) researchCategories, (Set<String>) skillsCategories)) {
-						groupCreated++;
+						data.incrGroupCreated();
 					} else {
-						groupUpdated++;
+						data.incrGroupUpdated();
 					}
 				}
 			}
@@ -410,40 +429,108 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 	 * @param groups
 	 * @throws IOException 
 	 */
-	private void presentation(XmlObject presentation, 
-			String assessmentunitCode, String teachingcomponentId) throws IOException {
+	private void presentation(Presentation presentation, 
+			String assessmentunitCode, String teachingcomponentId) 
+					throws IOException {
 		
-		String id = XcriUtils.getString(presentation, "presentationIdentifier");
-		String subject = XcriUtils.getString(presentation, "presentationTitle");
-		Date startDate = XcriUtils.getDate(presentation, "presentationStart");
-		Date endDate = XcriUtils.getDate(presentation, "presentationEnd");
-		String title = XcriUtils.getString(presentation, "presentationAttendanceMode");
-		String slot = XcriUtils.getString(presentation, "presentationAttendancePattern");
-		int capacity = XcriUtils.getInt(presentation, "presentationPlaces");
-		Date openDate = XcriUtils.getDate(presentation, "presentationApplyFrom");
-		Date closeDate = XcriUtils.getDate(presentation, "presentationApplyUntil");
-		String location = XcriUtils.getString(presentation, "presentationVenue");
-		boolean bookable = XcriUtils.getBoolean(presentation, "presentationBookable", false);
-		Date expiryDate = XcriUtils.getDate(presentation, "presentationExpiry");
-		String teacherId = XcriUtils.getString(presentation, "presentationPresenter");
-		String teacherName = XcriUtils.getString(presentation, "presentationPresenterName");
-		String teacherEmail = XcriUtils.getString(presentation, "presentationPresenterEmail");
-		String sessions = XcriUtils.getString(presentation, "presentationSessions");
-		String termCode = XcriUtils.getString(presentation, "presentationTermCode");
-		String sessionDates = XcriUtils.getString(presentation, "presentationTermLabel");
+		//String id = presentation.getIdentifiers()[0].getValue();
+		String subject = presentation.getTitles()[0].getValue();
+		String title = presentation.getAttendanceMode().getValue();
+		String slot = presentation.getAttendancePattern().getValue();
+		
+		Date startDate = null;
+		Date endDate = null;
+		Date openDate = null;
+		Date closeDate = null;
+		int capacity = 0;
+		String location = null;
+		
+		if (null != presentation.getStart()) {
+			startDate = presentation.getStart().getDtf();
+		}
+		if (null != presentation.getEnd()) {
+			endDate = presentation.getEnd().getDtf();
+		}
+		if (null != presentation.getApplyFrom()) {
+			openDate = presentation.getApplyFrom().getDtf();
+		}
+		if (null != presentation.getApplyUntil()) {
+			closeDate = presentation.getApplyUntil().getDtf();
+		}
+		if (null != presentation.getPlaces() &&
+			!presentation.getPlaces().getValue().isEmpty()) {
+			capacity = Integer.parseInt(presentation.getPlaces().getValue());
+		}
+		if (0 != presentation.getVenues().length) {
+			location = presentation.getVenues()[0].getProvider().getTitles()[0].getValue();
+		}
+		
+		boolean bookable = false;
+		String id = null;
+		String uri = null;
+		String teacherId = null;
+		String teacherName = null;
+		String teacherEmail = null;
+		String sessions = null;
+		String termCode = null;
+		String sessionDates = null;
+		
+		for (Extension extension : presentation.getExtensions()) {
+			
+			if (extension instanceof DaisyIdentifier) {
+				DaisyIdentifier identifier = (DaisyIdentifier) extension;
+				if ("presentationURI".equals(identifier.getType())) {
+					uri = identifier.getValue();
+					continue;
+				}
+				if ("teachingInstanceId".equals(identifier.getType())) {
+					id = identifier.getValue();
+					continue;
+				}
+			}
+			
+			if (extension instanceof Bookable) {
+				bookable = parseBoolean(extension.getValue());
+			}
+			
+			if (extension instanceof EmployeeName) {
+				teacherName = extension.getValue();
+			}
+			
+			if (extension instanceof EmployeeEmail) {
+				teacherEmail = extension.getValue();
+			}
+			
+			if (extension instanceof Sessions) {
+				sessions = extension.getValue();
+			}
+			
+			if (extension instanceof TermCode) {
+				termCode = extension.getValue();
+			}
+			
+			if (extension instanceof TermLabel) {
+				sessionDates = extension.getValue();
+			}
+			
+			if (extension instanceof WebAuthCode) {
+				WebAuthCode webAuthCode = (WebAuthCode) extension;
+				if (webAuthCode.getWebAuthCodeType() == WebAuthCode.WebAuthCodeType.presenter) {
+					teacherId = webAuthCode.getValue();
+				}
+			}
+		
+		}
 		
 		Set<String> groups = new HashSet<String>();
 		groups.add(assessmentunitCode);
 		
 		Collection<CourseGroupDAO> courseGroups = getCourseGroups(groups);
-		if (expiryDate == null) {
-			expiryDate = closeDate;
-		}
 		
-		componentSeen++;
+		data.incrComponentSeen();
 		
 		if (validComponent(id, title, subject, 
-				openDate, closeDate, expiryDate, startDate, endDate,
+				openDate, closeDate, startDate, endDate,
 				bookable, capacity, 
 				termCode,  teachingcomponentId, sessionDates,
 				teacherId, teacherName, teacherEmail,
@@ -451,15 +538,15 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 				(Set<CourseGroupDAO>) courseGroups)) {
 			
 			if (updateComponent(id, title, subject, 
-					openDate, closeDate, expiryDate, startDate, endDate,
+					openDate, closeDate, startDate, endDate,
 					bookable, capacity, 
 					termCode,  teachingcomponentId, sessionDates,
 					teacherId, teacherName, teacherEmail,
 					slot, sessions, location,
 					(Set<CourseGroupDAO>) courseGroups)) {
-				componentCreated++;
+				data.incrComponentCreated();
 			} else {
-				componentUpdated++;
+				data.incrComponentUpdated();
 			}
 		}
 	}
@@ -554,12 +641,12 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 		
 		try {
 			if (null == code) {
-				logMe("Log Failure Assessment Unit ["+code+"] No AssessmentUnit code");
+				data.logMe("Log Failure Assessment Unit ["+code+"] No AssessmentUnit code");
 				i++;
 			}
 		
 			if (administrators.isEmpty()) {
-				logMe("Log Failure Assessment Unit ["+code+"] No Group Administrators");
+				data.logMe("Log Failure Assessment Unit ["+code+"] No Group Administrators");
 				i++;
 			}
 		
@@ -661,9 +748,9 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 		}
 		
 		if (created) {
-			logMs("Log Success Course Group created ["+code+":"+title+"]");
+			data.logMs("Log Success Course Group created ["+code+":"+title+"]");
 		} else {
-			logMs("Log Success Course Group updated ["+code+":"+title+"]");
+			data.logMs("Log Success Course Group updated ["+code+":"+title+"]");
 		}
 		return created;
 	}
@@ -683,7 +770,7 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 	 * @return
 	 */
 	private boolean validComponent(String id, String title, String subject, 
-			Date openDate, Date closeDate, Date expiryDate, Date startDate, Date endDate,
+			Date openDate, Date closeDate, Date startDate, Date endDate,
 			boolean bookable, int capacity, 
 			String termCode,  String teachingComponentId, String termName,
 			String teacherId, String teacherName, String teacherEmail,
@@ -692,7 +779,7 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 		
 		if (log.isDebugEnabled()) {
 			System.out.println("XcriPopulatorImpl.validComponent ["+id+":"+title+":"+subject+":"+
-				viewDate(openDate)+":"+viewDate(closeDate)+":"+viewDate(expiryDate)+":"+viewDate(startDate)+":"+viewDate(endDate)+":"+
+				viewDate(openDate)+":"+viewDate(closeDate)+":"+viewDate(startDate)+":"+viewDate(endDate)+":"+
 				bookable+":"+capacity+":"+
 				termCode+":"+teachingComponentId+":"+termName+":"+
 				teacherId+":"+teacherName+":"+teacherEmail+":"+
@@ -705,56 +792,49 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 		try {
 			
 			if (null == openDate) { 
-				logMe("Log Failure Teaching Instance ["+id+"] No open date set");
+				data.logMe("Log Failure Teaching Instance ["+id+"] No open date set");
 				i++;
 			}
 		
 			if (null == closeDate) {
-				logMe("Log Failure Teaching Instance ["+id+"] No close date set");
+				data.logMe("Log Failure Teaching Instance ["+id+"] No close date set");
 				i++;
 			}
 		
 			if (null != openDate && null != closeDate) {
 				if (openDate.after(closeDate)){
-					logMe("Log Failure Teaching Instance ["+id+"] Open date is after close date");
-					i++;
-				}
-			}
-		
-			if (null != expiryDate && null != closeDate) {
-				if(expiryDate.before(closeDate)){
-					logMe("Log Failure Teaching Instance ["+id+"] Expiry date is before close date");
+					data.logMe("Log Failure Teaching Instance ["+id+"] Open date is after close date");
 					i++;
 				}
 			}
 		
 			if (subject == null || subject.trim().length() == 0) {
-				logMe("Log Failure Teaching Instance ["+id+"] Subject isn't set");
+				data.logMe("Log Failure Teaching Instance ["+id+"] Subject isn't set");
 				i++;
 			}
 		
 			if (title == null || title.trim().length() == 0) {
-				logMe("Log Failure Teaching Instance ["+id+"] Title isn't set");
+				data.logMe("Log Failure Teaching Instance ["+id+"] Title isn't set");
 				i++;
 			}
 		
 			if (termCode == null || termCode.trim().length() == 0) {
-				logMe("Log Failure Teaching Instance ["+id+"] Term code can't be empty");
+				data.logMe("Log Failure Teaching Instance ["+id+"] Term code can't be empty");
 				i++;
 			}
 		
 			if (termName == null || termName.trim().length() == 0) {
-				logMe("Log Failure Teaching Instance ["+id+"] Term name can't be empty");
+				data.logMe("Log Failure Teaching Instance ["+id+"] Term name can't be empty");
 				i++;
 			}
 		
 			if (teachingComponentId == null || teachingComponentId.trim().length()==0) {
-				logMe("Log Failure Teaching Instance ["+id+"] No teaching component ID found");
+				data.logMe("Log Failure Teaching Instance ["+id+"] No teaching component ID found");
 				i++;
 			}
 		
 			if (groups.isEmpty()) {
-				logMe("Log Failure Teaching Instance ["+id+"] No Assessment Unit codes");
+				data.logMe("Log Failure Teaching Instance ["+id+"] No Assessment Unit codes");
 				i++;
 			}
 		
@@ -794,7 +874,7 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 	 * @throws IOException 
 	 */
 	private boolean updateComponent(String id, String title, String subject, 
-			Date openDate, Date closeDate, Date expiryDate, Date startDate, Date endDate,
+			Date openDate, Date closeDate, Date startDate, Date endDate,
 			boolean bookable, int capacity, 
 			String termCode,  String teachingComponentId, String termName,
 			String teacherId, String teacherName, String teacherEmail,
@@ -812,7 +892,6 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 			componentDao.setSubject(subject);
 			componentDao.setOpens(openDate);
 			componentDao.setCloses(closeDate);
-			componentDao.setExpires(expiryDate);
 			componentDao.setStarts(startDate);
 			componentDao.setEnds(endDate);
 			componentDao.setBookable(bookable);
@@ -843,9 +922,9 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 		}
 		
 		if (created) {
-			logMs("Log Success Course Component created ["+id+":"+subject+"]");
+			data.logMs("Log Success Course Component created ["+id+":"+subject+"]");
 		} else {
-			logMs("Log Success Course Component updated ["+id+":"+subject+"]");
+			data.logMs("Log Success Course Component updated ["+id+":"+subject+"]");
 		}
 		return created;
 	}
@@ -855,20 +934,20 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 	 * @param message
 	 * @throws IOException
 	 */
-	private void logMe(String message) throws IOException {
-		log.warn(message);
-		eWriter.write(message+"\n");
-	}
+	//private void logMe(String message) throws IOException {
+	//	log.warn(message);
+	//	eWriter.write(message+"\n");
+	//}
 	
 	/**
 	 * Log successes
 	 * @param message
 	 * @throws IOException
 	 */
-	private void logMs(String message) throws IOException {
-		log.warn(message);
-		iWriter.write(message+"\n");
-	}
+	//private void logMs(String message) throws IOException {
+	//	log.warn(message);
+	//	iWriter.write(message+"\n");
+	//}
 	
 	/**
 	 * convert collection of userCodes to userIds
@@ -947,6 +1026,22 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 		return "course-signup";
 	}
 
+	private static boolean parseBoolean(String data) {
+		if ("1".equals(data)) {
+			return true;
+		}
+		if ("0".equals(data)) {
+			return false;
+		}
+		return Boolean.parseBoolean(data);
+	}
+	
+	private String parseToPlainText(String data) {
+		
+		data = data.replaceAll("\\n", "<br /><br />");
+		return FormattedText.convertFormattedTextToPlaintext(data);
+	}
+	
 	/**
 	 * This sets up the user for the current request.
 	 */
@@ -958,14 +1053,21 @@ public class XcriPopulatorImpl extends XCRIImport implements Populator {
 		}
 	}
 	
+	/*
 	public static void main(String[] args) {
 		try {	
-			XcriPopulatorImpl reader = new XcriPopulatorImpl();
-			reader.update();
+			XcriOxCapPopulatorImpl reader = new XcriOxCapPopulatorImpl();
+			PopulatorContext context = new PopulatorContext();
+			context.setURI((String)jobDataMap.get("xcri.oxcap.populator.uri"));
+			context.setUser((String)jobDataMap.get("xcri.oxcap.populator.username"));
+			context.setPassword((String)jobDataMap.get("xcri.oxcap.populator.password"));
+			context.setName((String)jobDataMap.get("xcri.oxcap.populator.name"));
+			reader.update(context);
 		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+	*/
 	
 }

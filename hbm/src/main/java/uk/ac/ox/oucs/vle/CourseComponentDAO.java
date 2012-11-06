@@ -23,7 +23,6 @@ public class CourseComponentDAO  implements java.io.Serializable {
     private String termcode;
     private Date opens;
     private Date closes;
-    private Date expires;
     private Date starts;
     private Date ends;
     private Date created;
@@ -101,13 +100,6 @@ public class CourseComponentDAO  implements java.io.Serializable {
     
     public void setCloses(Date closes) {
         this.closes = closes;
-    }
-    
-    public Date getExpires() {
-        return this.expires;
-    }
-    public void setExpires(Date expires) {
-        this.expires = expires;
     }
     
     public Date getStarts() {

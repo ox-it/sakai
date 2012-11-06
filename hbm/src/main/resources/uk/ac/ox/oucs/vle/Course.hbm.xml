@@ -98,7 +98,7 @@
 			index="course_component_term_idx" />
 		<property name="opens" type="timestamp" />
 		<property name="closes" type="timestamp" />
-		<property name="expires" type="timestamp" />
+		<!-- <property name="expires" type="timestamp" />  -->
 		<property name="starts" type="timestamp" />
 		<property name="ends" type="timestamp" />
 		<property name="created" type="timestamp" />
