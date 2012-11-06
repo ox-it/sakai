@@ -28,6 +28,7 @@ import org.jdom.Element;
 import org.jdom.Namespace;
 import org.xcri.Namespaces;
 import org.xcri.exceptions.InvalidElementException;
+import org.xcri.factory.CourseFactory;
 import org.xcri.provider.Location;
 import org.xcri.types.CommonType;
 import org.xcri.util.lax.Lax;
@@ -94,17 +95,27 @@ public class Provider extends CommonType{
 		//
 		ArrayList<Course> courses = new ArrayList<Course>();
 		for (Element obj : Lax.getChildrenQuietly(element, "course", Namespaces.XCRI_NAMESPACE_NS, log)){
-			Course course = new Course();
+			
 			try {
+				Course course = CourseFactory.getCourse(Course.class);
 				course.fromXml(obj);
 				course.setParent(this);
 				courses.add(course);
+		
 			} catch (InvalidElementException e) {
 				log.warn("provider : skipping invalid <course> element : "+e.getMessage());
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		this.setCourses(courses.toArray(new Course[courses.size()]));
-		if (courses.size()==0) log.warn("provider: provider contains no courses");
+		if (courses.size()==0) {
+			log.warn("provider: provider contains no courses");
+		}
 		
 
 		Element locationElement;

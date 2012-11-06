@@ -16,4 +16,8 @@ public class ExtensionManager {
 	public static Collection<Extension> getExtensions() {
 		return extensions;
 	}
+	
+	public static void clear() {
+		extensions.clear();
+	}
 }

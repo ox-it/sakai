@@ -32,10 +32,11 @@ import org.xcri.common.Identifier;
 import org.xcri.course.Credit;
 import org.xcri.course.Qualification;
 import org.xcri.exceptions.InvalidElementException;
+import org.xcri.factory.PresentationFactory;
 import org.xcri.types.CommonDescriptiveType;
 import org.xcri.util.lax.Lax;
 
-public class Course extends CommonDescriptiveType{
+public class Course extends CommonDescriptiveType {
 
 	private Log log = LogFactory.getLog(Course.class);
 
@@ -125,13 +126,19 @@ public class Course extends CommonDescriptiveType{
 		//
 		ArrayList<Presentation> presentations = new ArrayList<Presentation>();
 		for (Object obj : Lax.getChildrenQuietly(element, "presentation", Namespaces.XCRI_NAMESPACE_NS, log)){
-			Presentation presentation = new Presentation();
 			try {
+				Presentation presentation = PresentationFactory.getPresentation(Presentation.class);
 				presentation.fromXml((Element)obj);
 				presentation.setParent(this);
 				presentations.add(presentation);
 			} catch (InvalidElementException e) {
 				log.warn("course : presentation invalid, skipping");
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		this.setPresentations(presentations.toArray(new Presentation[presentations.size()]));

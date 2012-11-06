@@ -56,7 +56,7 @@ public class WebAuthCode extends DaisyElement implements Extension {
 		super.fromXml(element);
 		this.setWebAuthType(element.getAttributeValue("type", DaisyNamespace.DAISY_NAMESPACE_NS));
 		if (this.getWebAuthCodeType() == null) {
-			log.warn("WebAuthCode : type (\""+this.getWebAuthCodeType()+"\") is not a member of the recommended vocabulary");
+			log.warn("WebAuthCode : type (\""+this.getWebAuthType()+"\") is not a member of the recommended vocabulary");
 		}
 	}
 	
