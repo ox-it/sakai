@@ -17,15 +17,21 @@
 		<module>hierarchy-portal/impl</module>
 		<module>hierarchy-portal/pack</module>
 	</modules>
+	
+	<properties>
+		<sakai.kernel.version>1.2.5ox1-SNAPSHOT</sakai.kernel.version>
+		<sakai.version>2.8-SNAPSHOT</sakai.version>
+	</properties>
+
 	<pluginRepositories>
 		<pluginRepository>
-            <id>maven-repo.oucs</id>
-            <name>OUCS Maven Repository</name>
-            <layout>default</layout>
-            <url>http://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
+			<id>maven-repo.oucs</id>
+			<name>OUCS Maven Repository</name>
+			<layout>default</layout>
+			<url>http://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
 	<dependencyManagement>
@@ -68,44 +74,26 @@
 				<version>2.0.6</version>
 				<scope>provided</scope>
 			</dependency>
+			<!-- Sakai services -->
+			<dependency>
+				<groupId>org.sakaiproject.kernel</groupId>
+				<artifactId>sakai-kernel-api</artifactId>
+				<version>${sakai.kernel.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.kernel</groupId>
+				<artifactId>sakai-component-manager</artifactId>
+				<version>${sakai.kernel.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.kernel</groupId>
+				<artifactId>sakai-kernel-util</artifactId>
+				<version>${sakai.kernel.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	<profiles>
-		<profile>
-			<id>K1</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<kernel.version>1.2.5ox1-SNAPSHOT</kernel.version>
-				<sakai.version>2.8-SNAPSHOT</sakai.version>
-			</properties>
-			<dependencyManagement>
-				<dependencies>
-					<!--  Sakai services -->
-					<dependency>
-						<groupId>org.sakaiproject.kernel</groupId>
-						<artifactId>sakai-kernel-api</artifactId>
-						<version>${kernel.version}</version>
-						<scope>provided</scope>
-					</dependency>
-					<dependency>
-						<groupId>org.sakaiproject.kernel</groupId>
-						<artifactId>sakai-component-manager</artifactId>
-						<version>${kernel.version}</version>
-						<scope>provided</scope>
-					</dependency>
-					<dependency>
-						<groupId>org.sakaiproject.kernel</groupId>
-						<artifactId>sakai-kernel-util</artifactId>
-						<version>${kernel.version}</version>
-					</dependency>
-				</dependencies>
-			</dependencyManagement>
-		</profile>
-	</profiles>
-
-
 
 	<build>
 		<directory>target</directory>
