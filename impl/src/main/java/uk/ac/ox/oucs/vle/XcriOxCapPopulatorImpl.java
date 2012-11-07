@@ -41,26 +41,26 @@ import org.xcri.core.Course;
 import org.xcri.core.Presentation;
 import org.xcri.core.Provider;
 import org.xcri.exceptions.InvalidElementException;
-import org.xcri.extensions.daisy.Bookable;
-import org.xcri.extensions.daisy.CourseSubUnit;
-import org.xcri.extensions.daisy.DaisyIdentifier;
-import org.xcri.extensions.daisy.DepartmentThirdLevelApproval;
-import org.xcri.extensions.daisy.DepartmentalSubUnit;
-import org.xcri.extensions.daisy.Division;
-import org.xcri.extensions.daisy.DivisionWideEmail;
-import org.xcri.extensions.daisy.EmployeeEmail;
-import org.xcri.extensions.daisy.EmployeeName;
-import org.xcri.extensions.daisy.ModuleApproval;
-import org.xcri.extensions.daisy.OtherDepartment;
-import org.xcri.extensions.daisy.PublicView;
-import org.xcri.extensions.daisy.Sessions;
-import org.xcri.extensions.daisy.SupervisorApproval;
-import org.xcri.extensions.daisy.TermCode;
-import org.xcri.extensions.daisy.TermLabel;
-import org.xcri.extensions.daisy.WebAuthCode;
-import org.xcri.extensions.oxcap.OxcapCourse;
-import org.xcri.extensions.oxcap.OxcapPresentation;
 
+import uk.ac.ox.oucs.vle.xcri.daisy.Bookable;
+import uk.ac.ox.oucs.vle.xcri.daisy.CourseSubUnit;
+import uk.ac.ox.oucs.vle.xcri.daisy.DaisyIdentifier;
+import uk.ac.ox.oucs.vle.xcri.daisy.DepartmentThirdLevelApproval;
+import uk.ac.ox.oucs.vle.xcri.daisy.DepartmentalSubUnit;
+import uk.ac.ox.oucs.vle.xcri.daisy.Division;
+import uk.ac.ox.oucs.vle.xcri.daisy.DivisionWideEmail;
+import uk.ac.ox.oucs.vle.xcri.daisy.EmployeeEmail;
+import uk.ac.ox.oucs.vle.xcri.daisy.EmployeeName;
+import uk.ac.ox.oucs.vle.xcri.daisy.ModuleApproval;
+import uk.ac.ox.oucs.vle.xcri.daisy.OtherDepartment;
+import uk.ac.ox.oucs.vle.xcri.daisy.PublicView;
+import uk.ac.ox.oucs.vle.xcri.daisy.Sessions;
+import uk.ac.ox.oucs.vle.xcri.daisy.SupervisorApproval;
+import uk.ac.ox.oucs.vle.xcri.daisy.TermCode;
+import uk.ac.ox.oucs.vle.xcri.daisy.TermLabel;
+import uk.ac.ox.oucs.vle.xcri.daisy.WebAuthCode;
+import uk.ac.ox.oucs.vle.xcri.oxcap.OxcapCourse;
+import uk.ac.ox.oucs.vle.xcri.oxcap.OxcapPresentation;
 
 public class XcriOxCapPopulatorImpl implements Populator {
 	
@@ -157,9 +157,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
             // immediate deallocation of all system resources
             httpclient.getConnectionManager().shutdown();
         }
-        
-		//xcri = new DaisyInput();
-		//process(xcri.getInputStream());
+       
 	}
 	
 	/**
@@ -189,6 +187,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			ExtensionManager.registerExtension(new EmployeeName());
 			ExtensionManager.registerExtension(new EmployeeEmail());
 			ExtensionManager.registerExtension(new DaisyIdentifier());
+			//ExtensionManager.registerExtension(new Subject());
 			
 			OverrideManager.registerOverride(Course.class, new OxcapCourse());
 			OverrideManager.registerOverride(Presentation.class, new OxcapPresentation());
@@ -433,7 +432,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			String assessmentunitCode, String teachingcomponentId) 
 					throws IOException {
 		
-		//String id = presentation.getIdentifiers()[0].getValue();
 		String subject = presentation.getTitles()[0].getValue();
 		String title = presentation.getAttendanceMode().getValue();
 		String slot = presentation.getAttendancePattern().getValue();
