@@ -215,7 +215,6 @@ public class HierarchyHandler extends SiteHandler {
 
 		if (!node.canView())
 		{
-			String userId = session.getUserId();
 			doPermissionDenied(req, res, session, site, toolContextPath);
 			return;
 		}
@@ -438,7 +437,7 @@ public class HierarchyHandler extends SiteHandler {
 		// Sort the nodes.
 		Collections.sort(childNodes, nodeTitleSorter);
 
-		List<Map<String,String>> childSiteMaps = convertNodesToMaps(childNodes, req);
+		List<Map<String,String>> childSiteMaps = convertNodesToMaps(childNodes, node);
 		rcontext.put("children", childSiteMaps);
 
 		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + siteUrl
@@ -467,7 +466,7 @@ public class HierarchyHandler extends SiteHandler {
 	 * </ul>
 	 * We used to use the PortalSiteHelper when we just had sites at all the nodes. 
 	 */
-	protected List<Map<String,String>> convertNodesToMaps(List<PortalNode>childNodes, HttpServletRequest req) {
+	protected List<Map<String,String>> convertNodesToMaps(List<PortalNode>childNodes, PortalNodeSite current) {
 		List<Map<String,String>> list = new ArrayList<Map<String,String>>(childNodes.size());
 		for (PortalNode node: childNodes) {
 			Map<String,String> detail = new HashMap<String,String>();
@@ -479,7 +478,7 @@ public class HierarchyHandler extends SiteHandler {
 				detail.put("siteTitle", Web.escapeHtml(site.getTitle()));
 			} else if (node instanceof PortalNodeRedirect) {
 				detail.put("isPublished", "true");
-				detail.put("siteUrl", Web.returnUrl(req, "/"+ node.getName()+"/"));
+				detail.put("siteUrl", current.getSite().getUrl()+ "/"+ node.getName()+"/");
 				detail.put("shortDescription", "");
 				detail.put("siteTitle", Web.escapeHtml(node.getTitle()));
 			}
