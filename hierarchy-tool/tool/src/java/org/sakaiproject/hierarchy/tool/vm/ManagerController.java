@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.hierarchy.api.model.PortalNodeRedirect;
 import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.site.api.Site;
@@ -44,6 +45,10 @@ public class ManagerController extends AbstractController
 	static final String ACT_PASTE = "act_paste";
 
 	static final String ACT_CANCEL = "act_cancel";
+	
+	static final String ACT_NEWREDIRECT = "act_newredirect";
+
+	static final String ACT_DELETEREDIRECT = "act_deleteredirect";
 
 	static final String REQUEST_ACTION = "_action";
 
@@ -52,6 +57,7 @@ public class ManagerController extends AbstractController
 	static final String REQUEST_SITE = "_site";
 
 	private static final String CUT_ID = ManagerController.class.getName() + "#CUT_ID";
+
 
 	private PortalHierarchyService phs;
 
@@ -144,6 +150,17 @@ public class ManagerController extends AbstractController
 		{
 			cutId = null;
 			session.removeAttribute(ManagerController.CUT_ID);
+		} else if (ACT_NEWREDIRECT.equals(action))
+		{
+			// TODO Validation
+			String redirectUrl = request.getParameter("url");
+			String redirectTitle = request.getParameter("title");
+			String path = request.getParameter("path");
+			phs.newRedirectNode(node.getId(), path, redirectUrl, redirectTitle);
+		} else if (ACT_DELETEREDIRECT.equals(action))
+		{
+			String nodeId = request.getParameter("redirectId");
+			phs.deleteNode(nodeId);
 		}
 		
 		Map<String, Object> showModel = new HashMap<String, Object>();
@@ -160,6 +177,22 @@ public class ManagerController extends AbstractController
 			showModel.put("canDelete", phs.canDeleteNode(node.getId()));
 			showModel.put("canMove", phs.canMoveNode(node.getId()));
 			showModel.put("canReplace", phs.canChangeSite(node.getId()));
+			// Need to list the redirect nodes.
+			List<PortalNode> nodeChildren = phs.getNodeChildren(node.getId());
+			List<Map<String,String>> redirectNodes = new ArrayList<Map<String,String>>();
+			for(PortalNode nodeChild: nodeChildren) {
+				if (nodeChild instanceof PortalNodeRedirect) {
+					PortalNodeRedirect redirectNode = (PortalNodeRedirect)nodeChild;
+					Map<String,String> redirectDetails = new HashMap<String,String>();
+					redirectDetails.put("id", redirectNode.getId());
+					redirectDetails.put("path", redirectNode.getPath());
+					redirectDetails.put("title", redirectNode.getTitle());
+					redirectDetails.put("url", redirectNode.getUrl());
+					redirectNodes.add(redirectDetails);
+				}
+			}
+			showModel.put("redirectNodes", redirectNodes);
+			
 			return new ModelAndView("show", showModel);
 		}
 

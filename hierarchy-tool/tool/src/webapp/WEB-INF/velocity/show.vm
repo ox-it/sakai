@@ -4,7 +4,7 @@
 
 
 #if ($current)
-  <h3>${current.siteTitle}</h3>
+  <h3>Site: ${current.siteTitle}</h3>
   <dl>
   #if ($current.nodeUrl)
   <dt>#springMessage("show.site.url"):</dt>
@@ -45,6 +45,32 @@
 </form>
 #end
 
+## If you are here and can manage this site you can manage all redirects.
+<h3>#springMessage("show.redirects")</h3>
+#if ($redirectNodes.size() > 0)
+	<form method="POST" action="${rootUrl}">
+	<ul>
+		#foreach ($node in $redirectNodes)
+		<li>
+			$node.path ($node.title) to $node.url
+			<input type="radio" name="redirectId" value="$node.id">
+		</li>
+		#end
+	</ul>
+	<input type="hidden" name="_action" value="act_deleteredirect">
+	<input type="submit" value="#springMessage("button.delete")">
+	</form>
+#else
+	<h4>#springMessage("show.no.redirects")</h4>
+#end
+<h4>#springMessage("show.new.redirect")</h4>
+<form method="POST" action="${rootUrl}">
+	<input type="text" name="path">
+	<input type="text" name="title">
+	<input type="text" name="url">
+	<input type="hidden" name="_action" value="act_newredirect">
+	<input type="submit" value="#springMessage("button.new.redirect")">
+</form>
 
 
 #chef_portletContentEnd()
