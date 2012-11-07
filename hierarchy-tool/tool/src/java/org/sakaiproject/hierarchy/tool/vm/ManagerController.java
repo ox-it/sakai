@@ -116,7 +116,9 @@ public class ManagerController extends AbstractController
 					Site site = SiteService.getSite((String)siteAttribute);
 					editModel.put("new", createSiteMap(site));
 					return new ModelAndView( "replace", editModel );
-				} catch (IdUnusedException iue) {
+				}
+				catch (IdUnusedException iue)
+				{
 					log.warn("Couldn't find site returned by helper: "+ siteAttribute);
 					// TODO Display message to user.
 				}
@@ -146,42 +148,52 @@ public class ManagerController extends AbstractController
 				cutId = null;
 				topRefresh = true;
 			}
-		} else if (ACT_CANCEL.equals(action))
+		}
+		else if (ACT_CANCEL.equals(action))
 		{
 			cutId = null;
 			session.removeAttribute(ManagerController.CUT_ID);
-		} else if (ACT_NEWREDIRECT.equals(action))
+		}
+		else if (ACT_NEWREDIRECT.equals(action))
 		{
 			// TODO Validation
 			String redirectUrl = request.getParameter("url");
 			String redirectTitle = request.getParameter("title");
 			String path = request.getParameter("path");
 			phs.newRedirectNode(node.getId(), path, redirectUrl, redirectTitle);
-		} else if (ACT_DELETEREDIRECT.equals(action))
+			topRefresh = true;
+		}
+		else if (ACT_DELETEREDIRECT.equals(action))
 		{
 			String nodeId = request.getParameter("redirectId");
 			phs.deleteNode(nodeId);
+			topRefresh = true;
 		}
 		
 		Map<String, Object> showModel = new HashMap<String, Object>();
 		populateModel(showModel, request);
 		populateSite(showModel, node);
 		showModel.put("topRefresh", topRefresh);
-		if (cutId != null) {
+		if (cutId != null)
+		{
 			showModel.put("cutId", cutId);
 			PortalNode cutNode = phs.getNodeById(cutId);
 			showModel.put("cutChild", node.getPath().startsWith(cutNode.getPath()));
 			showModel.put("cutNode", cutNode);
 			return new ModelAndView( "cut", showModel);
-		} else {
+		}
+		else
+		{
 			showModel.put("canDelete", phs.canDeleteNode(node.getId()));
 			showModel.put("canMove", phs.canMoveNode(node.getId()));
 			showModel.put("canReplace", phs.canChangeSite(node.getId()));
 			// Need to list the redirect nodes.
 			List<PortalNode> nodeChildren = phs.getNodeChildren(node.getId());
 			List<Map<String,String>> redirectNodes = new ArrayList<Map<String,String>>();
-			for(PortalNode nodeChild: nodeChildren) {
-				if (nodeChild instanceof PortalNodeRedirect) {
+			for(PortalNode nodeChild: nodeChildren)
+			{
+				if (nodeChild instanceof PortalNodeRedirect)
+				{
 					PortalNodeRedirect redirectNode = (PortalNodeRedirect)nodeChild;
 					Map<String,String> redirectDetails = new HashMap<String,String>();
 					redirectDetails.put("id", redirectNode.getId());
@@ -195,10 +207,7 @@ public class ManagerController extends AbstractController
 			
 			return new ModelAndView("show", showModel);
 		}
-
-
-
-			}
+	}
 
 	private PortalNodeSite getCurrentNode(String currentPath) {
 		PortalNode node = null;
