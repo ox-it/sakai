@@ -14,6 +14,8 @@ import org.sakaiproject.tool.api.Tool;
  */
 public class AdoptedToolConfiguration implements ToolConfiguration {
 
+	private static final long serialVersionUID = 1L;
+	
 	private AdoptedSitePage sitePage;
 	private ToolConfiguration original;
 	
