@@ -139,6 +139,8 @@
 				<inherited>true</inherited>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
+				<!-- Need at least this version for Java 7 compilation -->
+				<version>2.1.1</version>
 				<configuration>
 					<warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
 				</configuration>
