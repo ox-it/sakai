@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -71,20 +72,9 @@ public class ManagerController extends AbstractController
 	protected ModelAndView handleRequestInternal(HttpServletRequest request,
 			HttpServletResponse response) throws Exception
 			{
-
-		PortalNode node = null;
+		
 		String currentPath = request.getPathInfo();
-		if (currentPath != null && currentPath.length() > 0)
-		{
-			node = phs.getNode(currentPath);
-		}
-		if (node == null)
-		{
-			node = phs.getCurrentPortalNode();
-			if ( node == null ) {
-				node = phs.getNode(null);
-			}
-		}
+		PortalNodeSite node = getCurrentNode(currentPath);
 		
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		Session session = SessionManager.getCurrentSession();
@@ -177,6 +167,25 @@ public class ManagerController extends AbstractController
 
 			}
 
+	private PortalNodeSite getCurrentNode(String currentPath) {
+		PortalNode node = null;
+		if (currentPath != null && currentPath.length() > 0)
+		{
+			node = phs.getNode(currentPath);
+		}
+		if (node == null)
+		{
+			node = phs.getCurrentPortalNode();
+			if ( node == null ) {
+				node = phs.getNode(null);
+			}
+		}
+		if (node instanceof PortalNodeSite) { 
+			return (PortalNodeSite)node;
+		}
+		throw new IllegalStateException("You can't manage a non site node");
+	}
+
 	private StringBuilder buildUrl(HttpServletRequest request) {
 		StringBuilder doneUrl = new StringBuilder();
 		if (request.getContextPath() != null) doneUrl.append(request.getContextPath());
@@ -185,7 +194,7 @@ public class ManagerController extends AbstractController
 		return doneUrl;
 	}
 
-	private void populateSite(Map<String, Object> editModel, PortalNode node) {
+	private void populateSite(Map<String, Object> editModel, PortalNodeSite node) {
 			Map<String,Object> site = createSiteMap(node.getSite());
 			site.putAll(createNodeMap(node));
 			

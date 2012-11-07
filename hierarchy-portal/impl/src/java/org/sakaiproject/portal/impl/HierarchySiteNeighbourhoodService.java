@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
@@ -60,23 +61,24 @@ public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodServi
 	{
 		// Get the threadlocal, if found use that, otherwise use proxy
 		PortalNode node = portalHierarchyService.getCurrentPortalNode();
-		if (node != null)
+		if (node instanceof PortalNodeSite)
 		{
+			PortalNodeSite siteNode = (PortalNodeSite)node;
 			// Need to check current site, then children, then parents.
-			if (node.getSite().getReference().equals(siteReferenced) || node.getManagementSite().getReference().equals(siteReferenced))
+			if (siteNode.getSite().getReference().equals(siteReferenced) || siteNode.getManagementSite().getReference().equals(siteReferenced))
 			{
-				return node.getPath();
+				return siteNode.getPath();
 			}
-			for (PortalNode child: portalHierarchyService.getNodeChildren(node.getId()))
+			for (PortalNode child: portalHierarchyService.getNodeChildren(siteNode.getId()))
 			{
-				if (child.getSite().getReference().equals(siteReferenced))
+				if (child instanceof PortalNodeSite && ((PortalNodeSite)child).getSite().getReference().equals(siteReferenced))
 				{
 					return child.getPath();
 				}
 			}
-			for (PortalNode parent: portalHierarchyService.getNodesFromRoot(node.getId()))
+			for (PortalNode parent: portalHierarchyService.getNodesFromRoot(siteNode.getId()))
 			{
-				if (parent.getSite().getReference().equals(siteReferenced))
+				if (parent instanceof PortalNodeSite && ((PortalNodeSite)parent).getSite().getReference().equals(siteReferenced))
 				{
 					return parent.getPath();
 				}

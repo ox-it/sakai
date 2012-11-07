@@ -2,6 +2,15 @@ package org.sakaiproject.hierarchy.impl.portal.dao;
 
 import java.util.Date;
 
+/**
+ * This is the persistent node that gets written to the DB.
+ * It shouldn't be used by any calling code in tools.
+ * It's just in the API so that we don't have to have a second
+ * project just for hibernate stuff.
+ * 
+ * @author buckett
+ *
+ */
 public class PortalPersistentNode {
 
 	private String id;
@@ -10,6 +19,8 @@ public class PortalPersistentNode {
 	private String name;
 	private String path;
 	private String pathHash;
+	private String redirectUrl;
+	private String redirectTitle;
 	private Date created;
 	private Date updated;
 	
@@ -48,6 +59,18 @@ public class PortalPersistentNode {
 	}
 	public void setPathHash(String pathHash) {
 		this.pathHash = pathHash;
+	}
+	public String getRedirectUrl() {
+		return redirectUrl;
+	}
+	public void setRedirectUrl(String redirectUrl) {
+		this.redirectUrl = redirectUrl;
+	}
+	public String getRedirectTitle() {
+		return redirectTitle;
+	}
+	public void setRedirectTitle(String redirectTitle) {
+		this.redirectTitle = redirectTitle;
 	}
 	public Date getCreated()
 	{

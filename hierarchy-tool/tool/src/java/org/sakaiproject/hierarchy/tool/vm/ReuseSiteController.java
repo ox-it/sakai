@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.sitemanage.api.SiteHelper;
@@ -89,8 +90,8 @@ public class ReuseSiteController extends SimpleFormController {
 		String sitePath = null;
 		Map model = errors.getModel();
 		try {
-			PortalNode node = hs.getCurrentPortalNode();
-			PortalNode newNode = hs.newNode(node.getId(), command.getName(), command.getSiteId(), node.getManagementSite().getId());
+			PortalNodeSite node = hs.getCurrentPortalNode();
+			PortalNode newNode = hs.newSiteNode(node.getId(), command.getName(), command.getSiteId(), node.getManagementSite().getId());
 			sitePath = newNode.getPath();
 			model.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ sitePath);
 			model.putAll(VelocityControllerUtils.referenceData(request, command, errors));

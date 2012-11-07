@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.site.api.SiteService;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -38,13 +39,13 @@ public class DeleteSiteController extends SimpleFormController {
 		PortalHierarchyService phs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
 		PortalNode node = phs.getCurrentPortalNode();
 		DeleteSiteCommand command = (DeleteSiteCommand) object;
-		List<PortalNode> nodes = phs.getNodesFromRoot(node.getId());
+		List<PortalNodeSite> nodes = phs.getNodesFromRoot(node.getId());
 		String parentPath = nodes.get(nodes.size()-1).getPath();
 		try {
 			phs.deleteNode(node.getId());
 			// Do we want to remove the site?
-			if (command.isDeleteSite()) {
-				siteService.removeSite(node.getSite());
+			if (command.isDeleteSite() && node instanceof PortalNodeSite) {
+				siteService.removeSite(((PortalNodeSite)node).getSite());
 			}
 			Map<String, Object> model = referenceData(request, command, errors);
 			
@@ -74,8 +75,11 @@ public class DeleteSiteController extends SimpleFormController {
 			hasChildren = children.size() > 0;
 		}
 		canDelete = phs.canDeleteNode(current.getId());
-		canDeleteSite = siteService.allowRemoveSite(current.getSite().getId());
-		isSiteUsedAgain = phs.getNodesWithSite(current.getSite().getId()).size() > 1;
+		boolean isSiteNode = current instanceof PortalNodeSite;
+		canDeleteSite = isSiteNode && 
+				siteService.allowRemoveSite(((PortalNodeSite)current).getSite().getId());
+		isSiteUsedAgain = isSiteNode && 
+				phs.getNodesWithSite(((PortalNodeSite)current).getSite().getId()).size() > 1;
 		data.put("hasChildren", hasChildren);
 		data.put("canDelete", canDelete);
 		data.put("canDeleteSite", canDeleteSite);

@@ -14,6 +14,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitemanage.api.SiteHelper;
@@ -79,8 +80,8 @@ public class CreateSiteController extends AbstractCommandController {
 		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
 		String sitePath = null;
 		try {
-			PortalNode node = hs.getCurrentPortalNode();
-			PortalNode newNode = hs.newNode(node.getId(), command.getName(), command.getSiteId(), node.getManagementSite().getId());
+			PortalNodeSite node = hs.getCurrentPortalNode();
+			PortalNode newNode = hs.newSiteNode(node.getId(), command.getName(), command.getSiteId(), node.getManagementSite().getId());
 			sitePath = newNode.getPath();
 		} catch (Exception e) {
 			errors.reject("error.add.hierarchy",new Object[]{e.getMessage()}, "Failed to create node in hierarchy: {0}");

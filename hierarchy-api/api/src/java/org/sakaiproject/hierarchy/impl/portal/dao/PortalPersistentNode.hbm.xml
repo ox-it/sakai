@@ -19,6 +19,8 @@
       <property name="name" type="string" length="64" />
       <property name="path" type="string" />
       <property name="pathHash" type="string" />
+      <property name="redirectUrl" type="text" />
+      <property name="redirectTitle" type="string" length="99"/>
       <property name="created" type="date" />
       <property name="updated" type="date" />
 
