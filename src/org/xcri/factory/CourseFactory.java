@@ -2,8 +2,6 @@ package org.xcri.factory;
 
 import org.xcri.common.OverrideManager;
 import org.xcri.core.Course;
-import org.xcri.core.Course;
-import org.xcri.extensions.oxcap.OxcapCourse;
 
 public class CourseFactory {
 	

@@ -20,33 +20,11 @@
 
 package org.xcri.common;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jdom.Element;
 import org.jdom.Namespace;
 import org.xcri.Namespaces;
-import org.xcri.exceptions.InvalidElementException;
-import org.xcri.presentation.AttendanceMode;
-import org.xcri.presentation.AttendanceMode.AttendanceModeType;
 import org.xcri.types.XcriElement;
 
-public class Subject extends XcriElement {
-	
-	private Log log = LogFactory.getLog(Subject.class);
-	
-	public enum SubjectIdentifier {
-		CO,	CD,	CS, DA,	DM,	EE, ET, FW,	GT,	HS, IN,	IP, IL, LS,	MM,	PE,	PS,	QL,	QN,	RD,	RF, RM,	SC, SR,	ST,	TA, TE;
-	}
-	
-	public SubjectIdentifier getSubjectIdentifier(){
-		try {
-			return SubjectIdentifier.valueOf(getIdentifier());
-		} catch (Exception e) {
-			return null;
-		}
-	}
-	
-	private String identifier;
+public class Subject extends XcriElement{
 
 	/* (non-Javadoc)
 	 * @see org.xcri.XcriElement#getNamespace()
@@ -63,45 +41,5 @@ public class Subject extends XcriElement {
 	public String getName() {
 		return "subject";
 	}
-	
-	@Override
-	public void fromXml(Element element) throws InvalidElementException {
-		super.fromXml(element);
-
-		/**
-		 * Recommended Values: Producers SHOULD use the following values for this element, with the two-letter code used in the @identifier attribute, and the label in the element content:
-		 * The value of this element MUST be one of:
-		 * CM Campus
-		 * DA Distance with attendance
-		 * DS Distance without attendance
-		 * NC Face-to-face non-campus
-		 * MM Mixed mode
-		 * ON Online (no attendance)
-		 * WB Work-based
-		 */
-		
-		String identifier = element.getAttributeValue("identifier");
-		if (identifier != null){
-			this.setIdentifier(identifier);
-			if (this.getSubjectIdentifier() == null){
-				log.warn("Subject : identifier (\""+identifier+"\") is not a member of the recommended vocabulary");
-			}
-		}
-	}
-
-	/**
-	 * @return the identifier
-	 */
-	public String getIdentifier() {
-		return identifier;
-	}
-
-	/**
-	 * @param identifier the identifier to set
-	 */
-	public void setIdentifier(String identifier) {
-		this.identifier = identifier;
-	}
-	
 
 }
