@@ -73,7 +73,7 @@ public class XcriOxcapPopulatorInstanceData {
 		lastGroup = null;
 	}
 	
-	protected void finalise() {
+	protected void endTasks() {
 		
 		ContentResourceEdit cre = null;
 		ContentResourceEdit cri = null;

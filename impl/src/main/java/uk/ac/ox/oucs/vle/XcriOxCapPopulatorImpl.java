@@ -211,7 +211,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				provider(provider, false);
 			}
 			
-			data.finalise();
+			data.endTasks();
 			
 		} catch (IOException e) {
 			log.warn("IOException thrown", e);
