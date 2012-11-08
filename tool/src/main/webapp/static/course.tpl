@@ -191,29 +191,31 @@
 												Signup: ${option.signup.status}
 											{else}
 												{if signup}
-                                					{if part.options.length == 1}
-														<input type="checkbox" 
-															name="${part.type.id}" 
-															id="option-${option.id}" 
-															value="${option.id}" 
-															{if !option.open}
-																disabled="true"
-															{else}
-																{var oneOpen = true}
-																{if parts.length == 1}
-																	checked="yes"
-																{/if}
-															{/if}/>
-													{else}
-                										<input type="radio" 
-                											name="${part.type.id}" 
-                											id="option-${option.id}" 
-                											value="${option.id}"
-															{if !option.open }
-																disabled="true"
-															{else}
-																{var oneOpen = true}
-															{/if}/>
+													{if option.bookable}
+                                						{if part.options.length == 1}
+															<input type="checkbox" 
+																name="${part.type.id}" 
+																id="option-${option.id}" 
+																value="${option.id}" 
+																{if !option.open}
+																	disabled="true"
+																{else}
+																	{var oneOpen = true}
+																	{if parts.length == 1}
+																		checked="yes"
+																	{/if}
+																{/if}/>
+														{else}
+                											<input type="radio" 
+                												name="${part.type.id}" 
+                												id="option-${option.id}" 
+                												value="${option.id}"
+																{if !option.open }
+																	disabled="true"
+																{else}
+																	{var oneOpen = true}
+																{/if}/>
+														{/if}
 													{/if}
 								 				{/if}
 											{/if}	
