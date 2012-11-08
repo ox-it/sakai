@@ -25,15 +25,8 @@ public class PopulatorInit {
 		
 		Properties properties = new Properties();
 		try {
-			
 			properties.load(new FileInputStream("config.properties"));
-			
-			PopulatorContext context = new PopulatorContext();
-			context.setURI(properties.getProperty("xcri.oxcap.populator.uri"));
-			context.setUser(properties.getProperty("xcri.oxcap.populator.username"));
-			context.setPassword(properties.getProperty("xcri.oxcap.populator.password"));
-			context.setName(properties.getProperty("xcri.oxcap.populator.name"));
-			
+			PopulatorContext context = new PopulatorContext("xcri.oxcap.populator", properties);
 			populator.update(context);
 			
 		} catch (IOException e) {

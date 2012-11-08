@@ -24,12 +24,7 @@ public class PopulatorJob implements Job {
 		
 		JobDetail jobDetail = context.getJobDetail();
 		JobDataMap jobDataMap = jobDetail.getJobDataMap();
-		PopulatorContext pContext = new PopulatorContext();
-		pContext.setURI((String)jobDataMap.get("xcri.oxcap.populator.uri"));
-		pContext.setUser((String)jobDataMap.get("xcri.oxcap.populator.username"));
-		pContext.setPassword((String)jobDataMap.get("xcri.oxcap.populator.password"));
-		pContext.setName((String)jobDataMap.get("xcri.oxcap.populator.name"));
-		
+		PopulatorContext pContext = new PopulatorContext("xcri.oxcap.populator", jobDataMap);
 		populator.update(pContext);
 	}
 
