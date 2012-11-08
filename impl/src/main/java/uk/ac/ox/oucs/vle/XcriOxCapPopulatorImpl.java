@@ -52,7 +52,6 @@ import uk.ac.ox.oucs.vle.xcri.daisy.EmployeeEmail;
 import uk.ac.ox.oucs.vle.xcri.daisy.EmployeeName;
 import uk.ac.ox.oucs.vle.xcri.daisy.ModuleApproval;
 import uk.ac.ox.oucs.vle.xcri.daisy.OtherDepartment;
-import uk.ac.ox.oucs.vle.xcri.daisy.PublicView;
 import uk.ac.ox.oucs.vle.xcri.daisy.Sessions;
 import uk.ac.ox.oucs.vle.xcri.daisy.SupervisorApproval;
 import uk.ac.ox.oucs.vle.xcri.daisy.TermCode;
@@ -176,7 +175,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			ExtensionManager.registerExtension(new Division());
 			ExtensionManager.registerExtension(new DivisionWideEmail());
 			ExtensionManager.registerExtension(new CourseSubUnit());
-			ExtensionManager.registerExtension(new PublicView());
 			ExtensionManager.registerExtension(new ModuleApproval());
 			ExtensionManager.registerExtension(new SupervisorApproval());
 			ExtensionManager.registerExtension(new OtherDepartment());
@@ -323,12 +321,14 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		String title = course.getTitles()[0].getValue();
 		String description = parseToPlainText(course.getDescriptions()[0].getValue());
 		
+		OxcapCourse oxCourse = (OxcapCourse)course;
+		String visibility = oxCourse.getVisibility().toString();
+		
 		Collection<Subject> researchCategories = new HashSet<Subject>();
 		Collection<Subject> skillsCategories = new HashSet<Subject>();
 		
 		String id = null;
 		String teachingcomponentId = null;
-		boolean publicView = true;
 		boolean supervisorApproval = true;
 		boolean administratorApproval = true;
 		String subunitCode = null;
@@ -346,11 +346,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				if ("teachingComponentId".equals(identifier.getType())) {
 					teachingcomponentId = identifier.getValue();
 				}
-				continue;
-			}
-			
-			if (extension instanceof PublicView) {
-				publicView = parseBoolean(extension.getValue());
 				continue;
 			}
 			
@@ -415,14 +410,14 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				data.setLastGroup(id);
 			
 				if (validGroup(id, title, departmentCode, subunitCode, description,
-						departmentName, subunitName, publicView, 
+						departmentName, subunitName, visibility, 
 						supervisorApproval, administratorApproval,
 						divisionEmail, (Set<String>) administrators, 
 						(Set<String>) divisionSuperUsers, (Set<String>) otherDepartments,
 						(Set<Subject>) researchCategories, (Set<Subject>) skillsCategories)) {
 			
 					if (updateGroup(id, title, departmentCode, subunitCode, description,
-							departmentName, subunitName, publicView, 
+							departmentName, subunitName, visibility, 
 							supervisorApproval, administratorApproval,
 							divisionEmail, (Set<String>) administrators, 
 							(Set<String>) divisionSuperUsers, (Set<String>) otherDepartments,
@@ -555,7 +550,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				bookable, capacity, 
 				termCode,  teachingcomponentId, sessionDates,
 				teacherId, teacherName, teacherEmail,
-				slot, sessions, location,
+				slot, sessions, location, presentation.getApplyTo().getValue(),
 				(Set<CourseGroupDAO>) courseGroups)) {
 			
 			if (updateComponent(id, title, subject, 
@@ -563,7 +558,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 					bookable, capacity, 
 					termCode,  teachingcomponentId, sessionDates,
 					teacherId, teacherName, teacherEmail,
-					slot, sessions, location,
+					slot, sessions, location, presentation.getApplyTo().getValue(),
 					(Set<CourseGroupDAO>) courseGroups)) {
 				data.incrComponentCreated();
 			} else {
@@ -644,7 +639,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 */
 	private boolean validGroup(String code, String title, String departmentCode, String subunitCode, 
 			String description, String departmentName, String subunitName, 
-			boolean publicView, boolean supervisorApproval, boolean administratorApproval,
+			String visibility, boolean supervisorApproval, boolean administratorApproval,
 			String divisionEmail, 
 			Set<String> administrators, Set<String> superusers, Set<String> otherDepartments,
 			Set<Subject> researchCategories, Set<Subject> skillsCategories) {
@@ -652,7 +647,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		if (log.isDebugEnabled()) {
 			System.out.println("XcriPopulatorImpl.validGroup ["+code+":"+title+":"+departmentCode+":"+subunitCode+":"+ 
 					description+":"+departmentName+":"+subunitName+":"+ 
-					publicView+":"+supervisorApproval+":"+administratorApproval+":"+
+					visibility+":"+supervisorApproval+":"+administratorApproval+":"+
 					divisionEmail+":"+ 
 					administrators.size()+":"+superusers.size()+":"+otherDepartments.size()+":"+
 					researchCategories.size()+":"+skillsCategories.size()+"]");
@@ -702,7 +697,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 */
 	private boolean updateGroup(String id, String title, String departmentCode, String subunitCode, 
 			String description, String departmentName, String subunitName, 
-			boolean publicView, boolean supervisorApproval, boolean administratorApproval,
+			String visibility, boolean supervisorApproval, boolean administratorApproval,
 			String divisionEmail, 
 			Set<String> administrators, Set<String> superusers, Set<String> otherDepartments,
 			Set<Subject> researchCategories, Set<Subject> skillsCategories) throws IOException {
@@ -723,7 +718,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			groupDao.setDescription(description);
 			groupDao.setDepartmentName(departmentName);
 			groupDao.setSubunitName(subunitName);
-			groupDao.setPublicView(publicView);
+			groupDao.setVisibility(visibility);
 			groupDao.setSupervisorApproval(supervisorApproval);
 			groupDao.setAdministratorApproval(administratorApproval);
 			groupDao.setContactEmail(divisionEmail);
@@ -795,7 +790,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			boolean bookable, int capacity, 
 			String termCode,  String teachingComponentId, String termName,
 			String teacherId, String teacherName, String teacherEmail,
-			String sessionDates, String sessions, String location,
+			String sessionDates, String sessions, String location, String applyTo,
 			Set<CourseGroupDAO> groups) {
 		
 		if (log.isDebugEnabled()) {
@@ -899,7 +894,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			boolean bookable, int capacity, 
 			String termCode,  String teachingComponentId, String termName,
 			String teacherId, String teacherName, String teacherEmail,
-			String sessionDates, String sessions, String location,
+			String sessionDates, String sessions, String location, String applyTo,
 			Set<CourseGroupDAO> groups) throws IOException {
 		
 		boolean created = false;
@@ -938,6 +933,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			componentDao.setSlot(sessionDates);
 			componentDao.setSessions(sessions);
 			componentDao.setLocation(location);
+			componentDao.setApplyTo(applyTo);
 			componentDao.setGroups(groups);
 			dao.save(componentDao);
 		}

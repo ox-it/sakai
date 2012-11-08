@@ -22,8 +22,6 @@ public interface CourseGroup {
 	
 	public String getSubUnitCode();
 	
-	public boolean getPublicView();
-	
 	public boolean getSupervisorApproval();
 	
 	public boolean getAdministratorApproval();
@@ -31,6 +29,8 @@ public interface CourseGroup {
 	public boolean getHideGroup();
 	
 	public String getContactEmail();
+	
+	public String getVisibility();
 	
 	public List<CourseComponent> getComponents();
 	

@@ -1173,9 +1173,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	/**
 	 * 
 	 */
-	public List<CourseGroup> getCourseCalendar(String providerId) {
+	public List<CourseGroup> getCourseCalendar(boolean external, String providerId) {
 		String userId = proxy.getCurrentUser().getId();
-		List <CourseGroupDAO> groupDaos = dao.findCourseGroupsByCalendar(providerId);
+		List <CourseGroupDAO> groupDaos = dao.findCourseGroupsByCalendar(external, providerId);
 		List<CourseGroup> groups = new ArrayList<CourseGroup>(groupDaos.size());
 		for(CourseGroupDAO groupDao : groupDaos) {
 			groups.add(new CourseGroupImpl(groupDao, this));
@@ -1186,9 +1186,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	/**
 	 * 
 	 */
-	public List<CourseGroup> getCourseNoDates(String providerId) {
+	public List<CourseGroup> getCourseNoDates(boolean external, String providerId) {
 		String userId = proxy.getCurrentUser().getId();
-		List <CourseGroupDAO> groupDaos = dao.findCourseGroupsByNoDates(providerId);
+		List <CourseGroupDAO> groupDaos = dao.findCourseGroupsByNoDates(external, providerId);
 		List<CourseGroup> groups = new ArrayList<CourseGroup>(groupDaos.size());
 		for(CourseGroupDAO groupDao : groupDaos) {
 			groups.add(new CourseGroupImpl(groupDao, this));

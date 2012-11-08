@@ -28,6 +28,7 @@ public class CourseGroupDAO implements java.io.Serializable {
 	private String subunit;
 	private String subunitName;
 	private String contactEmail;
+	private String visibility;
 	private boolean publicView;
 	private boolean supervisorApproval;
 	private boolean administratorApproval;
@@ -145,7 +146,7 @@ public class CourseGroupDAO implements java.io.Serializable {
 	public void setSubunitName(String subunitName) {
 		this.subunitName = subunitName;
 	}
-	
+	/*
 	public boolean getPublicView() {
 		return publicView;
 	}
@@ -153,7 +154,7 @@ public class CourseGroupDAO implements java.io.Serializable {
 	public void setPublicView(boolean publicView) {
 		this.publicView = publicView;
 	}
-	
+	*/
 	public boolean getSupervisorApproval() {
 		return supervisorApproval;
 	}
@@ -184,6 +185,14 @@ public class CourseGroupDAO implements java.io.Serializable {
 
 	public void setContactEmail(String contactEmail) {
 		this.contactEmail = contactEmail;
+	}
+	
+	public String getVisibility() {
+		return visibility;
+	}
+
+	public void setVisibility(String visibility) {
+		this.visibility = visibility;
 	}
 	
 }

@@ -97,7 +97,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				StringBuffer querySQL = new StringBuffer();
 				querySQL.append("SELECT DISTINCT ");
 				querySQL.append("cg.id, cg.title, cg.dept, cg.departmentName, ");
-				querySQL.append("cg.subunit, cg.subunitName, cg.description, cg.publicView, ");
+				querySQL.append("cg.subunit, cg.subunitName, cg.description, cg.visibility, ");
 				querySQL.append("cg.supervisorApproval, cg.administratorApproval, cg.hideGroup, cg.contactEmail ");
 				querySQL.append("FROM course_group cg ");
 				querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.course_group = cg.id ");
@@ -105,8 +105,10 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				querySQL.append("LEFT JOIN course_component cc on cgc.component = cc.id ");
 				querySQL.append("WHERE ");
 				
+				querySQL.append("visibility != 'PR' AND ");
+				
 				if (external) {
-					querySQL.append("publicView = true AND ");
+					querySQL.append("visibility != 'RS' AND ");
 				}
 
 				querySQL.append("hideGroup = false AND ");
@@ -139,8 +141,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					SQLException {
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
 				criteria.add(Restrictions.eq("subunit", subunitId));
+				criteria.add(Restrictions.ne("visibility", "PR"));
 				if (external) {
-					criteria.add(Restrictions.eq("publicView", true));
+					criteria.add(Restrictions.ne("visibility", "RS"));
 				}
 				criteria.add(Restrictions.eq("hideGroup", false));
 				switch (range) { 
@@ -168,7 +171,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			public Object doInHibernate(Session session) {
 				Query query = session.createSQLQuery(
 						"select distinct id, title, dept, departmentname, subunit, subunitName, " +
-						"description, publicView, supervisorApproval, administratorApproval, " +
+						"description, visibility, supervisorApproval, administratorApproval, " +
 						"hideGroup, contactEmail " +
 						"from course_group " +
 						"left join course_group_component cc on cc.course_group = course_group.id " +
@@ -517,8 +520,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				for(String word: words) {
 					criteria.add(Expression.ilike("title", word, MatchMode.ANYWHERE));
 				}
+				criteria.add(Expression.ne("visibility", "PR"));
 				if (external) {
-					criteria.add(Expression.eq("publicView", true));
+					criteria.add(Expression.ne("visibility", "RS"));
 				}
 				criteria.add(Expression.eq("hideGroup", false));
 				
@@ -668,33 +672,43 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		getHibernateTemplate().save(placementDao).toString();
 	}
 
-	public List<CourseGroupDAO> findCourseGroupsByCalendar(String providerId) {
+	public List<CourseGroupDAO> findCourseGroupsByCalendar(final boolean external, String providerId) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
-				Query query = session.createSQLQuery(
-						"select distinct cg.id, cg.title, cg.dept, cg.departmentname, cg.subunit, cg.subunitName, " +
-						"cg.description, cg.publicView, cg.supervisorApproval, cg.administratorApproval, " +
-						"cg.hideGroup, cg.contactEmail " +
-						"from course_group cg " +
-						"left join course_group_component cgc on cgc.course_group = cg.id " +
-						"left join course_component cc on cgc.component = cc.id " +
-						"where cc.starts > NOW() and cg.hideGroup = false").addEntity(CourseGroupDAO.class);
+				StringBuffer querySQL = new StringBuffer();
+				querySQL.append("select distinct cg.id, cg.title, cg.dept, cg.departmentname, cg.subunit, cg.subunitName, ");
+				querySQL.append("cg.description, cg.visibility, cg.supervisorApproval, cg.administratorApproval, ");
+				querySQL.append("cg.hideGroup, cg.contactEmail ");
+				querySQL.append("from course_group cg ");
+				querySQL.append("left join course_group_component cgc on cgc.course_group = cg.id ");
+				querySQL.append("left join course_component cc on cgc.component = cc.id ");
+				querySQL.append("where cc.starts > NOW() and cg.hideGroup = false ");
+				querySQL.append("and cg.visibility != 'PR' ");
+				if (external) {
+					querySQL.append("and cg.visibility != 'RS' ");
+				}
+				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
 				return query.list();
 			}
 		});
 	}
 	
-	public List<CourseGroupDAO> findCourseGroupsByNoDates(String providerId) {
+	public List<CourseGroupDAO> findCourseGroupsByNoDates(final boolean external, String providerId) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
-				Query query = session.createSQLQuery(
-						"select distinct cg.id, cg.title, cg.dept, cg.departmentname, cg.subunit, cg.subunitName, " +
-						"cg.description, cg.publicView, cg.supervisorApproval, cg.administratorApproval, " +
-						"cg.hideGroup, cg.contactEmail " +
-						"from course_group cg " +
-						"left join course_group_component cgc on cgc.course_group = cg.id " +
-						"left join course_component cc on cgc.component = cc.id " +
-						"where cc.starts is NULL and cc.closes > NOW() and cg.hideGroup = false").addEntity(CourseGroupDAO.class);
+				StringBuffer querySQL = new StringBuffer();
+				querySQL.append("select distinct cg.id, cg.title, cg.dept, cg.departmentname, cg.subunit, cg.subunitName, ");
+				querySQL.append("cg.description, cg.visibility, cg.supervisorApproval, cg.administratorApproval, ");
+				querySQL.append("cg.hideGroup, cg.contactEmail ");
+				querySQL.append("from course_group cg ");
+				querySQL.append("left join course_group_component cgc on cgc.course_group = cg.id ");
+				querySQL.append("left join course_component cc on cgc.component = cc.id ");
+				querySQL.append("where cc.starts is NULL and cc.closes > NOW() and cg.hideGroup = false ");
+				querySQL.append("and cg.visibility != 'PR' ");
+				if (external) {
+					querySQL.append("and cg.visibility != 'RS' ");
+				}
+				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
 				return query.list();
 			}
 		});

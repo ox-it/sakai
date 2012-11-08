@@ -112,6 +112,7 @@
 		<property name="slot" type="string" length="4000"/>
 		<property name="sessions" type="string" length="4000"/>
 		<property name="location" type="string" length="4000"/>
+		<property name="applyTo" type="string" length="255"/>
 
 		<set name="signups" lazy="true" table="course_component_signup">
 			<key column="component" not-null="true" />
@@ -141,11 +142,11 @@
 			index="course_group_subunit_idx" />
 		<property name="subunitName" type="string" length="255"/>
 		<property name="description" type="text"/>
-		<property name="publicView" type="boolean"/>
 		<property name="supervisorApproval" type="boolean"/>
 		<property name="administratorApproval" type="boolean"/>
 		<property name="hideGroup" type="boolean"/>
 		<property name="contactEmail" type="string" length="255"/>
+		<property name="visibility" type="string" length="16"/>
 		<set name="components" inverse="true" lazy="true" table="course_group_component" fetch="join">
 			<key column="course_group" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO" column="component" />

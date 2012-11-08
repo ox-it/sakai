@@ -21,9 +21,9 @@ public interface CourseDAO {
 	
 	List<CourseGroupDAO> findCourseGroupByComponent(String componentId);
 	
-	List<CourseGroupDAO> findCourseGroupsByCalendar(String providerId);
+	List<CourseGroupDAO> findCourseGroupsByCalendar(boolean external, String providerId);
 	
-	List<CourseGroupDAO> findCourseGroupsByNoDates(String providerId);
+	List<CourseGroupDAO> findCourseGroupsByNoDates(boolean external, String providerId);
 	
 	List<Object[]> findSubUnitByDept(String dept);
 

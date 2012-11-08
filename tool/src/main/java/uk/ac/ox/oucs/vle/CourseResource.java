@@ -169,7 +169,11 @@ public class CourseResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getCourseCalendar() throws JsonGenerationException, JsonMappingException, IOException {
-		List <CourseGroup> groups = courseService.getCourseCalendar(null);
+		boolean externalUser = false;
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			externalUser = true;
+		}
+		List <CourseGroup> groups = courseService.getCourseCalendar(externalUser, null);
 		// TODO Just return the coursegroups (no nested objects).
 		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
 		
@@ -179,7 +183,11 @@ public class CourseResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getCourseNoDates() throws JsonGenerationException, JsonMappingException, IOException {
-		List <CourseGroup> groups = courseService.getCourseNoDates(null);
+		boolean externalUser = false;
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			externalUser = true;
+		}
+		List <CourseGroup> groups = courseService.getCourseNoDates(externalUser, null);
 		// TODO Just return the coursegroups (no nested objects).
 		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
 		
@@ -536,7 +544,7 @@ public class CourseResource {
 			gen.writeObjectField("title", course.getTitle());
 			gen.writeObjectField("supervisorApproval", course.getSupervisorApproval());
 			gen.writeObjectField("administratorApproval", course.getAdministratorApproval());
-			gen.writeObjectField("publicView", course.getPublicView());
+			gen.writeObjectField("visibility", course.getVisibility());
 			//gen.writeObjectField("homeApproval", courseGroup.getHomeApproval());
 			gen.writeObjectField("isAdmin", course.getIsAdmin());
 			gen.writeObjectField("isSuperuser", course.getIsSuperuser());

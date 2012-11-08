@@ -1,11 +1,8 @@
 package uk.ac.ox.oucs.vle;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 public class CourseGroupImpl implements CourseGroup {
@@ -51,10 +48,6 @@ public class CourseGroupImpl implements CourseGroup {
 		return courseGroupDAO.getSubunit();
 	}
 	
-	public boolean getPublicView() {
-		return courseGroupDAO.getPublicView();
-	}
-	
 	public boolean getSupervisorApproval() {
 		return courseGroupDAO.getSupervisorApproval();
 	}
@@ -69,6 +62,10 @@ public class CourseGroupImpl implements CourseGroup {
 	
 	public String getContactEmail() {
 		return courseGroupDAO.getContactEmail();
+	}
+	
+	public String getVisibility() {
+		return courseGroupDAO.getVisibility();
 	}
 
 	public List<CourseComponent> getComponents() {

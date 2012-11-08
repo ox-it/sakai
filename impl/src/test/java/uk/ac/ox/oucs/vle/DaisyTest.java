@@ -52,7 +52,6 @@ import uk.ac.ox.oucs.vle.xcri.daisy.DivisionWideEmail;
 import uk.ac.ox.oucs.vle.xcri.daisy.EmployeeEmail;
 import uk.ac.ox.oucs.vle.xcri.daisy.EmployeeName;
 import uk.ac.ox.oucs.vle.xcri.daisy.ModuleApproval;
-import uk.ac.ox.oucs.vle.xcri.daisy.PublicView;
 import uk.ac.ox.oucs.vle.xcri.daisy.Sessions;
 import uk.ac.ox.oucs.vle.xcri.daisy.SupervisorApproval;
 import uk.ac.ox.oucs.vle.xcri.daisy.TermCode;
@@ -78,7 +77,6 @@ public class DaisyTest extends TestCase {
 		ExtensionManager.registerExtension(new Division());
 		ExtensionManager.registerExtension(new DivisionWideEmail());
 		ExtensionManager.registerExtension(new CourseSubUnit());
-		ExtensionManager.registerExtension(new PublicView());
 		ExtensionManager.registerExtension(new ModuleApproval());
 		ExtensionManager.registerExtension(new SupervisorApproval());
 		ExtensionManager.registerExtension(new Sessions());
@@ -159,6 +157,9 @@ public class DaisyTest extends TestCase {
 			for (Course course : courses) {
 			
 				assertTrue (course instanceof OxcapCourse);
+				
+				OxcapCourse myCourse = (OxcapCourse)course;
+				String visibility = myCourse.getVisibility().toString();
 				
 				String id = null;
 				String teachingcomponentId = null;
