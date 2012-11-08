@@ -29,16 +29,4 @@ public class DaisyElement extends XcriElement {
 		return super.toXml();
 	}
 	
-	/**
-	 * 
-	 */
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append(this.getName());
-		sb.append(":");
-		sb.append(this.getValue());
-		return sb.toString();
-	}
-	
-	
 }

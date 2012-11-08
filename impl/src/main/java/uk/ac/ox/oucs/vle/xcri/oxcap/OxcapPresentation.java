@@ -24,14 +24,14 @@ public class OxcapPresentation extends Presentation {
 	}
 
 	/**
-	 * @param identifier the identifier to set
+	 * @param status the status to set
 	 */
 	private void setIdentifier(String identifier) {
 		this.identifier = identifier;
 	}
 	
 	/**
-	 * @return
+	 * @return status
 	 */
 	public Status getStatus(){
 		try {

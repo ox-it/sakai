@@ -28,17 +28,5 @@ public class OxcapElement extends XcriElement {
 	public Element toXml() {
 		return super.toXml();
 	}
-	
-	/**
-	 * 
-	 */
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append(this.getName());
-		sb.append(":");
-		sb.append(this.getValue());
-		return sb.toString();
-	}
-	
-	
+
 }

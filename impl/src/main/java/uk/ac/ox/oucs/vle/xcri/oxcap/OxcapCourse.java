@@ -28,14 +28,14 @@ public class OxcapCourse extends Course {
 	}
 
 	/**
-	 * @param identifier the identifier to set
+	 * @param visibility the visibility to set
 	 */
 	private void setVisible(String visible) {
 		this.visible = visible;
 	}
 	
 	/**
-	 * @return
+	 * @return visibility
 	 */
 	public Visibility getVisibility(){
 		try {

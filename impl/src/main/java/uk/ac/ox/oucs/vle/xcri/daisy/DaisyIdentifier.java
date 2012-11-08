@@ -19,7 +19,7 @@ public class DaisyIdentifier extends Identifier implements Extension {
 	}
 
 	/**
-	 * @param identifier the identifier to set
+	 * @param type the type to set
 	 */
 	public void setType(String type) {
 		this.type = type;
@@ -48,20 +48,6 @@ public class DaisyIdentifier extends Identifier implements Extension {
 		return element;
 	}
 	
-	/**
-	 * 
-	 */
-	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append(this.getName());
-		sb.append(":");
-		sb.append(this.getType());
-		sb.append(":");
-		sb.append(this.getValue());
-		return sb.toString();
-	}
-
 	public Namespace getNamespace() {
 		return Namespaces.DC_NAMESPACE_NS;
 	}

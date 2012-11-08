@@ -24,7 +24,7 @@ public class DepartmentalSubUnit extends DaisyElement implements Extension {
 	}
 
 	/**
-	 * @param identifier the identifier to set
+	 * @param code the code to set
 	 */
 	public void setCode(String code) {
 		this.code = code;
@@ -49,20 +49,6 @@ public class DepartmentalSubUnit extends DaisyElement implements Extension {
 			element.setAttribute("code", this.getCode(), getNamespace());
 		}
 		return element;
-	}
-	
-	/**
-	 * 
-	 */
-	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append(this.getName());
-		sb.append(":");
-		sb.append(this.getCode());
-		sb.append(":");
-		sb.append(this.getValue());
-		return sb.toString();
 	}
 	
 }

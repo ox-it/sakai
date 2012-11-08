@@ -15,7 +15,7 @@ public class WebAuthCode extends DaisyElement implements Extension {
 	public enum WebAuthCodeType {
 		superUser,
 		administrator,
-		presenter;
+		presenter
 	}
 	
 	/**
@@ -38,7 +38,7 @@ public class WebAuthCode extends DaisyElement implements Extension {
 	}
 
 	/**
-	 * @param identifier the identifier to set
+	 * @param webauthtype the webauthtype to set
 	 */
 	public void setWebAuthType(String webAuthType) {
 		this.webAuthType = webAuthType;
@@ -71,19 +71,5 @@ public class WebAuthCode extends DaisyElement implements Extension {
 		}
 		return element;
 	}
-	
-	/**
-	 * 
-	 */
-	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append(this.getName());
-		sb.append(":");
-		sb.append(this.getWebAuthType());
-		sb.append(":");
-		sb.append(this.getValue());
-		return sb.toString();
-	}
-	
+
 }
