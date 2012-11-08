@@ -222,7 +222,7 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<property name="jobs">
 			<list>
-				<ref bean="uk.ac.ox.oucs.vle.OucsDeptJobWrapper"/> 
+				<ref bean="uk.ac.ox.oucs.vle.OucsDeptJobWrapper"/>
 				<ref bean="uk.ac.ox.oucs.vle.GenerateTreeJobWrapper"/>
 				<ref bean="uk.ac.ox.oucs.vle.PopulatorJobWrapper"/>
 			</list>

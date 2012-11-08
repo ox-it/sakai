@@ -214,13 +214,13 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			data.finalise();
 			
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.warn("IOException thrown", e);
 			
 		} catch (JDOMException e) {
-			e.printStackTrace();
+			log.warn("JDOMException thrown", e);
 			
 		} catch (InvalidElementException e) {
-			e.printStackTrace();
+			log.warn("InvalidElementException thrown", e);
 		}
 	}
 		
@@ -928,26 +928,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 	
 	/**
-	 * Log errors and warnings
-	 * @param message
-	 * @throws IOException
-	 */
-	//private void logMe(String message) throws IOException {
-	//	log.warn(message);
-	//	eWriter.write(message+"\n");
-	//}
-	
-	/**
-	 * Log successes
-	 * @param message
-	 * @throws IOException
-	 */
-	//private void logMs(String message) throws IOException {
-	//	log.warn(message);
-	//	iWriter.write(message+"\n");
-	//}
-	
-	/**
 	 * convert collection of userCodes to userIds
 	 * 
 	 * @param userCodes
@@ -1050,22 +1030,5 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			session.setUserId("admin");
 		}
 	}
-	
-	/*
-	public static void main(String[] args) {
-		try {	
-			XcriOxCapPopulatorImpl reader = new XcriOxCapPopulatorImpl();
-			PopulatorContext context = new PopulatorContext();
-			context.setURI((String)jobDataMap.get("xcri.oxcap.populator.uri"));
-			context.setUser((String)jobDataMap.get("xcri.oxcap.populator.username"));
-			context.setPassword((String)jobDataMap.get("xcri.oxcap.populator.password"));
-			context.setName((String)jobDataMap.get("xcri.oxcap.populator.name"));
-			reader.update(context);
-		
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	*/
-	
+
 }
