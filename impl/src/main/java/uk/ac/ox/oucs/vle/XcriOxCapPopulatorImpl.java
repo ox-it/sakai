@@ -35,7 +35,6 @@ import org.sakaiproject.util.FormattedText;
 import org.xcri.Extension;
 import org.xcri.common.ExtensionManager;
 import org.xcri.common.OverrideManager;
-import org.xcri.common.Subject;
 import org.xcri.core.Catalog;
 import org.xcri.core.Course;
 import org.xcri.core.Presentation;
@@ -61,6 +60,7 @@ import uk.ac.ox.oucs.vle.xcri.daisy.TermLabel;
 import uk.ac.ox.oucs.vle.xcri.daisy.WebAuthCode;
 import uk.ac.ox.oucs.vle.xcri.oxcap.OxcapCourse;
 import uk.ac.ox.oucs.vle.xcri.oxcap.OxcapPresentation;
+import uk.ac.ox.oucs.vle.xcri.oxcap.Subject;
 
 public class XcriOxCapPopulatorImpl implements Populator {
 	
@@ -187,7 +187,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			ExtensionManager.registerExtension(new EmployeeName());
 			ExtensionManager.registerExtension(new EmployeeEmail());
 			ExtensionManager.registerExtension(new DaisyIdentifier());
-			//ExtensionManager.registerExtension(new Subject());
+			ExtensionManager.registerExtension(new Subject());
 			
 			OverrideManager.registerOverride(Course.class, new OxcapCourse());
 			OverrideManager.registerOverride(Presentation.class, new OxcapPresentation());
@@ -245,14 +245,17 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			
 			if (extension instanceof DivisionWideEmail) {
 				divisionEmail = extension.getValue();
+				continue;
 			}
 			
 			if (extension instanceof DepartmentThirdLevelApproval) {
 				departmentApproval = parseBoolean(extension.getValue());
+				continue;
 			}
 			
 			if (extension instanceof ModuleApproval) {
 				departmentApprover = extension.getValue();
+				continue;
 			}
 			
 			if (extension instanceof WebAuthCode) {
@@ -261,12 +264,15 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				if (webAuthCode.getWebAuthCodeType() == WebAuthCode.WebAuthCodeType.superUser) {
 					divisionSuperUsers.add(webAuthCode.getValue());
 				}
+				continue;
 			}
 			
 			if (extension instanceof DepartmentalSubUnit) {
 				DepartmentalSubUnit subUnit = (DepartmentalSubUnit) extension;
 				subunits.put(subUnit.getCode(), subUnit.getValue());
+				continue;
 			}
+			
 		}
 		
 		Collection<String> superusers = getUsers(divisionSuperUsers);
@@ -317,19 +323,10 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		String title = course.getTitles()[0].getValue();
 		String description = parseToPlainText(course.getDescriptions()[0].getValue());
 		
-		Collection<String> researchCategories = new HashSet<String>();
-		Collection<String> skillsCategories = new HashSet<String>();
+		Collection<Subject> researchCategories = new HashSet<Subject>();
+		Collection<Subject> skillsCategories = new HashSet<Subject>();
 		
-		for (Subject subject : course.getSubjects()) {
-			if (SUBJECTTYPE_RDF.equals(subject.getType())) {
-				skillsCategories.add(subject.getValue());
-			}
-			if (SUBJECTTYPE_RM.equals(subject.getType())) {
-				researchCategories.add(subject.getValue());
-			}
-		}
-		
-		String assessmentunitCode = null;
+		String id = null;
 		String teachingcomponentId = null;
 		boolean publicView = true;
 		boolean supervisorApproval = true;
@@ -344,29 +341,34 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			if (extension instanceof DaisyIdentifier) {
 				DaisyIdentifier identifier = (DaisyIdentifier) extension;
 				if ("assessmentUnitCode".equals(identifier.getType())) {
-					assessmentunitCode = identifier.getValue();
+					id = identifier.getValue();
 				}
 				if ("teachingComponentId".equals(identifier.getType())) {
 					teachingcomponentId = identifier.getValue();
 				}
+				continue;
 			}
 			
 			if (extension instanceof PublicView) {
 				publicView = parseBoolean(extension.getValue());
+				continue;
 			}
 			
 			if (extension instanceof SupervisorApproval) {
 				supervisorApproval = parseBoolean(extension.getValue());
+				continue;
 			}
 			
 			if (extension instanceof ModuleApproval) {
 				administratorApproval = parseBoolean(extension.getValue());
+				continue;
 			}
 			
 			if (extension instanceof CourseSubUnit) {
 				CourseSubUnit subUnit = (CourseSubUnit)extension;
 				subunitCode = subUnit.getCode();
 				subunitName = subUnit.getValue();
+				continue;
 			}
 			
 			if (extension instanceof WebAuthCode) {
@@ -374,10 +376,24 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				if (webAuthCode.getWebAuthCodeType() == WebAuthCode.WebAuthCodeType.administrator) {
 					administratorCodes.add(webAuthCode.getValue());
 				}
+				continue;
 			}
 			
 			if (extension instanceof OtherDepartment) {
 				otherDepartments.add(extension.getValue());
+				continue;
+			}
+			
+			if (extension instanceof Subject) {
+				Subject subject = (Subject) extension;
+				
+				if (SUBJECTTYPE_RDF.equals(subject.getType())) {
+					skillsCategories.add(subject);
+				}
+				if (SUBJECTTYPE_RM.equals(subject.getType())) {
+					researchCategories.add(subject);
+				}
+				continue;
 			}
 		}
 		
@@ -388,29 +404,29 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			Presentation[] presentations = course.getPresentations();
 			for (int i=0; i<presentations.length; i++) {
 				presentation(presentations[i], 
-						assessmentunitCode, teachingcomponentId);
+						id, teachingcomponentId);
 			}
 			
 		} else {
 			
-			if (!assessmentunitCode.equals(data.getLastGroup())) {
+			if (!id.equals(data.getLastGroup())) {
 				
 				data.incrGroupSeen();
-				data.setLastGroup(assessmentunitCode);
+				data.setLastGroup(id);
 			
-				if (validGroup(assessmentunitCode, title, departmentCode, subunitCode, description,
+				if (validGroup(id, title, departmentCode, subunitCode, description,
 						departmentName, subunitName, publicView, 
 						supervisorApproval, administratorApproval,
 						divisionEmail, (Set<String>) administrators, 
 						(Set<String>) divisionSuperUsers, (Set<String>) otherDepartments,
-						(Set<String>) researchCategories, (Set<String>) skillsCategories)) {
+						(Set<Subject>) researchCategories, (Set<Subject>) skillsCategories)) {
 			
-					if (updateGroup(assessmentunitCode, title, departmentCode, subunitCode, description,
+					if (updateGroup(id, title, departmentCode, subunitCode, description,
 							departmentName, subunitName, publicView, 
 							supervisorApproval, administratorApproval,
 							divisionEmail, (Set<String>) administrators, 
 							(Set<String>) divisionSuperUsers, (Set<String>) otherDepartments,
-							(Set<String>) researchCategories, (Set<String>) skillsCategories)) {
+							(Set<Subject>) researchCategories, (Set<Subject>) skillsCategories)) {
 						data.incrGroupCreated();
 					} else {
 						data.incrGroupUpdated();
@@ -489,26 +505,32 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			
 			if (extension instanceof Bookable) {
 				bookable = parseBoolean(extension.getValue());
+				continue;
 			}
 			
 			if (extension instanceof EmployeeName) {
 				teacherName = extension.getValue();
+				continue;
 			}
 			
 			if (extension instanceof EmployeeEmail) {
 				teacherEmail = extension.getValue();
+				continue;
 			}
 			
 			if (extension instanceof Sessions) {
 				sessions = extension.getValue();
+				continue;
 			}
 			
 			if (extension instanceof TermCode) {
 				termCode = extension.getValue();
+				continue;
 			}
 			
 			if (extension instanceof TermLabel) {
 				sessionDates = extension.getValue();
+				continue;
 			}
 			
 			if (extension instanceof WebAuthCode) {
@@ -516,6 +538,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				if (webAuthCode.getWebAuthCodeType() == WebAuthCode.WebAuthCodeType.presenter) {
 					teacherId = webAuthCode.getValue();
 				}
+				continue;
 			}
 		
 		}
@@ -624,7 +647,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			boolean publicView, boolean supervisorApproval, boolean administratorApproval,
 			String divisionEmail, 
 			Set<String> administrators, Set<String> superusers, Set<String> otherDepartments,
-			Set<String> researchCategories, Set<String> skillsCategories) {
+			Set<Subject> researchCategories, Set<Subject> skillsCategories) {
 		
 		if (log.isDebugEnabled()) {
 			System.out.println("XcriPopulatorImpl.validGroup ["+code+":"+title+":"+departmentCode+":"+subunitCode+":"+ 
@@ -677,20 +700,20 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @return
 	 * @throws IOException 
 	 */
-	private boolean updateGroup(String code, String title, String departmentCode, String subunitCode, 
+	private boolean updateGroup(String id, String title, String departmentCode, String subunitCode, 
 			String description, String departmentName, String subunitName, 
 			boolean publicView, boolean supervisorApproval, boolean administratorApproval,
 			String divisionEmail, 
 			Set<String> administrators, Set<String> superusers, Set<String> otherDepartments,
-			Set<String> researchCategories, Set<String> skillsCategories) throws IOException {
+			Set<Subject> researchCategories, Set<Subject> skillsCategories) throws IOException {
 		
 		boolean created = false;
 		
 		if (null != dao) {
-			CourseGroupDAO groupDao = dao.findCourseGroupById(code);
+			CourseGroupDAO groupDao = dao.findCourseGroupById(id);
 		
 			if (groupDao == null) {
-				groupDao = dao.newCourseGroup(code, title, departmentCode, subunitCode);
+				groupDao = dao.newCourseGroup(id, title, departmentCode, subunitCode);
 				created = true;
 			} else {
 				groupDao.setDept(departmentCode);
@@ -717,13 +740,13 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			groupDao.setOtherDepartments(otherDepartments);
 			
 			Set<CourseCategoryDAO> categories = new HashSet<CourseCategoryDAO>();
-			for (String category : researchCategories) {
+			for (Subject subject : researchCategories) {
 				categories.add(new CourseCategoryDAO(
-						code, CourseGroup.Category_Type.RM, "", category));
+						id, CourseGroup.Category_Type.RM, subject.getIdentifier(), subject.getValue()));
 			}
-			for (String category : skillsCategories) {
+			for (Subject subject : skillsCategories) {
 				categories.add(new CourseCategoryDAO(
-						code, CourseGroup.Category_Type.RDF, "", category));
+						id, CourseGroup.Category_Type.RDF, subject.getIdentifier(), subject.getValue()));
 			}
 			
 			//remove unwanted categories
@@ -746,9 +769,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 		
 		if (created) {
-			data.logMs("Log Success Course Group created ["+code+":"+title+"]");
+			data.logMs("Log Success Course Group created ["+id+":"+title+"]");
 		} else {
-			data.logMs("Log Success Course Group updated ["+code+":"+title+"]");
+			data.logMs("Log Success Course Group updated ["+id+":"+title+"]");
 		}
 		return created;
 	}

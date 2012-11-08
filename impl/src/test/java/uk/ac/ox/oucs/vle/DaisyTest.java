@@ -117,8 +117,10 @@ public class DaisyTest extends TestCase {
 		
 		for (Provider provider : providers) {
 			
-			assertNotNull(provider.getTitles()[0].getValue());
-			assertNotNull(provider.getIdentifiers()[0].getValue());
+			String title = provider.getTitles()[0].getValue();
+			String identifier = provider.getIdentifiers()[0].getValue();
+			assertNotNull(title);
+			assertNotNull(identifier);
 		
 			Collection<String> divisionSuperUsers = new HashSet<String>();
 			Map<String, String> subunits = new HashMap<String, String>();
@@ -158,7 +160,7 @@ public class DaisyTest extends TestCase {
 			
 				assertTrue (course instanceof OxcapCourse);
 				
-				String assessmentunitCode = null;
+				String id = null;
 				String teachingcomponentId = null;
 				Collection<String> administrators = new HashSet<String>();
 				Collection<Subject> subjects = new HashSet<Subject>();
@@ -168,7 +170,7 @@ public class DaisyTest extends TestCase {
 					if (extension instanceof DaisyIdentifier) {
 						DaisyIdentifier identifier = (DaisyIdentifier) extension;
 						if ("assessmentUnitCode".equals(identifier.getType())) {
-							assessmentunitCode = identifier.getValue();
+							id = identifier.getValue();
 							continue;
 						}
 						if ("teachingComponentId".equals(identifier.getType())) {
@@ -190,11 +192,13 @@ public class DaisyTest extends TestCase {
 						subjects.add((Subject) extension);
 					}
 					
-					System.out.println("Extension not processed ["+extension.getClass().getName()+":"+assessmentunitCode+"]");
+					System.out.println("Extension not processed ["+extension.getClass().getName()+":"+id+"]");
 				
 				}
 				
-				if (!"3C11AE0001".equals(assessmentunitCode)) {
+				assertNotNull(id);
+				
+				if (!"3C11AE0001".equals(id)) {
 					continue;
 				}
 				
@@ -202,9 +206,9 @@ public class DaisyTest extends TestCase {
 					System.out.println("Subject ["+subject.getIdentifier()+":"+subject.getType()+":"+subject.getValue()+"]");
 				}
 				assertEquals("Field Research Methods Class (PRS, 2nd yr M.Phil., VA)", course.getTitles()[0].getValue());
-				assertNotNull("AssessmentUnitCode is null ["+provider.getTitles()[0]+"]", assessmentunitCode);
-				assertNotNull("TeachingComponentId is null ["+assessmentunitCode+"]", teachingcomponentId);
-				assertTrue("No Administrators on ["+assessmentunitCode+"]", !administrators.isEmpty());
+				assertNotNull("AssessmentUnitCode is null ["+provider.getTitles()[0]+"]", id);
+				assertNotNull("TeachingComponentId is null ["+id+"]", teachingcomponentId);
+				assertTrue("No Administrators on ["+id+"]", !administrators.isEmpty());
 			}
 		}
 	}
