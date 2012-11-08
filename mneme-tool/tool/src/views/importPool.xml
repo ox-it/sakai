@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -64,7 +64,22 @@
 						<gap />
 					</container>
 				</section>
-
+				
+				<section>
+					<container>
+						<navigation title="import-eCollege-paste" style="LINK">
+							<icon icon="/icons/import_pool.png" style="LEFT" />
+							<destination template="/import_eCollege_text/{0}">
+								<model ref="poolsSort" />
+							</destination>
+						</navigation>
+						<instructions>
+							<message selector="import-eCollege-paste-instructions" />
+						</instructions>
+						<gap />
+					</container>
+				</section>
+				
 				<section>
 					<container>
 						<navigation title="import-qti" style="LINK">
