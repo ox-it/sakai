@@ -142,6 +142,23 @@ public class HierarchyHandler extends SiteHandler {
 					}
 					catch (IdUnusedException iuue)
 					{
+						// Before we show the error site we need to check for redirects on the leave of the tree.
+						int currentEnd = start;
+						while (++currentEnd < end) {
+							hierarchyPath = buildPath(parts, start, currentEnd);
+							node = portalHierarchyService.getNode(hierarchyPath);
+							if (node == null)
+							{
+								// Fallen out of the tree.
+								break;
+							}
+							else if(node instanceof PortalNodeRedirect)
+							{
+								// Do redirect.
+								doRedirect(res, node);
+								return END;
+							}
+						}
 						portal.doError(req, res, session, Portal.ERROR_SITE);
 						return END;
 					}
@@ -157,9 +174,9 @@ public class HierarchyHandler extends SiteHandler {
 					node = portalHierarchyService.getNode(null);
 				}
 			}
-			
-			
+
 			log.debug("siteId: "+ ((site==null)?"null":site.getId())+ " pageId: "+ pageId);
+			
 			if (node == null) {
 				super.doSite(req, res, session, site.getId(), pageId, req.getContextPath()+req.getServletPath());
 			} else {
@@ -170,9 +187,7 @@ public class HierarchyHandler extends SiteHandler {
 					doSite(req, res, session, site, pageId, req.getContextPath()
 						+ req.getServletPath()+siteNode.getPath(), siteNode);
 				} else if (node instanceof PortalNodeRedirect) {
-					PortalNodeRedirect redirectNode = (PortalNodeRedirect) node;
-					String redirect = redirectNode.getUrl();
-					res.sendRedirect(redirect);
+					doRedirect(res, node);
 				} else {
 					throw new IllegalStateException("We only know about 2 node types.");
 				}
@@ -183,6 +198,18 @@ public class HierarchyHandler extends SiteHandler {
 		{
 			throw new PortalHandlerException(ex);
 		}
+	}
+
+	/**
+	 * This sends the redirect to the user.
+	 * @param res The response to which we send the redirect.
+	 * @param node The redirect node that the user ended up at.
+	 */
+	private void doRedirect(HttpServletResponse res, PortalNode node)
+			throws IOException {
+		PortalNodeRedirect redirectNode = (PortalNodeRedirect) node;
+		String redirect = redirectNode.getUrl();
+		res.sendRedirect(redirect);
 	}
 
 	/**
