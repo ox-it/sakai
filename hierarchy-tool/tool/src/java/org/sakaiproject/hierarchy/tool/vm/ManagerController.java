@@ -202,6 +202,7 @@ public class ManagerController extends AbstractController
 					redirectDetails.put("path", redirectNode.getPath());
 					redirectDetails.put("title", redirectNode.getTitle());
 					redirectDetails.put("url", redirectNode.getUrl());
+					redirectDetails.put("appendPath", redirectNode.isAppendPath()?"true":null);
 					redirectNodes.add(redirectDetails);
 				}
 			}
