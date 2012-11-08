@@ -160,7 +160,9 @@ public class ManagerController extends AbstractController
 			String redirectUrl = request.getParameter("url");
 			String redirectTitle = request.getParameter("title");
 			String path = request.getParameter("path");
-			phs.newRedirectNode(node.getId(), path, redirectUrl, redirectTitle);
+			boolean appendPath = Boolean.valueOf(request.getParameter("appendPath"));
+			
+			phs.newRedirectNode(node.getId(), path, redirectUrl, redirectTitle, appendPath);
 			topRefresh = true;
 		}
 		else if (ACT_DELETEREDIRECT.equals(action))

@@ -21,6 +21,7 @@ public class PortalPersistentNode {
 	private String pathHash;
 	private String redirectUrl;
 	private String redirectTitle;
+	private boolean appendPath;
 	private Date created;
 	private Date updated;
 	
@@ -71,6 +72,12 @@ public class PortalPersistentNode {
 	}
 	public void setRedirectTitle(String redirectTitle) {
 		this.redirectTitle = redirectTitle;
+	}
+	public boolean isAppendPath() {
+		return appendPath;
+	}
+	public void setAppendPath(boolean appendPath) {
+		this.appendPath = appendPath;
 	}
 	public Date getCreated()
 	{

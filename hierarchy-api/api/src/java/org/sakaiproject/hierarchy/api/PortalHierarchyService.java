@@ -69,7 +69,7 @@ public interface PortalHierarchyService {
 
 	PortalNode newSiteNode(String parentId, String childName, String siteId, String managementSiteId) throws PermissionException;
 	
-	PortalNode newRedirectNode(String parentId, String childName, String redirectUrl, String title) throws PermissionException;
+	PortalNode newRedirectNode(String parentId, String childName, String redirectUrl, String title, boolean appendPath) throws PermissionException;
 	
 	void renameNode(String id, String newPath) throws PermissionException;
 
