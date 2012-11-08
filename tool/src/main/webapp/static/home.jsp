@@ -25,8 +25,6 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/<%= ServerConfigurationService.getString("skin.default", "default") %>/tool.css" type="text/css" rel="stylesheet" media="all" />
 	<link rel="stylesheet" type="text/css" href="lib/tool.css">
-    <!-- styles for mock-up -->
-	<link rel="stylesheet" type="text/css" href="lib/jz-styles.css">
   	
   	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
   	<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
@@ -57,8 +55,8 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
 		<c:if test="${!isExternalUser}" >
 			<li><span><a href="my.jsp">My Modules</a></span></li>
-			<li><span><a href="approve.jsp">Pending Confirmations</a></span></li>
 			<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>	
+			<li><span><a href="approve.jsp">Pending Confirmations</a></span></li>
 			<li><span><a href="admin.jsp">Module Administration</a></span></li>
 		</c:if>
 	</ul>
@@ -95,15 +93,15 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<ul class="options admin" >
 
 		<c:if test="${!isExternalUser}" >
-			<li class="confirmations" >
-				<a href="approve.jsp">Pending Confirmations</a> 
-				<span class="info">View modules which are waiting for your confirmation.</span>
-			</li>	
-	
 			<li class="acceptances" >
 				<a href="pending.jsp">Pending Acceptances</a> 
 				<span class="info">View list of student sign-ups awaiting your approval.</span>
 			</li>
+			
+			<li class="confirmations" >
+				<a href="approve.jsp">Pending Confirmations</a> 
+				<span class="info">View modules which are waiting for your confirmation.</span>
+			</li>	
 	
 			<li class="admin">
 				<a href="admin.jsp">Module Administration</a> 

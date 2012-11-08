@@ -46,8 +46,10 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
     <body>
     	<div id="toolbar" >
         	<ul class="navIntraTool actionToolBar">
-            <li><span>Module Signup</span></li>
-			<li><span>Module Search</span></li>
+            <li><span>Home</span></li>
+			<li><span>Search Modules</span></li>
+			<li><span>Browse by Department</span></li>
+			<li><span>Browse by Calendar</span></li>
 			<c:if test="${!isExternalUser}" >
             	<li><span>My Modules</span></li>
             	<li><span>Pending Acceptances</span></li>

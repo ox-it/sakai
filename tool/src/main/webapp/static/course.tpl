@@ -1,8 +1,15 @@
            <!-- Show details of the course -->
-		   <div class="messages"></div>
-            <div id="summary" class="">
-                <h3>${title}</h3>
-                {if !hide}
+         <div class="courseDetail">
+		    <div class="messages"></div>
+            <div id="summary">
+                <h1>${title}</h1>
+                {if hide}
+                <div class="noAuth">
+					If you are a member of the University of Oxford, please
+					<a class="login" href="dologin.jsp" target="_top">login to WebLearn</a>
+					to see more information.
+					</div>
+                {else}
                 <table width="100%">
                 	<tr>
                         <th>
@@ -11,9 +18,9 @@
                         <td>
                             {for presenter in presenters}
 								{if presenter.email}
-									<a href="mailto:${presenter.email}">${presenter.name}</a>
+									<a href="mailto:${presenter.email}">${presenter.name}</a>{if presenter_index != presenters.length-1},{/if}
 								{else}
-									${presenter.name}
+									${presenter.name}{if presenter_index != presenters.length-1},{/if}
 								{/if}
 							{/for}
                         </td>
@@ -25,9 +32,9 @@
                         <td>
                         	{for administrator in administrators}
                         		{if administrator.email}
-									<a href="mailto:${administrator.email}">${administrator.name}</a>
+									<a href="mailto:${administrator.email}">${administrator.name}</a>{if administrator_index != administrators.length-1},{/if}
 								{else}
-									${administrator.name}
+									${administrator.name}{if administrator_index != administrators.length-1},{/if}
 								{/if}
 							{/for}
                         </td>
@@ -105,11 +112,11 @@
             </div>
             
 			<div id="description">
-            	<h4>Description</h4>
+            	<h2>Description</h2>
 				${description}
             </div>
 			<div id="parts">
-                <h4>Module Parts</h4>
+				<h2>Booking Information</h2>
 				<span class="error" style="display:none"></span>
                 <form id="signup" action="#">
                 	{var anyOpenParts = false}
@@ -243,11 +250,15 @@
 						{/if}
 						
 					{else}
-						<p>To see more details you must login.<br />
-						   Non Oxford users cannot be given a username.</p>
 					
+						<h3>University Members</h3>
+						<div class="noAuth">
+							<p><a class="login" href="dologin.jsp" target="_top">Login for booking details</a></p>
+						</div>
+						<h3>Non-University Members</h3>
+						<p>Non Oxford users cannot be given a username.</p>
 						{if defined('contactEmail')}
-							<a href="mailto:${contactEmail}">Make an Enquiry</a>
+							<p><a href="mailto:${contactEmail}">Make an Enquiry</a></p>
 						{/if}
 					{/if}
 					
@@ -259,4 +270,5 @@
 					${url}
             	</div>
             {/if}
+        </div>
     
