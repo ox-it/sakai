@@ -36,6 +36,18 @@
 			<url>https://source.sakaiproject.org/maven2</url>
 		</repository>
 	</repositories>
+	
+	 <distributionManagement>
+        <repository>
+            <id>maven-repo.oucs</id>
+            <url>http://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>maven-repo.oucs</id>
+            <url>http://maven-repo.oucs.ox.ac.uk/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+	
 
 	<dependencies>
 		<dependency>

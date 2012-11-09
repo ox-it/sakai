@@ -146,7 +146,8 @@ public class DescriptiveTextType extends XcriElement{
 	 * @throws InvalidElementException
 	 */
 	private void processCDATA(CDATA cdata) throws InvalidElementException{
-		
+		this.setValue(cdata.getValue());
+/*		
 		//
 		// Use HTMLCleaner to clean the content
 		//
@@ -192,7 +193,7 @@ public class DescriptiveTextType extends XcriElement{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+*/
 	}
 	
 	private void processXhtml(Element element) throws InvalidElementException{
