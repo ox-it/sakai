@@ -140,7 +140,6 @@ var Signup = function(){
 					data.open = false;
 					data.hide = externalUser; // for externally visible courses
 					data.presenters = [];
-					data.description = Text.toHtml(data.description);
 					data.waiting = waitingList;
 					data.url = courseURL;
 					

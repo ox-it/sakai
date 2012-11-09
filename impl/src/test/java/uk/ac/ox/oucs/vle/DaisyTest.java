@@ -27,13 +27,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.sakaiproject.util.FormattedText;
 import org.xcri.Extension;
+import org.xcri.common.Description;
 import org.xcri.common.ExtensionManager;
 import org.xcri.common.OverrideManager;
 import org.xcri.core.Catalog;
@@ -97,8 +101,8 @@ public class DaisyTest extends TestCase {
 		
 		catalog = new Catalog();
 		builder = new SAXBuilder();
-		//InputStream inStream = getClass().getResourceAsStream("/XCRI_OXCAP_beta4.xml");
-		InputStream inStream = getClass().getResourceAsStream("/oxcap.php.xml");
+		InputStream inStream = getClass().getResourceAsStream("/XCRI_OXCAP_beta4.xml");
+		//InputStream inStream = getClass().getResourceAsStream("/oxcap.php.xml");
 		Document document = builder.build(inStream);
 		catalog.fromXml(document);
 	}
@@ -161,6 +165,16 @@ public class DaisyTest extends TestCase {
 				OxcapCourse myCourse = (OxcapCourse)course;
 				String visibility = myCourse.getVisibility().toString();
 				
+				String text;
+				Description description = course.getDescriptions()[0];
+				if (description.isXhtml()) {
+					assertTrue(description.getValue().contains("<"));
+					text = description.getValue();
+				} else {
+					assertFalse(description.getValue().contains("<"));
+					text = parse(description.getValue());
+				}
+				
 				String id = null;
 				String teachingcomponentId = null;
 				Collection<String> administrators = new HashSet<String>();
@@ -199,7 +213,7 @@ public class DaisyTest extends TestCase {
 				
 				assertNotNull(id);
 				
-				if (!"3C11AE0001".equals(id)) {
+				if (!"3C11AE0001".equals(id) && !"3C00D30042".equals(id)) {
 					continue;
 				}
 				
@@ -381,6 +395,37 @@ public class DaisyTest extends TestCase {
 			return false;
 		}
 		return Boolean.parseBoolean(data);
+	}
+	
+	private String parse(String data) {
+		
+		data = data.replaceAll("<", "&lt;");
+		data = data.replaceAll(">", "&gt;");
+		data = FormattedText.convertPlaintextToFormattedText(data);
+		
+		Pattern pattern = Pattern.compile("[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}", Pattern.CASE_INSENSITIVE);
+		Matcher matcher = pattern.matcher(data);
+		
+		StringBuffer sb = new StringBuffer(data.length());
+		while (matcher.find()) {
+		    String text = matcher.group(0);
+		    matcher.appendReplacement(sb, "<a class=\"email\" href=\"mailto:"+text+"\">"+text+"</a>" );
+		}
+		matcher.appendTail(sb);
+		
+		pattern = Pattern.compile("(https?|ftps?):\\/\\/[a-z_0-9\\\\\\-]+(\\.([\\w#!:?+=&%@!\\-\\/])+)+", Pattern.CASE_INSENSITIVE);
+		matcher = pattern.matcher(sb.toString());
+		
+		sb = new StringBuffer(data.length());
+		while (matcher.find()) {
+		    String text = matcher.group(0);
+		    matcher.appendReplacement(sb, "<a class=\"url\" href=\""+text+"\" target=\"_blank\">"+text+"</a>" );
+		}
+		matcher.appendTail(sb);
+		
+		return sb.toString();
+		
+		
 	}
 	
 }

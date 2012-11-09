@@ -113,6 +113,7 @@
 		<property name="sessions" type="string" length="4000"/>
 		<property name="location" type="string" length="4000"/>
 		<property name="applyTo" type="string" length="255"/>
+		<property name="memberApplyTo" type="string" length="255"/>
 
 		<set name="signups" lazy="true" table="course_component_signup">
 			<key column="component" not-null="true" />

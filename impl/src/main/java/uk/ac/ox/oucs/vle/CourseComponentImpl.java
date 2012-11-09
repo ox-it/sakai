@@ -122,4 +122,12 @@ public class CourseComponentImpl implements CourseComponent {
 		return dao.isBookable();
 	}
 
+	public String getApplyTo() {
+		return dao.getApplyTo();
+	}
+
+	public String getMemberApplyTo() {
+		return dao.getMemberApplyTo();
+	}
+
 }

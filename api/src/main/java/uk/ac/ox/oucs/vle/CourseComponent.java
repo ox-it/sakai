@@ -35,6 +35,10 @@ public interface CourseComponent {
 	public String getSessions();
 	
 	public boolean getBookable();
+	
+	public String getApplyTo();
+	
+	public String getMemberApplyTo();
 
 	/**
 	 * The ID of the component set that this component belongs to.

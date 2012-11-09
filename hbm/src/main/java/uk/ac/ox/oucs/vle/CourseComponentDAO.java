@@ -37,6 +37,7 @@ public class CourseComponentDAO  implements java.io.Serializable {
     private String sessions;
     private String location;
     private String applyTo;
+    private String memberApplyTo;
     private Set<CourseSignupDAO> signups = new HashSet<CourseSignupDAO>(0);
     private Set<CourseGroupDAO> groups = new HashSet<CourseGroupDAO>(0);
 
@@ -232,6 +233,15 @@ public class CourseComponentDAO  implements java.io.Serializable {
 
 	public void setApplyTo(String applyTo) {
 		this.applyTo = applyTo;
+	}
+	
+	
+	public String getMemberApplyTo() {
+		return memberApplyTo;
+	}
+
+	public void setMemberApplyTo(String memberApplyTo) {
+		this.memberApplyTo = memberApplyTo;
 	}
 
 }

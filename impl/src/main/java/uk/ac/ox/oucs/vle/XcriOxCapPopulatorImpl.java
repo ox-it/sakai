@@ -13,6 +13,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,6 +35,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.FormattedText;
 import org.xcri.Extension;
+import org.xcri.common.Description;
 import org.xcri.common.ExtensionManager;
 import org.xcri.common.OverrideManager;
 import org.xcri.core.Catalog;
@@ -57,6 +60,7 @@ import uk.ac.ox.oucs.vle.xcri.daisy.SupervisorApproval;
 import uk.ac.ox.oucs.vle.xcri.daisy.TermCode;
 import uk.ac.ox.oucs.vle.xcri.daisy.TermLabel;
 import uk.ac.ox.oucs.vle.xcri.daisy.WebAuthCode;
+import uk.ac.ox.oucs.vle.xcri.oxcap.MemberApplyTo;
 import uk.ac.ox.oucs.vle.xcri.oxcap.OxcapCourse;
 import uk.ac.ox.oucs.vle.xcri.oxcap.OxcapPresentation;
 import uk.ac.ox.oucs.vle.xcri.oxcap.Subject;
@@ -185,6 +189,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			ExtensionManager.registerExtension(new EmployeeName());
 			ExtensionManager.registerExtension(new EmployeeEmail());
 			ExtensionManager.registerExtension(new DaisyIdentifier());
+			ExtensionManager.registerExtension(new MemberApplyTo());
 			ExtensionManager.registerExtension(new Subject());
 			
 			OverrideManager.registerOverride(Course.class, new OxcapCourse());
@@ -319,7 +324,15 @@ public class XcriOxCapPopulatorImpl implements Populator {
 					throws IOException {
 		
 		String title = course.getTitles()[0].getValue();
-		String description = parseToPlainText(course.getDescriptions()[0].getValue());
+		
+		String description;
+		Description xDescription = course.getDescriptions()[0];
+		if (!xDescription.isXhtml()) {
+			description = parse(xDescription.getValue());
+		} else {
+			description = xDescription.getValue();
+		}
+		
 		
 		OxcapCourse oxCourse = (OxcapCourse)course;
 		String visibility = oxCourse.getVisibility().toString();
@@ -483,6 +496,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		String sessions = null;
 		String termCode = null;
 		String sessionDates = null;
+		String memberApplyTo = null;
 		
 		for (Extension extension : presentation.getExtensions()) {
 			
@@ -510,6 +524,11 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			
 			if (extension instanceof EmployeeEmail) {
 				teacherEmail = extension.getValue();
+				continue;
+			}
+			
+			if (extension instanceof MemberApplyTo) {
+				memberApplyTo = extension.getValue();
 				continue;
 			}
 			
@@ -550,7 +569,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				bookable, capacity, 
 				termCode,  teachingcomponentId, sessionDates,
 				teacherId, teacherName, teacherEmail,
-				slot, sessions, location, presentation.getApplyTo().getValue(),
+				slot, sessions, location, presentation.getApplyTo().getValue(), memberApplyTo,
 				(Set<CourseGroupDAO>) courseGroups)) {
 			
 			if (updateComponent(id, title, subject, 
@@ -558,7 +577,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 					bookable, capacity, 
 					termCode,  teachingcomponentId, sessionDates,
 					teacherId, teacherName, teacherEmail,
-					slot, sessions, location, presentation.getApplyTo().getValue(),
+					slot, sessions, location, presentation.getApplyTo().getValue(), memberApplyTo,
 					(Set<CourseGroupDAO>) courseGroups)) {
 				data.incrComponentCreated();
 			} else {
@@ -790,7 +809,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			boolean bookable, int capacity, 
 			String termCode,  String teachingComponentId, String termName,
 			String teacherId, String teacherName, String teacherEmail,
-			String sessionDates, String sessions, String location, String applyTo,
+			String sessionDates, String sessions, String location, String applyTo, String memberApplyTo,
 			Set<CourseGroupDAO> groups) {
 		
 		if (log.isDebugEnabled()) {
@@ -800,6 +819,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				termCode+":"+teachingComponentId+":"+termName+":"+
 				teacherId+":"+teacherName+":"+teacherEmail+":"+
 				sessionDates+":"+sessions+":"+location+":"+
+				applyTo+":"+memberApplyTo+":"+
 				groups.size()+"]");
 		}
 		
@@ -894,7 +914,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			boolean bookable, int capacity, 
 			String termCode,  String teachingComponentId, String termName,
 			String teacherId, String teacherName, String teacherEmail,
-			String sessionDates, String sessions, String location, String applyTo,
+			String sessionDates, String sessions, String location, String applyTo, String memberApplyTo,
 			Set<CourseGroupDAO> groups) throws IOException {
 		
 		boolean created = false;
@@ -934,6 +954,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			componentDao.setSessions(sessions);
 			componentDao.setLocation(location);
 			componentDao.setApplyTo(applyTo);
+			componentDao.setMemberApplyTo(memberApplyTo);
 			componentDao.setGroups(groups);
 			dao.save(componentDao);
 		}
@@ -1053,10 +1074,37 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		return Boolean.parseBoolean(data);
 	}
 	
-	private String parseToPlainText(String data) {
+	/**
+	 * 
+	 * @param data
+	 * @return
+	 */
+	private String parse(String data) {
 		
-		data = data.replaceAll("\\n", "<br /><br />");
-		return FormattedText.convertFormattedTextToPlaintext(data);
+		data = data.replaceAll("<", "&lt;");
+		data = data.replaceAll(">", "&gt;");
+		data = FormattedText.convertPlaintextToFormattedText(data);
+		
+		Pattern pattern = Pattern.compile("[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}", Pattern.CASE_INSENSITIVE);
+		Matcher matcher = pattern.matcher(data);
+		
+		StringBuffer sb = new StringBuffer(data.length());
+		while (matcher.find()) {
+		    String text = matcher.group(0);
+		    matcher.appendReplacement(sb, "<a class=\"email\" href=\"mailto:"+text+"\">"+text+"</a>" );
+		}
+		matcher.appendTail(sb);
+		
+		pattern = Pattern.compile("(https?|ftps?):\\/\\/[a-z_0-9\\\\\\-]+(\\.([\\w#!:?+=&%@!\\-\\/])+)+", Pattern.CASE_INSENSITIVE);
+		matcher = pattern.matcher(sb.toString());
+		
+		sb = new StringBuffer(data.length());
+		while (matcher.find()) {
+		    String text = matcher.group(0);
+		    matcher.appendReplacement(sb, "<a class=\"url\" href=\""+text+"\" target=\"_blank\">"+text+"</a>" );
+		}
+		matcher.appendTail(sb);
+		return sb.toString();
 	}
 	
 	/**
