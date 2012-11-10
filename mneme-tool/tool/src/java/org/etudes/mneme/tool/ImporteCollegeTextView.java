@@ -102,7 +102,7 @@ public class ImporteCollegeTextView extends ControllerImpl
 	{
 		super.init();
 		this.instructionsUrl = StringUtil.trimToNull(this.serverConfigurationService
-				.getString("questionPasteInstructionUrl@org.etudes.mneme.tool.ImportText"));
+				.getString("questionPasteInstructionUrl@org.etudes.mneme.tool.ImporteCollegeTextView"));
 
 		M_log.info("init()");
 	}
