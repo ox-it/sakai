@@ -159,6 +159,8 @@ public interface CourseSignupService {
 	
 	public Department findPracDepartment(String primaryOrgUnit);
 	
+	public boolean isDepartmentCode(String code);
+	
 	/**
 	 * This is what the service should use when determining the current time.
 	 * This is to support testing the data against different times.

@@ -1113,6 +1113,16 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		return new DepartmentImpl(department);
 	}
+	
+	/**
+	 * 
+	 */
+	public boolean isDepartmentCode(String code) {
+		if (null == dao.findDepartmentByCode(code)) {
+			return false;
+		}
+		return true;
+	}
 
 	public List<CourseGroup> search(String search, Range range, boolean external) {
 		String words[] = search.split(" ");

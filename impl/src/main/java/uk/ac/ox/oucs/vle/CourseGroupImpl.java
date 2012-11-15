@@ -81,7 +81,10 @@ public class CourseGroupImpl implements CourseGroup {
 				if (null != c1.getStarts() && null != c2.getStarts()) {
 					return c1.getStarts().compareTo(c2.getStarts());
 				}
-				return c1.getCloses().compareTo(c2.getCloses());
+				if (null != c1.getCloses() && null != c2.getCloses()) {
+					return c1.getCloses().compareTo(c2.getCloses());
+				}
+				return c1.getId().compareTo(c2.getId());
 			}
 		});
 		

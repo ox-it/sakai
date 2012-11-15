@@ -1,8 +1,12 @@
 package uk.ac.ox.oucs.vle;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -31,7 +35,6 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.FormattedText;
 import org.xcri.Extension;
@@ -46,10 +49,9 @@ import org.xcri.exceptions.InvalidElementException;
 
 import uk.ac.ox.oucs.vle.xcri.daisy.Bookable;
 import uk.ac.ox.oucs.vle.xcri.daisy.CourseSubUnit;
-import uk.ac.ox.oucs.vle.xcri.daisy.DaisyIdentifier;
+import uk.ac.ox.oucs.vle.xcri.daisy.Identifier;
 import uk.ac.ox.oucs.vle.xcri.daisy.DepartmentThirdLevelApproval;
 import uk.ac.ox.oucs.vle.xcri.daisy.DepartmentalSubUnit;
-import uk.ac.ox.oucs.vle.xcri.daisy.Division;
 import uk.ac.ox.oucs.vle.xcri.daisy.DivisionWideEmail;
 import uk.ac.ox.oucs.vle.xcri.daisy.EmployeeEmail;
 import uk.ac.ox.oucs.vle.xcri.daisy.EmployeeName;
@@ -63,6 +65,7 @@ import uk.ac.ox.oucs.vle.xcri.daisy.WebAuthCode;
 import uk.ac.ox.oucs.vle.xcri.oxcap.MemberApplyTo;
 import uk.ac.ox.oucs.vle.xcri.oxcap.OxcapCourse;
 import uk.ac.ox.oucs.vle.xcri.oxcap.OxcapPresentation;
+import uk.ac.ox.oucs.vle.xcri.oxcap.Session;
 import uk.ac.ox.oucs.vle.xcri.oxcap.Subject;
 
 public class XcriOxCapPopulatorImpl implements Populator {
@@ -110,13 +113,31 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	
 	private static final Log log = LogFactory.getLog(XcriOxCapPopulatorImpl.class);
 
-	XcriOxcapPopulatorInstanceData data;
-	
 	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM yyyy  hh:mm");
 	
-	private String SUBJECTTYPE_RDF = "ox-rdf:notation";
-	private String SUBJECTTYPE_JACS = "ox-jacs:notation";
-	private String SUBJECTTYPE_RM = "ox-rm:notation";
+	static {
+		ExtensionManager.registerExtension(new WebAuthCode());
+		ExtensionManager.registerExtension(new DepartmentalSubUnit());
+		ExtensionManager.registerExtension(new DepartmentThirdLevelApproval());
+		ExtensionManager.registerExtension(new DivisionWideEmail());
+		ExtensionManager.registerExtension(new CourseSubUnit());
+		ExtensionManager.registerExtension(new ModuleApproval());
+		ExtensionManager.registerExtension(new SupervisorApproval());
+		ExtensionManager.registerExtension(new OtherDepartment());
+		ExtensionManager.registerExtension(new Sessions());
+		ExtensionManager.registerExtension(new Bookable());
+		ExtensionManager.registerExtension(new TermCode());
+		ExtensionManager.registerExtension(new TermLabel());
+		ExtensionManager.registerExtension(new EmployeeName());
+		ExtensionManager.registerExtension(new EmployeeEmail());
+		ExtensionManager.registerExtension(new Identifier());
+		ExtensionManager.registerExtension(new MemberApplyTo());
+		ExtensionManager.registerExtension(new Subject());
+		ExtensionManager.registerExtension(new Session());
+
+		OverrideManager.registerOverride(Course.class, new OxcapCourse());
+		OverrideManager.registerOverride(Presentation.class, new OxcapPresentation());
+	}
 	
 	/**
 	 * 
@@ -134,7 +155,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	                new AuthScope(targetHost.getHostName(), targetHost.getPort()),
 	                new UsernamePasswordCredentials(context.getUser(), context.getPassword()));
 
-            HttpGet httpget = new HttpGet(xcri.getPath());
+            HttpGet httpget = new HttpGet(xcri.toURI());
 
             HttpResponse response = httpclient.execute(targetHost, httpget);
             HttpEntity entity = response.getEntity();
@@ -143,6 +164,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
             	throw new IllegalStateException(
             			"Invalid response ["+response.getStatusLine().getStatusCode()+"]");
             }
+            
             process(context.getName(), entity.getContent());
 
 		} catch (MalformedURLException e) {
@@ -154,6 +176,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		} catch (IOException e) {
 			log.warn("IOException ["+context.getURI()+"]", e);
 			
+		} catch (URISyntaxException e) {
+			log.warn("URISyntaxException ["+context.getURI()+"]", e);
 		} finally {
             // When HttpClient instance is no longer needed,
             // shut down the connection manager to ensure
@@ -172,46 +196,24 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		switchUser();
 		
 		try {
-			
-			ExtensionManager.registerExtension(new WebAuthCode());
-			ExtensionManager.registerExtension(new DepartmentalSubUnit());
-			ExtensionManager.registerExtension(new DepartmentThirdLevelApproval());
-			ExtensionManager.registerExtension(new Division());
-			ExtensionManager.registerExtension(new DivisionWideEmail());
-			ExtensionManager.registerExtension(new CourseSubUnit());
-			ExtensionManager.registerExtension(new ModuleApproval());
-			ExtensionManager.registerExtension(new SupervisorApproval());
-			ExtensionManager.registerExtension(new OtherDepartment());
-			ExtensionManager.registerExtension(new Sessions());
-			ExtensionManager.registerExtension(new Bookable());
-			ExtensionManager.registerExtension(new TermCode());
-			ExtensionManager.registerExtension(new TermLabel());
-			ExtensionManager.registerExtension(new EmployeeName());
-			ExtensionManager.registerExtension(new EmployeeEmail());
-			ExtensionManager.registerExtension(new DaisyIdentifier());
-			ExtensionManager.registerExtension(new MemberApplyTo());
-			ExtensionManager.registerExtension(new Subject());
-			
-			OverrideManager.registerOverride(Course.class, new OxcapCourse());
-			OverrideManager.registerOverride(Presentation.class, new OxcapPresentation());
-			
 			Catalog catalog = new Catalog();
 			SAXBuilder builder = new SAXBuilder();
 			Document document = builder.build(inputStream);
 			catalog.fromXml(document);
 			
-			data = new XcriOxcapPopulatorInstanceData(contentHostingService, getSiteId(), name, simpleDateFormat.format(catalog.getGenerated()));
+			XcriOxcapPopulatorInstanceData data = 
+					new XcriOxcapPopulatorInstanceData(contentHostingService, getSiteId(), name, simpleDateFormat.format(catalog.getGenerated()));
 			
 			Provider[] providers = catalog.getProviders();
 		
 			// First pass to create course groups
 			for (Provider provider : providers) {
-				provider(provider, true);		
+				provider(provider, data, true);		
 			}
 		
 			// Second pass to create course components
 			for (Provider provider : providers) {
-				provider(provider, false);
+				provider(provider, data, false);
 			}
 			
 			data.finalise();
@@ -233,18 +235,31 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @param createGroups
 	 * @throws IOException 
 	 */
-	private void provider(Provider provider, boolean createGroups) 
+	private void provider(Provider provider, XcriOxcapPopulatorInstanceData data, boolean createGroups) 
 			throws IOException {
 		
 		String departmentName = provider.getTitles()[0].getValue();
-		String departmentCode = provider.getIdentifiers()[0].getValue();
+		String departmentCode = null;
 		String divisionEmail = null;
 		boolean departmentApproval = false;
 		String departmentApprover = null;
+		String divisionCode = null;
 		Collection<String> divisionSuperUsers = new HashSet<String>();
 		Map<String, String> subunits = new HashMap<String, String>();
 		
 		for (Extension extension : provider.getExtensions()) {
+			
+			if (extension instanceof Identifier) {
+				Identifier identifier = (Identifier) extension;
+				if (typeProviderId(identifier.getType())) {
+					departmentCode = identifier.getValue();
+					continue;
+				}
+				if (typeProviderDivision(identifier.getType())) {
+					divisionCode = identifier.getValue();
+					continue;
+				}
+			}
 			
 			if (extension instanceof DivisionWideEmail) {
 				divisionEmail = extension.getValue();
@@ -281,6 +296,12 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		Collection<String> superusers = getUsers(divisionSuperUsers);
 		String approver = getUser(departmentApprover);
 		
+		if (null == departmentCode) {
+			XcriOxcapPopulatorInstanceData.logMe(
+					"Log Failure Provider ["+departmentCode+":"+departmentName+"] No Provider Identifier");
+			return;
+		}
+		
 		if (createGroups) {
 			
 			data.incrDepartmentSeen();
@@ -300,10 +321,35 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				}
 			}
 		}
-		
+			
 		for (Course course : provider.getCourses()) {
-			course(course, departmentCode, departmentName, divisionEmail, superusers, !createGroups);
+			course(course, departmentCode, departmentName, divisionEmail, superusers, data, !createGroups);
 		}
+	}
+	
+	/**
+	 * 
+	 * @param type
+	 * @return
+	 */
+	protected static boolean typeProviderId(String type) {
+		if ("ns:department".equals(type) ||
+			"ns:twoThree".equals(type)) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 
+	 * @param type
+	 * @return
+	 */
+	protected static boolean typeProviderDivision(String type) {
+		if ("ns:division".equals(type)) {
+			return true;
+		}
+		return false;
 	}
 		
 	/**
@@ -320,6 +366,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	private void course(Course course, 
 			String departmentCode, String departmentName, 
 			String divisionEmail, Collection<String> divisionSuperUsers,
+			XcriOxcapPopulatorInstanceData data, 
 			boolean createComponents) 
 					throws IOException {
 		
@@ -339,6 +386,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		
 		Collection<Subject> researchCategories = new HashSet<Subject>();
 		Collection<Subject> skillsCategories = new HashSet<Subject>();
+		Collection<Subject> jacsCategories = new HashSet<Subject>();
 		
 		String id = null;
 		String teachingcomponentId = null;
@@ -351,9 +399,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		
 		for (Extension extension : course.getExtensions()) {
 			
-			if (extension instanceof DaisyIdentifier) {
-				DaisyIdentifier identifier = (DaisyIdentifier) extension;
-				if ("assessmentUnitCode".equals(identifier.getType())) {
+			if (extension instanceof Identifier) {
+				Identifier identifier = (Identifier) extension;
+				if (typeCourseId(identifier.getType())) {
 					id = identifier.getValue();
 				}
 				if ("teachingComponentId".equals(identifier.getType())) {
@@ -395,11 +443,14 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			if (extension instanceof Subject) {
 				Subject subject = (Subject) extension;
 				
-				if (SUBJECTTYPE_RDF.equals(subject.getType())) {
+				if (subject.isRDFCategory()) {
 					skillsCategories.add(subject);
 				}
-				if (SUBJECTTYPE_RM.equals(subject.getType())) {
+				if (subject.isRMCategory()) {
 					researchCategories.add(subject);
+				}
+				if (subject.isJACSCategory()) {
+					jacsCategories.add(subject);
 				}
 				continue;
 			}
@@ -407,12 +458,17 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		
 		Collection<String> administrators = getUsers(administratorCodes);
 		
+		if (null == id) {
+			XcriOxcapPopulatorInstanceData.logMe(
+					"Log Failure Course ["+id+":"+title+"] No Course Identifier");
+			return;
+		}
+			
 		if (createComponents) {
 			
 			Presentation[] presentations = course.getPresentations();
 			for (int i=0; i<presentations.length; i++) {
-				presentation(presentations[i], 
-						id, teachingcomponentId);
+				presentation(presentations[i], id, teachingcomponentId, data);
 			}
 			
 		} else {
@@ -422,19 +478,23 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				data.incrGroupSeen();
 				data.setLastGroup(id);
 			
-				if (validGroup(id, title, departmentCode, subunitCode, description,
+				if (validCourse(id, title, departmentCode, subunitCode, description,
 						departmentName, subunitName, visibility, 
 						supervisorApproval, administratorApproval,
 						divisionEmail, (Set<String>) administrators, 
 						(Set<String>) divisionSuperUsers, (Set<String>) otherDepartments,
-						(Set<Subject>) researchCategories, (Set<Subject>) skillsCategories)) {
+						(Set<Subject>) researchCategories, (Set<Subject>) skillsCategories, (Set<Subject>) jacsCategories)) {
 			
-					if (updateGroup(id, title, departmentCode, subunitCode, description,
+					if (updateCourse(id, title, departmentCode, subunitCode, description,
 							departmentName, subunitName, visibility, 
 							supervisorApproval, administratorApproval,
-							divisionEmail, (Set<String>) administrators, 
-							(Set<String>) divisionSuperUsers, (Set<String>) otherDepartments,
-							(Set<Subject>) researchCategories, (Set<Subject>) skillsCategories)) {
+							divisionEmail, data.getFeed(),
+							(Set<String>) administrators, 
+							(Set<String>) divisionSuperUsers, 
+							(Set<String>) otherDepartments,
+							(Set<Subject>) researchCategories, 
+							(Set<Subject>) skillsCategories, 
+							(Set<Subject>) jacsCategories)) {
 						data.incrGroupCreated();
 					} else {
 						data.incrGroupUpdated();
@@ -447,37 +507,71 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	
 	/**
 	 * 
+	 * @param type
+	 * @return
+	 */
+	protected static boolean typeCourseId(String type) {
+		if ("ns:daisy-course".equals(type) ||
+			"ns:itlp-course".equals(type) ||
+			"ns:careers-course".equals(type) ||
+			"ns:language-centre-course".equals(type) ||
+			"ns:medsci-course".equals(type)) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 
 	 * @param presentation
 	 * @param teachingcomponentId
 	 * @param groups
 	 * @throws IOException 
 	 */
 	private void presentation(Presentation presentation, 
-			String assessmentunitCode, String teachingcomponentId) 
+			String assessmentunitCode, String teachingcomponentId, XcriOxcapPopulatorInstanceData data) 
 					throws IOException {
 		
-		String subject = presentation.getTitles()[0].getValue();
-		String title = presentation.getAttendanceMode().getValue();
-		String slot = presentation.getAttendancePattern().getValue();
-		
+		String title = presentation.getTitles()[0].getValue();
+		String subject = null;
+		String slot = null;
+		String applyTo = null;
 		Date startDate = null;
+		String startText = null;
 		Date endDate = null;
+		String endText = null;
 		Date openDate = null;
+		String openText = null;
 		Date closeDate = null;
+		String closeText = null;
 		int capacity = 0;
 		String location = null;
 		
+		if (null != presentation.getAttendanceMode()) {
+			subject = presentation.getAttendanceMode().getValue();
+		}
+		if (null != presentation.getAttendancePattern()) {
+			slot = presentation.getAttendancePattern().getValue();
+		}
+		if (null != presentation.getApplyTo()) {
+			applyTo = presentation.getApplyTo().getValue();
+		}
+		
 		if (null != presentation.getStart()) {
 			startDate = presentation.getStart().getDtf();
+			startText = presentation.getStart().getValue();
 		}
 		if (null != presentation.getEnd()) {
 			endDate = presentation.getEnd().getDtf();
+			endText = presentation.getEnd().getValue();
 		}
 		if (null != presentation.getApplyFrom()) {
 			openDate = presentation.getApplyFrom().getDtf();
+			openText = presentation.getApplyFrom().getValue();
 		}
 		if (null != presentation.getApplyUntil()) {
 			closeDate = presentation.getApplyUntil().getDtf();
+			closeText = presentation.getApplyUntil().getValue();
 		}
 		if (null != presentation.getPlaces() &&
 			!presentation.getPlaces().getValue().isEmpty()) {
@@ -493,20 +587,21 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		String teacherId = null;
 		String teacherName = null;
 		String teacherEmail = null;
-		String sessions = null;
+		String sessionCount = null;
 		String termCode = null;
 		String sessionDates = null;
 		String memberApplyTo = null;
+		Collection<CourseComponentSessionDAO> sessions = new HashSet<CourseComponentSessionDAO>();
 		
 		for (Extension extension : presentation.getExtensions()) {
 			
-			if (extension instanceof DaisyIdentifier) {
-				DaisyIdentifier identifier = (DaisyIdentifier) extension;
+			if (extension instanceof Identifier) {
+				Identifier identifier = (Identifier) extension;
 				if ("presentationURI".equals(identifier.getType())) {
 					uri = identifier.getValue();
 					continue;
 				}
-				if ("teachingInstanceId".equals(identifier.getType())) {
+				if (typePresentationId(identifier.getType())) {
 					id = identifier.getValue();
 					continue;
 				}
@@ -533,7 +628,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			}
 			
 			if (extension instanceof Sessions) {
-				sessions = extension.getValue();
+				sessionCount = extension.getValue();
 				continue;
 			}
 			
@@ -554,6 +649,18 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				}
 				continue;
 			}
+			
+			if (extension instanceof Session) {
+				Session session = (Session)extension;
+				if (session.getIdentifiers().length > 0) {
+					CourseComponentSessionDAO componentSession = 
+							new CourseComponentSessionDAO(id, session.getIdentifiers()[0].getValue(),
+									session.getStart().getDtf(), session.getStart().getValue(), 
+									session.getEnd().getDtf(), session.getEnd().getValue());
+					sessions.add(componentSession);
+					continue;
+				}
+			}
 		
 		}
 		
@@ -565,20 +672,20 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		data.incrComponentSeen();
 		
 		if (validComponent(id, title, subject, 
-				openDate, closeDate, startDate, endDate,
+				openDate, openText, closeDate, closeText, startDate, startText, endDate, endText,
 				bookable, capacity, 
 				termCode,  teachingcomponentId, sessionDates,
 				teacherId, teacherName, teacherEmail,
-				slot, sessions, location, presentation.getApplyTo().getValue(), memberApplyTo,
-				(Set<CourseGroupDAO>) courseGroups)) {
+				slot, sessionCount, location, applyTo, memberApplyTo,
+				(Set<CourseComponentSessionDAO>) sessions, (Set<CourseGroupDAO>) courseGroups)) {
 			
 			if (updateComponent(id, title, subject, 
-					openDate, closeDate, startDate, endDate,
+					openDate, openText, closeDate, closeText, startDate, startText, endDate, endText,
 					bookable, capacity, 
 					termCode,  teachingcomponentId, sessionDates,
 					teacherId, teacherName, teacherEmail,
-					slot, sessions, location, presentation.getApplyTo().getValue(), memberApplyTo,
-					(Set<CourseGroupDAO>) courseGroups)) {
+					slot, sessionCount, location, applyTo, memberApplyTo,
+					(Set<CourseComponentSessionDAO>) sessions, (Set<CourseGroupDAO>) courseGroups)) {
 				data.incrComponentCreated();
 			} else {
 				data.incrComponentUpdated();
@@ -586,7 +693,22 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 	}
 	
-
+	/**
+	 * 
+	 * @param type
+	 * @return
+	 */
+	protected static boolean typePresentationId(String type) {
+		if ("ns:daisy-presentation".equals(type) ||
+			"ns:careers-presentation".equals(type) ||
+			"ns:itlp-presentation".equals(type) ||
+			"ns:language-centre-presentation".equals(type) ||
+			"ns:medsci-presentation".equals(type)) {
+			return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * 
 	 * @param code
@@ -597,10 +719,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 */
 	private boolean updateDepartment(String code, String name, boolean approve, Set<String> approvers) {
 		
-		if (log.isDebugEnabled()) {
-			System.out.println("XcriPopulatorImpl.updateDepartment ["+code+":"+name+":"+
+		log.debug("XcriPopulatorImpl.updateDepartment ["+code+":"+name+":"+
 				approve+":"+approvers.iterator().next()+"]");
-		}
 		
 		boolean created = false;
 		
@@ -629,10 +749,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 */
 	private boolean updateSubUnit(String code, String name, String departmentCode) {
 		
-		if (log.isDebugEnabled()) {
-			System.out.println("XcriPopulatorImpl.updateSubUnit ["+
+		log.debug("XcriPopulatorImpl.updateSubUnit ["+
 				code+":"+name+":"+departmentCode+"]");
-		}
 		
 		boolean created = false;
 		
@@ -656,35 +774,33 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @param administrators
 	 * @return
 	 */
-	private boolean validGroup(String code, String title, String departmentCode, String subunitCode, 
+	protected static boolean validCourse(String code, String title, String departmentCode, String subunitCode, 
 			String description, String departmentName, String subunitName, 
 			String visibility, boolean supervisorApproval, boolean administratorApproval,
 			String divisionEmail, 
 			Set<String> administrators, Set<String> superusers, Set<String> otherDepartments,
-			Set<Subject> researchCategories, Set<Subject> skillsCategories) {
+			Set<Subject> researchCategories, Set<Subject> skillsCategories, Set<Subject> jacsCategories) {
 		
-		if (log.isDebugEnabled()) {
-			System.out.println("XcriPopulatorImpl.validGroup ["+code+":"+title+":"+departmentCode+":"+subunitCode+":"+ 
+		log.debug("XcriPopulatorImpl.validCourse ["+code+":"+title+":"+departmentCode+":"+subunitCode+":"+ 
 					description+":"+departmentName+":"+subunitName+":"+ 
 					visibility+":"+supervisorApproval+":"+administratorApproval+":"+
 					divisionEmail+":"+ 
 					administrators.size()+":"+superusers.size()+":"+otherDepartments.size()+":"+
 					researchCategories.size()+":"+skillsCategories.size()+"]");
-		}
 		
 		int i=0;
 		
 		try {
 			if (null == code) {
-				data.logMe("Log Failure Assessment Unit ["+code+"] No AssessmentUnit code");
+				XcriOxcapPopulatorInstanceData.logMe("Log Failure Assessment Unit ["+code+"] No AssessmentUnit code");
 				i++;
 			}
-		
+			/*
 			if (administrators.isEmpty()) {
-				data.logMe("Log Failure Assessment Unit ["+code+"] No Group Administrators");
+				XcriOxcapPopulatorInstanceData.logMe("Log Failure Assessment Unit ["+code+"] No Group Administrators");
 				i++;
 			}
-		
+			*/
 			if (i == 0) {
 				return true;
 			}
@@ -714,12 +830,16 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @return
 	 * @throws IOException 
 	 */
-	private boolean updateGroup(String id, String title, String departmentCode, String subunitCode, 
+	private boolean updateCourse(String id, String title, String departmentCode, String subunitCode, 
 			String description, String departmentName, String subunitName, 
 			String visibility, boolean supervisorApproval, boolean administratorApproval,
-			String divisionEmail, 
-			Set<String> administrators, Set<String> superusers, Set<String> otherDepartments,
-			Set<Subject> researchCategories, Set<Subject> skillsCategories) throws IOException {
+			String divisionEmail, String feed,
+			Set<String> administrators, 
+			Set<String> superusers, 
+			Set<String> otherDepartments,
+			Set<Subject> researchCategories, 
+			Set<Subject> skillsCategories, 
+			Set<Subject> jacsCategories) throws IOException {
 		
 		boolean created = false;
 		
@@ -738,6 +858,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			groupDao.setDepartmentName(departmentName);
 			groupDao.setSubunitName(subunitName);
 			groupDao.setVisibility(visibility);
+			groupDao.setSource(feed);
 			groupDao.setSupervisorApproval(supervisorApproval);
 			groupDao.setAdministratorApproval(administratorApproval);
 			groupDao.setContactEmail(divisionEmail);
@@ -762,6 +883,10 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				categories.add(new CourseCategoryDAO(
 						id, CourseGroup.Category_Type.RDF, subject.getIdentifier(), subject.getValue()));
 			}
+			for (Subject subject : jacsCategories) {
+				categories.add(new CourseCategoryDAO(
+						id, CourseGroup.Category_Type.JACS, subject.getIdentifier(), subject.getValue()));
+			}
 			
 			//remove unwanted categories
 			// done this way to avoid java.util.ConcurrentModificationException 
@@ -783,9 +908,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 		
 		if (created) {
-			data.logMs("Log Success Course Group created ["+id+":"+title+"]");
+			XcriOxcapPopulatorInstanceData.logMs("Log Success Course Group created ["+id+":"+title+"]");
 		} else {
-			data.logMs("Log Success Course Group updated ["+id+":"+title+"]");
+			XcriOxcapPopulatorInstanceData.logMs("Log Success Course Group updated ["+id+":"+title+"]");
 		}
 		return created;
 	}
@@ -804,73 +929,71 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @param groups
 	 * @return
 	 */
-	private boolean validComponent(String id, String title, String subject, 
-			Date openDate, Date closeDate, Date startDate, Date endDate,
+	protected static boolean validComponent(String id, String title, String subject, 
+			Date openDate, String openText, Date closeDate, String closeText, Date startDate, String startText, Date endDate, String endText, 
 			boolean bookable, int capacity, 
 			String termCode,  String teachingComponentId, String termName,
 			String teacherId, String teacherName, String teacherEmail,
-			String sessionDates, String sessions, String location, String applyTo, String memberApplyTo,
-			Set<CourseGroupDAO> groups) {
+			String sessionDates, String sessionCount, String location, String applyTo, String memberApplyTo,
+			Set<CourseComponentSessionDAO> sessions, Set<CourseGroupDAO> groups) {
 		
-		if (log.isDebugEnabled()) {
-			System.out.println("XcriPopulatorImpl.validComponent ["+id+":"+title+":"+subject+":"+
-				viewDate(openDate)+":"+viewDate(closeDate)+":"+viewDate(startDate)+":"+viewDate(endDate)+":"+
+		log.debug("XcriPopulatorImpl.validComponent ["+id+":"+title+":"+subject+":"+
+				viewDate(openDate, openText)+":"+viewDate(closeDate, closeText)+":"+viewDate(startDate, startText)+":"+viewDate(endDate, endText)+":"+
 				bookable+":"+capacity+":"+
 				termCode+":"+teachingComponentId+":"+termName+":"+
 				teacherId+":"+teacherName+":"+teacherEmail+":"+
 				sessionDates+":"+sessions+":"+location+":"+
 				applyTo+":"+memberApplyTo+":"+
 				groups.size()+"]");
-		}
 		
 		int i=0;
 		
 		try {
-			
+			/*
 			if (null == openDate) { 
-				data.logMe("Log Failure Teaching Instance ["+id+"] No open date set");
+				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] No open date set");
 				i++;
 			}
 		
 			if (null == closeDate) {
-				data.logMe("Log Failure Teaching Instance ["+id+"] No close date set");
+				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] No close date set");
 				i++;
 			}
-		
+			*/
 			if (null != openDate && null != closeDate) {
 				if (openDate.after(closeDate)){
-					data.logMe("Log Failure Teaching Instance ["+id+"] Open date is after close date");
+					XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] Open date is after close date");
 					i++;
 				}
 			}
-		
+			/*
 			if (subject == null || subject.trim().length() == 0) {
-				data.logMe("Log Failure Teaching Instance ["+id+"] Subject isn't set");
+				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] Subject isn't set");
 				i++;
 			}
-		
+			*/
 			if (title == null || title.trim().length() == 0) {
-				data.logMe("Log Failure Teaching Instance ["+id+"] Title isn't set");
+				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] Title isn't set");
 				i++;
 			}
-		
+			/*
 			if (termCode == null || termCode.trim().length() == 0) {
-				data.logMe("Log Failure Teaching Instance ["+id+"] Term code can't be empty");
+				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] Term code can't be empty");
 				i++;
 			}
 		
 			if (termName == null || termName.trim().length() == 0) {
-				data.logMe("Log Failure Teaching Instance ["+id+"] Term name can't be empty");
+				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] Term name can't be empty");
 				i++;
 			}
-		
+			
 			if (teachingComponentId == null || teachingComponentId.trim().length()==0) {
-				data.logMe("Log Failure Teaching Instance ["+id+"] No teaching component ID found");
+				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] No teaching component ID found");
 				i++;
 			}
-		
+			*/
 			if (groups.isEmpty()) {
-				data.logMe("Log Failure Teaching Instance ["+id+"] No Assessment Unit codes");
+				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] No Assessment Unit codes");
 				i++;
 			}
 		
@@ -910,12 +1033,12 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @throws IOException 
 	 */
 	private boolean updateComponent(String id, String title, String subject, 
-			Date openDate, Date closeDate, Date startDate, Date endDate,
+			Date openDate, String openText, Date closeDate, String closeText, Date startDate, String startText, Date endDate, String endText, 
 			boolean bookable, int capacity, 
 			String termCode,  String teachingComponentId, String termName,
 			String teacherId, String teacherName, String teacherEmail,
-			String sessionDates, String sessions, String location, String applyTo, String memberApplyTo,
-			Set<CourseGroupDAO> groups) throws IOException {
+			String sessionDates, String sessionCount, String location, String applyTo, String memberApplyTo,
+			Set<CourseComponentSessionDAO> sessions, Set<CourseGroupDAO> groups) throws IOException {
 		
 		boolean created = false;
 		if (null != dao) {
@@ -927,9 +1050,13 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			componentDao.setTitle(title);
 			componentDao.setSubject(subject);
 			componentDao.setOpens(openDate);
+			componentDao.setOpensText(openText);
 			componentDao.setCloses(closeDate);
+			componentDao.setClosesText(closeText);
 			componentDao.setStarts(startDate);
+			componentDao.setStartsText(startText);
 			componentDao.setEnds(endDate);
+			componentDao.setEndsText(endText);
 			componentDao.setBookable(bookable);
 			componentDao.setSize(capacity);
 			componentDao.setTermcode(termCode);
@@ -951,41 +1078,29 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			componentDao.setTeacherEmail(teacherEmail);
 			componentDao.setWhen(termName);
 			componentDao.setSlot(sessionDates);
-			componentDao.setSessions(sessions);
+			componentDao.setSessions(sessionCount);
 			componentDao.setLocation(location);
 			componentDao.setApplyTo(applyTo);
 			componentDao.setMemberApplyTo(memberApplyTo);
 			componentDao.setGroups(groups);
+			//componentDao.setComponentSessions(sessions);
+			
+			Collection componentSessions = componentDao.getComponentSessions();
+			for (CourseComponentSessionDAO session : sessions) {
+				componentSessions.add(session);
+			}
+			
+			
 			dao.save(componentDao);
 		}
 		
 		if (created) {
-			data.logMs("Log Success Course Component created ["+id+":"+subject+"]");
+			XcriOxcapPopulatorInstanceData.logMs("Log Success Course Component created ["+id+":"+subject+"]");
 		} else {
-			data.logMs("Log Success Course Component updated ["+id+":"+subject+"]");
+			XcriOxcapPopulatorInstanceData.logMs("Log Success Course Component updated ["+id+":"+subject+"]");
 		}
 		return created;
 	}
-	
-	/**
-	 * Log errors and warnings
-	 * @param message
-	 * @throws IOException
-	 */
-	//private void logMe(String message) throws IOException {
-	//	log.warn(message);
-	//	eWriter.write(message+"\n");
-	//}
-	
-	/**
-	 * Log successes
-	 * @param message
-	 * @throws IOException
-	 */
-	//private void logMs(String message) throws IOException {
-	//	log.warn(message);
-	//	iWriter.write(message+"\n");
-	//}
 	
 	/**
 	 * convert collection of userCodes to userIds
@@ -1049,12 +1164,12 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 	
 
-	private String viewDate(Date date) {
+	protected static String viewDate(Date date, String text) {
 		if (null == date) {
-			return "null";
+			return text+"[null]";
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-	    return sdf.format(date);
+	    return text+"["+sdf.format(date)+"]";
 	}
 
 	protected String getSiteId() {
@@ -1112,27 +1227,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 */
 	private void switchUser() {
 		if (null != sessionManager) {
-			Session session = sessionManager.getCurrentSession();
+			org.sakaiproject.tool.api.Session session = sessionManager.getCurrentSession();
 			session.setUserEid("admin");
 			session.setUserId("admin");
 		}
 	}
-	
-	/*
-	public static void main(String[] args) {
-		try {	
-			XcriOxCapPopulatorImpl reader = new XcriOxCapPopulatorImpl();
-			PopulatorContext context = new PopulatorContext();
-			context.setURI((String)jobDataMap.get("xcri.oxcap.populator.uri"));
-			context.setUser((String)jobDataMap.get("xcri.oxcap.populator.username"));
-			context.setPassword((String)jobDataMap.get("xcri.oxcap.populator.password"));
-			context.setName((String)jobDataMap.get("xcri.oxcap.populator.name"));
-			reader.update(context);
-		
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	*/
-	
 }

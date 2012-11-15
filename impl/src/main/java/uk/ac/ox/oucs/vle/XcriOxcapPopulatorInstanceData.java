@@ -20,8 +20,8 @@ public class XcriOxcapPopulatorInstanceData {
 	ByteArrayOutputStream eOut;
 	ByteArrayOutputStream iOut;
 	
-	private XcriErrorWriter eWriter;
-	private XcriInfoWriter iWriter;
+	private static XcriErrorWriter eWriter;
+	private static XcriInfoWriter iWriter;
 	
 	private int departmentSeen;
 	private int departmentCreated;
@@ -40,18 +40,21 @@ public class XcriOxcapPopulatorInstanceData {
 	
 	private String siteId;
 	
-	public XcriOxcapPopulatorInstanceData(ContentHostingService contentHostingService, String siteId, String name, String generated) {
+	private String feed;
+	
+	public XcriOxcapPopulatorInstanceData(ContentHostingService contentHostingService, String siteId, String feed, String generated) {
 		
 		this.contentHostingService = contentHostingService;
 		this.siteId = siteId;
+		this.feed = feed;
 		
 		eOut = new ByteArrayOutputStream();
 		iOut = new ByteArrayOutputStream();
 		
 		try {
 			
-			eWriter = new XcriErrorWriter(eOut, name, generated);
-			iWriter = new XcriInfoWriter(iOut, name, generated);
+			eWriter = new XcriErrorWriter(eOut, feed, generated);
+			iWriter = new XcriInfoWriter(iOut, feed, generated);
 		
 		} catch (IOException e) {
 			log.warn("Failed to write content to logfile.", e);
@@ -155,6 +158,10 @@ public class XcriOxcapPopulatorInstanceData {
 		}
 	}
 	
+	protected String getFeed() {
+		return this.feed;
+	}
+	
 	protected void incrDepartmentSeen() {
 		departmentSeen++;
 	}
@@ -216,9 +223,11 @@ public class XcriOxcapPopulatorInstanceData {
 	 * @param message
 	 * @throws IOException
 	 */
-	protected void logMe(String message) throws IOException {
+	protected static void logMe(String message) throws IOException {
 		log.warn(message);
-		eWriter.write(message+"\n");
+		if (null != eWriter) {
+			eWriter.write(message+"\n");
+		}
 	}
 	
 	/**
@@ -226,9 +235,11 @@ public class XcriOxcapPopulatorInstanceData {
 	 * @param message
 	 * @throws IOException
 	 */
-	protected void logMs(String message) throws IOException {
+	protected static void logMs(String message) throws IOException {
 		log.warn(message);
-		iWriter.write(message+"\n");
+		if (null != iWriter) {
+			iWriter.write(message+"\n");
+		}
 	}
 	
 }

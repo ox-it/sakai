@@ -1,33 +1,27 @@
 package uk.ac.ox.oucs.vle.xcri.daisy;
 
 import org.jdom.Element;
+import org.jdom.Namespace;
 import org.xcri.Extension;
+import org.xcri.Namespaces;
 import org.xcri.exceptions.InvalidElementException;
 
-public class Division extends DaisyElement implements Extension {
+public class Identifier extends org.xcri.common.Identifier implements Extension {
 	
-	private String code;
-	
-	/**
-	 * @return the element name
-	 */
-	@Override
-	public String getName() {
-		return "division";
-	}
+	private String type;
 	
 	/**
 	 * @return the identifier
 	 */
-	public String getCode() {
-		return this.code;
+	public String getType() {
+		return this.type;
 	}
 
 	/**
 	 * @param identifier the identifier to set
 	 */
-	public void setCode(String code) {
-		this.code = code;
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 	/*
@@ -36,8 +30,8 @@ public class Division extends DaisyElement implements Extension {
 	@Override
 	public void fromXml(Element element) throws InvalidElementException {
 		super.fromXml(element);
-		if (null != element.getAttribute("code")) {
-			this.setCode(element.getAttributeValue("code"));
+		if (null != element.getAttribute("type", DaisyNamespace.DAISY_NAMESPACE_NS)) {
+			this.setType(element.getAttributeValue("type", DaisyNamespace.DAISY_NAMESPACE_NS));
 		}
 	}
 	
@@ -47,8 +41,8 @@ public class Division extends DaisyElement implements Extension {
 	@Override
 	public Element toXml() {
 		Element element = super.toXml();
-		if (this.getCode() != null) {
-			element.setAttribute("code", this.getCode(), getNamespace());
+		if (this.getType() != null) {
+			element.setAttribute("type", this.getType(), DaisyNamespace.DAISY_NAMESPACE_NS);
 		}
 		return element;
 	}
@@ -61,10 +55,14 @@ public class Division extends DaisyElement implements Extension {
 		StringBuffer sb = new StringBuffer();
 		sb.append(this.getName());
 		sb.append(":");
-		sb.append(this.getCode());
+		sb.append(this.getType());
 		sb.append(":");
 		sb.append(this.getValue());
 		return sb.toString();
+	}
+
+	public Namespace getNamespace() {
+		return Namespaces.DC_NAMESPACE_NS;
 	}
 	
 }

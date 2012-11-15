@@ -24,6 +24,9 @@ public class OxcapCourse extends Course {
 	 * @return the identifier
 	 */
 	private String getVisible() {
+		if (null == this.visible) {
+			return "PB";
+		}
 		return this.visible;
 	}
 

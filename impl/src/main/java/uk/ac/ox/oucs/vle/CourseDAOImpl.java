@@ -36,8 +36,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public CourseGroupDAO findCourseGroupById(final String courseId, final Range range, final Date now) {
 		return (CourseGroupDAO) getHibernateTemplate().execute(new HibernateCallback() {
 			// Need the DISTINCT ROOT ENTITY filter.
-			public Object doInHibernate(Session session) throws HibernateException,
-					SQLException {
+			public Object doInHibernate(Session session) 
+					throws HibernateException,	SQLException {
+				/*
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
 				criteria.add(Expression.eq("id", courseId));
 				switch (range) { 
@@ -53,6 +54,59 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				}
 				criteria.setResultTransformer(Criteria.ROOT_ENTITY);
 				return criteria.uniqueResult();
+				*/
+				StringBuffer querySQL = new StringBuffer();
+				querySQL.append("SELECT DISTINCT ");
+				querySQL.append("cg.id, cg.title, cg.dept, cg.departmentName, ");
+				querySQL.append("cg.subunit, cg.subunitName, cg.description, cg.visibility, ");
+				querySQL.append("cg.supervisorApproval, cg.administratorApproval, cg.hideGroup, cg.contactEmail, cg.source ");
+				querySQL.append("FROM course_group cg ");
+				querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.course_group = cg.id ");
+				querySQL.append("LEFT JOIN course_group_component cgc on cgc.course_group = cg.id ");
+				querySQL.append("LEFT JOIN course_component cc on cgc.component = cc.id ");
+				querySQL.append("WHERE ");
+				
+				querySQL.append("visibility != 'PR' AND ");
+				
+				switch (range) {
+					case NOTSTARTED:
+						querySQL.append("CASE WHEN (cc.starts is not null) THEN ");
+						querySQL.append("cc.starts > NOW() ");
+						querySQL.append("ELSE ");
+						querySQL.append("cc.closes > NOW() ");
+						querySQL.append("END AND ");
+						break;
+					
+					case UPCOMING:
+						querySQL.append("CASE WHEN (cc.closes is not null) THEN ");
+						querySQL.append("cc.closes > NOW() ");
+						querySQL.append("ELSE ");
+						querySQL.append("cc.starts > NOW() ");
+						querySQL.append("END AND ");
+						break;
+						
+					case PREVIOUS:
+						querySQL.append("CASE WHEN (cc.closes is not null) THEN ");
+						querySQL.append("cc.closes < NOW() ");
+						querySQL.append("ELSE ");
+						querySQL.append("cc.starts < NOW() ");
+						querySQL.append("END AND ");
+						break;
+				}
+				
+				querySQL.append("cg.id = :id ");
+				
+				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
+				query.setString("id", courseId);
+				List<CourseGroupDAO> courseGroups =  query.list();
+				int results = courseGroups.size();
+				if (results > 0) {
+					if (results > 1) {
+						throw new IllegalStateException("To many results ("+ results + ") found for "+ courseId );
+					}
+					return courseGroups.get(0);
+				}
+				return null;
 			}
 		});
 	}
@@ -98,7 +152,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				querySQL.append("SELECT DISTINCT ");
 				querySQL.append("cg.id, cg.title, cg.dept, cg.departmentName, ");
 				querySQL.append("cg.subunit, cg.subunitName, cg.description, cg.visibility, ");
-				querySQL.append("cg.supervisorApproval, cg.administratorApproval, cg.hideGroup, cg.contactEmail ");
+				querySQL.append("cg.supervisorApproval, cg.administratorApproval, cg.hideGroup, cg.contactEmail, cg.source ");
 				querySQL.append("FROM course_group cg ");
 				querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.course_group = cg.id ");
 				querySQL.append("LEFT JOIN course_group_component cgc on cgc.course_group = cg.id ");
@@ -115,10 +169,18 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				
 				switch (range) { 
 					case UPCOMING:
-						querySQL.append("closes > NOW() AND ");
+						querySQL.append("CASE WHEN (cc.closes is not null) THEN ");
+						querySQL.append("cc.closes > NOW() ");
+						querySQL.append("ELSE ");
+						querySQL.append("cc.starts > NOW() ");
+						querySQL.append("END AND ");
 						break;
 					case PREVIOUS:
-						querySQL.append("closes < NOW() AND ");
+						querySQL.append("CASE WHEN (cc.closes is not null) THEN ");
+						querySQL.append("cc.closes < NOW() ");
+						querySQL.append("ELSE ");
+						querySQL.append("cc.starts < NOW() ");
+						querySQL.append("END AND ");
 						break;
 				}
 				
@@ -678,7 +740,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				StringBuffer querySQL = new StringBuffer();
 				querySQL.append("select distinct cg.id, cg.title, cg.dept, cg.departmentname, cg.subunit, cg.subunitName, ");
 				querySQL.append("cg.description, cg.visibility, cg.supervisorApproval, cg.administratorApproval, ");
-				querySQL.append("cg.hideGroup, cg.contactEmail ");
+				querySQL.append("cg.hideGroup, cg.contactEmail, cg.source ");
 				querySQL.append("from course_group cg ");
 				querySQL.append("left join course_group_component cgc on cgc.course_group = cg.id ");
 				querySQL.append("left join course_component cc on cgc.component = cc.id ");
@@ -699,7 +761,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				StringBuffer querySQL = new StringBuffer();
 				querySQL.append("select distinct cg.id, cg.title, cg.dept, cg.departmentname, cg.subunit, cg.subunitName, ");
 				querySQL.append("cg.description, cg.visibility, cg.supervisorApproval, cg.administratorApproval, ");
-				querySQL.append("cg.hideGroup, cg.contactEmail ");
+				querySQL.append("cg.hideGroup, cg.contactEmail, cg.source ");
 				querySQL.append("from course_group cg ");
 				querySQL.append("left join course_group_component cgc on cgc.course_group = cg.id ");
 				querySQL.append("left join course_component cc on cgc.component = cc.id ");

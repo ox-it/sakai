@@ -116,7 +116,7 @@ public class CourseResource {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			externalUser = true;
 		}
-		if (deptId.length() == 4) { 
+		if (isProvider(deptId)) { 
 			if (range.equals(Range.PREVIOUS)) {
 				List<CourseGroup> courses = courseService.getCourseGroupsByDept(deptId, range, externalUser);
 				return new GroupsStreamingOutput(Collections.<SubUnit>emptyList(), courses, deptId, range.name(), false);
@@ -259,22 +259,28 @@ public class CourseResource {
 			if (!isOneBookable) {
 				isOneBookable = component.getBookable();
 			}
-			// Check if component is the earliest one opening in the future.
-			boolean isGoingToOpen = component.getOpens().after(now) && component.getOpens().before(nextOpen);
-			if (isGoingToOpen) {
-				nextOpen = component.getOpens();
-			}
-			// Check if the component is open and is open for the longest.
-			if (component.getOpens().before(now) && component.getCloses().after(willClose)) {
-				willClose = component.getCloses();
-			}
-			boolean isOpen = component.getOpens().before(now) && component.getCloses().after(now);
-			if (!isOneOpen && isOpen) {
-				isOneOpen = true;
-			}
-			if (isOpen) {
-				if (component.getPlaces() > 0) {
-					areSomePlaces = true;
+			
+			if (null != component.getOpens()) {
+				// Check if component is the earliest one opening in the future.
+				//boolean isGoingToOpen = component.getOpens().after(now) && component.getOpens().before(nextOpen);
+				if (component.getOpens().after(now) && component.getOpens().before(nextOpen)) {
+					nextOpen = component.getOpens();
+				}
+				
+				if (null != component.getCloses()) {
+					// Check if the component is open and is open for the longest.
+					if (component.getOpens().before(now) && component.getCloses().after(willClose)) {
+						willClose = component.getCloses();
+					}
+					boolean isOpen = component.getOpens().before(now) && component.getCloses().after(now);
+					if (!isOneOpen && isOpen) {
+						isOneOpen = true;
+					}
+					if (isOpen) {
+						if (component.getPlaces() > 0) {
+							areSomePlaces = true;
+						}
+					}
 				}
 			}
 			Calendar recent = new GregorianCalendar();
@@ -315,6 +321,15 @@ public class CourseResource {
 		return new CourseSummary(detail, states);
 	}
 	
+	
+	/**
+	 * 
+	 * @param code
+	 * @return
+	 */
+	private boolean isProvider(String code) {
+		return courseService.isDepartmentCode(code);
+	}
 	
 
 	// Maybe I should have just implemented a tuple.
@@ -449,8 +464,12 @@ public class CourseResource {
 					gen.writeObjectField("slot", component.getSlot());
 					gen.writeObjectField("size", component.getSize());
 					gen.writeObjectField("subject", component.getSubject());
-					gen.writeObjectField("opens", component.getOpens().getTime());
-					gen.writeObjectField("closes", component.getCloses().getTime());
+					if (null != component.getOpens()) {
+						gen.writeObjectField("opens", component.getOpens().getTime());
+					}
+					if (null != component.getCloses()) {
+						gen.writeObjectField("closes", component.getCloses().getTime());
+					}
 					gen.writeObjectField("title", component.getTitle());
 					gen.writeObjectField("sessions", component.getSessions());
 					gen.writeObjectField("when", component.getWhen());
@@ -561,8 +580,12 @@ public class CourseResource {
 				gen.writeObjectField("slot", component.getSlot());
 				gen.writeObjectField("size", component.getSize());
 				gen.writeObjectField("subject", component.getSubject());
-				gen.writeObjectField("opens", component.getOpens().getTime());
-				gen.writeObjectField("closes", component.getCloses().getTime());
+				if (null != component.getOpens()) {
+					gen.writeObjectField("opens", component.getOpens().getTime());
+				}
+				if (null != component.getCloses()) {
+					gen.writeObjectField("closes", component.getCloses().getTime());
+				}
 				gen.writeObjectField("title", component.getTitle());
 				gen.writeObjectField("sessions", component.getSessions());
 				gen.writeObjectField("when", component.getWhen());

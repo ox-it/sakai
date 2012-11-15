@@ -61,16 +61,24 @@ public class CourseComponentImpl implements CourseComponent {
 
 	public Date getOpens() {
 		// Jackson doesn't like java.sql.Date.
-		if (opens == null)
+		if (opens == null && dao.getOpens() != null)
 			opens = new Date(dao.getOpens().getTime());
 		return opens;
+	}
+	
+	public String getOpensText() {
+		return dao.getOpensText();
 	}
 
 	public Date getCloses() {
 		// Jackson doesn't like java.sql.Date.
-		if(closes == null)
+		if(closes == null && dao.getCloses() != null)
 			closes = new Date(dao.getCloses().getTime());
 		return dao.getCloses();
+	}
+	
+	public String getClosesText() {
+		return dao.getClosesText();
 	}
 	
 	public Date getStarts() {
@@ -80,6 +88,10 @@ public class CourseComponentImpl implements CourseComponent {
 		}
 		return starts;
 	}
+	
+	public String getStartsText() {
+		return dao.getStartsText();
+	}
 
 	public Date getEnds() {
 		// Jackson doesn't like java.sql.Date.
@@ -87,6 +99,10 @@ public class CourseComponentImpl implements CourseComponent {
 			ends = new Date(dao.getEnds().getTime());
 		}
 		return ends;
+	}
+	
+	public String getEndsText() {
+		return dao.getEndsText();
 	}
 	
 	public Date getCreated() {

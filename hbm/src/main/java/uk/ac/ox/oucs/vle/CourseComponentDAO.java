@@ -22,9 +22,13 @@ public class CourseComponentDAO  implements java.io.Serializable {
     private String subject;
     private String termcode;
     private Date opens;
+    private String opensText;
     private Date closes;
+    private String closesText;
     private Date starts;
+    private String startsText;
     private Date ends;
+    private String endsText;
     private Date created;
     private boolean bookable;
     private int size;
@@ -40,6 +44,7 @@ public class CourseComponentDAO  implements java.io.Serializable {
     private String memberApplyTo;
     private Set<CourseSignupDAO> signups = new HashSet<CourseSignupDAO>(0);
     private Set<CourseGroupDAO> groups = new HashSet<CourseGroupDAO>(0);
+    private Set<CourseComponentSessionDAO> componentSessions = new HashSet<CourseComponentSessionDAO>(0);
 
     public CourseComponentDAO() {
     }
@@ -89,6 +94,8 @@ public class CourseComponentDAO  implements java.io.Serializable {
     public void setTermcode(String termcode) {
         this.termcode = termcode;
     }
+    
+    
     public Date getOpens() {
         return this.opens;
     }
@@ -96,6 +103,17 @@ public class CourseComponentDAO  implements java.io.Serializable {
     public void setOpens(Date opens) {
         this.opens = opens;
     }
+    
+    
+    public String getOpensText() {
+        return this.opensText;
+    }
+    
+    public void setOpensText(String opensText) {
+        this.opensText = opensText;
+    }
+    
+    
     public Date getCloses() {
         return this.closes;
     }
@@ -104,12 +122,32 @@ public class CourseComponentDAO  implements java.io.Serializable {
         this.closes = closes;
     }
     
+    
+    public String getClosesText() {
+        return this.closesText;
+    }
+    
+    public void setClosesText(String closesText) {
+        this.closesText = closesText;
+    }
+    
+    
     public Date getStarts() {
         return this.starts;
     }
     public void setStarts(Date starts) {
         this.starts = starts;
     }
+    
+    
+    public String getStartsText() {
+        return this.startsText;
+    }
+    
+    public void setStartsText(String startsText) {
+        this.startsText = startsText;
+    }
+    
     
     public Date getEnds() {
         return this.ends;
@@ -118,12 +156,23 @@ public class CourseComponentDAO  implements java.io.Serializable {
         this.ends = ends;
     }
     
+    
+    public String getEndsText() {
+        return this.endsText;
+    }
+    
+    public void setEndsText(String endsText) {
+        this.endsText = endsText;
+    }
+    
+    
     public Date getCreated() {
         return this.created;
     }
     public void setCreated(Date created) {
         this.created = created;
     }
+    
     
     public boolean isBookable() {
         return this.bookable;
@@ -168,11 +217,19 @@ public class CourseComponentDAO  implements java.io.Serializable {
         this.groups = groups;
     }
 
+    
+    public Set<CourseComponentSessionDAO> getComponentSessions() {
+        return this.componentSessions;
+    }
+    
+    public void setComponentSessions(Set<CourseComponentSessionDAO> componentSessions) {
+        this.componentSessions = componentSessions;
+    }
 
+    
 	public String getTeacherName() {
 		return teacherName;
 	}
-
 
 	public void setTeacherName(String teacherName) {
 		this.teacherName = teacherName;

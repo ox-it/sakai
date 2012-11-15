@@ -84,7 +84,20 @@
 		<property name="department" type="string" length="32" />
 		<many-to-one name="group" column="groupId" class="uk.ac.ox.oucs.vle.CourseGroupDAO"/>
 	</class>
-
+	
+	<class name="uk.ac.ox.oucs.vle.CourseComponentSessionDAO" table="course_component_session">
+		<id name="id" type="int">
+			<column name="id" />
+			<generator class="increment"/>
+		</id>
+		<property name="courseComponentId" type="string" length="255" />
+		<property name="sessionId" type="string" length="255" />
+		<property name="sessionStart" type="timestamp" />
+		<property name="sessionStartText" type="string" length="255"/>
+		<property name="sessionEnd" type="timestamp" />
+		<property name="sessionEndText" type="string" length="255"/>
+	</class>
+	
 	<class name="uk.ac.ox.oucs.vle.CourseComponentDAO" table="course_component">
 		<!-- create the primary key id -->
 		<id name="id" type="string">
@@ -97,9 +110,13 @@
 		<property name="termcode" type="string" length="30"
 			index="course_component_term_idx" />
 		<property name="opens" type="timestamp" />
+		<property name="opensText" type="string" length="255"/>
 		<property name="closes" type="timestamp" />
+		<property name="closesText" type="string" length="255"/>
 		<property name="starts" type="timestamp" />
+		<property name="startsText" type="string" length="255"/>
 		<property name="ends" type="timestamp" />
+		<property name="endsText" type="string" length="255"/>
 		<property name="created" type="timestamp" />
 		<property name="bookable" type="boolean" not-null="true" />
 		<property name="size" type="int" />
@@ -126,6 +143,10 @@
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO"
 				column="course_group" />
 		</set>
+		<set name="componentSessions" inverse="false" lazy="true" cascade="all-delete-orphan" table="course_component_session" fetch="select">
+			<key column="courseComponentId"/>
+			<one-to-many class="uk.ac.ox.oucs.vle.CourseComponentSessionDAO"/>
+		</set>
 	</class>
 
 	<!-- A set of courses that can be taken. -->
@@ -148,6 +169,7 @@
 		<property name="hideGroup" type="boolean"/>
 		<property name="contactEmail" type="string" length="255"/>
 		<property name="visibility" type="string" length="16"/>
+		<property name="source" type="string" length="32"/>
 		<set name="components" inverse="true" lazy="true" table="course_group_component" fetch="join">
 			<key column="course_group" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO" column="component" />

@@ -20,11 +20,19 @@ public interface CourseComponent {
 	
 	public Date getOpens();
 	
+	public String getOpensText();
+	
 	public Date getCloses();
+	
+	public String getClosesText();
 	
 	public Date getStarts();
 	
+	public String getStartsText();
+	
 	public Date getEnds();
+	
+	public String getEndsText();
 	
 	public Date getCreated();
 	
