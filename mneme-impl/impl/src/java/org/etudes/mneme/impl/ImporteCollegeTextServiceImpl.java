@@ -368,6 +368,61 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 	}
 
 	/**
+	 * Get the feedback text starting from Instructor explanation: till Edit Question
+	 * @param lines
+	 * @param line
+	 * @param feedbackText
+	 * @return the line number till it read for feedback
+	 */
+	private int getFeedbackText(String[] lines, int line, String[] feedbackText)
+	{
+		String processText = lines[line].trim();
+		String[] parts = StringUtil.split(processText, "\t");
+		String qtext = "";
+		if(parts.length == 2) qtext = parts[1].trim();
+		while (true)
+		{
+			if (line + 1 >= lines.length) break;
+			String check = lines[(++line)];
+			if (check != null && check.length() != 0)
+			{
+				if (check.contains("Edit QuestionEdit")) break;
+				qtext = qtext.concat(check);
+			}			
+		}
+		feedbackText[0] = qtext;
+		return line;
+	}
+	
+	/**
+	 * Gets the question text till it reaches Points statement
+	 * @param lines
+	 * @param line
+	 * @param questionText
+	 * @return the line number till it read the question text
+	 */
+	private int getQuestionText(String[] lines, int line, String[] questionText)
+	{
+		String processText = lines[line].trim();
+		String[] parts = StringUtil.split(processText, "\t");
+		String qtext = "";
+		if(parts.length == 4) qtext = parts[3].trim();
+		while (true)
+		{
+			if (line + 1 == lines.length) break;
+			String check = lines[(++line)];
+			if (check != null && check.length() != 0)
+			{
+				if (check.startsWith("Edit QuestionEdit")) break;
+				if (check.startsWith("Points")) break;				
+				qtext = qtext.concat(check);
+			}			
+		}
+		questionText[0] = qtext;
+		return line;
+	}
+	
+	/**
 	 * check which type of question and process it accordingly
 	 * 
 	 * @param pool
@@ -378,11 +433,18 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 	 */
 	protected void processECollegeTextGroup(Pool pool, Part part, String[] lines) throws AssessmentPermissionException
 	{
-		if (processTextMultipleChoice(pool, part, lines)) return;
-		if (processTextTrueFalse(pool, part, lines)) return;
-		if (processTextEssay(pool, part, lines)) return;
-		if (processTextFillBlanks(pool, part, lines)) return;
-		if (processTextMatch(pool, part, lines)) return;
+		try
+		{
+			if (processTextMultipleChoice(pool, part, lines)) return;
+			if (processTextTrueFalse(pool, part, lines)) return;
+			if (processTextEssay(pool, part, lines)) return;
+			if (processTextFillBlanks(pool, part, lines)) return;
+			if (processTextMatch(pool, part, lines)) return;
+		}
+		catch (Exception e)
+		{
+			// do nothing			
+		}
 	}
 
 	/**
@@ -401,7 +463,6 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 		String firstLine = lines[0].trim();
 		if (!firstLine.startsWith("Collapse Question")) return false;
 		String[] partsType = StringUtil.split(firstLine, "\t");
-		if (partsType.length != 4) return false;
 
 		String questionType = partsType[1].trim();
 		if (!("EQ".equals(questionType) || "SA".equals(questionType))) return false;
@@ -424,15 +485,18 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 
 			if (processText.startsWith("Instructor Explanation:"))
 			{
-				question.setFeedback(Validator.escapeHtml(parts[1].trim()));
+				String[] feedbackText = new String[]{""};
+				line = getFeedbackText(lines, line, feedbackText);
+				question.setFeedback(Validator.escapeHtml(feedbackText[0].trim()));
 				break;
 			}
 
 			// set the text
 			if (line == 0)
 			{
-				text = parts[3].trim();
-				text = Validator.escapeHtml(text);
+				String[] questionText = new String[]{""};
+				line = getQuestionText(lines, line, questionText);
+				text = Validator.escapeHtml(questionText[0].trim());
 				question.getPresentation().setText(text);
 			}
 		}
@@ -467,7 +531,6 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 		String firstLine = lines[0].trim();
 		if (!firstLine.startsWith("Collapse Question")) return false;
 		String[] partsType = StringUtil.split(firstLine, "\t");
-		if (partsType.length != 4) return false;
 
 		String questionType = partsType[1].trim();
 		if (!("FB".equals(questionType))) return false;
@@ -497,15 +560,19 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 
 			if (processText.startsWith("Instructor Explanation:"))
 			{
-				question.setFeedback(Validator.escapeHtml(parts[1].trim()));
+				String[] feedbackText = new String[]{ "" };
+				line = getFeedbackText(lines, line, feedbackText);
+				question.setFeedback(Validator.escapeHtml(feedbackText[0].trim()));
 				break;
 			}
 
 			// set the text
 			if (line == 0)
 			{
-				text = parts[3].trim();
-				text = Validator.escapeHtml(text);			
+				String[] questionText = new String[]{""};
+				line = getQuestionText(lines, line, questionText);
+				text = Validator.escapeHtml(questionText[0].trim());
+				question.getPresentation().setText(text);
 			}
 			else
 			{
@@ -554,8 +621,7 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 		String firstLine = lines[0].trim();
 		if (!firstLine.startsWith("Collapse Question")) return false;
 		String[] partsType = StringUtil.split(firstLine, "\t");
-		if (partsType.length != 4) return false;
-
+	
 		String questionType = partsType[1].trim();
 		if (!("MT".equals(questionType))) return false;
 
@@ -577,15 +643,18 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 
 			if (processText.startsWith("Instructor Explanation:"))
 			{
-				question.setFeedback(Validator.escapeHtml(parts[1].trim()));
+				String[] feedbackText = new String[]{ "" };
+				line = getFeedbackText(lines, line, feedbackText);
+				question.setFeedback(Validator.escapeHtml(feedbackText[0].trim()));
 				break;
 			}
 
 			// set the text
 			if (line == 0)
 			{
-				text = parts[3].trim();
-				text = Validator.escapeHtml(text);
+				String[] questionText = new String[]{""};
+				line = getQuestionText(lines, line, questionText);
+				text = Validator.escapeHtml(questionText[0].trim());
 				question.getPresentation().setText(text);
 			}
 			else
@@ -632,15 +701,14 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 		String firstLine = lines[0].trim();
 		if (!firstLine.startsWith("Collapse Question")) return false;
 		String[] partsType = StringUtil.split(firstLine, "\t");
-		if (partsType.length != 4) return false;
-
+	
 		String questionType = partsType[1].trim();
 		if (!("MC".equals(questionType) || "MMC".equals(questionType))) return false;
 
 		String text = "";
 		List<String> choices = new ArrayList<String>();
 		Set<Integer> correctAnswers = new HashSet<Integer>();
-
+		int choiceNumber = -1;
 		// create the question
 		Question question = this.questionService.newQuestion(pool, "mneme:MultipleChoice");
 		MultipleChoiceQuestionImpl mc = (MultipleChoiceQuestionImpl) (question.getTypeSpecificQuestion());
@@ -657,15 +725,18 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 
 			if (processText.startsWith("Instructor Explanation:"))
 			{
-				question.setFeedback(Validator.escapeHtml(parts[1].trim()));
+				String[] feedbackText = new String[]{ "" };
+				line = getFeedbackText(lines, line, feedbackText);
+				question.setFeedback(Validator.escapeHtml(feedbackText[0].trim()));
 				break;
 			}
 
 			// set the text
 			if (line == 0)
 			{
-				text = parts[3].trim();
-				text = Validator.escapeHtml(text);
+				String[] questionText = new String[]{""};
+				line = getQuestionText(lines, line, questionText);
+				text = Validator.escapeHtml(questionText[0].trim());
 				question.getPresentation().setText(text);
 			}
 			else
@@ -673,12 +744,12 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 				String choiceText = parts[0];
 				choiceText = Validator.escapeHtml(choiceText);
 				choices.add(choiceText);
-
+				choiceNumber++;
 				boolean correctAnswer = false;
 				if (parts.length >= 2 && ("CORRECT ANSWER").equals(parts[1].trim()))
 				{
 					correctAnswer = true;
-					correctAnswers.add(line - 3);
+					correctAnswers.add(choiceNumber);
 					if (parts.length >= 3 && (parts[parts.length - 1] != null)) question.setFeedback(parts[parts.length - 1].trim());
 				}
 
@@ -741,7 +812,6 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 		String firstLine = lines[0].trim();
 		if (!firstLine.startsWith("Collapse Question")) return false;
 		String[] partsType = StringUtil.split(firstLine, "\t");
-		if (partsType.length != 4) return false;
 
 		String questionType = partsType[1].trim();
 		if (!("TF".equals(questionType))) return false;
@@ -765,15 +835,18 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 
 			if (processText.startsWith("Instructor Explanation:"))
 			{
-				question.setFeedback(Validator.escapeHtml(parts[1].trim()));
+				String[] feedbackText = new String[]{ "" };
+				line = getFeedbackText(lines, line, feedbackText);
+				question.setFeedback(Validator.escapeHtml(feedbackText[0].trim()));
 				break;
 			}
-
+			
 			// set the text
 			if (line == 0)
 			{
-				text = parts[3].trim();
-				text = Validator.escapeHtml(text);
+				String[] questionText = new String[]{""};
+				line = getQuestionText(lines, line, questionText);
+				text = Validator.escapeHtml(questionText[0].trim());
 				question.getPresentation().setText(text);
 			}
 			else
