@@ -14,7 +14,8 @@ public class CourseGroupDAO implements java.io.Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private String id;
+	private int muid;
+	private String courseId;
     private String title;
     private String dept;
     private Set<CourseComponentDAO> components = new HashSet<CourseComponentDAO>(0);
@@ -29,25 +30,35 @@ public class CourseGroupDAO implements java.io.Serializable {
 	private String subunitName;
 	private String contactEmail;
 	private String visibility;
+	private String regulations;
 	private String source;
 	private boolean publicView;
 	private boolean supervisorApproval;
 	private boolean administratorApproval;
 	private boolean hideGroup;
+	private boolean deleted;
 
     public CourseGroupDAO() {
     }
 	
-    public CourseGroupDAO(String id) {
-        this.id = id;
+    public CourseGroupDAO(String courseId) {
+        this.courseId = courseId;
     }
     
-    public String getId() {
-        return this.id;
+    public int getMuid() {
+        return this.muid;
     }
     
-    public void setId(String id) {
-        this.id = id;
+    public void setMuid(int muid) {
+        this.muid = muid;
+    }
+    
+    public String getCourseId() {
+        return this.courseId;
+    }
+    
+    public void setCourseId(String courseId) {
+        this.courseId = courseId;
     }
     
     public String getTitle() {
@@ -147,15 +158,7 @@ public class CourseGroupDAO implements java.io.Serializable {
 	public void setSubunitName(String subunitName) {
 		this.subunitName = subunitName;
 	}
-	/*
-	public boolean getPublicView() {
-		return publicView;
-	}
 
-	public void setPublicView(boolean publicView) {
-		this.publicView = publicView;
-	}
-	*/
 	public boolean getSupervisorApproval() {
 		return supervisorApproval;
 	}
@@ -180,6 +183,14 @@ public class CourseGroupDAO implements java.io.Serializable {
 		this.hideGroup = hideGroup;
 	}
 	
+	public boolean getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+	
 	public String getContactEmail() {
 		return contactEmail;
 	}
@@ -194,6 +205,14 @@ public class CourseGroupDAO implements java.io.Serializable {
 
 	public void setVisibility(String visibility) {
 		this.visibility = visibility;
+	}
+	
+	public String getRegulations() {
+		return regulations;
+	}
+
+	public void setRegulations(String regulations) {
+		this.regulations = regulations;
 	}
 	
 	public String getSource() {

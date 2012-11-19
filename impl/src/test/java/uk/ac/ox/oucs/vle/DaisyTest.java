@@ -102,9 +102,9 @@ public class DaisyTest extends TestCase {
 		
 		OverrideManager.registerOverride(Course.class, new OxcapCourse());
 		OverrideManager.registerOverride(Presentation.class, new OxcapPresentation());
-		
+		/*
 		// Careers
-		URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap");
+		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap");
 		
 		// Continuing Education
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=http%3A//course.data.ox.ac.uk/id/continuing-education/catalog&format=xcricap");
@@ -130,9 +130,9 @@ public class DaisyTest extends TestCase {
             out.write('\n');
         }
         in.close();
-        
+        */
         // Daisy
-        //InputStream inStream = getClass().getResourceAsStream("/XCRI_OXCAP.xml");
+        InputStream inStream = getClass().getResourceAsStream("/XCRI_OXCAP.xml");
        
 		catalog = new Catalog();
 		builder = new SAXBuilder();
@@ -255,6 +255,8 @@ public class DaisyTest extends TestCase {
 					description = parse(xDescription.getValue());
 				}
 				
+				String regulations = course.getRegulations()[0].getValue();
+				
 				String id = null;
 				String teachingcomponentId = null;
 				Collection<String> administrators = new HashSet<String>();
@@ -340,7 +342,8 @@ public class DaisyTest extends TestCase {
 								departmentCode, subunitCode, description,
 								departmentName, subunitName, visibility, 
 								supervisorApproval, administratorApproval,
-								divisionEmail, (Set<String>) administrators, 
+								divisionEmail, regulations, 
+								(Set<String>) administrators, 
 								(Set<String>) divisionSuperUsers, 
 								(Set<String>) otherDepartments,
 								(Set<Subject>) researchCategories, 
@@ -439,7 +442,7 @@ public class DaisyTest extends TestCase {
 					
 					String memberApplyTo = null;
 					String bookingEndpoint = null;
-					Set<CourseComponentSessionDAO> sessions = new HashSet<CourseComponentSessionDAO>();
+					Set<Session> sessions = new HashSet<Session>();
 					
 					for (Extension extension : presentation.getExtensions()) {
 						
@@ -509,12 +512,8 @@ public class DaisyTest extends TestCase {
 						
 						if (extension instanceof Session) {
 							Session session = (Session)extension;
-							if (session.getIdentifiers().length > 0) {
-								CourseComponentSessionDAO componentSession = 
-										new CourseComponentSessionDAO(componentId, session.getIdentifiers()[0].getValue(),
-												session.getStart().getDtf(), session.getStart().getValue(), 
-												session.getEnd().getDtf(), session.getEnd().getValue());
-								sessions.add(componentSession);
+							if (session.getIdentifiers().length > 0) {	
+								sessions.add(session);
 								continue;
 							}
 						}
@@ -524,7 +523,7 @@ public class DaisyTest extends TestCase {
 					
 					Set<CourseGroupDAO> courseGroups = new HashSet<CourseGroupDAO>();
 					CourseGroupDAO courseDao = new CourseGroupDAO();
-					courseDao.setId(courseId);
+					courseDao.setCourseId(courseId);
 					courseGroups.add(courseDao);
 					
 					assertNotNull(componentId);

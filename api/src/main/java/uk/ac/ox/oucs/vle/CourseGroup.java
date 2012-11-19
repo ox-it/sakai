@@ -8,7 +8,7 @@ public interface CourseGroup {
 	//RDF Skills
 	public static enum Category_Type {RDF, JACS, RM};
 	
-	public String getId();
+	public String getCourseId();
 	
 	public String getTitle();
 	
@@ -31,6 +31,8 @@ public interface CourseGroup {
 	public String getContactEmail();
 	
 	public String getVisibility();
+	
+	public String getRegulations();
 	
 	public List<CourseComponent> getComponents();
 	

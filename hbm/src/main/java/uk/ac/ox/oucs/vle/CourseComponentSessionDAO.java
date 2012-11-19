@@ -11,7 +11,7 @@ public class CourseComponentSessionDAO implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private int id;
-	private String courseComponentId;
+	private int courseComponentMuid;
 	private String sessionId;
 	private Date sessionStart;
 	private String sessionStartText;
@@ -22,9 +22,9 @@ public class CourseComponentSessionDAO implements java.io.Serializable {
     public CourseComponentSessionDAO() {
     }
     
-    public CourseComponentSessionDAO(String courseComponentId, String sessionId, Date sessionStart, String sessionStartText, Date sessionEnd, String sessionEndText) {
+    public CourseComponentSessionDAO(int courseComponentMuid, String sessionId, Date sessionStart, String sessionStartText, Date sessionEnd, String sessionEndText) {
     	this.sessionId = sessionId;
-    	this.courseComponentId = courseComponentId;
+    	this.courseComponentMuid = courseComponentMuid;
     	this.sessionStart = sessionStart;
     	this.sessionStartText = sessionStartText;
     	this.sessionEnd = sessionEnd;
@@ -63,12 +63,12 @@ public class CourseComponentSessionDAO implements java.io.Serializable {
         this.sessionId = sessionId;
        }
     
-    public String getCourseComponentId() {
-        return this.courseComponentId;
+    public int getCourseComponentMuid() {
+        return this.courseComponentMuid;
     }
     
-    public void setCourseComponentId(String courseComponentId) {
-        this.courseComponentId = courseComponentId;
+    public void setCourseComponentMuid(int courseComponentMuid) {
+        this.courseComponentMuid = courseComponentMuid;
        }
     	
     public Date getSessionStart() {

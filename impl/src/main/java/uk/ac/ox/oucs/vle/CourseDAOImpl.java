@@ -29,41 +29,67 @@ import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 	
-	public CourseGroupDAO findCourseGroupById(String courseId) {
-		return (CourseGroupDAO) getHibernateTemplate().get(CourseGroupDAO.class, courseId);
+	public CourseGroupDAO findCourseGroupById(final String courseId) {
+		//return (CourseGroupDAO) getHibernateTemplate().get(CourseGroupDAO.class, courseId);
+		return (CourseGroupDAO) getHibernateTemplate().execute(new HibernateCallback() {
+			// Need the DISTINCT ROOT ENTITY filter.
+			public Object doInHibernate(Session session) 
+					throws HibernateException,	SQLException {
+
+				StringBuffer querySQL = new StringBuffer();
+				querySQL.append("SELECT * FROM course_group cg ");
+				querySQL.append("WHERE cg.courseId = :id ");
+				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
+				query.setString("id", courseId);
+				List<CourseGroupDAO> courseGroups =  query.list();
+				int results = courseGroups.size();
+				if (results > 0) {
+					if (results > 1) {
+						throw new IllegalStateException("To many results ("+ results + ") found for "+ courseId );
+					}
+					return courseGroups.get(0);
+				}
+				return null;
+			}
+		});
 	}
 	
 	public CourseGroupDAO findCourseGroupById(final String courseId, final Range range, final Date now) {
 		return (CourseGroupDAO) getHibernateTemplate().execute(new HibernateCallback() {
 			// Need the DISTINCT ROOT ENTITY filter.
-			public Object doInHibernate(Session session) 
-					throws HibernateException,	SQLException {
-				/*
+			public Object doInHibernate(Session session) throws HibernateException,
+					SQLException {
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
-				criteria.add(Expression.eq("id", courseId));
+				criteria.add(Expression.eq("courseId", courseId));
 				switch (range) { 
 					case NOTSTARTED:
-						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("starts", now));
+						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("baseDate", now));
 						break;
 					case UPCOMING:
-						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("closes", now));
+						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("baseDate", now));
 						break;
 					case PREVIOUS:
-						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(Expression.le("closes", now));
+						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(Expression.le("baseDate", now));
 						break;
 				}
 				criteria.setResultTransformer(Criteria.ROOT_ENTITY);
 				return criteria.uniqueResult();
-				*/
+			}
+		});
+	}
+	
+	/*
+	public CourseGroupDAO findCourseGroupById(final String courseId, final Range range , final Date now ) {
+		return (CourseGroupDAO) getHibernateTemplate().execute(new HibernateCallback() {
+			// Need the DISTINCT ROOT ENTITY filter.
+			public Object doInHibernate(Session session) 
+					throws HibernateException,	SQLException {
+
 				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("SELECT DISTINCT ");
-				querySQL.append("cg.id, cg.title, cg.dept, cg.departmentName, ");
-				querySQL.append("cg.subunit, cg.subunitName, cg.description, cg.visibility, ");
-				querySQL.append("cg.supervisorApproval, cg.administratorApproval, cg.hideGroup, cg.contactEmail, cg.source ");
-				querySQL.append("FROM course_group cg ");
-				querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.course_group = cg.id ");
-				querySQL.append("LEFT JOIN course_group_component cgc on cgc.course_group = cg.id ");
-				querySQL.append("LEFT JOIN course_component cc on cgc.component = cc.id ");
+				querySQL.append("SELECT DISTINCT * FROM course_group cg ");
+				//querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.courseGroupMuid = cg.muid ");
+				querySQL.append("LEFT JOIN course_group_component cgc on cgc.courseGroupMuid = cg.muid ");
+				querySQL.append("LEFT JOIN course_component cc on cgc.courseComponentMuid = cc.muid ");
 				querySQL.append("WHERE ");
 				
 				querySQL.append("visibility != 'PR' AND ");
@@ -94,7 +120,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 						break;
 				}
 				
-				querySQL.append("cg.id = :id ");
+				querySQL.append("cg.courseId = :id ");
 				
 				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
 				query.setString("id", courseId);
@@ -110,7 +136,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			}
 		});
 	}
-
+    */
 	@SuppressWarnings("unchecked")
 	public CourseGroupDAO findUpcomingComponents(String courseId, Date available) {
 		List<CourseGroupDAO> courseGroups = getHibernateTemplate().findByNamedParam(
@@ -149,14 +175,72 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					SQLException {
 				
 				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("SELECT DISTINCT ");
-				querySQL.append("cg.id, cg.title, cg.dept, cg.departmentName, ");
-				querySQL.append("cg.subunit, cg.subunitName, cg.description, cg.visibility, ");
-				querySQL.append("cg.supervisorApproval, cg.administratorApproval, cg.hideGroup, cg.contactEmail, cg.source ");
-				querySQL.append("FROM course_group cg ");
-				querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.course_group = cg.id ");
-				querySQL.append("LEFT JOIN course_group_component cgc on cgc.course_group = cg.id ");
-				querySQL.append("LEFT JOIN course_component cc on cgc.component = cc.id ");
+				querySQL.append("SELECT * FROM course_group cg ");
+				querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.courseGroupMuid = cg.muid ");
+				querySQL.append("LEFT JOIN course_group_component cgc on cgc.courseGroupMuid = cg.muid ");
+				querySQL.append("LEFT JOIN course_component cc on cgc.courseComponentMuid = cc.muid ");
+				querySQL.append("WHERE ");
+				
+				querySQL.append("visibility != 'PR' AND ");
+				
+				if (external) {
+					querySQL.append("visibility != 'RS' AND ");
+				}
+
+				querySQL.append("hideGroup = false AND ");
+				
+				switch (range) { 
+					case UPCOMING:
+						querySQL.append("cc.baseDate > now() AND ");
+						break;
+					case PREVIOUS:
+						querySQL.append("cc.baseDate <= now() AND ");
+						break;
+				}
+				
+				querySQL.append("(otherDepartment = :deptId ");
+				querySQL.append("OR (dept = :deptId and (subunit is NULL or subunit = ''))) ");
+				querySQL.append("ORDER BY cg.title ");
+				
+				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
+				query.setString("deptId", deptId);
+				return query.list();
+			}	
+		});
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<CourseGroupDAO> findCourseGroupBySubUnit(final String subunitId, final Range range, final Date now, final boolean external) {
+		return getHibernateTemplate().executeFind(new HibernateCallback() {
+			// Need the DISTINCT ROOT ENTITY filter.
+			public Object doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				
+				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
+				criteria.add(Restrictions.eq("subunit", subunitId));
+				criteria.add(Restrictions.ne("visibility", "PR"));
+				if (external) {
+					criteria.add(Restrictions.ne("visibility", "RS"));
+				}
+				criteria.add(Restrictions.eq("hideGroup", false));
+				switch (range) { 
+					case UPCOMING:
+						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("baseDate", now));
+						break;
+					case PREVIOUS:
+						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(Expression.le("baseDate", now));
+						break;
+				}
+				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+				criteria.addOrder(Order.asc("title"));
+				return criteria.list();
+				
+				/*
+				StringBuffer querySQL = new StringBuffer();
+				querySQL.append("SELECT * FROM course_group cg ");
+				querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.courseGroupMuid = cg.muid ");
+				querySQL.append("LEFT JOIN course_group_component cgc on cgc.courseGroupMuid = cg.muid ");
+				querySQL.append("LEFT JOIN course_component cc on cgc.courseComponentMuid = cc.muid ");
 				querySQL.append("WHERE ");
 				
 				querySQL.append("visibility != 'PR' AND ");
@@ -184,41 +268,13 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 						break;
 				}
 				
-				querySQL.append("(otherDepartment = :deptId ");
-				querySQL.append("OR (dept = :deptId and (subunit is NULL or subunit = ''))) ");
+				querySQL.append("subunit = :subunit ");
 				querySQL.append("ORDER BY cg.title ");
 				
 				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
-				query.setString("deptId", deptId);
+				query.setString("subunit", subunitId);
 				return query.list();
-			}	
-		});
-	}
-	
-	@SuppressWarnings("unchecked")
-	public List<CourseGroupDAO> findCourseGroupBySubUnit(final String subunitId, final Range range, final Date now, final boolean external) {
-		return getHibernateTemplate().executeFind(new HibernateCallback() {
-			// Need the DISTINCT ROOT ENTITY filter.
-			public Object doInHibernate(Session session) throws HibernateException,
-					SQLException {
-				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
-				criteria.add(Restrictions.eq("subunit", subunitId));
-				criteria.add(Restrictions.ne("visibility", "PR"));
-				if (external) {
-					criteria.add(Restrictions.ne("visibility", "RS"));
-				}
-				criteria.add(Restrictions.eq("hideGroup", false));
-				switch (range) { 
-					case UPCOMING:
-						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("closes", now));
-						break;
-					case PREVIOUS:
-						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(Expression.le("closes", now));
-						break;
-				}
-				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-				criteria.addOrder(Order.asc("title"));
-				return criteria.list();
+				*/
 			}
 			
 		});
@@ -232,10 +288,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				Query query = session.createSQLQuery(
-						"select distinct id, title, dept, departmentname, subunit, subunitName, " +
-						"description, visibility, supervisorApproval, administratorApproval, " +
-						"hideGroup, contactEmail " +
-						"from course_group " +
+						"select * from course_group " +
 						"left join course_group_component cc on cc.course_group = course_group.id " +
 						"where cc.component = :componentId").addEntity(CourseGroupDAO.class);
 				query.setString("componentId", componentId);
@@ -273,8 +326,17 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 	}
 
-	public CourseComponentDAO findCourseComponent(String id) {
-		return (CourseComponentDAO) getHibernateTemplate().get(CourseComponentDAO.class, id);
+	public CourseComponentDAO findCourseComponent(final String id) {
+		//return (CourseComponentDAO) getHibernateTemplate().get(CourseComponentDAO.class, id);
+		return (CourseComponentDAO) getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria criteria = session.createCriteria(CourseComponentDAO.class);
+				criteria.add(Expression.eq("presentationId", id));
+				criteria.setResultTransformer(Criteria.ROOT_ENTITY);
+				return criteria.uniqueResult();
+			}
+		});
 	}
 
 	public CourseSignupDAO newSignup(String userId, String supervisorId) {
@@ -319,7 +381,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 	public CourseGroupDAO newCourseGroup(String id, String title, String dept, String subunit) {
 		CourseGroupDAO groupDao = new CourseGroupDAO();
-		groupDao.setId(id);
+		groupDao.setCourseId(id);
 		groupDao.setTitle(title);
 		groupDao.setDept(dept);
 		groupDao.setSubunit(subunit);
@@ -455,8 +517,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					throws HibernateException, SQLException {
 				Query query = session.createSQLQuery("select count(*) from course_signup " +
 							"left join course_component_signup on course_component_signup.signup = course_signup.id " +
-							"left join course_component on course_component.id = course_component_signup.component " +
-							"where course_signup.groupId = :courseId " +
+							"left join course_component on course_component.muid = course_component_signup.courseComponentMuid " +
+							"left join course_group on course_group.muid = course_signup.courseGroupMuid " +
+							"where course_group.courseId = :courseId " +
 							"and course_component.starts > NOW() " +
 							"and course_signup.status in (:statuses)");
 					
@@ -564,7 +627,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 	public CourseComponentDAO newCourseComponent(String id) {
 		CourseComponentDAO componentDao = new CourseComponentDAO();
-		componentDao.setId(id);
+		componentDao.setPresentationId(id);
 		Calendar now = GregorianCalendar.getInstance();
 		componentDao.setCreated(now.getTime());
 		return componentDao;
@@ -738,12 +801,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("select distinct cg.id, cg.title, cg.dept, cg.departmentname, cg.subunit, cg.subunitName, ");
-				querySQL.append("cg.description, cg.visibility, cg.supervisorApproval, cg.administratorApproval, ");
-				querySQL.append("cg.hideGroup, cg.contactEmail, cg.source ");
-				querySQL.append("from course_group cg ");
-				querySQL.append("left join course_group_component cgc on cgc.course_group = cg.id ");
-				querySQL.append("left join course_component cc on cgc.component = cc.id ");
+				querySQL.append("select * from course_group cg ");
+				querySQL.append("left join course_group_component cgc on cgc.courseGroupMuid = cg.muid ");
+				querySQL.append("left join course_component cc on cgc.courseComponentMuid = cc.muid ");
 				querySQL.append("where cc.starts > NOW() and cg.hideGroup = false ");
 				querySQL.append("and cg.visibility != 'PR' ");
 				if (external) {
@@ -759,12 +819,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("select distinct cg.id, cg.title, cg.dept, cg.departmentname, cg.subunit, cg.subunitName, ");
-				querySQL.append("cg.description, cg.visibility, cg.supervisorApproval, cg.administratorApproval, ");
-				querySQL.append("cg.hideGroup, cg.contactEmail, cg.source ");
-				querySQL.append("from course_group cg ");
-				querySQL.append("left join course_group_component cgc on cgc.course_group = cg.id ");
-				querySQL.append("left join course_component cc on cgc.component = cc.id ");
+				querySQL.append("select * from course_group cg ");
+				querySQL.append("left join course_group_component cgc on cgc.courseGroupMuid = cg.muid ");
+				querySQL.append("left join course_component cc on cgc.courseComponentMuid = cc.muid ");
 				querySQL.append("where cc.starts is NULL and cc.closes > NOW() and cg.hideGroup = false ");
 				querySQL.append("and cg.visibility != 'PR' ");
 				if (external) {

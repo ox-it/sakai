@@ -4,7 +4,7 @@ import java.util.Date;
 
 public interface CourseComponent {
 
-	public String getId();
+	public String getPresentationId();
 	
 	public String getSubject();
 	
@@ -35,6 +35,8 @@ public interface CourseComponent {
 	public String getEndsText();
 	
 	public Date getCreated();
+	
+	public Date getBaseDate();
 	
 	public String getSlot();
 	

@@ -32,7 +32,7 @@ public class AttendanceWriter {
 		Element teachingInstance = new Element("TeachingInstance");
 		
 		Element tid = new Element("id");
-		tid.setText(courseComponent.getId());
+		tid.setText(courseComponent.getPresentationId());
 		teachingInstance.addContent(tid);
 		
 		Map<String, Collection<CourseSignup>> myMap = split(signups);
@@ -115,7 +115,7 @@ public class AttendanceWriter {
 		for (CourseSignup signup : signups) {
 
 			// fetch the list for this object's id
-			Collection<CourseSignup> temp = subs.get(signup.getGroup().getId());
+			Collection<CourseSignup> temp = subs.get(signup.getGroup().getCourseId());
 
 			if (temp == null) {
 				// if the list is null we haven't seen an
@@ -124,7 +124,7 @@ public class AttendanceWriter {
 				temp = new ArrayList<CourseSignup>();
 
 				// and add it to the map
-				subs.put(signup.getGroup().getId(), temp);
+				subs.put(signup.getGroup().getCourseId(), temp);
 			}
 
 			// whether we got the list from the map

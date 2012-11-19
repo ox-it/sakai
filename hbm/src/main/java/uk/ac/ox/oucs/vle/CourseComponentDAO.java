@@ -16,7 +16,8 @@ public class CourseComponentDAO  implements java.io.Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private String id;
+	private int muid;
+	private String presentationId;
     private int version;
     private String title;
     private String subject;
@@ -30,6 +31,7 @@ public class CourseComponentDAO  implements java.io.Serializable {
     private Date ends;
     private String endsText;
     private Date created;
+    private Date baseDate;
     private boolean bookable;
     private int size;
     private int taken;
@@ -49,22 +51,31 @@ public class CourseComponentDAO  implements java.io.Serializable {
     public CourseComponentDAO() {
     }
 
-	
-    public CourseComponentDAO(String id, boolean bookable) {
-        this.id = id;
+    public CourseComponentDAO(String presentationId, boolean bookable) {
+        this.presentationId = presentationId;
         this.bookable = bookable;
     }
-    public String getId() {
-        return this.id;
+    
+    public int getMuid() {
+        return this.muid;
     }
     
-    public void setId(String id) {
-        this.id = id;
+    public void setMuid(int muid) {
+        this.muid = muid;
     }
+    
+    public String getPresentationId() {
+        return this.presentationId;
+    }
+    
+    public void setPresentationId(String presentationId) {
+        this.presentationId = presentationId;
+    }
+    
+    
     public int getVersion() {
 		return version;
 	}
-
 
 	public void setVersion(int version) {
 		this.version = version;
@@ -171,6 +182,14 @@ public class CourseComponentDAO  implements java.io.Serializable {
     }
     public void setCreated(Date created) {
         this.created = created;
+    }
+    
+    
+    public Date getBaseDate() {
+        return this.baseDate;
+    }
+    public void setBaseDate(Date baseDate) {
+        this.baseDate = baseDate;
     }
     
     

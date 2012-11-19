@@ -10,8 +10,8 @@ public class CourseComponentSessionImpl implements CourseComponentSession {
 		this.dao = dao;
 	}
 
-	public String getCourceComponentId() {
-		return dao.getCourseComponentId();
+	public int getCourceComponentMuid() {
+		return dao.getCourseComponentMuid();
 	}
 
 	public Date getSessionStart() {

@@ -4,7 +4,7 @@ import java.util.Date;
 
 public interface CourseComponentSession {
 
-	public String getCourceComponentId();
+	public int getCourceComponentMuid();
 	
 	public Date getSessionStart();
 	

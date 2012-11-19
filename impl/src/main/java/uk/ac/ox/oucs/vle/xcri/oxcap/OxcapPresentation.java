@@ -13,7 +13,7 @@ public class OxcapPresentation extends Presentation {
 	private String identifier;
 	
 	public enum Status {
-		AC,CN;
+		AC,CN,DC;
 	}
 	
 	/**
@@ -47,7 +47,7 @@ public class OxcapPresentation extends Presentation {
 		
 		this.setIdentifier(element.getAttributeValue("status", OxcapNamespace.OXCAP_NAMESPACE_NS));
 		if (this.getStatus() == null) {
-			log.warn("OxcapCourse : visibility (\""+this.getIdentifier()+"\") is not a member of the recommended vocabulary");
+			log.warn("OxcapCourse : status (\""+this.getIdentifier()+"\") is not a member of the recommended vocabulary");
 		}
 	}
 

@@ -400,7 +400,7 @@ public class CourseResource {
 				
 				CourseSummary state = summary(now, courseGroup);
 				gen.writeObjectFieldStart("attr");
-				gen.writeObjectField("id", courseGroup.getId());
+				gen.writeObjectField("id", courseGroup.getCourseId());
 				gen.writeObjectField("class", state.getCourseState().toString().toLowerCase());
 				gen.writeEndObject();
 				
@@ -447,7 +447,7 @@ public class CourseResource {
 			for (CourseGroup courseGroup : courses) {
 				gen.writeStartObject();
 				
-				gen.writeObjectField("id", courseGroup.getId());
+				gen.writeObjectField("id", courseGroup.getCourseId());
 				gen.writeObjectField("description", courseGroup.getDescription());
 				gen.writeObjectField("title", courseGroup.getTitle());
 				//gen.writeObjectField("supervisorApproval", courseGroup.getSupervisorApproval());
@@ -459,7 +459,7 @@ public class CourseResource {
 				gen.writeArrayFieldStart("components");
 				for (CourseComponent component : courseGroup.getComponents()) {
 					gen.writeStartObject();
-					gen.writeObjectField("id", component.getId());
+					gen.writeObjectField("id", component.getPresentationId());
 					gen.writeObjectField("location", component.getLocation());
 					gen.writeObjectField("slot", component.getSlot());
 					gen.writeObjectField("size", component.getSize());
@@ -558,7 +558,7 @@ public class CourseResource {
 			JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
 			
 			gen.writeStartObject();
-			gen.writeObjectField("id", course.getId());
+			gen.writeObjectField("id", course.getCourseId());
 			gen.writeObjectField("description", course.getDescription());
 			gen.writeObjectField("title", course.getTitle());
 			gen.writeObjectField("supervisorApproval", course.getSupervisorApproval());
@@ -575,7 +575,7 @@ public class CourseResource {
 			gen.writeArrayFieldStart("components");
 			for (CourseComponent component : course.getComponents()) {
 				gen.writeStartObject();
-				gen.writeObjectField("id", component.getId());
+				gen.writeObjectField("id", component.getPresentationId());
 				gen.writeObjectField("location", component.getLocation());
 				gen.writeObjectField("slot", component.getSlot());
 				gen.writeObjectField("size", component.getSize());

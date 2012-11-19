@@ -40,12 +40,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
 	<script type="text/javascript" src="lib/jquery-ui-1.8.4.custom/js/jquery-ui-1.8.4.custom.min.js"></script>
 	<script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js"></script>
-	<!-- 
-	<script type="text/javascript" src="lib/dataTables-1.7/js/jquery.dataTables.js"></script>
-	<script type="text/javascript" src="lib/dataTables.reloadAjax.js"></script>
-	 -->
 	<script type="text/javascript" src="lib/signup.js"></script>
-	<script type="text/javascript" src="lib/Text.js"></script>
 	<script type="text/javascript" src="lib/serverDate.js"></script>
 		
 	<script type="text/javascript" src="lib/datejs/date-en-GB.js"></script>
@@ -78,7 +73,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 					type: "Course",
 					administrator: course.administrator?course.administrator.name:null,
 					department: course.department,
-					description: Text.toHtml(course.description),
+					description: course.description,
 					categories_rdf: course.categories_rdf,
 					categories_jacs: course.categories_jacs,
 					categories_rm: course.categories_rm,

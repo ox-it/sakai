@@ -24,8 +24,8 @@ public class CourseGroupImpl implements CourseGroup {
 		return courseGroupDAO.getDescription();
 	}
 
-	public String getId() {
-		return courseGroupDAO.getId();
+	public String getCourseId() {
+		return courseGroupDAO.getCourseId();
 	}
 
 	public String getTitle() {
@@ -67,6 +67,10 @@ public class CourseGroupImpl implements CourseGroup {
 	public String getVisibility() {
 		return courseGroupDAO.getVisibility();
 	}
+	
+	public String getRegulations() {
+		return courseGroupDAO.getRegulations();
+	}
 
 	public List<CourseComponent> getComponents() {
 		if (components == null) {
@@ -84,7 +88,7 @@ public class CourseGroupImpl implements CourseGroup {
 				if (null != c1.getCloses() && null != c2.getCloses()) {
 					return c1.getCloses().compareTo(c2.getCloses());
 				}
-				return c1.getId().compareTo(c2.getId());
+				return c1.getPresentationId().compareTo(c2.getPresentationId());
 			}
 		});
 		

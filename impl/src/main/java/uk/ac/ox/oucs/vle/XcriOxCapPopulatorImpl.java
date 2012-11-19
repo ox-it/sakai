@@ -383,6 +383,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		
 		OxcapCourse oxCourse = (OxcapCourse)course;
 		String visibility = oxCourse.getVisibility().toString();
+		String regulations = course.getRegulations()[0].getValue();
 		
 		Collection<Subject> researchCategories = new HashSet<Subject>();
 		Collection<Subject> skillsCategories = new HashSet<Subject>();
@@ -436,7 +437,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			}
 			
 			if (extension instanceof OtherDepartment) {
-				otherDepartments.add(extension.getValue());
+				if (!extension.getValue().isEmpty()) {
+					otherDepartments.add(extension.getValue());
+				}
 				continue;
 			}
 			
@@ -481,14 +484,18 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				if (validCourse(id, title, departmentCode, subunitCode, description,
 						departmentName, subunitName, visibility, 
 						supervisorApproval, administratorApproval,
-						divisionEmail, (Set<String>) administrators, 
-						(Set<String>) divisionSuperUsers, (Set<String>) otherDepartments,
-						(Set<Subject>) researchCategories, (Set<Subject>) skillsCategories, (Set<Subject>) jacsCategories)) {
+						divisionEmail, regulations,
+						(Set<String>) administrators, 
+						(Set<String>) divisionSuperUsers, 
+						(Set<String>) otherDepartments,
+						(Set<Subject>) researchCategories, 
+						(Set<Subject>) skillsCategories, 
+						(Set<Subject>) jacsCategories)) {
 			
 					if (updateCourse(id, title, departmentCode, subunitCode, description,
 							departmentName, subunitName, visibility, 
 							supervisorApproval, administratorApproval,
-							divisionEmail, data.getFeed(),
+							divisionEmail, regulations, data.getFeed(),
 							(Set<String>) administrators, 
 							(Set<String>) divisionSuperUsers, 
 							(Set<String>) otherDepartments,
@@ -591,7 +598,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		String termCode = null;
 		String sessionDates = null;
 		String memberApplyTo = null;
-		Collection<CourseComponentSessionDAO> sessions = new HashSet<CourseComponentSessionDAO>();
+		Collection<Session> sessions = new HashSet<Session>();
 		
 		for (Extension extension : presentation.getExtensions()) {
 			
@@ -653,11 +660,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			if (extension instanceof Session) {
 				Session session = (Session)extension;
 				if (session.getIdentifiers().length > 0) {
-					CourseComponentSessionDAO componentSession = 
-							new CourseComponentSessionDAO(id, session.getIdentifiers()[0].getValue(),
-									session.getStart().getDtf(), session.getStart().getValue(), 
-									session.getEnd().getDtf(), session.getEnd().getValue());
-					sessions.add(componentSession);
+					sessions.add(session);
 					continue;
 				}
 			}
@@ -677,7 +680,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				termCode,  teachingcomponentId, sessionDates,
 				teacherId, teacherName, teacherEmail,
 				slot, sessionCount, location, applyTo, memberApplyTo,
-				(Set<CourseComponentSessionDAO>) sessions, (Set<CourseGroupDAO>) courseGroups)) {
+				(Set<Session>) sessions, (Set<CourseGroupDAO>) courseGroups)) {
 			
 			if (updateComponent(id, title, subject, 
 					openDate, openText, closeDate, closeText, startDate, startText, endDate, endText,
@@ -685,7 +688,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 					termCode,  teachingcomponentId, sessionDates,
 					teacherId, teacherName, teacherEmail,
 					slot, sessionCount, location, applyTo, memberApplyTo,
-					(Set<CourseComponentSessionDAO>) sessions, (Set<CourseGroupDAO>) courseGroups)) {
+					(Set<Session>) sessions, (Set<CourseGroupDAO>) courseGroups)) {
 				data.incrComponentCreated();
 			} else {
 				data.incrComponentUpdated();
@@ -777,7 +780,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	protected static boolean validCourse(String code, String title, String departmentCode, String subunitCode, 
 			String description, String departmentName, String subunitName, 
 			String visibility, boolean supervisorApproval, boolean administratorApproval,
-			String divisionEmail, 
+			String divisionEmail, String regulations,
 			Set<String> administrators, Set<String> superusers, Set<String> otherDepartments,
 			Set<Subject> researchCategories, Set<Subject> skillsCategories, Set<Subject> jacsCategories) {
 		
@@ -833,7 +836,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	private boolean updateCourse(String id, String title, String departmentCode, String subunitCode, 
 			String description, String departmentName, String subunitName, 
 			String visibility, boolean supervisorApproval, boolean administratorApproval,
-			String divisionEmail, String feed,
+			String divisionEmail, String regulations, String feed,
 			Set<String> administrators, 
 			Set<String> superusers, 
 			Set<String> otherDepartments,
@@ -877,15 +880,15 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			Set<CourseCategoryDAO> categories = new HashSet<CourseCategoryDAO>();
 			for (Subject subject : researchCategories) {
 				categories.add(new CourseCategoryDAO(
-						id, CourseGroup.Category_Type.RM, subject.getIdentifier(), subject.getValue()));
+						groupDao.getMuid(), CourseGroup.Category_Type.RM, subject.getIdentifier(), subject.getValue()));
 			}
 			for (Subject subject : skillsCategories) {
 				categories.add(new CourseCategoryDAO(
-						id, CourseGroup.Category_Type.RDF, subject.getIdentifier(), subject.getValue()));
+						groupDao.getMuid(), CourseGroup.Category_Type.RDF, subject.getIdentifier(), subject.getValue()));
 			}
 			for (Subject subject : jacsCategories) {
 				categories.add(new CourseCategoryDAO(
-						id, CourseGroup.Category_Type.JACS, subject.getIdentifier(), subject.getValue()));
+						groupDao.getMuid(), CourseGroup.Category_Type.JACS, subject.getIdentifier(), subject.getValue()));
 			}
 			
 			//remove unwanted categories
@@ -935,7 +938,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			String termCode,  String teachingComponentId, String termName,
 			String teacherId, String teacherName, String teacherEmail,
 			String sessionDates, String sessionCount, String location, String applyTo, String memberApplyTo,
-			Set<CourseComponentSessionDAO> sessions, Set<CourseGroupDAO> groups) {
+			Set<Session> sessions, Set<CourseGroupDAO> groups) {
 		
 		log.debug("XcriPopulatorImpl.validComponent ["+id+":"+title+":"+subject+":"+
 				viewDate(openDate, openText)+":"+viewDate(closeDate, closeText)+":"+viewDate(startDate, startText)+":"+viewDate(endDate, endText)+":"+
@@ -1038,7 +1041,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			String termCode,  String teachingComponentId, String termName,
 			String teacherId, String teacherName, String teacherEmail,
 			String sessionDates, String sessionCount, String location, String applyTo, String memberApplyTo,
-			Set<CourseComponentSessionDAO> sessions, Set<CourseGroupDAO> groups) throws IOException {
+			Set<Session> sessions, Set<CourseGroupDAO> groups) throws IOException {
 		
 		boolean created = false;
 		if (null != dao) {
@@ -1062,6 +1065,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			componentDao.setTermcode(termCode);
 			componentDao.setComponentId(teachingComponentId+":"+termCode);
 		
+			componentDao.setBaseDate(baseDate(componentDao));
+					
 			// Cleanout existing groups.
 			componentDao.setGroups(new HashSet<CourseGroupDAO>());
 		
@@ -1086,8 +1091,11 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			//componentDao.setComponentSessions(sessions);
 			
 			Collection componentSessions = componentDao.getComponentSessions();
-			for (CourseComponentSessionDAO session : sessions) {
-				componentSessions.add(session);
+			for (Session session : sessions) {
+				componentSessions.add(
+						new CourseComponentSessionDAO(componentDao.getMuid(), session.getIdentifiers()[0].getValue(),
+								session.getStart().getDtf(), session.getStart().getValue(), 
+								session.getEnd().getDtf(), session.getEnd().getValue()));
 			}
 			
 			
@@ -1150,7 +1158,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			CourseGroupDAO courseDao = null;
 			if (null == dao) {
 				courseDao = new CourseGroupDAO();
-				courseDao.setId(group);
+				courseDao.setCourseId(group);
 			} else {
 				courseDao = dao.findCourseGroupById(group);
 			}
@@ -1189,6 +1197,20 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		return Boolean.parseBoolean(data);
 	}
 	
+	/**
+	 * 
+	 * @param component
+	 * @return
+	 */
+	private static Date baseDate(CourseComponentDAO component) {
+		if (null != component.getStarts()) {
+			return component.getStarts();
+		}
+		if (null != component.getCloses()) {
+			return component.getCloses();
+		}
+		return null;
+	}
 	/**
 	 * 
 	 * @param data

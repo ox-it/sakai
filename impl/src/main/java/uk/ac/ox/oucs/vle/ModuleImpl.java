@@ -138,7 +138,7 @@ public class ModuleImpl implements Module {
 				if (isToday(component.getCloses())) {
 					// Component is about to close
 					log.info("Component is about to close ["+
-							component.getId()+":"+
+							component.getPresentationId()+":"+
 							DateFormat.getInstance().format(component.getCloses())+":"+
 							component.getSubject()+"]");
 					componentsClosing.add(component);
@@ -169,7 +169,7 @@ public class ModuleImpl implements Module {
 				if (isAboutToStart(component.getStarts())) {
 					// Component is about to start
 					log.info("Component is about to start ["+
-							component.getId()+":"+
+							component.getPresentationId()+":"+
 							DateFormat.getInstance().format(component.getStarts())+":"+
 							component.getSubject()+"]");
 					componentsStarting.add(component);

@@ -17,6 +17,7 @@ public class CourseComponentImpl implements CourseComponent {
 	private transient Date starts;
 	private transient Date ends;
 	private transient Date created;
+	private transient Date baseDate;
 	
 	private static int YEARSAGO = -1825;
 	
@@ -25,8 +26,8 @@ public class CourseComponentImpl implements CourseComponent {
 		//this.impl = impl;
 	}
 
-	public String getId() {
-		return dao.getId();
+	public String getPresentationId() {
+		return dao.getPresentationId();
 	}
 	
 	public String getSubject() {
@@ -116,6 +117,19 @@ public class CourseComponentImpl implements CourseComponent {
 			return cal.getTime();
 		}
 		return created;
+	}
+	
+	public Date getBaseDate() {
+		// Jackson doesn't like java.sql.Date.
+		if(baseDate == null && dao.getBaseDate() != null) {
+			baseDate = new Date(dao.getBaseDate().getTime());
+		}
+		if (null == baseDate) {
+			GregorianCalendar cal = new GregorianCalendar();  
+			cal.add(Calendar.DATE, YEARSAGO);   
+			return cal.getTime();
+		}
+		return baseDate;
 	}
 
 	public String getComponentSet() {
