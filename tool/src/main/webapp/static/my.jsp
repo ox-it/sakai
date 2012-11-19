@@ -34,7 +34,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<script type="text/javascript" src="lib/serverDate.js"></script>
 	<script type="text/javascript" src="lib/jquery.tooltip.js"></script>
 
-<script type="text/javascript">
+	<script type="text/javascript">
 	$(function() {
 		$("#signups").html('<table border="0" class="display" id="signups-table"></table>');
 		var signups = $("#signups-table").signupTable("../rest/signup/my", false);
