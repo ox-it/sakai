@@ -387,7 +387,10 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 			if (check != null && check.length() != 0)
 			{
 				if (check.contains("Edit QuestionEdit")) break;
-				qtext = qtext.concat(check);
+				if (qtext.length() == 0)
+					qtext = qtext.concat(check);
+				else
+					qtext = qtext.concat("\n" + check);
 			}			
 		}
 		feedbackText[0] = qtext;
@@ -414,8 +417,11 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 			if (check != null && check.length() != 0)
 			{
 				if (check.startsWith("Edit QuestionEdit")) break;
-				if (check.startsWith("Points")) break;				
-				qtext = qtext.concat(check);
+				if (check.startsWith("Points")) break;
+				if (qtext.length() == 0)
+					qtext = qtext.concat(check);
+				else
+					qtext = qtext.concat("\n" + check);
 			}			
 		}
 		questionText[0] = qtext;
@@ -440,6 +446,10 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 			if (processTextEssay(pool, part, lines)) return;
 			if (processTextFillBlanks(pool, part, lines)) return;
 			if (processTextMatch(pool, part, lines)) return;
+		}
+		catch (AssessmentPermissionException ase)
+		{
+			throw ase;
 		}
 		catch (Exception e)
 		{
