@@ -553,12 +553,18 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		String closeText = null;
 		int capacity = 0;
 		String location = null;
+		String attendanceMode = null;
+		String attendanceModeText = null;
+		String attendancePattern = null;
+		String attendancePatternText = null;
 		
 		if (null != presentation.getAttendanceMode()) {
-			subject = presentation.getAttendanceMode().getValue();
+			attendanceMode = presentation.getAttendanceMode().getIdentifier();
+			attendanceModeText = presentation.getAttendanceMode().getValue();
 		}
 		if (null != presentation.getAttendancePattern()) {
-			slot = presentation.getAttendancePattern().getValue();
+			attendancePattern = presentation.getAttendancePattern().getIdentifier();
+			attendancePatternText = presentation.getAttendancePattern().getValue();
 		}
 		if (null != presentation.getApplyTo()) {
 			applyTo = presentation.getApplyTo().getValue();
@@ -679,6 +685,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				bookable, capacity, 
 				termCode,  teachingcomponentId, sessionDates,
 				teacherId, teacherName, teacherEmail,
+				attendanceMode, attendanceModeText, 
+				attendancePattern, attendancePatternText, 
 				slot, sessionCount, location, applyTo, memberApplyTo,
 				(Set<Session>) sessions, (Set<CourseGroupDAO>) courseGroups)) {
 			
@@ -687,6 +695,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 					bookable, capacity, 
 					termCode,  teachingcomponentId, sessionDates,
 					teacherId, teacherName, teacherEmail,
+					attendanceMode, attendanceModeText, 
+					attendancePattern, attendancePatternText, 
 					slot, sessionCount, location, applyTo, memberApplyTo,
 					(Set<Session>) sessions, (Set<CourseGroupDAO>) courseGroups)) {
 				data.incrComponentCreated();
@@ -937,6 +947,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			boolean bookable, int capacity, 
 			String termCode,  String teachingComponentId, String termName,
 			String teacherId, String teacherName, String teacherEmail,
+			String attendanceMode, String attendanceModeText,
+			String attendancePattern, String attendancePatternText,
 			String sessionDates, String sessionCount, String location, String applyTo, String memberApplyTo,
 			Set<Session> sessions, Set<CourseGroupDAO> groups) {
 		
@@ -945,6 +957,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				bookable+":"+capacity+":"+
 				termCode+":"+teachingComponentId+":"+termName+":"+
 				teacherId+":"+teacherName+":"+teacherEmail+":"+
+				attendanceMode+":"+attendanceModeText+":"+
+				attendancePattern+":"+attendancePatternText+":"+
 				sessionDates+":"+sessions+":"+location+":"+
 				applyTo+":"+memberApplyTo+":"+
 				groups.size()+"]");
@@ -1040,6 +1054,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			boolean bookable, int capacity, 
 			String termCode,  String teachingComponentId, String termName,
 			String teacherId, String teacherName, String teacherEmail,
+			String attendanceMode, String attendanceModeText,
+			String attendancePattern, String attendancePatternText,
 			String sessionDates, String sessionCount, String location, String applyTo, String memberApplyTo,
 			Set<Session> sessions, Set<CourseGroupDAO> groups) throws IOException {
 		
@@ -1063,6 +1079,10 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			componentDao.setBookable(bookable);
 			componentDao.setSize(capacity);
 			componentDao.setTermcode(termCode);
+			componentDao.setAttendanceMode(attendanceMode);
+			componentDao.setAttendanceModeText(attendanceModeText);
+			componentDao.setAttendancePattern(attendancePattern);
+			componentDao.setAttendancePatternText(attendancePatternText);
 			componentDao.setComponentId(teachingComponentId+":"+termCode);
 		
 			componentDao.setBaseDate(baseDate(componentDao));

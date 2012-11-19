@@ -49,6 +49,14 @@ public interface CourseComponent {
 	public String getApplyTo();
 	
 	public String getMemberApplyTo();
+	
+	public String getAttendanceMode();
+	
+	public String getAttendanceModeText();
+	
+	public String getAttendancePattern();
+	
+	public String getAttendancePatternText();
 
 	/**
 	 * The ID of the component set that this component belongs to.

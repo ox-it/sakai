@@ -44,6 +44,10 @@ public class CourseComponentDAO  implements java.io.Serializable {
     private String location;
     private String applyTo;
     private String memberApplyTo;
+    private String attendanceMode;
+    private String attendanceModeText;
+    private String attendancePattern;
+    private String attendancePatternText;
     private Set<CourseSignupDAO> signups = new HashSet<CourseSignupDAO>(0);
     private Set<CourseGroupDAO> groups = new HashSet<CourseGroupDAO>(0);
     private Set<CourseComponentSessionDAO> componentSessions = new HashSet<CourseComponentSessionDAO>(0);
@@ -319,7 +323,38 @@ public class CourseComponentDAO  implements java.io.Serializable {
 	public void setMemberApplyTo(String memberApplyTo) {
 		this.memberApplyTo = memberApplyTo;
 	}
+	
+	public String getAttendanceMode() {
+		return attendanceMode;
+	}
 
+	public void setAttendanceMode(String attendanceMode) {
+		this.attendanceMode = attendanceMode;
+	}
+	
+	public String getAttendanceModeText() {
+		return attendanceModeText;
+	}
+
+	public void setAttendanceModeText(String attendanceModeText) {
+		this.attendanceModeText = attendanceModeText;
+	}
+
+	public String getAttendancePattern() {
+		return attendancePattern;
+	}
+
+	public void setAttendancePattern(String attendancePattern) {
+		this.attendancePattern = attendancePattern;
+	}
+	
+	public String getAttendancePatternText() {
+		return attendancePatternText;
+	}
+
+	public void setAttendancePatternText(String attendancePatternText) {
+		this.attendancePatternText = attendancePatternText;
+	}
 }
 
 

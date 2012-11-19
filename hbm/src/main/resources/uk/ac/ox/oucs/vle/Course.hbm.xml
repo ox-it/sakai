@@ -129,6 +129,10 @@
 		<property name="teacherName" type="string" length="255"/>
 		<property name="teacherEmail" type="string" length="255"/>
 		<property name="when" column="happening" type="string" length="4000"/>
+		<property name="attendanceMode" type="string" length="16"/>
+		<property name="attendanceModeText" type="string" length="255"/>
+		<property name="attendancePattern" type="string" length="16"/>
+		<property name="attendancePatternText" type="string" length="255"/>
 		<property name="slot" type="string" length="4000"/>
 		<property name="sessions" type="string" length="4000"/>
 		<property name="location" type="string" length="4000"/>

@@ -159,5 +159,21 @@ public class CourseComponentImpl implements CourseComponent {
 	public String getMemberApplyTo() {
 		return dao.getMemberApplyTo();
 	}
+	
+	public String getAttendanceMode() {
+		return dao.getAttendanceMode();
+	}
+	
+	public String getAttendanceModeText() {
+		return dao.getAttendanceModeText();
+	}
+	
+	public String getAttendancePattern() {
+		return dao.getAttendancePattern();
+	}
+	
+	public String getAttendancePatternText() {
+		return dao.getAttendancePatternText();
+	}
 
 }

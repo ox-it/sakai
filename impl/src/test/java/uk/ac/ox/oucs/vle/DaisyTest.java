@@ -104,7 +104,7 @@ public class DaisyTest extends TestCase {
 		OverrideManager.registerOverride(Presentation.class, new OxcapPresentation());
 		/*
 		// Careers
-		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap");
+		URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap");
 		
 		// Continuing Education
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=http%3A//course.data.ox.ac.uk/id/continuing-education/catalog&format=xcricap");
@@ -133,7 +133,7 @@ public class DaisyTest extends TestCase {
         */
         // Daisy
         InputStream inStream = getClass().getResourceAsStream("/XCRI_OXCAP.xml");
-       
+        
 		catalog = new Catalog();
 		builder = new SAXBuilder();
 		Document document = builder.build(inStream);
@@ -382,12 +382,20 @@ public class DaisyTest extends TestCase {
 					assertTrue(presentation instanceof OxcapPresentation);
 					
 					String title = presentation.getTitles()[0].getValue();
-					String attendanceMode = null;
-					if (null != presentation.getAttendanceMode()) {
-						presentation.getAttendanceMode().getValue();
-					}
 					
-					//String slot = presentation.getAttendancePattern().getValue();
+					String attendanceMode = null;
+					String attendanceModeText = null;
+					String attendancePattern = null;
+					String attendancePatternText = null;
+					
+					if (null != presentation.getAttendanceMode()) {
+						attendanceMode = presentation.getAttendanceMode().getIdentifier();
+						attendanceModeText = presentation.getAttendanceMode().getValue();
+					}
+					if (null != presentation.getAttendancePattern()) {
+						attendancePattern = presentation.getAttendancePattern().getIdentifier();
+						attendancePatternText = presentation.getAttendancePattern().getValue();
+					}
 					
 					String applyTo = null;
 					if (null != presentation.getApplyTo()) {
@@ -537,6 +545,8 @@ public class DaisyTest extends TestCase {
 									endDate, endText, 
 									bookable, capacity, termCode, teachingcomponentId, 
 									sessionDates, teacherId, teacherName, teacherEmail, 
+									attendanceMode, attendanceModeText,
+									attendancePattern, attendancePatternText,
 									sessionDates, sessionCount, location, applyTo, 
 									memberApplyTo, 
 									sessions, 
