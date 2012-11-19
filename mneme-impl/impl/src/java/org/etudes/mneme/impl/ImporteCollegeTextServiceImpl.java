@@ -416,8 +416,8 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 			String check = lines[(++line)];
 			if (check != null && check.length() != 0)
 			{
-				if (check.startsWith("Edit QuestionEdit")) break;
-				if (check.startsWith("Points")) break;
+				if (check.contains("Edit QuestionEdit")) break;
+				if (check.contains("Points")) break;
 				if (qtext.length() == 0)
 					qtext = qtext.concat(check);
 				else
@@ -427,6 +427,37 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 		questionText[0] = qtext;
 		return line;
 	}
+
+	/**
+	 * Get the second part of match. It can span over multiple lines.
+	 * @param lines
+	 * @param line
+	 * @param secondText
+	 * @return the line number till it has read the second text
+	 */
+	private int getMatchSecondText(String[] lines, int line, String[] secondText)
+	{
+		String processText = lines[line].trim();
+		String[] parts = StringUtil.split(processText, "\t");
+		String twoText = "";
+		if(parts.length == 3) twoText = parts[2].trim();
+		while (true)
+		{
+			if (line + 1 == lines.length) break;
+			String check = lines[(line + 1)];
+			if (check != null && check.length() != 0)
+			{
+				if (check.contains("Edit QuestionEdit")) break;
+				if (check.contains("<==>")) break;
+				twoText = twoText.concat(check);	
+				line++;
+			}		
+			else line++;
+		}
+		secondText[0] = twoText;
+		return line;
+	}
+	
 	
 	/**
 	 * check which type of question and process it accordingly
@@ -669,9 +700,13 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 			}
 			else
 			{
-				String oneText = parts[0].trim();
-				if (oneText != null) oneText = Validator.escapeHtml(oneText);
-				String twoText = parts[2].trim();
+				String oneText = parts[0].trim();			
+				if("<==>".equals(oneText)) oneText = "";
+				if (oneText != null) oneText = Validator.escapeHtml(oneText);				
+				
+				String[] secondText = new String[]{ "" };
+				line = getMatchSecondText(lines, line, secondText);
+				String twoText = secondText[0].trim();
 				if (twoText != null) twoText = Validator.escapeHtml(twoText);
 
 				if (oneText == null && twoText == null) continue;
@@ -753,29 +788,39 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 			{
 				String choiceText = parts[0];
 				choiceText = Validator.escapeHtml(choiceText);
-				choices.add(choiceText);
-				choiceNumber++;
 				boolean correctAnswer = false;
-				if (parts.length >= 2 && ("CORRECT ANSWER").equals(parts[1].trim()))
+
+				if (parts.length == 1 && ("CORRECT ANSWER").equals(choiceText))
 				{
 					correctAnswer = true;
 					correctAnswers.add(choiceNumber);
-					if (parts.length >= 3 && (parts[parts.length - 1] != null)) question.setFeedback(parts[parts.length - 1].trim());
 				}
-
-				// check for feedback which starts with /n but is not an option item.
-				if (line + 1 == lines.length) break;
-				String check = lines[line + 1];
-				if (check != null)
+				else
 				{
-					if (check.startsWith("Edit QuestionEdit")) break;
-					String[] parts_check = StringUtil.split(check, "\t");
-					if (parts_check.length == 1)
+					choices.add(choiceText);
+					choiceNumber++;
+
+					if (parts.length >= 2 && ("CORRECT ANSWER").equals(parts[1].trim()))
 					{
-						if (correctAnswer) question.setFeedback(Validator.escapeHtml(check.trim()));
-						line++;
+						correctAnswer = true;
+						correctAnswers.add(choiceNumber);
+						if (parts.length >= 3 && (parts[parts.length - 1] != null)) question.setFeedback(parts[parts.length - 1].trim());
 					}
-				} // part of feedback check ends
+
+					// check for feedback which starts with /n but is not an option item.
+					if (line + 1 == lines.length) break;
+					String check = lines[line + 1];
+					if (check != null)
+					{
+						if (check.startsWith("Edit QuestionEdit") || check.contains("Edit QuestionEdit")) break;
+						String[] parts_check = StringUtil.split(check, "\t");
+						if (parts_check.length == 1)
+						{
+							if (correctAnswer) question.setFeedback(Validator.escapeHtml(check.trim()));
+							line++;
+						}
+					} // part of feedback check ends
+				}
 			}
 		}
 		// randomize
@@ -788,7 +833,7 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 		mc.setCorrectAnswerSet(correctAnswers);
 
 		// single / multiple select
-		if (correctAnswers.size() == 1)
+		if (correctAnswers.size() <= 1)
 			mc.setSingleCorrect(Boolean.TRUE.toString());
 		else
 			mc.setSingleCorrect(Boolean.FALSE.toString());
