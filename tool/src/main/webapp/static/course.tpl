@@ -11,6 +11,8 @@
 					</div>
                 {else}
                 <table width="100%">
+                	
+                	{if presenters.length > 0}
                 	<tr>
                         <th>
                             Lecturer(s)
@@ -25,6 +27,9 @@
 							{/for}
                         </td>
                     </tr>
+                    {/if}
+                    
+                    {if administrators.length > 0}
                     <tr>
                         <th>
                             Module Administrator
@@ -39,6 +44,8 @@
 							{/for}
                         </td>
                     </tr>
+                    {/if}
+                    
                     <tr>
                         <th>
                             Department
@@ -51,6 +58,7 @@
 							{/if}
                         </td>
                     </tr>
+                    
                     <tr>
                         <th>
                             Signup Available
@@ -122,13 +130,7 @@
                 	{var anyOpenParts = false}
                     <table width="100%">
                     	{for part in parts}
-                    		{if part.subject}
-								<tr>
-                     	       		<th colspan="3">
-                     	       			${part.subject}
-                            		</th>
-                        		</tr>
-                       		{/if}
+                    		
                         	{if !hide}
                         		<tr>
                             		<td colspan="3">

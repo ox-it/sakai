@@ -144,12 +144,19 @@
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"
 				column="signup" />
 		</set>
+		<!-- 
 		<set name="groups" table="course_group_component"
 			lazy="true">
 			<key column="courseComponentMuid" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO"
 				column="courseGroupMuid" />
 		</set>
+		 -->
+		<set name="groups" inverse="true" lazy="true" table="course_group_component" fetch="join">
+			<key column="courseComponentMuid" />
+			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO" column="courseGroupMuid" />
+		</set>
+		
 		<set name="componentSessions" inverse="false" lazy="true" cascade="all-delete-orphan" table="course_component_session" fetch="select">
 			<key column="courseComponentMuid"/>
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseComponentSessionDAO"/>

@@ -1,6 +1,8 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public interface CourseComponent {
 
@@ -57,6 +59,8 @@ public interface CourseComponent {
 	public String getAttendancePattern();
 	
 	public String getAttendancePatternText();
+	
+	public List<CourseComponentSession> getComponentSessions();
 
 	/**
 	 * The ID of the component set that this component belongs to.

@@ -1183,6 +1183,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	/**
 	 * 
 	 */
+	/*
 	public List<CourseGroup> getCourseCalendar(boolean external, String providerId) {
 		String userId = proxy.getCurrentUser().getId();
 		List <CourseGroupDAO> groupDaos = dao.findCourseGroupsByCalendar(external, providerId);
@@ -1192,16 +1193,34 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		return groups;
 	}
+	*/
+	public List<CourseGroup> getCourseCalendar(boolean external, String providerId) {
+		String userId = proxy.getCurrentUser().getId();
+		List <CourseComponentDAO> componentDaos = dao.findCourseGroupsByCalendar(external, providerId);
+		List<CourseGroup> groups = new ArrayList<CourseGroup>();
+		for (CourseComponentDAO componentDao : componentDaos) {
+			for (CourseGroupDAO groupDao : componentDao.getGroups()) {
+				CourseGroupDAO myGroupDao = (CourseGroupDAO)groupDao.clone();
+				myGroupDao.setComponents(Collections.singleton(componentDao));
+				groups.add(new CourseGroupImpl(myGroupDao, this));
+			}
+		}
+		return groups;
+	}
 	
 	/**
 	 * 
 	 */
 	public List<CourseGroup> getCourseNoDates(boolean external, String providerId) {
 		String userId = proxy.getCurrentUser().getId();
-		List <CourseGroupDAO> groupDaos = dao.findCourseGroupsByNoDates(external, providerId);
-		List<CourseGroup> groups = new ArrayList<CourseGroup>(groupDaos.size());
-		for(CourseGroupDAO groupDao : groupDaos) {
-			groups.add(new CourseGroupImpl(groupDao, this));
+		List <CourseComponentDAO> componentDaos = dao.findCourseGroupsByNoDates(external, providerId);
+		List<CourseGroup> groups = new ArrayList<CourseGroup>();
+		for (CourseComponentDAO componentDao : componentDaos) {
+			for (CourseGroupDAO groupDao : componentDao.getGroups()) {
+				CourseGroupDAO myGroupDao = (CourseGroupDAO)groupDao.clone();
+				myGroupDao.setComponents(Collections.singleton(componentDao));
+				groups.add(new CourseGroupImpl(myGroupDao, this));
+			}
 		}
 		
 		Collections.sort(groups, new Comparator<CourseGroup>() {
@@ -1209,6 +1228,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				
 				String when1 = c1.getComponents().get(c1.getComponents().size() -1).getWhen();
 				String when2 = c2.getComponents().get(c2.getComponents().size() -1).getWhen();
+				if (null == when1) {
+					return 1;
+				}
+				if (null == when2) {
+					return -1;
+				}
 				String[] words1 = when1.split(" ");
 				String[] words2 = when2.split(" ");
 				if (words1.length < 2) {

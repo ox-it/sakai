@@ -1,14 +1,19 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 
 public class CourseComponentImpl implements CourseComponent {
 	
 	private CourseComponentDAO dao;
+	private List<CourseComponentSession> componentSessions;
+	
 	//private CourseSignupServiceImpl impl;
 	
 	/// Local caches.
@@ -175,5 +180,14 @@ public class CourseComponentImpl implements CourseComponent {
 	public String getAttendancePatternText() {
 		return dao.getAttendancePatternText();
 	}
-
+	
+	public List<CourseComponentSession> getComponentSessions() {
+		if (componentSessions == null) {
+			componentSessions = new ArrayList<CourseComponentSession>();
+			for(CourseComponentSessionDAO session:  dao.getComponentSessions()) {
+				componentSessions.add(new CourseComponentSessionImpl(session));
+			}
+		}
+		return componentSessions;
+	}
 }

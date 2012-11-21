@@ -78,65 +78,6 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 	}
 	
-	/*
-	public CourseGroupDAO findCourseGroupById(final String courseId, final Range range , final Date now ) {
-		return (CourseGroupDAO) getHibernateTemplate().execute(new HibernateCallback() {
-			// Need the DISTINCT ROOT ENTITY filter.
-			public Object doInHibernate(Session session) 
-					throws HibernateException,	SQLException {
-
-				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("SELECT DISTINCT * FROM course_group cg ");
-				//querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.courseGroupMuid = cg.muid ");
-				querySQL.append("LEFT JOIN course_group_component cgc on cgc.courseGroupMuid = cg.muid ");
-				querySQL.append("LEFT JOIN course_component cc on cgc.courseComponentMuid = cc.muid ");
-				querySQL.append("WHERE ");
-				
-				querySQL.append("visibility != 'PR' AND ");
-				
-				switch (range) {
-					case NOTSTARTED:
-						querySQL.append("CASE WHEN (cc.starts is not null) THEN ");
-						querySQL.append("cc.starts > NOW() ");
-						querySQL.append("ELSE ");
-						querySQL.append("cc.closes > NOW() ");
-						querySQL.append("END AND ");
-						break;
-					
-					case UPCOMING:
-						querySQL.append("CASE WHEN (cc.closes is not null) THEN ");
-						querySQL.append("cc.closes > NOW() ");
-						querySQL.append("ELSE ");
-						querySQL.append("cc.starts > NOW() ");
-						querySQL.append("END AND ");
-						break;
-						
-					case PREVIOUS:
-						querySQL.append("CASE WHEN (cc.closes is not null) THEN ");
-						querySQL.append("cc.closes < NOW() ");
-						querySQL.append("ELSE ");
-						querySQL.append("cc.starts < NOW() ");
-						querySQL.append("END AND ");
-						break;
-				}
-				
-				querySQL.append("cg.courseId = :id ");
-				
-				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
-				query.setString("id", courseId);
-				List<CourseGroupDAO> courseGroups =  query.list();
-				int results = courseGroups.size();
-				if (results > 0) {
-					if (results > 1) {
-						throw new IllegalStateException("To many results ("+ results + ") found for "+ courseId );
-					}
-					return courseGroups.get(0);
-				}
-				return null;
-			}
-		});
-	}
-    */
 	@SuppressWarnings("unchecked")
 	public CourseGroupDAO findUpcomingComponents(String courseId, Date available) {
 		List<CourseGroupDAO> courseGroups = getHibernateTemplate().findByNamedParam(
@@ -796,38 +737,46 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public void save(CourseUserPlacementDAO placementDao) {
 		getHibernateTemplate().save(placementDao).toString();
 	}
-
-	public List<CourseGroupDAO> findCourseGroupsByCalendar(final boolean external, String providerId) {
+	
+	/**
+	 * 
+	 */
+	@SuppressWarnings("unchecked")
+	public List<CourseComponentDAO> findCourseGroupsByCalendar(final boolean external, final String providerId) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("select * from course_group cg ");
-				querySQL.append("left join course_group_component cgc on cgc.courseGroupMuid = cg.muid ");
-				querySQL.append("left join course_component cc on cgc.courseComponentMuid = cc.muid ");
+				querySQL.append("select distinct * from course_component cc ");
+				querySQL.append("left join course_group_component cgc on cgc.courseComponentMuid = cc.muid ");
+				querySQL.append("left join course_group cg on cgc.courseGroupMuid = cg.muid ");
 				querySQL.append("where cc.starts > NOW() and cg.hideGroup = false ");
 				querySQL.append("and cg.visibility != 'PR' ");
 				if (external) {
 					querySQL.append("and cg.visibility != 'RS' ");
 				}
-				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
+				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseComponentDAO.class);
 				return query.list();
 			}
 		});
 	}
 	
-	public List<CourseGroupDAO> findCourseGroupsByNoDates(final boolean external, String providerId) {
+	/**
+	 * 
+	 */
+	@SuppressWarnings("unchecked")
+	public List<CourseComponentDAO> findCourseGroupsByNoDates(final boolean external, String providerId) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("select * from course_group cg ");
-				querySQL.append("left join course_group_component cgc on cgc.courseGroupMuid = cg.muid ");
-				querySQL.append("left join course_component cc on cgc.courseComponentMuid = cc.muid ");
+				querySQL.append("select distinct * from course_component cc ");
+				querySQL.append("left join course_group_component cgc on cgc.courseComponentMuid = cc.muid ");
+				querySQL.append("left join course_group cg on cgc.courseGroupMuid = cg.muid ");
 				querySQL.append("where cc.starts is NULL and cc.closes > NOW() and cg.hideGroup = false ");
 				querySQL.append("and cg.visibility != 'PR' ");
 				if (external) {
 					querySQL.append("and cg.visibility != 'RS' ");
 				}
-				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
+				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseComponentDAO.class);
 				return query.list();
 			}
 		});
