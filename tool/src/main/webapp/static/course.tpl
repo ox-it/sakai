@@ -59,6 +59,17 @@
                         </td>
                     </tr>
                     
+                    {if regulations}
+                    <tr>
+                        <th>
+                            Eligibility
+                        </th>
+                        <td>
+							${regulations}	
+                        </td>
+                    </tr>
+                    {/if}
+                    
                     <tr>
                         <th>
                             Signup Available
@@ -147,7 +158,17 @@
                                 			{else}
                                 				For
                                 			{/if}
-                                			${option.sessions} sessions starts in ${option.when}, 
+                                			
+                                			{if option.sessionCount}
+                                				${option.sessionCount} sessions 
+                                			{else}
+                                				N sessions
+                                			{/if}
+                                			
+                                			{if option.when}
+                                				starts in ${option.when}, 
+                                			{/if}
+                                			
 											{if option.presenter}
 												{if option.presenter.email}
 													<a href="mailto:${option.presenter.email}">
@@ -159,13 +180,24 @@
 											{/if}
 											</label>
                                 			<br/>
+                                			
                                 			<span class="location">
                                 			{if option.starts}
                                 				teaching starts on ${new Date(option.starts).toDateString()}
+                                			{else}
+                                				{if option.startsText} 
+                                					teaching starts on ${option.startsText}
+                                				{/if}
                                 			{/if}
+                                			
                                 			{if option.ends} 
                                 				and ends on ${new Date(option.ends).toDateString()}
+                                			{else}
+                                				{if option.endsText} 
+                                					and ends on ${option.endsText}
+                                				{/if}
                                 			{/if}
+                                			
                                 			{if option.location}
                                 				{if option.starts || option.ends}
                                 					<br/>
@@ -263,6 +295,14 @@
 						<p>Non Oxford users cannot be given a username.</p>
 						{if defined('contactEmail')}
 							<p><a href="mailto:${contactEmail}">Make an Enquiry</a></p>
+						{else}
+							{if defined('applyTo')}
+								<p><a href="${applyTo}">${applyTo}</a></p>
+							{else}
+								{if defined('memberApplyTo')}
+									<p><a href="${memberApplyTo}">${memberApplyTo}</a></p>
+								{/if}
+							{/if}
 						{/if}
 					{/if}
 					

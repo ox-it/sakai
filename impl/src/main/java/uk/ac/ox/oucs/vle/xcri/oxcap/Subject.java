@@ -97,14 +97,23 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 	}
 	
 	public boolean isJACSCategory() {
+		if (null == this.getCategoryNamespace()) {
+			return false;
+		}
 		return jacs.equals(this.getCategoryNamespace().getURI());
 	}
 	
 	public boolean isRMCategory() {
+		if (null == this.getCategoryNamespace()) {
+			return false;
+		}
 		return rm.equals(this.getCategoryNamespace().getURI());
 	}
 	
 	public boolean isRDFCategory() {
+		if (null == this.getCategoryNamespace()) {
+			return false;
+		}
 		return rdf.equals(this.getCategoryNamespace().getURI());
 	}
 

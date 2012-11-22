@@ -571,6 +571,7 @@ public class CourseResource {
 			gen.writeObjectField("departmentCode", course.getDepartmentCode());
 			gen.writeObjectField("subUnit", course.getSubUnit());
 			gen.writeObjectField("subUnitCode", course.getSubUnitCode());
+			gen.writeObjectField("regulations", course.getRegulations());
 				
 			gen.writeArrayFieldStart("components");
 			for (CourseComponent component : course.getComponents()) {
@@ -583,21 +584,35 @@ public class CourseResource {
 				if (null != component.getOpens()) {
 					gen.writeObjectField("opens", component.getOpens().getTime());
 				}
+				gen.writeObjectField("opensText", component.getOpensText());
 				if (null != component.getCloses()) {
 					gen.writeObjectField("closes", component.getCloses().getTime());
 				}
+				gen.writeObjectField("closesText", component.getClosesText());
 				gen.writeObjectField("title", component.getTitle());
-				gen.writeObjectField("sessions", component.getSessions());
+				//gen.writeObjectField("sessions", component.getSessions());
 				gen.writeObjectField("when", component.getWhen());
 				gen.writeObjectField("bookable", component.getBookable());
 				if (null != component.getStarts()) {
 					gen.writeObjectField("starts", component.getStarts().getTime());
 				}
+				gen.writeObjectField("startsText", component.getStartsText());
 				if (null != component.getEnds()) {
 					gen.writeObjectField("ends", component.getEnds().getTime());
 				}
+				gen.writeObjectField("endsText", component.getEndsText());
 				gen.writeObjectField("places", component.getPlaces());
 				gen.writeObjectField("componentSet", component.getComponentSet());
+				gen.writeObjectField("sessionCount", component.getSessions());
+				
+				gen.writeObjectField("applyTo", component.getApplyTo());
+				gen.writeObjectField("memberApplyTo", component.getMemberApplyTo());
+				
+				gen.writeObjectField("attendanceMode", component.getAttendanceMode());
+				gen.writeObjectField("attendanceModeText", component.getAttendanceModeText());
+				gen.writeObjectField("attendancePattern", component.getAttendancePattern());
+				gen.writeObjectField("attendancePatternText", component.getAttendancePatternText());
+				
 				if (null != component.getPresenter()) {
 					gen.writeObjectFieldStart("presenter");
 					gen.writeObjectField("name", component.getPresenter().getName());
@@ -605,6 +620,17 @@ public class CourseResource {
 					//gen.writeObjectField("units", component.getPresenter().getUnits());
 					gen.writeEndObject();
 				}
+				gen.writeArrayFieldStart("sessions");
+				for (CourseComponentSession session : component.getComponentSessions()) {
+					gen.writeStartObject();
+					gen.writeObjectField("sessionId", session.getSessionId());
+					gen.writeObjectField("sessionStart", session.getSessionStart().getTime());
+					gen.writeObjectField("sessionStartText", session.getSessionStartText());
+					gen.writeObjectField("sessionEnd", session.getSessionEnd().getTime());
+					gen.writeObjectField("sessionEndText", session.getSessionEndText());
+					gen.writeEndObject();
+				}
+				gen.writeEndArray();
 				gen.writeEndObject();
 			}
 			gen.writeEndArray();

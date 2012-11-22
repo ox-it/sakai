@@ -13,6 +13,10 @@ public class CourseComponentSessionImpl implements CourseComponentSession {
 	public int getCourceComponentMuid() {
 		return dao.getCourseComponentMuid();
 	}
+	
+	public String getSessionId() {
+		return dao.getSessionId();
+	}
 
 	public Date getSessionStart() {
 		return dao.getSessionStart();
@@ -22,7 +26,7 @@ public class CourseComponentSessionImpl implements CourseComponentSession {
 		return dao.getSessionStartText();
 	}
 
-	public Date getEndStart() {
+	public Date getSessionEnd() {
 		return dao.getSessionEnd();
 	}
 

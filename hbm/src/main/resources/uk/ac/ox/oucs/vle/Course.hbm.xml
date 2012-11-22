@@ -122,6 +122,7 @@
 		<property name="created" type="timestamp" />
 		<property name="baseDate" type="timestamp" />
 		<property name="bookable" type="boolean" not-null="true" />
+		<property name="deleted" type="boolean" not-null="true" />
 		<property name="size" type="int" />
 		<property name="taken" type="int" />
 		<property name="componentId" type="string" length="30" /><!-- 
@@ -138,23 +139,19 @@
 		<property name="location" type="string" length="4000"/>
 		<property name="applyTo" type="string" length="255"/>
 		<property name="memberApplyTo" type="string" length="255"/>
+		<property name="source" type="string" length="32"/>
 
 		<set name="signups" lazy="true" table="course_component_signup">
 			<key column="courseComponentMuid" not-null="true" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"
 				column="signup" />
 		</set>
-		<!-- 
+		
 		<set name="groups" table="course_group_component"
 			lazy="true">
 			<key column="courseComponentMuid" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO"
 				column="courseGroupMuid" />
-		</set>
-		 -->
-		<set name="groups" inverse="true" lazy="true" table="course_group_component" fetch="join">
-			<key column="courseComponentMuid" />
-			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO" column="courseGroupMuid" />
 		</set>
 		
 		<set name="componentSessions" inverse="false" lazy="true" cascade="all-delete-orphan" table="course_component_session" fetch="select">
