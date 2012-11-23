@@ -235,7 +235,10 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	private void provider(Provider provider, XcriOxcapPopulatorInstanceData data, boolean createGroups) 
 			throws IOException {
 		
-		String departmentName = provider.getTitles()[0].getValue();
+		String departmentName = null;
+		if (provider.getTitles().length > 0) {
+			departmentName = provider.getTitles()[0].getValue();
+		}
 		String departmentCode = null;
 		String divisionEmail = null;
 		boolean departmentApproval = false;
@@ -380,15 +383,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		
 		String title = course.getTitles()[0].getValue();
 		
-		String description;
-		Description xDescription = course.getDescriptions()[0];
-		if (!xDescription.isXhtml()) {
-			description = parse(xDescription.getValue());
-		} else {
-			description = xDescription.getValue();
-		}
-		
-		
 		OxcapCourse oxCourse = (OxcapCourse)course;
 		String visibility = oxCourse.getVisibility().toString();
 		String regulations = course.getRegulations()[0].getValue();
@@ -474,6 +468,20 @@ public class XcriOxCapPopulatorImpl implements Populator {
 					"Log Failure Course ["+id+":"+title+"] No Course Identifier");
 			return;
 		}
+		
+		String description = null;
+		if (course.getDescriptions().length > 0) {
+			Description xDescription = course.getDescriptions()[0];
+			if (!xDescription.isXhtml()) {
+				description = parse(xDescription.getValue());
+			} else {
+				description = xDescription.getValue();
+			}
+		} else {
+			XcriOxcapPopulatorInstanceData.logMe(
+					"Log Warning Course ["+id+"] has no description");
+		}
+			
 			
 		if (createComponents) {
 			
@@ -892,6 +900,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			groupDao.setAdministratorApproval(administratorApproval);
 			groupDao.setContactEmail(divisionEmail);
 			groupDao.setAdministrators(administrators);
+			groupDao.setDeleted(false);
 			
 			if (null==superusers) {
 				superusers = Collections.<String>emptySet();
@@ -906,15 +915,15 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			Set<CourseCategoryDAO> categories = new HashSet<CourseCategoryDAO>();
 			for (Subject subject : researchCategories) {
 				categories.add(new CourseCategoryDAO(
-						groupDao.getMuid(), CourseGroup.Category_Type.RM, subject.getIdentifier(), subject.getValue()));
+						CourseGroup.Category_Type.RM, subject.getIdentifier(), subject.getValue()));
 			}
 			for (Subject subject : skillsCategories) {
 				categories.add(new CourseCategoryDAO(
-						groupDao.getMuid(), CourseGroup.Category_Type.RDF, subject.getIdentifier(), subject.getValue()));
+						CourseGroup.Category_Type.RDF, subject.getIdentifier(), subject.getValue()));
 			}
 			for (Subject subject : jacsCategories) {
 				categories.add(new CourseCategoryDAO(
-						groupDao.getMuid(), CourseGroup.Category_Type.JACS, subject.getIdentifier(), subject.getValue()));
+						CourseGroup.Category_Type.JACS, subject.getIdentifier(), subject.getValue()));
 			}
 			
 			//remove unwanted categories
@@ -1126,12 +1135,12 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			componentDao.setApplyTo(applyTo);
 			componentDao.setMemberApplyTo(memberApplyTo);
 			componentDao.setGroups(groups);
-			//componentDao.setComponentSessions(sessions);
+			componentDao.setDeleted(false);
 			
 			Collection<CourseComponentSessionDAO> componentSessions = componentDao.getComponentSessions();
 			for (Session session : sessions) {
 				componentSessions.add(
-						new CourseComponentSessionDAO(componentDao.getMuid(), session.getIdentifiers()[0].getValue(),
+						new CourseComponentSessionDAO(session.getIdentifiers()[0].getValue(),
 								session.getStart().getDtf(), session.getStart().getValue(), 
 								session.getEnd().getDtf(), session.getEnd().getValue()));
 			}
@@ -1141,9 +1150,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 		
 		if (created) {
-			XcriOxcapPopulatorInstanceData.logMs("Log Success Course Component created ["+id+":"+subject+"]");
+			XcriOxcapPopulatorInstanceData.logMs("Log Success Course Component created ["+id+":"+title+"]");
 		} else {
-			XcriOxcapPopulatorInstanceData.logMs("Log Success Course Component updated ["+id+":"+subject+"]");
+			XcriOxcapPopulatorInstanceData.logMs("Log Success Course Component updated ["+id+":"+title+"]");
 		}
 		return created;
 	}

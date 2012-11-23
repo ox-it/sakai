@@ -21,14 +21,12 @@ package uk.ac.ox.oucs.vle;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -53,12 +51,12 @@ import org.xcri.exceptions.InvalidElementException;
 
 import uk.ac.ox.oucs.vle.xcri.daisy.Bookable;
 import uk.ac.ox.oucs.vle.xcri.daisy.CourseSubUnit;
-import uk.ac.ox.oucs.vle.xcri.daisy.Identifier;
 import uk.ac.ox.oucs.vle.xcri.daisy.DepartmentThirdLevelApproval;
 import uk.ac.ox.oucs.vle.xcri.daisy.DepartmentalSubUnit;
 import uk.ac.ox.oucs.vle.xcri.daisy.DivisionWideEmail;
 import uk.ac.ox.oucs.vle.xcri.daisy.EmployeeEmail;
 import uk.ac.ox.oucs.vle.xcri.daisy.EmployeeName;
+import uk.ac.ox.oucs.vle.xcri.daisy.Identifier;
 import uk.ac.ox.oucs.vle.xcri.daisy.ModuleApproval;
 import uk.ac.ox.oucs.vle.xcri.daisy.OtherDepartment;
 import uk.ac.ox.oucs.vle.xcri.daisy.Sessions;
@@ -104,7 +102,7 @@ public class DaisyTest extends TestCase {
 		OverrideManager.registerOverride(Presentation.class, new OxcapPresentation());
 		
 		// Careers
-		URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap");
+		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap");
 		
 		// Continuing Education
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=http%3A//course.data.ox.ac.uk/id/continuing-education/catalog&format=xcricap");
@@ -116,10 +114,10 @@ public class DaisyTest extends TestCase {
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/language-centre/catalogue&format=xcricap");
 		
 		// Medical Sciences
-		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/medsci/catalogue&format=xcricap");
+		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/medsci/catalogue&format=xcricap-full");
 		
 		// SharePoint
-		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/sharepoint/catalogue&format=xcricap-full");
+		URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/sharepoint/catalogue&format=xcricap-full");
 		  
 		InputStream inStream = url.openStream();
 		
@@ -155,8 +153,10 @@ public class DaisyTest extends TestCase {
 		
 		for (Provider provider : providers) {
 			
-			String title = provider.getTitles()[0].getValue();
-			assertNotNull(title);
+			String departmentName = null;
+			if (provider.getTitles().length > 0) {
+				departmentName = provider.getTitles()[0].getValue();
+			}
 			
 			String id = null;
 			String divisionCode = null;
@@ -197,10 +197,6 @@ public class DaisyTest extends TestCase {
 				}
 			}
 			
-			assertNotNull("Identifier null on Provider ["+title+"]", id);
-			//assertNotNull("Division null on Provider ["+title+"]", divisionCode);
-			//assertTrue("No Superusers on ["+provider.getTitles()[0].getValue()+"]", !divisionSuperUsers.isEmpty());
-			//assertTrue("No SubUnits on ["+provider.getTitles()[0].getValue()+"]", !subunits.isEmpty());
 		}
 		
 	}
@@ -212,7 +208,10 @@ public class DaisyTest extends TestCase {
 		Provider[] providers = catalog.getProviders();
 		for (Provider provider : providers) {
 			
-			String departmentName = provider.getTitles()[0].getValue();
+			String departmentName = null;
+			if (provider.getTitles().length > 0) {
+				departmentName = provider.getTitles()[0].getValue();
+			}
 			String departmentCode = null;
 			String divisionEmail = null;
 			Collection<String> divisionSuperUsers = new HashSet<String>();

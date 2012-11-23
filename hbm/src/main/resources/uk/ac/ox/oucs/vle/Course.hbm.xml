@@ -56,7 +56,7 @@
 			<column name="categoryId" />
 			<generator class="increment"/>
 		</id>
-		<property name="courseGroupMuid" type="int" />
+		<property name="courseGroupMuid" type="int" insert="false" update="false" />
 		<property name="categoryType" type="string" length="6" />
 		<property name="categoryCode" type="string" length="32" />
 		<property name="categoryName" type="string" length="256" />
@@ -90,7 +90,7 @@
 			<column name="id" />
 			<generator class="increment"/>
 		</id>
-		<property name="courseComponentMuid" type="int" />
+		<property name="courseComponentMuid" type="int" insert="false" update="false"/>
 		<property name="sessionId" type="string" length="255" />
 		<property name="sessionStart" type="timestamp" />
 		<property name="sessionStartText" type="string" length="255"/>
@@ -147,15 +147,14 @@
 				column="signup" />
 		</set>
 		
-		<set name="groups" table="course_group_component"
-			lazy="true">
+		<set name="groups" table="course_group_component" cascade="delete" lazy="true">
 			<key column="courseComponentMuid" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO"
 				column="courseGroupMuid" />
 		</set>
 		
 		<set name="componentSessions" inverse="false" lazy="true" cascade="all-delete-orphan" table="course_component_session" fetch="select">
-			<key column="courseComponentMuid"/>
+			<key column="courseComponentMuid" not-null="true"/>
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseComponentSessionDAO"/>
 		</set>
 	</class>
@@ -185,29 +184,29 @@
 		<property name="visibility" type="string" length="16"/>
 		<property name="regulations" type="string" length="255"/>
 		<property name="source" type="string" length="32"/>
-		<set name="components" inverse="true" lazy="true" table="course_group_component" fetch="join">
+		<set name="components" cascade="delete" inverse="true" lazy="true" table="course_group_component" fetch="join">
 			<key column="courseGroupMuid" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO" column="courseComponentMuid" />
 		</set>
-		<set name="administrators" inverse="false" lazy="true" table="course_group_administrator">
+		<set name="administrators" cascade="delete" inverse="false" lazy="true" table="course_group_administrator">
 			<key column="courseGroupMuid" not-null="true"/>
 			<element column="administrator" type="string" length="64" />
 		</set>
-		<set name="superusers" inverse="false" lazy="true" table="course_group_superuser">
+		<set name="superusers" cascade="delete" inverse="false" lazy="true" table="course_group_superuser">
 			<key column="courseGroupMuid" not-null="true"/>
 			<element column="superuser" type="string" length="64" />
 		</set>
-		<set name="otherDepartments" inverse="false" lazy="true" table="course_group_otherDepartment">
+		<set name="otherDepartments" cascade="delete" inverse="false" lazy="true" table="course_group_otherDepartment">
 			<key column="courseGroupMuid" not-null="true"/>
 			<element column="otherDepartment" type="string" length="32" />
 		</set>
 		<set name="signups" inverse="true">
-			<key column="courseGroupMuid"/>
+			<key column="courseGroupMuid" not-null="true"/>
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"/>
 		</set>
 		<!-- cascade="all-delete-orphan" -->
 		<set name="categories" inverse="false" lazy="true" cascade="all-delete-orphan" table="course_group_category" fetch="select">
-			<key column="courseGroupMuid"/>
+			<key column="courseGroupMuid" not-null="true" />
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseCategoryDAO"/>
 		</set>
 	</class>

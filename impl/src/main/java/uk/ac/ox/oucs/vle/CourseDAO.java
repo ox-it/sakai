@@ -94,5 +94,17 @@ public interface CourseDAO {
 	CourseUserPlacementDAO findUserPlacement(String userId);
 	
 	void save(CourseUserPlacementDAO placementDao);
+	
+	public int flagSelectedCourseGroups(final String source);
+	
+	public int flagSelectedCourseComponents(final String source);
+	
+	public int flagSelectedDaisyCourseGroups(final String source);
+	
+	public int flagSelectedDaisyCourseComponents(final String source);
+	
+	public Object deleteSelectedCourseGroups(final String source);
+	
+	public Object deleteSelectedCourseComponents(final String source);
 
 }

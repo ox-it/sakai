@@ -33,6 +33,7 @@ public class CourseComponentDAO  implements java.io.Serializable {
     private Date created;
     private Date baseDate;
     private boolean bookable;
+    private boolean deleted;
     private int size;
     private int taken;
     private String componentId;
@@ -48,6 +49,7 @@ public class CourseComponentDAO  implements java.io.Serializable {
     private String attendanceModeText;
     private String attendancePattern;
     private String attendancePatternText;
+    private String source;
     private Set<CourseSignupDAO> signups = new HashSet<CourseSignupDAO>(0);
     private Set<CourseGroupDAO> groups = new HashSet<CourseGroupDAO>(0);
     private Set<CourseComponentSessionDAO> componentSessions = new HashSet<CourseComponentSessionDAO>(0);
@@ -204,6 +206,17 @@ public class CourseComponentDAO  implements java.io.Serializable {
     public void setBookable(boolean bookable) {
         this.bookable = bookable;
     }
+    
+    
+	public boolean getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+	
+    
     public int getSize() {
         return this.size;
     }
@@ -354,6 +367,14 @@ public class CourseComponentDAO  implements java.io.Serializable {
 
 	public void setAttendancePatternText(String attendancePatternText) {
 		this.attendancePatternText = attendancePatternText;
+	}
+	
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
 	}
 }
 

@@ -13,10 +13,10 @@ import org.quartz.JobExecutionException;
  */
 public class PopulatorJob implements Job {
 
-	private Populator populator;
+	private PopulatorWrapper populatorWrapper;
 	
-	public void setPopulator(Populator populator){
-		this.populator = populator;
+	public void setPopulatorWrapper(PopulatorWrapper populatorWrapper){
+		this.populatorWrapper = populatorWrapper;
 	}
 	
 	public void execute(JobExecutionContext context)
@@ -30,7 +30,7 @@ public class PopulatorJob implements Job {
 		pContext.setPassword((String)jobDataMap.get("xcri.oxcap.populator.password"));
 		pContext.setName((String)jobDataMap.get("xcri.oxcap.populator.name"));
 		
-		populator.update(pContext);
+		populatorWrapper.update(pContext);
 	}
 
 }

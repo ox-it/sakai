@@ -6,11 +6,13 @@ public interface CourseComponentSession {
 
 	public int getCourceComponentMuid();
 	
+	public String getSessionId();
+	
 	public Date getSessionStart();
 	
 	public String getSessionStartText();
 	
-	public Date getEndStart();
+	public Date getSessionEnd();
 	
 	public String getSessionEndText();
 

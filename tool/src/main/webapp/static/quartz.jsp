@@ -4,7 +4,7 @@
 <%@ page session="false" %> 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core"  prefix="c" %>
 <%
-pageContext.setAttribute("jobType", ServerConfigurationService.getString("ses.import.job", "gobbledegoup"));
+pageContext.setAttribute("jobTypes", ServerConfigurationService.getStrings("ses.import.jobs"));
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -55,11 +55,16 @@ pageContext.setAttribute("jobType", ServerConfigurationService.getString("ses.im
         <div id="browse">
         	<form method="post">
         		<img alt="" src="/course-signup/static/images/quartz.jpg">
-        		
         		<fieldset>
         			<c:forEach var="jobDetailWrapper" items="${jobDetailList}">
+        				<c:set var="flag" value="0" />
+        				<c:forEach var="jobType" items="${jobTypes}">
+        					<c:if test="${jobDetailWrapper.jobDetail.jobDataMap['org.sakaiproject.api.app.scheduler.JobBeanWrapper.jobType'] == jobType}"> 
+        						<c:set var="flag" value="1" />
+        					</c:if>
+        				</c:forEach>
         				<c:choose>
-        				<c:when test="${jobDetailWrapper.jobDetail.jobDataMap['org.sakaiproject.api.app.scheduler.JobBeanWrapper.jobType'] == jobType}"> 
+        				<c:when test="${flag == 1}"> 
         					<input type="radio" name="jobName" 
         						value="<c:out value="${jobDetailWrapper.jobDetail.name}" />"
         						onclick="jobToRun(this)"/> 
@@ -80,22 +85,6 @@ pageContext.setAttribute("jobType", ServerConfigurationService.getString("ses.im
         		</fieldset>
         		
         		<div id="runJob">
-        		<!--  
-        		<fieldset>
-        			<legend id="jobToRun">Run Job Now Confirmation:  <c:out value="${jobType}" /></legend>
-        			<table class="chefEditItem" cellspacing="0">
-						<tbody>
-						<tr>
-						<td class="chefLabel">Are you sure you would like to run the job now?</td>
-						</tr>
-						</tbody>
-					</table>
-				</fieldset>
-				
-        		<p>
-					<input type="submit" value="Run Now" />
-				</p>
-				-->
         		</div>
 			</form>
 		</div>

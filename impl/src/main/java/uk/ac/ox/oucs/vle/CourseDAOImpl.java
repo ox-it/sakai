@@ -781,6 +781,108 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			}
 		});
 	}
+	
+	/**
+	 * 
+	 */
+	public int flagSelectedCourseGroups(final String source) {
+		return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) {
+				StringBuffer querySQL = new StringBuffer();
+				querySQL.append("update course_group ");
+				querySQL.append("set deleted = true ");
+				querySQL.append("where source = :source");
+				Query query = session.createSQLQuery(querySQL.toString()).setString("source", source);
+				return query.executeUpdate();
+			}
+		});
+	}
+	
+	/**
+	 * 
+	 */
+	public int flagSelectedCourseComponents(final String source) {
+		return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) {
+				StringBuffer querySQL = new StringBuffer();
+				querySQL.append("update course_component ");
+				querySQL.append("set deleted = true ");
+				querySQL.append("where source = :source");
+				Query query = session.createSQLQuery(querySQL.toString()).setString("source", source);
+				return query.executeUpdate();
+			}
+		});
+	}
+	
+	/**
+	 * 
+	 */
+	public int flagSelectedDaisyCourseGroups(final String source) {
+		return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) {
+				StringBuffer querySQL = new StringBuffer();
+				querySQL.append("update course_group ");
+				querySQL.append("set deleted = true ");
+				querySQL.append("where source = :source");
+				Query query = session.createSQLQuery(querySQL.toString()).setString("source", source);
+				return query.executeUpdate();
+			}
+		});
+	}
+	
+	/**
+	 * 
+	 */
+	public int flagSelectedDaisyCourseComponents(final String source) {
+		return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) {
+				StringBuffer querySQL = new StringBuffer();
+				querySQL.append("update course_component ");
+				querySQL.append("set deleted = true ");
+				querySQL.append("where source = :source");
+				Query query = session.createSQLQuery(querySQL.toString()).setString("source", source);
+				return query.executeUpdate();
+			}
+		});
+	}
+	
+	/**
+	 * 
+	 */
+	public Object deleteSelectedCourseGroups(final String source) {
+		return getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) 
+					throws HibernateException,	SQLException {
+				
+				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
+				criteria.add(Restrictions.eq("deleted", true));
+				criteria.add(Restrictions.eq("source", source));
+				List<CourseGroupDAO> groupDaos =  criteria.list();
+				for (CourseGroupDAO groupDao : groupDaos) {
+					session.delete(groupDao);
+				}
+				return 0;
+			}
+		});
+		
+	}
+	
+	public Object deleteSelectedCourseComponents(final String source) {
+		return getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) 
+					throws HibernateException,	SQLException {
+				
+				Criteria criteria = session.createCriteria(CourseComponentDAO.class);
+				criteria.add(Restrictions.eq("deleted", true));
+				criteria.add(Restrictions.eq("source", source));
+				List<CourseComponentDAO> componentDaos =  criteria.list();
+				for (CourseComponentDAO componentDao : componentDaos) {
+					session.delete(componentDao);
+				}
+				return 0;
+			}
+		});
+	}
 }
 
 

@@ -22,9 +22,8 @@ public class CourseComponentSessionDAO implements java.io.Serializable {
     public CourseComponentSessionDAO() {
     }
     
-    public CourseComponentSessionDAO(int courseComponentMuid, String sessionId, Date sessionStart, String sessionStartText, Date sessionEnd, String sessionEndText) {
+    public CourseComponentSessionDAO(String sessionId, Date sessionStart, String sessionStartText, Date sessionEnd, String sessionEndText) {
     	this.sessionId = sessionId;
-    	this.courseComponentMuid = courseComponentMuid;
     	this.sessionStart = sessionStart;
     	this.sessionStartText = sessionStartText;
     	this.sessionEnd = sessionEnd;
