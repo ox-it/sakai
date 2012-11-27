@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -94,6 +94,7 @@ public class PoolPropertiesView extends ControllerImpl
 
 		context.put("poolsSortCode", poolsSort);
 		context.put("pool", pool);
+		new CKSetup().setCKCollectionAttrib(getDocsPath(), toolManager.getCurrentPlacement().getContext());
 
 		// render
 		uiService.render(ui, context);

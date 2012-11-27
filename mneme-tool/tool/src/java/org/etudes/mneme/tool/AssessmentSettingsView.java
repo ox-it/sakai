@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -41,6 +41,7 @@ import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.GradesService;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.PartDetail;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
 
@@ -57,6 +58,9 @@ public class AssessmentSettingsView extends ControllerImpl
 
 	/** Dependency: GradesService */
 	protected GradesService gradesService = null;
+
+	/** tool manager reference. */
+	protected ToolManager toolManager = null;
 
 	/**
 	 * Shutdown.
@@ -160,6 +164,7 @@ public class AssessmentSettingsView extends ControllerImpl
 		// if we have a focus parameter
 		String focus = req.getParameter("focus");
 		if (focus != null) context.addFocusId(focus);
+		new CKSetup().setCKCollectionAttrib(getDocsPath(), toolManager.getCurrentPlacement().getContext());
 
 		// render
 		uiService.render(ui, context);
@@ -313,4 +318,13 @@ public class AssessmentSettingsView extends ControllerImpl
 	{
 		this.gradesService = service;
 	}
+	
+	/**
+	 * @param toolManager
+	 *        the toolManager to set
+	 */
+	public void setToolManager(ToolManager toolManager)
+	{
+		this.toolManager = toolManager;
+}
 }

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2009 Etudes, Inc.
+ * Copyright (c) 2009, 2012 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,6 +139,7 @@ public class InstructionsEditView extends ControllerImpl
 		context.put("assessment", assessment);
 
 		context.put("parts", assessment.getParts().getParts());
+		new CKSetup().setCKCollectionAttrib(getDocsPath(), toolManager.getCurrentPlacement().getContext());
 
 		// render
 		uiService.render(ui, context);

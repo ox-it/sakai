@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -205,6 +205,7 @@ public class QuestionEditView extends ControllerImpl
 			value.setValue(part.getId());
 			context.put("partId", value);
 		}
+		new CKSetup().setCKCollectionAttrib(getDocsPath(), toolManager.getCurrentPlacement().getContext());
 
 		uiService.render(ui, context);
 	}

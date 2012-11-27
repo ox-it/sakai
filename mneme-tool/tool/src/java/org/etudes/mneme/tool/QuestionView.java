@@ -204,6 +204,7 @@ public class QuestionView extends ControllerImpl
 
 		if (anchor != null) context.put("anchor", anchor);
 		if (lastChance) context.put("lastChance", Boolean.TRUE);
+		new CKSetup().setCKCollectionAttrib(getDocsPath(), toolManager.getCurrentPlacement().getContext());
 
 		// render
 		uiService.render(ui, context);
