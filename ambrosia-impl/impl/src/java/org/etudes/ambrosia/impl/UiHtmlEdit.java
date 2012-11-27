@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -25,7 +25,6 @@
 package org.etudes.ambrosia.impl;
 
 import java.io.PrintWriter;
-
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.api.Decision;
 import org.etudes.ambrosia.api.HtmlEdit;
@@ -247,26 +246,6 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 			// response.println("<span class=\"reqStarInline\">*</span>");
 		}
 
-		// our status object for enabling the editor
-		if (!readOnly && this.optional)
-		{
-			String docsPath = context.getDocsPath();
-			context.addScript("var htmlComponent_" + id + "=new Object();\n");
-			context.addScript("htmlComponent_" + id + ".enabled=false;\n");
-			if (this.optional)
-			{
-				context.addScript("htmlComponent_" + id + ".renderedId=\"rendered_" + id + "\";\n");
-				context.addScript("htmlComponent_" + id + ".toggleId=\"toggle_" + id + "\";\n");
-			}
-			else
-			{
-				context.addScript("htmlComponent_" + id + ".renderedId=null;\n");
-				context.addScript("htmlComponent_" + id + ".toggleId=null;\n");
-			}
-			context.addScript("htmlComponent_" + id + ".textAreaId=\"" + id + "\";\n");
-			context.addScript("htmlComponent_" + id + ".mode=\"" + this.size.toString() + "\";\n");
-		}
-
 		// the title (if defined), and the edit icon
 		if ((this.titleMessage != null) || (!readOnly && this.optional))
 		{
@@ -298,11 +277,22 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 		if (!(!readOnly && this.optional))
 		{
 			response.println("<textarea "
-					+ (this.optional ? "style=\"display:none; position:absolute; top:0px; left:0px;\"" : (" class=\"ambrosiaHtmlEdit_"
-							+ this.size.toString() + "\"")) + " id=\"" + id + "\" name=\"" + id + "\" " + (readOnly ? " disabled=\"disabled\"" : "")
+					+ (this.optional ? "style=\"display:none; position:absolute; top:0px; left:0px;\"" : "")
+							 + " id=\"" + id + "\" name=\"" + id + "\" " + (readOnly ? " disabled=\"disabled\"" : "")
 					+ ">");
 			response.print(Validator.escapeHtmlTextarea(value));
 			response.println("</textarea>");
+			response.println("<script type=\"text/javascript\" defer=\"1\">sakai.editor.collectionId =\"" + context.getDocsPath() + "\";");
+			response.println("if (enableBrowse == false)");
+			response.println("{");
+			response.println("function config(){}");
+			response.println("config.prototype.disableBrowseServer=true;");
+			response.println("sakai.editor.launch('" + id + "',new config(),getWidth('.ambrosiaHtmlEditSize_"+ this.size.toString() + "'),getHeight('.ambrosiaHtmlEditSize_"+ this.size.toString() + "'));");
+			response.println("}");
+			response.println("else {");
+			response.println("sakai.editor.launch('" + id + "',true,getWidth('.ambrosiaHtmlEditSize_"+ this.size.toString() + "'),getHeight('.ambrosiaHtmlEditSize_"+ this.size.toString() + "'));");
+		    response.println("}");
+		    response.println("</script>");
 		}
 
 		// for optional, a hidden field to hold the value
@@ -345,9 +335,12 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 			// add the field name / id to the focus path
 			context.addFocusId(id);
 		}
+		response.println("<div class=\"ckeditorGap_"+ this.size.toString() +"\"></div>");
 
 		return true;
 	}
+
+
 
 	/**
 	 * {@inheritDoc}

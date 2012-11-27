@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -1040,278 +1040,6 @@ function ambrosiaHideInline(name)
 		el.style.display = "none";
 }
 
-function ambrosiaSetupHtmlEdit(name, docsArea)
-{
-	ambrosiaSetupHtmlEditTiny(name, docsArea);
-	//ambrosiaSetupHtmlEditFck(name, docsArea);
-}
-
-var ambrosiaFileBrowserDestination = null;
-
-function ambrosiaFileBrowser(field_name, url, type, win)
-{
-	tinyMCE.activeEditor.windowManager.open(
-	{
-		file : ambrosiaFileBrowserDestination + "/" + type,
-		width : 700,
-		height : 500,
-		resizable : "yes",
-		close_previous : "no",
-		scrollbars : "yes"
-	},
-	{
-		window : win,
-		input : field_name
-	});
-	return false;
-}
-
-function ambrosiaChooseAttachment(url)
-{
-	var win = tinyMCEPopup.getWindowArg("window");
-	win.document.getElementById(tinyMCEPopup.getWindowArg("input")).value = url;
-	if (win.getImageData) win.getImageData();
-	tinyMCEPopup.close();
-}
-
-function ambrosiaDoneAttachments()
-{
-	tinyMCEPopup.close();
-}
-
-var ambrosiaTinyCss = null;
-
-function ambrosiaTinyInit(picker, mode)
-{
-	// mode: all, full, small, tall
-	var tinyMode = "none";
-	if (mode == "all") tinyMode = "textareas";
-
-	if (picker == null)
-	{
-		// full and tall will be 7 pixels taller than height
-		if ((mode == "full") || (mode == "all"))
-		{
-			tinyMCE.init(
-			{
-				mode: tinyMode,
-				editor_selector: "ambrosiaHtmlEdit_full",
-				convert_urls: false,
-				plugins: "safari,fullscreen,emotions,paste",
-				theme: "advanced",
-				theme_advanced_buttons1: "bold,italic,underline,strikethrough,sub,sup,separator,outdent,indent,justifyleft,justifycenter,justifyright,justifyfull,separator,bullist,numlist,fontselect,fontsizeselect,forecolor,backcolor",
-				theme_advanced_buttons2: "fullscreen,separator,undo,redo,separator,link,unlink,separator,pastetext,pasteword,separator,image,emotions,charmap,separator,code",
-				theme_advanced_buttons3: "",
-				extended_valid_elements: "+a[id|style|rel|rev|charset|hreflang|dir|lang|tabindex|accesskey|type|name|href|target:_blank|title|class|onfocus|onblur|onclick|" + 
-										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup],embed[type|width|height|src|*]",
-				fullscreen_new_window : true,
-				fullscreen_settings :
-					{
-						theme_advanced_toolbar_location : "top",
-						theme_advanced_buttons1: "fullscreen,separator,undo,redo,separator,bold,italic,underline,strikethrough,sub,sup,separator,outdent,indent,justifyleft,justifycenter,justifyright,justifyfull,separator,bullist,numlist,separator,link,unlink,separator,fontselect,fontsizeselect,forecolorpicker,backcolorpicker,separator,pastetext,pasteword,separator,image,emotions,charmap,separator,code",
-						theme_advanced_buttons2: "",
-						theme_advanced_buttons3: ""
-					},
-				tab_focus: ":prev,:next",
-				content_css: (ambrosiaTinyCss == null) ? "" : ambrosiaTinyCss,
-				width: 600,
-				height: 137
-			});
-		}
-		
-		if ((mode == "tall") || (mode == "all"))
-		{
-			tinyMCE.init(
-			{
-				mode: tinyMode,
-				editor_selector: "ambrosiaHtmlEdit_tall",
-				convert_urls: false,
-				plugins: "safari,fullscreen,emotions,paste",
-				theme: "advanced",
-				theme_advanced_buttons1: "bold,italic,underline,strikethrough,sub,sup,separator,outdent,indent,justifyleft,justifycenter,justifyright,justifyfull,separator,bullist,numlist,fontselect,fontsizeselect,forecolor,backcolor",
-				theme_advanced_buttons2: "fullscreen,separator,undo,redo,separator,link,unlink,separator,pastetext,pasteword,separator,image,emotions,charmap,separator,code",
-				theme_advanced_buttons3: "",
-				extended_valid_elements: "+a[id|style|rel|rev|charset|hreflang|dir|lang|tabindex|accesskey|type|name|href|target:_blank|title|class|onfocus|onblur|onclick|" + 
-										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup],embed[type|width|height|src|*]",
-				fullscreen_new_window : true,
-				fullscreen_settings :
-					{
-						theme_advanced_toolbar_location : "top",
-						theme_advanced_buttons1: "fullscreen,separator,undo,redo,separator,bold,italic,underline,strikethrough,sub,sup,separator,outdent,indent,justifyleft,justifycenter,justifyright,justifyfull,separator,bullist,numlist,separator,link,unlink,separator,fontselect,fontsizeselect,forecolorpicker,backcolorpicker,separator,pastetext,pasteword,separator,image,emotions,charmap,separator,code",
-						theme_advanced_buttons2: "",
-						theme_advanced_buttons3: ""
-					},
-				tab_focus: ":prev,:next",
-				content_css: (ambrosiaTinyCss == null) ? "" : ambrosiaTinyCss,
-				width: 600,
-				height: 226
-			});
-		}
-
-		// small will be 10 pixels taller than height, min of 156px
-		if ((mode == "small") || (mode == "all"))
-		{
-			tinyMCE.init(
-			{
-				mode: tinyMode,
-				editor_selector: "ambrosiaHtmlEdit_small",
-				convert_urls: false,
-				plugins: "safari,fullscreen,emotions,paste",
-				theme: "advanced",
-				theme_advanced_buttons1: "bold,italic,underline,strikethrough,sub,sup,separator,outdent,indent,justifyleft,justifycenter,justifyright,justifyfull",
-				theme_advanced_buttons2: "bullist,numlist,fontselect,fontsizeselect,forecolor,backcolor",
-				theme_advanced_buttons3: "fullscreen,separator,undo,redo,separator,link,unlink,separator,pastetext,pasteword,separator,image,emotions,charmap,separator,code",
-				extended_valid_elements: "+a[id|style|rel|rev|charset|hreflang|dir|lang|tabindex|accesskey|type|name|href|target:_blank|title|class|onfocus|onblur|onclick|" + 
-										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup],embed[type|width|height|src|*]",
-				fullscreen_new_window : true,
-				fullscreen_settings :
-					{
-						theme_advanced_toolbar_location : "top",
-						theme_advanced_buttons1: "fullscreen,separator,undo,redo,separator,bold,italic,underline,strikethrough,sub,sup,separator,outdent,indent,justifyleft,justifycenter,justifyright,justifyfull,separator,bullist,numlist,separator,link,unlink,separator,fontselect,fontsizeselect,forecolorpicker,backcolorpicker,separator,pastetext,pasteword,separator,image,emotions,charmap,separator,code",
-						theme_advanced_buttons2: "",
-						theme_advanced_buttons3: ""
-					},
-				tab_focus: ":prev,:next",
-				content_css: (ambrosiaTinyCss == null) ? "" : ambrosiaTinyCss,
-				width: 300,
-				height: 174
-			});
-		}
-	}
-	else
-	{
-		ambrosiaFileBrowserDestination = picker;
-
-		if ((mode == "full") || (mode == "all"))
-		{
-			tinyMCE.init(
-			{
-				mode: tinyMode,
-				editor_selector: "ambrosiaHtmlEdit_full",
-				convert_urls: false,
-				plugins: "safari,fullscreen,emotions,paste",
-				theme: "advanced",
-				theme_advanced_buttons1: "bold,italic,underline,strikethrough,sub,sup,separator,outdent,indent,justifyleft,justifycenter,justifyright,justifyfull,separator,bullist,numlist,fontselect,fontsizeselect,forecolor,backcolor",
-				theme_advanced_buttons2: "fullscreen,separator,undo,redo,separator,link,unlink,separator,pastetext,pasteword,separator,image,emotions,charmap,separator,code",
-				theme_advanced_buttons3: "",
-				file_browser_callback: "ambrosiaFileBrowser",
-				extended_valid_elements: "+a[id|style|rel|rev|charset|hreflang|dir|lang|tabindex|accesskey|type|name|href|target:_blank|title|class|onfocus|onblur|onclick|" + 
-										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup],embed[type|width|height|src|*]",
-				fullscreen_new_window : true,
-				fullscreen_settings :
-					{
-						theme_advanced_toolbar_location : "top",
-						theme_advanced_buttons1: "fullscreen,separator,undo,redo,separator,bold,italic,underline,strikethrough,sub,sup,separator,outdent,indent,justifyleft,justifycenter,justifyright,justifyfull,separator,bullist,numlist,separator,link,unlink,separator,fontselect,fontsizeselect,forecolorpicker,backcolorpicker,separator,pastetext,pasteword,separator,image,emotions,charmap,separator,code",
-						theme_advanced_buttons2: "",
-						theme_advanced_buttons3: ""
-					},
-				tab_focus: ":prev,:next",
-				content_css: (ambrosiaTinyCss == null) ? "" : ambrosiaTinyCss,
-				width: 600,
-				height: 137
-			});
-		}
-
-		if ((mode == "tall") || (mode == "all"))
-		{
-			tinyMCE.init(
-			{
-				mode: tinyMode,
-				editor_selector: "ambrosiaHtmlEdit_tall",
-				convert_urls: false,
-				plugins: "safari,fullscreen,emotions,paste",
-				theme: "advanced",
-				theme_advanced_buttons1: "bold,italic,underline,strikethrough,sub,sup,separator,outdent,indent,justifyleft,justifycenter,justifyright,justifyfull,separator,bullist,numlist,fontselect,fontsizeselect,forecolor,backcolor",
-				theme_advanced_buttons2: "fullscreen,separator,undo,redo,separator,link,unlink,separator,pastetext,pasteword,separator,image,emotions,charmap,separator,code",
-				theme_advanced_buttons3: "",
-				file_browser_callback: "ambrosiaFileBrowser",
-				extended_valid_elements: "+a[id|style|rel|rev|charset|hreflang|dir|lang|tabindex|accesskey|type|name|href|target:_blank|title|class|onfocus|onblur|onclick|" + 
-										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup],embed[type|width|height|src|*]",
-				fullscreen_new_window : true,
-				fullscreen_settings :
-					{
-						theme_advanced_toolbar_location : "top",
-						theme_advanced_buttons1: "fullscreen,separator,undo,redo,separator,bold,italic,underline,strikethrough,sub,sup,separator,outdent,indent,justifyleft,justifycenter,justifyright,justifyfull,separator,bullist,numlist,separator,link,unlink,separator,fontselect,fontsizeselect,forecolorpicker,backcolorpicker,separator,pastetext,pasteword,separator,image,emotions,charmap,separator,code",
-						theme_advanced_buttons2: "",
-						theme_advanced_buttons3: ""
-					},
-				tab_focus: ":prev,:next",
-				content_css: (ambrosiaTinyCss == null) ? "" : ambrosiaTinyCss,
-				width: 600,
-				height: 226
-			});
-		}
-
-		if ((mode == "small") || (mode == "all"))
-		{
-			tinyMCE.init(
-			{
-				mode: tinyMode,
-				editor_selector: "ambrosiaHtmlEdit_small",
-				convert_urls: false,
-				plugins: "safari,fullscreen,emotions,paste",
-				theme: "advanced",
-				theme_advanced_buttons1: "bold,italic,underline,strikethrough,sub,sup,separator,outdent,indent,justifyleft,justifycenter,justifyright,justifyfull",
-				theme_advanced_buttons2: "bullist,numlist,fontselect,fontsizeselect,forecolor,backcolor",
-				theme_advanced_buttons3: "fullscreen,separator,undo,redo,separator,link,unlink,separator,pastetext,pasteword,separator,image,emotions,charmap,separator,code",
-				file_browser_callback: "ambrosiaFileBrowser",
-				extended_valid_elements: "+a[id|style|rel|rev|charset|hreflang|dir|lang|tabindex|accesskey|type|name|href|target:_blank|title|class|onfocus|onblur|onclick|" + 
-										 "ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup],embed[type|width|height|src|*]",
-				fullscreen_new_window : true,
-				fullscreen_settings :
-					{
-						theme_advanced_toolbar_location : "top",
-						theme_advanced_buttons1: "fullscreen,separator,undo,redo,separator,bold,italic,underline,strikethrough,sub,sup,separator,outdent,indent,justifyleft,justifycenter,justifyright,justifyfull,separator,bullist,numlist,separator,link,unlink,separator,fontselect,fontsizeselect,forecolorpicker,backcolorpicker,separator,pastetext,pasteword,separator,image,emotions,charmap,separator,code",
-						theme_advanced_buttons2: "",
-						theme_advanced_buttons3: ""
-					},
-				tab_focus: ":prev,:next",
-				content_css: (ambrosiaTinyCss == null) ? "" : ambrosiaTinyCss,
-				width: 300,
-				height: 174
-			});
-		}
-	}
-}
-
-function ambrosiaEnableHtmlEdit(htmlComponent)
-{
-	if (htmlComponent == null) return;
-	if (htmlComponent.renderedId == null) return;
-	if (htmlComponent.textAreaId == null) return;
-	if (htmlComponent.toggleId == null) return;
-	if (htmlComponent.mode == null) return;
-	var renderedEl = document.getElementById(htmlComponent.renderedId);
-	if (renderedEl == null) return;
-	var textAreaEl = document.getElementById(htmlComponent.textAreaId);
-	if (textAreaEl == null) return;
-	var toggelEl = document.getElementById(htmlComponent.toggleId);
-	if (toggelEl == null) return;
-
-	if (!htmlComponent.enabled)
-	{
-		htmlComponent.enabled = true;
-		// toggleEl.style.display = "none";
-		ambrosiaTinyInit(ambrosiaTinyPicker, htmlComponent.mode);
-		tinyMCE.execCommand("mceAddControl", false, htmlComponent.renderedId);
-
-		var editor = tinyMCE.get(htmlComponent.renderedId);
-		editor.onChange.add(function(ed){textAreaEl.value = ed.getContent();});
-	}
-	else
-	{
-		var editor = tinyMCE.get(htmlComponent.renderedId);
-		if (editor == null) return;
-
-		htmlComponent.enabled = false;
-		var newContent = editor.getContent();
-		textAreaEl.value = newContent;
-
-		tinyMCE.execCommand('mceRemoveControl', false, htmlComponent.renderedId);
-		// toggleEl.style.display = "none";
-	}
-}
-
 function ambrosiaPopupDate(id,earlyLate)
 {
 	// get the current date value
@@ -1327,7 +1055,7 @@ function ambrosiaPopupDate(id,earlyLate)
 	//el.select();
 }
 
-window.sakaiSetFocus = window.setFocus;
+/*window.sakaiSetFocus = window.setFocus;
 window.setFocus = ambrosiaSetFocus;
 function ambrosiaSetFocus(elements)
 {
@@ -1345,7 +1073,7 @@ function ambrosiaSetFocus(elements)
 		}
 	}
 	sakaiSetFocus(elements);
-}
+}*/
 
 function ambrosiaTableRowIds(tableId, fieldId)
 {
@@ -1396,3 +1124,26 @@ function ambrosiaHideColumn(id,n)
 	if (n == 0) return;
 	$("#" + id + " tr td:nth-child(" + n + "), #" + id + " tr th:nth-child(" + n + ")").hide();
 }
+
+function getStyle(className) { 
+  var ss = document.styleSheets; 
+  for (var i=0; i<ss.length; i++) { 
+    var ss = document.styleSheets; 
+    var rules = ss[i].cssRules || ss[i].rules; 
+    for (var j=0; j<rules.length; j++) { 
+        if (rules[j].selectorText === className) { 
+            return rules[j].style;
+        } 
+    } 
+} 
+}
+
+
+function getWidth(className) {
+	 return getStyle(className).width;
+}
+
+function getHeight(className) {
+   return getStyle(className).height;
+}
+

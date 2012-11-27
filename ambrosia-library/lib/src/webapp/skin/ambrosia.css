@@ -455,6 +455,18 @@ Gap
 {
 	height:1em
 }
+.ckeditorGap_small
+{
+  height:15em;
+}
+.ckeditorGap_full
+{
+  height:10em;
+}
+.ckeditorGap_tall
+{
+  height:10em;
+}
 
 /*
 IconKey
@@ -511,8 +523,8 @@ size for "small" html edit. (will be 2 (border) + 4+4 (padding) wider, 2 (border
 */
 .ambrosiaHtmlEditSize_small
 {
-	width: 296px;
-	height: 186px;
+	width: 680px;
+	height: 120px;
 }
 
 /*
@@ -520,8 +532,8 @@ size for "full" html edit.
 */
 .ambrosiaHtmlEditSize_full
 {
-	width: 590px;
-	height: 142px;
+	width: 680px;
+	height: 120px;
 }
 
 /*
@@ -529,6 +541,6 @@ size for "tall" html edit.
 */
 .ambrosiaHtmlEditSize_tall
 {
-	width: 590px;
+	width: 680px;
 	height: 231px;
 }
