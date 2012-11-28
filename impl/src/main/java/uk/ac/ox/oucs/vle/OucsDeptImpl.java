@@ -14,19 +14,21 @@ public class OucsDeptImpl implements Module {
 	 * The DAO to update our entries through.
 	 */
 	private CourseDAO dao;
-	private ServerConfigurationService serverConfigurationService;
+	
+	/**
+	 * The proxy for getting users.
+	 */
+	private SakaiProxy proxy;
+	public void setProxy(SakaiProxy proxy) {
+		this.proxy = proxy;
+	}
 	
 	public void setCourseDao(CourseDAO dao) {
 		this.dao = dao;
 	}
 	
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
-	
 	protected String getDepartentResource() {
-		return serverConfigurationService.getString("oucs-department-resource", 
+		return proxy.getConfigParam("oucs-department-resource", 
 				"https://register.oucs.ox.ac.uk/upload/card/publish/dept_codes.txt");
 	}
 	

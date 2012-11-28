@@ -77,7 +77,6 @@ public class DaisyTest extends TestCase {
 	
 	protected void setUp() throws JDOMException, IOException, InvalidElementException {
 		
-		// Daisy Extensions
 		ExtensionManager.registerExtension(new WebAuthCode());
 		ExtensionManager.registerExtension(new DepartmentalSubUnit());
 		ExtensionManager.registerExtension(new DepartmentThirdLevelApproval());
@@ -85,6 +84,7 @@ public class DaisyTest extends TestCase {
 		ExtensionManager.registerExtension(new CourseSubUnit());
 		ExtensionManager.registerExtension(new ModuleApproval());
 		ExtensionManager.registerExtension(new SupervisorApproval());
+		ExtensionManager.registerExtension(new OtherDepartment());
 		ExtensionManager.registerExtension(new Sessions());
 		ExtensionManager.registerExtension(new Bookable());
 		ExtensionManager.registerExtension(new TermCode());
@@ -92,15 +92,12 @@ public class DaisyTest extends TestCase {
 		ExtensionManager.registerExtension(new EmployeeName());
 		ExtensionManager.registerExtension(new EmployeeEmail());
 		ExtensionManager.registerExtension(new Identifier());
-		// Oxcap Extensions
 		ExtensionManager.registerExtension(new MemberApplyTo());
-		ExtensionManager.registerExtension(new BookingEndpoint());
-		ExtensionManager.registerExtension(new Session());
 		ExtensionManager.registerExtension(new Subject());
-		
+		ExtensionManager.registerExtension(new Session());
+
 		OverrideManager.registerOverride(Course.class, new OxcapCourse());
 		OverrideManager.registerOverride(Presentation.class, new OxcapPresentation());
-		
 		// Careers
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap");
 		

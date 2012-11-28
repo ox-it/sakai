@@ -51,7 +51,7 @@ public class ModuleImpl implements Module {
 	 */
 	private SakaiProxy proxy;
 	
-	private ServerConfigurationService serverConfigurationService;
+	//private ServerConfigurationService serverConfigurationService;
 	
 	
 	
@@ -61,11 +61,6 @@ public class ModuleImpl implements Module {
 	
 	public void setProxy(SakaiProxy proxy) {
 		this.proxy = proxy;
-	}
-	
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
 	}
 	
 	/**
@@ -457,19 +452,19 @@ public class ModuleImpl implements Module {
 	}
 	
 	protected int getTodayInt() {
-		return new Integer(serverConfigurationService.getString("course-signup.site-id", "1")).intValue();
+		return proxy.getConfigParam("course-signup.site-id", 1);
 	}
 	
 	protected int getReminderDays() {
-		return new Integer(serverConfigurationService.getString("reminder.days", "7")).intValue();
+		return proxy.getConfigParam("reminder.days", 7);
 	}
 	
 	protected int getAboutToStartDays() {
-		return new Integer(serverConfigurationService.getString("abouttostart.days", "2")).intValue();
+		return proxy.getConfigParam("abouttostart.days", 2);
 	}
 	
 	protected int getAboutToCloseDays() {
-		return new Integer(serverConfigurationService.getString("abouttoclose.days", "1")).intValue();
+		return proxy.getConfigParam("abouttoclose.days", 1);
 	}
 	
 	public boolean validString(String string) {

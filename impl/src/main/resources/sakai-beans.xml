@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean name="uk.ac.ox.oucs.vle.SakaiProxy" class="uk.ac.ox.oucs.vle.proxy.SakaiProxyImpl" init-method="init">
+		<property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+		<property name="eventService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="portalService" ref="org.sakaiproject.portal.api.PortalService"/>
+		<property name="additionalUserDetails" ref="uk.ac.ox.oucs.vle.AdditionalUserDetails"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+	</bean>
+
+
+	<bean id="uk.ac.ox.oucs.vle.DaisyPopulatorJobWrapper"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
+		singleton="true" init-method="init">
+		<property name="beanId" value="uk.ac.ox.oucs.vle.DaisyPopulatorJob" />
+		<property name="jobName" value="SES Import Daisy Courses" />
+		<property name="schedulerManager"
+			ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+		<property name="resourceBundleBase" value="uk.ac.ox.oucs.vle.Scheduler" />
+		<property name="configurableJobProperties">
+			<set>
+				<bean id="daisy.uri.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+					<property name="descriptionResourceKey" value="xcri.oxcap.populator.uri" />
+					<property name="labelResourceKey" value="xcri.oxcap.populator.uri" />
+				</bean>
+				<bean id="daisy.user.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+					<property name="descriptionResourceKey" value="xcri.oxcap.populator.username" />
+					<property name="labelResourceKey" value="xcri.oxcap.populator.username" />
+				</bean>
+				<bean id="daisy.password.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+					<property name="descriptionResourceKey" value="xcri.oxcap.populator.password" />
+					<property name="labelResourceKey" value="xcri.oxcap.populator.password" />
+				</bean>
+				<bean id="daisy.name.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+					<property name="descriptionResourceKey" value="xcri.oxcap.populator.name" />
+					<property name="labelResourceKey" value="xcri.oxcap.populator.name" />
+				</bean>
+			</set>
+		</property>
+	</bean>
+
+	<bean id="uk.ac.ox.oucs.vle.OxcapPopulatorJobWrapper"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
+		singleton="true" init-method="init">
+		<property name="beanId" value="uk.ac.ox.oucs.vle.OxcapPopulatorJob" />
+		<property name="jobName" value="SES Import Oxcap Courses" />
+		<property name="schedulerManager"
+			ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+		<property name="resourceBundleBase" value="uk.ac.ox.oucs.vle.Scheduler" />
+		<property name="configurableJobProperties">
+			<set>
+				<bean id="oxcap.uri.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+					<property name="descriptionResourceKey" value="xcri.oxcap.populator.uri" />
+					<property name="labelResourceKey" value="xcri.oxcap.populator.uri" />
+				</bean>
+				<bean id="oxcap.user.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+					<property name="descriptionResourceKey" value="xcri.oxcap.populator.username" />
+					<property name="labelResourceKey" value="xcri.oxcap.populator.username" />
+				</bean>
+				<bean id="oxcap.password.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+					<property name="descriptionResourceKey" value="xcri.oxcap.populator.password" />
+					<property name="labelResourceKey" value="xcri.oxcap.populator.password" />
+				</bean>
+				<bean id="oxcap.name.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+					<property name="descriptionResourceKey" value="xcri.oxcap.populator.name" />
+					<property name="labelResourceKey" value="xcri.oxcap.populator.name" />
+				</bean>
+			</set>
+		</property>
+	</bean>
+
+	<bean id="uk.ac.ox.oucs.vle.ModuleJobWrapper"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		singleton="true" init-method="init">
+		<property name="beanId" value="uk.ac.ox.oucs.vle.ModuleJob" />
+		<property name="jobName" value="Module Signup (SES) Overnight Jobs" />
+		<property name="schedulerManager"
+			ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+	</bean>
+	
+	<bean id="uk.ac.ox.oucs.vle.OucsDeptJobWrapper"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		singleton="true" init-method="init">
+		<property name="beanId" value="uk.ac.ox.oucs.vle.OucsDeptJob" />
+		<property name="jobName" value="Generate the OUCS Department data" />
+		<property name="schedulerManager"
+			ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+	</bean>
+	
+	<!-- Automatically setup the tool. -->
+	<bean class="uk.ac.ox.oucs.vle.AutoSetup" init-method="init" lazy-init="false">
+		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="jobs">
+			<list>
+				<ref bean="uk.ac.ox.oucs.vle.OucsDeptJobWrapper"/> 
+				<ref bean="uk.ac.ox.oucs.vle.DaisyPopulatorJobWrapper"/>
+				<ref bean="uk.ac.ox.oucs.vle.OxcapPopulatorJobWrapper"/>
+			</list>
+		</property>
+	</bean>
+
+</beans>
+

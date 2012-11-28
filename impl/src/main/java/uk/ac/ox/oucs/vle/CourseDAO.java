@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -103,8 +104,8 @@ public interface CourseDAO {
 	
 	public int flagSelectedDaisyCourseComponents(final String source);
 	
-	public Object deleteSelectedCourseGroups(final String source);
+	public Collection<CourseGroupDAO> deleteSelectedCourseGroups(final String source);
 	
-	public Object deleteSelectedCourseComponents(final String source);
+	public Collection<CourseComponentDAO> deleteSelectedCourseComponents(final String source);
 
 }

@@ -15,13 +15,13 @@ public class XcriOxcapPopulatorInstanceData {
 
 	private static final Log log = LogFactory.getLog(XcriOxcapPopulatorInstanceData.class);
 	
-	private ContentHostingService contentHostingService;
+	private SakaiProxy proxy;
 	
 	ByteArrayOutputStream eOut;
 	ByteArrayOutputStream iOut;
 	
-	private static XcriErrorWriter eWriter;
-	private static XcriInfoWriter iWriter;
+	private static XcriLogWriter eWriter;
+	private static XcriLogWriter iWriter;
 	
 	private int departmentSeen;
 	private int departmentCreated;
@@ -38,23 +38,19 @@ public class XcriOxcapPopulatorInstanceData {
 	
 	private String lastGroup = null;
 	
-	private String siteId;
-	
 	private String feed;
 	
-	public XcriOxcapPopulatorInstanceData(ContentHostingService contentHostingService, String siteId, String feed, String generated) {
+	public XcriOxcapPopulatorInstanceData(SakaiProxy proxy, String feed, String generated) {
 		
-		this.contentHostingService = contentHostingService;
-		this.siteId = siteId;
+		this.proxy = proxy;
 		this.feed = feed;
 		
 		eOut = new ByteArrayOutputStream();
 		iOut = new ByteArrayOutputStream();
 		
 		try {
-			
-			eWriter = new XcriErrorWriter(eOut, feed, generated);
-			iWriter = new XcriInfoWriter(iOut, feed, generated);
+			eWriter = new XcriLogWriter(eOut, feed+"ImportError", "Errors and Warnings from SES Import",  generated);
+			iWriter = new XcriLogWriter(iOut, feed+"ImportInfo", "Info and Warnings from SES Import", generated);
 		
 		} catch (IOException e) {
 			log.warn("Failed to write content to logfile.", e);
@@ -78,9 +74,6 @@ public class XcriOxcapPopulatorInstanceData {
 	
 	protected void finalise() {
 		
-		ContentResourceEdit cre = null;
-		ContentResourceEdit cri = null;
-		
 		try {
 			logMs("CourseDepartments (seen: "+ departmentSeen+ " created: "+ departmentCreated+ ", updated: "+ departmentUpdated+")");
 			logMs("CourseSubUnits (seen: "+ subunitSeen+ " created: "+ subunitCreated+ ", updated: "+ subunitUpdated+")");
@@ -92,69 +85,12 @@ public class XcriOxcapPopulatorInstanceData {
 		
 			iWriter.flush();
 			iWriter.close();
-		
-			if (null != contentHostingService) {
-				
-				String jsonResourceEId = contentHostingService.getSiteCollection(siteId)+ eWriter.getIdName();
-
-				try {
-					// editResource() doesn't throw IdUnusedExcpetion but PermissionException
-					// when the resource is missing so we first just tco to find it.
-					contentHostingService.getResource(jsonResourceEId);
-					cre = contentHostingService.editResource(jsonResourceEId);
 			
-				} catch (IdUnusedException e) {
-					try {
-						cre = contentHostingService.addResource(jsonResourceEId);
-						ResourceProperties props = cre.getPropertiesEdit();
-						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, eWriter.getDisplayName());
-						cre.setContentType("text/html");
-					} catch (Exception e1) {
-						log.warn("Failed to create the import log file.", e1);
-					}
-				}
-		
-				cre.setContent(eOut.toByteArray());
-				// Don't notify anyone about this resource.
-				contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
-			}
-		
-			if (null != contentHostingService) {
-			
-				String jsonResourceSId = contentHostingService.getSiteCollection(siteId)+ iWriter.getIdName();
-
-				try {
-					// editResource() doesn't throw IdUnusedExcpetion but PermissionException
-					// when the resource is missing so we first just try to find it.
-					contentHostingService.getResource(jsonResourceSId);
-					cri = contentHostingService.editResource(jsonResourceSId);
-			
-				} catch (IdUnusedException e) {
-					try {
-						cri = contentHostingService.addResource(jsonResourceSId);
-						ResourceProperties props = cri.getPropertiesEdit();
-						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, iWriter.getDisplayName());
-						cri.setContentType("text/html");
-					} catch (Exception e1) {
-						log.warn("Failed to create the import log file.", e1);
-					}
-				}
-		
-				cri.setContent(iOut.toByteArray());
-				// Don't notify anyone about this resource.
-				contentHostingService.commitResource(cri, NotificationService.NOTI_NONE);
-			}
+			proxy.writeLog(eWriter.getIdName(), eWriter.getDisplayName(), eOut.toByteArray());
+			proxy.writeLog(iWriter.getIdName(), iWriter.getDisplayName(), iOut.toByteArray());
 		
 		} catch (Exception e) {
 			log.warn("Failed to write content to logfile.", e);
-		
-		} finally {
-			if (null != cre && cre.isActiveEdit()) {
-				contentHostingService.cancelResource(cre);
-			}
-			if (null != cri && cri.isActiveEdit()) {
-				contentHostingService.cancelResource(cri);
-			}
 		}
 	}
 	

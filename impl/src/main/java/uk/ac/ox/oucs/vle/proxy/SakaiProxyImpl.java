@@ -13,17 +13,27 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.OverQuotaException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -42,54 +52,86 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	private final static Log log = LogFactory.getLog(SakaiProxyImpl.class);
 	
-	private UserDirectoryService userService;
-	
-	private EmailService emailService;
-	
-	private EventTrackingService eventService;
-	
-	private ToolManager toolManager;
-	
-	private ServerConfigurationService serverConfigurationService;
-	
-	private SiteService siteService;
-	
-	private PortalService portalService;
-	
-	private AdditionalUserDetails additionalUserDetails;
-	
 	private String fromAddress;
 	
+	/**
+	 * 
+	 */
+	private UserDirectoryService userService;
 	public void setUserService(UserDirectoryService userService) {
 		this.userService = userService;
 	}
 
+	/**
+	 * 
+	 */
+	private EmailService emailService;
 	public void setEmailService(EmailService emailService) {
 		this.emailService = emailService;
 	}
 
+	/**
+	 * 
+	 */
+	private EventTrackingService eventService;
 	public void setEventService(EventTrackingService eventService) {
 		this.eventService = eventService;
 	}
 
+	/**
+	 * 
+	 */
+	private ToolManager toolManager;
 	public void setToolManager(ToolManager toolManager) {
 		this.toolManager = toolManager;
 	}
 
+	/**
+	 * 
+	 */
+	private SiteService siteService;
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
 	}
 
+	/**
+	 * 
+	 */
+	private PortalService portalService;
 	public void setPortalService(PortalService portalService) {
 		this.portalService = portalService;
 	}
 	
+	/**
+	 * 
+	 */
+	private AdditionalUserDetails additionalUserDetails;
 	public void setAdditionalUserDetails(AdditionalUserDetails additionalUserDetails) {
 		this.additionalUserDetails = additionalUserDetails;
 	}
 	
+	/**
+	 * 
+	 */
+	private ServerConfigurationService serverConfigurationService;
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
+	}
+	
+	/**
+	 * 
+	 */
+	private ContentHostingService contentHostingService;
+	public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
+	}
+	
+	/**
+	 * 
+	 */
+	private SessionManager sessionManager;
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
 	}
 
 	public void init() {
@@ -356,6 +398,54 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}	
 		return null;
 	}
-	
 
+	public Integer getConfigParam(String param, int dflt) {
+		return Integer.parseInt(serverConfigurationService.getString(param, new Integer(dflt).toString()));
+	}
+
+	public String getConfigParam(String param, String dflt) {
+		return serverConfigurationService.getString(param, dflt);
+	}
+	
+	public void writeLog(String contentId, String contentDisplayName, byte[] bytes) 
+			throws VirusFoundException, OverQuotaException, ServerOverloadException, PermissionException, TypeException, InUseException {
+		
+		switchUser();
+		ContentResourceEdit cre = null;
+		String siteId = getConfigParam("course-signup.site-id", "course-signup");
+		String jsonResourceEId = contentHostingService.getSiteCollection(siteId)+ contentId;
+
+		try {
+			// editResource() doesn't throw IdUnusedExcpetion but PermissionException
+			// when the resource is missing so we first just tco to find it.
+			contentHostingService.getResource(jsonResourceEId);
+			cre = contentHostingService.editResource(jsonResourceEId);
+	
+		} catch (IdUnusedException e) {
+			try {
+				cre = contentHostingService.addResource(jsonResourceEId);
+				ResourceProperties props = cre.getPropertiesEdit();
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, contentDisplayName);
+				cre.setContentType("text/html");
+			} catch (Exception e1) {
+				log.warn("Failed to create the import log file.", e1);
+			}
+		}
+
+		cre.setContent(bytes);
+		// Don't notify anyone about this resource.
+		contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+	}
+	
+	/**
+	 * This sets up the user for the current request.
+	 */
+	
+	private void switchUser() {
+		if (null != sessionManager) {
+			org.sakaiproject.tool.api.Session session = sessionManager.getCurrentSession();
+			session.setUserEid("admin");
+			session.setUserId("admin");
+		}
+	}
 }

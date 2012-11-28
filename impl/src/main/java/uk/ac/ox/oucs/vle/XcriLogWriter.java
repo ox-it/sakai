@@ -7,19 +7,18 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 
-public class XcriErrorWriter extends OutputStreamWriter implements XcriLogWriter {
+public class XcriLogWriter extends OutputStreamWriter {
 		
-	private static String source;
+	private String name;
 	
-	public XcriErrorWriter(OutputStream arg0, String source, String generated) throws IOException {
+	public XcriLogWriter(OutputStream arg0, String name, String heading, String generated) throws IOException {
 		super(arg0);
 		
-		XcriErrorWriter.source = source;
+		this.name = name;
 		Calendar cal = Calendar.getInstance();
 	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	    
-		this.write("<html><head></head><body>" +
-				"<h3>Errors and Warnings from SES Import ");
+		this.write("<html><head></head><body>"+"<h3>"+ heading+" ");
 		this.write(sdf.format(cal.getTime()));
 		this.write("</h3>");
 		if (null != generated) {
@@ -36,11 +35,11 @@ public class XcriErrorWriter extends OutputStreamWriter implements XcriLogWriter
 	}
 	
 	public String getIdName() {
-		return source+"ImportError.html";
+		return name+"Log.html";
 	}
 	
 	public String getDisplayName() {
-		return source+"ImportErrorLog.html";
+		return getIdName();
 	}
 
 }

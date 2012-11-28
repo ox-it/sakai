@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -821,9 +822,14 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("update course_group ");
-				querySQL.append("set deleted = true ");
-				querySQL.append("where source = :source");
+				querySQL.append("update course_group cg ");
+				querySQL.append("left join course_group_component cgc on cg.muid = cgc.courseGroupMuid ");
+				querySQL.append("left join course_component cc on cgc.courseComponentMuid = cc.muid ");
+				querySQL.append("left join course_signup cs on cg.muid = cs.courseGroupMuid ");
+				querySQL.append("set cg.deleted = true ");
+				querySQL.append("where cg.source = :source and ");
+				querySQL.append("cc.baseDate > now() and ");
+				querySQL.append("(select count(cs.id) = 0)");
 				Query query = session.createSQLQuery(querySQL.toString()).setString("source", source);
 				return query.executeUpdate();
 			}
@@ -837,9 +843,13 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("update course_component ");
+				querySQL.append("update course_component cc ");
+				querySQL.append("left join course_component_signup ccs on cc.muid = ccs.courseComponentMuid ");
+				querySQL.append("left join course_signup cs on ccs.signup = cs.id ");
 				querySQL.append("set deleted = true ");
-				querySQL.append("where source = :source");
+				querySQL.append("where source = :source and ");
+				querySQL.append("baseDate > now() and ");
+				querySQL.append("(select count(cs.id) = 0)");
 				Query query = session.createSQLQuery(querySQL.toString()).setString("source", source);
 				return query.executeUpdate();
 			}
@@ -849,8 +859,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	/**
 	 * 
 	 */
-	public Object deleteSelectedCourseGroups(final String source) {
-		return getHibernateTemplate().execute(new HibernateCallback() {
+	@SuppressWarnings("unchecked")
+	public Collection<CourseGroupDAO> deleteSelectedCourseGroups(final String source) {
+		return (Collection<CourseGroupDAO>)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) 
 					throws HibernateException,	SQLException {
 				
@@ -861,14 +872,15 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				for (CourseGroupDAO groupDao : groupDaos) {
 					session.delete(groupDao);
 				}
-				return 0;
+				return groupDaos;
 			}
 		});
 		
 	}
 	
-	public Object deleteSelectedCourseComponents(final String source) {
-		return getHibernateTemplate().execute(new HibernateCallback() {
+	@SuppressWarnings("unchecked")
+	public Collection<CourseComponentDAO> deleteSelectedCourseComponents(final String source) {
+		return (Collection<CourseComponentDAO>)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) 
 					throws HibernateException,	SQLException {
 				
@@ -879,7 +891,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				for (CourseComponentDAO componentDao : componentDaos) {
 					session.delete(componentDao);
 				}
-				return 0;
+				return componentDaos;
 			}
 		});
 	}

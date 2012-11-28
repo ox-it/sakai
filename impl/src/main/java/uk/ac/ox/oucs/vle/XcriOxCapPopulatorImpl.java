@@ -38,6 +38,7 @@ import org.xcri.Extension;
 import org.xcri.common.Description;
 import org.xcri.common.ExtensionManager;
 import org.xcri.common.OverrideManager;
+import org.xcri.common.descriptive.Regulations;
 import org.xcri.core.Catalog;
 import org.xcri.core.Course;
 import org.xcri.core.Presentation;
@@ -81,31 +82,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	private SakaiProxy proxy;
 	public void setProxy(SakaiProxy proxy) {
 		this.proxy = proxy;
-	}
-	
-	/**
-	 * 
-	 */
-	protected ServerConfigurationService serverConfigurationService;
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
-	
-	/**
-	 * 
-	 */
-	private ContentHostingService contentHostingService;
-	public void setContentHostingService(ContentHostingService contentHostingService) {
-		this.contentHostingService = contentHostingService;
-	}
-	
-	/**
-	 * 
-	 */
-	private SessionManager sessionManager;
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
 	}
 	
 	private static final Log log = LogFactory.getLog(XcriOxCapPopulatorImpl.class);
@@ -190,8 +166,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 */
 	public void process(String name, InputStream inputStream) {
 		
-		switchUser();
-		
 		try {
 			Catalog catalog = new Catalog();
 			SAXBuilder builder = new SAXBuilder();
@@ -199,7 +173,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			catalog.fromXml(document);
 			
 			XcriOxcapPopulatorInstanceData data = 
-					new XcriOxcapPopulatorInstanceData(contentHostingService, getSiteId(), name, simpleDateFormat.format(catalog.getGenerated()));
+					new XcriOxcapPopulatorInstanceData(proxy,name, simpleDateFormat.format(catalog.getGenerated()));
 			
 			Provider[] providers = catalog.getProviders();
 		
@@ -385,7 +359,16 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		
 		OxcapCourse oxCourse = (OxcapCourse)course;
 		String visibility = oxCourse.getVisibility().toString();
-		String regulations = course.getRegulations()[0].getValue();
+		
+		String regulations = null;
+		if (course.getRegulations().length > 0) {
+			Regulations xRegulations = course.getRegulations()[0];
+			if (!xRegulations.isXhtml()) {
+				regulations = parse(xRegulations.getValue());
+			} else {
+				regulations = xRegulations.getValue();
+			}
+		}
 		
 		Collection<Subject> researchCategories = new HashSet<Subject>();
 		Collection<Subject> skillsCategories = new HashSet<Subject>();
@@ -829,15 +812,10 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		
 		try {
 			if (null == code) {
-				XcriOxcapPopulatorInstanceData.logMe("Log Failure Assessment Unit ["+code+"] No AssessmentUnit code");
+				XcriOxcapPopulatorInstanceData.logMe("Log Failure Assessment Unit ["+code+":"+title+"] No AssessmentUnit code");
 				i++;
 			}
-			/*
-			if (administrators.isEmpty()) {
-				XcriOxcapPopulatorInstanceData.logMe("Log Failure Assessment Unit ["+code+"] No Group Administrators");
-				i++;
-			}
-			*/
+			
 			if (i == 0) {
 				return true;
 			}
@@ -900,6 +878,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			groupDao.setAdministratorApproval(administratorApproval);
 			groupDao.setContactEmail(divisionEmail);
 			groupDao.setAdministrators(administrators);
+			groupDao.setRegulations(regulations);
 			groupDao.setDeleted(false);
 			
 			if (null==superusers) {
@@ -991,51 +970,21 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		int i=0;
 		
 		try {
-			/*
-			if (null == openDate) { 
-				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] No open date set");
-				i++;
-			}
-		
-			if (null == closeDate) {
-				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] No close date set");
-				i++;
-			}
-			*/
+			
 			if (null != openDate && null != closeDate) {
 				if (openDate.after(closeDate)){
-					XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] Open date is after close date");
+					XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+":"+title+"] Open date is after close date");
 					i++;
 				}
 			}
-			/*
-			if (subject == null || subject.trim().length() == 0) {
-				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] Subject isn't set");
-				i++;
-			}
-			*/
+			
 			if (title == null || title.trim().length() == 0) {
-				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] Title isn't set");
-				i++;
-			}
-			/*
-			if (termCode == null || termCode.trim().length() == 0) {
-				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] Term code can't be empty");
-				i++;
-			}
-		
-			if (termName == null || termName.trim().length() == 0) {
-				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] Term name can't be empty");
+				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+":"+title+"] Title isn't set");
 				i++;
 			}
 			
-			if (teachingComponentId == null || teachingComponentId.trim().length()==0) {
-				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] No teaching component ID found");
-				i++;
-			}
-			*/
 			if (groups.isEmpty()) {
-				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+"] No Assessment Unit codes");
+				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+":"+title+"] No Assessment Unit codes");
 				i++;
 			}
 		
@@ -1227,13 +1176,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	    return text+"["+sdf.format(date)+"]";
 	}
 
-	protected String getSiteId() {
-		if (null != serverConfigurationService) {
-			return serverConfigurationService.getString("course-signup.site-id", "course-signup");
-		}
-		return "course-signup";
-	}
-
 	private static boolean parseBoolean(String data) {
 		if ("1".equals(data)) {
 			return true;
@@ -1291,14 +1233,4 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		return sb.toString();
 	}
 	
-	/**
-	 * This sets up the user for the current request.
-	 */
-	private void switchUser() {
-		if (null != sessionManager) {
-			org.sakaiproject.tool.api.Session session = sessionManager.getCurrentSession();
-			session.setUserEid("admin");
-			session.setUserId("admin");
-		}
-	}
 }

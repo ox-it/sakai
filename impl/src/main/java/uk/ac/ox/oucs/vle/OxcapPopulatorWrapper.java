@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -30,8 +31,14 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.OverQuotaException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.FormattedText;
 import org.xcri.Extension;
@@ -83,6 +90,14 @@ public class OxcapPopulatorWrapper implements PopulatorWrapper {
 		this.populator = populator;
 	}
 	
+	/**
+	 * 
+	 */
+	private SakaiProxy proxy;
+	public void setProxy(SakaiProxy proxy) {
+		this.proxy = proxy;
+	}
+	
 	private static final Log log = LogFactory.getLog(OxcapPopulatorWrapper.class);
 
 	/**
@@ -90,18 +105,54 @@ public class OxcapPopulatorWrapper implements PopulatorWrapper {
 	 */
 	public void update(PopulatorContext context) {
 		
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		
 		try {
+			XcriLogWriter writer = new XcriLogWriter(out, context.getName()+"ImportDeleted", "Deleted Groups and Components from SES Import", null);
+			
 			dao.flagSelectedCourseGroups(context.getName());
 			dao.flagSelectedCourseComponents(context.getName());
 			
             populator.update(context);
             
-            dao.deleteSelectedCourseGroups(context.getName());
-            dao.deleteSelectedCourseComponents(context.getName());
+            Collection<CourseGroupDAO> groups = dao.deleteSelectedCourseGroups(context.getName());
+            for (CourseGroupDAO group : groups) {
+            	writer.write("Deleting course ["+group.getCourseId()+" "+group.getTitle()+"]"+"\n");
+            }
+            
+            Collection<CourseComponentDAO> components = dao.deleteSelectedCourseComponents(context.getName());
+            for (CourseComponentDAO component : components) {
+            	writer.write("Deleting component ["+component.getComponentId()+" "+component.getTitle()+"]"+"\n");
+            }
+            
+            writer.flush();
+            writer.close();
+			proxy.writeLog(writer.getIdName(), writer.getDisplayName(), out.toByteArray());
 			
         } catch (IllegalStateException e) {
         	log.warn("IllegalStateException ["+context.getURI()+"]", e);
-        }
+        } catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (VirusFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (OverQuotaException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ServerOverloadException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (PermissionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TypeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InUseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
        
 	}
 	

@@ -19,7 +19,8 @@ public abstract class TestOnSampleData extends AbstractTransactionalSpringContex
 	}
 
 	protected String[] getConfigPaths() {
-		return new String[]{"/components.xml", "/test-components.xml"};
+		//return new String[]{"/components.xml", "/test-components.xml"};
+		return new String[]{"/course-signup-beans.xml", "/test-components.xml"};
 	}
 	
 	public void setFactory(SessionFactory factory) {

@@ -26,7 +26,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	private CourseDAO dao;
 	private SakaiProxy proxy;
-	private ServerConfigurationService serverConfigurationService;
 
 	private long adjustment;
 	
@@ -38,11 +37,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		this.proxy = proxy;
 	}
 	
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
-
 	/**
 	 * 
 	 */
@@ -1274,7 +1268,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * @return
 	 */
 	protected String getDaisyAdmin() {
-		return serverConfigurationService.getString("daisy.administrator", "admin");
+		return proxy.getConfigParam("daisy.administrator", "admin");
 	}
 	
 	/**
@@ -1282,7 +1276,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * @return
 	 */
 	public Integer getRecentDays() {
-		return Integer.parseInt(serverConfigurationService.getString("recent.days", "14"));
+		return proxy.getConfigParam("recent.days", 14);
 	}
 	
 }
