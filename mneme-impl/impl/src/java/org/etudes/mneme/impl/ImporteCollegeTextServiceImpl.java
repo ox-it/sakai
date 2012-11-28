@@ -578,7 +578,7 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 
 		String text = "";
 		StringBuffer buildAnswers = new StringBuffer("{");
-		boolean isResponseTextual = true;
+		Boolean isResponseTextual = null;
 		// create the question
 		Question question = this.questionService.newQuestion(pool, "mneme:FillBlanks");
 		FillBlanksQuestionImpl f = (FillBlanksQuestionImpl) (question.getTypeSpecificQuestion());
@@ -621,7 +621,10 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 				answer = Validator.escapeHtml(answer);
 				buildAnswers.append(answer);
 				buildAnswers.append("|");
-				isResponseTextual = checkIfTextualorNumeric(answer);
+				if (isResponseTextual == null)
+					isResponseTextual = checkIfTextualorNumeric(answer);
+				else
+					isResponseTextual = (isResponseTextual || checkIfTextualorNumeric(answer));
 			}
 		}
 		buildAnswers.replace(buildAnswers.length() - 1, buildAnswers.length(), "}");
@@ -630,7 +633,8 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 		f.setText(text);
 
 		// text or numeric
-		f.setResponseTextual(Boolean.toString(isResponseTextual));
+		if (isResponseTextual == null) isResponseTextual = true;
+		f.setResponseTextual(isResponseTextual.toString());
 
 		// survey
 		question.setIsSurvey(false);
