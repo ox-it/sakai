@@ -3,29 +3,46 @@
 
 <beans>
 
-	<bean id="uk.ac.ox.oucs.vle.signup.hibernate.AdditionalHibernateMappings"
-		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://127.0.0.1:3306/test" />
+		<property name="username" value="root"/>
+		<property name="password" value="user"/>
+	</bean>
+	
+	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" name="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
 		<property name="mappingResources">
 			<list>
 				<value>/uk/ac/ox/oucs/vle/Course.hbm.xml</value>
 			</list>
 		</property>
+		<property name="hibernateProperties">
+			<value>
+				hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect
+				hibernate.show_sql=true
+				hibernate.use_sql_comments=true
+				hibernate.hbm2ddl.auto=create-drop
+			</value>
+		</property>
+	</bean>
+
+	<bean class="uk.ac.ox.oucs.vle.SampleDataLoader" init-method="init">
+		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 	
-	<bean name="uk.ac.ox.oucs.vle.SakaiProxy" class="uk.ac.ox.oucs.vle.proxy.SakaiProxyImpl" init-method="init">
-		<property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
-		<property name="eventService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
-		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-		<property name="portalService" ref="org.sakaiproject.portal.api.PortalService"/>
-		<property name="additionalUserDetails" ref="uk.ac.ox.oucs.vle.AdditionalUserDetails"/>
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" 
+		  name="transactionManager" 
+		  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+			<property name="dataSource" ref="dataSource"/>
 	</bean>
 
+	<bean name="uk.ac.ox.oucs.vle.SakaiProxy" class="uk.ac.ox.oucs.vle.proxy.SakaiProxyTest" >
+	</bean>
 
+	<!--  
 	<bean id="uk.ac.ox.oucs.vle.DaisyPopulatorJobWrapper"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
 		singleton="true" init-method="init">
@@ -103,12 +120,13 @@
 		<property name="schedulerManager"
 			ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
 	</bean>
+	-->
 	
 	<!-- Automatically setup the tool. -->
+	<!-- 
 	<bean class="uk.ac.ox.oucs.vle.AutoSetup" init-method="init" lazy-init="false">
 		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-		<!--  
 		<property name="jobs">
 			<list>
 				<ref bean="uk.ac.ox.oucs.vle.OucsDeptJobWrapper"/> 
@@ -116,8 +134,7 @@
 				<ref bean="uk.ac.ox.oucs.vle.OxcapPopulatorJobWrapper"/>
 			</list>
 		</property>
-		-->
 	</bean>
-
+	 -->
 </beans>
 

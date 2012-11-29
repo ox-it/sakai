@@ -44,6 +44,7 @@ import org.xcri.core.Course;
 import org.xcri.core.Presentation;
 import org.xcri.core.Provider;
 import org.xcri.exceptions.InvalidElementException;
+import org.xcri.presentation.Venue;
 
 import uk.ac.ox.oucs.vle.xcri.daisy.Bookable;
 import uk.ac.ox.oucs.vle.xcri.daisy.CourseSubUnit;
@@ -216,8 +217,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		String departmentCode = null;
 		String divisionEmail = null;
 		boolean departmentApproval = false;
-		String departmentApprover = null;
 		String divisionCode = null;
+		Set<String> departmentApprovers = new HashSet<String>();
 		Collection<String> divisionSuperUsers = new HashSet<String>();
 		Map<String, String> subunits = new HashMap<String, String>();
 		
@@ -250,7 +251,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			}
 			
 			if (extension instanceof ModuleApproval) {
-				departmentApprover = extension.getValue();
+				departmentApprovers.add(getUser(extension.getValue()));
 				continue;
 			}
 			
@@ -258,7 +259,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				WebAuthCode webAuthCode = (WebAuthCode) extension;
 				
 				if (webAuthCode.getWebAuthCodeType() == WebAuthCode.WebAuthCodeType.superUser) {
-					divisionSuperUsers.add(webAuthCode.getValue());
+					divisionSuperUsers.add(getUser(webAuthCode.getValue()));
 				}
 				continue;
 			}
@@ -271,9 +272,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			
 		}
 		
-		Collection<String> superusers = getUsers(divisionSuperUsers);
-		String approver = getUser(departmentApprover);
-		
 		if (null == departmentCode) {
 			XcriOxcapPopulatorInstanceData.logMe(
 					"Log Failure Provider ["+departmentCode+":"+departmentName+"] No Provider Identifier");
@@ -284,7 +282,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			
 			data.incrDepartmentSeen();
 			if (updateDepartment(departmentCode, departmentName, departmentApproval, 
-				(Set<String>)Collections.singleton(approver))) {
+					departmentApprovers)) {
 				data.incrDepartmentCreated();;
 			} else {
 				data.incrDepartmentUpdated();
@@ -301,7 +299,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 			
 		for (Course course : provider.getCourses()) {
-			course(course, departmentCode, departmentName, divisionEmail, superusers, data, !createGroups);
+			course(course, departmentCode, departmentName, divisionEmail, divisionSuperUsers, data, !createGroups);
 		}
 	}
 	
@@ -380,7 +378,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		boolean administratorApproval = true;
 		String subunitCode = null;
 		String subunitName = null;
-		Collection<String> administratorCodes = new HashSet<String>();
+		Collection<String> administrators = new HashSet<String>();
 		Collection<String> otherDepartments = new HashSet<String>();
 		
 		for (Extension extension : course.getExtensions()) {
@@ -416,7 +414,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			if (extension instanceof WebAuthCode) {
 				WebAuthCode webAuthCode = (WebAuthCode) extension;
 				if (webAuthCode.getWebAuthCodeType() == WebAuthCode.WebAuthCodeType.administrator) {
-					administratorCodes.add(webAuthCode.getValue());
+					administrators.add(getUser(webAuthCode.getValue()));
 				}
 				continue;
 			}
@@ -443,8 +441,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				continue;
 			}
 		}
-		
-		Collection<String> administrators = getUsers(administratorCodes);
 		
 		if (null == id) {
 			XcriOxcapPopulatorInstanceData.logMe(
@@ -587,7 +583,10 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			closeText = presentation.getApplyUntil().getValue();
 		}
 		if (0 != presentation.getVenues().length) {
-			location = presentation.getVenues()[0].getProvider().getTitles()[0].getValue();
+			Venue venue = presentation.getVenues()[0];
+			if (null != venue.getProvider() && venue.getProvider().getTitles().length > 0) {
+				location = venue.getProvider().getTitles()[0].getValue();
+			}
 		}
 		
 		boolean bookable = false;
@@ -1112,6 +1111,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @param userCodes
 	 * @return
 	 */
+	/*
 	private Collection<String> getUsers (Collection<String> userCodes) {
 		
 		Set<String> userIds = new HashSet<String>();
@@ -1123,7 +1123,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 		return userIds;
 	}
-	
+	*/
 	/**
 	 * 
 	 * @param userCode

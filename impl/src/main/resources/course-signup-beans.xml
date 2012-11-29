@@ -3,15 +3,6 @@
 
 <beans>
 
-	<bean id="uk.ac.ox.oucs.vle.signup.hibernate.AdditionalHibernateMappings"
-		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
-		<property name="mappingResources">
-			<list>
-				<value>/uk/ac/ox/oucs/vle/Course.hbm.xml</value>
-			</list>
-		</property>
-	</bean>
-
 	<bean name="uk.ac.ox.oucs.vle.CourseSignupService"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="target">

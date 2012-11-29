@@ -1,6 +1,6 @@
-INSERT INTO course_group(id, dept, title) VALUES('course-1', '3C05', 'The Politics of Brazil' );
-INSERT INTO course_group(id, dept, title) VALUES('course-2', '3C05', 'The Politics of Mexico' );
-INSERT INTO course_group(id, dept, title) VALUES('course-3', '3C05', 'Testing of Open' );
+INSERT INTO course_group(courseId, dept, title) VALUES('course-1', '3C05', 'The Politics of Brazil' );
+INSERT INTO course_group(courseId, dept, title) VALUES('course-2', '3C05', 'The Politics of Mexico' );
+INSERT INTO course_group(courseId, dept, title) VALUES('course-3', '3C05', 'Testing of Open' );
 
 INSERT INTO course_group_administrator(course_group, administrator) VALUES('course-1', 'admin' );
 INSERT INTO course_group_administrator(course_group, administrator) VALUES('course-2', 'admin' );

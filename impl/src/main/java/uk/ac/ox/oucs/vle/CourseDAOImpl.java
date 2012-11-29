@@ -82,7 +82,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	@SuppressWarnings("unchecked")
 	public CourseGroupDAO findUpcomingComponents(String courseId, Date available) {
 		List<CourseGroupDAO> courseGroups = getHibernateTemplate().findByNamedParam(
-				"select distinct cg from CourseGroupDAO cg left join fetch cg.components as component where cg.id = :courseId and component.closes > :closes",
+				"select distinct cg from CourseGroupDAO cg left join fetch cg.components as component where cg.courseId = :courseId and component.closes > :closes",
 				new String[]{"courseId", "closes"}, new Object[]{courseId, available});
 		int results = courseGroups.size();
 		if (results > 0) {
