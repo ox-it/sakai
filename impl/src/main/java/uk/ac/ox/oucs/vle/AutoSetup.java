@@ -51,7 +51,8 @@ public class AutoSetup implements ApplicationContextAware {
 			Scheduler scheduler = schedulerManager.getScheduler();
 			
 			String[] startups = serverConfigurationService.getStrings("ses.startup");
-			for (String startup : Arrays.asList(startups)) {
+			for (int i = 0; i < startups.length; i++) {
+				String startup = startups[i];
 				try {
 					String jobBean = serverConfigurationService.getString("ses.import."+startup+".jobbean");
 					SpringJobBeanWrapper job = (SpringJobBeanWrapper)applicationContext.getBean(jobBean);
