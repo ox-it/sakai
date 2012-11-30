@@ -739,7 +739,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	private boolean updateDepartment(String code, String name, boolean approve, Set<String> approvers) {
 		
 		log.debug("XcriPopulatorImpl.updateDepartment ["+code+":"+name+":"+
-				approve+":"+approvers.iterator().next()+"]");
+				approve+":"+approvers.size()+"]");
 		
 		boolean created = false;
 		

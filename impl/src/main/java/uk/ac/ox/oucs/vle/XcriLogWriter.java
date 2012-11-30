@@ -30,7 +30,13 @@ public class XcriLogWriter extends OutputStreamWriter {
 	}
 	
 	public void flush() throws IOException {
-		this.write("</pre></body></html>");
+		Calendar cal = Calendar.getInstance();
+	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		this.write("</pre>");
+		this.write("<h3>Log completed at ");
+		this.write(sdf.format(cal.getTime()));
+		this.write("</h3>");
+		this.write("</body></html>");
 		super.flush();
 	}
 	
