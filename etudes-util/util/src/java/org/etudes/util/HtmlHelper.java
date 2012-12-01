@@ -32,6 +32,12 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.HtmlNode;
+import org.htmlcleaner.HtmlSerializer;
+import org.htmlcleaner.SimpleHtmlSerializer;
+import org.htmlcleaner.TagNode;
+import org.htmlcleaner.TagNodeVisitor;
 import org.jaxen.JaxenException;
 import org.jaxen.XPath;
 import org.jaxen.dom.DOMXPath;
@@ -48,6 +54,176 @@ public class HtmlHelper
 	// private static Log M_log = LogFactory.getLog(HtmlHelper.class);
 
 	/**
+	 * Clean some user entered HTML fragment. Assures well formed HTML. Assures all anchor tags have target=_blank.
+	 * 
+	 * @param source
+	 *        The source HTML
+	 * @return The cleaned up HTML fragment.
+	 */
+	public static String clean(String source)
+	{
+		return clean(source, false);
+	}
+
+	/**
+	 * Clean some user entered HTML. Assures well formed HTML. Assures all anchor tags have target=_blank.
+	 * 
+	 * @param source
+	 *        The source HTML
+	 * @param document
+	 *        if true, return a complete html document, else return a fragment of html.
+	 * @return The cleaned up HTML.
+	 */
+	public static String clean(String source, boolean document)
+	{
+		if (source == null) return null;
+
+		// shorten any full URL embedded references (such as what editors puts in for "smilies")
+		source = XrefHelper.shortenFullUrls(source);
+
+		// clear any nl, cr, tab (such as what editors do for "pretty html")
+		Pattern p = Pattern.compile("[\r\n\t]", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
+		Matcher m = p.matcher(source);
+		source = m.replaceAll("");
+
+		// clean
+		// http://htmlcleaner.sourceforge.net
+		// http://mvnrepository.com/artifact/net.sourceforge.htmlcleaner/htmlcleaner/2.2
+		HtmlCleaner cleaner = new HtmlCleaner();
+		cleaner.getProperties().setOmitXmlDeclaration(true);
+
+		TagNode node = cleaner.clean(source);
+
+		// update any <a> tags to have proper targets
+		node.traverse(new TagNodeVisitor()
+		{
+			public boolean visit(TagNode tagNode, HtmlNode htmlNode)
+			{
+				if (htmlNode instanceof TagNode)
+				{
+					TagNode tag = (TagNode) htmlNode;
+					String tagName = tag.getName();
+					if ("a".equals(tagName))
+					{
+						tag.setAttribute("target", "_blank");
+					}
+				}
+
+				return true;
+			}
+		});
+
+		final HtmlSerializer serializer = new SimpleHtmlSerializer(cleaner.getProperties());
+		if (!document)
+		{
+			// serialize the body node
+			final StringBuilder vb = new StringBuilder();
+			node.traverse(new TagNodeVisitor()
+			{
+				public boolean visit(TagNode tagNode, HtmlNode htmlNode)
+				{
+					if (htmlNode instanceof TagNode)
+					{
+						TagNode tag = (TagNode) htmlNode;
+						String tagName = tag.getName();
+						if ("body".equals(tagName))
+						{
+							try
+							{
+								vb.append(serializer.getAsString(tag, "UTF-8", true));
+							}
+							catch (IOException e)
+							{
+								// M_log.warn(e);
+							}
+							return false;
+						}
+					}
+
+					return true;
+				}
+			});
+			if (vb.length() > 0) source = vb.toString();
+		}
+		else
+		{
+			// serialize the whole document
+			try
+			{
+				source = serializer.getAsString(node, "UTF-8", false);
+			}
+			catch (IOException e)
+			{
+				// M_log.warn(e);
+			}
+		}
+
+		return source;
+	}
+
+	/**
+	 * Clean some user entered HTML. Assures well formed XML. Assures all anchor tags have target=_blank.
+	 * 
+	 * @param source
+	 *        The source HTML
+	 * @return The cleaned up HTML.
+	 */
+	public static String cleanOLD(String source)
+	{
+		if (source == null) return null;
+
+		try
+		{
+			// parse possibly dirty html
+			Tidy tidy = new Tidy();
+			ByteArrayInputStream bais = new ByteArrayInputStream(source.getBytes("UTF-8"));
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			PrintWriter pw = new PrintWriter(baos);
+			tidy.setErrout(pw);
+			tidy.setQuiet(true);
+			tidy.setXHTML(true);
+			tidy.setCharEncoding(org.w3c.tidy.Configuration.UTF8);
+			Document doc = tidy.parseDOM(bais, null);
+
+			// assure target=_blank in all anchors
+			XPath x = new DOMXPath("//a");
+			List l = x.selectNodes(doc);
+			for (Object o : l)
+			{
+				Element e = (Element) o;
+				e.setAttribute("target", "_blank");
+			}
+
+			// get the whole thing in a string
+			baos = new ByteArrayOutputStream();
+			tidy.pprint(doc, baos);
+			String all = baos.toString("UTF-8");
+			String rv = null;
+
+			// find the substring between <body> and </body>
+			int start = all.indexOf("<body>");
+			if (start != -1)
+			{
+				start += "<body>".length();
+				int end = all.lastIndexOf("</body>");
+				rv = all.substring(start, end);
+			}
+
+			return rv;
+		}
+		catch (IOException e)
+		{
+			// M_log.warn(e);
+		}
+		catch (JaxenException e)
+		{
+			// M_log.warn(e);
+		}
+
+		return null;
+	}
+
+	/**
 	 * Compare two HTML fragment strings and see if they are essentially the same or not.
 	 * 
 	 * @param oneHtml
@@ -58,11 +234,11 @@ public class HtmlHelper
 	 */
 	public static boolean compareHtml(String oneHtml, String otherHtml)
 	{
-		//inner-tag formatting and attribute order
+		// inner-tag formatting and attribute order
 		oneHtml = normalizeTagsofHtml(oneHtml);
 		otherHtml = normalizeTagsofHtml(otherHtml);
-		
-		//TODO: - script tag body text formatting
+
+		// TODO: - script tag body text formatting
 		return !Different.different(oneHtml, otherHtml);
 	}
 
@@ -123,7 +299,7 @@ public class HtmlHelper
 		m.appendTail(sb);
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Remove any characters from the data that will cause mysql to reject the record because of encoding errors<br />
 	 * (java.sql.SQLException: Incorrect string value) if they are present.
@@ -278,67 +454,5 @@ public class HtmlHelper
 		m.appendTail(sb);
 
 		return sb.toString();
-	}
-	
-	/**
-	 * Clean some user entered HTML. Assures well formed XML. Assures all anchor tags have target=_blank.
-	 * 
-	 * @param source
-	 *        The source HTML
-	 * @return The cleaned up HTML.
-	 */
-	public static String clean(String source)
-	{
-		if (source == null) return null;
-
-		try
-		{
-			// parse possibly dirty html
-			Tidy tidy = new Tidy();
-			ByteArrayInputStream bais = new ByteArrayInputStream(source.getBytes("UTF-8"));
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			PrintWriter pw = new PrintWriter(baos);
-			tidy.setErrout(pw);
-			tidy.setQuiet(true);
-			tidy.setXHTML(true);
-			tidy.setCharEncoding(org.w3c.tidy.Configuration.UTF8); 
-			Document doc = tidy.parseDOM(bais, null);
-
-			// assure target=_blank in all anchors
-			XPath x = new DOMXPath("//a");
-			List l = x.selectNodes(doc);
-			for (Object o : l)
-			{
-				Element e = (Element) o;
-				e.setAttribute("target", "_blank");
-			}
-
-			// get the whole thing in a string
-			baos = new ByteArrayOutputStream();
-			tidy.pprint(doc, baos);
-			String all = baos.toString("UTF-8");
-			String rv = null;
-
-			// find the substring between <body> and </body>
-			int start = all.indexOf("<body>");
-			if (start != -1)
-			{
-				start += "<body>".length();
-				int end = all.lastIndexOf("</body>");
-				rv = all.substring(start, end);
-			}
-
-			return rv;
-		}
-		catch (IOException e)
-		{
-			//M_log.warn(e);
-		}
-		catch (JaxenException e)
-		{
-			//M_log.warn(e);
-		}
-
-		return null;
 	}
 }
