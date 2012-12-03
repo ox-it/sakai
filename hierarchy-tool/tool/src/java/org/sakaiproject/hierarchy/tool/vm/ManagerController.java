@@ -17,12 +17,12 @@ import org.sakaiproject.hierarchy.api.model.PortalNodeRedirect;
 import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 import org.springframework.web.servlet.view.RedirectView;
@@ -58,8 +58,9 @@ public class ManagerController extends AbstractController
 
 	private static final String CUT_ID = ManagerController.class.getName() + "#CUT_ID";
 
-
 	private PortalHierarchyService phs;
+	private SiteService siteService;
+	private SessionManager sessionManager;
 
 	public ManagerController()
 	{
@@ -69,6 +70,16 @@ public class ManagerController extends AbstractController
 	public void setPortalHierarchyService(PortalHierarchyService phs)
 	{
 		this.phs = phs;
+	}
+	
+	public void setSiteService(SiteService siteService)
+	{
+		this.siteService = siteService;
+	}
+	
+	public void setSessionManager(SessionManager sessionManager)
+	{
+		this.sessionManager = sessionManager;
 	}
 
 	public void init()
@@ -82,8 +93,8 @@ public class ManagerController extends AbstractController
 		String currentPath = request.getPathInfo();
 		PortalNodeSite node = getCurrentNode(currentPath);
 		
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		Session session = SessionManager.getCurrentSession();
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		Session session = sessionManager.getCurrentSession();
 		String cutId = (String) session.getAttribute(ManagerController.CUT_ID);
 
 
@@ -113,7 +124,7 @@ public class ManagerController extends AbstractController
 			{
 				try
 				{
-					Site site = SiteService.getSite((String)siteAttribute);
+					Site site = siteService.getSite((String)siteAttribute);
 					editModel.put("new", createSiteMap(site));
 					return new ModelAndView( "replace", editModel );
 				}
