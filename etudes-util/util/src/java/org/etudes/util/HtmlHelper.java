@@ -21,13 +21,8 @@
 
 package org.etudes.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,12 +33,6 @@ import org.htmlcleaner.HtmlSerializer;
 import org.htmlcleaner.SimpleHtmlSerializer;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.TagNodeVisitor;
-import org.jaxen.JaxenException;
-import org.jaxen.XPath;
-import org.jaxen.dom.DOMXPath;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.tidy.Tidy;
 
 /**
  * Stripper has helper methods for stripping out junk from user entered HTML
@@ -62,31 +51,47 @@ public class HtmlHelper
 	 */
 	public static String clean(String source)
 	{
-		return clean(source, false);
+		return clean(source, true);
 	}
 
 	/**
-	 * Clean some user entered HTML. Assures well formed HTML. Assures all anchor tags have target=_blank.
+	 * Clean some user entered HTML. Assures well formed HTML. Assures all anchor tags have target=_blank. Assures all tag attributes are in determined (alpha) order.
 	 * 
 	 * @param source
 	 *        The source HTML
-	 * @param document
-	 *        if true, return a complete html document, else return a fragment of html.
+	 * @param fragment
+	 *        if true, return a fragment of html, else return a complete html document.
 	 * @return The cleaned up HTML.
 	 */
-	public static String clean(String source, boolean document)
+	public static String clean(String source, boolean fragment)
 	{
 		if (source == null) return null;
+
+		// if we need to see the raw data
+//		for (int i = 0; i < source.length(); i++)
+//		{
+//			char c = source.charAt(i);
+//			System.out.println((int)c);
+//		}
+
+		// some specifics conditions
+		source = stripEncodedFontDefinitionComments(source);
+		source = stripDamagedComments(source);
+		source = stripBadEncodingCharacters(source);
+		source = stripLinks(source);
+
+		// remove all comments
+		source = stripComments(source);
 
 		// shorten any full URL embedded references (such as what editors puts in for "smilies")
 		source = XrefHelper.shortenFullUrls(source);
 
 		// clear any nl, cr, tab (such as what editors do for "pretty html")
+		// TODO: this might not be quite right - might interfere with <pre> content
 		Pattern p = Pattern.compile("[\r\n\t]", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
 		Matcher m = p.matcher(source);
 		source = m.replaceAll("");
 
-		// clean
 		// http://htmlcleaner.sourceforge.net
 		// http://mvnrepository.com/artifact/net.sourceforge.htmlcleaner/htmlcleaner/2.2
 		HtmlCleaner cleaner = new HtmlCleaner();
@@ -107,6 +112,21 @@ public class HtmlHelper
 					{
 						tag.setAttribute("target", "_blank");
 					}
+
+					// order the tag attributes
+					Map<String, String> attributes = tag.getAttributes();
+					TreeMap<String, String> attr = new TreeMap<String, String>();
+					attr.putAll(attributes);
+
+					for (String key : attr.keySet())
+					{
+						tag.removeAttribute(key);
+					}
+
+					for (String key : attr.keySet())
+					{
+						tag.setAttribute(key, attr.get(key));
+					}
 				}
 
 				return true;
@@ -114,7 +134,7 @@ public class HtmlHelper
 		});
 
 		final HtmlSerializer serializer = new SimpleHtmlSerializer(cleaner.getProperties());
-		if (!document)
+		if (fragment)
 		{
 			// serialize the body node
 			final StringBuilder vb = new StringBuilder();
@@ -162,142 +182,24 @@ public class HtmlHelper
 	}
 
 	/**
-	 * Clean some user entered HTML. Assures well formed XML. Assures all anchor tags have target=_blank.
-	 * 
-	 * @param source
-	 *        The source HTML
-	 * @return The cleaned up HTML.
-	 */
-	public static String cleanOLD(String source)
-	{
-		if (source == null) return null;
-
-		try
-		{
-			// parse possibly dirty html
-			Tidy tidy = new Tidy();
-			ByteArrayInputStream bais = new ByteArrayInputStream(source.getBytes("UTF-8"));
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			PrintWriter pw = new PrintWriter(baos);
-			tidy.setErrout(pw);
-			tidy.setQuiet(true);
-			tidy.setXHTML(true);
-			tidy.setCharEncoding(org.w3c.tidy.Configuration.UTF8);
-			Document doc = tidy.parseDOM(bais, null);
-
-			// assure target=_blank in all anchors
-			XPath x = new DOMXPath("//a");
-			List l = x.selectNodes(doc);
-			for (Object o : l)
-			{
-				Element e = (Element) o;
-				e.setAttribute("target", "_blank");
-			}
-
-			// get the whole thing in a string
-			baos = new ByteArrayOutputStream();
-			tidy.pprint(doc, baos);
-			String all = baos.toString("UTF-8");
-			String rv = null;
-
-			// find the substring between <body> and </body>
-			int start = all.indexOf("<body>");
-			if (start != -1)
-			{
-				start += "<body>".length();
-				int end = all.lastIndexOf("</body>");
-				rv = all.substring(start, end);
-			}
-
-			return rv;
-		}
-		catch (IOException e)
-		{
-			// M_log.warn(e);
-		}
-		catch (JaxenException e)
-		{
-			// M_log.warn(e);
-		}
-
-		return null;
-	}
-
-	/**
 	 * Compare two HTML fragment strings and see if they are essentially the same or not.
 	 * 
 	 * @param oneHtml
-	 *        One HTML fragment string.
+	 *        One HTML string.
 	 * @param otherHtml
-	 *        The other HTML fragment string.
+	 *        The other HTML string.
+	 * @param fragment
+	 *        true if the strings are html fragments, false if full html documents.
 	 * @return true if these are essentially the same, false if they are essentially different.
 	 */
-	public static boolean compareHtml(String oneHtml, String otherHtml)
+	public static boolean compareHtml(String oneHtml, String otherHtml, boolean fragment)
 	{
-		// inner-tag formatting and attribute order
-		oneHtml = normalizeTagsofHtml(oneHtml);
-		otherHtml = normalizeTagsofHtml(otherHtml);
+		// compare the clean versions of both
+		String cleanOne = clean(oneHtml, fragment);
+		String cleanTwo = clean(otherHtml, fragment);
 
 		// TODO: - script tag body text formatting
-		return !Different.different(oneHtml, otherHtml);
-	}
-
-	/**
-	 * Normalizes the text. Finds all of the html tag in the text and for each tag parses its attributes and writes back in sorted order.
-	 * 
-	 * @param content1
-	 *        HTML Content
-	 * @return normalize HTML Content
-	 */
-	public static String normalizeTagsofHtml(String content1)
-	{
-		if (content1 == null || content1.length() == 0) return content1;
-		// to get all html tags
-		Pattern p1 = Pattern.compile("<.*?>", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
-		// to get tag name
-		Pattern p_tagName = Pattern.compile("(<.+?[\\s]+)(.*?[^#]*)(/*>)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
-		// to get the list of attributes
-		Pattern p2 = Pattern.compile("[\\s]*(.*?)[\\s]*=[\\s]*\"([^#\"]*)([#\"])", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-		// to parse css style
-		Pattern p_css = Pattern.compile("(.*?[^#]*)(:)(.*?[^#]*)(;)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-
-		Matcher m = p1.matcher(content1);
-		StringBuffer sb = new StringBuffer();
-
-		while (m.find())
-		{
-			Matcher m_tag = p_tagName.matcher(m.group(0));
-
-			while (m_tag.find())
-			{
-				// write the tag name
-				String tagsContent = new String();
-				tagsContent = tagsContent.concat(m_tag.group(1).trim() + " ");
-
-				// find attributes of tag
-				Matcher m2 = p2.matcher(m_tag.group(2));
-				HashMap<String, String> attribs = new HashMap<String, String>(0);
-				while (m2.find())
-				{
-					attribs.put(m2.group(1), m2.group(2));
-				}
-
-				// write the attributes in sorted format
-				TreeMap<String, String> sort_attribs = new TreeMap<String, String>(attribs);
-				Set<String> sort_keys = sort_attribs.keySet();
-				for (String k : sort_keys)
-				{
-					// TODO:parse value to fix space formatting on css styles but not disturbing src,href values
-					// ex: mce_style="font-size: 10pt; font-family: Verdana;"
-					String value = attribs.get(k);
-					tagsContent = tagsContent.concat(" " + k.trim() + "=\"" + value + "\" ");
-				}
-				tagsContent = tagsContent.concat(m_tag.group(3).trim());
-				m.appendReplacement(sb, tagsContent);
-			}
-		}
-		m.appendTail(sb);
-		return sb.toString();
+		return !Different.different(cleanOne, cleanTwo);
 	}
 
 	/**
