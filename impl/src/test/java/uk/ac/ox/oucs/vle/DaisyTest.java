@@ -99,7 +99,7 @@ public class DaisyTest extends TestCase {
 		OverrideManager.registerOverride(Course.class, new OxcapCourse());
 		OverrideManager.registerOverride(Presentation.class, new OxcapPresentation());
 		// Careers
-		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap");
+		URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap");
 		
 		// Continuing Education
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=http%3A//course.data.ox.ac.uk/id/continuing-education/catalog&format=xcricap");
@@ -111,7 +111,7 @@ public class DaisyTest extends TestCase {
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/language-centre/catalogue&format=xcricap");
 		
 		// Medical Sciences
-		URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/medsci/catalogue&format=xcricap-full");
+		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/medsci/catalogue&format=xcricap-full");
 		
 		// SharePoint
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/sharepoint/catalogue&format=xcricap-full");
@@ -336,18 +336,6 @@ public class DaisyTest extends TestCase {
 				
 				assertNotNull(id);
 				
-				assertTrue(XcriOxCapPopulatorImpl.validCourse(id, 
-								course.getTitles()[0].getValue(), 
-								departmentCode, subunitCode, description,
-								departmentName, subunitName, visibility, 
-								supervisorApproval, administratorApproval,
-								divisionEmail, regulations, 
-								(Set<String>) administrators, 
-								(Set<String>) divisionSuperUsers, 
-								(Set<String>) otherDepartments,
-								(Set<Subject>) researchCategories, 
-								(Set<Subject>) skillsCategories,
-								(Set<Subject>) jacsCategories));
 			}
 		}
 	}
@@ -537,22 +525,6 @@ public class DaisyTest extends TestCase {
 					courseGroups.add(courseDao);
 					
 					assertNotNull(componentId);
-					
-					assertTrue(XcriOxCapPopulatorImpl.validComponent(componentId, 
-									presentation.getTitles()[0].getValue(),
-									attendanceMode, 
-									openDate, openText, 
-									closeDate, closeText, 
-									startDate, startText, 
-									endDate, endText, 
-									bookable, capacity, termCode, teachingcomponentId, 
-									sessionDates, teacherId, teacherName, teacherEmail, 
-									attendanceMode, attendanceModeText,
-									attendancePattern, attendancePatternText,
-									sessionDates, sessionCount, location, applyTo, 
-									memberApplyTo, 
-									sessions, 
-									courseGroups));
 					
 				}
 			}

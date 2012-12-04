@@ -273,7 +273,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 		
 		if (null == departmentCode) {
-			XcriOxcapPopulatorInstanceData.logMe(
+			data.logMe(
 					"Log Failure Provider ["+departmentCode+":"+departmentName+"] No Provider Identifier");
 			return;
 		}
@@ -443,7 +443,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 		
 		if (null == id) {
-			XcriOxcapPopulatorInstanceData.logMe(
+			data.logMe(
 					"Log Failure Course ["+id+":"+title+"] No Course Identifier");
 			return;
 		}
@@ -457,7 +457,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				description = xDescription.getValue();
 			}
 		} else {
-			XcriOxcapPopulatorInstanceData.logMe(
+			data.logMe(
 					"Log Warning Course ["+id+"] has no description");
 		}
 			
@@ -476,7 +476,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				data.incrGroupSeen();
 				data.setLastGroup(id);
 			
-				if (validCourse(id, title, departmentCode, subunitCode, description,
+				if (validCourse(data, id, title, departmentCode, subunitCode, description,
 						departmentName, subunitName, visibility, 
 						supervisorApproval, administratorApproval,
 						divisionEmail, regulations,
@@ -487,7 +487,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 						(Set<Subject>) skillsCategories, 
 						(Set<Subject>) jacsCategories)) {
 			
-					if (updateCourse(id, title, departmentCode, subunitCode, description,
+					if (updateCourse(data, id, title, departmentCode, subunitCode, description,
 							departmentName, subunitName, visibility, 
 							supervisorApproval, administratorApproval,
 							divisionEmail, regulations, data.getFeed(),
@@ -673,7 +673,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			try {
 				capacity = Integer.parseInt(presentation.getPlaces().getValue());
 			} catch (Exception e) {
-				XcriOxcapPopulatorInstanceData.logMe(
+				data.logMe(
 						"Log Warning Presentation ["+id+"] value in places tag is not a number ["+presentation.getPlaces().getValue()+"]");
 			}
 		}
@@ -685,7 +685,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		
 		data.incrComponentSeen();
 		
-		if (validComponent(id, title, subject, 
+		if (validComponent(data, id, title, subject, 
 				openDate, openText, closeDate, closeText, startDate, startText, endDate, endText,
 				bookable, capacity, 
 				termCode,  teachingcomponentId, sessionDates,
@@ -695,7 +695,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				slot, sessionCount, location, applyTo, memberApplyTo,
 				(Set<Session>) sessions, (Set<CourseGroupDAO>) courseGroups)) {
 			
-			if (updateComponent(id, title, subject, 
+			if (updateComponent(data, id, title, subject, 
 					openDate, openText, closeDate, closeText, startDate, startText, endDate, endText,
 					bookable, capacity, 
 					termCode,  teachingcomponentId, sessionDates,
@@ -793,7 +793,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @param administrators
 	 * @return
 	 */
-	protected static boolean validCourse(String code, String title, String departmentCode, String subunitCode, 
+	protected boolean validCourse(XcriOxcapPopulatorInstanceData data, String code, String title, String departmentCode, String subunitCode, 
 			String description, String departmentName, String subunitName, 
 			String visibility, boolean supervisorApproval, boolean administratorApproval,
 			String divisionEmail, String regulations,
@@ -811,7 +811,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		
 		try {
 			if (null == code) {
-				XcriOxcapPopulatorInstanceData.logMe("Log Failure Assessment Unit ["+code+":"+title+"] No AssessmentUnit code");
+				logMe(data, "Log Failure Assessment Unit ["+code+":"+title+"] No AssessmentUnit code");
 				i++;
 			}
 			
@@ -844,7 +844,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @return
 	 * @throws IOException 
 	 */
-	private boolean updateCourse(String id, String title, String departmentCode, String subunitCode, 
+	private boolean updateCourse(XcriOxcapPopulatorInstanceData data, String id, String title, String departmentCode, String subunitCode, 
 			String description, String departmentName, String subunitName, 
 			String visibility, boolean supervisorApproval, boolean administratorApproval,
 			String divisionEmail, String regulations, String feed,
@@ -924,9 +924,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 		
 		if (created) {
-			XcriOxcapPopulatorInstanceData.logMs("Log Success Course Group created ["+id+":"+title+"]");
+			logMs(data, "Log Success Course Group created ["+id+":"+title+"]");
 		} else {
-			XcriOxcapPopulatorInstanceData.logMs("Log Success Course Group updated ["+id+":"+title+"]");
+			logMs(data, "Log Success Course Group updated ["+id+":"+title+"]");
 		}
 		return created;
 	}
@@ -945,7 +945,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @param groups
 	 * @return
 	 */
-	protected static boolean validComponent(String id, String title, String subject, 
+	protected boolean validComponent(XcriOxcapPopulatorInstanceData data, String id, String title, String subject, 
 			Date openDate, String openText, Date closeDate, String closeText, Date startDate, String startText, Date endDate, String endText, 
 			boolean bookable, int capacity, 
 			String termCode,  String teachingComponentId, String termName,
@@ -972,18 +972,18 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			
 			if (null != openDate && null != closeDate) {
 				if (openDate.after(closeDate)){
-					XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+":"+title+"] Open date is after close date");
+					logMe(data, "Log Failure Teaching Instance ["+id+":"+title+"] Open date is after close date");
 					i++;
 				}
 			}
 			
 			if (title == null || title.trim().length() == 0) {
-				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+":"+title+"] Title isn't set");
+				logMe(data, "Log Failure Teaching Instance ["+id+":"+title+"] Title isn't set");
 				i++;
 			}
 			
 			if (groups.isEmpty()) {
-				XcriOxcapPopulatorInstanceData.logMe("Log Failure Teaching Instance ["+id+":"+title+"] No Assessment Unit codes");
+				logMe(data, "Log Failure Teaching Instance ["+id+":"+title+"] No Assessment Unit codes");
 				i++;
 			}
 		
@@ -1022,7 +1022,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @return
 	 * @throws IOException 
 	 */
-	private boolean updateComponent(String id, String title, String subject, 
+	private boolean updateComponent(XcriOxcapPopulatorInstanceData data, String id, String title, String subject, 
 			Date openDate, String openText, Date closeDate, String closeText, Date startDate, String startText, Date endDate, String endText, 
 			boolean bookable, int capacity, 
 			String termCode,  String teachingComponentId, String termName,
@@ -1098,32 +1098,36 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 		
 		if (created) {
-			XcriOxcapPopulatorInstanceData.logMs("Log Success Course Component created ["+id+":"+title+"]");
+			logMs(data, "Log Success Course Component created ["+id+":"+title+"]");
 		} else {
-			XcriOxcapPopulatorInstanceData.logMs("Log Success Course Component updated ["+id+":"+title+"]");
+			logMs(data, "Log Success Course Component updated ["+id+":"+title+"]");
 		}
 		return created;
 	}
 	
 	/**
-	 * convert collection of userCodes to userIds
+	 * @throws IOException 
 	 * 
-	 * @param userCodes
-	 * @return
 	 */
-	/*
-	private Collection<String> getUsers (Collection<String> userCodes) {
-		
-		Set<String> userIds = new HashSet<String>();
-		for (String userCode : userCodes) {
-			String userId = getUser(userCode);
-			if (null != userId) {
-				userIds.add(userId);
-			}
+	private void logMe(XcriOxcapPopulatorInstanceData data, String message) throws IOException {
+		log.warn(message);
+		if (null != data) {
+			data.logMe(message);
 		}
-		return userIds;
 	}
-	*/
+	
+	/**
+	 * @throws IOException 
+	 * 
+	 */
+	private void logMs(XcriOxcapPopulatorInstanceData data, String message) throws IOException {
+		log.warn(message);
+		if (null != data) {
+			data.logMe(message);
+		}
+	}
+
+	
 	/**
 	 * 
 	 * @param userCode

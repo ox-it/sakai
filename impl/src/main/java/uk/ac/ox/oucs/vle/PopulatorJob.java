@@ -22,8 +22,7 @@ public class PopulatorJob implements Job {
 	public void execute(JobExecutionContext context)
 			throws JobExecutionException {
 		
-		JobDetail jobDetail = context.getJobDetail();
-		JobDataMap jobDataMap = jobDetail.getJobDataMap();
+		JobDataMap jobDataMap = context.getMergedJobDataMap();
 		PopulatorContext pContext = new PopulatorContext();
 		pContext.setURI((String)jobDataMap.get("xcri.oxcap.populator.uri"));
 		pContext.setUser((String)jobDataMap.get("xcri.oxcap.populator.username"));

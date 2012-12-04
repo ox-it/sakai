@@ -60,31 +60,33 @@ public class AutoSetup implements ApplicationContextAware {
 					jobData.put(JobBeanWrapper.SPRING_BEAN_NAME, job.getBeanId());
 					jobData.put(JobBeanWrapper.JOB_TYPE, job.getJobType());
 					
+					JobDataMap triggerData = new JobDataMap();
+					
 					String param;
 					param = serverConfigurationService.getString("ses.import."+startup+".uri");
 					if (null != param) {
-						jobData.put("xcri.oxcap.populator.uri", param);
+						triggerData.put("xcri.oxcap.populator.uri", param);
 					}
 					
 					param = serverConfigurationService.getString("ses.import."+startup+".user");
 					if (null != param) {
-						jobData.put("xcri.oxcap.populator.username", param);
+						triggerData.put("xcri.oxcap.populator.username", param);
 					}
 					
 					param = serverConfigurationService.getString("ses.import."+startup+".password");
 					if (null != param) {
-						jobData.put("xcri.oxcap.populator.password", param);
+						triggerData.put("xcri.oxcap.populator.password", param);
 					}
 					
 					param = serverConfigurationService.getString("ses.import."+startup+".name");
 					if (null != param) {
-						jobData.put("xcri.oxcap.populator.name", param);
+						triggerData.put("xcri.oxcap.populator.name", param);
 					}
 					
 					JobDetail jobDetail = new JobDetail(job.getJobType(), null, job.getJobClass());
 					jobDetail.setJobDataMap(jobData);
 					scheduler.addJob(jobDetail, true);
-					scheduler.triggerJobWithVolatileTrigger(job.getJobType(), null);
+					scheduler.triggerJobWithVolatileTrigger(job.getJobType(), null, triggerData);
 					log.info("Triggered job: "+ job.getJobType());
 				} catch (SchedulerException se) {
 					log.warn("Failed to run job: "+ startup, se);

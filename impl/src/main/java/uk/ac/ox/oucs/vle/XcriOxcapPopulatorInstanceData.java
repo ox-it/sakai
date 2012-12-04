@@ -20,8 +20,8 @@ public class XcriOxcapPopulatorInstanceData {
 	ByteArrayOutputStream eOut;
 	ByteArrayOutputStream iOut;
 	
-	private static XcriLogWriter eWriter;
-	private static XcriLogWriter iWriter;
+	private XcriLogWriter eWriter;
+	private XcriLogWriter iWriter;
 	
 	private int departmentSeen;
 	private int departmentCreated;
@@ -159,8 +159,7 @@ public class XcriOxcapPopulatorInstanceData {
 	 * @param message
 	 * @throws IOException
 	 */
-	protected static void logMe(String message) throws IOException {
-		log.warn(message);
+	protected void logMe(String message) throws IOException {
 		if (null != eWriter) {
 			eWriter.write(message+"\n");
 		}
@@ -171,8 +170,7 @@ public class XcriOxcapPopulatorInstanceData {
 	 * @param message
 	 * @throws IOException
 	 */
-	protected static void logMs(String message) throws IOException {
-		log.warn(message);
+	protected void logMs(String message) throws IOException {
 		if (null != iWriter) {
 			iWriter.write(message+"\n");
 		}

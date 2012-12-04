@@ -76,7 +76,7 @@
 		<property name="message" type="string" length="4000"/>
 		<set name="components" lazy="true" table="course_component_signup"
 			inverse="true">
-			<key column="signup" not-null="true" />
+			<key column="signup" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO"
 				column="courseComponentMuid" />
 		</set>
@@ -139,7 +139,7 @@
 		<property name="location" type="string" length="4000"/>
 		<property name="applyTo" type="string" length="255"/>
 		<property name="memberApplyTo" type="string" length="255"/>
-		<property name="source" type="string" length="32"/>
+		<property name="source" type="string" length="32" index="course_component_source_idx" />
 
 		<set name="signups" lazy="true" table="course_component_signup">
 			<key column="courseComponentMuid" not-null="true" />
@@ -183,7 +183,7 @@
 		<property name="contactEmail" type="string" length="255"/>
 		<property name="visibility" type="string" length="16"/>
 		<property name="regulations" type="string" length="255"/>
-		<property name="source" type="string" length="32"/>
+		<property name="source" type="string" length="32" index="course_group_source_idx"/>
 		<set name="components" cascade="delete" inverse="true" lazy="true" table="course_group_component" fetch="join">
 			<key column="courseGroupMuid" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO" column="courseComponentMuid" />

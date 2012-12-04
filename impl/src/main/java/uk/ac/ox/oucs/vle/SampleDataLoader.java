@@ -21,7 +21,7 @@ public class SampleDataLoader {
 	private static final Log log = LogFactory.getLog(SampleDataLoader.class);
 
 	private SessionFactory factory;
-	private String dataFile = "/test-data.sql";
+	private String dataFile = "/sakai_test.dump"; //"/test-data.sql";
 
 	public void setSessionFactory(SessionFactory factory) {
 		this.factory = factory;
@@ -46,13 +46,18 @@ public class SampleDataLoader {
 			String line = null;
 			int semicolon;
 			while ((line = reader.readLine()) != null) {
+				if (line.startsWith("--")) {
+					continue;
+				}
 				buffer.append(line);
 				semicolon = buffer.indexOf(";");
 				if (semicolon > 0) {
-					sql = buffer.substring(0, semicolon);
+					sql = buffer.substring(0, semicolon+1);
 					buffer.delete(0, semicolon + 1);
-					session.createSQLQuery(sql).executeUpdate();
-					firstStatement=false;
+					if (!sql.startsWith("/*")) {
+						session.createSQLQuery(sql).executeUpdate();
+						firstStatement=false;
+					}
 				}
 			}
 		} catch (HibernateException e) {

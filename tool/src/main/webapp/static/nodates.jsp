@@ -151,7 +151,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		            					}
 		            				}
 		                            
-		                            data.push([term, this.title, this.department, summary, this.id, newCourse ]);
+		                            data.push([term, this.title, this.department, summary, this.courseId, newCourse ]);
 		                        });
 		                        fnCallback({
 		                            "aaData": data

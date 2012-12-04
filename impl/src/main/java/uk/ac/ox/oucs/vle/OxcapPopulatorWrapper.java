@@ -130,28 +130,21 @@ public class OxcapPopulatorWrapper implements PopulatorWrapper {
 			proxy.writeLog(writer.getIdName(), writer.getDisplayName(), out.toByteArray());
 			
         } catch (IllegalStateException e) {
-        	log.warn("IllegalStateException ["+context.getURI()+"]", e);
+        	log.error("IllegalStateException ["+context.getURI()+"]", e);
         } catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+        	log.error("IOException ["+context.getURI()+"]", e);
 		} catch (VirusFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("VirusFoundException ["+context.getURI()+"]", e);
 		} catch (OverQuotaException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("OverQuotaException ["+context.getURI()+"]", e);
 		} catch (ServerOverloadException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("ServerOverloadException ["+context.getURI()+"]", e);
 		} catch (PermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("PermissionException ["+context.getURI()+"]", e);
 		} catch (TypeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("TypeException ["+context.getURI()+"]", e);
 		} catch (InUseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("InUseException ["+context.getURI()+"]", e);
 		}
        
 	}
