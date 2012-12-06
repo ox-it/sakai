@@ -5,11 +5,6 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.exception.IdUnusedException;
 
 public class XcriOxcapPopulatorInstanceData {
 

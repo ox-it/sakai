@@ -129,22 +129,33 @@ public class OxcapPopulatorWrapper implements PopulatorWrapper {
             writer.close();
 			proxy.writeLog(writer.getIdName(), writer.getDisplayName(), out.toByteArray());
 			
+		} catch (PopulatorException e) {
+        	log.error("PopulatorException ["+context.getURI()+"]", e);
+        	
         } catch (IllegalStateException e) {
         	log.error("IllegalStateException ["+context.getURI()+"]", e);
+        	
         } catch (IOException e) {
         	log.error("IOException ["+context.getURI()+"]", e);
+        	
 		} catch (VirusFoundException e) {
 			log.error("VirusFoundException ["+context.getURI()+"]", e);
+			
 		} catch (OverQuotaException e) {
 			log.error("OverQuotaException ["+context.getURI()+"]", e);
+			
 		} catch (ServerOverloadException e) {
 			log.error("ServerOverloadException ["+context.getURI()+"]", e);
+			
 		} catch (PermissionException e) {
 			log.error("PermissionException ["+context.getURI()+"]", e);
+			
 		} catch (TypeException e) {
 			log.error("TypeException ["+context.getURI()+"]", e);
+			
 		} catch (InUseException e) {
 			log.error("InUseException ["+context.getURI()+"]", e);
+			
 		}
        
 	}

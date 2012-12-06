@@ -98,8 +98,9 @@ public class DaisyTest extends TestCase {
 
 		OverrideManager.registerOverride(Course.class, new OxcapCourse());
 		OverrideManager.registerOverride(Presentation.class, new OxcapPresentation());
+		/*
 		// Careers
-		URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap");
+		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap");
 		
 		// Continuing Education
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=http%3A//course.data.ox.ac.uk/id/continuing-education/catalog&format=xcricap");
@@ -128,9 +129,9 @@ public class DaisyTest extends TestCase {
             out.write('\n');
         }
         in.close();
-        
+        */
         // Daisy
-        //InputStream inStream = getClass().getResourceAsStream("/XCRI_OXCAP.xml");
+        InputStream inStream = getClass().getResourceAsStream("/XCRI_OXCAP.xml");
         
 		catalog = new Catalog();
 		builder = new SAXBuilder();
@@ -247,11 +248,13 @@ public class DaisyTest extends TestCase {
 				String visibility = myCourse.getVisibility().toString();
 				
 				String description;
-				Description xDescription = course.getDescriptions()[0];
-				if (xDescription.isXhtml()) {
-					description = xDescription.getValue();
-				} else {
-					description = parse(xDescription.getValue());
+				if (course.getDescriptions().length > 0) {
+					Description xDescription = course.getDescriptions()[0];
+					if (xDescription.isXhtml()) {
+						description = xDescription.getValue();
+					} else {
+						description = XcriOxCapPopulatorImpl.parse(xDescription.getValue());
+					}
 				}
 				
 				String regulations = course.getRegulations()[0].getValue();
@@ -332,6 +335,17 @@ public class DaisyTest extends TestCase {
 					
 					System.out.println("Extension not processed ["+extension.getClass().getName()+":"+id+"]");
 				
+				}
+				
+				if ("4D02DN0005".equals(id)) {
+					
+						Description xDescription = course.getDescriptions()[0];
+						if (xDescription.isXhtml()) {
+							description = xDescription.getValue();
+						} else {
+							description = XcriOxCapPopulatorImpl.parse(xDescription.getValue());
+						}
+					
 				}
 				
 				assertNotNull(id);
@@ -541,36 +555,4 @@ public class DaisyTest extends TestCase {
 		}
 		return Boolean.parseBoolean(data);
 	}
-	
-	private String parse(String data) {
-		
-		data = data.replaceAll("<", "&lt;");
-		data = data.replaceAll(">", "&gt;");
-		data = FormattedText.convertPlaintextToFormattedText(data);
-		
-		Pattern pattern = Pattern.compile("[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}", Pattern.CASE_INSENSITIVE);
-		Matcher matcher = pattern.matcher(data);
-		
-		StringBuffer sb = new StringBuffer(data.length());
-		while (matcher.find()) {
-		    String text = matcher.group(0);
-		    matcher.appendReplacement(sb, "<a class=\"email\" href=\"mailto:"+text+"\">"+text+"</a>" );
-		}
-		matcher.appendTail(sb);
-		
-		pattern = Pattern.compile("(https?|ftps?):\\/\\/[a-z_0-9\\\\\\-]+(\\.([\\w#!:?+=&%@!\\-\\/])+)+", Pattern.CASE_INSENSITIVE);
-		matcher = pattern.matcher(sb.toString());
-		
-		sb = new StringBuffer(data.length());
-		while (matcher.find()) {
-		    String text = matcher.group(0);
-		    matcher.appendReplacement(sb, "<a class=\"url\" href=\""+text+"\" target=\"_blank\">"+text+"</a>" );
-		}
-		matcher.appendTail(sb);
-		
-		return sb.toString();
-		
-		
-	}
-	
 }

@@ -30,9 +30,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.FormattedText;
 import org.xcri.Extension;
 import org.xcri.common.Description;
@@ -114,9 +111,10 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 	
 	/**
+	 * @throws MalformedURLException 
 	 * 
 	 */
-	public void update(PopulatorContext context) {
+	public void update(PopulatorContext context) throws PopulatorException {
 		
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 		
@@ -143,15 +141,28 @@ public class XcriOxCapPopulatorImpl implements Populator {
 
 		} catch (MalformedURLException e) {
 			log.warn("MalformedURLException ["+context.getURI()+"]", e);
+			throw new PopulatorException(e.getLocalizedMessage());
 			
         } catch (IllegalStateException e) {
         	log.warn("IllegalStateException ["+context.getURI()+"]", e);
+        	throw new PopulatorException(e.getLocalizedMessage());
 			
 		} catch (IOException e) {
 			log.warn("IOException ["+context.getURI()+"]", e);
+			throw new PopulatorException(e.getLocalizedMessage());
 			
 		} catch (URISyntaxException e) {
 			log.warn("URISyntaxException ["+context.getURI()+"]", e);
+			throw new PopulatorException(e.getLocalizedMessage());
+			
+		} catch (JDOMException e) {
+			log.warn("JDOMException ["+context.getURI()+"]", e);
+			throw new PopulatorException(e.getLocalizedMessage());
+			
+		} catch (InvalidElementException e) {
+			log.warn("InvalidElementException ["+context.getURI()+"]", e);
+			throw new PopulatorException(e.getLocalizedMessage());
+			
 		} finally {
             // When HttpClient instance is no longer needed,
             // shut down the connection manager to ensure
@@ -164,41 +175,35 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	/**
 	 * 
 	 * @param inputStream
+	 * @throws IOException 
+	 * @throws JDOMException 
+	 * @throws InvalidElementException 
 	 */
-	public void process(String name, InputStream inputStream) {
+	public void process(String name, InputStream inputStream) 
+			throws JDOMException, IOException, InvalidElementException {
 		
-		try {
-			Catalog catalog = new Catalog();
-			SAXBuilder builder = new SAXBuilder();
-			Document document = builder.build(inputStream);
-			catalog.fromXml(document);
+		Catalog catalog = new Catalog();
+		SAXBuilder builder = new SAXBuilder();
+		Document document = builder.build(inputStream);
+		catalog.fromXml(document);
 			
-			XcriOxcapPopulatorInstanceData data = 
-					new XcriOxcapPopulatorInstanceData(proxy,name, simpleDateFormat.format(catalog.getGenerated()));
+		XcriOxcapPopulatorInstanceData data = 
+				new XcriOxcapPopulatorInstanceData(proxy,name, simpleDateFormat.format(catalog.getGenerated()));
 			
-			Provider[] providers = catalog.getProviders();
+		Provider[] providers = catalog.getProviders();
 		
-			// First pass to create course groups
-			for (Provider provider : providers) {
-				provider(provider, data, true);		
-			}
-		
-			// Second pass to create course components
-			for (Provider provider : providers) {
-				provider(provider, data, false);
-			}
-			
-			data.finalise();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-			
-		} catch (JDOMException e) {
-			e.printStackTrace();
-			
-		} catch (InvalidElementException e) {
-			e.printStackTrace();
+		// First pass to create course groups
+		for (Provider provider : providers) {
+			provider(provider, data, true);		
 		}
+		
+		// Second pass to create course components
+		for (Provider provider : providers) {
+			provider(provider, data, false);
+		}
+			
+		data.finalise();
+			
 	}
 		
 	/**
@@ -1209,7 +1214,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @param data
 	 * @return
 	 */
-	private String parse(String data) {
+	protected static String parse(String data) {
 		
 		data = data.replaceAll("<", "&lt;");
 		data = data.replaceAll(">", "&gt;");
