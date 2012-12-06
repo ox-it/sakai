@@ -24,8 +24,8 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	
 	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
 	<script type="text/javascript" src="lib/jstree-1.0rc/_lib/jquery.cookie.js"></script>
-	<script type="text/javascript" src="lib/jstree-1.0rc/jquery.jstree.js"></script>
 	<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
+	<script type="text/javascript" src="lib/jquery-ui-1.8.4.custom/js/jquery-ui-1.8.4.custom.min.js"></script>
 	<script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js"></script>
 	<script type="text/javascript" src="lib/dataTables-1.7/js/jquery.dataTables.js"></script>
 	<script type="text/javascript" src="lib/dataTables.reloadAjax.js"></script>
@@ -36,9 +36,200 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 
 	<script type="text/javascript">
 	$(function() {
+		/*
 		$("#signups").html('<table border="0" class="display" id="signups-table"></table>');
 		var signups = $("#signups-table").signupTable("../rest/signup/my", false);
 		Signup.util.autoresize();
+		*/
+		
+		$.fn.myTable = function(url){
+			var element = this;
+	        var table = this.dataTable({
+	            "bJQueryUI": true,
+	            "sPaginationType": "full_numbers",
+	            "bProcessing": true,
+	            "sAjaxSource": url,
+	            "bAutoWidth": false,
+	            "aaSorting": [[1, "desc"]],
+	            "aoColumns": [{
+	                "sTitle": "",
+	                "bVisible": false,
+	               "bUseRendered": false
+	            }, {
+	                "sTitle": "Created",
+	                "fnRender": function(aObj){
+	                    if (aObj.aData[1]) {
+	                        return Signup.util.formatDuration($.serverDate() - aObj.aData[1]) + " ago";
+	                    }
+	                    else {
+	                        return "unknown";
+	                    }
+	                },
+	                "bUseRendered": false
+	            }, {
+	                "sTitle": "Student",
+	                "sWidth": "20%"
+	            }, {
+	                "sTitle": "Module"
+	            }, {
+	                "sTitle": "Supervisor"
+	            }, {
+	                "sTitle": "Notes",
+	                "sWidth": "20%",
+	                "sClass": "signup-notes"
+	            }, {
+	                "sTitle": "Status"
+	            }, {
+	                "sTitle": "Actions"
+	            }, {
+	                "sTitle": "Status",
+	                "bVisible": false
+	            }],
+	            "fnServerData": function(sSource, aoData, fnCallback){
+	                jQuery.ajax({
+	                    dataType: "json",
+	                    type: "GET",
+						cache: false,
+	                    url: sSource,
+	                    success: function(result){
+	                        var data = [];
+	                        $.each(result, function(){
+	                            var course = ['<span class="course-group"><a class="more-details-link" href="'+this.group.courseId+'">' + this.group.title + "</a></span>"].concat($.map(this.components.concat(), 
+	                            		function(component){
+	                            			var size = component.size;
+	                            			var limit = size*placesWarnPercent/100;
+	                            			var componentPlacesClass;
+	                            			if (placesErrorLimit >= component.places) {
+	                            				componentPlacesClass = "course-component-error";
+	                            			} else if (limit >= component.places) {
+	                            				componentPlacesClass = "course-component-warn";
+	                            			} else {
+	                            				componentPlacesClass = "course-component";
+	                            			}
+	                                		return '<span class="course-component">' + component.title + " " + component.slot + " in " + component.when + ' <span class='+componentPlacesClass+'>'+ Signup.signup.formatPlaces(component.places, false)+'</span></span>';
+	                            		})).join("<br>");
+	                            
+	                            var closes = 0;
+	                            $.each(this.components, 
+	                            		function(){
+	                            			if (closes != 0 && this.closes > closes) {
+	                            				return;
+	                            			}
+	                            			closes = this.closes;
+	                            });
+	                            var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, false));
+	                            data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, false), Signup.signup.formatNotes(this.notes), this.status, actions, this.status]);
+	                            
+	                        });
+	                        fnCallback({
+	                            "aaData": data
+	                        });
+	                    }
+	                });
+	            },
+				// This is useful as when loading the data async we might want to handle it later.
+				"fnInitComplete": function() {
+					table.trigger("tableInit");
+				}
+	        });
+	        
+	        $("span.previous-signup").die().live("mouseover", function(e){
+	        	var span = $(this);
+	        	var userId = $(this).attr("userid");
+	        	var groupId = $(this).attr("groupid");
+	        	var componentId = $(this).children("input.componentid").map(function() {
+	        		return this.value;
+	        	}).get().join(',');
+	        	
+	        	$.ajax({
+					url: "../rest/signup/previous/",
+					type: "GET",
+					data: {userid: userId,
+						   componentid: componentId,
+						   groupid: groupId
+						  },
+					success: function(result) {
+							var tip = "";
+							var lines = 0;
+							$.each(result, function(){
+								var signupStatus = this.status;
+								var signupGroup = this.group;
+								$.each(this.components, function(){
+									tip += signupGroup.title+" "+this.title+" ("+this.id+") "+this.when+" "+signupStatus+"<br />";
+									lines++;
+								});
+							});
+							var tooltip = $("span.previous-signup-tooltip", span);
+							if (tip.length == 0) {
+								tooltip.html("None");
+							} else {
+								tooltip.html(tip); 
+								tooltip.css("width", ((tip.length/lines)-6)*0.5+"em");
+							}	
+					}
+				});
+				
+	        });
+	        
+	        $("a.supervisor", this).die().live("click", function(e){
+	        	signupAddSupervisor.attr("username", $(this).attr("user"));
+	        	signupAddSupervisor.attr("signupid", $(this).attr("id"));
+	    		signupAddSupervisor.jqmShow();
+	        });
+	        
+	        
+	        $("a.action", this).die().live("click", function(e){
+	            var url = $(this).attr("href");		
+	            $.ajax({
+	                "url": url,
+	                "type": "POST",
+	                "success": function(data){
+	                    element.dataTable().fnReloadAjax(null, null, true);
+						$(table).trigger("reload"); // Custom event type;
+	                }
+	            });
+	            return false;
+	        });
+	        
+	        $("a.more-details-link", this).die().live("click", function(e){
+				e.preventDefault();
+				try {
+					var id = $(this).attr('href');
+					var workingWindow = parent.window || window;
+					var position = Signup.util.dialogPosition();
+					var height = Math.round($(workingWindow).height() * 0.9);
+					var width = Math.round($(window).width() * 0.9);
+										
+					var courseDetails = $("<div></div>").dialog({
+						autoOpen: false,
+						stack: true,
+						position: position,
+						width: width,
+						height: "auto",
+						modal: true,
+						open: function(){
+							if ($(this).height() > $(window).height()) {
+								Signup.util.resize(window.name, ($(this).height()+40));
+							}
+						},
+						close: function(event, ui){
+							courseDetails.remove(); 
+						}
+					});
+					
+					Signup.course.show(courseDetails, id, "NOTSTARTED", false, function() {
+						courseDetails.dialog("open");
+					});
+					
+				} catch (e) {
+					console.log(e);
+				}
+			});
+		};
+		
+		var signups = $("#signups-table").myTable("../rest/signup/my", false);
+		Signup.util.autoresize();
+	
 	});
 	</script>
 
@@ -57,7 +248,10 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 </ul>
 </div>
 
-<div id="signups"><!-- Browse the areas which there are courses -->
+<div id="signups"><!-- Browse the areas which there are courses --> 
+	<table id="signups-table" class="display">
+	</table>
+  </div>
 </div>
 
 </body>
