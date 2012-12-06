@@ -70,6 +70,7 @@
                     </tr>
                     {/if}
                     
+                    {if source == "Daisy"}
                     <tr>
                         <th>
                             Signup Available
@@ -86,6 +87,7 @@
 							{/if}		
                         </td>
                     </tr>
+                    {/if}
                     
                     {if categories_rdf.length > 0}
                     	<tr>
@@ -145,7 +147,7 @@
                         	{if !hide}
                         		<tr>
                             		<td colspan="3">
-                                		&nbsp;&nbsp;${part.type.name}
+                                		<h3>&nbsp;&nbsp;${part.type.name}</h3>
                             		</td>
                         		</tr>
 								{var oneOpen = false}
@@ -162,7 +164,7 @@
                                 			{if option.sessionCount}
                                 				${option.sessionCount} sessions 
                                 			{else}
-                                				N sessions
+                                				1 session
                                 			{/if}
                                 			
                                 			{if option.when}
@@ -202,7 +204,7 @@
                                 				{if option.starts || option.ends}
                                 					<br/>
                                 				{/if}
-                                				${option.location}
+                                				Venue: ${option.location}
                                 			{/if}
                                 			</span>
                             			</td>
@@ -282,7 +284,17 @@
 								{/if}/>
 							{/if}
 						{else}
-							<input type="submit" value="Not Bookable">
+							{if source == "Daisy"}
+								<input type="submit" value="Not Bookable">
+							{else}
+								{if defined('memberApplyTo')}
+									<p>Apply to:<a href="${memberApplyTo}" target="_blank">${memberApplyTo}</a></p>
+								{else}
+									{if defined('applyTo')}
+										<p>Apply to: <a href="${applyTo}" target="_blank">${applyTo}</a></p>
+									{/if}
+								{/if}
+							{/if}
 						{/if}
 						
 					{else}
@@ -295,14 +307,6 @@
 						<p>Non Oxford users cannot be given a username.</p>
 						{if defined('contactEmail')}
 							<p><a href="mailto:${contactEmail}">Make an Enquiry</a></p>
-						{else}
-							{if defined('applyTo')}
-								<p><a href="${applyTo}">${applyTo}</a></p>
-							{else}
-								{if defined('memberApplyTo')}
-									<p><a href="${memberApplyTo}">${memberApplyTo}</a></p>
-								{/if}
-							{/if}
 						{/if}
 					{/if}
 					

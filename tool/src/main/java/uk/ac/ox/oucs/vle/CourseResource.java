@@ -572,6 +572,7 @@ public class CourseResource {
 			gen.writeObjectField("subUnit", course.getSubUnit());
 			gen.writeObjectField("subUnitCode", course.getSubUnitCode());
 			gen.writeObjectField("regulations", course.getRegulations());
+			gen.writeObjectField("source", course.getSource());
 				
 			gen.writeArrayFieldStart("components");
 			for (CourseComponent component : course.getComponents()) {

@@ -34,6 +34,8 @@ public interface CourseGroup {
 	
 	public String getRegulations();
 	
+	public String getSource();
+	
 	public List<CourseComponent> getComponents();
 	
 	public List<CourseCategory> getCategories();

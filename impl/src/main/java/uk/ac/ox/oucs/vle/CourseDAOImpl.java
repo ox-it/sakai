@@ -362,14 +362,14 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	
 	@SuppressWarnings("unchecked")
 	public List<CourseGroupDAO> findAdministratorCourseGroups(final String userId) {
-		// Finds all the coursegroups this user can admin.
+		// Finds all the coursegroups this user can admin. 
 		return getHibernateTemplate().executeFind(new HibernateCallback(){
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query query = session.createSQLQuery("select * from course_group, " +
-					"(select course_group from course_group_administrator " +
+					"(select courseGroupMuid from course_group_administrator " +
 					"where administrator = :userId) admins " +
-					"where course_group.id = admins.course_group " +
+					"where course_group.muid = admins.courseGroupMuid " +
 					"and course_group.hideGroup = false").addEntity(CourseGroupDAO.class);
 				query.setString("userId", userId);
 				return query.list();
@@ -385,9 +385,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query query = session.createSQLQuery("select * from course_group, " +
-					"(select course_group from course_group_superuser " +
+					"(select courseGroupMuid from course_group_superuser " +
 					"where superuser = :userId) admins " +
-					"where course_group.id = admins.course_group").addEntity(CourseGroupDAO.class);
+					"where course_group.muid = admins.courseGroupMuid").addEntity(CourseGroupDAO.class);
 				query.setString("userId", userId);
 				return query.list();
 			}
@@ -403,6 +403,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					throws HibernateException, SQLException {
 				Query query;
 				if (null != statuses && !statuses.isEmpty()) {
+					/*
 					query = session.createSQLQuery("select * from course_signup, " +
 							"(select course_group from course_group_administrator " +
 							"where administrator = :userId " +
@@ -411,9 +412,15 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 							"where course_signup.groupId = admins.course_group " +
 							"and course_signup.groupId = :courseId " +
 							"and course_signup.status in (:statuses)").addEntity(CourseSignupDAO.class);
+					*/
+					query = session.createSQLQuery("select * from course_signup " +
+							"left join course_group on course_signup.courseGroupMuid = course_group.muid " +
+							"where course_group.courseId = :courseId " +
+							"and course_signup.status in (:statuses)").addEntity(CourseSignupDAO.class);
 					
 					query.setParameterList("statuses", statuses);
 				} else {
+					/*
 					query = session.createSQLQuery("select * from course_signup, " +
 							"(select course_group from course_group_administrator " +
 							"where administrator = :userId " +
@@ -421,8 +428,12 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 							"where superuser = :userId) admins " +
 							"where course_signup.groupId = admins.course_group " +
 							"and course_signup.groupId = :courseId").addEntity(CourseSignupDAO.class);
+					*/
+					query = session.createSQLQuery("select * from course_signup " +
+							"left join course_group on course_signup.courseGroupMuid = course_group.muid " +
+							"where course_group.courseId = :courseId").addEntity(CourseSignupDAO.class);
 				}
-				query.setString("userId", userId);
+				//query.setString("userId", userId);
 				query.setString("courseId", courseId);
 				return query.list();
 			}

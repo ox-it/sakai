@@ -71,6 +71,10 @@ public class CourseGroupImpl implements CourseGroup {
 	public String getRegulations() {
 		return courseGroupDAO.getRegulations();
 	}
+	
+	public String getSource() {
+		return courseGroupDAO.getSource();
+	}
 
 	public List<CourseComponent> getComponents() {
 		if (components == null) {
