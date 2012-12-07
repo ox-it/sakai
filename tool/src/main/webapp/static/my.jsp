@@ -106,7 +106,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	                            			} else {
 	                            				componentPlacesClass = "course-component";
 	                            			}
-	                                		return '<span class="course-component">' + component.title + " " + component.slot + " in " + component.when + ' <span class='+componentPlacesClass+'>'+ Signup.signup.formatPlaces(component.places, false)+'</span></span>';
+	                                		return '<span class="course-component">' + component.title + " " + component.attendanceModeText + "/"+component.attendancePatternText+" in " + component.when + ' <span class='+componentPlacesClass+'>'+ Signup.signup.formatPlaces(component.places, false)+'</span></span>';
 	                            		})).join("<br>");
 	                            
 	                            var closes = 0;
