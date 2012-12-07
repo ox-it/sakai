@@ -41,11 +41,6 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	
 		/* Adjust with the content. */
 		$(function(){
-			
-			var externalUser = <c:out value="${externalUser}" />;
-			if (externalUser) {
-				$("#loginText").html('<p class="alert">If you are a member of the University of Oxford, then you should log in to make full use of this tool.</p>');
-			}
   			Signup.util.resize(window.name);
         });
 		
@@ -74,7 +69,9 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	
 	<p class="intro"><strong>Welcome to the Student Enrolment System.</strong> Here you can browse, search and sign up for  modules from across the University that will help you in your studies.</p>
 
-	<div id="loginText"></div>
+	<c:if test="${isExternalUser}" >
+	<p class="alert">If you are a member of the University of Oxford, then you should log in to make full use of this tool.</p>
+	</c:if>
 
 	<ul class="options" >
 
