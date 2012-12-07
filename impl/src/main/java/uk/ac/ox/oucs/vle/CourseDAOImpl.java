@@ -523,11 +523,11 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				Query query = session.createSQLQuery(
-						"select distinct cs.id, cs.userId, cs.status, cs.created, cs.amended, cs.message, cs.supervisorId, cs.groupId, cs.department " +
+						"select distinct cs.id, cs.userId, cs.status, cs.created, cs.amended, cs.message, cs.supervisorId, cs.courseGroupMuid, cs.department " +
 						"from course_signup cs " +
-						"left join course_group_administrator ca on cs.groupId = ca.course_group " +
+						"left join course_group_administrator ca on cs.courseGroupMuid = ca.courseGroupMuid " +
 						"inner join course_component_signup cp on cs.id = cp.signup " +
-						"inner join course_component cc on cp.component = cc.id " +
+						"inner join course_component cc on cp.courseComponentMuid = cc.muid " +
 						"where (ca.administrator = :userId and cs.status = :adminStatus) or (cs.supervisorId = :userId and cs.status = :supervisorStatus)").addEntity(CourseSignupDAO.class);
 				query.setString("userId", userId);
 				query.setParameter("adminStatus", Status.PENDING.name());
@@ -542,11 +542,11 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				Query query = session.createSQLQuery(
-						"select distinct cs.id, cs.userId, cs.status, cs.created, cs.amended, cs.message, cs.supervisorId, cs.groupId, cs.department " +
+						"select distinct cs.id, cs.userId, cs.status, cs.created, cs.amended, cs.message, cs.supervisorId, cs.courseGroupMuid, cs.department " +
 						"from course_signup cs " +
-						"left join course_group_administrator ca on cs.groupId = ca.course_group " +
+						"left join course_group_administrator ca on cs.courseGroupMuid = ca.courseGroupMuid " +
 						"inner join course_component_signup cp on cs.id = cp.signup " +
-						"inner join course_component cc on cp.component = cc.id " +
+						"inner join course_component cc on cp.courseComponentMuid = cc.muid " +
 						"where (date_sub(curdate(), interval :period day) >= cs.amended " +
 						"or date_sub(curdate(), interval :period day) <= cc.starts) " +
 						"and (curdate() < cc.starts) " +
@@ -564,11 +564,11 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				Query query = session.createSQLQuery(
-						"select distinct cs.id, cs.userId, cs.status, cs.created, cs.amended, cs.message, cs.supervisorId, cs.groupId, cs.department " +
+						"select distinct cs.id, cs.userId, cs.status, cs.created, cs.amended, cs.message, cs.supervisorId, cs.courseGroupMuid, cs.department " +
 						"from course_signup cs " +
-						"left join course_group_administrator ca on cs.groupId = ca.course_group " +
+						"left join course_group_administrator ca on cs.courseGroupMuid = ca.courseGroupMuid " +
 						"inner join course_component_signup cp on cs.id = cp.signup " +
-						"inner join course_component cc on cp.component = cc.id " +
+						"inner join course_component cc on cp.courseComponentMuid = cc.muid " +
 						"inner join course_department_approver da on da.department = cs.department " +
 						"where da.approver = :userId and cs.status = :approverStatus").addEntity(CourseSignupDAO.class);
 				query.setString("userId", userId);
