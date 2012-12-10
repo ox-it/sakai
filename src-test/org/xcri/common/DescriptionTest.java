@@ -69,6 +69,7 @@ public class DescriptionTest {
 	@Test
 	public void xhtmlContent() throws JDOMException, IOException, InvalidElementException{
 		String content = 
+		/*
 		"<div xmlns=\"http://www.w3.org/1999/xhtml\">" +
 		"<p>This module shows how to take an existing presentation and modify it and how to create " +
 		"your own presentations. No knowledge of PowerPoint is assumed.</p>" +
@@ -82,6 +83,17 @@ public class DescriptionTest {
 		"</ul>" +
 		"</p> " +
 		"</div>";
+		*/
+		"<xhtml:div xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">" +
+		"<p xmlns=\"http://www.w3.org/1999/xhtml\">"+
+		"This module shows how to take an existing presentation and modify it and how to "+
+		"create your own presentations. No knowledge of PowerPoint is assumed.</p>"+
+		"<p xmlns=\"http://www.w3.org/1999/xhtml\">"+
+		"The topics covered are:<ul><li>Using and modifying an existing PowerPoint presentation</li> "+
+		"<li>Creating a simple presentation</li> "+
+		"<li>Making use of themes and schemes supplied with PowerPoint</li> "+
+		"<li>The PowerPoint views</li> "+
+		"<li>Printing and saving your presentation</li></ul></p> </xhtml:div>";
 		
 		Catalog catalog = new Catalog();
 		SAXBuilder builder = new SAXBuilder();
@@ -173,13 +185,16 @@ public class DescriptionTest {
 	}
 	@Test
 	public void sanitize() throws JDOMException, IOException, InvalidElementException{
-		String content = "<p>Hello World</p><script>nasty script</script><p>Goodbye</p>";
+		String content = //"<p>Hello World</p><script>nasty script</script><p>Goodbye</p>";
+		"<xhtml:div xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">"+
+		"<p xmlns=\"http://www.w3.org/1999/xhtml\">Hello World</p>"+
+		"<p xmlns=\"http://www.w3.org/1999/xhtml\">Goodbye</p></xhtml:div>";
     	Catalog catalog = new Catalog();
 		SAXBuilder builder = new SAXBuilder();
 		Document document = builder.build(new StringReader("<catalog xmlns=\""+Namespaces.XCRI_NAMESPACE+"\" xmlns:dc=\""+Namespaces.DC_NAMESPACE+"\"><dc:description><div xmlns=\"http://www.w3.org/1999/xhtml\">"+content+"</div></dc:description></catalog>"));
 		catalog.fromXml(document);
 		
-		assertEquals("<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Hello World</p><p>Goodbye</p></div>", catalog.getDescriptions()[0].getValue());
+		assertEquals("<xhtml:div xmlns:xhtml=\"http://www.w3.org/1999/xhtml\"><xhtml:div><p xmlns=\"http://www.w3.org/1999/xhtml\">Hello World</p><p xmlns=\"http://www.w3.org/1999/xhtml\">Goodbye</p></xhtml:div></xhtml:div>", catalog.getDescriptions()[0].getValue());
 	}
 	
 	/** 
