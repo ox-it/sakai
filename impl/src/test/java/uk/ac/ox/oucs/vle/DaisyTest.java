@@ -98,7 +98,7 @@ public class DaisyTest extends TestCase {
 
 		OverrideManager.registerOverride(Course.class, new OxcapCourse());
 		OverrideManager.registerOverride(Presentation.class, new OxcapPresentation());
-		/*
+		
 		// Careers
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap");
 		
@@ -106,7 +106,7 @@ public class DaisyTest extends TestCase {
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=http%3A//course.data.ox.ac.uk/id/continuing-education/catalog&format=xcricap");
 		
 		// ITLP
-		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/itlp/catalogue&format=xcricap");
+		URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/itlp/catalogue&format=xcricap");
 		
 		// Language Centre
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/language-centre/catalogue&format=xcricap");
@@ -129,9 +129,9 @@ public class DaisyTest extends TestCase {
             out.write('\n');
         }
         in.close();
-        */
+        
         // Daisy
-        InputStream inStream = getClass().getResourceAsStream("/XCRI_OXCAP.xml");
+        //InputStream inStream = getClass().getResourceAsStream("/XCRI_OXCAP.xml");
         
 		catalog = new Catalog();
 		builder = new SAXBuilder();

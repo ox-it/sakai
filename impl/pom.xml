@@ -146,7 +146,7 @@
             <groupId>org.xcri</groupId>
             <artifactId>xcri4j</artifactId>
             <scope>compile</scope>
-            <version>1.0ox1-SNAPSHOT</version>
+            <version>1.0ox1</version>
         </dependency>
 	</dependencies>
 	<profiles>
