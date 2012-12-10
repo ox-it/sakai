@@ -5,7 +5,7 @@
 	<artifactId>xcri4j</artifactId>
 	<packaging>jar</packaging>
 	<name>Java Library for parsing XCRI documents</name>
-	<version>1.0ox1</version>
+	<version>1.0ox2-SNAPSHOT</version>
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
