@@ -67,8 +67,7 @@ public class DaisyPopulatorWrapper implements PopulatorWrapper {
             	writer.write("Deleting component ["+component.getComponentId()+" "+component.getTitle()+"]"+"\n");
             }
             
-            writer.flush();
-            writer.close();
+            writer.footer();
 			proxy.writeLog(writer.getIdName(), writer.getDisplayName(), out.toByteArray());
 
 		} catch (PopulatorException e) {
