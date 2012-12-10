@@ -106,9 +106,10 @@ public class OxcapPopulatorWrapper implements PopulatorWrapper {
 	public void update(PopulatorContext context) {
 		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		XcriLogWriter writer = null;
 		
 		try {
-			XcriLogWriter writer = new XcriLogWriter(out, context.getName()+"ImportDeleted", "Deleted Groups and Components from SES Import", null);
+			writer = new XcriLogWriter(out, context.getName()+"ImportDeleted", "Deleted Groups and Components from SES Import", null);
 			
 			dao.flagSelectedCourseGroups(context.getName());
 			dao.flagSelectedCourseComponents(context.getName());
@@ -125,8 +126,7 @@ public class OxcapPopulatorWrapper implements PopulatorWrapper {
             	writer.write("Deleting component ["+component.getComponentId()+" "+component.getTitle()+"]"+"\n");
             }
             
-            writer.flush();
-            writer.close();
+            writer.footer();
 			proxy.writeLog(writer.getIdName(), writer.getDisplayName(), out.toByteArray());
 			
 		} catch (PopulatorException e) {
@@ -156,6 +156,16 @@ public class OxcapPopulatorWrapper implements PopulatorWrapper {
 		} catch (InUseException e) {
 			log.error("InUseException ["+context.getURI()+"]", e);
 			
+		} finally {
+			if (null != writer) {
+				try {
+					writer.flush();
+					writer.close();
+					
+				} catch (IOException e) {
+					log.error("IOException ["+context.getURI()+"]", e);
+				}
+			}
 		}
        
 	}

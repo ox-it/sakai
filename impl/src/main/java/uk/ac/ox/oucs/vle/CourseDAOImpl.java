@@ -31,7 +31,6 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 	
 	public CourseGroupDAO findCourseGroupById(final String courseId) {
-		//return (CourseGroupDAO) getHibernateTemplate().get(CourseGroupDAO.class, courseId);
 		return (CourseGroupDAO) getHibernateTemplate().execute(new HibernateCallback() {
 			// Need the DISTINCT ROOT ENTITY filter.
 			public Object doInHibernate(Session session) 
@@ -176,47 +175,6 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 				criteria.addOrder(Order.asc("title"));
 				return criteria.list();
-				
-				/*
-				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("SELECT * FROM course_group cg ");
-				querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.courseGroupMuid = cg.muid ");
-				querySQL.append("LEFT JOIN course_group_component cgc on cgc.courseGroupMuid = cg.muid ");
-				querySQL.append("LEFT JOIN course_component cc on cgc.courseComponentMuid = cc.muid ");
-				querySQL.append("WHERE ");
-				
-				querySQL.append("visibility != 'PR' AND ");
-				
-				if (external) {
-					querySQL.append("visibility != 'RS' AND ");
-				}
-
-				querySQL.append("hideGroup = false AND ");
-				
-				switch (range) { 
-					case UPCOMING:
-						querySQL.append("CASE WHEN (cc.closes is not null) THEN ");
-						querySQL.append("cc.closes > NOW() ");
-						querySQL.append("ELSE ");
-						querySQL.append("cc.starts > NOW() ");
-						querySQL.append("END AND ");
-						break;
-					case PREVIOUS:
-						querySQL.append("CASE WHEN (cc.closes is not null) THEN ");
-						querySQL.append("cc.closes < NOW() ");
-						querySQL.append("ELSE ");
-						querySQL.append("cc.starts < NOW() ");
-						querySQL.append("END AND ");
-						break;
-				}
-				
-				querySQL.append("subunit = :subunit ");
-				querySQL.append("ORDER BY cg.title ");
-				
-				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
-				query.setString("subunit", subunitId);
-				return query.list();
-				*/
 			}
 			
 		});
@@ -269,7 +227,6 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 
 	public CourseComponentDAO findCourseComponent(final String id) {
-		//return (CourseComponentDAO) getHibernateTemplate().get(CourseComponentDAO.class, id);
 		return (CourseComponentDAO) getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException,
 					SQLException {
@@ -337,21 +294,6 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	@SuppressWarnings("unchecked")
 	public List<CourseGroupDAO> findAdminCourseGroups(final String userId) {
 		// Finds all the coursegroups this user can admin.
-		/*
-		return getHibernateTemplate().executeFind(new HibernateCallback(){
-			public Object doInHibernate(Session session)
-					throws HibernateException, SQLException {
-				Query query = session.createSQLQuery("select * from course_group, " +
-					"(select course_group from course_group_administrator " +
-					"where administrator = :userId union select course_group from course_group_superuser " +
-					"where superuser = :userId) " +
-					"admins where course_group.id = admins.course_group").addEntity(CourseGroupDAO.class);
-				query.setString("userId", userId);
-				return query.list();
-			}
-			
-		});
-		*/
 		List<CourseGroupDAO> adminGroups = findAdministratorCourseGroups(userId);
 		List<CourseGroupDAO> superGroups = findSuperUserCourseGroups(userId);
 		
@@ -443,27 +385,6 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	
 	@SuppressWarnings("unchecked")
 	public Integer countSignupByCourse(final String courseId, final Set<Status> statuses) {
-		/*
-		List<Object> results = getHibernateTemplate().findByNamedParam(
-				"select count(*) from CourseSignupDAO where groupId = :courseId and status in (:statuses)",
-				new String[]{"courseId", "statuses"}, new Object[]{courseId, statuses});	
-		int count = results.size();
-		if (count > 0) {
-			if (count > 1) {
-				throw new IllegalStateException("To many results ("+ results + ") found for "+ courseId );
-			}
-			return (Integer)results.get(0);
-		}
-		return null;
-		*/
-		/*
-		select count(*) from course_signup 
-		left join course_component_signup on signup = id 
-		left join course_component on course_component.id = component 
-		where groupId = '4D00D40072' 
-		and starts < NOW() 
-		and status = 'WAITING';
-		*/
 		return (Integer)getHibernateTemplate().execute(new HibernateCallback() {
 
 			public Object doInHibernate(Session session)

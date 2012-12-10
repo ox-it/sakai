@@ -1145,7 +1145,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 		UserProxy user = proxy.findUserByEid(userCode);
 		if (null == user) {
-			System.out.println("Failed to find User [" + userCode +"]");
+			log.warn("Failed to find User [" + userCode +"]");
 			return null;
 		}
 		return user.getId();

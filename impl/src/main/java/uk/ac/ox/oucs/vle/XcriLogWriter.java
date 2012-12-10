@@ -29,7 +29,7 @@ public class XcriLogWriter extends OutputStreamWriter {
 		this.write("<pre>");
 	}
 	
-	public void flush() throws IOException {
+	public void footer() throws IOException {
 		Calendar cal = Calendar.getInstance();
 	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		this.write("</pre>");
@@ -37,7 +37,6 @@ public class XcriLogWriter extends OutputStreamWriter {
 		this.write(sdf.format(cal.getTime()));
 		this.write("</h3>");
 		this.write("</body></html>");
-		super.flush();
 	}
 	
 	public String getIdName() {

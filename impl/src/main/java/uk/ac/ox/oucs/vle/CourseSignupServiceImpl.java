@@ -14,8 +14,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.util.ResourceLoader;
 
 public class CourseSignupServiceImpl implements CourseSignupService {
@@ -1112,10 +1110,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public boolean isDepartmentCode(String code) {
-		if (null == dao.findDepartmentByCode(code)) {
-			return false;
-		}
-		return true;
+		return dao.findDepartmentByCode(code) != null;
 	}
 
 	public List<CourseGroup> search(String search, Range range, boolean external) {
@@ -1177,17 +1172,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	/**
 	 * 
 	 */
-	/*
-	public List<CourseGroup> getCourseCalendar(boolean external, String providerId) {
-		String userId = proxy.getCurrentUser().getId();
-		List <CourseGroupDAO> groupDaos = dao.findCourseGroupsByCalendar(external, providerId);
-		List<CourseGroup> groups = new ArrayList<CourseGroup>(groupDaos.size());
-		for(CourseGroupDAO groupDao : groupDaos) {
-			groups.add(new CourseGroupImpl(groupDao, this));
-		}
-		return groups;
-	}
-	*/
 	public List<CourseGroup> getCourseCalendar(boolean external, String providerId) {
 		String userId = proxy.getCurrentUser().getId();
 		List <CourseComponentDAO> componentDaos = dao.findCourseGroupsByCalendar(external, providerId);

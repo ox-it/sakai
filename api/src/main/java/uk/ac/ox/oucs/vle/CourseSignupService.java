@@ -147,7 +147,6 @@ public interface CourseSignupService {
 	 * Get upcoming course groups by start date
 	 * @return
 	 */
-	//public List<CourseGroup> getCourseCalendar(boolean external, String providerId);
 	public List<CourseGroup> getCourseCalendar(boolean external, String providerId);
 	
 	/**

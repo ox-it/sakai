@@ -13,9 +13,9 @@ package uk.ac.ox.oucs.vle;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,7 +25,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
@@ -50,9 +49,6 @@ public class ModuleImpl implements Module {
 	 * The proxy for getting users.
 	 */
 	private SakaiProxy proxy;
-	
-	//private ServerConfigurationService serverConfigurationService;
-	
 	
 	
 	public void setCourseDao(CourseDAO dao) {
