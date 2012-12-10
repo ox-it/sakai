@@ -49,7 +49,9 @@ public class HtmlTest {
 		
 		String output = new XMLOutputter().outputString(description.toXml());
 		
-		assertEquals("<dc:description xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><xhtml:div xmlns:xhtml=\"http://www.w3.org/1999/xhtml\"><xhtml:p>This is a computing course, its great!</xhtml:p></xhtml:div></dc:description>", output);
+		String myString = "<dc:description xmlns:dc=\"http://purl.org/dc/elements/1.1/\">\r\n      			&lt;p&gt;This is a computing course, its great!&lt;/p&gt;\r\n      	</dc:description>";
+		
+		assertEquals(myString, output);
 	}
 	
 	@Test
@@ -66,7 +68,9 @@ public class HtmlTest {
 		
 		String output = new XMLOutputter().outputString(description.toXml());
 		
-		assertEquals("<dc:description xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><xhtml:div xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">This is a computing course, its great!</xhtml:div></dc:description>", output);
+		String myString = "<dc:description xmlns:dc=\"http://purl.org/dc/elements/1.1/\">\r\n      			This is a computing course, its great!\r\n      	</dc:description>";
+		
+		assertEquals(myString, output);
 	}
 	
 	@Test
@@ -83,7 +87,8 @@ public class HtmlTest {
 		
 		String output = new XMLOutputter().outputString(description.toXml());
 		
-		assertEquals("<dc:description xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><div xmlns=\"http://www.w3.org/1999/xhtml\"><p>This is a computing course, its great!</p></div></dc:description>", output);
+		String myString = "<dc:description xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><xhtml:div xmlns:xhtml=\"http://www.w3.org/1999/xhtml\"><p xmlns=\"http://www.w3.org/1999/xhtml\">This is a computing course, its great!</p></xhtml:div></dc:description>";
+		assertEquals(myString, output);
 	}
 
 }
