@@ -1,6 +1,8 @@
 package uk.ac.ox.oucs.vle;
 
 import org.quartz.Job;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
@@ -19,7 +21,11 @@ public class PopulatorJob implements Job {
 	
 	public void execute(JobExecutionContext context)
 			throws JobExecutionException {
-		populator.update();
+		
+		JobDetail jobDetail = context.getJobDetail();
+		JobDataMap jobDataMap = jobDetail.getJobDataMap();
+		PopulatorContext pContext = new PopulatorContext("xcri.oxcap.populator", jobDataMap);
+		populator.update(pContext);
 	}
 
 }

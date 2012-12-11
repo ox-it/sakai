@@ -58,7 +58,8 @@
 	<bean id="uk.ac.ox.oucs.vle.XcriPopulator"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="target">
-		<bean class="uk.ac.ox.oucs.vle.XcriPopulatorImpl">
+		<!--  <bean class="uk.ac.ox.oucs.vle.XcriPopulatorImpl">  -->
+		<bean class="uk.ac.ox.oucs.vle.XcriOxCapPopulatorImpl">
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
 				<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
@@ -81,14 +82,50 @@
 	</bean>
 
 	<bean id="uk.ac.ox.oucs.vle.PopulatorJobWrapper"
-		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
 		singleton="true" init-method="init">
 		<property name="beanId" value="uk.ac.ox.oucs.vle.PopulatorJob" />
 		<property name="jobName" value="Update course signups" />
 		<property name="schedulerManager"
 			ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+		<property name="resourceBundleBase" value="uk.ac.ox.oucs.vle.Scheduler" />
+		<property name="configurableJobProperties">
+			<set>
+				<bean id="uri.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+					<property name="descriptionResourceKey" value="xcri.oxcap.populator.uri" />
+					<property name="labelResourceKey" value="xcri.oxcap.populator.uri" />
+					<!-- 
+					<property name="defaultValue" value="" />
+					<property name="required" value="true" />
+					 -->
+				</bean>
+				<bean id="user.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+					<property name="descriptionResourceKey" value="xcri.oxcap.populator.username" />
+					<property name="labelResourceKey" value="xcri.oxcap.populator.username" />
+					<!-- 
+					<property name="defaultValue" value="" />
+					<property name="required" value="true" />
+					 -->
+				</bean>
+				<bean id="password.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+					<property name="descriptionResourceKey" value="xcri.oxcap.populator.password" />
+					<property name="labelResourceKey" value="xcri.oxcap.populator.password" />
+					<!-- 
+					<property name="defaultValue" value="" />
+					<property name="required" value="true" />
+					 -->
+				</bean>
+				<bean id="name.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+					<property name="descriptionResourceKey" value="xcri.oxcap.populator.name" />
+					<property name="labelResourceKey" value="xcri.oxcap.populator.name" />
+					<!-- 
+					<property name="defaultValue" value="" />
+					<property name="required" value="true" />
+					 -->
+				</bean>
+			</set>
+		</property>
 	</bean>
-
 
 	<bean id="uk.ac.ox.oucs.vle.XcriGenerateTree"
 		class="uk.ac.ox.oucs.vle.XcriGenerateTree">
@@ -115,7 +152,6 @@
 		<property name="jobName" value="Generate the department JSON"/>
 		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
 	</bean>
-	
 	
 	<bean id="uk.ac.ox.oucs.vle.ModuleImpl"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
