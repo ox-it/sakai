@@ -1,11 +1,8 @@
 package uk.ac.ox.oucs.vle;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 public class CourseGroupImpl implements CourseGroup {
@@ -27,8 +24,8 @@ public class CourseGroupImpl implements CourseGroup {
 		return courseGroupDAO.getDescription();
 	}
 
-	public String getId() {
-		return courseGroupDAO.getId();
+	public String getCourseId() {
+		return courseGroupDAO.getCourseId();
 	}
 
 	public String getTitle() {
@@ -51,10 +48,6 @@ public class CourseGroupImpl implements CourseGroup {
 		return courseGroupDAO.getSubunit();
 	}
 	
-	public boolean getPublicView() {
-		return courseGroupDAO.getPublicView();
-	}
-	
 	public boolean getSupervisorApproval() {
 		return courseGroupDAO.getSupervisorApproval();
 	}
@@ -70,6 +63,18 @@ public class CourseGroupImpl implements CourseGroup {
 	public String getContactEmail() {
 		return courseGroupDAO.getContactEmail();
 	}
+	
+	public String getVisibility() {
+		return courseGroupDAO.getVisibility();
+	}
+	
+	public String getRegulations() {
+		return courseGroupDAO.getRegulations();
+	}
+	
+	public String getSource() {
+		return courseGroupDAO.getSource();
+	}
 
 	public List<CourseComponent> getComponents() {
 		if (components == null) {
@@ -84,7 +89,10 @@ public class CourseGroupImpl implements CourseGroup {
 				if (null != c1.getStarts() && null != c2.getStarts()) {
 					return c1.getStarts().compareTo(c2.getStarts());
 				}
-				return c1.getCloses().compareTo(c2.getCloses());
+				if (null != c1.getCloses() && null != c2.getCloses()) {
+					return c1.getCloses().compareTo(c2.getCloses());
+				}
+				return c1.getPresentationId().compareTo(c2.getPresentationId());
 			}
 		});
 		

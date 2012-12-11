@@ -25,8 +25,6 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<link rel="stylesheet" type="text/css" href="lib/tool.css" />
 	<link rel="stylesheet" type="text/css" href="lib/jquery.tooltip.css" />
 	
-	<link rel="stylesheet" type="text/css" href="lib/jc-styles.css">
-	
 	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
 	<script type="text/javascript" src="lib/jstree-1.0rc2/_lib/jquery.cookie.js"></script>
 	<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
@@ -166,7 +164,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		            					}
 		            				}
 		                            
-		                            data.push([starts, this.title, this.department, summary, this.id, newCourse ]);
+		                            data.push([starts, this.title, this.department, summary, this.courseId, newCourse ]);
 		                        });
 		                        fnCallback({
 		                            "aaData": data
@@ -291,7 +289,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 </div>
 
 
-<div style="margin:2%;">
+<div class="calendarView">
   <div class="panel paging top" >
 	<div class="leftGroup">  
         <a class="action" href="nodates.jsp" >view courses without specific dates</a>

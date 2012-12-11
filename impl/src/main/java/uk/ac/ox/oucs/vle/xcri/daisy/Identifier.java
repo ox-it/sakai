@@ -4,10 +4,9 @@ import org.jdom.Element;
 import org.jdom.Namespace;
 import org.xcri.Extension;
 import org.xcri.Namespaces;
-import org.xcri.common.Identifier;
 import org.xcri.exceptions.InvalidElementException;
 
-public class DaisyIdentifier extends Identifier implements Extension {
+public class Identifier extends org.xcri.common.Identifier implements Extension {
 	
 	private String type;
 	

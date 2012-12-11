@@ -13,9 +13,9 @@ package uk.ac.ox.oucs.vle;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,7 +25,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
@@ -51,9 +50,6 @@ public class ModuleImpl implements Module {
 	 */
 	private SakaiProxy proxy;
 	
-	private ServerConfigurationService serverConfigurationService;
-	
-	
 	
 	public void setCourseDao(CourseDAO dao) {
 		this.dao = dao;
@@ -61,11 +57,6 @@ public class ModuleImpl implements Module {
 	
 	public void setProxy(SakaiProxy proxy) {
 		this.proxy = proxy;
-	}
-	
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
 	}
 	
 	/**
@@ -138,7 +129,7 @@ public class ModuleImpl implements Module {
 				if (isToday(component.getCloses())) {
 					// Component is about to close
 					log.info("Component is about to close ["+
-							component.getId()+":"+
+							component.getPresentationId()+":"+
 							DateFormat.getInstance().format(component.getCloses())+":"+
 							component.getSubject()+"]");
 					componentsClosing.add(component);
@@ -169,7 +160,7 @@ public class ModuleImpl implements Module {
 				if (isAboutToStart(component.getStarts())) {
 					// Component is about to start
 					log.info("Component is about to start ["+
-							component.getId()+":"+
+							component.getPresentationId()+":"+
 							DateFormat.getInstance().format(component.getStarts())+":"+
 							component.getSubject()+"]");
 					componentsStarting.add(component);
@@ -457,19 +448,19 @@ public class ModuleImpl implements Module {
 	}
 	
 	protected int getTodayInt() {
-		return new Integer(serverConfigurationService.getString("course-signup.site-id", "1")).intValue();
+		return proxy.getConfigParam("course-signup.site-id", 1);
 	}
 	
 	protected int getReminderDays() {
-		return new Integer(serverConfigurationService.getString("reminder.days", "7")).intValue();
+		return proxy.getConfigParam("reminder.days", 7);
 	}
 	
 	protected int getAboutToStartDays() {
-		return new Integer(serverConfigurationService.getString("abouttostart.days", "2")).intValue();
+		return proxy.getConfigParam("abouttostart.days", 2);
 	}
 	
 	protected int getAboutToCloseDays() {
-		return new Integer(serverConfigurationService.getString("abouttoclose.days", "1")).intValue();
+		return proxy.getConfigParam("abouttoclose.days", 1);
 	}
 	
 	public boolean validString(String string) {

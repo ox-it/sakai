@@ -8,7 +8,7 @@ public interface CourseGroup {
 	//RDF Skills
 	public static enum Category_Type {RDF, JACS, RM};
 	
-	public String getId();
+	public String getCourseId();
 	
 	public String getTitle();
 	
@@ -22,8 +22,6 @@ public interface CourseGroup {
 	
 	public String getSubUnitCode();
 	
-	public boolean getPublicView();
-	
 	public boolean getSupervisorApproval();
 	
 	public boolean getAdministratorApproval();
@@ -31,6 +29,12 @@ public interface CourseGroup {
 	public boolean getHideGroup();
 	
 	public String getContactEmail();
+	
+	public String getVisibility();
+	
+	public String getRegulations();
+	
+	public String getSource();
 	
 	public List<CourseComponent> getComponents();
 	

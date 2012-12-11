@@ -56,7 +56,7 @@
 			<column name="categoryId" />
 			<generator class="increment"/>
 		</id>
-		<property name="groupId" type="string" length="255" />
+		<property name="courseGroupMuid" type="int" insert="false" update="false" />
 		<property name="categoryType" type="string" length="6" />
 		<property name="categoryCode" type="string" length="32" />
 		<property name="categoryName" type="string" length="256" />
@@ -76,32 +76,53 @@
 		<property name="message" type="string" length="4000"/>
 		<set name="components" lazy="true" table="course_component_signup"
 			inverse="true">
-			<key column="signup" not-null="true" />
+			<key column="signup" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO"
-				column="component" />
+				column="courseComponentMuid" />
 		</set>
 		<property name="supervisorId" type="string" length="99" index="course_signup_supervisor_idx" />
 		<property name="department" type="string" length="32" />
-		<many-to-one name="group" column="groupId" class="uk.ac.ox.oucs.vle.CourseGroupDAO"/>
+		<many-to-one name="group" column="courseGroupMuid" class="uk.ac.ox.oucs.vle.CourseGroupDAO"/>
 	</class>
-
+	
+	<class name="uk.ac.ox.oucs.vle.CourseComponentSessionDAO" table="course_component_session">
+		<id name="id" type="int">
+			<column name="id" />
+			<generator class="increment"/>
+		</id>
+		<property name="courseComponentMuid" type="int" insert="false" update="false"/>
+		<property name="sessionId" type="string" length="255" />
+		<property name="sessionStart" type="timestamp" />
+		<property name="sessionStartText" type="string" length="255"/>
+		<property name="sessionEnd" type="timestamp" />
+		<property name="sessionEndText" type="string" length="255"/>
+	</class>
+	
 	<class name="uk.ac.ox.oucs.vle.CourseComponentDAO" table="course_component">
 		<!-- create the primary key id -->
-		<id name="id" type="string">
-			<column name="id" />
+		<id name="muid" type="int">
+			<column name="muid" />
+			<generator class="increment"/>
 		</id>
 		<!-- We want to be sure the taken column isn't out of sync -->
 		<version name="version" column="version"/>
+		<property name="presentationId" type="string" length="255" />
 		<property name="subject" type="string" length="256" />
 		<property name="title" type="string" length="256" />
 		<property name="termcode" type="string" length="30"
 			index="course_component_term_idx" />
 		<property name="opens" type="timestamp" />
+		<property name="opensText" type="string" length="255"/>
 		<property name="closes" type="timestamp" />
+		<property name="closesText" type="string" length="255"/>
 		<property name="starts" type="timestamp" />
+		<property name="startsText" type="string" length="255"/>
 		<property name="ends" type="timestamp" />
+		<property name="endsText" type="string" length="255"/>
 		<property name="created" type="timestamp" />
+		<property name="baseDate" type="timestamp" />
 		<property name="bookable" type="boolean" not-null="true" />
+		<property name="deleted" type="boolean" not-null="true" />
 		<property name="size" type="int" />
 		<property name="taken" type="int" />
 		<property name="componentId" type="string" length="30" /><!-- 
@@ -109,29 +130,43 @@
 		<property name="teacherName" type="string" length="255"/>
 		<property name="teacherEmail" type="string" length="255"/>
 		<property name="when" column="happening" type="string" length="4000"/>
+		<property name="attendanceMode" type="string" length="16"/>
+		<property name="attendanceModeText" type="string" length="255"/>
+		<property name="attendancePattern" type="string" length="16"/>
+		<property name="attendancePatternText" type="string" length="255"/>
 		<property name="slot" type="string" length="4000"/>
 		<property name="sessions" type="string" length="4000"/>
 		<property name="location" type="string" length="4000"/>
+		<property name="applyTo" type="string" length="255"/>
+		<property name="memberApplyTo" type="string" length="255"/>
+		<property name="source" type="string" length="32" index="course_component_source_idx" />
 
 		<set name="signups" lazy="true" table="course_component_signup">
-			<key column="component" not-null="true" />
+			<key column="courseComponentMuid" not-null="true" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"
 				column="signup" />
 		</set>
-		<set name="groups" table="course_group_component"
-			lazy="true">
-			<key column="component" />
+		
+		<set name="groups" table="course_group_component" cascade="delete" lazy="true">
+			<key column="courseComponentMuid" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO"
-				column="course_group" />
+				column="courseGroupMuid" />
+		</set>
+		
+		<set name="componentSessions" inverse="false" lazy="true" cascade="all-delete-orphan" table="course_component_session" fetch="select">
+			<key column="courseComponentMuid" not-null="true"/>
+			<one-to-many class="uk.ac.ox.oucs.vle.CourseComponentSessionDAO"/>
 		</set>
 	</class>
 
 	<!-- A set of courses that can be taken. -->
 	<class name="uk.ac.ox.oucs.vle.CourseGroupDAO" table="course_group">
 		<!-- create the primary key id -->
-		<id name="id" type="string">
-			<column name="id" />
+		<id name="muid" type="int">
+			<column name="muid" />
+			<generator class="increment"/>
 		</id>
+		<property name="courseId" type="string" length="255" />
 		<property name="title" type="string" length="255" />
 		<property name="dept" type="string" length="32"
 			index="course_group_dept_idx" />
@@ -141,34 +176,37 @@
 			index="course_group_subunit_idx" />
 		<property name="subunitName" type="string" length="255"/>
 		<property name="description" type="text"/>
-		<property name="publicView" type="boolean"/>
 		<property name="supervisorApproval" type="boolean"/>
 		<property name="administratorApproval" type="boolean"/>
 		<property name="hideGroup" type="boolean"/>
+		<property name="deleted" type="boolean"/>
 		<property name="contactEmail" type="string" length="255"/>
-		<set name="components" inverse="true" lazy="true" table="course_group_component" fetch="join">
-			<key column="course_group" />
-			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO" column="component" />
+		<property name="visibility" type="string" length="16"/>
+		<property name="regulations" type="string" length="255"/>
+		<property name="source" type="string" length="32" index="course_group_source_idx"/>
+		<set name="components" cascade="delete" inverse="true" lazy="true" table="course_group_component" fetch="join">
+			<key column="courseGroupMuid" />
+			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO" column="courseComponentMuid" />
 		</set>
-		<set name="administrators" inverse="false" lazy="true" table="course_group_administrator">
-			<key column="course_group" not-null="true"/>
+		<set name="administrators" cascade="delete" inverse="false" lazy="true" table="course_group_administrator">
+			<key column="courseGroupMuid" not-null="true"/>
 			<element column="administrator" type="string" length="64" />
 		</set>
-		<set name="superusers" inverse="false" lazy="true" table="course_group_superuser">
-			<key column="course_group" not-null="true"/>
+		<set name="superusers" cascade="delete" inverse="false" lazy="true" table="course_group_superuser">
+			<key column="courseGroupMuid" not-null="true"/>
 			<element column="superuser" type="string" length="64" />
 		</set>
-		<set name="otherDepartments" inverse="false" lazy="true" table="course_group_otherDepartment">
-			<key column="course_group" not-null="true"/>
+		<set name="otherDepartments" cascade="delete" inverse="false" lazy="true" table="course_group_otherDepartment">
+			<key column="courseGroupMuid" not-null="true"/>
 			<element column="otherDepartment" type="string" length="32" />
 		</set>
 		<set name="signups" inverse="true">
-			<key column="groupId"/>
+			<key column="courseGroupMuid" not-null="true"/>
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"/>
 		</set>
 		<!-- cascade="all-delete-orphan" -->
 		<set name="categories" inverse="false" lazy="true" cascade="all-delete-orphan" table="course_group_category" fetch="select">
-			<key column="groupId"/>
+			<key column="courseGroupMuid" not-null="true" />
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseCategoryDAO"/>
 		</set>
 	</class>

@@ -14,8 +14,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.util.ResourceLoader;
 
 public class CourseSignupServiceImpl implements CourseSignupService {
@@ -26,7 +24,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	private CourseDAO dao;
 	private SakaiProxy proxy;
-	private ServerConfigurationService serverConfigurationService;
 
 	private long adjustment;
 	
@@ -38,11 +35,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		this.proxy = proxy;
 	}
 	
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
-
 	/**
 	 * 
 	 */
@@ -73,7 +65,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setStatus(Status.APPROVED);
 		signupDao.setAmended(getNow());
 		dao.save(signupDao);
-		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP, placementId);
+		proxy.logEvent(groupDao.getCourseId(), EVENT_SIGNUP, placementId);
 		
 		//departmental approval
 		boolean departmentApproval = false;
@@ -143,7 +135,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setStatus(Status.ACCEPTED);
 		signupDao.setAmended(getNow());
 		dao.save(signupDao);
-		proxy.logEvent(signupDao.getGroup().getId(), EVENT_ACCEPT, placementId);
+		proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_ACCEPT, placementId);
 		
 		/**
 		 * SESii WP11.1 When module administrators register students who are not in 
@@ -230,7 +222,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setStatus(Status.CONFIRMED);
 		signupDao.setAmended(getNow());
 		dao.save(signupDao);
-		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP, placementId);
+		proxy.logEvent(groupDao.getCourseId(), EVENT_SIGNUP, placementId);
 		String url = proxy.getMyUrl(placementId);
 		sendStudentSignupEmail(signupDao, 
 				"confirmed.student.subject",
@@ -273,7 +265,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setStatus(Status.WAITING);
 		signupDao.setAmended(getNow());
 		dao.save(signupDao);
-		proxy.logEvent(signupDao.getGroup().getId(), EVENT_WAITING, placementId);
+		proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_WAITING, placementId);
 		
 		sendStudentSignupEmail(signupDao, 
 			"waiting-admin.student.subject", 
@@ -534,7 +526,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				signupDao.setStatus(Status.REJECTED);
 				signupDao.setAmended(getNow());
 				dao.save(signupDao);
-				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT, placementId);
+				proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_REJECT, placementId);
 				sendStudentSignupEmail(
 						signupDao, 
 						"reject-admin.student.subject", 
@@ -553,7 +545,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 						componentDao.setTaken(componentDao.getTaken()-1);
 						dao.save(componentDao);
 					}
-					proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT, placementId);
+					proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_REJECT, placementId);
 					sendStudentSignupEmail(
 							signupDao, 
 							"reject-supervisor.student.subject", 
@@ -573,7 +565,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					componentDao.setTaken(componentDao.getTaken()-1);
 					dao.save(componentDao);
 				}
-				proxy.logEvent(signupDao.getGroup().getId(), EVENT_REJECT, placementId);
+				proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_REJECT, placementId);
 				sendStudentSignupEmail(
 						signupDao, 
 						"reject-approver.student.subject", 
@@ -704,7 +696,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		List<CourseSignupDAO> existingSignups = new ArrayList<CourseSignupDAO>();
 		for(CourseComponentDAO componentDao: componentDaos) {
 			if(componentDao.getOpens().after(now) || componentDao.getCloses().before(now)) {
-				throw new IllegalStateException("Component isn't currently open: "+ componentDao.getId());
+				throw new IllegalStateException("Component isn't currently open: "+ componentDao.getPresentationId());
 			}
 			if ( (componentDao.getSize()-componentDao.getTaken()) < 1) {
 				full = true;
@@ -716,7 +708,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					existingSignups.add(signupDao);
 					if(!signupDao.getStatus().equals(Status.WITHDRAWN)) {
 						throw new IllegalStateException(
-								"User "+ user.getId()+ " already has a place on component: "+ componentDao.getId());
+								"User "+ user.getId()+ " already has a place on component: "+ componentDao.getPresentationId());
 					}
 				}
 			}
@@ -769,7 +761,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			signupDao.getComponents().add(componentDao); // So when sending out email we know the components.
 			dao.save(componentDao);
 		}
-		proxy.logEvent(groupDao.getId(), EVENT_SIGNUP, null);
+		proxy.logEvent(groupDao.getCourseId(), EVENT_SIGNUP, null);
 		
 		String placementId = proxy.getPlacement(null).getId();
 		String url = proxy.getConfirmUrl(signupId);
@@ -824,7 +816,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			if (componentDao != null) {
 				componentDaos.add(componentDao);
 				if (!componentDao.getGroups().contains(groupDao)) { // Check that the component is actually part of the set.
-					throw new IllegalArgumentException("The component: "+ componentId+ " is not part of the course: "+ groupDao.getId());
+					throw new IllegalArgumentException("The component: "+ componentId+ " is not part of the course: "+ groupDao.getCourseId());
 				}
 			} else {
 				throw new NotFoundException(componentId);
@@ -1007,7 +999,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setStatus(Status.WITHDRAWN);
 		signupDao.setAmended(getNow());
 		dao.save(signupDao);
-		proxy.logEvent(signupDao.getGroup().getId(), EVENT_WITHDRAW, null);
+		proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_WITHDRAW, null);
 		
 		/**
 		 * @param userId The ID of the user who the message should be sent to.
@@ -1085,7 +1077,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public Date getNow() {
 		return (adjustment != 0)?new Date(new Date().getTime() + adjustment):new Date();
 	}
-	
+
 	public void setNow(Date newNow) {
 		adjustment = newNow.getTime() - new Date().getTime();
 	}
@@ -1112,6 +1104,13 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			return null;
 		}
 		return new DepartmentImpl(department);
+	}
+	
+	/**
+	 * 
+	 */
+	public boolean isDepartmentCode(String code) {
+		return dao.findDepartmentByCode(code) != null;
 	}
 
 	public List<CourseGroup> search(String search, Range range, boolean external) {
@@ -1173,12 +1172,16 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	/**
 	 * 
 	 */
-	public List<CourseGroup> getCourseCalendar(String providerId) {
+	public List<CourseGroup> getCourseCalendar(boolean external, String providerId) {
 		String userId = proxy.getCurrentUser().getId();
-		List <CourseGroupDAO> groupDaos = dao.findCourseGroupsByCalendar(providerId);
-		List<CourseGroup> groups = new ArrayList<CourseGroup>(groupDaos.size());
-		for(CourseGroupDAO groupDao : groupDaos) {
-			groups.add(new CourseGroupImpl(groupDao, this));
+		List <CourseComponentDAO> componentDaos = dao.findCourseGroupsByCalendar(external, providerId);
+		List<CourseGroup> groups = new ArrayList<CourseGroup>();
+		for (CourseComponentDAO componentDao : componentDaos) {
+			for (CourseGroupDAO groupDao : componentDao.getGroups()) {
+				CourseGroupDAO myGroupDao = (CourseGroupDAO)groupDao.clone();
+				myGroupDao.setComponents(Collections.singleton(componentDao));
+				groups.add(new CourseGroupImpl(myGroupDao, this));
+			}
 		}
 		return groups;
 	}
@@ -1186,12 +1189,16 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	/**
 	 * 
 	 */
-	public List<CourseGroup> getCourseNoDates(String providerId) {
+	public List<CourseGroup> getCourseNoDates(boolean external, String providerId) {
 		String userId = proxy.getCurrentUser().getId();
-		List <CourseGroupDAO> groupDaos = dao.findCourseGroupsByNoDates(providerId);
-		List<CourseGroup> groups = new ArrayList<CourseGroup>(groupDaos.size());
-		for(CourseGroupDAO groupDao : groupDaos) {
-			groups.add(new CourseGroupImpl(groupDao, this));
+		List <CourseComponentDAO> componentDaos = dao.findCourseGroupsByNoDates(external, providerId);
+		List<CourseGroup> groups = new ArrayList<CourseGroup>();
+		for (CourseComponentDAO componentDao : componentDaos) {
+			for (CourseGroupDAO groupDao : componentDao.getGroups()) {
+				CourseGroupDAO myGroupDao = (CourseGroupDAO)groupDao.clone();
+				myGroupDao.setComponents(Collections.singleton(componentDao));
+				groups.add(new CourseGroupImpl(myGroupDao, this));
+			}
 		}
 		
 		Collections.sort(groups, new Comparator<CourseGroup>() {
@@ -1199,6 +1206,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				
 				String when1 = c1.getComponents().get(c1.getComponents().size() -1).getWhen();
 				String when2 = c2.getComponents().get(c2.getComponents().size() -1).getWhen();
+				if (null == when1) {
+					return 1;
+				}
+				if (null == when2) {
+					return -1;
+				}
 				String[] words1 = when1.split(" ");
 				String[] words2 = when2.split(" ");
 				if (words1.length < 2) {
@@ -1239,7 +1252,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * @return
 	 */
 	protected String getDaisyAdmin() {
-		return serverConfigurationService.getString("daisy.administrator", "admin");
+		return proxy.getConfigParam("daisy.administrator", "admin");
 	}
 	
 	/**
@@ -1247,7 +1260,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * @return
 	 */
 	public Integer getRecentDays() {
-		return Integer.parseInt(serverConfigurationService.getString("recent.days", "14"));
+		return proxy.getConfigParam("recent.days", 14);
 	}
 	
 }

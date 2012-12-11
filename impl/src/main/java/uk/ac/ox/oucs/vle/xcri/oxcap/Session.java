@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jdom.Element;
 import org.xcri.Extension;
 import org.xcri.Namespaces;
+import org.xcri.common.Identifier;
 import org.xcri.exceptions.InvalidElementException;
 import org.xcri.presentation.End;
 import org.xcri.presentation.Start;
@@ -20,6 +21,7 @@ public class Session extends OxcapElement implements Extension {
 	private Start start;
 	private End end;
 	private Venue[] venues;
+	private Identifier[] identifiers;
 	
 	/**
 	 * @return the element name
@@ -49,6 +51,19 @@ public class Session extends OxcapElement implements Extension {
 	@Override
 	public void fromXml(Element element) throws InvalidElementException {
 		super.fromXml(element);
+		
+		ArrayList<Identifier> identifiers = new ArrayList<Identifier>();
+		for (Object obj: Lax.getChildrenQuietly(element, "identifier", Namespaces.DC_NAMESPACE_NS, log)){
+			Identifier identifier = new Identifier();
+			try {
+				identifier.fromXml((Element)obj);
+				identifiers.add(identifier);
+			} catch (InvalidElementException e) {
+				log.warn(this.getName()+" : skipping invalid identifier element: "+e.getMessage());
+			}
+		}
+		this.setIdentifiers(identifiers.toArray(new Identifier[identifiers.size()]));
+		
 		if (Lax.getChildQuietly(element, "start", Namespaces.MLO_NAMESPACE_NS, log) !=null){
 			Start start = new Start();
 			try {
@@ -121,5 +136,17 @@ public class Session extends OxcapElement implements Extension {
 		this.venues = venues;
 	}
 	
+	/**
+	 * @return the identifiers
+	 */
+	public Identifier[] getIdentifiers() {
+		return identifiers;
+	}
+	/**
+	 * @param identifiers the identifiers to set
+	 */
+	public void setIdentifiers(Identifier[] identifiers) {
+		this.identifiers = identifiers;
+	}
 	
 }

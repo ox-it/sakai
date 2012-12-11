@@ -1,3 +1,11 @@
+/** Universal Styles **/
+
+table th {
+    text-align: left;
+}
+
+/** Library Styles **/
+
 .location {
     font-size: smaller;
 }
@@ -6,37 +14,8 @@
     color: red;
 }
 
-table th {
-    text-align: left;
-}
-
-#summary {
-    background: #bbb;
-}
-
-#parts table th {
-    padding: 0.5em;
-}
-
-#parts table td {
-    vertical-align: top;
-    /* Indent all but first line */
-    padding-left: 3em;
-    text-indent: -3em;
-}
-
-#browse {
-    width: 40%;
-	height: 400px;
-    float: left;
-    overflow-x: hidden;
-    overflow-y: auto;
-    /* overflow: auto; */
-}
-
-#details {
-    width: 59%;
-    float: right;
+.alert {
+    color: red;
 }
 
 .alert {
@@ -135,24 +114,6 @@ table th {
 	color: green;
 }
 
-/* Styling of the signup table */
-
-#signup-confirm table {
-	width: 100%;
-}
-#signup-confirm table th {
-	width: 25%;
-	padding: 0.1em;
-}
-#signup-confirm table td {
-	padding: 0.1em;
-}
-
-#signup-confirm textarea, #signup-confirm input[type=text] {
-	float: left; /* So the error message wraps on the right */
-	margin-top: 0px; /* Overright tool_base.css */
-}
-
 /* This is a floating message display */
 .messages {
 	position: relative;
@@ -182,3 +143,310 @@ table th {
 .message span.bad {
 	background-color: #fbb; /* For bad messages. */
 }
+
+
+
+/** Template layout Styles **/
+
+#parts table th {
+    padding: 0.5em;
+}
+
+#parts table td {
+    vertical-align: top;
+    /* Indent all but first line */
+    padding-left: 3em;
+    text-indent: -3em;
+}
+
+#browse {
+    width: 40%;
+	height: 400px;
+    float: left;
+    overflow-x: hidden;
+    overflow-y: auto;
+    /* overflow: auto; */
+}
+
+#details {
+    width: 59%;
+    float: right;
+}
+
+/* Styling of the signup table */
+
+#signup-confirm table {
+	width: 100%;
+}
+#signup-confirm table th {
+	width: 25%;
+	padding: 0.1em;
+}
+#signup-confirm table td {
+	padding: 0.1em;
+}
+
+#signup-confirm textarea, #signup-confirm input[type=text] {
+	float: left; /* So the error message wraps on the right */
+	margin-top: 0px; /* Overright tool_base.css */
+}
+
+/* course-details (course.tpl) */
+
+div.courseDetail {
+    font-family: 'Trebuchet MS',Verdana,Geneva,Arial,Helvetica,sans-serif;
+}
+
+div.courseDetail h1 h2 { 
+    border-radius: 2px;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+}
+
+div.courseDetail  h1 { 
+    background: #fff1e0;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff1e0', endColorstr='#ffce92');
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff1e0), to(#ffce92));
+	background: -moz-linear-gradient(top, #fff1e0, #ffce92);
+	
+	border-top: 1px solid #ffbc68;
+	border-bottom: 3px solid #ffbc68;
+	
+    /* clear: both; */
+    margin: 0px 0px 10px 0px;
+    padding: 5px;
+    
+	font-size: 130%;
+}
+
+div.courseDetail h2 {
+	background: #FDFEFE;	
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdfdfd', endColorstr='#f7f7f7');
+	background: -webkit-gradient(linear, left top, left bottom, from(#fdfdfd), to(#f7f7f7));
+	background: -moz-linear-gradient(top, #fdfdfd, #f7f7f7);
+	border: 1px solid #DFE2E4;
+	
+    clear: both;
+    margin: 1em 0px 10px 0px;
+    padding: 5px;
+}
+
+div.courseDetail table,
+div.courseDetail #summary div.noAuth,
+div.courseDetail a.login {
+
+	background: #FDFEFE;	
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdfdfd', endColorstr='#f7f7f7');
+	background: -webkit-gradient(linear, left top, left bottom, from(#fdfdfd), to(#f7f7f7));
+	background: -moz-linear-gradient(top, #fdfdfd, #f7f7f7);
+	border: 1px solid #DFE2E4;
+	
+	border-bottom-width: 3px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	margin: 2px 2px;
+	padding: 5px 10px;
+}
+
+#signup table, div.courseDetail a.login  {
+    background: #fff1e0; 
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff1e0', endColorstr='#ffce92');
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff1e0), to(#ffce92));
+	background: -moz-linear-gradient(top, #fff1e0, #ffce92);
+	
+	border-color: #ffbc68;
+}
+
+div.courseDetail a.login {
+    clear: both;
+    color: #8F3A64;
+    margin: 0.5em 0;
+    padding-top: 5px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/** Individual page Styles **/
+
+/* Home page (index.jsp */ 
+
+div.wrapper {
+	padding: 0px 10px 10px 10px;
+}
+
+ul.options {
+	padding: 0px;
+}
+	
+ul.options li {
+	background: #FDFEFE;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdfdfd', endColorstr='#f7f7f7');
+	background: -webkit-gradient(linear, left top, left bottom, from(#fdfdfd), to(#f7f7f7));
+	background: -moz-linear-gradient(top, #fdfdfd, #f7f7f7);
+	border: 1px solid #DFE2E4;
+	border-bottom-width: 3px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	display: block;
+	float: left;
+	list-style: none;
+	margin: 2px 2px;
+	min-height:124px;
+	padding: 2px 10px;
+	width: 200px;
+}
+
+ul.options li a{
+    background: transparent url('/library/image/silk/tick.png') no-repeat top left;
+
+	clear: both;
+	display: block;
+	font-size: 1.2em;
+	font-weight: bold;
+	padding: 0px 0px 5px 20px;
+}
+
+ul.options li.search a{
+    background-image:  url('/library/image/silk/magnifier.png') ;
+}
+
+ul.options li.browse a{
+    background-image:  url('/library/image/silk/text_columns.png') ;
+}
+
+ul.options li.calendar a{
+    background-image:  url('/library/image/silk/calendar.png') ;
+}
+
+ul.options li.myModules a{
+    background-image:  url('/library/image/silk/user.png') ;
+}
+
+
+ul.options li.admin a{
+    background-image:  url('/library/image/silk/wrench.png') ;
+}
+
+ul.admin {
+	clear: both;
+	padding-top: 1em;
+}
+
+/* Search Modules (search.jsp) */
+
+div.course-item h3 .course-title {
+	color: #000;
+	font-weight: bold;
+}
+
+div.course-item h3 .course-dept {
+	color: #000;
+	font-style: italic;
+}
+
+div.course-item h3 .course-bookable {
+	font-weight: bold;
+}
+
+div.course-item h3 .course-signup {
+	color: #4f1230;
+}
+
+/* Browse by calendar (calendar.jsp/nodates.jsp) */
+
+div.calendarView {
+	margin: 2%;
+}
+
+div.calendarView div.dataTables_wrapper {
+    margin: 2px 2px 2px 2px;
+}
+
+div.calendarView div.panel, div.tableCloth {
+    display: block;
+    margin: auto;
+    padding: 0;
+}
+
+div.calendarView div.tableCloth {
+    max-width: 1210px;
+    width: 95%;
+}
+
+div.calendarView div.panel {
+    margin: 0.5em auto 0;
+    max-width: 1200px;
+    padding: 0.2em;
+    width: 94%;
+}
+
+div.calendarView div.leftGroup {
+    float: left;
+    width: 50%;
+}
+
+div.calendarView .ui-widget-header {
+	background: #E6EEEE;
+	border: 1px solid #DFE2E4;
+}
+
+div.calendarView a.action, 
+div.panel, 
+div.calendarView table.display th, 
+div.calendarView table.display td {
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FDFDFD', endColorstr='#F7F7F7');
+    background: -moz-linear-gradient(center top , #FDFDFD, #F7F7F7) repeat scroll 0 0 transparent;
+    border: 1px solid #DFE2E4;
+}
+
+div.calendarView table th {
+    font-size: 1.3em;
+}
+div.calendarView table.display th {
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#E6EEEE', endColorstr='#E2E4E5');
+    background: -moz-linear-gradient(center top , #E6EEEE, #E2E4E5) repeat scroll 0 0 transparent;
+    font-weight: bold;
+}
+div.calendarView table.display {
+    padding: 0;
+    width: 100%;
+    border-collapse: separate;
+}
+div.calendarView table.display th, 
+div.calendarView table.display td {
+    margin: 0;
+    padding: 0.2em;
+}
+div.calendarView table.display td.date {
+    text-align: left;
+}
+
+div.calendarView .paging form {
+    float: right;
+    padding: 0.3em;
+    text-align: right;
+    width: 400px;
+}
+
+div.calendarView .paging form.filter label {
+    font-weight: bold;
+}
+
+div.calendarView a.action {
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFF1E0', endColorstr='#FFCE92');
+    background: -moz-linear-gradient(center top , #FFF1E0, #FFCE92) repeat scroll 0 0 transparent;
+    border-color: #FFBC68;
+    clear: both;
+    color: #000000;
+    display: block;
+    float: left;
+    font-weight: bold;
+    margin: 0.5em 5px 0.5em 1em;
+    padding: 0.2em;
+    text-align: center;
+    text-decoration: none;
+    width: 19em;
+}
+

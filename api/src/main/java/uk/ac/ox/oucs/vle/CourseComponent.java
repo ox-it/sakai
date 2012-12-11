@@ -1,10 +1,12 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public interface CourseComponent {
 
-	public String getId();
+	public String getPresentationId();
 	
 	public String getSubject();
 	
@@ -20,13 +22,23 @@ public interface CourseComponent {
 	
 	public Date getOpens();
 	
+	public String getOpensText();
+	
 	public Date getCloses();
+	
+	public String getClosesText();
 	
 	public Date getStarts();
 	
+	public String getStartsText();
+	
 	public Date getEnds();
 	
+	public String getEndsText();
+	
 	public Date getCreated();
+	
+	public Date getBaseDate();
 	
 	public String getSlot();
 	
@@ -35,6 +47,20 @@ public interface CourseComponent {
 	public String getSessions();
 	
 	public boolean getBookable();
+	
+	public String getApplyTo();
+	
+	public String getMemberApplyTo();
+	
+	public String getAttendanceMode();
+	
+	public String getAttendanceModeText();
+	
+	public String getAttendancePattern();
+	
+	public String getAttendancePatternText();
+	
+	public List<CourseComponentSession> getComponentSessions();
 
 	/**
 	 * The ID of the component set that this component belongs to.

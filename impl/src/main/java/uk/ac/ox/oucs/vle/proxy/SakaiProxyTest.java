@@ -6,6 +6,12 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.antivirus.api.VirusFoundException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.OverQuotaException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.Placement;
 
 import uk.ac.ox.oucs.vle.Email;
@@ -163,5 +169,21 @@ public class SakaiProxyTest implements SakaiProxy {
 	public Placement getPlacement(String placementId) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public Integer getConfigParam(String param, int dflt) {
+		return new Integer(dflt);
+	}
+
+	public String getConfigParam(String param, String dflt) {
+		return dflt;
+	}
+
+	public void writeLog(String contentId, String contentDisplayName,
+			byte[] bytes) throws VirusFoundException, OverQuotaException,
+			ServerOverloadException, PermissionException, TypeException,
+			InUseException {
+		// TODO Auto-generated method stub
+		
 	}
 }

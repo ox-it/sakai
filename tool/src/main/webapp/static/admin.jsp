@@ -74,7 +74,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 				
 				var loadCourse = function(object) {	
 					
-					var code = object.id;
+					var code = object.courseId;
 					var name = object.title;
 					var superuser = object.isSuperuser;
 							
@@ -181,9 +181,9 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 											 component.presenter,
 											 component.administrator,
 											 component.closes, //8
-											 component.id,
-											 component.id,
-											 component.id
+											 component.presentationId,
+											 component.presentationId,
+											 component.presentationId
 											]);
 										}
 										fnCallback(tableData);
@@ -480,7 +480,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 						if (value.isSuperuser && value.hideGroup) {
 							title = "(hidden) " + title;
 						}
-						options += '<option value="'+ value.id + '">'+ title+ '</option>';
+						options += '<option value="'+ value.courseId + '">'+ title+ '</option>';
 					});
 									
 					if (data.length > 0) {
@@ -488,7 +488,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 						$("#admin-course").change(function(e){
 							var courseId = this.options[this.selectedIndex].value;
 							for (var i in courseData) {
-								var dataId = courseData[i].id;
+								var dataId = courseData[i].courseId;
 								if (dataId === courseId) {
 									loadCourse(courseData[i]);
 									return;

@@ -116,7 +116,7 @@ public class CourseResource {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			externalUser = true;
 		}
-		if (deptId.length() == 4) { 
+		if (isProvider(deptId)) { 
 			if (range.equals(Range.PREVIOUS)) {
 				List<CourseGroup> courses = courseService.getCourseGroupsByDept(deptId, range, externalUser);
 				return new GroupsStreamingOutput(Collections.<SubUnit>emptyList(), courses, deptId, range.name(), false);
@@ -169,7 +169,11 @@ public class CourseResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getCourseCalendar() throws JsonGenerationException, JsonMappingException, IOException {
-		List <CourseGroup> groups = courseService.getCourseCalendar(null);
+		boolean externalUser = false;
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			externalUser = true;
+		}
+		List <CourseGroup> groups = courseService.getCourseCalendar(externalUser, null);
 		// TODO Just return the coursegroups (no nested objects).
 		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
 		
@@ -179,7 +183,11 @@ public class CourseResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getCourseNoDates() throws JsonGenerationException, JsonMappingException, IOException {
-		List <CourseGroup> groups = courseService.getCourseNoDates(null);
+		boolean externalUser = false;
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			externalUser = true;
+		}
+		List <CourseGroup> groups = courseService.getCourseNoDates(externalUser, null);
 		// TODO Just return the coursegroups (no nested objects).
 		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
 		
@@ -251,22 +259,28 @@ public class CourseResource {
 			if (!isOneBookable) {
 				isOneBookable = component.getBookable();
 			}
-			// Check if component is the earliest one opening in the future.
-			boolean isGoingToOpen = component.getOpens().after(now) && component.getOpens().before(nextOpen);
-			if (isGoingToOpen) {
-				nextOpen = component.getOpens();
-			}
-			// Check if the component is open and is open for the longest.
-			if (component.getOpens().before(now) && component.getCloses().after(willClose)) {
-				willClose = component.getCloses();
-			}
-			boolean isOpen = component.getOpens().before(now) && component.getCloses().after(now);
-			if (!isOneOpen && isOpen) {
-				isOneOpen = true;
-			}
-			if (isOpen) {
-				if (component.getPlaces() > 0) {
-					areSomePlaces = true;
+			
+			if (null != component.getOpens()) {
+				// Check if component is the earliest one opening in the future.
+				//boolean isGoingToOpen = component.getOpens().after(now) && component.getOpens().before(nextOpen);
+				if (component.getOpens().after(now) && component.getOpens().before(nextOpen)) {
+					nextOpen = component.getOpens();
+				}
+				
+				if (null != component.getCloses()) {
+					// Check if the component is open and is open for the longest.
+					if (component.getOpens().before(now) && component.getCloses().after(willClose)) {
+						willClose = component.getCloses();
+					}
+					boolean isOpen = component.getOpens().before(now) && component.getCloses().after(now);
+					if (!isOneOpen && isOpen) {
+						isOneOpen = true;
+					}
+					if (isOpen) {
+						if (component.getPlaces() > 0) {
+							areSomePlaces = true;
+						}
+					}
 				}
 			}
 			Calendar recent = new GregorianCalendar();
@@ -307,6 +321,15 @@ public class CourseResource {
 		return new CourseSummary(detail, states);
 	}
 	
+	
+	/**
+	 * 
+	 * @param code
+	 * @return
+	 */
+	private boolean isProvider(String code) {
+		return courseService.isDepartmentCode(code);
+	}
 	
 
 	// Maybe I should have just implemented a tuple.
@@ -377,7 +400,7 @@ public class CourseResource {
 				
 				CourseSummary state = summary(now, courseGroup);
 				gen.writeObjectFieldStart("attr");
-				gen.writeObjectField("id", courseGroup.getId());
+				gen.writeObjectField("id", courseGroup.getCourseId());
 				gen.writeObjectField("class", state.getCourseState().toString().toLowerCase());
 				gen.writeEndObject();
 				
@@ -424,7 +447,7 @@ public class CourseResource {
 			for (CourseGroup courseGroup : courses) {
 				gen.writeStartObject();
 				
-				gen.writeObjectField("id", courseGroup.getId());
+				gen.writeObjectField("id", courseGroup.getCourseId());
 				gen.writeObjectField("description", courseGroup.getDescription());
 				gen.writeObjectField("title", courseGroup.getTitle());
 				//gen.writeObjectField("supervisorApproval", courseGroup.getSupervisorApproval());
@@ -436,13 +459,17 @@ public class CourseResource {
 				gen.writeArrayFieldStart("components");
 				for (CourseComponent component : courseGroup.getComponents()) {
 					gen.writeStartObject();
-					gen.writeObjectField("id", component.getId());
+					gen.writeObjectField("id", component.getPresentationId());
 					gen.writeObjectField("location", component.getLocation());
 					gen.writeObjectField("slot", component.getSlot());
 					gen.writeObjectField("size", component.getSize());
 					gen.writeObjectField("subject", component.getSubject());
-					gen.writeObjectField("opens", component.getOpens().getTime());
-					gen.writeObjectField("closes", component.getCloses().getTime());
+					if (null != component.getOpens()) {
+						gen.writeObjectField("opens", component.getOpens().getTime());
+					}
+					if (null != component.getCloses()) {
+						gen.writeObjectField("closes", component.getCloses().getTime());
+					}
 					gen.writeObjectField("title", component.getTitle());
 					gen.writeObjectField("sessions", component.getSessions());
 					gen.writeObjectField("when", component.getWhen());
@@ -531,12 +558,12 @@ public class CourseResource {
 			JsonGenerator gen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
 			
 			gen.writeStartObject();
-			gen.writeObjectField("id", course.getId());
+			gen.writeObjectField("id", course.getCourseId());
 			gen.writeObjectField("description", course.getDescription());
 			gen.writeObjectField("title", course.getTitle());
 			gen.writeObjectField("supervisorApproval", course.getSupervisorApproval());
 			gen.writeObjectField("administratorApproval", course.getAdministratorApproval());
-			gen.writeObjectField("publicView", course.getPublicView());
+			gen.writeObjectField("visibility", course.getVisibility());
 			//gen.writeObjectField("homeApproval", courseGroup.getHomeApproval());
 			gen.writeObjectField("isAdmin", course.getIsAdmin());
 			gen.writeObjectField("isSuperuser", course.getIsSuperuser());
@@ -544,29 +571,49 @@ public class CourseResource {
 			gen.writeObjectField("departmentCode", course.getDepartmentCode());
 			gen.writeObjectField("subUnit", course.getSubUnit());
 			gen.writeObjectField("subUnitCode", course.getSubUnitCode());
+			gen.writeObjectField("regulations", course.getRegulations());
+			gen.writeObjectField("source", course.getSource());
 				
 			gen.writeArrayFieldStart("components");
 			for (CourseComponent component : course.getComponents()) {
 				gen.writeStartObject();
-				gen.writeObjectField("id", component.getId());
+				gen.writeObjectField("id", component.getPresentationId());
 				gen.writeObjectField("location", component.getLocation());
 				gen.writeObjectField("slot", component.getSlot());
 				gen.writeObjectField("size", component.getSize());
 				gen.writeObjectField("subject", component.getSubject());
-				gen.writeObjectField("opens", component.getOpens().getTime());
-				gen.writeObjectField("closes", component.getCloses().getTime());
+				if (null != component.getOpens()) {
+					gen.writeObjectField("opens", component.getOpens().getTime());
+				}
+				gen.writeObjectField("opensText", component.getOpensText());
+				if (null != component.getCloses()) {
+					gen.writeObjectField("closes", component.getCloses().getTime());
+				}
+				gen.writeObjectField("closesText", component.getClosesText());
 				gen.writeObjectField("title", component.getTitle());
-				gen.writeObjectField("sessions", component.getSessions());
+				//gen.writeObjectField("sessions", component.getSessions());
 				gen.writeObjectField("when", component.getWhen());
 				gen.writeObjectField("bookable", component.getBookable());
 				if (null != component.getStarts()) {
 					gen.writeObjectField("starts", component.getStarts().getTime());
 				}
+				gen.writeObjectField("startsText", component.getStartsText());
 				if (null != component.getEnds()) {
 					gen.writeObjectField("ends", component.getEnds().getTime());
 				}
+				gen.writeObjectField("endsText", component.getEndsText());
 				gen.writeObjectField("places", component.getPlaces());
 				gen.writeObjectField("componentSet", component.getComponentSet());
+				gen.writeObjectField("sessionCount", component.getSessions());
+				
+				gen.writeObjectField("applyTo", component.getApplyTo());
+				gen.writeObjectField("memberApplyTo", component.getMemberApplyTo());
+				
+				gen.writeObjectField("attendanceMode", component.getAttendanceMode());
+				gen.writeObjectField("attendanceModeText", component.getAttendanceModeText());
+				gen.writeObjectField("attendancePattern", component.getAttendancePattern());
+				gen.writeObjectField("attendancePatternText", component.getAttendancePatternText());
+				
 				if (null != component.getPresenter()) {
 					gen.writeObjectFieldStart("presenter");
 					gen.writeObjectField("name", component.getPresenter().getName());
@@ -574,6 +621,17 @@ public class CourseResource {
 					//gen.writeObjectField("units", component.getPresenter().getUnits());
 					gen.writeEndObject();
 				}
+				gen.writeArrayFieldStart("sessions");
+				for (CourseComponentSession session : component.getComponentSessions()) {
+					gen.writeStartObject();
+					gen.writeObjectField("sessionId", session.getSessionId());
+					gen.writeObjectField("sessionStart", session.getSessionStart().getTime());
+					gen.writeObjectField("sessionStartText", session.getSessionStartText());
+					gen.writeObjectField("sessionEnd", session.getSessionEnd().getTime());
+					gen.writeObjectField("sessionEndText", session.getSessionEndText());
+					gen.writeEndObject();
+				}
+				gen.writeEndArray();
 				gen.writeEndObject();
 			}
 			gen.writeEndArray();

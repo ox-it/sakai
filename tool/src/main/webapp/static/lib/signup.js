@@ -140,13 +140,17 @@ var Signup = function(){
 					data.open = false;
 					data.hide = externalUser; // for externally visible courses
 					data.presenters = [];
-					data.description = Text.toHtml(data.description);
 					data.waiting = waitingList;
 					data.url = courseURL;
 					
 					var parts = [];
+					var applyTo;
+					var memberApplyTo;
+					
 					for (var componentIdx in data.components) {
 						var component = data.components[componentIdx];
+						memberApplyTo = component.memberApplyTo;
+						applyTo = component.applyTo;
 						
 						// Sort components into sets.
 						if (component.presenter && !inArray(data.presenters, component.presenter, compareUser)) {
@@ -199,8 +203,8 @@ var Signup = function(){
 					}
 					
 					data.signup = Signup.signup.summary(data.components)["message"];
-					
 					data.parts = parts;
+					data.applyTo = applyTo;
 					var output = template.process(data, {throwExceptions: true});
 					dest.html(output);
 					

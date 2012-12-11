@@ -84,7 +84,7 @@ public class SignupResource {
 		final List<CourseSignup> signups = courseService.getMySignups(null);
 		final List<CourseSignup> courseSignups = new ArrayList<CourseSignup>();
 		for(CourseSignup signup: signups) {
-			if (courseId.equals(signup.getGroup().getId())) {
+			if (courseId.equals(signup.getGroup().getCourseId())) {
 				courseSignups.add(signup);
 			}
 		}
@@ -387,14 +387,14 @@ public class SignupResource {
 				
 					try {
 						List<CourseSignup> signups = courseService.getComponentSignups(
-								courseComponent.getId(), statuses);
+								courseComponent.getPresentationId(), statuses);
 				
 						Collections.sort(signups, new Comparator<CourseSignup>() {
 							public int compare(CourseSignup s1,CourseSignup s2) {
 								Person p1 = s1.getUser();
 								Person p2 = s2.getUser();
 								
-								int ret = s1.getGroup().getId().compareTo(s2.getGroup().getId());
+								int ret = s1.getGroup().getCourseId().compareTo(s2.getGroup().getCourseId());
 								
 								// this line is giving a NullPointerException
 								//return ret == 0 ? p1.getLastName().compareTo(p2.getLastName()) : ret;
@@ -447,7 +447,7 @@ public class SignupResource {
 				for (CourseComponent courseComponent : courseComponents) {
 				
 					List<CourseSignup> signups = courseService.getComponentSignups(
-							courseComponent.getId(), Collections.singleton(Status.CONFIRMED));
+							courseComponent.getPresentationId(), Collections.singleton(Status.CONFIRMED));
 					
 					attendance.writeTeachingInstance(courseComponent, signups);
 				}
@@ -509,9 +509,9 @@ public class SignupResource {
 				List<String> componentIds = Arrays.asList(componentId.split(","));
 				Set<CourseSignup> signups = new HashSet<CourseSignup>();
 				for (CourseSignup signup : courseService.getUserComponentSignups(userId, null)) {
-					if (signup.getGroup().getId().equals(groupId)) {
+					if (signup.getGroup().getCourseId().equals(groupId)) {
 						for (CourseComponent component : signup.getComponents()) {
-							if (!componentIds.contains(component.getId())) {
+							if (!componentIds.contains(component.getPresentationId())) {
 								signups.add(signup);
 							}
 						}

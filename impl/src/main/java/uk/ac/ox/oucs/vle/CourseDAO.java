@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -21,9 +22,9 @@ public interface CourseDAO {
 	
 	List<CourseGroupDAO> findCourseGroupByComponent(String componentId);
 	
-	List<CourseGroupDAO> findCourseGroupsByCalendar(String providerId);
+	List<CourseComponentDAO> findCourseGroupsByCalendar(boolean external, String providerId);
 	
-	List<CourseGroupDAO> findCourseGroupsByNoDates(String providerId);
+	List<CourseComponentDAO> findCourseGroupsByNoDates(boolean external, String providerId);
 	
 	List<Object[]> findSubUnitByDept(String dept);
 
@@ -94,5 +95,17 @@ public interface CourseDAO {
 	CourseUserPlacementDAO findUserPlacement(String userId);
 	
 	void save(CourseUserPlacementDAO placementDao);
+	
+	public int flagSelectedCourseGroups(final String source);
+	
+	public int flagSelectedCourseComponents(final String source);
+	
+	public int flagSelectedDaisyCourseGroups(final String source);
+	
+	public int flagSelectedDaisyCourseComponents(final String source);
+	
+	public Collection<CourseGroupDAO> deleteSelectedCourseGroups(final String source);
+	
+	public Collection<CourseComponentDAO> deleteSelectedCourseComponents(final String source);
 
 }

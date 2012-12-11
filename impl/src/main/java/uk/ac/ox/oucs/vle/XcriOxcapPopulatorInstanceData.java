@@ -5,23 +5,18 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.exception.IdUnusedException;
 
 public class XcriOxcapPopulatorInstanceData {
 
 	private static final Log log = LogFactory.getLog(XcriOxcapPopulatorInstanceData.class);
 	
-	private ContentHostingService contentHostingService;
+	private SakaiProxy proxy;
 	
 	ByteArrayOutputStream eOut;
 	ByteArrayOutputStream iOut;
 	
-	private XcriErrorWriter eWriter;
-	private XcriInfoWriter iWriter;
+	private XcriLogWriter eWriter;
+	private XcriLogWriter iWriter;
 	
 	private int departmentSeen;
 	private int departmentCreated;
@@ -38,20 +33,19 @@ public class XcriOxcapPopulatorInstanceData {
 	
 	private String lastGroup = null;
 	
-	private String siteId;
+	private String feed;
 	
-	public XcriOxcapPopulatorInstanceData(ContentHostingService contentHostingService, String siteId, String name, String generated) {
+	public XcriOxcapPopulatorInstanceData(SakaiProxy proxy, String feed, String generated) {
 		
-		this.contentHostingService = contentHostingService;
-		this.siteId = siteId;
+		this.proxy = proxy;
+		this.feed = feed;
 		
 		eOut = new ByteArrayOutputStream();
 		iOut = new ByteArrayOutputStream();
 		
 		try {
-			
-			eWriter = new XcriErrorWriter(eOut, name, generated);
-			iWriter = new XcriInfoWriter(iOut, name, generated);
+			eWriter = new XcriLogWriter(eOut, feed+"ImportError", "Errors and Warnings from SES Import",  generated);
+			iWriter = new XcriLogWriter(iOut, feed+"ImportInfo", "Info and Warnings from SES Import", generated);
 		
 		} catch (IOException e) {
 			log.warn("Failed to write content to logfile.", e);
@@ -75,84 +69,47 @@ public class XcriOxcapPopulatorInstanceData {
 	
 	protected void endTasks() {
 		
-		ContentResourceEdit cre = null;
-		ContentResourceEdit cri = null;
-		
 		try {
 			logMs("CourseDepartments (seen: "+ departmentSeen+ " created: "+ departmentCreated+ ", updated: "+ departmentUpdated+")");
 			logMs("CourseSubUnits (seen: "+ subunitSeen+ " created: "+ subunitCreated+ ", updated: "+ subunitUpdated+")");
 			logMs("CourseGroups (seen: "+ groupSeen+ " created: "+ groupCreated+ ", updated: "+ groupUpdated+")");
 			logMs("CourseComponents (seen: "+ componentSeen+ " created: "+ componentCreated+ ", updated: "+ componentUpdated+")");
 
-			eWriter.flush();
-			eWriter.close();
-		
-			iWriter.flush();
-			iWriter.close();
-		
-			if (null != contentHostingService) {
-				
-				String jsonResourceEId = contentHostingService.getSiteCollection(siteId)+ eWriter.getIdName();
-
-				try {
-					// editResource() doesn't throw IdUnusedExcpetion but PermissionException
-					// when the resource is missing so we first just tco to find it.
-					contentHostingService.getResource(jsonResourceEId);
-					cre = contentHostingService.editResource(jsonResourceEId);
+			eWriter.footer();
+			iWriter.footer();
 			
-				} catch (IdUnusedException e) {
-					try {
-						cre = contentHostingService.addResource(jsonResourceEId);
-						ResourceProperties props = cre.getPropertiesEdit();
-						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, eWriter.getDisplayName());
-						cre.setContentType("text/html");
-					} catch (Exception e1) {
-						log.warn("Failed to create the import log file.", e1);
-					}
-				}
-		
-				cre.setContent(eOut.toByteArray());
-				// Don't notify anyone about this resource.
-				contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
-			}
-		
-			if (null != contentHostingService) {
-			
-				String jsonResourceSId = contentHostingService.getSiteCollection(siteId)+ iWriter.getIdName();
-
-				try {
-					// editResource() doesn't throw IdUnusedExcpetion but PermissionException
-					// when the resource is missing so we first just try to find it.
-					contentHostingService.getResource(jsonResourceSId);
-					cri = contentHostingService.editResource(jsonResourceSId);
-			
-				} catch (IdUnusedException e) {
-					try {
-						cri = contentHostingService.addResource(jsonResourceSId);
-						ResourceProperties props = cri.getPropertiesEdit();
-						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, iWriter.getDisplayName());
-						cri.setContentType("text/html");
-					} catch (Exception e1) {
-						log.warn("Failed to create the import log file.", e1);
-					}
-				}
-		
-				cri.setContent(iOut.toByteArray());
-				// Don't notify anyone about this resource.
-				contentHostingService.commitResource(cri, NotificationService.NOTI_NONE);
-			}
+			proxy.writeLog(eWriter.getIdName(), eWriter.getDisplayName(), eOut.toByteArray());
+			proxy.writeLog(iWriter.getIdName(), iWriter.getDisplayName(), iOut.toByteArray());
 		
 		} catch (Exception e) {
 			log.warn("Failed to write content to logfile.", e);
-		
+			
 		} finally {
-			if (null != cre && cre.isActiveEdit()) {
-				contentHostingService.cancelResource(cre);
+			
+			if (null != eWriter) {
+				try {
+					eWriter.flush();
+					eWriter.close();
+					
+				} catch (IOException e) {
+					log.error("IOException ["+e.getLocalizedMessage()+"]", e);
+				}
 			}
-			if (null != cri && cri.isActiveEdit()) {
-				contentHostingService.cancelResource(cri);
+		
+			if (null != iWriter) {
+				try {
+					iWriter.flush();
+					iWriter.close();
+					
+				} catch (IOException e) {
+					log.error("IOException ["+e.getLocalizedMessage()+"]", e);
+				}
 			}
 		}
+	}
+	
+	protected String getFeed() {
+		return this.feed;
 	}
 	
 	protected void incrDepartmentSeen() {
@@ -217,8 +174,9 @@ public class XcriOxcapPopulatorInstanceData {
 	 * @throws IOException
 	 */
 	protected void logMe(String message) throws IOException {
-		log.warn(message);
-		eWriter.write(message+"\n");
+		if (null != eWriter) {
+			eWriter.write(message+"\n");
+		}
 	}
 	
 	/**
@@ -227,8 +185,9 @@ public class XcriOxcapPopulatorInstanceData {
 	 * @throws IOException
 	 */
 	protected void logMs(String message) throws IOException {
-		log.warn(message);
-		iWriter.write(message+"\n");
+		if (null != iWriter) {
+			iWriter.write(message+"\n");
+		}
 	}
 	
 }

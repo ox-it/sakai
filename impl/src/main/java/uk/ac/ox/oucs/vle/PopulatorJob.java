@@ -13,17 +13,16 @@ import org.quartz.JobExecutionException;
  */
 public class PopulatorJob implements Job {
 
-	private Populator populator;
+	private PopulatorWrapper populator;
 	
-	public void setPopulator(Populator populator){
-		this.populator = populator;
+	public void setPopulatorWrapper(PopulatorWrapper populatorWrapper){
+		this.populator = populatorWrapper;
 	}
 	
 	public void execute(JobExecutionContext context)
 			throws JobExecutionException {
 		
-		JobDetail jobDetail = context.getJobDetail();
-		JobDataMap jobDataMap = jobDetail.getJobDataMap();
+		JobDataMap jobDataMap = context.getMergedJobDataMap();
 		PopulatorContext pContext = new PopulatorContext("xcri.oxcap.populator", jobDataMap);
 		populator.update(pContext);
 	}

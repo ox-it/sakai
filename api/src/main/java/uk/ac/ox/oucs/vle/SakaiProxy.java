@@ -1,5 +1,11 @@
 package uk.ac.ox.oucs.vle;
 
+import org.sakaiproject.antivirus.api.VirusFoundException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.OverQuotaException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.Placement;
 
 public interface SakaiProxy {
@@ -61,6 +67,25 @@ public interface SakaiProxy {
 	public String getMyUrl();
 	
 	public String getMyUrl(String placementId);
+	
+	/**
+	 * Get a configuration parameter as an Integer
+	 * 
+	 * @param	dflt the default value if the param is not set
+	 * @return
+	 */
+	public Integer getConfigParam(String param, int dflt);
+	
+	/**
+	 * Get a configuration parameter as a String
+	 * 
+	 * @param	dflt the default value if the param is not set
+	 * @return
+	 */
+	public String getConfigParam(String param, String dflt); 
+	
+	public void writeLog(String contentId, String contentDisplayName, byte[] bytes) 
+			throws VirusFoundException, OverQuotaException, ServerOverloadException, PermissionException, TypeException, InUseException;
 	
 
 }

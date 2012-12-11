@@ -9,7 +9,7 @@ public class CourseCategoryDAO implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private int categoryId;
-	private String groupId;
+	private int courseGroupMuid;
 	private String categoryCode;
     private String categoryName;
     private String categoryType;
@@ -17,8 +17,7 @@ public class CourseCategoryDAO implements java.io.Serializable {
     public CourseCategoryDAO() {
     }
     
-    public CourseCategoryDAO(String groupId, CourseGroup.Category_Type type, String code, String name) {
-    	this.groupId = groupId;
+    public CourseCategoryDAO(CourseGroup.Category_Type type, String code, String name) {
     	this.categoryType = type.name();
     	this.categoryCode = code;
     	this.categoryName = name;
@@ -50,12 +49,12 @@ public class CourseCategoryDAO implements java.io.Serializable {
         this.categoryId = categoryId;
        }
     	
-    public String getGroupId() {
-        return this.groupId;
+    public int getCourseGroupMuid() {
+        return this.courseGroupMuid;
     }
     
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
+    public void setCourseGroupMuid(int courseGroupMuid) {
+        this.courseGroupMuid = courseGroupMuid;
     }
     
     public String getCategoryCode() {

@@ -34,7 +34,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<script type="text/javascript" src="lib/serverDate.js"></script>
 	<script type="text/javascript" src="lib/jquery.tooltip.js"></script>
 
-<script type="text/javascript">
+	<script type="text/javascript">
 	$(function() {
 
 		// The site to load the static files from.
@@ -126,7 +126,9 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	                            			} else {
 	                            				componentPlacesClass = "course-component";
 	                            			}
-	                                		return '<span class="course-component">' + component.title + " " + component.slot + " in " + component.when + ' <span class='+componentPlacesClass+'>'+ Signup.signup.formatPlaces(component.places, false)+'</span></span>';
+
+	                                		return '<span class="course-component">' + component.title + " " + component.attendanceModeText + "/"+component.attendancePatternText+" in " + component.when + ' <span class='+componentPlacesClass+'>'+ Signup.signup.formatPlaces(component.places, false)+'</span></span>';
+
 	                            		})).join("<br>");
 	                            
 	                            var closes = 0;

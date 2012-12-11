@@ -16,17 +16,24 @@ public class CourseComponentDAO  implements java.io.Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private String id;
+	private int muid;
+	private String presentationId;
     private int version;
     private String title;
     private String subject;
     private String termcode;
     private Date opens;
+    private String opensText;
     private Date closes;
+    private String closesText;
     private Date starts;
+    private String startsText;
     private Date ends;
+    private String endsText;
     private Date created;
+    private Date baseDate;
     private boolean bookable;
+    private boolean deleted;
     private int size;
     private int taken;
     private String componentId;
@@ -36,28 +43,45 @@ public class CourseComponentDAO  implements java.io.Serializable {
     private String slot;
     private String sessions;
     private String location;
+    private String applyTo;
+    private String memberApplyTo;
+    private String attendanceMode;
+    private String attendanceModeText;
+    private String attendancePattern;
+    private String attendancePatternText;
+    private String source;
     private Set<CourseSignupDAO> signups = new HashSet<CourseSignupDAO>(0);
     private Set<CourseGroupDAO> groups = new HashSet<CourseGroupDAO>(0);
+    private Set<CourseComponentSessionDAO> componentSessions = new HashSet<CourseComponentSessionDAO>(0);
 
     public CourseComponentDAO() {
     }
 
-	
-    public CourseComponentDAO(String id, boolean bookable) {
-        this.id = id;
+    public CourseComponentDAO(String presentationId, boolean bookable) {
+        this.presentationId = presentationId;
         this.bookable = bookable;
     }
-    public String getId() {
-        return this.id;
+    
+    public int getMuid() {
+        return this.muid;
     }
     
-    public void setId(String id) {
-        this.id = id;
+    public void setMuid(int muid) {
+        this.muid = muid;
     }
+    
+    public String getPresentationId() {
+        return this.presentationId;
+    }
+    
+    public void setPresentationId(String presentationId) {
+        this.presentationId = presentationId;
+    }
+    
+    
     public int getVersion() {
 		return version;
 	}
-
 
 	public void setVersion(int version) {
 		this.version = version;
@@ -87,6 +111,8 @@ public class CourseComponentDAO  implements java.io.Serializable {
     public void setTermcode(String termcode) {
         this.termcode = termcode;
     }
+    
+    
     public Date getOpens() {
         return this.opens;
     }
@@ -94,6 +120,17 @@ public class CourseComponentDAO  implements java.io.Serializable {
     public void setOpens(Date opens) {
         this.opens = opens;
     }
+    
+    
+    public String getOpensText() {
+        return this.opensText;
+    }
+    
+    public void setOpensText(String opensText) {
+        this.opensText = opensText;
+    }
+    
+    
     public Date getCloses() {
         return this.closes;
     }
@@ -102,12 +139,32 @@ public class CourseComponentDAO  implements java.io.Serializable {
         this.closes = closes;
     }
     
+    
+    public String getClosesText() {
+        return this.closesText;
+    }
+    
+    public void setClosesText(String closesText) {
+        this.closesText = closesText;
+    }
+    
+    
     public Date getStarts() {
         return this.starts;
     }
     public void setStarts(Date starts) {
         this.starts = starts;
     }
+    
+    
+    public String getStartsText() {
+        return this.startsText;
+    }
+    
+    public void setStartsText(String startsText) {
+        this.startsText = startsText;
+    }
+    
     
     public Date getEnds() {
         return this.ends;
@@ -116,12 +173,31 @@ public class CourseComponentDAO  implements java.io.Serializable {
         this.ends = ends;
     }
     
+    
+    public String getEndsText() {
+        return this.endsText;
+    }
+    
+    public void setEndsText(String endsText) {
+        this.endsText = endsText;
+    }
+    
+    
     public Date getCreated() {
         return this.created;
     }
     public void setCreated(Date created) {
         this.created = created;
     }
+    
+    
+    public Date getBaseDate() {
+        return this.baseDate;
+    }
+    public void setBaseDate(Date baseDate) {
+        this.baseDate = baseDate;
+    }
+    
     
     public boolean isBookable() {
         return this.bookable;
@@ -130,6 +206,17 @@ public class CourseComponentDAO  implements java.io.Serializable {
     public void setBookable(boolean bookable) {
         this.bookable = bookable;
     }
+    
+    
+	public boolean getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+	
+    
     public int getSize() {
         return this.size;
     }
@@ -166,11 +253,19 @@ public class CourseComponentDAO  implements java.io.Serializable {
         this.groups = groups;
     }
 
+    
+    public Set<CourseComponentSessionDAO> getComponentSessions() {
+        return this.componentSessions;
+    }
+    
+    public void setComponentSessions(Set<CourseComponentSessionDAO> componentSessions) {
+        this.componentSessions = componentSessions;
+    }
 
+    
 	public String getTeacherName() {
 		return teacherName;
 	}
-
 
 	public void setTeacherName(String teacherName) {
 		this.teacherName = teacherName;
@@ -211,7 +306,6 @@ public class CourseComponentDAO  implements java.io.Serializable {
 		return sessions;
 	}
 
-
 	public void setSessions(String sessions) {
 		this.sessions = sessions;
 	}
@@ -221,13 +315,67 @@ public class CourseComponentDAO  implements java.io.Serializable {
 		return location;
 	}
 
-
 	public void setLocation(String location) {
 		this.location = location;
 	}
+	
 
+	public String getApplyTo() {
+		return applyTo;
+	}
 
+	public void setApplyTo(String applyTo) {
+		this.applyTo = applyTo;
+	}
+	
+	
+	public String getMemberApplyTo() {
+		return memberApplyTo;
+	}
 
+	public void setMemberApplyTo(String memberApplyTo) {
+		this.memberApplyTo = memberApplyTo;
+	}
+	
+	public String getAttendanceMode() {
+		return attendanceMode;
+	}
+
+	public void setAttendanceMode(String attendanceMode) {
+		this.attendanceMode = attendanceMode;
+	}
+	
+	public String getAttendanceModeText() {
+		return attendanceModeText;
+	}
+
+	public void setAttendanceModeText(String attendanceModeText) {
+		this.attendanceModeText = attendanceModeText;
+	}
+
+	public String getAttendancePattern() {
+		return attendancePattern;
+	}
+
+	public void setAttendancePattern(String attendancePattern) {
+		this.attendancePattern = attendancePattern;
+	}
+	
+	public String getAttendancePatternText() {
+		return attendancePatternText;
+	}
+
+	public void setAttendancePatternText(String attendancePatternText) {
+		this.attendancePatternText = attendancePatternText;
+	}
+	
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
 }
 
 

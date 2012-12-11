@@ -1,14 +1,19 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 
 public class CourseComponentImpl implements CourseComponent {
 	
 	private CourseComponentDAO dao;
+	private List<CourseComponentSession> componentSessions;
+	
 	//private CourseSignupServiceImpl impl;
 	
 	/// Local caches.
@@ -17,6 +22,7 @@ public class CourseComponentImpl implements CourseComponent {
 	private transient Date starts;
 	private transient Date ends;
 	private transient Date created;
+	private transient Date baseDate;
 	
 	private static int YEARSAGO = -1825;
 	
@@ -25,8 +31,8 @@ public class CourseComponentImpl implements CourseComponent {
 		//this.impl = impl;
 	}
 
-	public String getId() {
-		return dao.getId();
+	public String getPresentationId() {
+		return dao.getPresentationId();
 	}
 	
 	public String getSubject() {
@@ -61,16 +67,24 @@ public class CourseComponentImpl implements CourseComponent {
 
 	public Date getOpens() {
 		// Jackson doesn't like java.sql.Date.
-		if (opens == null)
+		if (opens == null && dao.getOpens() != null)
 			opens = new Date(dao.getOpens().getTime());
 		return opens;
+	}
+	
+	public String getOpensText() {
+		return dao.getOpensText();
 	}
 
 	public Date getCloses() {
 		// Jackson doesn't like java.sql.Date.
-		if(closes == null)
+		if(closes == null && dao.getCloses() != null)
 			closes = new Date(dao.getCloses().getTime());
 		return dao.getCloses();
+	}
+	
+	public String getClosesText() {
+		return dao.getClosesText();
 	}
 	
 	public Date getStarts() {
@@ -80,6 +94,10 @@ public class CourseComponentImpl implements CourseComponent {
 		}
 		return starts;
 	}
+	
+	public String getStartsText() {
+		return dao.getStartsText();
+	}
 
 	public Date getEnds() {
 		// Jackson doesn't like java.sql.Date.
@@ -87,6 +105,10 @@ public class CourseComponentImpl implements CourseComponent {
 			ends = new Date(dao.getEnds().getTime());
 		}
 		return ends;
+	}
+	
+	public String getEndsText() {
+		return dao.getEndsText();
 	}
 	
 	public Date getCreated() {
@@ -100,6 +122,19 @@ public class CourseComponentImpl implements CourseComponent {
 			return cal.getTime();
 		}
 		return created;
+	}
+	
+	public Date getBaseDate() {
+		// Jackson doesn't like java.sql.Date.
+		if(baseDate == null && dao.getBaseDate() != null) {
+			baseDate = new Date(dao.getBaseDate().getTime());
+		}
+		if (null == baseDate) {
+			GregorianCalendar cal = new GregorianCalendar();  
+			cal.add(Calendar.DATE, YEARSAGO);   
+			return cal.getTime();
+		}
+		return baseDate;
 	}
 
 	public String getComponentSet() {
@@ -122,4 +157,37 @@ public class CourseComponentImpl implements CourseComponent {
 		return dao.isBookable();
 	}
 
+	public String getApplyTo() {
+		return dao.getApplyTo();
+	}
+
+	public String getMemberApplyTo() {
+		return dao.getMemberApplyTo();
+	}
+	
+	public String getAttendanceMode() {
+		return dao.getAttendanceMode();
+	}
+	
+	public String getAttendanceModeText() {
+		return dao.getAttendanceModeText();
+	}
+	
+	public String getAttendancePattern() {
+		return dao.getAttendancePattern();
+	}
+	
+	public String getAttendancePatternText() {
+		return dao.getAttendancePatternText();
+	}
+	
+	public List<CourseComponentSession> getComponentSessions() {
+		if (componentSessions == null) {
+			componentSessions = new ArrayList<CourseComponentSession>();
+			for(CourseComponentSessionDAO session:  dao.getComponentSessions()) {
+				componentSessions.add(new CourseComponentSessionImpl(session));
+			}
+		}
+		return componentSessions;
+	}
 }

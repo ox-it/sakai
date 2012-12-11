@@ -1,9 +1,18 @@
            <!-- Show details of the course -->
-		   <div class="messages"></div>
-            <div id="summary" class="">
-                <h3>${title}</h3>
-                {if !hide}
+         <div class="courseDetail">
+		    <div class="messages"></div>
+            <div id="summary">
+                <h1>${title}</h1>
+                {if hide}
+                <div class="noAuth">
+					If you are a member of the University of Oxford, please
+					<a class="login" href="dologin.jsp" target="_top">login to WebLearn</a>
+					to see more information.
+					</div>
+                {else}
                 <table width="100%">
+                	
+                	{if presenters.length > 0}
                 	<tr>
                         <th>
                             Lecturer(s)
@@ -11,13 +20,16 @@
                         <td>
                             {for presenter in presenters}
 								{if presenter.email}
-									<a href="mailto:${presenter.email}">${presenter.name}</a>
+									<a href="mailto:${presenter.email}">${presenter.name}</a>{if presenter_index != presenters.length-1},{/if}
 								{else}
-									${presenter.name}
+									${presenter.name}{if presenter_index != presenters.length-1},{/if}
 								{/if}
 							{/for}
                         </td>
                     </tr>
+                    {/if}
+                    
+                    {if administrators.length > 0}
                     <tr>
                         <th>
                             Module Administrator
@@ -25,13 +37,15 @@
                         <td>
                         	{for administrator in administrators}
                         		{if administrator.email}
-									<a href="mailto:${administrator.email}">${administrator.name}</a>
+									<a href="mailto:${administrator.email}">${administrator.name}</a>{if administrator_index != administrators.length-1},{/if}
 								{else}
-									${administrator.name}
+									${administrator.name}{if administrator_index != administrators.length-1},{/if}
 								{/if}
 							{/for}
                         </td>
                     </tr>
+                    {/if}
+                    
                     <tr>
                         <th>
                             Department
@@ -44,6 +58,19 @@
 							{/if}
                         </td>
                     </tr>
+                    
+                    {if regulations}
+                    <tr>
+                        <th>
+                            Eligibility
+                        </th>
+                        <td>
+							${regulations}	
+                        </td>
+                    </tr>
+                    {/if}
+                    
+                    {if source == "Daisy"}
                     <tr>
                         <th>
                             Signup Available
@@ -60,6 +87,7 @@
 							{/if}		
                         </td>
                     </tr>
+                    {/if}
                     
                     {if categories_rdf.length > 0}
                     	<tr>
@@ -105,27 +133,21 @@
             </div>
             
 			<div id="description">
-            	<h4>Description</h4>
+            	<h2>Description</h2>
 				${description}
             </div>
 			<div id="parts">
-                <h4>Module Parts</h4>
+				<h2>Booking Information</h2>
 				<span class="error" style="display:none"></span>
                 <form id="signup" action="#">
                 	{var anyOpenParts = false}
                     <table width="100%">
                     	{for part in parts}
-                    		{if part.subject}
-								<tr>
-                     	       		<th colspan="3">
-                     	       			${part.subject}
-                            		</th>
-                        		</tr>
-                       		{/if}
+                    		
                         	{if !hide}
                         		<tr>
                             		<td colspan="3">
-                                		&nbsp;&nbsp;${part.type.name}
+                                		<h3>&nbsp;&nbsp;${part.type.name}</h3>
                             		</td>
                         		</tr>
 								{var oneOpen = false}
@@ -138,7 +160,17 @@
                                 			{else}
                                 				For
                                 			{/if}
-                                			${option.sessions} sessions starts in ${option.when}, 
+                                			
+                                			{if option.sessionCount}
+                                				${option.sessionCount} sessions 
+                                			{else}
+                                				1 session
+                                			{/if}
+                                			
+                                			{if option.when}
+                                				starts in ${option.when}, 
+                                			{/if}
+                                			
 											{if option.presenter}
 												{if option.presenter.email}
 													<a href="mailto:${option.presenter.email}">
@@ -150,18 +182,29 @@
 											{/if}
 											</label>
                                 			<br/>
+                                			
                                 			<span class="location">
                                 			{if option.starts}
                                 				teaching starts on ${new Date(option.starts).toDateString()}
+                                			{else}
+                                				{if option.startsText} 
+                                					teaching starts on ${option.startsText}
+                                				{/if}
                                 			{/if}
+                                			
                                 			{if option.ends} 
                                 				and ends on ${new Date(option.ends).toDateString()}
+                                			{else}
+                                				{if option.endsText} 
+                                					and ends on ${option.endsText}
+                                				{/if}
                                 			{/if}
+                                			
                                 			{if option.location}
                                 				{if option.starts || option.ends}
                                 					<br/>
                                 				{/if}
-                                				${option.location}
+                                				Venue: ${option.location}
                                 			{/if}
                                 			</span>
                             			</td>
@@ -184,29 +227,31 @@
 												Signup: ${option.signup.status}
 											{else}
 												{if signup}
-                                					{if part.options.length == 1}
-														<input type="checkbox" 
-															name="${part.type.id}" 
-															id="option-${option.id}" 
-															value="${option.id}" 
-															{if !option.open}
-																disabled="true"
-															{else}
-																{var oneOpen = true}
-																{if parts.length == 1}
-																	checked="yes"
-																{/if}
-															{/if}/>
-													{else}
-                										<input type="radio" 
-                											name="${part.type.id}" 
-                											id="option-${option.id}" 
-                											value="${option.id}"
-															{if !option.open }
-																disabled="true"
-															{else}
-																{var oneOpen = true}
-															{/if}/>
+													{if option.bookable}
+                                						{if part.options.length == 1}
+															<input type="checkbox" 
+																name="${part.type.id}" 
+																id="option-${option.id}" 
+																value="${option.id}" 
+																{if !option.open}
+																	disabled="true"
+																{else}
+																	{var oneOpen = true}
+																	{if parts.length == 1}
+																		checked="yes"
+																	{/if}
+																{/if}/>
+														{else}
+                											<input type="radio" 
+                												name="${part.type.id}" 
+                												id="option-${option.id}" 
+                												value="${option.id}"
+																{if !option.open }
+																	disabled="true"
+																{else}
+																	{var oneOpen = true}
+																{/if}/>
+														{/if}
 													{/if}
 								 				{/if}
 											{/if}	
@@ -239,15 +284,29 @@
 								{/if}/>
 							{/if}
 						{else}
-							<input type="submit" value="Not Bookable">
+							{if source == "Daisy"}
+								<input type="submit" value="Not Bookable">
+							{else}
+								{if defined('memberApplyTo')}
+									<p>Apply to:<a href="${memberApplyTo}" target="_blank">${memberApplyTo}</a></p>
+								{else}
+									{if defined('applyTo')}
+										<p>Apply to: <a href="${applyTo}" target="_blank">${applyTo}</a></p>
+									{/if}
+								{/if}
+							{/if}
 						{/if}
 						
 					{else}
-						<p>To see more details you must login.<br />
-						   Non Oxford users cannot be given a username.</p>
 					
+						<h3>University Members</h3>
+						<div class="noAuth">
+							<p><a class="login" href="dologin.jsp" target="_top">Login for booking details</a></p>
+						</div>
+						<h3>Non-University Members</h3>
+						<p>Non Oxford users cannot be given a username.</p>
 						{if defined('contactEmail')}
-							<a href="mailto:${contactEmail}">Make an Enquiry</a>
+							<p><a href="mailto:${contactEmail}">Make an Enquiry</a></p>
 						{/if}
 					{/if}
 					
@@ -259,4 +318,5 @@
 					${url}
             	</div>
             {/if}
+        </div>
     

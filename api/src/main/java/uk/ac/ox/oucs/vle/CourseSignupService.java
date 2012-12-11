@@ -147,17 +147,19 @@ public interface CourseSignupService {
 	 * Get upcoming course groups by start date
 	 * @return
 	 */
-	public List<CourseGroup> getCourseCalendar(String providerId);
+	public List<CourseGroup> getCourseCalendar(boolean external, String providerId);
 	
 	/**
 	 * Get upcoming course groups with no start date
 	 * @return
 	 */
-	public List<CourseGroup> getCourseNoDates(String providerId);
+	public List<CourseGroup> getCourseNoDates(boolean external, String providerId);
 	
 	public Map<String, String> getDepartments();
 	
 	public Department findPracDepartment(String primaryOrgUnit);
+	
+	public boolean isDepartmentCode(String code);
 	
 	/**
 	 * This is what the service should use when determining the current time.
