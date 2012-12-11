@@ -56,7 +56,7 @@ table th {
 
 .course-group { /* Used for formatting the summary of the signup. */
     font-weight: bold;
-    line-height: 180%;
+    line-height: 140%;
 }
 
 .course-component {
