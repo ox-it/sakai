@@ -126,6 +126,7 @@ public class OxcapPopulatorWrapper implements PopulatorWrapper {
             	writer.write("Deleting component ["+component.getComponentId()+" "+component.getTitle()+"]"+"\n");
             }
             
+            writer.flush();
             writer.footer();
 			proxy.writeLog(writer.getIdName(), writer.getDisplayName(), out.toByteArray());
 			
@@ -159,7 +160,6 @@ public class OxcapPopulatorWrapper implements PopulatorWrapper {
 		} finally {
 			if (null != writer) {
 				try {
-					writer.flush();
 					writer.close();
 					
 				} catch (IOException e) {
