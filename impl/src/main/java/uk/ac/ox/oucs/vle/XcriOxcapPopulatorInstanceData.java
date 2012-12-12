@@ -76,9 +76,11 @@ public class XcriOxcapPopulatorInstanceData {
 			logMs("CourseComponents (seen: "+ componentSeen+ " created: "+ componentCreated+ ", updated: "+ componentUpdated+")");
 
 			eWriter.footer();
-			iWriter.footer();
-			
+			eWriter.flush();
 			proxy.writeLog(eWriter.getIdName(), eWriter.getDisplayName(), eOut.toByteArray());
+			
+			iWriter.footer();
+			iWriter.flush();
 			proxy.writeLog(iWriter.getIdName(), iWriter.getDisplayName(), iOut.toByteArray());
 		
 		} catch (Exception e) {
@@ -88,7 +90,6 @@ public class XcriOxcapPopulatorInstanceData {
 			
 			if (null != eWriter) {
 				try {
-					eWriter.flush();
 					eWriter.close();
 					
 				} catch (IOException e) {
@@ -98,7 +99,6 @@ public class XcriOxcapPopulatorInstanceData {
 		
 			if (null != iWriter) {
 				try {
-					iWriter.flush();
 					iWriter.close();
 					
 				} catch (IOException e) {

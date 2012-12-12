@@ -68,6 +68,7 @@ public class DaisyPopulatorWrapper implements PopulatorWrapper {
             }
             
             writer.footer();
+            writer.flush();
 			proxy.writeLog(writer.getIdName(), writer.getDisplayName(), out.toByteArray());
 
 		} catch (PopulatorException e) {
@@ -100,7 +101,6 @@ public class DaisyPopulatorWrapper implements PopulatorWrapper {
 		} finally {
 			if (null != writer) {
 				try {
-					writer.flush();
 					writer.close();
 					
 				} catch (IOException e) {
