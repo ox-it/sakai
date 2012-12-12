@@ -62,7 +62,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		            "bLengthChange": false, 
 		            "iDisplayLength": 50, 
 		            "sDom": 'lrt<"F"ip>',
-		            "aaSorting": [[0, "asc"]],
+		            "aaSorting": [[0, "asc"],[2, "asc"],[1, "asc"]],
 		            "aoColumns": [{
 		                "sTitle": "Date",
 		                "fnRender": function(aObj){
