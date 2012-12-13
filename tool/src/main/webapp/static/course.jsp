@@ -98,7 +98,7 @@ pageContext.setAttribute("openCourse", (String)request.getAttribute("openCourse"
 							url: "/course-signup/rest/course/" + id,
 							data: {
 								//range: (old) ? "PREVIOUS" : "UPCOMING"
-								range: old
+								range: "PREVIOUS"
 							},
 							dataType: "json",
 							cache: false,
@@ -297,7 +297,7 @@ pageContext.setAttribute("openCourse", (String)request.getAttribute("openCourse"
 								return false;
 							}
 						});
-						success && success(courseData);
+						//success && success(courseData);
 					};
 				
 					loadCourse();
