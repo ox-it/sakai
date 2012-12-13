@@ -188,9 +188,10 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				Query query = session.createSQLQuery(
-						"select * from course_group " +
-						"left join course_group_component cc on cc.course_group = course_group.id " +
-						"where cc.component = :componentId").addEntity(CourseGroupDAO.class);
+						"select * from course_component " +
+						"left join course_group_component on course_group_component.courseComponentMuid = course_component.muid " +
+						"left join course_group on course_group_component.courseGroupMuid = course_group.muid " +
+						"where course_component.presentationId = :componentId").addEntity(CourseGroupDAO.class);
 				query.setString("componentId", componentId);
 				return query.list();
 			}
