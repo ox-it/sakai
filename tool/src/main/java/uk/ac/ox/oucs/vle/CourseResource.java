@@ -58,7 +58,7 @@ public class CourseResource {
 		objectMapper.configure(SerializationConfig.Feature.USE_STATIC_TYPING, true);
 		objectMapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 	}
-
+	
 	@Path("/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -73,7 +73,8 @@ public class CourseResource {
 	
 	@Path("/{id}")
 	@GET
-	@Produces(MediaType.APPLICATION_XHTML_XML)
+	// Commented because of a problem with MSIE Accept Headers (See WL-2563)
+	// @Produces(MediaType.APPLICATION_XHTML_XML)
 	public String getCoursePage(
 			@PathParam("id") final String courseId, 
 			@QueryParam("range") final Range range,
