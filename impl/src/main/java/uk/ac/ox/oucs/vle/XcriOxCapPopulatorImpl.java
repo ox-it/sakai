@@ -1111,9 +1111,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 	
 	/**
-<<<<<<< HEAD
-	 * convert collection of userCodes to userIds
-=======
 	 * @throws IOException 
 	 * 
 	 */
@@ -1126,13 +1123,12 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	
 	/**
 	 * @throws IOException 
->>>>>>> WL-2354
 	 * 
 	 */
 	private void logMs(XcriOxcapPopulatorInstanceData data, String message) throws IOException {
 		log.warn(message);
 		if (null != data) {
-			data.logMe(message);
+			data.logMs(message);
 		}
 	}
 

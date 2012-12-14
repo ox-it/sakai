@@ -161,7 +161,7 @@ var Signup = function(){
 							// For all the components check...
 							var signup = this; // So we can get at it.
 							$.each(this.components, function(){
-								if (component.id == this.id) {
+								if (component.id == this.presentationId) {
 									component.signup = signup;
 								}
 							});
