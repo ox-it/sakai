@@ -181,9 +181,9 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 											 component.presenter,
 											 component.administrator,
 											 component.closes, //8
-											 component.presentationId,
-											 component.presentationId,
-											 component.presentationId
+											 component.id,
+											 component.id,
+											 component.id
 											]);
 										}
 										fnCallback(tableData);

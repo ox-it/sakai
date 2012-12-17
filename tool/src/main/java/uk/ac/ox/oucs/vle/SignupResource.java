@@ -606,9 +606,11 @@ public class SignupResource {
 
 	private String getFileName(CourseComponent component) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(component.getSubject().replaceAll(" ", "_"));
-		sb.append("_");
-		sb.append(component.getWhen().replaceAll(" ", "_"));
+		sb.append(component.getPresentationId().replaceAll(" ", "_"));
+		if (null != component.getWhen()) {
+			sb.append("_");
+			sb.append(component.getWhen().replaceAll(" ", "_"));
+		}
 		return sb.toString();
 	}
 
