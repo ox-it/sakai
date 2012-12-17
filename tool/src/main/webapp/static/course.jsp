@@ -97,8 +97,7 @@ pageContext.setAttribute("openCourse", (String)request.getAttribute("openCourse"
 						$.ajax({
 							url: "/course-signup/rest/course/" + id,
 							data: {
-								//range: (old) ? "PREVIOUS" : "UPCOMING"
-								range: "PREVIOUS"
+								range: (old) ? "PREVIOUS" : "UPCOMING"
 							},
 							dataType: "json",
 							cache: false,
@@ -297,7 +296,7 @@ pageContext.setAttribute("openCourse", (String)request.getAttribute("openCourse"
 								return false;
 							}
 						});
-						//success && success(courseData);
+						
 					};
 				
 					loadCourse();

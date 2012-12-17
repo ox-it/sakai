@@ -74,7 +74,7 @@ public class CourseResource {
 	@Path("/{id}")
 	@GET
 	// Commented because of a problem with MSIE Accept Headers (See WL-2563)
-	// @Produces(MediaType.APPLICATION_XHTML_XML)
+	// @Produces({MediaType.APPLICATION_XHTML_XML, MediaType.TEXT_HTML})
 	public String getCoursePage(
 			@PathParam("id") final String courseId, 
 			@QueryParam("range") final Range range,
