@@ -20,7 +20,7 @@ pageContext.setAttribute("openCourse", (String)request.getAttribute("openCourse"
 	<!-- Make the page render as IE8 for wrapping in jstree -->
 	<meta http-equiv="X-UA-Compatible" content="IE=8" >
 	
-	<title>Browse by Department</title>
+	<title>Show Course Details</title>
 
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/<%= ServerConfigurationService.getString("skin.default", "default") %>/tool.css" type="text/css" rel="stylesheet" media="all" />
@@ -97,8 +97,7 @@ pageContext.setAttribute("openCourse", (String)request.getAttribute("openCourse"
 						$.ajax({
 							url: "/course-signup/rest/course/" + id,
 							data: {
-								//range: (old) ? "PREVIOUS" : "UPCOMING"
-								range: old
+								range: (old) ? "PREVIOUS" : "UPCOMING"
 							},
 							dataType: "json",
 							cache: false,
@@ -296,7 +295,7 @@ pageContext.setAttribute("openCourse", (String)request.getAttribute("openCourse"
 								return false;
 							}
 						});
-						success && success(courseData);
+						
 					};
 				
 					loadCourse();
