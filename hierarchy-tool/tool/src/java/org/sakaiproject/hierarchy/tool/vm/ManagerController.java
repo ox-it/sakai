@@ -5,17 +5,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.hierarchy.api.model.PortalNodeRedirect;
 import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
-import org.sakaiproject.hierarchy.api.PortalHierarchyService;
+import org.sakaiproject.hierarchy.tool.vm.AddRedirectController.RedirectCommand;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitemanage.api.SiteHelper;
@@ -23,11 +25,16 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractController;
 import org.springframework.web.servlet.view.RedirectView;
 
-public class ManagerController extends AbstractController
+@Controller
+@RequestMapping("/*")
+public class ManagerController
 {
 
 	private static final Log log = LogFactory.getLog(ManagerController.class);
@@ -61,31 +68,43 @@ public class ManagerController extends AbstractController
 	private PortalHierarchyService phs;
 	private SiteService siteService;
 	private SessionManager sessionManager;
+	private ServerConfigurationService serverConfigurationService;
 
 	public ManagerController()
 	{
 		super();
 	}
 	
+	@Autowired
 	public void setPortalHierarchyService(PortalHierarchyService phs)
 	{
 		this.phs = phs;
 	}
 	
+	@Autowired
 	public void setSiteService(SiteService siteService)
 	{
 		this.siteService = siteService;
 	}
 	
+	@Autowired
 	public void setSessionManager(SessionManager sessionManager)
 	{
 		this.sessionManager = sessionManager;
 	}
 
+	@Autowired
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService)
+	{
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	@PostConstruct
 	public void init()
 	{
 	}
 
+	@RequestMapping
 	protected ModelAndView handleRequestInternal(HttpServletRequest request,
 			HttpServletResponse response) throws Exception
 			{
@@ -184,6 +203,8 @@ public class ManagerController extends AbstractController
 		}
 		
 		Map<String, Object> showModel = new HashMap<String, Object>();
+		// This is so that we have one to show.
+		showModel.put("command", new RedirectCommand());
 		populateModel(showModel, request);
 		populateSite(showModel, node);
 		showModel.put("topRefresh", topRefresh);
@@ -277,7 +298,7 @@ public class ManagerController extends AbstractController
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("nodePath", node.getPath());
 		map.put("nodeId", node.getId());
-		map.put("nodeUrl",ServerConfigurationService.getPortalUrl()+"/hierarchy"+ node.getPath());
+		map.put("nodeUrl",serverConfigurationService.getPortalUrl()+"/hierarchy"+ node.getPath());
 		return map;
 	}
 
@@ -290,7 +311,7 @@ public class ManagerController extends AbstractController
 				.getAttribute("sakai.html.body.onload"));
 
 		model.put("toolTitle", "Hierarchy Manager");
-		String editor = ServerConfigurationService.getString("wysiwyg.editor");
+		String editor = serverConfigurationService.getString("wysiwyg.editor");
 		model.put("sakai_editor", editor);
 		model.put("sakai_library_path", "/library/");
 

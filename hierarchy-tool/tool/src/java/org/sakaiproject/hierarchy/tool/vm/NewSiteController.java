@@ -100,6 +100,10 @@ public class NewSiteController extends SimpleFormController
 		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
 		PortalNode currentNode = hs.getCurrentPortalNode();
 		String sitePath = currentNode.getPath();
+		// The root of the hierarchy is just "/" all other nodes don't end with a /
+		if (sitePath.endsWith("/")) {
+			sitePath = sitePath.substring(0, sitePath.length()-1);
+		}
 		referenceData.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ sitePath);
 		return referenceData;
 	}

@@ -58,11 +58,30 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>2.5.6.SEC03</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>2.5.6.SEC03</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<!-- Stuck at 4.4 https://jira.springsource.org/browse/SPR-5145 -->
+			<version>4.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.9.0</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 	<profiles>
 		<profile>
@@ -116,7 +135,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<dependencies>
-				<!--  Sakai services -->
+				<!-- Sakai services -->
 				<dependency>
 					<groupId>org.sakaiproject.kernel</groupId>
 					<artifactId>sakai-kernel-api</artifactId>
@@ -132,7 +151,7 @@
 			</dependencies>
 		</profile>
 	</profiles>
-	
+
 	<build>
 		<resources>
 			<resource>
@@ -142,7 +161,7 @@
 					<include>**/*.vm</include>
 				</includes>
 			</resource>
-			
+
 			<resource>
 				<directory>${basedir}/src/bundle</directory>
 				<includes>
@@ -151,5 +170,10 @@
 				</includes>
 			</resource>
 		</resources>
+		<testResources>
+			<testResource>
+				<directory>/Users/buckett/Documents/oxford/2.8.x/checkout/extras/tetraelf-hierarchy/hierarchy-tool/tool/src/test-resources</directory>
+			</testResource>
+		</testResources>
 	</build>
 </project>

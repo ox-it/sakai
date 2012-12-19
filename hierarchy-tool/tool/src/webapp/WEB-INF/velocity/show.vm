@@ -65,10 +65,11 @@
 #end
 <h4>#springMessage("show.new.redirect")</h4>
 <form method="POST" action="${rootUrl}">
-	<label for="path">#springMessage("show.path")</label>
-	<input type="text" name="path" id="path"><br>
-	<label for="title">#springMessage("show.title")</label>
-	<input type="text" name="title" id="title"><br>
+	<label for="name">#springMessage("show.name")</label>
+	#springFormInput("command.name" "")
+	#springShowErrors("" "")
+	#springFormInput("command.title" "maxlength='${titleMaxLength}'")
+	#springShowErrors("" "")
 	<label for="url">#springMessage("show.url")</label>
 	<input type="text" name="url" id="url"><br>
 	<label for="appendPath">#springMessage("show.appendPath")</label>

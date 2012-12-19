@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+        
+    <bean id="org.sakaiproject.site.api.SiteService"
+        class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg>
+            <value type="java.lang.Class">org.sakaiproject.site.api.SiteService</value>
+        </constructor-arg>
+    </bean>
+
+    <bean id="org.sakaiproject.hierarchy.api.PortalHierarchyService"
+        class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg>
+            <value type="java.lang.Class">org.sakaiproject.hierarchy.api.PortalHierarchyService</value>
+        </constructor-arg>
+    </bean>
+
+    <bean id="org.sakaiproject.tool.api.SessionManager"
+        class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg>
+            <value type="java.lang.Class">org.sakaiproject.tool.api.SessionManager</value>
+        </constructor-arg>
+    </bean>
+
+    <bean id="org.sakaiproject.component.api.ServerConfigurationService"
+        class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg>
+            <value type="java.lang.Class">org.sakaiproject.component.api.ServerConfigurationService</value>
+        </constructor-arg>
+    </bean>
+    
+
+    <bean id="org.sakaiproject.authz.api.SecurityService"
+        class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg>
+            <value type="java.lang.Class">org.sakaiproject.authz.api.SecurityService</value>
+        </constructor-arg>
+    </bean>
+</beans>

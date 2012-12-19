@@ -12,13 +12,24 @@
 				<prop key="/sites*">siteBrowserHelper</prop>
 				<prop key="/create*">siteCreationHelper</prop>
 				<prop key="/delete*">deleteSiteController</prop>
-				<prop key="/*">managerController</prop>
 			</props>
 		</property>
 		<property name="urlPathHelper">
 			<bean class="org.sakaiproject.hierarchy.tool.vm.PathInfoHelper"></bean>
 		</property>
 	</bean>
+
+    <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+    	<property name="order" value="1"/>
+    	
+    	<!-- This makes use do the lookup based on the path info -->
+		<property name="urlPathHelper">
+			<bean class="org.sakaiproject.hierarchy.tool.vm.PathInfoHelper"></bean>
+		</property>
+		<!-- This is because by default the handler just looks in the current context, as we share beans in the parent context we need to
+		     look there as well. -->
+		<property name="detectHandlersInAncestorContexts" value="true"/>
+    </bean>
 
 
 
