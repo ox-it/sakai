@@ -181,6 +181,10 @@ public class CourseComponentImpl implements CourseComponent {
 		return dao.getAttendancePatternText();
 	}
 	
+	public String getSource() {
+		return dao.getSource();
+	}
+	
 	public List<CourseComponentSession> getComponentSessions() {
 		if (componentSessions == null) {
 			componentSessions = new ArrayList<CourseComponentSession>();

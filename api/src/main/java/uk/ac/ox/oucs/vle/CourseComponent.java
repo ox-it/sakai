@@ -60,6 +60,8 @@ public interface CourseComponent {
 	
 	public String getAttendancePatternText();
 	
+	public String getSource();
+	
 	public List<CourseComponentSession> getComponentSessions();
 
 	/**
