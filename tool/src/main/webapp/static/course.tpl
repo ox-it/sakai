@@ -215,10 +215,18 @@
                                 			{/if}
                                 			
                                 			{if option.closes} 
-                                				and closes on ${new Date(option.closes).toDateString()}
+                                				{if option.opens || option.opensText}
+                                					and closes on ${new Date(option.closes).toDateString()}
+                                				{else}
+                                					signup closes on ${new Date(option.closes).toDateString()}
+                                				{/if}
                                 			{else}
                                 				{if option.closesText} 
-                                					and ends ${option.closesText}
+                                					{if option.opens || option.opensText}
+                                						and ends ${option.closesText}
+                                					{else}
+                                						signup closes ${option.closesText}
+                                					{/if}
                                 				{/if}
                                 			{/if}
                                 			
