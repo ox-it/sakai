@@ -711,8 +711,8 @@ var Signup = function(){
 				var newCourse = false;
 				$.each(components, function() {
 					var component = this;
+					var isOpen = component.opens < now && component.closes > now;
 					if (component.opens) {
-						var isOpen = component.opens < now && component.closes > now;
 						if (component.opens > now && component.opens < nextOpen) {
 							nextOpen = component.opens;
 						}

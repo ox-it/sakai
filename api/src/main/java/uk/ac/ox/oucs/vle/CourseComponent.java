@@ -38,6 +38,13 @@ public interface CourseComponent {
 	
 	public Date getCreated();
 	
+	/**
+	 * Since Oxcap, we can not rely on there being data in any column,
+	 * the import sets a baseDate (if possible) as to the best date to 
+	 * use for signups availability.  
+	 * This is usually either closes or starts.
+	 * @return
+	 */
 	public Date getBaseDate();
 	
 	public String getSlot();
