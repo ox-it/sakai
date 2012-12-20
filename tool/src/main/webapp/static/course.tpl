@@ -188,7 +188,7 @@
                                 				teaching starts on ${new Date(option.starts).toDateString()}
                                 			{else}
                                 				{if option.startsText} 
-                                					teaching starts on ${option.startsText}
+                                					teaching starts ${option.startsText}
                                 				{/if}
                                 			{/if}
                                 			
@@ -196,12 +196,34 @@
                                 				and ends on ${new Date(option.ends).toDateString()}
                                 			{else}
                                 				{if option.endsText} 
-                                					and ends on ${option.endsText}
+                                					and ends ${option.endsText}
+                                				{/if}
+                                			{/if}
+                                			
+                                			{if option.opens || option.closes}
+                                			    {if option.starts || option.ends}
+                                					<br/>
+                                				{/if}
+                                			{/if}
+                                			
+                                			{if option.opens}
+                                				signup opens on ${new Date(option.opens).toDateString()}
+                                			{else}
+                                				{if option.opensText} 
+                                					signup opens ${option.opensText}
+                                				{/if}
+                                			{/if}
+                                			
+                                			{if option.closes} 
+                                				and closes on ${new Date(option.closes).toDateString()}
+                                			{else}
+                                				{if option.closesText} 
+                                					and ends ${option.closesText}
                                 				{/if}
                                 			{/if}
                                 			
                                 			{if option.location}
-                                				{if option.starts || option.ends}
+                                				{if option.opens || option.closes}
                                 					<br/>
                                 				{/if}
                                 				Venue: ${option.location}
