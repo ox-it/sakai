@@ -24,6 +24,9 @@
           <groupId>org.mortbay.jetty</groupId>
           <artifactId>maven-jetty-plugin</artifactId>
           <version>6.1.15.rc4</version>
+          <configuration>
+            <webAppSourceDirectory>${basedir}/src/webapp</webAppSourceDirectory>
+          </configuration>
        </plugin>
     </plugins>
     <resources>
