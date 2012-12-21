@@ -78,6 +78,10 @@ public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 		setFilters(filters);
 	}
 	
+	public boolean hasQuery() {
+		return this.query != null;
+	}
+	
 	public void setQuery(String query) {
 		this.query = query;
 	}

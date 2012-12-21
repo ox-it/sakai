@@ -143,6 +143,26 @@ public class AdvancedSearchPage extends SearchPage {
 		yearChoice.setLabel(new ResourceModel("label.year"));
 	
 		final SolrProvider provider = new SolrProvider(solr);
+		// This is a little crazy, I can't seem to 
+		String examCodeTerm = pp.getString("exam");
+		String yearTerm = pp.getString("year");
+		if (examCodeTerm != null && examCodeTerm.length() > 0) {
+			Exam foundExam = latestExams.get(examCodeTerm);
+			String query = "exam_code:"+ ClientUtils.escapeQueryChars(examCodeTerm);
+			if (exam == null) {
+				exam = foundExam;
+			}
+			if (yearTerm != null && yearTerm.length() > 0) {
+				AcademicYear yearFound = lookupAcademicYear(yearTerm);
+				if (yearFound != null) {
+					query = query + " academic_year:"+ ClientUtils.escapeQueryChars(yearFound.toString());
+					if (year == null) {
+						year = yearFound;
+					}
+				}
+			}
+			provider.setQuery(query);
+		}
 		final SolrExamResults results = new SolrExamResults("results", AdvancedSearchPage.class, provider, pp);
 		results.setVisible(false);
 		
@@ -175,25 +195,7 @@ public class AdvancedSearchPage extends SearchPage {
 			}
 		});
 
-		// This is a little crazy, I can't seem to 
-		String examCodeTerm = pp.getString("exam");
-		String yearTerm = pp.getString("year");
-		if (examCodeTerm != null && examCodeTerm.length() > 0) {
-			Exam foundExam = latestExams.get(examCodeTerm);
-			String query = "exam_code:"+ ClientUtils.escapeQueryChars(examCodeTerm);
-			if (exam == null) {
-				exam = foundExam;
-			}
-			if (yearTerm != null && yearTerm.length() > 0) {
-				AcademicYear yearFound = lookupAcademicYear(yearTerm);
-				if (yearFound != null) {
-					query = query + " academic_year:"+ ClientUtils.escapeQueryChars(yearFound.toString());
-					if (year == null) {
-						year = yearFound;
-					}
-				}
-			}
-			provider.setQuery(query);
+		if (provider.hasQuery()) {
 			results.setVisible(true);
 		}
 		add(results);
