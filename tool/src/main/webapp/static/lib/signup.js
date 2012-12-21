@@ -704,6 +704,7 @@ var Signup = function(){
 				var now = $.serverDate();
 				var nextOpen = Number.MAX_VALUE;
 				var willClose = 0;
+				var baseDate = 0;
 				var isOneOpen = false;
 				var isOneBookable = false;
 				var areSomePlaces = false;
@@ -711,11 +712,16 @@ var Signup = function(){
 				$.each(components, function() {
 					var component = this;
 					var isOpen = component.opens < now && component.closes > now;
-					if (component.opens > now && component.opens < nextOpen) {
-						nextOpen = component.opens;
+					if (component.opens) {
+						if (component.opens > now && component.opens < nextOpen) {
+							nextOpen = component.opens;
+						}
 					}
-					if (component.opens < now && component.closes > willClose) {
+					if (component.closes && component.closes > willClose) {
 						willClose = component.closes;
+					}
+					if (component.baseDate > baseDate) {
+						baseDate = component.baseDate;
 					}
 					if (isOpen) {
 						isOneOpen = true;
@@ -732,17 +738,15 @@ var Signup = function(){
 						newCourse = true;
 					}
 				});
+				
 				var message = "";
 				if (!isOneBookable) {
-					if (now > willClose) {
-						summary.state = "No"; // (Previous)";
-						summary.previous[0] = "Old Courses";
-					}
-					else {
-						summary.state = "No"; // (Not Bookable)";
-					}
-					return summary;
+					summary.state = "No"; // (Not Bookable)";
 				}
+				if (now > baseDate) {
+					summary.previous[0] = "Old Courses";
+				}
+				
 				if (isOneOpen) {
 					if (areSomePlaces) {
 						var remaining = willClose - now;
@@ -755,11 +759,7 @@ var Signup = function(){
 					}
 				}
 				else {
-					if (nextOpen == Number.MAX_VALUE) {
-						summary.previous[0] = "Old Courses";
-						summary.state = "No"; // (Never Opens)";
-					}
-					else {
+					if (nextOpen != Number.MAX_VALUE) {
 						var until = nextOpen - now;
 						summary.message = "open in " + Signup.util.formatDuration(until);
 						summary.state = "Later";

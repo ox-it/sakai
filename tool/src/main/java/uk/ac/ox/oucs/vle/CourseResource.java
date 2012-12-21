@@ -471,12 +471,16 @@ public class CourseResource {
 					if (null != component.getCloses()) {
 						gen.writeObjectField("closes", component.getCloses().getTime());
 					}
+					if (null != component.getBaseDate()) {
+						gen.writeObjectField("baseDate", component.getBaseDate().getTime());
+					}
 					gen.writeObjectField("title", component.getTitle());
 					gen.writeObjectField("sessions", component.getSessions());
 					gen.writeObjectField("when", component.getWhen());
 					gen.writeObjectField("bookable", component.getBookable());
 					gen.writeObjectField("places", component.getPlaces());
 					gen.writeObjectField("created", component.getCreated().getTime());
+					gen.writeObjectField("source", component.getSource());
 					gen.writeObjectField("componentSet", component.getComponentSet());
 					if (null != component.getPresenter()) {
 						gen.writeObjectFieldStart("presenter");
@@ -591,6 +595,9 @@ public class CourseResource {
 					gen.writeObjectField("closes", component.getCloses().getTime());
 				}
 				gen.writeObjectField("closesText", component.getClosesText());
+				if (null != component.getBaseDate()) {
+					gen.writeObjectField("baseDate", component.getBaseDate().getTime());
+				}
 				gen.writeObjectField("title", component.getTitle());
 				//gen.writeObjectField("sessions", component.getSessions());
 				gen.writeObjectField("when", component.getWhen());
