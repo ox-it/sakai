@@ -14,7 +14,7 @@ Configuration
 When running inside Sakai two properties need to be configured, these can be put in sakai.properties or local.properties
 
 # The Solr instance into which the documents are posted and which searches are made against.
-solr.server=http://localhost:8080/oxam-solr/
+oxam.solr.server=http://localhost:8080/oxam-solr/
 
 # The Site ID which the OXAM tools are deployed into
 oxam.content.site.id=debc9c83-c890-4336-8c3a-ed742a49d7a6
@@ -34,6 +34,8 @@ This project is structured as a typical Sakai tool, with:
 
 
 The search functionality is provided by a Solr instance. A webapp used for development is included as part of the project, but for deployment into a live setup the solr configuration files are supplied to a seperate solr instance. At the moment the live solr version is 1.4.1 but the development webapp uses a newer version as the old version isn't packaged for maven.
+
+mvn jetty:run -Djetty.port=9999 should allow you to run the solr webapp in a seperate JVM.
 
 Wicket
 -----
