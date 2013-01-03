@@ -208,20 +208,6 @@ var Signup = function(){
 					var output = template.process(data, {throwExceptions: true});
 					dest.html(output);
 					
-					// If there is only one checkbox tick it.
-					//var radioButtons = $("input:radio", dest);
-					//var radioButtonsEnabled = $("input:radio:enabled", dest);
-					
-					//var checkboxButtons = $("input:checkbox", dest);
-					//var checkboxButtonsEnabled = $("input:checkbox:enabled", dest);
-					
-					//if (radioButtonsEnabled.length == 1) {
-					//	radioButtonsEnabled.first().attr("checked", true); // This seems to get lost in IE when doing the popup.
-					//}
-					//else 
-					//	if (radioButtonsEnabled.length == 0 && checkboxButtonsEnabled.length == 0) {
-					//		$(":submit", dest).attr("disabled", "true");
-					//	}
 					$("form", dest).submit(function(){
 						try {
 							var radioSelected = {};
@@ -709,8 +695,17 @@ var Signup = function(){
 				var isOneBookable = false;
 				var areSomePlaces = false;
 				var newCourse = false;
+				var daisyCourse = false;
+				var opensText = "";
+				
 				$.each(components, function() {
 					var component = this;
+					if (component.opensText) {
+						opensText = component.opensText;
+					}
+					if ("Daisy" == component.source) {
+						daisyCourse = true;
+					}
 					var isOpen = component.opens < now && component.closes > now;
 					if (component.opens) {
 						if (component.opens > now && component.opens < nextOpen) {
@@ -739,7 +734,14 @@ var Signup = function(){
 					}
 				});
 				
-				var message = "";
+				summary.message = opensText;
+				if (!daisyCourse) {
+					if (baseDate > 0 && now > baseDate) {
+						summary.previous[0] = "Old Courses";
+					}
+					return summary;
+    			}
+				
 				if (!isOneBookable) {
 					summary.state = "No"; // (Not Bookable)";
 				}
