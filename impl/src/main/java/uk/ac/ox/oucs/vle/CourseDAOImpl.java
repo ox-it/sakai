@@ -428,13 +428,13 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					query = session.createQuery(
 							"select cs from CourseSignupDAO cs " +
 							"inner join fetch cs.components cc " +
-							"where cc.id = :componentId and cs.status in (:statuses)");
+							"where cc.presentationId = :componentId and cs.status in (:statuses)");
 					query.setParameterList("statuses", statuses);
 				} else {
 					query = session.createQuery(
 							"select cs from CourseSignupDAO cs " +
 							"inner join fetch cs.components cc " +
-							"where cc.id = :componentId");
+							"where cc.presentationId = :componentId");
 				}
 				
 				query.setString("componentId", componentId);
