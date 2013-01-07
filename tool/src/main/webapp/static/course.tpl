@@ -304,29 +304,29 @@
                     </table>
                     
                     {if !hide}
-						{if signup}
-                    		{if !anyOpenParts}
-								<input type="submit" value="Join Waiting List" />
-							{else}
-								<input type="submit" value="Signup" 
-								{if !open}
-									disabled="true"
-								{/if}/>
-							{/if}
-						{else}
-							{if source == "Daisy"}
-								<input type="submit" value="Not Bookable">
-							{else}
-								{if defined('memberApplyTo')}
-									<p>Apply to:<a href="${memberApplyTo}" target="_blank">${memberApplyTo}</a></p>
+                    	{if source == "Daisy"}
+                    		{if signup}
+                    			{if !anyOpenParts}
+									<input type="submit" value="Join Waiting List" />
 								{else}
-									{if defined('applyTo')}
-										<p>Apply to: <a href="${applyTo}" target="_blank">${applyTo}</a></p>
-									{/if}
+									<input type="submit" value="Signup" 
+									{if !open}
+										disabled="true"
+									{/if}/>
+								{/if}
+							{else}
+							<input type="submit" value="Not Bookable">
+							{/if}
+                    	{else}
+                    		{if defined('memberApplyTo')}
+								<p>Apply to:<a href="${memberApplyTo}" target="_blank">${memberApplyTo}</a></p>
+							{else}
+								{if defined('applyTo')}
+									<p>Apply to: <a href="${applyTo}" target="_blank">${applyTo}</a></p>
 								{/if}
 							{/if}
-						{/if}
-						
+                    	{/if}
+                    	
 					{else}
 					
 						<h3>University Members</h3>

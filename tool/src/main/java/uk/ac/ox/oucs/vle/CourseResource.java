@@ -461,10 +461,10 @@ public class CourseResource {
 				for (CourseComponent component : courseGroup.getComponents()) {
 					gen.writeStartObject();
 					gen.writeObjectField("id", component.getPresentationId());
+					gen.writeObjectField("title", component.getTitle());
 					gen.writeObjectField("location", component.getLocation());
 					gen.writeObjectField("slot", component.getSlot());
 					gen.writeObjectField("size", component.getSize());
-					gen.writeObjectField("subject", component.getSubject());
 					if (null != component.getOpens()) {
 						gen.writeObjectField("opens", component.getOpens().getTime());
 					}
@@ -474,7 +474,7 @@ public class CourseResource {
 					if (null != component.getBaseDate()) {
 						gen.writeObjectField("baseDate", component.getBaseDate().getTime());
 					}
-					gen.writeObjectField("title", component.getTitle());
+					gen.writeObjectField("opensText", component.getOpensText());
 					gen.writeObjectField("sessions", component.getSessions());
 					gen.writeObjectField("when", component.getWhen());
 					gen.writeObjectField("bookable", component.getBookable());
@@ -482,11 +482,11 @@ public class CourseResource {
 					gen.writeObjectField("created", component.getCreated().getTime());
 					gen.writeObjectField("source", component.getSource());
 					gen.writeObjectField("componentSet", component.getComponentSet());
+					gen.writeObjectField("source", component.getSource());
 					if (null != component.getPresenter()) {
 						gen.writeObjectFieldStart("presenter");
 						gen.writeObjectField("name", component.getPresenter().getName());
 						gen.writeObjectField("email", component.getPresenter().getEmail());
-						//gen.writeObjectField("units", component.getPresenter().getUnits());
 						gen.writeEndObject();
 					}
 					gen.writeEndObject();
