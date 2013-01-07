@@ -226,11 +226,13 @@ var Signup = function(){
 						try {
 							var radioSelected = {};
 							var errorFound = false;
+							var anySelectable = false;
 							var selectedParts = [];
 							var selectedPartIds = [];
 							
 							jQuery("input:checkbox", dest).each(function(){
 								var name = this.name;
+								anySelectable = true;
 								if (this.checked && this.value != "none") {
 									selectedParts[selectedParts.length] = jQuery(this).parents("tr:first").find(".option-details").html();
 									selectedPartIds.push(this.value);
@@ -239,6 +241,7 @@ var Signup = function(){
 							
 							jQuery("input:radio", dest).each(function(){
 								var name = this.name;
+								anySelectable = true;
 								if (!radioSelected[name]) {
 									radioSelected[name] = this.checked;
 									// Save the selected parts so we can populate the popup.
@@ -250,7 +253,11 @@ var Signup = function(){
 							});
 							if (selectedPartIds.length < 1) {
 								errorFound = true;
-								jQuery("#parts .error", dest).show().html("You need to select which components you wish to take.");
+								if (anySelectable) {
+									jQuery("#parts .error", dest).show().html("You need to select which components you wish to take.");
+								} else {
+									jQuery("#parts .error", dest).show().html("There are no components available for you to signup.");
+								}
 							}
 							// TODO This needs processing.
 							if (!errorFound) {
