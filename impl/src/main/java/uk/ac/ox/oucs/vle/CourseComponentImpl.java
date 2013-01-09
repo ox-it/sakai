@@ -129,13 +129,6 @@ public class CourseComponentImpl implements CourseComponent {
 		if(baseDate == null && dao.getBaseDate() != null) {
 			baseDate = new Date(dao.getBaseDate().getTime());
 		}
-		/*
-		if (null == baseDate) {
-			GregorianCalendar cal = new GregorianCalendar();  
-			cal.add(Calendar.DATE, YEARSAGO);   
-			return cal.getTime();
-		}
-		*/
 		return baseDate;
 	}
 
