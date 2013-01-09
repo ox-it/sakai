@@ -413,7 +413,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		switchUser();
 		ContentResourceEdit cre = null;
 		String siteId = getConfigParam("course-signup.site-id", "course-signup");
-		String jsonResourceEId = contentHostingService.getSiteCollection(siteId)+ contentId;
+		String jsonResourceEId = contentHostingService.getSiteCollection(siteId)+"logs/"+ contentId;
 
 		try {
 			// editResource() doesn't throw IdUnusedExcpetion but PermissionException
