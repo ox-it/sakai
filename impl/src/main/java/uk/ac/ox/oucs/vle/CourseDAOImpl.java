@@ -63,10 +63,12 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				criteria.add(Expression.eq("courseId", courseId));
 				switch (range) { 
 					case NOTSTARTED:
-						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("baseDate", now));
+						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(
+								Expression.or(Expression.gt("baseDate", now), Expression.and(Expression.isNull("baseDate"), Expression.isNotNull("startsText"))));
 						break;
 					case UPCOMING:
-						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("baseDate", now));
+						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(
+								Expression.or(Expression.gt("baseDate", now), Expression.and(Expression.isNull("baseDate"), Expression.isNotNull("startsText"))));
 						break;
 					case PREVIOUS:
 						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(Expression.le("baseDate", now));
