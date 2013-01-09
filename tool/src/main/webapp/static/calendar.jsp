@@ -111,10 +111,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		                        	var summaryObj = Signup.signup.summary(this.components, recentDays);
 		                        	var summary = summaryObj["message"]; 
 		                        	var timeframe = summaryObj["previous"]; 
-		            				var newCourse = false;
-		            				if (timeframe.length > 1) {
-		            					newCourse = true;
-		            				}
+		            				var newCourse = timeframe.length > 1;
 		                        	
 		                            $.each(this.components, 
 		                            		function(){
