@@ -707,6 +707,9 @@ var Signup = function(){
 				
 				$.each(components, function() {
 					var component = this;
+					if (component.id == 42) {
+						var stop = 0;
+					}
 					if (component.opensText) {
 						opensText = component.opensText;
 					}
