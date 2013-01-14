@@ -100,16 +100,16 @@ public class DaisyTest extends TestCase {
 		OverrideManager.registerOverride(Presentation.class, new OxcapPresentation());
 		
 		// Careers
-		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap");
+		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap-full");
 		
 		// Continuing Education
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=http%3A//course.data.ox.ac.uk/id/continuing-education/catalog&format=xcricap-full");
 		
 		// ITLP
-		URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/itlp/catalogue&format=xcricap");
+		URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/itlp/catalogue&format=xcricap-full");
 		
 		// Language Centre
-		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/language-centre/catalogue&format=xcricap");
+		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/language-centre/catalogue&format=xcricap-full");
 		
 		// Medical Sciences
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/medsci/catalogue&format=xcricap-full");
