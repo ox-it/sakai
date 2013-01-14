@@ -137,7 +137,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				
 				switch (range) { 
 					case UPCOMING:
-						querySQL.append("cc.baseDate > now() AND ");
+						querySQL.append("((cc.baseDate is null AND cc.startsText is not null) OR cc.baseDate > now()) AND ");
 						break;
 					case PREVIOUS:
 						querySQL.append("cc.baseDate <= now() AND ");
@@ -710,7 +710,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				querySQL.append("select distinct * from course_component cc ");
 				querySQL.append("left join course_group_component cgc on cgc.courseComponentMuid = cc.muid ");
 				querySQL.append("left join course_group cg on cgc.courseGroupMuid = cg.muid ");
-				querySQL.append("where cc.starts is NULL and cc.closes > NOW() and cg.hideGroup = false ");
+				querySQL.append("where cc.starts is NULL and ");
+				querySQL.append("(cc.closes > NOW() or (cc.closes is null and cc.startsText is not null)) and ");
+				querySQL.append("cg.hideGroup = false ");
 				querySQL.append("and cg.visibility != 'PR' ");
 				if (external) {
 					querySQL.append("and cg.visibility != 'RS' ");
