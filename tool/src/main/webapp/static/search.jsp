@@ -117,7 +117,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 						}
 					});
 					var range = "UPCOMING";
-					if (previous == "Old Courses") {
+					if (previous.indexOf("Old Courses") >= 0) {
 						range = "PREVIOUS";
 					}
 					Signup.course.show(courseDetails, id, range, externalUser, function(){
