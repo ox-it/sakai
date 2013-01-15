@@ -12,6 +12,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -54,6 +55,8 @@ public class MappedGroupsResource {
 				return Response.ok(new JSONObject(Collections.singletonMap("id", id))).build();
 			} catch (IllegalArgumentException iae) {
 				return Response.status(Status.BAD_REQUEST).entity(Collections.singletonList(iae.getMessage())).build();
+			} catch (ExternalGroupException e) {
+				throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
 			}
 		}
 	}
