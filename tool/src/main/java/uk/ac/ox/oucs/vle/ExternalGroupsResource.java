@@ -8,11 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -21,7 +17,6 @@ import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Providers;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -78,7 +73,12 @@ public class ExternalGroupsResource {
 		if (!loggedIn()) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-		ExternalGroup group = externalGroupManager.findExternalGroup(id);
+		ExternalGroup group;
+		try {
+			group = externalGroupManager.findExternalGroup(id);
+		} catch (ExternalGroupException e) {
+			throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
+		}
 		if (group != null) {
 			return Response.ok(convertGroupToMap(group)).build();
 		} else {
@@ -144,7 +144,13 @@ public class ExternalGroupsResource {
 		if (!loggedIn()) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
-		ExternalGroup group = externalGroupManager.findExternalGroup(id);
+		ExternalGroup group;
+		try {
+			group = externalGroupManager.findExternalGroup(id);
+		} catch (ExternalGroupException e) {
+			throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
+		}
+
 		if (group == null) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
