@@ -1,11 +1,18 @@
 package uk.ac.ox.oucs.vle.proxy;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -407,11 +414,95 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getString(param, dflt);
 	}
 	
+	/**
+	 * 
+	 * @param contentId
+	 * @param contentDisplayName
+	 * @param bytes
+	 * @throws VirusFoundException
+	 * @throws OverQuotaException
+	 * @throws ServerOverloadException
+	 * @throws PermissionException
+	 * @throws TypeException
+	 * @throws InUseException
+	 */
 	public void writeLog(String contentId, String contentDisplayName, byte[] bytes) 
 			throws VirusFoundException, OverQuotaException, ServerOverloadException, PermissionException, TypeException, InUseException {
 		
 		switchUser();
+		ContentResourceEdit cre = getContentResourceEdit(contentId, contentDisplayName);
+		cre.setContent(bytes);
+		// Don't notify anyone about this resource.
+		contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+	}
+	
+	/**
+	 * 
+	 * @param contentId
+	 * @param contentDisplayName
+	 * @param bytes
+	 * @throws VirusFoundException
+	 * @throws OverQuotaException
+	 * @throws ServerOverloadException
+	 * @throws PermissionException
+	 * @throws TypeException
+	 * @throws InUseException
+	 */
+	public void prependLog(String contentId, String contentDisplayName, byte[] logBytes) 
+			throws VirusFoundException, OverQuotaException, ServerOverloadException, PermissionException, TypeException, InUseException {
+		
+		switchUser();
+		ContentResourceEdit cre = getContentResourceEdit(contentId, contentDisplayName);
+		File tempFile = null; 
+		
+		try {
+			tempFile = File.createTempFile(uniqid(), ".tmp");
+			tempFile.deleteOnExit();
+			
+			OutputStream out = new FileOutputStream(tempFile);
+			out.write(logBytes);
+			
+			InputStream inputStream = cre.streamContent();
+			int read = 0;
+			byte[] bytes = new byte[1024];
+	 
+			while ((read = inputStream.read(bytes)) != -1) {
+				out.write(bytes, 0, read);
+			}
+	 
+			inputStream.close();
+			out.flush();
+			out.close();
+			
+			cre.setContent(new FileInputStream(tempFile));
+			
+		} catch (IOException e) {
+			
+		} finally {
+			
+			if (null != tempFile) {
+				tempFile.delete();
+			}
+		}
+		
+		// Don't notify anyone about this resource.
+		contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+	}
+	
+	/**
+	 * 
+	 * @param contentId
+	 * @param contentDisplayName
+	 * @return
+	 * @throws PermissionException
+	 * @throws TypeException
+	 * @throws InUseException
+	 */
+	private ContentResourceEdit getContentResourceEdit(String contentId, String contentDisplayName) 
+			throws PermissionException, TypeException, InUseException {
+		
 		ContentResourceEdit cre = null;
+		
 		String siteId = getConfigParam("course-signup.site-id", "course-signup");
 		String jsonResourceEId = contentHostingService.getSiteCollection(siteId)+"logs/"+ contentId;
 
@@ -431,10 +522,17 @@ public class SakaiProxyImpl implements SakaiProxy {
 				log.warn("Failed to create the import log file.", e1);
 			}
 		}
-
-		cre.setContent(bytes);
-		// Don't notify anyone about this resource.
-		contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+		return cre;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private String uniqid() {
+	    Random random = new Random();
+	    String tag = Long.toString(Math.abs(random.nextLong()), 36);
+	    return tag.substring(0, 8);
 	}
 	
 	/**

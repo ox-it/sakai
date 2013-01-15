@@ -186,4 +186,12 @@ public class SakaiProxyTest implements SakaiProxy {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public void prependLog(String contentId, String contentDisplayName,
+			byte[] bytes) throws VirusFoundException, OverQuotaException,
+			ServerOverloadException, PermissionException, TypeException,
+			InUseException {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -69,7 +69,7 @@ public class DaisyPopulatorWrapper implements PopulatorWrapper {
             
             writer.footer();
             writer.flush();
-			proxy.writeLog(writer.getIdName(), writer.getDisplayName(), out.toByteArray());
+			proxy.prependLog(writer.getIdName(), writer.getDisplayName(), out.toByteArray());
 
 		} catch (PopulatorException e) {
         	log.error("PopulatorException ["+context.getURI()+"]", e);
