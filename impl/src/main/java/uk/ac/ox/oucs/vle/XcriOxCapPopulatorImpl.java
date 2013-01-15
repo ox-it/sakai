@@ -463,7 +463,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			}
 		} else {
 			data.logMe(
-					"Log Warning Course ["+id+"] has no description");
+					"Log Warning Course ["+id+":"+title+"] has no description");
 		}
 			
 			
@@ -679,7 +679,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				capacity = Integer.parseInt(presentation.getPlaces().getValue());
 			} catch (Exception e) {
 				data.logMe(
-						"Log Warning Presentation ["+id+"] value in places tag is not a number ["+presentation.getPlaces().getValue()+"]");
+						"Log Warning Presentation ["+id+":"+title+"] value in places tag is not a number ["+presentation.getPlaces().getValue()+"]");
 			}
 		}
 		
