@@ -18,6 +18,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.antivirus.api.VirusFoundException;
@@ -453,35 +454,36 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		switchUser();
 		ContentResourceEdit cre = getContentResourceEdit(contentId, contentDisplayName);
-		File tempFile = null; 
+		File tempFile = null;
+		OutputStream out = null;
 		
 		try {
-			tempFile = File.createTempFile(uniqid(), ".tmp");
+			tempFile = File.createTempFile("ses", ".tmp");
 			tempFile.deleteOnExit();
 			
-			OutputStream out = new FileOutputStream(tempFile);
+			out = new FileOutputStream(tempFile);
 			out.write(logBytes);
-			
-			InputStream inputStream = cre.streamContent();
-			int read = 0;
-			byte[] bytes = new byte[1024];
-	 
-			while ((read = inputStream.read(bytes)) != -1) {
-				out.write(bytes, 0, read);
-			}
-	 
-			inputStream.close();
+			IOUtils.copy(cre.streamContent(), out);
 			out.flush();
-			out.close();
-			
 			cre.setContent(new FileInputStream(tempFile));
 			
 		} catch (IOException e) {
+			log.error("IOException ["+e.getMessage()+"]", e);
 			
 		} finally {
 			
-			if (null != tempFile) {
-				tempFile.delete();
+			try {
+				
+				if (null != out) {
+					out.close();
+				}
+				
+				if (null != tempFile) {
+					tempFile.delete();
+				}
+				
+			} catch (IOException e) {
+				log.error("IOException ["+e.getMessage()+"]", e);
 			}
 		}
 		
@@ -523,16 +525,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 			}
 		}
 		return cre;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	private String uniqid() {
-	    Random random = new Random();
-	    String tag = Long.toString(Math.abs(random.nextLong()), 36);
-	    return tag.substring(0, 8);
 	}
 	
 	/**
