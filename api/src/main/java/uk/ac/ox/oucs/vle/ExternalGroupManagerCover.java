@@ -39,7 +39,7 @@ public class ExternalGroupManagerCover {
 		return service.search(terms);
 	}
 	
-	public ExternalGroup findExternalGroup(String externalGroupId) {
+	public ExternalGroup findExternalGroup(String externalGroupId) throws ExternalGroupException {
 		ExternalGroupManager service = getInstance();
 		if (service == null) return null;;
 		
@@ -53,7 +53,7 @@ public class ExternalGroupManagerCover {
 		return service.findExternalGroupId(mappedGroupId);
 	}
 	
-	public String addMappedGroup(String externalGroupId, String role) {
+	public String addMappedGroup(String externalGroupId, String role) throws ExternalGroupException {
 		ExternalGroupManager service = getInstance();
 		if (service == null) return null;
 		

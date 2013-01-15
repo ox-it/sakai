@@ -11,14 +11,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.DisplayGroupProvider;
 import org.sakaiproject.authz.api.GroupProvider;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.StringUtil;
 
-import uk.ac.ox.oucs.vle.ExternalGroup;
-import uk.ac.ox.oucs.vle.ExternalGroupManager;
-
 /**
- * Group provider based on external group definition.
+ * Group provider based on external group definition. As the external group store may go down 
+ * RuntimeExceptions are thrown when the external store is down.
+ * 
  */
 public class ExternalGroupProvider implements GroupProvider, DisplayGroupProvider{
 
@@ -39,7 +37,11 @@ public class ExternalGroupProvider implements GroupProvider, DisplayGroupProvide
 	}
 	
 	public Map getGroupRolesForUser(String userId) {
-		return externalGroupManager.getGroupRoles(userId);
+		try {
+			return externalGroupManager.getGroupRoles(userId);
+		} catch (ExternalGroupException ege) {
+			throw new RuntimeException(ege);
+		}
 	}
 
 	public String getRole(String id, String user) {
@@ -55,7 +57,12 @@ public class ExternalGroupProvider implements GroupProvider, DisplayGroupProvide
 		for (String id: unpackId(ids)) {
 			String groupId = externalGroupManager.findExternalGroupId(id);
 			String role = externalGroupManager.findRole(id);
-			ExternalGroup group = externalGroupManager.findExternalGroup(groupId);
+			ExternalGroup group;
+			try {
+				group = externalGroupManager.findExternalGroup(groupId);
+			} catch (ExternalGroupException e) {
+				throw new RuntimeException(e);
+			}
 			if (role == null || groupId == null || group == null) {
 				if (log.isDebugEnabled()) {
 					log.debug("Failed to find all the data for provider id: "+ id);
@@ -127,7 +134,12 @@ public class ExternalGroupProvider implements GroupProvider, DisplayGroupProvide
 		String externalGroupId = externalGroupManager.findExternalGroupId(groupId);
 		String role = externalGroupManager.findRole(groupId);
 		if (role != null && externalGroupId != null) {
-			ExternalGroup group = externalGroupManager.findExternalGroup(externalGroupId);
+			ExternalGroup group;
+			try {
+				group = externalGroupManager.findExternalGroup(externalGroupId);
+			} catch (ExternalGroupException e) {
+				throw new RuntimeException(e);
+			}
 			if (group != null) {
 				return group.getName()+ " ("+ role+ ")";
 			} else {

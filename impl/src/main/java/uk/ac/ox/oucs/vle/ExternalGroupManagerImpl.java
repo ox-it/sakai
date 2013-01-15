@@ -18,7 +18,6 @@ import uk.ac.ox.oucs.vle.ExternalGroupException.Type;
 
 import com.novell.ldap.LDAPAttribute;
 import com.novell.ldap.LDAPConnection;
-import com.novell.ldap.LDAPConstraints;
 import com.novell.ldap.LDAPEntry;
 import com.novell.ldap.LDAPException;
 import com.novell.ldap.LDAPSearchConstraints;
@@ -87,7 +86,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		
 	}
 
-	public String addMappedGroup(String externalGroupId, String role) {
+	public String addMappedGroup(String externalGroupId, String role) throws ExternalGroupException {
 		ExternalGroup group = findExternalGroup(externalGroupId);
 		if (group == null) {
 			return null;
@@ -110,7 +109,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		return (mappedGroup == null)?null:mappedGroup.getRole();
 	}
 
-	public ExternalGroup findExternalGroup(String externalGroupId) {
+	public ExternalGroup findExternalGroup(String externalGroupId) throws ExternalGroupException {
 		if (externalGroupId == null || externalGroupId.length() < 0) {
 			return null;
 		}
@@ -132,7 +131,9 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 				log.warn("Badly formed DN: " + externalGroupId);
 				throw new IllegalArgumentException("Badly formed DN: "+ externalGroupId);
 			default:
-				log.error("Problem with LDAP.", ldape);
+				// If there is a problem with LDAP we must throw this so we don't update groups
+				// to be empty.
+				throw new ExternalGroupException("Failed to lookup group: "+ externalGroupId, ldape);
 			}
 		} finally {
 			if (connection != null) {
@@ -142,7 +143,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		return group;
 	}
 
-	public Map<String, String> getGroupRoles(String userId) {
+	public Map<String, String> getGroupRoles(String userId) throws ExternalGroupException {
 		MessageFormat formatter = new MessageFormat(memberFormat);
 		String member = formatter.format(new Object[]{userId});
 		LDAPConnection connection = null;
@@ -163,13 +164,12 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			}
 			return groupRoles;
 		} catch (LDAPException ldape) {
-			log.error("Problem with LDAP.", ldape);
+			throw new ExternalGroupException("Failed to lookup group roles for : "+ userId, ldape);
 		} finally {
 			if (connection != null) {
 				returnConnection(connection);
 			}
 		}
-		return null;
 	}
 	public List<ExternalGroup> search(String[] terms) throws ExternalGroupException {
 		if (terms == null || terms.length == 0) {
