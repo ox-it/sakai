@@ -57,6 +57,8 @@ public interface CourseComponent {
 	
 	public String getApplyTo();
 	
+	public String getTeachingDetails();
+	
 	public String getMemberApplyTo();
 	
 	public String getAttendanceMode();

@@ -160,6 +160,10 @@ public class CourseComponentImpl implements CourseComponent {
 		return dao.getMemberApplyTo();
 	}
 	
+	public String getTeachingDetails() {
+		return dao.getTeachingDetails();
+	}
+	
 	public String getAttendanceMode() {
 		return dao.getAttendanceMode();
 	}
