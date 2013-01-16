@@ -54,7 +54,7 @@
 		<!-- create the primary key id -->
 		<id name="categoryId" type="int">
 			<column name="categoryId" />
-			<generator class="increment"/>
+			<generator class="identity"/>
 		</id>
 		<property name="courseGroupMuid" type="int" insert="false" update="false" />
 		<property name="categoryType" type="string" length="6" />
@@ -88,7 +88,7 @@
 	<class name="uk.ac.ox.oucs.vle.CourseComponentSessionDAO" table="course_component_session">
 		<id name="id" type="int">
 			<column name="id" />
-			<generator class="increment"/>
+			<generator class="identity"/>
 		</id>
 		<property name="courseComponentMuid" type="int" insert="false" update="false"/>
 		<property name="sessionId" type="string" length="255" />
@@ -102,7 +102,7 @@
 		<!-- create the primary key id -->
 		<id name="muid" type="int">
 			<column name="muid" />
-			<generator class="increment"/>
+			<generator class="identity"/>
 		</id>
 		<!-- We want to be sure the taken column isn't out of sync -->
 		<version name="version" column="version"/>
@@ -164,7 +164,7 @@
 		<!-- create the primary key id -->
 		<id name="muid" type="int">
 			<column name="muid" />
-			<generator class="increment"/>
+			<generator class="identity"/>
 		</id>
 		<property name="courseId" type="string" length="255" />
 		<property name="title" type="string" length="255" />
