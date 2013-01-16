@@ -61,6 +61,7 @@ import uk.ac.ox.oucs.vle.xcri.daisy.ModuleApproval;
 import uk.ac.ox.oucs.vle.xcri.daisy.OtherDepartment;
 import uk.ac.ox.oucs.vle.xcri.daisy.Sessions;
 import uk.ac.ox.oucs.vle.xcri.daisy.SupervisorApproval;
+import uk.ac.ox.oucs.vle.xcri.daisy.TeachingDetails;
 import uk.ac.ox.oucs.vle.xcri.daisy.TermCode;
 import uk.ac.ox.oucs.vle.xcri.daisy.TermLabel;
 import uk.ac.ox.oucs.vle.xcri.daisy.WebAuthCode;
@@ -95,6 +96,7 @@ public class DaisyTest extends TestCase {
 		ExtensionManager.registerExtension(new MemberApplyTo());
 		ExtensionManager.registerExtension(new Subject());
 		ExtensionManager.registerExtension(new Session());
+		ExtensionManager.registerExtension(new TeachingDetails());
 
 		OverrideManager.registerOverride(Course.class, new OxcapCourse());
 		OverrideManager.registerOverride(Presentation.class, new OxcapPresentation());
@@ -454,6 +456,7 @@ public class DaisyTest extends TestCase {
 					
 					String memberApplyTo = null;
 					String bookingEndpoint = null;
+					String teachingDetails = null;
 					Set<Session> sessions = new HashSet<Session>();
 					
 					for (Extension extension : presentation.getExtensions()) {
@@ -515,6 +518,11 @@ public class DaisyTest extends TestCase {
 						
 						if (extension instanceof BookingEndpoint) {
 							bookingEndpoint = extension.getValue();
+							continue;
+						}
+						
+						if (extension instanceof TeachingDetails) {
+							teachingDetails = extension.getValue();
 							continue;
 						}
 						

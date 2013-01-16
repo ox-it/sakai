@@ -45,6 +45,7 @@ public class CourseComponentDAO  implements java.io.Serializable {
     private String location;
     private String applyTo;
     private String memberApplyTo;
+    private String teachingDetails;
     private String attendanceMode;
     private String attendanceModeText;
     private String attendancePattern;
@@ -336,6 +337,16 @@ public class CourseComponentDAO  implements java.io.Serializable {
 	public void setMemberApplyTo(String memberApplyTo) {
 		this.memberApplyTo = memberApplyTo;
 	}
+	
+	
+	public String getTeachingDetails() {
+		return teachingDetails;
+	}
+
+	public void setTeachingDetails(String teachingDetails) {
+		this.teachingDetails = teachingDetails;
+	}
+	
 	
 	public String getAttendanceMode() {
 		return attendanceMode;

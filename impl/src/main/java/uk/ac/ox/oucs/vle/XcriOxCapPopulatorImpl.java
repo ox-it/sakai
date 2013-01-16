@@ -55,6 +55,7 @@ import uk.ac.ox.oucs.vle.xcri.daisy.ModuleApproval;
 import uk.ac.ox.oucs.vle.xcri.daisy.OtherDepartment;
 import uk.ac.ox.oucs.vle.xcri.daisy.Sessions;
 import uk.ac.ox.oucs.vle.xcri.daisy.SupervisorApproval;
+import uk.ac.ox.oucs.vle.xcri.daisy.TeachingDetails;
 import uk.ac.ox.oucs.vle.xcri.daisy.TermCode;
 import uk.ac.ox.oucs.vle.xcri.daisy.TermLabel;
 import uk.ac.ox.oucs.vle.xcri.daisy.WebAuthCode;
@@ -103,6 +104,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		ExtensionManager.registerExtension(new EmployeeEmail());
 		ExtensionManager.registerExtension(new Identifier());
 		ExtensionManager.registerExtension(new MemberApplyTo());
+		ExtensionManager.registerExtension(new TeachingDetails());
 		ExtensionManager.registerExtension(new Subject());
 		ExtensionManager.registerExtension(new Session());
 
@@ -604,6 +606,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		String termCode = null;
 		String sessionDates = null;
 		String memberApplyTo = null;
+		String teachingDetails = null;
 		Collection<Session> sessions = new HashSet<Session>();
 		
 		for (Extension extension : presentation.getExtensions()) {
@@ -655,6 +658,11 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				continue;
 			}
 			
+			if (extension instanceof TeachingDetails) {
+				teachingDetails = extension.getValue();
+				continue;
+			}
+			
 			if (extension instanceof WebAuthCode) {
 				WebAuthCode webAuthCode = (WebAuthCode) extension;
 				if (webAuthCode.getWebAuthCodeType() == WebAuthCode.WebAuthCodeType.presenter) {
@@ -698,6 +706,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				attendanceMode, attendanceModeText, 
 				attendancePattern, attendancePatternText, 
 				slot, sessionCount, location, applyTo, memberApplyTo,
+				teachingDetails,
 				(Set<Session>) sessions, (Set<CourseGroupDAO>) courseGroups)) {
 			
 			if (updateComponent(data, id, title, subject, 
@@ -707,7 +716,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 					teacherId, teacherName, teacherEmail,
 					attendanceMode, attendanceModeText, 
 					attendancePattern, attendancePatternText, 
-					slot, sessionCount, location, applyTo, memberApplyTo, data.getFeed(),
+					slot, sessionCount, location, applyTo, memberApplyTo, 
+					teachingDetails,data.getFeed(),
 					(Set<Session>) sessions, (Set<CourseGroupDAO>) courseGroups)) {
 				data.incrComponentCreated();
 			} else {
@@ -958,6 +968,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			String attendanceMode, String attendanceModeText,
 			String attendancePattern, String attendancePatternText,
 			String sessionDates, String sessionCount, String location, String applyTo, String memberApplyTo,
+			String teachingDetails,
 			Set<Session> sessions, Set<CourseGroupDAO> groups) {
 		
 		log.debug("XcriPopulatorImpl.validComponent ["+id+":"+title+":"+subject+":"+
@@ -968,7 +979,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				attendanceMode+":"+attendanceModeText+":"+
 				attendancePattern+":"+attendancePatternText+":"+
 				sessionDates+":"+sessions+":"+location+":"+
-				applyTo+":"+memberApplyTo+":"+
+				applyTo+":"+memberApplyTo+":"+teachingDetails+":"+
 				groups.size()+"]");
 		
 		int i=0;
@@ -1035,7 +1046,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			String attendanceMode, String attendanceModeText,
 			String attendancePattern, String attendancePatternText, 
 			String sessionDates, String sessionCount, String location, 
-			String applyTo, String memberApplyTo, String feed,
+			String applyTo, String memberApplyTo, String teachingDetails, String feed,
 			Set<Session> sessions, Set<CourseGroupDAO> groups) throws IOException {
 		
 		boolean created = false;
@@ -1087,6 +1098,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			componentDao.setLocation(location);
 			componentDao.setApplyTo(applyTo);
 			componentDao.setMemberApplyTo(memberApplyTo);
+			componentDao.setTeachingDetails(teachingDetails);
 			componentDao.setGroups(groups);
 			componentDao.setDeleted(false);
 			
