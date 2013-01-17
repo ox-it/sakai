@@ -616,6 +616,7 @@ public class CourseResource {
 				
 				gen.writeObjectField("applyTo", component.getApplyTo());
 				gen.writeObjectField("memberApplyTo", component.getMemberApplyTo());
+				gen.writeObjectField("teachingDetails", component.getTeachingDetails());
 				
 				gen.writeObjectField("attendanceMode", component.getAttendanceMode());
 				gen.writeObjectField("attendanceModeText", component.getAttendanceModeText());
