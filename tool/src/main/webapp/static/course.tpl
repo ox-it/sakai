@@ -236,6 +236,14 @@
                                 				{/if}
                                 				Venue: ${option.location}
                                 			{/if}
+                                			
+                                			{if option.teachingDetails}
+                                				{if option.opens || option.closes || option.location}
+                                					<br/>
+                                				{/if}
+                                				${option.teachingDetails}
+                                			{/if}
+                                			
                                 			</span>
                             			</td>
                             			<td style="width:6em">
