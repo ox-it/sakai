@@ -240,7 +240,7 @@ var Signup = function(){
 							if (selectedPartIds.length < 1) {
 								errorFound = true;
 								if (anySelectable) {
-									jQuery("#parts .error", destimpl/src/test/java/uk/ac/ox/oucs/vle/DaisyTest.java).show().html("You need to select which components you wish to take.");
+									jQuery("#parts .error", dest).show().html("You need to select which components you wish to take.");
 								} else {
 									jQuery("#parts .error", dest).show().html("There are no components available for you to signup.");
 								}
