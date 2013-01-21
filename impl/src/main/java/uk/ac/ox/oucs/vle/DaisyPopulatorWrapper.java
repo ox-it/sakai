@@ -51,12 +51,13 @@ public class DaisyPopulatorWrapper implements PopulatorWrapper {
 		
 		try {
 			writer = new XcriLogWriter(out, context.getName()+"ImportDeleted", "Deleted Groups and Components from SES Import", null);
-	
+			/*
 			dao.flagSelectedDaisyCourseGroups(context.getName());
 			dao.flagSelectedDaisyCourseComponents(context.getName());
-			
+			*/
             populator.update(context);
             
+            /*
             Collection<CourseGroupDAO> groups = dao.deleteSelectedCourseGroups(context.getName());
             for (CourseGroupDAO group : groups) {
             	writer.write("Deleting course ["+group.getCourseId()+" "+group.getTitle()+"]"+"\n");
@@ -66,7 +67,7 @@ public class DaisyPopulatorWrapper implements PopulatorWrapper {
             for (CourseComponentDAO component : components) {
             	writer.write("Deleting component ["+component.getComponentId()+" "+component.getTitle()+"]"+"\n");
             }
-            
+            */
             writer.footer();
             writer.flush();
 			proxy.writeLog(writer.getIdName(), writer.getDisplayName(), out.toByteArray());
