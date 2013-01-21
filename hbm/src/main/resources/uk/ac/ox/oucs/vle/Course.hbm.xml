@@ -148,7 +148,7 @@
 				column="signup" />
 		</set>
 		
-		<set name="groups" table="course_group_component" cascade="delete" lazy="true">
+		<set name="groups" table="course_group_component" lazy="true">
 			<key column="courseComponentMuid" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO"
 				column="courseGroupMuid" />
@@ -185,7 +185,7 @@
 		<property name="visibility" type="string" length="16"/>
 		<property name="regulations" type="string" length="255"/>
 		<property name="source" type="string" length="32" index="course_group_source_idx"/>
-		<set name="components" cascade="delete" inverse="true" lazy="true" table="course_group_component" fetch="join">
+		<set name="components" cascade="all-delete-orphan" inverse="true" lazy="true" table="course_group_component" fetch="join">
 			<key column="courseGroupMuid" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO" column="courseComponentMuid" />
 		</set>
