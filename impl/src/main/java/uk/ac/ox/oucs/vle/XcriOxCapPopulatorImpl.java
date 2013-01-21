@@ -122,24 +122,34 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		
 		try {
 			URL xcri = new URL(context.getURI());
-		
-			HttpHost targetHost = new HttpHost(xcri.getHost(), xcri.getPort(), xcri.getProtocol());
+            InputStream input = null;
+            
+            if ("file".equals(xcri.getProtocol())) {
+            	input = xcri.openStream();
+            	
+            } else {	
+            	HttpHost targetHost = new HttpHost(xcri.getHost(), xcri.getPort(), xcri.getProtocol());
 
-	        httpclient.getCredentialsProvider().setCredentials(
-	                new AuthScope(targetHost.getHostName(), targetHost.getPort()),
-	                new UsernamePasswordCredentials(context.getUser(), context.getPassword()));
+    	        httpclient.getCredentialsProvider().setCredentials(
+    	                new AuthScope(targetHost.getHostName(), targetHost.getPort()),
+    	                new UsernamePasswordCredentials(context.getUser(), context.getPassword()));
 
-            HttpGet httpget = new HttpGet(xcri.toURI());
-
-            HttpResponse response = httpclient.execute(targetHost, httpget);
-            HttpEntity entity = response.getEntity();
+                HttpGet httpget = new HttpGet(xcri.toURI());
+            	HttpResponse response = httpclient.execute(targetHost, httpget);
+            	HttpEntity entity = response.getEntity();
              
-            if (HttpStatus.SC_OK != response.getStatusLine().getStatusCode()) {
-            	throw new IllegalStateException(
+            	if (HttpStatus.SC_OK != response.getStatusLine().getStatusCode()) {
+            		throw new IllegalStateException(
             			"Invalid response ["+response.getStatusLine().getStatusCode()+"]");
+            	}
+            	
+            	input = entity.getContent();
             }
             
-            process(context.getName(), entity.getContent());
+            if (null == input) {
+            	throw new PopulatorException("No Input for Importer");
+            }
+            process(context.getName(), input);
 
 		} catch (MalformedURLException e) {
 			log.warn("MalformedURLException ["+context.getURI()+"]", e);
