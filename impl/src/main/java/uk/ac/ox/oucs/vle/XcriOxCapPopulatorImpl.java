@@ -7,7 +7,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -194,14 +193,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			
 		Provider[] providers = catalog.getProviders();
 		
-		// First pass to create course groups
 		for (Provider provider : providers) {
-			provider(provider, data, true);		
-		}
-		
-		// Second pass to create course components
-		for (Provider provider : providers) {
-			provider(provider, data, false);
+			provider(provider, data);		
 		}
 			
 		data.endTasks();
@@ -214,7 +207,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @param createGroups
 	 * @throws IOException 
 	 */
-	private void provider(Provider provider, XcriOxcapPopulatorInstanceData data, boolean createGroups) 
+	private void provider(Provider provider, XcriOxcapPopulatorInstanceData data) 
 			throws IOException {
 		
 		String departmentName = null;
@@ -226,7 +219,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		boolean departmentApproval = false;
 		String divisionCode = null;
 		Set<String> departmentApprovers = new HashSet<String>();
-		Collection<String> divisionSuperUsers = new HashSet<String>();
+		Set<String> divisionSuperUsers = new HashSet<String>();
 		Map<String, String> subunits = new HashMap<String, String>();
 		
 		for (Extension extension : provider.getExtensions()) {
@@ -284,29 +277,26 @@ public class XcriOxCapPopulatorImpl implements Populator {
 					"Log Failure Provider ["+departmentCode+":"+departmentName+"] No Provider Identifier");
 			return;
 		}
-		
-		if (createGroups) {
 			
-			data.incrDepartmentSeen();
-			if (updateDepartment(departmentCode, departmentName, departmentApproval, 
-					departmentApprovers)) {
-				data.incrDepartmentCreated();;
+		data.incrDepartmentSeen();
+		if (updateDepartment(departmentCode, departmentName, departmentApproval, 
+				departmentApprovers)) {
+			data.incrDepartmentCreated();;
+		} else {
+			data.incrDepartmentUpdated();
+		}
+			
+		for (Map.Entry<String, String> entry : subunits.entrySet()) {
+			data.incrSubunitSeen();
+			if (updateSubUnit(entry.getKey(), entry.getValue(), departmentCode)) {
+				data.incrSubunitCreated();;
 			} else {
-				data.incrDepartmentUpdated();
-			}
-			
-			for (Map.Entry<String, String> entry : subunits.entrySet()) {
-				data.incrSubunitSeen();
-				if (updateSubUnit(entry.getKey(), entry.getValue(), departmentCode)) {
-					data.incrSubunitCreated();;
-				} else {
-					data.incrSubunitUpdated();
-				}
+				data.incrSubunitUpdated();
 			}
 		}
 			
 		for (Course course : provider.getCourses()) {
-			course(course, departmentCode, departmentName, divisionEmail, divisionSuperUsers, data, !createGroups);
+			course(course, departmentCode, departmentName, divisionEmail, divisionSuperUsers, data);
 		}
 	}
 	
@@ -355,9 +345,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 */
 	private void course(Course course, 
 			String departmentCode, String departmentName, 
-			String divisionEmail, Collection<String> divisionSuperUsers,
-			XcriOxcapPopulatorInstanceData data, 
-			boolean createComponents) 
+			String divisionEmail, 
+			Set<String> divisionSuperUsers,
+			XcriOxcapPopulatorInstanceData data) 
 					throws IOException {
 		
 		CourseGroupDAO myCourse = new CourseGroupDAO();
@@ -385,8 +375,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		Collection<Subject> jacsCategories = new HashSet<Subject>();
 		
 		String teachingcomponentId = null;
-		Collection<String> administrators = new HashSet<String>();
-		Collection<String> otherDepartments = new HashSet<String>();
+		Set<String> administrators = new HashSet<String>();
+		Set<String> otherDepartments = new HashSet<String>();
 		
 		for (Extension extension : course.getExtensions()) {
 			
@@ -449,6 +439,10 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			}
 		}
 		
+		myCourse.setAdministrators(administrators);
+		myCourse.setOtherDepartments(otherDepartments);
+		myCourse.setSuperusers(divisionSuperUsers);
+		
 		if (null == myCourse.getCourseId()) {
 			data.logMe(
 					"Log Failure Course ["+myCourse.getCourseId()+":"+myCourse.getTitle()+"] No Course Identifier");
@@ -467,42 +461,30 @@ public class XcriOxCapPopulatorImpl implements Populator {
 					"Log Warning Course ["+myCourse.getCourseId()+":"+myCourse.getTitle()+"] has no description");
 		}
 			
-			
-		if (createComponents) {
-			
-			Presentation[] presentations = course.getPresentations();
-			for (int i=0; i<presentations.length; i++) {
-				presentation(presentations[i], myCourse.getCourseId(), teachingcomponentId, data);
-			}
-			
-		} else {
-			
-			if (!myCourse.getCourseId().equals(data.getLastGroup())) {
+		if (!myCourse.getCourseId().equals(data.getLastGroup())) {
 				
-				data.incrGroupSeen();
-				data.setLastGroup(myCourse.getCourseId());
+			data.incrGroupSeen();
+			data.setLastGroup(myCourse.getCourseId());
 			
-				if (validCourse(data, myCourse,
-						(Set<String>) administrators, 
-						(Set<String>) divisionSuperUsers, 
-						(Set<String>) otherDepartments,
+			if (validCourse(data, myCourse,
+					(Set<Subject>) researchCategories, 
+					(Set<Subject>) skillsCategories, 
+					(Set<Subject>) jacsCategories)) {
+			
+				if (updateCourse(data, myCourse,
 						(Set<Subject>) researchCategories, 
 						(Set<Subject>) skillsCategories, 
 						(Set<Subject>) jacsCategories)) {
-			
-					if (updateCourse(data, myCourse,
-							(Set<String>) administrators, 
-							(Set<String>) divisionSuperUsers, 
-							(Set<String>) otherDepartments,
-							(Set<Subject>) researchCategories, 
-							(Set<Subject>) skillsCategories, 
-							(Set<Subject>) jacsCategories)) {
-						data.incrGroupCreated();
-					} else {
-						data.incrGroupUpdated();
-					}
+					data.incrGroupCreated();
+				} else {
+					data.incrGroupUpdated();
 				}
 			}
+		}
+			
+		Presentation[] presentations = course.getPresentations();
+		for (int i=0; i<presentations.length; i++) {
+			presentation(presentations[i], myCourse.getCourseId(), teachingcomponentId, data);
 		}
 		
 	}
@@ -677,7 +659,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		data.incrComponentSeen();
 		
 		if (validComponent(data, myPresentation, teacherId, 
-				(Set<Session>) sessions, (Set<CourseGroupDAO>) courseGroups)) {
+				(Set<Session>) sessions, 
+				(Set<CourseGroupDAO>) courseGroups)) {
 			
 			if (updateComponent(data, myPresentation, teacherId, 
 					(Set<Session>) sessions, 
@@ -773,7 +756,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 */
 	protected boolean validCourse(XcriOxcapPopulatorInstanceData data, 
 			CourseGroupDAO myCourse,
-			Set<String> administrators, Set<String> superusers, Set<String> otherDepartments,
 			Set<Subject> researchCategories, Set<Subject> skillsCategories, Set<Subject> jacsCategories) {
 		
 		int i=0;
@@ -815,9 +797,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 */
 	private boolean updateCourse(XcriOxcapPopulatorInstanceData data,
 			CourseGroupDAO myCourse,
-			Set<String> administrators, 
-			Set<String> superusers, 
-			Set<String> otherDepartments,
 			Set<Subject> researchCategories, 
 			Set<Subject> skillsCategories, 
 			Set<Subject> jacsCategories) throws IOException {
@@ -843,19 +822,11 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			groupDao.setSupervisorApproval(myCourse.getSupervisorApproval());
 			groupDao.setAdministratorApproval(myCourse.getAdministratorApproval());
 			groupDao.setContactEmail(myCourse.getContactEmail());
-			groupDao.setAdministrators(administrators);
+			groupDao.setAdministrators(myCourse.getAdministrators());
 			groupDao.setRegulations(myCourse.getRegulations());
 			groupDao.setDeleted(false);
-			
-			if (null==superusers) {
-				superusers = Collections.<String>emptySet();
-			}
-			groupDao.setSuperusers(superusers);
-			
-			if (null==otherDepartments) {
-				otherDepartments = Collections.<String>emptySet();
-			}
-			groupDao.setOtherDepartments(otherDepartments);
+			groupDao.setSuperusers(myCourse.getSuperusers());
+			groupDao.setOtherDepartments(myCourse.getOtherDepartments());
 			
 			Set<CourseCategoryDAO> categories = new HashSet<CourseCategoryDAO>();
 			for (Subject subject : researchCategories) {
