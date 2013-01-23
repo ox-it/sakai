@@ -79,17 +79,17 @@ public class LibraryAvailability {
 			}
 			
 		} catch (URISyntaxException e) {
-			log.error("URISyntaxException ["+e.getLocalizedMessage()+"]");
+			log.error("URISyntaxException ["+e.getLocalizedMessage()+"]", e);
 			return Response.status(Status.INTERNAL_SERVER_ERROR)
 				.entity(e.getLocalizedMessage()).type("text/plain").build();
 			
 		} catch (UnsupportedEncodingException e) {
-			log.error("UnsupportedEncodingException ["+e.getLocalizedMessage()+"]");
+			log.error("UnsupportedEncodingException ["+e.getLocalizedMessage()+"]", e);
 			return Response.status(Status.INTERNAL_SERVER_ERROR)
 				.entity(e.getLocalizedMessage()).type("text/plain").build();
 			
 		} catch (Exception e) {
-			log.error("Exception ["+e.getLocalizedMessage()+"]");
+			log.error("Exception ["+e.getLocalizedMessage()+"]", e);
 			return Response.status(Status.INTERNAL_SERVER_ERROR)
 				.entity(e.getLocalizedMessage()).type("text/plain").build();
 			
