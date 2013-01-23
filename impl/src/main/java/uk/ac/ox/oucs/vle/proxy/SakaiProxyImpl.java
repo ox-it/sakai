@@ -367,7 +367,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	protected String getSecretKey() {
-		return serverConfigurationService.getString("aes.secret.key", "se1?r2eFM8rC5u2K");
+		return serverConfigurationService.getString("aes.secret.key");
 	}
 	
 	protected byte[] encrypt(String string) {
