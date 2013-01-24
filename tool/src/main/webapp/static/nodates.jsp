@@ -95,63 +95,19 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		                    success: function(result){
 		                        var data = [];
 		                        $.each(result, function(){
-		                        	
-		                        	var term = "";
-		                        	var summary = "";
-		                            var now = $.serverDate();
-		                        	var nextOpen = Number.MAX_VALUE;
-		            				var willClose = 0;
-		            				var isOneOpen = false;
-		            				var isOneBookable = false;
-		            				var areSomePlaces = false;
-		            				var newCourse = false;
+		                            
+		                            var starts = 0;
+		                        	var summaryObj = Signup.signup.summary(this.components, recentDays);
+		                        	var summary = summaryObj["message"]; 
+		                        	var timeframe = summaryObj["previous"]; 
+		            				var newCourse = timeframe.length > 1;
 		                        	
 		                            $.each(this.components, 
 		                            		function(){
-		                            	
-		                            			term = this.when;
-		                            			
-		                            			var isOpen = this.opens < now && this.closes > now;
-		            							if (this.opens > now && this.opens < nextOpen) {
-		            								nextOpen = this.opens;
-		            							}
-		            							if (this.opens < now && this.closes > willClose) {
-		            								willClose = this.closes;
-		            							}
-		            							if (isOpen) {
-		            								isOneOpen = true;
-		            								if (this.places > 0) {
-		            									areSomePlaces = true;
-		            								}
-		            							}
-		            							if (!isOneBookable) {
-		            								isOneBookable = this.bookable;
-		            							}
-		            							
-		            							var newDate = now - (recentDays * 24 * 60 * 60 * 1000); 
-		            							if (this.created > newDate) {
-		            								newCourse = true;
-		            							}
+		                            			starts = this.when;
 		                            });
 		                            
-		                            if (!isOneBookable) {
-		            					summary = "not bookable";
-		            				}
-		            				if (isOneOpen) {
-		            					if (areSomePlaces) {
-		            						summary = "close in " + Signup.util.formatDuration(willClose - now);
-		            					} else {
-		            						summary = "full";
-		            					}
-		            				} else {
-		            					if (nextOpen == Number.MAX_VALUE) {
-		            						summary = "not bookable";
-		            					} else {
-		            						summary = "booking opens in " + Signup.util.formatDuration(nextOpen - now);
-		            					}
-		            				}
-		                            
-		                            data.push([term, this.title, this.department, summary, this.courseId, newCourse ]);
+		                            data.push([starts, this.title, this.department, summary, this.courseId, newCourse ]);
 		                        });
 		                        fnCallback({
 		                            "aaData": data
