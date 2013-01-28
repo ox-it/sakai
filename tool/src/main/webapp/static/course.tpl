@@ -314,7 +314,7 @@
                     {if !hide}
                     	{if source == "Daisy"}
                     		{if signup}
-                    			{if !anyOpenParts}
+                    			{if open && !anyOpenParts}
 									<input type="submit" value="Join Waiting List" />
 								{else}
 									<input type="submit" value="Signup" 
