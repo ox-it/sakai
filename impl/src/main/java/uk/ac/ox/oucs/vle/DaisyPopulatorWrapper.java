@@ -82,22 +82,7 @@ public class DaisyPopulatorWrapper implements PopulatorWrapper {
 			
         } catch (VirusFoundException e) {
         	log.error("VirusFoundException ["+context.getURI()+"]", e);
-        	
-		} catch (OverQuotaException e) {
-			log.error("OverQuotaException ["+context.getURI()+"]", e);
-			
-		} catch (ServerOverloadException e) {
-			log.error("ServerOverloadException ["+context.getURI()+"]", e);
-			
-		} catch (PermissionException e) {
-			log.error("PermissionException ["+context.getURI()+"]", e);
-			
-		} catch (TypeException e) {
-			log.error("TypeException ["+context.getURI()+"]", e);
-			
-		} catch (InUseException e) {
-			log.error("InUseException ["+context.getURI()+"]", e);
-			
+
 		} finally {
 			if (null != writer) {
 				try {

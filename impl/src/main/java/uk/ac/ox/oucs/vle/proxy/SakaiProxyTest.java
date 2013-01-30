@@ -180,17 +180,13 @@ public class SakaiProxyTest implements SakaiProxy {
 	}
 
 	public void writeLog(String contentId, String contentDisplayName,
-			byte[] bytes) throws VirusFoundException, OverQuotaException,
-			ServerOverloadException, PermissionException, TypeException,
-			InUseException {
+			byte[] bytes) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	public void prependLog(String contentId, String contentDisplayName,
-			byte[] bytes) throws VirusFoundException, OverQuotaException,
-			ServerOverloadException, PermissionException, TypeException,
-			InUseException {
+			byte[] bytes) {
 		// TODO Auto-generated method stub
 		
 	}

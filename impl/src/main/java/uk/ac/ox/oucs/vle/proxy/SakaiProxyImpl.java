@@ -427,14 +427,36 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * @throws TypeException
 	 * @throws InUseException
 	 */
-	public void writeLog(String contentId, String contentDisplayName, byte[] bytes) 
-			throws VirusFoundException, OverQuotaException, ServerOverloadException, PermissionException, TypeException, InUseException {
+	public void writeLog(String contentId, String contentDisplayName, byte[] bytes) {
 		
 		switchUser();
-		ContentResourceEdit cre = getContentResourceEdit(contentId, contentDisplayName);
-		cre.setContent(bytes);
-		// Don't notify anyone about this resource.
-		contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+		ContentResourceEdit cre;
+		try {
+			cre = getContentResourceEdit(contentId, contentDisplayName);
+			cre.setContent(bytes);
+			// Don't notify anyone about this resource.
+			contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+			
+		} catch (PermissionException e) {
+			log.error("PermissionException ["+e.getMessage()+"]", e);
+			
+		} catch (TypeException e) {
+			log.error("TypeException ["+e.getMessage()+"]", e);
+			
+		} catch (InUseException e) {
+			log.error("InUseException ["+e.getMessage()+"]", e);
+			
+		} catch (VirusFoundException e) {
+			log.error("VirusFoundException ["+e.getMessage()+"]", e);
+			
+		} catch (OverQuotaException e) {
+			log.error("OverQuotaException ["+e.getMessage()+"]", e);
+			
+		} catch (ServerOverloadException e) {
+			log.error("ServerOverloadException ["+e.getMessage()+"]", e);
+			
+		}
+		
 	}
 	
 	/**
@@ -449,15 +471,18 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * @throws TypeException
 	 * @throws InUseException
 	 */
-	public void prependLog(String contentId, String contentDisplayName, byte[] logBytes) 
-			throws VirusFoundException, OverQuotaException, ServerOverloadException, PermissionException, TypeException, InUseException {
+	public void prependLog(String contentId, String contentDisplayName, byte[] logBytes) {
 		
 		switchUser();
-		ContentResourceEdit cre = getContentResourceEdit(contentId, contentDisplayName);
+		
 		File tempFile = null;
 		OutputStream out = null;
+		ContentResourceEdit cre = null;
+		
 		
 		try {
+			cre = getContentResourceEdit(contentId, contentDisplayName);
+			
 			tempFile = File.createTempFile("ses", ".tmp");
 			tempFile.deleteOnExit();
 			
@@ -467,8 +492,29 @@ public class SakaiProxyImpl implements SakaiProxy {
 			out.flush();
 			cre.setContent(new FileInputStream(tempFile));
 			
+			// Don't notify anyone about this resource.
+			contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+			
 		} catch (IOException e) {
 			log.error("IOException ["+e.getMessage()+"]", e);
+			
+		} catch (ServerOverloadException e) {
+			log.error("ServerOverloadException ["+e.getMessage()+"]", e);
+			
+		} catch (PermissionException e) {
+			log.error("PermissionException ["+e.getMessage()+"]", e);
+			
+		} catch (TypeException e) {
+			log.error("TypeException ["+e.getMessage()+"]", e);
+			
+		} catch (InUseException e) {
+			log.error("InUseException ["+e.getMessage()+"]", e);
+			
+		} catch (VirusFoundException e) {
+			log.error("VirusFoundException ["+e.getMessage()+"]", e);
+			
+		} catch (OverQuotaException e) {
+			log.error("OverQuotaException ["+e.getMessage()+"]", e);
 			
 		} finally {
 			
@@ -487,8 +533,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 			}
 		}
 		
-		// Don't notify anyone about this resource.
-		contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
 	}
 	
 	/**
