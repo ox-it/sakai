@@ -762,7 +762,7 @@ var Signup = function(){
 						summary.previous[0] = "Old Courses";
 					}
 					return summary;
-    			}
+				}
 				
 				if (!isOneBookable) {
 					summary.state = "No"; // (Not Bookable)";
