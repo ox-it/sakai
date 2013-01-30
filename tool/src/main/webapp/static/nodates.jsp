@@ -96,16 +96,15 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		                        var data = [];
 		                        $.each(result, function(){
 		                            
-		                            var starts = 0;
+		                            var starts = "unknown";
 		                        	var summaryObj = Signup.signup.summary(this.components, recentDays);
 		                        	var summary = summaryObj["message"]; 
 		                        	var timeframe = summaryObj["previous"]; 
 		            				var newCourse = timeframe.length > 1;
 		                        	
-		                            $.each(this.components, 
-		                            		function(){
-		                            			starts = this.when;
-		                            });
+		            				if (this.components[0].when) {
+		            					starts = this.components[0].when;
+		            				}
 		                            
 		                            data.push([starts, this.title, this.department, summary, this.courseId, newCourse ]);
 		                        });

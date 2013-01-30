@@ -714,9 +714,7 @@ var Signup = function(){
 					if (component.closesText) {
 						closesText = component.closesText;
 					}
-					if ("Daisy" != component.source) {
-						areSomePlaces = true;
-					}
+					
 					var isOpen = component.opens < now && component.closes > now;
 					if (component.opens) {
 						if (component.opens > now && component.opens < nextOpen) {
@@ -735,6 +733,10 @@ var Signup = function(){
 							areSomePlaces = true;
 						}
 					}
+					// If we are not recording signups, we must assume that there are places available.
+					if ("Daisy" != component.source) {
+						areSomePlaces = true;
+					}
 					if (!isOneBookable) {
 						isOneBookable = component.bookable;
 					}
@@ -745,16 +747,14 @@ var Signup = function(){
 					}
 				});
 				
-				if (opensText || closesText) {
-					if (opensText) {
-						summary.message = "Opens "+opensText;
-						if (closesText) {
-							summary.message = summary.message+" and ";
-						}
-					}
+				if (opensText) {
+					summary.message = "Opens "+opensText;
 					if (closesText) {
-						summary.message = summary.message+"closes "+closesText;
+						summary.message = summary.message+" and ";
 					}
+				}
+				if (closesText) {
+					summary.message = summary.message+"closes "+closesText;
 				}
 				
 				if (willClose == 0) {
