@@ -63,6 +63,20 @@ public class CourseComponentDAO  implements java.io.Serializable {
         this.bookable = bookable;
     }
     
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        
+        CourseComponentDAO dao = (CourseComponentDAO)obj;
+        return getMuid() == dao.getMuid();
+    }
+       
+
+    
     public int getMuid() {
         return this.muid;
     }

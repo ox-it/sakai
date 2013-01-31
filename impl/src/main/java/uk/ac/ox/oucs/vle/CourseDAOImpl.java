@@ -810,6 +810,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				criteria.add(Restrictions.eq("source", source));
 				List<CourseGroupDAO> groupDaos =  criteria.list();
 				for (CourseGroupDAO groupDao : groupDaos) {
+					for (CourseComponentDAO component : groupDao.getComponents()) {
+						component.getGroups().remove(groupDao);
+					}
 					session.delete(groupDao);
 				}
 				return groupDaos;

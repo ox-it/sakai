@@ -651,24 +651,15 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			}
 		}
 		
-		Set<String> groups = new HashSet<String>();
-		groups.add(assessmentunitCode);
-		
-		Collection<CourseGroupDAO> courseGroups = getCourseGroups(groups);
+		CourseGroupDAO courseDao = dao.findCourseGroupById(assessmentunitCode);
 		
 		data.incrComponentSeen();
 		
 		if (validComponent(data, myPresentation, teacherId, 
-				(Set<Session>) sessions, 
-				(Set<CourseGroupDAO>) courseGroups)) {
+				(Set<Session>) sessions, courseDao)) {
 			
-			if (updateComponent(data, myPresentation, teacherId, 
-					(Set<Session>) sessions, 
-					(Set<CourseGroupDAO>) courseGroups)) {
-				data.incrComponentCreated();
-			} else {
-				data.incrComponentUpdated();
-			}
+			updateComponent(data, myPresentation, teacherId, 
+					(Set<Session>) sessions, courseDao);
 		}
 	}
 	
@@ -750,8 +741,11 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	
 	/**
 	 * 
-	 * @param code
-	 * @param administrators
+	 * @param data
+	 * @param myCourse
+	 * @param researchCategories
+	 * @param skillsCategories
+	 * @param jacsCategories
 	 * @return
 	 */
 	protected boolean validCourse(XcriOxcapPopulatorInstanceData data, 
@@ -776,24 +770,16 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		
 		return false;
 	}
+	
 	/**
 	 * 
-	 * @param code
-	 * @param title
-	 * @param departmentCode
-	 * @param subunitCode
-	 * @param description
-	 * @param departmentName
-	 * @param subunitName
-	 * @param publicView
-	 * @param supervisorApproval
-	 * @param administratorApproval
-	 * @param divisionEmail
-	 * @param administrators
-	 * @param superusers
-	 * @param otherDepartments
+	 * @param data
+	 * @param myCourse
+	 * @param researchCategories
+	 * @param skillsCategories
+	 * @param jacsCategories
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private boolean updateCourse(XcriOxcapPopulatorInstanceData data,
 			CourseGroupDAO myCourse,
@@ -871,15 +857,10 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	
 	/**
 	 * 
-	 * @param id
-	 * @param title
-	 * @param subject
-	 * @param openDate
-	 * @param closeDate
-	 * @param expiryDate
-	 * @param termCode
-	 * @param teachingComponentId
-	 * @param termName
+	 * @param data
+	 * @param myPresentation
+	 * @param teacherId
+	 * @param sessions
 	 * @param groups
 	 * @return
 	 */
@@ -887,7 +868,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			CourseComponentDAO myPresentation,
 			String teacherId, 
 			Set<Session> sessions, 
-			Set<CourseGroupDAO> groups) {
+			CourseGroupDAO group) {
 		
 		int i=0;
 		
@@ -905,7 +886,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				i++;
 			}
 			
-			if (groups.isEmpty()) {
+			if (null == group) {
 				logMe(data, "Log Failure Teaching Instance ["+myPresentation.getPresentationId()+":"+myPresentation.getTitle()+"] No Assessment Unit codes");
 				i++;
 			}
@@ -922,33 +903,18 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	
 	/**
 	 * 
-	 * @param id
-	 * @param title
-	 * @param subject
-	 * @param openDate
-	 * @param closeDate
-	 * @param expiryDate
-	 * @param startDate
-	 * @param endDate
-	 * @param bookable
-	 * @param capacity
-	 * @param termCode
-	 * @param teachingComponentId
-	 * @param termName
+	 * @param data
+	 * @param myPresentation
 	 * @param teacherId
-	 * @param teacherName
-	 * @param teacherEmail
-	 * @param sessionDates
 	 * @param sessions
-	 * @param location
 	 * @param groups
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private boolean updateComponent(XcriOxcapPopulatorInstanceData data, 
 			CourseComponentDAO myPresentation,
 			String teacherId,
-			Set<Session> sessions, Set<CourseGroupDAO> groups) throws IOException {
+			Set<Session> sessions, CourseGroupDAO group) throws IOException {
 		
 		boolean created = false;
 		if (null != dao) {
@@ -987,9 +953,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			
 			componentDao.setBaseDate(baseDate(componentDao));
 			componentDao.setSource(myPresentation.getSource());
-					
-			// Cleanout existing groups.
-			componentDao.setGroups(new HashSet<CourseGroupDAO>());
 		
 			// Populate teacher details.
 			// Look for details in WebLearn first then fallback to details in DAISY.
@@ -1001,7 +964,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				}
 			}
 			
-			componentDao.setGroups(groups);
+			// Use of Set filters duplicates
+			componentDao.getGroups().add(group);
 			componentDao.setDeleted(false);
 			
 			Collection<CourseComponentSessionDAO> componentSessions = componentDao.getComponentSessions();
@@ -1018,8 +982,10 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		
 		if (created) {
 			logMs(data, "Log Success Course Component created ["+myPresentation.getPresentationId()+":"+myPresentation.getTitle()+"]");
+			data.incrComponentCreated();
 		} else {
 			logMs(data, "Log Success Course Component updated ["+myPresentation.getPresentationId()+":"+myPresentation.getTitle()+"]");
+			data.incrComponentUpdated();
 		}
 		return created;
 	}

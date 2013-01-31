@@ -52,6 +52,18 @@ public class CourseGroupDAO implements java.io.Serializable, Cloneable {
     	}
     }
     
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        
+        CourseGroupDAO dao = (CourseGroupDAO)obj;
+        return getMuid() == dao.getMuid();
+    }
+    
     public int getMuid() {
         return this.muid;
     }
