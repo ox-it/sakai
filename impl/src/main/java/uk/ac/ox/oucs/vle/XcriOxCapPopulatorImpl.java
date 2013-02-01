@@ -189,7 +189,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		catalog.fromXml(document);
 			
 		XcriOxcapPopulatorInstanceData data = 
-				new XcriOxcapPopulatorInstanceData(proxy,name, simpleDateFormat.format(catalog.getGenerated()));
+				new XcriOxcapPopulatorInstanceData(proxy, name, simpleDateFormat.format(catalog.getGenerated()));
 			
 		Provider[] providers = catalog.getProviders();
 		
