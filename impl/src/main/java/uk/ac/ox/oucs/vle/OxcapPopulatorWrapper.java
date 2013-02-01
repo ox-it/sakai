@@ -46,11 +46,11 @@ public class OxcapPopulatorWrapper implements PopulatorWrapper {
 	 */
 	public void update(PopulatorContext context) {
 		
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		XcriLogWriter writer = null;
+		ByteArrayOutputStream dOut = new ByteArrayOutputStream();
+		XcriLogWriter dWriter = null;
 		
 		try {
-			writer = new XcriLogWriter(out, context.getName()+"ImportDeleted", "Deleted Groups and Components from SES Import", null);
+			dWriter = new XcriLogWriter(dOut, context.getName()+"ImportDeleted", "Deleted Groups and Components from SES Import", null);
 			
 			dao.flagSelectedCourseGroups(context.getName());
 			dao.flagSelectedCourseComponents(context.getName());
@@ -59,17 +59,17 @@ public class OxcapPopulatorWrapper implements PopulatorWrapper {
             
             Collection<CourseGroupDAO> groups = dao.deleteSelectedCourseGroups(context.getName());
             for (CourseGroupDAO group : groups) {
-            	writer.write("Deleting course ["+group.getCourseId()+" "+group.getTitle()+"]"+"\n");
+            	dWriter.write("Deleting course ["+group.getCourseId()+" "+group.getTitle()+"]"+"\n");
             }
             
             Collection<CourseComponentDAO> components = dao.deleteSelectedCourseComponents(context.getName());
             for (CourseComponentDAO component : components) {
-            	writer.write("Deleting component ["+component.getComponentId()+" "+component.getTitle()+"]"+"\n");
+            	dWriter.write("Deleting component ["+component.getComponentId()+" "+component.getTitle()+"]"+"\n");
             }
             
-            writer.flush();
-            writer.footer();
-			proxy.writeLog(writer.getIdName(), writer.getDisplayName(), out.toByteArray());
+            dWriter.flush();
+            dWriter.footer();
+			proxy.writeLog(dWriter.getIdName(), dWriter.getDisplayName(), dOut.toByteArray());
 			
 		} catch (PopulatorException e) {
         	log.error("PopulatorException ["+context.getURI()+"]", e);
@@ -99,9 +99,9 @@ public class OxcapPopulatorWrapper implements PopulatorWrapper {
 			log.error("InUseException ["+context.getURI()+"]", e);
 			
 		} finally {
-			if (null != writer) {
+			if (null != dWriter) {
 				try {
-					writer.close();
+					dWriter.close();
 					
 				} catch (IOException e) {
 					log.error("IOException ["+context.getURI()+"]", e);

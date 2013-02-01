@@ -206,8 +206,7 @@
 			<key column="courseGroupMuid" not-null="true"/>
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"/>
 		</set>
-		<!-- cascade="all-delete-orphan" -->
-		<set name="categories" inverse="false" lazy="true" table="course_group_category" fetch="select">
+		<set name="categories" inverse="false" lazy="true" table="course_group_category" fetch="select" cascade="all-delete-orphan" >
 			<key column="courseGroupMuid" not-null="true" />
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseCategoryDAO"/>
 		</set>

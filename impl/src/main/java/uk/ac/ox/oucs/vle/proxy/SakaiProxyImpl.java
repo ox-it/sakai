@@ -409,7 +409,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	public void writeLog(String contentId, String contentDisplayName, byte[] bytes) 
 			throws VirusFoundException, OverQuotaException, ServerOverloadException, PermissionException, TypeException, InUseException {
-		
+		/*
 		switchUser();
 		ContentResourceEdit cre = null;
 		String siteId = getConfigParam("course-signup.site-id", "course-signup");
@@ -435,6 +435,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		cre.setContent(bytes);
 		// Don't notify anyone about this resource.
 		contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+		*/
 	}
 	
 	/**

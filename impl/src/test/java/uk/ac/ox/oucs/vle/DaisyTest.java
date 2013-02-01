@@ -102,7 +102,7 @@ public class DaisyTest extends TestCase {
 		OverrideManager.registerOverride(Presentation.class, new OxcapPresentation());
 		
 		// Careers
-		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap-full");
+		URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap-full");
 		
 		// Continuing Education
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=http%3A//course.data.ox.ac.uk/id/continuing-education/catalog&format=xcricap-full");
@@ -117,7 +117,7 @@ public class DaisyTest extends TestCase {
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/medsci/catalogue&format=xcricap-full");
 		
 		// SharePoint
-		URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/sharepoint/catalogue&format=xcricap-full");
+		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/sharepoint/catalogue&format=xcricap-full");
 		  
 		InputStream inStream = url.openStream();
 		
