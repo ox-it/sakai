@@ -67,8 +67,8 @@ public class OxcapPopulatorWrapper implements PopulatorWrapper {
             	dWriter.write("Deleting component ["+component.getComponentId()+" "+component.getTitle()+"]"+"\n");
             }
             
-            dWriter.flush();
             dWriter.footer();
+            dWriter.flush();
 			proxy.writeLog(dWriter.getIdName(), dWriter.getDisplayName(), dOut.toByteArray());
 			
 		} catch (PopulatorException e) {
