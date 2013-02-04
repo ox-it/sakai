@@ -5,16 +5,19 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 
-public class XcriLogWriter extends OutputStreamWriter {
+public class XcriLogWriter extends OutputStreamWriter implements PopulatorLogWriter {
 		
 	private String name;
 	
-	public XcriLogWriter(OutputStream arg0, String name, String heading, String generated) throws IOException {
+	public XcriLogWriter(OutputStream arg0, String name) {
 		super(arg0);
-		
 		this.name = name;
+	}
+	
+	public void header(String heading, Date generated) throws IOException {
 		Calendar cal = Calendar.getInstance();
 	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	    
@@ -23,7 +26,7 @@ public class XcriLogWriter extends OutputStreamWriter {
 		this.write("</h3>");
 		if (null != generated) {
 			this.write("<h3>Using the XCRI file generated on ");
-			this.write(generated);
+			this.write(sdf.format(generated));
 			this.write("</h3>");
 		}
 		this.write("<pre>");

@@ -46,11 +46,24 @@ public class DaisyPopulatorWrapper implements PopulatorWrapper {
 	 */
 	public void update(PopulatorContext context) {
 		
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		XcriLogWriter writer = null;
+		PopulatorLogWriter dWriter = null;
+		PopulatorLogWriter eWriter = null;
+		PopulatorLogWriter iWriter = null;
 		
 		try {
-			writer = new XcriLogWriter(out, context.getName()+"ImportDeleted", "Deleted Groups and Components from SES Import", null);
+			ByteArrayOutputStream dOut = new ByteArrayOutputStream();
+			ByteArrayOutputStream eOut = new ByteArrayOutputStream();
+			ByteArrayOutputStream iOut = new ByteArrayOutputStream();
+			
+			dWriter = new XcriLogWriter(dOut, context.getName()+"ImportDeleted");
+			context.setDeletedLogWriter(dWriter);
+			
+			eWriter = new XcriLogWriter(eOut, context.getName()+"ImportError");
+			context.setErrorLogWriter(eWriter);
+			
+			iWriter = new XcriLogWriter(iOut, context.getName()+"ImportInfo");
+			context.setInfoLogWriter(iWriter);
+		
 			/*
 			dao.flagSelectedDaisyCourseGroups(context.getName());
 			dao.flagSelectedDaisyCourseComponents(context.getName());
@@ -68,9 +81,17 @@ public class DaisyPopulatorWrapper implements PopulatorWrapper {
             	writer.write("Deleting component ["+component.getComponentId()+" "+component.getTitle()+"]"+"\n");
             }
             */
-            writer.footer();
-            writer.flush();
-			proxy.writeLog(writer.getIdName(), writer.getDisplayName(), out.toByteArray());
+            dWriter.footer();
+            dWriter.flush();
+			proxy.writeLog(dWriter.getIdName(), dWriter.getDisplayName(), dOut.toByteArray());
+			
+			eWriter.footer();
+			eWriter.flush();
+			proxy.writeLog(eWriter.getIdName(), eWriter.getDisplayName(), eOut.toByteArray());
+			
+			iWriter.footer();
+			iWriter.flush();
+			proxy.writeLog(iWriter.getIdName(), iWriter.getDisplayName(), iOut.toByteArray());
 
 		} catch (PopulatorException e) {
         	log.error("PopulatorException ["+context.getURI()+"]", e);
@@ -100,9 +121,27 @@ public class DaisyPopulatorWrapper implements PopulatorWrapper {
 			log.error("InUseException ["+context.getURI()+"]", e);
 			
 		} finally {
-			if (null != writer) {
+			if (null != dWriter) {
 				try {
-					writer.close();
+					dWriter.close();
+					
+				} catch (IOException e) {
+					log.error("IOException ["+context.getURI()+"]", e);
+				}
+			}
+			
+			if (null != eWriter) {
+				try {
+					eWriter.close();
+					
+				} catch (IOException e) {
+					log.error("IOException ["+context.getURI()+"]", e);
+				}
+			}
+			
+			if (null != iWriter) {
+				try {
+					iWriter.close();
 					
 				} catch (IOException e) {
 					log.error("IOException ["+context.getURI()+"]", e);
