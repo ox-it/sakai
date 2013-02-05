@@ -801,7 +801,8 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 	
 	/**
-	 * 
+	 * Hibernate handles the link between groups and components only one direction.
+	 * We need to look after removing groups from the component
 	 */
 	@SuppressWarnings("unchecked")
 	public Collection<CourseGroupDAO> deleteSelectedCourseGroups(final String source) {
@@ -814,6 +815,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				criteria.add(Restrictions.eq("source", source));
 				List<CourseGroupDAO> groupDaos =  criteria.list();
 				for (CourseGroupDAO groupDao : groupDaos) {
+					for (CourseComponentDAO component : groupDao.getComponents()) {
+						component.getGroups().remove(groupDao);
+					}
 					session.delete(groupDao);
 				}
 				return groupDaos;

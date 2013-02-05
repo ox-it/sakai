@@ -435,6 +435,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		cre.setContent(bytes);
 		// Don't notify anyone about this resource.
 		contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+		
 	}
 	
 	/**
