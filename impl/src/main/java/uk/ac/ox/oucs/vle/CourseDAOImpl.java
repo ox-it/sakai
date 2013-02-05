@@ -61,6 +61,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					SQLException {
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
 				criteria.add(Expression.eq("courseId", courseId));
+				criteria.add(Restrictions.eq("hideGroup", false));
 				switch (range) { 
 					case NOTSTARTED:
 						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(
