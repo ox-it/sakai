@@ -40,6 +40,7 @@
 			<bean class="uk.ac.ox.oucs.vle.XcriPopulatorImpl">
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO"/>
 				<property name="proxy" ref="uk.ac.ox.oucs.vle.sakai.SakaiProxy"/>
+				<property name="populatorInput" ref="uk.ac.ox.oucs.vle.TestPopulatorInput" />
 			</bean>
 		</property>
 		<property name="transactionManager" ref="transactionManager"/>

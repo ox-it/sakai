@@ -39,8 +39,9 @@ public class PopulatorTests extends AbstractTransactionalSpringContextTests {
 	public void testPopulator() {
 		
 		Map<String, String> contextMap = new HashMap<String, String>();
-		contextMap.put(prefix+".uri", "file:///home/marc/oxford-sakai-2.8/extras/course-signup/impl/xcri.xml");
-		contextMap.put(prefix+"..username", "");
+		//contextMap.put(prefix+".uri", "file:///home/marc/oxford-sakai-2.8/extras/course-signup/impl/xcri.xml");
+		contextMap.put(prefix+".uri", "https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap-full");
+		contextMap.put(prefix+".username", "");
 		contextMap.put(prefix+".password", "");
 		contextMap.put(prefix+".name", "test");
 		

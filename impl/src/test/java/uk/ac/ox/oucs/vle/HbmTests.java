@@ -26,7 +26,6 @@ public class HbmTests extends AbstractTransactionalSpringContextTests {
 
 
 	protected String[] getConfigPaths() {
-		//return new String[]{"/components.xml", "/test-components.xml"};
 		return new String[]{"/course-signup-beans.xml", "/test-sakai-beans.xml"};
 	}
 
@@ -35,7 +34,7 @@ public class HbmTests extends AbstractTransactionalSpringContextTests {
 	 * This checks that when you delete a component without a signup only that component gets deleted.
 	 * This came about through WL-2645.
 	 */
-	/*
+	
 	public void testDeletingComponent() {
 		// Create a dummp group and add the component.
 		CourseGroupDAO newCourseGroup = courseDao.newCourseGroup("id", "Title", "Department", "Subunit");
@@ -64,7 +63,6 @@ public class HbmTests extends AbstractTransactionalSpringContextTests {
 		// Now attempt to delete the second component.
 		courseDao.deleteSelectedCourseComponents("source");
 	}
-	*/
 	
 	public void testSharedComponent() {
 		
