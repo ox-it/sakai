@@ -715,7 +715,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				querySQL.append("left join course_group_component cgc on cgc.courseComponentMuid = cc.muid ");
 				querySQL.append("left join course_group cg on cgc.courseGroupMuid = cg.muid ");
 				querySQL.append("where cc.starts is NULL and ");
-				querySQL.append("(cc.closes > NOW() or (cc.closes is null and cc.startsText is not null)) and ");
+				querySQL.append("(cc.baseDate > NOW() or (cc.baseDate is null and cc.startsText is not null)) and ");
 				querySQL.append("cg.hideGroup = false ");
 				querySQL.append("and cg.visibility != 'PR' ");
 				if (external) {
