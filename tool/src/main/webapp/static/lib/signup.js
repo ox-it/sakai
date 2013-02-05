@@ -751,6 +751,7 @@ var Signup = function(){
 				
 				if (!isOneBookable) {
 					summary.state = "No"; // (Not Bookable)";
+					summary.message = "Not Bookable";
 				}
 				if (now > baseDate) {
 					summary.previous[0] = "Old Courses";

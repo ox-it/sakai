@@ -72,7 +72,8 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 								Expression.or(Expression.gt("baseDate", now), Expression.and(Expression.isNull("baseDate"), Expression.isNotNull("startsText"))));
 						break;
 					case PREVIOUS:
-						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(Expression.le("baseDate", now));
+						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(
+								Expression.or(Expression.le("baseDate", now), Expression.and(Expression.isNull("baseDate"), Expression.isNull("startsText"))));
 						break;
 				}
 				criteria.setResultTransformer(Criteria.ROOT_ENTITY);
@@ -141,7 +142,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 						querySQL.append("((cc.baseDate is null AND cc.startsText is not null) OR cc.baseDate > now()) AND ");
 						break;
 					case PREVIOUS:
-						querySQL.append("cc.baseDate <= now() AND ");
+						querySQL.append("((cc.baseDate is null AND cc.startsText is null) OR cc.baseDate <= now()) AND ");
 						break;
 				}
 				
@@ -172,10 +173,12 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				criteria.add(Restrictions.eq("hideGroup", false));
 				switch (range) { 
 					case UPCOMING:
-						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("baseDate", now));
+						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(
+								Expression.or(Expression.gt("baseDate", now), Expression.and(Expression.isNull("baseDate"), Expression.isNotNull("startsText"))));
 						break;
 					case PREVIOUS:
-						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(Expression.le("baseDate", now));
+						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(
+								Expression.or(Expression.le("baseDate", now), Expression.and(Expression.isNull("baseDate"), Expression.isNull("startsText"))));
 						break;
 				}
 				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
