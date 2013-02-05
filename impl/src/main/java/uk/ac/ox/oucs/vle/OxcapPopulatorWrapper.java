@@ -3,9 +3,6 @@ package uk.ac.ox.oucs.vle;
 import java.io.IOException;
 import java.util.Collection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 public class OxcapPopulatorWrapper extends BasePopulatorWrapper implements PopulatorWrapper {
 
 	/**
@@ -24,7 +21,6 @@ public class OxcapPopulatorWrapper extends BasePopulatorWrapper implements Popul
 		this.populator = populator;
 	}
 
-	private static final Log log = LogFactory.getLog(OxcapPopulatorWrapper.class);
 	
 	@Override
 	void runPopulator(PopulatorContext context) throws IOException {

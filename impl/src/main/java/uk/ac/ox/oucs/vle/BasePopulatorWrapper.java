@@ -18,15 +18,15 @@ import org.sakaiproject.exception.TypeException;
 
 abstract class BasePopulatorWrapper implements PopulatorWrapper {
 
+	private static final Log log = LogFactory.getLog(BasePopulatorWrapper.class);
+
 	/**
 	 * 
 	 */
-	public SakaiProxy proxy;
+	protected SakaiProxy proxy;
 	public void setProxy(SakaiProxy proxy) {
 		this.proxy = proxy;
 	}
-
-	private static final Log log = LogFactory.getLog(BasePopulatorWrapper.class);
 
 	abstract void runPopulator(PopulatorContext context) throws IOException;
 	
