@@ -13,11 +13,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.hierarchy.api.model.PortalNodeRedirect;
 import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
-import org.sakaiproject.hierarchy.tool.vm.AddRedirectController.RedirectCommand;
+import org.sakaiproject.hierarchy.tool.vm.AddRedirectController.AddRedirectCommand;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitemanage.api.SiteHelper;
@@ -27,13 +28,17 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
-@RequestMapping("/*")
 public class ManagerController
 {
 
@@ -70,6 +75,8 @@ public class ManagerController
 	private SessionManager sessionManager;
 	private ServerConfigurationService serverConfigurationService;
 
+	private int titleMaxLength;
+
 	public ManagerController()
 	{
 		super();
@@ -98,13 +105,42 @@ public class ManagerController
 	{
 		this.serverConfigurationService = serverConfigurationService;
 	}
+	
+	@Autowired
+	public void setTitleMaxLength(int titleMaxLength)
+	{
+		this.titleMaxLength = titleMaxLength;
+	}
 
 	@PostConstruct
 	public void init()
 	{
 	}
+	
+	@ModelAttribute("remove")
+	public RemoveRedirectCommand getRemoveRedirectCommand() {
+		return new RemoveRedirectCommand();
+	}
+	
+	@ModelAttribute("command")
+	public AddRedirectCommand getAddRedirectComment() {
+		return new AddRedirectCommand();
+	}
+	
+	@RequestMapping("/redirect/delete")
+	public String deleteRedirect(@ModelAttribute("remove") RemoveRedirectCommand command, BindingResult errors) {
+		try {
+			phs.deleteNode(command.getRedirectId());
+		} catch (IllegalStateException e) {
+			throw new RuntimeException("Redirects should never have children so shouldn't see this exception.", e);
+		} catch (PermissionException e) {
+			errors.reject("error.no.permission");
+		}
+		errors.getModel().put("topRefresh", true);
+		return "show";
+	}
 
-	@RequestMapping
+	@RequestMapping("/*")
 	protected ModelAndView handleRequestInternal(HttpServletRequest request,
 			HttpServletResponse response) throws Exception
 			{
@@ -204,7 +240,7 @@ public class ManagerController
 		
 		Map<String, Object> showModel = new HashMap<String, Object>();
 		// This is so that we have one to show.
-		showModel.put("command", new RedirectCommand());
+		showModel.put("command", new AddRedirectCommand());
 		populateModel(showModel, request);
 		populateSite(showModel, node);
 		showModel.put("topRefresh", topRefresh);
@@ -301,6 +337,13 @@ public class ManagerController
 		map.put("nodeUrl",serverConfigurationService.getPortalUrl()+"/hierarchy"+ node.getPath());
 		return map;
 	}
+	
+	@ModelAttribute
+	public ModelMap model(HttpServletRequest request) {
+		ModelMap model = new ModelMap();
+		populateModel(model, request);
+		return model;
+	}
 
 	private void populateModel(Map<String, Object> model, HttpServletRequest request)
 	{
@@ -314,8 +357,21 @@ public class ManagerController
 		String editor = serverConfigurationService.getString("wysiwyg.editor");
 		model.put("sakai_editor", editor);
 		model.put("sakai_library_path", "/library/");
+		model.put("titleMaxLength", titleMaxLength);
 
 		model.put("rootUrl", request.getContextPath()+request.getServletPath());
+	}
+	
+	public static class RemoveRedirectCommand {
+		private String redirectId;
+
+		public String getRedirectId() {
+			return redirectId;
+		}
+
+		public void setRedirectId(String redirectId) {
+			this.redirectId = redirectId;
+		}
 	}
 
 }

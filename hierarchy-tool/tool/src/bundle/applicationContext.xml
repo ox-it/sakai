@@ -20,14 +20,6 @@
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 	</bean>
 
-	<bean id="managerController"
-		class="org.sakaiproject.hierarchy.tool.vm.ManagerController"
-		init-method="init">
-		<property name="portalHierarchyService" ref="org.sakaiproject.hierarchy.api.PortalHierarchyService"/>
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-	</bean>
-		
 	<bean id="siteBrowserHelper"
 		class="org.sakaiproject.hierarchy.tool.vm.HelperController">
 		<property name="helperId"><value>sakai.sitebrowser</value></property>

@@ -48,7 +48,7 @@
 ## If you are here and can manage this site you can manage all redirects.
 <h3>#springMessage("show.redirects")</h3>
 #if ($redirectNodes.size() > 0)
-	<form method="POST" action="${rootUrl}">
+	<form method="POST" action="${rootUrl}/redirect/delete">
 	<ul>
 		#foreach ($node in $redirectNodes)
 		<li>
