@@ -81,9 +81,6 @@ abstract class BasePopulatorWrapper implements PopulatorWrapper {
 		} catch (IOException e) {
 			log.error("IOException ["+context.getURI()+"]", e);
 
-		} catch (VirusFoundException e) {
-			log.error("VirusFoundException ["+context.getURI()+"]", e);
-
 		} finally {
 			if (null != dWriter) {
 				try {
