@@ -9,22 +9,24 @@ import javax.servlet.http.HttpServletResponse;
 import org.sakaiproject.tool.api.Tool;
 import org.springframework.web.servlet.DispatcherServlet;
 
-public class SpringDispatcherServlet extends DispatcherServlet
-{
+/**
+ * Makes sure @{link Tool#NATIVE_URL} is set for all requests handled by spring
+ * and removes it afterwards. *
+ */
+public class SpringDispatcherServlet extends DispatcherServlet {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
-	 * this is overridden to ensure that the Native URL is present.
+	 * {@inheritDoc}
 	 */
+	@Override
 	protected void service(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException
-	{
+			HttpServletResponse response) throws ServletException, IOException {
 		request.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
-		try
-		{
+		try {
 			super.service(request, response);
-		}
-		finally
-		{
+		} finally {
 			request.removeAttribute(Tool.NATIVE_URL);
 		}
 
