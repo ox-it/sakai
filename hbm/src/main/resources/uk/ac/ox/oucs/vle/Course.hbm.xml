@@ -54,7 +54,7 @@
 		<!-- create the primary key id -->
 		<id name="categoryId" type="int">
 			<column name="categoryId" />
-			<generator class="increment"/>
+			<generator class="identity"/>
 		</id>
 		<property name="courseGroupMuid" type="int" insert="false" update="false" />
 		<property name="categoryType" type="string" length="6" />
@@ -88,7 +88,7 @@
 	<class name="uk.ac.ox.oucs.vle.CourseComponentSessionDAO" table="course_component_session">
 		<id name="id" type="int">
 			<column name="id" />
-			<generator class="increment"/>
+			<generator class="identity"/>
 		</id>
 		<property name="courseComponentMuid" type="int" insert="false" update="false"/>
 		<property name="sessionId" type="string" length="255" />
@@ -102,7 +102,7 @@
 		<!-- create the primary key id -->
 		<id name="muid" type="int">
 			<column name="muid" />
-			<generator class="increment"/>
+			<generator class="identity"/>
 		</id>
 		<!-- We want to be sure the taken column isn't out of sync -->
 		<version name="version" column="version"/>
@@ -134,6 +134,7 @@
 		<property name="attendanceModeText" type="string" length="255"/>
 		<property name="attendancePattern" type="string" length="16"/>
 		<property name="attendancePatternText" type="string" length="255"/>
+		<property name="teachingDetails" type="text"/>
 		<property name="slot" type="string" length="4000"/>
 		<property name="sessions" type="string" length="4000"/>
 		<property name="location" type="string" length="4000"/>
@@ -147,7 +148,7 @@
 				column="signup" />
 		</set>
 		
-		<set name="groups" table="course_group_component" cascade="delete" lazy="true">
+		<set name="groups" table="course_group_component" lazy="true" >
 			<key column="courseComponentMuid" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO"
 				column="courseGroupMuid" />
@@ -164,7 +165,7 @@
 		<!-- create the primary key id -->
 		<id name="muid" type="int">
 			<column name="muid" />
-			<generator class="increment"/>
+			<generator class="identity"/>
 		</id>
 		<property name="courseId" type="string" length="255" />
 		<property name="title" type="string" length="255" />
@@ -184,7 +185,8 @@
 		<property name="visibility" type="string" length="16"/>
 		<property name="regulations" type="string" length="255"/>
 		<property name="source" type="string" length="32" index="course_group_source_idx"/>
-		<set name="components" cascade="delete" inverse="true" lazy="true" table="course_group_component" fetch="join">
+		
+		<set name="components" lazy="true" table="course_group_component" fetch="join" inverse="true" >
 			<key column="courseGroupMuid" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO" column="courseComponentMuid" />
 		</set>
@@ -204,8 +206,7 @@
 			<key column="courseGroupMuid" not-null="true"/>
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"/>
 		</set>
-		<!-- cascade="all-delete-orphan" -->
-		<set name="categories" inverse="false" lazy="true" cascade="all-delete-orphan" table="course_group_category" fetch="select">
+		<set name="categories" inverse="false" lazy="true" table="course_group_category" fetch="select" cascade="all-delete-orphan" >
 			<key column="courseGroupMuid" not-null="true" />
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseCategoryDAO"/>
 		</set>

@@ -111,6 +111,14 @@
 	</filter-mapping>
 	
 	<filter-mapping>
+		<filter-name>hibernate-session</filter-name>
+		<servlet-name>Jersey Web BasicAuth Application</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+	
+	<filter-mapping>
         <filter-name>oauth.post</filter-name>
         <servlet-name>Jersey Web Application</servlet-name>
         <dispatcher>REQUEST</dispatcher>

@@ -61,6 +61,7 @@ import uk.ac.ox.oucs.vle.xcri.daisy.ModuleApproval;
 import uk.ac.ox.oucs.vle.xcri.daisy.OtherDepartment;
 import uk.ac.ox.oucs.vle.xcri.daisy.Sessions;
 import uk.ac.ox.oucs.vle.xcri.daisy.SupervisorApproval;
+import uk.ac.ox.oucs.vle.xcri.daisy.TeachingDetails;
 import uk.ac.ox.oucs.vle.xcri.daisy.TermCode;
 import uk.ac.ox.oucs.vle.xcri.daisy.TermLabel;
 import uk.ac.ox.oucs.vle.xcri.daisy.WebAuthCode;
@@ -95,18 +96,19 @@ public class DaisyTest extends TestCase {
 		ExtensionManager.registerExtension(new MemberApplyTo());
 		ExtensionManager.registerExtension(new Subject());
 		ExtensionManager.registerExtension(new Session());
+		ExtensionManager.registerExtension(new TeachingDetails());
 
 		OverrideManager.registerOverride(Course.class, new OxcapCourse());
 		OverrideManager.registerOverride(Presentation.class, new OxcapPresentation());
 		
 		// Careers
-		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap-full");
+		URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap-full");
 		
 		// Continuing Education
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=http%3A//course.data.ox.ac.uk/id/continuing-education/catalog&format=xcricap-full");
 		
 		// ITLP
-		URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/itlp/catalogue&format=xcricap-full");
+		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/itlp/catalogue&format=xcricap-full");
 		
 		// Language Centre
 		//URL url = new URL("https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/language-centre/catalogue&format=xcricap-full");
@@ -454,6 +456,7 @@ public class DaisyTest extends TestCase {
 					
 					String memberApplyTo = null;
 					String bookingEndpoint = null;
+					String teachingDetails = null;
 					Set<Session> sessions = new HashSet<Session>();
 					
 					for (Extension extension : presentation.getExtensions()) {
@@ -515,6 +518,11 @@ public class DaisyTest extends TestCase {
 						
 						if (extension instanceof BookingEndpoint) {
 							bookingEndpoint = extension.getValue();
+							continue;
+						}
+						
+						if (extension instanceof TeachingDetails) {
+							teachingDetails = extension.getValue();
 							continue;
 						}
 						
