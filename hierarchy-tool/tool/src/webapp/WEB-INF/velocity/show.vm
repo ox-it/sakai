@@ -64,14 +64,17 @@
 	<h4>#springMessage("show.no.redirects")</h4>
 #end
 <h4>#springMessage("show.new.redirect")</h4>
-<form method="POST" action="${rootUrl}">
+
+<form method="POST" action="${rootUrl}/redirect/add">
 	<label for="name">#springMessage("show.name")</label>
 	#springFormInput("command.name" "")
-	#springShowErrors("" "")
-	#springFormInput("command.title" "maxlength='${titleMaxLength}'")
-	#springShowErrors("" "")
+	#springShowErrors("" "")<br>
+	<label for="title">#springMessage("show.title")</label>
+	#springFormInput("command.title" "id='title' maxlength='${titleMaxLength}'")
+	#springShowErrors("" "")<br>
 	<label for="url">#springMessage("show.url")</label>
-	<input type="text" name="url" id="url"><br>
+	#springFormInput("command.url" "id='url'")
+	#springShowErrors("" "")<br>
 	<label for="appendPath">#springMessage("show.appendPath")</label>
 	<input type="checkbox" name="appendPath" value="true" id="appendPath"><br>
 	<input type="hidden" name="_action" value="act_newredirect">
