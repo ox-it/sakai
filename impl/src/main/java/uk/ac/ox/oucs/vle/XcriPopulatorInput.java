@@ -32,7 +32,8 @@ public class XcriPopulatorInput implements PopulatorInput {
 		httpclient.getConnectionManager().shutdown();
 	}
 
-	public InputStream getInput(PopulatorContext context) {
+	public InputStream getInput(PopulatorContext context) 
+	throws PopulatorException {
 		
 		InputStream input;
 
@@ -50,8 +51,7 @@ public class XcriPopulatorInput implements PopulatorInput {
 			HttpEntity entity = response.getEntity();
 
 			if (HttpStatus.SC_OK != response.getStatusLine().getStatusCode()) {
-				throw new IllegalStateException(
-						"Invalid response ["+response.getStatusLine().getStatusCode()+"]");
+	    		throw new PopulatorException("Invalid Response ["+response.getStatusLine().getStatusCode()+"]");
 			}
 
 			input = entity.getContent();
