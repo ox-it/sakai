@@ -380,7 +380,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return bytes;
 		
 		} catch (Exception e) {
-			System.out.println("encrypt Exception ["+e.getLocalizedMessage()+"]"); 
+			log.warn("Encryption failed.", e);
 		}
 		return null;
 	}
@@ -392,9 +392,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 			cipher.init(Cipher.DECRYPT_MODE, skeySpec);
 			byte[] original = cipher.doFinal(bytes);
 			return new String(original);
-		
 		} catch (Exception e) {	
-			System.out.println("decrypt Exception ["+e.getLocalizedMessage()+"]"); 
+			log.warn("Decription failed.", e); 
 		}	
 		return null;
 	}
