@@ -13,6 +13,12 @@ import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.sakaiproject.antivirus.api.VirusFoundException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.OverQuotaException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 
 /**
  * Simple bean that allows the populator to be called from Quartz.
@@ -77,42 +83,64 @@ public class PopulatorJob implements Job {
 
 		}
 		
-		dWriter.footer();
-		dWriter.flush();
-		proxy.writeLog(dWriter.getIdName(), dWriter.getDisplayName(), dOut.toByteArray());
+		try {
+			dWriter.footer();
+			dWriter.flush();
+			proxy.writeLog(dWriter.getIdName(), dWriter.getDisplayName(), dOut.toByteArray());
 
-		eWriter.footer();
-		eWriter.flush();
-		proxy.writeLog(eWriter.getIdName(), eWriter.getDisplayName(), eOut.toByteArray());
+			eWriter.footer();
+			eWriter.flush();
+			proxy.writeLog(eWriter.getIdName(), eWriter.getDisplayName(), eOut.toByteArray());
 
-		iWriter.footer();
-		iWriter.flush();
-		proxy.writeLog(iWriter.getIdName(), iWriter.getDisplayName(), iOut.toByteArray());
+			iWriter.footer();
+			iWriter.flush();
+			proxy.writeLog(iWriter.getIdName(), iWriter.getDisplayName(), iOut.toByteArray());
 		
-		if (null != dWriter) {
-			try {
-				dWriter.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		
+		} catch (InUseException e1) {
+			e1.printStackTrace();
+		
+		} catch (TypeException e1) {
+			e1.printStackTrace();
+			
+		} catch (PermissionException e1) {
+			e1.printStackTrace();
+			
+		} catch (ServerOverloadException e1) {
+			e1.printStackTrace();
+			
+		} catch (OverQuotaException e1) {
+			e1.printStackTrace();
+			
+		} finally {
+		
+			if (null != dWriter) {
+				try {
+					dWriter.close();
 
-			} catch (IOException e) {
-				log.error("IOException ["+pContext.getURI()+"]", e);
+				} catch (IOException e) {
+					log.error("IOException ["+pContext.getURI()+"]", e);
+				}
 			}
-		}
 
-		if (null != eWriter) {
-			try {
-				eWriter.close();
+			if (null != eWriter) {
+				try {
+					eWriter.close();
 
-			} catch (IOException e) {
+				} catch (IOException e) {
 				log.error("IOException ["+pContext.getURI()+"]", e);
+				}
 			}
-		}
 
-		if (null != iWriter) {
-			try {
-				iWriter.close();
+			if (null != iWriter) {
+				try {
+					iWriter.close();
 
-			} catch (IOException e) {
-				log.error("IOException ["+pContext.getURI()+"]", e);
+				} catch (IOException e) {
+					log.error("IOException ["+pContext.getURI()+"]", e);
+				}
 			}
 		}
 	}
