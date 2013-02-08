@@ -324,14 +324,21 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	public String encode(String uncoded) {
 		byte[] encrypted = encrypt(uncoded);
-		String base64String = new String(Base64.encodeBase64(encrypted));	
-		return base64String.replace('+','-').replace('/','_');
+		if (encrypted != null) {
+			String base64String = new String(Base64.encodeBase64(encrypted));
+			return base64String.replace('+','-').replace('/','_');
+		} else {
+			// Return obvious note that encryption failed.
+			return "encryption.failed";
+		}
 	}
 	
 	public String uncode(String encoded) {
 		String base64String = encoded.replace('-','+').replace('_','/');
 		byte[] encrypted = Base64.decodeBase64(base64String.getBytes());
-		return decrypt(encrypted);
+		String decrypted = decrypt(encrypted);
+		// On failed decryption we have to return null.
+		return decrypted;
 	}
 
 	public String getMyUrl() {
@@ -367,11 +374,20 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	protected String getSecretKey() {
-		return serverConfigurationService.getString("aes.secret.key");
+		// Return null if not set.
+		String key = serverConfigurationService.getString("aes.secret.key", null);
+		if (key == null) {
+			log.error("No secret key specified. Please set 'aes.secret.key' in configuration");
+		}
+		return key;
 	}
 	
 	protected byte[] encrypt(String string) {
-		SecretKeySpec skeySpec = new SecretKeySpec(getSecretKey().getBytes(), "AES");
+		String secretKey = getSecretKey();
+		if (secretKey == null) {
+			return null;
+		}
+		SecretKeySpec skeySpec = new SecretKeySpec(secretKey.getBytes(), "AES");
 		try {
 			// Instantiate the cipher
 			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
@@ -386,15 +402,19 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	protected String decrypt(byte[] bytes) {
-		SecretKeySpec skeySpec = new SecretKeySpec(getSecretKey().getBytes(), "AES");
+		String secretKey = getSecretKey();
+		if (secretKey == null) {
+			return null;
+		}
+		SecretKeySpec skeySpec = new SecretKeySpec(secretKey.getBytes(), "AES");
 		try {
 			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 			cipher.init(Cipher.DECRYPT_MODE, skeySpec);
 			byte[] original = cipher.doFinal(bytes);
 			return new String(original);
-		} catch (Exception e) {	
+		} catch (Exception e) {
 			log.warn("Decription failed.", e); 
-		}	
+		}
 		return null;
 	}
 
