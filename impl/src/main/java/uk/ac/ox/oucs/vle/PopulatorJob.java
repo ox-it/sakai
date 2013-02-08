@@ -80,7 +80,7 @@ public class PopulatorJob implements Job {
 		} catch (PopulatorException e) {
 			
 			try {
-				eWriter.write("PopulatorException caught ["+e.getLocalizedMessage()+"]");
+				//eWriter.write("PopulatorException caught ["+e.getMessage()+"]");
 				eWriter.write(getStackTrace(e));
 				eWriter.flush();
 			} catch (IOException ex) {

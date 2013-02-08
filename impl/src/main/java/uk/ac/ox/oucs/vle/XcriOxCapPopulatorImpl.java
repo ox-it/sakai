@@ -120,13 +120,16 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 
 	/**
+	 * @throws  
 	 * @throws MalformedURLException 
 	 * 
 	 */
 	public void update(PopulatorContext context) throws PopulatorException {
 
+		InputStream input = null;
+		
 		try {
-			InputStream input = populatorInput.getInput(context);
+			input = populatorInput.getInput(context);
 
 			if (null == input) {
 				throw new PopulatorException("No Input for Importer");
@@ -152,6 +155,15 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		} catch (InvalidElementException e) {
 			log.warn("InvalidElementException ["+context.getURI()+"]", e);
 			throw new PopulatorException(e.getLocalizedMessage());
+			
+		} finally {
+			if (null != input) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					log.error("IOException ["+e+"]");
+				}
+			}
 		}
 
 	}

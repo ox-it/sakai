@@ -6,6 +6,8 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -14,10 +16,10 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.jdom.JDOMException;
-import org.xcri.exceptions.InvalidElementException;
 
 public class XcriPopulatorInput implements PopulatorInput {
+	
+	private static final Log log = LogFactory.getLog(XcriPopulatorInput.class);
 	
 	DefaultHttpClient httpclient;
 	
@@ -35,7 +37,8 @@ public class XcriPopulatorInput implements PopulatorInput {
 	public InputStream getInput(PopulatorContext context) 
 	throws PopulatorException {
 		
-		InputStream input;
+		InputStream input = null;
+		HttpEntity entity = null;
 
 		try {
 			URL xcri = new URL(context.getURI());
@@ -48,7 +51,7 @@ public class XcriPopulatorInput implements PopulatorInput {
 
 			HttpGet httpget = new HttpGet(xcri.toURI());
 			HttpResponse response = httpclient.execute(targetHost, httpget);
-			HttpEntity entity = response.getEntity();
+			entity = response.getEntity();
 
 			if (HttpStatus.SC_OK != response.getStatusLine().getStatusCode()) {
 	    		throw new PopulatorException("Invalid Response ["+response.getStatusLine().getStatusCode()+"]");
@@ -68,8 +71,15 @@ public class XcriPopulatorInput implements PopulatorInput {
 		} catch (URISyntaxException e) {
 			throw new PopulatorException(e.getLocalizedMessage());
 
+		} finally {
+			if (null == input && null != entity) {
+				try {
+					entity.getContent().close();
+				} catch (IOException e) {
+					log.error("IOException ["+e+"]");
+				}
+			}
 		}
-		
 		return input;
 	}
 
