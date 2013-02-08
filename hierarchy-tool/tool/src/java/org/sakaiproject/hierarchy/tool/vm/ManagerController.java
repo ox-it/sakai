@@ -34,6 +34,7 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -70,7 +71,7 @@ public class ManagerController
 
 	private static final String CUT_ID = ManagerController.class.getName() + "#CUT_ID";
 
-	private PortalHierarchyService phs;
+	private PortalHierarchyService portalHierarchyService;
 	private SiteService siteService;
 	private SessionManager sessionManager;
 	private ServerConfigurationService serverConfigurationService;
@@ -85,7 +86,7 @@ public class ManagerController
 	@Autowired
 	public void setPortalHierarchyService(PortalHierarchyService phs)
 	{
-		this.phs = phs;
+		this.portalHierarchyService = phs;
 	}
 	
 	@Autowired
@@ -130,7 +131,7 @@ public class ManagerController
 	@RequestMapping("/redirect/delete")
 	public String deleteRedirect(@ModelAttribute("remove") RemoveRedirectCommand command, BindingResult errors) {
 		try {
-			phs.deleteNode(command.getRedirectId());
+			portalHierarchyService.deleteNode(command.getRedirectId());
 		} catch (IllegalStateException e) {
 			throw new RuntimeException("Redirects should never have children so shouldn't see this exception.", e);
 		} catch (PermissionException e) {
@@ -196,7 +197,7 @@ public class ManagerController
 
 			if (siteId != null && siteId.length() > 0)
 			{
-				phs.changeSite(node.getId(), siteId);
+				portalHierarchyService.changeSite(node.getId(), siteId);
 				topRefresh = true;
 			}
 		}
@@ -209,7 +210,7 @@ public class ManagerController
 		{
 			if (cutId != null)
 			{
-				phs.moveNode(cutId, node.getId());
+				portalHierarchyService.moveNode(cutId, node.getId());
 				session.removeAttribute(ManagerController.CUT_ID);
 				cutId = null;
 				topRefresh = true;
@@ -228,13 +229,13 @@ public class ManagerController
 			String path = request.getParameter("path");
 			boolean appendPath = Boolean.valueOf(request.getParameter("appendPath"));
 			
-			phs.newRedirectNode(node.getId(), path, redirectUrl, redirectTitle, appendPath);
+			portalHierarchyService.newRedirectNode(node.getId(), path, redirectUrl, redirectTitle, appendPath);
 			topRefresh = true;
 		}
 		else if (ACT_DELETEREDIRECT.equals(action))
 		{
 			String nodeId = request.getParameter("redirectId");
-			phs.deleteNode(nodeId);
+			portalHierarchyService.deleteNode(nodeId);
 			topRefresh = true;
 		}
 		
@@ -247,34 +248,14 @@ public class ManagerController
 		if (cutId != null)
 		{
 			showModel.put("cutId", cutId);
-			PortalNode cutNode = phs.getNodeById(cutId);
+			PortalNode cutNode = portalHierarchyService.getNodeById(cutId);
 			showModel.put("cutChild", node.getPath().startsWith(cutNode.getPath()));
 			showModel.put("cutNode", cutNode);
 			return new ModelAndView( "cut", showModel);
 		}
 		else
 		{
-			showModel.put("canDelete", phs.canDeleteNode(node.getId()));
-			showModel.put("canMove", phs.canMoveNode(node.getId()));
-			showModel.put("canReplace", phs.canChangeSite(node.getId()));
-			// Need to list the redirect nodes.
-			List<PortalNode> nodeChildren = phs.getNodeChildren(node.getId());
-			List<Map<String,String>> redirectNodes = new ArrayList<Map<String,String>>();
-			for(PortalNode nodeChild: nodeChildren)
-			{
-				if (nodeChild instanceof PortalNodeRedirect)
-				{
-					PortalNodeRedirect redirectNode = (PortalNodeRedirect)nodeChild;
-					Map<String,String> redirectDetails = new HashMap<String,String>();
-					redirectDetails.put("id", redirectNode.getId());
-					redirectDetails.put("path", redirectNode.getPath());
-					redirectDetails.put("title", redirectNode.getTitle());
-					redirectDetails.put("url", redirectNode.getUrl());
-					redirectDetails.put("appendPath", redirectNode.isAppendPath()?"true":null);
-					redirectNodes.add(redirectDetails);
-				}
-			}
-			showModel.put("redirectNodes", redirectNodes);
+	
 			
 			return new ModelAndView("show", showModel);
 		}
@@ -284,13 +265,13 @@ public class ManagerController
 		PortalNode node = null;
 		if (currentPath != null && currentPath.length() > 0)
 		{
-			node = phs.getNode(currentPath);
+			node = portalHierarchyService.getNode(currentPath);
 		}
 		if (node == null)
 		{
-			node = phs.getCurrentPortalNode();
+			node = portalHierarchyService.getCurrentPortalNode();
 			if ( node == null ) {
-				node = phs.getNode(null);
+				node = portalHierarchyService.getNode(null);
 			}
 		}
 		if (node instanceof PortalNodeSite) { 
@@ -311,7 +292,7 @@ public class ManagerController
 			Map<String,Object> site = createSiteMap(node.getSite());
 			site.putAll(createNodeMap(node));
 			
-			List<PortalNode> nodes = phs.getNodesWithSite(node.getSite().getId());
+			List<PortalNode> nodes = portalHierarchyService.getNodesWithSite(node.getSite().getId());
 			List<Map<String, Object>> paths = new ArrayList<Map<String, Object>>(nodes.size());
 			for (PortalNode currentNode: nodes) {
 				if (!node.getPath().equals(currentNode.getPath()))
@@ -339,10 +320,8 @@ public class ManagerController
 	}
 	
 	@ModelAttribute
-	public ModelMap model(HttpServletRequest request) {
-		ModelMap model = new ModelMap();
+	public void referenceData(HttpServletRequest request, ModelMap model) {
 		populateModel(model, request);
-		return model;
 	}
 
 	private void populateModel(Map<String, Object> model, HttpServletRequest request)
@@ -360,6 +339,41 @@ public class ManagerController
 		model.put("titleMaxLength", titleMaxLength);
 
 		model.put("rootUrl", request.getContextPath()+request.getServletPath());
+		
+		PortalNodeSite node = portalHierarchyService.getCurrentPortalNode();
+
+		Map<String, Object> site = createSiteMap(node.getSite());
+		site.putAll(createNodeMap(node));
+		model.put("current", site);
+
+		List<PortalNode> nodes = portalHierarchyService.getNodesWithSite(node.getSite().getId());
+		List<Map<String, Object>> paths = new ArrayList<Map<String, Object>>(nodes.size());
+		for (PortalNode currentNode : nodes) {
+			if (!node.getPath().equals(currentNode.getPath()))
+				paths.add(createNodeMap(currentNode));
+		}
+		model.put("other", paths);
+
+		model.put("canDelete", portalHierarchyService.canDeleteNode(node.getId()));
+		model.put("canMove", portalHierarchyService.canMoveNode(node.getId()));
+		model.put("canReplace", portalHierarchyService.canChangeSite(node.getId()));
+		// Need to list the redirect nodes.
+		List<PortalNode> nodeChildren = portalHierarchyService.getNodeChildren(node.getId());
+		List<Map<String, String>> redirectNodes = new ArrayList<Map<String, String>>();
+		for (PortalNode nodeChild : nodeChildren) {
+			if (nodeChild instanceof PortalNodeRedirect) {
+				PortalNodeRedirect redirectNode = (PortalNodeRedirect) nodeChild;
+				Map<String, String> redirectDetails = new HashMap<String, String>();
+				redirectDetails.put("id", redirectNode.getId());
+				redirectDetails.put("path", redirectNode.getPath());
+				redirectDetails.put("title", redirectNode.getTitle());
+				redirectDetails.put("url", redirectNode.getUrl());
+				redirectDetails.put("appendPath", redirectNode.isAppendPath() ? "true" : null);
+				redirectNodes.add(redirectDetails);
+			}
+		}
+		model.put("redirectNodes", redirectNodes);
+
 	}
 	
 	public static class RemoveRedirectCommand {
