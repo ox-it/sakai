@@ -128,8 +128,8 @@ public class ManagerController
 		return new AddRedirectCommand();
 	}
 	
-	@RequestMapping("/redirect/delete")
-	public String deleteRedirect(@ModelAttribute("remove") RemoveRedirectCommand command, BindingResult errors) {
+	@RequestMapping(value = "/redirect/delete", method = RequestMethod.POST)
+	public String deleteRedirect(@ModelAttribute("remove") RemoveRedirectCommand command, BindingResult errors, ModelMap model) {
 		try {
 			portalHierarchyService.deleteNode(command.getRedirectId());
 		} catch (IllegalStateException e) {
@@ -137,7 +137,7 @@ public class ManagerController
 		} catch (PermissionException e) {
 			errors.reject("error.no.permission");
 		}
-		errors.getModel().put("topRefresh", true);
+		model.put("topRefresh", true);
 		return "show";
 	}
 
