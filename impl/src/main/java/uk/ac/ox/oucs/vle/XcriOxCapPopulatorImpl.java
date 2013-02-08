@@ -174,13 +174,13 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		PopulatorInstanceData data = new PopulatorInstanceData();
 		
 		if (null != context.getDeletedLogWriter()) {
-			context.getDeletedLogWriter().header("Deleted Groups and Components from SES Import", catalog.getGenerated());
+			context.getDeletedLogWriter().heading(catalog.getGenerated());
 		}
 		if (null != context.getErrorLogWriter()) {
-			context.getErrorLogWriter().header("Errors and Warnings from SES Import", catalog.getGenerated());
+			context.getErrorLogWriter().heading(catalog.getGenerated());
 		}
 		if (null != context.getInfoLogWriter()) {
-			context.getInfoLogWriter().header("Info and Warnings from SES Import", catalog.getGenerated());
+			context.getInfoLogWriter().heading(catalog.getGenerated());
 		}
 			
 		Provider[] providers = catalog.getProviders();

@@ -5,7 +5,9 @@ import java.util.Date;
 
 public interface PopulatorLogWriter {
 
-	public void header(String heading, Date generated) throws IOException;
+	public void header(String heading) throws IOException;
+	
+	public void heading(Date generated) throws IOException;
 	
 	public void footer() throws IOException;
 	

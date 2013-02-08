@@ -10,10 +10,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
@@ -59,14 +57,22 @@ public class PopulatorJob implements Job {
 		ByteArrayOutputStream eOut = new ByteArrayOutputStream();
 		ByteArrayOutputStream iOut = new ByteArrayOutputStream();
 
-		dWriter = new XcriLogWriter(dOut, pContext.getName()+"ImportDeleted");
-		pContext.setDeletedLogWriter(dWriter);
+		try {
+			dWriter = new XcriLogWriter(dOut, pContext.getName()+"ImportDeleted");
+			dWriter.header("Deleted Groups and Components from SES Import");
+			pContext.setDeletedLogWriter(dWriter);
 
-		eWriter = new XcriLogWriter(eOut, pContext.getName()+"ImportError");
-		pContext.setErrorLogWriter(eWriter);
+			eWriter = new XcriLogWriter(eOut, pContext.getName()+"ImportError");
+			eWriter.header("Errors and Warnings from SES Import");
+			pContext.setErrorLogWriter(eWriter);
 
-		iWriter = new XcriLogWriter(iOut, pContext.getName()+"ImportInfo");
-		pContext.setInfoLogWriter(iWriter);
+			iWriter = new XcriLogWriter(iOut, pContext.getName()+"ImportInfo");
+			iWriter.header("Info and Warnings from SES Import");
+			pContext.setInfoLogWriter(iWriter);
+			
+		} catch (IOException e) {
+			log.error("Failed to write content to logfile.", e);
+		}
 		
 		try {
 			populator.update(pContext);
@@ -77,8 +83,8 @@ public class PopulatorJob implements Job {
 				eWriter.write("PopulatorException caught ["+e.getLocalizedMessage()+"]");
 				eWriter.write(getStackTrace(e));
 				eWriter.flush();
-			} catch (IOException e1) {
-				log.error("Failed to write content to logfile.", e);
+			} catch (IOException ex) {
+				log.error("Failed to write content to logfile.", ex);
 			}
 
 		}
