@@ -24,31 +24,31 @@ import org.sakaiproject.exception.TypeException;
  *
  */
 public class PopulatorJob implements Job {
-	
+
 	private static final Log log = LogFactory.getLog(PopulatorJob.class);
 
 	/**
-	 * 
+	 * The proxy for adding logfile to resources
 	 */
 	protected SakaiProxy proxy;
 	public void setProxy(SakaiProxy proxy) {
 		this.proxy = proxy;
 	}
-	
+
 	/**
-	 * 
+	 * The populator jov wrapper
 	 */
 	private PopulatorWrapper populator;
 	public void setPopulatorWrapper(PopulatorWrapper populatorWrapper){
 		this.populator = populatorWrapper;
 	}
-	
+
 	public void execute(JobExecutionContext context)
 			throws JobExecutionException {
-		
+
 		JobDataMap jobDataMap = context.getMergedJobDataMap();
 		PopulatorContext pContext = new PopulatorContext("xcri.oxcap.populator", jobDataMap);
-		
+
 		PopulatorLogWriter dWriter = null;
 		PopulatorLogWriter eWriter = null;
 		PopulatorLogWriter iWriter = null;
@@ -69,18 +69,17 @@ public class PopulatorJob implements Job {
 			iWriter = new XcriLogWriter(iOut, pContext.getName()+"ImportInfo");
 			iWriter.header("Info and Warnings from SES Import");
 			pContext.setInfoLogWriter(iWriter);
-			
+
 		} catch (IOException e) {
 			log.error("Failed to write content to logfile.", e);
 		}
-		
+
 		try {
 			populator.update(pContext);
-			
+
 		} catch (PopulatorException e) {
-			
+
 			try {
-				//eWriter.write("PopulatorException caught ["+e.getMessage()+"]");
 				eWriter.write(getStackTrace(e));
 				eWriter.flush();
 			} catch (IOException ex) {
@@ -88,7 +87,7 @@ public class PopulatorJob implements Job {
 			}
 
 		}
-		
+
 		try {
 			dWriter.footer();
 			dWriter.flush();
@@ -101,27 +100,27 @@ public class PopulatorJob implements Job {
 			iWriter.footer();
 			iWriter.flush();
 			proxy.writeLog(iWriter.getIdName(), iWriter.getDisplayName(), iOut.toByteArray());
-		
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		
-		} catch (InUseException e1) {
-			e1.printStackTrace();
-		
-		} catch (TypeException e1) {
-			e1.printStackTrace();
-			
-		} catch (PermissionException e1) {
-			e1.printStackTrace();
-			
-		} catch (ServerOverloadException e1) {
-			e1.printStackTrace();
-			
-		} catch (OverQuotaException e1) {
-			e1.printStackTrace();
-			
+
+		} catch (IOException e) {
+			log.error("Failed to write logfile to resources [IOException].", e);
+
+		} catch (InUseException e) {
+			log.error("Failed to write logfile to resources [InUseException].", e);
+
+		} catch (TypeException e) {
+			log.error("Failed to write logfile to resources [TypeException].", e);
+
+		} catch (PermissionException e) {
+			log.error("Failed to write logfile to resources [PermissionException].", e);
+
+		} catch (ServerOverloadException e) {
+			log.error("Failed to write logfile to resources [ServerOverloadException].", e);
+
+		} catch (OverQuotaException e) {
+			log.error("Failed to write logfile to resources [OverQuotaException].", e);
+
 		} finally {
-		
+
 			if (null != dWriter) {
 				try {
 					dWriter.close();
@@ -136,7 +135,7 @@ public class PopulatorJob implements Job {
 					eWriter.close();
 
 				} catch (IOException e) {
-				log.error("IOException ["+pContext.getURI()+"]", e);
+					log.error("IOException ["+pContext.getURI()+"]", e);
 				}
 			}
 
@@ -150,7 +149,7 @@ public class PopulatorJob implements Job {
 			}
 		}
 	}
-	
+
 	public static String getStackTrace(Throwable aThrowable) {
 		final Writer result = new StringWriter();
 		final PrintWriter printWriter = new PrintWriter(result);

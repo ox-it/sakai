@@ -11,7 +11,6 @@ import java.util.Date;
 public class XcriLogWriter extends OutputStreamWriter implements PopulatorLogWriter {
 		
 	private String name;
-	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	public XcriLogWriter(OutputStream arg0, String name) {
 		super(arg0);
@@ -21,14 +20,16 @@ public class XcriLogWriter extends OutputStreamWriter implements PopulatorLogWri
 	public void header(String heading) throws IOException {
 		Calendar cal = Calendar.getInstance();
 		this.write("<html><head></head><body>"+"<h3>"+ heading+" ");
-		this.write(sdf.format(cal.getTime()));
+		this.write(
+				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(cal.getTime()));
 		this.write("</h3>");
 	}
 	
 	public void heading(Date generated) throws IOException {
 		if (null != generated) {
 			this.write("<h3>Using the XCRI file generated on ");
-			this.write(sdf.format(generated));
+			this.write(
+					new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(generated));
 			this.write("</h3>");
 		}
 		this.write("<pre>");
