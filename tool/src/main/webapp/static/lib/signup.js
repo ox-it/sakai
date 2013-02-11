@@ -707,7 +707,7 @@ var Signup = function(){
 				
 				$.each(components, function() {
 					var component = this;
-				
+					
 					if (component.opensText) {
 						opensText = component.opensText;
 					}
@@ -733,12 +733,15 @@ var Signup = function(){
 							areSomePlaces = true;
 						}
 					}
+					
+					if (!isOneBookable) {
+						isOneBookable = component.bookable;
+					}
+					
 					// If we are not recording signups, we must assume that there are places available.
 					if ("Daisy" != component.source) {
 						areSomePlaces = true;
-					}
-					if (!isOneBookable) {
-						isOneBookable = component.bookable;
+						isOneBookable = true;
 					}
 					
 					var newDate = now - (recentDays * 24 * 60 * 60 * 1000);
