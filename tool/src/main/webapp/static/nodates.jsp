@@ -56,8 +56,7 @@
 <script type="text/javascript">
 	
 		var externalUser = <c:out value="${externalUser}" />;
-		var recentDays = "<%=ServerConfigurationService.getString("recent.days", "14")%>
-	";
+		var recentDays = "<%=ServerConfigurationService.getString("recent.days", "14")%>";
 
 	$(function() {
 
