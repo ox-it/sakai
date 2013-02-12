@@ -27,7 +27,6 @@ public class DaisyPopulatorWrapper extends BasePopulatorWrapper implements Popul
 	@Override
 	void runPopulator(PopulatorContext context) throws IOException {
 		
-		// WL-2678 Comment out course deletion
 		dao.flagSelectedDaisyCourseGroups(context.getName());
 		dao.flagSelectedDaisyCourseComponents(context.getName());
 
