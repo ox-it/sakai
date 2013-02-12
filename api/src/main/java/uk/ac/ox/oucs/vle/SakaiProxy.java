@@ -84,8 +84,9 @@ public interface SakaiProxy {
 	 */
 	public String getConfigParam(String param, String dflt); 
 	
-	public void writeLog(String contentId, String contentDisplayName, byte[] bytes) 
-			throws VirusFoundException, OverQuotaException, ServerOverloadException, PermissionException, TypeException, InUseException;
+	public void writeLog(String contentId, String contentDisplayName, byte[] bytes);
+	
+	public void prependLog(String contentId, String contentDisplayName, byte[] bytes);
 	
 
 }
