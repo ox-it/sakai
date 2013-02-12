@@ -3,9 +3,6 @@ package uk.ac.ox.oucs.vle;
 import java.io.IOException;
 import java.util.Collection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 public class DaisyPopulatorWrapper extends BasePopulatorWrapper implements PopulatorWrapper {
 
 	/**

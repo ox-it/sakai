@@ -1,16 +1,24 @@
 package uk.ac.ox.oucs.vle.proxy;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.antivirus.api.VirusFoundException;
@@ -413,11 +421,140 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getString(param, dflt);
 	}
 	
-	public void writeLog(String contentId, String contentDisplayName, byte[] bytes) 
-			throws VirusFoundException, OverQuotaException, ServerOverloadException, PermissionException, TypeException, InUseException {
+	/**
+	 * 
+	 * @param contentId
+	 * @param contentDisplayName
+	 * @param bytes
+	 * @throws VirusFoundException
+	 * @throws OverQuotaException
+	 * @throws ServerOverloadException
+	 * @throws PermissionException
+	 * @throws TypeException
+	 * @throws InUseException
+	 */
+	public void writeLog(String contentId, String contentDisplayName, byte[] bytes) {
 		
 		switchUser();
+		ContentResourceEdit cre;
+		try {
+			cre = getContentResourceEdit(contentId, contentDisplayName);
+			cre.setContent(bytes);
+			// Don't notify anyone about this resource.
+			contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+			
+		} catch (PermissionException e) {
+			log.error("PermissionException ["+e.getMessage()+"]", e);
+			
+		} catch (TypeException e) {
+			log.error("TypeException ["+e.getMessage()+"]", e);
+			
+		} catch (InUseException e) {
+			log.error("InUseException ["+e.getMessage()+"]", e);
+			
+		} catch (VirusFoundException e) {
+			log.error("VirusFoundException ["+e.getMessage()+"]", e);
+			
+		} catch (OverQuotaException e) {
+			log.error("OverQuotaException ["+e.getMessage()+"]", e);
+			
+		} catch (ServerOverloadException e) {
+			log.error("ServerOverloadException ["+e.getMessage()+"]", e);
+			
+		}
+		
+	}
+	
+	/**
+	 * 
+	 * @param contentId
+	 * @param contentDisplayName
+	 * @param bytes
+	 * @throws VirusFoundException
+	 * @throws OverQuotaException
+	 * @throws ServerOverloadException
+	 * @throws PermissionException
+	 * @throws TypeException
+	 * @throws InUseException
+	 */
+	public void prependLog(String contentId, String contentDisplayName, byte[] logBytes) {
+		
+		switchUser();
+		
+		File tempFile = null;
+		OutputStream out = null;
 		ContentResourceEdit cre = null;
+		
+		
+		try {
+			cre = getContentResourceEdit(contentId, contentDisplayName);
+			
+			tempFile = File.createTempFile("ses", ".tmp");
+			tempFile.deleteOnExit();
+			
+			out = new FileOutputStream(tempFile);
+			out.write(logBytes);
+			IOUtils.copy(cre.streamContent(), out);
+			out.flush();
+			cre.setContent(new FileInputStream(tempFile));
+			
+			// Don't notify anyone about this resource.
+			contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+			
+		} catch (IOException e) {
+			log.error("IOException ["+e.getMessage()+"]", e);
+			
+		} catch (ServerOverloadException e) {
+			log.error("ServerOverloadException ["+e.getMessage()+"]", e);
+			
+		} catch (PermissionException e) {
+			log.error("PermissionException ["+e.getMessage()+"]", e);
+			
+		} catch (TypeException e) {
+			log.error("TypeException ["+e.getMessage()+"]", e);
+			
+		} catch (InUseException e) {
+			log.error("InUseException ["+e.getMessage()+"]", e);
+			
+		} catch (VirusFoundException e) {
+			log.error("VirusFoundException ["+e.getMessage()+"]", e);
+			
+		} catch (OverQuotaException e) {
+			log.error("OverQuotaException ["+e.getMessage()+"]", e);
+			
+		} finally {
+			
+			try {
+				
+				if (null != out) {
+					out.close();
+				}
+				
+				if (null != tempFile) {
+					tempFile.delete();
+				}
+				
+			} catch (IOException e) {
+				log.error("IOException ["+e.getMessage()+"]", e);
+			}
+		}
+		
+	}
+	
+	/**
+	 * 
+	 * @param contentId
+	 * @param contentDisplayName
+	 * @return
+	 * @throws PermissionException
+	 * @throws TypeException
+	 * @throws InUseException
+	 */
+	private ContentResourceEdit getContentResourceEdit(String contentId, String contentDisplayName) 
+			throws PermissionException, TypeException, InUseException {
+		
+		ContentResourceEdit cre = null;
+		
 		String siteId = getConfigParam("course-signup.site-id", "course-signup");
 		String jsonResourceEId = contentHostingService.getSiteCollection(siteId)+"logs/"+ contentId;
 
@@ -437,11 +574,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				log.warn("Failed to create the import log file.", e1);
 			}
 		}
-
-		cre.setContent(bytes);
-		// Don't notify anyone about this resource.
-		contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
-		
+		return cre;
 	}
 	
 	/**

@@ -3,7 +3,6 @@ package uk.ac.ox.oucs.vle;
 import java.io.IOException;
 import java.util.Collection;
 
-
 public class OxcapPopulatorWrapper extends BasePopulatorWrapper implements PopulatorWrapper {
 
 	/**
@@ -25,7 +24,7 @@ public class OxcapPopulatorWrapper extends BasePopulatorWrapper implements Popul
 	
 	@Override
 	void runPopulator(PopulatorContext context) throws IOException {
-		
+
 		dao.flagSelectedCourseGroups(context.getName());
 		dao.flagSelectedCourseComponents(context.getName());
 
