@@ -13,7 +13,7 @@ public class CourseCategoryImpl implements CourseCategory {
 	}
 
 	public String getCode() {
-		return dao.getCategoryCode();
+		return dao.getCategoryId();
 	}
 
 	public String getName() {

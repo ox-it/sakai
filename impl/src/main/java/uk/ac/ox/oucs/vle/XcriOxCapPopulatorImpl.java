@@ -3,14 +3,11 @@ package uk.ac.ox.oucs.vle;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -18,14 +15,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
@@ -474,6 +463,24 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		for (int i=0; i<presentations.length; i++) {
 			presentation(presentations[i], myCourse.getCourseId(), teachingcomponentId, context, data);
 		}
+		
+		for (Subject subject : researchCategories) {
+			updateCategory(new CourseCategoryDAO(
+					CourseGroup.Category_Type.RM, subject.getIdentifier(), subject.getValue()),
+					myCourse.getCourseId());
+		}
+		
+		for (Subject subject : skillsCategories) {
+			updateCategory(new CourseCategoryDAO(
+					CourseGroup.Category_Type.RDF, subject.getIdentifier(), subject.getValue()),
+					myCourse.getCourseId());
+		}
+		
+		for (Subject subject : jacsCategories) {
+			updateCategory(new CourseCategoryDAO(
+					CourseGroup.Category_Type.JACS, subject.getIdentifier(), subject.getValue()),
+					myCourse.getCourseId());
+		}
 
 	}
 
@@ -806,36 +813,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			groupDao.setSuperusers(myCourse.getSuperusers());
 			groupDao.setOtherDepartments(myCourse.getOtherDepartments());
 
-			Set<CourseCategoryDAO> categories = new HashSet<CourseCategoryDAO>();
-			for (Subject subject : researchCategories) {
-				categories.add(new CourseCategoryDAO(
-						CourseGroup.Category_Type.RM, subject.getIdentifier(), subject.getValue()));
-			}
-			for (Subject subject : skillsCategories) {
-				categories.add(new CourseCategoryDAO(
-						CourseGroup.Category_Type.RDF, subject.getIdentifier(), subject.getValue()));
-			}
-			for (Subject subject : jacsCategories) {
-				categories.add(new CourseCategoryDAO(
-						CourseGroup.Category_Type.JACS, subject.getIdentifier(), subject.getValue()));
-			}
-
-			//remove unwanted categories
-			// done this way to avoid java.util.ConcurrentModificationException 
-			for (Iterator<CourseCategoryDAO> itr = groupDao.getCategories().iterator(); itr.hasNext();) {
-				CourseCategoryDAO category = itr.next();
-				if (!categories.contains(category)) {
-					itr.remove();
-				}
-			}
-
-			//add any new categories
-			for (CourseCategoryDAO category : categories) {
-				if (!groupDao.getCategories().contains(category)) {
-					groupDao.getCategories().add(category);
-				}
-			}
-
 			dao.save(groupDao);
 		}
 
@@ -982,6 +959,27 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		} else {
 			logMs(context, "Log Success Course Component updated ["+myPresentation.getPresentationId()+":"+myPresentation.getTitle()+"]");
 			data.incrComponentUpdated();
+		}
+		return created;
+	}
+
+	/*
+	 * 
+	 */
+	private boolean updateCategory(CourseCategoryDAO category, String assessmentunitCode) throws IOException {
+
+		boolean created = false;
+		if (null != dao) {
+			CourseCategoryDAO categoryDao = dao.findCourseCategory(category.getCategoryId());
+			if (categoryDao == null) {
+				categoryDao = category;
+				created = true;
+			}
+			
+			CourseGroupDAO courseDao = dao.findCourseGroupById(assessmentunitCode);
+			
+			categoryDao.getGroups().add(courseDao);
+			dao.save(categoryDao);
 		}
 		return created;
 	}

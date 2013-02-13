@@ -50,16 +50,19 @@
 		<property name="placementId" type="string" length="256" />
 	</class>
 	
-	<class name="uk.ac.ox.oucs.vle.CourseCategoryDAO" table="course_group_category">
+	<class name="uk.ac.ox.oucs.vle.CourseCategoryDAO" table="course_category">
 		<!-- create the primary key id -->
-		<id name="categoryId" type="int">
+		<id name="categoryId" type="string" length="32">
 			<column name="categoryId" />
-			<generator class="identity"/>
+			<generator class="assigned"/>
 		</id>
-		<property name="courseGroupMuid" type="int" insert="false" update="false" />
 		<property name="categoryType" type="string" length="6" />
-		<property name="categoryCode" type="string" length="32" />
 		<property name="categoryName" type="string" length="256" />
+		<set name="groups" table="course_group_category" lazy="true" >
+			<key column="categoryId" />
+			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO"
+				column="courseGroupMuid" />
+		</set>
 	</class>
 	
 	<class name="uk.ac.ox.oucs.vle.CourseSignupDAO" table="course_signup">
@@ -206,9 +209,9 @@
 			<key column="courseGroupMuid" not-null="true"/>
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"/>
 		</set>
-		<set name="categories" inverse="false" lazy="true" table="course_group_category" fetch="select" cascade="all-delete-orphan" >
+		<set name="categories" lazy="true" table="course_group_category" fetch="join" inverse="true" >
 			<key column="courseGroupMuid" not-null="true" />
-			<one-to-many class="uk.ac.ox.oucs.vle.CourseCategoryDAO"/>
+			<many-to-many class="uk.ac.ox.oucs.vle.CourseCategoryDAO" column="categoryId"/>
 		</set>
 	</class>
 

@@ -843,6 +843,26 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			}
 		});
 	}
+
+	public CourseCategoryDAO findCourseCategory(final String id) {
+		List<Object> results = getHibernateTemplate().executeFind(new HibernateCallback() {
+			public Object doInHibernate(Session session) {
+				Query query = session.createSQLQuery(
+						"select * from course_category " +
+						"where categoryId = :id").addEntity(CourseCategoryDAO.class);
+				query.setString("id", id);
+				return query.list();
+			}
+		});
+		if (!results.isEmpty()) {
+			return (CourseCategoryDAO)results.get(0);
+		}
+		return null;
+	}
+
+	public void save(CourseCategoryDAO category) {
+		getHibernateTemplate().save(category);
+	}
 }
 
 
