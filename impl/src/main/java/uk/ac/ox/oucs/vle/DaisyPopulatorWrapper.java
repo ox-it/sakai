@@ -24,14 +24,11 @@ public class DaisyPopulatorWrapper extends BasePopulatorWrapper implements Popul
 	@Override
 	void runPopulator(PopulatorContext context) throws IOException {
 		
-		/* WL-2678 Comment out course deletion
 		dao.flagSelectedDaisyCourseGroups(context.getName());
 		dao.flagSelectedDaisyCourseComponents(context.getName());
-		*/
 
 		populator.update(context);
 
-		/*
 		Collection<CourseGroupDAO> groups = dao.deleteSelectedCourseGroups(context.getName());
 		for (CourseGroupDAO group : groups) {
 			context.getDeletedLogWriter().write("Deleting course ["+group.getCourseId()+" "+group.getTitle()+"]"+"\n");
@@ -41,7 +38,6 @@ public class DaisyPopulatorWrapper extends BasePopulatorWrapper implements Popul
 		for (CourseComponentDAO component : components) {
 			context.getDeletedLogWriter().write("Deleting component ["+component.getComponentId()+" "+component.getTitle()+"]"+"\n");
 		}
-		*/
 	}
 
 }
