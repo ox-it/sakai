@@ -58,7 +58,7 @@
 		</id>
 		<property name="categoryType" type="string" length="6" />
 		<property name="categoryName" type="string" length="256" />
-		<set name="groups" table="course_group_category" lazy="true" >
+		<set name="groups" table="course_group_category" lazy="true">
 			<key column="categoryId" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO"
 				column="courseGroupMuid" />
