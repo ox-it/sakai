@@ -214,4 +214,74 @@ public class HbmTests extends AbstractTransactionalSpringContextTests {
 		assertNull(daoD);
 	}
 	
+public void testCourseCategory() {
+		
+		CourseCategoryDAO cat1 = new CourseCategoryDAO(CourseGroup.Category_Type.RM, "C1", "Category 1");
+		CourseCategoryDAO cat2 = new CourseCategoryDAO(CourseGroup.Category_Type.RM, "C2", "Category 2");
+		CourseCategoryDAO cat3 = new CourseCategoryDAO(CourseGroup.Category_Type.RM, "C3", "Category 3");
+		
+		// First course group.
+		CourseGroupDAO newCourseGroup1 = courseDao.newCourseGroup("id1", "Title", "Department", "Subunit");
+		newCourseGroup1.setSource("source");
+		courseDao.save(newCourseGroup1);
+
+		// Second course group.
+		CourseGroupDAO newCourseGroup2 = courseDao.newCourseGroup("id2", "Title", "Department", "Subunit");
+		newCourseGroup2.setSource("source");
+		newCourseGroup2.setDeleted(true);
+		courseDao.save(newCourseGroup2);
+		
+		cat1.getGroups().add(newCourseGroup1);
+		cat2.getGroups().add(newCourseGroup1);
+		
+		cat1.getGroups().add(newCourseGroup2);
+		cat2.getGroups().add(newCourseGroup2);
+		cat3.getGroups().add(newCourseGroup2);
+		
+		courseDao.save(cat1);
+		courseDao.save(cat2);
+		courseDao.save(cat3);
+		
+		sessionFactory.getCurrentSession().flush();
+		sessionFactory.getCurrentSession().clear();
+		
+		// Check all is as it should be
+		CourseGroupDAO daoA = courseDao.findCourseGroupById("id1");
+		assertEquals(2, daoA.getCategories().size());
+		
+		CourseGroupDAO daoB = courseDao.findCourseGroupById("id2");
+		assertEquals(3, daoB.getCategories().size());
+		
+		CourseCategoryDAO c1 = courseDao.findCourseCategory("C1");
+		assertEquals(2, c1.getGroups().size());
+		
+		CourseCategoryDAO c2 = courseDao.findCourseCategory("C2");
+		assertEquals(2, c2.getGroups().size());
+		
+		CourseCategoryDAO c3 = courseDao.findCourseCategory("C3");
+		assertEquals(1, c3.getGroups().size());
+		
+		// now delete a group
+		courseDao.deleteSelectedCourseGroups("source");
+		sessionFactory.getCurrentSession().flush();
+		sessionFactory.getCurrentSession().clear();
+		
+		// and the checks
+		CourseGroupDAO gA = courseDao.findCourseGroupById("id1");
+		assertEquals(2, gA.getCategories().size());
+
+		CourseGroupDAO gB = courseDao.findCourseGroupById("id2");
+		assertNull(gB);
+
+		CourseCategoryDAO ct1 = courseDao.findCourseCategory("C1");
+		assertEquals(1, ct1.getGroups().size());
+
+		CourseCategoryDAO ct2 = courseDao.findCourseCategory("C2");
+		assertEquals(1, ct2.getGroups().size());
+
+		CourseCategoryDAO ct3 = courseDao.findCourseCategory("C3");
+		assertEquals(0, ct3.getGroups().size());
+
+	}
+	
 }

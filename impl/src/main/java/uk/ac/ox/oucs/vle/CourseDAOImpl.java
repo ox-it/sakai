@@ -819,6 +819,10 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 						component.getGroups().remove(groupDao);
 					}
 					session.delete(groupDao);
+					for (CourseCategoryDAO category : groupDao.getCategories()) {
+						category.getGroups().remove(groupDao);
+					}
+					session.delete(groupDao);
 				}
 				return groupDaos;
 			}
@@ -842,6 +846,19 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				return componentDaos;
 			}
 		});
+	}
+
+	public CourseCategoryDAO findCourseCategory(final String id) {
+		
+		return (CourseCategoryDAO)getHibernateTemplate().execute(new HibernateCallback() {
+			public CourseCategoryDAO doInHibernate(Session session) {
+				return (CourseCategoryDAO)session.get(CourseCategoryDAO.class, id);
+			}
+		});
+	}
+
+	public void save(CourseCategoryDAO category) {
+		getHibernateTemplate().save(category);
 	}
 }
 
