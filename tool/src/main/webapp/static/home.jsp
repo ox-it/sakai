@@ -3,14 +3,11 @@
 <%@ page import="org.sakaiproject.user.cover.UserDirectoryService" %>
 <%@ page session="false" %> 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core"  prefix="c" %>
-<%
-if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-	pageContext.setAttribute("externalUser",true);
-} else {
-	pageContext.setAttribute("externalUser",false);
-}
-%>
+
 <c:set var="isExternalUser" value="${externalUser}" />
+<c:set var="isApprover" value="${isApprover}" />
+<c:set var="isPending" value="${isPending}" />
+<c:set var="isAdministrator" value="${isAdministrator}" />
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -45,8 +42,6 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	</script>
 </head>	
 <body>
-<jsp:include page="toolbar.jsp" />
-<!-- 
 <div id="toolbar">
     <ul class="navIntraTool actionToolBar">
 
@@ -56,13 +51,18 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
 		<c:if test="${!isExternalUser}" >
 			<li><span><a href="my.jsp">My Modules</a></span></li>
-			<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>	
-			<li><span><a href="approve.jsp">Pending Confirmations</a></span></li>
-			<li><span><a href="admin.jsp">Module Administration</a></span></li>
+			<c:if test="${isPending}" >
+				<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>	
+			</c:if>
+			<c:if test="${isApprover}" >
+				<li><span><a href="approve.jsp">Pending Confirmations</a></span></li>
+			</c:if>
+			<c:if test="${isAdministrator}" >
+				<li><span><a href="admin.jsp">Module Administration</a></span></li>
+			</c:if>
 		</c:if>
 	</ul>
 </div>
- -->
  
 <div class="wrapper" >   
 	
@@ -98,20 +98,24 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<ul class="options admin" >
 
 		<c:if test="${!isExternalUser}" >
-			<li class="acceptances" >
-				<a href="pending.jsp">Pending Acceptances</a> 
-				<span class="info">View list of student sign-ups awaiting your approval.</span>
-			</li>
-			
-			<li class="confirmations" >
-				<a href="approve.jsp">Pending Confirmations</a> 
-				<span class="info">View modules which are waiting for your confirmation.</span>
-			</li>	
-	
-			<li class="admin">
-				<a href="admin.jsp">Module Administration</a> 
-				<span class="info">Administer modules for which you are an administrator.</span>
-			</li>
+			<c:if test="${isPending}" >
+				<li class="acceptances" >
+					<a href="pending.jsp">Pending Acceptances</a> 
+					<span class="info">View list of student sign-ups awaiting your approval.</span>
+				</li>
+			</c:if>
+			<c:if test="${isApprover}" >
+				<li class="confirmations" >
+					<a href="approve.jsp">Pending Confirmations</a> 
+					<span class="info">View modules which are waiting for your confirmation.</span>
+				</li>
+			</c:if>	
+			<c:if test="${isAdministrator}" >
+				<li class="admin">
+					<a href="admin.jsp">Module Administration</a> 
+					<span class="info">Administer modules for which you are an administrator.</span>
+				</li>
+			</c:if>
 		</c:if>
 	</ul>
 

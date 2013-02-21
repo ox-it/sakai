@@ -3,15 +3,12 @@
 <%@ page import="org.sakaiproject.user.cover.UserDirectoryService"%>
 <%@ page session="false"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%
-	if (UserDirectoryService.getAnonymousUser().equals(
-			UserDirectoryService.getCurrentUser())) {
-		pageContext.setAttribute("externalUser", true);
-	} else {
-		pageContext.setAttribute("externalUser", false);
-	}
-%>
+
 <c:set var="isExternalUser" value="${externalUser}" />
+<c:set var="isApprover" value="${isApprover}" />
+<c:set var="isPending" value="${isPending}" />
+<c:set var="isAdministrator" value="${isAdministrator}" />
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -261,10 +258,16 @@
 			<li><span>Browse by Calendar</span></li>
 			<c:if test="${!isExternalUser}">
 				<li><span><a href="my.jsp">My Modules</a></span></li>
-				<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
-				<li><span><a href="approve.jsp">Pending
-							Confirmations</a></span></li>
-				<li><span><a href="admin.jsp">Module Administration</a></span></li>
+				<c:if test="${isPending}">
+					<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
+				</c:if>
+				<c:if test="${isApprover}">
+					<li><span><a href="approve.jsp">Pending
+								Confirmations</a></span></li>
+				</c:if>
+				<c:if test="${isAdministrator}">
+					<li><span><a href="admin.jsp">Module Administration</a></span></li>
+				</c:if>
 			</c:if>
 		</ul>
 	</div>
