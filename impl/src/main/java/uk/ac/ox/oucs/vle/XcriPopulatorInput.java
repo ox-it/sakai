@@ -54,7 +54,7 @@ public class XcriPopulatorInput implements PopulatorInput {
 			entity = response.getEntity();
 
 			if (HttpStatus.SC_OK != response.getStatusLine().getStatusCode()) {
-	    		throw new PopulatorException("Invalid Response ["+response.getStatusLine().getStatusCode()+"]");
+				throw new PopulatorException("Invalid Response ["+response.getStatusLine().getStatusCode()+"]");
 			}
 
 			input = entity.getContent();

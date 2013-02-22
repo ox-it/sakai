@@ -14,8 +14,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 /**
- * Bean that allows the populator to be called from Quartz.
- * Handles transactional stuff with regard to logging
+ * Bean that handles transactional stuff with regard to logging
  * @author buckett
  *
  */
@@ -67,7 +66,7 @@ public class PopulatorJob implements Job {
 			pContext.setInfoLogWriter(iWriter);
 
 		} catch (IOException e) {
-			log.error("Failed to write content to logfile.", e);
+			log.error("Failed to write headers to logfile.", e);
 		}
 
 		try {
