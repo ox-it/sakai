@@ -57,7 +57,6 @@
 			<bean class="uk.ac.ox.oucs.vle.DaisyPopulatorWrapper">
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="populator" ref="uk.ac.ox.oucs.vle.XcriPopulator" />
-				<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
 			</bean>
 		</property>
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
@@ -72,6 +71,7 @@
 	<bean id="uk.ac.ox.oucs.vle.DaisyPopulatorJob"
 		class="uk.ac.ox.oucs.vle.PopulatorJob">
 		<property name="populatorWrapper" ref="uk.ac.ox.oucs.vle.DaisyPopulatorWrapper"/>
+		<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
 	</bean>
 
 	
@@ -81,7 +81,6 @@
 			<bean class="uk.ac.ox.oucs.vle.OxcapPopulatorWrapper">
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="populator" ref="uk.ac.ox.oucs.vle.XcriPopulator" />
-				<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
 			</bean>
 		</property>
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
@@ -96,6 +95,7 @@
 	<bean id="uk.ac.ox.oucs.vle.OxcapPopulatorJob"
 		class="uk.ac.ox.oucs.vle.PopulatorJob">
 		<property name="populatorWrapper" ref="uk.ac.ox.oucs.vle.OxcapPopulatorWrapper"/>
+		<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
 	</bean>
 
 

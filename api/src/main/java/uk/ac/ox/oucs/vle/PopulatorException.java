@@ -18,7 +18,7 @@ public class PopulatorException extends CourseSignupException {
 		this.message = message;
 	}
 
-	public String getMesage() {
+	public String getMessage() {
 		return this.message;
 	}
 }
