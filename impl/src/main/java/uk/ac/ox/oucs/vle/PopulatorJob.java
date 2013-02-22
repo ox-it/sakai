@@ -12,14 +12,10 @@ import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.OverQuotaException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.exception.TypeException;
 
 /**
- * Simple bean that allows the populator to be called from Quartz.
+ * Bean that allows the populator to be called from Quartz.
+ * Handles transactional stuff with regard to logging
  * @author buckett
  *
  */
@@ -103,21 +99,6 @@ public class PopulatorJob implements Job {
 
 		} catch (IOException e) {
 			log.error("Failed to write logfile to resources [IOException].", e);
-
-		} catch (InUseException e) {
-			log.error("Failed to write logfile to resources [InUseException].", e);
-
-		} catch (TypeException e) {
-			log.error("Failed to write logfile to resources [TypeException].", e);
-
-		} catch (PermissionException e) {
-			log.error("Failed to write logfile to resources [PermissionException].", e);
-
-		} catch (ServerOverloadException e) {
-			log.error("Failed to write logfile to resources [ServerOverloadException].", e);
-
-		} catch (OverQuotaException e) {
-			log.error("Failed to write logfile to resources [OverQuotaException].", e);
 
 		} finally {
 
