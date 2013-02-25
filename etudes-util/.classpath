@@ -12,9 +12,9 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/etudes-util-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/component-api"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jaxen/jars/jaxen-1.1.1.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/jtidy/jars/jtidy-4aug2000r7-dev.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/tool-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/user-api"/>
 	<classpathentry kind="var" path="MAVEN_REPO/net.sourceforge.htmlcleaner/jars/htmlcleaner-2.2.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/jtidy/jars/jtidy-r938.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

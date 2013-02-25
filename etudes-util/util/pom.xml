@@ -1,12 +1,11 @@
-<?xml version="1.0"?>
-
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**********************************************************************************
  * $URL$
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2011 Etudes, Inc.
+ * Copyright (c) 2011, 2012, 2013 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,19 +22,19 @@
  **********************************************************************************/
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<artifactId>etudes-util-base</artifactId>
 		<groupId>org.etudes</groupId>
-		<version>pom</version>
+		<version>1.0.17</version>
+		<relativePath>../../pom.xml</relativePath>
 	</parent>
 
-	<name>etudes-util-util</name>
 	<groupId>org.etudes</groupId>
 	<artifactId>etudes-util-util</artifactId>
-	<version>${etudes.util.version}</version>
 
 	<packaging>jar</packaging>
 
@@ -64,6 +63,25 @@
 			<groupId>org.etudes</groupId>
 			<artifactId>etudes-util-api</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
+			<version>1.1.1</version>
+ 		</dependency>
+
+		<dependency>
+			<groupId>net.sourceforge.htmlcleaner</groupId>
+			<artifactId>htmlcleaner</artifactId>
+			<version>2.2</version>
+ 		</dependency>
+
+		<dependency>
+			<groupId>net.sf.jtidy</groupId>
+			<artifactId>jtidy</artifactId>
+			<version>r938</version>
+ 		</dependency>
+
 	</dependencies>
 
 	<build>	

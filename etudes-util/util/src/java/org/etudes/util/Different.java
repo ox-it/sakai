@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/contrib/etudes/mneme/trunk/mneme-impl/impl/src/java/org/etudes/mneme/impl/Different.java $
- * $Id: Different.java 54965 2008-11-14 00:30:52Z ggolden@etudes.org $
+ * $URL: https://source.etudes.org/svn/apps/etudes-util/trunk/etudes-util/util/src/java/org/etudes/util/Different.java $
+ * $Id: Different.java 3628 2012-12-02 21:03:40Z ggolden $
  ***********************************************************************************
  *
  * Copyright (c) 2008 Etudes, Inc.
