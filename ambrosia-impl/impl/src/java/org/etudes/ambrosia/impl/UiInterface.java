@@ -37,6 +37,7 @@ import org.etudes.ambrosia.api.Destination;
 import org.etudes.ambrosia.api.Interface;
 import org.etudes.ambrosia.api.Message;
 import org.etudes.ambrosia.api.PropertyReference;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -392,8 +393,8 @@ public class UiInterface extends UiContainer implements Interface
 			}
 			else
 			{
-				response.println("<script type=\"text/javascript\" src=\"/ckeditor/ckeditor/ckeditor.js\"></script>\n");
-				response.println("<script type=\"text/javascript\" src=\"/ckeditor/ckeditor.launch.js\"></script>\n");
+				response.println("<script type=\"text/javascript\" src=\"" +ServerConfigurationService.getString("etudes.editor.path")+ "/ckeditor/ckeditor.js\"></script>\n");
+				response.println("<script type=\"text/javascript\" src=\"" +ServerConfigurationService.getString("etudes.editor.path")+ "/ckeditor.launch.js\"></script>\n");
 				
 				String css = findCss(headInclude);
 				if (css == null)

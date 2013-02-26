@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -27,7 +27,6 @@ package org.etudes.ambrosia.impl;
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.api.HtmlPropertyReference;
 import org.etudes.util.HtmlHelper;
-import org.etudes.util.XrefHelper;
 import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Element;
 
@@ -36,10 +35,8 @@ import org.w3c.dom.Element;
  */
 public class UiHtmlPropertyReference extends UiPropertyReference implements HtmlPropertyReference
 {
-	/** This blank line appears from tiny editor in IE 7. */
-	final static String htmlEditorBlankDoc = "<html />";
-
-	final static String htmlEditorBlankLine = "<p>&nbsp;</p>";
+	/** Set if the html is considered possibly dirty and must be cleaned before display. */
+	protected boolean dirty = false;
 
 	/** Set if we are going to strip surrounding paragraph marks from the value. */
 	protected boolean stripP = false;
@@ -67,6 +64,10 @@ public class UiHtmlPropertyReference extends UiPropertyReference implements Html
 		// stripP
 		String stripP = StringUtil.trimToNull(xml.getAttribute("stripP"));
 		if ((stripP != null) && ("TRUE".equals(stripP))) setStripP();
+
+		// dirty
+		String dirty = StringUtil.trimToNull(xml.getAttribute("dirty"));
+		if ((dirty != null) && ("TRUE".equals(dirty))) setDirty();
 	}
 
 	/**
@@ -106,6 +107,15 @@ public class UiHtmlPropertyReference extends UiPropertyReference implements Html
 	/**
 	 * {@inheritDoc}
 	 */
+	public HtmlPropertyReference setDirty()
+	{
+		this.dirty = true;
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public HtmlPropertyReference setStripP()
 	{
 		this.stripP = true;
@@ -119,15 +129,13 @@ public class UiHtmlPropertyReference extends UiPropertyReference implements Html
 	{
 		String v = super.format(context, value);
 
-		// strip out comments from html before display
+		// if possibly dirty, clean before display
 		// Note: this is redundant with the unFormat() strip comments on the way into the data,
 		// but handles any data that already has comments in html
-		if (v != null)
+		if ((v != null) && this.dirty)
 		{
-			// clean the outgoing (to display view) html
-			v = HtmlHelper.stripEncodedFontDefinitionComments(v);
-			v = HtmlHelper.stripDamagedComments(v);
-			v = HtmlHelper.stripComments(v);
+			// clean
+			v = HtmlHelper.clean(v, true);
 		}
 
 		return v;
@@ -140,21 +148,8 @@ public class UiHtmlPropertyReference extends UiPropertyReference implements Html
 	{
 		if (value != null)
 		{
-			// if there is just the htmlEditorBlankLine, remove it (TinyMCE puts this in for a totally blank edit)
-			if (value.equals(htmlEditorBlankLine) || value.equals(htmlEditorBlankDoc))
-			{
-				value = "";
-			}
-
-			// shorten any full URL embedded references (such as what Tiny puts in for "emotions")
-			else
-			{
-				value = XrefHelper.shortenFullUrls(value);
-			}
-
-			// clean the incoming html
-			value = HtmlHelper.stripComments(value);
-			value = HtmlHelper.stripBadEncodingCharacters(value);
+			// clean
+			value = HtmlHelper.clean(value, true);
 		}
 
 		return value;

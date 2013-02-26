@@ -79,6 +79,7 @@
 <!ATTLIST model false CDATA #IMPLIED >
 <!ATTLIST model messageRoot CDATA #IMPLIED >
 <!ATTLIST model stripP (TRUE|FALSE) #IMPLIED >
+<!ATTLIST model dirty (TRUE|FALSE) #IMPLIED >
 <!ATTLIST model edit (TRUE|FALSE) #IMPLIED >
 <!ATTLIST model stripHtml (TRUE|FALSE) #IMPLIED >
 

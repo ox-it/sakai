@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -25,12 +25,27 @@
 package org.etudes.ambrosia.impl;
 
 import java.io.PrintWriter;
+
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.api.Decision;
 import org.etudes.ambrosia.api.HtmlEdit;
 import org.etudes.ambrosia.api.Message;
 import org.etudes.ambrosia.api.PropertyReference;
 import org.etudes.util.HtmlHelper;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Element;
@@ -229,10 +244,8 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 			{
 				value = StringUtil.trimToZero(valueObj.toString());
 
-				// clean up bad and good comments
-				value = HtmlHelper.stripEncodedFontDefinitionComments(value);
-				value = HtmlHelper.stripDamagedComments(value);
-				value = HtmlHelper.stripComments(value);
+				// clean
+				value = HtmlHelper.clean(value, true);
 			}
 		}
 
@@ -276,10 +289,11 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 		// the edit textarea (if not optional)
 		if (!(!readOnly && this.optional))
 		{
-			response.println("<textarea "
-					+ (this.optional ? "style=\"display:none; position:absolute; top:0px; left:0px;\"" : "")
-							 + " id=\"" + id + "\" name=\"" + id + "\" " + (readOnly ? " disabled=\"disabled\"" : "")
-					+ ">");
+			// make sure the context.getDocsPath() exists
+			assureDocsPath(context);
+
+			response.println("<textarea " + (this.optional ? "style=\"display:none; position:absolute; top:0px; left:0px;\"" : "") + " id=\"" + id
+					+ "\" name=\"" + id + "\" " + (readOnly ? " disabled=\"disabled\"" : "") + ">");
 			response.print(Validator.escapeHtmlTextarea(value));
 			response.println("</textarea>");
 			response.println("<script type=\"text/javascript\" defer=\"1\">sakai.editor.collectionId =\"" + context.getDocsPath() + "\";");
@@ -287,12 +301,14 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 			response.println("{");
 			response.println("function config(){}");
 			response.println("config.prototype.disableBrowseServer=true;");
-			response.println("sakai.editor.launch('" + id + "',new config(),getWidth('.ambrosiaHtmlEditSize_"+ this.size.toString() + "'),getHeight('.ambrosiaHtmlEditSize_"+ this.size.toString() + "'));");
+			response.println("sakai.editor.launch('" + id + "',new config(),getWidth('.ambrosiaHtmlEditSize_" + this.size.toString()
+					+ "'),getHeight('.ambrosiaHtmlEditSize_" + this.size.toString() + "'));");
 			response.println("}");
 			response.println("else {");
-			response.println("sakai.editor.launch('" + id + "',true,getWidth('.ambrosiaHtmlEditSize_"+ this.size.toString() + "'),getHeight('.ambrosiaHtmlEditSize_"+ this.size.toString() + "'));");
-		    response.println("}");
-		    response.println("</script>");
+			response.println("sakai.editor.launch('" + id + "',true,getWidth('.ambrosiaHtmlEditSize_" + this.size.toString()
+					+ "'),getHeight('.ambrosiaHtmlEditSize_" + this.size.toString() + "'));");
+			response.println("}");
+			response.println("</script>");
 		}
 
 		// for optional, a hidden field to hold the value
@@ -335,12 +351,10 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 			// add the field name / id to the focus path
 			context.addFocusId(id);
 		}
-		response.println("<div class=\"ckeditorGap_"+ this.size.toString() +"\"></div>");
+		response.println("<div class=\"ckeditorGap_" + this.size.toString() + "\"></div>");
 
 		return true;
 	}
-
-
 
 	/**
 	 * {@inheritDoc}
@@ -407,4 +421,129 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 		this.titleMessage = new UiMessage().setMessage(selector, references);
 		return this;
 	}
+
+	/**
+	 * Make sure the context.getDocsPath() collection exists, and has the proper PROP_ALTERNATE_REFERENCE.
+	 * 
+	 * @param context
+	 *        The context.
+	 */
+	protected void assureDocsPath(Context context)
+	{
+		// make sure we can read!
+		pushAdvisor();
+
+		try
+		{
+			String docsPath = context.getDocsPath();
+			if (docsPath == null) return;
+
+			String[] pathComponents = StringUtil.split(docsPath, "/");
+			if (pathComponents.length < 3) return;
+
+			String refRoot = "/" + pathComponents[2];
+			try
+			{
+				ContentCollection container = contentHostingService().getCollection(docsPath);
+
+				// make sure it has the property
+				if (null == container.getProperties().getProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE))
+				{
+					// add it
+					try
+					{
+						ContentCollectionEdit edit = contentHostingService().editCollection(docsPath);
+						edit.getPropertiesEdit().addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, refRoot);
+						contentHostingService().commitCollection(edit);
+					}
+					catch (IdUnusedException e)
+					{
+					}
+					catch (TypeException e)
+					{
+					}
+					catch (PermissionException e)
+					{
+					}
+					catch (InUseException e)
+					{
+					}
+				}
+			}
+			catch (IdUnusedException e)
+			{
+				// create the collection (and any missing containing ones), and add the property
+				try
+				{
+					ContentCollectionEdit edit = contentHostingService().addCollection(docsPath);
+					edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, pathComponents[pathComponents.length - 1]);
+					edit.getPropertiesEdit().addProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, refRoot);
+					contentHostingService().commitCollection(edit);
+				}
+				catch (IdUsedException e2)
+				{
+				}
+				catch (IdInvalidException e2)
+				{
+				}
+				catch (PermissionException e2)
+				{
+				}
+				catch (InconsistentException e2)
+				{
+				}
+			}
+			catch (TypeException e)
+			{
+			}
+			catch (PermissionException e)
+			{
+			}
+		}
+		finally
+		{
+			// clear the security advisor
+			popAdvisor();
+		}
+	}
+
+	/**
+	 * @return The ContentHostingService, via the component manager.
+	 */
+	protected ContentHostingService contentHostingService()
+	{
+		return (ContentHostingService) ComponentManager.get(ContentHostingService.class);
+	}
+
+	/**
+	 * Remove our security advisor.
+	 */
+	protected void popAdvisor()
+	{
+		securityService().popAdvisor();
+	}
+
+	/**
+	 * Setup a security advisor.
+	 */
+	protected void pushAdvisor()
+	{
+		// setup a security advisor
+		securityService().pushAdvisor(new SecurityAdvisor()
+		{
+			public SecurityAdvice isAllowed(String userId, String function, String reference)
+			{
+				return SecurityAdvice.ALLOWED;
+			}
+		});
+	}
+
+	/**
+	 * @return The ContentHostingService, via the component manager.
+	 */
+	protected SecurityService securityService()
+	{
+		return (SecurityService) ComponentManager.get(SecurityService.class);
+	}
+
 }

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -29,6 +29,13 @@ package org.etudes.ambrosia.api;
  */
 public interface HtmlPropertyReference extends PropertyReference
 {
+	/**
+	 * Set if contents is considered possibly dirty and must be cleaned before display.
+	 * 
+	 * @return self.
+	 */
+	HtmlPropertyReference setDirty();
+
 	/**
 	 * Set if surrounding html paragraph marks should be removed. Default is to leave them.
 	 * 

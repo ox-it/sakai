@@ -16,5 +16,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/authz-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ambrosia-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/etudes-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/component-api"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
