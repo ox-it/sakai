@@ -1,16 +1,24 @@
 package uk.ac.ox.oucs.vle.proxy;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.antivirus.api.VirusFoundException;
@@ -323,15 +331,22 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	public String encode(String uncoded) {
-		byte[] encrypted = encrypt(uncoded);
-		String base64String = new String(Base64.encodeBase64(encrypted));	
-		return base64String.replace('+','-').replace('/','_');
+		byte[] encrypted = aes(uncoded.getBytes(), Cipher.ENCRYPT_MODE);
+		if (encrypted != null) {
+			String base64String = new String(Base64.encodeBase64(encrypted));
+			return base64String.replace('+','-').replace('/','_');
+		} else {
+			// Return obvious note that encryption failed.
+			return "encryption.failed";
+		}
 	}
 	
 	public String uncode(String encoded) {
 		String base64String = encoded.replace('-','+').replace('_','/');
 		byte[] encrypted = Base64.decodeBase64(base64String.getBytes());
-		return decrypt(encrypted);
+		String decrypted = new String(aes(encrypted, Cipher.DECRYPT_MODE));
+		// On failed decryption we have to return null.
+		return decrypted;
 	}
 
 	public String getMyUrl() {
@@ -367,35 +382,34 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	protected String getSecretKey() {
-		return serverConfigurationService.getString("aes.secret.key", "se1?r2eFM8rC5u2K");
+		// Return null if not set.
+		// TODO This should do length checking as AES has fixed key lenths.
+		String key = serverConfigurationService.getString("aes.secret.key", null);
+		if (key == null) {
+			log.error("No secret key specified. Please set 'aes.secret.key' in configuration");
+		}
+		return key;
 	}
 	
-	protected byte[] encrypt(String string) {
-		SecretKeySpec skeySpec = new SecretKeySpec(getSecretKey().getBytes(), "AES");
+	protected byte[] aes(byte[] source, int mode) {
+		String secretKey = getSecretKey();
+		if (secretKey == null) {
+			return null;
+		}
+		SecretKeySpec skeySpec = new SecretKeySpec(secretKey.getBytes(), "AES");
 		try {
 			// Instantiate the cipher
 			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-			cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
-			byte[] bytes = cipher.doFinal(string.getBytes());
-			return bytes;
+			cipher.init(mode, skeySpec);
+			byte[] encrypted = cipher.doFinal(source);
+			return encrypted;
 		
 		} catch (Exception e) {
-			System.out.println("encrypt Exception ["+e.getLocalizedMessage()+"]"); 
+			String type = (mode == Cipher.DECRYPT_MODE)? "decryption" :
+				(mode == Cipher.ENCRYPT_MODE)? "encryption" :
+				"unknown";
+			log.warn("AES "+ type+ " failed.", e);
 		}
-		return null;
-	}
-	
-	protected String decrypt(byte[] bytes) {
-		SecretKeySpec skeySpec = new SecretKeySpec(getSecretKey().getBytes(), "AES");
-		try {
-			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-			cipher.init(Cipher.DECRYPT_MODE, skeySpec);
-			byte[] original = cipher.doFinal(bytes);
-			return new String(original);
-		
-		} catch (Exception e) {	
-			System.out.println("decrypt Exception ["+e.getLocalizedMessage()+"]"); 
-		}	
 		return null;
 	}
 
@@ -407,11 +421,140 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getString(param, dflt);
 	}
 	
-	public void writeLog(String contentId, String contentDisplayName, byte[] bytes) 
-			throws VirusFoundException, OverQuotaException, ServerOverloadException, PermissionException, TypeException, InUseException {
+	/**
+	 * 
+	 * @param contentId
+	 * @param contentDisplayName
+	 * @param bytes
+	 * @throws VirusFoundException
+	 * @throws OverQuotaException
+	 * @throws ServerOverloadException
+	 * @throws PermissionException
+	 * @throws TypeException
+	 * @throws InUseException
+	 */
+	public void writeLog(String contentId, String contentDisplayName, byte[] bytes) {
 		
 		switchUser();
+		ContentResourceEdit cre;
+		try {
+			cre = getContentResourceEdit(contentId, contentDisplayName);
+			cre.setContent(bytes);
+			// Don't notify anyone about this resource.
+			contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+			
+		} catch (PermissionException e) {
+			log.error("PermissionException ["+e.getMessage()+"]", e);
+			
+		} catch (TypeException e) {
+			log.error("TypeException ["+e.getMessage()+"]", e);
+			
+		} catch (InUseException e) {
+			log.error("InUseException ["+e.getMessage()+"]", e);
+			
+		} catch (VirusFoundException e) {
+			log.error("VirusFoundException ["+e.getMessage()+"]", e);
+			
+		} catch (OverQuotaException e) {
+			log.error("OverQuotaException ["+e.getMessage()+"]", e);
+			
+		} catch (ServerOverloadException e) {
+			log.error("ServerOverloadException ["+e.getMessage()+"]", e);
+			
+		}
+		
+	}
+	
+	/**
+	 * 
+	 * @param contentId
+	 * @param contentDisplayName
+	 * @param bytes
+	 * @throws VirusFoundException
+	 * @throws OverQuotaException
+	 * @throws ServerOverloadException
+	 * @throws PermissionException
+	 * @throws TypeException
+	 * @throws InUseException
+	 */
+	public void prependLog(String contentId, String contentDisplayName, byte[] logBytes) {
+		
+		switchUser();
+		
+		File tempFile = null;
+		OutputStream out = null;
 		ContentResourceEdit cre = null;
+		
+		
+		try {
+			cre = getContentResourceEdit(contentId, contentDisplayName);
+			
+			tempFile = File.createTempFile("ses", ".tmp");
+			tempFile.deleteOnExit();
+			
+			out = new FileOutputStream(tempFile);
+			out.write(logBytes);
+			IOUtils.copy(cre.streamContent(), out);
+			out.flush();
+			cre.setContent(new FileInputStream(tempFile));
+			
+			// Don't notify anyone about this resource.
+			contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+			
+		} catch (IOException e) {
+			log.error("IOException ["+e.getMessage()+"]", e);
+			
+		} catch (ServerOverloadException e) {
+			log.error("ServerOverloadException ["+e.getMessage()+"]", e);
+			
+		} catch (PermissionException e) {
+			log.error("PermissionException ["+e.getMessage()+"]", e);
+			
+		} catch (TypeException e) {
+			log.error("TypeException ["+e.getMessage()+"]", e);
+			
+		} catch (InUseException e) {
+			log.error("InUseException ["+e.getMessage()+"]", e);
+			
+		} catch (VirusFoundException e) {
+			log.error("VirusFoundException ["+e.getMessage()+"]", e);
+			
+		} catch (OverQuotaException e) {
+			log.error("OverQuotaException ["+e.getMessage()+"]", e);
+			
+		} finally {
+			
+			try {
+				
+				if (null != out) {
+					out.close();
+				}
+				
+				if (null != tempFile) {
+					tempFile.delete();
+				}
+				
+			} catch (IOException e) {
+				log.error("IOException ["+e.getMessage()+"]", e);
+			}
+		}
+		
+	}
+	
+	/**
+	 * 
+	 * @param contentId
+	 * @param contentDisplayName
+	 * @return
+	 * @throws PermissionException
+	 * @throws TypeException
+	 * @throws InUseException
+	 */
+	private ContentResourceEdit getContentResourceEdit(String contentId, String contentDisplayName) 
+			throws PermissionException, TypeException, InUseException {
+		
+		ContentResourceEdit cre = null;
+		
 		String siteId = getConfigParam("course-signup.site-id", "course-signup");
 		String jsonResourceEId = contentHostingService.getSiteCollection(siteId)+"logs/"+ contentId;
 
@@ -431,10 +574,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				log.warn("Failed to create the import log file.", e1);
 			}
 		}
-
-		cre.setContent(bytes);
-		// Don't notify anyone about this resource.
-		contentHostingService.commitResource(cre, NotificationService.NOTI_NONE);
+		return cre;
 	}
 	
 	/**

@@ -9,6 +9,10 @@ public class PopulatorContext {
 	private String password;
 	private String name;
 	
+	private PopulatorLogWriter deletedLogWriter;
+	private PopulatorLogWriter errorLogWriter;
+	private PopulatorLogWriter infoLogWriter;
+	
 	public PopulatorContext(String prefix, Map map) {
 		this.uri = (String)map.get(prefix+".uri");
 		this.user = (String)map.get(prefix+".username");
@@ -31,5 +35,28 @@ public class PopulatorContext {
 	public String getName() {
 		return this.name;
 	}
+	
+	public void setDeletedLogWriter(PopulatorLogWriter deletedLogWriter) {
+		this.deletedLogWriter = deletedLogWriter;
+	}
+	
+	public PopulatorLogWriter getDeletedLogWriter() {
+		return deletedLogWriter;
+	}
 
+	public void setErrorLogWriter(PopulatorLogWriter errorLogWriter) {
+		this.errorLogWriter = errorLogWriter;
+	}
+	
+	public PopulatorLogWriter getErrorLogWriter() {
+		return errorLogWriter;
+	}
+	
+	public void setInfoLogWriter(PopulatorLogWriter infoLogWriter) {
+		this.infoLogWriter = infoLogWriter;
+	}
+	
+	public PopulatorLogWriter getInfoLogWriter() {
+		return infoLogWriter;
+	}
 }

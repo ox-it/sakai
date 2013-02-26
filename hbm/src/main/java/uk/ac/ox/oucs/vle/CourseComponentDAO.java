@@ -63,11 +63,34 @@ public class CourseComponentDAO  implements java.io.Serializable {
         this.bookable = bookable;
     }
     
+    @Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + muid;
+		return result;
+	}
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        
+        CourseComponentDAO dao = (CourseComponentDAO)obj;
+        return getMuid() == dao.getMuid();
+    }
+
+    
     public int getMuid() {
         return this.muid;
     }
     
-    public void setMuid(int muid) {
+	public void setMuid(int muid) {
         this.muid = muid;
     }
     

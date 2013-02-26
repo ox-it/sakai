@@ -702,17 +702,19 @@ var Signup = function(){
 				var isOneBookable = false;
 				var areSomePlaces = false;
 				var newCourse = false;
-				var daisyCourse = false;
 				var opensText = "";
+				var closesText = "";
 				
 				$.each(components, function() {
 					var component = this;
+					
 					if (component.opensText) {
 						opensText = component.opensText;
 					}
-					if ("Daisy" == component.source) {
-						daisyCourse = true;
+					if (component.closesText) {
+						closesText = component.closesText;
 					}
+					
 					var isOpen = component.opens < now && component.closes > now;
 					if (component.opens) {
 						if (component.opens > now && component.opens < nextOpen) {
@@ -731,8 +733,15 @@ var Signup = function(){
 							areSomePlaces = true;
 						}
 					}
+					
 					if (!isOneBookable) {
 						isOneBookable = component.bookable;
+					}
+					
+					// If we are not recording signups, we must assume that there are places available.
+					if ("Daisy" != component.source) {
+						areSomePlaces = true;
+						isOneBookable = true;
 					}
 					
 					var newDate = now - (recentDays * 24 * 60 * 60 * 1000);
@@ -741,19 +750,35 @@ var Signup = function(){
 					}
 				});
 				
-				summary.message = opensText;
-				if (!daisyCourse) {
+				if (opensText) {
+					summary.message = "Opens "+opensText;
+					if (closesText) {
+						summary.message = summary.message+" and ";
+					}
+				}
+				if (closesText) {
+					summary.message = summary.message+"closes "+closesText;
+				}
+				
+				if (willClose == 0) {
 					if (baseDate > 0 && now > baseDate) {
 						summary.previous[0] = "Old Courses";
 					}
 					return summary;
-    			}
+				}
 				
 				if (!isOneBookable) {
 					summary.state = "No"; // (Not Bookable)";
+					summary.message = "Not Bookable";
 				}
 				if (now > baseDate) {
 					summary.previous[0] = "Old Courses";
+				}
+				
+				if (now > willClose) {
+					summary.previous[0] = "Old Courses";
+					summary.message = "Booking Closed";
+					summary.state = "No";
 				}
 				
 				if (isOneOpen) {

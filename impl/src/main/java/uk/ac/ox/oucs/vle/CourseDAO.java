@@ -107,5 +107,9 @@ public interface CourseDAO {
 	public Collection<CourseGroupDAO> deleteSelectedCourseGroups(final String source);
 	
 	public Collection<CourseComponentDAO> deleteSelectedCourseComponents(final String source);
+	
+	public CourseCategoryDAO findCourseCategory(String id);
+	
+	void save(CourseCategoryDAO category);
 
 }

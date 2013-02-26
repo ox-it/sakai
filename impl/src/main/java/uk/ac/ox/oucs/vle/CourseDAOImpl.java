@@ -61,6 +61,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					SQLException {
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
 				criteria.add(Expression.eq("courseId", courseId));
+				criteria.add(Restrictions.eq("hideGroup", false));
 				switch (range) { 
 					case NOTSTARTED:
 						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(
@@ -71,7 +72,8 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 								Expression.or(Expression.gt("baseDate", now), Expression.and(Expression.isNull("baseDate"), Expression.isNotNull("startsText"))));
 						break;
 					case PREVIOUS:
-						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(Expression.le("baseDate", now));
+						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(
+								Expression.or(Expression.le("baseDate", now), Expression.and(Expression.isNull("baseDate"), Expression.isNull("startsText"))));
 						break;
 				}
 				criteria.setResultTransformer(Criteria.ROOT_ENTITY);
@@ -140,7 +142,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 						querySQL.append("((cc.baseDate is null AND cc.startsText is not null) OR cc.baseDate > now()) AND ");
 						break;
 					case PREVIOUS:
-						querySQL.append("cc.baseDate <= now() AND ");
+						querySQL.append("((cc.baseDate is null AND cc.startsText is null) OR cc.baseDate <= now()) AND ");
 						break;
 				}
 				
@@ -171,10 +173,12 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				criteria.add(Restrictions.eq("hideGroup", false));
 				switch (range) { 
 					case UPCOMING:
-						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("baseDate", now));
+						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(
+								Expression.or(Expression.gt("baseDate", now), Expression.and(Expression.isNull("baseDate"), Expression.isNotNull("startsText"))));
 						break;
 					case PREVIOUS:
-						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(Expression.le("baseDate", now));
+						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(
+								Expression.or(Expression.le("baseDate", now), Expression.and(Expression.isNull("baseDate"), Expression.isNull("startsText"))));
 						break;
 				}
 				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
@@ -711,7 +715,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				querySQL.append("left join course_group_component cgc on cgc.courseComponentMuid = cc.muid ");
 				querySQL.append("left join course_group cg on cgc.courseGroupMuid = cg.muid ");
 				querySQL.append("where cc.starts is NULL and ");
-				querySQL.append("(cc.closes > NOW() or (cc.closes is null and cc.startsText is not null)) and ");
+				querySQL.append("(cc.baseDate > NOW() or (cc.baseDate is null and cc.startsText is not null)) and ");
 				querySQL.append("cg.hideGroup = false ");
 				querySQL.append("and cg.visibility != 'PR' ");
 				if (external) {
@@ -797,7 +801,8 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 	
 	/**
-	 * 
+	 * Hibernate handles the link between groups and components only one direction.
+	 * We need to look after removing groups from the component
 	 */
 	@SuppressWarnings("unchecked")
 	public Collection<CourseGroupDAO> deleteSelectedCourseGroups(final String source) {
@@ -810,6 +815,13 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				criteria.add(Restrictions.eq("source", source));
 				List<CourseGroupDAO> groupDaos =  criteria.list();
 				for (CourseGroupDAO groupDao : groupDaos) {
+					for (CourseComponentDAO component : groupDao.getComponents()) {
+						component.getGroups().remove(groupDao);
+					}
+					session.delete(groupDao);
+					for (CourseCategoryDAO category : groupDao.getCategories()) {
+						category.getGroups().remove(groupDao);
+					}
 					session.delete(groupDao);
 				}
 				return groupDaos;
@@ -834,6 +846,19 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				return componentDaos;
 			}
 		});
+	}
+
+	public CourseCategoryDAO findCourseCategory(final String id) {
+		
+		return (CourseCategoryDAO)getHibernateTemplate().execute(new HibernateCallback() {
+			public CourseCategoryDAO doInHibernate(Session session) {
+				return (CourseCategoryDAO)session.get(CourseCategoryDAO.class, id);
+			}
+		});
+	}
+
+	public void save(CourseCategoryDAO category) {
+		getHibernateTemplate().save(category);
 	}
 }
 
