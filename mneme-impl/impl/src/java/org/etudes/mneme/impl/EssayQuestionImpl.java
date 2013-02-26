@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -174,7 +174,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 	public Component getDeliveryUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.presentation.text"));
 
 		Attachments attachments = this.uiService.newAttachments();
 		attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
@@ -309,7 +309,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 	public Component getReviewUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.presentation.text"));
 
 		Attachments attachments = this.uiService.newAttachments();
 		attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
@@ -352,7 +352,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 
 		// in-line text: for review mode, show the evaluated answer text, if released
 		Text answer = this.uiService.newText();
-		answer.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.typeSpecificAnswer.answerEvaluatedFormatted"));
+		answer.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.typeSpecificAnswer.answerEvaluatedFormatted"));
 		answer.setIncluded(this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.inline.toString(), SubmissionType.both.toString())
 				.setProperty(this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")),
 				this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.submission.isReleased")),
@@ -360,7 +360,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		answerSection.add(answer);
 		// or if not released, show the actual answer text
 		answer = this.uiService.newText();
-		answer.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.typeSpecificAnswer.answerData"));
+		answer.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.typeSpecificAnswer.answerData"));
 		answer.setIncluded(
 				this.uiService.newCompareDecision().setEqualsConstant(SubmissionType.inline.toString(), SubmissionType.both.toString())
 						.setProperty(this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.submissionType")),
@@ -425,7 +425,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 
 		// model answer
 		Text modelAnswer = this.uiService.newText();
-		modelAnswer.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.typeSpecificQuestion.modelAnswer"));
+		modelAnswer.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.typeSpecificQuestion.modelAnswer"));
 
 		Section showModelAnswerSection = this.uiService.newSection();
 		showModelAnswerSection.setCollapsed(true);
@@ -568,7 +568,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 	public Component getViewDeliveryUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.presentation.text"));
 
 		Attachments attachments = this.uiService.newAttachments();
 		attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
@@ -597,7 +597,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 	public Component getViewQuestionUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.presentation.text"));
 
 		Attachments attachments = this.uiService.newAttachments();
 		attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
@@ -633,7 +633,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 
 		// model answer
 		Text modelAnswer = this.uiService.newText();
-		modelAnswer.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer"));
+		modelAnswer.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.typeSpecificQuestion.modelAnswer"));
 
 		Section showModelAnswerSection = this.uiService.newSection();
 		showModelAnswerSection.setCollapsed(true);
@@ -655,7 +655,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 	public Component getViewStatsUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.presentation.text"));
 
 		Attachments attachments = this.uiService.newAttachments();
 		attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
@@ -677,7 +677,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 
 		// model answer
 		Text modelAnswer = this.uiService.newText();
-		modelAnswer.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer"));
+		modelAnswer.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.typeSpecificQuestion.modelAnswer"));
 
 		Section showModelAnswerSection = this.uiService.newSection();
 		showModelAnswerSection.setCollapsed(true);
@@ -690,7 +690,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		showModelAnswerSection.add(modelAnswer);
 
 		Text answer = this.uiService.newText();
-		answer.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.typeSpecificAnswer.answerData"));
+		answer.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.typeSpecificAnswer.answerData"));
 
 		Attachments uploaded = this.uiService.newAttachments();
 		uploaded.setAttachments(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded"), "attachment");
@@ -746,7 +746,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 	{
 		modelAnswer = StringUtil.trimToNull(modelAnswer);
 
-		if (!Different.different(modelAnswer, this.modelAnswer)) return;
+		if (!Different.differentHtml(modelAnswer, this.modelAnswer)) return;
 
 		this.modelAnswer = modelAnswer;
 

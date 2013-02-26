@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-api/api/src/java/org/etudes/mneme/api/ImporteCollegeTextService.java $
- * $Id: ImporteCollegeTextService.java 3635 2012-12-02 21:26:23Z ggolden $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2012 Etudes, Inc.
@@ -22,21 +22,50 @@
 package org.etudes.mneme.api;
 
 /**
- * ImportTextService provides support for import questions from a text format into Mneme.
+ * <p>
+ * SubmissionCompletionStatus enumerates different possible ways a submission was finalized.
+ * </p>
  */
-public interface ImporteCollegeTextService
+public enum SubmissionCompletionStatus
 {
-	/**
-	 * Parse out questions from the eCollege text, and import them into the pool.
-	 * 
-	 * @param context
-	 *        The context in which the pool and questions live.
-	 * @param pool
-	 *        The Pool to hold the new questions. If null, a new pool is created.
-	 * @param text
-	 *        The text containing the questions.
-	 * @throws AssessmentPermissionException
-	 *         if the user does not have permission to create questions.
-	 */
-	void importQuestions(String context, Pool pool, String text) throws AssessmentPermissionException;
+	autoComplete("A"), evaluationNonSubmit("E"), unknown(null), userFinished("U");
+
+	public static SubmissionCompletionStatus getFromEncoding(String encoding)
+	{
+		if (encoding != null)
+		{
+			if (encoding.equals(autoComplete.getEncoding()))
+			{
+				return autoComplete;
+			}
+			else if (encoding.equals(evaluationNonSubmit.getEncoding()))
+			{
+				return evaluationNonSubmit;
+			}
+			else if (encoding.equals(userFinished.getEncoding()))
+			{
+				return userFinished;
+			}
+			else
+			{
+				return unknown;
+			}
+		}
+		else
+		{
+			return unknown;
+		}
+	}
+
+	private String encoding = null;
+
+	private SubmissionCompletionStatus(String encoding)
+	{
+		this.encoding = encoding;
+	}
+
+	public String getEncoding()
+	{
+		return this.encoding;
+	}
 }

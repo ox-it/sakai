@@ -148,6 +148,8 @@ public class AssessmentImpl implements Assessment
 
 	protected Boolean showModelAnswer = Boolean.TRUE;
 
+	protected Boolean shuffleChoicesOverride = Boolean.FALSE;
+
 	protected AssessmentSpecialAccess specialAccess = null;
 
 	protected transient Submission submissionContext = null;
@@ -700,6 +702,14 @@ public class AssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getShuffleChoicesOverride()
+	{
+		return this.shuffleChoicesOverride;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public AssessmentSpecialAccess getSpecialAccess()
 	{
 		return this.specialAccess;
@@ -1037,6 +1047,19 @@ public class AssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public void setShuffleChoicesOverride(Boolean setting)
+	{
+		if (setting == null) throw new IllegalArgumentException();
+		if (this.shuffleChoicesOverride.equals(setting)) return;
+
+		this.shuffleChoicesOverride = setting;
+
+		this.changed.setChanged();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setTimeLimit(Long limit)
 	{
 		// minimum of one minute
@@ -1363,6 +1386,26 @@ public class AssessmentImpl implements Assessment
 	}
 
 	/**
+	 * Establish the shuffleChoicesOverride setting.
+	 * 
+	 * @param shuffleChoicesOverride
+	 *        The shuffleChoicesOverride setting.
+	 */
+	protected void initShuffleChoicesOverride(Boolean shuffleChoicesOverride)
+	{
+		// if null, use the default
+		if (shuffleChoicesOverride == null)
+		{
+			this.shuffleChoicesOverride = Boolean.FALSE;
+		}
+
+		else
+		{
+			this.shuffleChoicesOverride = shuffleChoicesOverride;
+		}
+	}
+
+	/**
 	 * Initialize the submission context.
 	 * 
 	 * @param submission
@@ -1490,6 +1533,7 @@ public class AssessmentImpl implements Assessment
 		this.questionService = other.questionService;
 		this.needsRescore = other.needsRescore;
 		this.randomAccess = other.randomAccess;
+		this.shuffleChoicesOverride = other.shuffleChoicesOverride;
 		this.resultsEmail = other.resultsEmail;
 		this.resultsSent = other.resultsSent;
 		this.review = new AssessmentReviewImpl(this, (AssessmentReviewImpl) other.review, this.changed);

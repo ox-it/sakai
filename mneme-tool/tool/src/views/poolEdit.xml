@@ -93,7 +93,7 @@
 				</textEdit>
 
 				<htmlEdit title="pool-description" size="SMALL">
-					<model type="html" ref="pool.description" />
+					<model type="html" dirty="TRUE" ref="pool.description" />
 				</htmlEdit>
 
 				<floatEdit title="pool-points" model="pool.pointsEdit" cols="6">

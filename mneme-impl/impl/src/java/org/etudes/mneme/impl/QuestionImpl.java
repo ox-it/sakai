@@ -789,7 +789,7 @@ public class QuestionImpl implements Question
 	{
 		feedback = StringUtil.trimToNull(feedback);
 
-		if (!Different.different(feedback, this.feedback)) return;
+		if (!Different.differentHtml(feedback, this.feedback)) return;
 
 		this.feedback = feedback;
 
@@ -803,7 +803,7 @@ public class QuestionImpl implements Question
 	{
 		hints = StringUtil.trimToNull(hints);
 
-		if (!Different.different(hints, this.hints)) return;
+		if (!Different.differentHtml(hints, this.hints)) return;
 
 		this.hints = hints;
 

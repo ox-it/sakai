@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -156,7 +156,7 @@ public class GradeQuestionView extends ControllerImpl
 		{
 			if (assessment.getAnonymous())
 			{
-				sortCode = "1A";
+				sortCode = "1D";
 			}
 			else
 			{
@@ -176,11 +176,11 @@ public class GradeQuestionView extends ControllerImpl
 		}
 		else if ((sortCode.charAt(0) == '1') && (sortCode.charAt(1) == 'A'))
 		{
-			sort = SubmissionService.FindAssessmentSubmissionsSort.final_a;
+			sort = SubmissionService.FindAssessmentSubmissionsSort.sdate_a;
 		}
 		else if ((sortCode.charAt(0) == '1') && (sortCode.charAt(1) == 'D'))
 		{
-			sort = SubmissionService.FindAssessmentSubmissionsSort.final_d;
+			sort = SubmissionService.FindAssessmentSubmissionsSort.sdate_d;
 		}
 		if (sort == null)
 		{
@@ -357,7 +357,7 @@ public class GradeQuestionView extends ControllerImpl
 				{
 					if (assessment.getAnonymous())
 					{
-						sortCode = "1A";
+						sortCode = "1D";
 					}
 					else
 					{

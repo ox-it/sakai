@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/contrib/etudes/mneme/branches/mn-1166/mneme-impl/impl/src/java/org/etudes/mneme/impl/MultipleChoiceQuestionTypeImpl.java $
- * $Id: MultipleChoiceQuestionTypeImpl.java 67735 2010-05-20 15:49:14Z ggolden@etudes.org $
+ * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-impl/impl/src/java/org/etudes/mneme/impl/MultipleChoiceQuestionTypeImpl.java $
+ * $Id: MultipleChoiceQuestionTypeImpl.java 3635 2012-12-02 21:26:23Z ggolden $
  ***********************************************************************************
  *
  * Copyright (c) 2011 Etudes, Inc.

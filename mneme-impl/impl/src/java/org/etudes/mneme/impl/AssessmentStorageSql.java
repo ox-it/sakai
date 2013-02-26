@@ -326,57 +326,6 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	/**
 	 * {@inheritDoc}
 	 */
-	public Date getMinStartDate(String context)
-	{
-		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT MIN(DATES_ACCEPT_UNTIL), MIN(DATES_DUE), MIN(DATES_OPEN), MIN(REVIEW_DATE)");
-		sql.append(" FROM MNEME_ASSESSMENT");
-		sql.append(" WHERE CONTEXT = ? AND ARCHIVED=0");
-
-		Object[] fields = new Object[1];
-		fields[0] = context;
-
-		List results = this.sqlService.dbRead(sql.toString(), fields, new SqlReader()
-		{
-			public Object readSqlResultRecord(ResultSet result)
-			{
-				try
-				{
-					Date rv = null;
-					for (int i = 1; i <= 4; i++)
-					{
-						Date d = SqlHelper.readDate(result, i);
-						if (rv == null)
-						{
-							rv = d;
-						}
-						else if ((d != null) && d.before(rv))
-						{
-							rv = d;
-						}
-					}
-
-					return rv;
-				}
-				catch (SQLException e)
-				{
-					M_log.warn("getMinStartDate: " + e);
-					return null;
-				}
-			}
-		});
-
-		if (results.size() > 0)
-		{
-			return (Date) results.get(0);
-		}
-
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public Date getMaxStartDate(String context)
 	{
 		StringBuilder sql = new StringBuilder();
@@ -412,6 +361,57 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 				catch (SQLException e)
 				{
 					M_log.warn("getMaxStartDate: " + e);
+					return null;
+				}
+			}
+		});
+
+		if (results.size() > 0)
+		{
+			return (Date) results.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Date getMinStartDate(String context)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT MIN(DATES_ACCEPT_UNTIL), MIN(DATES_DUE), MIN(DATES_OPEN), MIN(REVIEW_DATE)");
+		sql.append(" FROM MNEME_ASSESSMENT");
+		sql.append(" WHERE CONTEXT = ? AND ARCHIVED=0");
+
+		Object[] fields = new Object[1];
+		fields[0] = context;
+
+		List results = this.sqlService.dbRead(sql.toString(), fields, new SqlReader()
+		{
+			public Object readSqlResultRecord(ResultSet result)
+			{
+				try
+				{
+					Date rv = null;
+					for (int i = 1; i <= 4; i++)
+					{
+						Date d = SqlHelper.readDate(result, i);
+						if (rv == null)
+						{
+							rv = d;
+						}
+						else if ((d != null) && d.before(rv))
+						{
+							rv = d;
+						}
+					}
+
+					return rv;
+				}
+				catch (SQLException e)
+				{
+					M_log.warn("getMinStartDate: " + e);
 					return null;
 				}
 			}
@@ -986,7 +986,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		sql.append(" A.PARTS_CONTINUOUS, A.PARTS_SHOW_PRES, A.PASSWORD, A.PRESENTATION_TEXT,");
 		sql.append(" A.PUBLISHED, A.FROZEN, A.QUESTION_GROUPING, A.RANDOM_ACCESS,");
 		sql.append(" A.REVIEW_DATE, A.REVIEW_SHOW_CORRECT, A.REVIEW_SHOW_FEEDBACK, A.REVIEW_TIMING,");
-		sql.append(" A.SHOW_HINTS, A.SHOW_MODEL_ANSWER, A.SUBMIT_PRES_TEXT, A.TIME_LIMIT, A.TITLE, A.TRIES, A.TYPE, A.POOL, A.NEEDSPOINTS");
+		sql.append(" A.SHOW_HINTS, A.SHOW_MODEL_ANSWER, A.SUBMIT_PRES_TEXT, A.TIME_LIMIT, A.TITLE, A.TRIES, A.TYPE, A.POOL, A.NEEDSPOINTS, A.SHUFFLE_CHOICES");
 		sql.append(" FROM MNEME_ASSESSMENT A ");
 		sql.append(where);
 		if (order != null) sql.append(order);
@@ -1042,6 +1042,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 					assessment.initType(AssessmentType.valueOf(SqlHelper.readString(result, i++)));
 					assessment.initPool(SqlHelper.readId(result, i++));
 					assessment.initNeedsPoints(SqlHelper.readBoolean(result, i++));
+					assessment.initShuffleChoicesOverride(SqlHelper.readBoolean(result, i++));
 
 					rv.add(assessment);
 					assessments.put(assessment.getId(), assessment);
@@ -1435,10 +1436,10 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		sql.append(" PARTS_CONTINUOUS=?, PARTS_SHOW_PRES=?, PASSWORD=?, PRESENTATION_TEXT=?,");
 		sql.append(" PUBLISHED=?, FROZEN=?, QUESTION_GROUPING=?, RANDOM_ACCESS=?,");
 		sql.append(" REVIEW_DATE=?, REVIEW_SHOW_CORRECT=?, REVIEW_SHOW_FEEDBACK=?, REVIEW_TIMING=?,");
-		sql.append(" SHOW_HINTS=?, SHOW_MODEL_ANSWER=?, SUBMIT_PRES_TEXT=?, TIME_LIMIT=?, TITLE=?, TRIES=?, TYPE=?, POOL=?, NEEDSPOINTS=?");
+		sql.append(" SHOW_HINTS=?, SHOW_MODEL_ANSWER=?, SUBMIT_PRES_TEXT=?, TIME_LIMIT=?, TITLE=?, TRIES=?, TYPE=?, POOL=?, NEEDSPOINTS=?, SHUFFLE_CHOICES=?");
 		sql.append(" WHERE ID=?");
 
-		Object[] fields = new Object[41];
+		Object[] fields = new Object[42];
 		int i = 0;
 		fields[i++] = assessment.getArchived() ? "1" : "0";
 		fields[i++] = assessment.getContext();
@@ -1482,6 +1483,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		fields[i++] = assessment.getType().toString();
 		fields[i++] = ((AssessmentImpl) assessment).poolId == null ? null : Long.valueOf(((AssessmentImpl) assessment).poolId);
 		fields[i++] = assessment.getNeedsPoints() == null ? null : (assessment.getNeedsPoints() ? "1" : "0");
+		fields[i++] = assessment.getShuffleChoicesOverride() == null ? null : (assessment.getShuffleChoicesOverride() ? "1" : "0");
 		fields[i++] = Long.valueOf(assessment.getId());
 
 		if (!this.sqlService.dbWrite(sql.toString(), fields))

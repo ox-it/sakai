@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2009 Etudes, Inc.
+ * Copyright (c) 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@
 					<model ref="assessment.title" type="text" missing="no-title" />
 				</message>
 			</title>
-			<model type="html" ref="assessment.presentation.text" />
+			<model type="html" dirty="TRUE" ref="assessment.presentation.text" />
 		</htmlEdit>
 
 		<gap />
@@ -86,7 +86,7 @@
 							<model type="text" ref="part.title" />
 						</message>
 					</title>
-					<model type="html" ref="part.presentation.text" />
+					<model type="html" dirty="TRUE" ref="part.presentation.text" />
 				</htmlEdit>
 
 			</container>

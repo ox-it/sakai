@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/contrib/etudes/mneme/tags/2.1.10/mneme-tool/tool/src/java/org/etudes/mneme/tool/ImportText.java $
- * $Id: ImportText.java 65802 2010-01-21 19:42:44Z ggolden@etudes.org $
+ * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-tool/tool/src/java/org/etudes/mneme/tool/ImporteCollegeTextView.java $
+ * $Id: ImporteCollegeTextView.java 3635 2012-12-02 21:26:23Z ggolden $
  ***********************************************************************************
  *
  * Copyright (c) 2012 Etudes, Inc.

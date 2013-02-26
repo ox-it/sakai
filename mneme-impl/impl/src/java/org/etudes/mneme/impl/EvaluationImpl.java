@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -73,12 +73,15 @@ public abstract class EvaluationImpl implements Evaluation
 
 	protected AttributionImpl attribution = new AttributionImpl(null);
 
-	/** Track any changes. */
+	/** Track any changes - all but evaluated. */
 	protected transient Changeable changed = new ChangeableImpl();
 
 	protected String comment = null;
 
 	protected Boolean evaluated = Boolean.FALSE;
+
+	/** Track changes to the evaluated setting. */
+	protected transient Changeable evaluatedChanged = new ChangeableImpl();
 
 	protected Float score = null;
 
@@ -205,7 +208,7 @@ public abstract class EvaluationImpl implements Evaluation
 	{
 		comment = StringUtil.trimToNull(comment);
 
-		if (!Different.different(this.comment, comment)) return;
+		if (!Different.differentHtml(this.comment, comment)) return;
 
 		this.comment = comment;
 
@@ -222,7 +225,7 @@ public abstract class EvaluationImpl implements Evaluation
 
 		this.evaluated = evaluated;
 
-		this.changed.setChanged();
+		this.evaluatedChanged.setChanged();
 	}
 
 	/**
@@ -258,6 +261,7 @@ public abstract class EvaluationImpl implements Evaluation
 	protected void clearIsChanged()
 	{
 		this.changed.clearChanged();
+		this.evaluatedChanged.clearChanged();
 	}
 
 	/**
@@ -268,6 +272,16 @@ public abstract class EvaluationImpl implements Evaluation
 	protected Boolean getIsChanged()
 	{
 		return this.changed.getChanged();
+	}
+
+	/**
+	 * Check if there was any change to evaluated.
+	 * 
+	 * @return TRUE if changed, FALSE if not.
+	 */
+	protected Boolean getIsEvaluatedChanged()
+	{
+		return this.evaluatedChanged.getChanged();
 	}
 
 	/**
@@ -315,6 +329,7 @@ public abstract class EvaluationImpl implements Evaluation
 		this.attachments.addAll(other.attachments);
 		this.attribution = new AttributionImpl(other.attribution, null);
 		this.changed = new ChangeableImpl(other.changed);
+		this.evaluatedChanged = new ChangeableImpl(other.evaluatedChanged);
 		this.comment = other.comment;
 		this.evaluated = other.evaluated;
 		this.score = other.score;

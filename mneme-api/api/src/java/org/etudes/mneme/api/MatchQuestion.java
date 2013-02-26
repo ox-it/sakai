@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/contrib/etudes/mneme/branches/mn-1166/mneme-api/api/src/java/org/etudes/mneme/api/MatchQuestion.java $
- * $Id: MatchQuestion.java 65738 2010-01-14 17:41:22Z ggolden@etudes.org $
+ * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-api/api/src/java/org/etudes/mneme/api/MatchQuestion.java $
+ * $Id: MatchQuestion.java 3635 2012-12-02 21:26:23Z ggolden $
  ***********************************************************************************
  *
  * Copyright (c) 2011 Etudes, Inc.

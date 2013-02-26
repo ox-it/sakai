@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/contrib/etudes/mneme/tags/2.1.10/mneme-impl/impl/src/java/org/etudes/mneme/impl/ImportTextServiceImpl.java $
- * $Id: ImportTextServiceImpl.java 62575 2009-08-13 00:07:27Z murthy@etudes.org $
+ * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-impl/impl/src/java/org/etudes/mneme/impl/ImporteCollegeTextServiceImpl.java $
+ * $Id: ImporteCollegeTextServiceImpl.java 3635 2012-12-02 21:26:23Z ggolden $
  ***********************************************************************************
  *
  * Copyright (c) 2012 Etudes, Inc.

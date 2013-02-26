@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -218,7 +218,7 @@
 		<section>
 			<container>
 				<htmlEdit size="TALL" title="question-presentation">
-					<model type="html" ref="question.presentation.text" />
+					<model type="html" dirty="TRUE" ref="question.presentation.text" />
 				</htmlEdit>
 				<fileUpload>
 					<model ref="upload.upload" />
@@ -294,7 +294,7 @@
 							<model type="icon" icon="/icons/hints.png" />
 						</message>
 					</title>
-					<model type="html" ref="question.hints" />
+					<model type="html" dirty="TRUE" ref="question.hints" />
 				</htmlEdit>
 			</container>
 			<included>
@@ -311,7 +311,7 @@
 							<model type="icon" icon="/icons/feedback.png" />
 						</message>
 					</title>
-					<model type="html" ref="question.feedback" />
+					<model type="html" dirty="TRUE" ref="question.feedback" />
 				</htmlEdit>
 			</container>
 			<included>

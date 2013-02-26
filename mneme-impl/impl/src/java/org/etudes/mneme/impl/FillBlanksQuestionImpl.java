@@ -278,7 +278,7 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	public Component getDeliveryUi()
 	{
 		FillIn fillIn = this.uiService.newFillIn();
-		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.typeSpecificQuestion.questionText"))
+		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.typeSpecificQuestion.questionText"))
 				.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answers")).setWidth(20);
 		fillIn.setWidth(20);
 		if (!responseTextual) fillIn.setNumeric();
@@ -419,7 +419,7 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		Decision showCorrect = this.uiService.newAndDecision().setRequirements(decisionsShowCorrect);
 
 		FillIn fillIn = this.uiService.newFillIn();
-		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.typeSpecificQuestion.questionText"));
+		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.typeSpecificQuestion.questionText"));
 		fillIn.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answers"));
 		fillIn.setWidth(20);
 		fillIn.setCorrectDecision(showCorrect);
@@ -506,7 +506,7 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	public Component getViewAnswerUi()
 	{
 		FillIn fillIn = this.uiService.newFillIn();
-		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.typeSpecificQuestion.questionText"));
+		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.typeSpecificQuestion.questionText"));
 		fillIn.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answers"));
 		fillIn.setWidth(20);
 		fillIn.setCorrectDecision(this.uiService.newTrueDecision());
@@ -524,7 +524,7 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	public Component getViewDeliveryUi()
 	{
 		FillIn fillIn = this.uiService.newFillIn();
-		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.typeSpecificQuestion.questionText"));
+		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.typeSpecificQuestion.questionText"));
 		fillIn.setWidth(20);
 		fillIn.setReadOnly(this.uiService.newTrueDecision());
 
@@ -540,7 +540,7 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	public Component getViewQuestionUi()
 	{
 		FillIn fillIn = this.uiService.newFillIn();
-		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.typeSpecificQuestion.questionText"));
+		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.typeSpecificQuestion.questionText"));
 		fillIn.setWidth(20);
 		fillIn.setReadOnly(this.uiService.newTrueDecision());
 
@@ -566,7 +566,7 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	public Component getViewStatsUi()
 	{
 		FillIn fillIn = this.uiService.newFillIn();
-		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.typeSpecificQuestion.questionText"));
+		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.typeSpecificQuestion.questionText"));
 		fillIn.setWidth(20);
 		fillIn.setReadOnly(this.uiService.newTrueDecision());
 
@@ -633,7 +633,7 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 				.setFormatDelegate(this.uiService.getFormatDelegate("AccessSubmissionsQuestionReasons", "sakai.mneme"));
 		reasonSection.setIterator(iteratorRefR, "answer", this.uiService.newMessage().setMessage("no-reasons"));
 		Text reason = this.uiService.newText();
-		reason.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.reason"));
+		reason.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.reason"));
 		reasonSection.add(reason);
 		reasonSection.setTitle("answer-reason");
 		reasonSection.setIncluded(this.uiService.newDecision().setProperty(
@@ -711,7 +711,7 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	 */
 	public void setText(String text)
 	{
-		if (!Different.different(this.text, text)) return;
+		if (!Different.differentHtml(this.text, text)) return;
 
 		this.text = StringUtil.trimToNull(text);
 

@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011,2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -156,6 +156,8 @@
 					</message>
 					<included>
 						<decision reversed="TRUE" model="submission.isCompletedLate" />
+						<decision model="submission.isNonSubmit" reversed="TRUE" />
+						<decision model="submission.isAutoCompleted" reversed="TRUE" />
 					</included>
 				</text>
 				<text>
@@ -165,6 +167,33 @@
 					</message>
 					<included>
 						<decision model="submission.isCompletedLate" />
+						<decision model="submission.isAutoCompleted" reversed="TRUE" />
+					</included>
+				</text>
+				<text>
+					<message selector="dates-auto">
+						<model type="date" ref="submission.startDate" />
+						<model type="date" ref="submission.submittedDate" />
+					</message>
+					<included>
+						<decision model="submission.isAutoCompleted" />
+						<decision reversed="TRUE" model="submission.isCompletedLate" />
+					</included>
+				</text>
+				<text>
+					<message selector="dates-auto-late">
+						<model type="date" ref="submission.startDate" />
+						<model type="date" ref="submission.submittedDate" />
+					</message>
+					<included>
+						<decision model="submission.isAutoCompleted" />
+						<decision model="submission.isCompletedLate" />
+					</included>
+				</text>
+				<text>
+					<message selector="dates-non-submit" />
+					<included>
+						<decision model="submission.isNonSubmit" />
 					</included>
 				</text>
 				<text>
@@ -253,7 +282,7 @@
 										</message>
 									</title>
 									<message>
-										<model type="html" ref="answer.reason" />
+										<model type="html" dirty="TRUE" ref="answer.reason" />
 									</message>
 								</text>
 							</container>
@@ -272,7 +301,7 @@
 							<container>
 								<text>
 									<message>
-										<model type="html" ref="answer.question.feedback" />
+										<model type="html" dirty="TRUE" ref="answer.question.feedback" />
 									</message>
 								</text>
 							</container>
@@ -305,7 +334,7 @@
 									</included>
 								</text>
 								<htmlEdit size="TALL">
-									<model type="html" ref="answer.evaluation.comment" />
+									<model type="html" dirty="TRUE" ref="answer.evaluation.comment" />
 									<title>
 										<message selector="question-evaluation">
 											<model type="icon" icon="/icons/note.png" />
@@ -371,7 +400,7 @@
 				<section>
 					<container>
 						<htmlEdit size="TALL">
-							<model type="html" ref="submission.evaluation.comment" />
+							<model type="html" dirty="TRUE" ref="submission.evaluation.comment" />
 							<title>
 								<message selector="overall-comments">
 									<model type="icon" icon="/icons/note.png" />

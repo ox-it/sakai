@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.etudes.mneme.api.Answer;
 import org.etudes.mneme.api.Assessment;
@@ -35,19 +34,14 @@ import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.TypeSpecificAnswer;
 import org.etudes.mneme.impl.MatchQuestionImpl.MatchQuestionPair;
 import org.etudes.util.DateHelper;
+import org.etudes.util.HtmlHelper;
 import org.sakaiproject.i18n.InternationalizedMessages;
-import org.sakaiproject.util.FormattedText;
 
 /**
  * ResultsFormatterImpl ...
  */
 public class ResultsFormatterImpl
 {
-	/** Matches \r */
-	private static Pattern M_patternCR = Pattern.compile("\\r");
-
-	private static Pattern M_patternNBSP = Pattern.compile("&nbsp;");
-
 	/** Messages. */
 	protected transient InternationalizedMessages messages = null;
 
@@ -97,7 +91,7 @@ public class ResultsFormatterImpl
 			if (assessment.getParts().getShowPresentation())
 			{
 				content.append("<br />");
-				content.append(stripHtml(part.getPresentation().getText()));
+				content.append(HtmlHelper.clean(part.getPresentation().getText()));
 			}
 			content.append("</p>\n");
 
@@ -121,7 +115,7 @@ public class ResultsFormatterImpl
 				content.append("<p>");
 				if (question.getTypeSpecificQuestion().getUseQuestionPresentation())
 				{
-					content.append(stripHtml(question.getPresentation().getText()));
+					content.append(HtmlHelper.clean(question.getPresentation().getText()));
 				}
 				else
 				{
@@ -429,7 +423,7 @@ public class ResultsFormatterImpl
 		for (LikertScaleQuestionImpl.LikertScaleQuestionChoice choice : tsq.getChoices())
 		{
 			content.append("<tr><td>");
-			content.append(stripHtml(choice.getText()));
+			content.append(choice.getText());
 			content.append("</td>");
 			content.append(formatCountPercent(question, submissions, choice.getId()));
 			content.append("</tr>\n");
@@ -468,7 +462,7 @@ public class ResultsFormatterImpl
 		{
 			if (pos > 0) content.append("<br />\n");
 
-			content.append(format("results-match", stripHtml(pair.getMatch())));
+			content.append(format("results-match", pair.getMatch()));
 			content.append("<br />\n");
 
 			content.append("<table>\n");
@@ -560,7 +554,7 @@ public class ResultsFormatterImpl
 
 		// 'choice pair' % count
 		content.append("<tr><td>");
-		content.append(stripHtml(choice));
+		content.append(HtmlHelper.clean(choice));
 		content.append("</td><td>");
 		content.append(format("results-format-count", Integer.valueOf(pct), Integer.valueOf(count)));
 		content.append("</td></tr>\n");
@@ -584,7 +578,7 @@ public class ResultsFormatterImpl
 		for (MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice choice : tsq.getChoices())
 		{
 			content.append("<tr><td>");
-			content.append(stripHtml(choice.getText()));
+			content.append(HtmlHelper.clean(choice.getText()));
 			content.append("</td>");
 			content.append(formatCountPercent(question, submissions, choice.getId()));
 			content.append("</tr>\n");
@@ -628,7 +622,7 @@ public class ResultsFormatterImpl
 				if (a.getReason() != null)
 				{
 					content.append("<hr>\n");
-					content.append(a.getReason());
+					content.append(HtmlHelper.clean(a.getReason()));
 					content.append("\n");
 				}
 			}
@@ -669,7 +663,7 @@ public class ResultsFormatterImpl
 					{
 						String text = ((EssayAnswerImpl) tsa).getAnswerData();
 						content.append("<hr>\n");
-						content.append(stripHtml(text));
+						content.append(HtmlHelper.clean(text));
 						content.append("\n");
 					}
 				}
@@ -711,7 +705,7 @@ public class ResultsFormatterImpl
 		for (TrueFalseQuestionImpl.TrueFalseQuestionChoice choice : tsq.getChoices())
 		{
 			content.append("<tr><td>");
-			content.append(stripHtml(choice.getText()));
+			content.append(choice.getText());
 			content.append("</td>");
 			content.append(formatCountPercent(question, submissions, choice.getId()));
 			content.append("</tr>\n");
@@ -767,26 +761,5 @@ public class ResultsFormatterImpl
 		}
 
 		return "";
-	}
-
-	/**
-	 * Remove the html from the source.
-	 * 
-	 * @param source
-	 *        The source string.
-	 * @return The source with html removed.
-	 */
-	protected String stripHtml(String source)
-	{
-		if (source == null) return "";
-
-		// remove \r - convertFormattedTextToPlaintext won't do this.
-		source = M_patternCR.matcher(source).replaceAll("");
-
-		// &nbsp; is common, and convertFormattedTextToPlaintext() will replace it with a strange character
-		source = M_patternNBSP.matcher(source).replaceAll(" ");
-
-		source = FormattedText.convertFormattedTextToPlaintext(source);
-		return source;
 	}
 }

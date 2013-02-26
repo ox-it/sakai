@@ -317,6 +317,13 @@ public interface Assessment
 	Boolean getShowModelAnswer();
 
 	/**
+	 * Check if questions should be "shuffleChoices" overriding the individual question settings.
+	 * 
+	 * @return TRUE to override to TRUE shuffle choices, FALSE if not.
+	 */
+	Boolean getShuffleChoicesOverride();
+
+	/**
 	 * Access the set of special access definitions for the assessment.
 	 * 
 	 * @return The set of special access definitions for the assessment.
@@ -507,6 +514,14 @@ public interface Assessment
 	 *        TRUE to show authored model answer for released submissions in review, FALSE to not.
 	 */
 	void setShowModelAnswer(Boolean show);
+
+	/**
+	 * Set the shuffle choices override setting.
+	 * 
+	 * @param override
+	 *        The shuffle choices override setting.
+	 */
+	void setShuffleChoicesOverride(Boolean override);
 
 	/**
 	 * Set the time limit for taking the assessment (ms).

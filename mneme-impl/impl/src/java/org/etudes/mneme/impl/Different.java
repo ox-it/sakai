@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -23,6 +23,8 @@
  **********************************************************************************/
 
 package org.etudes.mneme.impl;
+
+import org.etudes.util.HtmlHelper;
 
 /**
  * Utility class to compute difference considering nulls.
@@ -48,5 +50,26 @@ public class Different
 
 		// now we know neither are null, so compare
 		return (!a.equals(b));
+	}
+
+	/**
+	 * Compare two html string fragments for differences, either may be null
+	 * 
+	 * @param a
+	 *        One object.
+	 * @param b
+	 *        The other object.
+	 * @return true if the object are different, false if they are the same.
+	 */
+	public static boolean differentHtml(String a, String b)
+	{
+		// if both null, they are the same
+		if ((a == null) && (b == null)) return false;
+
+		// if either are null (they both are not), they are different
+		if ((a == null) || (b == null)) return true;
+
+		// now we know neither are null, so compare
+		return (!HtmlHelper.compareHtml(a, b, true));
 	}
 }

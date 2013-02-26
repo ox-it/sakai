@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -229,7 +229,7 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 	public Component getDeliveryUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.presentation.text"));
 
 		// Attachments attachments = this.uiService.newAttachments();
 		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
@@ -315,7 +315,7 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 	public Component getReviewUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.presentation.text"));
 
 		// Attachments attachments = this.uiService.newAttachments();
 		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
@@ -459,7 +459,7 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 	public Component getViewDeliveryUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.presentation.text"));
 
 		// Attachments attachments = this.uiService.newAttachments();
 		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
@@ -483,7 +483,7 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 	public Component getViewQuestionUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.presentation.text"));
 
 		// Attachments attachments = this.uiService.newAttachments();
 		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
@@ -521,7 +521,7 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 	public Component getViewStatsUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.presentation.text"));
 
 		// Attachments attachments = this.uiService.newAttachments();
 		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
@@ -582,7 +582,7 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 				.setFormatDelegate(this.uiService.getFormatDelegate("AccessSubmissionsQuestionReasons", "sakai.mneme"));
 		reasonSection.setIterator(iteratorRef, "answer", this.uiService.newMessage().setMessage("no-reasons"));
 		Text reason = this.uiService.newText();
-		reason.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.reason"));
+		reason.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.reason"));
 		reasonSection.add(reason);
 		reasonSection.setTitle("answer-reason");
 		reasonSection.setIncluded(this.uiService.newDecision().setProperty(

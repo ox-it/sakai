@@ -281,7 +281,7 @@ public class EssayAnswerImpl implements TypeSpecificAnswer
 	{
 		answerData = StringUtil.trimToNull(answerData);
 
-		if (!Different.different(this.answerData, answerData)) return;
+		if (!Different.differentHtml(this.answerData, answerData)) return;
 
 		this.answerData = answerData;
 		this.changed = true;
@@ -298,7 +298,7 @@ public class EssayAnswerImpl implements TypeSpecificAnswer
 		String current = getAnswerEvaluated();
 		evaluated = StringUtil.trimToNull(evaluated);
 
-		if (!Different.different(current, evaluated)) return;
+		if (!Different.differentHtml(current, evaluated)) return;
 
 		this.answerEvaluated = evaluated;
 		this.changed = true;

@@ -122,7 +122,7 @@
 					<container>
 						<text>
 							<message>
-								<model type="html" ref="question.feedback" />
+								<model type="html" dirty="TRUE" ref="question.feedback" />
 							</message>
 						</text>
 					</container>
@@ -260,6 +260,8 @@
 							</message>
 							<included>
 								<decision reversed="TRUE" model="answer.submission.isCompletedLate" />
+								<decision model="answer.submission.isNonSubmit" reversed="TRUE" />
+								<decision model="answer.submission.isAutoCompleted" reversed="TRUE" />
 							</included>
 						</text>
 						<text>
@@ -269,6 +271,27 @@
 							</message>
 							<included>
 								<decision model="answer.submission.isCompletedLate" />
+								<decision model="answer.submission.isAutoCompleted" reversed="TRUE" />
+							</included>
+						</text>
+						<text>
+							<message selector="submission-finished-date-auto">
+								<model type="date" ref="answer.submission.startDate" />
+								<model type="date" ref="answer.submission.submittedDate" />
+							</message>
+							<included>
+								<decision reversed="TRUE" model="answer.submission.isCompletedLate" />
+								<decision model="answer.submission.isAutoCompleted" />
+							</included>
+						</text>
+						<text>
+							<message selector="submission-finished-date-auto-late">
+								<model type="date" ref="answer.submission.startDate" />
+								<model type="date" ref="answer.submission.submittedDate" />
+							</message>
+							<included>
+								<decision model="answer.submission.isCompletedLate" />
+								<decision model="answer.submission.isAutoCompleted" />
 							</included>
 						</text>
 						<section>
@@ -283,7 +306,7 @@
 										</message>
 									</title>
 									<message>
-										<model type="html" ref="answer.reason" />
+										<model type="html" dirty="TRUE" ref="answer.reason" />
 									</message>
 									<included>
 										<hasValueDecision model="answer.reason" />
@@ -315,7 +338,7 @@
 									</included>
 								</text>
 								<htmlEdit size="TALL">
-									<model type="html" ref="answer.evaluation.comment" />
+									<model type="html" dirty="TRUE" ref="answer.evaluation.comment" />
 									<title>
 										<message selector="submission-evaluation">
 											<model type="icon" icon="/icons/note.png" />

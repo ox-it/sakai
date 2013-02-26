@@ -3,7 +3,7 @@
 -- $Id$
 --**********************************************************************************
 --
--- Copyright (c) 2011, 2012 Etudes, Inc.
+-- Copyright (c) 2012 Etudes, Inc.
 -- 
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 --*********************************************************************************/
 
 -----------------------------------------------------------------------------
--- Mneme Submission DDL changes between 2.1.2 and 2.1.3
+-- Mneme Submission DDL changes between 2.1.14 and 2.1.15
 -----------------------------------------------------------------------------
 
-ALTER TABLE MNEME_SUBMISSION ADD (REVIEWED_DATE NUMBER);
+ALTER TABLE MNEME_SUBMISSION ADD (STATUS CHAR (1));

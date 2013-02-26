@@ -159,10 +159,10 @@ public class AssessmentStorageMysql extends AssessmentStorageSql implements Asse
 		sql.append(" PARTS_CONTINUOUS, PARTS_SHOW_PRES, PASSWORD, PRESENTATION_TEXT,");
 		sql.append(" PUBLISHED, FROZEN, QUESTION_GROUPING, RANDOM_ACCESS,");
 		sql.append(" REVIEW_DATE, REVIEW_SHOW_CORRECT, REVIEW_SHOW_FEEDBACK, REVIEW_TIMING,");
-		sql.append(" SHOW_HINTS, SHOW_MODEL_ANSWER, SUBMIT_PRES_TEXT, TIME_LIMIT, TITLE, TRIES, TYPE, POOL, NEEDSPOINTS)");
-		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		sql.append(" SHOW_HINTS, SHOW_MODEL_ANSWER, SUBMIT_PRES_TEXT, TIME_LIMIT, TITLE, TRIES, TYPE, POOL, NEEDSPOINTS, SHUFFLE_CHOICES)");
+		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
-		Object[] fields = new Object[42];
+		Object[] fields = new Object[43];
 		int i = 0;
 		fields[i++] = assessment.getArchived() ? "1" : "0";
 		fields[i++] = assessment.getContext();
@@ -208,6 +208,7 @@ public class AssessmentStorageMysql extends AssessmentStorageSql implements Asse
 		fields[i++] = assessment.getType().toString();
 		fields[i++] = ((AssessmentImpl) assessment).poolId == null ? null : Long.valueOf(((AssessmentImpl) assessment).poolId);
 		fields[i++] = assessment.getNeedsPoints() ? "1" : "0";
+		fields[i++] = assessment.getShuffleChoicesOverride() == null ? null : (assessment.getShuffleChoicesOverride() ? "1" : "0");
 
 		Long id = this.sqlService.dbInsert(null, sql.toString(), fields, "ID");
 		if (id == null)

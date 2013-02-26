@@ -455,7 +455,7 @@
 							<title>
 								<message selector="description" />
 							</title>
-							<model ref="detail.description" type="html" max="60" />
+							<model ref="detail.description" type="text" stripHtml="TRUE" max="60" missing="no-title" />
 							<entityNavigations>
 								<navigation submit="TRUE">
 									<included>
@@ -477,7 +477,7 @@
 							<title>
 								<message selector="description" />
 							</title>
-							<model ref="detail.description" type="html" max="60" />
+							<model ref="detail.description" type="text" stripHtml="TRUE" max="60" missing="no-title" />
 							<entityNavigations>
 								<navigation submit="TRUE">
 									<included>

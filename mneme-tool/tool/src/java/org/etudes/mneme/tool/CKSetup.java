@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/contrib/etudes/mneme/branches/MN-1198/mneme-tool/tool/src/java/org/etudes/mneme/tool/InstructionsEditView.java $
- * $Id: InstructionsEditView.java 64695 2009-11-16 02:59:19Z ggolden@etudes.org $
+ * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-tool/tool/src/java/org/etudes/mneme/tool/CKSetup.java $
+ * $Id: CKSetup.java 3635 2012-12-02 21:26:23Z ggolden $
  ***********************************************************************************
  *
  * Copyright (c) 2012 Etudes, Inc.

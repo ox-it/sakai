@@ -622,6 +622,25 @@
 					<model ref="assessment.showHints" />
 				</selection>
 
+				<selection>
+					<title>
+						<message selector="shuffle-header">
+							<model type="icon" icon="/icons/arrow_switch.png" />
+						</message>
+					</title>
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="shuffle-title" />
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+					<model ref="assessment.shuffleChoicesOverride" />
+				</selection>
+
 				<selection title="nav">
 					<included>
 						<compareDecision reversed="TRUE" model="assessment.type" constant="assignment" />
@@ -735,7 +754,7 @@
 				</selection>
 
 				<htmlEdit title="submitMessage">
-					<model type="html" ref="assessment.submitPresentation.text" />
+					<model type="html" dirty="TRUE" ref="assessment.submitPresentation.text" />
 				</htmlEdit>
 
 			</container>

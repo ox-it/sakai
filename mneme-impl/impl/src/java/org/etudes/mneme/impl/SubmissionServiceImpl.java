@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -56,9 +56,11 @@ import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionCompletedException;
+import org.etudes.mneme.api.SubmissionCompletionStatus;
 import org.etudes.mneme.api.SubmissionService;
 import org.etudes.mneme.api.TypeSpecificAnswer;
 import org.etudes.util.DateHelper;
+import org.etudes.util.HtmlHelper;
 import org.etudes.util.api.AccessAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -82,7 +84,6 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
@@ -361,6 +362,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		// update the submission
 		submission.setSubmittedDate(asOf);
 		submission.setIsComplete(Boolean.TRUE);
+		submission.setCompletionStatus(SubmissionCompletionStatus.userFinished);
 
 		// if grade at submission
 		if (assessment.getGrading().getAutoRelease())
@@ -510,7 +512,6 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		SubmissionImpl rv = this.storage.newSubmission();
 		rv.initAssessmentId(submission.getAssessment().getId());
 		rv.initUserId(submission.getUserId());
-		rv.setIsComplete(Boolean.FALSE);
 		rv.setStartDate(asOf);
 		rv.setSubmittedDate(asOf);
 
@@ -643,13 +644,15 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		submission.consolidateTotalScore();
 
 		// check for changes
-		boolean changed = ((EvaluationImpl) submission.getEvaluation()).getIsChanged();
+		boolean changed = ((EvaluationImpl) submission.getEvaluation()).getIsChanged()
+				|| ((EvaluationImpl) submission.getEvaluation()).getIsEvaluatedChanged();
 		if (!changed) changed = ((SubmissionImpl) submission).getIsChanged();
 		if (!changed)
 		{
 			for (Answer answer : submission.getAnswers())
 			{
-				if ((((EvaluationImpl) answer.getEvaluation()).getIsChanged()) || answer.getIsChanged())
+				if ((((EvaluationImpl) answer.getEvaluation()).getIsChanged()) || ((EvaluationImpl) answer.getEvaluation()).getIsEvaluatedChanged()
+						|| answer.getIsChanged())
 				{
 					changed = true;
 					break;
@@ -661,7 +664,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		// security check
 		securityService.secure(sessionManager.getCurrentSessionUserId(), MnemeService.GRADE_PERMISSION, submission.getAssessment().getContext());
 
-		// set the attribution
+		// set the attribution, unless this was just an evaluated flag change
 		if (((EvaluationImpl) submission.getEvaluation()).getIsChanged())
 		{
 			submission.getEvaluation().getAttribution().setDate(now);
@@ -676,6 +679,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			temp.initAssessmentId(submission.getAssessment().getId());
 			temp.initUserId(submission.getUserId());
 			temp.setIsComplete(Boolean.TRUE);
+			temp.setCompletionStatus(SubmissionCompletionStatus.evaluationNonSubmit);
 			temp.setStartDate(now);
 			temp.setSubmittedDate(now);
 			temp.evaluation = (SubmissionEvaluationImpl) submission.getEvaluation();
@@ -737,11 +741,15 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		{
 			Answer answer = (Answer) i.next();
 
-			if ((((EvaluationImpl) answer.getEvaluation()).getIsChanged()) || answer.getIsChanged())
+			if ((((EvaluationImpl) answer.getEvaluation()).getIsChanged()) || ((EvaluationImpl) answer.getEvaluation()).getIsEvaluatedChanged()
+					|| answer.getIsChanged())
 			{
-				// set attribution
-				answer.getEvaluation().getAttribution().setDate(now);
-				answer.getEvaluation().getAttribution().setUserId(userId);
+				// set attribution, unless this was just an evaluated flag change
+				if (((EvaluationImpl) answer.getEvaluation()).getIsChanged())
+				{
+					answer.getEvaluation().getAttribution().setDate(now);
+					answer.getEvaluation().getAttribution().setUserId(userId);
+				}
 
 				// clear the changed flag
 				((EvaluationImpl) answer.getEvaluation()).clearIsChanged();
@@ -755,7 +763,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		}
 
 		// save just evaluation stuff and answers and released
-		if (((EvaluationImpl) submission.getEvaluation()).getIsChanged())
+		if (((EvaluationImpl) submission.getEvaluation()).getIsChanged() || ((EvaluationImpl) submission.getEvaluation()).getIsEvaluatedChanged())
 		{
 			((EvaluationImpl) submission.getEvaluation()).clearIsChanged();
 			this.storage.saveSubmissionEvaluation((SubmissionImpl) submission);
@@ -2162,6 +2170,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		if (completeSubmission)
 		{
 			submission.setIsComplete(Boolean.TRUE);
+			submission.setCompletionStatus(SubmissionCompletionStatus.userFinished);
 
 			// check if we should also mark it graded
 			if (assessment.getGrading().getAutoRelease())
@@ -2217,7 +2226,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		}
 
 		// the question (if it has presentation)
-		String questionText = question.getPresentation().getText();
+		String questionText = HtmlHelper.clean(question.getPresentation().getText(), false);
 		String questionFile = null;
 		if (questionText != null)
 		{
@@ -2239,8 +2248,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		String questionDescription = question.getDescription();
 		if (questionDescription != null)
 		{
-			// compress and shorten
-			questionDescription = FormattedText.convertFormattedTextToPlaintext(questionDescription);
+			// shorten
 			questionDescription = questionDescription.replace("\n", " ");
 			if (questionDescription.length() > 60)
 			{
@@ -2297,7 +2305,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 					EssayAnswerImpl essay = (EssayAnswerImpl) a;
 
 					// answer - inline
-					String inline = essay.getAnswerData();
+					String inline = HtmlHelper.clean(essay.getAnswerData(), false);
 					if (inline != null)
 					{
 						// "inline.html"
@@ -2361,6 +2369,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		// update the submission
 		submission.setIsComplete(Boolean.TRUE);
+		submission.setCompletionStatus(SubmissionCompletionStatus.autoComplete);
 		submission.setSubmittedDate(asOf);
 
 		if (submission.getAssessment().getGrading().getAutoRelease())

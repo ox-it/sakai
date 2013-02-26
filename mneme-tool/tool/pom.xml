@@ -1,5 +1,4 @@
-<?xml version="1.0"?>
-
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**********************************************************************************
  * $URL$
@@ -23,19 +22,19 @@
  **********************************************************************************/
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<artifactId>etudes-mneme-base</artifactId>
 		<groupId>org.etudes</groupId>
-		<version>pom</version>
+		<version>2.1.18</version>
+		<relativePath>../../pom.xml</relativePath>
 	</parent>
 
-	<name>etudes-mneme-tool</name>
 	<groupId>org.etudes</groupId>
 	<artifactId>etudes-mneme-tool</artifactId>
-	<version>${mneme.version}</version>
 	
 	<packaging>war</packaging>
 

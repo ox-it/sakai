@@ -100,7 +100,7 @@
 				<overlay id="comments">
 					<container>
 						<htmlEdit size="FULL">
-							<model type="html" ref="submissionAdjustComments.value" />
+							<model type="html" dirty="TRUE" ref="submissionAdjustComments.value" />
 							<title>
 								<message selector="add-comments">
 									<model type="icon" icon="/icons/note.png" />
@@ -149,12 +149,12 @@
 					</title>
 					<container>
 						<htmlEdit size="FULL">
-							<model type="html" ref="submissionAdjustComments.value" />
+							<model type="html" dirty="TRUE" ref="submissionAdjustComments.value" />
 						</htmlEdit>
 					</container>
 				</section>
 				
-				in place of the coments overlay above, and do not need the toggle -ggolden
+				in place of the comments overlay above, and do not need the toggle -ggolden
 				-->
 
 			</container>
@@ -327,6 +327,7 @@
 					<model type="date" missing="dash" ref="submission.startDate" />
 					<entityIncluded selector="dash">
 						<decision model="submission.isStarted" />
+						<decision model="submission.isNonSubmit" reversed="TRUE"/>
 					</entityIncluded>
 				</modelColumn>
 				<column wrap="FALSE">
@@ -341,6 +342,8 @@
 							<included>
 								<decision model="submission.isComplete" />
 								<decision reversed="TRUE" model="submission.isCompletedLate" />
+								<decision model="submission.isNonSubmit" reversed="TRUE" />
+								<decision model="submission.isAutoCompleted" reversed="TRUE" />
 							</included>
 						</text>
 						<text>
@@ -349,6 +352,28 @@
 							</message>
 							<included>
 								<decision model="submission.isComplete" />
+								<decision model="submission.isCompletedLate" />
+								<decision model="submission.isNonSubmit" reversed="TRUE" />
+								<decision model="submission.isAutoCompleted" reversed="TRUE" />
+							</included>
+						</text>
+						<text>
+							<message selector="submission-finished-auto">
+								<model type="date" ref="submission.submittedDate" />
+							</message>
+							<included>
+								<decision model="submission.isComplete" />
+								<decision model="submission.isAutoCompleted" />
+								<decision reversed="TRUE" model="submission.isCompletedLate" />
+							</included>
+						</text>
+						<text>
+							<message selector="submission-finished-auto-late">
+								<model type="date" ref="submission.submittedDate" />
+							</message>
+							<included>
+								<decision model="submission.isComplete" />
+								<decision model="submission.isAutoCompleted" />
 								<decision model="submission.isCompletedLate" />
 							</included>
 						</text>
@@ -362,7 +387,10 @@
 						<text>
 							<message selector="dash" />
 							<included>
-								<decision model="submission.isPhantom" />
+								<orDecision>
+									<decision model="submission.isPhantom" />
+									<decision model="submission.isNonSubmit" />
+								</orDecision>
 							</included>
 						</text>
 					</container>

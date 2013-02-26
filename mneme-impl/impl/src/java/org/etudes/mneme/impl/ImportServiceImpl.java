@@ -57,11 +57,12 @@ import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.ReviewTiming;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.util.DateHelper;
+import org.etudes.util.HtmlHelper;
 import org.etudes.util.api.Translation;
-import org.sakaiproject.assignment.api.Assignment;
-import org.sakaiproject.assignment.api.AssignmentContent;
-import org.sakaiproject.assignment.api.AssignmentEdit;
-import org.sakaiproject.assignment.api.AssignmentService;
+//import org.sakaiproject.assignment.api.Assignment;
+//import org.sakaiproject.assignment.api.AssignmentContent;
+//import org.sakaiproject.assignment.api.AssignmentEdit;
+//import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.db.api.SqlReader;
@@ -162,7 +163,7 @@ public class ImportServiceImpl implements ImportService
 	protected AssessmentService assessmentService = null;
 
 	/** Dependency: AssignmentService */
-	protected AssignmentService assignmentService = null;
+	//protected AssignmentService assignmentService = null;
 
 	/** Dependency: AttachmentService */
 	protected AttachmentService attachmentService = null;
@@ -185,10 +186,10 @@ public class ImportServiceImpl implements ImportService
 	/** Messages. */
 	protected transient InternationalizedMessages messages = null;
 
-	/** Configuration: offer import from Samigo support. */
-	protected Boolean offerAssignment = Boolean.TRUE;
+	/** Configuration: offer import from Assignments support. */
+	protected Boolean offerAssignment = Boolean.FALSE;
 
-	/** Configuration: offer import from assignments support. */
+	/** Configuration: offer import from SAMIGO support. */
 	protected Boolean offerSamigo = Boolean.TRUE;
 
 	/** Dependency: PoolService */
@@ -396,6 +397,8 @@ public class ImportServiceImpl implements ImportService
 	 */
 	public void importAssignment(String id, String context, boolean draftSource) throws AssessmentPermissionException
 	{
+		// Note: the assignment service seems to be missing from Sakai 2.9.1
+		/*
 		try
 		{
 			// get the Assignment
@@ -405,7 +408,7 @@ public class ImportServiceImpl implements ImportService
 			// create the pool
 			Pool pool = this.poolService.newPool(context);
 			pool.setTitle(addDate("import-assignment-text", assignment.getTitle(), new Date()));
-			if (content.getTypeOfGrade() == 3/* Assignment.SCORE_GRADE_TYPE */)
+			if (content.getTypeOfGrade() == 3) // Assignment.SCORE_GRADE_TYPE
 			{
 				pool.setPoints(Float.valueOf(content.getMaxGradePointDisplay()));
 			}
@@ -466,22 +469,22 @@ public class ImportServiceImpl implements ImportService
 			EssayQuestionImpl.SubmissionType type = EssayQuestionImpl.SubmissionType.none;
 			switch (content.getTypeOfSubmission())
 			{
-				case 2 /* Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION */:
+				case 2: // Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION
 				{
 					type = EssayQuestionImpl.SubmissionType.attachments;
 					break;
 				}
-				case 1 /* Assignment.TEXT_ONLY_ASSIGNMENT_SUBMISSION */:
+				case 1: // Assignment.TEXT_ONLY_ASSIGNMENT_SUBMISSION
 				{
 					type = EssayQuestionImpl.SubmissionType.inline;
 					break;
 				}
-				case 3 /* Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION */:
+				case 3: // Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION
 				{
 					type = EssayQuestionImpl.SubmissionType.both;
 					break;
 				}
-				case 4 /* Assignment.NON_ELECTRONIC_SUBMISSION */:
+				case 4: // Assignment.NON_ELECTRONIC_SUBMISSION
 				{
 					type = EssayQuestionImpl.SubmissionType.none;
 				}
@@ -552,6 +555,7 @@ public class ImportServiceImpl implements ImportService
 		catch (InUseException e)
 		{
 		}
+		 */
 	}
 
 	/**
@@ -605,10 +609,10 @@ public class ImportServiceImpl implements ImportService
 	 * @param service
 	 *        The AssignmentService.
 	 */
-	public void setAssignmentService(AssignmentService service)
-	{
-		assignmentService = service;
-	}
+	//public void setAssignmentService(AssignmentService service)
+	//{
+	//	assignmentService = service;
+	//}
 
 	/**
 	 * Configuration: Assignment support.
@@ -1987,7 +1991,7 @@ public class ImportServiceImpl implements ImportService
 	protected List<Ent> readAssignments(String context)
 	{
 		List<Ent> rv = new ArrayList<Ent>();
-
+		/*
 		Iterator i = this.assignmentService.getAssignmentsForContext(context);
 		while (i.hasNext())
 		{
@@ -1995,7 +1999,7 @@ public class ImportServiceImpl implements ImportService
 			Ent ent = new EntImpl(a.getId(), a.getTitle());
 			rv.add(ent);
 		}
-
+		*/
 		return rv;
 	}
 

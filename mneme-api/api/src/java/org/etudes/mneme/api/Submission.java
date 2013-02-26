@@ -109,6 +109,11 @@ public interface Submission
 	String getBlockedByTitle();
 
 	/**
+	 * @return The submissions's completion status.
+	 */
+	SubmissionCompletionStatus getCompletionStatus();
+
+	/**
 	 * Access the time taken to make this submission, in ms, based on the start and latest submission dates.
 	 * 
 	 * @return The time taken to make this submission, in ms (or null if it was not timed or not available).
@@ -126,6 +131,11 @@ public interface Submission
 	 * @return The evaluation for the overall submission, or null if there is none.
 	 */
 	SubmissionEvaluation getEvaluation();
+
+	/**
+	 * @return TRUE if there is an evaluation date, and there was no review, or the review was before the evaluation.
+	 */
+	Boolean getEvaluationNotReviewed();
 
 	/**
 	 * Check if the submission evaluation is used.<br />
@@ -197,6 +207,13 @@ public interface Submission
 	Boolean getIsAnswered();
 
 	/**
+	 * Check if the submission was automatically completed by Mneme instead of by the user.
+	 * 
+	 * @return TRUE if the submission was automatically completed, FALSE if is was completed by the user (or not even completed).
+	 */
+	Boolean getIsAutoCompleted();
+
+	/**
 	 * Check if the submission is complete.
 	 * 
 	 * @return TRUE if the submission is complete, FALSE if still in progress.
@@ -218,6 +235,13 @@ public interface Submission
 	 * @return TRUE if the question has been marked "complete", FALSE if not.
 	 */
 	Boolean getIsCompleteQuestion(Question question);
+
+	/**
+	 * Check if the submission represents a non-submit, created in grading only to hold evaluation.
+	 * 
+	 * @return TRUE if the submission is a non-submit, FALSE if not.
+	 */
+	Boolean getIsNonSubmit();
 
 	/**
 	 * Check if the submission is past its time limit, due or accept until date, or is to an assessment that is inactive.
@@ -368,6 +392,14 @@ public interface Submission
 	 * @return The 'over' time for the submission, or NULL if there is none.
 	 */
 	Date getWhenOver();
+
+	/**
+	 * Set the submission's completion status.
+	 * 
+	 * @param status
+	 *        The submissions's completion status.
+	 */
+	void setCompletionStatus(SubmissionCompletionStatus status);
 
 	/**
 	 * Set the evaluation version; to compare to the computed evaluation version - if they do not match, then we might be dealing with old data being edited.

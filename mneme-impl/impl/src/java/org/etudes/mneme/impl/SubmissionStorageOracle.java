@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -113,10 +113,10 @@ public abstract class SubmissionStorageOracle extends SubmissionStorageSql imple
 		StringBuilder sql = new StringBuilder();
 		sql.append("INSERT INTO MNEME_SUBMISSION (ID,");
 		sql.append(" ASSESSMENT_ID, COMPLETE, CONTEXT, EVAL_ATRIB_DATE, EVAL_ATRIB_USER, EVAL_ATTACHMENTS,");
-		sql.append(" EVAL_COMMENT, EVAL_EVALUATED, EVAL_SCORE, RELEASED, REVIEWED_DATE, START_DATE, SUBMITTED_DATE, TEST_DRIVE, USERID)");
-		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		sql.append(" EVAL_COMMENT, EVAL_EVALUATED, EVAL_SCORE, RELEASED, REVIEWED_DATE, START_DATE, SUBMITTED_DATE, TEST_DRIVE, USERID, STATUS)");
+		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
-		Object[] fields = new Object[16];
+		Object[] fields = new Object[17];
 		fields[0] = id;
 		fields[1] = Long.valueOf(submission.getAssessment().getId());
 		fields[2] = submission.getIsComplete() ? "1" : "0";
@@ -134,6 +134,7 @@ public abstract class SubmissionStorageOracle extends SubmissionStorageSql imple
 		fields[13] = (submission.getSubmittedDate() == null) ? null : submission.getSubmittedDate().getTime();
 		fields[14] = submission.getIsTestDrive() ? "1" : "0";
 		fields[15] = submission.getUserId();
+		fields[16] = submission.getCompletionStatus().getEncoding();
 
 		if (!this.sqlService.dbWrite(null, sql.toString(), fields))
 		{

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -155,7 +155,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		public void setChoice(String choice)
 		{
 			String c = StringUtil.trimToNull(choice);
-			if (!Different.different(c, this.choice)) return;
+			if (!Different.differentHtml(c, this.choice)) return;
 
 			this.choice = c;
 
@@ -165,7 +165,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		public void setMatch(String match)
 		{
 			String m = StringUtil.trimToNull(match);
-			if (!Different.different(m, this.match)) return;
+			if (!Different.differentHtml(m, this.match)) return;
 
 			this.match = m;
 
@@ -173,7 +173,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		}
 	}
 
-	/** Lables for the choices. */
+	/** Labels for the choices. */
 	protected static String[] choiceLabels =
 	{ "A.", "B.", "C.", "D.", "E.", "F.", "G.", "H.", "I.", "J.", "K.", "L.", "M.", "N.", "O.", "P.", "Q.", "R.", "S.", "T.", "U.", "V.", "W.", "X.",
 			"Y.", "Z." };
@@ -534,7 +534,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 	public Component getDeliveryUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.presentation.text"));
 
 		// Attachments attachments = this.uiService.newAttachments();
 		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
@@ -558,7 +558,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		PropertyColumn match = this.uiService.newPropertyColumn();
 		match.setTopped();
 		match.setTitle("match");
-		match.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("pair.match"));
+		match.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("pair.match"));
 		entityList.addColumn(match);
 
 		// match
@@ -587,7 +587,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		PropertyColumn choice = this.uiService.newPropertyColumn();
 		choice.setTopped();
 		choice.setTitle("choice");
-		choice.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("pair.choice"));
+		choice.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("pair.choice"));
 		entityList.addColumn(choice);
 
 		Section matchSection = this.uiService.newSection();
@@ -813,7 +813,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 	public Component getReviewUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.presentation.text"));
 
 		// Attachments attachments = this.uiService.newAttachments();
 		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
@@ -837,7 +837,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		PropertyColumn match = this.uiService.newPropertyColumn();
 		match.setTopped();
 		match.setTitle("match");
-		match.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("pair.match"));
+		match.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("pair.match"));
 		entityList.addColumn(match);
 
 		// correct / incorrect
@@ -919,7 +919,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		PropertyColumn choice = this.uiService.newPropertyColumn();
 		choice.setTopped();
 		choice.setTitle("choice");
-		choice.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("pair.choice"));
+		choice.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("pair.choice"));
 		entityList.addColumn(choice);
 
 		Section matchSection = this.uiService.newSection();
@@ -1007,7 +1007,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		PropertyColumn match = this.uiService.newPropertyColumn();
 		match.setTopped();
 		match.setTitle("match");
-		match.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("pair.match"));
+		match.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("pair.match"));
 		entityList.addColumn(match);
 
 		// correct / incorrect
@@ -1067,7 +1067,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		PropertyColumn choice = this.uiService.newPropertyColumn();
 		choice.setTopped();
 		choice.setTitle("choice");
-		choice.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("pair.choice"));
+		choice.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("pair.choice"));
 		entityList.addColumn(choice);
 
 		Section matchSection = this.uiService.newSection();
@@ -1093,7 +1093,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 	public Component getViewDeliveryUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.presentation.text"));
 
 		// Attachments attachments = this.uiService.newAttachments();
 		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
@@ -1117,7 +1117,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		PropertyColumn match = this.uiService.newPropertyColumn();
 		match.setTopped();
 		match.setTitle("match");
-		match.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("pair.match"));
+		match.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("pair.match"));
 		entityList.addColumn(match);
 
 		// match
@@ -1144,7 +1144,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		PropertyColumn choice = this.uiService.newPropertyColumn();
 		choice.setTopped();
 		choice.setTitle("choice");
-		choice.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("pair.choice"));
+		choice.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("pair.choice"));
 		entityList.addColumn(choice);
 
 		Section matchSection = this.uiService.newSection();
@@ -1159,7 +1159,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 	public Component getViewQuestionUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.presentation.text"));
 
 		// Attachments attachments = this.uiService.newAttachments();
 		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
@@ -1183,7 +1183,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		PropertyColumn match = this.uiService.newPropertyColumn();
 		match.setTopped();
 		match.setTitle("match");
-		match.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("pair.match"));
+		match.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("pair.match"));
 		entityList.addColumn(match);
 
 		// match
@@ -1210,7 +1210,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		PropertyColumn choice = this.uiService.newPropertyColumn();
 		choice.setTopped();
 		choice.setTitle("choice");
-		choice.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("pair.choice"));
+		choice.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("pair.choice"));
 		entityList.addColumn(choice);
 
 		Section matchSection = this.uiService.newSection();
@@ -1236,7 +1236,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 	public Component getViewStatsUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.presentation.text"));
 
 		// Attachments attachments = this.uiService.newAttachments();
 		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
@@ -1252,7 +1252,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		matches.setIterator(iteratorRef, "match", null);
 		matches.setTitle(
 				"match-summary",
-				this.uiService.newHtmlPropertyReference().setStripP().setReference("match")
+				this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("match")
 						.setFormatDelegate(this.uiService.getFormatDelegate("FormatMatchMatch", "sakai.mneme")));
 
 		EntityList entityList = this.uiService.newEntityList();
@@ -1268,7 +1268,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		entityList.addColumn(propCol);
 
 		propCol = this.uiService.newPropertyColumn();
-		propCol.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("choice")
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("choice")
 				.setFormatDelegate(this.uiService.getFormatDelegate("FormatMatchChoice", "sakai.mneme")));
 		entityList.addColumn(propCol);
 
@@ -1346,7 +1346,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 			return;
 		}
 
-		if (!Different.different(distractor, this.distractor.getChoice())) return;
+		if (!Different.differentHtml(distractor, this.distractor.getChoice())) return;
 		this.distractor.setChoice(distractor);
 		this.question.setChanged();
 	}

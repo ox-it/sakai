@@ -279,7 +279,7 @@ public class PoolImpl implements Pool
 	{
 		description = StringUtil.trimToNull(description);
 
-		if (!Different.different(this.description, description)) return;
+		if (!Different.differentHtml(this.description, description)) return;
 
 		this.description = description;
 

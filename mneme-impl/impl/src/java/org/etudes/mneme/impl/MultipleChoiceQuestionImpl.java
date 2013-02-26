@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -114,7 +114,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 
 		public void setText(String text)
 		{
-			if (!Different.different(this.text, text)) return;
+			if (!Different.differentHtml(this.text, text)) return;
 
 			this.text = StringUtil.trimToNull(text);
 
@@ -498,7 +498,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		List<MultipleChoiceQuestionChoice> rv = getChoicesAsAuthored();
 
 		// shuffle them if desired (and we are in a submission context)
-		if (this.shuffleChoices && (this.question.getPart() != null) && (this.question.getPart().getAssessment().getSubmissionContext() != null))
+		if (shuffleChoicesSetting() && (this.question.getPart() != null) && (this.question.getPart().getAssessment().getSubmissionContext() != null))
 		{
 			// set the seed based on the submission id
 			long seed = (this.question.getId() + "_" + this.question.getPart().getAssessment().getSubmissionContext().getId()).hashCode();
@@ -553,7 +553,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		List<MultipleChoiceQuestionChoice> rv = getChoicesAsAuthored();
 
 		// shuffle them if desired (and we are in a submission context)
-		if (this.shuffleChoices && (this.question.getPart() != null))
+		if (shuffleChoicesSetting() && (this.question.getPart() != null))
 		{
 			// set the seed
 			long seed = this.question.getId().hashCode();
@@ -629,7 +629,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 	public Component getDeliveryUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.presentation.text"));
 
 		// Attachments attachments = this.uiService.newAttachments();
 		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
@@ -662,7 +662,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 
 		PropertyColumn propCol = this.uiService.newPropertyColumn();
 		propCol.setTopped();
-		propCol.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("choice.text"));
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("choice.text"));
 		entityList.addColumn(propCol);
 
 		Section section = this.uiService.newSection();
@@ -758,7 +758,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 	public Component getReviewUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.presentation.text"));
 
 		// Attachments attachments = this.uiService.newAttachments();
 		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("answer.question.presentation.attachments"), null);
@@ -817,7 +817,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 
 		PropertyColumn propCol = this.uiService.newPropertyColumn();
 		propCol.setTopped();
-		propCol.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("choice.text"));
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("choice.text"));
 		entityList.addColumn(propCol);
 
 		Text answerKey = this.uiService.newText();
@@ -847,13 +847,29 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 	}
 
 	/**
+	 * @return TRUE if we should shuffle choices (set here or in override in the assessment) or FALSE if not.
+	 */
+	protected Boolean shuffleChoicesSetting()
+	{
+		Boolean rv = this.shuffleChoices;
+		if ((this.question.getPart() != null) && (this.question.getPart().getAssessment() != null))
+		{
+			if (this.question.getPart().getAssessment().getShuffleChoicesOverride())
+			{
+				rv = Boolean.TRUE;
+			}
+		}
+		return rv;
+	}
+
+	/**
 	 * Access the shuffle choice as a string.
 	 * 
 	 * @return The shuffle choice.
 	 */
 	public String getShuffleChoices()
 	{
-		return this.shuffleChoices.toString();
+		return Boolean.toString(shuffleChoicesSetting());
 	}
 
 	/**
@@ -951,7 +967,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 
 		PropertyColumn propCol = this.uiService.newPropertyColumn();
 		propCol.setTopped();
-		propCol.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("choice.text"));
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("choice.text"));
 		entityList.addColumn(propCol);
 
 		return this.uiService.newFragment().setMessages(this.messages).add(entityList);
@@ -963,7 +979,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 	public Component getViewDeliveryUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.presentation.text"));
 
 		// Attachments attachments = this.uiService.newAttachments();
 		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
@@ -996,7 +1012,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 
 		PropertyColumn propCol = this.uiService.newPropertyColumn();
 		propCol.setTopped();
-		propCol.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("choice.text"));
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("choice.text"));
 		entityList.addColumn(propCol);
 
 		Section first = this.uiService.newSection();
@@ -1011,7 +1027,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 	public Component getViewQuestionUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.presentation.text"));
 
 		// Attachments attachments = this.uiService.newAttachments();
 		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
@@ -1047,7 +1063,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 
 		PropertyColumn propCol = this.uiService.newPropertyColumn();
 		propCol.setTopped();
-		propCol.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("choice.text"));
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("choice.text"));
 		entityList.addColumn(propCol);
 
 		Text answerKey = this.uiService.newText();
@@ -1072,7 +1088,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 	public Component getViewStatsUi()
 	{
 		Text question = this.uiService.newText();
-		question.setText(null, this.uiService.newHtmlPropertyReference().setReference("question.presentation.text"));
+		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.presentation.text"));
 
 		// Attachments attachments = this.uiService.newAttachments();
 		// attachments.setAttachments(this.uiService.newPropertyReference().setReference("question.presentation.attachments"), null);
@@ -1110,7 +1126,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 
 		PropertyColumn propCol = this.uiService.newPropertyColumn();
 		propCol.setTopped();
-		propCol.setProperty(this.uiService.newHtmlPropertyReference().setStripP().setReference("choice.text"));
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setDirty().setStripP().setReference("choice.text"));
 		entityList.addColumn(propCol);
 
 		propCol = this.uiService.newPropertyColumn();
@@ -1151,7 +1167,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 				.setFormatDelegate(this.uiService.getFormatDelegate("AccessSubmissionsQuestionReasons", "sakai.mneme"));
 		reasonSection.setIterator(iteratorRef, "answer", this.uiService.newMessage().setMessage("no-reasons"));
 		Text reason = this.uiService.newText();
-		reason.setText(null, this.uiService.newHtmlPropertyReference().setReference("answer.reason"));
+		reason.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.reason"));
 		reasonSection.add(reason);
 		reasonSection.setTitle("answer-reason");
 		reasonSection.setIncluded(this.uiService.newDecision().setProperty(

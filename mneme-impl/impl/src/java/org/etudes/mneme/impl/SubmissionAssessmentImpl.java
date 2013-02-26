@@ -27,8 +27,6 @@ package org.etudes.mneme.impl;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.etudes.mneme.api.AcceptSubmitStatus;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentAccess;
@@ -53,7 +51,7 @@ import org.sakaiproject.user.api.User;
 public class SubmissionAssessmentImpl implements Assessment
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(SubmissionAssessmentImpl.class);
+	// private static Log M_log = LogFactory.getLog(SubmissionAssessmentImpl.class);
 
 	/** The assessment id the submission is part of, also used for getting submission-global settings. */
 	protected String assessmentId = null;
@@ -504,6 +502,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getShuffleChoicesOverride()
+	{
+		return getAssessment().getShuffleChoicesOverride();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public AssessmentSpecialAccess getSpecialAccess()
 	{
 		return getAssessment().getSpecialAccess();
@@ -737,6 +743,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	 * {@inheritDoc}
 	 */
 	public void setShowModelAnswer(Boolean show)
+	{
+		throw new IllegalArgumentException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setShuffleChoicesOverride(Boolean override)
 	{
 		throw new IllegalArgumentException();
 	}

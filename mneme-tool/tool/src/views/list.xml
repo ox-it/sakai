@@ -338,6 +338,7 @@
 					<model type="date" twoLine="TRUE" missing="dash" ref="submission.best.startDate" />
 					<entityIncluded selector="dash">
 						<decision model="submission.best.isStarted" />
+						<decision model="submission.best.isNonSubmit" reversed="TRUE" />
 					</entityIncluded>
 				</modelColumn>
 				<modelColumn>
@@ -347,6 +348,7 @@
 					<model type="date" twoLine="TRUE" missing="dash" ref="submission.best.submittedDate" />
 					<entityIncluded selector="dash">
 						<decision model="submission.best.isComplete" />
+						<decision model="submission.best.isNonSubmit" reversed="TRUE" />
 					</entityIncluded>
 				</modelColumn>
 				<column wrap="FALSE">
@@ -361,10 +363,19 @@
 						</text>
 					</container>
 					<navigations>
-						<navigation style="LINK" title="list-nav-review" small="TRUE">
+						<navigation style="LINK" title="list-nav-review" description="evaluation-not-reviewed">
+							<icon icon="/icons/eval-not-reviewed.png" style="LEFT" />
 							<destination template="/review/{0}/list" model="submission.best.id" />
 							<included>
 								<decision model="submission.best.mayReview" />
+								<decision model="submission.best.evaluationNotReviewed" />
+							</included>
+						</navigation>
+						<navigation style="LINK" title="list-nav-review">
+							<destination template="/review/{0}/list" model="submission.best.id" />
+							<included>
+								<decision model="submission.best.mayReview" />
+								<decision reversed="TRUE" model="submission.best.evaluationNotReviewed" />
 							</included>
 						</navigation>
 						<navigation style="LINK" disabled="TRUE" small="TRUE">

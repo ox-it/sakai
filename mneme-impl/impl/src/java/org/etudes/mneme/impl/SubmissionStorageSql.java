@@ -915,7 +915,7 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT S.ASSESSMENT_ID, S.COMPLETE, S.EVAL_ATRIB_DATE,");
 		sql.append(" S.EVAL_ATRIB_USER, S.EVAL_ATTACHMENTS, S.EVAL_COMMENT, S.EVAL_EVALUATED, S.EVAL_SCORE,");
-		sql.append(" S.ID, S.RELEASED, S.REVIEWED_DATE, S.START_DATE, S.SUBMITTED_DATE, S.TEST_DRIVE, S.USERID");
+		sql.append(" S.ID, S.RELEASED, S.REVIEWED_DATE, S.START_DATE, S.SUBMITTED_DATE, S.TEST_DRIVE, S.USERID, S.STATUS");
 		sql.append(" FROM MNEME_SUBMISSION S ");
 		sql.append(where);
 		if (order != null)
@@ -947,6 +947,7 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 					submission.setSubmittedDate(SqlHelper.readDate(result, i++));
 					submission.initTestDrive(SqlHelper.readBoolean(result, i++));
 					submission.initUserId(SqlHelper.readString(result, i++));
+					submission.initCompletionStatus(SqlHelper.readString(result, i++));
 
 					submission.clearIsChanged();
 					rv.add(submission);
@@ -1239,10 +1240,10 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 		StringBuilder sql = new StringBuilder();
 		sql.append("UPDATE MNEME_SUBMISSION SET");
 		sql.append(" COMPLETE=?, EVAL_ATRIB_DATE=?, EVAL_ATRIB_USER=?, EVAL_ATTACHMENTS=?, EVAL_COMMENT=?, EVAL_EVALUATED=?,");
-		sql.append(" EVAL_SCORE=?, RELEASED=?, SUBMITTED_DATE=?");
+		sql.append(" EVAL_SCORE=?, RELEASED=?, SUBMITTED_DATE=?, STATUS=?");
 		sql.append(" WHERE ID=?");
 
-		Object[] fields = new Object[10];
+		Object[] fields = new Object[11];
 		fields[0] = submission.getIsComplete() ? "1" : "0";
 		fields[1] = (submission.getEvaluation().getAttribution().getDate() == null) ? null : submission.getEvaluation().getAttribution().getDate()
 				.getTime();
@@ -1253,7 +1254,8 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 		fields[6] = submission.getEvaluation().getScore() == null ? null : Float.valueOf(submission.getEvaluation().getScore());
 		fields[7] = submission.getIsReleased() ? "1" : "0";
 		fields[8] = (submission.getSubmittedDate() == null) ? null : submission.getSubmittedDate().getTime();
-		fields[9] = Long.valueOf(submission.getId());
+		fields[9] = submission.getCompletionStatus().getEncoding();
+		fields[10] = Long.valueOf(submission.getId());
 
 		if (!this.sqlService.dbWrite(sql.toString(), fields))
 		{

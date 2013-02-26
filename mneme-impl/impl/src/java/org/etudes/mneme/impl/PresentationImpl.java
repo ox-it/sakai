@@ -134,7 +134,7 @@ public class PresentationImpl implements Presentation
 	{
 		text = StringUtil.trimToNull(text);
 
-		if (!Different.different(this.text, text)) return;
+		if (!Different.differentHtml(this.text, text)) return;
 
 		this.text = text;
 

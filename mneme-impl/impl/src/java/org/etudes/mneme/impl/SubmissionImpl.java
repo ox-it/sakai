@@ -45,6 +45,7 @@ import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.ReviewTiming;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
+import org.etudes.mneme.api.SubmissionCompletionStatus;
 import org.etudes.mneme.api.SubmissionEvaluation;
 import org.etudes.mneme.api.SubmissionService;
 import org.etudes.util.api.AccessAdvisor;
@@ -71,6 +72,8 @@ public class SubmissionImpl implements Submission
 	protected transient AttachmentService attachmentService = null;
 
 	protected transient String bestSubmissionId = null;
+
+	protected SubmissionCompletionStatus completionStatus = SubmissionCompletionStatus.unknown;
 
 	protected SubmissionEvaluationImpl evaluation = null;
 
@@ -426,6 +429,14 @@ public class SubmissionImpl implements Submission
 	/**
 	 * {@inheritDoc}
 	 */
+	public SubmissionCompletionStatus getCompletionStatus()
+	{
+		return this.completionStatus;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Long getElapsedTime()
 	{
 		if ((submittedDate == null) || (startDate == null)) return null;
@@ -464,6 +475,19 @@ public class SubmissionImpl implements Submission
 	public SubmissionEvaluation getEvaluation()
 	{
 		return this.evaluation;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getEvaluationNotReviewed()
+	{
+		if (!getIsComplete()) return Boolean.FALSE;
+		if (getEvaluatedDate() == null) return Boolean.FALSE;
+		if (!getStudentMayReview()) return Boolean.FALSE;
+		if (getReviewedDate() == null) return Boolean.TRUE;
+
+		return getReviewedDate().before(getEvaluatedDate());
 	}
 
 	/**
@@ -739,6 +763,22 @@ public class SubmissionImpl implements Submission
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getIsAutoCompleted()
+	{
+		if (!getIsComplete()) return Boolean.FALSE;
+
+		if (this.completionStatus == SubmissionCompletionStatus.unknown)
+		{
+			// TODO: try to determine
+			return Boolean.FALSE;
+		}
+
+		return this.completionStatus == SubmissionCompletionStatus.autoComplete;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Boolean getIsComplete()
 	{
 		return this.isComplete;
@@ -775,6 +815,22 @@ public class SubmissionImpl implements Submission
 		}
 
 		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getIsNonSubmit()
+	{
+		if (!getIsComplete()) return Boolean.FALSE;
+
+		if (this.completionStatus == SubmissionCompletionStatus.unknown)
+		{
+			// TODO: try to determine
+			return Boolean.FALSE;
+		}
+
+		return this.completionStatus == SubmissionCompletionStatus.evaluationNonSubmit;
 	}
 
 	/**
@@ -1060,24 +1116,7 @@ public class SubmissionImpl implements Submission
 		// same user
 		if (!this.sessionManager.getCurrentSessionUserId().equals(getUserId())) return Boolean.FALSE;
 
-		// submission complete
-		if (!getIsComplete()) return Boolean.FALSE;
-
-		// published (test drive need not be)
-		if (!getIsTestDrive())
-		{
-			if (!getAssessment().getPublished()) return Boolean.FALSE;
-		}
-
-		// valid
-		if (!getAssessment().getIsValid()) return Boolean.FALSE;
-
-		// assessment review enabled
-		if (!getAssessment().getReview().getNowAvailable()) return Boolean.FALSE;
-
-		// TODO: permission?
-
-		return Boolean.TRUE;
+		return getStudentMayReview();
 	}
 
 	/**
@@ -1287,6 +1326,14 @@ public class SubmissionImpl implements Submission
 	/**
 	 * {@inheritDoc}
 	 */
+	public void setCompletionStatus(SubmissionCompletionStatus status)
+	{
+		this.completionStatus = status;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setEvaluationVersion(String version)
 	{
 		// if this date is not the same as the current computed evaluation date, we may be dealing with old data being edited
@@ -1470,6 +1517,31 @@ public class SubmissionImpl implements Submission
 	}
 
 	/**
+	 * @return getMayReview test, but don't check if the current user is the student.
+	 */
+	protected Boolean getStudentMayReview()
+	{
+		// submission complete
+		if (!getIsComplete()) return Boolean.FALSE;
+
+		// published (test drive need not be)
+		if (!getIsTestDrive())
+		{
+			if (!getAssessment().getPublished()) return Boolean.FALSE;
+		}
+
+		// valid
+		if (!getAssessment().getIsValid()) return Boolean.FALSE;
+
+		// assessment review enabled
+		if (!getAssessment().getReview().getNowAvailable()) return Boolean.FALSE;
+
+		// TODO: permission?
+
+		return Boolean.TRUE;
+	}
+
+	/**
 	 * Establish another answer.
 	 * 
 	 * @param answer
@@ -1498,6 +1570,21 @@ public class SubmissionImpl implements Submission
 	protected void initBest(Submission best)
 	{
 		this.bestSubmissionId = best.getId();
+	}
+
+	/**
+	 * Initialize the completion status.
+	 */
+	protected void initCompletionStatus(String statusCode)
+	{
+		if ((statusCode != null) && (statusCode.length() > 0))
+		{
+			this.completionStatus = SubmissionCompletionStatus.getFromEncoding(statusCode);
+		}
+		else
+		{
+			this.completionStatus = SubmissionCompletionStatus.unknown;
+		}
 	}
 
 	/**
@@ -1613,6 +1700,7 @@ public class SubmissionImpl implements Submission
 		this.assessmentService = other.assessmentService;
 		this.attachmentService = other.attachmentService;
 		this.bestSubmissionId = other.bestSubmissionId;
+		this.completionStatus = other.completionStatus;
 		this.evaluation = new SubmissionEvaluationImpl(other.evaluation, this);
 		this.released = other.released;
 		this.releasedChanged = new ChangeableImpl(other.releasedChanged);
