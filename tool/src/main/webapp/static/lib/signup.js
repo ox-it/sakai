@@ -862,6 +862,8 @@ var Signup = function(){
                     }
                     
                     details += '</span>';
+                } else {
+                	details += 'Leaver';
                 }
                 return details;
             },
@@ -892,7 +894,9 @@ var Signup = function(){
         			}
         		} else {
         			if (admin) {
-        				details += '<a class="supervisor" user="'+signup.user.name+'" id="'+signup.id+'" href="#">Add Supervisor</a>';
+        				if (signup.user) {
+        					details += '<a class="supervisor" user="'+signup.user.name+'" id="'+signup.id+'" href="#">Add Supervisor</a>';
+        				}
         			}
         		}
         		return details;
