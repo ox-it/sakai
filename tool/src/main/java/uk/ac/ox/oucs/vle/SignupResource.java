@@ -105,7 +105,7 @@ public class SignupResource {
 			throw new WebApplicationException(Response.Status.FORBIDDEN);
 		}
 		//String user = courseService.findSupervisor(email);
-		Object entity = courseService.signup(courseId, components, email, message);
+		CourseSignup entity = courseService.signup(courseId, components, email, message);
 		//return Response.ok().build();
 		
 		ResponseBuilderImpl builder = new ResponseBuilderImpl();
