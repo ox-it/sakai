@@ -1,6 +1,5 @@
 <%@ page
 	import="org.sakaiproject.component.cover.ServerConfigurationService"%>
-<%@ page import="org.sakaiproject.user.cover.UserDirectoryService"%>
 <%@ page session="false"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
