@@ -114,6 +114,8 @@
 		</dependency>
 
 		<!-- Needed for generating PDF Files for export -->
+		<!-- We don't want to upgrade to a newer version as the license switched
+		    from MPL+LGPL to AGPL and the AGPL isn't ECL compatible.-->
 		<dependency>
 			<groupId>com.lowagie</groupId>
 			<artifactId>itext</artifactId>
