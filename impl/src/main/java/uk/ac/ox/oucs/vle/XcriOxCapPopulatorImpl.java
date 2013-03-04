@@ -981,17 +981,20 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	private boolean updateCategory(CourseCategoryDAO category, String assessmentunitCode) throws IOException {
 
 		boolean created = false;
-		if (null != dao) {
-			CourseCategoryDAO categoryDao = dao.findCourseCategory(category.getCategoryId());
-			if (categoryDao == null) {
-				categoryDao = category;
-				created = true;
+		
+		if (null != category.getCategoryId() && !"".equals(category.getCategoryId())) {
+			if (null != dao) {
+				CourseCategoryDAO categoryDao = dao.findCourseCategory(category.getCategoryId());
+				if (categoryDao == null) {
+					categoryDao = category;
+					created = true;
+				}
+			
+				CourseGroupDAO courseDao = dao.findCourseGroupById(assessmentunitCode);
+			
+				categoryDao.getGroups().add(courseDao);
+				dao.save(categoryDao);
 			}
-			
-			CourseGroupDAO courseDao = dao.findCourseGroupById(assessmentunitCode);
-			
-			categoryDao.getGroups().add(courseDao);
-			dao.save(categoryDao);
 		}
 		return created;
 	}
@@ -1001,7 +1004,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * 
 	 */
 	private void logMe(PopulatorContext context, String message) throws IOException {
-		log.warn(message);
+		log.info(message);
 		if (null != context.getErrorLogWriter()) {
 			context.getErrorLogWriter().write(message+"\n");
 		}
@@ -1012,7 +1015,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * 
 	 */
 	private void logMs(PopulatorContext context, String message) throws IOException {
-		log.warn(message);
+		log.info(message);
 		if (null != context.getInfoLogWriter()) {
 			context.getInfoLogWriter().write(message+"\n");
 		}
