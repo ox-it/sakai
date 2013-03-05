@@ -4,14 +4,8 @@
 <%@ page session="false" %> 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core"  prefix="c" %>
 <%
-if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-	pageContext.setAttribute("externalUser",true);
-} else {
-	pageContext.setAttribute("externalUser",false);
-}
 pageContext.setAttribute("openCourse", (String)request.getAttribute("openCourse"));
 %>
-<c:set var="isExternalUser" value="${externalUser}" />
 <c:set var="openAtCourse" value="${openCourse}" />
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -22,8 +16,8 @@ pageContext.setAttribute("openCourse", (String)request.getAttribute("openCourse"
 	
 	<title>Show Course Details</title>
 
-	<link href="${skin.repo}/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-	<link href="${skin.repo}/${skin.default}/tool.css" type="text/css" rel="stylesheet" media="all" />
+	<link href='<c:out value="${skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
+	<link href="<c:out value="${skinRepo}" />/<c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
 
 	<link rel="stylesheet" type="text/css" href="/course-signup/static/lib/tool.css" />
 	

@@ -11,22 +11,14 @@
 	}
 %>
 
-<c:set var="isExternalUser" value="${externalUser}" />
-<c:set var="isApprover" value="${isApprover}" />
-<c:set var="isPending" value="${isPending}" />
-<c:set var="isAdministrator" value="${isAdministrator}" />
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Module Signup</title>
 
-<link
-	href="${skin.repo}/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-<link
-	href="${skin.repo}/${skin.default}/tool.css"
-	type="text/css" rel="stylesheet" media="all" />
+<link href='<c:out value="${skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
+<link href="<c:out value="${skinRepo}" />/<c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
 
 <link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css" />
 <link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css" />

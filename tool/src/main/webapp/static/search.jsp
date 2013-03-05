@@ -4,11 +4,6 @@
 <%@ page session="false"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
-<c:set var="isExternalUser" value="${externalUser}" />
-<c:set var="isApprover" value="${isApprover}" />
-<c:set var="isPending" value="${isPending}" />
-<c:set var="isAdministrator" value="${isAdministrator}" />
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -20,19 +15,12 @@
 
 <title>Search Modules</title>
 
-<link
-	href="${skin.repo}/tool_base.css"
-	type="text/css" rel="stylesheet" media="all" />
-<link
-	href="${skin.repo}/${skin.default}/tool.css"
-	type="text/css" rel="stylesheet" media="all" />
+<link href='<c:out value="${skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
+<link href="<c:out value="${skinRepo}" />/<c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
 
-<link rel="stylesheet" type="text/css"
-	href="lib/jqmodal-r14/jqModal.css" />
-<link rel="stylesheet" type="text/css"
-	href="lib/dataTables-1.7/css/demo_table_jui.css" />
-<link rel="stylesheet" type="text/css"
-	href="lib/jquery-ui-1.8.4.custom/css/smoothness/jquery-ui-1.8.4.custom.css" />
+<link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css" />
+<link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css" />
+<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.4.custom/css/smoothness/jquery-ui-1.8.4.custom.css" />
 <link rel="stylesheet" type="text/css" href="lib/tool.css" />
 <link href="../rest/course/all?range=ALL" type="application/json"
 	rel="exhibit/data" ex:converter="courseConverter" />
@@ -199,7 +187,7 @@
 			<li><span>Search Modules</span></li>
 			<li><span><a href="index.jsp">Browse by Department</a></span></li>
 			<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
-			<c:if test="${!isExternalUser}">
+			<c:if test="${!externalUser}">
 				<li><span><a href="my.jsp">My Modules</a></span></li>
 				<c:if test="${isPending}">
 					<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>

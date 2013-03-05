@@ -4,11 +4,6 @@
 <%@ page session="false" %> 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core"  prefix="c" %>
 
-<c:set var="isExternalUser" value="${externalUser}" />
-<c:set var="isApprover" value="${isApprover}" />
-<c:set var="isPending" value="${isPending}" />
-<c:set var="isAdministrator" value="${isAdministrator}" />
-
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -19,8 +14,8 @@
 	
 	<title>Module Search</title>
 
-	<link href="${skin.repo}/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-	<link href="${skin.repo}/${skin.default}/tool.css" type="text/css" rel="stylesheet" media="all" />
+	<link href='<c:out value="${skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
+	<link href="<c:out value="${skinRepo}" />/<c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
 	<link rel="stylesheet" type="text/css" href="lib/tool.css">
   	
   	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
@@ -49,7 +44,7 @@
 		<li><span><a href="search.jsp">Search Modules</a></span></li>
 		<li><span><a href="index.jsp">Browse by Department</a></span></li>  
 		<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
-		<c:if test="${!isExternalUser}" >
+		<c:if test="${!externalUser}" >
 			<li><span><a href="my.jsp">My Modules</a></span></li>
 			<c:if test="${isPending}" >
 				<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>	
@@ -68,7 +63,7 @@
 	
 	<p class="intro"><strong>Welcome to the Student Enrolment System.</strong> Here you can browse, search and sign up for  modules from across the University that will help you in your studies.</p>
 
-	<c:if test="${isExternalUser}" >
+	<c:if test="${externalUser}" >
 	<p class="alert">If you are a member of the University of Oxford, then you should log in to make full use of this tool.</p>
 	</c:if>
 
@@ -87,7 +82,7 @@
 			<a href="calendar.jsp">Browse by Calendar</a> 
 			<span class="info">Browse for modules by course start date.</span>
 		</li>
-		<c:if test="${!isExternalUser}" >
+		<c:if test="${!externalUser}" >
 			<li class="myModules" >
 				<a href="my.jsp">My Modules</a> 
 				<span class="info">View modules you are currently signed up for.</span>
@@ -97,7 +92,7 @@
 
 	<ul class="options admin" >
 
-		<c:if test="${!isExternalUser}" >
+		<c:if test="${!externalUser}" >
 			<c:if test="${isPending}" >
 				<li class="acceptances" >
 					<a href="pending.jsp">Pending Acceptances</a> 
