@@ -24,13 +24,10 @@
 <title>Module Signup</title>
 
 <link
-	href="<%=ServerConfigurationService.getString("skin.repo",
-					"/library/skin")%>/tool_base.css"
+	href="${skin.repo}/tool_base.css"
 	type="text/css" rel="stylesheet" media="all" />
 <link
-	href="<%=ServerConfigurationService.getString("skin.repo",
-					"/library/skin")%>/<%=ServerConfigurationService.getString("skin.default",
-					"default")%>/tool.css"
+	href="${skin.repo}/${skin.default}/tool.css"
 	type="text/css" rel="stylesheet" media="all" />
 
 <link rel="stylesheet" type="text/css"

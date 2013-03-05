@@ -22,8 +22,8 @@ pageContext.setAttribute("openCourse", (String)request.getAttribute("openCourse"
 	
 	<title>Show Course Details</title>
 
-	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/<%= ServerConfigurationService.getString("skin.default", "default") %>/tool.css" type="text/css" rel="stylesheet" media="all" />
+	<link href="${skin.repo}/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+	<link href="${skin.repo}/${skin.default}/tool.css" type="text/css" rel="stylesheet" media="all" />
 
 	<link rel="stylesheet" type="text/css" href="/course-signup/static/lib/tool.css" />
 	

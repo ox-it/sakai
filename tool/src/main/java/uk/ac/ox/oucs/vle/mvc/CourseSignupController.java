@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
@@ -22,6 +23,11 @@ public class CourseSignupController extends AbstractController {
 		this.courseSignupService = courseSignupService;
 	}
 
+	private ServerConfigurationService serverConfigurationService;
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+	
 	@Override
 	protected ModelAndView handleRequestInternal(HttpServletRequest request,
 			 HttpServletResponse response) throws Exception {
@@ -39,6 +45,12 @@ public class CourseSignupController extends AbstractController {
 		modelAndView.addObject("isPending",
 				!courseSignupService.getPendings().isEmpty());
 
+		modelAndView.addObject("skin.repo",
+				serverConfigurationService.getString("skin.repo", "/library/skin"));
+		
+		modelAndView.addObject("skin.default",
+				serverConfigurationService.getString("skin.default", "default"));
+		
 		return modelAndView;
 	}
 }

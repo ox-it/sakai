@@ -23,21 +23,14 @@
 <title>Module Signup</title>
 
 <link
-	href="<%=ServerConfigurationService.getString("skin.repo",
-					"/library/skin")%>/tool_base.css"
-	type="text/css" rel="stylesheet" media="all" />
+	href="${skin.repo}/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 <link
-	href="<%=ServerConfigurationService.getString("skin.repo",
-					"/library/skin")%>/<%=ServerConfigurationService.getString("skin.default",
-					"default")%>/tool.css"
+	href="${skin.repo}/${skin.default}/tool.css"
 	type="text/css" rel="stylesheet" media="all" />
 
-<link rel="stylesheet" type="text/css"
-	href="lib/jqmodal-r14/jqModal.css" />
-<link rel="stylesheet" type="text/css"
-	href="lib/dataTables-1.7/css/demo_table_jui.css" />
-<link rel="stylesheet" type="text/css"
-	href="lib/jquery-ui-1.8.4.custom/css/smoothness/jquery-ui-1.8.4.custom.css" />
+<link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css" />
+<link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css" />
+<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.4.custom/css/smoothness/jquery-ui-1.8.4.custom.css" />
 <link rel="stylesheet" type="text/css" href="lib/tool.css" />
 <link rel="stylesheet" type="text/css" href="lib/jquery.tooltip.css" />
 

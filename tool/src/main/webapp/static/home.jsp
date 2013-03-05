@@ -19,8 +19,8 @@
 	
 	<title>Module Search</title>
 
-	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/<%= ServerConfigurationService.getString("skin.default", "default") %>/tool.css" type="text/css" rel="stylesheet" media="all" />
+	<link href="${skin.repo}/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+	<link href="${skin.repo}/${skin.default}/tool.css" type="text/css" rel="stylesheet" media="all" />
 	<link rel="stylesheet" type="text/css" href="lib/tool.css">
   	
   	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
