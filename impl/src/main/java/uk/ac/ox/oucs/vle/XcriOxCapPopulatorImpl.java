@@ -477,19 +477,19 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 		
 		for (Subject subject : researchCategories) {
-			updateCategory(new CourseCategoryDAO(
+			updateCategory(context, new CourseCategoryDAO(
 					CourseGroup.Category_Type.RM, subject.getIdentifier(), subject.getValue()),
 					myCourse.getCourseId());
 		}
 		
 		for (Subject subject : skillsCategories) {
-			updateCategory(new CourseCategoryDAO(
+			updateCategory(context, new CourseCategoryDAO(
 					CourseGroup.Category_Type.RDF, subject.getIdentifier(), subject.getValue()),
 					myCourse.getCourseId());
 		}
 		
 		for (Subject subject : jacsCategories) {
-			updateCategory(new CourseCategoryDAO(
+			updateCategory(context, new CourseCategoryDAO(
 					CourseGroup.Category_Type.JACS, subject.getIdentifier(), subject.getValue()),
 					myCourse.getCourseId());
 		}
@@ -978,12 +978,12 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	/*
 	 * 
 	 */
-	private boolean updateCategory(CourseCategoryDAO category, String assessmentunitCode) throws IOException {
+	private boolean updateCategory(PopulatorContext context,CourseCategoryDAO category, String assessmentunitCode) throws IOException {
 
 		boolean created = false;
 		
 		if (null == category.getCategoryId() && "".equals(category.getCategoryId())) {
-			log.warn("Category ["+category.getCategoryType()+":"+category.getCategoryName()+"] ignored - invalid identifier");
+			logMs(context, "Category ["+category.getCategoryType()+":"+category.getCategoryName()+"] ignored - invalid identifier");
 			return created;
 		}
 
