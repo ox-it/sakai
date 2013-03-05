@@ -27,6 +27,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.ext.ContextResolver;
 
@@ -104,14 +105,10 @@ public class SignupResource {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			throw new WebApplicationException(Response.Status.FORBIDDEN);
 		}
-		//String user = courseService.findSupervisor(email);
 		CourseSignup entity = courseService.signup(courseId, components, email, message);
-		//return Response.ok().build();
-		
-		ResponseBuilderImpl builder = new ResponseBuilderImpl();
+		ResponseBuilder builder = new ResponseBuilderImpl();
 		builder.status(201);
 		builder.entity(entity);
-		//builder.type(MediaType.APPLICATION_JSON);
 		return builder.build();
 	}
 	
