@@ -982,20 +982,24 @@ public class XcriOxCapPopulatorImpl implements Populator {
 
 		boolean created = false;
 		
-		if (null != category.getCategoryId() && !"".equals(category.getCategoryId())) {
-			if (null != dao) {
-				CourseCategoryDAO categoryDao = dao.findCourseCategory(category.getCategoryId());
-				if (categoryDao == null) {
-					categoryDao = category;
-					created = true;
-				}
-			
-				CourseGroupDAO courseDao = dao.findCourseGroupById(assessmentunitCode);
-			
-				categoryDao.getGroups().add(courseDao);
-				dao.save(categoryDao);
-			}
+		if (null == category.getCategoryId() && "".equals(category.getCategoryId())) {
+			log.warn("Category ["+category.getCategoryType()+":"+category.getCategoryName()+"] ignored - invalid identifier");
+			return created;
 		}
+
+		if (null != dao) {
+			CourseCategoryDAO categoryDao = dao.findCourseCategory(category.getCategoryId());
+			if (categoryDao == null) {
+				categoryDao = category;
+				created = true;
+			}
+			
+			CourseGroupDAO courseDao = dao.findCourseGroupById(assessmentunitCode);
+		
+			categoryDao.getGroups().add(courseDao);
+			dao.save(categoryDao);
+		}
+
 		return created;
 	}
 
