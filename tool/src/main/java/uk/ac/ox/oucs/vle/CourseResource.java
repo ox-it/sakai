@@ -38,6 +38,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
+import org.codehaus.jackson.node.ObjectNode;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
@@ -66,7 +67,8 @@ public class CourseResource {
 		
 		final CourseGroup course = courseService.getCourseGroup(courseId, range);
 		if (course == null) {
-			throw new WebApplicationException(Response.Status.NOT_FOUND);
+			throw new WebApplicationNotFoundException();
+			//throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
 		return new GroupStreamingOutput(course);
 	} 
