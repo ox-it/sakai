@@ -477,19 +477,19 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 		
 		for (Subject subject : researchCategories) {
-			updateCategory(new CourseCategoryDAO(
+			updateCategory(context, new CourseCategoryDAO(
 					CourseGroup.Category_Type.RM, subject.getIdentifier(), subject.getValue()),
 					myCourse.getCourseId());
 		}
 		
 		for (Subject subject : skillsCategories) {
-			updateCategory(new CourseCategoryDAO(
+			updateCategory(context, new CourseCategoryDAO(
 					CourseGroup.Category_Type.RDF, subject.getIdentifier(), subject.getValue()),
 					myCourse.getCourseId());
 		}
 		
 		for (Subject subject : jacsCategories) {
-			updateCategory(new CourseCategoryDAO(
+			updateCategory(context, new CourseCategoryDAO(
 					CourseGroup.Category_Type.JACS, subject.getIdentifier(), subject.getValue()),
 					myCourse.getCourseId());
 		}
@@ -978,9 +978,15 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	/*
 	 * 
 	 */
-	private boolean updateCategory(CourseCategoryDAO category, String assessmentunitCode) throws IOException {
+	private boolean updateCategory(PopulatorContext context,CourseCategoryDAO category, String assessmentunitCode) throws IOException {
 
 		boolean created = false;
+		
+		if (null == category.getCategoryId() && category.getCategoryId().isEmpty()) {
+			logMs(context, "Category ["+category.getCategoryType()+":"+category.getCategoryName()+"] ignored - invalid identifier");
+			return created;
+		}
+
 		if (null != dao) {
 			CourseCategoryDAO categoryDao = dao.findCourseCategory(category.getCategoryId());
 			if (categoryDao == null) {
@@ -989,10 +995,11 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			}
 			
 			CourseGroupDAO courseDao = dao.findCourseGroupById(assessmentunitCode);
-			
+		
 			categoryDao.getGroups().add(courseDao);
 			dao.save(categoryDao);
 		}
+
 		return created;
 	}
 
@@ -1001,7 +1008,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * 
 	 */
 	private void logMe(PopulatorContext context, String message) throws IOException {
-		log.warn(message);
+		log.info(message);
 		if (null != context.getErrorLogWriter()) {
 			context.getErrorLogWriter().write(message+"\n");
 		}
@@ -1012,7 +1019,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * 
 	 */
 	private void logMs(PopulatorContext context, String message) throws IOException {
-		log.warn(message);
+		log.info(message);
 		if (null != context.getInfoLogWriter()) {
 			context.getInfoLogWriter().write(message+"\n");
 		}
