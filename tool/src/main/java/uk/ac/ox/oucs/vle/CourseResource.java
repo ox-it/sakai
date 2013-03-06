@@ -39,6 +39,7 @@ import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
 import org.codehaus.jackson.node.ObjectNode;
+import org.json.JSONObject;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
@@ -67,7 +68,19 @@ public class CourseResource {
 		
 		final CourseGroup course = courseService.getCourseGroup(courseId, range);
 		if (course == null) {
-			throw new WebApplicationNotFoundException();
+			
+			JSONObject jsonObj = new JSONObject();
+			jsonObj.put("status", "failed");
+			jsonObj.put("message", "Resource not found");
+			
+			Response response = Response
+					.status(Response.Status.NOT_FOUND)
+					.type("application/json; charset=utf-8")
+					.entity(jsonObj.toString()).build();
+				
+			throw new WebApplicationException(response);
+			
+			
 			//throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
 		return new GroupStreamingOutput(course);
