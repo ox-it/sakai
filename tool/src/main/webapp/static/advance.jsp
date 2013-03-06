@@ -51,8 +51,7 @@
 	<div id="browse">
 		<form method="POST" action="">
 
-			<input type="hidden" , name="param"
-				, value="<c:out value='${it.encoded}' />" />
+			<input type="hidden" , name="param" value="<c:out value='${it.encoded}' />" />
 			<div id="tree">
 				<p>
 					<c:out value="${it.signup.user.name}" />
@@ -86,10 +85,11 @@
 						</c:if>
 						<br />
 					</c:forEach>
-					<br /> Please either <input type="submit" , name="formStatus"
-						, value="<c:out value='${fn:toUpperCase(it.status)}' />" /> or <input
-						type="submit" , name="formStatus" , value="REJECT" /> this
-					signup.
+					<br /> Please either 
+					<input type="submit" name="formStatus" value="<c:out value='${fn:toUpperCase(it.status)}' />" /> 
+					or 
+					<input type="submit" name="formStatus" value="REJECT" /> 
+					this signup.
 				</p>
 			</div>
 		</form>
