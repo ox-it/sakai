@@ -86,8 +86,7 @@
             </dependency>
 
             <dependency>
-                <!-- Could be in the API, but SolrJ has quite a few dependencies.
-                    However SolrJ has quite a few dependencies. -->
+                <!-- Could be in the API, but SolrJ has quite a few dependencies. -->
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-solrj</artifactId>
                 <version>4.1.0</version>
