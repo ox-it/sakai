@@ -1,3 +1,4 @@
+dependency-reduced-pom.xml
 tool/derby.log
 impl/derby.log
 solr/solr/

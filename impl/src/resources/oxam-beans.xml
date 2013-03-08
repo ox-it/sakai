@@ -73,8 +73,7 @@
         <property name="server" ref="solrServer" />
     </bean>
 
-    <bean id="solrServer"
-        class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer">
+    <bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
         <constructor-arg>
             <!-- Get the solr server from the config -->
             <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
