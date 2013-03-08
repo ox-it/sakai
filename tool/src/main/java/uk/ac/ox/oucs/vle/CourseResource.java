@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,8 +39,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
-import org.codehaus.jackson.node.ObjectNode;
-import org.json.JSONObject;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
@@ -68,20 +67,7 @@ public class CourseResource {
 		
 		final CourseGroup course = courseService.getCourseGroup(courseId, range);
 		if (course == null) {
-			
-			JSONObject jsonObj = new JSONObject();
-			jsonObj.put("status", "failed");
-			jsonObj.put("message", "Resource not found");
-			
-			Response response = Response
-					.status(Response.Status.NOT_FOUND)
-					.type("application/json; charset=utf-8")
-					.entity(jsonObj.toString()).build();
-				
-			throw new WebApplicationException(response);
-			
-			
-			//throw new WebApplicationException(Response.Status.NOT_FOUND);
+			throw new WebAppNotFoundException();
 		}
 		return new GroupStreamingOutput(course);
 	} 
@@ -113,7 +99,7 @@ public class CourseResource {
 		final Map<String, String> departments = courseService.getDepartments();
 		final List<CourseGroup> groups = courseService.search("", range, externalUser);
 		if (groups == null) {
-			throw new WebApplicationException(Response.Status.NOT_FOUND);
+			throw new WebAppNotFoundException();
 		}
 		return new AllGroupsStreamingOutput(departments, groups);
 	}
@@ -159,7 +145,7 @@ public class CourseResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAdminCourse() throws JsonGenerationException, JsonMappingException, IOException {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebApplicationException(Response.Status.FORBIDDEN);
+			throw new WebAppForbiddenException();
 		}
 		List <CourseGroup> groups = courseService.getAdministering();
 		// TODO Just return the coursegroups (no nested objects).
@@ -172,7 +158,7 @@ public class CourseResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response setCourses(@QueryParam("terms") String terms) throws JsonGenerationException, JsonMappingException, IOException {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebApplicationException(Response.Status.FORBIDDEN);
+			throw new WebAppForbiddenException();
 		}
 		if (terms == null) {
 			throw new WebApplicationException();
@@ -215,7 +201,7 @@ public class CourseResource {
 	public StreamingOutput getCourseURL(@PathParam("id") final String courseId) 
 	throws JsonGenerationException, JsonMappingException, IOException {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebApplicationException(Response.Status.FORBIDDEN);
+			throw new WebAppForbiddenException();
 		}
 		final String url = courseService.getDirectUrl(courseId);
 		return new StreamingOutput() {
@@ -230,7 +216,7 @@ public class CourseResource {
 	@POST
 	public Response hide(@FormParam("courseId")String courseId, @FormParam("hideCourse")String hideCourse) {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebApplicationException(Response.Status.FORBIDDEN);
+			throw new WebAppForbiddenException();
 		}
 		courseService.setHideCourse(courseId, Boolean.parseBoolean(hideCourse));
 		return Response.ok().build();

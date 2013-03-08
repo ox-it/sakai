@@ -132,6 +132,10 @@
 			<param-name>com.sun.jersey.config.property.packages</param-name>
 			<param-value>uk.ac.ox.oucs.vle</param-value>
 		</init-param>
+		 <init-param>
+			<param-name>javax.ws.rs.Application</param-name>
+			<param-value>uk.ac.ox.oucs.vle.RestApplication</param-value>
+		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
@@ -141,6 +145,10 @@
 		<init-param>
 			<param-name>com.sun.jersey.config.property.packages</param-name>
 			<param-value>uk.ac.ox.oucs.vle</param-value>
+		</init-param>
+		 <init-param>
+			<param-name>javax.ws.rs.Application</param-name>
+			<param-value>uk.ac.ox.oucs.vle.RestApplication</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
