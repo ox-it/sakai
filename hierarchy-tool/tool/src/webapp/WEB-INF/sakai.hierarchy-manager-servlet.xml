@@ -4,9 +4,11 @@
 
 <beans>
 
-    <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+    <bean class="org.springframework.web.servlet.mvc.annotation.FilteredAnnotationHandlerMapping">
     	<property name="order" value="1"/>
+    	<property name="target" value="sakai.hierarchy-manager"/>
     	
+    
     	<!-- This makes use do the lookup based on the path info -->
 		<property name="urlPathHelper">
 			<bean class="org.sakaiproject.hierarchy.tool.vm.PathInfoHelper"></bean>

@@ -37,9 +37,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.annotation.TargettedController;
 import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
+@TargettedController({"sakai.hierarchy-manager"})
 public class ManagerController
 {
 
@@ -132,12 +134,12 @@ public class ManagerController
 	public String deleteRedirect(@ModelAttribute("remove") RemoveRedirectCommand command, BindingResult errors, ModelMap model) {
 		try {
 			portalHierarchyService.deleteNode(command.getRedirectId());
+			return "refresh";
 		} catch (IllegalStateException e) {
 			throw new RuntimeException("Redirects should never have children so shouldn't see this exception.", e);
 		} catch (PermissionException e) {
 			errors.reject("error.no.permission");
 		}
-		model.put("topRefresh", true);
 		return "show";
 	}
 
