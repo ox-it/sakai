@@ -427,7 +427,7 @@ public class SignupResource {
 					
 						attendance.writeTeachingInstance(courseComponent, signups);
 				
-					} catch (WebAppNotFoundException e) {
+					} catch (NotFoundException e) {
 						throw new WebApplicationException(Response.Status.NOT_FOUND);
 					}
 				}
