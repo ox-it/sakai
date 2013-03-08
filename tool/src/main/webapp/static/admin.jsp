@@ -667,42 +667,39 @@
 					if (hideValue === "Hide Course") {
 						hide = true;
 					}
-					$
-							.ajax({
-								"url" : "../rest/course/hide",
-								"type" : "POST",
-								"async" : true,
-								"traditional" : true,
-								"data" : {
-									"courseId" : code,
-									"hideCourse" : hide
-								},
-								"success" : function(result) {
-									if (hide) {
-										button.attr("value", "Show Course");
-									} else {
-										button.attr("value", "Hide Course");
-									}
+					$.ajax({
+						"url" : "../rest/course/hide",
+						"type" : "POST",
+						"async" : true,
+						"traditional" : true,
+						"data" : {
+							"courseId" : code,
+							"hideCourse" : hide
+						},
+						"success" : function(result) {
+							if (hide) {
+								button.attr("value", "Show Course");
+							} else {
+								button.attr("value", "Hide Course");
+							}
 
-									for ( var i in courseData) {
-										var course = courseData[i];
-										var courseId = course.id;
-										if (courseId === code) {
-											course.hideGroup = hide;
-											var title = course.title;
-											if (course.isSuperuser
-													&& course.hideGroup) {
-												title = "(hidden) " + title;
-											}
-											$(
-													"#admin-course option[value="
-															+ code + "]").html(
-													title);
-											break;
-										}
+							for ( var i in courseData) {
+								var course = courseData[i];
+								var courseId = course.id;
+								if (courseId === code) {
+									course.hideGroup = hide;
+									var title = course.title;
+									if (course.isSuperuser
+											&& course.hideGroup) {
+										title = "(hidden) " + title;
 									}
+									$("#admin-course option[value="
+											+ code + "]").html(title);
+									break;
 								}
-							});
+							}
+						}
+					});
 				});
 	});
 </script>
