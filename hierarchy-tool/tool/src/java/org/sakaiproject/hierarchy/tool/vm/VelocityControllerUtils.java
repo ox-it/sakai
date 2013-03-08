@@ -6,11 +6,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.springframework.validation.Errors;
 
 public class VelocityControllerUtils {
 
-	public static Map<String, Object> referenceData(HttpServletRequest request, Object command, Errors errors)
+	public static Map<String, Object> referenceData(HttpServletRequest request)
 	{
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("sakai_fragment","false");

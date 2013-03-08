@@ -4,21 +4,6 @@
 
 <beans>
 
-
-	<bean id="urlMapping"
-		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
-		<property name="mappings">
-			<props>
-				<prop key="/sites*">siteBrowserHelper</prop>
-				<prop key="/create*">siteCreationHelper</prop>
-				<prop key="/delete*">deleteSiteController</prop>
-			</props>
-		</property>
-		<property name="urlPathHelper">
-			<bean class="org.sakaiproject.hierarchy.tool.vm.PathInfoHelper"></bean>
-		</property>
-	</bean>
-
     <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
     	<property name="order" value="1"/>
     	

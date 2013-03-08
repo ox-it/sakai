@@ -36,6 +36,13 @@
             <value type="java.lang.Class">org.sakaiproject.component.api.ServerConfigurationService</value>
         </constructor-arg>
     </bean>
+
+	<bean id="org.sakaiproject.tool.api.ActiveToolManagert" class="org.mockito.Mockito"
+		factory-method="mock">
+		<constructor-arg>
+			<value type="java.lang.Class">org.sakaiproject.tool.api.ActiveToolManager</value>
+		</constructor-arg>
+	</bean>
     
 
     <bean id="org.sakaiproject.authz.api.SecurityService"

@@ -94,7 +94,7 @@ public class ReuseSiteController extends SimpleFormController {
 			PortalNode newNode = hs.newSiteNode(node.getId(), command.getName(), command.getSiteId(), node.getManagementSite().getId());
 			sitePath = newNode.getPath();
 			model.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ sitePath);
-			model.putAll(VelocityControllerUtils.referenceData(request, command, errors));
+			model.putAll(VelocityControllerUtils.referenceData(request));
 		} catch (Exception hse) {
 			errors.reject("error.add.hierarchy");
 			return showForm(request, errors, getFormView(), errors.getModel());
@@ -114,7 +114,7 @@ public class ReuseSiteController extends SimpleFormController {
 	@Override
 	protected Map referenceData(HttpServletRequest request, Object command,
 			Errors errors) throws Exception {
-		Map data = VelocityControllerUtils.referenceData(request, command, errors);
+		Map data = VelocityControllerUtils.referenceData(request);
 		
 		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
 		PortalNode currentNode = hs.getCurrentPortalNode();

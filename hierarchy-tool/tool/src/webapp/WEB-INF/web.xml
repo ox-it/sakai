@@ -51,25 +51,21 @@
 	<servlet>
 		<servlet-name>sakai.hierarchy-manager</servlet-name>
 		<servlet-class>org.sakaiproject.hierarchy.tool.SpringDispatcherServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
 	</servlet>
 
 	<servlet>
 		<servlet-name>sakai.hierarchy-new-site</servlet-name>
 		<servlet-class>org.sakaiproject.hierarchy.tool.SpringDispatcherServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
 	<servlet>
 		<servlet-name>sakai.hierarchy-bring-site</servlet-name>
 		<servlet-class>org.sakaiproject.hierarchy.tool.SpringDispatcherServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
 	<servlet>
 		<servlet-name>sakai.hierarchy-delete-site</servlet-name>
 		<servlet-class>org.sakaiproject.hierarchy.tool.SpringDispatcherServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
 </web-app>

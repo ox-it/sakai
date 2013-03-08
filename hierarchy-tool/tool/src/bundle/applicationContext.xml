@@ -12,18 +12,7 @@
     <context:component-scan base-package="org.sakaiproject.hierarchy.tool.vm"/>
 
     <bean id="servletContextHolder" class="org.sakaiproject.hierarchy.tool.vm.spring.ServletContextHolder" />
-    
-	<bean id="deleteSiteController"
-		class="org.sakaiproject.hierarchy.tool.vm.DeleteSiteController" init-method="init">
-		<property name="formView" value="delete"/>
-		<property name="successView" value="redirect"/>
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-	</bean>
 
-	<bean id="siteBrowserHelper"
-		class="org.sakaiproject.hierarchy.tool.vm.HelperController">
-		<property name="helperId"><value>sakai.sitebrowser</value></property>
-	</bean>
 
 	<bean id="newSiteController"
 		class="org.sakaiproject.hierarchy.tool.vm.NewSiteController"
@@ -47,10 +36,6 @@
 		</property>
 	</bean>
 
-	<bean id="siteCreationHelper"
-		class="org.sakaiproject.hierarchy.tool.vm.HelperController">
-		<property name="helperId"><value>sakai.sitesetup</value></property>
-	</bean>
 	
 	<bean id="createSiteController"
 		class="org.sakaiproject.hierarchy.tool.vm.CreateSiteController"

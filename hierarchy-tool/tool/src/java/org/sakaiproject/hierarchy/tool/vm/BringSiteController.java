@@ -16,52 +16,50 @@ import org.springframework.web.servlet.mvc.SimpleFormController;
 
 public class BringSiteController extends SimpleFormController {
 
-	private String returnPath;
-	private SecurityService securityService;
-	
-	public BringSiteController() {
-		setCommandClass(Object.class);
-	}
-	
-	@Override
-	protected ModelAndView onSubmit(HttpServletRequest request,
-			HttpServletResponse response, Object command, BindException errors)
-			throws Exception {
-		HttpSession session = request.getSession();
-		
-		session.setAttribute(Tool.HELPER_DONE_URL, request.getContextPath()+ request.getServletPath()+getReturnPath());
-		session.setAttribute(SiteHelper.SITE_CREATE_START, Boolean.TRUE);
-		if (securityService.isSuperUser()) {
-			session.setAttribute(SiteHelper.SITE_PICKER_PERMISSION, org.sakaiproject.site.api.SiteService.SelectionType.ANY);
-		} else {
-			session.setAttribute(SiteHelper.SITE_PICKER_PERMISSION, org.sakaiproject.site.api.SiteService.SelectionType.UPDATE);
-		}
-		
-		return super.onSubmit(request, response, command, errors);
-	}
+    private String returnPath;
+    private SecurityService securityService;
 
-	public String getReturnPath() {
-		return returnPath;
-	}
+    public BringSiteController() {
+        setCommandClass(Object.class);
+    }
 
-	public void setReturnPath(String returnPath) {
-		this.returnPath = returnPath;
-	}
+    @Override
+    protected ModelAndView onSubmit(HttpServletRequest request, HttpServletResponse response, Object command,
+            BindException errors) throws Exception {
+        HttpSession session = request.getSession();
 
-	
-	public Map<String, Object> referenceData(HttpServletRequest request, Object command, Errors errors)
-	{
-		return VelocityControllerUtils.referenceData(request, command, errors);
-	}
+        session.setAttribute(Tool.HELPER_DONE_URL, request.getContextPath() + request.getServletPath()
+                + getReturnPath());
+        session.setAttribute(SiteHelper.SITE_CREATE_START, Boolean.TRUE);
+        if (securityService.isSuperUser()) {
+            session.setAttribute(SiteHelper.SITE_PICKER_PERMISSION,
+                    org.sakaiproject.site.api.SiteService.SelectionType.ANY);
+        } else {
+            session.setAttribute(SiteHelper.SITE_PICKER_PERMISSION,
+                    org.sakaiproject.site.api.SiteService.SelectionType.UPDATE);
+        }
 
-	public SecurityService getSecurityService()
-	{
-		return securityService;
-	}
+        return super.onSubmit(request, response, command, errors);
+    }
 
-	public void setSecurityService(SecurityService securityService)
-	{
-		this.securityService = securityService;
-	}
-	
+    public String getReturnPath() {
+        return returnPath;
+    }
+
+    public void setReturnPath(String returnPath) {
+        this.returnPath = returnPath;
+    }
+
+    public Map<String, Object> referenceData(HttpServletRequest request, Object command, Errors errors) {
+        return VelocityControllerUtils.referenceData(request);
+    }
+
+    public SecurityService getSecurityService() {
+        return securityService;
+    }
+
+    public void setSecurityService(SecurityService securityService) {
+        this.securityService = securityService;
+    }
+
 }

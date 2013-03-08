@@ -89,7 +89,7 @@ public class CreateSiteController extends AbstractCommandController {
 		}
 		// This is a hack as something in the tool session breaks the tool the second time you create a site
 		SessionManager.getCurrentToolSession().clearAttributes();
-		Map model = VelocityControllerUtils.referenceData(request, command, errors);
+		Map model = VelocityControllerUtils.referenceData(request);
 		model.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ sitePath);
 		
 		return new ModelAndView(successView, model);
@@ -118,7 +118,7 @@ public class CreateSiteController extends AbstractCommandController {
 		} else {
 			log.warn("Not cleaning up site as we don't know the site ID.");
 		}
-		Map model = VelocityControllerUtils.referenceData(request, command, errors);
+		Map model = VelocityControllerUtils.referenceData(request);
 		model.putAll(errors.getModel());
 		return new ModelAndView(failureView, model);
 	}

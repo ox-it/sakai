@@ -93,7 +93,7 @@ public class NewSiteController extends SimpleFormController
 	@Override
 	protected Map<String, String> referenceData(HttpServletRequest request, Object command, Errors errors)
 	{
-		Map referenceData = VelocityControllerUtils.referenceData(request, command, errors);
+		Map referenceData = VelocityControllerUtils.referenceData(request);
 		referenceData.put("titleMaxLength", getTitleMaxLength());
 		referenceData.put("mode", "new");
 		

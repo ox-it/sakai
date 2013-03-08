@@ -166,7 +166,10 @@ public class ManagerController
 			toolSession.setAttribute(Tool.HELPER_DONE_URL, buildUrl(request) +"?"+REQUEST_ACTION+"="+ACT_EDIT_SITE);
 			toolSession.setAttribute(SiteHelper.SITE_PICKER_PERMISSION, org.sakaiproject.site.api.SiteService.SelectionType.UPDATE);
 
-			return new ModelAndView(new RedirectView("/sites", true), null);
+			RedirectView redirectView = new RedirectView("/sites", true);
+			// We don't want to pass through all the model data.
+			redirectView.setExposeModelAttributes(false);
+            return new ModelAndView(redirectView, null);
 		}
 		else if (ACT_EDIT_SITE.equals(action))
 		{
