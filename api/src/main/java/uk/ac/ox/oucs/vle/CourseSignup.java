@@ -5,7 +5,7 @@ import java.util.Set;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
-public interface CourseSignup {
+public interface CourseSignup extends java.io.Serializable{
 
 	public String getId();
 	

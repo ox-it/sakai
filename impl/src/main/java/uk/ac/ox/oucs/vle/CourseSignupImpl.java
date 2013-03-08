@@ -7,7 +7,7 @@ import java.util.Set;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
-public class CourseSignupImpl implements CourseSignup, java.io.Serializable {
+public class CourseSignupImpl implements CourseSignup {
 
 	private CourseSignupDAO dao;
 	private CourseSignupServiceImpl service;
