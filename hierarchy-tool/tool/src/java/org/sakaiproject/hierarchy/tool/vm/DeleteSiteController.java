@@ -31,45 +31,45 @@ public class DeleteSiteController {
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
 	}
-	
+
 	@Autowired
 	public void setPortalHierarchyService(PortalHierarchyService portalHierarchyService) {
-	    this.portalHierarchyService = portalHierarchyService;
+		this.portalHierarchyService = portalHierarchyService;
 	}
-	
+
 	@ModelAttribute("command")
 	public DeleteSiteCommand getDeleteSiteCommand() {
-	    return new DeleteSiteCommand();
+		return new DeleteSiteCommand();
 	}
 
 	public void init() {
-		
-	}
-	
 
-    @RequestMapping(method = RequestMethod.GET)
-    public String showForm() {
-        return "delete";
-    }
-	
-    
-    @RequestMapping(method = RequestMethod.POST)
-    protected String doSubmitAction(HttpServletRequest request,
+	}
+
+
+	@RequestMapping(method = RequestMethod.GET)
+	public String showForm() {
+		return "delete";
+	}
+
+
+	@RequestMapping(method = RequestMethod.POST)
+	protected String doSubmitAction(HttpServletRequest request,
 			HttpServletResponse response, @ModelAttribute("command") DeleteSiteCommand object, BindingResult result, ModelMap model)
-			throws Exception {
+					throws Exception {
 		PortalNode node = portalHierarchyService.getCurrentPortalNode();
 		DeleteSiteCommand command = (DeleteSiteCommand) object;
 		List<PortalNodeSite> nodes = portalHierarchyService.getNodesFromRoot(node.getId());
 		String parentPath = nodes.get(nodes.size()-1).getPath();
 		try {
-		    portalHierarchyService.deleteNode(node.getId());
+			portalHierarchyService.deleteNode(node.getId());
 			// Do we want to remove the site?
 			if (command.isDeleteSite() && node instanceof PortalNodeSite) {
 				siteService.removeSite(((PortalNodeSite)node).getSite());
 			}
-			
+
 			model.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ parentPath);
-			
+
 			return "redirect";
 		} catch (IllegalStateException ise) {
 			result.reject("delete.error.children");
@@ -77,7 +77,7 @@ public class DeleteSiteController {
 		}
 
 	}
-	
+
 	@ModelAttribute
 	public void referenceData(HttpServletRequest request, ModelMap model) {
 		Map<String, Object> data = VelocityControllerUtils.referenceData(request);
@@ -97,13 +97,13 @@ public class DeleteSiteController {
 				siteService.allowRemoveSite(((PortalNodeSite)current).getSite().getId());
 		isSiteUsedAgain = isSiteNode && 
 				phs.getNodesWithSite(((PortalNodeSite)current).getSite().getId()).size() > 1;
-		data.put("hasChildren", hasChildren);
-		data.put("canDelete", canDelete);
-		data.put("canDeleteSite", canDeleteSite);
-		data.put("isSiteUsedAgain", isSiteUsedAgain);
-		data.put("rootUrl", request.getContextPath()+request.getServletPath());
+				data.put("hasChildren", hasChildren);
+				data.put("canDelete", canDelete);
+				data.put("canDeleteSite", canDeleteSite);
+				data.put("isSiteUsedAgain", isSiteUsedAgain);
+				data.put("rootUrl", request.getContextPath()+request.getServletPath());
 
-		model.putAll(data);
+				model.putAll(data);
 	}
-	
+
 }

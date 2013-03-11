@@ -29,7 +29,7 @@
   <h3>#springMessage("show.site.none")</h3>
 #end
 
-<form method="post" action="${rootUrl}">
+<form method="post" action="${rootUrl}/site/change">
 <input type="hidden" name="_action" value="act_selectsite"/>
 <input type="submit" value="#springMessage("button.replace.site")" #if(!$canReplace)disabled="true"#end/>
 </form>
@@ -48,12 +48,14 @@
 ## If you are here and can manage this site you can manage all redirects.
 <h3>#springMessage("show.redirects")</h3>
 #if ($redirectNodes.size() > 0)
+	#springBind("redirect-remove.id")
+	#springShowErrors("" "")
 	<form method="POST" action="${rootUrl}/redirect/delete">
 	<ul>
 		#foreach ($node in $redirectNodes)
 		<li>
 			$node.path ($node.title) to $node.url #if($node.appendPath)(#springMessage("show.with.path.appended"))#end
-			<input type="radio" name="redirectId" value="$node.id">
+			<input type="radio" name="id" value="$node.id">
 		</li>
 		#end
 	</ul>
@@ -67,13 +69,13 @@
 
 <form method="POST" action="${rootUrl}/redirect/add">
 	<label for="name">#springMessage("show.name")</label>
-	#springFormInput("command.name" "")
+	#springFormInput("redirect-add.name" "")
 	#springShowErrors("" "")<br>
 	<label for="title">#springMessage("show.title")</label>
-	#springFormInput("command.title" "id='title' maxlength='${titleMaxLength}'")
+	#springFormInput("redirect-add.title" "id='title' maxlength='${titleMaxLength}'")
 	#springShowErrors("" "")<br>
 	<label for="url">#springMessage("show.url")</label>
-	#springFormInput("command.url" "id='url'")
+	#springFormInput("redirect-add.url" "id='url'")
 	#springShowErrors("" "")<br>
 	<label for="appendPath">#springMessage("show.appendPath")</label>
 	<input type="checkbox" name="appendPath" value="true" id="appendPath"><br>

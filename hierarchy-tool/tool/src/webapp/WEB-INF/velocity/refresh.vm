@@ -1,0 +1,10 @@
+## Force the top frameset to be reloaded.
+#set( $topRefresh = "true" )
+
+#chef_start()
+#chef_portletContainer()
+#chef_portletContent()
+<!-- This page should only be show when a refresh is happening -->
+#chef_portletContentEnd()
+#chef_portletContainerEnd()
+#chef_end()

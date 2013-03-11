@@ -1,6 +1,5 @@
 package org.sakaiproject.hierarchy.tool.vm;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;

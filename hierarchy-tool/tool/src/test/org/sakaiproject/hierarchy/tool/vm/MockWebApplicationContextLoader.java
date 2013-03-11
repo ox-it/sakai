@@ -1,5 +1,8 @@
 package org.sakaiproject.hierarchy.tool.vm;
 
+import javax.servlet.ServletContext;
+
+import org.sakaiproject.hierarchy.tool.SpringDispatcherServlet;
 import org.sakaiproject.hierarchy.tool.vm.spring.ServletContextHolder;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -43,7 +46,7 @@ public class MockWebApplicationContextLoader extends AbstractContextLoader {
                 webApplicationContext.setConfigLocations(locations);
                 
                 // Create a DispatcherServlet that uses the previously established WebApplicationContext.
-                final DispatcherServlet dispatcherServlet = new DispatcherServlet() {
+                final DispatcherServlet dispatcherServlet = new SpringDispatcherServlet() {
                 };
                 
                 // Add the DispatcherServlet (and anything else you want) to the context.
@@ -52,6 +55,7 @@ public class MockWebApplicationContextLoader extends AbstractContextLoader {
                         @Override
                         public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
                                 beanFactory.registerResolvableDependency(DispatcherServlet.class, dispatcherServlet);
+                                beanFactory.registerResolvableDependency(ServletContext.class, servletContext);
                                 // Register any other beans here, including a ViewResolver if you are using JSPs.
                                 ServletContextHolder servletContextHolder = (ServletContextHolder) webApplicationContext
                         				.getBean("servletContextHolder");

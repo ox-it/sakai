@@ -2,7 +2,7 @@ package org.sakaiproject.hierarchy.tool.vm;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.web.util.UrlPathHelper;;
+import org.springframework.web.util.UrlPathHelper;
 
 /**
  * Uses the pathinfo as the lookup in the controller.
