@@ -576,6 +576,7 @@ public class CourseResource {
 			gen.writeObjectField("departmentCode", course.getDepartmentCode());
 			gen.writeObjectField("subUnit", course.getSubUnit());
 			gen.writeObjectField("subUnitCode", course.getSubUnitCode());
+			gen.writeObjectField("prerequisite", course.getPrerequisite());
 			gen.writeObjectField("regulations", course.getRegulations());
 			gen.writeObjectField("source", course.getSource());
 				

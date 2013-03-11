@@ -23,6 +23,7 @@ import org.xcri.Extension;
 import org.xcri.common.Description;
 import org.xcri.common.ExtensionManager;
 import org.xcri.common.OverrideManager;
+import org.xcri.common.descriptive.Prerequisite;
 import org.xcri.common.descriptive.Regulations;
 import org.xcri.core.Catalog;
 import org.xcri.core.Course;
@@ -361,12 +362,21 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		OxcapCourse oxCourse = (OxcapCourse)course;
 		myCourse.setVisibility(oxCourse.getVisibility().toString());
 
-		if (course.getRegulations().length > 0) {
-			Regulations xRegulations = course.getRegulations()[0];
-			if (!xRegulations.isXhtml()) {
-				myCourse.setRegulations(parse(xRegulations.getValue()));
+		if (course.getPrerequisites().length > 0) {
+			Prerequisite prerequisite = course.getPrerequisites()[0];
+			if (!prerequisite.isXhtml()) {
+				myCourse.setPrerequisite(parse(prerequisite.getValue()));
 			} else {
-				myCourse.setRegulations(xRegulations.getValue());
+				myCourse.setPrerequisite(prerequisite.getValue());
+			}
+		}
+		
+		if (course.getRegulations().length > 0) {
+			Regulations regulations = course.getRegulations()[0];
+			if (!regulations.isXhtml()) {
+				myCourse.setRegulations(parse(regulations.getValue()));
+			} else {
+				myCourse.setRegulations(regulations.getValue());
 			}
 		}
 
@@ -820,6 +830,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			groupDao.setAdministratorApproval(myCourse.getAdministratorApproval());
 			groupDao.setContactEmail(myCourse.getContactEmail());
 			groupDao.setAdministrators(myCourse.getAdministrators());
+			groupDao.setPrerequisite(myCourse.getPrerequisite());
 			groupDao.setRegulations(myCourse.getRegulations());
 			groupDao.setDeleted(false);
 			groupDao.setSuperusers(myCourse.getSuperusers());

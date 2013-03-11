@@ -32,6 +32,8 @@ public interface CourseGroup {
 	
 	public String getVisibility();
 	
+	public String getPrerequisite();
+	
 	public String getRegulations();
 	
 	public String getSource();
