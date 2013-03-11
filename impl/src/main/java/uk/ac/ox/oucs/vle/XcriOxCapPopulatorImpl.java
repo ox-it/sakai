@@ -83,6 +83,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	private static final Log log = LogFactory.getLog(XcriOxCapPopulatorImpl.class);
 
 	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM yyyy  hh:mm");
+	
+	private static String INTENDED_AUDIENCE = "xcri12terms:intendedAudience";
 
 	static {
 		ExtensionManager.registerExtension(new WebAuthCode());
@@ -364,10 +366,12 @@ public class XcriOxCapPopulatorImpl implements Populator {
 
 		if (course.getPrerequisites().length > 0) {
 			Prerequisite prerequisite = course.getPrerequisites()[0];
-			if (!prerequisite.isXhtml()) {
-				myCourse.setPrerequisite(parse(prerequisite.getValue()));
-			} else {
-				myCourse.setPrerequisite(prerequisite.getValue());
+			if (INTENDED_AUDIENCE.equals(prerequisite.getType())) {
+				if (!prerequisite.isXhtml()) {
+					myCourse.setPrerequisite(parse(prerequisite.getValue()));
+				} else {
+					myCourse.setPrerequisite(prerequisite.getValue());
+				}
 			}
 		}
 		
