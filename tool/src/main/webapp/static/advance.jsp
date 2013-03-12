@@ -1,6 +1,4 @@
 <%@ page import="org.sakaiproject.tool.cover.ToolManager"%>
-<%@ page
-	import="org.sakaiproject.component.cover.ServerConfigurationService"%>
 <%@ page import="org.sakaiproject.user.cover.UserDirectoryService"%>
 <%@ page session="false"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
@@ -51,7 +49,7 @@
 	<div id="browse">
 		<form method="POST" action="">
 
-			<input type="hidden" , name="param" value="<c:out value='${it.encoded}' />" />
+			<input type="hidden" name="param" value="<c:out value='${it.encoded}' />" />
 			<div id="tree">
 				<p>
 					<c:out value="${it.signup.user.name}" />
