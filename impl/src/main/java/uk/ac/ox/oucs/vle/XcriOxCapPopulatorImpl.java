@@ -1081,11 +1081,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	public String arrayIterator(DescriptiveTextType[] array, String type) {
 		
 		StringBuilder sb = new StringBuilder();
-		Iterator<DescriptiveTextType> iter = Arrays.asList(array).iterator();
 		
-		while (iter.hasNext()) {
-			DescriptiveTextType descriptiveTextType = iter.next();
-			
+		for (DescriptiveTextType descriptiveTextType: array) {
+
 			String text = "";
 			if (!descriptiveTextType.isXhtml()) {
 				text = parse(descriptiveTextType.getValue());
