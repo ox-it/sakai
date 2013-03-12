@@ -1073,6 +1073,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 	
 	/**
+	 * Filter the array for elements matching type
+	 *  if type is null construct default string
 	 * 
 	 * @param array
 	 * @param type
@@ -1084,20 +1086,22 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		
 		for (DescriptiveTextType descriptiveTextType: array) {
 
-			String text = "";
+			String text;
 			if (!descriptiveTextType.isXhtml()) {
 				text = parse(descriptiveTextType.getValue());
 			} else {
 				text = descriptiveTextType.getValue();
 			}
 			
-			if (null != descriptiveTextType.getType()) {
-				if (descriptiveTextType.getType().equals(type)) {
-					sb.append(text+" ");
-					continue;
+			if (null != type) {
+				if (type.equals(descriptiveTextType.getType())) {
+					sb.append(text).append(" ");
+				}
+			} else {
+				if (null == descriptiveTextType.getType()) {
+					sb.append(text).append(" ");
 				}
 			}
-			sb.append(text+" ");
 		}
 		
 		return sb.toString().trim();
