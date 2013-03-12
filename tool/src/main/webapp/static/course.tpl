@@ -132,7 +132,7 @@
                 {/if}
             </div>
 
-			<div id="description">
+			<div id="prerequisite">
 				{if prerequisite}
 					<h2>Intended Audience</h2>
 					${prerequisite}

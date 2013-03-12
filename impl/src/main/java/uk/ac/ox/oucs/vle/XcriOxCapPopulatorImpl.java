@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -31,6 +33,7 @@ import org.xcri.core.Presentation;
 import org.xcri.core.Provider;
 import org.xcri.exceptions.InvalidElementException;
 import org.xcri.presentation.Venue;
+import org.xcri.types.DescriptiveTextType;
 
 import uk.ac.ox.oucs.vle.xcri.daisy.Bookable;
 import uk.ac.ox.oucs.vle.xcri.daisy.CourseSubUnit;
@@ -84,7 +87,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 
 	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM yyyy  hh:mm");
 	
-	private static String INTENDED_AUDIENCE = "xcri12terms:intendedAudience";
+	private static String TARGET_AUDIENCE = "xcri12terms:targetAudience";
 
 	static {
 		ExtensionManager.registerExtension(new WebAuthCode());
@@ -364,26 +367,10 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		OxcapCourse oxCourse = (OxcapCourse)course;
 		myCourse.setVisibility(oxCourse.getVisibility().toString());
 
-		if (course.getPrerequisites().length > 0) {
-			Prerequisite prerequisite = course.getPrerequisites()[0];
-			if (INTENDED_AUDIENCE.equals(prerequisite.getType())) {
-				if (!prerequisite.isXhtml()) {
-					myCourse.setPrerequisite(parse(prerequisite.getValue()));
-				} else {
-					myCourse.setPrerequisite(prerequisite.getValue());
-				}
-			}
-		}
+		myCourse.setDescription(arrayIterator(course.getDescriptions(), null));
+		myCourse.setPrerequisite(arrayIterator(course.getDescriptions(), TARGET_AUDIENCE));
+		myCourse.setRegulations(arrayIterator(course.getRegulations(), null));
 		
-		if (course.getRegulations().length > 0) {
-			Regulations regulations = course.getRegulations()[0];
-			if (!regulations.isXhtml()) {
-				myCourse.setRegulations(parse(regulations.getValue()));
-			} else {
-				myCourse.setRegulations(regulations.getValue());
-			}
-		}
-
 		Set<Subject> researchCategories = new HashSet<Subject>();
 		Set<Subject> skillsCategories = new HashSet<Subject>();
 		Set<Subject> jacsCategories = new HashSet<Subject>();
@@ -462,15 +449,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 					"Log Failure Course ["+myCourse.getCourseId()+":"+myCourse.getTitle()+"] No Course Identifier");
 			return;
 		}
-
-		if (course.getDescriptions().length > 0) {
-			Description xDescription = course.getDescriptions()[0];
-			if (!xDescription.isXhtml()) {
-				myCourse.setDescription(parse(xDescription.getValue()));
-			} else {
-				myCourse.setDescription(xDescription.getValue());
-			}
-		} else {
+			
+		if (myCourse.getDescription().isEmpty()) {
 			logMe(context, 
 					"Log Warning Course ["+myCourse.getCourseId()+":"+myCourse.getTitle()+"] has no description");
 		}
@@ -1090,6 +1070,39 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			return component.getCloses();
 		}
 		return null;
+	}
+	
+	/**
+	 * 
+	 * @param array
+	 * @param type
+	 * @return
+	 */
+	public String arrayIterator(DescriptiveTextType[] array, String type) {
+		
+		StringBuilder sb = new StringBuilder();
+		Iterator<DescriptiveTextType> iter = Arrays.asList(array).iterator();
+		
+		while (iter.hasNext()) {
+			DescriptiveTextType descriptiveTextType = iter.next();
+			
+			String text = "";
+			if (!descriptiveTextType.isXhtml()) {
+				text = parse(descriptiveTextType.getValue());
+			} else {
+				text = descriptiveTextType.getValue();
+			}
+			
+			if (null != descriptiveTextType.getType()) {
+				if (descriptiveTextType.getType().equals(type)) {
+					sb.append(text+" ");
+					continue;
+				}
+			}
+			sb.append(text+" ");
+		}
+		
+		return sb.toString().trim();
 	}
 
 	/**
