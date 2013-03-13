@@ -81,7 +81,7 @@ public class CourseResource {
 			@Context final HttpServletRequest request,
 		    @Context final HttpServletResponse response) throws ServletException, IOException {
 		
-		RequestDispatcher dispatcher = request.getRequestDispatcher("/static/course.jsp");
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/static/course.jsp");
 		request.setAttribute("openCourse", courseId);
 		dispatcher.forward(request, response);
 		return "";

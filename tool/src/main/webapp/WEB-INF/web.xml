@@ -158,6 +158,11 @@
 	</servlet>
 	 
 	<servlet-mapping>
+		<servlet-name>course.signup</servlet-name>
+		<url-pattern>/pages/*</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
 		<!--  So we can access the static content. -->
 		<servlet-name>Jersey Web Application</servlet-name>
 		<url-pattern>/rest/*</url-pattern>
