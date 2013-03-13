@@ -27,6 +27,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -74,10 +75,6 @@ public class ManagerController{
 	@ModelAttribute("redirect-remove")
 	public DeleteRedirectCommand getRemoveRedirectCommand() {
 		return new DeleteRedirectCommand();
-	}
-
-	public ManagerController() {
-		super();
 	}
 
 	@PostConstruct
@@ -148,33 +145,32 @@ public class ManagerController{
 	}
 
 	@ModelAttribute
-	public void referenceData(HttpServletRequest request, ModelMap model) {
+	public void referenceData(HttpServletRequest request, Model model) {
 		populateModel(model, request);
 	}
 
-	protected void populateModel(Map<String, Object> model,
-			HttpServletRequest request) {
-		model.put("sakai_fragment", "false");
-		model.put("sakai_head",
+	protected void populateModel(Model model, HttpServletRequest request) {
+		model.addAttribute("sakai_fragment", "false");
+		model.addAttribute("sakai_head",
 				(String) request.getAttribute("sakai.html.head"));
-		model.put("sakai_onload",
+		model.addAttribute("sakai_onload",
 				(String) request.getAttribute("sakai.html.body.onload"));
 
-		model.put("toolTitle", "Hierarchy Manager");
+		model.addAttribute("toolTitle", "Hierarchy Manager");
 		String editor = serverConfigurationService.getString("wysiwyg.editor");
-		model.put("sakai_editor", editor);
-		model.put("sakai_library_path", "/library/");
-		model.put("titleMaxLength",
+		model.addAttribute("sakai_editor", editor);
+		model.addAttribute("sakai_library_path", "/library/");
+		model.addAttribute("titleMaxLength",
 				serverConfigurationService.getInt("site.title.maxlength", 25));
 
-		model.put("rootUrl",
+		model.addAttribute("rootUrl",
 				request.getContextPath() + request.getServletPath());
 		
 		PortalNodeSite node = portalHierarchyService.getCurrentPortalNode();
 
 		Map<String, Object> site = createSiteMap(node.getSite());
 		site.putAll(createNodeMap(node));
-		model.put("current", site);
+		model.addAttribute("current", site);
 
 		List<PortalNode> nodes = portalHierarchyService.getNodesWithSite(node
 				.getSite().getId());
@@ -184,12 +180,12 @@ public class ManagerController{
 			if (!node.getPath().equals(currentNode.getPath()))
 				paths.add(createNodeMap(currentNode));
 		}
-		model.put("other", paths);
+		model.addAttribute("other", paths);
 
-		model.put("canDelete",
+		model.addAttribute("canDelete",
 				portalHierarchyService.canDeleteNode(node.getId()));
-		model.put("canMove", portalHierarchyService.canMoveNode(node.getId()));
-		model.put("canReplace",
+		model.addAttribute("canMove", portalHierarchyService.canMoveNode(node.getId()));
+		model.addAttribute("canReplace",
 				portalHierarchyService.canChangeSite(node.getId()));
 		// Need to list the redirect nodes.
 		List<PortalNode> nodeChildren = portalHierarchyService
@@ -208,7 +204,7 @@ public class ManagerController{
 				redirectNodes.add(redirectDetails);
 			}
 		}
-		model.put("redirectNodes", redirectNodes);
+		model.addAttribute("redirectNodes", redirectNodes);
 		
 
         Session session = sessionManager.getCurrentSession();
@@ -217,10 +213,10 @@ public class ManagerController{
         if (cutId != null) {
             PortalNode cutNode = portalHierarchyService.getNodeById(cutId);
             if (cutNode != null) {
-                model.put("cutId", cutId);
-                model.put("cutChild",
+                model.addAttribute("cutId", cutId);
+                model.addAttribute("cutChild",
                         node.getPath().startsWith(cutNode.getPath()));
-                model.put("cutNode", cutNode);
+                model.addAttribute("cutNode", cutNode);
             }
         }
 
