@@ -1,137 +1,122 @@
-           <!-- Show details of the course -->
-         <div class="courseDetail">
-		    <div class="messages"></div>
-            <div id="summary">
-                <h1>${title}</h1>
-                {if hide}
-                <div class="noAuth">
+		<!-- Show details of the course -->
+		<div class="courseDetail">
+			<div class="messages"></div>
+			<div id="summary">
+				<h1>${title}</h1>
+				{if hide}
+				<div class="noAuth">
 					If you are a member of the University of Oxford, please
 					<a class="login" href="dologin.jsp" target="_top">login to WebLearn</a>
 					to see more information.
 					</div>
-                {else}
-                <table width="100%">
-                	
-                	{if presenters.length > 0}
-                	<tr>
-                        <th>
-                            Lecturer(s)
-                        </th>
-                        <td>
-                            {for presenter in presenters}
+				
+				{else}
+				
+				<table width="100%">
+					{if presenters.length > 0}
+				 	<tr>
+						<th>Lecturer(s)</th>
+						<td>
+							{for presenter in presenters}
 								{if presenter.email}
 									<a href="mailto:${presenter.email}">${presenter.name}</a>{if presenter_index != presenters.length-1},{/if}
 								{else}
 									${presenter.name}{if presenter_index != presenters.length-1},{/if}
 								{/if}
 							{/for}
-                        </td>
-                    </tr>
-                    {/if}
-                    
-                    {if administrators.length > 0}
-                    <tr>
-                        <th>
-                            Module Administrator
-                        </th>
-                        <td>
-                        	{for administrator in administrators}
-                        		{if administrator.email}
+						</td>
+					</tr>
+					{/if}
+					
+					{if administrators.length > 0}
+					<tr>
+						<th>Module Administrator</th>
+						<td>
+							{for administrator in administrators}
+							{if administrator.email}
 									<a href="mailto:${administrator.email}">${administrator.name}</a>{if administrator_index != administrators.length-1},{/if}
 								{else}
 									${administrator.name}{if administrator_index != administrators.length-1},{/if}
 								{/if}
 							{/for}
-                        </td>
-                    </tr>
-                    {/if}
-                    
-                    <tr>
-                        <th>
-                            Department
-                        </th>
-                        <td>
-                        	{if defined('department')}
-                            	${department}
+						</td>
+					</tr>
+					{/if}
+					
+					<tr>
+						<th>Department</th>
+						<td>
+							{if defined('department')}
+								${department}
 							{else}
 								${departmentCode}
 							{/if}
-                        </td>
-                    </tr>
-                    
-                    {if regulations}
-                    <tr>
-                        <th>
-                            Eligibility
-                        </th>
-                        <td>
+						</td>
+					</tr>
+
+					{if regulations}
+					<tr>
+						<th>Eligibility</th>
+						<td>
 							${regulations}	
-                        </td>
-                    </tr>
-                    {/if}
-                    
-                    {if source == "Daisy"}
-                    <tr>
-                        <th>
-                            Signup Available
-                        </th>
-                        <td>
+						</td>
+					</tr>
+					{/if}
+
+					{if source == "Daisy"}
+					<tr>
+						<th>Signup Available</th>
+						<td>
 							{if signup}
-							    {if signup == "full" || waiting}
-							    	Waiting List of ${waiting}
-							    {else}
-                            		${signup} 
-                            	{/if}
+								{if signup == "full" || waiting}
+									Waiting List of ${waiting}
+								{else}
+									${signup} 
+							 	{/if}
 							{else}
 								Not bookable
 							{/if}		
-                        </td>
-                    </tr>
-                    {/if}
-                    
-                    {if categories_rdf.length > 0}
-                    	<tr>
-                        	<th>
-                            	Skills Categories
-                        	</th>
-                        	<td>
+						</td>
+					</tr>
+					{/if}
+
+					{if categories_rdf.length > 0}
+						<tr>
+							<th>Skills Categories</th>
+							<td>
 								{for category in categories_rdf}
 									${category}{if category_index != categories_rdf.length-1},{/if}
 								{/for}
-                        	</td>
-                    	</tr>
-                    {/if}
-                    
-                    {if categories_jacs.length > 0}
-                    	<tr>
-                        	<th>
-                            	Subject categories
-                        	</th>
-                        	<td>
+							</td>
+						</tr>
+					{/if}
+
+					{if categories_jacs.length > 0}
+						<tr>
+							<th>Subject categories</th>
+						<td>
 								{for category in categories_jacs}
 									${category}{if category_index != categories_jacs.length-1},{/if}
 								{/for}
-                        	</td>
-                    	</tr>
-                    {/if}
-                    
-                    {if categories_rm.length > 0}
-                    	<tr>
-                        	<th>
-                            	Research Methods
-                        	</th>
-                        	<td>
+							</td>
+						</tr>
+					{/if}
+
+					{if categories_rm.length > 0}
+						<tr>
+							<th>Research Methods</th>
+							<td>
 								{for category in categories_rm}
 									${category}{if category_index != categories_rm.length-1},{/if}
 								{/for}
-                        	</td>
-                    	</tr>
-                    {/if}
-                    
-                </table>
-                {/if}
-            </div>
-            
+							</td>
+						</tr>
+					{/if}
+
+				</table>
+				{/if}
+			</div>
+
 			<div id="description">
             	<h2>Description</h2>
 				${description}
@@ -348,13 +333,12 @@
 						{/if}
 					{/if}
 					
-                </form>
-            </div>
-            {if isAdmin}
-            	<div id="directLink">
-            		<h4>Direct Link</h4> 
+				</form>
+			</div>
+			{if isAdmin}
+				<div id="directLink">
+					<h4>Direct Link</h4> 
 					${url}
-            	</div>
-            {/if}
-        </div>
-    
+				</div>
+			{/if}
+		</div>
