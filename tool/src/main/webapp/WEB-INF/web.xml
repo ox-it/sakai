@@ -158,6 +158,7 @@
 	</servlet>
 	 
 	<servlet-mapping>
+		<!-- We map the servlet so that Jersey can easily displatch to it -->
 		<servlet-name>course.signup</servlet-name>
 		<url-pattern>/pages/*</url-pattern>
 	</servlet-mapping>
