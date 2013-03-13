@@ -8,6 +8,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
@@ -45,7 +45,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.DispatcherServlet;
 
 /**
@@ -70,21 +69,13 @@ public class ManageControllerTest {
 	@Autowired
 	private SessionManager sessionManager;
 
-	public void setServlet(DispatcherServlet servlet) {
-		this.servlet = servlet;
-	}
-
-	public void setPortalHierarchyService(
-			PortalHierarchyService portalHierarchyService) {
-		this.portalHierarchyService = portalHierarchyService;
-	}
-
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
+    private Session session;
 
 	@Before
 	public void setUp() {
+	    reset(portalHierarchyService);
+	    reset(sessionManager);
+	    
 		Site site = mock(Site.class);
 		when(site.getId()).thenReturn("site-id");
 		when(site.getTitle()).thenReturn("Site Title");
@@ -96,10 +87,8 @@ public class ManageControllerTest {
 		when(node.getPath()).thenReturn("/name");
 		when(node.getSite()).thenReturn(site);
 		when(portalHierarchyService.getCurrentPortalNode()).thenReturn(node);
-		
-		
 
-		Session session = mock(Session.class);
+		session = mock(Session.class);
 		when(sessionManager.getCurrentSession()).thenReturn(session);
 	}
 
@@ -263,5 +252,33 @@ public class ManageControllerTest {
         MockHttpServletRequest request = UnitTestUtilities.newRequest("GET", "/site/save");
         MockHttpServletResponse response = new MockHttpServletResponse();
         servlet.service(request, response);
+    }
+    
+    @Test
+    public void testCut() throws ServletException, IOException {
+        MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/cut");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        servlet.service(request, response);
+        
+        verify(session).setAttribute(ManagerController.CUT_ID, "id");
+    }
+    
+    @Test
+    public void testCancel() throws ServletException, IOException {
+        MockHttpServletRequest request = UnitTestUtilities.newRequest("POST",  "/cancel");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        servlet.service(request, response);
+        
+        verify(session).removeAttribute(ManagerController.CUT_ID);
+    }
+    
+    @Test
+    public void testPaste() throws PermissionException, ServletException, IOException {
+        when(session.getAttribute(ManagerController.CUT_ID)).thenReturn("other-node-id");
+        MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/paste");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        servlet.service(request, response);
+        
+        verify(portalHierarchyService).moveNode("other-node-id", "id");
     }
 }

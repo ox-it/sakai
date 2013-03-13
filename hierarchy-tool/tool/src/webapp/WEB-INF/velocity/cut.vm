@@ -15,7 +15,7 @@
       <input type="submit" value="#springMessage("cut.paste")"/>
       </form>
     #end #end
-<form method="GET" action="${rootUrl}">
+<form method="POST" action="${rootUrl}">
 <input type="hidden" name="_action" value="act_cancel"/>
 <input type="submit" value="#springMessage("button.cancel")"/>
 </form>

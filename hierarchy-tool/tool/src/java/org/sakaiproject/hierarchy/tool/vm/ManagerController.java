@@ -9,10 +9,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
@@ -23,7 +20,6 @@ import org.sakaiproject.hierarchy.tool.vm.AddRedirectController.AddRedirectComma
 import org.sakaiproject.hierarchy.tool.vm.DeleteRedirectController.DeleteRedirectCommand;
 import org.sakaiproject.hierarchy.tool.vm.DeleteRedirectController.DeleteRedirectCommandValidator;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -45,37 +41,19 @@ import org.springframework.web.servlet.view.RedirectView;
 @TargettedController("sakai.hierarchy-manager")
 public class ManagerController{
 
-	private static final Log log = LogFactory.getLog(ManagerController.class);
-
-
-	static final String ACT_SAVE_SITE = "act_savesite";
-
-	static final String ACT_SETPROPERTY = "act_setproperty";
-
-	static final String ACT_SELECT_SITE = "act_selectsite";
-
-	static final String ACT_CUT = "act_cut";
-
-	static final String ACT_PASTE = "act_paste";
-
-	static final String ACT_CANCEL = "act_cancel";
-
-	static final String ACT_NEWREDIRECT = "act_newredirect";
-
-	static final String ACT_DELETEREDIRECT = "act_deleteredirect";
-
-	static final String REQUEST_ACTION = "_action";
-
-	static final String REQUEST_SITES = "_sites";
-
 	static final String REQUEST_SITE = "_site";
 
-	private static final String CUT_ID = ManagerController.class.getName()
+	static final String CUT_ID = ManagerController.class.getName()
 			+ "#CUT_ID";
 
 	private SessionManager sessionManager;
 	private PortalHierarchyService portalHierarchyService;
 	private ServerConfigurationService serverConfigurationService;
+
+    @Autowired
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
 
 	@Autowired
 	public void setPortalHierarchyService(PortalHierarchyService phs) {
@@ -102,17 +80,9 @@ public class ManagerController{
 		super();
 	}
 
-
-	@Autowired
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
-
 	@PostConstruct
 	public void init() {
 	}
-
-
 
 	private PortalNodeSite getCurrentNode(String currentPath) {
 		PortalNode node = null;
@@ -199,7 +169,7 @@ public class ManagerController{
 
 		model.put("rootUrl",
 				request.getContextPath() + request.getServletPath());
-
+		
 		PortalNodeSite node = portalHierarchyService.getCurrentPortalNode();
 
 		Map<String, Object> site = createSiteMap(node.getSite());
@@ -239,6 +209,20 @@ public class ManagerController{
 			}
 		}
 		model.put("redirectNodes", redirectNodes);
+		
+
+        Session session = sessionManager.getCurrentSession();
+        String cutId = (String) session.getAttribute(ManagerController.CUT_ID);
+        
+        if (cutId != null) {
+            PortalNode cutNode = portalHierarchyService.getNodeById(cutId);
+            if (cutNode != null) {
+                model.put("cutId", cutId);
+                model.put("cutChild",
+                        node.getPath().startsWith(cutNode.getPath()));
+                model.put("cutNode", cutNode);
+            }
+        }
 
 	}
 
@@ -302,6 +286,7 @@ public class ManagerController{
 	}
 	
     // We throw an exception (MissingServletRequestParameterException) when siteId isn't present
+	// This is a GET as when returning from the helper you get the data back on a redirect.
     @RequestMapping(value = "/site/save", method = RequestMethod.GET)
     public String saveSite(HttpServletRequest request, @RequestParam(REQUEST_SITE) String siteId) {
         PortalNode node = portalHierarchyService.getCurrentPortalNode();
@@ -317,53 +302,46 @@ public class ManagerController{
         }
         return "refresh";
     }
+    
+    @RequestMapping(value = "/cut", method = RequestMethod.POST)
+    public String cutSite(HttpServletRequest request) {
+        Session session = sessionManager.getCurrentSession();
+        session.setAttribute(CUT_ID, getCurrentNode(request.getPathInfo()).getId());
+        return "cut";
+    }
+    
+    @RequestMapping(value = "/cancel", method = RequestMethod.POST)
+    public String cancel() {
+        Session session = sessionManager.getCurrentSession();
+        session.removeAttribute(CUT_ID);
+        return "show";
+    }
+    
+    @RequestMapping(value = "/paste", method = RequestMethod.POST)
+    public String pasteSite() {
+        Session session = sessionManager.getCurrentSession();
+        String cutId = (String) session.getAttribute(CUT_ID);
+        PortalNodeSite node = getCurrentNode(null);
+        
+        try {
+            portalHierarchyService.moveNode(cutId, node.getId());
+        } catch (PermissionException e) {
+            throw new IllegalStateException(
+                    "You shouldn't have been able to paste the site as you don't have permission.", e);
+        }
+        session.removeAttribute(ManagerController.CUT_ID);
+        return "refresh";
+    }
 	
 	@RequestMapping("/*")
-	protected ModelAndView handleRequestInternal(HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
-
-		String currentPath = request.getPathInfo();
-		PortalNodeSite node = getCurrentNode(currentPath);
-
-		Session session = sessionManager.getCurrentSession();
-		String cutId = (String) session.getAttribute(ManagerController.CUT_ID);
-
-		Map<String, Object> model = new HashMap<String, Object>();
-		populateModel(model, request);
-
-		boolean topRefresh = false;
-
-		String action = request.getParameter(REQUEST_ACTION);
-		if (ACT_CUT.equals(action)) {
-			cutId = node.getId();
-			session.setAttribute(ManagerController.CUT_ID, cutId);
-		} else if (ACT_PASTE.equals(action)) {
-			if (cutId != null) {
-				portalHierarchyService.moveNode(cutId, node.getId());
-				session.removeAttribute(ManagerController.CUT_ID);
-				cutId = null;
-				topRefresh = true;
-			}
-		} else if (ACT_CANCEL.equals(action)) {
-			cutId = null;
-			session.removeAttribute(ManagerController.CUT_ID);
-		}
-
-		Map<String, Object> showModel = new HashMap<String, Object>();
-		populateModel(showModel, request);
-		populateSite(showModel, node);
-		showModel.put("topRefresh", topRefresh);
-		if (cutId != null) {
-			showModel.put("cutId", cutId);
-			PortalNode cutNode = portalHierarchyService.getNodeById(cutId);
-			showModel.put("cutChild",
-					node.getPath().startsWith(cutNode.getPath()));
-			showModel.put("cutNode", cutNode);
-			return new ModelAndView("cut", showModel);
-		} else {
-
-			return new ModelAndView("show", showModel);
-		}
+	protected String handleRequestInternal(HttpServletRequest request,
+			HttpServletResponse response) {
+        return getDefaultView();
+	}
+	
+	protected String getDefaultView() {
+	    // When we have cut an object then we want to use the different template.
+	    return (sessionManager.getCurrentSession().getAttribute(CUT_ID) != null)? "cut":"show";
 	}
 
 }
