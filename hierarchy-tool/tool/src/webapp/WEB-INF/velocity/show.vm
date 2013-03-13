@@ -4,7 +4,7 @@
 
 
 #if ($current)
-  <h3>Site: ${current.siteTitle}</h3>
+  <h3>Site Title: ${current.siteTitle}</h3>
   <dl>
   #if ($current.nodeUrl)
   <dt>#springMessage("show.site.url"):</dt>
@@ -30,7 +30,6 @@
 #end
 
 <form method="post" action="${rootUrl}/site/change">
-<input type="hidden" name="_action" value="act_selectsite"/>
 <input type="submit" value="#springMessage("button.replace.site")" #if(!$canReplace)disabled="true"#end/>
 </form>
 
@@ -39,47 +38,49 @@
 </form>
 
 #if($canMove)
-<form method="POST" action="${rootUrl}/cut">
-  <input type="submit" value="#springMessage("button.move.site")"/>
-</form>
+  <form method="POST" action="${rootUrl}/cut">
+    <input type="submit" value="#springMessage("button.move.site")"/>
+  </form>
 #end
 
 ## If you are here and can manage this site you can manage all redirects.
 <h3>#springMessage("show.redirects")</h3>
 #if ($redirectNodes.size() > 0)
-	#springBind("redirect-remove.id")
-	#springShowErrors("" "")
-	<form method="POST" action="${rootUrl}/redirect/delete">
-	<ul>
-		#foreach ($node in $redirectNodes)
-		<li>
-			$node.path ($node.title) to $node.url #if($node.appendPath)(#springMessage("show.with.path.appended"))#end
-			<input type="radio" name="id" value="$node.id">
-		</li>
-		#end
-	</ul>
-	<input type="hidden" name="_action" value="act_deleteredirect">
-	<input type="submit" value="#springMessage("button.delete")">
-	</form>
+  #springBind("redirect-remove.id")
+  #springShowErrors("" "")
+  <form method="POST" action="${rootUrl}/redirect/delete">
+  <ul>
+    #foreach ($node in $redirectNodes)
+    <li>
+      $node.path ($node.title) to $node.url #if($node.appendPath)(#springMessage("show.with.path.appended"))#end
+      <input type="radio" name="id" value="$node.id">
+    </li>
+    #end
+  </ul>
+  <input type="hidden" name="_action" value="act_deleteredirect">
+  <input type="submit" value="#springMessage("button.delete")">
+  </form>
 #else
-	<h4>#springMessage("show.no.redirects")</h4>
+  <h4>#springMessage("show.no.redirects")</h4>
 #end
 <h4>#springMessage("show.new.redirect")</h4>
 
 <form method="POST" action="${rootUrl}/redirect/add">
-	<label for="name">#springMessage("show.name")</label>
-	#springFormInput("redirect-add.name" "")
-	#springShowErrors("" "")<br>
-	<label for="title">#springMessage("show.title")</label>
-	#springFormInput("redirect-add.title" "id='title' maxlength='${titleMaxLength}'")
-	#springShowErrors("" "")<br>
-	<label for="url">#springMessage("show.url")</label>
-	#springFormInput("redirect-add.url" "id='url'")
-	#springShowErrors("" "")<br>
-	<label for="appendPath">#springMessage("show.appendPath")</label>
-	<input type="checkbox" name="appendPath" value="true" id="appendPath"><br>
-	<input type="hidden" name="_action" value="act_newredirect">
-	<input type="submit" value="#springMessage("button.new.redirect")">
+  <label for="name">#springMessage("show.name")</label>
+  #set ($placeholder = "#springMessage('show.name.placeholder')" )
+  #springFormInput("redirect-add.name" "id='name' placeholder='${placeholder}'")
+  #springShowErrors("" "")<br>
+  <label for="title">#springMessage("show.title")</label>
+  #set ($placeholder = "#springMessage('show.title.placeholder')" )
+  #springFormInput("redirect-add.title" "id='title' size='${titleMaxLength}' maxlength='${titleMaxLength}' placeholder='${placeholder}'")
+  #springShowErrors("" "")<br>
+  <label for="url">#springMessage("show.url")</label>
+  #set ($placeholder = "#springMessage('show.url.placeholder')" )
+  #springFormInput("redirect-add.url" "id='url' size='50' placeholder='${placeholder}'")
+  #springShowErrors("" "")<br>
+  <label for="appendPath">#springMessage("show.appendPath")</label>
+  <input type="checkbox" name="appendPath" value="true" id="appendPath"><br>
+  <input type="submit" value="#springMessage("button.new.redirect")">
 </form>
 
 
