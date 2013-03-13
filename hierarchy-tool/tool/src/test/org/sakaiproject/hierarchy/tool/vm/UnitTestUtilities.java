@@ -3,7 +3,7 @@ package org.sakaiproject.hierarchy.tool.vm;
 import org.junit.Assert;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class TestUtils {
+public class UnitTestUtilities {
 
     /**
      * For the routing to work correctly we need to have a context set and the pathinfo
