@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
@@ -21,11 +21,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.annotation.TargettedController;
 
 @Controller
+@RequestMapping("/delete")
 @TargettedController("sakai.hierarchy-manager")
 public class DeleteSiteController {
 
 	private SiteService siteService;
 	private PortalHierarchyService portalHierarchyService;
+    private VelocityControllerUtils velocityControllerUtils;
+    private ServerConfigurationService serverConfigurationService;
 
 	@Autowired
 	public void setSiteService(SiteService siteService) {
@@ -37,7 +40,19 @@ public class DeleteSiteController {
 		this.portalHierarchyService = portalHierarchyService;
 	}
 
-	@ModelAttribute("command")
+	@Autowired
+	public void setVelocityControllerUtils(VelocityControllerUtils velocityControllerUtils) {
+        this.velocityControllerUtils = velocityControllerUtils;
+    }
+
+    @Autowired
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
+    }
+
+	
+
+    @ModelAttribute("command")
 	public DeleteSiteCommand getDeleteSiteCommand() {
 		return new DeleteSiteCommand();
 	}
@@ -46,15 +61,13 @@ public class DeleteSiteController {
 
 	}
 
-
 	@RequestMapping(method = RequestMethod.GET)
 	public String showForm() {
 		return "delete";
 	}
 
-
 	@RequestMapping(method = RequestMethod.POST)
-	protected String doSubmitAction(HttpServletRequest request,
+	public String doSubmitAction(HttpServletRequest request,
 			HttpServletResponse response, @ModelAttribute("command") DeleteSiteCommand object, BindingResult result, ModelMap model)
 					throws Exception {
 		PortalNode node = portalHierarchyService.getCurrentPortalNode();
@@ -68,7 +81,7 @@ public class DeleteSiteController {
 				siteService.removeSite(((PortalNodeSite)node).getSite());
 			}
 
-			model.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ parentPath);
+			model.put("siteUrl", serverConfigurationService.getPortalUrl()+"/hierarchy"+ parentPath);
 
 			return "redirect";
 		} catch (IllegalStateException ise) {
@@ -80,23 +93,22 @@ public class DeleteSiteController {
 
 	@ModelAttribute
 	public void referenceData(HttpServletRequest request, ModelMap model) {
-		Map<String, Object> data = VelocityControllerUtils.referenceData(request);
-		PortalHierarchyService phs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
-		PortalNode current = phs.getCurrentPortalNode();
+		Map<String, Object> data = velocityControllerUtils.referenceData(request);
+		PortalNode current = portalHierarchyService.getCurrentPortalNode();
 		boolean canDelete = true;
 		boolean canDeleteSite = false;
 		boolean hasChildren = false;
 		boolean isSiteUsedAgain = false;
 		if (current != null) {
-			List<PortalNode> children = phs.getNodeChildren(current.getId());
+			List<PortalNode> children = portalHierarchyService.getNodeChildren(current.getId());
 			hasChildren = children.size() > 0;
 		}
-		canDelete = phs.canDeleteNode(current.getId());
+		canDelete = portalHierarchyService.canDeleteNode(current.getId());
 		boolean isSiteNode = current instanceof PortalNodeSite;
 		canDeleteSite = isSiteNode && 
 				siteService.allowRemoveSite(((PortalNodeSite)current).getSite().getId());
 		isSiteUsedAgain = isSiteNode && 
-				phs.getNodesWithSite(((PortalNodeSite)current).getSite().getId()).size() > 1;
+				portalHierarchyService.getNodesWithSite(((PortalNodeSite)current).getSite().getId()).size() > 1;
 				data.put("hasChildren", hasChildren);
 				data.put("canDelete", canDelete);
 				data.put("canDeleteSite", canDeleteSite);

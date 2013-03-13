@@ -5,11 +5,17 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class VelocityControllerUtils {
+    
+    @Autowired
+    private ServerConfigurationService serverConfigurationService;
 
-	public static Map<String, Object> referenceData(HttpServletRequest request)
+	public Map<String, Object> referenceData(HttpServletRequest request)
 	{
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("sakai_fragment","false");
@@ -18,7 +24,7 @@ public class VelocityControllerUtils {
 		model.put("sakai_onload", (String) request
 				.getAttribute("sakai.html.body.onload"));
 
-		String editor = ServerConfigurationService.getString("wysiwyg.editor");
+		String editor = serverConfigurationService.getString("wysiwyg.editor");
 		model.put("sakai_editor", editor);
 		model.put("sakai_library_path", "/library/");
 		
