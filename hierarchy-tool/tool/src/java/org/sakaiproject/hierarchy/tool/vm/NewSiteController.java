@@ -30,6 +30,7 @@ public class NewSiteController extends SimpleFormController
 	
 	private int titleMaxLength;
 	
+	 
 	public String getReturnPath() {
 		return returnPath;
 	}
@@ -38,7 +39,8 @@ public class NewSiteController extends SimpleFormController
 		this.returnPath = returnPath;
 	}
 
-	public NewSiteController() {
+
+    public NewSiteController() {
 		setCommandClass(NewSiteCommand.class);
 	}
 	
@@ -93,7 +95,8 @@ public class NewSiteController extends SimpleFormController
 	@Override
 	protected Map<String, String> referenceData(HttpServletRequest request, Object command, Errors errors)
 	{
-		Map referenceData = VelocityControllerUtils.referenceData(request);
+		Map referenceData = new VelocityControllerUtils(ServerConfigurationService.getInstance()).referenceData(request);
+
 		referenceData.put("titleMaxLength", getTitleMaxLength());
 		referenceData.put("mode", "new");
 		

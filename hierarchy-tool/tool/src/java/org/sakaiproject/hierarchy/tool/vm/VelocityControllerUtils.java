@@ -12,8 +12,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class VelocityControllerUtils {
     
-    @Autowired
     private ServerConfigurationService serverConfigurationService;
+
+    @Autowired
+    public VelocityControllerUtils(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
+    }
 
 	public Map<String, Object> referenceData(HttpServletRequest request)
 	{

@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.tool.api.Tool;
 import org.springframework.validation.BindException;
@@ -51,7 +52,7 @@ public class BringSiteController extends SimpleFormController {
     }
 
     public Map<String, Object> referenceData(HttpServletRequest request, Object command, Errors errors) {
-        return VelocityControllerUtils.referenceData(request);
+        return new VelocityControllerUtils(ServerConfigurationService.getInstance()).referenceData(request);
     }
 
     public SecurityService getSecurityService() {
