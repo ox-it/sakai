@@ -50,7 +50,6 @@ import org.springframework.web.servlet.DispatcherServlet;
 /**
  * This basically tests that the tool is working correctly without running it in
  * a container.
- * 
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestExecutionListeners(AutowiringTestExecutionListener.class)
@@ -73,6 +72,7 @@ public class ManageControllerTest {
 
 	@Before
 	public void setUp() {
+	    // Reset the injected mocks.
 	    reset(portalHierarchyService);
 	    reset(sessionManager);
 	    
