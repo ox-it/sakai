@@ -36,6 +36,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.annotation.TargettedController;
 import org.springframework.web.servlet.view.RedirectView;
@@ -46,7 +47,6 @@ public class ManagerController{
 
 	private static final Log log = LogFactory.getLog(ManagerController.class);
 
-	static final String ACT_EDIT_SITE = "act_editsite";
 
 	static final String ACT_SAVE_SITE = "act_savesite";
 
@@ -73,7 +73,6 @@ public class ManagerController{
 	private static final String CUT_ID = ManagerController.class.getName()
 			+ "#CUT_ID";
 
-	private SiteService siteService;
 	private SessionManager sessionManager;
 	private PortalHierarchyService portalHierarchyService;
 	private ServerConfigurationService serverConfigurationService;
@@ -90,12 +89,12 @@ public class ManagerController{
 	}
 
 	@ModelAttribute("redirect-add")
-	public AddRedirectCommand getAddRedirectComment() {
+	public AddRedirectCommand getAddRedirectCommand() {
 		return new AddRedirectCommand();
 	}
 
 	@ModelAttribute("redirect-remove")
-	public DeleteRedirectCommand getAddRedirectCommand() {
+	public DeleteRedirectCommand getRemoveRedirectCommand() {
 		return new DeleteRedirectCommand();
 	}
 
@@ -103,10 +102,6 @@ public class ManagerController{
 		super();
 	}
 
-	@Autowired
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
 
 	@Autowired
 	public void setSessionManager(SessionManager sessionManager) {
@@ -295,8 +290,7 @@ public class ManagerController{
 	public ModelAndView changeSite(HttpServletRequest request) {
 	    ToolSession toolSession = sessionManager.getCurrentToolSession();
 
-	    toolSession.setAttribute(Tool.HELPER_DONE_URL, buildUrl(request, "/site/save")
-	            + "?" + REQUEST_ACTION + "=" + ACT_EDIT_SITE);
+	    toolSession.setAttribute(Tool.HELPER_DONE_URL, buildUrl(request, "/site/save"));
 	    toolSession.setAttribute(SiteHelper.SITE_PICKER_PERMISSION,
 	            org.sakaiproject.site.api.SiteService.SelectionType.UPDATE);
 
@@ -307,6 +301,23 @@ public class ManagerController{
 	    return new ModelAndView(redirectView);
 	}
 	
+    // We throw an exception (MissingServletRequestParameterException) when siteId isn't present
+    @RequestMapping(value = "/site/save", method = RequestMethod.GET)
+    public String saveSite(HttpServletRequest request, @RequestParam(REQUEST_SITE) String siteId) {
+        PortalNode node = portalHierarchyService.getCurrentPortalNode();
+
+        if (siteId != null && siteId.length() > 0) {
+            try {
+                portalHierarchyService.changeSite(node.getId(), siteId);
+            } catch (PermissionException e) {
+                // error? we have a redirect so will anything we do persist?
+                throw new IllegalStateException(
+                        "You shouldn't have been able to select a site as you don't have permission.", e);
+            }
+        }
+        return "refresh";
+    }
+	
 	@RequestMapping("/*")
 	protected ModelAndView handleRequestInternal(HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
@@ -314,7 +325,6 @@ public class ManagerController{
 		String currentPath = request.getPathInfo();
 		PortalNodeSite node = getCurrentNode(currentPath);
 
-		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		Session session = sessionManager.getCurrentSession();
 		String cutId = (String) session.getAttribute(ManagerController.CUT_ID);
 
@@ -324,33 +334,7 @@ public class ManagerController{
 		boolean topRefresh = false;
 
 		String action = request.getParameter(REQUEST_ACTION);
-		if (ACT_EDIT_SITE.equals(action)) {
-			Map<String, Object> editModel = new HashMap<String, Object>();
-			populateModel(editModel, request);
-			editModel.put("old", createSiteMap(node.getSite()));
-			// Check to see if the user has come back from helper.
-			Object siteAttribute = toolSession
-					.getAttribute(SiteHelper.SITE_PICKER_SITE_ID);
-			toolSession.removeAttribute(SiteHelper.SITE_PICKER_SITE_ID);
-			if (siteAttribute instanceof String) {
-				try {
-					Site site = siteService.getSite((String) siteAttribute);
-					editModel.put("new", createSiteMap(site));
-					return new ModelAndView("replace", editModel);
-				} catch (IdUnusedException iue) {
-					log.warn("Couldn't find site returned by helper: "
-							+ siteAttribute);
-					// TODO Display message to user.
-				}
-			}
-		} else if (ACT_SAVE_SITE.equals(action)) {
-			String siteId = request.getParameter(REQUEST_SITE);
-
-			if (siteId != null && siteId.length() > 0) {
-				portalHierarchyService.changeSite(node.getId(), siteId);
-				topRefresh = true;
-			}
-		} else if (ACT_CUT.equals(action)) {
+		if (ACT_CUT.equals(action)) {
 			cutId = node.getId();
 			session.setAttribute(ManagerController.CUT_ID, cutId);
 		} else if (ACT_PASTE.equals(action)) {
@@ -366,8 +350,6 @@ public class ManagerController{
 		}
 
 		Map<String, Object> showModel = new HashMap<String, Object>();
-		// This is so that we have one to show.
-		showModel.put("command", new AddRedirectCommand());
 		populateModel(showModel, request);
 		populateSite(showModel, node);
 		showModel.put("topRefresh", topRefresh);
