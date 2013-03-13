@@ -10,13 +10,11 @@
       <div class="instr">
         $springMacroRequestContext.getMessage("cut.intro", [ $cutNode.site.title, $cutNode.path ])
       </div>
-      <form method="POST" action="${rootUrl}">
-      <input type="hidden" name="_action" value="act_paste"/>
+      <form method="POST" action="${rootUrl}/paste">
       <input type="submit" value="#springMessage("cut.paste")"/>
       </form>
     #end #end
-<form method="POST" action="${rootUrl}">
-<input type="hidden" name="_action" value="act_cancel"/>
+<form method="POST" action="${rootUrl}/cancel">
 <input type="submit" value="#springMessage("button.cancel")"/>
 </form>
 

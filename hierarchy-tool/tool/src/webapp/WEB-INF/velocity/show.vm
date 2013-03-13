@@ -39,8 +39,7 @@
 </form>
 
 #if($canMove)
-<form method="POST" action="${rootUrl}">
-  <input type="hidden" name="_action" value="act_cut"/>
+<form method="POST" action="${rootUrl}/cut">
   <input type="submit" value="#springMessage("button.move.site")"/>
 </form>
 #end
