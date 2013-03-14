@@ -521,12 +521,22 @@ public class HierarchyHandler extends SiteHandler {
 			if (node instanceof PortalNodeSite) {
 				Site site = ((PortalNodeSite)node).getSite();
 				detail.put("isPublished", Boolean.toString(site.isPublished()));
+				detail.put("type", "icon-sakai-subsite");
 				detail.put("siteUrl", site.getUrl());
 				detail.put("shortDescription", Web.escapeHtml(site.getShortDescription()));
 				detail.put("siteTitle", Web.escapeHtml(site.getTitle()));
 			} else if (node instanceof PortalNodeRedirect) {
+			    PortalNodeRedirect redirect = (PortalNodeRedirect)node;
 				detail.put("isPublished", "true");
-				detail.put("siteUrl", current.getSite().getUrl()+ "/"+ node.getName()+"/");
+				detail.put("type", redirect.getUrl().contains("://")?
+				        "icon-sakai-redirect-external":
+				        "icon-sakai-redirect-internal");
+				String url = current.getSite().getUrl();
+				if (!url.endsWith("/")) {
+				    url += "/";
+				}
+				url += node.getName() + "/";
+				detail.put("siteUrl", url);
 				detail.put("shortDescription", "");
 				detail.put("siteTitle", Web.escapeHtml(node.getTitle()));
 			}
