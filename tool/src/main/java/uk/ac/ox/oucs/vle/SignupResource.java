@@ -40,8 +40,6 @@ import org.codehaus.jackson.map.type.TypeFactory;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 import com.sun.jersey.api.view.Viewable;
-import com.sun.jersey.server.impl.ResponseBuilderImpl;
-
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 //@Path("/signup")
