@@ -611,7 +611,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	/**
 	 * Signup by Administrator
 	 */
-	public void signup(String userId, String courseId, Set<String> componentIds, String supervisorId) {
+	public CourseSignup signup(String userId, String courseId, Set<String> componentIds, String supervisorId) {
 		
 		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
 		if (groupDao == null) {
@@ -669,12 +669,13 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		
 		accept(signupId, false, null);
+		return new CourseSignupImpl(signupDao, this);
 	}
 
 	/**
 	 * Signup by Student
 	 */
-	public void signup(String courseId, Set<String> componentIds, String supervisorEmail,
+	public CourseSignup signup(String courseId, Set<String> componentIds, String supervisorEmail,
 			String message){
 
 		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
@@ -797,6 +798,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		} else {
 			accept(signupId, false, null);
 		}
+		
+		return new CourseSignupImpl(signupDao, this);
 	}
 	
 	/**
