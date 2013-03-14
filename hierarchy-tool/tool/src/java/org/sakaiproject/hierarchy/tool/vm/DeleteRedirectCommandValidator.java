@@ -14,8 +14,7 @@ public class DeleteRedirectCommandValidator {
 	}
 
 	public void validate(Object target, Errors errors) {
-		ValidationUtils
-				.rejectIfEmpty(errors, "id", "validator.nothing.selected");
+		ValidationUtils.rejectIfEmpty(errors, "id", "validator.nothing.selected");
 	}
 
 }

@@ -7,6 +7,5 @@ import org.springframework.web.servlet.ModelAndView;
 
 public interface ExceptionHandler {
 
-	public ModelAndView handleException(HttpServletRequest request,
-			HttpServletResponse response, Exception ex);
+	public ModelAndView handleException(HttpServletRequest request, HttpServletResponse response, Exception ex);
 }

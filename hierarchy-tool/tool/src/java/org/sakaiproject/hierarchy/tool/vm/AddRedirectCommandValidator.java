@@ -18,8 +18,7 @@ public class AddRedirectCommandValidator extends BaseSiteValidator {
 			AddRedirectCommand command = (AddRedirectCommand) target;
 			checkName(errors, command.getName());
 			checkTitle(errors, command.getTitle());
-			ValidationUtils.rejectIfEmpty(errors, "url",
-					"validator.url.empty");
+			ValidationUtils.rejectIfEmpty(errors, "url", "validator.url.empty");
 		}
 	}
 

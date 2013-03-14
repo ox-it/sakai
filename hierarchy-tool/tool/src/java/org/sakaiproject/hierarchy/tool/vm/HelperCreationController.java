@@ -9,9 +9,9 @@ import org.springframework.web.servlet.mvc.annotation.TargettedController;
 @RequestMapping("/create*")
 public class HelperCreationController extends HelperController {
 
-    @Override
-    public String getHelperId() {
-        return "sakai.sitesetup";
-    }
+	@Override
+	public String getHelperId() {
+		return "sakai.sitesetup";
+	}
 
 }

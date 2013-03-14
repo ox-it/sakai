@@ -1,10 +1,11 @@
 package org.sakaiproject.hierarchy.tool.vm;
 
 /**
- * When deleting a site we might want to remove the site as well.
- * This command object is to track if we want to remove the site.
+ * When deleting a site we might want to remove the site as well. This command
+ * object is to track if we want to remove the site.
+ * 
  * @author buckett
- *
+ * 
  */
 public class DeleteSiteCommand {
 
@@ -20,5 +21,5 @@ public class DeleteSiteCommand {
 	public void setDeleteSite(boolean deleteSite) {
 		this.deleteSite = deleteSite;
 	}
-	
+
 }

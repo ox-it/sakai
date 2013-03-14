@@ -27,8 +27,8 @@ public class DeleteSiteController {
 
 	private SiteService siteService;
 	private PortalHierarchyService portalHierarchyService;
-    private VelocityControllerUtils velocityControllerUtils;
-    private ServerConfigurationService serverConfigurationService;
+	private VelocityControllerUtils velocityControllerUtils;
+	private ServerConfigurationService serverConfigurationService;
 
 	@Autowired
 	public void setSiteService(SiteService siteService) {
@@ -42,17 +42,15 @@ public class DeleteSiteController {
 
 	@Autowired
 	public void setVelocityControllerUtils(VelocityControllerUtils velocityControllerUtils) {
-        this.velocityControllerUtils = velocityControllerUtils;
-    }
+		this.velocityControllerUtils = velocityControllerUtils;
+	}
 
-    @Autowired
+	@Autowired
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
+		this.serverConfigurationService = serverConfigurationService;
+	}
 
-	
-
-    @ModelAttribute("command")
+	@ModelAttribute("command")
 	public DeleteSiteCommand getDeleteSiteCommand() {
 		return new DeleteSiteCommand();
 	}
@@ -67,21 +65,20 @@ public class DeleteSiteController {
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
-	public String doSubmitAction(HttpServletRequest request,
-			HttpServletResponse response, @ModelAttribute("command") DeleteSiteCommand object, BindingResult result, ModelMap model)
-					throws Exception {
+	public String doSubmitAction(HttpServletRequest request, HttpServletResponse response,
+			@ModelAttribute("command") DeleteSiteCommand object, BindingResult result, ModelMap model) throws Exception {
 		PortalNode node = portalHierarchyService.getCurrentPortalNode();
 		DeleteSiteCommand command = (DeleteSiteCommand) object;
 		List<PortalNodeSite> nodes = portalHierarchyService.getNodesFromRoot(node.getId());
-		String parentPath = nodes.get(nodes.size()-1).getPath();
+		String parentPath = nodes.get(nodes.size() - 1).getPath();
 		try {
 			portalHierarchyService.deleteNode(node.getId());
 			// Do we want to remove the site?
 			if (command.isDeleteSite() && node instanceof PortalNodeSite) {
-				siteService.removeSite(((PortalNodeSite)node).getSite());
+				siteService.removeSite(((PortalNodeSite) node).getSite());
 			}
 
-			model.put("siteUrl", serverConfigurationService.getPortalUrl()+"/hierarchy"+ parentPath);
+			model.put("siteUrl", serverConfigurationService.getPortalUrl() + "/hierarchy" + parentPath);
 
 			return "redirect";
 		} catch (IllegalStateException ise) {
@@ -105,17 +102,16 @@ public class DeleteSiteController {
 		}
 		canDelete = portalHierarchyService.canDeleteNode(current.getId());
 		boolean isSiteNode = current instanceof PortalNodeSite;
-		canDeleteSite = isSiteNode && 
-				siteService.allowRemoveSite(((PortalNodeSite)current).getSite().getId());
-		isSiteUsedAgain = isSiteNode && 
-				portalHierarchyService.getNodesWithSite(((PortalNodeSite)current).getSite().getId()).size() > 1;
-				data.put("hasChildren", hasChildren);
-				data.put("canDelete", canDelete);
-				data.put("canDeleteSite", canDeleteSite);
-				data.put("isSiteUsedAgain", isSiteUsedAgain);
-				data.put("rootUrl", request.getContextPath()+request.getServletPath());
+		canDeleteSite = isSiteNode && siteService.allowRemoveSite(((PortalNodeSite) current).getSite().getId());
+		isSiteUsedAgain = isSiteNode
+				&& portalHierarchyService.getNodesWithSite(((PortalNodeSite) current).getSite().getId()).size() > 1;
+		data.put("hasChildren", hasChildren);
+		data.put("canDelete", canDelete);
+		data.put("canDeleteSite", canDeleteSite);
+		data.put("isSiteUsedAgain", isSiteUsedAgain);
+		data.put("rootUrl", request.getContextPath() + request.getServletPath());
 
-				model.putAll(data);
+		model.putAll(data);
 	}
 
 }

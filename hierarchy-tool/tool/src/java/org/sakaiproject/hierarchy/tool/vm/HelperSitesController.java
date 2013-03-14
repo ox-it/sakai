@@ -9,9 +9,9 @@ import org.springframework.web.servlet.mvc.annotation.TargettedController;
 @RequestMapping("/sites*")
 public class HelperSitesController extends HelperController {
 
-    @Override
-    public String getHelperId() {
-        return "sakai.sitebrowser";
-    }
+	@Override
+	public String getHelperId() {
+		return "sakai.sitebrowser";
+	}
 
 }

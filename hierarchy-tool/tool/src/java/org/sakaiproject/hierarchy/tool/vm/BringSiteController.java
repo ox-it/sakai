@@ -17,50 +17,50 @@ import org.springframework.web.servlet.mvc.SimpleFormController;
 
 public class BringSiteController extends SimpleFormController {
 
-    private String returnPath;
-    private SecurityService securityService;
+	private String returnPath;
+	private SecurityService securityService;
 
-    public BringSiteController() {
-        setCommandClass(Object.class);
-    }
+	public BringSiteController() {
+		setCommandClass(Object.class);
+	}
 
-    @Override
-    protected ModelAndView onSubmit(HttpServletRequest request, HttpServletResponse response, Object command,
-            BindException errors) throws Exception {
-        HttpSession session = request.getSession();
+	@Override
+	protected ModelAndView onSubmit(HttpServletRequest request, HttpServletResponse response, Object command,
+			BindException errors) throws Exception {
+		HttpSession session = request.getSession();
 
-        session.setAttribute(Tool.HELPER_DONE_URL, request.getContextPath() + request.getServletPath()
-                + getReturnPath());
-        session.setAttribute(SiteHelper.SITE_CREATE_START, Boolean.TRUE);
-        if (securityService.isSuperUser()) {
-            session.setAttribute(SiteHelper.SITE_PICKER_PERMISSION,
-                    org.sakaiproject.site.api.SiteService.SelectionType.ANY);
-        } else {
-            session.setAttribute(SiteHelper.SITE_PICKER_PERMISSION,
-                    org.sakaiproject.site.api.SiteService.SelectionType.UPDATE);
-        }
+		session.setAttribute(Tool.HELPER_DONE_URL, request.getContextPath() + request.getServletPath()
+				+ getReturnPath());
+		session.setAttribute(SiteHelper.SITE_CREATE_START, Boolean.TRUE);
+		if (securityService.isSuperUser()) {
+			session.setAttribute(SiteHelper.SITE_PICKER_PERMISSION,
+					org.sakaiproject.site.api.SiteService.SelectionType.ANY);
+		} else {
+			session.setAttribute(SiteHelper.SITE_PICKER_PERMISSION,
+					org.sakaiproject.site.api.SiteService.SelectionType.UPDATE);
+		}
 
-        return super.onSubmit(request, response, command, errors);
-    }
+		return super.onSubmit(request, response, command, errors);
+	}
 
-    public String getReturnPath() {
-        return returnPath;
-    }
+	public String getReturnPath() {
+		return returnPath;
+	}
 
-    public void setReturnPath(String returnPath) {
-        this.returnPath = returnPath;
-    }
+	public void setReturnPath(String returnPath) {
+		this.returnPath = returnPath;
+	}
 
-    public Map<String, Object> referenceData(HttpServletRequest request, Object command, Errors errors) {
-        return new VelocityControllerUtils(ServerConfigurationService.getInstance()).referenceData(request);
-    }
+	public Map<String, Object> referenceData(HttpServletRequest request, Object command, Errors errors) {
+		return new VelocityControllerUtils(ServerConfigurationService.getInstance()).referenceData(request);
+	}
 
-    public SecurityService getSecurityService() {
-        return securityService;
-    }
+	public SecurityService getSecurityService() {
+		return securityService;
+	}
 
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
 
 }

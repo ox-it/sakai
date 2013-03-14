@@ -1,6 +1,5 @@
 package org.sakaiproject.hierarchy.tool.vm;
 
-
 import org.springframework.validation.Errors;
 
 public class NewSiteValidator extends BaseSiteValidator {

@@ -11,29 +11,26 @@ import org.springframework.stereotype.Component;
 
 @Component("velocityControllerUtils")
 public class VelocityControllerUtils {
-    
-    private ServerConfigurationService serverConfigurationService;
 
-    @Autowired
-    public VelocityControllerUtils(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
+	private ServerConfigurationService serverConfigurationService;
 
-	public Map<String, Object> referenceData(HttpServletRequest request)
-	{
+	@Autowired
+	public VelocityControllerUtils(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	public Map<String, Object> referenceData(HttpServletRequest request) {
 		Map<String, Object> model = new HashMap<String, Object>();
-		model.put("sakai_fragment","false");
-		model.put("sakai_head", (String) request
-				.getAttribute("sakai.html.head"));
-		model.put("sakai_onload", (String) request
-				.getAttribute("sakai.html.body.onload"));
+		model.put("sakai_fragment", "false");
+		model.put("sakai_head", (String) request.getAttribute("sakai.html.head"));
+		model.put("sakai_onload", (String) request.getAttribute("sakai.html.body.onload"));
 
 		String editor = serverConfigurationService.getString("wysiwyg.editor");
 		model.put("sakai_editor", editor);
 		model.put("sakai_library_path", "/library/");
-		
-		model.put("rootUrl", request.getContextPath()+request.getServletPath());
+
+		model.put("rootUrl", request.getContextPath() + request.getServletPath());
 		return model;
 	}
-	
+
 }

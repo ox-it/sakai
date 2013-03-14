@@ -10,7 +10,7 @@ public class CreateSiteValidator implements Validator {
 	}
 
 	public void validate(Object object, Errors errors) {
-		CreateSiteCommand command = (CreateSiteCommand)object;
+		CreateSiteCommand command = (CreateSiteCommand) object;
 		if (!command.isCancelled()) {
 			if (command.getName() == null || command.getName().length() == 0) {
 				errors.reject("validator.name.required");
