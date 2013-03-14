@@ -7,7 +7,6 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.PermissionException;
@@ -154,11 +153,11 @@ public class ManagerController{
 
 	@ModelAttribute
 	public void referenceData(HttpServletRequest request, Model model) {
-		populateModel(model, request);
 	    model.addAllAttributes(velocityControllerUtils.referenceData(request));
+		populateModelShow(model, request);
 	}
 
-	protected void populateModel(Model model, HttpServletRequest request) {
+	protected Model populateModelShow(Model model, HttpServletRequest request) {
 
 		PortalNodeSite node = portalHierarchyService.getCurrentPortalNode();
 
@@ -200,7 +199,12 @@ public class ManagerController{
 		}
 		model.addAttribute("redirectNodes", redirectNodes);
 		
+		return model;
 
+	}
+
+    protected Model populateModelCut(Model model) {
+        PortalNodeSite node = portalHierarchyService.getCurrentPortalNode();
         Session session = sessionManager.getCurrentSession();
         String cutId = (String) session.getAttribute(ManagerController.CUT_ID);
         
@@ -213,8 +217,8 @@ public class ManagerController{
                 model.addAttribute("cutNode", cutNode);
             }
         }
-
-	}
+        return model;
+    }
 
 	@RequestMapping(value = "/redirect/add", method = RequestMethod.POST)
 	public String addRedirect(
@@ -294,10 +298,11 @@ public class ManagerController{
     }
     
     @RequestMapping(value = "/cut", method = RequestMethod.POST)
-    public String cutSite(HttpServletRequest request) {
+    public ModelAndView cutSite(HttpServletRequest request, Model model) {
         Session session = sessionManager.getCurrentSession();
         session.setAttribute(CUT_ID, getCurrentNode(request.getPathInfo()).getId());
-        return "cut";
+        // Have to update the model as we've set the cut-id now.
+        return new ModelAndView("cut", populateModelCut(model).asMap());
     }
     
     @RequestMapping(value = "/cancel", method = RequestMethod.POST)
@@ -324,14 +329,10 @@ public class ManagerController{
     }
 	
 	@RequestMapping("/*")
-	protected String handleRequestInternal(HttpServletRequest request,
-			HttpServletResponse response) {
-        return getDefaultView();
-	}
-	
-	protected String getDefaultView() {
-	    // When we have cut an object then we want to use the different template.
-	    return (sessionManager.getCurrentSession().getAttribute(CUT_ID) != null)? "cut":"show";
+	protected ModelAndView handleRequestInternal(Model model) {
+        return (sessionManager.getCurrentSession().getAttribute(CUT_ID) != null)?
+                new ModelAndView("cut", populateModelCut(model).asMap()):
+                new ModelAndView("show", model.asMap());
 	}
 
 }
