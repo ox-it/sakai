@@ -5,9 +5,11 @@ import org.springframework.test.context.TestContext;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 /**
- * This is needed as by default the test bean doesn't have it's properties autowired up.
+ * This is needed as by default the test bean doesn't have it's properties
+ * autowired up.
+ * 
  * @author buckett
- *
+ * 
  */
 public class AutowiringTestExecutionListener extends DependencyInjectionTestExecutionListener {
 
@@ -19,6 +21,5 @@ public class AutowiringTestExecutionListener extends DependencyInjectionTestExec
 		beanFactory.initializeBean(bean, testContext.getTestClass().getName());
 		testContext.removeAttribute(REINJECT_DEPENDENCIES_ATTRIBUTE);
 	}
-
 
 }

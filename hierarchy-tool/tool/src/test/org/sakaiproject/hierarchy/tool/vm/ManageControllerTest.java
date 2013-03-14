@@ -53,8 +53,7 @@ import org.springframework.web.servlet.DispatcherServlet;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestExecutionListeners(AutowiringTestExecutionListener.class)
-@ContextConfiguration(locations = { "classpath:test-resources.xml",
-		"classpath:applicationContext.xml" }, loader = MockWebApplicationContextLoader.class)
+@ContextConfiguration(locations = { "classpath:test-resources.xml", "classpath:applicationContext.xml" }, loader = MockWebApplicationContextLoader.class)
 @MockWebApplication(name = "sakai.hierarchy-manager", webapp = "src/webapp")
 @Configurable(autowire = Autowire.BY_TYPE)
 public class ManageControllerTest {
@@ -68,14 +67,14 @@ public class ManageControllerTest {
 	@Autowired
 	private SessionManager sessionManager;
 
-    private Session session;
+	private Session session;
 
 	@Before
 	public void setUp() {
-	    // Reset the injected mocks.
-	    reset(portalHierarchyService);
-	    reset(sessionManager);
-	    
+		// Reset the injected mocks.
+		reset(portalHierarchyService);
+		reset(sessionManager);
+
 		Site site = mock(Site.class);
 		when(site.getId()).thenReturn("site-id");
 		when(site.getTitle()).thenReturn("Site Title");
@@ -104,8 +103,7 @@ public class ManageControllerTest {
 	}
 
 	@Test
-	public void testRedirectAddEmpty() throws ServletException, IOException,
-			PermissionException {
+	public void testRedirectAddEmpty() throws ServletException, IOException, PermissionException {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/context/redirect/add");
 		request.setContextPath("/context");
 		request.setPathInfo("/redirect/add");
@@ -113,16 +111,14 @@ public class ManageControllerTest {
 		servlet.service(request, response);
 
 		assertEquals(200, response.getStatus());
-		assertTrue(response.getContentAsString().contains(
-				"Title cannot be empty."));
+		assertTrue(response.getContentAsString().contains("Title cannot be empty."));
 		// Check that validation should have stopped the request.
-		verify(portalHierarchyService, never()).newRedirectNode(anyString(),
-				anyString(), anyString(), anyString(), anyBoolean());
+		verify(portalHierarchyService, never()).newRedirectNode(anyString(), anyString(), anyString(), anyString(),
+				anyBoolean());
 	}
 
 	@Test
-	public void testRedirectAddGood() throws ServletException, IOException,
-			PermissionException {
+	public void testRedirectAddGood() throws ServletException, IOException, PermissionException {
 		// Check we attempt to call the service when everything is ok.
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/context/redirect/add");
 		request.setContextPath("/context");
@@ -136,14 +132,13 @@ public class ManageControllerTest {
 
 		assertEquals(200, response.getStatus());
 
-		verify(portalHierarchyService, times(1)).newRedirectNode("id",
-				"name-value", "urlValue", "titleValue", false);
+		verify(portalHierarchyService, times(1)).newRedirectNode("id", "name-value", "urlValue", "titleValue", false);
 	}
 
 	@Test
-	public void testRedirectAddExists() throws ServletException, IOException,
-			PermissionException {
-		when(portalHierarchyService.newRedirectNode("id", "name-value", "urlValue", "titleValue", false)).thenThrow(new IllegalArgumentException());
+	public void testRedirectAddExists() throws ServletException, IOException, PermissionException {
+		when(portalHierarchyService.newRedirectNode("id", "name-value", "urlValue", "titleValue", false)).thenThrow(
+				new IllegalArgumentException());
 		// Check we attempt to call the service when everything is ok.
 		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/redirect/add");
 		request.addParameter("name", "name-value");
@@ -156,129 +151,128 @@ public class ManageControllerTest {
 		assertEquals(200, response.getStatus());
 		assertTrue(response.getContentAsString().contains("The name is already used here."));
 	}
-	
 
-    @Test
-    public void testRedirectDeleteNone() throws ServletException, IOException,
-            PermissionException {
-        // Need existing redirect or we don't see the error
-        PortalNodeRedirect redirect = mock(PortalNodeRedirect.class);
-        when(redirect.getId()).thenReturn("redirect");
-        when(redirect.getName()).thenReturn("Redirect Name");
-        when(redirect.getUrl()).thenReturn("/name/redirect");
-        when(portalHierarchyService.getNodeChildren(anyString())).thenReturn(Arrays.asList(new PortalNode[]{redirect}));
-        
-        MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/redirect/delete");
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        servlet.service(request, response);
+	@Test
+	public void testRedirectDeleteNone() throws ServletException, IOException, PermissionException {
+		// Need existing redirect or we don't see the error
+		PortalNodeRedirect redirect = mock(PortalNodeRedirect.class);
+		when(redirect.getId()).thenReturn("redirect");
+		when(redirect.getName()).thenReturn("Redirect Name");
+		when(redirect.getUrl()).thenReturn("/name/redirect");
+		when(portalHierarchyService.getNodeChildren(anyString())).thenReturn(
+				Arrays.asList(new PortalNode[] { redirect }));
 
-        assertEquals(200, response.getStatus());
-        // Check that validation should have stopped the request.
-        verify(portalHierarchyService, never()).deleteNode(anyString());
-        assertTrue(response.getContentAsString().contains("You have not selected an item."));
-    }
+		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/redirect/delete");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		servlet.service(request, response);
 
-    @Test
-    public void testRedirectDeleteOk() throws ServletException, IOException,
-            PermissionException {
-        // Check we attempt to call the service when everything is ok.
-        MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/redirect/delete");
-        request.addParameter("id", "id-to-remove");
-        MockHttpServletResponse response = new MockHttpServletResponse();
+		assertEquals(200, response.getStatus());
+		// Check that validation should have stopped the request.
+		verify(portalHierarchyService, never()).deleteNode(anyString());
+		assertTrue(response.getContentAsString().contains("You have not selected an item."));
+	}
 
-        servlet.service(request, response);
+	@Test
+	public void testRedirectDeleteOk() throws ServletException, IOException, PermissionException {
+		// Check we attempt to call the service when everything is ok.
+		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/redirect/delete");
+		request.addParameter("id", "id-to-remove");
+		MockHttpServletResponse response = new MockHttpServletResponse();
 
-        assertEquals(200, response.getStatus());
+		servlet.service(request, response);
 
-        verify(portalHierarchyService, times(1)).deleteNode("id-to-remove");
-    }
+		assertEquals(200, response.getStatus());
 
-    @Test
-    public void testRedirectDeletePermission() throws ServletException, IOException,
-            PermissionException {
-        
-        // Need existing redirect or we don't see the error
-        PortalNodeRedirect redirect = mock(PortalNodeRedirect.class);
-        when(redirect.getId()).thenReturn("redirect");
-        when(redirect.getName()).thenReturn("Redirect Name");
-        when(redirect.getUrl()).thenReturn("/name/redirect");
-        when(portalHierarchyService.getNodeChildren(anyString())).thenReturn(Arrays.asList(new PortalNode[]{redirect}));
+		verify(portalHierarchyService, times(1)).deleteNode("id-to-remove");
+	}
 
-        // As it's a void method.
-        doThrow(PermissionException.class).when(portalHierarchyService).deleteNode(anyString());
-        // Check we attempt to call the service when everything is ok.
-        MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/redirect/delete");
-        request.addParameter("id", "id-to-remove");
-        MockHttpServletResponse response = new MockHttpServletResponse();
+	@Test
+	public void testRedirectDeletePermission() throws ServletException, IOException, PermissionException {
 
-        servlet.service(request, response);
+		// Need existing redirect or we don't see the error
+		PortalNodeRedirect redirect = mock(PortalNodeRedirect.class);
+		when(redirect.getId()).thenReturn("redirect");
+		when(redirect.getName()).thenReturn("Redirect Name");
+		when(redirect.getUrl()).thenReturn("/name/redirect");
+		when(portalHierarchyService.getNodeChildren(anyString())).thenReturn(
+				Arrays.asList(new PortalNode[] { redirect }));
 
-        assertEquals(200, response.getStatus());
-        assertContains("Failed due to lack of permission.", response.getContentAsString());
-    }
-    
-    @Test
-    public void testChangeSiteHelper() throws ServletException, IOException {
-        // Need a tool session for this.
-        ToolSession toolSession = mock(ToolSession.class);
-        when(sessionManager.getCurrentToolSession()).thenReturn(toolSession);
-        
-        MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/site/change");
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        servlet.service(request, response);
-        
-        assertNotNull(response.getRedirectedUrl());
+		// As it's a void method.
+		doThrow(PermissionException.class).when(portalHierarchyService).deleteNode(anyString());
+		// Check we attempt to call the service when everything is ok.
+		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/redirect/delete");
+		request.addParameter("id", "id-to-remove");
+		MockHttpServletResponse response = new MockHttpServletResponse();
 
-        ArgumentCaptor<String> attributeKeys = ArgumentCaptor.forClass(String.class);
-        verify(toolSession, Mockito.atLeastOnce()).setAttribute(attributeKeys.capture(), anyString());
-        assertTrue(attributeKeys.getAllValues().contains(SiteHelper.SITE_PICKER_PERMISSION));
-        assertTrue(attributeKeys.getAllValues().contains(Tool.HELPER_DONE_URL));
-    }
-    
-    @Test
-    public void testSaveSite() throws ServletException, IOException, PermissionException {
-        MockHttpServletRequest request = UnitTestUtilities.newRequest("GET", "/site/save");
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        request.setParameter(ManagerController.REQUEST_SITE, "new-site-id");
-        servlet.service(request, response);
-        
-        verify(portalHierarchyService, times(1)).changeSite("id", "new-site-id");
-    }
-    
-    @Test
-    // Here we don't set the new site ID and so the container will throw an exception.
-    @ExpectedException(MissingServletRequestParameterException.class)
-    public void testSaveSiteBad() throws ServletException, IOException, PermissionException {
-        MockHttpServletRequest request = UnitTestUtilities.newRequest("GET", "/site/save");
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        servlet.service(request, response);
-    }
-    
-    @Test
-    public void testCut() throws ServletException, IOException {
-        MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/cut");
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        servlet.service(request, response);
-        
-        verify(session).setAttribute(ManagerController.CUT_ID, "id");
-    }
-    
-    @Test
-    public void testCancel() throws ServletException, IOException {
-        MockHttpServletRequest request = UnitTestUtilities.newRequest("POST",  "/cancel");
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        servlet.service(request, response);
-        
-        verify(session).removeAttribute(ManagerController.CUT_ID);
-    }
-    
-    @Test
-    public void testPaste() throws PermissionException, ServletException, IOException {
-        when(session.getAttribute(ManagerController.CUT_ID)).thenReturn("other-node-id");
-        MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/paste");
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        servlet.service(request, response);
-        
-        verify(portalHierarchyService).moveNode("other-node-id", "id");
-    }
+		servlet.service(request, response);
+
+		assertEquals(200, response.getStatus());
+		assertContains("Failed due to lack of permission.", response.getContentAsString());
+	}
+
+	@Test
+	public void testChangeSiteHelper() throws ServletException, IOException {
+		// Need a tool session for this.
+		ToolSession toolSession = mock(ToolSession.class);
+		when(sessionManager.getCurrentToolSession()).thenReturn(toolSession);
+
+		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/site/change");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		servlet.service(request, response);
+
+		assertNotNull(response.getRedirectedUrl());
+
+		ArgumentCaptor<String> attributeKeys = ArgumentCaptor.forClass(String.class);
+		verify(toolSession, Mockito.atLeastOnce()).setAttribute(attributeKeys.capture(), anyString());
+		assertTrue(attributeKeys.getAllValues().contains(SiteHelper.SITE_PICKER_PERMISSION));
+		assertTrue(attributeKeys.getAllValues().contains(Tool.HELPER_DONE_URL));
+	}
+
+	@Test
+	public void testSaveSite() throws ServletException, IOException, PermissionException {
+		MockHttpServletRequest request = UnitTestUtilities.newRequest("GET", "/site/save");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		request.setParameter(ManagerController.REQUEST_SITE, "new-site-id");
+		servlet.service(request, response);
+
+		verify(portalHierarchyService, times(1)).changeSite("id", "new-site-id");
+	}
+
+	@Test
+	// Here we don't set the new site ID and so the container will throw an
+	// exception.
+	@ExpectedException(MissingServletRequestParameterException.class)
+	public void testSaveSiteBad() throws ServletException, IOException, PermissionException {
+		MockHttpServletRequest request = UnitTestUtilities.newRequest("GET", "/site/save");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		servlet.service(request, response);
+	}
+
+	@Test
+	public void testCut() throws ServletException, IOException {
+		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/cut");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		servlet.service(request, response);
+
+		verify(session).setAttribute(ManagerController.CUT_ID, "id");
+	}
+
+	@Test
+	public void testCancel() throws ServletException, IOException {
+		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/cancel");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		servlet.service(request, response);
+
+		verify(session).removeAttribute(ManagerController.CUT_ID);
+	}
+
+	@Test
+	public void testPaste() throws PermissionException, ServletException, IOException {
+		when(session.getAttribute(ManagerController.CUT_ID)).thenReturn("other-node-id");
+		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/paste");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		servlet.service(request, response);
+
+		verify(portalHierarchyService).moveNode("other-node-id", "id");
+	}
 }
