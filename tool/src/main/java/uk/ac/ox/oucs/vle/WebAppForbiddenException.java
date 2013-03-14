@@ -18,6 +18,9 @@ public class WebAppForbiddenException extends WebApplicationException {
 	public WebAppForbiddenException() {
 		super(Response
 				.status(Response.Status.FORBIDDEN)
+				// We set the type as when the request doesn't have an accept header
+				// jersey will attempt to convert a Map to application/octet-stream
+				// which will fail.
 				.type(MediaType.APPLICATION_JSON)
 				.entity(myMap)
 				.build());
