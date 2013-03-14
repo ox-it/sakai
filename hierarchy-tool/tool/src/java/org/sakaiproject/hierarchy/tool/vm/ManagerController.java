@@ -50,6 +50,7 @@ public class ManagerController{
 	private SessionManager sessionManager;
 	private PortalHierarchyService portalHierarchyService;
 	private ServerConfigurationService serverConfigurationService;
+	private VelocityControllerUtils velocityControllerUtils;
 
     @Autowired
     public void setSessionManager(SessionManager sessionManager) {
@@ -66,6 +67,13 @@ public class ManagerController{
 			ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
 	}
+
+    @Autowired
+	public void setVelocityControllerUtils(VelocityControllerUtils velocityControllerUtils) {
+        this.velocityControllerUtils = velocityControllerUtils;
+    }
+
+
 
 	@ModelAttribute("redirect-add")
 	public AddRedirectCommand getAddRedirectCommand() {
@@ -147,25 +155,11 @@ public class ManagerController{
 	@ModelAttribute
 	public void referenceData(HttpServletRequest request, Model model) {
 		populateModel(model, request);
+	    model.addAllAttributes(velocityControllerUtils.referenceData(request));
 	}
 
 	protected void populateModel(Model model, HttpServletRequest request) {
-		model.addAttribute("sakai_fragment", "false");
-		model.addAttribute("sakai_head",
-				(String) request.getAttribute("sakai.html.head"));
-		model.addAttribute("sakai_onload",
-				(String) request.getAttribute("sakai.html.body.onload"));
 
-		model.addAttribute("toolTitle", "Hierarchy Manager");
-		String editor = serverConfigurationService.getString("wysiwyg.editor");
-		model.addAttribute("sakai_editor", editor);
-		model.addAttribute("sakai_library_path", "/library/");
-		model.addAttribute("titleMaxLength",
-				serverConfigurationService.getInt("site.title.maxlength", 25));
-
-		model.addAttribute("rootUrl",
-				request.getContextPath() + request.getServletPath());
-		
 		PortalNodeSite node = portalHierarchyService.getCurrentPortalNode();
 
 		Map<String, Object> site = createSiteMap(node.getSite());
