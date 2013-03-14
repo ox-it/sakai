@@ -12,6 +12,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+/**
+ * Base controller for helpers. Subclasses should specify the helper ID
+ * and map it to a particular path.
+ * 
+ * @author Matthew Buckett
+ *
+ */
 public abstract class HelperController {
 
 	private static Log log = LogFactory.getLog(HelperController.class);

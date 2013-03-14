@@ -9,10 +9,12 @@ import org.springframework.validation.ValidationUtils;
 public class AddRedirectCommandValidator extends BaseSiteValidator {
 
 	@SuppressWarnings("rawtypes")
+	@Override
 	public boolean supports(Class clazz) {
 		return AddRedirectCommand.class.isAssignableFrom(clazz);
 	}
 
+	@Override
 	public void validate(Object target, Errors errors) {
 		if (target instanceof AddRedirectCommand) {
 			AddRedirectCommand command = (AddRedirectCommand) target;

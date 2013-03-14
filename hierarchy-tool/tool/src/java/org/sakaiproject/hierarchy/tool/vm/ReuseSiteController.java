@@ -53,6 +53,7 @@ public class ReuseSiteController extends SimpleFormController {
 
 	}
 
+	@Override
 	protected Object formBackingObject(HttpServletRequest request) throws Exception {
 		NewSiteCommand command = (NewSiteCommand) super.formBackingObject(request);
 		return command;

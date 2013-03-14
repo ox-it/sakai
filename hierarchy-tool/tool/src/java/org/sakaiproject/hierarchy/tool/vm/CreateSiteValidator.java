@@ -5,10 +5,13 @@ import org.springframework.validation.Validator;
 
 public class CreateSiteValidator implements Validator {
 
+	@SuppressWarnings("rawtypes")
+	@Override
 	public boolean supports(Class clazz) {
 		return CreateSiteCommand.class.isAssignableFrom(clazz);
 	}
 
+	@Override
 	public void validate(Object object, Errors errors) {
 		CreateSiteCommand command = (CreateSiteCommand) object;
 		if (!command.isCancelled()) {

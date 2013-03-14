@@ -12,6 +12,7 @@ import org.springframework.web.util.UrlPathHelper;
  */
 public class PathInfoHelper extends UrlPathHelper {
 
+	@Override
 	public String getLookupPathForRequest(HttpServletRequest request) {
 		String lookup = request.getPathInfo();
 		if (lookup == null)

@@ -24,7 +24,8 @@ public class RedirectViewResolver extends UrlBasedViewResolver implements Ordere
 	 * Don't need to specify class as we only ever deal with redirect and
 	 * forward prefixes.
 	 */
-	protected Class getViewClass() {
+	@Override
+	protected Class<AbstractView> getViewClass() {
 		return AbstractView.class;
 	}
 
@@ -38,6 +39,7 @@ public class RedirectViewResolver extends UrlBasedViewResolver implements Ordere
 	 * @see #loadView
 	 * @see #requiredViewClass
 	 */
+	@Override
 	protected View createView(String viewName, Locale locale) throws Exception {
 		// Check for special "redirect:" prefix.
 		if (viewName.startsWith(REDIRECT_URL_PREFIX)) {
@@ -52,10 +54,12 @@ public class RedirectViewResolver extends UrlBasedViewResolver implements Ordere
 		return null;
 	}
 
+	@Override
 	public int getOrder() {
 		return order;
 	}
 
+	@Override
 	public void setOrder(int order) {
 		this.order = order;
 	}
