@@ -1,6 +1,8 @@
 package org.sakaiproject.hierarchy.tool.vm;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,10 +16,6 @@ import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.hierarchy.api.model.PortalNodeRedirect;
 import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
-import org.sakaiproject.hierarchy.tool.vm.AddRedirectController.AddRedirectCommand;
-import org.sakaiproject.hierarchy.tool.vm.AddRedirectController.AddRedirectCommandValidator;
-import org.sakaiproject.hierarchy.tool.vm.DeleteRedirectController.DeleteRedirectCommand;
-import org.sakaiproject.hierarchy.tool.vm.DeleteRedirectController.DeleteRedirectCommandValidator;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.tool.api.Session;
@@ -45,11 +43,23 @@ public class ManagerController{
 
 	static final String CUT_ID = ManagerController.class.getName()
 			+ "#CUT_ID";
+	
+    // Sort by the title of the node.
+    private static Comparator<PortalNode> titleComparator = new Comparator<PortalNode>(){
+
+        @Override
+        public int compare(PortalNode o1, PortalNode o2) {
+            return o1.getTitle().compareTo(o2.getTitle());
+        }
+
+    };
 
 	private SessionManager sessionManager;
 	private PortalHierarchyService portalHierarchyService;
 	private ServerConfigurationService serverConfigurationService;
 	private VelocityControllerUtils velocityControllerUtils;
+
+
 
     @Autowired
     public void setSessionManager(SessionManager sessionManager) {
@@ -183,6 +193,8 @@ public class ManagerController{
 		// Need to list the redirect nodes.
 		List<PortalNode> nodeChildren = portalHierarchyService
 				.getNodeChildren(node.getId());
+	      
+        Collections.sort(nodeChildren, titleComparator);
 		List<Map<String, String>> redirectNodes = new ArrayList<Map<String, String>>();
 		for (PortalNode nodeChild : nodeChildren) {
 			if (nodeChild instanceof PortalNodeRedirect) {
@@ -197,6 +209,7 @@ public class ManagerController{
 				redirectNodes.add(redirectDetails);
 			}
 		}
+
 		model.addAttribute("redirectNodes", redirectNodes);
 		
 		model.addAttribute("titleMaxLength", serverConfigurationService.getInt("site.title.maxlength", 20));
