@@ -104,7 +104,6 @@ public class SignupResource {
 			throw new WebAppForbiddenException();
 		}
 		CourseSignup entity = courseService.signup(courseId, components, email, message);
-		//ResponseBuilder builder = new ResponseBuilderImpl();
 		ResponseBuilder builder = Response.status(Response.Status.CREATED);
 		builder.status(201);
 		builder.entity(entity);
