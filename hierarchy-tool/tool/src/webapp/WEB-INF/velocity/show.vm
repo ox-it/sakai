@@ -52,7 +52,7 @@
   <ul>
     #foreach ($node in $redirectNodes)
     <li>
-      $node.path ($node.title) to $node.url #if($node.appendPath)(#springMessage("show.with.path.appended"))#end
+      $node.title ($node.path) to <a href="$node.url" target="_new">$node.url</a> #if($node.appendPath)(#springMessage("show.with.path.appended"))#end
       <input type="radio" name="id" value="$node.id">
     </li>
     #end
