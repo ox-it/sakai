@@ -199,6 +199,7 @@ public class ManagerController{
 		}
 		model.addAttribute("redirectNodes", redirectNodes);
 		
+		model.addAttribute("titleMaxLength", serverConfigurationService.getInt("site.title.maxlength", 20));
 		return model;
 
 	}
