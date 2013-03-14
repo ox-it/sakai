@@ -1,21 +1,22 @@
 #chef_start()
 #chef_portletContainer()
 #chef_portletContent()
+
 <h3>#springMessage("cut.title")</h3>
-     #if($cutId == $current.nodeId)
-      <p>#springMessage("cut.another")</p>
-    #else #if($cutChild)
-       <p>#springMessage("cut.not")</p>
-    #else 
-      <div class="instr">
-        $springMacroRequestContext.getMessage("cut.intro", [ $cutNode.site.title, $cutNode.path ])
-      </div>
-      <form method="POST" action="${rootUrl}/paste">
-      <input type="submit" value="#springMessage("cut.paste")"/>
-      </form>
-    #end #end
+  #if($cutId == $current.nodeId)
+    <p>#springMessage("cut.another")</p>
+  #else #if($cutChild)
+   <p>#springMessage("cut.not")</p>
+  #else 
+    <div class="instr">
+      $springMacroRequestContext.getMessage("cut.intro", [ $cutNode.site.title, $cutNode.path ])
+    </div>
+    <form method="POST" action="${rootUrl}/paste">
+    <input type="submit" value="#springMessage("cut.paste")"/>
+    </form>
+  #end #end
 <form method="POST" action="${rootUrl}/cancel">
-<input type="submit" value="#springMessage("button.cancel")"/>
+  <input type="submit" value="#springMessage("button.cancel")"/>
 </form>
 
 #chef_portletContentEnd()
