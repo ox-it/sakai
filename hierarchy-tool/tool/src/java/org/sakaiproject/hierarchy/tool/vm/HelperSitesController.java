@@ -4,7 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.annotation.TargettedController;
 
-@Controller
+@Controller("siteBrowserHelper")
 @TargettedController("sakai.hierarchy-manager")
 @RequestMapping("/sites*")
 public class HelperSitesController extends HelperController {

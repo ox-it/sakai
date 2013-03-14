@@ -9,7 +9,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("velocityControllerUtils")
 public class VelocityControllerUtils {
     
     private ServerConfigurationService serverConfigurationService;
