@@ -47,7 +47,7 @@
 <h3>#springMessage("show.redirects")</h3>
 #if ($redirectNodes.size() > 0)
   #springBind("redirect-remove.id")
-  #springShowErrors("" "")
+  #springShowErrors("" "alertMessage")
   <form method="POST" action="${rootUrl}/redirect/delete">
   <ul>
     #foreach ($node in $redirectNodes)
@@ -69,15 +69,15 @@
   <label for="name">#springMessage("show.name")</label>
   #set ($placeholder = "#springMessage('show.name.placeholder')" )
   #springFormInput("redirect-add.name" "id='name' placeholder='${placeholder}'")
-  #springShowErrors("" "")<br>
+  #springShowErrors("" "alertMessageInline")<br>
   <label for="title">#springMessage("show.title")</label>
   #set ($placeholder = "#springMessage('show.title.placeholder')" )
   #springFormInput("redirect-add.title" "id='title' size='${titleMaxLength}' maxlength='${titleMaxLength}' placeholder='${placeholder}'")
-  #springShowErrors("" "")<br>
+  #springShowErrors("" "alertMessageInline")<br>
   <label for="url">#springMessage("show.url")</label>
   #set ($placeholder = "#springMessage('show.url.placeholder')" )
   #springFormInput("redirect-add.url" "id='url' size='50' placeholder='${placeholder}'")
-  #springShowErrors("" "")<br>
+  #springShowErrors("" "alertMessageInline")<br>
   <label for="appendPath">#springMessage("show.appendPath")</label>
   <input type="checkbox" name="appendPath" value="true" id="appendPath"><br>
   <input type="submit" value="#springMessage("button.new.redirect")">

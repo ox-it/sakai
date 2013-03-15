@@ -22,7 +22,14 @@ public class VelocityControllerUtils {
 	public Map<String, Object> referenceData(HttpServletRequest request) {
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("sakai_fragment", "false");
-		model.put("sakai_head", (String) request.getAttribute("sakai.html.head"));
+		StringBuilder headHtml = new StringBuilder();
+		String requestHeadHtml = (String) request.getAttribute("sakai.html.head");
+		if (requestHeadHtml != null) {
+			headHtml.append(requestHeadHtml);
+			headHtml.append("\n");
+		}
+		headHtml.append(additionHeadContent());
+		model.put("sakai_head", headHtml);
 		model.put("sakai_onload", (String) request.getAttribute("sakai.html.body.onload"));
 
 		String editor = serverConfigurationService.getString("wysiwyg.editor");
@@ -31,6 +38,13 @@ public class VelocityControllerUtils {
 
 		model.put("rootUrl", request.getContextPath() + request.getServletPath());
 		return model;
+	}
+
+	private String additionHeadContent() {
+		// The Sakai inline style defines borders which end up overlapping.
+		// Loading a CSS file out of the context isn't simple without hardcoding the
+		// context path and putting the file in /library creates a cross project dependency.
+		return "<style type='text/css'>span.alertMessageInline { border: none; }</style>";
 	}
 
 }
