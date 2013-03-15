@@ -91,17 +91,6 @@
 						</tr>
 					{/if}
 
-					{if categories_jacs.length > 0}
-						<tr>
-							<th>Subject categories</th>
-						<td>
-								{for category in categories_jacs}
-									${category}{if category_index != categories_jacs.length-1},{/if}
-								{/for}
-							</td>
-						</tr>
-					{/if}
-
 					{if categories_rm.length > 0}
 						<tr>
 							<th>Research Methods</th>
