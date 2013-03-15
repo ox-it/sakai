@@ -12,9 +12,9 @@ import org.springframework.web.servlet.view.UrlBasedViewResolver;
 /**
  * Very similar to UrlBasedViewResolver but if it doesn't seem to be a redirect
  * or forward view let another view resolver have a go.
- * 
+ *
  * @author buckett
- * 
+ *
  */
 public class RedirectViewResolver extends UrlBasedViewResolver implements Ordered {
 
@@ -35,12 +35,13 @@ public class RedirectViewResolver extends UrlBasedViewResolver implements Ordere
 	 * Not possible in loadView, as overridden loadView versions in subclasses
 	 * might rely on the superclass always creating instances of the required
 	 * view class.
-	 * 
+	 *
 	 * @see #loadView
 	 * @see #requiredViewClass
+	 * @return A redirect view if the prefix is present otherwise <code>null</code>.
 	 */
 	@Override
-	protected View createView(String viewName, Locale locale) throws Exception {
+	protected View createView(String viewName, Locale locale) {
 		// Check for special "redirect:" prefix.
 		if (viewName.startsWith(REDIRECT_URL_PREFIX)) {
 			String redirectUrl = viewName.substring(REDIRECT_URL_PREFIX.length());

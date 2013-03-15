@@ -6,9 +6,9 @@ import org.springframework.web.util.UrlPathHelper;
 
 /**
  * Uses the pathinfo as the lookup in the controller.
- * 
+ *
  * @author buckett
- * 
+ *
  */
 public class PathInfoHelper extends UrlPathHelper {
 
