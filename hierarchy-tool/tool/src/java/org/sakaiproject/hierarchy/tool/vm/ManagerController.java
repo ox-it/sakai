@@ -226,7 +226,16 @@ public class ManagerController {
 		}
 		try {
 			String parentId = portalHierarchyService.getCurrentPortalNode().getId();
-			portalHierarchyService.newRedirectNode(parentId, redirect.getName(), redirect.getUrl(),
+			String url = redirect.getUrl();
+			String serverUrl = serverConfigurationService.getServerUrl();
+			// Make the URL relative if we can.
+			if (url.toLowerCase().startsWith(serverUrl.toLowerCase())) {
+				url = url.substring(serverUrl.length());
+				if (!url.startsWith("/")) {
+					url = "/" + url;
+				}
+			}
+			portalHierarchyService.newRedirectNode(parentId, redirect.getName(), url,
 					redirect.getTitle(), redirect.isAppendPath());
 			return "refresh";
 		} catch (IllegalArgumentException iae) {

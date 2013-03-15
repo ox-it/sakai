@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
@@ -67,6 +68,9 @@ public class ManageControllerTest {
 	@Autowired
 	private SessionManager sessionManager;
 
+	@Autowired
+	private ServerConfigurationService serverConfigurationService;
+
 	private Session session;
 
 	@Before
@@ -89,6 +93,9 @@ public class ManageControllerTest {
 
 		session = mock(Session.class);
 		when(sessionManager.getCurrentSession()).thenReturn(session);
+
+		// This is because we try to shorten URLs that could be relative.
+		when(serverConfigurationService.getServerUrl()).thenReturn("http://localhost/");
 	}
 
 	@Test
@@ -133,6 +140,19 @@ public class ManageControllerTest {
 		assertEquals(200, response.getStatus());
 
 		verify(portalHierarchyService, times(1)).newRedirectNode("id", "name-value", "urlValue", "titleValue", false);
+	}
+
+	@Test
+	public void testRedirectAddShorterning() throws ServletException, IOException, PermissionException {
+		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/redirect/add");
+		request.addParameter("name", "name-value");
+		request.addParameter("title", "titleValue");
+		request.addParameter("url", "http://localhost/access/file/test.txt");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		servlet.service(request, response);
+		// Check that the relative URL got trimmed.
+		verify(portalHierarchyService).newRedirectNode("id", "name-value", "/access/file/test.txt", "titleValue", false);
 	}
 
 	@Test
