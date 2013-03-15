@@ -4,12 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -22,11 +20,8 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.sakaiproject.util.FormattedText;
 import org.xcri.Extension;
-import org.xcri.common.Description;
 import org.xcri.common.ExtensionManager;
 import org.xcri.common.OverrideManager;
-import org.xcri.common.descriptive.Prerequisite;
-import org.xcri.common.descriptive.Regulations;
 import org.xcri.core.Catalog;
 import org.xcri.core.Course;
 import org.xcri.core.Presentation;
@@ -87,7 +82,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 
 	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM yyyy  hh:mm");
 	
-	private static String TARGET_AUDIENCE = "xcri12terms:targetAudience";
+	private static String TARGET_AUDIENCE = "cdp:targetAudience";
 
 	static {
 		ExtensionManager.registerExtension(new WebAuthCode());
