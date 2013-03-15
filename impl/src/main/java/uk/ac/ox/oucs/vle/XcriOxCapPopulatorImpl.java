@@ -362,9 +362,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		OxcapCourse oxCourse = (OxcapCourse)course;
 		myCourse.setVisibility(oxCourse.getVisibility().toString());
 
-		myCourse.setDescription(arrayIterator(course.getDescriptions(), null));
-		myCourse.setPrerequisite(arrayIterator(course.getDescriptions(), TARGET_AUDIENCE));
-		myCourse.setRegulations(arrayIterator(course.getRegulations(), null));
+		myCourse.setDescription(filterDescriptiveTextTypeArray(course.getDescriptions(), null));
+		myCourse.setPrerequisite(filterDescriptiveTextTypeArray(course.getDescriptions(), TARGET_AUDIENCE));
+		myCourse.setRegulations(filterDescriptiveTextTypeArray(course.getRegulations(), null));
 		
 		Set<Subject> researchCategories = new HashSet<Subject>();
 		Set<Subject> skillsCategories = new HashSet<Subject>();
@@ -1075,7 +1075,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @param type
 	 * @return
 	 */
-	public String arrayIterator(DescriptiveTextType[] array, String type) {
+	public String filterDescriptiveTextTypeArray(DescriptiveTextType[] array, String type) {
 		
 		StringBuilder sb = new StringBuilder();
 		
