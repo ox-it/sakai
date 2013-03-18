@@ -1,7 +1,4 @@
 <%@ page import="org.sakaiproject.tool.cover.ToolManager"%>
-<%@ page
-	import="org.sakaiproject.component.cover.ServerConfigurationService"%>
-<%@ page import="org.sakaiproject.user.cover.UserDirectoryService"%>
 <%@ page session="false"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
@@ -15,8 +12,9 @@
 
 <title>Module Signup</title>
 
-<link href='<c:out value="${skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
-<link href="<c:out value="${skinRepo}" />/<c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
+<!-- Jersey puts the model in the 'it' attribute -->
+<link href='<c:out value="${it.skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
+<link href="<c:out value="${it.skinRepo}" />/<c:out value="${it.skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
 
 <link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css" />
 <link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css" />
@@ -48,19 +46,6 @@
 			<li><span>Search Modules</span></li>
 			<li><span>Browse by Department</span></li>
 			<li><span>Browse by Calendar</span></li>
-			<c:if test="${!externalUser}">
-				<li><span>My Modules</span></li>
-				<c:if test="${isPending}">
-					<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
-				</c:if>
-				<c:if test="${isApprover}">
-					<li><span><a href="approve.jsp">Pending
-								Confirmations</a></span></li>
-				</c:if>
-				<c:if test="${isAdministrator}">
-					<li><span><a href="admin.jsp">Module Administration</a></span></li>
-				</c:if>
-			</c:if>
 		</ul>
 	</div>
 	<div id="messages"></div>
