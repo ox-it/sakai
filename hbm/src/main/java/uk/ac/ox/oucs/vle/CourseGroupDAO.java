@@ -30,6 +30,7 @@ public class CourseGroupDAO implements java.io.Serializable, Cloneable {
 	private String subunitName;
 	private String contactEmail;
 	private String visibility;
+	private String prerequisite;
 	private String regulations;
 	private String source;
 	private boolean supervisorApproval;
@@ -234,6 +235,16 @@ public class CourseGroupDAO implements java.io.Serializable, Cloneable {
 	public void setVisibility(String visibility) {
 		this.visibility = visibility;
 	}
+	
+	
+	public String getPrerequisite() {
+		return prerequisite;
+	}
+
+	public void setPrerequisite(String prerequisite) {
+		this.prerequisite = prerequisite;
+	}
+	
 
 	public String getRegulations() {
 		return regulations;

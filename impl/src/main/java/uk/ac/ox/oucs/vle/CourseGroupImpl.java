@@ -68,6 +68,10 @@ public class CourseGroupImpl implements CourseGroup {
 		return courseGroupDAO.getVisibility();
 	}
 	
+	public String getPrerequisite() {
+		return courseGroupDAO.getPrerequisite();
+	}
+	
 	public String getRegulations() {
 		return courseGroupDAO.getRegulations();
 	}

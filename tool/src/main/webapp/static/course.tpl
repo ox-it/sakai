@@ -106,10 +106,19 @@
 				{/if}
 			</div>
 
+			<div id="prerequisite">
+				{if prerequisite}
+					<h2>Intended Audience</h2>
+					${prerequisite}
+
+				{/if}
+			</div>
+
 			<div id="description">
-            	<h2>Description</h2>
+				<h2>Description</h2>
 				${description}
-            </div>
+			</div>
+
 			<div id="parts">
 				<h2>Booking Information</h2>
 				<span class="error" style="display:none"></span>
