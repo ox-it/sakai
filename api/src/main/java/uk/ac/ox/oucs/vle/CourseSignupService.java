@@ -80,7 +80,7 @@ public interface CourseSignupService {
 	
 	public String findSupervisor(String search);
 	
-	public void signup(String courseId, Set<String> components, String supervisorEmail, String message);
+	public CourseSignup signup(String courseId, Set<String> components, String supervisorEmail, String message);
 	
 	/**
 	 * A signup made
@@ -88,7 +88,7 @@ public interface CourseSignupService {
 	 * @param courseId
 	 * @param components
 	 */
-	public void signup(String userId, String courseId, Set<String> components, String supervisorId);
+	public CourseSignup signup(String userId, String courseId, Set<String> components, String supervisorId);
 	
 	public List<CourseSignup> getCourseSignups(String courseId, Set<Status> statuses);
 	

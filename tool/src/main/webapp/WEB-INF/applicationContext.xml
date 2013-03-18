@@ -3,4 +3,26 @@
 
 <beans>
 	<!--  <import resource="classpath:components.xml"/> -->
+	<bean id="courseSignupController"
+		class="uk.ac.ox.oucs.vle.mvc.CourseSignupController">
+		 <property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		 <property name="courseSignupService" ref="uk.ac.ox.oucs.vle.CourseSignupService" />
+		 <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
+	
+	<bean id="courseSignupUrlViewController"
+		class="uk.ac.ox.oucs.vle.mvc.CourseSignupUrlViewController">
+	</bean>
+	
+	<bean id="courseSignupRedirectController"
+		class="uk.ac.ox.oucs.vle.mvc.CourseSignupRedirectController">
+	</bean>
+	
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		
+		<property name="prefix" value="/"/>
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+	</bean>
+	
 </beans>

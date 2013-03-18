@@ -3,14 +3,6 @@
 <%@ page import="org.sakaiproject.user.cover.UserDirectoryService" %>
 <%@ page session="false" %> 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core"  prefix="c" %>
-<%
-if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-	pageContext.setAttribute("externalUser",true);
-} else {
-	pageContext.setAttribute("externalUser",false);
-}
-%>
-<c:set var="isExternalUser" value="${externalUser}" />
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -22,8 +14,8 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	
 	<title>Module Search</title>
 
-	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-	<link href="<%= ServerConfigurationService.getString("skin.repo", "/library/skin") %>/<%= ServerConfigurationService.getString("skin.default", "default") %>/tool.css" type="text/css" rel="stylesheet" media="all" />
+	<link href='<c:out value="${skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
+	<link href="<c:out value="${skinRepo}" />/<c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
 	<link rel="stylesheet" type="text/css" href="lib/tool.css">
   	
   	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
@@ -45,7 +37,6 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	</script>
 </head>	
 <body>
- 	
 <div id="toolbar">
     <ul class="navIntraTool actionToolBar">
 
@@ -53,21 +44,26 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		<li><span><a href="search.jsp">Search Modules</a></span></li>
 		<li><span><a href="index.jsp">Browse by Department</a></span></li>  
 		<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
-		<c:if test="${!isExternalUser}" >
+		<c:if test="${!externalUser}" >
 			<li><span><a href="my.jsp">My Modules</a></span></li>
-			<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>	
-			<li><span><a href="approve.jsp">Pending Confirmations</a></span></li>
-			<li><span><a href="admin.jsp">Module Administration</a></span></li>
+			<c:if test="${isPending}" >
+				<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>	
+			</c:if>
+			<c:if test="${isApprover}" >
+				<li><span><a href="approve.jsp">Pending Confirmations</a></span></li>
+			</c:if>
+			<c:if test="${isAdministrator}" >
+				<li><span><a href="admin.jsp">Module Administration</a></span></li>
+			</c:if>
 		</c:if>
 	</ul>
 </div>
-    
-    
+ 
 <div class="wrapper" >   
 	
 	<p class="intro"><strong>Welcome to the Student Enrolment System.</strong> Here you can browse, search and sign up for  modules from across the University that will help you in your studies.</p>
 
-	<c:if test="${isExternalUser}" >
+	<c:if test="${externalUser}" >
 	<p class="alert">If you are a member of the University of Oxford, then you should log in to make full use of this tool.</p>
 	</c:if>
 
@@ -86,7 +82,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 			<a href="calendar.jsp">Browse by Calendar</a> 
 			<span class="info">Browse for modules by course start date.</span>
 		</li>
-		<c:if test="${!isExternalUser}" >
+		<c:if test="${!externalUser}" >
 			<li class="myModules" >
 				<a href="my.jsp">My Modules</a> 
 				<span class="info">View modules you are currently signed up for.</span>
@@ -96,21 +92,25 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 
 	<ul class="options admin" >
 
-		<c:if test="${!isExternalUser}" >
-			<li class="acceptances" >
-				<a href="pending.jsp">Pending Acceptances</a> 
-				<span class="info">View list of student sign-ups awaiting your approval.</span>
-			</li>
-			
-			<li class="confirmations" >
-				<a href="approve.jsp">Pending Confirmations</a> 
-				<span class="info">View modules which are waiting for your confirmation.</span>
-			</li>	
-	
-			<li class="admin">
-				<a href="admin.jsp">Module Administration</a> 
-				<span class="info">Administer modules for which you are an administrator.</span>
-			</li>
+		<c:if test="${!externalUser}" >
+			<c:if test="${isPending}" >
+				<li class="acceptances" >
+					<a href="pending.jsp">Pending Acceptances</a> 
+					<span class="info">View list of student sign-ups awaiting your approval.</span>
+				</li>
+			</c:if>
+			<c:if test="${isApprover}" >
+				<li class="confirmations" >
+					<a href="approve.jsp">Pending Confirmations</a> 
+					<span class="info">View modules which are waiting for your confirmation.</span>
+				</li>
+			</c:if>	
+			<c:if test="${isAdministrator}" >
+				<li class="admin">
+					<a href="admin.jsp">Module Administration</a> 
+					<span class="info">Administer modules for which you are an administrator.</span>
+				</li>
+			</c:if>
 		</c:if>
 	</ul>
 

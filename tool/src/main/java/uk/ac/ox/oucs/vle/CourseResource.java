@@ -66,7 +66,7 @@ public class CourseResource {
 		
 		final CourseGroup course = courseService.getCourseGroup(courseId, range);
 		if (course == null) {
-			throw new WebApplicationException(Response.Status.NOT_FOUND);
+			throw new WebAppNotFoundException();
 		}
 		return new GroupStreamingOutput(course);
 	} 
@@ -81,7 +81,7 @@ public class CourseResource {
 			@Context final HttpServletRequest request,
 		    @Context final HttpServletResponse response) throws ServletException, IOException {
 		
-		RequestDispatcher dispatcher = request.getRequestDispatcher("/static/course.jsp");
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/static/course.jsp");
 		request.setAttribute("openCourse", courseId);
 		dispatcher.forward(request, response);
 		return "";
@@ -98,7 +98,7 @@ public class CourseResource {
 		final Map<String, String> departments = courseService.getDepartments();
 		final List<CourseGroup> groups = courseService.search("", range, externalUser);
 		if (groups == null) {
-			throw new WebApplicationException(Response.Status.NOT_FOUND);
+			throw new WebAppNotFoundException();
 		}
 		return new AllGroupsStreamingOutput(departments, groups);
 	}
@@ -144,7 +144,7 @@ public class CourseResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAdminCourse() throws JsonGenerationException, JsonMappingException, IOException {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebApplicationException(Response.Status.FORBIDDEN);
+			throw new WebAppForbiddenException();
 		}
 		List <CourseGroup> groups = courseService.getAdministering();
 		// TODO Just return the coursegroups (no nested objects).
@@ -157,7 +157,7 @@ public class CourseResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response setCourses(@QueryParam("terms") String terms) throws JsonGenerationException, JsonMappingException, IOException {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebApplicationException(Response.Status.FORBIDDEN);
+			throw new WebAppForbiddenException();
 		}
 		if (terms == null) {
 			throw new WebApplicationException();
@@ -200,7 +200,7 @@ public class CourseResource {
 	public StreamingOutput getCourseURL(@PathParam("id") final String courseId) 
 	throws JsonGenerationException, JsonMappingException, IOException {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebApplicationException(Response.Status.FORBIDDEN);
+			throw new WebAppForbiddenException();
 		}
 		final String url = courseService.getDirectUrl(courseId);
 		return new StreamingOutput() {
@@ -215,7 +215,7 @@ public class CourseResource {
 	@POST
 	public Response hide(@FormParam("courseId")String courseId, @FormParam("hideCourse")String hideCourse) {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebApplicationException(Response.Status.FORBIDDEN);
+			throw new WebAppForbiddenException();
 		}
 		courseService.setHideCourse(courseId, Boolean.parseBoolean(hideCourse));
 		return Response.ok().build();

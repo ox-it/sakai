@@ -982,8 +982,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 
 		boolean created = false;
 		
-		if (null == category.getCategoryId() && category.getCategoryId().isEmpty()) {
-			logMs(context, "Category ["+category.getCategoryType()+":"+category.getCategoryName()+"] ignored - invalid identifier");
+		if (null == category.getCategoryId() || category.getCategoryId().isEmpty()) {
+			logMe(context, "Category ["+category.getCategoryType()+":"+category.getCategoryName()+
+					"] ignored on course ["+assessmentunitCode+"] - empty identifier");
 			return created;
 		}
 
