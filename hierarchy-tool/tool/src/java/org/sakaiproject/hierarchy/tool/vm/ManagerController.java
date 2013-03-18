@@ -2,7 +2,6 @@ package org.sakaiproject.hierarchy.tool.vm;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
+import org.sakaiproject.hierarchy.api.PortalNodeComparator;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.hierarchy.api.model.PortalNodeRedirect;
 import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
@@ -42,16 +42,8 @@ public class ManagerController {
 	static final String REQUEST_SITE = "_site";
 
 	static final String CUT_ID = ManagerController.class.getName() + "#CUT_ID";
-
-	// Sort by the title of the node.
-	private static Comparator<PortalNode> titleComparator = new Comparator<PortalNode>() {
-
-		@Override
-		public int compare(PortalNode o1, PortalNode o2) {
-			return o1.getTitle().compareTo(o2.getTitle());
-		}
-
-	};
+	
+	private PortalNodeComparator nodeComparator = new PortalNodeComparator();
 
 	private SessionManager sessionManager;
 	private PortalHierarchyService portalHierarchyService;
@@ -179,7 +171,7 @@ public class ManagerController {
 		// Need to list the redirect nodes.
 		List<PortalNode> nodeChildren = portalHierarchyService.getNodeChildren(node.getId());
 
-		Collections.sort(nodeChildren, titleComparator);
+		Collections.sort(nodeChildren, nodeComparator);
 		List<Map<String, String>> redirectNodes = new ArrayList<Map<String, String>>();
 		for (PortalNode nodeChild : nodeChildren) {
 			if (nodeChild instanceof PortalNodeRedirect) {

@@ -22,6 +22,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
+import org.sakaiproject.hierarchy.api.PortalNodeComparator;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.hierarchy.api.model.PortalNodeRedirect;
 import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
@@ -49,26 +50,7 @@ public class HierarchyHandler extends SiteHandler {
 	private SecurityService securityService;
 	private boolean resetTools;
 
-	/**
-	 * Sort on the title of nodes;
-	 */
-	private Comparator<PortalNode> nodeTitleSorter = new Comparator<PortalNode>() {
-
-		public int compare(PortalNode node1, PortalNode node2) {
-			String title1 = node1.getTitle();
-			String title2 = node2.getTitle();
-			if (title1 == null) {
-				if (title2 == null) {
-					// Fallback to sorting on the path.
-					return node1.getPath().compareTo(node2.getPath());
-				} else {
-					return title2.compareTo(title1);
-				}
-			} else {
-				return title1.compareTo(title2);
-			}
-		}
-	};
+	private Comparator<PortalNode> nodeTitleSorter = new PortalNodeComparator();
 
 	public HierarchyHandler(SiteService siteService, PortalHierarchyService portalHierarchyService, SecurityService securityService, String fragment) {
 		this.siteService = siteService;

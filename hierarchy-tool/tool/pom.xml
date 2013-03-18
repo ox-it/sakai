@@ -67,15 +67,10 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<!-- Stuck at 4.4 https://jira.springsource.org/browse/SPR-5145 -->
-			<version>4.4</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
-			<version>1.9.0</version>
-			<scope>test</scope>
 		</dependency>
 
 	</dependencies>
