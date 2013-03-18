@@ -213,7 +213,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		List<PortalNodeSite> portalNodes = new ArrayList<PortalNodeSite>(nodes.size());
 		for (HierarchyNode node: nodes) {
 			PortalNode populatePortalNode = populatePortalNode(dao.findById(node.id));
-			// We 
+			// We can only have site nodes as parent nodes, so this check should
+			// always pass but it doesn't hurt to check.
 			if (populatePortalNode instanceof PortalNodeSite) {
 				portalNodes.add((PortalNodeSite)populatePortalNode);
 			}
