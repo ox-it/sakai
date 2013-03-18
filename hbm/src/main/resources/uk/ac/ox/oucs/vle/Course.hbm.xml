@@ -180,6 +180,7 @@
 			index="course_group_subunit_idx" />
 		<property name="subunitName" type="string" length="255"/>
 		<property name="description" type="text"/>
+		<property name="prerequisite" type="text"/>
 		<property name="supervisorApproval" type="boolean"/>
 		<property name="administratorApproval" type="boolean"/>
 		<property name="hideGroup" type="boolean"/>

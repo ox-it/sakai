@@ -20,16 +20,15 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.sakaiproject.util.FormattedText;
 import org.xcri.Extension;
-import org.xcri.common.Description;
 import org.xcri.common.ExtensionManager;
 import org.xcri.common.OverrideManager;
-import org.xcri.common.descriptive.Regulations;
 import org.xcri.core.Catalog;
 import org.xcri.core.Course;
 import org.xcri.core.Presentation;
 import org.xcri.core.Provider;
 import org.xcri.exceptions.InvalidElementException;
 import org.xcri.presentation.Venue;
+import org.xcri.types.DescriptiveTextType;
 
 import uk.ac.ox.oucs.vle.xcri.daisy.Bookable;
 import uk.ac.ox.oucs.vle.xcri.daisy.CourseSubUnit;
@@ -82,6 +81,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	private static final Log log = LogFactory.getLog(XcriOxCapPopulatorImpl.class);
 
 	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM yyyy  hh:mm");
+	
+	private static String TARGET_AUDIENCE = "cdp:targetAudience";
 
 	static {
 		ExtensionManager.registerExtension(new WebAuthCode());
@@ -361,15 +362,10 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		OxcapCourse oxCourse = (OxcapCourse)course;
 		myCourse.setVisibility(oxCourse.getVisibility().toString());
 
-		if (course.getRegulations().length > 0) {
-			Regulations xRegulations = course.getRegulations()[0];
-			if (!xRegulations.isXhtml()) {
-				myCourse.setRegulations(parse(xRegulations.getValue()));
-			} else {
-				myCourse.setRegulations(xRegulations.getValue());
-			}
-		}
-
+		myCourse.setDescription(filterDescriptiveTextTypeArray(course.getDescriptions(), null));
+		myCourse.setPrerequisite(filterDescriptiveTextTypeArray(course.getDescriptions(), TARGET_AUDIENCE));
+		myCourse.setRegulations(filterDescriptiveTextTypeArray(course.getRegulations(), null));
+		
 		Set<Subject> researchCategories = new HashSet<Subject>();
 		Set<Subject> skillsCategories = new HashSet<Subject>();
 		Set<Subject> jacsCategories = new HashSet<Subject>();
@@ -448,15 +444,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 					"Log Failure Course ["+myCourse.getCourseId()+":"+myCourse.getTitle()+"] No Course Identifier");
 			return;
 		}
-
-		if (course.getDescriptions().length > 0) {
-			Description xDescription = course.getDescriptions()[0];
-			if (!xDescription.isXhtml()) {
-				myCourse.setDescription(parse(xDescription.getValue()));
-			} else {
-				myCourse.setDescription(xDescription.getValue());
-			}
-		} else {
+			
+		if (myCourse.getDescription().isEmpty()) {
 			logMe(context, 
 					"Log Warning Course ["+myCourse.getCourseId()+":"+myCourse.getTitle()+"] has no description");
 		}
@@ -820,6 +809,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			groupDao.setAdministratorApproval(myCourse.getAdministratorApproval());
 			groupDao.setContactEmail(myCourse.getContactEmail());
 			groupDao.setAdministrators(myCourse.getAdministrators());
+			groupDao.setPrerequisite(myCourse.getPrerequisite());
 			groupDao.setRegulations(myCourse.getRegulations());
 			groupDao.setDeleted(false);
 			groupDao.setSuperusers(myCourse.getSuperusers());
@@ -1076,6 +1066,36 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			return component.getCloses();
 		}
 		return null;
+	}
+
+	/**
+	 * Filter the array for elements matching type if type is null construct default string.
+	 */
+	protected String filterDescriptiveTextTypeArray(DescriptiveTextType[] array, String type) {
+
+		StringBuilder sb = new StringBuilder();
+		
+		for (DescriptiveTextType descriptiveTextType: array) {
+
+			String text;
+			if (!descriptiveTextType.isXhtml()) {
+				text = parse(descriptiveTextType.getValue());
+			} else {
+				text = descriptiveTextType.getValue();
+			}
+			
+			if (null != type) {
+				if (type.equals(descriptiveTextType.getType())) {
+					sb.append(text).append(" ");
+				}
+			} else {
+				if (null == descriptiveTextType.getType()) {
+					sb.append(text).append(" ");
+				}
+			}
+		}
+		
+		return sb.toString().trim();
 	}
 
 	/**
