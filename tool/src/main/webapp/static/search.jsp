@@ -206,9 +206,6 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
         		 <div ex:role="facet" ex:facetClass="TextSearch" ex:facetLabel="Search" ex:expression=".label,.description"></div>
                  <div ex:role="facet" ex:expression=".department" ex:facetLabel="Department"></div>
                  <div ex:role="facet" ex:expression=".categories_rdf" ex:facetLabel="Skills Categories" ex:showMissing="false" ex:height="7em"></div>
-                 <!-- 
-                  div ex:role="facet" ex:expression=".categories_jacs" ex:facetLabel="Subject Categories" ex:showMissing="false" ex:height="7em"></div
-                  -->
                  <div ex:role="facet" ex:expression=".categories_rm" ex:facetLabel="Research Methods" ex:showMissing="false" ex:height="7em"></div>
 				 <div ex:role="facet" ex:expression=".bookable" ex:facetLabel="Bookable" ex:height="5em"></div>
 				 <div ex:role="facet" ex:expression=".previous" ex:selection="Current Courses" ex:facetLabel="Time Frame" ex:height="5em"></div>
