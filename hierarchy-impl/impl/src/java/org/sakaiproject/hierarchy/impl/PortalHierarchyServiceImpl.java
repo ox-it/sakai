@@ -554,5 +554,4 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		return unlockCheckNodeSite(id, SECURE_MODIFY);
 	}
 
-
 }
