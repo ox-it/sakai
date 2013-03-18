@@ -51,11 +51,13 @@ public class SchedulerTool extends HttpServlet {
 
 	private Scheduler scheduler;
 
+	private ServerConfigurationService serverConfigurationService;
+
 	public SchedulerTool() {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param scheduler
 	 */
 	public List<JobDetailWrapper> processRefreshJobs() {
@@ -93,7 +95,7 @@ public class SchedulerTool extends HttpServlet {
 
 	/**
 	 * This method runs the current job only once, right now
-	 * 
+	 *
 	 * @return String
 	 */
 	public String processRunJobNow(String jobName) {
@@ -121,14 +123,18 @@ public class SchedulerTool extends HttpServlet {
 		}
 	}
 
-	private void setScheduler() {
+	@Override
+	public void init() throws ServletException {
 		SchedulerManager schedulerManager = (SchedulerManager) ComponentManager
-				.getInstance()
 				.get(org.sakaiproject.api.app.scheduler.SchedulerManager.class);
-
 		scheduler = schedulerManager.getScheduler();
 		if (scheduler == null) {
-			LOG.error("Scheduler is down!");
+			throw new ServletException("Couldn't get the scheduler.");
+		}
+		serverConfigurationService = (ServerConfigurationService) ComponentManager.
+				get(ServerConfigurationService.class);
+		if (serverConfigurationService == null) {
+			throw new ServletException("Couldn't get the server configuration service.");
 		}
 	}
 
@@ -136,20 +142,17 @@ public class SchedulerTool extends HttpServlet {
 			throws ServletException, IOException {
 
 		ServletContext context = getServletContext();
-		setScheduler();
 		List<JobDetailWrapper> jobDetailWrapperList = processRefreshJobs();
 
 		request.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 		request.setAttribute("jobDetailList", jobDetailWrapperList);
 
-		ServerConfigurationService service = 
-				(ServerConfigurationService) ComponentManager.get("org.sakaiproject.component.api.ServerConfigurationService");
-		
-		request.setAttribute("skinRepo", 
-				service.getString("skin.repo", "/library/skin"));
+
+		request.setAttribute("skinRepo",
+				serverConfigurationService.getString("skin.repo", "/library/skin"));
 
 		request.setAttribute("skinDefault",
-				service.getString("skin.default", "default"));
+				serverConfigurationService.getString("skin.default", "default"));
 
 		RequestDispatcher dispatcher = context
 				.getRequestDispatcher("/static/quartz.jsp");
@@ -162,7 +165,6 @@ public class SchedulerTool extends HttpServlet {
 		Map<String, String[]> requestParams = request.getParameterMap();
 		String[] vals = (String[]) requestParams.get("jobName");
 		String jobName = vals[0];
-		setScheduler();
 		processRunJobNow(jobName);
 	}
 }
