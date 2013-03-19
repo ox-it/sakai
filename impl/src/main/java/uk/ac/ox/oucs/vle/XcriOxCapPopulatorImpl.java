@@ -276,7 +276,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		if (null == departmentCode) {
 			logMe(context,
 				"Log Failure Provider ["+departmentCode+":"+departmentName+"] No Provider Identifier");
-			return;
+			throw new PopulatorException(
+				"Log Failure Provider ["+departmentCode+":"+departmentName+"] No Provider Identifier");
 		}
 
 		data.incrDepartmentSeen();
