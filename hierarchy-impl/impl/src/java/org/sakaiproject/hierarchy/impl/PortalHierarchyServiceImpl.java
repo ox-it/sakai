@@ -279,11 +279,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	
 	public PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId, String redirectUrl, String title, boolean appendPath) throws PermissionException {
 
-		if (siteId == null && redirectUrl == null) {
-			throw new IllegalArgumentException("You must specify a siteId or a redirectUrl");
-		}
-		if (siteId != null && redirectUrl != null) {
-			throw new IllegalArgumentException("You cannot specify both siteId and redirectUrl");
+		if (!( siteId == null ^ redirectUrl == null)) {
+			throw new IllegalArgumentException("You must specify either a siteId or a redirectUrl");
 		}
 		
 		PortalNode possibleParent = getNodeById(parentId);
