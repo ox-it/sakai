@@ -279,7 +279,7 @@ public class ManagerController {
 	public String saveSite(HttpServletRequest request, @RequestParam(REQUEST_SITE) String siteId) {
 		PortalNode node = portalHierarchyService.getCurrentPortalNode();
 
-		if (siteId != null && siteId.length() > 0) {
+		if (siteId != null && !siteId.isEmpty()) {
 			try {
 				portalHierarchyService.changeSite(node.getId(), siteId);
 			} catch (PermissionException e) {
