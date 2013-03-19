@@ -163,7 +163,7 @@
 		</resources>
 		<testResources>
 			<testResource>
-				<directory>/Users/buckett/Documents/oxford/2.8.x/checkout/extras/tetraelf-hierarchy/hierarchy-tool/tool/src/test-resources</directory>
+				<directory>${basedir}/tool/src/test-resources</directory>
 			</testResource>
 		</testResources>
 	</build>
