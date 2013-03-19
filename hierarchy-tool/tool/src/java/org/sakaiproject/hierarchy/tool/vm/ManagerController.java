@@ -42,7 +42,7 @@ public class ManagerController {
 	static final String REQUEST_SITE = "_site";
 
 	static final String CUT_ID = ManagerController.class.getName() + "#CUT_ID";
-	
+
 	private PortalNodeComparator nodeComparator = new PortalNodeComparator();
 
 	private SessionManager sessionManager;
