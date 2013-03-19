@@ -53,6 +53,11 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 	private String hierarchyId;
 	
+	/**
+	 * The Site ID of the site that is displayed when the site at a node can't be found.
+	 * This normally happens because someone has deleted a site but there are still nodes in the
+	 * hierarchy that reference the now deleted site.
+	 */
 	private String missingSiteId;
 	
 	private boolean autoDDL;
