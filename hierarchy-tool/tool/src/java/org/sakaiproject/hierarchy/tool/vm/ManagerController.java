@@ -260,7 +260,7 @@ public class ManagerController {
 	public ModelAndView changeSite(HttpServletRequest request) {
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 
-		toolSession.setAttribute(Tool.HELPER_DONE_URL, buildUrl(request, "/site/save"));
+		toolSession.setAttribute(Tool.HELPER_DONE_URL, buildUrl(request, "/site/save").toString());
 		toolSession.setAttribute(SiteHelper.SITE_PICKER_PERMISSION,
 				org.sakaiproject.site.api.SiteService.SelectionType.UPDATE);
 
