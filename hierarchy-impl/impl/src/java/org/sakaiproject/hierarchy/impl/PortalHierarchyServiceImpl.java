@@ -150,7 +150,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 				Site missingSite = siteService.getSite(missingSiteId);
 				portalNode.setSite(missingSite);
 			} catch (IdUnusedException iue2 ) {
-				log.warn("Couldn't find missing site "+ missingSiteId);
+				log.error("Couldn't find missing site "+ missingSiteId);
 				// Just return a node without a site.
 			}
 		}
@@ -158,7 +158,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 			Site managementSite = siteService.getSite(portalPersistentNode.getManagementSiteId());
 			portalNode.setManagementSite(managementSite);
 		} catch (IdUnusedException e) {
-			log.warn("Couldn't find management site "+ portalPersistentNode.getManagementSiteId()+ " for "+ portalPersistentNode.getPath());
+			log.error("Couldn't find management site "+ portalPersistentNode.getManagementSiteId()+ " for "+ portalPersistentNode.getPath());
 		}
 		return portalNode;
 	}
