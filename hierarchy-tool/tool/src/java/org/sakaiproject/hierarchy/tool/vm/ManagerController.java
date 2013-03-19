@@ -80,10 +80,6 @@ public class ManagerController {
 		return new DeleteRedirectCommand();
 	}
 
-	@PostConstruct
-	public void init() {
-	}
-
 	private PortalNodeSite getCurrentNode(String currentPath) {
 		PortalNode node = null;
 		if (currentPath != null && currentPath.length() > 0) {
