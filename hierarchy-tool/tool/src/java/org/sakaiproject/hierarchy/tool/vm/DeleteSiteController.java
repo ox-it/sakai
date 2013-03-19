@@ -102,9 +102,10 @@ public class DeleteSiteController {
 		}
 		canDelete = portalHierarchyService.canDeleteNode(current.getId());
 		boolean isSiteNode = current instanceof PortalNodeSite;
-		canDeleteSite = isSiteNode && siteService.allowRemoveSite(((PortalNodeSite) current).getSite().getId());
+		String siteId = ((PortalNodeSite) current).getSite().getId();
+		canDeleteSite = isSiteNode && siteService.allowRemoveSite(siteId);
 		isSiteUsedAgain = isSiteNode
-				&& portalHierarchyService.getNodesWithSite(((PortalNodeSite) current).getSite().getId()).size() > 1;
+				&& portalHierarchyService.getNodesWithSite(siteId).size() > 1;
 		data.put("hasChildren", hasChildren);
 		data.put("canDelete", canDelete);
 		data.put("canDeleteSite", canDeleteSite);
