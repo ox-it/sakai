@@ -9,11 +9,13 @@ import org.sakaiproject.tool.api.Tool;
 
 /**
  * Whole point of this class is to pass through the site as well as the placement to the tool so we can work out the skin.
- * @author buckett
+ * @see AdoptedSitePage
  *
  */
 public class AdoptedToolConfiguration implements ToolConfiguration {
 
+	private static final long serialVersionUID = 1L;
+	
 	private AdoptedSitePage sitePage;
 	private ToolConfiguration original;
 	

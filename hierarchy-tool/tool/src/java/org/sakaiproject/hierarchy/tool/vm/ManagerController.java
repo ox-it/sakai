@@ -1,205 +1,128 @@
 package org.sakaiproject.hierarchy.tool.vm;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
+import org.sakaiproject.hierarchy.api.PortalNodeComparator;
+import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.hierarchy.api.model.PortalNodeRedirect;
+import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractController;
+import org.springframework.web.servlet.mvc.annotation.TargettedController;
 import org.springframework.web.servlet.view.RedirectView;
 
-public class ManagerController extends AbstractController
-{
+@Controller
+@TargettedController("sakai.hierarchy-manager")
+public class ManagerController {
 
-	private static final Log log = LogFactory.getLog(ManagerController.class);
-	
-	static final String ACT_EDIT_SITE = "act_editsite";
-	
-	static final String ACT_SAVE_SITE = "act_savesite";
-	
-	static final String ACT_SETPROPERTY = "act_setproperty";
-	
-	static final String ACT_SELECT_SITE = "act_selectsite";
-	
-	static final String ACT_CUT = "act_cut";
-	
-	static final String ACT_PASTE = "act_paste";
-
-	static final String ACT_CANCEL = "act_cancel";
-
-	static final String REQUEST_ACTION = "_action";
-
-	static final String REQUEST_SITES = "_sites";
-	
 	static final String REQUEST_SITE = "_site";
 
-	private static final String CUT_ID = ManagerController.class.getName() + "#CUT_ID";
+	static final String CUT_ID = ManagerController.class.getName() + "#CUT_ID";
 
-	private PortalHierarchyService phs;
+	private PortalNodeComparator nodeComparator = new PortalNodeComparator();
 
-	public ManagerController()
-	{
-		super();
-	}
-	
-	public void setPortalHierarchyService(PortalHierarchyService phs)
-	{
-		this.phs = phs;
-	}
+	private SessionManager sessionManager;
+	private PortalHierarchyService portalHierarchyService;
+	private ServerConfigurationService serverConfigurationService;
+	private VelocityControllerUtils velocityControllerUtils;
 
-	public void init()
-	{
+	@Autowired
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
 	}
 
-	protected ModelAndView handleRequestInternal(HttpServletRequest request,
-			HttpServletResponse response) throws Exception
-			{
+	@Autowired
+	public void setPortalHierarchyService(PortalHierarchyService phs) {
+		this.portalHierarchyService = phs;
+	}
 
+	@Autowired
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	@Autowired
+	public void setVelocityControllerUtils(VelocityControllerUtils velocityControllerUtils) {
+		this.velocityControllerUtils = velocityControllerUtils;
+	}
+
+	@ModelAttribute("redirect-add")
+	public AddRedirectCommand getAddRedirectCommand() {
+		return new AddRedirectCommand();
+	}
+
+	@ModelAttribute("redirect-remove")
+	public DeleteRedirectCommand getRemoveRedirectCommand() {
+		return new DeleteRedirectCommand();
+	}
+
+	private PortalNodeSite getCurrentNode(String currentPath) {
 		PortalNode node = null;
-		String currentPath = request.getPathInfo();
-		if (currentPath != null && currentPath.length() > 0)
-		{
-			node = phs.getNode(currentPath);
+		if (currentPath != null && currentPath.length() > 0) {
+			node = portalHierarchyService.getNode(currentPath);
 		}
-		if (node == null)
-		{
-			node = phs.getCurrentPortalNode();
-			if ( node == null ) {
-				node = phs.getNode(null);
+		if (node == null) {
+			node = portalHierarchyService.getCurrentPortalNode();
+			if (node == null) {
+				node = portalHierarchyService.getNode(null);
 			}
 		}
-		
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		Session session = SessionManager.getCurrentSession();
-		String cutId = (String) session.getAttribute(ManagerController.CUT_ID);
-
-
-		Map<String, Object> model = new HashMap<String, Object>();
-		populateModel(model,request);
-
-
-		boolean topRefresh = false;
-
-		String action = request.getParameter(REQUEST_ACTION);
-		if (ACT_SELECT_SITE.equals(action))
-		{
-			toolSession.setAttribute(Tool.HELPER_DONE_URL, buildUrl(request) +"?"+REQUEST_ACTION+"="+ACT_EDIT_SITE);
-			toolSession.setAttribute(SiteHelper.SITE_PICKER_PERMISSION, org.sakaiproject.site.api.SiteService.SelectionType.UPDATE);
-
-			return new ModelAndView(new RedirectView("/sites", true), null);
+		if (node instanceof PortalNodeSite) {
+			return (PortalNodeSite) node;
 		}
-		else if (ACT_EDIT_SITE.equals(action))
-		{
-			Map<String, Object> editModel = new HashMap<String, Object>();
-			populateModel(editModel, request);
-			editModel.put("old", createSiteMap(node.getSite()));
-			// Check to see if the user has come back from helper.
-			Object siteAttribute = toolSession.getAttribute(SiteHelper.SITE_PICKER_SITE_ID);
-			toolSession.removeAttribute(SiteHelper.SITE_PICKER_SITE_ID);
-			if ( siteAttribute instanceof String) 
-			{
-				try
-				{
-					Site site = SiteService.getSite((String)siteAttribute);
-					editModel.put("new", createSiteMap(site));
-					return new ModelAndView( "replace", editModel );
-				} catch (IdUnusedException iue) {
-					log.warn("Couldn't find site returned by helper: "+ siteAttribute);
-					// TODO Display message to user.
-				}
-			}
-		}
-		else if (ACT_SAVE_SITE.equals(action))
-		{
-			String siteId = request.getParameter(REQUEST_SITE);
+		throw new IllegalStateException("You can't manage a non site node");
+	}
 
-			if (siteId != null && siteId.length() > 0)
-			{
-				phs.changeSite(node.getId(), siteId);
-				topRefresh = true;
-			}
-		}
-		else if (ACT_CUT.equals(action))
-		{
-			cutId = node.getId();
-			session.setAttribute(ManagerController.CUT_ID, cutId);
-		}
-		else if (ACT_PASTE.equals(action))
-		{
-			if (cutId != null)
-			{
-				phs.moveNode(cutId, node.getId());
-				session.removeAttribute(ManagerController.CUT_ID);
-				cutId = null;
-				topRefresh = true;
-			}
-		} else if (ACT_CANCEL.equals(action))
-		{
-			cutId = null;
-			session.removeAttribute(ManagerController.CUT_ID);
-		}
-		
-		Map<String, Object> showModel = new HashMap<String, Object>();
-		populateModel(showModel, request);
-		populateSite(showModel, node);
-		showModel.put("topRefresh", topRefresh);
-		if (cutId != null) {
-			showModel.put("cutId", cutId);
-			PortalNode cutNode = phs.getNodeById(cutId);
-			showModel.put("cutChild", node.getPath().startsWith(cutNode.getPath()));
-			showModel.put("cutNode", cutNode);
-			return new ModelAndView( "cut", showModel);
-		} else {
-			showModel.put("canDelete", phs.canDeleteNode(node.getId()));
-			showModel.put("canMove", phs.canMoveNode(node.getId()));
-			showModel.put("canReplace", phs.canChangeSite(node.getId()));
-			return new ModelAndView("show", showModel);
-		}
-
-
-
-			}
-
-	private StringBuilder buildUrl(HttpServletRequest request) {
+	protected StringBuilder buildUrl(HttpServletRequest request, String pathInfo) {
 		StringBuilder doneUrl = new StringBuilder();
-		if (request.getContextPath() != null) doneUrl.append(request.getContextPath());
-		if (request.getServletPath() != null) doneUrl.append(request.getServletPath());
-		if (request.getPathInfo() != null) doneUrl.append(request.getPathInfo());
+		if (request.getContextPath() != null)
+			doneUrl.append(request.getContextPath());
+		if (request.getServletPath() != null)
+			doneUrl.append(request.getServletPath());
+		if (pathInfo != null)
+			doneUrl.append(pathInfo);
 		return doneUrl;
 	}
 
-	private void populateSite(Map<String, Object> editModel, PortalNode node) {
-			Map<String,Object> site = createSiteMap(node.getSite());
-			site.putAll(createNodeMap(node));
-			
-			List<PortalNode> nodes = phs.getNodesWithSite(node.getSite().getId());
-			List<Map<String, Object>> paths = new ArrayList<Map<String, Object>>(nodes.size());
-			for (PortalNode currentNode: nodes) {
-				if (!node.getPath().equals(currentNode.getPath()))
-					paths.add(createNodeMap(currentNode));
-			}
-			editModel.put("other", paths);
-			editModel.put("current", site);
+	protected void populateSite(Map<String, Object> editModel, PortalNodeSite node) {
+		Map<String, Object> site = createSiteMap(node.getSite());
+		site.putAll(createNodeMap(node));
+
+		List<PortalNode> nodes = portalHierarchyService.getNodesWithSite(node.getSite().getId());
+		List<Map<String, Object>> paths = new ArrayList<Map<String, Object>>(nodes.size());
+		for (PortalNode currentNode : nodes) {
+			if (!node.getPath().equals(currentNode.getPath()))
+				paths.add(createNodeMap(currentNode));
+		}
+		editModel.put("other", paths);
+		editModel.put("current", site);
 	}
-	
-	private Map<String, Object> createSiteMap(Site site) {
+
+	protected Map<String, Object> createSiteMap(Site site) {
 		Map<String, Object> siteMap = new HashMap<String, Object>();
 		siteMap.put("siteTitle", site.getTitle());
 		siteMap.put("siteId", site.getId());
@@ -208,28 +131,197 @@ public class ManagerController extends AbstractController
 		return siteMap;
 	}
 
-	private Map<String, Object> createNodeMap(PortalNode node) {
+	protected Map<String, Object> createNodeMap(PortalNode node) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("nodePath", node.getPath());
 		map.put("nodeId", node.getId());
-		map.put("nodeUrl",ServerConfigurationService.getPortalUrl()+"/hierarchy"+ node.getPath());
+		map.put("nodeUrl", serverConfigurationService.getPortalUrl() + "/hierarchy" + node.getPath());
 		return map;
 	}
 
-	private void populateModel(Map<String, Object> model, HttpServletRequest request)
-	{
-		model.put("sakai_fragment","false");
-		model.put("sakai_head", (String) request
-				.getAttribute("sakai.html.head"));
-		model.put("sakai_onload", (String) request
-				.getAttribute("sakai.html.body.onload"));
+	@ModelAttribute
+	public void referenceData(HttpServletRequest request, Model model) {
+		model.addAllAttributes(velocityControllerUtils.referenceData(request));
+		populateModelShow(model, request);
+	}
 
-		model.put("toolTitle", "Hierarchy Manager");
-		String editor = ServerConfigurationService.getString("wysiwyg.editor");
-		model.put("sakai_editor", editor);
-		model.put("sakai_library_path", "/library/");
+	protected Model populateModelShow(Model model, HttpServletRequest request) {
 
-		model.put("rootUrl", request.getContextPath()+request.getServletPath());
+		PortalNodeSite node = portalHierarchyService.getCurrentPortalNode();
+
+		Map<String, Object> site = createSiteMap(node.getSite());
+		site.putAll(createNodeMap(node));
+		model.addAttribute("current", site);
+
+		List<PortalNode> nodes = portalHierarchyService.getNodesWithSite(node.getSite().getId());
+		List<Map<String, Object>> paths = new ArrayList<Map<String, Object>>(nodes.size());
+		for (PortalNode currentNode : nodes) {
+			if (!node.getPath().equals(currentNode.getPath()))
+				paths.add(createNodeMap(currentNode));
+		}
+		model.addAttribute("other", paths);
+
+		model.addAttribute("canDelete", portalHierarchyService.canDeleteNode(node.getId()));
+		model.addAttribute("canMove", portalHierarchyService.canMoveNode(node.getId()));
+		model.addAttribute("canReplace", portalHierarchyService.canChangeSite(node.getId()));
+		// Need to list the redirect nodes.
+		List<PortalNode> nodeChildren = portalHierarchyService.getNodeChildren(node.getId());
+
+		Collections.sort(nodeChildren, nodeComparator);
+		List<Map<String, String>> redirectNodes = new ArrayList<Map<String, String>>();
+		for (PortalNode nodeChild : nodeChildren) {
+			if (nodeChild instanceof PortalNodeRedirect) {
+				PortalNodeRedirect redirectNode = (PortalNodeRedirect) nodeChild;
+				Map<String, String> redirectDetails = new HashMap<String, String>();
+				redirectDetails.put("id", redirectNode.getId());
+				redirectDetails.put("path", redirectNode.getPath());
+				redirectDetails.put("title", redirectNode.getTitle());
+				redirectDetails.put("url", redirectNode.getUrl());
+				redirectDetails.put("appendPath", redirectNode.isAppendPath() ? "true" : null);
+				redirectNodes.add(redirectDetails);
+			}
+		}
+
+		model.addAttribute("redirectNodes", redirectNodes);
+
+		model.addAttribute("titleMaxLength", serverConfigurationService.getInt("site.title.maxlength", 20));
+		return model;
+
+	}
+
+	protected Model populateModelCut(Model model) {
+		PortalNodeSite node = portalHierarchyService.getCurrentPortalNode();
+		Session session = sessionManager.getCurrentSession();
+		String cutId = (String) session.getAttribute(ManagerController.CUT_ID);
+
+		if (cutId != null) {
+			PortalNode cutNode = portalHierarchyService.getNodeById(cutId);
+			if (cutNode != null) {
+				model.addAttribute("cutId", cutId);
+				model.addAttribute("cutChild", node.getPath().startsWith(cutNode.getPath()));
+				model.addAttribute("cutNode", cutNode);
+			}
+		}
+		return model;
+	}
+
+	@RequestMapping(value = "/redirect/add", method = RequestMethod.POST)
+	public String addRedirect(@ModelAttribute("redirect-add") AddRedirectCommand redirect, BindingResult result,
+			ModelMap model) {
+		new AddRedirectCommandValidator().validate(redirect, result);
+		if (result.hasErrors()) {
+			return "show";
+		}
+		try {
+			String parentId = portalHierarchyService.getCurrentPortalNode().getId();
+			String url = redirect.getUrl();
+			String serverUrl = serverConfigurationService.getServerUrl();
+			// Make the URL relative if we can.
+			if (url.toLowerCase().startsWith(serverUrl.toLowerCase())) {
+				url = url.substring(serverUrl.length());
+				if (!url.startsWith("/")) {
+					url = "/" + url;
+				}
+			}
+			portalHierarchyService.newRedirectNode(parentId, redirect.getName(), url,
+					redirect.getTitle(), redirect.isAppendPath());
+			return "refresh";
+		} catch (IllegalArgumentException iae) {
+			result.rejectValue("name", "error.name.exists");
+		} catch (PermissionException e) {
+			result.reject("error.no.permission");
+		}
+		return "show";
+	}
+
+	@RequestMapping(value = "/redirect/delete", method = RequestMethod.POST)
+	public String deleteRedirect(@ModelAttribute("redirect-remove") DeleteRedirectCommand command,
+			BindingResult errors, ModelMap model) {
+		new DeleteRedirectCommandValidator().validate(command, errors);
+		if (errors.hasErrors()) {
+			return "show";
+		}
+		try {
+			portalHierarchyService.deleteNode(command.getId());
+			return "refresh";
+		} catch (IllegalStateException e) {
+			throw new RuntimeException("Redirects should never have children so shouldn't see this exception.", e);
+		} catch (PermissionException e) {
+			errors.rejectValue("id", "error.no.permission");
+		}
+		return "show";
+	}
+
+	@RequestMapping(value = "/site/change", method = RequestMethod.POST)
+	public ModelAndView changeSite(HttpServletRequest request) {
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+
+		toolSession.setAttribute(Tool.HELPER_DONE_URL, buildUrl(request, "/site/save").toString());
+		toolSession.setAttribute(SiteHelper.SITE_PICKER_PERMISSION,
+				org.sakaiproject.site.api.SiteService.SelectionType.UPDATE);
+
+		// Go to the helper
+		RedirectView redirectView = new RedirectView("/sites", true);
+		// We don't want to pass through all the model data.
+		redirectView.setExposeModelAttributes(false);
+		return new ModelAndView(redirectView);
+	}
+
+	// We throw an exception (MissingServletRequestParameterException) when
+	// siteId isn't present
+	// This is a GET as when returning from the helper you get the data back on
+	// a redirect.
+	@RequestMapping(value = "/site/save", method = RequestMethod.GET)
+	public String saveSite(HttpServletRequest request, @RequestParam(REQUEST_SITE) String siteId) {
+		PortalNode node = portalHierarchyService.getCurrentPortalNode();
+
+		if (siteId != null && !siteId.isEmpty()) {
+			try {
+				portalHierarchyService.changeSite(node.getId(), siteId);
+			} catch (PermissionException e) {
+				// error? we have a redirect so will anything we do persist?
+				throw new IllegalStateException(
+						"You shouldn't have been able to select a site as you don't have permission.", e);
+			}
+		}
+		return "refresh";
+	}
+
+	@RequestMapping(value = "/cut", method = RequestMethod.POST)
+	public ModelAndView cutSite(HttpServletRequest request, Model model) {
+		Session session = sessionManager.getCurrentSession();
+		session.setAttribute(CUT_ID, getCurrentNode(request.getPathInfo()).getId());
+		// Have to update the model as we've set the cut-id now.
+		return new ModelAndView("cut", populateModelCut(model).asMap());
+	}
+
+	@RequestMapping(value = "/cancel", method = RequestMethod.POST)
+	public String cancel() {
+		Session session = sessionManager.getCurrentSession();
+		session.removeAttribute(CUT_ID);
+		return "show";
+	}
+
+	@RequestMapping(value = "/paste", method = RequestMethod.POST)
+	public String pasteSite() {
+		Session session = sessionManager.getCurrentSession();
+		String cutId = (String) session.getAttribute(CUT_ID);
+		PortalNodeSite node = getCurrentNode(null);
+
+		try {
+			portalHierarchyService.moveNode(cutId, node.getId());
+		} catch (PermissionException e) {
+			throw new IllegalStateException(
+					"You shouldn't have been able to paste the site as you don't have permission.", e);
+		}
+		session.removeAttribute(ManagerController.CUT_ID);
+		return "refresh";
+	}
+
+	@RequestMapping("/*")
+	protected ModelAndView handleRequestInternal(Model model) {
+		return (sessionManager.getCurrentSession().getAttribute(CUT_ID) != null) ? new ModelAndView("cut",
+				populateModelCut(model).asMap()) : new ModelAndView("show", model.asMap());
 	}
 
 }

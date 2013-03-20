@@ -19,17 +19,16 @@ import org.springframework.validation.Errors;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.SimpleFormController;
 
-public class NewSiteController extends SimpleFormController
-{
+public class NewSiteController extends SimpleFormController {
 
-	public static final String ATTRIBUTE_URL = NewSiteController.class.getName()+ "#URL";
-	
+	public static final String ATTRIBUTE_URL = NewSiteController.class.getName() + "#URL";
+
 	private static final Log log = LogFactory.getLog(NewSiteController.class);
-	
+
 	private String returnPath;
-	
+
 	private int titleMaxLength;
-	
+
 	public String getReturnPath() {
 		return returnPath;
 	}
@@ -41,27 +40,28 @@ public class NewSiteController extends SimpleFormController
 	public NewSiteController() {
 		setCommandClass(NewSiteCommand.class);
 	}
-	
+
 	public void init() {
-		
+
 	}
 
 	/**
-	 * We override this so that two controllers can share the same command class.
+	 * We override this so that two controllers can share the same command
+	 * class.
 	 */
 	protected String getFormSessionAttributeName() {
-		return getCommandClass().getName()+"#FORM";
+		return getCommandClass().getName() + "#FORM";
 	}
-	
+
 	protected Object formBackingObject(HttpServletRequest request) throws Exception {
-		NewSiteCommand command = (NewSiteCommand)super.formBackingObject(request);
+		NewSiteCommand command = (NewSiteCommand) super.formBackingObject(request);
 		return command;
 	}
-	
+
 	@Override
-	protected ModelAndView onSubmit(HttpServletRequest request, HttpServletResponse response, Object command, BindException errors)
-			throws Exception {
-		NewSiteCommand newSite = (NewSiteCommand)command;
+	protected ModelAndView onSubmit(HttpServletRequest request, HttpServletResponse response, Object command,
+			BindException errors) throws Exception {
+		NewSiteCommand newSite = (NewSiteCommand) command;
 
 		// Check for duplicate node.
 		// Not done in validator as it requires DB access.
@@ -76,41 +76,44 @@ public class NewSiteController extends SimpleFormController
 		}
 		// This will actually be a tool session specific to this tool.
 		HttpSession session = request.getSession();
-		
-		
+
 		// Chuck the URL into the session so another controller can use it.
 		session.setAttribute(ATTRIBUTE_URL, newSite.getName());
-		
+
 		// TODO Need to change done URL.
-		session.setAttribute(Tool.HELPER_DONE_URL, request.getContextPath()+ request.getServletPath()+getReturnPath());
+		session.setAttribute(Tool.HELPER_DONE_URL, request.getContextPath() + request.getServletPath()
+				+ getReturnPath());
 		session.setAttribute(SiteHelper.SITE_CREATE_START, Boolean.TRUE);
 		session.setAttribute(SiteHelper.SITE_CREATE_SITE_TYPES, "project,course");
 		session.setAttribute(SiteHelper.SITE_CREATE_SITE_TITLE, newSite.getTitle());
 		return super.onSubmit(command, errors);
 	}
 
-
 	@Override
-	protected Map<String, String> referenceData(HttpServletRequest request, Object command, Errors errors)
-	{
-		Map referenceData = VelocityControllerUtils.referenceData(request, command, errors);
+	protected Map<String, String> referenceData(HttpServletRequest request, Object command, Errors errors) {
+		Map referenceData = new VelocityControllerUtils(ServerConfigurationService.getInstance())
+				.referenceData(request);
+
 		referenceData.put("titleMaxLength", getTitleMaxLength());
 		referenceData.put("mode", "new");
-		
+
 		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
 		PortalNode currentNode = hs.getCurrentPortalNode();
 		String sitePath = currentNode.getPath();
-		referenceData.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ sitePath);
+		// The root of the hierarchy is just "/" all other nodes don't end with
+		// a /
+		if (sitePath.endsWith("/")) {
+			sitePath = sitePath.substring(0, sitePath.length() - 1);
+		}
+		referenceData.put("siteUrl", ServerConfigurationService.getPortalUrl() + "/hierarchy" + sitePath);
 		return referenceData;
 	}
 
-	public int getTitleMaxLength()
-	{
+	public int getTitleMaxLength() {
 		return titleMaxLength;
 	}
 
-	public void setTitleMaxLength(int titleMaxLength)
-	{
+	public void setTitleMaxLength(int titleMaxLength) {
 		this.titleMaxLength = titleMaxLength;
 	}
 

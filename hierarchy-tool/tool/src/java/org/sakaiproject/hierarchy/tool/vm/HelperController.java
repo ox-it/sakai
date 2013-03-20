@@ -6,34 +6,38 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.api.ActiveTool;
-import org.sakaiproject.tool.cover.ActiveToolManager;
+import org.sakaiproject.tool.api.ActiveToolManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractController;
 
-public class HelperController extends AbstractController {
+/**
+ * Base controller for helpers. Subclasses should specify the helper ID
+ * and map it to a particular path.
+ * 
+ * @author Matthew Buckett
+ *
+ */
+public abstract class HelperController {
 
-	private String helperId;
-	
-	private static Log log = LogFactory.getLog(HelperController.class); 
-	
-	public String getHelperId() {
-		return helperId;
+	private static Log log = LogFactory.getLog(HelperController.class);
+
+	private ActiveToolManager activeToolManager;
+
+	public abstract String getHelperId();
+
+	@Autowired
+	public void setActiveToolManager(ActiveToolManager activeToolManager) {
+		this.activeToolManager = activeToolManager;
 	}
 
-	public void setHelperId(String helperId) {
-		this.helperId = helperId;
-	}
+	@RequestMapping(method = { RequestMethod.POST, RequestMethod.GET })
+	protected ModelAndView handleRequestInternal(HttpServletRequest req, HttpServletResponse res) throws Exception {
 
-	@Override
-	protected ModelAndView handleRequestInternal(HttpServletRequest req,
-			HttpServletResponse res) throws Exception {
-		
-		ActiveTool tool = ActiveToolManager.getActiveTool(helperId);
-		String path = "/sites";
-
-		String context = req.getContextPath() + req.getServletPath() + path;
+		ActiveTool tool = activeToolManager.getActiveTool(getHelperId());
 		if (log.isDebugEnabled()) {
-			log.debug(context);
+			log.debug("Dispatching to: " + getHelperId() + " for " + req.getRequestURI());
 		}
 		req.removeAttribute(ActiveTool.NATIVE_URL);
 		tool.help(req, res, null, null);

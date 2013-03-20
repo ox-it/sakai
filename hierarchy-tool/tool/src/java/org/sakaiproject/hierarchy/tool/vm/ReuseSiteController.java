@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.sitemanage.api.SiteHelper;
@@ -23,7 +24,7 @@ public class ReuseSiteController extends SimpleFormController {
 	private String cancelledView;
 
 	private Integer titleMaxLength;
-	
+
 	public Integer getTitleMaxLength() {
 		return titleMaxLength;
 	}
@@ -37,30 +38,30 @@ public class ReuseSiteController extends SimpleFormController {
 	}
 
 	@Override
-	protected void onBindOnNewForm(HttpServletRequest request, Object object)
-			throws Exception {
-		NewSiteCommand command = (NewSiteCommand)object;
+	protected void onBindOnNewForm(HttpServletRequest request, Object object) throws Exception {
+		NewSiteCommand command = (NewSiteCommand) object;
 		HttpSession session = request.getSession();
-		
+
 		Object attribute = session.getAttribute(SiteHelper.SITE_PICKER_SITE_ID);
 		if (attribute instanceof String) {
-			String siteId = (String)attribute;
+			String siteId = (String) attribute;
 			// If throw exception if doesn't exist and bomb out.
 			Site site = SiteService.getSite(siteId);
 			command.setTitle(site.getTitle());
 			command.setSiteId(siteId);
-		}		
-		
+		}
+
 	}
-	
+
+	@Override
 	protected Object formBackingObject(HttpServletRequest request) throws Exception {
-		NewSiteCommand command = (NewSiteCommand)super.formBackingObject(request);
+		NewSiteCommand command = (NewSiteCommand) super.formBackingObject(request);
 		return command;
 	}
-	
+
 	@Override
-	protected ModelAndView handleRequestInternal(HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+	protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
 		HttpSession session = request.getSession();
 		if (session.getAttribute(SiteHelper.SITE_PICKER_CANCELLED) != null) {
 			session.removeAttribute(SiteHelper.SITE_PICKER_CANCELLED);
@@ -70,12 +71,10 @@ public class ReuseSiteController extends SimpleFormController {
 	}
 
 	@Override
-	protected ModelAndView onSubmit(HttpServletRequest request,
-			HttpServletResponse response, Object object, BindException errors)
-			throws Exception {
-		
-		
-		NewSiteCommand command = (NewSiteCommand)object;
+	protected ModelAndView onSubmit(HttpServletRequest request, HttpServletResponse response, Object object,
+			BindException errors) throws Exception {
+
+		NewSiteCommand command = (NewSiteCommand) object;
 		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
 		PortalNode currentNode = hs.getCurrentPortalNode();
 		List<PortalNode> children = hs.getNodeChildren(currentNode.getId());
@@ -85,15 +84,16 @@ public class ReuseSiteController extends SimpleFormController {
 				return showForm(request, response, errors);
 			}
 		}
-		
+
 		String sitePath = null;
 		Map model = errors.getModel();
 		try {
-			PortalNode node = hs.getCurrentPortalNode();
-			PortalNode newNode = hs.newNode(node.getId(), command.getName(), command.getSiteId(), node.getManagementSite().getId());
+			PortalNodeSite node = hs.getCurrentPortalNode();
+			PortalNode newNode = hs.newSiteNode(node.getId(), command.getName(), command.getSiteId(), node
+					.getManagementSite().getId());
 			sitePath = newNode.getPath();
-			model.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ sitePath);
-			model.putAll(VelocityControllerUtils.referenceData(request, command, errors));
+			model.put("siteUrl", ServerConfigurationService.getPortalUrl() + "/hierarchy" + sitePath);
+			model.putAll(new VelocityControllerUtils(ServerConfigurationService.getInstance()).referenceData(request));
 		} catch (Exception hse) {
 			errors.reject("error.add.hierarchy");
 			return showForm(request, errors, getFormView(), errors.getModel());
@@ -111,15 +111,14 @@ public class ReuseSiteController extends SimpleFormController {
 	}
 
 	@Override
-	protected Map referenceData(HttpServletRequest request, Object command,
-			Errors errors) throws Exception {
-		Map data = VelocityControllerUtils.referenceData(request, command, errors);
-		
+	protected Map referenceData(HttpServletRequest request, Object command, Errors errors) throws Exception {
+		Map data = new VelocityControllerUtils(ServerConfigurationService.getInstance()).referenceData(request);
+
 		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
 		PortalNode currentNode = hs.getCurrentPortalNode();
 		String sitePath = currentNode.getPath();
-		data.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ sitePath);
-		
+		data.put("siteUrl", ServerConfigurationService.getPortalUrl() + "/hierarchy" + sitePath);
+
 		data.put("titleMaxLength", getTitleMaxLength());
 		data.put("mode", "reuse");
 		return data;

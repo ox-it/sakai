@@ -13,6 +13,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.Portal.LoginRoute;
 import org.sakaiproject.site.api.Site;
@@ -63,11 +64,12 @@ public class HierarchyToolHandler extends ToolHandler {
 			{
 				siteTool = SiteService.findTool(parts[0]);
 				PortalNode node = portalHierarchyService.getNodeById(parts[1]);
-				if (node != null)
+				if (node instanceof PortalNodeSite)
 				{
-					portalHierarchyService.setCurrentPortalNode(node);
-					skin = node.getSite().getSkin();
-					siteTool = new AdoptedToolConfiguration(new AdoptedSitePage(node, siteTool.getContainingPage()), siteTool);
+					PortalNodeSite siteNode = (PortalNodeSite)node;
+					portalHierarchyService.setCurrentPortalNode(siteNode);
+					skin = siteNode.getSite().getSkin();
+					siteTool = new AdoptedToolConfiguration(new AdoptedSitePage(siteNode, siteTool.getContainingPage()), siteTool);
 				} else {
 					log.info("Node not found: "+ parts[1]);
 				}

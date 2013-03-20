@@ -1,10 +1,6 @@
 package org.sakaiproject.hierarchy.cover;
 
-import java.util.List;
-
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.hierarchy.api.model.PortalNode;
 
 public class PortalHierarchyService {
 	

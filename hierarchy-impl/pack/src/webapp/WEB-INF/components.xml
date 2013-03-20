@@ -27,57 +27,59 @@
 
 	<import resource="hibernate-hbms.xml"/>
 	<import resource="portal-spring-hibernate.xml"/>
-	
-	<bean id="org.sakaiproject.hierarchy.api.PortalHierarchyServiceTarget"
-		class="org.sakaiproject.hierarchy.impl.PortalHierarchyServiceImpl"
-		init-method="init" >
-		<property name="hierarchyService">
-			<ref bean="org.sakaiproject.hierarchy.HierarchyService" />
-		</property>
-		<property name="siteService">
-			<ref bean="org.sakaiproject.site.api.SiteService" />		
-		</property>
-		<property name="threadLocalManager">
-			<ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
-		</property>
-		<property name="sessionManager">
-			<ref bean="org.sakaiproject.tool.api.SessionManager" />
-		</property>
-		<property name="securityService">
-			<ref bean="org.sakaiproject.authz.api.SecurityService" />
-		</property>
-		<property name="eventTrackingService">
-			<ref bean="org.sakaiproject.event.api.EventTrackingService" />
-		</property>
-		<property name="functionManager">
-			<ref bean="org.sakaiproject.authz.api.FunctionManager" />
-		</property>
-		<property name="dao">
-			<ref bean="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistenNodeDao"/>
-		</property>
-		<!--  Which hierarchy to use. -->
-		<property name="hierarchyId"><value>hierarchy</value></property>
-		<property name="missingSiteId"><value>!hierarchy.missing</value></property>
-		<property name="autoDDL"><value>${auto.ddl}</value></property>
-	</bean>
 
-	<bean
-		id="org.sakaiproject.hierarchy.api.PortalHierarchyService"
+	<bean id="org.sakaiproject.hierarchy.api.PortalHierarchyService"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager">
-				<ref
-						bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+			<ref
+				bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
 		</property>
 		<property name="target">
-				<ref
-						bean="org.sakaiproject.hierarchy.api.PortalHierarchyServiceTarget" />
+			<bean class="org.sakaiproject.hierarchy.impl.PortalHierarchyServiceImpl"
+				init-method="init">
+				<property name="hierarchyService">
+					<ref bean="org.sakaiproject.hierarchy.HierarchyService" />
+				</property>
+				<property name="siteService">
+					<ref bean="org.sakaiproject.site.api.SiteService" />
+				</property>
+				<property name="threadLocalManager">
+					<ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+				</property>
+				<property name="sessionManager">
+					<ref bean="org.sakaiproject.tool.api.SessionManager" />
+				</property>
+				<property name="securityService">
+					<ref bean="org.sakaiproject.authz.api.SecurityService" />
+				</property>
+				<property name="eventTrackingService">
+					<ref bean="org.sakaiproject.event.api.EventTrackingService" />
+				</property>
+				<property name="functionManager">
+					<ref bean="org.sakaiproject.authz.api.FunctionManager" />
+				</property>
+				<property name="dao">
+					<ref
+						bean="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistenNodeDao" />
+				</property>
+				<!-- Which hierarchy to use. -->
+				<property name="hierarchyId">
+					<value>hierarchy</value>
+				</property>
+				<property name="missingSiteId">
+					<value>!hierarchy.missing</value>
+				</property>
+				<property name="autoDDL">
+					<value>${auto.ddl}</value>
+				</property>
+			</bean>
 		</property>
 		<property name="transactionAttributes">
-				<props>
-						<prop key="moveNode">PROPAGATION_REQUIRED</prop>
-						<prop key="deleteNode">PROPAGATION_REQUIRED</prop>
-						<prop key="newNode">PROPAGATION_REQUIRED</prop>
-				</props>
+			<props>
+				<prop key="moveNode">PROPAGATION_REQUIRED</prop>
+				<prop key="deleteNode">PROPAGATION_REQUIRED</prop>
+				<prop key="newNode">PROPAGATION_REQUIRED</prop>
+			</props>
 		</property>
 	</bean>
 

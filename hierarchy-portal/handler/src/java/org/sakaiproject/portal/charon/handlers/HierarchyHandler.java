@@ -22,7 +22,10 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
+import org.sakaiproject.hierarchy.api.PortalNodeComparator;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.hierarchy.api.model.PortalNodeRedirect;
+import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
@@ -46,26 +49,8 @@ public class HierarchyHandler extends SiteHandler {
 	private PortalHierarchyService portalHierarchyService;
 	private SecurityService securityService;
 	private boolean resetTools;
-	
-	/**
-	 * Sort on the title of the site.
-	 */
-	private Comparator<Site> siteTitleSorter = new Comparator<Site>() {
 
-		public int compare(Site site1, Site site2) {
-			String siteTitle1 = site1.getTitle();
-			String siteTitle2 = site2.getTitle();
-			if (siteTitle1 == null) {
-				if (siteTitle2 == null) {
-					return site1.compareTo(site2);
-				} else {
-					return siteTitle2.compareTo(siteTitle1);
-				}
-			} else {
-				return siteTitle1.compareTo(siteTitle2);
-			}
-		}
-	};
+	private Comparator<PortalNode> nodeTitleSorter = new PortalNodeComparator();
 
 	public HierarchyHandler(SiteService siteService, PortalHierarchyService portalHierarchyService, SecurityService securityService, String fragment) {
 		this.siteService = siteService;
@@ -139,6 +124,23 @@ public class HierarchyHandler extends SiteHandler {
 					}
 					catch (IdUnusedException iuue)
 					{
+						// Before we show the error site we need to check for redirects on the leave of the tree.
+						int currentEnd = start;
+						while (++currentEnd < end) {
+							hierarchyPath = buildPath(parts, start, currentEnd);
+							node = portalHierarchyService.getNode(hierarchyPath);
+							if (node == null)
+							{
+								// Fallen out of the tree.
+								break;
+							}
+							else if(node instanceof PortalNodeRedirect)
+							{
+								// Do redirect.
+								doRedirect(buildPath(parts, start, parts.length), res, node);
+								return END;
+							}
+						}
 						portal.doError(req, res, session, Portal.ERROR_SITE);
 						return END;
 					}
@@ -154,21 +156,23 @@ public class HierarchyHandler extends SiteHandler {
 					node = portalHierarchyService.getNode(null);
 				}
 			}
-			
-			if (node != null){
-				portalHierarchyService.setCurrentPortalNode(node);
-				site = node.getSite();
-			}
-			
 
-
-			
 			log.debug("siteId: "+ ((site==null)?"null":site.getId())+ " pageId: "+ pageId);
+			
 			if (node == null) {
 				super.doSite(req, res, session, site.getId(), pageId, req.getContextPath()+req.getServletPath());
 			} else {
-				doSite(req, res, session, site, pageId, req.getContextPath()
-						+ req.getServletPath()+node.getPath(), node);
+				if (node instanceof PortalNodeSite) {
+					PortalNodeSite siteNode = (PortalNodeSite) node;
+					portalHierarchyService.setCurrentPortalNode(siteNode);
+					site = siteNode.getSite();
+					doSite(req, res, session, site, pageId, req.getContextPath()
+						+ req.getServletPath()+siteNode.getPath(), siteNode);
+				} else if (node instanceof PortalNodeRedirect) {
+					doRedirect(buildPath(parts, start, parts.length), res, node);
+				} else {
+					throw new IllegalStateException("We only know about 2 node types.");
+				}
 			}
 			return END;
 		}
@@ -179,7 +183,40 @@ public class HierarchyHandler extends SiteHandler {
 	}
 
 	/**
+	 * This sends the redirect to the user.
+	 * @param fullPath The full path of the parts that matched including the extra parts.
+	 * @param res The response to which we send the redirect.
+	 * @param node The redirect node that the user ended up at.
+	 */
+	private void doRedirect(String fullPath, HttpServletResponse res, PortalNode node)
+			throws IOException
+	{
+		PortalNodeRedirect redirectNode = (PortalNodeRedirect) node;
+		String redirect = redirectNode.getUrl();
+		if (redirectNode.isAppendPath())
+		{
+			String nodePath = node.getPath();
+			if (fullPath.startsWith(nodePath))
+			{
+				String extraPath = fullPath.substring(nodePath.length());
+				if (redirect.endsWith("/") && extraPath.length() > 1)
+				{
+					extraPath = extraPath.substring(1); 
+				}
+				redirect = redirect + extraPath;
+			}
+			else
+			{
+				// This shouldn't happen.
+				log.warn("Failed to match node path against request path, extra parameters not appended. Path: "+ fullPath+ " NodePath: "+ nodePath);
+			}
+		}
+		res.sendRedirect(redirect);
+	}
+
+	/**
 	 * Builds a hierarchy path from subset of the parts supplied.
+	 * The resulting path never ends with a '/'.
 	 * @return The built string.
 	 */
 	private String buildPath(String[] parts, int start, int stop)
@@ -194,7 +231,7 @@ public class HierarchyHandler extends SiteHandler {
 	
 
 	public void doSite(HttpServletRequest req, HttpServletResponse res, Session session,
-			final Site site, String pageId, String toolContextPath, PortalNode node) throws ToolException,
+			final Site site, String pageId, String toolContextPath, PortalNodeSite node) throws ToolException,
 			IOException
 	{
 		Site hierarchySite = null;
@@ -208,7 +245,6 @@ public class HierarchyHandler extends SiteHandler {
 
 		if (!node.canView())
 		{
-			String userId = session.getUserId();
 			doPermissionDenied(req, res, session, site, toolContextPath);
 			return;
 		}
@@ -362,7 +398,7 @@ public class HierarchyHandler extends SiteHandler {
 	}
 	
 	protected void includeHierarchyNav(PortalRenderContext rcontext, HttpServletRequest req,
-			Session session, Site site, SitePage page, String toolContextPath, String prefix, String siteUrl, Site hierarchySite, PortalNode node)
+			Session session, Site site, SitePage page, String toolContextPath, String prefix, String siteUrl, Site hierarchySite, PortalNodeSite node)
 	{
 			boolean loggedIn = session.getUserId() != null;
 
@@ -384,20 +420,19 @@ public class HierarchyHandler extends SiteHandler {
 				includeLogo(rcontext, req, session, site.getId());
 				includeHierarchy(rcontext, req, session, site, page, toolContextPath, prefix, siteUrl, hierarchySite, node);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 	}
 
-	private void includeHierarchy(PortalRenderContext rcontext, HttpServletRequest req, Session session, final Site site, SitePage page, String toolContextPath, String portalPrefix, String siteUrl, final Site hierarchySite, PortalNode node) {
+	private void includeHierarchy(PortalRenderContext rcontext, HttpServletRequest req, Session session, final Site site, SitePage page, String toolContextPath, String portalPrefix, String siteUrl, final Site hierarchySite, PortalNodeSite node) {
 		// Need to get list of parents
 
-		List<PortalNode> parentNodes = portalHierarchyService.getNodesFromRoot(node.getId());
+		List<PortalNodeSite> parentNodes = portalHierarchyService.getNodesFromRoot(node.getId());
 
 		boolean loggedIn = session.getUserId() != null;
 
 		List<Site> parentSites = new ArrayList<Site>(parentNodes.size());
-		for (PortalNode parentNode: parentNodes) {
+		for (PortalNodeSite parentNode: parentNodes) {
 			parentSites.add(parentNode.getSite());
 		}
 		String currentSiteId = node.getSite().getId();
@@ -412,19 +447,27 @@ public class HierarchyHandler extends SiteHandler {
 
 		// Details of children.
 		// List of site.visit but also display joinable.
+		// Also list redirect nodes that should be shown.
 
-		List<Site> childSites = new ArrayList<Site>();
+		List<PortalNode> childNodes = new ArrayList<PortalNode>();
 
 		for (PortalNode currentChild : portalHierarchyService.getNodeChildren(node.getId())) {
-			if (currentChild.canView() || ((currentChild.getSite().isJoinable() && currentChild.getSite().isPublished()) && (loggedIn || currentChild.getSite().isPubView()))) {
-				childSites.add(currentChild.getSite());
+			if (currentChild.canView()) {
+				childNodes.add(currentChild);
+			} else if (currentChild instanceof PortalNodeSite) {
+				PortalNodeSite siteChild = (PortalNodeSite) currentChild;
+				if (((siteChild.getSite().isJoinable() && siteChild.getSite().isPublished()) && (loggedIn || siteChild.getSite().isPubView()))) {
+					childNodes.add(currentChild);
+				}
+			} else if (currentChild instanceof PortalNodeRedirect) {
+				// No special rules.
 			}
 		}
 
-		// Need to sort the child sites by title, we don't do this in the DB so that changes in site title switch the sorting order straight away.
-		Collections.sort(childSites, siteTitleSorter);
+		// Sort the nodes.
+		Collections.sort(childNodes, nodeTitleSorter);
 
-		List<Map> childSiteMaps = portal.getSiteHelper().convertSitesToMaps(req, childSites, getUrlFragment(), currentSiteId, myWorkspaceId, false, false, resetTools, false, null, loggedIn);
+		List<Map<String,String>> childSiteMaps = convertNodesToMaps(childNodes, node);
 		rcontext.put("children", childSiteMaps);
 
 		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + siteUrl
@@ -435,12 +478,54 @@ public class HierarchyHandler extends SiteHandler {
 
 
 		Map hierarchyPages = portal.getSiteHelper().pageListToMap(req, loggedIn, hierarchySite, page, toolUrl, portalPrefix, true, resetTools, false);
-		//Map hierarchyPages = pageListToMap(req, loggedIn, hierarchySite, page, toolUrl, portalPrefix, true, resetTools, false);
 		rcontext.put("hierarchyPages", hierarchyPages);
 
 
 		// What todo if you can't see current site?
 
+	}
+	
+
+	/*
+	 * Things that need to be in the children map:
+	 * <ul>
+	 * <li>isPublished</li>
+	 * <li>siteUrl</li>
+	 * <li>shortDescription</li>
+	 * <li>siteTitle</li>
+	 * </ul>
+	 * We used to use the PortalSiteHelper when we just had sites at all the nodes. 
+	 */
+	protected List<Map<String,String>> convertNodesToMaps(List<PortalNode>childNodes, PortalNodeSite current) {
+		List<Map<String,String>> list = new ArrayList<Map<String,String>>(childNodes.size());
+		for (PortalNode node: childNodes) {
+			Map<String,String> detail = new HashMap<String,String>();
+			if (node instanceof PortalNodeSite) {
+				Site site = ((PortalNodeSite)node).getSite();
+				detail.put("isPublished", Boolean.toString(site.isPublished()));
+				detail.put("type", "icon-sakai-subsite");
+				detail.put("siteUrl", site.getUrl());
+				detail.put("shortDescription", Web.escapeHtml(site.getShortDescription()));
+				detail.put("siteTitle", Web.escapeHtml(site.getTitle()));
+			} else if (node instanceof PortalNodeRedirect) {
+			    PortalNodeRedirect redirect = (PortalNodeRedirect)node;
+				detail.put("isPublished", "true");
+				detail.put("type", redirect.getUrl().contains("://")?
+				        "icon-sakai-redirect-external":
+				        "icon-sakai-redirect-internal");
+				String url = current.getSite().getUrl();
+				if (!url.endsWith("/")) {
+				    url += "/";
+				}
+				url += node.getName() + "/";
+				detail.put("siteUrl", url);
+				detail.put("shortDescription", "");
+				detail.put("siteTitle", Web.escapeHtml(node.getTitle()));
+			}
+			list.add(detail);
+		}
+		return list;
+		
 	}
 
 	private Map<String, Object> getUnknownSite(PortalNode currentNode) {
@@ -450,7 +535,7 @@ public class HierarchyHandler extends SiteHandler {
 		return null;
 	}
 	
-	private Map<String, Object> convertToMap(PortalNode currentNode) {
+	private Map<String, Object> convertToMap(PortalNodeSite currentNode) {
 		Map<String, Object> siteDetails = new HashMap<String, Object>();
 		if (currentNode.canView()) {
 			Site currentSite = currentNode.getSite();

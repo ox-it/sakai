@@ -7,7 +7,6 @@
 		<groupId>org.sakaiproject</groupId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
-	<groupId>org.sakaiproject</groupId>
 	<artifactId>sakai-hierarchy-tool</artifactId>
 	<name>sakai-hierarchy-tool</name>
 	<description>sakai-hierarchy</description>
@@ -34,10 +33,6 @@
 			<version>1.4</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 		</dependency>
@@ -48,7 +43,6 @@
 		<dependency>
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
-			<version>3.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -58,11 +52,27 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+		</dependency>
+
 	</dependencies>
 	<profiles>
 		<profile>
@@ -116,7 +126,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<dependencies>
-				<!--  Sakai services -->
+				<!-- Sakai services -->
 				<dependency>
 					<groupId>org.sakaiproject.kernel</groupId>
 					<artifactId>sakai-kernel-api</artifactId>
@@ -132,7 +142,7 @@
 			</dependencies>
 		</profile>
 	</profiles>
-	
+
 	<build>
 		<resources>
 			<resource>
@@ -142,7 +152,7 @@
 					<include>**/*.vm</include>
 				</includes>
 			</resource>
-			
+
 			<resource>
 				<directory>${basedir}/src/bundle</directory>
 				<includes>
@@ -151,5 +161,10 @@
 				</includes>
 			</resource>
 		</resources>
+		<testResources>
+			<testResource>
+				<directory>${basedir}/tool/src/test-resources</directory>
+			</testResource>
+		</testResources>
 	</build>
 </project>

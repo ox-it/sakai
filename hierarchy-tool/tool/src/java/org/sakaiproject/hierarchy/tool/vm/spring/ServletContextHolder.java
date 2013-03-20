@@ -10,6 +10,9 @@ public class ServletContextHolder
 	private static final Log log = LogFactory
 	.getLog(ServletContextHolder.class);
 	private ServletContext servletContext = null;
+	
+	public ServletContextHolder() {
+	}
 
 	public ServletContext getServletContext()
 	{

@@ -5,7 +5,7 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 	<display-name>sakai hierarchy manager</display-name>
 	<description>sakai hierarchy manager</description>
-	
+
 	<listener>
 		<listener-class>
 			org.sakaiproject.util.ToolListener
@@ -17,12 +17,18 @@
 			org.sakaiproject.util.ContextLoaderListener
 		</listener-class>
 	</listener>
+	
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath://applicationContext.xml</param-value>
+	</context-param>
 
 	<listener>
 		<listener-class>
 			org.sakaiproject.hierarchy.tool.vm.spring.VelocityContextListener
 		</listener-class>
 	</listener>
+	
 
 	<filter>
 		<filter-name>sakai.request</filter-name>
@@ -45,25 +51,21 @@
 	<servlet>
 		<servlet-name>sakai.hierarchy-manager</servlet-name>
 		<servlet-class>org.sakaiproject.hierarchy.tool.SpringDispatcherServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
 	</servlet>
 
 	<servlet>
 		<servlet-name>sakai.hierarchy-new-site</servlet-name>
 		<servlet-class>org.sakaiproject.hierarchy.tool.SpringDispatcherServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
 	<servlet>
 		<servlet-name>sakai.hierarchy-bring-site</servlet-name>
 		<servlet-class>org.sakaiproject.hierarchy.tool.SpringDispatcherServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
 	<servlet>
 		<servlet-name>sakai.hierarchy-delete-site</servlet-name>
 		<servlet-class>org.sakaiproject.hierarchy.tool.SpringDispatcherServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
 </web-app>

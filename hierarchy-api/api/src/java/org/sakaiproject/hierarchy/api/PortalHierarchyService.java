@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 
 public interface PortalHierarchyService {
 
@@ -17,9 +18,17 @@ public interface PortalHierarchyService {
 
 	String getCurrentPortalPath();
 
-	void setCurrentPortalNode(PortalNode node);
+	/**
+	 * Set the current PortalNode for this request.
+	 * This only accepts PortalNodeSite as PortalNodeRedirect doesn't make
+	 * any sense to be the current node.
+	 */
+	void setCurrentPortalNode(PortalNodeSite node);
 
-	PortalNode getCurrentPortalNode();
+	/**
+	 * Get the current PortanNode for this request.
+	 */
+	PortalNodeSite getCurrentPortalNode();
 	
 	/**
 	 * Get the node based on its nodePath.
@@ -42,7 +51,11 @@ public interface PortalHierarchyService {
 	 */
 	List<PortalNode> getNodesWithSite(String siteId);
 	
-	List<PortalNode> getNodesFromRoot(String nodeId);
+	/**
+	 * Get back the parent nodes for a Node. The supplied node is
+	 * not contained in the list. The API enforces that PortalNodeSites can only be parents.
+	 */
+	List<PortalNodeSite> getNodesFromRoot(String nodeId);
 	
 	List<PortalNode> getNodeChildren(String nodeId);
 	
@@ -54,7 +67,9 @@ public interface PortalHierarchyService {
 	 */
 	void deleteNode(String id) throws PermissionException, IllegalStateException;
 
-	PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId) throws PermissionException;
+	PortalNode newSiteNode(String parentId, String childName, String siteId, String managementSiteId) throws PermissionException;
+	
+	PortalNode newRedirectNode(String parentId, String childName, String redirectUrl, String title, boolean appendPath) throws PermissionException;
 	
 	void renameNode(String id, String newPath) throws PermissionException;
 

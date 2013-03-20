@@ -9,7 +9,7 @@ import java.util.Stack;
 
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -17,12 +17,23 @@ import org.sakaiproject.tool.api.Tool;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/**
+ * The adopted site page allows a page from another site to be displayed in
+ * the current site.
+ * <p>
+ * This is used in the hierarchy to display the management tools form the hierarchy
+ * site in the current site.
+ * @author buckett
+ *
+ */
 public class AdoptedSitePage implements SitePage {
 	
+	private static final long serialVersionUID = 1L;
+	
 	private SitePage original;
-	PortalNode node;
+	PortalNodeSite node;
 
-	public AdoptedSitePage(PortalNode node, SitePage original) {
+	public AdoptedSitePage(PortalNodeSite node, SitePage original) {
 		this.node = node;
 		this.original = original;
 	}

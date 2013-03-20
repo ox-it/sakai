@@ -6,83 +6,113 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.site.api.SiteService;
-import org.springframework.validation.BindException;
-import org.springframework.validation.Errors;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.SimpleFormController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.annotation.TargettedController;
 
-public class DeleteSiteController extends SimpleFormController {
+@Controller
+@RequestMapping("/delete")
+@TargettedController("sakai.hierarchy-manager")
+public class DeleteSiteController {
 
 	private SiteService siteService;
-	
-	public DeleteSiteController() {
-		setCommandClass(DeleteSiteCommand.class);
-	}
-	
+	private PortalHierarchyService portalHierarchyService;
+	private VelocityControllerUtils velocityControllerUtils;
+	private ServerConfigurationService serverConfigurationService;
+
+	@Autowired
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
 	}
 
+	@Autowired
+	public void setPortalHierarchyService(PortalHierarchyService portalHierarchyService) {
+		this.portalHierarchyService = portalHierarchyService;
+	}
+
+	@Autowired
+	public void setVelocityControllerUtils(VelocityControllerUtils velocityControllerUtils) {
+		this.velocityControllerUtils = velocityControllerUtils;
+	}
+
+	@Autowired
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	@ModelAttribute("command")
+	public DeleteSiteCommand getDeleteSiteCommand() {
+		return new DeleteSiteCommand();
+	}
+
 	public void init() {
-		
+
 	}
-	
-	@Override
-	protected ModelAndView onSubmit(HttpServletRequest request,
-			HttpServletResponse response, Object object, BindException errors)
-			throws Exception {
-		PortalHierarchyService phs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
-		PortalNode node = phs.getCurrentPortalNode();
+
+	@RequestMapping(method = RequestMethod.GET)
+	public String showForm() {
+		return "delete";
+	}
+
+	@RequestMapping(method = RequestMethod.POST)
+	public String doSubmitAction(HttpServletRequest request, HttpServletResponse response,
+			@ModelAttribute("command") DeleteSiteCommand object, BindingResult result, ModelMap model) throws Exception {
+		PortalNode node = portalHierarchyService.getCurrentPortalNode();
 		DeleteSiteCommand command = (DeleteSiteCommand) object;
-		List<PortalNode> nodes = phs.getNodesFromRoot(node.getId());
-		String parentPath = nodes.get(nodes.size()-1).getPath();
+		List<PortalNodeSite> nodes = portalHierarchyService.getNodesFromRoot(node.getId());
+		String parentPath = nodes.get(nodes.size() - 1).getPath();
 		try {
-			phs.deleteNode(node.getId());
+			portalHierarchyService.deleteNode(node.getId());
 			// Do we want to remove the site?
-			if (command.isDeleteSite()) {
-				siteService.removeSite(node.getSite());
+			if (command.isDeleteSite() && node instanceof PortalNodeSite) {
+				siteService.removeSite(((PortalNodeSite) node).getSite());
 			}
-			Map<String, Object> model = referenceData(request, command, errors);
-			
-			model.put("siteUrl", ServerConfigurationService.getPortalUrl()+"/hierarchy"+ parentPath);
-			
-			return new ModelAndView(getSuccessView(), model);
+
+			model.put("siteUrl", serverConfigurationService.getPortalUrl() + "/hierarchy" + parentPath);
+
+			return "redirect";
 		} catch (IllegalStateException ise) {
-			errors.reject("delete.error.children");
-			return showForm(request, response, errors);
+			result.reject("delete.error.children");
+			return showForm();
 		}
-				
-		
+
 	}
-	
-	@Override
-	protected Map<String, Object> referenceData(HttpServletRequest request, Object command,
-			Errors errors) throws Exception {
-		Map<String, Object> data = VelocityControllerUtils.referenceData(request, command, errors);
-		PortalHierarchyService phs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
-		PortalNode current = phs.getCurrentPortalNode();
+
+	@ModelAttribute
+	public void referenceData(HttpServletRequest request, ModelMap model) {
+		Map<String, Object> data = velocityControllerUtils.referenceData(request);
+		PortalNode current = portalHierarchyService.getCurrentPortalNode();
 		boolean canDelete = true;
 		boolean canDeleteSite = false;
 		boolean hasChildren = false;
 		boolean isSiteUsedAgain = false;
 		if (current != null) {
-			List<PortalNode> children = phs.getNodeChildren(current.getId());
+			List<PortalNode> children = portalHierarchyService.getNodeChildren(current.getId());
 			hasChildren = children.size() > 0;
 		}
-		canDelete = phs.canDeleteNode(current.getId());
-		canDeleteSite = siteService.allowRemoveSite(current.getSite().getId());
-		isSiteUsedAgain = phs.getNodesWithSite(current.getSite().getId()).size() > 1;
+		canDelete = portalHierarchyService.canDeleteNode(current.getId());
+		boolean isSiteNode = current instanceof PortalNodeSite;
+		String siteId = ((PortalNodeSite) current).getSite().getId();
+		canDeleteSite = isSiteNode && siteService.allowRemoveSite(siteId);
+		isSiteUsedAgain = isSiteNode
+				&& portalHierarchyService.getNodesWithSite(siteId).size() > 1;
 		data.put("hasChildren", hasChildren);
 		data.put("canDelete", canDelete);
 		data.put("canDeleteSite", canDeleteSite);
 		data.put("isSiteUsedAgain", isSiteUsedAgain);
-		data.put("rootUrl", request.getContextPath()+request.getServletPath());
+		data.put("rootUrl", request.getContextPath() + request.getServletPath());
 
-		return data;
+		model.putAll(data);
 	}
-	
+
 }
