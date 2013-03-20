@@ -38,11 +38,11 @@ import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
-import com.sun.jersey.api.view.Viewable;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
+
+import com.sun.jersey.api.view.Viewable;
 
 //@Path("/signup")
 @Path("signup{cobomo:(/cobomo)?}")
