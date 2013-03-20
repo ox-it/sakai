@@ -37,10 +37,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
-import com.sun.jersey.api.view.Viewable;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
+
+import com.sun.jersey.api.view.Viewable;
 
 //@Path("/signup")
 @Path("signup{cobomo:(/cobomo)?}")
@@ -49,9 +51,11 @@ public class SignupResource {
 	
 	private CourseSignupService courseService;
 	private ObjectMapper objectMapper;
+	private ServerConfigurationService serverConfigurationService;
 
 	public SignupResource(@Context ContextResolver<Object> resolver) {
 		this.courseService = (CourseSignupService) resolver.getContext(CourseSignupService.class);
+		serverConfigurationService = (ServerConfigurationService) resolver.getContext(ServerConfigurationService.class);
 		objectMapper = new ObjectMapper();
 		objectMapper.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
 		objectMapper.configure(SerializationConfig.Feature.USE_STATIC_TYPING, true);
@@ -542,6 +546,12 @@ public class SignupResource {
 		model.put("encoded", encoded);
 		model.put("status", params[1]);
 		
+		model.put("skinRepo",
+				serverConfigurationService.getString("skin.repo", "/library/skin"));
+		
+		model.put("skinDefault",
+				serverConfigurationService.getString("skin.default", "default"));
+		
 		return Response.ok(new Viewable("/static/advance", model)).build();
 	}
 	
@@ -585,6 +595,13 @@ public class SignupResource {
 		
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("signup", signup);
+		 
+		model.put("skinRepo",
+				serverConfigurationService.getString("skin.repo", "/library/skin"));
+		
+		model.put("skinDefault",
+				serverConfigurationService.getString("skin.default", "default"));
+		
 		return Response.ok(new Viewable("/static/ok", model)).build();
 	}
 	
