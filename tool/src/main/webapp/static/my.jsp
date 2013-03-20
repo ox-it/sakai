@@ -340,7 +340,7 @@
 													});
 
 									Signup.course.show(courseDetails, id,
-											"NOTSTARTED", false, function() {
+											"ALL", false, function() {
 												courseDetails.dialog("open");
 											});
 
