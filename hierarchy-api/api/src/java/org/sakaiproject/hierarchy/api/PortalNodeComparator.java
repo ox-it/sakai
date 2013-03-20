@@ -7,10 +7,15 @@ import org.sakaiproject.hierarchy.api.model.PortalNode;
 /**
  * Sorting for Portal Nodes.
  * Effectively sorts the nodes but titles if present and then by the path.
- * @author Matthew Buckett
  *
+ * @author Matthew Buckett
  */
 public class PortalNodeComparator implements Comparator<PortalNode> {
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public int compare(PortalNode node1, PortalNode node2) {
 		String title1 = node1.getTitle();
 		String title2 = node2.getTitle();
