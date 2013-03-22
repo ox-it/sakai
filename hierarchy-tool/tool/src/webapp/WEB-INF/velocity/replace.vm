@@ -7,8 +7,7 @@ $old.siteTitle
 <p>with the new site</p>
 $new.siteTitle
 
-<form method="post" action="${rootUrl}">
-<input type="hidden" name="_action" value="act_savesite"/>
+<form method="post" action="${rootUrl}/site/save">
 <input type="hidden" name="_site" value="$!{new.siteId}" />
 <input type="submit" value="#springMessage("button.replace")"/>
 </form>

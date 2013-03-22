@@ -25,12 +25,14 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.hierarchy.api.model.PortalNodeRedirect;
 import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -70,6 +72,9 @@ public class ManageControllerTest {
 
 	@Autowired
 	private ServerConfigurationService serverConfigurationService;
+
+	@Autowired
+	private SiteService siteService;
 
 	private Session session;
 
@@ -250,7 +255,7 @@ public class ManageControllerTest {
 
 	@Test
 	public void testSaveSite() throws ServletException, IOException, PermissionException {
-		MockHttpServletRequest request = UnitTestUtilities.newRequest("GET", "/site/save");
+		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/site/save");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		request.setParameter(ManagerController.REQUEST_SITE, "new-site-id");
 		servlet.service(request, response);
@@ -263,7 +268,7 @@ public class ManageControllerTest {
 	// exception.
 	@ExpectedException(MissingServletRequestParameterException.class)
 	public void testSaveSiteBad() throws ServletException, IOException, PermissionException {
-		MockHttpServletRequest request = UnitTestUtilities.newRequest("GET", "/site/save");
+		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/site/save");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		servlet.service(request, response);
 	}
@@ -294,5 +299,25 @@ public class ManageControllerTest {
 		servlet.service(request, response);
 
 		verify(portalHierarchyService).moveNode("other-node-id", "id");
+	}
+
+	@Test
+	public void testEditSite() throws ServletException, IOException, IdUnusedException {
+		// Need a tool session for this.
+		ToolSession toolSession = mock(ToolSession.class);
+		when(sessionManager.getCurrentToolSession()).thenReturn(toolSession);
+		when(toolSession.getAttribute(SiteHelper.SITE_PICKER_SITE_ID)).thenReturn("new-site-id");
+		Site newSite = mock(Site.class);
+		when(newSite.getId()).thenReturn("new-site-id");
+		when(newSite.getTitle()).thenReturn("New Site Title");
+		when(newSite.getShortDescription()).thenReturn("New Short Description");
+		when(siteService.getSite("new-site-id")).thenReturn(newSite);
+
+		MockHttpServletRequest request = UnitTestUtilities.newRequest("GET", "/site/edit");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		servlet.service(request, response);
+
+		verify(siteService).getSite("new-site-id");
+		assertEquals(200, response.getStatus());
 	}
 }
