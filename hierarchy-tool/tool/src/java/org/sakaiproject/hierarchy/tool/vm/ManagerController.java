@@ -10,6 +10,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.PortalNodeComparator;
@@ -17,6 +18,7 @@ import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.hierarchy.api.model.PortalNodeRedirect;
 import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -49,6 +51,7 @@ public class ManagerController {
 	private PortalHierarchyService portalHierarchyService;
 	private ServerConfigurationService serverConfigurationService;
 	private VelocityControllerUtils velocityControllerUtils;
+	private SiteService siteService;
 
 	@Autowired
 	public void setSessionManager(SessionManager sessionManager) {
@@ -68,6 +71,11 @@ public class ManagerController {
 	@Autowired
 	public void setVelocityControllerUtils(VelocityControllerUtils velocityControllerUtils) {
 		this.velocityControllerUtils = velocityControllerUtils;
+	}
+
+	@Autowired
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
 	}
 
 	@ModelAttribute("redirect-add")
@@ -256,7 +264,7 @@ public class ManagerController {
 	public ModelAndView changeSite(HttpServletRequest request) {
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 
-		toolSession.setAttribute(Tool.HELPER_DONE_URL, buildUrl(request, "/site/save").toString());
+		toolSession.setAttribute(Tool.HELPER_DONE_URL, buildUrl(request, "/site/edit").toString());
 		toolSession.setAttribute(SiteHelper.SITE_PICKER_PERMISSION,
 				org.sakaiproject.site.api.SiteService.SelectionType.UPDATE);
 
@@ -267,11 +275,34 @@ public class ManagerController {
 		return new ModelAndView(redirectView);
 	}
 
+	@RequestMapping(value = "/site/edit", method = RequestMethod.GET)
+	public ModelAndView editSite(HttpServletRequest request, Model model) {
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		PortalNodeSite node = portalHierarchyService.getCurrentPortalNode();
+
+		model.addAttribute("old", createSiteMap(node.getSite()));
+		// Check to see if the user has come back from helper.
+		Object siteAttribute = toolSession.getAttribute(SiteHelper.SITE_PICKER_SITE_ID);
+		toolSession.removeAttribute(SiteHelper.SITE_PICKER_SITE_ID);
+		if ( siteAttribute instanceof String)
+		{
+			try
+			{
+				Site site = siteService.getSite((String)siteAttribute);
+				model.addAttribute("new", createSiteMap(site));
+				return new ModelAndView( "replace", model.asMap());
+			} catch (IdUnusedException iue) {
+				// Bail out.
+			}
+		}
+		return new ModelAndView("show", model.asMap());
+	}
+
 	// We throw an exception (MissingServletRequestParameterException) when
 	// siteId isn't present
 	// This is a GET as when returning from the helper you get the data back on
 	// a redirect.
-	@RequestMapping(value = "/site/save", method = RequestMethod.GET)
+	@RequestMapping(value = "/site/save", method = RequestMethod.POST)
 	public String saveSite(HttpServletRequest request, @RequestParam(REQUEST_SITE) String siteId) {
 		PortalNode node = portalHierarchyService.getCurrentPortalNode();
 
