@@ -86,7 +86,7 @@ public class PopulatorJob implements Job {
 		try {
 			dWriter.footer();
 			dWriter.flush();
-			proxy.writeLog(dWriter.getIdName(), dWriter.getDisplayName(), dOut.toByteArray());
+			proxy.prependLog(dWriter.getIdName(), dWriter.getDisplayName(), dOut.toByteArray());
 
 			eWriter.footer();
 			eWriter.flush();
