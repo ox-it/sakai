@@ -6,7 +6,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -546,7 +546,6 @@
 		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
 		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
 
-		<property name="assignmentService"><ref bean="org.sakaiproject.assignment.api.AssignmentService"/></property>
 		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
 		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
@@ -556,8 +555,8 @@
 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>		
 
 		<property name="bundle"><value>mnemeImpl</value></property>
-		<property name="samigoSupport"><value>TRUE</value></property>
-		<property name="assignmentSupport"><value>TRUE</value></property>
+		<property name="samigoSupport"><value>FALSE</value></property>
+		<property name="assignmentSupport"><value>FALSE</value></property>
  	</bean>
 
 	<bean id="org.etudes.mneme.api.ImportQtiService"
