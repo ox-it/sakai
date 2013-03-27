@@ -522,58 +522,61 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 
 		if (Status.PENDING.equals(signupDao.getStatus()) || Status.WAITING.equals(signupDao.getStatus())) { // Rejected by administrator.
-			if (isAdministrator(signupDao.getGroup(), currentUserId, false)) {
-				signupDao.setStatus(Status.REJECTED);
-				signupDao.setAmended(getNow());
-				dao.save(signupDao);
-				proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_REJECT, placementId);
-				sendStudentSignupEmail(
-						signupDao, 
-						"reject-admin.student.subject", 
-						"reject-admin.student.body", 
-						new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
-			} else {
-				throw new PermissionDeniedException(currentUserId);
-			}
-			
-		} else if (Status.ACCEPTED.equals(signupDao.getStatus())) { // Rejected by administrator.
-				if (isAdministrator(signupDao.getGroup(), currentUserId, currentUserId.equals(signupDao.getSupervisorId()))) {
-					signupDao.setStatus(Status.REJECTED);
-					signupDao.setAmended(getNow());
-					dao.save(signupDao);
-					for (CourseComponentDAO componentDao: signupDao.getComponents()) {
-						componentDao.setTaken(componentDao.getTaken()-1);
-						dao.save(componentDao);
-					}
-					proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_REJECT, placementId);
-					sendStudentSignupEmail(
-							signupDao, 
-							"reject-supervisor.student.subject", 
-							"reject-supervisor.student.body", 
-							new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
-				} else {
+			if (!skipAuth) {
+				if (!isAdministrator(signupDao.getGroup(), currentUserId, false)) {
 					throw new PermissionDeniedException(currentUserId);
 				}
-				
-		} else if (Status.APPROVED.equals(signupDao.getStatus())) {// Rejected by approver.
-			boolean isApprover = dao.findDepartmentApprovers(signupDao.getDepartment()).contains(currentUserId);
-			if (isAdministrator(signupDao.getGroup(), currentUserId, isApprover)) {
-				signupDao.setStatus(Status.REJECTED);
-				signupDao.setAmended(getNow());
-				dao.save(signupDao);
-				for (CourseComponentDAO componentDao: signupDao.getComponents()) {
-					componentDao.setTaken(componentDao.getTaken()-1);
-					dao.save(componentDao);
-				}
-				proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_REJECT, placementId);
-				sendStudentSignupEmail(
-						signupDao, 
-						"reject-approver.student.subject", 
-						"reject-approver.student.body", 
-						new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
-			} else {
-				throw new PermissionDeniedException(currentUserId);
 			}
+			signupDao.setStatus(Status.REJECTED);
+			signupDao.setAmended(getNow());
+			dao.save(signupDao);
+			proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_REJECT, placementId);
+			sendStudentSignupEmail(
+					signupDao, 
+					"reject-admin.student.subject", 
+					"reject-admin.student.body", 
+					new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
+			
+		} else if (Status.ACCEPTED.equals(signupDao.getStatus())) { // Rejected by supervisor.
+			if (!skipAuth) {
+				if (!isAdministrator(signupDao.getGroup(), currentUserId, currentUserId.equals(signupDao.getSupervisorId()))) {
+					throw new PermissionDeniedException(currentUserId);
+				}
+			}
+			signupDao.setStatus(Status.REJECTED);
+			signupDao.setAmended(getNow());
+			dao.save(signupDao);
+			for (CourseComponentDAO componentDao: signupDao.getComponents()) {
+				componentDao.setTaken(componentDao.getTaken()-1);
+				dao.save(componentDao);
+			}
+			proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_REJECT, placementId);
+			sendStudentSignupEmail(
+					signupDao, 
+					"reject-supervisor.student.subject", 
+					"reject-supervisor.student.body", 
+					new Object[] {proxy.findUserById(signupDao.getSupervisorId()).getDisplayName(), proxy.getMyUrl(placementId)});
+
+		} else if (Status.APPROVED.equals(signupDao.getStatus())) {// Rejected by approver.
+			if (!skipAuth) {
+				boolean isApprover = dao.findDepartmentApprovers(signupDao.getDepartment()).contains(currentUserId);
+				if (!isAdministrator(signupDao.getGroup(), currentUserId, isApprover)) {
+					throw new PermissionDeniedException(currentUserId);
+				}
+			}
+			signupDao.setStatus(Status.REJECTED);
+			signupDao.setAmended(getNow());
+			dao.save(signupDao);
+			for (CourseComponentDAO componentDao: signupDao.getComponents()) {
+				componentDao.setTaken(componentDao.getTaken()-1);
+				dao.save(componentDao);
+			}
+			proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_REJECT, placementId);
+			sendStudentSignupEmail(
+					signupDao, 
+					"reject-approver.student.subject", 
+					"reject-approver.student.body", 
+					new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
 			
 		} else {
 			throw new IllegalStateException("You can only reject signups that are WAITING, PENDING, ACCEPTED or APPROVED");
