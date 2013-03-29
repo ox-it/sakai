@@ -7,10 +7,13 @@
 		<artifactId>course-signup-base</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
-	<groupId>uk.ac.ox.oucs</groupId>
 	<artifactId>course-signup-pack</artifactId>
 	<name>Course Signup Component</name>
 	<packaging>sakai-component</packaging>
+	<inceptionYear>2010</inceptionYear>
+	<organization>
+		<name>University of Oxford</name>
+	</organization>
 	<properties>
 		<deploy.target>components</deploy.target>
 	</properties>
@@ -21,4 +24,20 @@
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>update-file-header</goal>
+						</goals>
+						<phase>process-sources</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
