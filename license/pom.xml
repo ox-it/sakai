@@ -7,4 +7,5 @@
 	<packaging>jar</packaging>
 	<name>Course Signup License</name>
 	<version>1.0-SNAPSHOT</version>
+	<description>This holds a copy of the ECL license for the License Maven Plugin.</description>
 </project>
