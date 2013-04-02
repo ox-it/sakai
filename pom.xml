@@ -63,7 +63,9 @@
 					<configuration>
 						<licenseName>ecl2_license</licenseName>
 						<licenseResolver>classpath://org/sakaiproject</licenseResolver>
-
+						<extraExtensions>
+							<sql>mysql</sql>
+						</extraExtensions>
 					</configuration>
 					<dependencies>
 						<dependency>
