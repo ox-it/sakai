@@ -957,6 +957,9 @@ var Signup = function(){
             }, {
                 "sTitle": "Status",
                 "bVisible": false
+            }, {
+                "sTitle": "Term",
+                "bVisible": false
             }],
             "fnServerData": function(sSource, aoData, fnCallback){
                 jQuery.ajax({
@@ -983,15 +986,18 @@ var Signup = function(){
                             		})).join("<br>");
                             
                             var closes = 0;
+                            var slot = "";
                             $.each(this.components, 
                             		function(){
+                            			slot = this.slot;
                             			if (closes != 0 && this.closes > closes) {
                             				return;
                             			}
                             			closes = this.closes;
                             });
+                            
                             var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, isAdmin));
-                            data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions, this.status]);
+                            data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions, this.status, slot]);
                             
                         });
                         fnCallback({
@@ -1083,6 +1089,11 @@ var Signup = function(){
 		$("select.signups-table-status-filter").die().live("change", function(e) {
 			var filterStatus = $(this).val();
 			table.fnFilter(filterStatus, 8);
+		});
+		
+		$("select.signups-table-term-filter").die().live("change", function(e) {
+			var filterStatus = $(this).val();
+			table.fnFilter(filterStatus, 9);
 		});
 		
 		var html = '<div id="signup-add-supervisor-win" class="jqmWindow" style="display: none">'

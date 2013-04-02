@@ -212,7 +212,7 @@
 													component.size,
 													component.places,
 													component.opens,
-													component.when, //4
+													component.slot, //4
 													component.sessions,
 													component.presenter,
 													component.administrator,
@@ -224,8 +224,39 @@
 									});
 								}
 							});
-
+			
+			var slots = new Array();
+			for ( var i in object.components) {
+				var component = object.components[i];
+				slots.push(component.slot);
+			}
+			
+			// Sort the Terms
+			slots.sort(function(a,b){
+				var awords=a.split(" ");
+				var bwords=b.split(" ");
+				if (awords[1] != bwords[1]) {
+					return bwords[1] - awords[1]
+				}
+				if (awords[0] == bwords[0]) {
+					return 0;
+				}
+				if (awords[0] == "Michaelmas") {
+					return 1;
+				}
+				if (awords[0] == "Trinity") {
+					return 0;
+				}
+				if (bwords[0] == "Michaelmas") {
+					return 0;
+				}
+				if (bwords[0] == "Trinity") {
+					return 1;
+				}
+			});
+			
 			var html = '<h3 style="display:inline">Signups</h3>';
+			
 			html += '<span style="float:right; padding-right:20px;">Status Filter <select class="signups-table-status-filter">';
 			html += '<option selected="true" value = "">All</option>';
 			html += '<option value="WAITING">WAITING</option>';
@@ -236,10 +267,22 @@
 			html += '<option value="REJECTED">REJECTED</option>';
 			html += '<option value="WITHDRAWN">WITHDRAWN</option>';
 			html += '</select></span>';
+			
+			html += '<span style="float:right; padding-right:20px;">Term Filter <select class="signups-table-term-filter" id="signups-table-term-filter">';
+			html += '</select></span>';
+			
 			html += '<table border="0" class="display" id="signups-table"></table>';
 			html += '<a href="#" id="signup-add">Add Signup</a>';
 			$("#signups").html(html);
-			//$("#signups").html('<h3>Signups</h3><table border="0" class="display" id="signups-table"></table><a href="#" id="signup-add">Add Signup</a>');
+			
+			var selectElement = $('#signups-table-term-filter');
+			$.each(slots, function(i, slot) {
+				selectElement.append($("<option/>", {
+					value: slot,
+					text: slot
+				}));
+			});
+			
 			// Load the signups.
 			var signups = $("#signups-table").signupTable(
 					"../rest/signup/course/" + code, true, true);
