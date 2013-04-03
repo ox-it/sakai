@@ -282,6 +282,7 @@
 					text: slot
 				}));
 			});
+			selectElement[0].options[0].setAttribute("selected", "selected");
 			
 			// Load the signups.
 			var signups = $("#signups-table").signupTable(
@@ -289,6 +290,9 @@
 			signups.bind("reload", function() { // Reload the summary when this table changes.
 				summary.fnReloadAjax(null, null, true);
 			})
+			
+			var filterTerm = $('#signups-table-term-filter').val();
+			signups.fnFilter(filterTerm, 9);
 
 			var signupAddUser = $("#signup-add-user-win");
 			signupAddUser.resize(function(e) {
@@ -585,6 +589,7 @@
 							});
 
 			return;
+			
 			// Handlers to decide what actions you can do when selecting multiple items.
 			$("#signups-table input[type=checkbox]")
 					.live(

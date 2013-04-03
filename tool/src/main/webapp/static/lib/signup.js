@@ -1092,8 +1092,8 @@ var Signup = function(){
 		});
 		
 		$("select.signups-table-term-filter").die().live("change", function(e) {
-			var filterStatus = $(this).val();
-			table.fnFilter(filterStatus, 9);
+			var filterTerm = $(this).val();
+			table.fnFilter(filterTerm, 9);
 		});
 		
 		var html = '<div id="signup-add-supervisor-win" class="jqmWindow" style="display: none">'
