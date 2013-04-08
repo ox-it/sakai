@@ -21,6 +21,10 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinFragment;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
+import org.joda.time.MonthDay;
+
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -29,22 +33,26 @@ import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
-	Date lastYear;
+	private static final MonthDay FIRST_DAY_OF_ACADEMIC_YEAR = new MonthDay(DateTimeConstants.SEPTEMBER, 1);
+	Date startLastYear;
 	
 	public void init() {
+		startLastYear = getPreviousYearBeginning(LocalDate.now()).toDate();
+	}
 		
-		// Set lastYear to 1st September (start of last academic year)
-		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.MONTH, 8);
-		cal.set(Calendar.DAY_OF_MONTH, 1);
-		
-		Calendar c = Calendar.getInstance();
-		if (c.before(cal)) {
-			cal.add(Calendar.YEAR, -2);
+	// Set lastYear to 1st September (start of last academic year)
+	public static LocalDate getPreviousYearBeginning(LocalDate currentDate) {
+		int currentCivilYear = currentDate.getYear();
+		int previousAcademicYear;
+
+		// If we've started a new civil year and haven't changed the academic year yet, go back one more year.
+		if (currentDate.isBefore(FIRST_DAY_OF_ACADEMIC_YEAR.toLocalDate(currentCivilYear))) {
+			previousAcademicYear = currentCivilYear - 2;
 		} else {
-			cal.add(Calendar.YEAR, -1);
+			previousAcademicYear = currentCivilYear - 1;
 		}
-		lastYear = cal.getTime();
+
+		return FIRST_DAY_OF_ACADEMIC_YEAR.toLocalDate(previousAcademicYear);
 	}
 	
 	public CourseGroupDAO findCourseGroupById(final String courseId) {
@@ -91,7 +99,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					case PREVIOUS:
 						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(
 								Expression.or(
-										Expression.and(Expression.le("baseDate", now), Expression.gt("baseDate", lastYear)), 
+										Expression.and(Expression.le("baseDate", now), Expression.gt("baseDate", startLastYear)), 
 										Expression.and(Expression.isNull("baseDate"), Expression.isNull("startsText"))
 									));
 						break;
@@ -170,7 +178,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
 				query.setString("deptId", deptId);
 				if (range.equals(range.PREVIOUS)) {
-					query.setDate("lastYear", lastYear);
+					query.setDate("lastYear", startLastYear);
 				}
 				
 				return query.list();
@@ -200,7 +208,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					case PREVIOUS:
 						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(
 								Expression.or(
-										Expression.and(Expression.le("baseDate", now), Expression.gt("baseDate", lastYear)), 
+										Expression.and(Expression.le("baseDate", now), Expression.gt("baseDate", startLastYear)), 
 										Expression.and(Expression.isNull("baseDate"), Expression.isNull("startsText"))
 								));
 						break;
@@ -567,7 +575,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					case PREVIOUS:
 						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(
 								Expression.or(
-										Expression.and(Expression.le("baseDate", date), Expression.gt("baseDate", lastYear)), 
+										Expression.and(Expression.le("baseDate", date), Expression.gt("baseDate", startLastYear)), 
 										Expression.and(Expression.isNull("baseDate"), Expression.isNull("startsText"))
 									));
 						break;
