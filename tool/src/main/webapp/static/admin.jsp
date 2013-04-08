@@ -112,7 +112,7 @@
 								"bInfo" : false,
 								"bAutoWidth" : false,
 								"sAjaxSource" : "../rest/course/",
-								"aaSorting" : [ [ 8, 'asc' ] ], // Sort on the signup date.
+								"aaSorting" : [ [ 8, 'desc' ] ], // Sort on the signup date.
 								"aoColumns" : [
 										{
 											"sTitle" : "Component"
@@ -142,16 +142,13 @@
 											}
 										},
 										{
-											"sTitle" : "Signup Period",
+											"sTitle" : "Teaching start date",
 											"fnRender" : function(aObj) {
-												// Hack to force the data back to being a int.
-												return new Date(+aObj.aData[3])
-														.toDateString()
-														+ " (for "
-														+ Signup.util
-																.formatDuration(aObj.aData[8]
-																		- aObj.aData[3])
-														+ ")";
+												if (aObj.aData[3] === 'undefined') {
+													return '';
+												} else {
+													return new Date(+aObj.aData[3]).toDateString();
+												}
 											},
 											"bUseRendered" : false
 										},
@@ -211,12 +208,12 @@
 													component.title, //0
 													component.size,
 													component.places,
-													component.opens,
+													component.starts,
 													component.when, //4
 													component.sessions,
 													component.presenter,
 													component.administrator,
-													component.closes, //8
+													component.baseDate, //8
 													component.id, component.id,
 													component.id ]);
 										}
