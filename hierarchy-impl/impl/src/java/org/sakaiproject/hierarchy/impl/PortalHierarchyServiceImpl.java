@@ -539,7 +539,13 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		}
 		List<PortalNode> nodes = getNodeChildren(id);
 		if (nodes.size() > 0) {
-			return securityService.isSuperUser();
+			// Check to see if any of the children are sites, in which case you need to be
+			// an admin.
+			for (PortalNode child: nodes) {
+				if (child instanceof PortalNodeSite) {
+					return securityService.isSuperUser();
+				}
+			}
 		}
 		return unlockCheckNodeSite(id, SECURE_DELETE);
 	}
