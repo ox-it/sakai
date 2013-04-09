@@ -34,11 +34,7 @@ import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 	private static final MonthDay FIRST_DAY_OF_ACADEMIC_YEAR = new MonthDay(DateTimeConstants.SEPTEMBER, 1);
-	Date startLastYear;
-	
-	public void init() {
-		startLastYear = getPreviousYearBeginning(LocalDate.now()).toDate();
-	}
+	//Date startLastYear;
 		
 	// Set lastYear to 1st September (start of last academic year)
 	public static LocalDate getPreviousYearBeginning(LocalDate currentDate) {
@@ -84,6 +80,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			// Need the DISTINCT ROOT ENTITY filter.
 			public Object doInHibernate(Session session) throws HibernateException,
 					SQLException {
+				Date startLastYear = getPreviousYearBeginning(LocalDate.now()).toDate();
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
 				criteria.add(Expression.eq("courseId", courseId));
 				criteria.add(Restrictions.eq("hideGroup", false));
@@ -147,6 +144,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			public Object doInHibernate(Session session) throws HibernateException,
 					SQLException {
 				
+				Date startLastYear = getPreviousYearBeginning(LocalDate.now()).toDate();
 				StringBuffer querySQL = new StringBuffer();
 				querySQL.append("SELECT DISTINCT * FROM course_group cg ");
 				querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.courseGroupMuid = cg.muid ");
@@ -193,6 +191,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			public Object doInHibernate(Session session) throws HibernateException,
 					SQLException {
 				
+				Date startLastYear = getPreviousYearBeginning(LocalDate.now()).toDate();
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
 				criteria.add(Restrictions.eq("subunit", subunitId));
 				criteria.add(Restrictions.ne("visibility", "PR"));
@@ -557,6 +556,8 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
+				
+				Date startLastYear = getPreviousYearBeginning(LocalDate.now()).toDate();
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
 				for(String word: words) {
 					criteria.add(Expression.ilike("title", word, MatchMode.ANYWHERE));

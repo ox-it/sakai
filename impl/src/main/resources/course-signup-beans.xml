@@ -28,7 +28,7 @@
 		</property>
 	</bean>
 
-	<bean name="uk.ac.ox.oucs.vle.CourseDAO" class="uk.ac.ox.oucs.vle.CourseDAOImpl" init-method="init">
+	<bean name="uk.ac.ox.oucs.vle.CourseDAO" class="uk.ac.ox.oucs.vle.CourseDAOImpl" >
 		<property name="sessionFactory">
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		</property>
