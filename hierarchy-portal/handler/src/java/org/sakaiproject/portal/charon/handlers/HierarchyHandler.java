@@ -116,7 +116,23 @@ public class HierarchyHandler extends SiteHandler {
 			node = portalHierarchyService.getNode(hierarchyPath);
 			if (node == null)
 			{
-				if (end - start > 0)
+				int partsRemaining = end - start;
+				if (partsRemaining > 1)
+				{
+					// Before we show the error site we need to check for redirects on the leave of the tree.
+					int currentEnd = start;
+					// Don't include end as we've already checked the full path.
+					while (++currentEnd < end) {
+						hierarchyPath = buildPath(parts, start, currentEnd);
+						if( portalHierarchyService.getNode(hierarchyPath) instanceof PortalNodeRedirect)
+						{
+							// Do redirect.
+							doRedirect(buildPath(parts, start, parts.length), res, node);
+							return END;
+						}
+					}
+				}
+				else if (partsRemaining == 1)
 				{
 					try
 					{
@@ -124,23 +140,6 @@ public class HierarchyHandler extends SiteHandler {
 					}
 					catch (IdUnusedException iuue)
 					{
-						// Before we show the error site we need to check for redirects on the leave of the tree.
-						int currentEnd = start;
-						while (++currentEnd < end) {
-							hierarchyPath = buildPath(parts, start, currentEnd);
-							node = portalHierarchyService.getNode(hierarchyPath);
-							if (node == null)
-							{
-								// Fallen out of the tree.
-								break;
-							}
-							else if(node instanceof PortalNodeRedirect)
-							{
-								// Do redirect.
-								doRedirect(buildPath(parts, start, parts.length), res, node);
-								return END;
-							}
-						}
 						portal.doError(req, res, session, Portal.ERROR_SITE);
 						return END;
 					}
@@ -158,9 +157,14 @@ public class HierarchyHandler extends SiteHandler {
 			}
 
 			log.debug("siteId: "+ ((site==null)?"null":site.getId())+ " pageId: "+ pageId);
-			
+
 			if (node == null) {
-				super.doSite(req, res, session, site.getId(), pageId, req.getContextPath()+req.getServletPath());
+				if (site == null)
+				{
+					portal.doError(req, res, session, Portal.ERROR_SITE);
+				} else {
+					super.doSite(req, res, session, site.getId(), pageId, req.getContextPath()+req.getServletPath());
+				}
 			} else {
 				if (node instanceof PortalNodeSite) {
 					PortalNodeSite siteNode = (PortalNodeSite) node;
