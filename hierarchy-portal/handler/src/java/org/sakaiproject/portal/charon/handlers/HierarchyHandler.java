@@ -41,9 +41,9 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.util.Web;
 
 public class HierarchyHandler extends SiteHandler {
-	
+
 	public final static String INCLUDE_HIERARCHY_PAGE_NAV = "include-hierarchy-page-nav";
-	
+
 	private static Log log = LogFactory.getLog(HierarchyHandler.class);
 	private SiteService siteService;
 	private PortalHierarchyService portalHierarchyService;
@@ -59,7 +59,7 @@ public class HierarchyHandler extends SiteHandler {
 		setUrlFragment(fragment);
 		resetTools = ServerConfigurationService.getBoolean(Portal.CONFIG_AUTO_RESET, false);
 	}
-	
+
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
@@ -92,21 +92,21 @@ public class HierarchyHandler extends SiteHandler {
 	// /page/site - root site / page site
 	// /college - college site / default page
 	// /college/page/site - college site / page site
-	// /asdasd/asdasd - Error 
+	// /asdasd/asdasd - Error
 	// /college/asdsad - Error
-	
+
 	private int doFindSite(String[] parts, int start, HttpServletRequest req,
 			HttpServletResponse res, Session session)
 			throws PortalHandlerException {
 		try
 		{
-			// This is so that when the site service builds URLs it uses hierarchy. 
+			// This is so that when the site service builds URLs it uses hierarchy.
 			session.setAttribute("sakai-controlling-portal", getUrlFragment());
 			PortalNode node = null;
 			Site site = null;
 			String pageId = null;
 			int end = parts.length;
-			
+
 			//First see if we need to trim off a page
 			if (start + 2 <= end && "page".equals(parts[end-2])) {
 				pageId = parts[end-1];
@@ -205,7 +205,7 @@ public class HierarchyHandler extends SiteHandler {
 				String extraPath = fullPath.substring(nodePath.length());
 				if (redirect.endsWith("/") && extraPath.length() > 1)
 				{
-					extraPath = extraPath.substring(1); 
+					extraPath = extraPath.substring(1);
 				}
 				redirect = redirect + extraPath;
 			}
@@ -232,14 +232,14 @@ public class HierarchyHandler extends SiteHandler {
 		}
 		return hierarchyPath.toString();
 	}
-	
+
 
 	public void doSite(HttpServletRequest req, HttpServletResponse res, Session session,
 			final Site site, String pageId, String toolContextPath, PortalNodeSite node) throws ToolException,
 			IOException
 	{
 		Site hierarchySite = null;
-		
+
 		// default site if not set
 		if (site == null || node == null)
 		{
@@ -260,8 +260,8 @@ public class HierarchyHandler extends SiteHandler {
 		{
 			log.warn("Hierarchy site not found.");
 		}
-		
-		if (hierarchySite != null) 
+
+		if (hierarchySite != null)
 		{
 			// Do permission checks against the current site rather than the hierarchy site.
 			// This isn't a good way of doing this and should change later.
@@ -287,14 +287,14 @@ public class HierarchyHandler extends SiteHandler {
 		{
 			// Look in the hierarchy site.
 			page = lookupSitePage(pageId, hierarchySite);
-			if (page != null) 
+			if (page != null)
 			{
 				// Fix up the skin.
 				page = new AdoptedSitePage(node, page);
 			}
 
 		}
-		
+
 		if (page == null)
 		{
 			List pages =  portal.getSiteHelper().getPermittedPagesInOrder(site);
@@ -320,19 +320,19 @@ public class HierarchyHandler extends SiteHandler {
 
 		// Include normal site nav details.
 		includeSiteNav(rcontext, req, session, site.getId());
-		
+
 		String prefix = getUrlFragment();
 		String siteUrl = node.getPath();
-		if (siteUrl.endsWith("/")) 
+		if (siteUrl.endsWith("/"))
 		{
 			siteUrl = siteUrl.substring(0, siteUrl.length()-1);
 		}
 
-		
+
 
 		if (hierarchySite != null)
 		{
-			
+
 			includeHierarchyNav(rcontext, req, session, site, page, toolContextPath, prefix, siteUrl, hierarchySite, node);
 		}
 		includeWorksite(rcontext, res, req, session, site, page, toolContextPath, prefix);
@@ -363,10 +363,10 @@ public class HierarchyHandler extends SiteHandler {
 			HttpServletResponse res, Session session, final Site site,
 			String toolContextPath) throws ToolException,
 			IOException {
-		TwoFactorAuthentication twoFactorAuthentication = 
+		TwoFactorAuthentication twoFactorAuthentication =
 			(TwoFactorAuthentication)ComponentManager.get(TwoFactorAuthentication.class);
 		String userId = session.getUserId();
-		
+
 		// if not logged in, give them a chance
 		if (userId == null)
 		{
@@ -376,17 +376,17 @@ public class HierarchyHandler extends SiteHandler {
 			portalService.setStoredState(ss);
 			portal.doLogin(req, res, session, req.getPathInfo(), Portal.LoginRoute.NONE);
 		}
-		
+
 		else if (twoFactorAuthentication.isTwoFactorRequired(site.getReference())
 				&& !twoFactorAuthentication.hasTwoFactor())
 		{
 			portal.doLogin(req, res, session, req.getPathInfo(), LoginRoute.TWOFACTOR);
 		}
-		
+
 		else
 		{
 			String siteId = site.getId();
-			
+
 			if (ServerConfigurationService.getBoolean("portal.redirectJoin", true) &&
 					userId != null && portal.getSiteHelper().isJoinable(siteId, userId))
 			{
@@ -400,7 +400,7 @@ public class HierarchyHandler extends SiteHandler {
 			}
 		}
 	}
-	
+
 	protected void includeHierarchyNav(PortalRenderContext rcontext, HttpServletRequest req,
 			Session session, Site site, SitePage page, String toolContextPath, String prefix, String siteUrl, Site hierarchySite, PortalNodeSite node)
 	{
@@ -414,7 +414,7 @@ public class HierarchyHandler extends SiteHandler {
 			rcontext.put("siteNavAccessibilityURL", accessibilityURL);
 
 			rcontext.put("siteNavLoggedIn", Boolean.valueOf(loggedIn));
-			
+
 			String cssClass = (site.getType() != null) ? "siteNavWrap " + site.getType()
 					: "siteNavWrap";
 
@@ -445,7 +445,7 @@ public class HierarchyHandler extends SiteHandler {
 		if (myWorkspace != null) {
 			myWorkspaceId = myWorkspace.getId();
 		}
-		
+
 		List<Map> parentSiteMaps = portal.getSiteHelper().convertSitesToMaps(req, parentSites, getUrlFragment(), currentSiteId, myWorkspaceId, false, false, resetTools, false, null, loggedIn);
 		rcontext.put("parents", parentSiteMaps);
 
@@ -460,7 +460,7 @@ public class HierarchyHandler extends SiteHandler {
 				childNodes.add(currentChild);
 			} else if (currentChild instanceof PortalNodeSite) {
 				PortalNodeSite siteChild = (PortalNodeSite) currentChild;
-				if (((siteChild.getSite().isJoinable() && siteChild.getSite().isPublished()) && (loggedIn || siteChild.getSite().isPubView()))) {
+				if (siteChild.getSite() != null && ((siteChild.getSite().isJoinable() && siteChild.getSite().isPublished()) && (loggedIn || siteChild.getSite().isPubView()))) {
 					childNodes.add(currentChild);
 				}
 			} else if (currentChild instanceof PortalNodeRedirect) {
@@ -476,7 +476,7 @@ public class HierarchyHandler extends SiteHandler {
 
 		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + siteUrl
 				+ "/page/");
-		String toolUrl = Web.returnUrl(req, "/" + portalPrefix 
+		String toolUrl = Web.returnUrl(req, "/" + portalPrefix
 				+ Web.escapeUrl(portal.getSiteHelper().getSiteEffectiveId(site)));
 		String pagePopupUrl = Web.returnUrl(req, "/page/");
 
@@ -488,7 +488,7 @@ public class HierarchyHandler extends SiteHandler {
 		// What todo if you can't see current site?
 
 	}
-	
+
 
 	/*
 	 * Things that need to be in the children map:
@@ -498,7 +498,7 @@ public class HierarchyHandler extends SiteHandler {
 	 * <li>shortDescription</li>
 	 * <li>siteTitle</li>
 	 * </ul>
-	 * We used to use the PortalSiteHelper when we just had sites at all the nodes. 
+	 * We used to use the PortalSiteHelper when we just had sites at all the nodes.
 	 */
 	protected List<Map<String,String>> convertNodesToMaps(List<PortalNode>childNodes, PortalNodeSite current) {
 		List<Map<String,String>> list = new ArrayList<Map<String,String>>(childNodes.size());
@@ -529,7 +529,7 @@ public class HierarchyHandler extends SiteHandler {
 			list.add(detail);
 		}
 		return list;
-		
+
 	}
 
 	private Map<String, Object> getUnknownSite(PortalNode currentNode) {
@@ -538,7 +538,7 @@ public class HierarchyHandler extends SiteHandler {
 		map.put("url", getNodeURL(currentNode));
 		return null;
 	}
-	
+
 	private Map<String, Object> convertToMap(PortalNodeSite currentNode) {
 		Map<String, Object> siteDetails = new HashMap<String, Object>();
 		if (currentNode.canView()) {
@@ -552,11 +552,11 @@ public class HierarchyHandler extends SiteHandler {
 
 		return null;
 	}
-	
+
 	private String getNodeURL(PortalNode node) {
 		return ServerConfigurationService.getPortalUrl()+ "/"+ getUrlFragment() + Web.escapeUrl(node.getPath());
 	}
-	
+
 	public SitePage lookupSitePage(String pageId, Site site)
 	{
 		// Make sure we have some permitted pages
