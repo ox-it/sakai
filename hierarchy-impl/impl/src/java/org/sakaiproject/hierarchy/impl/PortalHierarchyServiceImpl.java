@@ -533,7 +533,9 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		if (node instanceof PortalNodeRedirect) {
 			Set<HierarchyNode> parentNodes = hierarchyService.getParentNodes(id, true);
 			HierarchyNode parent = parentNodes.iterator().next();
-			return canDeleteNode(parent.id);
+			// We do the check now as we don't care about the parent having children as
+			// this delete won't affect them.
+			return unlockCheckNodeSite(parent.id, SECURE_DELETE);
 		}
 		List<PortalNode> nodes = getNodeChildren(id);
 		if (nodes.size() > 0) {
