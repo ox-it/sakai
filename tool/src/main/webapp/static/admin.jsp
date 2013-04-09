@@ -79,6 +79,35 @@
 				return "Closed";
 			}
 		};
+		
+		/**
+		 * Sort an Array of Terms into most recent first
+		 * @param {Array} termArray of strings in the format 'Michaelmas 2012', 'Hilary 2013' or 'Trinity 2013'.
+		 */
+		var sortTermArray = function(termsArray) {
+			termsArray.sort(function(a,b){
+				var awords=a.split(" ");
+				var bwords=b.split(" ");
+				if (awords[1] != bwords[1]) {
+					return bwords[1] - awords[1]
+				}
+				if (awords[0] == bwords[0]) {
+					return 0;
+				}
+				if (awords[0] == "Michaelmas") {
+					return 1;
+				}
+				if (bwords[0] == "Michaelmas") {
+					return -1;
+				}
+				if (awords[0] == "Trinity") {
+					return -1;
+				}
+				if (bwords[0] == "Trinity") {
+					return 1;
+				}
+			});
+		};
 
 		var loadCourse = function(object) {
 
@@ -231,29 +260,7 @@
 				slots.push(component.slot);
 			}
 			
-			// Sort the Terms
-			slots.sort(function(a,b){
-				var awords=a.split(" ");
-				var bwords=b.split(" ");
-				if (awords[1] != bwords[1]) {
-					return bwords[1] - awords[1]
-				}
-				if (awords[0] == bwords[0]) {
-					return 0;
-				}
-				if (awords[0] == "Michaelmas") {
-					return 1;
-				}
-				if (awords[0] == "Trinity") {
-					return 0;
-				}
-				if (bwords[0] == "Michaelmas") {
-					return 0;
-				}
-				if (bwords[0] == "Trinity") {
-					return 1;
-				}
-			});
+			sortTermArray(slots);
 			
 			var html = '<h3 style="display:inline">Signups</h3>';
 			
