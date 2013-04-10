@@ -112,7 +112,7 @@
 								"bInfo" : false,
 								"bAutoWidth" : false,
 								"sAjaxSource" : "../rest/course/",
-								"aaSorting" : [ [ 8, 'desc' ] ], // Sort on the signup date.
+								"aaSorting" : [ [ 5, 'desc' ] ], // Sort on the signup date.
 								"aoColumns" : [
 										{
 											"sTitle" : "Component"
@@ -159,40 +159,34 @@
 											"sTitle" : "Status",
 											"fnRender" : function(aObj) {
 												return getComponentStatus(
-														aObj.aData[3],
-														aObj.aData[8]);
+														aObj.aData[9],
+														aObj.aData[5]);
 											}
-										},
-										{
-											"bVisible" : false
-										},
-										{
-											"bVisible" : false
-										},
-										{
-											"bVisible" : false
 										},
 										{
 											"sTitle" : "Export",
 											"bSortable" : false,
 											"fnRender" : function(aObj) {
-												return '<a href="../rest/signup/component/'+ aObj.aData[9]+ '.csv">Export</a>';
+												return '<a href="../rest/signup/component/'+ aObj.aData[6]+ '.csv">Export</a>';
 											}
 										},
 										{
 											"sTitle" : "Email",
 											"bSortable" : false,
 											"fnRender" : function(aObj) {
-												return '<img class="mailto-all-course" id="'+aObj.aData[10]+'"src="images/email-send.png" title="send email to all CONFIRMED signups" />';
+												return '<img class="mailto-all-course" id="'+aObj.aData[7]+'"src="images/email-send.png" title="send email to all CONFIRMED signups" />';
 											}
 										},
 										{
 											"sTitle" : "Attendance",
 											"bSortable" : false,
 											"fnRender" : function(aObj) {
-												return '<a href="../rest/signup/component/'+ aObj.aData[11]+ '.pdf">Register</a>';
+												return '<a href="../rest/signup/component/'+ aObj.aData[8]+ '.pdf">Register</a>';
 											}
-										} ],
+										},
+										{
+											"bVisible" : false
+										}],
 
 								"fnServerData" : function(sSource, aoData,
 										fnCallback) {
@@ -210,12 +204,11 @@
 													component.places,
 													component.starts,
 													component.when, //4
-													component.sessions,
-													component.presenter,
-													component.administrator,
-													component.baseDate, //8
-													component.id, component.id,
-													component.id ]);
+													component.baseDate, 
+													component.id, 
+													component.id,
+													component.id, //8
+													component.opens]);
 										}
 										fnCallback(tableData);
 									});
