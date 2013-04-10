@@ -1,5 +1,3 @@
-package uk.ac.ox.oucs.vle;
-
 /*
  * #%L
  * Course Signup API
@@ -19,6 +17,7 @@ package uk.ac.ox.oucs.vle;
  * limitations under the License.
  * #L%
  */
+package uk.ac.ox.oucs.vle;
 
 /**
  * This error is thrown by the service when the user attempts todo 

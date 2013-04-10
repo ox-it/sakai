@@ -1,5 +1,3 @@
-package uk.ac.cam.caret.sakai;
-
 /*
  * #%L
  * Course Signup Webapp
@@ -19,6 +17,7 @@ package uk.ac.cam.caret.sakai;
  * limitations under the License.
  * #L%
  */
+package uk.ac.cam.caret.sakai;
 
 import java.io.IOException;
 

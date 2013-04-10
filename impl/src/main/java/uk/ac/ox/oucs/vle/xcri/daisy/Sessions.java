@@ -1,5 +1,3 @@
-package uk.ac.ox.oucs.vle.xcri.daisy;
-
 /*
  * #%L
  * Course Signup Implementation
@@ -19,6 +17,7 @@ package uk.ac.ox.oucs.vle.xcri.daisy;
  * limitations under the License.
  * #L%
  */
+package uk.ac.ox.oucs.vle.xcri.daisy;
 
 import org.xcri.Extension;
 

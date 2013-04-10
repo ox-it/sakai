@@ -1,5 +1,3 @@
-package uk.ac.ox.oucs.vle.mvc;
-
 /*
  * #%L
  * Course Signup Webapp
@@ -19,6 +17,7 @@ package uk.ac.ox.oucs.vle.mvc;
  * limitations under the License.
  * #L%
  */
+package uk.ac.ox.oucs.vle.mvc;
 
 import javax.servlet.http.HttpServletRequest;
 

@@ -1,5 +1,3 @@
-package uk.ac.ox.oucs.vle;
-
 /*
  * #%L
  * Course Signup Webapp
@@ -19,6 +17,7 @@ package uk.ac.ox.oucs.vle;
  * limitations under the License.
  * #L%
  */
+package uk.ac.ox.oucs.vle;
 
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;

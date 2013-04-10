@@ -1,5 +1,3 @@
-package uk.ac.ox.oucs.vle;
-
 /*
  * #%L
  * Course Signup Hibernate
@@ -19,6 +17,7 @@ package uk.ac.ox.oucs.vle;
  * limitations under the License.
  * #L%
  */
+package uk.ac.ox.oucs.vle;
 // Generated Aug 17, 2010 10:15:40 AM by Hibernate Tools 3.2.2.GA
 
 

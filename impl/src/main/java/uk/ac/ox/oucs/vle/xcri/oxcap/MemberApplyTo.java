@@ -1,5 +1,3 @@
-package uk.ac.ox.oucs.vle.xcri.oxcap;
-
 /*
  * #%L
  * Course Signup Implementation
@@ -19,6 +17,7 @@ package uk.ac.ox.oucs.vle.xcri.oxcap;
  * limitations under the License.
  * #L%
  */
+package uk.ac.ox.oucs.vle.xcri.oxcap;
 
 import org.xcri.Extension;
 

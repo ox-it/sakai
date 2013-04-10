@@ -1,5 +1,3 @@
-package uk.ac.ox.oucs.vle.proxy;
-
 /*
  * #%L
  * Course Signup Implementation
@@ -19,6 +17,7 @@ package uk.ac.ox.oucs.vle.proxy;
  * limitations under the License.
  * #L%
  */
+package uk.ac.ox.oucs.vle.proxy;
 
 import java.util.ArrayList;
 import java.util.Collections;
