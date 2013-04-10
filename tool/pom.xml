@@ -201,9 +201,12 @@
 				<artifactId>license-maven-plugin</artifactId>
 				<configuration>
 					<excludes>
+						<!-- These exclusions are for external JS files which are in the project. -->
 						<!-- To test this is working run: mvn22 -DdryRun=true license:update-file-header -->
-						<!--<exclude>%regex[main/webapp/static/lib/.*/.*]</exclude>-->
-						<!-- This is the same as the regex above but using ant. Anything inside a folder is excluded -->
+						<!--
+							<exclude>%regex[main/webapp/static/lib/.*/.*]</exclude>
+							This is the same as the regex above but using ant. Anything inside a folder is excluded
+						 -->
 						<exclude>main/webapp/static/lib/*/*/**</exclude>
 						<exclude>main/webapp/static/lib/dataTables*</exclude>
 						<exclude>main/webapp/static/lib/QueryData*</exclude>
