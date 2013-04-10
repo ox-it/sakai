@@ -9,12 +9,14 @@
 	<version>1.0-SNAPSHOT</version>
 
 	<modules>
+		<!-- license is first as mvn 2.0.x doesn't correctly identify it as being the first module
+		      that needs to be built. mvn 3 does get it correct so can be removed when we upgrade -->
+		<module>license</module>
 		<module>api</module>
 		<module>hbm</module>
 		<module>help</module>
 		<module>impl</module>
 		<module>ldap</module>
-		<module>license</module>
 		<module>pack</module>
 		<module>tool</module>
 	</modules>
