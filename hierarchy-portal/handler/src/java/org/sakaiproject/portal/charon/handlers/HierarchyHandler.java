@@ -108,7 +108,8 @@ public class HierarchyHandler extends SiteHandler {
 			int end = parts.length;
 
 			//First see if we need to trim off a page
-			if (start + 2 <= end && "page".equals(parts[end-2])) {
+			if (start + 2 <= end && "page".equals(parts[end-2]))
+			{
 				pageId = parts[end-1];
 				end -=2;
 			}
@@ -119,7 +120,7 @@ public class HierarchyHandler extends SiteHandler {
 				int partsRemaining = end - start;
 				if (partsRemaining > 1)
 				{
-					// Before we show the error site we need to check for redirects on the leave of the tree.
+					// Before we show the error site we need to check for redirects on the leaves of the tree.
 					int currentEnd = start;
 					// Don't include end as we've already checked the full path.
 					while (++currentEnd < end) {
@@ -128,7 +129,7 @@ public class HierarchyHandler extends SiteHandler {
 						if (possibleRedirect instanceof PortalNodeRedirect)
 						{
 							// Do redirect.
-							doRedirect(buildPath(parts, start, parts.length), res, node);
+							doRedirect(buildPath(parts, start, parts.length), res, possibleRedirect);
 							return END;
 						}
 					}
