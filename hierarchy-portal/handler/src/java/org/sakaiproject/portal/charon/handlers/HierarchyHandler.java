@@ -118,6 +118,9 @@ public class HierarchyHandler extends SiteHandler {
 			if (node == null)
 			{
 				int partsRemaining = end - start;
+				// The reason we check the number of parts is that looking for the redirect involved lots of
+				// calls through to the DB and so when we can see we're looking for a site we don't need
+				// to do this.
 				if (partsRemaining > 1)
 				{
 					// Before we show the error site we need to check for redirects on the leaves of the tree.
