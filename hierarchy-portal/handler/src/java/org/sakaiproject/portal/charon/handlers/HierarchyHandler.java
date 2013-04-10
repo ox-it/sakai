@@ -124,7 +124,8 @@ public class HierarchyHandler extends SiteHandler {
 					// Don't include end as we've already checked the full path.
 					while (++currentEnd < end) {
 						hierarchyPath = buildPath(parts, start, currentEnd);
-						if( portalHierarchyService.getNode(hierarchyPath) instanceof PortalNodeRedirect)
+						PortalNode possibleRedirect = portalHierarchyService.getNode(hierarchyPath);
+						if (possibleRedirect instanceof PortalNodeRedirect)
 						{
 							// Do redirect.
 							doRedirect(buildPath(parts, start, parts.length), res, node);
