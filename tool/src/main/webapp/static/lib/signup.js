@@ -986,10 +986,10 @@ var Signup = function(){
                             		})).join("<br>");
                             
                             var closes = 0;
-                            var slot = "";
+                            var slots = new Array();
                             $.each(this.components, 
                             		function(){
-                            			slot = this.slot;
+                            			slots.push(this.slot);
                             			if (closes != 0 && this.closes > closes) {
                             				return;
                             			}
@@ -997,7 +997,7 @@ var Signup = function(){
                             });
                             
                             var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, isAdmin));
-                            data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions, this.status, slot]);
+                            data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions, this.status, slots]);
                             
                         });
                         fnCallback({
