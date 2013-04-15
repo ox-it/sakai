@@ -69,7 +69,6 @@ public class PopulatorTests extends AbstractTransactionalSpringContextTests {
 public void testUnicodeCharacter() {
 		
 		Map<String, String> contextMap = new HashMap<String, String>();
-		//contextMap.put(prefix+".uri", "file:///home/marc/oxford-sakai-2.8/extras/course-signup/impl/xcri.xml");
 		contextMap.put(prefix+".uri", "http://localhost:8080/access/content/user/test/XCRI_TEST_WL2775.xml");
 		contextMap.put(prefix+".username", "");
 		contextMap.put(prefix+".password", "");
@@ -80,8 +79,7 @@ public void testUnicodeCharacter() {
 		
 		CourseGroupDAO group = courseDao.findCourseGroupById("TEST2775");
 		
-		assertNotNull(group);
-		//assertEquals("test", group.getDescription());
+		assertEquals("test©", group.getDescription());
 	}
 	
 }
