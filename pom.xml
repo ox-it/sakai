@@ -68,6 +68,7 @@
 
 	<properties>
 		<sakai.commons.logging.version>1.0.4</sakai.commons.logging.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<dependencies>
