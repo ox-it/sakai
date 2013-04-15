@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
@@ -618,23 +619,28 @@ public class PrimoServiceTest extends TestCase {
 		}
 	}
 */
-	public void testORAoJSON() {
-		try {
-			String id = "ORAdebe641a-17ca-4196-ab2c-fe7565ced721";
-			ResponseBean responseBean = new ResponseBean(id);
-		    Collection<SearObject> beans = PrimoService.filterResponse(nameSpaceURI, ORA_XML);
-			responseBean.addSearObjects(beans);
-			
-			JSONObject json = responseBean.toJSON("2009-06-09T15:39:52.831+02:00");
-			Assert.assertEquals(ORA_JSON.length(), json.toString().length());
-		
-		} catch (Exception e) {
-			System.out.println("Exception caught ["+e.getLocalizedMessage()+"]");
-			e.printStackTrace();
-			Assert.fail("Exception caught ["+e.getLocalizedMessage()+"]");
-		}
+	public void testORAoJSON() throws Exception {
+		String id = "ORAdebe641a-17ca-4196-ab2c-fe7565ced721";
+		ResponseBean responseBean = new ResponseBean(id);
+		Collection<SearObject> beans = PrimoService.filterResponse(nameSpaceURI, ORA_XML);
+		responseBean.addSearObjects(beans);
+
+		JSONObject json = responseBean.toJSON("2009-06-09T15:39:52.831+02:00");
+		// Check the basics
+		assertEquals("0.5", json.getString("version"));
+		assertNotNull(json.get("institution"));
+		assertEquals("http://www.ox.ac.uk", json.getJSONObject("institution").getString("href"));
+		// Check the document
+		JSONArray document = json.getJSONArray("document");
+		assertNotNull(document);
+		JSONObject first = document.getJSONObject(0);
+		assertNotNull(first);
+		assertEquals("ORAdebe641a-17ca-4196-ab2c-fe7565ced721", first.getString("id"));
+		assertNotNull(first.get("item"));
+		assertEquals("http://ora.ouls.ox.ac.uk/objects/uuid:debe641a-17ca-4196-ab2c-fe7565ced721"
+				,first.getJSONArray("item").getJSONObject(0).getString("href"));
 	}
-	
+
 	public void testNewXmlResponse() throws SAXException, IOException {
 		// Test that the library name lookups are working.
 		Collection<SearObject> beans = PrimoService.filterResponse(nameSpaceURI, NEW_OLIS_XML);
