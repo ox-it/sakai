@@ -80,7 +80,7 @@ public class CourseResource {
 	
 	@Path("/{id}")
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public StreamingOutput getCourse(@PathParam("id") final String courseId, @QueryParam("range") final Range range) {
 		
 		final CourseGroup course = courseService.getCourseGroup(courseId, range);

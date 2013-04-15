@@ -19,16 +19,11 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.SessionFactory;
-import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
-import org.springframework.transaction.PlatformTransactionManager;
 
 public class PopulatorTests extends AbstractTransactionalSpringContextTests {
 
@@ -69,6 +64,24 @@ public class PopulatorTests extends AbstractTransactionalSpringContextTests {
 		
 		CourseGroupDAO group = courseDao.findCourseGroupById("3273");
 		assertNotNull(group);
+	}
+	
+public void testUnicodeCharacter() {
+		
+		Map<String, String> contextMap = new HashMap<String, String>();
+		//contextMap.put(prefix+".uri", "file:///home/marc/oxford-sakai-2.8/extras/course-signup/impl/xcri.xml");
+		contextMap.put(prefix+".uri", "http://localhost:8080/access/content/user/test/XCRI_TEST_WL2775.xml");
+		contextMap.put(prefix+".username", "");
+		contextMap.put(prefix+".password", "");
+		contextMap.put(prefix+".name", "test");
+		
+		PopulatorContext pContext = new PopulatorContext(prefix, contextMap);
+		populator.update(pContext);
+		
+		CourseGroupDAO group = courseDao.findCourseGroupById("TEST2775");
+		
+		assertNotNull(group);
+		//assertEquals("test", group.getDescription());
 	}
 	
 }
