@@ -210,6 +210,16 @@ public class CourseComponentImpl implements CourseComponent {
 				componentSessions.add(new CourseComponentSessionImpl(session));
 			}
 		}
+		
+		Collections.sort(componentSessions, new Comparator<CourseComponentSession>() {
+			public int compare(CourseComponentSession c1,CourseComponentSession c2) {
+				if (null != c1.getSessionStart() && null != c2.getSessionStart()) {
+					return c1.getSessionStart().compareTo(c2.getSessionStart());
+				}
+				return c1.getSessionId().compareTo(c2.getSessionId());
+			}
+		});
+		
 		return componentSessions;
 	}
 }

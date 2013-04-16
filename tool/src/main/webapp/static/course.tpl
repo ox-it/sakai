@@ -246,6 +246,16 @@
                                 				${option.teachingDetails}
                                 			{/if}
                                 			
+                                			{if option.sessions}
+                                				{if option.opens || option.closes || option.location || option.teachingDetails}
+                                					<br/>
+                                				{/if}
+                                			
+                                				{for session in option.sessions}
+                                					Session ${session_index} from ${session.sessionStartText} to ${session.sessionEndText}<br />
+                                				{/for}
+                                			{/if}
+                                			
                                 			</span>
                             			</td>
                             			<td style="width:6em">
