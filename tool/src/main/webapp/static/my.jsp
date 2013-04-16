@@ -48,7 +48,7 @@
 
 <script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
 <script type="text/javascript"
-	src="lib/jstree-1.0rc/_lib/jquery.cookie.js"></script>
+	src="lib/jstree-1.0rc2/_lib/jquery.cookie.js"></script>
 <script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
 <script type="text/javascript"
 	src="lib/jquery-ui-1.8.4.custom/js/jquery-ui-1.8.4.custom.min.js"></script>
