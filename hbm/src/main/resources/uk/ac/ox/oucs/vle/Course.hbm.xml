@@ -177,7 +177,7 @@
 				column="courseGroupMuid" />
 		</set>
 		
-		<set name="componentSessions" lazy="true" table="course_component_session" cascade="all,delete-orphan" >
+		<set name="componentSessions" lazy="true" table="course_component_session" cascade="all-delete-orphan" >
 			<key column="courseComponentMuid" not-null="true"/>
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseComponentSessionDAO"/>
 		</set>
