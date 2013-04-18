@@ -22,7 +22,6 @@ package uk.ac.ox.oucs.vle;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -203,6 +202,7 @@ public class CourseComponentImpl implements CourseComponent {
 		return dao.getSource();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<CourseComponentSession> getComponentSessions() {
 		if (componentSessions == null) {
 			componentSessions = new ArrayList<CourseComponentSession>();
@@ -211,14 +211,7 @@ public class CourseComponentImpl implements CourseComponent {
 			}
 		}
 		
-		Collections.sort(componentSessions, new Comparator<CourseComponentSession>() {
-			public int compare(CourseComponentSession c1,CourseComponentSession c2) {
-				if (null != c1.getSessionStart() && null != c2.getSessionStart()) {
-					return c1.getSessionStart().compareTo(c2.getSessionStart());
-				}
-				return c1.getSessionId().compareTo(c2.getSessionId());
-			}
-		});
+		Collections.sort(componentSessions);
 		
 		return componentSessions;
 	}

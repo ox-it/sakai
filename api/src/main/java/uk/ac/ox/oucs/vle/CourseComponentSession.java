@@ -21,7 +21,7 @@ package uk.ac.ox.oucs.vle;
 
 import java.util.Date;
 
-public interface CourseComponentSession {
+public interface CourseComponentSession extends Comparable {
 
 	public int getCourceComponentMuid();
 	
