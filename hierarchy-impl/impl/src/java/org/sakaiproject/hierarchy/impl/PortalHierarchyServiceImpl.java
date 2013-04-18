@@ -32,7 +32,7 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 
 /**
- * This service joins together 2 services. A Tree service (HierarchyService) and a simple node persistence 
+ * This service joins together 2 services. A Tree service (HierarchyService) and a simple node persistence
  * service which stores the data about each node.
  * @author buckett
  *
@@ -40,8 +40,8 @@ import org.sakaiproject.tool.api.SessionManager;
 public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 	private static Log log = LogFactory.getLog(PortalHierarchyServiceImpl.class);
-	private static final String CURRENT_NODE = PortalHierarchyServiceImpl.class.getName()+ "#current"; 
-	
+	private static final String CURRENT_NODE = PortalHierarchyServiceImpl.class.getName()+ "#current";
+
 	private PortalPersistentNodeDao dao;
 	private HierarchyService hierarchyService;
 	private SiteService siteService;
@@ -52,16 +52,16 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	private FunctionManager functionManager;
 
 	private String hierarchyId;
-	
+
 	/**
 	 * The Site ID of the site that is displayed when the site at a node can't be found.
 	 * This normally happens because someone has deleted a site but there are still nodes in the
 	 * hierarchy that reference the now deleted site.
 	 */
 	private String missingSiteId;
-	
+
 	private boolean autoDDL;
-	
+
 	public void changeSite(String id, String newSiteId) throws PermissionException {
 		PortalPersistentNode node = dao.findById(id);
 		if (node.getRedirectUrl() != null) {
@@ -72,7 +72,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 			if (!canChangeSite(id)) {
 				throw new PermissionException(sessionManager.getCurrentSession().getUserEid(), SECURE_MODIFY, site.getReference());
 			}
-			
+
 			if (!securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
 				throw new PermissionException(sessionManager.getCurrentSession().getUserEid(), SiteService.SECURE_UPDATE_SITE, site.getReference());
 			}
@@ -138,7 +138,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		portalNode.setTitle(portalPersistentNode.getRedirectTitle());
 		return portalNode;
 	}
-	
+
 	private PortalNodeImpl populatePortalNodeSite(PortalPersistentNode portalPersistentNode) {
 		PortalNodeSiteImpl portalNode = new PortalNodeSiteImpl(securityService,siteService);
 		try {
@@ -172,7 +172,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		Set<HierarchyNode> nodes = hierarchyService.getChildNodes(nodeId, true);
 		List<PortalNode> portalNodes = new ArrayList<PortalNode>(nodes.size());
 		for (HierarchyNode node : nodes) {
-			PortalNode portalNode = populatePortalNode(dao.findById(node.id)); 
+			PortalNode portalNode = populatePortalNode(dao.findById(node.id));
 			if (portalNode != null) {
 				portalNodes.add(portalNode);
 			}
@@ -183,7 +183,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	public List<PortalNodeSite> getNodesFromRoot(String nodeId) {
 		Set<HierarchyNode> nodes = hierarchyService.getParentNodes(nodeId, false);
 		List<HierarchyNode> sortedNodes = new ArrayList<HierarchyNode>(nodes.size());
-		
+
 		for (HierarchyNode node : nodes) {
 			// Find the root.
 			if (node.directParentNodeIds.isEmpty()){
@@ -199,18 +199,18 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 						parentId = node2.id;
 						it = nodes.iterator();
 					}
-					
+
 				}
 				break;
 			}
 		}
-		
+
 		if (!nodes.isEmpty()) {
 			log.warn("We got back more parent nodes than we managed to match to the hierarchy.");
 		}
-		
+
 		List<PortalNodeSite> portalNodes = convertParentNodes(sortedNodes);
-		
+
 		return portalNodes;
 	}
 
@@ -226,7 +226,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		}
 		return portalNodes;
 	}
-	
+
 	protected List<PortalNode> populatePortalNodes(List<PortalPersistentNode> nodes) {
 		List<PortalNode> portalNodes = new ArrayList<PortalNode>(nodes.size());
 		for (PortalPersistentNode node : nodes) {
@@ -255,7 +255,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		copyNodes(toMove, newParentId);
 		deleteNode(id);
 	}
-	
+
 	private void copyNodes(PortalNode node, String newParentId) throws PermissionException {
 		PortalNode newNode;
 		if (node instanceof PortalNodeRedirect) {
@@ -271,7 +271,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 			copyNodes(child, newNode.getId());
 		}
 	}
-	
+
 
 	public PortalNode newRedirectNode(String parentId, String childName,
 			String redirectUrl, String title, boolean appendPath) throws PermissionException {
@@ -281,31 +281,31 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	public PortalNode newSiteNode(String parentId, String childName, String siteId, String managementSiteId) throws PermissionException {
 		return newNode(parentId, childName, siteId, managementSiteId, null, null, false);
 	}
-	
+
 	public PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId, String redirectUrl, String title, boolean appendPath) throws PermissionException {
 
 		if (!( siteId == null ^ redirectUrl == null)) {
 			throw new IllegalArgumentException("You must specify either a siteId or a redirectUrl");
 		}
-		
+
 		PortalNode possibleParent = getNodeById(parentId);
 		if (possibleParent == null)
 			throw new IllegalArgumentException("Parent site could not be found: "+ parentId);
 		if (! (possibleParent instanceof PortalNodeSite))
 			throw new IllegalArgumentException("You can only add new nodes to a PortalNodeSite.");
-		
+
 		PortalNodeSite parent= (PortalNodeSite)possibleParent;
 		if (!canNewNode(parentId)) {
 			throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_NEW, parent.getSite().getReference());
 		}
-		
+
 		String childPath = (parent.getPath().equals("/"))?"/" + childName: parent.getPath() + "/" + childName;
 		List<PortalNode> children =  getNodeChildren(parentId);
 		for (PortalNode child: children) {
 			if (child.getName().equals(childName))
 				throw new IllegalArgumentException("Child site of this name already exists: "+ childName);
 		}
-		
+
 		if (siteId != null) {
 			if (!siteService.siteExists(siteId))
 				throw new IllegalArgumentException("Site does not exist: "+ siteId);
@@ -316,14 +316,14 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 					throw new IllegalArgumentException("Site: "+ siteId+ " already used in parent: "+ parentNode.getPath());
 			}
 		}
-		
+
 		HierarchyNode node = hierarchyService.addNode(hierarchyId, parentId);
 		PortalPersistentNode portalNode = new PortalPersistentNode();
 		portalNode.setId(node.id);
 		portalNode.setName(childName);
 		portalNode.setPath(childPath);
 		portalNode.setPathHash(hash(childPath));
-		
+
 		if (siteId != null) {
 			portalNode.setSiteId(siteId);
 			portalNode.setManagementSiteId(managementSiteId);
@@ -333,14 +333,14 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 			portalNode.setRedirectTitle(title);
 			portalNode.setAppendPath(appendPath);
 		}
-		
-		
+
+
 		dao.save(portalNode);
 		eventTrackingService.post(eventTrackingService.newEvent(EVENT_NEW, node.id, true));
 		return populatePortalNode(portalNode);
-		
+
 	}
-	
+
 
 	public PortalNode getDefaultNode(String siteId) {
 		List<PortalPersistentNode> nodes =  dao.findBySiteId(siteId);
@@ -360,7 +360,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 					if (o2Created == null) {
 						o2Created = new Date(0);
 					}
-					
+
 					return o1Created.compareTo(o2Created);
 				}
 			};
@@ -376,7 +376,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	public void setCurrentPortalNode(PortalNodeSite node) {
 		threadLocalManager.set(CURRENT_NODE, node);
 	}
-	
+
 
 	private static char[] encode = { '0', '1', '2', '3', '4', '5', '6', '7',
 			'8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
@@ -385,13 +385,13 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 	/**
 	 * create a hash of the path
-	 * 
+	 *
 	 * @param nodePath
 	 * @param encode
 	 * @return
-	 * @throws NoSuchAlgorithmException 
+	 * @throws NoSuchAlgorithmException
 	 */
-	public static String hash(String nodePath) 
+	public static String hash(String nodePath)
 	{
 		MessageDigest mdigest  = digest.get();
 		if ( mdigest == null ) {
@@ -454,11 +454,11 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	}
 
 	public void init() {
-		
+
 		if (autoDDL) {
 			initDefaultContent();
 		}
-		
+
 		functionManager.registerFunction(SECURE_DELETE);
 		functionManager.registerFunction(SECURE_MODIFY);
 		functionManager.registerFunction(SECURE_NEW);
@@ -466,7 +466,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 	private void initDefaultContent() {
 		HierarchyNode root = hierarchyService.getRootNode(hierarchyId);
-		
+
 		if (root == null ) {
 			hierarchyService.createHierarchy(hierarchyId);
 		}
@@ -508,7 +508,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Check a permission against a site on a node.
 	 */
@@ -533,11 +533,17 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		if (node instanceof PortalNodeRedirect) {
 			Set<HierarchyNode> parentNodes = hierarchyService.getParentNodes(id, true);
 			HierarchyNode parent = parentNodes.iterator().next();
-			return canDeleteNode(parent.id);
+			// We do the check now as we don't care about the parent having children as
+			// this delete won't affect them.
+			return unlockCheckNodeSite(parent.id, SECURE_DELETE);
 		}
 		List<PortalNode> nodes = getNodeChildren(id);
-		if (nodes.size() > 0) {
-			return securityService.isSuperUser();
+		// Check to see if any of the children are sites, in which case you need to be
+		// an admin.
+		for (PortalNode child: nodes) {
+			if (child instanceof PortalNodeSite) {
+				return securityService.isSuperUser();
+			}
 		}
 		return unlockCheckNodeSite(id, SECURE_DELETE);
 	}
