@@ -24,7 +24,6 @@ import org.hibernate.sql.JoinFragment;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.MonthDay;
-
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -34,7 +33,6 @@ import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 	private static final MonthDay FIRST_DAY_OF_ACADEMIC_YEAR = new MonthDay(DateTimeConstants.SEPTEMBER, 1);
-	//Date startLastYear;
 		
 	// Set lastYear to 1st September (start of last academic year)
 	public static LocalDate getPreviousYearBeginning(LocalDate currentDate) {
