@@ -186,6 +186,17 @@ var Signup = function(){
 							});
 						});
 						
+						var sessionData = [];
+						$.each(component.sessions, function() {
+							var session = this;
+							sessionData.push({
+								"start": session.sessionStart,
+								"end": session.sessionEnd
+							});
+						});
+						
+						component.sessionData = sessionData;
+						
 						if (component.componentSet) {
 							var found = false;
 							$.each(parts, function() {
@@ -224,6 +235,7 @@ var Signup = function(){
 					data.signup = Signup.signup.summary(data.components)["message"];
 					data.parts = parts;
 					data.applyTo = applyTo;
+					
 					var output = template.process(data, {throwExceptions: true});
 					dest.html(output);
 					

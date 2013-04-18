@@ -246,14 +246,19 @@
                                 				${option.teachingDetails}
                                 			{/if}
                                 			
-                                			{if option.sessions}
-                                				{if option.opens || option.closes || option.location || option.teachingDetails}
-                                					<br/>
-                                				{/if}
-                                			
-                                				{for session in option.sessions}
-                                					Session ${session_index} from ${session.sessionStartText} to ${session.sessionEndText}<br />
+                                			{if option.sessionData}
+                                				<ul>
+                                				{for session in option.sessionData}
+                                					<li>
+                                					{if new Date(session.start).toDateString() == new Date(session.end).toDateString()} 
+                                						${new Date(session.start).toDateString()} ${new Date(session.start).getHours()}:${('0'+new Date(session.start).getMinutes()).slice(-2)} to 
+                                						${new Date(session.end).getHours()}:${('0'+new Date(session.end).getMinutes()).slice(-2)}
+                                					{else}
+                                						${new Date(session.start).toDateString()} ${new Date(session.start).getHours()}:${('0'+new Date(session.start).getMinutes()).slice(-2)} to 
+                                						${new Date(session.end).toDateString()} ${new Date(session.end).getHours()}:${('0'+new Date(session.end).getMinutes()).slice(-2)}
+                                					{/if}
                                 				{/for}
+                                				</ul>
                                 			{/if}
                                 			
                                 			</span>
