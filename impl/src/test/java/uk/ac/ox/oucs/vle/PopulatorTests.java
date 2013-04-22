@@ -66,20 +66,4 @@ public class PopulatorTests extends AbstractTransactionalSpringContextTests {
 		assertNotNull(group);
 	}
 	
-public void testUnicodeCharacter() {
-		
-		Map<String, String> contextMap = new HashMap<String, String>();
-		contextMap.put(prefix+".uri", "http://localhost:8080/access/content/user/test/XCRI_TEST_WL2775.xml");
-		contextMap.put(prefix+".username", "");
-		contextMap.put(prefix+".password", "");
-		contextMap.put(prefix+".name", "test");
-		
-		PopulatorContext pContext = new PopulatorContext(prefix, contextMap);
-		populator.update(pContext);
-		
-		CourseGroupDAO group = courseDao.findCourseGroupById("TEST2775");
-		
-		assertEquals("test©", group.getDescription());
-	}
-	
 }
