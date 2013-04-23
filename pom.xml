@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.ac.ox.oucs.termdates</groupId>
     <artifactId>termdates</artifactId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
     <name>Termdates</name>
     <description>Converter between dates and term weeks in an academic year</description>
     <packaging>pom</packaging>
