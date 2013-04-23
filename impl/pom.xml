@@ -119,6 +119,7 @@
 			<version>1.3</version>
 			<scope>test</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
@@ -151,11 +152,30 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-            <groupId>org.xcri</groupId>
-            <artifactId>xcri4j</artifactId>
-            <scope>compile</scope>
-            <version>1.0ox1</version>
-        </dependency>
+			<groupId>org.xcri</groupId>
+			<artifactId>xcri4j</artifactId>
+			<scope>compile</scope>
+			<version>1.0ox1</version>
+		</dependency>
+		
+		<dependency>
+			<!-- Could be in the API, but SolrJ has quite a few dependencies. -->
+			<groupId>org.apache.solr</groupId>
+			<artifactId>solr-solrj</artifactId>
+			<version>4.1.0</version>
+			<exclusions>
+			<!-- We don't use this, would be nice to be optional
+in solr.
+It pulls in other things as well which is why
+I'm
+excluding it -->
+				 <exclusion>
+					<artifactId>zookeeper</artifactId>
+					<groupId>org.apache.zookeeper</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
 	</dependencies>
 	<profiles>
 		<profile>
