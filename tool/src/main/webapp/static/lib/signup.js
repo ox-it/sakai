@@ -236,6 +236,17 @@ var Signup = function(){
 					data.parts = parts;
 					data.applyTo = applyTo;
 					
+					var myModifiers = {
+							dateFormat : function(date) { 
+								return date.toDateString();
+							},
+							timeFormat : function(date) { 
+								return date.getHours()+":"+('0'+date.getMinutes()).slice(-2);
+							}
+					};
+					
+					data._MODIFIERS = myModifiers;
+
 					var output = template.process(data, {throwExceptions: true});
 					dest.html(output);
 					
