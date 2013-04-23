@@ -961,16 +961,18 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			// Use of Set filters duplicates
 			componentDao.getGroups().add(group);
 			componentDao.setDeleted(false);
-
-			Collection<CourseComponentSessionDAO> componentSessions = componentDao.getComponentSessions();
+			
+			componentDao.getComponentSessions().clear();
 			for (Session session : sessions) {
-				componentSessions.add(
+				componentDao.getComponentSessions().add(
 						new CourseComponentSessionDAO(session.getIdentifiers()[0].getValue(),
 								session.getStart().getDtf(), session.getStart().getValue(), 
 								session.getEnd().getDtf(), session.getEnd().getValue()));
 			}
-
-
+			if (!componentDao.getComponentSessions().isEmpty()) {
+				componentDao.setSessions(Integer.toString(componentDao.getComponentSessions().size()));
+			}
+			
 			dao.save(componentDao);
 		}
 
