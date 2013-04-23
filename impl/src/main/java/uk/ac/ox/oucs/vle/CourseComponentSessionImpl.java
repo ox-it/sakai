@@ -30,12 +30,11 @@ public class CourseComponentSessionImpl implements CourseComponentSession {
 	}
 	
 	@Override
-	public int compareTo(Object arg0) {
-		CourseComponentSession cs = (CourseComponentSession)arg0;
-		if (null != this.getSessionStart() && null != cs.getSessionStart()) {
-			return this.getSessionStart().compareTo(cs.getSessionStart());
+	public int compareTo(CourseComponentSession arg) {
+		if (null != this.getSessionStart() && null != arg.getSessionStart()) {
+			return this.getSessionStart().compareTo(arg.getSessionStart());
 		}
-		return this.getSessionId().compareTo(cs.getSessionId());
+		return this.getSessionId().compareTo(arg.getSessionId());
 	}
 
 	public int getCourceComponentMuid() {
