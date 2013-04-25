@@ -53,6 +53,10 @@
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		</property>
 	</bean>
+	
+	<bean name="uk.ac.ox.oucs.vle.SearchService" class="uk.ac.ox.oucs.vle.SearchServiceImpl" init-method="init" >
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
 
 	<bean id="uk.ac.ox.oucs.vle.XcriPopulator"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
@@ -162,6 +166,28 @@
 	<bean id="uk.ac.ox.oucs.vle.OucsDeptJob"
 		class="uk.ac.ox.oucs.vle.OucsDeptJob">
 		<property name="module" ref="uk.ac.ox.oucs.vle.OucsDeptImpl"/>
+	</bean>
+	
+	<bean id="uk.ac.ox.oucs.vle.SearchDataImpl"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean" >
+		<property name="target">
+			<bean class="uk.ac.ox.oucs.vle.SearchDataImpl">
+				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
+				<property name="searchService" ref="uk.ac.ox.oucs.vle.SearchService" />
+			</bean>
+		</property>
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="transactionAttributes">
+			<value>
+				update=PROPAGATION_REQUIRED
+			</value>
+		</property>
+	</bean>
+	
+	<!-- Should be replaced by MethodInvokingJobDetailFactoryBean -->
+	<bean id="uk.ac.ox.oucs.vle.SearchDataJob"
+		class="uk.ac.ox.oucs.vle.SearchDataJob">
+		<property name="module" ref="uk.ac.ox.oucs.vle.SearchDataImpl"/>
 	</bean>
 
 </beans>

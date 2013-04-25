@@ -22,21 +22,28 @@ package uk.ac.ox.oucs.vle;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.SolrInputField;
+import org.sakaiproject.component.api.ServerConfigurationService;
 
 public class SearchServiceImpl implements SearchService {
 
-	private static String url = "http://localhost:8983/solr/core1/";
-	private static HttpSolrServer solrCore;
+	private static ConcurrentUpdateSolrServer solrServer;
 
+	/**
+	 * 
+	 */
+	private ServerConfigurationService serverConfigurationService;
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+	
 	public void init() {
-		solrCore = new HttpSolrServer(url);
+		String url = serverConfigurationService.getString("ses.solr.server", null);
+		solrServer = new ConcurrentUpdateSolrServer(url, 1000, 1);
 	}
 	
 	@Override
@@ -55,11 +62,11 @@ public class SearchServiceImpl implements SearchService {
 				doc.addField("course_description", course.getDescription());
 			
 				for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.RDF)) {
-					doc.addField("course_skills", category.getName());
+					doc.addField("course_subject_rdf", category.getName());
 				}
 			
 				for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.RM)) {
-					doc.addField("course_researchMethod", category.getName());
+					doc.addField("course_subject_rm", category.getName());
 				}
 			
 				doc.addField("presentation_identifier", component.getPresentationId());
@@ -79,14 +86,9 @@ public class SearchServiceImpl implements SearchService {
 				doc.addField("presentation_attendancePattern", component.getAttendancePatternText());
 				doc.addField("presentation_studyMode", component.getTeachingDetails());
 				
-				doc.addField("fts", component.getMemberApplyTo());
-				
-				doc.addField("version", component.getMemberApplyTo());
-				
 				docs.add(doc);
+				solrServer.add(doc);
 			}
-
-			solrCore.add(docs);
 			
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
@@ -98,5 +100,4 @@ public class SearchServiceImpl implements SearchService {
 		}
 		
 	}
-
 }

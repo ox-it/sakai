@@ -29,54 +29,57 @@
 			Information about the provider 
 		-->
 
-		<field name="provider_title" type="string" indexed="true" stored="true" required="true" />
+		<field name="provider_title" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 
 		<!-- 
 			Information about the course 
 		-->
 
 		<!-- Identifier of the course, can be an ID or an URL -->
-		<field name="course_identifier" type="string" indexed="true" stored="true" required="true" />
+		<field name="course_identifier" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 
 		<!-- Human readable course title -->
-		<field name="course_title" type="text_en_splitting" indexed="true" stored="true" required="true" />
+		<field name="course_title" type="text_en_splitting" indexed="true" stored="true" required="true" multiValued="false" />
 
 		<!-- Description of the course -->
-		<field name="course_description" type="string" indexed="true" stored="true" required="false" />
-
-		<!-- List of subjects -->
-		<field name="course_subject" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+		<field name="course_description" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+		
+		<!-- List of skills subjects -->
+		<field name="course_subject_rdf" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+		
+		<!-- List of research methods subjects -->
+		<field name="course_subject_rm" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 		<!-- 
 			Information about the presentation 
 		-->
 
 		<!-- Identifier of the presentation can be an ID or an URL but it is the UNIQUE field for the document -->
-		<field name="presentation_identifier" type="string" indexed="true" stored="true" required="true" />
+		<field name="presentation_identifier" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 
 		<!-- Presentation start/end date; not required as some courses do not have this information -->
-		<field name="presentation_start" type="date" indexed="true" stored="true" required="false" />
-		<field name="presentation_end" type="date" indexed="true" stored="true" required="false" />
+		<field name="presentation_start" type="date" indexed="true" stored="true" required="false" multiValued="false" />
+		<field name="presentation_end" type="date" indexed="true" stored="true" required="false" multiValued="false" />
 
 		<!-- Presentation applyFrom/end date; not required as some courses do not have this information -->
-		<field name="presentation_applyFrom" type="date" indexed="true" stored="true" required="false" />
-		<field name="presentation_applyUntil" type="date" indexed="true" stored="true" required="false" />
+		<field name="presentation_applyFrom" type="date" indexed="true" stored="true" required="false" multiValued="false" />
+		<field name="presentation_applyUntil" type="date" indexed="true" stored="true" required="false" multiValued="false" />
 
 		<!-- Venue identifier, expects oxpoints:* or an arbitrary string -->
 		<!-- TODO add lat/lng fields for geolocation? -->
-		<field name="presentation_venue_identifier" type="string" indexed="true" stored="true" required="false" />
+		<field name="presentation_venue_identifier" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
 		<!-- Link to apply to a presentation; not required as some courses are not bookable -->
-		<field name="presentation_bookingEndpoint" type="string" indexed="true" stored="true" required="false" />
-		<field name="presentation_memberApplyTo" type="string" indexed="true" stored="true" required="false" />
+		<field name="presentation_bookingEndpoint" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+		<field name="presentation_memberApplyTo" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
 		<!-- Info on presentation attendance -->
-		<field name="presentation_attendanceMode" type="string" indexed="true" stored="true" required="false" />
-		<field name="presentation_attendancePattern" type="string" indexed="true" stored="true" required="false" />
-		<field name="presentation_studyMode" type="string" indexed="true" stored="true" required="false" />
+		<field name="presentation_attendanceMode" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+		<field name="presentation_attendancePattern" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+		<field name="presentation_studyMode" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
 		<!-- Full Text Search for course title, course description and tags -->
-		<field name="fts" type="text_en_splitting" indexed="true" stored="false" multiValued="true"/>
+		<field name="fts" type="text_en_splitting" indexed="true" stored="false" multiValued="true" />
 
 		<!-- Required version field -->
 		<field name="_version_" type="long" indexed="true" stored="true" multiValued="false" />
@@ -86,7 +89,6 @@
 
 	<copyField source="course_title" dest="fts"/>
 	<copyField source="course_description" dest="fts"/>
-	<copyField source="course_subject" dest="fts"/>
 
 	<types>
 		<!-- Simple type that doesn't do any analyze, perfect for IDs... -->
@@ -119,14 +121,18 @@
 					add enablePositionIncrements=true in both the index and query
 					analyzers to leave a 'gap' for more accurate phrase queries.
 				-->
+				<!-- 
 				<filter class="solr.StopFilterFactory"
 					ignoreCase="true"
 					words="lang/stopwords_en.txt"
 					enablePositionIncrements="true"
 				/>
+				 -->
 				<filter class="solr.LowerCaseFilterFactory"/>
 				<filter class="solr.EnglishPossessiveFilterFactory"/>
+				<!-- 
 				<filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+				 -->
 				<!-- Optionally you may want to use this less aggressive stemmer instead of PorterStemFilterFactory:
 					<filter class="solr.EnglishMinimalStemFilterFactory"/>
 				-->
@@ -134,15 +140,20 @@
 			</analyzer>
 			<analyzer type="query">
 				<tokenizer class="solr.StandardTokenizerFactory"/>
+				<!--  
 				<filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+				
 				<filter class="solr.StopFilterFactory"
 					ignoreCase="true"
 					words="lang/stopwords_en.txt"
 					enablePositionIncrements="true"
 				/>
+				-->
 				<filter class="solr.LowerCaseFilterFactory"/>
 				<filter class="solr.EnglishPossessiveFilterFactory"/>
+				<!--  
 				<filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+				-->
 				<!-- Optionally you may want to use this less aggressive stemmer instead of PorterStemFilterFactory:
 					<filter class="solr.EnglishMinimalStemFilterFactory"/>
 				-->
@@ -169,27 +180,35 @@
 					add enablePositionIncrements=true in both the index and query
 					analyzers to leave a 'gap' for more accurate phrase queries.
 				-->
+				<!-- 
 				<filter class="solr.StopFilterFactory"
 					ignoreCase="true"
 					words="lang/stopwords_en.txt"
 					enablePositionIncrements="true"
 				/>
+				 -->
 				<filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
 				<filter class="solr.LowerCaseFilterFactory"/>
+				<!-- 
 				<filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+				 -->
 				<filter class="solr.PorterStemFilterFactory"/>
 			</analyzer>
 			<analyzer type="query">
 				<tokenizer class="solr.WhitespaceTokenizerFactory"/>
+				<!-- 
 				<filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
 				<filter class="solr.StopFilterFactory"
 					ignoreCase="true"
 					words="lang/stopwords_en.txt"
 					enablePositionIncrements="true"
 				/>
+				 -->
 				<filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
 				<filter class="solr.LowerCaseFilterFactory"/>
+				<!-- 
 				<filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+				 -->
 				<filter class="solr.PorterStemFilterFactory"/>
 			</analyzer>
 		</fieldType>

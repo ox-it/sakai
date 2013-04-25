@@ -122,6 +122,11 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 	
 	@SuppressWarnings("unchecked")
+	public List<CourseGroupDAO> findAllGroups() {
+		return getHibernateTemplate().loadAll(CourseGroupDAO.class);
+	}
+	
+	@SuppressWarnings("unchecked")
 	public List<CourseComponentDAO> findAllComponents() {
 		return getHibernateTemplate().loadAll(CourseComponentDAO.class);
 	}
