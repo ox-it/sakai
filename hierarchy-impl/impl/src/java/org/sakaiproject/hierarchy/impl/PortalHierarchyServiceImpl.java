@@ -157,7 +157,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 	}
 
 	public PortalNode getNode(String portalPath) {
-		String lookup = (portalPath==null)?"/":portalPath;
+		String lookup = (portalPath==null || portalPath.isEmpty())?"/":portalPath;
 		PortalNode portalNode = null;
 		String nodeId = (String) pathToIdCache.get(lookup);
 		if (nodeId != null) {
