@@ -27,13 +27,12 @@ import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.hierarchy.api.model.PortalNodeRedirect;
 import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
-import org.sakaiproject.hierarchy.impl.NodeRelations.Type;
 import org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNode;
 import org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNodeDao;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.DerivedCache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.MultiRefCache;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -46,7 +45,7 @@ import org.sakaiproject.tool.api.SessionManager;
  * 
  * @author buckett
  */
-public class PortalHierarchyServiceImpl implements PortalHierarchyService {
+public class PortalHierarchyServiceImpl implements PortalHierarchyService, DerivedCache, Observer {
 
 	private static Log log = LogFactory.getLog(PortalHierarchyServiceImpl.class);
 	private static final String CURRENT_NODE = PortalHierarchyServiceImpl.class.getName()+ "#current";
@@ -78,14 +77,21 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	
 
 	// These two are invalidated through events.
-	private Cache idToNodeCache;
 	private Cache idChildrenCache;
 	private Cache idParentsCache;
 	// These caches are invalidated on subsequent lookups.
-	// Need to cache bad lookup and becareful about validation
-	private Cache siteToNodeCache;
+	// Need to cache bad lookup and be careful about validation because when a site is used at a new 
+	// location we need to invalidate.
+	
+	// We have the main cache, and then the derrived caches.
+	private Cache idToNodeCache;
 	// Again need to cache root.
 	private Cache pathToIdCache;
+	// This is derived, need to be careful if we ever allow custom choice of the primary site in the hierarchy.
+	// We want to cache sites not in hierarchy, we need to invalidate when a site is changed and when a site is
+	// added.
+	private Cache siteToNodeCache;
+
 
 	private String hierarchyId;
 
@@ -135,6 +141,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		dao.delete(id);
 		// Do cache invalidation off events.
 		eventTrackingService.post(eventTrackingService.newEvent(EVENT_DELETE, toRef(id), true));
+		// This should remove the cache of children for the parent node.
 		eventTrackingService.post(eventTrackingService.newEvent(EVENT_MODIFY, toRef(parentNode.id), true));
 	}
 
@@ -421,6 +428,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 
 		dao.save(portalNode);
+		// We could combine these into one event but then we need custom event processing todo the cache
+		// invalidation manually.
 		// Need todo cache invalidation off this event for the children.
 		eventTrackingService.post(eventTrackingService.newEvent(EVENT_NEW, toRef(node.id), true));
 		// This invalidates the children.
@@ -432,22 +441,28 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 	public PortalNode getDefaultNode(String siteId) {
 		//TODO this needs to cache bad lookups as it gets called for all sites.
+		// How todo cache invalidation when we cache sites not in hierarchy? Need to watch for new nodes and changes of site.
 		String nodeId = (String) siteToNodeCache.get(siteId);
 		PortalNode node = null;
 		if (nodeId != null) {
 			node = getNodeById(nodeId);
+			// If the site at this node is no longer correct clear out the cache and lookup from DB.
+			if (node != null && node instanceof PortalNodeSite && !((PortalNodeSite)node).getSite().getId().equals(siteId)) {
+				node = null;
+			}
 			// No event invalidation is done so cleanup here.
 			if (node == null) {
 				siteToNodeCache.remove(siteId);
 			}
 		}
-		if (node == null) {
+		if (node == null && !siteToNodeCache.containsKey(siteId)) {
 			List<PortalPersistentNode> nodes = dao.findBySiteId(siteId);
 			if (!nodes.isEmpty()) {
 				Collections.sort(nodes, oldest);
-				node = populatePortalNode(nodes.get(0));
-				siteToNodeCache.put(siteId, node.getId());
+				nodeId = populatePortalNode(nodes.get(0)).getId();
 			}
+			// Will cache nulls.
+			siteToNodeCache.put(siteId, nodeId);
 		}
 		return node;
 	}
@@ -557,6 +572,11 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		idChildrenCache = memoryService.newCache(getClass().getName()+ "idChildrenCache", PREFIX);
 		idParentsCache = memoryService.newCache(getClass().getName()+ "idParentsCache", PREFIX); 
 		siteToNodeCache = memoryService.newCache(getClass().getName()+"#siteToNodeCache");
+		
+		idToNodeCache.attachDerivedCache(this);
+		
+		// This is to invalidate the siteToNodeCache.
+		eventTrackingService.addObserver(this);
 	}
 
 	private void initDefaultContent() {
@@ -660,22 +680,51 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	protected String toRef(String id) {
 		return PREFIX+ Entity.SEPARATOR+ id;
 	}
+	
+	protected String fromRef(String id) {
+		int length = (PREFIX+ Entity.SEPARATOR).length();
+		return (id.length() > length)?id.substring(length):id;
+	}
 
-//	@Override
-//	public void update(Observable o, Object arg) {
-//		if (arg instanceof Event) {
-//			Event event = (Event)arg;
-//			if (EVENT_DELETE.equals(event.getEvent())) {
-//				String id = event.getResource();
-//				idToNodeCache.remove(id);
-//				// Hmm.. how to lookup the parent?
-//				idRelationsCache.remove(new NodeRelations(id, Type.PARENTS));
-//			} else if (EVENT_MODIFY.equals(event.getEvent())) {
-//				String id = event.getResource();
-//				idToNodeCache.remove(id);
-//			} else if (EVENT_NEW)
-//			
-//		}
-//	}
+	@Override
+	public void update(Observable o, Object arg) {
+		if (arg instanceof Event) {
+			Event event = (Event)arg;
+			// This is to deal with changing a site at a node or adding a new node
+			// Our site to node ID cache is a summary of multiple obj so needs to
+			// be invalidated in this way.
+			// The problem is that all the nodes do a DB lookup on the modified node.
+			if (EVENT_MODIFY.equals(event.getEvent()) || EVENT_NEW.equals(event.getEvent())) {
+				String id = fromRef(event.getResource());
+				PortalPersistentNode node = dao.findById(id);
+				String siteId = node.getSiteId();
+				if(siteId != null) {
+					siteToNodeCache.remove(siteId);
+				}
+			}
+			
+		}
+	}
+
+	@Override
+	public void notifyCachePut(Object key, Object payload) {
+		if (key instanceof String && payload instanceof PortalNode) {
+			PortalNode node = (PortalNode)payload;
+			pathToIdCache.put(node.getPath(), node.getId());
+		}
+	}
+
+	@Override
+	public void notifyCacheClear() {
+		pathToIdCache.clear();
+	}
+
+	@Override
+	public void notifyCacheRemove(Object key, Object payload) {
+		if (key instanceof String && payload instanceof PortalNode) {
+			PortalNode node = (PortalNode)payload;
+			pathToIdCache.remove(node.getPath());
+		}
+	}
 
 }
