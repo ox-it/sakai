@@ -84,6 +84,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 	// location we need to invalidate.
 	
 	// We have the main cache, and then the derrived caches.
+	// We cache the persistent nodes as we can't cache the PortalNode as the Site can change and so we would need
+	// to make a copy of the object each time 
 	private Cache idToNodeCache;
 	// Again need to cache root.
 	private Cache pathToIdCache;
@@ -170,17 +172,11 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 			String hash = hash(lookup);
 			PortalPersistentNode portalPersistentNode = dao.findByPathHash(hash);
 			if (portalPersistentNode != null) {
-				// Get from cache if there.
-				portalNode = (PortalNode) idToNodeCache.get(toRef(portalPersistentNode.getId()));
-			}
-			if (portalNode == null) {
-				portalNode = populatePortalNode(portalPersistentNode);
-			}
-			if (portalNode != null) {
-				pathToIdCache.put(lookup, portalNode.getId());
 				// This might already be cached.
-				idToNodeCache.put(toRef(portalNode.getId()), portalNode);
+				idToNodeCache.put(toRef(portalPersistentNode.getId()), portalPersistentNode);
+				pathToIdCache.put(lookup, portalPersistentNode.getId());
 			}
+			portalNode = populatePortalNode(portalPersistentNode);
 		}
 		return portalNode;
 	}
@@ -235,15 +231,14 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 	}
 
 	public PortalNode getNodeById(String id) {
-		PortalNode node = (PortalNode) idToNodeCache.get(toRef(id));
+		PortalPersistentNode node = (PortalPersistentNode) idToNodeCache.get(toRef(id));
 		if (node == null) {
-			PortalPersistentNode persistentNode = dao.findById(id);
-			node = populatePortalNode(persistentNode);
+			node = dao.findById(id);
 			if (node != null) {
 				idToNodeCache.put(toRef(id), node);
 			}
 		}
-		return node;
+		return populatePortalNode(node);
 	}
 
 	public List<PortalNode> getNodeChildren(String id) {
@@ -708,8 +703,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 
 	@Override
 	public void notifyCachePut(Object key, Object payload) {
-		if (key instanceof String && payload instanceof PortalNode) {
-			PortalNode node = (PortalNode)payload;
+		if (key instanceof String && payload instanceof PortalPersistentNode) {
+			PortalPersistentNode node = (PortalPersistentNode)payload;
 			pathToIdCache.put(node.getPath(), node.getId());
 		}
 	}
@@ -721,8 +716,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 
 	@Override
 	public void notifyCacheRemove(Object key, Object payload) {
-		if (key instanceof String && payload instanceof PortalNode) {
-			PortalNode node = (PortalNode)payload;
+		if (key instanceof String && payload instanceof PortalPersistentNode) {
+			PortalPersistentNode node = (PortalPersistentNode)payload;
 			pathToIdCache.remove(node.getPath());
 		}
 	}
