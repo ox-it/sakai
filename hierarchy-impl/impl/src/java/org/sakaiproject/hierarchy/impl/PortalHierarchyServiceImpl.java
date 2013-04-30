@@ -454,7 +454,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 			List<PortalPersistentNode> nodes = dao.findBySiteId(siteId);
 			if (!nodes.isEmpty()) {
 				Collections.sort(nodes, oldest);
-				nodeId = populatePortalNode(nodes.get(0)).getId();
+				node = populatePortalNode(nodes.get(0));
+				nodeId = node.getId();
 			}
 			// Will cache nulls.
 			siteToNodeCache.put(siteId, nodeId);
@@ -571,7 +572,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 		idToNodeCache.attachDerivedCache(this);
 		
 		// This is to invalidate the siteToNodeCache.
-		eventTrackingService.addObserver(this);
+		eventTrackingService.addPriorityObserver(this);
 	}
 
 	private void initDefaultContent() {
