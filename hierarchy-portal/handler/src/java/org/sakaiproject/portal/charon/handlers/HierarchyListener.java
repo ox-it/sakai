@@ -4,6 +4,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalService;
@@ -19,7 +20,7 @@ public class HierarchyListener implements ServletContextListener {
 	private PortalHandler hierarchyToolResetHandler;
 	
 	public void contextDestroyed(ServletContextEvent arg0) {
-		PortalService ps = (PortalService) org.sakaiproject.portal.api.cover.PortalService.getInstance();
+		PortalService ps = (PortalService) ComponentManager.get(PortalService.class);
 		ps.removeHandler("charon", hierarchyHandler.getUrlFragment());
 		ps.removeHandler("charon", siteHierarchyHandler.getUrlFragment());
 		ps.removeHandler("charon", hierarchyResetHandler.getUrlFragment());	
@@ -29,10 +30,10 @@ public class HierarchyListener implements ServletContextListener {
 	}
 
 	public void contextInitialized(ServletContextEvent event) {
-		PortalService ps = (PortalService) org.sakaiproject.portal.api.cover.PortalService.getInstance();
-		SiteService siteService = (SiteService) org.sakaiproject.site.cover.SiteService.getInstance();
-		PortalHierarchyService portalHierarchyService = (PortalHierarchyService)org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
-		SecurityService securityService = (SecurityService)org.sakaiproject.authz.cover.SecurityService.getInstance();
+		PortalService ps = (PortalService) ComponentManager.get(PortalService.class);
+		SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
+		PortalHierarchyService portalHierarchyService = (PortalHierarchyService) ComponentManager.get(PortalHierarchyService.class);
+		SecurityService securityService = (SecurityService) ComponentManager.get(SecurityService.class);
 		hierarchyHandler = new HierarchyHandler(siteService, portalHierarchyService, securityService, "hierarchy");
 		siteHierarchyHandler = new HierarchyHandler(siteService, portalHierarchyService, securityService, "site");
 		hierarchyResetHandler = new HierarchyResetHandler();
