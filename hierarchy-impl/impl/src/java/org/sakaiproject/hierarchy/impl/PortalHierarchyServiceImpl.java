@@ -169,7 +169,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 			if (portalPersistentNode != null) {
 				// This might already be cached.
 				idToNodeCache.put(toRef(portalPersistentNode.getId()), portalPersistentNode);
-				pathToIdCache.put(lookup, portalPersistentNode.getId());
+				// We don't need to put it in the pathToIdCache as it will get the data through
+				// being a derrived cache.
 			}
 			portalNode = populatePortalNode(portalPersistentNode);
 		}
@@ -447,6 +448,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 				siteToNodeCache.remove(siteId);
 			}
 		}
+		// If we haven't found the node and we haven't cached a null look in DB.
 		if (node == null && !siteToNodeCache.containsKey(siteId)) {
 			List<PortalPersistentNode> nodes = dao.findBySiteId(siteId);
 			if (!nodes.isEmpty()) {
@@ -462,7 +464,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 
 	public void renameNode(String id, String newPath) {
 		throw new UnsupportedOperationException("Not implemented yet.");
-	}
+	}	
 
 	public void setCurrentPortalNode(PortalNodeSite node) {
 		threadLocalManager.set(CURRENT_NODE, node);
@@ -566,6 +568,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 		idParentsCache = memoryService.newCache(getClass().getName()+ "idParentsCache", PREFIX); 
 		siteToNodeCache = memoryService.newCache(getClass().getName()+"#siteToNodeCache");
 		
+		// This is to invalidate the portalPath to node ID cache.
 		idToNodeCache.attachDerivedCache(this);
 		
 		// This is to invalidate the siteToNodeCache.
