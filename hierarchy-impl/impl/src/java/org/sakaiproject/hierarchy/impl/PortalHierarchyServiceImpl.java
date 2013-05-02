@@ -569,7 +569,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 		idToNodeCache.attachDerivedCache(this);
 		
 		// This is to invalidate the siteToNodeCache.
-		eventTrackingService.addPriorityObserver(this);
+		eventTrackingService.addObserver(this);
 	}
 
 	private void initDefaultContent() {
