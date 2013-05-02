@@ -99,6 +99,9 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 
 	public void changeSite(String id, String newSiteId) throws PermissionException {
 		PortalPersistentNode node = dao.findById(id);
+		if (node == null) {
+			throw new IllegalArgumentException("Couldn't find node with id: "+ id);
+		}
 		if (node.getRedirectUrl() != null) {
 			throw new IllegalArgumentException("Can't change the site on a redirect node: "+ id);
 		}
