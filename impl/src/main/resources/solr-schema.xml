@@ -51,33 +51,26 @@
 		<field name="course_subject_rm" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 		<!-- 
-			Information about the presentation 
+			Information about the most recent presentation 
 		-->
-
-		<!-- Identifier of the presentation can be an ID or an URL but it is the UNIQUE field for the document -->
-		<field name="presentation_identifier" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-
-		<!-- Presentation start/end date; not required as some courses do not have this information -->
-		<field name="presentation_start" type="date" indexed="true" stored="true" required="false" multiValued="false" />
-		<field name="presentation_end" type="date" indexed="true" stored="true" required="false" multiValued="false" />
-
-		<!-- Presentation applyFrom/end date; not required as some courses do not have this information -->
-		<field name="presentation_applyFrom" type="date" indexed="true" stored="true" required="false" multiValued="false" />
-		<field name="presentation_applyUntil" type="date" indexed="true" stored="true" required="false" multiValued="false" />
-
-		<!-- Venue identifier, expects oxpoints:* or an arbitrary string -->
-		<!-- TODO add lat/lng fields for geolocation? -->
-		<field name="presentation_venue_identifier" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-
-		<!-- Link to apply to a presentation; not required as some courses are not bookable -->
-		<field name="presentation_bookingEndpoint" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-		<field name="presentation_memberApplyTo" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-
-		<!-- Info on presentation attendance -->
-		<field name="presentation_attendanceMode" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-		<field name="presentation_attendancePattern" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-		<field name="presentation_studyMode" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-
+		
+		<!-- Bookable -->
+		<field name="course_bookable" type="boolean" indexed="true" stored="true" required="false" multiValued="false" />
+		
+		<!-- Signup -->
+		<field name="course_signup_open" type="date" indexed="true" stored="true" required="false" multiValued="false" />
+		<field name="course_signup_close" type="date" indexed="true" stored="true" required="false" multiValued="false" />
+		
+		<field name="course_signup_opentext" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+		<field name="course_signup_closetext" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+		
+		<!-- Presentation Dates -->
+		<field name="course_teaching_start" type="date" indexed="true" stored="true" required="false" multiValued="false" />
+		<field name="course_teaching_end" type="date" indexed="true" stored="true" required="false" multiValued="false" />
+		
+		<!-- Base Date for calculations -->
+		<field name="course_basedate" type="date" indexed="true" stored="true" required="false" multiValued="false" />
+		
 		<!-- Full Text Search for course title, course description and tags -->
 		<field name="fts" type="text_en_splitting" indexed="true" stored="false" multiValued="true" />
 
@@ -85,7 +78,7 @@
 		<field name="_version_" type="long" indexed="true" stored="true" multiValued="false" />
 	</fields>
 
-	<uniqueKey>presentation_identifier</uniqueKey>
+	<uniqueKey>course_identifier</uniqueKey>
 
 	<copyField source="course_title" dest="fts"/>
 	<copyField source="course_description" dest="fts"/>
@@ -101,6 +94,8 @@
 		<fieldType name="location" class="solr.LatLonType" subFieldSuffix="_coordinate" />
 		<!-- used by dnyamic field "_coordinate" -->
 		<fieldType name="tdouble" class="solr.TrieDoubleField" precisionStep="8" positionIncrementGap="0"/>
+		
+		<fieldType name="boolean" class="solr.BoolField" sortMissingLast="true" omitNorms="true"/>
 
 		<!-- TODO see Trie based date field for faster date range queries and date faceting
 		class="solr.TrieDateField" precisionStep="6" positionIncrementGap="0" -->

@@ -68,7 +68,7 @@ var Manager;
     */
     Manager.init();
     Manager.store.addByValue('q', '*:*');
-    
+    /*
     var params = {
     		  group: true,
     		  'group.field': ['course_identifier'],
@@ -77,7 +77,7 @@ var Manager;
     		for (var name in params) {
     		  Manager.store.addByValue(name, params[name]);
     		}
-    
+    */
     var params = {
       facet: true,
       'facet.field': [ 'provider_title', 'course_subject_rdf', 'course_subject_rm' ],

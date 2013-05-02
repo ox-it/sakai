@@ -149,7 +149,7 @@
       <h2>Departments</h2>
       <div class="facet-body-frame">
       	<div class="facet-body">
-      		<div class="tagcloud" id="provider_title"></div>
+      		<!-- <div class="tagcloud" id="provider_title"></div>  -->
       	</div>
       </div>
 

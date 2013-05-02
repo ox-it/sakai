@@ -50,45 +50,57 @@ public class SearchServiceImpl implements SearchService {
 	public void addCourseGroup(CourseGroup course) {
 		
 		try {
-			Collection<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
+			
+			SolrInputDocument doc = new SolrInputDocument();
+			
+			doc.addField("provider_title", course.getDepartment());
+			doc.addField("course_identifier", course.getCourseId());
+			doc.addField("course_title", course.getTitle());
+			doc.addField("course_description", course.getDescription());
+		
+			for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.RDF)) {
+				doc.addField("course_subject_rdf", category.getName());
+			}
+		
+			for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.RM)) {
+				doc.addField("course_subject_rm", category.getName());
+			}
+			
+			// Choose the most recent component
+			
+			CourseComponent chosenComponent = null;
 			
 			for (CourseComponent component : course.getComponents()) {
-				
-				SolrInputDocument doc = new SolrInputDocument();
-			
-				doc.addField("provider_title", course.getDepartment());
-				doc.addField("course_identifier", course.getCourseId());
-				doc.addField("course_title", course.getTitle());
-				doc.addField("course_description", course.getDescription());
-			
-				for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.RDF)) {
-					doc.addField("course_subject_rdf", category.getName());
+				if (null == chosenComponent) {
+					chosenComponent = component;
+					continue;
 				}
-			
-				for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.RM)) {
-					doc.addField("course_subject_rm", category.getName());
+				if (null != component.getBaseDate()) {
+					if (null != chosenComponent.getBaseDate()) {
+						if (component.getBaseDate().after(chosenComponent.getBaseDate())) {
+							chosenComponent = component;
+						}
+					} else {
+						chosenComponent = component;
+					}
 				}
-			
-				doc.addField("presentation_identifier", component.getPresentationId());
-				
-				doc.addField("presentation_start", component.getStarts());
-				doc.addField("presentation_end", component.getEnds());
-
-				doc.addField("presentation_applyFrom", component.getOpens());
-				doc.addField("presentation_applyUntil", component.getCloses());
-
-				doc.addField("presentation_venue_identifier", component.getLocation());
-
-				doc.addField("presentation_bookingEndpoint", component.getApplyTo());
-				doc.addField("presentation_memberApplyTo", component.getMemberApplyTo());
-				
-				doc.addField("presentation_attendanceMode", component.getAttendanceModeText());
-				doc.addField("presentation_attendancePattern", component.getAttendancePatternText());
-				doc.addField("presentation_studyMode", component.getTeachingDetails());
-				
-				docs.add(doc);
-				solrServer.add(doc);
 			}
+			
+			if (null != chosenComponent) {
+				doc.addField("course_bookable", chosenComponent.getBookable());
+			
+				doc.addField("course_teaching_start", chosenComponent.getStarts());
+				doc.addField("course_teaching_end", chosenComponent.getEnds());
+
+				doc.addField("course_signup_open", chosenComponent.getOpens());
+				doc.addField("course_signup_close", chosenComponent.getCloses());
+				
+				doc.addField("course_signup_opentext", chosenComponent.getOpensText());
+				doc.addField("course_signup_closetext", chosenComponent.getClosesText());
+
+				doc.addField("course_basedate", chosenComponent.getBaseDate());
+			}
+			solrServer.add(doc);
 			
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block

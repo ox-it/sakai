@@ -276,8 +276,8 @@ AjaxSolr.PagerWidget = AjaxSolr.AbstractWidget.extend(
   afterRequest: function () {
     var perPage = this.perPage();
     var offset  = this.getOffset();
-    //var total   = parseInt(this.manager.response.response.numFound);
-    var total = parseInt(this.manager.response.grouped.course_identifier.ngroups);
+    var total   = parseInt(this.manager.response.response.numFound);
+    //var total = parseInt(this.manager.response.grouped.course_identifier.ngroups);
 
     // Normalize the offset to a multiple of perPage.
     offset = offset - offset % perPage;
