@@ -48,10 +48,14 @@ import org.sakaiproject.tool.api.SessionManager;
 public class PortalHierarchyServiceImpl implements PortalHierarchyService, DerivedCache, Observer {
 
 	private static Log log = LogFactory.getLog(PortalHierarchyServiceImpl.class);
+	
+	// Used for a threadlocal storage of the current node.
 	private static final String CURRENT_NODE = PortalHierarchyServiceImpl.class.getName()+ "#current";
 	
+	// This is the PREFIX used for our cache entries and our event references.
 	private static final String PREFIX = Entity.SEPARATOR+ "portalnode";
 
+	// Our Dependencies that should be injected
 	private PortalPersistentNodeDao dao;
 	private HierarchyService hierarchyService;
 	private SiteService siteService;
@@ -61,40 +65,27 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 	private EventTrackingService eventTrackingService;
 	private FunctionManager functionManager;
 	private MemoryService memoryService;
-	
-	// Two cache, one for the node contents and one for the node relationships.
-	// We should never cache sites, just the nodes.
-	// Here we're looking to cache the getting of a node from a path.
-	// Cache one.
-	// path -> id
-	// Cache two
-	// id -> node.
-	// Cache three
-	// This one is the tricky one todo invalidation on as 
-	// id + children -> children ids. 
-	// id + parents-> parents ids.
-	// Node by ID
-	
 
-	// These two are invalidated through events.
-	private Cache idChildrenCache;
-	private Cache idParentsCache;
-	// These caches are invalidated on subsequent lookups.
-	// Need to cache bad lookup and be careful about validation because when a site is used at a new 
-	// location we need to invalidate.
-	
-	// We have the main cache, and then the derrived caches.
-	// We cache the persistent nodes as we can't cache the PortalNode as the Site can change and so we would need
-	// to make a copy of the object each time 
+	// Cache hold node ID to PortalPersistentNode. This is the main cache for the hierarchy service which is used
+	// whenever any details about a node are looked up. Invalidation is done on events.
 	private Cache idToNodeCache;
-	// Again need to cache root.
+	// Cache holding path to node ID. Eg /dept/history/year1 to 12345. This is a derived cache from the idToNodeCache
+	// and does it's invalidation using that cache.
 	private Cache pathToIdCache;
-	// This is derived, need to be careful if we ever allow custom choice of the primary site in the hierarchy.
-	// We want to cache sites not in hierarchy, we need to invalidate when a site is changed and when a site is
-	// added.
+	
+	// This cache holds the site ID to default node ID. It has null values when the site isn't in the hierarchy.
+	// Cache invalidation is done when new nodes are created or updates to existing nodes happen. This at the 
+	// moment is done through DB lookups from events.
 	private Cache siteToNodeCache;
 
 
+	// These two caches map node ID to collections of other node IDs. They are invalidated through events.
+	private Cache idChildrenCache;
+	private Cache idParentsCache;
+
+	/**
+	 * The ID of the portal hierarchy in the hierarchy service. 
+	 */
 	private String hierarchyId;
 
 	/**
@@ -241,6 +232,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 		return populatePortalNode(node);
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<PortalNode> getNodeChildren(String id) {
 		Collection<String> nodeIds = (Collection<String>) idChildrenCache.get(toRef(id));
 		if (nodeIds == null) {
@@ -262,6 +254,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 		return portalNodes;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<PortalNodeSite> getNodesFromRoot(String nodeId) {
 		List<String> parentIds = (List<String>) idParentsCache.get(toRef(nodeId));
 		if (parentIds == null) {
@@ -435,14 +428,14 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 
 
 	public PortalNode getDefaultNode(String siteId) {
-		//TODO this needs to cache bad lookups as it gets called for all sites.
-		// How todo cache invalidation when we cache sites not in hierarchy? Need to watch for new nodes and changes of site.
+		// This cache sites in and out of the hierarchy as it gets called when building a URL for a site.
 		String nodeId = (String) siteToNodeCache.get(siteId);
 		PortalNode node = null;
 		if (nodeId != null) {
 			node = getNodeById(nodeId);
 			// If the site at this node is no longer correct clear out the cache and lookup from DB.
-			if (node != null && node instanceof PortalNodeSite && !((PortalNodeSite)node).getSite().getId().equals(siteId)) {
+			if (node != null && node instanceof PortalNodeSite
+					&& !((PortalNodeSite) node).getSite().getId().equals(siteId)) {
 				node = null;
 			}
 			// No event invalidation is done so cleanup here.
