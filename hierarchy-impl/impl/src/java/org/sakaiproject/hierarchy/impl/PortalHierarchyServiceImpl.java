@@ -439,8 +439,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 		if (nodeId != null) {
 			node = getNodeById(nodeId);
 			// If the site at this node is no longer correct clear out the cache and lookup from DB.
-			if (node != null && node instanceof PortalNodeSite
-					&& !((PortalNodeSite) node).getSite().getId().equals(siteId)) {
+			if (node instanceof PortalNodeSite && !((PortalNodeSite) node).getSite().getId().equals(siteId)) {
 				node = null;
 			}
 			// No event invalidation is done so cleanup here.
