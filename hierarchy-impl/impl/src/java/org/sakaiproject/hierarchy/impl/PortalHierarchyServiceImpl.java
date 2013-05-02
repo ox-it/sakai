@@ -290,7 +290,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 			if (!nodes.isEmpty()) {
 				log.warn("We got back more parent nodes than we managed to match to the hierarchy.");
 			}
-			idParentsCache.put(toRef(nodeId), Collections.unmodifiableList(parentIds));
+			parentIds = Collections.unmodifiableList(parentIds);
+			idParentsCache.put(toRef(nodeId), parentIds);
 		}
 
 		List<PortalNodeSite> portalNodes = convertParentNodes(parentIds);
