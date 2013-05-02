@@ -360,13 +360,13 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 	}
 
 
-	public PortalNode newRedirectNode(String parentId, String childName,
+	public PortalNodeRedirect newRedirectNode(String parentId, String childName,
 			String redirectUrl, String title, boolean appendPath) throws PermissionException {
-		return newNode(parentId, childName, null, null, redirectUrl, title, appendPath);
+		return (PortalNodeRedirect) newNode(parentId, childName, null, null, redirectUrl, title, appendPath);
 	}
 
-	public PortalNode newSiteNode(String parentId, String childName, String siteId, String managementSiteId) throws PermissionException {
-		return newNode(parentId, childName, siteId, managementSiteId, null, null, false);
+	public PortalNodeSite newSiteNode(String parentId, String childName, String siteId, String managementSiteId) throws PermissionException {
+		return (PortalNodeSite) newNode(parentId, childName, siteId, managementSiteId, null, null, false);
 	}
 
 	public PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId, String redirectUrl, String title, boolean appendPath) throws PermissionException {
