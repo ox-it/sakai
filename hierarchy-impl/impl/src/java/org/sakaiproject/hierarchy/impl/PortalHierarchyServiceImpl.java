@@ -593,12 +593,6 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 		}
 	}
 
-
-	public String getMissingSiteId()
-	{
-		return missingSiteId;
-	}
-
 	public void setMissingSiteId(String missingSiteId)
 	{
 		this.missingSiteId = missingSiteId;
