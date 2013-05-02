@@ -105,7 +105,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 		try {
 			Site site = siteService.getSite(newSiteId);
 			if (!canChangeSite(id)) {
-				throw new PermissionException(sessionManager.getCurrentSession().getUserEid(), SECURE_MODIFY, site.getReference());
+				throw new PermissionException(sessionManager.getCurrentSession().getUserEid(), SECURE_MODIFY,
+						siteService.siteReference(node.getSiteId()));
 			}
 
 			if (!securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
