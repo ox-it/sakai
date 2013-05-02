@@ -157,9 +157,9 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 		String nodeId = (String) pathToIdCache.get(lookup);
 		if (nodeId != null) {
 			portalNode = getNodeById(nodeId);
-			// We don't do cache invalidation on events as we don't want to have to lookup 
-			// DB stuff in the event.
 			if(portalNode == null) {
+				// We may end up here if invalidation is happening while we're looking up the node as there
+				// isn't any cross cache consistency on derived caches. Just clean up and carry on.
 				pathToIdCache.remove(lookup);
 			}
 		} else {
