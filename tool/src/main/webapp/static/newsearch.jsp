@@ -61,60 +61,7 @@
 <!-- 
   <script src="lib/ajax-solr-master/search/widgets/AutocompleteWidget.js"></script>
  -->
- <script type="text/javascript">
-
-		var externalUser = <c:out value="${externalUser}" />;
-		var recentDays = "<%= ServerConfigurationService.getString("recent.days", "14") %>";
-
-		
-		$(function() {
-			/* Make the more details button work.
-			 * IE has all sorts of problems with .live("submit".. ! 
-			 * http://forum.jquery.com/topic/ie-specific-issues-with-live-submit
-			 * $("form.details").live("submit", function() {
-			 * The form class attributes don't work for these elements in IE, so we have to use
-			 * a parent selector to make sure it doesn't fire for other forms in the page.
-			 */
-			$("body").delegate(".result form","submit", function(e) {
-				e.preventDefault();
-				try {
-					var form = this;
-					var id = $("input[name=id]", form).val();
-					var previous = $("input[name=previous]", form).val();
-					var workingWindow = parent.window || window;
-					var position = Signup.util.dialogPosition();
-					var height = Math.round($(workingWindow).height() * 0.9);
-					var width = Math.round($(window).width() * 0.9);
-										
-					var courseDetails = $("<div></div>").dialog({
-						autoOpen: false,
-						stack: true,
-						position: position,
-						width: width,
-						height: height,
-						modal: true,
-						close: function(event, ui){
-							courseDetails.remove(); /* Tidy up the DOM. */
-						}
-					});
-					var range = "UPCOMING";
-					if (previous.indexOf("Old Courses") >= 0) {
-						range = "PREVIOUS";
-					}
-					Signup.course.show(courseDetails, id, range, externalUser, function(){
-						courseDetails.dialog("open");
-					});
-				} catch (e) {
-					console.log(e);
-				}
-			});
-		});
-		
-		/* Adjust with the content. */
-		$(function(){
-  			Signup.util.autoresize();
-        });
-	</script>
+ 
 </head>
 <body>
   <div id="wrap"> 
@@ -148,23 +95,17 @@
 
       <h2>Departments</h2>
       <div class="facet-body-frame">
-      	<div class="facet-body">
-      		<!-- <div class="tagcloud" id="provider_title"></div>  -->
-      	</div>
+      	<div class="facet-body" id="provider_title"></div>
       </div>
 
       <h2>Skills Categories</h2>
       <div class="facet-body-frame">
-      	<div class="facet-body">
-      		<div class="tagcloud" id="course_subject_rdf"></div>
-		</div>
+      	<div class="facet-body" id="course_subject_rdf"></div>
       </div>
       
       <h2>Research Methods</h2>
       <div class="facet-body-frame">
-      	<div class="facet-body">
-      		<div class="tagcloud" id="course_subject_rm"></div>
-		</div>
+      	<div class="facet-body" id="course_subject_rm"></div>
       </div>
     </div>
     <div class="clear"></div>

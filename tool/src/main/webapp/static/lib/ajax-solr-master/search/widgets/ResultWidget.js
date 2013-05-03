@@ -46,19 +46,19 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
       for (var j = 0, m = this.manager.response.grouped.course_identifier.groups[i].doclist.docs.length; j < m; j++) {
         var doc = this.manager.response.grouped.course_identifier.groups[i].doclist.docs[0];
 */
-        $(this.target).append(this.template(doc));
+      $(this.target).append(this.template(doc));
 
-        var items = [];
-        items = items.concat(this.facetLinks('departments', doc.provider_title));
-        items = items.concat(this.facetLinks('skills', doc.course_subject_rdf));
-        items = items.concat(this.facetLinks('research methods', doc.course_subject_rm));
+      var items = [];
+      items = items.concat(this.facetLinks('departments', doc.provider_title));
+      items = items.concat(this.facetLinks('skills', doc.course_subject_rdf));
+      items = items.concat(this.facetLinks('research methods', doc.course_subject_rm));
 
-        var $links = $('#links_' + doc.id);
-        $links.empty();
-        for (var j = 0, m = items.length; j < m; j++) {
-          $links.append($('<li></li>').append(items[j]));
-        }
+      var $links = $('#links_' + doc.id);
+      $links.empty();
+      for (var j = 0, m = items.length; j < m; j++) {
+        $links.append($('<li></li>').append(items[j]));
       }
+    }
     //}
   },
 
@@ -91,7 +91,7 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 		}
 	}
 	
-	var output = '<div id="doc"><form><p><strong>' + doc.course_title + ',</strong>';
+	var output = '<div id="doc"><form class="details"><p><strong>' + doc.course_title + ',</strong>';
 	output += '&nbsp;&nbsp;'+doc.provider_title+',&nbsp;&nbsp;'+signup_message+',&nbsp;&nbsp;<strong>'+booking_message + '</strong>';
 	output += '<p id="links_' + doc.course_identifier + '" class="links"></p>';
 	output += '<p id="description"><a href="javascript:{}" class="more">Show descrption</a>&nbsp;&nbsp;';
@@ -119,6 +119,40 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
       }
       return false;
     });
+    
+    $(document).on("submit", ".result form", function(e) {
+		e.preventDefault();
+		try {
+			var form = this;
+			var id = $("input[name=id]", form).val();
+			var previous = $("input[name=previous]", form).val();
+			var workingWindow = parent.window || window;
+			var position = Signup.util.dialogPosition();
+			var height = Math.round($(workingWindow).height() * 0.9);
+			var width = Math.round($(window).width() * 0.9);
+								
+			var courseDetails = $("<div></div>").dialog({
+				autoOpen: false,
+				stack: true,
+				position: position,
+				width: width,
+				height: height,
+				modal: true,
+				close: function(event, ui){
+					courseDetails.remove(); /* Tidy up the DOM. */
+				}
+			});
+			var range = "UPCOMING";
+			if (previous.indexOf("Old Courses") >= 0) {
+				range = "PREVIOUS";
+			}
+			Signup.course.show(courseDetails, id, range, externalUser, function(){
+				courseDetails.dialog("open");
+			});
+		} catch (e) {
+			console.log(e);
+		}
+	});
   }
 });
 

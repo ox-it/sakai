@@ -144,7 +144,7 @@ a:hover {
   margin: 0;
 }
 #search input {
-  width: 100%;
+  width: 98%;
 }
 
 #search_help {
@@ -163,16 +163,18 @@ a:hover {
 .facet-value {
 	clear: both;
 }
-
+/*
 .tagcloud {
   padding: 0px 15px;
 }
+*/
 .tagcloud_item {
   clear: both;
   float: left;
   display: block;
   margin-right: 4px;
   color: #6998f0;
+  padding: 0px 15px;
 }
 /*
 .tagcloud_item:hover {

@@ -7,14 +7,16 @@ AjaxSolr.TagcloudWidget = AjaxSolr.AbstractFacetWidget.extend({
       return;
     }
 
-    var maxCount = 0;
+    //var maxCount = 0;
     var objectedItems = [];
     for (var i = 0; i < this.manager.response.facet_counts.facet_fields[this.field].length; i=i+2) {
     	var facet = this.manager.response.facet_counts.facet_fields[this.field][i];
     	var count = parseInt(this.manager.response.facet_counts.facet_fields[this.field][i+1]);
+    	/*
     	if (count > maxCount) {
             maxCount = count;
         }
+        */
     	objectedItems.push({ facet: facet, count: count });
     }
     /*
@@ -40,6 +42,12 @@ AjaxSolr.TagcloudWidget = AjaxSolr.AbstractFacetWidget.extend({
         .click(this.clickHandler(facet))
       );
     }
+    var myHeight = objectedItems.length*1.5;
+    if (myHeight > 10) {
+    	myHeight = 10;
+    }
+    var thisHeight = myHeight+'em';
+    document.getElementById(this.id).style.height = thisHeight;
   }
 });
 
