@@ -108,7 +108,7 @@ public class CourseResource {
 
 	@Path("/all")
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public StreamingOutput getCourses(@QueryParam("range") final Range range) {
 		boolean externalUser = false;
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
