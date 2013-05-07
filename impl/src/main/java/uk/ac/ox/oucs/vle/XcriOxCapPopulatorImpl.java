@@ -1120,6 +1120,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 
 	/**
+	 *  * Processing of descriptivetext fields where descriptiveTextType.isXhtml=false
 	 * 
 	 * @param data
 	 * @return
@@ -1153,6 +1154,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 	
 	/**
+	 * Processing of descriptivetext fields where descriptiveTextType.isXhtml=true
 	 * 
 	 * @param data
 	 * @return
