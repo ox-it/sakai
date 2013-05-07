@@ -20,19 +20,22 @@
 package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.sakaiproject.component.api.ServerConfigurationService;
 
 public class SearchServiceImpl implements SearchService {
 
 	private static ConcurrentUpdateSolrServer solrServer;
-
+	private static int recentDays;
+	
 	/**
 	 * 
 	 */
@@ -44,6 +47,8 @@ public class SearchServiceImpl implements SearchService {
 	public void init() {
 		String url = serverConfigurationService.getString("ses.solr.server", null);
 		solrServer = new ConcurrentUpdateSolrServer(url, 1000, 1);
+		
+		recentDays = Integer.parseInt(serverConfigurationService.getString("recent.days", "14"));
 	}
 	
 	@Override
@@ -69,8 +74,38 @@ public class SearchServiceImpl implements SearchService {
 			// Choose the most recent component
 			
 			CourseComponent chosenComponent = null;
+			Set<String> bookableSet = new HashSet<String>();
+			Set<String> timescaleSet = new HashSet<String>();
+			Date toDay = new Date();
+			Date twoWeeksAgo = new DateTime().minusWeeks(2).toDate();
 			
 			for (CourseComponent component : course.getComponents()) {
+				
+				if (component.getCreated().after(twoWeeksAgo)) {
+					timescaleSet.add("New Courses");
+				}
+					
+				if (null != component.getBaseDate()) {
+				
+					if (component.getBaseDate().after(toDay)) {
+						bookableSet.add("Yes");
+						timescaleSet.add("Current Courses");
+					} else {
+						bookableSet.add("No");
+						timescaleSet.add("Old Courses");
+					}
+					
+				} else {
+					if (null != component.getStartsText() &&
+							 !component.getStartsText().isEmpty()) {
+						bookableSet.add("Yes");
+						timescaleSet.add("Current Courses");
+					} else {
+						bookableSet.add("No");
+						timescaleSet.add("Old Courses");
+					}
+				}
+					
 				if (null == chosenComponent) {
 					chosenComponent = component;
 					continue;
@@ -86,6 +121,10 @@ public class SearchServiceImpl implements SearchService {
 				}
 			}
 			
+			for (String timescale : timescaleSet) {
+				doc.addField("course_timescale", timescale);
+			}
+			
 			if (null != chosenComponent) {
 				doc.addField("course_bookable", chosenComponent.getBookable());
 			
@@ -99,6 +138,7 @@ public class SearchServiceImpl implements SearchService {
 				doc.addField("course_signup_closetext", chosenComponent.getClosesText());
 
 				doc.addField("course_basedate", chosenComponent.getBaseDate());
+				
 			}
 			solrServer.add(doc);
 			

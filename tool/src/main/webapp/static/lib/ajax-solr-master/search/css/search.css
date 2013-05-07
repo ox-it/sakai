@@ -4,7 +4,7 @@
 } 
 
 body {
-  background: #fff url(../images/header.gif) repeat-x;
+  /*background: #fff url(../images/header.gif) repeat-x;*/
   color: #333;
   font-family: Verdana, Arial, Helvetica, sans-serif;
   font-size: 12px;
@@ -26,25 +26,11 @@ a:hover {
   /*width: 1000px;*/
   margin: 0px auto;
 }
+#toolbar {
+  font-size: 14px;
+}
 .clear {
   clear: both;
-}
-
-/* header */
-
-#header {
-  height: 90px;
-}
-#header h1 {
-  padding: 20px 0 5px 10px;
-  font-size: 20px;
-  letter-spacing: -2px;
-}
-#header h2 {
-  padding-left: 10px;
-  color: #666;
-  font-size: 14px;
-  font-weight: 100;
 }
 
 /* right */

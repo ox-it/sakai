@@ -59,6 +59,40 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
         $links.append($('<li></li>').append(items[j]));
       }
     }
+
+	$("#result form").submit(function(e) {
+		e.preventDefault();
+		try {
+			var form = this;
+			var id = $("input[name=id]", form).val();
+			var previous = $("input[name=previous]", form).val();
+			var workingWindow = parent.window || window;
+			var position = Signup.util.dialogPosition();
+			var height = Math.round($(workingWindow).height() * 0.9);
+			var width = Math.round($(window).width() * 0.9);
+								
+			var courseDetails = $("<div></div>").dialog({
+				autoOpen: false,
+				stack: true,
+				position: position,
+				width: width,
+				height: height,
+				modal: true,
+				close: function(event, ui){
+					courseDetails.remove(); /* Tidy up the DOM. */
+				}
+			});
+			var range = "UPCOMING";
+			if (previous.indexOf("Old Courses") >= 0) {
+				range = "PREVIOUS";
+			}
+			Signup.course.show(courseDetails, id, range, externalUser, function(){
+				courseDetails.dialog("open");
+			});
+		} catch (e) {
+			console.log(e);
+		}
+	});
     //}
   },
 
@@ -119,40 +153,6 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
       }
       return false;
     });
-    
-    $(document).on("submit", ".result form", function(e) {
-		e.preventDefault();
-		try {
-			var form = this;
-			var id = $("input[name=id]", form).val();
-			var previous = $("input[name=previous]", form).val();
-			var workingWindow = parent.window || window;
-			var position = Signup.util.dialogPosition();
-			var height = Math.round($(workingWindow).height() * 0.9);
-			var width = Math.round($(window).width() * 0.9);
-								
-			var courseDetails = $("<div></div>").dialog({
-				autoOpen: false,
-				stack: true,
-				position: position,
-				width: width,
-				height: height,
-				modal: true,
-				close: function(event, ui){
-					courseDetails.remove(); /* Tidy up the DOM. */
-				}
-			});
-			var range = "UPCOMING";
-			if (previous.indexOf("Old Courses") >= 0) {
-				range = "PREVIOUS";
-			}
-			Signup.course.show(courseDetails, id, range, externalUser, function(){
-				courseDetails.dialog("open");
-			});
-		} catch (e) {
-			console.log(e);
-		}
-	});
   }
 });
 

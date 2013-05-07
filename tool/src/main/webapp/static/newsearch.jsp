@@ -38,6 +38,8 @@
   <script type="text/javascript" src="lib/jstree-1.0rc2/_lib/jquery.cookie.js"></script>
   <script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
   <script type="text/javascript" src="lib/signup.js"></script>
+  <script type="text/javascript" src="lib/serverDate.js"></script>
+  <script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js"></script>
   
   <link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css" />
   <link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.4.custom/css/smoothness/jquery-ui-1.8.4.custom.css" />
@@ -61,15 +63,43 @@
 <!-- 
   <script src="lib/ajax-solr-master/search/widgets/AutocompleteWidget.js"></script>
  -->
+
+	<script type="text/javascript">
+		var externalUser = <c:out value="${externalUser}" />;
+		var recentDays = "<%= ServerConfigurationService.getString("recent.days", "14") %>";
+		
+		/* Adjust with the content. */
+		$(function(){
+  			Signup.util.autoresize();
+        });
+	</script>
  
 </head>
 <body>
   <div id="wrap"> 
-    <div id="header">
-      <h1>AJAX Solr Demonstration</h1>
-      <h2>Browse Reuters business news from 1987</h2>
-    </div>
-
+  
+	<div id="toolbar">
+		<ul class="navIntraTool actionToolBar">
+			<li><span><a href="home.jsp">Home</a></span></li>
+			<li><span>Search Modules</span></li>
+			<li><span><a href="index.jsp">Browse by Department</a></span></li>
+			<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
+			<c:if test="${!externalUser}">
+				<li><span><a href="my.jsp">My Modules</a></span></li>
+				<c:if test="${isPending}">
+					<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
+				</c:if>
+				<c:if test="${isApprover}">
+					<li><span><a href="approve.jsp">Pending
+								Confirmations</a></span></li>
+				</c:if>
+				<c:if test="${isAdministrator}">
+					<li><span><a href="admin.jsp">Module Administration</a></span></li>
+				</c:if>
+			</c:if>
+		</ul>
+	</div>
+	
     <div class="left">
     
       <div id="current_selection">
