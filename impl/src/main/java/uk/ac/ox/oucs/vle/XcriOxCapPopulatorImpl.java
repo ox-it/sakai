@@ -1160,7 +1160,10 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @return
 	 */
 	protected static String parseXHTML(String data) {
-		return data.replaceAll("xhtml:", "");
+		if (null != data) {
+			data = data.replaceAll("xhtml:", "");
+		}
+		return data;
 	}
 
 }
