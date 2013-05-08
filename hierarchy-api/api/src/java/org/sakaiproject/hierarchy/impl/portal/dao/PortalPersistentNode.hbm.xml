@@ -15,6 +15,7 @@
          <column name="ID" />
       </id>
       <property name="siteId" type="string" length="64">
+        <!-- The index creation doesn't work but is here for reference -->
         <column name="siteId" index="portal_node_site_id_idx"/>
       </property>
       <property name="managementSiteId" type="string" length="64" />
@@ -22,6 +23,7 @@
       <property name="path" type="string" not-null="true" />
       <property name="pathHash" type="string">
         <!-- This should be unique but then hibernate creates an index with the wrong name. -->
+        <!-- The index creation doesn't work but is here for reference -->
         <column name="pathHash" index="portal_node_path_hash_idx"  not-null="true" />
       </property>
       <property name="redirectUrl" type="text" />
@@ -30,7 +32,7 @@
       <property name="created" type="date" />
       <property name="updated" type="date" />
    </class>
-   <!-- These don't work but are here for reference. -->
+   <!-- The index creation doesn't work but is here for reference. -->
    <database-object>
     <create>create unique index portal_node_path_hash_idx on PORTAL_NODE (pathHash)</create>
     <drop></drop>
