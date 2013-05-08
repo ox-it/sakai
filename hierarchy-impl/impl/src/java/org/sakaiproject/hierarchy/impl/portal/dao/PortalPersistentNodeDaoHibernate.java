@@ -31,7 +31,7 @@ public class PortalPersistentNodeDaoHibernate extends HibernateDaoSupport implem
 			Transaction ta = session.beginTransaction();
 			SQLQuery createSQLQuery;
 			try {
-				// Hibernate fails to create this index so we do it manually.
+				// Hibernate (3.2.7) fails to create these indexes so we do it manually.
 				// With later versions of hibernate this can go away.
 				createSQLQuery = session.createSQLQuery(INDEX_SITE_ID);
 				createSQLQuery.executeUpdate();
@@ -45,6 +45,7 @@ public class PortalPersistentNodeDaoHibernate extends HibernateDaoSupport implem
 				// see when it's failing due to index already existing.
 				log.debug("Failed to create index: "+ e.getMessage() );
 				ta.rollback();
+			} finally {
 				session.close();
 			}
 		}
