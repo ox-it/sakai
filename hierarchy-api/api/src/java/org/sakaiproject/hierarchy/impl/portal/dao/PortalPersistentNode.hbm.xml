@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-   <!-- put your value object in the class name, 
+   <!-- put your value object in the class name,
       the table name is optional but you should specify it to avoid collisions -->
    <class name="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNode"
       table="PORTAL_NODE">
@@ -14,16 +14,29 @@
       <id name="id" type="string">
          <column name="ID" />
       </id>
-      <property name="siteId" type="string" length="64" index="portal_node_site_idx"/>
+      <property name="siteId" type="string" length="64">
+        <column name="siteId" index="portal_node_site_id_idx"/>
+      </property>
       <property name="managementSiteId" type="string" length="64" />
       <property name="name" type="string" length="64" />
-      <property name="path" type="string" />
-      <property name="pathHash" type="string" />
+      <property name="path" type="string" not-null="true" />
+      <property name="pathHash" type="string">
+        <!-- This should be unique but then hibernate creates an index with the wrong name. -->
+        <column name="pathHash" index="portal_node_path_hash_idx"  not-null="true" />
+      </property>
       <property name="redirectUrl" type="text" />
       <property name="redirectTitle" type="string" length="99"/>
       <property name="appendPath" type="boolean" not-null="true"/>
       <property name="created" type="date" />
       <property name="updated" type="date" />
-
    </class>
+   <!-- These don't work but are here for reference. -->
+   <database-object>
+    <create>create unique index portal_node_path_hash_idx on PORTAL_NODE (pathHash)</create>
+    <drop></drop>
+  </database-object>
+   <database-object>
+    <create>create index portal_node_site_id_idx on PORTAL_NODE (siteId)</create>
+    <drop></drop>
+  </database-object>
 </hibernate-mapping>
