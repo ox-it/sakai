@@ -52,6 +52,7 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
       items = items.concat(this.facetLinks('departments', doc.provider_title));
       items = items.concat(this.facetLinks('skills', doc.course_subject_rdf));
       items = items.concat(this.facetLinks('research methods', doc.course_subject_rm));
+      items = items.concat(this.facetLinks('timeframes', doc.course_timeframe));
 
       var $links = $('#links_' + doc.id);
       $links.empty();

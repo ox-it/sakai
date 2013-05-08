@@ -51,7 +51,7 @@
 		<field name="course_subject_rm" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 		<!-- Timescale Facet -->
-		<field name="course_timescale" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+		<field name="course_timeframe" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 		<!-- 
 			Information about the most recent presentation 

@@ -118,7 +118,6 @@
     <div class="right">
 
       <h2>Search</h2>
-      <span id="search_help">(press ESC to close suggestions)</span>
       <ul id="search">
         <input type="text" id="query" name="query" autocomplete="off">
       </ul>
@@ -136,6 +135,11 @@
       <h2>Research Methods</h2>
       <div class="facet-body-frame">
       	<div class="facet-body" id="course_subject_rm"></div>
+      </div>
+      
+      <h2>Timeframe</h2>
+      <div class="facet-body-frame">
+      	<div class="facet-body" id="course_timeframe"></div>
       </div>
     </div>
     <div class="clear"></div>

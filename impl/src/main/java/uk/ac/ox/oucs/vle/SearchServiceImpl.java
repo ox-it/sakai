@@ -75,34 +75,34 @@ public class SearchServiceImpl implements SearchService {
 			
 			CourseComponent chosenComponent = null;
 			Set<String> bookableSet = new HashSet<String>();
-			Set<String> timescaleSet = new HashSet<String>();
+			Set<String> timeframeSet = new HashSet<String>();
 			Date toDay = new Date();
 			Date twoWeeksAgo = new DateTime().minusWeeks(2).toDate();
 			
 			for (CourseComponent component : course.getComponents()) {
 				
 				if (component.getCreated().after(twoWeeksAgo)) {
-					timescaleSet.add("New Courses");
+					timeframeSet.add("New Courses");
 				}
 					
 				if (null != component.getBaseDate()) {
 				
 					if (component.getBaseDate().after(toDay)) {
 						bookableSet.add("Yes");
-						timescaleSet.add("Current Courses");
+						timeframeSet.add("Current Courses");
 					} else {
 						bookableSet.add("No");
-						timescaleSet.add("Old Courses");
+						timeframeSet.add("Old Courses");
 					}
 					
 				} else {
 					if (null != component.getStartsText() &&
 							 !component.getStartsText().isEmpty()) {
 						bookableSet.add("Yes");
-						timescaleSet.add("Current Courses");
+						timeframeSet.add("Current Courses");
 					} else {
 						bookableSet.add("No");
-						timescaleSet.add("Old Courses");
+						timeframeSet.add("Old Courses");
 					}
 				}
 					
@@ -121,8 +121,8 @@ public class SearchServiceImpl implements SearchService {
 				}
 			}
 			
-			for (String timescale : timescaleSet) {
-				doc.addField("course_timescale", timescale);
+			for (String timeframe : timeframeSet) {
+				doc.addField("course_timeframe", timeframe);
 			}
 			
 			if (null != chosenComponent) {
