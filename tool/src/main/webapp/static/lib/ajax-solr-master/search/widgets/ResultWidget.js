@@ -126,31 +126,31 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 		}
 	}
 	
-	var output = '<div id="doc"><form class="details"><p><strong>' + doc.course_title + ',</strong>';
+	var output = '<div id="doc"><form class="details"><div><strong>' + doc.course_title + ',</strong>';
 	output += '&nbsp;&nbsp;'+doc.provider_title+',&nbsp;&nbsp;'+signup_message+',&nbsp;&nbsp;<strong>'+booking_message + '</strong>';
 	output += '<p id="links_' + doc.course_identifier + '" class="links"></p>';
-	output += '<p id="description"><a href="javascript:{}" class="more">Show descrption</a>&nbsp;&nbsp;';
-	output += '<span style="display:none;"><br />' + doc.course_description+'<br /></span>';
+	output += '<div id="description"><a href="javascript:{}" class="more">Show descrption</a>&nbsp;&nbsp;';
+	output += '<div class="toggle" style="display:none;">' + doc.course_description+'<br /></div>';
 	output += '<input type="hidden" name="id" value="' + doc.course_identifier + '">';
 	output += '<input type="hidden" name="previous" value="Current Courses">';
 	output += '<input type="submit" value="More details">';
-	output += '</p>';
-	output += '</p></form></div>';
+	output += '</div>';
+	output += '</div></form></div>';
 	return output;
   },
   
   init: function () {
     $(document).on('click', 'a.more', function () {
       var $this = $(this),
-          span = $this.parent().find('span');
+          toggle = $this.parent().find('div.toggle');
 
-      if (span.is(':visible')) {
-        span.hide();
+      if (toggle.is(':visible')) {
+    	  toggle.hide();
         $this.text('Show descrption');
       }
       else {
     	$this.text('Hide descrption');
-        span.show();
+    	toggle.show();
       }
       return false;
     });

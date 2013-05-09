@@ -68,16 +68,22 @@
 		var externalUser = <c:out value="${externalUser}" />;
 		var recentDays = "<%= ServerConfigurationService.getString("recent.days", "14") %>";
 		
+		$(function () {
+			$(document).on('click', 'a.advanced', function () {
+				$('div.simple_search').toggle();
+				$('div.advanced_search').toggle();
+			});
+		});
+		
 		/* Adjust with the content. */
 		$(function(){
-  			Signup.util.autoresize();
-        });
+			Signup.util.autoresize();
+		});
 	</script>
  
 </head>
 <body>
-  <div id="wrap"> 
-  
+
 	<div id="toolbar">
 		<ul class="navIntraTool actionToolBar">
 			<li><span><a href="home.jsp">Home</a></span></li>
@@ -100,49 +106,70 @@
 		</ul>
 	</div>
 	
-    <div class="left">
-    
-      <div id="current_selection">
-        <h2>Current Selection</h2>
-        <ul id="selection"></ul>
-        
-        <ul id="pager"></ul>
-        <div id="pager-header"></div>
-      </div>
-      
-      <div id="result">
-        <div id="docs"></div>
-      </div>
-    </div>
+	<!-- <div id="wrap">   -->
+	
+		<div class="simple_search">
+		
+			<ul id="search">
+				<form class="search">
+					<input type="text" id="query" name="query" autocomplete="off">
+					<br />
+					<input type="submit" value="Search">
+				</form>
+				
+				<div class="advanced_link">
+					<a class="advanced" href="#">Advanced Search</a>
+				</div>	
+			</ul>
+				
+		</div>
+		
+		<div class="advanced_search" style="display:none;">
+	
+			<div class="left">
+	
+				<div id="current_selection">
+					<h2>Current Selection</h2>
+					<ul id="selection"></ul>
 
-    <div class="right">
+					<ul id="pager"></ul>
+					<div id="pager-header"></div>
+				</div>
 
-      <h2>Search</h2>
-      <ul id="search">
-        <input type="text" id="query" name="query" autocomplete="off">
-      </ul>
+				<div id="result">
+					<div id="docs"></div>
+				</div>
+			</div>
 
-      <h2>Departments</h2>
-      <div class="facet-body-frame">
-      	<div class="facet-body" id="provider_title"></div>
-      </div>
+			<div class="right">
 
-      <h2>Skills Categories</h2>
-      <div class="facet-body-frame">
-      	<div class="facet-body" id="course_subject_rdf"></div>
-      </div>
-      
-      <h2>Research Methods</h2>
-      <div class="facet-body-frame">
-      	<div class="facet-body" id="course_subject_rm"></div>
-      </div>
-      
-      <h2>Timeframe</h2>
-      <div class="facet-body-frame">
-      	<div class="facet-body" id="course_timeframe"></div>
-      </div>
-    </div>
-    <div class="clear"></div>
-  </div>  
+				<h2>Search</h2>
+				<ul id="search">
+					<input type="text" id="query" name="query" autocomplete="off">
+				</ul>
+
+				<h2>Departments</h2>
+				<div class="facet-body-frame">
+					<div class="facet-body" id="provider_title"></div>
+				</div>
+
+				<h2>Skills Categories</h2>
+				<div class="facet-body-frame">
+					<div class="facet-body" id="course_subject_rdf"></div>
+				</div>
+
+				<h2>Research Methods</h2>
+				<div class="facet-body-frame">
+					<div class="facet-body" id="course_subject_rm"></div>
+				</div>
+
+				<h2>Timeframe</h2>
+				<div class="facet-body-frame">
+					<div class="facet-body" id="course_timeframe"></div>
+				</div>
+			</div>
+			<div class="clear"></div>
+		</div> 
+	 <!-- </div>  -->
 </body>
 </html>

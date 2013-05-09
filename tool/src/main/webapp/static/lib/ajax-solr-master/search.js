@@ -68,6 +68,7 @@ var Manager;
     */
     Manager.init();
     Manager.store.addByValue('q', '*:*');
+    /*Manager.store.addByValue('rows', '0');*/
     /*
     var params = {
     		  group: true,
