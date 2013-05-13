@@ -698,7 +698,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 
 	@Override
 	public void notifyCachePut(Object key, Object payload) {
-		if (key instanceof String && payload instanceof PortalPersistentNode) {
+		if (payload instanceof PortalPersistentNode) {
 			PortalPersistentNode node = (PortalPersistentNode)payload;
 			pathToIdCache.put(node.getPath(), node.getId());
 		}
