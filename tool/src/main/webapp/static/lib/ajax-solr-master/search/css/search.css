@@ -46,6 +46,14 @@ a:hover {
 	margin-top: 10px;
 }
 
+/* advanced search */
+.advanced_search .advanced_link {
+	display: none;
+}
+.advanced_search input[type=submit] {
+	display: none;
+}
+
 /* right */
 
 .right {
@@ -151,7 +159,7 @@ a:hover {
 	margin-left: auto;
 	margin-right: auto;
 	margin-top: 10px;
-	display: block;
+	/* display: block; */
 }
 
 #search_help {

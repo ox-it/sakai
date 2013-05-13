@@ -12,9 +12,12 @@ AjaxSolr.TextWidget = AjaxSolr.AbstractTextWidget.extend({
     });
     
     $("#search form").submit(function(e) {
+    	e.preventDefault();
         self.doRequest();
-        $('div.simple_search').toggle();
+        /* 
+		$('div.simple_search').toggle();
 		$('div.advanced_search').toggle();
+		*/
       });
   },
 

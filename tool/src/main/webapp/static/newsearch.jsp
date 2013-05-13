@@ -106,25 +106,9 @@
 		</ul>
 	</div>
 	
-	<!-- <div id="wrap">   -->
-	
-		<div class="simple_search">
+	<div id="wrap">
 		
-			<ul id="search">
-				<form class="search">
-					<input type="text" id="query" name="query" autocomplete="off">
-					<br />
-					<input type="submit" value="Search">
-				</form>
-				
-				<div class="advanced_link">
-					<a class="advanced" href="#">Advanced Search</a>
-				</div>	
-			</ul>
-				
-		</div>
-		
-		<div class="advanced_search" style="display:none;">
+		<div class="advanced_search" >
 	
 			<div class="left">
 	
@@ -144,32 +128,42 @@
 			<div class="right">
 
 				<h2>Search</h2>
-				<ul id="search">
+				<div id="search">
+				<form class="search">
 					<input type="text" id="query" name="query" autocomplete="off">
-				</ul>
-
-				<h2>Departments</h2>
-				<div class="facet-body-frame">
-					<div class="facet-body" id="provider_title"></div>
+					<br />
+					<input type="submit" value="Search">
+				</form>
+				
+				<div class="advanced_link">
+					<a class="advanced" href="#">Advanced Search</a>
+				</div>	
 				</div>
+				
+				<div id="facets">
+					<h2>Departments</h2>
+					<div class="facet-body-frame">
+						<div class="facet-body" id="provider_title"></div>
+					</div>
 
-				<h2>Skills Categories</h2>
-				<div class="facet-body-frame">
-					<div class="facet-body" id="course_subject_rdf"></div>
-				</div>
+					<h2>Skills Categories</h2>
+					<div class="facet-body-frame">
+						<div class="facet-body" id="course_subject_rdf"></div>
+					</div>
 
-				<h2>Research Methods</h2>
-				<div class="facet-body-frame">
-					<div class="facet-body" id="course_subject_rm"></div>
-				</div>
+					<h2>Research Methods</h2>
+					<div class="facet-body-frame">
+						<div class="facet-body" id="course_subject_rm"></div>
+					</div>
 
-				<h2>Timeframe</h2>
-				<div class="facet-body-frame">
-					<div class="facet-body" id="course_timeframe"></div>
+					<h2>Timeframe</h2>
+					<div class="facet-body-frame">
+						<div class="facet-body" id="course_timeframe"></div>
+					</div>
 				</div>
 			</div>
 			<div class="clear"></div>
 		</div> 
-	 <!-- </div>  -->
+	 </div>
 </body>
 </html>
