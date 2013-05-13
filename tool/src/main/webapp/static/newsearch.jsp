@@ -68,13 +68,6 @@
 		var externalUser = <c:out value="${externalUser}" />;
 		var recentDays = "<%= ServerConfigurationService.getString("recent.days", "14") %>";
 		
-		$(function () {
-			$(document).on('click', 'a.advanced', function () {
-				$('div.simple_search').toggle();
-				$('div.advanced_search').toggle();
-			});
-		});
-		
 		/* Adjust with the content. */
 		$(function(){
 			Signup.util.autoresize();
@@ -106,29 +99,27 @@
 		</ul>
 	</div>
 	
-	<div id="wrap">
-		
-		<div class="advanced_search" >
+	<div id="search_wrapper" class="simple_search" >
 	
-			<div class="left">
+		<div class="left">
 	
-				<div id="current_selection">
-					<h2>Current Selection</h2>
-					<ul id="selection"></ul>
+			<div id="current_selection">
+				<h2>Current Selection</h2>
+				<ul id="selection"></ul>
 
-					<ul id="pager"></ul>
-					<div id="pager-header"></div>
-				</div>
-
-				<div id="result">
-					<div id="docs"></div>
-				</div>
+				<ul id="pager"></ul>
+				<div id="pager-header"></div>
 			</div>
 
-			<div class="right">
+			<div id="result">
+				<div id="docs"></div>
+			</div>
+		</div>
 
-				<h2>Search</h2>
-				<div id="search">
+		<div class="right">
+
+			<h2>Search</h2>
+			<div id="search">
 				<form class="search">
 					<input type="text" id="query" name="query" autocomplete="off">
 					<br />
@@ -138,32 +129,31 @@
 				<div class="advanced_link">
 					<a class="advanced" href="#">Advanced Search</a>
 				</div>	
-				</div>
+			</div>
 				
-				<div id="facets">
-					<h2>Departments</h2>
-					<div class="facet-body-frame">
-						<div class="facet-body" id="provider_title"></div>
-					</div>
+			<div class="facets" id="facets">
+				<h2>Departments</h2>
+				<div class="facet-body-frame">
+					<div class="facet-body" id="provider_title"></div>
+				</div>
 
-					<h2>Skills Categories</h2>
-					<div class="facet-body-frame">
-						<div class="facet-body" id="course_subject_rdf"></div>
-					</div>
+				<h2>Skills Categories</h2>
+				<div class="facet-body-frame">
+					<div class="facet-body" id="course_subject_rdf"></div>
+				</div>
 
-					<h2>Research Methods</h2>
-					<div class="facet-body-frame">
-						<div class="facet-body" id="course_subject_rm"></div>
-					</div>
+				<h2>Research Methods</h2>
+				<div class="facet-body-frame">
+					<div class="facet-body" id="course_subject_rm"></div>
+				</div>
 
-					<h2>Timeframe</h2>
-					<div class="facet-body-frame">
-						<div class="facet-body" id="course_timeframe"></div>
-					</div>
+				<h2>Timeframe</h2>
+				<div class="facet-body-frame">
+					<div class="facet-body" id="course_timeframe"></div>
 				</div>
 			</div>
-			<div class="clear"></div>
-		</div> 
-	 </div>
+		</div>
+		<div class="clear"></div>
+	</div> 
 </body>
 </html>

@@ -59,26 +59,10 @@ var Manager;
     	  id: 'text',
     	  target: '#search'
     }));
-    /*
-    Manager.addWidget(new AjaxSolr.AutocompleteWidget({
-      id: 'text',
-      target: '#search',
-      fields: [ 'course_title', 'course_description' ]
-    }));
-    */
+    
     Manager.init();
     Manager.store.addByValue('q', '*:*');
-    /*Manager.store.addByValue('rows', '0');*/
-    /*
-    var params = {
-    		  group: true,
-    		  'group.field': ['course_identifier'],
-    		  'group.ngroups': true
-    		};
-    		for (var name in params) {
-    		  Manager.store.addByValue(name, params[name]);
-    		}
-    */
+   
     var params = {
       facet: true,
       'facet.field': [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_timeframe' ],
@@ -92,14 +76,4 @@ var Manager;
     
     Manager.doRequest();
   });
-/*
-  $.fn.showIf = function (condition) {
-    if (condition) {
-      return this.show();
-    }
-    else {
-      return this.hide();
-    }
-  }
-*/
 })(jQuery);
