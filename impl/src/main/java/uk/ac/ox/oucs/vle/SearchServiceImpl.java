@@ -20,6 +20,10 @@
 package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,6 +38,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 public class SearchServiceImpl implements SearchService {
 
 	private static ConcurrentUpdateSolrServer solrServer;
+	private String solrUrl;
 	private static int recentDays;
 	
 	/**
@@ -45,8 +50,8 @@ public class SearchServiceImpl implements SearchService {
 	}
 	
 	public void init() {
-		String url = serverConfigurationService.getString("ses.solr.server", null);
-		solrServer = new ConcurrentUpdateSolrServer(url, 1000, 1);
+		String solrUrl = serverConfigurationService.getString("ses.solr.server", null);
+		solrServer = new ConcurrentUpdateSolrServer(solrUrl, 1000, 1);
 		
 		recentDays = Integer.parseInt(serverConfigurationService.getString("recent.days", "14"));
 	}
@@ -70,6 +75,8 @@ public class SearchServiceImpl implements SearchService {
 			for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.RM)) {
 				doc.addField("course_subject_rm", category.getName());
 			}
+			
+			doc.addField("course_class", "Graduate Training");
 			
 			// Choose the most recent component
 			
@@ -151,5 +158,33 @@ public class SearchServiceImpl implements SearchService {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	@Override
+	public OutputStream search(String query) {
+		HttpURLConnection connection = null;
+		OutputStream output = null;
+		try {
+			URL serverAddress = new URL(solrUrl+"search?"+query);
+			connection = (HttpURLConnection)serverAddress.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setDoOutput(true);
+			connection.connect();
+			output = connection.getOutputStream();
+		
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+		} finally	{
+			//close the connection, set all objects to null
+			connection.disconnect();
+		}
+		
+		return output;
 	}
 }

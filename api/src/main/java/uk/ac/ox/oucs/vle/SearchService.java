@@ -19,7 +19,11 @@
  */
 package uk.ac.ox.oucs.vle;
 
-public interface SearchService {
+import java.io.OutputStream;
 
+public interface SearchService {
+	
 	public void addCourseGroup(CourseGroup group);
+
+	public OutputStream search(String query);
 }

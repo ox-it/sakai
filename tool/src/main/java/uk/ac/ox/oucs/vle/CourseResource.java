@@ -19,16 +19,24 @@
  */
 package uk.ac.ox.oucs.vle;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -44,8 +52,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ContextResolver;
 
 import org.codehaus.jackson.JsonEncoding;
@@ -57,6 +67,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
@@ -66,11 +77,13 @@ import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 public class CourseResource {
 
 	private CourseSignupService courseService;
+	private SearchService searchService;
 	private JsonFactory jsonFactory;
 	private ObjectMapper objectMapper;
 
 	public CourseResource(@Context ContextResolver<Object> resolver) {
 		this.courseService = (CourseSignupService) resolver.getContext(CourseSignupService.class);
+		searchService = (SearchService) resolver.getContext(SearchService.class);
 		jsonFactory = new JsonFactory();
 		objectMapper = new ObjectMapper();
 		objectMapper.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
@@ -183,6 +196,25 @@ public class CourseResource {
 		}
 		List<CourseGroup> groups = courseService.search(terms, Range.UPCOMING, false);
 		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
+	}
+	
+	@Path("/solr/{command}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response setSolr(@PathParam("command") final String command, @Context UriInfo uriInfo) 
+			throws JsonGenerationException, JsonMappingException, IOException {
+		
+		if (!"select".equals(command)) {
+			throw new WebApplicationException();
+		}
+		String query = uriInfo.getRequestUri().getRawQuery();
+		if (null == query) {
+			throw new WebApplicationException();
+		}
+		
+		OutputStream output = searchService.search(query);
+	
+		return Response.ok(output).type(MediaType.APPLICATION_JSON).build();
 	}
 	
 	@Path("/calendar")
