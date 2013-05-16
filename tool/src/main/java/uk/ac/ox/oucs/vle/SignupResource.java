@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -119,6 +120,14 @@ public class SignupResource {
 		}; 
 	}
 
+	/**
+	 * 
+	 * @param courseId
+	 * @param components
+	 * @param email
+	 * @param message
+	 * @return CourseSignup:
+	 */
 	@Path("/my/new")
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
