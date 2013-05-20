@@ -42,7 +42,7 @@ var Manager;
       }
     }));
     
-    var fields = [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_class', 'course_timeframe' ];
+    var fields = [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_class', 'course_delivery', 'course_timeframe' ];
     for (var i = 0, l = fields.length; i < l; i++) {
       Manager.addWidget(new AjaxSolr.TagcloudWidget({
         id: fields[i],
@@ -66,7 +66,7 @@ var Manager;
    
     var params = {
       facet: true,
-      'facet.field': [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_class', 'course_timeframe' ],
+      'facet.field': [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_class', 'course_delivery', 'course_timeframe' ],
       'facet.limit': 20,
       'facet.mincount': 1,
       'f.topics.facet.limit': 50

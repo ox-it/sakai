@@ -27,6 +27,8 @@ public interface CourseGroup {
 	//RDF Skills
 	public static enum Category_Type {RDF, JACS, RM};
 	
+	public int getMuid();
+		
 	public String getCourseId();
 	
 	public String getTitle();

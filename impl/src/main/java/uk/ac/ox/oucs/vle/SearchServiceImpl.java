@@ -95,6 +95,7 @@ public class SearchServiceImpl implements SearchService {
 			SolrInputDocument doc = new SolrInputDocument();
 			
 			doc.addField("provider_title", course.getDepartment());
+			doc.addField("course_muid", course.getMuid());
 			doc.addField("course_identifier", course.getCourseId());
 			doc.addField("course_title", course.getTitle());
 			doc.addField("course_description", course.getDescription());
@@ -163,7 +164,8 @@ public class SearchServiceImpl implements SearchService {
 				doc.addField("course_timeframe", timeframe);
 			}
 			
-			if (null != chosenComponent) {
+			if (null != chosenComponent) {	
+				doc.addField("course_delivery", attendanceMode(chosenComponent));
 				doc.addField("course_bookable", chosenComponent.getBookable());
 			
 				doc.addField("course_teaching_start", chosenComponent.getStarts());
@@ -217,5 +219,15 @@ public class SearchServiceImpl implements SearchService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	private String attendanceMode(CourseComponent component) {
+		if ("CM".equals(component.getAttendanceMode())) {
+			return "Face to face";
+		}
+		if ("ON".equals(component.getAttendanceMode())) {
+			return "Online";
+		}
+		return component.getAttendanceModeText();
 	}
 }

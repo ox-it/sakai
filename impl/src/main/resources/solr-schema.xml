@@ -35,6 +35,9 @@
 			Information about the course 
 		-->
 
+		<!-- Unique Identifier of the course -->
+		<field name="course_muid" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+		
 		<!-- Identifier of the course, can be an ID or an URL -->
 		<field name="course_identifier" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 
@@ -55,6 +58,9 @@
 		
 		<!-- Timescale Facet -->
 		<field name="course_timeframe" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+		
+		<!-- Delivery method of the course -->
+		<field name="course_delivery" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
 		<!-- 
 			Information about the most recent presentation 
@@ -84,7 +90,7 @@
 		<field name="_version_" type="long" indexed="true" stored="true" multiValued="false" />
 	</fields>
 
-	<uniqueKey>course_identifier</uniqueKey>
+	<uniqueKey>course_muid</uniqueKey>
 
 	<copyField source="course_title" dest="fts"/>
 	<copyField source="course_subject_rdf" dest="fts"/>
