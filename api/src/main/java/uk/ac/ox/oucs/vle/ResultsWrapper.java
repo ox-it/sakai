@@ -19,16 +19,13 @@
  */
 package uk.ac.ox.oucs.vle;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 
-public interface SearchService {
-
-	public ResultsWrapper select(String query);
+public interface ResultsWrapper {
 	
-	public void addCourseGroup(CourseGroup group);
+	public InputStream getInputStream() throws IOException;
 	
-	public void deleteCourseGroup(CourseGroup group);
+	public void disconnect();
 
-	public void query(Map<String, String> queryParams);
 }

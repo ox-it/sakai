@@ -1,6 +1,6 @@
 /*
  * #%L
- * Course Signup API
+ * Course Signup Implementation
  * %%
  * Copyright (C) 2010 - 2013 University of Oxford
  * %%
@@ -19,16 +19,22 @@
  */
 package uk.ac.ox.oucs.vle;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.net.HttpURLConnection;
 
-public interface SearchService {
-
-	public ResultsWrapper select(String query);
+public class SearchResultsWrapper implements ResultsWrapper {
 	
-	public void addCourseGroup(CourseGroup group);
+	HttpURLConnection connection;
 	
-	public void deleteCourseGroup(CourseGroup group);
+	public SearchResultsWrapper(HttpURLConnection connection) {
+		this.connection = connection;
+	}
 
-	public void query(Map<String, String> queryParams);
+	public InputStream getInputStream() throws IOException {
+		return connection.getInputStream();
+	}
+	public void disconnect() {
+		connection.disconnect();
+	}
 }

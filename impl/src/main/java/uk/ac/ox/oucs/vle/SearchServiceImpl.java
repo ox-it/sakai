@@ -20,19 +20,23 @@
 package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.params.MapSolrParams;
+import org.apache.solr.common.params.SolrParams;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.sakaiproject.component.api.ServerConfigurationService;
 
 public class SearchServiceImpl implements SearchService {
@@ -50,10 +54,37 @@ public class SearchServiceImpl implements SearchService {
 	}
 	
 	public void init() {
-		String solrUrl = serverConfigurationService.getString("ses.solr.server", null);
+		solrUrl = serverConfigurationService.getString("ses.solr.server", null);
 		solrServer = new ConcurrentUpdateSolrServer(solrUrl, 1000, 1);
 		
 		recentDays = Integer.parseInt(serverConfigurationService.getString("recent.days", "14"));
+	}
+	
+	public void close() {
+		
+	}
+	
+	@Override
+	public SearchResultsWrapper select(String query) {
+		HttpURLConnection connection = null;
+		try {
+			URL serverAddress = new URL(solrUrl+"select?"+query);
+			connection = (HttpURLConnection)serverAddress.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setDoOutput(true);
+			connection.connect();
+		
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+		} 
+		
+		return new SearchResultsWrapper(connection);
 	}
 	
 	@Override
@@ -161,30 +192,30 @@ public class SearchServiceImpl implements SearchService {
 	}
 	
 	@Override
-	public OutputStream search(String query) {
-		HttpURLConnection connection = null;
-		OutputStream output = null;
-		try {
-			URL serverAddress = new URL(solrUrl+"search?"+query);
-			connection = (HttpURLConnection)serverAddress.openConnection();
-			connection.setRequestMethod("GET");
-			connection.setDoOutput(true);
-			connection.connect();
-			output = connection.getOutputStream();
+	public void deleteCourseGroup(CourseGroup course) {
 		
-		} catch (MalformedURLException e) {
+		try {
+			solrServer.deleteById(course.getCourseId());
+			
+		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			
-		} finally	{
-			//close the connection, set all objects to null
-			connection.disconnect();
 		}
+	}
+	
+	@Override
+	public void query(Map<String, String> queryParams) {
 		
-		return output;
+		SolrParams params = new MapSolrParams(queryParams);
+		try {
+			QueryResponse query = solrServer.query(params);
+			
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

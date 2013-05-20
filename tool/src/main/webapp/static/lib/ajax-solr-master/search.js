@@ -23,7 +23,7 @@ var Manager;
 
   $(function () {
     Manager = new AjaxSolr.Manager({
-      //solrUrl: 'http://localhost:8983/solr/ses/'
+    	//solrUrl: 'http://localhost:8983/solr/ses/'
     	solrUrl: '../rest/course/solr/'
     });
 

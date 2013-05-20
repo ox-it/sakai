@@ -19,24 +19,17 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -52,12 +45,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ContextResolver;
 
+import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerationException;
@@ -67,7 +60,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
@@ -201,7 +193,7 @@ public class CourseResource {
 	@Path("/solr/{command}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response setSolr(@PathParam("command") final String command, @Context UriInfo uriInfo) 
+	public StreamingOutput setSolr(@PathParam("command") final String command, @Context UriInfo uriInfo) 
 			throws JsonGenerationException, JsonMappingException, IOException {
 		
 		if (!"select".equals(command)) {
@@ -211,10 +203,8 @@ public class CourseResource {
 		if (null == query) {
 			throw new WebApplicationException();
 		}
-		
-		OutputStream output = searchService.search(query);
 	
-		return Response.ok(output).type(MediaType.APPLICATION_JSON).build();
+		return new StringStreamingOutput(searchService.select(query));
 	}
 	
 	@Path("/calendar")
@@ -755,6 +745,20 @@ public class CourseResource {
 				
 			gen.writeEndObject();
 			gen.close();
+		}
+	}
+	
+	private class StringStreamingOutput implements StreamingOutput {
+		
+		private final ResultsWrapper results;
+	
+		private StringStreamingOutput(ResultsWrapper results) {
+			this.results = results;
+		}
+	
+		public void write(OutputStream out) throws IOException {
+			IOUtils.copy(results.getInputStream(), out);
+			results.disconnect();
 		}
 	}
 }
