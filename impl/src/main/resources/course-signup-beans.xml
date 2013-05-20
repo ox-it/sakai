@@ -65,6 +65,7 @@
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
 				<property name="populatorInput" ref="uk.ac.ox.oucs.vle.PopulatorInput" />
+				<property name="searchService" ref="uk.ac.ox.oucs.vle.SearchService" />
 			</bean>
 		</property>
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
@@ -81,6 +82,7 @@
 			<bean class="uk.ac.ox.oucs.vle.DaisyPopulatorWrapper">
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="populator" ref="uk.ac.ox.oucs.vle.XcriPopulator" />
+				<property name="searchService" ref="uk.ac.ox.oucs.vle.SearchService" />
 			</bean>
 		</property>
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
@@ -105,6 +107,7 @@
 			<bean class="uk.ac.ox.oucs.vle.OxcapPopulatorWrapper">
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="populator" ref="uk.ac.ox.oucs.vle.XcriPopulator" />
+				<property name="searchService" ref="uk.ac.ox.oucs.vle.SearchService" />
 			</bean>
 		</property>
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />

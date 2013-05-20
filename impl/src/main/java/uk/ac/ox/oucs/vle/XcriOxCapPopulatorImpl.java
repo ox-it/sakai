@@ -96,6 +96,14 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	public void setPopulatorInput(PopulatorInput populatorInput) {
 		this.populatorInput = populatorInput;
 	}
+	
+	/**
+	 * The search service
+	 */
+	private SearchService search;
+	public void setSearchService(SearchService search) {
+		this.search = search;
+	}
 
 	private static final Log log = LogFactory.getLog(XcriOxCapPopulatorImpl.class);
 
@@ -501,7 +509,14 @@ public class XcriOxCapPopulatorImpl implements Populator {
 					CourseGroup.Category_Type.JACS, subject.getIdentifier(), subject.getValue()),
 					myCourse.getCourseId());
 		}
-
+		
+		/**
+		 * Update the search engine
+		 */
+		if (null != search) {
+			CourseGroupDAO courseDao = dao.findCourseGroupById(myCourse.getCourseId());
+			search.addCourseGroup(new CourseGroupImpl(courseDao, null));
+		}
 	}
 
 	/**

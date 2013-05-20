@@ -95,7 +95,7 @@ public class SearchServiceImpl implements SearchService {
 			SolrInputDocument doc = new SolrInputDocument();
 			
 			doc.addField("provider_title", course.getDepartment());
-			doc.addField("course_muid", course.getMuid());
+			doc.addField("course_muid", new Integer(course.getMuid()).toString());
 			doc.addField("course_identifier", course.getCourseId());
 			doc.addField("course_title", course.getTitle());
 			doc.addField("course_description", course.getDescription());
@@ -197,7 +197,7 @@ public class SearchServiceImpl implements SearchService {
 	public void deleteCourseGroup(CourseGroup course) {
 		
 		try {
-			solrServer.deleteById(course.getCourseId());
+			solrServer.deleteById(new Integer(course.getMuid()).toString());
 			
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
