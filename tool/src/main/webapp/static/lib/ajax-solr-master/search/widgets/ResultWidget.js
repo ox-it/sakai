@@ -106,8 +106,13 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 	var open = new Date(doc.course_signup_open);
 	
 	if (isNaN(open.getDate()) || isNaN(close.getDate())) {
-		signup_message = doc.course_signup_opentext;
-		booking_message = "Booking open";
+		if (doc.course_signup_opentext) {
+			signup_message = doc.course_signup_opentext;
+			booking_message = "Booking open";
+		
+		} else {
+			booking_message = "Not Bookable";
+		}
 		
 	} else {
 	
@@ -127,8 +132,12 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 		}
 	}
 	
-	var output = '<div id="doc"><form class="details"><strong>' + doc.course_title + ',</strong>';
-	output += '&nbsp;&nbsp;'+doc.provider_title+',&nbsp;&nbsp;'+signup_message+',&nbsp;&nbsp;<strong>'+booking_message + '</strong>';
+	var output = '<div id="doc"><form class="details"><strong>' + doc.course_title + '</strong>';
+	output += ',&nbsp;&nbsp;'+doc.provider_title;
+	if (signup_message) {
+		output += ',&nbsp;&nbsp;'+signup_message;
+	}
+	output += ',&nbsp;&nbsp;<strong>'+booking_message + '</strong>';
 	output += '<p id="links_' + doc.course_identifier + '" class="links"></p>';
 	output += '<div id="description"><a href="javascript:{}" class="more">Show descrption</a>&nbsp;&nbsp;';
 	output += '<div class="toggle" style="display:none;">' + doc.course_description+'<br /></div>';

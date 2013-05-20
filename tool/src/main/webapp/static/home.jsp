@@ -89,7 +89,7 @@
 	<ul class="options" >
 
 		<li class="search" >
-			<a href="newsearch.jsp">Search Modules</a> 
+			<a href="search.jsp">Search Modules</a> 
 			<span class="info">Search for modules. you can <strong>sort</strong> and <strong>filter</strong> your results by department, skill category, research methods, current/previous modules, etc.</span>
 		</li>
 	
