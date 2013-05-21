@@ -238,10 +238,10 @@ var Signup = function(){
 					
 					var myModifiers = {
 							dateFormat : function(date) { 
-								return date.toDateString();
+								return new Date(date).toDateString();
 							},
 							timeFormat : function(date) { 
-								return date.getHours()+":"+('0'+date.getMinutes()).slice(-2);
+								return new Date(date).getHours()+":"+('0'+new Date(date).getMinutes()).slice(-2);
 							}
 					};
 					
