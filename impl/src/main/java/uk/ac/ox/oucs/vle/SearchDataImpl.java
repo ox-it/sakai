@@ -46,16 +46,21 @@ public class SearchDataImpl implements Module {
 	
 	public void update() {
 		
-		List<CourseGroupDAO> groupDaos = dao.findAllGroups();
+		try {
+			searchService.deleteAll();
 		
-		for(CourseGroupDAO groupDao: groupDaos) {
-			process(new CourseGroupImpl(groupDao, null));
+			List<CourseGroupDAO> groupDaos = dao.findAllGroups();
+		
+			for(CourseGroupDAO groupDao: groupDaos) {
+				searchService.addCourseGroup(new CourseGroupImpl(groupDao, null));
+			}
+		
+		} finally {
+			
+			searchService.tidyUp();
 		}
+		
 		log.info("Completed update of Solr Search Data");
 	}
 	
-	private void process(CourseGroup group) {
-
-		searchService.addCourseGroup(group);
-	}
 }

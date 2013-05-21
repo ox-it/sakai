@@ -29,6 +29,9 @@ public interface SearchService {
 	public void addCourseGroup(CourseGroup group);
 	
 	public void deleteCourseGroup(CourseGroup group);
+	
+	public void deleteAll();
+	
+	public void tidyUp();
 
-	public void query(Map<String, String> queryParams);
 }

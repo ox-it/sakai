@@ -209,17 +209,37 @@ public class SearchServiceImpl implements SearchService {
 	}
 	
 	@Override
-	public void query(Map<String, String> queryParams) {
+	public void deleteAll() {
 		
-		SolrParams params = new MapSolrParams(queryParams);
 		try {
-			QueryResponse query = solrServer.query(params);
+			String query = new String("*:*");
+			solrServer.deleteByQuery(query);
 			
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
+	
+	@Override
+	public void tidyUp() {
+		
+		try {
+			solrServer.commit();
+			solrServer.optimize();
+			
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+		
 	
 	private String attendanceMode(CourseComponent component) {
 		if ("CM".equals(component.getAttendanceMode())) {
