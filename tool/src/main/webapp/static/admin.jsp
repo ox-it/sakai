@@ -204,7 +204,7 @@
 													component.places,
 													component.starts,
 													component.when, //4
-													component.baseDate, 
+													component.closes, 
 													component.id, 
 													component.id,
 													component.id, //8
