@@ -3,6 +3,11 @@
 #chef_portletContent()
 
 <h3>#springMessage("cut.title")</h3>
+  #if($errorMessage)
+  <p class="errors">
+    <span class="alertMessageInline">$springMacroRequestContext.getMessage($errorMessage)</span>
+  </p>
+  #end
   #if($cutId == $current.nodeId)
     <p>#springMessage("cut.another")</p>
   #else #if($cutChild)

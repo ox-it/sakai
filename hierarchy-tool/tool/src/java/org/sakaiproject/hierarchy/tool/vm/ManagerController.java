@@ -1,14 +1,5 @@
 package org.sakaiproject.hierarchy.tool.vm;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -25,6 +16,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -36,6 +28,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.annotation.TargettedController;
 import org.springframework.web.servlet.view.RedirectView;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 
 @Controller
 @TargettedController("sakai.hierarchy-manager")
@@ -334,19 +329,20 @@ public class ManagerController {
 	}
 
 	@RequestMapping(value = "/paste", method = RequestMethod.POST)
-	public String pasteSite() {
+	public ModelAndView pasteSite(HttpServletRequest request, Model model) {
 		Session session = sessionManager.getCurrentSession();
 		String cutId = (String) session.getAttribute(CUT_ID);
 		PortalNodeSite node = getCurrentNode(null);
-
 		try {
 			portalHierarchyService.moveNode(cutId, node.getId());
 		} catch (PermissionException e) {
-			throw new IllegalStateException(
-					"You shouldn't have been able to paste the site as you don't have permission.", e);
+			// Get nice name of entity on which we failed.
+			model.addAttribute("errorMessage", new DefaultMessageSourceResolvable(
+					new String[]{"error.no.permission.for"}, new Object[]{e.getResource()}, null));
+			return new ModelAndView("cut", populateModelCut(model).asMap());
 		}
 		session.removeAttribute(ManagerController.CUT_ID);
-		return "refresh";
+		return new ModelAndView("refresh", model.asMap());
 	}
 
 	@RequestMapping("/*")
