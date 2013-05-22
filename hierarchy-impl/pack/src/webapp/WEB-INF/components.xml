@@ -76,7 +76,9 @@
 		</property>
 		<property name="transactionAttributes">
 			<props>
-				<prop key="moveNode">PROPAGATION_REQUIRED</prop>
+				<!-- Rollback on PermissionException as when deleting the subsites even the admin user might not
+					 have permission on secure sites nested inside the site being moved. -->
+				<prop key="moveNode">PROPAGATION_REQUIRED,-PermissionException</prop>
 				<prop key="deleteNode">PROPAGATION_REQUIRED</prop>
 				<prop key="newNode">PROPAGATION_REQUIRED</prop>
 			</props>
