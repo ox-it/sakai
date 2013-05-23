@@ -680,7 +680,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	 * This invalidates the site to node cache when the hierarchy changes.
 	 */
 	public static class SiteToNodeObserver implements Observer {
-		// This class is static to make it testable.
+		// This class is static to make it easily testable.
 		private Cache siteToNodeCache;
 		private PortalPersistentNodeDao dao;
 
