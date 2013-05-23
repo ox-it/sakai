@@ -742,7 +742,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 		@Override
 		public void notifyCacheRemove(Object key, Object payload) {
-			if (key instanceof String && payload instanceof PortalPersistentNode) {
+			if (payload instanceof PortalPersistentNode) {
 				PortalPersistentNode node = (PortalPersistentNode)payload;
 				pathToIdCache.remove(node.getPath());
 			}
