@@ -45,7 +45,7 @@ import org.sakaiproject.tool.api.SessionManager;
  * 
  * @author buckett
  */
-public class PortalHierarchyServiceImpl implements PortalHierarchyService, DerivedCache, Observer {
+public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 	private static Log log = LogFactory.getLog(PortalHierarchyServiceImpl.class);
 	
@@ -568,11 +568,11 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 		idParentsCache = memoryService.newCache(getClass().getName()+ "idParentsCache", PREFIX); 
 		siteToNodeCache = memoryService.newCache(getClass().getName()+"#siteToNodeCache");
 		
-		// This is to invalidate the portalPath to node ID cache.
-		idToNodeCache.attachDerivedCache(this);
+		// This is to invalidate the portalPath to node ID pathToIdCache.
+		idToNodeCache.attachDerivedCache(new DerivedPathCache(pathToIdCache));
 		
 		// This is to invalidate the siteToNodeCache.
-		eventTrackingService.addObserver(this);
+		eventTrackingService.addObserver(new SiteToNodeObserver(siteToNodeCache, dao));
 	}
 
 	private void initDefaultContent() {
@@ -667,54 +667,80 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService, Deriv
 		return unlockCheckNodeSite(id, SECURE_MODIFY);
 	}
 	
-	protected String toRef(String id) {
+	protected static String toRef(String id) {
 		return PREFIX+ Entity.SEPARATOR+ id;
 	}
 	
-	protected String fromRef(String id) {
+	protected static String fromRef(String id) {
 		int length = (PREFIX+ Entity.SEPARATOR).length();
 		return (id.length() > length)?id.substring(length):id;
 	}
 
-	@Override
-	public void update(Observable o, Object arg) {
-		if (arg instanceof Event) {
-			Event event = (Event)arg;
-			// This is to deal with changing a site at a node or adding a new node
-			// Our site to node ID cache is a summary of multiple obj so needs to
-			// be invalidated in this way.
-			// The problem is that all the nodes do a DB lookup on the modified node.
-			if (EVENT_MODIFY.equals(event.getEvent()) || EVENT_NEW.equals(event.getEvent())) {
-				String id = fromRef(event.getResource());
-				PortalPersistentNode node = dao.findById(id);
-				String siteId = node.getSiteId();
-				if(siteId != null) {
-					siteToNodeCache.remove(siteId);
+	/**
+	 * This invalidates the site to node cache when the hierarchy changes.
+	 */
+	public static class SiteToNodeObserver implements Observer {
+		// This class is static to make it testable.
+		private Cache siteToNodeCache;
+		private PortalPersistentNodeDao dao;
+
+		public SiteToNodeObserver(Cache siteToNodeCache, PortalPersistentNodeDao dao) {
+			this.siteToNodeCache = siteToNodeCache;
+			this.dao = dao;
+		}
+
+		@Override
+		public void update(Observable o, Object arg) {
+			if (arg instanceof Event) {
+				Event event = (Event)arg;
+				// This is to deal with changing a site at a node or adding a new node
+				// Our site to node ID pathToIdCache is a summary of multiple obj so needs to
+				// be invalidated in this way.
+				// The problem is that all the nodes do a DB lookup on the modified node.
+				if (EVENT_MODIFY.equals(event.getEvent()) || EVENT_NEW.equals(event.getEvent())) {
+					String id = fromRef(event.getResource());
+					PortalPersistentNode node = dao.findById(id);
+					String siteId = node.getSiteId();
+					if(siteId != null) {
+						siteToNodeCache.remove(siteId);
+					}
 				}
 			}
-			
 		}
 	}
 
-	@Override
-	public void notifyCachePut(Object key, Object payload) {
-		if (payload instanceof PortalPersistentNode) {
-			PortalPersistentNode node = (PortalPersistentNode)payload;
-			pathToIdCache.put(node.getPath(), node.getId());
+	/**
+	 * This updates a Path to ID cache when a cache containing
+	 * PortalPersistantNodes is changed.
+	 */
+	public static class DerivedPathCache implements DerivedCache {
+		// The class is static so it can be tested without containing instance.
+		private Cache pathToIdCache;
+
+		public DerivedPathCache(Cache pathToIdCache) {
+			this.pathToIdCache = pathToIdCache;
 		}
-	}
 
-	@Override
-	public void notifyCacheClear() {
-		pathToIdCache.clear();
-	}
-
-	@Override
-	public void notifyCacheRemove(Object key, Object payload) {
-		if (key instanceof String && payload instanceof PortalPersistentNode) {
-			PortalPersistentNode node = (PortalPersistentNode)payload;
-			pathToIdCache.remove(node.getPath());
+		@Override
+		public void notifyCachePut(Object key, Object payload) {
+			if (payload instanceof PortalPersistentNode) {
+				PortalPersistentNode node = (PortalPersistentNode)payload;
+				pathToIdCache.put(node.getPath(), node.getId());
+			}
 		}
-	}
 
+		@Override
+		public void notifyCacheClear() {
+			pathToIdCache.clear();
+		}
+
+		@Override
+		public void notifyCacheRemove(Object key, Object payload) {
+			if (key instanceof String && payload instanceof PortalPersistentNode) {
+				PortalPersistentNode node = (PortalPersistentNode)payload;
+				pathToIdCache.remove(node.getPath());
+			}
+		}
+
+	}
 }
