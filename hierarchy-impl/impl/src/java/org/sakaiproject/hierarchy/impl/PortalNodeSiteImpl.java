@@ -79,4 +79,5 @@ public class PortalNodeSiteImpl extends PortalNodeImpl implements PortalNodeSite
 			return false;
 		return true;
 	}
+	
 }
