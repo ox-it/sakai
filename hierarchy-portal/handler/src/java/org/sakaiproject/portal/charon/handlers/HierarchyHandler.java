@@ -475,8 +475,19 @@ public class HierarchyHandler extends SiteHandler {
 
 		// Sort the nodes.
 		Collections.sort(childNodes, nodeTitleSorter);
+		List<Map<String,String>> list = new ArrayList<Map<String,String>>(childNodes.size());
+		for (PortalNode child: childNodes) {
+			Map<String,String> detail = null;
+			if (child instanceof PortalNodeSite) {
+				Site childSite = ((PortalNodeSite)child).getSite();
+				detail = portal.getSiteHelper().convertSiteToMap(req, childSite, getUrlFragment(), site.getId(), myWorkspaceId, false, false, resetTools, false, null, loggedIn);
+			} else if (child instanceof PortalNodeRedirect) {
+				detail = convertRedirectToMap(node, child);
+			}
+			list.add(detail);
+		}
 
-		List<Map<String,String>> childSiteMaps = convertNodesToMaps(childNodes, node);
+		List<Map<String,String>> childSiteMaps = list;
 		rcontext.put("children", childSiteMaps);
 
 		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + siteUrl
@@ -494,47 +505,25 @@ public class HierarchyHandler extends SiteHandler {
 
 	}
 
-
-	/*
-	 * Things that need to be in the children map:
-	 * <ul>
-	 * <li>isPublished</li>
-	 * <li>siteUrl</li>
-	 * <li>shortDescription</li>
-	 * <li>siteTitle</li>
-	 * </ul>
-	 * We used to use the PortalSiteHelper when we just had sites at all the nodes.
-	 */
-	protected List<Map<String,String>> convertNodesToMaps(List<PortalNode>childNodes, PortalNodeSite current) {
-		List<Map<String,String>> list = new ArrayList<Map<String,String>>(childNodes.size());
-		String baseUrl = current.getSite().getUrl();
-		if (!baseUrl.endsWith("/")) {
-		    baseUrl += "/";
+	private Map<String, String> convertRedirectToMap(PortalNodeSite node, PortalNode child) {
+		Map<String, String> detail;
+		detail = new HashMap<String,String>();
+		PortalNodeRedirect redirect = (PortalNodeRedirect)child;
+		detail.put("isPublished", "true");
+		detail.put("type", redirect.getUrl().contains("://")?
+		        "icon-sakai-redirect-external":
+		        "icon-sakai-redirect-internal");
+		String url = node.getSite().getUrl();
+		if (!url.endsWith("/")) {
+		    url += "/";
 		}
-		for (PortalNode node: childNodes) {
-			Map<String,String> detail = new HashMap<String,String>();
-			if (node instanceof PortalNodeSite) {
-				Site site = ((PortalNodeSite)node).getSite();
-				detail.put("isPublished", Boolean.toString(site.isPublished()));
-				detail.put("type", "icon-sakai-subsite");
-				detail.put("siteUrl", baseUrl+ node.getName()+"/");
-				detail.put("shortDescription", Web.escapeHtml(site.getShortDescription()));
-				detail.put("siteTitle", Web.escapeHtml(site.getTitle()));
-			} else if (node instanceof PortalNodeRedirect) {
-			    PortalNodeRedirect redirect = (PortalNodeRedirect)node;
-				detail.put("isPublished", "true");
-				detail.put("type", redirect.getUrl().contains("://")?
-				        "icon-sakai-redirect-external":
-				        "icon-sakai-redirect-internal");
-				detail.put("siteUrl", baseUrl+ node.getName()+ "/");
-				detail.put("shortDescription", "");
-				detail.put("siteTitle", Web.escapeHtml(node.getTitle()));
-			}
-			list.add(detail);
-		}
-		return list;
-
+		url += child.getName() + "/";
+		detail.put("siteUrl", url);
+		detail.put("shortDescription", "");
+		detail.put("siteTitle", Web.escapeHtml(child.getTitle()));
+		return detail;
 	}
+
 
 	private Map<String, Object> getUnknownSite(PortalNode currentNode) {
 		Map<String, Object> map = new HashMap<String, Object>();
