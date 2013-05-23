@@ -700,9 +700,15 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 				if (EVENT_MODIFY.equals(event.getEvent()) || EVENT_NEW.equals(event.getEvent())) {
 					String id = fromRef(event.getResource());
 					PortalPersistentNode node = dao.findById(id);
-					String siteId = node.getSiteId();
-					if(siteId != null) {
-						siteToNodeCache.remove(siteId);
+					if (node != null) {
+						String siteId = node.getSiteId();
+						// Might be a redirect, in which case there won't be a siteId.
+						if(siteId != null) {
+							siteToNodeCache.remove(siteId);
+						}
+					} else {
+						// This shouldn't happen, but if the user is quick it's possible.
+						log.warn("Failed to find node for "+ id+ " to perform cache invalidation");
 					}
 				}
 			}
