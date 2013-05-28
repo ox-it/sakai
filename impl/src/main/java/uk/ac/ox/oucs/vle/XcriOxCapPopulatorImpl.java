@@ -1075,13 +1075,15 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 
 	/**
+	 * Set the base date used to find current/previous courses
 	 * 
 	 * @param component
 	 * @return
 	 */
 	public static Date baseDate(CourseComponentDAO component) {
-		if (null != component.getStarts()) {
-			return component.getStarts();
+		
+		if (null != component.getEnds()) {
+			return component.getEnds();
 		}
 		if (null != component.getCloses()) {
 			return component.getCloses();
@@ -1091,6 +1093,10 @@ public class XcriOxCapPopulatorImpl implements Populator {
 
 	/**
 	 * Filter the array for elements matching type if type is null construct default string.
+	 * 
+	 * @param array
+	 * @param type
+	 * @return
 	 */
 	protected String filterDescriptiveTextTypeArray(DescriptiveTextType[] array, String type) {
 
