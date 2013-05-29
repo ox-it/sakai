@@ -99,7 +99,7 @@ public interface CourseSignupService {
 	
 	public String findSupervisor(String search);
 	
-	public CourseSignup signup(String courseId, Set<String> components, String supervisorEmail, String message);
+	public CourseSignup signup(String courseId, Set<String> components, String supervisorEmail, String message) throws IllegalStateException;
 	
 	/**
 	 * A signup made

@@ -698,7 +698,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * Signup by Student
 	 */
 	public CourseSignup signup(String courseId, Set<String> componentIds, String supervisorEmail,
-			String message){
+			String message) throws IllegalStateException {
 
 		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
 		if (groupDao == null) {
@@ -723,7 +723,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			}
 			if ( (componentDao.getSize()-componentDao.getTaken()) < 1) {
 				full = true;
-			//	throw new IllegalStateException("No places left on: "+ componentDao.getId());
 			}
 			for (CourseSignupDAO signupDao: componentDao.getSignups()) {
 				// Look for exisiting signups for these components
