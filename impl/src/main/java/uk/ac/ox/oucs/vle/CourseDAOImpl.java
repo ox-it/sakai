@@ -471,27 +471,48 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 	}
 	
-	@SuppressWarnings("unchecked")
 	public List<CourseSignupDAO> findSignupByComponent(final String componentId, final Set<Status> statuses) {
+		return findSignupByComponent(componentId, statuses, null);
+	}
+		
+	@SuppressWarnings("unchecked")
+	public List<CourseSignupDAO> findSignupByComponent(final String componentId, final Set<Status> statuses, final Integer year) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
+				
 				Query query;
-				if (null != statuses && !statuses.isEmpty()) {
-					query = session.createQuery(
-							"select cs from CourseSignupDAO cs " +
-							"inner join fetch cs.components cc " +
-							"where cc.presentationId = :componentId and cs.status in (:statuses)");
-					query.setParameterList("statuses", statuses);
-				} else {
-					query = session.createQuery(
-							"select cs from CourseSignupDAO cs " +
-							"inner join fetch cs.components cc " +
-							"where cc.presentationId = :componentId");
+				LocalDate startYear = null;
+				LocalDate endYear = null;
+				if (null != year) {
+					startYear = FIRST_DAY_OF_ACADEMIC_YEAR.toLocalDate(year);
+					endYear = FIRST_DAY_OF_ACADEMIC_YEAR.toLocalDate(year+1);
 				}
 				
+				StringBuffer querySQL = new StringBuffer();
+				querySQL.append("select cs from CourseSignupDAO cs " +
+								"inner join fetch cs.components cc " +
+								"where cc.presentationId = :componentId");
+				
+				if (null != statuses && !statuses.isEmpty()) {
+					querySQL.append(" and cs.status in (:statuses)");
+				}
+				
+				if (null != year) {
+					querySQL.append(" and cc.starts between :starts and :ends");
+				}
+				
+				query = session.createQuery(querySQL.toString());
 				query.setString("componentId", componentId);
+				if (null != statuses && !statuses.isEmpty()) {
+					query.setParameterList("statuses", statuses);
+				}
+				if (null != year) {
+					query.setDate("starts", startYear.toDate());
+					query.setDate("ends", endYear.toDate());
+				}
+
 				return query.list();
 			}
 		});

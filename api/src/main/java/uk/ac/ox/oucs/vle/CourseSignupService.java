@@ -120,6 +120,9 @@ public interface CourseSignupService {
 	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses)
 		throws NotFoundException;
 	
+	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses, Integer year)
+			throws NotFoundException;
+	
 	public List<CourseSignup> getApprovals();
 	
 	public List<CourseSignup> getPendings();
