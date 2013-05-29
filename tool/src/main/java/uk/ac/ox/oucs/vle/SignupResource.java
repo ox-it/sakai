@@ -399,12 +399,9 @@ public class SignupResource {
 					courseComponents.add(courseService.getCourseComponent(componentId));
 				}
 				
-				Set<Status> statuses = new HashSet<Status>();
+				Set<Status> statuses = null;
 				if (null != status) {
 					statuses = Collections.singleton(status);
-				} else {
-					statuses.add(Status.CONFIRMED);
-					statuses.add(Status.WITHDRAWN);
 				}
 				
 				AttendanceWriter attendance = new AttendanceWriter(output);
