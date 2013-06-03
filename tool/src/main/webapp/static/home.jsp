@@ -130,6 +130,12 @@
 					<span class="info">Administer modules for which you are an administrator.</span>
 				</li>
 			</c:if>
+			<c:if test="${isLecturer}" >
+				<li class="admin">
+					<a href="lecturer.jsp">Lecturers View</a> 
+					<span class="info">View modules which you are teaching.</span>
+				</li>
+			</c:if>
 		</c:if>
 	</ul>
 

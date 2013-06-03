@@ -156,6 +156,12 @@ public interface CourseSignupService {
 	 */
 	public List<CourseGroup> getAdministering();
 	
+	/**
+	 * Gets all the components that the current user is Lecturing
+	 * @return
+	 */
+	public List<CourseGroup> getLecturing();
+	
 	public boolean isAdministrator(Set<String> administrators);
 	
 	public void setSignupStatus(String signupId, Status status);

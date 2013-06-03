@@ -343,6 +343,19 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		return groups;
 	}
+	
+	/**
+	 * 
+	 */
+	public List<CourseGroup> getLecturing() {
+		String userId = proxy.getCurrentUser().getDisplayName();
+		List <CourseGroupDAO> groupDaos = dao.findLecturingCourseGroups(userId);
+		List<CourseGroup> groups = new ArrayList<CourseGroup>(groupDaos.size());
+		for(CourseGroupDAO groupDao : groupDaos) {
+			groups.add(new CourseGroupImpl(groupDao, this));
+		}
+		return groups;
+	}
 
 	/**
 	 * 
@@ -420,15 +433,15 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public List<CourseSignup> getCourseSignups(String courseId, Set<Status> statuses) {
 		// Find all the components and then find all the signups.
 		String userId = proxy.getCurrentUser().getId();
+		String userName = proxy.getCurrentUser().getDisplayName();
 		
 		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
 		if (groupDao == null) {
 			return null;
 		}
-		if(!isAdministrator(groupDao, userId, false)) {
+		if(!isAdministrator(groupDao, userId, false) && !isLecturer(groupDao, userName, false)) {
 			throw new PermissionDeniedException(userId);
 		}
-		
 		List<CourseSignupDAO> signupDaos = dao.findSignupByCourse(userId, courseId, statuses);
 		List<CourseSignup> signups = new ArrayList<CourseSignup>(signupDaos.size());
 		for(CourseSignupDAO signupDao: signupDaos) {
@@ -524,6 +537,15 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			}
 		}
 		return false;
+	}
+	
+	private boolean isLecturer(CourseGroupDAO groupGroup, String currentUser, boolean defaultValue) {
+		for (CourseComponentDAO componentDao : groupGroup.getComponents()) {
+			if (currentUser.equals(componentDao.getTeacherName())) {
+				return true;
+			}
+		}
+		return defaultValue;
 	}
 
 	/**
@@ -1287,5 +1309,5 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public Integer getRecentDays() {
 		return proxy.getConfigParam("recent.days", 14);
 	}
-	
+
 }

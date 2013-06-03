@@ -394,6 +394,28 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			
 		});
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<CourseGroupDAO> findLecturingCourseGroups(final String userId) {
+		// Finds all the coursegroups this user is teaching. 
+		return getHibernateTemplate().executeFind(new HibernateCallback(){
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query query = session.createSQLQuery("select distinct " +
+						"cg.muid, cg.courseId, cg.title, cg.dept, cg.departmentName, " +
+						"cg.subunit, cg.subunitName, cg.description, cg.supervisorApproval, " +
+						"cg.administratorApproval, cg.hideGroup, cg.deleted, cg.contactEmail, " +
+						"cg.regulations, cg.visibility, cg.source, cg.prerequisite " +
+						"from course_group cg " +
+						"LEFT JOIN course_group_component cgc on cgc.courseGroupMuid = cg.muid " +
+						"LEFT JOIN course_component cc on cgc.courseComponentMuid = cc.muid " +
+						"where cc.teacherName = :userId").addEntity(CourseGroupDAO.class);
+				query.setString("userId", userId);
+				return query.list();
+			}
+			
+		});
+	}
 
 	@SuppressWarnings("unchecked")
 	public List<CourseSignupDAO> findSignupByCourse(final String userId, final String courseId, final Set<Status> statuses) {
@@ -915,6 +937,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public void save(CourseCategoryDAO category) {
 		getHibernateTemplate().save(category);
 	}
+
 }
 
 
