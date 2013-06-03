@@ -930,8 +930,9 @@ var Signup = function(){
  */
 (function($){
 
-    $.fn.signupTable = function(url, isAdmin, allowChangeStatus){
+    $.fn.signupTable = function(url, isAdmin, allowChangeStatus, allowChangeAction){
 		allowChangeStatus = allowChangeStatus || false;
+		allowChangeAction = allowChangeAction || true;
         var element = this;
         var table = this.dataTable({
             "bJQueryUI": true,
@@ -1009,7 +1010,10 @@ var Signup = function(){
                             			}
                             			closes = this.closes;
                             });
-                            var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, isAdmin));
+                            var actions = "";
+                            if (allowChangeAction) {
+                            	Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, isAdmin));
+                            }
                             data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions, this.status]);
                             
                         });

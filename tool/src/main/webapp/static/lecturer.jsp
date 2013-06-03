@@ -250,7 +250,7 @@
 		
 			// Load the signups.
 			var signups = $("#signups-table").signupTable(
-					"../rest/signup/course/" + code, false, false);
+					"../rest/signup/course/" + code, false, false, false);
 			signups.bind("reload", function() { // Reload the summary when this table changes.
 				summary.fnReloadAjax(null, null, true);
 			})
