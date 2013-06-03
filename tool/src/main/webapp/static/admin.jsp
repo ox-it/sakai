@@ -738,6 +738,9 @@
 							Confirmations</a></span></li>
 			</c:if>
 			<li><span>Module Administration</span></li>
+			<c:if test="${isLecturer}">
+				<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
+			</c:if>
 		</ul>
 	</div>
 
