@@ -191,7 +191,8 @@ var Signup = function(){
 							var session = this;
 							sessionData.push({
 								"start": session.sessionStart,
-								"end": session.sessionEnd
+								"end": session.sessionEnd,
+								"singleDay": new Date(session.sessionStart).toDateString() === new Date(session.sessionEnd).toDateString()
 							});
 						});
 						

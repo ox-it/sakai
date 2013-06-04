@@ -250,7 +250,7 @@
                                 				<ul>
                                 				{for session in option.sessionData}
                                 					<li>
-                                					{if new Date(session.start).toDateString() == new Date(session.end).toDateString()} 
+                                					{if session.singleDay }
                                 						${session.start|dateFormat} ${session.start|timeFormat} to
                                 						${session.end|timeFormat}
                                 					{else}
