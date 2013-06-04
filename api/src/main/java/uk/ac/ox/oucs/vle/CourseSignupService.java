@@ -120,6 +120,16 @@ public interface CourseSignupService {
 	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses)
 		throws NotFoundException;
 	
+	/**
+	 * Find signups made to component (componentId)
+	 * An academic year parameter X is added to the query string, we then give you data from 1st September X to 31st August X+1. 
+	 * 
+	 * @param componentId
+	 * @param statuses
+	 * @param year
+	 * @return
+	 * @throws NotFoundException
+	 */
 	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses, Integer year)
 			throws NotFoundException;
 	
