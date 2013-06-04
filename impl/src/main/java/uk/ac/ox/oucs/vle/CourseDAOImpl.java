@@ -168,10 +168,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				
 				Date startLastYear = getPreviousYearBeginning(LocalDate.now()).toDate();
 				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("SELECT DISTINCT cg.muid, cg.courseId, cg.title, cg.dept, cg.departmentName, ");
-				querySQL.append("cg.subunit, cg.subunitName, cg.description, cg.supervisorApproval, ");
-				querySQL.append("cg.administratorApproval, cg.hideGroup, cg.deleted, cg.contactEmail, ");
-				querySQL.append("cg.regulations, cg.visibility, cg.source, cg.prerequisite ");
+				querySQL.append("SELECT DISTINCT cg.* ");
 				querySQL.append("FROM course_group cg ");
 				querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.courseGroupMuid = cg.muid ");
 				querySQL.append("LEFT JOIN course_group_component cgc on cgc.courseGroupMuid = cg.muid ");
