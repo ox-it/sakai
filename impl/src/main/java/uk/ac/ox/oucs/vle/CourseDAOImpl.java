@@ -157,13 +157,22 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	@SuppressWarnings("unchecked")
 	public List<CourseGroupDAO> findCourseGroupByDept(final String deptId, final Range range, final Date now, final boolean external) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
+			/**
+			 * Note:
+			 * This can't be easily migrated to Hibernate Query API as collections are not supported
+			 * org.hibernate.MappingException: collection was not an association: uk.ac.ox.oucs.vle.CourseGroupDAO.otherDepartments
+			 */
 			// Need the DISTINCT ROOT ENTITY filter.
 			public Object doInHibernate(Session session) throws HibernateException,
 					SQLException {
 				
 				Date startLastYear = getPreviousYearBeginning(LocalDate.now()).toDate();
 				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("SELECT DISTINCT * FROM course_group cg ");
+				querySQL.append("SELECT DISTINCT cg.muid, cg.courseId, cg.title, cg.dept, cg.departmentName, ");
+				querySQL.append("cg.subunit, cg.subunitName, cg.description, cg.supervisorApproval, ");
+				querySQL.append("cg.administratorApproval, cg.hideGroup, cg.deleted, cg.contactEmail, ");
+				querySQL.append("cg.regulations, cg.visibility, cg.source, cg.prerequisite ");
+				querySQL.append("FROM course_group cg ");
 				querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.courseGroupMuid = cg.muid ");
 				querySQL.append("LEFT JOIN course_group_component cgc on cgc.courseGroupMuid = cg.muid ");
 				querySQL.append("LEFT JOIN course_component cc on cgc.courseComponentMuid = cc.muid ");
