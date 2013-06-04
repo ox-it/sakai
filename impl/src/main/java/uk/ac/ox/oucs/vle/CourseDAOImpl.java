@@ -396,7 +396,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<CourseGroupDAO> findLecturingCourseGroups(final String userId) {
+	public List<CourseGroupDAO> findLecturingCourseGroups(final String displayName) {
 		// Finds all the coursegroups this user is teaching. 
 		return getHibernateTemplate().executeFind(new HibernateCallback(){
 			public Object doInHibernate(Session session)
@@ -409,8 +409,8 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 						"from course_group cg " +
 						"LEFT JOIN course_group_component cgc on cgc.courseGroupMuid = cg.muid " +
 						"LEFT JOIN course_component cc on cgc.courseComponentMuid = cc.muid " +
-						"where cc.teacherName = :userId").addEntity(CourseGroupDAO.class);
-				query.setString("userId", userId);
+						"where cc.teacherName = :displayName").addEntity(CourseGroupDAO.class);
+				query.setString("displayName", displayName);
 				return query.list();
 			}
 			

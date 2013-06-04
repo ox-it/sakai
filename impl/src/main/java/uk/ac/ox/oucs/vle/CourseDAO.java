@@ -75,7 +75,7 @@ public interface CourseDAO {
 
 	List<CourseGroupDAO> findAdminCourseGroups(String userId);
 	
-	List<CourseGroupDAO> findLecturingCourseGroups(String userId);
+	List<CourseGroupDAO> findLecturingCourseGroups(String displayName);
 
 	List<CourseSignupDAO> findSignupByCourse(String userId, String courseId, Set<Status> statuses);
 	
