@@ -345,7 +345,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 	
 	/**
-	 * 
+	 * Get list of course groups for which current user is a teacher
 	 */
 	public List<CourseGroup> getLecturing() {
 		String displayName = proxy.getCurrentUser().getDisplayName();
