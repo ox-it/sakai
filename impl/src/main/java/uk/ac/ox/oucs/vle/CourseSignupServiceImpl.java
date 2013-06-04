@@ -433,13 +433,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public List<CourseSignup> getCourseSignups(String courseId, Set<Status> statuses) {
 		// Find all the components and then find all the signups.
 		String userId = proxy.getCurrentUser().getId();
-		String userName = proxy.getCurrentUser().getDisplayName();
 		
 		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
 		if (groupDao == null) {
 			return null;
 		}
-		if(!isAdministrator(groupDao, userId, false) && !isLecturer(groupDao, userName, false)) {
+		if(!isAdministrator(groupDao, userId, false) && !isLecturer(groupDao, proxy.getCurrentUser(), false)) {
 			throw new PermissionDeniedException(userId);
 		}
 		List<CourseSignupDAO> signupDaos = dao.findSignupByCourse(userId, courseId, statuses);
@@ -520,9 +519,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return defaultValue;
 	}
 	
-	private boolean isLecturer(CourseGroupDAO groupGroup, String currentUser, boolean defaultValue) {
+	private boolean isLecturer(CourseGroupDAO groupGroup, UserProxy user, boolean defaultValue) {
 		for (CourseComponentDAO componentDao : groupGroup.getComponents()) {
-			if (currentUser.equals(componentDao.getTeacherName())) {
+			if (isLecturer(componentDao, user, false)) {
 				return true;
 			}
 		}
