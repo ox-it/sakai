@@ -386,7 +386,7 @@ public class SignupResource {
 	
 	public StreamingOutput syncComponent(@PathParam("id") final String componentId, 
 										 @QueryParam("status") final Status status, 
-										 @PathParam("year") final String year) {
+										 @PathParam("year") final int year) {
 		
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			throw new WebAppForbiddenException();
@@ -408,21 +408,13 @@ public class SignupResource {
 					statuses = Collections.singleton(status);
 				}
 				
-				int academicYear;
-				try {
-					academicYear = Integer.parseInt(year);
-					
-				} catch (NumberFormatException e) {
-					throw new WebApplicationException(Response.Status.BAD_REQUEST);
-				}
-				
 				AttendanceWriter attendance = new AttendanceWriter(output);
 				
 				for (CourseComponent courseComponent : courseComponents) {
 				
 					try {
 						List<CourseSignup> signups = courseService.getComponentSignups(
-								courseComponent.getPresentationId(), statuses, academicYear);
+								courseComponent.getPresentationId(), statuses, year);
 				
 						Collections.sort(signups, new Comparator<CourseSignup>() {
 							public int compare(CourseSignup s1,CourseSignup s2) {

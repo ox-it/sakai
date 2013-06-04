@@ -485,10 +485,6 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				Query query;
 				LocalDate startYear = null;
 				LocalDate endYear = null;
-				if (null != year) {
-					startYear = FIRST_DAY_OF_ACADEMIC_YEAR.toLocalDate(year);
-					endYear = FIRST_DAY_OF_ACADEMIC_YEAR.toLocalDate(year+1);
-				}
 				
 				StringBuffer querySQL = new StringBuffer();
 				querySQL.append("select cs from CourseSignupDAO cs " +
@@ -500,6 +496,8 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				}
 				
 				if (null != year) {
+					startYear = FIRST_DAY_OF_ACADEMIC_YEAR.toLocalDate(year);
+					endYear = FIRST_DAY_OF_ACADEMIC_YEAR.toLocalDate(year+1);
 					querySQL.append(" and cc.starts between :starts and :ends");
 				}
 				
@@ -508,11 +506,11 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				if (null != statuses && !statuses.isEmpty()) {
 					query.setParameterList("statuses", statuses);
 				}
+				
 				if (null != year) {
 					query.setDate("starts", startYear.toDate());
 					query.setDate("ends", endYear.toDate());
 				}
-
 				return query.list();
 			}
 		});
