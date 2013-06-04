@@ -348,8 +348,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public List<CourseGroup> getLecturing() {
-		String userId = proxy.getCurrentUser().getDisplayName();
-		List <CourseGroupDAO> groupDaos = dao.findLecturingCourseGroups(userId);
+		String displayName = proxy.getCurrentUser().getDisplayName();
+		List <CourseGroupDAO> groupDaos = dao.findLecturingCourseGroups(displayName);
 		List<CourseGroup> groups = new ArrayList<CourseGroup>(groupDaos.size());
 		for(CourseGroupDAO groupDao : groupDaos) {
 			groups.add(new CourseGroupImpl(groupDao, this));
