@@ -1075,9 +1075,11 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 
 	/**
-	 * Set the base date used to find current/previous courses
+	 * returns a base date 
+	 * this will be stored on the component and used to find current/previous courses
 	 * 
 	 * @param component
+	 * 			the component to assess
 	 * @return
 	 */
 	public static Date baseDate(CourseComponentDAO component) {
