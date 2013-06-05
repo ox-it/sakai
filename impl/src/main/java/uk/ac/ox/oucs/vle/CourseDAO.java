@@ -82,6 +82,8 @@ public interface CourseDAO {
 	List<CourseGroupDAO> findCourseGroupByWords(String[] words, Range range, Date date, boolean external);
 
 	List<CourseSignupDAO> findSignupByComponent(String componentId, Set<Status> statuses);
+	
+	List<CourseSignupDAO> findSignupByComponent(String componentId, Set<Status> statuses, Integer year);
 
 	List<CourseSignupDAO> findSignupPending(String currentUser);
 	
