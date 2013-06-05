@@ -56,6 +56,7 @@ public class CourseComponentDAO  implements java.io.Serializable {
     private int size;
     private int taken;
     private String componentId;
+    private String teacher;
     private String teacherName;
     private String teacherEmail;
     private String when;
@@ -305,7 +306,16 @@ public class CourseComponentDAO  implements java.io.Serializable {
         this.componentSessions = componentSessions;
     }
 
-    
+
+	public String getTeacher() {
+		return teacher;
+	}
+
+	public void setTeacher(String teacher) {
+		this.teacher = teacher;
+	}
+	
+	
 	public String getTeacherName() {
 		return teacherName;
 	}

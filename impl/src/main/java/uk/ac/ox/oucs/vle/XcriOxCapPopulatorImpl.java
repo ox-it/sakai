@@ -581,7 +581,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			}
 		}
 
-		String teacherId = null;
 		Set<Session> sessions = new HashSet<Session>();
 
 		for (Extension extension : presentation.getExtensions()) {
@@ -641,7 +640,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			if (extension instanceof WebAuthCode) {
 				WebAuthCode webAuthCode = (WebAuthCode) extension;
 				if (webAuthCode.getWebAuthCodeType() == WebAuthCode.WebAuthCodeType.presenter) {
-					teacherId = webAuthCode.getValue();
+					myPresentation.setTeacher(webAuthCode.getValue());
 				}
 				continue;
 			}
@@ -673,8 +672,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 
 		data.incrComponentSeen();
 
-		if (validComponent(context, data, myPresentation, teacherId, sessions, courseDao)) {
-			updateComponent(context, data, myPresentation, teacherId, sessions, courseDao);
+		if (validComponent(context, data, myPresentation, sessions, courseDao)) {
+			updateComponent(context, data, myPresentation, sessions, courseDao);
 
 		}
 	}
@@ -859,7 +858,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	protected boolean validComponent(PopulatorContext context,
 			PopulatorInstanceData data,
 			CourseComponentDAO myPresentation,
-			String teacherId, 
 			Set<Session> sessions, 
 			CourseGroupDAO group) {
 
@@ -898,7 +896,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * 
 	 * @param data
 	 * @param myPresentation
-	 * @param teacherId
 	 * @param sessions
 	 * @param groups
 	 * @return
@@ -907,7 +904,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	private boolean updateComponent(PopulatorContext context,
 			PopulatorInstanceData data,
 			CourseComponentDAO myPresentation,
-			String teacherId,
 			Set<Session> sessions, CourseGroupDAO group) throws IOException {
 
 		boolean created = false;
@@ -935,6 +931,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			componentDao.setAttendancePattern(myPresentation.getAttendancePattern());
 			componentDao.setAttendancePatternText(myPresentation.getAttendancePatternText());
 			componentDao.setComponentId(myPresentation.getComponentId()+":"+myPresentation.getTermcode());
+			componentDao.setTeacher(myPresentation.getTeacher());
 			componentDao.setTeacherName(myPresentation.getTeacherName());
 			componentDao.setTeacherEmail(myPresentation.getTeacherEmail());
 			componentDao.setWhen(myPresentation.getWhen());
@@ -950,8 +947,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 
 			// Populate teacher details.
 			// Look for details in WebLearn first then fallback to details in DAISY.
-			if (teacherId != null && teacherId.length() > 0) {
-				UserProxy teacher = proxy.findUserByEid(teacherId);
+			if (myPresentation.getTeacher() != null && myPresentation.getTeacher().length() > 0) {
+				UserProxy teacher = proxy.findUserByEid(myPresentation.getTeacher());
 				if (teacher != null) {
 					componentDao.setTeacherName(teacher.getDisplayName());
 					componentDao.setTeacherEmail(teacher.getEmail());
