@@ -125,13 +125,11 @@ public interface CourseSignupService {
 	 * if an academic year parameter is added, we then return data from 1st September X to 31st August X+1. 
 	 * 
 	 * @param componentId
-	 * 			list of signups to this component
+	 * 			the component to examine
 	 * @param statuses
-	 * 			filter by list of statuses
-	 * 			default all statuses
+	 * 			filter by list of statuses (default all statuses)
 	 * @param year
-	 * 			academic year to include (eq 2012 for year 1st Sep 2012 to 31st Aug 2013)
-	 * 			default all years
+	 * 			academic year to include (eq 2012 for year 1st Sep 2012 to 31st Aug 2013), (default is null giving all years)
 	 * @return
 	 * @throws NotFoundException
 	 */
