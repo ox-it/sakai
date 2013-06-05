@@ -640,7 +640,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			if (extension instanceof WebAuthCode) {
 				WebAuthCode webAuthCode = (WebAuthCode) extension;
 				if (webAuthCode.getWebAuthCodeType() == WebAuthCode.WebAuthCodeType.presenter) {
-					myPresentation.setTeacher(webAuthCode.getValue());
+					myPresentation.setTeacher(getUser(webAuthCode.getValue()));
 				}
 				continue;
 			}

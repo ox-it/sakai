@@ -348,8 +348,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * Get list of course groups for which current user is a teacher
 	 */
 	public List<CourseGroup> getLecturing() {
-		String displayName = proxy.getCurrentUser().getDisplayName();
-		List <CourseGroupDAO> groupDaos = dao.findLecturingCourseGroups(displayName);
+		String userId = proxy.getCurrentUser().getId();
+		List <CourseGroupDAO> groupDaos = dao.findLecturingCourseGroups(userId);
 		List<CourseGroup> groups = new ArrayList<CourseGroup>(groupDaos.size());
 		for(CourseGroupDAO groupDao : groupDaos) {
 			groups.add(new CourseGroupImpl(groupDao, this));
@@ -552,7 +552,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (null == user) {
 			return false;
 		}
-		if (user.getDisplayName().equals(componentDao.getTeacherName())) {
+		if (user.getId().equals(componentDao.getTeacher())) {
 			return true;
 		}
 		return defaultValue;
