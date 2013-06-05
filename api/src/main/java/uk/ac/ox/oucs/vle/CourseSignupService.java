@@ -121,17 +121,18 @@ public interface CourseSignupService {
 		throws NotFoundException;
 	
 	/**
-	 * Find signups made to component (componentId)
-	 * if an academic year parameter is added, we then return data from 1st September X to 31st August X+1. 
+	 * Find signups made to component by componentId.
+	 * If statuses/year supplied only signups matching these are returned.
 	 * 
 	 * @param componentId
-	 * 			the component to examine
+	 * 		the component ID find signups for.
 	 * @param statuses
-	 * 			filter by list of statuses (default all statuses)
+	 * 		filter by list of statuses, if <code>null</code> no filtering on status is done.
 	 * @param year
-	 * 			academic year to include (eq 2012 for year 1st Sep 2012 to 31st Aug 2013), (default is null giving all years)
-	 * @return
-	 * @throws NotFoundException
+	 * 		academic year to include (eq 2012 for year 1st Sep 2012 to 31st Aug 2013), if <code>null</code>
+	 * 		no filtering on year is done.
+	 * @return A list of signups matching, never <code>null</code>.
+	 * @throws NotFoundException If there isn't a component matching componentId.
 	 */
 	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses, Integer year)
 			throws NotFoundException;
