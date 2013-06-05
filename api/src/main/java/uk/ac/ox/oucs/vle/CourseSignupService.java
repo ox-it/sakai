@@ -120,6 +120,23 @@ public interface CourseSignupService {
 	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses)
 		throws NotFoundException;
 	
+	/**
+	 * Find signups made to component by componentId.
+	 * If statuses/year supplied only signups matching these are returned.
+	 * 
+	 * @param componentId
+	 * 		the component ID find signups for.
+	 * @param statuses
+	 * 		filter by list of statuses, if <code>null</code> no filtering on status is done.
+	 * @param year
+	 * 		academic year to include (eq 2012 for year 1st Sep 2012 to 31st Aug 2013), if <code>null</code>
+	 * 		no filtering on year is done.
+	 * @return A list of signups matching, never <code>null</code>.
+	 * @throws NotFoundException If there isn't a component matching componentId.
+	 */
+	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses, Integer year)
+			throws NotFoundException;
+	
 	public List<CourseSignup> getApprovals();
 	
 	public List<CourseSignup> getPendings();

@@ -380,10 +380,14 @@ public class SignupResource {
 		};
 	}
 	
-	@Path("/component/{id}.xml")
+	@Path("/component/{year}/{id}.xml")
 	@GET
 	@Produces(MediaType.TEXT_XML)
-	public StreamingOutput syncComponent(@PathParam("id") final String componentId, @PathParam("status") final Status status) {
+	
+	public StreamingOutput syncComponent(@PathParam("id") final String componentId, 
+										 @QueryParam("status") final Status status, 
+										 @PathParam("year") final int year) {
+		
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			throw new WebAppForbiddenException();
 		}
@@ -399,12 +403,9 @@ public class SignupResource {
 					courseComponents.add(courseService.getCourseComponent(componentId));
 				}
 				
-				Set<Status> statuses = new HashSet<Status>();
+				Set<Status> statuses = null;
 				if (null != status) {
 					statuses = Collections.singleton(status);
-				} else {
-					statuses.add(Status.CONFIRMED);
-					statuses.add(Status.WITHDRAWN);
 				}
 				
 				AttendanceWriter attendance = new AttendanceWriter(output);
@@ -413,7 +414,7 @@ public class SignupResource {
 				
 					try {
 						List<CourseSignup> signups = courseService.getComponentSignups(
-								courseComponent.getPresentationId(), statuses);
+								courseComponent.getPresentationId(), statuses, year);
 				
 						Collections.sort(signups, new Comparator<CourseSignup>() {
 							public int compare(CourseSignup s1,CourseSignup s2) {
