@@ -2,6 +2,7 @@ package org.sakaiproject.hierarchy.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
 
+@Deprecated
 public class PortalHierarchyService {
 	
 	private static org.sakaiproject.hierarchy.api.PortalHierarchyService m_instance = null;

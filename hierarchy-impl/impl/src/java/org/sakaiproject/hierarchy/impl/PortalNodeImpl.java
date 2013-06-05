@@ -74,4 +74,8 @@ public abstract class PortalNodeImpl implements PortalNode {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "id: "+ id+ " path: "+ path;
+	}
 }
