@@ -177,12 +177,11 @@ public class SearchServiceImpl implements SearchService {
 			solrServer.add(doc);
 			
 		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getLocalizedMessage());
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getLocalizedMessage());
+			
 		}
 		
 	}
@@ -194,11 +193,11 @@ public class SearchServiceImpl implements SearchService {
 			solrServer.deleteById(new Integer(course.getMuid()).toString());
 			
 		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getLocalizedMessage());
+			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getLocalizedMessage());
+			
 		}
 	}
 	
@@ -210,11 +209,11 @@ public class SearchServiceImpl implements SearchService {
 			solrServer.deleteByQuery(query);
 			
 		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getLocalizedMessage());
+			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getLocalizedMessage());
+			
 		}
 	}
 	
@@ -226,11 +225,11 @@ public class SearchServiceImpl implements SearchService {
 			solrServer.optimize();
 			
 		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getLocalizedMessage());
+			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getLocalizedMessage());
+			
 		}
 	}
 		
