@@ -19,16 +19,11 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.SessionFactory;
-import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
-import org.springframework.transaction.PlatformTransactionManager;
 
 public class PopulatorTests extends AbstractTransactionalSpringContextTests {
 

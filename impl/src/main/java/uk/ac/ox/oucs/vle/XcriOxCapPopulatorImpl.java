@@ -976,16 +976,18 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			// Use of Set filters duplicates
 			componentDao.getGroups().add(group);
 			componentDao.setDeleted(false);
-
-			Collection<CourseComponentSessionDAO> componentSessions = componentDao.getComponentSessions();
+			
+			componentDao.getComponentSessions().clear();
 			for (Session session : sessions) {
-				componentSessions.add(
+				componentDao.getComponentSessions().add(
 						new CourseComponentSessionDAO(session.getIdentifiers()[0].getValue(),
 								session.getStart().getDtf(), session.getStart().getValue(), 
 								session.getEnd().getDtf(), session.getEnd().getValue()));
 			}
-
-
+			if (!componentDao.getComponentSessions().isEmpty()) {
+				componentDao.setSessions(Integer.toString(componentDao.getComponentSessions().size()));
+			}
+			
 			dao.save(componentDao);
 		}
 
@@ -1115,7 +1117,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			if (!descriptiveTextType.isXhtml()) {
 				text = parse(descriptiveTextType.getValue());
 			} else {
-				text = descriptiveTextType.getValue();
+				text = parseXHTML(descriptiveTextType.getValue());
 			}
 			
 			if (null != type) {
@@ -1133,6 +1135,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 
 	/**
+	 *  * Processing of descriptivetext fields where descriptiveTextType.isXhtml=false
 	 * 
 	 * @param data
 	 * @return
@@ -1163,6 +1166,19 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 		matcher.appendTail(sb);
 		return sb.toString();
+	}
+	
+	/**
+	 * Processing of descriptivetext fields where descriptiveTextType.isXhtml=true
+	 * 
+	 * @param data
+	 * @return
+	 */
+	protected static String parseXHTML(String data) {
+		if (null != data) {
+			data = data.replaceAll("xhtml:", "");
+		}
+		return data;
 	}
 
 }

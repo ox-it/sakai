@@ -40,6 +40,9 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinFragment;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
+import org.joda.time.MonthDay;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -48,6 +51,22 @@ import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
+	private static final MonthDay FIRST_DAY_OF_ACADEMIC_YEAR = new MonthDay(DateTimeConstants.SEPTEMBER, 1);
+		
+	// Set lastYear to 1st September (start of last academic year)
+	public static LocalDate getPreviousYearBeginning(LocalDate currentDate) {
+		int currentCivilYear = currentDate.getYear();
+		int previousAcademicYear;
+
+		// If we've started a new civil year and haven't changed the academic year yet, go back one more year.
+		if (currentDate.isBefore(FIRST_DAY_OF_ACADEMIC_YEAR.toLocalDate(currentCivilYear))) {
+			previousAcademicYear = currentCivilYear - 2;
+		} else {
+			previousAcademicYear = currentCivilYear - 1;
+		}
+
+		return FIRST_DAY_OF_ACADEMIC_YEAR.toLocalDate(previousAcademicYear);
+	}
 	
 	public CourseGroupDAO findCourseGroupById(final String courseId) {
 		return (CourseGroupDAO) getHibernateTemplate().execute(new HibernateCallback() {
@@ -78,6 +97,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			// Need the DISTINCT ROOT ENTITY filter.
 			public Object doInHibernate(Session session) throws HibernateException,
 					SQLException {
+				Date startLastYear = getPreviousYearBeginning(LocalDate.now()).toDate();
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
 				criteria.add(Expression.eq("courseId", courseId));
 				criteria.add(Restrictions.eq("hideGroup", false));
@@ -92,7 +112,10 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 						break;
 					case PREVIOUS:
 						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(
-								Expression.or(Expression.le("baseDate", now), Expression.and(Expression.isNull("baseDate"), Expression.isNull("startsText"))));
+								Expression.or(
+										Expression.and(Expression.le("baseDate", now), Expression.gt("baseDate", startLastYear)), 
+										Expression.and(Expression.isNull("baseDate"), Expression.isNull("startsText"))
+									));
 						break;
 				}
 				criteria.setResultTransformer(Criteria.ROOT_ENTITY);
@@ -139,12 +162,19 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	@SuppressWarnings("unchecked")
 	public List<CourseGroupDAO> findCourseGroupByDept(final String deptId, final Range range, final Date now, final boolean external) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
+			/**
+			 * Note:
+			 * This can't be easily migrated to Hibernate Query API as collections are not supported
+			 * org.hibernate.MappingException: collection was not an association: uk.ac.ox.oucs.vle.CourseGroupDAO.otherDepartments
+			 */
 			// Need the DISTINCT ROOT ENTITY filter.
 			public Object doInHibernate(Session session) throws HibernateException,
 					SQLException {
 				
+				Date startLastYear = getPreviousYearBeginning(LocalDate.now()).toDate();
 				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("SELECT DISTINCT * FROM course_group cg ");
+				querySQL.append("SELECT DISTINCT cg.* ");
+				querySQL.append("FROM course_group cg ");
 				querySQL.append("LEFT JOIN course_group_otherDepartment cgd on cgd.courseGroupMuid = cg.muid ");
 				querySQL.append("LEFT JOIN course_group_component cgc on cgc.courseGroupMuid = cg.muid ");
 				querySQL.append("LEFT JOIN course_component cc on cgc.courseComponentMuid = cc.muid ");
@@ -163,7 +193,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 						querySQL.append("((cc.baseDate is null AND cc.startsText is not null) OR cc.baseDate > now()) AND ");
 						break;
 					case PREVIOUS:
-						querySQL.append("((cc.baseDate is null AND cc.startsText is null) OR cc.baseDate <= now()) AND ");
+						querySQL.append("((cc.baseDate is null AND cc.startsText is null) OR (cc.baseDate <= now() AND cc.baseDate >= :lastYear)) AND ");
 						break;
 				}
 				
@@ -173,6 +203,10 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				
 				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
 				query.setString("deptId", deptId);
+				if (range.equals(range.PREVIOUS)) {
+					query.setDate("lastYear", startLastYear);
+				}
+				
 				return query.list();
 			}	
 		});
@@ -185,6 +219,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			public Object doInHibernate(Session session) throws HibernateException,
 					SQLException {
 				
+				Date startLastYear = getPreviousYearBeginning(LocalDate.now()).toDate();
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
 				criteria.add(Restrictions.eq("subunit", subunitId));
 				criteria.add(Restrictions.ne("visibility", "PR"));
@@ -199,7 +234,10 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 						break;
 					case PREVIOUS:
 						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(
-								Expression.or(Expression.le("baseDate", now), Expression.and(Expression.isNull("baseDate"), Expression.isNull("startsText"))));
+								Expression.or(
+										Expression.and(Expression.le("baseDate", now), Expression.gt("baseDate", startLastYear)), 
+										Expression.and(Expression.isNull("baseDate"), Expression.isNull("startsText"))
+								));
 						break;
 				}
 				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
@@ -444,27 +482,46 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 	}
 	
-	@SuppressWarnings("unchecked")
 	public List<CourseSignupDAO> findSignupByComponent(final String componentId, final Set<Status> statuses) {
+		return findSignupByComponent(componentId, statuses, null);
+	}
+		
+	@SuppressWarnings("unchecked")
+	public List<CourseSignupDAO> findSignupByComponent(final String componentId, final Set<Status> statuses, final Integer year) {
 		return getHibernateTemplate().executeFind(new HibernateCallback() {
 
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
+				
 				Query query;
+				LocalDate startYear = null;
+				LocalDate endYear = null;
+				
+				StringBuffer querySQL = new StringBuffer();
+				querySQL.append("select cs from CourseSignupDAO cs " +
+								"inner join fetch cs.components cc " +
+								"where cc.presentationId = :componentId");
+				
 				if (null != statuses && !statuses.isEmpty()) {
-					query = session.createQuery(
-							"select cs from CourseSignupDAO cs " +
-							"inner join fetch cs.components cc " +
-							"where cc.presentationId = :componentId and cs.status in (:statuses)");
-					query.setParameterList("statuses", statuses);
-				} else {
-					query = session.createQuery(
-							"select cs from CourseSignupDAO cs " +
-							"inner join fetch cs.components cc " +
-							"where cc.presentationId = :componentId");
+					querySQL.append(" and cs.status in (:statuses)");
 				}
 				
+				if (null != year) {
+					startYear = FIRST_DAY_OF_ACADEMIC_YEAR.toLocalDate(year);
+					endYear = FIRST_DAY_OF_ACADEMIC_YEAR.toLocalDate(year+1);
+					querySQL.append(" and cc.starts between :starts and :ends");
+				}
+				
+				query = session.createQuery(querySQL.toString());
 				query.setString("componentId", componentId);
+				if (null != statuses && !statuses.isEmpty()) {
+					query.setParameterList("statuses", statuses);
+				}
+				
+				if (null != year) {
+					query.setDate("starts", startYear.toDate());
+					query.setDate("ends", endYear.toDate());
+				}
 				return query.list();
 			}
 		});
@@ -546,6 +603,8 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
+				
+				Date startLastYear = getPreviousYearBeginning(LocalDate.now()).toDate();
 				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
 				for(String word: words) {
 					criteria.add(Expression.ilike("title", word, MatchMode.ANYWHERE));
@@ -558,10 +617,15 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				
 				switch(range) {
 					case UPCOMING:
-						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(Expression.gt("closes", date));
+						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(
+								Expression.or(Expression.gt("baseDate", date), Expression.and(Expression.isNull("baseDate"), Expression.isNotNull("startsText"))));
 						break;
 					case PREVIOUS:
-						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(Expression.le("closes", date));
+						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(
+								Expression.or(
+										Expression.and(Expression.le("baseDate", date), Expression.gt("baseDate", startLastYear)), 
+										Expression.and(Expression.isNull("baseDate"), Expression.isNull("startsText"))
+									));
 						break;
 				}
 				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
