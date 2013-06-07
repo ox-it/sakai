@@ -41,7 +41,7 @@ public class DaisyPopulatorWrapper extends BasePopulatorWrapper implements Popul
 	}
 	
 	/**
-	 * 
+	 * The service to supply search services
 	 */
 	private SearchService search;
 	public void setSearchService(SearchService search) {

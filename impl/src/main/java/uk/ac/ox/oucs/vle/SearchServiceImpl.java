@@ -20,31 +20,27 @@
 package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.params.MapSolrParams;
-import org.apache.solr.common.params.SolrParams;
 import org.joda.time.DateTime;
 import org.sakaiproject.component.api.ServerConfigurationService;
 
 public class SearchServiceImpl implements SearchService {
 
+	private static final Log log = LogFactory.getLog(SearchServiceImpl.class);
+	
 	private static ConcurrentUpdateSolrServer solrServer;
 	private String solrUrl;
-	private static int recentDays;
-	
 	/**
 	 * 
 	 */
@@ -57,7 +53,7 @@ public class SearchServiceImpl implements SearchService {
 		solrUrl = serverConfigurationService.getString("ses.solr.server", null);
 		solrServer = new ConcurrentUpdateSolrServer(solrUrl, 1000, 1);
 		
-		recentDays = Integer.parseInt(serverConfigurationService.getString("recent.days", "14"));
+		Integer.parseInt(serverConfigurationService.getString("recent.days", "14"));
 	}
 	
 	public void close() {
@@ -75,12 +71,10 @@ public class SearchServiceImpl implements SearchService {
 			connection.connect();
 		
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getLocalizedMessage());
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getLocalizedMessage());
 			
 		} 
 		
