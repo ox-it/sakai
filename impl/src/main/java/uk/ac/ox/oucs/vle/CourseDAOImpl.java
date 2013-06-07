@@ -427,32 +427,17 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					throws HibernateException, SQLException {
 				Query query;
 				if (null != statuses && !statuses.isEmpty()) {
-					/*
-					query = session.createSQLQuery("select * from course_signup, " +
-							"(select course_group from course_group_administrator " +
-							"where administrator = :userId " +
-							"union select course_group from course_group_superuser " +
-							"where superuser = :userId) admins " +
-							"where course_signup.groupId = admins.course_group " +
-							"and course_signup.groupId = :courseId " +
-							"and course_signup.status in (:statuses)").addEntity(CourseSignupDAO.class);
-					*/
 					query = session.createSQLQuery("select * from course_signup " +
 							"left join course_group on course_signup.courseGroupMuid = course_group.muid " +
 							"where course_group.courseId = :courseId " +
 							"and course_signup.status in (:statuses)").addEntity(CourseSignupDAO.class);
 					
-					query.setParameterList("statuses", statuses);
+					Set<String> statusString = new HashSet<String>();
+					for (Status status : statuses) {
+						statusString.add(status.toString());
+					}
+					query.setParameterList("statuses", statusString);
 				} else {
-					/*
-					query = session.createSQLQuery("select * from course_signup, " +
-							"(select course_group from course_group_administrator " +
-							"where administrator = :userId " +
-							"union select course_group from course_group_superuser " +
-							"where superuser = :userId) admins " +
-							"where course_signup.groupId = admins.course_group " +
-							"and course_signup.groupId = :courseId").addEntity(CourseSignupDAO.class);
-					*/
 					query = session.createSQLQuery("select * from course_signup " +
 							"left join course_group on course_signup.courseGroupMuid = course_group.muid " +
 							"where course_group.courseId = :courseId").addEntity(CourseSignupDAO.class);
