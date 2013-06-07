@@ -139,6 +139,12 @@ public class SignupResource {
 			myMap.put("status", "failed");
 			myMap.put("message", e.getMessage());
 			throw new WebAppBadRequestException(myMap);
+			
+		} catch (IllegalArgumentException e) {
+			Map<String, String> myMap = new HashMap<String, String>();
+			myMap.put("status", "failed");
+			myMap.put("message", e.getMessage());
+			throw new WebAppBadRequestException(myMap);
 		}
 	}
 	

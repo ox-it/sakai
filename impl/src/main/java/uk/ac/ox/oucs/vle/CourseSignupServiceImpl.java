@@ -698,7 +698,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * Signup by Student
 	 */
 	public CourseSignup signup(String courseId, Set<String> componentIds, String supervisorEmail,
-			String message) throws IllegalStateException {
+			String message) throws IllegalStateException, IllegalArgumentException {
 
 		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
 		if (groupDao == null) {
