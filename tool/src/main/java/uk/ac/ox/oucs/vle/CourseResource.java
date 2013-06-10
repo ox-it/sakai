@@ -203,7 +203,7 @@ public class CourseResource {
 		}
 		String query = uriInfo.getRequestUri().getRawQuery();
 		if (null == query) {
-			throw new WebApplicationException();
+			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity("invalid query").build());
 		}
 	
 		ResultsWrapper results;
