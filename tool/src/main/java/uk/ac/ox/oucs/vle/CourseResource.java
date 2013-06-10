@@ -206,7 +206,15 @@ public class CourseResource {
 			throw new WebApplicationException();
 		}
 	
-		return new StringStreamingOutput(searchService.select(query));
+		ResultsWrapper results;
+		try {
+			results = searchService.select(query);
+		
+		} catch (Exception e) {
+			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity("search not available").build());
+		}
+		
+		return new StringStreamingOutput(results);
 	}
 	
 	@Path("/calendar")
