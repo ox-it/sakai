@@ -45,24 +45,10 @@
   <link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.4.custom/css/smoothness/jquery-ui-1.8.4.custom.css" />
   <link rel="stylesheet" type="text/css" href="lib/tool.css" />
   
-  <link rel="stylesheet" href="lib/ajax-solr-master/search/css/search.css">
-  <script src="lib/ajax-solr-master/search.js"></script>
-  <script src="lib/ajax-solr-master/core/Core.js"></script>
-  <script src="lib/ajax-solr-master/core/AbstractManager.js"></script>
-  <script src="lib/ajax-solr-master/managers/Manager.jquery.js"></script>
-  <script src="lib/ajax-solr-master/core/Parameter.js"></script>
-  <script src="lib/ajax-solr-master/core/ParameterStore.js"></script>
-  <script src="lib/ajax-solr-master/core/AbstractWidget.js"></script>
-  <script src="lib/ajax-solr-master/search/widgets/ResultWidget.js"></script>
-  <script src="lib/ajax-solr-master/widgets/jquery/PagerWidget.js"></script>
-  <script src="lib/ajax-solr-master/core/AbstractFacetWidget.js"></script>
-  <script src="lib/ajax-solr-master/search/widgets/TagcloudWidget.js"></script>
-  <script src="lib/ajax-solr-master/search/widgets/CurrentSearchWidget.js"></script>
-  <script src="lib/ajax-solr-master/core/AbstractTextWidget.js"></script>
-  <script src="lib/ajax-solr-master/search/widgets/TextWidget.js"></script>
-<!-- 
-  <script src="lib/ajax-solr-master/search/widgets/AutocompleteWidget.js"></script>
- -->
+	<link rel="stylesheet" href="lib/ajax-solr-master/ajax-solr-bundle.min.css">
+
+	<script src="lib/ajax-solr-master/search.js"></script>
+	<script src="lib/ajax-solr-master/ajax-solr-bundle.min.js"></script>
 
 	<script type="text/javascript">
 		var externalUser = <c:out value="${externalUser}" />;
@@ -125,10 +111,11 @@
 					<br />
 					<input type="submit" value="Search">
 				</form>
-				
+				<!-- 
 				<div class="advanced_link">
 					<a class="advanced" href="#">Advanced Search</a>
 				</div>	
+				 -->
 			</div>
 				
 			<div class="facets" id="facets">

@@ -320,6 +320,45 @@
 							<cssFinalFile>exhibit-bundle.css</cssFinalFile>
 						</configuration>
 					</execution>
+					
+					<execution>
+						<!-- The ajax-solr source code has a small change to allow a conversion
+																			function when reading JSON. -->
+						<id>ajax-solr-re-compress</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>minify</goal>
+						</goals>
+						<configuration>
+							<jsSourceDir>static/lib/ajax-solr-master</jsSourceDir>
+							<jsSourceFiles>
+								<jsSourceFile>core/Core.js</jsSourceFile>
+								<jsSourceFile>core/AbstractManager.js</jsSourceFile>
+								<jsSourceFile>core/ParameterStore.js</jsSourceFile>
+								<jsSourceFile>core/Parameter.js</jsSourceFile>
+								<jsSourceFile>core/AbstractWidget.js</jsSourceFile>
+								<jsSourceFile>core/AbstractFacetWidget.js</jsSourceFile>
+								<jsSourceFile>core/AbstractSpatialWidget.js</jsSourceFile>
+								<jsSourceFile>core/AbstractSpellcheckWidget.js</jsSourceFile>
+								<jsSourceFile>core/AbstractTextWidget.js</jsSourceFile>
+								<jsSourceFile>core/ParameterHashStore.js</jsSourceFile>
+								<jsSourceFile>managers/Manager.jquery.js</jsSourceFile>
+								<jsSourceFile>search/widgets/AutocompleteWidget.js</jsSourceFile>
+								<jsSourceFile>search/widgets/CalendarWidget.js</jsSourceFile>
+								<jsSourceFile>search/widgets/CountryCodeWidget.js</jsSourceFile>
+								<jsSourceFile>search/widgets/CurrentSearchWidget.js</jsSourceFile>
+								<jsSourceFile>search/widgets/ResultWidget.js</jsSourceFile>
+								<jsSourceFile>search/widgets/TagcloudWidget.js</jsSourceFile>
+								<jsSourceFile>search/widgets/TextWidget.js</jsSourceFile>
+								<jsSourceFile>widgets/jquery/PagerWidget.js</jsSourceFile>
+							</jsSourceFiles>
+							<jsFinalFile>ajax-solr-bundle.js</jsFinalFile>
+							<cssSourceDir>static/lib/ajax-solr-master</cssSourceDir>
+							<cssSourceIncludes>search/css/search.css</cssSourceIncludes>
+							<cssFinalFile>ajax-solr-bundle.css</cssFinalFile>
+						</configuration>
+					</execution>
+					
 				</executions>
 			</plugin>
 		</plugins>
