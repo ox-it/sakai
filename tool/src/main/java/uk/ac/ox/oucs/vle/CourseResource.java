@@ -211,7 +211,7 @@ public class CourseResource {
 			results = searchService.select(query);
 		
 		} catch (Exception e) {
-			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR).entity("search not available").build());
+			throw new WebApplicationException(Response.serverError().entity("search not available").build());
 		}
 		
 		return new StringStreamingOutput(results);
