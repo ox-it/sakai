@@ -46,6 +46,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ContextResolver;
@@ -184,7 +186,7 @@ public class CourseResource {
 			throw new WebAppForbiddenException();
 		}
 		if (terms == null) {
-			throw new WebApplicationException();
+			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity("No query parameter terms supplied").build());
 		}
 		List<CourseGroup> groups = courseService.search(terms, Range.UPCOMING, false);
 		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
@@ -197,7 +199,7 @@ public class CourseResource {
 			throws JsonGenerationException, JsonMappingException, IOException {
 		
 		if (!"select".equals(command)) {
-			throw new WebApplicationException();
+			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity("command not supported").build());
 		}
 		String query = uriInfo.getRequestUri().getRawQuery();
 		if (null == query) {
