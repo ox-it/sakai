@@ -21,6 +21,9 @@ a:hover {
   color: #000;
   text-decoration: underline;
 }
+div.error {
+	text-align: center;
+}
 
 #toolbar {
   font-size: 14px;
@@ -64,6 +67,9 @@ a:hover {
 	display: none;
 }
 .advanced_search .right input[type=submit] {
+	display: none;
+}
+.advanced_search #rightError {
 	display: none;
 }
 

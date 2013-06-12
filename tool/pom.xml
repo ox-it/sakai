@@ -347,6 +347,7 @@
 								<jsSourceFile>search/widgets/CalendarWidget.js</jsSourceFile>
 								<jsSourceFile>search/widgets/CountryCodeWidget.js</jsSourceFile>
 								<jsSourceFile>search/widgets/CurrentSearchWidget.js</jsSourceFile>
+								<jsSourceFile>search/widgets/ErrorWidget.js</jsSourceFile>
 								<jsSourceFile>search/widgets/ResultWidget.js</jsSourceFile>
 								<jsSourceFile>search/widgets/TagcloudWidget.js</jsSourceFile>
 								<jsSourceFile>search/widgets/TextWidget.js</jsSourceFile>

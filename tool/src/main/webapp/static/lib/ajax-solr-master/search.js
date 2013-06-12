@@ -22,7 +22,36 @@ var Manager;
 (function ($) {
 
   $(function () {
-    Manager = new AjaxSolr.Manager({
+	AjaxSolr.MyManager = AjaxSolr.Manager.extend({
+		
+			/** 
+			 * A collection of all registered widgets. For internal use only.
+			 *
+			 * @field
+			 * @private
+			 * @type Object
+			 * @default {}
+			 */
+			errorwidgets: {},
+			
+			/** 
+			 * Adds a widget to the manager.
+			 *
+			 * @param {AjaxSolr.AbstractWidget} widget
+			 */
+			addErrorWidget: function (widget) { 
+				widget.manager = this;
+				this.errorwidgets[widget.id] = widget;
+			},
+			
+			handleError: function (jqXHR) {
+				for (var widgetId in this.errorwidgets) {
+					this.errorwidgets[widgetId].onError(jqXHR.responseText);
+				}
+			} 
+	});
+
+    Manager = new AjaxSolr.MyManager({
     	//solrUrl: 'http://localhost:8983/solr/ses/'
     	solrUrl: '../rest/course/solr/'
     });
@@ -61,6 +90,16 @@ var Manager;
     	  target: '#search'
     }));
     
+    Manager.addWidget(new AjaxSolr.ErrorWidget({
+    	id: 'error',
+    	target: '#error'
+    }));
+    
+    Manager.addErrorWidget(new AjaxSolr.ErrorWidget({
+    	id: 'error',
+    	target: '#error'
+    }));
+
     Manager.init();
     Manager.store.addByValue('q', '*:*');
    

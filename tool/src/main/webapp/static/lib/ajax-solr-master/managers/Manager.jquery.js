@@ -23,7 +23,7 @@ AjaxSolr.Manager = AjaxSolr.AbstractManager.extend(
       self.handleResponse(data);
     };
     errorHandler = errorHandler || function (jqXHR, textStatus, errorThrown) {
-      self.handleError(textStatus + ', ' + errorThrown);
+      self.handleError(jqXHR);
     };
     if (this.proxyUrl) {
       options.url = this.proxyUrl;

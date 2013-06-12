@@ -89,6 +89,9 @@
 	
 		<div class="left">
 	
+			<div class="error" id="leftError">
+			</div>
+			
 			<div id="current_selection">
 				<h2>Current Selection</h2>
 				<ul id="selection"></ul>
@@ -100,12 +103,17 @@
 			<div id="result">
 				<div id="docs"></div>
 			</div>
+			
 		</div>
 
 		<div class="right">
 
 			<h2>Search</h2>
 			<div id="search">
+			
+				<div class="error" id="rightError">
+				</div>
+			
 				<form class="search">
 					<input type="text" id="query" name="query" autocomplete="off">
 					<br />
