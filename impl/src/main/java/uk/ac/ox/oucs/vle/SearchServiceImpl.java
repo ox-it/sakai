@@ -172,6 +172,7 @@ public class SearchServiceImpl implements SearchService {
 				doc.addField("course_signup_closetext", chosenComponent.getClosesText());
 
 				doc.addField("course_basedate", chosenComponent.getBaseDate());
+				doc.addField("course_created", chosenComponent.getCreated());
 				
 			}
 			solrServer.add(doc);

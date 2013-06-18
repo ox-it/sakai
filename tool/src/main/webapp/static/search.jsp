@@ -48,7 +48,22 @@
 	<link rel="stylesheet" href="lib/ajax-solr-master/ajax-solr-bundle.min.css">
 
 	<script src="lib/ajax-solr-master/search.js"></script>
-	<script src="lib/ajax-solr-master/ajax-solr-bundle.min.js"></script>
+	<!--  <script src="lib/ajax-solr-master/ajax-solr-bundle.min.js"></script>  -->
+	
+  <script src="lib/ajax-solr-master/core/Core.js"></script>
+  <script src="lib/ajax-solr-master/core/AbstractManager.js"></script>
+  <script src="lib/ajax-solr-master/managers/Manager.jquery.js"></script>
+  <script src="lib/ajax-solr-master/core/Parameter.js"></script>
+  <script src="lib/ajax-solr-master/core/ParameterStore.js"></script>
+  <script src="lib/ajax-solr-master/core/AbstractWidget.js"></script>
+  <script src="lib/ajax-solr-master/search/widgets/ResultWidget.js"></script>
+  <script src="lib/ajax-solr-master/widgets/jquery/PagerWidget.js"></script>
+  <script src="lib/ajax-solr-master/core/AbstractFacetWidget.js"></script>
+  <script src="lib/ajax-solr-master/search/widgets/TagcloudWidget.js"></script>
+  <script src="lib/ajax-solr-master/search/widgets/CurrentSearchWidget.js"></script>
+  <script src="lib/ajax-solr-master/core/AbstractTextWidget.js"></script>
+  <script src="lib/ajax-solr-master/search/widgets/TextWidget.js"></script>
+  <script src="lib/ajax-solr-master/search/widgets/ErrorWidget.js"></script>
 
 	<script type="text/javascript">
 		var externalUser = <c:out value="${externalUser}" />;

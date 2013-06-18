@@ -82,6 +82,7 @@
 		
 		<!-- Base Date for calculations -->
 		<field name="course_basedate" type="date" indexed="true" stored="true" required="false" multiValued="false" />
+		<field name="course_created" type="date" indexed="true" stored="true" required="false" multiValued="false" />
 		
 		<!-- Full Text Search for course title, course description and tags -->
 		<field name="fts" type="text_en_splitting" indexed="true" stored="false" multiValued="true" />
