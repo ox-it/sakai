@@ -32,7 +32,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.common.SolrInputDocument;
-import org.joda.time.DateTime;
 import org.sakaiproject.component.api.ServerConfigurationService;
 
 public class SearchServiceImpl implements SearchService {
@@ -108,34 +107,29 @@ public class SearchServiceImpl implements SearchService {
 			
 			CourseComponent chosenComponent = null;
 			Set<String> bookableSet = new HashSet<String>();
-			Set<String> timeframeSet = new HashSet<String>();
+			Set<Date> baseDateSet = new HashSet<Date>();
 			Date toDay = new Date();
-			Date twoWeeksAgo = new DateTime().minusWeeks(2).toDate();
 			
 			for (CourseComponent component : course.getComponents()) {
-				
-				if (component.getCreated().after(twoWeeksAgo)) {
-					timeframeSet.add("New Courses");
-				}
 					
 				if (null != component.getBaseDate()) {
 				
+					baseDateSet.add(component.getBaseDate());
+					
 					if (component.getBaseDate().after(toDay)) {
 						bookableSet.add("Yes");
-						timeframeSet.add("Current Courses");
 					} else {
 						bookableSet.add("No");
-						timeframeSet.add("Old Courses");
 					}
 					
 				} else {
 					if (null != component.getStartsText() &&
 							 !component.getStartsText().isEmpty()) {
 						bookableSet.add("Yes");
-						timeframeSet.add("Current Courses");
+						baseDateSet.add(new Date(Long.MAX_VALUE));
 					} else {
 						bookableSet.add("No");
-						timeframeSet.add("Old Courses");
+						baseDateSet.add(new Date(0));
 					}
 				}
 					
@@ -154,8 +148,8 @@ public class SearchServiceImpl implements SearchService {
 				}
 			}
 			
-			for (String timeframe : timeframeSet) {
-				doc.addField("course_timeframe", timeframe);
+			for (Date baseDate : baseDateSet) {
+				doc.addField("course_basedate", baseDate);
 			}
 			
 			if (null != chosenComponent) {	
@@ -171,7 +165,6 @@ public class SearchServiceImpl implements SearchService {
 				doc.addField("course_signup_opentext", chosenComponent.getOpensText());
 				doc.addField("course_signup_closetext", chosenComponent.getClosesText());
 
-				doc.addField("course_basedate", chosenComponent.getBaseDate());
 				doc.addField("course_created", chosenComponent.getCreated());
 				
 			}

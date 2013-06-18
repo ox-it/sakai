@@ -71,7 +71,7 @@ var Manager;
       }
     }));
     
-    var fields = [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_class', 'course_delivery', 'course_timeframe' ];
+    var fields = [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_class', 'course_delivery' ];
     for (var i = 0, l = fields.length; i < l; i++) {
       Manager.addWidget(new AjaxSolr.TagcloudWidget({
         id: fields[i],
@@ -79,6 +79,11 @@ var Manager;
         field: fields[i]
       }));
     }
+    
+    Manager.addWidget(new AjaxSolr.TimeFrameWidget({
+        id: 'course_timeframe',
+        target: '#course_timeframe'
+    }));
     
     Manager.addWidget(new AjaxSolr.CurrentSearchWidget({
         id: 'currentsearch',
@@ -108,7 +113,15 @@ var Manager;
       'facet.field': [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_class', 'course_delivery', 'course_timeframe' ],
       'facet.limit': 20,
       'facet.mincount': 1,
-      'f.topics.facet.limit': 50
+      'f.topics.facet.limit': 50,
+      'facet.range' : [ 'course_created', 'course_basedate' ],
+      'f.course_created.facet.range.start' : 'NOW-14DAY',
+      'f.course_created.facet.range.end' : 'NOW',
+      'f.course_created.facet.range.gap' : '+14DAY',
+      'f.course_basedate.facet.range.start' : 'NOW',
+      'f.course_basedate.facet.range.end' : 'NOW',
+      'f.course_basedate.facet.range.gap' : '+21DAY',
+      'f.course_basedate.facet.range.other' : 'all',
     };
     for (var name in params) {
       Manager.store.addByValue(name, params[name]);

@@ -56,14 +56,11 @@
 		<!-- Course Class Facet, Undergraduate Option, Graduate Training or Postgraduate Option-->
 		<field name="course_class" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 		
-		<!-- Timescale Facet -->
-		<field name="course_timeframe" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-		
 		<!-- Delivery method of the course -->
 		<field name="course_delivery" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
 		<!-- 
-			Information about the most recent presentation 
+			Information about the presentations 
 		-->
 		
 		<!-- Bookable -->
@@ -81,7 +78,7 @@
 		<field name="course_teaching_end" type="date" indexed="true" stored="true" required="false" multiValued="false" />
 		
 		<!-- Base Date for calculations -->
-		<field name="course_basedate" type="date" indexed="true" stored="true" required="false" multiValued="false" />
+		<field name="course_basedate" type="date" indexed="true" stored="true" required="false" multiValued="true" />
 		<field name="course_created" type="date" indexed="true" stored="true" required="false" multiValued="false" />
 		
 		<!-- Full Text Search for course title, course description and tags -->

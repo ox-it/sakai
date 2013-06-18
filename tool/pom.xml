@@ -350,6 +350,7 @@
 								<jsSourceFile>search/widgets/ErrorWidget.js</jsSourceFile>
 								<jsSourceFile>search/widgets/ResultWidget.js</jsSourceFile>
 								<jsSourceFile>search/widgets/TagcloudWidget.js</jsSourceFile>
+								<jsSourceFile>search/widgets/TimeFrameWidget.js</jsSourceFile>
 								<jsSourceFile>search/widgets/TextWidget.js</jsSourceFile>
 								<jsSourceFile>widgets/jquery/PagerWidget.js</jsSourceFile>
 							</jsSourceFiles>
