@@ -920,6 +920,38 @@ var Signup = function(){
         		}
         		return details;
         	}
+        },
+        "term": {
+
+    		/**
+		    * Sort an Array of Terms into most recent first. The year is the academic year of the term,
+		    * not the calendar year.
+		    * @param {Array} termArray of strings in the format 'Michaelmas 2012', 'Hilary 2013' or 'Trinity 2013'.
+		    */
+		    "sortArray": function(termsArray) {
+			    termsArray.sort(function(a,b){
+			    	var awords=a.split(" ");
+			    	var bwords=b.split(" ");
+			    	if (awords[1] != bwords[1]) {
+			    		return bwords[1] - awords[1]
+			    	}
+			    	if (awords[0] == bwords[0]) {
+			    		return 0;
+			    	}
+			    	if (awords[0] == "Michaelmas") {
+			    		return 1;
+			    	}
+			    	if (bwords[0] == "Michaelmas") {
+			    		return -1;
+			    	}
+			    	if (awords[0] == "Trinity") {
+			    		return -1;
+			    	}
+			    	if (bwords[0] == "Trinity") {
+			    		return 1;
+			    	}
+			    });
+		    }
         }
     };
     
