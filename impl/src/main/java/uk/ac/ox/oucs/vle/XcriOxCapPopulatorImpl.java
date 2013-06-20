@@ -1075,13 +1075,18 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 
 	/**
+	 * Find the  base date for a component.
+	 * The base date is the point at which a course transitions from being a current course to a previous course.
 	 * 
 	 * @param component
+	 * 			the component to assess.
 	 * @return
+	 * 			the base date for the component or <code>null</code> if it's not possible to find one.
 	 */
 	public static Date baseDate(CourseComponentDAO component) {
-		if (null != component.getStarts()) {
-			return component.getStarts();
+		
+		if (null != component.getEnds()) {
+			return component.getEnds();
 		}
 		if (null != component.getCloses()) {
 			return component.getCloses();
@@ -1090,7 +1095,14 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 
 	/**
-	 * Filter the array for elements matching type if type is null construct default string.
+	 * Search the array for elements matching type and add concatenate their descriptions.
+	 * 
+	 * @param array
+	 * 		The array of DescriptiveTextTypes
+	 * @param type
+	 * 		The type to filter on, if <code>null</code> look for text without a type (<code>null</code>).
+	 * @return
+	 * 		The concatenated matching descriptions.
 	 */
 	protected String filterDescriptiveTextTypeArray(DescriptiveTextType[] array, String type) {
 
