@@ -203,7 +203,7 @@
 													component.size,
 													component.places,
 													component.starts,
-													component.when, //4
+													component.slot, //4
 													component.closes, 
 													component.id, 
 													component.id,

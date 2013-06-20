@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -294,7 +295,7 @@ public class SignupResource {
 				Writer writer = new OutputStreamWriter(output);
 				CSVWriter csvWriter = new CSVWriter(writer);
 				csvWriter.writeln(new String[]{
-						component.getSubject(), component.getWhen()});
+						component.getTitle(), startsText(component)});
 				csvWriter.writeln(new String[]{
 						"Surname", "Forname", "Email", "SES Status",
 						"Year of Study", "Degree Programme", "Affiliation"});
@@ -623,7 +624,18 @@ public class SignupResource {
 		}
 		return sb.toString();
 	}
-
+	
+	private String startsText(CourseComponent component) {
+		if (null != component.getStartsText() && 
+				 !component.getStartsText().isEmpty()) {
+			return component.getStartsText();
+		}
+		if (null != component.getStarts()) {
+			return new SimpleDateFormat("EEE d MMM yyyy").format(component.getStarts());
+		}
+		return "";
+	}
+	
 	private String getFileName(CourseComponent component) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(component.getPresentationId().replaceAll(" ", "_"));
