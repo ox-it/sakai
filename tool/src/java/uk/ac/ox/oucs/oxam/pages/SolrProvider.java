@@ -135,7 +135,10 @@ public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 		return new CompoundPropertyModel<SolrDocument>(object);
 	}
 
-	private void doSearch() {
+	/**
+	 * @throws RuntimeException if the Solr search failed.
+	 */
+	private void doSearch() throws RuntimeException {
 		if (response != null) {
 			return;
 		}
@@ -165,7 +168,6 @@ public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 		try {
 			response = solr.query(solrQuery);
 		} catch (SolrServerException sse) {
-			// TODO Better exception and handling.
 			throw new RuntimeException("Search Failed", sse);
 		}
 	}

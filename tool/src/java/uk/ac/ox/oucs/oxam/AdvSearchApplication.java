@@ -1,6 +1,9 @@
 package uk.ac.ox.oucs.oxam;
 
 import org.apache.wicket.Page;
+import org.apache.wicket.Request;
+import org.apache.wicket.RequestCycle;
+import org.apache.wicket.Response;
 import org.apache.wicket.request.target.coding.QueryStringUrlCodingStrategy;
 import org.apache.wicket.resource.loader.ClassStringResourceLoader;
 
@@ -31,6 +34,11 @@ public class AdvSearchApplication extends SakaiApplication {
 	@Override
 	public boolean isToolbarEnabled() {
 		return false;
+	}
+
+	@Override
+	public RequestCycle newRequestCycle(Request request, Response response) {
+		return new SolrWebRequestCycle(this, request, response);
 	}
 
 }
