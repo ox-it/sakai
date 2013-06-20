@@ -94,6 +94,10 @@ public class AttendanceWriter {
 					Element sst = new Element("status");
 					sst.setText(signup.getStatus().name());
 					attendee.addContent(sst);
+					
+					Element ssr = new Element("reason");
+					ssr.setText(signup.getNotes());
+					attendee.addContent(ssr);
 			
 					students.addContent(attendee);
 				}
