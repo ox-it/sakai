@@ -1,9 +1,29 @@
+/*
+ * #%L
+ * Course Signup Webapp
+ * %%
+ * Copyright (C) 2010 - 2013 University of Oxford
+ * %%
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *             http://opensource.org/licenses/ecl2
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
 package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -294,7 +314,7 @@ public class SignupResource {
 				Writer writer = new OutputStreamWriter(output);
 				CSVWriter csvWriter = new CSVWriter(writer);
 				csvWriter.writeln(new String[]{
-						component.getSubject(), component.getWhen()});
+						component.getTitle(), startsText(component)});
 				csvWriter.writeln(new String[]{
 						"Surname", "Forname", "Email", "SES Status",
 						"Year of Study", "Degree Programme", "Affiliation"});
@@ -361,10 +381,14 @@ public class SignupResource {
 		};
 	}
 	
-	@Path("/component/{id}.xml")
+	@Path("/component/{year}/{id}.xml")
 	@GET
 	@Produces(MediaType.TEXT_XML)
-	public StreamingOutput syncComponent(@PathParam("id") final String componentId, @PathParam("status") final Status status) {
+	
+	public StreamingOutput syncComponent(@PathParam("id") final String componentId, 
+										 @QueryParam("status") final Status status, 
+										 @PathParam("year") final int year) {
+		
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			throw new WebAppForbiddenException();
 		}
@@ -380,12 +404,9 @@ public class SignupResource {
 					courseComponents.add(courseService.getCourseComponent(componentId));
 				}
 				
-				Set<Status> statuses = new HashSet<Status>();
+				Set<Status> statuses = null;
 				if (null != status) {
 					statuses = Collections.singleton(status);
-				} else {
-					statuses.add(Status.CONFIRMED);
-					statuses.add(Status.WITHDRAWN);
 				}
 				
 				AttendanceWriter attendance = new AttendanceWriter(output);
@@ -394,7 +415,7 @@ public class SignupResource {
 				
 					try {
 						List<CourseSignup> signups = courseService.getComponentSignups(
-								courseComponent.getPresentationId(), statuses);
+								courseComponent.getPresentationId(), statuses, year);
 				
 						Collections.sort(signups, new Comparator<CourseSignup>() {
 							public int compare(CourseSignup s1,CourseSignup s2) {
@@ -623,7 +644,18 @@ public class SignupResource {
 		}
 		return sb.toString();
 	}
-
+	
+	private String startsText(CourseComponent component) {
+		if (null != component.getStartsText() && 
+				 !component.getStartsText().isEmpty()) {
+			return component.getStartsText();
+		}
+		if (null != component.getStarts()) {
+			return new SimpleDateFormat("EEE d MMM yyyy").format(component.getStarts());
+		}
+		return "";
+	}
+	
 	private String getFileName(CourseComponent component) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(component.getPresentationId().replaceAll(" ", "_"));

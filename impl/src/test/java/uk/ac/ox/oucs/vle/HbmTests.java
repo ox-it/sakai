@@ -1,6 +1,28 @@
+/*
+ * #%L
+ * Course Signup Implementation
+ * %%
+ * Copyright (C) 2010 - 2013 University of Oxford
+ * %%
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *             http://opensource.org/licenses/ecl2
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
 package uk.ac.ox.oucs.vle;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -281,6 +303,63 @@ public void testCourseCategory() {
 
 		CourseCategoryDAO ct3 = courseDao.findCourseCategory("C3");
 		assertEquals(0, ct3.getGroups().size());
+
+	}
+
+	public void testCourseComponentSession() {
+	
+		SimpleDateFormat format = new SimpleDateFormat("EEEE dd MMMM yyyy, HH:mm:ss");
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.HOUR_OF_DAY, 10);
+		Date start = cal.getTime();
+		cal.add(Calendar.HOUR_OF_DAY, 2);
+		Date end = cal.getTime();
+		
+		CourseComponentSessionDAO ss1 = new CourseComponentSessionDAO("1",
+				start, format.format(start),
+				end, format.format(end));
+		CourseComponentSessionDAO ss2 = new CourseComponentSessionDAO("2",
+				start, format.format(start),
+				end, format.format(end));
+		CourseComponentSessionDAO ss3 = new CourseComponentSessionDAO("3",
+				start, format.format(start),
+				end, format.format(end));
+	
+		// Create a component.
+		CourseComponentDAO courseComponent = courseDao.newCourseComponent("test");
+		courseComponent.setSource("source");
+		courseComponent.getComponentSessions().add(ss1);
+		courseDao.save(courseComponent);	
+	
+		sessionFactory.getCurrentSession().flush();
+		sessionFactory.getCurrentSession().clear();
+	
+		// Check all is as it should be
+		courseComponent  = courseDao.findCourseComponent("test");
+		assertEquals(1, courseComponent.getComponentSessions().size());
+	
+		// now add a session
+		courseComponent.getComponentSessions().add(ss2);
+		courseDao.save(courseComponent);
+		
+		sessionFactory.getCurrentSession().flush();
+		sessionFactory.getCurrentSession().clear();
+	
+		// and check
+		courseComponent  = courseDao.findCourseComponent("test");
+		assertEquals(2, courseComponent.getComponentSessions().size());
+		
+		// change the sessions
+		courseComponent.getComponentSessions().clear();
+		courseComponent.getComponentSessions().add(ss3);
+		courseDao.save(courseComponent);
+		
+		sessionFactory.getCurrentSession().flush();
+		sessionFactory.getCurrentSession().clear();
+	
+		// and check
+		courseComponent  = courseDao.findCourseComponent("test");
+		assertEquals(1, courseComponent.getComponentSessions().size());
 
 	}
 	

@@ -1,3 +1,22 @@
+/*
+ * #%L
+ * Course Signup API
+ * %%
+ * Copyright (C) 2010 - 2013 University of Oxford
+ * %%
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *             http://opensource.org/licenses/ecl2
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
 package uk.ac.ox.oucs.vle;
 
 import java.util.Date;
@@ -100,6 +119,23 @@ public interface CourseSignupService {
 	
 	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses)
 		throws NotFoundException;
+	
+	/**
+	 * Find signups made to component by componentId.
+	 * If statuses/year supplied only signups matching these are returned.
+	 * 
+	 * @param componentId
+	 * 		the component ID find signups for.
+	 * @param statuses
+	 * 		filter by list of statuses, if <code>null</code> no filtering on status is done.
+	 * @param year
+	 * 		academic year to include (eq 2012 for year 1st Sep 2012 to 31st Aug 2013), if <code>null</code>
+	 * 		no filtering on year is done.
+	 * @return A list of signups matching, never <code>null</code>.
+	 * @throws NotFoundException If there isn't a component matching componentId.
+	 */
+	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses, Integer year)
+			throws NotFoundException;
 	
 	public List<CourseSignup> getApprovals();
 	

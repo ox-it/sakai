@@ -1,3 +1,22 @@
+<%--
+  #%L
+  Course Signup Webapp
+  %%
+  Copyright (C) 2010 - 2013 University of Oxford
+  %%
+  Licensed under the Educational Community License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+              http://opensource.org/licenses/ecl2
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  #L%
+  --%>
 <%@ page import="org.sakaiproject.user.cover.UserDirectoryService"%>
 <%@ page session="false"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
@@ -141,7 +160,7 @@
 								"bInfo" : false,
 								"bAutoWidth" : false,
 								"sAjaxSource" : "../rest/course/",
-								"aaSorting" : [ [ 8, 'asc' ] ], // Sort on the signup date.
+								"aaSorting" : [ [ 5, 'desc' ] ], // Sort on the signup date.
 								"aoColumns" : [
 										{
 											"sTitle" : "Component"
@@ -171,16 +190,13 @@
 											}
 										},
 										{
-											"sTitle" : "Signup Period",
+											"sTitle" : "Teaching start date",
 											"fnRender" : function(aObj) {
-												// Hack to force the data back to being a int.
-												return new Date(+aObj.aData[3])
-														.toDateString()
-														+ " (for "
-														+ Signup.util
-																.formatDuration(aObj.aData[8]
-																		- aObj.aData[3])
-														+ ")";
+												if (aObj.aData[3] === 'undefined') {
+													return '';
+												} else {
+													return new Date(+aObj.aData[3]).toDateString();
+												}
 											},
 											"bUseRendered" : false
 										},
@@ -191,40 +207,34 @@
 											"sTitle" : "Status",
 											"fnRender" : function(aObj) {
 												return getComponentStatus(
-														aObj.aData[3],
-														aObj.aData[8]);
+														aObj.aData[9],
+														aObj.aData[5]);
 											}
-										},
-										{
-											"bVisible" : false
-										},
-										{
-											"bVisible" : false
-										},
-										{
-											"bVisible" : false
 										},
 										{
 											"sTitle" : "Export",
 											"bSortable" : false,
 											"fnRender" : function(aObj) {
-												return '<a href="../rest/signup/component/'+ aObj.aData[9]+ '.csv">Export</a>';
+												return '<a href="../rest/signup/component/'+ aObj.aData[6]+ '.csv">Export</a>';
 											}
 										},
 										{
 											"sTitle" : "Email",
 											"bSortable" : false,
 											"fnRender" : function(aObj) {
-												return '<img class="mailto-all-course" id="'+aObj.aData[10]+'"src="images/email-send.png" title="send email to all CONFIRMED signups" />';
+												return '<img class="mailto-all-course" id="'+aObj.aData[7]+'"src="images/email-send.png" title="send email to all CONFIRMED signups" />';
 											}
 										},
 										{
 											"sTitle" : "Attendance",
 											"bSortable" : false,
 											"fnRender" : function(aObj) {
-												return '<a href="../rest/signup/component/'+ aObj.aData[11]+ '.pdf">Register</a>';
+												return '<a href="../rest/signup/component/'+ aObj.aData[8]+ '.pdf">Register</a>';
 											}
-										} ],
+										},
+										{
+											"bVisible" : false
+										}],
 
 								"fnServerData" : function(sSource, aoData,
 										fnCallback) {
@@ -240,14 +250,13 @@
 													component.title, //0
 													component.size,
 													component.places,
-													component.opens,
+													component.starts,
 													component.slot, //4
-													component.sessions,
-													component.presenter,
-													component.administrator,
-													component.closes, //8
-													component.id, component.id,
-													component.id ]);
+													component.closes, 
+													component.id, 
+													component.id,
+													component.id, //8
+													component.opens]);
 										}
 										fnCallback(tableData);
 									});

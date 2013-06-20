@@ -1,3 +1,22 @@
+/*
+ * #%L
+ * Course Signup Webapp
+ * %%
+ * Copyright (C) 2010 - 2013 University of Oxford
+ * %%
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *             http://opensource.org/licenses/ecl2
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
 package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
@@ -61,7 +80,7 @@ public class CourseResource {
 	
 	@Path("/{id}")
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public StreamingOutput getCourse(@PathParam("id") final String courseId, @QueryParam("range") final Range range) {
 		
 		final CourseGroup course = courseService.getCourseGroup(courseId, range);
@@ -89,7 +108,7 @@ public class CourseResource {
 
 	@Path("/all")
 	@GET
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public StreamingOutput getCourses(@QueryParam("range") final Range range) {
 		boolean externalUser = false;
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {

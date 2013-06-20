@@ -1,3 +1,22 @@
+/*
+ * #%L
+ * Course Signup Implementation
+ * %%
+ * Copyright (C) 2010 - 2013 University of Oxford
+ * %%
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *             http://opensource.org/licenses/ecl2
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
 package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
@@ -274,8 +293,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 
 		if (null == departmentCode) {
-			throw new PopulatorException(
+			logMe(context, 
 				"Log Failure Provider ["+departmentCode+":"+departmentName+"] No Provider Identifier");
+			return;
 		}
 
 		data.incrDepartmentSeen();
@@ -941,16 +961,18 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			// Use of Set filters duplicates
 			componentDao.getGroups().add(group);
 			componentDao.setDeleted(false);
-
-			Collection<CourseComponentSessionDAO> componentSessions = componentDao.getComponentSessions();
+			
+			componentDao.getComponentSessions().clear();
 			for (Session session : sessions) {
-				componentSessions.add(
+				componentDao.getComponentSessions().add(
 						new CourseComponentSessionDAO(session.getIdentifiers()[0].getValue(),
 								session.getStart().getDtf(), session.getStart().getValue(), 
 								session.getEnd().getDtf(), session.getEnd().getValue()));
 			}
-
-
+			if (!componentDao.getComponentSessions().isEmpty()) {
+				componentDao.setSessions(Integer.toString(componentDao.getComponentSessions().size()));
+			}
+			
 			dao.save(componentDao);
 		}
 
@@ -1053,13 +1075,18 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 
 	/**
+	 * Find the  base date for a component.
+	 * The base date is the point at which a course transitions from being a current course to a previous course.
 	 * 
 	 * @param component
+	 * 			the component to assess.
 	 * @return
+	 * 			the base date for the component or <code>null</code> if it's not possible to find one.
 	 */
 	public static Date baseDate(CourseComponentDAO component) {
-		if (null != component.getStarts()) {
-			return component.getStarts();
+		
+		if (null != component.getEnds()) {
+			return component.getEnds();
 		}
 		if (null != component.getCloses()) {
 			return component.getCloses();
@@ -1068,7 +1095,14 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 
 	/**
-	 * Filter the array for elements matching type if type is null construct default string.
+	 * Search the array for elements matching type and add concatenate their descriptions.
+	 * 
+	 * @param array
+	 * 		The array of DescriptiveTextTypes
+	 * @param type
+	 * 		The type to filter on, if <code>null</code> look for text without a type (<code>null</code>).
+	 * @return
+	 * 		The concatenated matching descriptions.
 	 */
 	protected String filterDescriptiveTextTypeArray(DescriptiveTextType[] array, String type) {
 
@@ -1080,7 +1114,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			if (!descriptiveTextType.isXhtml()) {
 				text = parse(descriptiveTextType.getValue());
 			} else {
-				text = descriptiveTextType.getValue();
+				text = parseXHTML(descriptiveTextType.getValue());
 			}
 			
 			if (null != type) {
@@ -1098,6 +1132,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 
 	/**
+	 *  * Processing of descriptivetext fields where descriptiveTextType.isXhtml=false
 	 * 
 	 * @param data
 	 * @return
@@ -1128,6 +1163,19 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 		matcher.appendTail(sb);
 		return sb.toString();
+	}
+	
+	/**
+	 * Processing of descriptivetext fields where descriptiveTextType.isXhtml=true
+	 * 
+	 * @param data
+	 * @return
+	 */
+	protected static String parseXHTML(String data) {
+		if (null != data) {
+			data = data.replaceAll("xhtml:", "");
+		}
+		return data;
 	}
 
 }

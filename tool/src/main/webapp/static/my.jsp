@@ -1,3 +1,22 @@
+<%--
+  #%L
+  Course Signup Webapp
+  %%
+  Copyright (C) 2010 - 2013 University of Oxford
+  %%
+  Licensed under the Educational Community License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+              http://opensource.org/licenses/ecl2
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  #L%
+  --%>
 <%@ page
 	import="org.sakaiproject.component.cover.ServerConfigurationService"%>
 <%@ page import="org.sakaiproject.user.cover.UserDirectoryService"%>
@@ -29,7 +48,7 @@
 
 <script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
 <script type="text/javascript"
-	src="lib/jstree-1.0rc/_lib/jquery.cookie.js"></script>
+	src="lib/jstree-1.0rc2/_lib/jquery.cookie.js"></script>
 <script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
 <script type="text/javascript"
 	src="lib/jquery-ui-1.8.4.custom/js/jquery-ui-1.8.4.custom.min.js"></script>
