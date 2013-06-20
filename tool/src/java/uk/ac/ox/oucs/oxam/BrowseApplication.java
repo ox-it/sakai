@@ -1,6 +1,11 @@
 package uk.ac.ox.oucs.oxam;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.Page;
+import org.apache.wicket.Request;
+import org.apache.wicket.RequestCycle;
+import org.apache.wicket.Response;
 import org.apache.wicket.request.target.coding.QueryStringUrlCodingStrategy;
 
 import uk.ac.ox.oucs.oxam.pages.AdvancedSearchPage;
@@ -40,5 +45,11 @@ public class BrowseApplication extends SakaiApplication {
 	public boolean isToolbarEnabled() {
 		return true;
 	}
+
+	@Override
+	public RequestCycle newRequestCycle(Request request, Response response) {
+		return new SolrWebRequestCycle(this, request, response);
+	}
+
 
 }

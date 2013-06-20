@@ -31,6 +31,8 @@
                 </property>
             </bean>
         </constructor-arg>
+		<property name="connectionTimeout" value="5000"/>
+		<property name="soTimeout" value="5000"/>
     </bean>
        
 </beans>
