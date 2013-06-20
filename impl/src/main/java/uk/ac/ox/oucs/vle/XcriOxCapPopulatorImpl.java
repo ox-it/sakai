@@ -1101,6 +1101,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @param type
 	 * 		The type to filter
 	 * @return
+	 * 		The concatenated matching descriptions
 	 */
 	protected String filterDescriptiveTextTypeArray(DescriptiveTextType[] array, String type) {
 
