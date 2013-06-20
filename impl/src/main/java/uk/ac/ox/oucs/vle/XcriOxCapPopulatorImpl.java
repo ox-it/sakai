@@ -1097,7 +1097,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * Filter the array for elements matching type if type is null construct default string.
 	 * 
 	 * @param array
+	 * 		The array of DescriptiveTextTypes
 	 * @param type
+	 * 		The type to filter
 	 * @return
 	 */
 	protected String filterDescriptiveTextTypeArray(DescriptiveTextType[] array, String type) {
