@@ -31,7 +31,9 @@
                 </property>
             </bean>
         </constructor-arg>
+		<!-- Time to establish the connection to Solr. -->
 		<property name="connectionTimeout" value="5000"/>
+		<!-- Once connection is established time to wait for results -->
 		<property name="soTimeout" value="5000"/>
     </bean>
        
