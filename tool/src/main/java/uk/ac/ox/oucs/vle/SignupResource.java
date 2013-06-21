@@ -127,11 +127,29 @@ public class SignupResource {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			throw new WebAppForbiddenException();
 		}
-		CourseSignup entity = courseService.signup(courseId, components, email, message);
-		ResponseBuilder builder = Response.status(Response.Status.CREATED);
-		builder.status(201);
-		builder.entity(entity);
-		return builder.build();
+		
+		try {
+			CourseSignup entity = courseService.signup(courseId, components, email, message);
+			ResponseBuilder builder = Response.status(Response.Status.CREATED);
+			builder.status(201);
+			builder.entity(entity);
+			return builder.build();
+			
+		} catch (NotFoundException e) {
+			throw new WebAppNotFoundException();
+			
+		} catch (IllegalStateException e) {
+			Map<String, String> myMap = new HashMap<String, String>();
+			myMap.put("status", "failed");
+			myMap.put("message", e.getMessage());
+			throw new WebAppBadRequestException(myMap);
+			
+		} catch (IllegalArgumentException e) {
+			Map<String, String> myMap = new HashMap<String, String>();
+			myMap.put("status", "failed");
+			myMap.put("message", e.getMessage());
+			throw new WebAppBadRequestException(myMap);
+		}
 	}
 	
 	@Path("/new")
