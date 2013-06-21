@@ -187,7 +187,7 @@
                                 			
                                 			<span class="location">
                                 			{if option.starts}
-                                				teaching starts on ${new Date(option.starts).toDateString()}
+                                				teaching starts on ${option.starts|dateFormat}
                                 			{else}
                                 				{if option.startsText} 
                                 					teaching starts ${option.startsText}
@@ -195,7 +195,7 @@
                                 			{/if}
                                 			
                                 			{if option.ends} 
-                                				and ends on ${new Date(option.ends).toDateString()}
+                                				and ends on ${option.ends|dateFormat}
                                 			{else}
                                 				{if option.endsText} 
                                 					and ends ${option.endsText}
@@ -209,7 +209,7 @@
                                 			{/if}
                                 			
                                 			{if option.opens}
-                                				signup opens on ${new Date(option.opens).toDateString()}
+                                				signup opens on ${option.opens|dateFormat}
                                 			{else}
                                 				{if option.opensText} 
                                 					signup opens ${option.opensText}
@@ -218,9 +218,9 @@
                                 			
                                 			{if option.closes} 
                                 				{if option.opens || option.opensText}
-                                					and closes on ${new Date(option.closes).toDateString()}
+                                					and closes on ${option.closes|dateFormat}
                                 				{else}
-                                					signup closes on ${new Date(option.closes).toDateString()}
+                                					signup closes on ${option.closes|dateFormat}
                                 				{/if}
                                 			{else}
                                 				{if option.closesText} 
@@ -244,6 +244,21 @@
                                 					<br/>
                                 				{/if}
                                 				${option.teachingDetails}
+                                			{/if}
+                                			
+                                			{if option.sessionData}
+                                				<ul>
+                                				{for session in option.sessionData}
+                                					<li>
+                                					{if session.singleDay }
+                                						${session.start|dateFormat} ${session.start|timeFormat} to
+                                						${session.end|timeFormat}
+                                					{else}
+                                						${session.start|dateFormat} ${session.start|timeFormat} to
+                                						${session.end|dateFormat} ${session.end|timeFormat}
+                                					{/if}
+                                				{/for}
+                                				</ul>
                                 			{/if}
                                 			
                                 			</span>

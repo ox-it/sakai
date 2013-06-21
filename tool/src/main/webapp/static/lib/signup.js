@@ -186,6 +186,18 @@ var Signup = function(){
 							});
 						});
 						
+						var sessionData = [];
+						$.each(component.sessions, function() {
+							var session = this;
+							sessionData.push({
+								"start": session.sessionStart,
+								"end": session.sessionEnd,
+								"singleDay": new Date(session.sessionStart).toDateString() === new Date(session.sessionEnd).toDateString()
+							});
+						});
+						
+						component.sessionData = sessionData;
+						
 						if (component.componentSet) {
 							var found = false;
 							$.each(parts, function() {
@@ -224,6 +236,18 @@ var Signup = function(){
 					data.signup = Signup.signup.summary(data.components)["message"];
 					data.parts = parts;
 					data.applyTo = applyTo;
+					
+					var myModifiers = {
+							dateFormat : function(date) { 
+								return new Date(date).toDateString();
+							},
+							timeFormat : function(date) { 
+								return new Date(date).getHours()+":"+('0'+new Date(date).getMinutes()).slice(-2);
+							}
+					};
+					
+					data._MODIFIERS = myModifiers;
+
 					var output = template.process(data, {throwExceptions: true});
 					dest.html(output);
 					

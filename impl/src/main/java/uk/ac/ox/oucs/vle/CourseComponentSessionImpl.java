@@ -28,6 +28,14 @@ public class CourseComponentSessionImpl implements CourseComponentSession {
 	public CourseComponentSessionImpl(CourseComponentSessionDAO dao) {
 		this.dao = dao;
 	}
+	
+	@Override
+	public int compareTo(CourseComponentSession arg) {
+		if (null != this.getSessionStart() && null != arg.getSessionStart()) {
+			return this.getSessionStart().compareTo(arg.getSessionStart());
+		}
+		return this.getSessionId().compareTo(arg.getSessionId());
+	}
 
 	public int getCourceComponentMuid() {
 		return dao.getCourseComponentMuid();
@@ -52,7 +60,5 @@ public class CourseComponentSessionImpl implements CourseComponentSession {
 	public String getSessionEndText() {
 		return dao.getSessionEndText();
 	}
-
-	
 
 }
