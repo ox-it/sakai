@@ -29,7 +29,7 @@ public class WebAppBadRequestException extends WebApplicationException {
 
 	public WebAppBadRequestException(Map<String, String> myMap) {
 		super(Response
-				.status(Response.Status.NOT_FOUND)
+				.status(Response.Status.BAD_REQUEST)
 				// We set the type as when the request doesn't have an accept header
 				// jersey will attempt to convert a Map to application/octet-stream
 				// which will fail.

@@ -134,6 +134,9 @@ public class SignupResource {
 			builder.entity(entity);
 			return builder.build();
 			
+		} catch (NotFoundException e) {
+			throw new WebAppNotFoundException();
+			
 		} catch (IllegalStateException e) {
 			Map<String, String> myMap = new HashMap<String, String>();
 			myMap.put("status", "failed");
