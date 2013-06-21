@@ -34,6 +34,11 @@ var Manager;
 			 */
 			errorwidgets: {},
 			
+			/**
+			 * A collection of pretty display values
+			 */
+			querydisplay: {},
+			
 			/** 
 			 * Adds a widget to the manager.
 			 *
@@ -48,13 +53,28 @@ var Manager;
 				for (var widgetId in this.errorwidgets) {
 					this.errorwidgets[widgetId].onError(jqXHR.responseText);
 				}
-			} 
+			},
+			
+			addQueryDisplay: function (key, value) {
+				this.querydisplay[key]=value;
+			},
+			
+			getQueryDisplay: function (key) {
+				if (key in this.querydisplay) {
+					return this.querydisplay[key];
+				}
+				return key;
+			}
 	});
 
-    Manager = new AjaxSolr.MyManager({
-    	//solrUrl: 'http://localhost:8983/solr/ses/'
-    	solrUrl: '../rest/course/solr/'
-    });
+	Manager = new AjaxSolr.MyManager({
+		//solrUrl: 'http://localhost:8983/solr/ses/'
+		solrUrl: '../rest/course/solr/'
+	});
+	
+	Manager.addQueryDisplay("course_basedate:[* TO NOW]", "Old Courses");
+	Manager.addQueryDisplay("course_basedate:[NOW TO *]", "Current Courses");
+	Manager.addQueryDisplay("course_created:[NOW-14DAY TO NOW]", "New Courses");
 
     Manager.addWidget(new AjaxSolr.ResultWidget({
       id: 'result',

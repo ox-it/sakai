@@ -12,23 +12,23 @@ AjaxSolr.TimeFrameWidget = AjaxSolr.AbstractFacetWidget.extend({
 	var objectedItems = [];
 	var before = parseInt(this.manager.response.facet_counts.facet_ranges.course_basedate.before);
 	if (before > 0) {
-		objectedItems.push({ facet: "Old Courses", count: before, query: "[* TO NOW]", field: "course_basedate" });
+		objectedItems.push({ count: before, query: "[* TO NOW]", field: "course_basedate" });
 	}
 	var after = parseInt(this.manager.response.facet_counts.facet_ranges.course_basedate.after);
 	if (after > 0) {
-		objectedItems.push({ facet: "Current Courses", count: after, query: "[NOW TO *]", field: "course_basedate" });
+		objectedItems.push({ count: after, query: "[NOW TO *]", field: "course_basedate" });
 	}
 	var count = parseInt(this.manager.response.facet_counts.facet_ranges.course_created.counts[1]);
 	if (count > 0) {
-		objectedItems.push({ facet: "New Courses", count: count, query: "[NOW-14DAY TO NOW]", field: "course_created" });
+		objectedItems.push({ count: count, query: "[NOW-14DAY TO NOW]", field: "course_created" });
 	}
 	
 	$(this.target).empty();
 	for (var i = 0, l = objectedItems.length; i < l; i++) {
-		var facet = objectedItems[i].facet;
 		var count = objectedItems[i].count;
 		var query = objectedItems[i].query;
 		var field = objectedItems[i].field;
+		var facet = this.manager.getQueryDisplay(this.fq(field, query));
 		$(this.target).append(
 				$('<a href="#" class="tagcloud_item"></a>')
 				.text(facet+" ("+count+")")
@@ -54,7 +54,7 @@ AjaxSolr.TimeFrameWidget = AjaxSolr.AbstractFacetWidget.extend({
   clickHandler: function (field, query) {
 	var self = this, meth = this.multivalue ? 'add' : 'set';
 	return function () {
-		if (self[meth].call(self, value)) {
+		if (self[meth].call(self, field, query)) {
 			self.doRequest();
 		}
 		return false;
@@ -66,10 +66,10 @@ AjaxSolr.TimeFrameWidget = AjaxSolr.AbstractFacetWidget.extend({
    *
    * @returns {Boolean} Whether the selection changed.
    */
-  set: function (value) {
+  set: function (field, query) {
     return this.changeSelection(function () {
       var a = this.manager.store.removeByValue('fq', new RegExp('^-?' + this.field + ':')),
-          b = this.manager.store.addByValue('fq', this.fq(value));
+          b = this.manager.store.addByValue('fq', this.fq(field, query));
       return a || b;
     });
   },
@@ -79,9 +79,9 @@ AjaxSolr.TimeFrameWidget = AjaxSolr.AbstractFacetWidget.extend({
    *
    * @returns {Boolean} Whether a filter query was added.
    */
-  add: function (value) {
+  add: function (field, query) {
     return this.changeSelection(function () {
-      return this.manager.store.addByValue('fq', this.fq(value));
+      return this.manager.store.addByValue('fq', this.fq(field, query));
     });
   },
   
@@ -90,8 +90,8 @@ AjaxSolr.TimeFrameWidget = AjaxSolr.AbstractFacetWidget.extend({
    * @param {Boolean} exclude Whether to exclude this fq parameter value.
    * @returns {String} An fq parameter value.
    */
-  fq: function (value, exclude) {
-    return (exclude ? '-' : '') + this.field + ':' + AjaxSolr.Parameter.escapeValue(value);
+  fq: function (field, query, exclude) {
+    return (exclude ? '-' : '') + field + ':' + AjaxSolr.Parameter.escapeValue(query);
   }
   
 })

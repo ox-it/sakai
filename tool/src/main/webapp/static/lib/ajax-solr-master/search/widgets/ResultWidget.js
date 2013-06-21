@@ -64,7 +64,7 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 		try {
 			var form = this;
 			var id = $("input[name=id]", form).val();
-			var previous = $("input[name=previous]", form).val();
+			var range = $("input[name=previous]", form).val();
 			var workingWindow = parent.window || window;
 			var position = Signup.util.dialogPosition();
 			var height = Math.round($(workingWindow).height() * 0.9);
@@ -81,14 +81,7 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 					courseDetails.remove(); /* Tidy up the DOM. */
 				}
 			});
-			var range = "UPCOMING";
-			if (previous.indexOf("Old Courses") >= 0) {
-				if (previous.indexOf("Current Courses") >= 0) {
-					range = "ALL";
-				} else {
-					range = "PREVIOUS";
-				}
-			}
+			
 			Signup.course.show(courseDetails, id, range, externalUser, function(){
 				courseDetails.dialog("open");
 			});
@@ -100,10 +93,12 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 
   template: function (doc) {
 	var now = new Date();
+	var range = "";
 	var signup_message = "";
 	var booking_message = "";
 	var close = new Date(doc.course_signup_close);
 	var open = new Date(doc.course_signup_open);
+	var base = new Date(doc.course_basedate);
 	
 	if (isNaN(open.getDate()) || isNaN(close.getDate())) {
 		if (doc.course_signup_opentext) {
@@ -132,6 +127,12 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 		}
 	}
 	
+	if (base < now) {
+		range = "PREVIOUS";
+	} else {
+		range = "UPCOMING"
+	}
+	
 	var output = '<div id="doc"><form class="details"><strong>' + doc.course_title + '</strong>';
 	output += ',&nbsp;&nbsp;'+doc.provider_title;
 	if (signup_message) {
@@ -142,7 +143,7 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 	output += '<div id="description"><a href="javascript:{}" class="more">Show descrption</a>&nbsp;&nbsp;';
 	output += '<div class="toggle" style="display:none;">' + doc.course_description+'<br /></div>';
 	output += '<input type="hidden" name="id" value="' + doc.course_identifier + '">';
-	output += '<input type="hidden" name="previous" value="'+doc.course_timeframe+'">';
+	output += '<input type="hidden" name="previous" value="'+range+'">';
 	output += '<input type="submit" value="More details">';
 	output += '</div>';
 	output += '</form></div>';

@@ -106,7 +106,6 @@ public class SearchServiceImpl implements SearchService {
 			// Choose the most recent component
 			
 			CourseComponent chosenComponent = null;
-			Set<String> bookableSet = new HashSet<String>();
 			Set<Date> baseDateSet = new HashSet<Date>();
 			Date toDay = new Date();
 			
@@ -116,19 +115,11 @@ public class SearchServiceImpl implements SearchService {
 				
 					baseDateSet.add(component.getBaseDate());
 					
-					if (component.getBaseDate().after(toDay)) {
-						bookableSet.add("Yes");
-					} else {
-						bookableSet.add("No");
-					}
-					
 				} else {
 					if (null != component.getStartsText() &&
 							 !component.getStartsText().isEmpty()) {
-						bookableSet.add("Yes");
 						baseDateSet.add(new Date(Long.MAX_VALUE));
 					} else {
-						bookableSet.add("No");
 						baseDateSet.add(new Date(0));
 					}
 				}
