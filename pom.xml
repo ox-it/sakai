@@ -61,7 +61,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>license-maven-plugin</artifactId>
-					<version>1.4</version>
+					<version>1.5</version>
 					<configuration>
 						<licenseName>ecl2_license</licenseName>
 						<licenseResolver>classpath://org/sakaiproject</licenseResolver>
