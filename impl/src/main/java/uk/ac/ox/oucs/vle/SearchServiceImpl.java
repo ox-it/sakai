@@ -161,14 +161,10 @@ public class SearchServiceImpl implements SearchService {
 			solrServer.add(doc);
 			
 		} catch (SolrServerException e) {
-			log.error(e.getLocalizedMessage());
-			log.error("whilst processing course [" + course.getCourseId() + ":" + course.getTitle() +"]");
-			StringWriter sw = new StringWriter();
-			e.printStackTrace(new PrintWriter(sw));
-			log.error(sw.toString());
+			log.error(e.getLocalizedMessage() + " whilst processing course [" + course.getCourseId() + ":" + course.getTitle() +"]", e);
 			
 		} catch (IOException e) {
-			log.error(e.getLocalizedMessage());
+			log.error(e.getLocalizedMessage() + " whilst processing course [" + course.getCourseId() + ":" + course.getTitle() +"]", e);
 			
 		}
 		
@@ -181,10 +177,10 @@ public class SearchServiceImpl implements SearchService {
 			solrServer.deleteById(new Integer(course.getMuid()).toString());
 			
 		} catch (SolrServerException e) {
-			log.error(e.getLocalizedMessage());
+			log.error(e.getLocalizedMessage() + " whilst processing course [" + course.getCourseId() + ":" + course.getTitle() +"]", e);
 			
 		} catch (IOException e) {
-			log.error(e.getLocalizedMessage());
+			log.error(e.getLocalizedMessage() + " whilst processing course [" + course.getCourseId() + ":" + course.getTitle() +"]", e);
 			
 		}
 	}
@@ -197,10 +193,10 @@ public class SearchServiceImpl implements SearchService {
 			solrServer.deleteByQuery(query);
 			
 		} catch (SolrServerException e) {
-			log.error(e.getLocalizedMessage());
+			log.error(e.getLocalizedMessage(), e);
 			
 		} catch (IOException e) {
-			log.error(e.getLocalizedMessage());
+			log.error(e.getLocalizedMessage(), e);
 			
 		}
 	}
@@ -213,10 +209,10 @@ public class SearchServiceImpl implements SearchService {
 			solrServer.optimize();
 			
 		} catch (SolrServerException e) {
-			log.error(e.getLocalizedMessage());
+			log.error(e.getLocalizedMessage(), e);
 			
 		} catch (IOException e) {
-			log.error(e.getLocalizedMessage());
+			log.error(e.getLocalizedMessage(), e);
 			
 		}
 	}
