@@ -26,7 +26,7 @@ describe("SignupTermSort", function() {
     it("sort data across years", function() {
         var terms = ["Hilary 2010", "Michaelmas 2010", "Hilary 2011", "Trinity 2011", "Trinity 2013", "Michaelmas 2013"];
         Signup.term.sortArray(terms);
-        expect(terms).toEqual(["Michaelmas 2013", "Trinity 2013", "Trinity 2011", "Hilary 2011", "Michaelmas 2010"]);
+        expect(terms).toEqual(["Michaelmas 2013", "Trinity 2013", "Trinity 2011", "Hilary 2011", "Michaelmas 2010", "Hilary 2010"]);
     });
 
 

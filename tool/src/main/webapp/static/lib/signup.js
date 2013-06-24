@@ -963,10 +963,10 @@ var Signup = function(){
 			    		return 0;
 			    	}
 			    	if (awords[0] == "Michaelmas") {
-			    		return 1;
+			    		return -1;
 			    	}
 			    	if (bwords[0] == "Michaelmas") {
-			    		return -1;
+			    		return 1;
 			    	}
 			    	if (awords[0] == "Trinity") {
 			    		return -1;
