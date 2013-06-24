@@ -169,13 +169,11 @@ public interface CourseSignupService {
 	
 	/**
 	 * Gets all the CourseGroups that the current user can administer.
-	 * @return
 	 */
 	public List<CourseGroup> getAdministering();
 	
 	/**
-	 * Gets all the components that the current user is Lecturing
-	 * @return
+	 * Gets all the CourseGroups that the current user is Lecturing
 	 */
 	public List<CourseGroup> getLecturing();
 	
