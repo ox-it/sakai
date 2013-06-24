@@ -772,7 +772,6 @@ public class CourseResource {
 				results.disconnect();
 				
 			} catch (IOException e) {
-				//throw new WebApplicationException(Response.serverError().entity("IOException with Solr").build());
 				throw new WebApplicationException(Response.status(Status.SERVICE_UNAVAILABLE).entity("Service Unavailable, IO Exception with Search Engine").build());
 				
 			}

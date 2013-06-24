@@ -41,7 +41,7 @@ public class OxcapPopulatorWrapper extends BasePopulatorWrapper implements Popul
 	}
 	
 	/**
-	 * 
+	 * The Search service to use
 	 */
 	private SearchService search;
 	public void setSearchService(SearchService search) {

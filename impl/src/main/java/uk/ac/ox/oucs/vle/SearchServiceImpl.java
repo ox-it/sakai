@@ -20,6 +20,8 @@
 package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -51,8 +53,6 @@ public class SearchServiceImpl implements SearchService {
 	public void init() {
 		solrUrl = serverConfigurationService.getString("ses.solr.server", null);
 		solrServer = new ConcurrentUpdateSolrServer(solrUrl, 1000, 1);
-		
-		Integer.parseInt(serverConfigurationService.getString("recent.days", "14"));
 	}
 	
 	public void close() {
@@ -107,7 +107,6 @@ public class SearchServiceImpl implements SearchService {
 			
 			CourseComponent chosenComponent = null;
 			Set<Date> baseDateSet = new HashSet<Date>();
-			Date toDay = new Date();
 			
 			for (CourseComponent component : course.getComponents()) {
 					
@@ -163,6 +162,10 @@ public class SearchServiceImpl implements SearchService {
 			
 		} catch (SolrServerException e) {
 			log.error(e.getLocalizedMessage());
+			log.error("whilst processing course [" + course.getCourseId() + ":" + course.getTitle() +"]");
+			StringWriter sw = new StringWriter();
+			e.printStackTrace(new PrintWriter(sw));
+			log.error(sw.toString());
 			
 		} catch (IOException e) {
 			log.error(e.getLocalizedMessage());
