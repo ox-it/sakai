@@ -150,6 +150,7 @@
 		<property name="taken" type="int" />
 		<property name="componentId" type="string" length="30" /><!-- 
 			The set (teaching_component) this component is from. -->
+		<property name="teacher" type="string" length="64" index="course_component_teacher_idx" />
 		<property name="teacherName" type="string" length="255"/>
 		<property name="teacherEmail" type="string" length="255"/>
 		<property name="when" column="happening" type="string" length="4000"/>

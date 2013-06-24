@@ -169,9 +169,13 @@ public interface CourseSignupService {
 	
 	/**
 	 * Gets all the CourseGroups that the current user can administer.
-	 * @return
 	 */
 	public List<CourseGroup> getAdministering();
+	
+	/**
+	 * Gets all the CourseGroups that the current user is Lecturing
+	 */
+	public List<CourseGroup> getLecturing();
 	
 	public boolean isAdministrator(Set<String> administrators);
 	

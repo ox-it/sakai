@@ -74,6 +74,9 @@
 			<c:if test="${isAdministrator}" >
 				<li><span><a href="admin.jsp">Module Administration</a></span></li>
 			</c:if>
+			<c:if test="${isLecturer}">
+				<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
+			</c:if>
 		</c:if>
 	</ul>
 </div>
@@ -128,6 +131,12 @@
 				<li class="admin">
 					<a href="admin.jsp">Module Administration</a> 
 					<span class="info">Administer modules for which you are an administrator.</span>
+				</li>
+			</c:if>
+			<c:if test="${isLecturer}" >
+				<li class="admin">
+					<a href="lecturer.jsp">Lecturers View</a> 
+					<span class="info">View modules which you are teaching.</span>
 				</li>
 			</c:if>
 		</c:if>

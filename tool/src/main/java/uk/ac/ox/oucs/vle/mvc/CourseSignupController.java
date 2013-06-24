@@ -64,6 +64,9 @@ public class CourseSignupController extends AbstractController {
 		modelAndView.addObject("isPending",
 				!courseSignupService.getPendings().isEmpty());
 
+		modelAndView.addObject("isLecturer",
+				!courseSignupService.getLecturing().isEmpty());
+		
 		modelAndView.addObject("skinRepo",
 				serverConfigurationService.getString("skin.repo", "/library/skin"));
 		
