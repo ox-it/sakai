@@ -343,6 +343,19 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		return groups;
 	}
+	
+	/**
+	 * Get list of course groups for which current user is a teacher
+	 */
+	public List<CourseGroup> getLecturing() {
+		String userId = proxy.getCurrentUser().getId();
+		List <CourseGroupDAO> groupDaos = dao.findLecturingCourseGroups(userId);
+		List<CourseGroup> groups = new ArrayList<CourseGroup>(groupDaos.size());
+		for(CourseGroupDAO groupDao : groupDaos) {
+			groups.add(new CourseGroupImpl(groupDao, this));
+		}
+		return groups;
+	}
 
 	/**
 	 * 
@@ -425,10 +438,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (groupDao == null) {
 			return null;
 		}
-		if(!isAdministrator(groupDao, userId, false)) {
+		if(!isAdministrator(groupDao, userId, false) && !isLecturer(groupDao, proxy.getCurrentUser(), false)) {
 			throw new PermissionDeniedException(userId);
 		}
-		
 		List<CourseSignupDAO> signupDaos = dao.findSignupByCourse(userId, courseId, statuses);
 		List<CourseSignup> signups = new ArrayList<CourseSignup>(signupDaos.size());
 		for(CourseSignupDAO signupDao: signupDaos) {
@@ -483,7 +495,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			throw new NotFoundException(componentId);
 		}
 		UserProxy currentUser = proxy.getCurrentUser();
-		if (!isAdministrator(componentDao, currentUser, false)) {
+		if (!isAdministrator(componentDao, currentUser, false) && !isLecturer(componentDao, currentUser, false)) {
 			throw new PermissionDeniedException(currentUser.getId());
 		}
 		List<CourseSignupDAO> signupDaos = dao.findSignupByComponent(componentId, statuses, year);
@@ -511,9 +523,17 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 		return defaultValue;
 	}
+	
+	private boolean isLecturer(CourseGroupDAO groupGroup, UserProxy user, boolean defaultValue) {
+		for (CourseComponentDAO componentDao : groupGroup.getComponents()) {
+			if (isLecturer(componentDao, user, false)) {
+				return true;
+			}
+		}
+		return defaultValue;
+	}
 
-	private boolean isAdministrator(CourseComponentDAO componentDao,
-			UserProxy user, boolean defaultValue) {
+	private boolean isAdministrator(CourseComponentDAO componentDao, UserProxy user, boolean defaultValue) {
 		
 		if (null == user) {
 			return false;
@@ -531,7 +551,19 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		return false;
 	}
+	
+	private boolean isLecturer(CourseComponentDAO componentDao, UserProxy user, boolean defaultValue) {
+		
+		if (null == user) {
+			return false;
+		}
+		if (user.getId().equals(componentDao.getTeacher())) {
+			return true;
+		}
+		return defaultValue;
+	}
 
+	
 	/**
 	 * 
 	 */
@@ -704,7 +736,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * Signup by Student
 	 */
 	public CourseSignup signup(String courseId, Set<String> componentIds, String supervisorEmail,
-			String message){
+			String message) throws IllegalStateException, IllegalArgumentException {
 
 		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
 		if (groupDao == null) {
@@ -729,7 +761,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			}
 			if ( (componentDao.getSize()-componentDao.getTaken()) < 1) {
 				full = true;
-			//	throw new IllegalStateException("No places left on: "+ componentDao.getId());
 			}
 			for (CourseSignupDAO signupDao: componentDao.getSignups()) {
 				// Look for exisiting signups for these components
@@ -1293,5 +1324,5 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public Integer getRecentDays() {
 		return proxy.getConfigParam("recent.days", 14);
 	}
-	
+
 }

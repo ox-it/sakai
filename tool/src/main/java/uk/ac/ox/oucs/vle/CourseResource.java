@@ -171,6 +171,19 @@ public class CourseResource {
 		
 	}
 	
+	@Path("/lecture")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getLectureCourse() throws JsonGenerationException, JsonMappingException, IOException {
+		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+			throw new WebAppForbiddenException();
+		}
+		Collection <CourseGroup> groups = courseService.getLecturing();
+		// TODO Just return the coursegroups (no nested objects).
+		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
+		
+	}
+	
 	@Path("/search")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

@@ -99,7 +99,7 @@ public interface CourseSignupService {
 	
 	public String findSupervisor(String search);
 	
-	public CourseSignup signup(String courseId, Set<String> components, String supervisorEmail, String message);
+	public CourseSignup signup(String courseId, Set<String> components, String supervisorEmail, String message) throws IllegalStateException, IllegalArgumentException;
 	
 	/**
 	 * A signup made
@@ -169,9 +169,13 @@ public interface CourseSignupService {
 	
 	/**
 	 * Gets all the CourseGroups that the current user can administer.
-	 * @return
 	 */
 	public List<CourseGroup> getAdministering();
+	
+	/**
+	 * Gets all the CourseGroups that the current user is Lecturing
+	 */
+	public List<CourseGroup> getLecturing();
 	
 	public boolean isAdministrator(Set<String> administrators);
 	

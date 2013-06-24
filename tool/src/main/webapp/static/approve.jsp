@@ -269,6 +269,9 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 			<c:if test="${isAdministrator}">
 				<li><span><a href="admin.jsp">Module Administration</a></span></li>
 			</c:if>
+			<c:if test="${isLecturer}">
+				<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
+			</c:if>
 		</ul>
 	</div>
 	<div>

@@ -1,6 +1,6 @@
 /*
  * #%L
- * Course Signup API
+ * Course Signup Webapp
  * %%
  * Copyright (C) 2010 - 2013 University of Oxford
  * %%
@@ -19,20 +19,23 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import java.util.Date;
+import java.util.Map;
 
-public interface CourseComponentSession extends Comparable<CourseComponentSession> {
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-	public int getCourceComponentMuid();
-	
-	public String getSessionId();
-	
-	public Date getSessionStart();
-	
-	public String getSessionStartText();
-	
-	public Date getSessionEnd();
-	
-	public String getSessionEndText();
+public class WebAppBadRequestException extends WebApplicationException {
+
+	public WebAppBadRequestException(Map<String, String> myMap) {
+		super(Response
+				.status(Response.Status.BAD_REQUEST)
+				// We set the type as when the request doesn't have an accept header
+				// jersey will attempt to convert a Map to application/octet-stream
+				// which will fail.
+				.type(MediaType.APPLICATION_JSON)
+				.entity(myMap)
+				.build());
+	}
 
 }
