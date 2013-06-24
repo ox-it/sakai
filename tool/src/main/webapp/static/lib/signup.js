@@ -948,8 +948,8 @@ var Signup = function(){
         "term": {
 
     		/**
-		    * Sort an Array of Terms into most recent first. The year is the academic year of the term,
-		    * not the calendar year.
+		    * Sort an Array of Terms into most recent first. The year is the calendar year of the term,
+		    * not the academic year.
 		    * @param {Array} termArray of strings in the format 'Michaelmas 2012', 'Hilary 2013' or 'Trinity 2013'.
 		    */
 		    "sortArray": function(termsArray) {
