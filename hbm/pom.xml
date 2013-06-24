@@ -28,8 +28,6 @@
 		</dependency>
 	</dependencies>
 	<build>
-		<!-- Currently the autogeneration of java code is disabled as it doesn't currently generate the enum fields at the moment.
-		     It used to but isn't working at the moment. -->
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -43,6 +41,8 @@
 					</execution>
 				</executions>
 			</plugin>
+            <!-- Currently the autogeneration of java code is disabled as it doesn't currently generate the enum fields at the moment.
+                 It used to but isn't working at the moment. -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>hibernate3-maven-plugin</artifactId>
