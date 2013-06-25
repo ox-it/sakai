@@ -67,6 +67,8 @@ public class SearchServiceImpl implements SearchService {
 			connection = (HttpURLConnection)serverAddress.openConnection();
 			connection.setRequestMethod("GET");
 			connection.setDoOutput(true);
+			connection.setConnectTimeout(5000);
+			connection.setReadTimeout(5000);
 			connection.connect();
 		
 		} catch (MalformedURLException e) {
@@ -189,7 +191,7 @@ public class SearchServiceImpl implements SearchService {
 	public void deleteAll() {
 		
 		try {
-			String query = new String("*:*");
+			String query = "*:*";
 			solrServer.deleteByQuery(query);
 			
 		} catch (SolrServerException e) {

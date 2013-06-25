@@ -769,10 +769,12 @@ public class CourseResource {
 		public void write(OutputStream out) {
 			try {
 				IOUtils.copy(results.getInputStream(), out);
-				results.disconnect();
 				
 			} catch (IOException e) {
 				throw new WebApplicationException(Response.status(Status.SERVICE_UNAVAILABLE).entity("Service Unavailable, IO Exception with Search Engine").build());
+				
+			} finally {
+				results.disconnect();
 				
 			}
 		}
