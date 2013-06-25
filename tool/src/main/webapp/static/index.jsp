@@ -225,6 +225,11 @@
 						ui: {
 							initially_select: defaultNodes[defaultNodes.length-1]
 						},
+						themes: {
+							theme: "oxford",
+							dots: false,
+							icons: false
+						},
 						plugins: ["ui", "themes", "json_data"]
 					});	
 				});
