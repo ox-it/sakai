@@ -130,7 +130,7 @@ var Manager;
    
     var params = {
       facet: true,
-      'facet.field': [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_class', 'course_delivery', 'course_timeframe' ],
+      'facet.field': [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_class', 'course_delivery' ],
       'facet.limit': 20,
       'facet.mincount': 1,
       'f.topics.facet.limit': 50,

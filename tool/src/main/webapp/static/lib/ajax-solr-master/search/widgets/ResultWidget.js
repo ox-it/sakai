@@ -50,7 +50,6 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
       items = items.concat(this.facetLinks('research methods', doc.course_subject_rm));
       items = items.concat(this.facetLinks('classes', doc.course_class));
       items = items.concat(this.facetLinks('delivery', doc.course_delivery));
-      items = items.concat(this.facetLinks('timeframes', doc.course_timeframe));
 
       var $links = $('#links_' + doc.id);
       $links.empty();
@@ -93,12 +92,20 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 
   template: function (doc) {
 	var now = new Date();
-	var range = "";
+	var range = "ALL";
 	var signup_message = "";
 	var booking_message = "";
 	var close = new Date(doc.course_signup_close);
 	var open = new Date(doc.course_signup_open);
-	var base = new Date(doc.course_basedate);
+	
+	if (doc.course_basedate != undefined) {
+		for (var i = 0; i < doc.course_basedate.length; i++) {
+			var basedate = new Date(doc.course_basedate[i]);
+			if (basedate > now) {
+				range = "UPCOMING";
+			}
+		}
+	}
 	
 	if (isNaN(open.getDate()) || isNaN(close.getDate())) {
 		if (doc.course_signup_opentext) {
@@ -125,12 +132,6 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 				booking_message = "Booking open";
 			}
 		}
-	}
-	
-	if (base < now) {
-		range = "PREVIOUS";
-	} else {
-		range = "UPCOMING"
 	}
 	
 	var output = '<div id="doc"><form class="details"><strong>' + doc.course_title + '</strong>';
