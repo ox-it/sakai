@@ -49,6 +49,8 @@ public interface CourseDAO {
 
 	List<CourseComponentDAO> findOpenComponents(String id, Date at);
 	
+	List<CourseGroupDAO> findAllGroups();
+		
 	List<CourseComponentDAO> findAllComponents();
 
 	CourseGroupDAO findUpcomingComponents(String courseId, Date available);

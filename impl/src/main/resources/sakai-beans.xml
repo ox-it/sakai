@@ -124,6 +124,15 @@
 			ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
 	</bean>
 	
+	<bean id="uk.ac.ox.oucs.vle.SearchJobWrapper"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		singleton="true" init-method="init">
+		<property name="beanId" value="uk.ac.ox.oucs.vle.SearchDataJob" />
+		<property name="jobName" value="Refresh the SES Search Data" />
+		<property name="schedulerManager"
+			ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+	</bean>
+	
 	<!-- Automatically setup the tool. -->
 	<bean class="uk.ac.ox.oucs.vle.AutoSetup" init-method="init" lazy-init="false">
 		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
