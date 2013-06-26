@@ -37,6 +37,15 @@
 	<bean id="courseSignupRedirectController"
 		class="uk.ac.ox.oucs.vle.mvc.CourseSignupRedirectController">
 	</bean>
+
+	<bean id="setupLoginController" class="uk.ac.ox.oucs.vle.mvc.SetupLoginController">
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager"/>
+	</bean>
+
+	<bean id="doLoginController" class="uk.ac.ox.oucs.vle.mvc.DoLoginController">
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager"/>
+	</bean>
 	
 	<bean id="viewResolver"
 		class="org.springframework.web.servlet.view.UrlBasedViewResolver">

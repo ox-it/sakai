@@ -239,7 +239,7 @@
 								});
 
 						Signup.course.show(courseDetails, id, "UPCOMING",
-								externalUser, function() {
+								externalUser, "../rest", function() {
 									courseDetails.dialog("open");
 								});
 

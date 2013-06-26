@@ -132,14 +132,14 @@
 
 					var loadCourse = function(id, old){
 						if (old) {
-							Signup.course.show($("#details"), id, "PREVIOUS", externalUser);
+							Signup.course.show($("#details"), id, "PREVIOUS", externalUser, "../rest");
 						} else {
-							Signup.course.show($("#details"), id, "UPCOMING", externalUser);
+							Signup.course.show($("#details"), id, "UPCOMING", externalUser, "../rest");
 						}
 					};
 					
                     var openAtCourse = function(id){
-						Signup.course.show($("#details"), id, "UPCOMING", externalUser, function(courseData){
+						Signup.course.show($("#details"), id, "UPCOMING", externalUser, "../rest", function(courseData){
 							$("#tree").jstree("open_node", $("#"+courseData.departmentCode.substr(0,2)), function() {
 								$("#tree").jstree("open_node", $("#"+courseData.departmentCode), function() {
 									$("#tree").jstree("open_node", $("#"+courseData.subUnitCode));

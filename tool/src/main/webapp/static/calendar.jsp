@@ -229,7 +229,7 @@
 						}
 					});
 					
-					Signup.course.show(courseDetails, id, "NOTSTARTED", externalUser, function() {
+					Signup.course.show(courseDetails, id, "NOTSTARTED", externalUser, "../rest", function() {
 						courseDetails.dialog("open");
 					});
 					

@@ -32,7 +32,7 @@ var Signup = function(){
 			 * @param {Object} id The ID of the course to load.
 			 * @param {Object} old If we should be showing upcoming or old data.
 			 */
-			show: function(dest, id, old, externalUser, success){
+			show: function(dest, id, old, externalUser, prefix, success){
 				var courseData;
 				var waitingList;
 				var signupData;
@@ -76,7 +76,7 @@ var Signup = function(){
 					courseURL = undefined;
 					
 					$.ajax({
-						url: "../rest/course/" + id,
+						url: prefix+"/course/" + id,
 						data: {
 							//range: (old) ? "PREVIOUS" : "UPCOMING"
 							range: old
@@ -91,7 +91,7 @@ var Signup = function(){
 					
 					if (!externalUser) {
 						$.ajax({
-							url: "../rest/course/url/" + id,
+							url: prefix+"/course/url/" + id,
 							dataType: "json",
 							cache: false,
 							success: function(data){
@@ -101,7 +101,7 @@ var Signup = function(){
 						});
 						
 						$.ajax({
-							url: "../rest/signup/count/course/signups/" + id,
+							url: prefix+"/signup/count/course/signups/" + id,
 							data: {
 								status: "WAITING"
 							},
@@ -114,7 +114,7 @@ var Signup = function(){
 						});
 					
 						$.ajax({
-							url: "../rest/signup/my/course/" + id,
+							url: prefix+"/signup/my/course/" + id,
 							dataType: "json",
 							cache: false,
 							success: function(data){
@@ -131,7 +131,7 @@ var Signup = function(){
 					
 					if (!template) { // When reloading we might already have the template loaded.
 						$.ajax({
-							url: "course.tpl",
+							url: "/course-signup/static/course.tpl",
 							dataType: "text",
 							cache: false,
 							success: function(data){
@@ -161,6 +161,7 @@ var Signup = function(){
 					data.presenters = [];
 					data.waiting = waitingList;
 					data.url = courseURL;
+					data.returnurl = "/course-signup/rest/course/"+id;
 					
 					var parts = [];
 					var applyTo;
@@ -291,7 +292,7 @@ var Signup = function(){
 							// TODO This needs processing.
 							if (!errorFound) {
 								jQuery(".error", dest).hide();
-								var signup = Signup.course.signup({title: data.title, id: id, approval: data.supervisorApproval}, {titles: selectedParts, ids: selectedPartIds});
+								var signup = Signup.course.signup({title: data.title, id: id, approval: data.supervisorApproval}, {titles: selectedParts, ids: selectedPartIds}, prefix);
 								signup.bind("ses.signup", function(){
 									loadCourse(); // Reload the course.
 									// Display a nice message. Should we keep the exising success()?
@@ -317,7 +318,7 @@ var Signup = function(){
 			/**
 			 * Handle the displaying of a confirmation page for a signup.
 			 */
-			signup: function(course, components){
+			signup: function(course, components, prefix){
 				// Return this and then trigger all events against it.
 				var signupDialog = $("<div></div>");
 								/**
@@ -369,7 +370,7 @@ var Signup = function(){
 									// This has a potential problem in that it might not complete before user clicks submit.
 									if (!current.data("req")) {
 										current.data("req", $.ajax({ // Need to use error handler.
-											url: "../rest/user/find",
+											url: prefix+"/user/find",
 											data: {
 												search: value
 											},
@@ -413,7 +414,7 @@ var Signup = function(){
 						var courseId = jQuery("input[name=courseId]", this).first().val();
 						$.ajax({
 							type: "POST",
-							url: "../rest/signup/my/new",
+							url: prefix+"/signup/my/new",
 							data: form.serialize(),
 							success: function(){
 								signupDialog.trigger("ses.signup");
@@ -428,7 +429,7 @@ var Signup = function(){
 				};
 				// Load the template and then display the dialog.
 				$.ajax({
-					url: "signup.tpl",
+					url: "/course-signup/static/signup.tpl",
 					dataType: "text",
 					success: function(data){
 						var position = Signup.util.dialogPosition();
