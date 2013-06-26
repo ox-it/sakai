@@ -98,13 +98,25 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 	var close = new Date(doc.course_signup_close);
 	var open = new Date(doc.course_signup_open);
 	
-	if (doc.course_basedate != undefined) {
-		for (var i = 0; i < doc.course_basedate.length; i++) {
-			var basedate = new Date(doc.course_basedate[i]);
-			if (basedate > now) {
-				range = "UPCOMING";
-			}
+	// Set range to UPCOMING, PREVIOUS or ALL depending on current selection 
+	var previous = false;
+	var upcoming = false;
+	var fq = this.manager.store.values('fq');
+	for (var i = 0, l = fq.length; i < l; i++) {
+		var facet = this.manager.getQueryDisplay(fq[i]);
+		if (facet == 'Old Courses') {
+			previous = true;
 		}
+		if (facet == 'Current Courses') {
+			upcoming = true;
+		}
+	}
+	
+	if (previous && !upcoming) {
+		range = "PREVIOUS";
+	}
+	if (!previous && upcoming) {
+		range = "UPCOMING";
 	}
 	
 	if (isNaN(open.getDate()) || isNaN(close.getDate())) {
