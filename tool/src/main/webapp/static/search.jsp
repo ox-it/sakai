@@ -48,7 +48,9 @@
 	<link rel="stylesheet" href="lib/ajax-solr-master/ajax-solr-bundle.min.css">
 
 	<script src="lib/ajax-solr-master/search.js"></script>
+	
 	<script src="lib/ajax-solr-master/ajax-solr-bundle.min.js"></script>
+	
 	<!-- 
   <script src="lib/ajax-solr-master/core/Core.js"></script>
   <script src="lib/ajax-solr-master/core/AbstractManager.js"></script>
