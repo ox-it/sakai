@@ -1,4 +1,6 @@
+#set($sakai_head = "$!sakai_head <style type=${esc.q}text/css${esc.q}> label { float: left; width: 150px; } br { clear: left;  } </style>")
 #chef_start()
+
 #chef_portletContainer()
 #chef_portletContent()
 
@@ -68,7 +70,7 @@
 <form method="POST" action="${rootUrl}/redirect/add">
   <label for="name">#springMessage("show.name")</label>
   #set ($placeholder = "#springMessage('show.name.placeholder')" )
-  #springFormInput("redirect-add.name" "id='name' placeholder='${placeholder}'")
+  <code>${current.nodeUrl}/</code> #springFormInput("redirect-add.name" "id='name' placeholder='${placeholder}'")
   #springShowErrors("" "alertMessageInline")<br>
   <label for="title">#springMessage("show.title")</label>
   #set ($placeholder = "#springMessage('show.title.placeholder')" )
@@ -79,7 +81,7 @@
   #springFormInput("redirect-add.url" "id='url' size='50' placeholder='${placeholder}'")
   #springShowErrors("" "alertMessageInline")<br>
   <label for="appendPath">#springMessage("show.appendPath")</label>
-  <input type="checkbox" name="appendPath" value="true" id="appendPath"><br>
+  #springFormCheckbox("redirect-add.appendPath" "true" "")<br>
   <input type="submit" value="#springMessage("button.new.redirect")">
 </form>
 

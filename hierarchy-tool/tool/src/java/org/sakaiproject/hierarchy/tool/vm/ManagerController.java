@@ -75,7 +75,10 @@ public class ManagerController {
 
 	@ModelAttribute("redirect-add")
 	public AddRedirectCommand getAddRedirectCommand() {
-		return new AddRedirectCommand();
+		AddRedirectCommand command = new AddRedirectCommand();
+		// Default is to append path
+		command.setAppendPath(true);
+		return command;
 	}
 
 	@ModelAttribute("redirect-remove")

@@ -124,6 +124,25 @@ public class ManageControllerTest {
 	}
 
 	@Test
+	public void testRedirectAddUntickPath() throws ServletException, IOException, PermissionException {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/context/redirect/add");
+		request.setContextPath("/context");
+		request.setPathInfo("/redirect/add");
+		request.addParameter("name", "name-value");
+		request.addParameter("title", "titleValue");
+		request.addParameter("url", "urlValue");
+		// Check we manage to unset the boolean
+		request.addParameter("_appendPath", "true");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		servlet.service(request, response);
+
+		assertEquals(200, response.getStatus());
+
+		verify(portalHierarchyService, times(1)).newRedirectNode("id", "name-value", "urlValue", "titleValue", false);
+
+	}
+
+	@Test
 	public void testRedirectAddGood() throws ServletException, IOException, PermissionException {
 		// Check we attempt to call the service when everything is ok.
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/context/redirect/add");
@@ -132,13 +151,16 @@ public class ManageControllerTest {
 		request.addParameter("name", "name-value");
 		request.addParameter("title", "titleValue");
 		request.addParameter("url", "urlValue");
+		request.addParameter("appendPath", "true");
+		request.addParameter("_appendPath", "true");
+
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		servlet.service(request, response);
 
 		assertEquals(200, response.getStatus());
 
-		verify(portalHierarchyService, times(1)).newRedirectNode("id", "name-value", "urlValue", "titleValue", false);
+		verify(portalHierarchyService, times(1)).newRedirectNode("id", "name-value", "urlValue", "titleValue", true);
 	}
 
 	@Test
@@ -151,12 +173,12 @@ public class ManageControllerTest {
 
 		servlet.service(request, response);
 		// Check that the relative URL got trimmed.
-		verify(portalHierarchyService).newRedirectNode("id", "name-value", "/access/file/test.txt", "titleValue", false);
+		verify(portalHierarchyService).newRedirectNode("id", "name-value", "/access/file/test.txt", "titleValue", true);
 	}
 
 	@Test
 	public void testRedirectAddExists() throws ServletException, IOException, PermissionException {
-		when(portalHierarchyService.newRedirectNode("id", "name-value", "urlValue", "titleValue", false)).thenThrow(
+		when(portalHierarchyService.newRedirectNode("id", "name-value", "urlValue", "titleValue", true)).thenThrow(
 				new IllegalArgumentException());
 		// Check we attempt to call the service when everything is ok.
 		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/redirect/add");

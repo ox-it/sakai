@@ -94,6 +94,9 @@
 		<property name="exposeSpringMacroHelpers">
 			<value>true</value>
 		</property>
+		<property name="toolAttributes">
+			<value>esc=org.apache.velocity.tools.generic.EscapeTool</value>
+		</property>
 	</bean>
 
 	<!-- We mustn't init this class as the servletContext won't have been set. The first time this bean gets used it does an init. -->
