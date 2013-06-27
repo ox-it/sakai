@@ -313,6 +313,26 @@
  *#
 #macro( springCloseTag )#if($springXhtmlCompliant)/>#else>#end #end
 
+#**
+ * springFormCheckbox
+ *
+ * Show checkbox. It outputs 2 tags a hidden input to tell the spring data binding
+ * to look for the input and the actual input tag. This is so that you can have a
+ * checkbox that defaults to true but is still un-checkable.
+ *
+ * @param path the name of the field to bind to
+ * @param value The value of the checkbox when checked.
+ * @param attributes any additional attributes for the element (such as class
+ *    or CSS styles or size
+*#
+#macro( springFormCheckbox $path $value $attributes )
+    #springBind($path)
+    <input type="hidden" name="_${status.expression}" value="true" #springCloseTag()
+    <input type="checkbox" id="${status.expression}" name="${status.expression}" value="${value}"
+        #if("${value}" == "${status.value}") checked="checked" #end
+    ${attributes} #springCloseTag()
+#end
+
 
 
 

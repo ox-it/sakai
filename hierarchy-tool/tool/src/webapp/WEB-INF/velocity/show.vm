@@ -81,7 +81,7 @@
   #springFormInput("redirect-add.url" "id='url' size='50' placeholder='${placeholder}'")
   #springShowErrors("" "alertMessageInline")<br>
   <label for="appendPath">#springMessage("show.appendPath")</label>
-  <input type="checkbox" name="appendPath" value="true" id="appendPath"><br>
+  #springFormCheckbox("redirect-add.appendPath" "true" "")<br>
   <input type="submit" value="#springMessage("button.new.redirect")">
 </form>
 
