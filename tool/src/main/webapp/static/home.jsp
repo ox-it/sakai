@@ -83,7 +83,9 @@
  
 <div class="wrapper" >   
 	
-	<p class="intro"><strong>Welcome to the Student Enrolment System.</strong> Here you can browse, search and sign up for  modules from across the University that will help you in your studies.</p>
+<h2>Welcome to the Graduate Training information site.</h2>
+
+<p class="intro">There are a wealth of graduate and post-doc training opportunities across the University aimed at supporting you in your research and career development. You can browse, search and sign up for these opportunities using this site.</p>
 
 	<c:if test="${externalUser}" >
 	<p class="alert">If you are a member of the University of Oxford, then you should log in to make full use of this tool.</p>
