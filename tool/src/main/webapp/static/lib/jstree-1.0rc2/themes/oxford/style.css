@@ -6,7 +6,7 @@
 
 .jstree-oxford li, 
 .jstree-oxford ins { background-image:url("d.png"); background-repeat:no-repeat; background-color:transparent; }
-.jstree-oxford li { background-position:-90px 0; background-repeat:repeat-y;  }
+.jstree-oxford li { background-position:-90px 0; background-repeat:repeat-y; margin-left: 9px; }
 .jstree-oxford li.jstree-last { background:transparent; }
 .jstree-oxford .jstree-open > ins { background-position:-72px 0; }
 .jstree-oxford .jstree-closed > ins { background-position:-54px 0; }
