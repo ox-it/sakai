@@ -23,6 +23,7 @@ package org.sakaiproject.hierarchy.tool.vm.spring;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.web.servlet.View;
@@ -78,6 +79,7 @@ public class VelocityViewResolver extends CachingViewResolver implements
 	private String contentType = "text/html";
 	
 	private VelocityConfig velocityConfig = null;
+	private Properties toolAttributes;
 
 	public View resolveViewName(String viewName, Locale locale)
 			throws Exception
@@ -105,6 +107,7 @@ public class VelocityViewResolver extends CachingViewResolver implements
 		view.setExposeSpringMacroHelpers(this.exposeSpringMacroHelpers);
 		view.setAllowRequestOverride(this.allowRequestOverride);
 		view.setAllowSessionOverride(this.allowSessionOverride);
+		view.setToolAttributes(this.toolAttributes);
 		return view;
 	}
 
@@ -230,4 +233,7 @@ public class VelocityViewResolver extends CachingViewResolver implements
 		return velocityConfig;
 	}
 
+	public void setToolAttributes(Properties toolAttributes) {
+		this.toolAttributes = toolAttributes;
+	}
 }
