@@ -23,12 +23,11 @@
 			<div id="summary">
 				<h1>${title}</h1>
 				{if hide}
-				<div class="noAuth">
-					If you are a member of the University of Oxford, please
-					<a class="login" href="dologin.jsp" target="_top">login to WebLearn</a>
-					to see more information.
+					<div class="noAuth">
+						If you are a member of the University of Oxford, please
+						<a class="login" href="../../pages/login/setup?returnUrl=${returnurl}" target="_top">login to WebLearn</a>
+						to see more information.
 					</div>
-				
 				{else}
 				
 				<table width="100%">
@@ -356,7 +355,9 @@
 					
 						<h3>University Members</h3>
 						<div class="noAuth">
-							<p><a class="login" href="dologin.jsp" target="_top">Login for booking details</a></p>
+							<p>
+							<a class="login" href="../../pages/login/setup?returnUrl=${returnurl}" target="_top">login for booking details</a>
+							</p>
 						</div>
 						<h3>Non-University Members</h3>
 						<p>Non Oxford users cannot be given a username.</p>

@@ -292,7 +292,6 @@
 								}
 							}
 						});
-
 					});
 
 			$("a.supervisor", this).die().live("click", function(e) {
