@@ -233,6 +233,18 @@
 						plugins: ["ui", "themes", "json_data"]
 					});	
 				});
+				
+				$("#tree").bind("open_node.jstree", function(e, arg){
+					obj = arg.rslt.obj;
+					//console.log(obj);
+					obj.parent("ul").children("li").each( function() {
+						console.log(this);
+						//if (obj != this) {
+						//	this.removeClass("jstree-open").addClass("jstree-closed");
+						//}
+					});
+				});	
+
 			});
 				
             jQuery(function(){
