@@ -629,4 +629,10 @@ public boolean isEvalGroupPublished(String evalGroupId) {
 	return true;
 }
 
+
+public void setSessionTimeout(int Seconds) {
+	// TODO Auto-generated method stub
+	
+}
+
 }
