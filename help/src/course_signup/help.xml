@@ -8,7 +8,7 @@
 			<value>ses_overview</value>
 		</property>
 		<property name="name">
-			<value>Student Enrolment System Overview</value>
+			<value>Graduate Training tool System Overview</value>
 		</property>
 		<property name="location">
 			<value>/course_signup/ses_overview.html</value>
@@ -78,87 +78,27 @@
 		</property>
 	</bean>
 	
-	<bean id="sesAdminAccepting" class="org.sakaiproject.component.app.help.model.ResourceBean">
+	<bean id="sesModuleAdmin" class="org.sakaiproject.component.app.help.model.ResourceBean">
 		<property name="docId">
-			<value>ses_admin_accepting</value>
+			<value>ses_module_admin</value>
 		</property>
 		<property name="name">
-			<value>Accepting, Approving, and Rejecting Students on a Module</value>
+			<value>Module Administrators Guide</value>
 		</property>
 		<property name="location">
-			<value>/course_signup/ses_admin_accepting.html</value>
+			<value>/course_signup/ses_module_admin.html</value>
 		</property>
 	</bean>
 
-	<bean id="sesAdminWithdrawing" class="org.sakaiproject.component.app.help.model.ResourceBean">
+	<bean id="sesModuleSupervisor" class="org.sakaiproject.component.app.help.model.ResourceBean">
 		<property name="docId">
-			<value>ses_admin_withdrawing</value>
+			<value>ses_module_supervisor</value>
 		</property>
 		<property name="name">
-			<value>Withdrawing a Student from a Module</value>
+			<value>Supervisors Guide</value>
 		</property>
 		<property name="location">
-			<value>/course_signup/ses_admin_withdrawing.html</value>
-		</property>
-	</bean>
-
-	<bean id="sesAdminUploading" class="org.sakaiproject.component.app.help.model.ResourceBean">
-		<property name="docId">
-			<value>ses_admin_uploading</value>
-		</property>
-		<property name="name">
-			<value>Uploading Students onto a Module</value>
-		</property>
-		<property name="location">
-			<value>/course_signup/ses_admin_uploading.html</value>
-		</property>
-	</bean>
-
-	<bean id="sesAdminViewing" class="org.sakaiproject.component.app.help.model.ResourceBean">
-		<property name="docId">
-			<value>ses_admin_viewing</value>
-		</property>
-		<property name="name">
-			<value>Viewing All Students Attending a Module</value>
-		</property>
-		<property name="location">
-			<value>/course_signup/ses_admin_viewing.html</value>
-		</property>
-	</bean>
-	
-	<bean id="sesAdminBulkEmail" class="org.sakaiproject.component.app.help.model.ResourceBean">
-		<property name="docId">
-			<value>ses_admin_bulk_email</value>
-		</property>
-		<property name="name">
-			<value>Bulk Emailing Students on a Module</value>
-		</property>
-		<property name="location">
-			<value>/course_signup/ses_admin_bulk_email.html</value>
-		</property>
-	</bean>
-	
-	<bean id="sesSupApproving" class="org.sakaiproject.component.app.help.model.ResourceBean">
-		<property name="docId">
-			<value>ses_sup_approving</value>
-		</property>
-		<property name="name">
-			<value>Approving and Rejecting Students on a Module for Supervisors </value>
-		</property>
-		<property name="location">
-			<value>/course_signup/ses_sup_approving.html</value>
-		</property>
-	</bean>
-	
-	<bean id="sesSupViewing" class="org.sakaiproject.component.app.help.model.ResourceBean">
-		<property name="docId">
-			<value>ses_sup_viewing</value>
-		</property>
-		<property name="name">
-			<value>Viewing Students Attending Modules</value>
-		</property>
-		<property name="location">
-			<value>/course_signup/ses_sup_viewing.html</value>
+			<value>/course_signup/ses_module_supervisor.html</value>
 		</property>
 	</bean>
 	
@@ -172,7 +112,7 @@
 				<bean id="sesCategory"
 					class="org.sakaiproject.component.app.help.model.CategoryBean">
 					<property name="name">
-						<value>Student Enrolment System (SES)</value>
+						<value>Graduate Training tool (formerly known as the Student Enrolment System (SES))</value>
 					</property>
 					<property name="resources">
 						<list>
@@ -185,16 +125,11 @@
 							<ref bean="sesMyStatus" />
 							<ref bean="sesWithdrawing" />
 
-							<!--  Admin pages -->
-							<ref bean="sesAdminAccepting" />
-							<ref bean="sesAdminWithdrawing" />
-							<ref bean="sesAdminUploading" />
-							<ref bean="sesAdminViewing" />
-							<ref bean="sesAdminBulkEmail" />
+							<!--  For Module Admins pages -->
+							<ref bean="sesModuleAdmin" />
 
 							<!--  Supervisor pages -->
-							<ref bean="sesSupApproving" />
-							<ref bean="sesSupViewing" />
+							<ref bean="sesModuleSupervisor" />
 						</list>
 					</property>
 				</bean>
