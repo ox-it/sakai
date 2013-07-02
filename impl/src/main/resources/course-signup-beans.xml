@@ -55,7 +55,21 @@
 	</bean>
 	
 	<bean name="uk.ac.ox.oucs.vle.SearchService" class="uk.ac.ox.oucs.vle.SearchServiceImpl" init-method="init" >
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="solrUrl">
+			<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+				<property name="targetObject">
+					<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+				</property>
+				<property name="targetMethod">
+					<value>getString</value>
+				</property>
+				<property name="arguments">
+					<list>
+						<value>ses.solr.server</value>
+					</list>
+				</property>
+			</bean>
+		</property>
 	</bean>
 
 	<bean id="uk.ac.ox.oucs.vle.XcriPopulator"
