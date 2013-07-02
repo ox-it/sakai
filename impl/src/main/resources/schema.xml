@@ -20,7 +20,7 @@
   -->
 
 
-<schema name="ses-courses" version="1.0">
+<schema name="ses" version="1.0">
 
 	<fields>
 		<!-- Represents a Presentation (XCRI) and its associated course and provider -->
