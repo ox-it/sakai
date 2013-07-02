@@ -234,14 +234,13 @@
 					});	
 				});
 				
+				/**
+				 * close ang 
+				 */
 				$("#tree").bind("open_node.jstree", function(e, arg){
 					obj = arg.rslt.obj;
-					//console.log(obj);
-					obj.parent("ul").children("li").each( function() {
-						console.log(this);
-						//if (obj != this) {
-						//	this.removeClass("jstree-open").addClass("jstree-closed");
-						//}
+					obj.parent("ul").children("li.jstree-open").not(obj).each( function(count, node) {
+						arg.inst.close_node(node);
 					});
 				});	
 
