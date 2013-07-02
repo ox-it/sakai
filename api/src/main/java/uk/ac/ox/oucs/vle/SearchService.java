@@ -19,6 +19,8 @@
  */
 package uk.ac.ox.oucs.vle;
 
+import java.io.IOException;
+
 /**
  * This service handles the updating of documents in the solr server and the querying of that solr server.
  */
@@ -28,8 +30,9 @@ public interface SearchService {
 	 * Perform a solr search.
 	 * @param query The parameters to pass to solr server.
 	 * @return A results wrapper, the calling client must call disconnect on this once it's finished with it.
+	 * @throw IOException When there is an IO problem talking to the search server.
 	 */
-	public ResultsWrapper select(String query);
+	public ResultsWrapper select(String query) throws IOException;
 	
 	public void addCourseGroup(CourseGroup group);
 	

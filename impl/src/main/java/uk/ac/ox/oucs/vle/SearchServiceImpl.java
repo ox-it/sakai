@@ -74,7 +74,7 @@ public class SearchServiceImpl implements SearchService {
 	}
 	
 	@Override
-	public SearchResultsWrapper select(String query) {
+	public SearchResultsWrapper select(String query) throws IOException {
 		HttpURLConnection connection = null;
 		try {
 			URL serverAddress = new URL(getSolrUrl()+"select?"+query);
@@ -87,11 +87,7 @@ public class SearchServiceImpl implements SearchService {
 		
 		} catch (MalformedURLException e) {
 			log.error(e.getLocalizedMessage());
-
-		} catch (IOException e) {
-			log.error(e.getLocalizedMessage());
 		}
-		
 		return new SearchResultsWrapper(connection);
 	}
 	

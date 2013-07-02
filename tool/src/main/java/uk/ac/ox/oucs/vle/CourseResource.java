@@ -227,7 +227,7 @@ public class CourseResource {
 		try {
 			results = searchService.select(query);
 			return new StringStreamingOutput(results);
-		} catch (Exception e) {
+		} catch (IOException e) {
 			log.error(e.getMessage(), e);
 			throw new WebApplicationException(Response.serverError().entity("Search not currently available.").build());
 		}
