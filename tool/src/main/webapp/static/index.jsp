@@ -235,7 +235,7 @@
 				});
 				
 				/**
-				 * close ang 
+				 * close any other tree nodes at this level that are open
 				 */
 				$("#tree").bind("open_node.jstree", function(e, arg){
 					obj = arg.rslt.obj;
