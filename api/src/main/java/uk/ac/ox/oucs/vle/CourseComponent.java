@@ -95,6 +95,9 @@ public interface CourseComponent {
 	 * The ID of the component set that this component belongs to.
 	 * This is used when there are multiple copies of a component running at once to discover
 	 * which ones the user can select from.
+	 * 
+	 * If a set has just one component (and is within the signup period, and has places) then it has a checkbox.
+	 * If a set has multiple components (and is within ....), then it has a radio button within the set, so just one option is available for signup.
 	 * @return
 	 */ 
 	public String getComponentSet();
