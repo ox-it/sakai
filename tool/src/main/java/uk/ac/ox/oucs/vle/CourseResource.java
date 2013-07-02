@@ -228,7 +228,7 @@ public class CourseResource {
 			results = searchService.select(query);
 			return new StringStreamingOutput(results);
 		} catch (Exception e) {
-			log.error(e.getMessage());
+			log.error(e.getMessage(), e);
 			throw new WebApplicationException(Response.serverError().entity("Search not currently available.").build());
 		}
 	}
@@ -789,7 +789,7 @@ public class CourseResource {
 			try {
 				IOUtils.copy(results.getInputStream(), out);
 			} catch (IOException e) {
-				log.warn(e.getMessage());
+				log.warn(e.getMessage(), e);
 				throw new WebApplicationException(Response.status(Status.SERVICE_UNAVAILABLE)
 						.entity("Service Unavailable, IO Exception with Search Engine").build());
 			} finally {
