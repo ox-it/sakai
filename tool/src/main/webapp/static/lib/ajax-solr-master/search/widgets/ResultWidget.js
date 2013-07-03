@@ -81,7 +81,7 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 				}
 			});
 			
-			Signup.course.show(courseDetails, id, range, externalUser, function(){
+			Signup.course.show(courseDetails, id, range, externalUser, "../rest", function(){
 				courseDetails.dialog("open");
 			});
 		} catch (e) {

@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.common.SolrInputDocument;
@@ -40,30 +41,44 @@ public class SearchServiceImpl implements SearchService {
 
 	private static final Log log = LogFactory.getLog(SearchServiceImpl.class);
 	
-	private static ConcurrentUpdateSolrServer solrServer;
+	private ConcurrentUpdateSolrServer solrServer;
 	private String solrUrl;
-	/**
-	 * 
-	 */
-	private ServerConfigurationService serverConfigurationService;
-	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
+
+	public void setSolrUrl(String solrUrl) {
+		this.solrUrl = solrUrl;
 	}
-	
+
 	public void init() {
-		solrUrl = serverConfigurationService.getString("ses.solr.server", null);
-		solrServer = new ConcurrentUpdateSolrServer(solrUrl, 1000, 1);
+		// Check things are going to work.
+		try {
+			String url = getSolrUrl();
+			log.info("Search using solr on: "+ url);
+		} catch (IllegalStateException e) {
+			log.error(e.getMessage());
+		}
 	}
-	
-	public void close() {
-		
+
+	private String getSolrUrl() {
+		if (solrUrl == null || solrUrl.trim().length() == 0) {
+			throw new IllegalStateException("No Solr Server configured for SES, set ses.solr.server");
+		}
+		// Append trailing slash if there isn't one.
+		return solrUrl + ((!solrUrl.endsWith("/"))?"":"/");
+
+	}
+
+	private SolrServer getSolrServer() {
+		if (solrServer == null) {
+			solrServer = new ConcurrentUpdateSolrServer(getSolrUrl(), 1000, 1);
+		}
+		return solrServer;
 	}
 	
 	@Override
-	public SearchResultsWrapper select(String query) {
+	public SearchResultsWrapper select(String query) throws IOException {
 		HttpURLConnection connection = null;
 		try {
-			URL serverAddress = new URL(solrUrl+"select?"+query);
+			URL serverAddress = new URL(getSolrUrl()+"select?"+query);
 			connection = (HttpURLConnection)serverAddress.openConnection();
 			connection.setRequestMethod("GET");
 			connection.setDoOutput(true);
@@ -73,12 +88,7 @@ public class SearchServiceImpl implements SearchService {
 		
 		} catch (MalformedURLException e) {
 			log.error(e.getLocalizedMessage());
-			
-		} catch (IOException e) {
-			log.error(e.getLocalizedMessage());
-			
-		} 
-		
+		}
 		return new SearchResultsWrapper(connection);
 	}
 	
@@ -160,7 +170,7 @@ public class SearchServiceImpl implements SearchService {
 				doc.addField("course_created", chosenComponent.getCreated());
 				
 			}
-			solrServer.add(doc);
+			getSolrServer().add(doc);
 			
 		} catch (SolrServerException e) {
 			log.error(e.getLocalizedMessage() + " whilst processing course [" + course.getCourseId() + ":" + course.getTitle() +"]", e);
@@ -176,7 +186,7 @@ public class SearchServiceImpl implements SearchService {
 	public void deleteCourseGroup(CourseGroup course) {
 		
 		try {
-			solrServer.deleteById(new Integer(course.getMuid()).toString());
+			getSolrServer().deleteById(Integer.toString(course.getMuid()));
 			
 		} catch (SolrServerException e) {
 			log.error(e.getLocalizedMessage() + " whilst processing course [" + course.getCourseId() + ":" + course.getTitle() +"]", e);
@@ -192,7 +202,7 @@ public class SearchServiceImpl implements SearchService {
 		
 		try {
 			String query = "*:*";
-			solrServer.deleteByQuery(query);
+			getSolrServer().deleteByQuery(query);
 			
 		} catch (SolrServerException e) {
 			log.error(e.getLocalizedMessage(), e);
@@ -207,8 +217,8 @@ public class SearchServiceImpl implements SearchService {
 	public void tidyUp() {
 		
 		try {
-			solrServer.commit();
-			solrServer.optimize();
+			getSolrServer().commit();
+			getSolrServer().optimize();
 			
 		} catch (SolrServerException e) {
 			log.error(e.getLocalizedMessage(), e);
@@ -218,8 +228,7 @@ public class SearchServiceImpl implements SearchService {
 			
 		}
 	}
-		
-	
+
 	private String attendanceMode(CourseComponent component) {
 		if ("CM".equals(component.getAttendanceMode())) {
 			return "Face to face";

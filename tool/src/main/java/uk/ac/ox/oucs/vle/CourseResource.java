@@ -53,6 +53,8 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ContextResolver;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerationException;
@@ -69,6 +71,8 @@ import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 //@Path("/course/")
 @Path("course{cobomo:(/cobomo)?}")
 public class CourseResource {
+
+	private static final Log log = LogFactory.getLog(CourseResource.class);
 
 	private CourseSignupService courseService;
 	private SearchService searchService;
@@ -222,12 +226,11 @@ public class CourseResource {
 		ResultsWrapper results;
 		try {
 			results = searchService.select(query);
-		
-		} catch (Exception e) {
-			throw new WebApplicationException(Response.serverError().entity("search not available").build());
+			return new StringStreamingOutput(results);
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+			throw new WebApplicationException(Response.serverError().entity("Search not currently available.").build());
 		}
-		
-		return new StringStreamingOutput(results);
 	}
 	
 	@Path("/calendar")
@@ -770,7 +773,10 @@ public class CourseResource {
 			gen.close();
 		}
 	}
-	
+
+	/**
+	 * This class is so that we can close the results wrapper after we've streamed the content back to the client.
+	 */
 	private class StringStreamingOutput implements StreamingOutput {
 		
 		private final ResultsWrapper results;
@@ -782,10 +788,10 @@ public class CourseResource {
 		public void write(OutputStream out) {
 			try {
 				IOUtils.copy(results.getInputStream(), out);
-				
 			} catch (IOException e) {
-				throw new WebApplicationException(Response.status(Status.SERVICE_UNAVAILABLE).entity("Service Unavailable, IO Exception with Search Engine").build());
-				
+				log.warn(e.getMessage(), e);
+				throw new WebApplicationException(Response.status(Status.SERVICE_UNAVAILABLE)
+						.entity("Service Unavailable, IO Exception with Search Engine").build());
 			} finally {
 				results.disconnect();
 				
