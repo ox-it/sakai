@@ -51,7 +51,8 @@ public class SearchServiceImpl implements SearchService {
 	public void init() {
 		// Check things are going to work.
 		try {
-			log.info("Search using solr on: "+ getSolrUrl());
+			String url = getSolrUrl();
+			log.info("Search using solr on: "+ url);
 		} catch (IllegalStateException e) {
 			log.error(e.getMessage());
 		}
