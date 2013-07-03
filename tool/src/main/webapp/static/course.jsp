@@ -42,7 +42,7 @@ pageContext.setAttribute("openCourse", (String)request.getAttribute("openCourse"
 	<link rel="stylesheet" type="text/css" href="/course-signup/static/lib/jquery-ui-1.8.4.custom/css/smoothness/jquery-ui-1.8.4.custom.css" />
 	<link rel="stylesheet" type="text/css" href="/course-signup/static/lib/tool.css" />
 
-	<script type="text/javascript" src="/course-signup/static/lib/jquery/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="/course-signup/static/lib/jquery/jquery-1.4.4.min.js"></script>
 	<script type="text/javascript" src="/course-signup/static/lib/jstree-1.0rc2/_lib/jquery.cookie.js"></script>
 
 	<script type="text/javascript" src="/course-signup/static/lib/trimpath-template-1.0.38/trimpath-template.js"></script>

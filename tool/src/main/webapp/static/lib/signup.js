@@ -1091,7 +1091,9 @@ var Signup = function(){
 				table.trigger("tableInit");
 			}
         });
-        
+
+        // The die().live is a bad hack so that when someone switches to a different module and a
+        // new table is displayed the old handlers don't get called for them.
         $("span.previous-signup").die().live("mouseover", function(e){
         	var span = $(this);
         	var userId = $(this).attr("userid");
