@@ -37,7 +37,7 @@
 	<link href="<c:out value="${skinRepo}" />/<c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
 	<link rel="stylesheet" type="text/css" href="lib/tool.css">
   	
-  	<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
+  	<script type="text/javascript" src="lib/jquery/jquery-1.4.4.min.js"></script>
   	<script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
 	<script type="text/javascript" src="lib/jquery-ui-1.8.4.custom/js/jquery-ui-1.8.4.custom.min.js"></script>
 	<script type="text/javascript" src="lib/trimpath-template-1.0.38/trimpath-template.js"></script>

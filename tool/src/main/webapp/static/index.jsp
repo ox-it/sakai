@@ -41,7 +41,7 @@
 <link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.4.custom/css/smoothness/jquery-ui-1.8.4.custom.css" />
 <link rel="stylesheet" type="text/css" href="lib/tool.css" />
 
-<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="lib/jquery/jquery-1.4.4.min.js"></script>
 <script type="text/javascript"
 	src="lib/jstree-1.0rc2/_lib/jquery.cookie.js"></script>
 <script type="text/javascript" src="lib/jstree-1.0rc2/jquery.jstree.js"></script>
