@@ -58,16 +58,16 @@ public class SearchServiceImpl implements SearchService {
 		}
 	}
 
-	private String getSolrUrl() {
+	protected String getSolrUrl() {
 		if (solrUrl == null || solrUrl.trim().length() == 0) {
 			throw new IllegalStateException("No Solr Server configured for SES, set ses.solr.server");
 		}
 		// Append trailing slash if there isn't one.
-		return solrUrl + ((!solrUrl.endsWith("/"))?"":"/");
+		return solrUrl + ((solrUrl.endsWith("/"))?"":"/");
 
 	}
 
-	private SolrServer getSolrServer() {
+	protected SolrServer getSolrServer() {
 		if (solrServer == null) {
 			solrServer = new ConcurrentUpdateSolrServer(getSolrUrl(), 1000, 1);
 		}
