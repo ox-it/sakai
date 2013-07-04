@@ -260,7 +260,9 @@
 			html += '</select></span>';
 			
 			html += '<table border="0" class="display" id="signups-table"></table>';
-			html += '<a href="#" id="signup-add">Add Signup</a>';
+			html += '<a href="#" id="signup-add">Add Oxford Signup</a>';
+			html += '<span style="padding-right:20px;" />';
+			html += '<a href="#" id="external-add">Add External Signup</a>';
 			$("#signups").html(html);
 			
 			var selectElement = $('#signups-table-term-filter');
@@ -304,6 +306,30 @@
 				}
 			});
 			signupAddUser.jqmAddClose("input.cancel");
+			
+			var signupAddExternal = $("#signup-add-external-win");
+			signupAddExternal.resize(function(e) {
+				// Calculate size.
+			});
+			signupAddExternal.jqm({
+				onShow : function(objs) {
+					$("body").css("overflow", "hidden"); // Doesn't seem to work on IE7
+					objs.w.css("height", 220);
+					objs.w.show();
+					$("input[name=supervisor]", signupAddExternal).val("");
+					$("textarea", signupAddExternal).val("");
+					$(":submit", signupAddExternal).removeAttr("disabled");
+					$(".errors", signupAddExternal).html("");
+				},
+				onHide : function(objs) {
+					$("body").css("overflow", "auto");
+					objs.w.fadeOut('250', function() {
+						objs.o.remove();
+					});
+				}
+			});
+			signupAddExternal.jqmAddClose("input.cancel");
+			
 			$("#signup-add")
 					.click(
 							function() {
@@ -575,6 +601,49 @@
 								//findUser(); // Startoff the searching of users.
 								return false;
 							});
+			
+			$("#external-add")
+			.click(
+					function() {
+						signupAddExternal.jqmShow();
+						// Need to resize to content.
+						var windowHeight = $(window).height();
+						var positionTop = signupAddExternal[0].offsetTop;
+						if (windowHeight < signupAddExternal.outerHeight()
+								+ positionTop) {
+							// Too big.
+							var newHeight = windowHeight
+									- (signupAddExternal.outerHeight(false) - signupAddExternal
+											.height()) - 2;
+							signupAddExternal.height(newHeight);
+							signupAddExternal.css("top", "1px"); // Move almost to the top.
+						}
+						;
+					});
+			
+			signupAddExternal
+			.unbind("submit")
+			.bind(
+					"submit",
+					function(e) {
+						var form = this;
+						var progressbar = $("#find-users-progress");
+						var studentName = $("input[name=studentName]",
+								signupAddExternal).val();
+						var studentEmail = $("input[name=studentEmail]",
+								signupAddExternal).val();
+						
+						$(":submit", form).attr("disabled", "true");
+						$("input.cancel", form).one("click",
+								function() {
+									continueSearch = false;
+								});
+						progressbar.progressbar({
+							value : 0
+						});
+						findSupervisor(); // Startoff validating the form
+						return false;
+					});
 
 			return;
 			
@@ -788,6 +857,25 @@
 			<div id="find-users-progress"></div>
 		</form>
 	</div>
+	
+	<!-- Popup window for adding external users.-->
+	<div id="signup-add-external-win" class="jqmWindow" style="display: none">
+		<h2>Add New External Student</h2>
+		<form id="signup-add-external">
+			<p>
+				Enter the student name.<br /> 
+				<input type="text" name="studentName" id="student-name" size="60" />
+			</p>
+			<p>
+				Enter the student email addresses.<br />
+				<input type="text" name="studentEmail" id="student-email" size="60" />
+			</p>
+			<span class="errors"></span> <br> 
+			<input type="submit" value="Select Components"> 
+			<input type="button" class="cancel" value="Cancel"><br>
+			<div id="find-users-progress"></div>
+		</form>
+	</div>
 
 	<!-- Popup window for selecting components. -->
 	<div id="signup-add-components-win" class="jqmWindow"
@@ -795,36 +883,36 @@
 
 	<textarea id="signup-add-components-tpl" style="display: none" rows="0"
 		cols="0">
-	<h2>Users Found</h2>
-	<ul>
-	{for user in users}
-		<li>\${user.name} (\${user.email})</li>
-	{/for}
-	</ul>
-	<h2>Select Modules</h2>
+		<h2>Users Found</h2>
+		<ul>
+		{for user in users}
+			<li>\${user.name} (\${user.email})</li>
+		{/for}
+		</ul>
+		<h2>Select Modules</h2>
 	
-	<form id="signup-add-components">
-	<span class="errors"></span>
-	<ul>
-	{for component in components}
-		<li>
-			<input type="checkbox" name="\${component.id}"
-					id="option-\${component.id}" value="true">
-			<label for="component-\${component.id}">\${component.title} - \${component.slot} for \${component.sessions} sessions in \${component.when},
-					{if component.presenter}<a
-						href="mailto:\${component.presenter.email}">\${component.presenter.name}</a>{/if}
+		<form id="signup-add-components">
+			<span class="errors"></span>
+			<ul>
+			{for component in components}
+				<li>
+					<input type="checkbox" name="\${component.id}"
+						id="option-\${component.id}" value="true">
+					<label for="component-\${component.id}">\${component.title} - \${component.slot} for \${component.sessions} sessions in \${component.when},
+						{if component.presenter}<a
+							href="mailto:\${component.presenter.email}">\${component.presenter.name}</a>{/if}
 					</label>
-                                <br />
-                                <span class="location">\${component.location}</span>
-		</li>
-	{/for}
-	</ul>
-		<input type="submit" value="Add">
-		<input type="button" class="cancel" value="Cancel">
-		<div id="create-signups-progress"></div>
+					<br />
+					<span class="location">\${component.location}</span>
+				</li>
+			{/for}
+			</ul>
+			<input type="submit" value="Add">
+			<input type="button" class="cancel" value="Cancel">
+			<div id="create-signups-progress"></div>
 
-	</form>
-</textarea>
+		</form>
+	</textarea>
 
 </body>
 </html>
