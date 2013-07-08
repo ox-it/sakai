@@ -19,22 +19,15 @@
  */
 package uk.ac.ox.oucs.vle;
 
+import com.lowagie.text.*;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.List;
-
-import com.lowagie.text.Chunk;
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.Element;
-import com.lowagie.text.Font;
-import com.lowagie.text.FontFactory;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.Phrase;
-import com.lowagie.text.pdf.PdfPCell;
-import com.lowagie.text.pdf.PdfPTable;
-import com.lowagie.text.pdf.PdfWriter;
 
 /**
  * A CSV file writer. This escapes all the passed content so it can be written
@@ -197,12 +190,22 @@ public class PDFWriter {
 		return pdfCell;
 	}
 
-	private PdfPCell nameCell(String name, String ossId, String department) {
+	private PdfPCell nameCell(String name, String webauthId, String department) {
 
 		Phrase phrase = new Phrase();
 		phrase.add(new Chunk(name, tableNameFont));
 		phrase.add(Chunk.NEWLINE);
-		phrase.add(new Chunk(ossId + "  " + department, tableOtherFont));
+		StringBuilder otherDetails = new StringBuilder();
+		if (webauthId != null && webauthId.trim().length() > 0) {
+			otherDetails.append(webauthId);
+		}
+		if (department != null && department.trim().length() > 0) {
+			if (otherDetails.length() > 0) {
+				otherDetails.append(" ");
+			}
+			otherDetails.append(webauthId);
+		}
+		phrase.add(new Chunk(otherDetails.toString(), tableOtherFont));
 
 		PdfPCell pdfCell = new PdfPCell(phrase);
 		pdfCell.setMinimumHeight(tableNameFont.getSize() * 2f);
