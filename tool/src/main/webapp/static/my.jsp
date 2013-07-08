@@ -358,7 +358,7 @@
 													});
 
 									Signup.course.show(courseDetails, id,
-											"ALL", false, function() {
+											"ALL", false, "../rest", function() {
 												courseDetails.dialog("open");
 											});
 
