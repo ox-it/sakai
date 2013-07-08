@@ -29,15 +29,6 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * A CSV file writer. This escapes all the passed content so it can be written
- * safely to a CSV file.
- * Implementation created as we can't reuse an existing GPL CSV project.
- * Guidance from:
- * http://www.creativyst.com/Doc/Articles/CSV/CSV01.htm
- *
- * @author buckett
- */
 public class PDFWriter {
 	// Starts of ends with a blank, or contains a double quote, comma or newline
 
@@ -54,10 +45,9 @@ public class PDFWriter {
 	private Font infoFont;
 
 	/**
-	 * Create the writer wrapping up an existing writer.
-	 *
-	 * @param out The output to send the CSV file to.
-	 * @throws IOException
+	 * Create a new attendance PDF writer
+	 * @param out The outputstream to write the PDF to.
+	 * @throws IOException If there is a problem writing to the outputstream.
 	 */
 	public PDFWriter(OutputStream out) throws IOException {
 
@@ -83,11 +73,6 @@ public class PDFWriter {
 		document.close();
 	}
 
-	/**
-	 * Write a single data value to the CSV file.
-	 *
-	 * @param data The data to write to the CSV file
-	 */
 	public void writeHead(Collection<CourseGroup> courseGroups, CourseComponent courseComponent) throws IOException {
 		try {
 			Paragraph paragraph;
