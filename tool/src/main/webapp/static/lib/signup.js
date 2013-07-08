@@ -1075,7 +1075,7 @@ var Signup = function(){
                             
                             var actions = "";
                             if (allowChangeAction) {
-                            	Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, isAdmin));
+                                actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, isAdmin));
                             }
                             data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions, this.status, slots]);
                             
