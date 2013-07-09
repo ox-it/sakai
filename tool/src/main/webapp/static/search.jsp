@@ -148,26 +148,21 @@
 			</div>
 				
 			<div class="facets" id="facets">
-				<h2>Departments</h2>
+				<h2>Department</h2>
 				<div class="facet-body-frame">
 					<div class="facet-body" id="provider_title"></div>
 				</div>
 
-				<h2>Skills Categories</h2>
+				<h2>Skills Category</h2>
 				<div class="facet-body-frame">
 					<div class="facet-body" id="course_subject_rdf"></div>
 				</div>
 
-				<h2>Research Methods</h2>
+				<h2>Research Method</h2>
 				<div class="facet-body-frame">
 					<div class="facet-body" id="course_subject_rm"></div>
 				</div>
-				
-				<h2>Class</h2>
-				<div class="facet-body-frame">
-					<div class="facet-body" id="course_class"></div>
-				</div>
-				
+
 				<h2>Delivery Method</h2>
 				<div class="facet-body-frame">
 					<div class="facet-body" id="course_delivery"></div>

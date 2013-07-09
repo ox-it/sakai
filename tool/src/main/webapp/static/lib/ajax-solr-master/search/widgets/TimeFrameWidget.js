@@ -28,7 +28,7 @@ AjaxSolr.TimeFrameWidget = AjaxSolr.AbstractFacetWidget.extend({
 		var count = objectedItems[i].count;
 		var query = objectedItems[i].query;
 		var field = objectedItems[i].field;
-		var facet = this.manager.getQueryDisplay(this.fq(field, query));
+		var facet = this.manager.getValueName(this.fq(field, query));
 		$(this.target).append(
 				$('<a href="#" class="tagcloud_item"></a>')
 				.text(facet+" ("+count+")")

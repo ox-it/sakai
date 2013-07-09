@@ -37,7 +37,12 @@ var Manager;
 			/**
 			 * A collection of pretty display values
 			 */
-			querydisplay: {},
+			valueNames: {},
+
+			/**
+			 * A collection of display names for fields
+			 */
+			fieldNames: {},
 			
 			/** 
 			 * Adds a widget to the manager.
@@ -54,16 +59,58 @@ var Manager;
 					this.errorwidgets[widgetId].onError(jqXHR.responseText);
 				}
 			},
-			
-			addQueryDisplay: function (key, value) {
-				this.querydisplay[key]=value;
+
+			/**
+			 * Adds a value mapping for displaying query values.
+			 *
+			 * @param key The field and value.
+			 * @param value The pretty value to display to the user.
+			 * @return this to allow chaining.
+			 */
+			addValueName: function (key, value) {
+				this.valueNames[key]=value;
+				return this;
 			},
-			
-			getQueryDisplay: function (key) {
-				if (key in this.querydisplay) {
-					return this.querydisplay[key];
+
+			/**
+			 * Looks up a nice display value. It also strips surrounding double quotes from
+			 * any returned values.
+			 *
+			 * @param key The field and value to lookup a display for.
+			 * @return The pretty value to display to the user or the value from the supplied key.
+			 */
+			getValueName: function (key) {
+				if (key in this.valueNames) {
+					return this.valueNames[key];
 				}
-				return key;
+				var value = key.split(":")[1];
+				// Strip leading/trailing double quotes
+				return value.match(/^("?)(.+)\1$/)[2];
+			},
+
+			/**
+			 * Add a nice alias for a field name.
+			 *
+			 * @param field The field name.
+			 * @param name The pretty name for the field.
+			 * @return this to allow chaining.
+			 */
+			addFieldName: function (field, name) {
+				this.fieldNames[field] = name;
+				return this;
+			},
+
+			/**
+			 * Lookup a nice alias for a field name.
+			 *
+			 * @param field The field name.
+			 * @return The pretty name for the field.
+			 */
+			getFieldName: function(field) {
+				if (field in this.fieldNames) {
+					return this.fieldNames[field];
+				}
+				return field;
 			}
 	});
 
@@ -72,9 +119,16 @@ var Manager;
 		solrUrl: '../rest/course/solr/'
 	});
 	
-	Manager.addQueryDisplay("course_basedate:[* TO NOW]", "Old Courses");
-	Manager.addQueryDisplay("course_basedate:[NOW TO *]", "Current Courses");
-	Manager.addQueryDisplay("course_created:[NOW-14DAY TO NOW]", "New Courses");
+	Manager.addValueName("course_basedate:[* TO NOW]", "Old Courses")
+		.addValueName("course_basedate:[NOW TO *]", "Current Courses")
+		.addValueName("course_created:[NOW-14DAY TO NOW]", "New Courses");
+
+	Manager.addFieldName("provider_title", "Department")
+		.addFieldName("course_subject_rdf", "Skills Category")
+		.addFieldName("course_subject_rm", "Research Method")
+		.addFieldName("course_delivery", "Delivery Method")
+		.addFieldName("course_created", "Timeframe")
+		.addFieldName("course_basedate", "Timeframe");
 
     Manager.addWidget(new AjaxSolr.ResultWidget({
       id: 'result',
@@ -91,7 +145,7 @@ var Manager;
       }
     }));
     
-    var fields = [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_class', 'course_delivery' ];
+    var fields = [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_delivery' ];
     for (var i = 0, l = fields.length; i < l; i++) {
       Manager.addWidget(new AjaxSolr.TagcloudWidget({
         id: fields[i],
@@ -130,7 +184,7 @@ var Manager;
    
     var params = {
       facet: true,
-      'facet.field': [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_class', 'course_delivery' ],
+      'facet.field': [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_delivery' ],
       'facet.limit': 20,
       'facet.mincount': 1,
       'f.topics.facet.limit': 50,
