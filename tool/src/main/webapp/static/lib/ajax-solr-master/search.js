@@ -69,7 +69,9 @@ var Manager;
 				if (key in this.valueName) {
 					return this.valueName[key];
 				}
-				return key.split(":")[1];
+				var value = key.split(":")[1];
+				// Strip leading/trailing double quotes
+				return value.match(/^("?)(.+)\1$/)[2];
 			},
 
 			addFieldName: function (field, name) {
