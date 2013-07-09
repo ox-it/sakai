@@ -97,7 +97,6 @@ var Manager;
 	Manager.addFieldName("provider_title", "Department");
 	Manager.addFieldName("course_subject_rdf", "Skills Category");
 	Manager.addFieldName("course_subject_rm", "Research Method");
-	Manager.addFieldName("course_class", "Class");
 	Manager.addFieldName("course_delivery", "Delivery Method");
 	Manager.addFieldName("course_created", "Timeframe");
 	Manager.addFieldName("course_basedate", "Timeframe");
@@ -156,7 +155,7 @@ var Manager;
    
     var params = {
       facet: true,
-      'facet.field': [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_class', 'course_delivery' ],
+      'facet.field': [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_delivery' ],
       'facet.limit': 20,
       'facet.mincount': 1,
       'f.topics.facet.limit': 50,

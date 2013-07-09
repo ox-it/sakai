@@ -162,12 +162,7 @@
 				<div class="facet-body-frame">
 					<div class="facet-body" id="course_subject_rm"></div>
 				</div>
-				
-				<h2>Class</h2>
-				<div class="facet-body-frame">
-					<div class="facet-body" id="course_class"></div>
-				</div>
-				
+
 				<h2>Delivery Method</h2>
 				<div class="facet-body-frame">
 					<div class="facet-body" id="course_delivery"></div>
