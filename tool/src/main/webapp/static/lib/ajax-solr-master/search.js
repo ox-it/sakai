@@ -59,12 +59,25 @@ var Manager;
 					this.errorwidgets[widgetId].onError(jqXHR.responseText);
 				}
 			},
-			
+
+			/**
+			 * Adds a value mapping for displaying query values.
+			 *
+			 * @param key The field and value.
+			 * @param value The pretty value to display to the user.
+			 */
 			addValueName: function (key, value) {
 				this.valueName[key]=value;
 				return this;
 			},
-			
+
+			/**
+			 * Looks up a nice display value. It also strips surrounding double quotes from
+			 * any returned values.
+			 *
+			 * @param key The field and value to lookup a display for.
+			 * @return The pretty value to display to the user or the value from the supplied key.
+			 */
 			getValueName: function (key) {
 				if (key in this.valueName) {
 					return this.valueName[key];
@@ -74,16 +87,28 @@ var Manager;
 				return value.match(/^("?)(.+)\1$/)[2];
 			},
 
+			/**
+			 * Add a nice alias for a field name.
+			 *
+			 * @param field The field name.
+			 * @param name The pretty name for the field.
+			 */
 			addFieldName: function (field, name) {
-			    this.fieldNames[field] = name;
-			    return this;
+				this.fieldNames[field] = name;
+				return this;
 			},
 
+			/**
+			 * Lookup a nice alias for a field name.
+			 *
+			 * @param field The field name.
+			 * @return The pretty name for the field.
+			 */
 			getFieldName: function(field) {
-			    if (field in this.fieldNames) {
-			        return this.fieldNames[field];
-			    }
-			    return field;
+				if (field in this.fieldNames) {
+					return this.fieldNames[field];
+				}
+				return field;
 			}
 	});
 
