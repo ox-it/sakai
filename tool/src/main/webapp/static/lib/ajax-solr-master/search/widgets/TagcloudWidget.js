@@ -2,8 +2,10 @@
 
 AjaxSolr.TagcloudWidget = AjaxSolr.AbstractFacetWidget.extend({
   afterRequest: function () {
-    if (this.manager.response.facet_counts.facet_fields[this.field] === undefined) {
-      $(this.target).html('no items found in current selection');
+    if (this.manager.response.facet_counts.facet_fields[this.field] === undefined ||
+        this.manager.response.facet_counts.facet_fields[this.field].length == 0) {
+      $(this.target).html('<span class="tagcloud_empty">no items found in current selection</a>');
+      document.getElementById(this.id).style.height = "1.5em";
       return;
     }
 

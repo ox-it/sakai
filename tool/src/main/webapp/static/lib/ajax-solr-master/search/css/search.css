@@ -187,11 +187,14 @@ div.error {
 	clear: both;
 }
 
-.tagcloud_item {
+.tagcloud_item, .tagcloud_empty {
   clear: both;
   float: left;
   display: block;
   margin-right: 4px;
-  color: #6998f0;
   padding: 0px 15px;
+}
+
+.tagcloud_item {
+  color: #6998f0;
 }
