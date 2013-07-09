@@ -65,6 +65,7 @@ var Manager;
 			 *
 			 * @param key The field and value.
 			 * @param value The pretty value to display to the user.
+			 * @return this to allow chaining.
 			 */
 			addValueName: function (key, value) {
 				this.valueNames[key]=value;
@@ -92,6 +93,7 @@ var Manager;
 			 *
 			 * @param field The field name.
 			 * @param name The pretty name for the field.
+			 * @return this to allow chaining.
 			 */
 			addFieldName: function (field, name) {
 				this.fieldNames[field] = name;
@@ -117,16 +119,16 @@ var Manager;
 		solrUrl: '../rest/course/solr/'
 	});
 	
-	Manager.addValueName("course_basedate:[* TO NOW]", "Old Courses");
-	Manager.addValueName("course_basedate:[NOW TO *]", "Current Courses");
-	Manager.addValueName("course_created:[NOW-14DAY TO NOW]", "New Courses");
+	Manager.addValueName("course_basedate:[* TO NOW]", "Old Courses")
+		.addValueName("course_basedate:[NOW TO *]", "Current Courses")
+		.addValueName("course_created:[NOW-14DAY TO NOW]", "New Courses");
 
-	Manager.addFieldName("provider_title", "Department");
-	Manager.addFieldName("course_subject_rdf", "Skills Category");
-	Manager.addFieldName("course_subject_rm", "Research Method");
-	Manager.addFieldName("course_delivery", "Delivery Method");
-	Manager.addFieldName("course_created", "Timeframe");
-	Manager.addFieldName("course_basedate", "Timeframe");
+	Manager.addFieldName("provider_title", "Department")
+		.addFieldName("course_subject_rdf", "Skills Category")
+		.addFieldName("course_subject_rm", "Research Method")
+		.addFieldName("course_delivery", "Delivery Method")
+		.addFieldName("course_created", "Timeframe")
+		.addFieldName("course_basedate", "Timeframe");
 
     Manager.addWidget(new AjaxSolr.ResultWidget({
       id: 'result',
