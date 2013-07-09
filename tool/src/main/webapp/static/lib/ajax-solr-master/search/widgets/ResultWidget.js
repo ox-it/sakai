@@ -103,7 +103,7 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 	var upcoming = false;
 	var fq = this.manager.store.values('fq');
 	for (var i = 0, l = fq.length; i < l; i++) {
-		var facet = this.manager.getQueryDisplay(fq[i]);
+		var facet = this.manager.getValueName(fq[i]);
 		if (facet == 'Old Courses') {
 			previous = true;
 		}

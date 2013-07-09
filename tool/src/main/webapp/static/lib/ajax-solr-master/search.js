@@ -37,7 +37,7 @@ var Manager;
 			/**
 			 * A collection of pretty display values
 			 */
-			querydisplay: {},
+			valueName: {},
 
 			/**
 			 * A collection of display names for fields
@@ -60,14 +60,14 @@ var Manager;
 				}
 			},
 			
-			addQueryDisplay: function (key, value) {
-				this.querydisplay[key]=value;
+			addValueName: function (key, value) {
+				this.valueName[key]=value;
 				return this;
 			},
 			
-			getQueryDisplay: function (key) {
-				if (key in this.querydisplay) {
-					return this.querydisplay[key];
+			getValueName: function (key) {
+				if (key in this.valueName) {
+					return this.valueName[key];
 				}
 				return key.split(":")[1];
 			},
@@ -90,9 +90,9 @@ var Manager;
 		solrUrl: '../rest/course/solr/'
 	});
 	
-	Manager.addQueryDisplay("course_basedate:[* TO NOW]", "Old Courses");
-	Manager.addQueryDisplay("course_basedate:[NOW TO *]", "Current Courses");
-	Manager.addQueryDisplay("course_created:[NOW-14DAY TO NOW]", "New Courses");
+	Manager.addValueName("course_basedate:[* TO NOW]", "Old Courses");
+	Manager.addValueName("course_basedate:[NOW TO *]", "Current Courses");
+	Manager.addValueName("course_created:[NOW-14DAY TO NOW]", "New Courses");
 
 	Manager.addFieldName("provider_title", "Department");
 	Manager.addFieldName("course_subject_rdf", "Skills Category");

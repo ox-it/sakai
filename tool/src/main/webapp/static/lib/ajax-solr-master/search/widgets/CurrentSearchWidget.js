@@ -18,7 +18,7 @@ AjaxSolr.CurrentSearchWidget = AjaxSolr.AbstractWidget.extend({
 
     var fq = this.manager.store.values('fq');
     for (var i = 0, l = fq.length; i < l; i++) {
-      var value = this.manager.getQueryDisplay(fq[i]);
+      var value = this.manager.getValueName(fq[i]);
       var field = fq[i].match(/^\w+/)[0];
       links.push($('<a href="#"></a>').text('(x) ' + this.manager.getFieldName(field)+ " : "
          + value).click(self.removeFacet(fq[i])));
