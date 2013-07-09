@@ -37,7 +37,7 @@ var Manager;
 			/**
 			 * A collection of pretty display values
 			 */
-			valueName: {},
+			valueNames: {},
 
 			/**
 			 * A collection of display names for fields
@@ -67,7 +67,7 @@ var Manager;
 			 * @param value The pretty value to display to the user.
 			 */
 			addValueName: function (key, value) {
-				this.valueName[key]=value;
+				this.valueNames[key]=value;
 				return this;
 			},
 
@@ -79,8 +79,8 @@ var Manager;
 			 * @return The pretty value to display to the user or the value from the supplied key.
 			 */
 			getValueName: function (key) {
-				if (key in this.valueName) {
-					return this.valueName[key];
+				if (key in this.valueNames) {
+					return this.valueNames[key];
 				}
 				var value = key.split(":")[1];
 				// Strip leading/trailing double quotes
