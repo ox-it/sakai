@@ -38,6 +38,11 @@ var Manager;
 			 * A collection of pretty display values
 			 */
 			querydisplay: {},
+
+			/**
+			 * A collection of display names for fields
+			 */
+			fieldNames: {},
 			
 			/** 
 			 * Adds a widget to the manager.
@@ -57,13 +62,26 @@ var Manager;
 			
 			addQueryDisplay: function (key, value) {
 				this.querydisplay[key]=value;
+				return this;
 			},
 			
 			getQueryDisplay: function (key) {
 				if (key in this.querydisplay) {
 					return this.querydisplay[key];
 				}
-				return key;
+				return key.split(":")[1];
+			},
+
+			addFieldName: function (field, name) {
+			    this.fieldNames[field] = name;
+			    return this;
+			},
+
+			getFieldName: function(field) {
+			    if (field in this.fieldNames) {
+			        return this.fieldNames[field];
+			    }
+			    return field;
 			}
 	});
 
@@ -75,6 +93,14 @@ var Manager;
 	Manager.addQueryDisplay("course_basedate:[* TO NOW]", "Old Courses");
 	Manager.addQueryDisplay("course_basedate:[NOW TO *]", "Current Courses");
 	Manager.addQueryDisplay("course_created:[NOW-14DAY TO NOW]", "New Courses");
+
+	Manager.addFieldName("provider_title", "Department");
+	Manager.addFieldName("course_subject_rdf", "Skills Category");
+	Manager.addFieldName("course_subject_rm", "Research Method");
+	Manager.addFieldName("course_class", "Class");
+	Manager.addFieldName("course_delivery", "Delivery Method");
+	Manager.addFieldName("course_created", "Timeframe");
+	Manager.addFieldName("course_basedate", "Timeframe");
 
     Manager.addWidget(new AjaxSolr.ResultWidget({
       id: 'result',

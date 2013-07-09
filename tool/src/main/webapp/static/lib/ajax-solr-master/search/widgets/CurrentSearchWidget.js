@@ -18,15 +18,10 @@ AjaxSolr.CurrentSearchWidget = AjaxSolr.AbstractWidget.extend({
 
     var fq = this.manager.store.values('fq');
     for (var i = 0, l = fq.length; i < l; i++) {
-      var facet = this.manager.getQueryDisplay(fq[i]);
-      if (facet.match(/[\[\{]\S+ TO \S+[\]\}]/)) {
-        var field = facet.match(/^\w+:/)[0];
-        var value = facet.substr(field.length + 1, 10);
-        links.push($('<a href="#"></a>').text('(x) ' + field + value).click(self.removeFacet(fq[i])));
-      }
-      else {
-        links.push($('<a href="#"></a>').text('(x) ' + facet).click(self.removeFacet(fq[i])));
-      }
+      var value = this.manager.getQueryDisplay(fq[i]);
+      var field = fq[i].match(/^\w+/)[0];
+      links.push($('<a href="#"></a>').text('(x) ' + this.manager.getFieldName(field)+ " : "
+         + value).click(self.removeFacet(fq[i])));
     }
 
     if (links.length > 1) {
