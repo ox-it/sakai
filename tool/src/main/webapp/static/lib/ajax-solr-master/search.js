@@ -145,7 +145,7 @@ var Manager;
       }
     }));
     
-    var fields = [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_class', 'course_delivery' ];
+    var fields = [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_delivery' ];
     for (var i = 0, l = fields.length; i < l; i++) {
       Manager.addWidget(new AjaxSolr.TagcloudWidget({
         id: fields[i],
