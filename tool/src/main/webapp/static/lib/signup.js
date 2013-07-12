@@ -32,7 +32,7 @@ var Signup = function(){
 			 * @param {Object} id The ID of the course to load.
 			 * @param {Object} old If we should be showing upcoming or old data.
 			 */
-			show: function(dest, id, old, externalUser, success){
+			show: function(dest, id, old, externalUser, prefix, success){
 				var courseData;
 				var waitingList;
 				var signupData;
@@ -76,7 +76,7 @@ var Signup = function(){
 					courseURL = undefined;
 					
 					$.ajax({
-						url: "../rest/course/" + id,
+						url: prefix+"/course/" + id,
 						data: {
 							//range: (old) ? "PREVIOUS" : "UPCOMING"
 							range: old
@@ -91,7 +91,7 @@ var Signup = function(){
 					
 					if (!externalUser) {
 						$.ajax({
-							url: "../rest/course/url/" + id,
+							url: prefix+"/course/url/" + id,
 							dataType: "json",
 							cache: false,
 							success: function(data){
@@ -101,7 +101,7 @@ var Signup = function(){
 						});
 						
 						$.ajax({
-							url: "../rest/signup/count/course/signups/" + id,
+							url: prefix+"/signup/count/course/signups/" + id,
 							data: {
 								status: "WAITING"
 							},
@@ -114,7 +114,7 @@ var Signup = function(){
 						});
 					
 						$.ajax({
-							url: "../rest/signup/my/course/" + id,
+							url: prefix+"/signup/my/course/" + id,
 							dataType: "json",
 							cache: false,
 							success: function(data){
@@ -131,7 +131,7 @@ var Signup = function(){
 					
 					if (!template) { // When reloading we might already have the template loaded.
 						$.ajax({
-							url: "course.tpl",
+							url: "/course-signup/static/course.tpl",
 							dataType: "text",
 							cache: false,
 							success: function(data){
@@ -161,6 +161,7 @@ var Signup = function(){
 					data.presenters = [];
 					data.waiting = waitingList;
 					data.url = courseURL;
+					data.returnurl = "/course-signup/rest/course/"+id;
 					
 					var parts = [];
 					var applyTo;
@@ -291,7 +292,7 @@ var Signup = function(){
 							// TODO This needs processing.
 							if (!errorFound) {
 								jQuery(".error", dest).hide();
-								var signup = Signup.course.signup({title: data.title, id: id, approval: data.supervisorApproval}, {titles: selectedParts, ids: selectedPartIds});
+								var signup = Signup.course.signup({title: data.title, id: id, approval: data.supervisorApproval}, {titles: selectedParts, ids: selectedPartIds}, prefix);
 								signup.bind("ses.signup", function(){
 									loadCourse(); // Reload the course.
 									// Display a nice message. Should we keep the exising success()?
@@ -317,7 +318,7 @@ var Signup = function(){
 			/**
 			 * Handle the displaying of a confirmation page for a signup.
 			 */
-			signup: function(course, components){
+			signup: function(course, components, prefix){
 				// Return this and then trigger all events against it.
 				var signupDialog = $("<div></div>");
 								/**
@@ -369,7 +370,7 @@ var Signup = function(){
 									// This has a potential problem in that it might not complete before user clicks submit.
 									if (!current.data("req")) {
 										current.data("req", $.ajax({ // Need to use error handler.
-											url: "../rest/user/find",
+											url: prefix+"/user/find",
 											data: {
 												search: value
 											},
@@ -413,7 +414,7 @@ var Signup = function(){
 						var courseId = jQuery("input[name=courseId]", this).first().val();
 						$.ajax({
 							type: "POST",
-							url: "../rest/signup/my/new",
+							url: prefix+"/signup/my/new",
 							data: form.serialize(),
 							success: function(){
 								signupDialog.trigger("ses.signup");
@@ -428,7 +429,7 @@ var Signup = function(){
 				};
 				// Load the template and then display the dialog.
 				$.ajax({
-					url: "signup.tpl",
+					url: "/course-signup/static/signup.tpl",
 					dataType: "text",
 					success: function(data){
 						var position = Signup.util.dialogPosition();
@@ -944,6 +945,38 @@ var Signup = function(){
         		}
         		return details;
         	}
+        },
+        "term": {
+
+    		/**
+		    * Sort an Array of Terms into most recent first. The year is the calendar year of the term,
+		    * not the academic year.
+		    * @param {Array} termArray of strings in the format 'Michaelmas 2012', 'Hilary 2013' or 'Trinity 2013'.
+		    */
+		    "sortArray": function(termsArray) {
+			    termsArray.sort(function(a,b){
+			    	var awords=a.split(" ");
+			    	var bwords=b.split(" ");
+			    	if (awords[1] != bwords[1]) {
+			    		return bwords[1] - awords[1]
+			    	}
+			    	if (awords[0] == bwords[0]) {
+			    		return 0;
+			    	}
+			    	if (awords[0] == "Michaelmas") {
+			    		return -1;
+			    	}
+			    	if (bwords[0] == "Michaelmas") {
+			    		return 1;
+			    	}
+			    	if (awords[0] == "Trinity") {
+			    		return -1;
+			    	}
+			    	if (bwords[0] == "Trinity") {
+			    		return 1;
+			    	}
+			    });
+		    }
         }
     };
     
@@ -1001,6 +1034,9 @@ var Signup = function(){
             }, {
                 "sTitle": "Status",
                 "bVisible": false
+            }, {
+                "sTitle": "Term",
+                "bVisible": false
             }],
             "fnServerData": function(sSource, aoData, fnCallback){
                 jQuery.ajax({
@@ -1027,18 +1063,21 @@ var Signup = function(){
                             		})).join("<br>");
                             
                             var closes = 0;
+                            var slots = new Array();
                             $.each(this.components, 
                             		function(){
+                            			slots.push(this.slot);
                             			if (closes != 0 && this.closes > closes) {
                             				return;
                             			}
                             			closes = this.closes;
                             });
+                            
                             var actions = "";
                             if (allowChangeAction) {
-                            	Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, isAdmin));
+                                actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, isAdmin));
                             }
-                            data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions, this.status]);
+                            data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions, this.status, slots]);
                             
                         });
                         fnCallback({
@@ -1052,7 +1091,9 @@ var Signup = function(){
 				table.trigger("tableInit");
 			}
         });
-        
+
+        // The die().live is a bad hack so that when someone switches to a different module and a
+        // new table is displayed the old handlers don't get called for them.
         $("span.previous-signup").die().live("mouseover", function(e){
         	var span = $(this);
         	var userId = $(this).attr("userid");
@@ -1130,6 +1171,11 @@ var Signup = function(){
 		$("select.signups-table-status-filter").die().live("change", function(e) {
 			var filterStatus = $(this).val();
 			table.fnFilter(filterStatus, 8);
+		});
+		
+		$("select.signups-table-term-filter").die().live("change", function(e) {
+			var filterTerm = $(this).val();
+			table.fnFilter(filterTerm, 9);
 		});
 		
 		var html = '<div id="signup-add-supervisor-win" class="jqmWindow" style="display: none">'

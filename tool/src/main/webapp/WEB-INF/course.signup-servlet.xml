@@ -32,6 +32,8 @@
 				<prop key="/**/*.jsp">courseSignupController</prop>
 				<prop key="/*">courseSignupUrlViewController</prop>
 				<prop key="/">courseSignupRedirectController</prop>
+				<prop key="/login/setup">setupLoginController</prop>
+				<prop key="/login/do">doLoginController</prop>
 			</props>
 		</property>
 		

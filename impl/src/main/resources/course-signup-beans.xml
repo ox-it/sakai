@@ -53,6 +53,24 @@
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		</property>
 	</bean>
+	
+	<bean name="uk.ac.ox.oucs.vle.SearchService" class="uk.ac.ox.oucs.vle.SearchServiceImpl" init-method="init" >
+		<property name="solrUrl">
+			<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+				<property name="targetObject">
+					<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+				</property>
+				<property name="targetMethod">
+					<value>getString</value>
+				</property>
+				<property name="arguments">
+					<list>
+						<value>ses.solr.server</value>
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
 
 	<bean id="uk.ac.ox.oucs.vle.XcriPopulator"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
@@ -61,6 +79,7 @@
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
 				<property name="populatorInput" ref="uk.ac.ox.oucs.vle.PopulatorInput" />
+				<property name="searchService" ref="uk.ac.ox.oucs.vle.SearchService" />
 			</bean>
 		</property>
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
@@ -77,6 +96,7 @@
 			<bean class="uk.ac.ox.oucs.vle.DaisyPopulatorWrapper">
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="populator" ref="uk.ac.ox.oucs.vle.XcriPopulator" />
+				<property name="searchService" ref="uk.ac.ox.oucs.vle.SearchService" />
 			</bean>
 		</property>
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
@@ -101,6 +121,7 @@
 			<bean class="uk.ac.ox.oucs.vle.OxcapPopulatorWrapper">
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="populator" ref="uk.ac.ox.oucs.vle.XcriPopulator" />
+				<property name="searchService" ref="uk.ac.ox.oucs.vle.SearchService" />
 			</bean>
 		</property>
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
@@ -162,6 +183,28 @@
 	<bean id="uk.ac.ox.oucs.vle.OucsDeptJob"
 		class="uk.ac.ox.oucs.vle.OucsDeptJob">
 		<property name="module" ref="uk.ac.ox.oucs.vle.OucsDeptImpl"/>
+	</bean>
+	
+	<bean id="uk.ac.ox.oucs.vle.SearchDataImpl"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean" >
+		<property name="target">
+			<bean class="uk.ac.ox.oucs.vle.SearchDataImpl">
+				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
+				<property name="searchService" ref="uk.ac.ox.oucs.vle.SearchService" />
+			</bean>
+		</property>
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="transactionAttributes">
+			<value>
+				update=PROPAGATION_REQUIRED
+			</value>
+		</property>
+	</bean>
+	
+	<!-- Should be replaced by MethodInvokingJobDetailFactoryBean -->
+	<bean id="uk.ac.ox.oucs.vle.SearchDataJob"
+		class="uk.ac.ox.oucs.vle.SearchDataJob">
+		<property name="module" ref="uk.ac.ox.oucs.vle.SearchDataImpl"/>
 	</bean>
 
 </beans>

@@ -46,7 +46,7 @@
 <link rel="stylesheet" type="text/css" href="lib/tool.css" />
 <link rel="stylesheet" type="text/css" href="lib/jquery.tooltip.css" />
 
-<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="lib/jquery/jquery-1.4.4.min.js"></script>
 <script type="text/javascript"
 	src="lib/jstree-1.0rc2/_lib/jquery.cookie.js"></script>
 <script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
@@ -292,7 +292,6 @@
 								}
 							}
 						});
-
 					});
 
 			$("a.supervisor", this).die().live("click", function(e) {
@@ -359,7 +358,7 @@
 													});
 
 									Signup.course.show(courseDetails, id,
-											"ALL", false, function() {
+											"ALL", false, "../rest", function() {
 												courseDetails.dialog("open");
 											});
 

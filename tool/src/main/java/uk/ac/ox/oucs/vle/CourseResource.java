@@ -20,6 +20,7 @@
 package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -45,9 +46,15 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ContextResolver;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerationException;
@@ -65,12 +72,16 @@ import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 @Path("course{cobomo:(/cobomo)?}")
 public class CourseResource {
 
+	private static final Log log = LogFactory.getLog(CourseResource.class);
+
 	private CourseSignupService courseService;
+	private SearchService searchService;
 	private JsonFactory jsonFactory;
 	private ObjectMapper objectMapper;
 
 	public CourseResource(@Context ContextResolver<Object> resolver) {
 		this.courseService = (CourseSignupService) resolver.getContext(CourseSignupService.class);
+		searchService = (SearchService) resolver.getContext(SearchService.class);
 		jsonFactory = new JsonFactory();
 		objectMapper = new ObjectMapper();
 		objectMapper.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
@@ -192,10 +203,34 @@ public class CourseResource {
 			throw new WebAppForbiddenException();
 		}
 		if (terms == null) {
-			throw new WebApplicationException();
+			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity("No query parameter terms supplied").build());
 		}
 		List<CourseGroup> groups = courseService.search(terms, Range.UPCOMING, false);
 		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
+	}
+	
+	@Path("/solr/{command}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public StreamingOutput setSolr(@PathParam("command") final String command, @Context UriInfo uriInfo) 
+			throws JsonGenerationException, JsonMappingException, IOException {
+		
+		if (!"select".equals(command)) {
+			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity("command not supported").build());
+		}
+		String query = uriInfo.getRequestUri().getRawQuery();
+		if (null == query) {
+			throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity("invalid query").build());
+		}
+	
+		ResultsWrapper results;
+		try {
+			results = searchService.select(query);
+			return new StringStreamingOutput(results);
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+			throw new WebApplicationException(Response.serverError().entity("Search not currently available.").build());
+		}
 	}
 	
 	@Path("/calendar")
@@ -736,6 +771,31 @@ public class CourseResource {
 				
 			gen.writeEndObject();
 			gen.close();
+		}
+	}
+
+	/**
+	 * This class is so that we can close the results wrapper after we've streamed the content back to the client.
+	 */
+	private class StringStreamingOutput implements StreamingOutput {
+		
+		private final ResultsWrapper results;
+	
+		private StringStreamingOutput(ResultsWrapper results) {
+			this.results = results;
+		}
+	
+		public void write(OutputStream out) {
+			try {
+				IOUtils.copy(results.getInputStream(), out);
+			} catch (IOException e) {
+				log.warn(e.getMessage(), e);
+				throw new WebApplicationException(Response.status(Status.SERVICE_UNAVAILABLE)
+						.entity("Service Unavailable, IO Exception with Search Engine").build());
+			} finally {
+				results.disconnect();
+				
+			}
 		}
 	}
 }

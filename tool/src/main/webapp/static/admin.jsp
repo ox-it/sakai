@@ -43,7 +43,7 @@
 <link rel="stylesheet" type="text/css" href="lib/tool.css" />
 <link rel="stylesheet" type="text/css" href="lib/jquery.tooltip.css" />
 
-<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="lib/jquery/jquery-1.4.4.min.js"></script>
 <script type="text/javascript"
 	src="lib/jstree-1.0rc2/_lib/jquery.cookie.js"></script>
 <script type="text/javascript" src="lib/jstree-1.0rc2/jquery.jstree.js"></script>
@@ -98,6 +98,7 @@
 				return "Closed";
 			}
 		};
+
 
 		var loadCourse = function(object) {
 
@@ -233,8 +234,17 @@
 									});
 								}
 							});
-
+			
+			var slots = new Array();
+			for ( var i in object.components) {
+				var component = object.components[i];
+				slots.push(component.slot);
+			}
+			
+			Signup.term.sortArray(slots);
+			
 			var html = '<h3 style="display:inline">Signups</h3>';
+			
 			html += '<span style="float:right; padding-right:20px;">Status Filter <select class="signups-table-status-filter">';
 			html += '<option selected="true" value = "">All</option>';
 			html += '<option value="WAITING">WAITING</option>';
@@ -245,16 +255,32 @@
 			html += '<option value="REJECTED">REJECTED</option>';
 			html += '<option value="WITHDRAWN">WITHDRAWN</option>';
 			html += '</select></span>';
+			
+			html += '<span style="float:right; padding-right:20px;">Term Filter <select class="signups-table-term-filter" id="signups-table-term-filter">';
+			html += '</select></span>';
+			
 			html += '<table border="0" class="display" id="signups-table"></table>';
 			html += '<a href="#" id="signup-add">Add Signup</a>';
 			$("#signups").html(html);
-			//$("#signups").html('<h3>Signups</h3><table border="0" class="display" id="signups-table"></table><a href="#" id="signup-add">Add Signup</a>');
+			
+			var selectElement = $('#signups-table-term-filter');
+			$.each(slots, function(i, slot) {
+				selectElement.append($("<option/>", {
+					value: slot,
+					text: slot
+				}));
+			});
+			selectElement[0].options[0].setAttribute("selected", "selected");
+			
 			// Load the signups.
 			var signups = $("#signups-table").signupTable(
 					"../rest/signup/course/" + code, true, true);
 			signups.bind("reload", function() { // Reload the summary when this table changes.
 				summary.fnReloadAjax(null, null, true);
 			})
+			
+			var filterTerm = $('#signups-table-term-filter').val();
+			signups.fnFilter(filterTerm, 9);
 
 			var signupAddUser = $("#signup-add-user-win");
 			signupAddUser.resize(function(e) {
@@ -551,6 +577,7 @@
 							});
 
 			return;
+			
 			// Handlers to decide what actions you can do when selecting multiple items.
 			$("#signups-table input[type=checkbox]")
 					.live(

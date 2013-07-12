@@ -39,6 +39,10 @@ public class CourseGroupImpl implements CourseGroup {
 		this.impl = impl;
 	}
 
+	public int getMuid() {
+		return courseGroupDAO.getMuid();
+	}
+	
 	public String getDescription() {
 		return courseGroupDAO.getDescription();
 	}

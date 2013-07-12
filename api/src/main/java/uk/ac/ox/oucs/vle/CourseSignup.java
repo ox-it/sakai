@@ -26,22 +26,59 @@ import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 public interface CourseSignup extends java.io.Serializable{
 
+	/**
+	 * 
+	 * @return String unique identifier for signup 
+	 */
 	public String getId();
 	
+	/**
+	 * 
+	 * @return Identity of student making the signup
+	 */
 	public Person getUser();
 	
+	/**
+	 * 
+	 * @return Identity of students supervisor if entered
+	 */
 	public Person getSupervisor();
 	
+	/**
+	 * 
+	 * @return Text supporting signup
+	 */
 	public String getNotes();
 	
+	/**
+	 * 
+	 * @return Status of signup
+	 * values may be one of PENDING, WITHDRAWN, APPROVED, ACCEPTED, CONFIRMED, REJECTED, WAITING;
+	 */
 	public Status getStatus();
 	
+	/**
+	 * 
+	 * @return Date the signup was made
+	 */
 	public Date getCreated();
 	
+	/**
+	 * 
+	 * @return Prac code of the students department
+	 */
 	public String getDepartment();
 	
+	/**
+	 * 
+	 * @return Set of course components signed up to
+	 */
 	public Set<CourseComponent> getComponents();
 	
+	/**
+	 * 
+	 * @return course (assessment unit) signed up to 
+	 */
 	public CourseGroup getGroup();
 
 }

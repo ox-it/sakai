@@ -39,6 +39,14 @@ public class DaisyPopulatorWrapper extends BasePopulatorWrapper implements Popul
 	public void setPopulator(Populator populator) {
 		this.populator = populator;
 	}
+	
+	/**
+	 * The service to supply search services
+	 */
+	private SearchService search;
+	public void setSearchService(SearchService search) {
+		this.search = search;
+	}
 
 	@Override
 	void runPopulator(PopulatorContext context) throws IOException {
@@ -50,6 +58,7 @@ public class DaisyPopulatorWrapper extends BasePopulatorWrapper implements Popul
 
 		Collection<CourseGroupDAO> groups = dao.deleteSelectedCourseGroups(context.getName());
 		for (CourseGroupDAO group : groups) {
+			search.deleteCourseGroup(new CourseGroupImpl(group, null));
 			context.getDeletedLogWriter().write("Deleting course ["+group.getCourseId()+" "+group.getTitle()+"]"+"\n");
 		}
 

@@ -120,6 +120,20 @@ public class SignupResource {
 		}; 
 	}
 
+	/**
+	 * Make a new signup
+	 * 
+	 * @param courseId
+	 * 		the courseId of the signup
+	 * @param components
+	 * 		the components to sign up to
+	 * @param email
+	 * 		the email of the supervisor
+	 * @param message
+	 * 		the reason for the signup
+	 * @return CourseSignup
+	 * 		the coursesignup object created
+	 */
 	@Path("/my/new")
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)

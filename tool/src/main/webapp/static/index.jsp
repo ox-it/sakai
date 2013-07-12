@@ -41,7 +41,7 @@
 <link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.4.custom/css/smoothness/jquery-ui-1.8.4.custom.css" />
 <link rel="stylesheet" type="text/css" href="lib/tool.css" />
 
-<script type="text/javascript" src="lib/jquery/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="lib/jquery/jquery-1.4.4.min.js"></script>
 <script type="text/javascript"
 	src="lib/jstree-1.0rc2/_lib/jquery.cookie.js"></script>
 <script type="text/javascript" src="lib/jstree-1.0rc2/jquery.jstree.js"></script>
@@ -132,14 +132,14 @@
 
 					var loadCourse = function(id, old){
 						if (old) {
-							Signup.course.show($("#details"), id, "PREVIOUS", externalUser);
+							Signup.course.show($("#details"), id, "PREVIOUS", externalUser, "../rest");
 						} else {
-							Signup.course.show($("#details"), id, "UPCOMING", externalUser);
+							Signup.course.show($("#details"), id, "UPCOMING", externalUser, "../rest");
 						}
 					};
 					
-					var openAtCourse = function(id){
-						Signup.course.show($("#details"), id, "UPCOMING", externalUser, function(courseData){
+                    var openAtCourse = function(id){
+						Signup.course.show($("#details"), id, "UPCOMING", externalUser, "../rest", function(courseData){
 							$("#tree").jstree("open_node", $("#"+courseData.departmentCode.substr(0,2)), function() {
 								$("#tree").jstree("open_node", $("#"+courseData.departmentCode), function() {
 									$("#tree").jstree("open_node", $("#"+courseData.subUnitCode));
