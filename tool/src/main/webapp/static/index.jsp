@@ -45,6 +45,7 @@
 <script type="text/javascript"
 	src="lib/jstree-1.0rc2/_lib/jquery.cookie.js"></script>
 <script type="text/javascript" src="lib/jstree-1.0rc2/jquery.jstree.js"></script>
+<script type="text/javascript" src="lib/jstree-1.0rc2/jquery.jstree.accordion.js"></script>
 <script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
 <script type="text/javascript"
 	src="lib/jquery-ui-1.8.4.custom/js/jquery-ui-1.8.4.custom.min.js"></script>
@@ -230,19 +231,9 @@
 							dots: false,
 							icons: false
 						},
-						plugins: ["ui", "themes", "json_data"]
+						plugins: ["ui", "themes", "json_data", "accordion"]
 					});	
 				});
-				
-				/**
-				 * close any other tree nodes at this level that are open
-				 */
-				$("#tree").bind("open_node.jstree", function(e, arg){
-					obj = arg.rslt.obj;
-					obj.parent("ul").children("li.jstree-open").not(obj).each( function(count, node) {
-						arg.inst.close_node(node);
-					});
-				});	
 
 			});
 				
