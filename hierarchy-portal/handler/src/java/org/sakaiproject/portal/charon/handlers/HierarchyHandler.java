@@ -481,6 +481,7 @@ public class HierarchyHandler extends SiteHandler {
 			if (child instanceof PortalNodeSite) {
 				Site childSite = ((PortalNodeSite)child).getSite();
 				detail = portal.getSiteHelper().convertSiteToMap(req, childSite, getUrlFragment(), site.getId(), myWorkspaceId, false, false, resetTools, false, null, loggedIn);
+				detail.put("iconClass", "icon-sakai-subsite");
 			} else if (child instanceof PortalNodeRedirect) {
 				detail = convertRedirectToMap(node, child);
 			}
@@ -510,7 +511,7 @@ public class HierarchyHandler extends SiteHandler {
 		detail = new HashMap<String,String>();
 		PortalNodeRedirect redirect = (PortalNodeRedirect)child;
 		detail.put("isPublished", "true");
-		detail.put("type", redirect.getUrl().contains("://")?
+		detail.put("iconClass", redirect.getUrl().contains("://")?
 		        "icon-sakai-redirect-external":
 		        "icon-sakai-redirect-internal");
 		String url = node.getSite().getUrl();
