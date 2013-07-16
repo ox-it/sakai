@@ -188,7 +188,7 @@ public class PDFWriter {
 			if (otherDetails.length() > 0) {
 				otherDetails.append(" ");
 			}
-			otherDetails.append(webauthId);
+			otherDetails.append(department);
 		}
 		phrase.add(new Chunk(otherDetails.toString(), tableOtherFont));
 
