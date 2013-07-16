@@ -379,6 +379,7 @@
 				var output = TrimPath.processDOMTemplate(
 						"signup-add-components-tpl", data);
 				signupAddUser.jqmHide();
+				signupAddExternal.jqmHide();
 				var dialog = $("#signup-add-components-win");
 				dialog.html(output);
 				dialog.jqm();
