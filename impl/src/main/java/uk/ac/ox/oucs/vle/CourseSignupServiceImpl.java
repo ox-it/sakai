@@ -326,7 +326,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void setHideCourse(String courseId, boolean hideGroup) {
+		UserProxy user = proxy.getCurrentUser();
 		CourseGroupDAO courseGroupDao = dao.findCourseGroupById(courseId);
+		if (!isAdministrator(courseGroupDao, user.getId(), false)) {
+			throw new PermissionDeniedException(user.getId());
+		}
 		courseGroupDao.setHideGroup(hideGroup);
 		dao.save(courseGroupDao);
 	}

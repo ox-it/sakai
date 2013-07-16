@@ -59,6 +59,9 @@
 		<!-- Delivery method of the course -->
 		<field name="course_delivery" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
+		<!-- Is this a course hidden from users -->
+		<field name="course_hidden" type="boolean" indexed="true" stored="false" required="true" multiValued="false" />
+
 		<!-- 
 			Information about the presentations 
 		-->

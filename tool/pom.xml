@@ -266,6 +266,7 @@
 								<jsSourceFile>core/AbstractSpellcheckWidget.js</jsSourceFile>
 								<jsSourceFile>core/AbstractTextWidget.js</jsSourceFile>
 								<jsSourceFile>core/ParameterHashStore.js</jsSourceFile>
+								<jsSourceFile>core/ParameterExtraStore.js</jsSourceFile>
 								<jsSourceFile>managers/Manager.jquery.js</jsSourceFile>
 								<jsSourceFile>search/widgets/AutocompleteWidget.js</jsSourceFile>
 								<jsSourceFile>search/widgets/CalendarWidget.js</jsSourceFile>

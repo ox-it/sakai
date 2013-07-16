@@ -28,7 +28,11 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.Placement;
 
 public interface SakaiProxy {
-	
+
+	/**
+	 * Get the current user. If there isn't anyone logged in it returns the anonymous user.
+	 * @return The current user, never <code>null</code>.
+	 */
 	public UserProxy getCurrentUser();
 
 	public UserProxy findUserById(String id);

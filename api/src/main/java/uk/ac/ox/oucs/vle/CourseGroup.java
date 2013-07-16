@@ -46,7 +46,12 @@ public interface CourseGroup {
 	public boolean getSupervisorApproval();
 	
 	public boolean getAdministratorApproval();
-	
+
+	/**
+	 * Should this course group be hidden.
+	 * Hidden groups are ones that a present in feeds but shouldn't be displayed any more to users.
+	 * @return <code>true</code> if the course group should be hidden.
+	 */
 	public boolean getHideGroup();
 	
 	public String getContactEmail();
