@@ -107,7 +107,7 @@ public interface CourseSignupService {
 	 * @param courseId
 	 * @param components
 	 */
-	public CourseSignup signup(String userId, String courseId, Set<String> components, String supervisorId);
+	public CourseSignup signup(String userId, String userName, String userEmail, String courseId, Set<String> components, String supervisorId);
 	
 	public List<CourseSignup> getCourseSignups(String courseId, Set<Status> statuses);
 	

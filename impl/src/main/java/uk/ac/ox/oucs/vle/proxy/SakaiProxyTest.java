@@ -128,6 +128,10 @@ public class SakaiProxyTest implements SakaiProxy {
 		return null;
 	}
 	
+	public UserProxy newUser(String name, String email) {
+		return null;
+	}
+	
 	public void sendEmail(String to, String subject, String body) {
 		emailLog.add(new Email(to, subject, body));
 	}

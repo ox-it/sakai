@@ -161,11 +161,16 @@ public class SignupResource {
 	
 	@Path("/new")
 	@POST
-	public Response signup(@FormParam("userId")String userId, @FormParam("courseId") String courseId, @FormParam("components")Set<String> components, @FormParam("supervisorId")String supervisorId) {
+	public Response signup( @FormParam("userId")String userId,
+							@FormParam("userName")String userName, 
+							@FormParam("userEmail")String userEmail, 
+							@FormParam("courseId") String courseId, 
+							@FormParam("components")Set<String> components, 
+							@FormParam("supervisorId")String supervisorId) {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			throw new WebAppForbiddenException();
 		}
-		courseService.signup(userId, courseId, components, supervisorId);
+		courseService.signup(userId, userName, userEmail, courseId, components, supervisorId);
 		return Response.ok().build();
 	}
 	

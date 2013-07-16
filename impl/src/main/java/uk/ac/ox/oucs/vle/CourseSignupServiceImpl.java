@@ -684,7 +684,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	/**
 	 * Signup by Administrator
 	 */
-	public CourseSignup signup(String userId, String courseId, Set<String> componentIds, String supervisorId) {
+	public CourseSignup signup(String userId, String userName, String userEmail, String courseId, Set<String> componentIds, String supervisorId) {
 		
 		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
 		if (groupDao == null) {
@@ -699,8 +699,14 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		
 		// Create the signup.
-		UserProxy user = proxy.findUserById(userId);
-		CourseSignupDAO signupDao = dao.newSignup(userId, supervisorId);
+		
+		UserProxy user = null;
+		if ("newUser".equals(userId)) {
+			user = proxy.newUser(userName, userEmail);
+		} else {
+			user = proxy.findUserById(userId);
+		}
+		CourseSignupDAO signupDao = dao.newSignup(user.getId(), supervisorId);
 		signupDao.setCreated(getNow());
 		signupDao.setGroup(groupDao);
 		signupDao.setStatus(Status.PENDING);

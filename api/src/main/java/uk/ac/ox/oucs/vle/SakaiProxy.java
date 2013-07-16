@@ -43,6 +43,8 @@ public interface SakaiProxy {
 	
 	public UserProxy findUserByEid(String eid);
 	
+	public UserProxy newUser(String name, String email);
+	
 	/**
 	 * Log an event happening. It is assumed that the person perfoming the 
 	 * event is the current user.

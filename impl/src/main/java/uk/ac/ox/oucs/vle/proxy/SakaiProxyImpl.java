@@ -63,8 +63,11 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserPermissionException;
 
 import uk.ac.ox.oucs.vle.AdditionalUserDetails;
 import uk.ac.ox.oucs.vle.SakaiProxy;
@@ -208,6 +211,39 @@ public class SakaiProxyImpl implements SakaiProxy {
 		} catch (UserNotDefinedException unde) {
 			return null;
 		}
+	}
+	
+	public UserProxy newUser(String name, String email) {
+		User sakaiUser;
+		String id = null;
+		String eid = email;
+		String firstName = null;
+		String lastName = null;
+		String pw = null;
+		String type = null;
+		
+		int i = name.indexOf(" ");
+		if (i > 0) {
+			firstName = name.substring(0, i);
+			lastName = name.substring(i+1);
+		} else {
+			firstName = name;
+		}
+		
+		try {
+			sakaiUser = userService.addUser(id, eid, firstName, lastName, email, pw, type, null);
+		
+		} catch (UserIdInvalidException e) {
+			return null;
+			
+		} catch (UserAlreadyDefinedException e) {
+			return findUserByEmail(email);
+			
+		} catch (UserPermissionException e) {
+			return null;
+		}
+		UserProxy user = wrapUserProxy(sakaiUser);
+		return user;
 	}
 
 	public void sendEmail(String to, String subject, String body) {
