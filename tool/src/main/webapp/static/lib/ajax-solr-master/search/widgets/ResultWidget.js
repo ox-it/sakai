@@ -153,7 +153,7 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 	}
 	output += ',&nbsp;&nbsp;<strong>'+booking_message + '</strong>';
 	output += '<p id="links_' + doc.course_identifier + '" class="links"></p>';
-	output += '<div id="description"><a href="javascript:{}" class="more">Show descrption</a>&nbsp;&nbsp;';
+	output += '<div id="description"><a href="javascript:{}" class="more">Show description</a>&nbsp;&nbsp;';
 	output += '<div class="toggle" style="display:none;">' + doc.course_description+'<br /></div>';
 	output += '<input type="hidden" name="id" value="' + doc.course_identifier + '">';
 	output += '<input type="hidden" name="previous" value="'+range+'">';
@@ -170,10 +170,10 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 
       if (toggle.is(':visible')) {
     	  toggle.hide();
-        $this.text('Show descrption');
+        $this.text('Show description');
       }
       else {
-    	$this.text('Hide descrption');
+    	$this.text('Hide description');
     	toggle.show();
       }
       return false;
