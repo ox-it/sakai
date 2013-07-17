@@ -49,7 +49,7 @@ public interface CourseGroup {
 
 	/**
 	 * Should this course group be hidden.
-	 * Hidden groups are ones that a present in feeds but shouldn't be displayed any more to users.
+	 * Hidden groups are ones that are present in feed but shouldn't be findable any more to users.
 	 * @return <code>true</code> if the course group should be hidden.
 	 */
 	public boolean getHideGroup();
