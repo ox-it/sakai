@@ -179,6 +179,10 @@ var Manager;
     	target: '#error'
     }));
 
+    Manager.setStore(new AjaxSolr.ParameterExtraStore({
+        extra: "fq=course_hidden:false"
+    }));
+
     Manager.init();
     Manager.store.addByValue('q', '*:*');
    

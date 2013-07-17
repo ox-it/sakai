@@ -57,6 +57,7 @@
   <script src="lib/ajax-solr-master/managers/Manager.jquery.js"></script>
   <script src="lib/ajax-solr-master/core/Parameter.js"></script>
   <script src="lib/ajax-solr-master/core/ParameterStore.js"></script>
+  <script src="lib/ajax-solr-master/core/ParameterExtraStore.js"></script>
   <script src="lib/ajax-solr-master/core/AbstractWidget.js"></script>
   <script src="lib/ajax-solr-master/search/widgets/ResultWidget.js"></script>
   <script src="lib/ajax-solr-master/widgets/jquery/PagerWidget.js"></script>

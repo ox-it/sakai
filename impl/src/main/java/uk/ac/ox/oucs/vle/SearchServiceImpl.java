@@ -94,7 +94,6 @@ public class SearchServiceImpl implements SearchService {
 	
 	@Override
 	public void addCourseGroup(CourseGroup course) {
-		
 		try {
 			
 			SolrInputDocument doc = new SolrInputDocument();
@@ -104,6 +103,9 @@ public class SearchServiceImpl implements SearchService {
 			doc.addField("course_identifier", course.getCourseId());
 			doc.addField("course_title", course.getTitle());
 			doc.addField("course_description", course.getDescription());
+			// We add the hidden courses to the index even though we don't return them as this way if we wanted to use
+			// Solr as the source of all data we can still lookup details of hidden courses.
+			doc.addField("course_hidden", course.getHideGroup());
 		
 			for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.RDF)) {
 				doc.addField("course_subject_rdf", category.getName());

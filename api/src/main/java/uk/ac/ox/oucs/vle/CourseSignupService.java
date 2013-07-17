@@ -142,7 +142,15 @@ public interface CourseSignupService {
 	public List<CourseSignup> getPendings();
 	
 	public void setSupervisor(String signupId, String supervisorId);
-	
+
+	/**
+	 * Mark a course as hidden or visible. To hide a course you need to be an administrator for it.
+	 * Hidden courses are not displayed to users although if they have any existing records
+	 * against them they should still be able to get the data.
+	 * @param courseId The ID of the course to hide.
+	 * @param hideCourse <code>true</code> if the course should be hidden.
+	 * @throws PermissionDeniedException If the current user isn't able to hide the course.
+	 */
 	public void setHideCourse(String courseId, boolean hideCourse);
 	
 	public void approve(String signupId);

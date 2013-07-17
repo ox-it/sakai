@@ -280,11 +280,8 @@ public class CourseResource {
 	
 	@Path("/hide")
 	@POST
-	public Response hide(@FormParam("courseId")String courseId, @FormParam("hideCourse")String hideCourse) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
-		courseService.setHideCourse(courseId, Boolean.parseBoolean(hideCourse));
+	public Response hide(@FormParam("courseId")String courseId, @FormParam("hideCourse")Boolean hideCourse) {
+		courseService.setHideCourse(courseId, hideCourse);
 		return Response.ok().build();
 	}
 

@@ -223,6 +223,7 @@ public class CourseGroupDAO implements java.io.Serializable, Cloneable {
 		this.administratorApproval = administratorApproval;
 	}
 
+
 	public boolean getHideGroup() {
 		return hideGroup;
 	}

@@ -78,7 +78,10 @@ public class CourseGroupImpl implements CourseGroup {
 	public boolean getAdministratorApproval() {
 		return courseGroupDAO.getAdministratorApproval();
 	}
-	
+
+	/**
+	 * @inheritDoc
+	 */
 	public boolean getHideGroup() {
 		return courseGroupDAO.getHideGroup();
 	}
