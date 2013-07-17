@@ -43,6 +43,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	private CourseDAO dao;
 	private SakaiProxy proxy;
+	private SearchService searchService;
 
 	private long adjustment;
 	
@@ -52,6 +53,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	public void setProxy(SakaiProxy proxy) {
 		this.proxy = proxy;
+	}
+
+	public void setSearchService(SearchService searchService) {
+		this.searchService = searchService;
 	}
 	
 	/**
@@ -323,7 +328,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 	
 	/**
-	 * 
+	 * @inheritDoc
 	 */
 	public void setHideCourse(String courseId, boolean hideGroup) {
 		UserProxy user = proxy.getCurrentUser();
@@ -333,6 +338,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		courseGroupDao.setHideGroup(hideGroup);
 		dao.save(courseGroupDao);
+		// Re-index. This should be re-factored so that all saves on the CourseGroup
+		// cause a re-index to happen.
+		searchService.addCourseGroup(new CourseGroupImpl(courseGroupDao, this));
+		searchService.tidyUp();
 	}
 	
 	/**
