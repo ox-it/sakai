@@ -36,14 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -412,15 +405,38 @@ public class SignupResource {
 			}
 		};
 	}
-	
+
+	/**
+	 * Exports all the signups for a year.
+	 * @param status If specified only export signups with this status.
+	 * @param year The year to export components from.
+	 * @return A streaming out that writes out XML.
+	 * @see #exportComponent(String, uk.ac.ox.oucs.vle.CourseSignupService.Status, int)
+	 */
+	@Path("/component/{year}.xml")
+	@GET
+	@Produces(MediaType.TEXT_XML)
+	public StreamingOutput exportYear(@QueryParam("status") final Status status,
+									  @PathParam("year") final int year) {
+		return exportComponent("all", status, year);
+	}
+
+
+	/**
+	 * Export signups for a component or if "all" all components in that year.
+	 * We support the "all" parameter so that existing URLs don't break.
+	 * @param componentId The component ID to export the signups for.
+	 * @param status If specified only export signups with this status.
+	 * @param year The year to export components from.
+	 * @return A streaming out that writes out XML.
+	 */
 	@Path("/component/{year}/{id}.xml")
 	@GET
 	@Produces(MediaType.TEXT_XML)
-	
-	public StreamingOutput syncComponent(@PathParam("id") final String componentId, 
-										 @QueryParam("status") final Status status, 
-										 @PathParam("year") final int year) {
-		
+	public StreamingOutput exportComponent(@PathParam("id") final String componentId,
+										   @QueryParam("status") final Status status,
+										   @PathParam("year") final int year) {
+
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			throw new WebAppForbiddenException();
 		}
