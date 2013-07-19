@@ -27,7 +27,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>AJAX Solr</title>
+  <title>Module Signup Search</title>
   
   <link href='<c:out value="${skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
   <link href="<c:out value="${skinRepo}" />/<c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
