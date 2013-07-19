@@ -41,10 +41,8 @@ div.error {
 }
 
 .simple_search input[type=submit] {
-	width: auto;
-	margin-left: auto;
-	margin-right: auto;
-	margin-top: 10px;
+	width: 6em; /* Needed to get IE8 to centre it */
+	margin: 10px auto;
 	display: block;
 }
 
