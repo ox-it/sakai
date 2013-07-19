@@ -31,11 +31,12 @@ import javax.ws.rs.ext.Provider;
 /**
  * This handles the exceptions from the course signup service and translates them
  * into nice HTTP error codes.
+ *
  * @author buckett
  *
  */
 @Provider
-public class CustomExceptionMapper implements ExceptionMapper<CourseSignupException> {
+public class CustomExceptionMapper implements ExceptionMapper<Throwable> {
 
 	private static final Map<String, String> forbiddenMap = new HashMap<String, String>();
 	static {
@@ -49,7 +50,7 @@ public class CustomExceptionMapper implements ExceptionMapper<CourseSignupExcept
 		notFoundMap.put("message", "The requested resource was not found");
 	}
 	
-	public Response toResponse(CourseSignupException exception) {
+	public Response toResponse(Throwable exception) {
 		if(exception instanceof NotFoundException) {
 			return Response.status(Status.NOT_FOUND)
 					.entity(notFoundMap)

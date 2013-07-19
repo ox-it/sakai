@@ -207,7 +207,7 @@ excluding it -->
 				<executions>
 					<execution>
 						<goals>
-							<goal>update-file-header</goal>
+							<goal>check-file-header</goal>
 						</goals>
 						<phase>process-sources</phase>
 					</execution>
