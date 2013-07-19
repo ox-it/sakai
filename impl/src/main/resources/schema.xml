@@ -63,26 +63,23 @@
 		<field name="course_hidden" type="boolean" indexed="true" stored="false" required="true" multiValued="false" />
 
 		<!-- 
-			Information about the presentations 
-		-->
-		
-		<!-- Bookable -->
+			Information about the latest presetation
+		  -->
 		<field name="course_bookable" type="boolean" indexed="true" stored="true" required="false" multiValued="false" />
-		
-		<!-- Signup -->
+
+		<field name="course_teaching_start" type="date" indexed="true" stored="true" required="false" multiValued="false" />
+		<field name="course_teaching_end" type="date" indexed="true" stored="true" required="false" multiValued="false" />
+		<field name="course_created" type="date" indexed="true" stored="true" required="false" multiValued="false" />
+
 		<field name="course_signup_open" type="date" indexed="true" stored="true" required="false" multiValued="false" />
 		<field name="course_signup_close" type="date" indexed="true" stored="true" required="false" multiValued="false" />
 		
 		<field name="course_signup_opentext" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 		<field name="course_signup_closetext" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-		
-		<!-- Presentation Dates -->
-		<field name="course_teaching_start" type="date" indexed="true" stored="true" required="false" multiValued="false" />
-		<field name="course_teaching_end" type="date" indexed="true" stored="true" required="false" multiValued="false" />
-		
-		<!-- Base Date for calculations -->
+
+		<!-- Base dates of all the components. -->
 		<field name="course_basedate" type="date" indexed="true" stored="true" required="false" multiValued="true" />
-		<field name="course_created" type="date" indexed="true" stored="true" required="false" multiValued="false" />
+
 		
 		<!-- Full Text Search for course title, course description and tags -->
 		<field name="fts" type="text_en_splitting" indexed="true" stored="false" multiValued="true" />
