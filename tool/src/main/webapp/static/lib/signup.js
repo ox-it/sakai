@@ -468,6 +468,24 @@ var Signup = function(){
 		},
         "util": {
             /**
+             * This attempts to parse a string of the form "2013-03-01T00:00:00Z".
+             * In some browser (Chrome, Firefox) new Date("2013-03-01T00:00:00Z") works, but in IE8
+             * it doesn't so we have to do this ourselves.
+             * @return the parsed date or null if the date couldn't be parsed.
+             */
+             parseDate: function(dateString) {
+              if(dateString) {
+                var d = dateString.match(/(\d+)-(\d+)-(\d+)T(\d+):(\d+):(\d+)Z/);
+                if (d) {
+                  // It's a UTC time so create it as such.
+                  // Month is zero based.
+                  return new Date(Date.UTC(d[1], d[2]-1, d[3], d[4], d[5], d[6]));
+                }
+              }
+              return new Date(NaN);
+            },
+
+            /**
              * Formats a durations to display to the user.
              * @param {Object} duration Duration in milliseconds.
              */

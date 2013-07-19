@@ -95,8 +95,8 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 	var range = "ALL";
 	var signup_message = "";
 	var booking_message = "";
-	var close = new Date(doc.course_signup_close);
-	var open = new Date(doc.course_signup_open);
+	var close = Signup.util.parseDate(doc.course_signup_close);
+	var open = Signup.util.parseDate(doc.course_signup_open);
 	
 	// Set range to UPCOMING, PREVIOUS or ALL depending on current selection 
 	var previous = false;
@@ -178,7 +178,9 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
       }
       return false;
     });
-  }
+  },
+
+
 });
 
 })(jQuery);
