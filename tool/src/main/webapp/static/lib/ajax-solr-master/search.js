@@ -180,7 +180,8 @@ var Manager;
     }));
 
     Manager.setStore(new AjaxSolr.ParameterExtraStore({
-        extra: "fq=course_hidden:false"
+        extra: "fq=course_hidden:false" + "&" +
+               "fq=course_basedate:[NOW/DAY-2YEAR TO *]" // Only courses within the last 2 years
     }));
 
     Manager.init();
