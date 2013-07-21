@@ -309,6 +309,10 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 					+ "'),getHeight('.ambrosiaHtmlEditSize_" + this.size.toString() + "'));");
 			response.println("}");
 			response.println("</script>");
+			
+			// on submit, record the editor's changed flag
+			context.addOnSubmit("document.getElementById('" + "changed_" + decodeId + "').value = CKEDITOR.instances['" + id + "'].checkDirty();");
+			response.println("<input type=\"hidden\" id=\"" + "changed_" + decodeId + "\" name=\"" + "changed_" + decodeId + "\" value =\"\" />");
 		}
 
 		// for optional, a hidden field to hold the value

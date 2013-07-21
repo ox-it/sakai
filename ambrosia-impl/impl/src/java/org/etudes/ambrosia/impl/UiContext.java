@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -269,6 +269,9 @@ public class UiContext implements Context
 	/** named objects and values. */
 	protected Map<String, Object> objects = new HashMap<String, Object>();
 
+	/** Place to collect onsubmit javascript code. */
+	protected StringBuffer onSubmitCode = new StringBuffer();
+
 	/** If the post was expected or not. */
 	protected boolean postExpected = false;
 
@@ -333,6 +336,14 @@ public class UiContext implements Context
 	{
 		if (msgs == null) return;
 		this.messages.push(msgs);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void addOnSubmit(String onSubmit)
+	{
+		this.onSubmitCode.append(onSubmit);
 	}
 
 	/**
@@ -503,6 +514,16 @@ public class UiContext implements Context
 	public InternationalizedMessages getMessages()
 	{
 		return messages;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getOnSubmit()
+	{
+		if (this.onSubmitCode.length() == 0) return null;
+
+		return this.onSubmitCode.toString();
 	}
 
 	/**

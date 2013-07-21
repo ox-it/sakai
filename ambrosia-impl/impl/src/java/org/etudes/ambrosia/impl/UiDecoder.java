@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -73,24 +73,31 @@ public class UiDecoder implements Decoder
 					String fullReference = req.getParameter("prop_" + name);
 					if (fullReference != null)
 					{
-						// read the value (multiple values)
-						String[] value = req.getParameterValues(valueName);
+						// read possible changed flag
+						String changed = req.getParameter("changed_" + name);
 
-						// pickup and use the if-null value if null
-						if (value == null)
+						// if there is a changed flag, and it indicates not changed, don't write to a reference
+						if (!("false".equals(changed)))
 						{
-							String[] ifNullValue = req.getParameterValues("null_" + name);
-							if (ifNullValue != null) value = ifNullValue;
+							// read the value (multiple values)
+							String[] value = req.getParameterValues(valueName);
+
+							// pickup and use the if-null value if null
+							if (value == null)
+							{
+								String[] ifNullValue = req.getParameterValues("null_" + name);
+								if (ifNullValue != null) value = ifNullValue;
+							}
+
+							// see if there's a type encoded
+							String type = req.getParameter("type_" + name);
+
+							// create a property reference of the proper type
+							PropertyReference ref = this.uiService.getTypedPropertyReference(type).setReference(fullReference);
+
+							// write it to the entity / property in the context
+							ref.write(context, value);
 						}
-
-						// see if there's a type encoded
-						String type = req.getParameter("type_" + name);
-
-						// create a property reference of the proper type
-						PropertyReference ref = this.uiService.getTypedPropertyReference(type).setReference(fullReference);
-
-						// write it to the entity / property in the context
-						ref.write(context, value);
 					}
 				}
 			}

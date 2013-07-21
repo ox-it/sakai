@@ -181,6 +181,15 @@ Entity action bar that contains the navigations that pertain to entities in a li
 	line-height: 2em;
 	padding-left: 1em;
 }
+.ambrosiaEntityActionBar a:link,
+.ambrosiaEntityActionBar a:visited,
+.ambrosiaEntityActionBar a:hover,
+.ambrosiaEntityActionBar a:active,
+.ambrosiaEntityActionBar a:focus
+{
+	color: #6066AC;
+	text-decoration: none;
+}
 
 /*
 Component action bar that contains the navigations that pertain to a component
@@ -300,10 +309,28 @@ Sakai ~ itemAction
 	white-space: nowrap;
 	height: 2em;
 }
+.ambrosiaNavNormal a:link,
+.ambrosiaNavNormal a:visited,
+.ambrosiaNavNormal a:hover,
+.ambrosiaNavNormal a:active,
+.ambrosiaNavNormal a:focus
+{
+	color: #6066AC;
+	text-decoration: none;
+}
 
 .ambrosiaNavWrap
 {
 	height: 2em;
+}
+.ambrosiaNavWrap a:link,
+.ambrosiaNavWrap a:visited,
+.ambrosiaNavWrap a:hover,
+.ambrosiaNavWrap a:active,
+.ambrosiaNavWrap a:focus
+{
+	color: #6066AC;
+	text-decoration: none;
 }
 
 /*
@@ -396,16 +423,14 @@ Sakai ~ listHier lines nolines
 	border-collapse: collapse;
 }
 .ambrosiaEntityList th a:link,
-.ambrosiaEntityList th a:visited
+.ambrosiaEntityList th a:visited,
+.ambrosiaEntityList th a:hover,
+.ambrosiaEntityList th a:active,
+.ambrosiaEntityList th a:focus
 {
-	color: #35b;
+	color: #6066AC;
 	text-decoration: underline;
 	border: none;
-}
-.ambrosiaEntityList th a:hover
-{
-	color: #33f;
-	text-decoration: underline;
 }
 .ambrosiaEntityList th
 {
@@ -420,6 +445,16 @@ Sakai ~ listHier lines nolines
 	vertical-align: top;
 	padding: .3em;
 }
+.ambrosiaEntityList td a:link,
+.ambrosiaEntityList td a:visited,
+.ambrosiaEntityList td a:hover,
+.ambrosiaEntityList td a:active,
+.ambrosiaEntityList td a:focus
+{
+	color: #6066AC;
+	text-decoration: none;
+}
+
 .ambrosiaEntityList tr:hover
 {
 	background-color: #ffc;
@@ -543,4 +578,14 @@ size for "tall" html edit.
 {
 	width: 680px;
 	height: 231px;
+}
+
+a.ambrosiaUiHot:link,
+a.ambrosiaUiHot:visited,
+a.ambrosiaUiHot:hover,
+a.ambrosiaUiHot:active,
+a.ambrosiaUiHot:focus
+{
+	color: #6066AC;
+	text-decoration: none;
 }

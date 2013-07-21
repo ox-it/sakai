@@ -11,7 +11,7 @@ Note: Script consists of two files: calendar?.js and calendar.html
 <head>
 <title>Select Date</title>
 <style>
-	td {font-family: Tahoma, Verdana, sans-serif; font-size: 12px;}
+	td {font-family: Tahoma, Verdana, sans-serif; font-size: 12px; white-space:nowrap;}
 </style>
 <script language="JavaScript">
 
@@ -298,7 +298,7 @@ if (obj_caller && obj_caller.time_comp)
 	}
 
 	document.write('</select>');
-	document.write('</font></td></tr></form>');
+	document.write('</font>&nbsp;&nbsp;<input type="submit" value="OK"/></td></tr></form>');
 
 
 

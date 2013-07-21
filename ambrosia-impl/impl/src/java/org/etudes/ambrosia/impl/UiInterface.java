@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -570,6 +570,14 @@ public class UiInterface extends UiContainer implements Interface
 		response.println("var enableValidate=true;");
 		response.println("function validate()");
 		response.println("{");
+		
+		// onsubmit code that always runs, even if we are not running validation
+		String onSubmit = context.getOnSubmit();
+		if (onSubmit != null)
+		{
+			response.println(onSubmit);
+		}
+
 		response.println("  if (!enableValidate) return true;");
 		response.println("  var rv=true;");
 

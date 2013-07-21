@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -61,6 +61,14 @@ public interface Context
 	 *        The internationalized messages.
 	 */
 	void addMessages(InternationalizedMessages msgs);
+
+	/**
+	 * Add some javascript code to run an on-submit, just before possible validation.
+	 * 
+	 * @param onSubmit
+	 *        The javascript onSubmit code fragment.
+	 */
+	void addOnSubmit(String onSubmit);
 
 	/**
 	 * Add some javascript code.
@@ -182,6 +190,13 @@ public interface Context
 	 * @return The internationalized messages.
 	 */
 	InternationalizedMessages getMessages();
+
+	/**
+	 * Access the javascript code collected for on-submit.
+	 * 
+	 * @return The javascript code collected for on-submit, or null if there was none.
+	 */
+	String getOnSubmit();
 
 	/**
 	 * Check if the post was expected or not.
