@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,9 +101,6 @@ public class XrefHelper
 		StringBuffer sb = new StringBuffer();
 		String serverUrl = ServerConfigurationService.getServerUrl();
 
-		// for the relative access check: matches /access/
-		Pattern relAccessPattern = Pattern.compile("/access/.*");
-
 		// process each "harvested" string (avoiding like strings that are not in src= or href= patterns)
 		while (m.find())
 		{
@@ -112,11 +109,10 @@ public class XrefHelper
 				String ref = m.group(2);
 				String terminator = m.group(3);
 
-				// if this is an access to our own server, make it full URL (i.e. starting with "/access")
-				Matcher relAccessMatcher = relAccessPattern.matcher(ref);
-				if (relAccessMatcher.matches())
+				// if this is an access to our own server, make it full URL (i.e. starting with "/access" or /library or /docs)
+				if(ref.startsWith("/"))
 				{
-					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + serverUrl + ref + terminator));
+					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + serverUrl + ref + terminator));	
 				}
 			}
 		}
@@ -356,7 +352,8 @@ public class XrefHelper
 				if (pos != -1)
 				{
 					ref = ref.substring(pos);
-					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + terminator));
+					if (ref.length() == 0) ref = "/";
+					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + terminator));					
 				}
 
 				// if this is a relative access URL, fix it
@@ -388,7 +385,7 @@ public class XrefHelper
 
 		return sb.toString();
 	}
-
+	
 	/**
 	 * Replace any embedded references in the html data with the translated, new references listed in translations.
 	 * 

@@ -21,26 +21,11 @@
 
 package org.etudes.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.HtmlNode;
-import org.htmlcleaner.HtmlSerializer;
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.TagNodeVisitor;
-import org.htmlcleaner.XPatherException;
-import org.sakaiproject.util.StringUtil;
-import org.w3c.dom.Document;
-import org.w3c.tidy.Tidy;
 
 /**
  * Stripper has helper methods for stripping out junk from user entered HTML
@@ -51,41 +36,72 @@ public class HtmlHelper
 	private static Log M_log = LogFactory.getLog(HtmlHelper.class);
 
 	/**
-	 * Make the elements in alpha order, no internal spacing, all ; terminated
+	 * Assure that any anchor tag to external content that does not have a target attribute gets one as target="_blank".
 	 * 
-	 * @param value
-	 * @return
+	 * @param data
+	 *        The html data.
+	 * @return The modified data.
 	 */
-	public static String canonicalStyleAttribute(String value)
+	public static String assureAnchorTargetBlank(String data)
 	{
-		// break on ";"
-		String[] parts = StringUtil.split(value, ";");
-
-		// collect style and value elements for alpha rendering
-		TreeMap<String, String> elements = new TreeMap<String, String>();
-		for (String part : parts)
+		if (data == null)
 		{
-			// break on first ":"
-			String[] lr = StringUtil.split(part, ":");
+			return null;
+		}
 
-			if (lr.length == 2)
+		StringBuffer sb = new StringBuffer();
+
+		// find the <a> tags, and isolate the contents of a tag
+		Pattern p = Pattern.compile("<a\\s*([^>]+)>", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
+		// find the href attribute and isolate the value
+		Pattern hrefPattern = Pattern.compile("href\\s*=\\s*[\"\'](.*?)[\"\']", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
+
+		// find the target attribute
+		Pattern targetPattern = Pattern.compile("target\\s*=\\s*[\"\'][^\"\']*[\"\']\\s*");
+
+		// find the onclick attribute
+		Pattern onclickPattern = Pattern.compile("onclick\\s*=\\s*[\"\'][^\"\']*[\"\']\\s*");
+
+		Matcher m = p.matcher(data);
+		while (m.find())
+		{
+			if (m.groupCount() == 1)
 			{
-				elements.put(lr[0].trim(), lr[1].trim());
+				String tagContents = m.group(1);
+
+				// only if we do NOT have a target attribute at all
+				Matcher targetMatcher = targetPattern.matcher(tagContents);
+				if (!targetMatcher.find())
+				{
+					// only if we do not have an onclick (CKEditor puts this in for the "popup" target option in the link dialog
+					Matcher onclickMatcher = onclickPattern.matcher(tagContents);
+					if (!onclickMatcher.find())
+					{
+						// only if we do NOT have an internal href
+						Matcher hrefMatcher = hrefPattern.matcher(tagContents);
+						if (hrefMatcher.find() && hrefMatcher.groupCount() == 1)
+						{
+							String href = hrefMatcher.group(1);
+							if (!href.startsWith("#"))
+							{
+								// we have an href that's not to a local anchor, so do the target stuff
+								// Note: no need to remove existing target attributes, as we have checked that there is none
+								// tagContents = "target=\"_blank\" " + tagContents.replaceAll("(target\\s*=\\s*[\"\'][^\"\']*[\"\']\\s*)?", "");
+								tagContents = "target=\"_blank\" " + tagContents;
+							}
+						}
+					}
+				}
+
+				tagContents = "<a " + tagContents + ">";
+				m.appendReplacement(sb, Matcher.quoteReplacement(tagContents));
 			}
 		}
 
-		// reform the value
-		StringBuilder newValue = new StringBuilder();
-		for (String key : elements.keySet())
-		{
-			String setting = elements.get(key);
-			newValue.append(key);
-			newValue.append(":");
-			newValue.append(setting);
-			newValue.append(";");
-		}
+		m.appendTail(sb);
 
-		return newValue.toString();
+		return sb.toString();
 	}
 
 	/**
@@ -101,7 +117,7 @@ public class HtmlHelper
 	}
 
 	/**
-	 * Clean some user entered HTML. Assures well formed HTML. Assures all anchor tags have target=_blank. Assures all tag attributes are in determined (alpha) order.
+	 * Clean some user entered HTML.
 	 * 
 	 * @param source
 	 *        The source HTML
@@ -114,36 +130,33 @@ public class HtmlHelper
 		String rv = source;
 
 		// get rid of the junk we have seen cause trouble
-		rv = preClean(rv, fragment);
+		// Note: we will assure the anchor targets, too, just like in cleanAndAssureAnchorTarget()
+		rv = preClean(rv, fragment, true);
 
-		// run through jtidy, for the best in making it valid (fragment is ignored)
-		rv = cleanWithJtidy(rv, fragment);
-
-		// run through htmlcleaner, where we can more easily manipulate the tree before rendering
-		rv = cleanWithHtmlCleaner(rv, fragment);
+		// that's it folks!
 
 		return rv;
 	}
 
 	/**
-	 * Compare two HTML fragment strings and see if they are essentially the same or not.
+	 * Clean some user entered HTML - also assure a target=_blank for all anchors to external content.
 	 * 
-	 * @param oneHtml
-	 *        One HTML string.
-	 * @param otherHtml
-	 *        The other HTML string.
+	 * @param source
+	 *        The source HTML
 	 * @param fragment
-	 *        true if the strings are html fragments, false if full html documents.
-	 * @return true if these are essentially the same, false if they are essentially different.
+	 *        if true, return a fragment of html, else return a complete html document.
+	 * @return The cleaned up HTML.
 	 */
-	public static boolean compareHtml(String oneHtml, String otherHtml, boolean fragment)
+	public static String cleanAndAssureAnchorTarget(String source, boolean fragment)
 	{
-		// compare the clean versions of both
-		String cleanOne = clean(oneHtml, fragment);
-		String cleanTwo = clean(otherHtml, fragment);
+		String rv = source;
 
-		// TODO: - script tag body text formatting
-		return !Different.different(cleanOne, cleanTwo);
+		// get rid of the junk we have seen cause trouble
+		rv = preClean(rv, fragment, true);
+
+		// that's it folks!
+
+		return rv;
 	}
 
 	/**
@@ -163,6 +176,9 @@ public class HtmlHelper
 		// quick check for any strange characters
 		if ((data.indexOf(56256) == -1) && (data.indexOf(55304) == -1)) return data;
 
+		// log that we are doing this
+		M_log.warn("HtmlClean: stripBadEncodingCharacters");
+
 		StringBuilder buf = new StringBuilder(data);
 		int len = buf.length() - 1;
 		for (int i = 0; i < len; i++)
@@ -177,35 +193,6 @@ public class HtmlHelper
 		}
 
 		return buf.toString();
-	}
-
-	/**
-	 * Remove image tags that have for src "file://" "webkit-fake-url://" or "x-apple-ql-id://" prefixes (transports)
-	 * 
-	 * @param data
-	 *        the html data.
-	 * @return The cleaned up data.
-	 */
-	public static String stripBadImageTags(String data)
-	{
-		if (data == null) return data;
-
-		// pattern to find link/meta tags
-		// TODO: the .*? needs to stop on a >, else if there's a good image and later a bad one, it combines the two into one and removes it all!
-		Pattern p = Pattern.compile("<img\\s+.*?src=\"(file:|webkit-fake-url:|x-apple-ql-id:).*?/>", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
-				| Pattern.DOTALL);
-
-		Matcher m = p.matcher(data);
-		StringBuffer sb = new StringBuffer();
-
-		while (m.find())
-		{
-			m.appendReplacement(sb, "");
-		}
-
-		m.appendTail(sb);
-
-		return sb.toString();
 	}
 
 	/**
@@ -260,6 +247,9 @@ public class HtmlHelper
 		// quick check for any hint of the pattern
 		if (data.indexOf("<! [endif] >") == -1) return data;
 
+		// log that we are doing this
+		M_log.warn("HtmlClean: stripDamagedComments");
+
 		// Notes: DOTALL so the "." matches line terminators too, "*?" Reluctant quantifier so text between two different comments is not lost
 		Pattern p = Pattern.compile("<!--\\[if.*?<! \\[endif\\] >", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
 
@@ -292,6 +282,9 @@ public class HtmlHelper
 		// quick check for any hint of the pattern
 		if (data.indexOf("&lt;!--  /* Font Definitions */") == -1) return data;
 
+		// log that we are doing this
+		M_log.warn("HtmlClean: stripEncodedFontDefinitionComments");
+
 		// Notes: DOTALL so the "." matches line terminators too, "*?" Reluctant quantifier so text between two different comments is not lost
 		Pattern p = Pattern.compile("&lt;!--  /\\* Font Definitions \\*/.*?--&gt;", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
 
@@ -321,6 +314,9 @@ public class HtmlHelper
 
 		// quick check for any hint of the pattern
 		if (data.indexOf("&lt;!-- /* Style Definitions */") == -1) return data;
+
+		// log that we are doing this
+		M_log.warn("HtmlClean: stripEncodedStyleDefinitionComments");
 
 		// Notes: DOTALL so the "." matches line terminators too, "*?" Reluctant quantifier so text between two different comments is not lost
 		Pattern p = Pattern.compile("&lt;!-- /\\* Style Definitions \\*/.*?--&gt;", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
@@ -366,217 +362,17 @@ public class HtmlHelper
 	}
 
 	/**
-	 * Remove link and meta tags
-	 * 
-	 * @param data
-	 *        the html data.
-	 * @return The cleaned up data.
-	 */
-	public static String stripLinks(String data)
-	{
-		if (data == null) return data;
-
-		// pattern to find link/meta tags
-		Pattern p = Pattern.compile("<(link|meta)\\s+.*?(/*>)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
-
-		Matcher m = p.matcher(data);
-		StringBuffer sb = new StringBuffer();
-
-		while (m.find())
-		{
-			m.appendReplacement(sb, "");
-		}
-
-		m.appendTail(sb);
-
-		return sb.toString();
-	}
-
-	/**
-	 * Clean some user entered HTML. Assures well formed HTML. Assures all anchor tags have target=_blank. Assures all tag attributes are in determined (alpha) order.
-	 * 
-	 * @param source
-	 *        The source HTML
-	 * @param fragment
-	 *        if true, return a fragment of html, else return a complete html document.
-	 * @return The cleaned up HTML.
-	 */
-	protected static String cleanWithHtmlCleaner(String source, boolean fragment)
-	{
-		if (source == null) return null;
-
-		// http://htmlcleaner.sourceforge.net
-		// http://mvnrepository.com/artifact/net.sourceforge.htmlcleaner/htmlcleaner/2.2
-		HtmlCleaner cleaner = new HtmlCleaner();
-		cleaner.getProperties().setOmitXmlDeclaration(true);
-		cleaner.getProperties().setTranslateSpecialEntities(false);
-		cleaner.getProperties().setOmitComments(true);
-
-		TagNode node = cleaner.clean(source);
-
-		node.traverse(new TagNodeVisitor()
-		{
-			public boolean visit(TagNode tagNode, HtmlNode htmlNode)
-			{
-				if (htmlNode instanceof TagNode)
-				{
-					TagNode tag = (TagNode) htmlNode;
-					String tagName = tag.getName();
-					if ("a".equals(tagName))
-					{
-						// if there is a href attribute, and it does not begin with # (a link to an anchor), add a target attribute
-						String href = tag.getAttributeByName("href");
-						if ((href != null) && (!href.startsWith("#")))
-						{
-							tag.setAttribute("target", "_blank");
-						}
-					}
-
-					// order the tag attributes
-					Map<String, String> attributes = tag.getAttributes();
-					TreeMap<String, String> attr = new TreeMap<String, String>();
-					attr.putAll(attributes);
-
-					for (String key : attr.keySet())
-					{
-						tag.removeAttribute(key);
-					}
-
-					for (String key : attr.keySet())
-					{
-						String value = attr.get(key);
-
-						// fix up style attributes
-						if ("style".equalsIgnoreCase(key))
-						{
-							value = canonicalStyleAttribute(value);
-						}
-
-						tag.setAttribute(key, value);
-					}
-				}
-
-				return true;
-			}
-		});
-
-		String rv = "";
-		final HtmlSerializer serializer = new CompactHtmlSerializer(cleaner.getProperties());
-
-		try
-		{
-			TagNode nodeToGet = node;
-			boolean omitEnvelope = false;
-
-			if (fragment)
-			{
-				Object[] nodes = node.evaluateXPath("//body");
-				if (nodes.length == 1)
-				{
-					nodeToGet = (TagNode) (nodes[0]);
-					omitEnvelope = true;
-				}
-			}
-
-			rv = serializer.getAsString(nodeToGet, "UTF-8", omitEnvelope);
-		}
-		catch (XPatherException e)
-		{
-		}
-		catch (IOException e)
-		{
-		}
-
-		return rv;
-	}
-
-	/**
-	 * Clean some user entered HTML. Assures well formed HTML. Assures all anchor tags have target=_blank. Assures all tag attributes are in determined (alpha) order.
-	 * 
-	 * @param source
-	 *        The source HTML
-	 * @param fragment
-	 *        if true, return a fragment of html, else return a complete html document.
-	 * @return The cleaned up HTML.
-	 */
-	protected static String cleanWithJtidy(String source, boolean fragment)
-	{
-		if (source == null) return null;
-
-		try
-		{
-			Tidy tidy = new Tidy();
-			ByteArrayInputStream bais = new ByteArrayInputStream(source.getBytes("UTF-8"));
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			PrintWriter pw = new PrintWriter(baos);
-			tidy.setErrout(pw);
-
-			tidy.setDocType("loose");
-			tidy.setDropEmptyParas(false);
-			tidy.setEscapeCdata(false);
-			tidy.setForceOutput(true);
-			tidy.setInputEncoding("UTF-8");
-			tidy.setMakeClean(false);		// this is what changes <font> and <center> to style tags, but not without trouble for old content, so we disable it.
-			tidy.setQuiet(true);
-			tidy.setSmartIndent(false);
-			tidy.setSpaces(0);
-			tidy.setTabsize(0);
-			tidy.setTidyMark(false);
-			tidy.setWraplen(Integer.MAX_VALUE);
-			tidy.setXHTML(true);
-			tidy.setXmlOut(false);
-
-			// StringWriter writer = new StringWriter();
-			// tidy.getConfiguration().printConfigOptions(writer, true);
-			// System.out.println(writer.toString());
-
-			Document doc = tidy.parseDOM(bais, null);
-
-			// get the whole thing in a string
-			baos = new ByteArrayOutputStream();
-			tidy.pprint(doc, baos);
-			String rv = baos.toString("UTF-8");
-
-			// System.out.println("JTidy output:\n" + rv);
-
-			return rv;
-		}
-		catch (Throwable e)
-		{
-			M_log.warn("cleanWithJtidy: " + e.toString() + "\n source:\n" + source);
-			return source;
-		}
-	}
-
-	/**
-	 * Convert any actual tab characters to the html entity .
-	 * 
-	 * @param data
-	 *        the html data.
-	 * @return The cleaned up data.
-	 */
-	protected static String encodeTabs(String data)
-	{
-		if (data == null) return data;
-
-		// quick check for any hint of the pattern
-		if (data.indexOf("\t") == -1) return data;
-
-		String rv = data.replaceAll("\\t", "&#9;");
-
-		return rv;
-	}
-
-	/**
 	 * Clean some user entered HTML - all the steps before the actual parsing.
 	 * 
 	 * @param source
 	 *        The source HTML
 	 * @param fragment
 	 *        if true, return a fragment of html, else return a complete html document.
+	 * @param assureAnchorTarget
+	 *        if true, make sure any anchor to an external content has a target=_blank attribute.
 	 * @return The cleaned up HTML.
 	 */
-	protected static String preClean(String source, boolean fragment)
+	protected static String preClean(String source, boolean fragment, boolean assureAnchorTarget)
 	{
 		if (source == null) return null;
 
@@ -587,7 +383,6 @@ public class HtmlHelper
 		source = stripEncodedStyleDefinitionComments(source);
 		source = stripDamagedComments(source);
 		source = stripBadEncodingCharacters(source);
-		source = encodeTabs(source);
 		// source = stripBadImageTags(source); // TODO: not yet working
 
 		// we don't need to keep comments
@@ -601,6 +396,11 @@ public class HtmlHelper
 
 		// shorten any full URL embedded references (such as what editors puts in for "smilies")
 		source = XrefHelper.shortenFullUrls(source);
+
+		if (assureAnchorTarget)
+		{
+			source = assureAnchorTargetBlank(source);
+		}
 
 		return source;
 	}
