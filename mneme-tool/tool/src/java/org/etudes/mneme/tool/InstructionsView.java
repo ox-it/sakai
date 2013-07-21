@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -153,10 +153,16 @@ public class InstructionsView extends ControllerImpl
 		String destination = this.uiService.decode(req, context);
 
 		// if other than the /submitted destination, just go there
-		if (!destination.startsWith("/submitted"))
+		if ((!destination.startsWith("/submitted")) && (!destination.equals("AUTO")))
 		{
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
 			return;
+		}
+
+		// for AUTO, the final return is just /list - not the destination encoded in the params
+		if (destination.equals("AUTO"))
+		{
+			returnDestination = "/list";
 		}
 
 		// this post is from the timer, and completes the submission

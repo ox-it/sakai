@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -30,6 +30,7 @@ import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.FormatDelegateImpl;
 import org.etudes.mneme.api.AssessmentSubmissionStatus;
 import org.etudes.mneme.api.Submission;
+import org.etudes.mneme.api.SubmissionCompletionStatus;
 import org.etudes.util.api.AccessAdvisor;
 import org.etudes.util.api.MasteryAdvisor;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -96,6 +97,11 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 
 		// get the status
 		AssessmentSubmissionStatus status = submission.getAssessmentSubmissionStatus();
+
+		// non-user submission status, 0 points, not answered
+		Boolean nonUserZeroEmpty = ((submission.getCompletionStatus() != SubmissionCompletionStatus.userFinished)
+				&& (submission.getEvaluation().getScore() == null || (submission.getEvaluation().getScore() == 0.0)) && submission.getIsUnanswered());
+
 		switch (status)
 		{
 			case future:
@@ -164,20 +170,35 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 			case completeReady:
 			{
 				String icon = "/icons/finish.gif";
-				String repeatMsg = context.getMessages().getString("format-list-decoration-complete-repeat");
-				if (belowMastery)
+				String msgSelector = "format-list-decoration-complete";
+				String repeatMsgSelector = "format-list-decoration-complete-repeat";
+				if (nonUserZeroEmpty)
+				{
+					icon = "/icons/missed-try-again.png";
+					msgSelector = "format-list-decoration-missed";
+					repeatMsgSelector = "format-list-decoration-missed-repeat";
+				}
+
+				String repeatMsg = context.getMessages().getString(repeatMsgSelector);
+				if (belowMastery && (!nonUserZeroEmpty))
 				{
 					icon = "/icons/not-mastered.png";
 					Object[] args = new Object[1];
 					args[0] = masteryPoints;
-					repeatMsg = context.getMessages().getFormattedMessage("format-list-decoration-complete-repeat-mastery", args);
+
+					msgSelector = "format-list-decoration-submitted";
+					String selector = "format-list-decoration-complete-repeat-mastery";
+					if ((!submission.getIsReleased()) || submission.getHasUnscoredAnswers() || submission.getHasUngradedSiblings())
+					{
+						selector = "format-list-decoration-complete-repeat-mastery-pending";
+					}
+					repeatMsg = context.getMessages().getFormattedMessage(selector, args);
 				}
 
 				if (!blocked)
 				{
 					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + icon + "\" alt=\""
-							+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
-							+ context.getMessages().getString("format-list-decoration-complete") + "\" />"
+							+ context.getMessages().getString(msgSelector) + "\" title=\"" + context.getMessages().getString(msgSelector) + "\" />"
 							+ "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
 							+ context.getMessages().getString("format-list-decoration-repeat") + "\" title=\""
 							+ context.getMessages().getString("format-list-decoration-repeat") + "\" />" + "<br /><span style=\"font-size:smaller\">"
@@ -189,20 +210,34 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 			case overdueCompleteReady:
 			{
 				String icon = "/icons/finish.gif";
+				String msgSelector = "format-list-decoration-complete";
+				if (nonUserZeroEmpty)
+				{
+					icon = "/icons/missed-try-again.png";
+					msgSelector = "format-list-decoration-missed";
+				}
+
 				String repeatMsg = context.getMessages().getString("format-list-decoration-complete-repeat-overdue");
-				if (belowMastery)
+				if (belowMastery && (!nonUserZeroEmpty))
 				{
 					icon = "/icons/not-mastered.png";
 					Object[] args = new Object[1];
 					args[0] = masteryPoints;
-					repeatMsg = context.getMessages().getFormattedMessage("format-list-decoration-complete-repeat-overdue-mastery", args);
+
+					msgSelector = "format-list-decoration-submitted";
+					String selector = "format-list-decoration-complete-repeat-overdue-mastery";
+					if ((!submission.getIsReleased()) || submission.getHasUnscoredAnswers() || submission.getHasUngradedSiblings())
+					{
+						selector = "format-list-decoration-complete-repeat-overdue-mastery-pending";
+					}
+
+					repeatMsg = context.getMessages().getFormattedMessage(selector, args);
 				}
 
 				if (!blocked)
 				{
 					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + icon + "\" alt=\""
-							+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
-							+ context.getMessages().getString("format-list-decoration-complete") + "\" />"
+							+ context.getMessages().getString(msgSelector) + "\" title=\"" + context.getMessages().getString(msgSelector) + "\" />"
 							+ "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
 							+ context.getMessages().getString("format-list-decoration-repeat") + "\" title=\""
 							+ context.getMessages().getString("format-list-decoration-repeat") + "\" />" + "<br /><span style=\"font-size:smaller\">"
@@ -213,10 +248,37 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 
 			case complete:
 			{
-				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/finish.gif\" alt=\""
-						+ context.getMessages().getString("format-list-decoration-complete") + "\" title=\""
-						+ context.getMessages().getString("format-list-decoration-complete") + "\" /><br /><span style=\"font-size:smaller\">"
-						+ context.getMessages().getString("format-list-decoration-complete") + "</span>";
+				String icon = "/icons/finish.gif";
+				String msgSelector = "format-list-decoration-complete";
+				String detailSelector = "format-list-decoration-complete";
+
+				Object[] args = new Object[1];
+				args[0] = masteryPoints;
+
+				if (nonUserZeroEmpty)
+				{
+					icon = "/icons/exclamation.png";
+					msgSelector = "format-list-decoration-missed";
+					detailSelector = "format-list-decoration-missed";
+				}
+				else if (belowMastery)
+				{
+					msgSelector = "format-list-decoration-submitted";
+					icon = "/icons/not-mastered.png";
+					if ((!submission.getIsReleased()) || submission.getHasUnscoredAnswers() || submission.getHasUngradedSiblings())
+					{
+						detailSelector = "format-list-decoration-complete-not-mastered-pending";
+					}
+					else
+					{
+						detailSelector = "format-list-decoration-complete-not-mastered";
+					}
+				}
+
+				String msg = context.getMessages().getFormattedMessage(msgSelector, args);
+				String detail = context.getMessages().getFormattedMessage(detailSelector, args);
+				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + icon + "\" alt=\"" + msg + "\" title=\"" + msg
+						+ "\" /><br /><span style=\"font-size:smaller\">" + detail + "</span>";
 				break;
 			}
 			case over:

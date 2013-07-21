@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -86,6 +86,13 @@ public interface AssessmentParts
 	 * @return the first part, of null if there are none.
 	 */
 	Part getFirst();
+
+	/**
+	 * Get a message describing what is wrong with the part.
+	 * 
+	 * @return A localized message describing what is wrong with the part, or null if the part is valid.
+	 */
+	String getInvalidMessage();
 
 	/**
 	 * Check if the assessment parts are valid; i.e. exist and all have >0 questions

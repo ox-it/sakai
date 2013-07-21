@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -124,6 +124,12 @@ public class FormatQuestionTitleDelegate extends FormatDelegateImpl
 			if ((question.getPartDetail() != null) && (question.getPartDetail() instanceof PoolDraw))
 			{
 				template += "-draw";
+			}
+			
+			// or otherwise shuffled?
+			else if (question.getPart().getRandomize())
+			{
+				template += "-shuffle";
 			}
 		}
 

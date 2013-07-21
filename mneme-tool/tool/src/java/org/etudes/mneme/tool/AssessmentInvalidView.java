@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -98,6 +98,13 @@ public class AssessmentInvalidView extends ControllerImpl
 						msg.append("<li>" + part.getInvalidMessage() + "</li>");
 					}
 				}
+
+				// try parts overall
+				String partsMsg = assessment.getParts().getInvalidMessage();
+				if (partsMsg != null)
+				{
+					msg.append("<li>" + partsMsg + "</li>");
+				}
 			}
 
 			// could be points
@@ -114,7 +121,7 @@ public class AssessmentInvalidView extends ControllerImpl
 					msg.append("<li>" + msgs.getString("formal-needs-email") + "</li>");
 				}
 			}
-			
+
 			// could be missing dates with auto-send
 			if (assessment.getResultsEmail() != null)
 			{

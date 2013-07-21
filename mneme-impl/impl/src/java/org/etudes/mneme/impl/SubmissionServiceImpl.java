@@ -52,6 +52,7 @@ import org.etudes.mneme.api.GradesService;
 import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Ordering;
 import org.etudes.mneme.api.Part;
+import org.etudes.mneme.api.PoolDraw;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
@@ -321,7 +322,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	/**
 	 * {@inheritDoc}
 	 */
-	public void completeSubmission(Submission s) throws AssessmentPermissionException, AssessmentClosedException, SubmissionCompletedException
+	public void completeSubmission(Submission s, Boolean auto) throws AssessmentPermissionException, AssessmentClosedException,
+			SubmissionCompletedException
 	{
 		if (s == null) throw new IllegalArgumentException();
 		Submission submission = getSubmission(s.getId());
@@ -362,7 +364,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		// update the submission
 		submission.setSubmittedDate(asOf);
 		submission.setIsComplete(Boolean.TRUE);
-		submission.setCompletionStatus(SubmissionCompletionStatus.userFinished);
+		submission.setCompletionStatus(auto ? SubmissionCompletionStatus.autoComplete : SubmissionCompletionStatus.userFinished);
 
 		// if grade at submission
 		if (assessment.getGrading().getAutoRelease())
@@ -1000,6 +1002,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		List<String> qids = this.storage.findPartQuestions(part);
 		List<Question> rv = new ArrayList<Question>();
 
+		boolean fromDraw = false;
 		for (String qid : qids)
 		{
 			// get the question from the part so the contexts are all set
@@ -1007,20 +1010,39 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			if (q != null)
 			{
 				rv.add(q);
+				if ((q.getPartDetail() != null) && (q.getPartDetail() instanceof PoolDraw))
+				{
+					fromDraw = true;
+				}
 			}
 		}
 
-		// sort by question text
-		Collections.sort(rv, new Comparator()
+		// for random order parts or parts that have some draws, sort the question alpha by description
+		if (part.getRandomize() || fromDraw)
 		{
-			public int compare(Object arg0, Object arg1)
+			Collections.sort(rv, new Comparator<Question>()
 			{
-				String s0 = StringUtil.trimToZero(((QuestionImpl) arg0).getDescription());
-				String s1 = StringUtil.trimToZero(((QuestionImpl) arg1).getDescription());
-				int rv = s0.compareToIgnoreCase(s1);
-				return rv;
-			}
-		});
+				public int compare(Question arg0, Question arg1)
+				{
+					String s0 = StringUtil.trimToZero(arg0.getDescription());
+					String s1 = StringUtil.trimToZero(arg1.getDescription());
+					int rv = s0.compareToIgnoreCase(s1);
+					return rv;
+				}
+			});
+		}
+
+		// otherwise sort by presentation order
+		else
+		{
+			Collections.sort(rv, new Comparator<Question>()
+			{
+				public int compare(Question arg0, Question arg1)
+				{
+					return arg0.getAssessmentOrdering().getPosition().compareTo(arg1.getAssessmentOrdering().getPosition());
+				}
+			});
+		}
 
 		return rv;
 	}
@@ -2036,12 +2058,13 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	/**
 	 * {@inheritDoc}
 	 */
-	public void submitAnswer(Answer answer, Boolean completeAnswer, Boolean completeSubmission) throws AssessmentPermissionException,
-			AssessmentClosedException, SubmissionCompletedException
+	public void submitAnswer(Answer answer, Boolean completeAnswer, Boolean completeSubmission, Boolean autoComplete)
+			throws AssessmentPermissionException, AssessmentClosedException, SubmissionCompletedException
 	{
 		if (answer == null) throw new IllegalArgumentException();
 		if (completeAnswer == null) throw new IllegalArgumentException();
 		if (completeSubmission == null) throw new IllegalArgumentException();
+		if (autoComplete == null) throw new IllegalArgumentException();
 
 		if (M_log.isDebugEnabled())
 			M_log.debug("submitAnswer: answer: " + answer.getId() + " completeAnswer: " + completeAnswer + " completeSubmission: "
@@ -2049,18 +2072,19 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		List<Answer> answers = new ArrayList<Answer>(1);
 		answers.add(answer);
-		submitAnswers(answers, completeAnswer, completeSubmission);
+		submitAnswers(answers, completeAnswer, completeSubmission, autoComplete);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void submitAnswers(final List<Answer> answers, Boolean completeAnswers, Boolean completeSubmission) throws AssessmentPermissionException,
-			AssessmentClosedException, SubmissionCompletedException
+	public void submitAnswers(final List<Answer> answers, Boolean completeAnswers, Boolean completeSubmission, Boolean autoComplete)
+			throws AssessmentPermissionException, AssessmentClosedException, SubmissionCompletedException
 	{
 		if (answers == null) throw new IllegalArgumentException();
 		if (completeAnswers == null) throw new IllegalArgumentException();
 		if (completeSubmission == null) throw new IllegalArgumentException();
+		if (autoComplete == null) throw new IllegalArgumentException();
 
 		if (answers.size() == 0) return;
 
@@ -2130,7 +2154,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			if (!assessment.getDates().getIsOpen(Boolean.TRUE)) throw new AssessmentClosedException();
 		}
 
-		Date asOf = new Date();
+		// use now, unless we are auto-completing, in which case we use the exact "over" date
+		Date asOf = autoComplete ? submission.getWhenOver() : new Date();
 
 		// update the dates and answer scores
 		submission.setSubmittedDate(asOf);
@@ -2170,7 +2195,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		if (completeSubmission)
 		{
 			submission.setIsComplete(Boolean.TRUE);
-			submission.setCompletionStatus(SubmissionCompletionStatus.userFinished);
+			submission.setCompletionStatus(autoComplete ? SubmissionCompletionStatus.autoComplete : SubmissionCompletionStatus.userFinished);
 
 			// check if we should also mark it graded
 			if (assessment.getGrading().getAutoRelease())

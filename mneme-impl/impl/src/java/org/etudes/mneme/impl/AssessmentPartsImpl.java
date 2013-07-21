@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -270,6 +270,57 @@ public class AssessmentPartsImpl implements AssessmentParts
 		if (this.parts.isEmpty()) return null;
 
 		return this.parts.get(0);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getInvalidMessage()
+	{
+		// we must only draw from a pool once across all draw parts
+		List<String> poolIds = new ArrayList<String>();
+		for (Part part : this.parts)
+		{
+			for (PartDetail detail : part.getDetails())
+			{
+				if (detail instanceof PoolDraw)
+				{
+					PoolDraw draw = (PoolDraw) detail;
+
+					if (poolIds.contains(draw.getPoolId()))
+					{
+						Object[] args = new Object[1];
+						args[0] = draw.getPool().getTitle();
+						return this.messages.getFormattedMessage("invalid-detail-multi-draw", args);
+					}
+
+					poolIds.add(draw.getPoolId());
+				}
+			}
+		}
+
+		// we must pick a question only once each across all manual parts
+		List<String> questionIds = new ArrayList<String>();
+		for (Part part : this.parts)
+		{
+			for (PartDetail detail : part.getDetails())
+			{
+				if (detail instanceof QuestionPick)
+				{
+					QuestionPick pick = (QuestionPick) detail;
+
+					if (questionIds.contains(pick.getQuestionId()))
+					{
+						Object[] args = new Object[1];
+						args[0] = pick.getQuestion().getDescription();
+						return this.messages.getFormattedMessage("invalid-detail-multi-pick", args);
+					}
+
+					questionIds.add(pick.getQuestionId());
+				}
+			}
+		}
+		return null;
 	}
 
 	/**

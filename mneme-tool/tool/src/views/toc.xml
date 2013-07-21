@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -89,7 +89,7 @@
 		</navigationBar>
 
 		<!-- timer for timed tests -->
-		<countdownTimer submit="TRUE">
+		<countdownTimer submit="TRUE" destination="AUTO">
 			<duration>
 				<message selector="timer-duration">
 					<model type="duration" concise="TRUE" ref="submission.expiration.limit" />
@@ -102,10 +102,6 @@
 			<timeTillExpire>
 				<model ref="submission.expiration.duration" />
 			</timeTillExpire>
-			<destination template="/submitted/{0}{1}">
-				<model ref="submission.id" />
-				<model ref="return" />
-			</destination>
 			<included>
 				<decision model="review" reversed="TRUE" />
 				<hasValueDecision model="submission.expiration" />
@@ -114,7 +110,7 @@
 		</countdownTimer>
 
 		<!-- timer for near-due tests -->
-		<countdownTimer submit="TRUE">
+		<countdownTimer submit="TRUE" destination="AUTO">
 			<duration>
 				<message selector="timer-due">
 					<model type="date" concise="TRUE" ref="submission.expiration.time" />
@@ -127,10 +123,6 @@
 			<timeTillExpire>
 				<model ref="submission.expiration.duration" />
 			</timeTillExpire>
-			<destination template="/submitted/{0}{1}">
-				<model ref="submission.id" />
-				<model ref="return" />
-			</destination>
 			<included>
 				<decision model="review" reversed="TRUE" />
 				<hasValueDecision model="submission.expiration" />

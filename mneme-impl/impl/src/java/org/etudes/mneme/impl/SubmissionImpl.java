@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -744,7 +744,7 @@ public class SubmissionImpl implements Submission
 		Assessment a = getAssessment();
 
 		// for each section / question, make sure we have an answer and not a mark for review
-		// only consider questions that are selected to be part of the test for this submision!
+		// only consider questions that are selected to be part of the test for this submission!
 		for (Part part : a.getParts().getParts())
 		{
 			for (Question question : part.getQuestions())
@@ -894,6 +894,32 @@ public class SubmissionImpl implements Submission
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getIsUnanswered()
+	{
+		Assessment a = getAssessment();
+
+		// phantoms, or real submissions with no answers are unanswered
+		if (getIsPhantom()) return Boolean.TRUE;
+		if (getAnswers().isEmpty()) return Boolean.TRUE;
+
+		// look for a question that is answered
+		for (Part part : a.getParts().getParts())
+		{
+			for (Question question : part.getQuestions())
+			{
+				Answer answer = this.findAnswer(question.getId());
+				if (answer == null) continue;
+				if (answer.getSubmittedDate() == null) continue;
+				if (answer.getIsAnswered() == Boolean.TRUE) return Boolean.FALSE;
+			}
+		}
+
+		return Boolean.TRUE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Boolean getMayBegin()
 	{
 		// ASSSUMPTION: this will be a submission with sibling count, and it will be:
@@ -962,6 +988,14 @@ public class SubmissionImpl implements Submission
 	 */
 	public Boolean getMayBeginAgain()
 	{
+		return getMayBeginAgain(this.sessionManager.getCurrentSessionUserId());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getMayBeginAgain(String userId)
+	{
 		// ASSSUMPTION: this will be a submission with sibling count, and it will be:
 		// - the placeholder, if none other exist
 		// - the one in progress, if there is one
@@ -1002,20 +1036,17 @@ public class SubmissionImpl implements Submission
 		// test drive can instead use manage permission
 		if (!getIsTestDrive())
 		{
-			if (!this.securityService.checkSecurity(this.sessionManager.getCurrentSessionUserId(), MnemeService.SUBMIT_PERMISSION, getAssessment()
-					.getContext())) return Boolean.FALSE;
+			if (!this.securityService.checkSecurity(userId, MnemeService.SUBMIT_PERMISSION, getAssessment().getContext())) return Boolean.FALSE;
 		}
 		else
 		{
-			if (!this.securityService.checkSecurity(this.sessionManager.getCurrentSessionUserId(), MnemeService.MANAGE_PERMISSION, getAssessment()
-					.getContext())) return Boolean.FALSE;
+			if (!this.securityService.checkSecurity(userId, MnemeService.MANAGE_PERMISSION, getAssessment().getContext())) return Boolean.FALSE;
 		}
 
 		// one last test! If not in test drive, and we have an access advisor, see if it wants to block things
 		if ((this.accessAdvisor != null) && (!getIsTestDrive()))
 		{
-			if (this.accessAdvisor.denyAccess("sakai.mneme", getAssessment().getContext(), getAssessment().getId(),
-					this.sessionManager.getCurrentSessionUserId()))
+			if (this.accessAdvisor.denyAccess("sakai.mneme", getAssessment().getContext(), getAssessment().getId(), userId))
 			{
 				return Boolean.FALSE;
 			}

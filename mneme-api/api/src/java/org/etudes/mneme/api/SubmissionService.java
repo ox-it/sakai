@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -111,6 +111,8 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 * 
 	 * @param submission
 	 *        The the submission.
+	 * @param autoComplete
+	 *        if TRUE, this is an automatic completion, otherwise a user completion.
 	 * @throws AssessmentPermissionException
 	 *         if the user does not have permission to submit to this assessment.
 	 * @throws AssessmentClosedException
@@ -118,7 +120,8 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 * @throws SubmissionCompletedException
 	 *         if the submission is already completed.
 	 */
-	void completeSubmission(Submission submission) throws AssessmentPermissionException, AssessmentClosedException, SubmissionCompletedException;
+	void completeSubmission(Submission submission, Boolean autoComplete) throws AssessmentPermissionException, AssessmentClosedException,
+			SubmissionCompletedException;
 
 	/**
 	 * Count the submissions to the assessment made by all users.<br />
@@ -455,6 +458,8 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 *        if TRUE, the answer is consider answered and will be marked so.
 	 * @param completeSubmission
 	 *        if TRUE, the submission will be marked complete and submitted for grading
+	 * @param autoComplete
+	 *        if TRUE, this is an automatic completion, else it is a user completion (if completeSubmission is TRUE).
 	 * @throws AssessmentPermissionException
 	 *         if the user does not have permission to submit to this assessment.
 	 * @throws AssessmentClosedException
@@ -462,7 +467,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 * @throws SubmissionCompletedException
 	 *         if the submission is already completed.
 	 */
-	void submitAnswer(Answer answer, Boolean completeAnswer, Boolean completeSubmission) throws AssessmentPermissionException,
+	void submitAnswer(Answer answer, Boolean completeAnswer, Boolean completeSubmission, Boolean autoComplete) throws AssessmentPermissionException,
 			AssessmentClosedException, SubmissionCompletedException;
 
 	/**
@@ -475,6 +480,8 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 *        if TRUE, the answers are considered answered and will be marked so.
 	 * @param completeSubmission
 	 *        if TRUE, the submission will be marked complete and submitted for grading
+	 * @param autoComplete
+	 *        if TRUE, this is an automatic completion, else it is a user completion (if completeSubmission is TRUE).
 	 * @throws AssessmentPermissionException
 	 *         if the user does not have permission to submit to this assessment.
 	 * @throws AssessmentClosedException
@@ -482,7 +489,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 * @throws SubmissionCompletedException
 	 *         if the submission is already completed.
 	 */
-	void submitAnswers(List<Answer> answers, Boolean completeAnswers, Boolean completeSubmission) throws AssessmentPermissionException,
+	void submitAnswers(List<Answer> answers, Boolean completeAnswers, Boolean completeSubmission, Boolean autoComplete) throws AssessmentPermissionException,
 			AssessmentClosedException, SubmissionCompletedException;
 
 	/**

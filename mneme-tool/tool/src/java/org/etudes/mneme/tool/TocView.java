@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -25,6 +25,7 @@
 package org.etudes.mneme.tool;
 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -83,10 +84,13 @@ public class TocView extends ControllerImpl
 		// read form
 		String destination = uiService.decode(req, context);
 
+		Boolean autoComplete = Boolean.FALSE;
+		boolean destinationOkOverride = false;
+
+		Submission submission = assessmentService.getSubmission(submissionId);
+
 		if (destination.equals("SUBMIT"))
 		{
-			Submission submission = assessmentService.getSubmission(submissionId);
-
 			// if linear, or the submission is all answered, we can go to submitted
 			if ((!submission.getAssessment().getRandomAccess()) || (submission.getIsAnswered()))
 			{
@@ -105,6 +109,25 @@ public class TocView extends ControllerImpl
 			}
 		}
 
+		else if (destination.equals("AUTO"))
+		{
+			// check if this submission is really done (time over, past deadline)
+			if (submission.getIsOver(new Date(), 0))
+			{
+				autoComplete = Boolean.TRUE;
+				destination = "/submitted/" + submissionId + returnDestination;
+			}
+			else
+			{
+				// if for some reason we are here (AUTO) but the submission is not yet really over, just return to list
+				destination = "/list";
+
+				// we do not want to complete - redirect now
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
+				return;
+			}
+		}
+
 		// we need to be headed to submitted...
 		if (!destination.startsWith("/submitted"))
 		{
@@ -113,10 +136,9 @@ public class TocView extends ControllerImpl
 			return;
 		}
 
-		Submission submission = assessmentService.getSubmission(submissionId);
 		try
 		{
-			assessmentService.completeSubmission(submission);
+			assessmentService.completeSubmission(submission, autoComplete);
 
 			// if no exception, it worked! redirect
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
@@ -260,7 +282,7 @@ public class TocView extends ControllerImpl
 		String destination = this.uiService.decode(req, context);
 
 		// if other than the /submitted destination, just go there
-		if (!destination.startsWith("/submitted"))
+		if ((!destination.startsWith("/submitted")) && (!destination.equals("AUTO")))
 		{
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
 			return;

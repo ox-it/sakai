@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -617,7 +617,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			MultipleChoiceQuestionImpl mc = (MultipleChoiceQuestionImpl) (question.getTypeSpecificQuestion());
 
 			// set the text
-			String clean = HtmlHelper.clean(presentation);
+			String clean = HtmlHelper.cleanAndAssureAnchorTarget(presentation, true);
 			question.getPresentation().setText(clean);
 
 			// randomize
@@ -632,7 +632,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			{
 				String value = answerMap.get(key);
 
-				clean = HtmlHelper.clean(value);
+				clean = HtmlHelper.cleanAndAssureAnchorTarget(value, true);
 				choices.add(clean);
 			}
 			mc.setAnswerChoices(choices);
@@ -672,7 +672,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// feedback
 			if (feedback != null)
 			{
-				question.setFeedback(HtmlHelper.clean(feedback));
+				question.setFeedback(HtmlHelper.cleanAndAssureAnchorTarget(feedback, true));
 			}
 
 			// save
@@ -767,7 +767,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			LikertScaleQuestionImpl l = (LikertScaleQuestionImpl) (question.getTypeSpecificQuestion());
 
 			// set the text
-			String clean = HtmlHelper.clean(presentation);
+			String clean = HtmlHelper.cleanAndAssureAnchorTarget(presentation, true);
 			question.getPresentation().setText(clean);
 
 			String scale = null;
@@ -843,7 +843,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// feedback
 			if (feedback != null)
 			{
-				question.setFeedback(HtmlHelper.clean(feedback));
+				question.setFeedback(HtmlHelper.cleanAndAssureAnchorTarget(feedback, true));
 			}
 
 			// save
@@ -967,7 +967,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			TrueFalseQuestionImpl tf = (TrueFalseQuestionImpl) (question.getTypeSpecificQuestion());
 
 			// set the text
-			String clean = HtmlHelper.clean(presentation);
+			String clean = HtmlHelper.cleanAndAssureAnchorTarget(presentation, true);
 			question.getPresentation().setText(clean);
 
 			// the correct answer
@@ -979,7 +979,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// feedback
 			if (feedback != null)
 			{
-				question.setFeedback(HtmlHelper.clean(feedback));
+				question.setFeedback(HtmlHelper.cleanAndAssureAnchorTarget(feedback, true));
 			}
 
 			// save
@@ -1073,7 +1073,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// TODO attachments
 
 			// set the text
-			String clean = HtmlHelper.clean(presentation);
+			String clean = HtmlHelper.cleanAndAssureAnchorTarget(presentation, true);
 			f.setText(clean);
 
 			// save
@@ -1274,7 +1274,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			TrueFalseQuestionImpl tf = (TrueFalseQuestionImpl) (question.getTypeSpecificQuestion());
 
 			// set the text
-			String clean = HtmlHelper.clean(presentation);
+			String clean = HtmlHelper.cleanAndAssureAnchorTarget(presentation, true);
 			question.getPresentation().setText(clean);
 
 			// the correct answer
@@ -1286,7 +1286,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// feedback
 			if (feedback != null)
 			{
-				question.setFeedback(HtmlHelper.clean(feedback));
+				question.setFeedback(HtmlHelper.cleanAndAssureAnchorTarget(feedback, true));
 			}
 
 			// save
@@ -1567,7 +1567,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			MultipleChoiceQuestionImpl mc = (MultipleChoiceQuestionImpl) (question.getTypeSpecificQuestion());
 
 			// set the text
-			String clean = HtmlHelper.clean(presentation);
+			String clean = HtmlHelper.cleanAndAssureAnchorTarget(presentation, true);
 			question.getPresentation().setText(clean);
 
 			// randomize
@@ -1621,7 +1621,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// feedback
 			if (feedback != null)
 			{
-				question.setFeedback(HtmlHelper.clean(feedback));
+				question.setFeedback(HtmlHelper.cleanAndAssureAnchorTarget(feedback, true));
 			}
 
 			// save
@@ -1702,7 +1702,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			Question question = this.questionService.newQuestion(pool, "mneme:Essay");
 			EssayQuestionImpl e = (EssayQuestionImpl) (question.getTypeSpecificQuestion());
 
-			String clean = HtmlHelper.clean(presentation);
+			String clean = HtmlHelper.cleanAndAssureAnchorTarget(presentation, true);
 
 			question.getPresentation().setText(clean);
 
@@ -1715,7 +1715,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// add feedback
 			if (StringUtil.trimToNull(feedback) != null)
 			{
-				question.setFeedback(HtmlHelper.clean(feedback));
+				question.setFeedback(HtmlHelper.cleanAndAssureAnchorTarget(feedback, true));
 			}
 
 			// save
@@ -1911,7 +1911,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			buildAnswers.replace(buildAnswers.length() - 1, buildAnswers.length(), "}");
 			String questionText = presentation.concat(buildAnswers.toString());
 
-			String clean = HtmlHelper.clean(questionText);
+			String clean = HtmlHelper.cleanAndAssureAnchorTarget(questionText, true);
 
 			f.setText(clean);
 
@@ -1921,7 +1921,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			// add feedback
 			if (StringUtil.trimToNull(feedback) != null)
 			{
-				question.setFeedback(HtmlHelper.clean(feedback));
+				question.setFeedback(HtmlHelper.cleanAndAssureAnchorTarget(feedback, true));
 			}
 
 			// save
@@ -2076,7 +2076,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			Question question = this.questionService.newQuestion(pool, "mneme:Match");
 			MatchQuestionImpl m = (MatchQuestionImpl) (question.getTypeSpecificQuestion());
 
-			String clean = HtmlHelper.clean(presentation);
+			String clean = HtmlHelper.cleanAndAssureAnchorTarget(presentation, true);
 
 			question.getPresentation().setText(clean);
 
@@ -2088,7 +2088,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			int index = 0;
 			for (String key : matchPresentations.keySet())
 			{
-				clean = HtmlHelper.clean(matchPresentations.get(key));
+				clean = HtmlHelper.cleanAndAssureAnchorTarget(matchPresentations.get(key), true);
 				pairs.get(index).setMatch(clean);
 
 				Map choices = (Map) matchChoices.get(key);
@@ -2096,7 +2096,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 
 				if (StringUtil.trimToNull(value) == null) return false;
 
-				clean = HtmlHelper.clean(value);
+				clean = HtmlHelper.cleanAndAssureAnchorTarget(value, true);
 				pairs.get(index).setChoice(clean);
 
 				index++;
@@ -2107,7 +2107,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 
 			if (feedback != null)
 			{
-				question.setFeedback(HtmlHelper.clean(feedback));
+				question.setFeedback(HtmlHelper.cleanAndAssureAnchorTarget(feedback, true));
 			}
 
 			// save

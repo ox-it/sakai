@@ -114,10 +114,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 
 		public void setText(String text)
 		{
-			if (!Different.differentHtml(this.text, text)) return;
-
 			this.text = StringUtil.trimToNull(text);
-
 			this.myQuestion.setChanged();
 		}
 

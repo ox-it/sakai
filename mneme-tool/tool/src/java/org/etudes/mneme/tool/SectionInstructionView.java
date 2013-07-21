@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -161,9 +161,9 @@ public class SectionInstructionView extends ControllerImpl
 		}
 
 		String returnDestination = null;
-		if (params.length > 3)
+		if (params.length > 4)
 		{
-			returnDestination = "/" + StringUtil.unsplit(params, 3, params.length - 3, "/");
+			returnDestination = "/" + StringUtil.unsplit(params, 4, params.length - 4, "/");
 		}
 
 		// if not specified, go to the main list view
@@ -176,7 +176,7 @@ public class SectionInstructionView extends ControllerImpl
 		String destination = this.uiService.decode(req, context);
 
 		// if other than the /submitted destination, just go there
-		if (!destination.startsWith("/submitted") && (!destination.equals("SUBMIT")))
+		if ((!destination.startsWith("/submitted")) && (!destination.equals("SUBMIT")) && (!destination.equals("AUTO")))
 		{
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
 			return;

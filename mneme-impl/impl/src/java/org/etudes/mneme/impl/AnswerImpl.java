@@ -201,8 +201,12 @@ public class AnswerImpl implements Answer
 
 		// for the correct only setting, check answer (complete) correctness
 		Boolean correct = this.answerHandler.getCompletelyCorrect();
-		if ((correct != null) && correct.booleanValue()) return Boolean.TRUE;
-		return Boolean.FALSE;
+
+		// null indicates correctness does not apply (likert, essay). In which case, we show.
+		if (correct == null) return Boolean.TRUE;
+
+		// show only if completely correct
+		return correct;
 	}
 
 	/**

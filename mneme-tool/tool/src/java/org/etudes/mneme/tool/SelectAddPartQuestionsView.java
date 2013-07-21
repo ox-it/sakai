@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -259,7 +259,7 @@ public class SelectAddPartQuestionsView extends ControllerImpl
 
 		if (this.pageSizes.isEmpty())
 		{
-			this.pageSizes.add(Integer.valueOf(30));
+			this.pageSizes.add(Integer.valueOf(50));
 		}
 
 		M_log.info("init()");

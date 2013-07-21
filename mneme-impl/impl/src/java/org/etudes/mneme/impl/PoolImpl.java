@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -279,10 +279,7 @@ public class PoolImpl implements Pool
 	{
 		description = StringUtil.trimToNull(description);
 
-		if (!Different.differentHtml(this.description, description)) return;
-
 		this.description = description;
-
 		this.changed.setChanged();
 	}
 

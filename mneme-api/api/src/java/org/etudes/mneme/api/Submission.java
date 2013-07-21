@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -290,6 +290,13 @@ public interface Submission
 	Boolean getIsTestDrive();
 
 	/**
+	 * Check if all the questions have NOT been answered.
+	 * 
+	 * @return TRUE if the asssessment's questions are all NOT answered, FALSE if not.
+	 */
+	Boolean getIsUnanswered();
+
+	/**
 	 * Check if the submission may be started - the user must have permission, the submission must be a placeholder, the assessment must be open.
 	 * 
 	 * @return TRUE if the submission may be started, FALSE if not.
@@ -302,6 +309,15 @@ public interface Submission
 	 * @return TRUE if the submission may be started, FALSE if not.
 	 */
 	Boolean getMayBeginAgain();
+
+	/**
+	 * Check if the submission may be started for an nth attempt for the given user - the user must have permission, the submission must be a complete, the sibling count must be fewer than the assessment's tries limit, and the assessment must be open.
+	 * 
+	 * @param userId
+	 *        the id of the user to check.
+	 * @return TRUE if the submission may be started, FALSE if not.
+	 */
+	Boolean getMayBeginAgain(String userId);
 
 	/**
 	 * Check if the submission may be re-entered for more work - the user must be the submission user, the submission must be incomplete.

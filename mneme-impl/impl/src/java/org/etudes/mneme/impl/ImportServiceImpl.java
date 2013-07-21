@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -59,10 +59,6 @@ import org.etudes.mneme.api.SecurityService;
 import org.etudes.util.DateHelper;
 import org.etudes.util.HtmlHelper;
 import org.etudes.util.api.Translation;
-//import org.sakaiproject.assignment.api.Assignment;
-//import org.sakaiproject.assignment.api.AssignmentContent;
-//import org.sakaiproject.assignment.api.AssignmentEdit;
-//import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.db.api.SqlReader;
@@ -162,9 +158,6 @@ public class ImportServiceImpl implements ImportService
 	/** Dependency: AssessmentService */
 	protected AssessmentService assessmentService = null;
 
-	/** Dependency: AssignmentService */
-	//protected AssignmentService assignmentService = null;
-
 	/** Dependency: AttachmentService */
 	protected AttachmentService attachmentService = null;
 
@@ -186,10 +179,10 @@ public class ImportServiceImpl implements ImportService
 	/** Messages. */
 	protected transient InternationalizedMessages messages = null;
 
-	/** Configuration: offer import from Assignments support. */
+	/** Configuration: offer import from assignments support. */
 	protected Boolean offerAssignment = Boolean.FALSE;
 
-	/** Configuration: offer import from SAMIGO support. */
+	/** Configuration: offer import from Samigo support. */
 	protected Boolean offerSamigo = Boolean.TRUE;
 
 	/** Dependency: PoolService */
@@ -262,14 +255,7 @@ public class ImportServiceImpl implements ImportService
 	 */
 	public List<Ent> getAssignments(String context)
 	{
-		if (context == null) throw new IllegalArgumentException();
-
-		List<Ent> rv = readAssignments(context);
-
-		// sort
-		Collections.sort(rv, new EntComparator());
-
-		return rv;
+		return new ArrayList<Ent>();
 	}
 
 	/**
@@ -277,9 +263,7 @@ public class ImportServiceImpl implements ImportService
 	 */
 	public List<Ent> getAssignmentSites(String userId)
 	{
-		if (userId == null) userId = sessionManager.getCurrentSessionUserId();
-
-		return getAuthSites(userId, "asn.new", null);
+		return new ArrayList<Ent>();
 	}
 
 	/**
@@ -397,165 +381,6 @@ public class ImportServiceImpl implements ImportService
 	 */
 	public void importAssignment(String id, String context, boolean draftSource) throws AssessmentPermissionException
 	{
-		// Note: the assignment service seems to be missing from Sakai 2.9.1
-		/*
-		try
-		{
-			// get the Assignment
-			Assignment assignment = this.assignmentService.getAssignment(id);
-			AssignmentContent content = assignment.getContent();
-
-			// create the pool
-			Pool pool = this.poolService.newPool(context);
-			pool.setTitle(addDate("import-assignment-text", assignment.getTitle(), new Date()));
-			if (content.getTypeOfGrade() == 3) // Assignment.SCORE_GRADE_TYPE
-			{
-				pool.setPoints(Float.valueOf(content.getMaxGradePointDisplay()));
-			}
-			boolean noPoints = pool.getPoints().floatValue() == 0;
-
-			// pool.setDescription(info.description);
-			this.poolService.savePool(pool);
-
-			// create the question (task)
-			Question question = this.questionService.newQuestion(pool, "mneme:Task");
-			EssayQuestionImpl e = (EssayQuestionImpl) (question.getTypeSpecificQuestion());
-
-			// find the assignment attachments
-			Set<String> docs = new LinkedHashSet<String>();
-			for (Reference ref : (List<Reference>) content.getAttachments())
-			{
-				docs.add(ref.getReference());
-			}
-
-			// remember just the attachments
-			Set<String> attachmentDocs = new LinkedHashSet<String>();
-			attachmentDocs.addAll(docs);
-
-			// find the embedded documents in the question text
-			docs.addAll(this.attachmentService.harvestAttachmentsReferenced(content.getInstructions(), true));
-
-			// import the embedded documents and attachments
-			List<Translation> translations = importEmbeddedDocs(docs, pool.getContext());
-
-			// convert the question text's embedded documents to reference the harvested documents
-			String questionText = this.attachmentService.translateEmbeddedReferences(content.getInstructions(), translations);
-
-			// format attachments references to add to the text
-			StringBuilder attachments = new StringBuilder();
-			for (String ref : attachmentDocs)
-			{
-				// translate the old refs to their new locations
-				for (Translation t : translations)
-				{
-					ref = t.translate(ref);
-				}
-				attachments.append(formatRef(ref));
-			}
-
-			if (attachments.length() > 0)
-			{
-				attachments.insert(0, "<p><ul>");
-				attachments.append("</ul></p>");
-			}
-
-			// clean the text
-			String clean = HtmlHelper.clean(questionText + attachments.toString());
-
-			// set the text
-			question.getPresentation().setText(clean);
-
-			// type
-			EssayQuestionImpl.SubmissionType type = EssayQuestionImpl.SubmissionType.none;
-			switch (content.getTypeOfSubmission())
-			{
-				case 2: // Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION
-				{
-					type = EssayQuestionImpl.SubmissionType.attachments;
-					break;
-				}
-				case 1: // Assignment.TEXT_ONLY_ASSIGNMENT_SUBMISSION
-				{
-					type = EssayQuestionImpl.SubmissionType.inline;
-					break;
-				}
-				case 3: // Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION
-				{
-					type = EssayQuestionImpl.SubmissionType.both;
-					break;
-				}
-				case 4: // Assignment.NON_ELECTRONIC_SUBMISSION
-				{
-					type = EssayQuestionImpl.SubmissionType.none;
-				}
-			}
-			e.setSubmissionType(type);
-
-			// save
-			question.getTypeSpecificQuestion().consolidate("");
-			this.questionService.saveQuestion(question);
-
-			// create the assessment
-			Assessment assessment = this.assessmentService.newAssessment(context);
-			assessment.setType(AssessmentType.assignment);
-			assessment.setTitle(content.getTitle());
-			assessment.getGrading().setAutoRelease(Boolean.FALSE);
-			if (assignment.getOpenTime() != null)
-			{
-				assessment.getDates().setOpenDate(new Date(assignment.getOpenTime().getTime()));
-			}
-			if (assignment.getDueTime() != null)
-			{
-				assessment.getDates().setDueDate(new Date(assignment.getDueTime().getTime()));
-			}
-			if (assignment.getCloseTime() != null)
-			{
-				assessment.getDates().setAcceptUntilDate(new Date(assignment.getCloseTime().getTime()));
-			}
-			assessment.setRequireHonorPledge(Boolean.valueOf(content.getHonorPledge() > 1));
-			assessment.getReview().setTiming(ReviewTiming.graded);
-
-			boolean sendToGb = !("no".equals(assignment.getProperties().getProperty("new_assignment_add_to_gradebook")));
-			if (noPoints) sendToGb = false;
-			assessment.getGrading().setGradebookIntegration(Boolean.valueOf(sendToGb));
-
-			Part part = assessment.getParts().addPart();
-			part.addPickDetail(question);
-
-			this.assessmentService.saveAssessment(assessment);
-
-			// if requested, and the assessment was send to gb, change it to not.
-			if (draftSource)
-			{
-				// change to no gradebook, and draft
-				AssignmentEdit edit = this.assignmentService.editAssignment(assignment.getReference());
-				edit.getPropertiesEdit().addProperty("new_assignment_add_to_gradebook", "no");
-				edit.setDraft(true);
-				this.assignmentService.commitEdit(edit);
-
-				// clear from the gradebook if we are set to go in there
-				// Note: Mneme associates with the gb by title, but assignments uses the assignment reference string,
-				// so we will change the title to the reference string for this (and then throw the change away)
-				assessment.setTitle(assignment.getReference());
-				if (sendToGb && this.gradesService.assessmentReported(assessment))
-				{
-					this.gradesService.retractAssessmentGrades(assessment);
-				}
-			}
-		}
-		catch (IdUnusedException e)
-		{
-		}
-		catch (PermissionException e)
-		{
-		}
-		catch (AssessmentPolicyException e)
-		{
-		}
-		catch (InUseException e)
-		{
-		}
-		 */
 	}
 
 	/**
@@ -602,17 +427,6 @@ public class ImportServiceImpl implements ImportService
 	{
 		this.assessmentService = service;
 	}
-
-	/**
-	 * Dependency: AssignmentService.
-	 * 
-	 * @param service
-	 *        The AssignmentService.
-	 */
-	//public void setAssignmentService(AssignmentService service)
-	//{
-	//	assignmentService = service;
-	//}
 
 	/**
 	 * Configuration: Assignment support.
@@ -947,13 +761,13 @@ public class ImportServiceImpl implements ImportService
 		EssayQuestionImpl e = (EssayQuestionImpl) (question.getTypeSpecificQuestion());
 
 		// set the text
-		String clean = HtmlHelper.clean(these[0].questionChoiceText + attachments);
+		String clean = HtmlHelper.cleanAndAssureAnchorTarget(these[0].questionChoiceText + attachments, true);
 		question.getPresentation().setText(clean);
 
 		// model answer
 		if (these[0].answerMatchText != null)
 		{
-			clean = HtmlHelper.clean(these[0].answerMatchText);
+			clean = HtmlHelper.cleanAndAssureAnchorTarget(these[0].answerMatchText, true);
 			e.setModelAnswer(clean);
 		}
 
@@ -1050,7 +864,7 @@ public class ImportServiceImpl implements ImportService
 		}
 
 		// set the text
-		String clean = HtmlHelper.clean(questionText + attachments);
+		String clean = HtmlHelper.cleanAndAssureAnchorTarget(questionText + attachments, true);
 		f.setText(clean);
 
 		return question;
@@ -1147,7 +961,7 @@ public class ImportServiceImpl implements ImportService
 		LikertScaleQuestionImpl l = (LikertScaleQuestionImpl) (question.getTypeSpecificQuestion());
 
 		// set the text
-		String clean = HtmlHelper.clean(these[0].questionChoiceText + attachments);
+		String clean = HtmlHelper.cleanAndAssureAnchorTarget(these[0].questionChoiceText + attachments, true);
 		question.getPresentation().setText(clean);
 
 		// set the scale
@@ -1195,7 +1009,7 @@ public class ImportServiceImpl implements ImportService
 		MatchQuestionImpl m = (MatchQuestionImpl) (question.getTypeSpecificQuestion());
 
 		// set the text
-		String clean = HtmlHelper.clean(these[0].instruction + attachments);
+		String clean = HtmlHelper.cleanAndAssureAnchorTarget(these[0].instruction + attachments, true);
 		question.getPresentation().setText(clean);
 
 		// set the # pairs
@@ -1205,10 +1019,10 @@ public class ImportServiceImpl implements ImportService
 		List<MatchQuestionImpl.MatchQuestionPair> pairs = m.getPairs();
 		for (int index = 0; index < these.length; index++)
 		{
-			clean = HtmlHelper.clean(these[index].questionChoiceText);
+			clean = HtmlHelper.cleanAndAssureAnchorTarget(these[index].questionChoiceText, true);
 			pairs.get(index).setChoice(clean);
 
-			clean = HtmlHelper.clean(these[index].answerMatchText);
+			clean = HtmlHelper.cleanAndAssureAnchorTarget(these[index].answerMatchText, true);
 			pairs.get(index).setMatch(clean);
 		}
 
@@ -1271,7 +1085,7 @@ public class ImportServiceImpl implements ImportService
 		MultipleChoiceQuestionImpl mc = (MultipleChoiceQuestionImpl) (question.getTypeSpecificQuestion());
 
 		// set the text
-		String clean = HtmlHelper.clean(these[0].questionChoiceText + attachments);
+		String clean = HtmlHelper.cleanAndAssureAnchorTarget(these[0].questionChoiceText + attachments, true);
 		question.getPresentation().setText(clean);
 
 		// randomize
@@ -1286,7 +1100,7 @@ public class ImportServiceImpl implements ImportService
 		{
 			if (these[index].answerMatchText != null)
 			{
-				clean = HtmlHelper.clean(these[index].answerMatchText);
+				clean = HtmlHelper.cleanAndAssureAnchorTarget(these[index].answerMatchText, true);
 				choices.add(clean);
 			}
 		}
@@ -1408,7 +1222,7 @@ public class ImportServiceImpl implements ImportService
 		TrueFalseQuestionImpl tf = (TrueFalseQuestionImpl) (question.getTypeSpecificQuestion());
 
 		// set the text
-		String clean = HtmlHelper.clean(these[0].questionChoiceText + attachments);
+		String clean = HtmlHelper.cleanAndAssureAnchorTarget(these[0].questionChoiceText + attachments, true);
 		question.getPresentation().setText(clean);
 
 		// the correct answer
@@ -1522,7 +1336,7 @@ public class ImportServiceImpl implements ImportService
 	{
 		List<Ent> rv = new ArrayList<Ent>();
 
-		// get the authz groups in which this user has assignment permission
+		// get the authz groups in which this user has this permission
 		Set refs = this.authzGroupService.getAuthzGroupsIsAllowed(userId, permission, null);
 		for (Object o : refs)
 		{
@@ -1979,28 +1793,6 @@ public class ImportServiceImpl implements ImportService
 			pool.setPoints(average);
 			this.poolService.savePool(pool);
 		}
-	}
-
-	/**
-	 * Read the Assignments for this context.
-	 * 
-	 * @param context
-	 *        The context.
-	 * @return The list of Ents describing the assignments for this context.
-	 */
-	protected List<Ent> readAssignments(String context)
-	{
-		List<Ent> rv = new ArrayList<Ent>();
-		/*
-		Iterator i = this.assignmentService.getAssignmentsForContext(context);
-		while (i.hasNext())
-		{
-			Assignment a = (Assignment) i.next();
-			Ent ent = new EntImpl(a.getId(), a.getTitle());
-			rv.add(ent);
-		}
-		*/
-		return rv;
 	}
 
 	/**

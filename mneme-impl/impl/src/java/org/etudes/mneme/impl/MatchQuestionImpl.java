@@ -155,20 +155,16 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		public void setChoice(String choice)
 		{
 			String c = StringUtil.trimToNull(choice);
-			if (!Different.differentHtml(c, this.choice)) return;
 
 			this.choice = c;
-
 			this.myQuestion.setChanged();
 		}
 
 		public void setMatch(String match)
 		{
 			String m = StringUtil.trimToNull(match);
-			if (!Different.differentHtml(m, this.match)) return;
 
 			this.match = m;
-
 			this.myQuestion.setChanged();
 		}
 	}
@@ -1346,7 +1342,6 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 			return;
 		}
 
-		if (!Different.differentHtml(distractor, this.distractor.getChoice())) return;
 		this.distractor.setChoice(distractor);
 		this.question.setChanged();
 	}

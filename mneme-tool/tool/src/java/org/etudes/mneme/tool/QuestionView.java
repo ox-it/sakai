@@ -26,6 +26,7 @@ package org.etudes.mneme.tool;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -328,10 +329,30 @@ public class QuestionView extends ControllerImpl
 		// where are we going?
 		destination = questionChooseDestination(context, destination, questionSelector, submissionId, params, repeat, returnDestination);
 
+		Boolean auto = Boolean.FALSE;
+
 		// submit all answers
 		try
 		{
-			submissionService.submitAnswers(answers, answersComplete, complete);
+			// if we are doing AUTO, and the submission is really timed out, set complete
+			if (destination.equals("AUTO"))
+			{
+				// check if this submission is really done (time over, past deadline)
+				if (submission.getIsOver(new Date(), 0))
+				{
+					auto = Boolean.TRUE;
+					complete = Boolean.TRUE;
+					destination = "/submitted/" + submissionId + returnDestination;
+				}
+				else
+				{
+					// if for some reason we are here (AUTO) but the submission is not yet really over, just return to list
+					destination = "/list";
+					complete = Boolean.FALSE;
+				}
+			}
+
+			submissionService.submitAnswers(answers, answersComplete, complete, auto);
 
 			// if there was an upload error, send to the upload error
 			if ((req.getAttribute("upload.status") != null) && (!req.getAttribute("upload.status").equals("ok")))
@@ -349,7 +370,7 @@ public class QuestionView extends ControllerImpl
 				if ((!submission.getAssessment().getRandomAccess()) || (submission.getIsAnswered())
 						|| (submission.getAssessment().getIsSingleQuestion()))
 				{
-					submissionService.completeSubmission(submission);
+					submissionService.completeSubmission(submission, Boolean.FALSE);
 
 					destination = "/submitted/" + submissionId + returnDestination;
 				}

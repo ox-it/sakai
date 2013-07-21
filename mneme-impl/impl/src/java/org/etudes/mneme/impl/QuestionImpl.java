@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -789,10 +789,7 @@ public class QuestionImpl implements Question
 	{
 		feedback = StringUtil.trimToNull(feedback);
 
-		if (!Different.differentHtml(feedback, this.feedback)) return;
-
 		this.feedback = feedback;
-
 		this.changed.setChanged();
 	}
 
@@ -803,10 +800,7 @@ public class QuestionImpl implements Question
 	{
 		hints = StringUtil.trimToNull(hints);
 
-		if (!Different.differentHtml(hints, this.hints)) return;
-
 		this.hints = hints;
-
 		this.changed.setChanged();
 	}
 

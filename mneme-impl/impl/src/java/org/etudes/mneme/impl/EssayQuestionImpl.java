@@ -26,10 +26,12 @@ package org.etudes.mneme.impl;
 
 import org.etudes.ambrosia.api.Attachments;
 import org.etudes.ambrosia.api.Component;
+import org.etudes.ambrosia.api.EntityList;
 import org.etudes.ambrosia.api.FileUpload;
 import org.etudes.ambrosia.api.HtmlEdit;
 import org.etudes.ambrosia.api.Instructions;
 import org.etudes.ambrosia.api.Navigation;
+import org.etudes.ambrosia.api.PropertyColumn;
 import org.etudes.ambrosia.api.PropertyReference;
 import org.etudes.ambrosia.api.Section;
 import org.etudes.ambrosia.api.Selection;
@@ -425,7 +427,8 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 
 		// model answer
 		Text modelAnswer = this.uiService.newText();
-		modelAnswer.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.typeSpecificQuestion.modelAnswer"));
+		modelAnswer.setText(null,
+				this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.typeSpecificQuestion.modelAnswer"));
 
 		Section showModelAnswerSection = this.uiService.newSection();
 		showModelAnswerSection.setCollapsed(true);
@@ -654,6 +657,33 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 	 */
 	public Component getViewStatsUi()
 	{
+		EntityList entityList = this.uiService.newEntityList();
+		entityList.setStyle(EntityList.Style.form);
+
+		PropertyReference iteratorRef = this.uiService.newPropertyReference().setReference("submissions")
+				.setFormatDelegate(this.uiService.getFormatDelegate("AccessSubmissionsQuestionScores", "sakai.mneme"));
+		entityList.setIterator(iteratorRef, "score");
+
+		entityList.setEmptyTitle("no-answer");
+
+		PropertyColumn propCol = this.uiService.newPropertyColumn();
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("score.text"));
+		entityList.addColumn(propCol);
+
+		propCol = this.uiService.newPropertyColumn();
+		propCol.setRight();
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("score.percent"));
+		entityList.addColumn(propCol);
+
+		propCol = this.uiService.newPropertyColumn();
+		propCol.setRight();
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("score.count"));
+		entityList.addColumn(propCol);
+
+		Section distributionSection = this.uiService.newSection();
+		distributionSection.setTitle("score-distribution");
+		distributionSection.add(entityList);
+
 		Text question = this.uiService.newText();
 		question.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.presentation.text"));
 
@@ -699,7 +729,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 				this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded")));
 
 		Section section = this.uiService.newSection();
-		PropertyReference iteratorRef = this.uiService.newPropertyReference().setReference("submissions")
+		iteratorRef = this.uiService.newPropertyReference().setReference("submissions")
 				.setFormatDelegate(this.uiService.getFormatDelegate("AccessSubmissionsQuestionAnswers", "sakai.mneme"));
 		section.setIterator(iteratorRef, "answer", this.uiService.newMessage().setMessage("no-answers"));
 		section.setEntityIncluded(this.uiService.newOrDecision().setOptions(
@@ -718,8 +748,8 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 						this.uiService.getFormatDelegate("FormatUnansweredPercent", "sakai.mneme")));
 		unansweredSection.add(unanswered);
 
-		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(typeSection).add(showModelAnswerSection).add(section)
-				.add(unansweredSection);
+		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(typeSection).add(showModelAnswerSection)
+				.add(distributionSection).add(section).add(unansweredSection);
 	}
 
 	/**
@@ -746,10 +776,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 	{
 		modelAnswer = StringUtil.trimToNull(modelAnswer);
 
-		if (!Different.differentHtml(modelAnswer, this.modelAnswer)) return;
-
 		this.modelAnswer = modelAnswer;
-
 		this.question.setChanged();
 	}
 
