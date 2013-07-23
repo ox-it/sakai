@@ -152,10 +152,6 @@ public class SearchServiceImpl implements SearchService {
 				}
 			}
 			
-			for (Date baseDate : baseDateSet) {
-				doc.addField("course_basedate", baseDate);
-			}
-			
 			if (null != chosenComponent) {	
 				doc.addField("course_delivery", attendanceMode(chosenComponent));
 				doc.addField("course_bookable", chosenComponent.getBookable());
@@ -170,7 +166,7 @@ public class SearchServiceImpl implements SearchService {
 				doc.addField("course_signup_closetext", chosenComponent.getClosesText());
 
 				doc.addField("course_created", chosenComponent.getCreated());
-				
+				doc.addField("course_basedate", chosenComponent.getBaseDate());
 			}
 			getSolrServer().add(doc);
 			
