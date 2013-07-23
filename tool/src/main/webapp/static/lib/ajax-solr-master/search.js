@@ -119,7 +119,7 @@ var Manager;
 		solrUrl: '../rest/course/solr/'
 	});
 	
-	Manager.addValueName("course_basedate:[* TO NOW]", "Old Courses")
+	Manager.addValueName("course_basedate:[* TO NOW]", "Previous Courses")
 		.addValueName("course_basedate:[NOW TO *]", "Current Courses")
 		.addValueName("course_created:[NOW-14DAY TO NOW]", "New Courses");
 
