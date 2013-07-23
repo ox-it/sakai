@@ -45,14 +45,19 @@ public class SearchDataImpl implements Module {
 	}
 	
 	public void update() {
-		
+
+		int indexed = 0, failed = 0;
 		try {
 			searchService.deleteAll();
 		
 			List<CourseGroupDAO> groupDaos = dao.findAllGroups();
 		
 			for(CourseGroupDAO groupDao: groupDaos) {
-				searchService.addCourseGroup(new CourseGroupImpl(groupDao, null));
+				if (searchService.addCourseGroup(new CourseGroupImpl(groupDao, null))) {
+					indexed++;
+				} else {
+					failed++;
+				};
 			}
 		
 		} finally {
@@ -60,7 +65,7 @@ public class SearchDataImpl implements Module {
 			searchService.tidyUp();
 		}
 		
-		log.info("Completed update of Solr Search Data");
+		log.info("Completed update of Solr Search Data, indexed: "+ indexed+ " failed: "+ failed);
 	}
 	
 }

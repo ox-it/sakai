@@ -20,8 +20,6 @@
 package uk.ac.ox.oucs.vle;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -35,7 +33,6 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.common.SolrInputDocument;
-import org.sakaiproject.component.api.ServerConfigurationService;
 
 public class SearchServiceImpl implements SearchService {
 
@@ -93,7 +90,7 @@ public class SearchServiceImpl implements SearchService {
 	}
 	
 	@Override
-	public void addCourseGroup(CourseGroup course) {
+	public boolean addCourseGroup(CourseGroup course) {
 		try {
 			
 			SolrInputDocument doc = new SolrInputDocument();
@@ -169,14 +166,15 @@ public class SearchServiceImpl implements SearchService {
 				doc.addField("course_basedate", chosenComponent.getBaseDate());
 			}
 			getSolrServer().add(doc);
-			
+			return true;
+
 		} catch (SolrServerException e) {
 			log.error(e.getLocalizedMessage() + " whilst processing course [" + course.getCourseId() + ":" + course.getTitle() +"]", e);
 			
 		} catch (IOException e) {
 			log.error(e.getLocalizedMessage() + " whilst processing course [" + course.getCourseId() + ":" + course.getTitle() +"]", e);
-			
 		}
+		return false;
 		
 	}
 	

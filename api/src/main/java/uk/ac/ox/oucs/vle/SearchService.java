@@ -34,7 +34,7 @@ public interface SearchService {
 	 */
 	public ResultsWrapper select(String query) throws IOException;
 	
-	public void addCourseGroup(CourseGroup group);
+	public boolean addCourseGroup(CourseGroup group);
 	
 	public void deleteCourseGroup(CourseGroup group);
 	
