@@ -188,3 +188,8 @@ div.error {
   margin-right: 4px;
   padding: 0px 15px;
 }
+
+/* Fix Sakai's stupid font change for labels */
+label {
+  font-family: 'Trebuchet MS',Verdana,Geneva,Arial,Helvetica,sans-serif !important;
+}
