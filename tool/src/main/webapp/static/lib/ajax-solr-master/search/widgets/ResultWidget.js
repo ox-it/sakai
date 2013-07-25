@@ -131,16 +131,16 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 	} else {
 	
 		if (close < now) {
-			signup_message = "Sign-up closed";
+			signup_message = "closed";
 			booking_message = "Not Bookable";
 	
 		} else {
 			if (open > now) {
-				signup_message = "Sign-up opens in " + Signup.util.formatDuration(open -now);
+				signup_message = "opens in " + Signup.util.formatDuration(open -now);
 				booking_message = "Booking not open yet";
 			
 			} else {
-				signup_message = "Sign-up closes in " + Signup.util.formatDuration(close -now);
+				signup_message = "closes in " + Signup.util.formatDuration(close -now);
 				booking_message = "Booking open";
 			}
 		}
@@ -148,10 +148,10 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 	
 	var output = '<div id="doc"><form class="details"><strong>' + doc.course_title + '</strong>';
 	output += ',&nbsp;&nbsp;'+doc.provider_title;
-	if (signup_message) {
-		output += ',&nbsp;&nbsp;'+signup_message;
-	}
 	output += ',&nbsp;&nbsp;<strong>'+booking_message + '</strong>';
+	if (signup_message) {
+    		output += '&nbsp;('+signup_message+ ')';
+    }
 	output += '<p id="links_' + doc.course_identifier + '" class="links"></p>';
 	output += '<div id="description"><a href="javascript:{}" class="more">Show description</a>&nbsp;&nbsp;';
 	output += '<div class="toggle" style="display:none;">' + doc.course_description+'<br /></div>';
