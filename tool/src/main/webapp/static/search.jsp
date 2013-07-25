@@ -63,12 +63,13 @@
   <script src="lib/ajax-solr-master/widgets/jquery/PagerWidget.js"></script>
   <script src="lib/ajax-solr-master/core/AbstractFacetWidget.js"></script>
   <script src="lib/ajax-solr-master/search/widgets/TagcloudWidget.js"></script>
-  <script src="lib/ajax-solr-master/search/widgets/TimeFrameWidget.js"></script>
   <script src="lib/ajax-solr-master/search/widgets/CurrentSearchWidget.js"></script>
   <script src="lib/ajax-solr-master/core/AbstractTextWidget.js"></script>
   <script src="lib/ajax-solr-master/search/widgets/TextWidget.js"></script>
   <script src="lib/ajax-solr-master/search/widgets/ErrorWidget.js"></script>
-	 -->
+  <script src="lib/ajax-solr-master/search/widgets/BooleanWidget.js"></script>
+  <script src="lib/ajax-solr-master/search/widgets/BooleanFacetWidget.js"></script>
+
 	<script type="text/javascript">
 		var externalUser = <c:out value="${externalUser}" />;
 		var recentDays = "<%= ServerConfigurationService.getString("recent.days", "14") %>";
@@ -169,11 +170,20 @@
 					<div class="facet-body" id="course_delivery"></div>
 				</div>
 
-				<h2>Timeframe</h2>
-				<div class="facet-body-frame">
-					<div class="facet-body" id="course_timeframe"></div>
-				</div>
-				
+			</div>
+
+			<div>
+			    <h2>Show Only</h2>
+			    <div class="others">
+			        <div class="other">
+			            <input type="checkbox" id="show_old">
+			            <label for="show_old">Old Courses</label><br/>
+			        </div>
+			        <div class="other" id="show_new">
+			            <input type="checkbox" id="show_new_input">
+			            <label for="show_new_input">Recent Added Courses</label><br/>
+			        </div>
+			    </div>
 			</div>
 		</div>
 		<div class="clear"></div>

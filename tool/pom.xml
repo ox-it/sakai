@@ -275,9 +275,10 @@
 								<jsSourceFile>search/widgets/ErrorWidget.js</jsSourceFile>
 								<jsSourceFile>search/widgets/ResultWidget.js</jsSourceFile>
 								<jsSourceFile>search/widgets/TagcloudWidget.js</jsSourceFile>
-								<jsSourceFile>search/widgets/TimeFrameWidget.js</jsSourceFile>
 								<jsSourceFile>search/widgets/TextWidget.js</jsSourceFile>
 								<jsSourceFile>widgets/jquery/PagerWidget.js</jsSourceFile>
+								<jsSourceFile>search/widgets/BooleanWidget.js</jsSourceFile>
+								<jsSourceFile>search/widgets/BooleanFacetWidget.js</jsSourceFile>
 							</jsSourceFiles>
 							<jsFinalFile>ajax-solr-bundle.js</jsFinalFile>
 							<cssSourceDir>static/lib/ajax-solr-master</cssSourceDir>

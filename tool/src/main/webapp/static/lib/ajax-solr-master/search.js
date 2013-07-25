@@ -43,7 +43,12 @@ var Manager;
 			 * A collection of display names for fields
 			 */
 			fieldNames: {},
-			
+
+			/**
+			 * A collection of hidden fields that shouldn't be displayed to the end user.
+			 */
+			hiddenFields: [],
+
 			/** 
 			 * Adds a widget to the manager.
 			 *
@@ -111,6 +116,21 @@ var Manager;
 					return this.fieldNames[field];
 				}
 				return field;
+			},
+
+            addHiddenField: function(field) {
+                if (!this.isHiddenField(field)) {
+                    this.hiddenFields.push(field);
+                }
+            },
+
+			isHiddenField: function(field) {
+				for (var i = 0; i < this.hiddenFields.length; i++) {
+					if (this.hiddenFields[i] == field) {
+						return true;
+					}
+				}
+				return false;
 			}
 	});
 
@@ -119,16 +139,13 @@ var Manager;
 		solrUrl: '../rest/course/solr/'
 	});
 	
-	Manager.addValueName("course_basedate:[* TO NOW]", "Previous Courses")
-		.addValueName("course_basedate:[NOW TO *]", "Current Courses")
-		.addValueName("course_created:[NOW-14DAY TO NOW]", "New Courses");
+	Manager.addValueName("course_created:[NOW-14DAY TO NOW]", "New Courses");
 
 	Manager.addFieldName("provider_title", "Department")
 		.addFieldName("course_subject_rdf", "Skills Category")
 		.addFieldName("course_subject_rm", "Research Method")
 		.addFieldName("course_delivery", "Delivery Method")
-		.addFieldName("course_created", "Timeframe")
-		.addFieldName("course_basedate", "Timeframe");
+		.addFieldName("course_created", "Age")
 
     Manager.addWidget(new AjaxSolr.ResultWidget({
       id: 'result',
@@ -154,11 +171,6 @@ var Manager;
       }));
     }
     
-    Manager.addWidget(new AjaxSolr.TimeFrameWidget({
-        id: 'course_timeframe',
-        target: '#course_timeframe'
-    }));
-    
     Manager.addWidget(new AjaxSolr.CurrentSearchWidget({
         id: 'currentsearch',
         target: '#selection'
@@ -179,9 +191,23 @@ var Manager;
     	target: '#error'
     }));
 
+    Manager.addWidget(new AjaxSolr.BooleanWidget({
+        id: "show_old",
+        target: "#show_old",
+        field: "course_basedate",
+        checked: "[NOW-2YEAR TO NOW]",
+        unchecked: "[NOW TO *]"
+    }));
+
+    Manager.addWidget(new AjaxSolr.BooleanFacetWidget({
+        id: "show_new",
+        target: "#show_new",
+        field: "course_created",
+        label: "Recent Added Courses"
+    }));
+
     Manager.setStore(new AjaxSolr.ParameterExtraStore({
-        extra: "fq=course_hidden:false" + "&" +
-               "fq=course_basedate:[NOW/DAY-2YEAR TO *]" // Only courses within the last 2 years
+        extra: "fq=course_hidden:false" // Hide hidden courses.
     }));
 
     Manager.init();

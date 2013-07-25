@@ -20,8 +20,11 @@ AjaxSolr.CurrentSearchWidget = AjaxSolr.AbstractWidget.extend({
     for (var i = 0, l = fq.length; i < l; i++) {
       var value = this.manager.getValueName(fq[i]);
       var field = fq[i].match(/^\w+/)[0];
-      links.push($('<a href="#"></a>').text('(x) ' + this.manager.getFieldName(field)+ " : "
-         + value).click(self.removeFacet(fq[i])));
+      // Only display fields that aren't hidden.
+      if (!this.manager.isHiddenField(field)) {
+        links.push($('<a href="#"></a>').text('(x) ' + this.manager.getFieldName(field)+ " : "
+           + value).click(self.removeFacet(fq[i])));
+      }
     }
 
     if (links.length > 1) {
@@ -33,16 +36,14 @@ AjaxSolr.CurrentSearchWidget = AjaxSolr.AbstractWidget.extend({
       }));
     }
 
+    var $target = $(this.target);
+    $target.empty();
     if (links.length) {
-      var $target = $(this.target);
-      $target.empty();
       for (var i = 0, l = links.length; i < l; i++) {
         $target.append($('<li></li>').append(links[i]));
       }
     }
-    else {
-      $(this.target).html('<li>Viewing all documents!</li>');
-    }
+    // We don't display anything as we're not displaying all results.
   },
 
   removeFacet: function (facet) {

@@ -50,13 +50,11 @@ div.error {
 	text-align: center;
 	margin-top: 10px;
 }
-.simple_search h2 {
-	display: none;
-}
-.simple_search .left {
-	display: none;
-}
-.simple_search .facets {
+
+.simple_search h2,
+.simple_search .left,
+.simple_search .facets,
+.simple_search .others {
 	display: none;
 }
 
@@ -185,14 +183,15 @@ div.error {
 	clear: both;
 }
 
+.others {
+	border: 1px solid #DDDDDD;
+	padding: 0 5px;
+}
+
 .tagcloud_item, .tagcloud_empty {
   clear: both;
   float: left;
   display: block;
   margin-right: 4px;
   padding: 0px 15px;
-}
-
-.tagcloud_item {
-  color: #6998f0;
 }
