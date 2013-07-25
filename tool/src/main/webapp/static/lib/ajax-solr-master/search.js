@@ -219,14 +219,10 @@ var Manager;
       'facet.limit': 20,
       'facet.mincount': 1,
       'f.topics.facet.limit': 50,
-      'facet.range' : [ 'course_created', 'course_basedate' ],
+      'facet.range' : [ 'course_created' ],
       'f.course_created.facet.range.start' : 'NOW-14DAY',
       'f.course_created.facet.range.end' : 'NOW',
       'f.course_created.facet.range.gap' : '+14DAY',
-      'f.course_basedate.facet.range.start' : 'NOW',
-      'f.course_basedate.facet.range.end' : 'NOW',
-      'f.course_basedate.facet.range.gap' : '+21DAY',
-      'f.course_basedate.facet.range.other' : 'all',
     };
     for (var name in params) {
       Manager.store.addByValue(name, params[name]);
