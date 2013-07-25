@@ -1,15 +1,11 @@
 * {
   padding: 0;
   margin: 0;
-} 
-
-body {
-  /*background: #fff url(../images/header.gif) repeat-x;*/
-  color: #333;
-  font-family: Verdana, Arial, Helvetica, sans-serif;
-  font-size: 12px;
-  line-height: 18px;
 }
+body {
+  line-height: 1.5em;
+}
+
 img {
   border: none;
 }
@@ -25,9 +21,6 @@ div.error {
 	text-align: center;
 }
 
-#toolbar {
-  font-size: 14px;
-}
 .clear {
   clear: both;
 }
