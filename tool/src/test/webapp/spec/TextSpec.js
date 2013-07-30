@@ -14,6 +14,11 @@ describe("Text", function() {
 		var html = Text.toHtml("More information can be found at http://www.example.com/newsite");
 		expect(html).toContain('href="http://www.example.com/newsite"');
 	});
+
+	it("should work on links with hyphens", function() {
+	    var html = Text.toHtml("http://www.lsidtc.ox.ac.uk/the-course/core-modules\r\n\r\nFormal Assessment:");
+	    expect(html).toContain('href="http://www.lsidtc.ox.ac.uk/the-course/core-modules"');
+	});
 	
 	it("should split on newlines", function() {
 		var html = Text.toHtml("Line 1\nLine 2\n");

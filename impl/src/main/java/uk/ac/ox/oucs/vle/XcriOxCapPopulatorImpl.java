@@ -1149,7 +1149,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @param data
 	 * @return
 	 */
-	protected static String parse(String data) {
+	static String parse(String data) {
 
 		data = data.replaceAll("<", "&lt;");
 		data = data.replaceAll(">", "&gt;");
@@ -1183,7 +1183,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @param data
 	 * @return
 	 */
-	protected static String parseXHTML(String data) {
+	static String parseXHTML(String data) {
 		if (null != data) {
 			data = data.replaceAll("xhtml:", "");
 		}
