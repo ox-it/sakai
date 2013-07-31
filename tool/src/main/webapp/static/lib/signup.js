@@ -38,31 +38,11 @@ var Signup = function(){
 				var signupData;
 				var template;
 				var courseURL;
-				
-				/**
-				 * Compare two users to see if they are equal.
-				 * @param {Object} user1
-				 * @param {Object} user2
-				 */
-				var compareUser = function(user1, user2) {
-					return (user1.id == user2.id && user1.name == user2.name && user1.email == user2.email);
-				};
-				
-				/**
-				 * Check is an object exists as a value in an array.
-				 * @param {Object} array The array to look in.
-				 * @param {Object} object To object to look for.
-				 * @param {Object} compare A function to compare objects which returns true when they are the same.
-				 */
-				var inArray = function(array, object, compare) {
-					for (var i in array) {
-						if (compare(object, array[i])) {
-							return true;
-						}
-					}
-					return false;
-				};
-				
+
+				// Refactored out.
+                var compareUser = Signup.util.compareUser;
+				var inArray = Signup.util.inArray;
+
 				/**
 				 * This is the entry point which gets called to fire off the AJAX requests.
 				 * @param {Object} id
@@ -485,6 +465,30 @@ var Signup = function(){
               return new Date(NaN);
             },
 
+            /**
+             * Compare two users to see if they are equal.
+             * @param {Object} user1
+            * @param {Object} user2
+             */
+            compareUser: function(user1, user2) {
+              return (user1.id == user2.id && user1.name == user2.name && user1.email == user2.email);
+            },
+
+            /**
+             * Check is an object exists as a value in an array.
+             * @param {Object} array The array to look in.
+             * @param {Object} object To object to look for.
+             * @param {Object} compare A function to compare objects which returns true when they are the same.
+             */
+            inArray: function(array, object, compare) {
+              for (var i in array) {
+                if (compare(object, array[i])) {
+                  return true;
+                }
+              }
+              return false;
+            },
+            
             /**
              * Formats a durations to display to the user.
              * @param {Object} duration Duration in milliseconds.
