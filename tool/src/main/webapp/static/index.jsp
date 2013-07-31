@@ -45,6 +45,7 @@
 <script type="text/javascript"
 	src="lib/jstree-1.0rc2/_lib/jquery.cookie.js"></script>
 <script type="text/javascript" src="lib/jstree-1.0rc2/jquery.jstree.js"></script>
+<script type="text/javascript" src="lib/jstree-1.0rc2/jquery.jstree.accordion.js"></script>
 <script type="text/javascript" src="lib/jqmodal-r14/jqModal.js"></script>
 <script type="text/javascript"
 	src="lib/jquery-ui-1.8.4.custom/js/jquery-ui-1.8.4.custom.min.js"></script>
@@ -225,9 +226,15 @@
 						ui: {
 							initially_select: defaultNodes[defaultNodes.length-1]
 						},
-						plugins: ["ui", "themes", "json_data"]
+						themes: {
+							theme: "oxford",
+							dots: false,
+							icons: false
+						},
+						plugins: ["ui", "themes", "json_data", "accordion"]
 					});	
 				});
+
 			});
 				
             jQuery(function(){
