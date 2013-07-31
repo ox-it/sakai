@@ -20,7 +20,7 @@
 
 .jstree-oxford.jstree-focused { background:white; }
 
-.jstree-oxford .jstree-no-dots li { background:transparent; border-color: #DADADA; border-style: solid; border-image: none; border-width: 0 0 1px 1px; margin-bottom: 2px; }
+.jstree-oxford .jstree-no-dots li { background:transparent; border-color: #DADADA; border-style: solid; border-image: none; border-width: 1px; margin: 2px; }
 .jstree-oxford .jstree-no-dots .jstree-leaf > ins { background:transparent; }
 .jstree-oxford .jstree-no-dots .jstree-open > ins { background-position:-18px 0; }
 .jstree-oxford .jstree-no-dots .jstree-closed > ins { background-position:0 0; }
