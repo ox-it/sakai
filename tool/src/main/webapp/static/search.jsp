@@ -69,7 +69,7 @@
   <script src="lib/ajax-solr-master/search/widgets/ErrorWidget.js"></script>
   <script src="lib/ajax-solr-master/search/widgets/BooleanWidget.js"></script>
   <script src="lib/ajax-solr-master/search/widgets/BooleanFacetWidget.js"></script>
-
+    -->
 	<script type="text/javascript">
 		var externalUser = <c:out value="${externalUser}" />;
 		var recentDays = "<%= ServerConfigurationService.getString("recent.days", "14") %>";
