@@ -122,35 +122,24 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 	if (isNaN(open.getDate()) || isNaN(close.getDate())) {
 		if (doc.course_signup_opentext) {
 			signup_message = doc.course_signup_opentext;
-			booking_message = "Booking open";
-		
-		} else {
-			booking_message = "Not Bookable";
 		}
-		
 	} else {
 	
 		if (close < now) {
 			signup_message = "closed";
-			booking_message = "Not Bookable";
-	
 		} else {
 			if (open > now) {
 				signup_message = "opens in " + Signup.util.formatDuration(open -now);
-				booking_message = "Booking not open yet";
-			
 			} else {
 				signup_message = "closes in " + Signup.util.formatDuration(close -now);
-				booking_message = "Booking open";
 			}
 		}
 	}
 	
 	var output = '<div id="doc"><form class="details"><strong>' + doc.course_title + '</strong>';
 	output += ',&nbsp;&nbsp;'+doc.provider_title;
-	output += ',&nbsp;&nbsp;<strong>'+booking_message + '</strong>';
 	if (signup_message) {
-    		output += '&nbsp;('+signup_message+ ')';
+    		output += '&nbsp;(signup '+signup_message+ ')';
     }
 	output += '<p id="links_' + doc.course_identifier + '" class="links"></p>';
 	output += '<div id="description"><a href="javascript:{}" class="more">Show description</a>&nbsp;&nbsp;';
