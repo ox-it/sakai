@@ -142,6 +142,8 @@ var Signup = function(){
 					data.waiting = waitingList;
 					data.url = courseURL;
 					data.returnurl = "/course-signup/rest/course/"+id;
+					// Are there any components flagged as bookable?
+					data.bookable = false;
 
 					var parts = [];
 					var applyTo;
@@ -210,7 +212,11 @@ var Signup = function(){
 						// Is there space.
 						component.full = (component.places < 1);
 						if (component.full) {
-							data.full = true; // At least one component is full 
+							data.full = true; // At least one component is full
+						}
+
+						if (!data.bookable && component.bookable) {
+						    data.bookable = true; // We've found one bookable component.
 						}
 					}
 

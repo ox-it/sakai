@@ -328,7 +328,7 @@
                     </table>
                     
                     {if !hide}
-                    	{if source == "Daisy"}
+                    	{if bookable}
                     		{if signup}
                     			{if open && !anyOpenParts}
 									<input type="submit" value="Join Waiting List" />
@@ -339,7 +339,7 @@
 									{/if}/>
 								{/if}
 							{else}
-							<input type="submit" value="Not Bookable">
+							    <input type="submit" value="Not Bookable">
 							{/if}
                     	{else}
                     		{if defined('memberApplyTo')}
