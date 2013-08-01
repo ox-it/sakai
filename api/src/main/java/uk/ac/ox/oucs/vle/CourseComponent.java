@@ -72,11 +72,23 @@ public interface CourseComponent {
 	public String getSessions();
 	
 	public boolean getBookable();
-	
+
+	/**
+	 * The URL to apply to the course.
+	 * This comes from standard XCRI.
+	 * @return A String URL.
+	 * @see #getMemberApplyTo()
+	 */
 	public String getApplyTo();
 	
 	public String getTeachingDetails();
-	
+
+	/**
+	 * The URL to apply to a course for members of the institution.
+	 * This is a non-standard extension.
+	 * @return A String URL.
+	 * @see #getApplyTo()
+	 */
 	public String getMemberApplyTo();
 	
 	public String getAttendanceMode();
