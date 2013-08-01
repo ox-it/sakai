@@ -7,9 +7,9 @@
   Licensed under the Educational Community License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
-  
-              http://opensource.org/licenses/ecl2
-  
+
+			  http://opensource.org/licenses/ecl2
+
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,10 +29,10 @@
 						to see more information.
 					</div>
 				{else}
-				
+
 				<table width="100%">
 					{if presenters.length > 0}
-				 	<tr>
+					<tr>
 						<th>Lecturer(s)</th>
 						<td>
 							{for presenter in presenters}
@@ -45,7 +45,7 @@
 						</td>
 					</tr>
 					{/if}
-					
+
 					{if administrators.length > 0}
 					<tr>
 						<th>Module Administrator</th>
@@ -60,7 +60,7 @@
 						</td>
 					</tr>
 					{/if}
-					
+
 					<tr>
 						<th>Department</th>
 						<td>
@@ -90,7 +90,7 @@
 									Waiting List of ${waiting}
 								{else}
 									${signup} 
-							 	{/if}
+								{/if}
 							{else}
 								Not bookable
 							{/if}		
@@ -140,38 +140,38 @@
 			<div id="parts">
 				<h2>Booking Information</h2>
 				<span class="error" style="display:none"></span>
-                <form id="signup" action="#">
-                	{var anyOpenParts = false}
-                    <table width="100%">
-                    	{for part in parts}
-                    		
-                        	{if !hide}
-                        		<tr>
-                            		<td colspan="3">
-                                		<h3>&nbsp;&nbsp;${part.type.name}</h3>
-                            		</td>
-                        		</tr>
+				<form id="signup" action="#">
+					{var anyOpenParts = false}
+					<table width="100%">
+						{for part in parts}
+
+							{if !hide}
+								<tr>
+									<td colspan="3">
+										<h3>&nbsp;&nbsp;${part.type.name}</h3>
+									</td>
+								</tr>
 								{var oneOpen = false}
 								{for option in part.options}
-                        			<tr>
-                            			<td class="option-details">
-                                			<label for="option-${option.id}">
-                                			{if option.slot}${option.slot} 
-                                				for 
-                                			{else}
-                                				For
-                                			{/if}
-                                			
-                                			{if option.sessionCount}
-                                				${option.sessionCount} sessions 
-                                			{else}
-                                				1 session
-                                			{/if}
-                                			
-                                			{if option.when}
-                                				starts in ${option.when}, 
-                                			{/if}
-                                			
+									<tr>
+										<td class="option-details">
+											<label for="option-${option.id}">
+											{if option.slot}${option.slot} 
+												for 
+											{else}
+												For
+											{/if}
+
+											{if option.sessionCount}
+												${option.sessionCount} sessions 
+											{else}
+												1 session
+											{/if}
+
+											{if option.when}
+												starts in ${option.when}, 
+											{/if}
+
 											{if option.presenter}
 												{if option.presenter.email}
 													<a href="mailto:${option.presenter.email}">
@@ -182,89 +182,89 @@
 												{/if}
 											{/if}
 											</label>
-                                			<br/>
-                                			
-                                			<span class="location">
-                                			{if option.starts}
-                                				teaching starts on ${option.starts|dateFormat}
-                                			{else}
-                                				{if option.startsText} 
-                                					teaching starts ${option.startsText}
-                                				{/if}
-                                			{/if}
-                                			
-                                			{if option.ends} 
-                                				and ends on ${option.ends|dateFormat}
-                                			{else}
-                                				{if option.endsText} 
-                                					and ends ${option.endsText}
-                                				{/if}
-                                			{/if}
-                                			
-                                			{if option.opens || option.closes}
-                                			    {if option.starts || option.ends}
-                                					<br/>
-                                				{/if}
-                                			{/if}
-                                			
-                                			{if option.opens}
-                                				signup opens on ${option.opens|dateFormat}
-                                			{else}
-                                				{if option.opensText} 
-                                					signup opens ${option.opensText}
-                                				{/if}
-                                			{/if}
-                                			
-                                			{if option.closes} 
-                                				{if option.opens || option.opensText}
-                                					and closes on ${option.closes|dateFormat}
-                                				{else}
-                                					signup closes on ${option.closes|dateFormat}
-                                				{/if}
-                                			{else}
-                                				{if option.closesText} 
-                                					{if option.opens || option.opensText}
-                                						and ends ${option.closesText}
-                                					{else}
-                                						signup closes ${option.closesText}
-                                					{/if}
-                                				{/if}
-                                			{/if}
-                                			
-                                			{if option.location}
-                                				{if option.opens || option.closes}
-                                					<br/>
-                                				{/if}
-                                				Venue: ${option.location}
-                                			{/if}
-                                			
-                                			{if option.teachingDetails}
-                                				{if option.opens || option.closes || option.location}
-                                					<br/>
-                                				{/if}
-                                				${option.teachingDetails}
-                                			{/if}
-                                			
-                                			{if option.sessionData}
-                                				<ul>
-                                				{for session in option.sessionData}
-                                					<li>
-                                					{if session.singleDay }
-                                						${session.start|dateFormat} ${session.start|timeFormat} to
-                                						${session.end|timeFormat}
-                                					{else}
-                                						${session.start|dateFormat} ${session.start|timeFormat} to
-                                						${session.end|dateFormat} ${session.end|timeFormat}
-                                					{/if}
-                                				{/for}
-                                				</ul>
-                                			{/if}
-                                			
-                                			</span>
-                            			</td>
-                            			<td style="width:6em">
-                            				{if option.bookable}
-                            					{if option.full}
+											<br/>
+
+											<span class="location">
+											{if option.starts}
+												teaching starts on ${option.starts|dateFormat}
+											{else}
+												{if option.startsText} 
+													teaching starts ${option.startsText}
+												{/if}
+											{/if}
+
+											{if option.ends} 
+												and ends on ${option.ends|dateFormat}
+											{else}
+												{if option.endsText} 
+													and ends ${option.endsText}
+												{/if}
+											{/if}
+
+											{if option.opens || option.closes}
+												{if option.starts || option.ends}
+													<br/>
+												{/if}
+											{/if}
+
+											{if option.opens}
+												signup opens on ${option.opens|dateFormat}
+											{else}
+												{if option.opensText} 
+													signup opens ${option.opensText}
+												{/if}
+											{/if}
+
+											{if option.closes} 
+												{if option.opens || option.opensText}
+													and closes on ${option.closes|dateFormat}
+												{else}
+													signup closes on ${option.closes|dateFormat}
+												{/if}
+											{else}
+												{if option.closesText} 
+													{if option.opens || option.opensText}
+														and ends ${option.closesText}
+													{else}
+														signup closes ${option.closesText}
+													{/if}
+												{/if}
+											{/if}
+
+											{if option.location}
+												{if option.opens || option.closes}
+													<br/>
+												{/if}
+												Venue: ${option.location}
+											{/if}
+
+											{if option.teachingDetails}
+												{if option.opens || option.closes || option.location}
+													<br/>
+												{/if}
+												${option.teachingDetails}
+											{/if}
+
+											{if option.sessionData}
+												<ul>
+												{for session in option.sessionData}
+													<li>
+													{if session.singleDay }
+														${session.start|dateFormat} ${session.start|timeFormat} to
+														${session.end|timeFormat}
+													{else}
+														${session.start|dateFormat} ${session.start|timeFormat} to
+														${session.end|dateFormat} ${session.end|timeFormat}
+													{/if}
+												{/for}
+												</ul>
+											{/if}
+
+											</span>
+										</td>
+										<td style="width:6em">
+											{if option.bookable}
+												{if option.full}
 													full
 												{else}
 													{if waiting}
@@ -275,14 +275,14 @@
 													{/if}
 												{/if}
 											{/if}
-                            			</td>
-                            			<td>
+										</td>
+										<td>
 											{if option.signup && option.signup.status != "WITHDRAWN"}
 												Signup: ${option.signup.status}
 											{else}
 												{if signup}
 													{if option.bookable}
-                                						{if part.options.length == 1}
+														{if part.options.length == 1}
 															<input type="checkbox" 
 																name="${part.type.id}" 
 																id="option-${option.id}" 
@@ -296,10 +296,10 @@
 																	{/if}
 																{/if}/>
 														{else}
-                											<input type="radio" 
-                												name="${part.type.id}" 
-                												id="option-${option.id}" 
-                												value="${option.id}"
+															<input type="radio" 
+																name="${part.type.id}" 
+																id="option-${option.id}" 
+																value="${option.id}"
 																{if !option.open }
 																	disabled="true"
 																{else}
@@ -307,10 +307,10 @@
 																{/if}/>
 														{/if}
 													{/if}
-								 				{/if}
+												{/if}
 											{/if}	
-                            			</td>
-                        			</tr>
+										</td>
+									</tr>
 								{/for}
 								{if parts.length > 1 && part.options.length > 1 && oneOpen}
 									<tr>
@@ -325,12 +325,12 @@
 								{/if}
 							{/for}
 						{/if}
-                    </table>
-                    
-                    {if !hide}
-                    	{if bookable}
-                    		{if signup}
-                    			{if open && !anyOpenParts}
+					</table>
+
+					{if !hide}
+						{if bookable}
+							{if signup}
+								{if open && !anyOpenParts}
 									<input type="submit" value="Join Waiting List" />
 								{else}
 									<input type="submit" value="Signup" 
@@ -339,20 +339,18 @@
 									{/if}/>
 								{/if}
 							{else}
-							    <input type="submit" value="Not Bookable">
+								<input type="submit" value="Not Bookable">
 							{/if}
-                    	{else}
-                    		{if defined('memberApplyTo')}
+						{else}
+							{if defined('memberApplyTo')}
 								<p>Apply to:<a href="${memberApplyTo}" target="_blank">${memberApplyTo}</a></p>
 							{else}
 								{if defined('applyTo')}
 									<p>Apply to: <a href="${applyTo}" target="_blank">${applyTo}</a></p>
 								{/if}
 							{/if}
-                    	{/if}
-                    	
+						{/if}
 					{else}
-					
 						<h3>University Members</h3>
 						<div class="noAuth">
 							<p>
@@ -365,7 +363,6 @@
 							<p><a href="mailto:${contactEmail}">Make an Enquiry</a></p>
 						{/if}
 					{/if}
-					
 				</form>
 			</div>
 			{if isAdmin}
