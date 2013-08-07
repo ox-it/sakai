@@ -42,7 +42,13 @@ public interface SakaiProxy {
 	public UserProxy findUserByEmail(String email);
 	
 	public UserProxy findUserByEid(String eid);
-	
+
+	/**
+	 * Create a new user so that someone who doesn't have an account can be placed on a module.
+	 * @param name The name of the new user, cannot be <code>null</code>.
+	 * @param email The email address of the new user, cannot be <code>null</code>.
+	 * @return The newly created user.
+	 */
 	public UserProxy newUser(String name, String email);
 	
 	/**

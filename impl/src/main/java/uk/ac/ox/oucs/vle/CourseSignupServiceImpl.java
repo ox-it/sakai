@@ -680,9 +680,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			throw new PermissionDeniedException(currentUserId);
 		}
 	}
-	
+
 	/**
-	 * Signup by Administrator
+	 * @inheritDoc
 	 */
 	public CourseSignup signup(String userId, String userName, String userEmail, String courseId, Set<String> componentIds, String supervisorId) {
 		
@@ -691,18 +691,22 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			throw new NotFoundException(courseId);
 		}
 		
-		Set<CourseComponentDAO> componentDaos = parseComponents(componentIds, groupDao); 
-		
+		Set<CourseComponentDAO> componentDaos = loadComponents(componentIds, groupDao);
+
+		// Check the current user is the administrator for all the components.
 		String currentUserId = proxy.getCurrentUser().getId();
 		if (!isAdministrator(groupDao, currentUserId, false)) {
 			throw new PermissionDeniedException(currentUserId);
 		}
 		
 		// Create the signup.
-		
 		UserProxy user = null;
-		if ("newUser".equals(userId)) {
-			user = proxy.newUser(userName, userEmail);
+		if (userId == null) {
+			// Check for the user by email.
+			user = proxy.findUserByEmail(userEmail);
+			if (user == null) {
+				user = proxy.newUser(userName, userEmail);
+			}
 		} else {
 			user = proxy.findUserById(userId);
 		}
@@ -714,8 +718,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		Department department = findPracDepartment(user.getPrimaryOrgUnit());
 		if (null != department) {
 			signupDao.setDepartment(department.getPracCode());
-		} else {
-			signupDao.setDepartment(null);
 		}
 		String signupId = dao.save(signupDao);
 		
@@ -768,7 +770,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			full = true;
 		}
 		
-		Set<CourseComponentDAO> componentDaos = parseComponents(componentIds, groupDao); 
+		Set<CourseComponentDAO> componentDaos = loadComponents(componentIds, groupDao);
 		
 		// Check they are valid as a choice (in signup period (student), not for same component in same term)
 		UserProxy user = proxy.getCurrentUser();
@@ -881,12 +883,14 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 	
 	/**
-	 * Need to find all the components.
-	 * @param componentIds
-	 * @param groupDao
-	 * @return
+	 * Find all the components and check they are associated with the supplied course group.
+	 * @param componentIds The component IDs to load.
+	 * @param groupDao The course group to check they belong to.
+	 * @return The loaded components.
+	 * @throws IllegalArgumentException If there aren't any component IDs or they don't belong to the group.
+	 * @throws NotFoundException If one of the component IDs couldn't be found.
 	 */
-	private Set<CourseComponentDAO> parseComponents(Set<String> componentIds, CourseGroupDAO groupDao) {
+	private Set<CourseComponentDAO> loadComponents(Set<String> componentIds, CourseGroupDAO groupDao) {
 		if (componentIds == null) {
 			throw new IllegalArgumentException("You must specify some components to signup to.");
 		}

@@ -130,7 +130,10 @@ public class SignupResource {
 	@Path("/my/new")
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response signup(@FormParam("courseId") String courseId, @FormParam("components")Set<String> components, @FormParam("email")String email, @FormParam("message")String message) {
+	public Response signup(@FormParam("courseId") String courseId,
+						   @FormParam("components")Set<String> components,
+						   @FormParam("email")String email,
+						   @FormParam("message")String message) {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			throw new WebAppForbiddenException();
 		}
@@ -169,6 +172,11 @@ public class SignupResource {
 							@FormParam("supervisorId")String supervisorId) {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			throw new WebAppForbiddenException();
+		}
+		// Support old idea of a special ID for new users.
+		// When the frontend is refactored this can be removed.
+		if ("newUser".equals(userId)) {
+			userId = null;
 		}
 		courseService.signup(userId, userName, userEmail, courseId, components, supervisorId);
 		return Response.ok().build();
