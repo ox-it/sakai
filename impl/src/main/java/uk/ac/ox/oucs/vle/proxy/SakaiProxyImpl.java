@@ -69,9 +69,7 @@ import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 
-import uk.ac.ox.oucs.vle.AdditionalUserDetails;
-import uk.ac.ox.oucs.vle.SakaiProxy;
-import uk.ac.ox.oucs.vle.UserProxy;
+import uk.ac.ox.oucs.vle.*;
 
 /**
  * This is the actual Sakai proxy which talks to the Sakai services.
@@ -83,7 +81,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private final static Log log = LogFactory.getLog(SakaiProxyImpl.class);
 	
 	private String fromAddress;
-	
+
+	/**
+	 * The type to create new users as. Defaults to "guest" which is the same as Site Info tool.
+	 */
+	private String userType = "guest";
+	public void setUserType(String userType) {
+		this.userType = userType;
+	}
+
 	/**
 	 * 
 	 */
@@ -219,28 +225,25 @@ public class SakaiProxyImpl implements SakaiProxy {
 		String eid = email;
 		String firstName = null;
 		String lastName = null;
+		// Authentication never works in Sakai if the password is null.
 		String pw = null;
-		String type = null;
-		
-		int i = name.indexOf(" ");
+		String type = userType;
+		String trimmedName = name.trim();
+		int i = trimmedName.lastIndexOf(" ");
 		if (i > 0) {
-			firstName = name.substring(0, i);
-			lastName = name.substring(i+1);
+			firstName = trimmedName.substring(0, i);
+			lastName = trimmedName.substring(i+1);
 		} else {
-			firstName = name;
+			firstName = trimmedName;
 		}
-		
 		try {
 			sakaiUser = userService.addUser(id, eid, firstName, lastName, email, pw, type, null);
-		
 		} catch (UserIdInvalidException e) {
-			return null;
-			
+			throw new IllegalArgumentException("Failed to add user because of bad ID", e);
+		} catch (UserPermissionException e) {
+			throw new PermissionDeniedException(e.getUser(), "Current user doesn't have permission to add users.", e);
 		} catch (UserAlreadyDefinedException e) {
 			return findUserByEmail(email);
-			
-		} catch (UserPermissionException e) {
-			return null;
 		}
 		UserProxy user = wrapUserProxy(sakaiUser);
 		return user;
@@ -273,7 +276,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
 	 * Just get the current placement.
 	 * @return The current placement.
-	 * @throws RunTimeException If there isn't a current placement, this happens
+	 * @throws RuntimeException If there isn't a current placement, this happens
 	 * when a request comes through that isn't processed by the portal.
 	 */
 
