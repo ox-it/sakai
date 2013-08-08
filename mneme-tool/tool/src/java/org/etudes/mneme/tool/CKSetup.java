@@ -3,7 +3,7 @@
  * $Id: CKSetup.java 3635 2012-12-02 21:26:23Z ggolden $
  ***********************************************************************************
  *
- * Copyright (c) 2012 Etudes, Inc.
+ * Copyright (c) 2012, 2013 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class CKSetup
 		{
 			docsPath = docsPath.replace("{CONTEXT}", toolContext);
 			SessionManager.getCurrentSession().setAttribute("ck.collectionId", docsPath);
-			String attrb = "ck.security.advisor." + docsPath;
+			String attrb = "fck.security.advisor." + docsPath;
 
 			SessionManager.getCurrentSession().setAttribute(attrb, new SecurityAdvisor()
 			{
