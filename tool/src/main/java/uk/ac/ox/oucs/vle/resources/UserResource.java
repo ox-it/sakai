@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package uk.ac.ox.oucs.vle;
+package uk.ac.ox.oucs.vle.resources;
 
 import java.io.IOException;
 import java.util.Date;
@@ -40,6 +40,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.node.ObjectNode;
+import uk.ac.ox.oucs.vle.CourseSignupService;
+import uk.ac.ox.oucs.vle.SakaiProxy;
+import uk.ac.ox.oucs.vle.UserProxy;
 
 
 /**

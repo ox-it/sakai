@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package uk.ac.ox.oucs.vle;
+package uk.ac.ox.oucs.vle.resources;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -53,6 +53,7 @@ import org.codehaus.jackson.map.type.TypeFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
+import uk.ac.ox.oucs.vle.*;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 import com.sun.jersey.api.view.Viewable;
