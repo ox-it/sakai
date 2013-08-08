@@ -35,17 +35,21 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.CoreProtocolPNames;
 
 public class XcriPopulatorInput implements PopulatorInput {
-	
+
 	private static final Log log = LogFactory.getLog(XcriPopulatorInput.class);
-	
+
 	DefaultHttpClient httpclient;
-	
+
 	public void init() {
-		 httpclient = new DefaultHttpClient();
+		// We will have multiple threads using the same httpclient.
+		 httpclient = new DefaultHttpClient(new ThreadSafeClientConnManager());
+		httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "SES Import");
 	}
-	
+
 	public void destroy() {
 		// When HttpClient instance is no longer needed,
 		// shut down the connection manager to ensure
@@ -55,13 +59,13 @@ public class XcriPopulatorInput implements PopulatorInput {
 
 	public InputStream getInput(PopulatorContext context) 
 	throws PopulatorException {
-		
+
 		InputStream input = null;
 		HttpEntity entity = null;
 
 		try {
 			URL xcri = new URL(context.getURI());
-			
+
 			HttpHost targetHost = new HttpHost(xcri.getHost(), xcri.getPort(), xcri.getProtocol());
 
 			httpclient.getCredentialsProvider().setCredentials(
