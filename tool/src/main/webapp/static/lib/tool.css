@@ -123,6 +123,7 @@ table th {
 
 /* These are for colour coding the jsTree of dept/courses */
 .jstree li.new a ins {
+    display: inline-block !important;
 	background-image: url('/library/image/silk/new.png');
 	background-position: 0 0;
 }
