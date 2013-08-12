@@ -17,7 +17,10 @@
  * limitations under the License.
  * #L%
  */
-package uk.ac.ox.oucs.vle;
+package uk.ac.ox.oucs.vle.resources;
+
+import uk.ac.ox.oucs.vle.NotFoundException;
+import uk.ac.ox.oucs.vle.PermissionDeniedException;
 
 import java.util.HashMap;
 import java.util.Map;
