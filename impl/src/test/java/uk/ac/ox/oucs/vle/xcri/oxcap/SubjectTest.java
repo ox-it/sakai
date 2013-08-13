@@ -19,6 +19,23 @@ public class SubjectTest {
 		assertFalse(subject.isJACSCategory());
 		assertFalse(subject.isRMCategory());
 		assertTrue(subject.isValid());
+		assertEquals(Subject.RDFSubjectIdentifier.CD, subject.getSubjectIdentifier());
+	}
+
+	@Test
+	public void testDifferentValueRDF() throws Exception {
+		// This one has a different value in it's XML tag which doesn't match the spec.
+		Subject subject = createSubject(Subject.RDF.getURI(), "CD", "Different Career Development");
+		assertEquals("CD", subject.getIdentifier());
+		assertEquals("Different Career Development", subject.getValue());
+		assertTrue(subject.isRDFCategory());
+		assertFalse(subject.isJACSCategory());
+		assertFalse(subject.isRMCategory());
+		assertTrue(subject.isValid());
+		Subject.SubjectIdentifier subjectIdentifier = subject.getSubjectIdentifier();
+		assertEquals(Subject.RDFSubjectIdentifier.CD, subjectIdentifier);
+		assertEquals("CD", subjectIdentifier.name());
+		assertEquals("Career Development", subjectIdentifier.getValue());
 	}
 
 	@Test
@@ -30,6 +47,8 @@ public class SubjectTest {
 		assertTrue(subject.isRMCategory());
 		assertFalse(subject.isJACSCategory());
 		assertTrue(subject.isValid());
+		assertEquals(Subject.RMSubjectIdentifier.QL, subject.getSubjectIdentifier());
+
 	}
 
 	@Test
@@ -41,6 +60,7 @@ public class SubjectTest {
 		assertFalse(subject.isRMCategory());
 		assertTrue(subject.isJACSCategory());
 		assertTrue(subject.isValid());
+		assertNull(subject.getSubjectIdentifier());
 	}
 
 	@Test
@@ -52,6 +72,7 @@ public class SubjectTest {
 		assertFalse(subject.isRMCategory());
 		assertFalse(subject.isJACSCategory());
 		assertFalse(subject.isValid());
+		assertNull(subject.getSubjectIdentifier());
 	}
 
 	@Test
@@ -69,6 +90,7 @@ public class SubjectTest {
 		assertFalse(subject.isRMCategory());
 		assertFalse(subject.isJACSCategory());
 		assertTrue(subject.isValid());
+		assertNull(subject.getSubjectIdentifier());
 	}
 
 	@Test
@@ -82,6 +104,7 @@ public class SubjectTest {
 					"identifier=\"ID\">Value</dc:subject>");
 			assertEquals("ID", subject.getIdentifier());
 			assertEquals("Value", subject.getValue());
+			assertNull(subject.getSubjectIdentifier());
 		} catch (Exception e) {
 			fail("We shouldn't blow up when there isn't a namespace");
 		}

@@ -39,9 +39,6 @@
 
 package uk.ac.ox.oucs.vle.xcri.oxcap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.xcri.Extension;
@@ -49,32 +46,50 @@ import org.xcri.exceptions.InvalidElementException;
 
 /**
  * This is our custom parsing of subjects as we have a limited vocabulary.
+ *
  */
 public class Subject extends org.xcri.common.Subject implements Extension {
 
-	private static final Log log = LogFactory.getLog(Subject.class);
-	public static final Namespace XSI = Namespace.getNamespace("http://www.w3.org/2001/XMLSchema-instance");
+	// Parses tags link
+	// <dc:subject xmlns:ns="https://data.ox.ac.uk/id/ox-RDF/" xsi:type="ns:notation" identifier="CD">Career Development</dc:subject>
 
 	private Namespace categoryNamespace;
 	private String identifier;
 
-    /**
-     * This is the namespace of the Researcher Definition Framework. A list of skills that you may gain from the
-     * course.
-     */
+	/**
+	 * This is the namespace of the Researcher Definition Framework. A list of skills that you may gain from the
+	 * course.
+	 */
 	public static final Namespace RDF = Namespace.getNamespace("https://data.ox.ac.uk/id/ox-rdf/");
-    /**
-     * This defines if the course is qualitative or quantitative.
-     */
+	/**
+	 * This defines if the course is qualitative or quantitative.
+	 */
 	public static final Namespace RM = Namespace.getNamespace("https://data.ox.ac.uk/id/ox-rm/");
-    /**
-     * This is the namespace for the JACS subjects which are recommended to be used by JISC, but we aren't
-     * interested in them as they are aimed at classifying degree programmes which isn't applicable for us.
-     */
+	/**
+	 * This is the namespace for the JACS subjects which are recommended to be used by JISC, but we aren't
+	 * interested in them as they are aimed at classifying degree programmes which isn't applicable for us.
+	 */
 	public static final Namespace JACS = Namespace.getNamespace("http://xcri.co.uk");
 
+	/**
+	 * The standard XML Schema namespace.
+	 */
+	public static final Namespace XSI = Namespace.getNamespace("http://www.w3.org/2001/XMLSchema-instance");
+
+
+	/**
+	 * A subject identifier.
+	 */
 	public interface SubjectIdentifier {
+		/**
+		 * @return The value of this subject identifier. Typically the title.
+		 */
 		public String getValue();
+
+		/**
+		 * @return The name of this identifier. Typically it's the unique ID.
+		 */
+		public String name();
 	}
 
 	public enum RDFSubjectIdentifier implements SubjectIdentifier {
@@ -135,17 +150,14 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 			return this.value;
 		}
 	}
-	
+
 	@Override
 	public void fromXml(Element element) throws InvalidElementException {
 		super.fromXml(element);
-
 		String identifier = element.getAttributeValue("identifier");
 		if (identifier != null){
 			this.setIdentifier(identifier);
 		}
-		
-		//<dc:subject xmlns:ns="https://data.ox.ac.uk/id/ox-RDF/" xsi:type="ns:notation" identifier="CD">Career Development</dc:subject>
 		String value = element.getAttributeValue("type", XSI);
 		if (value != null) {
 			String[] bits = value.split(":");
@@ -158,17 +170,35 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 	public boolean isValid() {
 		return isJACSCategory() || isRMCategory() || isRDFCategory();
 	}
-	
+
 	public boolean isJACSCategory() {
 		return JACS.equals(this.getCategoryNamespace());
 	}
-	
+
 	public boolean isRMCategory() {
 		return RM.equals(this.getCategoryNamespace());
 	}
-	
+
 	public boolean isRDFCategory() {
 		return RDF.equals(this.getCategoryNamespace());
+	}
+
+	/**
+	 * Gets the subject identifier based on the identifier of this element.
+	 * It doesn't use the value from the XML element, but our static definition.
+	 * @return One of the known subject identifier or <code>null</code> if no match was found.
+	 */
+	public SubjectIdentifier getSubjectIdentifier() {
+		try {
+			if (isRMCategory()) {
+				return RMSubjectIdentifier.valueOf(getIdentifier());
+			}
+			if (isRDFCategory()) {
+				return RDFSubjectIdentifier.valueOf(getIdentifier());
+			}
+		} catch (IllegalArgumentException iae) {
+		}
+		return null;
 	}
 
 	/**
@@ -184,8 +214,8 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 	public void setIdentifier(String identifier) {
 		this.identifier = identifier;
 	}
-	
-	
+
+
 	/**
 	 * @return the identifier
 	 */
