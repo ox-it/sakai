@@ -53,6 +53,7 @@ import org.xcri.exceptions.InvalidElementException;
 public class Subject extends org.xcri.common.Subject implements Extension {
 
 	private static final Log log = LogFactory.getLog(Subject.class);
+	public static final Namespace XSI = Namespace.getNamespace("http://www.w3.org/2001/XMLSchema-instance");
 
 	private Namespace categoryNamespace;
 	private String identifier;
@@ -145,14 +146,9 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 		}
 		
 		//<dc:subject xmlns:ns="https://data.ox.ac.uk/id/ox-RDF/" xsi:type="ns:notation" identifier="CD">Career Development</dc:subject>
-	      
-		for (Object object : element.getAttributes()) {
-			Attribute attribute = (Attribute) object;
-			if ("type".equals(attribute.getName()) && "xsi".equals(attribute.getNamespacePrefix())) {
-				String[] bits = attribute.getValue().split(":");
-				this.setCategoryNamespace(element.getNamespace(bits[0]));
-			}
-		}
+		String value = element.getAttributeValue("type", XSI);
+		String[] bits = value.split(":");
+		this.setCategoryNamespace(element.getNamespace(bits[0]));
 	}
 
 	public boolean isValid() {
@@ -194,7 +190,7 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 	}
 
 	/**
-	 * @param identifier the identifier to set
+	 * @param categoryNamespace Set the namespace of the element,
 	 */
 	public void setCategoryNamespace(Namespace categoryNamespace) {
 		this.categoryNamespace = categoryNamespace;
