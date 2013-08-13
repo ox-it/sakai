@@ -147,8 +147,12 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 		
 		//<dc:subject xmlns:ns="https://data.ox.ac.uk/id/ox-RDF/" xsi:type="ns:notation" identifier="CD">Career Development</dc:subject>
 		String value = element.getAttributeValue("type", XSI);
-		String[] bits = value.split(":");
-		this.setCategoryNamespace(element.getNamespace(bits[0]));
+		if (value != null) {
+			String[] bits = value.split(":");
+			if (bits.length == 2) {
+				this.setCategoryNamespace(element.getNamespace(bits[0]));
+			}
+		}
 	}
 
 	public boolean isValid() {

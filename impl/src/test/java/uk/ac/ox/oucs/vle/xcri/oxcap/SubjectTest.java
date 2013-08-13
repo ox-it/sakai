@@ -71,6 +71,22 @@ public class SubjectTest {
 		assertTrue(subject.isValid());
 	}
 
+	@Test
+	public void testNoNamespaceXml() throws Exception {
+		// We don't have a namespace here.
+		try {
+			Subject subject = createSubject("<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+					"<dc:subject " +
+					"xmlns:dc=\"http://purl.org/dc/elements/1.1/\" " +
+					"xmlns:ns=\"https://data.ox.ac.uk/id/ox-rdf/\" " +
+					"identifier=\"ID\">Value</dc:subject>");
+			assertEquals("ID", subject.getIdentifier());
+			assertEquals("Value", subject.getValue());
+		} catch (Exception e) {
+			fail("We shouldn't blow up when there isn't a namespace");
+		}
+
+	}
 
 	private Subject createSubject(String namespace, String identifier, String value) throws Exception {
 		Subject subject = createSubject("<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
