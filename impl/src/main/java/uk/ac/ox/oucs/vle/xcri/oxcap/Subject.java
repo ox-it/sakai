@@ -45,32 +45,93 @@ import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.xcri.Extension;
-import org.xcri.Namespaces;
 import org.xcri.exceptions.InvalidElementException;
-import org.xcri.presentation.AttendanceMode;
-import org.xcri.presentation.AttendanceMode.AttendanceModeType;
-import org.xcri.types.XcriElement;
 
+/**
+ * This is our custom parsing of subjects as we have a limited vocabulary.
+ */
 public class Subject extends org.xcri.common.Subject implements Extension {
-	
-	private Log log = LogFactory.getLog(Subject.class);
-	
+
+	private static final Log log = LogFactory.getLog(Subject.class);
+
 	private Namespace categoryNamespace;
 	private String identifier;
-	
-	private static String rdf = "https://data.ox.ac.uk/id/ox-rdf/";
-	private static String rm = "https://data.ox.ac.uk/id/ox-rm/";
-	private static String jacs = "http://xcri.co.uk";
-	
-	public enum SubjectIdentifier {
-		CO,	CD,	CS, DA,	DM,	EE, ET, FW,	GT,	HS, IN,	IP, IL, LS,	MM,	PE,	PS,	QL,	QN,	RD,	RF, RM,	SC, SR,	ST,	TA, TE;
+
+    /**
+     * This is the namespace of the Researcher Definition Framework. A list of skills that you may gain from the
+     * course.
+     */
+	public static final Namespace RDF = Namespace.getNamespace("https://data.ox.ac.uk/id/ox-rdf/");
+    /**
+     * This defines if the course is qualitative or quantitative.
+     */
+	public static final Namespace RM = Namespace.getNamespace("https://data.ox.ac.uk/id/ox-rm/");
+    /**
+     * This is the namespace for the JACS subjects which are recommended to be used by JISC, but we aren't
+     * interested in them as they are aimed at classifying degree programmes which isn't applicable for us.
+     */
+	public static final Namespace JACS = Namespace.getNamespace("http://xcri.co.uk");
+
+	public interface SubjectIdentifier {
+		public String getValue();
 	}
-	
-	public SubjectIdentifier getSubjectIdentifier(){
-		try {
-			return SubjectIdentifier.valueOf(getIdentifier());
-		} catch (Exception e) {
-			return null;
+
+	public enum RDFSubjectIdentifier implements SubjectIdentifier {
+		// RDS Domain A
+		CO("Computing"),
+		DA("Data Analysis"),
+		DM("Data Management"),
+		FW("Field Work"),
+		RD("General Researcher Development"),
+		IN("Information Skills"),
+		LS("Laboratory Skills"),
+		LA("Languages"),
+		MM("Mathematical Methods"),
+		RM("Research Methods"),
+		ST("Statistics"),
+		TE("Technical Skills"),
+		SR("Study and Research Skills"),
+		// RDS Domain B
+		CD("Career Development"),
+		PE("Personal Effectiveness"),
+		PS("Presentation Skills"),
+		// RDS Domain C
+		ET("Ethics"),
+		IP("Intellectual property skills"),
+		IL("Interpersonal skills"),
+		RF("Research and financial management"),
+		HS("Safety"),
+		// RDS Domain D
+		CS("Communication skills"),
+		EE("Enterprise and Entrepreneurs"),
+		// Appears in 2 domains.
+		// PS("Presentation skills"),
+		SC("Seminars / Colloquia"),
+		TA("Teaching & Academic skills");
+
+		private final String value;
+
+		RDFSubjectIdentifier(String value) {
+			this.value = value;
+		}
+
+		public String getValue() {
+			return this.value;
+		}
+	}
+
+	public enum RMSubjectIdentifier implements SubjectIdentifier {
+		QL("Qualitative"),
+		QN("quantitative");
+
+		private final String value;
+
+		RMSubjectIdentifier(String value) {
+			this.value = value;
+		}
+
+		public String getValue() {
+			return this.value;
 		}
 	}
 	
@@ -78,62 +139,36 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 	public void fromXml(Element element) throws InvalidElementException {
 		super.fromXml(element);
 
-		/**
-		 * Recommended Values: Producers SHOULD use the following values for this element, with the two-letter code used in the @identifier attribute, and the label in the element content:
-		 * The value of this element MUST be one of:
-		 * CM Campus
-		 * DA Distance with attendance
-		 * DS Distance without attendance
-		 * NC Face-to-face non-campus
-		 * MM Mixed mode
-		 * ON Online (no attendance)
-		 * WB Work-based
-		 */
-		
 		String identifier = element.getAttributeValue("identifier");
 		if (identifier != null){
 			this.setIdentifier(identifier);
-			if (this.getSubjectIdentifier() == null){
-				log.warn("Subject : identifier (\""+identifier+"\") is not a member of the recommended vocabulary");
-			}
 		}
 		
-		//<dc:subject xmlns:ns="https://data.ox.ac.uk/id/ox-rdf/" xsi:type="ns:notation" identifier="CD">Career Development</dc:subject>
+		//<dc:subject xmlns:ns="https://data.ox.ac.uk/id/ox-RDF/" xsi:type="ns:notation" identifier="CD">Career Development</dc:subject>
 	      
 		for (Object object : element.getAttributes()) {
 			Attribute attribute = (Attribute) object;
 			if ("type".equals(attribute.getName()) && "xsi".equals(attribute.getNamespacePrefix())) {
 				String[] bits = attribute.getValue().split(":");
 				this.setCategoryNamespace(element.getNamespace(bits[0]));
-				if (!rdf.equals(this.getCategoryNamespace().getURI()) && 
-					!rm.equals(this.getCategoryNamespace().getURI()) &&
-					!jacs.equals(this.getCategoryNamespace().getURI())) {
-					log.warn("Subject : categoryNamespace (\""+categoryNamespace+"\") is not a member of the recommended vocabulary");
-				}
 			}
 		}
-			
+	}
+
+	public boolean isValid() {
+		return isJACSCategory() || isRMCategory() || isRDFCategory();
 	}
 	
 	public boolean isJACSCategory() {
-		if (null == this.getCategoryNamespace()) {
-			return false;
-		}
-		return jacs.equals(this.getCategoryNamespace().getURI());
+		return JACS.equals(this.getCategoryNamespace());
 	}
 	
 	public boolean isRMCategory() {
-		if (null == this.getCategoryNamespace()) {
-			return false;
-		}
-		return rm.equals(this.getCategoryNamespace().getURI());
+		return RM.equals(this.getCategoryNamespace());
 	}
 	
 	public boolean isRDFCategory() {
-		if (null == this.getCategoryNamespace()) {
-			return false;
-		}
-		return rdf.equals(this.getCategoryNamespace().getURI());
+		return RDF.equals(this.getCategoryNamespace());
 	}
 
 	/**
