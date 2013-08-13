@@ -181,7 +181,7 @@
 			        </div>
 			        <div class="other" id="show_new">
 			            <input type="checkbox" id="show_new_input">
-			            <label for="show_new_input">Recent Added Courses</label><br/>
+			            <label for="show_new_input">Recently Added Courses</label><br/>
 			        </div>
 			    </div>
 			</div>
