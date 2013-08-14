@@ -232,7 +232,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	/**
 	 * 
 	 * @param provider
-	 * @param createGroups
 	 * @throws IOException 
 	 */
 	private void provider(Provider provider, PopulatorContext context, PopulatorInstanceData data) 
@@ -368,7 +367,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @param departmentName
 	 * @param divisionEmail
 	 * @param divisionSuperUsers
-	 * @param createComponents
 	 * @throws IOException 
 	 */
 	private void course(Course course, 
@@ -482,8 +480,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			data.incrGroupSeen();
 			data.setLastGroup(myCourse.getCourseId());
 
-			if (validCourse(context, data, myCourse, researchCategories, skillsCategories, jacsCategories)) {
-				updateCourse(context, data, myCourse, researchCategories, skillsCategories, jacsCategories);
+			if (validCourse(context, data, myCourse)) {
+				updateCourse(context, data, myCourse);
 			}
 		}
 
@@ -540,7 +538,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * 
 	 * @param presentation
 	 * @param teachingcomponentId
-	 * @param groups
 	 * @throws IOException 
 	 */
 	private void presentation(Presentation presentation, 
@@ -773,15 +770,11 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * 
 	 * @param data
 	 * @param myCourse
-	 * @param researchCategories
-	 * @param skillsCategories
-	 * @param jacsCategories
 	 * @return
 	 */
 	protected boolean validCourse(PopulatorContext context, 
 			PopulatorInstanceData data,
-			CourseGroupDAO myCourse,
-			Set<Subject> researchCategories, Set<Subject> skillsCategories, Set<Subject> jacsCategories) {
+			CourseGroupDAO myCourse) {
 
 		int i=0;
 
@@ -807,18 +800,12 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * 
 	 * @param data
 	 * @param myCourse
-	 * @param researchCategories
-	 * @param skillsCategories
-	 * @param jacsCategories
 	 * @return
 	 * @throws IOException
 	 */
 	private boolean updateCourse(PopulatorContext context,
 			PopulatorInstanceData data,
-			CourseGroupDAO myCourse,
-			Set<Subject> researchCategories, 
-			Set<Subject> skillsCategories, 
-			Set<Subject> jacsCategories) throws IOException {
+			CourseGroupDAO myCourse) throws IOException {
 
 		boolean created = false;
 
@@ -865,9 +852,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * 
 	 * @param data
 	 * @param myPresentation
-	 * @param teacherId
 	 * @param sessions
-	 * @param groups
 	 * @return
 	 */
 	protected boolean validComponent(PopulatorContext context,
@@ -912,7 +897,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @param data
 	 * @param myPresentation
 	 * @param sessions
-	 * @param groups
 	 * @return
 	 * @throws IOException
 	 */
