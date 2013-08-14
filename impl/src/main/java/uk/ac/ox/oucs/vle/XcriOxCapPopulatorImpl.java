@@ -395,7 +395,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		Set<Subject> skillsCategories = new HashSet<Subject>();
 		Set<Subject> jacsCategories = new HashSet<Subject>();
 
-		String teachingcomponentId = null;
+		String teachingComponentId = null;
 		Set<String> administrators = new HashSet<String>();
 		Set<String> otherDepartments = new HashSet<String>();
 
@@ -407,7 +407,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 					myCourse.setCourseId(identifier.getValue());
 				}
 				if ("teachingComponentId".equals(identifier.getType())) {
-					teachingcomponentId = identifier.getValue();
+					teachingComponentId = identifier.getValue();
 				}
 				continue;
 			}
@@ -487,7 +487,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 
 		Presentation[] presentations = course.getPresentations();
 		for (int i=0; i<presentations.length; i++) {
-			presentation(presentations[i], myCourse.getCourseId(), teachingcomponentId, context, data);
+			presentation(presentations[i], myCourse.getCourseId(), teachingComponentId, context, data);
 		}
 		
 		for (Subject subject : researchCategories) {
