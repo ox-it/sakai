@@ -76,7 +76,6 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 	 */
 	public static final Namespace XSI = Namespace.getNamespace("http://www.w3.org/2001/XMLSchema-instance");
 
-
 	/**
 	 * A subject identifier.
 	 */
@@ -138,7 +137,7 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 
 	public enum RMSubjectIdentifier implements SubjectIdentifier {
 		QL("Qualitative"),
-		QN("quantitative");
+		QN("Quantitative");
 
 		private final String value;
 
