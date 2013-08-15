@@ -480,14 +480,14 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 */
 	public CourseComponent getCourseComponent(String componentId) {
 		CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
-		return new CourseComponentImpl(componentDao, this);
+		return new CourseComponentImpl(componentDao);
 	}
 	
 	public List<CourseComponent> getAllComponents() {
 		List<CourseComponentDAO> componentDaos = dao.findAllComponents();
 		List<CourseComponent> courseComponents = new ArrayList<CourseComponent>();
 		for (CourseComponentDAO componentDao : componentDaos) {
-			courseComponents.add(new CourseComponentImpl(componentDao, this));
+			courseComponents.add(new CourseComponentImpl(componentDao));
 		}
 		return courseComponents;
 	}

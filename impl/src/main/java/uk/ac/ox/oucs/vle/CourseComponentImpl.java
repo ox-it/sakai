@@ -31,9 +31,7 @@ public class CourseComponentImpl implements CourseComponent {
 	
 	private CourseComponentDAO dao;
 	private List<CourseComponentSession> componentSessions;
-	
-	//private CourseSignupServiceImpl impl;
-	
+
 	/// Local caches.
 	private transient Date opens;
 	private transient Date closes;
@@ -44,9 +42,8 @@ public class CourseComponentImpl implements CourseComponent {
 	
 	private static int YEARSAGO = -1825;
 	
-	public CourseComponentImpl(CourseComponentDAO dao, CourseSignupServiceImpl impl) {
+	public CourseComponentImpl(CourseComponentDAO dao) {
 		this.dao = dao;
-		//this.impl = impl;
 	}
 
 	public String getPresentationId() {

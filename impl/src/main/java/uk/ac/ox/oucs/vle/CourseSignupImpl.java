@@ -87,7 +87,7 @@ public class CourseSignupImpl implements CourseSignup {
 		Set<CourseComponentDAO> componentDaos = dao.getComponents();
 		Set<CourseComponent> components = new HashSet<CourseComponent>(componentDaos.size());
 		for(CourseComponentDAO componentDao: componentDaos) {
-			components.add(new CourseComponentImpl(componentDao, service));
+			components.add(new CourseComponentImpl(componentDao));
 		}
 		return components;
 	}

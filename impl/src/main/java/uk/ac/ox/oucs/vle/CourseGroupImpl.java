@@ -110,7 +110,7 @@ public class CourseGroupImpl implements CourseGroup {
 		if (components == null) {
 			components = new ArrayList<CourseComponent>();
 			for(CourseComponentDAO component:  courseGroupDAO.getComponents()) {
-				components.add(new CourseComponentImpl(component, impl));
+				components.add(new CourseComponentImpl(component));
 			}
 		}
 		
