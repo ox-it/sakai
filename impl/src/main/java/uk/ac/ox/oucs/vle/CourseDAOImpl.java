@@ -30,11 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
+import org.hibernate.*;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
@@ -908,7 +904,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					}
 					session.delete(groupDao);
 					for (CourseCategoryDAO category : groupDao.getCategories()) {
-						category.getGroups().remove(groupDao);
+						groupDao.getCategories().remove(category);
 					}
 					session.delete(groupDao);
 				}
@@ -917,7 +913,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 		
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Collection<CourseComponentDAO> deleteSelectedCourseComponents(final String source) {
 		return (Collection<CourseComponentDAO>)getHibernateTemplate().execute(new HibernateCallback() {
@@ -945,8 +941,36 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 	}
 
-	public void save(CourseCategoryDAO category) {
-		getHibernateTemplate().save(category);
+	public void save(final CourseCategoryDAO category) {
+		/*
+		 * Ok so the problem is that there maybe multiple importers running at the same time and they both
+		 * want to insert the same category in different transactions. Because you can't do an atomic SELECT
+		 * then INSERT in SQL you can end up with 2 transactions trying to do the insert. This is made more
+		 * likely by hibernate batching up all the inserts/updates. As the import is run in one big transaction
+		 * we don't want to get an exception partway through it.
+		 *
+		 * We can't alter hibernate to do this insert as using IGNORE means the number of rows affected doesn't
+		 * match so hibernate throws an exception and we can't use INSERT ON DUPLICATE UPDATE as that then
+		 * returns 2 (or 0) rows affected which again causes hibernate to throw an exception.
+		 *
+		 * So we just do the INSERT manually in SQL and ignore the number of rows affected.
+		 *
+		 * Categories should never be updated and they are marked as such in the hbm file.
+		 */
+		getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query query = session.createSQLQuery("INSERT IGNORE INTO course_category (categoryId, categoryName, categoryType) VALUES (?,?,?)");
+				query.setString(0, category.getCategoryId());
+				query.setString(1, category.getCategoryName());
+				query.setString(2, category.getCategoryType());
+				query.executeUpdate();
+				// This puts the value into the hibernate session.
+				findCourseCategory(category.getCategoryId());
+				return null;
+			}
+		});
+
 	}
 
 }

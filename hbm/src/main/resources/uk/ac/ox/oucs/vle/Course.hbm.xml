@@ -70,7 +70,7 @@
 		<property name="placementId" type="string" length="256" />
 	</class>
 	
-	<class name="uk.ac.ox.oucs.vle.CourseCategoryDAO" table="course_category">
+	<class name="uk.ac.ox.oucs.vle.CourseCategoryDAO" table="course_category" mutable="false">
 		<!-- create the primary key id -->
 		<id name="categoryId" type="string" length="32">
 			<column name="categoryId" />
@@ -78,11 +78,9 @@
 		</id>
 		<property name="categoryType" type="string" length="6" />
 		<property name="categoryName" type="string" length="256" />
-		<set name="groups" table="course_group_category" lazy="true">
-			<key column="categoryId" />
-			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO"
-				column="courseGroupMuid" />
-		</set>
+		<!-- There isn't a way in hibernate to have it perform an insert and ignore an error if it fails
+		     so look in the DAO to see that we effectively fallback to SQL for inserting new values.
+		  -->
 	</class>
 	
 	<class name="uk.ac.ox.oucs.vle.CourseSignupDAO" table="course_signup">
@@ -231,7 +229,8 @@
 			<key column="courseGroupMuid" not-null="true"/>
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"/>
 		</set>
-		<set name="categories" lazy="true" table="course_group_category" fetch="join" inverse="true" >
+		<!-- Oneway set and other end isn't mutable -->
+		<set name="categories" lazy="true" table="course_group_category" fetch="join">
 			<key column="courseGroupMuid" not-null="true" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseCategoryDAO" column="categoryId"/>
 		</set>

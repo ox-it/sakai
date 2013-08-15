@@ -391,9 +391,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		myCourse.setPrerequisite(filterDescriptiveTextTypeArray(course.getDescriptions(), TARGET_AUDIENCE));
 		myCourse.setRegulations(filterDescriptiveTextTypeArray(course.getRegulations(), null));
 		
-		Set<Subject> researchCategories = new HashSet<Subject>();
-		Set<Subject> skillsCategories = new HashSet<Subject>();
-		Set<Subject> jacsCategories = new HashSet<Subject>();
+		Set<Subject.SubjectIdentifier> researchCategories = new HashSet<Subject.SubjectIdentifier>();
+		Set<Subject.SubjectIdentifier> skillsCategories = new HashSet<Subject.SubjectIdentifier>();
 
 		String teachingComponentId = null;
 		Set<String> administrators = new HashSet<String>();
@@ -447,15 +446,19 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			if (extension instanceof Subject) {
 				Subject subject = (Subject) extension;
 
-				if (subject.isRDFCategory()) {
-					skillsCategories.add(subject);
+				// Check it's a in our constrained vocab
+				Subject.SubjectIdentifier subjectIdentifier = subject.getSubjectIdentifier();
+				if (subjectIdentifier != null) {
+					if (subject.isRDFCategory()) {
+						skillsCategories.add(subjectIdentifier);
+					}
+					if (subject.isRMCategory()) {
+						researchCategories.add(subjectIdentifier);
+					}
+				} else {
+					// TODO Log that we're ignoring it.
 				}
-				if (subject.isRMCategory()) {
-					researchCategories.add(subject);
-				}
-				if (subject.isJACSCategory()) {
-					jacsCategories.add(subject);
-				}
+
 				continue;
 			}
 		}
@@ -490,21 +493,15 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			presentation(presentations[i], myCourse.getCourseId(), teachingComponentId, context, data);
 		}
 		
-		for (Subject subject : researchCategories) {
+		for (Subject.SubjectIdentifier subjectIdentifier : researchCategories) {
 			updateCategory(context, new CourseCategoryDAO(
-					CourseGroup.Category_Type.RM, subject.getIdentifier(), subject.getValue()),
+					CourseGroup.Category_Type.RM, subjectIdentifier.name(), subjectIdentifier.getValue()),
 					myCourse.getCourseId());
 		}
 		
-		for (Subject subject : skillsCategories) {
+		for (Subject.SubjectIdentifier subjectIdentifier : skillsCategories) {
 			updateCategory(context, new CourseCategoryDAO(
-					CourseGroup.Category_Type.RDF, subject.getIdentifier(), subject.getValue()),
-					myCourse.getCourseId());
-		}
-		
-		for (Subject subject : jacsCategories) {
-			updateCategory(context, new CourseCategoryDAO(
-					CourseGroup.Category_Type.JACS, subject.getIdentifier(), subject.getValue()),
+					CourseGroup.Category_Type.RDF, subjectIdentifier.name(), subjectIdentifier.getValue()),
 					myCourse.getCourseId());
 		}
 		
@@ -998,14 +995,15 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		if (null != dao) {
 			CourseCategoryDAO categoryDao = dao.findCourseCategory(category.getCategoryId());
 			if (categoryDao == null) {
+				// We have a race condition here when multiple threads attempt to create the same category
 				categoryDao = category;
 				created = true;
+				dao.save(categoryDao);
 			}
-			
+
 			CourseGroupDAO courseDao = dao.findCourseGroupById(assessmentunitCode);
-		
-			categoryDao.getGroups().add(courseDao);
-			dao.save(categoryDao);
+			courseDao.getCategories().add(categoryDao);
+			dao.save(courseDao);
 		}
 
 		return created;
