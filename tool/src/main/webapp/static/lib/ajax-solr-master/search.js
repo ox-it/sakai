@@ -215,10 +215,10 @@ var Manager;
    
     var params = {
       facet: true,
+      // We don't limit the size of the facets they are reasonably small and we want all the values.
       'facet.field': [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_delivery' ],
-      'facet.limit': 20,
+      'facet.sort': 'index', // Sort alphabetically
       'facet.mincount': 1,
-      'f.topics.facet.limit': 50,
       'facet.range' : [ 'course_created' ],
       'f.course_created.facet.range.start' : 'NOW-14DAY',
       'f.course_created.facet.range.end' : 'NOW',
