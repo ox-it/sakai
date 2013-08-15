@@ -28,6 +28,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * Allows to component manager references to be "injected" into resources without an explicit dependency.
+ * This class relies on the the bean having the name the same as the type it implements.
  * @author buckett
  */
 @Provider
@@ -37,9 +38,9 @@ public class SakaiComponentContextProvider implements ContextResolver<Object> {
 	
 	public Object getContext(Class<?> type) {
 		try {
-			return (Object) ComponentManager.get(type.getName());
+			return ComponentManager.get(type.getName());
 		} catch (NoClassDefFoundError ncdfe) {
-			log.warn("Failed to find Sakai component manager");
+			log.error("Failed to find Sakai component manager");
 			return null;
 		}
 	}

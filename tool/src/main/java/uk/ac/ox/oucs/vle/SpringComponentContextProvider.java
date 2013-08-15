@@ -26,10 +26,14 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 //@Provider
 public class SpringComponentContextProvider implements ContextResolver<Object> {
+
+	private static final Log log = LogFactory.getLog(SpringComponentContextProvider.class);
 
 	private ServletContext context;
 
@@ -40,7 +44,11 @@ public class SpringComponentContextProvider implements ContextResolver<Object> {
 	public Object getContext(Class<?> type) {
 		Map beans = WebApplicationContextUtils.getWebApplicationContext(context).getBeansOfType(type);
 		if (!beans.isEmpty()) {
+			if (beans.size() > 1) {
+				log.warn("More than one match when looking for beans of type "+ type);
+			}
 			return beans.values().iterator().next();
+
 		}
 		return null;
 	}
