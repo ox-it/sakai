@@ -147,7 +147,7 @@
 	<!-- Application class name -->
 	<servlet>
 		<servlet-name>Jersey Web Application</servlet-name>
-		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+		<servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
 		<init-param>
 			<param-name>com.sun.jersey.config.property.packages</param-name>
 			<param-value>uk.ac.ox.oucs.vle;org.codehaus.jackson.jaxrs</param-value>
@@ -157,7 +157,7 @@
 	
 	<servlet>
 		<servlet-name>Jersey Web BasicAuth Application</servlet-name>
-		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+		<servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
 		<init-param>
 			<param-name>com.sun.jersey.config.property.packages</param-name>
 			<param-value>uk.ac.ox.oucs.vle;org.codehaus.jackson.jaxrs</param-value>

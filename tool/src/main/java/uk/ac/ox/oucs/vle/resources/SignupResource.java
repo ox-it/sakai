@@ -44,6 +44,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.ext.ContextResolver;
 
+import com.sun.jersey.api.core.InjectParam;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -53,6 +54,8 @@ import org.codehaus.jackson.map.type.TypeFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
+import org.springframework.beans.factory.annotation.Autowire;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ox.oucs.vle.*;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
@@ -62,14 +65,15 @@ import com.sun.jersey.api.view.Viewable;
 @Path("signup{cobomo:(/cobomo)?}")
 public class SignupResource {
 
-	
-	private CourseSignupService courseService;
-	private ObjectMapper objectMapper;
-	private ServerConfigurationService serverConfigurationService;
 
-	public SignupResource(@Context ContextResolver<Object> resolver) {
-		this.courseService = (CourseSignupService) resolver.getContext(CourseSignupService.class);
-		serverConfigurationService = (ServerConfigurationService) resolver.getContext(ServerConfigurationService.class);
+    @InjectParam
+	private CourseSignupService courseService;
+    @InjectParam
+	private ServerConfigurationService serverConfigurationService;
+	
+	private ObjectMapper objectMapper;
+
+	public SignupResource() {
 		objectMapper = new ObjectMapper();
 		objectMapper.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
 		objectMapper.configure(SerializationConfig.Feature.USE_STATIC_TYPING, true);
@@ -379,13 +383,13 @@ public class SignupResource {
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 			throw new WebAppForbiddenException();
 		}
+
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
-				
-				System.out.println("/rest/signup/component/"+componentId+"/pdf");
-				
+
+
 				CourseComponent courseComponent = courseService.getCourseComponent(componentId);
 				Collection<CourseGroup> courseGroups = courseService.getCourseGroupsByComponent(componentId);
 				
