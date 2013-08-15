@@ -953,6 +953,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		 * match so hibernate throws an exception and we can't use INSERT ON DUPLICATE UPDATE as that then
 		 * returns 2 (or 0) rows affected which again causes hibernate to throw an exception.
 		 *
+		 * We can't use a REPLACE as when the row exists it doesn't do an update it actually does a DELETE followed
+		 * by an INSERT which causes all the foreign key constraints to break and the REPLACE command to fail.
+		 *
 		 * So we just do the INSERT manually in SQL and ignore the number of rows affected.
 		 *
 		 * Categories should never be updated and they are marked as such in the hbm file.
