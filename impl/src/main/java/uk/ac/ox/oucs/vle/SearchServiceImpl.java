@@ -40,6 +40,7 @@ public class SearchServiceImpl implements SearchService {
 	
 	private ConcurrentUpdateSolrServer solrServer;
 	private String solrUrl;
+	private BaseDateComparator baseDateComparator = new BaseDateComparator();
 
 	public void setSolrUrl(String solrUrl) {
 		this.solrUrl = solrUrl;
@@ -113,39 +114,17 @@ public class SearchServiceImpl implements SearchService {
 			}
 			
 			doc.addField("course_class", "Graduate Training");
-			
+
 			// Choose the most recent component
-			
 			CourseComponent chosenComponent = null;
-			Set<Date> baseDateSet = new HashSet<Date>();
 			
 			for (CourseComponent component : course.getComponents()) {
-					
-				if (null != component.getBaseDate()) {
-				
-					baseDateSet.add(component.getBaseDate());
-					
-				} else {
-					if (null != component.getStartsText() &&
-							 !component.getStartsText().isEmpty()) {
-						baseDateSet.add(new Date(Long.MAX_VALUE));
-					} else {
-						baseDateSet.add(new Date(0));
-					}
-				}
-					
 				if (null == chosenComponent) {
 					chosenComponent = component;
 					continue;
 				}
-				if (null != component.getBaseDate()) {
-					if (null != chosenComponent.getBaseDate()) {
-						if (component.getBaseDate().after(chosenComponent.getBaseDate())) {
-							chosenComponent = component;
-						}
-					} else {
-						chosenComponent = component;
-					}
+				if (baseDateComparator.compare(chosenComponent, component) < 0) {
+					chosenComponent = component;
 				}
 			}
 			
@@ -163,7 +142,7 @@ public class SearchServiceImpl implements SearchService {
 				doc.addField("course_signup_closetext", chosenComponent.getClosesText());
 
 				doc.addField("course_created", chosenComponent.getCreated());
-				doc.addField("course_basedate", chosenComponent.getBaseDate());
+				doc.addField("course_basedate", BaseDateComparator.getBaseDate(chosenComponent));
 			}
 			getSolrServer().add(doc);
 			return true;
@@ -177,6 +156,8 @@ public class SearchServiceImpl implements SearchService {
 		return false;
 		
 	}
+
+
 	
 	@Override
 	public void deleteCourseGroup(CourseGroup course) {

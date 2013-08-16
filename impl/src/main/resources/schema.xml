@@ -76,8 +76,10 @@
 		<field name="course_signup_opentext" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 		<field name="course_signup_closetext" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
-		<!-- Base Date for calculations -->
-		<field name="course_basedate" type="date" indexed="true" stored="true" required="false" multiValued="false" />
+		<!-- Base Date for calculations of new/old course-->
+		<!-- This is required as the UI always includes a basedate in it's queries so if it's not present the course
+		     never gets found -->
+		<field name="course_basedate" type="date" indexed="true" stored="true" required="true" multiValued="false" />
 
 		<!-- Date we first saw the course so we can flag it as "new" -->
 		<field name="course_created" type="date" indexed="true" stored="true" required="false" multiValued="false" />
