@@ -30,4 +30,15 @@ public abstract class CourseSignupException extends RuntimeException {
 
 	private static final long serialVersionUID = 3523664446891089880L;
 
+	/**
+	 * @link RuntimeException#RuntimeException(String, Throwable)
+	 */
+	public CourseSignupException(String message, Throwable t) {
+		super(message, t);
+	}
+
+	protected CourseSignupException() {
+		super();
+	}
+
 }
