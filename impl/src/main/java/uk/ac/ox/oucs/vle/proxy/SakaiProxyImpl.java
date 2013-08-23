@@ -182,6 +182,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return user;
 	}
 
+	@Override
+	public boolean isAnonymousUser() {
+		return userService.getAnonymousUser().equals(userService.getCurrentUser());
+	}
+
 	public UserProxy findUserById(String id) {
 		try {
 			return wrapUserProxy(userService.getUser(id));

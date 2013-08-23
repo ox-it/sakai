@@ -81,7 +81,12 @@ public class SakaiProxyTest implements SakaiProxy {
 	public UserProxy getCurrentUser() {
 		return current;
 	}
-	
+
+	@Override
+	public boolean isAnonymousUser() {
+		return false;
+	}
+
 	public void setCurrentUser(UserProxy user) {
 		this.current = user;
 	}

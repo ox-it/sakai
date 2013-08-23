@@ -35,6 +35,12 @@ public interface SakaiProxy {
 	 */
 	public UserProxy getCurrentUser();
 
+	/**
+	 * Check if the current user is not logged in.
+	 * @return <code>true</code> if the current user isn't logged in.
+	 */
+	public boolean isAnonymousUser();
+
 	public UserProxy findUserById(String id);
 	
 	public UserProxy findStudentById(String id);

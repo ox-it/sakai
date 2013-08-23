@@ -19,21 +19,17 @@
  */
 package uk.ac.ox.oucs.vle.resources;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.sun.jersey.api.core.InjectParam;
+import com.sun.jersey.api.view.Viewable;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.map.type.TypeFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import uk.ac.ox.oucs.vle.*;
+import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
@@ -42,26 +38,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.ext.ContextResolver;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
-import com.sun.jersey.api.core.InjectParam;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.codehaus.jackson.map.type.TypeFactory;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.user.cover.UserDirectoryService;
-
-import org.springframework.beans.factory.annotation.Autowire;
-import org.springframework.beans.factory.annotation.Autowired;
-import uk.ac.ox.oucs.vle.*;
-import uk.ac.ox.oucs.vle.CourseSignupService.Status;
-
-import com.sun.jersey.api.view.Viewable;
-
-//@Path("/signup")
 @Path("signup{cobomo:(/cobomo)?}")
 public class SignupResource {
 
@@ -70,7 +53,9 @@ public class SignupResource {
 	private CourseSignupService courseService;
     @InjectParam
 	private ServerConfigurationService serverConfigurationService;
-	
+	@InjectParam
+	private SakaiProxy proxy;
+
 	private ObjectMapper objectMapper;
 
 	public SignupResource() {
@@ -84,9 +69,7 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getMySignups() {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		final List<CourseSignup> signups = courseService.getMySignups(null);
 		return new StreamingOutput() {
 			public void write(OutputStream output) throws IOException,
@@ -95,14 +78,13 @@ public class SignupResource {
 			}
 		};
 	}
-	
+
+
 	@Path("/my/course/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getMyCourseSignups(@PathParam("id") String courseId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		final List<CourseSignup> signups = courseService.getMySignups(null);
 		final List<CourseSignup> courseSignups = new ArrayList<CourseSignup>();
 		for(CourseSignup signup: signups) {
@@ -139,10 +121,7 @@ public class SignupResource {
 						   @FormParam("components")Set<String> components,
 						   @FormParam("email")String email,
 						   @FormParam("message")String message) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
-		
+		checkAuthenticated();
 		try {
 			CourseSignup entity = courseService.signup(courseId, components, email, message);
 			ResponseBuilder builder = Response.status(Response.Status.CREATED);
@@ -175,9 +154,7 @@ public class SignupResource {
 							@FormParam("courseId") String courseId, 
 							@FormParam("components")Set<String> components, 
 							@FormParam("supervisorId")String supervisorId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		// Support old idea of a special ID for new users.
 		// When the frontend is refactored this can be removed.
 		if ("newUser".equals(userId)) {
@@ -190,9 +167,7 @@ public class SignupResource {
 	@Path("/supervisor")
 	@POST
 	public Response signup(@FormParam("signupId")String signupId, @FormParam("supervisorId")String supervisorId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		courseService.setSupervisor(signupId, supervisorId);
 		return Response.ok().build();
 	}
@@ -201,9 +176,7 @@ public class SignupResource {
 	@GET
 	@Produces("application/json")
 	public Response getSignup(@PathParam("id") final String signupId) throws JsonGenerationException, JsonMappingException, IOException {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		CourseSignup signup = courseService.getCourseSignup(signupId);
 		if (signup == null) {
 			return Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).build();
@@ -214,18 +187,14 @@ public class SignupResource {
 	@Path("/{id}")
 	@POST // PUT Doesn't seem to make it through the portal :-(
 	public void updateSignup(@PathParam("id") final String signupId, @FormParam("status") final Status status){
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		courseService.setSignupStatus(signupId, status);
 	}
 
 	@Path("{id}/accept")
 	@POST
 	public Response accept(@PathParam("id") final String signupId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		courseService.accept(signupId);
 		return Response.ok().build();
 	}
@@ -233,9 +202,7 @@ public class SignupResource {
 	@Path("{id}/reject")
 	@POST
 	public Response reject(@PathParam("id") final String signupId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		courseService.reject(signupId);
 		return Response.ok().build();
 	}
@@ -243,9 +210,7 @@ public class SignupResource {
 	@Path("{id}/withdraw")
 	@POST
 	public Response withdraw(@PathParam("id") final String signupId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		courseService.withdraw(signupId);
 		return Response.ok().build();
 	}
@@ -253,9 +218,7 @@ public class SignupResource {
 	@Path("{id}/waiting")
 	@POST
 	public Response waiting(@PathParam("id") final String signupId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		courseService.waiting(signupId);
 		return Response.ok().build();
 	}
@@ -263,9 +226,7 @@ public class SignupResource {
 	@Path("{id}/approve")
 	@POST
 	public Response approve(@PathParam("id") final String signupId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		courseService.approve(signupId);
 		return Response.ok().build();
 	}
@@ -273,9 +234,7 @@ public class SignupResource {
 	@Path("{id}/confirm")
 	@POST
 	public Response confirm(@PathParam("id") final String signupId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		courseService.confirm(signupId);
 		return Response.ok().build();
 	}
@@ -284,9 +243,7 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getCourseSignups(@PathParam("id") final String courseId, @QueryParam("status") final Status status) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		// All the pending 
 		return new StreamingOutput() {
 			
@@ -306,9 +263,7 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getCountCourseSignup(@PathParam("id") final String courseId, @QueryParam("status") final Status status) throws JsonGenerationException, JsonMappingException, IOException {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		// All the pending 
 		Set<Status> statuses = null;
 		if (null != status) {
@@ -322,9 +277,7 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getComponentSignups(@PathParam("id") final String componentId, @QueryParam("status") final Status status) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
@@ -344,9 +297,7 @@ public class SignupResource {
 	@GET
 	@Produces("text/comma-separated-values")
 	public StreamingOutput getComponentSignupsCSV(@PathParam("id") final String componentId, @Context final HttpServletResponse response) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
@@ -380,9 +331,7 @@ public class SignupResource {
 	@GET
 	@Produces("application/pdf")
 	public StreamingOutput getComponentSignupsPDF(@PathParam("id") final String componentId, @Context final HttpServletResponse response) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 
 		return new StreamingOutput() {
 
@@ -455,9 +404,7 @@ public class SignupResource {
 										   @QueryParam("status") final Status status,
 										   @PathParam("year") final int year) {
 
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		return new StreamingOutput() {
 			public void write(OutputStream output) throws IOException,
 			WebApplicationException {
@@ -529,9 +476,7 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.TEXT_XML)
 	public StreamingOutput sync() {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		return new StreamingOutput() {
 			public void write(OutputStream output) throws IOException,
 			WebApplicationException {
@@ -554,9 +499,7 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getPendingSignups() {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
@@ -572,9 +515,7 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getApproveSignups() {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
@@ -592,10 +533,8 @@ public class SignupResource {
 	public StreamingOutput getPreviousSignups(@QueryParam("userid") final String userId,
 											  @QueryParam("componentid") final String componentId,
 											  @QueryParam("groupid") final String groupId) {
-		
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+
+		checkAuthenticated();
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
@@ -732,4 +671,13 @@ public class SignupResource {
 		return sb.toString();
 	}
 
+	/**
+	 * This just checks that the request is authenticated and if no throws an exception.
+	 * @throws WebAppForbiddenException
+	 */
+	private void checkAuthenticated() {
+		if(proxy.isAnonymousUser()) {
+			throw new WebAppForbiddenException();
+		}
+	}
 }
