@@ -125,7 +125,6 @@ public class SignupResource {
 		try {
 			CourseSignup entity = courseService.signup(courseId, components, email, message);
 			ResponseBuilder builder = Response.status(Response.Status.CREATED);
-			builder.status(201);
 			builder.entity(entity);
 			return builder.build();
 			
