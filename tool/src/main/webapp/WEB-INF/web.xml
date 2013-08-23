@@ -150,7 +150,7 @@
 		<servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
 		<init-param>
 			<param-name>com.sun.jersey.config.property.packages</param-name>
-			<param-value>uk.ac.ox.oucs.vle;org.codehaus.jackson.jaxrs</param-value>
+			<param-value>uk.ac.ox.oucs.vle.resources;org.codehaus.jackson.jaxrs</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
@@ -160,7 +160,7 @@
 		<servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
 		<init-param>
 			<param-name>com.sun.jersey.config.property.packages</param-name>
-			<param-value>uk.ac.ox.oucs.vle;org.codehaus.jackson.jaxrs</param-value>
+			<param-value>uk.ac.ox.oucs.vle,resources;org.codehaus.jackson.jaxrs</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
