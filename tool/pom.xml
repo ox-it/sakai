@@ -67,6 +67,21 @@
 			<version>${jersey.version}</version>
 		</dependency>
 
+
+		<dependency>
+			<!-- We have to use grizzly to be able to inject HttpServletRequest/Response -->
+			<groupId>com.sun.jersey.jersey-test-framework</groupId>
+			<artifactId>jersey-test-framework-grizzly</artifactId>
+			<version>${jersey.version}</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>javax.servlet-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
 		<dependency>
 			<groupId>com.sun.jersey.contribs</groupId>
 			<artifactId>jersey-spring</artifactId>
@@ -119,6 +134,9 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
+			<version>2.5.6</version>
+			<!-- This really shouldn't be in shared -->
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -160,6 +178,18 @@
       		<version>1.1-SNAPSHOT</version>
      		 <scope>provided</scope>
     	</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>1.9.5</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>2.5.6.SEC03</version>
+			<scope>test</scope>
+		</dependency>
 
 	</dependencies>
 	<profiles>

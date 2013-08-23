@@ -19,6 +19,7 @@
  */
 package uk.ac.ox.oucs.vle.resources;
 
+import uk.ac.ox.oucs.vle.CourseSignupException;
 import uk.ac.ox.oucs.vle.NotFoundException;
 import uk.ac.ox.oucs.vle.PermissionDeniedException;
 
@@ -39,7 +40,7 @@ import javax.ws.rs.ext.Provider;
  *
  */
 @Provider
-public class CustomExceptionMapper implements ExceptionMapper<Throwable> {
+public class CustomExceptionMapper implements ExceptionMapper<CourseSignupException> {
 
 	private static final Map<String, String> forbiddenMap = new HashMap<String, String>();
 	static {
@@ -53,7 +54,7 @@ public class CustomExceptionMapper implements ExceptionMapper<Throwable> {
 		notFoundMap.put("message", "The requested resource was not found");
 	}
 	
-	public Response toResponse(Throwable exception) {
+	public Response toResponse(CourseSignupException exception) {
 		if(exception instanceof NotFoundException) {
 			return Response.status(Status.NOT_FOUND)
 					.entity(notFoundMap)

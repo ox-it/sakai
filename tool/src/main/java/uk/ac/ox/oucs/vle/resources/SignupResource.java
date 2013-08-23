@@ -155,8 +155,8 @@ public class SignupResource {
 		if ("newUser".equals(userId)) {
 			userId = null;
 		}
-		courseService.signup(userId, userName, userEmail, courseId, components, supervisorId);
-		return Response.ok().build();
+		CourseSignup signup = courseService.signup(userId, userName, userEmail, courseId, components, supervisorId);
+		return Response.status(Response.Status.CREATED).entity(signup).build();
 	}
 	
 	@Path("/supervisor")
