@@ -611,6 +611,10 @@
 			$("#external-add")
 			.click(
 					function() {
+					    var studentName = $("input[name=studentName]",
+							signupAddExternal).val("");
+						var studentEmail = $("input[name=studentEmail]",
+							signupAddExternal).val("");
 						signupAddExternal.jqmShow();
 						// Need to resize to content.
 						var windowHeight = $(window).height();
