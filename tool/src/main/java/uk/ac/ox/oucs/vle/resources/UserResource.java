@@ -86,6 +86,7 @@ public class UserResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUsers(@QueryParam("search")String search) throws JsonGenerationException, JsonMappingException, IOException {
+		// TODO This should check the currently user is allowed to search.
 		if (search == null) {
 			throw new WebApplicationException(Status.BAD_REQUEST);
 		}
