@@ -646,7 +646,10 @@
 								signupAddExternal).val();
 						var studentEmail = $("input[name=studentEmail]",
 								signupAddExternal).val();
-						
+						if (!Text.isEmail(studentEmail)) {
+						    $(".errors", form).html("Not a valid email address");
+						    return false;
+						}
 						var user = new Object();
 						user.id="newUser";
 						user.name=studentName;
@@ -884,6 +887,7 @@
 	<div id="signup-add-external-win" class="jqmWindow" style="display: none">
 		<h2>Add New External Student</h2>
 		<form id="signup-add-external">
+			<span class="errors"></span> <br>
 			<p>
 				Enter the student name.<br /> 
 				<input type="text" name="studentName" id="student-name" size="60" />
@@ -892,8 +896,7 @@
 				Enter the student email addresses.<br />
 				<input type="text" name="studentEmail" id="student-email" size="60" />
 			</p>
-			<span class="errors"></span> <br> 
-			<input type="submit" value="Select Components"> 
+			<input type="submit" value="Select Components">
 			<input type="button" class="cancel" value="Cancel"><br>
 			<div id="find-users-progress"></div>
 		</form>
