@@ -591,7 +591,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			throw new NotFoundException(signupId);
 		}
 
-		if (Status.PENDING.equals(signupDao.getStatus()) || Status.WAITING.equals(signupDao.getStatus())) { // Rejected by administrator.
+		if (Status.PENDING.equals(signupDao.getStatus()) || Status.WAITING.equals(signupDao.getStatus())) { // Rejected at pending or waiting.
 			if (!skipAuth) {
 				if (!isAdministrator(signupDao.getGroup(), currentUserId, false)) {
 					throw new PermissionDeniedException(currentUserId);
@@ -607,7 +607,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					"reject-admin.student.body", 
 					new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
 			
-		} else if (Status.ACCEPTED.equals(signupDao.getStatus())) { // Rejected by supervisor.
+		} else if (Status.ACCEPTED.equals(signupDao.getStatus())) { // Rejected at supervisor stage
 			if (!skipAuth) {
 				if (!isAdministrator(signupDao.getGroup(), currentUserId, currentUserId.equals(signupDao.getSupervisorId()))) {
 					throw new PermissionDeniedException(currentUserId);
@@ -627,7 +627,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					"reject-supervisor.student.body", 
 					new Object[] {proxy.findUserById(signupDao.getSupervisorId()).getDisplayName(), proxy.getMyUrl(placementId)});
 
-		} else if (Status.APPROVED.equals(signupDao.getStatus())) {// Rejected by approver.
+		} else if (Status.APPROVED.equals(signupDao.getStatus())) {// Rejected at approver stage
 			if (!skipAuth) {
 				boolean isApprover = dao.findDepartmentApprovers(signupDao.getDepartment()).contains(currentUserId);
 				if (!isAdministrator(signupDao.getGroup(), currentUserId, isApprover)) {
