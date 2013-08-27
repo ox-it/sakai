@@ -53,9 +53,9 @@ public class CourseSignupResourceTest extends AbstractSpringAwareJerseyTest {
 				.servletClass(SpringServlet.class)
 
 				// This enables logging of request/response
-				.initParam(ResourceConfig.FEATURE_TRACE, "true")
-				.initParam(ResourceConfig.PROPERTY_CONTAINER_REQUEST_FILTERS, LoggingFilter.class.getCanonicalName())
-				.initParam(ResourceConfig.PROPERTY_CONTAINER_RESPONSE_FILTERS, LoggingFilter.class.getCanonicalName())
+				//.initParam(ResourceConfig.FEATURE_TRACE, "true")
+				//.initParam(ResourceConfig.PROPERTY_CONTAINER_REQUEST_FILTERS, LoggingFilter.class.getCanonicalName())
+				//.initParam(ResourceConfig.PROPERTY_CONTAINER_RESPONSE_FILTERS, LoggingFilter.class.getCanonicalName())
 				// Uncomment to stop logging of entity.
 				//.initParam(LoggingFilter.FEATURE_LOGGING_DISABLE_ENTITY, "true")
 				.build();
