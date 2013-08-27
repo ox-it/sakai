@@ -99,7 +99,7 @@ public class SignupResource {
 	}
 
 	/**
-	 * Make a new signup
+	 * Make a new signup for the current user.
 	 * 
 	 * @param courseId
 	 * 		the courseId of the signup
@@ -131,7 +131,20 @@ public class SignupResource {
 			throw new WebAppBadRequestException(new FailureMessage(e.getMessage()));
 		}
 	}
-	
+
+	/**
+	 * Create a signup specifying the user.
+	 *
+	 * @param userId The ID of the user to be signed up. If <code>null</code> the we use the email address to lookup user.
+	 *               If the string "newUser" is supplied we attempt to create a new user anyway (deprecated).
+	 * @param userName The name of the user if we are creating a new user.
+	 * @param userEmail The email address of the user.
+	 * @param courseId The course ID to sign up to. Cannot be <code>null</code>.
+	 * @param components The components IDs to sign up to. Cannot be <code>null</code>.
+	 * @param supervisorId The ID of the supervisor to link the signups to. Can be <code>null</code>.
+	 * @return The created CourseSignup.
+	 * @see CourseSignupService#signup(String, String, String, String, java.util.Set, String)
+	 */
 	@Path("/new")
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
