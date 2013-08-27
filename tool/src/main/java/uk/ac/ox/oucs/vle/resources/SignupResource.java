@@ -54,15 +54,15 @@ import java.util.*;
 public class SignupResource {
 
 
-    @InjectParam
+	@InjectParam
 	private CourseSignupService courseService;
-    @InjectParam
+	@InjectParam
 	private ServerConfigurationService serverConfigurationService;
 	@InjectParam
 	private SakaiProxy proxy;
 	@InjectParam
 	private ObjectMapper objectMapper;
-	
+
 	@Path("/my")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -95,12 +95,12 @@ public class SignupResource {
 					WebApplicationException {
 				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, courseSignups);
 			}
-		}; 
+		};
 	}
 
 	/**
 	 * Make a new signup for the current user.
-	 * 
+	 *
 	 * @param courseId
 	 * 		the courseId of the signup
 	 * @param components
@@ -116,9 +116,9 @@ public class SignupResource {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response signup(@FormParam("courseId") String courseId,
-						   @FormParam("components")Set<String> components,
-						   @FormParam("email")String email,
-						   @FormParam("message")String message) {
+	                       @FormParam("components")Set<String> components,
+	                       @FormParam("email")String email,
+	                       @FormParam("message")String message) {
 		checkAuthenticated();
 		try {
 			CourseSignup entity = courseService.signup(courseId, components, email, message);
@@ -149,11 +149,11 @@ public class SignupResource {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response signup( @FormParam("userId")String userId,
-							@FormParam("userName")String userName, 
-							@FormParam("userEmail")String userEmail, 
-							@FormParam("courseId") String courseId, 
-							@FormParam("components")Set<String> components, 
-							@FormParam("supervisorId")String supervisorId) {
+	                        @FormParam("userName")String userName,
+	                        @FormParam("userEmail")String userEmail,
+	                        @FormParam("courseId") String courseId,
+	                        @FormParam("components")Set<String> components,
+	                        @FormParam("supervisorId")String supervisorId) {
 		checkAuthenticated();
 		// Support old idea of a special ID for new users.
 		// When the frontend is refactored this can be removed.
@@ -163,7 +163,7 @@ public class SignupResource {
 		CourseSignup signup = courseService.signup(userId, userName, userEmail, courseId, components, supervisorId);
 		return Response.status(Response.Status.CREATED).entity(signup).build();
 	}
-	
+
 	@Path("/supervisor")
 	@POST
 	public Response signup(@FormParam("signupId")String signupId, @FormParam("supervisorId")String supervisorId) {
@@ -171,7 +171,7 @@ public class SignupResource {
 		courseService.setSupervisor(signupId, supervisorId);
 		return Response.ok().build();
 	}
-	
+
 	@Path("/{id}")
 	@GET
 	@Produces("application/json")
@@ -183,7 +183,7 @@ public class SignupResource {
 		}
 		return Response.ok(objectMapper.writeValueAsString(signup)).build();
 	}
-	
+
 	@Path("/{id}")
 	@POST // PUT Doesn't seem to make it through the portal :-(
 	public void updateSignup(@PathParam("id") final String signupId, @FormParam("status") final Status status){
@@ -206,7 +206,7 @@ public class SignupResource {
 		courseService.reject(signupId);
 		return Response.ok().build();
 	}
- 
+
 	@Path("{id}/withdraw")
 	@POST
 	public Response withdraw(@PathParam("id") final String signupId) {
@@ -214,7 +214,7 @@ public class SignupResource {
 		courseService.withdraw(signupId);
 		return Response.ok().build();
 	}
-	
+
 	@Path("{id}/waiting")
 	@POST
 	public Response waiting(@PathParam("id") final String signupId) {
@@ -230,7 +230,7 @@ public class SignupResource {
 		courseService.approve(signupId);
 		return Response.ok().build();
 	}
-	
+
 	@Path("{id}/confirm")
 	@POST
 	public Response confirm(@PathParam("id") final String signupId) {
@@ -238,7 +238,7 @@ public class SignupResource {
 		courseService.confirm(signupId);
 		return Response.ok().build();
 	}
-	
+
 	@Path("/course/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -246,7 +246,7 @@ public class SignupResource {
 		checkAuthenticated();
 		// All the pending 
 		return new StreamingOutput() {
-			
+
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
 				Set<Status> statuses = null;
@@ -258,7 +258,7 @@ public class SignupResource {
 			}
 		};
 	}
-	
+
 	@Path("/count/course/signups/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -272,7 +272,7 @@ public class SignupResource {
 		Integer signups = courseService.getCountCourseSignups(courseId, statuses);
 		return Response.ok(objectMapper.writeValueAsString(signups)).build();
 	}
-	
+
 	@Path("/component/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -289,10 +289,10 @@ public class SignupResource {
 				List<CourseSignup> signups = courseService.getComponentSignups(componentId, statuses);
 				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
 			}
-			
+
 		};
 	}
-	
+
 	@Path("/component/{id}.csv")
 	@GET
 	@Produces("text/comma-separated-values")
@@ -323,10 +323,10 @@ public class SignupResource {
 				}
 				writer.flush();
 			}
-			
+
 		};
 	}
-	
+
 	@Path("/component/{id}.pdf")
 	@GET
 	@Produces("application/pdf")
@@ -341,17 +341,17 @@ public class SignupResource {
 
 				CourseComponent courseComponent = courseService.getCourseComponent(componentId);
 				Collection<CourseGroup> courseGroups = courseService.getCourseGroupsByComponent(componentId);
-				
+
 				List<CourseSignup> signups = courseService.getComponentSignups(
 						componentId, Collections.singleton(Status.CONFIRMED));
-				
+
 				response.addHeader("Content-disposition", "attachment; filename="+componentId+".pdf"); // Force a download
 				PDFWriter pdfWriter = new PDFWriter(output);
 				pdfWriter.writeHead(courseGroups, courseComponent);
 				pdfWriter.writeTableHead();
-				
+
 				if (!signups.isEmpty()) {
-				
+
 					List<Person> persons = new ArrayList<Person>();
 					for (CourseSignup signup : signups) {
 						if (null != signup.getUser()) {
@@ -363,9 +363,9 @@ public class SignupResource {
 							return p1.getLastName().compareTo(p2.getLastName());
 						}
 					});
-				
+
 					pdfWriter.writeTableBody(persons);
-					
+
 				}
 				pdfWriter.writeTableFoot();
 				pdfWriter.close();
@@ -384,7 +384,7 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.TEXT_XML)
 	public StreamingOutput exportYear(@QueryParam("status") final Status status,
-									  @PathParam("year") final int year) {
+	                                  @PathParam("year") final int year) {
 		return exportComponent("all", status, year);
 	}
 
@@ -401,68 +401,68 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.TEXT_XML)
 	public StreamingOutput exportComponent(@PathParam("id") final String componentId,
-										   @QueryParam("status") final Status status,
-										   @PathParam("year") final int year) {
+	                                       @QueryParam("status") final Status status,
+	                                       @PathParam("year") final int year) {
 
 		checkAuthenticated();
 		return new StreamingOutput() {
 			public void write(OutputStream output) throws IOException,
-			WebApplicationException {
-				
+					WebApplicationException {
+
 				Collection<CourseComponent> courseComponents = new ArrayList<CourseComponent>();
-				
+
 				if ("all".equals(componentId)) {
 					courseComponents = courseService.getAllComponents();
 				} else {
 					courseComponents.add(courseService.getCourseComponent(componentId));
 				}
-				
+
 				Set<Status> statuses = null;
 				if (null != status) {
 					statuses = Collections.singleton(status);
 				}
-				
+
 				AttendanceWriter attendance = new AttendanceWriter(output);
-				
+
 				for (CourseComponent courseComponent : courseComponents) {
-				
+
 					try {
 						List<CourseSignup> signups = courseService.getComponentSignups(
 								courseComponent.getPresentationId(), statuses, year);
-				
+
 						Collections.sort(signups, new Comparator<CourseSignup>() {
 							public int compare(CourseSignup s1,CourseSignup s2) {
 								Person p1 = s1.getUser();
 								Person p2 = s2.getUser();
-								
+
 								int ret = s1.getGroup().getCourseId().compareTo(s2.getGroup().getCourseId());
-								
+
 								// this line is giving a NullPointerException
 								//return ret == 0 ? p1.getLastName().compareTo(p2.getLastName()) : ret;
 								if (ret != 0) {
 									return ret;
 								}
-								
+
 								if (p1 == null) {
-							        return (p2 == null) ? 0 : -1;
-							    }
-							    if (p2 == null) {
-							        return 1;
-							    }
-							    
+									return (p2 == null) ? 0 : -1;
+								}
+								if (p2 == null) {
+									return 1;
+								}
+
 								if (p1.getLastName() == null) {
-							        return (p2.getLastName() == null) ? 0 : -1;
-							    }
-							    if (p2.getLastName() == null) {
-							        return 1;
-							    }
-							    
-							    return p1.getLastName().compareTo(p2.getLastName());
+									return (p2.getLastName() == null) ? 0 : -1;
+								}
+								if (p2.getLastName() == null) {
+									return 1;
+								}
+
+								return p1.getLastName().compareTo(p2.getLastName());
 							}
 						});
-					
+
 						attendance.writeTeachingInstance(courseComponent, signups);
-				
+
 					} catch (NotFoundException e) {
 						throw new WebApplicationException(Response.Status.NOT_FOUND);
 					}
@@ -471,7 +471,7 @@ public class SignupResource {
 			}
 		};
 	}
-	
+
 	@Path("/attendance")
 	@GET
 	@Produces(MediaType.TEXT_XML)
@@ -479,22 +479,22 @@ public class SignupResource {
 		checkAuthenticated();
 		return new StreamingOutput() {
 			public void write(OutputStream output) throws IOException,
-			WebApplicationException {
-				
+					WebApplicationException {
+
 				AttendanceWriter attendance = new AttendanceWriter(output);
 				Collection<CourseComponent> courseComponents = courseService.getAllComponents();
 				for (CourseComponent courseComponent : courseComponents) {
-				
+
 					List<CourseSignup> signups = courseService.getComponentSignups(
 							courseComponent.getPresentationId(), Collections.singleton(Status.CONFIRMED));
-					
+
 					attendance.writeTeachingInstance(courseComponent, signups);
 				}
 				attendance.close();
 			}
 		};
 	}
-	
+
 	@Path("/pending")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -507,10 +507,10 @@ public class SignupResource {
 				List<CourseSignup> signups = courseService.getPendings();
 				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
 			}
-			
-		}; 
+
+		};
 	}
-	
+
 	@Path("/approve")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -523,16 +523,16 @@ public class SignupResource {
 				List<CourseSignup> signups = courseService.getApprovals();
 				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
 			}
-			
-		}; 
+
+		};
 	}
-	
+
 	@Path("/previous")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getPreviousSignups(@QueryParam("userid") final String userId,
-											  @QueryParam("componentid") final String componentId,
-											  @QueryParam("groupid") final String groupId) {
+	                                          @QueryParam("componentid") final String componentId,
+	                                          @QueryParam("groupid") final String groupId) {
 
 		checkAuthenticated();
 		return new StreamingOutput() {
@@ -548,20 +548,20 @@ public class SignupResource {
 								signups.add(signup);
 							}
 						}
-					
+
 					}
 				}
 				objectMapper.typedWriter(TypeFactory.collectionType(Set.class, CourseSignup.class)).writeValue(output, signups);
 			}
-			
-		}; 
+
+		};
 	}
-	
+
 	@Path("/advance/{id}")
 	@GET
 	@Produces("text/html")
 	public Response advanceGet(@PathParam("id") final String encoded) {
-		
+
 		String[] params = courseService.getCourseSignupFromEncrypted(encoded);
 		for (int i=0; i<params.length; i++) {
 			System.out.println("decoded parameter ["+params[i]+"]");
@@ -571,66 +571,66 @@ public class SignupResource {
 		model.put("signup", signup);
 		model.put("encoded", encoded);
 		model.put("status", params[1]);
-		
+
 		model.put("skinRepo",
 				serverConfigurationService.getString("skin.repo", "/library/skin"));
-		
+
 		model.put("skinDefault",
 				serverConfigurationService.getString("skin.default", "default"));
-		
+
 		return Response.ok(new Viewable("/static/advance", model)).build();
 	}
-	
+
 	@Path("/advance/{id}")
 	@POST
 	@Produces("text/html")
-	public Response advancePost(@PathParam("id") final String encoded, 
-								@FormParam("formStatus") final String formStatus) {
-		
+	public Response advancePost(@PathParam("id") final String encoded,
+	                            @FormParam("formStatus") final String formStatus) {
+
 		if (null == encoded) {
 			return Response.noContent().build();
 		}
 		String[] params = courseService.getCourseSignupFromEncrypted(encoded);
-		
+
 		String signupId = params[0];
 		//String status = params[1];
 		String placementId = params[2];
-		
+
 		CourseSignup signup = courseService.getCourseSignupAnyway(signupId);
 		if (null == signup) {
 			return Response.noContent().build();
 		}
-		
+
 		switch (getIndex(new String[]{"accept", "approve", "confirm", "reject"}, formStatus.toLowerCase())) {
-		
-			case 0: 
+
+			case 0:
 				courseService.accept(signupId, true, placementId);
 				break;
-			case 1: 
+			case 1:
 				courseService.approve(signupId, true, placementId);
 				break;
-			case 2: 
+			case 2:
 				courseService.confirm(signupId, true, placementId);
 				break;
-			case 3: 
+			case 3:
 				courseService.reject(signupId, true, placementId);
 				break;
 			default:
 				return Response.noContent().build();
 		}
-		
+
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("signup", signup);
-		 
+
 		model.put("skinRepo",
 				serverConfigurationService.getString("skin.repo", "/library/skin"));
-		
+
 		model.put("skinDefault",
 				serverConfigurationService.getString("skin.default", "default"));
-		
+
 		return Response.ok(new Viewable("/static/ok", model)).build();
 	}
-	
+
 	protected int getIndex(String[] array, String value){
 		for(int i=0; i<array.length; i++){
 			if(array[i].equals(value)){
@@ -638,8 +638,8 @@ public class SignupResource {
 			}
 		}
 		return -1;
-	} 
-	
+	}
+
 	private String buildString(Collection<String> collection) {
 		StringBuilder sb = new StringBuilder();
 		if (!collection.isEmpty()) {
@@ -649,10 +649,10 @@ public class SignupResource {
 		}
 		return sb.toString();
 	}
-	
+
 	private String startsText(CourseComponent component) {
-		if (null != component.getStartsText() && 
-				 !component.getStartsText().isEmpty()) {
+		if (null != component.getStartsText() &&
+				!component.getStartsText().isEmpty()) {
 			return component.getStartsText();
 		}
 		if (null != component.getStarts()) {
@@ -660,7 +660,7 @@ public class SignupResource {
 		}
 		return "";
 	}
-	
+
 	private String getFileName(CourseComponent component) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(component.getPresentationId().replaceAll(" ", "_"));
