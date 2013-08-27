@@ -703,6 +703,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		UserProxy user = null;
 		if (userId == null) {
 			// Check for the user by email.
+			if (userEmail == null) {
+				throw new IllegalArgumentException("If you don't supply a userId you must supply an email address");
+			}
 			user = proxy.findUserByEmail(userEmail);
 			if (user == null) {
 				user = proxy.newUser(userName, userEmail);
