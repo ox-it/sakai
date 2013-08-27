@@ -17,40 +17,32 @@
  * limitations under the License.
  * #L%
  */
-package uk.ac.ox.oucs.vle;
+package uk.ac.ox.oucs.vle.sakai;
 
-import java.util.Map;
-
-import javax.servlet.ServletContext;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.sakaiproject.component.cover.ComponentManager;
 
-//@Provider
-public class SpringComponentContextProvider implements ContextResolver<Object> {
-
-	private static final Log log = LogFactory.getLog(SpringComponentContextProvider.class);
-
-	private ServletContext context;
-
-	public SpringComponentContextProvider(@Context ServletContext context) {
-		this.context = context;
-	}
+/**
+ * Allows to component manager references to be "injected" into resources without an explicit dependency.
+ * This class relies on the the bean having the name the same as the type it implements.
+ * @author buckett
+ */
+@Provider
+public class SakaiComponentContextProvider implements ContextResolver<Object> {
+	
+	private static final Log log = LogFactory.getLog(SakaiComponentContextProvider.class);
 	
 	public Object getContext(Class<?> type) {
-		Map beans = WebApplicationContextUtils.getWebApplicationContext(context).getBeansOfType(type);
-		if (!beans.isEmpty()) {
-			if (beans.size() > 1) {
-				log.warn("More than one match when looking for beans of type "+ type);
-			}
-			return beans.values().iterator().next();
-
+		try {
+			return ComponentManager.get(type.getName());
+		} catch (NoClassDefFoundError ncdfe) {
+			log.error("Failed to find Sakai component manager");
+			return null;
 		}
-		return null;
 	}
 
 }
