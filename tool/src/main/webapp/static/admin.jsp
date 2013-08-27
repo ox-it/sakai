@@ -333,6 +333,8 @@
 			$("#signup-add")
 					.click(
 							function() {
+								// Reset the list of good users.
+								goodUsers = [];
 								signupAddUser.jqmShow();
 								// Need to resize to content.
 								var windowHeight = $(window).height();
@@ -615,6 +617,8 @@
 							signupAddExternal).val("");
 						var studentEmail = $("input[name=studentEmail]",
 							signupAddExternal).val("");
+						// Reset the list of good users.
+						goodUsers = [];
 						signupAddExternal.jqmShow();
 						// Need to resize to content.
 						var windowHeight = $(window).height();
