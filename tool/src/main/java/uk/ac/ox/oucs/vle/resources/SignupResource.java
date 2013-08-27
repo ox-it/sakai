@@ -128,16 +128,10 @@ public class SignupResource {
 			builder.entity(entity);
 			return builder.build();
 		} catch (IllegalStateException e) {
-			Map<String, String> myMap = new HashMap<String, String>();
-			myMap.put("status", "failed");
-			myMap.put("message", e.getMessage());
-			throw new WebAppBadRequestException(myMap);
+			throw new WebAppBadRequestException(new FailureMessage(e.getMessage()));
 			
 		} catch (IllegalArgumentException e) {
-			Map<String, String> myMap = new HashMap<String, String>();
-			myMap.put("status", "failed");
-			myMap.put("message", e.getMessage());
-			throw new WebAppBadRequestException(myMap);
+			throw new WebAppBadRequestException(new FailureMessage(e.getMessage()));
 		}
 	}
 	

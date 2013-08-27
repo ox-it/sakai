@@ -29,11 +29,7 @@ import javax.ws.rs.core.Response;
 
 public class WebAppNotFoundException extends WebApplicationException {
 	
-	private static final Map<String, String> myMap = new HashMap<String, String>();
-	static {
-		myMap.put("status", "failed");
-		myMap.put("message", "The requested resource was not found");
-	}
+	private static final FailureMessage message = new FailureMessage("The requested resource was not found");
 	
 	public WebAppNotFoundException() {
 		super(Response
@@ -42,7 +38,7 @@ public class WebAppNotFoundException extends WebApplicationException {
 				// jersey will attempt to convert a Map to application/octet-stream
 				// which will fail.
 				.type(MediaType.APPLICATION_JSON)
-				.entity(myMap)
+				.entity(message)
 				.build());
 	}
 

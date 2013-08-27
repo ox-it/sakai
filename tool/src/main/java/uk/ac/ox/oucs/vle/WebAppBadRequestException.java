@@ -27,14 +27,14 @@ import javax.ws.rs.core.Response;
 
 public class WebAppBadRequestException extends WebApplicationException {
 
-	public WebAppBadRequestException(Map<String, String> myMap) {
+	public WebAppBadRequestException(FailureMessage message) {
 		super(Response
 				.status(Response.Status.BAD_REQUEST)
 				// We set the type as when the request doesn't have an accept header
 				// jersey will attempt to convert a Map to application/octet-stream
 				// which will fail.
 				.type(MediaType.APPLICATION_JSON)
-				.entity(myMap)
+				.entity(message)
 				.build());
 	}
 

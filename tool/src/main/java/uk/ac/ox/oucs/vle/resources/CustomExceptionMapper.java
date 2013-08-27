@@ -20,6 +20,7 @@
 package uk.ac.ox.oucs.vle.resources;
 
 import uk.ac.ox.oucs.vle.CourseSignupException;
+import uk.ac.ox.oucs.vle.FailureMessage;
 import uk.ac.ox.oucs.vle.NotFoundException;
 import uk.ac.ox.oucs.vle.PermissionDeniedException;
 
@@ -42,22 +43,14 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class CustomExceptionMapper implements ExceptionMapper<CourseSignupException> {
 
-	private static final Map<String, String> forbiddenMap = new HashMap<String, String>();
-	static {
-		forbiddenMap.put("status", "failed");
-		forbiddenMap.put("message", "Not Authorized");
-	}
-	
-	private static final Map<String, String> notFoundMap = new HashMap<String, String>();
-	static {
-		notFoundMap.put("status", "failed");
-		notFoundMap.put("message", "The requested resource was not found");
-	}
-	
+	private static final FailureMessage forbiddenMap = new FailureMessage("Not Authorized");
+
+	private static final FailureMessage notFound = new FailureMessage("The requested resource was not found");
+
 	public Response toResponse(CourseSignupException exception) {
 		if(exception instanceof NotFoundException) {
 			return Response.status(Status.NOT_FOUND)
-					.entity(notFoundMap)
+					.entity(notFound)
 					.build();
 		} else if (exception instanceof PermissionDeniedException) {
 			return Response.status(Status.FORBIDDEN)
