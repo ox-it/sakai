@@ -127,7 +127,6 @@ public class SignupResource {
 			return builder.build();
 		} catch (IllegalStateException e) {
 			throw new WebAppBadRequestException(new FailureMessage(e.getMessage()));
-			
 		} catch (IllegalArgumentException e) {
 			throw new WebAppBadRequestException(new FailureMessage(e.getMessage()));
 		}
@@ -135,6 +134,7 @@ public class SignupResource {
 	
 	@Path("/new")
 	@POST
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response signup( @FormParam("userId")String userId,
 							@FormParam("userName")String userName, 
 							@FormParam("userEmail")String userEmail, 
