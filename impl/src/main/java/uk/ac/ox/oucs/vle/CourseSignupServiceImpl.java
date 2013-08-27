@@ -621,12 +621,22 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				dao.save(componentDao);
 			}
 			proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_REJECT, placementId);
-			sendStudentSignupEmail(
-					signupDao, 
-					"reject-supervisor.student.subject", 
-					"reject-supervisor.student.body", 
-					new Object[] {proxy.findUserById(signupDao.getSupervisorId()).getDisplayName(), proxy.getMyUrl(placementId)});
-
+			// If the signup doesn't have a supervisor then tell them it was the admin that rejected them.
+			if (signupDao.getSupervisorId() == null) {
+				sendStudentSignupEmail(
+						signupDao,
+						"reject-admin.student.subject",
+						"reject-admin.student.body",
+						new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
+			} else {
+				// This may tell the user that the supervisor rejected them, when infact the user might have
+				// been the administrator at the time.
+				sendStudentSignupEmail(
+						signupDao,
+						"reject-supervisor.student.subject",
+						"reject-supervisor.student.body",
+						new Object[] {proxy.findUserById(signupDao.getSupervisorId()).getDisplayName(), proxy.getMyUrl(placementId)});
+			}
 		} else if (Status.APPROVED.equals(signupDao.getStatus())) {// Rejected at approver stage
 			if (!skipAuth) {
 				boolean isApprover = dao.findDepartmentApprovers(signupDao.getDepartment()).contains(currentUserId);
