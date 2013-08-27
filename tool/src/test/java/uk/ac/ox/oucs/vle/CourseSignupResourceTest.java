@@ -19,6 +19,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.context.ContextLoaderListener;
+import uk.ac.ox.oucs.vle.stub.CourseSignupStub;
 
 import javax.ws.rs.ext.ContextResolver;
 
@@ -50,6 +51,7 @@ public class CourseSignupResourceTest extends AbstractSpringAwareJerseyTest {
 				.contextParam("contextConfigLocation", "classpath:test.xml")
 				.contextListenerClass(ContextLoaderListener.class)
 				.servletClass(SpringServlet.class)
+
 				// This enables logging of request/response
 				.initParam(ResourceConfig.FEATURE_TRACE, "true")
 				.initParam(ResourceConfig.PROPERTY_CONTAINER_REQUEST_FILTERS, LoggingFilter.class.getCanonicalName())
@@ -70,6 +72,13 @@ public class CourseSignupResourceTest extends AbstractSpringAwareJerseyTest {
 	@Test
 	public void testSignup() {
 		when(proxy.isAnonymousUser()).thenReturn(false);
+
+		CourseSignupStub stubSignup = new CourseSignupStub();
+		stubSignup.setId("id");
+		stubSignup.setNotes("notes");
+
+		when(courseSignupService.signup(anyString(), anyString(), anyString(), anyString(), anySet(), anyString()))
+				.thenReturn(stubSignup);
 		ClientResponse response = resource().path("/signup/new").accept("application/json").post(ClientResponse.class);
 		verify(courseSignupService, times(1)).signup(anyString(), anyString(), anyString(), anyString(), anySet(), anyString());
 		assertEquals(201, response.getStatus());
@@ -83,6 +92,8 @@ public class CourseSignupResourceTest extends AbstractSpringAwareJerseyTest {
 		ClientResponse response = resource().path("/signup/my/new").accept("application/json").post(ClientResponse.class);
 		assertEquals(404, response.getStatus());
 	}
+
+
 
 
 }
