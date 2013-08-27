@@ -44,6 +44,15 @@ var Text = (function() {
 			dest = dest.replace(emailRegex, emailReplacement);
 			dest = dest.replace(lineRegex, lineReplacement);
 			return dest;
+		},
+
+		/**
+		 * Check if the argument is an email address.
+		 * @param email The email address to check.
+		 * @return True if the arugment is an email address.
+		 */
+		"isEmail": function(email) {
+		    return emailRegex.test(email);
 		}
 	};
 })();

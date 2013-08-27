@@ -1,4 +1,4 @@
-describe("Text", function() {
+describe("Text.toHtml", function() {
 
 	it("should markup and email", function() {
 		var html = Text.toHtml("test@example.com");
@@ -28,5 +28,20 @@ describe("Text", function() {
 	it("should escape multiple copies", function() {
 		var html = Text.toHtml("This is all true 1 < 5 < 8 > -1");
 		expect(html).not.toContain('<');
+	});
+});
+
+describe("Text.isEmail", function() {
+
+	it("should validate sensible email", function() {
+        expect(Text.isEmail("someone@example.com")).toBe(true);
+	});
+
+	it("should fail on empty text", function() {
+	    expect(Text.isEmail("")).toBe(false);
+	});
+
+	it("should fail on null", function() {
+	    expect(Text.isEmail()).toBe(false);
 	});
 });
