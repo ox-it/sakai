@@ -29,7 +29,7 @@ table th {
     font-size: smaller;
 }
 
-.error {
+.error, .errors {
     color: red;
 }
 
