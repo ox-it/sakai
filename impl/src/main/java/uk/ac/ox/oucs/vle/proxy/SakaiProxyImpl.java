@@ -63,12 +63,13 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserPermissionException;
 
-import uk.ac.ox.oucs.vle.AdditionalUserDetails;
-import uk.ac.ox.oucs.vle.SakaiProxy;
-import uk.ac.ox.oucs.vle.UserProxy;
+import uk.ac.ox.oucs.vle.*;
 
 /**
  * This is the actual Sakai proxy which talks to the Sakai services.
@@ -80,7 +81,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private final static Log log = LogFactory.getLog(SakaiProxyImpl.class);
 	
 	private String fromAddress;
-	
+
+	/**
+	 * The type to create new users as. Defaults to "guest" which is the same as Site Info tool.
+	 */
+	private String userType = "guest";
+	public void setUserType(String userType) {
+		this.userType = userType;
+	}
+
 	/**
 	 * 
 	 */
@@ -173,6 +182,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return user;
 	}
 
+	@Override
+	public boolean isAnonymousUser() {
+		return userService.getAnonymousUser().equals(userService.getCurrentUser());
+	}
+
 	public UserProxy findUserById(String id) {
 		try {
 			return wrapUserProxy(userService.getUser(id));
@@ -209,6 +223,36 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return null;
 		}
 	}
+	
+	public UserProxy newUser(String name, String email) {
+		User sakaiUser;
+		String id = null;
+		String eid = email;
+		String firstName = null;
+		String lastName = null;
+		// Authentication never works in Sakai if the password is null.
+		String pw = null;
+		String type = userType;
+		String trimmedName = name.trim();
+		int i = trimmedName.lastIndexOf(" ");
+		if (i > 0) {
+			firstName = trimmedName.substring(0, i);
+			lastName = trimmedName.substring(i+1);
+		} else {
+			firstName = trimmedName;
+		}
+		try {
+			sakaiUser = userService.addUser(id, eid, firstName, lastName, email, pw, type, null);
+		} catch (UserIdInvalidException e) {
+			throw new IllegalArgumentException("Failed to add user because of bad ID", e);
+		} catch (UserPermissionException e) {
+			throw new PermissionDeniedException(e.getUser(), "Current user doesn't have permission to add users.", e);
+		} catch (UserAlreadyDefinedException e) {
+			return findUserByEmail(email);
+		}
+		UserProxy user = wrapUserProxy(sakaiUser);
+		return user;
+	}
 
 	public void sendEmail(String to, String subject, String body) {
 		String from = fromAddress;
@@ -237,7 +281,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
 	 * Just get the current placement.
 	 * @return The current placement.
-	 * @throws RunTimeException If there isn't a current placement, this happens
+	 * @throws RuntimeException If there isn't a current placement, this happens
 	 * when a request comes through that isn't processed by the portal.
 	 */
 

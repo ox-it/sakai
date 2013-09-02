@@ -17,12 +17,15 @@
  * limitations under the License.
  * #L%
  */
-package uk.ac.ox.oucs.vle;
+package uk.ac.ox.oucs.vle.resources;
 
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import uk.ac.ox.oucs.vle.CourseComponent;
+import uk.ac.ox.oucs.vle.CourseGroup;
+import uk.ac.ox.oucs.vle.Person;
 
 import java.io.IOException;
 import java.io.OutputStream;

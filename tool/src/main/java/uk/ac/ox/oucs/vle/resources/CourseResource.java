@@ -17,10 +17,9 @@
  * limitations under the License.
  * #L%
  */
-package uk.ac.ox.oucs.vle;
+package uk.ac.ox.oucs.vle.resources;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -47,7 +46,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ContextResolver;
@@ -66,6 +64,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
+import uk.ac.ox.oucs.vle.*;
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 
 //@Path("/course/")

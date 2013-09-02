@@ -102,12 +102,17 @@ public interface CourseSignupService {
 	public CourseSignup signup(String courseId, Set<String> components, String supervisorEmail, String message) throws IllegalStateException, IllegalArgumentException;
 	
 	/**
-	 * A signup made
-	 * @param userId
-	 * @param courseId
-	 * @param components
+	 * A signup made by an administrator for a user. It doesn't do checking of size and automatically sets the
+	 * signup to being accepted.
+	 * @param userId The user ID of the user to be signed up or <code>null</code> if not known.
+	 * @param userName The name of the user being signed up, this is only used if the user can't be found by email.
+	 * @param userEmail The email of the user being signed up, this is only used when userId is <code>null</code>.
+	 * @param courseId The ID of the course that the signup is being made against.
+	 * @param components A set of component IDs that are being signed up for.
+	 * @param supervisorId The ID of the supervisor for the signup.
+	 * @return The newly created signup.
 	 */
-	public CourseSignup signup(String userId, String courseId, Set<String> components, String supervisorId);
+	public CourseSignup signup(String userId, String userName, String userEmail, String courseId, Set<String> components, String supervisorId);
 	
 	public List<CourseSignup> getCourseSignups(String courseId, Set<Status> statuses);
 	

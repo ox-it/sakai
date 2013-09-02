@@ -20,8 +20,8 @@
 package uk.ac.ox.oucs.vle;
 
 /**
- * This error is thrown by the service when the user attempts todo 
- * something which they aren't allowed todo. Having runtime errors 
+ * This error is thrown by the service when the user attempts to do
+ * something which they aren't allowed to do. Having runtime errors
  * means we can handle them well above the service layer but don't
  * need lots of declarations.
  * @author buckett
@@ -32,6 +32,11 @@ public class PermissionDeniedException extends CourseSignupException {
 	private static final long serialVersionUID = 1908495537561080522L;
 	
 	private String userId;
+
+	public PermissionDeniedException(String userid, String message, Throwable t) {
+		super(message, t);
+
+	}
 	
 	public PermissionDeniedException(String userId) {
 		this.userId = userId;

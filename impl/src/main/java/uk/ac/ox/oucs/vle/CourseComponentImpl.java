@@ -40,7 +40,7 @@ public class CourseComponentImpl implements CourseComponent {
 	private transient Date created;
 	private transient Date baseDate;
 	
-	private static int YEARSAGO = -1825;
+	private final static int YEARS_AGO = -1825;
 	
 	public CourseComponentImpl(CourseComponentDAO dao) {
 		this.dao = dao;
@@ -133,7 +133,7 @@ public class CourseComponentImpl implements CourseComponent {
 		}
 		if (null == created) {
 			GregorianCalendar cal = new GregorianCalendar();  
-			cal.add(Calendar.DATE, YEARSAGO);   
+			cal.add(Calendar.DATE, YEARS_AGO);
 			return cal.getTime();
 		}
 		return created;

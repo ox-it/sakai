@@ -35,6 +35,12 @@ public interface SakaiProxy {
 	 */
 	public UserProxy getCurrentUser();
 
+	/**
+	 * Check if the current user is not logged in.
+	 * @return <code>true</code> if the current user isn't logged in.
+	 */
+	public boolean isAnonymousUser();
+
 	public UserProxy findUserById(String id);
 	
 	public UserProxy findStudentById(String id);
@@ -42,6 +48,14 @@ public interface SakaiProxy {
 	public UserProxy findUserByEmail(String email);
 	
 	public UserProxy findUserByEid(String eid);
+
+	/**
+	 * Create a new user so that someone who doesn't have an account can be placed on a module.
+	 * @param name The name of the new user, cannot be <code>null</code>.
+	 * @param email The email address of the new user, cannot be <code>null</code>.
+	 * @return The newly created user.
+	 */
+	public UserProxy newUser(String name, String email);
 	
 	/**
 	 * Log an event happening. It is assumed that the person perfoming the 

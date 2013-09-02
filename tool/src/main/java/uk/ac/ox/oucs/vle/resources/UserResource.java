@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package uk.ac.ox.oucs.vle;
+package uk.ac.ox.oucs.vle.resources;
 
 import java.io.IOException;
 import java.util.Date;
@@ -40,6 +40,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.node.ObjectNode;
+import uk.ac.ox.oucs.vle.CourseSignupService;
+import uk.ac.ox.oucs.vle.SakaiProxy;
+import uk.ac.ox.oucs.vle.UserProxy;
 
 
 /**
@@ -83,6 +86,7 @@ public class UserResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUsers(@QueryParam("search")String search) throws JsonGenerationException, JsonMappingException, IOException {
+		// TODO This should check the currently user is allowed to search.
 		if (search == null) {
 			throw new WebApplicationException(Status.BAD_REQUEST);
 		}

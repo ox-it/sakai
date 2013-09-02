@@ -17,71 +17,57 @@
  * limitations under the License.
  * #L%
  */
-package uk.ac.ox.oucs.vle;
+package uk.ac.ox.oucs.vle.resources;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.ext.ContextResolver;
-
+import com.sun.jersey.api.core.InjectParam;
+import com.sun.jersey.api.view.Viewable;
 import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.map.introspect.AnnotatedField;
+import org.codehaus.jackson.map.introspect.AnnotatedMember;
+import org.codehaus.jackson.map.introspect.AnnotatedMethod;
+import org.codehaus.jackson.map.introspect.VisibilityChecker;
 import org.codehaus.jackson.map.type.TypeFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.user.cover.UserDirectoryService;
-
+import uk.ac.ox.oucs.vle.*;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
-import com.sun.jersey.api.view.Viewable;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
-//@Path("/signup")
 @Path("signup{cobomo:(/cobomo)?}")
 public class SignupResource {
 
-	
-	private CourseSignupService courseService;
-	private ObjectMapper objectMapper;
-	private ServerConfigurationService serverConfigurationService;
 
-	public SignupResource(@Context ContextResolver<Object> resolver) {
-		this.courseService = (CourseSignupService) resolver.getContext(CourseSignupService.class);
-		serverConfigurationService = (ServerConfigurationService) resolver.getContext(ServerConfigurationService.class);
-		objectMapper = new ObjectMapper();
-		objectMapper.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
-		objectMapper.configure(SerializationConfig.Feature.USE_STATIC_TYPING, true);
-		objectMapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
-	}
-	
+	@InjectParam
+	private CourseSignupService courseService;
+	@InjectParam
+	private ServerConfigurationService serverConfigurationService;
+	@InjectParam
+	private SakaiProxy proxy;
+	@InjectParam
+	private ObjectMapper objectMapper;
+
 	@Path("/my")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getMySignups() {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		final List<CourseSignup> signups = courseService.getMySignups(null);
 		return new StreamingOutput() {
 			public void write(OutputStream output) throws IOException,
@@ -90,14 +76,13 @@ public class SignupResource {
 			}
 		};
 	}
-	
+
+
 	@Path("/my/course/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getMyCourseSignups(@PathParam("id") String courseId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		final List<CourseSignup> signups = courseService.getMySignups(null);
 		final List<CourseSignup> courseSignups = new ArrayList<CourseSignup>();
 		for(CourseSignup signup: signups) {
@@ -110,12 +95,12 @@ public class SignupResource {
 					WebApplicationException {
 				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, courseSignups);
 			}
-		}; 
+		};
 	}
 
 	/**
-	 * Make a new signup
-	 * 
+	 * Make a new signup for the current user.
+	 *
 	 * @param courseId
 	 * 		the courseId of the signup
 	 * @param components
@@ -130,84 +115,86 @@ public class SignupResource {
 	@Path("/my/new")
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response signup(@FormParam("courseId") String courseId, @FormParam("components")Set<String> components, @FormParam("email")String email, @FormParam("message")String message) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
-		
+	public Response signup(@FormParam("courseId") String courseId,
+	                       @FormParam("components")Set<String> components,
+	                       @FormParam("email")String email,
+	                       @FormParam("message")String message) {
+		checkAuthenticated();
 		try {
 			CourseSignup entity = courseService.signup(courseId, components, email, message);
 			ResponseBuilder builder = Response.status(Response.Status.CREATED);
-			builder.status(201);
 			builder.entity(entity);
 			return builder.build();
-			
-		} catch (NotFoundException e) {
-			throw new WebAppNotFoundException();
-			
 		} catch (IllegalStateException e) {
-			Map<String, String> myMap = new HashMap<String, String>();
-			myMap.put("status", "failed");
-			myMap.put("message", e.getMessage());
-			throw new WebAppBadRequestException(myMap);
-			
+			throw new WebAppBadRequestException(new FailureMessage(e.getMessage()));
 		} catch (IllegalArgumentException e) {
-			Map<String, String> myMap = new HashMap<String, String>();
-			myMap.put("status", "failed");
-			myMap.put("message", e.getMessage());
-			throw new WebAppBadRequestException(myMap);
+			throw new WebAppBadRequestException(new FailureMessage(e.getMessage()));
 		}
 	}
-	
+
+	/**
+	 * Create a signup specifying the user.
+	 *
+	 * @param userId The ID of the user to be signed up. If <code>null</code> the we use the email address to lookup user.
+	 *               If the string "newUser" is supplied we attempt to create a new user anyway (deprecated).
+	 * @param userName The name of the user if we are creating a new user.
+	 * @param userEmail The email address of the user.
+	 * @param courseId The course ID to sign up to. Cannot be <code>null</code>.
+	 * @param components The components IDs to sign up to. Cannot be <code>null</code>.
+	 * @param supervisorId The ID of the supervisor to link the signups to. Can be <code>null</code>.
+	 * @return The created CourseSignup.
+	 * @see CourseSignupService#signup(String, String, String, String, java.util.Set, String)
+	 */
 	@Path("/new")
 	@POST
-	public Response signup(@FormParam("userId")String userId, @FormParam("courseId") String courseId, @FormParam("components")Set<String> components, @FormParam("supervisorId")String supervisorId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response signup( @FormParam("userId")String userId,
+	                        @FormParam("userName")String userName,
+	                        @FormParam("userEmail")String userEmail,
+	                        @FormParam("courseId") String courseId,
+	                        @FormParam("components")Set<String> components,
+	                        @FormParam("supervisorId")String supervisorId) {
+		checkAuthenticated();
+		// Support old idea of a special ID for new users.
+		// When the frontend is refactored this can be removed.
+		if ("newUser".equals(userId)) {
+			userId = null;
 		}
-		courseService.signup(userId, courseId, components, supervisorId);
-		return Response.ok().build();
+		CourseSignup signup = courseService.signup(userId, userName, userEmail, courseId, components, supervisorId);
+		return Response.status(Response.Status.CREATED).entity(signup).build();
 	}
-	
+
 	@Path("/supervisor")
 	@POST
 	public Response signup(@FormParam("signupId")String signupId, @FormParam("supervisorId")String supervisorId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		courseService.setSupervisor(signupId, supervisorId);
 		return Response.ok().build();
 	}
-	
+
 	@Path("/{id}")
 	@GET
 	@Produces("application/json")
 	public Response getSignup(@PathParam("id") final String signupId) throws JsonGenerationException, JsonMappingException, IOException {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		CourseSignup signup = courseService.getCourseSignup(signupId);
 		if (signup == null) {
 			return Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).build();
 		}
 		return Response.ok(objectMapper.writeValueAsString(signup)).build();
 	}
-	
+
 	@Path("/{id}")
 	@POST // PUT Doesn't seem to make it through the portal :-(
 	public void updateSignup(@PathParam("id") final String signupId, @FormParam("status") final Status status){
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		courseService.setSignupStatus(signupId, status);
 	}
 
 	@Path("{id}/accept")
 	@POST
 	public Response accept(@PathParam("id") final String signupId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		courseService.accept(signupId);
 		return Response.ok().build();
 	}
@@ -215,29 +202,23 @@ public class SignupResource {
 	@Path("{id}/reject")
 	@POST
 	public Response reject(@PathParam("id") final String signupId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		courseService.reject(signupId);
 		return Response.ok().build();
 	}
- 
+
 	@Path("{id}/withdraw")
 	@POST
 	public Response withdraw(@PathParam("id") final String signupId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		courseService.withdraw(signupId);
 		return Response.ok().build();
 	}
-	
+
 	@Path("{id}/waiting")
 	@POST
 	public Response waiting(@PathParam("id") final String signupId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		courseService.waiting(signupId);
 		return Response.ok().build();
 	}
@@ -245,33 +226,27 @@ public class SignupResource {
 	@Path("{id}/approve")
 	@POST
 	public Response approve(@PathParam("id") final String signupId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		courseService.approve(signupId);
 		return Response.ok().build();
 	}
-	
+
 	@Path("{id}/confirm")
 	@POST
 	public Response confirm(@PathParam("id") final String signupId) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		courseService.confirm(signupId);
 		return Response.ok().build();
 	}
-	
+
 	@Path("/course/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getCourseSignups(@PathParam("id") final String courseId, @QueryParam("status") final Status status) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		// All the pending 
 		return new StreamingOutput() {
-			
+
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
 				Set<Status> statuses = null;
@@ -283,14 +258,12 @@ public class SignupResource {
 			}
 		};
 	}
-	
+
 	@Path("/count/course/signups/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getCountCourseSignup(@PathParam("id") final String courseId, @QueryParam("status") final Status status) throws JsonGenerationException, JsonMappingException, IOException {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		// All the pending 
 		Set<Status> statuses = null;
 		if (null != status) {
@@ -299,14 +272,12 @@ public class SignupResource {
 		Integer signups = courseService.getCountCourseSignups(courseId, statuses);
 		return Response.ok(objectMapper.writeValueAsString(signups)).build();
 	}
-	
+
 	@Path("/component/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getComponentSignups(@PathParam("id") final String componentId, @QueryParam("status") final Status status) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
@@ -318,17 +289,15 @@ public class SignupResource {
 				List<CourseSignup> signups = courseService.getComponentSignups(componentId, statuses);
 				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
 			}
-			
+
 		};
 	}
-	
+
 	@Path("/component/{id}.csv")
 	@GET
 	@Produces("text/comma-separated-values")
 	public StreamingOutput getComponentSignupsCSV(@PathParam("id") final String componentId, @Context final HttpServletResponse response) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
@@ -354,37 +323,35 @@ public class SignupResource {
 				}
 				writer.flush();
 			}
-			
+
 		};
 	}
-	
+
 	@Path("/component/{id}.pdf")
 	@GET
 	@Produces("application/pdf")
 	public StreamingOutput getComponentSignupsPDF(@PathParam("id") final String componentId, @Context final HttpServletResponse response) {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
+
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
-				
-				System.out.println("/rest/signup/component/"+componentId+"/pdf");
-				
+
+
 				CourseComponent courseComponent = courseService.getCourseComponent(componentId);
 				Collection<CourseGroup> courseGroups = courseService.getCourseGroupsByComponent(componentId);
-				
+
 				List<CourseSignup> signups = courseService.getComponentSignups(
 						componentId, Collections.singleton(Status.CONFIRMED));
-				
+
 				response.addHeader("Content-disposition", "attachment; filename="+componentId+".pdf"); // Force a download
 				PDFWriter pdfWriter = new PDFWriter(output);
 				pdfWriter.writeHead(courseGroups, courseComponent);
 				pdfWriter.writeTableHead();
-				
+
 				if (!signups.isEmpty()) {
-				
+
 					List<Person> persons = new ArrayList<Person>();
 					for (CourseSignup signup : signups) {
 						if (null != signup.getUser()) {
@@ -396,9 +363,9 @@ public class SignupResource {
 							return p1.getLastName().compareTo(p2.getLastName());
 						}
 					});
-				
+
 					pdfWriter.writeTableBody(persons);
-					
+
 				}
 				pdfWriter.writeTableFoot();
 				pdfWriter.close();
@@ -417,7 +384,7 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.TEXT_XML)
 	public StreamingOutput exportYear(@QueryParam("status") final Status status,
-									  @PathParam("year") final int year) {
+	                                  @PathParam("year") final int year) {
 		return exportComponent("all", status, year);
 	}
 
@@ -434,70 +401,68 @@ public class SignupResource {
 	@GET
 	@Produces(MediaType.TEXT_XML)
 	public StreamingOutput exportComponent(@PathParam("id") final String componentId,
-										   @QueryParam("status") final Status status,
-										   @PathParam("year") final int year) {
+	                                       @QueryParam("status") final Status status,
+	                                       @PathParam("year") final int year) {
 
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		return new StreamingOutput() {
 			public void write(OutputStream output) throws IOException,
-			WebApplicationException {
-				
+					WebApplicationException {
+
 				Collection<CourseComponent> courseComponents = new ArrayList<CourseComponent>();
-				
+
 				if ("all".equals(componentId)) {
 					courseComponents = courseService.getAllComponents();
 				} else {
 					courseComponents.add(courseService.getCourseComponent(componentId));
 				}
-				
+
 				Set<Status> statuses = null;
 				if (null != status) {
 					statuses = Collections.singleton(status);
 				}
-				
+
 				AttendanceWriter attendance = new AttendanceWriter(output);
-				
+
 				for (CourseComponent courseComponent : courseComponents) {
-				
+
 					try {
 						List<CourseSignup> signups = courseService.getComponentSignups(
 								courseComponent.getPresentationId(), statuses, year);
-				
+
 						Collections.sort(signups, new Comparator<CourseSignup>() {
 							public int compare(CourseSignup s1,CourseSignup s2) {
 								Person p1 = s1.getUser();
 								Person p2 = s2.getUser();
-								
+
 								int ret = s1.getGroup().getCourseId().compareTo(s2.getGroup().getCourseId());
-								
+
 								// this line is giving a NullPointerException
 								//return ret == 0 ? p1.getLastName().compareTo(p2.getLastName()) : ret;
 								if (ret != 0) {
 									return ret;
 								}
-								
+
 								if (p1 == null) {
-							        return (p2 == null) ? 0 : -1;
-							    }
-							    if (p2 == null) {
-							        return 1;
-							    }
-							    
+									return (p2 == null) ? 0 : -1;
+								}
+								if (p2 == null) {
+									return 1;
+								}
+
 								if (p1.getLastName() == null) {
-							        return (p2.getLastName() == null) ? 0 : -1;
-							    }
-							    if (p2.getLastName() == null) {
-							        return 1;
-							    }
-							    
-							    return p1.getLastName().compareTo(p2.getLastName());
+									return (p2.getLastName() == null) ? 0 : -1;
+								}
+								if (p2.getLastName() == null) {
+									return 1;
+								}
+
+								return p1.getLastName().compareTo(p2.getLastName());
 							}
 						});
-					
+
 						attendance.writeTeachingInstance(courseComponent, signups);
-				
+
 					} catch (NotFoundException e) {
 						throw new WebApplicationException(Response.Status.NOT_FOUND);
 					}
@@ -506,39 +471,35 @@ public class SignupResource {
 			}
 		};
 	}
-	
+
 	@Path("/attendance")
 	@GET
 	@Produces(MediaType.TEXT_XML)
 	public StreamingOutput sync() {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		return new StreamingOutput() {
 			public void write(OutputStream output) throws IOException,
-			WebApplicationException {
-				
+					WebApplicationException {
+
 				AttendanceWriter attendance = new AttendanceWriter(output);
 				Collection<CourseComponent> courseComponents = courseService.getAllComponents();
 				for (CourseComponent courseComponent : courseComponents) {
-				
+
 					List<CourseSignup> signups = courseService.getComponentSignups(
 							courseComponent.getPresentationId(), Collections.singleton(Status.CONFIRMED));
-					
+
 					attendance.writeTeachingInstance(courseComponent, signups);
 				}
 				attendance.close();
 			}
 		};
 	}
-	
+
 	@Path("/pending")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getPendingSignups() {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
@@ -546,17 +507,15 @@ public class SignupResource {
 				List<CourseSignup> signups = courseService.getPendings();
 				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
 			}
-			
-		}; 
+
+		};
 	}
-	
+
 	@Path("/approve")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getApproveSignups() {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+		checkAuthenticated();
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
@@ -564,20 +523,18 @@ public class SignupResource {
 				List<CourseSignup> signups = courseService.getApprovals();
 				objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseSignup.class)).writeValue(output, signups);
 			}
-			
-		}; 
+
+		};
 	}
-	
+
 	@Path("/previous")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getPreviousSignups(@QueryParam("userid") final String userId,
-											  @QueryParam("componentid") final String componentId,
-											  @QueryParam("groupid") final String groupId) {
-		
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-			throw new WebAppForbiddenException();
-		}
+	                                          @QueryParam("componentid") final String componentId,
+	                                          @QueryParam("groupid") final String groupId) {
+
+		checkAuthenticated();
 		return new StreamingOutput() {
 
 			public void write(OutputStream output) throws IOException,
@@ -591,20 +548,20 @@ public class SignupResource {
 								signups.add(signup);
 							}
 						}
-					
+
 					}
 				}
 				objectMapper.typedWriter(TypeFactory.collectionType(Set.class, CourseSignup.class)).writeValue(output, signups);
 			}
-			
-		}; 
+
+		};
 	}
-	
+
 	@Path("/advance/{id}")
 	@GET
 	@Produces("text/html")
 	public Response advanceGet(@PathParam("id") final String encoded) {
-		
+
 		String[] params = courseService.getCourseSignupFromEncrypted(encoded);
 		for (int i=0; i<params.length; i++) {
 			System.out.println("decoded parameter ["+params[i]+"]");
@@ -614,66 +571,66 @@ public class SignupResource {
 		model.put("signup", signup);
 		model.put("encoded", encoded);
 		model.put("status", params[1]);
-		
+
 		model.put("skinRepo",
 				serverConfigurationService.getString("skin.repo", "/library/skin"));
-		
+
 		model.put("skinDefault",
 				serverConfigurationService.getString("skin.default", "default"));
-		
+
 		return Response.ok(new Viewable("/static/advance", model)).build();
 	}
-	
+
 	@Path("/advance/{id}")
 	@POST
 	@Produces("text/html")
-	public Response advancePost(@PathParam("id") final String encoded, 
-								@FormParam("formStatus") final String formStatus) {
-		
+	public Response advancePost(@PathParam("id") final String encoded,
+	                            @FormParam("formStatus") final String formStatus) {
+
 		if (null == encoded) {
 			return Response.noContent().build();
 		}
 		String[] params = courseService.getCourseSignupFromEncrypted(encoded);
-		
+
 		String signupId = params[0];
 		//String status = params[1];
 		String placementId = params[2];
-		
+
 		CourseSignup signup = courseService.getCourseSignupAnyway(signupId);
 		if (null == signup) {
 			return Response.noContent().build();
 		}
-		
+
 		switch (getIndex(new String[]{"accept", "approve", "confirm", "reject"}, formStatus.toLowerCase())) {
-		
-			case 0: 
+
+			case 0:
 				courseService.accept(signupId, true, placementId);
 				break;
-			case 1: 
+			case 1:
 				courseService.approve(signupId, true, placementId);
 				break;
-			case 2: 
+			case 2:
 				courseService.confirm(signupId, true, placementId);
 				break;
-			case 3: 
+			case 3:
 				courseService.reject(signupId, true, placementId);
 				break;
 			default:
 				return Response.noContent().build();
 		}
-		
+
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("signup", signup);
-		 
+
 		model.put("skinRepo",
 				serverConfigurationService.getString("skin.repo", "/library/skin"));
-		
+
 		model.put("skinDefault",
 				serverConfigurationService.getString("skin.default", "default"));
-		
+
 		return Response.ok(new Viewable("/static/ok", model)).build();
 	}
-	
+
 	protected int getIndex(String[] array, String value){
 		for(int i=0; i<array.length; i++){
 			if(array[i].equals(value)){
@@ -681,8 +638,8 @@ public class SignupResource {
 			}
 		}
 		return -1;
-	} 
-	
+	}
+
 	private String buildString(Collection<String> collection) {
 		StringBuilder sb = new StringBuilder();
 		if (!collection.isEmpty()) {
@@ -692,10 +649,10 @@ public class SignupResource {
 		}
 		return sb.toString();
 	}
-	
+
 	private String startsText(CourseComponent component) {
-		if (null != component.getStartsText() && 
-				 !component.getStartsText().isEmpty()) {
+		if (null != component.getStartsText() &&
+				!component.getStartsText().isEmpty()) {
 			return component.getStartsText();
 		}
 		if (null != component.getStarts()) {
@@ -703,7 +660,7 @@ public class SignupResource {
 		}
 		return "";
 	}
-	
+
 	private String getFileName(CourseComponent component) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(component.getPresentationId().replaceAll(" ", "_"));
@@ -714,4 +671,13 @@ public class SignupResource {
 		return sb.toString();
 	}
 
+	/**
+	 * This just checks that the request is authenticated and if no throws an exception.
+	 * @throws WebAppForbiddenException
+	 */
+	private void checkAuthenticated() {
+		if(proxy.isAnonymousUser()) {
+			throw new WebAppForbiddenException();
+		}
+	}
 }

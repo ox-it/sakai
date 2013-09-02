@@ -260,7 +260,9 @@
 			html += '</select></span>';
 			
 			html += '<table border="0" class="display" id="signups-table"></table>';
-			html += '<a href="#" id="signup-add">Add Signup</a>';
+			html += '<a href="#" id="signup-add">Add Oxford Signup</a>';
+			html += '<span style="padding-right:20px;" />';
+			html += '<a href="#" id="external-add">Add External Signup</a>';
 			$("#signups").html(html);
 			
 			var selectElement = $('#signups-table-term-filter');
@@ -304,9 +306,35 @@
 				}
 			});
 			signupAddUser.jqmAddClose("input.cancel");
+			
+			var signupAddExternal = $("#signup-add-external-win");
+			signupAddExternal.resize(function(e) {
+				// Calculate size.
+			});
+			signupAddExternal.jqm({
+				onShow : function(objs) {
+					$("body").css("overflow", "hidden"); // Doesn't seem to work on IE7
+					objs.w.css("height", 220);
+					objs.w.show();
+					$("input[name=supervisor]", signupAddExternal).val("");
+					$("textarea", signupAddExternal).val("");
+					$(":submit", signupAddExternal).removeAttr("disabled");
+					$(".errors", signupAddExternal).html("");
+				},
+				onHide : function(objs) {
+					$("body").css("overflow", "auto");
+					objs.w.fadeOut('250', function() {
+						objs.o.remove();
+					});
+				}
+			});
+			signupAddExternal.jqmAddClose("input.cancel");
+			
 			$("#signup-add")
 					.click(
 							function() {
+								// Reset the list of good users.
+								goodUsers = [];
 								signupAddUser.jqmShow();
 								// Need to resize to content.
 								var windowHeight = $(window).height();
@@ -340,6 +368,115 @@
 								;
 							});
 
+			/**
+			 * Callback once for once the users have been found and the components need to be selected.
+			 * @param {Object} data Details of the course components form the REST call.
+			 */
+			var goodUsers = [];
+			var goodSupervisor;
+			
+			var selectComponents = function(data) {
+				var components = data.components;
+				data.users = goodUsers;
+				var output = TrimPath.processDOMTemplate(
+						"signup-add-components-tpl", data);
+				signupAddUser.jqmHide();
+				signupAddExternal.jqmHide();
+				var dialog = $("#signup-add-components-win");
+				dialog.html(output);
+				dialog.jqm();
+				dialog.jqmAddClose("input.cancel");
+				dialog.jqmShow();
+				// Bind on the form submit.
+				$("#signup-add-components")
+						.bind(
+								"submit",
+								function(e) {
+									var form = this;
+									var progressElement = $("#create-signups-progress");
+									var components = [];
+									var originalGoodUserSize = goodUsers.length;
+
+									progressElement
+											.progressbar({
+												value : 0
+											});
+									$("[type=checkbox]",
+											this)
+											.each(
+													function() {
+														if (this.checked) {
+															components
+																	.push(this.id
+																			.substring(7)); // Remove 'option-' prefix
+														}
+													});
+									if (components.length == 0) {
+										$(".errors", form)
+												.html(
+														"You need to select some modules.");
+										return false;
+									}
+									var postSignup = function() {
+										progressElement
+												.progressbar("destroy");
+										dialog.jqmHide(); // Hide the popup.
+										summary
+												.fnReloadAjax(
+														null,
+														null,
+														true);
+										signups
+												.fnReloadAjax(
+														null,
+														null,
+														true);
+									};
+
+									var doSignup = function() {
+										progressElement
+												.progressbar(
+														"value",
+														(originalGoodUserSize - goodUsers.length)
+																/ originalGoodUserSize
+																* 100);
+										var supervisorId;
+										if (goodSupervisor) {
+											supervisorId = goodSupervisor.id;
+										}
+										var user = goodUsers
+												.pop();
+										if (user === undefined) {
+											postSignup();
+										} else {
+											$
+													.ajax({
+														"url" : "../rest/signup/new",
+														"type" : "POST",
+														"async" : true,
+														"traditional" : true,
+														"data" : {
+															"userId" : user.id,
+															"userName" : user.name,
+															"userEmail" : user.email,
+															"supervisorId" : supervisorId,
+															"courseId" : code,
+															"components" : components
+														},
+														"complete" : doSignup
+													});
+										}
+									};
+									// Disable the signup button.
+									$(":submit", form)
+											.attr(
+													"disabled",
+													"true");
+									doSignup();
+									return false;
+								});
+			};
+			
 			signupAddUser
 					.unbind("submit")
 					.bind(
@@ -349,119 +486,16 @@
 								var progressbar = $("#find-users-progress");
 								var supervisor = $("input[name=supervisor]",
 										signupAddUser).val();
-								var goodSupervisor;
+								
 								var badSupervisor;
 								var users = $("textarea[name=users]",
 										signupAddUser).val().replace(/,/g, " "); // Incase people use commas to seperate users.
 								// Need error handling when empty.
-								var goodUsers = [];
+								
 								var badUsers = [];
 								var userIds = users.split(/\s+/);
 								var originalUserIdSize = userIds.length; // Used in progressbar calc.
 								var continueSearch = true;
-
-								/**
-								 * Callback once for once the users have been found and the components need to be selected.
-								 * @param {Object} data Details of the course components form the REST call.
-								 */
-								var selectComponents = function(data) {
-									var components = data.components;
-									data.users = goodUsers;
-									var output = TrimPath.processDOMTemplate(
-											"signup-add-components-tpl", data);
-									signupAddUser.jqmHide();
-									var dialog = $("#signup-add-components-win");
-									dialog.html(output);
-									dialog.jqm();
-									dialog.jqmAddClose("input.cancel");
-									dialog.jqmShow();
-									// Bind on the form submit.
-									$("#signup-add-components")
-											.bind(
-													"submit",
-													function(e) {
-														var form = this;
-														var progressElement = $("#create-signups-progress");
-														var components = [];
-														var originalGoodUserSize = goodUsers.length;
-
-														progressElement
-																.progressbar({
-																	value : 0
-																});
-														$("[type=checkbox]",
-																this)
-																.each(
-																		function() {
-																			if (this.checked) {
-																				components
-																						.push(this.id
-																								.substring(7)); // Remove 'option-' prefix
-																			}
-																		});
-														if (components.length == 0) {
-															$(".errors", form)
-																	.html(
-																			"You need to select some modules.");
-															return false;
-														}
-														var postSignup = function() {
-															progressElement
-																	.progressbar("destroy");
-															dialog.jqmHide(); // Hide the popup.
-															summary
-																	.fnReloadAjax(
-																			null,
-																			null,
-																			true);
-															signups
-																	.fnReloadAjax(
-																			null,
-																			null,
-																			true);
-														};
-
-														var doSignup = function() {
-															progressElement
-																	.progressbar(
-																			"value",
-																			(originalGoodUserSize - goodUsers.length)
-																					/ originalGoodUserSize
-																					* 100);
-															var supervisorId;
-															if (goodSupervisor) {
-																supervisorId = goodSupervisor.id;
-															}
-															var user = goodUsers
-																	.pop();
-															if (user === undefined) {
-																postSignup();
-															} else {
-																$
-																		.ajax({
-																			"url" : "../rest/signup/new",
-																			"type" : "POST",
-																			"async" : true,
-																			"traditional" : true,
-																			"data" : {
-																				"userId" : user.id,
-																				"supervisorId" : supervisorId,
-																				"courseId" : code,
-																				"components" : components
-																			},
-																			"complete" : doSignup
-																		});
-															}
-														};
-														// Disable the signup button.
-														$(":submit", form)
-																.attr(
-																		"disabled",
-																		"true");
-														doSignup();
-														return false;
-													});
-								};
 
 								/**
 								 * Function for once all the users have been found.
@@ -575,6 +609,66 @@
 								//findUser(); // Startoff the searching of users.
 								return false;
 							});
+			
+			$("#external-add")
+			.click(
+					function() {
+					    var studentName = $("input[name=studentName]",
+							signupAddExternal).val("");
+						var studentEmail = $("input[name=studentEmail]",
+							signupAddExternal).val("");
+						// Reset the list of good users.
+						goodUsers = [];
+						signupAddExternal.jqmShow();
+						// Need to resize to content.
+						var windowHeight = $(window).height();
+						var positionTop = signupAddExternal[0].offsetTop;
+						if (windowHeight < signupAddExternal.outerHeight()
+								+ positionTop) {
+							// Too big.
+							var newHeight = windowHeight
+									- (signupAddExternal.outerHeight(false) - signupAddExternal
+											.height()) - 2;
+							signupAddExternal.height(newHeight);
+							signupAddExternal.css("top", "1px"); // Move almost to the top.
+						}
+						;
+					});
+			
+			signupAddExternal
+			.unbind("submit")
+			.bind(
+					"submit",
+					function(e) {
+						var form = this;
+						var progressbar = $("#find-users-progress");
+						var studentName = $("input[name=studentName]",
+								signupAddExternal).val();
+						var studentEmail = $("input[name=studentEmail]",
+								signupAddExternal).val();
+						if (!Text.isEmail(studentEmail)) {
+						    $(".errors", form).html("Not a valid email address");
+						    return false;
+						}
+						var user = new Object();
+						user.id="newUser";
+						user.name=studentName;
+						user.email=studentEmail;
+						goodUsers.push(user);
+						
+						$(":submit", form).attr("disabled", "true");
+						$("input.cancel", form).one("click",
+								function() {
+									continueSearch = false;
+								});
+						progressbar.progressbar({
+							value : 0
+						});
+						$.getJSON("../rest/course/" + code, {
+							"range" : "ALL"
+						}, selectComponents);
+						return false;
+					});
 
 			return;
 			
@@ -788,6 +882,25 @@
 			<div id="find-users-progress"></div>
 		</form>
 	</div>
+	
+	<!-- Popup window for adding external users.-->
+	<div id="signup-add-external-win" class="jqmWindow" style="display: none">
+		<h2>Add New External Student</h2>
+		<form id="signup-add-external">
+			<span class="errors"></span> <br>
+			<p>
+				Enter the student name.<br /> 
+				<input type="text" name="studentName" id="student-name" size="60" />
+			</p>
+			<p>
+				Enter the student email addresses.<br />
+				<input type="text" name="studentEmail" id="student-email" size="60" />
+			</p>
+			<input type="submit" value="Select Components">
+			<input type="button" class="cancel" value="Cancel"><br>
+			<div id="find-users-progress"></div>
+		</form>
+	</div>
 
 	<!-- Popup window for selecting components. -->
 	<div id="signup-add-components-win" class="jqmWindow"
@@ -795,36 +908,36 @@
 
 	<textarea id="signup-add-components-tpl" style="display: none" rows="0"
 		cols="0">
-	<h2>Users Found</h2>
-	<ul>
-	{for user in users}
-		<li>\${user.name} (\${user.email})</li>
-	{/for}
-	</ul>
-	<h2>Select Modules</h2>
+		<h2>Users Found</h2>
+		<ul>
+		{for user in users}
+			<li>\${user.name} (\${user.email})</li>
+		{/for}
+		</ul>
+		<h2>Select Modules</h2>
 	
-	<form id="signup-add-components">
-	<span class="errors"></span>
-	<ul>
-	{for component in components}
-		<li>
-			<input type="checkbox" name="\${component.id}"
-					id="option-\${component.id}" value="true">
-			<label for="component-\${component.id}">\${component.title} - \${component.slot} for \${component.sessions} sessions in \${component.when},
-					{if component.presenter}<a
-						href="mailto:\${component.presenter.email}">\${component.presenter.name}</a>{/if}
+		<form id="signup-add-components">
+			<span class="errors"></span>
+			<ul>
+			{for component in components}
+				<li>
+					<input type="checkbox" name="\${component.id}"
+						id="option-\${component.id}" value="true">
+					<label for="component-\${component.id}">\${component.title} - \${component.slot} for \${component.sessions} sessions in \${component.when},
+						{if component.presenter}<a
+							href="mailto:\${component.presenter.email}">\${component.presenter.name}</a>{/if}
 					</label>
-                                <br />
-                                <span class="location">\${component.location}</span>
-		</li>
-	{/for}
-	</ul>
-		<input type="submit" value="Add">
-		<input type="button" class="cancel" value="Cancel">
-		<div id="create-signups-progress"></div>
+					<br />
+					<span class="location">\${component.location}</span>
+				</li>
+			{/for}
+			</ul>
+			<input type="submit" value="Add">
+			<input type="button" class="cancel" value="Cancel">
+			<div id="create-signups-progress"></div>
 
-	</form>
-</textarea>
+		</form>
+	</textarea>
 
 </body>
 </html>

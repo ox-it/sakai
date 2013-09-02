@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package uk.ac.ox.oucs.vle;
+package uk.ac.ox.oucs.vle.resources;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,6 +32,9 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import uk.ac.ox.oucs.vle.CourseComponent;
+import uk.ac.ox.oucs.vle.CourseSignup;
+import uk.ac.ox.oucs.vle.Person;
 
 public class AttendanceWriter {
 	
@@ -45,7 +48,7 @@ public class AttendanceWriter {
 		document = new Document(root);
 	}
 	
-	public Element writeTeachingInstance(CourseComponent courseComponent, 
+	public Element writeTeachingInstance(CourseComponent courseComponent,
 										 Collection<CourseSignup> signups) {
 		
 		Element teachingInstance = new Element("TeachingInstance");

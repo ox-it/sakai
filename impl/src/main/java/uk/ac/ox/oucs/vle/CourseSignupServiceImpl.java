@@ -591,7 +591,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			throw new NotFoundException(signupId);
 		}
 
-		if (Status.PENDING.equals(signupDao.getStatus()) || Status.WAITING.equals(signupDao.getStatus())) { // Rejected by administrator.
+		if (Status.PENDING.equals(signupDao.getStatus()) || Status.WAITING.equals(signupDao.getStatus())) { // Rejected at pending or waiting.
 			if (!skipAuth) {
 				if (!isAdministrator(signupDao.getGroup(), currentUserId, false)) {
 					throw new PermissionDeniedException(currentUserId);
@@ -607,7 +607,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					"reject-admin.student.body", 
 					new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
 			
-		} else if (Status.ACCEPTED.equals(signupDao.getStatus())) { // Rejected by supervisor.
+		} else if (Status.ACCEPTED.equals(signupDao.getStatus())) { // Rejected at supervisor stage
 			if (!skipAuth) {
 				if (!isAdministrator(signupDao.getGroup(), currentUserId, currentUserId.equals(signupDao.getSupervisorId()))) {
 					throw new PermissionDeniedException(currentUserId);
@@ -621,13 +621,23 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				dao.save(componentDao);
 			}
 			proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_REJECT, placementId);
-			sendStudentSignupEmail(
-					signupDao, 
-					"reject-supervisor.student.subject", 
-					"reject-supervisor.student.body", 
-					new Object[] {proxy.findUserById(signupDao.getSupervisorId()).getDisplayName(), proxy.getMyUrl(placementId)});
-
-		} else if (Status.APPROVED.equals(signupDao.getStatus())) {// Rejected by approver.
+			// If the signup doesn't have a supervisor then tell them it was the admin that rejected them.
+			if (signupDao.getSupervisorId() == null) {
+				sendStudentSignupEmail(
+						signupDao,
+						"reject-admin.student.subject",
+						"reject-admin.student.body",
+						new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl(placementId)});
+			} else {
+				// This may tell the user that the supervisor rejected them, when infact the user might have
+				// been the administrator at the time.
+				sendStudentSignupEmail(
+						signupDao,
+						"reject-supervisor.student.subject",
+						"reject-supervisor.student.body",
+						new Object[] {proxy.findUserById(signupDao.getSupervisorId()).getDisplayName(), proxy.getMyUrl(placementId)});
+			}
+		} else if (Status.APPROVED.equals(signupDao.getStatus())) {// Rejected at approver stage
 			if (!skipAuth) {
 				boolean isApprover = dao.findDepartmentApprovers(signupDao.getDepartment()).contains(currentUserId);
 				if (!isAdministrator(signupDao.getGroup(), currentUserId, isApprover)) {
@@ -680,27 +690,40 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			throw new PermissionDeniedException(currentUserId);
 		}
 	}
-	
+
 	/**
-	 * Signup by Administrator
+	 * @inheritDoc
 	 */
-	public CourseSignup signup(String userId, String courseId, Set<String> componentIds, String supervisorId) {
+	public CourseSignup signup(String userId, String userName, String userEmail, String courseId, Set<String> componentIds, String supervisorId) {
 		
 		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
 		if (groupDao == null) {
 			throw new NotFoundException(courseId);
 		}
 		
-		Set<CourseComponentDAO> componentDaos = parseComponents(componentIds, groupDao); 
-		
+		Set<CourseComponentDAO> componentDaos = loadComponents(componentIds, groupDao);
+
+		// Check the current user is the administrator for all the components.
 		String currentUserId = proxy.getCurrentUser().getId();
 		if (!isAdministrator(groupDao, currentUserId, false)) {
 			throw new PermissionDeniedException(currentUserId);
 		}
 		
 		// Create the signup.
-		UserProxy user = proxy.findUserById(userId);
-		CourseSignupDAO signupDao = dao.newSignup(userId, supervisorId);
+		UserProxy user = null;
+		if (userId == null) {
+			// Check for the user by email.
+			if (userEmail == null) {
+				throw new IllegalArgumentException("If you don't supply a userId you must supply an email address");
+			}
+			user = proxy.findUserByEmail(userEmail);
+			if (user == null) {
+				user = proxy.newUser(userName, userEmail);
+			}
+		} else {
+			user = proxy.findUserById(userId);
+		}
+		CourseSignupDAO signupDao = dao.newSignup(user.getId(), supervisorId);
 		signupDao.setCreated(getNow());
 		signupDao.setGroup(groupDao);
 		signupDao.setStatus(Status.PENDING);
@@ -708,8 +731,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		Department department = findPracDepartment(user.getPrimaryOrgUnit());
 		if (null != department) {
 			signupDao.setDepartment(department.getPracCode());
-		} else {
-			signupDao.setDepartment(null);
 		}
 		String signupId = dao.save(signupDao);
 		
@@ -762,7 +783,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			full = true;
 		}
 		
-		Set<CourseComponentDAO> componentDaos = parseComponents(componentIds, groupDao); 
+		Set<CourseComponentDAO> componentDaos = loadComponents(componentIds, groupDao);
 		
 		// Check they are valid as a choice (in signup period (student), not for same component in same term)
 		UserProxy user = proxy.getCurrentUser();
@@ -875,12 +896,14 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 	
 	/**
-	 * Need to find all the components.
-	 * @param componentIds
-	 * @param groupDao
-	 * @return
+	 * Find all the components and check they are associated with the supplied course group.
+	 * @param componentIds The component IDs to load.
+	 * @param groupDao The course group to check they belong to.
+	 * @return The loaded components.
+	 * @throws IllegalArgumentException If there aren't any component IDs or they don't belong to the group.
+	 * @throws NotFoundException If one of the component IDs couldn't be found.
 	 */
-	private Set<CourseComponentDAO> parseComponents(Set<String> componentIds, CourseGroupDAO groupDao) {
+	private Set<CourseComponentDAO> loadComponents(Set<String> componentIds, CourseGroupDAO groupDao) {
 		if (componentIds == null) {
 			throw new IllegalArgumentException("You must specify some components to signup to.");
 		}
