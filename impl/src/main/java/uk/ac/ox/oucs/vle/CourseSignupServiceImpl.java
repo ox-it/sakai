@@ -737,7 +737,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		for (CourseComponentDAO componentDao: componentDaos) {
 			List<CourseSignupDAO> signupsToRemove = new ArrayList<CourseSignupDAO>();
 			for(CourseSignupDAO componentSignupDao: componentDao.getSignups()) {
-				if (componentSignupDao.getUserId().equals(userId)) {
+				if (componentSignupDao.getUserId().equals(user.getId())) {
 					signupsToRemove.add(componentSignupDao);
 				}
 			}
