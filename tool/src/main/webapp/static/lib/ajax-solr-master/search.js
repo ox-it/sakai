@@ -203,7 +203,7 @@ var Manager;
         id: "show_new",
         target: "#show_new",
         field: "course_created",
-        label: "Recent Added Courses"
+        label: "Recently Added Courses"
     }));
 
     Manager.setStore(new AjaxSolr.ParameterExtraStore({
