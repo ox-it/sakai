@@ -151,6 +151,9 @@ public class PopulatorInstanceData {
 	public void setLastGroup(String lastGroup) {
 		this.lastGroup = lastGroup;
 	}
-	
+
+	public CategoryMapper getMapper() {
+		return this.mapper;
+	}
 
 }

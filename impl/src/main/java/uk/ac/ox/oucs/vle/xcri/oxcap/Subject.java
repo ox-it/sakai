@@ -140,6 +140,11 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 		public String getValue() {
 			return this.value;
 		}
+
+		@Override
+		public String toString() {
+			return name()+ "("+ value+ ")";
+		}
 	}
 
 	public enum RMSubjectIdentifier implements SubjectIdentifier {
@@ -154,6 +159,11 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 
 		public String getValue() {
 			return this.value;
+		}
+
+		@Override
+		public String toString() {
+			return name()+ "("+ value+ ")";
 		}
 	}
 
@@ -186,6 +196,11 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 
 		public String getValue() {
 			return this.value;
+		}
+
+		@Override
+		public String toString() {
+			return name()+ "("+ value+ ")";
 		}
 	}
 

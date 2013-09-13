@@ -27,6 +27,8 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.Placement;
 
+import java.util.Properties;
+
 public interface SakaiProxy {
 
 	/**
@@ -124,6 +126,13 @@ public interface SakaiProxy {
 	public void writeLog(String contentId, String contentDisplayName, byte[] bytes);
 	
 	public void prependLog(String contentId, String contentDisplayName, byte[] bytes);
-	
+
+	/**
+	 * This gets a properties object that reflects the current mapping of additional course
+	 * categories.
+	 * @return A properties object.
+	 */
+	public Properties getCategoryMapping();
+
 
 }

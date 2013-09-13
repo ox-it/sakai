@@ -23,11 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -185,6 +181,35 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 
 	/**
+	 * Attempts to create a category mapper using config from the SakaiProxy, or
+	 * if that one isn't found config from the classpath. If no mappings can be found anywhere
+	 * it still returns a mapper, but that mapper doesn't alter anything.
+	 *
+	 * @return A CategoryMapper and never <code>null</code>.
+	 */
+	private CategoryMapper getCategoryMapper() {
+		CategoryMapper mapper = new CategoryMapper();
+		Properties props = proxy.getCategoryMapping();
+		if (props == null) {
+			// fallback to classpath.
+			String classpathResource =
+					proxy.getConfigParam("course-signup.default-category-mapping", "/default-category-mapping.properties");
+			props = new Properties();
+			try {
+				props.load(getClass().getResourceAsStream(classpathResource));
+			} catch (IOException e) {
+				log.error("Failed to load default category mapping from classpath using: "+ classpathResource+
+						" No mapping of categories will be done", e);
+			}
+		}
+		if (props != null) {
+			mapper.setMappings(props);
+		}
+
+		return mapper;
+	}
+
+	/**
 	 * 
 	 * @param inputStream
 	 * @throws IOException 
@@ -198,8 +223,14 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		SAXBuilder builder = new SAXBuilder();
 		Document document = builder.build(inputStream);
 		catalog.fromXml(document);
+
+		// Here we setup our category mapper, we don't have this as a singleton managed by spring because
+		// the content hosting service isn't up when spring does init() on a singleton.
+		// We could have followed that route and done lazy loading, but then you still need to manage
+		// reload when someone changes the file. This way it's loaded for every import.
+		CategoryMapper mapper = getCategoryMapper();
 			
-		PopulatorInstanceData data = new PopulatorInstanceData();
+		PopulatorInstanceData data = new PopulatorInstanceData(mapper);
 		
 		if (null != context.getDeletedLogWriter()) {
 			context.getDeletedLogWriter().heading(catalog.getGenerated());
@@ -457,7 +488,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		}
 
 		// Map existing course categories onto vitae course categories.
-
+		data.getMapper().mapCategories(categories);
 
 		myCourse.setAdministrators(administrators);
 		myCourse.setOtherDepartments(otherDepartments);
