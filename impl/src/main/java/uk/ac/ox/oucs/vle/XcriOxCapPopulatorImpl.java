@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -390,9 +389,13 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		myCourse.setDescription(filterDescriptiveTextTypeArray(course.getDescriptions(), null));
 		myCourse.setPrerequisite(filterDescriptiveTextTypeArray(course.getDescriptions(), TARGET_AUDIENCE));
 		myCourse.setRegulations(filterDescriptiveTextTypeArray(course.getRegulations(), null));
-		
+
+		// These normally come from the imported data.
 		Set<Subject.SubjectIdentifier> researchCategories = new HashSet<Subject.SubjectIdentifier>();
 		Set<Subject.SubjectIdentifier> skillsCategories = new HashSet<Subject.SubjectIdentifier>();
+		// These are normally calculated.
+		Set<Subject.SubjectIdentifier> vitaeCategories = new HashSet<Subject.SubjectIdentifier>();
+
 
 		String teachingComponentId = null;
 		Set<String> administrators = new HashSet<String>();
@@ -455,6 +458,10 @@ public class XcriOxCapPopulatorImpl implements Populator {
 					if (subject.isRMCategory()) {
 						researchCategories.add(subjectIdentifier);
 					}
+					// This shouldn't ever get hit.
+					if (subject.isVITAECategory()) {
+						vitaeCategories.add(subjectIdentifier);
+					}
 				} else {
 					// TODO Log that we're ignoring it.
 				}
@@ -495,16 +502,22 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		
 		for (Subject.SubjectIdentifier subjectIdentifier : researchCategories) {
 			updateCategory(context, new CourseCategoryDAO(
-					CourseGroup.Category_Type.RM, subjectIdentifier.name(), subjectIdentifier.getValue()),
+					CourseGroup.CategoryType.RM, subjectIdentifier.name(), subjectIdentifier.getValue()),
 					myCourse.getCourseId());
 		}
-		
+
 		for (Subject.SubjectIdentifier subjectIdentifier : skillsCategories) {
 			updateCategory(context, new CourseCategoryDAO(
-					CourseGroup.Category_Type.RDF, subjectIdentifier.name(), subjectIdentifier.getValue()),
+					CourseGroup.CategoryType.RDF, subjectIdentifier.name(), subjectIdentifier.getValue()),
 					myCourse.getCourseId());
 		}
-		
+
+		for (Subject.SubjectIdentifier subjectIdentifier : researchCategories) {
+			updateCategory(context, new CourseCategoryDAO(
+					CourseGroup.CategoryType.VITAE, subjectIdentifier.name(), subjectIdentifier.getValue()),
+					myCourse.getCourseId());
+		}
+
 		/**
 		 * Update the search engine
 		 */

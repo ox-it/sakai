@@ -588,19 +588,19 @@ public class CourseResource {
 				gen.writeEndArray();
 				
 				gen.writeArrayFieldStart("categories_rdf");
-				for (CourseCategory category : courseGroup.getCategories(CourseGroup.Category_Type.RDF)) {
+				for (CourseCategory category : courseGroup.getCategories(CourseGroup.CategoryType.RDF)) {
 					gen.writeObject(category.getName());
 				}
 				gen.writeEndArray();
 				
 				gen.writeArrayFieldStart("categories_jacs");
-				for (CourseCategory category : courseGroup.getCategories(CourseGroup.Category_Type.JACS)) {
+				for (CourseCategory category : courseGroup.getCategories(CourseGroup.CategoryType.JACS)) {
 					gen.writeObject(category.getName());
 				}
 				gen.writeEndArray();
 				
 				gen.writeArrayFieldStart("categories_rm");
-				for (CourseCategory category : courseGroup.getCategories(CourseGroup.Category_Type.RM)) {
+				for (CourseCategory category : courseGroup.getCategories(CourseGroup.CategoryType.RM)) {
 					gen.writeObject(category.getName());
 				}
 				gen.writeEndArray();
@@ -748,19 +748,19 @@ public class CourseResource {
 			gen.writeEndArray();
 				
 			gen.writeArrayFieldStart("categories_rdf");
-			for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.RDF)) {
+			for (CourseCategory category : course.getCategories(CourseGroup.CategoryType.RDF)) {
 				gen.writeObject(category.getName());
 			}
 			gen.writeEndArray();
 				
 			gen.writeArrayFieldStart("categories_jacs");
-			for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.JACS)) {
+			for (CourseCategory category : course.getCategories(CourseGroup.CategoryType.JACS)) {
 				gen.writeObject(category.getName());
 			}
 			gen.writeEndArray();
 				
 			gen.writeArrayFieldStart("categories_rm");
-			for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.RM)) {
+			for (CourseCategory category : course.getCategories(CourseGroup.CategoryType.RM)) {
 				gen.writeObject(category.getName());
 			}
 			gen.writeEndArray();

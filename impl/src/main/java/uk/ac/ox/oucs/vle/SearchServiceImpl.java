@@ -23,9 +23,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -105,11 +102,11 @@ public class SearchServiceImpl implements SearchService {
 			// Solr as the source of all data we can still lookup details of hidden courses.
 			doc.addField("course_hidden", course.getHideGroup());
 		
-			for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.RDF)) {
+			for (CourseCategory category : course.getCategories(CourseGroup.CategoryType.RDF)) {
 				doc.addField("course_subject_rdf", category.getName());
 			}
 		
-			for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.RM)) {
+			for (CourseCategory category : course.getCategories(CourseGroup.CategoryType.RM)) {
 				doc.addField("course_subject_rm", category.getName());
 			}
 			
