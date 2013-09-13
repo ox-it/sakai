@@ -390,11 +390,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		myCourse.setPrerequisite(filterDescriptiveTextTypeArray(course.getDescriptions(), TARGET_AUDIENCE));
 		myCourse.setRegulations(filterDescriptiveTextTypeArray(course.getRegulations(), null));
 
-		// These normally come from the imported data.
-		Set<Subject.SubjectIdentifier> researchCategories = new HashSet<Subject.SubjectIdentifier>();
-		Set<Subject.SubjectIdentifier> skillsCategories = new HashSet<Subject.SubjectIdentifier>();
-		// These are normally calculated.
-		Set<Subject.SubjectIdentifier> vitaeCategories = new HashSet<Subject.SubjectIdentifier>();
+		Set<Subject.SubjectIdentifier> categories = new HashSet<Subject.SubjectIdentifier>();
 
 
 		String teachingComponentId = null;
@@ -451,24 +447,17 @@ public class XcriOxCapPopulatorImpl implements Populator {
 
 				// Check it's a in our constrained vocab
 				Subject.SubjectIdentifier subjectIdentifier = subject.getSubjectIdentifier();
-				if (subjectIdentifier != null) {
-					if (subject.isRDFCategory()) {
-						skillsCategories.add(subjectIdentifier);
-					}
-					if (subject.isRMCategory()) {
-						researchCategories.add(subjectIdentifier);
-					}
-					// This shouldn't ever get hit.
-					if (subject.isVITAECategory()) {
-						vitaeCategories.add(subjectIdentifier);
-					}
+				if (subjectIdentifier != null && subject.isValid()) {
+					categories.add(subjectIdentifier);
 				} else {
 					// TODO Log that we're ignoring it.
 				}
-
 				continue;
 			}
 		}
+
+		// Map existing course categories onto vitae course categories.
+
 
 		myCourse.setAdministrators(administrators);
 		myCourse.setOtherDepartments(otherDepartments);
@@ -499,25 +488,23 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		for (int i=0; i<presentations.length; i++) {
 			presentation(presentations[i], myCourse.getCourseId(), teachingComponentId, context, data);
 		}
-		
-		for (Subject.SubjectIdentifier subjectIdentifier : researchCategories) {
+
+		for (Subject.SubjectIdentifier subjectIdentifier : categories) {
+			CourseGroup.CategoryType type = null;
+			if (subjectIdentifier instanceof Subject.RMSubjectIdentifier) {
+				type = CourseGroup.CategoryType.RM;
+			} else if (subjectIdentifier instanceof  Subject.VITAESubjectIdentifier) {
+				type = CourseGroup.CategoryType.VITAE;
+			} else if (subjectIdentifier instanceof  Subject.RDFSubjectIdentifier) {
+				type = CourseGroup.CategoryType.RDF;
+			} else {
+				log.warn("Unknown subject identifier "+ subjectIdentifier);
+				continue;
+			}
 			updateCategory(context, new CourseCategoryDAO(
-					CourseGroup.CategoryType.RM, subjectIdentifier.name(), subjectIdentifier.getValue()),
+					type, subjectIdentifier.name(), subjectIdentifier.getValue()),
 					myCourse.getCourseId());
 		}
-
-		for (Subject.SubjectIdentifier subjectIdentifier : skillsCategories) {
-			updateCategory(context, new CourseCategoryDAO(
-					CourseGroup.CategoryType.RDF, subjectIdentifier.name(), subjectIdentifier.getValue()),
-					myCourse.getCourseId());
-		}
-
-		for (Subject.SubjectIdentifier subjectIdentifier : researchCategories) {
-			updateCategory(context, new CourseCategoryDAO(
-					CourseGroup.CategoryType.VITAE, subjectIdentifier.name(), subjectIdentifier.getValue()),
-					myCourse.getCourseId());
-		}
-
 		/**
 		 * Update the search engine
 		 */
