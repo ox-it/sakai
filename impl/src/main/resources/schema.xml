@@ -53,6 +53,12 @@
 		<!-- List of research methods subjects -->
 		<field name="course_subject_rm" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
+		<!-- List of Vitae Domains -->
+		<field name="course_subject_vitae_domain" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+		<!-- List of Vitae Sub Domains -->
+		<field name="course_subject_vitae_subdomain" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
 		<!-- Course Class Facet, Undergraduate Option, Graduate Training or Postgraduate Option-->
 		<field name="course_class" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 		
