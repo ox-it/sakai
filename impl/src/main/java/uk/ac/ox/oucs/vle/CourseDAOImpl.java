@@ -167,7 +167,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			public Object doInHibernate(Session session) throws HibernateException,
 					SQLException {
 				
-				Date startLastYear = getPreviousYearBeginning(LocalDate.now()).toDate();
+				Date startLastYear = getPreviousYearBeginning(LocalDate.fromDateFields(now)).toDate();
 				StringBuffer querySQL = new StringBuffer();
 				querySQL.append("SELECT DISTINCT cg.* ");
 				querySQL.append("FROM course_group cg ");
@@ -186,10 +186,10 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				
 				switch (range) { 
 					case UPCOMING:
-						querySQL.append("((cc.baseDate is null AND cc.startsText is not null) OR cc.baseDate > now()) AND ");
+						querySQL.append("((cc.baseDate is null AND cc.startsText is not null) OR cc.baseDate > :now) AND ");
 						break;
 					case PREVIOUS:
-						querySQL.append("((cc.baseDate is null AND cc.startsText is null) OR (cc.baseDate <= now() AND cc.baseDate >= :lastYear)) AND ");
+						querySQL.append("((cc.baseDate is null AND cc.startsText is null) OR (cc.baseDate <= :now AND cc.baseDate >= :lastYear)) AND ");
 						break;
 				}
 				
@@ -199,6 +199,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				
 				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
 				query.setString("deptId", deptId);
+				query.setDate("now", now);
 				if (range.equals(range.PREVIOUS)) {
 					query.setDate("lastYear", startLastYear);
 				}
