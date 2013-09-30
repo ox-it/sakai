@@ -25,8 +25,9 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
-public class CourseDAOTests extends AbstractTransactionalSpringContextTests {
+public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 
 	private CourseDAOImpl courseDao;
 	private SessionFactory sessionFactory;
@@ -341,5 +342,87 @@ public class CourseDAOTests extends AbstractTransactionalSpringContextTests {
 		assertEquals(1, courseComponent.getComponentSessions().size());
 
 	}
-	
+
+	private final Date END_MIC_2010 = createDate(2010, 12, 4);
+
+	public void testAvailableCourses() {
+		// Create the course group
+		CourseGroupDAO group1 = courseDao.newCourseGroup("course-1", "title", "dept", "subunit");
+		courseDao.save(group1);
+		// Create the course component
+		CourseComponentDAO comp1 = courseDao.newCourseComponent("comp1");
+		comp1.setCloses(createDate(2012, 12, 4)); // END_MIC_2012
+		comp1.getGroups().add(group1);
+		courseDao.save(comp1);
+		// Create the course component
+		CourseComponentDAO comp2 = courseDao.newCourseComponent("comp2");
+		comp2.setCloses(createDate(2011, 12, 4)); // END_MIC_2011
+		comp2.getGroups().add(group1);
+		courseDao.save(comp2);
+		// Create the out of range course component
+		CourseComponentDAO comp3 = courseDao.newCourseComponent("comp3");
+		comp3.setCloses(createDate(2009, 12, 4)); // END_MIC_2009
+		comp3.getGroups().add(group1);
+		courseDao.save(comp3);
+
+		sessionFactory.getCurrentSession().flush();
+		sessionFactory.getCurrentSession().clear();
+
+		CourseGroupDAO course = courseDao.findUpcomingComponents("course-1", END_MIC_2010);
+		assertNotNull(course);
+		assertNotNull(course.getComponents());
+		// Although we have 3 components in the DB because we preloaded based on the close date this gives
+		// us just 2.
+		assertEquals(2, course.getComponents().size());
+	}
+
+	public void testCoursesInDept() {
+		CourseGroupDAO wrongDept = courseDao.newCourseGroup("wrong-dept", "Wrong Department", "4B03", null);
+		wrongDept.setVisibility("PB");
+		courseDao.save(wrongDept);
+		CourseComponentDAO wrongDeptComp = courseDao.newCourseComponent("wrong-dept-comp");
+		wrongDeptComp.setBaseDate(createDate(2012, 12, 4));
+		wrongDeptComp.getGroups().add(wrongDept);
+		courseDao.save(wrongDeptComp);
+
+		CourseGroupDAO tooOld = courseDao.newCourseGroup("too-old", "Too Old", "3C05", null);
+		tooOld.setVisibility("PB");
+		courseDao.save(tooOld);
+		CourseComponentDAO tooOldComp = courseDao.newCourseComponent("too-old-comp");
+		tooOldComp.setBaseDate(createDate(2009, 1, 1));
+		tooOldComp.getGroups().add(tooOld);
+		courseDao.save(tooOldComp);
+
+		CourseGroupDAO justRight = courseDao.newCourseGroup("just-right", "Just Right", "3C05", null);
+		justRight.setVisibility("PB");
+		courseDao.save(justRight);
+		CourseComponentDAO justRightComp = courseDao.newCourseComponent("just-right-comp");
+		justRightComp.setBaseDate(createDate(2011, 12, 2));
+		justRightComp.getGroups().add(justRight);
+		courseDao.save(justRightComp);
+
+		sessionFactory.getCurrentSession().flush();
+		sessionFactory.getCurrentSession().clear();
+
+		List<CourseGroupDAO> groups = courseDao.findCourseGroupByDept("3C05", CourseSignupService.Range.UPCOMING, END_MIC_2010, false);
+		assertEquals(1, groups.size());
+	}
+
+//	public void testAdminCourseGroups() {
+//		List<CourseGroupDAO> groups = courseDao.findAdminCourseGroups("d86d9720-eba4-40eb-bda3-91b3145729da");
+//		assertEquals(3, groups.size());
+//		groups = courseDao.findAdminCourseGroups("c10cdf4b-7c10-423c-8319-2d477051a94e");
+//		assertEquals(1, groups.size());
+//	}
+//
+//	public void testFindSignupByCourse() {
+//		List<CourseSignupDAO> signups = courseDao.findSignupByCourse("d86d9720-eba4-40eb-bda3-91b3145729da", "course-1", null);
+//		assertEquals(1,signups.size());
+//	}
+
+	private static Date createDate(int year, int month, int day) {
+		Calendar cal = Calendar.getInstance();
+		cal.set(year, month, day);
+		return new Date(cal.getTimeInMillis());
+	}
 }
