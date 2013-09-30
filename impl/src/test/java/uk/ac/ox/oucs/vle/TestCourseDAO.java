@@ -37,10 +37,10 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		courseDao = (CourseDAOImpl) getApplicationContext().getBean("uk.ac.ox.oucs.vle.CourseDAO");
 		sessionFactory = (SessionFactory) getApplicationContext().getBean("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory");
 	}
-	
+
 	public void onTearDown() throws Exception {
 		super.onTearDown();
-	} 
+	}
 
 
 	protected String[] getConfigPaths() {
@@ -52,7 +52,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 	 * This checks that when you delete a component without a signup only that component gets deleted.
 	 * This came about through WL-2645.
 	 */
-	
+
 	public void testDeletingComponent() {
 		// Create a dummp group and add the component.
 		CourseGroupDAO newCourseGroup = courseDao.newCourseGroup("id", "Title", "Department", "Subunit");
@@ -81,9 +81,9 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		// Now attempt to delete the second component.
 		courseDao.deleteSelectedCourseComponents("source");
 	}
-	
+
 	public void testSharedComponent() {
-		
+
 		// First course group.
 		CourseGroupDAO newCourseGroup1 = courseDao.newCourseGroup("id1", "Title", "Department", "Subunit");
 		newCourseGroup1.setSource("source");
@@ -93,32 +93,32 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		CourseGroupDAO newCourseGroup2 = courseDao.newCourseGroup("id2", "Title", "Department", "Subunit");
 		newCourseGroup2.setSource("source");
 		courseDao.save(newCourseGroup2);
-		
+
 		// Create a component.
 		CourseComponentDAO newCourseComponent = courseDao.newCourseComponent("test");
 		newCourseComponent.setSource("source");
 		newCourseComponent.getGroups().add(newCourseGroup1);
 		newCourseComponent.getGroups().add(newCourseGroup2);
-		courseDao.save(newCourseComponent);	
-		
+		courseDao.save(newCourseComponent);
+
 		sessionFactory.getCurrentSession().flush();
 		sessionFactory.getCurrentSession().clear();
 
 		// Check the groups both have the component
 		CourseGroupDAO daoA = courseDao.findCourseGroupById("id1");
 		assertEquals(1, daoA.getComponents().size());
-		
+
 		CourseGroupDAO daoB = courseDao.findCourseGroupById("id2");
 		assertEquals(1, daoB.getComponents().size());
-		
+
 		// Check the components both have groups
 		CourseComponentDAO daoC = courseDao.findCourseComponent("test");
 		assertEquals(2, daoC.getGroups().size());
 	}
-	
-	
+
+
 	public void testSharedComponentDeleteGroup() {
-		
+
 		// First course group.
 		CourseGroupDAO newCourseGroup1 = courseDao.newCourseGroup("id1", "Title", "Department", "Subunit");
 		newCourseGroup1.setSource("source");
@@ -129,46 +129,46 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		newCourseGroup2.setSource("source");
 		newCourseGroup2.setDeleted(true);
 		courseDao.save(newCourseGroup2);
-		
+
 		// Create a component.
 		CourseComponentDAO newCourseComponent = courseDao.newCourseComponent("test");
 		newCourseComponent.setSource("source");
 		newCourseComponent.getGroups().add(newCourseGroup1);
 		newCourseComponent.getGroups().add(newCourseGroup2);
-		courseDao.save(newCourseComponent);	
-		
+		courseDao.save(newCourseComponent);
+
 		sessionFactory.getCurrentSession().flush();
 		sessionFactory.getCurrentSession().clear();
 
 		// Check the groups both have the component
 		CourseGroupDAO daoA = courseDao.findCourseGroupById("id1");
 		assertEquals(1, daoA.getComponents().size());
-		
+
 		CourseGroupDAO daoB = courseDao.findCourseGroupById("id2");
 		assertEquals(1, daoB.getComponents().size());
-		
+
 		// Check the components both have groups
 		CourseComponentDAO daoC = courseDao.findCourseComponent("test");
 		assertEquals(2, daoC.getGroups().size());
-		
+
 		// Now test deletion
 		courseDao.deleteSelectedCourseGroups("source");
 		sessionFactory.getCurrentSession().flush();
 		sessionFactory.getCurrentSession().clear();
-			
+
 		daoA = courseDao.findCourseGroupById("id1");
 		assertNotNull(daoA);
 		assertEquals(1, daoA.getComponents().size());
-				
+
 		daoB = courseDao.findCourseGroupById("id2");
 		assertNull(daoB);
-		
+
 		daoC = courseDao.findCourseComponent("test");
 		assertEquals(1, daoC.getGroups().size());
 	}
-	
+
 	public void testSharedComponentDeleteComponent() {
-		
+
 		// First course group.
 		CourseGroupDAO newCourseGroup1 = courseDao.newCourseGroup("id1", "Title", "Department", "Subunit");
 		newCourseGroup1.setSource("source");
@@ -178,62 +178,62 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		CourseGroupDAO newCourseGroup2 = courseDao.newCourseGroup("id2", "Title", "Department", "Subunit");
 		newCourseGroup2.setSource("source");
 		courseDao.save(newCourseGroup2);
-		
+
 		// Create a component.
 		CourseComponentDAO newCourseComponent1 = courseDao.newCourseComponent("test1");
 		newCourseComponent1.setSource("source");
 		newCourseComponent1.getGroups().add(newCourseGroup1);
 		newCourseComponent1.getGroups().add(newCourseGroup2);
-		courseDao.save(newCourseComponent1);	
-		
+		courseDao.save(newCourseComponent1);
+
 		// and another
 		CourseComponentDAO newCourseComponent2 = courseDao.newCourseComponent("test2");
 		newCourseComponent2.setSource("source");
 		newCourseComponent2.setDeleted(true);
 		newCourseComponent2.getGroups().add(newCourseGroup1);
 		newCourseComponent2.getGroups().add(newCourseGroup2);
-		courseDao.save(newCourseComponent2);	
-		
+		courseDao.save(newCourseComponent2);
+
 		sessionFactory.getCurrentSession().flush();
 		sessionFactory.getCurrentSession().clear();
 
 		// Check the groups both have the component
 		CourseGroupDAO daoA = courseDao.findCourseGroupById("id1");
 		assertEquals(2, daoA.getComponents().size());
-		
+
 		CourseGroupDAO daoB = courseDao.findCourseGroupById("id2");
 		assertEquals(2, daoB.getComponents().size());
-		
+
 		// Check the components both have groups
 		CourseComponentDAO daoC = courseDao.findCourseComponent("test1");
 		assertEquals(2, daoC.getGroups().size());
-		
+
 		CourseComponentDAO daoD = courseDao.findCourseComponent("test2");
 		assertEquals(2, daoD.getGroups().size());
-		
+
 		// Now test deletion
 		courseDao.deleteSelectedCourseComponents("source");
 		sessionFactory.getCurrentSession().flush();
 		sessionFactory.getCurrentSession().clear();
-			
+
 		daoA = courseDao.findCourseGroupById("id1");
 		assertNotNull(daoA);
 		assertEquals(1, daoA.getComponents().size());
-				
+
 		daoB = courseDao.findCourseGroupById("id2");
 		assertNotNull(daoB);
 		assertEquals(1, daoB.getComponents().size());
-		
+
 		daoC = courseDao.findCourseComponent("test1");
 		assertNotNull(daoC);
 		assertEquals(2, daoC.getGroups().size());
-		
+
 		daoD = courseDao.findCourseComponent("test2");
 		assertNull(daoD);
 	}
-	
+
 	public void testCourseCategory() {
-		
+
 		CourseCategoryDAO cat1 = new CourseCategoryDAO(CourseGroup.Category_Type.RM, "C1", "Category 1");
 		CourseCategoryDAO cat2 = new CourseCategoryDAO(CourseGroup.Category_Type.RM, "C2", "Category 2");
 		CourseCategoryDAO cat3 = new CourseCategoryDAO(CourseGroup.Category_Type.RM, "C3", "Category 3");
@@ -264,19 +264,19 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 
 		sessionFactory.getCurrentSession().flush();
 		sessionFactory.getCurrentSession().clear();
-		
+
 		// Check all is as it should be
 		CourseGroupDAO daoA = courseDao.findCourseGroupById("id1");
 		assertEquals(2, daoA.getCategories().size());
-		
+
 		CourseGroupDAO daoB = courseDao.findCourseGroupById("id2");
 		assertEquals(3, daoB.getCategories().size());
-		
+
 		// now delete a group
 		courseDao.deleteSelectedCourseGroups("source");
 		sessionFactory.getCurrentSession().flush();
 		sessionFactory.getCurrentSession().clear();
-		
+
 		// and the checks
 		CourseGroupDAO gA = courseDao.findCourseGroupById("id1");
 		assertEquals(2, gA.getCategories().size());
@@ -287,14 +287,14 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 	}
 
 	public void testCourseComponentSession() {
-	
+
 		SimpleDateFormat format = new SimpleDateFormat("EEEE dd MMMM yyyy, HH:mm:ss");
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.HOUR_OF_DAY, 10);
 		Date start = cal.getTime();
 		cal.add(Calendar.HOUR_OF_DAY, 2);
 		Date end = cal.getTime();
-		
+
 		CourseComponentSessionDAO ss1 = new CourseComponentSessionDAO("1",
 				start, format.format(start),
 				end, format.format(end));
@@ -304,39 +304,39 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		CourseComponentSessionDAO ss3 = new CourseComponentSessionDAO("3",
 				start, format.format(start),
 				end, format.format(end));
-	
+
 		// Create a component.
 		CourseComponentDAO courseComponent = courseDao.newCourseComponent("test");
 		courseComponent.setSource("source");
 		courseComponent.getComponentSessions().add(ss1);
-		courseDao.save(courseComponent);	
-	
+		courseDao.save(courseComponent);
+
 		sessionFactory.getCurrentSession().flush();
 		sessionFactory.getCurrentSession().clear();
-	
+
 		// Check all is as it should be
 		courseComponent  = courseDao.findCourseComponent("test");
 		assertEquals(1, courseComponent.getComponentSessions().size());
-	
+
 		// now add a session
 		courseComponent.getComponentSessions().add(ss2);
 		courseDao.save(courseComponent);
-		
+
 		sessionFactory.getCurrentSession().flush();
 		sessionFactory.getCurrentSession().clear();
-	
+
 		// and check
 		courseComponent  = courseDao.findCourseComponent("test");
 		assertEquals(2, courseComponent.getComponentSessions().size());
-		
+
 		// change the sessions
 		courseComponent.getComponentSessions().clear();
 		courseComponent.getComponentSessions().add(ss3);
 		courseDao.save(courseComponent);
-		
+
 		sessionFactory.getCurrentSession().flush();
 		sessionFactory.getCurrentSession().clear();
-	
+
 		// and check
 		courseComponent  = courseDao.findCourseComponent("test");
 		assertEquals(1, courseComponent.getComponentSessions().size());

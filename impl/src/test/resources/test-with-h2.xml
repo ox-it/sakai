@@ -26,13 +26,13 @@
 
 	<!-- H2 in-memory datasource -->
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
-		destroy-method="close">
+		  destroy-method="close">
 		<property name="driverClassName" value="org.h2.Driver" />
 		<property name="url" value="jdbc:h2:mem:" />
 	</bean>
-	
+
 	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" name="sessionFactory"
-		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		  class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />
 		<property name="mappingResources">
 			<list>
@@ -54,8 +54,8 @@
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 	-->
-	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" 
-		  name="transactionManager" 
+	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"
+		  name="transactionManager"
 		  class="org.springframework.orm.hibernate3.HibernateTransactionManager">
 		<property name="sessionFactory">
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
