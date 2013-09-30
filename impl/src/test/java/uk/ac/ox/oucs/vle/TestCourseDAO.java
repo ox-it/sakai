@@ -79,7 +79,12 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		courseDao.save(newSignup);
 
 		// Now attempt to delete the second component.
-		courseDao.deleteSelectedCourseComponents("source");
+		try {
+			courseDao.deleteSelectedCourseComponents("source");
+		} catch (RuntimeException re) {
+			// Fail the test if we get an exception.
+			throw re;
+		}
 	}
 
 	public void testSharedComponent() {
