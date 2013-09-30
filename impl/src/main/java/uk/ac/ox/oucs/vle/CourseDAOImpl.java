@@ -167,7 +167,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			public Object doInHibernate(Session session) throws HibernateException,
 					SQLException {
 				
-				Date startLastYear = getPreviousYearBeginning(LocalDate.now()).toDate();
+				Date startLastYear = getPreviousYearBeginning(LocalDate.fromDateFields(now)).toDate();
 				StringBuffer querySQL = new StringBuffer();
 				querySQL.append("SELECT DISTINCT cg.* ");
 				querySQL.append("FROM course_group cg ");
@@ -186,10 +186,10 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				
 				switch (range) { 
 					case UPCOMING:
-						querySQL.append("((cc.baseDate is null AND cc.startsText is not null) OR cc.baseDate > now()) AND ");
+						querySQL.append("((cc.baseDate is null AND cc.startsText is not null) OR cc.baseDate > :now) AND ");
 						break;
 					case PREVIOUS:
-						querySQL.append("((cc.baseDate is null AND cc.startsText is null) OR (cc.baseDate <= now() AND cc.baseDate >= :lastYear)) AND ");
+						querySQL.append("((cc.baseDate is null AND cc.startsText is null) OR (cc.baseDate <= :now AND cc.baseDate >= :lastYear)) AND ");
 						break;
 				}
 				
@@ -199,6 +199,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				
 				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
 				query.setString("deptId", deptId);
+				query.setDate("now", now);
 				if (range.equals(range.PREVIOUS)) {
 					query.setDate("lastYear", startLastYear);
 				}
@@ -903,9 +904,6 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 						component.getGroups().remove(groupDao);
 					}
 					session.delete(groupDao);
-					for (CourseCategoryDAO category : groupDao.getCategories()) {
-						groupDao.getCategories().remove(category);
-					}
 					session.delete(groupDao);
 				}
 				return groupDaos;
@@ -956,17 +954,25 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		 * We can't use a REPLACE as when the row exists it doesn't do an update it actually does a DELETE followed
 		 * by an INSERT which causes all the foreign key constraints to break and the REPLACE command to fail.
 		 *
-		 * So we just do the INSERT manually in SQL and ignore the number of rows affected.
+		 * So we just do the INSERT manually in SQL and ignore the number of rows affected. As INSERT IGNORE
+		 * isn't available on H2 we use a JOIN to do an insert if it doesn't already exist only then insert it.
+		 * http://www.xaprb.com/blog/2005/09/25/insert-if-not-exists-queries-in-mysql/
 		 *
 		 * Categories should never be updated and they are marked as such in the hbm file.
 		 */
 		getHibernateTemplate().execute(new HibernateCallback() {
 			@Override
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				Query query = session.createSQLQuery("INSERT IGNORE INTO course_category (categoryId, categoryName, categoryType) VALUES (?,?,?)");
+				Query query = session.createSQLQuery(
+						"INSERT INTO course_category (categoryId, categoryName, categoryType) "+
+						"SELECT ?, ?, ? " +
+						"FROM (SELECT 1 AS i) mutex " +
+						"    LEFT OUTER JOIN course_category ON course_category.categoryId = ? " +
+						"WHERE mutex.i = 1 AND course_category.categoryId IS NULL");
 				query.setString(0, category.getCategoryId());
 				query.setString(1, category.getCategoryName());
 				query.setString(2, category.getCategoryType());
+				query.setString(3, category.getCategoryId());
 				query.executeUpdate();
 				// This puts the value into the hibernate session.
 				findCourseCategory(category.getCategoryId());
