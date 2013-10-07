@@ -195,7 +195,8 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 		}
 
 		public String getValue() {
-			return this.value;
+			// We want the code prefixed for the VITAE skills.
+			return name()+ " "+ this.value;
 		}
 
 		@Override
