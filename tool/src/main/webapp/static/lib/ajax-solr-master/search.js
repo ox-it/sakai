@@ -145,6 +145,8 @@ var Manager;
 		.addFieldName("course_subject_rdf", "Skills Category")
 		.addFieldName("course_subject_rm", "Research Method")
 		.addFieldName("course_delivery", "Delivery Method")
+		.addFieldName("course_subject_vitae_domain", "RDF Domain")
+		.addFieldName("course_subject_vitae_subdomain", "RDF Sub-domain")
 		.addFieldName("course_created", "Age")
 
     Manager.addWidget(new AjaxSolr.ResultWidget({
@@ -162,7 +164,8 @@ var Manager;
       }
     }));
     
-    var fields = [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_delivery' ];
+    var fields = [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_delivery',
+        'course_subject_vitae_domain', 'course_subject_vitae_subdomain'];
     for (var i = 0, l = fields.length; i < l; i++) {
       Manager.addWidget(new AjaxSolr.TagcloudWidget({
         id: fields[i],
@@ -216,7 +219,8 @@ var Manager;
     var params = {
       facet: true,
       // We don't limit the size of the facets they are reasonably small and we want all the values.
-      'facet.field': [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_delivery' ],
+      'facet.field': [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_delivery',
+            'course_subject_vitae_domain', 'course_subject_vitae_subdomain'],
       'facet.sort': 'index', // Sort alphabetically
       'facet.mincount': 1,
       'facet.range' : [ 'course_created' ],

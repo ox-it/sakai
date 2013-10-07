@@ -170,6 +170,16 @@
 					<div class="facet-body" id="course_delivery"></div>
 				</div>
 
+				<h2>RDF Domain</h2>
+				<div class="facet-body-frame">
+				    <div class="facet-body" id="course_subject_vitae_domain"></div>
+				</div>
+
+				<h2>RDF Sub-domain</h2>
+				<div class="facet-body-frame">
+				    <div class="facet-body" id="course_subject_vitae_subdomain"></div>
+				</div>
+
 			</div>
 
 			<div>
