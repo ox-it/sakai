@@ -89,6 +89,7 @@
 			<li><span>Search Modules</span></li>
 			<li><span><a href="index.jsp">Browse by Department</a></span></li>
 			<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
+			<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
 			<c:if test="${!externalUser}">
 				<li><span><a href="my.jsp">My Modules</a></span></li>
 				<c:if test="${isPending}">
