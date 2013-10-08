@@ -59,7 +59,7 @@
 <div id="toolbar">
  <ul class="navIntraTool actionToolBar">
 
-  <li><span>Home</span></li>
+  <li><span><a href="home.jsp">Home</a></span></li>
   <li><span><a href="search.jsp">Search Modules</a></span></li>
   <li><span><a href="index.jsp">Browse by Department</a></span></li> 
   <li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
