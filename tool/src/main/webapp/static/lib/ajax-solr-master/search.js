@@ -208,9 +208,16 @@ var Manager;
         field: "course_created",
         label: "Recently Added Courses"
     }));
+    // Toggles the search
+    Manager.addWidget(new AjaxSolr.AbstractWidget({
+        target: "#search_wrapper",
+        afterRequest: function () {
+            $(this.target).addClass('advanced_search').removeClass('simple_search');
+        }
+    }));
 
     Manager.setStore(new AjaxSolr.ParameterExtraStore({
-        extra: "fq=course_hidden:false" // Hide hidden courses.
+         extra: "fq=course_hidden:false" // Hide hidden courses.
     }));
 
     Manager.init();
@@ -231,7 +238,13 @@ var Manager;
     for (var name in params) {
       Manager.store.addByValue(name, params[name]);
     }
-    
-    Manager.doRequest();
+
+    // Load any query parameter.
+    if (window.location.search) {
+        var search = window.location.search.substr(1); // trim leading '?'
+        Manager.store.parseString(search);
+        Manager.doRequest();
+    }
+
   });
 })(jQuery);
