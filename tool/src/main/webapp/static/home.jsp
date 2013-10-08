@@ -101,10 +101,14 @@
 		<li class="browse" >
 			<a href="index.jsp">Browse by Department</a> 
 			<span class="info">Browse for modules by division, department etc.</span>
-		</li>   
+		</li>
 		<li class="calendar" >
 			<a href="calendar.jsp">Browse by Calendar</a> 
 			<span class="info">Browse for modules by course start date.</span>
+		</li>
+		<li class="vitae" >
+			<a href="vatie.jsp">Researcher Development</a>
+			<span class="info">Search for modules by Vitae domains.</span>
 		</li>
 		<c:if test="${!externalUser}" >
 			<li class="myModules" >
