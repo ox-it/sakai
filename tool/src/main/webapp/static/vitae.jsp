@@ -101,7 +101,7 @@
  	   <area shape="poly" alt="Research management (C2)" title="Research strategy&#10;Project planning and delivery&#10;Risk management"
  	   		coords="296,1046,375,910,288,841,241,778,106,855,180,954" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22C2 Research management%22" target="" />
   	   <area shape="poly" alt="Finance, funding and resources (C3)" title="Income and funding generation&#10;Financial management&#10;Infrastructure and resources"
-  	   		coords="566,1122,566,963,455,947,385,914,306,1051,424,1102" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22C3%20Finance%2C%20funding%20and%20resources%22" target="" />
+  	   		coords="566,1122,566,963,455,947,385,914,306,1051,424,1102" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22C3%20Finance%5C%2C%20funding%20and%20resources%22" target="" />
  	   <area shape="poly" alt="Working with others (D1)" title="Collegiality&#10;Team working&#10;People management&#10;Supervision&#10;Mentoring&#10;Influence and leadership&#10;Collaboration&#10;Equality and diversity"
  	   		coords="301,104,378,239,470,200,567,185,566,31,414,55" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22D1 Working with others%22" target="" />
  	   <area shape="poly" alt="Communication and dissemination (D2)" title="Communication methods&#10;Communication media&#10;Publication"
@@ -114,8 +114,8 @@
  	   		coords="576,585,952,585,934,695,896,773,839,846,760,907,667,942,576,954" href="search.jsp?fq=course_subject_vitae_domain%3A%22B Personal effectiveness%22" target="" />
  	   <area shape="poly" alt="Domain C: Research governance and organisation" title="This domain contains the knowledge of the standards, requirements and professional conduct that are needed for the effective management of research."
  	   		coords="567,585,566,953,464,939,386,905,300,837,246,769,204,668,192,585" href="search.jsp?fq=course_subject_vitae_domain%3A%22C Research governance and organisation%22" target="" />
- 	   <area shape="poly" alt="Domain D: Engagement, influence and impact" title="This domain contains the knowledge, understanding and skills needed to engage with, influence and impact on the academic, social, cultural and economic context."
- 	   		coords="566,577,194,576,208,472,241,390,304,308,382,246,475,209,567,194" href="search.jsp?fq=course_subject_vitae_domain%3A%22D Engagement%2C influence and impact%22" target="" />
+ 	   <area shape="poly" alt="Domain D: Engagement, influence and impact" title="This domain contains the knowledge, understanding and skills needed to engage with%5C influence and impact on the academic, social, cultural and economic context."
+ 	   		coords="566,577,194,576,208,472,241,390,304,308,382,246,475,209,567,194" href="search.jsp?fq=course_subject_vitae_domain%3A%22D Engagement%5C%2C influence and impact%22" target="" />
 
  	   <area shape="poly" alt="RDF Conditions of use" title="RDF Conditions of use" coords="802,1122,875,1095,944,1050,1006,992,1054,930,1100,864,1122,815,1091,803,1059,862,1018,921,964,978,890,1042,826,1080,794,1098" href="http://www.vitae.ac.uk/RDFconditionsofuse" target="_blank" />
  	   </map>
