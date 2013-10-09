@@ -241,7 +241,5 @@
         <module>pack</module>
         <!-- This is not part of the standard build, but is useful for development setups. -->
         <!-- <module>solr</module> -->
-        <!-- This is so that the dependencies of solrj can be re-packaged -->
-        <module>solrj</module>
     </modules>
 </project>

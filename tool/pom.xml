@@ -122,12 +122,16 @@
             <artifactId>opencsv</artifactId>
             <version>2.0</version>
         </dependency>
-		<!-- This is solrj with a re-written dependency on commons-io as it needs a newer version -->
-		<dependency>
-			<groupId>uk.ac.ox.oucs.vle</groupId>
-			<artifactId>oxam-solrj</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <!-- Could be in the API, but SolrJ has quite a few dependencies.
+            So we're duplicating it in components and in the tool. The
+            other option would
+            have been to write a custom API which wraps the SolrJ API
+            but this is too much
+            work. -->
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-solrj</artifactId>
+        </dependency>
 
         <dependency>
             <!-- This is so that we get autowiring during test. -->
@@ -163,12 +167,13 @@
             <artifactId>commons-lang</artifactId>
             <scope>provided</scope>
         </dependency>
-
+        <!-- This is in shared as well, but because tomcat puts the webapp classloader before the shared classloader
+             we can specify a newer version and it should work -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <scope>provided</scope>
-            <version>1.4</version>
+            <scope>compile</scope>
+            <version>2.1</version>
         </dependency>
     </dependencies>
 
