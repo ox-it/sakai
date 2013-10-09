@@ -140,6 +140,7 @@
                             <artifactSet>
                                 <includes>
                                     <include>org.apache.solr:solr-solrj</include>
+                                    <include>commons-io:commons-io</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
