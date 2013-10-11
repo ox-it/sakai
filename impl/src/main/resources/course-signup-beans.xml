@@ -59,14 +59,15 @@
 		<property name="solrUrl">
 			<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
 				<property name="targetObject">
-					<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+					<ref bean="uk.ac.ox.oucs.vle.SakaiProxy"/>
 				</property>
 				<property name="targetMethod">
-					<value>getString</value>
+					<value>getConfigParam</value>
 				</property>
 				<property name="arguments">
 					<list>
 						<value>ses.solr.server</value>
+                        <value>http://localhost:8983/solr</value>
 					</list>
 				</property>
 			</bean>
