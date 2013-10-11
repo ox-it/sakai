@@ -19,17 +19,6 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import java.math.BigInteger;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.hibernate.*;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.MatchMode;
@@ -41,9 +30,11 @@ import org.joda.time.LocalDate;
 import org.joda.time.MonthDay;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
+
+import java.sql.SQLException;
+import java.util.*;
 
 public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
@@ -458,23 +449,22 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
-				Query query = session.createSQLQuery("select count(*) from course_signup " +
-							"left join course_component_signup on course_component_signup.signup = course_signup.id " +
-							"left join course_component on course_component.muid = course_component_signup.courseComponentMuid " +
-							"left join course_group on course_group.muid = course_signup.courseGroupMuid " +
-							"where course_group.courseId = :courseId " +
-							"and course_component.starts > NOW() " +
-							"and course_signup.status in (:statuses)");
-					
-				query.setParameterList("statuses", statuses);
+				Query query = session.createQuery("select count(signup.id) from CourseSignupDAO signup "+
+						"left join signup.components component "+
+						"left join signup.group grp "+
+						"where grp.courseId = :courseId "+
+						"and component.starts > :now "+
+						"and signup.status in (:statuses)");
 				query.setString("courseId", courseId);
+				query.setDate("now", new Date());
+				query.setParameterList("statuses", statuses);
 				List<Object> results = query.list();
 				int count = results.size();
 				if (count > 0) {
 					if (count > 1) {
 						throw new IllegalStateException("To many results ("+ results + ") found for "+ courseId );
 					}
-					return ((BigInteger)results.get(0)).intValue();
+					return ((Long)results.get(0)).intValue();
 				}
 				return null;
 			}
