@@ -37,12 +37,7 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import java.io.IOException;
-import java.util.Collections;
-
-import org.jdom.JDOMException;
-import org.xcri.exceptions.InvalidElementException;
-public class TestPopulatorWrapper extends TestOnSampleData {
+public class TestPopulatorWrapper extends OnSampleData {
 	
 	public void testFlagSelectedCourseGroups() {
 		dao.flagSelectedCourseGroups("Test");

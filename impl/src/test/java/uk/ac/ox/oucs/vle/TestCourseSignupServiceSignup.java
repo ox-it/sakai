@@ -27,7 +27,7 @@ import java.util.Set;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 
-public class TestCourseSignupServiceSignup extends TestOnSampleData {
+public class TestCourseSignupServiceSignup extends OnSampleData {
 	
 	public void testSignupGood() {
 		service.signup("course-1", Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);

@@ -24,7 +24,7 @@ import java.util.List;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
-public class TestCourseSignupServiceMySignups extends TestOnSampleData {
+public class TestCourseSignupServiceMySignups extends OnSampleData {
 
 	public void testMySignups() {
 		List<CourseSignup> signups = service.getMySignups(null);
