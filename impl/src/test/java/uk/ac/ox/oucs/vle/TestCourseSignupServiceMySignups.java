@@ -22,10 +22,12 @@ package uk.ac.ox.oucs.vle;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Test;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 public class TestCourseSignupServiceMySignups extends OnSampleData {
 
+	@Test
 	public void testMySignups() {
 		List<CourseSignup> signups = service.getMySignups(null);
 		assertNotNull(signups);
@@ -34,7 +36,8 @@ public class TestCourseSignupServiceMySignups extends OnSampleData {
 		assertEquals(Status.ACCEPTED, accepted.getStatus());
 		assertEquals(2, accepted.getComponents().size());
 	}
-	
+
+	@Test
 	public void testMySignupsStatuses() {
 		assertEquals(0, service.getMySignups(Collections.singleton(Status.PENDING)).size());
 		assertEquals(0, service.getMySignups(Collections.singleton(Status.WITHDRAWN)).size());
