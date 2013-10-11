@@ -194,9 +194,8 @@ public class SakaiProxyTest implements SakaiProxy {
 				resource+ " type "+ eventType);
 	}
 
-	public Placement getPlacement(String placementId) {
-		// TODO Auto-generated method stub
-		return null;
+	public String getCurrentPlacementId(){
+		return "placement-id";
 	}
 
 	public Integer getConfigParam(String param, int dflt) {

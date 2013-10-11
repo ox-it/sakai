@@ -66,7 +66,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void approve(String signupId) {
-		approve(signupId, false, proxy.getPlacement(null).getId());
+		approve(signupId, false, proxy.getCurrentPlacementId());
 	}
 	
 	public void approve(String signupId, boolean skipAuth, String placementId) {
@@ -130,7 +130,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void accept(String signupId) {
-		accept(signupId, false, proxy.getPlacement(null).getId());
+		accept(signupId, false, proxy.getCurrentPlacementId());
 	}
 	
 	public void accept(String signupId, boolean skipAuth, String placementId) {
@@ -210,7 +210,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void confirm(String signupId) {
-		confirm(signupId, false, proxy.getPlacement(null).getId());
+		confirm(signupId, false, proxy.getCurrentPlacementId());
 	}
 	public void confirm(String signupId, boolean skipAuth, String placementId) {
 		
@@ -261,7 +261,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void waiting(String signupId) {
-		waiting(signupId, false, proxy.getPlacement(null).getId());
+		waiting(signupId, false, proxy.getCurrentPlacementId());
 	}
 	
 	public void waiting(String signupId, boolean skipAuth, String placementId) {
@@ -584,7 +584,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void reject(String signupId) {
-		reject(signupId, false, proxy.getPlacement(null).getId());
+		reject(signupId, false, proxy.getCurrentPlacementId());
 	}
 	public void reject(String signupId, boolean skipAuth, String placementId) {
 		
@@ -860,7 +860,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		proxy.logEvent(groupDao.getCourseId(), EVENT_SIGNUP, null);
 		
-		String placementId = proxy.getPlacement(null).getId();
+		String placementId = proxy.getCurrentPlacementId();
 		String url = proxy.getConfirmUrl(signupId);
 		
 		if (full) {
@@ -1116,7 +1116,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					"withdraw.admin.subject", 
 					"withdraw.admin.body", 
 					new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getAdminUrl()});
-				savePlacement(administrator, proxy.getPlacement(null).getId());
+				savePlacement(administrator, proxy.getCurrentPlacementId());
 			}
 		}
 		sendStudentSignupEmail(signupDao, 

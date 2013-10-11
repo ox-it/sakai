@@ -278,14 +278,17 @@ public class SakaiProxyImpl implements SakaiProxy {
 		eventService.post(event);
 	}
 
+	public String getCurrentPlacementId() {
+		return getPlacement(null).getId();
+	}
+
 	/**
 	 * Just get the current placement.
 	 * @return The current placement.
 	 * @throws RuntimeException If there isn't a current placement, this happens
 	 * when a request comes through that isn't processed by the portal.
 	 */
-
-	public Placement getPlacement(String placementId) {
+	private Placement getPlacement(String placementId) {
 		Placement placement = null;
 		if (null == placementId) {
 			placement = toolManager.getCurrentPlacement();
@@ -423,6 +426,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private String getUrl(String toolState) {
 		return getUrl(toolState, null);
 	}
+
 	private String getUrl(String toolState, String placementId) {
 		Placement currentPlacement = getPlacement(placementId);
 		//String siteId = currentPlacement.getContext();
@@ -527,19 +531,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		
 	}
-	
-	/**
-	 * 
-	 * @param contentId
-	 * @param contentDisplayName
-	 * @param bytes
-	 * @throws VirusFoundException
-	 * @throws OverQuotaException
-	 * @throws ServerOverloadException
-	 * @throws PermissionException
-	 * @throws TypeException
-	 * @throws InUseException
-	 */
+
 	public void prependLog(String contentId, String contentDisplayName, byte[] logBytes) {
 		
 		switchUser();

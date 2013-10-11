@@ -72,8 +72,13 @@ public interface SakaiProxy {
 	 * @param body The body of the email.
 	 */
 	public void sendEmail(String to, String subject, String body);
-	
-	public Placement getPlacement(String placementId);
+
+	/**
+	 * Gets the current location in the system. This can then be used
+	 * when building URLs.
+	 * @return An ID to the current location in the system.
+	 */
+	public String getCurrentPlacementId();
 	
 	/**
 	 * Get a URL that a user can click on to go to approve/reject a signup.
