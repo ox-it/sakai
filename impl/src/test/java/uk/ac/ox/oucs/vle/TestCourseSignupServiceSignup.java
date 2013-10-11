@@ -114,10 +114,9 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 
 	@Test
 	public void testSignupFull() {
-		try {
-			service.signup("course-1", Collections.singleton("comp-8"), "test.user.1@dept.ox.ac.uk", null);
-			fail("Should throw exception");
-		} catch (IllegalStateException ise) {}
+		service.signup("course-1", Collections.singleton("comp-8"), "test.user.1@dept.ox.ac.uk", null);
+		List<CourseSignup> signups = service.getMySignups(Collections.singleton(Status.WAITING));
+		assertEquals(1, signups.size());
 	}
 
 	@Test

@@ -58,6 +58,8 @@ public class SampleDataLoader {
 		// Create the course groups and set administrators.
 		CourseGroupDAO course1 = dao.newCourseGroup("course-1", "3C05", "The Politics of Brazil", null);
 		course1.setAdministrators(Collections.singleton("admin"));
+		course1.setAdministratorApproval(true);
+		course1.setSupervisorApproval(true);
 		dao.save(course1);
 		CourseGroupDAO course2 = dao.newCourseGroup("course-2", "3C05", "The Politics of Mexico", null);
 		course2.setAdministrators(Collections.singleton("admin"));
