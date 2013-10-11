@@ -24,22 +24,26 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Test;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 
 public class TestCourseSignupServiceSignup extends OnSampleData {
-	
+
+	@Test
 	public void testSignupGood() {
 		service.signup("course-1", Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);
 	}
-	
+
+	@Test
 	public void testSignupGoodSet() {
 		Set<String> componentIds = new HashSet<String>();
 		componentIds.add("comp-1");
 		componentIds.add("comp-3");
 		service.signup("course-1", componentIds, "test.user.1@dept.ox.ac.uk", null);
 	}
-	
+
+	@Test
 	public void testSignupMultiple() {
 		// TODO This affects all further tests.
 		for (int i = 1; i<=15; i++) {
@@ -48,6 +52,7 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 		}
 	}
 
+	@Test
 	public void testSignupSignupSingle() {
 		service.signup("course-1", Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);
 		dao.flush();
@@ -61,7 +66,8 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 		signups = service.getMySignups(Collections.singleton(Status.PENDING));
 		assertEquals("test.user.1@dept.ox.ac.uk", signups.get(0).getSupervisor().getEmail());
 	}
-	
+
+	@Test
 	public void testSignupWithdrawSignupSingle() {
 		service.signup("course-1", Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);
 		dao.flush();
@@ -74,11 +80,13 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 		signups = service.getMySignups(Collections.singleton(Status.PENDING));
 		assertEquals("test.user.2@dept.ox.ac.uk", signups.get(0).getSupervisor().getEmail());
 	}
-	
+
+	@Test
 	public void testSignupWithdrawSignupMultiple() {
 		
 	}
-	
+
+	@Test
 	public void testSignupFuture() {
 		try{
 			// Isn't open yet.
@@ -86,7 +94,8 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 			fail("Should throw exception");
 		} catch (IllegalStateException ise) {}
 	}
-	
+
+	@Test
 	public void testSignupPast() {
 		try {
 			// Is now closed.
@@ -94,7 +103,8 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 			fail("Should throw exception");
 		} catch (IllegalStateException ise) {}
 	}
-	
+
+	@Test
 	public void testSignupBadUser() {
 		try {
 			service.signup("course-1", Collections.singleton("comp-1"), "nosuchuser@ox.ac.uk", null);
@@ -102,13 +112,15 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 		} catch (IllegalArgumentException iae) {}
 	}
 
+	@Test
 	public void testSignupFull() {
 		try {
 			service.signup("course-1", Collections.singleton("comp-8"), "test.user.1@dept.ox.ac.uk", null);
 			fail("Should throw exception");
 		} catch (IllegalStateException ise) {}
 	}
-	
+
+	@Test
 	public void testSignupWrongCourse() {
 		try {
 			service.signup("course-3", Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);

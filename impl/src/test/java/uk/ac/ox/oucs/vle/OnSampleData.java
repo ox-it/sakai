@@ -22,12 +22,17 @@ package uk.ac.ox.oucs.vle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.internal.runners.TestClassRunner;
+import org.junit.runner.RunWith;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 import uk.ac.ox.oucs.vle.proxy.SakaiProxyTest;
 
 import java.util.*;
 
+@RunWith(TestClassRunner.class)
 public abstract class OnSampleData extends AbstractTransactionalSpringContextTests {
 
 	private static final Log log = LogFactory.getLog(OnSampleData.class);
@@ -38,9 +43,17 @@ public abstract class OnSampleData extends AbstractTransactionalSpringContextTes
 	protected CourseDAOImpl dao;
 	protected SettableNowService now;
 
-	@Override
-	public void onSetUp() {
+
+	// pass through to the junit 3 calls, which are not annotated
+	@Before
+	final public void callSetup() throws Exception {
+		super.setUp();
 		now.setNow(SampleDataLoader.addWeeks(SampleDataLoader.newCalendar(2010, 10, 10), -2));
+	}
+
+	@After
+	public void callTearDown() throws Exception {
+		super.tearDown();
 	}
 
 	protected String[] getConfigPaths() {
