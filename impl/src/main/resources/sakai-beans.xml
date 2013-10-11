@@ -147,10 +147,6 @@
 		</property>
 		-->
 	</bean>
-	
-	<bean id="uk.ac.ox.oucs.vle.PopulatorInput" init-method="init" destroy-method="destroy" 
-		class="uk.ac.ox.oucs.vle.XcriPopulatorInput" >
-	</bean>
 
 </beans>
 

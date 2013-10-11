@@ -209,5 +209,11 @@
 		<property name="module" ref="uk.ac.ox.oucs.vle.SearchDataImpl"/>
 	</bean>
 
+
+    <bean id="uk.ac.ox.oucs.vle.PopulatorInput" init-method="init" destroy-method="destroy"
+          class="uk.ac.ox.oucs.vle.XcriPopulatorInput" >
+    </bean>
+
+
 </beans>
 
