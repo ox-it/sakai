@@ -90,8 +90,11 @@ public class SampleDataLoader {
 		CourseSignupDAO signup1 = dao.newSignup("current", "1");
 		signup1.setStatus(CourseSignupService.Status.ACCEPTED);
 		signup1.setGroup(course1);
-		signup1.setComponents(new HashSet<CourseComponentDAO>(Arrays.asList(comp6, comp7)));
 		dao.save(signup1);
+		comp6.getSignups().add(signup1);
+		dao.save(comp6);
+		comp7.getSignups().add(signup1);
+		dao.save(comp7);
 		CourseSignupDAO signup2 = dao.newSignup("current", "1");
 		signup2.setStatus(CourseSignupService.Status.ACCEPTED);
 		signup2.setGroup(course1);
