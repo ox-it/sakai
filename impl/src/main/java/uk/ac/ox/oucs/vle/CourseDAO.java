@@ -63,7 +63,7 @@ public interface CourseDAO {
 
 	String save(CourseSignupDAO signupDao);
 
-	String save(CourseComponentDAO componentDao);
+	void save(CourseComponentDAO componentDao);
 
 	CourseSignupDAO findSignupById(String signupId);
 	

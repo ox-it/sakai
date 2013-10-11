@@ -78,11 +78,11 @@ public class SampleDataLoader {
 		CourseComponentDAO comp9 = newComponent("comp-9", "Component Type", T2012HILLARY, 5, "tc-4", course3);
 		// Set the number taken.
 		comp6.setTaken(1);
-		//dao.save(comp6);
+		dao.save(comp6);
 		comp7.setTaken(2);
-		//dao.save(comp7);
+		dao.save(comp7);
 		comp8.setTaken(5);
-		//dao.save(comp8);
+		dao.save(comp8);
 		comp9.setTaken(4);
 		// Create some signups.
 		CourseSignupDAO signup1 = dao.newSignup("current", "1");
