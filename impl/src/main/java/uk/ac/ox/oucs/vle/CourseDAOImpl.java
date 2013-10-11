@@ -444,7 +444,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Integer countSignupByCourse(final String courseId, final Set<Status> statuses) {
+	public Integer countSignupByCourse(final String courseId, final Set<Status> statuses, final Date now) {
 		return (Integer)getHibernateTemplate().execute(new HibernateCallback() {
 
 			public Object doInHibernate(Session session)
@@ -456,7 +456,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 						"and component.starts > :now "+
 						"and signup.status in (:statuses)");
 				query.setString("courseId", courseId);
-				query.setDate("now", new Date());
+				query.setDate("now", now);
 				query.setParameterList("statuses", statuses);
 				List<Object> results = query.list();
 				int count = results.size();

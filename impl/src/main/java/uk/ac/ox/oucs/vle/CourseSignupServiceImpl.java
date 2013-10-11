@@ -44,8 +44,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	private CourseDAO dao;
 	private SakaiProxy proxy;
 	private SearchService searchService;
-
-	private long adjustment;
+	private NowService now;
 	
 	public void setDao(CourseDAO dao) {
 		this.dao = dao;
@@ -58,7 +57,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public void setSearchService(SearchService searchService) {
 		this.searchService = searchService;
 	}
-	
+
+	public void setNowService(NowService now) {
+		this.now = now;
+	}
+
 	/**
 	 * 
 	 */
@@ -468,7 +471,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			return null;
 		}
 		
-		return dao.countSignupByCourse(courseId, statuses);
+		return dao.countSignupByCourse(courseId, statuses, getNow());
 	}
 	
 	public String getDirectUrl(String courseId) {
@@ -779,7 +782,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		
 		boolean full = false;
 		Set<Status> statuses = Collections.singleton(Status.WAITING);
-		if (dao.countSignupByCourse(courseId, statuses).intValue() > 0) {
+		if (dao.countSignupByCourse(courseId, statuses, getNow()).intValue() > 0) {
 			full = true;
 		}
 		
@@ -1173,11 +1176,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public Date getNow() {
-		return (adjustment != 0)?new Date(new Date().getTime() + adjustment):new Date();
-	}
-
-	public void setNow(Date newNow) {
-		adjustment = newNow.getTime() - new Date().getTime();
+		return now.getNow();
 	}
 	
 	/**

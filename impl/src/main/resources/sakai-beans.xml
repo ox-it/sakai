@@ -148,5 +148,8 @@
 		-->
 	</bean>
 
+    <!-- In production we just want to use the live time -->
+    <bean id="uk.ac.ox.oucs.vle.NowService" class="uk.ac.ox.oucs.vle.LiveNowService"/>
+
 </beans>
 

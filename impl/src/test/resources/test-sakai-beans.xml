@@ -67,6 +67,8 @@
 
 	<bean name="uk.ac.ox.oucs.vle.SakaiProxy" class="uk.ac.ox.oucs.vle.proxy.SakaiProxyTest" >
 	</bean>
+
+    <bean name="uk.ac.ox.oucs.vle.NowService" class="uk.ac.ox.oucs.vle.SettableNowService"/>
 	
 	<bean id="uk.ac.ox.oucs.vle.PopulatorInput"
 		class="uk.ac.ox.oucs.vle.TestPopulatorInput" >

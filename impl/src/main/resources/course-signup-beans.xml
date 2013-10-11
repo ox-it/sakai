@@ -30,6 +30,7 @@
 				<property name="dao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
 				<property name="searchService" ref="uk.ac.ox.oucs.vle.SearchService"/>
+                <property name="nowService" ref="uk.ac.ox.oucs.vle.NowService"/>
 			</bean>
 		</property>
 		<property name="transactionManager"

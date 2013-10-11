@@ -32,7 +32,7 @@ public abstract class OnSampleData extends AbstractTransactionalSpringContextTes
 	protected CourseSignupService service;
 	protected SakaiProxyTest proxy;
 	protected CourseDAOImpl dao;
-	private Calendar cal;
+	protected SettableNowService now;
 
 	private class Term {
 		String code;
@@ -65,10 +65,14 @@ public abstract class OnSampleData extends AbstractTransactionalSpringContextTes
 
 	protected void onSetUpBeforeTransaction() {
 
+		;
+
 		Term T2009HILLARY = new Term("2009-HIL", newCalendar(2009, 10, 10));
 		Term T2010HILLARY = new Term("2010-HIL", newCalendar(2010, 10, 10));
 		Term T2011HILLARY = new Term("2011-HIL", newCalendar(2011, 10, 10));
 		Term T2012HILLARY = new Term("2011-HIL", newCalendar(2012, 10, 10));
+
+		now.setNow(addWeeks(newCalendar(2010, 10, 10), -2));
 
 		// Create the course groups and set administrators.
 		CourseGroupDAO course1 = dao.newCourseGroup("course-1", "3C05", "The Politics of Brazil", null);
@@ -129,12 +133,6 @@ public abstract class OnSampleData extends AbstractTransactionalSpringContextTes
 		return comp;
 	}
 
-	private Date getFromBase(int weeks) {
-		Calendar newCal = ((Calendar)cal.clone());
-		newCal.add(Calendar.WEEK_OF_YEAR, weeks);
-		return newCal.getTime();
-	}
-
 	protected String[] getConfigPaths() {
 		return new String[]{"/course-signup-beans.xml", "/test-with-h2.xml"};
 	}
@@ -153,6 +151,10 @@ public abstract class OnSampleData extends AbstractTransactionalSpringContextTes
 
 	public void setService(CourseSignupService service) {
 		this.service = service;
+	}
+
+	public void setNowService(SettableNowService now) {
+		this.now = now;
 	}
 
 	public SakaiProxyTest getProxy() {
