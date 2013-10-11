@@ -24,11 +24,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Before;
 import org.junit.Test;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 
 public class TestCourseSignupServiceSignup extends OnSampleData {
+
+	@Before
+	public void resetUser() {
+		proxy.setCurrentUser(proxy.findUserById("current"));
+	}
 
 	@Test
 	public void testSignupGood() {
@@ -45,7 +51,6 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 
 	@Test
 	public void testSignupMultiple() {
-		// TODO This affects all further tests.
 		for (int i = 1; i<=15; i++) {
 			proxy.setCurrentUser(proxy.findUserById("id"+i));
 			service.signup("course-1", Collections.singleton("comp-3"), "test.user.1@dept.ox.ac.uk", null);
