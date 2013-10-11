@@ -69,6 +69,7 @@ import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 
+import org.sakaiproject.util.ResourceLoader;
 import uk.ac.ox.oucs.vle.*;
 
 /**
@@ -79,7 +80,9 @@ import uk.ac.ox.oucs.vle.*;
 public class SakaiProxyImpl implements SakaiProxy {
 
 	private final static Log log = LogFactory.getLog(SakaiProxyImpl.class);
-	
+
+	private final static ResourceLoader rb = new ResourceLoader("messages");
+
 	private String fromAddress;
 
 	/**
@@ -421,6 +424,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	public String getMyUrl(String placementId) {
 		return getUrl("/static/my.jsp", placementId);
+	}
+
+	@Override
+	public String getMessage(String key) {
+		return rb.getString(key);
 	}
 
 	private String getUrl(String toolState) {

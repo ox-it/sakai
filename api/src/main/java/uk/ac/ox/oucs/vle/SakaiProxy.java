@@ -109,7 +109,14 @@ public interface SakaiProxy {
 	public String getMyUrl();
 	
 	public String getMyUrl(String placementId);
-	
+
+	/**
+	 * Gets a resource bundle string for the current user.
+	 * @param key The key to lookup in the resource bundle.
+	 * @return The translated key, never <code>null</code>.
+	 */
+	public String getMessage(String key);
+
 	/**
 	 * Get a configuration parameter as an Integer
 	 * 

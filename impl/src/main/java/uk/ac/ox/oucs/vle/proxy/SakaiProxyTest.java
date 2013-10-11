@@ -188,7 +188,12 @@ public class SakaiProxyTest implements SakaiProxy {
 	public String getMyUrl(String placementId) {
 		return "/my/";
 	}
-	
+
+	@Override
+	public String getMessage(String key) {
+		return key;
+	}
+
 	public void logEvent(String resource, String eventType, String placementId) {
 		log.info("Event - user: "+getCurrentUser().getId()+ " resource:"+
 				resource+ " type "+ eventType);

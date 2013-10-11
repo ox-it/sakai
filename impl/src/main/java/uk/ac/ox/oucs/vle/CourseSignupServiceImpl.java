@@ -38,9 +38,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	private final static Log log = LogFactory.getLog(CourseSignupServiceImpl.class);
-	
-	private final static ResourceLoader rb = new ResourceLoader("messages");
-	
+
 	private CourseDAO dao;
 	private SakaiProxy proxy;
 	private SearchService searchService;
@@ -965,8 +963,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			System.arraycopy(additionalBodyData, 0, data, baseBodyData.length, additionalBodyData.length);
 		}
 		
-		String subject = MessageFormat.format(rb.getString(subjectKey), data);
-		String body = MessageFormat.format(rb.getString(bodyKey), data);
+		String subject = MessageFormat.format(proxy.getMessage(subjectKey), data);
+		String body = MessageFormat.format(proxy.getMessage(bodyKey), data);
 		proxy.sendEmail(to, subject, body);
 	}
 	
@@ -1001,8 +999,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			System.arraycopy(baseBodyData, 0, data, 0, baseBodyData.length);
 			System.arraycopy(additionalBodyData, 0, data, baseBodyData.length, additionalBodyData.length);
 		}
-		String subject = MessageFormat.format(rb.getString(subjectKey), data);
-		String body = MessageFormat.format(rb.getString(bodyKey), data);
+		String subject = MessageFormat.format(proxy.getMessage(subjectKey), data);
+		String body = MessageFormat.format(proxy.getMessage(bodyKey), data);
 		proxy.sendEmail(to, subject, body);
 	}
 	
@@ -1028,7 +1026,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		
 		String to = recepient.getEmail();
-		String subject = MessageFormat.format(rb.getString(subjectKey), new Object[]{proxy.getCurrentUser().getDisplayName(), signupDao.getGroup().getTitle(), signupUser.getDisplayName()});
+		String subject = MessageFormat.format(proxy.getMessage(subjectKey), new Object[]{proxy.getCurrentUser().getDisplayName(), signupDao.getGroup().getTitle(), signupUser.getDisplayName()});
 		String componentDetails = formatSignup(signupDao);
 		Object[] baseBodyData = new Object[] {
 				proxy.getCurrentUser().getDisplayName(),
@@ -1042,7 +1040,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			System.arraycopy(baseBodyData, 0, bodyData, 0, baseBodyData.length);
 			System.arraycopy(additionalBodyData, 0, bodyData, baseBodyData.length, additionalBodyData.length);
 		}
-		String body = MessageFormat.format(rb.getString(bodyKey), bodyData);
+		String body = MessageFormat.format(proxy.getMessage(bodyKey), bodyData);
 		proxy.sendEmail(to, subject, body);
 	}
 	
