@@ -62,5 +62,8 @@
 		</property>
 	</bean>
 
+    <bean name="uk.ac.ox.oucs.vle.SakaiProxy" class="uk.ac.ox.oucs.vle.proxy.SakaiProxyTest" >
+    </bean>
+
 </beans>
 
