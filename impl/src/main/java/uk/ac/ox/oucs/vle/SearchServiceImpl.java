@@ -23,9 +23,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -105,12 +102,25 @@ public class SearchServiceImpl implements SearchService {
 			// Solr as the source of all data we can still lookup details of hidden courses.
 			doc.addField("course_hidden", course.getHideGroup());
 		
-			for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.RDF)) {
+			for (CourseCategory category : course.getCategories(CourseGroup.CategoryType.RDF)) {
 				doc.addField("course_subject_rdf", category.getName());
 			}
 		
-			for (CourseCategory category : course.getCategories(CourseGroup.Category_Type.RM)) {
+			for (CourseCategory category : course.getCategories(CourseGroup.CategoryType.RM)) {
 				doc.addField("course_subject_rm", category.getName());
+			}
+
+			// These need splitting into 2 facets.
+			for (CourseCategory category : course.getCategories(CourseGroup.CategoryType.VITAE)) {
+				// We could keep these separate in the database by using 2 CategoryTypes but that
+				// feels a little too much like overengineering.
+				if (category.getCode().length() == 1) {
+					doc.addField("course_subject_vitae_domain", category.getName());
+				} else if (category.getCode().length() == 2) {
+					doc.addField("course_subject_vitae_subdomain", category.getName());
+				} else {
+					log.warn("Unsupported vitae code: "+ category.getCode()+ " on course "+ course.getMuid());
+				}
 			}
 			
 			doc.addField("course_class", "Graduate Training");

@@ -145,18 +145,27 @@ AjaxSolr.Parameter = AjaxSolr.Class.extend(
 
   /**
    * Returns the value as a URL-encoded string.
+   * It escapes commas with a backslash.
    *
    * @private
    * @param {String|Number|String[]|Number[]} value The value.
    * @returns {String} The URL-encoded string.
    */
   valueString: function (value) {
-    value = AjaxSolr.isArray(value) ? value.join(',') : value;
+    if (AjaxSolr.isArray(value)) {
+      for (var i = 0; i < value.length; i++) {
+        value[i] = value[i].replace(/,/, "\\,");
+      }
+      value = value.join(',');
+    } else {
+      value = (AjaxSolr.isString(value))?value.replace(/,/, "\\,"):value;
+    }
     return encodeURIComponent(value);
   },
 
   /**
    * Parses a URL-encoded string to return the value.
+   * A commas can be escaped with a backslash.
    *
    * @private
    * @param {String} str The URL-encoded string.
@@ -164,7 +173,15 @@ AjaxSolr.Parameter = AjaxSolr.Class.extend(
    */
   parseValueString: function (str) {
     str = decodeURIComponent(str);
-    return str.indexOf(',') == -1 ? str : str.split(',');
+    var parts = str.split(/[^\\],/);
+    if (parts.length > 1) {
+      for (var i = 0; i < parts.length; i++) {
+        parts[i] = parts[i].replace(/\\,/, ',');
+      }
+      return parts;
+    } else {
+      return (AjaxSolr.isString(str))?str.replace(/\\,/, ','):str;
+    }
   }
 });
 

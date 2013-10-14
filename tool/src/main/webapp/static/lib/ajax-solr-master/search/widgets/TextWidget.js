@@ -14,7 +14,6 @@ AjaxSolr.TextWidget = AjaxSolr.AbstractTextWidget.extend({
     $("#search form").submit(function(e) {
     	e.preventDefault();
         self.doRequest();
-        $('#search_wrapper').addClass('advanced_search').removeClass('simple_search');
       });
   },
 

@@ -39,9 +39,11 @@ public class PopulatorInstanceData {
 	private int componentUpdated;
 	
 	private String lastGroup = null;
+
+	private CategoryMapper mapper;
 	
-	public PopulatorInstanceData() {
-		
+	public PopulatorInstanceData(CategoryMapper mapper) {
+		this.mapper = mapper;
 		departmentSeen = 0;
 		departmentCreated = 0;
 		departmentUpdated = 0;
@@ -149,6 +151,9 @@ public class PopulatorInstanceData {
 	public void setLastGroup(String lastGroup) {
 		this.lastGroup = lastGroup;
 	}
-	
+
+	public CategoryMapper getMapper() {
+		return this.mapper;
+	}
 
 }

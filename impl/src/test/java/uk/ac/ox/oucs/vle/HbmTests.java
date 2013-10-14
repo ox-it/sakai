@@ -21,15 +21,10 @@ package uk.ac.ox.oucs.vle;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.hibernate.SessionFactory;
-import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
-import org.springframework.transaction.PlatformTransactionManager;
 
 public class HbmTests extends AbstractTransactionalSpringContextTests {
 
@@ -238,9 +233,9 @@ public class HbmTests extends AbstractTransactionalSpringContextTests {
 	
 	public void testCourseCategory() {
 		
-		CourseCategoryDAO cat1 = new CourseCategoryDAO(CourseGroup.Category_Type.RM, "C1", "Category 1");
-		CourseCategoryDAO cat2 = new CourseCategoryDAO(CourseGroup.Category_Type.RM, "C2", "Category 2");
-		CourseCategoryDAO cat3 = new CourseCategoryDAO(CourseGroup.Category_Type.RM, "C3", "Category 3");
+		CourseCategoryDAO cat1 = new CourseCategoryDAO(CourseGroup.CategoryType.RM, "C1", "Category 1");
+		CourseCategoryDAO cat2 = new CourseCategoryDAO(CourseGroup.CategoryType.RM, "C2", "Category 2");
+		CourseCategoryDAO cat3 = new CourseCategoryDAO(CourseGroup.CategoryType.RM, "C3", "Category 3");
 
 		courseDao.save(cat1);
 		courseDao.save(cat2);

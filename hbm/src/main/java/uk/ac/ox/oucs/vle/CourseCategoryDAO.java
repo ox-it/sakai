@@ -19,9 +19,6 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import java.util.HashSet;
-import java.util.Set;
-
 
 public class CourseCategoryDAO implements java.io.Serializable {
 
@@ -37,7 +34,7 @@ public class CourseCategoryDAO implements java.io.Serializable {
 	public CourseCategoryDAO() {
 	}
 
-	public CourseCategoryDAO(CourseGroup.Category_Type type, String id, String name) {
+	public CourseCategoryDAO(CourseGroup.CategoryType type, String id, String name) {
 		this.categoryType = type.name();
 		this.categoryId = id;
 		this.categoryName = name;
