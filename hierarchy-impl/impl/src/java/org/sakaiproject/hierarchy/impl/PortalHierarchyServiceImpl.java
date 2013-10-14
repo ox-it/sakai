@@ -485,7 +485,6 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	 * create a hash of the path
 	 *
 	 * @param nodePath
-	 * @param encode
 	 * @return
 	 * @throws NoSuchAlgorithmException
 	 */

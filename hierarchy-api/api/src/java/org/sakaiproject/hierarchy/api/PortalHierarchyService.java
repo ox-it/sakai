@@ -62,9 +62,8 @@ public interface PortalHierarchyService {
 	/**
 	 * Get the node based on its nodePath.
 	 * 
-	 * @param nodePath The path of the node. If null or an empty string then get the node
+	 * @param portalPath The path of the node. If null or an empty string then get the node
 	 * at the base of the service.
-	 * @see #getRootNodes() 
 	 * @return The found node or null if it couldn't be found.
 	 */
 	PortalNode getNode(String portalPath);
