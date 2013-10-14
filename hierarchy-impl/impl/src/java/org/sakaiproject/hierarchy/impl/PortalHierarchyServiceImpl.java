@@ -410,7 +410,10 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		}
 		if (redirectUrl != null ) {
 			portalNode.setRedirectUrl(redirectUrl);
-			portalNode.setRedirectTitle(title);
+			// Leave the title as null when resource is hidden.
+			if(!hidden) {
+				portalNode.setRedirectTitle(title);
+			}
 			portalNode.setAppendPath(appendPath);
 			portalNode.setHidden(hidden);
 		}

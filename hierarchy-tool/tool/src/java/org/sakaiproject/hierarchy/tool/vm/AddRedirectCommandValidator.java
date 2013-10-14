@@ -19,7 +19,10 @@ public class AddRedirectCommandValidator extends BaseSiteValidator {
 		if (target instanceof AddRedirectCommand) {
 			AddRedirectCommand command = (AddRedirectCommand) target;
 			checkName(errors, command.getName());
-			checkTitle(errors, command.getTitle());
+			// We don't care about titles on hidden redirects.
+			if (!command.isHidden()) {
+				checkTitle(errors, command.getTitle());
+			}
 			ValidationUtils.rejectIfEmpty(errors, "url", "validator.url.empty");
 		}
 	}

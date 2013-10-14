@@ -124,7 +124,7 @@ public interface PortalHierarchyService {
 	 * @param parentId The ID of the node that will be it's parent. Not <code>null</code>.
 	 * @param childName The name of the redirect node. Not <code>null</code>.
 	 * @param redirectUrl The URL to send the user to when accessing this node. Not <code>null</code>.
-	 * @param title The title of the node. Not <code>null</code>.
+	 * @param title The title of the node. Can be <code>null</code>. This is ignored when the redirect is hidden.
 	 * @param appendPath Should the parts of the request after the node be appended to the redirect URL.
 	 * @param hidden If <code>true</code> then the node is hidden apart from in the Admin UI.
 	 * @return The newly created PortalNodeRedirect.
