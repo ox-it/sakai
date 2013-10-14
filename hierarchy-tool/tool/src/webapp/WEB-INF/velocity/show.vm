@@ -54,7 +54,8 @@
   <ul>
     #foreach ($node in $redirectNodes)
     <li>
-      $node.title ($node.path) to <a href="$node.url" target="_new">$node.url</a> #if($node.appendPath)(#springMessage("show.with.path.appended"))#end
+      #if($node.hidden)Hidden #else $!node.title #end
+      ($node.path) to <a href="$node.url" target="_new">$node.url</a> #if($node.appendPath)(#springMessage("show.with.path.appended"))#end
       <input type="radio" name="id" value="$node.id">
     </li>
     #end
@@ -82,7 +83,10 @@
   #springShowErrors("" "alertMessageInline")<br>
   <label for="appendPath">#springMessage("show.appendPath")</label>
   #springFormCheckbox("redirect-add.appendPath" "true" "")<br>
+  <label for="hidden">#springMessage("show.hidden")</label>
+  #springFormCheckbox("redirect-add.hidden" "false" "")<br>
   <input type="submit" value="#springMessage("button.new.redirect")">
+
 </form>
 
 
