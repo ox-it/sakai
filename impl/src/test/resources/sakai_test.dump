@@ -1,19 +1,3 @@
--- MySQL dump 10.13  Distrib 5.5.28, for debian-linux-gnu (i686)
---
--- Host: localhost    Database: sakai_test
--- ------------------------------------------------------
--- Server version	5.5.28-0ubuntu0.12.04.2
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
 -- Dumping data for table `course_component`
@@ -34,23 +18,6 @@ INSERT INTO `course_component` VALUES (10,0,'42',NULL,'IT Learning Programme Por
 /*!40000 ALTER TABLE `course_component` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `course_component_session`
---
-
-LOCK TABLES `course_component_session` WRITE;
-/*!40000 ALTER TABLE `course_component_session` DISABLE KEYS */;
-/*!40000 ALTER TABLE `course_component_session` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `course_component_signup`
---
-
-LOCK TABLES `course_component_signup` WRITE;
-/*!40000 ALTER TABLE `course_component_signup` DISABLE KEYS */;
-/*!40000 ALTER TABLE `course_component_signup` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `course_department`
@@ -62,14 +29,6 @@ INSERT INTO `course_department` VALUES ('D5','Humanities Division','\0'),('E2','
 /*!40000 ALTER TABLE `course_department` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Dumping data for table `course_department_approver`
---
-
-LOCK TABLES `course_department_approver` WRITE;
-/*!40000 ALTER TABLE `course_department_approver` DISABLE KEYS */;
-/*!40000 ALTER TABLE `course_department_approver` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping data for table `course_group`
@@ -93,15 +52,6 @@ INSERT INTO `course_group` VALUES (10,'42','IT Learning Programme Portfolio ','E
 UNLOCK TABLES;
 
 --
--- Dumping data for table `course_group_administrator`
---
-
-LOCK TABLES `course_group_administrator` WRITE;
-/*!40000 ALTER TABLE `course_group_administrator` DISABLE KEYS */;
-/*!40000 ALTER TABLE `course_group_administrator` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Dumping data for table `course_group_category`
 --
 
@@ -120,68 +70,3 @@ LOCK TABLES `course_group_component` WRITE;
 INSERT INTO `course_group_component` VALUES (1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9),(10,10);
 /*!40000 ALTER TABLE `course_group_component` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Dumping data for table `course_group_otherDepartment`
---
-
-LOCK TABLES `course_group_otherDepartment` WRITE;
-/*!40000 ALTER TABLE `course_group_otherDepartment` DISABLE KEYS */;
-/*!40000 ALTER TABLE `course_group_otherDepartment` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `course_group_superuser`
---
-
-LOCK TABLES `course_group_superuser` WRITE;
-/*!40000 ALTER TABLE `course_group_superuser` DISABLE KEYS */;
-/*!40000 ALTER TABLE `course_group_superuser` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `course_oucs_department`
---
-
-LOCK TABLES `course_oucs_department` WRITE;
-/*!40000 ALTER TABLE `course_oucs_department` DISABLE KEYS */;
-/*!40000 ALTER TABLE `course_oucs_department` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `course_signup`
---
-
-LOCK TABLES `course_signup` WRITE;
-/*!40000 ALTER TABLE `course_signup` DISABLE KEYS */;
-/*!40000 ALTER TABLE `course_signup` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `course_subunit`
---
-
-LOCK TABLES `course_subunit` WRITE;
-/*!40000 ALTER TABLE `course_subunit` DISABLE KEYS */;
-/*!40000 ALTER TABLE `course_subunit` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `course_user_placement`
---
-
-LOCK TABLES `course_user_placement` WRITE;
-/*!40000 ALTER TABLE `course_user_placement` DISABLE KEYS */;
-/*!40000 ALTER TABLE `course_user_placement` ENABLE KEYS */;
-UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2012-11-30 14:49:12
