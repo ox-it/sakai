@@ -29,7 +29,8 @@ public class PortalNodeRedirectImpl extends PortalNodeImpl implements PortalNode
 	}
 
 	public boolean canView() {
-		return true;
+		// If it's hidden don't display it in the normal UI.
+		return !hidden;
 	}
 
 	public boolean canModify() {
