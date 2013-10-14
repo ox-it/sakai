@@ -84,7 +84,7 @@
   <label for="appendPath">#springMessage("show.appendPath")</label>
   #springFormCheckbox("redirect-add.appendPath" "true" "")<br>
   <label for="hidden">#springMessage("show.hidden")</label>
-  #springFormCheckbox("redirect-add.hidden" "false" "")<br>
+  #springFormCheckbox("redirect-add.hidden" "true" "")<br>
   <input type="submit" value="#springMessage("button.new.redirect")">
 
 </form>
