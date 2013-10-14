@@ -199,6 +199,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		portalNode.setUrl(portalPersistentNode.getRedirectUrl());
 		portalNode.setAppendPath(portalPersistentNode.isAppendPath());
 		portalNode.setTitle(portalPersistentNode.getRedirectTitle());
+		portalNode.setHidden(portalPersistentNode.isHidden());
 		return portalNode;
 	}
 
@@ -346,29 +347,30 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		PortalNode newNode;
 		if (node instanceof PortalNodeRedirect) {
 			PortalNodeRedirect redirectNode = (PortalNodeRedirect) node;
-			newNode = newRedirectNode(newParentId, redirectNode.getName(), redirectNode.getUrl(), redirectNode.getTitle(), redirectNode.isAppendPath());
+			newNode = newRedirectNode(newParentId, redirectNode.getName(), redirectNode.getUrl(),
+					redirectNode.getTitle(), redirectNode.isAppendPath(), redirectNode.isHidden());
 		} else if (node instanceof PortalNodeSite) {
 			PortalNodeSite siteNode = (PortalNodeSite) node;
 			newNode = newSiteNode(newParentId, siteNode.getName(), siteNode.getSite().getId(), siteNode.getManagementSite().getId());
 		} else {
 			throw new IllegalArgumentException("PortalNode must be PortalNodeRedirect or PortalNodeSite");
 		}
-		for (PortalNode child: getNodeChildren(node.getId())) {
+		for (PortalNode child : getNodeChildren(node.getId())) {
 			copyNodes(child, newNode.getId());
 		}
 	}
 
 
 	public PortalNodeRedirect newRedirectNode(String parentId, String childName,
-			String redirectUrl, String title, boolean appendPath) throws PermissionException {
-		return (PortalNodeRedirect) newNode(parentId, childName, null, null, redirectUrl, title, appendPath);
+			String redirectUrl, String title, boolean appendPath, boolean hidden) throws PermissionException {
+		return (PortalNodeRedirect) newNode(parentId, childName, null, null, redirectUrl, title, appendPath, hidden);
 	}
 
 	public PortalNodeSite newSiteNode(String parentId, String childName, String siteId, String managementSiteId) throws PermissionException {
-		return (PortalNodeSite) newNode(parentId, childName, siteId, managementSiteId, null, null, false);
+		return (PortalNodeSite) newNode(parentId, childName, siteId, managementSiteId, null, null, false, false);
 	}
 
-	public PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId, String redirectUrl, String title, boolean appendPath) throws PermissionException {
+	public PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId, String redirectUrl, String title, boolean appendPath, boolean hidden) throws PermissionException {
 
 		if (!( siteId == null ^ redirectUrl == null)) {
 			throw new IllegalArgumentException("You must specify either a siteId or a redirectUrl");
@@ -418,6 +420,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 			portalNode.setRedirectUrl(redirectUrl);
 			portalNode.setRedirectTitle(title);
 			portalNode.setAppendPath(appendPath);
+			portalNode.setHidden(hidden);
 		}
 
 

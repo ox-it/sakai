@@ -230,7 +230,7 @@ public class ManagerController {
 				}
 			}
 			portalHierarchyService.newRedirectNode(parentId, redirect.getName(), url,
-					redirect.getTitle(), redirect.isAppendPath());
+					redirect.getTitle(), redirect.isAppendPath(), redirect.isHidden());
 			return "refresh";
 		} catch (IllegalArgumentException iae) {
 			result.rejectValue("name", "error.name.exists");

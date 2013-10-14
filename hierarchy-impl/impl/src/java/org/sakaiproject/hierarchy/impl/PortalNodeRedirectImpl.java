@@ -13,6 +13,7 @@ public class PortalNodeRedirectImpl extends PortalNodeImpl implements PortalNode
 	private String title;
 	private String url;
 	private boolean appendPath;
+	private boolean hidden;
 	private final PortalHierarchyService portalHierarchyService;
 	
 	public PortalNodeRedirectImpl(PortalHierarchyService portalHierarchyService) {
@@ -50,6 +51,14 @@ public class PortalNodeRedirectImpl extends PortalNodeImpl implements PortalNode
 
 	public void setAppendPath(boolean appendPath) {
 		this.appendPath = appendPath;
+	}
+
+	public boolean isHidden() {
+		return hidden;
+	}
+
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
 	}
 
 }

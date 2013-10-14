@@ -22,6 +22,7 @@ public class PortalPersistentNode {
 	private String redirectUrl;
 	private String redirectTitle;
 	private boolean appendPath;
+	private boolean hidden;
 	private Date created;
 	private Date updated;
 	
@@ -78,6 +79,12 @@ public class PortalPersistentNode {
 	}
 	public void setAppendPath(boolean appendPath) {
 		this.appendPath = appendPath;
+	}
+	public boolean isHidden() {
+		return hidden;
+	}
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
 	}
 	public Date getCreated()
 	{

@@ -10,14 +10,14 @@ public class PortalHierarchyServiceImplTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void testNewNodeArgValidationNull() throws PermissionException {
 		PortalHierarchyServiceImpl service = new PortalHierarchyServiceImpl();
-		service.newNode("parentId", "childName", null, "managementSiteId", null, "title", false);
+		service.newNode("parentId", "childName", null, "managementSiteId", null, "title", false, false);
 	}
 
 	//Check we fail when too many args are set
 	@Test(expected = IllegalArgumentException.class)
 	public void testNewNodeArgValidationFull() throws PermissionException {
 		PortalHierarchyServiceImpl service = new PortalHierarchyServiceImpl();
-		service.newNode("parentId", "childName", "siteId", "managementSiteId", "redirectUrl", "title", false);
+		service.newNode("parentId", "childName", "siteId", "managementSiteId", "redirectUrl", "title", false, false);
 	}
 
 }
