@@ -37,8 +37,11 @@
  */
 package uk.ac.ox.oucs.vle;
 
+import org.junit.Test;
+
 public class TestPopulatorWrapper extends OnSampleData {
-	
+
+	@Test
 	public void testFlagSelectedCourseGroups() {
 		dao.flagSelectedCourseGroups("Test");
 		CourseGroupDAO group = dao.findCourseGroupById("30");
