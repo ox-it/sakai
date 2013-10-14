@@ -290,4 +290,11 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 		this.categoryNamespace = categoryNamespace;
 	}
 
+	@Override
+	public String toString() {
+		return "Subject{" +
+				"categoryNamespace=" + categoryNamespace +
+				", identifier='" + identifier + '\'' +
+				'}';
+	}
 }

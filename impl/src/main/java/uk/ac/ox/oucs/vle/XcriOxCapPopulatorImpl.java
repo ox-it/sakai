@@ -481,9 +481,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				if (subjectIdentifier != null && subject.isValid()) {
 					categories.add(subjectIdentifier);
 				} else {
-					// TODO Log that we're ignoring it.
+					log.debug(String.format("Ignoring subject of %s", subject));
 				}
-				continue;
 			}
 		}
 
