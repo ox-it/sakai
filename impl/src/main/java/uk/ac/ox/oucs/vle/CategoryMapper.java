@@ -2,7 +2,6 @@ package uk.ac.ox.oucs.vle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import uk.ac.ox.oucs.vle.xcri.oxcap.Subject;
 import uk.ac.ox.oucs.vle.xcri.oxcap.Subject.*;
 
 import java.util.*;
