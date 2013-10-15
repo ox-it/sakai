@@ -9,6 +9,8 @@ public class AddRedirectCommand {
 	private String url;
 	private boolean appendPath;
 
+	private boolean hidden;
+
 	public String getName() {
 		return name;
 	}
@@ -39,5 +41,13 @@ public class AddRedirectCommand {
 
 	public void setAppendPath(boolean appendPath) {
 		this.appendPath = appendPath;
+	}
+
+	public boolean isHidden() {
+		return hidden;
+	}
+
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
 	}
 }

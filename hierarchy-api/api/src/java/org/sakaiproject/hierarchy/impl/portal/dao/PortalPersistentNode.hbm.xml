@@ -29,6 +29,7 @@
       <property name="redirectUrl" type="text" />
       <property name="redirectTitle" type="string" length="99"/>
       <property name="appendPath" type="boolean" not-null="true"/>
+      <property name="hidden" type="boolean" not-null="true"/>
       <property name="created" type="date" />
       <property name="updated" type="date" />
    </class>

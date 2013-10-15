@@ -120,7 +120,7 @@ public class ManageControllerTest {
 		assertTrue(response.getContentAsString().contains("Title cannot be empty."));
 		// Check that validation should have stopped the request.
 		verify(portalHierarchyService, never()).newRedirectNode(anyString(), anyString(), anyString(), anyString(),
-				anyBoolean());
+				anyBoolean(), anyBoolean());
 	}
 
 	@Test
@@ -133,12 +133,13 @@ public class ManageControllerTest {
 		request.addParameter("url", "urlValue");
 		// Check we manage to unset the boolean
 		request.addParameter("_appendPath", "true");
+		request.addParameter("_hidden", "true");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		servlet.service(request, response);
 
 		assertEquals(200, response.getStatus());
 
-		verify(portalHierarchyService, times(1)).newRedirectNode("id", "name-value", "urlValue", "titleValue", false);
+		verify(portalHierarchyService, times(1)).newRedirectNode("id", "name-value", "urlValue", "titleValue", false, false);
 
 	}
 
@@ -153,6 +154,8 @@ public class ManageControllerTest {
 		request.addParameter("url", "urlValue");
 		request.addParameter("appendPath", "true");
 		request.addParameter("_appendPath", "true");
+		request.addParameter("hidden", "true");
+		request.addParameter("_hidden", "true");
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -160,7 +163,7 @@ public class ManageControllerTest {
 
 		assertEquals(200, response.getStatus());
 
-		verify(portalHierarchyService, times(1)).newRedirectNode("id", "name-value", "urlValue", "titleValue", true);
+		verify(portalHierarchyService, times(1)).newRedirectNode("id", "name-value", "urlValue", "titleValue", true, true);
 	}
 
 	@Test
@@ -173,12 +176,12 @@ public class ManageControllerTest {
 
 		servlet.service(request, response);
 		// Check that the relative URL got trimmed.
-		verify(portalHierarchyService).newRedirectNode("id", "name-value", "/access/file/test.txt", "titleValue", true);
+		verify(portalHierarchyService).newRedirectNode("id", "name-value", "/access/file/test.txt", "titleValue", true, false);
 	}
 
 	@Test
 	public void testRedirectAddExists() throws ServletException, IOException, PermissionException {
-		when(portalHierarchyService.newRedirectNode("id", "name-value", "urlValue", "titleValue", true)).thenThrow(
+		when(portalHierarchyService.newRedirectNode("id", "name-value", "urlValue", "titleValue", true, false)).thenThrow(
 				new IllegalArgumentException());
 		// Check we attempt to call the service when everything is ok.
 		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/redirect/add");

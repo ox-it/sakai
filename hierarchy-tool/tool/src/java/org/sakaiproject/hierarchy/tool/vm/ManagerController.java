@@ -174,16 +174,17 @@ public class ManagerController {
 		List<PortalNode> nodeChildren = portalHierarchyService.getNodeChildren(node.getId());
 
 		Collections.sort(nodeChildren, nodeComparator);
-		List<Map<String, String>> redirectNodes = new ArrayList<Map<String, String>>();
+		List<Map<String, Object>> redirectNodes = new ArrayList<Map<String, Object>>();
 		for (PortalNode nodeChild : nodeChildren) {
 			if (nodeChild instanceof PortalNodeRedirect) {
 				PortalNodeRedirect redirectNode = (PortalNodeRedirect) nodeChild;
-				Map<String, String> redirectDetails = new HashMap<String, String>();
+				Map<String, Object> redirectDetails = new HashMap<String, Object>();
 				redirectDetails.put("id", redirectNode.getId());
 				redirectDetails.put("path", redirectNode.getPath());
 				redirectDetails.put("title", redirectNode.getTitle());
 				redirectDetails.put("url", redirectNode.getUrl());
-				redirectDetails.put("appendPath", redirectNode.isAppendPath() ? "true" : null);
+				redirectDetails.put("appendPath", Boolean.valueOf(redirectNode.isAppendPath()));
+				redirectDetails.put("hidden", Boolean.valueOf(redirectNode.isHidden()));
 				redirectNodes.add(redirectDetails);
 			}
 		}
@@ -230,7 +231,7 @@ public class ManagerController {
 				}
 			}
 			portalHierarchyService.newRedirectNode(parentId, redirect.getName(), url,
-					redirect.getTitle(), redirect.isAppendPath());
+					redirect.getTitle(), redirect.isAppendPath(), redirect.isHidden());
 			return "refresh";
 		} catch (IllegalArgumentException iae) {
 			result.rejectValue("name", "error.name.exists");

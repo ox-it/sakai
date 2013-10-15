@@ -62,9 +62,8 @@ public interface PortalHierarchyService {
 	/**
 	 * Get the node based on its nodePath.
 	 * 
-	 * @param nodePath The path of the node. If null or an empty string then get the node
+	 * @param portalPath The path of the node. If null or an empty string then get the node
 	 * at the base of the service.
-	 * @see #getRootNodes() 
 	 * @return The found node or null if it couldn't be found.
 	 */
 	PortalNode getNode(String portalPath);
@@ -125,12 +124,13 @@ public interface PortalHierarchyService {
 	 * @param parentId The ID of the node that will be it's parent. Not <code>null</code>.
 	 * @param childName The name of the redirect node. Not <code>null</code>.
 	 * @param redirectUrl The URL to send the user to when accessing this node. Not <code>null</code>.
-	 * @param title The title of the node. Not <code>null</code>.
+	 * @param title The title of the node. Can be <code>null</code>. This is ignored when the redirect is hidden.
 	 * @param appendPath Should the parts of the request after the node be appended to the redirect URL.
+	 * @param hidden If <code>true</code> then the node is hidden apart from in the Admin UI.
 	 * @return The newly created PortalNodeRedirect.
 	 * @throws PermissionException If the current user isn't allowed toe create redirect nodes in the parent node.
 	 */
-	PortalNodeRedirect newRedirectNode(String parentId, String childName, String redirectUrl, String title, boolean appendPath) throws PermissionException;
+	PortalNodeRedirect newRedirectNode(String parentId, String childName, String redirectUrl, String title, boolean appendPath, boolean hidden) throws PermissionException;
 	
 	/**
 	 * Attempt to rename this node.

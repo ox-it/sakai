@@ -24,4 +24,15 @@ public interface PortalNodeRedirect extends PortalNode {
 	 * @return <code>true</code> if extra path parameters should be appended to the redirect URL.
 	 */
 	public boolean isAppendPath();
+
+	/**
+	 * Should this node be hidden?
+	 * This is to allow redirects to sites to exist but them not to be displayed in most
+	 * places throughout the interface. This is useful for example when you want to
+	 * rename a node (keep it in the same place in the hierarchy), but want an invisible
+	 * redirect from the old name.
+	 *
+	 * @return <code>true</code> if the node should be hidden,
+	 */
+	public boolean isHidden();
 }

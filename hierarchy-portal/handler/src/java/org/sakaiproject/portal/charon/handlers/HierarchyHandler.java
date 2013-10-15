@@ -131,7 +131,7 @@ public class HierarchyHandler extends SiteHandler {
 						PortalNode possibleRedirect = portalHierarchyService.getNode(hierarchyPath);
 						if (possibleRedirect instanceof PortalNodeRedirect)
 						{
-							// Do redirect.
+							// Do redirect, we don't check permission on redirects.
 							doRedirect(buildPath(parts, start, parts.length), res, possibleRedirect);
 							return END;
 						}

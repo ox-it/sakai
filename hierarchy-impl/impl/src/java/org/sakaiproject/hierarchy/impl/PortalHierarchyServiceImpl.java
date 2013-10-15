@@ -1,18 +1,6 @@
 package org.sakaiproject.hierarchy.impl;
 
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -37,6 +25,10 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 /**
  * This service joins together 2 services. A Tree service (HierarchyService) and a simple node persistence
@@ -199,6 +191,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		portalNode.setUrl(portalPersistentNode.getRedirectUrl());
 		portalNode.setAppendPath(portalPersistentNode.isAppendPath());
 		portalNode.setTitle(portalPersistentNode.getRedirectTitle());
+		portalNode.setHidden(portalPersistentNode.isHidden());
 		return portalNode;
 	}
 
@@ -346,29 +339,30 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		PortalNode newNode;
 		if (node instanceof PortalNodeRedirect) {
 			PortalNodeRedirect redirectNode = (PortalNodeRedirect) node;
-			newNode = newRedirectNode(newParentId, redirectNode.getName(), redirectNode.getUrl(), redirectNode.getTitle(), redirectNode.isAppendPath());
+			newNode = newRedirectNode(newParentId, redirectNode.getName(), redirectNode.getUrl(),
+					redirectNode.getTitle(), redirectNode.isAppendPath(), redirectNode.isHidden());
 		} else if (node instanceof PortalNodeSite) {
 			PortalNodeSite siteNode = (PortalNodeSite) node;
 			newNode = newSiteNode(newParentId, siteNode.getName(), siteNode.getSite().getId(), siteNode.getManagementSite().getId());
 		} else {
 			throw new IllegalArgumentException("PortalNode must be PortalNodeRedirect or PortalNodeSite");
 		}
-		for (PortalNode child: getNodeChildren(node.getId())) {
+		for (PortalNode child : getNodeChildren(node.getId())) {
 			copyNodes(child, newNode.getId());
 		}
 	}
 
 
 	public PortalNodeRedirect newRedirectNode(String parentId, String childName,
-			String redirectUrl, String title, boolean appendPath) throws PermissionException {
-		return (PortalNodeRedirect) newNode(parentId, childName, null, null, redirectUrl, title, appendPath);
+			String redirectUrl, String title, boolean appendPath, boolean hidden) throws PermissionException {
+		return (PortalNodeRedirect) newNode(parentId, childName, null, null, redirectUrl, title, appendPath, hidden);
 	}
 
 	public PortalNodeSite newSiteNode(String parentId, String childName, String siteId, String managementSiteId) throws PermissionException {
-		return (PortalNodeSite) newNode(parentId, childName, siteId, managementSiteId, null, null, false);
+		return (PortalNodeSite) newNode(parentId, childName, siteId, managementSiteId, null, null, false, false);
 	}
 
-	public PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId, String redirectUrl, String title, boolean appendPath) throws PermissionException {
+	public PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId, String redirectUrl, String title, boolean appendPath, boolean hidden) throws PermissionException {
 
 		if (!( siteId == null ^ redirectUrl == null)) {
 			throw new IllegalArgumentException("You must specify either a siteId or a redirectUrl");
@@ -416,8 +410,12 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		}
 		if (redirectUrl != null ) {
 			portalNode.setRedirectUrl(redirectUrl);
-			portalNode.setRedirectTitle(title);
+			// Leave the title as null when resource is hidden.
+			if(!hidden) {
+				portalNode.setRedirectTitle(title);
+			}
 			portalNode.setAppendPath(appendPath);
+			portalNode.setHidden(hidden);
 		}
 
 
@@ -482,7 +480,6 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	 * create a hash of the path
 	 *
 	 * @param nodePath
-	 * @param encode
 	 * @return
 	 * @throws NoSuchAlgorithmException
 	 */
