@@ -239,9 +239,9 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 
 	public void testCourseCategory() {
 
-		CourseCategoryDAO cat1 = new CourseCategoryDAO(CourseGroup.Category_Type.RM, "C1", "Category 1");
-		CourseCategoryDAO cat2 = new CourseCategoryDAO(CourseGroup.Category_Type.RM, "C2", "Category 2");
-		CourseCategoryDAO cat3 = new CourseCategoryDAO(CourseGroup.Category_Type.RM, "C3", "Category 3");
+		CourseCategoryDAO cat1 = new CourseCategoryDAO(CourseGroup.CategoryType.RM, "C1", "Category 1");
+		CourseCategoryDAO cat2 = new CourseCategoryDAO(CourseGroup.CategoryType.RM, "C2", "Category 2");
+		CourseCategoryDAO cat3 = new CourseCategoryDAO(CourseGroup.CategoryType.RM, "C3", "Category 3");
 
 		courseDao.save(cat1);
 		courseDao.save(cat2);
