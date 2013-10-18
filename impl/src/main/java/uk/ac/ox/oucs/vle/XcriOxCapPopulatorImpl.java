@@ -940,7 +940,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				created = true;
 			}
 			componentDao.setTitle(myPresentation.getTitle());
-			componentDao.setSubject(myPresentation.getSubject());
 			componentDao.setOpens(myPresentation.getOpens());
 			componentDao.setOpensText(myPresentation.getOpensText());
 			componentDao.setCloses(myPresentation.getCloses());

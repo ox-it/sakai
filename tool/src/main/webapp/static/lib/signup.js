@@ -183,7 +183,6 @@ var Signup = function(){
 								parts.push({
 									"options": [component],
 									"signup": (component.signup) ? component.signup : null,
-									"subject": component.subject,
 									"type": {
 										"id": component.componentSet,
 										"name": component.title
