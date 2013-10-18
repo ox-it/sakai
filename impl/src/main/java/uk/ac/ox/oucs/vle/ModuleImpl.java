@@ -332,14 +332,7 @@ public class ModuleImpl implements Module {
 		String body = MessageFormat.format(rb.getString("signup.starting.body"), data);
 		proxy.sendEmail(to, subject, body);
 	}
-	
-	/**
-	 * 
-	 * @param administrator
-	 * @param signups
-	 * @param subjectKey
-	 * @param bodyKey
-	 */
+
 	private void sendBumpAdministratorEmail(
 			String administratorId,
 			Collection <CourseSignupDAO> signups) {
@@ -376,13 +369,6 @@ public class ModuleImpl implements Module {
 		proxy.sendEmail(to, subject, body);
 	}
 	
-	/**
-	 * 
-	 * @param supervisorId
-	 * @param signups
-	 * @param subjectKey
-	 * @param bodyKey
-	 */
 	private void sendBumpSupervisorEmail(
 			String supervisorId,
 			Collection<CourseSignupDAO> signups) {
