@@ -26,8 +26,6 @@ public interface CourseComponent {
 
 	public String getPresentationId();
 	
-	public String getSubject();
-	
 	public String getTitle();
 	
 	public int getPlaces();
