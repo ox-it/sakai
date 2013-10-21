@@ -21,6 +21,10 @@ package uk.ac.ox.oucs.vle.xcri.daisy;
 
 import org.xcri.Extension;
 
+/**
+ * This is the label for a term.
+ * But as we only have Oxford terms and know how to map from a term code to a term label we don't need this.
+ */
 public class TermLabel extends DaisyElement implements Extension {
 	
 	/**
