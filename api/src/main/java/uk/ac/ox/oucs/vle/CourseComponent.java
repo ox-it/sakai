@@ -64,10 +64,23 @@ public interface CourseComponent {
 	 * @return
 	 */
 	public Date getBaseDate();
-	
-	public String getSlot();
-	
+
+	/**
+	 * This gets when this component happens. Typically in this deployment this is
+	 * the Oxford term. Example would be "Hilary 2013".
+	 * It would be accurate to call this term, but that needs lots of refactoring.
+	 * @return A human readable string for when this roughly happens.
+	 * <code>null</code> if not set.
+	 */
 	public String getWhen();
+
+	/**
+	 * This gets the code for the term that this component runs in. This is exposed
+	 * through the API
+	 * @see #getWhen()
+	 * @return A string representing the term. Eg HT13 for Hilary 2013/14.
+	 */
+	public String getTermCode();
 	
 	public String getSessions();
 	
@@ -80,7 +93,12 @@ public interface CourseComponent {
 	 * @see #getMemberApplyTo()
 	 */
 	public String getApplyTo();
-	
+
+	/**
+	 * This gets more details about when the teaching happens. Typically this is used
+	 * for times of the teach, of specifying special cases.
+	 * @return Details of when the teaching happens, or <code>null</code> if we don't have any.
+	 */
 	public String getTeachingDetails();
 
 	/**

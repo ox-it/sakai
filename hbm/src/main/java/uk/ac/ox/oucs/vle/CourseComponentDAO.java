@@ -59,8 +59,6 @@ public class CourseComponentDAO  implements java.io.Serializable {
     private String teacher;
     private String teacherName;
     private String teacherEmail;
-    private String when;
-    private String slot;
     private String sessions;
     private String location;
     private String applyTo;
@@ -333,27 +331,6 @@ public class CourseComponentDAO  implements java.io.Serializable {
 	public void setTeacherEmail(String teacherEmail) {
 		this.teacherEmail = teacherEmail;
 	}
-
-
-	public String getWhen() {
-		return when;
-	}
-
-
-	public void setWhen(String when) {
-		this.when = when;
-	}
-
-
-	public String getSlot() {
-		return slot;
-	}
-
-
-	public void setSlot(String slot) {
-		this.slot = slot;
-	}
-
 
 	public String getSessions() {
 		return sessions;

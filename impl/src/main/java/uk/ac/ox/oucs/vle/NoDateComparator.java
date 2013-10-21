@@ -2,6 +2,7 @@ package uk.ac.ox.oucs.vle;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * This is for sorting coursegroups with no date by when we think they might happen
@@ -11,47 +12,31 @@ import java.util.Comparator;
 */
 class NoDateComparator implements Comparator<CourseGroup> {
 
+	// This does the actual sorting based on term codes.
+	private TermCodeComparator comp = new TermCodeComparator();
+
 	public int compare(CourseGroup c1, CourseGroup c2) {
 		// This is for when we don't have a good date, but most courses will have
 		// a term code.
 		// This does return the latest, but only where dates are concerned, otherwise
 		// it's based on the presentation ID.
-		String when1 = c1.getComponents().get(c1.getComponents().size() - 1).getWhen();
-		String when2 = c2.getComponents().get(c2.getComponents().size() - 1).getWhen();
-		if (null == when1) {
-			return 1;
+		String tc1 = getTermCode(c1);
+		String tc2 = getTermCode(c2);
+		int ret = comp.compare(tc1, tc2);
+		if (ret == 0 ) {
+			ret = c1.getTitle().compareTo(c2.getTitle());
 		}
-		if (null == when2) {
-			return -1;
-		}
-		String[] words1 = when1.split(" ");
-		String[] words2 = when2.split(" ");
-		if (words1.length < 2) {
-			return 1;
-		}
-		if (words2.length < 2) {
-			return -1;
-		}
+		return ret;
+	}
 
-		int i1 = Integer.parseInt(words1[1]);
-		int i2 = Integer.parseInt(words2[1]);
-		if (i1 > i2) {
-			return 1;
+	private String getTermCode(CourseGroup cg) {
+		List<CourseComponent> components = cg.getComponents();
+		if (!components.isEmpty()) {
+			CourseComponent component = components.get(components.size() -1);
+			if (component != null) {
+				return component.getTermCode();
+			}
 		}
-		if (i1 < i2) {
-			return -1;
-		}
-
-		String[] terms = {"Michaelmas", "Hilary", "Trinity"};
-		i1 = Arrays.asList(terms).indexOf(words1[0]);
-		i2 = Arrays.asList(terms).indexOf(words2[0]);
-		if (i1 > i2) {
-			return 1;
-		}
-		if (i1 < i2) {
-			return -1;
-		}
-
-		return c1.getTitle().compareTo(c2.getTitle());
+		return null;
 	}
 }

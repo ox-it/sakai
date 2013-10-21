@@ -24,43 +24,43 @@ public class NoDateComparatorTest {
 
 	@Test
 	public void testDiffYear() {
-		CourseGroup cg1 = newGroup("Hilary 2013", CG1);
-		CourseGroup cg2 = newGroup("Hilary 2012", CG2);
+		CourseGroup cg1 = newGroup("HT13", CG1);
+		CourseGroup cg2 = newGroup("HT12", CG2);
 		assertTransative(cg1, cg2);
 	}
 
 	@Test
 	public void testSame() {
-		CourseGroup cg1 = newGroup("Hilary 2011", CG1);
-		CourseGroup cg2 = newGroup("Hilary 2011", CG1);
+		CourseGroup cg1 = newGroup("HT11", CG1);
+		CourseGroup cg2 = newGroup("HT11", CG1);
 		assertMatch(cg1, cg2);
 	}
 
 	@Test
 	public void testDiffTerm() {
-		CourseGroup cg1 = newGroup("Hilary 2011", CG1);
-		CourseGroup cg2 = newGroup("Michaelmas 2011", CG2);
+		CourseGroup cg1 = newGroup("HT11", CG1);
+		CourseGroup cg2 = newGroup("MT11", CG2);
 		assertTransative(cg1, cg2);
 	}
 
 	@Test
 	public void testNull() {
-		CourseGroup cg1 = newGroup("Hilary 2011", CG1);
+		CourseGroup cg1 = newGroup("HT11", CG1);
 		CourseGroup cg2 = newGroup(null, CG2);
 		assertTransative(cg1, cg2);
 	}
 
 	@Test
 	public void testBadTerm() {
-		CourseGroup cg1 = newGroup("Hilary 2011", CG1);
-		CourseGroup cg2 = newGroup("NoTerm 2011", CG2);
+		CourseGroup cg1 = newGroup("HT11", CG1);
+		CourseGroup cg2 = newGroup("NoTerm 11", CG2);
 		assertTransative(cg1, cg2);
 	}
 
 	@Test
 	public void testBadYear() {
-		CourseGroup cg1 = newGroup("Hilary 2011", CG1);
-		CourseGroup cg2 = newGroup("Hilary 2011/12", CG2);
+		CourseGroup cg1 = newGroup("HT11", CG1);
+		CourseGroup cg2 = newGroup("HT11/12", CG2);
 		assertTransative(cg1, cg2);
 	}
 
@@ -68,13 +68,14 @@ public class NoDateComparatorTest {
 	public void testCollectionSort() {
 
 		CourseGroup cg0 = newGroup(null, "0");
-		CourseGroup cg1 = newGroup("Trinity 2013", "1");
-		CourseGroup cg2 = newGroup("Trinity 2012", "2");
-		CourseGroup cg3 = newGroup("Trinity 2011", "3");
-		CourseGroup cg4 = newGroup("Hilary 2011", "4");
-		CourseGroup cg5 = newGroup("Michaelmas 2011", "5");
+		CourseGroup cg1 = newGroup("TT13", "1");
+		CourseGroup cg2 = newGroup("TT12", "2");
+		CourseGroup cg3 = newGroup("TT11", "3");
+		CourseGroup cg4 = newGroup("HT11", "4");
+		CourseGroup cg5 = newGroup("MT11", "5");
 
-		List<CourseGroup> list = Arrays.asList(cg2, cg4, cg3, cg5, cg0, cg1);
+		List<CourseGroup> list = Arrays.asList(cg0, cg1, cg2, cg3, cg4, cg5);
+		Collections.shuffle(list);
 		Collections.sort(list, comp);
 		assertArrayEquals(new CourseGroup[]{cg5, cg4, cg3, cg2, cg1, cg0}, list.toArray());
 	}
@@ -92,12 +93,12 @@ public class NoDateComparatorTest {
 	/**
 	 * Create a course group with a single component.
 	 */
-	private CourseGroup newGroup(String when, String title) {
+	private CourseGroup newGroup(String termcode, String title) {
 		CourseGroup cg = mock(CourseGroup.class);
 		when(cg.getTitle()).thenReturn(title);
 		CourseComponent co = mock(CourseComponent.class);
 		when(cg.getComponents()).thenReturn(Collections.singletonList(co));
-		when(co.getWhen()).thenReturn(when);
+		when(co.getTermCode()).thenReturn(termcode);
 		return cg;
 	}
 
