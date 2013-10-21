@@ -46,7 +46,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	private SearchService searchService;
 
 	private long adjustment;
-	
+
+	protected final Comparator<CourseGroup> noDateCompatator = new NoDateComparator();
+
 	public void setDao(CourseDAO dao) {
 		this.dao = dao;
 	}
@@ -1298,49 +1300,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				groups.add(new CourseGroupImpl(myGroupDao, this));
 			}
 		}
-		
-		Collections.sort(groups, new Comparator<CourseGroup>() {
-			public int compare(CourseGroup c1, CourseGroup c2) {
-				
-				String when1 = c1.getComponents().get(c1.getComponents().size() -1).getWhen();
-				String when2 = c2.getComponents().get(c2.getComponents().size() -1).getWhen();
-				if (null == when1) {
-					return 1;
-				}
-				if (null == when2) {
-					return -1;
-				}
-				String[] words1 = when1.split(" ");
-				String[] words2 = when2.split(" ");
-				if (words1.length < 2) {
-					return 1;
-				}
-				if (words2.length < 2) {
-					return -1;
-				}
-				
-				int i1 = Integer.parseInt(words1[1]);
-				int i2 = Integer.parseInt(words2[1]);
-				if (i1 > i2) {
-					return 1;
-				}
-				if (i1 <i2) {
-					return -1;
-				}
-				
-				String[] terms = {"Michaelmas","Hilary","Trinity"};
-				i1 = Arrays.asList(terms).indexOf(words1[0]);
-				i2 = Arrays.asList(terms).indexOf(words2[0]);
-				if (i1 > i2) {
-					return 1;
-				}
-				if (i1 < i2) {
-					return -1;
-				}
-				
-				return c1.getTitle().compareTo(c2.getTitle());
-			}
-		});
+
+		Collections.sort(groups, noDateCompatator);
 		
 		return groups;
 	}
