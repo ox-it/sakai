@@ -36,7 +36,7 @@ public class TermCodeComparatorTest {
 
 	@Test
 	public void testNullTerm() {
-		assertTransative("HT10", null);
+		assertTransative(null, "HT10");
 	}
 
 	@Test
@@ -46,7 +46,7 @@ public class TermCodeComparatorTest {
 
 	@Test
 	public void testBadTerm() {
-		assertTransative("HT10", "II10");
+		assertTransative("II10", "HT10");
 	}
 
 	@Test

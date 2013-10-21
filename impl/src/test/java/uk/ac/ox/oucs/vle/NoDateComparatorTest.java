@@ -45,22 +45,22 @@ public class NoDateComparatorTest {
 
 	@Test
 	public void testNull() {
-		CourseGroup cg1 = newGroup("HT11", CG1);
-		CourseGroup cg2 = newGroup(null, CG2);
+		CourseGroup cg1 = newGroup(null, CG1);
+		CourseGroup cg2 = newGroup("HT11", CG2);
 		assertTransative(cg1, cg2);
 	}
 
 	@Test
 	public void testBadTerm() {
-		CourseGroup cg1 = newGroup("HT11", CG1);
-		CourseGroup cg2 = newGroup("NoTerm 11", CG2);
+		CourseGroup cg1 = newGroup("NoTerm 11", CG1);
+		CourseGroup cg2 = newGroup("HT11", CG2);
 		assertTransative(cg1, cg2);
 	}
 
 	@Test
 	public void testBadYear() {
-		CourseGroup cg1 = newGroup("HT11", CG1);
-		CourseGroup cg2 = newGroup("HT11/12", CG2);
+		CourseGroup cg1 = newGroup("HT11/12", CG1);
+		CourseGroup cg2 = newGroup("HT11", CG2);
 		assertTransative(cg1, cg2);
 	}
 

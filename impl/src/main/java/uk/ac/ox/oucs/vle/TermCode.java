@@ -73,8 +73,8 @@ class TermCode implements Comparable<TermCode> {
 	public int compareTo(TermCode other) {
 		if (! (this.isValid() && other.isValid()) ) {
 			int ret = 0;
-			ret += (this.isValid()?1:0);
-			ret -= (other.isValid()?1:0);
+			ret -= (this.isValid()?1:0);
+			ret += (other.isValid()?1:0);
 			if(ret == 0) {
 				// Fallback to the source so we have consistent sorting
 				if (this.source != null && other.source != null) {
