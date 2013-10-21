@@ -2,8 +2,12 @@ package uk.ac.ox.oucs.vle;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -15,6 +19,7 @@ public class NoDateComparatorTest {
 
 	public static final String CG1 = "CG1";
 	public static final String CG2 = "CG2";
+
 	private NoDateComparator comp = new NoDateComparator();
 
 	@Test
@@ -57,6 +62,21 @@ public class NoDateComparatorTest {
 		CourseGroup cg1 = newGroup("Hilary 2011", CG1);
 		CourseGroup cg2 = newGroup("Hilary 2011/12", CG2);
 		assertTransative(cg1, cg2);
+	}
+
+	@Test
+	public void testCollectionSort() {
+
+		CourseGroup cg0 = newGroup(null, "0");
+		CourseGroup cg1 = newGroup("Trinity 2013", "1");
+		CourseGroup cg2 = newGroup("Trinity 2012", "2");
+		CourseGroup cg3 = newGroup("Trinity 2011", "3");
+		CourseGroup cg4 = newGroup("Hilary 2011", "4");
+		CourseGroup cg5 = newGroup("Michaelmas 2011", "5");
+
+		List<CourseGroup> list = Arrays.asList(cg2, cg4, cg3, cg5, cg0, cg1);
+		Collections.sort(list, comp);
+		assertArrayEquals(new CourseGroup[]{cg5, cg4, cg3, cg2, cg1, cg0}, list.toArray());
 	}
 
 	private void assertTransative(CourseGroup cg1, CourseGroup cg2) {

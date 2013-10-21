@@ -5,7 +5,7 @@ import java.util.Comparator;
 
 /**
  * This is for sorting coursegroups with no date by when we think they might happen
- * based on the term.
+ * based on the term. Puts oldest first.
  *
 * @author Matthew Buckett
 */
@@ -14,7 +14,8 @@ class NoDateComparator implements Comparator<CourseGroup> {
 	public int compare(CourseGroup c1, CourseGroup c2) {
 		// This is for when we don't have a good date, but most courses will have
 		// a term code.
-		// TODO Check that the last component is always the latest.
+		// This does return the latest, but only where dates are concerned, otherwise
+		// it's based on the presentation ID.
 		String when1 = c1.getComponents().get(c1.getComponents().size() - 1).getWhen();
 		String when2 = c2.getComponents().get(c2.getComponents().size() - 1).getWhen();
 		if (null == when1) {
