@@ -89,7 +89,7 @@ public interface CourseComponent {
 	/**
 	 * The URL to apply to the course.
 	 * This comes from standard XCRI.
-	 * @return A String URL.
+	 * @return A String URL or <code>null</code> if there isn none.
 	 * @see #getMemberApplyTo()
 	 */
 	public String getApplyTo();
@@ -97,6 +97,8 @@ public interface CourseComponent {
 	/**
 	 * This gets more details about when the teaching happens. Typically this is used
 	 * for times of the teach, of specifying special cases.
+	 * @deprecated The information that was previously in here should be in the sessions instead.
+	 * @see #getComponentSessions()
 	 * @return Details of when the teaching happens, or <code>null</code> if we don't have any.
 	 */
 	public String getTeachingDetails();
