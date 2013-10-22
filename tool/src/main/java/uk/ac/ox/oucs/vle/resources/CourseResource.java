@@ -497,11 +497,6 @@ public class CourseResource {
 				gen.writeObjectField("id", courseGroup.getCourseId());
 				gen.writeObjectField("description", courseGroup.getDescription());
 				gen.writeObjectField("title", courseGroup.getTitle());
-				//gen.writeObjectField("supervisorApproval", courseGroup.getSupervisorApproval());
-				//gen.writeObjectField("administratorApproval", courseGroup.getAdministratorApproval());
-				//gen.writeObjectField("publicView", courseGroup.getPublicView());
-				//gen.writeObjectField("homeApproval", courseGroup.getHomeApproval());
-				//gen.writeObjectField("isAdmin", courseGroup.getIsAdmin());
 				
 				gen.writeArrayFieldStart("components");
 				for (CourseComponent component : courseGroup.getComponents()) {
@@ -646,7 +641,6 @@ public class CourseResource {
 					gen.writeObjectField("baseDate", component.getBaseDate().getTime());
 				}
 				gen.writeObjectField("title", component.getTitle());
-				//gen.writeObjectField("sessions", component.getSessions());
 				gen.writeObjectField("when", component.getWhen());
 				gen.writeObjectField("bookable", component.getBookable());
 				if (null != component.getStarts()) {
