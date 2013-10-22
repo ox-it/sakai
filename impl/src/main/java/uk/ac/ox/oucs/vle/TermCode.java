@@ -65,7 +65,7 @@ class TermCode implements Comparable<TermCode> {
 		return null;
 	}
 
-	private boolean isValid() {
+	public boolean isValid() {
 		return term != null;
 	}
 

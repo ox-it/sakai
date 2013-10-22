@@ -430,8 +430,11 @@ public class ModuleImpl implements Module {
 			output.append(component.getStartsText());
 		}
 
-		// TODO this needs to mapped to a name
-		output.append(component.getTermcode());
+		TermCode termCode = new TermCode(component.getTermcode());
+		if (termCode.isValid()) {
+			output.append(" ");
+			output.append(termCode.getName());
+		}
 		if(validString(component.getTeacherName())) {
 			output.append(" with ");
 			output.append(component.getTeacherName());
