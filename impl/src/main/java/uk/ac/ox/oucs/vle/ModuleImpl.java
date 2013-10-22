@@ -418,11 +418,6 @@ public class ModuleImpl implements Module {
 		output.append(": ");
 		output.append(component.getTitle());
 		output.append(": ");
-		// Slot held extra details of the teaching (time)
-		if (null != component.getTeachingDetails()) {
-			output.append(component.getTeachingDetails());
-			output.append(" ");
-		}
 		// TODO - The sessions should really be an int and we should check > 1
 		if (component.getSessions() != null && validString(component.getSessions())) {
 			output.append(String.format(" for %s sessions ", component.getSessions()));

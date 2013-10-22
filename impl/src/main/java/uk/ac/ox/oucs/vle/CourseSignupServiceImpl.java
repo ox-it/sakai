@@ -1063,11 +1063,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		for(CourseComponent component: signup.getComponents()) {
 			output.append("  - ");
 			output.append(component.getTitle());
-			if (component.getTeachingDetails() != null ) {
-				output.append(": ");
-				output.append(component.getTeachingDetails());
-				output.append(" ");
-			}
 			output.append("for ");
 			output.append(component.getSessions());
 			output.append(" starts in ");
