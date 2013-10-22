@@ -21,7 +21,6 @@ package uk.ac.ox.oucs.vle;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -1064,9 +1063,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		for(CourseComponent component: signup.getComponents()) {
 			output.append("  - ");
 			output.append(component.getTitle());
-			output.append(": ");
-			output.append(component.getSlot());
-			output.append(" for ");
+			if (component.getTeachingDetails() != null ) {
+				output.append(": ");
+				output.append(component.getTeachingDetails());
+				output.append(" ");
+			}
+			output.append("for ");
 			output.append(component.getSessions());
 			output.append(" starts in ");
 			output.append(component.getWhen());

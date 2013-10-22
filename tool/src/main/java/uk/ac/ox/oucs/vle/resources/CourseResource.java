@@ -509,7 +509,7 @@ public class CourseResource {
 					gen.writeObjectField("id", component.getPresentationId());
 					gen.writeObjectField("title", component.getTitle());
 					gen.writeObjectField("location", component.getLocation());
-					gen.writeObjectField("slot", component.getSlot());
+					gen.writeObjectField("slot", component.getTeachingDetails());
 					gen.writeObjectField("size", component.getSize());
 					if (null != component.getOpens()) {
 						gen.writeObjectField("opens", component.getOpens().getTime());
@@ -631,7 +631,7 @@ public class CourseResource {
 				gen.writeStartObject();
 				gen.writeObjectField("id", component.getPresentationId());
 				gen.writeObjectField("location", component.getLocation());
-				gen.writeObjectField("slot", component.getSlot());
+				gen.writeObjectField("slot", component.getTeachingDetails());
 				gen.writeObjectField("size", component.getSize());
 				gen.writeObjectField("subject", component.getSubject());
 				if (null != component.getOpens()) {

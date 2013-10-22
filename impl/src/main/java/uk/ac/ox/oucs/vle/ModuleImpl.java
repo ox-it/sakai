@@ -123,6 +123,7 @@ public class ModuleImpl implements Module {
 		
 		initialise();
 		String[] words = new String[0];
+		// This gets all the groups there are as all the values are ignored.
 		final List<CourseGroupDAO> groups = dao.findCourseGroupByWords(words, Range.ALL, new Date(), false);
 		
 		modulesClosing(groups);
@@ -133,8 +134,8 @@ public class ModuleImpl implements Module {
 	}
 	
 	/**
-	 * email course administrator if course component is about to close
-	 * @param groups
+	 * Email course administrator if course component is about to close
+	 * @param groups A list of all groups that may have closing components.
 	 */
 	private void modulesClosing(final List<CourseGroupDAO> groups) {
 		
@@ -417,14 +418,25 @@ public class ModuleImpl implements Module {
 		output.append(": ");
 		output.append(component.getTitle());
 		output.append(": ");
-		if (null != component.getSlot()) {
-			output.append(component.getSlot());
+		// Slot held extra details of the teaching (time)
+		if (null != component.getTeachingDetails()) {
+			output.append(component.getTeachingDetails());
 			output.append(" ");
 		}
-		output.append("for ");
-		output.append(component.getSessions());
-		output.append(" starts in ");
-		output.append(component.getWhen());
+		// TODO - The sessions should really be an int and we should check > 1
+		if (component.getSessions() != null && validString(component.getSessions())) {
+			output.append(String.format(" for %s sessions ", component.getSessions()));
+			output.append(component.getSessions());
+		}
+		output.append(" starts on ");
+		if (component.getStarts() != null) {
+			output.append(component.getStarts());
+		} else {
+			output.append(component.getStartsText());
+		}
+
+		// TODO this needs to mapped to a name
+		output.append(component.getTermcode());
 		if(validString(component.getTeacherName())) {
 			output.append(" with ");
 			output.append(component.getTeacherName());
