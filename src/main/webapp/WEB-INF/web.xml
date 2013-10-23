@@ -31,8 +31,8 @@
     		<!-- 
     		Properties taken from sakai.properties or from context
     		-->
-    		<!--param-value>uk.ac.ox.oucs.sirlouie.properties.SakaiProperties</param-value-->
-    		<param-value>uk.ac.ox.oucs.sirlouie.properties.ContextProperties</param-value>
+    		<param-value>uk.ac.ox.oucs.sirlouie.properties.SakaiProperties</param-value>
+    		<!--param-value>uk.ac.ox.oucs.sirlouie.properties.ContextProperties</param-value-->
   		</init-param>
   		
   		<load-on-startup>1</load-on-startup>
