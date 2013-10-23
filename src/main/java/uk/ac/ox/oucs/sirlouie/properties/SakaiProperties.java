@@ -6,14 +6,10 @@ import javax.servlet.ServletException;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
 public class SakaiProperties extends SirLouieProperties {
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
-	public final static String CONFIG_LOCATION = "sirlouie.properties";
 	public final static String WEBRESOURCE_URL = "sirlouie.webresourceURL";
-	
+
 	/**
 	 * This class allows the location of the sirlouie filter properties to be loaded from a 
 	 * file defined in the sakai.properties file.
@@ -24,11 +20,10 @@ public class SakaiProperties extends SirLouieProperties {
 	 */
 
 	public SakaiProperties(ServletContext context) throws ServletException {
-		
 		super();
 		setProperty(WEBRESOURCE_URL, ServerConfigurationService.getString(WEBRESOURCE_URL));
 	}
-	
+
 	public String getWebResourseURL() {
 		return getProperty(WEBRESOURCE_URL);
 	}
