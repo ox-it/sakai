@@ -214,18 +214,13 @@ public class ModuleImpl implements Module {
 			
 			if (Status.ACCEPTED == signup.getStatus()) {
 				
-				Collection<CourseSignupDAO> set = 
-						(Collection<CourseSignupDAO>)supervisors.get(signup.getSupervisorId());
+				Collection<CourseSignupDAO> set = supervisors.get(signup.getSupervisorId());
 				
 				if (null == set) {
 					set = new HashSet<CourseSignupDAO>();
-					set.add(signup);
-				} else {
-					set.add(signup);
-					supervisors.remove(signup.getSupervisorId());
+					supervisors.put(signup.getSupervisorId(), set);
 				}
-				supervisors.put(signup.getSupervisorId(), set);
-				
+				set.add(signup);
 			}
 			
 			if (Status.PENDING == signup.getStatus()) {
@@ -235,17 +230,13 @@ public class ModuleImpl implements Module {
 				
 				for (String admin : admins) {
 					
-					Collection<CourseSignupDAO> set = 
-							(Collection<CourseSignupDAO>)administrators.get(admin);
+					Collection<CourseSignupDAO> set = administrators.get(admin);
 					
 					if (null == set) {
 						set = new HashSet<CourseSignupDAO>();
-						set.add(signup);
-					} else {
-						set.add(signup);
-						administrators.remove(admin);
+						administrators.put(admin, set);
 					}
-					administrators.put(admin, set);
+					set.add(signup);
 				}
 				
 			}
