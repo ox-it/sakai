@@ -1,4 +1,4 @@
-<%--
+ <%--
   #%L
   Course Signup Webapp
   %%
@@ -102,42 +102,43 @@ At Oxford, our researcher development training is tagged with RDF Domains and Su
 
  <map name="vitae-wheel">
   <area shape="poly" alt="Knowledge base (A1)" title="Subject knowledge&#10;Research methods: theoretical knowledge&#10;Research methods: practical application&#10;Information seeking&#10;Information literacy and management&#10;Languages&#10;Academic literacy and numeracy"
-    coords="576,31,572,187,678,201,764,238,841,104,701,44" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22A1%20%2D%20Knowledge%20base%22" />
+   coords="288,15,286,93,339,100,382,119,420,52,350,22" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22A1%20%2D%20Knowledge%20base%22" />
   <area shape="poly" alt="Cognitive abilities (A2)" title="Analysing&#10;Synthesising&#10;Critical thinking&#10;Evaluating&#10;Problem solving"
-    coords="850,108,772,240,853,306,908,381,1043,303,954,188" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22A2%20%2D Cognitive abilities%22" />
+   coords="425,54,386,120,426,153,454,190,521,151,477,94" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22A2%20%2D Cognitive abilities%22" />
   <area shape="poly" alt="Creativity (A3)" title="Inquiring mind&#10;Intellectual insight&#10;Innovation&#10;Argument construction&#10;Intellectual risk"
-    coords="1048,314,913,387,950,483,962,576,1113,577,1097,441" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22A3%20%2D Creativity%22" />
+   coords="524,157,456,193,475,241,481,288,556,288,548,220" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22A3%20%2D Creativity%22" />
   <area shape="poly" alt="Personal qualities (B1)" title="Enthusiasm&#10;Perseverance&#10;Integrity&#10;Self-confidence&#10;Self-reflection&#10;Responsibility"
-    coords="1114,586,958,583,943,694,907,776,1043,849,1096,710" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22B1%20%2D Personal qualities%22" />
+   coords="557,293,479,291,471,347,453,388,521,424,548,355" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22B1%20%2D Personal qualities%22" />
   <area shape="poly" alt="Self-management (B2)" title="Preparation and prioritisation&#10;Commitment to research&#10;Time management&#10;Responsiveness to change&#10;Work-life balance"
-    coords="1038,857,906,778,843,856,770,913,845,1049,961,957" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22B2%20%2D Self-management%22" />
+   coords="519,428,453,389,421,428,385,456,422,524,480,478" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22B2%20%2D Self-management%22" />
   <area shape="poly" alt="Professional and career development (B3)" title="Career management&#10;Continuing professional development&#10;Responsiveness to opportunities&#10;Networking&#10;Reputation and esteem"
-    coords="838,1053,759,917,671,952,576,963,574,1123,715,1104" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22B3%20%2D Professional and career development%22" />
+   coords="419,526,379,458,335,476,288,481,287,561,357,552" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22B3%20%2D Professional and career development%22" />
   <area shape="poly" alt="Professional conduct (C1)" title="Health and safety&#10;Ethics, principles and sustainability&#10;Legal requirements&#10;IPR and copyright&#10;Respect and confidentiality&#10;Attribution and co-authorship&#10;Appropriate practice"
-    coords="101,847,236,768,197,670,186,585,31,585,47,713" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22C1%20%2D Professional conduct%22" />
+   coords="50.5,423,118,384,98,335,93,292,15,292,23,356" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22C1%20%2D Professional conduct%22" />
   <area shape="poly" alt="Research management (C2)" title="Research strategy&#10;Project planning and delivery&#10;Risk management"
-    coords="296,1046,375,910,288,841,241,778,106,855,180,954" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22C2%20%2D Research management%22" />
+   coords="148,523,187,455,144,420,120,389,53,427,90,477" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22C2%20%2D Research management%22" />
   <area shape="poly" alt="Finance, funding and resources (C3)" title="Income and funding generation&#10;Financial management&#10;Infrastructure and resources"
-    coords="566,1122,566,963,455,947,385,914,306,1051,424,1102" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22C3%20%2D%20Finance%5C%2C%20funding%20and%20resources%22" />
+   coords="283,561,283,481,227,473,192,457,153,525,212,551" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22C3%20%2D%20Finance%5C%2C%20funding%20and%20resources%22" />
   <area shape="poly" alt="Working with others (D1)" title="Collegiality&#10;Team working&#10;People management&#10;Supervision&#10;Mentoring&#10;Influence and leadership&#10;Collaboration&#10;Equality and diversity"
-     coords="301,104,378,239,470,200,567,185,566,31,414,55" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22D1%20%2D Working with others%22" />
+    coords="150.5,52,189,119,235,100,283,92,283,15,207,27" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22D1%20%2D Working with others%22" />
   <area shape="poly" alt="Communication and dissemination (D2)" title="Communication methods&#10;Communication media&#10;Publication"
-    coords="101,305,236,382,298,301,371,242,294,109,176,203" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22D2%20%2D Communication and dissemination%22" />
+   coords="50.5,152,118,191,149,150,185,121,147,54,88,101" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22D2%20%2D Communication and dissemination%22" />
   <area shape="poly" alt="Engagement and impact (D3)" title="Teaching&#10;Public engagement&#10;Enterprise&#10;Policy&#10;Society and culture&#10;Global citizenship"
-    coords="30,575,184,575,199,470,231,389,99,311,48,433" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22D3%20%2D Engagement and impact%22" />
+   coords="15,287,92,287,99,235,115,194,49,155,24,216" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22D3%20%2D Engagement and impact%22" />
   <area shape="poly" alt="Domain A: Knowledge and intellectual abilities" title="This domain contains the knowledge and intellectual abilities needed to be able to carry out excellent research."
-    coords="575,577,576,196,675,209,763,246,839,306,903,386,944,488,953,574" href="search.jsp?fq=course_subject_vitae_domain%3A%22A%20%2D%20 Knowledge and intellectual abilities%22" />
+   coords="287.5,288,288,98,337,104,381,123,419,153,451,193,472,244,476,287" href="search.jsp?fq=course_subject_vitae_domain%3A%22A%20%2D%20 Knowledge and intellectual abilities%22" />
   <area shape="poly" alt="Domain B: Personal effectiveness" title="This domain contains the personal qualities, career and self-management skills required to take ownership for and control of professional development."
-    coords="576,585,952,585,934,695,896,773,839,846,760,907,667,942,576,954" href="search.jsp?fq=course_subject_vitae_domain%3A%22B%20%2D%20 Personal effectiveness%22" />
+   coords="288,292,476,292,467,347,448,386,419,423,380,453,333,471,288,477" href="search.jsp?fq=course_subject_vitae_domain%3A%22B%20%2D%20 Personal effectiveness%22" />
   <area shape="poly" alt="Domain C: Research governance and organisation" title="This domain contains the knowledge of the standards, requirements and professional conduct that are needed for the effective management of research."
-    coords="567,585,566,953,464,939,386,905,300,837,246,769,204,668,192,585" href="search.jsp?fq=course_subject_vitae_domain%3A%22C%20%2D%20 Research governance and organisation%22" />
+   coords="283.5,292,283,476,232,469,193,452,150,418,123,384,102,334,96,292" href="search.jsp?fq=course_subject_vitae_domain%3A%22C%20%2D%20 Research governance and organisation%22" />
   <area shape="poly" alt="Domain D: Engagement, influence and impact" title="This domain contains the knowledge, understanding and skills needed to engage with, influence and impact on the academic, social, cultural and economic context."
-    coords="566,577,194,576,208,472,241,390,304,308,382,246,475,209,567,194" href="search.jsp?fq=course_subject_vitae_domain%3A%22D%20%2D%20 Engagement%5C%2C influence and impact%22" />
+   coords="283,288,97,288,104,236,120,195,152,154,191,123,237,104,283,97" href="search.jsp?fq=course_subject_vitae_domain%3A%22D%20%2D%20 Engagement%5C%2C influence and impact%22" />
 
-  <area shape="poly" alt="RDF Conditions of use" title="RDF Conditions of use" coords="802,1122,875,1095,944,1050,1006,992,1054,930,1100,864,1122,815,1091,803,1059,862,1018,921,964,978,890,1042,826,1080,794,1098" href="http://www.vitae.ac.uk/RDFconditionsofuse" target="_blank" />
+  <area shape="poly" alt="RDF Conditions of use" title="RDF Conditions of use"
+   coords="401,561,437,547,472,525,503,496,527,465,550,432,561,407,545,401,529,431,509,460,482,489,445,521,413,540,397,549" href="http://www.vitae.ac.uk/RDFconditionsofuse" target="_blank" />
  </map>
 
- <img style="border: none; display: block; margin-left: auto; margin-right: auto" src="images/vitae-wheel.jpg" usemap="#vitae-wheel" width="1143px" height="1201px"/>
+ <img style="border: none; display: block; margin-left: auto; margin-right: auto" src="images/vitae-wheel.jpg" usemap="#vitae-wheel" width="571px" height="600px"/>
 
 </div>
  
