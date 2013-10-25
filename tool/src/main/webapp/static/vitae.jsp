@@ -126,13 +126,13 @@ At Oxford, our researcher development training is tagged with RDF Domains and Su
   <area shape="poly" alt="Engagement and impact (D3)" title="Teaching&#10;Public engagement&#10;Enterprise&#10;Policy&#10;Society and culture&#10;Global citizenship"
    coords="15,287,92,287,99,235,115,194,49,155,24,216" href="search.jsp?fq=course_subject_vitae_subdomain%3A%22D3%20%2D Engagement and impact%22" />
   <area shape="poly" alt="Domain A: Knowledge and intellectual abilities" title="This domain contains the knowledge and intellectual abilities needed to be able to carry out excellent research."
-   coords="287.5,288,288,98,337,104,381,123,419,153,451,193,472,244,476,287" href="search.jsp?fq=course_subject_vitae_domain%3A%22A%20%2D%20 Knowledge and intellectual abilities%22" />
+   coords="287.5,288,288,98,337,104,381,123,419,153,451,193,472,244,476,287" href="search.jsp?fq=course_subject_vitae_domain%3A%22A%20%2D%20Knowledge and intellectual abilities%22" />
   <area shape="poly" alt="Domain B: Personal effectiveness" title="This domain contains the personal qualities, career and self-management skills required to take ownership for and control of professional development."
-   coords="288,292,476,292,467,347,448,386,419,423,380,453,333,471,288,477" href="search.jsp?fq=course_subject_vitae_domain%3A%22B%20%2D%20 Personal effectiveness%22" />
+   coords="288,292,476,292,467,347,448,386,419,423,380,453,333,471,288,477" href="search.jsp?fq=course_subject_vitae_domain%3A%22B%20%2D%20Personal effectiveness%22" />
   <area shape="poly" alt="Domain C: Research governance and organisation" title="This domain contains the knowledge of the standards, requirements and professional conduct that are needed for the effective management of research."
-   coords="283.5,292,283,476,232,469,193,452,150,418,123,384,102,334,96,292" href="search.jsp?fq=course_subject_vitae_domain%3A%22C%20%2D%20 Research governance and organisation%22" />
+   coords="283.5,292,283,476,232,469,193,452,150,418,123,384,102,334,96,292" href="search.jsp?fq=course_subject_vitae_domain%3A%22C%20%2D%20Research governance and organisation%22" />
   <area shape="poly" alt="Domain D: Engagement, influence and impact" title="This domain contains the knowledge, understanding and skills needed to engage with, influence and impact on the academic, social, cultural and economic context."
-   coords="283,288,97,288,104,236,120,195,152,154,191,123,237,104,283,97" href="search.jsp?fq=course_subject_vitae_domain%3A%22D%20%2D%20 Engagement%5C%2C influence and impact%22" />
+   coords="283,288,97,288,104,236,120,195,152,154,191,123,237,104,283,97" href="search.jsp?fq=course_subject_vitae_domain%3A%22D%20%2D%20Engagement%5C%2C influence and impact%22" />
 
   <area shape="poly" alt="RDF Conditions of use" title="RDF Conditions of use"
    coords="401,561,437,547,472,525,503,496,527,465,550,432,561,407,545,401,529,431,509,460,482,489,445,521,413,540,397,549" href="http://www.vitae.ac.uk/RDFconditionsofuse" target="_blank" />
