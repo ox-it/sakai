@@ -31,7 +31,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * This handles the logins from the SES tool, handing off the request to the login tool.
+ * This sets up the URL to return to after performing the login and then redirects
+ * to the controller that handles the login.
+ *
+ * @author Matthew Buckett
  */
 public class SetupLoginController extends AbstractController {
 
