@@ -1099,14 +1099,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setAmended(getNow());
 		dao.save(signupDao);
 		proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_WITHDRAW, null);
-		
-		/**
-		 * @param userId The ID of the user who the message should be sent to.
-	     * @param signupDao The signup the message is about.
-	     * @param subjectKey The resource bundle key for the subject
-	     * @param bodyKey The resource bundle key for the body.
-	     * @param additionalBodyData Additional objects used to format the email body. Typically used for the confirm URL.
-		 */
+
 		if (sendEmail) {
 			for (String administrator : signupDao.getGroup().getAdministrators()) {
 				sendSignupEmail(
