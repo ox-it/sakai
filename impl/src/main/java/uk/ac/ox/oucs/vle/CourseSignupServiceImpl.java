@@ -1065,8 +1065,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			output.append(component.getTitle());
 			output.append("for ");
 			output.append(component.getSessions());
-			output.append(" starts in ");
-			output.append(component.getWhen());
+			if (component.getWhen() != null) {
+				output.append(" starts in ");
+				output.append(component.getWhen());
+			}
 			Person presenter = component.getPresenter();
 			if(presenter != null) {
 				output.append(" with ");
