@@ -1116,10 +1116,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				               new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
 	}
 
-	public CourseGroup getAvailableCourseGroup(String courseId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	public List<CourseGroup> getCourseGroupsByDept(String deptId, Range range, boolean externalUser) {
 		List<CourseGroupDAO> cgDaos = dao.findCourseGroupByDept(deptId, range, getNow(), externalUser);

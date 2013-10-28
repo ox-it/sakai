@@ -75,14 +75,7 @@ public interface CourseSignupService {
 	
 
 	public CourseGroup getCourseGroup(String courseId, Range range);
-	
-	/**
-	 * This loads a course group with only the data that is available at the moment.
-	 * @param courseId
-	 * @return
-	 */
-	public CourseGroup getAvailableCourseGroup(String courseId);
-	
+
 	/**
 	 * Finds all course groups 
 	 * @param deptId
