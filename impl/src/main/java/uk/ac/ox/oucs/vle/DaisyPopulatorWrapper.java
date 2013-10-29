@@ -48,11 +48,16 @@ public class DaisyPopulatorWrapper extends BasePopulatorWrapper implements Popul
 		this.search = search;
 	}
 
+	private NowService nowService;
+	public void setNowService(NowService nowService) {
+		this.nowService = nowService;
+	}
+
 	@Override
 	void runPopulator(PopulatorContext context) throws IOException {
 		
-		dao.flagSelectedDaisyCourseGroups(context.getName());
-		dao.flagSelectedDaisyCourseComponents(context.getName());
+		dao.flagSelectedDaisyCourseGroups(context.getName(), nowService.getNow());
+		dao.flagSelectedDaisyCourseComponents(context.getName(), nowService.getNow());
 
 		populator.update(context);
 

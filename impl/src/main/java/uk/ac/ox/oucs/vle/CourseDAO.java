@@ -125,9 +125,9 @@ public interface CourseDAO {
 	
 	public int flagSelectedCourseComponents(final String source);
 	
-	public int flagSelectedDaisyCourseGroups(final String source);
+	int flagSelectedDaisyCourseGroups(String source, Date now);
 	
-	public int flagSelectedDaisyCourseComponents(final String source);
+	int flagSelectedDaisyCourseComponents(String source, Date now);
 	
 	public Collection<CourseGroupDAO> deleteSelectedCourseGroups(final String source);
 	

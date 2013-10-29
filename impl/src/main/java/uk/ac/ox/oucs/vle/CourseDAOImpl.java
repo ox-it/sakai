@@ -837,7 +837,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	/**
 	 * 
 	 */
-	public int flagSelectedDaisyCourseGroups(final String source) {
+	public int flagSelectedDaisyCourseGroups(final String source, final Date now) {
 		return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				StringBuffer querySQL = new StringBuffer();
@@ -847,9 +847,11 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				querySQL.append("left join course_signup cs on cg.muid = cs.courseGroupMuid ");
 				querySQL.append("set cg.deleted = true ");
 				querySQL.append("where cg.source = :source and ");
-				querySQL.append("cc.baseDate > now() and ");
+				querySQL.append("cc.baseDate > :now and ");
 				querySQL.append("(select count(cs.id) = 0)");
-				Query query = session.createSQLQuery(querySQL.toString()).setString("source", source);
+				Query query = session.createSQLQuery(querySQL.toString())
+						.setString("source", source)
+						.setDate("now", now);
 				return query.executeUpdate();
 			}
 		});
@@ -858,7 +860,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	/**
 	 * 
 	 */
-	public int flagSelectedDaisyCourseComponents(final String source) {
+	public int flagSelectedDaisyCourseComponents(final String source, final Date now) {
 		return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				StringBuffer querySQL = new StringBuffer();
@@ -867,9 +869,11 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				querySQL.append("left join course_signup cs on ccs.signup = cs.id ");
 				querySQL.append("set deleted = true ");
 				querySQL.append("where source = :source and ");
-				querySQL.append("baseDate > now() and ");
+				querySQL.append("baseDate > :now and ");
 				querySQL.append("(select count(cs.id) = 0)");
-				Query query = session.createSQLQuery(querySQL.toString()).setString("source", source);
+				Query query = session.createSQLQuery(querySQL.toString())
+						.setString("source", source)
+						.setDate("now", now);
 				return query.executeUpdate();
 			}
 		});
