@@ -201,9 +201,7 @@ excluding it -->
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<excludes>
-						<exclude>**/TestPopulatorWrapper.java</exclude>
 						<exclude>**/TestPopulatorInput.java</exclude>
-						<exclude>**/CourseSignupServiceTest.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

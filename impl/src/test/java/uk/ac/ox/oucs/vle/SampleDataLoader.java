@@ -31,8 +31,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 /**
- * Simple data loader that takes a set of SQL statements and runs them against a DB.
- * Uses a hibernate session to connect to the DB.
+ * This loads some samepl data into the database.
+ *
  * @author buckett
  *
  */
@@ -40,10 +40,10 @@ public class SampleDataLoader {
 	
 	private static final Log log = LogFactory.getLog(SampleDataLoader.class);
 
-	public Term T2009HILLARY = new Term("2009-HIL", newCalendar(2009, 10, 10));
-	public Term T2010HILLARY = new Term("2010-HIL", newCalendar(2010, 10, 10));
-	public Term T2011HILLARY = new Term("2011-HIL", newCalendar(2011, 10, 10));
-	public Term T2012HILLARY = new Term("2011-HIL", newCalendar(2012, 10, 10));
+	public static Term T2009HILLARY = new Term("2009-HIL", newCalendar(2009, 10, 10));
+	public static Term T2010HILLARY = new Term("2010-HIL", newCalendar(2010, 10, 10));
+	public static Term T2011HILLARY = new Term("2011-HIL", newCalendar(2011, 10, 10));
+	public static Term T2012HILLARY = new Term("2011-HIL", newCalendar(2012, 10, 10));
 
 	protected CourseDAO dao;
 
@@ -53,7 +53,7 @@ public class SampleDataLoader {
 
 
 	public void init() throws Exception {
-		log.info("Loading sample data.");
+		log.info("Starting sample data load.");
 
 		// Create the course groups and set administrators.
 		CourseGroupDAO course1 = dao.newCourseGroup("course-1", "3C05", "The Politics of Brazil", null);
@@ -66,6 +66,7 @@ public class SampleDataLoader {
 		dao.save(course2);
 		CourseGroupDAO course3 = dao.newCourseGroup("course-3", "3C05", "Test of Open", null);
 		course3.setAdministrators(new HashSet<String>(Arrays.asList("admin1", "admin2", "admin3")));
+		course3.setSource("Test");
 		dao.save(course3);
 
 		// Create the components.
@@ -78,6 +79,7 @@ public class SampleDataLoader {
 		CourseComponentDAO comp7 = newComponent("comp-7", "Seminar on South American Politics", T2009HILLARY, 45, "tc-3", course1);
 		CourseComponentDAO comp8 = newComponent("comp-8", "Seminar on South American Politics", T2010HILLARY, 5, "tc-3", course1);
 		CourseComponentDAO comp9 = newComponent("comp-9", "Component Type", T2012HILLARY, 5, "tc-4", course3);
+		dao.save(comp9);
 		// Set the number taken.
 		comp6.setTaken(1);
 		dao.save(comp6);
@@ -95,15 +97,16 @@ public class SampleDataLoader {
 		dao.save(comp6);
 		comp7.getSignups().add(signup1);
 		dao.save(comp7);
+
 		CourseSignupDAO signup2 = dao.newSignup("current", "1");
 		signup2.setStatus(CourseSignupService.Status.ACCEPTED);
 		signup2.setGroup(course1);
 		signup2.setComponents(Collections.singleton(comp7));
 		dao.save(signup2);
-
+		log.info("Finished sample data load.");
 	}
 
-	public class Term {
+	public static class Term {
 		String code;
 		Date opens;
 		Date closes;
@@ -142,6 +145,7 @@ public class SampleDataLoader {
 		comp.setSize(size);
 		comp.setTaken(0);
 		comp.setComponentId(componentId);
+		comp.setSource("Test");
 		for (CourseGroupDAO dao: daos) {
 			comp.getGroups().add(dao);
 		}
