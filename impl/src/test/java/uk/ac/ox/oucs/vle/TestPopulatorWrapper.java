@@ -43,67 +43,69 @@ import java.util.Date;
 
 public class TestPopulatorWrapper extends OnSampleData {
 
-	public static final Date START2010 = SampleDataLoader.newCalendar(2010, 1, 1).getTime();
+	public static final Date START2011 = SampleDataLoader.newCalendar(2011, 1, 1).getTime();
 
 	@Test
 	public void testFlagSelectedCourseGroups() {
-		dao.flagSelectedCourseGroups("Test");
-		CourseGroupDAO group = dao.findCourseGroupById("course-3");
-		assertNotNull(group);
-		assertTrue(group.getDeleted());
+		assertTrue(dao.flagSelectedCourseGroups("Test") > 0);
+		checkDeletedGroup("course-3", true);
 	}
 
 	@Test
 	public void testFlagSelectedCourseComponents() {
-		dao.flagSelectedCourseComponents("Test");
-		CourseComponentDAO component = dao.findCourseComponent("comp-9");
-		assertNotNull(component);
-		assertTrue(component.getDeleted());
+		assertTrue(dao.flagSelectedCourseComponents("Test") > 0);
+		checkDeletedComponent("comp-1", true);
 	}
-
-	// The DAISY importer tests don't work as they use updates with joins and these don't work on
-	// using SQL on test databases. We can't migrate to hibernate as it doesn't support joins on
-	// update statements either. So for now they aren't running
-	// TODO Fix them.
 
 	/**
 	 * Daisy Import will delete all Daisy courses that are future
 	 * and not in the xcri and have no signups
 	 */
+	@Test
 	public void testFlagSelectedDaisyCourseGroups() {
 		//
-		dao.flagSelectedDaisyCourseGroups("Test", START2010);
+		assertTrue(dao.flagSelectedDaisyCourseGroups("Test", START2011) > 0);
 
-		checkDeletedGroup("course-2");
-		checkDeletedGroup("course-3");
+		checkDeletedGroup("course-1", false); // In past and signups.
+		checkDeletedGroup("course-2", false); // In past and no signups.
+		checkDeletedGroup("course-3", true); // In future and no signups.
+		checkDeletedGroup("course-4", false); // In future with signups.
 	}
-
 
 	/**
-	 * Daisy Import will delete all Daisy courses that are future
+	 * Daisy Import will delete all Daisy components that are future
 	 * and not in the xcri and have no signups
 	 */
-
+	@Test
 	public void testFlagSelectedDaisyCourseComponents() {
 
-		dao.flagSelectedDaisyCourseComponents("Test", START2010);
-		CourseComponentDAO component;
-		//
+		assertTrue(dao.flagSelectedDaisyCourseComponents("Test", START2011) > 0);
+
+		checkDeletedComponent("comp-1", false); // In past and no signups
+		checkDeletedComponent("comp-2", false); // In past and no signups
+		checkDeletedComponent("comp-3", false); // In past and no signups
+		checkDeletedComponent("comp-4", true); // In future, no signups
+		checkDeletedComponent("comp-5", true); // In future, no signups
+		checkDeletedComponent("comp-6", false); // In past and signups
+		checkDeletedComponent("comp-7", false); // In past and signups
+		checkDeletedComponent("comp-8", false); // In past and no signups
+		checkDeletedComponent("comp-9", true); // In future and no signups
+		checkDeletedComponent("comp-10", false); // In future with signups.
 
 	}
 
-	private void checkDeletedGroup(String courseId) {
+	private void checkDeletedGroup(String courseId, boolean deleted) {
 		CourseGroupDAO group;
 		group = dao.findCourseGroupById(courseId);
 		assertNotNull(group);
-		assertTrue(group.getDeleted());
+		assertEquals(deleted, group.getDeleted());
 	}
 
-	private void checkDeletedComponent(String componentId) {
+	private void checkDeletedComponent(String componentId, boolean deleted) {
 		CourseComponentDAO componentDAO;
 		componentDAO = dao.findCourseComponent(componentId);
 		assertNotNull(componentDAO);
-		assertTrue(componentDAO.getDeleted());
+		assertEquals(deleted, componentDAO.getDeleted());
 	}
 	
 }

@@ -60,14 +60,20 @@ public class SampleDataLoader {
 		course1.setAdministrators(Collections.singleton("admin"));
 		course1.setAdministratorApproval(true);
 		course1.setSupervisorApproval(true);
+		course1.setSource("Test");
 		dao.save(course1);
 		CourseGroupDAO course2 = dao.newCourseGroup("course-2", "3C05", "The Politics of Mexico", null);
 		course2.setAdministrators(Collections.singleton("admin"));
+		course2.setSource("Test");
 		dao.save(course2);
 		CourseGroupDAO course3 = dao.newCourseGroup("course-3", "3C05", "Test of Open", null);
 		course3.setAdministrators(new HashSet<String>(Arrays.asList("admin1", "admin2", "admin3")));
 		course3.setSource("Test");
 		dao.save(course3);
+		CourseGroupDAO course4 = dao.newCourseGroup("course-4", "3C05", "In future with signups", null);
+		course4.setAdministrators(Collections.singleton("other"));
+		course4.setSource("Test");
+		dao.save(course4);
 
 		// Create the components.
 		CourseComponentDAO comp1 = newComponent("comp-1", "Lecture on Politics of Brazil", T2010HILLARY, 40, "tc-1", course1);
@@ -79,7 +85,8 @@ public class SampleDataLoader {
 		CourseComponentDAO comp7 = newComponent("comp-7", "Seminar on South American Politics", T2009HILLARY, 45, "tc-3", course1);
 		CourseComponentDAO comp8 = newComponent("comp-8", "Seminar on South American Politics", T2010HILLARY, 5, "tc-3", course1);
 		CourseComponentDAO comp9 = newComponent("comp-9", "Component Type", T2012HILLARY, 5, "tc-4", course3);
-		dao.save(comp9);
+		CourseComponentDAO comp10 = newComponent("comp-10", "Component with signups", T2012HILLARY, 5, "tc-4", course4);
+
 		// Set the number taken.
 		comp6.setTaken(1);
 		dao.save(comp6);
@@ -88,6 +95,9 @@ public class SampleDataLoader {
 		comp8.setTaken(5);
 		dao.save(comp8);
 		comp9.setTaken(4);
+		dao.save(comp9);
+		comp10.setTaken(1);
+		dao.save(comp10);
 		// Create some signups.
 		CourseSignupDAO signup1 = dao.newSignup("current", "1");
 		signup1.setStatus(CourseSignupService.Status.ACCEPTED);
@@ -101,8 +111,17 @@ public class SampleDataLoader {
 		CourseSignupDAO signup2 = dao.newSignup("current", "1");
 		signup2.setStatus(CourseSignupService.Status.ACCEPTED);
 		signup2.setGroup(course1);
-		signup2.setComponents(Collections.singleton(comp7));
 		dao.save(signup2);
+		comp7.getSignups().add(signup2);
+		dao.save(comp7);
+
+		CourseSignupDAO signup3 = dao.newSignup("current", "1");
+		signup3.setStatus(CourseSignupService.Status.ACCEPTED);
+		signup3.setGroup(course4);
+		dao.save(signup3);
+		comp10.getSignups().add(signup3);
+		dao.save(comp10);
+
 		log.info("Finished sample data load.");
 	}
 
@@ -110,15 +129,17 @@ public class SampleDataLoader {
 		String code;
 		Date opens;
 		Date closes;
+		Date starts;
 
 		public Term (String code, Calendar starts) {
-			this(code, addWeeks(starts, -3), addWeeks(starts, -1));
+			this(code, addWeeks(starts, -3), addWeeks(starts, -1), starts.getTime());
 		}
 
-		public Term(String code, Date opens, Date closes) {
+		public Term(String code, Date opens, Date closes, Date starts) {
 			this.code = code;
 			this.opens = opens;
 			this.closes = closes;
+			this.starts = starts;
 		}
 	}
 
@@ -142,6 +163,8 @@ public class SampleDataLoader {
 		comp.setTermcode(term.code);
 		comp.setOpens(term.opens);
 		comp.setCloses(term.closes);
+		// We know when teaching starts so that's when we consider this old.
+		comp.setBaseDate(term.starts);
 		comp.setSize(size);
 		comp.setTaken(0);
 		comp.setComponentId(componentId);
