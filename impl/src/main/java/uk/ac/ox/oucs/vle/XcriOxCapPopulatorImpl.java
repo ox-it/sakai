@@ -23,12 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -186,6 +181,35 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	}
 
 	/**
+	 * Attempts to create a category mapper using config from the SakaiProxy, or
+	 * if that one isn't found config from the classpath. If no mappings can be found anywhere
+	 * it still returns a mapper, but that mapper doesn't alter anything.
+	 *
+	 * @return A CategoryMapper and never <code>null</code>.
+	 */
+	private CategoryMapper getCategoryMapper() {
+		CategoryMapper mapper = new CategoryMapper();
+		Properties props = proxy.getCategoryMapping();
+		if (props == null) {
+			// fallback to classpath.
+			String classpathResource =
+					proxy.getConfigParam("course-signup.default-category-mapping", "/default-category-mapping.properties");
+			props = new Properties();
+			try {
+				props.load(getClass().getResourceAsStream(classpathResource));
+			} catch (IOException e) {
+				log.error("Failed to load default category mapping from classpath using: "+ classpathResource+
+						" No mapping of categories will be done", e);
+			}
+		}
+		if (props != null) {
+			mapper.setMappings(props);
+		}
+
+		return mapper;
+	}
+
+	/**
 	 * 
 	 * @param inputStream
 	 * @throws IOException 
@@ -199,8 +223,14 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		SAXBuilder builder = new SAXBuilder();
 		Document document = builder.build(inputStream);
 		catalog.fromXml(document);
+
+		// Here we setup our category mapper, we don't have this as a singleton managed by spring because
+		// the content hosting service isn't up when spring does init() on a singleton.
+		// We could have followed that route and done lazy loading, but then you still need to manage
+		// reload when someone changes the file. This way it's loaded for every import.
+		CategoryMapper mapper = getCategoryMapper();
 			
-		PopulatorInstanceData data = new PopulatorInstanceData();
+		PopulatorInstanceData data = new PopulatorInstanceData(mapper);
 		
 		if (null != context.getDeletedLogWriter()) {
 			context.getDeletedLogWriter().heading(catalog.getGenerated());
@@ -390,9 +420,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		myCourse.setDescription(filterDescriptiveTextTypeArray(course.getDescriptions(), null));
 		myCourse.setPrerequisite(filterDescriptiveTextTypeArray(course.getDescriptions(), TARGET_AUDIENCE));
 		myCourse.setRegulations(filterDescriptiveTextTypeArray(course.getRegulations(), null));
-		
-		Set<Subject.SubjectIdentifier> researchCategories = new HashSet<Subject.SubjectIdentifier>();
-		Set<Subject.SubjectIdentifier> skillsCategories = new HashSet<Subject.SubjectIdentifier>();
+
+		Set<Subject.SubjectIdentifier> categories = new HashSet<Subject.SubjectIdentifier>();
+
 
 		String teachingComponentId = null;
 		Set<String> administrators = new HashSet<String>();
@@ -448,20 +478,16 @@ public class XcriOxCapPopulatorImpl implements Populator {
 
 				// Check it's a in our constrained vocab
 				Subject.SubjectIdentifier subjectIdentifier = subject.getSubjectIdentifier();
-				if (subjectIdentifier != null) {
-					if (subject.isRDFCategory()) {
-						skillsCategories.add(subjectIdentifier);
-					}
-					if (subject.isRMCategory()) {
-						researchCategories.add(subjectIdentifier);
-					}
+				if (subjectIdentifier != null && subject.isValid()) {
+					categories.add(subjectIdentifier);
 				} else {
-					// TODO Log that we're ignoring it.
+					log.debug(String.format("Ignoring subject of %s", subject));
 				}
-
-				continue;
 			}
 		}
+
+		// Map existing course categories onto vitae course categories.
+		data.getMapper().mapCategories(categories);
 
 		myCourse.setAdministrators(administrators);
 		myCourse.setOtherDepartments(otherDepartments);
@@ -492,19 +518,23 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		for (int i=0; i<presentations.length; i++) {
 			presentation(presentations[i], myCourse.getCourseId(), teachingComponentId, context, data);
 		}
-		
-		for (Subject.SubjectIdentifier subjectIdentifier : researchCategories) {
+
+		for (Subject.SubjectIdentifier subjectIdentifier : categories) {
+			CourseGroup.CategoryType type = null;
+			if (subjectIdentifier instanceof Subject.RMSubjectIdentifier) {
+				type = CourseGroup.CategoryType.RM;
+			} else if (subjectIdentifier instanceof  Subject.VITAESubjectIdentifier) {
+				type = CourseGroup.CategoryType.VITAE;
+			} else if (subjectIdentifier instanceof  Subject.RDFSubjectIdentifier) {
+				type = CourseGroup.CategoryType.RDF;
+			} else {
+				log.warn("Unknown subject identifier "+ subjectIdentifier);
+				continue;
+			}
 			updateCategory(context, new CourseCategoryDAO(
-					CourseGroup.Category_Type.RM, subjectIdentifier.name(), subjectIdentifier.getValue()),
+					type, subjectIdentifier.name(), subjectIdentifier.getValue()),
 					myCourse.getCourseId());
 		}
-		
-		for (Subject.SubjectIdentifier subjectIdentifier : skillsCategories) {
-			updateCategory(context, new CourseCategoryDAO(
-					CourseGroup.Category_Type.RDF, subjectIdentifier.name(), subjectIdentifier.getValue()),
-					myCourse.getCourseId());
-		}
-		
 		/**
 		 * Update the search engine
 		 */
@@ -910,7 +940,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				created = true;
 			}
 			componentDao.setTitle(myPresentation.getTitle());
-			componentDao.setSubject(myPresentation.getSubject());
 			componentDao.setOpens(myPresentation.getOpens());
 			componentDao.setOpensText(myPresentation.getOpensText());
 			componentDao.setCloses(myPresentation.getCloses());

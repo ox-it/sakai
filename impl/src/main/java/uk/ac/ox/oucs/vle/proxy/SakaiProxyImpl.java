@@ -26,12 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -43,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -603,7 +600,36 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		
 	}
-	
+
+	@Override
+	public Properties getCategoryMapping() {
+		String siteId = getConfigParam("course-signup.site-id", "course-signup");
+		String filename = getConfigParam("course-signup.category-mapping", "category-mapping.properties");
+		String filePath = contentHostingService.getSiteCollection(siteId)+filename;
+		InputStream input = null;
+		try {
+			ContentResource resource = contentHostingService.getResource(filePath);
+			input = resource.streamContent();
+			Properties props = new Properties();
+			props.load(input);
+			return props;
+		} catch (IdUnusedException iue) {
+			// This may well be missing.
+			log.debug("Couldn't find category mapping file: "+ filePath);
+		} catch (Exception e) {
+			log.warn("Failed to load properties from: "+ filePath, e);
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException ioe) {
+					// Ignore.
+				}
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * 
 	 * @param contentId
@@ -651,4 +677,5 @@ public class SakaiProxyImpl implements SakaiProxy {
 			session.setUserId("admin");
 		}
 	}
+
 }

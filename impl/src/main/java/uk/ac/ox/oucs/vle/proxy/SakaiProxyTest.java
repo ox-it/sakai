@@ -22,6 +22,7 @@ package uk.ac.ox.oucs.vle.proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -221,5 +222,10 @@ public class SakaiProxyTest implements SakaiProxy {
 			byte[] bytes) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public Properties getCategoryMapping() {
+		return new Properties();
 	}
 }

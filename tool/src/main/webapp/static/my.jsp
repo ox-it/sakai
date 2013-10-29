@@ -382,6 +382,7 @@
 			<li><span><a href="search.jsp">Search Modules</a></span></li>
 			<li><span><a href="index.jsp">Browse by Department</a></span></li>
 			<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
+			<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
 			<li><span>My Modules</span></li>
 			<c:if test="${isPending}">
 				<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>

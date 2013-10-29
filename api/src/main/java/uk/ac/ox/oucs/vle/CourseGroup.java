@@ -25,7 +25,24 @@ public interface CourseGroup {
 
 	//RM Research Methods
 	//RDF Skills
-	public static enum Category_Type {RDF, JACS, RM};
+	public static enum CategoryType {
+		/**
+		 * The Oxford RDF skills.
+		 */
+		RDF,
+		/**
+		 * The JACS subjects recommended by JISC.
+		 */
+		JACS,
+		/**
+		 * This defines if the course is qualitative or quantitative.
+		 */
+		RM,
+		/**
+		 * The Vitae RDF domain skills
+		 */
+		VITAE
+	};
 	
 	public int getMuid();
 		
@@ -68,7 +85,7 @@ public interface CourseGroup {
 	
 	public List<CourseCategory> getCategories();
 	
-	public List<CourseCategory> getCategories(Category_Type categoryType);
+	public List<CourseCategory> getCategories(CategoryType categoryType);
 	
 	public List<Person> getAdministrators();
 	

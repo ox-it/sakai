@@ -72,12 +72,19 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 	public static final Namespace JACS = Namespace.getNamespace("http://xcri.co.uk");
 
 	/**
+	 * At the moment this is the made up names for the vitae skills. We don't currently import them
+	 * but this is here for completeness.
+	 */
+	public static final Namespace VITAE = Namespace.getNamespace("http://vitae.ac.uk");
+
+	/**
 	 * The standard XML Schema namespace.
 	 */
 	public static final Namespace XSI = Namespace.getNamespace("http://www.w3.org/2001/XMLSchema-instance");
 
 	/**
 	 * A subject identifier.
+	 * We have this interface because enums can't extend other enums.
 	 */
 	public interface SubjectIdentifier {
 		/**
@@ -133,6 +140,11 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 		public String getValue() {
 			return this.value;
 		}
+
+		@Override
+		public String toString() {
+			return name()+ "("+ value+ ")";
+		}
 	}
 
 	public enum RMSubjectIdentifier implements SubjectIdentifier {
@@ -147,6 +159,49 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 
 		public String getValue() {
 			return this.value;
+		}
+
+		@Override
+		public String toString() {
+			return name()+ "("+ value+ ")";
+		}
+	}
+
+	/**
+	 * This contains both the Vitae Domain and Sub Domain skills.
+	 */
+	public enum VITAESubjectIdentifier implements SubjectIdentifier {
+		A("Knowledge and intellectual abilities"),
+		A1("Knowledge base"),
+		A2("Cognitive abilities"),
+		A3("Creativity"),
+		B("Personal effectiveness"),
+		B1("Personal qualities"),
+		B2("Self-management"),
+		B3("Professional and career development"),
+		C("Research governance and organisation"),
+		C1("Professional conduct"),
+		C2("Research management"),
+		C3("Finance, funding and resources"),
+		D("Engagement, influence and impact"),
+		D1("Working with others"),
+		D2("Communication and dissemination"),
+		D3("Engagement and impact");
+
+		private final String value;
+
+		VITAESubjectIdentifier(String value) {
+			this.value = value;
+		}
+
+		public String getValue() {
+			// We want the code prefixed for the VITAE skills.
+			return name()+ " "+ this.value;
+		}
+
+		@Override
+		public String toString() {
+			return name()+ "("+ value+ ")";
 		}
 	}
 
@@ -167,7 +222,7 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 	}
 
 	public boolean isValid() {
-		return isJACSCategory() || isRMCategory() || isRDFCategory();
+		return isJACSCategory() || isRMCategory() || isRDFCategory() || isVITAECategory();
 	}
 
 	public boolean isJACSCategory() {
@@ -182,6 +237,10 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 		return RDF.equals(this.getCategoryNamespace());
 	}
 
+	public boolean isVITAECategory() {
+		return VITAE.equals(this.getCategoryNamespace());
+	}
+
 	/**
 	 * Gets the subject identifier based on the identifier of this element.
 	 * It doesn't use the value from the XML element, but our static definition.
@@ -194,6 +253,9 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 			}
 			if (isRDFCategory()) {
 				return RDFSubjectIdentifier.valueOf(getIdentifier());
+			}
+			if (isVITAECategory() ) {
+				return VITAESubjectIdentifier.valueOf(getIdentifier());
 			}
 		} catch (IllegalArgumentException iae) {
 		}
@@ -214,7 +276,6 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 		this.identifier = identifier;
 	}
 
-
 	/**
 	 * @return the identifier
 	 */
@@ -229,4 +290,11 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 		this.categoryNamespace = categoryNamespace;
 	}
 
+	@Override
+	public String toString() {
+		return "Subject{" +
+				"categoryNamespace=" + categoryNamespace +
+				", identifier='" + identifier + '\'' +
+				'}';
+	}
 }

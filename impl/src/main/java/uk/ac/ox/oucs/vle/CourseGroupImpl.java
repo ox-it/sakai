@@ -219,7 +219,7 @@ public class CourseGroupImpl implements CourseGroup {
 		return categories;
 	}
 	
-	public List<CourseCategory> getCategories(Category_Type categoryType) {
+	public List<CourseCategory> getCategories(CategoryType categoryType) {
 		List<CourseCategory> cats = new ArrayList<CourseCategory>();
 		for(CourseCategory category:  getCategories()) {
 			if (category.getType().equals(categoryType.name())) {

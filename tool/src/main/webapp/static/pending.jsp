@@ -102,6 +102,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 			<li><span><a href="search.jsp">Search Modules</a></span></li>
 			<li><span><a href="index.jsp">Browse by Department</a></span></li>
 			<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
+			<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
 			<li><span><a href="my.jsp">My Modules</a></span></li>
 			<li><span>Pending Acceptances</span></li>
 			<c:if test="${isApprover}">

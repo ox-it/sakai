@@ -89,6 +89,7 @@
 			<li><span>Search Modules</span></li>
 			<li><span><a href="index.jsp">Browse by Department</a></span></li>
 			<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
+			<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
 			<c:if test="${!externalUser}">
 				<li><span><a href="my.jsp">My Modules</a></span></li>
 				<c:if test="${isPending}">
@@ -168,6 +169,16 @@
 				<h2>Delivery Method</h2>
 				<div class="facet-body-frame">
 					<div class="facet-body" id="course_delivery"></div>
+				</div>
+
+				<h2>RDF Domain</h2>
+				<div class="facet-body-frame">
+				    <div class="facet-body" id="course_subject_vitae_domain"></div>
+				</div>
+
+				<h2>RDF Sub-domain</h2>
+				<div class="facet-body-frame">
+				    <div class="facet-body" id="course_subject_vitae_subdomain"></div>
 				</div>
 
 			</div>
