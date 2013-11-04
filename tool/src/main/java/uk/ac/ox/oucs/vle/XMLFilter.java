@@ -32,7 +32,6 @@ public class XMLFilter extends ContentFilter {
 		try {
 			xmlReader = (XMLStreamReader2) inputFactory.createXMLStreamReader(in);
 			xmlWriter = (XMLStreamWriter2) outputFactory.createXMLStreamWriter(out);
-			
 		} catch (XMLStreamException e) {
 			throw new IOException(e);
 		}
@@ -53,11 +52,9 @@ public class XMLFilter extends ContentFilter {
 	
 	/**
 	 * Subclass can change this method to change the XML that passes through.
-	 * @param event
 	 * @throws XMLStreamException 
 	 */
 	public void write() throws XMLStreamException {
 		xmlWriter.copyEventFromReader(xmlReader, false);
 	}
 }
-		
