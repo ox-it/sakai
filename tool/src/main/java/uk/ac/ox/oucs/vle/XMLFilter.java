@@ -19,13 +19,11 @@ import org.codehaus.stax2.XMLStreamWriter2;
  *
  */
 public class XMLFilter extends ContentFilter {
-	
+
 	// These are grabbed statically as getting them can be a little slow.
-	// The newFactory methods only came in as part of JDK 6 update 18.
-	// http://www.oracle.com/technetwork/java/javase/6u18-142093.html
-	protected static XMLInputFactory inputFactory = XMLInputFactory.newFactory("com.ctc.wstx.stax.WstxInputFactory", null);
-	protected static XMLOutputFactory outputFactory = XMLOutputFactory.newFactory("com.ctc.wstx.stax.WstxOutputFactory", null);
-	
+	protected static XMLInputFactory inputFactory = XMLInputFactory.newFactory();
+	protected static XMLOutputFactory outputFactory = XMLOutputFactory.newFactory();
+
 	protected XMLStreamReader2 xmlReader;
 	protected XMLStreamWriter2 xmlWriter;
 
