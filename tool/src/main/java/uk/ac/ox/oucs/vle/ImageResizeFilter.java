@@ -15,18 +15,30 @@ import javax.imageio.stream.ImageInputStream;
 
 public class ImageResizeFilter extends ContentFilter {
 
+	/**
+	 * The maximum size in pixel we will output an image of. This is to
+	 * prevent someone attempting to eat up all the heap by making requests for large images.
+	 */
+	public static final int MAX_SIZE = 1500;
 
 	private InputStream in;
 	private OutputStream out;
 	private int width;
 	private int height;
 
-	public ImageResizeFilter(InputStream in, OutputStream out, int width, int height)
-			throws IOException {
+	/**
+	 * Filter an image, changing it's size. See {@link #MAX_SIZE} for the upper limit.
+	 * @param in The input stream to read the image from.
+	 * @param out The output stream to write the image to.
+	 * @param width The desired width of the output image.
+	 * @param height The desired height of the output image.
+	 */
+	public ImageResizeFilter(InputStream in, OutputStream out, int width, int height) {
 		this.in = in;
 		this.out = out;
-		this.width = width;
-		this.height = height;
+		// Bound the size to be 1 or greater and MAX_SIZE or less.
+		this.width = Math.max(Math.min(width, MAX_SIZE), 1);
+		this.height = Math.max(Math.min(height, MAX_SIZE), 1);
 	}
 	
 	public void filter()  throws IOException {
