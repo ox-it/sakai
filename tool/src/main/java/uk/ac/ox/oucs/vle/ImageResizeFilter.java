@@ -4,7 +4,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -82,34 +81,12 @@ public class ImageResizeFilter extends ContentFilter {
 		int type = (img.getTransparency() == Transparency.OPAQUE) ? BufferedImage.TYPE_INT_RGB
 				: BufferedImage.TYPE_INT_ARGB;
 		BufferedImage ret = (BufferedImage) img;
-		int w, h;
-		if (higherQuality) {
-			// Use multi-step technique: start with original size, then
-			// scale down in multiple passes with drawImage()
-			// until the target size is reached
-			w = img.getWidth();
-			h = img.getHeight();
-		} else {
-			// Use one-step technique: scale directly from original
-			// size to target size with a single drawImage() call
-			w = targetWidth;
-			h = targetHeight;
-		}
+		int w = img.getWidth();
+		int h = img.getHeight();
 
 		do {
-			if (higherQuality && w > targetWidth) {
-				w /= 2;
-				if (w < targetWidth) {
-					w = targetWidth;
-				}
-			}
-
-			if (higherQuality && h > targetHeight) {
-				h /= 2;
-				if (h < targetHeight) {
-					h = targetHeight;
-				}
-			}
+			w = adjustSize(w, targetWidth, higherQuality);
+			h = adjustSize(h, targetHeight, higherQuality);
 
 			BufferedImage tmp = new BufferedImage(w, h, type);
 			Graphics2D g2 = tmp.createGraphics();
@@ -121,6 +98,35 @@ public class ImageResizeFilter extends ContentFilter {
 		} while (w != targetWidth || h != targetHeight);
 
 		return ret;
+	}
+
+	/**
+	 * Attempts to bring the image closer to the target size.
+	 *
+	 * @param current The current size of the image.
+	 * @param target The target size.
+	 * @param higherQuality If true then we do multiple re-size operations.
+	 * @return The new size. The returned value will always be different to the passed value until they are the
+	 * same.
+	 */
+	private int adjustSize(int current, int target, boolean higherQuality) {
+		if (current > target) {
+			if (higherQuality) {
+				// Use multi-step technique: start with original size, then
+				// scale down in multiple passes with drawImage()
+				// until the target size is reached
+				current /= 2;
+			} else {
+				// Use one-step technique: scale directly from original
+				// size to target size with a single drawImage() call
+				current = target;
+			}
+		}
+		// Catch when the image needs to grow in size.
+		if (current < target) {
+			current = target;
+		}
+		return current;
 	}
 
 }
