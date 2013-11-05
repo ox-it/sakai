@@ -50,7 +50,7 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 	}
 
 	@Test
-	public void testSignupMultiple() {
+	public void testSignupMultipleUsers() {
 		for (int i = 1; i<=15; i++) {
 			proxy.setCurrentUser(proxy.findUserById("id"+i));
 			service.signup("course-1", Collections.singleton("comp-3"), "test.user.1@dept.ox.ac.uk", null);
@@ -58,7 +58,7 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 	}
 
 	@Test
-	public void testSignupSignupSingle() {
+	public void testSignupSingle() {
 		service.signup("course-1", Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);
 		dao.flush();
 		List<CourseSignup> signups = service.getMySignups(Collections.singleton(Status.PENDING));
@@ -84,11 +84,6 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 		dao.flush();
 		signups = service.getMySignups(Collections.singleton(Status.PENDING));
 		assertEquals("test.user.2@dept.ox.ac.uk", signups.get(0).getSupervisor().getEmail());
-	}
-
-	@Test
-	public void testSignupWithdrawSignupMultiple() {
-		
 	}
 
 	@Test
