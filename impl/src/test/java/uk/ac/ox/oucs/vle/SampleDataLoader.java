@@ -19,19 +19,13 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.*;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+
+import java.util.*;
 
 /**
- * This loads some samepl data into the database.
+ * This loads some sample data into the database.
  *
  * @author buckett
  *
@@ -43,7 +37,7 @@ public class SampleDataLoader {
 	public static Term T2009HILLARY = new Term("2009-HIL", newCalendar(2009, 10, 10));
 	public static Term T2010HILLARY = new Term("2010-HIL", newCalendar(2010, 10, 10));
 	public static Term T2011HILLARY = new Term("2011-HIL", newCalendar(2011, 10, 10));
-	public static Term T2012HILLARY = new Term("2011-HIL", newCalendar(2012, 10, 10));
+	public static Term T2012HILLARY = new Term("2021-HIL", newCalendar(2012, 10, 10));
 
 	protected CourseDAO dao;
 

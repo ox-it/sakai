@@ -97,7 +97,9 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 			// Isn't open yet.
 			service.signup("course-1", Collections.singleton("comp-5"), "test.user.1@dept.ox.ac.uk", null);
 			fail("Should throw exception");
-		} catch (IllegalStateException ise) {}
+		} catch (IllegalStateException ise) {
+			// The course isn't current available for signup.
+		}
 	}
 
 	@Test
@@ -106,7 +108,9 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 			// Is now closed.
 			service.signup("course-1", Collections.singleton("comp-6"), "test.user.1@dept.ox.ac.uk", null);
 			fail("Should throw exception");
-		} catch (IllegalStateException ise) {}
+		} catch (IllegalStateException ise) {
+			// The course isn't currently available for signup.
+		}
 	}
 
 	@Test
@@ -114,11 +118,14 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 		try {
 			service.signup("course-1", Collections.singleton("comp-1"), "nosuchuser@ox.ac.uk", null);
 			fail("Should throw exception");
-		} catch (IllegalArgumentException iae) {}
+		} catch (IllegalArgumentException iae) {
+			// The user couldn't be found.
+		}
 	}
 
 	@Test
-	public void testSignupFull() {
+	public void testFullCourseToWaitingList() {
+		// comp-8 doesn't have any spaces left so the user should end up on the waiting list.
 		service.signup("course-1", Collections.singleton("comp-8"), "test.user.1@dept.ox.ac.uk", null);
 		List<CourseSignup> signups = service.getMySignups(Collections.singleton(Status.WAITING));
 		assertEquals(1, signups.size());
@@ -129,6 +136,8 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 		try {
 			service.signup("course-3", Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);
 			fail("Should throw exception");
-		} catch (IllegalArgumentException iae) {}
+		} catch (IllegalArgumentException iae) {
+			// We attempted to signup for component that didn't match the course.
+		}
 	}
 }
