@@ -37,7 +37,7 @@ public class SampleDataLoader {
 	public static Term T2009HILLARY = new Term("2009-HIL", newCalendar(2009, 10, 10));
 	public static Term T2010HILLARY = new Term("2010-HIL", newCalendar(2010, 10, 10));
 	public static Term T2011HILLARY = new Term("2011-HIL", newCalendar(2011, 10, 10));
-	public static Term T2012HILLARY = new Term("2021-HIL", newCalendar(2012, 10, 10));
+	public static Term T2012HILLARY = new Term("2012-HIL", newCalendar(2012, 10, 10));
 
 	protected CourseDAO dao;
 
