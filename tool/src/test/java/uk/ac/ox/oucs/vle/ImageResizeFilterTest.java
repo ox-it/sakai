@@ -32,6 +32,16 @@ public class ImageResizeFilterTest extends TestCase {
 		resizeResource("/sample.png", 233, 194, true);
 	}
 
+	public void testStupidlyBig() throws IOException {
+		// Check we don't exhause heap when the image is far too big.
+		resizeResource("/sample.png", 10000, 10000, false);
+	}
+
+	public void testStupidlySmall() throws IOException {
+		// don't want to try and create images with negative sizes.
+		resizeResource("/sample.png", -100, -100, true);
+	}
+
 	public void testBadData() {
 		try {
 			CountingInputStream in = new CountingInputStream(ImageResizeFilterTest.class.getResourceAsStream("/random.jpg"));
