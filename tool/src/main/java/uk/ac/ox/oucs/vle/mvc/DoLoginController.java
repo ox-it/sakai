@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
+ * This controller just passes the request through to the login tool.
+ *
  * @author Matthew Buckett
  */
 public class DoLoginController extends AbstractController {
@@ -41,6 +43,7 @@ public class DoLoginController extends AbstractController {
 
 	@Override
 	protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// The login tool doesn't work in tool native mode.
 		request.removeAttribute(Tool.NATIVE_URL);
 		ActiveTool tool = toolManager.getActiveTool("sakai.login");
 		tool.help(request, response, null, "/login");

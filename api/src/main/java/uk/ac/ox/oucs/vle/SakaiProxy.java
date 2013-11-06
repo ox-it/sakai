@@ -74,8 +74,13 @@ public interface SakaiProxy {
 	 * @param body The body of the email.
 	 */
 	public void sendEmail(String to, String subject, String body);
-	
-	public Placement getPlacement(String placementId);
+
+	/**
+	 * Gets the current location in the system. This can then be used
+	 * when building URLs.
+	 * @return An ID to the current location in the system.
+	 */
+	public String getCurrentPlacementId();
 	
 	/**
 	 * Get a URL that a user can click on to go to approve/reject a signup.
@@ -106,7 +111,14 @@ public interface SakaiProxy {
 	public String getMyUrl();
 	
 	public String getMyUrl(String placementId);
-	
+
+	/**
+	 * Gets a resource bundle string for the current user.
+	 * @param key The key to lookup in the resource bundle.
+	 * @return The translated key, never <code>null</code>.
+	 */
+	public String getMessage(String key);
+
 	/**
 	 * Get a configuration parameter as an Integer
 	 * 

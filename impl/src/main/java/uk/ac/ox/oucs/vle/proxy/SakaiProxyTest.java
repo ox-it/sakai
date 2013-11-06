@@ -189,15 +189,19 @@ public class SakaiProxyTest implements SakaiProxy {
 	public String getMyUrl(String placementId) {
 		return "/my/";
 	}
-	
+
+	@Override
+	public String getMessage(String key) {
+		return key;
+	}
+
 	public void logEvent(String resource, String eventType, String placementId) {
 		log.info("Event - user: "+getCurrentUser().getId()+ " resource:"+
 				resource+ " type "+ eventType);
 	}
 
-	public Placement getPlacement(String placementId) {
-		// TODO Auto-generated method stub
-		return null;
+	public String getCurrentPlacementId(){
+		return "placement-id";
 	}
 
 	public Integer getConfigParam(String param, int dflt) {

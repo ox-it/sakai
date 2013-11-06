@@ -19,27 +19,45 @@
  */
 package uk.ac.ox.oucs.vle;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
-import org.springframework.test.AbstractSingleSpringContextTests;
-import org.springframework.test.AbstractTransactionalDataSourceSpringContextTests;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.internal.runners.TestClassRunner;
+import org.junit.runner.RunWith;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 import uk.ac.ox.oucs.vle.proxy.SakaiProxyTest;
 
-public abstract class TestOnSampleData extends AbstractTransactionalSpringContextTests {
+import java.util.*;
 
-	private SessionFactory factory;
+@RunWith(TestClassRunner.class)
+public abstract class OnSampleData extends AbstractTransactionalSpringContextTests {
+
+	private static final Log log = LogFactory.getLog(OnSampleData.class);
+
+	protected SessionFactory factory;
 	protected CourseSignupService service;
 	protected SakaiProxyTest proxy;
 	protected CourseDAOImpl dao;
+	protected SettableNowService now;
 
-	protected void onSetUpBeforeTransaction() {
-		transactionManager.toString();
+
+	// pass through to the junit 3 calls, which are not annotated
+	@Before
+	final public void callSetup() throws Exception {
+		super.setUp();
+		now.setNow(SampleDataLoader.addWeeks(SampleDataLoader.newCalendar(2010, 10, 10), -2));
+	}
+
+	@After
+	public void callTearDown() throws Exception {
+		super.tearDown();
 	}
 
 	protected String[] getConfigPaths() {
-		//return new String[]{"/components.xml", "/test-components.xml"};
-		return new String[]{"/course-signup-beans.xml", "/test-sakai-beans.xml"};
+		return new String[]{"/course-signup-beans.xml", "/test-with-h2.xml", "/sample-data.xml"};
 	}
 	
 	public void setFactory(SessionFactory factory) {
@@ -56,6 +74,10 @@ public abstract class TestOnSampleData extends AbstractTransactionalSpringContex
 
 	public void setService(CourseSignupService service) {
 		this.service = service;
+	}
+
+	public void setNowService(SettableNowService now) {
+		this.now = now;
 	}
 
 	public SakaiProxyTest getProxy() {

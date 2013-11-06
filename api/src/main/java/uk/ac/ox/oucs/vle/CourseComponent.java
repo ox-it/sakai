@@ -57,9 +57,9 @@ public interface CourseComponent {
 	/**
 	 * Since Oxcap, we can not rely on there being data in any column,
 	 * the import sets a baseDate (if possible) as to the best date to 
-	 * use for signups availability.  
-	 * This is usually either closes or starts.
-	 * @return
+	 * use for signups availability.
+	 * This is usually either when signup closes or when the course starts.
+	 * @return The date when this course becomes old.
 	 */
 	public Date getBaseDate();
 	

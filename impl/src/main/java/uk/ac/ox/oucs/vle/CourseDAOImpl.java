@@ -19,17 +19,6 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import java.math.BigInteger;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.hibernate.*;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.MatchMode;
@@ -41,9 +30,11 @@ import org.joda.time.LocalDate;
 import org.joda.time.MonthDay;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
+
+import java.sql.SQLException;
+import java.util.*;
 
 public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
@@ -315,8 +306,8 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return getHibernateTemplate().save(signupDao).toString();
 	}
 
-	public String save(CourseComponentDAO componentDao) {
-		return getHibernateTemplate().save(componentDao).toString();
+	public void save(CourseComponentDAO componentDao) {
+		 getHibernateTemplate().saveOrUpdate(componentDao);
 	}
 
 	public CourseSignupDAO findSignupById(String signupId) {
@@ -453,28 +444,27 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Integer countSignupByCourse(final String courseId, final Set<Status> statuses) {
+	public Integer countSignupByCourse(final String courseId, final Set<Status> statuses, final Date now) {
 		return (Integer)getHibernateTemplate().execute(new HibernateCallback() {
 
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
-				Query query = session.createSQLQuery("select count(*) from course_signup " +
-							"left join course_component_signup on course_component_signup.signup = course_signup.id " +
-							"left join course_component on course_component.muid = course_component_signup.courseComponentMuid " +
-							"left join course_group on course_group.muid = course_signup.courseGroupMuid " +
-							"where course_group.courseId = :courseId " +
-							"and course_component.starts > NOW() " +
-							"and course_signup.status in (:statuses)");
-					
-				query.setParameterList("statuses", statuses);
+				Query query = session.createQuery("select count(signup.id) from CourseSignupDAO signup "+
+						"left join signup.components component "+
+						"left join signup.group grp "+
+						"where grp.courseId = :courseId "+
+						"and component.starts > :now "+
+						"and signup.status in (:statuses)");
 				query.setString("courseId", courseId);
+				query.setDate("now", now);
+				query.setParameterList("statuses", statuses);
 				List<Object> results = query.list();
 				int count = results.size();
 				if (count > 0) {
 					if (count > 1) {
 						throw new IllegalStateException("To many results ("+ results + ") found for "+ courseId );
 					}
-					return ((BigInteger)results.get(0)).intValue();
+					return ((Long)results.get(0)).intValue();
 				}
 				return null;
 			}
@@ -843,43 +833,55 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 			}
 		});
 	}
-	
+
 	/**
-	 * 
+	 * @{inhertDoc}
 	 */
-	public int flagSelectedDaisyCourseGroups(final String source) {
+	public int flagSelectedDaisyCourseGroups(final String source, final Date now) {
 		return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
-				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("update course_group cg ");
-				querySQL.append("left join course_group_component cgc on cg.muid = cgc.courseGroupMuid ");
-				querySQL.append("left join course_component cc on cgc.courseComponentMuid = cc.muid ");
-				querySQL.append("left join course_signup cs on cg.muid = cs.courseGroupMuid ");
-				querySQL.append("set cg.deleted = true ");
-				querySQL.append("where cg.source = :source and ");
-				querySQL.append("cc.baseDate > now() and ");
-				querySQL.append("(select count(cs.id) = 0)");
-				Query query = session.createSQLQuery(querySQL.toString()).setString("source", source);
+				// This is done with a subselect so that it's not tied to MySQL.
+				String hql = "update CourseGroupDAO cg "+
+						"set cg.deleted = true "+
+						"where cg.source = :source and " +
+						"cg.muid in ( " +
+								"select cg.muid from CourseGroupDAO cg " +
+								"left outer join cg.signups as signup "+
+								"left outer join cg.components as component " +
+								"where component.baseDate > :now " +
+								"group by cg.muid " +
+								"having count(signup.id) = 0 " +
+						")";
+
+				Query query = session.createQuery(hql)
+						.setString("source", source)
+						.setDate("now", now);
 				return query.executeUpdate();
+
 			}
 		});
 	}
-	
+
 	/**
-	 * 
+	 * @{inhertDoc}
 	 */
-	public int flagSelectedDaisyCourseComponents(final String source) {
+	public int flagSelectedDaisyCourseComponents(final String source, final Date now) {
 		return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
-				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("update course_component cc ");
-				querySQL.append("left join course_component_signup ccs on cc.muid = ccs.courseComponentMuid ");
-				querySQL.append("left join course_signup cs on ccs.signup = cs.id ");
-				querySQL.append("set deleted = true ");
-				querySQL.append("where source = :source and ");
-				querySQL.append("baseDate > now() and ");
-				querySQL.append("(select count(cs.id) = 0)");
-				Query query = session.createSQLQuery(querySQL.toString()).setString("source", source);
+				// This is done with a subselect so that it's not tied to MySQL.
+				String hql = "update CourseComponentDAO cc "+
+						"set cc.deleted = true " +
+						"where cc.source = :source and " +
+						"cc.muid in ( " +
+								"select cc.muid from CourseComponentDAO cc " +
+								"left outer join cc.signups as signup " +
+								"where cc.baseDate > :now " +
+								"group by cc.muid " +
+								"having count(signup.id) = 0 " +
+						")";
+				Query query = session.createQuery(hql)
+						.setString("source", source)
+						.setDate("now", now);
 				return query.executeUpdate();
 			}
 		});
@@ -903,7 +905,6 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 					for (CourseComponentDAO component : groupDao.getComponents()) {
 						component.getGroups().remove(groupDao);
 					}
-					session.delete(groupDao);
 					session.delete(groupDao);
 				}
 				return groupDaos;

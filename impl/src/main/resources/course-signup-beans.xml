@@ -30,6 +30,7 @@
 				<property name="dao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
 				<property name="searchService" ref="uk.ac.ox.oucs.vle.SearchService"/>
+                <property name="nowService" ref="uk.ac.ox.oucs.vle.NowService"/>
 			</bean>
 		</property>
 		<property name="transactionManager"
@@ -59,14 +60,15 @@
 		<property name="solrUrl">
 			<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
 				<property name="targetObject">
-					<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+					<ref bean="uk.ac.ox.oucs.vle.SakaiProxy"/>
 				</property>
 				<property name="targetMethod">
-					<value>getString</value>
+					<value>getConfigParam</value>
 				</property>
 				<property name="arguments">
 					<list>
 						<value>ses.solr.server</value>
+                        <value>http://localhost:8983/solr</value>
 					</list>
 				</property>
 			</bean>
@@ -98,6 +100,7 @@
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="populator" ref="uk.ac.ox.oucs.vle.XcriPopulator" />
 				<property name="searchService" ref="uk.ac.ox.oucs.vle.SearchService" />
+				<property name="nowService" ref="uk.ac.ox.oucs.vle.NowService"/>
 			</bean>
 		</property>
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
@@ -207,6 +210,12 @@
 		class="uk.ac.ox.oucs.vle.SearchDataJob">
 		<property name="module" ref="uk.ac.ox.oucs.vle.SearchDataImpl"/>
 	</bean>
+
+
+    <bean id="uk.ac.ox.oucs.vle.PopulatorInput" init-method="init" destroy-method="destroy"
+          class="uk.ac.ox.oucs.vle.XcriPopulatorInput" >
+    </bean>
+
 
 </beans>
 
