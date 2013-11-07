@@ -19,7 +19,7 @@
  */
 package uk.ac.ox.oucs.vle.xcri.daisy;
 
-import org.jdom.Namespace;
+import org.jdom2.Namespace;
 
 public class DaisyNamespace {
 

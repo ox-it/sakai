@@ -19,7 +19,7 @@
  */
 package uk.ac.ox.oucs.vle.xcri.oxcap;
 
-import org.jdom.Namespace;
+import org.jdom2.Namespace;
 
 public class OxcapNamespace {
 
