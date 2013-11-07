@@ -22,6 +22,9 @@ package org.xcri.util;
 import org.jdom2.Element;
 import org.jdom2.filter.AbstractFilter;
 
+/**
+ * Filters HTML to highlight tags that might be potentially dangerous.
+ */
 public class ContentSecurityFilter extends AbstractFilter<Element> {
 
 	private static final long serialVersionUID = 2626349759528661311L;
@@ -40,7 +43,5 @@ public class ContentSecurityFilter extends AbstractFilter<Element> {
 		}
 		return null;
 	}
-
-
 
 }
