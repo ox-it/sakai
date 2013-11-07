@@ -102,7 +102,7 @@ public class Lax {
 		List<Element> allChildren = parentElement.getChildren();
 		Iterator<Element> iter = allChildren.iterator();
 		while(iter.hasNext()){
-			org.jdom.Element nextElement = (org.jdom.Element)iter.next();
+			Element nextElement = iter.next();
 			if(nextElement.getName().equals(childElementName)){
 				//
 				// Add elements that use the wrong namespace, but correct it
