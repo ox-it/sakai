@@ -24,8 +24,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 public class Lax {
 	
