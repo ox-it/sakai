@@ -19,8 +19,8 @@
  */
 package org.xcri.util;
 
-import org.jdom.Element;
-import org.jdom.filter.Filter;
+import org.jdom2.Element;
+import org.jdom2.filter.AbstractFilter;
 
 public class ContentSecurityFilter implements Filter {
 

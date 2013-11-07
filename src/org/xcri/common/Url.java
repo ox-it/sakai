@@ -23,8 +23,8 @@ package org.xcri.common;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.xcri.Namespaces;
 import org.xcri.exceptions.InvalidElementException;
 import org.xcri.types.XcriElement;

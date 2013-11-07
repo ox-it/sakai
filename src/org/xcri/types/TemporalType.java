@@ -24,7 +24,7 @@ import java.util.Date;
 
 import javax.xml.bind.DatatypeConverter;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.xcri.exceptions.InvalidElementException;
 
 public class TemporalType  extends XcriElement {

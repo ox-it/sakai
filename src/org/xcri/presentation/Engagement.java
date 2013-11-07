@@ -19,7 +19,7 @@
  */
 package org.xcri.presentation;
 
-import org.jdom.Namespace;
+import org.jdom2.Namespace;
 import org.xcri.Namespaces;
 import org.xcri.types.XcriElement;
 
