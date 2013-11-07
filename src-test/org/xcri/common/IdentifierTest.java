@@ -21,7 +21,7 @@ package org.xcri.common;
 
 import static org.junit.Assert.assertEquals;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.junit.Test;
 import org.xcri.Namespaces;
 import org.xcri.common.Identifier;

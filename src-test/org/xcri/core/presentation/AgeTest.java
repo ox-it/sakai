@@ -21,7 +21,7 @@ package org.xcri.core.presentation;
 
 import static org.junit.Assert.assertEquals;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.junit.Test;
 import org.xcri.exceptions.InvalidElementException;
 import org.xcri.presentation.Age;
