@@ -22,22 +22,25 @@ package org.xcri.util;
 import org.jdom2.Element;
 import org.jdom2.filter.AbstractFilter;
 
-public class ContentSecurityFilter implements Filter {
+public class ContentSecurityFilter extends AbstractFilter<Element> {
 
 	private static final long serialVersionUID = 2626349759528661311L;
 	
-	private static final String elements[] = {"IMG", "SCRIPT", "EMBED", "OBJECT", "FRAME", "FRAMESET", "IFRAME", "META", "LINK"};
+	private static final String elementNames[] = {"IMG", "SCRIPT", "EMBED", "OBJECT", "FRAME", "FRAMESET", "IFRAME", "META", "LINK"};
 
-	/* (non-Javadoc)
-	 * @see org.jdom.filter.Filter#matches(java.lang.Object)
+	/**
+	 * {@inheritDoc}
 	 */
-	public boolean matches(Object obj) {
-		if (obj instanceof Element){
-			String name = ((Element)obj).getName();
-			for (String element: elements)
-			if (element.equals(name.toUpperCase())) return true;
+	public Element filter(Object content) {
+		if (content instanceof Element){
+			Element element = (Element)content;
+			String name = element.getName().toUpperCase();
+			for (String elementName: elementNames)
+				if (elementName.equals(name)) return element;
 		}
-		return false;
+		return null;
 	}
+
+
 
 }
