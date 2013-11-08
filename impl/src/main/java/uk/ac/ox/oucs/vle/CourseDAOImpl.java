@@ -458,17 +458,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 				query.setString("courseId", courseId);
 				query.setDate("now", now);
 				query.setParameterList("statuses", statuses);
-				List<Object> results = query.list();
-				int count = results.size();
-				if (count > 0) {
-					if (count > 1) {
-						throw new IllegalStateException("To many results ("+ results + ") found for "+ courseId );
-					}
-					return ((Long)results.get(0)).intValue();
-				}
-				return null;
+				return ((Number)query.uniqueResult()).intValue();
 			}
-			
+
 		});
 	}
 	
