@@ -21,7 +21,7 @@ package uk.ac.ox.oucs.vle.xcri.oxcap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.xcri.core.Presentation;
 import org.xcri.exceptions.InvalidElementException;
 

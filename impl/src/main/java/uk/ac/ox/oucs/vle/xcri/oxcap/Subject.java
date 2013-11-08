@@ -39,8 +39,8 @@
 
 package uk.ac.ox.oucs.vle.xcri.oxcap;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.xcri.Extension;
 import org.xcri.exceptions.InvalidElementException;
 

@@ -33,7 +33,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 import org.xcri.exceptions.InvalidElementException;
 
 public class TestPopulatorInput implements PopulatorInput {
