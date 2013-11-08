@@ -20,7 +20,7 @@
 
 package org.xcri;
 
-import org.jdom.Namespace;
+import org.jdom2.Namespace;
 
 public class Namespaces {
 

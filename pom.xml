@@ -24,30 +24,31 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<excludes>
-            			<exclude>**/QualificationTest.java</exclude>
-            			<exclude>**/CreditTest.java</exclude>
-            			<exclude>**/LocationTest.java</exclude>
-          			</excludes>
+						<exclude>**/QualificationTest.java</exclude>
+						<exclude>**/CreditTest.java</exclude>
+						<exclude>**/LocationTest.java</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-	
-    <distributionManagement>
-        <repository>
-            <id>maven-repo.oucs</id>
-            <url>https://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>maven-repo.oucs</id>
-            <url>https://maven-repo.oucs.ox.ac.uk/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-	
+
+	<distributionManagement>
+		<repository>
+			<id>maven-repo.oucs</id>
+			<url>https://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>maven-repo.oucs</id>
+			<url>https://maven-repo.oucs.ox.ac.uk/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<scm>
-        <connection>scm:git:git://github.com/oucs0130/Xcri4j.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/oucs0130/Xcri4j.git</developerConnection>
-    </scm>
+		<url>https://github.com/ox-it/Xcri4j</url>
+		<connection>scm:git:git://github.com/ox-it/Xcri4j.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/ox-it/Xcri4j.git</developerConnection>
+	</scm>
 
 	<dependencies>
 		<dependency>
@@ -63,7 +64,7 @@
 		<dependency>
 			<groupId>org.jdom</groupId>
 			<artifactId>jdom</artifactId>
-			<version>1.1</version>
+			<version>2.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

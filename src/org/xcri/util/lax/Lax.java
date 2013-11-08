@@ -24,8 +24,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 public class Lax {
 	
@@ -102,7 +102,7 @@ public class Lax {
 		List<Element> allChildren = parentElement.getChildren();
 		Iterator<Element> iter = allChildren.iterator();
 		while(iter.hasNext()){
-			org.jdom.Element nextElement = (org.jdom.Element)iter.next();
+			Element nextElement = iter.next();
 			if(nextElement.getName().equals(childElementName)){
 				//
 				// Add elements that use the wrong namespace, but correct it

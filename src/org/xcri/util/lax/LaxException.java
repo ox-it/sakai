@@ -21,7 +21,7 @@ package org.xcri.util.lax;
 
 import java.util.List;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * An exception when processing an element, where we capture

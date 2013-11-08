@@ -20,7 +20,7 @@
 
 package org.xcri;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.xcri.exceptions.InvalidElementException;
 
 public interface XcriObject {
