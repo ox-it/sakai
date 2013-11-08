@@ -45,9 +45,10 @@
     </distributionManagement>
 	
 	<scm>
-        <connection>scm:git:git://github.com/oucs0130/Xcri4j.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/oucs0130/Xcri4j.git</developerConnection>
-    </scm>
+		<url>https://github.com/ox-it/Xcri4j</url>
+		<connection>scm:git:git://github.com/ox-it/Xcri4j.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/ox-it/Xcri4j.git</developerConnection>
+	</scm>
 
 	<dependencies>
 		<dependency>
