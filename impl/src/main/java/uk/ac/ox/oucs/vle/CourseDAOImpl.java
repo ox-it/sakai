@@ -841,19 +841,21 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				// This is done with a subselect so that it's not tied to MySQL.
-				String hql = "update CourseGroupDAO cg "+
+				// We need the inner select as MySQL doesn't let you select from the table you are updating.
+				String sql = "update course_group cg "+
 						"set cg.deleted = true "+
 						"where cg.source = :source and " +
-						"cg.muid in ( " +
-								"select cg.muid from CourseGroupDAO cg " +
-								"left outer join cg.signups as signup "+
-								"left outer join cg.components as component " +
-								"where component.baseDate > :now " +
-								"group by cg.muid " +
-								"having count(signup.id) = 0 " +
-						")";
+						"cg.muid in (select muid from ( " +
+								"select cg1.muid as muid from course_group cg1 " +
+								"left outer join course_signup as cs on cg1.muid = cs.courseGroupMuid "+
+								"left outer join course_group_component cgc on cg1.muid = cgc.courseGroupMuid " +
+								"left outer join course_component cc on cgc.courseComponentMuid = cc.muid " +
+								"where cc.baseDate > :now " +
+								"group by cg1.muid " +
+								"having count(cs.id) = 0 " +
+						") wrapper )";
 
-				Query query = session.createQuery(hql)
+				Query query = session.createSQLQuery(sql)
 						.setString("source", source)
 						.setDate("now", now);
 				return query.executeUpdate();
@@ -869,17 +871,19 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				// This is done with a subselect so that it's not tied to MySQL.
-				String hql = "update CourseComponentDAO cc "+
+				// We need the inner select as MySQL doesn't let you select from the table you are updating.
+				String sql = "update course_component cc "+
 						"set cc.deleted = true " +
 						"where cc.source = :source and " +
-						"cc.muid in ( " +
-								"select cc.muid from CourseComponentDAO cc " +
-								"left outer join cc.signups as signup " +
-								"where cc.baseDate > :now " +
-								"group by cc.muid " +
-								"having count(signup.id) = 0 " +
-						")";
-				Query query = session.createQuery(hql)
+						"cc.muid in (select muid from ( " +
+								"select cc1.muid as muid from course_component cc1 " +
+								"left outer join course_component_signup ccs on cc1.muid = ccs.courseComponentMuid "+
+								"left outer join course_signup cs on ccs.signup = cs.id " +
+								"where cc1.baseDate > :now " +
+								"group by cc1.muid " +
+								"having count(cs.id) = 0 " +
+						") wrapper )";
+				Query query = session.createSQLQuery(sql)
 						.setString("source", source)
 						.setDate("now", now);
 				return query.executeUpdate();
