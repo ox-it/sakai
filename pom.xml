@@ -24,26 +24,26 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<excludes>
-            			<exclude>**/QualificationTest.java</exclude>
-            			<exclude>**/CreditTest.java</exclude>
-            			<exclude>**/LocationTest.java</exclude>
-          			</excludes>
+						<exclude>**/QualificationTest.java</exclude>
+						<exclude>**/CreditTest.java</exclude>
+						<exclude>**/LocationTest.java</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-	
-    <distributionManagement>
-        <repository>
-            <id>maven-repo.oucs</id>
-            <url>https://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>maven-repo.oucs</id>
-            <url>https://maven-repo.oucs.ox.ac.uk/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-	
+
+	<distributionManagement>
+		<repository>
+			<id>maven-repo.oucs</id>
+			<url>https://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>maven-repo.oucs</id>
+			<url>https://maven-repo.oucs.ox.ac.uk/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<scm>
 		<url>https://github.com/ox-it/Xcri4j</url>
 		<connection>scm:git:git://github.com/ox-it/Xcri4j.git</connection>
