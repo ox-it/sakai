@@ -42,4 +42,11 @@ public class ReportExporterBeanTest{
 				"filename*=UTF-8''%CE%93%CE%B5%CE%B9%CE%B1%20%CF%83%CE%B1%CF%82%20%CE%BA%CF%8C%CF%83%CE%BC%CE%BF.txt",
 				exporter.buildContentDisposition("\u0393\u03B5\u03B9\u03B1 \u03C3\u03B1\u03C2 \u03BA\u03CC\u03C3\u03BC\u03BF.txt"));
 	}
+
+	@Test
+	public void testContentDispositionISO8859() {
+		// This is in the high bits of ISO-8859-1 and has a different encoding in UTF-8
+		assertEquals("inline; filename=\"\u00E9.txt\"; filename*=UTF-8''%C3%A9.txt",
+				exporter.buildContentDisposition("\u00E9.txt"));
+	}
 }
