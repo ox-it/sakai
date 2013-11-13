@@ -109,7 +109,7 @@ public class ReportExporterBean {
 			// This will replace all non US-ASCII characters with '?'
 			// Although this behaviour is unspecified doing it manually is overkill (too much work).
 			// Make sure we escape double quotes.
-			String iso8859Filename = new String(filename.getBytes("ISO-8859-1"))
+			String iso8859Filename = new String(filename.getBytes("ISO-8859-1"), "ISO-8859-1")
 					.replace("\\", "\\\\")
 					.replace("\"", "\\\"");
 			String utf8Filename = URLEncoder.encode(filename, "UTF-8").replace("+", "%20");
