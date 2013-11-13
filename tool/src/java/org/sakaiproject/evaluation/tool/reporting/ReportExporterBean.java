@@ -1,12 +1,6 @@
 
 package org.sakaiproject.evaluation.tool.reporting;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.evaluation.logic.EvalCommonLogic;
@@ -14,8 +8,14 @@ import org.sakaiproject.evaluation.logic.EvalEvaluationService;
 import org.sakaiproject.evaluation.logic.ReportingPermissions;
 import org.sakaiproject.evaluation.model.EvalEvaluation;
 import org.sakaiproject.evaluation.tool.viewparams.DownloadReportViewParams;
-
 import uk.org.ponder.util.UniversalRuntimeException;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Map;
 
 /**
  * 
@@ -72,7 +72,7 @@ public class ReportExporterBean {
 	        resultsOutputStream = getOutputStream(response);
 	        
 		    // All response Headers that are the same for all Output types
-	        response.setHeader("Content-disposition", "inline; filename=" + drvp.filename);
+	        response.setHeader("Content-disposition", buildContentDisposition(drvp.filename));
 		    response.setContentType(exporter.getContentType());
 	        
 	        exporter.buildReport(evaluation, drvp.groupIds, resultsOutputStream);
@@ -82,10 +82,10 @@ public class ReportExporterBean {
         	int columnSize = xlsReportExporter.getEvalTDIsize(evaluation, drvp.groupIds);
 	        response.setHeader("Content-disposition", "inline");
 	        if( columnSize > 255 ){
-		        response.setHeader("Content-disposition", "inline; filename=" + drvp.filename + "x");
+		        response.setHeader("Content-disposition", buildContentDisposition(drvp.filename + "x"));
 			    response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 	        }else{
-		        response.setHeader("Content-disposition", "inline; filename=" + drvp.filename);
+		        response.setHeader("Content-disposition", buildContentDisposition(drvp.filename));
 			    response.setContentType( xlsReportExporter.getContentType() );
 	        }	        
 		    xlsReportExporter.buildReport(evaluation, drvp.groupIds, resultsOutputStream);
@@ -96,6 +96,33 @@ public class ReportExporterBean {
     private boolean isXLS(String viewID){
     	return viewID.equals("xlsResultsReport");
     }
+
+	/**
+	 * This attempts to build the value of the content disposition header. It provides a ISO-8859-1 representation
+	 * and a full UTF-8 version. This allows browser that understand the full version to use that and
+	 * for mainly IE 8 the old limited one.
+	 * @param filename The filename to encode
+	 * @return The value of the content disposition header specifying it's inline content.
+	 */
+	public String buildContentDisposition(String filename) {
+		try {
+			// This will replace all non US-ASCII characters with '?'
+			// Although this behaviour is unspecified doing it manually is overkill (too much work).
+			// Make sure we escape double quotes.
+			String iso8859Filename = new String(filename.getBytes("ISO-8859-1"))
+					.replace("\\", "\\\\")
+					.replace("\"", "\\\"");
+			String utf8Filename = URLEncoder.encode(filename, "UTF-8").replace("+", "%20");
+			return new StringBuilder()
+					.append("inline; ")
+					.append("filename=\"").append(iso8859Filename).append("\"; ")
+					// For sensible browser give them a full UTF-8 encoded string.
+					.append("filename*=UTF-8''").append(utf8Filename)
+					.toString();
+		} catch (UnsupportedEncodingException shouldNeverHappen) {
+			throw new RuntimeException(shouldNeverHappen);
+		}
+	}
     
     private OutputStream getOutputStream(HttpServletResponse response){
     	try {
