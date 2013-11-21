@@ -89,7 +89,7 @@ public interface CourseComponent {
 	/**
 	 * The URL to apply to the course.
 	 * This comes from standard XCRI.
-	 * @return A String URL or <code>null</code> if there isn none.
+	 * @return A String URL or <code>null</code> if there is none.
 	 * @see #getMemberApplyTo()
 	 */
 	public String getApplyTo();
