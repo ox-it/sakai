@@ -63,7 +63,7 @@ public interface CourseDAO {
 
 	String save(CourseSignupDAO signupDao);
 
-	String save(CourseComponentDAO componentDao);
+	void save(CourseComponentDAO componentDao);
 
 	CourseSignupDAO findSignupById(String signupId);
 	
@@ -81,7 +81,7 @@ public interface CourseDAO {
 
 	List<CourseSignupDAO> findSignupByCourse(String userId, String courseId, Set<Status> statuses);
 	
-	Integer countSignupByCourse(String courseId, Set<Status> statuses);
+	Integer countSignupByCourse(String courseId, Set<Status> statuses, Date now);
 
 	List<CourseGroupDAO> findCourseGroupByWords(String[] words, Range range, Date date, boolean external);
 
@@ -124,10 +124,24 @@ public interface CourseDAO {
 	public int flagSelectedCourseGroups(final String source);
 	
 	public int flagSelectedCourseComponents(final String source);
-	
-	public int flagSelectedDaisyCourseGroups(final String source);
-	
-	public int flagSelectedDaisyCourseComponents(final String source);
+
+	/**
+	 * Look for groups for which all the components are in the future and which
+	 * don't have any signups and mark them as deleted.
+	 * @param source The source to delete groups from. Each importer should have a unique source.
+	 * @param now The current date/time.
+	 * @return The number of groups flagged as deleted.
+	 */
+	int flagSelectedDaisyCourseGroups(String source, Date now);
+
+	/**
+	 * Look for components that don't have any signups and that have a basedate in the future
+	 * and mark them as deleted.
+	 * @param source The source to delete groups from. Each importer should have a unique source.
+	 * @param now The current date/time.
+	 * @return The number of groups flagged as deleted.
+	 */
+	int flagSelectedDaisyCourseComponents(String source, Date now);
 	
 	public Collection<CourseGroupDAO> deleteSelectedCourseGroups(final String source);
 	

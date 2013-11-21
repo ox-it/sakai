@@ -24,31 +24,41 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Before;
+import org.junit.Test;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 
-public class TestCourseSignupServiceSignup extends TestOnSampleData {
-	
+public class TestCourseSignupServiceSignup extends OnSampleData {
+
+	@Before
+	public void resetUser() {
+		proxy.setCurrentUser(proxy.findUserById("current"));
+	}
+
+	@Test
 	public void testSignupGood() {
 		service.signup("course-1", Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);
 	}
-	
+
+	@Test
 	public void testSignupGoodSet() {
 		Set<String> componentIds = new HashSet<String>();
 		componentIds.add("comp-1");
 		componentIds.add("comp-3");
 		service.signup("course-1", componentIds, "test.user.1@dept.ox.ac.uk", null);
 	}
-	
-	public void testSignupMultiple() {
-		// TODO This affects all further tests.
+
+	@Test
+	public void testSignupMultipleUsers() {
 		for (int i = 1; i<=15; i++) {
 			proxy.setCurrentUser(proxy.findUserById("id"+i));
 			service.signup("course-1", Collections.singleton("comp-3"), "test.user.1@dept.ox.ac.uk", null);
 		}
 	}
 
-	public void testSignupSignupSingle() {
+	@Test
+	public void testSignupSingle() {
 		service.signup("course-1", Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);
 		dao.flush();
 		List<CourseSignup> signups = service.getMySignups(Collections.singleton(Status.PENDING));
@@ -61,7 +71,8 @@ public class TestCourseSignupServiceSignup extends TestOnSampleData {
 		signups = service.getMySignups(Collections.singleton(Status.PENDING));
 		assertEquals("test.user.1@dept.ox.ac.uk", signups.get(0).getSupervisor().getEmail());
 	}
-	
+
+	@Test
 	public void testSignupWithdrawSignupSingle() {
 		service.signup("course-1", Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);
 		dao.flush();
@@ -74,45 +85,54 @@ public class TestCourseSignupServiceSignup extends TestOnSampleData {
 		signups = service.getMySignups(Collections.singleton(Status.PENDING));
 		assertEquals("test.user.2@dept.ox.ac.uk", signups.get(0).getSupervisor().getEmail());
 	}
-	
-	public void testSignupWithdrawSignupMultiple() {
-		
-	}
-	
+
+	@Test
 	public void testSignupFuture() {
 		try{
 			// Isn't open yet.
 			service.signup("course-1", Collections.singleton("comp-5"), "test.user.1@dept.ox.ac.uk", null);
 			fail("Should throw exception");
-		} catch (IllegalStateException ise) {}
+		} catch (IllegalStateException ise) {
+			// The course isn't current available for signup.
+		}
 	}
-	
+
+	@Test
 	public void testSignupPast() {
 		try {
 			// Is now closed.
 			service.signup("course-1", Collections.singleton("comp-6"), "test.user.1@dept.ox.ac.uk", null);
 			fail("Should throw exception");
-		} catch (IllegalStateException ise) {}
+		} catch (IllegalStateException ise) {
+			// The course isn't currently available for signup.
+		}
 	}
-	
+
+	@Test
 	public void testSignupBadUser() {
 		try {
 			service.signup("course-1", Collections.singleton("comp-1"), "nosuchuser@ox.ac.uk", null);
 			fail("Should throw exception");
-		} catch (IllegalArgumentException iae) {}
+		} catch (IllegalArgumentException iae) {
+			// The user couldn't be found.
+		}
 	}
 
-	public void testSignupFull() {
-		try {
-			service.signup("course-1", Collections.singleton("comp-8"), "test.user.1@dept.ox.ac.uk", null);
-			fail("Should throw exception");
-		} catch (IllegalStateException ise) {}
+	@Test
+	public void testFullCourseToWaitingList() {
+		// comp-8 doesn't have any spaces left so the user should end up on the waiting list.
+		service.signup("course-1", Collections.singleton("comp-8"), "test.user.1@dept.ox.ac.uk", null);
+		List<CourseSignup> signups = service.getMySignups(Collections.singleton(Status.WAITING));
+		assertEquals(1, signups.size());
 	}
-	
+
+	@Test
 	public void testSignupWrongCourse() {
 		try {
 			service.signup("course-3", Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);
 			fail("Should throw exception");
-		} catch (IllegalArgumentException iae) {}
+		} catch (IllegalArgumentException iae) {
+			// We attempted to signup for component that didn't match the course.
+		}
 	}
 }

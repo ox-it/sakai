@@ -39,8 +39,8 @@
 
 package uk.ac.ox.oucs.vle.xcri.oxcap;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.xcri.Extension;
 import org.xcri.exceptions.InvalidElementException;
 
@@ -196,7 +196,7 @@ public class Subject extends org.xcri.common.Subject implements Extension {
 
 		public String getValue() {
 			// We want the code prefixed for the VITAE skills.
-			return name()+ " "+ this.value;
+			return name()+ " - "+ this.value;
 		}
 
 		@Override

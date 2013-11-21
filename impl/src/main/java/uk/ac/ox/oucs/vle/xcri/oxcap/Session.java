@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.xcri.Extension;
 import org.xcri.Namespaces;
 import org.xcri.common.Identifier;

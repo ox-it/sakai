@@ -60,7 +60,7 @@ class TermCode implements Comparable<TermCode> {
 	 */
 	public String getName() {
 		if (isValid()) {
-			return String.format("%s %d/%d", term.name(), 2000+year, year+1);
+			return String.format("%s %d/%d", term.title(), 2000+year, year+1);
 		}
 		return null;
 	}

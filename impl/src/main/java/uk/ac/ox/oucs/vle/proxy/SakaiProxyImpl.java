@@ -66,6 +66,7 @@ import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 
+import org.sakaiproject.util.ResourceLoader;
 import uk.ac.ox.oucs.vle.*;
 
 /**
@@ -76,7 +77,9 @@ import uk.ac.ox.oucs.vle.*;
 public class SakaiProxyImpl implements SakaiProxy {
 
 	private final static Log log = LogFactory.getLog(SakaiProxyImpl.class);
-	
+
+	private final static ResourceLoader rb = new ResourceLoader("messages");
+
 	private String fromAddress;
 
 	/**
@@ -275,14 +278,17 @@ public class SakaiProxyImpl implements SakaiProxy {
 		eventService.post(event);
 	}
 
+	public String getCurrentPlacementId() {
+		return getPlacement(null).getId();
+	}
+
 	/**
 	 * Just get the current placement.
 	 * @return The current placement.
 	 * @throws RuntimeException If there isn't a current placement, this happens
 	 * when a request comes through that isn't processed by the portal.
 	 */
-
-	public Placement getPlacement(String placementId) {
+	private Placement getPlacement(String placementId) {
 		Placement placement = null;
 		if (null == placementId) {
 			placement = toolManager.getCurrentPlacement();
@@ -417,9 +423,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return getUrl("/static/my.jsp", placementId);
 	}
 
+	@Override
+	public String getMessage(String key) {
+		return rb.getString(key);
+	}
+
 	private String getUrl(String toolState) {
 		return getUrl(toolState, null);
 	}
+
 	private String getUrl(String toolState, String placementId) {
 		Placement currentPlacement = getPlacement(placementId);
 		//String siteId = currentPlacement.getContext();
@@ -524,18 +536,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		
 	}
-	
-	/**
-	 * 
-	 * @param contentId
-	 * @param contentDisplayName
-	 * @throws VirusFoundException
-	 * @throws OverQuotaException
-	 * @throws ServerOverloadException
-	 * @throws PermissionException
-	 * @throws TypeException
-	 * @throws InUseException
-	 */
+
 	public void prependLog(String contentId, String contentDisplayName, byte[] logBytes) {
 		
 		switchUser();

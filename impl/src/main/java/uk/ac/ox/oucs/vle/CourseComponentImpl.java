@@ -49,10 +49,6 @@ public class CourseComponentImpl implements CourseComponent {
 	public String getPresentationId() {
 		return dao.getPresentationId();
 	}
-	
-	public String getSubject() {
-		return dao.getSubject();
-	}
 
 	public String getTitle() {
 		return dao.getTitle();

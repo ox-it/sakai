@@ -151,7 +151,7 @@ public class ModuleImpl implements Module {
 					log.info("Component is about to close ["+
 							component.getPresentationId()+":"+
 							DateFormat.getInstance().format(component.getCloses())+":"+
-							component.getSubject()+"]");
+							component.getTitle()+"]");
 					componentsClosing.add(component);
 				}
 			}
@@ -182,7 +182,7 @@ public class ModuleImpl implements Module {
 					log.info("Component is about to start ["+
 							component.getPresentationId()+":"+
 							DateFormat.getInstance().format(component.getStarts())+":"+
-							component.getSubject()+"]");
+							component.getTitle()+"]");
 					componentsStarting.add(component);
 				}
 			}
@@ -404,8 +404,6 @@ public class ModuleImpl implements Module {
 	 */
 	public String formatComponent(CourseComponentDAO component) {
 		StringBuilder output = new StringBuilder(); 
-		output.append(component.getSubject());
-		output.append(": ");
 		output.append(component.getTitle());
 		// TODO - The sessions should really be an int and we should check > 1
 		if (component.getSessions() != null && validString(component.getSessions())) {

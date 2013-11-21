@@ -147,10 +147,9 @@
 		</property>
 		-->
 	</bean>
-	
-	<bean id="uk.ac.ox.oucs.vle.PopulatorInput" init-method="init" destroy-method="destroy" 
-		class="uk.ac.ox.oucs.vle.XcriPopulatorInput" >
-	</bean>
+
+    <!-- In production we just want to use the live time -->
+    <bean id="uk.ac.ox.oucs.vle.NowService" class="uk.ac.ox.oucs.vle.LiveNowService"/>
 
 </beans>
 

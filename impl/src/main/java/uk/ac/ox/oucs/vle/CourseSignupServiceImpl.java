@@ -37,14 +37,11 @@ import org.sakaiproject.util.ResourceLoader;
 public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	private final static Log log = LogFactory.getLog(CourseSignupServiceImpl.class);
-	
-	private final static ResourceLoader rb = new ResourceLoader("messages");
-	
+
 	private CourseDAO dao;
 	private SakaiProxy proxy;
 	private SearchService searchService;
-
-	private long adjustment;
+	private NowService now;
 
 	protected final Comparator<CourseGroup> noDateCompatator = new NoDateComparator();
 
@@ -59,12 +56,16 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	public void setSearchService(SearchService searchService) {
 		this.searchService = searchService;
 	}
-	
+
+	public void setNowService(NowService now) {
+		this.now = now;
+	}
+
 	/**
 	 * 
 	 */
 	public void approve(String signupId) {
-		approve(signupId, false, proxy.getPlacement(null).getId());
+		approve(signupId, false, proxy.getCurrentPlacementId());
 	}
 	
 	public void approve(String signupId, boolean skipAuth, String placementId) {
@@ -128,7 +129,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void accept(String signupId) {
-		accept(signupId, false, proxy.getPlacement(null).getId());
+		accept(signupId, false, proxy.getCurrentPlacementId());
 	}
 	
 	public void accept(String signupId, boolean skipAuth, String placementId) {
@@ -208,7 +209,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void confirm(String signupId) {
-		confirm(signupId, false, proxy.getPlacement(null).getId());
+		confirm(signupId, false, proxy.getCurrentPlacementId());
 	}
 	public void confirm(String signupId, boolean skipAuth, String placementId) {
 		
@@ -259,7 +260,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void waiting(String signupId) {
-		waiting(signupId, false, proxy.getPlacement(null).getId());
+		waiting(signupId, false, proxy.getCurrentPlacementId());
 	}
 	
 	public void waiting(String signupId, boolean skipAuth, String placementId) {
@@ -469,7 +470,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			return null;
 		}
 		
-		return dao.countSignupByCourse(courseId, statuses);
+		return dao.countSignupByCourse(courseId, statuses, getNow());
 	}
 	
 	public String getDirectUrl(String courseId) {
@@ -582,7 +583,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * 
 	 */
 	public void reject(String signupId) {
-		reject(signupId, false, proxy.getPlacement(null).getId());
+		reject(signupId, false, proxy.getCurrentPlacementId());
 	}
 	public void reject(String signupId, boolean skipAuth, String placementId) {
 		
@@ -780,7 +781,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		
 		boolean full = false;
 		Set<Status> statuses = Collections.singleton(Status.WAITING);
-		if (dao.countSignupByCourse(courseId, statuses).intValue() > 0) {
+		if (dao.countSignupByCourse(courseId, statuses, getNow()).intValue() > 0) {
 			full = true;
 		}
 		
@@ -858,7 +859,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		proxy.logEvent(groupDao.getCourseId(), EVENT_SIGNUP, null);
 		
-		String placementId = proxy.getPlacement(null).getId();
+		String placementId = proxy.getCurrentPlacementId();
 		String url = proxy.getConfirmUrl(signupId);
 		
 		if (full) {
@@ -963,8 +964,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			System.arraycopy(additionalBodyData, 0, data, baseBodyData.length, additionalBodyData.length);
 		}
 		
-		String subject = MessageFormat.format(rb.getString(subjectKey), data);
-		String body = MessageFormat.format(rb.getString(bodyKey), data);
+		String subject = MessageFormat.format(proxy.getMessage(subjectKey), data);
+		String body = MessageFormat.format(proxy.getMessage(bodyKey), data);
 		proxy.sendEmail(to, subject, body);
 	}
 	
@@ -999,8 +1000,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			System.arraycopy(baseBodyData, 0, data, 0, baseBodyData.length);
 			System.arraycopy(additionalBodyData, 0, data, baseBodyData.length, additionalBodyData.length);
 		}
-		String subject = MessageFormat.format(rb.getString(subjectKey), data);
-		String body = MessageFormat.format(rb.getString(bodyKey), data);
+		String subject = MessageFormat.format(proxy.getMessage(subjectKey), data);
+		String body = MessageFormat.format(proxy.getMessage(bodyKey), data);
 		proxy.sendEmail(to, subject, body);
 	}
 	
@@ -1026,7 +1027,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		
 		String to = recepient.getEmail();
-		String subject = MessageFormat.format(rb.getString(subjectKey), new Object[]{proxy.getCurrentUser().getDisplayName(), signupDao.getGroup().getTitle(), signupUser.getDisplayName()});
+		String subject = MessageFormat.format(proxy.getMessage(subjectKey), new Object[]{proxy.getCurrentUser().getDisplayName(), signupDao.getGroup().getTitle(), signupUser.getDisplayName()});
 		String componentDetails = formatSignup(signupDao);
 		Object[] baseBodyData = new Object[] {
 				proxy.getCurrentUser().getDisplayName(),
@@ -1040,7 +1041,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			System.arraycopy(baseBodyData, 0, bodyData, 0, baseBodyData.length);
 			System.arraycopy(additionalBodyData, 0, bodyData, baseBodyData.length, additionalBodyData.length);
 		}
-		String body = MessageFormat.format(rb.getString(bodyKey), bodyData);
+		String body = MessageFormat.format(proxy.getMessage(bodyKey), bodyData);
 		proxy.sendEmail(to, subject, body);
 	}
 	
@@ -1107,7 +1108,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 					"withdraw.admin.subject", 
 					"withdraw.admin.body", 
 					new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getAdminUrl()});
-				savePlacement(administrator, proxy.getPlacement(null).getId());
+				savePlacement(administrator, proxy.getCurrentPlacementId());
 			}
 		}
 		sendStudentSignupEmail(signupDao, 
@@ -1163,11 +1164,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	public Date getNow() {
-		return (adjustment != 0)?new Date(new Date().getTime() + adjustment):new Date();
-	}
-
-	public void setNow(Date newNow) {
-		adjustment = newNow.getTime() - new Date().getTime();
+		return now.getNow();
 	}
 	
 	/**

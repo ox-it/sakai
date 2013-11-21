@@ -129,15 +129,6 @@ public class CourseComponentDAO  implements java.io.Serializable {
 		this.version = version;
 	}
 
-
-	public String getSubject() {
-        return this.subject;
-    }
-    
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-    
 	public String getTitle() {
         return this.title;
     }

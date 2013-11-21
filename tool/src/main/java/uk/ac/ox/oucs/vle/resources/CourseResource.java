@@ -628,7 +628,6 @@ public class CourseResource {
 				gen.writeObjectField("location", component.getLocation());
 				gen.writeObjectField("slot", component.getTeachingDetails());
 				gen.writeObjectField("size", component.getSize());
-				gen.writeObjectField("subject", component.getSubject());
 				if (null != component.getOpens()) {
 					gen.writeObjectField("opens", component.getOpens().getTime());
 				}

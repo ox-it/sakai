@@ -24,8 +24,11 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import static uk.ac.ox.oucs.vle.CourseSignupService.*;
 
 public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 
@@ -345,7 +348,6 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		// and check
 		courseComponent  = courseDao.findCourseComponent("test");
 		assertEquals(1, courseComponent.getComponentSessions().size());
-
 	}
 
 	private final Date END_MIC_2010 = createDate(2010, 12, 4);
@@ -409,8 +411,58 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		sessionFactory.getCurrentSession().flush();
 		sessionFactory.getCurrentSession().clear();
 
-		List<CourseGroupDAO> groups = courseDao.findCourseGroupByDept("3C05", CourseSignupService.Range.UPCOMING, END_MIC_2010, false);
+		List<CourseGroupDAO> groups = courseDao.findCourseGroupByDept("3C05", Range.UPCOMING, END_MIC_2010, false);
 		assertEquals(1, groups.size());
+	}
+
+	public void testCountSignups() {
+
+		// Create some dates
+		Date now = createDate(2010, 3, 1);
+		Date beforeNow = createDate(2009, 3, 1);
+		Date afterNow = createDate(2011, 3, 1);
+
+		// First check for non-existant course
+		assertEquals(0, courseDao.countSignupByCourse("groupId", Collections.singleton(Status.ACCEPTED), now).intValue());
+
+		// Create a course
+		CourseGroupDAO aCourse = courseDao.newCourseGroup("groupId", "Title", "dept", "subunit");
+		courseDao.save(aCourse);
+
+		// Create a component in the past
+		CourseComponentDAO oldComponent = courseDao.newCourseComponent("oldComponentId");
+		oldComponent.setStarts(beforeNow);
+		oldComponent.getGroups().add(aCourse);
+		courseDao.save(oldComponent);
+
+		// Create a signup to the old component
+		CourseSignupDAO oldSignup = courseDao.newSignup("aUserId", "aSupervisorId");
+		oldSignup.setGroup(aCourse);
+		oldSignup.setStatus(Status.ACCEPTED);
+		courseDao.save(oldSignup);
+		oldComponent.getSignups().add(oldSignup);
+		courseDao.save(oldComponent);
+
+		assertEquals(0, courseDao.countSignupByCourse("groupId", Collections.singleton(Status.ACCEPTED), now).intValue());
+
+		// Create a component in the future
+		CourseComponentDAO newComponent = courseDao.newCourseComponent("newComponentId");
+		newComponent.setStarts(afterNow);
+		newComponent.getGroups().add(aCourse);
+		courseDao.save(newComponent);
+
+		assertEquals(0, courseDao.countSignupByCourse("groupId", Collections.singleton(Status.ACCEPTED), now).intValue());
+
+		// Create a signup for the future component
+		CourseSignupDAO newSignup = courseDao.newSignup("aUserId", "aSupervisorId");
+		newSignup.setGroup(aCourse);
+		newSignup.setStatus(Status.ACCEPTED);
+		courseDao.save(newSignup);
+		newComponent.getSignups().add(newSignup);
+		courseDao.save(newComponent);
+
+		assertEquals(1, courseDao.countSignupByCourse("groupId", Collections.singleton(Status.ACCEPTED), now).intValue());
+
 	}
 
 //	public void testAdminCourseGroups() {

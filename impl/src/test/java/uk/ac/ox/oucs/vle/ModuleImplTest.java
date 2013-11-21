@@ -16,7 +16,6 @@ public class ModuleImplTest {
 		dao = new CourseComponentDAO();
 
 		// Essentials
-		dao.setSubject("*SUBJECT*");
 		dao.setTitle("*TITLE*");
 		dao.setStartsText("*STARTS*");
 	}
@@ -24,7 +23,7 @@ public class ModuleImplTest {
 	@Test
 	public void testFormatComponent() {
 		assertEquals(
-				"*SUBJECT*: *TITLE* starts on *STARTS*",
+				"*TITLE* starts on *STARTS*",
 				moduleImpl.formatComponent(dao)
 		);
 	}
@@ -34,7 +33,7 @@ public class ModuleImplTest {
 		// Add invalid term
 		dao.setTermcode("INVALID");
 		assertEquals(
-				"*SUBJECT*: *TITLE* starts on *STARTS*",
+				"*TITLE* starts on *STARTS*",
 				moduleImpl.formatComponent(dao)
 		);
 	}
@@ -43,7 +42,7 @@ public class ModuleImplTest {
 	public void testFormatComponentValid() {
 		dao.setTermcode("TT10");
 		assertEquals(
-				"*SUBJECT*: *TITLE* starts on *STARTS* Trinity 2010/11",
+				"*TITLE* starts on *STARTS* Trinity 2010/11",
 				moduleImpl.formatComponent(dao)
 		);
 	}
@@ -52,7 +51,7 @@ public class ModuleImplTest {
 	public void testFormatComponentSessions() {
 		dao.setSessions("10");
 		assertEquals(
-				"*SUBJECT*: *TITLE* for 10 sessions starts on *STARTS*",
+				"*TITLE* for 10 sessions starts on *STARTS*",
 				moduleImpl.formatComponent(dao)
 		);
 	}
@@ -61,7 +60,7 @@ public class ModuleImplTest {
 	public void testFormatComponentTeacher() {
 		dao.setTeacherName("*TEACHER*");
 		assertEquals(
-				"*SUBJECT*: *TITLE* starts on *STARTS* with *TEACHER*",
+				"*TITLE* starts on *STARTS* with *TEACHER*",
 				moduleImpl.formatComponent(dao)
 		);
 	}

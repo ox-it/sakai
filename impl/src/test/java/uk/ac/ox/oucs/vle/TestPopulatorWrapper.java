@@ -37,97 +37,75 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import java.io.IOException;
-import java.util.Collections;
+import org.junit.Test;
 
-import org.jdom.JDOMException;
-import org.xcri.exceptions.InvalidElementException;
-public class TestPopulatorWrapper extends TestOnSampleData {
-	
+import java.util.Date;
+
+public class TestPopulatorWrapper extends OnSampleData {
+
+	public static final Date START2011 = SampleDataLoader.newCalendar(2011, 1, 1).getTime();
+
+	@Test
 	public void testFlagSelectedCourseGroups() {
-		dao.flagSelectedCourseGroups("Test");
-		CourseGroupDAO group = dao.findCourseGroupById("30");
-		assertNotNull(group);
-		assertTrue(group.getDeleted());
+		assertTrue(dao.flagSelectedCourseGroups("Test") > 0);
+		checkDeletedGroup("course-3", true);
 	}
-	
+
+	@Test
 	public void testFlagSelectedCourseComponents() {
-		dao.flagSelectedCourseComponents("Test");
-		CourseComponentDAO component = dao.findCourseComponent("30");
-		assertNotNull(component);
-		assertTrue(component.getDeleted());
+		assertTrue(dao.flagSelectedCourseComponents("Test") > 0);
+		checkDeletedComponent("comp-1", true);
 	}
-	
+
 	/**
-	 * Daisy Import will delete all Daisy courses that are future 
+	 * Daisy Import will delete all Daisy courses that are future
 	 * and not in the xcri and have no signups
 	 */
-	
+	@Test
 	public void testFlagSelectedDaisyCourseGroups() {
-		dao.flagSelectedDaisyCourseGroups("Test");
-		
-		CourseGroupDAO group;
-		
-		group = dao.findCourseGroupById("30");
-		assertNotNull(group);
-		assertFalse(group.getDeleted());
-		
-		group = dao.findCourseGroupById("31");
-		assertNotNull(group);
-		assertFalse(group.getDeleted());
-		
-		group = dao.findCourseGroupById("32");
-		assertNotNull(group);
-		assertFalse(group.getDeleted());
-		
-		group = dao.findCourseGroupById("34");
-		assertNotNull(group);
-		assertTrue(group.getDeleted());
-		
-		group = dao.findCourseGroupById("33");
-		assertNotNull(group);
-		assertTrue(group.getDeleted());
-		
-		group = dao.findCourseGroupById("36");
-		assertNotNull(group);
-		assertTrue(group.getDeleted());
-		
+		//
+		assertTrue(dao.flagSelectedDaisyCourseGroups("Test", START2011) > 0);
+
+		checkDeletedGroup("course-1", false); // In past and signups.
+		checkDeletedGroup("course-2", false); // In past and no signups.
+		checkDeletedGroup("course-3", true); // In future and no signups.
+		checkDeletedGroup("course-4", false); // In future with signups.
 	}
-	
+
 	/**
-	 * Daisy Import will delete all Daisy courses that are future 
+	 * Daisy Import will delete all Daisy components that are future
 	 * and not in the xcri and have no signups
 	 */
-	
+	@Test
 	public void testFlagSelectedDaisyCourseComponents() {
-		
-		dao.flagSelectedDaisyCourseComponents("Test");
-		CourseComponentDAO component;
-		
-		component = dao.findCourseComponent("30");
-		assertNotNull(component);
-		assertFalse(component.getDeleted());
-		
-		component = dao.findCourseComponent("31");
-		assertNotNull(component);
-		assertFalse(component.getDeleted());
-		
-		component = dao.findCourseComponent("32");
-		assertNotNull(component);
-		assertFalse(component.getDeleted());
-		
-		component = dao.findCourseComponent("34");
-		assertNotNull(component);
-		assertTrue(component.getDeleted());
-		
-		component = dao.findCourseComponent("33");
-		assertNotNull(component);
-		assertTrue(component.getDeleted());
-		
-		component = dao.findCourseComponent("36");
-		assertNotNull(component);
-		assertTrue(component.getDeleted());
-		
+
+		assertTrue(dao.flagSelectedDaisyCourseComponents("Test", START2011) > 0);
+
+		checkDeletedComponent("comp-1", false); // In past and no signups
+		checkDeletedComponent("comp-2", false); // In past and no signups
+		checkDeletedComponent("comp-3", false); // In past and no signups
+		checkDeletedComponent("comp-4", true); // In future, no signups
+		checkDeletedComponent("comp-5", true); // In future, no signups
+		checkDeletedComponent("comp-6", false); // In past and signups
+		checkDeletedComponent("comp-7", false); // In past and signups
+		checkDeletedComponent("comp-8", false); // In past and no signups
+		checkDeletedComponent("comp-9", true); // In future and no signups
+		checkDeletedComponent("comp-10", false); // In future with signups.
+
+	}
+
+	private void checkDeletedGroup(String courseId, boolean deleted) {
+		CourseGroupDAO group;
+		group = dao.findCourseGroupById(courseId);
+		assertNotNull(group);
+		assertEquals(deleted, group.getDeleted());
+	}
+
+	private void checkDeletedComponent(String componentId, boolean deleted) {
+		CourseComponentDAO componentDAO;
+		componentDAO = dao.findCourseComponent(componentId);
+		assertNotNull(componentDAO);
+		assertEquals(deleted, componentDAO.getDeleted());
 	}
 	
 }
