@@ -398,21 +398,18 @@ public class ModuleImpl implements Module {
 	}
 	
 	/**
-	 * 
-	 * @param component
-	 * @return
+	 * Produce a summary of a component for sending to users.
+	 * @param component The component to produce a summary of.
+	 * @return A string to summarise the component.
 	 */
 	public String formatComponent(CourseComponentDAO component) {
-		
 		StringBuilder output = new StringBuilder(); 
 		output.append(component.getSubject());
 		output.append(": ");
 		output.append(component.getTitle());
-		output.append(": ");
 		// TODO - The sessions should really be an int and we should check > 1
 		if (component.getSessions() != null && validString(component.getSessions())) {
-			output.append(String.format(" for %s sessions ", component.getSessions()));
-			output.append(component.getSessions());
+			output.append(String.format(" for %s sessions", component.getSessions()));
 		}
 		output.append(" starts on ");
 		if (component.getStarts() != null) {
