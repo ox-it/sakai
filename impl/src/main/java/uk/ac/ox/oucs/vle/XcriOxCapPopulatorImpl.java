@@ -662,12 +662,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			}
 
 			if (extension instanceof TermCode) {
+				// TODO We should validate it here.
+				// TT09, HT09, MT09, TT10
 				myPresentation.setTermcode(extension.getValue());
-				continue;
-			}
-
-			if (extension instanceof TermLabel) {
-				myPresentation.setSlot(extension.getValue());
 				continue;
 			}
 
@@ -959,8 +956,6 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			componentDao.setTeacher(myPresentation.getTeacher());
 			componentDao.setTeacherName(myPresentation.getTeacherName());
 			componentDao.setTeacherEmail(myPresentation.getTeacherEmail());
-			componentDao.setWhen(myPresentation.getWhen());
-			componentDao.setSlot(myPresentation.getSlot());
 			componentDao.setSessions(myPresentation.getSessions());
 			componentDao.setLocation(myPresentation.getLocation());
 			componentDao.setApplyTo(myPresentation.getApplyTo());

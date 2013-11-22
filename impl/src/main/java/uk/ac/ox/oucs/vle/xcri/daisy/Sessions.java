@@ -21,6 +21,9 @@ package uk.ac.ox.oucs.vle.xcri.daisy;
 
 import org.xcri.Extension;
 
+/**
+ * This holds the number of sessions a presentation runs for.
+ */
 public class Sessions extends DaisyElement implements Extension {
 		
 	/**

@@ -62,10 +62,23 @@ public interface CourseComponent {
 	 * @return The date when this course becomes old.
 	 */
 	public Date getBaseDate();
-	
-	public String getSlot();
-	
+
+	/**
+	 * This gets when this component happens. Typically in this deployment this is
+	 * the Oxford term. Example would be "Hilary 2013".
+	 * It would be accurate to call this term, but that needs lots of refactoring.
+	 * @return A human readable string for when this roughly happens.
+	 * <code>null</code> if not set.
+	 */
 	public String getWhen();
+
+	/**
+	 * This gets the code for the term that this component runs in. This is exposed
+	 * through the API
+	 * @see #getWhen()
+	 * @return A string representing the term. Eg HT13 for Hilary 2013/14.
+	 */
+	public String getTermCode();
 	
 	public String getSessions();
 	
@@ -74,11 +87,18 @@ public interface CourseComponent {
 	/**
 	 * The URL to apply to the course.
 	 * This comes from standard XCRI.
-	 * @return A String URL.
+	 * @return A String URL or <code>null</code> if there is none.
 	 * @see #getMemberApplyTo()
 	 */
 	public String getApplyTo();
-	
+
+	/**
+	 * This gets more details about when the teaching happens. Typically this is used
+	 * for times of the teach, of specifying special cases.
+	 * @deprecated The information that was previously in here should be in the sessions instead.
+	 * @see #getComponentSessions()
+	 * @return Details of when the teaching happens, or <code>null</code> if we don't have any.
+	 */
 	public String getTeachingDetails();
 
 	/**

@@ -41,7 +41,7 @@ public class CourseComponentImpl implements CourseComponent {
 	private transient Date baseDate;
 	
 	private final static int YEARS_AGO = -1825;
-	
+
 	public CourseComponentImpl(CourseComponentDAO dao) {
 		this.dao = dao;
 	}
@@ -143,16 +143,19 @@ public class CourseComponentImpl implements CourseComponent {
 		return baseDate;
 	}
 
+	@Override
+	public String getWhen() {
+		// We could cache this, but it's reasonably lightweight and not called much at the moment.
+		return new TermCode(dao.getTermcode()).getName();
+	}
+
+	@Override
+	public String getTermCode() {
+		return dao.getTermcode();
+	}
+
 	public String getComponentSet() {
 		return dao.getComponentId(); 
-	}
-
-	public String getWhen() {
-		return dao.getWhen();
-	}
-
-	public String getSlot() {
-		return dao.getSlot();
 	}
 
 	public String getSessions() {

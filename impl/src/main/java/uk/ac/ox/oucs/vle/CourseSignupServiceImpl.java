@@ -21,7 +21,6 @@ package uk.ac.ox.oucs.vle;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -43,7 +42,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	private SakaiProxy proxy;
 	private SearchService searchService;
 	private NowService now;
-	
+
+	protected final Comparator<CourseGroup> noDateCompatator = new NoDateComparator();
+
 	public void setDao(CourseDAO dao) {
 		this.dao = dao;
 	}
@@ -1063,12 +1064,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		for(CourseComponent component: signup.getComponents()) {
 			output.append("  - ");
 			output.append(component.getTitle());
-			output.append(": ");
-			output.append(component.getSlot());
-			output.append(" for ");
+			output.append("for ");
 			output.append(component.getSessions());
-			output.append(" starts in ");
-			output.append(component.getWhen());
+			if (component.getWhen() != null) {
+				output.append(" starts in ");
+				output.append(component.getWhen());
+			}
 			Person presenter = component.getPresenter();
 			if(presenter != null) {
 				output.append(" with ");
@@ -1099,14 +1100,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		signupDao.setAmended(getNow());
 		dao.save(signupDao);
 		proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_WITHDRAW, null);
-		
-		/**
-		 * @param userId The ID of the user who the message should be sent to.
-	     * @param signupDao The signup the message is about.
-	     * @param subjectKey The resource bundle key for the subject
-	     * @param bodyKey The resource bundle key for the body.
-	     * @param additionalBodyData Additional objects used to format the email body. Typically used for the confirm URL.
-		 */
+
 		if (sendEmail) {
 			for (String administrator : signupDao.getGroup().getAdministrators()) {
 				sendSignupEmail(
@@ -1123,10 +1117,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				               new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
 	}
 
-	public CourseGroup getAvailableCourseGroup(String courseId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	public List<CourseGroup> getCourseGroupsByDept(String deptId, Range range, boolean externalUser) {
 		List<CourseGroupDAO> cgDaos = dao.findCourseGroupByDept(deptId, range, getNow(), externalUser);
@@ -1295,49 +1285,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				groups.add(new CourseGroupImpl(myGroupDao, this));
 			}
 		}
-		
-		Collections.sort(groups, new Comparator<CourseGroup>() {
-			public int compare(CourseGroup c1, CourseGroup c2) {
-				
-				String when1 = c1.getComponents().get(c1.getComponents().size() -1).getWhen();
-				String when2 = c2.getComponents().get(c2.getComponents().size() -1).getWhen();
-				if (null == when1) {
-					return 1;
-				}
-				if (null == when2) {
-					return -1;
-				}
-				String[] words1 = when1.split(" ");
-				String[] words2 = when2.split(" ");
-				if (words1.length < 2) {
-					return 1;
-				}
-				if (words2.length < 2) {
-					return -1;
-				}
-				
-				int i1 = Integer.parseInt(words1[1]);
-				int i2 = Integer.parseInt(words2[1]);
-				if (i1 > i2) {
-					return 1;
-				}
-				if (i1 <i2) {
-					return -1;
-				}
-				
-				String[] terms = {"Michaelmas","Hilary","Trinity"};
-				i1 = Arrays.asList(terms).indexOf(words1[0]);
-				i2 = Arrays.asList(terms).indexOf(words2[0]);
-				if (i1 > i2) {
-					return 1;
-				}
-				if (i1 < i2) {
-					return -1;
-				}
-				
-				return c1.getTitle().compareTo(c2.getTitle());
-			}
-		});
+
+		Collections.sort(groups, noDateCompatator);
 		
 		return groups;
 	}

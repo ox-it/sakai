@@ -123,6 +123,7 @@ public class ModuleImpl implements Module {
 		
 		initialise();
 		String[] words = new String[0];
+		// This gets all the groups there are as all the values are ignored.
 		final List<CourseGroupDAO> groups = dao.findCourseGroupByWords(words, Range.ALL, new Date(), false);
 		
 		modulesClosing(groups);
@@ -133,8 +134,8 @@ public class ModuleImpl implements Module {
 	}
 	
 	/**
-	 * email course administrator if course component is about to close
-	 * @param groups
+	 * Email course administrator if course component is about to close
+	 * @param groups A list of all groups that may have closing components.
 	 */
 	private void modulesClosing(final List<CourseGroupDAO> groups) {
 		
@@ -213,18 +214,13 @@ public class ModuleImpl implements Module {
 			
 			if (Status.ACCEPTED == signup.getStatus()) {
 				
-				Collection<CourseSignupDAO> set = 
-						(Collection<CourseSignupDAO>)supervisors.get(signup.getSupervisorId());
+				Collection<CourseSignupDAO> set = supervisors.get(signup.getSupervisorId());
 				
 				if (null == set) {
 					set = new HashSet<CourseSignupDAO>();
-					set.add(signup);
-				} else {
-					set.add(signup);
-					supervisors.remove(signup.getSupervisorId());
+					supervisors.put(signup.getSupervisorId(), set);
 				}
-				supervisors.put(signup.getSupervisorId(), set);
-				
+				set.add(signup);
 			}
 			
 			if (Status.PENDING == signup.getStatus()) {
@@ -234,17 +230,13 @@ public class ModuleImpl implements Module {
 				
 				for (String admin : admins) {
 					
-					Collection<CourseSignupDAO> set = 
-							(Collection<CourseSignupDAO>)administrators.get(admin);
+					Collection<CourseSignupDAO> set = administrators.get(admin);
 					
 					if (null == set) {
 						set = new HashSet<CourseSignupDAO>();
-						set.add(signup);
-					} else {
-						set.add(signup);
-						administrators.remove(admin);
+						administrators.put(admin, set);
 					}
-					administrators.put(admin, set);
+					set.add(signup);
 				}
 				
 			}
@@ -332,14 +324,7 @@ public class ModuleImpl implements Module {
 		String body = MessageFormat.format(rb.getString("signup.starting.body"), data);
 		proxy.sendEmail(to, subject, body);
 	}
-	
-	/**
-	 * 
-	 * @param administrator
-	 * @param signups
-	 * @param subjectKey
-	 * @param bodyKey
-	 */
+
 	private void sendBumpAdministratorEmail(
 			String administratorId,
 			Collection <CourseSignupDAO> signups) {
@@ -376,13 +361,6 @@ public class ModuleImpl implements Module {
 		proxy.sendEmail(to, subject, body);
 	}
 	
-	/**
-	 * 
-	 * @param supervisorId
-	 * @param signups
-	 * @param subjectKey
-	 * @param bodyKey
-	 */
 	private void sendBumpSupervisorEmail(
 			String supervisorId,
 			Collection<CourseSignupDAO> signups) {
@@ -420,23 +398,29 @@ public class ModuleImpl implements Module {
 	}
 	
 	/**
-	 * 
-	 * @param component
-	 * @return
+	 * Produce a summary of a component for sending to users.
+	 * @param component The component to produce a summary of.
+	 * @return A string to summarise the component.
 	 */
 	public String formatComponent(CourseComponentDAO component) {
-		
 		StringBuilder output = new StringBuilder(); 
 		output.append(component.getTitle());
-		output.append(": ");
-		if (null != component.getSlot()) {
-			output.append(component.getSlot());
-			output.append(" ");
+		// TODO - The sessions should really be an int and we should check > 1
+		if (component.getSessions() != null && validString(component.getSessions())) {
+			output.append(String.format(" for %s sessions", component.getSessions()));
 		}
-		output.append("for ");
-		output.append(component.getSessions());
-		output.append(" starts in ");
-		output.append(component.getWhen());
+		output.append(" starts on ");
+		if (component.getStarts() != null) {
+			output.append(component.getStarts());
+		} else {
+			output.append(component.getStartsText());
+		}
+
+		TermCode termCode = new TermCode(component.getTermcode());
+		if (termCode.isValid()) {
+			output.append(" ");
+			output.append(termCode.getName());
+		}
 		if(validString(component.getTeacherName())) {
 			output.append(" with ");
 			output.append(component.getTeacherName());
