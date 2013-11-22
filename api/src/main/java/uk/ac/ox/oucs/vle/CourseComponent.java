@@ -94,7 +94,8 @@ public interface CourseComponent {
 
 	/**
 	 * This gets more details about when the teaching happens. Typically this is used
-	 * for times of the teach, of specifying special cases.
+	 * for times of the teach, of specifying special cases. For example
+	 * "happens for an hour every other friday during terms."
 	 * @deprecated The information that was previously in here should be in the sessions instead.
 	 * @see #getComponentSessions()
 	 * @return Details of when the teaching happens, or <code>null</code> if we don't have any.

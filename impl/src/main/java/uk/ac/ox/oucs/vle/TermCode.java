@@ -69,6 +69,10 @@ class TermCode implements Comparable<TermCode> {
 		return term != null;
 	}
 
+	/**
+	 * This sorts by year first, then by term and finally by the source (to make it consistent).
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int compareTo(TermCode other) {
 		if (! (this.isValid() && other.isValid()) ) {

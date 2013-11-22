@@ -2,7 +2,6 @@ package uk.ac.ox.oucs.vle;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +25,7 @@ public class NoDateComparatorTest {
 	public void testDiffYear() {
 		CourseGroup cg1 = newGroup("HT13", CG1);
 		CourseGroup cg2 = newGroup("HT12", CG2);
-		assertTransative(cg1, cg2);
+		assertSymmetric(cg1, cg2);
 	}
 
 	@Test
@@ -40,28 +39,28 @@ public class NoDateComparatorTest {
 	public void testDiffTerm() {
 		CourseGroup cg1 = newGroup("HT11", CG1);
 		CourseGroup cg2 = newGroup("MT11", CG2);
-		assertTransative(cg1, cg2);
+		assertSymmetric(cg1, cg2);
 	}
 
 	@Test
 	public void testNull() {
 		CourseGroup cg1 = newGroup(null, CG1);
 		CourseGroup cg2 = newGroup("HT11", CG2);
-		assertTransative(cg1, cg2);
+		assertSymmetric(cg1, cg2);
 	}
 
 	@Test
 	public void testBadTerm() {
 		CourseGroup cg1 = newGroup("NoTerm 11", CG1);
 		CourseGroup cg2 = newGroup("HT11", CG2);
-		assertTransative(cg1, cg2);
+		assertSymmetric(cg1, cg2);
 	}
 
 	@Test
 	public void testBadYear() {
 		CourseGroup cg1 = newGroup("HT11/12", CG1);
 		CourseGroup cg2 = newGroup("HT11", CG2);
-		assertTransative(cg1, cg2);
+		assertSymmetric(cg1, cg2);
 	}
 
 	@Test
@@ -80,7 +79,7 @@ public class NoDateComparatorTest {
 		assertArrayEquals(new CourseGroup[]{cg5, cg4, cg3, cg2, cg1, cg0}, list.toArray());
 	}
 
-	private void assertTransative(CourseGroup cg1, CourseGroup cg2) {
+	private void assertSymmetric(CourseGroup cg1, CourseGroup cg2) {
 		assertTrue(cg1+ " should be before "+ cg2, comp.compare(cg1, cg2) > 0);
 		assertTrue(cg2+ " should be after "+ cg1, comp.compare(cg2, cg1) < 0);
 	}
