@@ -1111,17 +1111,17 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String split(String signupId, Set<String> componentIds) {
+	public String split(String signupId, Set<String> componentPresentationIds) {
 		// Check we can find the signup.
 		CourseSignupDAO signupDAO = dao.findSignupById(signupId);
 		if (signupDAO == null) {
 			throw new NotFoundException(signupId);
 		}
-		if (componentIds == null || componentIds.isEmpty()) {
-			throw new IllegalArgumentException("You must specify some componentIds.");
+		if (componentPresentationIds == null || componentPresentationIds.isEmpty()) {
+			throw new IllegalArgumentException("You must specify some componentPresentationIds.");
 		}
-		if (componentIds.size() >= signupDAO.getComponents().size()) {
-			throw new IllegalArgumentException("You can't specify all the componentIds in the signup.");
+		if (componentPresentationIds.size() >= signupDAO.getComponents().size()) {
+			throw new IllegalArgumentException("You can't specify all the componentPresentationIds in the signup.");
 		}
 
 		// This won't affect the take counts as we keep the same number of components and the new signup is in the
@@ -1145,8 +1145,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 
 		// Check we removed them all, transactions will clear up the mess.
-		if (!componentIds.isEmpty()) {
-			throw new IllegalArgumentException("Some compoenents weren't part of the signup: "+ componentIds);
+		if (!remainingComponentIds.isEmpty()) {
+			throw new IllegalArgumentException("Some components weren't part of the signup: "+ componentPresentationIds);
 		}
 
 		return newSignup.getId();

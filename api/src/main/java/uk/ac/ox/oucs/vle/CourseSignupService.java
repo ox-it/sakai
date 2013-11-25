@@ -175,14 +175,14 @@ public interface CourseSignupService {
 	 * specified and these components are removed from the original signup. This allows parts of a signup to
 	 * be accepted and other parts to be rejected.
 	 * @param signupId The ID of the signup to have components removed from it.
-	 * @param componentIds The Components to to be added to the new signup.
+	 * @param componentPresentationIds The components presentation IDs to to be added to the new signup.
 	 * @return The ID of the new signup created.
 	 * @throws PermissionDeniedException If the current user isn't able to split the signup.
 	 * @throws NotFoundException If the signup can't be found by the ID.
 	 * @throws IllegalArgumentException If the signup doesn't have more than one components or if all components
 	 * are trying to be removed from the signup or if the components aren't currently part of the signup.
 	 */
-	public String split(String signupId, Set<String> componentIds);
+	public String split(String signupId, Set<String> componentPresentationIds);
 
 	/**
 	 * Gets all the CourseGroups that the current user can administer.
