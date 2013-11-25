@@ -33,6 +33,7 @@ public class CourseGroupDAO implements java.io.Serializable, Cloneable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
 	private int muid;
 	private String courseId;
 	private String title;
@@ -85,7 +86,7 @@ public class CourseGroupDAO implements java.io.Serializable, Cloneable {
 		if (obj == this) {
 			return true;
 		}
-		if (obj == null || obj.getClass() != this.getClass()) {
+		if (obj == null || !this.getClass().isAssignableFrom(obj.getClass())) {
 			return false;
 		}
 
