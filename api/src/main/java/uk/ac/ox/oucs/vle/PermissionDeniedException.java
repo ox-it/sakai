@@ -33,9 +33,9 @@ public class PermissionDeniedException extends CourseSignupException {
 	
 	private String userId;
 
-	public PermissionDeniedException(String userid, String message, Throwable t) {
+	public PermissionDeniedException(String userId, String message, Throwable t) {
 		super(message, t);
-
+		this.userId = userId;
 	}
 	
 	public PermissionDeniedException(String userId) {
