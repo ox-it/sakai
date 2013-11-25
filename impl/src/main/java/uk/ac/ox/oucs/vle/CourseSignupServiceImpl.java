@@ -1135,8 +1135,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 
 		// Now move the components to the new signup.
 		Set<CourseComponentDAO> newSignupComponents = new HashSet<CourseComponentDAO>();
+		// We don't modify arguments.
+		Set<String> remainingComponentIds = new HashSet<String>(componentPresentationIds);
 		for (CourseComponentDAO componentDAO: signupDAO.getComponents()) {
-			if (componentIds.remove(componentDAO.getComponentId())) {
+			if (remainingComponentIds.remove(componentDAO.getPresentationId())) {
 				newSignupComponents.add(componentDAO);
 				componentDAO.getSignups().remove(signupDAO);
 				componentDAO.getSignups().add(newSignup);
