@@ -179,7 +179,7 @@ public interface CourseSignupService {
 	 * @return The ID of the new signup created.
 	 * @throws PermissionDeniedException If the current user isn't able to split the signup.
 	 * @throws NotFoundException If the signup can't be found by the ID.
-	 * @throws IllegalArgumentException If the signup doesn't have more than one components or if all components
+	 * @throws IllegalArgumentException If the signup doesn't have more than one components or if all components.
 	 * are trying to be removed from the signup or if the components aren't currently part of the signup.
 	 */
 	public String split(String signupId, Set<String> componentPresentationIds);
