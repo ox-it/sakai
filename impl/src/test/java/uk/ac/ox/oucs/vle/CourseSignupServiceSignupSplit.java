@@ -78,7 +78,10 @@ public class CourseSignupServiceSignupSplit {
 
 	@Test
 	public void testSplit() {
-		String newSignupId = courseSignupService.split(signupId, Collections.singleton("compId1"));
+		Set<String> newSignupComps = Collections.singleton("compId1");
+		String newSignupId = courseSignupService.split(signupId, newSignupComps);
+		// We haven't had are arguments modified.
+		assertEquals(1, newSignupComps.size());
 		dao.flushAndClear();
 		CourseSignupDAO originalSignup = dao.findSignupById(signupId);
 		CourseSignupDAO newSignup = dao.findSignupById(newSignupId);
