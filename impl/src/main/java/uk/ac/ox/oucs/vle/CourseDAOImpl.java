@@ -295,10 +295,11 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 	}
 
-	public CourseSignupDAO newSignup(String userId, String supervisorId) {
+	public CourseSignupDAO newSignup(String userId, String supervisorId, Date now) {
 		CourseSignupDAO signupDao = new CourseSignupDAO();
 		signupDao.setUserId(userId);
 		signupDao.setSupervisorId(supervisorId);
+		signupDao.setCreated(now);
 		return signupDao;
 	}
 

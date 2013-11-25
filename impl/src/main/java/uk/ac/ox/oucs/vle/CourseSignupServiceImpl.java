@@ -725,8 +725,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		} else {
 			user = proxy.findUserById(userId);
 		}
-		CourseSignupDAO signupDao = dao.newSignup(user.getId(), supervisorId);
-		signupDao.setCreated(getNow());
+		CourseSignupDAO signupDao = dao.newSignup(user.getId(), supervisorId, getNow());
 		signupDao.setGroup(groupDao);
 		signupDao.setStatus(Status.PENDING);
 		signupDao.setAmended(getNow());
@@ -833,8 +832,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		
 		// Create the signup.
-		CourseSignupDAO signupDao = dao.newSignup(user.getId(), supervisorId);
-		signupDao.setCreated(getNow());
+		CourseSignupDAO signupDao = dao.newSignup(user.getId(), supervisorId, getNow());
 		signupDao.setGroup(groupDao);
 		if (full) {
 			signupDao.setStatus(Status.WAITING);
