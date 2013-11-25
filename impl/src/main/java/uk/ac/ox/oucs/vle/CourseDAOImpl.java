@@ -724,8 +724,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	/**
 	 * Used by tests to simulate another request being made.
 	 */
-	public void flush() {
+	public void flushAndClear() {
 		getHibernateTemplate().flush();
+		getHibernateTemplate().clear();
 	}
 
 	@SuppressWarnings("unchecked")

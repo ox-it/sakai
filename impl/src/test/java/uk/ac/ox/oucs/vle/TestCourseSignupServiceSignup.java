@@ -60,14 +60,14 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 	@Test
 	public void testSignupSingle() {
 		service.signup("course-1", Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);
-		dao.flush();
+		dao.flushAndClear();
 		List<CourseSignup> signups = service.getMySignups(Collections.singleton(Status.PENDING));
 		assertEquals(1, signups.size());
 		try {
 			service.signup("course-1", Collections.singleton("comp-1"), "test.user.2@dept.ox.ac.uk", null);
 			fail("Shouldn't be able to signup twice.");
 		} catch (Exception e) {}
-		dao.flush();
+		dao.flushAndClear();
 		signups = service.getMySignups(Collections.singleton(Status.PENDING));
 		assertEquals("test.user.1@dept.ox.ac.uk", signups.get(0).getSupervisor().getEmail());
 	}
@@ -75,13 +75,13 @@ public class TestCourseSignupServiceSignup extends OnSampleData {
 	@Test
 	public void testSignupWithdrawSignupSingle() {
 		service.signup("course-1", Collections.singleton("comp-1"), "test.user.1@dept.ox.ac.uk", null);
-		dao.flush();
+		dao.flushAndClear();
 		List<CourseSignup> signups = service.getMySignups(Collections.singleton(Status.PENDING));
 		assertEquals(1, signups.size());
 		service.withdraw(signups.get(0).getId());
-		dao.flush();
+		dao.flushAndClear();
 		service.signup("course-1", Collections.singleton("comp-1"), "test.user.2@dept.ox.ac.uk", null);
-		dao.flush();
+		dao.flushAndClear();
 		signups = service.getMySignups(Collections.singleton(Status.PENDING));
 		assertEquals("test.user.2@dept.ox.ac.uk", signups.get(0).getSupervisor().getEmail());
 	}
