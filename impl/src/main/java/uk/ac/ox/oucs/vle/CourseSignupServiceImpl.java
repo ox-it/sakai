@@ -20,15 +20,7 @@
 package uk.ac.ox.oucs.vle;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1113,6 +1105,51 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				               "withdraw.student.subject", 
 				               "withdraw.student.body", 
 				               new Object[] {proxy.getCurrentUser().getDisplayName(), proxy.getMyUrl()});
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String split(String signupId, Set<String> componentIds) {
+		// Check we can find the signup.
+		CourseSignupDAO signupDAO = dao.findSignupById(signupId);
+		if (signupDAO == null) {
+			throw new NotFoundException(signupId);
+		}
+		if (componentIds == null || componentIds.isEmpty()) {
+			throw new IllegalArgumentException("You must specify some componentIds.");
+		}
+		if (componentIds.size() >= signupDAO.getComponents().size()) {
+			throw new IllegalArgumentException("You can't specify all the componentIds in the signup.");
+		}
+
+		// This won't affect the take counts as we keep the same number of components and the new signup is in the
+		// same status as the existing one.
+		CourseSignupDAO newSignup = dao.newSignup(signupDAO.getUserId(), signupDAO.getSupervisorId(), getNow());
+		newSignup.setStatus(signupDAO.getStatus());
+		newSignup.setGroup(signupDAO.getGroup());
+		newSignup.setDepartment(signupDAO.getDepartment());
+		newSignup.setMessage(signupDAO.getMessage());
+		dao.save(newSignup);
+
+		// Now move the components to the new signup.
+		Set<CourseComponentDAO> newSignupComponents = new HashSet<CourseComponentDAO>();
+		for (CourseComponentDAO componentDAO: signupDAO.getComponents()) {
+			if (componentIds.remove(componentDAO.getComponentId())) {
+				newSignupComponents.add(componentDAO);
+				componentDAO.getSignups().remove(signupDAO);
+				componentDAO.getSignups().add(newSignup);
+				dao.save(componentDAO);
+			}
+		}
+
+		// Check we removed them all, transactions will clear up the mess.
+		if (!componentIds.isEmpty()) {
+			throw new IllegalArgumentException("Some compoenents weren't part of the signup: "+ componentIds);
+		}
+
+		return newSignup.getId();
 	}
 
 
