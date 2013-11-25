@@ -76,7 +76,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		courseDao.save(newCourseComponent2);
 
 		// Now create a signup linked to the group and the first component.
-		CourseSignupDAO newSignup = courseDao.newSignup("userId", "supervisorId");
+		CourseSignupDAO newSignup = courseDao.newSignup("userId", "supervisorId", new Date());
 		newSignup.setGroup(newCourseGroup);
 		newSignup.getComponents().add(newCourseComponent1);
 		courseDao.save(newSignup);
@@ -436,7 +436,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		courseDao.save(oldComponent);
 
 		// Create a signup to the old component
-		CourseSignupDAO oldSignup = courseDao.newSignup("aUserId", "aSupervisorId");
+		CourseSignupDAO oldSignup = courseDao.newSignup("aUserId", "aSupervisorId", new Date());
 		oldSignup.setGroup(aCourse);
 		oldSignup.setStatus(Status.ACCEPTED);
 		courseDao.save(oldSignup);
@@ -454,7 +454,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		assertEquals(0, courseDao.countSignupByCourse("groupId", Collections.singleton(Status.ACCEPTED), now).intValue());
 
 		// Create a signup for the future component
-		CourseSignupDAO newSignup = courseDao.newSignup("aUserId", "aSupervisorId");
+		CourseSignupDAO newSignup = courseDao.newSignup("aUserId", "aSupervisorId", new Date());
 		newSignup.setGroup(aCourse);
 		newSignup.setStatus(Status.ACCEPTED);
 		courseDao.save(newSignup);

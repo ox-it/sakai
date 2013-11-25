@@ -93,7 +93,7 @@ public class SampleDataLoader {
 		comp10.setTaken(1);
 		dao.save(comp10);
 		// Create some signups.
-		CourseSignupDAO signup1 = dao.newSignup("current", "1");
+		CourseSignupDAO signup1 = dao.newSignup("current", "1", new Date());
 		signup1.setStatus(CourseSignupService.Status.ACCEPTED);
 		signup1.setGroup(course1);
 		dao.save(signup1);
@@ -102,14 +102,14 @@ public class SampleDataLoader {
 		comp7.getSignups().add(signup1);
 		dao.save(comp7);
 
-		CourseSignupDAO signup2 = dao.newSignup("current", "1");
+		CourseSignupDAO signup2 = dao.newSignup("current", "1", new Date());
 		signup2.setStatus(CourseSignupService.Status.ACCEPTED);
 		signup2.setGroup(course1);
 		dao.save(signup2);
 		comp7.getSignups().add(signup2);
 		dao.save(comp7);
 
-		CourseSignupDAO signup3 = dao.newSignup("current", "1");
+		CourseSignupDAO signup3 = dao.newSignup("current", "1", new Date());
 		signup3.setStatus(CourseSignupService.Status.ACCEPTED);
 		signup3.setGroup(course4);
 		dao.save(signup3);
