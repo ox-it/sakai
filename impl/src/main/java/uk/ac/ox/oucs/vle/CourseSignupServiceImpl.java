@@ -1117,6 +1117,10 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (signupDAO == null) {
 			throw new NotFoundException(signupId);
 		}
+		String userId = proxy.getCurrentUser().getId();
+		if (!isAdministrator(signupDAO.getGroup(), userId, false)) {
+			throw new PermissionDeniedException(userId);
+		}
 		if (componentPresentationIds == null || componentPresentationIds.isEmpty()) {
 			throw new IllegalArgumentException("You must specify some componentPresentationIds.");
 		}

@@ -4,11 +4,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
+import uk.ac.ox.oucs.vle.proxy.SakaiProxyImpl;
+import uk.ac.ox.oucs.vle.proxy.SakaiProxyTest;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -32,6 +35,9 @@ public class CourseSignupServiceSignupSplit {
 	CourseDAOImpl dao;
 
 	@Autowired
+	SakaiProxyTest sakaiProxyTest;
+
+	@Autowired
 	PlatformTransactionManager transactionManager;
 
 	// Our transaction.
@@ -42,6 +48,7 @@ public class CourseSignupServiceSignupSplit {
 	public void preLoad() {
 		TransactionStatus data = transactionManager.getTransaction(null);
 		CourseGroupDAO courseGroupDAO = dao.newCourseGroup("groupId", "title", "dept", null);
+		courseGroupDAO.getAdministrators().add("adminId");
 
 		CourseComponentDAO comp1 = dao.newCourseComponent("compId1");
 		dao.save(comp1);
@@ -69,6 +76,9 @@ public class CourseSignupServiceSignupSplit {
 	@Before
 	public void setUp() {
 		transaction = transactionManager.getTransaction(null);
+		UserProxy user = Mockito.mock(UserProxy.class);
+		Mockito.when(user.getId()).thenReturn("adminId");
+		sakaiProxyTest.setCurrentUser(user);
 	}
 
 	@After
