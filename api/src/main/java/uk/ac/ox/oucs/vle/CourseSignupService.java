@@ -19,10 +19,7 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -172,7 +169,20 @@ public interface CourseSignupService {
 	public void waiting(String signupId, boolean skipAuth, String placementId);
 	
 	public void withdraw(String signupId);
-	
+
+	/**
+	 * This takes an existing signup and splits it in 2. A new signup is created containing the components
+	 * specified and these components are removed from the original signup. This allows parts of a signup to
+	 * be accepted and other parts to be rejected.
+	 * @param signupId The ID of the signup to have components removed from it.
+	 * @param components The Components to to be added to the new signup.
+	 * @return The ID of the new signup created.
+	 * @throws PermissionDeniedException If the current user isn't able to split the signup.
+	 * @throws IllegalArgumentException If the signup doesn't have more than one components or if all components
+	 * are trying to be removed from the signup or if the components aren't currently part of the signup.
+	 */
+	public String split(String signupId, Collection<CourseComponent> components);
+
 	/**
 	 * Gets all the CourseGroups that the current user can administer.
 	 */
