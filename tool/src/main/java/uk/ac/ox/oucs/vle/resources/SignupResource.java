@@ -239,6 +239,15 @@ public class SignupResource {
 		return Response.ok().build();
 	}
 
+	@Path("{id}/split")
+	@POST
+	public Response split(@PathParam("id") final String signupId,
+	                      @QueryParam("componentPresentationIds") final Set<String> componentIds) {
+		checkAuthenticated();
+		String newSignupId = courseService.split(signupId, componentIds);
+		return Response.status(Response.Status.CREATED).entity(newSignupId).build();
+	}
+
 	@Path("/course/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
