@@ -10,14 +10,15 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import uk.ac.ox.oucs.vle.proxy.SakaiProxyImpl;
 import uk.ac.ox.oucs.vle.proxy.SakaiProxyTest;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -76,9 +77,9 @@ public class CourseSignupServiceSignupSplit {
 	@Before
 	public void setUp() {
 		transaction = transactionManager.getTransaction(null);
-		UserProxy user = Mockito.mock(UserProxy.class);
-		Mockito.when(user.getId()).thenReturn("adminId");
-		sakaiProxyTest.setCurrentUser(user);
+		UserProxy courseAdmin = Mockito.mock(UserProxy.class);
+		Mockito.when(courseAdmin.getId()).thenReturn("adminId");
+		sakaiProxyTest.setCurrentUser(courseAdmin);
 	}
 
 	@After
@@ -137,6 +138,14 @@ public class CourseSignupServiceSignupSplit {
 	@Test(expected = IllegalArgumentException.class)
 	public void testSplitNotComponent() {
 		courseSignupService.split(signupId, Collections.singleton("compId3"));
+	}
+
+	@Test(expected = PermissionDeniedException.class)
+	public void testSplitWrongUser() {
+		UserProxy nonAdmin = Mockito.mock(UserProxy.class);
+		Mockito.when(nonAdmin.getId()).thenReturn("notAdmin");
+		sakaiProxyTest.setCurrentUser(nonAdmin);
+		courseSignupService.split(signupId, Collections.singleton("compId1"));
 	}
 
 }
