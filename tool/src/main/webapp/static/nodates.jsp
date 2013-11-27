@@ -35,7 +35,6 @@
 <link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css" />
 <link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.4.custom/css/smoothness/jquery-ui-1.8.4.custom.css" />
 <link rel="stylesheet" type="text/css" href="lib/tool.css" />
-<link rel="stylesheet" type="text/css" href="lib/jquery.tooltip.css" />
 
 <script type="text/javascript" src="lib/jquery/jquery-1.4.4.min.js"></script>
 <script type="text/javascript"
@@ -51,7 +50,6 @@
 <script type="text/javascript" src="lib/signup.js"></script>
 <script type="text/javascript" src="lib/Text.js"></script>
 <script type="text/javascript" src="lib/serverDate.js"></script>
-<script type="text/javascript" src="lib/jquery.tooltip.js"></script>
 
 <script type="text/javascript">
 	
