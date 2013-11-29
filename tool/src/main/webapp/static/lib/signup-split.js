@@ -54,9 +54,11 @@ Signup.split = function(signupId, isAdmin, success) {
 			return;
 		}
 		$popup.html(template.process(signup, {throwExceptions: true}));
+		var disabled = false;
 		$("#signup-split-popup form").submit(function(event) {
 			// We're going to submit with XHR.
 			event.preventDefault();
+			if (disabled) return;
 
 			// Validate the form.
 			var $errors = $("span.errors", this).html("");
@@ -69,8 +71,9 @@ Signup.split = function(signupId, isAdmin, success) {
 			}
 			// Submit the XHR request
 			if ($errors.html() == "") {
-			var $this = $(this);
-				$this.bind("submit", false).filter("input[type=submit]").attr("disabled", true);
+				var $this = $(this);
+				$this.children("input[type=submit]").attr("disabled", true);
+				disabled = true;
 				$.ajax({
 					"type": this.method,
 					"url": this.action,
@@ -83,8 +86,9 @@ Signup.split = function(signupId, isAdmin, success) {
 					},
 					"complete": function() {
 						// Re-enable the submission.
-						$this.unbind("submit", false).filter("input[type=submit]").removeAttr("disabled");
-						},
+						$this.children("input[type=submit]").removeAttr("disabled");
+						disabled = false;
+					},
 					"error": function(e) {
 						$errors.append("Error: "+ e.responseText);
 					}
