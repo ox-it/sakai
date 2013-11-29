@@ -4,7 +4,7 @@ var Signup = Signup || {};
  * This supports the splitting of a signup into multiple signups.
  * It needs trimpath and jqmodal.
  */
-Signup.split = function(signupId, isAdmin) {
+Signup.split = function(signupId, isAdmin, success) {
 	// The trimpath template.
 	var template = null;
 	// The signup data.
@@ -66,6 +66,29 @@ Signup.split = function(signupId, isAdmin) {
 			}
 			if ($inputs.not(":checked").length == 0) {
 				$errors.append("You must leave some components.");
+			}
+			// Submit the XHR request
+			if ($errors.html() == "") {
+			var $this = $(this);
+				$this.bind("submit", false).filter("input[type=submit]").attr("disabled", true);
+				$.ajax({
+					"type": this.method,
+					"url": this.action,
+					"data": $(this).serialize(),
+					"success": function() {
+						$popup.jqmHide();
+						// Add Message
+						// Reload the parent list.
+						success();
+					},
+					"complete": function() {
+						// Re-enable the submission.
+						$this.unbind("submit", false).filter("input[type=submit]").removeAttr("disabled");
+						},
+					"error": function(e) {
+						$errors.append("Error: "+ e.responseText);
+					}
+				});
 			}
 		});
 		$("#signup-split-popup input[name=cancel]").click(function(){

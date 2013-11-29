@@ -1176,7 +1176,11 @@ var Signup = function(){
 
 		$("a.signup-split", this). die().live("click", function(e) {
 			var signupId = $(this).attr("data-signup-id");
-			Signup.split(signupId, isAdmin);
+			Signup.split(signupId, isAdmin, function() {
+				// This is the success after the split has worked.
+				element.dataTable().fnReloadAjax(null, null, true);
+				$(table).trigger("reload");
+			});
 			e.preventDefault();
 		});
 
