@@ -57,8 +57,7 @@ public class CustomExceptionMapper implements ExceptionMapper<CourseSignupExcept
 					.entity(forbiddenMap)
 					.build();
 		}
-		
-		return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		return Response.status(Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage()).build();
 	}
 
 }
