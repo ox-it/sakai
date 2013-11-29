@@ -55,6 +55,7 @@
 	src="lib/dataTables-1.7/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="lib/dataTables.reloadAjax.js"></script>
 <script type="text/javascript" src="lib/signup.js"></script>
+<script type="text/javascript" src="lib/signup-split.js"></script>
 <script type="text/javascript" src="lib/Text.js"></script>
 <script type="text/javascript" src="lib/serverDate.js"></script>
 
