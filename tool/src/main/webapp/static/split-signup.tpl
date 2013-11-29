@@ -1,7 +1,7 @@
 <div>
     <h2>Signup made by: ${user.name} and is currently ${status}</h2>
     <form action="/course-signup/rest/signup/${id}/split" method="POST">
-    <div>Select components to split: <span class="errors"></span></div>
+    <div>Select components to split into a new signup: <span class="errors"></span></div>
     <ul>
         {for component in components}
         <li>
