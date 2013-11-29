@@ -2,7 +2,11 @@ var Signup = Signup || {};
 
 /**
  * This supports the splitting of a signup into multiple signups.
- * It needs trimpath and jqmodal.
+ * It needs trimpath and jq-modal. It manages the loading of the template and the signup data,
+ * then the displaying of the modules in the signup and the splitting of the signup into 2.
+ * @param {String} signupId The ID of the signup to split.
+ * @param {boolean} isAdmin If the current user is an administrator for the signup.
+ * @param {function} success The callback when a signup is successfully split.
  */
 Signup.split = function(signupId, isAdmin, success) {
 	// The trimpath template.
