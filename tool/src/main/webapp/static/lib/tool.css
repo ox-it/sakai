@@ -470,3 +470,12 @@ div.calendarView a.action {
     width: 19em;
 }
 
+#signup-split-popup div.course-component {
+    display: inline-block;
+    vertical-align: top;
+}
+
+#signup-split-popup ul {
+    list-style-type: none;
+}
+

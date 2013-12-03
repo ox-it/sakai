@@ -282,8 +282,10 @@
 				<executions>
 					
 					<execution>
-						<!-- The ajax-solr source code has a small change to allow a conversion
-																			function when reading JSON. -->
+						<!--
+						     The ajax-solr source code has a small change to allow a conversion
+						     function when reading JSON.
+						  -->
 						<id>ajax-solr-re-compress</id>
 						<phase>process-resources</phase>
 						<goals>
@@ -322,7 +324,21 @@
 							<cssFinalFile>ajax-solr-bundle.css</cssFinalFile>
 						</configuration>
 					</execution>
-					
+					<execution>
+						<id>signup-compress</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>minify</goal>
+						</goals>
+						<configuration>
+							<jsSourceDir>static/lib</jsSourceDir>
+							<jsSourceFiles>
+								<jsSourceFile>signup-main.js</jsSourceFile>
+								<jsSourceFile>signup-split.js</jsSourceFile>
+							</jsSourceFiles>
+							<jsFinalFile>signup.js</jsFinalFile>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 		</plugins>

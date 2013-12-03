@@ -239,6 +239,19 @@ public class SignupResource {
 		return Response.ok().build();
 	}
 
+	@Path("{id}/split")
+	@POST
+	public Response split(@PathParam("id") final String signupId,
+	                      @FormParam("componentPresentationId") final Set<String> componentIds) {
+		checkAuthenticated();
+		try {
+			String newSignupId = courseService.split(signupId, componentIds);
+			return Response.status(Response.Status.CREATED).entity(newSignupId).build();
+		} catch(IllegalArgumentException iae) {
+			throw new CourseSignupException(iae.getMessage(), iae);
+		}
+	}
+
 	@Path("/course/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

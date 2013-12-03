@@ -93,6 +93,13 @@ public class CourseSignupResourceTest extends AbstractSpringAwareJerseyTest {
 		assertEquals(404, response.getStatus());
 	}
 
+	@Test
+	public void testSignupSplit() {
+		when(proxy.isAnonymousUser()).thenReturn(false);
+		when(courseSignupService.split(eq("signupId"), anySetOf(String.class))).thenReturn("newSignupId");
+		ClientResponse response = resource().queryParam("componentPresentationId", "1").path("/signup/signupId/split").accept("application/json").post(ClientResponse.class);
+		assertEquals(201, response.getStatus());
+	}
 
 
 

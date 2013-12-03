@@ -59,7 +59,7 @@ public interface CourseDAO {
 	
 	CourseComponentDAO newCourseComponent(String id);
 
-	CourseSignupDAO newSignup(String userId, String supervisorId);
+	CourseSignupDAO newSignup(String userId, String supervisorId, Date now);
 
 	String save(CourseSignupDAO signupDao);
 

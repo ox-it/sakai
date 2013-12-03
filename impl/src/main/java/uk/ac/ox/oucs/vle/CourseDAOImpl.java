@@ -295,10 +295,11 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		});
 	}
 
-	public CourseSignupDAO newSignup(String userId, String supervisorId) {
+	public CourseSignupDAO newSignup(String userId, String supervisorId, Date now) {
 		CourseSignupDAO signupDao = new CourseSignupDAO();
 		signupDao.setUserId(userId);
 		signupDao.setSupervisorId(supervisorId);
+		signupDao.setCreated(now);
 		return signupDao;
 	}
 
@@ -723,8 +724,9 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	/**
 	 * Used by tests to simulate another request being made.
 	 */
-	public void flush() {
+	public void flushAndClear() {
 		getHibernateTemplate().flush();
+		getHibernateTemplate().clear();
 	}
 
 	@SuppressWarnings("unchecked")

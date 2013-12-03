@@ -211,16 +211,7 @@ var Signup = function(){
 					data.parts = parts;
 					data.applyTo = applyTo;
 
-					var myModifiers = {
-							dateFormat : function(date) { 
-								return new Date(date).toDateString();
-							},
-							timeFormat : function(date) { 
-								return new Date(date).getHours()+":"+('0'+new Date(date).getMinutes()).slice(-2);
-							}
-					};
-
-					data._MODIFIERS = myModifiers;
+					data._MODIFIERS = Signup.util.trimpathModifiers();
 
 					var output = template.process(data, {throwExceptions: true});
 					dest.html(output);
@@ -456,6 +447,25 @@ var Signup = function(){
 				}
 			  }
 			  return new Date(NaN);
+			},
+
+			/**
+			 * Gets the Trimpath Modifiers.
+			 * @param {boolean} isAdmin Is the current user an administrator.
+			 * @return an trimpath modifier object.
+			 */
+			"trimpathModifiers": function(isAdmin) {
+				return {
+					"dateFormat" : function(date) {
+					return new Date(date).toDateString();
+					},
+					"timeFormat" : function(date) {
+						return new Date(date).getHours()+":"+('0'+new Date(date).getMinutes()).slice(-2);
+					},
+					"placesFormat" : function(places) {
+						return Signup.signup.formatPlaces(places, isAdmin);
+					}
+				};
 			},
 
 			/**
@@ -992,6 +1002,26 @@ var Signup = function(){
 					}
 				});
 			}
+		},
+		"component": {
+			/**
+			 * This formats a component to display it to user.
+			 */
+			"format": function(component, isAdmin){
+				var size = component.size;
+				var limit = size * placesWarnPercent / 100;
+				var componentPlacesClass;
+				if (placesErrorLimit >= component.places) {
+					componentPlacesClass = "course-component-error";
+				} else if (limit >= component.places) {
+					componentPlacesClass = "course-component-warn";
+				} else {
+					componentPlacesClass = "course-component";
+				}
+				return '<span class="course-component">' + component.title + " " +
+					component.slot + " in " + component.when + ' <span class='+componentPlacesClass+'>'+
+					Signup.signup.formatPlaces(component.places, isAdmin)+'</span></span>';
+			}
 		}
 	};
 
@@ -1062,20 +1092,11 @@ var Signup = function(){
 					success: function(result){
 						var data = [];
 						$.each(result, function(){
-							var course = ['<span class="course-group">' + this.group.title + "</span>"].concat($.map(this.components.concat(),
-									function(component){
-										var size = component.size;
-										var limit = size*placesWarnPercent/100;
-										var componentPlacesClass;
-										if (placesErrorLimit >= component.places) {
-											componentPlacesClass = "course-component-error";
-										} else if (limit >= component.places) {
-											componentPlacesClass = "course-component-warn";
-										} else {
-											componentPlacesClass = "course-component";
-										}
-										return '<span class="course-component">' + component.title + " " + component.slot + " in " + component.when + ' <span class='+componentPlacesClass+'>'+ Signup.signup.formatPlaces(component.places, isAdmin)+'</span></span>';
-									})).join("<br>");
+							var course = ['<span class="course-group">' + this.group.title + "</span>"].concat($.map(this.components,
+									function(component){ return Signup.component.format(component, isAdmin); })).join("<br>");
+							if (isAdmin && this.components.length > 1) {
+								course += "<br><a href='' class='signup-split' data-signup-id='"+ this.id+ "'>Split Signup</a>"
+							}
 
 							var closes = 0;
 							var slots = new Array();
@@ -1151,6 +1172,16 @@ var Signup = function(){
 			signupAddSupervisor.attr("username", $(this).attr("user"));
 			signupAddSupervisor.attr("signupid", $(this).attr("id"));
 			signupAddSupervisor.jqmShow();
+		});
+
+		$("a.signup-split", this). die().live("click", function(e) {
+			var signupId = $(this).attr("data-signup-id");
+			Signup.split(signupId, isAdmin, function() {
+				// This is the success after the split has worked.
+				element.dataTable().fnReloadAjax(null, null, true);
+				$(table).trigger("reload");
+			});
+			e.preventDefault();
 		});
 
 

@@ -45,6 +45,7 @@
 				reject=PROPAGATION_REQUIRED
 				set*=PROPAGATION_REQUIRED
 				waiting=PROPAGATION_REQUIRED
+				split=PROPAGATION_REQUIRED
 				*=PROPAGATION_REQUIRED,readOnly
 			</value>
 		</property>
