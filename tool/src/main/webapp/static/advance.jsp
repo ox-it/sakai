@@ -81,7 +81,7 @@
 					) <br />
 					<c:forEach var="component" items="${it.signup.components}">
 							&nbsp;- <c:out value="${component.title}" />
-							: <c:out value="${component.slot}" /> 
+							: <c:out value="${component.teachingDetails}" />
 							for <c:out value="${component.sessions}" /> 
 							starts in <c:out value="${component.when}" />
 						<c:if test="${not empty component.presenter.name}">
