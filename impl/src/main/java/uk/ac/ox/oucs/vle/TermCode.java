@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 /**
  * Represents a parsed term code.
+ * The year in an un-parsed termcode is the calendar year and not the academic year.
  *
  * @author Matthew Buckett
  */
@@ -18,7 +19,7 @@ class TermCode implements Comparable<TermCode> {
 	 */
 	public static enum Terms {
 		// Order matters as it's used for sorting.
-		MT("Michaelmas"), HT("Hilary"),TT("Trinity");
+		HT("Hilary"),TT("Trinity"), MT("Michaelmas");
 
 		private String title;
 
@@ -60,7 +61,7 @@ class TermCode implements Comparable<TermCode> {
 	 */
 	public String getName() {
 		if (isValid()) {
-			return String.format("%s %d/%d", term.title(), 2000+year, year+1);
+			return String.format("%s %d", term.title(), 2000+year);
 		}
 		return null;
 	}

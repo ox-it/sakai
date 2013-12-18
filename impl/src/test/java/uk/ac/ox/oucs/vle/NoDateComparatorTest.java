@@ -37,8 +37,8 @@ public class NoDateComparatorTest {
 
 	@Test
 	public void testDiffTerm() {
-		CourseGroup cg1 = newGroup("HT11", CG1);
-		CourseGroup cg2 = newGroup("MT11", CG2);
+		CourseGroup cg1 = newGroup("MT11", CG1);
+		CourseGroup cg2 = newGroup("HT11", CG2);
 		assertSymmetric(cg1, cg2);
 	}
 
@@ -66,17 +66,17 @@ public class NoDateComparatorTest {
 	@Test
 	public void testCollectionSort() {
 
-		CourseGroup cg0 = newGroup(null, "0");
-		CourseGroup cg1 = newGroup("TT13", "1");
-		CourseGroup cg2 = newGroup("TT12", "2");
-		CourseGroup cg3 = newGroup("TT11", "3");
-		CourseGroup cg4 = newGroup("HT11", "4");
-		CourseGroup cg5 = newGroup("MT11", "5");
+		CourseGroup aNull = newGroup(null, "0");
+		CourseGroup tt13 = newGroup("TT13", "1");
+		CourseGroup tt12 = newGroup("TT12", "2");
+		CourseGroup tt11 = newGroup("TT11", "3");
+		CourseGroup ht11 = newGroup("HT11", "4");
+		CourseGroup mt11 = newGroup("MT11", "5");
 
-		List<CourseGroup> list = Arrays.asList(cg0, cg1, cg2, cg3, cg4, cg5);
+		List<CourseGroup> list = Arrays.asList(aNull, tt13, tt12, tt11, ht11, mt11);
 		Collections.shuffle(list);
 		Collections.sort(list, comp);
-		assertArrayEquals(new CourseGroup[]{cg5, cg4, cg3, cg2, cg1, cg0}, list.toArray());
+		assertArrayEquals(new CourseGroup[]{ht11, tt11, mt11, tt12, tt13, aNull}, list.toArray());
 	}
 
 	private void assertSymmetric(CourseGroup cg1, CourseGroup cg2) {
