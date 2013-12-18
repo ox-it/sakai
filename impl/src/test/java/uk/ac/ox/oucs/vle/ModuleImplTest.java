@@ -42,7 +42,7 @@ public class ModuleImplTest {
 	public void testFormatComponentValid() {
 		dao.setTermcode("TT10");
 		assertEquals(
-				"*TITLE* starts on *STARTS* Trinity 2010/11",
+				"*TITLE* starts on *STARTS* Trinity 2010",
 				moduleImpl.formatComponent(dao)
 		);
 	}

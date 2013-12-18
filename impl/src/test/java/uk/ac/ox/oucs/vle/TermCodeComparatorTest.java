@@ -19,7 +19,7 @@ public class TermCodeComparatorTest {
 
 	@Test
 	public void testDiffTerm() {
-		assertSymmetric("TT13", "MT13");
+		assertSymmetric("MT13", "TT13");
 	}
 
 	@Test
@@ -29,8 +29,8 @@ public class TermCodeComparatorTest {
 
 	@Test
 	public void testTermOrder() {
-		assertSymmetric("HT10", "MT10");
-		assertSymmetric("TT10", "MT10");
+		assertSymmetric("MT10", "HT10");
+		assertSymmetric("MT10", "TT10");
 		assertSymmetric("TT10", "HT10");
 	}
 
@@ -60,8 +60,8 @@ public class TermCodeComparatorTest {
 	}
 
 	private void assertSymmetric(String tc1, String tc2) {
-		assertTrue(tc1+ " should be before "+ tc2, comp.compare(tc1, tc2) > 0);
-		assertTrue(tc2+ " should be after "+ tc1, comp.compare(tc2, tc1) < 0);
+		assertTrue(tc1+ " should be newer than "+ tc2, comp.compare(tc1, tc2) > 0);
+		assertTrue(tc2+ " should be older than "+ tc1, comp.compare(tc2, tc1) < 0);
 	}
 
 	private void assertMatch(String tc1, String tc2) {
