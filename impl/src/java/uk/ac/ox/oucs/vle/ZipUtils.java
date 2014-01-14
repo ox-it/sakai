@@ -27,8 +27,8 @@ public class ZipUtils {
 	 * @param root The path to the into which the zipfile should be expanded.
 	 * @return A list of errors.
 	 */
-	public static List<ZipExpansionError> expandZip(InputStream inputStream, String root) {
-		List<ZipExpansionError> errors = new ArrayList<ZipExpansionError>();
+	public static List<ZipError> expandZip(InputStream inputStream, String root) {
+		List<ZipError> errors = new ArrayList<ZipError>();
 		ZipInputStream zipfile = new ZipInputStream(inputStream);
 		ZipEntry entry;
 		try {
@@ -36,7 +36,7 @@ public class ZipUtils {
 				if(entry.isDirectory()) {
 					File dir = new File(root, entry.getName());
 					if (!dir.exists() && !dir.mkdirs()) {
-						errors.add(new ZipExpansionError(dir, "Failed to create directory."));
+						errors.add(new ZipError(dir, "Failed to create directory."));
 					}
 				} else {
 					File file = new File (root, entry.getName());
@@ -47,9 +47,9 @@ public class ZipUtils {
 							out = new BufferedOutputStream(new FileOutputStream(file));
 							IOUtils.copy(zipfile, out);
 						} catch (FileNotFoundException fnfe) {
-							errors.add(new ZipExpansionError(file, "Unable to create file: "+ fnfe.getMessage()));
+							errors.add(new ZipError(file, "Unable to create file: "+ fnfe.getMessage()));
 						} catch (IOException ioe) {
-							errors.add(new ZipExpansionError(file, "IO problem copying file: "+ ioe.getMessage()));
+							errors.add(new ZipError(file, "IO problem copying file: "+ ioe.getMessage()));
 						} finally {
 							if (out != null) {
 								try {
@@ -58,12 +58,12 @@ public class ZipUtils {
 							}
 						}
 					} else {
-						errors.add(new ZipExpansionError(file, "Failed to create containing folder"));
+						errors.add(new ZipError(file, "Failed to create containing folder"));
 					}
 				}
 			}
 		} catch (IOException e) {
-			errors.add(new ZipExpansionError(null, "Failed to get next entry"));
+			errors.add(new ZipError(null, "Failed to get next entry"));
 		}
 		return errors;
 	}

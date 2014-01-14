@@ -106,8 +106,8 @@ public class AutoImport {
 					// Now make the connection.
 					connection.connect();
 					inputStream = connection.getInputStream();
-					List<ZipExpansionError> errors = ZipUtils.expandZip(inputStream, archiveHome);
-					for (ZipExpansionError error: errors) {
+					List<ZipError> errors = ZipUtils.expandZip(inputStream, archiveHome);
+					for (ZipError error: errors) {
 						LOG.info(error);
 					}
 				} catch (IOException ioe) {

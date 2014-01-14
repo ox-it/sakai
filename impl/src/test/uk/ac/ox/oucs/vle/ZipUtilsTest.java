@@ -24,7 +24,7 @@ public class ZipUtilsTest {
 		createTempFile.delete();
 		createTempFile.mkdirs();
 		InputStream in = ZipUtilsTest.class.getResourceAsStream("test1.zip");
-		List<ZipExpansionError> expandZip = ZipUtils.expandZip(in, createTempFile.getAbsolutePath());
+		List<ZipError> expandZip = ZipUtils.expandZip(in, createTempFile.getAbsolutePath());
 		assertEquals(0, expandZip.size());
 		assertTrue(new File(createTempFile, "test1").exists());
 		assertTrue(new File(createTempFile, "test1/content.txt").isFile());

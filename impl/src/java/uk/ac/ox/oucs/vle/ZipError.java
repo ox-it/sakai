@@ -8,12 +8,12 @@ import java.io.File;
  * @author buckett
  *
  */
-public class ZipExpansionError {
+public class ZipError {
 	
 	private File file;
 	private String error;
 
-	public ZipExpansionError(File file, String error) {
+	public ZipError(File file, String error) {
 		this.file = file;
 		this.error = error;
 	}
