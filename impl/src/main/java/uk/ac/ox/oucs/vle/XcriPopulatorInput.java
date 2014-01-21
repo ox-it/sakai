@@ -36,25 +36,48 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 
 public class XcriPopulatorInput implements PopulatorInput {
 
 	private static final Log log = LogFactory.getLog(XcriPopulatorInput.class);
 
-	DefaultHttpClient httpclient;
+	private DefaultHttpClient httpClient;
+
+	private int connectionTimeout = 60000;
+	private int socketTimeout = 30000;
+
+	public int getConnectionTimeout() {
+		return connectionTimeout;
+	}
+
+	public void setConnectionTimeout(int connectionTimeout) {
+		this.connectionTimeout = connectionTimeout;
+	}
+
+	public int getSocketTimeout() {
+		return socketTimeout;
+	}
+
+	public void setSocketTimeout(int socketTimeout) {
+		this.socketTimeout = socketTimeout;
+	}
 
 	public void init() {
-		// We will have multiple threads using the same httpclient.
-		 httpclient = new DefaultHttpClient(new ThreadSafeClientConnManager());
-		httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "SES Import");
+		// We will have multiple threads using the same httpClient.
+		httpClient = new DefaultHttpClient(new ThreadSafeClientConnManager());
+		httpClient.getParams()
+				.setParameter(CoreProtocolPNames.USER_AGENT, "SES Import")
+				.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, connectionTimeout)
+				.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, socketTimeout);
 	}
 
 	public void destroy() {
 		// When HttpClient instance is no longer needed,
 		// shut down the connection manager to ensure
 		// immediate deallocation of all system resources
-		httpclient.getConnectionManager().shutdown();
+		httpClient.getConnectionManager().shutdown();
 	}
 
 	public InputStream getInput(PopulatorContext context) 
@@ -68,12 +91,12 @@ public class XcriPopulatorInput implements PopulatorInput {
 
 			HttpHost targetHost = new HttpHost(xcri.getHost(), xcri.getPort(), xcri.getProtocol());
 
-			httpclient.getCredentialsProvider().setCredentials(
+			httpClient.getCredentialsProvider().setCredentials(
 					new AuthScope(targetHost.getHostName(), targetHost.getPort()),
 					new UsernamePasswordCredentials(context.getUser(), context.getPassword()));
 
 			HttpGet httpget = new HttpGet(xcri.toURI());
-			HttpResponse response = httpclient.execute(targetHost, httpget);
+			HttpResponse response = httpClient.execute(targetHost, httpget);
 			entity = response.getEntity();
 
 			if (HttpStatus.SC_OK != response.getStatusLine().getStatusCode()) {
