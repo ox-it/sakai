@@ -21,6 +21,9 @@ package uk.ac.ox.oucs.vle;
 
 import java.util.Map;
 
+/**
+ * This class stores the configuration needed to run an import.
+ */
 public class PopulatorContext {
 	
 	private String uri;
@@ -77,5 +80,15 @@ public class PopulatorContext {
 	
 	public PopulatorLogWriter getInfoLogWriter() {
 		return infoLogWriter;
+	}
+
+	@Override
+	public String toString() {
+		return "PopulatorContext{" +
+				"uri='" + uri + '\'' +
+				", user='" + user + '\'' +
+				", password='" + ((password == null)?"unset":"*******") + '\'' +
+				", name='" + name + '\'' +
+				'}';
 	}
 }
