@@ -213,9 +213,11 @@
 	</bean>
 
 
-    <bean id="uk.ac.ox.oucs.vle.PopulatorInput" init-method="init" destroy-method="destroy"
-          class="uk.ac.ox.oucs.vle.XcriPopulatorInput" >
-    </bean>
+	<bean id="uk.ac.ox.oucs.vle.PopulatorInput" init-method="init" destroy-method="destroy"
+		  class="uk.ac.ox.oucs.vle.XcriPopulatorInput">
+		<property name="socketTimeout" value="30000"/>
+		<property name="connectionTimeout" value="60000"/>
+	</bean>
 
 
 </beans>

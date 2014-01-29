@@ -92,7 +92,7 @@ public class PopulatorJob implements Job {
 			populator.update(pContext);
 
 		} catch (PopulatorException e) {
-			log.error("Import failed.", e);
+			log.error("Import Failed for: "+ pContext, e);
 			try {
 				eWriter.write(getStackTrace(e));
 				eWriter.flush();
