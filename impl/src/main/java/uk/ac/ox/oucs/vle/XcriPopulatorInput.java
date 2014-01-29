@@ -43,10 +43,13 @@ public class XcriPopulatorInput implements PopulatorInput {
 
 	private static final Log log = LogFactory.getLog(XcriPopulatorInput.class);
 
+	public static final int DEFAULT_CONNECT_TIMEOUT = 60000; // 1 minute
+	public static final int DEFAULT_SOCKET_TIMEOUT = 30000; // 30 seconds
+
 	private DefaultHttpClient httpClient;
 
-	private int connectionTimeout = 60000;
-	private int socketTimeout = 30000;
+	private int connectionTimeout = DEFAULT_CONNECT_TIMEOUT;
+	private int socketTimeout = DEFAULT_SOCKET_TIMEOUT;
 
 	public int getConnectionTimeout() {
 		return connectionTimeout;
