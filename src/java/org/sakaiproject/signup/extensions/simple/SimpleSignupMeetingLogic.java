@@ -228,6 +228,9 @@ public class SimpleSignupMeetingLogic {
 		ts.setStartTime(s.getStartTime());
 		ts.setEndTime(s.getEndTime());
 		
+		//COORDINATORS
+		s.setCoordinatorIds(sakaiFacade.getCurrentUserId());
+		
 		//ATTENDEES
 		List<SignupAttendee> attendees = new ArrayList<SignupAttendee>();
 		for(String p: simple.getParticipants()){
