@@ -203,7 +203,7 @@ public class TemplateBBean {
         }
         
         authoringService.copyTemplate(templateId, 
-        		template.getTitle()+ " (shared)", userId, false, true);
+                template.getTitle()+ " (transferred)", userId, false, true);
         
         authoringService.deleteTemplate(templateId, ownerId);
         
