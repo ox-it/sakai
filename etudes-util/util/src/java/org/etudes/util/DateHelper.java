@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2012 Etudes, Inc.
+ * Copyright (c) 2012, 2013 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ package org.etudes.util;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -49,7 +50,7 @@ public class DateHelper
 	 */
 	public static String formatDate(Date date, String userId)
 	{
-		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, getPreferredLocale(userId));
+		DateFormat format = new SimpleDateFormat("MMM dd, yyyy hh:mm a", getPreferredLocale(userId));
 		format.setTimeZone(getPreferredTimeZone(userId));
 		String rv = format.format(date);
 		return rv;
@@ -66,7 +67,7 @@ public class DateHelper
 	 */
 	public static String formatDateForName(Date date, String userId)
 	{
-		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.FULL, getPreferredLocale(userId));
+		DateFormat format = new SimpleDateFormat("MMM dd, yyyy hh:mm a", getPreferredLocale(userId));
 		format.setTimeZone(getPreferredTimeZone(userId));
 
 		String rv = format.format(date);
@@ -83,10 +84,10 @@ public class DateHelper
 	 * @return The formatted date.
 	 */
 	public static String formatDateOnly(Date date, String userId)
-	{
-		DateFormat format = DateFormat.getDateInstance(DateFormat.MEDIUM, getPreferredLocale(userId));
-		format.setTimeZone(getPreferredTimeZone(userId));
-		String rv = format.format(date);
+	{		
+		DateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", getPreferredLocale(userId));
+		dateFormat.setTimeZone(getPreferredTimeZone(userId));
+		String rv = dateFormat.format(date);
 		return rv;
 	}
 
@@ -99,7 +100,7 @@ public class DateHelper
 	 */
 	public static String formatDateToDefault(Date date)
 	{
-		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault());
+		DateFormat format = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
 		format.setTimeZone(TimeZone.getDefault());
 		String rv = format.format(date);
 		return rv;
@@ -119,10 +120,10 @@ public class DateHelper
 		Locale userLocale = getPreferredLocale(userId);
 		TimeZone userZone = getPreferredTimeZone(userId);
 
-		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, userLocale);
+		DateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", userLocale);
 		dateFormat.setTimeZone(userZone);
 
-		DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT, userLocale);
+		DateFormat timeFormat = new SimpleDateFormat("hh:mm a", userLocale);
 		timeFormat.setTimeZone(userZone);
 
 		String rv = "<span style=\"white-space: nowrap;\">" + dateFormat.format(date) + "</span><br /><span style=\"white-space: nowrap;\">"
@@ -167,17 +168,8 @@ public class DateHelper
 		{
 			rv = Locale.getDefault();
 		}
+
 		return rv;
-
-		// TODO: do we need any of this?
-		// if (!Locale.getDefault().getLanguage().equals("en") && loc.getLanguage().equals("en"))
-		// {
-		// // Tweak for English: en is default locale. It has no suffix in filename.
-		// loc = new Locale("");
-		// }
-
-		// TODO: this is another way to refer to the US locale
-		// Locale.US
 	}
 
 	/**

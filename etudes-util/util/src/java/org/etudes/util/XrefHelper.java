@@ -110,9 +110,9 @@ public class XrefHelper
 				String terminator = m.group(3);
 
 				// if this is an access to our own server, make it full URL (i.e. starting with "/access" or /library or /docs)
-				if(ref.startsWith("/"))
+				if (ref.startsWith("/"))
 				{
-					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + serverUrl + ref + terminator));	
+					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + serverUrl + ref + terminator));
 				}
 			}
 		}
@@ -292,6 +292,42 @@ public class XrefHelper
 	}
 
 	/**
+	 * Check if this URL is being hosted by us on this server. Consider the primary and also some alternate URL roots.
+	 * 
+	 * @param url
+	 *        The url to check.
+	 * @return -1 if not, or the index position in the url of the start of the relative portion (i.e. after the server URL root)
+	 */
+	public static int internallyHostedUrl(String url)
+	{
+		// ignore leading spaces
+		String trimmedUrl = url.trim();
+
+		// form the access root
+		String serverUrl = ServerConfigurationService.getServerUrl();
+
+		if (trimmedUrl.startsWith(serverUrl))
+		{
+			return url.indexOf(serverUrl) + serverUrl.length();
+		}
+
+		// and check for alternate ones
+		String[] alternateUrls = ServerConfigurationService.getStrings("alternateServerUrlRoots");
+		if (alternateUrls != null)
+		{
+			for (String alternateUrl : alternateUrls)
+			{
+				if (trimmedUrl.startsWith(alternateUrl))
+				{
+					return url.indexOf(alternateUrl) + alternateUrl.length();
+				}
+			}
+		}
+
+		return -1;
+	}
+
+	/**
 	 * Properly lower case a CHS reference.
 	 * 
 	 * @param ref
@@ -314,6 +350,26 @@ public class XrefHelper
 		}
 
 		return rv;
+	}
+
+	/**
+	 * If this is a full URL references that include the server DNS, port, etc, replace it with a root-relative one (i.e. starting with "/access" or "/library" or whatever)
+	 * 
+	 * @param url
+	 *        the url.
+	 * @return The shortened url.
+	 */
+	public static String shortenFullUrl(String url)
+	{
+		// if this is an access to our own server, shorten it to root relative (i.e. starting with "/access")
+		int pos = internallyHostedUrl(url);
+		if (pos != -1)
+		{
+			url = url.substring(pos);
+			if (url.length() == 0) url = "/";
+		}
+
+		return url;
 	}
 
 	/**
@@ -353,7 +409,7 @@ public class XrefHelper
 				{
 					ref = ref.substring(pos);
 					if (ref.length() == 0) ref = "/";
-					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + terminator));					
+					m.appendReplacement(sb, Matcher.quoteReplacement(m.group(1) + "=\"" + ref + terminator));
 				}
 
 				// if this is a relative access URL, fix it
@@ -385,7 +441,7 @@ public class XrefHelper
 
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Replace any embedded references in the html data with the translated, new references listed in translations.
 	 * 
@@ -1588,31 +1644,6 @@ public class XrefHelper
 		}
 
 		return rv;
-	}
-
-	/**
-	 * Check if this URL is being hosted by us on this server. Consider the primary and also some alternate URL roots.
-	 * 
-	 * @param url
-	 *        The url to check.
-	 * @return -1 if not, or the index position in the url of the start of the relative portion (i.e. after the server URL root)
-	 */
-	protected static int internallyHostedUrl(String url)
-	{
-		// form the access root, and check for alternate ones
-		String serverUrl = ServerConfigurationService.getServerUrl();
-		String[] alternateUrls = ServerConfigurationService.getStrings("alternateServerUrlRoots");
-
-		if (url.startsWith(serverUrl)) return serverUrl.length();
-		if (alternateUrls != null)
-		{
-			for (String alternateUrl : alternateUrls)
-			{
-				if (url.startsWith(alternateUrl)) return alternateUrl.length();
-			}
-		}
-
-		return -1;
 	}
 
 	/**
