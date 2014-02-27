@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -42,6 +42,8 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -69,6 +71,9 @@ public class GradesServiceGradebook23Impl implements GradesService
 
 	/** Dependency: SessionManager */
 	protected SessionManager sessionManager = null;
+
+	/** The site service. */
+	protected SiteService siteService = null;
 
 	/** Dependency: SubmissionService */
 	protected SubmissionService submissionService = null;
@@ -108,7 +113,16 @@ public class GradesServiceGradebook23Impl implements GradesService
 	 */
 	public Boolean available(String context)
 	{
-		boolean hasGradebook = gradebookService.isGradebookDefined(context);
+		Site site = null;
+		try
+		{
+			site = siteService.getSite(context);
+		}
+		catch (Exception e)
+		{
+			M_log.debug("Exception thrown while getting site" + e.toString());
+		}
+		boolean hasGradebook = gradebookService.isGradebookDefined(context) && site.getToolForCommonId("sakai.gradebook.tool") != null;
 		return Boolean.valueOf(hasGradebook);
 	}
 
@@ -391,6 +405,17 @@ public class GradesServiceGradebook23Impl implements GradesService
 	public void setSecurityService(SecurityService service)
 	{
 		this.securityService = service;
+	}
+
+	/**
+	 * Dependency: SiteService.
+	 * 
+	 * @param service
+	 *        The SiteService.
+	 */
+	public void setSiteService(SiteService service)
+	{
+		this.siteService = service;
 	}
 
 	/**

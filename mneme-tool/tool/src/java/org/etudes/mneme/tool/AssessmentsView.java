@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -44,6 +44,10 @@ import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentPolicyException;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.QuestionService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
@@ -55,12 +59,15 @@ public class AssessmentsView extends ControllerImpl
 {
 	/** Our log. */
 	private static Log M_log = LogFactory.getLog(AssessmentsView.class);
-
+	
 	/** Assessment service. */
 	protected AssessmentService assessmentService = null;
-
+	
 	/** Dependency: Question service. */
 	protected QuestionService questionService = null;
+
+	/** Dependency: SiteService */
+	protected SiteService siteService = null;
 
 	/** tool manager reference. */
 	protected ToolManager toolManager = null;
@@ -103,6 +110,20 @@ public class AssessmentsView extends ControllerImpl
 		context.put("sort_column", sortCode.charAt(0));
 		context.put("sort_direction", sortCode.charAt(1));
 
+		try
+		{
+			Site site = this.siteService.getSite(toolManager.getCurrentPlacement().getContext());
+			ToolConfiguration config = site.getToolForCommonId("sakai.mneme");
+			if (config != null) toolId = config.getId();
+			context.put("toolId", toolId);
+		}
+		catch (IdUnusedException e)
+		{
+			// redirect to error
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+		
 		// collect the assessments in this context
 		List<Assessment> assessments = this.assessmentService.getContextAssessments(this.toolManager.getCurrentPlacement().getContext(), sort,
 				Boolean.FALSE);
@@ -116,7 +137,7 @@ public class AssessmentsView extends ControllerImpl
 
 		// render
 		uiService.render(ui, context);
-	}
+	}	
 
 	/**
 	 * Figure the sort from the sort code.
@@ -191,6 +212,12 @@ public class AssessmentsView extends ControllerImpl
 		}
 
 		return sort;
+	}
+
+
+	public SiteService getSiteService()
+	{
+		return siteService;
 	}
 
 	/**
@@ -435,7 +462,39 @@ public class AssessmentsView extends ControllerImpl
 				return;
 			}
 		}
-
+		else if (destination.equals("/assmt_settings_choice"))
+		{
+			// add the selected ids to the destination
+			StringBuilder buf = new StringBuilder();
+			buf.append(destination);
+			buf.append("/" + sort);
+			buf.append("/");
+			for (String id : values.getValues())
+			{
+				buf.append(id);
+				buf.append("+");
+			}
+			buf.setLength(buf.length() - 1);
+			destination = buf.toString();
+		}
+		else if (destination.trim().startsWith("/assessment_export"))
+		{
+			// add the selected ids to the destination
+			StringBuilder buf = new StringBuilder();
+			buf.append("/assessment_export/");
+		
+			String[] ids = values.getValues();
+			int count = 1;
+			for (String id : ids)
+			{
+				buf.append(id);
+				if (count != ids.length) buf.append("+");
+				count++;
+			}
+			buf.append("/"+sort);
+			buf.setLength(buf.length());
+			destination = buf.toString();
+		}
 		res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
 	}
 
@@ -459,6 +518,11 @@ public class AssessmentsView extends ControllerImpl
 	public void setQuestionService(QuestionService service)
 	{
 		this.questionService = service;
+	}
+
+	public void setSiteService(SiteService siteService)
+	{
+		this.siteService = siteService;
 	}
 
 	/**

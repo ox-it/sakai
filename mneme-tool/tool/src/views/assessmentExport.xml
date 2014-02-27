@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-tool/tool/src/views/assessmentExport.xml $
+ * $Id: assessmentExport.xml 6527 2013-12-06 23:01:08Z rashmim $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2013 Etudes, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+<interface>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<title>
+		<message selector="export-title" />
+	</title>
+	
+	<header>
+		<message selector="export-header">
+			<model type="icon" icon="/icons/import_export.png" />
+		</message>
+	</header>
+	
+	<container>
+		<instructions selector="instruction-text" />
+		<!-- the list of pools -->
+		<entityList style="FLAT">
+			<iterator name="assessment" model="assessments" />
+			<emptyTitle>
+				<message selector="no-assessments" />
+			</emptyTitle>
+								
+			<columns>				
+				<modelColumn>
+					<title>
+						<message selector="assessment-title" />
+					</title>
+					<model ref="assessment.title" type="text" missing="no-title" />					
+				</modelColumn>
+			</columns>
+		</entityList>
+		
+		<!-- download export zip -->
+		  <section>
+           <container>
+		    <attachments list="TRUE" model="exportZipName"/>
+		  </container>
+		</section>
+		
+		<!--navigation-->
+		<navigationBar>
+			<container>
+				<navigation title="return" style="BUTTON" accessKey="return-access" description="return-description" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="/assessments" />						
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>

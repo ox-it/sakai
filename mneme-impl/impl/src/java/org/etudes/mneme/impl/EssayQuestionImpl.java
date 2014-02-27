@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -24,8 +24,11 @@
 
 package org.etudes.mneme.impl;
 
+import org.etudes.ambrosia.api.AndDecision;
 import org.etudes.ambrosia.api.Attachments;
+import org.etudes.ambrosia.api.CompareDecision;
 import org.etudes.ambrosia.api.Component;
+import org.etudes.ambrosia.api.Decision;
 import org.etudes.ambrosia.api.EntityList;
 import org.etudes.ambrosia.api.FileUpload;
 import org.etudes.ambrosia.api.HtmlEdit;
@@ -643,13 +646,27 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		showModelAnswerSection.setMaxHeight(400);
 		showModelAnswerSection.setTreatment("inlay");
 		showModelAnswerSection.setTitle("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
-		showModelAnswerSection.setTitlePlain(this.uiService.newTrueDecision());
-		showModelAnswerSection.setIncluded(this.uiService.newHasValueDecision().setProperty(
-				this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer")));
+		showModelAnswerSection.setTitlePlain(this.uiService.newTrueDecision());		
+		showModelAnswerSection.setIncluded(this.uiService.newAndDecision().setRequirements(
+				this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer")),
+				this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("testprintformat")).setReversed()));
+		
 		showModelAnswerSection.add(modelAnswer);
+		
+		Section showModelExpAnswerSection = this.uiService.newSection();
+		showModelExpAnswerSection.setMaxHeight(400);
+		showModelExpAnswerSection.setTreatment("inlay");
+		showModelExpAnswerSection.setTitle("model-answer", this.uiService.newIconPropertyReference().setIcon("/icons/model_answer.png"));
+		showModelExpAnswerSection.setTitlePlain(this.uiService.newTrueDecision());
+		
+		showModelExpAnswerSection.setIncluded(this.uiService.newAndDecision().setRequirements(
+				this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer")),
+				this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("testprintformat"))));
+		
+		showModelExpAnswerSection.add(modelAnswer);
 
 		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(questionSection2).add(typeSection)
-				.add(showModelAnswerSection);
+				.add(showModelAnswerSection).add(showModelExpAnswerSection);
 	}
 
 	/**
@@ -709,6 +726,7 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 		Text modelAnswer = this.uiService.newText();
 		modelAnswer.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.typeSpecificQuestion.modelAnswer"));
 
+		
 		Section showModelAnswerSection = this.uiService.newSection();
 		showModelAnswerSection.setCollapsed(true);
 		showModelAnswerSection.setMaxHeight(400);
@@ -719,25 +737,59 @@ public class EssayQuestionImpl implements TypeSpecificQuestion
 				this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.modelAnswer")));
 		showModelAnswerSection.add(modelAnswer);
 
+		PropertyReference[] refs = new PropertyReference[2];
+		refs[0] = this.uiService.newIconPropertyReference().setIcon("/icons/your-choice.png");
+		refs[1] = this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.typeSpecificAnswer.answerData");
 		Text answer = this.uiService.newText();
-		answer.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.typeSpecificAnswer.answerData"));
-
+		answer.setText("essay-answer", refs);
+		
+		refs = new PropertyReference[1];
+		refs[0] = this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.typeSpecificAnswer.answerData");
+		Text answer2 = this.uiService.newText();
+		answer2.setText("essay-noimg-answer", refs);
+		
 		Attachments uploaded = this.uiService.newAttachments();
 		uploaded.setAttachments(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded"), "attachment");
 		uploaded.setSize(false).setTimestamp(false);
 		uploaded.setIncluded(this.uiService.newHasValueDecision().setProperty(
 				this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded")));
 
+		PropertyReference ansIncludedProperty = this.uiService.newPropertyReference().setReference("answer.submission.userId");
+		PropertyReference ansIncludedComparison = this.uiService.newPropertyReference().setReference("currentUserId");
+		CompareDecision ansIncludedDecision = this.uiService.newCompareDecision();
+		ansIncludedDecision.setProperty(ansIncludedProperty);
+		ansIncludedDecision.setEqualsProperty(ansIncludedComparison);
+		
+		Decision gradingDecision = this.uiService.newHasValueDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"));
+		
+		Decision orDecision = this.uiService.newOrDecision().setOptions(ansIncludedDecision, gradingDecision);
+		
+				
+		AndDecision showAnswerDecision = this.uiService.newAndDecision();
+		Decision[] decisionsShowAnswer = new Decision[2];
+		decisionsShowAnswer[0] = this.uiService.newOrDecision().setOptions(
+				this.uiService.newHasValueDecision().setProperty(
+						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answerData")),
+				this.uiService.newHasValueDecision().setProperty(
+						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded")));
+		decisionsShowAnswer[1] = orDecision;
+		showAnswerDecision.setRequirements(decisionsShowAnswer);
+		
 		Section section = this.uiService.newSection();
 		iteratorRef = this.uiService.newPropertyReference().setReference("submissions")
 				.setFormatDelegate(this.uiService.getFormatDelegate("AccessSubmissionsQuestionAnswers", "sakai.mneme"));
 		section.setIterator(iteratorRef, "answer", this.uiService.newMessage().setMessage("no-answers"));
-		section.setEntityIncluded(this.uiService.newOrDecision().setOptions(
+		/*section.setEntityIncluded(this.uiService.newOrDecision().setOptions(
 				this.uiService.newHasValueDecision().setProperty(
 						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answerData")),
 				this.uiService.newHasValueDecision().setProperty(
 						this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.uploaded"))));
-		section.add(answer).add(uploaded);
+		*/
+		answer.setIncluded(ansIncludedDecision);
+		answer2.setIncluded(gradingDecision);
+		section.setEntityIncluded(showAnswerDecision);
+		
+		section.add(answer).add(answer2).add(uploaded);
 		section.setTitle("answer-summary");
 
 		Section unansweredSection = this.uiService.newSection();

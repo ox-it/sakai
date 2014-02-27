@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -42,6 +42,7 @@ import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.Web;
 
 /**
@@ -61,6 +62,10 @@ public class AssessmentStatsView extends ControllerImpl
 	/** Dependency: ToolManager */
 	protected ToolManager toolManager = null;
 
+	/** Dependency: SessionManager */
+	protected SessionManager sessionManager = null;
+
+
 	/**
 	 * Shutdown.
 	 */
@@ -74,13 +79,23 @@ public class AssessmentStatsView extends ControllerImpl
 	 */
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
+		String subId;
+		
 		// [2]sort for /grades, [3]aid
-		if (params.length != 4) throw new IllegalArgumentException();
+		if (params.length < 4 || params.length > 5) throw new IllegalArgumentException();
 
 		// grades sort parameter
 		String gradesSortCode = params[2];
 		context.put("sort_grades", gradesSortCode);
 
+		if (params.length == 5)
+		{
+			subId = params[4];
+			context.put("submissionId", subId);
+			Submission submission = this.submissionService.getSubmission(subId);
+			context.put("submission", submission.getBest());
+		}
+		
 		Assessment assessment = this.assessmentService.getAssessment(params[3]);
 		if (assessment == null)
 		{
@@ -88,13 +103,16 @@ public class AssessmentStatsView extends ControllerImpl
 			return;
 		}
 
-		// check for user permission to access the submission for grading
-		if (!this.submissionService.allowEvaluate(assessment.getContext()))
+		if (this.submissionService.allowEvaluate(assessment.getContext()))
 		{
-			// redirect to error
-			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
-			return;
+			context.put("allowEval", Boolean.TRUE);
+			context.put("grading", Boolean.TRUE);
 		}
+		else
+		{
+			context.put("allowEval", Boolean.FALSE);
+		}
+
 
 		// check that the assessment is not a formal course evaluation
 		if (assessment.getFormalCourseEval())
@@ -121,10 +139,13 @@ public class AssessmentStatsView extends ControllerImpl
 
 		// collect all the submissions for the assessment
 		List<Submission> submissions = this.submissionService.findAssessmentSubmissions(assessment,
-				SubmissionService.FindAssessmentSubmissionsSort.sdate_a, Boolean.FALSE, null, null, null, null);
+				SubmissionService.FindAssessmentSubmissionsSort.sdate_a, Boolean.TRUE, null, null, null, null);
 		context.put("submissions", submissions);
 
 		computePercentComplete(assessment, submissions, context);
+
+		String userId = sessionManager.getCurrentSessionUserId();
+		context.put("currentUserId", userId);
 
 		uiService.render(ui, context);
 	}
@@ -144,8 +165,7 @@ public class AssessmentStatsView extends ControllerImpl
 	public void post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
 		// [2]sort for /grades, [3]aid
-		if (params.length != 4) throw new IllegalArgumentException();
-
+		if (params.length < 4 || params.length > 5) throw new IllegalArgumentException();
 		// read form
 		String destination = this.uiService.decode(req, context);
 
@@ -177,6 +197,17 @@ public class AssessmentStatsView extends ControllerImpl
 	public void setToolManager(ToolManager toolManager)
 	{
 		this.toolManager = toolManager;
+	}
+
+	/**
+	 * Dependency: SessionManager.
+	 * 
+	 * @param service
+	 *        The SessionManager.
+	 */
+	public void setSessionManager(SessionManager service)
+	{
+		sessionManager = service;
 	}
 
 	/**

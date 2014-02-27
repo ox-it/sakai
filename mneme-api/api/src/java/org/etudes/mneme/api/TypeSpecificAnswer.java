@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -64,6 +64,14 @@ public interface TypeSpecificAnswer extends Cloneable
 	 * @return TRUE if the answer is answered and completely correct, FALSE if not. If there is no correct answer, returns null.
 	 */
 	Boolean getCompletelyCorrect();
+
+	/**
+	 * Check if the answer is partially correct.
+	 * 
+	 * @return TRUE if the answer is answered and partially correct, FALSE if not. If there is no correct answer, returns null.
+	 */
+	Boolean getPartiallyCorrect();
+
 
 	/**
 	 * Access the type specific answer data as an array of strings that can be restored with setData()

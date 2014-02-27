@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -106,6 +106,14 @@ public class PoolsView extends ControllerImpl
 		else if ((sortCode.charAt(0) == '0') && (sortCode.charAt(1) == 'D'))
 		{
 			sort = PoolService.FindPoolsSort.title_d;
+		}
+		else if ((sortCode.charAt(0) == '2') && (sortCode.charAt(1) == 'A'))
+		{
+			sort = PoolService.FindPoolsSort.created_a;
+		}
+		else if ((sortCode.charAt(0) == '2') && (sortCode.charAt(1) == 'D'))
+		{
+			sort = PoolService.FindPoolsSort.created_d;
 		}
 		else
 		{

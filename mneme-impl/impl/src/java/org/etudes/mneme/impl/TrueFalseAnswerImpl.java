@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -167,6 +167,14 @@ public class TrueFalseAnswerImpl implements TypeSpecificAnswer
 		return Boolean.valueOf(correct);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getPartiallyCorrect()
+	{
+		return null;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -36,8 +36,11 @@ import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.Answer;
 import org.etudes.mneme.api.AssessmentService;
+import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.MnemeService;
+import org.etudes.mneme.api.ReviewShowCorrect;
 import org.etudes.mneme.api.Submission;
+import org.etudes.mneme.api.SubmissionCompletionStatus;
 import org.etudes.mneme.api.SubmissionService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -125,8 +128,6 @@ public class ReviewView extends ControllerImpl
 			return;
 		}
 
-		context.put("submission", submission);
-
 		// collect the other submissions from this user to the assessment
 		List<? extends Submission> allSubmissions = submissionService.getMultipleSubmissions(submission.getAssessment(), submission.getUserId());
 
@@ -172,7 +173,13 @@ public class ReviewView extends ControllerImpl
 				&& (allSubmissions.get(position - 1).getBest().equals(submission)) && submission.getMayReview().booleanValue())
 		{
 			context.put("best", Boolean.TRUE);
+			context.put("submission", allSubmissions.get(position - 1).getBest());
 		}
+		else
+		{
+			context.put("submission", submission);
+		}
+
 
 		// collect all the answers for review
 		List<Answer> answers = submission.getAnswers();
@@ -183,6 +190,62 @@ public class ReviewView extends ControllerImpl
 
 		// record the review date
 		submissionService.markReviewed(submission);
+
+		if (submission.getAssessment().getReview().getShowIncorrectQuestions() == ReviewShowCorrect.incorrect_only)
+		{
+			boolean incorrectExists = false;
+			// Check to see if there is atleast one non-essay, non-task and non-likert-scale question
+			for (Answer a : answers)
+			{
+				String questionType = a.getQuestion().getType();
+				if (questionType.equals("mneme:FillBlanks") || questionType.equals("mneme:Match") || questionType.equals("mneme:MultipleChoice")
+						|| questionType.equals("mneme:TrueFalse"))
+				{
+					incorrectExists = true;
+					break;
+				}
+			}
+
+			if (incorrectExists)
+			{
+				context.put("questionIncorrect", messages.getString("question-incorrect"));
+				context.put("showIncorrect", Boolean.TRUE);
+			}
+		}
+		
+		SubmissionCompletionStatus subComp = submission.getCompletionStatus();
+		boolean noneAnswered = false;
+		if (subComp.equals(SubmissionCompletionStatus.evaluationNonSubmit) || ((subComp.equals(SubmissionCompletionStatus.autoComplete) || subComp.equals(SubmissionCompletionStatus.userFinished)) && submission.getIsUnanswered() == Boolean.TRUE))
+			noneAnswered = true;
+		if (submission.getAssessment().getReview().getShowSummary() && submission.getAssessment().getReview().getShowCorrectAnswer().equals(ReviewShowCorrect.yes) && !noneAnswered)
+		{
+			if (submission.getAssessment().getType().equals(AssessmentType.survey) && submission.getAssessment().getFrozen())
+			{	
+			  context.put("showsummary", Boolean.TRUE);
+			}
+			if (!submission.getAssessment().getType().equals(AssessmentType.survey))
+			{
+				if ((size > 1) && (submission.getIsReleased().booleanValue()) && (submission.getAssessment().getHasPoints().booleanValue())
+						&& (allSubmissions.get(position - 1).getBest().equals(submission)) && submission.getMayReview().booleanValue())
+				{
+					context.put("showsummary", Boolean.TRUE);
+				}
+				if (size == 1)
+				{
+					context.put("showsummary", Boolean.TRUE);
+				}
+			}
+		}
+		
+		if (submission.getIsNonSubmit() && submission.getEvaluation().getComment() != null)
+		{
+			context.put("evalcommented", Boolean.TRUE);
+		}
+		else
+		{
+			context.put("evalcommented", Boolean.FALSE);
+		}
+
 
 		// for the tool navigation
 		if (this.assessmentService.allowManageAssessments(toolManager.getCurrentPlacement().getContext()))
@@ -210,6 +273,20 @@ public class ReviewView extends ControllerImpl
 	{
 		// read form
 		String destination = this.uiService.decode(req, context);
+		if (params.length < 3)
+		{
+			throw new IllegalArgumentException();
+		}
+
+		String submissionId = params[2];
+		// collect the submission
+		Submission submission = submissionService.getSubmission(submissionId);
+		if (submission == null)
+		{
+			// redirect to error
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.invalid)));
+			return;
+		}
 
 		// go there
 		res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));

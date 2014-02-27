@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -81,16 +81,6 @@
 		<section>
 			<container>
 
-				<!-- timed instructions overlay -->
-				<overlay id="instructions">
-					<container>
-						<text selector="timed-instructions" />
-						<gap />
-						<toggle target="instructions" title="close" style="LINK">
-							<icon icon="/icons/close.png" style="LEFT" />
-						</toggle>
-					</container>
-				</overlay>
 				<selection orientation="DROPDOWN" height="5" title="users">
 					<singleSelect>
 						<decision type="true" reversed="TRUE" />
@@ -158,6 +148,13 @@
 						<decision model="assessment.hasTimeLimit" />
 					</included>
 				</selection>
+				<!-- timed instructions overlay -->
+				<overlay id="instructions">
+					<container>
+						<text selector="timed-instructions" />
+						<gap />
+					</container>
+				</overlay>
 				<selection title="allowTries">
 					<model ref="access.hasTriesLimit" />
 					<selectionChoices>

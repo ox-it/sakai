@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -158,11 +158,11 @@ public class AssessmentStorageMysql extends AssessmentStorageSql implements Asse
 		sql.append(" RESULTS_SENT, HONOR_PLEDGE, LIVE, LOCKED, MINT, MODIFIED_BY_DATE, MODIFIED_BY_USER,");
 		sql.append(" PARTS_CONTINUOUS, PARTS_SHOW_PRES, PASSWORD, PRESENTATION_TEXT,");
 		sql.append(" PUBLISHED, FROZEN, QUESTION_GROUPING, RANDOM_ACCESS,");
-		sql.append(" REVIEW_DATE, REVIEW_SHOW_CORRECT, REVIEW_SHOW_FEEDBACK, REVIEW_TIMING,");
+		sql.append(" REVIEW_DATE, REVIEW_SHOW_CORRECT, REVIEW_SHOW_FEEDBACK, REVIEW_SHOW_SUMMARY, REVIEW_TIMING, MIN_SCORE_SET, MIN_SCORE, ");
 		sql.append(" SHOW_HINTS, SHOW_MODEL_ANSWER, SUBMIT_PRES_TEXT, TIME_LIMIT, TITLE, TRIES, TYPE, POOL, NEEDSPOINTS, SHUFFLE_CHOICES)");
-		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
-		Object[] fields = new Object[43];
+		Object[] fields = new Object[46];
 		int i = 0;
 		fields[i++] = assessment.getArchived() ? "1" : "0";
 		fields[i++] = assessment.getContext();
@@ -196,9 +196,13 @@ public class AssessmentStorageMysql extends AssessmentStorageSql implements Asse
 		fields[i++] = assessment.getRandomAccess() ? "1" : "0";
 		fields[i++] = (assessment.getReview().getDate() == null) ? null : assessment.getReview().getDate().getTime();
 		fields[i++] = assessment.getReview().getShowCorrectAnswer().equals(ReviewShowCorrect.yes) ? "1" : (assessment.getReview()
-				.getShowCorrectAnswer().equals(ReviewShowCorrect.no) ? "0" : "C");
+				.getShowCorrectAnswer().equals(ReviewShowCorrect.no) ? "0" : (assessment.getReview().getShowCorrectAnswer().equals(ReviewShowCorrect.correct_only) ? "C" : "I"));
 		fields[i++] = assessment.getReview().getShowFeedback() ? "1" : "0";
+		fields[i++] = assessment.getReview().getShowSummary() ? "1" : "0";
 		fields[i++] = assessment.getReview().getTiming().toString();
+		fields[i++] = (assessment.getMinScoreSet() && assessment.getMinScore() != null) ? "1" : "0";
+		fields[i++] = assessment.getMinScore();
+		
 		fields[i++] = assessment.getShowHints() ? "1" : "0";
 		fields[i++] = assessment.getShowModelAnswer() ? "1" : "0";
 		fields[i++] = assessment.getSubmitPresentation().getText();

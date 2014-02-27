@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -755,7 +755,9 @@ public class AssessmentStorageSample implements AssessmentStorage
 			a.getPresentation().setText("This is assessment one.");
 			a.getReview().setShowCorrectAnswer(ReviewShowCorrect.yes);
 			a.getReview().setShowFeedback(Boolean.TRUE);
+			a.getReview().setShowSummary(Boolean.FALSE);
 			a.getReview().setTiming(ReviewTiming.graded);
+			a.setMinScoreSet(Boolean.FALSE);
 			a.getSubmitPresentation().setText("Thanks for all the fish!");
 
 			Part p = a.getParts().addPart();
@@ -817,7 +819,9 @@ public class AssessmentStorageSample implements AssessmentStorage
 			a.getPresentation().setText("This is assessment two.");
 			a.getReview().setShowCorrectAnswer(ReviewShowCorrect.yes);
 			a.getReview().setShowFeedback(Boolean.TRUE);
+			a.getReview().setShowSummary(Boolean.FALSE);
 			a.getReview().setTiming(ReviewTiming.submitted);
+			a.setMinScoreSet(Boolean.FALSE);
 			a.getSubmitPresentation().setText("Have a nice day!");
 
 			Part p2 = a.getParts().addPart();
@@ -858,7 +862,9 @@ public class AssessmentStorageSample implements AssessmentStorage
 			a.getPresentation().setText("This is assessment three.");
 			a.getReview().setShowCorrectAnswer(ReviewShowCorrect.yes);
 			a.getReview().setShowFeedback(Boolean.TRUE);
+			a.getReview().setShowSummary(Boolean.FALSE);
 			a.getReview().setTiming(ReviewTiming.submitted);
+			a.setMinScoreSet(Boolean.FALSE);
 			a.getSubmitPresentation().setText("Have a nice day!");
 
 			p = a.getParts().addPart();

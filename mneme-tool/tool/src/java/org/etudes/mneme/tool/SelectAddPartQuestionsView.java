@@ -46,6 +46,7 @@ import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
+import org.etudes.mneme.api.PoolService.FindPoolsSort;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionPlugin;
 import org.etudes.mneme.api.QuestionService;
@@ -172,7 +173,8 @@ public class SelectAddPartQuestionsView extends ControllerImpl
 		}
 
 		// the pools
-		List<Pool> pools = this.poolService.getPools(toolManager.getCurrentPlacement().getContext());
+		List<Pool> pools = this.poolService.findPools(toolManager.getCurrentPlacement().getContext(), FindPoolsSort.title_a, null);
+		
 		context.put("pools", pools);
 
 		// paging

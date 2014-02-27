@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -45,6 +45,44 @@
 				<message selector="list-empty" />
 			</emptyTitle>
 			<columns>
+			    	<column pixels="16" centered="TRUE">
+					<title>
+						<message selector="published" />
+					</title>
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="4" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/list/4A" />
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/list/4D" />
+						</desc>
+					</sort>
+					<navigations>
+						<navigation style="LINK" description="published-description" disabled="TRUE">
+							<icon icon="/icons/publish.png" style="LEFT" />
+							<included>
+								<decision model="submission.assessment.published" />
+							</included>
+						</navigation>
+						<navigation style="LINK" description="unpublished-description" disabled="TRUE">
+							<icon icon="/icons/forbidden.png" style="LEFT" />
+							<included>
+								<decision reversed="TRUE" model="submission.assessment.published" />
+							</included>
+						</navigation>
+					</navigations>
+					<included>
+						<decision model="maintainer" />
+					</included>		
+				</column>
 				<modelColumn pixels="16" centered="TRUE">
 					<title>
 						<message selector="list-type" />
@@ -369,6 +407,7 @@
 							<included>
 								<decision model="submission.best.mayReview" />
 								<decision model="submission.best.evaluationNotReviewed" />
+								<decision model="submission.best.isNonEvalOrCommented" />
 							</included>
 						</navigation>
 						<navigation style="LINK" title="list-nav-review">
@@ -376,6 +415,7 @@
 							<included>
 								<decision model="submission.best.mayReview" />
 								<decision reversed="TRUE" model="submission.best.evaluationNotReviewed" />
+								<decision model="submission.best.isNonEvalOrCommented" />
 							</included>
 						</navigation>
 						<navigation style="LINK" disabled="TRUE" small="TRUE">
@@ -387,6 +427,7 @@
 							<included>
 								<decision reversed="TRUE" model="submission.best.mayReview" />
 								<decision model="submission.best.mayReviewLater" />
+								<decision model="submission.best.isNonEvalOrCommented" />
 								<compareDecision model="submission.best.assessment.review.timing" constant="date" />
 							</included>
 						</navigation>
@@ -397,6 +438,7 @@
 							<included>
 								<decision reversed="TRUE" model="submission.best.mayReview" />
 								<decision model="submission.best.mayReviewLater" />
+								<decision model="submission.best.isNonEvalOrCommented" />
 								<compareDecision model="submission.best.assessment.review.timing" constant="graded" />
 							</included>
 						</navigation>

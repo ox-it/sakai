@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -40,6 +40,7 @@
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService" /></property>
 		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService" /></property>
 		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager" /></property>
+        <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager" /></property>
 
 		<property name="toolId"><value>sakai.mneme</value></property>
 		<property name="path"><value>assessment_stats</value></property>

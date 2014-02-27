@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -38,11 +38,14 @@ import org.etudes.mneme.api.AssessmentReview;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentSpecialAccess;
 import org.etudes.mneme.api.AssessmentType;
+import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.Attribution;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.Presentation;
 import org.etudes.mneme.api.QuestionGrouping;
 import org.etudes.mneme.api.Submission;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -130,6 +133,16 @@ public class SubmissionAssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public Reference getAsmtStatsReference()
+	{
+		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ASMT_STATS
+				+ "/" + this.getContext() + "/" + this.getId() + ".xls");
+		return ref;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getContext()
 	{
 		return getAssessment().getContext();
@@ -164,6 +177,16 @@ public class SubmissionAssessmentImpl implements Assessment
 		}
 
 		return getAssessment().getDates();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Reference getExportSummaryReference()
+	{
+		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.EXPORT_SUMMARY
+				+ "/" + this.getContext() + "/" + this.getId() + ".xls");
+		return ref;
 	}
 
 	/**
@@ -339,6 +362,24 @@ public class SubmissionAssessmentImpl implements Assessment
 	public Boolean getIsValid()
 	{
 		return getAssessment().getIsValid();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isEmailValid(String emailAddr)
+	{
+		return getAssessment().isEmailValid(emailAddr);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Reference getItemAnalysisReference()
+	{
+		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ITEM_ANALYSIS
+				+ "/" + this.getContext() + "/" + this.getId() + ".xls");
+		return ref;
 	}
 
 	/**
@@ -606,6 +647,22 @@ public class SubmissionAssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getMinScoreSet()
+	{
+		return getAssessment().getMinScoreSet();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Integer getMinScore()
+	{
+		return getAssessment().getMinScore();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public int hashCode()
 	{
 		return getAssessment().hashCode();
@@ -778,11 +835,27 @@ public class SubmissionAssessmentImpl implements Assessment
 	{
 		throw new IllegalArgumentException();
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	public void setType(AssessmentType type)
+	{
+		throw new IllegalArgumentException();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setMinScoreSet(Boolean setting)
+	{
+		throw new IllegalArgumentException();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setMinScore(Integer minScore)
 	{
 		throw new IllegalArgumentException();
 	}
@@ -800,7 +873,7 @@ public class SubmissionAssessmentImpl implements Assessment
 		rv.initSubmissionContext(this.submission);
 		return rv;
 	}
-
+	
 	/**
 	 * Set as a copy of another.
 	 * 

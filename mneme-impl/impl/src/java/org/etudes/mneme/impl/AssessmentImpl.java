@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -24,10 +24,13 @@
 
 package org.etudes.mneme.impl;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,6 +45,7 @@ import org.etudes.mneme.api.AssessmentReview;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentSpecialAccess;
 import org.etudes.mneme.api.AssessmentType;
+import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.Attribution;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.PartDetail;
@@ -56,6 +60,8 @@ import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -174,6 +180,10 @@ public class AssessmentImpl implements Assessment
 
 	protected transient UserDirectoryService userDirectoryService = null;
 
+	protected Boolean minScoreSet = Boolean.FALSE;
+	
+	protected Integer minScore;
+
 	/**
 	 * Construct
 	 */
@@ -288,6 +298,16 @@ public class AssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public Reference getAsmtStatsReference()
+	{
+		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ASMT_STATS
+				+ "/" + this.getContext() + "/" + this.getId() + ".xls");
+		return ref;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getContext()
 	{
 		return this.context;
@@ -307,6 +327,16 @@ public class AssessmentImpl implements Assessment
 	public AssessmentDates getDates()
 	{
 		return this.dates;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Reference getExportSummaryReference()
+	{
+		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.EXPORT_SUMMARY
+				+ "/" + this.getContext() + "/" + this.getId() + ".xls");
+		return ref;
 	}
 
 	/**
@@ -504,13 +534,57 @@ public class AssessmentImpl implements Assessment
 			if (this.getResultsEmail() == null) return Boolean.FALSE;
 		}
 
+		if (this.getResultsEmail() != null && !isEmailValid(this.getResultsEmail())) return Boolean.FALSE;
+		
 		// results email feature needs a due or accept until date
-		if (this.getResultsEmail() != null)
+		if (this.getResultsEmail() != null && isEmailValid(this.getResultsEmail()))
 		{
 			if ((this.dates.getDueDate() == null) && (this.dates.getAcceptUntilDate() == null)) return Boolean.FALSE;
 		}
 
 		return Boolean.TRUE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isEmailValid(String emailAddr)
+	{
+		Pattern pattern;
+		Matcher matcher;
+	 
+		String EMAIL_PATTERN = 
+			"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+	 
+		pattern = Pattern.compile(EMAIL_PATTERN);
+
+		if (emailAddr == null || emailAddr.trim().length() == 0) return false;
+		if (!emailAddr.contains(","))
+		{
+			matcher = pattern.matcher(emailAddr.trim());
+			return matcher.matches();
+		}
+		else
+		{
+			List<String> emailList = Arrays.asList(emailAddr.split(","));
+			for (String emailStr : emailList)
+			{
+				matcher = pattern.matcher(emailStr.trim());
+				if (!matcher.matches()) return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Reference getItemAnalysisReference()
+	{
+		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ITEM_ANALYSIS
+				+ "/" + this.getContext() + "/" + this.getId() + ".xls");
+		return ref;
 	}
 
 	/**
@@ -758,6 +832,22 @@ public class AssessmentImpl implements Assessment
 	public Integer getTries()
 	{
 		return this.tries;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getMinScoreSet()
+	{
+		return this.minScoreSet;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Integer getMinScore()
+	{
+		return this.minScore;
 	}
 
 	/**
@@ -1137,6 +1227,29 @@ public class AssessmentImpl implements Assessment
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public void setMinScoreSet(Boolean setting)
+	{
+		if (setting == null) return;
+		if (this.minScoreSet.equals(setting)) return;
+
+		this.minScoreSet = setting;
+
+		this.changed.setChanged();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setMinScore(Integer minScore)
+	{
+		this.minScore = minScore;
+		
+		this.changed.setChanged();
+	}
+
+	/**
 	 * Clear the changed settings.
 	 */
 	protected void clearChanged()
@@ -1415,7 +1528,7 @@ public class AssessmentImpl implements Assessment
 	{
 		this.submissionContext = submission;
 	}
-
+	
 	/**
 	 * Establish the title.
 	 * 
@@ -1428,7 +1541,7 @@ public class AssessmentImpl implements Assessment
 		this.title = title;
 		this.titleWas = title;
 	}
-
+	
 	/**
 	 * Lock the assessment, locking down the dependencies (pools and questions).
 	 */
@@ -1551,5 +1664,8 @@ public class AssessmentImpl implements Assessment
 		this.type = other.type;
 		this.typeWas = other.typeWas;
 		this.userDirectoryService = other.userDirectoryService;
+		this.minScoreSet = other.minScoreSet;
+		this.minScore = other.minScore;
 	}
+
 }

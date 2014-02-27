@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -78,28 +78,15 @@ public class ImportPoolView extends ControllerImpl
 			return;
 		}
 
-		String poolsSort = params[2];
+		String poolsSort = "0A";
+		if (params.length >= 3)	poolsSort = params[2];
 
 		context.put("poolsSort", poolsSort);
 
-		// offer support for import from samigo and assignment
-		context.put("tq", this.importService.getOfferSamigo());
-		context.put("assignment", this.importService.getOfferAssignment());
 		context.put("mneme", Boolean.TRUE);
 
 		// render
 		uiService.render(ui, context);
-	}
-
-	/**
-	 * Set the ImportService
-	 * 
-	 * @param service
-	 *        the ImportService.
-	 */
-	public void setImportService(ImportService service)
-	{
-		this.importService = service;
 	}
 
 	/** Dependency: ImportService */
@@ -140,6 +127,17 @@ public class ImportPoolView extends ControllerImpl
 		res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
 	}
 
+	/**
+	 * Set the ImportService
+	 * 
+	 * @param service
+	 *        the ImportService.
+	 */
+	public void setImportService(ImportService service)
+	{
+		this.importService = service;
+	}
+	
 	/**
 	 * @param poolService
 	 *        the poolService to set

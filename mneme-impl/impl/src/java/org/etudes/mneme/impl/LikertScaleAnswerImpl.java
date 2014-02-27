@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -119,6 +119,14 @@ public class LikertScaleAnswerImpl implements TypeSpecificAnswer
 	/**
 	 * {@inheritDoc}
 	 */
+	public Answer getAnswerObject()
+	{
+		return this.answer;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Float getAutoScore()
 	{
 		// never has points
@@ -133,6 +141,14 @@ public class LikertScaleAnswerImpl implements TypeSpecificAnswer
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getPartiallyCorrect()
+	{
+		return null;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -184,7 +200,7 @@ public class LikertScaleAnswerImpl implements TypeSpecificAnswer
 		this.answerData = i;
 		this.changed = true;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */

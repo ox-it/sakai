@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL: https://source.etudes.org/svn/apps/mneme/branches/2127issues/mneme-tool/tool/src/views/assessmentPreview.xml $
+ * $Id: assessmentPreview.xml 6775 2013-12-20 22:25:07Z mallikamt $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2014 Etudes, Inc.
+ * 
+ * Portions completed before September 1, 2008
+ * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface autoComplete="FALSE">
+
+	<container>
+<!-- repeat the nav up top w/o access key -->
+		<navigationBar noprint="TRUE">
+		  <container>
+		    <navigation style="LINK" submit="TRIGGER" title="print" description="print">
+				<icon icon="/icons/printer.png" style="LEFT" />
+				<destination template="javascript:window.print()">
+				</destination>
+		    </navigation>
+		    <divider>
+		    </divider>	
+		    <navigation style="LINK" submit="TRIGGER" title="close-win" description="close-win">
+				<destination template="javascript:window.close()">
+				</destination>
+		    </navigation>
+		  </container>
+		</navigationBar>	
+		
+		<selection id="printformat" title="printformat" noprint="TRUE">
+				<model ref="testprintformat" />
+				<selectionChoices>
+					<selectionChoice>
+					<displayMessage>
+						<message selector="print-without-answers" />
+					</displayMessage>
+					<valueMessage>
+						<message template="testonly" />
+					</valueMessage>
+					</selectionChoice>
+				<selectionChoice>
+				<displayMessage>
+					<message selector="print-with-answers" />
+				</displayMessage>
+				<valueMessage>
+					<message template="testanswers" />
+				</valueMessage>
+				</selectionChoice>
+			</selectionChoices>
+			<destination template="/assessment_print/{0}">
+				<model ref="assessment.id" />
+			</destination>
+		</selection>		
+		
+		<!-- test title, description and comments -->
+		<section>
+			<title>
+				<message selector="assessment-print-assessment-title">
+					<model type="icon" icon="/icons/test.png" />
+					<model ref="assessment.title" type="text" />
+					<model type="html" ref="assessment" delegate="SubmissionScore" tool="sakai.mneme" />
+					<selectors>
+						<selector selector="assessment-print-assessment-title-no-points">
+							<decision reversed="TRUE" model="assessment.hasPoints" />
+						</selector>
+					</selectors>
+				</message>
+			</title>
+			<container>
+				<section>
+					<included>
+						<decision reversed="TRUE" model="assessment.isValid" />
+					</included>
+					<container>
+						<text>
+							<message selector="invalid-instructions">
+								<model type="icon" icon="/icons/warning.png" />
+								<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+							</message>
+						</text>
+						<text>
+							<message>
+								<model type="html" ref="invalidMsg" />
+							</message>
+						</text>
+					</container>
+				</section>
+				<text>
+					<message>
+						<model type="html" dirty="TRUE" ref="assessment.presentation.text" />
+					</message>
+				</text>
+				<attachments title="attachments" model="assessment.presentation.attachments">
+					<included>
+						<hasValueDecision model="assessment.presentation.attachments" />
+					</included>
+				</attachments>
+			</container>
+		</section>
+
+		<!-- iterating section for each answer -->
+		<section>
+			<iterator name="question">
+				<model ref="assessment.parts.questions" />
+			</iterator>
+
+			<!-- part title -->
+			<title>
+				<message selector="assessment-print-part-title">
+					<model type="icon" icon="/icons/section.png" />
+					<model type="text" ref="question.part.ordering.position" />
+					<model type="text" ref="question.part.assessment.parts.size" />
+					<model type="text" ref="question.part.title" />
+					<selectors>
+						<selector selector="assessment-print-part-title-no-title">
+							<hasValueDecision reversed="TRUE" model="question.part.title" />
+						</selector>
+					</selectors>
+				</message>
+				<included>
+					<decision model="question.partOrdering.isFirst" />
+					<decision model="question.part.assessment.parts.showPresentation" />
+				</included>
+			</title>
+
+			<container>
+
+				<!-- part presentation -->
+				<text model="question.part.presentation.text">
+					<included>
+						<decision model="question.partOrdering.isFirst" />
+						<decision model="question.part.assessment.parts.showPresentation" />
+					</included>
+				</text>
+				<attachments title="attachments" model="question.part.presentation.attachments">
+					<included>
+						<hasValueDecision model="question.part.presentation.attachments" />
+						<decision model="question.partOrdering.isFirst" />
+						<decision model="question.part.assessment.parts.showPresentation" />
+					</included>
+				</attachments>
+
+				<section>
+
+					<!-- question header -->
+					<title highlighted="TRUE">
+						<message>
+							<model type="html" ref="question" delegate="FormatQuestionTitle" tool="sakai.mneme" />
+						</message>
+					</title>
+
+					<container>
+
+						<!--  if invalid -->
+						<text>
+							<message selector="invalid-question">
+								<model type="icon" icon="/icons/warning.png" />
+								<model type="html" ref="question.typeSpecificQuestion.invalidMessage" />
+							</message>
+							<included>
+								<decision model="question.isValid" reversed="TRUE" />
+							</included>
+						</text>
+
+						<modelComponent model="question.typeSpecificQuestion.viewDeliveryUi">
+						  <included>
+						    <compareDecision model="testprintformat" constant="testonly" />
+						  </included>
+						</modelComponent>  
+						
+						<modelComponent model="question.typeSpecificQuestion.viewQuestionUi">
+						  <included>
+						    <compareDecision model="testprintformat" constant="testanswers" />
+						  </included>
+						</modelComponent>
+
+						<!-- reason -->
+				        <section>
+					      <container>
+						  <text>
+							<title>
+								<message selector="question-preview-reason-header">
+									<model type="icon" icon="/icons/reason.png" />
+								</message>
+							</title>
+							<message selector="question-preview-reason" />
+						  </text>
+					      </container>
+					      <included>
+						    <decision model="question.explainReason" />
+						    <compareDecision model="testprintformat" constant="testanswers" />
+					      </included>
+				       </section>
+		
+				       <!-- hints -->
+				       <section treatment="inlay" maxHeight="400">
+					     <title plain="TRUE">
+						  <message selector="show-hints">
+							<model type="icon" icon="/icons/hints.png" />
+						  </message>
+					     </title>
+					     <container>
+						 <text>
+							<message>
+								<model type="html" dirty="TRUE" ref="question.hints" />
+							</message>
+						</text>
+					    </container>
+					    <included>
+						  <hasValueDecision model="question.hints" />
+						  <compareDecision model="testprintformat" constant="testanswers" />
+					    </included>
+				      </section>
+		
+				      <!-- question feedback -->
+				      <section treatment="inlay" maxHeight="400">
+					  <title>
+						<message selector="question-feedback">
+							<model type="icon" icon="/icons/feedback.png" />
+						</message>
+					  </title>
+					  <container>
+						<text>
+							<message>
+								<model type="html" dirty="TRUE" ref="question.feedback" />
+							</message>
+						</text>
+					  </container>
+					  <included>
+						<hasValueDecision model="question.feedback" />
+						<compareDecision model="testprintformat" constant="testanswers" />
+					  </included>
+				      </section>
+				     
+					</container>
+				</section>
+			</container>
+		</section>
+	</container>
+</interface>

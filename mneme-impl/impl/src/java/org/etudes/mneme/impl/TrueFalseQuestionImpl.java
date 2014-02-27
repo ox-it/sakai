@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -364,9 +364,12 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 		Decision[] orInc = new Decision[2];
 		orInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"));
 		orInc[1] = this.uiService.newAndDecision().setRequirements(innerAndInc);
-		Decision[] andInc = new Decision[2];
+		Decision[] andInc = new Decision[4];
 		andInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.question.hasCorrect"));
 		andInc[1] = this.uiService.newOrDecision().setOptions(orInc);
+		andInc[2] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("showIncorrect")).setReversed();
+		andInc[3] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.question.part.assessment.allowedPoints"));
+		
 		answerKey.setIncluded(this.uiService.newAndDecision().setRequirements(andInc));
 
 		Section first = this.uiService.newSection();
@@ -533,6 +536,12 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 		entityList.setIterator(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.choices"), "choice");
 		entityList.setEmptyTitle("no-answer");
 
+		PropertyColumn propCol = this.uiService.newPropertyColumn();
+		propCol.setRight();
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.id")
+				.setFormatDelegate(this.uiService.getFormatDelegate("FormatChoice", "sakai.mneme")));
+		entityList.addColumn(propCol);
+
 		SelectionColumn selCol = this.uiService.newSelectionColumn();
 		selCol.setSingle();
 		selCol.setValueProperty(this.uiService.newTextPropertyReference().setReference("choice.id"));
@@ -542,7 +551,7 @@ public class TrueFalseQuestionImpl implements TypeSpecificQuestion
 		selCol.setCorrectDecision(this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("question.hasCorrect")));
 		entityList.addColumn(selCol);
 
-		PropertyColumn propCol = this.uiService.newPropertyColumn();
+		propCol = this.uiService.newPropertyColumn();
 		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.text"));
 		entityList.addColumn(propCol);
 

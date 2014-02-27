@@ -60,7 +60,7 @@
 					<model type="text" ref="pool.title" />
 				</textEdit>
 
-				<htmlEdit title="pool-description" size="SMALL">
+				<htmlEdit title="pool-description" size="FULL">
 					<model type="html" dirty="TRUE" ref="pool.description" />
 				</htmlEdit>
 

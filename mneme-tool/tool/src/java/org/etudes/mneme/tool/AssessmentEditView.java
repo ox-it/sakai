@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -191,6 +191,7 @@ public class AssessmentEditView extends ControllerImpl
 		}
 		String assessmentId = params[2];
 		String returnDestination = null;
+		
 		if (params.length > 3)
 		{
 			returnDestination = "/" + StringUtil.unsplit(params, 3, params.length - 3, "/");
@@ -201,6 +202,7 @@ public class AssessmentEditView extends ControllerImpl
 		{
 			returnDestination = "/assessments";
 		}
+		
 
 		final Assessment assessment = assessmentService.getAssessment(assessmentId);
 		if (assessment == null)

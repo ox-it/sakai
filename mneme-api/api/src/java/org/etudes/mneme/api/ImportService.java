@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -42,15 +42,6 @@ public interface ImportService
 	 * @return A list of Assessment "Ent"s (id and description).
 	 */
 	List<Ent> getAssessments(String source, String destination);
-
-	/**
-	 * The the Assignments in this context that can be imported as pools.
-	 * 
-	 * @param context
-	 *        The context.
-	 * @return A list of Assignments "Ent"s (id and description).
-	 */
-	List<Ent> getAssignments(String context);
 
 	/**
 	 * The the sites where this user has Assignment authoring permissions.
@@ -134,20 +125,6 @@ public interface ImportService
 	 *         if the user does not have permission to create pools and questions.
 	 */
 	void importMneme(Set<String> ids, String fromContext, String toContext) throws AssessmentPermissionException;
-
-	/**
-	 * Import the Assignment with this id into this context as a pool.
-	 * 
-	 * @param id
-	 *        The id of the Assignment to import.
-	 * @param context
-	 *        The context where the new pool will live.
-	 * @param draftSource
-	 *        if true, the source Assignment will be changed to draft and removed from the gradebook
-	 * @throws AssessmentPermissionException
-	 *         if the user does not have permission to create pools and questions.
-	 */
-	void importAssignment(String id, String context, boolean draftSource) throws AssessmentPermissionException;
 
 	/**
 	 * Import the Samigo pool with this id into this context

@@ -1,9 +1,10 @@
 /**********************************************************************************
- * $URL$
+ * $URL: https://source.etudes.org/svn/apps/mneme/tags/2.1.27/mn
+eme-api/api/src/java/org/etudes/mneme/api/PoolService.java $
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -36,7 +37,7 @@ public interface PoolService extends PoolGetService
 	 */
 	enum FindPoolsSort
 	{
-		points_a, points_d, title_a, title_d
+		points_a, points_d, title_a, title_d, created_a, created_d
 	}
 
 	/**

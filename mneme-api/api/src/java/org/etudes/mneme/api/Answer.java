@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -101,6 +101,13 @@ public interface Answer
 	 * @return TRUE if the answer should show correct answer in review, FALSE if not.
 	 */
 	Boolean getShowCorrectReview();
+
+	/**
+	 * Check if this answer should show correct answer in review, based on the assessment setting and partial answer correctness.
+	 * 
+	 * @return TRUE if the answer should show correct answer in review, FALSE if not.
+	 */
+	Boolean getShowPartialCorrectReview();
 
 	/**
 	 * Access the back pointer to the submission.

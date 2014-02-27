@@ -3,10 +3,10 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
- * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
+ * Copyright (c) 2007, 2008, 2014 The Regents of the University of Michigan & Foothill College, ETUDES Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,4 +53,18 @@ public interface Ent
 	 * @param marked The marking.
 	 */
 	void setMarked(Boolean marked);
+	
+	/**
+	 * Access the term id.
+	 * 
+	 * @return The term id;
+	 */
+	public long getTermId();
+	
+	/**
+	 * Access the term desc.
+	 * 
+	 * @return The term desc;
+	 */
+	public String getTermDescription();
 }

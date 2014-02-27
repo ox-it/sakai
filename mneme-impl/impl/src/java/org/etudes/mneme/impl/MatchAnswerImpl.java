@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -169,6 +169,14 @@ public class MatchAnswerImpl implements TypeSpecificAnswer
 	/**
 	 * {@inheritDoc}
 	 */
+	public Answer getAnswerObject()
+	{
+		return this.answer;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Float getAutoScore()
 	{
 		Question question = this.answer.getQuestion();
@@ -245,6 +253,37 @@ public class MatchAnswerImpl implements TypeSpecificAnswer
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getPartiallyCorrect()
+	{
+		// if there is no correct
+		Question question = this.answer.getQuestion();
+		if (!question.getHasCorrect()) return null;
+
+		// if unanswered
+		if (!this.getIsAnswered()) return Boolean.FALSE;
+
+		// check each defined pair
+		List<MatchQuestionPair> pairs = ((MatchQuestionImpl) question.getTypeSpecificQuestion()).getPairs();
+		for (MatchQuestionPair pair : pairs)
+		{
+			// get the answer for this pair
+			Value selection = this.answerData.get(pair.getId());
+			if (selection != null)
+			{
+				String value = selection.getValue();
+				if ((value != null) && (value.equals(pair.getCorrectChoiceId())))
+				{
+					return Boolean.TRUE;
+				}
+			}
+		}
+
+		return Boolean.FALSE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public String[] getData()
 	{
 		int size = this.answerData.size() * 2;
@@ -295,7 +334,7 @@ public class MatchAnswerImpl implements TypeSpecificAnswer
 
 		return Boolean.FALSE;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -386,6 +386,51 @@ public class FillBlanksAnswerImpl implements TypeSpecificAnswer
 		return Boolean.TRUE;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getPartiallyCorrect()
+	{
+		// if the question has no correct answer
+		Question question = this.answer.getQuestion();
+		if (!question.getHasCorrect()) return null;
+
+		// if unanswered
+		if (!this.getIsAnswered()) return Boolean.FALSE;
+
+		// if any part incorrect
+		List<Boolean> corrects = getEntryCorrects();
+		for (Boolean correct : corrects)
+		{
+			if ((correct != null) && (correct)) return Boolean.TRUE;
+		}
+
+		return Boolean.FALSE;
+	}
+
+	/**
+	 * Checks if this answer is correct (taking position into account) and returns true if it is,
+	 * false if not
+	 * @param answer Answer to check on
+	 * @param i Position of answer
+	 * @return True if answer is correct, false if not
+	 */
+	public boolean correctFillAnswer(String answer, int i)
+	{
+		if (answer == null || answer.trim().length() == 0) return false;
+		Question question = this.answer.getQuestion();
+		List<String> correctAnswers = ((FillBlanksQuestionImpl) question.getTypeSpecificQuestion()).getCorrectAnswers();
+		List<String> availableCorrectAnswers = new ArrayList<String>(correctAnswers);
+		
+		// Get all other question properties
+		boolean caseSensitive = Boolean.parseBoolean(((FillBlanksQuestionImpl) question.getTypeSpecificQuestion()).getCaseSensitive());
+		boolean anyOrder = Boolean.parseBoolean(((FillBlanksQuestionImpl) question.getTypeSpecificQuestion()).getAnyOrder());
+		boolean textual = Boolean.parseBoolean(((FillBlanksQuestionImpl) question.getTypeSpecificQuestion()).getResponseTextual());
+
+		String correctAnswer = correctAnswers.get(i);
+		return answerCorrect(answer, correctAnswer, caseSensitive, anyOrder, textual, availableCorrectAnswers);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

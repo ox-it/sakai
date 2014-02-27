@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -110,6 +110,14 @@ public class MultipleChoiceAnswerImpl implements TypeSpecificAnswer
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public Answer getAnswerObject()
+	{
+		return this.answer;
+	}
+
+	/**
 	 * Access the currently selected answer as a string.
 	 * 
 	 * @return The answer.
@@ -183,6 +191,8 @@ public class MultipleChoiceAnswerImpl implements TypeSpecificAnswer
 
 		// count the number of correct answers
 		Set<Integer> correctAnswers = ((MultipleChoiceQuestionImpl) question.getTypeSpecificQuestion()).getCorrectAnswerSet();
+		
+		if (correctAnswers.size() != this.answerData.size()) return Boolean.FALSE;
 		for (Integer answer : this.answerData)
 		{
 			if (!correctAnswers.contains(answer))
@@ -192,6 +202,31 @@ public class MultipleChoiceAnswerImpl implements TypeSpecificAnswer
 		}
 
 		return Boolean.TRUE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getPartiallyCorrect()
+	{
+		// if the question has no correct answer
+		Question question = this.answer.getQuestion();
+		if (!question.getHasCorrect()) return null;
+
+		// if unanswered
+		if (!this.getIsAnswered()) return Boolean.FALSE;
+
+		// count the number of correct answers
+		Set<Integer> correctAnswers = ((MultipleChoiceQuestionImpl) question.getTypeSpecificQuestion()).getCorrectAnswerSet();
+		for (Integer answer : this.answerData)
+		{
+			if (correctAnswers.contains(answer))
+			{
+				return Boolean.TRUE;
+			}
+		}
+
+		return Boolean.FALSE;
 	}
 
 	/**
@@ -247,7 +282,7 @@ public class MultipleChoiceAnswerImpl implements TypeSpecificAnswer
 		this.answerData = s;
 		this.changed = true;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */

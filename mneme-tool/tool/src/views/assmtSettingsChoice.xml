@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-tool/tool/src/views/assmtSettingsChoice.xml $
+ * $Id: assmtSettingsChoice.xml 6418 2013-11-30 03:08:26Z mallikamt $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2013 Etudes, Inc.
+ * 
+ * Portions completed before September 1, 2008
+ * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface focus="title">
+
+	<!-- attachment picker view -->
+	<attachmentPicker>
+		<destination template="/attachments" />
+	</attachmentPicker>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<title>
+		<message selector="assmtSettingsChoice-title" />
+	</title>
+
+	<header>
+		<message selector="assmtSettingsChoice-header">
+			<model type="icon" icon="/icons/gear-edit.png" />
+		</message>
+	</header>
+
+	<container>
+
+		<section>
+			<title highlighted="TRUE">
+				<message selector="assmtSettings" />
+			</title>
+			<container>
+
+			  <section>
+				<container>
+					
+				<selection id="ao">
+				  <selectionChoices>
+					<selectionChoice>
+						<displayMessage>
+							<message selector="all-options" />
+						</displayMessage>
+						<valueMessage>
+							<message template="true" />
+						</valueMessage>
+					    <container separate="TRUE" reversed="TRUE">
+						
+						  <selection id="ts">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="tries" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="settings.triesSetting" />
+						  </selection>
+						  
+						  <selection id="tls">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="time-limit" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="settings.timeLimitSetting" />
+						  </selection>
+						  
+						  <selection id="ro">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="review-options" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="settings.reviewOptionsSetting" />
+						  </selection>
+						  
+						  <selection id="ac">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="award-cert" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="settings.awardCertSetting" />
+						  </selection>
+						  
+						  <selection id="rs">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="release-sub" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="settings.releaseSubSetting" />
+						  </selection>
+						  
+						  <selection id="ma">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="model-answer" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="settings.modelAnswerSetting" />
+						  </selection>
+						  
+						  <selection id="sg">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="send-gb" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="settings.sendGBSetting" />
+							<included>
+								<decision model="gradebookAvailable" />
+							</included>	
+						  </selection>
+						  
+						  <selection id="ag">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="anon-grading" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="settings.anonGradingSetting" />
+						  </selection>
+						  
+						  <selection id="ae">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="auto-email" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="settings.autoEmailSetting" />
+						  </selection>
+						  
+						  <selection id="pw">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="password" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="settings.passwordSetting" />
+						  </selection>
+						  
+						  <selection id="hp">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="honor-pledge" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="settings.honorPledgeSetting" />
+						  </selection>
+						  
+						  <selection id="hns">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="hints" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="settings.hintsSetting" />
+						  </selection>
+						  
+						  <selection id="sc">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="shuffle-choices" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="settings.shuffleChoicesSetting" />
+						  </selection>
+						  
+						  <selection id="navlay">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="navigation-lay" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="settings.navlaySetting" />
+						  </selection>
+						  
+						  <selection id="pn">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="part-numbering" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="settings.partNumberSetting" />
+						  </selection>
+						  
+						  <selection id="fm">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="final-message" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="settings.finalMessageSetting" />
+						  </selection>
+							
+                       </container>
+					</selectionChoice>
+				</selectionChoices>
+				<model ref="settings.allOptionsSetting" />
+			   </selection>
+                    
+			</container>
+		  </section>
+         </container>
+		</section>
+
+	<!-- navigation otherwise -->
+		<navigationBar>
+			<container>
+				<navigation title="continue" accessKey="continue-access" description="continue-description" style="BUTTON" submit="TRUE" destination="CONTINUE" >
+					<icon icon="/icons/return.png" style="LEFT" />
+				</navigation>
+				<navigation title="cancel" accessKey="cancel-access" description="cancel-description" style="BUTTON">
+					<icon icon="/icons/cancel.gif" style="LEFT" />
+					<destination template="/assessments/{0}">
+						<model ref="sort" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+
+</interface>

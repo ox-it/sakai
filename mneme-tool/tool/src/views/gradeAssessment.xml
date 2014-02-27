@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -86,9 +86,17 @@
 						<model ref="assessment.id" />
 					</destination>
 				</navigation>
+				<navigation disabled="TRUE" title="bar" />
+				<navigation title="export-data-title" style="LINK" accessKey="export-data-access" submit="TRUE">
+					<icon icon="/icons/export.png" style="LEFT" />
+					<destination template="/export_data/{0}/{1}">
+						<model ref="sort_grades" />
+						<model ref="assessment.id" />
+					</destination>
+				</navigation>
+				
 			</container>
 		</navigationBar>
-
 		<section>
 			<title>
 				<message selector="actions">
@@ -96,23 +104,6 @@
 				</message>
 			</title>
 			<container>
-				<!-- comments overlay -->
-				<overlay id="comments">
-					<container>
-						<htmlEdit size="FULL">
-							<model type="html" dirty="TRUE" ref="submissionAdjustComments.value" />
-							<title>
-								<message selector="add-comments">
-									<model type="icon" icon="/icons/note.png" />
-								</message>
-							</title>
-						</htmlEdit>
-						<gap />
-						<toggle target="comments" title="close" style="LINK">
-							<icon icon="/icons/close.png" style="LEFT" />
-						</toggle>
-					</container>
-				</overlay>
 				<navigation title="release-evaluated" style="LINK" submit="TRUE" destination="RELEASEEVALUATED">
 					<icon icon="/icons/active.png" style="LEFT" />
 					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif" selector="confirm-release-evaluated" />
@@ -138,6 +129,20 @@
 				<toggle target="comments" title="add-comments" style="LINK">
 					<icon icon="/icons/note.png" style="LEFT" />
 				</toggle>
+				<!-- comments overlay -->
+				<overlay id="comments">
+					<container>
+						<htmlEdit size="FULL">
+							<model type="html" dirty="TRUE" ref="submissionAdjustComments.value" />
+							<title>
+								<message selector="add-comments">
+									<model type="icon" icon="/icons/note.png" />
+								</message>
+							</title>
+						</htmlEdit>
+						<gap />
+					</container>
+				</overlay>
 				
 				<!--  Note: if using inlay collapsed section instead of overlay, we use this:
 				

@@ -609,6 +609,12 @@ public class LikertScaleQuestionImpl implements TypeSpecificQuestion
 		entityList.setIterator(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.choices"), "choice");
 		entityList.setEmptyTitle("no-answer");
 
+		PropertyColumn propCol = this.uiService.newPropertyColumn();
+		propCol.setRight();
+		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.id")
+				.setFormatDelegate(this.uiService.getFormatDelegate("FormatChoice", "sakai.mneme")));
+		entityList.addColumn(propCol);
+
 		SelectionColumn selCol = this.uiService.newSelectionColumn();
 		selCol.setSingle();
 		selCol.setValueProperty(this.uiService.newTextPropertyReference().setReference("choice.id"));
@@ -616,7 +622,7 @@ public class LikertScaleQuestionImpl implements TypeSpecificQuestion
 		selCol.setReadOnly(this.uiService.newTrueDecision());
 		entityList.addColumn(selCol);
 
-		PropertyColumn propCol = this.uiService.newPropertyColumn();
+		propCol = this.uiService.newPropertyColumn();
 		propCol.setProperty(this.uiService.newHtmlPropertyReference().setReference("choice.text"));
 		entityList.addColumn(propCol);
 

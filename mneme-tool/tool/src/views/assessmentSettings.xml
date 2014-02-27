@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -50,6 +50,57 @@
 	</header>
 
 	<container>
+	   <!-- repeat the nav up top w/o access key -->
+		<navigationBar>
+			<container>
+				<navigation title="prev" description="settings-prev-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/prev.gif" style="LEFT" />
+					<disabled>
+						<hasValueDecision reversed="TRUE" model="prevAssessmentId" />
+					</disabled>
+					<destination template="/assessment_settings/{0}{1}">
+						<model ref="prevAssessmentId" />
+						<model ref="return" />
+					</destination>
+					<included>
+						<hasValueDecision model="position" />
+					</included>
+				</navigation>
+				<text>
+					<message selector="n-of-size">
+						<model ref="position" />
+						<model ref="size" />
+					</message>
+					<included>
+						<hasValueDecision model="position" />
+					</included>
+				</text>
+				<navigation title="next" description="settings-next-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/next.gif" style="RIGHT" />
+					<disabled>
+						<hasValueDecision reversed="TRUE" model="nextAssessmentId" />
+					</disabled>
+					<destination template="/assessment_settings/{0}{1}">
+						<model ref="nextAssessmentId" />
+						<model ref="return" />
+					</destination>
+					<included>
+						<hasValueDecision model="position" />
+					</included>
+				</navigation>
+				<divider>
+					<included>
+						<hasValueDecision model="position" />
+					</included>
+				</divider>
+				<navigation title="return" description="return-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
 
 		<!-- title -->
 		<textEdit id="title" title="title" cols="40">
@@ -326,9 +377,6 @@
 					<container>
 						<text selector="timed-instructions" />
 						<gap />
-						<toggle target="instructions" title="close" style="LINK">
-							<icon icon="/icons/close.png" style="LEFT" />
-						</toggle>
 					</container>
 				</overlay>
 
@@ -384,6 +432,18 @@
 										<message template="never" />
 									</valueMessage>
 									<container separate="TRUE" reversed="TRUE">
+									<selection>
+										<selectionChoices>
+											<selectionChoice>
+											<displayMessage>
+												<message selector="showSummary" />
+											</displayMessage>
+											<valueMessage>
+												<message template="true" />
+											</valueMessage>
+												
+										<container separate="TRUE" reversed="TRUE">
+									
 										<selection>
 											<title>
 												<message selector="reviewOptionsWhat">
@@ -410,6 +470,14 @@
 												</selectionChoice>
 												<selectionChoice>
 													<displayMessage>
+														<message selector="incorrectQuestions" />
+													</displayMessage>
+													<valueMessage>
+														<message template="incorrect_only" />
+													</valueMessage>
+												</selectionChoice>
+												<selectionChoice>
+													<displayMessage>
 														<message selector="noAnswerKey" />
 													</displayMessage>
 													<valueMessage>
@@ -417,6 +485,14 @@
 													</valueMessage>
 												</selectionChoice>
 											</selectionChoices>
+											<included>
+											  <compareDecision reversed="TRUE" model="assessment.type" constant="survey" />
+							                </included>
+										</selection>
+										</container>
+										</selectionChoice>
+											</selectionChoices>
+											<model ref="assessment.review.showSummary" />
 										</selection>
 										<selection>
 											<selectionChoices>
@@ -431,12 +507,56 @@
 											</selectionChoices>
 											<model ref="assessment.review.showFeedback" />
 										</selection>
+										
 									</container>
+									
 								</selectionChoice>
 							</selectionChoices>
 						</selection>
 					</container>
+					
 				</section>
+
+				<section>
+					<container>
+						<selection>
+							<title>
+					  <message selector="awardCert">
+					    <model type="icon" icon="/icons/award.png" />
+					  </message>
+					 </title>
+					 <selectionChoices>
+						<selectionChoice>
+						<valueMessage>
+							<message template="true" />
+						</valueMessage>
+						<container>
+				        <text>
+						  <message selector="minScore">
+						  <model type="component">
+							<container>
+								<countEdit model="assessment.minScore" cols="3">
+									<minValue>
+										<model type="constant" value="0" />
+									</minValue>
+									<maxValue>
+										<model type="constant" value="100" />
+									</maxValue>
+								</countEdit>								
+							</container>
+						  </model>
+					     </message>
+					  </text>
+					  </container>
+					  </selectionChoice>
+					</selectionChoices>
+					<model ref="assessment.minScoreSet" />
+				  </selection>
+			  </container>
+			  <included>
+			    <compareDecision reversed="TRUE" model="assessment.type" constant="survey" />
+			  </included>  
+		      </section>
 
 				<section>
 					<container>

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -50,6 +50,8 @@ import org.etudes.mneme.api.SubmissionEvaluation;
 import org.etudes.mneme.api.SubmissionService;
 import org.etudes.util.api.AccessAdvisor;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.tool.api.SessionManager;
 
 /**
@@ -831,6 +833,16 @@ public class SubmissionImpl implements Submission
 		}
 
 		return this.completionStatus == SubmissionCompletionStatus.evaluationNonSubmit;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getIsNonEvalOrCommented()
+	{
+		if (!getIsNonSubmit()) return Boolean.TRUE;
+		if (getEvaluation().getComment() != null) return Boolean.TRUE;
+		return Boolean.FALSE;
 	}
 
 	/**
@@ -1748,4 +1760,14 @@ public class SubmissionImpl implements Submission
 		this.ungradedSiblings = other.ungradedSiblings;
 		this.userId = other.userId;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Reference getCertReference()
+	{
+		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ASMT_CERT
+				+ "/" + this.getAssessment().getContext() + "/" + this.getId());
+		return ref;
+}
 }

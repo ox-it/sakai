@@ -125,7 +125,29 @@
 						<message selector="pool-description" />
 					</title>
 					<model type="text" ref="pool.description" stripHtml="TRUE" max="60" />
-				</modelColumn>
+				</modelColumn>					
+				<modelColumn>
+					<title>
+						<message selector="pool-createdBy" />
+					</title>
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="2" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/pools/2A" />
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/pools/2D" />
+						</desc>
+					</sort>
+					<model type="date" ref="pool.createdBy.date" />							
+				</modelColumn>	
 				<modelColumn>
 					<title>
 						<message selector="pool-questions" />

@@ -79,9 +79,10 @@ public class AccessSubmissionsQuestionScoresDelegate extends FormatDelegateImpl
 	 *        The score to format.
 	 * @return The formatted score
 	 */
-	protected static String formatScore(Float score)
+	protected static String formatScore(Context context, Float score)
 	{
-		if (score == null) return "-";
+		String earnedStr = context.getMessages().getFormattedMessage("format-score-earned", null);
+		if (score == null) return "- "+earnedStr;
 
 		// round to two places
 		String rv = Float.toString(Math.round(score * 100.0f) / 100.0f);
@@ -98,7 +99,7 @@ public class AccessSubmissionsQuestionScoresDelegate extends FormatDelegateImpl
 			rv = rv.substring(0, rv.length() - 2);
 		}
 
-		return rv;
+		return rv+earnedStr;
 	}
 
 	/**
@@ -151,7 +152,7 @@ public class AccessSubmissionsQuestionScoresDelegate extends FormatDelegateImpl
 		for (Answer a : answers)
 		{
 			Float score = a.getEvaluation().getScore();
-			String scoreDisplay = formatScore(score);
+			String scoreDisplay = formatScore(context,score);
 
 			boolean found = false;
 			for (Distribution d : dist)
@@ -183,7 +184,7 @@ public class AccessSubmissionsQuestionScoresDelegate extends FormatDelegateImpl
 			// percent
 			int pct = (d.countNum * 100) / total;
 			args[0] = Integer.valueOf(pct);
-			d.percent = context.getMessages().getFormattedMessage("format-percent", args);
+			d.percent = context.getMessages().getFormattedMessage("format-percent-earned", args);
 		}
 
 		// sort by score asc.

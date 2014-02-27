@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -48,6 +48,7 @@ import org.etudes.mneme.api.AssessmentClosedException;
 import org.etudes.mneme.api.AssessmentCompletedException;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentService;
+import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.GradesService;
 import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.Ordering;
@@ -1200,6 +1201,15 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	public List<Answer> findSubmissionAnswers(Assessment assessment, Question question, FindAssessmentSubmissionsSort sort, Integer pageNum,
 			Integer pageSize)
 	{
+		return findSubmissionAnswers(assessment, question, Boolean.FALSE, sort, pageNum, pageSize);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<Answer> findSubmissionAnswers(Assessment assessment, Question question, Boolean official, FindAssessmentSubmissionsSort sort, Integer pageNum,
+			Integer pageSize)
+	{
 		// TODO: review the efficiency of this method! -ggolden
 		// TODO: consider removing the official (set to false, getting all) to improve efficiency -ggolden
 
@@ -1216,10 +1226,18 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		// see if any needs to be completed based on time limit or dates
 		checkAutoComplete(all, asOf);
-
+		
 		// pick one for each assessment - the one in progress, or the official complete one (if official)
-		List<Submission> rv = new ArrayList<Submission>(all.size());
-		rv.addAll(all);
+		List<Submission> rv = null;
+		if (official)
+		{
+			rv = officializeByUser(all, null);
+		}
+		else
+		{
+			rv = new ArrayList<Submission>(all.size());
+			rv.addAll(all);
+		}
 
 		// if sorting by status, do that sort
 		if (sort == FindAssessmentSubmissionsSort.status_a || sort == FindAssessmentSubmissionsSort.status_d)
@@ -2537,8 +2555,13 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		}
 
 		// subject
-		String subject = "Course Evaluation: " + siteTitle;
+		String subject = null;
+		if (assessment.getFormalCourseEval()) subject = "Course Evaluation: " + siteTitle;
+		if (assessment.getType().equals(AssessmentType.assignment)) subject = "Assignment: " + assessment.getTitle() + " : " + siteTitle;
+		if (assessment.getType().equals(AssessmentType.test)) subject = "Test: " + assessment.getTitle() + " : " + siteTitle;
+		if (assessment.getType().equals(AssessmentType.survey)) subject = "Survey: " + assessment.getTitle() + " : " + siteTitle;
 
+		
 		// for html
 		List<String> headers = new ArrayList<String>();
 		headers.add("content-type: text/html");
@@ -3190,6 +3213,19 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 						rv = -1
 								* ((Submission) arg0).getAssessment().getType().getSortValue()
 										.compareTo(((Submission) arg1).getAssessment().getType().getSortValue());
+						break;
+					}
+					case published_a:
+					{
+						rv = ((Submission) arg0).getAssessment().getPublished()
+								.compareTo(((Submission) arg1).getAssessment().getPublished());
+						break;
+					}
+					case published_d:
+					{
+						rv = -1
+								* ((Submission) arg0).getAssessment().getPublished()
+										.compareTo(((Submission) arg1).getAssessment().getPublished());
 						break;
 					}
 					case dueDate_a:

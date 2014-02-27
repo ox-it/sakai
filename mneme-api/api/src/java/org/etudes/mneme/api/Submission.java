@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -26,6 +26,7 @@ package org.etudes.mneme.api;
 
 import java.util.Date;
 import java.util.List;
+import org.sakaiproject.entity.api.Reference;
 
 /**
  * Submission is a user's response to an assessment. Each time the user takes the assessment, a new submission is made.
@@ -242,6 +243,14 @@ public interface Submission
 	 * @return TRUE if the submission is a non-submit, FALSE if not.
 	 */
 	Boolean getIsNonSubmit();
+	
+	/**
+	 * Check if the submission represents a user submission (user finished or auto)
+	 * or if evaluator has specified comments for the submission
+	 * 
+	 * @return TRUE if the submission is a non-submit, FALSE if not.
+	 */
+	Boolean getIsNonEvalOrCommented();
 
 	/**
 	 * Check if the submission is past its time limit, due or accept until date, or is to an assessment that is inactive.
@@ -472,4 +481,11 @@ public interface Submission
 	 *        The new total score desired for the submission.
 	 */
 	void setTotalScore(Float score);
+	
+	/**
+	 * Get reference for certificate
+	 * 
+	 * @return Reference object
+	 */
+	Reference getCertReference();
 }

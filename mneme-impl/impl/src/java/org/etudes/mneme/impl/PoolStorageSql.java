@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -134,6 +134,16 @@ public abstract class PoolStorageSql implements PoolStorage
 			case points_d:
 			{
 				whereOrder.append("P.POINTS DESC, P.TITLE DESC, P.CREATED_BY_DATE DESC");
+				break;
+			}
+			case created_a:
+			{
+				whereOrder.append("P.CREATED_BY_DATE ASC");
+				break;
+			}
+			case created_d:
+			{
+				whereOrder.append("P.CREATED_BY_DATE DESC");
 				break;
 			}
 		}

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -24,8 +24,10 @@
 
 package org.etudes.mneme.api;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.zip.ZipOutputStream;
 
 import org.sakaiproject.user.api.User;
 
@@ -135,6 +137,18 @@ public interface AssessmentService
 	Integer countAssessments(String context);
 
 	/**
+	 * Export selected assessments in QTI 2.1 format
+	 * 
+	 * @param ids
+	 *        selected assessment ids
+	 * @param zip
+	 *        The zip package
+	 * @throws AssessmentPermissionException
+	 * @throws IOException
+	 */
+	void exportAssessments(String context, String[] ids, ZipOutputStream zip) throws AssessmentPermissionException, IOException;
+
+	/**
 	 * Get all the archived assessments in the context.
 	 * 
 	 * @param context
@@ -208,6 +222,16 @@ public interface AssessmentService
 	 * @return The new Assessment.
 	 */
 	Assessment newAssessment(String context) throws AssessmentPermissionException;
+
+	/**
+	 * Create a new Assessment object in the context, but do not save it.
+	 * @param context
+	 *        The context in which the assessment lives.
+	 * @return The new assessment.
+	 */
+	public Assessment newEmptyAssessment(String context);
+	
+	public Settings newEmptySettings();
 
 	/**
 	 * Remove this assessment.

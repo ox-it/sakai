@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -281,7 +281,7 @@ public class AssessmentSpecialAccessImpl implements AssessmentSpecialAccess
 					{
 						public int compare(User arg0, User arg1)
 						{
-							int rv = arg0.getSortName().compareTo(arg1.getSortName());
+							int rv = arg0.getSortName().compareToIgnoreCase(arg1.getSortName());
 							return rv;
 						}
 					});
@@ -293,7 +293,7 @@ public class AssessmentSpecialAccessImpl implements AssessmentSpecialAccess
 					{
 						public int compare(User arg0, User arg1)
 						{
-							int rv = arg0.getSortName().compareTo(arg1.getSortName());
+							int rv = arg0.getSortName().compareToIgnoreCase(arg1.getSortName());
 							return rv;
 						}
 					});
@@ -311,7 +311,7 @@ public class AssessmentSpecialAccessImpl implements AssessmentSpecialAccess
 				{
 					return 1;
 				}
-				return users0.get(0).getSortName().compareTo(users1.get(0).getSortName());
+				return users0.get(0).getSortName().compareToIgnoreCase(users1.get(0).getSortName());
 			}
 		});
 

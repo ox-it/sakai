@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@
 
 package org.etudes.mneme.tool;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.zip.ZipInputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.AssessmentPermissionException;
+import org.etudes.mneme.api.ImportQti2Service;
 import org.etudes.mneme.api.ImportQtiService;
 import org.etudes.mneme.api.PoolService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -47,6 +50,9 @@ public class ImportQtiView extends ControllerImpl
 
 	/** Dependency: ImportQtiService */
 	protected ImportQtiService importQtiService = null;
+	
+	/** Dependency: ImportQtiService */
+	protected ImportQti2Service importQti2Service = null;
 
 	/** Pool Service */
 	protected PoolService poolService = null;
@@ -67,13 +73,6 @@ public class ImportQtiView extends ControllerImpl
 	 */
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// [2] pools sort
-		if (params.length != 3)
-		{
-			throw new IllegalArgumentException();
-		}
-		String poolsSort = params[2];
-		context.put("poolsSort", poolsSort);
 
 		if (!this.poolService.allowManagePools(toolManager.getCurrentPlacement().getContext()))
 		{
@@ -82,6 +81,12 @@ public class ImportQtiView extends ControllerImpl
 			return;
 		}
 
+		String returnUrl = (params.length > 3) ? params[2] : "";
+		String sort = (params.length > 3) ? params[3] : "0A";
+		
+		context.put("returnUrl", returnUrl);
+		context.put("sort", sort);
+		
 		// render
 		uiService.render(ui, context);
 	}
@@ -99,14 +104,11 @@ public class ImportQtiView extends ControllerImpl
 	 * {@inheritDoc}
 	 */
 	public void post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
-	{
-		// [2] pools sort
-		if (params.length != 3)
-		{
-			throw new IllegalArgumentException();
-		}
-		String poolsSort = params[2];
-
+	{		
+		
+		String returnUrl = (params.length > 3) ? params[2] : "";
+		String sort = (params.length > 3) ? params[3] : "0A";
+		
 		if (!this.poolService.allowManagePools(toolManager.getCurrentPlacement().getContext()))
 		{
 			// redirect to error
@@ -126,21 +128,31 @@ public class ImportQtiView extends ControllerImpl
 		{
 			// the DOM is in the upload
 			Document doc = upload.getUpload();
+
 			try
 			{
-				this.importQtiService.importPool(doc, toolManager.getCurrentPlacement().getContext());
+				String unzipBackUpLocation = upload.getUnzipLocation();
+				if ("".equals(unzipBackUpLocation))
+				{
+					this.importQtiService.importPool(doc, toolManager.getCurrentPlacement().getContext());
+				}
+				else
+				{
+					// QTI 2 zip file
+					this.importQti2Service.importPool(doc, toolManager.getCurrentPlacement().getContext(), unzipBackUpLocation);
+					upload.deleteFiles(new File(unzipBackUpLocation));
+				}
 			}
 			catch (AssessmentPermissionException e)
 			{
 				// redirect to error
 				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
 				return;
-			}
-
-			destination = "/pools/" + poolsSort;
+			}		
+			destination = "/" + returnUrl + "/" + sort;
 		}
-
 		res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
+		
 	}
 
 	/**
@@ -152,6 +164,17 @@ public class ImportQtiView extends ControllerImpl
 	public void setImportQtiService(ImportQtiService service)
 	{
 		this.importQtiService = service;
+	}
+
+	/**
+	 * Set the ImportQti2Service
+	 * 
+	 * @param service
+	 *        the ImportQti2Service.
+	 */
+	public void setImportQti2Service(ImportQti2Service importQti2Service)
+	{
+		this.importQti2Service = importQti2Service;
 	}
 
 	/**

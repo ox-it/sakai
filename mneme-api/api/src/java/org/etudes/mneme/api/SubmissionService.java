@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -47,7 +47,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 */
 	enum GetUserContextSubmissionsSort
 	{
-		dueDate_a, dueDate_d, status_a, status_d, title_a, title_d, type_a, type_d
+		dueDate_a, dueDate_d, status_a, status_d, title_a, title_d, type_a, type_d, published_a, published_d
 	}
 
 	/** Phantom submissions start with this, and are followed by the assessment id, another slash, then the user id. */
@@ -266,6 +266,25 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 * @return A sorted List<Answer> of the answers.
 	 */
 	List<Answer> findSubmissionAnswers(Assessment assessment, Question question, FindAssessmentSubmissionsSort sort, Integer pageNum, Integer pageSize);
+	
+	/**
+	 * Find the submission answers to the assessment and question made by all users, answered, in completed submissions.
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 * @param question
+	 *        The question.
+	 * @param official
+	 *        if TRUE, clump multiple submissions by the same user behind the best one, else include all.        
+	 * @param sort
+	 *        The sort order.
+	 * @param pageNum
+	 *        The page number (1 based) to display, or null to disable paging and get them all.
+	 * @param pageSize
+	 *        The number of items for the requested page, or null if we are not paging.
+	 * @return A sorted List<Answer> of the answers.
+	 */
+	List<Answer> findSubmissionAnswers(Assessment assessment, Question question, Boolean official, FindAssessmentSubmissionsSort sort, Integer pageNum, Integer pageSize);
 
 	/**
 	 * Find this answer.

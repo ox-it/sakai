@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -25,6 +25,7 @@
 package org.etudes.mneme.tool;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,6 +42,7 @@ import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.GradesService;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.PartDetail;
+import org.etudes.mneme.api.ReviewShowCorrect;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
@@ -166,6 +168,19 @@ public class AssessmentSettingsView extends ControllerImpl
 		if (focus != null) context.addFocusId(focus);
 		new CKSetup().setCKCollectionAttrib(getDocsPath(), toolManager.getCurrentPlacement().getContext());
 
+		// if coming from edit, offer prev/next based on the archived list
+		if (destination.startsWith("/assessment_edit"))
+		{
+			figurePrevNext(context, destination, assessment, true);
+		}
+
+		// if coming from assessments, we offer prev/next
+		// assessments/0A
+		else if (destination.startsWith("/assessments"))
+		{
+			figurePrevNext(context, destination, assessment, false);
+		}
+		
 		// render
 		uiService.render(ui, context);
 	}
@@ -256,6 +271,8 @@ public class AssessmentSettingsView extends ControllerImpl
 			destination = context.getDestination();
 		}
 
+		//If Show Summary of Data is checked,
+		if (assessment.getReview().getShowSummary()) assessment.getReview().setShowCorrectAnswer(ReviewShowCorrect.yes);
 		// commit the save
 		try
 		{
@@ -326,5 +343,80 @@ public class AssessmentSettingsView extends ControllerImpl
 	public void setToolManager(ToolManager toolManager)
 	{
 		this.toolManager = toolManager;
-}
+    }
+	
+	/**
+	 * Figure the next and prev when coming from pool edit
+	 * 
+	 * @param context
+	 *        The context.
+	 * @param destination
+	 *        The return path.
+	 * @param question
+	 *        The question.
+	 */
+	protected void figurePrevNext(Context context, String destination, Assessment assessment, boolean edit)
+	{
+		List<Assessment> assessments = null;
+
+		String[] params = StringUtil.split(destination, "/");
+		String sortCode = null;
+
+		// if from the /assessments view
+		if (!edit)
+		{
+			// default is due date, ascending
+			sortCode = (params.length > 2) ? params[2] : "0A";
+			if (sortCode.length() != 2) return;
+
+		}
+		// if from assessments_edit view
+		else
+		{
+			// default is due date, ascending
+			sortCode = (params.length > 5) ? params[5] : "0A";
+			if (sortCode.length() != 2) return;
+
+		}
+		
+		AssessmentService.AssessmentsSort sort = AssessmentsView.figureSort(sortCode);
+
+		// collect the assessments in this context
+		assessments = this.assessmentService.getContextAssessments(this.toolManager.getCurrentPlacement().getContext(), sort, Boolean.FALSE);
+
+		// figure this one's position (0 based)
+		int position = 0;
+		for (Assessment a : assessments)
+		{
+			if (a.equals(assessment)) break;
+			position++;
+		}
+
+		// figure prev and next, w/ wrap
+		Assessment prev = null;
+		if (position > 0)
+		{
+			prev = assessments.get(position - 1);
+		}
+		else
+		{
+			prev = assessments.get(assessments.size() - 1);
+		}
+
+		Assessment next = null;
+		if (position < assessments.size() - 1)
+		{
+			next = assessments.get(position + 1);
+		}
+		else
+		{
+			next = assessments.get(0);
+		}
+
+		if (prev != null) context.put("prevAssessmentId", prev.getId());
+		if (next != null) context.put("nextAssessmentId", next.getId());
+
+		context.put("position", Integer.valueOf(position + 1));
+		context.put("size", Integer.valueOf(assessments.size()));
+	}
 }

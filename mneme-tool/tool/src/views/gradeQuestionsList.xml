@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -82,6 +82,14 @@
 				<navigation title="grade-stats-title" style="LINK" accessKey="grade-stats-access" submit="TRUE">
 					<icon icon="/icons/stats.png" style="LEFT" />
 					<destination template="/assessment_stats/{0}/{1}">
+						<model ref="sort_grades" />
+						<model ref="assessment.id" />
+					</destination>
+				</navigation>
+				<navigation disabled="TRUE" title="bar" />
+				<navigation title="export-data-title" style="LINK" accessKey="export-data-access" submit="TRUE">
+					<icon icon="/icons/export.png" style="LEFT" />
+					<destination template="/export_data/{0}/{1}">
 						<model ref="sort_grades" />
 						<model ref="assessment.id" />
 					</destination>

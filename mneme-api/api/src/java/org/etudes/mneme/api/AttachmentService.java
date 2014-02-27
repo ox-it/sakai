@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -55,6 +55,22 @@ public interface AttachmentService
 
 	/** The download all submissions for an assignment question download request string. */
 	public final static String DOWNLOAD_ALL_SUBMISSIONS_QUESTION = "sq";
+	
+	/** Prefix for Export Summary */
+	public final static String EXPORT_SUMMARY = "ex";
+	
+	/* Prefix for Item Analysis */
+	public final static String ITEM_ANALYSIS = "it";
+	
+	/* Prefix for Assessment Export */
+	public final static String ASMT_EXPORT = "ae";
+	
+	/* Prefix for Assessment Stats */
+	public final static String ASMT_STATS = "as";
+
+	/* Prefix for Certificate */
+	public final static String ASMT_CERT = "ce";
+
 
 	/** Application code for Mneme in ContentHosting's private area. */
 	static final String MNEME_APPLICATION = "mneme";

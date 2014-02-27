@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -27,6 +27,7 @@ package org.etudes.mneme.api;
 import java.util.Date;
 import java.util.List;
 
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -64,6 +65,13 @@ public interface Assessment
 	Boolean getArchived();
 
 	/**
+	 * Get Reference for Assessment Statistics info
+	 * 
+	 * @return Reference object
+	 */
+	Reference getAsmtStatsReference();
+
+	/**
 	 * Access the context of this assessment.
 	 * 
 	 * @return The assessment's context string.
@@ -83,6 +91,13 @@ public interface Assessment
 	 * @return The availability dates for the assessment.
 	 */
 	AssessmentDates getDates();
+
+	/**
+	 * Get reference for export summary information
+	 * 
+	 * @return Reference object
+	 */
+	Reference getExportSummaryReference();
 
 	/**
 	 * @return TRUE if this is marked as a formal course evaluation, FALSE if not.
@@ -191,6 +206,12 @@ public interface Assessment
 	 * @return TRUE if the assessment is valid, FALSE if not.
 	 */
 	Boolean getIsValid();
+
+	/**
+	 * Get reference for item analysis info
+	 * @return Reference object
+	 */
+	Reference getItemAnalysisReference();
 
 	/**
 	 * Check if the end user has never made initial settings.
@@ -383,6 +404,20 @@ public interface Assessment
 	AssessmentType getType();
 
 	/**
+	 * Access setting that determines if minimum score has been specified for issuing certificate
+	 * 
+	 * @return TRUE if min score is set, FALSE if not
+	 */
+	Boolean getMinScoreSet();
+	
+	/**
+	 * Access the minimum score specified to award certificates.
+	 * 
+	 * @return The minimum score, if specified or null.
+	 */
+	Integer getMinScore();
+
+	/**
 	 * Set the type without enforcing any defaults.
 	 * 
 	 * @param type
@@ -530,7 +565,7 @@ public interface Assessment
 	 *        The time limit for the assessment, or null for unlimited.
 	 */
 	void setTimeLimit(Long limit);
-
+	
 	/**
 	 * Set the title of this assessment.
 	 * 
@@ -538,7 +573,7 @@ public interface Assessment
 	 *        The assessment's title.
 	 */
 	void setTitle(String title);
-
+	
 	/**
 	 * Set the number of submissions allowed for limited submissions.
 	 * 
@@ -546,7 +581,7 @@ public interface Assessment
 	 *        The number of submissions allowed, or null to make it unlimited.
 	 */
 	void setTries(Integer count);
-
+	
 	/**
 	 * Set the type of this assessment.
 	 * 
@@ -554,4 +589,29 @@ public interface Assessment
 	 *        The assessment's type.
 	 */
 	void setType(AssessmentType type);
+	
+	/**
+	 * Set setting that determines if minimum score has been specified for issuing certificate
+	 * 
+	 * @param setting
+	 *        TRUE to take into account min score, FALSE to not.
+	 */
+	void setMinScoreSet(Boolean setting);
+
+	/**
+	 * Set the minimum score in percent.
+	 * 
+	 * @param minScore
+	 *        The min score, or null.
+	 */
+	void setMinScore(Integer minScore);
+
+	
+	/**
+	 * Checks to see if the email address entered is valid in terms of format
+	 * 
+	 * @param emailAddr Email address to check
+	 * @return true if email address is valid, false if not
+	 */
+	boolean isEmailValid(String emailAddr);
 }

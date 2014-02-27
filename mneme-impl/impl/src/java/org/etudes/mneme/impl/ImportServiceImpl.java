@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -48,6 +48,7 @@ import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.Ent;
 import org.etudes.mneme.api.GradesService;
 import org.etudes.mneme.api.ImportService;
+import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.MnemeTransferService;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.Pool;
@@ -74,6 +75,7 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
@@ -152,6 +154,17 @@ public class ImportServiceImpl implements ImportService
 		}
 	}
 
+	/**
+	 * Sort the Ents by term id
+	 */
+	protected class EntTermComparator implements Comparator
+	{
+		public int compare(Object arg0, Object arg1)
+		{
+			return (int) (((Ent) arg1).getTermId() - ((Ent) arg0).getTermId());
+		}
+	}
+
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(ImportServiceImpl.class);
 
@@ -179,10 +192,10 @@ public class ImportServiceImpl implements ImportService
 	/** Messages. */
 	protected transient InternationalizedMessages messages = null;
 
-	/** Configuration: offer import from assignments support. */
-	protected Boolean offerAssignment = Boolean.FALSE;
-
 	/** Configuration: offer import from Samigo support. */
+	protected Boolean offerAssignment = Boolean.TRUE;
+
+	/** Configuration: offer import from assignments support. */
 	protected Boolean offerSamigo = Boolean.TRUE;
 
 	/** Dependency: PoolService */
@@ -253,17 +266,11 @@ public class ImportServiceImpl implements ImportService
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<Ent> getAssignments(String context)
-	{
-		return new ArrayList<Ent>();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public List<Ent> getAssignmentSites(String userId)
 	{
-		return new ArrayList<Ent>();
+		if (userId == null) userId = sessionManager.getCurrentSessionUserId();
+
+		return getAuthSites(userId, "asn.new", null);
 	}
 
 	/**
@@ -374,13 +381,6 @@ public class ImportServiceImpl implements ImportService
 			// import the questions
 			importSamigoAssessmentQuestions(id, pool);
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void importAssignment(String id, String context, boolean draftSource) throws AssessmentPermissionException
-	{
 	}
 
 	/**
@@ -1348,26 +1348,27 @@ public class ImportServiceImpl implements ImportService
 			// skip this one
 			if ((excludeContext != null) && siteRef.getId().equals(excludeContext)) continue;
 
-			// get the site display
+				// get the site display
 			String display = this.siteService.getSiteDisplay(siteRef.getId());
 
-			// take only the site title (between first and last quotes)
-			int firstPos = display.indexOf("\"");
-			int lastPos = display.lastIndexOf("\"");
-			if ((firstPos != -1) && (lastPos != -1))
-			{
-				display = display.substring(firstPos + 1, lastPos);
-			}
+				// take only the site title (between first and last quotes)
+				int firstPos = display.indexOf("\"");
+				int lastPos = display.lastIndexOf("\"");
+				if ((firstPos != -1) && (lastPos != -1))
+				{
+					display = display.substring(firstPos + 1, lastPos);
+				}
 
-			// record for return
+				// record for return
 			Ent ent = new EntImpl(siteRef.getId(), display);
-			rv.add(ent);
-		}
+				rv.add(ent);
+			}
 
 		// sort
 		Collections.sort(rv, new EntComparator());
 
 		return rv;
+
 	}
 
 	/**

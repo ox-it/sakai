@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -360,13 +360,15 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		if (!getIsValid()) return this.text;
 
 		String text = this.text;
+		text = text.replaceAll("\\{\\{", "_mnemelb_");
+		text = text.replaceAll("\\}\\}", "_mnemerb_");
 		StringBuffer rv = new StringBuffer();
 
 		while (text.indexOf("{") > -1)
 		{
 			int left = text.indexOf("{");
 			int right = text.indexOf("}");
-
+			
 			String tmp = text.substring(0, left);
 			text = text.substring(right + 1);
 			rv.append(tmp);
@@ -378,10 +380,13 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 				break;
 			}
 		}
-
+		
 		rv.append(text);
+		String completeStr = rv.toString();
+		completeStr = completeStr.replaceAll("_mnemelb_", "{");
+		completeStr = completeStr.replaceAll("_mnemerb_", "}");
 
-		return rv.toString();
+		return completeStr;
 	}
 
 	/**
@@ -438,9 +443,11 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		Decision[] orInc = new Decision[2];
 		orInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"));
 		orInc[1] = this.uiService.newAndDecision().setRequirements(innerAndInc);
-		Decision[] andInc = new Decision[2];
+		Decision[] andInc = new Decision[4];
 		andInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.question.hasCorrect"));
 		andInc[1] = this.uiService.newOrDecision().setOptions(orInc);
+		andInc[2] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("showIncorrect")).setReversed();
+		andInc[3] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.question.part.assessment.allowedPoints"));
 		answerKey.setIncluded(this.uiService.newAndDecision().setRequirements(andInc));
 
 		Section first = this.uiService.newSection();
@@ -597,6 +604,12 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		entityList.setEmptyTitle("no-answer");
 
 		PropertyColumn propCol = this.uiService.newPropertyColumn();
+		propCol.setRight();
+		propCol.setProperty(this.uiService.newPropertyReference().setReference("answer")
+				.setFormatDelegate(this.uiService.getFormatDelegate("FormatFillinPositionChoice", "sakai.mneme")));
+		entityList.addColumn(propCol);
+
+		propCol = this.uiService.newPropertyColumn();
 		propCol.setProperty(this.uiService.newPropertyReference().setReference("answer")
 				.setFormatDelegate(this.uiService.getFormatDelegate("FormatFillinPositionCorrect", "sakai.mneme")));
 		entityList.addColumn(propCol);
@@ -801,10 +814,11 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		boolean fillinSeen = false;
 
 		boolean insideBrackets = false;
+		text = text.replaceAll("\\{\\{", "_mnemelb_");
+		text = text.replaceAll("\\}\\}", "_mnemerb_");
 		for (int i = 0; i < text.length(); i++)
 		{
 			char c = text.charAt(i);
-
 			// if we are outside of brackets, see if we are going inside, and check if we have outside text
 			if (!insideBrackets)
 			{
@@ -965,6 +979,9 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 
 		// remove any html comments so we don't accidently consider brackets in there
 		alltext = unHtmlComment(alltext);
+		
+		alltext = alltext.replaceAll("\\{\\{", "_mnemelb_");
+		alltext = alltext.replaceAll("\\}\\}", "_mnemerb_");
 
 		while (alltext.indexOf("{") > -1)
 		{
@@ -978,6 +995,8 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 			// save the newlines which convertFormattedTextToPlaintext just strips out
 			tmp = tmp.replace("\n", " ");
 			tmp = FormattedText.convertFormattedTextToPlaintext(tmp);
+			tmp = tmp.replaceAll("_mnemelb_", "{");
+			tmp = tmp.replaceAll("_mnemerb_", "}");
 
 			// Note: convertFormattedTextToPlaintext converts %nbsp; to unicode 160
 			tmp = tmp.replace((char) 160, ' ');

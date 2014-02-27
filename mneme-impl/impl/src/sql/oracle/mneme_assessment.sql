@@ -3,7 +3,7 @@
 -- $Id$
 --**********************************************************************************
 --
--- Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+-- Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
 -- 
 -- Portions completed before September 1, 2008
 -- Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -57,6 +57,7 @@ CREATE TABLE MNEME_ASSESSMENT
 	REVIEW_DATE				NUMBER,
 	REVIEW_SHOW_CORRECT		CHAR (1),
 	REVIEW_SHOW_FEEDBACK	CHAR (1),
+	REVIEW_SHOW_SUMMARY	    CHAR (1),
 	REVIEW_TIMING			VARCHAR2 (32),
 	SHOW_HINTS				CHAR (1),
 	SUBMIT_PRES_TEXT		CLOB,
@@ -70,7 +71,10 @@ CREATE TABLE MNEME_ASSESSMENT
 	FORMAL_EVAL				CHAR (1),
 	RESULTS_EMAIL			VARCHAR2 (255),
 	RESULTS_SENT			NUMBER,
-	FROZEN					CHAR (1)
+	FROZEN					CHAR (1),
+	SHUFFLE_CHOICES			CHAR (1),
+	MIN_SCORE_SET           CHAR (1),
+	MIN_SCORE               INT UNSIGNED
 );
 
 CREATE SEQUENCE MNEME_ASSESSMENT_SEQ;

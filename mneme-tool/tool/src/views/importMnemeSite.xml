@@ -8,7 +8,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2010 Etudes, Inc.
+ * Copyright (c) 2010, 2014 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,21 +54,34 @@
 
 		<section>
 			<container>
-
-				<selection>
-					<model ref="selectedSite.value" />
-					<singleSelect>
+            <entityList style="FLAT">
+			<iterator name="site" model="sites" />
+			<emptyTitle>
+				<message selector="no-sites" />
+			</emptyTitle>
+			<headings color="#D0D0D0" padding="TRUE" displaywhendif="TRUE">
+				<heading>
+				    <decision type="true" />
+					<message selector="header">
+						<model ref="site.termDescription" type="text" />
+					</message>
+				</heading>
+			</headings>
+			<columns>
+				<selectionColumn multiple="FALSE" id="SELECTION" pixels="16">
+				    <singleSelect>
 						<decision type="true" />
 					</singleSelect>
-					<selectionModel model="sites" name="site">
-						<valueMessage>
-							<message model="site.id" />
-						</valueMessage>
-						<displayMessage>
-							<message model="site.description" />
-						</displayMessage>
-					</selectionModel>
-				</selection>
+					<value>
+						<model type="text" ref="site.id" />
+					</value>
+					<label>
+					  <message model="site.description" />
+					</label>  
+					<model ref="selectedSite.value" />
+				</selectionColumn>
+		   </columns>
+		   </entityList>
 
 			</container>
 		</section>

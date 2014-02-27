@@ -6,7 +6,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -53,7 +53,7 @@
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
  		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
-
+        <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
 		<property name="bundle"><value>mnemeImpl</value></property>
 		<property name="securityServiceSakai"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
@@ -229,6 +229,7 @@
 		
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
 		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
 
 		<!-- for 2.4 only: <property name="gradebookService"><ref bean="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/></property> -->
@@ -356,6 +357,7 @@
 		singleton="true">
 		
 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="exportService"><ref bean="org.etudes.mneme.api.ExportQtiService"/></property>
 		<property name="gradesService"><ref bean="org.etudes.mneme.api.GradesService"/></property>
 		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
 		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
@@ -532,6 +534,20 @@
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 	</bean>	
 
+	<bean id="org.etudes.mneme.api.ExportQtiService" 
+		class="org.etudes.mneme.impl.ExportQtiServiceImpl"
+		init-method="init" 
+		destroy-method="destroy" 
+		singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService" /></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService" />	</property>
+		<property name="securityServiceSakai"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+		<property name="contentHostingService">	<ref bean="org.sakaiproject.content.api.ContentHostingService" /></property>
+		
+		<property name="bundle"><value>mnemeImpl</value></property>
+	</bean>
+
 	<bean id="org.etudes.mneme.api.ImportService"
 		class="org.etudes.mneme.impl.ImportServiceImpl"
 		init-method="init"
@@ -556,7 +572,7 @@
 
 		<property name="bundle"><value>mnemeImpl</value></property>
 		<property name="samigoSupport"><value>TRUE</value></property>
-		<property name="assignmentSupport"><value>FALSE</value></property>
+		<property name="assignmentSupport"><value>TRUE</value></property>
  	</bean>
 
 	<bean id="org.etudes.mneme.api.ImportQtiService"
@@ -577,6 +593,26 @@
 		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
 		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
 		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>		
+
+		<property name="bundle"><value>mnemeImpl</value></property>
+ 	</bean>
+ 	
+ 	<bean id="org.etudes.mneme.api.ImportQti2Service"
+		class="org.etudes.mneme.impl.ImportQti2ServiceImpl"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>		
 
 		<property name="bundle"><value>mnemeImpl</value></property>
@@ -719,6 +755,18 @@
  		<property name="toolId"><value>sakai.mneme</value></property>
 	</bean>
 
+	<bean id="FormatChoice"
+			class="org.etudes.mneme.impl.FormatChoiceDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatChoice</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
 	<bean id="AccessFillinPositions"
 			class="org.etudes.mneme.impl.AccessFillinPositionsDelegate"
 			init-method="init"
@@ -776,6 +824,18 @@
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
  		<property name="id"><value>FormatFillinPositionCorrect</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="FormatFillinPositionChoice"
+			class="org.etudes.mneme.impl.FormatFillinPositionChoiceDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatFillinPositionChoice</value></property>
  		<property name="toolId"><value>sakai.mneme</value></property>
 	</bean>
 
@@ -860,6 +920,18 @@
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
  		<property name="id"><value>FormatMatchCount</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="FormatMatchUserChoice"
+			class="org.etudes.mneme.impl.FormatMatchUserChoiceDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatMatchUserChoice</value></property>
  		<property name="toolId"><value>sakai.mneme</value></property>
 	</bean>
 

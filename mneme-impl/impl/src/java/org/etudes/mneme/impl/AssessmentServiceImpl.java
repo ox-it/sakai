@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -24,6 +24,7 @@
 
 package org.etudes.mneme.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -34,6 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,6 +45,7 @@ import org.etudes.mneme.api.AssessmentPolicyException;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.AttachmentService;
+import org.etudes.mneme.api.ExportQtiService;
 import org.etudes.mneme.api.GradesRejectsAssessmentException;
 import org.etudes.mneme.api.GradesService;
 import org.etudes.mneme.api.MnemeService;
@@ -54,6 +57,7 @@ import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.ReviewTiming;
 import org.etudes.mneme.api.SecurityService;
+import org.etudes.mneme.api.Settings;
 import org.etudes.mneme.api.SubmissionService;
 import org.etudes.util.api.Translation;
 import org.sakaiproject.db.api.SqlService;
@@ -81,6 +85,9 @@ public class AssessmentServiceImpl implements AssessmentService
 	/** Dependency: EventTrackingService */
 	protected EventTrackingService eventTrackingService = null;
 
+	/** Dependency: ExportQtiService */
+	protected ExportQtiServiceImpl  exportService = null;
+	
 	/** Dependency: GradesService */
 	protected GradesService gradesService = null;
 
@@ -346,6 +353,14 @@ public class AssessmentServiceImpl implements AssessmentService
 	/**
 	 * {@inheritDoc}
 	 */
+	public void exportAssessments(String context, String[] ids, ZipOutputStream zip) throws AssessmentPermissionException, IOException
+	{
+		this.exportService.exportAssessments(context, ids, zip);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<Assessment> getArchivedAssessments(String context)
 	{
 		if (context == null) throw new IllegalArgumentException();
@@ -469,7 +484,8 @@ public class AssessmentServiceImpl implements AssessmentService
 		{
 			public int compare(Object arg0, Object arg1)
 			{
-				int rv = ((User) arg0).getSortName().compareTo(((User) arg1).getSortName());
+				int rv = ((User) arg0).getSortName().compareToIgnoreCase(((User) arg1).getSortName());
+				
 				return rv;
 			}
 		});
@@ -538,6 +554,26 @@ public class AssessmentServiceImpl implements AssessmentService
 		save(rv);
 
 		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Assessment newEmptyAssessment(String context)
+	{
+		if (M_log.isDebugEnabled()) M_log.debug("newEmptyAssessment: ");
+		AssessmentImpl rv = this.storage.newAssessment();
+		rv.setContext(context);
+		
+		return rv;
+	}
+	
+	public Settings newEmptySettings()
+	{
+		if (M_log.isDebugEnabled()) M_log.debug("newEmptySettings: ");
+		SettingsImpl rv = new SettingsImpl();
+		
+		return (Settings)rv;
 	}
 
 	/**
@@ -922,6 +958,10 @@ public class AssessmentServiceImpl implements AssessmentService
 	public void setEventTrackingService(EventTrackingService service)
 	{
 		eventTrackingService = service;
+	}
+
+	public void setExportService(ExportQtiServiceImpl exportService) {
+		this.exportService = exportService;
 	}
 
 	/**

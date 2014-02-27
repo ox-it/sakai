@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -143,6 +143,16 @@ public class ListView extends ControllerImpl
 			else if ((sortCode.charAt(0) == '3') && (sortCode.charAt(1) == 'D'))
 			{
 				sort = SubmissionService.GetUserContextSubmissionsSort.type_d;
+			}
+			
+			// 4 is published status
+			else if ((sortCode.charAt(0) == '4') && (sortCode.charAt(1) == 'A'))
+			{
+				sort = SubmissionService.GetUserContextSubmissionsSort.published_a;
+			}
+			else if ((sortCode.charAt(0) == '4') && (sortCode.charAt(1) == 'D'))
+			{
+				sort = SubmissionService.GetUserContextSubmissionsSort.published_d;
 			}
 
 			else

@@ -125,6 +125,10 @@ public class AssessmentInvalidView extends ControllerImpl
 			// could be missing dates with auto-send
 			if (assessment.getResultsEmail() != null)
 			{
+				if (!assessment.isEmailValid(assessment.getResultsEmail()))
+				{
+					msg.append("<li>" + msgs.getString("email-invalid") + "</li>");
+				}
 				if ((assessment.getDates().getDueDate() == null) && (assessment.getDates().getAcceptUntilDate() == null))
 				{
 					msg.append("<li>" + msgs.getString("email-results-needs-dates") + "</li>");

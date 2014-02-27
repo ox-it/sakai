@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -103,6 +103,7 @@ public class QuestionScoreDelegate extends FormatDelegateImpl
 		if (grading == null) grading = Boolean.FALSE;
 
 		String selector = "worth-points";
+		boolean partialCorrect = false;
 
 		// if we are doing review just now, and if we are needing review and it's set, and if the submission has been graded
 		if ((review || grading) && (submission != null) && (submission.getIsReleased() || grading))
@@ -120,8 +121,11 @@ public class QuestionScoreDelegate extends FormatDelegateImpl
 
 			if (answer != null)
 			{
+				boolean showCorrect = answer.getShowCorrectReview();
+				boolean showPartialCorrect = answer.getShowPartialCorrectReview();
+				
 				// if we are doing question score feedback
-				if (answer.getShowCorrectReview() || grading)
+				if (showCorrect || showPartialCorrect || grading)
 				{
 					// the auto-scores for this answered question
 					Float score = null;
@@ -139,6 +143,7 @@ public class QuestionScoreDelegate extends FormatDelegateImpl
 
 					selector = "of-points";
 				}
+				if (showPartialCorrect && !showCorrect && !answer.getQuestion().getType().equals("mneme:TrueFalse")) partialCorrect = true;
 			}
 		}
 
@@ -151,6 +156,8 @@ public class QuestionScoreDelegate extends FormatDelegateImpl
 		Object[] args = new Object[1];
 		args[0] = formatScore(context, score);
 		rv.append(context.getMessages().getFormattedMessage(selector, args));
+
+		if (partialCorrect) rv.append(context.getMessages().getFormattedMessage("partial-correct", args));
 
 		return rv.toString();
 	}

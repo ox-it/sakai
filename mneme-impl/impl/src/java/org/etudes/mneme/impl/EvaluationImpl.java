@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -61,7 +61,7 @@ public abstract class EvaluationImpl implements Evaluation
 			{
 				String comment = m.group(0);
 				comment = comment.substring(2, comment.length() - 2);
-				m.appendReplacement(sb, "<span style=\"color:#C11B17\">" + comment + "</span>");
+				m.appendReplacement(sb, "<span style=\"color:#C11B17;font-weight:bold\">" + comment + "</span>");
 			}
 		}
 		m.appendTail(sb);

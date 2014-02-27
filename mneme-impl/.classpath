@@ -29,5 +29,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/etudes-util-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/etudes-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/email-api"/>
+	<classpathentry kind="var" path="MAVEN_REPO/poi/jars/poi-2.5.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

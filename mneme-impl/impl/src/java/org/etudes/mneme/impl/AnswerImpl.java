@@ -3,17 +3,17 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
- * 
+ * Copyright (c) 2008, 2013 Etudes, Inc.
+ *
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -85,7 +85,7 @@ public class AnswerImpl implements Answer
 
 	/**
 	 * Construct.
-	 * 
+	 *
 	 * @param other
 	 *        The other to copy.
 	 */
@@ -212,6 +212,25 @@ public class AnswerImpl implements Answer
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getShowPartialCorrectReview()
+	{
+		ReviewShowCorrect show = this.getQuestion().getPart().getAssessment().getReview().getShowCorrectAnswer();
+		if (show.equals(ReviewShowCorrect.yes)) return Boolean.TRUE;
+		if (show.equals(ReviewShowCorrect.no)) return Boolean.FALSE;
+
+		// for the correct only setting, check answer (complete) correctness
+		Boolean correct = this.answerHandler.getPartiallyCorrect();
+
+		// null indicates correctness does not apply (likert, essay). In which case, we show.
+		if (correct == null) return Boolean.TRUE;
+
+		// show only if completely correct
+		return correct;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Submission getSubmission()
 	{
 		return this.submission;
@@ -277,7 +296,7 @@ public class AnswerImpl implements Answer
 
 	/**
 	 * Dependency: AttachmentService.
-	 * 
+	 *
 	 * @param service
 	 *        The AttachmentService.
 	 */
@@ -300,7 +319,7 @@ public class AnswerImpl implements Answer
 
 	/**
 	 * Dependency: MnemeService.
-	 * 
+	 *
 	 * @param service
 	 *        The MnemeService.
 	 */
@@ -379,7 +398,7 @@ public class AnswerImpl implements Answer
 
 	/**
 	 * Compute the auto-score
-	 * 
+	 *
 	 * @return The auto-score.
 	 */
 	protected Float computeAutoScore()
@@ -395,7 +414,7 @@ public class AnswerImpl implements Answer
 
 	/**
 	 * Access the part id.
-	 * 
+	 *
 	 * @return The part id.
 	 */
 	protected String getPartId()
@@ -405,7 +424,7 @@ public class AnswerImpl implements Answer
 
 	/**
 	 * Initialize the id.
-	 * 
+	 *
 	 * @param id
 	 *        The id.
 	 */
@@ -416,7 +435,7 @@ public class AnswerImpl implements Answer
 
 	/**
 	 * Initialize the part id.
-	 * 
+	 *
 	 * @param id
 	 *        The part id.
 	 */
@@ -427,7 +446,7 @@ public class AnswerImpl implements Answer
 
 	/**
 	 * Initialize the question to which this is an answer.
-	 * 
+	 *
 	 * @param question
 	 *        The question to which this is an answer.
 	 */
@@ -450,7 +469,7 @@ public class AnswerImpl implements Answer
 
 	/**
 	 * Initialize the question id and type specific handler.
-	 * 
+	 *
 	 * @param questionId
 	 *        The question id.
 	 * @param type
@@ -474,7 +493,7 @@ public class AnswerImpl implements Answer
 
 	/**
 	 * Init the stored auto-score.
-	 * 
+	 *
 	 * @param score
 	 *        The stored auto-score.
 	 */
@@ -485,7 +504,7 @@ public class AnswerImpl implements Answer
 
 	/**
 	 * Initialize the submission this answer is part of.
-	 * 
+	 *
 	 * @param submission
 	 *        The submission this answer is part of.
 	 */
@@ -496,7 +515,7 @@ public class AnswerImpl implements Answer
 
 	/**
 	 * Establish the type-specific answer handler.
-	 * 
+	 *
 	 * @param answerHandler
 	 *        The type-specific answer handler.
 	 */
@@ -507,7 +526,7 @@ public class AnswerImpl implements Answer
 
 	/**
 	 * Set as a copy of another
-	 * 
+	 *
 	 * @param other
 	 *        The other to copy.
 	 */

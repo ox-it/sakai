@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -53,11 +53,25 @@ public interface AssessmentReview
 	ReviewShowCorrect getShowCorrectAnswer();
 
 	/**
+	 * Access the setting that controls if review includes only incorrect questions.
+	 * 
+	 * @return TRUE to include only incorrect questions, FALSE to not.
+	 */
+	ReviewShowCorrect getShowIncorrectQuestions();
+
+	/**
 	 * Access setting that controls if review includes the authored correct / incorrect feedback.
 	 * 
 	 * @return TRUE to include the correct / incorrect feedback in review, FALSE to not.
 	 */
 	Boolean getShowFeedback();
+
+	/**
+	 * Access setting that controls if review includes summary of data visible to students.
+	 * 
+	 * @return TRUE to include the summary in review, FALSE to not.
+	 */
+	Boolean getShowSummary();
 
 	/**
 	 * Access the timing setting that tells when review can happen.
@@ -83,12 +97,28 @@ public interface AssessmentReview
 	void setShowCorrectAnswer(ReviewShowCorrect setting);
 
 	/**
+	 * Set the setting that controls if review includes only incorect questions.
+	 * 
+	 * @param setting
+	 *        the setting.
+	 */
+	void setShowIncorrectQuestions(ReviewShowCorrect setting);
+
+	/**
 	 * Set setting that controls if review includes the authored correct / incorrect feedback.
 	 * 
 	 * @param setting
 	 *        TRUE to include the correct / incorrect feedback in review, FALSE to not.
 	 */
 	void setShowFeedback(Boolean setting);
+
+	/**
+	 * Set setting that controls if review includes the summary of data visible to students.
+	 * 
+	 * @param setting
+	 *        TRUE to include the summary of data in review, FALSE to not.
+	 */
+	void setShowSummary(Boolean setting);
 
 	/**
 	 * Set the timing setting that tells when review can happen.

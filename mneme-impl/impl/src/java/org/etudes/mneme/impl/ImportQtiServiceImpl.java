@@ -1356,7 +1356,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			}
 
 			if (presentation == null) return false;
-
+			
 			// reponse_lid
 			XPath reponseLidPath = new DOMXPath("presentation//response_lid");
 			List responseLids = reponseLidPath.selectNodes(item);
@@ -1372,6 +1372,11 @@ public class ImportQtiServiceImpl implements ImportQtiService
 
 			if ("Multiple".equalsIgnoreCase(rcardinality)) singleAnswer = false;
 
+			XPath shufflePath = new DOMXPath(".//render_choice/@shuffle");
+			String shuffleValue = StringUtil.trimToNull(shufflePath.stringValueOf(responseLidElement));
+			shuffle = "yes".equalsIgnoreCase(shuffleValue);
+
+			
 			// answers - w/ id
 			Map<String, String> answerMap = new LinkedHashMap<String, String>();
 			XPath answersPath = new DOMXPath(".//render_choice//response_label");
@@ -1388,6 +1393,9 @@ public class ImportQtiServiceImpl implements ImportQtiService
 				{
 					answerMap.put(id, answer);
 				}
+				
+				String rShuffle = StringUtil.trimToNull(answerElement.getAttribute("rshuffle"));
+				if ("No".equalsIgnoreCase(rShuffle)) shuffle = false;
 			}
 
 			if (answerMap.size() < 2) return false;

@@ -3,7 +3,7 @@
 -- $Id$
 --**********************************************************************************
 --
--- Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+-- Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
 -- 
 -- Portions completed before September 1, 2008
 -- Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -57,6 +57,7 @@ CREATE TABLE MNEME_ASSESSMENT
 	REVIEW_DATE				BIGINT,
 	REVIEW_SHOW_CORRECT		CHAR (1),
 	REVIEW_SHOW_FEEDBACK	CHAR (1),
+	REVIEW_SHOW_SUMMARY	    CHAR (1),
 	REVIEW_TIMING			VARCHAR (32),
 	SHOW_HINTS				CHAR (1),
 	SUBMIT_PRES_TEXT		LONGTEXT,
@@ -71,7 +72,9 @@ CREATE TABLE MNEME_ASSESSMENT
 	RESULTS_EMAIL			VARCHAR (255),
 	RESULTS_SENT			BIGINT,
 	FROZEN					CHAR (1),
-	SHUFFLE_CHOICES			CHAR (1)
+	SHUFFLE_CHOICES			CHAR (1),
+	MIN_SCORE_SET           CHAR (1),
+	MIN_SCORE               INT UNSIGNED
 );
 
 CREATE INDEX MNEME_ASSESSMENT_IDX_CAMHP ON MNEME_ASSESSMENT

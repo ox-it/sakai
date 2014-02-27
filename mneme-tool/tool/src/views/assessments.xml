@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -237,9 +237,22 @@
 						</navigation>
 						<navigation title="import-title" style="LINK" submit="TRUE">
 							<icon icon="/icons/import_assessment.png" style="LEFT" />
-							<destination template="/import_mneme_site/assessments/{0}{1}">
+							<destination template="/assessment_import/assessments/{0}{1}">
 								<model ref="sort_column" />
 								<model ref="sort_direction" />
+							</destination>
+						</navigation>	
+						<navigation title="export-title" selectRequirement="SOME" selectRequirementMessage="export-failed-requirements" style="LINK"
+							disabled="FALSE" submit="TRUE">
+							<icon icon="/icons/import_export.png" style="LEFT" />
+							<destination template="/assessment_export/{0}">
+								<model ref="assessment.id" />															
+							</destination>							
+						</navigation>	
+						<navigation title="multi-assmt-title" style="LINK" submit="TRUE" selectRequirement="SOME"
+							selectRequirementMessage="multiple-failed-requirements">
+							<icon icon="/icons/gear-edit.png" style="LEFT" />
+							<destination template="/assmt_settings_choice">
 							</destination>
 						</navigation>
 					</entityActions>
@@ -530,6 +543,17 @@
 						<navigation style="LINK" submit="TRUE" description="duplicate">
 							<icon icon="/icons/page_copy.png" style="LEFT" />
 							<destination template="DUPLICATE:{0}">
+								<model ref="assessment.id" />
+							</destination>
+						</navigation>
+					</navigations>
+				</column>
+				<column centered="TRUE" pixels="16" wrap="FALSE">
+					<navigations>
+						<navigation style="LINK" submit="TRIGGER" description="print">
+							<icon icon="/icons/printer.png" style="LEFT" />
+							<destination template="openWindow('/portal/tool/{0}/assessment_print/{1}',null,'toolbar=no,scrollbars=yes,resizable=yes,menubar=no,status=no,directories=no,location=no,width=600,height=400');">
+								<model ref="toolId" />
 								<model ref="assessment.id" />
 							</destination>
 						</navigation>

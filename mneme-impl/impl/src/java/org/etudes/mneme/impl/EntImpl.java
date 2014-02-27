@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -37,6 +37,10 @@ public class EntImpl implements Ent
 
 	protected Boolean marked = Boolean.FALSE;
 
+	protected long termId;
+	
+	protected String termDescription;
+	
 	/**
 	 * Construct.
 	 * 
@@ -55,6 +59,17 @@ public class EntImpl implements Ent
 	{
 		setId(id);
 		setDescription(description);
+	}
+
+	/**
+	 * Construct.
+	 */
+	public EntImpl(String id, String description, long termId, String termDescription)
+	{
+		setId(id);
+		setDescription(description);
+		setTermId(termId);
+		setTermDescription(termDescription);
 	}
 
 	/**
@@ -84,13 +99,29 @@ public class EntImpl implements Ent
 	{
 		return this.id;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	public Boolean getMarked()
 	{
 		return this.marked;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public long getTermId()
+	{
+		return termId;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getTermDescription()
+	{
+		return termDescription;
 	}
 
 	/**
@@ -115,6 +146,22 @@ public class EntImpl implements Ent
 	public void setMarked(Boolean marked)
 	{
 		this.marked = marked;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setTermId(long termId)
+	{
+		this.termId = termId;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setTermDescription(String termDescription)
+	{
+		this.termDescription = termDescription;
 	}
 
 	/**

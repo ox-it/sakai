@@ -29,5 +29,5 @@ package org.etudes.mneme.api;
  */
 public enum ReviewShowCorrect
 {
-	correct_only, no, yes
+	correct_only, incorrect_only, no, yes
 }

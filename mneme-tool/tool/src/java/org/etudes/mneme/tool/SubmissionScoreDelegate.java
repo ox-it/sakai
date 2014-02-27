@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.FormatDelegateImpl;
 import org.etudes.mneme.api.Assessment;
+import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.Submission;
 
 /**
@@ -76,7 +77,7 @@ public class SubmissionScoreDelegate extends FormatDelegateImpl
 		Boolean review = (Boolean) context.get("review");
 
 		String selector = "worth-points";
-
+		
 		// if we are doing review and the submission has been graded
 		if ((review != null) && review && (submission != null) && submission.getIsReleased())
 		{
@@ -93,6 +94,15 @@ public class SubmissionScoreDelegate extends FormatDelegateImpl
 			{
 				selector += "-partial";
 			}
+			if (assessment.getMinScoreSet().booleanValue() && (assessment.getType() != AssessmentType.survey))
+			{
+				float minScore = (assessment.getMinScore() * assessment.getParts().getTotalPoints().floatValue())/100;
+				if (score.floatValue() >= minScore)
+				{
+					context.put("minscoremet", Boolean.TRUE);
+		        }
+			}
+
 		}
 
 		// add the total possible points for the assessment
@@ -104,7 +114,7 @@ public class SubmissionScoreDelegate extends FormatDelegateImpl
 		Object[] args = new Object[1];
 		args[0] = FormatScoreDelegate.formatScore(score);
 		rv.append(context.getMessages().getFormattedMessage(selector, args));
-
+		
 		return rv.toString();
 	}
 

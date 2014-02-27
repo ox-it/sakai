@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -51,6 +51,39 @@
 		<section>
 			<container>
 				<section>
+					<included>
+						<decision model="mneme" />
+					</included>
+					<container>
+						<navigation title="import-mneme-sites" style="LINK">
+							<icon icon="/icons/import_assessment.png" style="LEFT" />
+							<destination template="/import_mneme_site/pools/{0}">
+								<model ref="poolsSort" />
+							</destination>
+						</navigation>
+						<instructions>
+							<message selector="import-mneme-sites-instructions" />
+						</instructions>
+						<gap />
+					</container>
+				</section>
+								
+				<section>
+					<container>
+						<navigation title="import-qti" style="LINK">
+							<icon icon="/icons/import_pool.png" style="LEFT" />
+							<destination template="/import_qti/pools/{0}">
+								<model ref="poolsSort" />
+							</destination>
+						</navigation>
+						<instructions>
+							<message selector="import-qti-instructions" />
+						</instructions>
+						<gap />
+					</container>
+				</section>
+
+				<section>
 					<container>
 						<navigation title="import-paste" style="LINK">
 							<icon icon="/icons/import_pool.png" style="LEFT" />
@@ -80,39 +113,6 @@
 					</container>
 				</section>
 				
-				<section>
-					<container>
-						<navigation title="import-qti" style="LINK">
-							<icon icon="/icons/import_pool.png" style="LEFT" />
-							<destination template="/import_qti/{0}">
-								<model ref="poolsSort" />
-							</destination>
-						</navigation>
-						<instructions>
-							<message selector="import-qti-instructions" />
-						</instructions>
-						<gap />
-					</container>
-				</section>
-
-				<section>
-					<included>
-						<decision model="mneme" />
-					</included>
-					<container>
-						<navigation title="import-mneme-sites" style="LINK">
-							<icon icon="/icons/import_assessment.png" style="LEFT" />
-							<destination template="/import_mneme_site/pools/{0}">
-								<model ref="poolsSort" />
-							</destination>
-						</navigation>
-						<instructions>
-							<message selector="import-mneme-sites-instructions" />
-						</instructions>
-						<gap />
-					</container>
-				</section>
-
 				<section>
 					<included>
 						<decision model="tq" />
@@ -146,23 +146,6 @@
 							<message selector="import-tq-assessment-questions-instructions" />
 						</instructions>
 						<gap />
-					</container>
-				</section>
-
-				<section>
-					<included>
-						<decision model="assignment" />
-					</included>
-					<container>
-						<navigation title="import-asn-sites" style="LINK">
-							<icon icon="/icons/import_assessment.png" style="LEFT" />
-							<destination template="/import_asn_site/{0}">
-								<model ref="poolsSort" />
-							</destination>
-						</navigation>
-						<instructions>
-							<message selector="import-asn-sites-instructions" />
-						</instructions>
 					</container>
 				</section>
 			</container>

@@ -230,6 +230,14 @@ public class EssayAnswerImpl implements TypeSpecificAnswer
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getPartiallyCorrect()
+	{
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public String[] getData()
 	{
 		String[] rv = new String[2 + this.uploads.size()];
