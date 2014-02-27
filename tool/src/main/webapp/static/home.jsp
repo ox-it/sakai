@@ -84,7 +84,7 @@
  
 <div class="wrapper" >   
 	
-<h2>Welcome to the Graduate Training information site.</h2>
+<h2>Welcome to the Researcher Training information site.</h2>
 
 <p class="intro">There are a wealth of graduate and post-doc training opportunities across the University aimed at supporting you in your research and career development. You can browse, search and sign up for these opportunities using this site.</p>
 
