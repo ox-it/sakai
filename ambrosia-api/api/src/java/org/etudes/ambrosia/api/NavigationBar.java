@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -29,6 +29,28 @@ package org.etudes.ambrosia.api;
  */
 public interface NavigationBar extends Section
 {
+	/**
+	 * Get the value of no print
+	 * 
+	 * @return String value of noprint
+	 */
+	String getNoprint();
+	
+	/**
+	 * Set the value of noprint
+	 * 
+	 * @param noprint Set to TRUE if we don't want to print the navigation bar
+	 */
+	void setNoprint(String noprint);
+
+	/**
+	 * Set the value of noprintflag
+	 * 
+	 * @param noprintflag
+	 * @return NavigationBar
+	 */
+	NavigationBar setNoprintflag(boolean noprintflag);
+	
 	/**
 	 * Set the width to some css value ("60em" or "100px" or "90%" etc.)
 	 * 

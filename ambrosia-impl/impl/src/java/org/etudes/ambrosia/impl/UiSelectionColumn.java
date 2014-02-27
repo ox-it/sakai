@@ -3,17 +3,17 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
- * 
+ * Copyright (c) 2008, 2009, 2010, 2013 Etudes, Inc.
+ *
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -50,11 +50,20 @@ public class UiSelectionColumn extends UiEntityListColumn implements SelectionCo
 	/** The correct message. */
 	protected Message correctMessage = new UiMessage().setMessage("correct");
 
+	/** Icon to use to show correct missed. */
+	protected String correctMissIcon = "!/ambrosia_library/icons/incorrect.png";
+
+	/** The correct missed message. */
+	protected Message correctMissMessage = new UiMessage().setMessage("correct-missed");
+
 	/** A model reference to a value that is considered "correct" for correct/incorrect marking. */
 	protected PropertyReference correctReference = null;
 
 	/** The id of this element - can be referenced as a dependency, for example. */
 	protected String id = null;
+
+	/** If true, exclude the correct miss markers */
+	protected Decision excludeCorrectMiss = null;
 
 	/** Icon to use to show incorrect. */
 	protected String incorrectIcon = "!/ambrosia_library/icons/incorrect.png";
@@ -98,7 +107,7 @@ public class UiSelectionColumn extends UiEntityListColumn implements SelectionCo
 
 	/**
 	 * Construct from a dom element.
-	 * 
+	 *
 	 * @param service
 	 *        the UiService.
 	 * @param xml
@@ -222,6 +231,13 @@ public class UiSelectionColumn extends UiEntityListColumn implements SelectionCo
 		if (this.readOnly != null)
 		{
 			readOnly = this.readOnly.decide(context, entity);
+		}
+
+		// exclude correct miss?
+		boolean excludeMiss = false;
+		if (this.excludeCorrectMiss != null)
+		{
+			excludeMiss = this.excludeCorrectMiss.decide(context, entity);
 		}
 
 		// read the entity id for this entity / column
@@ -363,8 +379,51 @@ public class UiSelectionColumn extends UiEntityListColumn implements SelectionCo
 			// else leave a placeholder
 			else
 			{
+				boolean correct = false;
+				if (correctValues.getClass().isArray())
+				{
+					// checked if value is in there
+					for (Object o : (Object[]) correctValues)
+					{
+						if (o != null)
+						{
+							correct = value.equals(o.toString());
+							if (correct) break;
+						}
+					}
+				}
+
+				// or a multi value collection
+				else if (correctValues instanceof Collection)
+				{
+					// checked if value is in there
+					for (Object o : (Collection) correctValues)
+					{
+						if (o != null)
+						{
+							correct = value.equals(o.toString());
+							if (correct) break;
+						}
+					}
+				}
+
+				// deal with single value
+				else
+				{
+					correct = value.equals(correctValues.toString());
+				}
+
+				if (correct && !excludeMiss && !single)
+				{
+					rv.append("<img src=\"" + context.getUrl(this.correctMissIcon) + "\" style=\"border-style: none;\" alt=\""
+							+ this.correctMissMessage.getMessage(context, entity) + "\" title=\""
+							+ this.correctMissMessage.getMessage(context, entity) + "\"/>");
+				}
+				else
+				{
 				rv.append("<div style=\"float:left;width:16px\">&nbsp;</div>");
 			}
+		}
 		}
 
 		// for single selection, use a radio set
@@ -596,6 +655,15 @@ public class UiSelectionColumn extends UiEntityListColumn implements SelectionCo
 	public SelectionColumn setId(String id)
 	{
 		this.id = id;
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public SelectionColumn setExcludeCorrectMiss(Decision decision)
+	{
+		this.excludeCorrectMiss = decision;
 		return this;
 	}
 

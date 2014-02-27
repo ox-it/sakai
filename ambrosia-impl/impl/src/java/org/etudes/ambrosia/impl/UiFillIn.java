@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -399,7 +399,7 @@ public class UiFillIn extends UiComponent implements FillIn
 				boxCount++;
 				if ((values != null) && (values.length > i) && (values[i] != null))
 				{
-					response.print(values[i]);
+					response.print(escapeDoubles(values[i]));
 				}
 				response.print("\"" + (readOnly ? " disabled=\"disabled\"" : "") + " />");
 
@@ -448,7 +448,7 @@ public class UiFillIn extends UiComponent implements FillIn
 				boxCount++;
 				if ((values != null) && (values.length > fillInParts.length - 1) && (values[fillInParts.length - 1] != null))
 				{
-					response.print(values[fillInParts.length - 1]);
+					response.print(escapeDoubles(values[fillInParts.length - 1]));
 				}
 				response.print("\"" + (readOnly ? " disabled=\"disabled\"" : "") + " />");
 
@@ -624,5 +624,43 @@ public class UiFillIn extends UiComponent implements FillIn
 	{
 		numCols = width;
 		return this;
+	}
+
+	/**
+	 * This method replaces double quotes in the string with &quot;
+	 * 
+	 * @param value String to replace
+	 * @return Replaced string with &quot;
+	 */
+	String escapeDoubles(String value)
+	{
+		if (value == null) return "";
+		try
+		{
+			StringBuffer buf = new StringBuffer();
+			for (int i = 0; i < value.length(); i++)
+			{
+				char c = value.charAt(i);
+
+				// a single quote must be escaped with a leading backslash
+				if (c == '\"')
+				{
+					buf.append("&quot;");
+}
+				else
+				{
+					buf.append(c);
+				}
+				
+			}
+
+			String rv = buf.toString();
+			return rv;
+		}
+		catch (Exception e)
+		{
+			return value;
+		}
+
 	}
 }

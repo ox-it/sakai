@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -95,6 +95,11 @@ public class UiSelection extends UiComponent implements Selection
 	/** The context name for the current iteration object when using selectionReference. */
 	protected String iteratorName = null;
 
+	protected String noprint = null;
+
+	/** To not print certain items. */
+	protected boolean noprintflag = false;
+
 	/** The value we use if the user does not selecet the selection. */
 	protected String notSelectedValue = "false";
 
@@ -153,7 +158,7 @@ public class UiSelection extends UiComponent implements Selection
 
 	/** The message that will provide title text. */
 	protected Message titleMessage = null;
-
+	
 	/**
 	 * No-arg constructor.
 	 */
@@ -225,6 +230,15 @@ public class UiSelection extends UiComponent implements Selection
 				setOrientation(Orientation.dropdown);
 			}
 		}
+		
+		if (xml.getAttribute("noprint") != null)
+		{
+			String noprintflag = StringUtil.trimToNull(xml.getAttribute("noprint"));
+			if (noprintflag != null)
+			{
+				this.noprintflag = Boolean.parseBoolean(noprintflag);
+			}
+		}
 
 		// title
 		Element settingsXml = XmlHelper.getChildElementNamed(xml, "title");
@@ -232,6 +246,7 @@ public class UiSelection extends UiComponent implements Selection
 		{
 			// let Message parse this
 			this.titleMessage = new UiMessage(service, settingsXml);
+			
 		}
 
 		// model
@@ -430,7 +445,7 @@ public class UiSelection extends UiComponent implements Selection
 
 		return this;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -442,12 +457,21 @@ public class UiSelection extends UiComponent implements Selection
 
 		return this;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getNoprint()
+	{
+		return noprint;
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public boolean render(Context context, Object focus)
 	{
+		PrintWriter response = context.getResponseWriter();
 		// included?
 		if (!isIncluded(context, focus)) return false;
 
@@ -516,6 +540,8 @@ public class UiSelection extends UiComponent implements Selection
 				}
 			}
 		}
+
+		if (this.noprintflag) response.println("<div class=\"noprint\">");
 
 		// add in any from the model
 		boolean fromModel = false;
@@ -616,8 +642,6 @@ public class UiSelection extends UiComponent implements Selection
 		String decodeId = "decode_" + idRoot;
 		String dependencyId = id + "_dependencies";
 
-		PrintWriter response = context.getResponseWriter();
-
 		// read the "correct" value
 		String correctValue = null;
 		boolean includeCorrectMarkers = false;
@@ -662,17 +686,54 @@ public class UiSelection extends UiComponent implements Selection
 		// for a single option (unless we are using values from the model, even just one)
 		if ((values.size() == 1) && !fromModel)
 		{
+			final StringBuffer dependency = new StringBuffer();
+			dependency.append("var " + dependencyId + "=[");
+			String startingValue = null;
+			boolean needDependencies = false;
 			String onclick = "";
+
+			boolean hasContained = false;
+			for (ContainerRef cr : this.selectionContainers)
+			{
+				if ((cr.container != null) && (!cr.container.getContained().isEmpty()))
+				{
+					hasContained = true;
+					break;
+				}
+			}
 
 			if (this.submitDestination != null)
 			{
+				onclick = "onclick=\"";
+				if (hasContained)
+				{
+					// onclick += "ambrosiaSelectDependencies(this.value, " + dependencyId + ");";
+					onclick += "ambrosiaSelectDependencies(document.getElementById(\'" + id + "\').checked, " + dependencyId + ");";
+				}
+
 				String destination = this.submitDestination.getDestination(context, focus);
-				onclick = "onclick=\"ambrosiaSubmit('" + destination + "')\" ";
+				onclick += "ambrosiaSubmit('" + destination + "')\" ";
 			}
 			else if (this.submitValue)
 			{
-				onclick = "onclick=\"ambrosiaSubmit(this.value)\" ";
+				onclick = "onclick=\"";
+				if (hasContained)
+				{
+					// onclick += "ambrosiaSelectDependencies(this.value, " + dependencyId + ");";
+					onclick += "ambrosiaSelectDependencies(document.getElementById(\'" + id + "\').checked, " + dependencyId + ");";
+				}
+
+				onclick += "ambrosiaSubmit(this.value)\" ";
 			}
+			else if (hasContained)
+			{
+				// onclick = "onclick=\"ambrosiaSelectDependencies(this.value, " + dependencyId + ")\" ";
+				onclick = "onclick=\"ambrosiaSelectDependencies(document.getElementById(\'" + id + "\').checked, " + dependencyId + ")\" ";
+			}
+			/*
+			 * if (this.submitDestination != null) { String destination = this.submitDestination.getDestination(context, focus); onclick = "onclick=\"ambrosiaSubmit('" + destination + "')\" "; } else if (this.submitValue) { onclick =
+			 * "onclick=\"ambrosiaSubmit(this.value)\" "; }
+			 */
 
 			// convert to boolean
 			boolean checked = value.contains("true");
@@ -727,6 +788,115 @@ public class UiSelection extends UiComponent implements Selection
 				response.print("<label for=\"" + id + "\">");
 				response.print(display.get(0));
 				response.println("</label>");
+			}
+
+			String fragment = "";
+			String val = null;
+			ContainerRef containerRef = this.selectionContainers.get(0);
+			// container of dependent components
+			if ((containerRef != null) && (containerRef.container != null) && (!containerRef.container.getContained().isEmpty()))
+			{
+				needDependencies = true;
+				val = values.get(0);
+				dependency.append("[\"" + val + "\",");
+				// dependency.append(Boolean.toString(true) + ",");
+				dependency.append(Boolean.toString(containerRef.reversed) + ",");
+				RenderListener listener = new RenderListener()
+				{
+					public void componentRendered(String id)
+					{
+						dependency.append("\"" + id + "\",");
+		}
+				};
+
+				// listen for any dependent edit components being rendered
+				context.addEditComponentRenderListener(listener);
+
+				// ContainerRef containerRef = this.selectionContainers.get(0);
+				if (containerRef.separate)
+				{
+					context.setCollecting();
+					response = context.getResponseWriter();
+				}
+
+				// render the dependent components
+				for (Component c : containerRef.container.getContained())
+				{
+					if (containerRef.separate)
+					{
+						if (containerRef.indented)
+						{
+							response.println("<div class=\"ambrosiaContainerComponentIndented\">");
+						}
+		else
+		{
+							response.println("<div class=\"ambrosiaContainerComponent\">");
+						}
+					}
+					c.render(context, focus);
+					if (containerRef.separate) response.println("</div>");
+				}
+
+				if (containerRef.separate)
+				{
+					fragment += context.getCollected();
+					response = context.getResponseWriter();
+				}
+
+				// stop listening
+				context.removeEditComponentRenderListener(listener);
+
+				dependency.setLength(dependency.length() - 1);
+				dependency.append("],");
+			}
+
+			/*
+			 * boolean selected = value.contains(val);
+			 * 
+			 * if (selected) { startingValue = val; }
+			 */
+			if (needDependencies)
+			{
+				dependency.setLength(dependency.length() - 1);
+				dependency.append("];\n");
+				context.addScript(dependency.toString());
+
+				// if read only, skip the initial setting
+				if (!readOnly)
+				{
+					startingValue = String.valueOf(checked);
+
+					// context.addScript("ambrosiaSelectDependencies(\"" + startingValue + "\", " + dependencyId + ");\n");
+					context.addScript("ambrosiaSelectDependencies(document.getElementById(\'" + id + "\').checked, " + dependencyId + ");\n");
+
+					// context.addScript("ambrosiaSelectDependencies(document.getElementById(" + id + ").value, " + dependencyId + ");\n");
+				}
+			}
+
+			// the decode directive
+			/*
+			 * if ((this.propertyReference != null) && (!readOnly)) { response.println("<input type=\"hidden\" name=\"" + decodeId + "\" value =\"" + id + "\" />" + "<input type=\"hidden\" name=\"" + "prop_" + decodeId + "\" value=\"" +
+			 * this.propertyReference.getFullReference(context) + "\" />"); }
+			 */
+
+			// for onEmptyAlert, add some client-side validation
+			if ((onEmptyAlert) && (!readOnly) && single)
+			{
+				StringBuffer buf = new StringBuffer();
+				for (int i = 0; i < values.size(); i++)
+				{
+					buf.append("!document.getElementById('" + id + "_" + Integer.toString(i) + "').checked &&");
+				}
+				buf.setLength(buf.length() - 3);
+
+				context.addValidation("	if (" + buf.toString() + ")\n" + "	{\n" + "		if (document.getElementById('alert_" + id
+						+ "').style.display == \"none\")\n" + "		{\n" + "			document.getElementById('alert_" + id + "').style.display = \"\";\n"
+						+ "			rv=false;\n" + "		}\n" + "	}\n");
+			}
+
+			if (fragment.length() > 0)
+			{
+				response.print(fragment);
 			}
 		}
 
@@ -952,6 +1122,7 @@ public class UiSelection extends UiComponent implements Selection
 				if (!readOnly)
 				{
 					context.addScript("ambrosiaSelectDependencies(\"" + startingValue + "\", " + dependencyId + ");\n");
+
 				}
 			}
 
@@ -982,6 +1153,7 @@ public class UiSelection extends UiComponent implements Selection
 				response.print(fragment);
 			}
 		}
+		if (this.noprintflag) response.println("</div>");
 
 		return true;
 	}
@@ -1020,6 +1192,23 @@ public class UiSelection extends UiComponent implements Selection
 	{
 		this.height = height;
 
+		return this;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setNoprint(String noprint)
+	{
+		this.noprint = noprint;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Selection setNoprintflag(boolean noprintflag)
+	{
+		this.noprintflag = noprintflag;
 		return this;
 	}
 

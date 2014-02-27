@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -561,7 +561,7 @@ function ambrosiaSelectDependencies(selected, dependencies)
 		var list = dependencies[d];
 		var value = list[0];
 		var reversed = list[1];
-		var doIt = (selected == value);
+		var doIt = (new String(selected) == value);
 		if (reversed) doIt = !doIt;
 		if (doIt)
 		{
@@ -1011,17 +1011,25 @@ function ambrosiaToggleVisibility(name)
 {
 	var el = document.getElementById(name);
 	if (el == null) return;
-	if (el.style.visibility == "hidden")
+	if (el.style.display == "none")
 	{
-		el.style.visibility = "visible";
-		el.style.overflow = "auto";
+		el.style.display = "block";
 	}
 	else
 	{
-		if (el.scrollTop) el.scrollTop = 0;
-		el.style.overflow = "hidden";
-		el.style.visibility = "hidden";
+		el.style.display = "none";
 	}
+	ambrosiaAdjustForNewHeight();
+}
+
+function ambrosiaAdjustParentHeight()
+{
+	$(parent.document.getElementById(window.name)).height($(document.body).height());
+}
+
+function ambrosiaAdjustForNewHeight()
+{
+	setTimeout("ambrosiaAdjustParentHeight()", 100);
 }
 
 function ambrosiaShowInline(name)

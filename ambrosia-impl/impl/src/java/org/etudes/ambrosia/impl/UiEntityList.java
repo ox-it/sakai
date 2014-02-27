@@ -3,17 +3,17 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
- * 
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
+ *
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -95,6 +95,9 @@ public class UiEntityList extends UiComponent implements EntityList
 
 	/** Include padding in headings or not. */
 	protected boolean headingNoPad = false;
+	
+	/** When set, only include header when different from previous value. */
+	protected boolean displayWhenDif = false;
 
 	/** The context name for the current iteration object. */
 	protected String iteratorName = null;
@@ -132,7 +135,7 @@ public class UiEntityList extends UiComponent implements EntityList
 
 	/**
 	 * Construct from a dom element.
-	 * 
+	 *
 	 * @param service
 	 *        the UiService.
 	 * @param xml
@@ -288,6 +291,9 @@ public class UiEntityList extends UiComponent implements EntityList
 			// no padding?
 			String setting = StringUtil.trimToNull(settingsXml.getAttribute("padding"));
 			if ("FALSE".equals(setting)) this.headingNoPad = true;
+			
+			setting = StringUtil.trimToNull(settingsXml.getAttribute("displaywhendif"));
+			if ("TRUE".equals(setting)) this.displayWhenDif = true;
 
 			NodeList contained = settingsXml.getChildNodes();
 			for (int i = 0; i < contained.getLength(); i++)
@@ -699,6 +705,7 @@ public class UiEntityList extends UiComponent implements EntityList
 			}
 
 			int index = -1;
+			String headingMess = null;
 			for (Object entity : data)
 			{
 				index++;
@@ -715,7 +722,9 @@ public class UiEntityList extends UiComponent implements EntityList
 
 				// track the row number
 				row++;
-
+				
+                if (row == 0 && this.displayWhenDif) headingMess = "";
+                
 				// insert any heading that applies, each as a separate row
 				String rowBackground = "";
 				if (this.headingBackgroundColor != null)
@@ -735,8 +744,21 @@ public class UiEntityList extends UiComponent implements EntityList
 						Message headingMessage = this.headingMessages.get(h);
 						if (headingMessage != null)
 						{
-							response.println("<tr" + rowBackground + "><td" + padding + " colspan=\"" + cols + "\">"
-									+ headingMessage.getMessage(context, entity) + "</td></tr>");
+							if (this.displayWhenDif)
+							{
+								if (!headingMessage.getMessage(context, entity).equals(headingMess))
+								{
+									response.println("<tr><td>&nbsp;</td></tr>");
+									response.println("<tr" + rowBackground + "><td" + padding + " colspan=\"" + cols + "\"><B>"
+											+ headingMessage.getMessage(context, entity) + "</B></td></tr>");
+									headingMess = headingMessage.getMessage(context, entity);
+								}
+							}
+							else
+							{
+								response.println("<tr" + rowBackground + "><td" + padding + " colspan=\"" + cols + "\"><B>"
+										+ headingMessage.getMessage(context, entity) + "</B></td></tr>");
+							}
 						}
 
 						else
@@ -1129,7 +1151,7 @@ public class UiEntityList extends UiComponent implements EntityList
 
 	/**
 	 * Check if this title is included.
-	 * 
+	 *
 	 * @param context
 	 *        The Context.
 	 * @param focus
@@ -1144,7 +1166,7 @@ public class UiEntityList extends UiComponent implements EntityList
 
 	/**
 	 * Render an entity action bar if any actions are defined for the list or its columns
-	 * 
+	 *
 	 * @param context
 	 *        The context.
 	 * @param focus

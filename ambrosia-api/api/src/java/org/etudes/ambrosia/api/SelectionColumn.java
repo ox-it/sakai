@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2013 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -109,6 +109,15 @@ public interface SelectionColumn extends EntityListColumn
 	 * @return self.
 	 */
 	SelectionColumn setSelectAll(boolean setting);
+
+	/**
+	 * Set the excludeCorrectMiss option
+	 * 
+	 * @param decision
+	 *        The exclude correct miss decision.
+	 * @return self.
+	 */
+	SelectionColumn setExcludeCorrectMiss(Decision decision);
 
 	/**
 	 * Set to support a single selection only.

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -57,6 +57,13 @@ public interface Selection extends Component
 	Selection addSelection(Message display, Message value);
 
 	/**
+	 * Get the value of no print
+	 * 
+	 * @return String value of noprint
+	 */
+	String getNoprint();
+
+	/**
 	 * Set the property reference for the correct value.
 	 * 
 	 * @param propertyReference
@@ -91,6 +98,21 @@ public interface Selection extends Component
 	 * @return self.
 	 */
 	Selection setHeight(int height);
+
+	/**
+	 * Set the value of noprint
+	 * 
+	 * @param noprint Set to TRUE if we don't want to print the navigation bar
+	 */
+	void setNoprint(String noprint);
+
+	/**
+	 * Set the value of noprintflag
+	 * 
+	 * @param noprintflag
+	 * @return NavigationBar
+	 */
+	Selection setNoprintflag(boolean noprintflag);
 
 	/**
 	 * Set an alert that will trigger once on submit if the field is empty.
@@ -171,7 +193,7 @@ public interface Selection extends Component
 	 * @return self.
 	 */
 	Selection setSelectionModel(PropertyReference modelRef, String iteratorName, Message valueMessage, Message displayMessage);
-
+	
 	/**
 	 * Set a decision to use to determine if we are going to be single select (true) or multiple select (false).
 	 * 
@@ -187,7 +209,7 @@ public interface Selection extends Component
 	 * @return self.
 	 */
 	Selection setSubmitValue();
-
+	
 	/**
 	 * Set the title text.
 	 * 

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -39,6 +39,11 @@ import org.w3c.dom.Element;
  */
 public class UiNavigationBar extends UiSection implements NavigationBar
 {
+	protected String noprint = null;
+
+	/** To not print certain items. */
+	protected boolean noprintflag = false;
+	
 	/** The width (in some css value such as "60em" or "100px" or "90%" etc.) */
 	protected String width = null;
 
@@ -64,6 +69,40 @@ public class UiNavigationBar extends UiSection implements NavigationBar
 
 		String width = StringUtil.trimToNull(xml.getAttribute("width"));
 		if (width != null) this.width = width;
+		
+		if (xml.getAttribute("noprint") != null)
+		{
+			String noprintflag = StringUtil.trimToNull(xml.getAttribute("noprint"));
+			if (noprintflag != null)
+			{
+				this.noprintflag = Boolean.parseBoolean(noprintflag);
+	}
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getNoprint()
+	{
+		return noprint;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setNoprint(String noprint)
+	{
+		this.noprint = noprint;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public NavigationBar setNoprintflag(boolean noprintflag)
+	{
+		this.noprintflag = noprintflag;
+		return this;
 	}
 
 	/**
@@ -86,10 +125,11 @@ public class UiNavigationBar extends UiSection implements NavigationBar
 	protected void renderContents(Context context, Object focus)
 	{
 		PrintWriter response = context.getResponseWriter();
-
+		
 		// the bar
-		response.println("<div class=\"ambrosiaNavigationBar\"" + (this.width != null ? (" style=\"width: " + this.width + ";\"") : "") + ">");
-
+		if (this.noprintflag) response.println("<div class=\"ambrosiaNavigationBar noprint\"" + (this.width != null ? (" style=\"width: " + this.width + ";\"") : "") + ">");
+		else response.println("<div class=\"ambrosiaNavigationBar \"" + (this.width != null ? (" style=\"width: " + this.width + ";\"") : "") + ">");
+		
 		// render
 		if (this.contained.isEmpty())
 		{
@@ -104,5 +144,5 @@ public class UiNavigationBar extends UiSection implements NavigationBar
 		}
 
 		response.println("</div>");
-	}
+	}	
 }
