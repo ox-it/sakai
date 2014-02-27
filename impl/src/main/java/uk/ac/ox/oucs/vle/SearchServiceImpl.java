@@ -123,6 +123,7 @@ public class SearchServiceImpl implements SearchService {
 				}
 			}
 			
+			// This wasn't updated to Researcher Training in WL-3217 because it doesn't appear to be used anywhere.
 			doc.addField("course_class", "Graduate Training");
 
 			// Choose the most recent component
