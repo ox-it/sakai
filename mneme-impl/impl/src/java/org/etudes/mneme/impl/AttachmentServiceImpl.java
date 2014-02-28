@@ -148,9 +148,6 @@ import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGEncodeParam;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 /**
  * AttachmentServiceImpl implements AttachmentService.
@@ -1435,62 +1432,9 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			}
 		}
 
-		// if we added one
-		else
-		{
-			// if we want thumbs
-			if (makeThumb)
-			{
-				// if it is an image
-				if (type.toLowerCase().startsWith("image/"))
-				{
-					addThumb(rv, body, altRef);
-				}
-			}
-		}
-
 		return rv;
 	}
 
-	/**
-	 * Add a thumbnail for the image at this reference with this name and contents.
-	 *
-	 * @param resource
-	 *        The image resource reference.
-	 * @param body
-	 *        The image bytes.
-	 * @param altRef
-	 *        The alternate Reference for the resource.
-	 * @return A reference to the thumbnail, or null if not made.
-	 */
-	protected Reference addThumb(Reference resource, byte[] body, String altRef)
-	{
-		// if disabled
-		if (!this.makeThumbs) return null;
-
-		// base the thumb name on the resource name
-		String[] parts = StringUtil.split(resource.getId(), "/");
-		String thumbName = parts[parts.length - 1] + THUMB_SUFFIX;
-		Reference ref = this.getReference(resource.getId());
-		String thumbId = ref.getId() + THUMB_SUFFIX;
-		try
-		{
-			byte[] thumb = makeThumb(body, 80, 80, 0.75f);
-			Reference thumbRef = doAdd(thumbId, thumbName, "image/jpeg", thumb, thumb.length, true, false, altRef);
-
-			return thumbRef;
-		}
-		catch (IOException e)
-		{
-			M_log.warn("addAttachment: thumbing: " + e.toString());
-		}
-		catch (InterruptedException e)
-		{
-			M_log.warn("addAttachment: thumbing: " + e.toString());
-		}
-
-		return null;
-	}
 
 	/**
 	 * If the ref is relative, reconstruct the full ref based on where it was embedded.
@@ -2570,64 +2514,6 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		}
 
 		return rv;
-	}
-
-	/**
-	 * Create a thumbnail image from the full image in the byte[], of the desired width and height and quality, preserving aspect ratio.
-	 *
-	 * @param full
-	 *        The full image bytes.
-	 * @param width
-	 *        The desired max width (pixels).
-	 * @param height
-	 *        The desired max height (pixels).
-	 * @param quality
-	 *        The JPEG quality (0 - 1).
-	 * @return The thumbnail JPEG as a byte[].
-	 * @throws IOException
-	 * @throws InterruptedException
-	 */
-	protected byte[] makeThumb(byte[] full, int width, int height, float quality) throws IOException, InterruptedException
-	{
-		// read the image from the byte array, waiting till it's processed
-		Image fullImage = Toolkit.getDefaultToolkit().createImage(full);
-		MediaTracker tracker = new MediaTracker(new Container());
-		tracker.addImage(fullImage, 0);
-		tracker.waitForID(0);
-
-		// get the full image dimensions
-		int fullWidth = fullImage.getWidth(null);
-		int fullHeight = fullImage.getHeight(null);
-
-		// preserve the aspect of the full image, not exceeding the thumb dimensions
-		if (fullWidth > fullHeight)
-		{
-			// full width will take the full desired width, set the appropriate height
-			height = (int) ((((float) width) / ((float) fullWidth)) * ((float) fullHeight));
-		}
-		else
-		{
-			// full height will take the full desired height, set the appropriate width
-			width = (int) ((((float) height) / ((float) fullHeight)) * ((float) fullWidth));
-		}
-
-		// draw the scaled thumb
-		BufferedImage thumbImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		Graphics2D g2D = thumbImage.createGraphics();
-		g2D.drawImage(fullImage, 0, 0, width, height, null);
-
-		// encode as jpeg to a byte array
-		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-		BufferedOutputStream out = new BufferedOutputStream(byteStream);
-		JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
-		JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(thumbImage);
-		param.setQuality(quality, false);
-		encoder.setJPEGEncodeParam(param);
-		encoder.encode(thumbImage);
-		out.close();
-		byte[] thumb = byteStream.toByteArray();
-
-		return thumb;
 	}
 
 	/**
