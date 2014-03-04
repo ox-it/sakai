@@ -433,7 +433,18 @@
             </testResource>
         </testResources>
         -->
+
+
         <plugins>
+            <!-- Since the unit test resources are disabled we should not run the tests -->
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <configuration>
+                <skipTests>true</skipTests>
+              </configuration>
+              <inherited>true</inherited>
+            </plugin>
             <plugin>
                 <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
