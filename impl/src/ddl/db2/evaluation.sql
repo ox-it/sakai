@@ -211,6 +211,7 @@
         EXPERT smallint not null,
         EXPERT_DESCRIPTION clob(255),
         IDEAL varchar(255),
+        REVERSED smallint,
         LOCKED smallint,
         COPY_OF bigint,
         HIDDEN smallint,

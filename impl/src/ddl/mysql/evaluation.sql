@@ -211,6 +211,7 @@
         EXPERT bit not null,
         EXPERT_DESCRIPTION text,
         IDEAL varchar(255),
+        REVERSED bit,
         LOCKED bit,
         COPY_OF bigint,
         HIDDEN bit,

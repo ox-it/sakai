@@ -211,6 +211,7 @@
         EXPERT bool not null,
         EXPERT_DESCRIPTION text,
         IDEAL varchar(255),
+        REVERSED bool,
         LOCKED bool,
         COPY_OF int8,
         HIDDEN bool,

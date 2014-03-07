@@ -1565,7 +1565,7 @@ public class EvalAuthoringServiceImpl implements EvalAuthoringService {
                     newTitle = original.getTitle() + " (copy)";
                 }
                 EvalScale copy = new EvalScale(ownerId, newTitle, original.getMode(), EvalConstants.SHARING_PRIVATE, 
-                        false, null, original.getIdeal(), ArrayUtils.copy(original.getOptions()), 
+                        false, null, original.getIdeal(), original.getReversed(), ArrayUtils.copy(original.getOptions()), 
                         false);
                 copy.setCopyOf(original.getId());
                 copy.setHidden(hidden);

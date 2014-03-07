@@ -352,6 +352,11 @@ public interface EvalSettings {
     
     public static final String ALLOW_ALL_SITE_ROLES_TO_RESPOND = "ALLOW_ALL_SITE_ROLES_TO_RESPOND:java.lang.Boolean";
 
+    /**
+     * If true, scale authors will be able to flag them as reversed, which will reverse the display of scalar options.  Default is false.
+     */
+	public static final String ENABLE_REVERSED_SCALE = "ENABLE_REVERSED_SCALE:java.lang.Boolean";    
+
 
     /**
      * This is here to identify all the boolean ONLY settings in the system,
@@ -378,6 +383,7 @@ public interface EvalSettings {
         ENABLE_IMPORTING,
         ENABLE_INSTRUCTOR_ASSISTANT_SELECTION,
         ENABLE_ITEM_COMMENTS,
+        ENABLE_REVERSED_SCALE,
         ENABLE_LIST_OF_TAKERS_EXPORT,
         ENABLE_NOT_AVAILABLE,
         ENABLE_PDF_REPORT_BANNER,

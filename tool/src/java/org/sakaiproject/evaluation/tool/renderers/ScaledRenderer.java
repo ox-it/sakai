@@ -83,12 +83,26 @@ public class ScaledRenderer implements ItemRenderer {
             // setup simple variables to make code more clear
             boolean colored = EvalConstants.ITEM_SCALE_DISPLAY_COMPACT_COLORED.equals(scaleDisplaySetting);
 
-            String compactDisplayStart = scaleOptions[0];
-            String compactDisplayEnd = scaleOptions[optionCount - 1];
-
+            
+            String compactDisplayStart;
+            String compactDisplayEnd;
+            
+            if(scale.getReversed()!=null && scale.getReversed()){
+            	compactDisplayStart = scaleOptions[optionCount - 1];
+            	compactDisplayEnd = scaleOptions[0];
+            }else{
+                compactDisplayStart = scaleOptions[0];
+                compactDisplayEnd = scaleOptions[optionCount - 1];
+            }
+            
             for (int count = 0; count < optionCount; count++) {
                 scaleValues[count] = new Integer(count).toString();
                 scaleLabels[count] = " ";
+            }
+
+            if(scale.getReversed()!=null && scale.getReversed()){
+            	ArrayUtils.reverse(scaleValues);
+            	ArrayUtils.reverse(scaleLabels);
             }
 
             UIOutput.make(compact, "itemNum", displayNumber+"" ); //$NON-NLS-2$
@@ -168,6 +182,11 @@ public class ScaledRenderer implements ItemRenderer {
                 scaleLabels[count] = scaleOptions[count];
             }
 
+            if(scale.getReversed()!=null && scale.getReversed()){
+            	ArrayUtils.reverse(scaleValues);
+            	ArrayUtils.reverse(scaleLabels);
+            }
+
             UIOutput.make(fullFirst, "itemNum", displayNumber+"" ); //$NON-NLS-2$
             UIVerbatim.make(fullFirst, "itemText", templateItem.getItem().getItemText());
 
@@ -245,6 +264,11 @@ public class ScaledRenderer implements ItemRenderer {
             for (int count = 1; count <= optionCount; count++) {
                 scaleValues[optionCount - count] = new Integer(optionCount - count).toString();
                 scaleLabels[optionCount - count] = scaleOptions[count-1];
+            }
+
+            if(scale.getReversed()!=null && scale.getReversed()){
+            	ArrayUtils.reverse(scaleValues);
+            	ArrayUtils.reverse(scaleLabels);
             }
 
             if (usesNA) {

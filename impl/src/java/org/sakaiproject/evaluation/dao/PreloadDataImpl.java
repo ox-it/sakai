@@ -303,7 +303,7 @@ public class PreloadDataImpl {
     private EvalScale saveScale(String title, String ideal, String[] options) {
         EvalScale scale = new EvalScale(ADMIN_OWNER, title, EvalConstants.SCALE_MODE_SCALE, EvalConstants.SHARING_PUBLIC, 
                 Boolean.TRUE, "",
-                ideal, options, Boolean.FALSE);
+                ideal, Boolean.FALSE, options, Boolean.FALSE);
         dao.save(scale);
         return scale;
     }

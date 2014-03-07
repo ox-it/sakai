@@ -32,6 +32,8 @@ public class EvalScale implements java.io.Serializable {
 
     private String ideal;
 
+    private Boolean reversed;
+
     private String[] options;
 
     private Boolean locked;
@@ -63,12 +65,12 @@ public class EvalScale implements java.io.Serializable {
 
     /** minimal constructor */
     public EvalScale(String owner, String title, String mode, String sharing, Boolean expert) {
-        this(owner, title, mode, sharing, expert, null, null, null, Boolean.FALSE);
+        this(owner, title, mode, sharing, expert, null, null, null, null, Boolean.FALSE);
     }
 
     /** full constructor */
     public EvalScale(String owner, String title, String mode, String sharing, Boolean expert, String expertDescription, 
-            String ideal, String[] options, Boolean locked) {
+            String ideal, Boolean reversed, String[] options, Boolean locked) {
         this.lastModified = new Date();
         this.owner = owner;
         this.title = title;
@@ -77,6 +79,7 @@ public class EvalScale implements java.io.Serializable {
         this.expert = expert;
         this.expertDescription = expertDescription;
         this.ideal = ideal;
+        this.reversed = reversed;
         this.options = options;
         this.locked = locked;
     }
@@ -154,6 +157,14 @@ public class EvalScale implements java.io.Serializable {
         this.ideal = ideal;
     }
 
+    public Boolean getReversed() {
+        return this.reversed;
+    }
+
+    public void setReversed(Boolean reversed) {
+        this.reversed = reversed;
+    }    
+    
     public String[] getOptions() {
         return this.options;
     }
