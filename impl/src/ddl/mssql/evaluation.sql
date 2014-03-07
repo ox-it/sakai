@@ -211,6 +211,7 @@
         EXPERT tinyint not null,
         EXPERT_DESCRIPTION text null,
         IDEAL varchar(255) null,
+        REVERSED tinyint null,
         LOCKED tinyint null,
         COPY_OF numeric(19,0) null,
         HIDDEN tinyint null,

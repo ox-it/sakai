@@ -15,6 +15,9 @@
 
 <div rsf:id="navIntraTool:" class="navIntraTool"/>
 
+	    <p class="instruction" rsf:id="msg=modifyscale.scale.order.note">
+	      The first item is worth one point. The last item is worth N points, where N is the number of options.
+	    </p>
 <div>
 	<ul class="breadCrumb">
 		<li><a rsf:id="summary-link" href="summary.html">Summary</a></li><li><a rsf:id="administrate-link" href="administrate.html">Administrate</a></li><li rsf:id="msg=modifyscale.page.title" class="lastCrumb">Add/Edit Scale</li>
@@ -90,6 +93,11 @@
 			</select>
 		</div>
 	</div>
+
+	<p rsf:id="reversedScale:" class="checkbox">
+		<input rsf:id="scale-reversed" type="checkbox" id="scale-reversed" />
+		<label rsf:id="scale-reversed-header" for="reversedScale::scale-reversed">Reversed Scale</label>
+	</p>
 
 	<p class="act">
 		<input rsf:id="scale-add-modify-save-button" type="submit" value="Save Scale" class="active" accesskey="s"  />  

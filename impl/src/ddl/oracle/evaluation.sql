@@ -197,7 +197,8 @@
         END_TIME date,
         EVALUATION_FK number(19,0) not null,
         COMMENT_RESPONSE clob,
-        primary key (ID)
+        primary key (ID),
+        REVERSED number(1,0)
     );
 
     create table EVAL_SCALE (

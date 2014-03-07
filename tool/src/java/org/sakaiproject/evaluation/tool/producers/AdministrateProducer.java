@@ -328,6 +328,8 @@ public class AdministrateProducer implements ViewComponentProducer {
 
         //    makeBoolean(form, "general-require-comments-block",  EvalSettings.REQUIRE_COMMENTS_BLOCK);
 
+        makeBoolean(form, "general-enable-reversed-scale", EvalSettings.ENABLE_REVERSED_SCALE);
+
         //Number of days old can an eval be and still be recently closed
         Integer recentlyClosedDays = (Integer) evalSettings.get(EvalSettings.EVAL_RECENTLY_CLOSED_DAYS);
         UIInput.make(form, "general-eval-closed-still-recent", PathUtil.composePath(ADMIN_WBL, EvalSettings.EVAL_RECENTLY_CLOSED_DAYS), recentlyClosedDays.toString());

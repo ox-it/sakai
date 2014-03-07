@@ -687,30 +687,30 @@ public class EvalTestDataLoad {
         String[] options1 = {"Bad", "Average", "Good"};
         scale1 = new EvalScale(ADMIN_USER_ID, "Scale 1", EvalConstants.SCALE_MODE_SCALE, 
                 EvalConstants.SHARING_PUBLIC, NOT_EXPERT, "description", 
-                EvalConstants.SCALE_IDEAL_HIGH, 
+                EvalConstants.SCALE_IDEAL_HIGH, Boolean.FALSE, 
                 options1, LOCKED);
 
         String[] options2 = {"Poor", "Average", "Good", "Excellent"};
         scale2 = new EvalScale(MAINT_USER_ID, "Scale 2", EvalConstants.SCALE_MODE_SCALE, 
                 EvalConstants.SHARING_PRIVATE, NOT_EXPERT, "description", 
-                EvalConstants.SCALE_IDEAL_HIGH, 
+                EvalConstants.SCALE_IDEAL_HIGH, Boolean.TRUE,
                 options2, UNLOCKED);
 
         String[] options3 = {"Male", "Female", "Unknown"};
         scale3 = new EvalScale(MAINT_USER_ID, "Scale 3", EvalConstants.SCALE_MODE_SCALE, 
                 EvalConstants.SHARING_PRIVATE, NOT_EXPERT, "description", 
-                EvalConstants.SCALE_IDEAL_NONE, 
+                EvalConstants.SCALE_IDEAL_NONE, Boolean.FALSE,
                 options3, UNLOCKED);
 
         scale4 = new EvalScale(ADMIN_USER_ID, "Scale 4", EvalConstants.SCALE_MODE_SCALE, 
                 EvalConstants.SHARING_PRIVATE, EXPERT, "description", 
-                EvalConstants.SCALE_IDEAL_NONE, 
+                EvalConstants.SCALE_IDEAL_NONE, Boolean.TRUE,
                 options3, UNLOCKED);
 
         String[] optionsEid = {"Strongly Agree", "Agree", "Neutral", "Disagree", "Strongly Disagree"};
         scaleEid = new EvalScale(ADMIN_USER_ID, "Scale Eid", EvalConstants.SCALE_MODE_SCALE,
                 EvalConstants.SHARING_PUBLIC, NOT_EXPERT, "description",
-                EvalConstants.SCALE_IDEAL_LOW,
+                EvalConstants.SCALE_IDEAL_LOW, Boolean.FALSE,
                 optionsEid, UNLOCKED);
         scaleEid.setEid("test-scale-1");
 

@@ -183,7 +183,7 @@ public class EvalAuthoringServiceImplTest extends BaseTestEvalLogic {
       authoringService.saveScale( new EvalScale( EvalTestDataLoad.MAINT_USER_ID, 
             test_title, EvalConstants.SCALE_MODE_SCALE, 
             EvalConstants.SHARING_PRIVATE, Boolean.FALSE, "description", 
-            EvalConstants.SCALE_IDEAL_LOW, options1,
+            EvalConstants.SCALE_IDEAL_LOW, Boolean.FALSE, options1,
             EvalTestDataLoad.UNLOCKED), EvalTestDataLoad.MAINT_USER_ID);
 
       // fetch scales to work with
@@ -256,7 +256,7 @@ public class EvalAuthoringServiceImplTest extends BaseTestEvalLogic {
          authoringService.saveScale( new EvalScale( EvalTestDataLoad.MAINT_USER_ID, 
                "options are null", EvalConstants.SCALE_MODE_SCALE, 
                EvalConstants.SHARING_PRIVATE, Boolean.FALSE, "description", 
-               EvalConstants.SCALE_IDEAL_LOW, null,
+               EvalConstants.SCALE_IDEAL_LOW, Boolean.FALSE, null,
                EvalTestDataLoad.UNLOCKED), EvalTestDataLoad.MAINT_USER_ID);
          fail("Should have thrown exception");
       } catch (IllegalArgumentException e) {
@@ -266,8 +266,8 @@ public class EvalAuthoringServiceImplTest extends BaseTestEvalLogic {
       // test CAN save scale with duplicate title
       authoringService.saveScale( new EvalScale( EvalTestDataLoad.MAINT_USER_ID, 
             test_title, EvalConstants.SCALE_MODE_SCALE, 
-            EvalConstants.SHARING_PRIVATE, Boolean.FALSE, "description", 
-            EvalConstants.SCALE_IDEAL_LOW, options1,
+            EvalConstants.SHARING_PRIVATE, Boolean.FALSE, "description",
+            EvalConstants.SCALE_IDEAL_LOW, Boolean.FALSE, options1,
             EvalTestDataLoad.UNLOCKED), EvalTestDataLoad.MAINT_USER_ID);
 
    }
@@ -785,7 +785,7 @@ public class EvalAuthoringServiceImplTest extends BaseTestEvalLogic {
       String[] options1 = {"one", "two", "three"};
       EvalScale scale1 = new EvalScale(EvalTestDataLoad.ADMIN_USER_ID, "Scale MC", EvalConstants.SCALE_MODE_ADHOC, 
             EvalConstants.SHARING_PRIVATE, false, "description", 
-            null, options1, false);
+            null, Boolean.FALSE, options1, false);
       evaluationDao.save(scale1);
 
       EvalItem item1 = new EvalItem(EvalTestDataLoad.ADMIN_USER_ID, "mutli choice", EvalConstants.SHARING_PRIVATE, EvalConstants.ITEM_TYPE_MULTIPLECHOICE, 

@@ -90,7 +90,7 @@ public class EvaluationDaoImplTest extends AbstractTransactionalSpringContextTes
         String[] optionsA = {"Male", "Female", "Unknown"};
         scaleLocked = new EvalScale(EvalTestDataLoad.ADMIN_USER_ID, "Scale Alpha", EvalConstants.SCALE_MODE_SCALE, 
                 EvalConstants.SHARING_PRIVATE, EvalTestDataLoad.NOT_EXPERT, "description", 
-                EvalConstants.SCALE_IDEAL_NONE, optionsA, EvalTestDataLoad.LOCKED);
+                EvalConstants.SCALE_IDEAL_NONE, Boolean.FALSE, optionsA, EvalTestDataLoad.LOCKED);
         evaluationDao.save( scaleLocked );
 
         itemLocked = new EvalItem(EvalTestDataLoad.MAINT_USER_ID, "Header type locked", EvalConstants.SHARING_PRIVATE, 

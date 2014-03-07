@@ -15,6 +15,8 @@
 package org.sakaiproject.evaluation.utils;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -269,4 +271,12 @@ public class ArrayUtils {
         return newArray;
     }
 
+    /**
+     * Reverse an array
+     * @param array any array
+     * @return void
+     */
+    public static void reverse(Object[] array) {
+    	Collections.reverse(Arrays.asList(array));
+    } 
 }

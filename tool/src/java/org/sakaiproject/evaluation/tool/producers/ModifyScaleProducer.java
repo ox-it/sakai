@@ -25,6 +25,7 @@ import org.sakaiproject.evaluation.tool.locators.ScaleBeanLocator;
 import org.sakaiproject.evaluation.tool.renderers.NavBarRenderer;
 import org.sakaiproject.evaluation.tool.viewparams.EvalScaleParameters;
 
+import uk.org.ponder.rsf.components.UIBoundBoolean;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -57,6 +58,11 @@ public class ModifyScaleProducer implements ViewComponentProducer, ViewParamsRep
     public static final String VIEW_ID = "modify_scale";
     public String getViewID() {
         return VIEW_ID;
+    }
+
+    private EvalSettings settings;
+    public void setSettings(EvalSettings settings) {
+        this.settings = settings;
     }
 
     private EvalCommonLogic commonLogic;
@@ -146,6 +152,13 @@ public class ModifyScaleProducer implements ViewComponentProducer, ViewParamsRep
                     EvalToolConstants.SHARING_LABELS_PROPS, 
                     scaleOTP + "sharing").setMessageKeys();
         }
+
+        Boolean reversedScaleEnabled = (Boolean) settings.get(EvalSettings.ENABLE_REVERSED_SCALE);
+        if (reversedScaleEnabled ) {
+            UIBranchContainer reversedScale = UIBranchContainer.make(form, "reversedScale:");
+            UIBoundBoolean bb = UIBoundBoolean.make(reversedScale, "scale-reversed", scaleOTP + "reversed");
+            UIMessage.make(reversedScale,"scale-reversed-header", "modifyscale.reversed.scale.label");
+        }             
 
         // command buttons
         UIMessage.make(form, "scale-add-modify-cancel-button", "general.cancel.button");

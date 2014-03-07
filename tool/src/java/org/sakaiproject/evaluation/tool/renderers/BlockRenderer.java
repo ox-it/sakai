@@ -114,6 +114,11 @@ public class BlockRenderer implements ItemRenderer {
                 scaleLabels[optionCount - count] = scaleOptions[count-1];
             }
 
+            if(scale.getReversed()!=null && scale.getReversed()){
+            	ArrayUtils.reverse(scaleValues);
+            	ArrayUtils.reverse(scaleLabels);
+            }
+
             // handle ideal coloring
             String idealImage = "";
             if (colored) {

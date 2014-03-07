@@ -911,6 +911,13 @@ public class EvalImportImpl implements EvalImport {
             Boolean locked = element.getChildText("LOCKED").trim().equals("1") ? new Boolean(Boolean.TRUE) : new Boolean(Boolean.FALSE);
             Boolean expert = element.getChildText("EXPERT").trim().equals("1") ? new Boolean(Boolean.TRUE) : new Boolean(Boolean.FALSE);
 
+            Boolean reversed;
+            if (element.getChildText("REVERSED") != null && element.getChildText("REVERSED").trim().equals("1")) {
+                reversed = Boolean.TRUE;
+            } else {
+                reversed = Boolean.FALSE;
+            }
+
             //set options
             HashMap<Integer, String> order = new HashMap<Integer, String>();
             Element evalScaleOptions = element.getChild("EVAL_SCALE_OPTIONS");
@@ -939,7 +946,7 @@ public class EvalImportImpl implements EvalImport {
             String ideal = element.getChildText("IDEAL");
 
             //new scale
-            EvalScale scale = new EvalScale(owner, title, EvalConstants.SCALE_MODE_SCALE, sharing, expert, expertDescription, ideal, choices, locked);	
+            EvalScale scale = new EvalScale(owner, title, EvalConstants.SCALE_MODE_SCALE, sharing, expert, expertDescription, ideal, reversed, choices, locked);	
             scale.setEid(eid);
             return scale;
         }
@@ -971,6 +978,13 @@ public class EvalImportImpl implements EvalImport {
                 scale.setLocked(new Boolean(Boolean.TRUE));
             else
                 scale.setLocked(new Boolean(Boolean.FALSE));
+            
+            if (element.getChildText("REVERSED") != null && element.getChildText("REVERSED").trim().equals("1")) {
+                scale.setReversed(new Boolean(Boolean.TRUE));
+            } else {
+            	scale.setReversed(new Boolean(Boolean.FALSE));
+            }
+
             //set options
             HashMap<Integer, String> order = new HashMap<Integer, String>();
             Element evalScaleOptions = element.getChild("EVAL_SCALE_OPTIONS");
