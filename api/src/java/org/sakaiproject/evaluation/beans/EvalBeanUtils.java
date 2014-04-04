@@ -234,13 +234,13 @@ public class EvalBeanUtils {
         // student completion settings
         if (eval.getBlankResponsesAllowed() == null) {
             Boolean blankAllowed = (Boolean) settings.get(EvalSettings.STUDENT_ALLOWED_LEAVE_UNANSWERED);
-            if (blankAllowed == null) { blankAllowed = false; }
+            if (blankAllowed == null) { blankAllowed = true; }
             eval.setBlankResponsesAllowed(blankAllowed);
         }
 
         if (eval.getModifyResponsesAllowed() == null) {
             Boolean modifyAllowed = (Boolean) settings.get(EvalSettings.STUDENT_MODIFY_RESPONSES);
-            if (modifyAllowed == null) { modifyAllowed = false; }
+            if (modifyAllowed == null) { modifyAllowed = true; }
             eval.setModifyResponsesAllowed(modifyAllowed);
         }
 
