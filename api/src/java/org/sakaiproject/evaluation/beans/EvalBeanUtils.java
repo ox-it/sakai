@@ -212,9 +212,8 @@ public class EvalBeanUtils {
 
         Date instructorsDate = null;
         Boolean instructorsView = (Boolean) settings.get(EvalSettings.INSTRUCTOR_ALLOWED_VIEW_RESULTS);
-        if (instructorsView != null) {
-            eval.setInstructorViewResults( instructorsView );
-        }
+        if (instructorsView == null) { instructorsView = false; }
+        eval.setInstructorViewResults( instructorsView );
 
         if (eval.getResultsSharing() == null) {
             eval.setResultsSharing( EvalConstants.SHARING_VISIBLE );
