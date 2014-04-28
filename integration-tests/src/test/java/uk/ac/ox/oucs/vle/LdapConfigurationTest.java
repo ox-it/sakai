@@ -93,6 +93,42 @@ public class LdapConfigurationTest implements LdapConnectionManagerConfig {
 	public void setPoolMaxConns(int poolMaxConns) {
 		this.poolMaxConns = poolMaxConns;
 	}
+
+	@Override
+	public int getMaxObjectsToQueryFor() {
+		return 0;
+	}
+
+	@Override
+	public void setMaxObjectsToQueryFor(int i) {
+
+	}
+
+	@Override
+	public int getBatchSize() {
+		return 0;
+	}
+
+	@Override
+	public void setBatchSize(int i) {
+
+	}
+
+	@Override
+	public int getMaxResultSize() {
+		return 0;
+	}
+
+	@Override
+	public void setMaxResultSize(int i) {
+
+	}
+
+	@Override
+	public void setEnableAid(boolean b) {
+
+	}
+
 	public boolean isSecureConnection() {
 		return secureConnection;
 	}

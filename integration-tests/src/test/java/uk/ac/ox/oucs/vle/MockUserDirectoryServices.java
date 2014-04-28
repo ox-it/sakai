@@ -1,10 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.HttpAccess;
@@ -23,6 +19,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class MockUserDirectoryServices implements UserDirectoryService {
+
+	@Override
+	public PasswordRating validatePassword(String s, User user) {
+		return null;
+	}
 
 	public UserEdit addUser(String arg0, String arg1)
 			throws UserIdInvalidException, UserAlreadyDefinedException,
@@ -145,6 +146,11 @@ public class MockUserDirectoryServices implements UserDirectoryService {
 				return null;
 			}
 
+			@Override
+			public Date getCreatedDate() {
+				return null;
+			}
+
 			public String getDisplayId() {
 				// TODO Auto-generated method stub
 				return "displayId"+eid;
@@ -182,6 +188,11 @@ public class MockUserDirectoryServices implements UserDirectoryService {
 
 			public Time getModifiedTime() {
 				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Date getModifiedDate() {
 				return null;
 			}
 
@@ -263,6 +274,11 @@ public class MockUserDirectoryServices implements UserDirectoryService {
 		return null;
 	}
 
+	@Override
+	public List<User> getUsersByEids(Collection<String> strings) {
+		return null;
+	}
+
 	public UserEdit mergeUser(Element arg0) throws UserIdInvalidException,
 			UserAlreadyDefinedException, UserPermissionException {
 		// TODO Auto-generated method stub
@@ -276,6 +292,11 @@ public class MockUserDirectoryServices implements UserDirectoryService {
 
 	public List searchUsers(String arg0, int arg1, int arg2) {
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<User> searchExternalUsers(String s, int i, int i2) {
 		return null;
 	}
 

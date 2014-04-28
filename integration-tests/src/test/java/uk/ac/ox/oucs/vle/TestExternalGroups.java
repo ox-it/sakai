@@ -21,12 +21,12 @@ public class TestExternalGroups extends AbstractDependencyInjectionSpringContext
 		groupManager = (ExternalGroupManager)context.getBean("ExternalGroupManager");
 	}
 	
-	public void testSearch() {
+	public void testSearch() throws Exception {
 		List<ExternalGroup> groups = groupManager.search("Computing services");
 		assertTrue("Expected to find the OUCS group.", groups.size() > 0);
 	}
 	
-	public void testFindById() {
+	public void testFindById() throws Exception {
 		ExternalGroup group = groupManager.findExternalGroup("oakUnitCode=oucs,ou=units,dc=oak,dc=ox,dc=ac,dc=uk");
 		assertNotNull(group);
 		Iterator<User> users = group.getMembers();

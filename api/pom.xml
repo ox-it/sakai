@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>uk.ac.ox.oucs</groupId>
@@ -14,36 +14,15 @@
 	<properties>
 		<deploy.target>shared</deploy.target>
 	</properties>
-	<profiles>
-		<profile>
-			<id>pre-K1</id>
-			<dependencies>
-				<dependency>
-					<groupId>org.sakaiproject</groupId>
-					<artifactId>sakai-component</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>org.sakaiproject</groupId>
-					<artifactId>sakai-user-api</artifactId>
-				</dependency>
-			</dependencies>
-		</profile>
-		<profile>
-			<id>K1</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<dependencies>
-				<dependency>
-					<groupId>org.sakaiproject.kernel</groupId>
-					<artifactId>sakai-kernel-api</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>org.sakaiproject.kernel</groupId>
-					<artifactId>sakai-component-manager</artifactId>
-				</dependency>
-			</dependencies>
-		</profile>
-	</profiles>
+	<dependencies>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-component-manager</artifactId>
+		</dependency>
+	</dependencies>
 
 </project>
