@@ -41,6 +41,8 @@ public class AdminSitesReport implements Job {
 
 	private String siteType = DEFAULT_SITE_TYPE;
 	private String userRole = DEFAULT_USER_ROLE;
+
+	/** This maps short division codes into nice names to display to users. */
 	private Map<String, String> divisionNames = Collections.emptyMap();
 	private String divisionProp = DEFAULT_DIVISION_PROP;
 
@@ -72,45 +74,88 @@ public class AdminSitesReport implements Job {
 		this.divisionProp = divisionProp;
 	}
 
+	/**
+	 * This holds the state of the jobs and allows it to be passed between methods.
+	 */
+	private class State {
+		// Counters
+		long allSites = 0;
+		long divisions = 0;
+		long ignoredSites = 0;
+		long ignoredDivisions = 0;
+
+		// This is the source data we get back from our questions from Sakai.
+		Map<String, List<Site>> sitesByDivision = new HashMap<String, List<Site>>();
+
+
+		// The list of all coordinators emails.
+		List<String> emails = new ArrayList<String>();
+
+		// The context used for rendering the JSON and templates
+		Map<String, Object> context = new HashMap<String, Object>();
+	}
+
 	public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
 
-		List<Site> allSites
-				= siteService.getSites(SelectionType.ANY, siteType, null, null, SortType.NONE, null);
-		log.debug(String.format("Found %d sites when search for sites of type %s.", allSites.size(), siteType));
+		State state = new State();
 
-		long ignoredSites = 0, ignoredDivisions = 0;
+		loadSites(state);
 
-		// Split the sites per division
-		Map<String, List<Site>> sitesByDivision = new HashMap<String, List<Site>>();
-		for (Site site: allSites) {
-			String division = site.getProperties().getProperty(divisionProp);
-			if (divisionNames.containsKey(division)) {
-				List<Site> divisionSites = sitesByDivision.get(division);
-				if (divisionSites == null) {
-					divisionSites = new ArrayList<Site>();
-					sitesByDivision.put(division, divisionSites);
-				}
-				divisionSites.add(site);
-			} else {
-				// We expect some of these.
-				log.debug(String.format("Ignoring site without an oxDivision: %s(%s)", site.getTitle(), site.getId()));
-				ignoredSites++;
-			}
-		}
+		buildRenderContext(state);
 
+		renderTemplates(state);
+
+		log.info(String.format("Found %d sites, ignored %d, processed %d divisions, ignored %d",
+				state.allSites, state.ignoredSites, state.divisions, state.ignoredDivisions));
+
+	}
+
+	/**
+	 * This takes the built context out of the state and renders the templates.
+	 * @param state The current state.
+	 */
+	private void renderTemplates(State state) {
+		Template template = Mustache.compiler().compile(new InputStreamReader(getClass().getResourceAsStream("/public.html")));
+		StringWriter writer = new StringWriter();
+		template.execute(state.context, writer);
+
+		reportWriter.writeReport("public.html", "text/html", new ByteArrayInputStream(writer.toString().getBytes()),
+				AdminSiteReportWriter.Access.PUBLIC);
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		writer = new StringWriter();
+		gson.toJson(state.context,writer);
+		reportWriter.writeReport("public.json", "application/json", new ByteArrayInputStream(writer.toString().getBytes()),
+				AdminSiteReportWriter.Access.PUBLIC);
+
+		template = Mustache.compiler().compile(new InputStreamReader(getClass().getResourceAsStream("/emails.txt")));
+		writer = new StringWriter();
+		template.execute(Collections.singletonMap("emails", state.emails), writer);
+		reportWriter.writeReport("emails.txt", "text/plain", new ByteArrayInputStream(writer.toString().getBytes()),
+				AdminSiteReportWriter.Access.PRIVATE);
+
+		writer = new StringWriter();
+		gson.toJson(state.emails, writer);
+		reportWriter.writeReport("emails.json", "application/json", new ByteArrayInputStream(writer.toString().getBytes()),
+				AdminSiteReportWriter.Access.PRIVATE);
+	}
+
+	/**
+	 * This takes the sites we found, looks up the users and builds a context to be used to render the templates
+	 * @param state The current state.
+	 */
+	private void buildRenderContext(State state) {
 		// Go through divisions by name
 		List<Map.Entry<String, String>> divisions = new ArrayList<Map.Entry<String, String>>(divisionNames.entrySet());
 		Collections.sort(divisions, new MapValueComparator<String>(new NaturalComparator<String>()));
-		List<String> emails = new ArrayList<String>();
 
 		// Used for rendering.
-		Map<String, Object> context = new HashMap<String, Object>();
 		ArrayList<Map<String, Object>> divisionsCtx = new ArrayList<Map<String, Object>>();
 		for (Map.Entry<String, String> divisionEntry: divisions) {
-			List<Site> sites = sitesByDivision.get(divisionEntry.getKey());
+			List<Site> sites = state.sitesByDivision.get(divisionEntry.getKey());
 			if (sites == null || sites.isEmpty()) {
 				log.debug("No sites found in division: "+ divisionEntry.getValue());
-				ignoredDivisions++;
+				state.ignoredDivisions++;
 				continue;
 			}
 			List<Map<String, Object>> sitesCtx = new ArrayList<Map<String, Object>>();
@@ -133,7 +178,7 @@ public class AdminSitesReport implements Job {
 						usersCtx.add(userCtx);
 						// Also add to the list of emails.
 						if (user.getEmail() != null) {
-							emails.add(user.getEmail());
+							state.emails.add(user.getEmail());
 						} else {
 							// This shouldn't happen as all oxford users should have email addresses
 							log.warn("No email address listed for: " + user.getDisplayName());
@@ -149,37 +194,36 @@ public class AdminSitesReport implements Job {
 			divisionCtx.put("sites", sitesCtx);
 			divisionsCtx.add(divisionCtx);
 		}
-		context.put("divisions", divisionsCtx);
-		context.put("role", userRole);
-		log.info(String.format("Found %d sites, ignored %d, processed %d divisions, ignored %d",
-				allSites.size(), ignoredSites, divisions.size(), ignoredDivisions));
+		state.context.put("divisions", divisionsCtx);
+		state.context.put("role", userRole);
+	}
 
+	/**
+	 * Loads the sites we're interested in from the DB and puts them into the state.
+	 * @param state The current state.
+	 */
+	private void loadSites(State state) {
+		List<Site> allSites
+				= siteService.getSites(SelectionType.ANY, siteType, null, null, SortType.NONE, null);
+		log.debug(String.format("Found %d sites when search for sites of type %s.", allSites.size(), siteType));
 
-		Template template = Mustache.compiler().compile(new InputStreamReader(getClass().getResourceAsStream("/public.html")));
-		StringWriter writer = new StringWriter();
-		template.execute(context, writer);
-
-		reportWriter.writeReport("public.html", "text/html", new ByteArrayInputStream(writer.toString().getBytes()),
-				AdminSiteReportWriter.Access.PUBLIC);
-
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		writer = new StringWriter();
-		gson.toJson(context,writer);
-		reportWriter.writeReport("public.json", "application/json", new ByteArrayInputStream(writer.toString().getBytes()),
-				AdminSiteReportWriter.Access.PUBLIC);
-
-		template = Mustache.compiler().compile(new InputStreamReader(getClass().getResourceAsStream("/emails.txt")));
-		writer = new StringWriter();
-		template.execute(Collections.singletonMap("emails", emails), writer);
-		reportWriter.writeReport("emails.txt", "text/plain", new ByteArrayInputStream(writer.toString().getBytes()),
-				AdminSiteReportWriter.Access.PRIVATE);
-
-		writer = new StringWriter();
-		gson.toJson(emails, writer);
-		reportWriter.writeReport("emails.json", "application/json", new ByteArrayInputStream(writer.toString().getBytes()),
-				AdminSiteReportWriter.Access.PRIVATE);
-
-
+		// Split the sites per division
+		for (Site site: allSites) {
+			String division = site.getProperties().getProperty(divisionProp);
+			if (divisionNames.containsKey(division)) {
+				List<Site> divisionSites = state.sitesByDivision.get(division);
+				if (divisionSites == null) {
+					divisionSites = new ArrayList<Site>();
+					state.sitesByDivision.put(division, divisionSites);
+				}
+				divisionSites.add(site);
+			} else {
+				// We expect some of these.
+				log.debug(String.format("Ignoring site without an oxDivision: %s(%s)", site.getTitle(), site.getId()));
+				state.ignoredSites++;
+			}
+		}
+		state.allSites = allSites.size();
 	}
 
 	/**
