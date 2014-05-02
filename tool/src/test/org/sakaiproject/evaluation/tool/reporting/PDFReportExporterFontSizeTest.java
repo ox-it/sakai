@@ -39,7 +39,7 @@ public class PDFReportExporterFontSizeTest {
 	}
 
 	@Test
-	public void testFontSizeNoSpavce() {
+	public void testFontSizeNoSpace() {
 		assertEquals(14.0f, exporter.calculateFontSize("<div style='font-size:large;'>Hello</div>"), DELTA);
 	}
 
