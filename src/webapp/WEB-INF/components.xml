@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+	<bean
+			id="uk.ac.ox.it.vle.AdminSitesReport"
+			class="uk.ac.ox.it.vle.AdminSitesReport">
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="reportWriter">
+			<bean class="uk.ac.ox.it.vle.AdminSiteReportWriterSakai">
+				<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+				<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+				<property name="outputFolder" value="/private/coordinators/"/>
+			</bean>
+		</property>
+		<property name="userRole" value="coordinator"/>
+		<property name="siteType" value="admin"/>
+		<property name="divisionProp" value="oxDivision"/>
+		<property name="divisionNames">
+			<map>
+				<entry key="acserv" value="ASUC"/>
+				<entry key="centadm" value="UAS"/>
+				<entry key="college" value="College"/>
+				<entry key="conted" value="Continuing Education"/>
+				<entry key="councildep" value="clubs, Sheldonian, Proctors account, child care cttee, sports strategy ctte"/>
+				<entry key="human" value="Humanities"/>
+				<entry key="mathsci" value="MPLS"/>
+				<entry key="medsci" value="Medical Sciences"/>
+				<entry key="none" value="retired staff, Rhodes House"/>
+				<entry key="other" value="eg, Isis innovation, OU endowment management, OUSU, Conference of colleges"/>
+				<entry key="payetc" value="Payroll &amp; Others, Europaeum, Oxford Centre for Hebrew and Jewish Studies, Oxford Centre for Islamic Studies"/>
+				<entry key="related" value="OU consulting, social sciences"/>
+				<entry key="socsci" value="Social Sciences"/>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="uk.ac.ox.it.vle.AdminSitesReport.StatsUpdateJobBeanWrapper"
+		  class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		  singleton="true" init-method="init">
+		<property name="jobName" value="Admin Sites Report Generation" />
+		<property name="beanId" value="uk.ac.ox.it.vle.AdminSitesReport" />
+		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+	</bean>
+</beans>
