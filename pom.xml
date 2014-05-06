@@ -2,6 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>master</artifactId>
+		<version>10-SNAPSHOT</version>
+		<relativePath>../master/pom.xml</relativePath>
+	</parent>
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>hierarchy-base</artifactId>
 	<name>Tetra Elf Hierarchy</name>
@@ -103,8 +109,7 @@
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
-				<!-- Stuck at 4.4 https://jira.springsource.org/browse/SPR-5145 -->
-				<version>4.4</version>
+				<version>4.11</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -129,6 +134,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>

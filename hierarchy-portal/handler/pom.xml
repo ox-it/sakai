@@ -29,19 +29,19 @@
 			<artifactId>sakai-hierarchy-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
+			<groupId>org.sakaiproject.portal</groupId>
 			<artifactId>sakai-portal-impl</artifactId>
 			<version>${sakai.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
+			<groupId>org.sakaiproject.portal</groupId>
 			<artifactId>sakai-portal-api</artifactId>
 			<version>${sakai.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
+			<groupId>org.sakaiproject.presence</groupId>
 			<artifactId>sakai-presence-api</artifactId>
 			<version>${sakai.version}</version>
 			<scope>provided</scope>
