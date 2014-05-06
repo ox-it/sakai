@@ -3,7 +3,7 @@ package org.springframework.web.servlet.mvc.annotation;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.beans.factory.generic.GenericBeanFactoryAccessor;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -33,7 +33,7 @@ public class FilteredAnnotationHandlerMapping extends DefaultAnnotationHandlerMa
         ApplicationContext context = getApplicationContext();
         ListableBeanFactory bf = (context instanceof ConfigurableApplicationContext ? ((ConfigurableApplicationContext) context)
                 .getBeanFactory() : context);
-        GenericBeanFactoryAccessor bfa = new GenericBeanFactoryAccessor(bf);
+        DefaultListableBeanFactory bfa = new DefaultListableBeanFactory(bf);
         TargettedController controller = bfa.findAnnotationOnBean(beanName, TargettedController.class);
         // Might not be annotated with TargettedController
         if (controller != null) {
