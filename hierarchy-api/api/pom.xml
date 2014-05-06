@@ -9,7 +9,7 @@
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>sakai-hierarchy-api</artifactId>
-	<name>sakai-hierarchy-api</name>
+	<name>Tetra Elf Hierarchy API</name>
 	<properties>
 		<deploy.target>shared</deploy.target>
 	</properties>

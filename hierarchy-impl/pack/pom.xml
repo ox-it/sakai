@@ -10,7 +10,7 @@
 	  <relativePath>../..</relativePath>
   </parent>
   <artifactId>sakai-hierarchy-pack</artifactId>
-  <name>sakai-hierarchy-pack</name>
+  <name>Tetra Elf Hierarchy Component</name>
   <packaging>sakai-component</packaging>
    <dependencies>
     <dependency>

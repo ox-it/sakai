@@ -9,7 +9,7 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>hierarchy-portal-handler</artifactId>
-	<name>hierarchy-portal-handler</name>
+	<name>Tetra Elf Hierarchy Portal Handler</name>
 	<packaging>war</packaging>
 	<dependencies>
 		<dependency>

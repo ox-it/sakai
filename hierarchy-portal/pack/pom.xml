@@ -8,7 +8,7 @@
 		<version>1.0-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
-	<name>hierarchy-portal-pack</name>
+	<name>Tetra Elf Hierarchy Portal Component</name>
 	<artifactId>hierarchy-portal-pack</artifactId>
 	<packaging>sakai-component</packaging>
 	<properties>

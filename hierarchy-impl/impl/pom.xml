@@ -9,7 +9,7 @@
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>sakai-hierarchy-impl</artifactId>
-	<name>sakai-hierarchy-impl</name>
+	<name>Tetra Elf Hierarchy Implementation</name>
 	<build>
 		<resources>
 			<resource>

@@ -8,7 +8,7 @@
 		<version>1.0-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
-	<name>hierarchy-portal-impl</name>
+	<name>Tetra Elf Hierarchy Portal Implementation</name>
 	<artifactId>hierarchy-portal-impl</artifactId>
 	<packaging>jar</packaging>
 	<dependencies>

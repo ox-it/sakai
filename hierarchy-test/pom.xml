@@ -10,7 +10,7 @@
   </parent>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-hierarchy-test</artifactId>
-  <name>sakai-hierarchy-test</name>
+  <name>Tetra Elf Hierarchy Test</name>
   <version>M2</version>
   <build>
   </build>
