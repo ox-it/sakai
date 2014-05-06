@@ -16,6 +16,7 @@ import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.context.ContextLoader;
+import org.springframework.test.context.MergedContextConfiguration;
 import org.springframework.test.context.support.AbstractContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
@@ -26,14 +27,19 @@ import org.springframework.web.servlet.DispatcherServlet;
  * and {@link WebApplicationContext} so that Spring MVC stacks can be tested
  * from within JUnit.
  * 
- * @see http
- *      ://tedyoung.me/2011/02/14/spring-mvc-integration-testing-controllers/
+ * @see http://tedyoung.me/2011/02/14/spring-mvc-integration-testing-controllers/
  */
 public class MockWebApplicationContextLoader extends AbstractContextLoader {
 	/**
 	 * The configuration defined in the {@link MockWebApplication} annotation.
 	 */
 	private MockWebApplication configuration;
+
+
+	@Override
+	public ApplicationContext loadContext(MergedContextConfiguration mergedConfig) throws Exception {
+		return loadContext(mergedConfig.getLocations());
+	}
 
 	@Override
 	@SuppressWarnings("serial")
@@ -42,6 +48,9 @@ public class MockWebApplicationContextLoader extends AbstractContextLoader {
 		// MockWebApplication annotation.
 		final MockServletContext servletContext = new MockServletContext(configuration.webapp(),
 				new FileSystemResourceLoader());
+		// This is a fudge to get it working in Sakai 10 (Spring 3.2).
+		servletContext.setMajorVersion(2);
+		servletContext.setMinorVersion(4);
 		final MockServletConfig servletConfig = new MockServletConfig(servletContext, configuration.name());
 
 		// Create a WebApplicationContext and initialize it with the xml and
@@ -78,9 +87,12 @@ public class MockWebApplicationContextLoader extends AbstractContextLoader {
 				new ApplicationListener() {
 					@Override
 					public void onApplicationEvent(ApplicationEvent event) {
-						dispatcherServlet.onApplicationEvent(event);
+						if (event instanceof ContextRefreshedEvent) {
+							dispatcherServlet.onApplicationEvent((ContextRefreshedEvent) event);
+						}
 					}
-				}));
+				}
+		));
 
 		// Prepare the context.
 		webApplicationContext.refresh();
@@ -126,5 +138,5 @@ public class MockWebApplicationContextLoader extends AbstractContextLoader {
 	protected String getResourceSuffix() {
 		return "-context.xml";
 	}
-
 }
+

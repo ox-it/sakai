@@ -284,12 +284,12 @@ public class ManageControllerTest {
 
 	@Test
 	// Here we don't set the new site ID and so the container will throw an
-	// exception.
-	@ExpectedException(MissingServletRequestParameterException.class)
+	// exception, which gets mapped to a 400 error.
 	public void testSaveSiteBad() throws ServletException, IOException, PermissionException {
 		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/site/save");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		servlet.service(request, response);
+		assertEquals(400, response.getStatus());
 	}
 
 	@Test
