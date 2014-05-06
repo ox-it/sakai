@@ -15,6 +15,7 @@ import javax.servlet.ServletException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
@@ -86,7 +87,7 @@ public class DeleteControllerTest {
 	}
 
 	@Test
-	public void testDeleteSubmit() throws ServletException, IOException, IllegalStateException, PermissionException {
+	public void testDeleteSubmit() throws ServletException, IOException, IllegalStateException, PermissionException, IdUnusedException {
 		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/delete");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		servlet.service(request, response);
@@ -97,7 +98,7 @@ public class DeleteControllerTest {
 
 	@Test
 	public void testDeleteSubmitAndRemove() throws ServletException, IOException, IllegalStateException,
-			PermissionException {
+			PermissionException, IdUnusedException {
 		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/delete");
 		request.setParameter("deleteSite", "true");
 		MockHttpServletResponse response = new MockHttpServletResponse();
