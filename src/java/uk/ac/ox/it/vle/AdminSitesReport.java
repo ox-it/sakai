@@ -88,8 +88,8 @@ public class AdminSitesReport implements Job {
 		Map<String, List<Site>> sitesByDivision = new HashMap<String, List<Site>>();
 
 
-		// The list of all coordinators emails.
-		List<String> emails = new ArrayList<String>();
+		// The list of all coordinators emails (set as we don't care about duplicates).
+		Set<String> emails = new HashSet<String>();
 
 		// The context used for rendering the JSON and templates
 		Map<String, Object> context = new HashMap<String, Object>();
