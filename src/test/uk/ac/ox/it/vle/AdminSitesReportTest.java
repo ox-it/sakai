@@ -18,9 +18,9 @@ import org.sakaiproject.user.api.UserDirectoryService;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
+import static org.junit.Assert.assertEquals;
 import static org.sakaiproject.site.api.SiteService.SelectionType;
 
 /**
@@ -57,7 +57,7 @@ public class AdminSitesReportTest {
 
 	@Test
 	public void testSingleDivision() throws JobExecutionException, IOException {
-		Site site = newSite("1");
+		Site site = newSite("1", new HashSet<String>(Arrays.asList("1")));
 
 		User user = newUser("1");
 
@@ -90,20 +90,45 @@ public class AdminSitesReportTest {
 		Assert.assertNotNull(captor.getAllValues());
 	}
 
+	@Test
+	public void testDuplicateUser() throws JobExecutionException, IOException {
+		User user1 = newUser("user1");
+		User user2 = newUser("user2");
+
+		Set<String> site1Users = new HashSet<String>(Arrays.asList("user1"));
+		Site site1 = newSite("site1", site1Users);
+		Set<String> site2Users = new HashSet<String>(Arrays.asList("user1", "user2"));
+		Site site2 = newSite("site2", site2Users);
+
+		Mockito.when(siteService.getSites(Matchers.eq(SelectionType.ANY), Matchers.anyString(), Matchers.anyString(), Matchers.anyMap(), Matchers.any(SiteService.SortType.class), Matchers.any(PagingPosition.class))).thenReturn(
+				Arrays.asList(site1, site2)
+			);
+		Mockito.when(userDirectoryService.getUsers(site1Users)).thenReturn(Arrays.asList(user1));
+		Mockito.when(userDirectoryService.getUsers(site2Users)).thenReturn(Arrays.asList(user1, user2));
+
+		JobExecutionContext ctx = Mockito.mock(JobExecutionContext.class);
+		adminSitesReport.execute(ctx);
+		Mockito.verify(adminSiteReportWriter, Mockito.times(1)).writeReport(Matchers.eq("emails.txt"), Matchers.eq("text/plain"), captor.capture(), Matchers.any(AdminSiteReportWriter.Access.class));
+		InputStream stream = captor.getValue();
+		String output = IOUtils.toString(stream);
+		assertEquals("user1@hostname\nuser2@hostname\n", output);
+
+	}
+
 	private User newUser(String id) {
 		User user = Mockito.mock(User.class);
 		Mockito.when(user.getDisplayName()).thenReturn("User Display Name "+id);
-		Mockito.when(user.getEmail()).thenReturn("user"+id+"@hostname");
-		Mockito.when(user.getDisplayId()).thenReturn("user"+id);
+		Mockito.when(user.getEmail()).thenReturn(id+"@hostname");
+		Mockito.when(user.getDisplayId()).thenReturn(id);
 		return user;
 	}
 
-	private Site newSite(String id) {
+	private Site newSite(String id, Set<String> userIds) {
 		Site site = Mockito.mock(Site.class);
 		Mockito.when(site.getTitle()).thenReturn("Site Title "+id);
-		Mockito.when(site.getId()).thenReturn("siteId"+id);
-		Mockito.when(site.getUrl()).thenReturn("http://hostname/portal/siteId"+id);
-		Mockito.when(site.getUsersHasRole(ROLE)).thenReturn(Collections.singleton("user"));
+		Mockito.when(site.getId()).thenReturn(id);
+		Mockito.when(site.getUrl()).thenReturn("http://hostname/portal/"+ id);
+		Mockito.when(site.getUsersHasRole(ROLE)).thenReturn(userIds);
 		ResourceProperties resourceProperties = Mockito.mock(ResourceProperties.class);
 		Mockito.when(site.getProperties()).thenReturn(resourceProperties);
 		Mockito.when(resourceProperties.getProperty(AdminSitesReport.DEFAULT_DIVISION_PROP)).thenReturn(DIVISION);
