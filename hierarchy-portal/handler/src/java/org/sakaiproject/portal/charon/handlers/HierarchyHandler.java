@@ -168,7 +168,7 @@ public class HierarchyHandler extends SiteHandler {
 				{
 					portal.doError(req, res, session, Portal.ERROR_SITE);
 				} else {
-					super.doSite(req, res, session, site.getId(), pageId, req.getContextPath()+req.getServletPath());
+					super.doSite(req, res, session, site.getId(), pageId, null, null, parts, req.getContextPath()+req.getServletPath());
 				}
 			} else {
 				if (node instanceof PortalNodeSite) {
