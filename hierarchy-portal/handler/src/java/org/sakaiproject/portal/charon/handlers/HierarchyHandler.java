@@ -31,6 +31,7 @@ import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.api.Portal.LoginRoute;
+import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.presence.cover.PresenceService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -287,6 +288,7 @@ public class HierarchyHandler extends SiteHandler {
 		}
 
 		// find the page, or use the first page if pageId not found
+
 		SitePage page = lookupSitePage(pageId, site);
 		if (page == null && pageId != null && node != null)
 		{
@@ -491,14 +493,18 @@ public class HierarchyHandler extends SiteHandler {
 		List<Map<String,String>> childSiteMaps = list;
 		rcontext.put("children", childSiteMaps);
 
-		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + siteUrl
-				+ "/page/");
-		String toolUrl = Web.returnUrl(req, "/" + portalPrefix
-				+ Web.escapeUrl(portal.getSiteHelper().getSiteEffectiveId(site)));
-		String pagePopupUrl = Web.returnUrl(req, "/page/");
+		String siteEffectiveId = node.getPath();
 
 
-		Map hierarchyPages = portal.getSiteHelper().pageListToMap(req, loggedIn, hierarchySite, page, toolUrl, portalPrefix, true, resetTools, false);
+		List<Map<String, Object>> hierarchyPages = new ArrayList<Map<String, Object>>();
+		for (SitePage hierarchyPage: (List<SitePage>)portal.getSiteHelper().getPermittedPagesInOrder(hierarchySite)) {
+			String pageAlias = portal.getSiteHelper().lookupPageToAlias(hierarchySite.getId(), hierarchyPage);
+
+			String pagerefUrl = ToolUtils.getPageUrl(req, site, hierarchyPage, portalPrefix,
+					resetTools, siteEffectiveId, pageAlias);
+			boolean current = hierarchyPage.equals(page) && !(hierarchyPage.isPopUp());
+			hierarchyPages.add(portal.getSiteHelper().pageToMap(req, site, false, hierarchyPage, null, null, null, current, pagerefUrl));
+		}
 		rcontext.put("hierarchyPages", hierarchyPages);
 
 
