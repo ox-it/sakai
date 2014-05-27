@@ -506,7 +506,7 @@ public class HierarchyHandler extends SiteHandler {
 			String pagerefUrl = ToolUtils.getPageUrl(req, site, hierarchyPage, portalPrefix,
 					resetTools, siteEffectiveId, pageAlias);
 			boolean current = hierarchyPage.equals(page) && !(hierarchyPage.isPopUp());
-			hierarchyPages.add(portal.getSiteHelper().pageToMap(req, site, false, hierarchyPage, null, null, null, current, pagerefUrl));
+			hierarchyPages.add(portal.getSiteHelper().pageToMap(req, site, false, hierarchyPage, hierarchyPage.getTools(), null, null, current, pagerefUrl));
 		}
 		rcontext.put("hierarchyPages", hierarchyPages);
 
