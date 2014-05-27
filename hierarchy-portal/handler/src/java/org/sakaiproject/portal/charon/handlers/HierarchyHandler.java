@@ -342,6 +342,9 @@ public class HierarchyHandler extends SiteHandler {
 
 			includeHierarchyNav(rcontext, req, session, site, page, toolContextPath, prefix, siteUrl, hierarchySite, node);
 		}
+
+		includeSiteBanner(rcontext, site);
+
 		includeWorksite(rcontext, res, req, session, site, page, toolContextPath, prefix);
 
 		portal.includeBottom(rcontext);
