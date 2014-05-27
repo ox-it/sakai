@@ -8,7 +8,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>termdates-pack</artifactId>
-    <name>Termdates pack</name>
+    <name>Termdates Component</name>
     <description>Bundled implementation of Termdates for Sakai</description>
     <packaging>sakai-component</packaging>
 
