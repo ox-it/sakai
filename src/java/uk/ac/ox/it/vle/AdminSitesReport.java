@@ -89,7 +89,8 @@ public class AdminSitesReport implements Job {
 
 
 		// The list of all coordinators emails (set as we don't care about duplicates).
-		Set<String> emails = new HashSet<String>();
+		// Want the list to be sorted though.
+		Set<String> emails = new TreeSet<String>();
 
 		// The context used for rendering the JSON and templates
 		Map<String, Object> context = new HashMap<String, Object>();

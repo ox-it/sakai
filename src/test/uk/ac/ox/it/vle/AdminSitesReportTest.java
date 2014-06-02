@@ -95,9 +95,9 @@ public class AdminSitesReportTest {
 		User user1 = newUser("user1");
 		User user2 = newUser("user2");
 
-		Set<String> site1Users = new HashSet<String>(Arrays.asList("user1"));
+		Set<String> site1Users = new TreeSet<String>(Arrays.asList("user1"));
 		Site site1 = newSite("site1", site1Users);
-		Set<String> site2Users = new HashSet<String>(Arrays.asList("user1", "user2"));
+		Set<String> site2Users = new TreeSet<String>(Arrays.asList("user1", "user2"));
 		Site site2 = newSite("site2", site2Users);
 
 		Mockito.when(siteService.getSites(Matchers.eq(SelectionType.ANY), Matchers.anyString(), Matchers.anyString(), Matchers.anyMap(), Matchers.any(SiteService.SortType.class), Matchers.any(PagingPosition.class))).thenReturn(
