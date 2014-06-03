@@ -64,8 +64,19 @@
 
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring</artifactId>
-			<scope>provided</scope>
+			<artifactId>spring-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>hsqldb</groupId>
@@ -76,14 +87,15 @@
 
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate</artifactId>
-			<scope>provided</scope>
+			<artifactId>hibernate-core</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-ehcache</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
-			<version>2.5.6.SEC01</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -109,13 +121,19 @@
 			<!-- This is needed for the org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl -->
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-private</artifactId>
-			<version>${kernel.version}</version>
+			<version>${sakai.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache</artifactId>
 			<version>1.6.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>3.12.1.GA</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

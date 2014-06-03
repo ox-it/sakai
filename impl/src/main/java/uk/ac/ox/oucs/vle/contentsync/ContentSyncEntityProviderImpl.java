@@ -20,7 +20,7 @@ import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.messageforums.entity.DecoratedMessage;
-import org.sakaiproject.component.app.messageforums.entity.DecoratedTopicInfo;
+import org.sakaiproject.api.app.messageforums.entity.DecoratedTopicInfo;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.EntityPermissionException;
