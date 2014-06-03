@@ -10,9 +10,9 @@
 	<version>1.0-SNAPSHOT</version>
 	
 	<parent>
-		<artifactId>sakai-standard-tool</artifactId>
-		<groupId>org.sakaiproject.purepoms</groupId>
-		<version>2.8.7-SNAPSHOT</version>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>master</artifactId>
+		<version>10-SNAPSHOT</version>
 	</parent>
 	
 	<organization>
@@ -74,11 +74,6 @@
 			<url>dav:https://source.sakaiproject.org/maven2</url>
 			<layout>default</layout>
 		</repository>
-		<site>
-            <id>sakai-site</id>
-            <name>Sakai release site</name>
-            <url>${url.localsite}</url>
-        </site>
 	</distributionManagement>
 	
 	<issueManagement>
@@ -97,13 +92,7 @@
 		<module>impl</module>
 		<module>pack</module>
 	</modules>
-	
-	<properties>
-		<sakai.servletapi.version>2.4</sakai.servletapi.version>
-		<entitybroker.version>1.4.0-SNAPSHOT</entitybroker.version>
-		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/oxfordshortenedurl/${project.version}</url.localsite>
-	</properties>
-    
+
 	<dependencyManagement>
 		<dependencies>
 			
@@ -122,24 +111,6 @@
 	      	</dependency>
 		    
 		    <!-- external dependencies -->
-		    <dependency>
-		      	<groupId>javax.servlet</groupId>
-		      	<artifactId>servlet-api</artifactId>
-                <version>${sakai.servletapi.version}</version>
-                <scope>provided</scope>
-		    </dependency>
-		    <dependency>
-		      	<groupId>commons-logging</groupId>
-		      	<artifactId>commons-logging</artifactId>
-		      	<version>1.1.1</version>
-		      	<scope>provided</scope>
-		    </dependency>
-		     <dependency>
-		      	<groupId>commons-lang</groupId>
-		      	<artifactId>commons-lang</artifactId>
-		      	<version>2.5</version>
-		      	<scope>provided</scope>
-		    </dependency>
 		    <dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>

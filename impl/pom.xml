@@ -28,7 +28,7 @@
       	<!-- shared external dependencies -->
 		<dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring</artifactId>
+            <artifactId>spring-core</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -62,7 +62,6 @@
 		<dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>2.5.6.SEC01</version>
             <scope>test</scope>
         </dependency>
         
