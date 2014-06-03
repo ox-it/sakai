@@ -4,8 +4,8 @@
 
 	<tool
 			id="sakai.hierarchy-manager"
-			title="Hierarchy Manager"
-		description="Hierarchy Manager ">
+			title="Arrange Site"
+		description="Arrange Site ">
 		
 		<category name="hierarchy" />
 		<configuration name="functions.require" value="portal.hierarchy.modify"/>
