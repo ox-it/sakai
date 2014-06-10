@@ -8,6 +8,6 @@
 			This is just used by the maven plugin, Sakai has it's own way of
 			setting up hibernate through spring.
 		-->
-		<mapping resource="uk/ac/ox/oucs/vle/Course.hbm.xml" />
+		<!--<mapping resource="uk/ac/ox/oucs/vle/Course.hbm.xml" />-->
 	</session-factory>
 </hibernate-configuration>

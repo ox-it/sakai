@@ -7,6 +7,7 @@
 		<artifactId>course-signup-base</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
+
 	<artifactId>course-signup-hbm</artifactId>
 	<name>Course Signup Hibernate</name>
 	<packaging>jar</packaging>
@@ -24,7 +25,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate</artifactId>
+			<artifactId>hibernate-core</artifactId>
 		</dependency>
 	</dependencies>
 	<build>
@@ -62,7 +63,7 @@
 					<execution>
 						 <phase>process-resources</phase>
 						<goals>
-<!--							<goal>hbm2java</goal>-->
+							<goal>hbm2java</goal>
 						</goals>
 					</execution>
 
@@ -71,7 +72,7 @@
 						<id>export-hsqldb</id>
 						 <phase>process-classes</phase>
 						<goals>
-<!--							<goal>hbm2ddl</goal>-->
+							<goal>hbm2ddl</goal>
 						</goals>
 						<configuration>
 							<componentProperties>
@@ -84,7 +85,7 @@
 						<id>export-mysql</id>
 						<phase>process-classes</phase>
 						<goals>
-<!--							<goal>hbm2ddl</goal>-->
+							<goal>hbm2ddl</goal>
 						</goals>
 						<configuration>
 							<componentProperties>
@@ -97,7 +98,7 @@
 						<id>export-oracle</id>
 						<phase>process-classes</phase>
 						<goals>
-<!--							<goal>hbm2ddl</goal>-->
+							<goal>hbm2ddl</goal>
 						</goals>
 						<configuration>
 							<componentProperties>
@@ -117,7 +118,7 @@
 						<id>add-source</id>
 						 <phase>generate-sources</phase>
 						<goals>
-<!--							<goal>add-source</goal>-->
+							<goal>add-source</goal>
 						</goals>
 						<configuration>
 							<sources>
@@ -128,6 +129,5 @@
 				</executions>
 			</plugin>
 		</plugins>
-		<sourceDirectory>src/main/java</sourceDirectory>
 	</build>
 </project>

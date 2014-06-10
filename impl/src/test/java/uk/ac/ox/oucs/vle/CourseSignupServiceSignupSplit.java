@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.hibernate3.HibernateTransactionManager;
+import org.springframework.test.AbstractTransactionalSpringContextTests;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -39,7 +41,7 @@ public class CourseSignupServiceSignupSplit {
 	SakaiProxyTest sakaiProxyTest;
 
 	@Autowired
-	PlatformTransactionManager transactionManager;
+	HibernateTransactionManager transactionManager;
 
 	// Our transaction.
 	private TransactionStatus transaction;
@@ -81,6 +83,18 @@ public class CourseSignupServiceSignupSplit {
 		Mockito.when(courseAdmin.getId()).thenReturn("adminId");
 		sakaiProxyTest.setCurrentUser(courseAdmin);
 	}
+
+	protected void onSetUp() {
+		transaction = this.transactionManager.getTransaction(null);
+		UserProxy courseAdmin = Mockito.mock(UserProxy.class);
+		Mockito.when(courseAdmin.getId()).thenReturn("adminId");
+		sakaiProxyTest.setCurrentUser(courseAdmin);
+	}
+
+	protected void onTearDown() {
+		transactionManager.rollback(transaction);
+	}
+
 
 	@After
 	public void tearDown() {

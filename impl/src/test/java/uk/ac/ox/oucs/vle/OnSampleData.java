@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.internal.runners.TestClassRunner;
+import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.runner.RunWith;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 
@@ -32,7 +32,7 @@ import uk.ac.ox.oucs.vle.proxy.SakaiProxyTest;
 
 import java.util.*;
 
-@RunWith(TestClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 public abstract class OnSampleData extends AbstractTransactionalSpringContextTests {
 
 	private static final Log log = LogFactory.getLog(OnSampleData.class);
@@ -57,7 +57,7 @@ public abstract class OnSampleData extends AbstractTransactionalSpringContextTes
 	}
 
 	protected String[] getConfigPaths() {
-		return new String[]{"/course-signup-beans.xml", "/test-with-h2.xml", "/sample-data.xml"};
+		return new String[]{"/sample-data.xml", "/course-signup-beans.xml", "/test-with-h2.xml"};
 	}
 	
 	public void setFactory(SessionFactory factory) {

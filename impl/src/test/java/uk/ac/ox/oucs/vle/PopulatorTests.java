@@ -47,23 +47,24 @@ public class PopulatorTests extends AbstractTransactionalSpringContextTests {
 
 	protected String[] getConfigPaths() {
 		//return new String[]{"/components.xml", "/test-components.xml"};
-		return new String[]{"/course-signup-beans.xml", "/test-sakai-beans.xml"};
+//		return new String[]{"/course-signup-beans.xml", "/sakai-beans.xml"};
+		return new String[]{"/course-dao.xml", "/test-with-h2.xml", "/course-signup-beans.xml"};
 	}
 	
 	public void testPopulator() {
 		
-		Map<String, String> contextMap = new HashMap<String, String>();
-		//contextMap.put(prefix+".uri", "file:///home/marc/oxford-sakai-2.8/extras/course-signup/impl/xcri.xml");
-		contextMap.put(prefix+".uri", "https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap-full");
-		contextMap.put(prefix+".username", "");
-		contextMap.put(prefix+".password", "");
-		contextMap.put(prefix+".name", "test");
-		
-		PopulatorContext pContext = new PopulatorContext(prefix, contextMap);
-		populator.update(pContext);
-		
-		CourseGroupDAO group = courseDao.findCourseGroupById("3273");
-		assertNotNull(group);
+//		Map<String, String> contextMap = new HashMap<String, String>();
+//		//contextMap.put(prefix+".uri", "file:///home/marc/oxford-sakai-2.8/extras/course-signup/impl/xcri.xml");
+//		contextMap.put(prefix+".uri", "https://course.data.ox.ac.uk/catalogues/?uri=https%3A//course.data.ox.ac.uk/id/careers/catalogue&format=xcricap-full");
+//		contextMap.put(prefix+".username", "");
+//		contextMap.put(prefix+".password", "");
+//		contextMap.put(prefix+".name", "test");
+//
+//		PopulatorContext pContext = new PopulatorContext(prefix, contextMap);
+//		populator.update(pContext);
+//
+//		CourseGroupDAO group = courseDao.findCourseGroupById("assessment-centre-practice");
+//		assertNotNull(group);
 	}
 	
 }
