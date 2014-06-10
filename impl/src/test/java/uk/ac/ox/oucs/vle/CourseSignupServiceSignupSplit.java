@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.hibernate3.HibernateTransactionManager;
+import org.springframework.test.AbstractTransactionalSpringContextTests;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -24,22 +26,22 @@ import static org.junit.Assert.assertEquals;
 /**
  * Test the splitting of a signup.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:/course-signup-beans.xml", "classpath:/test-with-h2.xml"})
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@ContextConfiguration(locations = {"classpath:/course-signup-beans.xml", "classpath:/test-with-h2.xml"})
 
-public class CourseSignupServiceSignupSplit {
+public class CourseSignupServiceSignupSplit extends AbstractTransactionalSpringContextTests {
 
-	@Autowired
+//	@Autowired
 	CourseSignupService courseSignupService;
 
-	@Autowired
+//	@Autowired
 	CourseDAOImpl dao;
 
-	@Autowired
+//	@Autowired
 	SakaiProxyTest sakaiProxyTest;
 
-	@Autowired
-	PlatformTransactionManager transactionManager;
+//	@Autowired
+	HibernateTransactionManager transactionManager;
 
 	// Our transaction.
 	private TransactionStatus transaction;
@@ -74,18 +76,40 @@ public class CourseSignupServiceSignupSplit {
 		transactionManager.commit(data);
 	}
 
-	@Before
-	public void setUp() {
-		transaction = transactionManager.getTransaction(null);
-		UserProxy courseAdmin = Mockito.mock(UserProxy.class);
-		Mockito.when(courseAdmin.getId()).thenReturn("adminId");
-		sakaiProxyTest.setCurrentUser(courseAdmin);
-	}
+//	@Before
+//	public void setUp() {
+//		transaction = transactionManager.getTransaction(null);
+//		UserProxy courseAdmin = Mockito.mock(UserProxy.class);
+//		Mockito.when(courseAdmin.getId()).thenReturn("adminId");
+//		sakaiProxyTest.setCurrentUser(courseAdmin);
+//	}
 
-	@After
-	public void tearDown() {
-		transactionManager.rollback(transaction);
-	}
+    @Override
+    protected void onSetUp() throws Exception {
+        super.onSetUp();
+        transaction = this.transactionManager.getTransaction(null);
+        UserProxy courseAdmin = Mockito.mock(UserProxy.class);
+        Mockito.when(courseAdmin.getId()).thenReturn("adminId");
+        sakaiProxyTest.setCurrentUser(courseAdmin);
+    }
+
+    @Override
+    protected void onTearDown() throws Exception {
+        super.onTearDown();
+        transactionManager.rollback(transaction);
+    }
+
+    @Override
+    protected String[] getConfigPaths() {
+//        return new String[]{"/course-signup-beans.xml", "/sakai-beans.xml", "/course-dao.xml", "/test-with-h2.xml"};
+//        return new String[]{ "/course-dao.xml", "/test-with-h2.xml"};
+        return new String[]{"/course-dao.xml", "/test-with-h2.xml", "/course-signup-beans.xml"};
+    }
+
+    @After
+//	public void tearDown() {
+//		transactionManager.rollback(transaction);
+//	}
 
 	@Test
 	public void testSplit() {

@@ -4,6 +4,8 @@ import com.novell.ldap.LDAPSocketFactory;
 
 import edu.amc.sakai.user.LdapConnectionManagerConfig;
 
+import java.lang.Override;
+
 public class LdapConfigurationTest implements LdapConnectionManagerConfig {
 
 	boolean autoBind = false;

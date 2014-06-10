@@ -27,8 +27,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import org.hibernate.HibernateException;
-import org.hibernate.type.NullableType;
-import org.hibernate.type.TypeFactory;
+import org.hibernate.type.*;
 import org.hibernate.usertype.ParameterizedType;
 import org.hibernate.usertype.UserType;
 
@@ -40,7 +39,7 @@ public class GenericEnumUserType implements UserType, ParameterizedType {
 	private Class<?> identifierType;
 	private Method identifierMethod;
 	private Method valueOfMethod;
-	private NullableType type;
+	private StringType type;
 	private int[] sqlTypes;
 
 	public void setParameterValues(Properties parameters) {
@@ -63,13 +62,17 @@ public class GenericEnumUserType implements UserType, ParameterizedType {
 					e);
 		}
 
-		type = (NullableType) TypeFactory.basic(identifierType.getName());
+//        BasicTypeRegistry b = new BasicTypeRegistry();
+//        TypeFactory t = new TypeFactory();
+        type = (StringType) new TypeResolver().basic(identifierType.getName());
 
 		if (type == null)
 			throw new HibernateException("Unsupported identifier type "
 					+ identifierType.getName());
 
-		sqlTypes = new int[] { type.sqlType() };
+		sqlTypes = new int[] {
+                type.sqlType()
+        };
 
 		String valueOfMethodName = parameters.getProperty("valueOfMethod",
 				DEFAULT_VALUE_OF_METHOD_NAME);
@@ -111,7 +114,7 @@ public class GenericEnumUserType implements UserType, ParameterizedType {
 			} else {
 				Object identifier = identifierMethod.invoke(value,
 						new Object[0]);
-				type.set(st, identifier, index);
+				type.set(st, identifier.toString(), index);
 			}
 		} catch (Exception e) {
 			throw new HibernateException(

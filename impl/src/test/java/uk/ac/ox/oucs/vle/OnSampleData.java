@@ -57,7 +57,7 @@ public abstract class OnSampleData extends AbstractTransactionalSpringContextTes
 	}
 
 	protected String[] getConfigPaths() {
-		return new String[]{"/course-signup-beans.xml", "/test-with-h2.xml", "/sample-data.xml"};
+		return new String[]{"/sample-data.xml", "/course-signup-beans.xml", "/test-with-h2.xml"};
 	}
 	
 	public void setFactory(SessionFactory factory) {
