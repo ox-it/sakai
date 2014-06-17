@@ -5,7 +5,7 @@
 	<name>Sir Louie Project</name>
 	<groupId>uk.ac.ox.oucs.vle</groupId>
 	<artifactId>library-availability</artifactId>
-	<version>1.0</version>
+	<version>1.0-SNAPSHOT</version>
 	<packaging>war</packaging>
 
 
