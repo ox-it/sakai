@@ -36,7 +36,7 @@ public class CourseComponentSessionDAO implements java.io.Serializable {
 	private String sessionStartText;
 	private Date sessionEnd;
 	private String sessionEndText;
-	
+	private String location;
     
     public CourseComponentSessionDAO() {
     }
@@ -122,5 +122,12 @@ public class CourseComponentSessionDAO implements java.io.Serializable {
     public void setSessionEndText(String sessionEndText) {
         this.sessionEndText = sessionEndText;
     }
-    
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
 }
