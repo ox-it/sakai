@@ -134,7 +134,7 @@
 	</bean>
 	
 	<!-- Automatically setup the tool. -->
-	<bean class="uk.ac.ox.oucs.vle.proxy.AutoSetup" init-method="init" lazy-init="false">
+	<bean class="uk.ac.ox.oucs.vle.proxy.AutoImport" init-method="init" lazy-init="false">
 		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<!--  
@@ -147,6 +147,14 @@
 		</property>
 		-->
 	</bean>
+
+	<bean class="uk.ac.ox.oucs.vle.proxy.AutoSetup" lazy-init="false">
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
+
 
     <!-- In production we just want to use the live time -->
     <bean id="uk.ac.ox.oucs.vle.NowService" class="uk.ac.ox.oucs.vle.LiveNowService"/>
