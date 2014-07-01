@@ -17,10 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package uk.ac.ox.oucs.vle;
-
-import java.util.Arrays;
-import java.util.List;
+package uk.ac.ox.oucs.vle.proxy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

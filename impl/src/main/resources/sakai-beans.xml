@@ -134,7 +134,7 @@
 	</bean>
 	
 	<!-- Automatically setup the tool. -->
-	<bean class="uk.ac.ox.oucs.vle.AutoSetup" init-method="init" lazy-init="false">
+	<bean class="uk.ac.ox.oucs.vle.proxy.AutoSetup" init-method="init" lazy-init="false">
 		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<!--  
