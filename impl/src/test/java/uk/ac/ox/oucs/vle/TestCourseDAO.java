@@ -305,13 +305,13 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 
 		CourseComponentSessionDAO ss1 = new CourseComponentSessionDAO("1",
 				start, format.format(start),
-				end, format.format(end));
+				end, format.format(end), "location 1");
 		CourseComponentSessionDAO ss2 = new CourseComponentSessionDAO("2",
 				start, format.format(start),
-				end, format.format(end));
+				end, format.format(end), "location 2");
 		CourseComponentSessionDAO ss3 = new CourseComponentSessionDAO("3",
 				start, format.format(start),
-				end, format.format(end));
+				end, format.format(end), "location 3");
 
 		// Create a component.
 		CourseComponentDAO courseComponent = courseDao.newCourseComponent("test");

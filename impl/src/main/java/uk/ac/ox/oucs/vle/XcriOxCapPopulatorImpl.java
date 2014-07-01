@@ -27,6 +27,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom2.Document;
@@ -36,6 +37,7 @@ import org.sakaiproject.util.FormattedText;
 import org.xcri.Extension;
 import org.xcri.common.ExtensionManager;
 import org.xcri.common.OverrideManager;
+import org.xcri.common.Title;
 import org.xcri.core.Catalog;
 import org.xcri.core.Course;
 import org.xcri.core.Presentation;
@@ -981,10 +983,33 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			
 			componentDao.getComponentSessions().clear();
 			for (Session session : sessions) {
+
+				if (session.getIdentifiers().length < 1) {
+					logMe(context, "Skipped session because no identifier found ["
+							+myPresentation.getPresentationId()+":"+myPresentation.getTitle()+"]");
+					continue;
+				}
+
+				String identifier = session.getIdentifiers()[0].getValue();
+				List<String> locations = new ArrayList<String>(2);
+				for (Venue venue: session.getVenues()) {
+					if (venue.getProvider() != null) {
+						for (Title title : venue.getProvider().getTitles()) {
+							locations.add(title.getValue());
+						}
+					}
+
+				}
+				if (locations.size() > 1) {
+					logMs(context, "More than one location found for session:"+ identifier + " ["
+							+myPresentation.getPresentationId()+":"+myPresentation.getTitle()+"]");
+				}
+				String location = StringUtils.trimToNull(StringUtils.join(locations, " "));
+
 				componentDao.getComponentSessions().add(
-						new CourseComponentSessionDAO(session.getIdentifiers()[0].getValue(),
+						new CourseComponentSessionDAO(identifier,
 								session.getStart().getDtf(), session.getStart().getValue(), 
-								session.getEnd().getDtf(), session.getEnd().getValue()));
+								session.getEnd().getDtf(), session.getEnd().getValue(), location));
 			}
 			if (!componentDao.getComponentSessions().isEmpty()) {
 				componentDao.setSessions(Integer.toString(componentDao.getComponentSessions().size()));

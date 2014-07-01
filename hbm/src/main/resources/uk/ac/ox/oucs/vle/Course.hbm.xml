@@ -117,6 +117,7 @@
 		<property name="sessionStartText" type="string" length="255"/>
 		<property name="sessionEnd" type="timestamp" />
 		<property name="sessionEndText" type="string" length="255"/>
+		<!-- Can be null if there is no location specified. -->
 		<property name="location" type="string" length="4000"/>
 	</class>
 	
