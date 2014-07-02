@@ -23,10 +23,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static uk.ac.ox.oucs.vle.CourseSignupService.*;
 
@@ -324,7 +321,10 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 
 		// Check all is as it should be
 		courseComponent  = courseDao.findCourseComponent("test");
-		assertEquals(1, courseComponent.getComponentSessions().size());
+		Iterator<CourseComponentSessionDAO> sessionsIt = courseComponent.getComponentSessions().iterator();
+		assertTrue("Expected at least one session", sessionsIt.hasNext());
+		assertEquals("location 1", sessionsIt.next().getLocation());
+		assertFalse("Should be no more than one session", sessionsIt.hasNext());
 
 		// now add a session
 		courseComponent.getComponentSessions().add(ss2);
