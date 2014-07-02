@@ -276,10 +276,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (!Status.PENDING.equals(signupDao.getStatus())) {
 			throw new IllegalStateException("You can only accept signups that are waiting or pending.");
 		}
-		for (CourseComponentDAO componentDao : signupDao.getComponents()) {
-			componentDao.setTaken(componentDao.getTaken()+1);
-			dao.save(componentDao);
-		}
+
 		signupDao.setStatus(Status.WAITING);
 		signupDao.setAmended(getNow());
 		dao.save(signupDao);
