@@ -17,10 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package uk.ac.ox.oucs.vle;
-
-import java.util.Arrays;
-import java.util.List;
+package uk.ac.ox.oucs.vle.proxy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,12 +36,12 @@ import org.springframework.context.ApplicationContextAware;
 /**
  * This class performs automatic setup of the SES tool.
  * The main purpose of this is to automatically run the importers on startup.
- * @author buckett
  *
+ * @author buckett
  */
-public class AutoSetup implements ApplicationContextAware {
+public class AutoImport implements ApplicationContextAware {
 
-	private static final Log log = LogFactory.getLog(AutoSetup.class);
+	private static final Log log = LogFactory.getLog(AutoImport.class);
 
 	private SchedulerManager schedulerManager;
 	public void setSchedulerManager(SchedulerManager schedulerManager) {
@@ -65,8 +62,8 @@ public class AutoSetup implements ApplicationContextAware {
 	}
 
 	public void init() {
-		if (serverConfigurationService.getBoolean("ses.autosetup", false)) {
-			log.info ("SES AutoSetup running");
+		if (serverConfigurationService.getBoolean("ses.autoimport", false)) {
+			log.info ("SES AutoImport running");
 			Scheduler scheduler = schedulerManager.getScheduler();
 			
 			String[] startups = serverConfigurationService.getStrings("ses.startup");
@@ -114,5 +111,4 @@ public class AutoSetup implements ApplicationContextAware {
 		}
 	}
 
-	
 }
