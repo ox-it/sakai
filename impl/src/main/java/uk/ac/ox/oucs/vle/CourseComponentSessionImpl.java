@@ -61,4 +61,8 @@ public class CourseComponentSessionImpl implements CourseComponentSession {
 		return dao.getSessionEndText();
 	}
 
+	public String getLocation() {
+		return dao.getLocation();
+	}
+
 }

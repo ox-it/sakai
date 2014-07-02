@@ -35,4 +35,6 @@ public interface CourseComponentSession extends Comparable<CourseComponentSessio
 	
 	public String getSessionEndText();
 
+	public String getLocation();
+
 }

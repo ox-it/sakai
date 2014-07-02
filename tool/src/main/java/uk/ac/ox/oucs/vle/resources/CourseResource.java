@@ -678,6 +678,7 @@ public class CourseResource {
 					gen.writeObjectField("sessionStartText", session.getSessionStartText());
 					gen.writeObjectField("sessionEnd", session.getSessionEnd().getTime());
 					gen.writeObjectField("sessionEndText", session.getSessionEndText());
+					gen.writeObjectField("location", session.getLocation());
 					gen.writeEndObject();
 				}
 				gen.writeEndArray();

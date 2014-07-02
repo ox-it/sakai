@@ -251,10 +251,10 @@
 													<li>
 													{if session.singleDay }
 														${session.start|dateFormat} ${session.start|timeFormat} to
-														${session.end|timeFormat}
+														${session.end|timeFormat} ${session.location}
 													{else}
 														${session.start|dateFormat} ${session.start|timeFormat} to
-														${session.end|dateFormat} ${session.end|timeFormat}
+														${session.end|dateFormat} ${session.end|timeFormat} ${session.location}
 													{/if}
 												{/for}
 												</ul>
