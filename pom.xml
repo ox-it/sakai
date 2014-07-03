@@ -72,8 +72,8 @@
     </distributionManagement>
 
     <scm>
-        <connection>scm:git:git://git-repo.oucs.ox.ac.uk/git/repos/local-project/auto-import</connection>
-        <developerConnection>scm:git:ssh://git-repo.oucs.ox.ac.uk/~git/repos/local-project/auto-import</developerConnection>
+        <connection>scm:git:git@github.com:ox-it/wl-auto-import.git</connection>
+        <developerConnection>scm:git:git@github.com:ox-it/wl-auto-import.git</developerConnection>
     </scm>
 
     <modules>
