@@ -37,6 +37,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.antivirus.api.VirusFoundException;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -81,6 +83,19 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private final static ResourceLoader rb = new ResourceLoader("messages");
 
 	private String fromAddress;
+
+	/**
+	 * Allow all access to content.
+	 */
+	private SecurityAdvisor allowContentRead = new SecurityAdvisor() {
+		@Override
+		public SecurityAdvice isAllowed(String userId, String function, String reference) {
+			if (ContentHostingService.AUTH_RESOURCE_READ.equals(function)) {
+				return SecurityAdvice.ALLOWED;
+			}
+			return SecurityAdvice.PASS;
+		}
+	};
 
 	/**
 	 * The type to create new users as. Defaults to "guest" which is the same as Site Info tool.
@@ -168,6 +183,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private SessionManager sessionManager;
 	public void setSessionManager(SessionManager sessionManager) {
 		this.sessionManager = sessionManager;
+	}
+
+	private SecurityService securityService;
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
 	}
 
 	public void init() {
@@ -608,6 +628,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		String filePath = contentHostingService.getSiteCollection(siteId)+filename;
 		InputStream input = null;
 		try {
+			securityService.pushAdvisor(allowContentRead);
 			ContentResource resource = contentHostingService.getResource(filePath);
 			input = resource.streamContent();
 			Properties props = new Properties();
@@ -619,6 +640,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		} catch (Exception e) {
 			log.warn("Failed to load properties from: "+ filePath, e);
 		} finally {
+			securityService.popAdvisor(allowContentRead);
 			if (input != null) {
 				try {
 					input.close();
