@@ -54,6 +54,9 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 
 	private Map<String, String> displayNames = new HashMap<String, String>();
 
+	// The maximum number of results parsed from LDAP.
+	private int maxResults = 2000;
+
 	public void init() {
 		log.debug("init()");
 		if (ldapConnectionManager == null && jldapDirectoryProvider == null) {
@@ -294,7 +297,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		ensureConnectionManager();
 		LDAPConnection connection =  ldapConnectionManager.getConnection();
 		LDAPSearchConstraints searchConstraints = connection.getSearchConstraints();
-		searchConstraints.setMaxResults(1000);
+		searchConstraints.setMaxResults(maxResults);
 		connection.setConstraints(searchConstraints);
 		return connection;
 	}
@@ -327,6 +330,10 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 
 	public void setGroupBase(String groupBase) {
 		this.groupBase = groupBase;
+	}
+
+	public void setMaxResults(int maxResults) {
+		this.maxResults = maxResults;
 	}
 
 	public void setDisplayNames(Map<String, String> displayNames) {
