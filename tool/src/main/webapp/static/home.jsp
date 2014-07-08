@@ -17,10 +17,7 @@
   limitations under the License.
   #L%
   --%>
-<%@ page import="org.sakaiproject.tool.cover.ToolManager"%>
-<%@ page import="org.sakaiproject.component.cover.ServerConfigurationService" %>
-<%@ page import="org.sakaiproject.user.cover.UserDirectoryService" %>
-<%@ page session="false" %> 
+<%@ page session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core"  prefix="c" %>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
