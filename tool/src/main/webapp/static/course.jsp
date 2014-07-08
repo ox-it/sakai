@@ -36,7 +36,7 @@ pageContext.setAttribute("openCourse", (String)request.getAttribute("openCourse"
 	<title>Show Course Details</title>
 
 	<link href='<c:out value="${skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
-	<link href="<c:out value="${skinRepo}" />/<c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
+	<link href="<c:out value="${skinRepo}" />/<c:out value="${skinPrefix}" /><c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
 
 	<link rel="stylesheet" type="text/css" href="/course-signup/static/lib/jqmodal-r14/jqModal.css" />
 	<link rel="stylesheet" type="text/css" href="/course-signup/static/lib/jquery-ui-1.8.4.custom/css/smoothness/jquery-ui-1.8.4.custom.css" />
