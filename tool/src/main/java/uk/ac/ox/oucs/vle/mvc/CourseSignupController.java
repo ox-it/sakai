@@ -72,6 +72,9 @@ public class CourseSignupController extends AbstractController {
 		
 		modelAndView.addObject("skinDefault",
 				serverConfigurationService.getString("skin.default", "default"));
+
+		modelAndView.addObject("skinPrefix",
+				serverConfigurationService.getString("portal.neoprefix", ""));
 		
 		return modelAndView;
 	}
