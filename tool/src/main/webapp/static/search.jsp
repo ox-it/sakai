@@ -30,7 +30,7 @@
   <title>Module Signup Search</title>
   
   <link href='<c:out value="${skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
-  <link href="<c:out value="${skinRepo}" />/<c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
+  <link href="<c:out value="${skinRepo}" />/<c:out value="${skinPrefix}" /><c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
   
   <script type="text/javascript" src="lib/ajax-solr-master/jquery/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="lib/ajax-solr-master/jquery/jquery-migrate-1.1.1.min.js"></script>

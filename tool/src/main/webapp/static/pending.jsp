@@ -37,7 +37,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 <title>Module Signup</title>
 
 <link href='<c:out value="${skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
-<link href="<c:out value="${skinRepo}" />/<c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
+<link href="<c:out value="${skinRepo}" />/<c:out value="${skinPrefix}" /><c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
 
 <link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css" />
 <link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css" />

@@ -17,10 +17,7 @@
   limitations under the License.
   #L%
   --%>
-<%@ page import="org.sakaiproject.tool.cover.ToolManager"%>
-<%@ page import="org.sakaiproject.component.cover.ServerConfigurationService" %>
-<%@ page import="org.sakaiproject.user.cover.UserDirectoryService" %>
-<%@ page session="false" %> 
+<%@ page session="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core"  prefix="c" %>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -34,7 +31,7 @@
 	<title>Module Search</title>
 
 	<link href='<c:out value="${skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
-	<link href="<c:out value="${skinRepo}" />/<c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
+	<link href="<c:out value="${skinRepo}" />/<c:out value="${skinPrefix}" /><c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
 	<link rel="stylesheet" type="text/css" href="lib/tool.css">
   	
   	<script type="text/javascript" src="lib/jquery/jquery-1.4.4.min.js"></script>
