@@ -40,27 +40,5 @@ public class OucsDeptJob implements Job {
 			throws JobExecutionException {
 		module.update();
 	}
-	
-	/*
-	public static void main(String [] args) {
-		
-		OucsDeptJob job = new OucsDeptJob();
-		CourseDAO dao = new CourseDAOImpl();
-		
-		
-		try {
-			oucsDept.setCourseDao(dao);
-			
-			job.execute(null);
-			
-		} catch (JobExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	*/
 
 }
