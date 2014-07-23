@@ -68,7 +68,11 @@ public class RSSProxyFilter extends XMLFilter {
 	
 	
 	public String proxyUrl(String original) {
-		return proxyService.getProxyURL(original) + "&filter=imageResize("+newWidth+ ","+newHeight+")";
+		if (original == null || original.length() == 0) {
+			return "";
+		} else {
+			return proxyService.getProxyURL(original) + "&filter=imageResize(" + newWidth + "," + newHeight + ")";
+		}
 	}
 	
 	private String escapeAttributes(String source) {
