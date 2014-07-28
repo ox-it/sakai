@@ -415,6 +415,28 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		assertEquals(1, groups.size());
 	}
 
+	public void testFindCourseGroupById() {
+		// This test was to try and reproduce problems I was having with the findCourseGroupById getting confused
+		// between the column aliases in the SQL and the aliases in the result set. I couldn't reproduce the error
+		// in a test but it's worth leaving the test in to check it doesn't get any worse.
+		CourseCategoryDAO category = new CourseCategoryDAO(CourseGroup.CategoryType.RDF, "C1", "Test");
+		courseDao.save(category);
+		// Create a course
+		CourseGroupDAO aCourse = courseDao.newCourseGroup("groupId", "Title", "dept", "subunit");
+		aCourse.getCategories().add(category);
+		courseDao.save(aCourse);
+		// Create a component
+		// Create a component in the future
+		CourseComponentDAO newComponent = courseDao.newCourseComponent("newComponentId");
+		newComponent.getGroups().add(aCourse);
+		courseDao.save(newComponent);
+
+		sessionFactory.getCurrentSession().flush();
+		sessionFactory.getCurrentSession().clear();
+
+		assertNotNull(courseDao.findCourseGroupById("groupId", Range.ALL, new Date()));
+	}
+
 	public void testCountSignups() {
 
 		// Create some dates
