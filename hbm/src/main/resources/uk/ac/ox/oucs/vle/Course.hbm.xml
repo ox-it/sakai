@@ -229,6 +229,9 @@
 			<one-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"/>
 		</set>
 		<!-- Oneway set and other end isn't mutable -->
+		<!-- The fetch has to be done in a select as otherwise hibernate fails to get values out of the resultset.
+		     This wasn't easy to debug to for now simply force a select fot loading the categories.
+		     -->
 		<set name="categories" lazy="true" table="course_group_category" fetch="select">
 			<key column="courseGroupMuid" not-null="true" />
 			<many-to-many class="uk.ac.ox.oucs.vle.CourseCategoryDAO" column="categoryId"/>
