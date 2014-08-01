@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -136,6 +136,9 @@ public class UiHtmlPropertyReference extends UiPropertyReference implements Html
 		{
 			// clean
 			v = HtmlHelper.clean(v, true);
+
+			// and clean away forms (Note: done here only, not on input)
+			v = HtmlHelper.stripForms(v);
 		}
 
 		return v;

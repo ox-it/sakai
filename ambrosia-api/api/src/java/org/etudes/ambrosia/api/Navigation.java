@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -211,6 +211,13 @@ public interface Navigation extends Component
 	Navigation setIterator(PropertyReference reference, String name);
 
 	/**
+	 * Set this navigation to fire on portal tool exit call.
+	 * 
+	 * @return self.
+	 */
+	Navigation setOnExit();
+
+	/**
 	 * Set this link as a portal (i.e. full screen) link.
 	 * 
 	 * @return self.
@@ -289,7 +296,7 @@ public interface Navigation extends Component
 	 * Set the decision about forcing form validation when this navigation (submit only) is pressed.
 	 * 
 	 * @param decision
-	 *        The decicion.
+	 *        The decision.
 	 * @return self.
 	 */
 	Navigation setValidation(Decision decision);

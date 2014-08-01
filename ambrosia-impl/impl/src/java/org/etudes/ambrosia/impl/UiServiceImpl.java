@@ -1059,7 +1059,7 @@ public class UiServiceImpl implements UiService
 		context.setResponseWriter(out);
 		context.put(UiContext.FRAGMENT, Boolean.valueOf(fragment));
 		context.put("sakai.html.head", req.getAttribute("sakai.html.head"));
-		context.put("sakai.html.head.no.wiris", req.getAttribute("sakai.html.head.no.wiris"));
+	//	context.put("sakai.html.head.no.wiris", req.getAttribute("sakai.html.head.no.wiris"));
 		context.put("sakai.html.body.onload", req.getAttribute("sakai.html.body.onload"));
 		context.put("sakai.return.url", Web.returnUrl(req, ""));
 		context.put("sakai.server.url", Web.serverUrl(req));

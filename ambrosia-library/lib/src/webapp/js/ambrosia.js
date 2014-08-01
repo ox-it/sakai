@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -45,19 +45,19 @@ function ambrosiaSetMainFrameHeightNow(id)
 	var frame = parent.document.getElementById(id);
 	if (frame != null)
 	{
-		// only if we are really large
-		var scrollingDiv = document.getElementById("ambrosiaInterfaceScroll");
-		if (scrollingDiv != null)
-		{
-			var height = document.body.offsetHeight;
-			if (height > 32000)
-			{
-				// this makes the scrolling div holding the interface have a scroll bar that fits on the screen
-				var newHeight = parent.innerHeight - frame.offsetTop;
-				scrollingDiv.style.height = newHeight + "px";
-				scrollingDiv.style.overflow="auto";
-			}
-		}
+//		// only if we are really large
+//		var scrollingDiv = document.getElementById("ambrosiaInterfaceScroll");
+//		if (scrollingDiv != null)
+//		{
+//			var height = document.body.offsetHeight;
+//			if (height > 32000)
+//			{
+//				// this makes the scrolling div holding the interface have a scroll bar that fits on the screen
+//				var newHeight = parent.innerHeight - frame.offsetTop;
+//				scrollingDiv.style.height = newHeight + "px";
+//				scrollingDiv.style.overflow="auto";
+//			}
+//		}
 
 		// scroll both window and parent to 0 to assure we are at the top	
 		window.scrollTo(0,0);
@@ -494,6 +494,7 @@ function ambrosiaCountSummaryFloat(source, shadowId, summaryId, defaultValue)
 		{
 			var summaryValue = getFloat(summary.innerHTML);
 			summary.innerHTML = summaryValue - getFloat(oldValue) + getFloat(newValue);
+			summary.innerHTML = Math.round(summary.innerHTML*100.0) / 100.0;
 		}
 	}
 }
@@ -1154,4 +1155,3 @@ function getWidth(className) {
 function getHeight(className) {
    return getStyle(className).height;
 }
-

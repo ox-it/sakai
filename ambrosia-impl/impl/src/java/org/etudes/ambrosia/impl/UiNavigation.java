@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -171,6 +171,9 @@ public class UiNavigation extends UiComponent implements Navigation
 	/** The reference to an entity to iterate over. */
 	protected PropertyReference iteratorReference = null;
 
+	/** fire this navigation if the portal calls our onToolExit. */
+	protected boolean onExit = false;
+
 	/** Set if the link is a portal (i.e. full screen) link. */
 	protected boolean portal = false;
 
@@ -305,6 +308,13 @@ public class UiNavigation extends UiComponent implements Navigation
 		String description = StringUtil.trimToNull(xml.getAttribute("description"));
 		if (description != null) setDescription(description);
 
+		// short (only) form for onExit
+		String onExit = StringUtil.trimToNull(xml.getAttribute("onExit"));
+		if ((onExit != null) && ("TRUE".equals(onExit)))
+		{
+			this.onExit = true;
+		}
+		
 		// selectRequirement
 		String selectRequirement = StringUtil.trimToNull(xml.getAttribute("selectRequirement"));
 		if (selectRequirement != null)
@@ -759,6 +769,15 @@ public class UiNavigation extends UiComponent implements Navigation
 	/**
 	 * {@inheritDoc}
 	 */
+	public Navigation setOnExit()
+	{
+		this.onExit = true;
+		return this;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Navigation setPortal()
 	{
 		this.portal = true;
@@ -1054,6 +1073,13 @@ public class UiNavigation extends UiComponent implements Navigation
 				generateLinkScript(context, id, confirm, validate, this.submit,
 						(this.destination != null ? this.destination.getDestination(context, focus) : ""), root,
 						(selectRequirements | failedRequirements), this.trigger, this.portal);
+				
+				if (onExit)
+				{
+//					String code = "parent.onToolExit = function(url) { document.form0.destination_.value=\"" + (this.destination != null ? this.destination.getDestination(context, focus) : "") + "\"; document.form0.submit();};";
+					String code = "parent.onToolExit = function(url) { document.form0.destination_.value=\"REDIRECT:\"+url; document.form0.submit();};\n";
+					context.addScript(code);
+				}
 			}
 
 			if (confirm)

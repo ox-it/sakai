@@ -161,6 +161,12 @@ public class AmbrosiaServlet extends HttpServlet
 			sendTopRedirect(res, url);
 			return;
 		}
+		else if ("!PORTAL!".equals(parts[1]))
+		{
+			String url = "/" + StringUtil.unsplit(parts, 2, parts.length - 2, "/");
+			sendTopRedirect(res, url);
+			return;
+		}
 
 		// which destination?
 		Controller destination = ui.getController(parts[1], this.toolId);
