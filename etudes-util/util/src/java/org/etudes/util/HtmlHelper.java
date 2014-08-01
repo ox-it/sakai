@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class HtmlHelper
 		StringBuffer sb = new StringBuffer();
 
 		// find the <a> tags, and isolate the contents of a tag
-		Pattern p = Pattern.compile("<a\\s*([^>]+)>", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+		Pattern p = Pattern.compile("<a\\s+([^>]+)>", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
 		// find the href attribute and isolate the value
 		Pattern hrefPattern = Pattern.compile("href\\s*=\\s*[\"\'](.*?)[\"\']", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
@@ -332,6 +332,21 @@ public class HtmlHelper
 		m.appendTail(sb);
 
 		return sb.toString();
+	}
+
+	/**
+	 * Remove form tags in content by changing them to div tags.  Also disable any input tags.
+	 * 
+	 * @param source
+	 *        The source content.
+	 * @return The converted content.
+	 */
+	public static String stripForms(String source)
+	{
+		source = source.replaceAll("<form", "<div");
+		source = source.replaceAll("</form", "</div");
+		source = source.replaceAll("<input","<input disabled");
+		return source;
 	}
 
 	/**

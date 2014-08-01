@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -361,6 +361,8 @@ public class XrefHelper
 	 */
 	public static String shortenFullUrl(String url)
 	{
+		if (url == null) return url;
+
 		// if this is an access to our own server, shorten it to root relative (i.e. starting with "/access")
 		int pos = internallyHostedUrl(url);
 		if (pos != -1)
