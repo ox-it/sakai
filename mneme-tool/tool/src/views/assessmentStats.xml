@@ -177,7 +177,10 @@
 			<container>
 
 				<!-- part presentation -->
-				<text model="part.presentation.text">
+				<text>
+					<message>
+						<model type="html" dirty="TRUE" ref="part.presentation.text" />
+					</message>
 					<included>
 						<decision model="assessment.parts.showPresentation" />
 					</included>

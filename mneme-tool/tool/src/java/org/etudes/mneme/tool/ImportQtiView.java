@@ -138,8 +138,11 @@ public class ImportQtiView extends ControllerImpl
 				}
 				else
 				{
+					//QTI 1 zip file 
+					boolean doneQTI1 = false;
+					doneQTI1 = this.importQtiService.importPool(doc, toolManager.getCurrentPlacement().getContext(), unzipBackUpLocation);
 					// QTI 2 zip file
-					this.importQti2Service.importPool(doc, toolManager.getCurrentPlacement().getContext(), unzipBackUpLocation);
+					if (!doneQTI1) this.importQti2Service.importPool(doc, toolManager.getCurrentPlacement().getContext(), unzipBackUpLocation);
 					upload.deleteFiles(new File(unzipBackUpLocation));
 				}
 			}

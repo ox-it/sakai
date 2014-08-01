@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -42,4 +42,15 @@ public interface ImportQtiService
 	 *         if the user does not have permission to create pools and questions.
 	 */
 	void importPool(Document qti, String context) throws AssessmentPermissionException;
+	
+	/**
+	 * Import the QTI 1.0 questions from the zip file into a new pool
+	 * 
+	 * @param qti
+	 * @param context
+	 * @param unzipLocation
+	 * @return
+	 * @throws AssessmentPermissionException
+	 */
+	boolean importPool(Document qti, String context, String unzipLocation) throws AssessmentPermissionException;
 }

@@ -249,7 +249,10 @@
 			<container>
 
 				<!-- part presentation -->
-				<text model="answer.question.part.presentation.text">
+				<text>
+					<message>
+						<model type="html" dirty="TRUE" ref="answer.question.part.presentation.text" />
+					</message>
 					<included>
 						<decision model="answer.question.partOrdering.isFirst" />
 						<decision model="answer.question.part.assessment.parts.showPresentation" />

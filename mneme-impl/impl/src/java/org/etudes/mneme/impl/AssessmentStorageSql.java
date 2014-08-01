@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -1197,7 +1197,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 					access.initTimeLimit(SqlHelper.readLong(result, 13));
 					access.initTries(SqlHelper.readInteger(result, 14));
 					access.initUsers(Arrays.asList(SqlHelper.decodeStringArray(SqlHelper.readString(result, 15))));
-
+					
 					a.changed.clearChanged();
 
 					return null;

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -169,19 +169,6 @@ public interface AttachmentService
 	 * @return A List of Attachments to the attachments.
 	 */
 	List<Attachment> findFiles(String application, String context, String prefix);
-
-	/**
-	 * Find all the image attachments in the docs area of the application for this context. Skip image thumbs.
-	 * 
-	 * @param application
-	 *        The application prefix for the collection in private.
-	 * @param context
-	 *        The context associated with the attachment.
-	 * @param prefix
-	 *        Any prefix path for within the context are of the application in private.
-	 * @return A List of Attachments to the image type attachments.
-	 */
-	List<Attachment> findImages(String application, String context, String prefix);
 
 	/**
 	 * Find all the thumb images made for attachments in the docs area of the application for this context.

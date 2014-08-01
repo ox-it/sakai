@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -100,7 +100,8 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 
 		// non-user submission status, 0 points, not answered
 		Boolean nonUserZeroEmpty = ((submission.getCompletionStatus() != SubmissionCompletionStatus.userFinished)
-				&& (submission.getEvaluation().getScore() == null || (submission.getEvaluation().getScore() == 0.0)) && submission.getIsUnanswered());
+				&& ((!submission.getIsReleased()) || (submission.getTotalScore() == null) || (submission.getTotalScore() == 0.0)) && (submission
+				.getIsUnanswered()));
 
 		switch (status)
 		{

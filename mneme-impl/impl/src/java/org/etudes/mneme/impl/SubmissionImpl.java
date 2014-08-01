@@ -35,6 +35,7 @@ import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentAccess;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentSubmissionStatus;
+import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.Changeable;
 import org.etudes.mneme.api.Expiration;
@@ -431,6 +432,16 @@ public class SubmissionImpl implements Submission
 	/**
 	 * {@inheritDoc}
 	 */
+	public Reference getCertReference()
+	{
+		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ASMT_CERT + "/"
+				+ this.getAssessment().getContext() + "/" + this.getId());
+		return ref;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public SubmissionCompletionStatus getCompletionStatus()
 	{
 		return this.completionStatus;
@@ -487,8 +498,43 @@ public class SubmissionImpl implements Submission
 		if (!getIsComplete()) return Boolean.FALSE;
 		if (getEvaluatedDate() == null) return Boolean.FALSE;
 		if (!getStudentMayReview()) return Boolean.FALSE;
+
+		// submissions that are non-eval need to have a comment, and to be released, to allow a review - without this, don't mark it as eval not reviewed
+		// was this submission completed by other than the evaluation process for a non-submit?
+		if (this.completionStatus == SubmissionCompletionStatus.evaluationNonSubmit)
+		{
+			// not released
+			if (!getIsReleased()) return Boolean.FALSE;
+
+			// find a comment
+			boolean foundComment = false;
+			if (getEvaluation().getComment() != null)
+			{
+				foundComment = true;
+			}
+			else
+			{
+				for (Answer answer : getAnswers())
+				{
+					if (answer.getEvaluation().getComment() != null)
+					{
+						foundComment = true;
+						break;
+					}
+				}
+			}
+
+			// if we find no comment
+			if (!foundComment) return Boolean.FALSE;
+		}
+
+		// not released
+		if (!getIsReleased()) return Boolean.FALSE;
+
+		// never reviewed
 		if (getReviewedDate() == null) return Boolean.TRUE;
 
+		// needs review if reviewed before the latest evaluation date
 		return getReviewedDate().before(getEvaluatedDate());
 	}
 
@@ -714,7 +760,12 @@ public class SubmissionImpl implements Submission
 	public Boolean getHasUnscoredAnswers()
 	{
 		if (!getIsComplete()) return Boolean.FALSE;
+
+		// if marked as evaluated, it is no longer candidate for unscored
 		if (this.evaluation.getEvaluated().booleanValue()) return Boolean.FALSE;
+
+		// submissions created in the evaluation process are never considered unscored
+		if (this.getCompletionStatus() == SubmissionCompletionStatus.evaluationNonSubmit) return Boolean.FALSE;
 
 		// if the overall score has been set, none of the answers are considered unscored
 		if (this.evaluation.getScore() != null) return Boolean.FALSE;
@@ -822,6 +873,31 @@ public class SubmissionImpl implements Submission
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getIsNonEvalOrCommented()
+	{
+		// was this submission completed by other than the evaluation process for a non-submit?
+		if (this.completionStatus != SubmissionCompletionStatus.evaluationNonSubmit) return Boolean.TRUE;
+
+		// does this submission have any comments? Consider both at the submission and question level... only if released
+		if (getIsReleased())
+		{
+			if (getEvaluation().getComment() != null) return Boolean.TRUE;
+
+			for (Answer answer : getAnswers())
+			{
+				if (answer.getEvaluation().getComment() != null)
+				{
+					return Boolean.TRUE;
+				}
+			}
+		}
+
+		return Boolean.FALSE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Boolean getIsNonSubmit()
 	{
 		if (!getIsComplete()) return Boolean.FALSE;
@@ -833,16 +909,6 @@ public class SubmissionImpl implements Submission
 		}
 
 		return this.completionStatus == SubmissionCompletionStatus.evaluationNonSubmit;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public Boolean getIsNonEvalOrCommented()
-	{
-		if (!getIsNonSubmit()) return Boolean.TRUE;
-		if (getEvaluation().getComment() != null) return Boolean.TRUE;
-		return Boolean.FALSE;
 	}
 
 	/**
@@ -1190,6 +1256,25 @@ public class SubmissionImpl implements Submission
 		if ((getAssessment().getReview().getTiming() == ReviewTiming.date) && (getAssessment().getReview().getDate() == null)) return Boolean.FALSE;
 
 		// TODO: permission?
+
+		return Boolean.TRUE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getMayViewWork()
+	{
+		// user must have manage permission
+		if (!this.securityService.checkSecurity(this.sessionManager.getCurrentSessionUserId(), MnemeService.MANAGE_PERMISSION, getAssessment()
+				.getContext())) return Boolean.FALSE;
+
+		// submission must be complete
+		if (!getIsComplete()) return Boolean.FALSE;
+
+		// assessment must not be formal eval or survey
+		if (this.getAssessment().getFormalCourseEval()) return Boolean.FALSE;
+		if (this.getAssessment().getType() == AssessmentType.survey) return Boolean.FALSE;
 
 		return Boolean.TRUE;
 	}
@@ -1760,14 +1845,4 @@ public class SubmissionImpl implements Submission
 		this.ungradedSiblings = other.ungradedSiblings;
 		this.userId = other.userId;
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public Reference getCertReference()
-	{
-		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ASMT_CERT
-				+ "/" + this.getAssessment().getContext() + "/" + this.getId());
-		return ref;
-}
 }

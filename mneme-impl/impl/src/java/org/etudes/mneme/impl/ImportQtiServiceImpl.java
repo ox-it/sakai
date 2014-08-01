@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 
 package org.etudes.mneme.impl;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -57,6 +58,7 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Xml;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -146,10 +148,46 @@ public class ImportQtiServiceImpl implements ImportQtiService
 	/**
 	 * {@inheritDoc}
 	 */
+	public boolean importPool(Document doc, String context, String unzipBackUpLocation) throws AssessmentPermissionException
+	{
+		boolean qti1File = false;
+		//read exam file from the zip file 
+		if ((doc == null) || (!doc.hasChildNodes())) return qti1File;
+		try
+		{
+			XPath itemPath = new DOMXPath("//*[contains(local-name(),'resource')]");
+			List<Element> items = itemPath.selectNodes(doc);
+
+			for (Element item : items)
+			{
+				String type = item.getAttribute("type");
+				if (type == null || type.length() == 0 || (type.indexOf("qti") > -1 && type.indexOf("v1") == -1)) continue;
+				
+				qti1File = true;
+				
+				// read href value
+				String fileLocation = item.getAttribute("href");
+				if ("".equals(fileLocation)) continue;
+
+				// read Xml file and create question
+				Document fileDoc = Xml.readDocument(unzipBackUpLocation + File.separator + fileLocation);
+				importPool(fileDoc, context);
+			}
+		}
+		catch (Exception ex)
+		{
+			M_log.warn(ex.toString());
+		}
+		return qti1File;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public void importPool(Document doc, String context) throws AssessmentPermissionException
 	{
 		if ((doc == null) || (!doc.hasChildNodes())) return;
-
+				
 		// get a name for the pool, with the date
 		String poolId = "pool";
 		try
@@ -214,9 +252,10 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			M_log.warn(e.toString());
 		}
 
-		// set the pool point value
-		pool.setPointsEdit(Float.valueOf(pointsAverage.getAverage()));
-
+		// changed to set the pool point value as default 1.0 
+		//pool.setPointsEdit(Float.valueOf(pointsAverage.getAverage()));
+		pool.setPointsEdit(Float.valueOf("1.0"));
+		
 		// save
 		this.poolService.savePool(pool);
 	}
@@ -1413,20 +1452,15 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			String maxValue = StringUtil.trimToNull(scoreDecVarElement.getAttribute("maxvalue"));
 			String minValue = StringUtil.trimToNull(scoreDecVarElement.getAttribute("minvalue"));
 
-			if (!singleAnswer && ((maxValue == null) || (minValue == null))) return false;
-
-			if (!singleAnswer)
+			try
 			{
-				try
-				{
-					maxPoints = Float.valueOf(maxValue);
-				}
-				catch (NumberFormatException e)
-				{
-					return false;
-				}
+				maxPoints = Float.valueOf(maxValue);
 			}
-
+			catch (Exception e)
+			{
+				maxPoints = Float.valueOf("1.0");
+			}
+			
 			// correct answer
 			XPath respConditionPath = new DOMXPath("resprocessing/respcondition");
 			List responses = respConditionPath.selectNodes(item);
@@ -1445,14 +1479,14 @@ public class ImportQtiServiceImpl implements ImportQtiService
 
 				if (responseText != null)
 				{
-					if (!answerMap.containsKey(responseText)) return false;
-
+					if (!answerMap.containsKey(responseText)) continue;
+					
 					// score
 					XPath setVarPath = new DOMXPath("setvar");
 					Element setVarElement = (Element) setVarPath.selectSingleNode(responseElement);
 
-					if (setVarElement == null) return false;
-
+					if (setVarElement == null) continue;
+					
 					if ("Set".equalsIgnoreCase(setVarElement.getAttribute("action")))
 					{
 						// this is the answer for multiple choice - single answer
@@ -1467,7 +1501,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 
 						String pointsValue = StringUtil.trimToNull(setVarElement.getTextContent());
 
-						if (pointsValue == null) return false;
+						if (pointsValue == null) pointsValue="1.0";
 
 						try
 						{
@@ -1475,7 +1509,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 						}
 						catch (NumberFormatException e)
 						{
-							return false;
+							points = Float.valueOf("1.0");							
 						}
 
 						// feedback optional and can be Response, Solution, Hint
@@ -1492,7 +1526,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 
 							if (linkRefId == null) continue;
 
-							XPath itemfeedbackPath = new DOMXPath("//itemfeedback[@ident='" + linkRefId + "']");
+							XPath itemfeedbackPath = new DOMXPath(".//itemfeedback[@ident='" + linkRefId + "']");
 							Element feedbackElement = (Element) itemfeedbackPath.selectSingleNode(item);
 
 							if (feedbackElement == null) continue;
@@ -1507,7 +1541,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 					{
 						String pointsValue = StringUtil.trimToNull(setVarElement.getTextContent());
 
-						if (pointsValue == null) return false;
+						if (pointsValue == null) pointsValue = "1.0";
 
 						float resPoints = 0.0f;
 
@@ -1517,7 +1551,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 						}
 						catch (NumberFormatException e)
 						{
-							return false;
+							resPoints = Float.valueOf("1.0");
 						}
 
 						if (resPoints <= 0) continue;
@@ -1542,7 +1576,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 
 							if (linkRefId == null) continue;
 
-							XPath itemfeedbackPath = new DOMXPath("//itemfeedback[@ident='" + linkRefId + "']");
+							XPath itemfeedbackPath = new DOMXPath(".//itemfeedback[@ident='" + linkRefId + "']");
 							Element feedbackElement = (Element) itemfeedbackPath.selectSingleNode(item);
 
 							if (feedbackElement == null) continue;
@@ -1818,15 +1852,13 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			String maxValue = StringUtil.trimToNull(scoreDecVarElement.getAttribute("maxvalue"));
 			String minValue = StringUtil.trimToNull(scoreDecVarElement.getAttribute("minvalue"));
 
-			if (maxValue == null || minValue == null) return false;
-
 			try
 			{
 				points = Float.valueOf(maxValue);
 			}
 			catch (NumberFormatException e)
 			{
-				return false;
+				points = Float.valueOf("1.0");
 			}
 
 			// correct answer
@@ -1848,13 +1880,13 @@ public class ImportQtiServiceImpl implements ImportQtiService
 					XPath setVarPath = new DOMXPath("setvar");
 					Element setVarElement = (Element) setVarPath.selectSingleNode(responseElement);
 
-					if (setVarElement == null) return false;
+					if (setVarElement == null) continue;
 
 					if ("Add".equalsIgnoreCase(setVarElement.getAttribute("action")))
 					{
 						String pointsValue = StringUtil.trimToNull(setVarElement.getTextContent());
 
-						if (pointsValue == null) return false;
+						if (pointsValue == null) pointsValue = "1.0";
 
 						answers.add(responseText.trim());
 
@@ -1872,7 +1904,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 
 							if (linkRefId == null) continue;
 
-							XPath itemfeedbackPath = new DOMXPath("//itemfeedback[@ident='" + linkRefId + "']");
+							XPath itemfeedbackPath = new DOMXPath(".//itemfeedback[@ident='" + linkRefId + "']");
 							Element feedbackElement = (Element) itemfeedbackPath.selectSingleNode(item);
 
 							if (feedbackElement == null) continue;
@@ -2075,7 +2107,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			}
 			catch (NumberFormatException e)
 			{
-				return false;
+				pointsValue = "1.0";
 			}
 
 			if (matchAnswers.size() != matchPresentations.size()) return false;

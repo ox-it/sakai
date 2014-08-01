@@ -26,6 +26,7 @@ package org.etudes.mneme.api;
 
 import java.util.Date;
 import java.util.List;
+
 import org.sakaiproject.entity.api.Reference;
 
 /**
@@ -108,6 +109,13 @@ public interface Submission
 	 * @return The title of the item that is blocking access to this submission, if any, or null if not blocked.
 	 */
 	String getBlockedByTitle();
+
+	/**
+	 * Get reference for certificate
+	 * 
+	 * @return Reference object
+	 */
+	Reference getCertReference();
 
 	/**
 	 * @return The submissions's completion status.
@@ -238,19 +246,18 @@ public interface Submission
 	Boolean getIsCompleteQuestion(Question question);
 
 	/**
+	 * Check if the submission represents a user submission (user finished or auto) or if evaluator has specified comments for the submission
+	 * 
+	 * @return TRUE if the submission is a non-submit, FALSE if not.
+	 */
+	Boolean getIsNonEvalOrCommented();
+
+	/**
 	 * Check if the submission represents a non-submit, created in grading only to hold evaluation.
 	 * 
 	 * @return TRUE if the submission is a non-submit, FALSE if not.
 	 */
 	Boolean getIsNonSubmit();
-	
-	/**
-	 * Check if the submission represents a user submission (user finished or auto)
-	 * or if evaluator has specified comments for the submission
-	 * 
-	 * @return TRUE if the submission is a non-submit, FALSE if not.
-	 */
-	Boolean getIsNonEvalOrCommented();
 
 	/**
 	 * Check if the submission is past its time limit, due or accept until date, or is to an assessment that is inactive.
@@ -355,6 +362,13 @@ public interface Submission
 	 * @return TRUE if the submission may be reviewed later, FALSE if not.
 	 */
 	Boolean getMayReviewLater();
+
+	/**
+	 * Check if the current user may view the work of the submission (instructor review).
+	 * 
+	 * @return TRUE if the submission may be viewed, FALSE if not.
+	 */
+	Boolean getMayViewWork();
 
 	/**
 	 * Access the reference of this submission.
@@ -481,11 +495,4 @@ public interface Submission
 	 *        The new total score desired for the submission.
 	 */
 	void setTotalScore(Float score);
-	
-	/**
-	 * Get reference for certificate
-	 * 
-	 * @return Reference object
-	 */
-	Reference getCertReference();
 }

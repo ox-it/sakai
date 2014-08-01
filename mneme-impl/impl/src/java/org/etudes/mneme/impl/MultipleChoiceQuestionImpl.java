@@ -797,9 +797,10 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		mayReviewAndShowCorrect.setRequirements(decisionsMayReviewAndShowCorrect);
 
 		OrDecision or = this.uiService.newOrDecision();
-		Decision[] decisionsOr = new Decision[2];
+		Decision[] decisionsOr = new Decision[3];
 		decisionsOr[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"));
-		decisionsOr[1] = mayReviewAndShowCorrect;
+		decisionsOr[1] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("viewWork"));
+		decisionsOr[2] = mayReviewAndShowCorrect;
 		or.setOptions(decisionsOr);
 
 		Decision[] decisionsShowCorrect = new Decision[2];

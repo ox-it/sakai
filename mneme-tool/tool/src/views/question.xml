@@ -58,8 +58,17 @@
 		<container>
 			<text>
 				<message selector="incorrect-subheader">
-				<model ref="questionIncorrect" />
+					<model ref="questionIncorrect" />
 				</message>
+			</text>
+			<text>
+				<message selector="submission-username">
+					<model type="userInfo" selector="DISPLAYNAME" ref="submission.userId" disambiguate="TRUE"  />
+				</message>
+				<included>
+					<decision model="review" />
+					<decision model="viewWork" />
+				</included>
 			</text>
 			<text>
 				<message selector="question-subheader">
@@ -110,7 +119,6 @@
 		<navigationBar id="nav">
 			<included>
 				<decision model="review" />
-				<decision model="evalcommented" reversed="TRUE" />
 			</included>
 			<container>
 				<navigation title="prev" accessKey="prev-access" description="review-prev-description" style="BUTTON">
@@ -323,7 +331,10 @@
 			<message selector="review-not-graded" />
 			<included>
 				<decision model="review" />
-				<decision model="submission.mayReview" />
+				<orDecision>
+					<decision model="viewWork" />
+					<decision model="submission.mayReview" />
+				</orDecision>
 				<decision reversed="TRUE" model="submission.isReleased" />
 				<decision model="submission.assessment.hasPoints" />
 			</included>
@@ -336,6 +347,7 @@
 			</message>
 			<included>
 				<decision model="review" />
+				<decision reversed="TRUE" model="viewWork" />
 				<decision reversed="TRUE" model="submission.mayReview" />
 				<decision model="submission.mayReviewLater" />
 				<compareDecision model="submission.assessment.review.timing" constant="date" />
@@ -345,6 +357,7 @@
 			<message selector="view-not-released-graded" />
 			<included>
 				<decision model="review" />
+				<decision reversed="TRUE" model="viewWork" />
 				<decision reversed="TRUE" model="submission.mayReview" />
 				<decision model="submission.mayReviewLater" />
 				<compareDecision model="submission.best.assessment.review.timing" constant="graded" />
@@ -354,6 +367,7 @@
 			<message selector="view-not-released-not" />
 			<included>
 				<decision model="review" />
+				<decision reversed="TRUE" model="viewWork" />
 				<decision reversed="TRUE" model="submission.mayReview" />
 				<decision reversed="TRUE" model="submission.mayReviewLater" />
 			</included>
@@ -407,8 +421,13 @@
 						</attachments>
 					</container>
 					<included>
-						<decision model="submission.mayReview" />
-						<decision model="submission.isReleased" />
+						<orDecision>
+							<decision model="viewWork" />
+							<andDecision>
+								<decision model="submission.mayReview" />
+								<decision model="submission.isReleased" />
+							</andDecision>
+						</orDecision>
 						<orDecision>
 							<hasValueDecision model="submission.evaluation.comment" />
 							<hasValueDecision model="submission.evaluation.attachments" />
@@ -421,6 +440,7 @@
 				<hasValueDecision reversed="TRUE" model="part" />
 				<orDecision>
 					<decision reversed="TRUE" model="review" />
+					<decision model="viewWork" />
 					<decision model="submission.mayReview" />
 				</orDecision>
 			</included>
@@ -457,7 +477,10 @@
 			<included>
 				<hasValueDecision model="submission.assessment.submitPresentation.text" />
 				<decision model="review" />
-				<decision model="submission.mayReview" />
+				<orDecision>
+					<decision model="viewWork" />
+					<decision model="submission.mayReview" />
+				</orDecision>
 			</included>
 		</section>
 
@@ -475,13 +498,11 @@
 			</iterator>
 
 			<included>
-			    <andDecision>
 				<orDecision>
 					<decision reversed="TRUE" model="review" />
 					<decision model="submission.mayReview" />
+					<decision model="viewWork" />
 				</orDecision>
-				  <decision model="evalcommented" reversed="TRUE" />
-				</andDecision>  
 			</included>
 
 			<!-- part title -->
@@ -516,7 +537,10 @@
 			<container>
 
 				<!-- part presentation -->
-				<text model="answer.question.part.presentation.text">
+				<text>
+					<message>
+						<model type="html" dirty="TRUE" ref="answer.question.part.presentation.text" />
+					</message>
 					<included>
 						<decision model="answer.question.partOrdering.isFirst" />
 						<hasValueDecision reversed="TRUE" model="question" />
@@ -536,8 +560,24 @@
 
 					<!-- question header -->
 					<title highlighted="TRUE">
-						<message>
+						<message selector="quesion-header-selector">
 							<model type="html" ref="answer.question" delegate="FormatQuestionTitle" tool="sakai.mneme" />
+							<model type="component">
+								<container>
+									<navigation title="save" description="save-description" style="BUTTON" submit="TRUE">
+										<icon icon="/icons/exit.gif" style="LEFT" />
+										<destination template="STAY_SAVE:{0}">
+											<model ref="answer.question.id" />
+										</destination>
+										<validate>
+											<trueDecision reversed="TRUE" />
+										</validate>
+										<included>
+											<decision model="review" reversed="TRUE" />
+										</included>
+									</navigation>
+								</container>
+							</model>
 						</message>
 					</title>
 
@@ -560,16 +600,14 @@
 						</modelComponent>
 
 						<text>
-						<message selector="question-correct">
-						  
-						</message>
-						<included>
+							<message selector="question-correct" />
+							<included>
 								<decision model="review" />
 								<decision model="answer.typeSpecificAnswer.completelyCorrect" />
 								<decision model="showIncorrect" />
 							</included>
 						</text>
-						
+
 						<modelComponent model="answer.question.typeSpecificQuestion.reviewUi">
 							<included>
 								<decision model="review" />
@@ -690,7 +728,10 @@
 							</container>
 							<included>
 								<decision model="review" />
-								<decision model="answer.submission.mayReview" />
+								<orDecision>
+									<decision model="viewWork" />
+									<decision model="answer.submission.mayReview" />
+								</orDecision>
 								<decision model="answer.question.part.assessment.review.showFeedback" />
 								<hasValueDecision model="answer.question.feedback" />
 							</included>
@@ -719,8 +760,13 @@
 								</attachments>
 							</container>
 							<included>
-								<decision model="submission.mayReview" />
-								<decision model="submission.isReleased" />
+								<orDecision>
+									<decision model="viewWork" />
+									<andDecision>
+										<decision model="submission.mayReview" />
+										<decision model="submission.isReleased" />
+									</andDecision>
+								</orDecision>
 								<orDecision>
 									<hasValueDecision model="answer.evaluation.comment" />
 									<hasValueDecision model="answer.evaluation.attachments" />
@@ -737,8 +783,6 @@
 		<navigationBar>
 			<included>
 				<decision model="review" />
-				<decision model="submission.mayReview" />
-				<decision model="evalcommented" reversed="TRUE" />
 			</included>
 			<container>
 				<navigation title="prev" description="review-prev-description" style="BUTTON">
@@ -859,7 +903,7 @@
 						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
 					</included>
 				</divider>
-				<navigation title="save-exit" accessKey="save-exit-access" description="save-exit-description" style="BUTTON" submit="TRUE" destination="LIST">
+				<navigation title="save-exit" accessKey="save-exit-access" description="save-exit-description" style="BUTTON" submit="TRUE" destination="LIST" onExit="TRUE">
 					<icon icon="/icons/exit.gif" style="LEFT" />
 					<validate>
 						<trueDecision reversed="TRUE" />

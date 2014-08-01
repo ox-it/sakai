@@ -685,8 +685,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			temp.setCompletionStatus(SubmissionCompletionStatus.evaluationNonSubmit);
 			temp.setStartDate(now);
 			temp.setSubmittedDate(now);
-			temp.evaluation = (SubmissionEvaluationImpl) submission.getEvaluation();
-
+			// don't copy over the evaluation, which might have a total score, that need to, instead, go into an answer evaluation
+			// temp.evaluation = (SubmissionEvaluationImpl) submission.getEvaluation();
+	
 			if (submission.getAssessment().getGrading().getAutoRelease())
 			{
 				temp.setIsReleased(Boolean.TRUE);
@@ -704,25 +705,42 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			this.storage.saveSubmission(temp);
 
 			// preserve the evaluation score as the total score, even after adding in the questions
-			Float total = temp.getTotalScore();
+			// this score is sitting in the submission's evaluation
+			Float total = submission.getEvaluation().getScore();
 
 			// populate the questions (need to first have the submission id set for the draws)
 			for (Question question : temp.getAssessment().getParts().getQuestions())
 			{
 				AnswerImpl answer = this.storage.newAnswer();
 				answer.initQuestion(question);
+
 				((SubmissionImpl) temp).replaceAnswer(answer);
 			}
 			((SubmissionImpl) temp).clearIsChanged();
-			this.storage.saveAnswers(temp.getAnswers());
 
+			// total score might end up in submission, might end up in answer (if it is a single-question assessment)
+			
+			// if we are ending up in the answer, lets force an eval score for the answer first (0 won't stick until there's already a valut there)
+			if ((total == 0f) && (!temp.getEvaluationUsed()))
+			{
+				temp.setTotalScore(1f);
+				temp.consolidateTotalScore();				
+			}
 			temp.setTotalScore(total);
 			temp.consolidateTotalScore();
+
+			// force auto-scores
+			for (Answer answer : temp.getAnswers())
+			{
+				((AnswerImpl) answer).initStoredAutoScore(((AnswerImpl) answer).computeAutoScore());
+			}
+
+			this.storage.saveAnswers(temp.getAnswers());
 			if (temp.getIsChanged())
 			{
-				((SubmissionImpl) temp).clearIsChanged();
 				this.storage.saveSubmission(temp);
 			}
+			((SubmissionImpl) temp).clearIsChanged();
 
 			// push the grade - not for test drive
 			if (!temp.getIsTestDrive())

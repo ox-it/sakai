@@ -433,14 +433,6 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<Attachment> findImages(String application, String context, String prefix)
-	{
-		return findTypes(application, context, prefix, "image/", false);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public List<Attachment> findThumbs(String application, String context, String prefix)
 	{
 		return findTypes(application, context, prefix, null, true);
@@ -1431,10 +1423,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				}
 			}
 		}
-
 		return rv;
 	}
-
 
 	/**
 	 * If the ref is relative, reconstruct the full ref based on where it was embedded.
@@ -3816,7 +3806,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 					if (a instanceof TrueFalseAnswerImpl)
 					{
 						TrueFalseAnswerImpl tf = (TrueFalseAnswerImpl) a;
-						if (tf.getCompletelyCorrect().booleanValue() && !isSurvey) row.createCell((short) j).setCellValue("*"+tf.getAnswer()+"*");
+						if (!isSurvey && tf.getCompletelyCorrect().booleanValue()) row.createCell((short) j).setCellValue("*"+tf.getAnswer()+"*");
 						else row.createCell((short) j).setCellValue(tf.getAnswer());
 					}
 					if (a instanceof MultipleChoiceAnswerImpl)
@@ -3837,7 +3827,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 							if (Arrays.asList(ansArray).contains(mq.getId()))
 							{
-								if (correctAnswers.contains(Integer.parseInt(mq.getId())) && !isSurvey)
+								if (!isSurvey && correctAnswers.contains(Integer.parseInt(mq.getId())))
 								{
 									choiceArray[l] = "*" + stripHtml(mq.getText().trim()) + "*";
 								}
@@ -3886,14 +3876,14 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 							String value = (String) ((Value) entry.getValue()).getValue();
 							String matchVal = fetchName(choiceList, key, true);
 							boolean correctMatch = checkCorrectMatch(choiceList, key, value);
-							if (correctMatch && !isSurvey) matchStrBuf.append("*");
+							if (!isSurvey && correctMatch) matchStrBuf.append("*");
 							matchStrBuf.append(stripHtml(matchVal.trim()));
 							matchStrBuf.append("->");
 							String choiceVal = fetchName(choiceList, value, false);
 							if (choiceVal == null) matchStrBuf.append(this.messages.getFormattedMessage("nosel_made", null));
 							else matchStrBuf.append(stripHtml(choiceVal.trim()));
 							
-							if (correctMatch && !isSurvey) matchStrBuf.append("*");
+							if (!isSurvey && correctMatch) matchStrBuf.append("*");
 							matchStrBuf.append(", ");
 						}
 						if (matchStrBuf.length() > 0 && matchStrBuf.charAt(matchStrBuf.length() - 2) == ',')

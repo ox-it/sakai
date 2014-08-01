@@ -180,7 +180,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 		Element root = doc.createElementNS("http://www.imsglobal.org/xsd/imscp_v1p1", "manifest");
 		root.setAttribute("xmlns:imsqti", "http://www.imsglobal.org/xsd/imsqti_v2p1");
 		root.setAttribute("xmlns:imsmd", "http://www.imsglobal.org/xsd/imsmd_v1p2");
-		root.setAttribute("xmlns", "http://www.imsglobal.org/xsd/imscp_v1p1");
+//		root.setAttribute("xmlns", "http://www.imsglobal.org/xsd/imscp_v1p1");
 		root.setAttribute("identifier", "Manifest-" + getUUID());
 		return root;
 	}

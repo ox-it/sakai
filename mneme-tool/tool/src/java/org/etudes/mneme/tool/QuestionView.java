@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -284,6 +284,14 @@ public class QuestionView extends ControllerImpl
 		// read form
 		String destination = uiService.decode(req, context);
 
+		String redirectUrl = null;
+		if (destination.startsWith("REDIRECT:"))
+		{
+			String[] parts = StringUtil.splitFirst(destination, ":");
+			redirectUrl = "/!PORTAL!/" + parts[1];
+			destination = "LIST";
+		}
+
 		// check for file upload error
 		boolean uploadError = ((req.getAttribute("upload.status") != null) && (!req.getAttribute("upload.status").equals("ok")));
 
@@ -382,6 +390,13 @@ public class QuestionView extends ControllerImpl
 				}
 			}
 
+			if (redirectUrl != null)
+			{
+				// redirect to the full URL
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, redirectUrl)));
+				return;
+			}
+
 			// redirect to the next destination
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
 			return;
@@ -477,6 +492,10 @@ public class QuestionView extends ControllerImpl
 					// replace the original anchor
 					params[4] = anchor[0];
 				}
+			}
+			else
+			{
+				params[4] = "-";
 			}
 
 			String curDestination = "/" + StringUtil.unsplit(params, 1, params.length - 1, "/");
@@ -625,6 +644,7 @@ public class QuestionView extends ControllerImpl
 	{
 		// not in review mode
 		context.put("review", Boolean.FALSE);
+		context.put("viewWork", Boolean.FALSE);
 
 		// put in the selector
 		context.put("questionSelector", questionSelector);

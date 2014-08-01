@@ -113,7 +113,11 @@ public class ReviewView extends ControllerImpl
 			return;
 		}
 
-		if (!submissionService.allowReviewSubmission(submission))
+		boolean instructorViewWork = submission.getMayViewWork();
+		context.put("viewWork", Boolean.valueOf(instructorViewWork));
+
+		// must have permission for review, or for view work
+		if ((!submissionService.allowReviewSubmission(submission)) && (!instructorViewWork))
 		{
 			// redirect to error
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
@@ -121,7 +125,7 @@ public class ReviewView extends ControllerImpl
 		}
 
 		// validity check
-		if (!submission.getAssessment().getIsValid())
+		if ((!submission.getAssessment().getIsValid()) && (!instructorViewWork))
 		{
 			// redirect to error
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
@@ -167,10 +171,10 @@ public class ReviewView extends ControllerImpl
 		if (prev != null) context.put("prevSubmissionId", prev.getId());
 		if (next != null) context.put("nextSubmissionId", next.getId());
 
-		// best is grade related, so only for assessments with points, released, and only if review is available
+		// best is grade related, so only for assessments with points, released, and only if review is available (or we are doing instructor view)
 		// also only if there are multiple submissions
 		if ((size > 1) && (submission.getIsReleased().booleanValue()) && (submission.getAssessment().getHasPoints().booleanValue())
-				&& (allSubmissions.get(position - 1).getBest().equals(submission)) && submission.getMayReview().booleanValue())
+				&& (allSubmissions.get(position - 1).getBest().equals(submission)) && (instructorViewWork || submission.getMayReview().booleanValue()))
 		{
 			context.put("best", Boolean.TRUE);
 			context.put("submission", allSubmissions.get(position - 1).getBest());
@@ -180,21 +184,24 @@ public class ReviewView extends ControllerImpl
 			context.put("submission", submission);
 		}
 
-
 		// collect all the answers for review
 		List<Answer> answers = submission.getAnswers();
 		context.put("answers", answers);
 
-		// in this special case, since there's no real action in the service to do this, we need to generate an event
-		eventTrackingService.post(eventTrackingService.newEvent(MnemeService.SUBMISSION_REVIEW, submission.getReference(), false));
+		// these only for student view, not instructor work view
+		if (!instructorViewWork)
+		{
+			// in this special case, since there's no real action in the service to do this, we need to generate an event
+			eventTrackingService.post(eventTrackingService.newEvent(MnemeService.SUBMISSION_REVIEW, submission.getReference(), false));
 
-		// record the review date
-		submissionService.markReviewed(submission);
+			// record the review date
+			submissionService.markReviewed(submission);
+		}
 
-		if (submission.getAssessment().getReview().getShowIncorrectQuestions() == ReviewShowCorrect.incorrect_only)
+		if ((!instructorViewWork) && (submission.getAssessment().getReview().getShowIncorrectQuestions() == ReviewShowCorrect.incorrect_only))
 		{
 			boolean incorrectExists = false;
-			// Check to see if there is atleast one non-essay, non-task and non-likert-scale question
+			// Check to see if there is at least one non-essay, non-task and non-likert-scale question
 			for (Answer a : answers)
 			{
 				String questionType = a.getQuestion().getType();
@@ -212,16 +219,18 @@ public class ReviewView extends ControllerImpl
 				context.put("showIncorrect", Boolean.TRUE);
 			}
 		}
-		
+
 		SubmissionCompletionStatus subComp = submission.getCompletionStatus();
 		boolean noneAnswered = false;
-		if (subComp.equals(SubmissionCompletionStatus.evaluationNonSubmit) || ((subComp.equals(SubmissionCompletionStatus.autoComplete) || subComp.equals(SubmissionCompletionStatus.userFinished)) && submission.getIsUnanswered() == Boolean.TRUE))
-			noneAnswered = true;
-		if (submission.getAssessment().getReview().getShowSummary() && submission.getAssessment().getReview().getShowCorrectAnswer().equals(ReviewShowCorrect.yes) && !noneAnswered)
+		if (subComp.equals(SubmissionCompletionStatus.evaluationNonSubmit)
+				|| ((subComp.equals(SubmissionCompletionStatus.autoComplete) || subComp.equals(SubmissionCompletionStatus.userFinished)) && submission
+						.getIsUnanswered() == Boolean.TRUE)) noneAnswered = true;
+		if (submission.getAssessment().getReview().getShowSummary()
+				&& submission.getAssessment().getReview().getShowCorrectAnswer().equals(ReviewShowCorrect.yes) && !noneAnswered)
 		{
 			if (submission.getAssessment().getType().equals(AssessmentType.survey) && submission.getAssessment().getFrozen())
-			{	
-			  context.put("showsummary", Boolean.TRUE);
+			{
+				context.put("showsummary", Boolean.TRUE);
 			}
 			if (!submission.getAssessment().getType().equals(AssessmentType.survey))
 			{
@@ -236,16 +245,6 @@ public class ReviewView extends ControllerImpl
 				}
 			}
 		}
-		
-		if (submission.getIsNonSubmit() && submission.getEvaluation().getComment() != null)
-		{
-			context.put("evalcommented", Boolean.TRUE);
-		}
-		else
-		{
-			context.put("evalcommented", Boolean.FALSE);
-		}
-
 
 		// for the tool navigation
 		if (this.assessmentService.allowManageAssessments(toolManager.getCurrentPlacement().getContext()))

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -32,6 +32,7 @@ import org.etudes.mneme.api.Answer;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.Submission;
+import org.etudes.mneme.api.SubmissionCompletionStatus;
 
 /**
  * The "FormatQuestionDecoration" format delegate for the mneme tool.
@@ -101,12 +102,14 @@ public class QuestionScoreDelegate extends FormatDelegateImpl
 		if (review == null) review = Boolean.FALSE;
 		Boolean grading = (Boolean) context.get("grading");
 		if (grading == null) grading = Boolean.FALSE;
+		Boolean viewWork = (Boolean) context.get("viewWork");
+		if (viewWork == null) viewWork = Boolean.FALSE;
 
 		String selector = "worth-points";
 		boolean partialCorrect = false;
 
 		// if we are doing review just now, and if we are needing review and it's set, and if the submission has been graded
-		if ((review || grading) && (submission != null) && (submission.getIsReleased() || grading))
+		if ((review || grading) && (submission != null) && (submission.getIsReleased() || grading || viewWork))
 		{
 			// find the answer
 			Answer answer = null;
@@ -123,9 +126,9 @@ public class QuestionScoreDelegate extends FormatDelegateImpl
 			{
 				boolean showCorrect = answer.getShowCorrectReview();
 				boolean showPartialCorrect = answer.getShowPartialCorrectReview();
-				
+
 				// if we are doing question score feedback
-				if (showCorrect || showPartialCorrect || grading)
+				if (showCorrect || showPartialCorrect || grading || viewWork)
 				{
 					// the auto-scores for this answered question
 					Float score = null;
@@ -137,6 +140,17 @@ public class QuestionScoreDelegate extends FormatDelegateImpl
 					else
 					{
 						score = answer.getTotalScore();
+					}
+
+					// evaluation non-submit submissions always show a 0, not null (ungraded) score
+					// submissions marked as evaluated, always show a 0, not null (ungraded) score
+					if (score == null)
+					{
+						if ((submission.getCompletionStatus() == SubmissionCompletionStatus.evaluationNonSubmit)
+								|| (submission.getEvaluation().getEvaluated()))
+						{
+							score = 0.0f;
+						}
 					}
 
 					rv.append(context.getMessages().getString("score") + ":&nbsp;" + formatScore(context, score) + "&nbsp;&nbsp;&nbsp;");

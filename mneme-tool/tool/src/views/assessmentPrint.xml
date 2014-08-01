@@ -146,7 +146,10 @@
 			<container>
 
 				<!-- part presentation -->
-				<text model="question.part.presentation.text">
+				<text>
+					<message>
+						<model type="html" dirty="TRUE" ref="question.part.presentation.text" />
+					</message>
 					<included>
 						<decision model="question.partOrdering.isFirst" />
 						<decision model="question.part.assessment.parts.showPresentation" />

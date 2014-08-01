@@ -7,7 +7,7 @@
  * $Id: assmtSettingsChoice.xml 6418 2013-11-30 03:08:26Z mallikamt $
  ***********************************************************************************
  *
- * Copyright (c) 2013 Etudes, Inc.
+ * Copyright (c) 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -28,11 +28,6 @@
 -->
 
 <interface focus="title">
-
-	<!-- attachment picker view -->
-	<attachmentPicker>
-		<destination template="/attachments" />
-	</attachmentPicker>
 
 	<!--mode bar-->
 	<modeContainer>

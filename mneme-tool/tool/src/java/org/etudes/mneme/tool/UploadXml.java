@@ -136,7 +136,7 @@ public class UploadXml
 	 */
 	private String unpackageZipFile(String fileName_M, FileItem backupFile_M) throws Exception
 	{
-		String packagingdirpath = ServerConfigurationService.getString("moodle.importDir", "");
+		String packagingdirpath = ServerConfigurationService.getString("mnemeQTI.import", "");
 		FileOutputStream out = null;
 		try
 		{

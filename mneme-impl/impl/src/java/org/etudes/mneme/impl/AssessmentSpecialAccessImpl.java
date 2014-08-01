@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -253,6 +253,7 @@ public class AssessmentSpecialAccessImpl implements AssessmentSpecialAccess
 	{
 		for (AssessmentAccess access : this.specialAccess)
 		{
+			if (access.getUsersEmpty()) continue;
 			if (!access.getIsValid()) return Boolean.FALSE;
 		}
 

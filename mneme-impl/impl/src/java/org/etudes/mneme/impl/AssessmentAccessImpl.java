@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -27,11 +27,17 @@ package org.etudes.mneme.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentAccess;
 import org.etudes.mneme.api.AssessmentPassword;
 import org.etudes.mneme.api.Changeable;
+import org.etudes.mneme.api.MnemeService;
+import org.etudes.mneme.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 /**
  * AssessmentAccessImpl implements AssessmentAccess
@@ -179,12 +185,44 @@ public class AssessmentAccessImpl implements AssessmentAccess, Changeable
 	{
 		return this.id;
 	}
-
+	
+	public Boolean getUsersEmpty()
+	{
+		if (this.userIds.size() == 0) return Boolean.TRUE;
+		SecurityService securityService = (SecurityService) ComponentManager.get(SecurityService.class);
+		
+		Set<String> userStrs = securityService.getUsersIsAllowed(MnemeService.SUBMIT_PERMISSION, assessment.getContext());
+		List<User> users = UserDirectoryService.getUsers(userStrs);
+		userStrs.clear();
+		for (User user : users)
+		{
+			userStrs.add(user.getId());
+		}
+		
+		boolean userExists = false;
+		for (String user : this.userIds)
+		{
+			if (!userStrs.contains(user))
+			{
+				userExists = false;
+			}
+			else
+			{
+				userExists = true;
+				break;
+			}
+		}
+		//This means none of the users exist
+		if (!userExists) return Boolean.TRUE;
+		return Boolean.FALSE;
+	}
+		
 	/**
 	 * {@inheritDoc}
 	 */
 	public Boolean getIsValid()
 	{
+		
 		// open, if defined, must be before acceptUntil and due, if defined
 		if ((getOpenDate() != null) && (getDueDate() != null) && (!getOpenDate().before(getDueDate()))) return Boolean.FALSE;
 		if ((getOpenDate() != null) && (getAcceptUntilDate() != null) && (!getOpenDate().before(getAcceptUntilDate()))) return Boolean.FALSE;
