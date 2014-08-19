@@ -54,6 +54,7 @@ import uk.org.ponder.rsf.components.UISelectLabel;
 import uk.org.ponder.rsf.components.decorators.UIDisabledDecorator;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.evolvers.BoundedDynamicListInputEvolver;
+import uk.org.ponder.rsf.evolvers.TextInputEvolver;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -104,7 +105,11 @@ public class ModifyItemProducer implements ViewComponentProducer, ViewParamsRepo
         this.hierarchyNodeSelectorRenderer = hierarchyNodeSelectorRenderer;
     }
 
-	/* (non-Javadoc)
+    private TextInputEvolver richTextEvolver;
+    public void setRichTextEvolver(TextInputEvolver richTextEvolver) {
+        this.richTextEvolver = richTextEvolver;
+    }
+    /* (non-Javadoc)
      * @see uk.org.ponder.rsf.view.ComponentProducer#fillComponents(uk.org.ponder.rsf.components.UIContainer, uk.org.ponder.rsf.viewstate.ViewParameters, uk.org.ponder.rsf.view.ComponentChecker)
      */
     public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
@@ -315,7 +320,8 @@ public class ModifyItemProducer implements ViewComponentProducer, ViewParamsRepo
         UIMessage.make(form, "item-text-header", "modifyitem.item.text.header");
         UIMessage.make(form, "item-text-instruction", "modifyitem.item.text.instruction");
 
-        UIInput itemText = UIInput.make(form, "item-text", itemOTP + "itemText");
+        UIInput itemText = UIInput.make(form, "item-text:", itemOTP + "itemText");
+        richTextEvolver.evolveTextInput(itemText);
         if (itemLocked) {
             itemText.willinput = false;
             itemText.decorate(new UIDisabledDecorator());
