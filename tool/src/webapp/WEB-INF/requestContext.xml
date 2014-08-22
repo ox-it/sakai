@@ -543,9 +543,13 @@
             ref="org.sakaiproject.evaluation.logic.EvalEvaluationService" />
         <property name="authoringService"
             ref="org.sakaiproject.evaluation.logic.EvalAuthoringService" />
-        <property name="dateEvolver" ref="fieldDateInputEvolver" />
         <property name="richTextEvolver" ref="richTextEvolver" />
         <property name="locale" ref="requestLocale" />
+        <property name="dateEvolver">
+            <bean class="org.sakaiproject.evaluation.tool.evolvers.NewFieldDateInputEvolver">
+              <property name="requestBeanGetter" ref="ELEvaluator" />
+            </bean>
+        </property>
 		<property name="navBarRenderer" ref="navBarRenderer" />	
     </bean>
 
@@ -745,5 +749,12 @@
 
 	<!-- Flow cycle messages view -->
 	 <bean class="org.sakaiproject.evaluation.tool.producers.MessagesProducer" />
+
+  <!-- Used for converting ISO8601 dates to Dates (Java) -->
+  <bean id="iso8601DateTransit" parent="beanExploder">
+    <property name="factory">
+      <bean class="org.sakaiproject.evaluation.tool.utils.ISO8601FieldDateTransit"/>
+    </property>
+  </bean>
 	
 </beans>
