@@ -7,11 +7,12 @@
 		<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 		<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 		<script type="text/javascript" rsf:id="scr=portal-matter" language="JavaScript" src="/library/js/headscripts.js"></script>
-        <script type="text/javascript" language="JavaScript" src="../js/jquery/jquery.js"></script>
-        <script type="text/javascript" language="JavaScript" src="../js/evalUtils.js"></script>
-        <script type="text/javascript" language="JavaScript" src="../js/eval.settings.js"></script>
+		<!-- This has to come out as the date widget will inject it into the page.
+		    <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+		  -->
+		<script type="text/javascript" language="JavaScript" src="../js/evalUtils.js"></script>
+		<script type="text/javascript" language="JavaScript" src="../js/eval.settings.js"></script>
 		<link href="../css/evaluation_base.css" type="text/css" rel="stylesheet" media="all" />
-		
 	</head>
 	<body>
 		<div class="portletBody">
@@ -79,40 +80,37 @@
 
 				<fieldset class="visibleFS">
 					<legend rsf:id="msg=evalsettings.dates.header">Evaluation Dates:</legend>
-                        <div class="shorttext">
-                            <span rsf:id="current_date" class="instruction textPanelFooter">
-                                Today is Oct 29, 1975
-                            </span>
-                        </div>
-						<div rsf:id="showStartDate:" class="shorttext">
-							<label rsf:id="msg=evalsettings.start.date.header" for="startDate:::date-field">Start Date:</label>
-							<span  rsf:id="startDate:">
-							  <input type="text" id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY" size="12" maxlength="10"/>
-							  <img src="../images/calendar.gif" />
+						<div class="shorttext">
+							<span rsf:id="current_date" class="instruction textPanelFooter">
+								Today is Oct 29, 1975
 							</span>
-                            <span rsf:id="startDate_disabled" />
-							<span rsf:id="msg=evalsettings.start.date.desc"  class="instruction textPanelFooter">
-								Users may begin submitting evaluation responses on this date
+						</div>
+						<div rsf:id="showStartDate:" class="shorttext">
+							<label rsf:id="msg=evalsettings.start.date.header" for="startDate">Start Date:</label>
+							<input rsf:id="startDate:" type="hidden"
+									id="dateStart" name="dateStart" value="MM/DD/YYYY"
+									size="15" maxlength="15" />
+							<span rsf:id="startDate_disabled" />
+							<span rsf:id="msg=evalsettings.start.date.desc" class="instruction textPanelFooter">
+								Evaluation ends on this date, no more responses after this date
 							</span>
 						</div>
 						<div rsf:id="showDueDate:" class="shorttext">
-							<label rsf:id="msg=evalsettings.due.date.header" for="dueDate:::date-field">Due Date:</label>
-							<span rsf:id="dueDate:">
-								<input type="text" name="date_dummy" value="MM/DD/YYYY" size="12" maxlength="10"/>
-								<img src="../images/calendar.gif" />
-							</span>
-                            <span rsf:id="dueDate_disabled" />
+							<label rsf:id="msg=evalsettings.due.date.header" for="dueDate">Due Date:</label>
+							<input rsf:id="dueDate:" type="hidden"
+								   id="dateDue" name="dateDue" value="MM/DD/YYYY"
+								   size="15" maxlength="15" />
+							<span rsf:id="dueDate_disabled" />
 							<span rsf:id="msg=evalsettings.due.date.desc" class="instruction textPanelFooter">
 								Evaluation ends on this date, no more responses after this date
 							</span>
 						</div>
 						<div rsf:id="showStopDate:" class="shorttext">
-							<label rsf:id="msg=evalsettings.stop.date.header" for="stopDate:::date-field">Stop Date:</label>
-							<span style="display:inline" rsf:id="stopDate:">
-								<input type="text" name="date_dummy" value="MM/DD/YYYY" size="12" maxlength="10"/>
-								<img src="../images/calendar.gif" />
-							</span>
-                            <span rsf:id="stopDate_disabled" />
+							<label rsf:id="msg=evalsettings.stop.date.header" for="stopDate">Stop Date:</label>
+							<input rsf:id="stopDate" type="hidden"
+								   id="dateStop" name="dateStop" value="MM/DD/YYYY"
+								   size="15" maxlength="15" />
+							<span rsf:id="stopDate_disabled" />
 							<span rsf:id="msg=evalsettings.stop.date.desc" class="instruction textPanelFooter">
 								Users may still submit responses up until this date (defines a grace period)
 							</span>
@@ -142,18 +140,17 @@
 						Note that admins above in the hierarchy can view the results UNLESS results sharing is set to private
 					  </p>
 					   
-                    </div>
-                    <div rsf:id="showViewDate:" class="shorttext" id="evaluation_show_viewdate_area">
-                         <label rsf:id="msg=evalsettings.view.date.header" for="viewDate:::date-field">View Date:</label>
-                         <span rsf:id="viewDate:">
-                             <input type="text" name="date_dummy" value="MM/DD/YYYY" size="12" maxlength="10"/>
-                             <img src="../images/calendar.gif" />
-                         </span>
-                         <span rsf:id="viewDate_disabled" />
-                         <span rsf:id="msg=evalsettings.view.date.desc" class="instruction textPanelFooter">
-                             Results are not viewable until this date
-                         </span>
-                    </div>
+					</div>
+					<div rsf:id="showViewDate:" class="shorttext" id="evaluation_show_viewdate_area">
+						 <label rsf:id="msg=evalsettings.view.date.header" for="viewDate">View Date:</label>
+						<input rsf:id="viewDate:" type="hidden"
+							   id="viewDate" name="dateDue" value="MM/DD/YYYY"
+							   size="15" maxlength="15" />
+						<span rsf:id="viewDate_disabled" />
+						<span rsf:id="msg=evalsettings.view.date.desc" class="instruction textPanelFooter">
+							 Results are not viewable until this date
+						 </span>
+					</div>
 					<table class="listHier" border="0" cellspacing="0" cellpadding="0" width="99%" style="margin:0" id="evaluation_show_results_area"><!-- DO NOT CHANGE THIS ID, it is used by JS logic -AZ -->
 						<tr rsf:id="showResultsToStudents:" id="showResultsToStudents">
 							<td width="50%" class="checkbox">

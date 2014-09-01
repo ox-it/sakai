@@ -15,6 +15,7 @@
 package org.sakaiproject.evaluation.tool.producers;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -31,6 +32,7 @@ import org.sakaiproject.evaluation.logic.model.EvalUser;
 import org.sakaiproject.evaluation.model.EvalEvaluation;
 import org.sakaiproject.evaluation.model.EvalTemplate;
 import org.sakaiproject.evaluation.tool.EvalToolConstants;
+import org.sakaiproject.evaluation.tool.evolvers.NewFieldDateInputEvolver;
 import org.sakaiproject.evaluation.tool.renderers.NavBarRenderer;
 import org.sakaiproject.evaluation.tool.utils.RSFUtils;
 import org.sakaiproject.evaluation.tool.viewparams.AdminSearchViewParameters;
@@ -58,17 +60,17 @@ import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UISelectLabel;
 import uk.org.ponder.rsf.components.UIVerbatim;
-import uk.org.ponder.rsf.components.decorators.DecoratorList;
-import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
-import uk.org.ponder.rsf.components.decorators.UITextDimensionsDecorator;
-import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
+import uk.org.ponder.rsf.components.decorators.*;
+import uk.org.ponder.rsf.evolvers.DateInputEvolver;
 import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
 import uk.org.ponder.rsf.evolvers.TextInputEvolver;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.util.RSFUtil;
+import uk.org.ponder.rsf.util.html.RSFHTMLUtil;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
+import uk.org.ponder.rsf.view.ViewRoot;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
@@ -107,11 +109,6 @@ public class EvaluationSettingsProducer implements ViewComponentProducer, ViewPa
         this.authoringService = authoringService;
     }
 
-    private FormatAwareDateInputEvolver dateevolver;
-    public void setDateEvolver(FormatAwareDateInputEvolver dateevolver) {
-        this.dateevolver = dateevolver;
-    }
-
     private TextInputEvolver richTextEvolver;
     public void setRichTextEvolver(TextInputEvolver richTextEvolver) {
         this.richTextEvolver = richTextEvolver;
@@ -125,6 +122,11 @@ public class EvaluationSettingsProducer implements ViewComponentProducer, ViewPa
     private NavBarRenderer navBarRenderer;
     public void setNavBarRenderer(NavBarRenderer navBarRenderer) {
 		this.navBarRenderer = navBarRenderer;
+	}
+
+	private FormatAwareDateInputEvolver dateEvolver;
+	public void setDateEvolver(FormatAwareDateInputEvolver dateEvolver) {
+		this.dateEvolver = dateEvolver;
 	}
 
     /* (non-Javadoc)
@@ -294,19 +296,19 @@ public class EvaluationSettingsProducer implements ViewComponentProducer, ViewPa
 
         // Start Date
         UIBranchContainer showStartDate = UIBranchContainer.make(form, "showStartDate:");
-        generateDateSelector(showStartDate, "startDate", evaluationOTP + "startDate", 
+        generateDateSelector(showStartDate, "startDate", evaluationOTP + "startDate",
                 null, currentEvalState, EvalConstants.EVALUATION_STATE_ACTIVE, useDateTime);
 
         // Due Date
         UIBranchContainer showDueDate = UIBranchContainer.make(form, "showDueDate:");
-        generateDateSelector(showDueDate, "dueDate", evaluationOTP + "dueDate", 
+        generateDateSelector(showDueDate, "dueDate", evaluationOTP + "dueDate",
                 reOpenDueDate, currentEvalState, EvalConstants.EVALUATION_STATE_GRACEPERIOD, useDateTime);
 
         // Stop Date - Show the "Stop date" text box only if allowed in the System settings
         Boolean useStopDate = (Boolean) settings.get(EvalSettings.EVAL_USE_STOP_DATE);
         if (useStopDate) {
             UIBranchContainer showStopDate = UIBranchContainer.make(form, "showStopDate:");
-            generateDateSelector(showStopDate, "stopDate", evaluationOTP + "stopDate", 
+            generateDateSelector(showStopDate, "stopDate", evaluationOTP + "stopDate",
                     reOpenStopDate, currentEvalState, EvalConstants.EVALUATION_STATE_CLOSED, useDateTime);
         }
 
@@ -620,11 +622,11 @@ public class EvaluationSettingsProducer implements ViewComponentProducer, ViewPa
         } else {
             UIInput datePicker = UIInput.make(parent, rsfId + ":", binding);
             if (useDateTime) {
-                dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT);         
+                dateEvolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT);
             } else {
-                dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_INPUT);        
+                dateEvolver.setStyle(FormatAwareDateInputEvolver.DATE_INPUT);
             }
-            dateevolver.evolveDateInput(datePicker, initValue);
+            dateEvolver.evolveDateInput(datePicker, initValue);
         }
     }
 
@@ -650,13 +652,7 @@ public class EvaluationSettingsProducer implements ViewComponentProducer, ViewPa
                 UIMessage.make(parent, rsfId + "_label", "evalsettings.view.results.date.label");
             } else {
                 // allow them to choose the date using a date picker
-                UIInput dateInput = UIInput.make(parent, rsfId + ":", binding);
-                if (useDateTime) {
-                    dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT);         
-                } else {
-                    dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_INPUT);        
-                }
-                dateevolver.evolveDateInput(dateInput);
+                UIInput dateInput = UIInput.make(parent, rsfId + "-iso8601", binding);
             }         
         }
     }
