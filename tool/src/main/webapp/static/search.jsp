@@ -1,16 +1,24 @@
+<%@ page language="java" %>
+<%@ page import="org.sakaiproject.component.cover.ServerConfigurationService" %>
+<%
+    request.setAttribute("skinRepo", ServerConfigurationService.getString("skin.repo", "/library/skin"));
+    request.setAttribute("skinDefault", ServerConfigurationService.getString("skin.default", "default"));
+    request.setAttribute("skinPrefix", ServerConfigurationService.getString("portal.neoprefix", ""));
+%>
+<%@ page session="false"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link href="/local-skins/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-<!--  TODO: Need to pull current skin from somewhere. -->
-<link href="/local-skins/weblearn-beta/tool.css" type="text/css" rel="stylesheet" media="all" />
+<link href='<c:out value="${skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
+<link href="<c:out value="${skinRepo}" />/<c:out value="${skinPrefix}" /><c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
 
 <style type="text/css">
 	@IMPORT url("css/jquery.autocomplete.css");
 	.my_ac_loading {
 		background : url('images/ajax-loader.gif') right center no-repeat;
-	};
+	}
     .loader {
         padding-left: 1em;
         padding-right: 1em;
