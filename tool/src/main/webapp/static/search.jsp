@@ -186,10 +186,10 @@
 							callback : {
 								// Take care of refresh calls - n will be false only when the whole tree is refreshed or loaded of the first time
 								beforedata : function (n, t) {
-									return { id : $(n).attr("id") || "" };
+									return { id : \$(n).attr("id") || "" };
 								},
 								onselect : function (n, t) {
-									node = $(n);
+									node = \$(n);
 									loadGroup(node.attr("groupId"), node.attr("title"));
 								}
 							}
@@ -303,7 +303,7 @@
 <div style="display:none">
 	<textarea id="find_jst">
 		<div class="find">
-		<h3>Adding group to ${title}...</h3>
+		<h3>Adding group to \${title}...</h3>
 		<p class="instruction">
 		You can add a centrally defined group of users to the site here. These groups are stored externally in the 
 		<a href="http://www.oucs.ox.ac.uk/services/oak/" target="_new">Oak Access Management Services</a>.
@@ -348,14 +348,14 @@
 	<textarea id="select_group_jst">
 		<ul class="groups scroll">
 		{for group in groups}
-			<li class="group"><a href="" id="${group.id}">${group.name}</a></li>
+			<li class="group"><a href="" id="\${group.id}">\${group.name}</a></li>
 		{/for}
 		</ul>
 	</textarea>
 	
 	<textarea id="group_jst">
 		<form class="show-group">
-		<h4 class="group">Selected Group: ${group.name}</h4>
+		<h4 class="group">Selected Group: \${group.name}</h4>
 		<h5>Roles</h5>
 		<p class="step">
 		Select the role which you wish the group to have.
@@ -363,8 +363,8 @@
 		<table class="roleSelect">
 		{for role in site.roles}
 		<tr>
-		<td><label for="${role.id}">${role.id}</label></td>
-		<td><input id="${role.id}" type="radio" name="role" value="${role.id}"></td>
+		<td><label for="\${role.id}">\${role.id}</label></td>
+		<td><input id="\${role.id}" type="radio" name="role" value="\${role.id}"></td>
 		</tr>
 		{/for}
 		</table>
@@ -381,10 +381,10 @@
 		</form>
 	</textarea>
 	<textarea id="membership_jst">
-		<h5>Membership (# ${members.length})</h5>
+		<h5>Membership (# \${members.length})</h5>
 		<ul class="members">
 		{for member in members}
-		<li>${member.name} <span class="username">(${member.username})</span></li>
+		<li>\${member.name} <span class="username">(\${member.username})</span></li>
 		{/for}
 		</ul>
 	</textarea>
