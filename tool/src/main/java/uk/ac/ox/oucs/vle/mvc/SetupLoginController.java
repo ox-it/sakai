@@ -23,6 +23,7 @@ import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.util.RequestFilter;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 import org.springframework.web.servlet.view.RedirectView;
@@ -54,7 +55,10 @@ public class SetupLoginController extends AbstractController {
 												 HttpServletResponse response) throws Exception {
 		Session session = sessionManager.getCurrentSession();
 		String returnUrl = request.getParameter("returnUrl");
-		session.setAttribute(Tool.HELPER_DONE_URL, returnUrl);
+		// With the upgrade to Sakai 10 the return URL for the login tool has to be a full URL
+		// previously it could just be the path.
+		String serverUrl = RequestFilter.serverUrl(request);
+		session.setAttribute(Tool.HELPER_DONE_URL, serverUrl+returnUrl);
 		return new ModelAndView(new RedirectView("/pages/login/do", true));
 	}
 
