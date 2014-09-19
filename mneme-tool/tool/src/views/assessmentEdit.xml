@@ -147,6 +147,45 @@
 												<hasValueDecision model="allowEval" />
 											</included>
 										</dateEdit>											
+										<selection>
+											<selectionChoices>
+												<selectionChoice>
+													<displayMessage>
+														<message selector="notify-eval" />
+													</displayMessage>
+													<valueMessage>
+														<message template="true" />
+													</valueMessage>
+													<container>
+													<navigation style="LINK" submit="TRIGGER" title="eval-email-sample">
+			                                        <icon icon="/icons/test.png" style="LEFT" />
+			                                        <destination template="openWindow('/portal/tool/{0}/eval_notif/{1}',null,'toolbar=no,scrollbars=yes,resizable=yes,menubar=no,status=no,directories=no,location=no,width=600,height=400');">
+			                                          <model ref="toolId" />
+			                                          <model ref="assessment.id" />
+			                                        </destination>
+			                                        <included>
+				                                      <compareDecision model="assessment.type" constant="survey" />
+				                                      <decision model="assessment.formalCourseEval" />
+											          <hasValueDecision model="allowEval" />
+			                                        </included>
+		                                            </navigation>
+									</container>
+								</selectionChoice>
+							</selectionChoices>
+											<model ref="assessment.notifyEval" />
+											<readOnly>
+												<decision model="assessment.isLocked" />
+											</readOnly>
+							<included>
+												<compareDecision model="assessment.type" constant="survey" />
+												<decision model="assessment.formalCourseEval" />
+												<hasValueDecision model="allowEval" />
+											</included>
+											<destination template="/assessment_edit/{0}{1}">
+												<model ref="assessment.id" />
+												<model ref="return" />
+											</destination>
+										</selection>								
 									</container>
 								</selectionChoice>
 							</selectionChoices>
@@ -232,7 +271,55 @@
 									</selectionChoices>
 									<model ref="assessment.formalCourseEval" />
 								</selection>
+								<selection readOnly="TRUE">
+									<selectionChoices>
+										<selectionChoice>
+											<displayMessage>
+												<message selector="notify-eval" />
+											</displayMessage>
+											<valueMessage>
+												<message template="true" />
+											</valueMessage>
+											<container>
+												<navigation style="LINK" submit="TRIGGER" title="eval-email-sample">
+			                                      <icon icon="/icons/test.png" style="LEFT" />
+			                                      <destination template="openWindow('/portal/tool/{0}/eval_notif/{1}',null,'toolbar=no,scrollbars=yes,resizable=yes,menubar=no,status=no,directories=no,location=no,width=600,height=400');">
+			                                        <model ref="toolId" />
+			                                        <model ref="assessment.id" />
+			                                      </destination>
+			                                      <included>
+				                                    <compareDecision model="assessment.type" constant="survey" />
+				                                    <decision model="assessment.formalCourseEval" />
+											        <hasValueDecision model="allowEval" />
+			                                      </included>
+		                                        </navigation>
+								            </container>
+										</selectionChoice>
+									</selectionChoices>
+									<model ref="assessment.notifyEval" />
+								</selection>
+		                        <instructions>
+							      <message selector="eval-last-sent">
+								    <model type="date" ref="assessment.evaluationSent" />
+							      </message>
+							      <included>
+								    <hasValueDecision model="assessment.evaluationSent" />
+								    <compareDecision model="assessment.type" constant="survey" />
+				                    <decision model="assessment.formalCourseEval" />
+									<hasValueDecision model="allowEval" />
+							     </included>
+						         </instructions>
 		
+						         <navigation title="send" description="send-description" style="BUTTON" submit="TRUE" destination="EVALSEND">
+							     <icon icon="/icons/email_go.png" style="LEFT" />
+							     <included>
+								   <hasValueDecision model="assessment.evaluationSent" />
+								   <compareDecision model="assessment.type" constant="survey" />
+				                   <decision model="assessment.formalCourseEval" />
+								   <hasValueDecision model="allowEval" />
+								 </included>
+						         </navigation>
+						         
 							</container>
 						</section>
 

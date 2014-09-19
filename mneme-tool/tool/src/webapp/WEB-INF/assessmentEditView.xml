@@ -41,6 +41,7 @@
  		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
  		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService" /></property>
 		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService" /></property>
+  		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
   		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
   		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
  

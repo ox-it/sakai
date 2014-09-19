@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -122,12 +122,21 @@ public class AssessmentInvalidView extends ControllerImpl
 				}
 			}
 
+			if (assessment.getFormalCourseEval() && assessment.getNotifyEval() && assessment.getDates().getOpenDate() == null)
+			{
+				msg.append("<li>" + msgs.getString("notify-no-open") + "</li>");
+			}
+
 			// could be missing dates with auto-send
 			if (assessment.getResultsEmail() != null)
 			{
+				if (assessment.getResultsEmail().length() > 255)
+				{
+					msg.append("<li>" + msgs.getString("email-toolong") + "</li>");
+				}
 				if (!assessment.isEmailValid(assessment.getResultsEmail()))
 				{
-					msg.append("<li>" + msgs.getString("email-invalid") + "</li>");
+					msg.append("<li>" + msgs.getString("email-toolong-invalid") + "</li>");
 				}
 				if ((assessment.getDates().getDueDate() == null) && (assessment.getDates().getAcceptUntilDate() == null))
 				{

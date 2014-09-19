@@ -43,6 +43,10 @@ import org.etudes.mneme.api.GradesService;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.PartDetail;
 import org.etudes.mneme.api.ReviewShowCorrect;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
@@ -60,6 +64,9 @@ public class AssessmentSettingsView extends ControllerImpl
 
 	/** Dependency: GradesService */
 	protected GradesService gradesService = null;
+
+	/** Dependency: SiteService */
+	protected SiteService siteService = null;	
 
 	/** tool manager reference. */
 	protected ToolManager toolManager = null;
@@ -157,6 +164,20 @@ public class AssessmentSettingsView extends ControllerImpl
 			}
 		}
 
+		try
+		{
+			Site site = this.siteService.getSite(toolManager.getCurrentPlacement().getContext());
+			ToolConfiguration config = site.getToolForCommonId("sakai.mneme");
+			if (config != null) toolId = config.getId();
+			context.put("toolId", toolId);
+		}
+		catch (IdUnusedException e)
+		{
+			// redirect to error
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+
 		// collect information: the selected assessment
 		context.put("assessment", assessment);
 
@@ -242,6 +263,7 @@ public class AssessmentSettingsView extends ControllerImpl
 		String destination = uiService.decode(req, context);
 
 		boolean sendResultsEmail = false;
+		boolean sendEvalEmail = false;
 
 		// if publish, set
 		if ("PUBLISH".equals(destination))
@@ -271,6 +293,14 @@ public class AssessmentSettingsView extends ControllerImpl
 			destination = context.getDestination();
 		}
 
+		else if (destination.equals("EVALSEND"))
+		{
+			// we will do it later, after we save
+			sendEvalEmail = true;
+
+			destination = context.getDestination();
+		}
+
 		//If Show Summary of Data is checked,
 		if (assessment.getReview().getShowSummary()) assessment.getReview().setShowCorrectAnswer(ReviewShowCorrect.yes);
 		// commit the save
@@ -295,6 +325,11 @@ public class AssessmentSettingsView extends ControllerImpl
 		if (sendResultsEmail)
 		{
 			this.assessmentService.sendResults(assessment);
+		}
+		// if we need to send the evaluation email, do so after the save
+		if (sendEvalEmail)
+		{
+			this.assessmentService.sendEvalNotification(assessment);
 		}
 
 		// if destination became null
@@ -335,6 +370,11 @@ public class AssessmentSettingsView extends ControllerImpl
 	{
 		this.gradesService = service;
 	}
+	
+	public void setSiteService(SiteService siteService)
+	{
+		this.siteService = siteService;
+	}	
 	
 	/**
 	 * @param toolManager

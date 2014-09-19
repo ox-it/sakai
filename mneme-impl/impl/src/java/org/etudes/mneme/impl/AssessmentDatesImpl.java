@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -43,6 +43,8 @@ public class AssessmentDatesImpl extends AssessmentDatesBaseImpl implements Asse
 
 	/** Track the original due value. */
 	protected Date dueWas = null;
+
+	protected Boolean hideUntilOpen = Boolean.FALSE;	
 
 	protected Date open = null;
 
@@ -96,10 +98,29 @@ public class AssessmentDatesImpl extends AssessmentDatesBaseImpl implements Asse
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getHideUntilOpen()
+	{
+		return this.hideUntilOpen;
+	}		
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Date getOpenDate()
 	{
 		return this.open;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void initHideUntilOpen(Boolean hideUntilOpen)
+	{
+		// for null, use the default FALSE
+		if (hideUntilOpen == null) hideUntilOpen = Boolean.FALSE;
+
+		this.hideUntilOpen = hideUntilOpen;
+	}	
 
 	/**
 	 * {@inheritDoc}
@@ -130,6 +151,17 @@ public class AssessmentDatesImpl extends AssessmentDatesBaseImpl implements Asse
 		// this is a change that cannot be made to locked assessments if set to a formal course evaluation
 		if (this.assessment.getFormalCourseEval()) ((AssessmentImpl) this.assessment).lockedChanged = Boolean.TRUE;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setHideUntilOpen(Boolean hideUntilOpen)
+	{
+		if (hideUntilOpen == null) throw new IllegalArgumentException();
+		if (this.hideUntilOpen.equals(hideUntilOpen)) return;
+		this.hideUntilOpen = hideUntilOpen;
+		this.owner.setChanged();
+	}		
 
 	/**
 	 * {@inheritDoc}
@@ -179,5 +211,6 @@ public class AssessmentDatesImpl extends AssessmentDatesBaseImpl implements Asse
 		this.due = other.due;
 		this.dueWas = other.dueWas;
 		this.open = other.open;
+		this.hideUntilOpen = other.hideUntilOpen;
 	}
 }

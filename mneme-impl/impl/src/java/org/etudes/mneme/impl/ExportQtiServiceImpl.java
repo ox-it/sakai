@@ -1,6 +1,6 @@
 /**********************************************************************************
  * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-impl/impl/src/java/org/etudes/mneme/impl/ExportQtiServiceImpl.java $
- * $Id: ExportQtiServiceImpl.java 7213 2014-01-22 05:11:50Z rashmim $
+ * $Id: ExportQtiServiceImpl.java 8562 2014-08-30 06:07:15Z mallikamt $
  ***********************************************************************************
  *
  * Copyright (c) 2013, 2014 Etudes, Inc.
@@ -924,6 +924,12 @@ public class ExportQtiServiceImpl implements ExportQtiService
 
 				Element outcomeDeclarationOpenElement = createOutcomeElement(assessmentTestDocument, "OpenDate", "string", sdf.format(open));
 				if (outcomeDeclarationOpenElement != null) assessmentTestElement.appendChild(outcomeDeclarationOpenElement);
+			}
+
+			if (test.getDates().getHideUntilOpen() != null)
+			{
+				Element outcomeDeclarationHideOpenElement = createOutcomeElement(assessmentTestDocument, "HideUntilOpen", "string", test.getDates().getHideUntilOpen().toString());
+				if (outcomeDeclarationHideOpenElement != null) assessmentTestElement.appendChild(outcomeDeclarationHideOpenElement);
 			}
 
 			if (test.getDates().getDueDate() != null)

@@ -40,6 +40,8 @@ public interface AssessmentAccess
 	 */
 	Date getAcceptUntilDate();
 
+	Assessment getAssessment();
+
 	/**
 	 * Access the due date. Submissions after this date are considered late, if they are accepted at all.
 	 * 
@@ -60,6 +62,13 @@ public interface AssessmentAccess
 	 * @return TRUE if a tries limit is defined, FALSE if not.
 	 */
 	Boolean getHasTriesLimit();
+
+	/**
+	 * Check if hide until open is set.
+	 * 
+	 * @return TRUE if hide until open is defined, FALSE if not.
+	 */
+	Boolean getHideUntilOpen();		
 
 	/**
 	 * Access the id.
@@ -99,6 +108,13 @@ public interface AssessmentAccess
 	 * @return TRUE if we override the due date, FALSE if not.
 	 */
 	Boolean getOverrideDueDate();
+
+	/**
+	 * Check if we override the hideUntilOpen value.
+	 * 
+	 * @return TRUE if we override hideUntilOpen, FALSE if not.
+	 */
+	Boolean getOverrideHideUntilOpen();
 
 	/**
 	 * Check if we override the open date.
@@ -205,6 +221,14 @@ public interface AssessmentAccess
 	void setHasTriesLimit(Boolean hasTriesLimit);
 
 	/**
+	 * Set the hide until open value
+	 * 
+	 * @param hideUntilOpen
+	 *        
+	 */
+	void setHideUntilOpen(Boolean hideUntilOpen);		
+
+	/**
 	 * Set the open date.
 	 * 
 	 * @param date
@@ -227,6 +251,14 @@ public interface AssessmentAccess
 	 *        TRUE to override the due date, FALSE to not.
 	 */
 	void setOverrideDueDate(Boolean override);
+
+	/**
+	 * Set the override of hideUntilOpen.
+	 * 
+	 * @param override
+	 *        TRUE to override hideUntilOpen, FALSE to not.
+	 */
+	void setOverrideHideUntilOpen(Boolean override);
 
 	/**
 	 * Set the override of the open date.

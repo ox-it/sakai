@@ -216,8 +216,7 @@ public class MultiAssmtSettingsView extends ControllerImpl
 					}
 					if (chSet.equals("ao") || chSet.equals("ae"))
 					{
-						if (assmt.getType() != AssessmentType.survey || assmt.getFormalCourseEval())
-							assmt.setResultsEmail(assessment.getResultsEmail());
+						assmt.setResultsEmail(assessment.getResultsEmail());
 					}
 					if (chSet.equals("ao") || chSet.equals("pw"))
 					{

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -413,7 +413,9 @@ public class AssessmentServiceImpl implements AssessmentService
 		for (Assessment a : assessments)
 		{
 			// surveys that are not formal evals do not support this feature
-			if ((a.getType() == AssessmentType.survey) && (!a.getFormalCourseEval())) continue;
+			//if ((a.getType() == AssessmentType.survey) && (!a.getFormalCourseEval())) continue;
+			//surveys that are not formal evals need to have view results clicked to support this feature
+			if ((a.getType() == AssessmentType.survey) && (!a.getFormalCourseEval()) && !a.getFrozen()) continue;
 
 			if (a.getDates().getIsClosed())
 			{
@@ -451,10 +453,15 @@ public class AssessmentServiceImpl implements AssessmentService
 	/**
 	 * {@inheritDoc}
 	 */
-	public Date getMinStartDate(String context)
+	public List<Assessment> getFormalEvaluationsNeedingNotification()
 	{
-		Date minDate = this.storage.getMinStartDate(context);
-		return minDate;
+		List<Assessment> rv = new ArrayList<Assessment>();
+
+		// this gets the candidates - but does not check the close dates
+		List<Assessment> assessments = new ArrayList<Assessment>(this.storage.getFormalEvaluationsNeedingNotification());
+
+		// TODO: security?
+		return assessments;
 	}
 
 	/**
@@ -464,6 +471,15 @@ public class AssessmentServiceImpl implements AssessmentService
 	{
 		Date maxDate = this.storage.getMaxStartDate(context);
 		return maxDate;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Date getMinStartDate(String context)
+	{
+		Date minDate = this.storage.getMinStartDate(context);
+		return minDate;
 	}
 
 	/**
@@ -674,6 +690,7 @@ public class AssessmentServiceImpl implements AssessmentService
 		{
 			// formal course evaluation is only for surveys
 			assessment.setFormalCourseEval(Boolean.FALSE);
+			assessment.setNotifyEval(Boolean.FALSE);
 		}
 
 		// enforce 1 try for formal course evaluation
@@ -683,10 +700,10 @@ public class AssessmentServiceImpl implements AssessmentService
 		}
 
 		// enforce surveys that are not formal evals cannot have results email
-		if ((assessment.getType() == AssessmentType.survey) && (!assessment.getFormalCourseEval()))
+		/*if ((assessment.getType() == AssessmentType.survey) && (!assessment.getFormalCourseEval()))
 		{
 			assessment.setResultsEmail(null);
-		}
+		}*/
 
 		// if any changes made, clear mint
 		if (assessment.getIsChanged())
@@ -926,6 +943,17 @@ public class AssessmentServiceImpl implements AssessmentService
 	/**
 	 * {@inheritDoc}
 	 */
+	public void sendEvalNotification(Assessment assessment)
+	{
+		if (assessment == null) throw new IllegalArgumentException();
+		
+		// do it - the submission service handles this
+		((SubmissionServiceImpl) this.submissionService).notifyStudentEvaluation(assessment);
+	}	
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public void sendResults(Assessment assessment)
 	{
 		if (assessment == null) throw new IllegalArgumentException();
@@ -947,6 +975,18 @@ public class AssessmentServiceImpl implements AssessmentService
 	public void setAttachmentService(AttachmentService service)
 	{
 		attachmentService = service;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setEvaluationSent(Assessment assessment, Date date)
+	{
+		if (assessment == null) throw new IllegalArgumentException();
+		if (date == null) throw new IllegalArgumentException();
+
+		// TODO: security?
+		this.storage.setEvaluationSent(assessment.getId(), date);
 	}
 
 	/**
@@ -1172,12 +1212,14 @@ public class AssessmentServiceImpl implements AssessmentService
 
 		// newly copied are never formal course evaluation
 		rv.initFormalCourseEval(Boolean.FALSE);
+		rv.initNotifyEval(Boolean.FALSE);
+		rv.initEvalSent(null);
 
 		// surveys can't have auto-send results email
-		if ((rv.getType() == AssessmentType.survey) && (!rv.getFormalCourseEval()))
+		/*if ((rv.getType() == AssessmentType.survey) && (!rv.getFormalCourseEval()))
 		{
 			rv.initResultsEmail(null);
-		}
+		}*/
 
 		((AssessmentGradingImpl) (rv.getGrading())).initGradebookRejectedAssessment(Boolean.FALSE);
 

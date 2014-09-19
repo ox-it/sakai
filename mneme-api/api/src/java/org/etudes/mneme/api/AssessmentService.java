@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -43,6 +43,16 @@ public interface AssessmentService
 	{
 		cdate_a, cdate_d, ddate_a, ddate_d, odate_a, odate_d, published_a, published_d, title_a, title_d, type_a, type_d
 	}
+
+	/**
+	 * Create a new Assessment object in the context, but do not save it.
+	 * @param context
+	 *        The context in which the assessment lives.
+	 * @return The new assessment.
+	 */
+	public Assessment newEmptyAssessment(String context);
+
+	public Settings newEmptySettings();
 
 	/**
 	 * Check if the user is allowed to edit this assessment.
@@ -185,13 +195,9 @@ public interface AssessmentService
 	List<Assessment> getContextAssessments(String context, AssessmentsSort sort, Boolean publishedOnly);
 
 	/**
-	 * Get the earliest open date of assessments in the context.
-	 * 
-	 * @param context
-	 *        The context.
-	 * @return If open dates exist for assessment, returns the earliest open date, otherwise returns null.
+	 * @return the assessments that need to have their student evaluation notifications sent.
 	 */
-	Date getMinStartDate(String context);
+	List<Assessment> getFormalEvaluationsNeedingNotification();
 	
 	/**
 	 * Get the latest open date of assessments in the context.
@@ -202,6 +208,14 @@ public interface AssessmentService
 	 */
 	Date getMaxStartDate(String context);
 	
+	/**
+	 * Get the earliest open date of assessments in the context.
+	 * 
+	 * @param context
+	 *        The context.
+	 * @return If open dates exist for assessment, returns the earliest open date, otherwise returns null.
+	 */
+	Date getMinStartDate(String context);
 
 	/**
 	 * Get a list of Users who can submit in this context.
@@ -222,16 +236,6 @@ public interface AssessmentService
 	 * @return The new Assessment.
 	 */
 	Assessment newAssessment(String context) throws AssessmentPermissionException;
-
-	/**
-	 * Create a new Assessment object in the context, but do not save it.
-	 * @param context
-	 *        The context in which the assessment lives.
-	 * @return The new assessment.
-	 */
-	public Assessment newEmptyAssessment(String context);
-	
-	public Settings newEmptySettings();
 
 	/**
 	 * Remove this assessment.
@@ -270,6 +274,14 @@ public interface AssessmentService
 	void saveAssessment(Assessment assessment) throws AssessmentPermissionException, AssessmentPolicyException;
 
 	/**
+	 * If the assessment is setup for sending evaluation notification, and is closed, send the email.
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 */
+	void sendEvalNotification(Assessment assessment);
+	
+	/**
 	 * If the assessment is setup for sending email results, and is closed, send the email.
 	 * 
 	 * @param assessment
@@ -277,6 +289,16 @@ public interface AssessmentService
 	 */
 	void sendResults(Assessment assessment);
 
+	/**
+	 * Set the date that the evaluation notification was sent.
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 * @param date
+	 *        The date, or null to indicate not sent.
+	 */
+	void setEvaluationSent(Assessment assessment, Date date);	
+	
 	/**
 	 * Set the date that the results email was sent.
 	 * 

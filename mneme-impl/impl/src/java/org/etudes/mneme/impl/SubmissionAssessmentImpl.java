@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -168,7 +168,7 @@ public class SubmissionAssessmentImpl implements Assessment
 			AssessmentAccess special = getAssessment().getSpecialAccess().getUserAccess(this.submission.getUserId());
 			if (special != null)
 			{
-				if (special.getOverrideAcceptUntilDate() || special.getOverrideDueDate() || special.getOverrideOpenDate())
+				if (special.getOverrideAcceptUntilDate() || special.getOverrideDueDate() || special.getOverrideOpenDate() || special.getOverrideHideUntilOpen() || getAssessment().getDates().getHideUntilOpen() != special.getHideUntilOpen())
 				{
 					// return a special dates impl that knows how to override
 					return new AssessmentDatesOverrideImpl(getAssessment(), special);
@@ -177,6 +177,14 @@ public class SubmissionAssessmentImpl implements Assessment
 		}
 
 		return getAssessment().getDates();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Date getEvaluationSent()
+	{
+		return this.getAssessment().getEvaluationSent();
 	}
 
 	/**
@@ -291,6 +299,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	{
 		return getAssessment().getHasUnscoredSubmissions();
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getHiddenTillOpen()
+	{
+		return getAssessment().getHiddenTillOpen();
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -367,19 +383,27 @@ public class SubmissionAssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean isEmailValid(String emailAddr)
-	{
-		return getAssessment().isEmailValid(emailAddr);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public Reference getItemAnalysisReference()
 	{
 		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ITEM_ANALYSIS
 				+ "/" + this.getContext() + "/" + this.getId() + ".xls");
 		return ref;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Integer getMinScore()
+	{
+		return getAssessment().getMinScore();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getMinScoreSet()
+	{
+		return getAssessment().getMinScoreSet();
 	}
 
 	/**
@@ -404,6 +428,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	public Boolean getNeedsPoints()
 	{
 		return getAssessment().getNeedsPoints();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getNotifyEval()
+	{
+		return this.getAssessment().getNotifyEval();
 	}
 
 	/**
@@ -647,33 +679,25 @@ public class SubmissionAssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
-	public Boolean getMinScoreSet()
-	{
-		return getAssessment().getMinScoreSet();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public Integer getMinScore()
-	{
-		return getAssessment().getMinScore();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
 	public int hashCode()
 	{
 		return getAssessment().hashCode();
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	public void initType(AssessmentType type)
 	{
 		throw new IllegalArgumentException();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isEmailValid(String emailAddr)
+	{
+		return getAssessment().isEmailValid(emailAddr);
 	}
 
 	/**
@@ -688,6 +712,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	 * {@inheritDoc}
 	 */
 	public void setContext(String context)
+	{
+		throw new IllegalArgumentException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setEvaluationSent(Date setting)
 	{
 		throw new IllegalArgumentException();
 	}
@@ -727,7 +759,31 @@ public class SubmissionAssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
+	public void setMinScore(Integer minScore)
+	{
+		throw new IllegalArgumentException();
+	}	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setMinScoreSet(Boolean setting)
+	{
+		throw new IllegalArgumentException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setNeedsPoints(Boolean needsPoints)
+	{
+		throw new IllegalArgumentException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setNotifyEval(Boolean setting)
 	{
 		throw new IllegalArgumentException();
 	}
@@ -844,22 +900,6 @@ public class SubmissionAssessmentImpl implements Assessment
 		throw new IllegalArgumentException();
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setMinScoreSet(Boolean setting)
-	{
-		throw new IllegalArgumentException();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setMinScore(Integer minScore)
-	{
-		throw new IllegalArgumentException();
-	}
-
 	/**
 	 * Access the assessment.
 	 * 

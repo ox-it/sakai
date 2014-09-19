@@ -51,6 +51,10 @@ import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
@@ -77,6 +81,9 @@ public class AssessmentEditView extends ControllerImpl
 
 	/** Dependency: Question service. */
 	protected QuestionService questionService = null;
+
+	/** Dependency: SiteService */
+	protected SiteService siteService = null;	
 
 	/** tool manager reference. */
 	protected ToolManager toolManager = null;
@@ -157,6 +164,20 @@ public class AssessmentEditView extends ControllerImpl
 		// }
 		// }
 
+		try
+		{
+			Site site = this.siteService.getSite(toolManager.getCurrentPlacement().getContext());
+			ToolConfiguration config = site.getToolForCommonId("sakai.mneme");
+			if (config != null) toolId = config.getId();
+			context.put("toolId", toolId);
+		}
+		catch (IdUnusedException e)
+		{
+			// redirect to error
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+		
 		// collect information: the selected assessment
 		context.put("assessment", assessment);
 
@@ -419,7 +440,14 @@ public class AssessmentEditView extends ControllerImpl
 
 				destination = context.getDestination();
 			}
+			else if (destination.equals("EVALSEND"))
+			{
+				this.assessmentService.saveAssessment(assessment);
 
+				destination = context.getDestination();
+				
+				this.assessmentService.sendEvalNotification(assessment);
+			}
 			else
 			{
 				this.assessmentService.saveAssessment(assessment);
@@ -441,6 +469,7 @@ public class AssessmentEditView extends ControllerImpl
 		// redirect to the next destination
 		res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
 	}
+
 
 	/**
 	 * Set the AssessmentService.
@@ -492,6 +521,16 @@ public class AssessmentEditView extends ControllerImpl
 	{
 		this.questionService = questionService;
 	}
+
+	/**
+	 * @param siteService
+	 *        the siteService to set
+	 */
+	public void setSiteService(SiteService siteService)
+	{
+		this.siteService = siteService;
+	}	
+		
 
 	/**
 	 * Set the tool manager.

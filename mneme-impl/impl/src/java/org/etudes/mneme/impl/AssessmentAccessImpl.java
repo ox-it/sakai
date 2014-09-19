@@ -50,6 +50,10 @@ public class AssessmentAccessImpl implements AssessmentAccess, Changeable
 
 	protected Date dueDate = null;
 
+	protected Boolean hideUntilOpen = Boolean.FALSE;
+	
+	protected Boolean overrideHideUntilOpen = Boolean.FALSE;
+
 	protected String id = null;
 
 	protected Date openDate = null;
@@ -140,6 +144,11 @@ public class AssessmentAccessImpl implements AssessmentAccess, Changeable
 		return this.acceptUntilDate;
 	}
 
+	public Assessment getAssessment()
+	{
+		return this.assessment;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -177,6 +186,15 @@ public class AssessmentAccessImpl implements AssessmentAccess, Changeable
 
 		return Boolean.valueOf(this.tries != null);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getHideUntilOpen()
+	{
+		if (!this.overrideHideUntilOpen) return this.assessment.getDates().getHideUntilOpen();
+		return this.hideUntilOpen;
+	}		
 
 	/**
 	 * {@inheritDoc}
@@ -281,6 +299,14 @@ public class AssessmentAccessImpl implements AssessmentAccess, Changeable
 	public Boolean getOverrideTimeLimit()
 	{
 		return this.overrideTimeLimit;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getOverrideHideUntilOpen()
+	{
+		return this.overrideHideUntilOpen;
 	}
 
 	/**
@@ -503,6 +529,38 @@ public class AssessmentAccessImpl implements AssessmentAccess, Changeable
 	/**
 	 * {@inheritDoc}
 	 */
+	public void setHideUntilOpen(Boolean hideUntilOpen)
+	{
+		boolean override = false;
+		Boolean d = null;
+		if (hideUntilOpen == null) throw new IllegalArgumentException();
+		if (this.hideUntilOpen.equals(hideUntilOpen)) return;
+		// compute what we should have based on the new setting and the assessment setting
+		if (!Different.different(hideUntilOpen, this.assessment.getDates().getHideUntilOpen()))
+		{
+			override = false;
+			d = null;
+		}
+		else
+		{
+			override = true;
+			d = hideUntilOpen;
+		}
+
+		// if we already have this, we are done
+		if (!Different.different(d, this.hideUntilOpen) && (override == this.overrideHideUntilOpen)) return;
+
+		this.overrideHideUntilOpen = override;
+		this.hideUntilOpen = hideUntilOpen;
+
+		this.owner.setChanged();
+		setChanged();
+	
+	}		
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setOpenDate(Date date)
 	{
 		boolean override = false;
@@ -620,6 +678,20 @@ public class AssessmentAccessImpl implements AssessmentAccess, Changeable
 		this.owner.setChanged();
 		setChanged();
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setOverrideHideUntilOpen(Boolean override)
+	{
+		if (override == null) throw new IllegalArgumentException();
+		if (override.equals(this.overrideHideUntilOpen)) return;
+
+		this.overrideHideUntilOpen = override;
+		
+		this.owner.setChanged();
+		setChanged();
+	}	
 
 	/**
 	 * {@inheritDoc}
@@ -804,6 +876,20 @@ public class AssessmentAccessImpl implements AssessmentAccess, Changeable
 	}
 
 	/**
+	 * Init the hide until open value.
+	 * 
+	 * @param hideUntilOpen
+	 *        The hide until open value.
+	 */
+	protected void initHideUntilOpen(Boolean hideUntilOpen)
+	{
+		// for null, use the default FALSE
+		if (hideUntilOpen == null) hideUntilOpen = Boolean.FALSE;
+
+		this.hideUntilOpen = hideUntilOpen;
+	}	
+
+	/**
 	 * Establish the id.
 	 * 
 	 * @param id
@@ -879,6 +965,17 @@ public class AssessmentAccessImpl implements AssessmentAccess, Changeable
 	{
 		this.overrideTries = override;
 	}
+	
+	/**
+	 * Init the override tries.
+	 * 
+	 * @param override
+	 *        The override.
+	 */
+	protected void initOverrideHideUntilOpen(Boolean override)
+	{
+		this.overrideHideUntilOpen = override;
+	}	
 
 	/**
 	 * Init the password.
@@ -949,9 +1046,11 @@ public class AssessmentAccessImpl implements AssessmentAccess, Changeable
 		this.dueDate = other.dueDate;
 		this.id = other.id;
 		this.openDate = other.openDate;
+		this.hideUntilOpen = other.hideUntilOpen;
 		this.overrideAcceptUntilDate = other.overrideAcceptUntilDate;
 		this.overrideDueDate = other.overrideDueDate;
 		this.overrideOpenDate = other.overrideOpenDate;
+		this.overrideHideUntilOpen = other.overrideHideUntilOpen;
 		this.overridePassword = other.overridePassword;
 		this.overrideTimeLimit = other.overrideTimeLimit;
 		this.overrideTries = other.overrideTries;

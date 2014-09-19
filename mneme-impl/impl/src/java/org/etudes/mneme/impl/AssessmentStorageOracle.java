@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -74,24 +74,26 @@ public class AssessmentStorageOracle extends AssessmentStorageSql implements Ass
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("INSERT INTO MNEME_ASSESSMENT_ACCESS (ID,");
-		sql.append(" ASSESSMENT_ID, DATES_ACCEPT_UNTIL, DATES_DUE, DATES_OPEN,");
+		sql.append(" ASSESSMENT_ID, DATES_ACCEPT_UNTIL, DATES_DUE, DATES_OPEN, HIDE_UNTIL_OPEN,");
 		sql.append(" OVERRIDE_ACCEPT_UNTIL, OVERRIDE_DUE, OVERRIDE_OPEN, OVERRIDE_PASSWORD,");
-		sql.append(" OVERRIDE_TIME_LIMIT, OVERRIDE_TRIES, PASSWORD, TIME_LIMIT, TRIES, USERS)");
-		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		sql.append(" OVERRIDE_TIME_LIMIT, OVERRIDE_TRIES, OVERRIDE_HIDE_UNTIL_OPEN, PASSWORD, TIME_LIMIT, TRIES, USERS)");
+		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
-		Object[] fields = new Object[15];
+		Object[] fields = new Object[17];
 		int i = 0;
 		fields[i++] = id;
 		fields[i++] = Long.valueOf(assessment.getId());
 		fields[i++] = (access.getAcceptUntilDate() == null) ? null : access.getAcceptUntilDate().getTime();
 		fields[i++] = (access.getDueDate() == null) ? null : access.getDueDate().getTime();
 		fields[i++] = (access.getOpenDate() == null) ? null : access.getOpenDate().getTime();
+		fields[i++] = access.getHideUntilOpen() ? "1" : "0";
 		fields[i++] = access.getOverrideAcceptUntilDate() ? "1" : "0";
 		fields[i++] = access.getOverrideDueDate() ? "1" : "0";
 		fields[i++] = access.getOverrideOpenDate() ? "1" : "0";
 		fields[i++] = access.getOverridePassword() ? "1" : "0";
 		fields[i++] = access.getOverrideTimeLimit() ? "1" : "0";
 		fields[i++] = access.getOverrideTries() ? "1" : "0";
+		fields[i++] = access.getOverrideHideUntilOpen() ? "1" : "0";
 		fields[i++] = access.getPassword().getPassword();
 		fields[i++] = access.getTimeLimit();
 		fields[i++] = access.getTries();
@@ -220,16 +222,16 @@ public class AssessmentStorageOracle extends AssessmentStorageSql implements Ass
 		StringBuilder sql = new StringBuilder();
 		sql.append("INSERT INTO MNEME_ASSESSMENT (ID,");
 		sql.append(" ARCHIVED, CONTEXT, CREATED_BY_DATE, CREATED_BY_USER,");
-		sql.append(" DATES_ACCEPT_UNTIL, DATES_ARCHIVED, DATES_DUE, DATES_OPEN,");
-		sql.append(" GRADING_ANONYMOUS, GRADING_AUTO_RELEASE, GRADING_GRADEBOOK, GRADING_REJECTED, FORMAL_EVAL, RESULTS_EMAIL,");
+		sql.append(" DATES_ACCEPT_UNTIL, DATES_ARCHIVED, DATES_DUE, DATES_OPEN, HIDE_UNTIL_OPEN,");
+		sql.append(" GRADING_ANONYMOUS, GRADING_AUTO_RELEASE, GRADING_GRADEBOOK, GRADING_REJECTED, FORMAL_EVAL, NOTIFY_EVAL, EVAL_SENT, RESULTS_EMAIL,");
 		sql.append(" RESULTS_SENT, HONOR_PLEDGE, LIVE, LOCKED, MINT, MODIFIED_BY_DATE, MODIFIED_BY_USER,");
 		sql.append(" PARTS_CONTINUOUS, PARTS_SHOW_PRES, PASSWORD, PRESENTATION_TEXT,");
 		sql.append(" PUBLISHED, FROZEN, QUESTION_GROUPING, RANDOM_ACCESS,");
 		sql.append(" REVIEW_DATE, REVIEW_SHOW_CORRECT, REVIEW_SHOW_FEEDBACK, REVIEW_SHOW_SUMMARY,  REVIEW_TIMING, MIN_SCORE_SET, MIN_SCORE, ");
 		sql.append(" SHOW_HINTS, SHOW_MODEL_ANSWER, SUBMIT_PRES_TEXT, TIME_LIMIT, TITLE, TRIES, TYPE, POOL, NEEDSPOINTS, SHUFFLE_CHOICES)");
-		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
-		Object[] fields = new Object[47];
+		Object[] fields = new Object[50];
 		int i = 0;
 		fields[i++] = id;
 		fields[i++] = assessment.getArchived() ? "1" : "0";
@@ -240,12 +242,15 @@ public class AssessmentStorageOracle extends AssessmentStorageSql implements Ass
 		fields[i++] = (assessment.getDates().getArchivedDate() == null) ? null : assessment.getDates().getArchivedDate().getTime();
 		fields[i++] = (assessment.getDates().getDueDate() == null) ? null : assessment.getDates().getDueDate().getTime();
 		fields[i++] = (assessment.getDates().getOpenDate() == null) ? null : assessment.getDates().getOpenDate().getTime();
+		fields[i++] = assessment.getDates().getHideUntilOpen() ? "1" : "0";
 		fields[i++] = assessment.getGrading().getAnonymous() ? "1" : "0";
 		fields[i++] = assessment.getGrading().getAutoRelease() ? "1" : "0";
 		fields[i++] = assessment.getGrading().getGradebookIntegration() ? "1" : "0";
 		fields[i++] = assessment.getGrading().getGradebookRejectedAssessment() ? "1" : "0";
 		fields[i++] = assessment.getFormalCourseEval() ? "1" : "0";
-		fields[i++] = assessment.getResultsEmail();
+		fields[i++] = assessment.getNotifyEval() ? "1" : "0";
+		fields[i++] = (assessment.getEvaluationSent() == null) ? null : assessment.getEvaluationSent().getTime();
+		fields[i++] = (assessment.getResultsEmail() != null && assessment.getResultsEmail().length() > 255) ? assessment.getResultsEmail().substring(0, 255): assessment.getResultsEmail();
 		fields[i++] = (assessment.getResultsSent() == null) ? null : assessment.getResultsSent().getTime();
 		fields[i++] = assessment.getRequireHonorPledge() ? "1" : "0";
 		fields[i++] = assessment.getIsLive() ? "1" : "0";

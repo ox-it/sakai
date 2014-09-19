@@ -161,6 +161,7 @@ public class ImportQtiServiceImpl implements ImportQtiService
 			for (Element item : items)
 			{
 				String type = item.getAttribute("type");
+				
 				if (type == null || type.length() == 0 || (type.indexOf("qti") > -1 && type.indexOf("v1") == -1)) continue;
 				
 				qti1File = true;

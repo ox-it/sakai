@@ -70,6 +70,14 @@
 							<icon icon="/icons/publish.png" style="LEFT" />
 							<included>
 								<decision model="submission.assessment.published" />
+								<decision model="submission.assessment.hiddenTillOpen" reversed="TRUE"/>
+							</included>
+						</navigation>
+						<navigation style="LINK" description="invisible-description" disabled="TRUE">
+							<icon icon="/icons/invisible.png" style="LEFT" />
+							<included>
+								<decision model="submission.assessment.published" />
+								<decision model="submission.assessment.hiddenTillOpen"/>
 							</included>
 						</navigation>
 						<navigation style="LINK" description="unpublished-description" disabled="TRUE">

@@ -24,8 +24,12 @@
 
 package org.etudes.mneme.impl;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1870,6 +1874,27 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 				this.threadLocalManager.clear();
 			}
 
+			// next, check for assessments that are set up for student evaluation notifications
+			try
+			{
+				List<Assessment> assessments = this.assessmentService.getFormalEvaluationsNeedingNotification();
+
+				// for each one, format the results and email
+				for (Assessment assessment : assessments)
+				{
+					notifyStudentEvaluation(assessment);
+				}
+			}
+			catch (Throwable e)
+			{
+				M_log.warn("run: will continue: ", e);
+			}
+			finally
+			{
+				// clear out any current current bindings
+				this.threadLocalManager.clear();
+			}
+
 			// take a small nap
 			try
 			{
@@ -2579,7 +2604,6 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		if (assessment.getType().equals(AssessmentType.test)) subject = "Test: " + assessment.getTitle() + " : " + siteTitle;
 		if (assessment.getType().equals(AssessmentType.survey)) subject = "Survey: " + assessment.getTitle() + " : " + siteTitle;
 
-		
 		// for html
 		List<String> headers = new ArrayList<String>();
 		headers.add("content-type: text/html");
@@ -2595,6 +2619,141 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		// mark the assessment as having the results sent
 		this.assessmentService.setResultsSent(assessment, new Date());
+	}
+
+	/**
+	 * Notifies students about the evaluation
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 */
+	protected void notifyStudentEvaluation(Assessment assessment)
+	{
+		if (!assessment.getFormalCourseEval() && !assessment.getNotifyEval()) return;
+		
+		// to
+		List<User> submitUsers = assessment.getSubmitUsers();
+		StringBuffer toStrBuf = new StringBuffer();
+		
+		for (User user : submitUsers)
+		{
+			toStrBuf.append(user.getEmail());
+			toStrBuf.append(",");
+		}
+		
+		if (toStrBuf.length() > 0 && toStrBuf.charAt(toStrBuf.length()-1) == ',')
+			toStrBuf.deleteCharAt(toStrBuf.length()-1);
+		
+		String to = toStrBuf.toString();
+
+		// from
+		String from = "\"" + this.serverConfigurationService.getString("ui.service", "Sakai") + "\"<no-reply@"
+				+ this.serverConfigurationService.getServerName() + ">";
+
+		String siteTitle = "";
+		try
+		{
+			Site site = this.siteService.getSite(assessment.getContext());
+			siteTitle = site.getTitle();
+		}
+		catch (IdUnusedException e)
+		{
+		}
+
+		// subject
+		String subject = null;
+		if (assessment.getFormalCourseEval()) subject = "Course Evaluation Now Open: " + siteTitle;
+		
+		// for html
+		List<String> headers = new ArrayList<String>();
+		headers.add("content-type: text/html");
+
+		String content = getEvalNotificationSample(assessment);
+
+		this.emailService.send(from, to, subject, content, null, null, headers);
+
+		// mark the assessment as having the results sent
+		this.assessmentService.setEvaluationSent(assessment, new Date());
+	}	
+	
+	/**
+	 * Returns the text of an assessment evaluation notification sample with dates filled in
+	 * @param assmt Assessment object
+	 * @return Evaluation notification sample
+	 */
+	public String getEvalNotificationSample(Assessment assmt)
+	{
+		StringBuilder contents = new StringBuilder();
+		BufferedReader input = null;
+		String message = null;
+		InputStream inputStream = null;
+
+		try
+		{
+			inputStream = AttachmentServiceImpl.class.getClassLoader().getResourceAsStream("evalnotif.html");
+
+			input = new BufferedReader(new InputStreamReader(inputStream));
+
+			String line = null;
+			
+			while ((line = input.readLine()) != null)
+			{
+				contents.append(line);
+			}
+
+			message = contents.toString();
+			
+			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+			if (assmt != null)
+			{
+				Date finalDate;
+				if (assmt.getDates().getAcceptUntilDate() != null) finalDate = assmt.getDates().getAcceptUntilDate();
+				else finalDate = assmt.getDates().getDueDate();
+				if (assmt.getDates().getOpenDate() != null && finalDate != null) 
+				{
+					message = message.replace("date.info", "It opens on "+dateFormat.format(assmt.getDates().getOpenDate())+" and closes on "+dateFormat.format(finalDate)+".");
+				}
+				else
+				{
+					if (assmt.getDates().getOpenDate() != null && finalDate == null)
+						message = message.replace("date.info", "It opens on " + dateFormat.format(assmt.getDates().getOpenDate()) + ".");
+					if (assmt.getDates().getOpenDate() == null && finalDate != null)
+						message = message.replace("date.info", "It closes on " + dateFormat.format(finalDate) + ".");
+					if (assmt.getDates().getOpenDate() == null && finalDate == null)
+						message = message.replace("date.info", " ");
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			M_log.warn("Error in getEvalNotificationSample", e);
+		}
+		finally
+		{
+			if (input != null)
+			{
+				try
+				{
+					input.close();
+				}
+				catch (IOException e)
+				{
+				}
+			}
+
+			if (inputStream != null)
+			{
+				try
+				{
+					inputStream.close();
+				}
+				catch (IOException e)
+				{
+
+				}
+			}
+		}	
+		return message;
 	}
 
 	/**
@@ -3145,14 +3304,17 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		// if we are in a test drive situation, or not filtering, use unpublished as well
 		Boolean publishedOnly = Boolean.TRUE;
+		Boolean skipHidden = Boolean.TRUE;
 		if (securityService.checkSecurity(userId, MnemeService.MANAGE_PERMISSION, context)
 				&& (!securityService.checkSecurity(userId, MnemeService.SUBMIT_PERMISSION, context)))
 		{
 			publishedOnly = Boolean.FALSE;
+			skipHidden = Boolean.FALSE;
 		}
 		else if (!filter)
 		{
 			publishedOnly = Boolean.FALSE;
+			skipHidden = Boolean.FALSE;
 		}
 
 		// read all the submissions for this user in the context
@@ -3161,6 +3323,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		// filter out invalid assessments
 		if (filter)
 		{
+			
 			for (Iterator i = all.iterator(); i.hasNext();)
 			{
 				Submission s = (Submission) i.next();
@@ -3168,9 +3331,23 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 				{
 					i.remove();
 				}
+				else
+				{
+					if (skipHidden)
+					{
+						Date currentDate = new java.util.Date();
+						if (s.getAssessment().getDates().getHideUntilOpen() != null && s.getAssessment().getDates().getHideUntilOpen()
+								&& s.getAssessment().getDates().getOpenDate() != null
+								&& s.getAssessment().getDates().getOpenDate().after(currentDate))
+						{
+							i.remove();
+			}
+		}
+				}
 			}
 		}
 
+		
 		// get all the assessments for this context
 		List<Assessment> assessments = this.assessmentService
 				.getContextAssessments(context, AssessmentService.AssessmentsSort.title_a, publishedOnly);
@@ -3194,6 +3371,19 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			{
 				SubmissionImpl s = this.getPhantomSubmission(userId, a);
 				all.add(s);
+			}
+		}
+		if (filter && skipHidden)
+		{
+			for (Iterator i = all.iterator(); i.hasNext();)
+			{
+				SubmissionImpl s = (SubmissionImpl) i.next();
+				Date currentDate = new java.util.Date();
+				if (s.getAssessment().getDates().getHideUntilOpen() != null && s.getAssessment().getDates().getHideUntilOpen()
+						&& s.getAssessment().getDates().getOpenDate() != null && s.getAssessment().getDates().getOpenDate().after(currentDate))
+				{
+					i.remove();
+				}
 			}
 		}
 
@@ -3783,9 +3973,10 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		List<Submission> rv = new ArrayList<Submission>();
 
-		// sort order (a) other, future, over, complete, completeReady, ready, inProgress, inProgressAlert
+		// sort order (a) other, future, hiddenTillOpen, over, complete, completeReady, ready, inProgress, inProgressAlert
 		List<Submission> other = new ArrayList<Submission>();
 		List<Submission> future = new ArrayList<Submission>();
+		List<Submission> hiddenTillOpen = new ArrayList<Submission>();
 		List<Submission> over = new ArrayList<Submission>();
 		List<Submission> complete = new ArrayList<Submission>();
 		List<Submission> completeReady = new ArrayList<Submission>();
@@ -3808,6 +3999,12 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 				case future:
 				{
 					future.add(s);
+					break;
+				}
+
+				case hiddenTillOpen:
+				{
+					hiddenTillOpen.add(s);
 					break;
 				}
 
@@ -3864,6 +4061,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		// order ascending
 		rv.addAll(other);
 		rv.addAll(future);
+		rv.addAll(hiddenTillOpen);
 		rv.addAll(over);
 		rv.addAll(complete);
 		rv.addAll(completeReady);

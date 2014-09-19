@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -97,6 +97,11 @@ public interface AssessmentStorage
 	List<AssessmentImpl> getAssessmentsNeedingResultsEmail();
 
 	/**
+	 * @return the assessments that are formal course evaluations and set for students to receive notifications and whose open date has come by.
+	 */
+	List<AssessmentImpl> getFormalEvaluationsNeedingNotification();
+
+	/**
 	 * Get all the assessments defined in this context, sorted. Does not include archived assessments.
 	 * 
 	 * @param context
@@ -188,6 +193,16 @@ public interface AssessmentStorage
 	 */
 	void saveAssessment(AssessmentImpl assessment);
 
+	/**
+	 * Set the date that the evaluation notification was sent.
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 * @param date
+	 *        The date, or null to indicate not sent.
+	 */
+	void setEvaluationSent(String id, Date date);
+	
 	/**
 	 * Set the date that the results email was sent.
 	 * 

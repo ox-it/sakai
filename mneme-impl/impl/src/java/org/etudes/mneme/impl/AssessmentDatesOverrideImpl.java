@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -89,15 +89,35 @@ public class AssessmentDatesOverrideImpl extends AssessmentDatesBaseImpl impleme
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean getHideUntilOpen()
+	{
+		if (this.access != null)
+		{
+			return this.access.getHideUntilOpen();
+		}
+
+		return this.main.getHideUntilOpen();
+	}		
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public Date getOpenDate()
 	{
 		if ((this.access != null) && (this.access.getOverrideOpenDate()))
 		{
 			return this.access.getOpenDate();
 		}
-
 		return this.main.getOpenDate();
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void initHideUntilOpen(Boolean hideUntilOpen)
+	{
+		throw new IllegalArgumentException();
+	}		
 
 	/**
 	 * {@inheritDoc}
@@ -115,6 +135,14 @@ public class AssessmentDatesOverrideImpl extends AssessmentDatesBaseImpl impleme
 		throw new IllegalArgumentException();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setHideUntilOpen(Boolean hideUntilOpen)
+	{
+		throw new IllegalArgumentException();
+	}	
+	
 	/**
 	 * {@inheritDoc}
 	 */

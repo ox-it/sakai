@@ -38,6 +38,7 @@
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
  		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
  		<property name="gradesService"><ref bean="org.etudes.mneme.api.GradesService"/></property>
+        <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
         <property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
  
  		<property name="toolId"><value>sakai.mneme</value></property>

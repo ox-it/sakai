@@ -335,10 +335,17 @@ public class SubmissionImpl implements Submission
 		Assessment assessment = getAssessment();
 
 		// if not open yet...
-		if ((assessment.getDates().getOpenDate() != null) && now.before(assessment.getDates().getOpenDate()) && (!assessment.getFrozen()))
+		if ((!assessment.getDates().getHideUntilOpen()) &&(assessment.getDates().getOpenDate() != null) && now.before(assessment.getDates().getOpenDate()) && (!assessment.getFrozen()))
 		{
 			return AssessmentSubmissionStatus.future;
 		}
+
+		// if in future and hidden
+		if ((assessment.getDates().getHideUntilOpen()) && (assessment.getDates().getOpenDate() != null) && now.before(assessment.getDates().getOpenDate()) && (!assessment.getFrozen()))
+		{
+			return AssessmentSubmissionStatus.hiddenTillOpen;
+		}
+		
 
 		// are we past the hard end date? Or frozen?
 		boolean over = ((assessment.getFrozen()) || ((assessment.getDates().getSubmitUntilDate() != null) && (now.after(assessment.getDates()

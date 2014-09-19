@@ -114,6 +114,15 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 				break;
 			}
 
+			case hiddenTillOpen:
+			{
+				rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/future.gif\" alt=\""
+						+ context.getMessages().getString("format-list-decoration-future") + "\" title=\""
+						+ context.getMessages().getString("format-list-decoration-future") + "\" /><br /><span style=\"font-size:smaller\">"
+						+ context.getMessages().getString("format-list-decoration-future") + "</span>";
+				break;
+			}
+
 			case ready:
 			{
 				if (!blocked)

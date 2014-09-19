@@ -1,6 +1,6 @@
 /**********************************************************************************
  * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-impl/impl/src/java/org/etudes/mneme/impl/ImportQti2ServiceImpl.java $
- * $Id: ImportQti2ServiceImpl.java 7499 2014-02-25 19:42:54Z mallikamt $
+ * $Id: ImportQti2ServiceImpl.java 8562 2014-08-30 06:07:15Z mallikamt $
  ***********************************************************************************
  *
  * Copyright (c) 2013, 2014 Etudes, Inc.
@@ -687,6 +687,9 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		//open date
 		if (settings.containsKey("OpenDate"))
 				 test.getDates().setOpenDate(getDateFromString(settings.get("OpenDate")));
+			
+		if (settings.containsKey("HideUntilOpen"))
+			 test.getDates().setHideUntilOpen(new Boolean(settings.get("HideUntilOpen")));
 			
 		if (settings.containsKey("DueDate"))
 			 test.getDates().setDueDate(getDateFromString(settings.get("DueDate")));

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -62,6 +62,14 @@ public interface AssessmentDates
 	Long getDurationTillDue();
 
 	/**
+	 * Check if hide until open is set.
+	 * 
+	 * @return TRUE if hide until open is defined, FALSE if not.
+	 */
+	Boolean getHideUntilOpen();	
+	
+
+	/**
 	 * Access the expiration information for the assessment.
 	 * 
 	 * @return The expiration information for the assessment.
@@ -114,6 +122,14 @@ public interface AssessmentDates
 	Date getSubmitUntilDate();
 
 	/**
+	 * Init the hide until open value.
+	 * 
+	 * @param hideUntilOpen
+	 *        The hide until open value.
+	 */
+	void initHideUntilOpen(Boolean hideUntilOpen);
+
+	/**
 	 * Set the date after which submissions will not be accepted.
 	 * 
 	 * @param date
@@ -128,6 +144,14 @@ public interface AssessmentDates
 	 *        The assessment's due date, or null if there is none.
 	 */
 	void setDueDate(Date date);
+
+	/**
+	 * Set the hide until open value
+	 * 
+	 * @param hideUntilOpen
+	 *        
+	 */
+	void setHideUntilOpen(Boolean hideUntilOpen);		
 
 	/**
 	 * Set the release date. Only after this date (if defined) is the assessment open for submission.

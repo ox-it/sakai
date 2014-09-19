@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -31,5 +31,5 @@ package org.etudes.mneme.api;
  */
 public enum AssessmentSubmissionStatus
 {
-	complete, completeReady, future, inProgress, inProgressAlert, other, over, overdueCompleteReady, overdueReady, ready
+	complete, completeReady, future, hiddenTillOpen, inProgress, inProgressAlert, other, over, overdueCompleteReady, overdueReady, ready
 }

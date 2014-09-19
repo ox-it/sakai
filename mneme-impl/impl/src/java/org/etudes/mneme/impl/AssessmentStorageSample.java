@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -433,10 +433,16 @@ public class AssessmentStorageSample implements AssessmentStorage
 		return rv;
 	}
 
+	public List<AssessmentImpl> getFormalEvaluationsNeedingNotification()
+	{
+		// TODO:
+		return new ArrayList<AssessmentImpl>();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
-	public Date getMinStartDate(String context)
+	public Date getMaxStartDate(String context)
 	{
 		// TODO: could be implemented
 		return null;
@@ -445,7 +451,7 @@ public class AssessmentStorageSample implements AssessmentStorage
 	/**
 	 * {@inheritDoc}
 	 */
-	public Date getMaxStartDate(String context)
+	public Date getMinStartDate(String context)
 	{
 		// TODO: could be implemented
 		return null;
@@ -652,6 +658,14 @@ public class AssessmentStorageSample implements AssessmentStorage
 	public void setBundle(String name)
 	{
 		this.bundle = name;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setEvaluationSent(String id, Date date)
+	{
+		// TODO:
 	}
 
 	/**

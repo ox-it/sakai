@@ -420,7 +420,7 @@ public class AssessmentSpecialAccessImpl implements AssessmentSpecialAccess
 
 			if (!remove)
 			{
-				remove = (!access.getOverrideAcceptUntilDate()) && (!access.getOverrideDueDate()) && (!access.getOverrideOpenDate())
+				remove = (!access.getOverrideAcceptUntilDate()) && (!access.getOverrideDueDate()) && (!access.getOverrideOpenDate()) && (!access.getOverrideHideUntilOpen()) && (access.getHideUntilOpen() == access.getAssessment().getDates().getHideUntilOpen())
 						&& (!access.getOverridePassword()) && (!access.getOverrideTimeLimit()) && (!access.getOverrideTries());
 			}
 

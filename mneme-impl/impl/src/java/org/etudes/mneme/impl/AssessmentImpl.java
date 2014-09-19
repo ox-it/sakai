@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -89,11 +89,15 @@ public class AssessmentImpl implements Assessment
 
 	protected AssessmentDates dates = null;
 
+	protected Date evaluationSent = null;
+
 	protected Boolean formalCourseEval = Boolean.FALSE;
 
 	protected Boolean frozen = Boolean.FALSE;
 
 	protected AssessmentGrading grading = null;
+	
+	protected Boolean hiddenTillOpen = Boolean.FALSE;
 
 	protected Boolean honorPledge = Boolean.FALSE;
 
@@ -110,6 +114,10 @@ public class AssessmentImpl implements Assessment
 
 	protected transient InternationalizedMessages messages = null;
 
+	protected Integer minScore;
+
+	protected Boolean minScoreSet = Boolean.FALSE;
+
 	/** Stays TRUE until an end-user change to the object occurs, showing it was actually initially set. */
 	protected Boolean mint = Boolean.TRUE;
 
@@ -119,6 +127,8 @@ public class AssessmentImpl implements Assessment
 
 	/** Track if we need a re-score after an edit. */
 	protected boolean needsRescore = false;
+
+	protected Boolean notifyEval = Boolean.FALSE;
 
 	protected AssessmentPartsImpl parts = null;
 
@@ -179,10 +189,6 @@ public class AssessmentImpl implements Assessment
 	protected transient AssessmentType typeWas = AssessmentType.test;
 
 	protected transient UserDirectoryService userDirectoryService = null;
-
-	protected Boolean minScoreSet = Boolean.FALSE;
-	
-	protected Integer minScore;
 
 	/**
 	 * Construct
@@ -329,6 +335,11 @@ public class AssessmentImpl implements Assessment
 		return this.dates;
 	}
 
+	public Date getEvaluationSent()
+	{
+		return evaluationSent;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -441,6 +452,21 @@ public class AssessmentImpl implements Assessment
 	{
 		return this.submissionService.getAssessmentHasUnscoredSubmissions(this);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getHiddenTillOpen()
+	{
+		Date now = new Date();
+		// if in future and hidden
+		if ((this.dates.getHideUntilOpen()) && (this.dates.getOpenDate() != null) && now.before(this.dates.getOpenDate()))
+		{
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
+	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -533,7 +559,11 @@ public class AssessmentImpl implements Assessment
 		{
 			if (this.getResultsEmail() == null) return Boolean.FALSE;
 		}
-
+		if (this.getResultsEmail() != null && this.getResultsEmail().length() > 255) 
+		{
+			setResultsEmail(this.getResultsEmail().substring(0,255));
+			return Boolean.FALSE;
+		}
 		if (this.getResultsEmail() != null && !isEmailValid(this.getResultsEmail())) return Boolean.FALSE;
 		
 		// results email feature needs a due or accept until date
@@ -542,39 +572,12 @@ public class AssessmentImpl implements Assessment
 			if ((this.dates.getDueDate() == null) && (this.dates.getAcceptUntilDate() == null)) return Boolean.FALSE;
 		}
 
+		if (this.getFormalCourseEval() && this.notifyEval && this.dates.getOpenDate() == null)
+		{
+			return Boolean.FALSE;
+		}
+
 		return Boolean.TRUE;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean isEmailValid(String emailAddr)
-	{
-		Pattern pattern;
-		Matcher matcher;
-	 
-		String EMAIL_PATTERN = 
-			"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
-			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-	 
-		pattern = Pattern.compile(EMAIL_PATTERN);
-
-		if (emailAddr == null || emailAddr.trim().length() == 0) return false;
-		if (!emailAddr.contains(","))
-		{
-			matcher = pattern.matcher(emailAddr.trim());
-			return matcher.matches();
-		}
-		else
-		{
-			List<String> emailList = Arrays.asList(emailAddr.split(","));
-			for (String emailStr : emailList)
-			{
-				matcher = pattern.matcher(emailStr.trim());
-				if (!matcher.matches()) return false;
-			}
-		}
-		return true;
 	}
 
 	/**
@@ -585,6 +588,22 @@ public class AssessmentImpl implements Assessment
 		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ITEM_ANALYSIS
 				+ "/" + this.getContext() + "/" + this.getId() + ".xls");
 		return ref;
+	}
+	 
+	/**
+	 * {@inheritDoc}
+	 */
+	public Integer getMinScore()
+		{
+		return this.minScore;
+		}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getMinScoreSet()
+	{
+		return this.minScoreSet;
 	}
 
 	/**
@@ -618,6 +637,14 @@ public class AssessmentImpl implements Assessment
 	{
 		return this.needsRescore;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getNotifyEval()
+	{
+		return this.notifyEval;
+	}	
 
 	/**
 	 * {@inheritDoc}
@@ -837,22 +864,6 @@ public class AssessmentImpl implements Assessment
 	/**
 	 * {@inheritDoc}
 	 */
-	public Boolean getMinScoreSet()
-	{
-		return this.minScoreSet;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public Integer getMinScore()
-	{
-		return this.minScore;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public AssessmentType getType()
 	{
 		return this.type;
@@ -875,6 +886,38 @@ public class AssessmentImpl implements Assessment
 
 		this.type = type;
 		this.typeWas = type;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isEmailValid(String emailAddr)
+	{
+		Pattern pattern;
+		Matcher matcher;
+	 
+		String EMAIL_PATTERN = 
+			"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+	 
+		pattern = Pattern.compile(EMAIL_PATTERN);
+
+		if (emailAddr == null || emailAddr.trim().length() == 0) return false;
+		if (!emailAddr.contains(","))
+		{
+			matcher = pattern.matcher(emailAddr.trim());
+			return matcher.matches();
+		}
+		else
+		{
+			List<String> emailList = Arrays.asList(emailAddr.split(","));
+			for (String emailStr : emailList)
+			{
+				matcher = pattern.matcher(emailStr.trim());
+				if (!matcher.matches()) return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -912,6 +955,15 @@ public class AssessmentImpl implements Assessment
 		if (this.context.equals(context)) return;
 
 		this.context = context;
+
+		this.changed.setChanged();
+	}
+
+	public void setEvaluationSent(Date date)
+	{
+		if (!Different.different(this.evaluationSent, date)) return;
+
+		this.evaluationSent = date;
 
 		this.changed.setChanged();
 	}
@@ -981,6 +1033,31 @@ public class AssessmentImpl implements Assessment
 		}
 	}
 
+	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setMinScore(Integer minScore)
+	{
+		this.minScore = minScore;
+		
+		this.changed.setChanged();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setMinScoreSet(Boolean setting)
+	{
+		if (setting == null) return;
+		if (this.minScoreSet.equals(setting)) return;
+
+		this.minScoreSet = setting;
+
+		this.changed.setChanged();
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1001,6 +1078,23 @@ public class AssessmentImpl implements Assessment
 	public void setNeedsRescore()
 	{
 		needsRescore = true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setNotifyEval(Boolean setting)
+	{
+		// for null, use the default FALSE
+		if (setting == null) setting = Boolean.FALSE;
+		if (this.notifyEval.equals(setting)) return;
+
+		this.notifyEval = setting;
+
+		// this is a change that cannot be made to locked assessments
+		this.lockedChanged = Boolean.TRUE;
+
+		this.changed.setChanged();
 	}
 
 	/**
@@ -1227,29 +1321,6 @@ public class AssessmentImpl implements Assessment
 	}
 
 	/**
-	 * {@inheritDoc}
-	 */
-	public void setMinScoreSet(Boolean setting)
-	{
-		if (setting == null) return;
-		if (this.minScoreSet.equals(setting)) return;
-
-		this.minScoreSet = setting;
-
-		this.changed.setChanged();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setMinScore(Integer minScore)
-	{
-		this.minScore = minScore;
-		
-		this.changed.setChanged();
-	}
-
-	/**
 	 * Clear the changed settings.
 	 */
 	protected void clearChanged()
@@ -1331,6 +1402,17 @@ public class AssessmentImpl implements Assessment
 		this.archived = archived;
 		this.archivedWas = archived;
 	}
+
+	/**
+	 * Init the date that the evaluation email was sent.
+	 * 
+	 * @param date
+	 *        The date that the evalation email was sent.
+	 */
+	protected void initEvalSent(Date date)
+	{
+		this.evaluationSent = date;
+	}	
 
 	/**
 	 * Init the formal course evaluation setting.
@@ -1432,6 +1514,21 @@ public class AssessmentImpl implements Assessment
 	{
 		this.needsRescore = needsRescore;
 	}
+
+	/**
+	 * Init the notify course evaluation setting.
+	 * 
+	 * @param setting
+	 *        The notify course evaluation setting.
+	 */
+	protected void initNotifyEval(Boolean setting)
+	{
+		// for null, use the default FALSE
+		if (setting == null) setting = Boolean.FALSE;
+
+		this.notifyEval = setting;
+	}
+	
 
 	/**
 	 * Initialize the poolId field.
@@ -1623,6 +1720,7 @@ public class AssessmentImpl implements Assessment
 		this.context = other.context;
 		this.createdBy = new AttributionImpl((AttributionImpl) other.createdBy, this.changed);
 		this.dates = new AssessmentDatesImpl(this, (AssessmentDatesImpl) other.dates, this.changed);
+		this.evaluationSent = other.evaluationSent;
 		this.formalCourseEval = other.formalCourseEval;
 		this.frozen = other.frozen;
 		this.grading = new AssessmentGradingImpl((AssessmentGradingImpl) other.grading, this.changed);
@@ -1635,6 +1733,7 @@ public class AssessmentImpl implements Assessment
 		this.mint = other.mint;
 		this.modifiedBy = new AttributionImpl((AttributionImpl) other.modifiedBy, this.changed);
 		this.needsPoints = other.needsPoints;
+		this.notifyEval = other.notifyEval;
 		this.parts = new AssessmentPartsImpl(this, (AssessmentPartsImpl) other.parts, this.changed);
 		this.password = new AssessmentPasswordImpl((AssessmentPasswordImpl) other.password, this.changed);
 		this.poolId = other.poolId;

@@ -334,6 +334,13 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	List<? extends Submission> getContextSubmissions(String context);
 
 	/**
+	 * Returns the text of an assessment evaluation notification sample with dates filled in
+	 * @param assmt Assessment object
+	 * @return Evaluation notification sample
+	 */
+	String getEvalNotificationSample(Assessment assmt);
+
+	/**
 	 * Access the set of completed submissions to this assessment from this user.
 	 * 
 	 * @param assessment

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -93,6 +93,11 @@ public interface Assessment
 	AssessmentDates getDates();
 
 	/**
+	 * @return the date when the evaluation email was last sent, or null if it has not been sent.
+	 */
+	Date getEvaluationSent();
+
+	/**
 	 * Get reference for export summary information
 	 * 
 	 * @return Reference object
@@ -159,6 +164,14 @@ public interface Assessment
 	 * @return TRUE if there are unscored submissions to this assessment, FALSE if not.
 	 */
 	Boolean getHasUnscoredSubmissions();
+	
+	/**
+	 * Get the value of hidden till open
+	 * 
+	 * @return TRUE if the open date is after the current date and hide until open is true
+	 * 
+	 */
+	public Boolean getHiddenTillOpen();	
 
 	/**
 	 * Access the id of this assessment.
@@ -214,6 +227,20 @@ public interface Assessment
 	Reference getItemAnalysisReference();
 
 	/**
+	 * Access the minimum score specified to award certificates.
+	 * 
+	 * @return The minimum score, if specified or null.
+	 */
+	Integer getMinScore();
+
+	/**
+	 * Access setting that determines if minimum score has been specified for issuing certificate
+	 * 
+	 * @return TRUE if min score is set, FALSE if not
+	 */
+	Boolean getMinScoreSet();
+	
+	/**
 	 * Check if the end user has never made initial settings.
 	 * 
 	 * @return TRUE if this has not been modified since creation, FALSE if it has.
@@ -233,6 +260,11 @@ public interface Assessment
 	 * @return TRUE if the assessment is "needsPoints", FALSE if not.
 	 */
 	Boolean getNeedsPoints();
+
+	/**
+	 * @return TRUE if notifications are to be sent for evaluation, FALSE if not.
+	 */
+	Boolean getNotifyEval();
 
 	/**
 	 * Access the assessment part information.
@@ -404,26 +436,20 @@ public interface Assessment
 	AssessmentType getType();
 
 	/**
-	 * Access setting that determines if minimum score has been specified for issuing certificate
-	 * 
-	 * @return TRUE if min score is set, FALSE if not
-	 */
-	Boolean getMinScoreSet();
-	
-	/**
-	 * Access the minimum score specified to award certificates.
-	 * 
-	 * @return The minimum score, if specified or null.
-	 */
-	Integer getMinScore();
-
-	/**
 	 * Set the type without enforcing any defaults.
 	 * 
 	 * @param type
 	 *        The assessment type.
 	 */
 	void initType(AssessmentType type);
+	
+	/**
+	 * Checks to see if the email address entered is valid in terms of format
+	 * 
+	 * @param emailAddr Email address to check
+	 * @return true if email address is valid, false if not
+	 */
+	boolean isEmailValid(String emailAddr);
 
 	/**
 	 * Set the assessment's archived setting.
@@ -440,6 +466,14 @@ public interface Assessment
 	 *        The assessment's context string.
 	 */
 	void setContext(String context);
+
+	/**
+	 * Set when evaluation email was last sent.
+	 * 
+	 * @param date
+	 *        The date that the evaluation was last sent, or null to indicate that it was not sent.
+	 */
+	void setEvaluationSent(Date date);
 
 	/**
 	 * Set the assessment's formal course evaluation setting.
@@ -471,12 +505,36 @@ public interface Assessment
 	void setHasTriesLimit(Boolean hasTriesLimit);
 
 	/**
+	 * Set the minimum score in percent.
+	 * 
+	 * @param minScore
+	 *        The min score, or null.
+	 */
+	void setMinScore(Integer minScore);
+
+	/**
+	 * Set setting that determines if minimum score has been specified for issuing certificate
+	 * 
+	 * @param setting
+	 *        TRUE to take into account min score, FALSE to not.
+	 */
+	void setMinScoreSet(Boolean setting);
+
+	/**
 	 * Set the assessment's needsPoints setting: if true, the assessment is invalid if it has no points.
 	 * 
 	 * @param needsPoints
 	 *        The needsPoints setting.
 	 */
 	void setNeedsPoints(Boolean needsPoints);
+
+	/**
+	 * Set the assessment's notify evaluation setting.
+	 * 
+	 * @param setting
+	 *        The formal course evaluation notify setting.
+	 */
+	void setNotifyEval(Boolean setting);
 
 	/**
 	 * Set the assessment's auto-pool to this pool - ignored if it already has an auto-pool.
@@ -582,6 +640,7 @@ public interface Assessment
 	 */
 	void setTries(Integer count);
 	
+	
 	/**
 	 * Set the type of this assessment.
 	 * 
@@ -589,29 +648,4 @@ public interface Assessment
 	 *        The assessment's type.
 	 */
 	void setType(AssessmentType type);
-	
-	/**
-	 * Set setting that determines if minimum score has been specified for issuing certificate
-	 * 
-	 * @param setting
-	 *        TRUE to take into account min score, FALSE to not.
-	 */
-	void setMinScoreSet(Boolean setting);
-
-	/**
-	 * Set the minimum score in percent.
-	 * 
-	 * @param minScore
-	 *        The min score, or null.
-	 */
-	void setMinScore(Integer minScore);
-
-	
-	/**
-	 * Checks to see if the email address entered is valid in terms of format
-	 * 
-	 * @param emailAddr Email address to check
-	 * @return true if email address is valid, false if not
-	 */
-	boolean isEmailValid(String emailAddr);
 }
