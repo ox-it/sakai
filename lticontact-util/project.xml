@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008, 2009 Etudes, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ *
+ **********************************************************************************
+-->
+  
+<project>
+    <extend>../project.xml</extend>
+    <pomVersion>3</pomVersion>
+    <name>Etudes LTI Utilities</name>
+    <groupId>etudes</groupId>
+    <id>etudes-lticontact-util</id>
+    <currentVersion>${lticontact.version}</currentVersion>
+    <organization>
+    	<name>Etudes, Inc.</name>
+    	<url>http://etudes.org</url>
+    </organization>
+    <inceptionYear>2008</inceptionYear>
+    <properties>
+        <deploy.type>jar</deploy.type>
+    </properties>
+    <dependencies>
+        <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.0.4</version>
+        </dependency>
+	<dependency>
+		<groupId>sakaiproject</groupId>
+		<artifactId>sakai-entity-api</artifactId>
+		<version>${sakai.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>sakaiproject</groupId>
+		<artifactId>sakai-component-api</artifactId>
+		<version>${sakai.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>sakaiproject</groupId>
+		<artifactId>sakai-site-api</artifactId>
+		<version>${sakai.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>sakaiproject</groupId>
+		<artifactId>sakai-authz-api</artifactId>
+		<version>${sakai.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>sakaiproject</groupId>
+		<artifactId>sakai-user-api</artifactId>
+		<version>${sakai.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>sakaiproject</groupId>
+		<artifactId>sakai-util-api</artifactId>
+		<version>${sakai.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>sakaiproject</groupId>
+		<artifactId>sakai-util</artifactId>
+		<version>${sakai.version}</version>
+	</dependency>
+
+   	 <dependency>
+		<groupId>sakaiproject</groupId>
+		<artifactId>sakai-tool-api</artifactId>
+		 <version>${sakai.version}</version>
+	</dependency>
+		
+	<dependency>
+		<groupId>servletapi</groupId>
+		<artifactId>servletapi</artifactId>
+		<version>2.4</version>
+	</dependency>
+	<dependency>
+		<groupId>dom4j</groupId>
+		<artifactId>dom4j</artifactId>
+		<version>1.6.1</version>
+	</dependency>
+	<dependency>
+		<groupId>xerces</groupId>
+		<artifactId>xercesImpl</artifactId>
+		<version>2.6.2</version>		
+	</dependency>
+	<dependency>
+		<groupId>xerces</groupId>
+		<artifactId>xmlParserAPIs</artifactId>
+		<version>2.6.2</version>
+	</dependency>
+
+    </dependencies>
+    <build>
+        <sourceDirectory>src/java</sourceDirectory>
+    </build>
+</project>
