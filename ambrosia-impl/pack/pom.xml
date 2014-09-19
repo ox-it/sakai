@@ -6,7 +6,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2011, 2013 Etudes, Inc.
+ * Copyright (c) 2011, 2013, 2014 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,11 @@
 			<artifactId>sakai-kernel-util</artifactId>
 		</dependency>
 
+         <dependency>
+			  <groupId>org.etudes</groupId>
+			  <artifactId>etudes-lticontact-util</artifactId>
+			  <version>${lticontact.version}</version>
+	     /dependency>
 	</dependencies>
 
 </project>

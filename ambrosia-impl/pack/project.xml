@@ -82,6 +82,15 @@
 			</properties>
 		</dependency>
 
+		<dependency>
+			<groupId>etudes</groupId>
+			<artifactId>etudes-lticontact-util</artifactId>
+			<version>1.0</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		
 	</dependencies>
 
 	<build>

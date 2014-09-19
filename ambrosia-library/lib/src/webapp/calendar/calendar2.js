@@ -95,7 +95,7 @@ function ambrosia_now_late()
 	return rv;
 }
 
-function cal_popup2 (str_datetime) {
+function cal_popup2 (str_datetime, ampm_val) {
 
 	this.dt_current = this.prs_tsmp(str_datetime ? str_datetime : this.targetValue);
 	if (!this.dt_current) return;
@@ -104,8 +104,11 @@ function cal_popup2 (str_datetime) {
 	{
 	  this.ampm_val = this.prs_ampm(this.targetValue);
 	}
+	else
+	{
+	  this.ampm_val = ampm_val;
+	} 
 
-        //alert('dt current value in popup is '+this.dt_current.valueOf());
 	var obj_calwindow = window.open(
 		'/ambrosia_library/calendar/calendar.html?datetime=' + this.dt_current.valueOf()+ '&ampmval=' + this.ampm_val +
 		'&id=' + this.id,
@@ -118,7 +121,6 @@ function cal_popup2 (str_datetime) {
 
 // timestamp generating function
 function cal_gen_tsmp2 (dt_datetime) {
-//alert('In gen_tsmp2');
 return(this.gen_date(dt_datetime) + ' ' + this.gen_time(dt_datetime));
 
 }
@@ -135,7 +137,6 @@ function ambrosia_format_date(timeStamp)
 
 // date generating function
 function cal_gen_date2 (dt_datetime) {
-//alert('In gen_date2 '+dt_datetime);
 	return (
 		(dt_datetime.getMonth() < 9 ? '0' : '') + (dt_datetime.getMonth() + 1) + "/"
 		+ (dt_datetime.getDate() < 10 ? '0' : '') + dt_datetime.getDate() + "/"
@@ -154,7 +155,6 @@ function ambrosia_format_time(timeStamp)
 
 // time generating function
 function cal_gen_time2 (dt_datetime) {
-//alert('In gen_time2');
 	return (
 		(dt_datetime.getHours() < 10 ? '0' : '') + dt_datetime.getHours() + ":"
 		+ (dt_datetime.getMinutes() < 10 ? '0' : '') + (dt_datetime.getMinutes()) 
@@ -180,7 +180,6 @@ function ambrosia_parse_timeStamp(displayStr)
 
 // timestamp parsing function
 function cal_prs_tsmp2 (str_datetime) {
-//alert('In prs_tsmp2 '+str_datetime);
 	// if no parameter specified return current timestamp
 	if (!str_datetime)
 		return (new Date());
@@ -190,11 +189,8 @@ function cal_prs_tsmp2 (str_datetime) {
 		return new Date(str_datetime);
 		
 	// else treat as date in string format
-	//alert('In prs_tsmp2 date is string');
 	var arr_datetime = str_datetime.split(' ');
-	//alert('In prs_tsmp2 ampm is '+arr_datetime[2]);
-	//alert('In prs_tsmp2 time is '+arr_datetime[1]);
-	//alert('In prs_tsmp2 date is '+arr_datetime[0]);
+
 	//return this.prs_time(arr_datetime[1], this.prs_date(arr_datetime[0]))+' '+arr_datetime[2];
 	return this.prs_time(arr_datetime[1], this.prs_date(arr_datetime[0]));
 }
@@ -212,7 +208,7 @@ function ambrosia_parse_am_pm(displayStr)
 
 // ampm parsing function
 function cal_prs_ampm2 (str_datetime) {
-//alert('In prs_ampm2 '+str_datetime);
+
 	// if no parameter specified return current timestamp
 	if (!str_datetime)
 		return (this.gen_now());
@@ -222,11 +218,8 @@ function cal_prs_ampm2 (str_datetime) {
 		return new Date(str_datetime);
 		
 	// else treat as date in string format
-	//alert('In prs_tsmp2 date is string');
+	
 	var arr_datetime = str_datetime.split(' ');
-	//alert('In prs_ampm2 ampm is '+arr_datetime[2]);
-	//alert('In prs_ampm2 time is '+arr_datetime[1]);
-	//alert('In prs_ampm2 date is '+arr_datetime[0]);
 	//return this.prs_time(arr_datetime[1], this.prs_date(arr_datetime[0]))+' '+arr_datetime[2];
 	return arr_datetime[2];
 }

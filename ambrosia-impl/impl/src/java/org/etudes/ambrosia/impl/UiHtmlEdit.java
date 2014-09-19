@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -31,10 +31,12 @@ import org.etudes.ambrosia.api.Decision;
 import org.etudes.ambrosia.api.HtmlEdit;
 import org.etudes.ambrosia.api.Message;
 import org.etudes.ambrosia.api.PropertyReference;
+import org.etudes.basicltiContact.SakaiBLTIUtil;
 import org.etudes.util.HtmlHelper;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -46,6 +48,9 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Element;
@@ -229,6 +234,8 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 
 		PrintWriter response = context.getResponseWriter();
 
+		// store htmlEdit title
+		String editRendererTitle = null;
 		// set some ids
 		int idRoot = context.getUniqueId();
 		String id = getId();
@@ -265,7 +272,9 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 			response.println("<div class=\"ambrosiaComponentTitle\">");
 			if (this.titleMessage != null)
 			{
-				response.println(this.titleMessage.getMessage(context, focus));
+				// later compare html edit box title to enable VT for Question presentation text only
+				editRendererTitle = this.titleMessage.getMessage(context, focus);
+				response.println(editRendererTitle);				
 			}
 			if (!readOnly && this.optional)
 			{
@@ -292,22 +301,37 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 			// make sure the context.getDocsPath() exists
 			assureDocsPath(context);
 
+			// enable VT in editor if available for the site
+			String placementId = SessionManager.getCurrentToolSession().getPlacementId();
+			String siteId = SiteService.findTool(placementId).getContext();
+			boolean enableVT = (SakaiBLTIUtil.showProviderInEditor(siteId, "VoiceThread Editor")) ? true : false;
+			String callerId = (String) context.get("question_id");
+			String callingQuestionPage = (callerId != null) ? "Question_" + callerId + ".htm" : "Question.htm";
+			
 			response.println("<textarea " + (this.optional ? "style=\"display:none; position:absolute; top:0px; left:0px;\"" : "") + " id=\"" + id
 					+ "\" name=\"" + id + "\" " + (readOnly ? " disabled=\"disabled\"" : "") + ">");
 			response.print(Validator.escapeHtmlTextarea(value));
 			response.println("</textarea>");
 			response.println("<script type=\"text/javascript\" defer=\"1\">sakai.editor.collectionId =\"" + context.getDocsPath() + "\";");
+			response.println("function config(){}");
+			
+			// enable VT for the Question Presentation box only and not other boxes
+			if (enableVT && "Question".equals(editRendererTitle))
+			{
+				response.println("config.prototype.enableVT=true;");
+				response.println("config.prototype.serverUrl='" + ServerConfigurationService.getString("serverUrl") + "';");
+				response.println("config.prototype.siteId='" + siteId + "';");
+				response.println("config.prototype.resourceId='" + callingQuestionPage + "';");
+			}
+			else 
+				response.println("config.prototype.enableVT=false;");
+			
 			response.println("if (enableBrowse == false)");
 			response.println("{");
-			response.println("function config(){}");
 			response.println("config.prototype.disableBrowseServer=true;");
+			response.println("}");
 			response.println("sakai.editor.launch('" + id + "',new config(),getWidth('.ambrosiaHtmlEditSize_" + this.size.toString()
 					+ "'),getHeight('.ambrosiaHtmlEditSize_" + this.size.toString() + "'));");
-			response.println("}");
-			response.println("else {");
-			response.println("sakai.editor.launch('" + id + "',true,getWidth('.ambrosiaHtmlEditSize_" + this.size.toString()
-					+ "'),getHeight('.ambrosiaHtmlEditSize_" + this.size.toString() + "'));");
-			response.println("}");
 			response.println("</script>");
 			
 			// on submit, record the editor's changed flag

@@ -86,6 +86,12 @@
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
 		</dependency>
+		
+		<dependency>
+		  <groupId>org.etudes</groupId>
+		  <artifactId>etudes-lticontact-util</artifactId>
+		  <version>${lticontact.version}</version>
+	    </dependency>
 
 	</dependencies>
 

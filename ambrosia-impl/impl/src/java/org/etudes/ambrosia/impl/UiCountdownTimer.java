@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -111,17 +111,7 @@ public class UiCountdownTimer extends UiComponent implements CountdownTimer
 			this.title = new UiMessage().setMessage(title);
 		}
 
-		String warn = StringUtil.trimToNull(xml.getAttribute("warn"));
-		if (warn != null)
-		{
-			try
-			{
-				this.warn = Long.parseLong(warn);
-			}
-			catch (NumberFormatException e)
-			{
-			}
-		}
+
 
 		String pixels = StringUtil.trimToNull(xml.getAttribute("pixels"));
 		if (pixels != null)
@@ -241,6 +231,15 @@ public class UiCountdownTimer extends UiComponent implements CountdownTimer
 			}
 		}
 
+		if (duration >= 360000)
+		{
+			this.warn = 300000;
+		}
+		else
+		{
+			this.warn = 60000;
+		}
+		
 		// get our messages
 		String hideText = null;
 		if (this.hideMessage != null)
@@ -308,6 +307,9 @@ public class UiCountdownTimer extends UiComponent implements CountdownTimer
 		// we warned
 		context.addScript("var warned_" + id + " = false;\n");
 
+		// we expired
+		context.addScript("var expiredtwo_" + id + " = false;\n");
+
 		// the setTimeout object
 		context.addScript("var timeout_" + id + " = 0;\n");
 
@@ -322,6 +324,9 @@ public class UiCountdownTimer extends UiComponent implements CountdownTimer
 
 		// time from exipre for warning
 		context.addScript("var warnZone_" + id + " = " + this.warn + ";\n");
+
+		// time from exipre for expiration
+		context.addScript("var expireTwoZone_" + id + " = 120000;\n");
 
 		// text to go with the total display
 		context.addScript("var durationText_" + id + " = \"" + durationText + "\";\n");
@@ -344,6 +349,9 @@ public class UiCountdownTimer extends UiComponent implements CountdownTimer
 		// warning when 60 seconds to go
 		context.addScript("	warning_" + id + " = new Date()\n");
 		context.addScript("	warning_" + id + ".setTime(target_" + id + ".getTime() - warnZone_" + id + ");\n");
+
+		context.addScript("	expiring_" + id + " = new Date()\n");
+		context.addScript("	expiring_" + id + ".setTime(target_" + id + ".getTime() - expireTwoZone_" + id + ");\n");
 
 		context.addScript("	document.getElementById('total_" + id + "').firstChild.nodeValue = durationText_" + id + ";\n");
 
@@ -378,6 +386,13 @@ public class UiCountdownTimer extends UiComponent implements CountdownTimer
 		context.addScript("		{\n");
 		context.addScript("			warn_" + id + "();\n");
 		context.addScript("		}\n");
+		if (this.warn == 300000)
+		{
+			context.addScript("		if (now >= expiring_" + id + ")\n");
+			context.addScript("		{\n");
+			context.addScript("			expiretwo_" + id + "();\n");
+			context.addScript("		}\n");
+		}
 		context.addScript("		format_" + id + "();\n");
 		context.addScript("		timeout_" + id + " = setTimeout(\"update_" + id + "()\", 1000);\n");
 		context.addScript("	}\n");
@@ -438,6 +453,15 @@ public class UiCountdownTimer extends UiComponent implements CountdownTimer
 		context.addScript("	{\n");
 		context.addScript("		warned_" + id + " = true;\n");
 		context.addScript("		document.getElementById('bar_" + id + "').style.backgroundColor=\"#ffff33\";\n");
+		context.addScript("	}\n");
+		context.addScript("}\n");
+
+		context.addScript("function expiretwo_" + id + "()\n");
+		context.addScript("{\n");
+		context.addScript("	if (!expiredtwo_" + id + ")\n");
+		context.addScript("	{\n");
+		context.addScript("		expiredtwo_" + id + " = true;\n");
+		context.addScript("		document.getElementById('bar_" + id + "').style.backgroundColor=\"#ff0000\";\n");
 		context.addScript("	}\n");
 		context.addScript("}\n");
 

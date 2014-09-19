@@ -25,18 +25,18 @@ var NUM_WEEKSTART = 1;
 // path to the directory where calendar images are stored. trailing slash req.
 var STR_ICONPATH = 'images/';
 
-//alert('url string is '+String(window.location));
+
 var re_url = new RegExp('datetime=(\\-?\\d+)');
-//alert(re_url.exec(String(window.location)));
+
 var reampm_url = new RegExp('ampmval=(\\-?\\w+)');
-//alert('ampm is '+reampm_url.exec(String(window.location)));
+
 var dt_current = (re_url.exec(String(window.location))
 	? new Date(new Number(RegExp.$1)) : new Date());
-	//alert('In calendar '+dt_current);
+
 
 var ampm_val = (reampm_url.exec(String(window.location))
 	? new String(RegExp.$1) : "AM");
-	//alert('In calendar ampm is '+ampm_val);
+	
 var re_id = new RegExp('id=(\\d+)');
 var num_id = (re_id.exec(String(window.location))
 	? new Number(RegExp.$1) : 0);
@@ -76,7 +76,6 @@ dt_firstday.setDate(1 - (7 + dt_firstday.getDay() - NUM_WEEKSTART) % 7);
 // function passing selected date to calling window
 function set_datetime(n_datetime, b_close) {
 	if (!obj_caller) return;
-    //alert(document.cal.ampm.value);
 
 
    var caltime = document.cal.hr.value+':'+document.cal.min.value+':00';
@@ -88,7 +87,6 @@ function set_datetime(n_datetime, b_close) {
 
    	if (!dt_datetime) return;
    	if (b_close) {
-   	//alert('after bclose '+dt_datetime);
    		window.close();
 
    		obj_caller.target.value = (document.cal
@@ -97,9 +95,8 @@ function set_datetime(n_datetime, b_close) {
    		);
    		//obj_caller.target.onchange();
 
-   		//alert(obj_caller.target.value);
    	}
-	else obj_caller.popup(dt_datetime.valueOf());
+	else obj_caller.popup(dt_datetime.valueOf(), document.cal.ampm.value);
 
 
 	/*var dt_datetime = obj_caller.prs_time(

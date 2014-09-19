@@ -17,5 +17,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/ambrosia-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/etudes-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/component-api"/>
+	<classpathentry kind="var" path="MAVEN_REPO/etudes/jars/etudes-lticontact-util-1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
