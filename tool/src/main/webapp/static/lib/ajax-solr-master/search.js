@@ -233,7 +233,7 @@ var Manager;
       'facet.range' : [ 'course_created' ],
       'f.course_created.facet.range.start' : 'NOW-14DAY',
       'f.course_created.facet.range.end' : 'NOW',
-      'f.course_created.facet.range.gap' : '+14DAY',
+      'f.course_created.facet.range.gap' : '+14DAY'
     };
     for (var name in params) {
       Manager.store.addByValue(name, params[name]);
