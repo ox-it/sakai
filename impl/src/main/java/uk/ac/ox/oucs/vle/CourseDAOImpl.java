@@ -20,10 +20,7 @@
 package uk.ac.ox.oucs.vle;
 
 import org.hibernate.*;
-import org.hibernate.criterion.Expression;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.*;
 import org.hibernate.sql.JoinFragment;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
@@ -39,7 +36,7 @@ import java.util.*;
 public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 	private static final MonthDay FIRST_DAY_OF_ACADEMIC_YEAR = new MonthDay(DateTimeConstants.SEPTEMBER, 1);
-		
+
 	// Set lastYear to 1st September (start of last academic year)
 	public static LocalDate getPreviousYearBeginning(LocalDate currentDate) {
 		int currentCivilYear = currentDate.getYear();
@@ -57,56 +54,41 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	
 	public CourseGroupDAO findCourseGroupById(final String courseId) {
 		return (CourseGroupDAO) getHibernateTemplate().execute(new HibernateCallback() {
-			// Need the DISTINCT ROOT ENTITY filter.
-			public Object doInHibernate(Session session) 
+			public Object doInHibernate(Session session)
 					throws HibernateException,	SQLException {
-
-				StringBuffer querySQL = new StringBuffer();
-				querySQL.append("SELECT * FROM course_group cg ");
-				querySQL.append("WHERE cg.courseId = :id ");
-				Query query = session.createSQLQuery(querySQL.toString()).addEntity(CourseGroupDAO.class);
-				query.setString("id", courseId);
-				List<CourseGroupDAO> courseGroups =  query.list();
-				int results = courseGroups.size();
-				if (results > 0) {
-					if (results > 1) {
-						throw new IllegalStateException("To many results ("+ results + ") found for "+ courseId );
-					}
-					return courseGroups.get(0);
-				}
-				return null;
+				Criteria criteria = session.createCriteria(CourseGroupDAO.class).add(Restrictions.eq("courseId", courseId));
+				return criteria.uniqueResult();
 			}
 		});
 	}
-	
-	public CourseGroupDAO findCourseGroupById(final String courseId, final Range range, final Date now) {
-		return (CourseGroupDAO) getHibernateTemplate().execute(new HibernateCallback() {
-			// Need the DISTINCT ROOT ENTITY filter.
+
+	public List<CourseComponentDAO> findCourseComponents(final String courseId, final Range range, final Date now) {
+		return (List<CourseComponentDAO>) getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException,
 					SQLException {
-				Date startLastYear = getPreviousYearBeginning(LocalDate.now()).toDate();
-				Criteria criteria = session.createCriteria(CourseGroupDAO.class);
-				criteria.add(Expression.eq("courseId", courseId));
-				criteria.add(Restrictions.eq("hideGroup", false));
-				switch (range) { 
+				Criteria criteria = session.createCriteria(CourseComponentDAO.class);
+				Criteria subCriteria;
+				switch (range) {
 					case NOTSTARTED:
-						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(
-								Expression.or(Expression.gt("baseDate", now), Expression.and(Expression.isNull("baseDate"), Expression.isNotNull("startsText"))));
-						break;
 					case UPCOMING:
-						criteria = criteria.createCriteria("components", JoinFragment.LEFT_OUTER_JOIN).add(
-								Expression.or(Expression.gt("baseDate", now), Expression.and(Expression.isNull("baseDate"), Expression.isNotNull("startsText"))));
+						criteria.add(Restrictions.or(
+								Restrictions.gt("baseDate", now),
+								Restrictions.and(Restrictions.isNull("baseDate"), Restrictions.isNotNull("startsText"))));
 						break;
 					case PREVIOUS:
-						criteria = criteria.createCriteria("components",  JoinFragment.LEFT_OUTER_JOIN).add(
-								Expression.or(
-										Expression.and(Expression.le("baseDate", now), Expression.gt("baseDate", startLastYear)), 
-										Expression.and(Expression.isNull("baseDate"), Expression.isNull("startsText"))
+						Date startLastYear = getPreviousYearBeginning(new LocalDate(now)).toDate();
+						criteria.add(
+								Restrictions.or(
+										Restrictions.and(Restrictions.le("baseDate", now), Restrictions.gt("baseDate", startLastYear)),
+										Restrictions.and(Expression.isNull("baseDate"), Restrictions.isNull("startsText"))
 									));
 						break;
 				}
-				criteria.setResultTransformer(Criteria.ROOT_ENTITY);
-				return criteria.uniqueResult();
+				subCriteria = criteria.createCriteria("groups", JoinFragment.INNER_JOIN);
+				subCriteria.add(Restrictions.eq("courseId", courseId));
+				subCriteria.add(Restrictions.eq("hideGroup", false));
+				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+				return criteria.list();
 			}
 		});
 	}
@@ -307,7 +289,17 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return getHibernateTemplate().save(signupDao).toString();
 	}
 
-	public void save(CourseComponentDAO componentDao) {
+	public void save(final CourseComponentDAO componentDao) {
+		getHibernateTemplate().execute(new HibernateCallback<Object>() {
+			@Override
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				session.saveOrUpdate(componentDao);
+				for (CourseGroupDAO group: componentDao.getGroups()) {
+					session.refresh(group);
+				}
+				return null;
+			}
+		});
 		 getHibernateTemplate().saveOrUpdate(componentDao);
 	}
 
@@ -714,7 +706,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	 * 
 	 */
 	public void save(CourseOucsDepartmentDAO oucsDao) {
-		getHibernateTemplate().save(oucsDao).toString();
+		getHibernateTemplate().save(oucsDao);
 	}
 	
 	public void remove(CourseSignupDAO existingSignup) {

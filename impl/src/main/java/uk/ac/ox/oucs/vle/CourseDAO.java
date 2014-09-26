@@ -28,8 +28,6 @@ import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 public interface CourseDAO {
-
-	CourseGroupDAO findCourseGroupById(String courseId, Range range, Date now);
 	
 	CourseGroupDAO findCourseGroupById(String courseId);
 	
@@ -47,7 +45,7 @@ public interface CourseDAO {
 	
 	List<Object[]> findSubUnitByDept(String dept);
 
-	List<CourseComponentDAO> findOpenComponents(String id, Date at);
+	List<CourseComponentDAO> findCourseComponents(String courseId, Range range, Date now);
 	
 	List<CourseGroupDAO> findAllGroups();
 		

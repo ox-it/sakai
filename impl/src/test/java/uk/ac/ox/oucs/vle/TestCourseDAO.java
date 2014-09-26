@@ -121,6 +121,44 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		assertEquals(2, daoC.getGroups().size());
 	}
 
+    public void testComponentFilter() {
+        CourseGroupDAO group = courseDao.newCourseGroup("id1", "Title", "Department", "Subunit");
+        courseDao.save(group);
+        CourseComponentDAO oldComponent = courseDao.newCourseComponent("old");
+        oldComponent.setBaseDate(createDate(2009, 1, 1));
+        oldComponent.getGroups().add(group);
+        courseDao.save(oldComponent);
+        CourseComponentDAO newComponent = courseDao.newCourseComponent("new");
+        newComponent.setBaseDate(createDate(2020, 1, 1));
+        newComponent.getGroups().add(group);
+        courseDao.save(newComponent);
+        // We only show a few years of previous courses.
+        CourseComponentDAO veryOldComponent = courseDao.newCourseComponent("very-old");
+        veryOldComponent.setBaseDate(createDate(2000, 1, 1));
+        veryOldComponent.getGroups().add(group);
+        courseDao.save(veryOldComponent);
+
+        sessionFactory.getCurrentSession().flush();
+        sessionFactory.getCurrentSession().clear();
+
+        List<CourseComponentDAO> returned;
+        // Check we can find all of them
+        returned = courseDao.findCourseComponents("id1", Range.ALL, createDate(2010, 1, 1));
+        assertNotNull(returned);
+        assertEquals(3, returned.size());
+
+        // Check we can just get the newer ones.
+        returned = courseDao.findCourseComponents("id1", Range.UPCOMING, createDate(2010, 1, 1));
+        assertNotNull(returned);
+        assertEquals(1, returned.size());
+
+        // Check we can just get the older ones.
+        returned = courseDao.findCourseComponents("id1", Range.PREVIOUS, createDate(2010, 1, 1));
+        assertNotNull(returned);
+        assertEquals(1, returned.size());
+
+    }
+
 
 	public void testSharedComponentDeleteGroup() {
 
@@ -434,7 +472,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		sessionFactory.getCurrentSession().flush();
 		sessionFactory.getCurrentSession().clear();
 
-		assertNotNull(courseDao.findCourseGroupById("groupId", Range.ALL, new Date()));
+		assertNotNull(courseDao.findCourseComponents("groupId", Range.ALL, new Date()));
 	}
 
 	public void testCountSignups() {

@@ -19,10 +19,7 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class CourseGroupImpl implements CourseGroup {
 
@@ -38,6 +35,13 @@ public class CourseGroupImpl implements CourseGroup {
 		this.courseGroupDAO = courseGroupDAO;
 		this.impl = impl;
 	}
+
+	public CourseGroupImpl(CourseGroupDAO courseGroupDAO, CourseSignupServiceImpl impl, List<CourseComponentDAO> courseComponentDAOs) {
+		this.courseGroupDAO = courseGroupDAO;
+		this.impl = impl;
+		setComponents(courseComponentDAOs);
+	}
+
 
 	public int getMuid() {
 		return courseGroupDAO.getMuid();
@@ -108,14 +112,19 @@ public class CourseGroupImpl implements CourseGroup {
 
 	public List<CourseComponent> getComponents() {
 		if (components == null) {
-			components = new ArrayList<CourseComponent>();
-			for(CourseComponentDAO component:  courseGroupDAO.getComponents()) {
-				components.add(new CourseComponentImpl(component));
-			}
+			setComponents(courseGroupDAO.getComponents());
 		}
-		
+		return components;
+	}
+
+	private void setComponents(Collection<CourseComponentDAO> courseComponentDAOs) {
+		components = new ArrayList<CourseComponent>();
+		for (CourseComponentDAO component : courseComponentDAOs) {
+			components.add(new CourseComponentImpl(component));
+		}
+
 		Collections.sort(components, new Comparator<CourseComponent>() {
-			public int compare(CourseComponent c1,CourseComponent c2) {
+			public int compare(CourseComponent c1, CourseComponent c2) {
 				if (null != c1.getStarts() && null != c2.getStarts()) {
 					return c1.getStarts().compareTo(c2.getStarts());
 				}
@@ -125,8 +134,6 @@ public class CourseGroupImpl implements CourseGroup {
 				return c1.getPresentationId().compareTo(c2.getPresentationId());
 			}
 		});
-		
-		return components;
 	}
 
 	public List<Person> getAdministrators() {

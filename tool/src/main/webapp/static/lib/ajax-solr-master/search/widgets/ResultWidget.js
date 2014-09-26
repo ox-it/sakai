@@ -98,27 +98,6 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
     var close = Signup.util.parseDate(doc.course_signup_close);
     var open = Signup.util.parseDate(doc.course_signup_open);
 
-    // Set range to UPCOMING, PREVIOUS or ALL depending on current selection 
-    var previous = false;
-    var upcoming = false;
-    var fq = this.manager.store.values('fq');
-    for (var i = 0, l = fq.length; i < l; i++) {
-        var facet = this.manager.getValueName(fq[i]);
-        if (facet == 'Old Courses') {
-            previous = true;
-        }
-        if (facet == 'Current Courses') {
-            upcoming = true;
-        }
-    }
-
-    if (previous && !upcoming) {
-        range = "PREVIOUS";
-    }
-    if (!previous && upcoming) {
-        range = "UPCOMING";
-    }
-
     if (isNaN(open.getDate()) || isNaN(close.getDate())) {
         if (doc.course_signup_opentext) {
             signup_message = doc.course_signup_opentext;
@@ -127,7 +106,9 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
 
         if (close < now) {
             signup_message = "closed";
+            range = "PREVIOUS";
         } else {
+            range = "UPCOMING";
             if (open > now) {
                 signup_message = "opens in " + Signup.util.formatDuration(open -now);
             } else {
@@ -167,7 +148,7 @@ AjaxSolr.ResultWidget = AjaxSolr.AbstractWidget.extend({
       }
       return false;
     });
-  },
+  }
 
 
 });

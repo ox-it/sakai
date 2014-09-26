@@ -417,16 +417,17 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 
 	/**
-	 * 
+	 * Get a course group with components. The components can be limited by specifying a range to load.
 	 */
 	public CourseGroup getCourseGroup(String courseId, Range range) {
 		if (range == null) {
 			range = Range.UPCOMING;
 		}
-		CourseGroupDAO courseGroupDao = dao.findCourseGroupById(courseId, range, getNow());
+		CourseGroupDAO courseGroupDao = dao.findCourseGroupById(courseId);
 		CourseGroup courseGroup = null;
 		if (courseGroupDao != null) {
-			courseGroup = new CourseGroupImpl(courseGroupDao, this);
+			List<CourseComponentDAO> componentDAOs = dao.findCourseComponents(courseId, range, getNow());
+			courseGroup = new CourseGroupImpl(courseGroupDao, this, componentDAOs);
 		}
 		return courseGroup;
 	}
