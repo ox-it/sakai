@@ -1,6 +1,6 @@
 /**********************************************************************************
  * $URL: https://source.etudes.org/svn/apps/ltiContact/trunk/lticontact-util/src/java/org/imsglobal/basiclti/BasicLTIUtil.java $
- * $Id: BasicLTIUtil.java 8795 2014-09-18 17:37:40Z rashmim $
+ * $Id: BasicLTIUtil.java 8859 2014-09-27 18:49:57Z rashmim $
  **********************************************************************************
  *
  * Copyright (c) 2008 IMS GLobal Learning Consortium
@@ -139,7 +139,7 @@ public class BasicLTIUtil {
         }
 
         url = url.trim();
-        
+
         Properties sortProp = new Properties();
         sortProp = sortParameters(postProp);
         OAuthMessage oam = new OAuthMessage(method, url,sortProp.entrySet());
@@ -175,13 +175,25 @@ public class BasicLTIUtil {
         if ( endpoint == null ) return null;
         StringBuffer text = new StringBuffer();
         boolean addSubmit = false;
-        
-        text.append("<html>\n");
-    	text.append("<head> \n <meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" /> </head>\n");
-    	text.append("<body>\n <div id=\"ltiLaunchFormSubmitArea\">\n");
-    	text.append("<form action=\"" + endpoint
-    				+ "\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\" encType=\"application/x-www-form-urlencoded\">\n");
-    	    	
+    
+		if (newMap.containsKey("ext_autosubmit")) addSubmit = true;
+
+		text.append("<!DOCTYPE html>\n <html>\n");
+		text.append("<head> \n <meta http-equiv=\"content-type\" content=\"text/html;charset=UTF-8\" /> </head>\n");
+		if (addSubmit)
+		{
+			text.append("<body onload=\"document.ltiLaunchForm.submit()\">");
+			text.append("\n <div id=\"ltiLaunchFormSubmitArea\" style=\"display:none\">\n");
+		}
+		else
+		{
+			text.append("<body>\n");
+			text.append("<div id=\"ltiLaunchFormSubmitArea\">\n");
+		}
+
+		text.append("<form action=\"" + endpoint
+				+ "\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\" encType=\"application/x-www-form-urlencoded\">\n");
+
 		for (Object okey : newMap.keySet())
 		{
 			if (!(okey instanceof String)) continue;
@@ -193,8 +205,6 @@ public class BasicLTIUtil {
 			// we will be safe and not generate dangerous HTML
 			//key = htmlspecialchars(key);
 			// value = htmlspecialchars(value);
-			if (key.equals("ext_autosubmit")) addSubmit = true;
-			
 			text.append("<input type=\"hidden\" name=\"");
 			text.append(key);
 			text.append("\" value=\"");
@@ -206,7 +216,7 @@ public class BasicLTIUtil {
 				text.append("<input type=\"submit\" id=\"" + key + "\" value=\"" + value + "\"/>\n");
 			}
 		}
-        String htmltext = writeHtmlEnd(text, addSubmit);
+        String htmltext = writeHtmlEnd(text, addSubmit);        
         return htmltext;
     }
 
@@ -219,9 +229,7 @@ public class BasicLTIUtil {
 	public static String writeHtmlEnd(StringBuffer text, boolean addSubmit)
 	{
 		text.append("</form>\n" + "</div>\n </body> \n");
-		text.append("<script language=\"javascript\"> \n" + "document.getElementById(\"ltiLaunchFormSubmitArea\").style.display = \"none\";\n");
-		if (addSubmit) text.append("document.ltiLaunchForm.submit(); \n");
-		text.append(" </script> \n </html>");
+		text.append("\n </html>");
 		String htmltext = text.toString();
 		return htmltext;
 	}

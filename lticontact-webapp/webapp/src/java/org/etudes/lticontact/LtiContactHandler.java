@@ -1,6 +1,6 @@
 /**********************************************************************************
  * $URL: https://source.etudes.org/svn/apps/ltiContact/trunk/lticontact-webapp/webapp/src/java/org/etudes/lticontact/LtiContactHandler.java $
- * $Id: LtiContactHandler.java 8794 2014-09-18 17:33:54Z rashmim $
+ * $Id: LtiContactHandler.java 8859 2014-09-27 18:49:57Z rashmim $
  ***********************************************************************************
  *
  * Copyright (c) 2013, 2014 Etudes, Inc.
@@ -22,6 +22,7 @@
 package org.etudes.lticontact;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -263,7 +264,7 @@ public class LtiContactHandler extends HttpServlet implements EntityProducer
 				if (parts.length >= 6)
 				{
 					secureAddress = ("https:".equals(parts[5])) ? true : false;
-					launchAddress = StringUtil.unsplit(parts, 6, parts.length - 6, "/");			
+					launchAddress = StringUtil.unsplit(parts, 6, parts.length - 6, "/");	
 				}
 						
 				try
@@ -291,7 +292,6 @@ public class LtiContactHandler extends HttpServlet implements EntityProducer
 			      	
 					String[] ltidata = SakaiBLTIUtil.postLaunchHTML(placement.getId(), null, contextId, resource_link_id, info, launch, true, null, null, targetFrame);
 					postData = ltidata[0];
-				
 
 					if (postData == null)
 					{
@@ -301,7 +301,7 @@ public class LtiContactHandler extends HttpServlet implements EntityProducer
 					{
 						res.setContentType("text/html");
 						res.setCharacterEncoding("UTF-8");
-						ServletOutputStream out = res.getOutputStream();
+						PrintWriter out = res.getWriter();
 						out.println(postData);
 						handled = true;
 					}				
