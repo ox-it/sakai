@@ -552,15 +552,13 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @return
 	 */
 	protected static boolean typeCourseId(String type) {
-		if ("ns:daisy-course".equals(type) ||
+		return ("ns:daisy-course".equals(type) ||
 				"ns:itlp-course".equals(type) ||
 				"ns:careers-course".equals(type) ||
 				"ns:language-centre-course".equals(type) ||
 				"ns:medsci-course".equals(type) ||
-				"ns:sharepoint-course".equals(type)) {
-			return true;
-		}
-		return false;
+				"ns:humanities-course".equals(type) ||
+				"ns:sharepoint-course".equals(type));
 	}
 
 	/**
