@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
@@ -49,6 +51,8 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 public class ContentSyncEntityProviderImpl 
 	implements EntityProvider, AutoRegisterEntityProvider, PropertyProvideable, 
 				RESTful, RequestStorable, RequestAware, ActionsExecutable {
+
+	private static final Log log = LogFactory.getLog(ContentSyncEntityProviderImpl.class);
 	
 	  public final static String ENTITY_PREFIX = "content_sync";
 
@@ -172,13 +176,21 @@ public class ContentSyncEntityProviderImpl
 				String entityId = contentService.getReference(contentSync.getReference());
 				Reference reference = EntityManager.newReference(entityId);
 				
-				if (resourcesEntity(contentSync.getEvent())) {		
+				if (resourcesEntity(contentSync.getEvent())) {
+					// This logs warning if the user doesn't have permission to access it which
+					// is a little crazy
 					ContentEntity content = (ContentEntity)contentService.getEntity(reference);
-					 // still need to report deleted content
-					if (null == content) {             
-						EntityContent thisEntity = new EntityContent();
-						thisEntity.setResourceId(reference.getId());
-						entity = thisEntity;
+					 // If the entity has been deleted
+					if (null == content) {
+						if ("content.delete".equals(contentSync.getEvent())) {
+							EntityContent thisEntity = new EntityContent();
+							thisEntity.setResourceId(reference.getId());
+							entity = thisEntity;
+						} else {
+							// If we have the creation and deletion of a file inside the date range then the
+							// new event won't be able to find it's data so just skip outputting.
+							continue;
+						}
 					} else {
 						entity = EntityDataUtils.getResourceDetails(content);
 					}
@@ -195,10 +207,10 @@ public class ContentSyncEntityProviderImpl
 					Do Something else [forums.reviseforum:/group/forums/site/d0c31496-d5b9-41fd-9ea9-349a7ac3a01a/Forum/2/11a2a3d7-73bc-4939-95ab-581d5ce2158a]
 					Do Something else [forums.revisetopic:/group/site/d0c31496-d5b9-41fd-9ea9-349a7ac3a01a/Topic/64/11a2a3d7-73bc-4939-95ab-581d5ce2158a]
 					*/
-					System.out.println("Do Something else ["+contentSync.getEvent()+":"+ reference.getId()+"]");
+					log.info("Don't know how to handle ["+contentSync.getEvent()+":"+ reference.getId()+"]");
 				}
 				
-			} catch(Exception e) {	
+			} catch(Exception e) {
 				entity = null;
 			}
 			
