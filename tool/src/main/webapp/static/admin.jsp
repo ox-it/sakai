@@ -236,7 +236,9 @@
 			var slots = new Array();
 			for ( var i in object.components) {
 				var component = object.components[i];
-				slots.push(component.slot);
+				if (component.slot) {
+					slots.push(component.slot);
+				}
 			}
 			
 			Signup.term.sortArray(slots);
@@ -262,15 +264,17 @@
 			html += '<span style="padding-right:20px;" />';
 			html += '<a href="#" id="external-add">Add External Signup</a>';
 			$("#signups").html(html);
-			
-			var selectElement = $('#signups-table-term-filter');
+
+			var selectElement = $('#signups-table-term-filter').first();
 			$.each(slots, function(i, slot) {
 				selectElement.append($("<option/>", {
 					value: slot,
 					text: slot
 				}));
 			});
-			selectElement[0].options[0].setAttribute("selected", "selected");
+			if (selectElement.options && selectElement.options.length > 0) {
+				selectElement.options[0].setAttribute("selected", "selected");
+			}
 			
 			// Load the signups.
 			var signups = $("#signups-table").signupTable(
@@ -280,7 +284,9 @@
 			})
 			
 			var filterTerm = $('#signups-table-term-filter').val();
-			signups.fnFilter(filterTerm, 9);
+			if (filterTerm) {
+				signups.fnFilter(filterTerm, 9);
+			}
 
 			var signupAddUser = $("#signup-add-user-win");
 			signupAddUser.resize(function(e) {
