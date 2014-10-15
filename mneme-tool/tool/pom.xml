@@ -66,11 +66,16 @@
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-api</artifactId>
 		</dependency>
-
-		<dependency>
+	
+	        <dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-component-manager</artifactId>
 		</dependency>
+		
+		<dependency>
+		            <groupId>org.sakaiproject.kernel</groupId>
+		            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
 
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -89,7 +94,7 @@
 
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring</artifactId>
+			<artifactId>spring-core</artifactId>
 		</dependency>
 
 	</dependencies>

@@ -105,6 +105,7 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
@@ -1877,15 +1878,15 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 			// get the members of this collection
 			ContentCollection docs = contentHostingService.getCollection(docsCollection);
-			List<Object> members = docs.getMemberResources();
-			for (Object m : members)
+			List<ContentEntity> members = docs.getMemberResources();
+			for (ContentEntity m : members)
 			{
 				if (m instanceof ContentCollection)
 				{
 					// get the member within
 					ContentCollection holder = (ContentCollection) m;
-					List<Object> innerMembers = holder.getMemberResources();
-					for (Object mm : innerMembers)
+					List<ContentEntity> innerMembers = holder.getMemberResources();
+					for (ContentEntity mm : innerMembers)
 					{
 						if (mm instanceof ContentResource)
 						{

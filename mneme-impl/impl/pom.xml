@@ -68,6 +68,7 @@
 		<dependency>
 			<groupId>org.etudes</groupId>
 			<artifactId>etudes-util-util</artifactId>
+			<version>${etudes.util.version}</version>
 		</dependency>
 
 		<dependency>
