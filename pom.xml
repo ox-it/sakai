@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/contrib/etudes/ltiContact/trunk/pom.xml $
+ * $URL: https://source.etudes.org/svn/apps/lticontact/trunk/pom.xml $
  * $Id: pom.xml 86824 2014-08-01 17:06:55Z mallika@etudes.org $
  ***********************************************************************************
  *
@@ -27,7 +27,7 @@
 	<parent>
 		<artifactId>master</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>2.9.3</version>
+		<version>10.1</version>
 	</parent>
 
 	<name>lticontact-base</name>

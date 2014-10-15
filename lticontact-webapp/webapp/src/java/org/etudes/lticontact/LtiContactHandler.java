@@ -1,6 +1,6 @@
 /**********************************************************************************
  * $URL: https://source.etudes.org/svn/apps/ltiContact/trunk/lticontact-webapp/webapp/src/java/org/etudes/lticontact/LtiContactHandler.java $
- * $Id: LtiContactHandler.java 8859 2014-09-27 18:49:57Z rashmim $
+ * $Id: LtiContactHandler.java 8872 2014-09-30 22:07:28Z rashmim $
  ***********************************************************************************
  *
  * Copyright (c) 2013, 2014 Etudes, Inc.
@@ -265,6 +265,7 @@ public class LtiContactHandler extends HttpServlet implements EntityProducer
 				{
 					secureAddress = ("https:".equals(parts[5])) ? true : false;
 					launchAddress = StringUtil.unsplit(parts, 6, parts.length - 6, "/");	
+					launchAddress = launchAddress.replace("/threadId/", "?threadId="); 
 				}
 						
 				try
