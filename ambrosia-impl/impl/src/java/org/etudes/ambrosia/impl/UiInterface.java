@@ -404,8 +404,8 @@ public class UiInterface extends UiContainer implements Interface
 			}
 			else
 			{
-				response.println("<script type=\"text/javascript\" src=\"" +ServerConfigurationService.getString("etudes.editor.path")+ "/ckeditor/ckeditor.js\"></script>\n");
-				response.println("<script type=\"text/javascript\" src=\"" +ServerConfigurationService.getString("etudes.editor.path")+ "/ckeditor.launch.js\"></script>\n");
+				response.println("<script type=\"text/javascript\" src=\"" +ServerConfigurationService.getString("etudes.editor.path")+ "/ckeditor/ckeditor.js?version=\"></script>\n");
+				response.println("<script type=\"text/javascript\" src=\"" +ServerConfigurationService.getString("etudes.editor.path")+ "/ckeditor.launch.js?version=\"></script>\n");
 				
 				String css = findCss(headInclude);
 				if (css == null)

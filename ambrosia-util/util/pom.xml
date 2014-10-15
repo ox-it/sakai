@@ -74,7 +74,7 @@
 
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring</artifactId>
+			<artifactId>spring-core</artifactId>
 		</dependency>
 
 	</dependencies>
