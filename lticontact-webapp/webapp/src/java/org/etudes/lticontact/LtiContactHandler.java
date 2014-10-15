@@ -265,6 +265,7 @@ public class LtiContactHandler extends HttpServlet implements EntityProducer
 				{
 					secureAddress = ("https:".equals(parts[5])) ? true : false;
 					launchAddress = StringUtil.unsplit(parts, 6, parts.length - 6, "/");	
+					launchAddress = launchAddress.replace("/threadId/", "?threadId="); 
 				}
 						
 				try
