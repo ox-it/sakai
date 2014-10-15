@@ -66,6 +66,11 @@
 			  <artifactId>etudes-lticontact-util</artifactId>
 			  <version>${lticontact.version}</version>
 	     </dependency>
+	     <dependency>
+	     			  <groupId>org.etudes</groupId>
+	     			  <artifactId>etudes-util-util</artifactId>
+	     			  <version>${etudes.util.version}</version>
+	     </dependency>
 	</dependencies>
 
 </project>
