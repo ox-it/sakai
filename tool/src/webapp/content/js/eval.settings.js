@@ -15,28 +15,13 @@ $(function() {
 			});
 			
 			$(".adminSettings select").change(function(){
-				var changeAnswersArray = $("input[id=showModifyResponsesAllowedToStu::modifyResponsesAllowed]");
-				var evaluatorsTakePartArray = $("input[id=evaluatorsParticipate]");
-				if (this.value == 'NONE') {
-					for (var i=0; i<changeAnswersArray.length; i++) {
-						changeAnswersArray[i].checked=false;
-						changeAnswersArray[i].disabled=true;
-					}
-					for (var i=0; i<evaluatorsTakePartArray.length; i++) {
-						evaluatorsTakePartArray[i].checked=false;
-						evaluatorsTakePartArray[i].disabled=true;
-					}
-				}
-				if (this.value == 'AUTH') {
-					for (var i=0; i<changeAnswersArray.length; i++) {
-						changeAnswersArray[i].checked=true;
-						changeAnswersArray[i].disabled=false;
-					}
-					for (var i=0; i<evaluatorsTakePartArray.length; i++) {
-						evaluatorsTakePartArray[i].checked=true;
-						evaluatorsTakePartArray[i].disabled=false;
-					}
-				}
+				// When the survey doesn't require users to login they can't come back to the survey so some
+				// options in the interface don't makes sense, so we disable them.
+				var nonLoggedIn = this.value ==='NONE';
+				$('input[name="showModifyResponsesAllowedToStu::modifyResponsesAllowed"]')
+					.prop({'disabled': nonLoggedIn, 'checked': !nonLoggedIn});
+				$('input[name="showAllRolesCanParticipate::allRolesParticipate"]')
+					.prop({'disabled': nonLoggedIn, 'checked': !nonLoggedIn});
 			});
 			
 });
