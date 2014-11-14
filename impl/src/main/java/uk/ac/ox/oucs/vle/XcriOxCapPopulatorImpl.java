@@ -720,15 +720,14 @@ public class XcriOxCapPopulatorImpl implements Populator {
 	 * @return
 	 */
 	protected static boolean typePresentationId(String type) {
-		if ("ns:daisy-presentation".equals(type) ||
+		return ("ns:daisy-presentation".equals(type) ||
 				"ns:careers-presentation".equals(type) ||
 				"ns:itlp-presentation".equals(type) ||
 				"ns:language-centre-presentation".equals(type) ||
 				"ns:medsci-presentation".equals(type) ||
-				"ns:sharepoint-presentation".equals(type)) {
-			return true;
-		}
-		return false;
+				"ns:sharepoint-presentation".equals(type) ||
+				"ns:humanities-presentation".equals(type)
+			);
 	}
 
 	/**
