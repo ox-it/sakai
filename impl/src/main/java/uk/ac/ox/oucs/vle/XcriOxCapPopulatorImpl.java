@@ -887,6 +887,10 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		int i=0;
 
 		try {
+			if (myPresentation.getPresentationId() == null || myPresentation.getPresentationId().isEmpty()) {
+				logMe(context,  "Log Failure Teaching Instance ["+myPresentation.getPresentationId()+":"+myPresentation.getTitle()+"] No presentation ID");
+				i++;
+			}
 
 			if (null != myPresentation.getOpens() && null != myPresentation.getCloses()) {
 				if (myPresentation.getOpens().after(myPresentation.getCloses())){
