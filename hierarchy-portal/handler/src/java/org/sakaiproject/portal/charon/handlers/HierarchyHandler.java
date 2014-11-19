@@ -406,6 +406,7 @@ public class HierarchyHandler extends SiteHandler {
 			}
 			else
 			{
+				req.setAttribute("siteId", siteId);
 				portal.doError(req, res, session, Portal.ERROR_SITE);
 			}
 		}
