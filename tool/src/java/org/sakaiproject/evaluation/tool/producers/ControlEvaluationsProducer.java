@@ -29,6 +29,7 @@ import org.sakaiproject.evaluation.logic.EvalEvaluationService;
 import org.sakaiproject.evaluation.logic.EvalEvaluationSetupService;
 import org.sakaiproject.evaluation.logic.EvalSettings;
 import org.sakaiproject.evaluation.logic.entity.EvalCategoryEntityProvider;
+import org.sakaiproject.evaluation.logic.model.EvalUser;
 import org.sakaiproject.evaluation.model.EvalAssignGroup;
 import org.sakaiproject.evaluation.model.EvalEvaluation;
 import org.sakaiproject.evaluation.tool.renderers.NavBarRenderer;
@@ -189,11 +190,14 @@ public class ControlEvaluationsProducer implements ViewComponentProducer, ViewPa
 
             UIOutput.make(evaluationRow, "partial-eval-title", evaluation.getTitle() );
             UIOutput.make(evaluationRow, "partial-eval-created", df.format(evaluation.getLastModified()));
+            EvalUser owner = commonLogic.getEvalUserById( evaluation.getOwner() );
+            UIOutput.make(evaluationRow, "partial-eval-owner", owner.displayName);
 
             UIInternalLink.make(evaluationRow, "inqueue-eval-edit-link", UIMessage.make("controlevaluations.partial.continue"),
                   new EvalViewParameters(EvaluationSettingsProducer.VIEW_ID, evaluation.getId()) );
-
-            UIInternalLink.make(evaluationRow, "inqueue-eval-delete-link", UIMessage.make("general.command.delete"), 
+            UIInternalLink.make(evaluationRow, "evaluation-chown-link", UIMessage.make("general.command.chown"),
+                         new EvalViewParameters( ChownEvaluationProducer.VIEW_ID, evaluation.getId() ));
+            UIInternalLink.make(evaluationRow, "inqueue-eval-delete-link", UIMessage.make("general.command.delete"),
                   new EvalViewParameters( RemoveEvalProducer.VIEW_ID, evaluation.getId() ) );
          }
       }
@@ -252,9 +256,14 @@ public class ControlEvaluationsProducer implements ViewComponentProducer, ViewPa
             UIOutput.make(evaluationRow, "inqueue-eval-startdate", df.format(evaluation.getStartDate()));
             // TODO add support for evals that do not close - summary.label.nevercloses
             UIOutput.make(evaluationRow, "inqueue-eval-duedate", df.format(evaluation.getSafeDueDate()));
+            EvalUser owner = commonLogic.getEvalUserById( evaluation.getOwner() );
+            UIOutput.make(evaluationRow, "inqueue-eval-owner", owner.displayName);
 
             UIInternalLink.make(evaluationRow, "inqueue-eval-edit-link", UIMessage.make("general.command.edit"),
                   new EvalViewParameters(EvaluationSettingsProducer.VIEW_ID, evaluation.getId()) );
+
+             UIInternalLink.make(evaluationRow, "evaluation-chown-link", UIMessage.make("general.command.chown"),
+                     new EvalViewParameters( ChownEvaluationProducer.VIEW_ID, evaluation.getId() ));
 
             // do the locked check first since it is more efficient
             if ( ! evaluation.getLocked().booleanValue() &&
@@ -348,9 +357,14 @@ public class ControlEvaluationsProducer implements ViewComponentProducer, ViewPa
             UIOutput.make(evaluationRow, "active-eval-startdate", df.format(evaluation.getStartDate()));
             // TODO add support for evals that do not close - summary.label.nevercloses
             UIOutput.make(evaluationRow, "active-eval-duedate", df.format(evaluation.getSafeDueDate()));
+             EvalUser owner = commonLogic.getEvalUserById( evaluation.getOwner() );
+             UIOutput.make(evaluationRow, "active-eval-owner", owner.displayName);
 
             UIInternalLink.make(evaluationRow, "active-eval-edit-link", UIMessage.make("general.command.edit"),
                   new EvalViewParameters(EvaluationSettingsProducer.VIEW_ID, evaluation.getId()) );
+
+             UIInternalLink.make(evaluationRow, "evaluation-chown-link", UIMessage.make("general.command.chown"),
+                     new EvalViewParameters( ChownEvaluationProducer.VIEW_ID, evaluation.getId() ));
 
             if ( evaluationService.canRemoveEvaluation(currentUserId, evaluation.getId()) ) {
                // evaluation removable
@@ -419,6 +433,8 @@ public class ControlEvaluationsProducer implements ViewComponentProducer, ViewPa
             }
 
             UIOutput.make(evaluationRow, "closed-eval-duedate", df.format(evaluation.getDueDate()));
+             EvalUser owner = commonLogic.getEvalUserById( evaluation.getOwner() );
+             UIOutput.make(evaluationRow, "closed-eval-owner", owner.displayName);
 
             if (EvalConstants.EVALUATION_STATE_VIEWABLE.equals(EvalUtils.getEvaluationState(evaluation, false)) ) {
                if ( responsesNeeded == 0 ) {
@@ -444,6 +460,9 @@ public class ControlEvaluationsProducer implements ViewComponentProducer, ViewPa
                UIInternalLink.make(evaluationRow, "closed-eval-delete-link", UIMessage.make("general.command.delete"), 
                      new EvalViewParameters( RemoveEvalProducer.VIEW_ID, evaluation.getId() ) );
             }
+
+             UIInternalLink.make(evaluationRow, "evaluation-chown-link", UIMessage.make("general.command.chown"),
+                     new EvalViewParameters( ChownEvaluationProducer.VIEW_ID, evaluation.getId() ));
             
             if (reopeningAllowed) {
                // add in link to settings page with reopen option

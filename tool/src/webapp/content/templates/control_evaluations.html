@@ -42,7 +42,7 @@
                 <table border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines" summary="placeholder summary">
                     <thead>
                         <tr>
-                            <th rsf:id="msg=controlevaluations.eval.title.header" width="50%">
+                            <th rsf:id="msg=controlevaluations.eval.title.header" width="40%">
                                 Evaluation Title
                             </th>
                             <th rsf:id="msg=controlevaluations.partial.created.date.header" width="20%">
@@ -50,6 +50,9 @@
                             </th>
                             <th>
                             </th>
+							<th rsf:id="msg=controlevaluations.partial.owner.header" width="10%">
+								Owner
+							</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -63,7 +66,12 @@
                             <td class="itemAction">
                                 <a rsf:id="inqueue-eval-edit-link" href="evaluation_settings.html">Continue</a>
                                 <span rsf:id="inqueue-eval-delete-link">| <a rsf:id="payload-component" href="remove_evaluation.html">Delete</a></span>
+								<span rsf:id="evaluation-chown-dummy"></span> |
+								<a rsf:id="evaluation-chown-link" href="chown_evaluation.html">Change Owner</a>
                             </td>
+							<td rsf:id="partial-eval-owner" nowrap="nowrap">
+								Owner
+							</td>
                         </tr>
                     </tbody>
                 </table>
@@ -76,7 +84,7 @@
                 <table border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines" summary="placeholder summary">
                     <thead>
                         <tr>
-                            <th rsf:id="msg=controlevaluations.eval.title.header" width="35%">
+                            <th rsf:id="msg=controlevaluations.eval.title.header" width="30%">
                                 Evaluation Title
                             </th>
                             <th rsf:id="msg=controlevaluations.eval.settings.header" width="25%" class="screenOnly">
@@ -85,7 +93,7 @@
                             <th rsf:id="msg=controlevaluations.eval.reminders.header" width="5%">
                             	Reminders
                             </th>
-                            <th rsf:id="msg=controlevaluations.eval.assigned.header" width="15%">
+                            <th rsf:id="msg=controlevaluations.eval.assigned.header" width="10%">
                                 Assigned
                             </th>
                             <th rsf:id="msg=controlevaluations.eval.startdate.header" width="10%">
@@ -94,6 +102,9 @@
                             <th rsf:id="msg=controlevaluations.eval.duedate.header" width="10%">
                                 Due Date
                             </th>
+							<th rsf:id="msg=controlevaluations.eval.owner.header" width="10%">
+								Owner
+							</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -106,6 +117,8 @@
                             <td headers="settingsinqueue" class="itemAction screenOnly">
                                 <a rsf:id="inqueue-eval-edit-link" href="evaluation_settings.html">Edit</a>
                                 <span rsf:id="inqueue-eval-delete-link">| <a rsf:id="payload-component" href="remove_evaluation.html">Delete</a></span>
+								<span rsf:id="evaluation-chown-dummy"></span> |
+								<a rsf:id="evaluation-chown-link" href="chown_evaluation.html">Change Owner</a>
                             </td>
                             <td align="center">
                                 <a rsf:id="notifications-link" href="evaluation_notifications.html">
@@ -122,6 +135,9 @@
                             <td rsf:id="inqueue-eval-duedate" nowrap="nowrap" headers="dueinqueue">
                                 20/03/2007
                             </td>
+							<td rsf:id="inqueue-eval-owner" nowrap="nowrap" headers="ownerinqueue">
+								Owner
+							</td>
                         </tr>
                     </tbody>
                 </table>
@@ -161,6 +177,9 @@
                             <th rsf:id="msg=controlevaluations.eval.duedate.header" width="10%">
                                 Due Date
                             </th>
+							<th rsf:id="msg=controlevaluations.eval.owner.header" width="10%">
+								Owner
+							</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -183,6 +202,8 @@
                                 <span rsf:id="active-eval-delete-link">| <a rsf:id="payload-component" href="remove_evaluation.html">Delete</a></span>
                                 <form rsf:id="evalCloseForm" method="post" action="control_evaluations.html" class="inlineForm">
                                     | <input rsf:id="evalCloseCommand" type="submit" value="Close" class="makeLink" />
+									<span rsf:id="evaluation-chown-dummy"></span> |
+									<a rsf:id="evaluation-chown-link" href="chown_evaluation.html">Change Owner</a>
                                 </form>
                             </td>
                             <td align="center">
@@ -200,6 +221,9 @@
                             <td headers="dueact" nowrap="nowrap">
                                 <span rsf:id="active-eval-duedate"> 20/03/2007</span>
                             </td>
+							<td headers="owneract" nowrap="nowrap">
+								<span rsf:id="active-eval-owner"> Owner</span>
+							</td>
                         </tr>
                     </tbody>
                 </table>
@@ -216,7 +240,7 @@
                 <table border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines" summary="placeholder summary">
                     <thead>
                         <tr>
-                            <th rsf:id="msg=controlevaluations.eval.title.header" width="35%">
+                            <th rsf:id="msg=controlevaluations.eval.title.header" width="30%">
                                 Evaluation Title
                             </th>
                             <th rsf:id="msg=controlevaluations.eval.settings.header" width="25%" class="screenOnly">
@@ -225,7 +249,7 @@
                             <th rsf:id="msg=controlevaluations.eval.reminders.header" width="5%">
                             	Reminders
                             </th>
-                            <th rsf:id="msg=controlevaluations.eval.assigned.header" width="15%">
+                            <th rsf:id="msg=controlevaluations.eval.assigned.header" width="10%">
                                 Assigned
                             </th>
                             <th rsf:id="msg=controlevaluations.eval.responserate.header" width="10%">
@@ -234,6 +258,9 @@
                             <th rsf:id="msg=controlevaluations.eval.duedate.header" width="10%">
                                 Due Date
                             </th>
+							<th rsf:id="msg=controlevaluations.eval.owner.header" width="10%">
+								Owner
+							</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -249,6 +276,7 @@
                                 <span rsf:id="closed-eval-edit-link">| <a rsf:id="payload-component" href="evaluation_settings.html">Edit</a></span>
                                 <span rsf:id="closed-eval-delete-link">| <a rsf:id="payload-component" href="remove_evaluation.html">Delete</a></span>
                                 <span rsf:id="closed-eval-reopen-link">| <a rsf:id="payload-component" href="evaluation_settings.html">Reopen</a></span>
+								<span rsf:id="evaluation-chown-dummy"></span> | <a rsf:id="evaluation-chown-link" href="chown_evaluation.html">Change Owner</a>
                             </td>
                             <td align="center">
                                 <a rsf:id="notifications-link" href="evaluation_notifications.html">
@@ -266,6 +294,9 @@
                             <td rsf:id="closed-eval-duedate" headers="dueclosed" nowrap="nowrap">
                                 20/03/2007
                             </td>
+							<td rsf:id="closed-eval-owner" headers="ownerclosed" nowrap="nowrap">
+								Owner
+							</td>
                         </tr>
                     </tbody>
                 </table>
