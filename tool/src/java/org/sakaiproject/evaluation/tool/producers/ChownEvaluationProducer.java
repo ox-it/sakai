@@ -31,70 +31,70 @@ import java.util.List;
 
 /**
  * This page allows the user to chnage owner of evaluations
- * 
+ *
  * @author Nick Wilson
  */
 public class ChownEvaluationProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
 
-	public static final String VIEW_ID = "chown_evaluation";
-	public String getViewID(){
-		return VIEW_ID;
-	}
+    public static final String VIEW_ID = "chown_evaluation";
+    public String getViewID(){
+        return VIEW_ID;
+    }
 
     private EvalEvaluationService evaluationService;
     public void setEvaluationService(EvalEvaluationService evaluationService) {
         this.evaluationService = evaluationService;
     }
-	
-	private NavBarRenderer navBarRenderer;
+
+    private NavBarRenderer navBarRenderer;
     public void setNavBarRenderer(NavBarRenderer navBarRenderer) {
-		this.navBarRenderer = navBarRenderer;
-	}
-	/* (non-Javadoc)
-	 * @see uk.org.ponder.rsf.view.ComponentProducer#fillComponents(uk.org.ponder.rsf.components.UIContainer, uk.org.ponder.rsf.viewstate.ViewParameters, uk.org.ponder.rsf.view.ComponentChecker)
-	 */
-	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
+        this.navBarRenderer = navBarRenderer;
+    }
+    /* (non-Javadoc)
+     * @see uk.org.ponder.rsf.view.ComponentProducer#fillComponents(uk.org.ponder.rsf.components.UIContainer, uk.org.ponder.rsf.viewstate.ViewParameters, uk.org.ponder.rsf.view.ComponentChecker)
+     */
+    public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
 
-		String actionBean = "setupEvalBean.";
+        String actionBean = "setupEvalBean.";
 
-		UIMessage.make(tofill, "chown-evaluation-title", "chownevaluation.page.title");
+        UIMessage.make(tofill, "chown-evaluation-title", "chownevaluation.page.title");
 
-		navBarRenderer.makeNavBar(tofill, NavBarRenderer.NAV_ELEMENT, this.getViewID());
+        navBarRenderer.makeNavBar(tofill, NavBarRenderer.NAV_ELEMENT, this.getViewID());
 
         EvalViewParameters evalViewParams = (EvalViewParameters) viewparams;
 
         if (evalViewParams.evaluationId != null) {
-			EvalEvaluation evaluation = evaluationService.getEvaluationById(evalViewParams.evaluationId);
-			UIBranchContainer chownDiv = UIBranchContainer.make(tofill,"chownDiv:");
-				UIMessage.make(chownDiv, "chown-evaluation-confirm-text", "chownevaluation.confirm.text", new Object[] {evaluation.getTitle()});
-				UIMessage.make(tofill, "cancel-command-link", "general.cancel.button");
+            EvalEvaluation evaluation = evaluationService.getEvaluationById(evalViewParams.evaluationId);
+            UIBranchContainer chownDiv = UIBranchContainer.make(tofill,"chownDiv:");
+            UIMessage.make(chownDiv, "chown-evaluation-confirm-text", "chownevaluation.confirm.text", new Object[] {evaluation.getTitle()});
+            UIMessage.make(tofill, "cancel-command-link", "general.cancel.button");
 
-				UIForm form = UIForm.make(chownDiv, "chown-evaluation-form");
-				UIMessage.make(form, "chown-evaluation-newownerlabel", "chownevaluation.chown.label");
-				UIMessage.make(form, "chown-evaluation-newownertext", "chownevaluation.chown.text");
-				UIInput.make(form, "chown-evaluation-newowner", actionBean + "evaluationOwner");
-				UICommand chownCmd = UICommand.make(form, "chown-evaluation-button",
-				UIMessage.make("chownevaluation.chown.button"), actionBean + "chownEvalAction");
-				chownCmd.parameters.add(new UIELBinding(actionBean + "evaluationId", evaluation.getId().toString()));
-		} else {
-			throw new IllegalArgumentException("evaluationId must be set for this view");
-		}
-	}
+            UIForm form = UIForm.make(chownDiv, "chown-evaluation-form");
+            UIMessage.make(form, "chown-evaluation-newownerlabel", "chownevaluation.chown.label");
+            UIMessage.make(form, "chown-evaluation-newownertext", "chownevaluation.chown.text");
+            UIInput.make(form, "chown-evaluation-newowner", actionBean + "evaluationOwner");
+            UICommand chownCmd = UICommand.make(form, "chown-evaluation-button",
+                    UIMessage.make("chownevaluation.chown.button"), actionBean + "chownEvalAction");
+            chownCmd.parameters.add(new UIELBinding(actionBean + "evaluationId", evaluation.getId().toString()));
+        } else {
+            throw new IllegalArgumentException("evaluationId must be set for this view");
+        }
+    }
 
-	/* (non-Javadoc)
-	 * @see uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter#reportNavigationCases()
-	 */
-   public List<NavigationCase> reportNavigationCases() {
-		List<NavigationCase> i = new ArrayList<NavigationCase>();
-		i.add(new NavigationCase("success", new SimpleViewParameters(ControlEvaluationsProducer.VIEW_ID)));
-		return i;
-	}
+    /* (non-Javadoc)
+     * @see uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter#reportNavigationCases()
+     */
+    public List<NavigationCase> reportNavigationCases() {
+        List<NavigationCase> i = new ArrayList<NavigationCase>();
+        i.add(new NavigationCase("success", new SimpleViewParameters(ControlEvaluationsProducer.VIEW_ID)));
+        return i;
+    }
 
-	/* (non-Javadoc)
-	 * @see uk.org.ponder.rsf.viewstate.ViewParamsReporter#getViewParameters()
-	 */
-	public ViewParameters getViewParameters() {
-		return new EvalViewParameters();
-	}
+    /* (non-Javadoc)
+     * @see uk.org.ponder.rsf.viewstate.ViewParamsReporter#getViewParameters()
+     */
+    public ViewParameters getViewParameters() {
+        return new EvalViewParameters();
+    }
 
 }

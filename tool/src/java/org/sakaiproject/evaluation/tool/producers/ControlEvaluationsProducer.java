@@ -357,8 +357,8 @@ public class ControlEvaluationsProducer implements ViewComponentProducer, ViewPa
             UIOutput.make(evaluationRow, "active-eval-startdate", df.format(evaluation.getStartDate()));
             // TODO add support for evals that do not close - summary.label.nevercloses
             UIOutput.make(evaluationRow, "active-eval-duedate", df.format(evaluation.getSafeDueDate()));
-             EvalUser owner = commonLogic.getEvalUserById( evaluation.getOwner() );
-             UIOutput.make(evaluationRow, "active-eval-owner", owner.displayName);
+            EvalUser owner = commonLogic.getEvalUserById( evaluation.getOwner() );
+            UIOutput.make(evaluationRow, "active-eval-owner", owner.displayName);
 
             UIInternalLink.make(evaluationRow, "active-eval-edit-link", UIMessage.make("general.command.edit"),
                   new EvalViewParameters(EvaluationSettingsProducer.VIEW_ID, evaluation.getId()) );
@@ -433,8 +433,8 @@ public class ControlEvaluationsProducer implements ViewComponentProducer, ViewPa
             }
 
             UIOutput.make(evaluationRow, "closed-eval-duedate", df.format(evaluation.getDueDate()));
-             EvalUser owner = commonLogic.getEvalUserById( evaluation.getOwner() );
-             UIOutput.make(evaluationRow, "closed-eval-owner", owner.displayName);
+            EvalUser owner = commonLogic.getEvalUserById( evaluation.getOwner() );
+            UIOutput.make(evaluationRow, "closed-eval-owner", owner.displayName);
 
             if (EvalConstants.EVALUATION_STATE_VIEWABLE.equals(EvalUtils.getEvaluationState(evaluation, false)) ) {
                if ( responsesNeeded == 0 ) {
