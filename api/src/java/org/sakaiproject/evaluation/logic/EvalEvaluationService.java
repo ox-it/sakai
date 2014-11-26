@@ -112,6 +112,18 @@ public interface EvalEvaluationService {
     public String updateEvaluationState(Long evaluationId);
 
     /**
+     * This will update the
+     * owner of the evaluation
+     *
+     * @param evaluationId the id of an EvalEvaluation object
+     * @param userId the internal user id (not username)
+     * @return an EvalEvaluation
+     * @throws IllegalArgumentException if the evaluationId is invalid
+     */
+    public EvalEvaluation updateEvaluationOwner(Long evaluationId, String userId);
+
+
+    /**
      * Fixes the state of an evaluation (if needed) and saves it,
      * will not save state for a new evaluation, this is very fast
      * and cheap to call if you are not saving state and pretty cheap
@@ -618,5 +630,6 @@ public interface EvalEvaluationService {
 	 */
 	public List<EvalEvaluation> getEvaluations(String searchString,
 			String order, int startResult, int maxResults);
+
 
 }
