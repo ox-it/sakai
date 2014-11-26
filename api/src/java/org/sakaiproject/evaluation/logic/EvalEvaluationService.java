@@ -118,6 +118,7 @@ public interface EvalEvaluationService {
      * @param evaluationId the id of an EvalEvaluation object
      * @param userId the internal user id (not username)
      * @return an EvalEvaluation
+     * @throws IllegalArgumentException if the evaluationId is invalid
      */
     public EvalEvaluation updateEvaluationOwner(Long evaluationId, String userId);
 
