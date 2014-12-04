@@ -35,6 +35,7 @@ public class LoadServlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        // This call doesn't include admin/postmaster users so don't get caught out in testing.
         int sessions = sessionManager.getActiveUserCount(getSessionAge());
         int delay = sessions * getSessionSleep();
         if (delay > getSleepLimit()) {
