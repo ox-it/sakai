@@ -16,6 +16,7 @@
     accordingly. This is just a simple webapp so we don't go through the standard request filters that are
     used in Sakai.</description>
     <properties>
+        <!-- We are using annotations so don't need web.xml -->
         <failOnMissingWebXml>false</failOnMissingWebXml>
     </properties>
     <dependencies>
@@ -28,6 +29,7 @@
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
         <dependency>
+            <!-- Bump up the servlet API to allow annotations -->
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>3.0.1</version>
