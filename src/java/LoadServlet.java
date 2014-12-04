@@ -29,9 +29,9 @@ public class LoadServlet extends HttpServlet {
     @Override
     public void init() {
         sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
-        sleepLimit = tryParseInt(getServletConfig().getInitParameter("sleepLimit"), sleepLimit);
-        sessionAge = tryParseInt(getServletConfig().getInitParameter("sessionAge"), sessionAge);
-        sessionSleep = tryParseInt(getServletConfig().getInitParameter("sessionSleep"), sessionSleep);
+        sleepLimit = getConfigInt("sleepLimit", sleepLimit);
+        sessionAge = getConfigInt("sessionAge", sessionAge);
+        sessionSleep = getConfigInt("sessionSleep", sessionSleep);
     }
 
     @Override
@@ -66,13 +66,14 @@ public class LoadServlet extends HttpServlet {
     }
 
     /**
-     * Convert string to int.
+     * Get an int from the configuration.
      * @param value The String to convert.
      * @param defaultValue The default value to return if it can't be converted.
      * @return The int value of a string.
      */
-    int tryParseInt(String value, int defaultValue) {
+    int getConfigInt(String key, int defaultValue) {
         try {
+            String value = getServletConfig().getInitParameter(key);
             return Integer.parseInt(value);
         } catch(NumberFormatException nfe) {
             // Log exception.
