@@ -1,9 +1,9 @@
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.api.SessionManager;
 
-import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -20,18 +20,17 @@ public class LoadServlet extends HttpServlet {
 
     private final Log log = LogFactory.getLog(LoadServlet.class);
 
-    private int sleepLimit = 5000; // Don't sleep for more than 5 seconds.
-    private int sessionAge = 1200; // 20 minutes.
-    private int sessionSleep = 10; // Sleep for 10ms per session.
+    private int sleepLimitDefault = 5000; // Don't sleep for more than 5 seconds.
+    private int sessionAgeDefault = 1200; // 20 minutes.
+    private int sessionSleepDefault = 10; // Sleep for 10ms per session.
 
     private SessionManager sessionManager;
+    private ServerConfigurationService serverConfigurationService;
 
     @Override
     public void init() {
         sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
-        sleepLimit = getConfigInt("sleepLimit", sleepLimit);
-        sessionAge = getConfigInt("sessionAge", sessionAge);
-        sessionSleep = getConfigInt("sessionSleep", sessionSleep);
+        serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
     }
 
     @Override
@@ -54,15 +53,15 @@ public class LoadServlet extends HttpServlet {
     }
 
     private int getSleepLimit() {
-        return sleepLimit;
+        return getConfigInt("sleepLimitDefault", sleepLimitDefault);
     }
 
     private int getSessionAge() {
-        return sessionAge;
+        return getConfigInt("sessionAgeDefault", sessionAgeDefault);
     }
 
     private int getSessionSleep() {
-        return sessionSleep;
+        return getConfigInt("sessionSleepDefault", sessionSleepDefault);
     }
 
     /**
@@ -73,8 +72,7 @@ public class LoadServlet extends HttpServlet {
      */
     int getConfigInt(String key, int defaultValue) {
         try {
-            String value = getServletConfig().getInitParameter(key);
-            return Integer.parseInt(value);
+            return serverConfigurationService.getInt("current-load."+ key, defaultValue);
         } catch(NumberFormatException nfe) {
             // Log exception.
             return defaultValue;
