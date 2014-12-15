@@ -1,3 +1,5 @@
+package uk.ac.ox.it.vle;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
