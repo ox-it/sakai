@@ -683,10 +683,8 @@ public class XcriOxCapPopulatorImpl implements Populator {
 
 			if (extension instanceof Session) {
 				Session session = (Session)extension;
-				if (session.getIdentifiers().length > 0) {
-					sessions.add(session);
-					continue;
-				}
+				sessions.add(session);
+				continue;
 			}
 
 		}
@@ -708,9 +706,16 @@ public class XcriOxCapPopulatorImpl implements Populator {
 
 		data.incrComponentSeen();
 
-		if (validComponent(context, data, myPresentation, sessions, courseDao)) {
+		if (validComponent(context, data, myPresentation, courseDao)) {
+			Iterator<Session> sessionIterator = sessions.iterator();
+			while (sessionIterator.hasNext()) {
+				Session session = sessionIterator.next();
+				if (! (validSession(context, session, myPresentation))) {
+					// Logging is done in the validate.
+					sessionIterator.remove();
+				}
+			}
 			updateComponent(context, data, myPresentation, sessions, courseDao);
-
 		}
 	}
 
@@ -871,18 +876,54 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		return created;
 	}
 
+
+	/**
+	 * This validates that a session is correctly populated.
+	 *
+	 * @param context The populator context (used for logging).
+	 * @param session The session to validate.
+	 * @param myPresentation The presentation this is linked to so we can log against it (presentation shoudl be valid).
+	 * @return <code>true</code> if the session is good.
+	 */
+	private boolean validSession(PopulatorContext context, Session session, CourseComponentDAO myPresentation) {
+		int i = 0;
+		try {
+			if (session.getIdentifiers().length == 0) {
+				logMe(context, "Log Failure Session for Teaching Instance [" + myPresentation.getPresentationId() + "] No session identifier");
+				i++;
+			} else {
+				String id = session.getIdentifiers()[0].getValue();
+				if (id == null || id.length() == 0) {
+					logMe(context, "Log Failure Session for Teaching Instance [" + myPresentation.getPresentationId() + "] Empty session identifier");
+					i++;
+				}
+			}
+			if (session.getStart() == null) {
+				logMe(context, "Log Failure Session for Teaching Instance [" + myPresentation.getPresentationId() + "] No start date");
+				i++;
+			}
+			if (session.getEnd() == null) {
+				logMe(context, "Log Failure Session for Teaching Instance [" + myPresentation.getPresentationId() + "] No end date");
+				i++;
+			}
+			return i == 0;
+		} catch (IOException ioe) {
+			log.warn("Failed to write log: "+ ioe.getMessage());
+		}
+		return false;
+	}
+
+
 	/**
 	 * 
 	 * @param data
 	 * @param myPresentation
-	 * @param sessions
 	 * @return
 	 */
 	protected boolean validComponent(PopulatorContext context,
-			PopulatorInstanceData data,
-			CourseComponentDAO myPresentation,
-			Set<Session> sessions, 
-			CourseGroupDAO group) {
+									 PopulatorInstanceData data,
+									 CourseComponentDAO myPresentation,
+									 CourseGroupDAO group) {
 
 		int i=0;
 
@@ -914,7 +955,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			}
 
 		} catch (IOException e) {
-
+			log.warn("Failed to write log: "+ e.getMessage());
 		}
 		return false;
 	}
