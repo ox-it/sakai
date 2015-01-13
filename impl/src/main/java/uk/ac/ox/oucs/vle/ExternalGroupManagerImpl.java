@@ -76,8 +76,8 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 				new ExternalGroupNodeImpl("courses", "Course Groups"),
 				new ExternalGroupNodeImpl("units", "Unit Groups")}))
 		);
-		pathHandlers.add(new UniquePathHandler("cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakOSSUnitCode", "oakOSSUnitName", this));
-		pathHandlers.add(new AttributePathHandler("cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakOSSUnitCode", "oakGN", "displayName", this));
+		pathHandlers.add(new UniquePathHandler("cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakSITSRouteAdminDept", "oakOSSUnitName", this));
+		pathHandlers.add(new AttributePathHandler("cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakSITSRouteAdminDept", "oakSITSRouteCode", "oakOSSCourseLongName", this));
 		pathHandlers.add(new SubPathHandler("oakGN=%s,cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakOSSUnitCode", "displayName", this));
 		
 		UniquePathHandler unitsUnique = new UniquePathHandler("ou=units,dc=oak,dc=ox,dc=ac,dc=uk", "units", "oakDivision", "oakDivision", this);
