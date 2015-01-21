@@ -22,9 +22,9 @@ public class LoadServlet extends HttpServlet {
 
     private final Log log = LogFactory.getLog(LoadServlet.class);
 
-    private int sleepLimitDefault = 5000; // Don't sleep for more than 5 seconds.
-    private int sessionAgeDefault = 1200; // 20 minutes.
-    private int sessionSleepDefault = 10; // Sleep for 10ms per session.
+    private final int sleepLimitDefault = 5000; // Don't sleep for more than 5 seconds.
+    private final int sessionAgeDefault = 1200; // 20 minutes.
+    private final int sessionSleepDefault = 10; // Sleep for 10ms per session.
 
     private SessionManager sessionManager;
     private ServerConfigurationService serverConfigurationService;
