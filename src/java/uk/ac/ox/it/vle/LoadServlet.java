@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
 import javax.servlet.annotation.WebServlet;
@@ -37,8 +38,18 @@ public class LoadServlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        // This call doesn't include admin/postmaster users so don't get caught out in testing.
-        int sessions = sessionManager.getActiveUserCount(getSessionAge());
+        int sessions = 0;
+        long now = System.currentTimeMillis();
+        // This finds all the sessions that are logged in and have been accessed recently
+        for (Session session: sessionManager.getSessions()) {
+            if (session.getUserId() != null) {
+                if ((now - session.getLastAccessedTime()) < (getSessionAge() * 1000))
+                {
+                    sessions++;
+                }
+            }
+        }
+
         int delay = sessions * getSessionSleep();
         if (delay > getSleepLimit()) {
             log.info(String.format("Sleep has become capped at: %d with %d sessions.", getSleepLimit(), sessions));
