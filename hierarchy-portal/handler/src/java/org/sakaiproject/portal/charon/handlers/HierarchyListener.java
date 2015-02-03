@@ -12,8 +12,8 @@ import org.sakaiproject.site.api.SiteService;
 
 public class HierarchyListener implements ServletContextListener {
 
-	private PortalHandler hierarchyHandler;
-	private PortalHandler siteHierarchyHandler;
+	private HierarchyHandler hierarchyHandler;
+	private HierarchyHandler siteHierarchyHandler;
 	private PortalHandler hierarchyResetHandler;
 	private PortalHandler magicHandler;
 	private PortalHandler hierarchyToolHandler;
@@ -34,12 +34,16 @@ public class HierarchyListener implements ServletContextListener {
 		SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
 		PortalHierarchyService portalHierarchyService = (PortalHierarchyService) ComponentManager.get(PortalHierarchyService.class);
 		SecurityService securityService = (SecurityService) ComponentManager.get(SecurityService.class);
+
 		hierarchyHandler = new HierarchyHandler(siteService, portalHierarchyService, securityService, "hierarchy");
 		siteHierarchyHandler = new HierarchyHandler(siteService, portalHierarchyService, securityService, "site");
+		// This is to make sure it overrides the default site handler.
+		siteHierarchyHandler.setPriority(10);
 		hierarchyResetHandler = new HierarchyResetHandler();
 		magicHandler = new MagicHandler();
 		hierarchyToolHandler = new HierarchyToolHandler(portalHierarchyService);
 		hierarchyToolResetHandler = new HierarchyToolResetHandler();
+
 		ps.addHandler("charon", hierarchyHandler);
 		ps.addHandler("charon", siteHierarchyHandler);
 		ps.addHandler("charon", hierarchyResetHandler);
