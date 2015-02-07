@@ -146,6 +146,7 @@ public class HierarchyHandler extends SiteHandler {
 					}
 					catch (IdUnusedException iuue)
 					{
+						req.setAttribute("siteId", parts[start]);
 						portal.doError(req, res, session, Portal.ERROR_SITE);
 						return END;
 					}
