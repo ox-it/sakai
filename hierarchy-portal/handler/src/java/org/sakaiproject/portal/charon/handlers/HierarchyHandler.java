@@ -168,6 +168,7 @@ public class HierarchyHandler extends SiteHandler {
 			if (node == null) {
 				if (site == null)
 				{
+					req.setAttribute("siteId", buildPath(parts, start, parts.length));
 					portal.doError(req, res, session, Portal.ERROR_SITE);
 				} else {
 					super.doSite(req, res, session, site.getId(), pageId, null, null, parts, req.getContextPath()+req.getServletPath());
