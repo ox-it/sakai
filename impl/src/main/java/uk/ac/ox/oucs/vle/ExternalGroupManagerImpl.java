@@ -76,16 +76,16 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 				new ExternalGroupNodeImpl("courses", "Course Groups"),
 				new ExternalGroupNodeImpl("units", "Unit Groups")}))
 		);
-		pathHandlers.add(new UniquePathHandler("cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakSITSRouteAdminDept", "oakOSSUnitName", this));
+		pathHandlers.add(new UniquePathHandler("cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakSITSRouteAdminDept", "oakSITSRouteAdminDept", this));
 		pathHandlers.add(new AttributePathHandler("cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakSITSRouteAdminDept", "oakSITSRouteCode", "displayName", this));
-		pathHandlers.add(new SubPathHandler("oakGN=%s,cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "oakOSSUnitCode", "displayName", this));
+		pathHandlers.add(new SubPathHandler("oakGN=%s,cn=courses,dc=oak,dc=ox,dc=ac,dc=uk", "courses", "displayName", this));
 		
 		UniquePathHandler unitsUnique = new UniquePathHandler("ou=units,dc=oak,dc=ox,dc=ac,dc=uk", "units", "oakDivision", "oakDivision", this);
 		unitsUnique.setDisplayAdjuster(da);
 		
 		pathHandlers.add(unitsUnique); // Needs a mapper.
 		pathHandlers.add(new AttributePathHandler("ou=units,dc=oak,dc=ox,dc=ac,dc=uk", "units", "oakDivision", "oakUnitCode", "displayName", this));
-		pathHandlers.add(new SubPathHandler("oakUnitCode=%s,ou=units,dc=oak,dc=ox,dc=ac,dc=uk", "units", "oakUnitCode", "displayName", this));
+		pathHandlers.add(new SubPathHandler("oakUnitCode=%s,ou=units,dc=oak,dc=ox,dc=ac,dc=uk", "units", "displayName", this));
 		
 	}
 

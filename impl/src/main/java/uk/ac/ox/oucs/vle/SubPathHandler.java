@@ -25,7 +25,6 @@ public class SubPathHandler implements PathHandler{
 
 	private String root;
 
-	private String attribute;
 	
 	private String displayAttribute;
 
@@ -34,10 +33,9 @@ public class SubPathHandler implements PathHandler{
 	// TODO Refactor out an interface.
 	private ExternalGroupManagerImpl groupManager;
 
-	public SubPathHandler(String base, String root, String attribute, String displayAttribute, ExternalGroupManagerImpl groupManager) {
+	public SubPathHandler(String base, String root, String displayAttribute, ExternalGroupManagerImpl groupManager) {
 		this.base = base;
 		this.root = root;
-		this.attribute = attribute;
 		this.displayAttribute = displayAttribute;
 		this.groupManager = groupManager;
 	}	
@@ -52,7 +50,7 @@ public class SubPathHandler implements PathHandler{
 		LDAPConnection conn = null;
 		try {
 			conn = groupManager.getConnection();
-			LDAPSearchResults searchResults = conn.search(String.format(base, path[2]), LDAPConnection.SCOPE_SUB, "member=*", new String[]{attribute, displayAttribute}, false);
+			LDAPSearchResults searchResults = conn.search(String.format(base, path[2]), LDAPConnection.SCOPE_SUB, "member=*", new String[]{displayAttribute}, false);
 			List<ExternalGroupNode> nodes = new ArrayList<ExternalGroupNode>();
 			String pathPrefix = path[0]+ PathHandler.SEPARATOR + path[1]+ PathHandler.SEPARATOR + path[2] + PathHandler.SEPARATOR;
 			while (searchResults.hasMore()) {
