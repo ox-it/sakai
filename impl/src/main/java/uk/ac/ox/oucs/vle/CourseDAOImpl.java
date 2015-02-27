@@ -973,6 +973,10 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 
 	}
 
+	public void setFlushMode(int i) {
+		getHibernateTemplate().setFlushMode(i);
+	}
+
 }
 
 

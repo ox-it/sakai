@@ -30,10 +30,12 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.FlushMode;
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.sakaiproject.util.FormattedText;
+import org.springframework.orm.hibernate3.HibernateAccessor;
 import org.xcri.Extension;
 import org.xcri.common.ExtensionManager;
 import org.xcri.common.OverrideManager;
@@ -143,6 +145,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		InputStream input = null;
 		
 		try {
+			// This is so that collections don't get lost, this is a hack but I couldn't find the
+			// simple fix to get it working.
+			dao.setFlushMode(HibernateAccessor.FLUSH_EAGER);
 			input = populatorInput.getInput(context);
 
 			if (null == input) {
@@ -856,12 +861,15 @@ public class XcriOxCapPopulatorImpl implements Populator {
 			groupDao.setSupervisorApproval(myCourse.getSupervisorApproval());
 			groupDao.setAdministratorApproval(myCourse.getAdministratorApproval());
 			groupDao.setContactEmail(myCourse.getContactEmail());
-			groupDao.setAdministrators(myCourse.getAdministrators());
+			groupDao.getAdministrators().clear();
+			groupDao.getAdministrators().addAll(myCourse.getAdministrators());
 			groupDao.setPrerequisite(myCourse.getPrerequisite());
 			groupDao.setRegulations(myCourse.getRegulations());
 			groupDao.setDeleted(false);
-			groupDao.setSuperusers(myCourse.getSuperusers());
-			groupDao.setOtherDepartments(myCourse.getOtherDepartments());
+			groupDao.getSuperusers().clear();
+			groupDao.getSuperusers().addAll(myCourse.getSuperusers());
+			groupDao.getOtherDepartments().clear();
+			groupDao.getOtherDepartments().addAll(myCourse.getOtherDepartments());
 
 			dao.save(groupDao);
 		}
