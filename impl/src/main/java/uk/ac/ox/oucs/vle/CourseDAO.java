@@ -149,4 +149,11 @@ public interface CourseDAO {
 	
 	void save(CourseCategoryDAO category);
 
+	/**
+	 * This was created to allow the importers to flush to the DB more quickly as we were seeing
+	 * issues where some collections where getting lose and not flushed to the DB.
+	 * @param i The flushmode.
+	 */
+	void setFlushMode(int i);
+
 }

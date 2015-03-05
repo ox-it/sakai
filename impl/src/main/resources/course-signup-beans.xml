@@ -107,7 +107,7 @@
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
 		<property name="transactionAttributes">
 			<value>
-				update=PROPAGATION_REQUIRED
+				runPopulator=PROPAGATION_REQUIRED
 			</value>
 		</property>
 	</bean>
@@ -132,7 +132,7 @@
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
 		<property name="transactionAttributes">
 			<value>
-				update=PROPAGATION_REQUIRED
+				runPopulator=PROPAGATION_REQUIRED
 			</value>
 		</property>
 	</bean>

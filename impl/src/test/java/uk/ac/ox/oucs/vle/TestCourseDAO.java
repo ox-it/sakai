@@ -47,6 +47,40 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		return new String[]{"/course-dao.xml", "/test-with-h2.xml"};
 	}
 
+	public void testUpdatingAdministrators() {
+		CourseGroupDAO dao;
+		dao = courseDao.newCourseGroup("id", "Title", "Department", "Subunit");
+		dao.setSource("source");
+		dao.getAdministrators().clear();
+		dao.getAdministrators().add("1234");
+		dao.getAdministrators().add("5678");
+		courseDao.save(dao);
+
+		CourseGroupDAO dao2;
+		dao2 = courseDao.newCourseGroup("id2", "Title", "Department", "Subunit");
+		dao2.setSource("source");
+		dao2.getAdministrators().clear();
+		dao2.getAdministrators().add("1234");
+		dao2.getAdministrators().add("5678");
+		courseDao.save(dao2);
+
+		courseDao.flushAndClear();
+
+		dao = courseDao.findCourseGroupById("id");
+		assertFalse(dao.getAdministrators().isEmpty());
+
+		dao2 = courseDao.findCourseGroupById("id2");
+		dao2.getAdministrators().clear();
+		dao2.getAdministrators().add("abcd");
+		courseDao.save(dao2);
+
+		courseDao.flushAndClear();
+
+		dao2 = courseDao.findCourseGroupById("id2");
+
+		assertFalse(dao2.getAdministrators().isEmpty());
+
+	}
 
 	/**
 	 * This checks that when you delete a component without a signup only that component gets deleted.
