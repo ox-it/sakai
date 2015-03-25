@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
 
@@ -48,7 +49,9 @@ public class BasicAuthenticatedRequestFilter implements Filter {
 			FilterChain chain) throws IOException, ServletException {
 		
 		if (response instanceof HttpServletResponse) {
-			basicAuth.doLogin((HttpServletRequest) request);
+			// If we do a login through basic auth then we want to invalidate at the end to stop our session
+			// lasting any longer than it needs to.
+			boolean invalidate = basicAuth.doLogin((HttpServletRequest) request);
 			if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
 				HttpServletResponse httpResponse = (HttpServletResponse)response;
 				
@@ -58,7 +61,13 @@ public class BasicAuthenticatedRequestFilter implements Filter {
 				httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED); // Don't want to prompt for HTTP authentication.
 				return;
 			} else {
-				chain.doFilter(request, response);
+				try {
+					chain.doFilter(request, response);
+				} finally {
+					if (invalidate) {
+						SessionManager.getCurrentSession().invalidate();
+					}
+				}
 			}
 		}
 	}
