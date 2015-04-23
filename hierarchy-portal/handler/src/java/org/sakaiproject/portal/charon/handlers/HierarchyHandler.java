@@ -332,6 +332,9 @@ public class HierarchyHandler extends SiteHandler {
 
 		String prefix = getUrlFragment();
 		String siteUrl = node.getPath();
+
+		rcontext.put("siteId", site.getId());
+
 		if (siteUrl.endsWith("/"))
 		{
 			siteUrl = siteUrl.substring(0, siteUrl.length()-1);
