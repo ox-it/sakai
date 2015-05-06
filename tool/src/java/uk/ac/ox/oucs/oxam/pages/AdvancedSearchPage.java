@@ -141,6 +141,7 @@ public class AdvancedSearchPage extends SearchPage {
 		
 		final DropDownChoice<AcademicYear> yearChoice = new DropDownChoice<AcademicYear>("year", years);
 		yearChoice.setLabel(new ResourceModel("label.year"));
+		yearChoice.setNullValid(true);
 	
 		final SolrProvider provider = new SolrProvider(solr);
 		// This is a little crazy, I can't seem to 
