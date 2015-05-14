@@ -14,7 +14,11 @@ public class DaiaURI {
 	
 	private URI uri;
 	private Map<String, String> queryMap = new HashMap<String, String>();
-	private String IDKEY = "doc";
+	// Originally the URLs contained a doc=.....
+	private final String IDKEY = "doc";
+	// Then the libraries changes to a different URL structure and the ID was in docId...
+	private final String ALTERNATIVE_ID_KEY = "docId";
+
 	private static Log log = LogFactory.getLog(DaiaURI.class);
 	
 	public DaiaURI(String uri) throws URISyntaxException, UnsupportedEncodingException {
@@ -37,13 +41,14 @@ public class DaiaURI {
 	public URI getURI() {
 		return uri;
 	}
-	
+
 	public String getDoc() {
-		if (queryMap.containsKey(IDKEY)) {
-			return queryMap.get(IDKEY);
+		String id;
+		id = queryMap.get(IDKEY);
+		if (id == null || id.isEmpty()) {
+			id = queryMap.get(ALTERNATIVE_ID_KEY);
 		}
-	
-		return null;
+		return id;
 	}
 
 }
