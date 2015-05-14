@@ -41,7 +41,7 @@ public class DaiaURITest {
     @Test
     public void testNewUrl() throws UnsupportedEncodingException, URISyntaxException {
         DaiaURI daia = new DaiaURI(newUrl);
-        assertEquals("oxfaleph016689853", daia.getDoc());
+        assertEquals("oxfaleph000443284", daia.getDoc());
     }
 
 }
