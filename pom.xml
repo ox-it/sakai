@@ -2,20 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <artifactId>master</artifactId>
-        <groupId>org.sakaiproject</groupId>
-        <version>10-SNAPSHOT</version>
-        <relativePath>../master/pom.xml</relativePath>
-    </parent>
-    <name>raven-sentry</name>
-    <groupId>uk.ac.ox.it.sentry</groupId>
-    <artifactId>raven-sentry</artifactId>
+    <name>raven-sakai</name>
+    <groupId>org.sakaiproject.sentry</groupId>
+    <artifactId>raven-sakai</artifactId>
     <packaging>jar</packaging>
-    <description>This jar deploys raven-java and its dependencies to common/lib.</description>
+    <version>1.0-SNAPSHOT</version>
+    <description>This jar packages raven-java and it dependencies into a shaded JAR for deployment into Sakai.</description>
 
     <properties>
-        <deploy.target>common</deploy.target>
         <raven.version>5.0.2</raven.version>
     </properties>
 
@@ -38,6 +32,7 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -72,15 +67,15 @@
                             <relocations>
                                 <relocation>
                                     <pattern>com.fasterxml.jackson</pattern>
-                                    <shadedPattern>uk.ac.ox.it.sentry.jackson</shadedPattern>
+                                    <shadedPattern>org.sakaiproject.sentry.jackson</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.google.common</pattern>
-                                    <shadedPattern>uk.ac.ox.it.sentry.guava</shadedPattern>
+                                    <shadedPattern>org.sakaiproject.sentry.guava</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.sfl4j</pattern>
-                                    <shadedPattern>uk.ac.ox.it.sentry.slf4j</shadedPattern>
+                                    <shadedPattern>org.sakaiproject.sentry.slf4j</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
