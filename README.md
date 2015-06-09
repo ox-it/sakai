@@ -36,3 +36,15 @@ get read at startup and watched for changes. A simple example of this is:
     
 To avoid putting secrets in configuration files you can use the `SENTRY_DSN` envrionment variable to configure the 
 raven-java log4j integration.
+
+## Custom hostname
+
+Sometimes the way raven-java looks up the hostname isn't correct, by default it will use the name of the IP used
+on the default interface. In some setups this isn't correct, for example when running inside docker containers with
+custom networking, if you wish it to just use the `HOSTNAME` environment variable then you can set the raven factory
+to be `org.sakaiproject.sentry.DockerRavenFactory` and it will use that instead, if using log4j.properties then the
+configuration to enable this is:
+
+    log4j.appender.sentry.ravenFactory=org.sakaiproject.sentry.DockerRavenFactory
+    
+
