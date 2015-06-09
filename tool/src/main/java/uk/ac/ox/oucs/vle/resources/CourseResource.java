@@ -90,7 +90,7 @@ public class CourseResource {
 	
 	@Path("/{id}")
 	@GET
-	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getCourse(@PathParam("id") final String courseId, @QueryParam("range") final Range range) {
 		
 		final CourseGroup course = courseService.getCourseGroup(courseId, range);
@@ -118,7 +118,7 @@ public class CourseResource {
 
 	@Path("/all")
 	@GET
-	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getCourses(@QueryParam("range") final Range range) {
 		boolean externalUser = false;
 		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
