@@ -238,13 +238,6 @@
 												Venue: ${option.location}
 											{/if}
 
-											{if option.teachingDetails}
-												{if option.opens || option.closes || option.location}
-													<br/>
-												{/if}
-												${option.teachingDetails}
-											{/if}
-
 											{if option.sessionData}
 												<ul>
 												{for session in option.sessionData}
