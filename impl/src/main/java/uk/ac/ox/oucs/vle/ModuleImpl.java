@@ -269,7 +269,13 @@ public class ModuleImpl implements Module {
 		}
 		return false;
 	}
-	
+
+	/**
+	 * Sends a reminder email to an adminstrator that a component for one of their modules closes
+	 * @param administrator The administrator ID who should receive the email.
+	 * @param group The course group in question.
+	 * @param components The components that are closing.
+	 */
 	private void sendModuleClosingEmail(String administrator, CourseGroupDAO group, 
 			Collection<CourseComponentDAO> components) {
 		
@@ -289,7 +295,8 @@ public class ModuleImpl implements Module {
 		}
 		Object[] baseBodyData = new Object[] {
 				group.getTitle(),
-				componentDetails.toString()
+				componentDetails.toString(),
+				proxy.getAdminUrl(proxy.getCurrentPlacementId())
 		};
 		Object[] bodyData = baseBodyData;
 		String body = MessageFormat.format(rb.getString("signup.closing.body"), bodyData);
@@ -407,7 +414,7 @@ public class ModuleImpl implements Module {
 		output.append(component.getTitle());
 		// TODO - The sessions should really be an int and we should check > 1
 		if (component.getSessions() != null && validString(component.getSessions())) {
-			output.append(String.format(" for %s sessions", component.getSessions()));
+			output.append(String.format(" runs for %s session(s) and", component.getSessions()));
 		}
 		output.append(" starts on ");
 		if (component.getStarts() != null) {
@@ -418,11 +425,12 @@ public class ModuleImpl implements Module {
 
 		TermCode termCode = new TermCode(component.getTermcode());
 		if (termCode.isValid()) {
-			output.append(" ");
+			output.append(" (");
 			output.append(termCode.getName());
+			output.append(")");
 		}
 		if(validString(component.getTeacherName())) {
-			output.append(" with ");
+			output.append("; the teacher is ");
 			output.append(component.getTeacherName());
 		}
 		

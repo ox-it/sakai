@@ -149,7 +149,11 @@ public class SakaiProxyTest implements SakaiProxy {
 	public String getAdminUrl() {
 		return "/someurl/";
 	}
-	
+
+	public String getAdminUrl(String placementId) {
+		return "/admin/";
+	}
+
 	public String getApproveUrl(String signupId) {
 		return getApproveUrl(signupId, null);
 	}

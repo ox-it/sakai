@@ -42,7 +42,7 @@ public class ModuleImplTest {
 	public void testFormatComponentValid() {
 		dao.setTermcode("TT10");
 		assertEquals(
-				"*TITLE* starts on *STARTS* Trinity 2010",
+				"*TITLE* starts on *STARTS* (Trinity 2010)",
 				moduleImpl.formatComponent(dao)
 		);
 	}
@@ -51,7 +51,7 @@ public class ModuleImplTest {
 	public void testFormatComponentSessions() {
 		dao.setSessions("10");
 		assertEquals(
-				"*TITLE* for 10 sessions starts on *STARTS*",
+				"*TITLE* runs for 10 session(s) and starts on *STARTS*",
 				moduleImpl.formatComponent(dao)
 		);
 	}
@@ -60,7 +60,7 @@ public class ModuleImplTest {
 	public void testFormatComponentTeacher() {
 		dao.setTeacherName("*TEACHER*");
 		assertEquals(
-				"*TITLE* starts on *STARTS* with *TEACHER*",
+				"*TITLE* starts on *STARTS*; the teacher is *TEACHER*",
 				moduleImpl.formatComponent(dao)
 		);
 	}
