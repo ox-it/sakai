@@ -8,7 +8,7 @@
             <label>
             <input type="checkbox" name="componentPresentationId" value="${component.presentationId}" />
             <div class="course-component" style="display: inline-block">
-                ${component.title} ${component.slot} in ${component.when} ${component.places|placesFormat} <br/>
+                ${component.title} ${component.teachingDetails} in ${component.when} ${component.places|placesFormat} <br/>
                 Teaching starts ${component.starts|dateFormat}
             </div>
             </label>

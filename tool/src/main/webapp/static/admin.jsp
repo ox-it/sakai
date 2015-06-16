@@ -67,7 +67,7 @@
 			var components = $.map(
 					item.components,
 					function(component) {
-						return component.title + " " + component.slot + "<br>("
+						return component.title + " " + component.teachingDetails + "<br>("
 								+ component.places + " places)";
 					}).join("<br>");
 			return [
@@ -221,7 +221,7 @@
 													component.size,
 													component.places,
 													component.starts,
-													component.slot, //4
+													component.teachingDetails, //4
 													component.closes, 
 													component.id, 
 													component.id,
@@ -233,15 +233,15 @@
 								}
 							});
 			
-			var slots = new Array();
+			var teachingDetailss = new Array();
 			for ( var i in object.components) {
 				var component = object.components[i];
-				if (component.slot) {
-					slots.push(component.slot);
+				if (component.teachingDetails) {
+					teachingDetailss.push(component.teachingDetails);
 				}
 			}
 			
-			Signup.term.sortArray(slots);
+			Signup.term.sortArray(teachingDetailss);
 			
 			var html = '<h3 style="display:inline">Signups</h3>';
 			
@@ -266,10 +266,10 @@
 			$("#signups").html(html);
 
 			var selectElement = $('#signups-table-term-filter').first();
-			$.each(slots, function(i, slot) {
+			$.each(teachingDetailss, function(i, teachingDetails) {
 				selectElement.append($("<option/>", {
-					value: slot,
-					text: slot
+					value: teachingDetails,
+					text: teachingDetails
 				}));
 			});
 			if (selectElement.options && selectElement.options.length > 0) {
@@ -928,7 +928,7 @@
 				<li>
 					<input type="checkbox" name="\${component.id}"
 						id="option-\${component.id}" value="true">
-					<label for="component-\${component.id}">\${component.title} - \${component.slot} for \${component.sessions} sessions in \${component.when},
+					<label for="component-\${component.id}">\${component.title} - \${component.teachingDetails} for \${component.sessions} sessions in \${component.when},
 						{if component.presenter}<a
 							href="mailto:\${component.presenter.email}">\${component.presenter.name}</a>{/if}
 					</label>

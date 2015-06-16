@@ -1020,7 +1020,7 @@ var Signup = function(){
 					componentPlacesClass = "course-component";
 				}
 				return '<span class="course-component">' + component.title + " " +
-					component.slot + " in " + component.when + ' <span class='+componentPlacesClass+'>'+
+					component.teachingDetails + " in " + component.when + ' <span class='+componentPlacesClass+'>'+
 					Signup.signup.formatPlaces(component.places, isAdmin)+'</span></span>';
 			}
 		}
@@ -1100,10 +1100,10 @@ var Signup = function(){
 							}
 
 							var closes = 0;
-							var slots = new Array();
+							var teachingDetailss = new Array();
 							$.each(this.components,
 									function(){
-										slots.push(this.slot);
+										teachingDetailss.push(this.teachingDetails);
 										if (closes != 0 && this.closes > closes) {
 											return;
 										}
@@ -1114,7 +1114,7 @@ var Signup = function(){
 							if (allowChangeAction) {
 								actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, isAdmin));
 							}
-							data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions, this.status, slots]);
+							data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions, this.status, teachingDetailss]);
 
 						});
 						fnCallback({

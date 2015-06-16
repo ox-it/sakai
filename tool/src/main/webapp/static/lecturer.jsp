@@ -67,7 +67,7 @@
 			var components = $.map(
 					item.components,
 					function(component) {
-						return component.title + " " + component.slot + "<br>("
+						return component.title + " " + component.teachingDetails + "<br>("
 								+ component.places + " places)";
 					}).join("<br>");
 			return [
@@ -420,7 +420,7 @@
 		<li>
 			<input type="checkbox" name="\${component.id}"
 					id="option-\${component.id}" value="true">
-			<label for="component-\${component.id}">\${component.title} - \${component.slot} for \${component.sessions} sessions in \${component.when},
+			<label for="component-\${component.id}">\${component.title} - \${component.teachingDetails} for \${component.sessions} sessions in \${component.when},
 					{if component.presenter}<a
 						href="mailto:\${component.presenter.email}">\${component.presenter.name}</a>{/if}
 					</label>
