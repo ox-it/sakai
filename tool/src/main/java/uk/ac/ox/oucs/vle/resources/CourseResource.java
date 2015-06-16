@@ -504,7 +504,7 @@ public class CourseResource {
 					gen.writeObjectField("id", component.getPresentationId());
 					gen.writeObjectField("title", component.getTitle());
 					gen.writeObjectField("location", component.getLocation());
-					gen.writeObjectField("slot", component.getTeachingDetails());
+					gen.writeObjectField("teachingDetails", component.getTeachingDetails());
 					gen.writeObjectField("size", component.getSize());
 					if (null != component.getOpens()) {
 						gen.writeObjectField("opens", component.getOpens().getTime());
@@ -626,7 +626,7 @@ public class CourseResource {
 				gen.writeStartObject();
 				gen.writeObjectField("id", component.getPresentationId());
 				gen.writeObjectField("location", component.getLocation());
-				gen.writeObjectField("slot", component.getTeachingDetails());
+				gen.writeObjectField("teachingDetails", component.getTeachingDetails());
 				gen.writeObjectField("size", component.getSize());
 				if (null != component.getOpens()) {
 					gen.writeObjectField("opens", component.getOpens().getTime());
@@ -656,8 +656,7 @@ public class CourseResource {
 				
 				gen.writeObjectField("applyTo", component.getApplyTo());
 				gen.writeObjectField("memberApplyTo", component.getMemberApplyTo());
-				gen.writeObjectField("teachingDetails", component.getTeachingDetails());
-				
+
 				gen.writeObjectField("attendanceMode", component.getAttendanceMode());
 				gen.writeObjectField("attendanceModeText", component.getAttendanceModeText());
 				gen.writeObjectField("attendancePattern", component.getAttendancePattern());
