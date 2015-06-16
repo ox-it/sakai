@@ -1100,10 +1100,10 @@ var Signup = function(){
 							}
 
 							var closes = 0;
-							var teachingDetailss = new Array();
+							var teachingDetailsList = new Array();
 							$.each(this.components,
 									function(){
-										teachingDetailss.push(this.teachingDetails);
+										teachingDetailsList.push(this.teachingDetails);
 										if (closes != 0 && this.closes > closes) {
 											return;
 										}
@@ -1114,7 +1114,7 @@ var Signup = function(){
 							if (allowChangeAction) {
 								actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, isAdmin));
 							}
-							data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions, this.status, teachingDetailss]);
+							data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions, this.status, teachingDetailsList]);
 
 						});
 						fnCallback({

@@ -233,15 +233,15 @@
 								}
 							});
 			
-			var teachingDetailss = new Array();
+			var teachingDetailsList = new Array();
 			for ( var i in object.components) {
 				var component = object.components[i];
 				if (component.teachingDetails) {
-					teachingDetailss.push(component.teachingDetails);
+					teachingDetailsList.push(component.teachingDetails);
 				}
 			}
 			
-			Signup.term.sortArray(teachingDetailss);
+			Signup.term.sortArray(teachingDetailsList);
 			
 			var html = '<h3 style="display:inline">Signups</h3>';
 			
@@ -266,7 +266,7 @@
 			$("#signups").html(html);
 
 			var selectElement = $('#signups-table-term-filter').first();
-			$.each(teachingDetailss, function(i, teachingDetails) {
+			$.each(teachingDetailsList, function(i, teachingDetails) {
 				selectElement.append($("<option/>", {
 					value: teachingDetails,
 					text: teachingDetails
