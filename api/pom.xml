@@ -38,6 +38,12 @@
                         <goals>
                             <goal>test-jar</goal>
                         </goals>
+                        <!-- As this dependency is used by termdates-impl even if tests are skipped we need to always
+                             build it, otherwise when building with an empty repository without tests enabled the
+                             dependency won't be found and the build will fail. -->
+                        <configuration>
+                            <skip>false</skip>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
