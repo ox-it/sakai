@@ -156,8 +156,8 @@
 									<tr>
 										<td class="option-details">
 											<label for="option-${option.id}">
-											{if option.slot}${option.slot} 
-												for 
+											{if option.teachingDetails}
+												${option.teachingDetails} for
 											{else}
 												For
 											{/if}
@@ -236,13 +236,6 @@
 													<br/>
 												{/if}
 												Venue: ${option.location}
-											{/if}
-
-											{if option.teachingDetails}
-												{if option.opens || option.closes || option.location}
-													<br/>
-												{/if}
-												${option.teachingDetails}
 											{/if}
 
 											{if option.sessionData}
