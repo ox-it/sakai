@@ -274,7 +274,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		
 		if (!Status.PENDING.equals(signupDao.getStatus())) {
-			throw new IllegalStateException("You can only accept signups that are waiting or pending.");
+			throw new IllegalStateException("You can only add to waiting list signups that pending.");
 		}
 
 		signupDao.setStatus(Status.WAITING);
