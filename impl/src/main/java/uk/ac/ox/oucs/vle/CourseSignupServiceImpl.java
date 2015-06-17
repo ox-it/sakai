@@ -24,7 +24,6 @@ import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.util.ResourceLoader;
 
 public class CourseSignupServiceImpl implements CourseSignupService {
 	
@@ -283,8 +282,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		proxy.logEvent(signupDao.getGroup().getCourseId(), EVENT_WAITING, placementId);
 		
 		sendStudentSignupEmail(signupDao, 
-			"waiting-admin.student.subject", 
-			"waiting-admin.student.body", 
+			"waiting.student.subject",
+			"waiting.student.body",
 			new Object[]{proxy.getMyUrl(placementId)});
 	}
 
@@ -853,13 +852,19 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (full) {
 			for (String adminId : groupDao.getAdministrators()) {
 				sendSignupWaitingEmail(
-						adminId, signupDao, 
-						"signup.waiting.subject", 
-						"signup.waiting.body", 
-						new Object[]{url});
+						adminId, signupDao,
+						"waiting.admin.subject",
+						"waiting.admin.body",
+						new Object[]{proxy.getAdminUrl()});
 				savePlacement(adminId, placementId);
 			}
-			
+
+			String myUrl = proxy.getMyUrl();
+			sendStudentSignupEmail(signupDao,
+					"waiting.student.subject",
+					"waiting.student.body",
+					new Object[]{myUrl});
+
 		} else if (groupDao.getAdministratorApproval()) {
 			
 			String advanceUrl = proxy.getAdvanceUrl(signupDao.getId(), "accept", null);
@@ -1021,7 +1026,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				proxy.getCurrentUser().getDisplayName(),
 				componentDetails,
 				signupDao.getGroup().getTitle(),
-				signupUser.getDisplayName()
+				signupUser.getDisplayName(),
+				(null == signupUser.getDegreeProgram()) ? "unknown" : signupUser.getDegreeProgram()
 		};
 		Object[] bodyData = baseBodyData;
 		if (additionalBodyData != null) {
