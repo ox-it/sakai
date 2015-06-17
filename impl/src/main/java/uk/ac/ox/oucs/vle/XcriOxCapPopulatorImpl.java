@@ -563,7 +563,9 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				"ns:language-centre-course".equals(type) ||
 				"ns:medsci-course".equals(type) ||
 				"ns:humanities-course".equals(type) ||
-				"ns:sharepoint-course".equals(type));
+				"ns:oli-course".equals(type) ||
+				"ns:sharepoint-course".equals(type)
+		);
 	}
 
 	/**
@@ -736,6 +738,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 				"ns:language-centre-presentation".equals(type) ||
 				"ns:medsci-presentation".equals(type) ||
 				"ns:sharepoint-presentation".equals(type) ||
+				"ns:oli-presentation".equals(type) ||
 				"ns:humanities-presentation".equals(type)
 			);
 	}
