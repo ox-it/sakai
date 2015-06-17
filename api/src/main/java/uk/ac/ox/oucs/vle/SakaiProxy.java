@@ -77,7 +77,7 @@ public interface SakaiProxy {
 
 	/**
 	 * Gets the current location in the system. This can then be used
-	 * when building URLs.
+	 * when building URLs. If there isn't a current location then it falls back to the configured location.
 	 * @return An ID to the current location in the system.
 	 */
 	public String getCurrentPlacementId();
@@ -88,7 +88,9 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public String getAdminUrl();
-	
+
+	public String getAdminUrl(String placementId);
+
 	public String getApproveUrl(String signupId);
 	
 	public String getApproveUrl(String signupId, String placementId);

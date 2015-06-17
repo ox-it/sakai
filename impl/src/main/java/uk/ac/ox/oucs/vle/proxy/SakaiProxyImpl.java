@@ -443,6 +443,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return getUrl("/static/my.jsp", placementId);
 	}
 
+	public String getAdminUrl(String placementId) {
+		return getUrl("/static/admin.jsp", placementId);
+	}
+
+
 	@Override
 	public String getMessage(String key) {
 		return rb.getString(key);
