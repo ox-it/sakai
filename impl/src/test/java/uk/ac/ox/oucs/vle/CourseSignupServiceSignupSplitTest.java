@@ -27,10 +27,10 @@ import static org.junit.Assert.assertEquals;
  * Test the splitting of a signup.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestExecutionListeners({CourseSignupServiceSignupSplit.PreLoad.class, DependencyInjectionTestExecutionListener.class, TransactionalTestExecutionListener.class})
+@TestExecutionListeners({CourseSignupServiceSignupSplitTest.PreLoad.class, DependencyInjectionTestExecutionListener.class, TransactionalTestExecutionListener.class})
 @ContextConfiguration(locations = {"classpath:/course-signup-beans.xml", "classpath:/test-with-h2.xml"})
 @Transactional
-public class CourseSignupServiceSignupSplit extends AbstractTestExecutionListener {
+public class CourseSignupServiceSignupSplitTest extends AbstractTestExecutionListener {
 	@Autowired
 	CourseSignupService courseSignupService;
 
