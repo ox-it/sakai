@@ -272,7 +272,7 @@
 	<div class="calendarView">
 		<div class="panel paging top">
 			<div class="leftGroup">
-				<a class="action" href="nodates.jsp">Courses without dates (including online courses)"</a>
+				<a class="action" href="nodates.jsp">Courses without dates (including online courses)</a>
 			</div>
 
 			<form class="filter" action="#">
