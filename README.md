@@ -51,5 +51,6 @@ configuration to enable this is:
 
 This project is released to OSSRH using the standard maven deploy plugin. There is documentation about this on
 http://central.sonatype.org/pages/apache-maven.html and once you have made the appropriate changes to 
-`~/.m2/settings.xml` you should be able to makes releases.
+`~/.m2/settings.xml` you should be able to makes releases. Then once they look ok you can promote them
+http://central.sonatype.org/pages/releasing-the-deployment.html
 
