@@ -17,9 +17,6 @@
 	</parent>
 
 	<modules>
-		<!-- license is first as mvn 2.0.x doesn't correctly identify it as being the first module
-		      that needs to be built. mvn 3 does get it correct so can be removed when we upgrade -->
-		<module>license</module>
 		<module>api</module>
 		<module>hbm</module>
 		<module>help</module>
@@ -73,9 +70,9 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>license-maven-plugin</artifactId>
-					<version>1.5</version>
+					<version>1.8</version>
 					<configuration>
-						<licenseName>ecl2_license</licenseName>
+						<licenseName>ecl_v2</licenseName>
 						<licenseResolver>classpath://org/sakaiproject</licenseResolver>
 						<extraExtensions>
 							<sql>mysql</sql>
@@ -84,9 +81,9 @@
 					</configuration>
 					<dependencies>
 						<dependency>
-							<groupId>uk.ac.ox.oucs</groupId>
-							<artifactId>course-signup-license</artifactId>
-							<version>${project.version}</version>
+							<groupId>org.sakaiproject.license</groupId>
+							<artifactId>ecl-license</artifactId>
+							<version>1.0</version>
 						</dependency>
 					</dependencies>
 				</plugin>
