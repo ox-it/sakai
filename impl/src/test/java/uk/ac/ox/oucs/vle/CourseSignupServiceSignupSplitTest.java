@@ -1,20 +1,20 @@
 package uk.ac.ox.oucs.vle;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.HibernateTransactionManager;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestContext;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.test.context.support.AbstractTestExecutionListener;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ox.oucs.vle.proxy.SakaiProxyTest;
 
-import javax.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -27,10 +27,10 @@ import static org.junit.Assert.assertEquals;
  * Test the splitting of a signup.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@TestExecutionListeners({CourseSignupServiceSignupSplitTest.PreLoad.class, DependencyInjectionTestExecutionListener.class, TransactionalTestExecutionListener.class})
 @ContextConfiguration(locations = {"classpath:/course-signup-beans.xml", "classpath:/test-with-h2.xml"})
-
-public class CourseSignupServiceSignupSplit {
-
+@Transactional
+public class CourseSignupServiceSignupSplitTest extends AbstractTestExecutionListener {
 	@Autowired
 	CourseSignupService courseSignupService;
 
@@ -40,75 +40,58 @@ public class CourseSignupServiceSignupSplit {
 	@Autowired
 	SakaiProxyTest sakaiProxyTest;
 
-	@Autowired
-	HibernateTransactionManager transactionManager;
-
-	// Our transaction.
-	private TransactionStatus transaction;
 	private String signupId;
 
-	@PostConstruct
-	public void preLoad() {
-		TransactionStatus data = transactionManager.getTransaction(null);
-		CourseGroupDAO courseGroupDAO = dao.newCourseGroup("groupId", "title", "dept", null);
-		courseGroupDAO.getAdministrators().add("adminId");
+	// The test class could have extended the TestExeceutionListener instead but then it's easy for forget that
+	// the TestExecutionListener is a seperate instance and you can't access member variables from the test.
+	public static class PreLoad extends AbstractTestExecutionListener {
+		@Override
+		public void beforeTestClass(TestContext testContext) throws Exception {
+			// Have to get the DAO again as we're not in the test instance.
+			CourseDAOImpl dao = (CourseDAOImpl) testContext.getApplicationContext().getBean("uk.ac.ox.oucs.vle.CourseDAO");
 
-		CourseComponentDAO comp1 = dao.newCourseComponent("compId1");
-		dao.save(comp1);
+			CourseGroupDAO courseGroupDAO = dao.newCourseGroup("groupId", "title", "dept", null);
+			courseGroupDAO.getAdministrators().add("adminId");
 
-		CourseComponentDAO comp2 = dao.newCourseComponent("compId2");
-		dao.save(comp2);
+			CourseComponentDAO comp1 = dao.newCourseComponent("compId1");
+			dao.save(comp1);
 
-		courseGroupDAO.getComponents().add(comp1);
-		courseGroupDAO.getComponents().add(comp2);
+			CourseComponentDAO comp2 = dao.newCourseComponent("compId2");
+			dao.save(comp2);
 
-		dao.save(courseGroupDAO);
+			courseGroupDAO.getComponents().add(comp1);
+			courseGroupDAO.getComponents().add(comp2);
 
-		CourseSignupDAO signup = dao.newSignup("userId", "supervisorId", new Date());
-		signup.setStatus(CourseSignupService.Status.PENDING);
-		signup.setGroup(courseGroupDAO);
-		signupId = dao.save(signup);
+			dao.save(courseGroupDAO);
 
-		comp1.getSignups().add(signup);
-		comp2.getSignups().add(signup);
-		dao.save(comp1);
-		dao.save(comp2);
-		transactionManager.commit(data);
+			CourseSignupDAO signup = dao.newSignup("userId", "supervisorId", new Date());
+			signup.setStatus(CourseSignupService.Status.PENDING);
+			signup.setGroup(courseGroupDAO);
+			dao.save(signup);
+
+			comp1.getSignups().add(signup);
+			comp2.getSignups().add(signup);
+			dao.save(comp1);
+			dao.save(comp2);
+		}
 	}
 
 	@Before
 	public void setUp() {
-		transaction = transactionManager.getTransaction(null);
 		UserProxy courseAdmin = Mockito.mock(UserProxy.class);
 		Mockito.when(courseAdmin.getId()).thenReturn("adminId");
 		sakaiProxyTest.setCurrentUser(courseAdmin);
-	}
-
-	protected void onSetUp() {
-		transaction = this.transactionManager.getTransaction(null);
-		UserProxy courseAdmin = Mockito.mock(UserProxy.class);
-		Mockito.when(courseAdmin.getId()).thenReturn("adminId");
-		sakaiProxyTest.setCurrentUser(courseAdmin);
-	}
-
-	protected void onTearDown() {
-		transactionManager.rollback(transaction);
-	}
-
-
-	@After
-	public void tearDown() {
-		transactionManager.rollback(transaction);
+		signupId = dao.findSignupForUser("userId", Collections.singleton(CourseSignupService.Status.PENDING)).get(0).getId();
 	}
 
 	@Test
 	public void testSplit() {
 		Set<String> newSignupComps = Collections.singleton("compId1");
-		String newSignupId = courseSignupService.split(signupId, newSignupComps);
+		String newSignupId = courseSignupService.split(this.signupId, newSignupComps);
 		// We haven't had are arguments modified.
 		assertEquals(1, newSignupComps.size());
 		dao.flushAndClear();
-		CourseSignupDAO originalSignup = dao.findSignupById(signupId);
+		CourseSignupDAO originalSignup = dao.findSignupById(this.signupId);
 		CourseSignupDAO newSignup = dao.findSignupById(newSignupId);
 
 		assertNotNull(newSignupId);
@@ -136,12 +119,12 @@ public class CourseSignupServiceSignupSplit {
 		Set all = new HashSet<String>();
 		all.add("compId1");
 		all.add("compId2");
-		courseSignupService.split(signupId, all);
+		courseSignupService.split(this.signupId, all);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testSplitNoComponents() {
-		courseSignupService.split(signupId, Collections.<String>emptySet());
+		courseSignupService.split(this.signupId, Collections.<String>emptySet());
 	}
 
 	@Test(expected = NotFoundException.class)
@@ -151,7 +134,7 @@ public class CourseSignupServiceSignupSplit {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testSplitNotComponent() {
-		courseSignupService.split(signupId, Collections.singleton("compId3"));
+		courseSignupService.split(this.signupId, Collections.singleton("compId3"));
 	}
 
 	@Test(expected = PermissionDeniedException.class)
@@ -159,7 +142,7 @@ public class CourseSignupServiceSignupSplit {
 		UserProxy nonAdmin = Mockito.mock(UserProxy.class);
 		Mockito.when(nonAdmin.getId()).thenReturn("notAdmin");
 		sakaiProxyTest.setCurrentUser(nonAdmin);
-		courseSignupService.split(signupId, Collections.singleton("compId1"));
+		courseSignupService.split(this.signupId, Collections.singleton("compId1"));
 	}
 
 }
