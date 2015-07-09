@@ -1,11 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -154,7 +149,27 @@ public class ExternalGroupProvider implements GroupProvider, DisplayGroupProvide
 		}
 		return null;
 	}
-	
+
+	@Override
+	public String getSuspendedGroupProviderId(String providerId, List providerIds) {
+
+		Map<String, String> providerIdToExternalGroupId=  new HashMap<>();
+		for (String provId: (List<String>)providerIds) {
+			String externalGroupId = externalGroupManager.findExternalGroupId(provId);
+			providerIdToExternalGroupId.put(provId, externalGroupId);
+		}
+
+		String externalGroupId = externalGroupManager.findExternalGroupId(providerId);
+		if (externalGroupId.contains("ou=programme,ou=course") && externalGroupId.contains("current")){
+			for (String key : providerIdToExternalGroupId.keySet()) {
+				if (externalGroupId.replace("current", "suspended").equals(providerIdToExternalGroupId.get(key))){
+					return key;
+				}
+			}
+		}
+		return "";
+	}
+
 	public boolean groupExists(String groupId) {
 		return externalGroupManager.findExternalGroupId(groupId) != null;
 	}

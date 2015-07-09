@@ -31,7 +31,7 @@
 		float: right;
 		width: 49%;
 		margin: 0.4%;
-		height: 300px;
+		height: 500px;
 		overflow-y: scroll;
 	}
 	
@@ -39,7 +39,7 @@
 		margin: 0.4%;
 		float: left;
 		width: 49%;
-		height: 300px;
+		height: 500px;
 		overflow-y: scroll;
 	}
 	

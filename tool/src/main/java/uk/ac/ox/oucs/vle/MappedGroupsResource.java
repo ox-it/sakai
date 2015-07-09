@@ -1,10 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -35,6 +31,8 @@ public class MappedGroupsResource {
 	private ExternalGroupManager externalGroupManager;
 	private GroupProvider groupProvider;
 	private SiteService siteService;
+
+	public static final String SUSPENDED = "suspended";
 
 	public MappedGroupsResource(@Context ContextResolver<Object> resolver) {
 		externalGroupManager = (ExternalGroupManager)resolver.getContext(ExternalGroupManager.class);
@@ -73,6 +71,15 @@ public class MappedGroupsResource {
 			try {
 				Site site = siteService.getSite(siteId);
 				String newId = externalGroupManager.addMappedGroup(group,role);
+
+				// add suspended group to non-suspended course groups
+				String suspGroup;
+				String newSuspId = null;
+				if (group.contains("ou=programme,ou=course") && !role.equals(SUSPENDED)){
+					suspGroup = group.replaceFirst("current,ou=", SUSPENDED + ",ou=");
+					newSuspId = externalGroupManager.addMappedGroup(suspGroup,SUSPENDED);
+				}
+
 				String existingGroupIds = site.getProviderGroupId();
 				List<String> splitNewGroupIds;
 
@@ -85,8 +92,15 @@ public class MappedGroupsResource {
 						}
 					}
 					splitNewGroupIds.add(newId);
+					if (newSuspId!=null){
+						splitNewGroupIds.add(newSuspId);
+					}
 				} else {
-					splitNewGroupIds = Collections.singletonList(newId);
+					splitNewGroupIds =  new ArrayList<String>();
+					splitNewGroupIds.add(newId);
+					if (newSuspId!=null){
+						splitNewGroupIds.add(newSuspId);
+					}
 				}
 				String providedId = groupProvider.packId(splitNewGroupIds.toArray(new String[]{}));
 				site.setProviderGroupId(providedId);

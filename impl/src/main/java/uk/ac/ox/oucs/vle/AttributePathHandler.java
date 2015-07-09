@@ -1,11 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,7 +21,9 @@ public class AttributePathHandler implements PathHandler{
 	private String root;
 
 	private String attribute;
-	
+
+	private String attribute2;
+
 	private String displayAttribute;
 	
 	private String searchAttribute;
@@ -36,11 +33,12 @@ public class AttributePathHandler implements PathHandler{
 	// TODO Refactor out an interface.
 	private ExternalGroupManagerImpl groupManager;
 
-	public AttributePathHandler(String base, String root, String searchAttribute, String attribute, String displayAttribute, ExternalGroupManagerImpl groupManager) {
+	public AttributePathHandler(String base, String root, String searchAttribute, String attribute, String attribute2, String displayAttribute, ExternalGroupManagerImpl groupManager) {
 		this.base = base;
 		this.root = root;
 		this.searchAttribute = searchAttribute;
 		this.attribute = attribute;
+		this.attribute2 = attribute2;
 		this.displayAttribute = displayAttribute;
 		this.groupManager = groupManager;
 	}
@@ -55,14 +53,18 @@ public class AttributePathHandler implements PathHandler{
 		LDAPConnection conn = null;
 		try {
 			conn = groupManager.getConnection();
-			LDAPSearchResults searchResults = conn.search(base, LDAPConnection.SCOPE_ONE, searchAttribute+ "="+ path[1], new String[]{attribute, displayAttribute}, false);
+			LDAPSearchResults searchResults = conn.search(base, LDAPConnection.SCOPE_SUB, searchAttribute+ "="+ path[1], new String[]{attribute, attribute2, displayAttribute}, false);
 			List<ExternalGroupNode> nodes = new ArrayList<ExternalGroupNode>();
-			String pathPrefix = path[0]+ PathHandler.SEPARATOR + path[1]+ PathHandler.SEPARATOR;
+			String pathPrefix = getPathPrefix(path);
 			while (searchResults.hasMore()) {
 				LDAPEntry result = searchResults.next();
 				String name = result.getAttribute(attribute).getStringValue();
+				String name2 = "";
+				if (root.equals(ExternalGroupManagerImpl.COURSES)){
+					name2 = ":" + result.getAttribute(attribute2).getStringValue();
+				}
 				String displayName = adjustedDisplayName(result.getAttribute(displayAttribute).getStringValue());
-				nodes.add(new ExternalGroupNodeImpl(pathPrefix +name, displayName));
+				nodes.add(new ExternalGroupNodeImpl(pathPrefix + name + name2, displayName));
 			}
 			return nodes;
 		} catch (LDAPException lde) {
@@ -71,6 +73,15 @@ public class AttributePathHandler implements PathHandler{
 		} finally {
 			groupManager.returnConnection(conn);
 		}
+	}
+
+	private String getPathPrefix(String[] path) {
+		String pathPrefix = path[0]+ PathHandler.SEPARATOR;
+		if (root.equals(ExternalGroupManagerImpl.UNITS) && ExternalGroupManagerImpl.OXUNI_SUB_FOLDERS.contains(path[1])){
+			pathPrefix = pathPrefix + ExternalGroupManagerImpl.OXUNI + PathHandler.SEPARATOR;
+		}
+		pathPrefix = pathPrefix + path[1]+ PathHandler.SEPARATOR;
+		return pathPrefix;
 	}
 
 	private String adjustedDisplayName(String name) {

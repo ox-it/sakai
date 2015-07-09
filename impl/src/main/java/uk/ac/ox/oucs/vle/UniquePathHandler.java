@@ -57,7 +57,11 @@ public class UniquePathHandler implements PathHandler{
 		LDAPConnection conn = null;
 		try {
 			conn = groupManager.getConnection();
-			LDAPSearchResults searchResults = conn.search(base, LDAPConnection.SCOPE_ONE, attribute+ "=*", new String[]{attribute, displayAttribute}, false);
+			String filter = attribute + "=*";
+			if (root.equals(ExternalGroupManagerImpl.COURSES)) {
+				filter = groupManager.getCourseOwnerFilter();
+			}
+			LDAPSearchResults searchResults = conn.search(base, LDAPConnection.SCOPE_SUB, filter, new String[]{attribute, displayAttribute}, false);
 			Set<String> names = new HashSet<String>();
 			Map<String,String> displayNames = new HashMap<String,String>();
 			while (searchResults.hasMore()) {
