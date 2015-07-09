@@ -20,6 +20,9 @@
 	<p class="instruction">
 		#springMessage("delete.site.intro")
 	</p>
+	<p class="instruction">
+    	#springMessage("delete.site.introadd")
+    </p>
 	<form method="POST">
 	#if (!$hasChildren)
 	<p class="instructions"
