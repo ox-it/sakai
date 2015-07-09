@@ -34,6 +34,10 @@
 	#end
 	<input type="submit" value="#springMessage("delete.button")"/>
 	</form>
+	<br/>
+    <form method="GET" action="$rootUrl">
+    <input type="submit" value="#springMessage("button.cancel")"/>
+	</form>
 #else
 	<div class="alertMessage">
 	#springMessage("delete.cannot")
