@@ -25,7 +25,7 @@
     </p>
 	<form method="POST">
 	#if (!$hasChildren)
-	<p class="instructions"
+	<p class="instructions">
 		<label for="deleteSite">#springMessage("delete.site")</label>
 		#springBind("command.deleteSite")
 		<input type="checkbox" id="${status.expression}" name="${status.expression}">
