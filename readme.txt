@@ -3,7 +3,7 @@ Course signup tool.
 -- Setup --
 
 course-signup.from=weblearn-nomail@oucs.ox.ac.uk or leave blank to use the current user.
-
+aes.secret.key=16bytes - string must be 16 bytes long for AES encryption
 -- Import URLs --
 
 These are the public URLs you can pull data from to import into the course
