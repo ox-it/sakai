@@ -33,7 +33,7 @@
 
 <!-- Jersey puts the model in the 'it' attribute -->
 <link href='<c:out value="${it.skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
-<link href="<c:out value="${it.skinRepo}" />/<c:out value="${it.skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
+<link href="<c:out value="${it.skinRepo}" />/<c:out value="${it.skinPrefix}" /><c:out value="${it.skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
 
 <link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css" />
 <link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css" />

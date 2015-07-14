@@ -590,11 +590,7 @@ public class SignupResource {
 		model.put("encoded", encoded);
 		model.put("status", params[1]);
 
-		model.put("skinRepo",
-				serverConfigurationService.getString("skin.repo", "/library/skin"));
-
-		model.put("skinDefault",
-				serverConfigurationService.getString("skin.default", "default"));
+		addStandardAttributes(model);
 
 		return Response.ok(new Viewable("/static/advance", model)).build();
 	}
@@ -640,13 +636,21 @@ public class SignupResource {
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("signup", signup);
 
+		addStandardAttributes(model);
+		return Response.ok(new Viewable("/static/ok", model)).build();
+	}
+
+	/**
+	 * This just adds the standard skin values that are needed when rendering a page.
+	 * @param model The model to add the values to.
+	 */
+	public void addStandardAttributes(Map<String, Object> model) {
 		model.put("skinRepo",
 				serverConfigurationService.getString("skin.repo", "/library/skin"));
-
 		model.put("skinDefault",
 				serverConfigurationService.getString("skin.default", "default"));
-
-		return Response.ok(new Viewable("/static/ok", model)).build();
+		model.put("skinPrefix",
+				serverConfigurationService.getString("portal.neoprefix", ""));
 	}
 
 	protected int getIndex(String[] array, String value){
