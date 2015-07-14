@@ -21,6 +21,8 @@ package uk.ac.ox.oucs.vle.resources;
 
 import com.sun.jersey.api.core.InjectParam;
 import com.sun.jersey.api.view.Viewable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -53,6 +55,7 @@ import java.util.*;
 @Path("signup{cobomo:(/cobomo)?}")
 public class SignupResource {
 
+	private static final Log log = LogFactory.getLog(SignupResource.class);
 
 	@InjectParam
 	private CourseSignupService courseService;
@@ -576,8 +579,10 @@ public class SignupResource {
 	public Response advanceGet(@PathParam("id") final String encoded) {
 
 		String[] params = courseService.getCourseSignupFromEncrypted(encoded);
-		for (int i=0; i<params.length; i++) {
-			System.out.println("decoded parameter ["+params[i]+"]");
+		if (log.isDebugEnabled()) {
+			for (int i = 0; i < params.length; i++) {
+				log.debug("decoded parameter [" + params[i] + "]");
+			}
 		}
 		CourseSignup signup = courseService.getCourseSignupAnyway(params[0]);
 		Map<String, Object> model = new HashMap<String, Object>();
