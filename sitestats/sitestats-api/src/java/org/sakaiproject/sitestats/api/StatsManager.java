@@ -43,6 +43,7 @@ public interface StatsManager {
 	public final static String			CONTAINER_LOGIN_EVENTID		= "user.login.container";
 	public final static String			LOGOUT_EVENTID				= "user.logout";
 	public final static String			RESOURCE_EVENTID_PREFIX		= "content.";
+	public final static String			LESSONS_EVENTID_PREFIX		= "lessonbuilder.read";
 	public final static String			SITESTATS_TOOLID			= "sakai.sitestats";
 	public final static String			SITESTATS_ADMIN_TOOLID		= "sakai.sitestats.admin";
 	public final static String			LOG_APP						= "sitestats";
@@ -82,6 +83,7 @@ public interface StatsManager {
 	public static final int				Q_TYPE_VISITSTOTALS			= 2;
 	public static final int				Q_TYPE_ACTIVITYTOTALS		= 3;
 	public static final int				Q_TYPE_PRESENCE				= 4;
+	public static final int				Q_TYPE_LESSON				= 5;
 	public static final String			T_NONE						= "none";
 	public static final String			T_SITE						= "site";
 	public static final String			T_USER						= "user";
@@ -89,6 +91,7 @@ public interface StatsManager {
 	public static final String			T_TOOL						= "tool";
 	public static final String			T_RESOURCE					= "resource";
 	public static final String			T_RESOURCE_ACTION			= "resource-action";
+	public static final String			T_PAGE                      = "page";
 	public static final String			T_DATE						= "date";
 	public static final String			T_DATEMONTH					= "month";
 	public static final String			T_DATEYEAR					= "year";
@@ -102,6 +105,7 @@ public interface StatsManager {
 	public static final List<String>	TOTALSBY_VISITSTOTALS_DEFAULT	= Arrays.asList(T_DATE);
 	public static final List<String>	TOTALSBY_ACTIVITYTOTALS_DEFAULT	= Arrays.asList(T_DATE);
 	public static final List<String>	TOTALSBY_PRESENCE_DEFAULT	= Arrays.asList(T_DATE);
+	public static final List<String>	TOTALSBY_LESSONS_DEFAULT	= Arrays.asList(T_DATE);
 	
 	// ################################################################
 	// Spring bean methods
@@ -179,6 +183,9 @@ public interface StatsManager {
 	
 	/** Get total number of resources (eventually, files only) in specified site, based on resources events (faster than consulting CHS). */
 	public int getTotalResources(String siteId, boolean excludeFolders);
+
+	/** Get total number of lesson pages in the specified site. */
+	public int getTotalLessonPages(String siteId);
 	
 	// ################################################################
 	// Summary/report methods
@@ -388,6 +395,18 @@ public interface StatsManager {
 			final String siteId,
 			final String resourceAction, final List<String> resourceIds,
 			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final PagingPosition page, 
+			final List<String> totalsBy,
+			final String sortBy, 
+			final boolean sortAscending,
+			final int maxResults);
+
+	public List<Stat> getLessonBuilderStats(final String siteId,
+			final List<String> resourceIds,
+			final Date iDate,
+			final Date fDate,
 			final List<String> userIds,
 			final boolean inverseUserSelection,
 			final PagingPosition page, 

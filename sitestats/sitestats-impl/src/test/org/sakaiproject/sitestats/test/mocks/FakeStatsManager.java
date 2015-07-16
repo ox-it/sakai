@@ -142,6 +142,20 @@ public class FakeStatsManager implements StatsManager {
 		return 0;
 	}
 
+	public List<Stat> getLessonBuilderStats(final String siteId,
+			final List<String> resourceIds,
+			final Date iDate,
+			final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final PagingPosition page, 
+			final List<String> totalsBy,
+			final String sortBy, 
+			final boolean sortAscending,
+			final int maxResults) {
+		return null;
+	}
+
 	public String getResourceURL(String ref) {
 		// TODO Auto-generated method stub
 		return null;
@@ -343,6 +357,12 @@ public class FakeStatsManager implements StatsManager {
 	}
 
 	public int getTotalResources(String siteId, boolean excludeFolders) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getTotalLessonPages(String siteId) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

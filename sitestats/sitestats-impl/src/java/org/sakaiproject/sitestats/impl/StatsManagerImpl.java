@@ -871,6 +871,15 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}
 	}
 
+	public int getTotalLessonPages(final String siteId) {
+
+		if (siteId == null){
+			throw new IllegalArgumentException("Null siteId");
+		} else {
+            // TODO: Get this from LB API
+            return 100;
+        }
+    }
 	
 	// ################################################################
 	// Summary/report methods
@@ -2040,6 +2049,138 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		};
 		return (List<Stat>) getHibernateTemplate().execute(hcb);
 	}
+
+	public List<Stat> getLessonBuilderStats(final String siteId,
+										final List<String> resourceIds,
+										final Date iDate,
+										final Date fDate,
+										final List<String> userIds,
+										final boolean inverseUserSelection,
+										final PagingPosition page, 
+										final List<String> totalsBy,
+										final String sortBy, 
+										final boolean sortAscending,
+										final int maxResults) {
+
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
+				Q_TYPE_LESSON, totalsBy, 
+				siteId, (Set<String>)null, null, false, "read", resourceIds, 
+				iDate, fDate, userIds, inverseUserSelection, sortBy, sortAscending);
+		
+		final String hql = sqlBuilder.getHQL();
+		final Map<Integer,Integer> columnMap = sqlBuilder.getHQLColumnMap();
+
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery(hql);
+				q.setString("siteid", siteId);
+				q.setString("action", "read");
+				if(iDate != null)
+					q.setDate("idate", iDate);
+				if(fDate != null){
+					// adjust final date
+					Calendar c = Calendar.getInstance();
+					c.setTime(fDate);
+					c.add(Calendar.DAY_OF_YEAR, 1);
+					Date fDate2 = c.getTime();
+					q.setDate("fdate", fDate2);
+				}
+				if(page != null){
+					q.setFirstResult(page.getFirst() - 1);
+					q.setMaxResults(page.getLast() - page.getFirst() + 1);
+				}
+				if(maxResults > 0) {
+					q.setMaxResults(maxResults);
+				}
+				LOG.debug("getLessonBuilderStats(): " + q.getQueryString());
+				List<Object[]> records = q.list();
+				List<ResourceStat> results = new ArrayList<ResourceStat>();
+				Set<String> siteUserIds = null;
+				if(inverseUserSelection){
+					siteUserIds = getSiteUsers(siteId);
+				}
+				if(records.size() > 0){
+					Calendar cal = Calendar.getInstance();
+					for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();){
+						if(!inverseUserSelection){
+							Object[] s = iter.next();
+							ResourceStat c = new ResourceStatImpl();
+							if(columnMap.containsKey(StatsSqlBuilder.C_SITE)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_SITE);
+								c.setSiteId((String)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_USER)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_USER);
+								c.setUserId((String)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_RESOURCE)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_RESOURCE);
+								c.setResourceRef((String)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_RESOURCE_ACTION)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_RESOURCE_ACTION);
+								c.setResourceAction((String)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_DATE)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_DATE);
+								c.setDate((Date)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_DATEMONTH)
+									&& columnMap.containsKey(StatsSqlBuilder.C_DATEYEAR)) {
+									int ixY = (Integer) columnMap.get(StatsSqlBuilder.C_DATEYEAR);
+									int ixM = (Integer) columnMap.get(StatsSqlBuilder.C_DATEMONTH);
+									int yr = 0, mo = 0;
+									if(getDbVendor().equals("oracle")){
+										yr = Integer.parseInt((String)s[ixY]);
+										mo = Integer.parseInt((String)s[ixM]) - 1;
+									}else{
+										yr = ((Integer)s[ixY]).intValue();
+										mo = ((Integer)s[ixM]).intValue() - 1;
+									}
+									cal.set(Calendar.YEAR, yr);
+									cal.set(Calendar.MONTH, mo);
+									c.setDate(cal.getTime());
+								}else if(columnMap.containsKey(StatsSqlBuilder.C_DATEYEAR)) {
+									int ix = (Integer) columnMap.get(StatsSqlBuilder.C_DATEYEAR);
+									int yr = 0;
+									if(getDbVendor().equals("oracle")){
+										yr = Integer.parseInt((String)s[ix]);
+									}else{
+										yr = ((Integer)s[ix]).intValue();
+									}
+									cal.set(Calendar.YEAR, yr);
+									c.setDate(cal.getTime());
+								}
+							if(columnMap.containsKey(StatsSqlBuilder.C_TOTAL)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_TOTAL);
+								c.setCount(((Long)s[ix]).longValue());
+							}
+							results.add(c);
+						}else{
+							if(siteUserIds != null) {
+								siteUserIds.remove((Object) iter.next());
+							}
+						}
+					}
+				}
+				if(inverseUserSelection){
+					long id = 0;
+					Iterator<String> iU = siteUserIds.iterator();
+					while (iU.hasNext()){
+						String userId = iU.next();
+						ResourceStat c = new ResourceStatImpl();
+						c.setId(id++);
+						c.setUserId(userId);
+						c.setSiteId(siteId);
+						c.setCount(0);
+						results.add(c);
+					}
+				}
+				return results;
+			}
+		};
+		return (List<Stat>) getHibernateTemplate().execute(hcb);
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceStatsRowCount(java.lang.String, java.lang.String, java.util.List, java.util.Date, java.util.Date, java.util.List, boolean, org.sakaiproject.javax.PagingPosition, java.lang.String, java.lang.String, boolean)
@@ -2422,6 +2563,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					this.totalsBy = TOTALSBY_ACTIVITYTOTALS_DEFAULT;
 				}else if(queryType == Q_TYPE_PRESENCE){
 					this.totalsBy = TOTALSBY_PRESENCE_DEFAULT;
+				}else if(queryType == Q_TYPE_LESSON){
+					this.totalsBy = TOTALSBY_LESSONS_DEFAULT;
 				}
 			}else{
 				this.totalsBy = totalsBy;
@@ -2547,7 +2690,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				}
 				// total
 				if((queryType == Q_TYPE_EVENT && !totalsBy.contains(T_VISITS) && !totalsBy.contains(T_UNIQUEVISITS))
-					|| queryType == Q_TYPE_RESOURCE) {
+					|| queryType == Q_TYPE_RESOURCE || queryType == Q_TYPE_LESSON) {
 					selectFields.add("sum(s.count) as total");
 					columnMap.put(C_TOTAL, columnIndex++);
 				}else if(queryType == Q_TYPE_ACTIVITYTOTALS) {
@@ -2608,6 +2751,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				}
 			}else if(queryType == Q_TYPE_PRESENCE){
 				return "from SitePresenceImpl as s ";
+			}else if(queryType == Q_TYPE_LESSON){
+				return "from LessonBuilderStatImpl as s ";
 			}else{
 				//if(queryType == Q_TYPE_ACTIVITYTOTALS){
 				return "from SiteActivityImpl as s ";
@@ -2628,10 +2773,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					&& (totalsBy.contains(T_DATEMONTH) || totalsBy.contains(T_DATEYEAR))) {
 				whereFields.add("s.eventId = '"+SITEVISIT_EVENTID+"'");
 			}
-			if(queryType == Q_TYPE_RESOURCE && resourceAction != null) {
+			if((queryType == Q_TYPE_RESOURCE || queryType == Q_TYPE_LESSON) && resourceAction != null) {
 				whereFields.add("s.resourceAction = :action");
 			}
-			if(queryType == Q_TYPE_RESOURCE && resourceIds != null && !resourceIds.isEmpty()) {
+			if((queryType == Q_TYPE_RESOURCE || queryType == Q_TYPE_LESSON) && resourceIds != null && !resourceIds.isEmpty()) {
 				int simpleSelectionCount = 0;
 				int wildcardSelectionCount = 0;
 				for(String rId : resourceIds) {
@@ -2648,7 +2793,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					whereFields.add("s.resourceRef like (:resource"+i+")");
 				}
 			}
-			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_RESOURCE  || queryType == Q_TYPE_PRESENCE) 
+			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_RESOURCE  || queryType == Q_TYPE_PRESENCE || queryType == Q_TYPE_LESSON) 
 				&& userIds != null) {
 				if(!userIds.isEmpty()) {
 					if(userIds.size() <= 1000) {
@@ -2679,7 +2824,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			if(fDate != null) {
 				whereFields.add("s.date < :fdate");
 			}
-			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_RESOURCE || queryType == Q_TYPE_PRESENCE)
+			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_RESOURCE || queryType == Q_TYPE_PRESENCE || queryType == Q_TYPE_LESSON)
 				&& !showAnonymousAccessEvents) {
 				whereFields.add("s.userId != '?'");
 			}
@@ -2751,10 +2896,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				) {
 				groupFields.add("s.eventId");
 			}
-			if(queryType == Q_TYPE_RESOURCE && totalsBy.contains(T_RESOURCE)) {
+			if((queryType == Q_TYPE_RESOURCE || queryType == Q_TYPE_LESSON) && totalsBy.contains(T_RESOURCE)) {
 				groupFields.add("s.resourceRef");
 			}
-			if(queryType == Q_TYPE_RESOURCE && totalsBy.contains(T_RESOURCE_ACTION)) {
+			if((queryType == Q_TYPE_RESOURCE || queryType == Q_TYPE_LESSON) && totalsBy.contains(T_RESOURCE_ACTION)) {
 				groupFields.add("s.resourceAction");
 			}
 			if(totalsBy.contains(T_DATE)) {
@@ -2809,10 +2954,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					&& (sortBy.equals(T_EVENT) || sortBy.equals(T_TOOL)) && (totalsBy.contains(T_EVENT) || totalsBy.contains(T_TOOL))) {
 					sortField = "s.eventId";
 				}
-				if(queryType == Q_TYPE_RESOURCE && sortBy.equals(T_RESOURCE) && totalsBy.contains(T_RESOURCE)) {
+				if((queryType == Q_TYPE_RESOURCE || queryType == Q_TYPE_LESSON) && sortBy.equals(T_RESOURCE) && totalsBy.contains(T_RESOURCE)) {
 					sortField = "s.resourceRef";
 				}
-				if(queryType == Q_TYPE_RESOURCE && sortBy.equals(T_RESOURCE_ACTION) && totalsBy.contains(T_RESOURCE_ACTION)) {
+				if((queryType == Q_TYPE_RESOURCE || queryType == Q_TYPE_LESSON) && sortBy.equals(T_RESOURCE_ACTION) && totalsBy.contains(T_RESOURCE_ACTION)) {
 					sortField = "s.resourceAction";
 				}
 				if((sortBy.equals(T_DATE) || sortBy.equals(T_LASTDATE)) 
