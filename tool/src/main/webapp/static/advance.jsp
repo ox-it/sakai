@@ -53,8 +53,10 @@
 	<div id="messages"></div>
 
 	<div id="browse">
-		<form method="POST" action="">
-
+		<c:forEach var="error" items="${it.errors}">
+			<div class="alertMessage"><c:out value="${error}"/> </div>
+		</c:forEach>
+		<form method="POST">
 			<input type="hidden" name="param" value="<c:out value='${it.encoded}' />" />
 			<div id="tree">
 				<p>
@@ -89,11 +91,13 @@
 						</c:if>
 						<br />
 					</c:forEach>
+					<c:if test="${not empty it.status}">
 					<br /> Please either 
 					<input type="submit" name="formStatus" value="<c:out value='${fn:toUpperCase(it.status)}' />" /> 
 					or 
 					<input type="submit" name="formStatus" value="REJECT" /> 
 					this signup.
+					</c:if>
 				</p>
 			</div>
 		</form>

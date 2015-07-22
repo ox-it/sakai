@@ -76,6 +76,10 @@
 		</property>
 	</bean>
 
+	<!-- The bean that models progression -->
+	<bean name="uk.ac.ox.oucs.vle.StatusProgression" class="uk.ac.ox.oucs.vle.StatusProgressionImpl">
+	</bean>
+
 	<bean id="uk.ac.ox.oucs.vle.XcriPopulator"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="target">

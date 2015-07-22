@@ -70,7 +70,11 @@
 	<div id="messages"></div>
 
 	<div id="browse">
+		<c:forEach var="error" items="${it.errors}">
+			<div class="alertMessage"><c:out value="${error}"/> </div>
+		</c:forEach>
 		<p>
+		<c:if test="${not empty it.signup}">
 			<c:out value="${it.signup.user.name}" />
 			has signed up to
 			<c:out value="${it.signup.group.title}" />
@@ -103,6 +107,7 @@
 				<br />
 			</c:forEach>
 			<br />
+		</c:if>
 		</p>
 	</div>
 	<br clear="all">

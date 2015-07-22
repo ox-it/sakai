@@ -60,6 +60,8 @@ public class SignupResource {
 	@InjectParam
 	private CourseSignupService courseService;
 	@InjectParam
+	private StatusProgression statusProgression;
+	@InjectParam
 	private ServerConfigurationService serverConfigurationService;
 	@InjectParam
 	private SakaiProxy proxy;
@@ -584,11 +586,22 @@ public class SignupResource {
 				log.debug("decoded parameter [" + params[i] + "]");
 			}
 		}
-		CourseSignup signup = courseService.getCourseSignupAnyway(params[0]);
-		Map<String, Object> model = new HashMap<String, Object>();
+		String signupId = params[0];
+		// This is the status that is being advanced to.
+		String emailStatus = params[1];
+		Status status = toStatus(emailStatus);
+		CourseSignup signup = courseService.getCourseSignupAnyway(signupId);
+		Map<String, Object> model = new HashMap<>();
 		model.put("signup", signup);
 		model.put("encoded", encoded);
-		model.put("status", params[1]);
+
+		// Check that the status we're trying to advance to is valid
+		if (!statusProgression.next(signup.getStatus()).contains(status)) {
+			model.put("errors", Collections.singletonList("The signup has already been dealt with."));
+		} else {
+			// We only put the status in if we're happy for it to be changed.
+			model.put("status", emailStatus);
+		}
 
 		addStandardAttributes(model);
 
@@ -607,37 +620,63 @@ public class SignupResource {
 		String[] params = courseService.getCourseSignupFromEncrypted(encoded);
 
 		String signupId = params[0];
-		//String status = params[1];
+		Status status = toStatus(params[1]);
 		String placementId = params[2];
 
 		CourseSignup signup = courseService.getCourseSignupAnyway(signupId);
 		if (null == signup) {
 			return Response.noContent().build();
 		}
-
-		switch (getIndex(new String[]{"accept", "approve", "confirm", "reject"}, formStatus.toLowerCase())) {
-
-			case 0:
-				courseService.accept(signupId, true, placementId);
-				break;
-			case 1:
-				courseService.approve(signupId, true, placementId);
-				break;
-			case 2:
-				courseService.confirm(signupId, true, placementId);
-				break;
-			case 3:
-				courseService.reject(signupId, true, placementId);
-				break;
-			default:
-				return Response.noContent().build();
-		}
-
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("signup", signup);
+		if (!statusProgression.next(signup.getStatus()).contains(status)) {
+			model.put("errors", Collections.singletonList("The signup has already been dealt with."));
+		} else {
+			try {
+				switch (formStatus.toLowerCase()) {
+					case "accept":
+						courseService.accept(signupId, true, placementId);
+						break;
+					case "approve":
+						courseService.approve(signupId, true, placementId);
+						break;
+					case "confirm":
+						courseService.confirm(signupId, true, placementId);
+						break;
+					case "reject":
+						courseService.reject(signupId, true, placementId);
+						break;
+					default:
+						throw new IllegalStateException("No mapping for action of: "+ formStatus);
+				}
+			} catch (IllegalStateException ise) {
+				model.put("errors", Collections.singletonList(ise.getMessage()));
+			}
+		}
 
 		addStandardAttributes(model);
 		return Response.ok(new Viewable("/static/ok", model)).build();
+	}
+
+	/**
+	 * The statuses that go out in emails are action rather that actual statuses, this
+	 * method converts the email status into an actual status.
+	 * @param emailStatus The status to convert.
+	 * @thows IllegalArgumentException
+	 */
+	public Status toStatus(String emailStatus) {
+		switch (emailStatus) {
+			case "accept":
+				return Status.ACCEPTED;
+			case "approve":
+				return Status.APPROVED;
+			case "confirm":
+				return Status.CONFIRMED;
+			case "reject":
+				return Status.REJECTED;
+			default:
+				throw new IllegalArgumentException("Not a valid email status: "+ emailStatus);
+		}
 	}
 
 	/**
@@ -651,15 +690,6 @@ public class SignupResource {
 				serverConfigurationService.getString("skin.default", "default"));
 		model.put("skinPrefix",
 				serverConfigurationService.getString("portal.neoprefix", ""));
-	}
-
-	protected int getIndex(String[] array, String value){
-		for(int i=0; i<array.length; i++){
-			if(array[i].equals(value)){
-				return i;
-			}
-		}
-		return -1;
 	}
 
 	private String buildString(Collection<String> collection) {
