@@ -261,8 +261,8 @@
 			<plugin>
 				<!-- This fires off the YUI compressor. -->
 				<groupId>com.samaxes.maven</groupId>
-				<artifactId>maven-minify-plugin</artifactId>
-				<version>1.2.1</version>
+				<artifactId>minify-maven-plugin</artifactId>
+				<version>1.7.4</version>
 				<executions>
 					
 					<execution>
@@ -304,7 +304,9 @@
 							</jsSourceFiles>
 							<jsFinalFile>ajax-solr-bundle.js</jsFinalFile>
 							<cssSourceDir>static/lib/ajax-solr-master</cssSourceDir>
-							<cssSourceIncludes>search/css/search.css</cssSourceIncludes>
+							<cssSourceIncludes>
+								<cssSourceInclude>search/css/search.css</cssSourceInclude>
+							</cssSourceIncludes>
 							<cssFinalFile>ajax-solr-bundle.css</cssFinalFile>
 						</configuration>
 					</execution>
