@@ -77,7 +77,7 @@
 						<configuration>
 							<componentProperties>
 								<propertyfile>hibernate-hsqldb.properties</propertyfile>
-								<outputfilename>hsqldb/${artifactId}.sql</outputfilename>
+								<outputfilename>hsqldb/${project.artifactId}.sql</outputfilename>
 							</componentProperties>
 						</configuration>
 					</execution>
@@ -90,7 +90,7 @@
 						<configuration>
 							<componentProperties>
 								<propertyfile>hibernate-mysql.properties</propertyfile>
-								<outputfilename>mysql/${artifactId}.sql</outputfilename>
+								<outputfilename>mysql/${project.artifactId}.sql</outputfilename>
 							</componentProperties>
 						</configuration>
 					</execution>
@@ -103,7 +103,7 @@
 						<configuration>
 							<componentProperties>
 								<propertyfile>hibernate-oracle.properties</propertyfile>
-								<outputfilename>oracle/${artifactId}.sql</outputfilename>
+								<outputfilename>oracle/${project.artifactId}.sql</outputfilename>
 							</componentProperties>
 						</configuration>
 					</execution>
