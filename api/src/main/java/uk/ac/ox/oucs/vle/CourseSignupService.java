@@ -27,7 +27,7 @@ import java.util.*;
  * after or will return null if it can't be found. If you don't have permission to
  * see the item then you may get a {@link PermissionDeniedException}. Most of the 
  * actions are void and will throw a {@link NotFoundException} when you supply an 
- * invalid id. If you attempt todo something which isn't allowed due to business 
+ * invalid id. If you attempt to do something which isn't allowed due to business
  * rules then you will get an {@link IllegalStateException}.
  * 
  * @author buckett
@@ -193,8 +193,6 @@ public interface CourseSignupService {
 	 * Gets all the CourseGroups that the current user is Lecturing
 	 */
 	public List<CourseGroup> getLecturing();
-	
-	public boolean isAdministrator(Set<String> administrators);
 	
 	public void setSignupStatus(String signupId, Status status);
 	

@@ -509,13 +509,15 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		return signups;
 	}
-		
-	public boolean isAdministrator(Set<String> administrators) {
+
+	/**
+	 * Check if the current user is a member of a set.
+	 * @param userIds The set of user IDs to check
+	 * @return <code>true</code> if the user is in the set.
+	 */
+	boolean containsCurrentUser(Set<String> userIds) {
 		String currentUserId = proxy.getCurrentUser().getId();
-		if (administrators.contains(currentUserId)) {
-			return true;
-		}
-		return false;
+		return userIds.contains(currentUserId);
 	}
 	
 	private boolean isAdministrator(CourseGroupDAO groupGroup, String currentUserId, boolean defaultValue) {
