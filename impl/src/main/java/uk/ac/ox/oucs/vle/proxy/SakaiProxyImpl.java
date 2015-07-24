@@ -207,6 +207,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return userService.getAnonymousUser().equals(userService.getCurrentUser());
 	}
 
+	@Override
+	public boolean isAdministrator() {
+		return securityService.isSuperUser();
+	}
+
 	public UserProxy findUserById(String id) {
 		try {
 			return wrapUserProxy(userService.getUser(id));

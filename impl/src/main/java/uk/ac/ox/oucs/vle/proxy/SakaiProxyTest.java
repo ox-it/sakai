@@ -88,6 +88,11 @@ public class SakaiProxyTest implements SakaiProxy {
 		return false;
 	}
 
+	@Override
+	public boolean isAdministrator() {
+		return false;
+	}
+
 	public void setCurrentUser(UserProxy user) {
 		this.current = user;
 	}

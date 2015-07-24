@@ -545,6 +545,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (user.getEid().equals(this.getDaisyAdmin())) {
 			return true;
 		}
+		if (proxy.isAdministrator()) {
+			return true;
+		}
 		for (CourseGroupDAO groupDao: componentDao.getGroups()) {
 			if (groupDao.getAdministrators().contains(user.getId())) {
 				return true;
