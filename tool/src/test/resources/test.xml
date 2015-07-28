@@ -29,4 +29,11 @@
 		</constructor-arg>
 	</bean>
 
+	<bean id="uk.ac.ox.oucs.vle.StatusProgression"
+		  class="org.mockito.Mockito" factory-method="mock">
+		<constructor-arg>
+			<value type="java.lang.Class">uk.ac.ox.oucs.vle.StatusProgression</value>
+		</constructor-arg>
+	</bean>
+
 </beans>

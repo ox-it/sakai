@@ -33,7 +33,7 @@
 
 <!-- Jersey puts the model in the 'it' attribute -->
 <link href='<c:out value="${it.skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
-<link href="<c:out value="${it.skinRepo}" />/<c:out value="${it.skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
+<link href="<c:out value="${it.skinRepo}" />/<c:out value="${it.skinPrefix}" /><c:out value="${it.skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
 	
 <link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css" />
 <link rel="stylesheet" type="text/css" href="lib/dataTables-1.7/css/demo_table_jui.css" />
@@ -53,8 +53,10 @@
 	<div id="messages"></div>
 
 	<div id="browse">
-		<form method="POST" action="">
-
+		<c:forEach var="error" items="${it.errors}">
+			<div class="alertMessage"><c:out value="${error}"/> </div>
+		</c:forEach>
+		<form method="POST">
 			<input type="hidden" name="param" value="<c:out value='${it.encoded}' />" />
 			<div id="tree">
 				<p>
@@ -89,11 +91,13 @@
 						</c:if>
 						<br />
 					</c:forEach>
+					<c:if test="${not empty it.status}">
 					<br /> Please either 
 					<input type="submit" name="formStatus" value="<c:out value='${fn:toUpperCase(it.status)}' />" /> 
 					or 
 					<input type="submit" name="formStatus" value="REJECT" /> 
 					this signup.
+					</c:if>
 				</p>
 			</div>
 		</form>
