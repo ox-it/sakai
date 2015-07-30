@@ -56,7 +56,7 @@ console.log(query);
 
   $elfinder.elfinder({
     // Connector script
-    url : url + initdir,
+    url : url,
 
     // When a file is clicked, its data will be sent back to the editor that
     // instantiated it, and this window will close
