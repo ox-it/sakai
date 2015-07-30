@@ -41,15 +41,14 @@ console.log(query);
   //console.log(onlyMimes, type);
 
   // Initial directory
-  var initdir = '';
-  if (query.initdir) {
-    var hash = query.initdir;
-    hash = btoa(hash);
-    hash = hash.replace(/\+|\/|=/, '-', '_', '.');
-    initdir = '?cmd=open&target=' + hash + '&init=1&tree=1';
+  var startDir = '';
+  if (query.startdir) {
+    var startDir = query.startdir;
+    startDir = btoa(startDir);
+    startDir = startDir.replace('+', '-')
+                       .replace('/', '_')
+                       .replace('=', '.');
   }
-
-  console.log(initdir);
 
   // Initialize elFinder
   var $elfinder = $('#elfinder');
@@ -57,6 +56,9 @@ console.log(query);
   $elfinder.elfinder({
     // Connector script
     url : url,
+
+    // Starting directory
+    startDir : startDir,
 
     // When a file is clicked, its data will be sent back to the editor that
     // instantiated it, and this window will close
