@@ -21,7 +21,7 @@ var init = function() {
 
   var query = parseGetQuery();
   var funcNum = query.CKEditorFuncNum;
-  var langCode = query.langCode;
+  var lang = query.langCode;
   var type = query.type;
   var url = '/' + (query.connector || '');
   var border = 2; // border padding (for calculating height)
@@ -29,7 +29,8 @@ var init = function() {
     window.opener.CKEDITOR.tools.callFunction(funcNum, data);
     window.close();
   };
-console.log(query);
+
+  // Restricted Mimes
   var onlyMimes = [];
 
   if (type == 'images') {
@@ -38,10 +39,9 @@ console.log(query);
     onlyMimes.push('application/x-shockwave-flash');
   }
 
-  //console.log(onlyMimes, type);
-
   // Initial directory
-  var startDir = '';
+  var startDir;
+
   if (query.startdir) {
     var startDir = query.startdir;
     startDir = btoa(startDir);
@@ -59,6 +59,9 @@ console.log(query);
 
     // Starting directory
     startDir : startDir,
+
+    // Language
+    lang: lang,
 
     // When a file is clicked, its data will be sent back to the editor that
     // instantiated it, and this window will close
