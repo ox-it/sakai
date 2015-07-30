@@ -58,14 +58,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     var language = sakai.locale && sakai.locale.userLanguage || '';
     var country = sakai.locale && sakai.locale.userCountry || null;
 
-    // elfinder directory hash function
-    var hash = function(path) {
-      // Need to convert to base64 then do replacements
-      return path;
-    };
-
-    var initdir = hash(collectionId + '?' + folder);
-
     var ckconfig = {
 	//Some defaults for audio recorder
         audiorecorder : {
@@ -80,9 +72,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         height: 310,
         fileConnectorUrl : '/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '?' + folder,
 
-        filebrowserBrowseUrl :      '/library/editor/elfinder/elfinder.html?connector=elfinder-connector/elfinder-servlet/connector#' + initdir,
-        filebrowserImageBrowseUrl : '/library/editor/elfinder/elfinder.html?connector=elfinder-connector/elfinder-servlet/connector&type=images' + initdir,
-        filebrowserFlashBrowseUrl : '/library/editor/elfinder/elfinder.html?connector=elfinder-connector/elfinder-servlet/connector&type=flash#' + initdir,
+        filebrowserBrowseUrl :      '/library/editor/elfinder/sakai/elfinder.html?connector=elfinder-connector/elfinder-servlet/connector&initdir=' + collectionId,
+        filebrowserImageBrowseUrl : '/library/editor/elfinder/sakai/elfinder.html?connector=elfinder-connector/elfinder-servlet/connector&type=images&initdir=' + collectionId,
+        filebrowserFlashBrowseUrl : '/library/editor/elfinder/sakai/elfinder.html?connector=elfinder-connector/elfinder-servlet/connector&type=flash&initdir=' + collectionId,
 				extraPlugins: (sakai.editor.enableResourceSearch ? 'resourcesearch,' : '')+'',
 
 
