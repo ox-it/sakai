@@ -58,6 +58,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     var language = sakai.locale && sakai.locale.userLanguage || '';
     var country = sakai.locale && sakai.locale.userCountry || null;
 
+    // Flag for setting elfinder to build or source version
+    // Must be either 'src' or 'build'
+    var elfinderBuild = 'src';
+
     var ckconfig = {
 	//Some defaults for audio recorder
         audiorecorder : {
@@ -72,9 +76,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         height: 310,
         fileConnectorUrl : '/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + collectionId + '?' + folder,
 
-        filebrowserBrowseUrl :      '/library/editor/elfinder/sakai/elfinder.html?connector=elfinder-connector/elfinder-servlet/connector&initdir=' + collectionId,
-        filebrowserImageBrowseUrl : '/library/editor/elfinder/sakai/elfinder.html?connector=elfinder-connector/elfinder-servlet/connector&type=images&initdir=' + collectionId,
-        filebrowserFlashBrowseUrl : '/library/editor/elfinder/sakai/elfinder.html?connector=elfinder-connector/elfinder-servlet/connector&type=flash&initdir=' + collectionId,
+        filebrowserBrowseUrl :      '/library/editor/elfinder/sakai/elfinder.' + elfinderBuild + '.html?connector=elfinder-connector/elfinder-servlet/connector&startdir' + collectionId,
+        filebrowserImageBrowseUrl : '/library/editor/elfinder/src/sakai/elfinder' + elfinderBuild + '.html?connector=elfinder-connector/elfinder-servlet/connector&type=images&startdir' + collectionId,
+        filebrowserFlashBrowseUrl : '/library/editor/elfinder/src/sakai/elfinder' + elfinderBuild + '.html?connector=elfinder-connector/elfinder-servlet/connector&type=flash&startdir' + collectionId,
 				extraPlugins: (sakai.editor.enableResourceSearch ? 'resourcesearch,' : '')+'',
 
 
