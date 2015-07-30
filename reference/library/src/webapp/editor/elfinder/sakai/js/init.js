@@ -34,7 +34,7 @@ var init = function() {
   var onlyMimes = [];
 
   if (type == 'images') {
-    onlyMimes.push('images');
+    onlyMimes.push('image');
   } else if (type == 'flash') {
     onlyMimes.push('application/x-shockwave-flash');
   }
@@ -62,6 +62,9 @@ var init = function() {
 
     // Language
     lang: lang,
+
+    // Default view
+    defaultView: 'list',
 
     // When a file is clicked, its data will be sent back to the editor that
     // instantiated it, and this window will close
@@ -93,6 +96,7 @@ var init = function() {
       ],
 
       tree : {
+        // Styles tool icons in the navbar
         getClass: function(directory) {
           var classes = '';
           //console.log(directory);
@@ -104,38 +108,12 @@ var init = function() {
       }
     },
 
-    // Custom properties for the info dialog
+    // Command-specific options
     commandsOptions : {
       info: {
+        // Custom properties for the info dialog
         custom: {
-          // Description
-          desc : {
-            label: 'Description',
-
-            // Template
-            tpl: '<div id="elfinder-fm-file-desc">somedesc</div>',
-
-            // Only for html files
-            mimes: ['text/html'],
-
-            // Data requests
-            action: function(file, fm, dialog, msg) {
-              /*
-              // Request for data
-              fm.request({
-                data : {
-                  cmd : 'desc',
-                  target: file.hash,
-                },
-                preventDefault: true,
-              })
-              .done(function(data) {
-                var $desc = dialog.find('#elfinder-fm-file-desc');
-                $desc.html(data.desc);
-              });
-              */
-            },
-          },
+          // ...
         }
       },
     },
