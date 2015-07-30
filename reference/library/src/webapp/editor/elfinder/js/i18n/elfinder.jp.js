@@ -92,6 +92,9 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'errFtpMkdir'          : 'FTP にリモートディレクトリを作成できません："$1"',
 			'errArchiveExec'       : 'ファイルのアーカイブ中にエラーが発生しました："$1"',
 			'errExtractExec'       : 'ファイルの抽出中にエラーが発生しました："$1"',
+			'errNetUnMount'        : 'アンマウントできません', // added 30.04.2012
+			'errConvUTF8'          : 'UTF-8 に変換できませんでした', // added 08.04.2014
+			'errFolderUpload'      : 'フォルダをアップロードしたいのであれば、Google Chrome を使用してください', // from v2.1 added 26.6.2015
 			
 			/******************************* commands names ********************************/
 			'cmdarchive'   : 'アーカイブ作成',
@@ -122,6 +125,9 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'cmdresize'    : 'リサイズと回転',
 			'cmdsort'      : 'ソート',
 			'cmdnetmount'  : 'ネットワークボリュームをマウント', // added 18.04.2012
+			'cmdnetunmount': 'アンマウント', // added 30.04.2012
+			'cmdplaces'    : 'お気に入りへ', // added 28.12.2014
+			'cmdchmod'     : '属性変更', // from v2.1 added 20.6.2015
 			
 			/*********************************** buttons ***********************************/ 
 			'btnClose'  : '閉じる',
@@ -132,6 +138,15 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'btnNo'     : 'いいえ',
 			'btnYes'    : 'はい',
 			'btnMount'  : 'マウント',  // added 18.04.2012
+			'btnApprove': '$1へ行き認可する', // added 26.04.2012
+			'btnUnmount': 'アンマウント', // added 30.04.2012
+			'btnConv'   : '変換', // added 08.04.2014
+			'btnCwd'    : 'この場所',   // from v2.1 added 22.5.2015
+			'btnVolume' : 'ボリューム', // from v2.1 added 22.5.2015
+			'btnAll'    : '全て',       // from v2.1 added 22.5.2015
+			'btnMime'   : 'MIMEタイプ', // from v2.1 added 22.5.2015
+			'btnFileName':'ファイル名', // from v2.1 added 22.5.2015
+			'btnSaveClose': '保存して閉じる', // from v2.1 added 12.6.2015
 			
 			/******************************** notifications ********************************/
 			'ntfopen'     : 'フォルダーを開いています',
@@ -154,7 +169,11 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'ntfsmth'     : '処理をしています',
       		'ntfloadimg'  : 'イメージを読み込んでいます',
       		'ntfnetmount' : 'ネットワークボリュームをマウントしています', // added 18.04.2012
+      		'ntfnetunmount': 'ネットワークボリュームをアンマウントしています', // added 30.04.2012
 			'ntfdim'      : '画像サイズを取得しています', // added 20.05.2013
+			'ntfreaddir'  : 'ホルダ情報を読み取っています', // added 01.07.2013
+			'ntfurl'      : 'リンクURLを取得しています', // added 11.03.2014
+			'ntfchmod'    : 'ファイル属性を変更しています', // from v2.1 added 20.6.2015
 			
 			/************************************ dates **********************************/
 			'dateUnknown' : '不明',
@@ -210,6 +229,8 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'confirmReq'      : '処理を実行しますか？',
 			'confirmRm'       : '本当にファイルを削除しますか?<br/>この操作は取り消せません！',
 			'confirmRepl'     : '古いファイルを新しいファイルで上書きしますか？',
+			'confirmConvUTF8' : 'UTF-8 以外の文字が含まれています。<br/>UTF-8  に変換しますか？<br/>変換後の保存でコンテンツは UTF-8 になります。', // added 08.04.2014
+			'confirmNotSave'  : '変更されています。<br/>保存せずに閉じると編集内容が失われます。', // from v2.1 added 15.7.2015
 			'apllyAll'        : '全てに適用します',
 			'name'            : '名前',
 			'size'            : 'サイズ',
@@ -283,6 +304,19 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'port'                : 'ポート', // added 18.04.2012
 			'user'                : 'ユーザー名', // added 18.04.2012
 			'pass'                : 'パスワード', // added 18.04.2012
+			'confirmUnmount'      : '$1をアンマウントしますか?',  // added 30.04.2012
+			'dropFilesBrowser': 'ブラウザからファイルをドロップまたは貼り付け', // added 30.05.2012
+			'dropPasteFiles'  : 'ここにファイルをドロップまたは貼り付け', // added 07.04.2014
+			'encoding'        : '文字コード', // from v2.1 added 19.12.2014
+			'locale'          : 'ロケール',   // from v2.1 added 19.12.2014
+			'searchTarget'    : '検索範囲: $1',               // from v2.1 added 22.5.2015
+			'searchMime'      : '指定した MIME タイプで検索', // from v2.1 added 22.5.2015
+			'owner'           : 'オーナー', // from v2.1 added 20.6.2015
+			'group'           : 'グループ', // from v2.1 added 20.6.2015
+			'other'           : 'その他', // from v2.1 added 20.6.2015
+			'execute'         : '実行', // from v2.1 added 20.6.2015
+			'perm'            : 'パーミッション', // from v2.1 added 20.6.2015
+			'mode'            : '属性', // from v2.1 added 20.6.2015
 
 			/********************************** mimetypes **********************************/
 			'kindUnknown'     : '不明',
@@ -333,6 +367,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'kindAWK'         : 'AWK ソース',
 			'kindCSV'         : 'CSV',
 			'kindDOCBOOK'     : 'Docbook XML ドキュメント',
+			'kindMarkdown'    : 'Markdown テキスト', // added 20.7.2015
 			// images
 			'kindImage'       : 'イメージ',
 			'kindBMP'         : 'BMP イメージ',
