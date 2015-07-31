@@ -118,7 +118,7 @@
   <!-- elfinder 1.x connector API support -->
   <script src="../src/js/proxy/elFinderSupportVer1.js"></script>
 
-  <!--Moono Theme CSS-->
+  <!-- Moono Theme CSS -->
   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
   <link rel="stylesheet" type="text/css" href="css/moono/theme.css">
 
@@ -126,6 +126,15 @@
   <link rel="stylesheet" type="text/css" href="css/sakai-11/theme.css">
 
   <!-- elFinder initialization (REQUIRED) -->
+  <!-- Some initialization for Sakai-specific config is done first -->
+  <script src="js/sakai.js"></script>
+  <script src="js/query.js"></script>
+  <script src="js/tools.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/resizer.js"></script>
+  <script src="js/confirm.js"></script>
+  <script src="js/options.js"></script>
+  <script src="js/handlers.js"></script>
   <script src="js/init.js"></script>
 </head>
 
