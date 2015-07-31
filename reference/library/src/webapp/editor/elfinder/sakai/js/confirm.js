@@ -1,9 +1,18 @@
 // Handles logic for actually embedding the correct file/folder link
+// TODO: Push getFileCallback logic into this file as well
+// This will involve delegating the events from the $elfinder container
 (function ($) {
 
+$.sakai.elfinder.options.getFileCallback = function(file) {
+  console.log(file);
+};
+
 $.sakai.elfinder.confirm = function($elfinder) {
-  var classes = $.sakai.elfinder.ui.classes;
-  var $footer = $elfinder.find(classes.footer);
+  var ui = $.sakai.elfinder.ui;
+  var elements = ui.elements;
+  var $footer = $elfinder.find(elements.footer);
+
+  console.log($footer);
 
   // When 'OK' is clicked, check the current file/directory and send that info
   // back to the editor (and close the window)
