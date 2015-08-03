@@ -28,7 +28,7 @@ $.sakai.elfinder.options = {
   url : url,
 
   // Starting directory
-  startDir : startDir,
+  startPathHash : startDir,
 
   // Language
   lang: lang,
@@ -82,6 +82,10 @@ $.sakai.elfinder.options = {
 
   // Command-specific options
   commandsOptions : {
+    getfile : {
+      onlyURL: false,
+      folders: true,
+    },
     info: {
       // Custom properties for the info dialog
       custom: {
