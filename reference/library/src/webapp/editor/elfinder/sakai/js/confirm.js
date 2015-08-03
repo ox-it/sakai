@@ -1,30 +1,49 @@
-// Handles logic for actually embedding the correct file/folder link
-// TODO: Push getFileCallback logic into this file as well
-// This will involve delegating the events from the $elfinder container
 (function ($) {
 
-$.sakai.elfinder.options.getFileCallback = function(file) {
-  console.log(file);
+var ui = $.sakai.elfinder.ui;
+var elements = ui.elements;
+
+// Set handlers to deal with extra data
+$.sakai.elfinder.options.handlers = {
+  // When a directory opens set the @cwd to that directory
+  open : function(event, instance) {
+    var $footer = $(elements.footer);
+    $footer.data('cwd', event.data.options.path);
+  },
+
+  // When a file is selected, trigger options.getFileCallback
+  // Otherwise, set the embed link to the cwd
+  select : function(event, instance) {
+    var selected = event.data.selected;
+    var $footer = $(elements.footer);
+
+    if (!selected.length) {
+      // The folder url
+      var cwd = $footer.data('cwd');
+      $footer.data('embed', cwd);
+    } else {
+      instance.exec('getfile', selected);
+    }
+  },
 };
 
+// When a file has been dblclicked, set the embed link to the file's path
+$.sakai.elfinder.options.getFileCallback = function(file) {
+  var $footer = $(elements.footer);
+  $footer.data('embed', file.path);
+  $footer.data('file', file);
+};
+
+// Binding embedding functionality to the OK and Cancel buttons
 $.sakai.elfinder.confirm = function($elfinder) {
-  var ui = $.sakai.elfinder.ui;
-  var elements = ui.elements;
   var $footer = $elfinder.find(elements.footer);
+  var funcNum = $.sakai.elfinder.query().CKEditorFuncNum;
 
-  console.log($footer);
-
-  // When 'OK' is clicked, check the current file/directory and send that info
-  // back to the editor (and close the window)
+  // When OK is clicked, embed the embed link
   $footer.on('click', '.button-ok', function(event) {
-    // Check the current file
-    var path = $footer.data('currentFile');
-
-    // If no file has been selected, use the current directory
-    path = path || $footer.data('currentDirectory');
-
-    console.log(path);
-    //sendToEditor(path);
+    var embed = $footer.data('embed');
+    window.opener.CKEDITOR.tools.callFunction(funcNum, embed);
+    window.close();
   });
 
   // When 'Cancel' is clicked, close the window
