@@ -5,6 +5,7 @@ $(function() {
   var options = $.sakai.elfinder.options;
   var ui = $.sakai.elfinder.ui;
   var resizer = $.sakai.elfinder.resizer;
+  var confirm = $.sakai.elfinder.confirm;
   var $elfinder = $('#elfinder');
   var $window = $(window);
 
