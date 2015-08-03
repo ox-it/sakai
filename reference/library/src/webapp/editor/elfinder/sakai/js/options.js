@@ -82,10 +82,6 @@ $.sakai.elfinder.options = {
 
   // Command-specific options
   commandsOptions : {
-    getfile : {
-      onlyURL: false,
-      folders: true,
-    },
     info: {
       // Custom properties for the info dialog
       custom: {
