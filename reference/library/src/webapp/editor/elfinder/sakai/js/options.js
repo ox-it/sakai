@@ -7,6 +7,12 @@ var startDir = query.startdir;
 var lang = query.langCode;
 
 if (startDir) {
+  // Remove first /prefix/
+  startDir = startDir.split('/');
+  startDir = startDir.filter(function(elem) { return elem; });
+  startDir = startDir.slice(1);
+  startDir = '/' + startDir.join('/') + '/content/';
+
   // Hashing
   startDir = btoa(startDir);
   startDir = startDir.replace('+', '-')
@@ -22,6 +28,13 @@ if (type == 'image') {
 } else if (type == 'flash') {
   onlyMimes = ['application/x-shockwave-flash'];
 }
+
+
+var testHelp = {
+  type: 'dialog',
+  title: 'Help',
+  content: 'example',
+};
 
 $.sakai.elfinder.options = {
   // Connector script
@@ -52,7 +65,7 @@ $.sakai.elfinder.options = {
   // Buttons available on the toolbar
   uiOptions: {
     toolbar : [
-      ['help'],
+      ['help', testHelp],
       ['back', 'forward'],
       ['reload'],
       ['home', 'up'],
@@ -92,6 +105,29 @@ $.sakai.elfinder.options = {
 
   // Fullscreen editor, so no resizing
   resizable: false,
+
+  // Custom dialogs
+  dialogs: {
+    testHelp: {
+      title: 'Help',
+      content: 'Some help stuff here',
+      height: '500px',
+      width: 600,
+    },
+    anotherHelp: {
+      title: 'More help',
+      tabs: {
+        tab1: {
+          title: 'Tab3',
+          content: 'Here',
+        },
+        tab2: {
+          title: 'Tab2',
+          content: 'Here',
+        }
+      }
+    },
+  }
 };
 
 })(jQuery);
