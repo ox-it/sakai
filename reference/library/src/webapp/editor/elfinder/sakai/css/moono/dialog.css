@@ -150,6 +150,11 @@
   padding: 5px;
 }
 
+/* disable resizing on textarea */
+.elfinder-dialog textarea {
+  resize: none;
+}
+
 /* footer */
 .elfinder-dialog .ui-dialog-buttonpane {
   text-align: right;
@@ -161,6 +166,10 @@
   background: #cfd1cf;
   background-image: linear-gradient(to bottom, #ebebeb, #cfd1cf);
   filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0, startColorstr='#ebebeb', endColorstr='#cfd1cf');
+}
+
+.elfinder-dialog .ui-dialog-buttonset {
+  margin-right: 8px;
 }
 
 .elfinder-dialog .ui-button {
