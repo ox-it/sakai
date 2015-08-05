@@ -30,7 +30,7 @@ $.sakai.elfinder.options.handlers = {
 // When a file has been dblclicked, set the embed link to the file's path
 $.sakai.elfinder.options.getFileCallback = function(file) {
   var $footer = $(elements.footer);
-  $footer.data('embed', file.path);
+  $footer.data('embed', file.url);
   $footer.data('file', file);
 };
 
