@@ -5,6 +5,7 @@
  * @author Dmitry (dio) Levashov
  **/
 $.fn.elfindertoolbar = function(fm, opts) {
+console.log(fm, opts);
 	this.not('.elfinder-toolbar').each(function() {
 		var commands = fm._commands,
 			self     = $(this).addClass('ui-helper-clearfix ui-widget-header ui-corner-top elfinder-toolbar'),
