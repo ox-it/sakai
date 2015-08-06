@@ -36,6 +36,8 @@ var testHelp = {
   content: 'example',
 };
 
+var ui = $.sakai.elfinder.ui;
+
 $.sakai.elfinder.options = {
   // Connector script
   url : url,
@@ -101,6 +103,100 @@ $.sakai.elfinder.options = {
         // ...
       }
     },
+
+    edit : {
+      // File editors
+      editors : [
+        // CKEditor (for html files)
+        {
+          mimes : ['text/html'],
+          exts  : ['htm', 'html', 'xhtml'],
+          load : (function() {
+            // Closure to create local variables
+            // Ensure CKEditor is only loaded once
+            var ckloaded = false;
+            var setup = function(textarea) {
+              CKEDITOR.replace( textarea.id, {
+                startupFocus : true,
+                fullPage: true,
+                allowedContent: true
+              });
+            };
+
+            return function(textarea) {
+              ui.setSaveCloseButtons($(textarea).closest('.elfinder-dialog'));
+              if (!ckloaded) {
+                $.getScript('//cdn.ckeditor.com/4.5.2/standard/ckeditor.js', function() {
+                  setup(textarea);
+                });
+                ckloaded = true;
+              } else {
+                setup(textarea);
+              }
+            };
+          })(),
+
+          close : function(textarea) {
+          },
+
+          save : function(textarea) {
+            var instance = CKEDITOR.instances[textarea.id];
+            textarea.value = instance.getData();
+          },
+
+          focus : function(textarea) {
+          }
+        },
+
+        // CodeMirror
+        {
+          load : (function() {
+            // Closure to create local variables
+            // Ensure CodeMirror is only loaded once
+            var cmloaded = false;
+            var setup = function(textarea, mime) {
+              var editor = CodeMirror.fromTextArea(textarea, {
+                lineNumbers: true,
+                mode: mime,
+              });
+              var $textarea = $(textarea).data('CodeMirrorInstance', editor);
+              $textarea.parent().resize();
+            };
+
+            var getextension = function(filename) {
+              return filename.split('.').pop().toLowerCase();
+            };
+
+            return function(textarea) {
+              ui.setSaveCloseButtons($(textarea).closest('.elfinder-dialog'));
+              var mime = this.file.mime;
+              var run = function() {
+                setup(textarea, mime);
+              };
+
+              if (!cmloaded) {
+                $('head').append($('<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.5.0/codemirror.css">'));
+                $.getScript('//cdnjs.cloudflare.com/ajax/libs/codemirror/5.5.0/codemirror.js', run);
+                cmloaded = true;
+              } else {
+                run();
+              }
+            };
+          })(),
+
+          close : function(textarea) {
+          },
+
+          save : function(textarea) {
+            var instance = $(textarea).data('CodeMirrorInstance');
+            textarea.value = instance.getValue();
+          },
+
+          focus : function(textarea) {
+          }
+        },
+      ]
+    }
   },
 
   // Fullscreen editor, so no resizing

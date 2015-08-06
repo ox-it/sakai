@@ -29,6 +29,16 @@ var toClass = ui.toClass = function() {
 
 var elements = ui.elements = {};
 
+/* add classes to buttons on dialog (file editing) */
+ui.setSaveCloseButtons = function($dialog) {
+  var $buttons = $dialog.find('.ui-button').addClass(toClass(elements.button));
+  var $cancel = $($buttons[0]).addClass(toClass(elements.cancel));
+  var $saveandclose = $($buttons[1]).addClass(toClass(elements.ok));
+  var $save = $($buttons[2]).addClass(toClass(elements.ok));
+  $saveandclose.insertAfter($save);
+  $cancel.insertAfter($saveandclose);
+};
+
 elements.footer = '#sakai-ui-footer';
 elements.confirmbar = 'elfinder-confirm-bar';
 elements.buttons = '.buttons';
