@@ -233,15 +233,16 @@
 								}
 							});
 			
-			var teachingDetailsList = new Array();
+			var componentStarts = new Array();
 			for ( var i in object.components) {
 				var component = object.components[i];
-				if (component.teachingDetails) {
-					teachingDetailsList.push(component.teachingDetails);
+				if (component.starts) {
+					componentStarts.push(component.starts);
 				}
 			}
-			
-			Signup.term.sortArray(teachingDetailsList);
+
+			// Sort the dates with the newest first as it is most usefull.
+			componentStarts.sort().reverse();
 			
 			var html = '<h3 style="display:inline">Signups</h3>';
 			
@@ -256,7 +257,8 @@
 			html += '<option value="WITHDRAWN">WITHDRAWN</option>';
 			html += '</select></span>';
 			
-			html += '<span style="float:right; padding-right:20px;">Term Filter <select class="signups-table-term-filter" id="signups-table-term-filter">';
+			html += '<span style="float:right; padding-right:20px;">Teaching Start Filter <select class="signups-table-starts-filter" id="signups-table-starts-filter">';
+			html += '<option value="">All</option>';
 			html += '</select></span>';
 			
 			html += '<table border="0" class="display" id="signups-table"></table>';
@@ -265,11 +267,12 @@
 			html += '<a href="#" id="external-add">Add External Signup</a>';
 			$("#signups").html(html);
 
-			var selectElement = $('#signups-table-term-filter').first();
-			$.each(teachingDetailsList, function(i, teachingDetails) {
+			var selectElement = $('#signups-table-starts-filter').first();
+			$.each(componentStarts, function(i, starts) {
+				var date = new Date(starts).toDateString();
 				selectElement.append($("<option/>", {
-					value: teachingDetails,
-					text: teachingDetails
+					value: starts,
+					text: date
 				}));
 			});
 			if (selectElement.options && selectElement.options.length > 0) {
@@ -282,11 +285,6 @@
 			signups.bind("reload", function() { // Reload the summary when this table changes.
 				summary.fnReloadAjax(null, null, true);
 			})
-			
-			var filterTerm = $('#signups-table-term-filter').val();
-			if (filterTerm) {
-				signups.fnFilter(filterTerm, 9);
-			}
 
 			var signupAddUser = $("#signup-add-user-win");
 			signupAddUser.resize(function(e) {

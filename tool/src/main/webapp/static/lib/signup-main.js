@@ -1081,7 +1081,7 @@ var Signup = function(){
 				"sTitle": "Status",
 				"bVisible": false
 			}, {
-				"sTitle": "Term",
+				"sTitle": "Teaching Starts",
 				"bVisible": false
 			}],
 			"fnServerData": function(sSource, aoData, fnCallback){
@@ -1100,21 +1100,21 @@ var Signup = function(){
 							}
 
 							var closes = 0;
-							var teachingDetailsList = new Array();
+							var starts = new Array();
 							$.each(this.components,
 									function(){
-										teachingDetailsList.push(this.teachingDetails);
 										if (closes != 0 && this.closes > closes) {
 											return;
 										}
 										closes = this.closes;
+										starts.push(this.starts);
 							});
 
 							var actions = "";
 							if (allowChangeAction) {
 								actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, isAdmin));
 							}
-							data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions, this.status, teachingDetailsList]);
+							data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, actions, this.status, starts]);
 
 						});
 						fnCallback({
@@ -1220,9 +1220,9 @@ var Signup = function(){
 			table.fnFilter(filterStatus, 8);
 		});
 
-		$("select.signups-table-term-filter").die().live("change", function(e) {
+		$("select.signups-table-starts-filter").die().live("change", function(e) {
 			var filterTerm = $(this).val();
-			table.fnFilter(filterTerm, 9);
+			table.fnFilter(filterTerm, 9, false);
 		});
 
 		var html = '<div id="signup-add-supervisor-win" class="jqmWindow" style="display: none">'
