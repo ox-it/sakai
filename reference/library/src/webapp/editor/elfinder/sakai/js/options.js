@@ -116,15 +116,28 @@ $.sakai.elfinder.options = {
             // Ensure CKEditor is only loaded once
             var ckloaded = false;
             var setup = function(textarea) {
-              CKEDITOR.replace( textarea.id, {
+              var editor = CKEDITOR.replace(textarea.id, {
                 startupFocus : true,
                 fullPage: true,
-                allowedContent: true
+                allowedContent: true,
+                removePlugins: 'resize',
+              });
+
+              // Force CKEditor to resize with the dialog
+              var $dialog = $(textarea).closest('.elfinder-dialog');
+              $dialog.on('resize', function(event, ui) {
+                var $content = $dialog.find('.ui-dialog-content');
+                var height = $content.height();
+                var width = $content.width();
+
+                editor.resize(width, height);
               });
             };
 
             return function(textarea) {
-              ui.setSaveCloseButtons($(textarea).closest('.elfinder-dialog'));
+              var $dialog = $(textarea).closest('.elfinder-dialog');
+              ui.setSaveCloseButtons($dialog);
+
               if (!ckloaded) {
                 $.getScript('//cdn.ckeditor.com/4.5.2/standard/ckeditor.js', function() {
                   setup(textarea);
@@ -159,8 +172,19 @@ $.sakai.elfinder.options = {
                 lineNumbers: true,
                 mode: mime,
               });
+
+              // Set data instance for use later
               var $textarea = $(textarea).data('CodeMirrorInstance', editor);
-              $textarea.parent().resize();
+
+              // Force CodeMirror to resize with the dialog
+              var $dialog = $textarea.closest('.elfinder-dialog');
+              $dialog.on('resize', function(event, ui) {
+                var $content = $dialog.find('.ui-dialog-content');
+                var height = $content.height();
+                var width = $content.width();
+
+                editor.setSize(width, height);
+              });
             };
 
             var getextension = function(filename) {
@@ -168,7 +192,9 @@ $.sakai.elfinder.options = {
             };
 
             return function(textarea) {
-              ui.setSaveCloseButtons($(textarea).closest('.elfinder-dialog'));
+              var $dialog = $(textarea).closest('.elfinder-dialog');
+              ui.setSaveCloseButtons($dialog);
+
               var mime = this.file.mime;
               var run = function() {
                 setup(textarea, mime);
