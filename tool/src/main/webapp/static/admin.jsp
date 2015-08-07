@@ -171,7 +171,7 @@
 											"bUseRendered" : false
 										},
 										{
-											"sTitle" : "Term"
+											"sTitle" : "Teaching Details"
 										},
 										{
 											"sTitle" : "Status",
