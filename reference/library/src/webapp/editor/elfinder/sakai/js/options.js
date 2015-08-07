@@ -127,7 +127,7 @@ $.sakai.elfinder.options = {
               var $dialog = $(textarea).closest('.elfinder-dialog');
               $dialog.on('resize', function(event, ui) {
                 var $content = $dialog.find('.ui-dialog-content');
-                var height = $content.height();
+                var height = $content.height() - 1;
                 var width = $content.width();
 
                 editor.resize(width, height);
@@ -168,23 +168,30 @@ $.sakai.elfinder.options = {
             // Ensure CodeMirror is only loaded once
             var cmloaded = false;
             var setup = function(textarea, mime) {
+              var $textarea = $(textarea);
+              var $dialog = $textarea.closest('.elfinder-dialog');
               var editor = CodeMirror.fromTextArea(textarea, {
                 lineNumbers: true,
                 mode: mime,
               });
 
               // Set data instance for use later
-              var $textarea = $(textarea).data('CodeMirrorInstance', editor);
+              $textarea.data('CodeMirrorInstance', editor);
 
-              // Force CodeMirror to resize with the dialog
-              var $dialog = $textarea.closest('.elfinder-dialog');
-              $dialog.on('resize', function(event, ui) {
-                var $content = $dialog.find('.ui-dialog-content');
-                var height = $content.height();
+              // Set current dimensions
+              var $content = $dialog.find('.ui-dialog-content');
+              var setDimensions = function() {
+                var height = $content.height() - 1; // -1 is for bottom border fix
                 var width = $content.width();
 
                 editor.setSize(width, height);
-              });
+              };
+
+              // Force CodeMirror to resize with the dialog
+              $dialog.on('resize', setDimensions);
+
+              // Force resizing immediately
+              $dialog.trigger('resize');
             };
 
             var getextension = function(filename) {

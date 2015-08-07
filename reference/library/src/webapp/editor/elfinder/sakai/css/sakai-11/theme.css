@@ -41,6 +41,12 @@ html, body {
   padding-right: 5px;
 }
 
+/* Dialogs */
+/* CKEditor in dialog */
+.elfinder-dialog .cke_chrome {
+  border: none;
+}
+
 /* Extra UI */
 #sakai-ui-footer {
   overflow: hidden;
