@@ -276,6 +276,8 @@
 							<goal>minify</goal>
 						</goals>
 						<configuration>
+							<!-- This doesn't compile with the closure compiler -->
+							<jsEngine>YUI</jsEngine>
 							<jsSourceDir>static/lib/ajax-solr-master</jsSourceDir>
 							<jsSourceFiles>
 								<jsSourceFile>core/Core.js</jsSourceFile>
@@ -317,12 +319,15 @@
 							<goal>minify</goal>
 						</goals>
 						<configuration>
+							<!-- This doesn't compile with the closure compiler -->
+							<jsEngine>CLOSURE</jsEngine>
 							<jsSourceDir>static/lib</jsSourceDir>
 							<jsSourceFiles>
 								<jsSourceFile>signup-main.js</jsSourceFile>
 								<jsSourceFile>signup-split.js</jsSourceFile>
 							</jsSourceFiles>
 							<jsFinalFile>signup.js</jsFinalFile>
+							<closureCreateSourceMap>true</closureCreateSourceMap>
 						</configuration>
 					</execution>
 				</executions>
