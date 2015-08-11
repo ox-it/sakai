@@ -58,77 +58,67 @@ var ckeditor = (function() {
 
 // Codemirror (code editor)
 var codemirror = (function() {
+  // Closure to create local variables
+  // Ensure CodeMirror is only loaded once
+  var url = 'codemirror/';
+  var cmloaded = false;
+  var setup = function(textarea, mime) {
+    var $textarea = $(textarea);
+    var $dialog = $textarea.closest('.elfinder-dialog');
+    var config = {};
+    config.lineNumbers = true;
+    if (mime) config.mode = mime;
 
-})();
+    var editor = CodeMirror.fromTextArea(textarea, config);
 
-$.sakai.elfinder.options.commandsOptions.edit.editors = [
-  ckeditor,
-  //codemirror,
+    // Set data instance for use later
+    $textarea.data('CodeMirrorInstance', editor);
 
-  // CodeMirror
-  {
-    load : (function() {
-      // Closure to create local variables
-      // Ensure CodeMirror is only loaded once
-      var url = 'codemirror/';
-      var cmloaded = false;
-      var setup = function(textarea, mime) {
-        var $textarea = $(textarea);
-        var $dialog = $textarea.closest('.elfinder-dialog');
-        var config = {};
-        config.lineNumbers = true;
-        if (mime) config.mode = mime;
+    // Set current dimensions
+    var $content = $dialog.find('.ui-dialog-content');
+    var setDimensions = function() {
+      var height = $content.height() - 1; // -1 is for bottom border fix
+      var width = $content.width();
 
-        var editor = CodeMirror.fromTextArea(textarea, config);
+      editor.setSize(width, height);
+    };
 
-        // Set data instance for use later
-        $textarea.data('CodeMirrorInstance', editor);
+    // Force CodeMirror to resize with the dialog
+    $dialog.on('resize', setDimensions);
 
-        // Set current dimensions
-        var $content = $dialog.find('.ui-dialog-content');
-        var setDimensions = function() {
-          var height = $content.height() - 1; // -1 is for bottom border fix
-          var width = $content.width();
+    // Force resizing immediately
+    $dialog.trigger('resize');
+  };
 
-          editor.setSize(width, height);
-        };
+  return {
+    load : function(textarea) {
+      var $dialog = $(textarea).closest('.elfinder-dialog');
+      ui.setSaveCloseButtons($dialog);
 
-        // Force CodeMirror to resize with the dialog
-        $dialog.on('resize', setDimensions);
+      var mime = this.file.mime;
+      var run = function() {
+        var mode = CodeMirror.findModeByMIME(mime).mode;
+        var script = url + '/mode/' + mode + '/' + mode + '.js';
 
-        // Force resizing immediately
-        $dialog.trigger('resize');
+        $.getScript(url + '/mode/' + mode + '/' + mode + '.js')
+        .done(function() {
+          setup(textarea, mime);
+        }).fail(function() {
+          console.log('Failed to load mode for ' + mode);
+          setup(textarea);
+        });
       };
 
-      return function(textarea) {
-        var $dialog = $(textarea).closest('.elfinder-dialog');
-        ui.setSaveCloseButtons($dialog);
-
-        var mime = this.file.mime;
-        var run = function() {
-          var mode = CodeMirror.findModeByMIME(mime).mode;
-          var script = url + '/mode/' + mode + '/' + mode + '.js';
-
-          $.getScript(url + '/mode/' + mode + '/' + mode + '.js')
-          .done(function() {
-            setup(textarea, mime);
-          }).fail(function() {
-            console.log('Failed to load mode for ' + mode);
-            setup(textarea);
-          });
-        };
-
-        if (!cmloaded) {
-          $('head').append($('<link rel="stylesheet" href="' + url + 'lib/codemirror.css">'));
-          $.getScript(url + 'lib/codemirror.js', function() {
-            cmloaded = true;
-            $.getScript(url + 'mode/meta.js', run);
-          });
-        } else {
-          run();
-        }
-      };
-    })(),
+      if (!cmloaded) {
+        $('head').append($('<link rel="stylesheet" href="' + url + 'lib/codemirror.css">'));
+        $.getScript(url + 'lib/codemirror.js', function() {
+          cmloaded = true;
+          $.getScript(url + 'mode/meta.js', run);
+        });
+      } else {
+        run();
+      }
+    },
 
     close : function(textarea) {
     },
@@ -140,7 +130,12 @@ $.sakai.elfinder.options.commandsOptions.edit.editors = [
 
     focus : function(textarea) {
     }
-  },
+  };
+})();
+
+$.sakai.elfinder.options.commandsOptions.edit.editors = [
+  ckeditor,
+  codemirror,
 ];
 
 })(jQuery);
