@@ -4,11 +4,12 @@ var ui = $.sakai.elfinder.ui;
 
 // CKEditor (html editor)
 var ckeditor = (function() {
-  // Closure to create local variables
-  // Ensure CKEditor is only loaded once
-  var ckloaded = false;
-  var instance;
+  var ckloaded = false; // ensures CKEditor is only loaded once
+  var instance;         // one reference to the editor instance
+
+  // Sets up the textarea
   var setup = function(textarea) {
+    // Set the editor instance
     var editor = instance = CKEDITOR.replace(textarea.id, {
       startupFocus : true,
       fullPage: true,
@@ -27,6 +28,7 @@ var ckeditor = (function() {
     });
   };
 
+  // Exposed methods
   return {
     mimes : ['text/html'],
     exts  : ['htm', 'html', 'xhtml'],
@@ -62,18 +64,19 @@ var ckeditor = (function() {
 
 // Codemirror (code editor)
 var codemirror = (function() {
-  // Closure to create local variables
-  // Ensure CodeMirror is only loaded once
   var url = 'codemirror/';
-  var cmloaded = false;
+  var codemirrorjs = url + 'lib/codemirror.js';
   var scripts = []; // keeps track of loaded codemirror js files
-  var instance;
+  var instance;     // one reference to the editor instance
+
+  // Sets up the textarea
   var setup = function(textarea, mime) {
     var $textarea = $(textarea);
     var $dialog = $textarea.closest('.elfinder-dialog');
     var config = { lineNumbers : true };
     if (mime) config.mode = mime;
 
+    // Set the editor instance
     var editor = instance = CodeMirror.fromTextArea(textarea, config);
 
     // Set current dimensions
@@ -92,10 +95,12 @@ var codemirror = (function() {
     setDimensions();
   };
 
+  // Checks if a codemirror script has already been loaded
   var loaded = function(url) {
     return scripts.indexOf(url) !== -1;
   };
 
+  // Exposed methods
   return {
     load : function(textarea) {
       var $dialog = $(textarea).closest('.elfinder-dialog');
@@ -127,10 +132,11 @@ var codemirror = (function() {
         });
       };
 
-      if (!cmloaded) {
+
+      if (!loaded(codemirrorjs)) {
         $('head').append($('<link rel="stylesheet" href="' + url + 'lib/codemirror.css">'));
-        $.getScript(url + 'lib/codemirror.js', function() {
-          cmloaded = true;
+        $.getScript(codemirrorjs, function() {
+          scripts.push(codemirrorjs);
           $.getScript(url + 'mode/meta.js', run);
         });
       } else {
