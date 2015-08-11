@@ -2,48 +2,46 @@
 
 var ui = $.sakai.elfinder.ui;
 
-$.sakai.elfinder.options.commandsOptions.edit.editors = [
-  // CKEditor (for html files)
-  {
+// CKEditor (html editor)
+var ckeditor = (function() {
+  // Closure to create local variables
+  // Ensure CKEditor is only loaded once
+  var ckloaded = false;
+  var setup = function(textarea) {
+    var editor = CKEDITOR.replace(textarea.id, {
+      startupFocus : true,
+      fullPage: true,
+      allowedContent: true,
+      removePlugins: 'resize',
+    });
+
+    // Force CKEditor to resize with the dialog
+    var $dialog = $(textarea).closest('.elfinder-dialog');
+    $dialog.on('resize', function(event, ui) {
+      var $content = $dialog.find('.ui-dialog-content');
+      var height = $content.height() - 1;
+      var width = $content.width();
+
+      editor.resize(width, height);
+    });
+  };
+
+  return {
     mimes : ['text/html'],
     exts  : ['htm', 'html', 'xhtml'],
-    load : (function() {
-      // Closure to create local variables
-      // Ensure CKEditor is only loaded once
-      var ckloaded = false;
-      var setup = function(textarea) {
-        var editor = CKEDITOR.replace(textarea.id, {
-          startupFocus : true,
-          fullPage: true,
-          allowedContent: true,
-          removePlugins: 'resize',
-        });
+    load : function(textarea) {
+      var $dialog = $(textarea).closest('.elfinder-dialog');
+      ui.setSaveCloseButtons($dialog);
 
-        // Force CKEditor to resize with the dialog
-        var $dialog = $(textarea).closest('.elfinder-dialog');
-        $dialog.on('resize', function(event, ui) {
-          var $content = $dialog.find('.ui-dialog-content');
-          var height = $content.height() - 1;
-          var width = $content.width();
-
-          editor.resize(width, height);
-        });
-      };
-
-      return function(textarea) {
-        var $dialog = $(textarea).closest('.elfinder-dialog');
-        ui.setSaveCloseButtons($dialog);
-
-        if (!ckloaded) {
-          $.getScript('//cdn.ckeditor.com/4.5.2/standard/ckeditor.js', function() {
-            setup(textarea);
-          });
-          ckloaded = true;
-        } else {
+      if (!ckloaded) {
+        $.getScript('//cdn.ckeditor.com/4.5.2/standard/ckeditor.js', function() {
           setup(textarea);
-        }
-      };
-    })(),
+        });
+        ckloaded = true;
+      } else {
+        setup(textarea);
+      }
+    },
 
     close : function(textarea) {
     },
@@ -55,7 +53,17 @@ $.sakai.elfinder.options.commandsOptions.edit.editors = [
 
     focus : function(textarea) {
     }
-  },
+  };
+})();
+
+// Codemirror (code editor)
+var codemirror = (function() {
+
+})();
+
+$.sakai.elfinder.options.commandsOptions.edit.editors = [
+  ckeditor,
+  //codemirror,
 
   // CodeMirror
   {
