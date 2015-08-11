@@ -166,6 +166,7 @@ $.sakai.elfinder.options = {
           load : (function() {
             // Closure to create local variables
             // Ensure CodeMirror is only loaded once
+            var url = 'codemirror/';
             var cmloaded = false;
             var setup = function(textarea, mime) {
               var $textarea = $(textarea);
@@ -203,18 +204,23 @@ $.sakai.elfinder.options = {
               var run = function() {
                 var mode = CodeMirror.findModeByMIME(mime).mode;
                 console.log(mode);
-                var script = '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.5.0/mode/' + mode + '/' + mode + '.js';
-                $.getScript(script)
-                .always(function() {
+
+                var script = url + '/mode/' + mode + '/' + mode + '.js';
+
+                $.getScript(url + '/mode/' + mode + '/' + mode + '.js')
+                .done(function() {
                   setup(textarea, mime);
+                }).fail(function() {
+                  console.log('Failed to load mode for ' + mode);
+                  setup(textarea);
                 });
               };
 
               if (!cmloaded) {
-                $('head').append($('<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.5.0/codemirror.css">'));
-                $.getScript('//cdnjs.cloudflare.com/ajax/libs/codemirror/5.5.0/codemirror.js', function() {
+                $('head').append($('<link rel="stylesheet" href="' + url + 'lib/codemirror.css">'));
+                $.getScript(url + 'lib/codemirror.js', function() {
                   cmloaded = true;
-                  $.getScript('//cdnjs.cloudflare.com/ajax/libs/codemirror/5.5.0/mode/meta.js', run);
+                  $.getScript(url + 'mode/meta.js', run);
                 });
               } else {
                 run();
