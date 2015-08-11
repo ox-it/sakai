@@ -77,10 +77,10 @@ var codemirror = (function() {
     var editor = instance = CodeMirror.fromTextArea(textarea, config);
 
     // Set current dimensions
-    var $content = $dialog.find('.ui-dialog-content');
+    var $content = $dialog.find('.ui-dialog-content').addClass('elfinder-codemirror');
     var setDimensions = function() {
-      var height = $content.height() - 1; // -1 is for bottom border fix
       var width = $content.width();
+      var height = $content.height();
 
       editor.setSize(width, height);
     };
@@ -89,7 +89,7 @@ var codemirror = (function() {
     $dialog.on('resize', setDimensions);
 
     // Force resizing immediately
-    $dialog.trigger('resize');
+    setDimensions();
   };
 
   var loaded = function(url) {

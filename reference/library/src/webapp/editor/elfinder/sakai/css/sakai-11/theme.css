@@ -47,6 +47,13 @@ html, body {
   border: none;
 }
 
+/* CodeMirror in dialog */
+.elfinder-dialog .elfinder-codemirror {
+  /* this class is added on with Javascript in sakai-11/js/editors.js */
+  overflow: hidden;  /* scrollbars in Chrome */
+  margin: 0 0 1px 0; /* fixes overspilling of gutter */
+}
+
 /* Extra UI */
 #sakai-ui-footer {
   overflow: hidden;
