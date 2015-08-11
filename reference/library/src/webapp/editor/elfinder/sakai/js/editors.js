@@ -66,11 +66,12 @@ var codemirror = (function() {
   // Ensure CodeMirror is only loaded once
   var url = 'codemirror/';
   var cmloaded = false;
+  var scripts = []; // keeps track of loaded codemirror js files
   var instance;
   var setup = function(textarea, mime) {
     var $textarea = $(textarea);
     var $dialog = $textarea.closest('.elfinder-dialog');
-    var config = { lineNumbers = true };
+    var config = { lineNumbers : true };
     if (mime) config.mode = mime;
 
     var editor = instance = CodeMirror.fromTextArea(textarea, config);
@@ -91,6 +92,10 @@ var codemirror = (function() {
     $dialog.trigger('resize');
   };
 
+  var loaded = function(url) {
+    return scripts.indexOf(url) !== -1;
+  };
+
   return {
     load : function(textarea) {
       var $dialog = $(textarea).closest('.elfinder-dialog');
@@ -101,8 +106,20 @@ var codemirror = (function() {
         var mode = CodeMirror.findModeByMIME(mime).mode;
         var script = url + '/mode/' + mode + '/' + mode + '.js';
 
+        // Do not load the mode script if the type is null
+        if (mode === 'null') {
+          scripts.push(script);
+        }
+
+        // Do not load the mode script if it has already been loaded before
+        if (loaded(script)) {
+          setup(textarea, mime);
+          return;
+        }
+
         $.getScript(url + '/mode/' + mode + '/' + mode + '.js')
         .done(function() {
+          scripts.push(script);
           setup(textarea, mime);
         }).fail(function() {
           console.log('Failed to load mode for ' + mode);
