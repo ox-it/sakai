@@ -170,10 +170,11 @@ $.sakai.elfinder.options = {
             var setup = function(textarea, mime) {
               var $textarea = $(textarea);
               var $dialog = $textarea.closest('.elfinder-dialog');
-              var editor = CodeMirror.fromTextArea(textarea, {
-                lineNumbers: true,
-                mode: mime,
-              });
+              var config = {};
+              config.lineNumbers = true;
+              if (mime) config.mode = mime;
+
+              var editor = CodeMirror.fromTextArea(textarea, config);
 
               // Set data instance for use later
               $textarea.data('CodeMirrorInstance', editor);
@@ -194,23 +195,27 @@ $.sakai.elfinder.options = {
               $dialog.trigger('resize');
             };
 
-            var getextension = function(filename) {
-              return filename.split('.').pop().toLowerCase();
-            };
-
             return function(textarea) {
               var $dialog = $(textarea).closest('.elfinder-dialog');
               ui.setSaveCloseButtons($dialog);
 
               var mime = this.file.mime;
               var run = function() {
-                setup(textarea, mime);
+                var mode = CodeMirror.findModeByMIME(mime).mode;
+                console.log(mode);
+                var script = '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.5.0/mode/' + mode + '/' + mode + '.js';
+                $.getScript(script)
+                .always(function() {
+                  setup(textarea, mime);
+                });
               };
 
               if (!cmloaded) {
                 $('head').append($('<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.5.0/codemirror.css">'));
-                $.getScript('//cdnjs.cloudflare.com/ajax/libs/codemirror/5.5.0/codemirror.js', run);
-                cmloaded = true;
+                $.getScript('//cdnjs.cloudflare.com/ajax/libs/codemirror/5.5.0/codemirror.js', function() {
+                  cmloaded = true;
+                  $.getScript('//cdnjs.cloudflare.com/ajax/libs/codemirror/5.5.0/mode/meta.js', run);
+                });
               } else {
                 run();
               }
