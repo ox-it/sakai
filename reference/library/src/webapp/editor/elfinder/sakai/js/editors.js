@@ -7,8 +7,9 @@ var ckeditor = (function() {
   // Closure to create local variables
   // Ensure CKEditor is only loaded once
   var ckloaded = false;
+  var instance;
   var setup = function(textarea) {
-    var editor = CKEDITOR.replace(textarea.id, {
+    var editor = instance = CKEDITOR.replace(textarea.id, {
       startupFocus : true,
       fullPage: true,
       allowedContent: true,
@@ -44,14 +45,17 @@ var ckeditor = (function() {
     },
 
     close : function(textarea) {
+      // ...
     },
 
     save : function(textarea) {
-      var instance = CKEDITOR.instances[textarea.id];
-      textarea.value = instance.getData();
+      if (instance) {
+        textarea.value = instance.getData();
+      }
     },
 
     focus : function(textarea) {
+      // ...
     }
   };
 })();
@@ -62,17 +66,14 @@ var codemirror = (function() {
   // Ensure CodeMirror is only loaded once
   var url = 'codemirror/';
   var cmloaded = false;
+  var instance;
   var setup = function(textarea, mime) {
     var $textarea = $(textarea);
     var $dialog = $textarea.closest('.elfinder-dialog');
-    var config = {};
-    config.lineNumbers = true;
+    var config = { lineNumbers = true };
     if (mime) config.mode = mime;
 
-    var editor = CodeMirror.fromTextArea(textarea, config);
-
-    // Set data instance for use later
-    $textarea.data('CodeMirrorInstance', editor);
+    var editor = instance = CodeMirror.fromTextArea(textarea, config);
 
     // Set current dimensions
     var $content = $dialog.find('.ui-dialog-content');
@@ -121,14 +122,17 @@ var codemirror = (function() {
     },
 
     close : function(textarea) {
+      // ...
     },
 
     save : function(textarea) {
-      var instance = $(textarea).data('CodeMirrorInstance');
-      textarea.value = instance.getValue();
+      if (instance) {
+        textarea.value = instance.getValue();
+      }
     },
 
     focus : function(textarea) {
+      // ...
     }
   };
 })();
