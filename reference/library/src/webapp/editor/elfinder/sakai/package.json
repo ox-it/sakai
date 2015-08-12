@@ -4,7 +4,8 @@
   "description": "Sakai-specific configuration for elFinder file manager",
   "main": "index.js",
   "devDependencies": {
-    "concat" : "latest"
+    "concat" : "latest",
+    "node-minify" : "latest"
   },
   "scripts": {
     "build": "node builder.js"

@@ -9,7 +9,7 @@ The files in this directory are Sakai-specific configurations for elFinder 2.1.
 
 ## Initialization
 The client-side initialization is done by the scripts in `./js/`.
-Said scripts are bundled/built into the file `./js/build.js`.
+Said scripts are bundled/built into the file `./js/build.min.js`.
 
 ## Styling
 `../css/moono/` contains a Moono theme (to replicate CKEditor's Moono theme) that
@@ -20,7 +20,7 @@ Furthermore, Javascript has been used to modify/move certain UI elements within
 elFinder. These are defined in `./js/ui.js`.
 
 ## Building Sakai changes
-If changes are made to the source files in `./js`, rebuild them into `./js/build.js`
+If changes are made to the source files in `./js`, rebuild them into `./js/build.min.js`
 by issuing the following Node.js commands from this folder:
 
 * Install the node dependencies:
@@ -30,5 +30,5 @@ by issuing the following Node.js commands from this folder:
 
 * Build the changes:
     ```
-    $ npm build
+    $ npm run build
     ```
