@@ -60,7 +60,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
     // Flag for setting elfinder to build or source version
     // Must be either 'src' or 'build'
-    var elfinderBuild = 'src';
+    var elfinderBuild = 'build';
     var elfinderUrl = '/library/editor/elfinder/sakai/elfinder.' + elfinderBuild + '.html?connector=elfinder-connector/elfinder-servlet/connector';
 
     var ckconfig = {
