@@ -20,7 +20,7 @@ Furthermore, Javascript has been used to modify/move certain UI elements within
 elFinder. These are defined in `./js/ui.js`.
 
 ## Building Sakai changes
-If changes are made to the source files in `.js`, rebuild them into `./js/build.js`
+If changes are made to the source files in `./js`, rebuild them into `./js/build.js`
 by issuing the following Node.js commands from this folder:
 
 * Install the node dependencies:
