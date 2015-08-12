@@ -1,0 +1,14 @@
+{
+  "name": "sakai-elfinder",
+  "version": "1.0.0",
+  "description": "Sakai-specific configuration for elFinder file manager",
+  "main": "index.js",
+  "devDependencies": {
+    "concat" : "latest"
+  },
+  "scripts": {
+    "build": "node builder.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
