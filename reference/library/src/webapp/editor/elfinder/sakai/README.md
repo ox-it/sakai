@@ -8,14 +8,27 @@ The files in this directory are Sakai-specific configurations for elFinder 2.1.
 `../build/`)
 
 ## Initialization
-The client-side initialization is contained in the `js/init.js` file. It
-parses the URL parameters provided to the elfinder html file that is loaded
-and uses this to help initialize the file browser.
+The client-side initialization is done by the scripts in `./js/`.
+Said scripts are bundled/built into the file `./js/build.js`.
 
 ## Styling
-`css/moono/` contains a Moono theme (to replicate CKEditor's Moono theme) that
-is loaded after the default elFinder skin. `css/sakai` contains further changes
+`../css/moono/` contains a Moono theme (to replicate CKEditor's Moono theme) that
+is loaded after the default elFinder skin. `./css/` contains further changes
 for the file browser that are Sakai-specific.
 
 Furthermore, Javascript has been used to modify/move certain UI elements within
-elFinder. These are also defined in the `init.js` file.
+elFinder. These are defined in `./js/ui.js`.
+
+## Building Sakai changes
+If changes are made to the source files in `.js`, rebuild them into `./js/build.js`
+by issuing the following Node.js commands from this folder:
+
+* Install the node dependencies:
+    ```
+    $ npm install
+    ```
+
+* Build the changes:
+    ```
+    $ npm build
+    ```
