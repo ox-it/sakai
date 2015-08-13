@@ -8,7 +8,7 @@ $.sakai.elfinder.options.handlers = {
   // When a directory opens set the @cwd to that directory
   open : function(event, instance) {
     var $footer = $(elements.footer);
-    $footer.data('cwd', event.data.options.path);
+    $footer.data('cwd', event.data.options.url);
   },
 
   // When a file is selected, trigger options.getFileCallback
@@ -32,6 +32,7 @@ $.sakai.elfinder.options.getFileCallback = function(file) {
   var $footer = $(elements.footer);
   $footer.data('embed', file.url);
   $footer.data('file', file);
+  console.log(file);
 };
 
 // Binding embedding functionality to the OK and Cancel buttons
