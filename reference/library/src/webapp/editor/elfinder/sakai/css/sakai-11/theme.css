@@ -8,15 +8,41 @@ html, body {
   border: 0;
 }
 
-/* navbar */
+/* navbar icons */
+/* Mortarboard for site icon */
 .elfinder .elfinder-navbar-root > .elfinder-navbar-icon:before,
 .elfinder .elfinder-navbar-root.elfinder-navbar-expanded > .elfinder-navbar-icon:before {
   content: '\f19d';
 }
 
-.elfinder .elfinder-navbar-icon.sakai-announcements:before,
-.elfinder .elfinder-navbar-expanded > .elfinder-navbar-icon.sakai-announcements:before {
+/* announcements */
+.elfinder .elfinder-navbar-icon.sakai-tool-announcements:before,
+.elfinder .elfinder-navbar-expanded > .elfinder-navbar-icon.sakai-tool-announcements:before {
   content: '\f0a1';
+}
+
+/* dropbox */
+.elfinder .elfinder-navbar-icon.sakai-tool-dropbox:before,
+.elfinder .elfinder-navbar-expanded > .elfinder-navbar-icon.sakai-tool-dropbox:before {
+  content: '\f16b';
+}
+
+/* assignments */
+.elfinder .elfinder-navbar-icon.sakai-tool-assignments:before,
+.elfinder .elfinder-navbar-expanded > .elfinder-navbar-icon.sakai-tool-assignments:before {
+  content: '\f233';
+}
+
+/* attachments */
+.elfinder .elfinder-navbar-icon.sakai-tool-attachments:before,
+.elfinder .elfinder-navbar-expanded > .elfinder-navbar-icon.sakai-tool-attachments:before {
+  content: '\f0c6';
+}
+
+/* forums */
+.elfinder .elfinder-navbar-icon.sakai-tool-forums:before,
+.elfinder .elfinder-navbar-expanded > .elfinder-navbar-icon.sakai-tool-forums:before {
+  content: '\f075';
 }
 
 /* Modify the status bar */
