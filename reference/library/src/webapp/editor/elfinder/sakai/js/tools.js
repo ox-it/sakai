@@ -1,7 +1,7 @@
 // List of tools available in Sakai
 ;(function($) {
 
-$.sakai.elfinder.tools = [
+$.sakai.tools = [
   'Announcements',
   'Attachments',
   'Forums',

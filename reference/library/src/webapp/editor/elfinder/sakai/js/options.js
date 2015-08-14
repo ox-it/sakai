@@ -37,6 +37,7 @@ var testHelp = {
 };
 
 var ui = $.sakai.elfinder.ui;
+var tools = $.sakai.tools;
 
 $.sakai.elfinder.options = {
   // Connector script
@@ -82,15 +83,18 @@ $.sakai.elfinder.options = {
 
     tree : {
       // Styles tool icons in the navbar
+      // Currently not functional until directories get a 'tool' property
+      // This implementation assumes that the property will just be the tool's
+      // name, which will be set to lower case and used for a css class
+      // such as 'sakai-tool-attachments'
       getClass: function(directory) {
-        /*
         var classes = '';
-        //console.log(directory);
-        if ($.inArray(directory.name, tools)) {
-          classes = 'sakai-' + directory.name.toLowerCase();
+
+        if (directory.tool && $.inArray(directory.tool, tools)) {
+          classes = 'sakai-tool-' + directory.tool.toLowerCase();
         }
+
         return classes;
-        */
       }
     }
   },
@@ -105,36 +109,13 @@ $.sakai.elfinder.options = {
     },
 
     edit : {
-      // File editors
+      // File editors (done in full on the editors.js file)
       editors : [],
     }
   },
 
   // Fullscreen editor, so no resizing
   resizable: false,
-
-  // Custom dialogs
-  dialogs: {
-    testHelp: {
-      title: 'Help',
-      content: 'Some help stuff here',
-      height: '500px',
-      width: 600,
-    },
-    anotherHelp: {
-      title: 'More help',
-      tabs: {
-        tab1: {
-          title: 'Tab3',
-          content: 'Here',
-        },
-        tab2: {
-          title: 'Tab2',
-          content: 'Here',
-        }
-      }
-    },
-  }
 };
 
 })(jQuery);
