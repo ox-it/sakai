@@ -43,6 +43,12 @@ public interface SakaiProxy {
 	 */
 	public boolean isAnonymousUser();
 
+	/**
+	 * Is the current user an administrator.
+	 * @return <code>true</code> if the current user is an administrator.
+	 */
+	boolean isAdministrator();
+
 	public UserProxy findUserById(String id);
 	
 	public UserProxy findStudentById(String id);
@@ -147,6 +153,5 @@ public interface SakaiProxy {
 	 * @return A properties object.
 	 */
 	public Properties getCategoryMapping();
-
 
 }

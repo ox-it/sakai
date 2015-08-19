@@ -199,15 +199,12 @@ public class CourseGroupImpl implements CourseGroup {
 	}
 	
 	public boolean getIsAdmin() {
-		boolean isAdmin = impl.isAdministrator(courseGroupDAO.getAdministrators());
-		if (!isAdmin) {
-			isAdmin = impl.isAdministrator(courseGroupDAO.getSuperusers());
-		}
-		return isAdmin;
+		return impl.containsCurrentUser(courseGroupDAO.getAdministrators()) ||
+			impl.containsCurrentUser(courseGroupDAO.getSuperusers());
 	}
 	
 	public boolean getIsSuperuser() {
-		return impl.isAdministrator(courseGroupDAO.getSuperusers());
+		return impl.containsCurrentUser(courseGroupDAO.getSuperusers());
 	}
 
 	public List<CourseCategory> getCategories() {
