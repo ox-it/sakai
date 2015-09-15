@@ -58,7 +58,7 @@ public class PrimoXMLFilter extends XMLFilterImpl {
 		
 		tempVal="";
 		
-		if (uri.equals(nameSpaceURI) && localName.equals("ERROR")) {
+		if (localName.equals("ERROR")) {
 			SearError searError = new SearError();
 			for (int i=0; i<atts.getLength(); i++) {
 				if (atts.getLocalName(i).equals("MESSAGE")) {
@@ -69,10 +69,10 @@ public class PrimoXMLFilter extends XMLFilterImpl {
 			}
 			beans.add(searError);
 			
-		} else if (uri.equals(nameSpaceURI) && localName.equals("LIBRARY")) {
+		} else if (localName.equals("item")) {
 			searLibrary = new SearLibrary();
 			
-		} 
+		}
 	}
 	
 	@Override
@@ -81,35 +81,47 @@ public class PrimoXMLFilter extends XMLFilterImpl {
 		
 		//log.debug("endElement ["+qName+":"+localName+"]");
 		
-		if (uri.equals(nameSpaceURI) && localName.equals("ERROR")) {
+		if (localName.equals("ERROR")) {
 			//throw new SAXException(searError.getMessage());
 			
-		} else if (uri.equals(nameSpaceURI) && localName.equals("LIBRARY")) {
+		} else if (localName.equals("item")) {
 			beans.add(searLibrary);
-			
-		} else if (uri.equals(nameSpaceURI) && localName.equals("institution")) {
+
+		} else if (localName.equals("institution")) {
 			searLibrary.setInstitution(tempVal);
 			
-		} else if (uri.equals(nameSpaceURI) && localName.equals("library")) {
+		} else if (localName.equals("z30-sub-library-code")) {
 			searLibrary.setLibrary(tempVal);
 			
-		} else if (uri.equals(nameSpaceURI) && localName.equals("status")) {
+		} else if (localName.equals("z30-sub-library")) {
+			searLibrary.setLibraryName(tempVal);
+
+		} else if (localName.equals("z30-description")) {
+			searLibrary.setDescription(tempVal);
+
+		} else if (localName.equals("z30-item-status")) {
+			searLibrary.setType(tempVal);
+
+		} else if (localName.equals("z30-item-status")) {
 			searLibrary.setStatus(tempVal);
-			
-		} else if (uri.equals(nameSpaceURI) && localName.equals("collection")) {
+
+		} else if (localName.equals("status")) {
+			searLibrary.setAvailability(tempVal);
+
+		} else if (localName.equals("collection")) {
 			searLibrary.setCollection(tempVal);
-			
-		} else if (uri.equals(nameSpaceURI) && localName.equals("callNumber")) {
+
+		} else if (localName.equals("z30-call-no")) {
 			searLibrary.setCallNumber(tempVal);
-			
-		} else if (uri.equals(nameSpaceURI) && localName.equals("url")) {
+
+		} else if (localName.equals("url")) {
 			searLibrary.setURL(tempVal);
-			
-		} else if (uri.equals(nameSpaceURI) && localName.equals("linktorsrc")) {
+
+		} else if (localName.equals("linktorsrc")) {
 			SearLink searLink = new SearLink();
 			searLink.setHref(tempVal);
 			beans.add(searLink);
-			
+
 		}
 	}
 

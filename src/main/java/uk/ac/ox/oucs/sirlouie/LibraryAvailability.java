@@ -21,9 +21,8 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 
 import uk.ac.ox.oucs.sirlouie.daia.ResponseBean;
-import uk.ac.ox.oucs.sirlouie.primo.PrimoService;
+import uk.ac.ox.oucs.sirlouie.primo.AlephService;
 import uk.ac.ox.oucs.sirlouie.properties.SirLouieProperties;
-import uk.ac.ox.oucs.sirlouie.utils.DaiaURI;
 
 @Path("/library")
 public class LibraryAvailability {
@@ -49,9 +48,9 @@ public class LibraryAvailability {
 
 		try {
 
-			PrimoService service = new PrimoService(getProperties().getWebResourseURL());
-			DaiaURI uri = new DaiaURI(id);
-			ResponseBean bean = service.getResource(uri.getDoc());
+			String webResourceURL = getProperties().getWebResourseURL(id);
+			AlephService service = new AlephService(webResourceURL);
+			ResponseBean bean = service.getResource(webResourceURL);
 			JSONObject json = bean.toJSON();
 
 			if (format.equals(FORMAT_JSON)) {

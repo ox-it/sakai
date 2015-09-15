@@ -60,13 +60,48 @@ public class Document {
 				item.setHref(library.getURL());
 				item.setLabel(library.getLabel());
 				item.setStorage(library.getCollection());
+				item.setLibcode(library.getLibrary());
+				item.setLibname(library.getLibraryName());
+				item.setItemshelf(library.getCallNumber());
+				item.setItemdesc(library.getDescription());
+				item.setItemtype(library.getType());
+				if (item.getAvailability()!=null && item.getAvailability().equals("Available")){
+					item.setAvailableitems(1);
+				}
+				else {
+					item.setAvailableitems(0);
+				}
+				item.setTotalitems(1);
+				item.setAvailability(library.getAvailability());
+				item.setMapurl("");
 				Available service = new Available("loan");
 				service.setHref(library.getAvailableURL());
 				item.addAvailableService(service);
 				if (null != library.getLibrary()) {
 					item.setDepartment(new Department(library.getLibrary()));
 				}
-				items.add(item);
+
+				boolean alreadyExists = false;
+				for (Item existingItem : items) {
+					// If the item (= library, shelfmark, description, status) already exists,
+					if (item.getLibcode()!=null && item.getLibcode().equals(existingItem.getLibcode()) &&
+						item.getItemshelf()!=null && item.getItemshelf().equals(existingItem.getItemshelf()) &&
+						item.getItemdesc()!=null && item.getItemdesc().equals(existingItem.getItemdesc()) &&
+						item.getItemtype()!=null && item.getItemtype().equals(existingItem.getItemtype())){
+
+						// Add to total items
+						item.setTotalitems(item.getTotalitems() + 1);
+
+						// Add to available items if Available
+						if (item.getAvailability().equals("Available")){
+							item.setAvailableitems(item.getAvailableitems()+1);
+						}
+						alreadyExists = true;
+					}
+				}
+				if (!alreadyExists){
+					items.add(item);
+				}
 			}
 			
 			if (bean instanceof SearLink) {

@@ -15,13 +15,12 @@ import org.xml.sax.SAXException;
 import uk.ac.ox.oucs.sirlouie.daia.Document;
 import uk.ac.ox.oucs.sirlouie.daia.Item;
 import uk.ac.ox.oucs.sirlouie.daia.ResponseBean;
-import uk.ac.ox.oucs.sirlouie.primo.PrimoService;
-import uk.ac.ox.oucs.sirlouie.reply.SearLibrary;
+import uk.ac.ox.oucs.sirlouie.primo.AlephService;
 import uk.ac.ox.oucs.sirlouie.reply.SearObject;
 
-public class PrimoServiceTest extends TestCase {
+public class AlephServiceTest extends TestCase {
 
-	PrimoService service;
+	AlephService service;
 
 	private String nameSpaceURI = "http://www.exlibrisgroup.com/xsd/jaguar/search";
 
@@ -502,7 +501,7 @@ public class PrimoServiceTest extends TestCase {
 	*/
 	protected void setUp() throws Exception {
 		super.setUp();
-		service = new PrimoService(WEBRESOURCE_URL);
+		service = new AlephService(WEBRESOURCE_URL);
 	}
 
 	protected void tearDown() throws Exception {
@@ -552,7 +551,7 @@ public class PrimoServiceTest extends TestCase {
 
 		try {
 			Collection<SearObject> beans =
-				PrimoService.filterResponse(nameSpaceURI, OLIS_XML);
+				AlephService.filterResponse(nameSpaceURI, OLIS_XML);
 			Assert.assertEquals(2, beans.size());
 
 		} catch (Exception e) {
@@ -565,7 +564,7 @@ public class PrimoServiceTest extends TestCase {
 
 		try {
 			Collection<SearObject> beans =
-				PrimoService.filterResponse(nameSpaceURI, ORA_XML);
+				AlephService.filterResponse(nameSpaceURI, ORA_XML);
 			Assert.assertEquals(1, beans.size());
 
 		} catch (Exception e) {
@@ -589,7 +588,7 @@ public class PrimoServiceTest extends TestCase {
 	public void testFilterErrorResponse() {
 
 		try {
-			PrimoService.filterResponse(nameSpaceURI, errorXML);
+			AlephService.filterResponse(nameSpaceURI, errorXML);
 
 			//Assert.fail("Exception expected");
 
@@ -622,7 +621,7 @@ public class PrimoServiceTest extends TestCase {
 	public void testORAoJSON() throws Exception {
 		String id = "ORAdebe641a-17ca-4196-ab2c-fe7565ced721";
 		ResponseBean responseBean = new ResponseBean(id);
-		Collection<SearObject> beans = PrimoService.filterResponse(nameSpaceURI, ORA_XML);
+		Collection<SearObject> beans = AlephService.filterResponse(nameSpaceURI, ORA_XML);
 		responseBean.addSearObjects(beans);
 
 		JSONObject json = responseBean.toJSON("2009-06-09T15:39:52.831+02:00");
@@ -643,7 +642,7 @@ public class PrimoServiceTest extends TestCase {
 
 	public void testNewXmlResponse() throws SAXException, IOException {
 		// Test that the library name lookups are working.
-		Collection<SearObject> beans = PrimoService.filterResponse(nameSpaceURI, NEW_OLIS_XML);
+		Collection<SearObject> beans = AlephService.filterResponse(nameSpaceURI, NEW_OLIS_XML);
 		assertFalse(beans.isEmpty());
 		ResponseBean response = new ResponseBean();
 		response.addSearObjects(beans);
