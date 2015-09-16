@@ -1,22 +1,16 @@
 package uk.ac.ox.oucs.sirlouie;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.xml.sax.SAXException;
-
-import uk.ac.ox.oucs.sirlouie.daia.Document;
-import uk.ac.ox.oucs.sirlouie.daia.Item;
 import uk.ac.ox.oucs.sirlouie.daia.ResponseBean;
 import uk.ac.ox.oucs.sirlouie.primo.AlephService;
 import uk.ac.ox.oucs.sirlouie.reply.SearObject;
+
+import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AlephServiceTest extends TestCase {
 
@@ -26,254 +20,915 @@ public class AlephServiceTest extends TestCase {
 
 	private String WEBRESOURCE_URL = "http://primo-s-web-2.sers.ox.ac.uk:1701/PrimoWebServices/xservice/getit";
 
-	private String OLIS_XML = "<SEGMENTS xmlns=\"http://www.exlibrisgroup.com/xsd/jaguar/search\">"
-		+"<JAGROOT>"
-		+"<RESULT>"
-		+"<DOCSET TOTALHITS=\"1\">"
-		+"<sear:DOC xmlns=\"http://www.exlibrisgroup.com/xsd/primo/primo_nm_bib\" "
-		+"xmlns:sear=\"http://www.exlibrisgroup.com/xsd/jaguar/search\">"
-		+"<PrimoNMBib>"
-		+"<record>"
-		+"<display>"
-		+"<type>book</type>"
-		+"<title>The history of the Times.</title>"
-		+"<contributor>Stanley Morison 1889-1967.; Stanley Morison 1889-1967.; Stanley"
-		+"Morison 1889-1967.; Stanley Morison 1889-1967.; Iverach McDonald; John Grigg;"
-		+"Graham Stewart</contributor>"
-		+"<publisher>London : The Times ; HarperCollins</publisher>"
-		+"<creationdate>1935-</creationdate>"
-		+"<subject>Times (London, England) -- History</subject>"
-		+"<description>v. 1. \"The Thunderer\" in the making, 1785-1841 / Stanley Morison"
-		+"-- v. 2. The tradition established, 1841-1884 / Stanley Morison -- v. 3. The twentieth century"
-		+"test, 1884-1912 / Stanley Morison -- v. 4. in 2 parts. The 150th anniversary and beyond,"
-		+"1912-1948 / Stanley Morison -- v. 5. Struggles in war and peace, 1939-1966 / by Iverach"
-		+"McDonald -- v. 6. The Thomson years, 1966-1981 / by John Grigg -- v. 7. The Murdoch"
-		+"years 1981-2002 / Graham Stewart.</description>"
-		+"<language>eng</language>"
-		+"<source>UkOxU</source>"
-		+"<availlibrary>$$IOX$$LBLL$$1Main Libr$$2(0360 h 015/01)$"
-		+"$Scheck_holdings</availlibrary>"
-		+"<unititle>Times (London, England)</unititle>"
-		+"<availinstitution>$$IOX$$Scheck_holdings</availinstitution>"
-		+"</display>"
-		+"<search>"
-		+"<creatorcontrib>Morison, Stanley, 1889-1967.</creatorcontrib>"
-		+"<title>The history of the Times.</title>"
-		+"<subject>Times (London, England) History.</subject>"
-		+"<general>The Times ; HarperCollins,</general>"
-		+"<sourceid>UkOxU</sourceid>"
-		+"<recordid>UkOxUUkOxUb10108045</recordid>"
-		+"<isbn>0723002622</isbn>"
-		+"<rsrctype>book</rsrctype>"
-		+"<creationdate>1935</creationdate>"
-		+"<lsr01>BLL:0360 h 015/01</lsr01>"
-		+"<lsr01>BLL:0360 h 015/02</lsr01>"
-		+"</search>"
-		+"<sort>"
-		+"<title>history of the Times.</title>"
-		+"<creationdate>1935</creationdate>"
-		+"<author>Morison, Stanley, 1889-1967.</author>"
-		+"</sort>"
-		+"<facets>"
-		+"<language>eng</language>"
-		+"<creationdate>1935</creationdate>"
-		+"<topic>Times (London, England)–History</topic>"
-		+"<collection>OLIS</collection>"
-		+"<prefilter>books</prefilter>"
-		+"<rsrctype>books</rsrctype>"
-		+"<creatorcontrib>Morison, S</creatorcontrib>"
-		+"<creatorcontrib>McDonald, I</creatorcontrib>"
-		+"<creatorcontrib>Grigg, J</creatorcontrib>"
-		+"<creatorcontrib>Stewart, G</creatorcontrib>"
-		+"<library>BLL</library>"
-		+"<library>BOD</library>"
-		+"</facets>"
-		+"</record>"
-		+"</PrimoNMBib>"
-		+"<sear:GETIT GetIt2=\"http://oxfordsfx-direct.hosted.exlibrisgroup.com/oxford?"
-		+"ctx_ver=Z39.88-2004&amp;ctx_enc=info:ofi/"
-		+"enc:UTF-8&amp;ctx_tim=2010-10-27T14%3A50%3A53IST&amp;url_ver=Z39.88-2004&amp;"
-		+"url_ctx_fmt=infofi/fmt:kev:mtx:ctx&amp;rfr_id=info:sid/primo.exlibrisgroup.com:primo3-"
-		+"Journal-UkOxU&amp;rft_val_fmt=info:ofi/"
-		+"fmt:kev:mtx:book&amp;rft.genre=book&amp;rft.atitle=&amp;rft.jtitle=&amp;rft.btitle=The"
-		+"%20history%20of%20the"
-		+"%20Times.&amp;rft.aulast=Morison&amp;rft.auinit=&amp;rft.auinit1=&amp;rft.auinitm=&amp;"
-		+"rft.ausuffix=&amp;rft.au=&amp;rft.aucorp=&amp;rft.volume=&amp;rft.issue=&amp;rft.part=&amp;"
-		+"rft.quarter=&amp;rft.ssn=&amp;rft.spage=&amp;rft.epage=&amp;rft.pages=&amp;"
-		+"rft.artnum=&amp;rft.issn=&amp;rft.eissn=&amp;rft.isbn=0723002622&amp;rft.sici=&amp;"
-		+"rft.coden=&amp;rft_id=info:doi/&amp;rft.object_id="
-		+"%20&amp;rft.eisbn=&amp;rft_dat=&lt;UkOxU>UkOxUb10108045&lt;/UkOxU>\" "
-		+"GetIt1=\"http://1.1.1.1/cgi-bin/record_display_link.pl?id=10108045\" "
-		+"deliveryCategory=\"Physical Item\"/>"
-		+"<sear:LIBRARIES>"
-		+"<sear:LIBRARY>"
-		+"<sear:institution>OX</sear:institution>"
-		+"<sear:library>BLL</sear:library>"
-		+"<sear:status>check_holdings</sear:status>"
-		+"<sear:collection>Main Libr</sear:collection>"
-		+"<sear:callNumber>(0360 h 015/01)</sear:callNumber>"
-		+"<sear:url>http://library.ox.ac.uk/cgi-bin/record_display_link.pl?id=10108045</sear:url>"
-		+"</sear:LIBRARY>"
-		+"<sear:LIBRARY>"
-		+"<sear:institution>OX</sear:institution>"
-		+"<sear:library>BLL</sear:library>"
-		+"<sear:status>check_holdings</sear:status>"
-		+"<sear:collection>Main Libr</sear:collection>"
-		+"<sear:callNumber>(0360 h 015/02)</sear:callNumber>"
-		+"<sear:url>http://library.ox.ac.uk/cgi-bin/record_display_link.pl?id=10108045</sear:url>"
-		+"</sear:LIBRARY>"
-		+"</sear:LIBRARIES>"
-		+"<sear:LINKS>"
-		+"<sear:backlink>http://library.ox.ac.uk/cgi-bin/record_display_link.pl?id=10108045</sear:backlink>"
-		+"<sear:thumbnail>http://images.amazon.com/images/P/"
-		+"0723002622.01._SSTHUM_.jpg</sear:thumbnail>"
-		+"<sear:thumbnail>http://books.google.com/books?bibkeys=ISBN:"
-		+"9780007184385,OCLC:,LCCN:"
-		+"35-27067&amp;jscmd=viewapi&amp;callback=updateGBSCover</sear:thumbnail>"
-		+"<sear:linktotoc>http://syndetics.com/index.aspx?isbn=0723002622/"
-		+"INDEX.HTML&amp;client=unioxford&amp;type=xw12</sear:linktotoc>"
-		+"<sear:linktoabstract>http://syndetics.com/index.aspx?isbn=0723002622/"
-		+"SUMMARY.HTML&amp;client=unioxford&amp;type=rn12</sear:linktoabstract>"
-		+"<sear:linktoholdings>http://library.ox.ac.uk/cgi-bin/record_display_link.pl?"
-		+"id=10108045</sear:linktoholdings>"
-		+"<sear:linktouc>http://www.amazon.co.uk/gp/search?keywords=0723002622</sear:linktouc>"
-		+"<sear:linktouc>http://www.worldcat.org/search?q=isbn%3A0723002622</sear:linktouc>"
-		+"<sear:lln03>http://books.google.com/books?vid=ISBN0723002622</sear:lln03>"
-		+"<sear:lln04>http://www.amazon.com/gp/reader/0723002622</sear:lln04>"
-		+"</sear:LINKS>"
-		+"</sear:DOC>"
-		+"</DOCSET>"
-		+"</RESULT>"
-		+"</JAGROOT>"
-		+"</SEGMENTS>";
 
-	private String ORA_XML = "<SEGMENTS>"
-		+"<JAGROOT>"
-		+"<RESULT>"
-		+"<DOCSET TOTALHITS=\"1\">"
-		//+"<sear:DOC>"
-		+"<sear:DOC xmlns=\"http://www.exlibrisgroup.com/xsd/primo/primo_nm_bib\" "
-		+"xmlns:sear=\"http://www.exlibrisgroup.com/xsd/jaguar/search\">"
-		+"<PrimoNMBib>"
-		+"<record>"
-		+"<control>"
-		+"<sourcerecordid>debe641a-17ca-4196-ab2c-fe7565ced721</sourcerecordid>"
-		+"<sourceid>ORA</sourceid>"
-		+"<recordid>ORAdebe641a-17ca-4196-ab2c-fe7565ced721</recordid>"
-		+"<originalsourceid>ORA</originalsourceid>"
-		+"<sourceformat>DC</sourceformat>"
-		+"<sourcesystem>Other</sourcesystem>"
-		+"</control>"
-		+"<display>"
-		+"<type>other</type>"
-		+"<title>"
-		+"‘The times they are a-changing’ Dissemination services in an evolving scholarly landscape"
-		+"</title>"
-		+"<creator>Rumsey, Sally</creator>"
-		+"<creationdate>2010</creationdate>"
-		+"<format>Not Published</format>"
-		+"<format>born digital</format>"
-		+"<identifier>"
-		+"Oxford Research Archive internal ID: ora:3462; ora:3462; urn:uuid:debe641a-17ca-4196-ab2c-fe7565ced721"
-		+"</identifier>"
-		+"<subject>"
-		+"Library &amp; information science; Internet and science and learning; Scholarly dissemination; publishing; scholarly communication; ORA; Oxford University Research Archive"
-		+"</subject>"
-		+"<description>"
-		+"Presentation given on 4 March 2010 as part of Bodleian Libraries and ORA seminar series ‘Scholarship, publishing and the dissemination of research’"
-		+"</description>"
-		+"<language>eng</language>"
-		+"<source>ORA</source>"
-		+"</display>"
-		+"<links>"
-		+"<backlink>$$Tora_backlink$$DThis item in ORA</backlink>"
-		+"<linktorsrc>$$Tora_linktorsrc$$DShow Resource via ORA</linktorsrc>"
-		+"<thumbnail>$$Tamazon_thumb</thumbnail>"
-		+"<openurlfulltext>$$Topenurlfull_journal</openurlfulltext>"
-		+"</links>"
-		+"<search>"
-		+"<creatorcontrib>Rumsey, Sally</creatorcontrib>"
-		+"<title>"
-		+"‘The times they are a-changing’ Dissemination services in an evolving scholarly landscape"
-		+"</title>"
-		+"<description>"
-		+"Presentation given on 4 March 2010 as part of Bodleian Libraries and ORA seminar series ‘Scholarship, publishing and the dissemination of research’"
-		+"</description>"
-		+"<subject>Library &amp; information science</subject>"
-		+"<subject>Internet and science and learning</subject>"
-		+"<subject>Scholarly dissemination</subject>"
-		+"<subject>publishing</subject>"
-		+"<subject>scholarly communication</subject>"
-		+"<subject>ORA</subject>"
-		+"<subject>Oxford University Research Archive</subject>"
-		+"<sourceid>ORA</sourceid>"
-		+"<recordid>ORAdebe641a-17ca-4196-ab2c-fe7565ced721</recordid>"
-		+"<rsrctype>other</rsrctype>"
-		+"<creationdate>2010</creationdate>"
-		+"<searchscope>DIG</searchscope>"
-		+"<searchscope>OX</searchscope>"
-		+"<scope>DIG</scope>"
-		+"<scope>OX</scope>"
-		+"</search>"
-		+"<sort>"
-		+"<creationdate>2010</creationdate>"
-		+"</sort>"
-		+"<facets>"
-		+"<language>eng</language>"
-		+"<creationdate>2010</creationdate>"
-		+"<topic>Library &amp; information science</topic>"
-		+"<topic>Internet and science and learning</topic>"
-		+"<topic>Scholarly dissemination</topic>"
-		+"<topic>publishing</topic>"
-		+"<topic>scholarly communication</topic>"
-		+"<topic>ORA</topic>"
-		+"<topic>Oxford University Research Archive</topic>"
-		+"<collection>ORA</collection>"
-		+"<toplevel>online_resources</toplevel>"
-		+"<rsrctype>other</rsrctype>"
-		+"<creatorcontrib>Rumsey, Sally</creatorcontrib>"
-		+"<format>Not Published</format>"
-		+"<format>born digital</format>"
-		+"</facets>"
-		+"<delivery>"
-		+"<institution>OX</institution>"
-		+"<delcategory>Online Resource</delcategory>"
-		+"</delivery>"
-		+"<ranking>"
-		+"<booster1>1</booster1>"
-		+"<booster2>1</booster2>"
-		+"</ranking>"
-		+"<addata>"
-		+"<au>Rumsey, Sally</au>"
-		+"<btitle>"
-		+"‘The times they are a-changing’ Dissemination services in an evolving scholarly landscape"
-		+"</btitle>"
-		+"<date>2010</date>"
-		+"<risdate>2010</risdate>"
-		+"<format>book</format>"
-		+"<genre>unknown</genre>"
-		+"<ristype>GEN</ristype>"
-		+"</addata>"
-		+"</record>"
-		+"</PrimoNMBib>"
-		+"<sear:GETIT GetIt2=\"http://oxfordsfx-direct.hosted.exlibrisgroup.com/oxford?ctx_ver=Z39.88-2004&amp;ctx_enc=info:ofi/enc:UTF-8&amp;ctx_tim=2010-12-20T15%3A32%3A13IST&amp;url_ver=Z39.88-2004&amp;url_ctx_fmt=infofi/fmt:kev:mtx:ctx&amp;rfr_id=info:sid/primo.exlibrisgroup.com:primo3-Journal-ORA&amp;rft_val_fmt=info:ofi/fmt:kev:mtx:book&amp;rft.genre=unknown&amp;rft.atitle=&amp;rft.jtitle=&amp;rft.btitle=‘The%20times%20they%20are%20a-changing’%20Dissemination%20services%20in%20an%20evolving%20scholarly%20landscape&amp;rft.aulast=&amp;rft.auinit=&amp;rft.auinit1=&amp;rft.auinitm=&amp;rft.ausuffix=&amp;rft.au=Rumsey,%20Sally&amp;rft.aucorp=&amp;rft.volume=&amp;rft.issue=&amp;rft.part=&amp;rft.quarter=&amp;rft.ssn=&amp;rft.spage=&amp;rft.epage=&amp;rft.pages=&amp;rft.artnum=&amp;rft.issn=&amp;rft.eissn=&amp;rft.isbn=&amp;rft.sici=&amp;rft.coden=&amp;rft_id=info:doi/&amp;rft.object_id=%20&amp;rft.eisbn=&amp;rft_dat=&lt;ORA&gt;debe641a-17ca-4196-ab2c-fe7565ced721&lt;/ORA&gt;&amp;rft_id=http%3A%2F%2Fsolo.bodleian.ox.ac.uk%2Fprimo_library%2Flibweb%2Faction%2Fdisplay.do%3Fdoc%3Ddebe641a-17ca-4196-ab2c-fe7565ced721%26vid%3DOXVU1%26fn%3Ddisplay%26displayMode%3Dfull\" GetIt1=\"http://1.1.1.1/objects/uuid:debe641a-17ca-4196-ab2c-fe7565ced721\" deliveryCategory=\"Online Resource\"/>"
-		+"<sear:LINKS>"
-		+"<sear:backlink>"
-		+"http://ora.ouls.ox.ac.uk/objects/uuid:debe641a-17ca-4196-ab2c-fe7565ced721"
-		+"</sear:backlink>"
-		+"<sear:linktorsrc>"
-		+"http://ora.ouls.ox.ac.uk/objects/uuid:debe641a-17ca-4196-ab2c-fe7565ced721"
-		+"</sear:linktorsrc>"
-		+"<sear:thumbnail>http://images.amazon.com/images/P/.01._SSTHUM_.jpg</sear:thumbnail>"
-		+"<sear:openurlfulltext>"
-		+"http://oxfordsfx-direct.hosted.exlibrisgroup.com/oxford?ctx_ver=Z39.88-2004&amp;ctx_enc=info:ofi/enc:UTF-8&amp;ctx_tim=2010-12-20T15%3A32%3A13IST&amp;url_ver=Z39.88-2004&amp;url_ctx_fmt=infofi/fmt:kev:mtx:ctx&amp;rfr_id=info:sid/primo.exlibrisgroup.com:primo3-Journal-ORA&amp;rft_val_fmt=info:ofi/fmt:kev:mtx:book&amp;rft.genre=unknown&amp;rft.atitle=&amp;rft.jtitle=&amp;rft.btitle=‘The%20times%20they%20are%20a-changing’%20Dissemination%20services%20in%20an%20evolving%20scholarly%20landscape&amp;rft.aulast=&amp;rft.auinit=&amp;rft.auinit1=&amp;rft.auinitm=&amp;rft.ausuffix=&amp;rft.au=Rumsey,%20Sally&amp;rft.aucorp=&amp;rft.volume=&amp;rft.issue=&amp;rft.part=&amp;rft.quarter=&amp;rft.ssn=&amp;rft.spage=&amp;rft.epage=&amp;rft.pages=&amp;rft.artnum=&amp;rft.issn=&amp;rft.eissn=&amp;rft.isbn=&amp;rft.sici=&amp;rft.coden=&amp;rft_id=info:doi/&amp;rft.object_id=&amp;svc_val_fmt=info:ofi/fmt:kev:mtx:sch_svc&amp;svc.fulltext=yes%20&amp;rft.eisbn=&amp;rft_dat=&lt;ORA&gt;debe641a-17ca-4196-ab2c-fe7565ced721&lt;/ORA&gt;&amp;rft_id=http%3A%2F%2Fsolo.bodleian.ox.ac.uk%2Fprimo_library%2Flibweb%2Faction%2Fdisplay.do%3Fdoc%3Ddebe641a-17ca-4196-ab2c-fe7565ced721%26vid%3DOXVU1%26fn%3Ddisplay%26displayMode%3Dfull"
-		+"</sear:openurlfulltext>"
-		+"</sear:LINKS>"
-		+"</sear:DOC>"
-		+"</DOCSET>"
-		+"</RESULT>"
-		+"</JAGROOT>"
-		+"</SEGMENTS>";
+	private String OLIS_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			    "<get-item-list>\n" +
+			    "  <reply-text>ok</reply-text>\n" +
+			    "  <reply-code>0000</reply-code>\n" +
+			    "  <items>\n" +
+			    "    <item href=\"http://aleph-dev.bodleian.ox.ac.uk:1891/rest-dlf/record/BIB01010276745/items/BLL50010276745000010\">\n" +
+			    "      <z30-sub-library-code>BLLCL</z30-sub-library-code>\n" +
+			    "      <z30-item-process-status-code/>\n" +
+			    "      <z30-item-status-code>01</z30-item-status-code>\n" +
+			    "      <z30-collection-code/>\n" +
+			    "      <queue/>\n" +
+			    "      <z30>\n" +
+			    "        <translate-change-active-library>BLL50</translate-change-active-library>\n" +
+			    "        <z30-doc-number>010276745</z30-doc-number>\n" +
+			    "        <z30-item-sequence>    1.0</z30-item-sequence>\n" +
+			    "        <z30-barcode>300646869</z30-barcode>\n" +
+			    "        <z30-sub-library>Balliol College Library</z30-sub-library>\n" +
+			    "        <z30-material>Book</z30-material>\n" +
+			    "        <z30-item-status>Books</z30-item-status>\n" +
+			    "        <z30-open-date>19900101</z30-open-date>\n" +
+			    "        <z30-update-date>19960820</z30-update-date>\n" +
+			    "        <z30-cataloger/>\n" +
+			    "        <z30-date-last-return>20121127</z30-date-last-return>\n" +
+			    "        <z30-hour-last-return>0914</z30-hour-last-return>\n" +
+			    "        <z30-ip-last-return>BLLCL</z30-ip-last-return>\n" +
+			    "        <z30-no-loans>012</z30-no-loans>\n" +
+			    "        <z30-alpha>L</z30-alpha>\n" +
+			    "        <z30-collection/>\n" +
+			    "        <z30-call-no-type>8</z30-call-no-type>\n" +
+			    "        <z30-call-no>0792 i 009</z30-call-no>\n" +
+			    "        <z30-call-no-key>8 0792 i 009</z30-call-no-key>\n" +
+			    "        <z30-call-no-2-type/>\n" +
+			    "        <z30-call-no-2/>\n" +
+			    "        <z30-call-no-2-key/>\n" +
+			    "        <z30-description/>\n" +
+			    "        <z30-note-opac/>\n" +
+			    "        <z30-note-circulation/>\n" +
+			    "        <z30-note-internal/>\n" +
+			    "        <z30-order-number/>\n" +
+			    "        <z30-inventory-number/>\n" +
+			    "        <z30-inventory-number-date>00000000</z30-inventory-number-date>\n" +
+			    "        <z30-last-shelf-report-date>00000000</z30-last-shelf-report-date>\n" +
+			    "        <z30-price/>\n" +
+			    "        <z30-shelf-report-number/>\n" +
+			    "        <z30-on-shelf-date>00000000</z30-on-shelf-date>\n" +
+			    "        <z30-on-shelf-seq>000000</z30-on-shelf-seq>\n" +
+			    "        <z30-doc-number-2>000000000</z30-doc-number-2>\n" +
+			    "        <z30-schedule-sequence-2>00000</z30-schedule-sequence-2>\n" +
+			    "        <z30-copy-sequence-2>00000</z30-copy-sequence-2>\n" +
+			    "        <z30-vendor-code/>\n" +
+			    "        <z30-invoice-number/>\n" +
+			    "        <z30-line-number>00000</z30-line-number>\n" +
+			    "        <z30-pages/>\n" +
+			    "        <z30-issue-date>00000000</z30-issue-date>\n" +
+			    "        <z30-expected-arrival-date>00000000</z30-expected-arrival-date>\n" +
+			    "        <z30-arrival-date>19960820</z30-arrival-date>\n" +
+			    "        <z30-item-statistic/>\n" +
+			    "        <z30-item-process-status>Not in Process</z30-item-process-status>\n" +
+			    "        <z30-copy-id/>\n" +
+			    "        <z30-hol-doc-number>000779509</z30-hol-doc-number>\n" +
+			    "        <z30-temp-location>No</z30-temp-location>\n" +
+			    "        <z30-enumeration-a/>\n" +
+			    "        <z30-enumeration-b/>\n" +
+			    "        <z30-enumeration-c/>\n" +
+			    "        <z30-enumeration-d/>\n" +
+			    "        <z30-enumeration-e/>\n" +
+			    "        <z30-enumeration-f/>\n" +
+			    "        <z30-enumeration-g/>\n" +
+			    "        <z30-enumeration-h/>\n" +
+			    "        <z30-chronological-i/>\n" +
+			    "        <z30-chronological-j/>\n" +
+			    "        <z30-chronological-k/>\n" +
+			    "        <z30-chronological-l/>\n" +
+			    "        <z30-chronological-m/>\n" +
+			    "        <z30-supp-index-o/>\n" +
+			    "        <z30-85x-type/>\n" +
+			    "        <z30-depository-id/>\n" +
+			    "        <z30-linking-number>000000000</z30-linking-number>\n" +
+			    "        <z30-gap-indicator/>\n" +
+			    "        <z30-maintenance-count>002</z30-maintenance-count>\n" +
+			    "        <z30-process-status-date>00000000</z30-process-status-date>\n" +
+			    "        <z30-upd-time-stamp>200001011200000</z30-upd-time-stamp>\n" +
+			    "        <z30-ip-last-return-v6/>\n" +
+			    "      </z30>\n" +
+			    "      <z13>\n" +
+			    "        <translate-change-active-library>BLL50</translate-change-active-library>\n" +
+			    "        <z13-doc-number>010276745</z13-doc-number>\n" +
+			    "        <z13-year>1989</z13-year>\n" +
+			    "        <z13-open-date>20110714</z13-open-date>\n" +
+			    "        <z13-update-date>20140927</z13-update-date>\n" +
+			    "        <z13-call-no-key/>\n" +
+			    "        <z13-call-no-code>05000</z13-call-no-code>\n" +
+			    "        <z13-call-no>DB2241.H38 A5 1989b</z13-call-no>\n" +
+			    "        <z13-author-code>1001</z13-author-code>\n" +
+			    "        <z13-author>Havel, Václav.</z13-author>\n" +
+			    "        <z13-title-code/>\n" +
+			    "        <z13-title>Living in truth : twenty-two essays published on the occasion of the award of the Erasmus Prize to V</z13-title>\n" +
+			    "        <z13-imprint-code>260</z13-imprint-code>\n" +
+			    "        <z13-imprint>London : Faber, 1989.</z13-imprint>\n" +
+			    "        <z13-isbn-issn-code>020</z13-isbn-issn-code>\n" +
+			    "        <z13-isbn-issn>0571144403</z13-isbn-issn>\n" +
+			    "        <z13-upd-time-stamp>201312170902505</z13-upd-time-stamp>\n" +
+			    "      </z13>\n" +
+			    "      <status>Available</status>\n" +
+			    "    </item>\n" +
+			    "    <item href=\"http://aleph-dev.bodleian.ox.ac.uk:1891/rest-dlf/record/BIB01010276745/items/BOD50010276745000020\">\n" +
+			    "      <z30-sub-library-code>BODBL</z30-sub-library-code>\n" +
+			    "      <z30-item-process-status-code/>\n" +
+			    "      <z30-item-status-code>01</z30-item-status-code>\n" +
+			    "      <z30-collection-code>BODGL</z30-collection-code>\n" +
+			    "      <queue/>\n" +
+			    "      <z30>\n" +
+			    "        <translate-change-active-library>BOD50</translate-change-active-library>\n" +
+			    "        <z30-doc-number>010276745</z30-doc-number>\n" +
+			    "        <z30-item-sequence>    2.0</z30-item-sequence>\n" +
+			    "        <z30-barcode>400617949</z30-barcode>\n" +
+			    "        <z30-sub-library>Bodleian Library</z30-sub-library>\n" +
+			    "        <z30-material>Book</z30-material>\n" +
+			    "        <z30-item-status>Books</z30-item-status>\n" +
+			    "        <z30-open-date>19900101</z30-open-date>\n" +
+			    "        <z30-update-date>19990716</z30-update-date>\n" +
+			    "        <z30-cataloger>bod</z30-cataloger>\n" +
+			    "        <z30-date-last-return>00000000</z30-date-last-return>\n" +
+			    "        <z30-hour-last-return>0000</z30-hour-last-return>\n" +
+			    "        <z30-ip-last-return/>\n" +
+			    "        <z30-no-loans>000</z30-no-loans>\n" +
+			    "        <z30-alpha>L</z30-alpha>\n" +
+			    "        <z30-collection>Lower Gladstone Link Open Shelves</z30-collection>\n" +
+			    "        <z30-call-no-type>8</z30-call-no-type>\n" +
+			    "        <z30-call-no>(UBHU) M90.G02296</z30-call-no>\n" +
+			    "        <z30-call-no-key>0000008 ubhu m0000090 g0002296</z30-call-no-key>\n" +
+			    "        <z30-call-no-2-type/>\n" +
+			    "        <z30-call-no-2/>\n" +
+			    "        <z30-call-no-2-key/>\n" +
+			    "        <z30-description/>\n" +
+			    "        <z30-note-opac/>\n" +
+			    "        <z30-note-circulation/>\n" +
+			    "        <z30-note-internal/>\n" +
+			    "        <z30-order-number/>\n" +
+			    "        <z30-inventory-number/>\n" +
+			    "        <z30-inventory-number-date>00000000</z30-inventory-number-date>\n" +
+			    "        <z30-last-shelf-report-date>00000000</z30-last-shelf-report-date>\n" +
+			    "        <z30-price/>\n" +
+			    "        <z30-shelf-report-number/>\n" +
+			    "        <z30-on-shelf-date>00000000</z30-on-shelf-date>\n" +
+			    "        <z30-on-shelf-seq>000000</z30-on-shelf-seq>\n" +
+			    "        <z30-doc-number-2>000000000</z30-doc-number-2>\n" +
+			    "        <z30-schedule-sequence-2>00000</z30-schedule-sequence-2>\n" +
+			    "        <z30-copy-sequence-2>00000</z30-copy-sequence-2>\n" +
+			    "        <z30-vendor-code/>\n" +
+			    "        <z30-invoice-number/>\n" +
+			    "        <z30-line-number>00000</z30-line-number>\n" +
+			    "        <z30-pages/>\n" +
+			    "        <z30-issue-date>00000000</z30-issue-date>\n" +
+			    "        <z30-expected-arrival-date>00000000</z30-expected-arrival-date>\n" +
+			    "        <z30-arrival-date>19990716</z30-arrival-date>\n" +
+			    "        <z30-item-statistic/>\n" +
+			    "        <z30-item-process-status>Not in Process</z30-item-process-status>\n" +
+			    "        <z30-copy-id/>\n" +
+			    "        <z30-hol-doc-number>000779510</z30-hol-doc-number>\n" +
+			    "        <z30-temp-location>No</z30-temp-location>\n" +
+			    "        <z30-enumeration-a/>\n" +
+			    "        <z30-enumeration-b/>\n" +
+			    "        <z30-enumeration-c/>\n" +
+			    "        <z30-enumeration-d/>\n" +
+			    "        <z30-enumeration-e/>\n" +
+			    "        <z30-enumeration-f/>\n" +
+			    "        <z30-enumeration-g/>\n" +
+			    "        <z30-enumeration-h/>\n" +
+			    "        <z30-chronological-i/>\n" +
+			    "        <z30-chronological-j/>\n" +
+			    "        <z30-chronological-k/>\n" +
+			    "        <z30-chronological-l/>\n" +
+			    "        <z30-chronological-m/>\n" +
+			    "        <z30-supp-index-o/>\n" +
+			    "        <z30-85x-type/>\n" +
+			    "        <z30-depository-id/>\n" +
+			    "        <z30-linking-number>000000000</z30-linking-number>\n" +
+			    "        <z30-gap-indicator/>\n" +
+			    "        <z30-maintenance-count>000</z30-maintenance-count>\n" +
+			    "        <z30-process-status-date>00000000</z30-process-status-date>\n" +
+			    "        <z30-upd-time-stamp>200001011200000</z30-upd-time-stamp>\n" +
+			    "        <z30-ip-last-return-v6/>\n" +
+			    "      </z30>\n" +
+			    "      <z13>\n" +
+			    "        <translate-change-active-library>BOD50</translate-change-active-library>\n" +
+			    "        <z13-doc-number>010276745</z13-doc-number>\n" +
+			    "        <z13-year>1989</z13-year>\n" +
+			    "        <z13-open-date>20110714</z13-open-date>\n" +
+			    "        <z13-update-date>20140927</z13-update-date>\n" +
+			    "        <z13-call-no-key/>\n" +
+			    "        <z13-call-no-code>05000</z13-call-no-code>\n" +
+			    "        <z13-call-no>DB2241.H38 A5 1989b</z13-call-no>\n" +
+			    "        <z13-author-code>1001</z13-author-code>\n" +
+			    "        <z13-author>Havel, Václav.</z13-author>\n" +
+			    "        <z13-title-code/>\n" +
+			    "        <z13-title>Living in truth : twenty-two essays published on the occasion of the award of the Erasmus Prize to V</z13-title>\n" +
+			    "        <z13-imprint-code>260</z13-imprint-code>\n" +
+			    "        <z13-imprint>London : Faber, 1989.</z13-imprint>\n" +
+			    "        <z13-isbn-issn-code>020</z13-isbn-issn-code>\n" +
+			    "        <z13-isbn-issn>0571144403</z13-isbn-issn>\n" +
+			    "        <z13-upd-time-stamp>201312170902505</z13-upd-time-stamp>\n" +
+			    "      </z13>\n" +
+			    "      <status>Available</status>\n" +
+			    "    </item>\n" +
+			    "    <item href=\"http://aleph-dev.bodleian.ox.ac.uk:1891/rest-dlf/record/BIB01010276745/items/CAT50010276745000010\">\n" +
+			    "      <z30-sub-library-code>CATCL</z30-sub-library-code>\n" +
+			    "      <z30-item-process-status-code/>\n" +
+			    "      <z30-item-status-code>05</z30-item-status-code>\n" +
+			    "      <z30-collection-code/>\n" +
+			    "      <queue/>\n" +
+			    "      <z30>\n" +
+			    "        <translate-change-active-library>CAT50</translate-change-active-library>\n" +
+			    "        <z30-doc-number>010276745</z30-doc-number>\n" +
+			    "        <z30-item-sequence>    1.0</z30-item-sequence>\n" +
+			    "        <z30-barcode>307058386</z30-barcode>\n" +
+			    "        <z30-sub-library>St Catherine's Coll Library</z30-sub-library>\n" +
+			    "        <z30-material>Book</z30-material>\n" +
+			    "        <z30-item-status>Loans</z30-item-status>\n" +
+			    "        <z30-open-date>20121008</z30-open-date>\n" +
+			    "        <z30-update-date>20121008</z30-update-date>\n" +
+			    "        <z30-cataloger>GROMOVAL</z30-cataloger>\n" +
+			    "        <z30-date-last-return>00000000</z30-date-last-return>\n" +
+			    "        <z30-hour-last-return>0000</z30-hour-last-return>\n" +
+			    "        <z30-ip-last-return/>\n" +
+			    "        <z30-no-loans>000</z30-no-loans>\n" +
+			    "        <z30-alpha>L</z30-alpha>\n" +
+			    "        <z30-collection/>\n" +
+			    "        <z30-call-no-type>8</z30-call-no-type>\n" +
+			    "        <z30-call-no>949.2 HAV</z30-call-no>\n" +
+			    "        <z30-call-no-key>8 949 2 hav</z30-call-no-key>\n" +
+			    "        <z30-call-no-2-type/>\n" +
+			    "        <z30-call-no-2/>\n" +
+			    "        <z30-call-no-2-key/>\n" +
+			    "        <z30-description/>\n" +
+			    "        <z30-note-opac/>\n" +
+			    "        <z30-note-circulation/>\n" +
+			    "        <z30-note-internal/>\n" +
+			    "        <z30-order-number/>\n" +
+			    "        <z30-inventory-number/>\n" +
+			    "        <z30-inventory-number-date>00000000</z30-inventory-number-date>\n" +
+			    "        <z30-last-shelf-report-date>00000000</z30-last-shelf-report-date>\n" +
+			    "        <z30-price/>\n" +
+			    "        <z30-shelf-report-number/>\n" +
+			    "        <z30-on-shelf-date>00000000</z30-on-shelf-date>\n" +
+			    "        <z30-on-shelf-seq>000000</z30-on-shelf-seq>\n" +
+			    "        <z30-doc-number-2>000000000</z30-doc-number-2>\n" +
+			    "        <z30-schedule-sequence-2>00000</z30-schedule-sequence-2>\n" +
+			    "        <z30-copy-sequence-2>00000</z30-copy-sequence-2>\n" +
+			    "        <z30-vendor-code/>\n" +
+			    "        <z30-invoice-number/>\n" +
+			    "        <z30-line-number>00000</z30-line-number>\n" +
+			    "        <z30-pages/>\n" +
+			    "        <z30-issue-date>00000000</z30-issue-date>\n" +
+			    "        <z30-expected-arrival-date>00000000</z30-expected-arrival-date>\n" +
+			    "        <z30-arrival-date>00000000</z30-arrival-date>\n" +
+			    "        <z30-item-statistic/>\n" +
+			    "        <z30-item-process-status>Not in Process</z30-item-process-status>\n" +
+			    "        <z30-copy-id/>\n" +
+			    "        <z30-hol-doc-number>011853960</z30-hol-doc-number>\n" +
+			    "        <z30-temp-location>No</z30-temp-location>\n" +
+			    "        <z30-enumeration-a/>\n" +
+			    "        <z30-enumeration-b/>\n" +
+			    "        <z30-enumeration-c/>\n" +
+			    "        <z30-enumeration-d/>\n" +
+			    "        <z30-enumeration-e/>\n" +
+			    "        <z30-enumeration-f/>\n" +
+			    "        <z30-enumeration-g/>\n" +
+			    "        <z30-enumeration-h/>\n" +
+			    "        <z30-chronological-i/>\n" +
+			    "        <z30-chronological-j/>\n" +
+			    "        <z30-chronological-k/>\n" +
+			    "        <z30-chronological-l/>\n" +
+			    "        <z30-chronological-m/>\n" +
+			    "        <z30-supp-index-o/>\n" +
+			    "        <z30-85x-type/>\n" +
+			    "        <z30-depository-id/>\n" +
+			    "        <z30-linking-number>000000000</z30-linking-number>\n" +
+			    "        <z30-gap-indicator/>\n" +
+			    "        <z30-maintenance-count>000</z30-maintenance-count>\n" +
+			    "        <z30-process-status-date>20121008</z30-process-status-date>\n" +
+			    "        <z30-upd-time-stamp>200001011200000</z30-upd-time-stamp>\n" +
+			    "        <z30-ip-last-return-v6/>\n" +
+			    "      </z30>\n" +
+			    "      <z13>\n" +
+			    "        <translate-change-active-library>CAT50</translate-change-active-library>\n" +
+			    "        <z13-doc-number>010276745</z13-doc-number>\n" +
+			    "        <z13-year>1989</z13-year>\n" +
+			    "        <z13-open-date>20110714</z13-open-date>\n" +
+			    "        <z13-update-date>20140927</z13-update-date>\n" +
+			    "        <z13-call-no-key/>\n" +
+			    "        <z13-call-no-code>05000</z13-call-no-code>\n" +
+			    "        <z13-call-no>DB2241.H38 A5 1989b</z13-call-no>\n" +
+			    "        <z13-author-code>1001</z13-author-code>\n" +
+			    "        <z13-author>Havel, Václav.</z13-author>\n" +
+			    "        <z13-title-code/>\n" +
+			    "        <z13-title>Living in truth : twenty-two essays published on the occasion of the award of the Erasmus Prize to V</z13-title>\n" +
+			    "        <z13-imprint-code>260</z13-imprint-code>\n" +
+			    "        <z13-imprint>London : Faber, 1989.</z13-imprint>\n" +
+			    "        <z13-isbn-issn-code>020</z13-isbn-issn-code>\n" +
+			    "        <z13-isbn-issn>0571144403</z13-isbn-issn>\n" +
+			    "        <z13-upd-time-stamp>201312170902505</z13-upd-time-stamp>\n" +
+			    "      </z13>\n" +
+			    "      <status>Available</status>\n" +
+			    "    </item>\n" +
+			    "    <item href=\"http://aleph-dev.bodleian.ox.ac.uk:1891/rest-dlf/record/BIB01010276745/items/HER50010276745000010\">\n" +
+			    "      <z30-sub-library-code>HERCL</z30-sub-library-code>\n" +
+			    "      <z30-item-process-status-code/>\n" +
+			    "      <z30-item-status-code>05</z30-item-status-code>\n" +
+			    "      <z30-collection-code/>\n" +
+			    "      <queue/>\n" +
+			    "      <z30>\n" +
+			    "        <translate-change-active-library>HER50</translate-change-active-library>\n" +
+			    "        <z30-doc-number>010276745</z30-doc-number>\n" +
+			    "        <z30-item-sequence>    1.0</z30-item-sequence>\n" +
+			    "        <z30-barcode>305250254</z30-barcode>\n" +
+			    "        <z30-sub-library>Hertford College Library</z30-sub-library>\n" +
+			    "        <z30-material>Book</z30-material>\n" +
+			    "        <z30-item-status>Loans</z30-item-status>\n" +
+			    "        <z30-open-date>20030326</z30-open-date>\n" +
+			    "        <z30-update-date>20030326</z30-update-date>\n" +
+			    "        <z30-cataloger>WalkerL</z30-cataloger>\n" +
+			    "        <z30-date-last-return>00000000</z30-date-last-return>\n" +
+			    "        <z30-hour-last-return>0000</z30-hour-last-return>\n" +
+			    "        <z30-ip-last-return/>\n" +
+			    "        <z30-no-loans>000</z30-no-loans>\n" +
+			    "        <z30-alpha>L</z30-alpha>\n" +
+			    "        <z30-collection/>\n" +
+			    "        <z30-call-no-type>8</z30-call-no-type>\n" +
+			    "        <z30-call-no>B 80/HAV</z30-call-no>\n" +
+			    "        <z30-call-no-key>0000008 b 0000080 hav</z30-call-no-key>\n" +
+			    "        <z30-call-no-2-type/>\n" +
+			    "        <z30-call-no-2/>\n" +
+			    "        <z30-call-no-2-key/>\n" +
+			    "        <z30-description/>\n" +
+			    "        <z30-note-opac/>\n" +
+			    "        <z30-note-circulation/>\n" +
+			    "        <z30-note-internal/>\n" +
+			    "        <z30-order-number/>\n" +
+			    "        <z30-inventory-number/>\n" +
+			    "        <z30-inventory-number-date>20140715</z30-inventory-number-date>\n" +
+			    "        <z30-last-shelf-report-date>20140715</z30-last-shelf-report-date>\n" +
+			    "        <z30-price/>\n" +
+			    "        <z30-shelf-report-number>her2014-000000011</z30-shelf-report-number>\n" +
+			    "        <z30-on-shelf-date>20140715</z30-on-shelf-date>\n" +
+			    "        <z30-on-shelf-seq>001127</z30-on-shelf-seq>\n" +
+			    "        <z30-doc-number-2>000000000</z30-doc-number-2>\n" +
+			    "        <z30-schedule-sequence-2>00000</z30-schedule-sequence-2>\n" +
+			    "        <z30-copy-sequence-2>00000</z30-copy-sequence-2>\n" +
+			    "        <z30-vendor-code/>\n" +
+			    "        <z30-invoice-number/>\n" +
+			    "        <z30-line-number>00000</z30-line-number>\n" +
+			    "        <z30-pages/>\n" +
+			    "        <z30-issue-date>00000000</z30-issue-date>\n" +
+			    "        <z30-expected-arrival-date>00000000</z30-expected-arrival-date>\n" +
+			    "        <z30-arrival-date>20030326</z30-arrival-date>\n" +
+			    "        <z30-item-statistic/>\n" +
+			    "        <z30-item-process-status>Not in Process</z30-item-process-status>\n" +
+			    "        <z30-copy-id/>\n" +
+			    "        <z30-hol-doc-number>000779511</z30-hol-doc-number>\n" +
+			    "        <z30-temp-location>No</z30-temp-location>\n" +
+			    "        <z30-enumeration-a/>\n" +
+			    "        <z30-enumeration-b/>\n" +
+			    "        <z30-enumeration-c/>\n" +
+			    "        <z30-enumeration-d/>\n" +
+			    "        <z30-enumeration-e/>\n" +
+			    "        <z30-enumeration-f/>\n" +
+			    "        <z30-enumeration-g/>\n" +
+			    "        <z30-enumeration-h/>\n" +
+			    "        <z30-chronological-i/>\n" +
+			    "        <z30-chronological-j/>\n" +
+			    "        <z30-chronological-k/>\n" +
+			    "        <z30-chronological-l/>\n" +
+			    "        <z30-chronological-m/>\n" +
+			    "        <z30-supp-index-o/>\n" +
+			    "        <z30-85x-type/>\n" +
+			    "        <z30-depository-id/>\n" +
+			    "        <z30-linking-number>000000000</z30-linking-number>\n" +
+			    "        <z30-gap-indicator/>\n" +
+			    "        <z30-maintenance-count>000</z30-maintenance-count>\n" +
+			    "        <z30-process-status-date>00000000</z30-process-status-date>\n" +
+			    "        <z30-upd-time-stamp>201407151027085</z30-upd-time-stamp>\n" +
+			    "        <z30-ip-last-return-v6/>\n" +
+			    "      </z30>\n" +
+			    "      <z13>\n" +
+			    "        <translate-change-active-library>HER50</translate-change-active-library>\n" +
+			    "        <z13-doc-number>010276745</z13-doc-number>\n" +
+			    "        <z13-year>1989</z13-year>\n" +
+			    "        <z13-open-date>20110714</z13-open-date>\n" +
+			    "        <z13-update-date>20140927</z13-update-date>\n" +
+			    "        <z13-call-no-key/>\n" +
+			    "        <z13-call-no-code>05000</z13-call-no-code>\n" +
+			    "        <z13-call-no>DB2241.H38 A5 1989b</z13-call-no>\n" +
+			    "        <z13-author-code>1001</z13-author-code>\n" +
+			    "        <z13-author>Havel, Václav.</z13-author>\n" +
+			    "        <z13-title-code/>\n" +
+			    "        <z13-title>Living in truth : twenty-two essays published on the occasion of the award of the Erasmus Prize to V</z13-title>\n" +
+			    "        <z13-imprint-code>260</z13-imprint-code>\n" +
+			    "        <z13-imprint>London : Faber, 1989.</z13-imprint>\n" +
+			    "        <z13-isbn-issn-code>020</z13-isbn-issn-code>\n" +
+			    "        <z13-isbn-issn>0571144403</z13-isbn-issn>\n" +
+			    "        <z13-upd-time-stamp>201312170902505</z13-upd-time-stamp>\n" +
+			    "      </z13>\n" +
+			    "      <status>Available</status>\n" +
+			    "    </item>\n" +
+			    "    <item href=\"http://aleph-dev.bodleian.ox.ac.uk:1891/rest-dlf/record/BIB01010276745/items/OUS50010276745000010\">\n" +
+			    "      <z30-sub-library-code>OUSNU</z30-sub-library-code>\n" +
+			    "      <z30-item-process-status-code/>\n" +
+			    "      <z30-item-status-code>01</z30-item-status-code>\n" +
+			    "      <z30-collection-code>OUSOL</z30-collection-code>\n" +
+			    "      <queue/>\n" +
+			    "      <z30>\n" +
+			    "        <translate-change-active-library>OUS50</translate-change-active-library>\n" +
+			    "        <z30-doc-number>010276745</z30-doc-number>\n" +
+			    "        <z30-item-sequence>    1.0</z30-item-sequence>\n" +
+			    "        <z30-barcode>305363900</z30-barcode>\n" +
+			    "        <z30-sub-library>Oxford Union Society Library*</z30-sub-library>\n" +
+			    "        <z30-material>Book</z30-material>\n" +
+			    "        <z30-item-status>Books</z30-item-status>\n" +
+			    "        <z30-open-date>20040507</z30-open-date>\n" +
+			    "        <z30-update-date>20100329</z30-update-date>\n" +
+			    "        <z30-cataloger>CooperA</z30-cataloger>\n" +
+			    "        <z30-date-last-return>20141029</z30-date-last-return>\n" +
+			    "        <z30-hour-last-return>1239</z30-hour-last-return>\n" +
+			    "        <z30-ip-last-return>OUSNU</z30-ip-last-return>\n" +
+			    "        <z30-no-loans>008</z30-no-loans>\n" +
+			    "        <z30-alpha>L</z30-alpha>\n" +
+			    "        <z30-collection>Old Library</z30-collection>\n" +
+			    "        <z30-call-no-type>8</z30-call-no-type>\n" +
+			    "        <z30-call-no>891.864 HAV LIV</z30-call-no>\n" +
+			    "        <z30-call-no-key>8 891 864 hav liv</z30-call-no-key>\n" +
+			    "        <z30-call-no-2-type/>\n" +
+			    "        <z30-call-no-2/>\n" +
+			    "        <z30-call-no-2-key/>\n" +
+			    "        <z30-description/>\n" +
+			    "        <z30-note-opac/>\n" +
+			    "        <z30-note-circulation/>\n" +
+			    "        <z30-note-internal/>\n" +
+			    "        <z30-order-number/>\n" +
+			    "        <z30-inventory-number/>\n" +
+			    "        <z30-inventory-number-date>00000000</z30-inventory-number-date>\n" +
+			    "        <z30-last-shelf-report-date>00000000</z30-last-shelf-report-date>\n" +
+			    "        <z30-price/>\n" +
+			    "        <z30-shelf-report-number/>\n" +
+			    "        <z30-on-shelf-date>00000000</z30-on-shelf-date>\n" +
+			    "        <z30-on-shelf-seq>000000</z30-on-shelf-seq>\n" +
+			    "        <z30-doc-number-2>000000000</z30-doc-number-2>\n" +
+			    "        <z30-schedule-sequence-2>00000</z30-schedule-sequence-2>\n" +
+			    "        <z30-copy-sequence-2>00000</z30-copy-sequence-2>\n" +
+			    "        <z30-vendor-code/>\n" +
+			    "        <z30-invoice-number/>\n" +
+			    "        <z30-line-number>00000</z30-line-number>\n" +
+			    "        <z30-pages/>\n" +
+			    "        <z30-issue-date>00000000</z30-issue-date>\n" +
+			    "        <z30-expected-arrival-date>00000000</z30-expected-arrival-date>\n" +
+			    "        <z30-arrival-date>20040507</z30-arrival-date>\n" +
+			    "        <z30-item-statistic/>\n" +
+			    "        <z30-item-process-status>Not in Process</z30-item-process-status>\n" +
+			    "        <z30-copy-id/>\n" +
+			    "        <z30-hol-doc-number>000779512</z30-hol-doc-number>\n" +
+			    "        <z30-temp-location>No</z30-temp-location>\n" +
+			    "        <z30-enumeration-a/>\n" +
+			    "        <z30-enumeration-b/>\n" +
+			    "        <z30-enumeration-c/>\n" +
+			    "        <z30-enumeration-d/>\n" +
+			    "        <z30-enumeration-e/>\n" +
+			    "        <z30-enumeration-f/>\n" +
+			    "        <z30-enumeration-g/>\n" +
+			    "        <z30-enumeration-h/>\n" +
+			    "        <z30-chronological-i/>\n" +
+			    "        <z30-chronological-j/>\n" +
+			    "        <z30-chronological-k/>\n" +
+			    "        <z30-chronological-l/>\n" +
+			    "        <z30-chronological-m/>\n" +
+			    "        <z30-supp-index-o/>\n" +
+			    "        <z30-85x-type/>\n" +
+			    "        <z30-depository-id/>\n" +
+			    "        <z30-linking-number>000000000</z30-linking-number>\n" +
+			    "        <z30-gap-indicator/>\n" +
+			    "        <z30-maintenance-count>002</z30-maintenance-count>\n" +
+			    "        <z30-process-status-date>00000000</z30-process-status-date>\n" +
+			    "        <z30-upd-time-stamp>201410291239069</z30-upd-time-stamp>\n" +
+			    "        <z30-ip-last-return-v6/>\n" +
+			    "      </z30>\n" +
+			    "      <z13>\n" +
+			    "        <translate-change-active-library>OUS50</translate-change-active-library>\n" +
+			    "        <z13-doc-number>010276745</z13-doc-number>\n" +
+			    "        <z13-year>1989</z13-year>\n" +
+			    "        <z13-open-date>20110714</z13-open-date>\n" +
+			    "        <z13-update-date>20140927</z13-update-date>\n" +
+			    "        <z13-call-no-key/>\n" +
+			    "        <z13-call-no-code>05000</z13-call-no-code>\n" +
+			    "        <z13-call-no>DB2241.H38 A5 1989b</z13-call-no>\n" +
+			    "        <z13-author-code>1001</z13-author-code>\n" +
+			    "        <z13-author>Havel, Václav.</z13-author>\n" +
+			    "        <z13-title-code/>\n" +
+			    "        <z13-title>Living in truth : twenty-two essays published on the occasion of the award of the Erasmus Prize to V</z13-title>\n" +
+			    "        <z13-imprint-code>260</z13-imprint-code>\n" +
+			    "        <z13-imprint>London : Faber, 1989.</z13-imprint>\n" +
+			    "        <z13-isbn-issn-code>020</z13-isbn-issn-code>\n" +
+			    "        <z13-isbn-issn>0571144403</z13-isbn-issn>\n" +
+			    "        <z13-upd-time-stamp>201312170902505</z13-upd-time-stamp>\n" +
+			    "      </z13>\n" +
+			    "      <status>Available</status>\n" +
+			    "    </item>\n" +
+			    "    <item href=\"http://aleph-dev.bodleian.ox.ac.uk:1891/rest-dlf/record/BIB01010276745/items/SOM50010276745000010\">\n" +
+			    "      <z30-sub-library-code>SOMCL</z30-sub-library-code>\n" +
+			    "      <z30-item-process-status-code/>\n" +
+			    "      <z30-item-status-code>05</z30-item-status-code>\n" +
+			    "      <z30-collection-code/>\n" +
+			    "      <queue/>\n" +
+			    "      <z30>\n" +
+			    "        <translate-change-active-library>SOM50</translate-change-active-library>\n" +
+			    "        <z30-doc-number>010276745</z30-doc-number>\n" +
+			    "        <z30-item-sequence>    1.0</z30-item-sequence>\n" +
+			    "        <z30-barcode>303573744</z30-barcode>\n" +
+			    "        <z30-sub-library>Somerville College Library</z30-sub-library>\n" +
+			    "        <z30-material>Book</z30-material>\n" +
+			    "        <z30-item-status>Loans</z30-item-status>\n" +
+			    "        <z30-open-date>20000705</z30-open-date>\n" +
+			    "        <z30-update-date>20000705</z30-update-date>\n" +
+			    "        <z30-cataloger>PopperC</z30-cataloger>\n" +
+			    "        <z30-date-last-return>20141205</z30-date-last-return>\n" +
+			    "        <z30-hour-last-return>0949</z30-hour-last-return>\n" +
+			    "        <z30-ip-last-return>SOMCL</z30-ip-last-return>\n" +
+			    "        <z30-no-loans>004</z30-no-loans>\n" +
+			    "        <z30-alpha>L</z30-alpha>\n" +
+			    "        <z30-collection/>\n" +
+			    "        <z30-call-no-type>8</z30-call-no-type>\n" +
+			    "        <z30-call-no>819 HAV 1</z30-call-no>\n" +
+			    "        <z30-call-no-key>8 819 hav 1</z30-call-no-key>\n" +
+			    "        <z30-call-no-2-type/>\n" +
+			    "        <z30-call-no-2/>\n" +
+			    "        <z30-call-no-2-key/>\n" +
+			    "        <z30-description/>\n" +
+			    "        <z30-note-opac/>\n" +
+			    "        <z30-note-circulation/>\n" +
+			    "        <z30-note-internal/>\n" +
+			    "        <z30-order-number/>\n" +
+			    "        <z30-inventory-number/>\n" +
+			    "        <z30-inventory-number-date>20120727</z30-inventory-number-date>\n" +
+			    "        <z30-last-shelf-report-date>20140723</z30-last-shelf-report-date>\n" +
+			    "        <z30-price/>\n" +
+			    "        <z30-shelf-report-number>som2014-000000019</z30-shelf-report-number>\n" +
+			    "        <z30-on-shelf-date>20140821</z30-on-shelf-date>\n" +
+			    "        <z30-on-shelf-seq>001364</z30-on-shelf-seq>\n" +
+			    "        <z30-doc-number-2>000000000</z30-doc-number-2>\n" +
+			    "        <z30-schedule-sequence-2>00000</z30-schedule-sequence-2>\n" +
+			    "        <z30-copy-sequence-2>00000</z30-copy-sequence-2>\n" +
+			    "        <z30-vendor-code/>\n" +
+			    "        <z30-invoice-number/>\n" +
+			    "        <z30-line-number>00000</z30-line-number>\n" +
+			    "        <z30-pages/>\n" +
+			    "        <z30-issue-date>00000000</z30-issue-date>\n" +
+			    "        <z30-expected-arrival-date>00000000</z30-expected-arrival-date>\n" +
+			    "        <z30-arrival-date>20000705</z30-arrival-date>\n" +
+			    "        <z30-item-statistic/>\n" +
+			    "        <z30-item-process-status>Not in Process</z30-item-process-status>\n" +
+			    "        <z30-copy-id/>\n" +
+			    "        <z30-hol-doc-number>000779514</z30-hol-doc-number>\n" +
+			    "        <z30-temp-location>No</z30-temp-location>\n" +
+			    "        <z30-enumeration-a/>\n" +
+			    "        <z30-enumeration-b/>\n" +
+			    "        <z30-enumeration-c/>\n" +
+			    "        <z30-enumeration-d/>\n" +
+			    "        <z30-enumeration-e/>\n" +
+			    "        <z30-enumeration-f/>\n" +
+			    "        <z30-enumeration-g/>\n" +
+			    "        <z30-enumeration-h/>\n" +
+			    "        <z30-chronological-i/>\n" +
+			    "        <z30-chronological-j/>\n" +
+			    "        <z30-chronological-k/>\n" +
+			    "        <z30-chronological-l/>\n" +
+			    "        <z30-chronological-m/>\n" +
+			    "        <z30-supp-index-o/>\n" +
+			    "        <z30-85x-type/>\n" +
+			    "        <z30-depository-id/>\n" +
+			    "        <z30-linking-number>000000000</z30-linking-number>\n" +
+			    "        <z30-gap-indicator/>\n" +
+			    "        <z30-maintenance-count>001</z30-maintenance-count>\n" +
+			    "        <z30-process-status-date>00000000</z30-process-status-date>\n" +
+			    "        <z30-upd-time-stamp>201412050949479</z30-upd-time-stamp>\n" +
+			    "        <z30-ip-last-return-v6/>\n" +
+			    "      </z30>\n" +
+			    "      <z13>\n" +
+			    "        <translate-change-active-library>SOM50</translate-change-active-library>\n" +
+			    "        <z13-doc-number>010276745</z13-doc-number>\n" +
+			    "        <z13-year>1989</z13-year>\n" +
+			    "        <z13-open-date>20110714</z13-open-date>\n" +
+			    "        <z13-update-date>20140927</z13-update-date>\n" +
+			    "        <z13-call-no-key/>\n" +
+			    "        <z13-call-no-code>05000</z13-call-no-code>\n" +
+			    "        <z13-call-no>DB2241.H38 A5 1989b</z13-call-no>\n" +
+			    "        <z13-author-code>1001</z13-author-code>\n" +
+			    "        <z13-author>Havel, Václav.</z13-author>\n" +
+			    "        <z13-title-code/>\n" +
+			    "        <z13-title>Living in truth : twenty-two essays published on the occasion of the award of the Erasmus Prize to V</z13-title>\n" +
+			    "        <z13-imprint-code>260</z13-imprint-code>\n" +
+			    "        <z13-imprint>London : Faber, 1989.</z13-imprint>\n" +
+			    "        <z13-isbn-issn-code>020</z13-isbn-issn-code>\n" +
+			    "        <z13-isbn-issn>0571144403</z13-isbn-issn>\n" +
+			    "        <z13-upd-time-stamp>201312170902505</z13-upd-time-stamp>\n" +
+			    "      </z13>\n" +
+			    "      <status>Available</status>\n" +
+			    "    </item>\n" +
+			    "    <item href=\"http://aleph-dev.bodleian.ox.ac.uk:1891/rest-dlf/record/BIB01010276745/items/BOD50010276745000010\">\n" +
+			    "      <z30-sub-library-code>SSLBL</z30-sub-library-code>\n" +
+			    "      <z30-item-process-status-code/>\n" +
+			    "      <z30-item-status-code>01</z30-item-status-code>\n" +
+			    "      <z30-collection-code/>\n" +
+			    "      <queue/>\n" +
+			    "      <z30>\n" +
+			    "        <translate-change-active-library>BOD50</translate-change-active-library>\n" +
+			    "        <z30-doc-number>010276745</z30-doc-number>\n" +
+			    "        <z30-item-sequence>    1.0</z30-item-sequence>\n" +
+			    "        <z30-barcode>300122297</z30-barcode>\n" +
+			    "        <z30-sub-library>Social Science Library</z30-sub-library>\n" +
+			    "        <z30-material>Book</z30-material>\n" +
+			    "        <z30-item-status>Books</z30-item-status>\n" +
+			    "        <z30-open-date>19900101</z30-open-date>\n" +
+			    "        <z30-update-date>20030603</z30-update-date>\n" +
+			    "        <z30-cataloger>MildonE</z30-cataloger>\n" +
+			    "        <z30-date-last-return>20141126</z30-date-last-return>\n" +
+			    "        <z30-hour-last-return>0855</z30-hour-last-return>\n" +
+			    "        <z30-ip-last-return>SSLBL</z30-ip-last-return>\n" +
+			    "        <z30-no-loans>032</z30-no-loans>\n" +
+			    "        <z30-alpha>L</z30-alpha>\n" +
+			    "        <z30-collection/>\n" +
+			    "        <z30-call-no-type>0</z30-call-no-type>\n" +
+			    "        <z30-call-no>DB2241.VAC</z30-call-no>\n" +
+			    "        <z30-call-no-key>0 db#2241 vac 0</z30-call-no-key>\n" +
+			    "        <z30-call-no-2-type/>\n" +
+			    "        <z30-call-no-2/>\n" +
+			    "        <z30-call-no-2-key/>\n" +
+			    "        <z30-description/>\n" +
+			    "        <z30-note-opac/>\n" +
+			    "        <z30-note-circulation/>\n" +
+			    "        <z30-note-internal/>\n" +
+			    "        <z30-order-number/>\n" +
+			    "        <z30-inventory-number/>\n" +
+			    "        <z30-inventory-number-date>20070718</z30-inventory-number-date>\n" +
+			    "        <z30-last-shelf-report-date>00000000</z30-last-shelf-report-date>\n" +
+			    "        <z30-price/>\n" +
+			    "        <z30-shelf-report-number/>\n" +
+			    "        <z30-on-shelf-date>00000000</z30-on-shelf-date>\n" +
+			    "        <z30-on-shelf-seq>000000</z30-on-shelf-seq>\n" +
+			    "        <z30-doc-number-2>000000000</z30-doc-number-2>\n" +
+			    "        <z30-schedule-sequence-2>00000</z30-schedule-sequence-2>\n" +
+			    "        <z30-copy-sequence-2>00000</z30-copy-sequence-2>\n" +
+			    "        <z30-vendor-code/>\n" +
+			    "        <z30-invoice-number/>\n" +
+			    "        <z30-line-number>00000</z30-line-number>\n" +
+			    "        <z30-pages/>\n" +
+			    "        <z30-issue-date>00000000</z30-issue-date>\n" +
+			    "        <z30-expected-arrival-date>00000000</z30-expected-arrival-date>\n" +
+			    "        <z30-arrival-date>20030603</z30-arrival-date>\n" +
+			    "        <z30-item-statistic/>\n" +
+			    "        <z30-item-process-status>Not in Process</z30-item-process-status>\n" +
+			    "        <z30-copy-id/>\n" +
+			    "        <z30-hol-doc-number>000779513</z30-hol-doc-number>\n" +
+			    "        <z30-temp-location>No</z30-temp-location>\n" +
+			    "        <z30-enumeration-a/>\n" +
+			    "        <z30-enumeration-b/>\n" +
+			    "        <z30-enumeration-c/>\n" +
+			    "        <z30-enumeration-d/>\n" +
+			    "        <z30-enumeration-e/>\n" +
+			    "        <z30-enumeration-f/>\n" +
+			    "        <z30-enumeration-g/>\n" +
+			    "        <z30-enumeration-h/>\n" +
+			    "        <z30-chronological-i/>\n" +
+			    "        <z30-chronological-j/>\n" +
+			    "        <z30-chronological-k/>\n" +
+			    "        <z30-chronological-l/>\n" +
+			    "        <z30-chronological-m/>\n" +
+			    "        <z30-supp-index-o/>\n" +
+			    "        <z30-85x-type/>\n" +
+			    "        <z30-depository-id/>\n" +
+			    "        <z30-linking-number>000000000</z30-linking-number>\n" +
+			    "        <z30-gap-indicator/>\n" +
+			    "        <z30-maintenance-count>006</z30-maintenance-count>\n" +
+			    "        <z30-process-status-date>00000000</z30-process-status-date>\n" +
+			    "        <z30-upd-time-stamp>201412011247169</z30-upd-time-stamp>\n" +
+			    "        <z30-ip-last-return-v6/>\n" +
+			    "      </z30>\n" +
+			    "      <z13>\n" +
+			    "        <translate-change-active-library>BOD50</translate-change-active-library>\n" +
+			    "        <z13-doc-number>010276745</z13-doc-number>\n" +
+			    "        <z13-year>1989</z13-year>\n" +
+			    "        <z13-open-date>20110714</z13-open-date>\n" +
+			    "        <z13-update-date>20140927</z13-update-date>\n" +
+			    "        <z13-call-no-key/>\n" +
+			    "        <z13-call-no-code>05000</z13-call-no-code>\n" +
+			    "        <z13-call-no>DB2241.H38 A5 1989b</z13-call-no>\n" +
+			    "        <z13-author-code>1001</z13-author-code>\n" +
+			    "        <z13-author>Havel, Václav.</z13-author>\n" +
+			    "        <z13-title-code/>\n" +
+			    "        <z13-title>Living in truth : twenty-two essays published on the occasion of the award of the Erasmus Prize to V</z13-title>\n" +
+			    "        <z13-imprint-code>260</z13-imprint-code>\n" +
+			    "        <z13-imprint>London : Faber, 1989.</z13-imprint>\n" +
+			    "        <z13-isbn-issn-code>020</z13-isbn-issn-code>\n" +
+			    "        <z13-isbn-issn>0571144403</z13-isbn-issn>\n" +
+			    "        <z13-upd-time-stamp>201312170902505</z13-upd-time-stamp>\n" +
+			    "      </z13>\n" +
+			    "      <status>Due date: 20/01/15</status>\n" +
+			    "    </item>\n" +
+			    "    <item href=\"http://aleph-dev.bodleian.ox.ac.uk:1891/rest-dlf/record/BIB01010276745/items/BOD50010276745000030\">\n" +
+			    "      <z30-sub-library-code>SSLBL</z30-sub-library-code>\n" +
+			    "      <z30-item-process-status-code>OR</z30-item-process-status-code>\n" +
+			    "      <z30-item-status-code>01</z30-item-status-code>\n" +
+			    "      <z30-collection-code/>\n" +
+			    "      <queue/>\n" +
+			    "      <z30>\n" +
+			    "        <translate-change-active-library>BOD50</translate-change-active-library>\n" +
+			    "        <z30-doc-number>010276745</z30-doc-number>\n" +
+			    "        <z30-item-sequence>    3.0</z30-item-sequence>\n" +
+			    "        <z30-barcode>A18001514500</z30-barcode>\n" +
+			    "        <z30-sub-library>Social Science Library</z30-sub-library>\n" +
+			    "        <z30-material>Book</z30-material>\n" +
+			    "        <z30-item-status>Books</z30-item-status>\n" +
+			    "        <z30-open-date>20140927</z30-open-date>\n" +
+			    "        <z30-update-date>20140927</z30-update-date>\n" +
+			    "        <z30-cataloger/>\n" +
+			    "        <z30-date-last-return>00000000</z30-date-last-return>\n" +
+			    "        <z30-hour-last-return>0000</z30-hour-last-return>\n" +
+			    "        <z30-ip-last-return/>\n" +
+			    "        <z30-no-loans>000</z30-no-loans>\n" +
+			    "        <z30-alpha>L</z30-alpha>\n" +
+			    "        <z30-collection/>\n" +
+			    "        <z30-call-no-type/>\n" +
+			    "        <z30-call-no/>\n" +
+			    "        <z30-call-no-key/>\n" +
+			    "        <z30-call-no-2-type/>\n" +
+			    "        <z30-call-no-2/>\n" +
+			    "        <z30-call-no-2-key/>\n" +
+			    "        <z30-description/>\n" +
+			    "        <z30-note-opac/>\n" +
+			    "        <z30-note-circulation/>\n" +
+			    "        <z30-note-internal/>\n" +
+			    "        <z30-order-number>SSL15285</z30-order-number>\n" +
+			    "        <z30-inventory-number/>\n" +
+			    "        <z30-inventory-number-date>00000000</z30-inventory-number-date>\n" +
+			    "        <z30-last-shelf-report-date>00000000</z30-last-shelf-report-date>\n" +
+			    "        <z30-price/>\n" +
+			    "        <z30-shelf-report-number/>\n" +
+			    "        <z30-on-shelf-date>00000000</z30-on-shelf-date>\n" +
+			    "        <z30-on-shelf-seq>000000</z30-on-shelf-seq>\n" +
+			    "        <z30-doc-number-2>000000000</z30-doc-number-2>\n" +
+			    "        <z30-schedule-sequence-2>00000</z30-schedule-sequence-2>\n" +
+			    "        <z30-copy-sequence-2>00000</z30-copy-sequence-2>\n" +
+			    "        <z30-vendor-code/>\n" +
+			    "        <z30-invoice-number/>\n" +
+			    "        <z30-line-number>00000</z30-line-number>\n" +
+			    "        <z30-pages/>\n" +
+			    "        <z30-issue-date>00000000</z30-issue-date>\n" +
+			    "        <z30-expected-arrival-date>00000000</z30-expected-arrival-date>\n" +
+			    "        <z30-arrival-date>00000000</z30-arrival-date>\n" +
+			    "        <z30-item-statistic/>\n" +
+			    "        <z30-item-process-status>On order</z30-item-process-status>\n" +
+			    "        <z30-copy-id/>\n" +
+			    "        <z30-hol-doc-number>012550397</z30-hol-doc-number>\n" +
+			    "        <z30-temp-location>No</z30-temp-location>\n" +
+			    "        <z30-enumeration-a/>\n" +
+			    "        <z30-enumeration-b/>\n" +
+			    "        <z30-enumeration-c/>\n" +
+			    "        <z30-enumeration-d/>\n" +
+			    "        <z30-enumeration-e/>\n" +
+			    "        <z30-enumeration-f/>\n" +
+			    "        <z30-enumeration-g/>\n" +
+			    "        <z30-enumeration-h/>\n" +
+			    "        <z30-chronological-i/>\n" +
+			    "        <z30-chronological-j/>\n" +
+			    "        <z30-chronological-k/>\n" +
+			    "        <z30-chronological-l/>\n" +
+			    "        <z30-chronological-m/>\n" +
+			    "        <z30-supp-index-o/>\n" +
+			    "        <z30-85x-type/>\n" +
+			    "        <z30-depository-id/>\n" +
+			    "        <z30-linking-number>000000000</z30-linking-number>\n" +
+			    "        <z30-gap-indicator/>\n" +
+			    "        <z30-maintenance-count>000</z30-maintenance-count>\n" +
+			    "        <z30-process-status-date>20140927</z30-process-status-date>\n" +
+			    "        <z30-upd-time-stamp>201409270534089</z30-upd-time-stamp>\n" +
+			    "        <z30-ip-last-return-v6/>\n" +
+			    "      </z30>\n" +
+			    "      <z13>\n" +
+			    "        <translate-change-active-library>BOD50</translate-change-active-library>\n" +
+			    "        <z13-doc-number>010276745</z13-doc-number>\n" +
+			    "        <z13-year>1989</z13-year>\n" +
+			    "        <z13-open-date>20110714</z13-open-date>\n" +
+			    "        <z13-update-date>20140927</z13-update-date>\n" +
+			    "        <z13-call-no-key/>\n" +
+			    "        <z13-call-no-code>05000</z13-call-no-code>\n" +
+			    "        <z13-call-no>DB2241.H38 A5 1989b</z13-call-no>\n" +
+			    "        <z13-author-code>1001</z13-author-code>\n" +
+			    "        <z13-author>Havel, Václav.</z13-author>\n" +
+			    "        <z13-title-code/>\n" +
+			    "        <z13-title>Living in truth : twenty-two essays published on the occasion of the award of the Erasmus Prize to V</z13-title>\n" +
+			    "        <z13-imprint-code>260</z13-imprint-code>\n" +
+			    "        <z13-imprint>London : Faber, 1989.</z13-imprint>\n" +
+			    "        <z13-isbn-issn-code>020</z13-isbn-issn-code>\n" +
+			    "        <z13-isbn-issn>0571144403</z13-isbn-issn>\n" +
+			    "        <z13-upd-time-stamp>201312170902505</z13-upd-time-stamp>\n" +
+			    "      </z13>\n" +
+			    "      <status>On order</status>\n" +
+			    "    </item>\n" +
+			    "    <item href=\"http://aleph-dev.bodleian.ox.ac.uk:1891/rest-dlf/record/BIB01010276745/items/STJ50010276745000010\">\n" +
+			    "      <z30-sub-library-code>STJCL</z30-sub-library-code>\n" +
+			    "      <z30-item-process-status-code/>\n" +
+			    "      <z30-item-status-code>01</z30-item-status-code>\n" +
+			    "      <z30-collection-code/>\n" +
+			    "      <queue/>\n" +
+			    "      <z30>\n" +
+			    "        <translate-change-active-library>STJ50</translate-change-active-library>\n" +
+			    "        <z30-doc-number>010276745</z30-doc-number>\n" +
+			    "        <z30-item-sequence>    1.0</z30-item-sequence>\n" +
+			    "        <z30-barcode>302430584</z30-barcode>\n" +
+			    "        <z30-sub-library>St John's College Library</z30-sub-library>\n" +
+			    "        <z30-material>Book</z30-material>\n" +
+			    "        <z30-item-status>Books</z30-item-status>\n" +
+			    "        <z30-open-date>19971107</z30-open-date>\n" +
+			    "        <z30-update-date>19971107</z30-update-date>\n" +
+			    "        <z30-cataloger>BrumfitP</z30-cataloger>\n" +
+			    "        <z30-date-last-return>20031202</z30-date-last-return>\n" +
+			    "        <z30-hour-last-return>0000</z30-hour-last-return>\n" +
+			    "        <z30-ip-last-return/>\n" +
+			    "        <z30-no-loans>001</z30-no-loans>\n" +
+			    "        <z30-alpha>L</z30-alpha>\n" +
+			    "        <z30-collection/>\n" +
+			    "        <z30-call-no-type>8</z30-call-no-type>\n" +
+			    "        <z30-call-no>POL / 645 / CZE / HAV</z30-call-no>\n" +
+			    "        <z30-call-no-key>8 pol 645 cze hav</z30-call-no-key>\n" +
+			    "        <z30-call-no-2-type/>\n" +
+			    "        <z30-call-no-2/>\n" +
+			    "        <z30-call-no-2-key/>\n" +
+			    "        <z30-description/>\n" +
+			    "        <z30-note-opac/>\n" +
+			    "        <z30-note-circulation/>\n" +
+			    "        <z30-note-internal/>\n" +
+			    "        <z30-order-number/>\n" +
+			    "        <z30-inventory-number/>\n" +
+			    "        <z30-inventory-number-date>20130815</z30-inventory-number-date>\n" +
+			    "        <z30-last-shelf-report-date>20140729</z30-last-shelf-report-date>\n" +
+			    "        <z30-price/>\n" +
+			    "        <z30-shelf-report-number>stj2014-000000026</z30-shelf-report-number>\n" +
+			    "        <z30-on-shelf-date>20140813</z30-on-shelf-date>\n" +
+			    "        <z30-on-shelf-seq>001633</z30-on-shelf-seq>\n" +
+			    "        <z30-doc-number-2>000000000</z30-doc-number-2>\n" +
+			    "        <z30-schedule-sequence-2>00000</z30-schedule-sequence-2>\n" +
+			    "        <z30-copy-sequence-2>00000</z30-copy-sequence-2>\n" +
+			    "        <z30-vendor-code/>\n" +
+			    "        <z30-invoice-number/>\n" +
+			    "        <z30-line-number>00000</z30-line-number>\n" +
+			    "        <z30-pages/>\n" +
+			    "        <z30-issue-date>00000000</z30-issue-date>\n" +
+			    "        <z30-expected-arrival-date>00000000</z30-expected-arrival-date>\n" +
+			    "        <z30-arrival-date>19971107</z30-arrival-date>\n" +
+			    "        <z30-item-statistic/>\n" +
+			    "        <z30-item-process-status>Not in Process</z30-item-process-status>\n" +
+			    "        <z30-copy-id/>\n" +
+			    "        <z30-hol-doc-number>000779515</z30-hol-doc-number>\n" +
+			    "        <z30-temp-location>No</z30-temp-location>\n" +
+			    "        <z30-enumeration-a/>\n" +
+			    "        <z30-enumeration-b/>\n" +
+			    "        <z30-enumeration-c/>\n" +
+			    "        <z30-enumeration-d/>\n" +
+			    "        <z30-enumeration-e/>\n" +
+			    "        <z30-enumeration-f/>\n" +
+			    "        <z30-enumeration-g/>\n" +
+			    "        <z30-enumeration-h/>\n" +
+			    "        <z30-chronological-i/>\n" +
+			    "        <z30-chronological-j/>\n" +
+			    "        <z30-chronological-k/>\n" +
+			    "        <z30-chronological-l/>\n" +
+			    "        <z30-chronological-m/>\n" +
+			    "        <z30-supp-index-o/>\n" +
+			    "        <z30-85x-type/>\n" +
+			    "        <z30-depository-id/>\n" +
+			    "        <z30-linking-number>000000000</z30-linking-number>\n" +
+			    "        <z30-gap-indicator/>\n" +
+			    "        <z30-maintenance-count>000</z30-maintenance-count>\n" +
+			    "        <z30-process-status-date>00000000</z30-process-status-date>\n" +
+			    "        <z30-upd-time-stamp>201408131601007</z30-upd-time-stamp>\n" +
+			    "        <z30-ip-last-return-v6/>\n" +
+			    "      </z30>\n" +
+			    "      <z13>\n" +
+			    "        <translate-change-active-library>STJ50</translate-change-active-library>\n" +
+			    "        <z13-doc-number>010276745</z13-doc-number>\n" +
+			    "        <z13-year>1989</z13-year>\n" +
+			    "        <z13-open-date>20110714</z13-open-date>\n" +
+			    "        <z13-update-date>20140927</z13-update-date>\n" +
+			    "        <z13-call-no-key/>\n" +
+			    "        <z13-call-no-code>05000</z13-call-no-code>\n" +
+			    "        <z13-call-no>DB2241.H38 A5 1989b</z13-call-no>\n" +
+			    "        <z13-author-code>1001</z13-author-code>\n" +
+			    "        <z13-author>Havel, Václav.</z13-author>\n" +
+			    "        <z13-title-code/>\n" +
+			    "        <z13-title>Living in truth : twenty-two essays published on the occasion of the award of the Erasmus Prize to V</z13-title>\n" +
+			    "        <z13-imprint-code>260</z13-imprint-code>\n" +
+			    "        <z13-imprint>London : Faber, 1989.</z13-imprint>\n" +
+			    "        <z13-isbn-issn-code>020</z13-isbn-issn-code>\n" +
+			    "        <z13-isbn-issn>0571144403</z13-isbn-issn>\n" +
+			    "        <z13-upd-time-stamp>201312170902505</z13-upd-time-stamp>\n" +
+			    "      </z13>\n" +
+			    "      <status>Available</status>\n" +
+			    "    </item>\n" +
+			    "  </items>\n" +
+			    "</get-item-list>";
+
 
 	private String errorXML = "<SEGMENTS xmlns=\"http://www.exlibrisgroup.com/xsd/jaguar/search\">"
 		+"<JAGROOT>"
@@ -283,222 +938,8 @@ public class AlephServiceTest extends TestCase {
 		+"</JAGROOT>"
 		+"</SEGMENTS>";
 
-	private String ORA_JSON = "{\"version\":\"0.5\",\"schema\":\"http://ws.gbv.de/daia/\","
-		+"\"timestamp\":\"2009-06-09T15:39:52.831+02:00\","
-		+"\"institution\":{\"content\":\"University of Oxford\","
-		+"\"href\":\"http://www.ox.ac.uk\"},"
-		+"\"document\":[{\"id\":\"ORAdebe641a-17ca-4196-ab2c-fe7565ced721\","
-		+"\"item\":["
-		+"{\"href\":\"http://ora.ouls.ox.ac.uk/objects/uuid:debe641a-17ca-4196-ab2c-fe7565ced721\"}]}]}";
 
 
-	private String OLIS_JSON = "{\"version\":\"0.5\",\"schema\":\"http://ws.gbv.de/daia/\","
-		+"\"timestamp\":\"2009-06-09T15:39:52.831+02:00\","
-		+"\"institution\":{\"content\":\"University of Oxford\","
-		+"\"href\":\"http://www.ox.ac.uk\"},"
-		+"\"document\":[{\"id\":\"UkOxUUkOxUb15585873\","
-		+"\"href\":\"http://library.ox.ac.uk/cgi-bin/record_display_link.pl?id=10108045\","
-		+"\"item\":["
-		+"{\"department\":{\"id\":\"BLL\",\"content\":\"Balliol College Library\"},"
-		+"\"storage\":{\"content\":\"Main Libr\"}},"
-		+"{\"department\":{\"id\":\"BLL\",\"content\":\"Balliol College Library\"},"
-		+"\"storage\":{\"content\":\"Main Libr\"}}]}]}";
-
-
-	// After the library upgrade they started returning different XML.
-	private String NEW_OLIS_XML = "<SEGMENTS xmlns=\"http://www.exlibrisgroup.com/xsd/jaguar/search\">\n" +
-			"  <JAGROOT>\n" +
-			"    <RESULT>\n" +
-			"      <DOCSET TOTALHITS=\"1\">\n" +
-			"        <sear:DOC LOCAL=\"true\" xmlns=\"http://www.exlibrisgroup.com/xsd/primo/primo_nm_bib\" xmlns:sear=\"http://www.exlibrisgroup.com/xsd/jaguar/search\">\n" +
-			"          <PrimoNMBib>\n" +
-			"            <record>\n" +
-			"              <control>\n" +
-			"                <sourcerecordid>017140770</sourcerecordid>\n" +
-			"                <sourceid>oxfaleph</sourceid>\n" +
-			"                <recordid>oxfaleph017140770</recordid>\n" +
-			"                <originalsourceid>BIB01</originalsourceid>\n" +
-			"                <ilsapiid>BIB01017140770</ilsapiid>\n" +
-			"                <addsrcrecordid>017140770</addsrcrecordid>\n" +
-			"                <sourceformat>MARC21</sourceformat>\n" +
-			"                <sourcesystem>Aleph</sourcesystem>\n" +
-			"              </control>\n" +
-			"              <display>\n" +
-			"                <type>book</type>\n" +
-			"                <title>Linux in a nutshell</title>\n" +
-			"                <creator>Siever, Ellen.</creator>\n" +
-			"                <contributor>Ellen Siever</contributor>\n" +
-			"                <edition>6th ed..</edition>\n" +
-			"                <publisher>Sebastopol, Calif. ; Cambridge : O'Reilly</publisher>\n" +
-			"                <creationdate>c2009</creationdate>\n" +
-			"                <format>xxii, 917 p. ; 24 cm.</format>\n" +
-			"                <identifier>$$CISBN$$V9780596154486 ; $$CISBN$$V0596154488</identifier>\n" +
-			"                <subject>Operating systems (Computers); Linux</subject>\n" +
-			"                <language>eng</language>\n" +
-			"                <availlibrary>$$IOX$$LBODBL$$2(Box retrieval please)$$Scheck_holdings$$31$$41$$5N$$60$$XBOD50$$YBODBL</availlibrary>\n" +
-			"                <lds01>Ellen Siever ... [et al.].</lds01>\n" +
-			"                <lds02><![CDATA[<br><b>General Note: </b>Previous ed.: 2005.<br><b>General Note: </b>Cover title : Linux in a nutshell : a desktop quick reference.<br><b>General Note: </b>Includes index.]]></lds02>\n" +
-			"                <lds04>Previous ed.: 2005. -- Cover title : Linux in a nutshell : a desktop quick reference. -- Includes index.</lds04>\n" +
-			"                <lds06>Cover Title: Linux in a nutshell : a desktop quick reference</lds06>\n" +
-			"                <lds15>017140770</lds15>\n" +
-			"                <availinstitution>$$IOX$$Scheck_holdings</availinstitution>\n" +
-			"                <availpnx>available</availpnx>\n" +
-			"                <lds09>&lt;br />&lt;br />&lt;b>Short Description:&lt;/b> Focusing on Linux system essentials, this title covers programming tools, system and network administration tools, the shell, editors, LILO and GRUB boot options, and highlights the most important options for using the vast number of Linux commands. It can also help you learn Linux commands for system administration and network management.</lds09>\n" +
-			"              </display>\n" +
-			"              <links>\n" +
-			"                <backlink>$$Taleph_backlink$$DMore bibliographic information</backlink>\n" +
-			"                <thumbnail>$$Tamazon_thumb</thumbnail>\n" +
-			"                <thumbnail>$$Tgoogle_thumb</thumbnail>\n" +
-			"                <linktoholdings>$$Taleph_holdings</linktoholdings>\n" +
-			"                <linktouc>$$Tamazon_uc$$DThis item in Amazon</linktouc>\n" +
-			"                <linktouc>$$Tworldcat_isbn$$DThis item in WorldCat�</linktouc>\n" +
-			"                <linktoexcerpt>$$Tsyndetics_excerpt$$DExcerpt from item</linktoexcerpt>\n" +
-			"                <lln03>$$Tgooglebsisbn</lln03>\n" +
-			"              </links>\n" +
-			"              <search>\n" +
-			"                <creatorcontrib>Siever, Ellen.</creatorcontrib>\n" +
-			"                <creatorcontrib>Ellen Siever ... [et al.].</creatorcontrib>\n" +
-			"                <creatorcontrib>Ellen</creatorcontrib>\n" +
-			"                <creatorcontrib>Siever, E</creatorcontrib>\n" +
-			"                <creatorcontrib>Ellen Siever</creatorcontrib>\n" +
-			"                <title>Linux in a nutshell /</title>\n" +
-			"                <subject>Linux.</subject>\n" +
-			"                <subject>Operating systems (Computers)</subject>\n" +
-			"                <subject>Computers Operating systems</subject>\n" +
-			"                <subject>Computer operating systems</subject>\n" +
-			"                <subject>Disk operating systems</subject>\n" +
-			"                <general>O'Reilly,</general>\n" +
-			"                <sourceid>oxfaleph</sourceid>\n" +
-			"                <recordid>oxfaleph017140770</recordid>\n" +
-			"                <isbn>9780596154486</isbn>\n" +
-			"                <isbn>9780596154486 (pbk.)</isbn>\n" +
-			"                <isbn>0596154488</isbn>\n" +
-			"                <isbn>0596154488 (pbk.)</isbn>\n" +
-			"                <rsrctype>book</rsrctype>\n" +
-			"                <creationdate>2009</creationdate>\n" +
-			"                <creationdate>l|||</creationdate>\n" +
-			"                <creationdate>|8</creationdate>\n" +
-			"                <addsrcrecordid>017140770</addsrcrecordid>\n" +
-			"                <addsrcrecordid>17140770</addsrcrecordid>\n" +
-			"                <searchscope>oxfaleph</searchscope>\n" +
-			"                <searchscope>BOD</searchscope>\n" +
-			"                <searchscope>OULS</searchscope>\n" +
-			"                <searchscope>OX</searchscope>\n" +
-			"                <searchscope>NONOX</searchscope>\n" +
-			"                <scope>oxfaleph</scope>\n" +
-			"                <scope>BOD</scope>\n" +
-			"                <scope>OULS</scope>\n" +
-			"                <scope>OX</scope>\n" +
-			"                <scope>NONOX</scope>\n" +
-			"                <alttitle>Linux in a nutshell : a desktop quick reference</alttitle>\n" +
-			"                <lsr01>(Box retrieval please)</lsr01>\n" +
-			"                <lsr02>Previous ed.: 2005. -- Cover title : Linux in a nutshell : a desktop quick reference. -- Includes index.</lsr02>\n" +
-			"                <lsr13>Sebastopol, Calif. ; Cambridge</lsr13>\n" +
-			"                <lsr15>O'Reilly,</lsr15>\n" +
-			"                <lsr09>&lt;br />&lt;br />&lt;b>Short Description:&lt;/b> Focusing on Linux system essentials, this title covers programming tools, system and network administration tools, the shell, editors, LILO and GRUB boot options, and highlights the most important options for using the vast number of Linux commands. It can also help you learn Linux commands for system administration and network management.</lsr09>\n" +
-			"              </search>\n" +
-			"              <sort>\n" +
-			"                <title>Linux in a nutshell /</title>\n" +
-			"                <creationdate>2009</creationdate>\n" +
-			"                <author>Siever, Ellen.</author>\n" +
-			"                <lso01>2009</lso01>\n" +
-			"              </sort>\n" +
-			"              <facets>\n" +
-			"                <language>eng</language>\n" +
-			"                <creationdate>2009</creationdate>\n" +
-			"                <topic>Linux</topic>\n" +
-			"                <topic>Operating systems (Computers)</topic>\n" +
-			"                <collection>OLIS</collection>\n" +
-			"                <toplevel>physical_item</toplevel>\n" +
-			"                <prefilter>books</prefilter>\n" +
-			"                <rsrctype>books</rsrctype>\n" +
-			"                <creatorcontrib>Siever, E</creatorcontrib>\n" +
-			"                <library>BODBL</library>\n" +
-			"                <frbrgroupid>150606989</frbrgroupid>\n" +
-			"                <frbrtype>5</frbrtype>\n" +
-			"              </facets>\n" +
-			"              <dedup>\n" +
-			"                <c3>linuxinanutshell</c3>\n" +
-			"                <c4>2009</c4>\n" +
-			"                <f3>9780596154486;0596154488</f3>\n" +
-			"                <f5>linuxinanutshell</f5>\n" +
-			"                <f6>2009</f6>\n" +
-			"                <f7>linux in a nutshell</f7>\n" +
-			"                <f8>cau</f8>\n" +
-			"                <f9>xxii, 917 p. ;</f9>\n" +
-			"                <f10>oreilly</f10>\n" +
-			"              </dedup>\n" +
-			"              <frbr>\n" +
-			"                <t>1</t>\n" +
-			"                <k1>$$Ksiever ellen$$AA</k1>\n" +
-			"                <k3>$$Klinux in a nutshell$$AT</k3>\n" +
-			"              </frbr>\n" +
-			"              <delivery>\n" +
-			"                <institution>OX</institution>\n" +
-			"                <institution>NONOX</institution>\n" +
-			"                <delcategory>Physical Item</delcategory>\n" +
-			"              </delivery>\n" +
-			"              <ranking>\n" +
-			"                <booster1>1</booster1>\n" +
-			"                <booster2>1</booster2>\n" +
-			"              </ranking>\n" +
-			"              <addata>\n" +
-			"                <aulast>Siever</aulast>\n" +
-			"                <aufirst>Ellen</aufirst>\n" +
-			"                <addau>Siever, Ellen</addau>\n" +
-			"                <btitle>Linux in a nutshell</btitle>\n" +
-			"                <addtitle>Linux in a nutshell : a desktop quick reference</addtitle>\n" +
-			"                <date>2009</date>\n" +
-			"                <risdate>c2009.</risdate>\n" +
-			"                <isbn>9780596154486</isbn>\n" +
-			"                <format>book</format>\n" +
-			"                <genre>book</genre>\n" +
-			"                <ristype>BOOK</ristype>\n" +
-			"                <cop>Sebastopol, Calif. ; Cambridge</cop>\n" +
-			"                <pub>O'Reilly</pub>\n" +
-			"              </addata>\n" +
-			"            </record>\n" +
-			"          </PrimoNMBib>\n" +
-			"          <sear:GETIT GetIt2=\"http://1.1.1.1?ctx_ver=Z39.88-2004&amp;ctx_enc=info:ofi/enc:UTF-8&amp;ctx_tim=2011-08-12T14%3A00%3A23IST&amp;url_ver=Z39.88-2004&amp;url_ctx_fmt=infofi/fmt:kev:mtx:ctx&amp;rfr_id=info:sid/primo.exlibrisgroup.com:primo3-Journal-oxfaleph&amp;rft_val_fmt=info:ofi/fmt:kev:mtx:book&amp;rft.genre=book&amp;rft.atitle=&amp;rft.jtitle=&amp;rft.btitle=Linux%20in%20a%20nutshell&amp;rft.aulast=Siever&amp;rft.auinit=&amp;rft.auinit1=&amp;rft.auinitm=&amp;rft.ausuffix=&amp;rft.au=&amp;rft.aucorp=&amp;rft.volume=&amp;rft.issue=&amp;rft.part=&amp;rft.quarter=&amp;rft.ssn=&amp;rft.spage=&amp;rft.epage=&amp;rft.pages=&amp;rft.artnum=&amp;rft.issn=&amp;rft.eissn=&amp;rft.isbn=9780596154486&amp;rft.sici=&amp;rft.coden=&amp;rft_id=info:doi/&amp;rft.object_id=&amp;rft_bat=&lt;oxfaleph>017140770&lt;/oxfaleph>&amp;rft.eisbn=&amp;rft_id=info:oai/\" GetIt1=\"OVP\" deliveryCategory=\"Physical Item\"/>\n" +
-			"          <sear:LIBRARIES>\n" +
-			"            <sear:LIBRARY>\n" +
-			"              <sear:institution>OX</sear:institution>\n" +
-			"              <sear:library>BODBL</sear:library>\n" +
-			"              <sear:status>check_holdings</sear:status>\n" +
-			"              <sear:collection/>\n" +
-			"              <sear:callNumber>(Box retrieval please)</sear:callNumber>\n" +
-			"              <sear:url>OVP</sear:url>\n" +
-			"            </sear:LIBRARY>\n" +
-			"          </sear:LIBRARIES>\n" +
-			"          <sear:LINKS>\n" +
-			"            <sear:backlink>http://aleph.sers.ox.ac.uk:8991/F?func=direct&amp;local_base=BIB01&amp;doc_number=017140770&amp;format=999</sear:backlink>\n" +
-			"            <sear:thumbnail>http://images.amazon.com/images/P/9780596154486.01._SSTHUM_.jpg</sear:thumbnail>\n" +
-			"            <sear:thumbnail>http://books.google.com/books?bibkeys=ISBN:9780596154486,OCLC:,LCCN:&amp;jscmd=viewapi&amp;callback=updateGBSCover</sear:thumbnail>\n" +
-			"            <sear:linktoholdings>OVP</sear:linktoholdings>\n" +
-			"            <sear:linktouc>http://www.amazon.co.uk/gp/search?keywords=9780596154486&amp;index=books</sear:linktouc>\n" +
-			"            <sear:linktouc>http://www.worldcat.org/search?q=isbn%3A9780596154486</sear:linktouc>\n" +
-			"            <sear:lln03>http://books.google.com/books?vid=ISBN9780596154486</sear:lln03>\n" +
-			"          </sear:LINKS>\n" +
-			"        </sear:DOC>\n" +
-			"      </DOCSET>\n" +
-			"    </RESULT>\n" +
-			"  </JAGROOT>\n" +
-			"</SEGMENTS>\n" +
-			"";
-
-	/*
-	private String OLIS_JSON = "{\"version\":\"0.5\",\"schema\":\"http://ws.gbv.de/daia/\","
-		+"\"timestamp\":\"2009-06-09T15:39:52.831+02:00\","
-		+"\"institution\":{\"content\":\"University of Oxford\","
-		+"\"href\":\"http://www.ox.ac.uk\"},"
-		+"\"document\":[{\"id\":\"UkOxUUkOxUb15585873\","
-		+"\"href\":\"http://library.ox.ac.uk/cgi-bin/record_display_link.pl?id=15585873\","
-		+"\"item\":["
-		+"{\"department\":{\"id\":\"RSL\",\"content\":\"Radcliffe Science Library\"},"
-		+"\"storage\":{\"content\":\"Level 2\"}},"
-		+"{\"department\":{\"id\":\"STX\",\"content\":\"St Cross College Library\"},"
-		+"\"storage\":{\"content\":\"Main Libr\"}}]}]}";
-	*/
 	protected void setUp() throws Exception {
 		super.setUp();
 		service = new AlephService(WEBRESOURCE_URL);
@@ -508,68 +949,15 @@ public class AlephServiceTest extends TestCase {
 		super.tearDown();
 	}
 
-	/*
-	public void testGetOLISResource() {
-		try {
-			long l = System.currentTimeMillis();
-			ResponseBean bean = service.getResource("UkOxUUkOxUb15585873");
-			System.out.println("testGetResource("+(System.currentTimeMillis()-l)+")");
-			Assert.assertNotNull(bean);
-
-			JSONObject jsonData = bean.toJSON("2009-06-09T15:39:52.831+02:00");
-
-			Assert.assertEquals(OLIS_JSON, jsonData.toString());
-
-		} catch (Exception e) {
-			System.out.println("Exception caught ["+e.getLocalizedMessage()+"]");
-			e.printStackTrace();
-			Assert.fail("Exception caught ["+e.getLocalizedMessage()+"]");
-		}
-
-	}
-
-	public void testGetORAResource() {
-		try {
-			long l = System.currentTimeMillis();
-			ResponseBean bean = service.getResource("ORAdebe641a-17ca-4196-ab2c-fe7565ced721");
-			System.out.println("testGetResource("+(System.currentTimeMillis()-l)+")");
-			Assert.assertNotNull(bean);
-
-			JSONObject jsonData = bean.toJSON("2009-06-09T15:39:52.831+02:00");
-
-			Assert.assertEquals(ORA_JSON, jsonData.toString());
-
-		} catch (Exception e) {
-			System.out.println("Exception caught ["+e.getLocalizedMessage()+"]");
-			e.printStackTrace();
-			Assert.fail("Exception caught ["+e.getLocalizedMessage()+"]");
-		}
-	}
-	*/
-
 	public void testFilterOLISResponse() {
 
 		try {
 			Collection<SearObject> beans =
 				AlephService.filterResponse(nameSpaceURI, OLIS_XML);
-			Assert.assertEquals(2, beans.size());
+			Assert.assertEquals(9, beans.size());
 
 		} catch (Exception e) {
 			System.out.println("Exception caught ["+e.getLocalizedMessage()+"]");
-			Assert.fail("Exception caught ["+e.getLocalizedMessage()+"]");
-		}
-	}
-
-	public void testFilterORAResponse() {
-
-		try {
-			Collection<SearObject> beans =
-				AlephService.filterResponse(nameSpaceURI, ORA_XML);
-			Assert.assertEquals(1, beans.size());
-
-		} catch (Exception e) {
-			System.out.println("Exception caught ["+e.getLocalizedMessage()+"]");
-			e.printStackTrace();
 			Assert.fail("Exception caught ["+e.getLocalizedMessage()+"]");
 		}
 	}
@@ -597,31 +985,11 @@ public class AlephServiceTest extends TestCase {
 			Assert.fail("Exception caught ["+e.getLocalizedMessage()+"]");
 		}
 	}
-/*
-	public void testOLISToJSON() {
-		try {
-			String id = "UkOxUUkOxUb15585873";
-			ResponseBean responseBean = new ResponseBean(id);
-		    Collection<SearObject> beans = PrimoService.filterResponse(nameSpaceURI, OLIS_XML);
-			responseBean.addSearObjects(beans);
 
-			Map<String, Object> jsonData = responseBean.toJSON("2009-06-09T15:39:52.831+02:00");
-			ObjectMapper mapper = new ObjectMapper();
-			//mapper.writeValue(new File("response.json"), jsonData);
-
-			Assert.assertEquals(OLIS_JSON, mapper.writeValueAsString(jsonData));
-
-		} catch (Exception e) {
-			System.out.println("Exception caught ["+e.getLocalizedMessage()+"]");
-			e.printStackTrace();
-			Assert.fail("Exception caught ["+e.getLocalizedMessage()+"]");
-		}
-	}
-*/
 	public void testORAoJSON() throws Exception {
 		String id = "ORAdebe641a-17ca-4196-ab2c-fe7565ced721";
 		ResponseBean responseBean = new ResponseBean(id);
-		Collection<SearObject> beans = AlephService.filterResponse(nameSpaceURI, ORA_XML);
+		Collection<SearObject> beans = AlephService.filterResponse(nameSpaceURI, OLIS_XML);
 		responseBean.addSearObjects(beans);
 
 		JSONObject json = responseBean.toJSON("2009-06-09T15:39:52.831+02:00");
@@ -636,19 +1004,8 @@ public class AlephServiceTest extends TestCase {
 		assertNotNull(first);
 		assertEquals("ORAdebe641a-17ca-4196-ab2c-fe7565ced721", first.getString("id"));
 		assertNotNull(first.get("item"));
-		assertEquals("http://ora.ouls.ox.ac.uk/objects/uuid:debe641a-17ca-4196-ab2c-fe7565ced721"
-				,first.getJSONArray("item").getJSONObject(0).getString("href"));
-	}
-
-	public void testNewXmlResponse() throws SAXException, IOException {
-		// Test that the library name lookups are working.
-		Collection<SearObject> beans = AlephService.filterResponse(nameSpaceURI, NEW_OLIS_XML);
-		assertFalse(beans.isEmpty());
-		ResponseBean response = new ResponseBean();
-		response.addSearObjects(beans);
-		Document doc = response.getDocuments().iterator().next();
-		Item item = doc.getItems().iterator().next();
-		assertEquals("Bodleian Library", item.getDepartment().getName());
+		assertEquals("Balliol College Library"
+				,first.getJSONArray("item").getJSONObject(0).getString("libname"));
 	}
 
 }
