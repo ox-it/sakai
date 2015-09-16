@@ -19,7 +19,16 @@ public class Item {
 	private String storage;
 	private String limitation;
 	private String href;
-	
+	private String libcode;
+	private String libname;
+	private String itemshelf;
+	private String itemdesc;
+	private String itemtype;
+	private String availability;
+	private int availableitems;
+	private int totalitems;
+	private String mapurl;
+
 	public Item() {	
 	}
 	
@@ -95,6 +104,78 @@ public class Item {
 		this.href=href;
 	}
 
+	public int getTotalitems() {
+		return totalitems;
+	}
+
+	public void setTotalitems(int totalitems) {
+		this.totalitems = totalitems;
+	}
+
+	public int getAvailableitems() {
+		return availableitems;
+	}
+
+	public void setAvailableitems(int availableitems) {
+		this.availableitems = availableitems;
+	}
+
+	public String getItemtype() {
+		return itemtype;
+	}
+
+	public void setItemtype(String itemtype) {
+		this.itemtype = itemtype;
+	}
+
+	public String getItemdesc() {
+		return itemdesc;
+	}
+
+	public void setItemdesc(String itemdesc) {
+		this.itemdesc = itemdesc;
+	}
+
+	public String getItemshelf() {
+		return itemshelf;
+	}
+
+	public void setItemshelf(String itemshelf) {
+		this.itemshelf = itemshelf;
+	}
+
+	public String getLibname() {
+		return libname;
+	}
+
+	public void setLibname(String libname) {
+		this.libname = libname;
+	}
+
+	public String getLibcode() {
+		return libcode;
+	}
+
+	public void setLibcode(String libcode) {
+		this.libcode = libcode;
+	}
+
+	public String getMapurl() {
+		return mapurl;
+	}
+
+	public void setMapurl(String mapurl) {
+		this.mapurl = mapurl;
+	}
+
+	public String getAvailability() {
+		return availability;
+	}
+
+	public void setAvailability(String availability) {
+		this.availability = availability;
+	}
+
 	public JSONObject toJSON() throws JSONException {
 		
 		JSONObject json = new JSONObject();
@@ -115,6 +196,27 @@ public class Item {
 		if (null != label) {
 			json.put("label", label);
 		}
+		if (null != libcode) {
+			json.put("libcode", libcode);
+		}
+		if (null != libname) {
+			json.put("libname", libname);
+		}
+		if (null != itemshelf) {
+			json.put("itemshelf", itemshelf);
+		}
+		if (null != itemdesc) {
+			json.put("itemdesc", itemdesc);
+		}
+		if (null != itemtype) {
+			json.put("itemtype", itemtype);
+		}
+		json.put("availableitems", availableitems);
+		json.put("totalitems", totalitems);
+		if (null != mapurl) {
+			json.put("mapurl", mapurl);
+		}
+
 		
 		JSONArray availableList = new JSONArray();
 		for (Available service : availableServices) {

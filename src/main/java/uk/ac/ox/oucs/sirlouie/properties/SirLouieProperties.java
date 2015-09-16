@@ -12,8 +12,10 @@ public abstract class SirLouieProperties extends Properties {
 	public SirLouieProperties() {
 	}
 	
-	public String getWebResourseURL() {
-		return getProperty("webresourceURL");
+	public String getWebResourseURL(String id) {
+		String webResourceURL = getProperty("webresourceURL.aleph");
+		id = id.replaceAll("oxfaleph", "BIB01");
+		return webResourceURL.replaceAll("<<<OXFALEPHID>>>", id);
 	}
 
 }

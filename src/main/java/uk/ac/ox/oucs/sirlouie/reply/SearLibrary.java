@@ -8,6 +8,9 @@ public class SearLibrary implements SearObject {
 	private String institution;
 	private String label;
 	private String library;
+	private String libraryName;
+	private String description;
+	private String availability;
 	private String status;
 	private String type;
 	private String url;
@@ -15,11 +18,14 @@ public class SearLibrary implements SearObject {
 	
 	public SearLibrary() {}
 	
-	public SearLibrary(String institution, String library, String status, String collection, String callNumber, String url) {
+	public SearLibrary(String institution, String library, String libraryName, String description, String availability, String status, String collection, String callNumber, String url) {
 		this.callNumber = callNumber;
 		this.collection = collection;
 		this.institution = institution;
 		this.library = library;
+		this.libraryName = libraryName;
+		this.description = description;
+		this.availability = availability;
 		this.status = status;
 		this.url = url;
 	}
@@ -70,6 +76,27 @@ public class SearLibrary implements SearObject {
 
 	public void setLibrary(String library) {
 		this.library = library;
+	}
+	public String getLibraryName() {
+		return libraryName;
+	}
+
+	public void setLibraryName(String libraryName) {
+		this.libraryName = libraryName;
+	}
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public String getAvailability() {
+		return availability;
+	}
+
+	public void setAvailability(String availability) {
+		this.availability = availability;
 	}
 	
 	public String getStatus() {

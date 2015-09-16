@@ -19,14 +19,14 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
-public class PrimoService {
+public class AlephService {
 	
 	Client client;
 	WebResource webResource;
 	private String nameSpaceURI = "http://www.exlibrisgroup.com/xsd/jaguar/search";
-	private static Log log = LogFactory.getLog(PrimoService.class);
+	private static Log log = LogFactory.getLog(AlephService.class);
 	
-	public PrimoService(String webResourceURL) {
+	public AlephService(String webResourceURL) {
 	    
 		//log.debug(webResourceURL);
 		client = Client.create();
@@ -37,22 +37,19 @@ public class PrimoService {
 		
 		//log.debug("getResource ["+id+"]");
 	    MultivaluedMap<String, String> params = new MultivaluedMapImpl();
-	    params.add("institution", "OXVU1");
-	    params.add("docId", id);
-	    params.add("isLoggedIn", "false");
-	    params.add("onCampus", "false");
-	     
+	    params.add("view", "full");
+
 	    WebResource query = webResource.queryParams(params);
 	    if (log.isDebugEnabled()) {
 	    	log.debug("Making request: "+ query.getURI().toString());
 	    }
-	    
+
 	    String responseXML = query.get(String.class);
 	    if (log.isDebugEnabled()) {
 	    	log.debug("Got response: "+ responseXML);
 	    }
-	    
-	    // Create a DAIA response.
+	    responseXML = responseXML.replaceAll("&apos;", "\'");
+		// Create a DAIA response.
 	    ResponseBean responseBean = new ResponseBean(id);
 	    Collection<SearObject> beans = filterResponse(nameSpaceURI, responseXML);
 		responseBean.addSearObjects(beans);

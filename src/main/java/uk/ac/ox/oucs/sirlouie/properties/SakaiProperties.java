@@ -8,7 +8,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 public class SakaiProperties extends SirLouieProperties {
 
 	private static final long serialVersionUID = 1L;
-	public final static String WEBRESOURCE_URL = "sirlouie.webresourceURL";
+	public final static String WEBRESOURCE_URL = "sirlouie.webresourceURL.aleph";
 
 	/**
 	 * This class allows the location of the sirlouie filter properties to be loaded from a 
@@ -24,7 +24,9 @@ public class SakaiProperties extends SirLouieProperties {
 		setProperty(WEBRESOURCE_URL, ServerConfigurationService.getString(WEBRESOURCE_URL));
 	}
 
-	public String getWebResourseURL() {
-		return getProperty(WEBRESOURCE_URL);
+	public String getWebResourseURL(String id) {
+		String webResourceURL = getProperty(WEBRESOURCE_URL);
+		id = id.replaceAll("oxfaleph", "BIB01");
+		return webResourceURL.replaceAll("<<<OXFALEPHID>>>", id);
 	}
 }
