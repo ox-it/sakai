@@ -81,19 +81,15 @@
 					</tr>
 					{/if}
 
-					{if source == "Daisy"}
+					{if signup}
 					<tr>
 						<th>Signup Available</th>
 						<td>
-							{if signup}
-								{if signup == "full" || waiting}
-									Waiting List of ${waiting}
-								{else}
-									${signup} 
-								{/if}
+							{if signup == "full" || waiting}
+								Waiting List of ${waiting}
 							{else}
-								Not bookable
-							{/if}		
+								${signup}
+							{/if}
 						</td>
 					</tr>
 					{/if}
