@@ -30,20 +30,34 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
+import org.sakaiproject.util.RequestFilter;
 
 /**
- * Simple filter which requires the user to be authenticated before allowing the request through.
- * This is so that if people use the webapp URL they can't search for people and perform other actions.
- * @author buckett
+ * Simple filter which attempts to use any basic auth headers present as long as the request
+ * has been setup by the standard Sakai request filter first.
  *
+ * @author buckett
  */
 public class BasicAuthenticatedRequestFilter implements Filter {
 	
 	protected BasicAuth basicAuth = null;
+	protected UserDirectoryService userDirectoryService = null;
+	protected SessionManager sessionManager = null;
+
+	public void init(FilterConfig filterConfig) throws ServletException {
+		basicAuth = new BasicAuth();
+		basicAuth.init();
+		userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
+		sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
+	}
+
+	public void destroy() {
+	}
 
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain) throws IOException, ServletException {
@@ -51,33 +65,31 @@ public class BasicAuthenticatedRequestFilter implements Filter {
 		if (response instanceof HttpServletResponse) {
 			// If we do a login through basic auth then we want to invalidate at the end to stop our session
 			// lasting any longer than it needs to.
-			boolean invalidate = basicAuth.doLogin((HttpServletRequest) request);
-			if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
-				HttpServletResponse httpResponse = (HttpServletResponse)response;
-				
-				String uiService = ServerConfigurationService.getString("ui.service");
-				httpResponse.addHeader("WWW-Authenticate", "Basic realm=\"" + uiService + "\"");
-				
-				httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED); // Don't want to prompt for HTTP authentication.
-				return;
-			} else {
-				try {
-					chain.doFilter(request, response);
-				} finally {
-					if (invalidate) {
-						SessionManager.getCurrentSession().invalidate();
-					}
+			if (request.getAttribute(RequestFilter.ATTR_FILTERED) == null) {
+				throw new IllegalStateException(RequestFilter.class.getName() + " has not yet processed request.");
+			}
+			Session session= sessionManager.getCurrentSession();
+			boolean invalidate = doBasicAuthLogin((HttpServletRequest) request, session);
+			try {
+				chain.doFilter(request, response);
+			} finally {
+				if (invalidate) {
+					session.invalidate();
 				}
 			}
 		}
 	}
 
-	public void init(FilterConfig filterConfig) throws ServletException {
-		basicAuth = new BasicAuth();
-		basicAuth.init();
-	}
-
-	public void destroy() {
+	/**
+	 * Attempts the basic auth login.
+	 * @return <code>true</code> if the request was authenticated with basic auth and so should be invalidated
+	 * at the end.
+	 */
+	public boolean doBasicAuthLogin(HttpServletRequest request, Session session) throws IOException {
+		boolean invalidate =  (userDirectoryService.getAnonymousUser().getId().equals(session.getUserId()));
+		basicAuth.doLogin(request);
+		invalidate = invalidate && ! userDirectoryService.getAnonymousUser().getId().equals(session.getUserId());
+		return invalidate;
 	}
 
 }

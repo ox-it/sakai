@@ -52,7 +52,7 @@
 	</filter>
 
 	<filter>
-		<filter-name>require.basicauthentication</filter-name>
+		<filter-name>sakai.basicauth</filter-name>
 		<filter-class>uk.ac.ox.oucs.vle.BasicAuthenticatedRequestFilter</filter-class>
 	</filter>
 	
@@ -88,9 +88,10 @@
 		<dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
 
+	<!-- This has to happen after the sakai.request filter -->
 	<filter-mapping>
-		<filter-name>require.basicauthentication</filter-name>
-		<url-pattern>/auth_rest/*</url-pattern>
+		<filter-name>sakai.basicauth</filter-name>
+		<servlet-name>Jersey Web Application</servlet-name>
 		<dispatcher>REQUEST</dispatcher>
 		<dispatcher>FORWARD</dispatcher>
 		<dispatcher>INCLUDE</dispatcher>
