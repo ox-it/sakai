@@ -532,7 +532,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	private boolean isLecturer(CourseGroupDAO groupGroup, UserProxy user, boolean defaultValue) {
 		for (CourseComponentDAO componentDao : groupGroup.getComponents()) {
-			if (isLecturer(componentDao, user, false)) {
+			if (isLecturer(componentDao, user)) {
 				return true;
 			}
 		}
@@ -561,7 +561,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return false;
 	}
 	
-	private boolean isLecturer(CourseComponentDAO componentDao, UserProxy user, boolean defaultValue) {
+	private boolean isLecturer(CourseComponentDAO componentDao, UserProxy user) {
 		
 		if (null == user) {
 			return false;
@@ -569,10 +569,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (user.getId().equals(componentDao.getTeacher())) {
 			return true;
 		}
-		return defaultValue;
+		return false;
 	}
 
-	
 	/**
 	 * 
 	 */
