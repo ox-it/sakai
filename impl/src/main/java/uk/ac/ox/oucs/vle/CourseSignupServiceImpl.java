@@ -339,7 +339,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 */
 	public List<CourseGroup> getAdministering() {
 		String userId = proxy.getCurrentUser().getId();
-		List <CourseGroupDAO> groupDaos = dao.findAdminCourseGroups(userId);
+		List <CourseGroupDAO> groupDaos;
+		if (proxy.isAdministrator()) {
+			groupDaos = dao.findAllGroups();
+		} else {
+			groupDaos = dao.findAdminCourseGroups(userId);
+		}
 		List<CourseGroup> groups = new ArrayList<CourseGroup>(groupDaos.size());
 		for(CourseGroupDAO groupDao : groupDaos) {
 			groups.add(new CourseGroupImpl(groupDao, this));
@@ -522,6 +527,13 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	private boolean isAdministrator(CourseGroupDAO groupGroup, String currentUserId, boolean defaultValue) {
 		if (groupGroup.getAdministrators().contains(currentUserId)) {
+			return true;
+		}
+		UserProxy user = proxy.findUserById(currentUserId);
+		if (user != null && user.getEid().equals(this.getDaisyAdmin())) {
+			return true;
+		}
+		if (proxy.isAdministrator()) {
 			return true;
 		}
 		if (groupGroup.getSuperusers().contains(currentUserId)) {
