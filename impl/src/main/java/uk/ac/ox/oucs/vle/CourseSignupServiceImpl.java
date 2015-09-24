@@ -499,7 +499,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			throw new NotFoundException(componentId);
 		}
 		UserProxy currentUser = proxy.getCurrentUser();
-		if (!isAdministrator(componentDao, currentUser, false) && !isLecturer(componentDao, currentUser, false)) {
+		if (!isAdministrator(componentDao, currentUser) && !isLecturer(componentDao, currentUser)) {
 			throw new PermissionDeniedException(currentUser.getId());
 		}
 		List<CourseSignupDAO> signupDaos = dao.findSignupByComponent(componentId, statuses, year);
@@ -539,7 +539,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return defaultValue;
 	}
 
-	private boolean isAdministrator(CourseComponentDAO componentDao, UserProxy user, boolean defaultValue) {
+
+	private boolean isAdministrator(CourseComponentDAO componentDao, UserProxy user) {
 		
 		if (null == user) {
 			return false;
