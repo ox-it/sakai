@@ -50,7 +50,7 @@ public class Document {
 		if (null == this.href && !beans.isEmpty()) {
 			this.href = beans.iterator().next().getURL();
 		}
-		
+
 		for (SearObject bean : beans) {
 			
 			if (bean instanceof SearLibrary) {
@@ -65,11 +65,8 @@ public class Document {
 				item.setItemshelf(library.getCallNumber());
 				item.setItemdesc(library.getDescription());
 				item.setItemtype(library.getType());
-				if (item.getAvailability()!=null && item.getAvailability().equals("Available")){
+				if (library.getAvailability()!=null && (library.getAvailability().equals("Available") || library.getAvailability().equals("Confined"))){
 					item.setAvailableitems(1);
-				}
-				else {
-					item.setAvailableitems(0);
 				}
 				item.setTotalitems(1);
 				item.setAvailability(library.getAvailability());
@@ -90,12 +87,9 @@ public class Document {
 						item.getItemtype()!=null && item.getItemtype().equals(existingItem.getItemtype())){
 
 						// Add to total items
-						item.setTotalitems(item.getTotalitems() + 1);
-
+						existingItem.setTotalitems(existingItem.getTotalitems() + 1);
 						// Add to available items if Available
-						if (item.getAvailability().equals("Available")){
-							item.setAvailableitems(item.getAvailableitems()+1);
-						}
+						existingItem.setAvailableitems(existingItem.getAvailableitems() + item.getAvailableitems());
 						alreadyExists = true;
 					}
 				}
