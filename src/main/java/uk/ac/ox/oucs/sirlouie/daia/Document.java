@@ -65,7 +65,7 @@ public class Document {
 				item.setItemshelf(library.getCallNumber());
 				item.setItemdesc(library.getDescription());
 				item.setItemtype(library.getType());
-				if (library.getAvailability()!=null && (library.getAvailability().equals("Available") || library.getAvailability().equals("Confined"))){
+				if (library.getAvailability()!=null && (library.getAvailability().equals("Available") || library.getAvailability().equals("Confined") || library.getAvailability().equals("Closed Stack"))){
 					item.setAvailableitems(1);
 				}
 				item.setTotalitems(1);
