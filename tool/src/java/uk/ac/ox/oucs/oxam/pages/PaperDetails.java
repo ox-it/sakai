@@ -2,6 +2,7 @@ package uk.ac.ox.oucs.oxam.pages;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -13,6 +14,7 @@ import org.apache.wicket.validation.ValidationError;
 import org.apache.wicket.validation.validator.StringValidator;
 
 import uk.ac.ox.oucs.oxam.components.FeedbackLabel;
+import uk.ac.ox.oucs.oxam.components.InputLengthLimiter;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
 import uk.ac.ox.oucs.oxam.model.Paper;
@@ -42,7 +44,8 @@ public class PaperDetails extends Panel {
 		final TextField<String> paperCode = new TextField<String>("paperCode");
 		paperCode.setOutputMarkupId(true);
 		paperCode.setRequired(true);
-		paperCode.add(StringValidator.maximumLength(10));
+		paperCode.add(StringValidator.maximumLength(Paper.CODE_MAX_LENGTH));
+		paperCode.add(new InputLengthLimiter(Paper.CODE_MAX_LENGTH));
 		paperCode.setLabel(new ResourceModel("label.paper.code"));
 		paperForm.add(paperCode);
 		final FeedbackLabel paperCodeFeedback = new FeedbackLabel("paperCodeFeedback", paperCode);

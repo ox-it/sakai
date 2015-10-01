@@ -18,6 +18,7 @@ import org.apache.wicket.validation.ValidationError;
 import org.apache.wicket.validation.validator.StringValidator;
 
 import uk.ac.ox.oucs.oxam.components.FeedbackLabel;
+import uk.ac.ox.oucs.oxam.components.InputLengthLimiter;
 import uk.ac.ox.oucs.oxam.logic.CategoryService;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.model.Category;
@@ -53,7 +54,8 @@ public class ExamDetails extends Panel {
 		final TextField<String> examCode = new TextField<String>("examCode");
 		examCode.setLabel(new ResourceModel("label.exam.code"));
 		examCode.setRequired(true);
-		examCode.add(StringValidator.maximumLength(10));
+		examCode.add(StringValidator.maximumLength(Exam.CODE_MAX_LENGTH));
+		examCode.add(new InputLengthLimiter(Exam.CODE_MAX_LENGTH));
 		examForm.add(examCode);
 		final FeedbackLabel examCodeFeedback = new FeedbackLabel("examCodeFeedback", examCode);
 		examCodeFeedback.setOutputMarkupId(true);

@@ -1,7 +1,12 @@
 package uk.ac.ox.oucs.oxam.model;
 
 public class Paper {
-	
+
+	/**
+	 * The maximum length of an paper code.
+	 */
+	public static final int CODE_MAX_LENGTH = 8;
+
 	private long id;
 	private String code;
 	private String title;

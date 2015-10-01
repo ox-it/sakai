@@ -1,26 +1,10 @@
 package uk.ac.ox.oucs.oxam.pages;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.NoRecordsToolbar;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.FilterForm;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.FilterToolbar;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.FilteredAbstractColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.GoAndClearFilter;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.IFilterStateLocator;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.TextFilter;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.TextFilteredPropertyColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.*;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.filter.*;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -30,11 +14,16 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-
 import uk.ac.ox.oucs.oxam.components.CodeTextFilter;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.model.AcademicYear;
+import uk.ac.ox.oucs.oxam.model.Exam;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
+import uk.ac.ox.oucs.oxam.model.Paper;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class ExamPapersPage extends AdminPage {
 
@@ -53,7 +42,7 @@ public class ExamPapersPage extends AdminPage {
 
 			public Component getFilter(String componentId, FilterForm<?> form) {
 				// This is to we get small box and uppercasing.
-				return new CodeTextFilter<String>(componentId, getFilterModel(form), form);
+				return new CodeTextFilter<String>(componentId, getFilterModel(form), form, Exam.CODE_MAX_LENGTH);
 			}
 
 		});
@@ -65,7 +54,7 @@ public class ExamPapersPage extends AdminPage {
 
 			public Component getFilter(String componentId, FilterForm<?> form) {
 				// This is to we get small box and uppercasing.
-				return new CodeTextFilter<String>(componentId, getFilterModel(form), form);
+				return new CodeTextFilter<String>(componentId, getFilterModel(form), form, Paper.CODE_MAX_LENGTH);
 			}
 });
 		columns.add(new AbstractColumn<ExamPaper>(new ResourceModel(

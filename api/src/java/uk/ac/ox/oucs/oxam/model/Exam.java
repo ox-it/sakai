@@ -7,6 +7,11 @@ package uk.ac.ox.oucs.oxam.model;
  */
 public class Exam {
 
+	/**
+	 * The maximum length of an exam code.
+	 */
+	public static final int CODE_MAX_LENGTH = 8;
+
 	private long id;
 	private String code;
 	private String category;

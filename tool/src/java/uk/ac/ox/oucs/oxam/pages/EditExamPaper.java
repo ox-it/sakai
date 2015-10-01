@@ -1,14 +1,7 @@
 package uk.ac.ox.oucs.oxam.pages;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import org.apache.wicket.Page;
-import org.apache.wicket.markup.html.form.Button;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.ListChoice;
-import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -16,19 +9,22 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.IValidationError;
 import org.apache.wicket.validation.ValidationError;
-
 import uk.ac.ox.oucs.oxam.components.FeedbackLabel;
+import uk.ac.ox.oucs.oxam.components.InputLengthLimiter;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.logic.PaperFile;
 import uk.ac.ox.oucs.oxam.logic.PaperFileService;
 import uk.ac.ox.oucs.oxam.logic.TermService;
 import uk.ac.ox.oucs.oxam.model.AcademicYear;
 import uk.ac.ox.oucs.oxam.model.ExamPaper;
+import uk.ac.ox.oucs.oxam.model.Paper;
 import uk.ac.ox.oucs.oxam.model.Term;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class EditExamPaper extends AdminPage {
 	
@@ -89,6 +85,7 @@ public class EditExamPaper extends AdminPage {
 			add(upload);
 			
 			included = new TextField<String>("included", new Model<String>());
+			included.add(new InputLengthLimiter(Paper.CODE_MAX_LENGTH));
 			add(included);
 						
 			ListChoice<Term> term = new ListChoice<Term>("term", new ArrayList<Term>(termService.getAll()), new ChoiceRenderer<Term>() {
