@@ -10,7 +10,7 @@ public class Exam {
 	/**
 	 * The maximum length of an exam code.
 	 */
-	public static final int CODE_MAX_LENGTH = 8;
+	public static final int CODE_MAX_LENGTH = 4;
 
 	private long id;
 	private String code;

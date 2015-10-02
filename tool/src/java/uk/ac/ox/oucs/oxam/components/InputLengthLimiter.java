@@ -23,7 +23,7 @@ public class InputLengthLimiter extends AbstractBehavior implements IBehavior {
         {
             String length = Integer.toString(this.length);
             tag.getAttributes().put("maxlength", length);
-            tag.getAttributes().put("length", length);
+            tag.getAttributes().put("size", length);
         }
     }
 }
