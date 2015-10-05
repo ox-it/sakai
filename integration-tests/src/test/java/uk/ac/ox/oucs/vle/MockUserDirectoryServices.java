@@ -7,14 +7,7 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserAlreadyDefinedException;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.api.UserIdInvalidException;
-import org.sakaiproject.user.api.UserLockedException;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.user.api.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -22,6 +15,11 @@ public class MockUserDirectoryServices implements UserDirectoryService {
 
 	@Override
 	public PasswordRating validatePassword(String s, User user) {
+		return null;
+	}
+
+	@Override
+	public PasswordPolicyProvider getPasswordPolicy() {
 		return null;
 	}
 

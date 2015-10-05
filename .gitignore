@@ -3,3 +3,4 @@ target
 .project
 .settings
 .springBeans
+integration-tests/src/test/resources/test.properties

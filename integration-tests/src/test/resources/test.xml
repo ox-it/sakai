@@ -3,6 +3,12 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+	<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+		<property name="location">
+			<value>test.properties</value>
+		</property>
+	</bean>
+
 	<bean id="LDAPConnectionManager" class="edu.amc.sakai.user.SimpleLdapConnectionManager">
 		<property name="config">
 			<bean class="uk.ac.ox.oucs.vle.LdapConfigurationTest">
@@ -12,10 +18,10 @@
 <!--					<bean class="com.novell.ldap.LDAPJSSEStartTLSFactory" />-->
 					  <bean class="com.novell.ldap.LDAPJSSESecureSocketFactory" /> 
 				</property>
-				<property name="ldapHost" value="ldap.oak.ox.ac.uk"/>
+				<property name="ldapHost" value="${ldap.host}"/>
 				<property name="ldapPort" value="636"/>
-				<property name="ldapUser" value="cn=service/bit.oucs.ox.ac.uk,cn=oakInternalPrincipals,dc=oak,dc=ox,dc=ac,dc=uk"/>
-				<property name="ldapPassword" value=""/>
+				<property name="ldapUser" value="${ldap.username}"/>
+				<property name="ldapPassword" value="${ldap.password}"/>
 			</bean>
 		</property>
 	</bean>
