@@ -470,7 +470,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 						}
 					}
 					catch (ParseException e){
-						log.info("It's a grouper group" + e.getMessage());
+						log.info("Failed to parse member: "+ member);
 					}
 				}
 			}
