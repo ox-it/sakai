@@ -1,11 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -80,7 +75,7 @@ public class UniquePathHandler implements PathHandler{
 			}
 			return nodes;
 		} catch (LDAPException lde) {
-			log.warn(lde);
+			log.error("Failed to get nodes for path: "+ Arrays.toString(path), lde);
 			throw new ExternalGroupException(Type.UNKNOWN);
 		} finally {
 			groupManager.returnConnection(conn);

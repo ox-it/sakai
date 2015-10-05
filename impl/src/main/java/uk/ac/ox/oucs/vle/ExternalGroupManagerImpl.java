@@ -183,7 +183,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			}
 			oxfordCourseOwners = "(|" + oxfordCourseOwners + ")";
 		} catch (LDAPException lde) {
-			log.warn(lde);
+			log.error("Failed to find course owners.", lde);
 			throw new ExternalGroupException(Type.UNKNOWN);
 		} finally {
 			returnConnection(conn);
