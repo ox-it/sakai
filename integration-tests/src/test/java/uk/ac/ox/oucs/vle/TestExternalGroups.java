@@ -1,9 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -79,4 +76,18 @@ public class TestExternalGroups extends AbstractDependencyInjectionSpringContext
 		assertFalse(groups.isEmpty());
 	}
 
+	public void testWalkTree() throws Exception {
+		// Takes about 3 minutes
+		Queue<ExternalGroupNode> queue = new ArrayDeque<>();
+		queue.addAll(groupManager.findNodes(null));
+		while (!queue.isEmpty()) {
+			ExternalGroupNode node = queue.poll();
+			System.out.println(node.getPath());
+			// TODO Current if you attempt to ask for the nodes and it has groups you get an error, it shouldn't.
+			if (!node.hasGroup()) {
+				List<ExternalGroupNode> nodes = groupManager.findNodes(node.getPath());
+				queue.addAll(nodes);
+			}
+		}
+	}
 }
