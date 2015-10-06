@@ -171,7 +171,9 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		LDAPConnection conn = null;
 		try {
 			conn = getConnection();
-			LDAPSearchResults searchResults = conn.search(COURSE_BASE, LDAPConnection.SCOPE_SUB, OXFORD_COURSE_OWNER + "=*", new String[]{OXFORD_COURSE_OWNER}, false);
+			// The objectClass filter means that many fewer items are queried and so speeds up the filter.
+			String filter = String.format("(&(%s=*)(objectClass=groupstoreOrganizationalUnit))", OXFORD_COURSE_OWNER);
+			LDAPSearchResults searchResults = conn.search(COURSE_BASE, LDAPConnection.SCOPE_SUB, filter, new String[]{OXFORD_COURSE_OWNER}, false);
 			Set<String> owners = new HashSet<>();
 			while (searchResults.hasMore()) {
 				LDAPEntry result = searchResults.next();

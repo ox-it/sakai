@@ -2,6 +2,9 @@ package uk.ac.ox.oucs.vle;
 
 import java.util.*;
 
+import com.novell.ldap.LDAPConnection;
+import com.novell.ldap.LDAPException;
+import edu.amc.sakai.user.LdapConnectionManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mockito.Mockito;
@@ -13,11 +16,15 @@ import org.sakaiproject.user.api.User;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
+import static org.mockito.Mockito.*;
+import static uk.ac.ox.oucs.vle.ExternalGroupManagerImpl.*;
+
 public class TestExternalGroups extends AbstractDependencyInjectionSpringContextTests {
 
 	private Log log = LogFactory.getLog(TestExternalGroups.class);
 
 	private ExternalGroupManagerImpl groupManager;
+	private LdapConnectionManager ldapConnectionManager;
 
 	@Override
 	protected String[] getConfigLocations() {
@@ -25,34 +32,36 @@ public class TestExternalGroups extends AbstractDependencyInjectionSpringContext
 	}
 	
 	protected void onSetUp() {
-		ApplicationContext context = getApplicationContext();
-		groupManager = (ExternalGroupManagerImpl) context.getBean("ExternalGroupManager");
+		groupManager = applicationContext.getBean(ExternalGroupManagerImpl.class);
+		ldapConnectionManager = applicationContext.getBean(LdapConnectionManager.class);
 
-		Cache cache = Mockito.mock(Cache.class);
+		Cache cache = mock(Cache.class);
 		final Map<Object, Object> map = new HashMap<>();
-		Mockito.doAnswer(new Answer() {
+		doAnswer(new Answer() {
 			@Override
 			public Object answer(InvocationOnMock invocation) throws Throwable {
 				Object[] arguments = invocation.getArguments();
 				map.put(arguments[0], arguments[1]);
 				return Void.TYPE;
 			}
-		}).when(cache).put(Mockito.any(), Mockito.any());
-		Mockito.doAnswer(new Answer() {
+		}).when(cache).put(any(), any());
+		doAnswer(new Answer() {
 			@Override
 			public Object answer(InvocationOnMock invocation) throws Throwable {
 				Object[] arguments = invocation.getArguments();
 				return map.get(arguments[0]);
 			}
-		}).when(cache).get(Mockito.any());
+		}).when(cache).get(any());
 
-		MemoryService memoryService = Mockito.mock(MemoryService.class);
-		Mockito.when(memoryService.newCache(Mockito.anyString())).thenReturn(cache);
+		MemoryService memoryService = mock(MemoryService.class);
+		when(memoryService.newCache(anyString())).thenReturn(cache);
 
 		groupManager.setMemoryService(memoryService);
 
-		MappedGroupDao mappedGroupDao = Mockito.mock(MappedGroupDao.class);
+		MappedGroupDao mappedGroupDao = mock(MappedGroupDao.class);
 		groupManager.setMappedGroupDao(mappedGroupDao);
+		// TODO This is a hack and there should really be better isolation between tests.
+		groupManager.setLdapConnectionManager(ldapConnectionManager);
 
 		groupManager.init();
 	}
@@ -78,17 +87,25 @@ public class TestExternalGroups extends AbstractDependencyInjectionSpringContext
 	}
 
 	public void testBrowseCourseDepartments() throws Exception {
-		List<ExternalGroupNode> groups = groupManager.findNodes(ExternalGroupManagerImpl.COURSES);
+		List<ExternalGroupNode> groups = groupManager.findNodes(COURSES);
 		assertFalse(groups.isEmpty());
 		assertTrue(groups.size() > 50);
+		assertTrue(groups.size() < 100);
 		log.debug("Groups size: "+ groups.size());
 	}
 
 	public void testBrowseCourseDepartmentsWithTimeout() throws Exception {
-		LdapConfigurationTest ldapConfiguration = applicationContext.getBean(LdapConfigurationTest.class);
-		// This is a bit of a hack, but allows the large search to timeout
-		ldapConfiguration.setOperationTimeout(500);
-		List<ExternalGroupNode> groups = groupManager.findNodes(ExternalGroupManagerImpl.COURSES);
+		LdapConnectionManager bean = applicationContext.getBean(LdapConnectionManager.class);
+		LdapConnectionManager spyConnectionManager = spy(bean);
+		LDAPConnection connection = bean.getConnection();
+		LDAPConnection spyConnection = spy(connection);
+		// This is so that we fail the connection the first time.
+		doThrow(LDAPException.class).when(spyConnection).search(eq(COURSE_BASE), anyInt(), anyString(), any(String[].class), anyBoolean());
+        when(spyConnectionManager.getConnection()).thenCallRealMethod().thenReturn(spyConnection);
+		// Reset the object with our spy
+		groupManager.setLdapConnectionManager(spyConnectionManager);
+
+		List<ExternalGroupNode> groups = groupManager.findNodes(COURSES);
 		assertFalse(groups.isEmpty());
 		// We get back lots of possible owners, but only some of them acutally offer courses.
 		assertTrue(groups.size() > 200);
