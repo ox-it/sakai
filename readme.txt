@@ -17,3 +17,16 @@ isn't present then the tests aren't run. This way they can be part of the
 standard build but they won't break the build when no credentials are
 available.
 
+
+Debugging
+=========
+
+The JLDAP library doesn't do proper logging but to get some debugging information
+out during development you can set system properties. This is documented in
+`com.novell.ldap.client.Debug` but a useful example is to enable API tracing by
+setting the system propery:
+
+    -Dldap.debug=APIRequests
+
+which gives a high level overview of the operations of of the library.
+
