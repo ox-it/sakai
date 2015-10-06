@@ -8,22 +8,21 @@
 			<value>test.properties</value>
 		</property>
 	</bean>
+	<bean id="LdapConfigurationTest" class="uk.ac.ox.oucs.vle.LdapConfigurationTest">
+		<property name="autoBind" value="true"/>
+		<property name="secureConnection" value="true"/>
+		<property name="secureSocketFactory">
+			<!--					<bean class="com.novell.ldap.LDAPJSSEStartTLSFactory" />-->
+			<bean class="com.novell.ldap.LDAPJSSESecureSocketFactory" />
+		</property>
+		<property name="ldapHost" value="${ldap.host}"/>
+		<property name="ldapPort" value="636"/>
+		<property name="ldapUser" value="${ldap.username}"/>
+		<property name="ldapPassword" value="${ldap.password}"/>
+	</bean>
 
 	<bean id="LDAPConnectionManager" class="edu.amc.sakai.user.SimpleLdapConnectionManager">
-		<property name="config">
-			<bean class="uk.ac.ox.oucs.vle.LdapConfigurationTest">
-				<property name="autoBind" value="true"/>
-				<property name="secureConnection" value="true"/>
-				<property name="secureSocketFactory">
-<!--					<bean class="com.novell.ldap.LDAPJSSEStartTLSFactory" />-->
-					  <bean class="com.novell.ldap.LDAPJSSESecureSocketFactory" /> 
-				</property>
-				<property name="ldapHost" value="${ldap.host}"/>
-				<property name="ldapPort" value="636"/>
-				<property name="ldapUser" value="${ldap.username}"/>
-				<property name="ldapPassword" value="${ldap.password}"/>
-			</bean>
-		</property>
+		<property name="config" ref="LdapConfigurationTest"/>
 	</bean>
 		
 	<bean id="MockUserDirectory" class="uk.ac.ox.oucs.vle.MockUserDirectoryServices">

@@ -30,3 +30,9 @@ setting the system propery:
 
 which gives a high level overview of the operations of of the library.
 
+To enable debugging logging on tests the simplest way it to just switch to SimpleLogging
+and enable debug logging on that class:
+
+    -Dorg.apache.commons.logging.simplelog.log.uk.ac.ox.oucs.vle.TestExternalGroups=debug \
+    -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.SimpleLog
+
