@@ -165,6 +165,8 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			return courseOwnersFilter;
 		}
 
+		// A default filter that shows all departments (even those without courses)
+		courseOwnersFilter = OXFORD_UNIT_SITS_CODE+ "=*";
 		// A default of all units.
 		LDAPConnection conn = null;
 		try {
@@ -186,8 +188,6 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			}
 		} catch (LDAPException lde) {
 			log.error("Failed to find course owners.", lde);
-			// A default filter that shows all departments (even those without courses)
-			courseOwnersFilter = OXFORD_UNIT_SITS_CODE+ "=*";
 		} finally {
 			returnConnection(conn);
 		}
