@@ -34,7 +34,7 @@ public interface CourseSignup extends java.io.Serializable{
 	
 	/**
 	 * 
-	 * @return Identity of student making the signup
+	 * @return Identity of student making the signup, can be <code>null</code> if the user can't be found.
 	 */
 	public Person getUser();
 	
