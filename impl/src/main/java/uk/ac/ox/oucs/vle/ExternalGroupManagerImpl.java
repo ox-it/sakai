@@ -2,13 +2,7 @@ package uk.ac.ox.oucs.vle;
 
 import java.text.MessageFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -171,28 +165,35 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			return courseOwnersFilter;
 		}
 
-		String oxfordCourseOwners = "";
+		// A default filter that shows all departments (even those without courses)
+		courseOwnersFilter = OXFORD_UNIT_SITS_CODE+ "=*";
+		// A default of all units.
 		LDAPConnection conn = null;
 		try {
 			conn = getConnection();
-			LDAPSearchResults searchResults = conn.search(COURSE_BASE, LDAPConnection.SCOPE_SUB, OXFORD_COURSE_OWNER + "=*", new String[]{OXFORD_COURSE_OWNER}, false);
+			// The objectClass filter means that many fewer items are queried and so speeds up the filter.
+			String filter = String.format("(&(%s=*)(objectClass=groupstoreOrganizationalUnit))", OXFORD_COURSE_OWNER);
+			LDAPSearchResults searchResults = conn.search(COURSE_BASE, LDAPConnection.SCOPE_SUB, filter, new String[]{OXFORD_COURSE_OWNER}, false);
+			Set<String> owners = new HashSet<>();
 			while (searchResults.hasMore()) {
 				LDAPEntry result = searchResults.next();
 				String name = result.getAttribute(OXFORD_COURSE_OWNER).getStringValue();
-				oxfordCourseOwners = oxfordCourseOwners + "(" + OXFORD_UNIT_SITS_CODE + "=" + name + ")";
+				owners.add(name);
 			}
-			oxfordCourseOwners = "(|" + oxfordCourseOwners + ")";
+			if (owners.size() > 0){
+				StringBuilder oxfordCourseOwners = new StringBuilder();
+				for (String owner: owners) {
+					oxfordCourseOwners.append("(").append(OXFORD_UNIT_SITS_CODE).append("=").append(owner).append(")");
+				}
+				courseOwnersFilter = "(|" + oxfordCourseOwners.toString() + ")";
+				courseOwnersCache.put(COURSE_OWNERS_CACHE, courseOwnersFilter);
+			}
 		} catch (LDAPException lde) {
 			log.error("Failed to find course owners.", lde);
-			throw new ExternalGroupException(Type.UNKNOWN);
 		} finally {
 			returnConnection(conn);
 		}
-
-		if (!oxfordCourseOwners.isEmpty()){
-			courseOwnersCache.put(COURSE_OWNERS_CACHE, oxfordCourseOwners);
-		}
-		return oxfordCourseOwners;
+		return courseOwnersFilter;
 	}
 
 
