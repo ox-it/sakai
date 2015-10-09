@@ -32,7 +32,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Module Signup</title>
+<title>Course Signup</title>
 
 <link href='<c:out value="${skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
 <link href="<c:out value="${skinRepo}" />/<c:out value="${skinPrefix}" /><c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
@@ -316,7 +316,7 @@
 
 				if (data.length > 0) {
 					$("#course-list").html(
-							'<form>Select a module: <select id="admin-course" name="course">'
+							'<form>Select a course: <select id="admin-course" name="course">'
 									+ options + '</select></form>');
 					$("#admin-course").change(function(e) {
 						var courseId = this.options[this.selectedIndex].value;
@@ -331,7 +331,7 @@
 					loadCourse(courseData[0]);
 				} else {
 					$("#course-list").html(
-							'You are not an lecturer on any modules.');
+							'You are not an lecturer on any courses.');
 				}
 			}
 		});
@@ -371,11 +371,11 @@
 	<div id="toolbar">
 		<ul class="navIntraTool actionToolBar">
 			<li><span><a href="home.jsp">Home</a></span></li>
-			<li><span><a href="search.jsp">Search Modules</a></span></li>
+			<li><span><a href="search.jsp">Search Courses</a></span></li>
 			<li><span><a href="index.jsp">Browse by Department</a></span></li>
 			<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
 			<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
-			<li><span><a href="my.jsp">My Modules</a></span></li>
+			<li><span><a href="my.jsp">My Courses</a></span></li>
 			<c:if test="${isPending}">
 				<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
 			</c:if>
@@ -384,7 +384,7 @@
 							Confirmations</a></span></li>
 			</c:if>
 			<c:if test="${isAdministrator}">
-				<li><span><a href="admin.jsp">Module Administration</a></span></li>
+				<li><span><a href="admin.jsp">Course Administration</a></span></li>
 			</c:if>
 			<li><span>Lecturers View</span></li>
 		</ul>
@@ -411,7 +411,7 @@
 		<li>\${user.name} (\${user.email})</li>
 	{/for}
 	</ul>
-	<h2>Select Modules</h2>
+	<h2>Select Courses</h2>
 	
 	<form id="signup-add-components">
 	<span class="errors"></span>

@@ -20,8 +20,8 @@
   -->
 
 <registration>
-	<tool id="course.signup" title="Module Signup"
-		description="Tool for allowing people to signup to modules.">
+	<tool id="course.signup" title="Course Signup"
+		description="Tool for allowing people to signup to courses.">
 		
 		<configuration name="default-nodes" value="root" />
 		

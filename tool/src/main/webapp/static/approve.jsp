@@ -34,7 +34,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Module Signup</title>
+<title>Course Signup</title>
 
 <link href='<c:out value="${skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
 <link href="<c:out value="${skinRepo}" />/<c:out value="${skinPrefix}" /><c:out value="${skinDefault}" />/tool.css" type="text/css" rel="stylesheet" media="all" />
@@ -95,7 +95,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		                "sTitle": "Student",
 		                "sWidth": "20%"
 		            }, {
-		                "sTitle": "Module"
+		                "sTitle": "Course"
 		            }, {
 		                "sTitle": "Supervisor"
 		            }, {
@@ -258,17 +258,17 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	<div id="toolbar">
 		<ul class="navIntraTool actionToolBar">
 			<li><span><a href="home.jsp">Home</a></span></li>
-			<li><span><a href="search.jsp">Search Modules</a></span></li>
+			<li><span><a href="search.jsp">Search Courses</a></span></li>
 			<li><span><a href="index.jsp">Browse by Department</a></span></li>
 			<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
 			<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
-			<li><span><a href="my.jsp">My Modules</a></span></li>
+			<li><span><a href="my.jsp">My Courses</a></span></li>
 			<c:if test="${isPending}">
 				<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
 			</c:if>
 			<li><span>Pending Confirmations</span></li>
 			<c:if test="${isAdministrator}">
-				<li><span><a href="admin.jsp">Module Administration</a></span></li>
+				<li><span><a href="admin.jsp">Course Administration</a></span></li>
 			</c:if>
 			<c:if test="${isLecturer}">
 				<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
@@ -277,7 +277,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 	</div>
 	<div>
 		<p>
-			These students have signed up for a module that needs your approval.
+			These students have signed up for a course that needs your approval.
 			<span style="float: right; margin-right: 4%;"> <input
 				type='button' class="reject-selected" value="Reject Selected"
 				name="name"></input> <input type='button' class="confirm-selected"
