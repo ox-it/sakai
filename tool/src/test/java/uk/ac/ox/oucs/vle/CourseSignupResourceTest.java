@@ -1,73 +1,71 @@
 package uk.ac.ox.oucs.vle;
 
-import com.riffpie.common.testing.AbstractSpringAwareJerseyTest;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.container.filter.LoggingFilter;
-import com.sun.jersey.api.core.ResourceConfig;
-import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
-import com.sun.jersey.test.framework.AppDescriptor;
-import com.sun.jersey.test.framework.JerseyTest;
-import com.sun.jersey.test.framework.WebAppDescriptor;
+import org.glassfish.jersey.client.ClientResponse;
+import org.glassfish.jersey.servlet.ServletContainer;
+import org.glassfish.jersey.test.DeploymentContext;
+import org.glassfish.jersey.test.JerseyTest;
+import org.glassfish.jersey.test.ServletDeploymentContext;
+import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
+import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.springframework.beans.factory.annotation.Autowire;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 import uk.ac.ox.oucs.vle.stub.CourseSignupStub;
 
-import javax.ws.rs.ext.ContextResolver;
+import javax.inject.Inject;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.Response;
+
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
+ * Basic tests of the SignupResource.
+ *
  * @author Matthew Buckett
  */
+public class CourseSignupResourceTest  extends JerseyTest {
 
-public class CourseSignupResourceTest extends AbstractSpringAwareJerseyTest {
-
-	@Autowired
 	private CourseSignupService courseSignupService;
-	@Autowired
-	private ServerConfigurationService serverConfigurationService;
-	@Autowired
 	private SakaiProxy proxy;
 
+	private ServletContainer container;
+
 	@Override
-	public AppDescriptor configure() {
-		// Pickup the resources.
-		// Need to inject the spring context
-		// See ResourceConfig for init params.
-		WebAppDescriptor wa = new WebAppDescriptor.Builder("uk.ac.ox.oucs.vle.resources,org.codehaus.jackson.jaxrs")
+	protected TestContainerFactory getTestContainerFactory() {
+		return new GrizzlyWebTestContainerFactory();
+	}
+
+	@Before
+	public void setupBeans() throws Exception {
+		// We grab the beans as
+		WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(container.getServletContext());
+		proxy = webApplicationContext.getBean(SakaiProxy.class);
+		courseSignupService = webApplicationContext.getBean(CourseSignupService.class);
+	}
+
+	@Override
+	protected DeploymentContext configureDeployment(){
+		container = new ServletContainer();
+		return ServletDeploymentContext.forServlet(container)
+				.addListener(ContextLoaderListener.class)
 				.contextParam("contextConfigLocation", "classpath:test.xml")
-				.contextListenerClass(ContextLoaderListener.class)
-				.servletClass(SpringServlet.class)
-
-				// This enables logging of request/response
-				//.initParam(ResourceConfig.FEATURE_TRACE, "true")
-				//.initParam(ResourceConfig.PROPERTY_CONTAINER_REQUEST_FILTERS, LoggingFilter.class.getCanonicalName())
-				//.initParam(ResourceConfig.PROPERTY_CONTAINER_RESPONSE_FILTERS, LoggingFilter.class.getCanonicalName())
-				// Uncomment to stop logging of entity.
-				//.initParam(LoggingFilter.FEATURE_LOGGING_DISABLE_ENTITY, "true")
+				.initParam("jersey.config.server.provider.packages", "uk.ac.ox.oucs.vle.resources;org.codehaus.jackson.jaxrs")
 				.build();
-		return wa;
 	}
 
-	@Test
+	@Test(expected = javax.ws.rs.NotFoundException.class)
 	public void testNothing() {
-		ClientResponse response = resource().path("/doesNotExist").accept("application/json").get(ClientResponse.class);
-		assertEquals(404, response.getStatus());
-
+		target("doesNotExist").request("application/json").get(ClientResponse.class);
 	}
+
 
 	@Test
 	public void testSignup() {
@@ -79,9 +77,10 @@ public class CourseSignupResourceTest extends AbstractSpringAwareJerseyTest {
 
 		when(courseSignupService.signup(anyString(), anyString(), anyString(), anyString(), anySet(), anyString()))
 				.thenReturn(stubSignup);
-		ClientResponse response = resource().path("/signup/new").accept("application/json").post(ClientResponse.class);
-		verify(courseSignupService, times(1)).signup(anyString(), anyString(), anyString(), anyString(), anySet(), anyString());
+		MultivaluedHashMap<String, String> formData = new MultivaluedHashMap<String, String>();
+		Response response = target("/signup/new").request("application/json").post(Entity.form(formData));
 		assertEquals(201, response.getStatus());
+		verify(courseSignupService, times(1)).signup(anyString(), anyString(), anyString(), anyString(), anySet(), anyString());
 	}
 
 	@Test
@@ -89,7 +88,8 @@ public class CourseSignupResourceTest extends AbstractSpringAwareJerseyTest {
 		// Check that we map exceptions correctly.
 		when(proxy.isAnonymousUser()).thenReturn(false);
 		when(courseSignupService.signup(anyString(), anySet(), anyString(), anyString())).thenThrow(new NotFoundException("id"));
-		ClientResponse response = resource().path("/signup/my/new").accept("application/json").post(ClientResponse.class);
+		MultivaluedHashMap<String, String> formData = new MultivaluedHashMap<String, String>();
+		Response response = target("/signup/my/new").request("application/json").post(Entity.form(formData));
 		assertEquals(404, response.getStatus());
 	}
 
@@ -97,10 +97,17 @@ public class CourseSignupResourceTest extends AbstractSpringAwareJerseyTest {
 	public void testSignupSplit() {
 		when(proxy.isAnonymousUser()).thenReturn(false);
 		when(courseSignupService.split(eq("signupId"), anySetOf(String.class))).thenReturn("newSignupId");
-		ClientResponse response = resource().queryParam("componentPresentationId", "1").path("/signup/signupId/split").accept("application/json").post(ClientResponse.class);
+		MultivaluedHashMap<String, String> formData = new MultivaluedHashMap<String, String>();
+		Response response = target("/signup/signupId/split").queryParam("componentPresentationId", "1").request("application/json").post(Entity.form(formData));
 		assertEquals(201, response.getStatus());
 	}
 
-
+	@Test
+	public void testMySignups() {
+		CourseSignup signup = mock(CourseSignup.class);
+		when(courseSignupService.getMySignups(null)).thenReturn(Collections.singletonList(signup));
+		Response response = target("/signup/my").request("application/json").get();
+		assertEquals(200, response.getStatus());
+	}
 
 }

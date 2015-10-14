@@ -22,6 +22,7 @@ package uk.ac.ox.oucs.vle.resources;
 import java.io.IOException;
 import java.util.Date;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -54,21 +55,12 @@ import uk.ac.ox.oucs.vle.UserProxy;
 @Path("/user")
 public class UserResource {
 
+	@Inject
 	private SakaiProxy proxy;
+	@Inject
 	private CourseSignupService courseService;
-	private JsonFactory jsonFactory;
+	@Inject
 	private ObjectMapper objectMapper;
-
-	public UserResource(@Context ContextResolver<Object> resolver) {
-		this.courseService = (CourseSignupService) resolver.getContext(CourseSignupService.class);
-		this.proxy = (SakaiProxy) resolver.getContext(SakaiProxy.class);
-		
-		jsonFactory = new JsonFactory();
-		objectMapper = new ObjectMapper();
-		objectMapper.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
-		objectMapper.configure(SerializationConfig.Feature.USE_STATIC_TYPING, true);
-		objectMapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
-	}
 
 	@Path("/current")
 	@GET

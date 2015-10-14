@@ -1,9 +1,8 @@
 package uk.ac.ox.oucs.vle;
 
-import com.sun.jersey.spi.container.ContainerRequest;
-import com.sun.jersey.spi.container.ContainerResponse;
-import com.sun.jersey.spi.container.ContainerResponseFilter;
-
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -23,16 +22,14 @@ public class CharsetResponseFilter implements ContainerResponseFilter {
     }
 
     @Override
-    public ContainerResponse filter(ContainerRequest request, ContainerResponse response) {
+    public void filter(ContainerRequestContext request, ContainerResponseContext response) {
 
         MediaType contentType = response.getMediaType();
         if(contentType != null) {
             String value = contentType.toString();
             if (!value.contains(CHARSET)) {
-                response.getHttpHeaders().putSingle("Content-Type", value + ";" + CHARSET + charset);
+                response.getHeaders().putSingle("Content-Type", value + ";" + CHARSET + charset);
             }
         }
-
-        return response;
     }
 }

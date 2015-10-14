@@ -19,37 +19,6 @@
  */
 package uk.ac.ox.oucs.vle.resources;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.ContextResolver;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,13 +28,22 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.type.TypeFactory;
 import org.sakaiproject.user.cover.UserDirectoryService;
-
 import uk.ac.ox.oucs.vle.*;
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
+
+import javax.inject.Inject;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.Status;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.*;
 
 //@Path("/course/")
 @Path("course{cobomo:(/cobomo)?}")
@@ -73,21 +51,16 @@ public class CourseResource {
 
 	private static final Log log = LogFactory.getLog(CourseResource.class);
 
+	@Inject
 	private CourseSignupService courseService;
+    @Inject
 	private SearchService searchService;
-	private JsonFactory jsonFactory;
+	private JsonFactory jsonFactory = new JsonFactory();
+	// This is a direct binding to Jackson. Really we should be using EntityProviders
+	@Inject
 	private ObjectMapper objectMapper;
 
-	public CourseResource(@Context ContextResolver<Object> resolver) {
-		this.courseService = (CourseSignupService) resolver.getContext(CourseSignupService.class);
-		searchService = (SearchService) resolver.getContext(SearchService.class);
-		jsonFactory = new JsonFactory();
-		objectMapper = new ObjectMapper();
-		objectMapper.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
-		objectMapper.configure(SerializationConfig.Feature.USE_STATIC_TYPING, true);
-		objectMapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
-	}
-	
+
 	@Path("/{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

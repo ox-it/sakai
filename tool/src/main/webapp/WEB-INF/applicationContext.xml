@@ -53,5 +53,7 @@
 		<property name="prefix" value="/"/>
 		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
 	</bean>
-	
+
+	<import resource="classpath:/tool-beans.xml"/>
+
 </beans>

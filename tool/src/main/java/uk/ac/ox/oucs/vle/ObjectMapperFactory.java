@@ -1,18 +1,13 @@
-package uk.ac.ox.oucs.vle.resources;
+package uk.ac.ox.oucs.vle;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
-import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.Provider;
-
 /**
- * This is our ObjectMapper which is pre-configured. This is because there isn't a nice way to do this
- * in spring and then inject it into JacksonJsonProvider.
+ * This is our ObjectMapper which is pre-configured.
  */
-@Provider
-public class ObjectMapperContextProvider implements ContextResolver<ObjectMapper> {
+public class ObjectMapperFactory {
 
 	private ObjectMapper mapper;
 
@@ -30,8 +25,7 @@ public class ObjectMapperContextProvider implements ContextResolver<ObjectMapper
 				.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 	}
 
-	@Override
-	public ObjectMapper getContext(Class<?> type) {
+    public ObjectMapper getInstance() {
 		synchronized (this) {
 			if (mapper == null) {
 				createObjectMapper();
