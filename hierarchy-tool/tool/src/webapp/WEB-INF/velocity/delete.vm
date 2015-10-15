@@ -2,7 +2,6 @@
 #chef_portletContainer()
 #chef_portletContent()
 
-<h3>#springMessage("delete.title")</h3>
 
 #if ($canDelete)
 	#if ($hasChildren)
@@ -35,9 +34,6 @@
 	<input type="submit" value="#springMessage("delete.button")"/>
 	</form>
 	<br/>
-    <form method="GET" action="$rootUrl">
-    <input type="submit" value="#springMessage("button.cancel")"/>
-	</form>
 #else
 	<div class="alertMessage">
 	#springMessage("delete.cannot")
@@ -49,9 +45,6 @@
 		#springMessage("delete.cannot.unknown")
 	#end
 	</p>
-	<form method="GET" action="$rootUrl">
-	<input type="submit" value="#springMessage("button.cancel")"/>
-	</form>
 #end
 
 

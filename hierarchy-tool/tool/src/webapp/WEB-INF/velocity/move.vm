@@ -1,0 +1,14 @@
+#chef_start()
+#chef_portletContainer()
+#chef_portletContent()
+<br/>
+<div class="instr">
+      $springMacroRequestContext.getMessage("move.intro", [ $node.site.title ])
+</div><br/>
+<form method="POST" action="${rootUrl}/cut">
+    <input type="submit" value="#springMessage("button.move.site")"/>
+</form>
+
+#chef_portletContentEnd()
+#chef_portletContainerEnd()
+#chef_end()
