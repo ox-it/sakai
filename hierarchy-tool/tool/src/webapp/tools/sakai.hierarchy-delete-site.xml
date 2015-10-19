@@ -4,8 +4,8 @@
 
 	<tool
 			id="sakai.hierarchy-delete-site"
-			title="Delete Site"
-		description="Delete a site.">
+			title="Remove Site"
+		description="Remove a site.">
 			
 		<category name="hierarchy" />
 		<configuration name="functions.require" value="portal.hierarchy.delete"/>

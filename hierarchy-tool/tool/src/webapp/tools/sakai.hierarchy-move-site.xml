@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.hierarchy-move-site"
+			title="Move Site"
+		description="Move a Site.">
+			
+		<category name="hierarchy" />
+		<configuration name="functions.require" value="portal.hierarchy.modify"/>
+		
+
+	</tool>
+
+</registration>

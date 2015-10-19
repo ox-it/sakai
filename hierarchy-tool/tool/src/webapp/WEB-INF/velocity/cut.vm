@@ -1,8 +1,6 @@
 #chef_start()
 #chef_portletContainer()
 #chef_portletContent()
-
-<h3>#springMessage("cut.title")</h3>
   #if($errorMessage)
   <p class="errors">
     <span class="alertMessageInline">$springMacroRequestContext.getMessage($errorMessage)</span>
@@ -15,11 +13,12 @@
   #else 
     <div class="instr">
       $springMacroRequestContext.getMessage("cut.intro", [ $cutNode.site.title, $cutNode.path ])
-    </div>
+    </div><br/>
     <form method="POST" action="${rootUrl}/paste">
     <input type="submit" value="#springMessage("cut.paste")"/>
     </form>
   #end #end
+  <br/>
 <form method="POST" action="${rootUrl}/cancel">
   <input type="submit" value="#springMessage("button.cancel")"/>
 </form>

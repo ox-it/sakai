@@ -67,5 +67,25 @@
 		<servlet-name>sakai.hierarchy-delete-site</servlet-name>
 		<servlet-class>org.sakaiproject.hierarchy.tool.SpringDispatcherServlet</servlet-class>
 	</servlet>
+
+	<servlet>
+		<servlet-name>sakai.hierarchy-replace-site</servlet-name>
+		<servlet-class>org.sakaiproject.hierarchy.tool.SpringDispatcherServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>sakai.hierarchy-move-site</servlet-name>
+		<servlet-class>org.sakaiproject.hierarchy.tool.SpringDispatcherServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>sakai.hierarchy-paste-site</servlet-name>
+		<servlet-class>org.sakaiproject.hierarchy.tool.SpringDispatcherServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>sakai.hierarchy-redirect-site</servlet-name>
+		<servlet-class>org.sakaiproject.hierarchy.tool.SpringDispatcherServlet</servlet-class>
+	</servlet>
 	
 </web-app>

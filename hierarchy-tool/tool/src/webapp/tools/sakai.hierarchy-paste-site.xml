@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.hierarchy-paste-site"
+			title="Paste Site"
+		description="Paste a Site.">
+			
+		<category name="hierarchy" />
+		<configuration name="functions.require" value="portal.hierarchy.modify"/>
+		
+
+	</tool>
+
+</registration>

@@ -508,11 +508,14 @@ public class HierarchyHandler extends SiteHandler {
 		List<Map<String, Object>> hierarchyPages = new ArrayList<Map<String, Object>>();
 		for (SitePage hierarchyPage: (List<SitePage>)portal.getSiteHelper().getPermittedPagesInOrder(hierarchySite)) {
 			String pageAlias = portal.getSiteHelper().lookupPageToAlias(hierarchySite.getId(), hierarchyPage);
-
-			String pagerefUrl = ToolUtils.getPageUrl(req, site, hierarchyPage, portalPrefix,
-					resetTools, siteEffectiveId, pageAlias);
-			boolean current = hierarchyPage.equals(page) && !(hierarchyPage.isPopUp());
-			hierarchyPages.add(portal.getSiteHelper().pageToMap(req, site, false, hierarchyPage, hierarchyPage.getTools(), null, null, current, pagerefUrl));
+			if ( pageAlias == null ) pageAlias = hierarchyPage.getId();
+			//Check if site is selected for paste or not and show appropriate tool
+			if(!(session.getAttribute("#CUT_ID") == null && pageAlias.equals("paste_site")) && !(session.getAttribute("#CUT_ID") != null && pageAlias.equals("move_site"))){
+				String pagerefUrl = ToolUtils.getPageUrl(req, site, hierarchyPage, portalPrefix,
+						resetTools, siteEffectiveId, pageAlias);
+				boolean current = hierarchyPage.equals(page) && !(hierarchyPage.isPopUp());
+				hierarchyPages.add(portal.getSiteHelper().pageToMap(req, site, false, hierarchyPage, hierarchyPage.getTools(), null, null, current, pagerefUrl));
+			}
 		}
 		rcontext.put("hierarchyPages", hierarchyPages);
 

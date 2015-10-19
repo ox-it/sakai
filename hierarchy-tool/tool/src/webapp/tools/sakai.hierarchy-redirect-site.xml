@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.hierarchy-redirect-site"
+			title="Add Redirect"
+		description="Add a Redirect.">
+			
+		<category name="hierarchy" />
+		<configuration name="functions.require" value="portal.hierarchy.modify"/>
+		
+
+	</tool>
+
+</registration>

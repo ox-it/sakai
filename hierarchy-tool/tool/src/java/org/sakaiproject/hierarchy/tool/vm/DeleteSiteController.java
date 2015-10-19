@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.annotation.TargettedController;
 
-@Controller
+@Controller("deleteSiteController")
 @RequestMapping("/delete")
 @TargettedController("sakai.hierarchy-manager")
 public class DeleteSiteController {
