@@ -5,13 +5,13 @@
 		$('#title').keyup( function(e) {
 			var title = e.target.value;
 			title = title.toLowerCase();
-			title = title.replace(/[^a-z,0-9,_ ]/g,"");
-			title = title.replace(/ /g,"_");
-			title = title.replace(/_+/g, "_");
+			title = title.replace(/[^a-z,0-9,\- ]/g,"");
+			title = title.replace(/ /g,"-");
+			title = title.replace(/\-+/g, "-");
 			if (title.length > 12) {
 				title = title.substring(0,12)
 			}
-			if (title.match(/_$/)) {
+			if (title.match(/\-$/)) {
 				title = title.substring(0,title.length-1);
 			}
 			$('#name').val(title);
