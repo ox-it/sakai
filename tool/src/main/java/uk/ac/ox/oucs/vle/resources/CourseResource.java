@@ -153,24 +153,22 @@ public class CourseResource {
 			throw new WebAppForbiddenException();
 		}
 		List <CourseGroup> groups = courseService.getAdministering();
-		// TODO Just return the coursegroups (no nested objects).
 		GenericEntity<List<CourseGroup>> genericEntity = new GenericEntity<List<CourseGroup>>(groups) {};
-		Response.ResponseBuilder response = Response.ok(genericEntity);
-		return response.build();
+		return Response.ok(genericEntity).build();
 
 	}
 	
 	@Path("/lecture")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	@JsonView(Flat.class)
 	public Response getLectureCourse() throws JsonGenerationException, JsonMappingException, IOException {
 		if (sakaiProxy.isAnonymousUser()) {
 			throw new WebAppForbiddenException();
 		}
-		Collection <CourseGroup> groups = courseService.getLecturing();
-		// TODO Just return the coursegroups (no nested objects).
-		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
-		
+		List<CourseGroup> groups = courseService.getLecturing();
+		GenericEntity<List<CourseGroup>> genericEntity = new GenericEntity<List<CourseGroup>>(groups) {};
+		return Response.ok(genericEntity).build();
 	}
 	
 	@Path("/search")

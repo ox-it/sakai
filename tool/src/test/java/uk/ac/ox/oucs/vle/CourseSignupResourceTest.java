@@ -128,4 +128,21 @@ public class CourseSignupResourceTest  extends JerseyTest {
 		verify(group, never()).getCategories();
 	}
 
+	@Test
+	public void testLecturingCourses() throws JSONException {
+		CourseGroup group = mock(CourseGroup.class);
+		when(group.getCourseId()).thenReturn("course-id");
+		when(group.getTitle()).thenReturn("Course Title");
+		when(courseSignupService.getLecturing()).thenReturn(Collections.singletonList(group));
+		Response response = target("/course/lecture").request("application/json").get();
+		String string = response.readEntity(String.class);
+		assertEquals(200, response.getStatus());
+		// Check we got our properties
+		JSONAssert.assertEquals("[{title:'Course Title', courseId: 'course-id'}]", string, JSONCompareMode.LENIENT);
+		// We don't want these to get called as they will load more resources from the database.
+		verify(group, never()).getComponents();
+		verify(group, never()).getAdministrators();
+		verify(group, never()).getCategories();
+	}
+
 }
