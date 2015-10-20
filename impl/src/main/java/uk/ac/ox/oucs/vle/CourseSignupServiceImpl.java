@@ -339,7 +339,12 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 */
 	public List<CourseGroup> getAdministering() {
 		String userId = proxy.getCurrentUser().getId();
-		List <CourseGroupDAO> groupDaos = dao.findAdminCourseGroups(userId);
+		List <CourseGroupDAO> groupDaos;
+		if (proxy.isAdministrator()) {
+			groupDaos = dao.findAllGroups();
+		} else {
+			groupDaos = dao.findAdminCourseGroups(userId);
+		}
 		List<CourseGroup> groups = new ArrayList<CourseGroup>(groupDaos.size());
 		for(CourseGroupDAO groupDao : groupDaos) {
 			groups.add(new CourseGroupImpl(groupDao, this));
@@ -499,7 +504,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			throw new NotFoundException(componentId);
 		}
 		UserProxy currentUser = proxy.getCurrentUser();
-		if (!isAdministrator(componentDao, currentUser, false) && !isLecturer(componentDao, currentUser, false)) {
+		if (!isAdministrator(componentDao, currentUser) && !isLecturer(componentDao, currentUser)) {
 			throw new PermissionDeniedException(currentUser.getId());
 		}
 		List<CourseSignupDAO> signupDaos = dao.findSignupByComponent(componentId, statuses, year);
@@ -524,6 +529,13 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (groupGroup.getAdministrators().contains(currentUserId)) {
 			return true;
 		}
+		UserProxy user = proxy.findUserById(currentUserId);
+		if (user != null && user.getEid().equals(this.getDaisyAdmin())) {
+			return true;
+		}
+		if (proxy.isAdministrator()) {
+			return true;
+		}
 		if (groupGroup.getSuperusers().contains(currentUserId)) {
 			return true;
 	}
@@ -532,14 +544,15 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	
 	private boolean isLecturer(CourseGroupDAO groupGroup, UserProxy user, boolean defaultValue) {
 		for (CourseComponentDAO componentDao : groupGroup.getComponents()) {
-			if (isLecturer(componentDao, user, false)) {
+			if (isLecturer(componentDao, user)) {
 				return true;
 			}
 		}
 		return defaultValue;
 	}
 
-	private boolean isAdministrator(CourseComponentDAO componentDao, UserProxy user, boolean defaultValue) {
+
+	private boolean isAdministrator(CourseComponentDAO componentDao, UserProxy user) {
 		
 		if (null == user) {
 			return false;
@@ -561,7 +574,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		return false;
 	}
 	
-	private boolean isLecturer(CourseComponentDAO componentDao, UserProxy user, boolean defaultValue) {
+	private boolean isLecturer(CourseComponentDAO componentDao, UserProxy user) {
 		
 		if (null == user) {
 			return false;
@@ -569,10 +582,9 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		if (user.getId().equals(componentDao.getTeacher())) {
 			return true;
 		}
-		return defaultValue;
+		return false;
 	}
 
-	
 	/**
 	 * 
 	 */
