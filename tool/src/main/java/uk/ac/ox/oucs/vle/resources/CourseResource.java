@@ -28,10 +28,11 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonView;
 import org.codehaus.jackson.map.type.TypeFactory;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import uk.ac.ox.oucs.vle.*;
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
+import uk.ac.ox.oucs.vle.resources.Views.Flat;
 
 import javax.inject.Inject;
 import javax.servlet.RequestDispatcher;
@@ -55,6 +56,8 @@ public class CourseResource {
 	private CourseSignupService courseService;
     @Inject
 	private SearchService searchService;
+	@Inject
+	private SakaiProxy sakaiProxy;
 	private JsonFactory jsonFactory = new JsonFactory();
 	// This is a direct binding to Jackson. Really we should be using EntityProviders
 	@Inject
@@ -94,7 +97,7 @@ public class CourseResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public StreamingOutput getCourses(@QueryParam("range") final Range range) {
 		boolean externalUser = false;
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+		if (sakaiProxy.isAnonymousUser()) {
 			externalUser = true;
 		}
 		final Map<String, String> departments = courseService.getDepartments();
@@ -116,7 +119,7 @@ public class CourseResource {
 	@GET
 	public StreamingOutput getCoursesUpcoming(@PathParam("deptId") final String deptId, @QueryParam("components") final Range range) {
 		boolean externalUser = false;
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+		if (sakaiProxy.isAnonymousUser()) {
 			externalUser = true;
 		}
 		if (isProvider(deptId)) { 
@@ -144,21 +147,24 @@ public class CourseResource {
 	@Path("/admin")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	@JsonView(Flat.class)
 	public Response getAdminCourse() throws JsonGenerationException, JsonMappingException, IOException {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+		if(sakaiProxy.isAnonymousUser()) {
 			throw new WebAppForbiddenException();
 		}
 		List <CourseGroup> groups = courseService.getAdministering();
 		// TODO Just return the coursegroups (no nested objects).
-		return Response.ok(objectMapper.typedWriter(TypeFactory.collectionType(List.class, CourseGroup.class)).writeValueAsString(groups)).build();
-		
+		GenericEntity<List<CourseGroup>> genericEntity = new GenericEntity<List<CourseGroup>>(groups) {};
+		Response.ResponseBuilder response = Response.ok(genericEntity);
+		return response.build();
+
 	}
 	
 	@Path("/lecture")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getLectureCourse() throws JsonGenerationException, JsonMappingException, IOException {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+		if (sakaiProxy.isAnonymousUser()) {
 			throw new WebAppForbiddenException();
 		}
 		Collection <CourseGroup> groups = courseService.getLecturing();
@@ -171,7 +177,7 @@ public class CourseResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response setCourses(@QueryParam("terms") String terms) throws JsonGenerationException, JsonMappingException, IOException {
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+		if (sakaiProxy.isAnonymousUser()) {
 			throw new WebAppForbiddenException();
 		}
 		if (terms == null) {
@@ -210,7 +216,7 @@ public class CourseResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getCourseCalendar() throws JsonGenerationException, JsonMappingException, IOException {
 		boolean externalUser = false;
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+		if (sakaiProxy.isAnonymousUser()) {
 			externalUser = true;
 		}
 		List <CourseGroup> groups = courseService.getCourseCalendar(externalUser, null);
@@ -224,7 +230,7 @@ public class CourseResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getCourseNoDates() throws JsonGenerationException, JsonMappingException, IOException {
 		boolean externalUser = false;
-		if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser())) {
+		if (sakaiProxy.isAnonymousUser()) {
 			externalUser = true;
 		}
 		List <CourseGroup> groups = courseService.getCourseNoDates(externalUser, null);

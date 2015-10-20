@@ -7,18 +7,19 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.ServletDeploymentContext;
 import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
+import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import uk.ac.ox.oucs.vle.stub.CourseSignupStub;
 
-import javax.inject.Inject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.Response;
-
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
@@ -108,6 +109,23 @@ public class CourseSignupResourceTest  extends JerseyTest {
 		when(courseSignupService.getMySignups(null)).thenReturn(Collections.singletonList(signup));
 		Response response = target("/signup/my").request("application/json").get();
 		assertEquals(200, response.getStatus());
+	}
+
+	@Test
+	public void testAdminCourses() throws JSONException {
+		CourseGroup group = mock(CourseGroup.class);
+		when(group.getCourseId()).thenReturn("course-id");
+		when(group.getTitle()).thenReturn("Course Title");
+		when(courseSignupService.getAdministering()).thenReturn(Collections.singletonList(group));
+		Response response = target("/course/admin").request("application/json").get();
+		String string = response.readEntity(String.class);
+		assertEquals(200, response.getStatus());
+		// Check for our properties.
+		JSONAssert.assertEquals("[{title:'Course Title', courseId: 'course-id'}]", string, JSONCompareMode.LENIENT);
+		// We don't want these to get called as they will load more resources from the database.
+		verify(group, never()).getComponents();
+		verify(group, never()).getAdministrators();
+		verify(group, never()).getCategories();
 	}
 
 }

@@ -26,10 +26,10 @@
   <!-- Holds generic beans that are used across multiple resources -->
   <!-- In a seperate file so that it can be used across tests and production. -->
 
-  <bean id="uk.ac.ox.oucs.vle.ObjectMapperFactory"
-        class="uk.ac.ox.oucs.vle.ObjectMapperFactory"/>
+  <bean id="uk.ac.ox.oucs.vle.resources.ObjectMapperContextProvider"
+        class="uk.ac.ox.oucs.vle.resources.ObjectMapperContextProvider"/>
 
-  <bean id="objectMapper" factory-bean="uk.ac.ox.oucs.vle.ObjectMapperFactory"
+  <bean id="objectMapper" factory-bean="uk.ac.ox.oucs.vle.resources.ObjectMapperContextProvider"
         factory-method="getInstance"/>
 
 </beans>
