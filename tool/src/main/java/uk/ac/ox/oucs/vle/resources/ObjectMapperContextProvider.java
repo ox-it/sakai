@@ -4,6 +4,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import uk.ac.ox.oucs.vle.CourseGroup;
+import uk.ac.ox.oucs.vle.CourseSignup;
 
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
@@ -33,6 +34,7 @@ public class ObjectMapperContextProvider implements ContextResolver<ObjectMapper
 
 		SerializationConfig serializationConfig = mapper.getSerializationConfig();
 		serializationConfig.addMixInAnnotations(CourseGroup.class, CourseGroupMixin.class);
+		serializationConfig.addMixInAnnotations(CourseSignup.class, CourseSignupMixin.class);
 		serializationConfig.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 
 

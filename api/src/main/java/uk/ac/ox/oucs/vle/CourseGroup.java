@@ -92,8 +92,18 @@ public interface CourseGroup {
 	public List<Person> getSuperusers();
 	
 	public List<String> getOtherDepartments();
-	
+
+	/**
+	 * Is the current user an admin for this group.
+	 * @deprecated This shouldn't be here as it means that the coursegroup object is specific to each user
+	 * and can't be easily cached.
+	 */
 	public boolean getIsAdmin();
-	
+
+	/**
+	 * Is the current user a superuser for this group.
+	 * @deprecated This shouldn't be here as it means that the coursegroup object is specific to each user.
+	 * and can't be easily cached.
+	 */
 	public boolean getIsSuperuser();
 }

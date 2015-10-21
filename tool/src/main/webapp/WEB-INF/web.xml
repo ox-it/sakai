@@ -132,10 +132,6 @@
 			<param-name>jersey.config.server.provider.packages</param-name>
 			<param-value>uk.ac.ox.oucs.vle.resources;org.codehaus.jackson.jaxrs</param-value>
 		</init-param>
-		<init-param>
-			<param-name>com.sun.jersey.spi.container.ContainerResponseFilters</param-name>
-			<param-value>uk.ac.ox.oucs.vle.CharsetResponseFilter</param-value>
-		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	

@@ -1,13 +1,16 @@
-package uk.ac.ox.oucs.vle;
+package uk.ac.ox.oucs.vle.resources;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.Provider;
 
 /**
  * This sets a character set on responses.
  */
+@Provider
 public class CharsetResponseFilter implements ContainerResponseFilter {
 
     public static final String CHARSET = "charset=";
