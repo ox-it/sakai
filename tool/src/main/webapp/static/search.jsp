@@ -98,6 +98,10 @@
 						jQuery.ajax({
 							url: path+ "mapped/",
 							type: "POST",
+							// show the spinny wheel after add button is clicked
+							beforeSend: function () { $("#spinnerAdd").show(); },
+							// hide the loader after completion of request.
+							complete: function () { $("#spinnerAdd").hide(); },
 							data: {group: group.id, role: role, site: siteData.id},
 							success: function(json, textStatus) {
 								window.location = "./../done.jsp";
@@ -215,6 +219,8 @@
 							data: {"q": groupName},
 							dataType: "json",
 							method: "GET",
+							beforeSend: function () { $("#spinnerSearch").show(); },
+							complete: function () { $("#spinnerSearch").hide(); },
 							success: function(data, textStatus) {
 								submit.removeAttr("disabled");
 								if (textStatus == "success") {
@@ -323,6 +329,9 @@
 		</fieldset>
 		<div class="act">
 			<input class="active" type="submit" value="Search"/>
+			<span id="spinnerSearch" style="display:none;">
+				<img class="loader" src="images/ajax-loader.gif" alt="Loading"/>
+			</span>
 		</div>
 		</form>
 		<form id="select_group">
@@ -370,6 +379,9 @@
 		</table>
 		<div class="act">
 			<input class="active" type="submit" value="Add Group"/>
+			<span id="spinnerAdd" style="display:none;">
+				<img class="loader" src="images/ajax-loader.gif" alt="Loading"/>
+			</span>
 			<input class="cancel" type="submit" value="Cancel"/>
 		</div>
 		<div class="membership">
