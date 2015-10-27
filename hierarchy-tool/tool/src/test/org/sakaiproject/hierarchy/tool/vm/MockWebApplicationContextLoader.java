@@ -82,7 +82,16 @@ public class MockWebApplicationContextLoader extends AbstractContextLoader {
 			}
 		});
 
+		// Prepare the context.
+		webApplicationContext.refresh();
+		webApplicationContext.registerShutdownHook();
+
+		// Initialize the servlet.
+		dispatcherServlet.init(servletConfig);
+
 		// Have the context notify the servlet every time it is refreshed.
+		// We don't want to do this too early otherwise the the dispatcherServlet gets setup too early
+		// and gets inited with default strategies which cause it to get too many controllers assigned to it.
 		webApplicationContext.addApplicationListener(new SourceFilteringListener(webApplicationContext,
 				new ApplicationListener() {
 					@Override
@@ -93,14 +102,6 @@ public class MockWebApplicationContextLoader extends AbstractContextLoader {
 					}
 				}
 		));
-
-		// Prepare the context.
-		webApplicationContext.refresh();
-		webApplicationContext.registerShutdownHook();
-
-		// Initialize the servlet.
-		// dispatcherServlet.setContextConfigLocation("");
-		dispatcherServlet.init(servletConfig);
 
 		return webApplicationContext;
 	}
