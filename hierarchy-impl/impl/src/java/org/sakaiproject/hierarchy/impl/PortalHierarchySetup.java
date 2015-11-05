@@ -73,7 +73,11 @@ public class PortalHierarchySetup implements ApplicationListener {
 				hierarchySite.setTitle("Hierarchy Site");
 				addPage(hierarchySite, "New Site", "sakai.hierarchy-new-site");
 				addPage(hierarchySite, "Bring Site", "sakai.hierarchy-bring-site");
-				addPage(hierarchySite, "Manage Site", "sakai.hierarchy-manager");
+				addPage(hierarchySite, "Remove Site", "sakai.hierarchy-delete-site");
+				addPage(hierarchySite, "Move Site", "sakai.hierarchy-move-site");
+				addPage(hierarchySite, "Paste Site", "sakai.hierarchy-paste-site");
+				addPage(hierarchySite, "Replace Site", "sakai.hierarchy-replace-site");
+				addPage(hierarchySite, "Add Redirect", "sakai.hierarchy-redirect-site");
 				hierarchySite.setPublished(true);
 				Role anonRole = hierarchySite.addRole(".anon");
 				anonRole.allowFunction("site.visit");
