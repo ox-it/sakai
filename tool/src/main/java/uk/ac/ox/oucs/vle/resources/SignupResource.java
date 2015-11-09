@@ -19,36 +19,30 @@
  */
 package uk.ac.ox.oucs.vle.resources;
 
-import com.sun.jersey.api.core.InjectParam;
-import com.sun.jersey.api.view.Viewable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.codehaus.jackson.map.introspect.AnnotatedField;
-import org.codehaus.jackson.map.introspect.AnnotatedMember;
-import org.codehaus.jackson.map.introspect.AnnotatedMethod;
-import org.codehaus.jackson.map.introspect.VisibilityChecker;
 import org.codehaus.jackson.map.type.TypeFactory;
+import org.glassfish.jersey.server.mvc.Viewable;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import uk.ac.ox.oucs.vle.*;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
+import uk.ac.ox.oucs.vle.NotFoundException;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -57,15 +51,15 @@ public class SignupResource {
 
 	private static final Log log = LogFactory.getLog(SignupResource.class);
 
-	@InjectParam
+	@Inject
 	private CourseSignupService courseService;
-	@InjectParam
+	@Inject
 	private StatusProgression statusProgression;
-	@InjectParam
+	@Inject
 	private ServerConfigurationService serverConfigurationService;
-	@InjectParam
+	@Inject
 	private SakaiProxy proxy;
-	@InjectParam
+	@Inject
 	private ObjectMapper objectMapper;
 
 	@Path("/my")
