@@ -23,7 +23,7 @@
 			<value>ses_browsing</value>
 		</property>
 		<property name="name">
-			<value>Browsing / Searching for a Module</value>
+			<value>Browsing / Searching for a Course</value>
 		</property>
 		<property name="location">
 			<value>/course_signup/ses_browsing.html</value>
@@ -35,7 +35,7 @@
 			<value>ses_signup</value>
 		</property>
 		<property name="name">
-			<value>Signing Up for a Module</value>
+			<value>Signing Up for a Course</value>
 		</property>
 		<property name="location">
 			<value>/course_signup/ses_signup.html</value>
@@ -47,7 +47,7 @@
 			<value>ses_modulefull</value>
 		</property>
 		<property name="name">
-			<value>What to do if a Module is Full</value>
+			<value>What to do if a Course is Full</value>
 		</property>
 		<property name="location">
 			<value>/course_signup/ses_modulefull.html</value>
@@ -59,7 +59,7 @@
 			<value>ses_mystatus</value>
 		</property>
 		<property name="name">
-			<value>Checking My Status on a Module</value>
+			<value>Checking My Status on a Course</value>
 		</property>
 		<property name="location">
 			<value>/course_signup/ses_mystatus.html</value>
@@ -71,7 +71,7 @@
 			<value>ses_withdrawing</value>
 		</property>
 		<property name="name">
-			<value>Withdrawing from a Module</value>
+			<value>Withdrawing from a Course</value>
 		</property>
 		<property name="location">
 			<value>/course_signup/ses_withdrawing.html</value>
@@ -83,7 +83,7 @@
 			<value>ses_module_admin</value>
 		</property>
 		<property name="name">
-			<value>Module Administrators Guide</value>
+			<value>Course Administrators Guide</value>
 		</property>
 		<property name="location">
 			<value>/course_signup/ses_module_admin.html</value>
@@ -125,7 +125,7 @@
 							<ref bean="sesMyStatus" />
 							<ref bean="sesWithdrawing" />
 
-							<!--  For Module Admins pages -->
+							<!--  For Course Admins pages -->
 							<ref bean="sesModuleAdmin" />
 
 							<!--  Supervisor pages -->

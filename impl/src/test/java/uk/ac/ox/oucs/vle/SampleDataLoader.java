@@ -157,7 +157,7 @@ public class SampleDataLoader {
 		comp.setTermcode(term.code);
 		comp.setOpens(term.opens);
 		comp.setCloses(term.closes);
-		// We know when teaching starts so that's when we consider this old.
+		// We know when teaching starts so that's when we consider this oldStatus.
 		comp.setBaseDate(term.starts);
 		comp.setSize(size);
 		comp.setTaken(0);

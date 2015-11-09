@@ -48,7 +48,7 @@
 
 					{if administrators.length > 0}
 					<tr>
-						<th>Module Administrator</th>
+						<th>Course Administrator</th>
 						<td>
 							{for administrator in administrators}
 							{if administrator.email}

@@ -29,7 +29,7 @@
 <!-- Make the page render as IE8 for wrapping in jstree -->
 <meta http-equiv="X-UA-Compatible" content="IE=8">
 
-<title>Module Signup</title>
+<title>Course Signup</title>
 
 <!-- Jersey puts the model in the 'it' attribute -->
 <link href='<c:out value="${it.skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
@@ -45,7 +45,7 @@
 	<div id="toolbar">
 		<ul class="navIntraTool actionToolBar">
 			<li><span>Home</span></li>
-			<li><span>Search Modules</span></li>
+			<li><span>Search Courses</span></li>
 			<li><span>Browse by Department</span></li>
 			<li><span>Browse by Calendar</span></li>
 		</ul>
@@ -68,7 +68,7 @@
 								.  As the course administrator your acceptance is needed.
 							</c:when>
 						<c:when test="${it.status=='approve'}">
-								and entered you as their supervisor.  Your approval is needed for the following modules:
+								and entered you as their supervisor.  Your approval is needed for the following courses:
 							</c:when>
 						<c:when test="${it.status=='confirm'}">
 								.  As the departmental approver your acceptance is needed.

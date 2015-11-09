@@ -68,6 +68,8 @@ public class ModuleImpl implements Module {
 	 * The proxy for getting users.
 	 */
 	private SakaiProxy proxy;
+
+	private UserPlacementDAO placementDAO;
 	
 	
 	public void setCourseDao(CourseDAO dao) {
@@ -77,7 +79,11 @@ public class ModuleImpl implements Module {
 	public void setProxy(SakaiProxy proxy) {
 		this.proxy = proxy;
 	}
-	
+
+	public void setPlacementDAO(UserPlacementDAO placementDAO) {
+		this.placementDAO = placementDAO;
+	}
+
 	/**
 	 * 
 	 */
@@ -312,7 +318,7 @@ public class ModuleImpl implements Module {
 			log.warn("Failed to find user for sending email: "+ signup.getUserId());
 			return;
 		}
-		CourseUserPlacementDAO placementDao = dao.findUserPlacement(signup.getUserId());
+		CourseUserPlacementDAO placementDao = placementDAO.findUserPlacement(signup.getUserId());
 		if (null == placementDao) {
 			log.warn("Failed to find placement for sending email: "+ signup.getUserId());
 			return;
@@ -350,7 +356,7 @@ public class ModuleImpl implements Module {
 			signupsDetails.append("\n");
 		}
 		
-		CourseUserPlacementDAO placementDao = dao.findUserPlacement(administratorId);
+		CourseUserPlacementDAO placementDao = placementDAO.findUserPlacement(administratorId);
 		if (null == placementDao) {
 			log.warn("Failed to find placement for sending email: "+ administratorId);
 			return;
@@ -386,7 +392,7 @@ public class ModuleImpl implements Module {
 			signupsDetails.append("\n");
 		}
 		
-		CourseUserPlacementDAO placementDao = dao.findUserPlacement(supervisorId);
+		CourseUserPlacementDAO placementDao = placementDAO.findUserPlacement(supervisorId);
 		if (null == placementDao) {
 			log.warn("Failed to find placement for sending email: "+ supervisorId);
 			return;

@@ -34,8 +34,8 @@ import java.util.*;
  *
  */
 public interface CourseSignupService {
-	
-	public static enum Status {
+
+	enum Status {
 		PENDING(false),
 		WITHDRAWN(false),
 		APPROVED(true),
@@ -56,6 +56,21 @@ public interface CourseSignupService {
 		
 		public int getSpacesTaken() {
 			return (takeSpace)?1:0;
+		}
+
+		/**
+		 * Utility method for checking if a status matches another set.
+		 * @param status The status being tested, can be <code>null</code>.
+		 * @param others The set of statuses to be matched against, cannot contain <code>null</code>
+		 * @return <code>true</code> if there is a match.
+		 */
+		public static boolean matches(Status status, Status... others) {
+			for (Status other: others) {
+				if (other.equals(status)) {
+					return true;
+				}
+			}
+			return false;
 		}
 	};
 	
@@ -241,5 +256,7 @@ public interface CourseSignupService {
 	public String getDirectUrl(String courseId);
 	
 	public Integer getRecentDays();
+
+	CourseDepartment findDepartmentByCode(String department);
 
 }

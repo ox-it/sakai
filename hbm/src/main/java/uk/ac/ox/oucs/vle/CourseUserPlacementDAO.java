@@ -22,18 +22,21 @@ package uk.ac.ox.oucs.vle;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * We store the user placement so that when a user gets a link in an email it links back to the copy of the tool
+ * that was last used. This does mean that if a placement is removed all the links sent out will be broken, so in
+ * lots of ways it would be better if there was just one "standard" URL which pointed to the one copy of the
+ * tool.
+ */
 public class CourseUserPlacementDAO implements java.io.Serializable {
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	private String userId;
     private String placementId;
     
     public CourseUserPlacementDAO() {
     }
-    
+
     public CourseUserPlacementDAO(String userId) {
     	this.userId = userId;
     }

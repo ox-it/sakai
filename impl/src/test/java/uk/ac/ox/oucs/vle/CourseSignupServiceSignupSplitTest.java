@@ -115,7 +115,7 @@ public class CourseSignupServiceSignupSplitTest extends AbstractTestExecutionLis
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testSplitAll() {
-		// We can't leave the old signup empty of components.
+		// We can't leave the oldStatus signup empty of components.
 		Set all = new HashSet<String>();
 		all.add("compId1");
 		all.add("compId2");

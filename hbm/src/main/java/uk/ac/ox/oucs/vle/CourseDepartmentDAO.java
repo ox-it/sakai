@@ -22,11 +22,12 @@ package uk.ac.ox.oucs.vle;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * This exists so that we can see if a department wants to approve signups and if so
+ * who the approvers are.
+ */
 public class CourseDepartmentDAO implements java.io.Serializable {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private String code;
     private String name;
