@@ -479,3 +479,15 @@ div.calendarView a.action {
     list-style-type: none;
 }
 
+/* This is to stop the search page wrapping badly on narrow setups. Main content is 70% right is 26% */
+.left {
+    padding-left: 1%;
+    padding-right: 0%;
+}
+
+.advanced_search .right {
+    padding-left: 1%;
+    padding-right: 1%;
+}
+
+
