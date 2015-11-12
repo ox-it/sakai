@@ -131,15 +131,15 @@
 		</div>
 
 		<div class="right">
-
-			<h2>Search</h2>
+			<div class="error" id="rightError">
+			</div>
 			<div id="search">
-			
-				<div class="error" id="rightError">
+				<h2>Search</h2>
+				<div>
+				Search by course title or by skills category or leave the box blank to display all upcoming courses.
 				</div>
-			
 				<form class="search">
-					<input type="text" id="query" name="query" autocomplete="off">
+					<input type="text" id="query" name="query" autocomplete="off" placeholder="e.g. reference management, career development, chemistry" >
 					<br />
 					<input type="submit" value="Search">
 				</form>
