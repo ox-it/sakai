@@ -101,7 +101,8 @@ public class PDFWriter {
 
 			// Presenter
 			paragraph = new Paragraph();
-			phrase = new Phrase("\nPresenter: " + courseComponent.getPresenter().getName(), authorFont);
+			Person presenter = courseComponent.getPresenter();
+			phrase = new Phrase("\nPresenter: " + ((presenter == null)?"":presenter.getName()), authorFont);
 			paragraph.add(phrase);
 			paragraph.setIndentationLeft(25);
 			paragraph.setIndentationRight(25);
