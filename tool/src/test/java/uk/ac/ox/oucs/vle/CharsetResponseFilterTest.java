@@ -1,6 +1,5 @@
 package uk.ac.ox.oucs.vle;
 
-import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
