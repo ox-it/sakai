@@ -65,4 +65,21 @@ public class SignupResourceTest extends ResourceTest {
         Response response = target("/signup/my").request("application/json").get();
         assertEquals(200, response.getStatus());
     }
+
+    @Test
+    public void testNotAllowedExportError() {
+        // Check that when you're not allowed to export we generate a good message.
+        when(courseSignupService.getAllComponents()).thenThrow(PermissionDeniedException.class);
+        when(proxy.isAnonymousUser()).thenReturn(false);
+        Response response = target("/signup/component/2014/all.xml").queryParam("_auth", "basic").request().get();
+        assertEquals(403, response.getStatus());
+    }
+
+    @Test
+    public void testNotAllowedExportAnonError() {
+        // Check that when you're not logged in we give a good error.
+        when(proxy.isAnonymousUser()).thenReturn(true);
+        Response response = target("/signup/component/2014/all.xml").queryParam("_auth", "basic").request().get();
+        assertEquals(403, response.getStatus());
+    }
 }
