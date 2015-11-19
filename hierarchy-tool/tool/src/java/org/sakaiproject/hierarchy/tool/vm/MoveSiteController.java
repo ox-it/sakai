@@ -88,6 +88,13 @@ public class MoveSiteController {
 		session.removeAttribute(CUT_ID);
 		return handleAllRequests(request, model);
 	}
+
+	@RequestMapping(value = "/cancel/move", method = RequestMethod.POST)
+	public ModelAndView displayHome(Model model) {
+		PortalNode node = portalHierarchyService.getCurrentPortalNode();
+		model.addAttribute("siteUrl", serverConfigurationService.getPortalUrl() + "/hierarchy" + node.getPath());
+		return new ModelAndView("redirect", populateModelCut(model).asMap());
+	}
 	
 	@RequestMapping(value = "/paste", method = RequestMethod.POST)
 	public ModelAndView pasteSite(HttpServletRequest request, Model model) {

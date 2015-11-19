@@ -1,7 +1,7 @@
 package org.sakaiproject.hierarchy.tool.vm;
 
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
@@ -17,6 +17,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -40,6 +41,7 @@ public class ReplaceSiteController{
 	private PortalHierarchyService portalHierarchyService;
 	private SiteService siteService;
 	private VelocityControllerUtils velocityControllerUtils;
+	private ServerConfigurationService serverConfigurationService;
 	static final String REQUEST_SITE = "_site";
 	
 		
@@ -61,6 +63,10 @@ public class ReplaceSiteController{
 	@Autowired
 	public void setVelocityControllerUtils(VelocityControllerUtils velocityControllerUtils) {
 		this.velocityControllerUtils = velocityControllerUtils;
+	}
+	@Autowired
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
 	}
 	
 	@ModelAttribute
@@ -109,7 +115,7 @@ public class ReplaceSiteController{
 	}
 
 	@RequestMapping(value = "/site/save", method = RequestMethod.POST)
-	public String saveSite(HttpServletRequest request, @RequestParam(REQUEST_SITE) String siteId) {
+	public String saveSite(HttpServletRequest request,ModelMap model, @RequestParam(REQUEST_SITE) String siteId) {
 		PortalNode node = portalHierarchyService.getCurrentPortalNode();
 		if (siteId != null && !siteId.isEmpty()) {
 			try {
@@ -119,7 +125,8 @@ public class ReplaceSiteController{
 						"You shouldn't have been able to select a site as you don't have permission.", e);
 			}
 		}
-		return "refresh";
+		model.put("siteUrl", serverConfigurationService.getPortalUrl() + "/hierarchy" + node.getPath());
+		return "redirect";
 	}
 
 }

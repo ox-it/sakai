@@ -7,6 +7,9 @@
 </div><br/>
 <form method="POST" action="${rootUrl}/cut">
     <input type="submit" value="#springMessage("button.move.site")"/>
+</form><br/>
+<form method="POST" action="${rootUrl}/cancel/move">
+    <input type="submit" value="#springMessage("button.cancel")"/>
 </form>
 
 #chef_portletContentEnd()
