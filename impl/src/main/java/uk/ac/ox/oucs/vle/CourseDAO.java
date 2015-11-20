@@ -84,6 +84,11 @@ public interface CourseDAO {
 	List<CourseGroupDAO> findCourseGroupByWords(String[] words, Range range, Date date, boolean external);
 
 	List<CourseSignupDAO> findSignupByComponent(String componentId, Set<Status> statuses);
+
+	/**
+	 * This is used for exporting signups. It loads all the groups and signups associated with a component.
+     */
+	List<CourseComponentDAO> findComponents(final String componentId, final Set<Status> statuses, final Integer year) ;
 	
 	List<CourseSignupDAO> findSignupByComponent(String componentId, Set<Status> statuses, Integer year);
 

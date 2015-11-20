@@ -21,6 +21,7 @@ package uk.ac.ox.oucs.vle;
 
 import org.hibernate.SessionFactory;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.xcri.core.Course;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -556,6 +557,56 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		courseDao.save(newComponent);
 
 		assertEquals(1, courseDao.countSignupByCourse("groupId", Collections.singleton(Status.ACCEPTED), now).intValue());
+
+	}
+
+	public void testFindComponents() {
+		CourseGroupDAO groupA = courseDao.newCourseGroup("groupA", "Title Group A", "dept", "subunit");
+		courseDao.save(groupA);
+		CourseGroupDAO groupB = courseDao.newCourseGroup("groupB", "Title Group A", "dept", "subunit");
+		courseDao.save(groupB);
+
+		CourseSignupDAO signupW = courseDao.newSignup("userW", null, new Date());
+		signupW.setStatus(Status.ACCEPTED);
+		signupW.setGroup(groupA);
+		courseDao.save(signupW);
+		CourseSignupDAO signupX = courseDao.newSignup("userX", null, new Date());
+		signupX.setStatus(Status.APPROVED);
+		signupX.setGroup(groupA);
+		courseDao.save(signupX);
+		CourseSignupDAO signupY = courseDao.newSignup("userY", null, new Date());
+		signupY.setStatus(Status.PENDING);
+		signupY.setGroup(groupB);
+		courseDao.save(signupY);
+		CourseSignupDAO signupZ = courseDao.newSignup("userZ", null, new Date());
+		signupZ.setStatus(Status.ACCEPTED);
+		signupZ.setGroup(groupB);
+		courseDao.save(signupZ);
+
+		CourseComponentDAO component1 = courseDao.newCourseComponent("component1");
+		component1.setStarts(createDate(2015, 12, 1));
+		component1.getGroups().add(groupA);
+		component1.getSignups().add(signupW);
+		component1.getSignups().add(signupX);
+		courseDao.save(component1);
+		CourseComponentDAO component2 = courseDao.newCourseComponent("component2");
+		component2.setStarts(createDate(2016, 12, 1));
+		component2.getGroups().add(groupB);
+		component2.getSignups().add(signupY);
+		component2.getSignups().add(signupZ);
+		courseDao.save(component2);
+
+		courseDao.flushAndClear();
+
+		List<CourseComponentDAO> components;
+		components = courseDao.findComponents(null, null, null);
+		assertEquals(4, components.size());
+
+
+		components = courseDao.findComponents(null, Collections.singleton(Status.PENDING), null);
+		assertEquals(1, components.size());
+
+
 
 	}
 

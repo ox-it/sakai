@@ -460,6 +460,37 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public List<CourseSignupDAO> findSignupByComponent(final String componentId, final Set<Status> statuses) {
 		return findSignupByComponent(componentId, statuses, null);
 	}
+
+	public List<CourseComponentDAO> findComponents(final String componentId, final Set<Status> statuses, final Integer year) {
+		// This is an optimisation for exports. It orders by component then
+		return getHibernateTemplate().execute(new HibernateCallback<List<CourseComponentDAO>>() {
+
+			public List<CourseComponentDAO> doInHibernate(Session session)
+					throws HibernateException, SQLException {
+
+				Criteria find = session.createCriteria(CourseComponentDAO.class)
+						.createAlias("signups", "s")
+						.setFetchMode("signups", FetchMode.JOIN)
+						.setFetchMode("groups", FetchMode.JOIN)
+						.addOrder(Order.asc("presentationId"))
+						.addOrder(Order.asc("groups"));
+
+				// If componentId is null then return all.
+				if (componentId != null && !"all".equals(componentId)) {
+					find.add(Restrictions.eq("presentationId", componentId));
+				}
+				if (null != statuses && !statuses.isEmpty()) {
+					find.add(Restrictions.in("s.status", statuses));
+				}
+				if (null != year) {
+					LocalDate startYear = FIRST_DAY_OF_ACADEMIC_YEAR.toLocalDate(year);
+					LocalDate endYear = FIRST_DAY_OF_ACADEMIC_YEAR.toLocalDate(year+1);
+					find.add(Restrictions.between("starts", startYear, endYear));
+				}
+				return (List<CourseComponentDAO>)find.list();
+			}
+		});
+	}
 		
 	@SuppressWarnings("unchecked")
 	public List<CourseSignupDAO> findSignupByComponent(final String componentId, final Set<Status> statuses, final Integer year) {
