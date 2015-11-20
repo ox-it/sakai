@@ -60,12 +60,12 @@
  <ul class="navIntraTool actionToolBar">
 
   <li><span><a href="home.jsp">Home</a></span></li>
-  <li><span><a href="search.jsp">Search Modules</a></span></li>
+  <li><span><a href="search.jsp">Search Courses</a></span></li>
   <li><span><a href="index.jsp">Browse by Department</a></span></li> 
   <li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
   <li><span>Researcher Development</span></li>
   <c:if test="${!externalUser}" >
-   <li><span><a href="my.jsp">My Modules</a></span></li>
+   <li><span><a href="my.jsp">My Courses</a></span></li>
    <c:if test="${isPending}" >
     <li><span><a href="pending.jsp">Pending Acceptances</a></span></li> 
    </c:if>
@@ -73,7 +73,7 @@
     <li><span><a href="approve.jsp">Pending Confirmations</a></span></li>
    </c:if>
    <c:if test="${isAdministrator}" >
-    <li><span><a href="admin.jsp">Module Administration</a></span></li>
+    <li><span><a href="admin.jsp">Course Administration</a></span></li>
    </c:if>
    <c:if test="${isLecturer}">
     <li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
