@@ -64,7 +64,7 @@ public class DeleteSiteController {
 		return "delete";
 	}
 
-	@RequestMapping(method = RequestMethod.POST)
+	@RequestMapping(value = "/remove/site", method = RequestMethod.POST)
 	public String doSubmitAction(HttpServletRequest request, HttpServletResponse response,
 			@ModelAttribute("command") DeleteSiteCommand object, BindingResult result, ModelMap model) throws Exception {
 		PortalNode node = portalHierarchyService.getCurrentPortalNode();
@@ -86,6 +86,14 @@ public class DeleteSiteController {
 			return showForm();
 		}
 
+	}
+
+	//Adding cancel feature into the Remove Site screen
+	@RequestMapping(value = "/cancel/remove", method = RequestMethod.POST)
+	public String doCancelAction(ModelMap model) throws Exception {
+		PortalNode node = portalHierarchyService.getCurrentPortalNode();
+		model.put("siteUrl", serverConfigurationService.getPortalUrl() + "/hierarchy" + node.getPath());
+		return "redirect";
 	}
 
 	@ModelAttribute

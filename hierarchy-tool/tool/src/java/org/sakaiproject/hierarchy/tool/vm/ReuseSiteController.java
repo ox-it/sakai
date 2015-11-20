@@ -14,6 +14,7 @@ import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.sitemanage.api.SiteHelper;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.springframework.web.servlet.ModelAndView;
@@ -66,6 +67,15 @@ public class ReuseSiteController extends SimpleFormController {
 		if (session.getAttribute(SiteHelper.SITE_PICKER_CANCELLED) != null) {
 			session.removeAttribute(SiteHelper.SITE_PICKER_CANCELLED);
 			return new ModelAndView(cancelledView);
+		}
+		//To add Cancel feature on the Reuse site screen
+		String action = request.getParameter("redirectHome");
+		if(action != null && action.equals("Cancel")){
+			Map model = new VelocityControllerUtils(ServerConfigurationService.getInstance()).referenceData(request);
+			PortalHierarchyService portalHierarchyService = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
+			PortalNode node = portalHierarchyService.getCurrentPortalNode();
+			model.put("siteUrl", ServerConfigurationService.getPortalUrl() + "/hierarchy" + node.getPath());
+			return new ModelAndView(getSuccessView(), model);
 		}
 		return super.handleRequestInternal(request, response);
 	}

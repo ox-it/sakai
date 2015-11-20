@@ -63,6 +63,9 @@
 <p class="act">
  <input type="submit" class="active" value="#springMessage("${prefix}.submit")"/>
 </p>
+<p>
+ <input type="submit" class="active" name="redirectHome" value="#springMessage("button.cancel")"/>
+</p>
 </form>
 
 #chef_portletContentEnd()

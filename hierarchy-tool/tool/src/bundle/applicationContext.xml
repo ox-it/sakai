@@ -16,6 +16,7 @@
 	<bean id="newSiteController" class="org.sakaiproject.hierarchy.tool.vm.NewSiteController" init-method="init">
 		<property name="formView" value="newsite" />
 		<property name="successView" value="redirect:/helper" />
+		<property name="cancelledView" value="redirect" />
 		<property name="sessionForm" value="true" />
 		<property name="returnPath" value="/create" />
 		<property name="validator">

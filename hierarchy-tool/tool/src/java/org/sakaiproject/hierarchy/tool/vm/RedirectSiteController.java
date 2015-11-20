@@ -164,5 +164,11 @@ public class RedirectSiteController {
 		return new ModelAndView("addRedirect", model.asMap());
 	}
 	
+	@RequestMapping(value = "/cancel", method = RequestMethod.POST)
+	public String doCancelAction(ModelMap model) throws Exception {
+		PortalNode node = portalHierarchyService.getCurrentPortalNode();
+		model.put("siteUrl", serverConfigurationService.getPortalUrl() + "/hierarchy" + node.getPath());
+		return "redirect";
+	}
 
 }

@@ -37,6 +37,8 @@ public class NewSiteController extends SimpleFormController {
 		this.returnPath = returnPath;
 	}
 
+	private String cancelledView;
+
 	public NewSiteController() {
 		setCommandClass(NewSiteCommand.class);
 	}
@@ -109,6 +111,21 @@ public class NewSiteController extends SimpleFormController {
 		return referenceData;
 	}
 
+	@Override
+	protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+		//To add Cancel feature on the New site screen
+		String action = request.getParameter("redirectHome");
+		if(action != null && action.equals("Cancel")){
+			Map model = new VelocityControllerUtils(ServerConfigurationService.getInstance()).referenceData(request);
+			PortalHierarchyService portalHierarchyService = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
+			PortalNode node = portalHierarchyService.getCurrentPortalNode();
+			model.put("siteUrl", ServerConfigurationService.getPortalUrl() + "/hierarchy" + node.getPath());
+			return new ModelAndView(getCancelledView(), model);
+		}
+		return super.handleRequestInternal(request, response);
+	}
+
 	public int getTitleMaxLength() {
 		return titleMaxLength;
 	}
@@ -117,4 +134,11 @@ public class NewSiteController extends SimpleFormController {
 		this.titleMaxLength = titleMaxLength;
 	}
 
+	public String getCancelledView() {
+		return cancelledView;
+	}
+
+	public void setCancelledView(String cancelledView) {
+		this.cancelledView = cancelledView;
+	}
 }
