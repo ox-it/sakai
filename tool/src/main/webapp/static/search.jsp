@@ -43,10 +43,10 @@
   
   <link rel="stylesheet" type="text/css" href="lib/jqmodal-r14/jqModal.css" />
   <link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.8.4.custom/css/smoothness/jquery-ui-1.8.4.custom.css" />
-  <link rel="stylesheet" type="text/css" href="lib/tool.css" />
+
   
 	<link rel="stylesheet" href="lib/ajax-solr-master/ajax-solr-bundle.min.css">
-
+	<link rel="stylesheet" type="text/css" href="lib/tool.css" />
 	<script src="lib/ajax-solr-master/search.js"></script>
 	
 	<script src="lib/ajax-solr-master/ajax-solr-bundle.min.js"></script>
