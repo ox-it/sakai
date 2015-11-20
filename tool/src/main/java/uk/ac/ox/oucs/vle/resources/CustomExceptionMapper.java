@@ -27,7 +27,10 @@ import uk.ac.ox.oucs.vle.PermissionDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -48,16 +51,16 @@ public class CustomExceptionMapper implements ExceptionMapper<CourseSignupExcept
 	private static final FailureMessage notFound = new FailureMessage("The requested resource was not found");
 
 	public Response toResponse(CourseSignupException exception) {
+		ResponseBuilder builder;
 		if(exception instanceof NotFoundException) {
-			return Response.status(Status.NOT_FOUND)
-					.entity(notFound)
-					.build();
+			builder = Response.status(Status.NOT_FOUND).entity(notFound);
 		} else if (exception instanceof PermissionDeniedException) {
-			return Response.status(Status.FORBIDDEN)
-					.entity(forbiddenMap)
-					.build();
+			builder = Response.status(Status.FORBIDDEN).entity(forbiddenMap);
+		} else {
+			builder = Response.status(Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage());
 		}
-		return Response.status(Status.INTERNAL_SERVER_ERROR).entity(exception.getMessage()).build();
+		// We force all exceptions to be JSON as we don't have MessageBodyWriters for anything else.
+		return builder.type(MediaType.APPLICATION_JSON_TYPE).build();
 	}
 
 }
