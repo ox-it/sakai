@@ -35,13 +35,14 @@ public class PersonImpl implements Person {
 	private String ossId;
 	private String yearOfStudy;
 	private String degreeProgram;
-	private String departmentName;
+	private String primaryOrgUnit;
 	private String type;
+	private CourseSignupService service;
 	
 	public PersonImpl(String id, String firstName, String lastName, String displayName, 
 			String email, List<String> units, 
 			String webauthId, String ossId, String yearOfStudy, 
-			String degreeProgram, String departmentName, String type) {
+			String degreeProgram, String primaryOrgUnit, String type, CourseSignupService service) {
 		this.id = id;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -52,8 +53,9 @@ public class PersonImpl implements Person {
 		this.ossId = ossId;
 		this.yearOfStudy = yearOfStudy;
 		this.degreeProgram = degreeProgram;
-		this.departmentName = departmentName;
+		this.primaryOrgUnit = primaryOrgUnit;
 		this.type = type;
+		this.service = service;
 	}
 	
 	public String getId() {
@@ -88,9 +90,16 @@ public class PersonImpl implements Person {
 	public String getDegreeProgram() {
 		return degreeProgram;
 	}
+
 	public String getDepartmentName() {
+		String departmentName = null;
+		Department department = service.findPracDepartment(primaryOrgUnit);
+		if (null != department) {
+			departmentName = department.getName();
+		}
 		return departmentName;
 	}
+
 	public String getType() {
 		return type;
 	}

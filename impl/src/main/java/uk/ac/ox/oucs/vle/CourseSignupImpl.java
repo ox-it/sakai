@@ -53,8 +53,9 @@ public class CourseSignupImpl implements CourseSignup {
 			}
 			person = new PersonImpl(user.getId(), 
 					user.getFirstName(), user.getLastName(), user.getDisplayName(), 
-					user.getEmail(), user.getUnits(), user.getWebauthId(), user.getOssId(), 
-					user.getYearOfStudy(), user.getDegreeProgram(), departmentName, user.getType());
+					user.getEmail(), user.getUnits(), user.getWebauthId(), user.getOssId(),
+					user.getYearOfStudy(), user.getDegreeProgram(), user.getPrimaryOrgUnit(), user.getType(), service
+			);
 		}
 		return person;
 	}
@@ -71,7 +72,7 @@ public class CourseSignupImpl implements CourseSignup {
 					user.getFirstName(), user.getLastName(), user.getDisplayName(), 
 					user.getEmail(), Collections.<String>emptyList(), 
 					user.getWebauthId(), user.getOssId(), null, null, null,
-					user.getType());
+					user.getType(), service);
 		}
 		return person;	}
 
