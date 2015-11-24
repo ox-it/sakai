@@ -26,16 +26,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.web.servlet.DispatcherServlet;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestExecutionListeners(AutowiringTestExecutionListener.class)
+@TestExecutionListeners({DirtiesContextTestExecutionListener.class, AutowiringTestExecutionListener.class})
 @ContextConfiguration(locations = { "classpath:test-resources.xml", "classpath:applicationContext.xml" }, loader = MockWebApplicationContextLoader.class)
 @MockWebApplication(name = "sakai.hierarchy-delete-site", webapp = "src/webapp")
 @Configurable(autowire = Autowire.BY_TYPE)
+@DirtiesContext
 public class DeleteControllerTest {
 
 	@Autowired
