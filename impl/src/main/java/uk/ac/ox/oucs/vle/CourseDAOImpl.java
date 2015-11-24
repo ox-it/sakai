@@ -461,33 +461,38 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 		return findSignupByComponent(componentId, statuses, null);
 	}
 
-	public List<CourseComponentDAO> findComponents(final String componentId, final Set<Status> statuses, final Integer year) {
+	// This has to load components and go from there because if a signup has multiple components it should appear under
+	// both of them.
+	public List<Map> findComponentSignups(final String componentId, final Set<Status> statuses, final Integer year) {
 		// This is an optimisation for exports. It orders by component then
-		return getHibernateTemplate().execute(new HibernateCallback<List<CourseComponentDAO>>() {
+		return getHibernateTemplate().execute(new HibernateCallback<List<Map>>() {
 
-			public List<CourseComponentDAO> doInHibernate(Session session)
+			public List<Map> doInHibernate(Session session)
 					throws HibernateException, SQLException {
 
 				Criteria find = session.createCriteria(CourseComponentDAO.class)
-						.createAlias("signups", "s")
-						.setFetchMode("signups", FetchMode.JOIN)
-						.setFetchMode("groups", FetchMode.JOIN)
-						.addOrder(Order.asc("presentationId"))
-						.addOrder(Order.asc("groups"));
+						.createAlias("signups", "signup", CriteriaSpecification.LEFT_JOIN)
+						.createAlias("signups.group", "group", CriteriaSpecification.LEFT_JOIN)
+						.addOrder(Order.desc("presentationId"))
+						.addOrder(Order.desc("group.id"))
+						.addOrder(Order.desc("signup.id"))
+						.setResultTransformer(CriteriaSpecification.ALIAS_TO_ENTITY_MAP);
 
 				// If componentId is null then return all.
 				if (componentId != null && !"all".equals(componentId)) {
 					find.add(Restrictions.eq("presentationId", componentId));
 				}
 				if (null != statuses && !statuses.isEmpty()) {
-					find.add(Restrictions.in("s.status", statuses));
+					find.add(Restrictions.in("signup.status", statuses));
 				}
 				if (null != year) {
 					LocalDate startYear = FIRST_DAY_OF_ACADEMIC_YEAR.toLocalDate(year);
 					LocalDate endYear = FIRST_DAY_OF_ACADEMIC_YEAR.toLocalDate(year+1);
-					find.add(Restrictions.between("starts", startYear, endYear));
+					find.add(Restrictions.between("starts", startYear.toDate(), endYear.toDate()));
 				}
-				return (List<CourseComponentDAO>)find.list();
+
+				Object result = find.list();
+				return (List<Map>) result;
 			}
 		});
 	}

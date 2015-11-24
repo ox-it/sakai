@@ -33,6 +33,7 @@ import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import uk.ac.ox.oucs.vle.CourseComponent;
+import uk.ac.ox.oucs.vle.CourseComponentExport;
 import uk.ac.ox.oucs.vle.CourseSignup;
 import uk.ac.ox.oucs.vle.Person;
 
@@ -48,16 +49,15 @@ public class AttendanceWriter {
 		document = new Document(root);
 	}
 	
-	public Element writeTeachingInstance(CourseComponent courseComponent,
-										 Collection<CourseSignup> signups) {
+	public Element writeTeachingInstance(CourseComponentExport courseComponent) {
 		
 		Element teachingInstance = new Element("TeachingInstance");
 		
 		Element tid = new Element("id");
-		tid.setText(courseComponent.getPresentationId());
+		tid.setText(courseComponent.getComponent().getPresentationId());
 		teachingInstance.addContent(tid);
 		
-		Map<String, Collection<CourseSignup>> myMap = split(signups);
+		Map<String, Collection<CourseSignup>> myMap = split(courseComponent);
 		
 		Iterator it = myMap.entrySet().iterator();
 	    while (it.hasNext()) {
@@ -131,17 +131,18 @@ public class AttendanceWriter {
 	}
 	
 	
-	private Map<String, Collection<CourseSignup>> split(Collection<CourseSignup> signups) {
+	private Map<String, Collection<CourseSignup>> split(CourseComponentExport componentExport) {
 	
 		// create the thing to store the sub lists
 		Map<String, Collection<CourseSignup>> subs = 
 				new HashMap<String, Collection<CourseSignup>>();
 
 		// iterate through your objects
-		for (CourseSignup signup : signups) {
+		for (CourseComponentExport.CourseSignupExport signup : componentExport.getSignups()) {
 
 			// fetch the list for this object's id
-			Collection<CourseSignup> temp = subs.get(signup.getGroup().getCourseId());
+			String courseId = signup.getGroup().getCourseId();
+			Collection<CourseSignup> temp = subs.get(courseId);
 
 			if (temp == null) {
 				// if the list is null we haven't seen an
@@ -150,13 +151,13 @@ public class AttendanceWriter {
 				temp = new ArrayList<CourseSignup>();
 
 				// and add it to the map
-				subs.put(signup.getGroup().getCourseId(), temp);
+				subs.put(courseId, temp);
 			}
 
 			// whether we got the list from the map
 			// or made a new one we need to add our
 			// object.
-			temp.add(signup);
+			temp.add(signup.getSignup());
 		}
 		
 		return subs;

@@ -21,7 +21,6 @@ package uk.ac.ox.oucs.vle;
 
 import org.hibernate.SessionFactory;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
-import org.xcri.core.Course;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -560,7 +559,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 
 	}
 
-	public void testFindComponents() {
+	public void testFindComponentSignups() {
 		CourseGroupDAO groupA = courseDao.newCourseGroup("groupA", "Title Group A", "dept", "subunit");
 		courseDao.save(groupA);
 		CourseGroupDAO groupB = courseDao.newCourseGroup("groupB", "Title Group A", "dept", "subunit");
@@ -598,15 +597,36 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 
 		courseDao.flushAndClear();
 
-		List<CourseComponentDAO> components;
-		components = courseDao.findComponents(null, null, null);
-		assertEquals(4, components.size());
+		List<Map> signups;
+		signups = courseDao.findComponentSignups(null, null, null);
 
+		assertEquals(4, signups.size());
+		// Check ordering, same component first, then groupId.
+		assertEquals("userZ", ((CourseSignupDAO)signups.get(0).get("signup")).getUserId());
+		assertEquals("component2", ((CourseComponentDAO)signups.get(0).get("this")).getPresentationId());
+		assertEquals("userY", ((CourseSignupDAO)signups.get(1).get("signup")).getUserId());
+		assertEquals("component2", ((CourseComponentDAO)signups.get(1).get("this")).getPresentationId());
+		assertEquals("userX", ((CourseSignupDAO)signups.get(2).get("signup")).getUserId());
+		assertEquals("component1", ((CourseComponentDAO)signups.get(2).get("this")).getPresentationId());
+		assertEquals("userW", ((CourseSignupDAO)signups.get(3).get("signup")).getUserId());
+		assertEquals("component1", ((CourseComponentDAO)signups.get(2).get("this")).getPresentationId());
 
-		components = courseDao.findComponents(null, Collections.singleton(Status.PENDING), null);
-		assertEquals(1, components.size());
+		signups = courseDao.findComponentSignups(null, Collections.singleton(Status.PENDING), null);
+		assertEquals(1, signups.size());
 
+		signups = courseDao.findComponentSignups("component1", null, null);
+		assertEquals(2, signups.size());
+		Collection<String> component1UserIds = Arrays.asList(new String[]{"userW", "userX"});
+		for(Map signup: signups) {
+			String signupId = ((CourseSignupDAO) signup.get("signup")).getUserId();
+			if (!component1UserIds.contains(signupId)) {
+				fail("Incorrect signup found: "+ signupId);
+			}
+		}
 
+		signups =  courseDao.findComponentSignups(null, Collections.singleton(Status.ACCEPTED), 2016);
+		assertEquals(1, signups.size());
+		assertEquals("userZ", ((CourseSignupDAO)signups.get(0).get("signup")).getUserId());
 
 	}
 

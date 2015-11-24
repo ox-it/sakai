@@ -259,4 +259,6 @@ public interface CourseSignupService {
 
 	CourseDepartment findDepartmentByCode(String department);
 
+	List<CourseComponentExport> exportComponentSignups(String componentId, Set<Status> statuses, Integer year);
+
 }

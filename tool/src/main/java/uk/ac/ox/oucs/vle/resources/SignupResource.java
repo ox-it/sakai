@@ -421,31 +421,24 @@ public class SignupResource {
 			public void write(OutputStream output) throws IOException,
 					WebApplicationException {
 
-				Collection<CourseComponent> courseComponents = new ArrayList<CourseComponent>();
 
-				if ("all".equals(componentId)) {
-					courseComponents = courseService.getAllComponents();
-				} else {
-					courseComponents.add(courseService.getCourseComponent(componentId));
-				}
 
 				Set<Status> statuses = null;
 				if (null != status) {
 					statuses = Collections.singleton(status);
 				}
+				List<CourseComponentExport> components = courseService.exportComponentSignups(componentId, statuses, year);
 
 				AttendanceWriter attendance = new AttendanceWriter(output);
 
-				for (CourseComponent courseComponent : courseComponents) {
+				for (CourseComponentExport courseComponent : components) {
 
-					try {
-						List<CourseSignup> signups = courseService.getComponentSignups(
-								courseComponent.getPresentationId(), statuses, year);
+					List<CourseComponentExport.CourseSignupExport> signups = courseComponent.getSignups();
 
-						Collections.sort(signups, new Comparator<CourseSignup>() {
-							public int compare(CourseSignup s1,CourseSignup s2) {
-								Person p1 = s1.getUser();
-								Person p2 = s2.getUser();
+						Collections.sort(signups, new Comparator<CourseComponentExport.CourseSignupExport>() {
+							public int compare(CourseComponentExport.CourseSignupExport s1,CourseComponentExport.CourseSignupExport s2) {
+								Person p1 = s1.getSignup().getUser();
+								Person p2 = s2.getSignup().getUser();
 
 								int ret = s1.getGroup().getCourseId().compareTo(s2.getGroup().getCourseId());
 
@@ -473,11 +466,8 @@ public class SignupResource {
 							}
 						});
 
-						attendance.writeTeachingInstance(courseComponent, signups);
+						attendance.writeTeachingInstance(courseComponent);
 
-					} catch (NotFoundException e) {
-						throw new WebApplicationException(Response.Status.NOT_FOUND);
-					}
 				}
 				attendance.close();
 			}
@@ -494,13 +484,10 @@ public class SignupResource {
 					WebApplicationException {
 
 				AttendanceWriter attendance = new AttendanceWriter(output);
-				Collection<CourseComponent> courseComponents = courseService.getAllComponents();
-				for (CourseComponent courseComponent : courseComponents) {
+				List<CourseComponentExport> signups = courseService.exportComponentSignups(null, Collections.singleton(Status.CONFIRMED), null);
 
-					List<CourseSignup> signups = courseService.getComponentSignups(
-							courseComponent.getPresentationId(), Collections.singleton(Status.CONFIRMED));
-
-					attendance.writeTeachingInstance(courseComponent, signups);
+				for (CourseComponentExport courseComponent : signups ) {
+					attendance.writeTeachingInstance(courseComponent);
 				}
 				attendance.close();
 			}

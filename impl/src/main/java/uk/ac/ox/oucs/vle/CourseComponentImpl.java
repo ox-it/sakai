@@ -197,7 +197,23 @@ public class CourseComponentImpl implements CourseComponent {
 	public String getSource() {
 		return dao.getSource();
 	}
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		CourseComponentImpl that = (CourseComponentImpl) o;
+
+		return dao.equals(that.dao);
+
+	}
+
+	@Override
+	public int hashCode() {
+		return dao.hashCode();
+	}
+
 	@SuppressWarnings("unchecked")
 	public List<CourseComponentSession> getComponentSessions() {
 		if (componentSessions == null) {
@@ -206,9 +222,9 @@ public class CourseComponentImpl implements CourseComponent {
 				componentSessions.add(new CourseComponentSessionImpl(session));
 			}
 		}
-		
+
 		Collections.sort(componentSessions);
-		
+
 		return componentSessions;
 	}
 }

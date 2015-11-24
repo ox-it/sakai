@@ -69,7 +69,7 @@ public class SignupResourceTest extends ResourceTest {
     @Test
     public void testNotAllowedExportError() {
         // Check that when you're not allowed to export we generate a good message.
-        when(courseSignupService.getAllComponents()).thenThrow(PermissionDeniedException.class);
+        when(courseSignupService.exportComponentSignups("all", null, 2014)).thenThrow(PermissionDeniedException.class);
         when(proxy.isAnonymousUser()).thenReturn(false);
         Response response = target("/signup/component/2014/all.xml").queryParam("_auth", "basic").request().get();
         assertEquals(403, response.getStatus());
