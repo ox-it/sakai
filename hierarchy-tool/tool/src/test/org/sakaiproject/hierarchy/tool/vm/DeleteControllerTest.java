@@ -34,7 +34,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestExecutionListeners(AutowiringTestExecutionListener.class)
 @ContextConfiguration(locations = { "classpath:test-resources.xml", "classpath:applicationContext.xml" }, loader = MockWebApplicationContextLoader.class)
-@MockWebApplication(name = "sakai.hierarchy-manager", webapp = "src/webapp")
+@MockWebApplication(name = "sakai.hierarchy-delete-site", webapp = "src/webapp")
 @Configurable(autowire = Autowire.BY_TYPE)
 public class DeleteControllerTest {
 
@@ -88,7 +88,7 @@ public class DeleteControllerTest {
 
 	@Test
 	public void testDeleteSubmit() throws ServletException, IOException, IllegalStateException, PermissionException, IdUnusedException {
-		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/delete");
+		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/remove/site");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		servlet.service(request, response);
 
@@ -99,7 +99,7 @@ public class DeleteControllerTest {
 	@Test
 	public void testDeleteSubmitAndRemove() throws ServletException, IOException, IllegalStateException,
 			PermissionException, IdUnusedException {
-		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/delete");
+		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/remove/site");
 		request.setParameter("deleteSite", "true");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		servlet.service(request, response);
