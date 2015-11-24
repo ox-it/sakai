@@ -22,7 +22,6 @@ import org.springframework.web.servlet.mvc.annotation.TargettedController;
 
 @Controller("deleteSiteController")
 @RequestMapping("/delete")
-@TargettedController("sakai.hierarchy-manager")
 public class DeleteSiteController {
 
 	private SiteService siteService;

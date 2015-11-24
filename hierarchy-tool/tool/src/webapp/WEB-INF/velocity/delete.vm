@@ -22,7 +22,7 @@
 	<p class="instruction">
     	#springMessage("delete.site.introadd")
     </p>
-	<form method="POST">
+	<form method="POST" action="${rootUrl}/remove/site">
 	#if (!$hasChildren)
 	<p class="instructions">
 		<label for="deleteSite">#springMessage("delete.site")</label>
@@ -33,6 +33,10 @@
 	#end
 	<input type="submit" value="#springMessage("delete.button")"/>
 	</form>
+	<br/>
+	<form method="POST" action="${rootUrl}/cancel/remove">
+		<input type="submit" value="#springMessage("button.cancel")"/>
+       </form>
 	<br/>
 #else
 	<div class="alertMessage">
