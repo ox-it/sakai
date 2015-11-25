@@ -1126,7 +1126,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			if (signupDAO != null && groupDAO != null) {
 				CourseSignup signup = new CourseSignupImpl(signupDAO, this);
 				CourseGroup group = new CourseGroupImpl(groupDAO, this);
-				export.addSignup(new CourseComponentExport.CourseSignupExport(signup, group));
+				export.addSignup(new CourseSignupExport(signup, group));
 			}
 		}
 		return exports;

@@ -29,7 +29,6 @@ import org.glassfish.jersey.server.mvc.Viewable;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import uk.ac.ox.oucs.vle.*;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
-import uk.ac.ox.oucs.vle.NotFoundException;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
@@ -433,10 +432,10 @@ public class SignupResource {
 
 				for (CourseComponentExport courseComponent : components) {
 
-					List<CourseComponentExport.CourseSignupExport> signups = courseComponent.getSignups();
+					List<CourseSignupExport> signups = courseComponent.getSignups();
 
-						Collections.sort(signups, new Comparator<CourseComponentExport.CourseSignupExport>() {
-							public int compare(CourseComponentExport.CourseSignupExport s1,CourseComponentExport.CourseSignupExport s2) {
+						Collections.sort(signups, new Comparator<CourseSignupExport>() {
+							public int compare(CourseSignupExport s1, CourseSignupExport s2) {
 								Person p1 = s1.getSignup().getUser();
 								Person p2 = s2.getSignup().getUser();
 

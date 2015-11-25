@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -32,10 +31,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import uk.ac.ox.oucs.vle.CourseComponent;
-import uk.ac.ox.oucs.vle.CourseComponentExport;
-import uk.ac.ox.oucs.vle.CourseSignup;
-import uk.ac.ox.oucs.vle.Person;
+import uk.ac.ox.oucs.vle.*;
 
 public class AttendanceWriter {
 	
@@ -138,7 +134,7 @@ public class AttendanceWriter {
 				new HashMap<String, Collection<CourseSignup>>();
 
 		// iterate through your objects
-		for (CourseComponentExport.CourseSignupExport signup : componentExport.getSignups()) {
+		for (CourseSignupExport signup : componentExport.getSignups()) {
 
 			// fetch the list for this object's id
 			String courseId = signup.getGroup().getCourseId();
