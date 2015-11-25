@@ -1104,7 +1104,6 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 
 	@Override
 	public List<CourseComponentExport> exportComponentSignups(String componentId, Set<Status> statuses, Integer year) {
-		// TODO check authenticated.
 		List<Map> componentSignups = dao.findComponentSignups(componentId, statuses, year);
 		// These should be ordered already
 		List<CourseComponentExport> exports = new ArrayList<>();
@@ -1119,14 +1118,16 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 				continue;
 			}
 			CourseComponent component = new CourseComponentImpl(componentDAO);
-			if (export == null || !export.getComponent().equals(component)) {
-				export = new CourseComponentExport(component);
-				exports.add(export);
-			}
-			if (signupDAO != null && groupDAO != null) {
-				CourseSignup signup = new CourseSignupImpl(signupDAO, this);
-				CourseGroup group = new CourseGroupImpl(groupDAO, this);
-				export.addSignup(new CourseSignupExport(signup, group));
+			if (isAdministrator(componentDAO)) {
+				if (export == null || !export.getComponent().equals(component)) {
+					export = new CourseComponentExport(component);
+					exports.add(export);
+				}
+				if (signupDAO != null && groupDAO != null) {
+					CourseSignup signup = new CourseSignupImpl(signupDAO, this);
+					CourseGroup group = new CourseGroupImpl(groupDAO, this);
+					export.addSignup(new CourseSignupExport(signup, group));
+				}
 			}
 		}
 		return exports;
