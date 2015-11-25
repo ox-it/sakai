@@ -35,13 +35,13 @@ public class PersonImpl implements Person {
 	private String ossId;
 	private String yearOfStudy;
 	private String degreeProgram;
-	private String primaryOrgUnit;
 	private String type;
+	private String departmentName;
 
 	public PersonImpl(String id, String firstName, String lastName, String displayName, 
 			String email, List<String> units, 
 			String webauthId, String ossId, String yearOfStudy, 
-			String degreeProgram, String primaryOrgUnit, String type) {
+			String degreeProgram, String departmentName, String type) {
 		this.id = id;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -52,7 +52,7 @@ public class PersonImpl implements Person {
 		this.ossId = ossId;
 		this.yearOfStudy = yearOfStudy;
 		this.degreeProgram = degreeProgram;
-		this.primaryOrgUnit = primaryOrgUnit;
+		this.departmentName = departmentName;
 		this.type = type;
 	}
 	
@@ -90,7 +90,7 @@ public class PersonImpl implements Person {
 	}
 
 	public String getDepartmentName() {
-		return null;
+		return departmentName;
 	}
 
 	public String getType() {
