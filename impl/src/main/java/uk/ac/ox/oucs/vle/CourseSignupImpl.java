@@ -19,7 +19,6 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,11 +43,7 @@ public class CourseSignupImpl implements CourseSignup {
 		UserProxy user = service.loadUser(dao.getUserId());
 		Person person = null;
 		if (user != null) {
-			person = new PersonImpl(user.getId(),
-					user.getFirstName(), user.getLastName(), user.getDisplayName(), 
-					user.getEmail(), user.getUnits(), user.getWebauthId(), user.getOssId(),
-					user.getYearOfStudy(), user.getDegreeProgram(), user.getPrimaryOrgUnit(), user.getType(), service
-			);
+			person = new UserProxyPersonImpl(user, service);
 		}
 		return person;
 	}
@@ -61,13 +56,10 @@ public class CourseSignupImpl implements CourseSignup {
 		UserProxy user = service.loadUser(dao.getSupervisorId());
 		Person person = null;
 		if (user != null) {
-			person = new PersonImpl(user.getId(), 
-					user.getFirstName(), user.getLastName(), user.getDisplayName(), 
-					user.getEmail(), Collections.<String>emptyList(), 
-					user.getWebauthId(), user.getOssId(), null, null, null,
-					user.getType(), service);
+			person = new UserProxyPersonImpl(user, service);
 		}
-		return person;	}
+		return person;
+	}
 
 	public String getNotes() {
 		return dao.getMessage();
