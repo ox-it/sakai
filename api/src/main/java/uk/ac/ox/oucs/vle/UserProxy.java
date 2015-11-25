@@ -40,12 +40,17 @@ public class UserProxy {
 	private String yearOfStudy;
 	private String type;
 	private String primaryOrgUnit;
-	private String degreeProgram;
+
+	// The additional user details are lazily loaded so that when we don't need them we don't load
+	// them.
+	private transient AdditionalUserDetails additionalUserDetails;
+
+	private transient String degreeProgram;
 	
 	public UserProxy(String id, String eid, 
 			String firstname, String lastname, String name, String email, 
 			String webauthId, String ossId, String yearOfStudy, String type,
-			String primaryOrgUnit, String degreeProgram, List<String> units) {
+			String primaryOrgUnit, List<String> units, AdditionalUserDetails additionalUserDetails) {
 		this.id = id;
 		this.eid = eid;
 		this.firstname = firstname;
@@ -58,7 +63,7 @@ public class UserProxy {
 		this.ossId = ossId;
 		this.type = type;
 		this.primaryOrgUnit = primaryOrgUnit;
-		this.degreeProgram = degreeProgram;
+		this.additionalUserDetails = additionalUserDetails;
 	}
 
 	public String getId() {
@@ -110,6 +115,10 @@ public class UserProxy {
 	}
 	
 	public String getDegreeProgram() {
+		// In test situations is is handy to not have to mock additionalUserDetails and just pass null.
+		if (degreeProgram == null && additionalUserDetails != null) {
+			degreeProgram = additionalUserDetails.getDegreeProgram(id);
+		}
 		return degreeProgram;
 	}
 }

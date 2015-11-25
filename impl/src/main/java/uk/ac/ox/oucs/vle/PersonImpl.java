@@ -37,7 +37,8 @@ public class PersonImpl implements Person {
 	private String degreeProgram;
 	private String primaryOrgUnit;
 	private String type;
-	private CourseSignupService service;
+	// This is used to load the department name lazily
+	private transient CourseSignupService service;
 	
 	public PersonImpl(String id, String firstName, String lastName, String displayName, 
 			String email, List<String> units, 
@@ -93,9 +94,12 @@ public class PersonImpl implements Person {
 
 	public String getDepartmentName() {
 		String departmentName = null;
-		Department department = service.findPracDepartment(primaryOrgUnit);
-		if (null != department) {
-			departmentName = department.getName();
+		// If this isn't a Sakai person we won't have a good primaryOrgUnit
+		if (service != null && primaryOrgUnit != null) {
+			Department department = service.findPracDepartment(primaryOrgUnit);
+			if (null != department) {
+				departmentName = department.getName();
+			}
 		}
 		return departmentName;
 	}
