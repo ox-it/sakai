@@ -87,7 +87,7 @@ public interface CourseDAO {
 	 * The reason for this method is so that when we're exporting details of the signups we don't make multiple
 	 * queries to the DB for each exported item.
 	 *
-	 * @return A list of maps with keys of "this", "component", and "group". "this" is a signup.
+	 * @return A list of maps with keys of "this", "signup", and "group". "this" is a component.
      */
 	List<Map> findComponentSignups(final String componentId, final Set<Status> statuses, final Integer year) ;
 	
