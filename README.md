@@ -59,6 +59,6 @@ http://central.sonatype.org/pages/releasing-the-deployment.html
 This project is licensed under the ECL 2.0 (http://opensource.org/licenses/ecl2.txt) there is a plugin that's part
 of the build that checks license files and to update the license on files run:
 
-   mvn license:update-file-header
+    mvn license:update-file-header
 
 
