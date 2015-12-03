@@ -538,7 +538,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public void writeLog(String contentId, String contentDisplayName, byte[] bytes) {
 		
 		switchUser();
-		ContentResourceEdit cre;
+		ContentResourceEdit cre = null;
 		try {
 			cre = getContentResourceEdit(contentId, contentDisplayName);
 			cre.setContent(bytes);
@@ -563,6 +563,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		} catch (ServerOverloadException e) {
 			log.error("ServerOverloadException ["+e.getMessage()+"]", e);
 			
+		} finally {
+			if (cre != null && cre.isActiveEdit()) {
+				contentHostingService.cancelResource(cre);
+			}
 		}
 		
 	}
@@ -613,7 +617,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 			log.error("OverQuotaException ["+e.getMessage()+"]", e);
 			
 		} finally {
-			
+			// This is to make sure that we don't leave it locked.
+			if (cre != null && cre.isActiveEdit()) {
+				contentHostingService.cancelResource(cre);
+			}
 			try {
 				
 				if (null != out) {
