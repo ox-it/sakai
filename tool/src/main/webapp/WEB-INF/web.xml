@@ -132,6 +132,10 @@
 			<param-name>jersey.config.server.provider.packages</param-name>
 			<param-value>uk.ac.ox.oucs.vle.resources;org.codehaus.jackson.jaxrs</param-value>
 		</init-param>
+		<init-param>
+			<param-name>jersey.config.server.provider.classnames</param-name>
+			<param-value>org.glassfish.jersey.server.mvc.jsp.JspMvcFeature</param-value>
+		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
