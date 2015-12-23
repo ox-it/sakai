@@ -155,12 +155,12 @@ var Manager;
     }));
     Manager.addWidget(new AjaxSolr.PagerWidget({
       id: 'pager',
-      target: '#pager',
+      target: '.pager',
       prevLabel: '&lt;',
       nextLabel: '&gt;',
       innerWindow: 1,
       renderHeader: function (perPage, offset, total) {
-        $('#pager-header').html($('<span></span>').text('displaying ' + Math.min(total, offset + 1) + ' to ' + Math.min(total, offset + perPage) + ' of ' + total));
+        $('.pager-msg').html($('<span></span>').text('displaying ' + Math.min(total, offset + 1) + ' to ' + Math.min(total, offset + perPage) + ' of ' + total));
       }
     }));
     
@@ -225,6 +225,7 @@ var Manager;
    
     var params = {
       facet: true,
+      rows: 20,
       // We don't limit the size of the facets they are reasonably small and we want all the values.
       'facet.field': [ 'provider_title', 'course_subject_rdf', 'course_subject_rm', 'course_delivery',
             'course_subject_vitae_domain', 'course_subject_vitae_subdomain'],
