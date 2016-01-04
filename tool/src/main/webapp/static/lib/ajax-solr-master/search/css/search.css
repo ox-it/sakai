@@ -91,16 +91,16 @@ div.error {
   font-weight: normal;
 }
 
-#pager,
-#pager-header {
+.pager,
+.pager-header {
   display: inline;
 }
-#pager li,
+.pager li,
 .links li {
   list-style-type: none;
   display: inline;
 }
-#current_selection {
+.current_selection {
   -moz-border-bottom-colors: none;
   -moz-border-left-colors: none;
   -moz-border-right-colors: none;

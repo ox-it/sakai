@@ -116,16 +116,21 @@
 			<div class="error" id="leftError">
 			</div>
 			
-			<div id="current_selection">
+			<div class="current_selection">
 				<h2>Current Selection</h2>
 				<ul id="selection"></ul>
 
-				<ul id="pager"></ul>
-				<div id="pager-header"></div>
+				<ul class="pager"></ul>
+				<div class="pager-msg"></div>
 			</div>
 
 			<div id="result">
 				<div id="docs"></div>
+			</div>
+
+			<div class="current_selection">
+				<ul class="pager"></ul>
+				<div class="pager-msg"></div>
 			</div>
 			
 		</div>
