@@ -1,129 +1,57 @@
 #chef_start()
 #chef_portletContainer()
 #chef_portletContent()
-<style>
-    table, th, td {
-        border-collapse: collapse;
-    }
-    th, td {
-        padding: 5px;
-        text-align: left;
-        vertical-align:bottom;
-    }
-
-</style>
 <br/>
-<table class="lines nolines">
-    <tr>
-        <td>
-        ## If you are here and can manage this site you can manage all redirects.
-            <h3 padding="5px">#springMessage("show.redirects")</h3>
-        </td>
-    </tr>
-    <tr>
-        <td valign="bottom">
-            #if ($redirectNodes.size() > 0)
-                #springBind("redirect-remove.id")
-                #springShowErrors("" "alertMessage")
-                <form method="POST" action="${rootUrl}/redirect/delete">
-                    <ul>
-                        #foreach ($node in $redirectNodes)
-                            <li>
-                                #if($node.hidden)Hidden #else $!node.title #end
-                                ($node.path) to <a href="$node.url" target="_new">$node.url</a> #if($node.appendPath)(#springMessage("show.with.path.appended"))#end
-                                <input type="radio" name="id" value="$node.id">
-                            </li>
-                        #end
-                    </ul>
-                    <input type="hidden" name="_action" value="act_deleteredirect">
-        </td>
-    </tr><tr>
-        <td>
-           <input type="submit" value="#springMessage("button.delete")">
-        </td>
-                </form>
-        <td>
-            #else
-                <label width="100%">#springMessage("show.no.redirects")</label>
+## If you are here and can manage this site you can manage all redirects.
+<h3 padding="5px">#springMessage("show.redirects")</h3>
+#if ($redirectNodes.size() > 0)
+    #springBind("redirect-remove.id")
+    #springShowErrors("" "alertMessage")
+    <form method="POST" action="${rootUrl}/redirect/delete">
+        <ul>
+            #foreach ($node in $redirectNodes)
+                <li>
+                    #if($node.hidden)Hidden #else $!node.title #end
+                    ($node.path) to <a href="$node.url" target="_new">$node.url</a> #if($node.appendPath)(#springMessage("show.with.path.appended"))#end
+                    <input type="radio" name="id" value="$node.id">
+                </li>
             #end
-        </td>
-    </tr>
-</table>
-<table class="lines nolines" width="70%">
-    <tr>
-        <td>
-            <h3>#springMessage("show.new.redirect")</h3>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <form method="POST" action="${rootUrl}/redirect/add">
-                <table>
-                    <tr>
-                        <td><p class="instruction">#springMessage("show.name.info")</p></td>
-                    </tr>
-                    <tr>
-                        <td valign="bottom">
-                            <label  for="name" title="#springMessage("show.name.title")">#springMessage("show.name")</label>
-                            #set ($placeholder = "#springMessage('show.name.placeholder')" )
-                            <code>${current.nodeUrl}/</code> #springFormInput("redirect-add.name" "id='name' placeholder='${placeholder}'")
-                            #springShowErrors("" "alertMessageInline")<br>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><p class="instruction">#springMessage("show.title.info")</p></td>
-                    </tr>
-                    <tr>
-                        <td >
-                            <label for="title" title="#springMessage("show.title.title")">#springMessage("show.title")</label>
-                            #set ($placeholder = "#springMessage('show.title.placeholder')" )
-                            #springFormInput("redirect-add.title" "id='title' size='${titleMaxLength}' maxlength='${titleMaxLength}' placeholder='${placeholder}'")
-                            #springShowErrors("" "alertMessageInline")<br>
-                        </td>
-
-                    </tr>
-                    <tr>
-                        <td><p class="instruction">#springMessage("show.url.info")</p></td>
-                    </tr>
-                    <tr>
-                        <td valign="bottom">
-                             <label for="url" title="#springMessage("show.url.title")">#springMessage("show.url")</label>
-                            #set ($placeholder = "#springMessage('show.url.placeholder')" )
-                            #springFormInput("redirect-add.url" "id='url' size='50' placeholder='${placeholder}'")
-                            #springShowErrors("" "alertMessageInline")<br>
-                        </td>
-
-                    </tr>
-                    <tr>
-                        <td ><p class="instruction">#springMessage("show.appendPath.info")</p></td>
-                    </tr>
-                    <tr>
-                        <td >
-                            <label for="appendPath" title="#springMessage("show.appendPath.title")">#springMessage("show.appendPath")</label>
-                            #springFormCheckbox("redirect-add.appendPath" "true" "")<br>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><p class="instruction">#springMessage("show.hidden.info")</p></td>
-                    </tr>
-                    <tr>
-                        <td><label for="hidden" title="#springMessage("show.hidden.title")">#springMessage("show.hidden")</label>
-
-                            #springFormCheckbox("redirect-add.hidden" "true" "" )<br></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input type="submit" value="#springMessage("button.new.redirect")">
-                        </td>
-                    </tr>
-                </table>
-            </form>
-            <form method="POST" action="${rootUrl}/cancel">
-                <input type="submit" value="#springMessage("button.cancel")">
-            </form>
-        </td>
-    </tr>
-</table>
+        </ul>
+        <input type="hidden" name="_action" value="act_deleteredirect">
+        <input type="submit" value="#springMessage("button.delete")">
+    </form>
+#else
+    <p><label width="100%">#springMessage("show.no.redirects")</label></p>
+#end
+<h3>#springMessage("show.new.redirect")</h3>
+<form method="POST" action="${rootUrl}/redirect/add">
+    <div style="width: 950px;">
+        <p><label  for="name" title="#springMessage("show.name.title")">#springMessage("show.name")</label>
+        #set ($placeholder = "#springMessage('show.name.placeholder')" )
+        <code>${current.nodeUrl}/</code> #springFormInput("redirect-add.name" "id='name' placeholder='${placeholder}'")</p>
+        <p>#springShowErrors("" "alertMessageInline")</p>
+        <p class="instruction">#springMessage("show.title.info")</p>
+        <label for="title" title="#springMessage("show.title.title")">#springMessage("show.title")</label>
+        #set ($placeholder = "#springMessage('show.title.placeholder')" )
+        #springFormInput("redirect-add.title" "id='title' size='${titleMaxLength}' maxlength='${titleMaxLength}' placeholder='${placeholder}'")
+        #springShowErrors("" "alertMessageInline")<br/><br/>
+        <p class="instruction">#springMessage("show.url.info")</p>
+        <label for="url" title="#springMessage("show.url.title")">#springMessage("show.url")</label>
+        #set ($placeholder = "#springMessage('show.url.placeholder')" )
+        #springFormInput("redirect-add.url" "id='url' size='50' placeholder='${placeholder}'")
+        #springShowErrors("" "alertMessageInline")<br/><br/>
+        <p class="instruction">#springMessage("show.appendPath.info")</p>
+        <label for="appendPath" title="#springMessage("show.appendPath.title")">#springMessage("show.appendPath")</label>
+        #springFormCheckbox("redirect-add.appendPath" "true" "")<br/><br/>
+        <p class="instruction">#springMessage("show.hidden.info")</p>
+        <label for="hidden" title="#springMessage("show.hidden.title")">#springMessage("show.hidden")</label>
+        #springFormCheckbox("redirect-add.hidden" "true" "" )<br/><br/>
+        <input type="submit" value="#springMessage("button.new.redirect")"><br/>
+    </div>
+</form>
+<form method="POST" action="${rootUrl}/cancel">
+    <p><input type="submit" value="#springMessage("button.cancel")"></p>
+</form>
 #chef_portletContentEnd()
 #chef_portletContainerEnd()
 #chef_end()
