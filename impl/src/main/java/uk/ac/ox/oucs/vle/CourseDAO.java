@@ -19,10 +19,7 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import uk.ac.ox.oucs.vle.CourseSignupService.Range;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
@@ -84,6 +81,15 @@ public interface CourseDAO {
 	List<CourseGroupDAO> findCourseGroupByWords(String[] words, Range range, Date date, boolean external);
 
 	List<CourseSignupDAO> findSignupByComponent(String componentId, Set<Status> statuses);
+
+	/**
+	 * This is used for exporting signups. It loads all the groups and signups associated with a component.
+	 * The reason for this method is so that when we're exporting details of the signups we don't make multiple
+	 * queries to the DB for each exported item.
+	 *
+	 * @return A list of maps with keys of "this", "signup", and "group". "this" is a component.
+     */
+	List<Map> findComponentSignups(final String componentId, final Set<Status> statuses, final Integer year) ;
 	
 	List<CourseSignupDAO> findSignupByComponent(String componentId, Set<Status> statuses, Integer year);
 

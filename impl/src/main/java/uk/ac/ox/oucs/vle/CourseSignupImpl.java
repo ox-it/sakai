@@ -19,7 +19,6 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,20 +40,10 @@ public class CourseSignupImpl implements CourseSignup {
 	}
 
 	public Person getUser() {
-		UserProxy user = service.loadStudent(dao.getUserId());
+		UserProxy user = service.loadUser(dao.getUserId());
 		Person person = null;
-		String departmentName = null;
 		if (user != null) {
-			if (null != user.getPrimaryOrgUnit()) {
-				Department department = service.findPracDepartment(user.getPrimaryOrgUnit());
-				if (null != department) {
-					departmentName = department.getName();
-				}
-			}
-			person = new PersonImpl(user.getId(), 
-					user.getFirstName(), user.getLastName(), user.getDisplayName(), 
-					user.getEmail(), user.getUnits(), user.getWebauthId(), user.getOssId(), 
-					user.getYearOfStudy(), user.getDegreeProgram(), departmentName, user.getType());
+			person = new UserProxyPersonImpl(user, service);
 		}
 		return person;
 	}
@@ -67,13 +56,10 @@ public class CourseSignupImpl implements CourseSignup {
 		UserProxy user = service.loadUser(dao.getSupervisorId());
 		Person person = null;
 		if (user != null) {
-			person = new PersonImpl(user.getId(), 
-					user.getFirstName(), user.getLastName(), user.getDisplayName(), 
-					user.getEmail(), Collections.<String>emptyList(), 
-					user.getWebauthId(), user.getOssId(), null, null, null,
-					user.getType());
+			person = new UserProxyPersonImpl(user, service);
 		}
-		return person;	}
+		return person;
+	}
 
 	public String getNotes() {
 		return dao.getMessage();

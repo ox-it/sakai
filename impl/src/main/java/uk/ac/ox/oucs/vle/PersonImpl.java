@@ -35,9 +35,9 @@ public class PersonImpl implements Person {
 	private String ossId;
 	private String yearOfStudy;
 	private String degreeProgram;
-	private String departmentName;
 	private String type;
-	
+	private String departmentName;
+
 	public PersonImpl(String id, String firstName, String lastName, String displayName, 
 			String email, List<String> units, 
 			String webauthId, String ossId, String yearOfStudy, 
@@ -88,9 +88,11 @@ public class PersonImpl implements Person {
 	public String getDegreeProgram() {
 		return degreeProgram;
 	}
+
 	public String getDepartmentName() {
 		return departmentName;
 	}
+
 	public String getType() {
 		return type;
 	}

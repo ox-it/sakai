@@ -219,14 +219,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return null;
 		}
 	}
-	
-	public UserProxy findStudentById(String id) {
-		try {
-			return wrapStudentProxy(userService.getUser(id));
-		} catch (UserNotDefinedException unde) {
-			return null;
-		}
-	}
 
 	public UserProxy findUserByEmail(String email) {
 		Collection<User> users = userService.findUsersByEmail(email);
@@ -362,26 +354,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 				sakaiUser.getProperties().getProperty("yearOfStudy"), 
 				sakaiUser.getProperties().getProperty("oakStatus"),
 				sakaiUser.getProperties().getProperty("primaryOrgUnit"),
-				null,
-				(units == null)?Collections.EMPTY_LIST:units);
-	}
-	
-	private UserProxy wrapStudentProxy(User sakaiUser) {
-		if(sakaiUser == null) {
-			return null;
-		}
-		
-		List<String> units = sakaiUser.getProperties().getPropertyList("units");
-		return new UserProxy(sakaiUser.getId(), sakaiUser.getEid(), 
-				sakaiUser.getFirstName(), sakaiUser.getLastName(), sakaiUser.getDisplayName(), 
-				sakaiUser.getEmail(),
-				sakaiUser.getDisplayId(),
-				sakaiUser.getProperties().getProperty("oakOSSID"), 
-				sakaiUser.getProperties().getProperty("yearOfStudy"), 
-				sakaiUser.getProperties().getProperty("oakStatus"),
-				sakaiUser.getProperties().getProperty("primaryOrgUnit"),
-				additionalUserDetails.getDegreeProgram(sakaiUser.getEid()),
-				(units == null)?Collections.EMPTY_LIST:units);
+				(units == null)?Collections.EMPTY_LIST:units,
+				additionalUserDetails);
 	}
 
 	public String getAdminUrl() {

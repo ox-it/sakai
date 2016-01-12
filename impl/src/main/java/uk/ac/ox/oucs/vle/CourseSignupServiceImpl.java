@@ -458,7 +458,8 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		
 	public List<CourseSignup> getComponentSignups(String componentId, Set<Status> statuses, Integer year) 
 	throws NotFoundException {
-	
+
+		// Permission check.
 		CourseComponentDAO componentDao = dao.findCourseComponent(componentId);
 		if (componentDao == null) {
 			throw new NotFoundException(componentId);
@@ -971,19 +972,11 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	}
 	
 	/**
-	 * Loads details about a user without additionalUserDetails.
-	 * @return
+	 * Loads details about a user.
+	 * @return The loaded user or null.
 	 */
 	UserProxy loadUser(String id) {
 		return proxy.findUserById(id);
-	}
-	
-	/**
-	 * Loads details about a user with additionalUserDetails.
-	 * @return
-	 */
-	UserProxy loadStudent(String id) {
-		return proxy.findStudentById(id);
 	}
 	
 	public Department findPracDepartment(String primaryOrgUnit) {
@@ -1107,6 +1100,37 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 			return new CourseDepartmentImpl(departmentDao.getCode(), departmentDao.getApprove(), departmentDao.getApprovers());
 		}
 		return null;
+	}
+
+	@Override
+	public List<CourseComponentExport> exportComponentSignups(String componentId, Set<Status> statuses, Integer year) {
+		List<Map> componentSignups = dao.findComponentSignups(componentId, statuses, year);
+		// These should be ordered already
+		List<CourseComponentExport> exports = new ArrayList<>();
+		CourseComponentExport export = null;
+		for (Map map : componentSignups) {
+			CourseSignupDAO signupDAO = (CourseSignupDAO) map.get("signup");
+			CourseComponentDAO componentDAO = (CourseComponentDAO) map.get("this");
+			CourseGroupDAO groupDAO = (CourseGroupDAO) map.get("group");
+			if (componentDAO == null) {
+				// We don't bail out here so that we still get a partial export.
+				log.error(String.format("Failed to get the complete data when exporting %s, %s, %d", componentId, statuses.toString(), year));
+				continue;
+			}
+			CourseComponent component = new CourseComponentImpl(componentDAO);
+			if (isAdministrator(componentDAO)) {
+				if (export == null || !export.getComponent().equals(component)) {
+					export = new CourseComponentExport(component);
+					exports.add(export);
+				}
+				if (signupDAO != null && groupDAO != null) {
+					CourseSignup signup = new CourseSignupImpl(signupDAO, this);
+					CourseGroup group = new CourseGroupImpl(groupDAO, this);
+					export.addSignup(new CourseSignupExport(signup, group));
+				}
+			}
+		}
+		return exports;
 	}
 
 	/**

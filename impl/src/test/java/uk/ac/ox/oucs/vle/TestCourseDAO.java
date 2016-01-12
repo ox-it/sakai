@@ -559,6 +559,77 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 
 	}
 
+	public void testFindComponentSignups() {
+		CourseGroupDAO groupA = courseDao.newCourseGroup("groupA", "Title Group A", "dept", "subunit");
+		courseDao.save(groupA);
+		CourseGroupDAO groupB = courseDao.newCourseGroup("groupB", "Title Group A", "dept", "subunit");
+		courseDao.save(groupB);
+
+		CourseSignupDAO signupW = courseDao.newSignup("userW", null, new Date());
+		signupW.setStatus(Status.ACCEPTED);
+		signupW.setGroup(groupA);
+		courseDao.save(signupW);
+		CourseSignupDAO signupX = courseDao.newSignup("userX", null, new Date());
+		signupX.setStatus(Status.APPROVED);
+		signupX.setGroup(groupA);
+		courseDao.save(signupX);
+		CourseSignupDAO signupY = courseDao.newSignup("userY", null, new Date());
+		signupY.setStatus(Status.PENDING);
+		signupY.setGroup(groupB);
+		courseDao.save(signupY);
+		CourseSignupDAO signupZ = courseDao.newSignup("userZ", null, new Date());
+		signupZ.setStatus(Status.ACCEPTED);
+		signupZ.setGroup(groupB);
+		courseDao.save(signupZ);
+
+		CourseComponentDAO component1 = courseDao.newCourseComponent("component1");
+		component1.setStarts(createDate(2015, 12, 1));
+		component1.getGroups().add(groupA);
+		component1.getSignups().add(signupW);
+		component1.getSignups().add(signupX);
+		courseDao.save(component1);
+		CourseComponentDAO component2 = courseDao.newCourseComponent("component2");
+		component2.setStarts(createDate(2016, 12, 1));
+		component2.getGroups().add(groupB);
+		component2.getSignups().add(signupY);
+		component2.getSignups().add(signupZ);
+		courseDao.save(component2);
+
+		courseDao.flushAndClear();
+
+		List<Map> signups;
+		signups = courseDao.findComponentSignups(null, null, null);
+
+		assertEquals(4, signups.size());
+		// Check ordering, same component first, then groupId.
+		assertEquals("userZ", ((CourseSignupDAO)signups.get(0).get("signup")).getUserId());
+		assertEquals("component2", ((CourseComponentDAO)signups.get(0).get("this")).getPresentationId());
+		assertEquals("userY", ((CourseSignupDAO)signups.get(1).get("signup")).getUserId());
+		assertEquals("component2", ((CourseComponentDAO)signups.get(1).get("this")).getPresentationId());
+		assertEquals("userX", ((CourseSignupDAO)signups.get(2).get("signup")).getUserId());
+		assertEquals("component1", ((CourseComponentDAO)signups.get(2).get("this")).getPresentationId());
+		assertEquals("userW", ((CourseSignupDAO)signups.get(3).get("signup")).getUserId());
+		assertEquals("component1", ((CourseComponentDAO)signups.get(2).get("this")).getPresentationId());
+
+		signups = courseDao.findComponentSignups(null, Collections.singleton(Status.PENDING), null);
+		assertEquals(1, signups.size());
+
+		signups = courseDao.findComponentSignups("component1", null, null);
+		assertEquals(2, signups.size());
+		Collection<String> component1UserIds = Arrays.asList(new String[]{"userW", "userX"});
+		for(Map signup: signups) {
+			String signupId = ((CourseSignupDAO) signup.get("signup")).getUserId();
+			if (!component1UserIds.contains(signupId)) {
+				fail("Incorrect signup found: "+ signupId);
+			}
+		}
+
+		signups =  courseDao.findComponentSignups(null, Collections.singleton(Status.ACCEPTED), 2016);
+		assertEquals(1, signups.size());
+		assertEquals("userZ", ((CourseSignupDAO)signups.get(0).get("signup")).getUserId());
+
+	}
+
 //	public void testAdminCourseGroups() {
 //		List<CourseGroupDAO> groups = courseDao.findAdminCourseGroups("d86d9720-eba4-40eb-bda3-91b3145729da");
 //		assertEquals(3, groups.size());

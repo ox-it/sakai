@@ -50,8 +50,6 @@ public interface SakaiProxy {
 	boolean isAdministrator();
 
 	public UserProxy findUserById(String id);
-	
-	public UserProxy findStudentById(String id);
 
 	public UserProxy findUserByEmail(String email);
 	
