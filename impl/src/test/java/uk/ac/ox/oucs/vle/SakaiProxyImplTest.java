@@ -1,5 +1,6 @@
 package uk.ac.ox.oucs.vle;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import uk.ac.ox.oucs.vle.proxy.SakaiProxyImpl;
@@ -14,13 +15,17 @@ import static org.mockito.Mockito.when;
  */
 public class SakaiProxyImplTest {
 
-    @Test
-    public void testAES() {
+    private SakaiProxyImpl impl;
+    private ServerConfigurationService serverConfigurationService;
 
-        SakaiProxyImpl impl = new SakaiProxyImpl();
-        ServerConfigurationService serverConfigurationService = mock(ServerConfigurationService.class);
+    @Before
+    public void setUp() {
+        impl = new SakaiProxyImpl();
+        serverConfigurationService = mock(ServerConfigurationService.class);
         impl.setServerConfigurationService(serverConfigurationService);
-
+    }
+    @Test
+    public void testAES16() {
         // You have to have 16
         when(serverConfigurationService.getString("aes.secret.key", null)).thenReturn("1234567890abcdef");
 
@@ -28,5 +33,14 @@ public class SakaiProxyImplTest {
         assertNotEquals("encryption.failed", encoded);
         assertEquals("test", impl.uncode(encoded));
 
+    }
+
+    @Test
+    public void testAES5() {
+        // You have to have 32
+        when(serverConfigurationService.getString("aes.secret.key", null)).thenReturn("12345");
+
+        String encoded = impl.encode("test");
+        assertEquals("encryption.failed", encoded);
     }
 }

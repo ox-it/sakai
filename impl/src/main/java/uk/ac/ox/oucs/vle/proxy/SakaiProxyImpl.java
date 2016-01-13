@@ -459,14 +459,19 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	protected String getSecretKey() {
 		// Return null if not set.
-		// TODO This should do length checking as AES has fixed key lenths.
 		String key = serverConfigurationService.getString("aes.secret.key", null);
 		if (key == null) {
 			log.error("No secret key specified. Please set 'aes.secret.key' in configuration");
 		}
+		int length = key.getBytes().length;
+
+		if ((length % 8) != 0) {
+			log.error("aes.secret.key must be a multiple of 8 bytes long, not "+ length);
+			return null;
+		}
 		return key;
 	}
-	
+
 	protected byte[] aes(byte[] source, int mode) {
 		String secretKey = getSecretKey();
 		if (secretKey == null) {
@@ -479,7 +484,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 			cipher.init(mode, skeySpec);
 			byte[] encrypted = cipher.doFinal(source);
 			return encrypted;
-		
+
 		} catch (Exception e) {
 			String type = (mode == Cipher.DECRYPT_MODE)? "decryption" :
 				(mode == Cipher.ENCRYPT_MODE)? "encryption" :
