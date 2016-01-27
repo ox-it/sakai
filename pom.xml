@@ -29,9 +29,9 @@
         </developer>
     </developers>
     <scm>
-        <connection>scm:git:git@github.com:sakaiproject/raven-sakai.git</connection>
-        <developerConnection>scm:git:git@github.com:sakaiproject/raven-sakai.git</developerConnection>
-        <url>git@github.com:sakaiproject/raven-sakai.git</url>
+        <connection>scm:git:git@github.com:sakaicontrib/raven-sakai.git</connection>
+        <developerConnection>scm:git:git@github.com:sakaicontrib/raven-sakai.git</developerConnection>
+        <url>git@github.com:sakaicontrib/raven-sakai.git</url>
       <tag>HEAD</tag>
   </scm>
 
