@@ -651,7 +651,31 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	}
 
 	public boolean canMoveNode(String id) {
-		return securityService.isSuperUser();
+		//first checking if current user is superuser?
+		boolean canMoveNode = securityService.isSuperUser();
+		if(canMoveNode){
+			return canMoveNode;
+		}
+		//As user is not admin, check if he is maintainer for the current node
+		PortalNode parentNode = getNodeById(id);
+		if(parentNode instanceof PortalNodeSite){
+			canMoveNode = siteService.allowUpdateSite(((PortalNodeSite)parentNode).getSite().getId());
+			//if user is not maintainer for the selected site to move, come out of the function
+			if(!canMoveNode){
+				return canMoveNode;
+			}
+		}
+		//user is maintainer for the current site
+		List<PortalNode> nodeChildren = getNodeChildren(id);
+		//Check if node has any children subsites?
+		for(PortalNode childNode : nodeChildren){
+			if(childNode instanceof PortalNodeSite){
+				//if there is a subsite for this node maintaner cannot move the node,break and return
+				canMoveNode = false;
+				break;
+			}
+		}
+		return canMoveNode;
 	}
 
 	public boolean canNewNode(String parentId) {

@@ -86,7 +86,7 @@ public class MoveSiteController {
 	public ModelAndView cancel(HttpServletRequest request, Model model) {
 		Session session = sessionManager.getCurrentSession();
 		session.removeAttribute(CUT_ID);
-		return handleAllRequests(request, model);
+		return displayHome(model);
 	}
 
 	@RequestMapping(value = "/cancel/move", method = RequestMethod.POST)
