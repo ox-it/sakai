@@ -211,6 +211,7 @@ var Signup = function(){
 					data.signup = Signup.signup.summary(data.components)["message"];
 					data.parts = parts;
 					data.applyTo = applyTo;
+					data.memberApplyTo = memberApplyTo;
 
 					data._MODIFIERS = Signup.util.trimpathModifiers();
 

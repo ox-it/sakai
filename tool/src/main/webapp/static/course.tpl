@@ -332,7 +332,7 @@
 							{/if}
 						{else}
 							{if defined('memberApplyTo')}
-								<p>Apply to:<a href="${memberApplyTo}" target="_blank">${memberApplyTo}</a></p>
+								<p>Apply to: <a href="${memberApplyTo}" target="_blank">${memberApplyTo}</a></p>
 							{else}
 								{if defined('applyTo')}
 									<p>Apply to: <a href="${applyTo}" target="_blank">${applyTo}</a></p>
