@@ -159,50 +159,6 @@ public class EmailSendingService {
         proxy.sendEmail(to, subject, body);
     }
 
-    /**
-     * This sends a signup waiting email to an administrator
-     *
-     * @param userId The ID of the administrator.
-     * @param signup The waiting signup.
-     * @param subjectKey The resource bundle subject key.
-     * @param bodyKey  The resource bundle body key.
-     * @param additionalBodyData Additional data for the body resource bundle.
-     */
-    public void sendSignupWaitingEmail(String userId, CourseSignup signup, String subjectKey, String bodyKey, Object[] additionalBodyData) {
-
-        UserProxy recepient = proxy.findUserById(userId);
-        if (recepient == null) {
-            log.warn("Failed to find user for sending email: "+ userId);
-            return;
-        }
-
-        Person signupUser = signup.getUser();
-        if (signupUser == null) {
-            log.warn("Failed to find the user who made the signup: " + signup.getUser().getId());
-            return;
-        }
-
-        String to = recepient.getEmail();
-        String componentDetails = formatSignup(signup);
-        Object[] baseBodyData = new Object[] {
-                proxy.getCurrentUser().getDisplayName(),
-                componentDetails,
-                signup.getGroup().getTitle(),
-                signupUser.getName(),
-                (null == signupUser.getDegreeProgram()) ? "unknown" : signupUser.getDegreeProgram()
-        };
-        Object[] bodyData = baseBodyData;
-        if (additionalBodyData != null) {
-            bodyData = new Object[bodyData.length + additionalBodyData.length];
-            System.arraycopy(baseBodyData, 0, bodyData, 0, baseBodyData.length);
-            System.arraycopy(additionalBodyData, 0, bodyData, baseBodyData.length, additionalBodyData.length);
-        }
-        String subject = MessageFormat.format(proxy.getMessage(subjectKey), bodyData);
-        String body = MessageFormat.format(proxy.getMessage(bodyKey), bodyData);
-        proxy.sendEmail(to, subject, body);
-    }
-
-
     // Computer-Aided Formal Verification (Computing Laboratory)
     // - Lectures: 16 lectures for 16 sessions starts in Michaelmas 2010 with Daniel Kroening
 
