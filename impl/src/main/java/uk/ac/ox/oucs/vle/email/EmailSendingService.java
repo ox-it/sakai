@@ -80,12 +80,12 @@ public class EmailSendingService {
 
     /**
      * Generic method for sending out a signup email.
+     *
      * @param userId The ID of the user who the message should be sent to.
      * @param signupDao The signup the message is about.
      * @param subjectKey The resource bundle key for the subject
      * @param bodyKey The resource bundle key for the body.
      * @param additionalBodyData Additional objects used to format the email body. Typically used for the confirm URL.
-     * @param courseSignupService
      */
     public void sendSignupEmail(String userId, CourseSignup signup, String subjectKey,
                                 String bodyKey,
@@ -105,11 +105,11 @@ public class EmailSendingService {
         String to = recepient.getEmail();
         String componentDetails = formatSignup(signup);
         Object[] baseBodyData = new Object[] {
-                proxy.getCurrentUser().getDisplayName(),
-                componentDetails,
-                signup.getGroup().getTitle(),
-                person.getName(),
-                (null == person.getDegreeProgram()) ? "unknown" : person.getDegreeProgram()
+                proxy.getCurrentUser().getDisplayName(), // {0}
+                componentDetails, // {1}
+                signup.getGroup().getTitle(), // {2}
+                person.getName(), // {3}
+                (null == person.getDegreeProgram()) ? "unknown" : person.getDegreeProgram() // {4}
         };
         Object[] data = baseBodyData;
         if (additionalBodyData != null) {
@@ -160,34 +160,35 @@ public class EmailSendingService {
     }
 
     /**
-     *  @param userId
-     * @param signupDao
-     * @param subjectKey
-     * @param bodyKey
-     * @param additionalBodyData
-     * @param courseSignupService
+     * This sends a signup waiting email to an administrator
+     *
+     * @param userId The ID of the administrator.
+     * @param signup The waiting signup.
+     * @param subjectKey The resource bundle subject key.
+     * @param bodyKey  The resource bundle body key.
+     * @param additionalBodyData Additional data for the body resource bundle.
      */
     public void sendSignupWaitingEmail(String userId, CourseSignup signup, String subjectKey, String bodyKey, Object[] additionalBodyData) {
 
-        UserProxy recepient = proxy.findUserById(signup.getUser().getId());
+        UserProxy recepient = proxy.findUserById(userId);
         if (recepient == null) {
-            log.warn("Failed to find the user who made the signup: " + signup.getUser().getId());
-            return;
-        }
-        UserProxy signupUser = proxy.findUserById(userId);
-        if (signupUser == null) {
             log.warn("Failed to find user for sending email: "+ userId);
             return;
         }
 
+        Person signupUser = signup.getUser();
+        if (signupUser == null) {
+            log.warn("Failed to find the user who made the signup: " + signup.getUser().getId());
+            return;
+        }
+
         String to = recepient.getEmail();
-        String subject = MessageFormat.format(proxy.getMessage(subjectKey), new Object[]{proxy.getCurrentUser().getDisplayName(), signup.getGroup().getTitle(), signupUser.getDisplayName()});
         String componentDetails = formatSignup(signup);
         Object[] baseBodyData = new Object[] {
                 proxy.getCurrentUser().getDisplayName(),
                 componentDetails,
                 signup.getGroup().getTitle(),
-                signupUser.getDisplayName(),
+                signupUser.getName(),
                 (null == signupUser.getDegreeProgram()) ? "unknown" : signupUser.getDegreeProgram()
         };
         Object[] bodyData = baseBodyData;
@@ -196,6 +197,7 @@ public class EmailSendingService {
             System.arraycopy(baseBodyData, 0, bodyData, 0, baseBodyData.length);
             System.arraycopy(additionalBodyData, 0, bodyData, baseBodyData.length, additionalBodyData.length);
         }
+        String subject = MessageFormat.format(proxy.getMessage(subjectKey), bodyData);
         String body = MessageFormat.format(proxy.getMessage(bodyKey), bodyData);
         proxy.sendEmail(to, subject, body);
     }
@@ -219,7 +221,7 @@ public class EmailSendingService {
         for(CourseComponent component: signup.getComponents()) {
             output.append("  - ");
             output.append(component.getTitle());
-            output.append("for ");
+            output.append(" for ");
             output.append(component.getSessions());
             if (component.getWhen() != null) {
                 output.append(" starts in ");
