@@ -80,12 +80,12 @@ public class EmailSendingService {
 
     /**
      * Generic method for sending out a signup email.
+     *
      * @param userId The ID of the user who the message should be sent to.
      * @param signupDao The signup the message is about.
      * @param subjectKey The resource bundle key for the subject
      * @param bodyKey The resource bundle key for the body.
      * @param additionalBodyData Additional objects used to format the email body. Typically used for the confirm URL.
-     * @param courseSignupService
      */
     public void sendSignupEmail(String userId, CourseSignup signup, String subjectKey,
                                 String bodyKey,
@@ -105,11 +105,11 @@ public class EmailSendingService {
         String to = recepient.getEmail();
         String componentDetails = formatSignup(signup);
         Object[] baseBodyData = new Object[] {
-                proxy.getCurrentUser().getDisplayName(),
-                componentDetails,
-                signup.getGroup().getTitle(),
-                person.getName(),
-                (null == person.getDegreeProgram()) ? "unknown" : person.getDegreeProgram()
+                proxy.getCurrentUser().getDisplayName(), // {0}
+                componentDetails, // {1}
+                signup.getGroup().getTitle(), // {2}
+                person.getName(), // {3}
+                (null == person.getDegreeProgram()) ? "unknown" : person.getDegreeProgram() // {4}
         };
         Object[] data = baseBodyData;
         if (additionalBodyData != null) {
@@ -159,48 +159,6 @@ public class EmailSendingService {
         proxy.sendEmail(to, subject, body);
     }
 
-    /**
-     *  @param userId
-     * @param signupDao
-     * @param subjectKey
-     * @param bodyKey
-     * @param additionalBodyData
-     * @param courseSignupService
-     */
-    public void sendSignupWaitingEmail(String userId, CourseSignup signup, String subjectKey, String bodyKey, Object[] additionalBodyData) {
-
-        UserProxy recepient = proxy.findUserById(signup.getUser().getId());
-        if (recepient == null) {
-            log.warn("Failed to find the user who made the signup: " + signup.getUser().getId());
-            return;
-        }
-        UserProxy signupUser = proxy.findUserById(userId);
-        if (signupUser == null) {
-            log.warn("Failed to find user for sending email: "+ userId);
-            return;
-        }
-
-        String to = recepient.getEmail();
-        String subject = MessageFormat.format(proxy.getMessage(subjectKey), new Object[]{proxy.getCurrentUser().getDisplayName(), signup.getGroup().getTitle(), signupUser.getDisplayName()});
-        String componentDetails = formatSignup(signup);
-        Object[] baseBodyData = new Object[] {
-                proxy.getCurrentUser().getDisplayName(),
-                componentDetails,
-                signup.getGroup().getTitle(),
-                signupUser.getDisplayName(),
-                (null == signupUser.getDegreeProgram()) ? "unknown" : signupUser.getDegreeProgram()
-        };
-        Object[] bodyData = baseBodyData;
-        if (additionalBodyData != null) {
-            bodyData = new Object[bodyData.length + additionalBodyData.length];
-            System.arraycopy(baseBodyData, 0, bodyData, 0, baseBodyData.length);
-            System.arraycopy(additionalBodyData, 0, bodyData, baseBodyData.length, additionalBodyData.length);
-        }
-        String body = MessageFormat.format(proxy.getMessage(bodyKey), bodyData);
-        proxy.sendEmail(to, subject, body);
-    }
-
-
     // Computer-Aided Formal Verification (Computing Laboratory)
     // - Lectures: 16 lectures for 16 sessions starts in Michaelmas 2010 with Daniel Kroening
 
@@ -219,7 +177,7 @@ public class EmailSendingService {
         for(CourseComponent component: signup.getComponents()) {
             output.append("  - ");
             output.append(component.getTitle());
-            output.append("for ");
+            output.append(" for ");
             output.append(component.getSessions());
             if (component.getWhen() != null) {
                 output.append(" starts in ");

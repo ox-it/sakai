@@ -43,8 +43,8 @@ public class FullEmailRuleTest extends EmailRuleBase {
         when(signup.getGroup()).thenReturn(group);
         rule.perform(change);
 
-        verify(emailSendingService).sendSignupWaitingEmail(eq("admin-1"), eq(signup), anyString(), anyString(), any(Object[].class));
-        verify(emailSendingService).sendSignupWaitingEmail(eq("admin-2"), eq(signup), anyString(), anyString(), any(Object[].class));
+        verify(emailSendingService).sendSignupEmail(eq("admin-1"), eq(signup), anyString(), anyString(), any(Object[].class));
+        verify(emailSendingService).sendSignupEmail(eq("admin-2"), eq(signup), anyString(), anyString(), any(Object[].class));
         verify(emailSendingService).sendStudentSignupEmail(eq(signup), anyString(), anyString(), any(Object[].class));
 
     }

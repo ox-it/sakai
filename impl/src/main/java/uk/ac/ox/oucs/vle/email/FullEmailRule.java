@@ -25,7 +25,7 @@ public class FullEmailRule extends EmailRule {
         CourseSignup signup = stateChange.getSignup();
         CourseGroup group = signup.getGroup();
         for (Person administrator : group.getAdministrators()) {
-            service.sendSignupWaitingEmail(
+            service.sendSignupEmail(
                     administrator.getId(), signup,
                     "waiting.admin.subject",
                     "waiting.admin.body",
