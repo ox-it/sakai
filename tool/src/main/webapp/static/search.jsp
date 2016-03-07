@@ -71,6 +71,7 @@
 
 		
 		var loadGroupAjax;
+		var loadSuspendedGroupAjax;
 		var loadGroup = function (groupId, groupName) {
 			var group = {"id": groupId, "name": groupName};
 			var htmlResult = TrimPath.processDOMTemplate("group_jst", {"group": group, "site": siteData});
@@ -86,6 +87,20 @@
 					updateActive();
 				}
 			});
+			// if it's a course group, display the suspended group too
+			jQuery(".suspended_membership").hide();
+			if (groupId.indexOf("ou=course")!=-1){
+				jQuery(".suspended_membership").show();
+				loadSuspendedGroupAjax = jQuery.getJSON(path+ "group/"+ group.id.replace("current", "suspended")+ "/members", {}, function(data, textStatus) {
+					// loading members.
+					if (textStatus == "success") {
+						var htmlResult = TrimPath.processDOMTemplate("suspended_membership_jst", {"suspended_members": data});
+						jQuery(".show-group .suspended_membership").html(htmlResult);
+						setMainFrameHeightNow(frameId);
+						updateActive();
+					}
+				});
+			}
 			jQuery("form.show-group").
 				bind("submit", function(event) {
 					// Remove any error
@@ -371,10 +386,12 @@
 		</p>
 		<table class="roleSelect">
 		{for role in site.roles}
+		{if role.id != 'suspended'}
 		<tr>
 		<td><label for="\${role.id}">\${role.id}</label></td>
 		<td><input id="\${role.id}" type="radio" name="role" value="\${role.id}"></td>
 		</tr>
+		{/if}
 		{/for}
 		</table>
 		<div class="act">
@@ -390,6 +407,12 @@
 			<li>Loading<img class="loader" src="images/ajax-loader.gif"/></li>
 		</ul>
 		</div>
+		<div class="suspended_membership">
+			<h5>Suspended Membership</h5>
+			<ul class="members">
+				<li>Loading<img class="loader" src="images/ajax-loader.gif"/></li>
+			</ul>
+		</div>
 		</form>
 	</textarea>
 	<textarea id="membership_jst">
@@ -400,6 +423,19 @@
 		{/for}
 		</ul>
 	</textarea>
+	{if suspended_members.length > 0}
+		<textarea id="suspended_membership_jst">
+			<p class="step">
+			As well as the members above, these \${suspended_members.length} suspended members will also be added with the <b>suspended</b> role.
+			</p>
+			<h5>Suspended Membership (# \${suspended_members.length})</h5>
+			<ul class="members">
+				{for member in suspended_members}
+				<li>\${member.name} <span class="username">(\${member.username})</span></li>
+				{/for}
+			</ul>
+		</textarea>
+	{/if}
 
 </div>
 
