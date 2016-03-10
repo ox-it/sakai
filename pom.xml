@@ -74,9 +74,6 @@
 					<configuration>
 						<licenseName>ecl_v2</licenseName>
 						<licenseResolver>classpath://org/sakaiproject</licenseResolver>
-						<extraExtensions>
-							<sql>mysql</sql>
-						</extraExtensions>
 						<addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
 					</configuration>
 					<dependencies>
