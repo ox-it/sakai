@@ -26,6 +26,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -156,8 +157,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 			}
 		} else {
 			// Only do the hashing for the DB.
-			String hash = hash(lookup);
-			PortalPersistentNode portalPersistentNode = dao.findByPathHash(hash);
+			// Once we've updated all the entries in the DB we can revert to using the single hash lookup
+			PortalPersistentNode portalPersistentNode = dao.findByPathHash(hash(lookup), sha1(lookup));
 			if (portalPersistentNode != null) {
 				// This might already be cached.
 				idToNodeCache.put(toRef(portalPersistentNode.getId()), portalPersistentNode);
@@ -402,7 +403,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		portalNode.setId(node.id);
 		portalNode.setName(childName);
 		portalNode.setPath(childPath);
-		portalNode.setPathHash(hash(childPath));
+		portalNode.setPathHash(sha1(childPath));
 
 		if (siteId != null) {
 			portalNode.setSiteId(siteId);
@@ -477,11 +478,12 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 ;
 
 	/**
-	 * create a hash of the path
+	 * Create a hash of the path.
 	 *
-	 * @param nodePath
-	 * @return
-	 * @throws NoSuchAlgorithmException
+	 * @param nodePath The path to hash.
+	 * @deprecated This method generates a non-standard SHA1 which makes updates difficult
+	 * @return A hash of the path.
+	 * @throws RuntimeException If the SHA1 algorith
 	 */
 	public static String hash(String nodePath)
 	{
@@ -493,7 +495,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 			}
 			catch (NoSuchAlgorithmException e)
 			{
-				log.error("Cant find Hash Algorithm ",e);
+				throw new RuntimeException("Can't find SHA1", e);
 			}
 			digest.set(mdigest);
 		}
@@ -507,6 +509,42 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		String encoded =  new String(c);
 		log.debug("Encoded "+nodePath+" as "+encoded);
 		return encoded;
+	}
+
+	/**
+	 * This creates a SHA1 hash (hex encoded string) of a string. This produces hashes in the same way as MySQL
+	 * so that updates can more easily be done.
+	 * @param nodePath  The path to hash
+	 * @return The SHA1 hash.
+	 * @throws RuntimeException If SHA1 can't be found or UTF-8 can't be found.
+     */
+	public static String sha1(String nodePath)
+	{
+		MessageDigest mdigest  = digest.get();
+		if ( mdigest == null ) {
+			try
+			{
+				mdigest = MessageDigest.getInstance("SHA1");
+			}
+			catch (NoSuchAlgorithmException e)
+			{
+				throw new RuntimeException("Can't find SHA1", e);
+			}
+			digest.set(mdigest);
+		}
+		try {
+			byte[] b = mdigest.digest(nodePath.getBytes("UTF-8"));
+			char[] c = new char[b.length * 2];
+			for (int i = 0; i < b.length; i++)
+			{
+				c[i * 2] = encode[(b[i]>>4)&0x0f];
+				c[i * 2 + 1] = encode[b[i]&0x0f];
+			}
+			String encoded =  new String(c);
+			return encoded.toLowerCase();
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("UTF-8 is not a valid encoding", e);
+		}
 	}
 
 	public void setDao(PortalPersistentNodeDao dao) {
@@ -588,7 +626,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 			portalNode.setSiteId("!gateway");
 			portalNode.setManagementSiteId("!hierarchy");
 			portalNode.setPath("/");
-			portalNode.setPathHash(hash("/"));
+			portalNode.setPathHash(sha1("/"));
 			dao.save(portalNode);
 		}
 	}
