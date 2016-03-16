@@ -64,6 +64,16 @@ public class PortalPersistentNodeDaoHibernate extends HibernateDaoSupport implem
 						pathHash));
 	}
 
+	@Override
+	public PortalPersistentNode findByPathHash(String oldHash, String newHash){
+		return (PortalPersistentNode) justFirst(getHibernateTemplate()
+				.find(
+						"from org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNode as node " +
+								"where node.pathHash = ? or node.pathHash = ?",
+						oldHash, newHash));
+	}
+
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<PortalPersistentNode> findBySiteId(String siteId) {
