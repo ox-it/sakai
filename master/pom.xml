@@ -1849,7 +1849,7 @@
         <artifactId>sakai</artifactId>
         <extensions>true</extensions>
         <configuration>
-          <deployDirectory>${maven.tomcat.home}</deployDirectory>
+          <deployDirectory>${master.directory}/../docker/sakai/tomcat</deployDirectory>
           <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
         </configuration>
       </plugin>
@@ -1924,6 +1924,29 @@
         <inherited>true</inherited>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
+      </plugin>
+      <!-- This plugin locates the top of the build directory -->
+      <plugin>
+        <groupId>org.commonjava.maven.plugins</groupId>
+        <artifactId>directory-maven-plugin</artifactId>
+        <version>0.1</version>
+        <executions>
+          <execution>
+            <id>directories</id>
+            <goals>
+              <goal>directory-of</goal>
+            </goals>
+            <phase>initialize</phase>
+            <configuration>
+              <property>master.directory</property>
+              <project>
+                <!-- We have to use the master project as most things don't depend on the toplevel POM -->
+                <groupId>org.sakaiproject</groupId>
+                <artifactId>master</artifactId>
+              </project>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
 
