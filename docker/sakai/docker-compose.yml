@@ -1,0 +1,29 @@
+#
+app:
+  extends:
+    file: common.yml
+    service: app
+  image: buckett/sakai-tomcat
+
+  # Not too sure about this as there seem to be IO errors with using volumes like
+  # this, eg corrupt files and missing files.
+  # We use the sakai.properties from the production build
+  volumes:
+   - ./tomcat/lib:/opt/tomcat/sakai-lib
+   - ./tomcat/components:/opt/tomcat/components
+   - ./tomcat/webapps:/opt/tomcat/webapps
+   - ./placeholder.properties:/opt/tomcat/sakai/placeholder.properties
+   - ./sakai.quartz.properties:/opt/tomcat/sakai/sakai.quartz.properties
+   - ./log4j.properties:/opt/tomcat/sakai/log4j.properties
+   - ./local.properties:/opt/tomcat/sakai/local.properties
+  command: /opt/tomcat/bin/catalina.sh jpda run
+  environment:
+   # In development this means we can read files without anything special
+   SAKAI_USER: root
+  links:
+   - db
+
+db:
+  extends:
+    file: common.yml
+    service: db
