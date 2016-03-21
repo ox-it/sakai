@@ -3,7 +3,7 @@ app:
   extends:
     file: common.yml
     service: app
-  image: buckett/sakai-tomcat
+  build: ../tomcat
 
   # Not too sure about this as there seem to be IO errors with using volumes like
   # this, eg corrupt files and missing files.
@@ -27,3 +27,18 @@ db:
   extends:
     file: common.yml
     service: db
+
+web:
+  build: ../apache
+  environment:
+    SERVERNAME:
+  volumes:
+   - ./webauth-keytab:/opt/files/webauth-keytab
+   - ./ssl-private.key:/opt/files/ssl-private
+   - ./ssl-public.crt:/opt/files/ssl-public
+   - ./ssl-chain.crt:/opt/files/ssl-chain
+  ports:
+   - "80"
+   - "443"
+  links:
+   - app
