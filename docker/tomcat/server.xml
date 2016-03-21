@@ -37,9 +37,7 @@
     <!-- -Dcatalina.listen is passed to the JVM -->
     <Connector port="8080" protocol="HTTP/1.1" connectionTimeout="20000" redirectPort="8443" URIEncoding="UTF-8" address="${catalina.listen}"/>
 
-    <!--
     <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" URIEncoding="UTF-8" tomcatAuthentication="false" maxThreads="500" connectionTimeout="60000" enableLookups="false" address="${catalina.listen}"/>
-      -->
 
     <Engine name="Catalina" defaultHost="localhost">
 
