@@ -1,0 +1,78 @@
+# Point to the Oxford Webauth service
+<IfModule webauth_module>
+WebAuthLoginURL https://webauth.ox.ac.uk/login
+WebAuthWebKdcURL https://webauth.ox.ac.uk/webkdc-service/
+WebAuthWebKdcPrincipal service/webkdc@OX.AC.UK
+</IfModule>
+
+# Useful for debugging setups
+# LogLevel Debug
+
+# This needs a host called app which we talk to over AJP
+<VirtualHost *:80>
+        <Proxy *>
+                AddDefaultCharset Off
+                Order deny,allow
+                Allow from all
+        </Proxy>
+
+	<IfModule webauth_module>
+        WebAuthRequireSSL off
+
+        <LocationMatch "^/sakai-login-tool/container$">
+                WebAuthExtraRedirect on
+                AuthType WebAuth
+                Require valid-user
+                WebAuthVarPrefix AJP_
+        </LocationMatch>
+
+        <Location /sakai-login-tool/container/logout>
+                WebAuthDoLogout on
+        </Location>
+        </IfModule>
+
+        # Always retry connections to the worker.
+        ProxyPass / balancer://sakai/
+        ProxyPassReverse / balancer://sakai/
+        # If a balancer isn't used it can just connect to one app server
+        #ProxyPass / ajp://app:8009/ retry=0
+        #ProxyPassReverse / ajp://app:8009/
+
+</VirtualHost>
+<IfModule ssl_module>
+<VirtualHost *:443>
+
+    SSLEngine on
+    SSLCertificateFile      /etc/ssl/certs/ssl-public.crt
+    SSLCertificateKeyFile   /etc/ssl/private/ssl-private.key
+    SSLCertificateChainFile /etc/ssl/certs/ssl-chain.crt.pem
+    ServerName example
+
+        <Proxy *>
+                AddDefaultCharset Off
+                Order deny,allow
+                Allow from all
+        </Proxy>
+
+	<IfModule webauth_module>
+        <LocationMatch "^/sakai-login-tool/container$">
+                WebAuthExtraRedirect on
+                AuthType WebAuth
+                Require valid-user
+                WebAuthVarPrefix AJP_
+        </LocationMatch>
+
+        <Location /sakai-login-tool/container/logout>
+                WebAuthDoLogout on
+        </Location>
+	</IfModule>
+
+        # Always retry connections to the worker.
+        ProxyPass / balancer://sakai/
+        ProxyPassReverse / balancer://sakai/
+        # If a balancer isn't used it can just connect to one app server
+        #ProxyPass / ajp://app:8009/ retry=0
+        #ProxyPassReverse / ajp://app:8009/
+
+</VirtualHost>
+</IfModule>
