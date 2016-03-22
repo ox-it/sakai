@@ -1931,23 +1931,16 @@
         <groupId>org.commonjava.maven.plugins</groupId>
         <artifactId>directory-maven-plugin</artifactId>
         <version>0.1</version>
-        <executions>
-          <execution>
-            <id>directories</id>
-            <goals>
-              <goal>directory-of</goal>
-            </goals>
-            <phase>initialize</phase>
-            <configuration>
-              <property>master.directory</property>
-              <project>
-                <!-- We have to use the master project as most things don't depend on the toplevel POM -->
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>master</artifactId>
-              </project>
-            </configuration>
-          </execution>
-        </executions>
+        <!-- Having this bind to a phase is confusing because it means that sometimes it deploys to the correct
+             directory and sometimes it doesn't. It's simpler to just require it to always be run. -->
+        <configuration>
+          <property>master.directory</property>
+          <project>
+            <!-- We have to use the master project as most things don't depend on the toplevel POM -->
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>master</artifactId>
+          </project>
+        </configuration>
       </plugin>
     </plugins>
 
