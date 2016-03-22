@@ -1917,7 +1917,8 @@
             <test.sakai.home>${test.sakai.home}</test.sakai.home>
           </systemPropertyVariables>
           <!-- This is to stop it stealing focus on developer machines (OSX) -->
-          <argLine>-Djava.awt.headless=true</argLine>
+          <!-- The random source it to stop builds stalling on VMs with poor sources of random -->
+          <argLine>-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom</argLine>
         </configuration>
       </plugin>
       <plugin>
