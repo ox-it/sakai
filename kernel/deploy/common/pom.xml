@@ -63,6 +63,9 @@
            but if you build with the mysql profile active then the JAR will get downloaded and deployed into
            tomcat without you having to copy it seperately. -->
       <id>mysql</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
       <dependencies>
         <dependency>
           <groupId>mysql</groupId>
