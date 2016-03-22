@@ -1,14 +1,11 @@
-# fig file
+# docker-compose file
 # This sets up WebLearn(Sakai) for a developer, so it runs with the debugger enabled and shouldn't allocate as much
 # resources as we use in production.
 # It exposes the webserver publicly, but all the developer services (mysql, debug port, jmx) just on localhost.
 #
 app:
-  #build: ../tomcat
   # If you want to test the production image swap the previous line with this one.
-  #image: sakaiproject/sakai
-
-
+  image: oxit/sakai:11.x
 
   # Not too sure about this as there seem to be IO errors with using volumes like
   # this, eg corrupt files and missing files.
@@ -44,3 +41,16 @@ db:
   # We expose the port so that clients outside docker can connect
   ports:
    - "127.0.0.1:3306:3306"
+
+web:
+  build: ../apache
+  environment:
+    SERVERNAME:
+  volumes:
+   - ./webauth-keytab:/opt/files/webauth-keytab
+   - ./ssl-private.key:/opt/files/ssl-private
+   - ./ssl-public.crt:/opt/files/ssl-public
+   - ./ssl-chain.crt:/opt/files/ssl-chain
+  ports:
+   - "80"
+   - "443"

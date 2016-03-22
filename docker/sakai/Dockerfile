@@ -2,7 +2,13 @@
 # It copies a build of Sakai ontop of the sakai tomcat
 #
 
-FROM buckett/sakai-tomcat
+FROM oxit/sakai:11.x
+
+# Sysdev need to have k5start inside the image so that we can access the afs mount point
+RUN \
+  apt-get update && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y openafs-krb5 kstart && \
+  rm -rf /var/lib/apt/lists/*
 
 # Copy all the files in
 COPY tomcat/components /opt/tomcat/components/
