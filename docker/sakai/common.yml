@@ -14,12 +14,8 @@ app:
    - /opt/tomcat/sakai/files
    - /opt/tomcat/sakai/deleted
   command: /opt/tomcat/bin/catalina.sh jpda run
-
-  ports:
-   - "127.0.0.1:8000:8000"
-   - "127.0.0.1:8009:8009"
-   - "127.0.0.1:5400:5400"
-   - "127.0.0.1:8025:8025"
+  expose:
+   - "8009"
 
 # We're using our own image so that we can set the default character encoding.
 # The standard MySQL image doesn't allow this.
@@ -34,9 +30,6 @@ db:
     MYSQL_DATABASE: sakai
   command:
    - --character-set-server=utf8
-  # We expose the port so that clients outside docker can connect
-  ports:
-   - "127.0.0.1:3306:3306"
 
 web:
   build: ../apache
