@@ -24,6 +24,21 @@ app:
     service: app
   image: $image_tag
 
+  volumes:
+   - ./test.properties:/opt/tomcat/sakai/local.properties
+   - ./sakai-keytab:/opt/tomcat/sakai/sakai-keytab
+   - /opt/tomcat/sakai/files
+   - /opt/tomcat/sakai/deleted
+   - ./logs:/opt/tomcat/logs
+  environment:
+   # Blank value gets copied through from local enviroment
+   SENTRY_DSN:
+   RABBITMQ_URL:
+   CATALINA_JMX_PORT: 5401
+
+  external_links:
+   - mailcatcher
+
   command: /opt/tomcat/bin/catalina.sh run
   links:
    - db
