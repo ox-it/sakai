@@ -8,17 +8,21 @@ set -e
 (
 echo '<Proxy balancer://sakai>'
 echo ProxySet lbmethod=byrequests stickysession=JSESSIONID nofailover=on
-app_servers=$(printenv | sed -n 's/^APP_.*_PORT_8009_TCP_ADDR=//p')
-echo App Servers: $app_servers >&2
-for app_server in $app_servers
+# In docker-compose v2 file format there's no nice way to find all the linked containers so we just jump through all the
+# IDs until we find one that isn't there.
+# https://github.com/jwilder/docker-gen - This looks to be a better way to generate config
+count=1
+while true
 do
+  app_server=app_${count}
   # Look for the hostname which is used in routing
   if route=$(getent hosts ${app_server} | tr '[:space:]' '\n'| grep '^[0-9a-z]\{12\}$') ; then 
     echo BalancerMember ajp://${app_server}:8009 retry=0 route=$route
   else
     echo Failed to find the ID of app server $app_server >&2
-    exit 1
+    break;
   fi
+  count=$(($count + 1))
 done
 echo '</Proxy>'
 ) > /etc/apache2/conf-available/sakai-balancer.conf

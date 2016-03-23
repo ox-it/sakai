@@ -32,8 +32,6 @@ db:
   extends:
     file: common.yml
     service: db
-  expose:
-   - "8009"
 
 web:
   extends:
