@@ -52,4 +52,6 @@ web:
   extends:
     file: common.yml
     service: web
+  links:
+   - app
 EOF
