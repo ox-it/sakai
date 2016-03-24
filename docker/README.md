@@ -90,6 +90,27 @@ To configure Sakai we have the following files, the order listed is the order th
  - `sakai/local.properties` Here you can put local configuration for configuration you are testing out (before putting in placeholder.properties). In production this is also where the DB configuration is put.
  - security.properties In production this contains the passwords for the services we connect to (DB, Turnitin, etc)
 
+
+Errors
+======
+
+If you get an error message when you try to bring up the containers along the lines of:
+```
+docker-compose up
+Recreating sakai_db_1...
+Creating sakai_app_1...
+Pulling image oxit/sakai:11.x...
+Pulling repository docker.io/oxit/sakai
+[..snipped..]
+compose.progress_stream.StreamOutputError: Error: image oxit/sakai:11.x not found
+```
+then you need to login to the docker hub to get the image. You can do this with:
+```
+docker login
+```
+and then just attempt to start it up again.
+
+
 Notes
 =====
 
