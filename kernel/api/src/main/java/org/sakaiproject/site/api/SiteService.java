@@ -89,6 +89,9 @@ public interface SiteService extends EntityProducer
 	
 	/** Name for the event of adding a user's My Workspace site. */
 	static final String SECURE_ADD_USER_SITE = "site.add.usersite";
+	
+ 	/** Name for the event of adding a site with a managed realm. */
+ 	static final String SECURE_ADD_SITE_MANAGED = "site.add.managed";
 
 	/** Name for the event of removing a site. */
 	static final String SECURE_REMOVE_SITE = "site.del";
@@ -555,6 +558,29 @@ public interface SiteService extends EntityProducer
 	 * @return
 	*/
 	boolean allowImportArchiveSite();
+
+	/**
+	 * Is the user allowed to add a managed site.
+	 * @return <code>true</code> is the user can add a managed site.
+	 */
+	boolean allowAddManagedSite();
+
+	/**
+	 * Add a new site. The site will exist with just an id once done, so remove() it if you don't want to keep it.
+	 * 
+	 * @param id
+	 *        The site id.
+	 * @param type
+	 *        The site type.
+	 * @return The new site object.
+	 * @exception IdInvalidException
+	 *            if the site id is invalid.
+	 * @exception IdUsedException
+	 *            if the site id is already used.
+	 * @exception PermissionException
+	 *            if the current user does not have permission to add a site.
+	 */
+	Site addSite(String id, String type, String adminRealm) throws IdInvalidException, IdUsedException, PermissionException;
 
 	/**
 	 * Add a new site. The site will exist with just an id once done, so remove() it if you don't want to keep it.
