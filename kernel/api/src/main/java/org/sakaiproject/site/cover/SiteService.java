@@ -236,7 +236,7 @@ public class SiteService
 		org.sakaiproject.site.api.SiteService service = getInstance();
 		if (service == null) return false;
 
-		return service.allowAddPortfolioSite();		
+		return service.allowAddPortfolioSite();
 	}
 
 	public static boolean allowImportArchiveSite() {
@@ -246,6 +246,34 @@ public class SiteService
 		return service.allowImportArchiveSite();
 	}
 	
+	public static boolean allowAddManagedSite()
+	{
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if (service == null) return false;
+
+		return service.allowAddManagedSite();
+	}
+
+	public static org.sakaiproject.site.api.Site addSite(java.lang.String param0, java.lang.String param1, java.lang.String param2)
+				throws org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.IdUsedException,
+				org.sakaiproject.exception.PermissionException
+	{
+			org.sakaiproject.site.api.SiteService service = getInstance();
+			if (service == null) return null;
+
+		return service.addSite(param0, param1, param2);
+	}
+
+	public static org.sakaiproject.site.api.Site addSite(java.lang.String param0, java.lang.String param1)
+	throws org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.IdUsedException,
+	org.sakaiproject.exception.PermissionException
+	{
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if (service == null) return null;
+
+			return service.addSite(param0, param1);
+	}
+
 	public static boolean allowAddProjectSite() {
 		org.sakaiproject.site.api.SiteService service = getInstance();
 		if (service == null) return false;
@@ -253,15 +281,6 @@ public class SiteService
 		return service.allowAddProjectSite();	
 	}
 	
-	public static org.sakaiproject.site.api.Site addSite(java.lang.String param0, java.lang.String param1)
-			throws org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.IdUsedException,
-			org.sakaiproject.exception.PermissionException
-	{
-		org.sakaiproject.site.api.SiteService service = getInstance();
-		if (service == null) return null;
-
-		return service.addSite(param0, param1);
-	}
 
 	public static org.sakaiproject.site.api.Site addSite(java.lang.String param0, org.sakaiproject.site.api.Site param1)
 			throws org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.IdUsedException,
@@ -271,6 +290,16 @@ public class SiteService
 		if (service == null) return null;
 
 		return service.addSite(param0, param1);
+	}
+
+	public static org.sakaiproject.site.api.Site addSite(java.lang.String param0, org.sakaiproject.site.api.Site param1, java.lang.String param2)
+	throws org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.IdUsedException,
+	org.sakaiproject.exception.PermissionException
+	{
+		org.sakaiproject.site.api.SiteService service = getInstance();
+			if (service == null) return null;
+
+		return service.addSite(param0, param1, param2);
 	}
 
 	public static boolean allowRemoveSite(java.lang.String param0)

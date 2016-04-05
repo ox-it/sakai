@@ -27,6 +27,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.*;
+import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
+import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
@@ -408,6 +410,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 * @return the AuthzGroupService collaborator.
 	 */
 	protected abstract AuthzGroupService authzGroupService();
+
+	protected abstract DevolvedSakaiSecurity devolvedSakaiSecurity();
 	
 	/**
 	 * @return the ActiveToolManager collaborator.
@@ -418,6 +422,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 * @return the IdManager collaborator.
 	 */
 	protected abstract IdManager idManager();
+
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -478,6 +483,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			functionManager().registerFunction(SECURE_ADD_SITE);
 			functionManager().registerFunction(SECURE_ADD_USER_SITE);
 			functionManager().registerFunction(SECURE_ADD_PORTFOLIO_SITE);
+			functionManager().registerFunction(SECURE_ADD_SITE_MANAGED);
 			functionManager().registerFunction(SECURE_REMOVE_SITE);
 			functionManager().registerFunction(SECURE_UPDATE_SITE);
 			functionManager().registerFunction(SECURE_VIEW_ROSTER);
@@ -1197,10 +1203,20 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return unlockCheck(SECURE_IMPORT_ARCHIVE, siteReference(null));
 	}
 	
+	public boolean allowAddManagedSite()
+	{
+		return unlockCheck(SECURE_ADD_SITE_MANAGED, siteReference(null));
+	}
+
+	public Site addSite(String id, String type) throws IdInvalidException, IdUsedException, PermissionException
+	{
+		return addSite(id, type, null);
+	}
+
 	/**
 	 * @inheritDoc
 	 */
-	public Site addSite(String id, String type) throws IdInvalidException, IdUsedException, PermissionException
+	public Site addSite(String id, String type, String adminRealm) throws IdInvalidException, IdUsedException, PermissionException
 	{
 		// check for a valid site id
 		if (!Validator.checkResourceId(id)) {
@@ -1215,9 +1231,15 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 		
 		// check security (throws if not permitted)
-		unlock(SECURE_ADD_SITE, siteReference(id));
-		
-		
+ 		if (adminRealm == null)
+ 		{
+ 			unlock(SECURE_ADD_SITE, siteReference(id));
+ 		}
+ 		else 
+ 		{
+ 			unlock(SECURE_ADD_SITE_MANAGED, siteReference(id));
+ 		}
+
 		// SAK-12631
 		if (getSiteTypeStrings("course").contains(type)) {
 			unlock(SECURE_ADD_COURSE_SITE, siteReference(id));
@@ -1249,6 +1271,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 		((BaseSite) site).setEvent(SECURE_ADD_SITE);
 
 		doSave((BaseSite) site, true);
+		if (adminRealm != null)
+		{
+			// Shouldn't have problems setting (would be nice to have a transaction...)
+			devolvedSakaiSecurity().setAdminRealm(site.getReference(), adminRealm);
+		}
 
 		return site;
 	}
@@ -1257,6 +1284,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 * @inheritDoc
 	 */
 	public Site addSite(String id, Site other) throws IdInvalidException, IdUsedException, PermissionException
+	{
+		return addSite(id, other, null);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public Site addSite(String id, Site other, String adminRealm) throws IdInvalidException, IdUsedException, PermissionException
 	{
 		// check for a valid site id
 		if (!Validator.checkResourceId(id)) {
@@ -1270,9 +1305,13 @@ public abstract class BaseSiteService implements SiteService, Observer
 		{
 			unlock(SECURE_ADD_USER_SITE, siteReference(id));
 		}
-		else
+		else if (adminRealm == null)
 		{
 			unlock(SECURE_ADD_SITE, siteReference(id));
+		}
+		else
+		{
+			unlock(SECURE_ADD_SITE_MANAGED, siteReference(id));
 		}
 		
 		// SAK=12631
@@ -1327,6 +1366,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 		((BaseSite) site).setEvent(SECURE_ADD_SITE);
 
 		doSave((BaseSite) site, true);
+		if (adminRealm != null) 
+		{
+			// Shouldn't have problems setting (would be nice to have a transaction...)
+			devolvedSakaiSecurity().setAdminRealm(site.getReference(), adminRealm);
+		}
 
 		return site;
 	}

@@ -11,7 +11,7 @@
 
 	<bean id="org.sakaiproject.authz.api.AuthzGroupService"
 			class="org.sakaiproject.authz.impl.DbAuthzGroupService"
-			init-method="init"
+			init-method="init"	
 			destroy-method="destroy">
 
 		<lookup-method name="sqlService" bean="org.sakaiproject.db.api.SqlService" />
@@ -39,7 +39,7 @@
 	</bean>
 
 	<bean id="org.sakaiproject.authz.api.SecurityService"
-			class="org.sakaiproject.authz.impl.SakaiSecurity"
+			class="org.sakaiproject.authz.impl.DevolvedSakaiSecurityImpl"
 			init-method="init"
 			destroy-method="destroy">
 
@@ -49,11 +49,51 @@
  		<lookup-method name="memoryService" bean="org.sakaiproject.memory.api.MemoryService" />
  		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />
 		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
+		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService" />
 		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
 		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService"/>
     <lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
 
   		<property name="cacheMinutes"><value>5</value></property>
+
+		<lookup-method name="dao" bean="org.sakaiproject.authz.impl.DevolvedAdminDao" />
+		<property name="adminSiteType"><value>admin</value></property>
+	</bean>
+
+	<alias name="org.sakaiproject.authz.api.SecurityService"
+		alias="org.sakaiproject.authz.api.DevolvedSakaiSecurity"/>
+
+	<bean
+		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+			<list>
+				<value>
+					org/sakaiproject/authz/hbm/DevolvedAdmin.hbm.xml
+				</value>
+			</list>
+		</property>
+	</bean>
+	<!-- Wrap up our Dao in a transaction layer. -->
+	<bean id="org.sakaiproject.authz.impl.DevolvedAdminDao"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref
+				bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="target">
+			<bean
+				class="org.sakaiproject.authz.impl.DevolvedAdminDaoImpl">
+				<property name="sessionFactory">
+					<ref
+						bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+				</property>
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
 	</bean>
 
 	<bean id="org.sakaiproject.authz.api.FunctionManager"
@@ -61,5 +101,27 @@
 			init-method="init"
 			destroy-method="destroy">
 	</bean>
+
+	<!--  Bean to create some content after component manager starts up but before Sakai is available. -->
+	<bean class="org.sakaiproject.authz.impl.DevolvedSakaiSecuritySetup">
+		<property name="siteId"><value>test-admin</value></property>
+		<property name="autoDDL"><value>${auto.ddl}</value></property>
+		<property name="siteService">
+			<ref bean="org.sakaiproject.site.api.SiteService"/>
+		</property>
+		<property name="usageSessionService">
+			<ref bean="org.sakaiproject.event.api.UsageSessionService"/>
+		</property>
+		<property name="securityService">
+			<ref bean="org.sakaiproject.authz.api.SecurityService"/>
+		</property>
+		<property name="sessionManager">
+			<ref bean="org.sakaiproject.tool.api.SessionManager"/>
+		</property>
+		<property name="activeToolManager">
+			<ref bean="org.sakaiproject.tool.api.ActiveToolManager"/>
+		</property>
+	</bean>
+
 
 </beans>
