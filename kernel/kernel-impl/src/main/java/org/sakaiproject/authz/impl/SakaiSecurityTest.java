@@ -23,6 +23,7 @@ package org.sakaiproject.authz.impl;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.TwoFactorAuthentication;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.MemoryService;
@@ -42,6 +43,14 @@ public class SakaiSecurityTest extends SakaiSecurity
 	 * @return the ThreadLocalManager collaborator.
 	 */
 	protected ThreadLocalManager threadLocalManager()
+	{
+		return null;
+	}
+
+	/**
+	 * @return the TwoFactorAuthenticator collaborator.
+	 */
+	protected TwoFactorAuthentication twoFactorAuthentication()
 	{
 		return null;
 	}
