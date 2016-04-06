@@ -260,5 +260,11 @@
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
+        <property name="interceptorRegistry" ref="org.sakaiproject.content.api.ContentCopyInterceptorRegistry" />
 	</bean>
+
+    <bean id="org.sakaiproject.content.api.ContentCopyInterceptorRegistry" class="org.sakaiproject.content.impl.ContentCopyInterceptorRegistryImpl" />
+    <bean id="org.sakaiproject.content.impl.ContentCopySiteIdInterceptor" class="org.sakaiproject.content.impl.ContentCopySiteIdInterceptor" init-method="init">
+        <property name="interceptorRegistry" ref="org.sakaiproject.content.api.ContentCopyInterceptorRegistry" />
+    </bean>
 </beans>
