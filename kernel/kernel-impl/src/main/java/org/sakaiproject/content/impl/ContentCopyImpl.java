@@ -218,13 +218,15 @@ public class ContentCopyImpl implements ContentCopy {
 				newCollection.setAvailability(resource.isHidden(), resource.getReleaseDate(), resource.getRetractDate());
 				hideImportedContent(newCollection);
 
-				// Copy the permissions accross
+				// Copy the permissions across
 				try{
 					AuthzGroup oldRealm = ags.getAuthzGroup(resource.getReference());
-					ags.save(ags.newAuthzGroup(newCollectionId, oldRealm, null));
+					ags.addAuthzGroup(newCollection.getReference(), oldRealm, null);
 				} catch (GroupNotDefinedException e) {
 					// do nothing - this case is expected to be common
 				} catch (GroupAlreadyDefinedException e) {
+					log.warn("A realm is already defined for new collection: " + newCollectionId);
+				} catch (GroupIdInvalidException e) {
 					log.warn("A realm is already defined for new collection: " + newCollectionId);
 				} catch (AuthzPermissionException e) {
 					log.warn("Did not have permission to set Realm for the new collection: "+ newCollectionId);
