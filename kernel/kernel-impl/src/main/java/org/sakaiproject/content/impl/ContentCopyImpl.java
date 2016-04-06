@@ -340,23 +340,11 @@ public class ContentCopyImpl implements ContentCopy {
 		try {
 			URI uri = new URI(value);
 			uri = uri.normalize();
-			if ("http".equals(uri.getScheme())
-					|| "https".equals(uri.getScheme())) {
-				if (uri.getHost() != null) {
-					if (servers.contains(uri.getHost())) {
-						// Drop the protocol and the host.
-						uri = new URI(null, null, null, -1, uri.getPath(),
-								uri.getQuery(), uri.getFragment());
-					}
-				}
-			}
-			// Only do replacement on our URLs.
-			if (uri.getHost() == null && uri.getPath() != null) {
+			if (isRelativeUri(uri) || isLocalUri(uri)) {
 				// Need to attempt todo path replacement now.
 				String path = uri.getPath();
 				Matcher matcher = pathPattern.matcher(path);
-				if (matcher.matches()
-						&& context.getOldSiteId().equals(matcher.group(1))) {
+				if (matcher.matches() && context.getOldSiteId().equals(matcher.group(1))) {
 					// Need to push the old URL onto the list of resources to
 					// process.
 					addPath(context, path);
@@ -389,7 +377,28 @@ public class ContentCopyImpl implements ContentCopy {
 		return value;
 	}
 
-	/**
+    /**
+     * Checks whether an URI is local to the current server (and is in https or http) or not.
+     *
+     * @param uri URI to check
+     * @return true if the hostname in the URI is the current server and if the protocol is HTTP or HTTPS
+     */
+    private boolean isLocalUri(URI uri) {
+        return (("http".equals(uri.getScheme()) || "https".equals(uri.getScheme()))
+                && servers.contains(uri.getHost()));
+    }
+
+    /**
+     * Checks whether an URI is relative or not.
+     *
+     * @param uri URI to check
+     * @return true if the URI is relative (no hostname but a path is provided), false otherwise
+     */
+    private boolean isRelativeUri(URI uri) {
+        return (uri.getHost() == null && uri.getPath() != null);
+    }
+
+    /**
 	 * Small helper method which adds a content hosting ID to the list of ones
 	 * to be processed based on the web URL of the resource.
 	 */
