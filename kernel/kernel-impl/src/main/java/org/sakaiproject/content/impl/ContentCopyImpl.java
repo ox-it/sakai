@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.*;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -39,6 +40,8 @@ public class ContentCopyImpl implements ContentCopy {
 	private ContentHostingService chs;
 
 	private ServerConfigurationService scs;
+
+	private AuthzGroupService ags;
 
     private ContentCopyInterceptorRegistry interceptorRegistry;
 
@@ -87,7 +90,11 @@ public class ContentCopyImpl implements ContentCopy {
 	public void setServerConfigurationService(ServerConfigurationService scs) {
 		this.scs = scs;
 	}
-	
+
+	public void setAuthzGroupService(AuthzGroupService ags) {
+		this.ags = ags;
+	}
+
 	public void setIdManager(IdManager idManager) {
 		this.idManager = idManager;
 	}
@@ -210,6 +217,19 @@ public class ContentCopyImpl implements ContentCopy {
 				// Copy across the availability information
 				newCollection.setAvailability(resource.isHidden(), resource.getReleaseDate(), resource.getRetractDate());
 				hideImportedContent(newCollection);
+
+				// Copy the permissions accross
+				try{
+					AuthzGroup oldRealm = ags.getAuthzGroup(resource.getReference());
+					ags.save(ags.newAuthzGroup(newCollectionId, oldRealm, null));
+				} catch (GroupNotDefinedException e) {
+					// do nothing - this case is expected to be common
+				} catch (GroupAlreadyDefinedException e) {
+					log.warn("A realm is already defined for new collection: " + newCollectionId);
+				} catch (AuthzPermissionException e) {
+					log.warn("Did not have permission to set Realm for the new collection: "+ newCollectionId);
+				}
+
 				chs.commitCollection(newCollection);
 				context.logCopy(collectionId, newCollectionId);
 			} catch (PermissionException e) {
