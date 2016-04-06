@@ -123,6 +123,11 @@ public class ContentCopyImpl implements ContentCopy {
 
 			ContentResource resource = chs.getResource(resourceId);
 
+			if("org.sakaiproject.citation.impl.CitationList".equals(resource.getResourceType())) {
+				// reading lists do not currently get copied so for now we will disable it
+				return;
+			}
+
 			String siteCollectionId = getSiteCollection(resourceId);
 			String newResourceId = "/group/" + context.getNewSiteId() + "/"
 					+ resourceId.substring(siteCollectionId.length());
