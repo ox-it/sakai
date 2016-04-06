@@ -102,7 +102,7 @@ public class TwoFactorAuthenticationImpl implements TwoFactorAuthentication {
 			return findSiteId(ref);
 		}
 
-		log.debug("isTwoFactorRequired [false]");
+		log.trace("isTwoFactorRequired [false]");
 		return false;
 	}
 
@@ -152,22 +152,25 @@ public class TwoFactorAuthenticationImpl implements TwoFactorAuthentication {
 	private boolean isSiteTwoFactor(String siteId, String ref) {
 		// We have this check because getSite() makes a call to unlock so we only check
 		// on sites that already exist.
-		if (siteService.siteExists(siteId)) {
-			try {
-				Site site = siteService.getSite(siteId);
-				if (siteType.equals(site.getType())) {
-					log.debug("isTwoFactorRequired [true]");
-					return true;
+		if (siteId != null) {
+			if (siteService.siteExists(siteId)) {
+				try {
+					Site site = siteService.getSite(siteId);
+					if (siteType.equals(site.getType())) {
+						log.trace("isSiteTwoFactor [true]");
+						return true;
+					}
+				} catch (IdUnusedException iue) {
+					// Should only ever happen when someone else deletes the site in anther thread
+					// in-between exist check and getting the site.
 				}
-			} catch (IdUnusedException iue) {
-				// Should only ever happen when someone else deletes the site in anther thread
-				// in-between exist check and getting the site.
-			}
-		} else {
-			if (log.isInfoEnabled()) {
-				log.info("Failed to find site: "+siteId + " for ref: "+ ref);
+			} else {
+				if (log.isInfoEnabled()) {
+					log.debug("Failed to find site: "+siteId + " for ref: "+ ref);
+				}
 			}
 		}
+		log.trace("isSiteTwoFactor [false]");
 		return false;
 	}
 
