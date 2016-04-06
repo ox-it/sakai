@@ -47,9 +47,9 @@ public class ContentCopyTest extends TestCase {
 	public void testEncodingPreserved() {
 		unaltered("<a href='Hello%20World.html'>");
 	}
-	
-	public void testRemovesHost() {
-		updated("<a href='/access/content/group/file.html'>", "<a href='https://weblearn.ox.ac.uk/access/content/group/file.html'>");
+
+	public void testKeepsHost() {
+		updated("<a href='https://weblearn.ox.ac.uk/access/content/group/file.html'>", "<a href='https://weblearn.ox.ac.uk/access/content/group/file.html'>");
 	}
 	
 	public void testUpdatesSiteId() {
