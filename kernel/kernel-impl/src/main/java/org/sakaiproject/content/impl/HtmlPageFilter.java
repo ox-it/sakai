@@ -146,7 +146,6 @@ public class HtmlPageFilter implements ContentFilter {
 
     // Fix for mixed content blocked in Firefox and IE
     // This event is added to every page (through headscripts.js);
-    // we could be more selective about where it is included.
     private String getForcePopupsOnMixedContent() {
 
         String jsTrigger = "";
