@@ -102,18 +102,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.exception.CopyrightException;
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdLengthException;
-import org.sakaiproject.exception.IdUniquenessException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.InconsistentException;
-import org.sakaiproject.exception.OverQuotaException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.exception.*;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
@@ -8193,32 +8182,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			// Now do the copy.
 			m_contentCopy.copyReferences(ctx);
 
+			// Now optionally hide the collection:
 			return ctx.getCopyResults();
 		}
 		return Collections.emptyMap();
-	}
-
-	/**
-	 * Hide imported content -- SAK-23305
-	 * @param edit Object either a ContentResourceEdit or ContentCollectionEdit object
-	 */
-	private void hideImportedContent(ContentEntity edit)
-	{
-		if (m_serverConfigurationService.getBoolean("content.import.hidden", false))
-		{
-			if (edit instanceof GroupAwareEdit) {
-				String containingCollectionId = edit.getContainingCollection().getId();
-				/*
-				 * If this is "reuse content" during worksite setup, the site collection at this time is
-				 * /group/!admin/ for all content including ones in the folders, so count how many "/" in
-				 * the collection ID. If <= 3, then it's a top-level item and needs to be hidden.
-				 */
-				int slashcount = StringUtils.countMatches(containingCollectionId, "/");
-				if (slashcount <= 3) {
-					((GroupAwareEdit) edit).setHidden();
-				}
-			}
-		}
 	}
 
 	/**
