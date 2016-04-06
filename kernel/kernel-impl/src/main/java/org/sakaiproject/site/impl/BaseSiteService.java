@@ -1271,8 +1271,21 @@ public abstract class BaseSiteService implements SiteService, Observer
 		((BaseSite) site).setEvent(SECURE_ADD_SITE);
 
 		doSave((BaseSite) site, true);
+		if (adminRealm != null)
+		{
+			// Shouldn't have problems setting (would be nice to have a transaction...)
+			devolvedSakaiSecurity().setAdminRealm(site.getReference(), adminRealm);
+		}
 
 		return site;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public Site addSite(String id, Site other) throws IdInvalidException, IdUsedException, PermissionException
+	{
+		return addSite(id, other, null);
 	}
 
 	/**
@@ -1292,9 +1305,13 @@ public abstract class BaseSiteService implements SiteService, Observer
 		{
 			unlock(SECURE_ADD_USER_SITE, siteReference(id));
 		}
-		else
+		else if (adminRealm == null)
 		{
 			unlock(SECURE_ADD_SITE, siteReference(id));
+		}
+		else
+		{
+			unlock(SECURE_ADD_SITE_MANAGED, siteReference(id));
 		}
 		
 		// SAK=12631
