@@ -21,4 +21,9 @@
      <import resource="memory-components.xml" />
      <import resource="util-components.xml" />
      <import resource="messagebundle-components.xml" />
+     <bean class="org.sakaiproject.util.LocaleLogger"
+            init-method="init"
+            lazy-init="false" >
+     </bean>
+
 </beans>
