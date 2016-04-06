@@ -1244,6 +1244,13 @@ public interface SiteService extends EntityProducer
 	public List<SiteAdvisor> getSiteAdvisors();
 	
 	/**
+	 * Find an alias for a site. This might use more than the alias service.
+	 * @param siteId The site ID to find an alias for.
+	 * @return The alias, or the siteId if none were found. Must never return <code>null</code>.
+	 */
+	public String lookupSiteAlias(String siteId);
+
+	/**
 	 * check permissions for role swapping capabilites
 	 *
 	 * @param id

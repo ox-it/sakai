@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.*;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
 import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
 import org.sakaiproject.event.api.Event;
@@ -40,6 +41,7 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.*;
+import org.sakaiproject.site.api.SiteAliasProvider;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
@@ -119,6 +121,12 @@ public abstract class BaseSiteService implements SiteService, Observer
         
     /** sfoster9@uwo.ca - A delegate class to contain the join methods **/
     protected JoinSiteDelegate joinSiteDelegate;
+	
+	/** ID of the bean to be used for the site alias provider ID. It's looked up in the component manager. */
+	private String siteAliasProviderId;
+	
+	/** Allows other people to decide how site aliases should be managed.*/
+	protected SiteAliasProvider siteAliasProvider;
 
 	/** SAK-29138 - a site title advisor **/
 	protected SiteTitleAdvisor m_siteTitleAdvisor;
@@ -502,6 +510,15 @@ public abstract class BaseSiteService implements SiteService, Observer
 			
 			// SAK-29138
 			m_siteTitleAdvisor = (SiteTitleAdvisor) ComponentManager.get( SiteTitleAdvisor.class );
+			
+			if (siteAliasProviderId != null && siteAliasProvider == null)
+			{
+				siteAliasProvider = (SiteAliasProvider) ComponentManager.get(siteAliasProviderId);
+				if (siteAliasProvider == null)
+				{
+					M_log.warn("Couldn't find site alias provider: "+ siteAliasProviderId);
+				}
+			}
 		}
 		catch (Exception t)
 		{
@@ -3546,6 +3563,41 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return m_storage;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String lookupSiteAlias(String siteId)
+	{
+		if (siteAliasProvider != null)
+		{
+			String alias = siteAliasProvider.lookupAlias(siteId);
+			return (alias != null)?alias:siteId;
+		}
+		return siteId;
+	}
+
+
+	/**
+	 * Set the Site Alias Provider directly.
+	 * @param siteAliasProvider A SiteAliasProvider.
+	 * @see #setSiteAliasProviderId(String)
+	 */
+	public void setSiteAliasProvider(SiteAliasProvider siteAliasProvider)
+	{
+		this.siteAliasProvider = siteAliasProvider;
+	}
+
+	/**
+	 * Set the ID of the bean to use for the Site Alias Provider. This value is only used when
+	 * {@link #siteAliasProvider} isn't called to set one directly.
+	 * @param siteAliasProviderId An ID to lookup in the component manager for aliasing site IDs.
+	 * @see #setSiteAliasProvider(SiteAliasProvider)
+	 */
+	public void setSiteAliasProviderId(String siteAliasProviderId)
+	{
+		this.siteAliasProviderId = siteAliasProviderId;
+	}
 	/**
 	 * @inheritDoc
 	 */
