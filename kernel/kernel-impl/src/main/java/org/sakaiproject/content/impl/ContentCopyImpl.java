@@ -14,13 +14,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentCollection;
-import org.sakaiproject.content.api.ContentCollectionEdit;
-import org.sakaiproject.content.api.ContentCopy;
-import org.sakaiproject.content.api.ContentCopyContext;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.*;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.*;
 import org.sakaiproject.event.api.NotificationService;
@@ -162,7 +156,8 @@ public class ContentCopyImpl implements ContentCopy {
 				ResourcePropertiesEdit propsEdit = newResource
 						.getPropertiesEdit();
 				propsEdit.clear();
-				propsEdit.addAll(resource.getProperties()); 
+				propsEdit.addAll(resource.getProperties());
+				hideImportedContent(resource);
 				chs.commitResource(newResource, NotificationService.NOTI_NONE);
 				success = true;
 			} catch (PermissionException e) {
@@ -227,6 +222,7 @@ public class ContentCopyImpl implements ContentCopy {
 				propsEdit.addAll(resource.getProperties());
 				// Copy across the availability information
 				newCollection.setAvailability(resource.isHidden(), resource.getReleaseDate(), resource.getRetractDate());
+				hideImportedContent(newCollection);
 				chs.commitCollection(newCollection);
 				context.logCopy(collectionId, newCollectionId);
 			} catch (PermissionException e) {
@@ -254,6 +250,23 @@ public class ContentCopyImpl implements ContentCopy {
 		} catch (PermissionException e) {
 			log.warn("User isn't able to access resource to be copied: "
 					+ collectionId);
+		}
+	}
+	/**
+	 * Hide imported content if it is directly inside the site collection.
+	 * SAK-23305
+	 * @param entity The new entity in the new site.
+	 */
+	protected void hideImportedContent(ContentEntity entity)
+	{
+		if (scs.getBoolean("content.import.hidden", false)) {
+			ContentCollection containingCollection = entity.getContainingCollection();
+			String siteCollection = getSiteCollection(entity.getId());
+			if (containingCollection.equals(siteCollection)) {
+				if (!entity.isHidden() && entity instanceof GroupAwareEntity) {
+					((GroupAwareEdit)entity).setHidden();
+				}
+			}
 		}
 	}
 
@@ -398,7 +411,7 @@ public class ContentCopyImpl implements ContentCopy {
 	 * This just finds the site collection for a resource. It just walks up the
 	 * tree.
 	 * 
-	 * @param resource
+	 * @param resourceId
 	 *            The resource.
 	 * @return The site collection which contains this resource.
 	 */
