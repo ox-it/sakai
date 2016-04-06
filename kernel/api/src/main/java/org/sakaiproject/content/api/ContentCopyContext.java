@@ -41,6 +41,7 @@ public interface ContentCopyContext {
 	
 	/**
 	 * Get all the results of the copy.
+	 * @return This is a map of old resource to new resource.
 	 */
 	public Map<String, String> getCopyResults();
 }
