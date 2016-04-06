@@ -24,6 +24,7 @@ package org.sakaiproject.authz.impl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.*;
+import org.sakaiproject.authz.api.TwoFactorAuthentication;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -106,6 +107,11 @@ public abstract class SakaiSecurity implements SecurityService, Observer
      * @return the SiteService collaborator
      */
     protected abstract SiteService siteService();
+
+	/**
+	 * @return the TwoFactoryAuthenticator collaborator
+	 */
+	protected abstract TwoFactorAuthentication twoFactorAuthentication();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
@@ -572,6 +578,12 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 			return false;
 		}
 
+		// If twofactor is required and this current session doesn't have it deny
+		if (twoFactorAuthentication().isTwoFactorRequired(entityRef) && !twoFactorAuthentication().hasTwoFactor())
+		{
+			return false;
+		}
+
 		// if super, grant
 		if (isSuperUser(userId))
 		{
@@ -588,6 +600,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 				return advice == SecurityAdvisor.SecurityAdvice.ALLOWED;
 			}
 		}
+
 
 		// check with the AuthzGroups appropriate for this entity
 		return checkAuthzGroups(userId, function, entityRef, azgs);

@@ -36,6 +36,9 @@ public interface SessionManager
 	/** Key in the ThreadLocalManager for the case where a session requested was invalid, and we started a new one. */
 	final static String CURRENT_INVALID_SESSION = "sakai:session.was.invalid";
 
+	/** Token for Two Factor Authentication */
+	public final static String TWOFACTORAUTHENTICATION = "TWOFACTORAUTHENTICATION";
+
 	/**
 	 * Access the known session with this id.
 	 * 
