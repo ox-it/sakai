@@ -120,6 +120,17 @@ public class MockSerializableCollectionAcccess implements SerializableCollection
 	{
 		return retractDate;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#getSerializableResourceType()
+	 */
+	public String getSerializableResourceType()
+	{
+		if (null == set_resourceType) {
+			return ResourceType.TYPE_FOLDER;
+		}
+		return set_resourceType;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#setSerializableAccess(org.sakaiproject.content.api.GroupAwareEntity.AccessMode)
