@@ -119,6 +119,12 @@ public class RequestFilter implements Filter
 	 * permenant.
 	 */
 	public static final String CONFIG_UPLOAD_DIR = "upload.dir";
+	/**
+	 * Config parameter to control if we should setup a cookie if one doesn't exist. Useful if you don't want DAV to generate 
+	 * new cookies. Default <code>true</code>.
+	 */
+	public static final String CONFIG_SET_COOKIE = "set.cookie";
+
 	/** System property to control the temporary directory in which to store file uploads. */
 	public static final String SYSTEM_UPLOAD_DIR = "sakai.content.upload.dir";
 	/** Config parameter to set the servlet context for context based session (overriding the servlet's context name). */
@@ -232,13 +238,16 @@ public class RequestFilter implements Filter
     /** The name of the cookie we use to keep sakai session. */                                            
     protected String cookieName = "JSESSIONID";                                                            
                                                                                                               
-    protected String cookieDomain = null; 
+    protected String cookieDomain = null;
+
+	/** Should we attempt to set a new cookie if we create a new session. */
+	protected boolean m_setCookie = true;
 
 	/** Set the HttpOnly attribute on the cookie */
 	protected boolean m_cookieHttpOnly = true;
 
 	protected String m_UACompatible = null;
-            
+
 	protected boolean isLTIProviderAllowed = false;
 	// knl-640
 	private String chsDomain;
@@ -475,7 +484,7 @@ public class RequestFilter implements Filter
 					}
 
 					// Output client cookie if requested to do so
-					if (s != null && req.getAttribute(ATTR_SET_COOKIE) != null) {
+					if (s != null && m_setCookie && req.getAttribute(ATTR_SET_COOKIE) != null) {
 
 						// check for existing cookie
 						String suffix = getCookieSuffix();
@@ -747,6 +756,11 @@ public class RequestFilter implements Filter
 		if (filterConfig.getInitParameter(CONFIG_UPLOAD_ENABLED) != null)
 		{
 			m_uploadEnabled = Boolean.valueOf(filterConfig.getInitParameter(CONFIG_UPLOAD_ENABLED)).booleanValue();
+		}
+
+		if (filterConfig.getInitParameter(CONFIG_SET_COOKIE) != null)
+		{
+			m_setCookie = Boolean.valueOf(filterConfig.getInitParameter(CONFIG_SET_COOKIE)).booleanValue();
 		}
 
 		// get the maximum allowed upload size from the system property - use if not overriden, and also use as the ceiling if that
@@ -1210,7 +1224,7 @@ public class RequestFilter implements Filter
 
 		// if we have a session and had no cookie,
 		// or the cookie was to another session id, set the cookie
-		if ((s != null) && allowSetCookieEarly)
+		if ((s != null) && m_setCookie && allowSetCookieEarly)
 		{
 			// the cookie value we need to use
 			sessionId = s.getId() + DOT + suffix;
