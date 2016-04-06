@@ -54,4 +54,10 @@
 		<!-- property name="propagateExceptions" value="false" / -->
 	</bean>
 
+	<!-- This just logs actual site deletions. -->
+	<bean class="org.sakaiproject.site.impl.SiteRemovalLogger" init-method="init" destroy-method="destroy">
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+	</bean>
+
 </beans>
