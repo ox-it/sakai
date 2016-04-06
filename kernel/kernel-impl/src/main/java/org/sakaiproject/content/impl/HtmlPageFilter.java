@@ -56,10 +56,11 @@ public class HtmlPageFilter implements ContentFilter {
 "    <link href=\"{0}/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
 "    <link href=\"{0}/{1}/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
 "    <script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n" +
+"    <script type=\"text/javascript\" language=\"JavaScript\">{3}</script>\n" +
 "    <style>body '{ padding: 5px !important; }'</style>\n" +
 "  </head>\n" +
 "  <body>\n";
-	
+
 	private String footerTemplate = "\n" +
 "  </body>\n" +
 "</html>\n";
@@ -67,15 +68,15 @@ public class HtmlPageFilter implements ContentFilter {
 	public void setEntityManager(EntityManager entityManager) {
 		this.entityManager = entityManager;
 	}
-	
+
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
 	}
-	
+
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
-	
+
 	public void setHeaderTemplate(String headerTemplate) {
 		this.headerTemplate = headerTemplate;
 	}
@@ -96,12 +97,13 @@ public class HtmlPageFilter implements ContentFilter {
 		Reference contentRef = entityManager.newReference(content.getReference());
 		Reference siteRef = entityManager.newReference("/site/"+ contentRef.getContext());
 		Entity entity = siteRef.getEntity();
-		
+
 		String addHtml = content.getProperties().getProperty(ResourceProperties.PROP_ADD_HTML);
-		
+
 		String skinRepo = getSkinRepo();
 		String siteSkin = getSiteSkin(entity);
-		
+        String forcePopups = getForcePopupsOnMixedContent();
+
 		final boolean detectHtml = addHtml == null || addHtml.equals("auto");
 		String title = getTitle(content);
 
@@ -110,8 +112,10 @@ public class HtmlPageFilter implements ContentFilter {
 			String docType = serverConfigurationService.getString("content.html.doctype", "<!DOCTYPE html>");
 			header.append(docType + "\n");
 		}
-		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title));
+		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title, forcePopups));
         
+		final String footer = footerTemplate;
+
 		return new WrappedContentResource(content, header.toString(), footerTemplate, detectHtml);
 	}
 
@@ -129,7 +133,7 @@ public class HtmlPageFilter implements ContentFilter {
 	}
 
 	private String getSiteSkin(Entity entity) {
-		String siteSkin = serverConfigurationService.getString("skin.default"); 
+		String siteSkin = serverConfigurationService.getString("skin.default");
 		if (entity instanceof Site) {
 			Site site =(Site)entity;
 			if (site.getSkin() != null && site.getSkin().length() > 0) {
@@ -139,5 +143,17 @@ public class HtmlPageFilter implements ContentFilter {
 
 		return siteSkin;
 	}
+
+    // Fix for mixed content blocked in Firefox and IE
+    // This event is added to every page (through headscripts.js);
+    // we could be more selective about where it is included.
+    private String getForcePopupsOnMixedContent() {
+
+        String jsTrigger = "";
+        if (serverConfigurationService.getBoolean("content.mixedContent.forceLinksInNewWindow", true)) {
+            jsTrigger = "forceLinksInNewWindow()";
+        }
+        return jsTrigger;
+    }
 
 }
