@@ -42,6 +42,16 @@ public interface ClusterEventTrackingServiceSql
 	String getMaxEventIdSql();
 
     /**
+	 * returns the sql statement which deletes old events past a point in time.
+	 */
+	String getDeleteOldEventSql();
+
+	/**
+	 * returns the sql statement which inserts olds events into another table.
+	 */
+	String getInsertOldEventSql();
+
+    /**
      * returns the sql statement which counts the number of events in the event table
      */
     String getEventsCountSql();

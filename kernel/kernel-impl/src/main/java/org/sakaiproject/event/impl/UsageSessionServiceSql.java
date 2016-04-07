@@ -67,4 +67,9 @@ public interface UsageSessionServiceSql
 	 * returns the sql statement which counts the number of sessions in the sessions table
 	 */
 	String getSessionsCountSql();
+
+	/**
+	 * @return the SQL statement which removes all old sessions.
+	 */
+	String getCleanOldSessionsSql();
 }

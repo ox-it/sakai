@@ -1476,7 +1476,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 	/**
 	 * @inheritDoc
 	 */
-	public String sitePageReference(String siteId, String pageId)
+	public String  sitePageReference(String siteId, String pageId)
 	{
 		return getAccessPoint(true) + Entity.SEPARATOR + siteId + Entity.SEPARATOR + PAGE_SUBTYPE + Entity.SEPARATOR + pageId;
 	}

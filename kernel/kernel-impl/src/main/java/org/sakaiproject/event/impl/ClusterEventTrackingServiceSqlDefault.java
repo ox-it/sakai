@@ -59,6 +59,20 @@ public class ClusterEventTrackingServiceSqlDefault implements ClusterEventTracki
 		return "select MAX(EVENT_ID) from SAKAI_EVENT";
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getDeleteOldEventSql() {
+		return "delete from SAKAI_EVENT where EVENT_DATE < ?";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getInsertOldEventSql() {
+		return "insert into SAKAI_EVENT_ARCHIVE select * from SAKAI_EVENT where EVENT_DATE < ?";
+	}
+
     /* (non-Javadoc)
      * @see org.sakaiproject.event.impl.ClusterEventTrackingServiceSql#getEventsCountSql()
      */
