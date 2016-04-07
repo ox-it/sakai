@@ -109,6 +109,14 @@ public class TwoFactorAuthenticationIntTest extends SakaiKernelTestBase {
 
 		assertTrue(twoFactorAuthentication.isTwoFactorRequired(secureSite.getReference()));
 
+		// While we are still admin check that we can't actually get the file either.
+		// WL-3453 
+		try {
+			contentHostingService.getResource(resourceId);
+			fail("As we don't have two factor auth yet (even for admin), this should fail.");
+		} catch (Exception e) {
+		}
+
 		sakaiSession.setUserEid("other");
 		sakaiSession.setUserId("other");
 		try {
