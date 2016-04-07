@@ -33,6 +33,7 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SimpleEvent;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.time.api.Time;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -70,6 +71,12 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 	protected Collection<Event> m_eventQueue = null;
 	/** Unless false, check the db for events from the other cluster servers. */
 	protected boolean m_checkDb = true;
+	/** Duration to keep events in the DB for in ms. Default is 1 week. */
+	protected long keepEventsDuration = 1000*60*60*24*7;
+
+	/** Should we archive events into another table? */
+	protected boolean archiveEvents = true;
+
 	/** If true, batch events for bulk write. */
 	protected boolean m_batchWrite = true;
 	/** Configuration: to run the ddl on init or not. */
@@ -80,6 +87,14 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 	 ************************************************************************************************************************************************/
 	/** How long to wait between checks for new events from the db. */
 	protected long m_period = 1000L * 5L;
+	/**
+	 * Amount of time in ms to keep events in the database for.
+	 * @param keepEventsDuration
+	 */
+	public void setKeepEventsDuration(long keepEventsDuration) {
+		this.keepEventsDuration = keepEventsDuration;
+	}
+
 	/** contains a map of the database dependent handler. */
 	protected Map<String, ClusterEventTrackingServiceSql> databaseBeans;
 	/** contains database dependent code. */
@@ -719,6 +734,37 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 		});
 
 		if (M_log.isDebugEnabled()) M_log.debug(this + " Starting (after) Event #: " + m_lastEventSeq);
+	}
+
+	/**
+	 * Removes old events from the database.
+	 */
+	public void cleanupEvents()
+	{
+		if (keepEventsDuration < 1000*60*60*24) {
+			M_log.warn("You aren't keeping your events for more than a day, this is not recommended.");
+			if (keepEventsDuration < 1000*60) {
+				M_log.error("You aren't keeping your events for more than a minute, refusing to run.");
+				return;
+			}
+		}
+		final Time deleteBefore = timeService().newTime(System.currentTimeMillis()- keepEventsDuration);
+		try {
+			sqlService().transact(() -> {
+				if (archiveEvents) {
+					if (!sqlService().dbWrite(clusterEventTrackingServiceSql.getInsertOldEventSql(), new Object[]{deleteBefore})) {
+						throw new RuntimeException("Failed to copy old events to archive table.");
+					}
+				}
+				if (!sqlService().dbWrite(clusterEventTrackingServiceSql.getDeleteOldEventSql(),
+						new Object[]{deleteBefore})) {
+					throw new RuntimeException("Failed to delete old events.");
+				}
+
+			}, "ArchiveEvents");
+		} catch (RuntimeException re) {
+			M_log.error("Failed to cleanup old events.", re);
+		}
 	}
 
     /**

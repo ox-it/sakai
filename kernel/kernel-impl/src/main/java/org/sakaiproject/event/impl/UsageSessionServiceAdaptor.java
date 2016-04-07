@@ -55,6 +55,7 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -79,6 +80,9 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
+
+	/** How old a session has to be before being considered for deletion. Default 1 week. */
+	protected long keepSessionDuration = 1000*60*60*24*7;
 
 	/** A Cache of recently refreshed users. This is to prevent frequent authentications refreshing user data */
 	protected Cache m_recentUserRefresh = null;
@@ -176,6 +180,10 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	public void setAutoDdl(String value)
 	{
 		m_autoDdl = Boolean.valueOf(value).booleanValue();
+	}
+
+	public void setKeepSessionDuration(long keepSessionDuration) {
+		this.keepSessionDuration = keepSessionDuration;
 	}
 
 	/** contains a map of the database dependent handlers. */
@@ -1093,6 +1101,18 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		return sessions.size();
 	}
 	
+	public void cleanupSessions() {
+		String statement = usageSessionServiceSql.getCleanOldSessionsSql();
+		M_log.debug("Cleaning up all old sessions.");
+
+		final Time deleteBefore = timeService().newTime(System.currentTimeMillis() - keepSessionDuration);
+		if (sqlService().dbWrite(statement, new Object[]{deleteBefore})) {
+			M_log.debug("Sucessfully cleaned up");
+		} else {
+			M_log.warn("Problem cleaning up old sessions.");
+		}
+	}
+
 	private static String byteArray2Hex(byte[] hash) {
         Formatter formatter = new Formatter();
         for (byte b : hash) {
@@ -1100,6 +1120,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
         }
         return formatter.toString();
     }
+
 	
 }
 	
