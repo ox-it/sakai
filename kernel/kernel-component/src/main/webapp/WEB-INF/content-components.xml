@@ -252,6 +252,7 @@
                   class="org.sakaiproject.content.impl.HtmlPageFilter">
               <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
               <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+              <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
             </bean>
 
 	<!-- Bean which re-writes HTML content and copies associated references from CHS. -->

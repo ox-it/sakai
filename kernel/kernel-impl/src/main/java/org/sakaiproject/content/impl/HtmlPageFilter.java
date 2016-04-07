@@ -30,6 +30,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.util.Validator;
 
 /**
@@ -44,6 +45,8 @@ public class HtmlPageFilter implements ContentFilter {
 	private EntityManager entityManager;
 	
 	private ServerConfigurationService serverConfigurationService;
+
+	private SiteService siteService;
 	
 	/** If <code>false</false> then this filter is disabled. */
 	private boolean enabled = true;
@@ -71,6 +74,10 @@ public class HtmlPageFilter implements ContentFilter {
 
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
 	}
 
 	public void setEnabled(boolean enabled) {
@@ -134,14 +141,7 @@ public class HtmlPageFilter implements ContentFilter {
 	}
 
 	private String getSiteSkin(Entity entity) {
-		String siteSkin = serverConfigurationService.getString("skin.default");
-		if (entity instanceof Site) {
-			Site site =(Site)entity;
-			if (site.getSkin() != null && site.getSkin().length() > 0) {
-				siteSkin = site.getSkin();
-			}
-		}
-
+		String siteSkin = siteService.getSiteSkin((entity instanceof Site)?entity.getId():null);
 		return siteSkin;
 	}
 
