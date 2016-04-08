@@ -525,7 +525,17 @@ public class TurnitinReviewServiceImpl extends BaseReviewServiceImpl {
 	return false;
     }
 
-    public int getReviewScore(String contentId, String assignmentRef, String userId) throws QueueException,
+	@Override
+	public void queueContent(String userId, String siteId, String taskId, String contentId, String submissionId) throws QueueException {
+
+	}
+
+	@Override
+	public void queueResubContent(String userId, String siteId, String taskId, String contentId, String submissionId) throws QueueException {
+
+	}
+
+	public int getReviewScore(String contentId, String assignmentRef, String userId) throws QueueException,
                         ReportException, Exception {
             ContentReviewItem item=null;
             try{

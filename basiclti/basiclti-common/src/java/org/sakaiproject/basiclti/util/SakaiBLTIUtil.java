@@ -160,7 +160,7 @@ public class SakaiBLTIUtil {
 	}
 
 	// Retrieve the property from the configuration unless it
-	// is overridden by the server configurtation (i.e. sakai.properties)
+	// is overridden by the server configuration (i.e. sakai.properties)
 	public static String getCorrectProperty(Properties config,
 			String propName, Placement placement)
 	{
@@ -940,6 +940,11 @@ public class SakaiBLTIUtil {
 				M_log.debug("Launching with SHA256 Signing");
 			}
 		}
+		
+		//substitute resources params and add the rest
+		if(custom.getProperty(BasicLTIConstants.RESOURCE_LINK_ID) != null){//TODO if allowReviewService prop y future prop for TII
+			addTIIproperties(ltiProps, custom);
+		}
 
 		//substitute resources params and add the rest
 		if(custom.getProperty(BasicLTIConstants.RESOURCE_LINK_ID) != null){//TODO if allowReviewService prop y future prop for TII
@@ -949,6 +954,7 @@ public class SakaiBLTIUtil {
 		// System.out.println("LAUNCH TYPE "+ (isLTI1 ? "LTI 1" : "LTI 2") );
 		return postLaunchHTML(toolProps, ltiProps, rb);
 	}
+	
 
 	private static void addTIIproperties(Properties ltiProps, Properties custom){
 		M_log.debug("we have custom link id " + custom.getProperty(BasicLTIConstants.RESOURCE_LINK_ID));

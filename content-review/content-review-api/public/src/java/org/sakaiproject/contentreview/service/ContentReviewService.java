@@ -46,13 +46,15 @@ public interface ContentReviewService {
 	/**
 	 *  Add an item to the Queue for Submission
 	 *  
-	 *  @param userID if nulll current user is used
+	 *  @param userID if null current user is used
 	 *  @param SiteId is null current site is used
 	 *  @param assignmentReference reference to the task this is for
 	 *  @param content list of content resources to be queued
+	 *  @param submissionId reference to the submission this is for
+	 *  @param isResubmission true if is a resubmission
 	 *  
-	 */
-	public void queueContent(String userId, String siteId, String assignmentReference, List<ContentResource> content) throws QueueException;
+	 */	
+	public void queueContent(String userId, String siteId, String taskId, List<ContentResource> content, String submissionId, boolean isResubmission) throws QueueException;
 	
 	/**
 	 *  Add an item to the Queue for Submission
@@ -97,7 +99,6 @@ public interface ContentReviewService {
 	 * @return the url
 	 * @throws QueueException
 	 * @throws ReportException
-	 * * * @deprecated since Nov 2007, use {@link getReviewReportInstructor(String contentId)} or {@link getReviewReportInstructor(String contentId)}
 	 */
 	public String getReviewReport(String contentId, String assignmentRef, String userId)
 	throws QueueException, ReportException;
@@ -243,6 +244,13 @@ public interface ContentReviewService {
 	 */
 	public boolean isAcceptableContent(ContentResource resource);
 	
+	/**
+	 * Is the content resource of a size that can be accepted by the service implementation
+	 * @param resource
+	 * @return
+	 */
+	public boolean isAcceptableSize(ContentResource resource);
+	
 	/**                                                                                                                                                                                                    
 	 * Gets a map of acceptable file extensions for this content-review service to their associated mime types (ie. ".rtf" -> ["text/rtf", "application,rtf"])                                             
 	 */                                                                                                                                                                                                    
@@ -254,12 +262,6 @@ public interface ContentReviewService {
 	 */                                                                                                                                                                                                    
 	public Map<String, SortedSet<String>> getAcceptableFileTypesToExtensions();
 
-	/**
-	 * Is the content resource of a size that can be accepted by the service implementation
-	 * @param resource
-	 * @return
-	 */
-	public boolean isAcceptableSize(ContentResource resource);
 	
 	/**
 	 *  Can this site make use of the content review service
