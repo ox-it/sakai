@@ -196,6 +196,19 @@
             </regexp-list>
          </attribute>
 
+        <attribute name="data-src" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-youtube-embed" description="The 'data-youtube-embed' attribute allows a Youtube video to be embedded">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
          
         <!-- the "style" attribute will be validated by an inline stylesheet scanner, so no need to define anything here - i hate having to special case this but no other choice -->
          <attribute name="style" description="The 'style' attribute provides the ability for users to change many attributes of the tag's contents using a strict syntax"/>
@@ -1426,6 +1439,10 @@
 
         <tag name="div" action="validate">
             <attribute name="align"/>
+
+            <!--youtube widget -->
+            <attribute name="data-src"/>
+            <attribute name="data-youtube-embed"/>
         </tag>
 
         
