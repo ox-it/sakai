@@ -225,7 +225,7 @@
 
         <attribute name="data-max" description="One of the set of data-* attributes used to store custom data private to the page or application">
             <regexp-list>
-                <regexp name="number"/>
+                <regexp name="anything"/>
             </regexp-list>
         </attribute>
 
