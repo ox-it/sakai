@@ -1439,19 +1439,7 @@
         <tag name="title" action="truncate"/>
 
         <!-- Tags related to JavaScript -->
-        <tag name="script" action="validate">
-            <attribute name="src">
-                <regexp-list>
-                    <regexp value="http[\s\S]*(/library/js/jquery/jquery-1.9.1.min.js)"/>
-                    <regexp value="http[\s\S]*(/library/editor/ckextraplugins/common/js/preload-ckeditor-assets.js)"/>
-                </regexp-list>
-            </attribute>
-            <attribute name="type">
-                <literal-list>
-                    <literal value="text/javascript"/>
-                </literal-list>
-            </attribute>
-        </tag>
+        <tag name="script" action="remove"/>
         <tag name="noscript" action="validate"/> <!-- although no javascript can fire inside a noscript tag, css is still a viable attack vector -->
 
         <!-- Frame & related tags -->
