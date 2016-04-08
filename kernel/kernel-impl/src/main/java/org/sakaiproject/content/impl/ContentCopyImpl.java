@@ -123,10 +123,6 @@ public class ContentCopyImpl implements ContentCopy {
 
 			ContentResource resource = chs.getResource(resourceId);
 
-			if("org.sakaiproject.citation.impl.CitationList".equals(resource.getResourceType())) {
-				// reading lists do not currently get copied so for now we will disable it
-				return;
-			}
 
 			String siteCollectionId = getSiteCollection(resourceId);
 			String newResourceId = "/group/" + context.getNewSiteId() + "/"
@@ -158,6 +154,12 @@ public class ContentCopyImpl implements ContentCopy {
 				propsEdit.addAll(resource.getProperties());
 				hideImportedContent(resource);
 				chs.commitResource(newResource, NotificationService.NOTI_NONE);
+
+				ContentChangeHandler cch = ((DbContentService)chs).getResourceTypeRegistry().getContentChangeHandler(resource.getResourceType());
+				if (cch!=null){
+					cch.copy(newResource);
+				}
+
 				success = true;
 			} catch (PermissionException e) {
 				log.warn("User doesn't have permission to create resource: "
