@@ -165,7 +165,7 @@
         <property name="autoDdl">    <value>${auto.ddl}</value>                       </property>
         <property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
 	</bean>
-	
+
 	<bean id="org.sakaiproject.content.impl.DropboxContextObserver"
 			class="org.sakaiproject.content.impl.DropboxContextObserver"
             init-method="init" destroy-method="destroy">
@@ -266,6 +266,7 @@
 	</bean>
 
     <bean id="org.sakaiproject.content.api.ContentCopyInterceptorRegistry" class="org.sakaiproject.content.impl.ContentCopyInterceptorRegistryImpl" />
+    <bean id="org.sakaiproject.content.api.ContentChangeHandler" class="org.sakaiproject.content.api.ContentChangeHandlerImpl" />
     <bean id="org.sakaiproject.content.impl.ContentCopySiteIdInterceptor" class="org.sakaiproject.content.impl.ContentCopySiteIdInterceptor" init-method="init">
         <property name="interceptorRegistry" ref="org.sakaiproject.content.api.ContentCopyInterceptorRegistry" />
     </bean>
