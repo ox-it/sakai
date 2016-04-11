@@ -500,6 +500,11 @@ public class MockSiteService implements SiteService {
 	}
 
 	@Override
+	public String lookupSiteAlias(String siteId) {
+		return null;
+	}
+
+	@Override
 	public boolean allowRoleSwap(String id) {
 		// TODO Auto-generated method stub
 		return false;
@@ -509,6 +514,21 @@ public class MockSiteService implements SiteService {
 	public boolean allowImportArchiveSite()
 	{
 		return true;
+	}
+
+	@Override
+	public boolean allowAddManagedSite() {
+		return false;
+	}
+
+	@Override
+	public Site addSite(String id, String type, String adminRealm) throws IdInvalidException, IdUsedException, PermissionException {
+		return null;
+	}
+
+	@Override
+	public Site addSite(String id, Site other, String adminRealm) throws IdInvalidException, IdUsedException, PermissionException {
+		return null;
 	}
 
 	@Override
