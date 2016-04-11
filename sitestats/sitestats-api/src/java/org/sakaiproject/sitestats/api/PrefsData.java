@@ -30,7 +30,7 @@ public class PrefsData implements Serializable {
 	private static final long		serialVersionUID					= 1L;
 
 	private List<ToolInfo>			toolEventsDef						= null;
-	private boolean					useAllTools							= false;
+	private boolean					useAllTools							= true;
 	private boolean					listToolEventsOnlyAvailableInSite	= true;
 	private boolean					chartIn3D							= false;
 	private float					chartTransparency					= 1.0f;

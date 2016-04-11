@@ -352,6 +352,8 @@ public class StatsManagerTest extends AbstractJUnit4SpringContextTests {
 		}
 		Assert.assertTrue(thrown);
 		
+		Assert.assertTrue(new PrefsData().isUseAllTools()); // true by default
+
 		// get inexistent preferences (will return default)
 		Assert.assertNotNull(M_sm.getPreferences(FakeData.SITE_A_ID, false));
 		Assert.assertNotNull(M_sm.getPreferences(FakeData.SITE_A_ID, true));
