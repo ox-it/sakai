@@ -136,7 +136,7 @@ public class WebServlet extends AccessServlet
 		String[] parts = option.split("/");
 		if ((parts.length == 2) && ((parts[1].equals("login"))))
 		{
-			doLogin(req, res, null);
+			doLogin(req, res, null, LoginRoute.SAKAI);
 		}
 
 		else if (FileUpload.isMultipartContent(req))
