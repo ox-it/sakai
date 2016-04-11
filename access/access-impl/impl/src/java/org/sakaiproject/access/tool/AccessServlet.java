@@ -73,6 +73,18 @@ import org.sakaiproject.util.Web;
  */
 public class AccessServlet extends VmServlet
 {
+	/** How to route a login request. */
+	enum LoginRoute {
+		/** Two Factor Authentication for the login. */
+		TWOFACTOR,
+		/** Send through the container for the login. */
+		CONTAINER,
+		/** Get Sakai to prompt for a username/password. */
+		SAKAI,
+		/** Have Sakai prompt as to which way the login should go if more than one option. */
+		NONE
+	};
+	
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(AccessServlet.class);
 
@@ -187,7 +199,7 @@ public class AccessServlet extends VmServlet
 		String[] parts = option.split("/");
 		if ((parts.length == 2) && ((parts[1].equals("login"))))
 		{
-			doLogin(req, res, null);
+			doLogin(req, res, null, LoginRoute.SAKAI);
 		}	
 		else
 		{
@@ -216,7 +228,7 @@ public class AccessServlet extends VmServlet
 		String[] parts = option.split("/");
 		if ((parts.length == 2) && ((parts[1].equals("login"))))
 		{
-			doLogin(req, res, null);
+			doLogin(req, res, null, LoginRoute.SAKAI);
 		}
 
 		else
@@ -362,7 +374,7 @@ public class AccessServlet extends VmServlet
 			if (sessionManager.getCurrentSessionUserId() == null)
 			{
 				try {
-					doLogin(req, res, origPath);
+					doLogin(req, res, origPath, LoginRoute.NONE);
 				} catch ( IOException ioex ) {}
 				return;
 			}
@@ -454,14 +466,13 @@ public class AccessServlet extends VmServlet
 	 *        The current request path, set ONLY if we want this to be where to redirect the user after successfull login
 	 * @throws IOException 
 	 */
-	protected void doLogin(HttpServletRequest req, HttpServletResponse res, String path) throws ToolException, IOException
+	protected void doLogin(HttpServletRequest req, HttpServletResponse res, String path, LoginRoute route) throws ToolException, IOException
 	{
 		// if basic auth is valid do that
 		if ( basicAuth.doAuth(req,res) ) {
 			//System.err.println("BASIC Auth Request Sent to the Browser ");
 			return;
 		} 
-		
 		
 		// if there is a Range: header for partial content and we haven't done basic auth, refuse the request	(SAK-23678)
 		if (req.getHeader("Range") != null) {
@@ -473,10 +484,9 @@ public class AccessServlet extends VmServlet
 		Session session = sessionManager.getCurrentSession();
 
 		// set the return path for after login if needed (Note: in session, not tool session, special for Login helper)
-		if (path != null)
-		{
-			// where to go after
-			session.setAttribute(Tool.HELPER_DONE_URL, Web.returnUrl(req, Validator.escapeUrl(path)));
+		// the null check is important as it stops the HELPER_DONE_URL updating when inside the login helper
+		if (path != null) {
+			session.setAttribute(Tool.HELPER_DONE_URL, makeReturnURL(path, req));
 		}
 
 		// check that we have a return path set; might have been done earlier
@@ -489,6 +499,23 @@ public class AccessServlet extends VmServlet
 		ActiveTool tool = activeToolManager.getActiveTool("sakai.login");
 		String context = req.getContextPath() + req.getServletPath() + "/login";
 		tool.help(req, res, context, "/login");
+	}
+
+	/**
+	 * Creates a URL to return to once login is complete
+	 * @param path  the path to the content being accessed
+	 * @param req   the current servlet request
+	 * @return      the URL to return to, <code>null</code> if not available
+	 */
+	protected String makeReturnURL(String path, HttpServletRequest req) {
+		String returnUrl = null;
+		if (path != null && req != null) {
+			returnUrl = Web.returnUrl(req, Validator.escapeUrl(path));
+			if (req.getQueryString() != null) {
+				returnUrl += "?" + req.getQueryString();
+			}
+		}
+		return returnUrl;
 	}
 
 	/** create the info */
