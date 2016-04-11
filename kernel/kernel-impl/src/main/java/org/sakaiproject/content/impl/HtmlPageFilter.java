@@ -30,6 +30,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.util.Validator;
 
 /**
@@ -44,6 +45,8 @@ public class HtmlPageFilter implements ContentFilter {
 	private EntityManager entityManager;
 	
 	private ServerConfigurationService serverConfigurationService;
+
+	private SiteService siteService;
 	
 	/** If <code>false</false> then this filter is disabled. */
 	private boolean enabled = true;
@@ -59,23 +62,31 @@ public class HtmlPageFilter implements ContentFilter {
 "    <style>body '{ padding: 5px !important; }'</style>\n" +
 "  </head>\n" +
 "  <body>\n";
-	
+
+  // We do the re-writing of the page in the footer because if we do it in any form of event based (onload, DOMContentLoaded)
+  // then it doesn't reliably fire in IE9 (possibly others). Putting it at the end of the DOM means it fires early
+  // and the user can view youtube videos without having to allow insecure content, but they still get the warning.
 	private String footerTemplate = "\n" +
 "  </body>\n" +
+"    <script type=\"text/javascript\" language=\"JavaScript\">{0}</script>\n" +
 "</html>\n";
 
 	public void setEntityManager(EntityManager entityManager) {
 		this.entityManager = entityManager;
 	}
-	
+
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
 	}
-	
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
-	
+
 	public void setHeaderTemplate(String headerTemplate) {
 		this.headerTemplate = headerTemplate;
 	}
@@ -86,7 +97,8 @@ public class HtmlPageFilter implements ContentFilter {
 
 	public boolean isFiltered(ContentResource resource) {
 		String addHtml = resource.getProperties().getProperty(ResourceProperties.PROP_ADD_HTML);
-		return enabled && ("text/html".equals(resource.getContentType())) && ((addHtml == null) || (!addHtml.equals("no") || addHtml.equals("yes")));
+		boolean isHtml = "text/html".equals(resource.getContentType());
+		return enabled && isHtml && !("no".equals(addHtml));
 	}
 
 	public ContentResource wrap(final ContentResource content) {
@@ -94,15 +106,16 @@ public class HtmlPageFilter implements ContentFilter {
 			return content;
 		}
 		Reference contentRef = entityManager.newReference(content.getReference());
-		Reference siteRef = entityManager.newReference(contentRef.getContext());
+		Reference siteRef = entityManager.newReference("/site/"+ contentRef.getContext());
 		Entity entity = siteRef.getEntity();
-		
+
 		String addHtml = content.getProperties().getProperty(ResourceProperties.PROP_ADD_HTML);
-		
+
 		String skinRepo = getSkinRepo();
 		String siteSkin = getSiteSkin(entity);
-		
-		final boolean detectHtml = addHtml == null || addHtml.equals("auto");
+		String fixMixedContent = getFixMixedContent();
+
+		final boolean detectHtml = addHtml == null || addHtml.equals("auto") || addHtml.equals("standards");
 		String title = getTitle(content);
 
 		StringBuilder header = new StringBuilder();
@@ -112,6 +125,8 @@ public class HtmlPageFilter implements ContentFilter {
 		}
 		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title));
         
+		final String footer = MessageFormat.format(footerTemplate, fixMixedContent);
+
 		return new WrappedContentResource(content, header.toString(), footerTemplate, detectHtml);
 	}
 
@@ -129,15 +144,20 @@ public class HtmlPageFilter implements ContentFilter {
 	}
 
 	private String getSiteSkin(Entity entity) {
-		String siteSkin = serverConfigurationService.getString("skin.default"); 
-		if (entity instanceof Site) {
-			Site site =(Site)entity;
-			if (site.getSkin() != null && site.getSkin().length() > 0) {
-				siteSkin = site.getSkin();
-			}
-		}
-
+		String siteSkin = siteService.getSiteSkin((entity instanceof Site)?entity.getId():null);
 		return siteSkin;
+	}
+
+	// Fix for mixed content blocked in Firefox and IE
+	// This event is added to every page (through headscripts.js);
+	private String getFixMixedContent() {
+
+		String jsTrigger = "";
+    // This originally just fixed new links, but now it also re-writes youtube URLs and more.
+		if (serverConfigurationService.getBoolean("content.mixedContent.forceLinksInNewWindow", true)) {
+			jsTrigger = "fixMixedContentReferences()";
+		}
+		return jsTrigger;
 	}
 
 }

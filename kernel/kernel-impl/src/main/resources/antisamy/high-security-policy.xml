@@ -120,7 +120,7 @@
         Add in your site (e.g. "new.site.host.com/path": with escaped ".": "new\.site\.host\.com/path|"
         Like shown here: (new\.site\.host\.com/path|download\.macromedia\.com/pub|
     -->
-    <regexp name="flashSites" value="(((https?:)?//(download\.macromedia\.com/pub|www\.macromedia\.com/(go|shockwave)|c\.brightcove\.com/services|gamevideos\.1up\.com/swf|(www\.)?youtube(\-nocookie)?\.com/(v|embed)|(www\.)?youtu\.be|(www\.|player\.)?vimeo\.com|www\.gametrailers\.com|videomedia\.ign\.com/ev|image\.com\.com/gamespot|www\.hulu\.com/embed|embed\.break\.com|player\.ordienetworks\.com/flash|www\.adultswim\.com/video/vplayer|www\.dailymotion\.com/swf|www\.ustream\.tv/flash/video|cdn-i\.dmdentertainment\.com|media\.mtvnservices\.com|www\.justin\.tv/widgets|www\.viddler\.com/(player|simple_on_site)|static\.twitter\.com/flash|www\.gamepro\.com/bin|cdn\.knightlab\.com|(www|cdnapisec|cdnapi)\.kaltura\.com/p|www\.divshare\.com/flash|www\.facebook\.com/v)/.*)|(/library/(?!.*\.\.[/|\\]).*)/.+)" />
+    <regexp name="flashSites" value="(((https?:)?//(download\.macromedia\.com/pub|www\.macromedia\.com/(go|shockwave)|c\.brightcove\.com/services|gamevideos\.1up\.com/swf|(www\.)?youtube(\-nocookie)?\.com/(v|embed)|(www\.)?youtu\.be|(www\.)?edu-apps.org/twitter_lti|(www\.|player\.)?vimeo\.com|www\.gametrailers\.com|videomedia\.ign\.com/ev|image\.com\.com/gamespot|www\.hulu\.com/embed|embed\.break\.com|player\.ordienetworks\.com/flash|www\.adultswim\.com/video/vplayer|www\.dailymotion\.com/swf|www\.ustream\.tv/flash/video|cdn-i\.dmdentertainment\.com|media\.mtvnservices\.com|www\.justin\.tv/widgets|www\.viddler\.com/(player|simple_on_site)|static\.twitter\.com/flash|www\.gamepro\.com/bin|cdn\.knightlab\.com|(www|cdnapisec|cdnapi)\.kaltura\.com/p|www\.divshare\.com/flash|www\.facebook\.com/v)/.*)|(/library/(?!.*\.\.[/|\\]).*)/.+)" />
 
     <!-- This is a basic alphanumeric and punctuation string -->
     <regexp name="basicAlphaNumeric" value="^[a-zA-Z0-9\s\-_.\?!,]*$" />
@@ -196,10 +196,355 @@
             </regexp-list>
          </attribute>
 
-         
+        <attribute name="data-src" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-youtube-embed" description="The 'data-youtube-embed' attribute allows a Youtube video to be embedded">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+
+        <!-- The data-* attributes for 11 CK editor plugins (youtube, twitter, etc) -->
+        <attribute name="data-hashtag" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-height" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-max" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything"/>
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-twitter-timeline" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-username" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-width" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-title" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-vimeo-embed" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-copyright" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-description" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-directory" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-files" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-folder-listing" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-href" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-image-gallery" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-maxheight" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-maxwidth" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-rel" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-slideshowspeed" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-exam" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-oxam-embed" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-query" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-year" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-id" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-solo-citation" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-defaultdatesview" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="withoutDates"/>
+                <literal value="withDates"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-displaycolumns" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-eligibility" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-providedby" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-providedbyname" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-researcher-training-tool" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-researchmethod" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="quantitative"/>
+                <literal value="qualitative"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-showwithoutdateslink" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-skill" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-startingafter" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-title" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-inc-add" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-inc-home" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-inc-map" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-inc-title" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-oxpoint" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-searched" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-uri" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-all_string" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-channel_format" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-channel_name" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-dd_format" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-dt_format" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-empty_newsfeed_url" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-encoding" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <attribute name="data-oxitem" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+
+        <attribute name="data-sort_values" description="One of the set of data-* attributes used to store custom data private to the page or application">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+
         <!-- the "style" attribute will be validated by an inline stylesheet scanner, so no need to define anything here - i hate having to special case this but no other choice -->
          <attribute name="style" description="The 'style' attribute provides the ability for users to change many attributes of the tag's contents using a strict syntax"/>
-         
+
          <attribute name="media">
             <regexp-list>
                 <regexp value="[a-zA-Z0-9,\-\s]+"/>
@@ -1426,6 +1771,82 @@
 
         <tag name="div" action="validate">
             <attribute name="align"/>
+
+            <!--youtube widget -->
+            <attribute name="data-src"/>
+            <attribute name="data-youtube-embed"/>
+
+            <!--twitter widget-->
+            <attribute name="data-hashtag"/>
+            <attribute name="data-height"/>
+            <attribute name="data-max"/>
+            <attribute name="data-twitter-timeline"/>
+            <attribute name="data-username"/>
+            <attribute name="data-width"/>
+
+            <!--vimeo widget-->
+            <attribute name="data-title"/>
+            <attribute name="data-vimeo-embed"/>
+
+            <!--folder widget-->
+            <attribute name="data-copyright"/>
+            <attribute name="data-description"/>
+            <attribute name="data-directory"/>
+            <attribute name="data-files"/>
+            <attribute name="data-folder-listing"/>
+            <attribute name="data-href"/>
+
+            <!--image gallery widget-->
+            <attribute name="data-copyright"/>
+            <attribute name="data-image-gallery"/>
+            <attribute name="data-maxheight"/>
+            <attribute name="data-maxwidth"/>
+            <attribute name="data-rel"/>
+            <attribute name="data-slideshowspeed"/>
+
+            <!--oxam widget-->
+            <attribute name="data-exam"/>
+            <attribute name="data-oxam-embed"/>
+            <attribute name="data-query"/>
+            <attribute name="data-year"/>
+
+            <!--solo widget-->
+            <attribute name="data-id"/>
+            <attribute name="data-solo-citation"/>
+
+            <!--RTT widget-->
+            <attribute name="data-defaultdatesview"/>
+            <attribute name="data-displaycolumns"/>
+            <attribute name="data-eligibility"/>
+            <attribute name="data-providedby"/>
+            <attribute name="data-providedbyname"/>
+            <attribute name="data-researcher-training-tool"/>
+            <attribute name="data-researchmethod"/>
+            <attribute name="data-showwithoutdateslink"/>
+            <attribute name="data-skill"/>
+            <attribute name="data-startingafter"/>
+            <attribute name="data-title"/>
+
+            <!--oxpoints widget-->
+            <attribute name="data-inc-add"/>
+            <attribute name="data-inc-home"/>
+            <attribute name="data-inc-map"/>
+            <attribute name="data-inc-title"/>
+            <attribute name="data-oxpoint"/>
+            <attribute name="data-searched"/>
+            <attribute name="data-uri"/>
+
+            <!--oxitems widget-->
+            <attribute name="data-all_string"/>
+            <attribute name="data-channel_format"/>
+            <attribute name="data-channel_name"/>
+            <attribute name="data-dd_format"/>
+            <attribute name="data-dt_format"/>
+            <attribute name="data-empty_newsfeed_url"/>
+            <attribute name="data-encoding"/>
+            <attribute name="data-oxitem"/>
+            <attribute name="data-sort_values"/>
+
         </tag>
 
         
@@ -1602,7 +2023,12 @@
                 </regexp-list>
             </attribute>
             <attribute name="name"/>
-            <attribute name="alt"/>
+            <attribute name="alt">
+                <regexp-list>
+                    <regexp name="anything"/>
+                </regexp-list>
+            </attribute>
+
             <attribute name="height"/>
             <attribute name="width"/>
             <attribute name="border"/>

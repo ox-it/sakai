@@ -319,9 +319,12 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 					case BLOCK1:
 					{
 						id = ds.readUTF();
-						if (!ResourceType.TYPE_FOLDER.equals(ds.readUTF()))
+						resourceType = ds.readUTF();
+						
+						if (!ResourceType.TYPE_FOLDER.equals(resourceType) &&
+							!"org.sakaiproject.content.types.blavatnikFolder".equals(resourceType)	)
 						{
-							throw new EntityParseException("Data block is not of tye "
+							throw new EntityParseException("Data block is not of type "
 									+ ResourceType.TYPE_FOLDER);
 						}
 						access = AccessMode.fromString(ds.readUTF());
@@ -331,7 +334,7 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 						}
 						hidden = ds.readBoolean();
 
-						resourceType = ResourceType.TYPE_FOLDER;
+						//resourceType = ResourceType.TYPE_FOLDER;
 
 					}
 						break;
@@ -405,7 +408,9 @@ public class Type1BaseContentCollectionSerializer implements EntitySerializer
 		ds.writeInt(TYPE1);
 		ds.writeInt(BLOCK1);
 		ds.writeUTF(id);
-		ds.writeUTF(ResourceType.TYPE_FOLDER);
+		
+		//ds.writeUTF(ResourceType.TYPE_FOLDER);
+		ds.writeUTF(sc.getSerializableResourceType());
 
 		if (access == null || AccessMode.SITE == access)
 		{

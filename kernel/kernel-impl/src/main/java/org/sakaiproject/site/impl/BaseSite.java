@@ -736,9 +736,9 @@ public class BaseSite implements Site
 		{
 			siteString = "/" + controllingPortal + "/";
 		}
-		return siteService
-				.serverConfigurationService().getPortalUrl()
-				+ siteString + m_id;
+		String alias = siteService.lookupSiteAlias(m_id);
+		return siteService.serverConfigurationService().getPortalUrl()
+				+ siteString + alias;
 	}
 
 	/**

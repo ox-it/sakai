@@ -435,3 +435,7 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-900', 'mercury', 'Email Archive', '0
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-910', 'mercury-900', 'mercury', 'sakai.mailbox', 1, 'Email Archive', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-1000', 'mercury', 'Site Info', '0', 10, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-1010', 'mercury-1000', 'mercury', 'sakai.siteinfo', 1, 'Site Info', NULL );
+-- Contact Us tool
+INSERT INTO SAKAI_SITE VALUES('!contact-us', 'Contact Us', null, null, null, '', '', null, 1, 1, 1, 'access', 'admin', 'admin', NOW(), NOW(), 0, 0, 0, 0, null);
+INSERT INTO SAKAI_SITE_PAGE VALUES('!contact-us', '!contact-us', 'Contact Us', '1', 1, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!contact-us', '!contact-us', '!contact-us', 'sakai.feedback', 1, 'Contact Us', NULL );

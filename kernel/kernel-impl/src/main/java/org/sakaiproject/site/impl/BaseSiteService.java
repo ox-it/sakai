@@ -27,6 +27,9 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.*;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
+import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
@@ -38,6 +41,7 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.*;
+import org.sakaiproject.site.api.SiteAliasProvider;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
@@ -117,6 +121,12 @@ public abstract class BaseSiteService implements SiteService, Observer
         
     /** sfoster9@uwo.ca - A delegate class to contain the join methods **/
     protected JoinSiteDelegate joinSiteDelegate;
+	
+	/** ID of the bean to be used for the site alias provider ID. It's looked up in the component manager. */
+	private String siteAliasProviderId;
+	
+	/** Allows other people to decide how site aliases should be managed.*/
+	protected SiteAliasProvider siteAliasProvider;
 
 	/** SAK-29138 - a site title advisor **/
 	protected SiteTitleAdvisor m_siteTitleAdvisor;
@@ -408,6 +418,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 * @return the AuthzGroupService collaborator.
 	 */
 	protected abstract AuthzGroupService authzGroupService();
+
+	protected abstract DevolvedSakaiSecurity devolvedSakaiSecurity();
 	
 	/**
 	 * @return the ActiveToolManager collaborator.
@@ -418,6 +430,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 * @return the IdManager collaborator.
 	 */
 	protected abstract IdManager idManager();
+
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -478,6 +491,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			functionManager().registerFunction(SECURE_ADD_SITE);
 			functionManager().registerFunction(SECURE_ADD_USER_SITE);
 			functionManager().registerFunction(SECURE_ADD_PORTFOLIO_SITE);
+			functionManager().registerFunction(SECURE_ADD_SITE_MANAGED);
 			functionManager().registerFunction(SECURE_REMOVE_SITE);
 			functionManager().registerFunction(SECURE_UPDATE_SITE);
 			functionManager().registerFunction(SECURE_VIEW_ROSTER);
@@ -496,6 +510,15 @@ public abstract class BaseSiteService implements SiteService, Observer
 			
 			// SAK-29138
 			m_siteTitleAdvisor = (SiteTitleAdvisor) ComponentManager.get( SiteTitleAdvisor.class );
+			
+			if (siteAliasProviderId != null && siteAliasProvider == null)
+			{
+				siteAliasProvider = (SiteAliasProvider) ComponentManager.get(siteAliasProviderId);
+				if (siteAliasProvider == null)
+				{
+					M_log.warn("Couldn't find site alias provider: "+ siteAliasProviderId);
+				}
+			}
 		}
 		catch (Exception t)
 		{
@@ -1197,10 +1220,20 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return unlockCheck(SECURE_IMPORT_ARCHIVE, siteReference(null));
 	}
 	
+	public boolean allowAddManagedSite()
+	{
+		return unlockCheck(SECURE_ADD_SITE_MANAGED, siteReference(null));
+	}
+
+	public Site addSite(String id, String type) throws IdInvalidException, IdUsedException, PermissionException
+	{
+		return addSite(id, type, null);
+	}
+
 	/**
 	 * @inheritDoc
 	 */
-	public Site addSite(String id, String type) throws IdInvalidException, IdUsedException, PermissionException
+	public Site addSite(String id, String type, String adminRealm) throws IdInvalidException, IdUsedException, PermissionException
 	{
 		// check for a valid site id
 		if (!Validator.checkResourceId(id)) {
@@ -1215,9 +1248,15 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 		
 		// check security (throws if not permitted)
-		unlock(SECURE_ADD_SITE, siteReference(id));
-		
-		
+ 		if (adminRealm == null)
+ 		{
+ 			unlock(SECURE_ADD_SITE, siteReference(id));
+ 		}
+ 		else 
+ 		{
+ 			unlock(SECURE_ADD_SITE_MANAGED, siteReference(id));
+ 		}
+
 		// SAK-12631
 		if (getSiteTypeStrings("course").contains(type)) {
 			unlock(SECURE_ADD_COURSE_SITE, siteReference(id));
@@ -1249,6 +1288,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 		((BaseSite) site).setEvent(SECURE_ADD_SITE);
 
 		doSave((BaseSite) site, true);
+		if (adminRealm != null)
+		{
+			// Shouldn't have problems setting (would be nice to have a transaction...)
+			devolvedSakaiSecurity().setAdminRealm(site.getReference(), adminRealm);
+		}
 
 		return site;
 	}
@@ -1257,6 +1301,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 * @inheritDoc
 	 */
 	public Site addSite(String id, Site other) throws IdInvalidException, IdUsedException, PermissionException
+	{
+		return addSite(id, other, null);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public Site addSite(String id, Site other, String adminRealm) throws IdInvalidException, IdUsedException, PermissionException
 	{
 		// check for a valid site id
 		if (!Validator.checkResourceId(id)) {
@@ -1270,9 +1322,13 @@ public abstract class BaseSiteService implements SiteService, Observer
 		{
 			unlock(SECURE_ADD_USER_SITE, siteReference(id));
 		}
-		else
+		else if (adminRealm == null)
 		{
 			unlock(SECURE_ADD_SITE, siteReference(id));
+		}
+		else
+		{
+			unlock(SECURE_ADD_SITE_MANAGED, siteReference(id));
 		}
 		
 		// SAK=12631
@@ -1327,6 +1383,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 		((BaseSite) site).setEvent(SECURE_ADD_SITE);
 
 		doSave((BaseSite) site, true);
+		if (adminRealm != null) 
+		{
+			// Shouldn't have problems setting (would be nice to have a transaction...)
+			devolvedSakaiSecurity().setAdminRealm(site.getReference(), adminRealm);
+		}
 
 		return site;
 	}
@@ -1415,7 +1476,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 	/**
 	 * @inheritDoc
 	 */
-	public String sitePageReference(String siteId, String pageId)
+	public String  sitePageReference(String siteId, String pageId)
 	{
 		return getAccessPoint(true) + Entity.SEPARATOR + siteId + Entity.SEPARATOR + PAGE_SUBTYPE + Entity.SEPARATOR + pageId;
 	}
@@ -2301,6 +2362,12 @@ public abstract class BaseSiteService implements SiteService, Observer
 							+ "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
 					out.println("<link href=\"" + skinRepo + "/" + skin
 							+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
+
+					// Fix for mixed content blocked in Firefox and IE
+					if (serverConfigurationService().getBoolean("content.mixedContent.forceLinksInNewWindow", true)) {
+						out.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>");
+					}
+
 					out.println("<title>");
 					out.println(site.getTitle());
 					out.println("</title>");
@@ -2315,7 +2382,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 					}
 
 					out.println(description);
-					out.println("</div></body></html>");
+					out.println("</div></body>");
+					if (serverConfigurationService().getBoolean("content.mixedContent.forceLinksInNewWindow", true)) {
+						out.println("<script type=\"text/javascript\" language=\"JavaScript\">fixMixedContentReferences()</script>");
+					}
+					out.println("</html>");
 				}
 				catch (Exception t)
 				{
@@ -3502,6 +3573,41 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return m_storage;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String lookupSiteAlias(String siteId)
+	{
+		if (siteAliasProvider != null)
+		{
+			String alias = siteAliasProvider.lookupAlias(siteId);
+			return (alias != null)?alias:siteId;
+		}
+		return siteId;
+	}
+
+
+	/**
+	 * Set the Site Alias Provider directly.
+	 * @param siteAliasProvider A SiteAliasProvider.
+	 * @see #setSiteAliasProviderId(String)
+	 */
+	public void setSiteAliasProvider(SiteAliasProvider siteAliasProvider)
+	{
+		this.siteAliasProvider = siteAliasProvider;
+	}
+
+	/**
+	 * Set the ID of the bean to use for the Site Alias Provider. This value is only used when
+	 * {@link #siteAliasProvider} isn't called to set one directly.
+	 * @param siteAliasProviderId An ID to lookup in the component manager for aliasing site IDs.
+	 * @see #setSiteAliasProvider(SiteAliasProvider)
+	 */
+	public void setSiteAliasProviderId(String siteAliasProviderId)
+	{
+		this.siteAliasProviderId = siteAliasProviderId;
+	}
 	/**
 	 * @inheritDoc
 	 */

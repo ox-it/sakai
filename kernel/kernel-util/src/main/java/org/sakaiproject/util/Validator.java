@@ -265,6 +265,28 @@ public class Validator
     } // checkEmailLocal
 
 	/**
+	 * Checks if the email passed in contains any of accepted local/official hosts defined in server config properties
+	 * @param email
+	 * @return false if the email matches a local domain
+	 */
+	public static boolean  isAllowedLocalEmailDomain(String email) {
+		String invalidNonOfficialAccountString = ServerConfigurationService.getString("invalidNonOfficialAccountString", null);
+
+		if (invalidNonOfficialAccountString != null) {
+			String[] invalidDomains = invalidNonOfficialAccountString.split(",");
+
+			for (int i = 0; i < invalidDomains.length; i++) {
+				String domain = invalidDomains[i].trim();
+
+				if (email.toLowerCase().indexOf(domain.toLowerCase()) != -1) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Return a string based on id that is valid according to Resource name validity rules.
 	 * 
 	 * @param id

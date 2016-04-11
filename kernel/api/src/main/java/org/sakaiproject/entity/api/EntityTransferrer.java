@@ -25,8 +25,10 @@ import java.util.List;
 
 /**
  * <p>
- * Services which implement EntityTransferrer declare themselves as willing and able to transfer/copy their entities from one context to another.
+ * Services which implement EntityTransferrer declare themselves as willing and able to transfer/copy their entities
+ * from one context to another. If you implement this interface you must be registered with the EntityManager.
  * </p>
+ * @see org.sakaiproject.entity.api.EntityManager
  */
 public interface EntityTransferrer
 {
@@ -45,7 +47,7 @@ public interface EntityTransferrer
 	/**
 	 * Provide the string array of tool ids, for tools that we claim as manipulating our entities.
 	 * 
-	 * @return
+	 * @return A array of tool IDs we will transfer entities for. Eg: sakai.resources.
 	 */
 	String[] myToolIds();
 	
@@ -59,7 +61,7 @@ public interface EntityTransferrer
 	 * @param ids
 	 *        when null, all entities will be imported; otherwise, only entities with those ids will be imported
 	 * @param cleanup
-	 *        
+	 *        If true then service should attempt to remove the entities from the fromContext.
 	 */
 	void transferCopyEntities(String fromContext, String toContext, List<String> ids, boolean cleanup);
 }

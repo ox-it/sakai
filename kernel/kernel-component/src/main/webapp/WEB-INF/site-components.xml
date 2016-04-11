@@ -28,6 +28,7 @@
 		<lookup-method name="authzGroupService" bean="org.sakaiproject.authz.api.AuthzGroupService" />
 		<lookup-method name="activeToolManager" bean="org.sakaiproject.tool.api.ActiveToolManager" />
 		<lookup-method name="idManager" bean="org.sakaiproject.id.api.IdManager" />
+		<lookup-method name="devolvedSakaiSecurity" bean="org.sakaiproject.authz.api.DevolvedSakaiSecurity" />
 
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
         <property name="databaseBeans">
@@ -51,6 +52,12 @@
 		<!-- Optional properties -->
 		<!-- property name="enabled" value="true" / -->
 		<!-- property name="propagateExceptions" value="false" / -->
+	</bean>
+
+	<!-- This just logs actual site deletions. -->
+	<bean class="org.sakaiproject.site.impl.SiteRemovalLogger" init-method="init" destroy-method="destroy">
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 	</bean>
 
 </beans>
