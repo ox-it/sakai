@@ -78,6 +78,11 @@ public class FakeUserDirectoryService implements UserDirectoryService {
 		return false;
 	}
 
+	@Override
+	public boolean updateUserId(String eId, String newEmail) {
+		return false;
+	}
+
 	public boolean allowUpdateUserPassword(String arg0) {
 		// TODO Auto-generated method stub
 		return false;
