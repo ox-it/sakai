@@ -5,14 +5,38 @@
     <display-name>sakai-access</display-name>
     <description>Sakai Access</description>
 
-    <!-- Sakai request filter -->
+    <filter>
+        <filter-name>sakai.threadset</filter-name>
+        <filter-class>org.sakaiproject.util.ThreadSetFilter</filter-class>
+        <init-param>
+            <param-name>key</param-name>
+            <param-value>kerberos-auth</param-value>
+        </init-param>
+        <init-param>
+            <param-name>value</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+  
+	<!-- Sakai request filter -->
     <filter>
         <filter-name>sakai.request</filter-name>
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+        <init-param>
+            <!--  Can't disable cookie otherwise new sessions coming here won't work. -->
+            <param-name>set.cookie</param-name>
+            <param-value>true</param-value>
+         </init-param>
     </filter>
 
     <!-- OAuth Filters -->
     <filter>
+        <filter-name>sakai.threadset</filter-name>
+        <servlet-name>sakai.access</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
         <filter-name>oauth.pre</filter-name>
         <filter-class>org.sakaiproject.oauth.filter.OAuthPreFilter</filter-class>
     </filter>
