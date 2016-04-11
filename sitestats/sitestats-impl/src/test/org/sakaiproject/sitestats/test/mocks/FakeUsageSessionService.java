@@ -35,6 +35,11 @@ public class FakeUsageSessionService implements UsageSessionService {
 		return 0;
 	}
 
+	@Override
+	public void cleanupSessions() {
+
+	}
+
 	public List<UsageSession> getOpenSessions() {
 		// TODO Auto-generated method stub
 		return null;

@@ -37,6 +37,11 @@ public class FakeEventTrackingService extends Observable implements EventTrackin
 		observers.add(o);
 	}
 
+	@Override
+	public void cleanupEvents() {
+
+	}
+
 	public void addObserver(Observer o) {
 		observers.add(o);
 	}

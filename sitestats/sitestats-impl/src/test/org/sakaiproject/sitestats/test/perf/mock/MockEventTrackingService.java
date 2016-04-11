@@ -68,6 +68,11 @@ public class MockEventTrackingService implements EventTrackingService {
 	}
 
 	@Override
+	public void cleanupEvents() {
+
+	}
+
+	@Override
 	public void deleteObserver(Observer observer) {
 		// TODO Auto-generated method stub
 
