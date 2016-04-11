@@ -74,5 +74,36 @@
          /*
        </url-pattern>
     </servlet-mapping>
+    
+    <!-- Mapping for error handlers (see below). -->
+	<servlet>
+		<servlet-name>handler403</servlet-name>
+		<jsp-file>/error403.jsp</jsp-file>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>handler403</servlet-name>
+		<url-pattern>/error403.jsp</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>handler404</servlet-name>
+		<jsp-file>/error404.jsp</jsp-file>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>handler404</servlet-name>
+		<url-pattern>/error404.jsp</url-pattern>
+	</servlet-mapping>
+
+    <error-page>
+      <error-code>403</error-code>
+      <location>/error403.jsp</location>
+    </error-page>
+
+    <error-page>
+      <error-code>404</error-code>
+      <location>/error404.jsp</location>
+    </error-page>
 
 </web-app>
