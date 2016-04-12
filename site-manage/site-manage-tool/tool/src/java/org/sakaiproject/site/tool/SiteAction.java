@@ -74,6 +74,7 @@ import org.sakaiproject.archive.api.ImportMetadata;
 import org.sakaiproject.archive.cover.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.DisplayGroupProvider;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.PermissionsHelper;
@@ -2389,6 +2390,8 @@ public class SiteAction extends PagedResourceActionII {
 							.getProperty(Site.PROP_SITE_TERM));
 				} else {
 					context.put("isCourseSite", Boolean.FALSE);
+					// Show groups in there.
+					prepareGroupsIntoContext(state, context, site);
 				}
 				
 				Collection<Group> groups = null;
@@ -4456,6 +4459,75 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	/**
+	 * Launch the Page Order Helper Tool -- for ordering, adding and customizing
+	 * pages
+	 * 
+	 * @see case 12
+	 *  Adds details of the groups used for the members of the site.
+	 * @param state
+	 * @param context
+	 * @param site
+	 */
+	private void prepareGroupsIntoContext(SessionState state, Context context,
+			Site site) {
+
+		List providerIds = getProviderCourseList(site.getProviderGroupId());
+		if ( groupProvider instanceof DisplayGroupProvider ) {
+			DisplayGroupProvider displayGroupProvider = (DisplayGroupProvider)groupProvider;
+			List<Map> groups = new ArrayList<Map>(providerIds.size());
+			for (String providerId: (List<String>)providerIds) {
+				String displayName = displayGroupProvider.getGroupName(providerId);
+				if (displayName == null) {
+					M_log.debug("Ignoring unnamed providerId: "+ providerId);
+				} else {
+					Map<String, String> group = new HashMap<String, String>();
+					group.put("id", providerId);
+					group.put("name", displayName);
+					groups.add(group);
+				}
+			}
+			context.put("providedGroups", groups);
+		}
+	}
+	
+	public void doRemoveGroup(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+			.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		String removeGroupId = data.getParameters().getString("groupId");
+		
+		String siteId = (String) state
+				.getAttribute(STATE_SITE_INSTANCE_ID);
+		String realmId = SiteService.siteReference(siteId);
+		try {
+			AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
+
+			List<String> providerCourseList = (List<String>)getProviderCourseList(StringUtil
+					.trimToNull(realm.getProviderGroupId()));
+			if (providerCourseList.remove(removeGroupId)) {
+				String displayName = removeGroupId;
+				if (groupProvider instanceof DisplayGroupProvider) {
+					String betterName = ((DisplayGroupProvider)groupProvider).getGroupName(removeGroupId);
+					if (betterName != null && betterName.length() > 0) {
+						displayName = betterName;
+					}
+				}
+				realm.setProviderGroupId(groupProvider.packId(providerCourseList.toArray(new String[]{})));
+				authzGroupService.save(realm);
+				addAlert(state, rb.getFormattedMessage("java.extgrpremove", new Object[]{displayName}));
+			}
+		} catch (GroupNotDefinedException gnde) {
+			M_log.warn("Failed to find realm for site: "+ siteId);
+			addAlert(state, rb.getString("java.extgrpauthz"));
+		} catch (AuthzPermissionException ape) {
+			addAlert(state,rb.getString("java.extgrpnoperm") );
+		}
+	}
+
+	/**
+	 * Launch the Page Order Helper Tool -- for ordering, adding and customizing
+	 * pages
+	 * 
+	 * @see case 12
 	 * 
 	 */
 	public void doPageOrderHelper(RunData data) {
@@ -4474,6 +4546,19 @@ public class SiteAction extends PagedResourceActionII {
 		startHelper(data.getRequest(), "sakai-site-pageorder-helper");
 	}
 	
+	public void doExternalGroupsHelper(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// pass in the siteId of the site to be ordered (so it can configure
+		// sites other then the current site)
+		SessionManager.getCurrentToolSession().setAttribute(
+				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
+
+		// launch the helper
+		startHelper(data.getRequest(), "external.groups");
+	}
+
 	/**
 	 * Launch the participant Helper Tool -- for adding participant
 	 * 
@@ -15609,6 +15694,34 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 		return true;
 	}
+
+	/**
+	 * getProviderCourseList a course site/realm id in one of three formats, for
+	 * a single section, for multiple sections of the same course, or for a
+	 * cross-listing having multiple courses. getProviderCourseList parses a
+	 * realm id into year, term, campus_code, catalog_nbr, section components.
+	 * 
+	 * @param id
+	 *            is a String representation of the course realm id (external
+	 *            id).
+	 */
+	private List getProviderCourseList(String id) {
+		Vector rv = new Vector();
+		if (id == null || id == NULL_STRING) {
+			return rv;
+		}
+		// Break Provider Id into course id parts
+		String[] courseIds = groupProvider.unpackId(id);
+		
+		// Iterate through course ids
+		for (int i=0; i<courseIds.length; i++) {
+			String courseId = (String) courseIds[i];
+
+			rv.add(courseId);
+		}
+		return rv;
+
+	} // getProviderCourseList
 	
 	private void putPrintParticipantLinkIntoContext(Context context, RunData data, Site site) {
 		// the status servlet reqest url
