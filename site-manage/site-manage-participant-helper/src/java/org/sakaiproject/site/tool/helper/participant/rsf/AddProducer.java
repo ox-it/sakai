@@ -27,6 +27,7 @@ import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UISelectLabel;
+import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
@@ -94,7 +95,7 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
     	UIInput.make(participantForm, "officialAccountParticipant", "#{siteAddParticipantHandler.officialAccountParticipant}", handler.officialAccountParticipant);
     	UIOutput.make(participantForm, "officialAccountSectionTitle", messageLocator.getMessage("officialAccountSectionTitle"));
     	UIOutput.make(participantForm, "officialAccountName", messageLocator.getMessage("officialAccountName"));
-    	UIOutput.make(participantForm, "officialAccountLabel", messageLocator.getMessage("officialAccountLabel"));
+    	UIVerbatim.make(participantForm, "officialAccountLabel", messageLocator.getMessage("officialAccountLabel"));
     	
     	String pickerAction = handler.getServerConfigurationString("officialAccountPickerAction");
 		if (pickerAction != null && !"".equals(pickerAction))
