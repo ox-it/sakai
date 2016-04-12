@@ -91,10 +91,11 @@
 <form action="#toolForm("$action")" method="post">
 	#set ($siteCount = 0)
 		<table summary ="$tlang.getString("list.summary")" class="listHier lines nolines" cellspacing="0" cellpadding="0" border="0">
-		#if ($helperMode)
-			<th scope="col" id="selected"></th>
-		#end
+		
 			<tr>
+			#if ($helperMode)
+				<th scope="col" id="selected"></th>
+			#end
 				<th scope="col" id="title">$tlang.getString("list.work")</th>
 				<th scope="col" id="type">$tlang.getString("list.type")</th>
 				<th scope="col" id="owner">$tlang.getString("list.owner")</th>
