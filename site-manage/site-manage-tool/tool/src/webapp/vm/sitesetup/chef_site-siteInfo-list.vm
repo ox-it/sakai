@@ -528,6 +528,42 @@
 		<div style="clear:both"> </div>
 		#end
 
+	#if ($allowUpdate && $providedGroups)
+		<h4>
+			$tlang.getString("sitegen.siteinfolist.extgroups")
+		</h4>
+		<table>
+		#if ($providedGroups.size() > 0)
+			#foreach ($group in $providedGroups)
+			<tr>
+				<td>$validator.escapeHtml($group.name)</td>
+				<td>
+					#if ($allowUpdateSiteMembership)
+					<form name="removeGroupForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
+						<input type="hidden" name="groupId" value="$group.id"/>
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+						<input type="submit" name="eventSubmit_doRemoveGroup" value="$tlang.getString("sitegen.siteinfolist.remove")"/>
+					</form>
+					#end
+				</td>
+			</tr>
+			#end
+		#else
+			<tr>
+				<td>$tlang.getString("sitegen.siteinfolist.noextgroups")</td>
+			</tr>
+		#end
+		</table>
+		#if ($allowUpdateSiteMembership)
+		<div>
+		<form method="post" action="#toolForm("SiteAction")">
+			<input type="submit" name="eventSubmit_doExternalGroupsHelper" value="$tlang.getString("sitegen.siteinfolist.addextgroup")"/>
+            <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+        </form>
+		</div>
+		#end
+	#end
+
 	#if ($!viewRoster)
 		#if ($participantList.size() > 0)
 			#set($pagesizeFormName="pagesizeFormTop")
@@ -733,7 +769,9 @@
 			</table>
 			<hr />
 			<div class="act" style="padding: 0 0">
+			#if($allowUpdateSiteMembership)
 				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_participant" value="$tlang.getString("sitegen.siteinfolist.update")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+			#end
 				#if ($fromWSetup)
 					<input type="submit" accesskey="x" name="eventSubmit_doBack_to_site_list" value="$tlang.getString("sitegen.siteinfolist.cancel")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				#end

@@ -16,6 +16,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.DisplayGroupProvider;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
@@ -418,14 +419,22 @@ public class SiteParticipantHelper {
 			for (Iterator<String> i=providerCourseList.iterator(); i.hasNext();)
 			{
 				String providerCourseEid = (String) i.next();
-				try
+				Section section = null;
+				if (cms != null) {
+					try {
+						section = cms.getSection(providerCourseEid);
+					} catch (IdNotFoundException infe) {
+						if (M_log.isDebugEnabled()) {
+							M_log.debug("Not a provided through course management: "+ providerCourseEid);
+						}
+					}
+				}
+				if (section != null)
 				{
-					Section section = cms.getSection(providerCourseEid);
-					
-					if (section != null)
-					{
+					try {
 						String sectionTitle = section.getTitle();
 					
+
 						// in case of Section eid
 						EnrollmentSet enrollmentSet = section.getEnrollmentSet();
 						addParticipantsFromEnrollmentSet(participantsMap, realm, providerCourseEid, enrollmentSet, sectionTitle);
@@ -471,11 +480,51 @@ public class SiteParticipantHelper {
 							}
 						}
 					}
-					
+					catch (IdNotFoundException e)
+					{
+						M_log.warn("SiteParticipantHelper.prepareParticipants: "+ e.getMessage() + " sectionId=" + providerCourseEid, e);
+					}
 				}
-				catch (IdNotFoundException e)
+				else
 				{
-					M_log.warn("SiteParticipantHelper.prepareParticipants: "+ e.getMessage() + " sectionId=" + providerCourseEid);
+					String groupName = providerCourseEid;
+					if (groupProvider instanceof DisplayGroupProvider) {
+						groupName = ((DisplayGroupProvider)groupProvider).getGroupName(providerCourseEid);
+					}
+					Map userRoles = groupProvider.getUserRolesForGroup(providerCourseEid);
+					List<User> users = UserDirectoryService.getUsersByEids(userRoles.keySet());
+					for (User user: users)
+					{
+						String userId = user.getId();
+						Member member = realm.getMember(userId);
+						if (member != null && member.isProvided())
+						{
+							// get or add provided participant
+							Participant participant;
+							if (participantsMap.containsKey(userId))
+							{
+								participant = (Participant) participantsMap.get(userId);
+								if (!participant.section.contains(groupName))
+								{
+									participant.addSectionEidToList(groupName);
+								}
+							}
+							else
+							{
+								participant = new Participant();
+								participant.credits = "";
+								participant.name = user.getSortName();
+								participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
+								participant.regId = "";
+								participant.removeable = false;
+								participant.role = member.getRole()!=null?member.getRole().getId():"";
+								participant.uniqname = userId;
+								participant.active = member.isActive();
+								participant.addSectionEidToList(groupName);
+							}
+							participantsMap.put(userId, participant);
+						}
+					}
 				}
 			}
 			
