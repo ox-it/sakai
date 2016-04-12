@@ -1,0 +1,30 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editInfo.vm,v 1.3 2005/05/23 04:04:12 ggolden.umich.edu Exp $ -->
+<div class="portletBody">
+       <h3>
+               $tlang.getString("sitediadm.change") $validator.escapeHtml($site.title)
+       </h3>
+       #if ($alertMessage)<div class="alertMessage">$tlang.getString("sitediinf.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+       <p>
+       $tlang.getString("sitediadm.current") $adminSiteName
+       </p>
+       <form name="classInformationForm" method="post" action="#toolForm("SiteAction")">
+               <input type="hidden" name="back" value="12" />
+               <input type="hidden" name="template-index" value="54" />
+               <label for="adminSiteRealm">$tlang.getString("sitediadm.new_admin")</label>
+               #if ($hasAvailableSites)  
+               <select name="adminSiteRealm" id="adminSiteRealm">
+               #foreach ($adminSite in $adminSites)
+                       <option value="${adminSite.reference}" #if($adminSite.reference == $adminSiteRef)selected="true"#end>$adminSite.name</option> 
+               #end
+               #else
+               $tlang.getString("sitediadm.none_found")
+               #end
+               </select>
+       <div class="act">
+               <input type="submit" accesskey="s" class= "active" name="eventSubmit_doUpdate_site_admin" value="$tlang.getString("gen.update")" #if(!$hasAvailableSites) disabled="disabled"#end/>
+               <input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitediinf.can")" />
+       </div>
+       <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+</form>
+       </div>
+

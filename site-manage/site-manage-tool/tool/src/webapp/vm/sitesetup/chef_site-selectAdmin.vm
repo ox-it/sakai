@@ -1,0 +1,46 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-selectAdmin.vm,v 1.3 2005/06/04 02:41:16 ggolden.umich.edu Exp $ -->
+
+<div class ="portletBody">
+
+	<h3>$tlang.getString("siteseladm.select")</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $validator.escapeHtml($alertMessage)</div>	#end
+	<p class="step">
+		$tlang.getString("siteseladm.intro")
+	</p>
+	<form name="adminForm" id="adminForm" action="#toolForm("$action")" method="post">
+	#if ($canSelect)
+		#if ($allowUnmanaged)
+				<p class="checkbox indnt1">
+					<input type="radio" name="adminSite" id="unmanaged" value="unmanaged" #if ("unmanaged" == $adminSite) checked="checked" #end/>
+						<label for="unmanaged">
+							$tlang.getString("siteseladm.unmanaged")
+						</label>	
+				</p>
+		#end
+		#foreach ($site in $adminSites)
+				<p class="checkbox indnt1">
+					<input type="radio" name="adminSite" id="$site.reference" value="$site.reference" #if ($site.reference == $adminSite) checked="checked" #end/>
+						<label for="$site.reference">
+							$site.title
+						</label>	
+				</p>
+		#end
+		<input type="hidden" name="back" value="0" />
+		<input type="hidden" name="template-index" value="55" />
+		<div class ="act">
+			<input type="submit" accesskey="s"  class="active" name="eventSubmit_doSite_selectAdmin" value="$tlang.getString("sitetype.con")" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString("sitetype.can")" />
+		</div>
+	#else
+		<p>$tlang.getString("siteseladm.none")</p>
+		<input type="hidden" name="back" value="0" />
+		<input type="hidden" name="template-index" value="55" />
+		<div class ="act">
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString("sitetype.can")" />
+		</div>
+	#end
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+
+	</form>
+</div>	
+
