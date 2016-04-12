@@ -89,8 +89,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 			buf.append(user.getDisplayName() + ":\n\n");
 			buf.append(rb.getString("java.following") + " "
 					+ productionSiteName + " "
-					+ rb.getString("java.simplesite") + "\n");
-			buf.append(site.getTitle() + "\n");
+					+ rb.getFormattedMessage("java.simplesite", new Object[]{site.getTitle()}) + "\n");
 			buf.append(rb.getString("java.simpleby") + " ");
 			buf.append(userDirectoryService.getCurrentUser().getDisplayName()
 					+ ". \n\n");
@@ -117,7 +116,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 				buf.append(rb.getString("java.loginhow2") + "\n");
 				buf.append(rb.getString("java.loginhow3u") + "\n");
 			}
-			buf.append(rb.getString("java.tabscreen"));
+			buf.append(rb.getFormattedMessage("java.tabscreen", new Object[]{site.getTitle()}));
 			content = buf.toString();
 			emailService.send(from, to, message_subject, content, headerTo,
 					replyTo, null);
