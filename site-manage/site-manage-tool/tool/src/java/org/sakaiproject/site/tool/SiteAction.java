@@ -36,6 +36,7 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -52,6 +53,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -81,6 +83,7 @@ import org.sakaiproject.authz.api.RoleProvider;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.cover.DevolvedSakaiSecurity;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -189,6 +192,11 @@ public class SiteAction extends PagedResourceActionII {
 
 	private static String showOrphanedMembers = ServerConfigurationService.getString("site.setup.showOrphanedMembers", "admins");
 
+	public void init() throws ServletException {
+		super.init();
+	}
+	
+	
 	/** portlet configuration parameter values* */
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("sitesetupgeneric");
@@ -305,7 +313,10 @@ public class SiteAction extends PagedResourceActionII {
 			"-siteInfo-importMigrate",    //59
 			"-importSitesMigrate",  //60
 			"-siteInfo-importUser",
-			"-uploadArchive"
+			"-uploadArchive",
+			"-siteInfo-changeAdmin", // 63
+			"-selectAdmin", // 64
+			"-selectAdmin" // 65
 	};
 
 	/** Name of state attribute for Site instance id */
@@ -328,6 +339,10 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_PRIVATE_SITE_TYPES = "private_site_types";
 
 	private static final String STATE_DISABLE_JOINABLE_SITE_TYPE = "disable_joinable_site_types";
+	
+	private static final String STATE_ADMIN_REALM = "admin_realm";
+	
+	private static final String STATE_ADMIN_REALM_FROM_USER = "admin_realm_from_user";
 
 	
 	private final static String PROP_SITE_LANGUAGE = "locale_string";
@@ -590,6 +605,9 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String STATE_SUBJECT_AFFILIATES = "site.subject.affiliates";
 
 	private final static String STATE_ICONS = "icons";
+
+	// list of Admin site types which should be restricted.
+	public static final String ADMIN_SITE_TYPES = "admin_site_types";
 
 	public static final String SITE_DUPLICATED = "site_duplicated";
 
@@ -1003,6 +1021,29 @@ public class SiteAction extends PagedResourceActionII {
 		return rserve; 
 	}
 
+	private static final Comparator<Entity> devolvedAdminComparator = new Comparator<Entity>() {
+
+		public int compare(Entity o1, Entity o2) {
+			if (o1 instanceof Site) {
+				if (o2 instanceof Site) {
+					Site s1 = (Site) o1;
+					Site s2 = (Site) o2;
+					return s1.getTitle().compareTo(s2.getTitle());
+				} else {
+					return -1;
+				}
+			} else {
+				if (o2 instanceof Site) {
+					return 1;
+				} else {
+					return o1.getId().compareTo(o2.getId());
+				}
+				
+			}
+		}
+		
+	};
+	
 	/**
 	 * Populate the state object, if needed.
 	 */
@@ -1076,7 +1117,16 @@ public class SiteAction extends PagedResourceActionII {
 		if (state.getAttribute(STATE_ICONS) == null) {
 			setupIcons(state);
 		}
-		
+		if (state.getAttribute(ADMIN_SITE_TYPES) == null) {
+			List<String> adminSiteTypes = Collections.emptyList();
+			if (ServerConfigurationService.getStrings("adminSiteType") != null) {
+				adminSiteTypes = new ArrayList<String>(Arrays
+						.asList(ServerConfigurationService
+								.getStrings("adminSiteType")));
+			}
+			state.setAttribute(ADMIN_SITE_TYPES, adminSiteTypes);
+		}
+
 		if (ServerConfigurationService.getStrings("site.type.titleNotEditable") != null) {
 			state.setAttribute(TITLE_NOT_EDITABLE_SITE_TYPE, new ArrayList(Arrays
 					.asList(ServerConfigurationService
@@ -1195,6 +1245,8 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_TYPE_SELECTED);
 		state.removeAttribute(STATE_SITE_SETUP_QUESTION_ANSWER);					
 		state.removeAttribute(STATE_SITE_SETUP_QUESTION_NEXT_TEMPLATE);
+		state.removeAttribute(STATE_ADMIN_REALM);
+		state.removeAttribute(STATE_ADMIN_REALM_FROM_USER);
 		// lti tools
 		state.removeAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST);
 		state.removeAttribute(STATE_LTITOOL_SELECTED_LIST);
@@ -1670,6 +1722,8 @@ public class SiteAction extends PagedResourceActionII {
 				allowAddSite = true;
 			} else if (SiteService.allowAddProjectSite()) {
 				allowAddSite = true;
+			} else if (SiteService.allowAddManagedSite()) {
+				allowAddSite = true;
 			}
 			
 			context.put("allowAddSite",allowAddSite);
@@ -1726,9 +1780,46 @@ public class SiteAction extends PagedResourceActionII {
 			
 			// template site
 			setTemplateListForContext(context, state);
+			if ((Boolean)state.getAttribute(STATE_ADMIN_REALM_FROM_USER)) {
+				context.put("back", "64");
+			}
 			
 			return (String) getContext(data).get("template") + TEMPLATE[1];
-	case 4:
+		case 2:
+			// This needs fixing as case 2 isn't supported in the current version of SiteAction, it's been merged with case 13.
+			if (state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE) != null) {
+				context.put("titleEditableSiteType", Boolean.FALSE);
+				siteInfo.title = (String)state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE);
+			} else {
+				context.put("titleEditableSiteType", siteTitleEditable(state, siteInfo.site_type));
+			}
+			context.put(FORM_TITLE, siteInfo.title);
+
+			context.put(FORM_SHORT_DESCRIPTION, siteInfo.short_description);
+			context.put(FORM_DESCRIPTION, siteInfo.description);
+
+			// defalt the site contact person to the site creator
+			if (siteInfo.site_contact_name.equals(NULL_STRING)
+					&& siteInfo.site_contact_email.equals(NULL_STRING)) {
+				User user = UserDirectoryService.getCurrentUser();
+				siteInfo.site_contact_name = user.getDisplayName();
+				siteInfo.site_contact_email = user.getEmail();
+			}
+			context.put("form_site_contact_name", siteInfo.site_contact_name);
+			context.put("form_site_contact_email", siteInfo.site_contact_email);
+
+			// those manual inputs
+			context.put("form_requiredFields", sectionFieldProvider
+					.getRequiredFields());
+			context.put("fieldValues", state
+					.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
+			
+			if ((Boolean)state.getAttribute(STATE_ADMIN_REALM_FROM_USER)) {
+				context.put("back", "64");
+			}
+
+			return (String) getContext(data).get("template") + TEMPLATE[2];
+		case 4:
 			/*
 			 * buildContextForTemplate chef_site-editToolGroups.vm
 			 * 
@@ -1921,6 +2012,8 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("additionalAccess", getAdditionRoles(siteInfo));
 
 			// bjones86 - SAK-24423 - add joinable site settings to context
+			context.put("adminSite", getAdminReferenceName((String)state.getAttribute(STATE_ADMIN_REALM)));
+
 			JoinableSiteSettings.addJoinableSiteSettingsToNewSiteConfirmContext( context, siteInfo );
 
 			context.put("importSiteTools", state
@@ -2029,6 +2122,10 @@ public class SiteAction extends PagedResourceActionII {
 						.allowUpdateSiteMembership(siteId);
 				context.put("allowUpdateSiteMembership", Boolean
 						.valueOf(allowUpdateSiteMembership));
+				
+				// Check if this site has an admin realm (site)
+				String adminRealm = DevolvedSakaiSecurity.getAdminRealm(site.getReference());
+				context.put("adminSiteTitle", getAdminReferenceName(adminRealm));
 
 				context.put("additionalAccess", getAdditionRoles(site));
 
@@ -2050,6 +2147,10 @@ public class SiteAction extends PagedResourceActionII {
 					if (!isMyWorkspace) {
 						b.add(new MenuEntry(rb.getString("java.editsite"),
 								"doMenu_edit_site_info"));
+						if (DevolvedSakaiSecurity.canSetAdminRealm(site.getReference())) {
+							b.add(new  MenuEntry(rb.getString("java.changeadmin"),
+									"doMenu_change_site_admin"));
+						}
 					}
 					b.add(new MenuEntry(rb.getString("java.edittools"),
 							"doMenu_edit_site_tools"));
@@ -2130,21 +2231,18 @@ public class SiteAction extends PagedResourceActionII {
 				if (allowUpdateSite) 
 				{
 					if (!isMyWorkspace) {
-						List<String> providedSiteTypes = siteTypeProvider.getTypes();
-						boolean isProvidedType = false;
-						if (siteType != null
-								&& providedSiteTypes.contains(siteType)) {
-							isProvidedType = true;
-						}
-						if (!isProvidedType) {
-							// hide site access for provided site types
+
+						boolean isRestrictedSite = isRestrictedSite(state,siteType);
+						if (!isRestrictedSite) {
+							// hide site access for GRADTOOLS
 							// type of sites
 							b.add(new MenuEntry(
 									rb.getString("java.siteaccess"),
 									"doMenu_edit_site_access"));
 							
 							// hide site duplicate and import
-							if (SiteService.allowAddSite(null) && ServerConfigurationService.getBoolean("site.setup.allowDuplicateSite", true))
+							// for GRADTOOLS type of sites
+							if ((SiteService.allowAddSite(null) || SiteService.allowAddManagedSite()) && ServerConfigurationService.getBoolean("site.setup.allowDuplicateSite", true))
 							{
 								b.add(new MenuEntry(rb.getString("java.duplicate"),
 										"doMenu_siteInfo_duplicate"));
@@ -2476,6 +2574,10 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_site-siteInfo-editInfo.vm
 			 * 
 			 */
+			Object fromAdmin = state.getAttribute(STATE_ADMIN_REALM_FROM_USER);
+			if (fromAdmin != null && (Boolean)(fromAdmin)) {
+				context.put("back", "64");
+			}
 			if (site != null) {
 				// revising a existing site's tool
 				context.put("existingSite", Boolean.TRUE);
@@ -2501,7 +2603,10 @@ public class SiteAction extends PagedResourceActionII {
 				context.put(FORM_SITE_URL_BASE, getSiteBaseUrl());
 				context.put(FORM_SITE_ALIAS, siteInfo.getFirstAlias());
 			}
-			
+			if (state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE) != null)
+			{
+				siteInfo.title = (String)state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE);
+			}
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			context.put("type", siteType);
 			context.put("siteTitleEditable", Boolean.valueOf(siteTitleEditable(state, siteType)));
@@ -3723,7 +3828,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put( CONTEXT_FILTER_TERMS, ServerConfigurationService.getBoolean( SAK_PROP_FILTER_TERMS, Boolean.FALSE ) );
 			
 			return (String) getContext(data).get("template") + TEMPLATE[53];
-		}
+		} 	
 		case 54:
 			/*
 			 * build context for chef_site-questions.vm
@@ -3745,7 +3850,7 @@ public class SiteAction extends PagedResourceActionII {
 			// only show those sites with same site type
 			putImportSitesInfoIntoContext(context, site, state, true);
 			return (String) getContext(data).get("template") + TEMPLATE[61];
-		
+
 		case 62:
 			/*
 			 * build context for chef_site-uploadArchive.vm
@@ -3756,12 +3861,77 @@ public class SiteAction extends PagedResourceActionII {
 
 			//now go to uploadArchive template
 			return (String) getContext(data).get("template") + TEMPLATE[62];
+		case 63:
+			/*
+			 * build context for chef_site-changeAdmin.vm
+			 */
+			context.put("site", site);
+			String adminSiteRef = DevolvedSakaiSecurity.getAdminRealm(site.getReference());
+			context.put("adminSiteRef", adminSiteRef);
+			context.put("adminSiteName", getAdminReferenceName(adminSiteRef));
+
+			boolean canRemoveAdmin = DevolvedSakaiSecurity.canRemoveAdminRealm(site.getReference());
+			List adminSites = new ArrayList();
+			if (canRemoveAdmin) {
+				adminSites.add(new AdminRealm("unmanged", getAdminReferenceName(null)));
+			}
+			List<Entity> adminRealms = DevolvedSakaiSecurity.getAvailableAdminRealms(site.getReference());
+			Collections.sort(adminRealms, devolvedAdminComparator);
+			for (Entity adminRealm : adminRealms) {
+				adminSites.add(new AdminRealm(adminRealm.getReference(), getAdminReferenceName(adminRealm.getReference())));
+			}
+
+
+			context.put("adminSites", adminSites);
+			context.put("hasAvailableSites", adminSites.size() != 0);
+			context.put("canRemoveAdmin", canRemoveAdmin);
+
+			return (String) getContext(data).get("template") + TEMPLATE[63];
+
+		case 64: // Used to choose an admin realm during site creation. 
+		case 65: // Used when selecting the admin site when duplicating
+			/*
+			 * build context for chef_site-selectAdmin.vm
+			 */
+			Boolean unmanaged = SiteService.allowAddSite(null);
+
+			List<Entity> possibleAdminSites = DevolvedSakaiSecurity.getAvailableAdminRealms(null);
+			Collections.sort(possibleAdminSites, devolvedAdminComparator);
+
+			context.put("adminSites", possibleAdminSites);
+			context.put("adminSite", state.getAttribute(STATE_ADMIN_REALM));
+			context.put("allowUnmanaged", unmanaged);
+			context.put("canSelect", unmanaged || possibleAdminSites.size() > 0);
+			context.put("template", Integer.toString(index));
+			
+			return (String)getContext(data).get("template") + TEMPLATE[index];
 		}
 			
 		// should never be reached
 		return (String) getContext(data).get("template") + TEMPLATE[0];
 	}
 	
+	/**
+	 * Some site don't get the full set of options in Site Info.
+	 * @param state The session state.
+	 * @param siteType The type of the site, eg project, course.
+	 * @return <code>true</code> is the site is a restricted one.
+	 */
+	private boolean isRestrictedSite(SessionState state, String siteType) {
+		List<String> providedSiteTypes = siteTypeProvider.getTypes();
+		boolean isRestrictedSite = false;
+		if (siteType != null && providedSiteTypes.contains(siteType)) {
+			isRestrictedSite = true;
+		}
+		List adminSiteTypes = (List) state.getAttribute(ADMIN_SITE_TYPES);
+		if (siteType != null && adminSiteTypes.contains(siteType) && !SecurityService.isSuperUser()) {
+			isRestrictedSite = true;
+		}
+		return isRestrictedSite;
+	}
+
+
+
 	private void addAccess(Context context, Map<String, AdditionalRole> access) {
 		boolean disableAdditional = access.size() == 0;
 		context.put("disableAdditional", disableAdditional);
@@ -4257,10 +4427,7 @@ public class SiteAction extends PagedResourceActionII {
 
 	public String buildUserListPanelContext(VelocityPortlet portlet,
 			Context context, RunData data, SessionState state)
-	{   /*
-		 * build context for chef_site-exportMemberList.vm
-		 * Displays list of usernames. 
-		 */		
+	{
 		
 		Site site = getStateSite(state);
 		String siteId = site.getId();
@@ -4396,6 +4563,8 @@ public class SiteAction extends PagedResourceActionII {
 	public boolean setHelper(String helperName, String defaultHelperId, SessionState state, String stateHelperString)
 	{
 		String helperId = ServerConfigurationService.getString(helperName, defaultHelperId);
+		
+		String siteType = (String)state.getAttribute(STATE_SITE_TYPE);
 		
 		// if the state variable regarding the helper is not set yet, set it with the configured helper id
 		if (state.getAttribute(stateHelperString) == null)
@@ -5249,15 +5418,17 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	/**
-	 * doNew_site is called when the Site list tool bar New... button is clicked
+	 * 	doNew_site is called when the Site list tool bar New... button is clicked
 	 * 
 	 */
 	public void doNew_site(RunData data) throws Exception {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
 
 		// start clean
 		cleanState(state);
+		
 
 		if (state.getAttribute(STATE_INITIALIZED) == null) {
 			state.setAttribute(STATE_OVERRIDE_TEMPLATE_INDEX, "1");
@@ -5268,8 +5439,65 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(STATE_TEMPLATE_INDEX, "1");
 			} 
 		}
+		if (canChooseAdminSite(data, state)) {
+			state.setAttribute(STATE_TEMPLATE_INDEX, "63");
+		} else {
+			doSite_selectAdmin(state, params);
+		}
+	}
+	
+	private boolean canChooseAdminSite(RunData data, SessionState state) {
+		List<Entity> adminSites = DevolvedSakaiSecurity.getAvailableAdminRealms(null);
+		boolean canChoose = true;
+		if (adminSites.size() == 1 && !SiteService.allowAddSite(null)) {
+			String adminRealm = adminSites.get(0).getReference();
+			state.setAttribute(STATE_ADMIN_REALM, adminRealm);
+			canChoose = false;
+		} else if (adminSites.size() == 0 && SiteService.allowAddSite(null)) {
+			state.setAttribute(STATE_ADMIN_REALM, "unmanaged");
+			canChoose = false;
+		}
+		state.setAttribute(STATE_ADMIN_REALM_FROM_USER, canChoose);
+		return canChoose;
+	}
+
+	public void doSite_selectAdmin(SessionState state, ParameterParser params) {
+		
+		String adminSite = params.getString("adminSite");
+		
+		if (adminSite != null && adminSite.length() > 0) {
+			state.setAttribute(STATE_ADMIN_REALM, adminSite);
+		}
+		if (state.getAttribute(STATE_ADMIN_REALM) != null) {
+			
+			List siteTypes = (List) state.getAttribute(STATE_SITE_TYPES);
+			if (siteTypes != null) {
+				if (siteTypes.size() == 1) {
+					String siteType = (String) siteTypes.get(0);
+					if (!SiteTypeUtil.isCourseSite(siteType)) {
+						// if only one site type is allowed and the type isn't
+						// course type
+						// skip the select site type step
+						setNewSiteType(state, siteType);
+						state.setAttribute(STATE_TEMPLATE_INDEX, "13");
+					} else {
+						state.setAttribute(STATE_TEMPLATE_INDEX, "1");
+					}
+				}
+			}
+		} else {
+			// Error Message
+			addAlert(state, rb.getString("java.noadminsite"));
+		}
 
 	} // doNew_site
+	
+	public void doMenu_change_site_admin(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+		.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		state.setAttribute(STATE_TEMPLATE_INDEX, "63");
+	}
 
 	/**
 	 * doMenu_site_delete is called when the Site list tool bar Delete button is
@@ -7576,6 +7804,14 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			state.removeAttribute(STATE_TERM_SELECTED);
 			removeAddClassContext(state);
 			state.setAttribute(STATE_TEMPLATE_INDEX, "43");
+		} else if ( currentIndex.equals("63")) {
+			state.removeAttribute(STATE_ADMIN_REALM);
+			state.removeAttribute(STATE_ADMIN_REALM_FROM_USER);
+			doCancel_create(data);
+		} else if ( currentIndex.equals("29")) {
+			state.removeAttribute(STATE_ADMIN_REALM);
+			state.removeAttribute(STATE_ADMIN_REALM_FROM_USER);
+			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 		}
 		// if all fails to match
 		else if (isTemplateVisited(state, "12")) {
@@ -8036,8 +8272,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	public void doMenu_siteInfo_duplicate(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-		if (state.getAttribute(STATE_MESSAGE) == null) {
+		
+		if (canChooseAdminSite(data, state)) {
+			// Need to reuse the same template...
+			state.setAttribute(STATE_TEMPLATE_INDEX, "65");
+		} else if (state.getAttribute(STATE_MESSAGE) == null) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "29");
 		}
 
@@ -8255,15 +8494,21 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 
 	/**
-	 * Check to see whether the site's title is editable or not
-	 * @param state
-	 * @param site_type
-	 * @return
+	 * Check to see whether the site's title is editable or not.
+	 * @param state The current state.
+	 * @param site_type The tyep of the current site.
+	 * @return Returns <code>true</code>
+	 * @param site_type The type of the current site.
+	 * @return Returns <code>true</code> if we're creating a site as a helper and already have site or if we're
+     * not creating a new site and the site type isn't in the non editable type list.
 	 */
 	private boolean siteTitleEditable(SessionState state, String site_type) {
-		return site_type != null 
-				&& ((state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE) != null 
-					&& !((List) state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE)).contains(site_type)));
+		boolean newSite = getStateSite(state) == null;
+		boolean editableSiteType = site_type != null
+				&& ((state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE) != null
+				&& !((List) state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE)).contains(site_type)));
+		boolean hasHelperTitle = state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE) != null;
+		return !(hasHelperTitle) && (newSite || editableSiteType);
 	}
 	
 	/**
@@ -8357,6 +8602,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 		} else if (SITE_MODE_HELPER.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
+			if (canChooseAdminSite(data, state)) {
+				state.setAttribute(STATE_TEMPLATE_INDEX, "63");
+			} else {
+				doSite_selectAdmin(state, data.getParameters());
+			}
 		} else if (SITE_MODE_SITEINFO.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))){
 
 			String siteId = ToolManager.getCurrentPlacement().getContext();
@@ -9260,7 +9510,56 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		} // else just leave joinability alone
 		
 	}
+
+	public void doUpdate_site_admin(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+		.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		Site sEdit = getStateSite(state);
+		ParameterParser params = data.getParameters();
+		String adminSite = params.getString("adminSiteRealm");
+		boolean removeAdminSite = "unmanaged".equals(adminSite);
+		String oldAdminSite = DevolvedSakaiSecurity.getAdminRealm(sEdit.getReference());
+		// Check that it's changed.
+		if ((adminSite != null && adminSite.equals(oldAdminSite))
+				|| (adminSite == null && removeAdminSite)) {
+			addAlert(state, rb.getString("java.changeadminsame"));
+			return;
+		}
+
+		Reference newRef = EntityManager.newReference(adminSite);
+		try {
+			if (removeAdminSite) {
+				DevolvedSakaiSecurity.removeAdminRealm(sEdit.getReference());
+				addAlert(state, rb.getFormattedMessage("java.changeadminremoved", null));
+			} else {
+				DevolvedSakaiSecurity.setAdminRealm(sEdit.getReference(), adminSite);
+				if (oldAdminSite != null) {
+					addAlert(state, rb.getFormattedMessage("java.changeadminupdate",
+							new Object[]{getAdminReferenceName(oldAdminSite), getAdminReferenceName(adminSite)}));
+				} else {
+					addAlert(state, rb.getFormattedMessage("java.changeadminset", new Object[]{getAdminReferenceName(adminSite)}));
+				}
+			}
+		} catch (PermissionException pe) {
+			addAlert(state, rb.getString("java.changeadminperm"));
+			M_log.warn(this + "  PermissionException " + sEdit.getTitle());
+		}
+		state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+	}
 	
+	private String getAdminReferenceName(String refString) {
+		if (refString == null || refString.length() == 0) {
+			return rb.getString("java.adminsitenone");
+		}
+		Reference ref = EntityManager.newReference(refString);
+		Entity entity = ref.getEntity();
+		if (entity instanceof Site) {
+			Site site = (Site)entity;
+			return site.getTitle();
+		}
+		return ref.getReference();
+	}
+
 	/**
 	 * /* Actions for vm templates under the "chef_site" root. This method is
 	 * called by doContinue. Each template has a hidden field with the value of
@@ -9622,8 +9921,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							// SAK-20797
 							long oldSiteQuota = this.getSiteSpecificQuota(oldSiteId);
 							
+							String adminRealm = (String)state.getAttribute(STATE_ADMIN_REALM);
+							if ("unmanaged".equals(adminRealm))
+							{
+								adminRealm = null;
+							}
 							Site site = SiteService.addSite(newSiteId,
-									getStateSite(state));
+									getStateSite(state), adminRealm);
 							
 							// An event for starting the "duplicate site" action
 							EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_START, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
@@ -9953,6 +10257,26 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					addAlert(state, rb.getString("java.toimport") + " ");
 				} else {
 					importSitesUsers(params, state);
+				}
+			}
+			break;
+		case 63:
+			if (forward) {
+				doSite_selectAdmin(state, params);
+			}
+			break;
+		case 65:
+			if (forward) {
+				String adminSite = params.getString("adminSite");
+
+				if (adminSite != null && adminSite.length() > 0) {
+					state.setAttribute(STATE_ADMIN_REALM, adminSite);
+				}
+				if (state.getAttribute(STATE_ADMIN_REALM) != null) {
+					state.setAttribute(STATE_TEMPLATE_INDEX, "29");
+				} else {
+					// Error Message
+					addAlert(state, rb.getString("java.noadminsite"));
 				}
 			}
 			break;
@@ -12020,6 +12344,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			siteInfo.site_id = id;
 		}
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
+		String adminSite = (String)state.getAttribute(STATE_ADMIN_REALM);
+		if ("unmanaged".equals(adminSite)) {
+			adminSite = null;
+		}
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
 				Site site = null;
@@ -12027,11 +12355,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				// if create based on template,
 				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
 				if (templateSite != null) {
-					site = SiteService.addSite(id, templateSite);
+					site = SiteService.addSite(id, templateSite, adminSite);
 					// set site type
 					site.setType(SiteTypeUtil.getTargetSiteType(templateSite.getType()));
 				} else {
-					site = SiteService.addSite(id, siteInfo.site_type);
+					site = SiteService.addSite(id, siteInfo.site_type, adminSite);
 				}
 				
 				// add current user as the maintainer
@@ -14414,6 +14742,29 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 
 	} // CourseObject constructor
+	
+	public class AdminRealm {
+		
+		final String reference;
+		
+		final String name;
+		
+		public AdminRealm(String reference, String name) {
+			this.reference = reference;
+			this.name = name;
+		}
+
+		public String getReference() {
+			return reference;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		
+		
+	}
 
 	/**
 	 * this object is used for displaying purposes in chef_site-newSiteCourse.vm
