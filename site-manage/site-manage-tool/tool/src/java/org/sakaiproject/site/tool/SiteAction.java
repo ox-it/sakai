@@ -317,7 +317,7 @@ public class SiteAction extends PagedResourceActionII {
 			"-uploadArchive",
 			"-siteInfo-changeAdmin", // 63
 			"-selectAdmin", // 64
-			"-selectAdmin", //65
+			"-selectAdmin" // 65
 	};
 
 	/** Name of state attribute for Site instance id */
@@ -3879,11 +3879,10 @@ public class SiteAction extends PagedResourceActionII {
 
 			return (String) getContext(data).get("template") + TEMPLATE[63];
 
-		case 64:
-		case 65:
+		case 64: // Used to choose an admin realm during site creation. 
+		case 65: // Used when selecting the admin site when duplicating
 			/*
 			 * build context for chef_site-selectAdmin.vm
-			 * Used to choose an admin realm during site creation.
 			 */
 			Boolean unmanaged = SiteService.allowAddSite(null);
 
@@ -7855,14 +7854,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			state.removeAttribute(STATE_TERM_SELECTED);
 			removeAddClassContext(state);
 			state.setAttribute(STATE_TEMPLATE_INDEX, "43");
-		} else if ( currentIndex.equals("55")) {
+		} else if ( currentIndex.equals("63")) {
 			state.removeAttribute(STATE_ADMIN_REALM);
 			state.removeAttribute(STATE_ADMIN_REALM_FROM_USER);
 			doCancel_create(data);
-		} else if ( currentIndex.equals("57")) {
-			state.removeAttribute(STATE_ADMIN_REALM);
-			state.removeAttribute(STATE_ADMIN_REALM_FROM_USER);
-			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 		} else if ( currentIndex.equals("29")) {
 			state.removeAttribute(STATE_ADMIN_REALM);
 			state.removeAttribute(STATE_ADMIN_REALM_FROM_USER);
@@ -8330,7 +8325,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		
 		if (canChooseAdminSite(data, state)) {
 			// Need to reuse the same template...
-			state.setAttribute(STATE_TEMPLATE_INDEX, "57");
+			state.setAttribute(STATE_TEMPLATE_INDEX, "65");
 		} else if (state.getAttribute(STATE_MESSAGE) == null) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "29");
 		}
@@ -8653,7 +8648,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		} else if (SITE_MODE_HELPER.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
 			if (canChooseAdminSite(data, state)) {
-				state.setAttribute(STATE_TEMPLATE_INDEX, "55");
+				state.setAttribute(STATE_TEMPLATE_INDEX, "63");
 			} else {
 				doSite_selectAdmin(state, data.getParameters());
 			}

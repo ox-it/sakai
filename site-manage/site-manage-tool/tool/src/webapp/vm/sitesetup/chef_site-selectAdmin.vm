@@ -26,7 +26,7 @@
 				</p>
 		#end
 		<input type="hidden" name="back" value="$template" />
-		<input type="hidden" name="template-index" value="$template" />
+		<input type="hidden" name="templateIndex" value="$template" />
 		
 		<div class ="act">
 			<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
@@ -35,7 +35,7 @@
 	#else
 		<p>$tlang.getString("siteseladm.none")</p>
 		<input type="hidden" name="back" value="0" />
-		<input type="hidden" name="template-index" value="$template" />
+		<input type="hidden" name="templateIndex" value="$template" />
 		<div class ="act">
 			<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString("sitetype.can")" />
 		</div>
