@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.DisplayGroupProvider;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
@@ -304,6 +305,7 @@ public class SiteManageGroupSectionRoleHandler {
         }
         return providerIds;
     }
+
     
     /**
      * Gets the rosters for the group
@@ -338,10 +340,16 @@ public class SiteManageGroupSectionRoleHandler {
         String label = rosterID;
         try
         {
-            Section s = cms.getSection( rosterID );
-            if( s != null )
+            if (cms != null)
             {
-                label = StringUtils.defaultIfBlank(s.getTitle(), rosterID);
+                Section s = cms.getSection(rosterID);
+                if (s != null) {
+                    label = StringUtils.defaultIfBlank(s.getTitle(), rosterID);
+                }
+            }
+            if (groupProvider instanceof DisplayGroupProvider)
+            {
+                label = ((DisplayGroupProvider)groupProvider).getGroupName(rosterID);
             }
         }
         catch( IdNotFoundException ex )
@@ -372,7 +380,13 @@ public class SiteManageGroupSectionRoleHandler {
             	try
             	{
             		AuthzGroup siteGroup = authzGroupService.getAuthzGroup(siteReference);
-            		roles.addAll(siteGroup.getRoles());
+            		Set<Role> siteRoles = siteGroup.getRoles();
+            		for (Role role: siteRoles)
+            		{
+            			if(authzGroupService.isRoleAssignable(role.getId())) {
+            				roles.add(role);
+            			}
+            		}
             	}
             	catch (GroupNotDefinedException e)
             	{
