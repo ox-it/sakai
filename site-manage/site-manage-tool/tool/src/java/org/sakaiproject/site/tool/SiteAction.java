@@ -3664,6 +3664,14 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_siteInfo-importMtrlMaster.vm
 			 * 
 			 */
+			// want to allow a larger file upload size than system default, but within ceiling defined in properties:
+			String ceiling = ServerConfigurationService.getString("content.upload.ceiling");
+			if (!ceiling.equals(""))
+			{
+				long ceilingMb = Long.valueOf(ceiling);
+				context.put("uploadmax", ceilingMb);
+			}
+
 			return (String) getContext(data).get("template") + TEMPLATE[45];
 
 		case 46:
@@ -4683,6 +4691,8 @@ public class SiteAction extends PagedResourceActionII {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
+		// removed upload file size checks; size check is done in RequestFilter, no need to repeat here.
+
 		List allzipList = new Vector();
 		List finalzipList = new Vector();
 		List directcopyList = new Vector();
@@ -4692,22 +4702,7 @@ public class SiteAction extends PagedResourceActionII {
 		String fileName = null;
 		fileFromUpload = data.getParameters().getFileItem("file");
 
-		String max_file_size_mb = ServerConfigurationService.getString(
-				"content.upload.max", "1");
-		long max_bytes = 1024 * 1024;
-		try {
-			max_bytes = Long.parseLong(max_file_size_mb) * 1024 * 1024;
-		} catch (Exception e) {
-			// if unable to parse an integer from the value
-			// in the properties file, use 1 MB as a default
-			max_file_size_mb = "1";
-			max_bytes = 1024 * 1024;
-			M_log.error(this + ".doUpload_Mtrl_Frm_File: wrong setting of content.upload.max = " + max_file_size_mb, e);
-		}
-		if (fileFromUpload == null) {
-			// "The user submitted a file to upload but it was too big!"
-			addAlert(state, rb.getFormattedMessage("importFile.size", new Object[]{max_file_size_mb}));
-		} else if (fileFromUpload.getFileName() == null
+		if (fileFromUpload.getFileName() == null
 				|| fileFromUpload.getFileName().length() == 0) {
 			addAlert(state, rb.getString("importFile.choosefile"));
 		} else {
@@ -4747,10 +4742,7 @@ public class SiteAction extends PagedResourceActionII {
 				IOUtils.closeQuietly(fileInputStream);
 			}
 
-			if (fileSize >= max_bytes) {
-				addAlert(state, rb.getFormattedMessage("importFile.size", new Object[]{max_file_size_mb}));
-			}
-			else if (fileSize > 0) {
+			if (fileSize > 0) {
 
 				if (fileInput != null && importService.isValidArchive(fileInput)) {
 					ImportDataSource importDataSource = importService
