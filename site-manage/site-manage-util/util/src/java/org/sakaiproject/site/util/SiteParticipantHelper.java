@@ -519,6 +519,7 @@ public class SiteParticipantHelper {
 								participant.removeable = false;
 								participant.role = member.getRole()!=null?member.getRole().getId():"";
 								participant.uniqname = userId;
+								participant.active = member.isActive();
 								participant.addSectionEidToList(groupName);
 							}
 							participantsMap.put(userId, participant);
