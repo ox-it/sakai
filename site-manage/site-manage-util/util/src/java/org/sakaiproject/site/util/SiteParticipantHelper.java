@@ -492,44 +492,36 @@ public class SiteParticipantHelper {
 						groupName = ((DisplayGroupProvider)groupProvider).getGroupName(providerCourseEid);
 					}
 					Map userRoles = groupProvider.getUserRolesForGroup(providerCourseEid);
-					for (Iterator mIterator = userRoles.keySet().iterator();mIterator.hasNext();)
+					List<User> users = UserDirectoryService.getUsersByEids(userRoles.keySet());
+					for (User user: users)
 					{
-						String userEid = (String)mIterator.next();
-						try 
+						String userId = user.getId();
+						Member member = realm.getMember(userId);
+						if (member != null && member.isProvided())
 						{
-							User user = UserDirectoryService.getUserByEid(userEid);
-							String userId = user.getId();
-							Member member = realm.getMember(userId);
-							if (member != null && member.isProvided())
+							// get or add provided participant
+							Participant participant;
+							if (participantsMap.containsKey(userId))
 							{
-								// get or add provided participant
-								Participant participant;
-								if (participantsMap.containsKey(userId))
+								participant = (Participant) participantsMap.get(userId);
+								if (!participant.section.contains(groupName))
 								{
-									participant = (Participant) participantsMap.get(userId);
-									if (!participant.section.contains(groupName))
-									{
-										participant.addSectionEidToList(groupName);
-									}
-								}
-								else
-								{
-									participant = new Participant();
-									participant.credits = "";
-									participant.name = user.getSortName();
-									participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
-									participant.regId = "";
-									participant.removeable = false;
-									participant.role = member.getRole()!=null?member.getRole().getId():"";
-									participant.uniqname = userId;
 									participant.addSectionEidToList(groupName);
 								}
-								participantsMap.put(userId, participant);
 							}
-						} catch (UserNotDefinedException exception) {
-							// deal with missing user quietly without throwing a
-							// warning message
-							M_log.warn(exception.getMessage());
+							else
+							{
+								participant = new Participant();
+								participant.credits = "";
+								participant.name = user.getSortName();
+								participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
+								participant.regId = "";
+								participant.removeable = false;
+								participant.role = member.getRole()!=null?member.getRole().getId():"";
+								participant.uniqname = userId;
+								participant.addSectionEidToList(groupName);
+							}
+							participantsMap.put(userId, participant);
 						}
 					}
 				}
