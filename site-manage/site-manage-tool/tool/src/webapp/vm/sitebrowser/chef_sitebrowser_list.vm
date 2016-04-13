@@ -130,7 +130,7 @@
                         </td>
                         
                         <td headers="owner">
-                        	$validator.escapeHtml($site.CreatedBy.DisplayName)
+                        	$validator.escapeHtml($site.getProperties().getProperty("contact-name"))
                         </td>
                         
                         <td headers="joinable">
