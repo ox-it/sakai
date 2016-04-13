@@ -5568,6 +5568,8 @@ public class SiteAction extends PagedResourceActionII {
 					} else {
 						state.setAttribute(STATE_TEMPLATE_INDEX, "1");
 					}
+				} else {
+					state.setAttribute(STATE_TEMPLATE_INDEX, "1");
 				}
 			}
 		} else {
