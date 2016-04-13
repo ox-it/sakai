@@ -3666,11 +3666,16 @@ public class SiteAction extends PagedResourceActionII {
 			 */
 			// want to allow a larger file upload size than system default, but within ceiling defined in properties:
 			String ceiling = ServerConfigurationService.getString("content.upload.ceiling");
+			long ceilingMb = 60;
+			
 			if (!ceiling.equals(""))
 			{
-				long ceilingMb = Long.valueOf(ceiling);
-				context.put("uploadmax", ceilingMb);
-			}
+				ceilingMb = Long.valueOf(ceiling);
+			} 
+			
+			context.put("uploadmax", ceilingMb);
+			context.put("sitediclachoosefile", 
+					rb.getFormattedMessage("sitedicla.choose_file", new Object[]{ceilingMb}));
 
 			return (String) getContext(data).get("template") + TEMPLATE[45];
 
