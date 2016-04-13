@@ -8,7 +8,7 @@
 		<div class="clear"></div>
 	#end
 	<p class="instruction">
-	$tlang.getString("sitedicla.choose_file")
+	$sitediclachoosefile
 	</p>
 	<form name="featuresForm" id="featuresForm" action="#toolForm("SiteAction")" method="post" enctype="multipart/form-data" onsubmit="return true;">
 		<input type="hidden" name="flow" id="flow" value="" />
