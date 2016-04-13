@@ -163,7 +163,8 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 			buf.append(rb.getString("java.passwordis1") + "\n"
 					+ newUserPassword + "\n\n");
 			buf.append(rb.getString("java.passwordis2") + "\n\n");
-
+			buf.append(rb.getString("java.newuserfooter")+ "\n");
+			
 			content = buf.toString();
 			emailService.send(from, to, message_subject, content, headerTo,
 					replyTo, null);

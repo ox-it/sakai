@@ -14,6 +14,10 @@
 		password: 	${newPassword} 
  You can change your password after you have logged in, using the Account tool in your My Workspace.
  
+ By using this account to login to WebLearn you are agreeing to abide by the \
+University of Oxford's Regulations Relating to the use of Information Technology Facilities.\
+See: http://www.admin.ox.ac.uk/statutes/regulations/196-052.shtml
+
  (This is an automated message from ${localSakaiName}.)
 </message>
  <locale></locale>
