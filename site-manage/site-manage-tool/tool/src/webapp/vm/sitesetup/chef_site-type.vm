@@ -294,7 +294,7 @@
             <input type="submit" accesskey="s" id="submitFromArchive" style="display:none" class="active" name="submitFromArchive" value="$tlang.getString('sitetype.con')" onclick="SPNR.disableControlsAndSpin( this, null );  document.typeform.option.value='createFromArchive'; document.typeform.submit(); return false;" />
             ## this submit should be ther normal one
             <input type="submit" accesskey="s" id="submitBuildOwn" disabled="disabled" class="active" name="submitBuildOwn" value="$tlang.getString('sitetype.con')" onclick="SPNR.disableControlsAndSpin( this, null ); document.typeform.option.value='siteType'; document.typeform.submit(); return false;" />
-            <input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
+            #if($backIndex)<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />#end
             <input type="submit" accesskey="x" id="cancelCreate" name="cancelCreate" value="$tlang.getString('sitetype.can')" onclick="SPNR.disableControlsAndSpin( this, null );document.typeform.option.value='cancel'; document.typeform.submit(); return false;" />
         </div>
 
