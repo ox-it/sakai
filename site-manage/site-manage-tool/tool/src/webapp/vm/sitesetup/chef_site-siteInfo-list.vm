@@ -239,6 +239,14 @@
 					$validator.escapeHtml($!contactName)#if($!contactEmail && !$contactEmail.equals("")), <a href="mailto:$!contactEmail">$!contactEmail</a>#end
 				</td>
 			</tr>
+			<tr>
+				<th>
+					$tlang.getString("sitegen.siteinfolist.adminsite")
+				</th>
+				<td>
+					$validator.escapeHtml($!adminSiteTitle)
+				</td>
+			</tr>
 		#if ($!allowUpdate)
 			<tr> 
 				<th>
