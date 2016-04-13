@@ -607,6 +607,9 @@ public class SiteAction extends PagedResourceActionII {
 
 	private final static String STATE_ICONS = "icons";
 
+	// list of Admin site types which should be restricted.
+	public static final String ADMIN_SITE_TYPES = "admin_site_types";
+
 	public static final String SITE_DUPLICATED = "site_duplicated";
 
 	public static final String SITE_DUPLICATED_NAME = "site_duplicated_named";
@@ -1115,7 +1118,16 @@ public class SiteAction extends PagedResourceActionII {
 		if (state.getAttribute(STATE_ICONS) == null) {
 			setupIcons(state);
 		}
-		
+		if (state.getAttribute(ADMIN_SITE_TYPES) == null) {
+			List<String> adminSiteTypes = Collections.emptyList();
+			if (ServerConfigurationService.getStrings("adminSiteType") != null) {
+				adminSiteTypes = new ArrayList<String>(Arrays
+						.asList(ServerConfigurationService
+								.getStrings("adminSiteType")));
+			}
+			state.setAttribute(ADMIN_SITE_TYPES, adminSiteTypes);
+		}
+
 		if (ServerConfigurationService.getStrings("site.type.titleNotEditable") != null) {
 			state.setAttribute(TITLE_NOT_EDITABLE_SITE_TYPE, new ArrayList(Arrays
 					.asList(ServerConfigurationService
@@ -2221,14 +2233,10 @@ public class SiteAction extends PagedResourceActionII {
 				if (allowUpdateSite) 
 				{
 					if (!isMyWorkspace) {
-						List<String> providedSiteTypes = siteTypeProvider.getTypes();
-						boolean isProvidedType = false;
-						if (siteType != null
-								&& providedSiteTypes.contains(siteType)) {
-							isProvidedType = true;
-						}
-						if (!isProvidedType) {
-							// hide site access for provided site types
+
+						boolean isRestrictedSite = isRestrictedSite(state,siteType);
+						if (!isRestrictedSite) {
+							// hide site access for GRADTOOLS
 							// type of sites
 							b.add(new MenuEntry(
 									rb.getString("java.siteaccess"),
@@ -3903,6 +3911,27 @@ public class SiteAction extends PagedResourceActionII {
 		return (String) getContext(data).get("template") + TEMPLATE[0];
 	}
 	
+	/**
+	 * Some site don't get the full set of options in Site Info.
+	 * @param state The session state.
+	 * @param siteType The type of the site, eg project, course.
+	 * @return <code>true</code> is the site is a restricted one.
+	 */
+	private boolean isRestrictedSite(SessionState state, String siteType) {
+		List<String> providedSiteTypes = siteTypeProvider.getTypes();
+		boolean isRestrictedSite = false;
+		if (siteType != null && providedSiteTypes.contains(siteType)) {
+			isRestrictedSite = true;
+		}
+		List adminSiteTypes = (List) state.getAttribute(ADMIN_SITE_TYPES);
+		if (siteType != null && adminSiteTypes.contains(siteType) && !SecurityService.isSuperUser()) {
+			isRestrictedSite = true;
+		}
+		return isRestrictedSite;
+	}
+
+
+
 	private void addAccess(Context context, Map<String, AdditionalRole> access) {
 		boolean disableAdditional = access.size() == 0;
 		context.put("disableAdditional", disableAdditional);
