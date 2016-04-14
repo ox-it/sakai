@@ -10521,7 +10521,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				ContentResource resource = m_contentHostingService.getResource(ref.getId());
 				// the new resource
 				ContentResource nResource = null;
-				String nResourceId = resource.getId().replaceAll(oSiteId, nSiteId);
+				String oResourceId = resource.getId();
+				String nResourceId = oResourceId.replaceAll(oSiteId, nSiteId);
 				try
 				{
 					nResource = m_contentHostingService.getResource(nResourceId);
@@ -10532,8 +10533,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					// copy the resource then
 					try
 					{
-						nResourceId = m_contentHostingService.copy(resource.getId(), nResourceId);
-						nResource = m_contentHostingService.getResource(nResourceId);
+						ContentCopyContext copyContext = contentCopy.createCopyContext(oSiteId, nSiteId, true);
+						copyContext.addResource(oResourceId);
+						contentCopy.copyReferences(copyContext);
+						String copyResourceId = copyContext.getCopyResults().get(oResourceId);
+						if (copyResourceId != null) {
+							rv = m_contentHostingService.getUrl(copyResourceId);
+						}
 					}
 					catch (Exception n3Exception)
 					{
@@ -10541,8 +10547,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					}
 				}
 				
-				// get the new resource url
-				rv = nResource != null?nResource.getUrl(false):"";
+				// fallback to empty if something went wrong
+				if (rv == null) {
+					rv = "";
+				}
 				
 			}
 			catch (URISyntaxException use)
