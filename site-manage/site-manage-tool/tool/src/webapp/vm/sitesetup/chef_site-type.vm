@@ -140,7 +140,7 @@
                             <label for="copyContent">$tlang.getString("sitetype.copycontent")</label>
                         </span>
                         <span id="publishSiteWrapper">
-                            <input type="checkbox" name="publishSite" id="publishSite" value="true"/>
+                            <input type="checkbox" name="publishSite" id="publishSite" value="true" checked="checked"/>
                             <label for="publishSite">$tlang.getString("sitetype.publishSite")</label>
                         </span>
                         <span id="fromTemplateSettingsContainer_instruction">
