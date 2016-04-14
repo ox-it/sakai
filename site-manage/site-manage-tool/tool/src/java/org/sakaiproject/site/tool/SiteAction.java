@@ -4552,8 +4552,9 @@ public class SiteAction extends PagedResourceActionII {
 				if (displayName == null) {
 					M_log.debug("Ignoring unnamed providerId: "+ providerId);
 				} else {
+					String suspendedGroupProviderId = displayGroupProvider.getSuspendedGroupProviderId(providerId, providerIds);// get the suspended group if it exists
 					Map<String, String> group = new HashMap<String, String>();
-					group.put("id", providerId);
+					group.put("id", providerId + (suspendedGroupProviderId.isEmpty() ? suspendedGroupProviderId : "," + suspendedGroupProviderId));
 					group.put("name", displayName);
 					groups.add(group);
 				}
@@ -4565,7 +4566,7 @@ public class SiteAction extends PagedResourceActionII {
 	public void doRemoveGroup(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 			.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		String removeGroupId = data.getParameters().getString("groupId");
+		String[] removeGroupIds = data.getParameters().getString("groupId").split(",");
 		
 		String siteId = (String) state
 				.getAttribute(STATE_SITE_INSTANCE_ID);
@@ -4575,17 +4576,19 @@ public class SiteAction extends PagedResourceActionII {
 
 			List<String> providerCourseList = (List<String>)getProviderCourseList(StringUtil
 					.trimToNull(realm.getProviderGroupId()));
-			if (providerCourseList.remove(removeGroupId)) {
-				String displayName = removeGroupId;
-				if (groupProvider instanceof DisplayGroupProvider) {
-					String betterName = ((DisplayGroupProvider)groupProvider).getGroupName(removeGroupId);
-					if (betterName != null && betterName.length() > 0) {
-						displayName = betterName;
+			for (String removeGroupId : removeGroupIds) {
+				if (providerCourseList.remove(removeGroupId)) {
+					String displayName = removeGroupId;
+					if (groupProvider instanceof DisplayGroupProvider) {
+						String betterName = ((DisplayGroupProvider)groupProvider).getGroupName(removeGroupId);
+						if (betterName != null && betterName.length() > 0) {
+							displayName = betterName;
+						}
 					}
+					realm.setProviderGroupId(groupProvider.packId(providerCourseList.toArray(new String[]{})));
+					authzGroupService.save(realm);
+					addAlert(state, rb.getFormattedMessage("java.extgrpremove", new Object[]{displayName}));
 				}
-				realm.setProviderGroupId(groupProvider.packId(providerCourseList.toArray(new String[]{})));
-				authzGroupService.save(realm);
-				addAlert(state, rb.getFormattedMessage("java.extgrpremove", new Object[]{displayName}));
 			}
 		} catch (GroupNotDefinedException gnde) {
 			M_log.warn("Failed to find realm for site: "+ siteId);
