@@ -7225,9 +7225,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					    M_log.error(this + "doFinish: unable to reload site " + site.getId() + " after updating roster.");
 					}
 				}
-				// We don't want the new site to automatically be a template
-				site.getPropertiesEdit().removeProperty("template");
-				
 				// publish the site or not based on the template choice
 				site.setPublished(state.getAttribute(STATE_TEMPLATE_PUBLISH) != null?true:false);
 				
@@ -12503,6 +12500,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
 				if (templateSite != null) {
 					site = SiteService.addSite(id, templateSite, adminSite);
+					// We don't want the new site to automatically be a template and we want to do this as soon
+					// as possible after creation so if a problem occurs the resulting site isn't still a
+					// template.
+					site.getProperties().removeProperty("template");
 					// set site type
 					site.setType(SiteTypeUtil.getTargetSiteType(templateSite.getType()));
 				} else {
