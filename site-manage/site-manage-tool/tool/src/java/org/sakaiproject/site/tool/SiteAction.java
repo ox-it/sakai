@@ -5570,21 +5570,20 @@ public class SiteAction extends PagedResourceActionII {
 
 		// start clean
 		cleanState(state);
-		
 
-		if (state.getAttribute(STATE_INITIALIZED) == null) {
-			state.setAttribute(STATE_OVERRIDE_TEMPLATE_INDEX, "1");
-		} else {
-			List siteTypes = (List) state.getAttribute(STATE_SITE_TYPES);
-			if (siteTypes != null) 
-			{
-				state.setAttribute(STATE_TEMPLATE_INDEX, "1");
-			} 
+		List siteTypes = (List) state.getAttribute(STATE_SITE_TYPES);
+		if (siteTypes != null)
+		{
+			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
 		}
 		if (canChooseAdminSite(data, state)) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "63");
 		} else {
 			doSite_selectAdmin(state, params);
+		}
+
+		if (state.getAttribute(STATE_INITIALIZED) == null) {
+			state.setAttribute(STATE_OVERRIDE_TEMPLATE_INDEX, state.getAttribute(STATE_TEMPLATE_INDEX));
 		}
 	}
 	
