@@ -277,22 +277,16 @@ sakai.siteTypeSetup = function(){
    
     // check for a value in the create from template non-course title 
     // field and either enable or disable the submit, also check onblur below
-    $('#siteTitleField').keyup(function(e){
-        if ($(this).val().length >= 1) {
-            $('#submitFromTemplate').attr('disabled', false);
-        }
-        else {
-            $('#submitFromTemplate').attr('disabled', true);
-        }
-    });
-    $('#siteTitleField').blur(function(){
+    var changeSiteTitleField = function(e){
         if ($(this).val().length >= 1) {
             $('#submitFromTemplate').prop('disabled', false);
         }
         else {
             $('#submitFromTemplate').prop('disabled', true);
         }
-    });
+    };
+    $('#siteTitleField').keyup(changeSiteTitleField);
+    $('#siteTitleField').blur(changeSiteTitleField);
     
     // check that user has picked a term in the term selection field
     //to enable or disable submits for create course from template
@@ -428,6 +422,10 @@ sakai.siteTypeSetup = function(){
             if ($.inArray(type, courseSiteTypes) !==-1) { //either there is a mapping to what types of sites resolve to courses or a fallback to 'course'  
                 $('#submitFromTemplate').hide(); // hide the non-course submit button 
                 $('#submitFromTemplateCourse').show(); // show the submit button for course
+                // WL-2186 sometimes the title is defined in the state and so we can move straight on.
+                if ($('#siteTitleField').length == 0) {
+                  $('#submitFromTemplateCourse').prop('disabled', false);
+                }
                 $('#siteTerms').show(); // show the term selector
                 $('#siteTitle').hide(); // hide the title input (Note: can an installation specify that a course can have a user generated title)?
                 $('#siteTerms select').focus(); // focus the term select control
@@ -436,6 +434,9 @@ sakai.siteTypeSetup = function(){
             // the picked template has a type that does not resolve to a course
             else { 
                 $('#submitFromTemplate').show(); // show non-course submit button
+                if ($('#siteTitleField').length == 0) {
+                    $('#submitFromTemplate').prop('disabled', false);
+                }
                 $('#submitFromTemplateCourse').hide(); // hide the course submit button
                 $('#siteTitle').show(); //show title input
                 $('#siteTerms').hide();//hide the container that holds the site terms
