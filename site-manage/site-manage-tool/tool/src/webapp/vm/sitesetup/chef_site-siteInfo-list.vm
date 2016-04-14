@@ -537,18 +537,20 @@
 		<table>
 		#if ($providedGroups.size() > 0)
 			#foreach ($group in $providedGroups)
-			<tr>
-				<td>$validator.escapeHtml($group.name)</td>
-				<td>
-					#if ($allowUpdateSiteMembership)
-					<form name="removeGroupForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
-						<input type="hidden" name="groupId" value="$group.id"/>
-						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-						<input type="submit" name="eventSubmit_doRemoveGroup" value="$tlang.getString("sitegen.siteinfolist.remove")"/>
-					</form>
-					#end
-				</td>
-			</tr>
+				#if (!$group.name.contains("(suspended)"))
+					<tr>
+						<td>$validator.escapeHtml($group.name)</td>
+						<td>
+							#if ($allowUpdateSiteMembership)
+							<form name="removeGroupForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
+								<input type="hidden" name="groupId" value="$group.id"/>
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+								<input type="submit" name="eventSubmit_doRemoveGroup" value="$tlang.getString("sitegen.siteinfolist.remove")"/>
+							</form>
+							#end
+						</td>
+					</tr>
+				#end
 			#end
 		#else
 			<tr>
