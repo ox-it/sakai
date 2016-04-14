@@ -8647,11 +8647,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 */
 	private boolean siteTitleEditable(SessionState state, String site_type) {
 		boolean newSite = getStateSite(state) == null;
-		boolean nonEditSiteType = site_type != null
+		boolean editableSiteType = site_type != null
 				&& ((state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE) != null
 				&& !((List) state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE)).contains(site_type)));
 		boolean hasHelperTitle = state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE) != null;
-		return !(hasHelperTitle) && (newSite || !nonEditSiteType);
+		return !(hasHelperTitle) && (newSite || editableSiteType);
 	}
 	
 	/**
