@@ -100,6 +100,8 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentCopy;
+import org.sakaiproject.content.api.ContentCopyContext;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
@@ -190,6 +192,8 @@ public class SiteAction extends PagedResourceActionII {
 	
 	private LTIService m_ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 	private ContentHostingService m_contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+	
+	private ContentCopy contentCopy = (ContentCopy)ComponentManager.get(ContentCopy.class);
 
 	private ImportService importService = org.sakaiproject.importer.cover.ImportService
 			.getInstance();
@@ -10028,6 +10032,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 							// set title
 							site.setTitle(title);
+							// Update the description and copy and related content.
+							ContentCopyContext context = contentCopy.createCopyContext(oldSiteId, newSiteId, true);
+							String nDescription = contentCopy.convertContent(context, site.getDescription(), "text/html", null);
+							site.setDescription(nDescription);
+							contentCopy.copyReferences(context);
 							
 							// SAK-20797 alter quota if required
 							boolean	duplicateQuota = params.getString("dupequota") != null ? params.getBoolean("dupequota") : false;
@@ -10038,6 +10047,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 									try {
 										String collId = m_contentHostingService
 												.getSiteCollection(site.getId());
+
 
 										ContentCollectionEdit col = m_contentHostingService.editCollection(collId);
 
