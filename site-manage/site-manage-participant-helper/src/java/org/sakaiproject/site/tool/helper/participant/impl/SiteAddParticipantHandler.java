@@ -1115,6 +1115,20 @@ public class SiteAddParticipantHandler {
 		if ("same_role".equals(roleChoice)) {
 			targettedMessageList.addMessage(new TargettedMessage("java.roletype", null, TargettedMessage.SEVERITY_ERROR));
 		}
+		
+		// If external participants aren't allowed, don't allow them
+		if (!isEnabled(ConfigOption.EXTERNAL_PARTICIPANTS)) {
+			for (UserRoleEntry userRole: userRoleEntries) {
+				try {
+					User user = userDirectoryService.getUserByEid(userRole.userEId);
+					if ("guest".equals(user.getType())) {
+						targettedMessageList.addMessage(new TargettedMessage("java.noexternal", new Object[]{userRole.userEId}, TargettedMessage.SEVERITY_ERROR));
+					}
+				} catch (UserNotDefinedException e) {
+					targettedMessageList.addMessage(new TargettedMessage("java.noexternal", new Object[]{userRole.userEId}, TargettedMessage.SEVERITY_ERROR));
+				}
+			}
+		}
 
 		// remove duplicate or existing user from participant list
 		pList = removeDuplicateParticipants(pList);
@@ -1203,7 +1217,23 @@ public class SiteAddParticipantHandler {
 
 		return rv;
 	}
+
+	public enum ConfigOption{ EXTERNAL_PARTICIPANTS };
 	
+	public boolean isEnabled(ConfigOption option) {
+		if (ConfigOption.EXTERNAL_PARTICIPANTS.equals(option)) {
+			// Check enabled serverwide first
+			boolean externalUsers = serverConfigurationService.getBoolean("nonOfficialAccount", true);
+			if (externalUsers) {
+				// Some site types don't allow external users.
+				externalUsers = !serverConfigurationService.getString("twofactor.site.type", "secure").equals(site.getType());
+			}
+			return externalUsers;
+		}
+		return false;
+	}
+
+
 	private void reset()
 	{
 		site = null;
