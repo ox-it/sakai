@@ -4,11 +4,11 @@
 
 	<h3>$tlang.getString("siteseladm.select")</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $validator.escapeHtml($alertMessage)</div>	#end
-	<p class="step">
-		$tlang.getString("siteseladm.intro")
-	</p>
 	<form name="adminForm" id="adminForm" action="#toolForm("$action")" method="post">
 	#if ($canSelect)
+		<p class="step">
+			$tlang.getString("siteseladm.intro")
+		</p>
 		#if ($allowUnmanaged)
 				<p class="checkbox indnt1">
 					<input type="radio" name="adminSite" id="unmanaged" value="unmanaged" #if ("unmanaged" == $adminSite) checked="checked" #end/>
@@ -33,7 +33,7 @@
 			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
 		</div>
 	#else
-		<p>$tlang.getString("siteseladm.none")</p>
+		$tlang.getString("siteseladm.none.html")
 		<input type="hidden" name="back" value="0" />
 		<input type="hidden" name="templateIndex" value="$template" />
 		<div class ="act">
