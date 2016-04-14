@@ -8624,10 +8624,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			// None of this helps other users who may try to reload an aliased site 
 			// URL that no longer resolves.
 			if ( updateSiteRefAliases ) {
-				sendParentRedirect((HttpServletResponse) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE),
-					getDefaultSiteUrl(ToolManager.getCurrentPlacement().getContext()) + "/" +
-					SiteService.PAGE_SUBTYPE + "/" + 
-					((ToolConfiguration) ToolManager.getCurrentPlacement()).getPageId());
+				sendParentRedirect((HttpServletResponse) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE), getCurrentSiteUrl());
 			} else {
 				scheduleTopRefresh();
 			}
@@ -16062,10 +16059,14 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						+ rb.getString("sitinfimp.sitebeing") + " ");
 			}
 		}
-		
-		// refresh the whole page
-		scheduleTopRefresh();
-		
+
+		String redirectUrl = ServerConfigurationService.getPortalUrl();;
+		//Check if user has access to the site even when they unjoin it, could be beacuse site is public or because of their role.
+		if(id != null && SiteService.allowAccessSite(id)){
+			redirectUrl = getCurrentSiteUrl();
+		}
+		sendParentRedirect((HttpServletResponse) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE), redirectUrl);
+
 	} // doJoin
 
 
@@ -16080,10 +16081,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 		final String id = params.get("itemReference");
 		String siteTitle = null;
-		
+		Site site = null;
 		if (id != null)	{
 			try	{
-				siteTitle = SiteService.getSite(id).getTitle();
+				site = SiteService.getSite(id);
+				siteTitle = site.getTitle();
 				SiteService.unjoin(id);
 				String msg = rb.getString("sitinfimp.youhave") + " " + siteTitle;
 				addAlert(state, msg);
@@ -16401,6 +16403,17 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		tool.setTitle(ToolManager.getTool(toolId).getTitle());
 		
 		return site;
+	}
+
+	/**
+	 * Get the current Site Url
+	 * @return returns the String url for the current site
+	 */
+	private String getCurrentSiteUrl(){
+		return getDefaultSiteUrl(ToolManager.getCurrentPlacement().getContext()) + "/" +
+				SiteService.PAGE_SUBTYPE + "/" +
+				((ToolConfiguration) ToolManager.getCurrentPlacement()).getPageId();
+
 	}
 	
 	/**
