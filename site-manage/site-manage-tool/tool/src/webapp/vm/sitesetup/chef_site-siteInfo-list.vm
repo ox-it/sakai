@@ -543,6 +543,7 @@
 					#if ($allowUpdateSiteMembership)
 					<form name="removeGroupForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
 						<input type="hidden" name="groupId" value="$group.id"/>
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						<input type="submit" name="eventSubmit_doRemoveGroup" value="$tlang.getString("sitegen.siteinfolist.remove")"/>
 					</form>
 					#end
