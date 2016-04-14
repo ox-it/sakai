@@ -15,16 +15,13 @@ public class SiteActionUtils {
 	public static String getPodcastPicker(String rss) {
 		String html =
 			"        <script>var sourceUrl = '"+ rss + "';</script>\n"+
-			"        <script src=\"/library/newspicker/js/jquery.lib.js\"></script>\n" + 
-			"        <script src=\"/library/newspicker/js/jquery-ui.lib.js\"></script>\n" + 
 			"        <script src=\"/library/newspicker/js/jquery.defer.lib.js\"></script>\n" + 
 			"        <script src=\"/library/newspicker/js/jqmodal.lib.js\"></script>\n" + 
 			"        <script src=\"/library/newspicker/js/podcaster.js\"></script>\n" +
 			"        <script src=\"/library/newspicker/js/site-setup.js\"></script>\n" +
 			"        <link href=\"/library/newspicker/css/jqModal.css\" rel=\"stylesheet\" type=\"text/css\" />\n" + 
 			"        <link href=\"/library/newspicker/css/test.css\" rel=\"stylesheet\" type=\"text/css\" />\n" + 
-			"        <link href=\"/library/newspicker/css/picker.css\" rel=\"stylesheet\" type=\"text/css\" />\n" + 
-			"        <link href=\"/library/newspicker/css/jquery-ui-1.8.7.custom.css\" rel=\"stylesheet\" type=\"text/css\" />";
+			"        <link href=\"/library/newspicker/css/picker.css\" rel=\"stylesheet\" type=\"text/css\" />\n";
 		return html;
 	}
 }
