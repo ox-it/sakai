@@ -468,21 +468,15 @@ public class SiteManageGroupSectionRoleHandler {
      */
     public List<String> getGroupProviderRoles(Group g) {
         List<String> rv = null;
-        
+
         if (update) {
             rv = new ArrayList<>();
             if (g != null)
-            {   
+            {
                 // get the authz group
             	String roleProviderId = g.getProperties().getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
-            	if (roleProviderId != null)
-            	{
-            		if (groupProvider != null)
-            		{
-	            		String[] roleStrings = groupProvider.unpackId(roleProviderId);
-	            		rv.addAll( Arrays.asList( roleStrings ) );
-            		}
-            	}
+                Collection<String> groupProvidedRoles = SiteGroupHelper.unpack(roleProviderId);
+                rv.addAll( groupProvidedRoles );
             }
         }
         return rv;
@@ -1335,9 +1329,9 @@ public class SiteManageGroupSectionRoleHandler {
     }
     
     /**
-     * check whether there is already a group within the site containing the roster id
-     * @param rosterId
-     * @return
+     * Check whether there is already a group within the site containing the roster id
+     * @param rosterId This role to check the site groups against. eg: access.
+     * @return <code>true</code> if this a group for this role already exists.
      */
     public boolean existRosterGroup(String rosterId)
     {
