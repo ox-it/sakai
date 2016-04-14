@@ -14,8 +14,9 @@
 
 <script type="text/javascript" language="JavaScript">
     $(document).ready(function(){
-        sakai.siteTypeSetup()
-    });
+		sakai.siteTypeSetup();
+        $('#copy').trigger('click');
+	});
 </script>
 <div class ="portletBody">
 
