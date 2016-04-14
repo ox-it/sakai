@@ -2627,7 +2627,10 @@ public class SiteAction extends PagedResourceActionII {
 				context.put(FORM_SITE_URL_BASE, getSiteBaseUrl());
 				context.put(FORM_SITE_ALIAS, siteInfo.getFirstAlias());
 			}
-			
+			if (state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE) != null)
+			{
+				siteInfo.title = (String)state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE);
+			}
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			context.put("type", siteType);
 			context.put("siteTitleEditable", Boolean.valueOf(siteTitleEditable(state, siteType)));
@@ -8630,16 +8633,21 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 
 	/**
-	 * Check to see whether the site's title is editable or not
-	 * @param state
-	 * @param site_type
-	 * @return
+	 * Check to see whether the site's title is editable or not.
+	 * @param state The current state.
+	 * @param site_type The tyep of the current site.
+	 * @return Returns <code>true</code>
+	 * @param site_type The type of the current site.
+	 * @return Returns <code>true</code> if we're creating a site as a helper and already have site or if we're
+     * not creating a new site and the site type isn't in the non editable type list.
 	 */
 	private boolean siteTitleEditable(SessionState state, String site_type) {
-		return site_type != null 
-				&& state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE) == null
-				&& ((state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE) != null 
-					&& !((List) state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE)).contains(site_type)));
+		boolean newSite = getStateSite(state) == null;
+		boolean nonEditSiteType = site_type != null
+				&& ((state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE) != null
+				&& !((List) state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE)).contains(site_type)));
+		boolean hasHelperTitle = state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE) != null;
+		return !(hasHelperTitle) && (newSite || !nonEditSiteType);
 	}
 	
 	/**
