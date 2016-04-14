@@ -1225,7 +1225,12 @@ public class SiteAddParticipantHandler {
 		return rv;
 	}
 
-	public enum ConfigOption{ EXTERNAL_PARTICIPANTS };
+	public enum ConfigOption{
+		/**
+		 * Should external participants be allowed to be added in this site.
+		 */
+		EXTERNAL_PARTICIPANTS
+	};
 	
 	public boolean isEnabled(ConfigOption option) {
 		// This is a hack because sometimes this bean is wrongly re-used between requests.
