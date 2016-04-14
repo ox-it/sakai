@@ -2114,7 +2114,8 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("siteShortDescription", site.getShortDescription());
 				if (unJoinableSiteTypes != null && !unJoinableSiteTypes.contains(siteType))
 				{
-					context.put("siteJoinable", Boolean.valueOf(site.isJoinable()));
+					boolean isAnon = UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser());
+					context.put("siteJoinable", site.isJoinable() && !(isAnon));
 					context.put("allowUnjoin", SiteService.allowUnjoinSite(site.getId()));
 				}
 
