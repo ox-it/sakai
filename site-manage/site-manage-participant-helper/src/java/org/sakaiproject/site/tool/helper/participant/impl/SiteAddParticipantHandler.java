@@ -1239,7 +1239,12 @@ public class SiteAddParticipantHandler {
 			if (externalUsers) {
 				// Some site types don't allow external users.
 				externalUsers = !serverConfigurationService.getString("twofactor.site.type", "secure").equals(site.getType());
-			}
+			} else {
+					String nonOfficialAccountSite = site.getProperties().getProperty("nonOfficialAccount");
+					if (nonOfficialAccountSite != null) {
+						externalUsers = Boolean.valueOf(nonOfficialAccountSite);
+					}
+				}
 			return externalUsers;
 		}
 		return false;
@@ -1285,30 +1290,5 @@ public class SiteAddParticipantHandler {
 		// replace the original official account entry with eids from all matches.
 		officialAccountParticipant = officialAccountParticipant.replaceAll(officialAccount, eidsForAllMatches);
 	}
-	
-	/**
-	 * get the settings whether non official account users are allowed or not
-	 * site-wide settings can override the system-wide settings
-	 * @return
-	 */
-	public String getAllowNonOfficialAccount()
-	{
-		// get system setting first
-    	String rv = getServerConfigurationString("nonOfficialAccount", "true");
-    	
-    	// get site property, if different, it overrides sakai.properties setting
-    	if (site == null) {
-    	        M_log.error("Could not get site and thus, site properties.");
-    	}
-    	else
-    	{
-    	    String allowThisSiteAddNonOfficialParticipant = site.getProperties().getProperty("nonOfficialAccount");
-    	    M_log.debug("Site non-official allowed? "+allowThisSiteAddNonOfficialParticipant);
-    	    if (allowThisSiteAddNonOfficialParticipant != null && !allowThisSiteAddNonOfficialParticipant.equalsIgnoreCase(rv)) {
-    	        rv = allowThisSiteAddNonOfficialParticipant;
-    	    }
-    	}
-    	
-    	return rv;
-	}
 }
+

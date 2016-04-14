@@ -106,8 +106,7 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
 		}
     	
 		// non official participant
-    	String allowAddNonOfficialParticipant = handler.getAllowNonOfficialAccount();
-    	if (allowAddNonOfficialParticipant.equalsIgnoreCase("true") && handler.isEnabled(ConfigOption.EXTERNAL_PARTICIPANTS))
+    	if (handler.isEnabled(ConfigOption.EXTERNAL_PARTICIPANTS))
     	{
     		UIInput.make(participantForm, "nonOfficialAccountParticipant", "#{siteAddParticipantHandler.nonOfficialAccountParticipant}", handler.nonOfficialAccountParticipant);
 	    	UIOutput.make(participantForm, "nonOfficialAccountSectionTitle", messageLocator.getMessage("nonOfficialAccountSectionTitle"));
