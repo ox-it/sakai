@@ -1228,6 +1228,11 @@ public class SiteAddParticipantHandler {
 	public enum ConfigOption{ EXTERNAL_PARTICIPANTS };
 	
 	public boolean isEnabled(ConfigOption option) {
+		// This is a hack because sometimes this bean is wrongly re-used between requests.
+		// In a previous request it was reset and then this method is called and the site is null.
+		if (site == null) {
+			init();
+		}
 		if (ConfigOption.EXTERNAL_PARTICIPANTS.equals(option)) {
 			// Check enabled serverwide first
 			boolean externalUsers = serverConfigurationService.getBoolean("nonOfficialAccount", true);
