@@ -13245,7 +13245,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						} else {
 							if (!Validator.checkEmailLocal(emailId)) {
 								addAlert(state, rb.getString("java.theemail"));
-							} else if (!aliasService.allowSetAlias(emailId, channelReference )) {
+							} else if ( siteId != null && !aliasService.allowSetAlias(emailId, channelReference )) {
 								addAlert(state, rb.getString("java.addalias"));
 							} else {
 								// check to see whether the alias has been used by
