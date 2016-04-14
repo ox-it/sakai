@@ -301,21 +301,15 @@
 						<input type="hidden" name="itemReference" value="$siteId"/>
 						<input type="submit" name="eventSubmit_doJoin" value="$tlang.getString("sitegen.siteinfolist.sitejoin")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 					</form>
-					#else #if ($allowUnjoin)
+					#else
 					<form name="unjoinSiteForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
 						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						<input type="hidden" name="itemReference" value="$siteId"/>
-						<input type="submit" class="active" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")" onclick="SPNR.disableControlsAndSpin( this, null );" />
-					</form>
-					#else
-					<form name="unjoinSiteForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
-						<input type="hidden" name="itemReference" value="$siteId"/>
-						<input type="submit" disabled="disabled" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+						<input type="submit" #if(!$allowUnjoin)disabled="disabled"#end class="active" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 					</form>
 					#end
 				</td>
 			</tr>
-				
 		#end
             
 		#if ($!allowUpdate)
