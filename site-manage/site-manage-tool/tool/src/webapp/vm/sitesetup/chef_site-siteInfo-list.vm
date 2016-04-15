@@ -541,9 +541,10 @@
 		<table>
 		#if ($providedGroups.size() > 0)
 			#foreach ($group in $providedGroups)
-				#if (!$group.name.contains("(suspended)"))
-					<tr>
-						<td>$validator.escapeHtml($group.name)</td>
+				<tr>
+					<td>$validator.escapeHtml($group.name)</td>
+##					don't show the Remove button if it's suspended group - it gets removed by removing the corrsponding non-suspended group
+					#if (!$group.name.contains("(suspended)"))
 						<td>
 							#if ($allowUpdateSiteMembership)
 							<form name="removeGroupForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
@@ -556,8 +557,8 @@
 							</form>
 							#end
 						</td>
-					</tr>
-				#end
+					#end
+				</tr>
 			#end
 		#else
 			<tr>
