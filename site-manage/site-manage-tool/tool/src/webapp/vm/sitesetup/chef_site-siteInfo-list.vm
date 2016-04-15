@@ -88,18 +88,6 @@
 			#end
 		#end
 	</div>
-	<div style="margin: 30px 0 0 1000px;">
-		<form name="searchForm" class="inlineForm" action="#toolForm("SiteAction")" method="post">
-			<input type="hidden" name="eventSubmit_doUser_search" value="null" />
-			<label for="$form_search" class="skip">$tlang.getString('list.search')</label>
-			<input size="20"  value="$validator.escapeHtml($!searchString)" name="$form_search" id="$form_search" type="text" class="searchField"  />
-			<input type="button" value="$tlang.getString('sitegen.siteinfolist.searchUser')" onclick="location = '#toolLink($action "doUser_search")'+buildQueryString('searchForm');return false;" />
-			#if (($!searchString) && (!$searchString.equals("")))
-				<input type="button" class="button" value="$tlang.getString("list.cls")" onclick="location = '#toolLink($action "doUser_search_clear")'+buildQueryString('searchForm');return false;" />
-			#end
-			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-		</form>
-	</div>
 </div>
 #end
 
