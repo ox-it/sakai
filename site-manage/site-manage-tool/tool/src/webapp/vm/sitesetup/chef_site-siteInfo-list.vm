@@ -110,6 +110,10 @@
 				utils.resizeFrame();
 			}
 		});
+		$("form[name='removeGroupForm']").on("submit", function () {
+			$(this).find('.spinnerRemove').show();
+			return true;
+		});
 	  });
 	  
 	
@@ -546,6 +550,9 @@
 								<input type="hidden" name="groupId" value="$group.id"/>
 								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								<input type="submit" name="eventSubmit_doRemoveGroup" value="$tlang.getString("sitegen.siteinfolist.remove")"/>
+								<span class="spinnerRemove" style="display:none;">
+									<img class="loader" src="/library/newspicker/css/images/ajax-loader.gif" alt="Loading"/>
+								</span>
 							</form>
 							#end
 						</td>
