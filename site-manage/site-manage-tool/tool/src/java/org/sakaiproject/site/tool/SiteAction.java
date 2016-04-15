@@ -2058,7 +2058,8 @@ public class SiteAction extends PagedResourceActionII {
 			 */
 			// put the link for downloading participant
 			putPrintParticipantLinkIntoContext(context, data, site);
-			
+			context.put("searchString", state.getAttribute(STATE_SEARCH));
+			context.put("form_search", FORM_SEARCH);
 			context.put("userDirectoryService", UserDirectoryService
 					.getInstance());
 			try {
@@ -5036,6 +5037,35 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_SEARCH);
 
 	} // doSite_search_clear
+
+	public void doUser_search(RunData data, Context context) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// read the search form field into the state object
+		String search = StringUtils.trimToNull(data.getParameters().getString(
+				FORM_SEARCH));
+
+		// set the flag to go to the prev page on the next list
+		if (search == null) {
+			state.removeAttribute(STATE_SEARCH);
+		} else {
+			state.setAttribute(STATE_SEARCH, search);
+		}
+
+	} // doUser_search
+
+	/**
+	 * Handle a Search Clear request.
+	 */
+	public void doUser_search_clear(RunData data, Context context) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// clear the search
+		state.removeAttribute(STATE_SEARCH);
+
+	} // doUser_search_clear
 
 	/**
 	 * 
@@ -11287,6 +11317,19 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 
 		Collection participants = SiteParticipantHelper.prepareParticipants(siteId, providerCourseList);
+		//check for search user attribute in the state
+		String search = (String)state.getAttribute(STATE_SEARCH);
+		if(search != null && (participants.size() > 0)){
+			for(Object object : participants){
+				Participant participant = (Participant)object;
+				//if search term is in the display name or in display Id, add into the list
+				if(participant.getDisplayName().contains(search) || participant.getDisplayId().contains(search)){
+					members.add(participant);
+				}
+			}
+			state.setAttribute(STATE_PARTICIPANT_LIST, members);
+			return members;
+		}
 		state.setAttribute(STATE_PARTICIPANT_LIST, participants);
 
 		return participants;
