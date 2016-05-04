@@ -44,6 +44,8 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 	private Cache adminCache;
 
 	private Observer siteDeleteObserver;
+
+	private Observer realmChangeObserver;
 	
 	protected abstract EventTrackingService eventTrackingService();
 		
@@ -55,29 +57,37 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 		
 		adminCache = memoryService().newCache(DevolvedSakaiSecurityImpl.class.getName(), SiteService.REFERENCE_ROOT);
 		
-		siteDeleteObserver = new Observer() {
-		
-			public void update(Observable o, Object arg) {
-				if (arg instanceof Event) {
-					Event event = (Event)arg;
-					if (SiteService.SECURE_REMOVE_SITE.equals(event.getEvent())) {
-						if (event.getResource() != null) {
-							dao().delete(event.getResource());
-						} else {
-							// Should never happen.
-							log.warn("Site delete event without a resource.");
-						}
+		siteDeleteObserver = (o, arg) -> {
+			if (arg instanceof Event) {
+				Event event = (Event)arg;
+				String type = event.getEvent();
+				if (SiteService.SECURE_REMOVE_SITE.equals(type))  {
+					if (event.getResource() != null) {
+						dao().delete(event.getResource());
+					} else {
+						// Should never happen.
+						log.warn("Site delete event without a resource.");
 					}
 				}
-		
 			}
 		};
+		realmChangeObserver = (o, arg) -> {
+			if (arg instanceof Event) {
+				Event event = (Event) arg;
+				if (event.getResource() != null) {
+					adminCache.remove(event.getResource());
+				}
+			}
+		};
+
 		eventTrackingService().addLocalObserver(siteDeleteObserver);
+		eventTrackingService().addObserver(realmChangeObserver);
 	}
 	
 	public void destroy() {
 		super.destroy();
 		eventTrackingService().deleteObserver(siteDeleteObserver);
+		eventTrackingService().deleteObserver(realmChangeObserver);
 	}
 
 	/*
