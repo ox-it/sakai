@@ -415,7 +415,8 @@ public class InputRichTextRenderer extends Renderer
     }
     else
     {
-      toolbarScript = TOOLBAR_SCRIPT_MEDIUM;
+      //toolbarScript = TOOLBAR_SCRIPT_MEDIUM;
+      toolbarScript = buttonSet;
     }
 
     return toolbarScript;
