@@ -56,6 +56,17 @@
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
 
+	
+	
+	<filter-mapping>
+		<!-- As we don't want the remote user -->
+		<filter-name>sakai.request.container</filter-name>
+		<servlet-name>sakai.twofactor</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+
     <servlet>
         <servlet-name>sakai.login</servlet-name>
         <servlet-class>org.sakaiproject.login.tool.SkinnableLogin</servlet-class>
@@ -64,11 +75,30 @@
             <param-value>/sakai-login-tool/container</param-value>
         </init-param>
         <init-param>
+            <param-name>xlogin</param-name>
+            <param-value>/sakai-login-tool/xlogin</param-value>
+        </init-param>
+        <init-param>
         	<param-name>container-logout</param-name>
         	<param-value>/sakai-login-tool/container/logout</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
+    
+    <servlet>
+        <servlet-name>sakai.twofactor</servlet-name>
+        <servlet-class>org.sakaiproject.login.tool.TwoFactorLogin</servlet-class>
+        <init-param>
+            <param-name>twofactor</param-name>
+            <param-value>/sakai-login-tool/twofactor</param-value>
+        </init-param>
+        <init-param>
+        	<param-name>shibbolethUrl</param-name>
+        	<param-value>/Shibboleth.sso/LoginTwoFactor</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    
 
     <servlet>
         <servlet-name>sakai.login.container</servlet-name>
@@ -81,6 +111,17 @@
     	<servlet-class>org.sakaiproject.login.tool.ContainerLogout</servlet-class>
     </servlet>
 
+    <!-- Specific mappings are needed as the default servlet has been re-mapped -->
+    <servlet>
+        <servlet-name>exception.jsp</servlet-name>
+        <jsp-file>/exception.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>missing.jsp</servlet-name>
+        <jsp-file>/missing.jsp</jsp-file>
+    </servlet>
+
 	<!-- map the container login, and then cause it to trigger container authentication -->
     <servlet-mapping>
         <servlet-name>sakai.login.container</servlet-name>
@@ -91,6 +132,11 @@
     <servlet-mapping>
         <servlet-name>sakai.logout.container</servlet-name>
         <url-pattern>/container/logout</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>sakai.twofactor</servlet-name>
+        <url-pattern>/twofactor/*</url-pattern>
     </servlet-mapping>
 
      <servlet-mapping>
@@ -105,5 +151,20 @@
 	<listener>
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>
     </listener>
-	
+
+  <error-page>
+    <exception-type>java.lang.RuntimeException</exception-type>
+    <location>/exception.jsp</location>
+  </error-page>
+ 
+  <error-page>
+    <exception-type>org.sakaiproject.login.tool.LoginException</exception-type>
+      <location>/exception.jsp</location>
+  </error-page>
+
+  <error-page>
+    <exception-type>org.sakaiproject.login.tool.LoginMissingException</exception-type>
+    <location>/missing.jsp</location>
+  </error-page>
+
 </web-app>

@@ -38,6 +38,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
+import org.sakaiproject.user.api.AuthenticationMissingException;
 import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.cover.AuthenticationManager;
 import org.sakaiproject.util.ExternalTrustedEvidence;
@@ -132,9 +133,22 @@ public class ContainerLogin extends HttpServlet
 				return;
 			}
 		}
+		catch (AuthenticationMissingException ame)
+		{
+			// Don't need to log these normally...
+			M_log.debug("User not found: "+ remoteUser);
+			if (!(ServerConfigurationService.getBoolean("login.container.fallthrough", true)))
+			{
+				throw LoginMissingException.wrap(ame);
+			}
+		}
 		catch (AuthenticationException ex)
 		{
 			M_log.warn("Authentication Failed for: "+ remoteUser+ ". "+ ex.getMessage());
+			if (!(ServerConfigurationService.getBoolean("login.container.fallthrough", true)))
+			{
+				throw LoginException.wrap(ex);
+			}
 		}
 
 		// mark the session and redirect (for login failure or authentication exception)
