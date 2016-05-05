@@ -234,6 +234,21 @@ public class InputRichTextRenderer extends Renderer
     
     if (!"true".equals(textareaOnly))
 		{
+
+			String toolbarScript = null;
+			if (buttonList != null) {
+				toolbarScript = makeToolbarScript(buttonList);
+			}
+			if (buttonSet != null) {
+				toolbarScript = getStandardToolbarScript(buttonSet);
+			}
+			if (toolbarScript != null) {
+				writer.write("<script type=\"text/javascript\">sakai.editor.launch('" + clientId + "_inputRichText', {" + collectionId + "}, '" + widthPx + "','" + heightPx + "','" + toolbarScript + "');</script>");
+			} else {
+				writer.write("<script type=\"text/javascript\">sakai.editor.launch('" + clientId + "_inputRichText', {" + collectionId + "}, '" + widthPx + "','" + heightPx + "');</script>");
+			}
+
+
 			if (enableFullPage != null && "true".equals(enableFullPage))
 			{
 				writer.write("<script type=\"text/javascript\" defer=\"1\">");
