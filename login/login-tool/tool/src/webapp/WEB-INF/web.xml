@@ -75,6 +75,10 @@
             <param-value>/sakai-login-tool/container</param-value>
         </init-param>
         <init-param>
+            <param-name>xlogin</param-name>
+            <param-value>/sakai-login-tool/xlogin</param-value>
+        </init-param>
+        <init-param>
         	<param-name>container-logout</param-name>
         	<param-value>/sakai-login-tool/container/logout</param-value>
         </init-param>

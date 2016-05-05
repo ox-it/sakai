@@ -269,7 +269,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				
 				if (showAuthChoice && !(StringUtils.isEmpty(helperPath) || helperPath.equals("/portal") || 
 						helperPath.equals("/portal/") )) {
-					String xloginUrl = serverConfigurationService.getPortalUrl() + "/xlogin";
+					String xloginUrl = Web.serverUrl(req) + getServletConfig().getInitParameter("xlogin");
 
 					// Present the choice template
 					LoginRenderContext rcontext = startChoiceContext("", req, res);
