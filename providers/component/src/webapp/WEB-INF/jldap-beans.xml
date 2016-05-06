@@ -247,7 +247,7 @@
 			value. When searching for a user, we use the multi-valued
 			*oakAlternativeMail* attribute (which includes this value).
 		-->
-		<property name="searchableEmailAttributes" value="oakAlternativeMail" />
+		<property name="alternativeEmail" value="oakAlternativeMail" />
 		
 		<!-- If any of the values need manipulating with message formats they
 		can be set here. -->

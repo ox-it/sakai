@@ -2,7 +2,21 @@ package edu.amc.sakai.user;
 
 import org.sakaiproject.user.api.UserEdit;
 
-public class OakLdapAttributeMapper extends MultipleEmailLdapAttributeMapper {
+public class OakLdapAttributeMapper extends SimpleLdapAttributeMapper {
+
+	private String alternativeEmail;
+	
+	public void setAlternativeEmail(String alternativeEmail) {
+		this.alternativeEmail = alternativeEmail;
+	}
+
+	public String getFindUserByEmailFilter(String emailAddr) {
+		if (alternativeEmail != null && alternativeEmail.length() != 0) {
+			return alternativeEmail+ "="+ escapeSearchFilterTerm(emailAddr);
+		} else {
+			return super.getFindUserByEmailFilter(emailAddr);
+		}
+	}
 
     public void mapUserDataOntoUserEdit( LdapUserData userData,
         UserEdit userEdit ) {
