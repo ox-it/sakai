@@ -168,38 +168,42 @@
 <!--	Uncomment and configure to use the Kerberos Provider.
 
                  Make sure to remove any other UserDirectoryProviders as there can only be one user provider active at any time.
-
-	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
+-->
+	<bean id="org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider"
 			class="org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider"
 			init-method="init"
-			destroy-method="destroy">
+			destroy-method="destroy"
+			singleton="true">
 		<property name="loginContext"><value>KerberosAuthentication</value></property>
 		<property name="requireLocalAccount"><value>true</value></property>
 		<property name="knownUserMsg"><value>Integrity check on decrypted field failed</value></property>
 	</bean>
--->
 
-<!-- Uncomment and configure to use the Federating UserDirectoryProvider.
+	<bean id="org.sakaiproject.provider.user.ThreadCheckUserDirectoryProvider"
+			class="org.sakaiproject.provider.user.ThreadCheckUserDirectoryProvider"
+			init-method="init">
+			<property name="threadLocalManager">
+				<ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+			</property>
+			<property name="threadLocalKey">
+				<value>kerberos-auth</value>
+			</property>
+			<property name="wrappedProvider">
+				<ref bean="org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider"/>
+			</property>
+	</bean>
 
-   <bean
-  		id="org.sakaiproject.user.api.UserDirectoryProvider"
-  		class="org.sakaiproject.provider.user.FilterUserDirectoryProvider"
-  		init-method="init" destroy-method="destroy">
-  		<property name="myProvider">
-  			<ref bean="org.sakaiproject.user.api.UserDirectoryProvider.provider1" />
-  		</property>
-  		<property name="nextProvider">
-  			<ref bean="org.sakaiproject.user.api.UserDirectoryProvider.chain1" />
-  		</property>
-  	</bean>
-  	<bean
-  		id="org.sakaiproject.user.api.UserDirectoryProvider.chain1"
-  		class="org.sakaiproject.provider.user.FilterUserDirectoryProvider"
-  		init-method="init" destroy-method="destroy">
-  		<property name="myProvider">
-  			<ref bean="org.sakaiproject.user.api.UserDirectoryProvider.provider2" />
-  		</property>
-  	</bean>
- -->
+	<!-- Use the federating provider to first try the LDAP directory provider
+	     and then to try the kerberos directory provider. -->
+	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
+		class="org.sakaiproject.provider.user.FilterUserDirectoryProvider"
+		init-method="init" destroy-method="destroy" singleton="true">
+		<property name="myProvider">
+			<ref bean="edu.amc.sakai.user.JLDAPDirectoryProvider" />
+		</property>
+		<property name="nextProvider">
+			<ref bean="org.sakaiproject.provider.user.ThreadCheckUserDirectoryProvider" />
+		</property>
+	</bean>
 
 </beans>

@@ -15,7 +15,7 @@
 		</property>
 	</bean>
 
-	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
+	<bean id="edu.amc.sakai.user.JLDAPDirectoryProvider"
 		class="edu.amc.sakai.user.JLDAPDirectoryProvider" init-method="init"
 		destroy-method="destroy">
 		
@@ -374,9 +374,6 @@
 	</bean>
 	-->
 	
-	<!-- Alias the provider to it's class -->
-	<alias name="org.sakaiproject.user.api.UserDirectoryProvider"
-		alias="edu.amc.sakai.user.JLDAPDirectoryProvider"/>
 		
 	<!-- /// End Sample UserTypeMapper Beans /// -->
 	
