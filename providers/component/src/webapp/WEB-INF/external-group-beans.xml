@@ -17,6 +17,22 @@
 		<property name="mappedGroupDao">
 			<ref bean="uk.ac.ox.oucs.vle.MappedGroupDao"/>
 		</property>
+		<property name="displayNames">
+			<!-- These entries are used to map attributes onto nicer names. -->
+			<map>
+				<entry key="acserv" value="ASUC"/>
+				<entry key="college" value="Colleges"/>
+				<entry key="conted" value="Continuing Education"/>
+				<entry key="councildep" value="Council Departments"/>
+				<entry key="human" value="Humanities"/>
+				<entry key="mathsci" value="Mathematical, Physical &amp; Life Sciences"/>
+				<entry key="medsci" value="Medical Sciences"/>
+				<entry key="payetc" value="Payroll &amp; Others"/>
+				<entry key="related" value="Related"/>
+				<entry key="socsci" value="Social Sciences"/>
+				<entry key="centadm" value="UAS"/>
+			</map>
+		</property>
 	</bean>
 
 <bean id="uk.ac.ox.oucs.vle.MappedGroupDao" 
