@@ -14,6 +14,7 @@
 		<property name="userDirectoryService">
 			<ref bean="org.sakaiproject.user.api.UserDirectoryService" />
 		</property>
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
 		<property name="mappedGroupDao">
 			<ref bean="uk.ac.ox.oucs.vle.MappedGroupDao"/>
 		</property>
