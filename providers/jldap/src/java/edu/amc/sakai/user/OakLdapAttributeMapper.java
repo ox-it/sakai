@@ -36,6 +36,11 @@ public class OakLdapAttributeMapper extends SimpleLdapAttributeMapper {
         if (yearOfStudy != null && yearOfStudy.length() > 0) {
         	userEdit.getProperties().addProperty(JLDAPDirectoryProvider.YEAR_OF_STUDY_PROPERTY, yearOfStudy);
         }
+        
+        String primaryOrgUnitDN = primaryOrgUnitDN(userData);
+        if (primaryOrgUnitDN != null && primaryOrgUnitDN.length() > 0) {
+        	userEdit.getProperties().addProperty(JLDAPDirectoryProvider.PRIMARY_ORG_UNIT_DN, primaryOrgUnitDN);
+        }
     }
 
     private String firstName( LdapUserData ud ) {
@@ -44,24 +49,25 @@ public class OakLdapAttributeMapper extends SimpleLdapAttributeMapper {
                         : ud.getProperties().getProperty( "givenName" );
     }
     
+    /**
+     * oakOSSCourse: oakGN=4,oakGN=byYearOfStudy,oakGN=ugrad,oakGN=005640,cn=courses,dc=oak,dc=ox,dc=ac,dc=uk
+     */
     private String yearOfStudy( LdapUserData ud ) {
     	
     	Object ob = ud.getProperties().get("oakOSSCourse");
-    	
     	if (null != ob) {
     		if (ob instanceof Collection) {
     			for (Object o : (Collection)ob) {
-    				String yos = getValue((String) o, "byYearOfStudy");
+    				String yos = getAValue((String) o, "byYearOfStudy");
     				if (null != yos) {
     					return yos;
     				}
     			}
     		}
     		if (ob instanceof String) {
-    			return getValue((String) ob, "byYearOfStudy");
+    			return getAValue((String) ob, "byYearOfStudy");
     		}
     	}
-    	
         return null;
     }
     
@@ -112,12 +118,30 @@ public class OakLdapAttributeMapper extends SimpleLdapAttributeMapper {
 	}
     
     /**
-     * oakOSSCourse: oakGN=4,oakGN=byYearOfStudy,oakGN=ugrad,oakGN=005640,cn=courses,dc=oak,dc=ox,dc=ac,dc=uk
+     * eduPersonPrimaryOrgUnitDN: oakUnitCode=oucs,ou=units,dc=oak,dc=ox,dc=ac,dc=uk
      */
-    private String getValue(String oakOSSCourse, String key) {
+    private String primaryOrgUnitDN( LdapUserData ud ) {
     	
-    	String[] items = oakOSSCourse.split(",");
-    	
+    	Object ob = ud.getProperties().get("eduPersonPrimaryOrgUnitDN");
+    	if (null != ob) {
+    		if (ob instanceof Collection) {
+    			for (Object o : (Collection)ob) {
+    				String yos = getValue((String) o, "oakUnitCode");
+    				if (null != yos) {
+    					return yos;
+    				}
+    			}
+    		}
+    		if (ob instanceof String) {
+    			return getValue((String) ob, "oakUnitCode");
+    		}
+    	}
+        return null;
+    }
+    
+    
+    private String getAValue(String property, String key) {
+    	String[] items = property.split(",");
     	for (int i=0; i<items.length; i++) {
     		String[] pair = items[i].split("=");
     		if (key.equals(pair[1]) && i > 0) {
@@ -125,8 +149,17 @@ public class OakLdapAttributeMapper extends SimpleLdapAttributeMapper {
     			return result[1];
     		}
     	}
-    	
     	return null;
     }
-
+   
+    private String getValue(String property, String key) {
+    	String[] items = property.split(",");
+    	for (int i=0; i<items.length; i++) {
+    		String[] pair = items[i].split("=");
+    		if (key.equals(pair[0])) {
+    			return pair[1];
+    		}
+    	}
+    	return null;
+    }
 }

@@ -93,6 +93,8 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	
 	/** Property of the user object to store the display ID under */
 	public static final String YEAR_OF_STUDY_PROPERTY = "yearOfStudy";
+	
+	public static final String PRIMARY_ORG_UNIT_DN = "primaryOrgUnit";
 
 	public static final boolean DEFAULT_ALLOW_AUTHENTICATION = true;
 	

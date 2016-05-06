@@ -246,6 +246,7 @@
 				<!-- Gets the units a person is part of. This is for course signup -->
 				<entry key="units"><value>ou</value></entry>
 				<entry key="oakOSSCourse"><value>oakOSSCourse</value></entry>
+				<entry key="eduPersonPrimaryOrgUnitDN"><value>eduPersonPrimaryOrgUnitDN</value></entry>
 			</map>
 		</property>
 		<!--
