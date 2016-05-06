@@ -208,25 +208,28 @@
     example describes availabel configuration options for SimpleLdapAttributeMapper
     (the default LdapAttributeMapper implementation). -->
 	<bean id="edu.amc.sakai.user.LdapAttributeMapper"
-			class="edu.amc.sakai.user.SimpleLdapAttributeMapper"
+			class="edu.amc.sakai.user.OakLdapAttributeMapper"
 			init-method="init">
 			
 		<!-- A typical set of attribute mappings. Keys are logical
 		names expected by the application. Values are physical LDAP
 		attribute names. If not specified or empty, defaults to
 		AttributeMappingConstants.DEFAULT_ATTR_MAPPINGS. -->
-		<!-- property name="attributeMappings">
+		<property name="attributeMappings">
 			<map>
-				<entry key="aid"><value>krb5PrincipalName</value></entry>
-				<entry key="login"><value>cn</value></entry>         
+			    <!-- Note: Our mapper extracts the desired value from the one 
+			    that is actually returned. -->
+				<entry key="login"><value>oakPrimaryPrincipal</value></entry>
 				<entry key="firstName"><value>givenName</value></entry> 
-				<entry key="preferredFirstName"><value>preferredName</value></entry>
-				<entry key="lastName"><value>sn</value></entry> 
-				<entry key="email"><value>email</value></entry>  
-				<entry key="groupMembership"><value>groupMembership</value></entry>   
-				<entry key="jpegPhoto"><value>jpegPhoto</value></entry>   
+				<entry key="lastName"><value>sn</value></entry>
+			    <!-- Note: When populating a user object from LDAP, we use this
+			    "official" value. When searching for a user, we use the 
+			    multi-valued *oakAlternativeMail* attribute (which includes this
+			    value). -->
+				<entry key="email"><value>mail</value></entry>  
+				<entry key="groupMembership"><value>none</value></entry>     
 			</map>
-		</property -->
+		</property>
 		
 		<!-- If any of the values need manipulating with message formats they can be set here. -->
 		<!-- property name="valueMappings">
@@ -239,8 +242,8 @@
 		on LDAP attributes. Defaults to an instance of EmptyStringUserTypeMapper -->
 		<property name="userTypeMapper">
 			<!-- Select one of the following beans -->
-			<ref bean="edu.amc.sakai.user.EmptyStringUserTypeMapper" />
-			<!-- ref bean="edu.amc.sakai.user.EntryAttributeToUserTypeMapper" /-->
+			<!-- ref bean="edu.amc.sakai.user.EmptyStringUserTypeMapper" /-->
+			<ref bean="edu.amc.sakai.user.EntryAttributeToUserTypeMapper" />
 			<!-- ref bean="edu.amc.sakai.user.EntryContainerRdnToUserTypeMapper" /-->
 			<!-- ref bean="edu.amc.sakai.user.StringUserTypeMapper" /-->
 		</property>
@@ -292,7 +295,7 @@
 		attribute mappings associated with this LdapAttributeMapper 
 		instance. -->
 		<property name="logicalAttributeName">
-			<value>groupMembership</value>
+			<value>oakStatus</value>
 		</property>
 				
 		<!-- Optional. Defaults to false -->
