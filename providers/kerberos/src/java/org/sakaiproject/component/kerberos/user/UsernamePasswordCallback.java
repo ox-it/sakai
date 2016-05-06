@@ -46,10 +46,10 @@ public class UsernamePasswordCallback implements CallbackHandler {
 	public void handle(Callback[] callbacks) throws IOException,
 			UnsupportedCallbackException {
 		for (Callback callback : callbacks) {
-			if (callback instanceof NameCallback) {
+			if (callback instanceof NameCallback && username != null) {
 				NameCallback nameCallback = (NameCallback) callback;
 				nameCallback.setName(username);
-			} else if (callback instanceof PasswordCallback) {
+			} else if (callback instanceof PasswordCallback && password != null) {
 				PasswordCallback passwordCallback = (PasswordCallback) callback;
 				passwordCallback.setPassword(password.toCharArray());
 			} else {

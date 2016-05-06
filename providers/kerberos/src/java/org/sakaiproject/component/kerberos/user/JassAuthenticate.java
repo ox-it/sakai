@@ -118,8 +118,14 @@ public class JassAuthenticate {
 				log.debug("Authenticated ok and not attempting service ticket verification");
 				return true;
 			}
+			// The server principal used to create the login context has to use a / rather than a @.
+			// It would be much cleaner to just have the passed config use the traditional / and then
+			// replace it to a @ for the GSS code.
+			String serverPrincipal = serverGSS.replaceFirst("@", "/");
 			// Shouldn't ever fail
-			serverLoginContext = new LoginContext(servicePrincipal, new NullCallbackHandler());
+			// We want to specify the principal to use so our JAAS config doesn't have to contain it.
+			serverLoginContext = new LoginContext(servicePrincipal, new UsernamePasswordCallback(serverPrincipal, null));
+
 			serverLoginContext.login();
 
 			GSSManager manager = GSSManager.getInstance();
