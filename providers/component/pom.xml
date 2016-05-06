@@ -30,6 +30,11 @@
 			<artifactId>sakai-jldap-provider</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>uk.ac.ox.oucs</groupId>
+			<artifactId>course-signup-ldap</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-kerberos-provider</artifactId>
 		</dependency>
