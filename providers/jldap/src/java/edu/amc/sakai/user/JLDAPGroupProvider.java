@@ -34,7 +34,7 @@ public class JLDAPGroupProvider implements GroupProvider {
 	private ProvidedGroupManager groupManager;
 	private JLDAPDirectoryProvider jldapDirectoryProvider;
 
-	private String searchBase = "ou=units,dc=oak,dc=ox,dc=ac,dc=uk";
+	private String searchBase = "dc=oak,dc=ox,dc=ac,dc=uk";
 	private String memberAttribute = "member";
 	private String personIdPattern = "oakPrimaryPersonID={0},ou=people,dc=oak,dc=ox,dc=ac,dc=uk";
 
