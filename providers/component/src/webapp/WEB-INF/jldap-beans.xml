@@ -242,6 +242,7 @@
 				<entry key="displayId"><value>oakPrimaryPrincipal</value></entry>
 				<!-- Gets set as a user property -->
 				<entry key="oakStatus"><value>oakStatus</value></entry>
+				<entry key="oakOSSID"><value>oakOSSID</value></entry>
 			</map>
 		</property>
 		<!--
