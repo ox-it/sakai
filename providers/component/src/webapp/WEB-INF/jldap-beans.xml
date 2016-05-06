@@ -15,6 +15,30 @@
 		</property>
 	</bean>
 
+	<!-- We need our own connection manager so we can have better validators -->
+	<bean id="edu.amc.sakai.user.LdapConnectionManager"
+		  class="edu.amc.sakai.user.PoolingLdapConnectionManager">
+		<property name="factory">
+			<bean class="edu.amc.sakai.user.PooledLDAPConnectionFactory">
+				<property name="connectionLivenessValidator">
+					<bean class="edu.amc.sakai.user.ConsensusLdapConnectionLivenessValidator">
+						<property name="delegates">
+							<list>
+								<bean class="edu.amc.sakai.user.MaxLifetimeLdapConnectionLivenessValidator">
+									<!-- Only allow connections to last for a minute -->
+									<property name="maxTtl" value="60000"/>
+								</bean>
+								<bean class="edu.amc.sakai.user.NativeLdapConnectionLivenessValidator">
+									<!-- This catches correctly close connections -->
+								</bean>
+							</list>
+						</property>
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
 	<bean id="edu.amc.sakai.user.JLDAPDirectoryProvider"
 		class="edu.amc.sakai.user.JLDAPDirectoryProvider" init-method="init"
 		destroy-method="destroy">
@@ -70,9 +94,10 @@
 			instance of com.novell.ldap.LDAPJSSESecureSocketFactory, which
 			is appropriate for SSL connections. Use 
 			com.novell.ldap.LDAPJSSEStartTLSFactory for TLS. -->
-		<!-- property name="secureSocketFactory">
-			<bean class="com.novell.ldap.LDAPJSSESecureSocketFactory" />
-		</property -->
+		<property name="secureSocketFactory">
+			<!-- This actually has a connect timeout -->
+            <bean class="edu.amc.sakai.user.LDAPJSSESecureSocketFactory"/>
+		</property>
 
 		<!-- Optional. Indicate if connection allocation should
 			implicitly bind as ${ldapUser}. Defaults to false -->
@@ -92,7 +117,7 @@
 			<value>false</value>
 		</property -->
 
-		<!-- Optional. LDAP operation timeout in millis. Defaults 
+		<!-- Optional. LDAP operation connectTimeout in millis. Defaults
 			to JLDAPDirectoryProvider.DEFAULT_OPERATION_TIMEOUT_MILLIS (5000) -->
 		<!-- property name="operationTimeout">
 			<value>5000</value>
@@ -136,9 +161,9 @@
 		
 		<!-- Optional. Defaults to an instance of 
 		edu.amc.sakai.user.SimpleLdapConnectionManager -->
-		<!-- property name="ldapConnectionManager">
-			<bean class="edu.amc.sakai.user.SimpleLdapConnectionManager" />
-		</property -->
+		<property name="ldapConnectionManager">
+			<ref bean="edu.amc.sakai.user.LdapConnectionManager" />
+		</property>
 
 		<!-- Optional. Use Connection Pooling?
 			Defaults to JLDAPDirectoryProvider.DEFAULT_POOLING (false). 
