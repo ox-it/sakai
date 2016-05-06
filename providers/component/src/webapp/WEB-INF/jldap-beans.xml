@@ -240,6 +240,8 @@
 				<entry key="groupMembership"><value>none</value></entry>
 				<entry key="givenName"><value>givenName</value></entry>
 				<entry key="displayId"><value>oakPrimaryPrincipal</value></entry>
+				<!-- Gets set as a user property -->
+				<entry key="oakStatus"><value>oakStatus</value></entry>
 			</map>
 		</property>
 		<!--
@@ -376,5 +378,91 @@
 	
 		
 	<!-- /// End Sample UserTypeMapper Beans /// -->
+	
+	<bean id="org.sakaiproject.authz.api.RoleProvider"
+		class="edu.amc.sakai.user.UserAttributeRoleProvider"
+		init-method="init">
+		<property name="userDirectoryService">
+			<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+		</property>
+		<property name="statusAttribute" value="oakStatus"/>
+		<property name="statusRoles">
+			<map>
+				<entry key="staff">
+					<set>
+						<value>.uk.ac.ox.card.staff</value>
+						<value>.uk.ac.ox.bod.allstaff</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="college">
+					<set>
+						<value>.uk.ac.ox.card.college</value>
+						<value>.uk.ac.ox.bod.allstaff</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="dept">
+					<set>
+						<value>.uk.ac.ox.card.dept</value>
+						<value>.uk.ac.ox.bod.allstaff</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="senmem">
+					<set>
+						<value>.uk.ac.ox.card.senmem</value>
+						<value>.uk.ac.ox.bod.allstaff</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="visitor">
+					<set>
+						<value>.uk.ac.ox.card.visitor</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="undergrad">
+					<set>
+						<value>.uk.ac.ox.card.undergrad</value>
+						<value>.uk.ac.ox.bod.allstudents</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="postgrad">
+					<set>
+						<value>.uk.ac.ox.card.postgrad</value>
+						<value>.uk.ac.ox.bod.allstudents</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="student">
+					<set>
+						<value>.uk.ac.ox.card.student</value>
+						<value>.uk.ac.ox.bod.allstudents</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="cardholder">
+					<set>
+						<value>.uk.ac.ox.card.cardholder</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="virtual">
+					<set>
+						<value>.uk.ac.ox.card.virtual</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="ret">
+					<set>
+						<value>.uk.ac.ox.card.ret</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+			</map>
+		</property>
+	</bean>
 	
 </beans>
