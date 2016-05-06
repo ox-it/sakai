@@ -162,9 +162,10 @@
 
 <!-- Uncomment and configure to use the JLDAPDirectoryProvider -->
 	<import resource="jldap-beans.xml"/>
-	<import resource="external-group-beans.xml"/>
-	<import resource="course-signup-beans.xml"/>
-	<import resource="hibernate-hbms.xml"/>
+	<!-- These aren't in our 10 build yet. -->
+	<!--<import resource="external-group-beans.xml"/>-->
+	<!--<import resource="course-signup-beans.xml"/>-->
+	<!--<import resource="hibernate-hbms.xml"/>-->
 
 <!--	Uncomment and configure to use the Kerberos Provider.
 
