@@ -51,6 +51,7 @@ public class UserAttributeRoleProvider implements RoleProvider {
 	public Set<String> getAdditionalRoles(String userId) {
 		if (userId != null) {
 			try {
+				// This should be cached.
 				User user = userDirectoryService.getUser(userId);
 				String status = (String) user.getProperties().get(statusAttribute);
 				if (status != null && status.length() > 0) {
@@ -60,8 +61,10 @@ public class UserAttributeRoleProvider implements RoleProvider {
 					}
 				}
 			} catch (UserNotDefinedException e) {
+				// TODO What about caching failed user lookups because the user isn't found.
 				// This really shouldn't happen as this should only be called for known users
-				log.warn("User couldn't be loaded to find additional roles: "+ userId, e);
+				// but it does as people load everyone in a site and then attempts to check if they can do something.
+				log.debug("User couldn't be loaded to find additional roles: "+ userId);
 			}
 		}
 		return Collections.emptySet();
