@@ -64,7 +64,7 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	 * values are physical attr names.
 	 */
 	private Map<String,String> attributeMappings;
-    
+
     /**
 	 * Formatters used for manipulating attribute values sent to and returned from LDAP.
 	 */
@@ -161,7 +161,7 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	 */
 	public String getFindUserByEidFilter(String eid) {
 		
-		String eidAttr = 
+		String eidAttr =
 			attributeMappings.get(AttributeMappingConstants.LOGIN_ATTR_MAPPING_KEY);
 		MessageFormat valueFormat = valueMappings.get(AttributeMappingConstants.LOGIN_ATTR_MAPPING_KEY);
 		if (valueFormat == null) {
@@ -173,9 +173,15 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	}
 
 	public String getFindUserByAidFilter(String aid) {
-		String eidAttr = 
+		String aidAttr =
 			attributeMappings.get(AttributeMappingConstants.AUTHENTICATION_ATTR_MAPPING_KEY);
-		return eidAttr + "=" + escapeSearchFilterTerm(aid);
+		MessageFormat valueFormat = valueMappings.get(AttributeMappingConstants.AUTHENTICATION_ATTR_MAPPING_KEY);
+		if (valueFormat == null) {
+			return aidAttr + "=" + escapeSearchFilterTerm(aid);
+		} else {
+			valueFormat = (MessageFormat) valueFormat.clone();
+			return aidAttr + "=" + escapeSearchFilterTerm(valueFormat.format(new Object[]{aid}));
+		}
 	}
 
 	/**
@@ -290,12 +296,12 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
         String attrValue = attribute.getStringValue();
         MessageFormat format = valueMappings.get(logicalAttrName);
         if (format != null && attrValue != null) {
-            format = (MessageFormat)format.clone();
-            if ( M_log.isDebugEnabled() ) {
+            format = (MessageFormat) format.clone();
+            if (M_log.isDebugEnabled()) {
                 M_log.debug("mapLdapAttributeOntoUserData(): value mapper [attrValue = " +
                         attrValue + "; format=" + format.toString() + "]");
             }
-            attrValue = (String)(format.parse(attrValue, new ParsePosition(0))[0]);
+            attrValue = (String) (format.parse(attrValue, new ParsePosition(0))[0]);
         }
         
         if ( M_log.isDebugEnabled() ) {

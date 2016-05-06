@@ -3,6 +3,17 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+	<bean id="jldapEditorConfig"
+		class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+		<property name="customEditors">
+			<map>
+				<entry key="java.text.MessageFormat">
+					<bean class="edu.amc.sakai.user.MessageFormatEditor"/>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
 	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
 		class="edu.amc.sakai.user.JLDAPDirectoryProvider" init-method="init"
 		destroy-method="destroy">
@@ -208,7 +219,7 @@
     example describes availabel configuration options for SimpleLdapAttributeMapper
     (the default LdapAttributeMapper implementation). -->
 	<bean id="edu.amc.sakai.user.LdapAttributeMapper"
-			class="edu.amc.sakai.user.OakLdapAttributeMapper"
+			class="edu.amc.sakai.user.SimpleLdapAttributeMapper"
 			init-method="init">
 			
 		<!-- A typical set of attribute mappings. Keys are logical
@@ -219,7 +230,8 @@
 			<map>
 			    <!-- Note: Our mapper extracts the desired value from the one 
 			    that is actually returned. -->
-				<entry key="login"><value>oakPrimaryPrincipal</value></entry>
+				<entry key="login"><value>oakPrimaryPersonID</value></entry>
+				<entry key="aid"><value>oakPrimaryPrincipal</value></entry>
 				<entry key="firstName"><value>givenName</value></entry> 
 				<entry key="lastName"><value>sn</value></entry>
 			    <!-- Note: When populating a user object from LDAP, we use this
@@ -231,12 +243,13 @@
 			</map>
 		</property>
 		
-		<!-- If any of the values need manipulating with message formats they can be set here. -->
-		<!-- property name="valueMappings">
+		<!-- If any of the values need manipulating with message formats they
+		can be set here. -->
+		<property name="valueMappings">
 			<map>
-				<entry key="displayId"><value>{0}@example.edu</value></entry>
+				<entry key="aid"><value>krbPrincipalName={0}@OX.AC.UK,cn=OX.AC.UK,cn=KerberosRealms,dc=oak,dc=ox,dc=ac,dc=uk</value></entry>
 			</map>
-		</property -->
+		</property>
 
 		<!-- Several options for calculating Sakai user types based
 		on LDAP attributes. Defaults to an instance of EmptyStringUserTypeMapper -->
