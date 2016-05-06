@@ -238,6 +238,7 @@
 				<entry key="email"><value>mail</value></entry>
 				<entry key="groupMembership"><value>none</value></entry>
 				<entry key="givenName"><value>givenName</value></entry>
+				<entry key="displayId"><value>oakPrimaryPrincipal</value></entry>
 			</map>
 		</property>
 		<!--
@@ -252,6 +253,7 @@
 		<property name="valueMappings">
 			<map>
 				<entry key="aid"><value>krbPrincipalName={0}@OX.AC.UK,cn=OX.AC.UK,cn=KerberosRealms,dc=oak,dc=ox,dc=ac,dc=uk</value></entry>
+				<entry key="displayId"><value>krbPrincipalName={0}@OX.AC.UK,cn=OX.AC.UK,cn=KerberosRealms,dc=oak,dc=ox,dc=ac,dc=uk</value></entry>
 			</map>
 		</property>
 
