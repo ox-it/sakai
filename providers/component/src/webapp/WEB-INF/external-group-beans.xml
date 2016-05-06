@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean id="uk.ac.ox.oucs.vle.ExternalGroupManager" class="uk.ac.ox.oucs.vle.ExternalGroupManagerImpl" init-method="init">
+		<!--
+			If you have explicity defined a connection manager user this
+			<property name="ldapConnectionManager"> <ref
+			bean="edu.amc.sakai.user.LdapConnectionManager"/> </property>
+		-->
+		<property name="jldapDirectoryProvider">
+			<ref bean="edu.amc.sakai.user.JLDAPDirectoryProvider" />
+		</property>
+		<property name="userDirectoryService">
+			<ref bean="org.sakaiproject.user.api.UserDirectoryService" />
+		</property>
+		<property name="mappedGroupDao">
+			<ref bean="uk.ac.ox.oucs.vle.MappedGroupDao"/>
+		</property>
+	</bean>
+
+<bean id="uk.ac.ox.oucs.vle.MappedGroupDao" 
+	class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+	<property name="transactionManager">
+		<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+	</property>
+	<property name="target">
+		<bean class="uk.ac.ox.oucs.vle.MappedGroupDaoHibernate">
+			<property name="sessionFactory"
+				ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		</bean>
+	</property>
+	<property name="transactionAttributes">
+		<props>
+			<prop key="*">PROPAGATION_REQUIRED</prop>
+		</props>
+	</property>
+</bean>
+
+
+
+	
+	<bean id="org.sakaiproject.authz.api.GroupProvider"
+		class="uk.ac.ox.oucs.vle.ExternalGroupProvider" init-method="init">
+		<property name="externalGroupManager">
+			<ref bean="uk.ac.ox.oucs.vle.ExternalGroupManager"/>
+		</property>
+	</bean>
+
+</beans>

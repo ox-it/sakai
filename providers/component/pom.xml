@@ -49,6 +49,11 @@
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-allhands-provider</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>uk.ac.ox.oucs</groupId>
+			<artifactId>external-groups-impl</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources/>

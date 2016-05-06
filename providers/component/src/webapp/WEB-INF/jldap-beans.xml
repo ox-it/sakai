@@ -3,6 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+	<!--  Allows Message formats to be used on beans. -->
 	<bean id="jldapEditorConfig"
 		class="org.springframework.beans.factory.config.CustomEditorConfigurer">
 		<property name="customEditors">
@@ -49,14 +50,14 @@
 
 		<!-- Optional. DN to which to bind for directory searches. 
 			Typically only necessary if autoBind is true -->
-		<!-- property name="ldapUser">
-			<value>attr=value,attr=value,attr=value</value>
-		</property -->
+		<property name="ldapUser">
+			<value>cn=service/bit.oucs.ox.ac.uk,cn=oakInternalPrincipals,dc=oak,dc=ox,dc=ac,dc=uk</value>
+		</property>
 
 		<!-- Optional. Password for ldapUser defined above -->
-		<!--  property name="ldapPassword">
-			<value>usually-set-this-value-in-security-dot-properties</value>
-		</property -->
+		<property name="ldapPassword">
+			<value></value>
+		</property>
 
 		<!-- Optional. Enables/disables secure LDAP connections.
 			defaults to JLDAPDirectoryProvider.DEFAULT_IS_SECURE_CONNECTION (false) -->
@@ -355,6 +356,27 @@
 		</property -->
 		
 	</bean>
+	<!--
+	<bean id="org.sakaiproject.authz.api.GroupProvider"
+		class="edu.amc.sakai.user.JLDAPGroupProvider"
+		init-method="init">
+		
+		<property name="jldapDirectoryProvider">
+			<ref bean="org.sakaiproject.user.api.UserDirectoryProvider"/>
+		</property>
+		<property name="groupManager">
+			<bean class="edu.amc.sakai.user.ProvidedGroupManager">
+				<property name="idManager">
+					<ref bean="org.sakaiproject.id.api.IdManager"/>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	-->
+	
+	<!-- Alias the provider to it's class -->
+	<alias name="org.sakaiproject.user.api.UserDirectoryProvider"
+		alias="edu.amc.sakai.user.JLDAPDirectoryProvider"/>
 		
 	<!-- /// End Sample UserTypeMapper Beans /// -->
 	
