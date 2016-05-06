@@ -278,6 +278,7 @@ public class SimplePageBean {
 	private Date peerEvalDueDate;
 	private Date peerEvalOpenDate;
 	private boolean peerEvalAllowSelfGrade;
+	private String folderPath;
 
     // almost ISO format. real thing can't be done until Java 7. uses -0400 rather than -04:00
     //        SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
@@ -350,7 +351,14 @@ public class SimplePageBean {
 		}
 		rubricPeerGrades.add(rubricPeerGrade);
 	}
-    
+	public String getFolderPath() {
+		return folderPath;
+	}
+
+	public void setFolderPath(String folderPath) {
+		this.folderPath = folderPath;
+	}
+
 	// Caches
 
     // The following caches are used only during a single display of the page. I believe they
@@ -7876,5 +7884,42 @@ public class SimplePageBean {
 	}
 	return result.toString();
     }
+
+	/**
+	 * Method to add Resources folder into Lessons tool
+	 */
+	public String folderPickerSubmit(){
+		if (!itemOk(itemId))
+			return "permission-failed";
+		if (!checkCsrf())
+			return "permission-failed";
+		//Check if user has submitted page without selecting folder?
+		String defaultPath = contentHostingService.getSiteCollection(getCurrentSiteId());
+		if(folderPath == null ||  folderPath.equals(defaultPath)){
+			return "failure";
+		}
+		String dataDirectory = defaultPath + folderPath;
+		String html = "<div data-copyright=\"true\" class=\"no-highlight\" data-description=\"true\" data-directory='" +dataDirectory+ "' data-files=\"true\" data-folder-listing=\"true\"></div>";
+		String status = "success";
+		if (canEditPage()) {
+			SimplePageItem item;
+			// itemid -1 means we're adding a new item to the page,
+			// specified itemid means we're updating an existing one
+			if (itemId != null && itemId != -1) {
+				item = findItem(itemId);
+			} else {
+				item = appendItem("", "", SimplePageItem.TEXT);
+			}
+			item.setHtml(html);
+			item.setPrerequisite(this.prerequisite);
+			item.setAttribute("isFolder", "true");
+			setItemGroups(item, selectedGroups);
+			update(item);
+
+		} else {
+			status = "cancel";
+		}
+		return status;
+	}
 
 }

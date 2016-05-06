@@ -153,7 +153,9 @@ simplePageBean.selectPage,
 simplePageBean.peerEval,
 simplePageBean.peerEvalDueDate,
 simplePageBean.peerEvalOpenDate,
-simplePageBean.peerEvalAllowSelfGrade
+simplePageBean.peerEvalAllowSelfGrade,
+simplePageBean.folderPickerSubmit,
+simplePageBean.folderPath
 </value>
 </property>
    </bean>
