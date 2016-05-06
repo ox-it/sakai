@@ -27,9 +27,11 @@ import javax.security.auth.login.*;
 
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
+import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
+import org.sakaiproject.user.api.UserLockedException;
 
 import com.sun.security.auth.callback.TextCallbackHandler;
 
@@ -46,28 +48,88 @@ import com.sun.security.auth.callback.TextCallbackHandler;
 public class JaasTest {
 
 
-	public static void main(String[] args) throws Exception {
+	private static byte[] tokens;
+	private GSSContext clientContext;
+	private byte[] serviceTickets;
+	private GSSContext serverContext;
 
+	private class UserAction implements PrivilegedAction<Object> {
+		public Object run() {
+			try {
+				tokens = clientContext.initSecContext(serviceTickets, 0, serviceTickets.length);
+			} catch (GSSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+		}
+	}
+	
+	private class ServerAction implements PrivilegedAction<byte[]> {
+		public byte[] run() {
+			try {
+				serviceTickets = serverContext.acceptSecContext(tokens, 0, tokens.length);
+			} catch (GSSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		new JaasTest().run();
+	}
+	
+	public void run() throws Exception {
+		LoginContext userContext = null;
+		try {
+
+			userContext = new LoginContext("userPrincipal", new TextCallbackHandler());
+			userContext.login();
+
+		} catch (LoginException le) {
+			le.printStackTrace();
+		}
+		LoginContext serverLoginContext = null;
+		try {
+
+			serverLoginContext = new LoginContext("servicePrincipal", new TextCallbackHandler());
+			serverLoginContext.login();
+
+		} catch (LoginException le) {
+			le.printStackTrace();
+		}		
+		
 		GSSManager manager = GSSManager.getInstance();
 		Oid kerberos = new Oid("1.2.840.113554.1.2.2");
 
 		GSSName serverName = manager.createName(
 				"sakai@bit.oucs.ox.ac.uk", GSSName.NT_HOSTBASED_SERVICE);
+		
+		
 
-		GSSContext clientContext = manager.createContext(
+		clientContext = manager.createContext(
 				serverName, kerberos, null,
 				GSSContext.DEFAULT_LIFETIME);
 
-		GSSContext serverContext = manager.createContext((GSSCredential)null);
-		byte[] serviceTicket = new byte[0];
-		byte[] token = null;
-		while (!clientContext.isEstablished() && !serverContext.isEstablished() && !(token == null && serviceTicket == null)) {
-			token = clientContext.initSecContext(serviceTicket, 0, serviceTicket.length);
-			serviceTicket = serverContext.acceptSecContext(token, 0, token.length);
-			System.out.println("Ticket exchange.");
+		serverContext = manager.createContext((GSSCredential)null);
+		serviceTickets = new byte[0];
+		tokens = null;
+		int exchanges = 0;
+		while (!clientContext.isEstablished() && !serverContext.isEstablished() && !(tokens == null && serviceTickets == null)) {
+			Subject.doAs(userContext.getSubject(), new UserAction());
+			Subject.doAs(serverLoginContext.getSubject(), new ServerAction());
+			System.out.println("Ticket exchanged.");
+			if (++exchanges > 50) {
+				throw new RuntimeException("Too many tickets exchanged.");
+			}
 		}
 		clientContext.dispose();
 		serverContext.dispose();
+		
+		userContext.logout();
+		serverLoginContext.logout();
 
 		System.out.println("Completed.");
 
