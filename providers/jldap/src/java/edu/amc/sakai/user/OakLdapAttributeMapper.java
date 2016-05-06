@@ -66,6 +66,52 @@ public class OakLdapAttributeMapper extends SimpleLdapAttributeMapper {
     }
     
     /**
+     * This version is specific to Oxford as we can't search for oakPrimaryPersonIds and mails with wildcards.
+     */
+	public String getFindUserByCrossAttributeSearchFilter(String criteria) {
+		String eidAttr = getAttributeMappings().get(AttributeMappingConstants.LOGIN_ATTR_MAPPING_KEY);
+		String emailAttr = getAttributeMappings().get(AttributeMappingConstants.EMAIL_ATTR_MAPPING_KEY);
+		String givenNameAttr = getAttributeMappings().get(AttributeMappingConstants.FIRST_NAME_ATTR_MAPPING_KEY);
+		String lastNameAttr = getAttributeMappings().get(AttributeMappingConstants.LAST_NAME_ATTR_MAPPING_KEY);
+		
+		//This explicitly constructs the filter with wildcards in it.
+		//However, we escape the given criteria to prevent any other injection
+		criteria = escapeSearchFilterTerm(criteria);
+		
+		//(|(uid=criteria)(mail=criteria)(givenName=criteria*)(sn=criteria*))
+		StringBuilder sb = new StringBuilder();
+			sb.append("(|");
+			
+			sb.append("(");
+			sb.append(eidAttr);
+			sb.append("=");
+			sb.append(criteria);
+			sb.append(")");
+			
+			sb.append("(");
+			sb.append(emailAttr);
+			sb.append("=");
+			sb.append(criteria);
+			sb.append(")");
+			
+			sb.append("(");
+			sb.append(givenNameAttr);
+			sb.append("=");
+			sb.append(criteria);
+			sb.append("*)");
+			
+			sb.append("(");
+			sb.append(lastNameAttr);
+			sb.append("=");
+			sb.append(criteria);
+			sb.append("*)");
+			
+			sb.append(")");
+		
+		return sb.toString();
+	}
+    
+    /**
      * oakOSSCourse: oakGN=4,oakGN=byYearOfStudy,oakGN=ugrad,oakGN=005640,cn=courses,dc=oak,dc=ox,dc=ac,dc=uk
      */
     private String getValue(String oakOSSCourse, String key) {
