@@ -513,7 +513,7 @@ public class HierarchyHandler extends SiteHandler {
 			if(!(session.getAttribute("#CUT_ID") == null && pageAlias.equals("paste_site")) && !(session.getAttribute("#CUT_ID") != null && pageAlias.equals("move_site"))){
 				String pagerefUrl = ToolUtils.getPageUrl(req, site, hierarchyPage, portalPrefix,
 						resetTools, siteEffectiveId, pageAlias);
-				boolean current = hierarchyPage.equals(page) && !(hierarchyPage.isPopUp());
+				boolean current = hierarchyPage.getId().equals(page.getId()) && !(hierarchyPage.isPopUp());
 				hierarchyPages.add(portal.getSiteHelper().pageToMap(req, site, false, hierarchyPage, hierarchyPage.getTools(), null, null, current, pagerefUrl));
 			}
 		}
