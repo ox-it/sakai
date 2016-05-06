@@ -2,16 +2,16 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-	<bean id="uk.ac.ox.oucs.vle.AdditionalUserDetails" class="uk.ac.ox.oucs.vle.AdditionalUserDetailsImpl" init-method="init">	
-	    <!--
-			If you have explicity defined a connection manager user this
-			<property name="ldapConnectionManager"> <ref
-			bean="edu.amc.sakai.user.LdapConnectionManager"/> </property>
-		-->
-		<property name="jldapDirectoryProvider">
-			<ref bean="edu.amc.sakai.user.JLDAPDirectoryProvider" />
-		</property>
-		
-	</bean>
+    <bean id="uk.ac.ox.oucs.vle.AdditionalUserDetails" class="uk.ac.ox.oucs.vle.AdditionalUserDetailsImpl" init-method="init">
+        <!--
+            If you have explicity defined a connection manager user this
+            <property name="ldapConnectionManager"> <ref
+            bean="edu.amc.sakai.user.LdapConnectionManager"/> </property>
+        -->
+        <property name="jldapDirectoryProvider">
+            <ref bean="edu.amc.sakai.user.JLDAPDirectoryProvider" />
+        </property>
+
+    </bean>
 
 </beans>
