@@ -669,7 +669,10 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 
 			try
 			{
-				res.sendRedirect(redirect);
+				//to prevent the 'response already committed' error
+				if(!(res.isCommitted())){
+					res.sendRedirect(redirect);
+				}
 			}
 			catch (IOException e)
 			{
