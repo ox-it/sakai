@@ -3,18 +3,6 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<!--  Allows Message formats to be used on beans. -->
-	<bean id="jldapEditorConfig"
-		class="org.springframework.beans.factory.config.CustomEditorConfigurer">
-		<property name="customEditors">
-			<map>
-				<entry key="java.text.MessageFormat">
-					<bean class="edu.amc.sakai.user.MessageFormatEditor"/>
-				</entry>
-			</map>
-		</property>
-	</bean>
-
 	<!-- We need our own connection manager so we can have better validators -->
 	<bean id="edu.amc.sakai.user.LdapConnectionManager"
 		  class="edu.amc.sakai.user.PoolingLdapConnectionManager">

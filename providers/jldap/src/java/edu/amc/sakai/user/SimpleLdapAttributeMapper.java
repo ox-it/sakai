@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -43,6 +44,8 @@ import org.sakaiproject.user.api.UserEdit;
 
 import com.novell.ldap.LDAPAttribute;
 import com.novell.ldap.LDAPEntry;
+
+import static java.util.Map.*;
 
 /**
  * Implements LDAP attribute mappings and filter generations using
@@ -686,8 +689,9 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	/**
 	 * @param valueMappings A Map of message formats used for extracting values from LDAP data.
 	 */
-	public void setValueMappings(Map<String, MessageFormat> valueMappings) {
-		this.valueMappings = valueMappings;
+	public void setValueMappings(Map<String, String> valueMappings) {
+		this.valueMappings = valueMappings.entrySet().stream()
+				.collect( Collectors.toMap(Entry::getKey, e -> new MessageFormat(e.getValue())) );
 	}
 
 }

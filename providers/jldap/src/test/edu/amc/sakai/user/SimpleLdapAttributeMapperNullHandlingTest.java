@@ -38,8 +38,7 @@ public class SimpleLdapAttributeMapperNullHandlingTest {
 
 	@Test
 	public void testFindUserByEidFilterWithValueMap() {
-		attributeMapper.setValueMappings(Collections.singletonMap(LOGIN_ATTR_MAPPING_KEY,
-				new MessageFormat("{0}-example")));
+		attributeMapper.setValueMappings(Collections.singletonMap(LOGIN_ATTR_MAPPING_KEY, "{0}-example"));
 		attributeMapper.init();
 		assertEquals("cn=null-example", attributeMapper.getFindUserByEidFilter(null));
 		assertEquals("cn=eid-example", attributeMapper.getFindUserByEidFilter("eid"));
@@ -54,8 +53,7 @@ public class SimpleLdapAttributeMapperNullHandlingTest {
 
 	@Test
 	public void testFindUserByEmailFilterWithValueMap() {
-		attributeMapper.setValueMappings(Collections.singletonMap(EMAIL_ATTR_MAPPING_KEY,
-				new MessageFormat("{0}.au")));
+		attributeMapper.setValueMappings(Collections.singletonMap(EMAIL_ATTR_MAPPING_KEY, "{0}.au"));
 		attributeMapper.init();
 		assertEquals("email=null.au", attributeMapper.getFindUserByEmailFilter(null));
 		assertEquals("email=user@example.com.au", attributeMapper.getFindUserByEmailFilter("user@example.com"));
@@ -76,8 +74,7 @@ public class SimpleLdapAttributeMapperNullHandlingTest {
 
 	@Test
 	public void testMapLdapEntryOntoUserDataWithValueMap() {
-		attributeMapper.setValueMappings(Collections.singletonMap(LOGIN_ATTR_MAPPING_KEY,
-				new MessageFormat("{0}@EXAMPLE.COM")));
+		attributeMapper.setValueMappings(Collections.singletonMap(LOGIN_ATTR_MAPPING_KEY, "{0}@EXAMPLE.COM"));
 		attributeMapper.init();
 		LDAPAttributeSet attributes = new LDAPAttributeSet();
 		attributes.add(new LDAPAttribute(DEFAULT_LOGIN_ATTR));
