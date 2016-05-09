@@ -200,7 +200,8 @@
 				#end			
 			</select>
 		</div>
-				
+
+
 		<div class="longtext">
 			<label for="description" class="block">
 				$tlang.getString("sitediinf.des")

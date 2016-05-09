@@ -218,6 +218,18 @@ public class SiteComparator implements Comparator {
 			if (result == 0)
 				result = compareParticipantName((Participant) o1, (Participant) o2);
 			
+		} else if (m_criterion.equals(SiteConstants.SORTED_BY_DISPLAY_ID)) {
+			String s1 = null;
+			if (o1.getClass().equals(Participant.class)) {
+				s1 = ((Participant) o1).getDisplayId();
+			}
+
+			String s2 = null;
+			if (o2.getClass().equals(Participant.class)) {
+				s2 = ((Participant) o2).getDisplayId();
+			}
+
+			result = compareString(s1, s2);
 		} else if (m_criterion.equals(SiteConstants.SORTED_BY_PARTICIPANT_CREDITS)) {
 			String s1 = null;
 			if (o1.getClass().equals(Participant.class)) {

@@ -36,6 +36,7 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -52,6 +53,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -72,6 +74,7 @@ import org.sakaiproject.archive.api.ImportMetadata;
 import org.sakaiproject.archive.cover.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.DisplayGroupProvider;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.PermissionsHelper;
@@ -79,8 +82,10 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.api.RoleProvider;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.TwoFactorAuthentication;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.cover.DevolvedSakaiSecurity;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -96,6 +101,8 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentCopy;
+import org.sakaiproject.content.api.ContentCopyContext;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
@@ -169,6 +176,8 @@ import org.sakaiproject.util.*;
 // for basiclti integration
 
 
+import uk.ac.ox.oucs.vle.ProxyService;
+
 /**
  * <p>
  * SiteAction controls the interface for worksite setup.
@@ -183,12 +192,22 @@ public class SiteAction extends PagedResourceActionII {
 	
 	private LTIService m_ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 	private ContentHostingService m_contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+	
+	private ContentCopy contentCopy = (ContentCopy)ComponentManager.get(ContentCopy.class);
 
 	private ImportService importService = org.sakaiproject.importer.cover.ImportService
 			.getInstance();
+	
+	/** This is used to decide if a site should have cut down options. */
+	private TwoFactorAuthentication twoFactorAuthentication = (TwoFactorAuthentication) ComponentManager.get(TwoFactorAuthentication.class);
 
 	private static String showOrphanedMembers = ServerConfigurationService.getString("site.setup.showOrphanedMembers", "admins");
 
+	public void init() throws ServletException {
+		super.init();
+	}
+	
+	
 	/** portlet configuration parameter values* */
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("sitesetupgeneric");
@@ -228,6 +247,12 @@ public class SiteAction extends PagedResourceActionII {
 	.get(org.sakaiproject.sitemanage.api.UserNotificationProvider.class);
 	
 	private static ShortenedUrlService shortenedUrlService = (ShortenedUrlService) ComponentManager.get(ShortenedUrlService.class);
+
+	private static final SecurityAdvisor SECURITY_ADVISOR_ALLOW_ALL = new SecurityAdvisor() {
+		public SecurityAdvice isAllowed(String userId, String function, String reference) {
+			return SecurityAdvice.ALLOWED;
+		}
+	};
 
 	private static final String SITE_MODE_SITESETUP = "sitesetup";
 
@@ -305,7 +330,10 @@ public class SiteAction extends PagedResourceActionII {
 			"-siteInfo-importMigrate",    //59
 			"-importSitesMigrate",  //60
 			"-siteInfo-importUser",
-			"-uploadArchive"
+			"-uploadArchive",
+			"-siteInfo-changeAdmin", // 63
+			"-selectAdmin", // 64
+			"-selectAdmin" // 65
 	};
 
 	/** Name of state attribute for Site instance id */
@@ -328,6 +356,10 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_PRIVATE_SITE_TYPES = "private_site_types";
 
 	private static final String STATE_DISABLE_JOINABLE_SITE_TYPE = "disable_joinable_site_types";
+	
+	private static final String STATE_ADMIN_REALM = "admin_realm";
+	
+	private static final String STATE_ADMIN_REALM_FROM_USER = "admin_realm_from_user";
 
 	
 	private final static String PROP_SITE_LANGUAGE = "locale_string";
@@ -590,6 +622,9 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String STATE_SUBJECT_AFFILIATES = "site.subject.affiliates";
 
 	private final static String STATE_ICONS = "icons";
+
+	// list of Admin site types which should be restricted.
+	public static final String ADMIN_SITE_TYPES = "admin_site_types";
 
 	public static final String SITE_DUPLICATED = "site_duplicated";
 
@@ -1003,6 +1038,29 @@ public class SiteAction extends PagedResourceActionII {
 		return rserve; 
 	}
 
+	private static final Comparator<Entity> devolvedAdminComparator = new Comparator<Entity>() {
+
+		public int compare(Entity o1, Entity o2) {
+			if (o1 instanceof Site) {
+				if (o2 instanceof Site) {
+					Site s1 = (Site) o1;
+					Site s2 = (Site) o2;
+					return s1.getTitle().compareTo(s2.getTitle());
+				} else {
+					return -1;
+				}
+			} else {
+				if (o2 instanceof Site) {
+					return 1;
+				} else {
+					return o1.getId().compareTo(o2.getId());
+				}
+				
+			}
+		}
+		
+	};
+	
 	/**
 	 * Populate the state object, if needed.
 	 */
@@ -1076,7 +1134,16 @@ public class SiteAction extends PagedResourceActionII {
 		if (state.getAttribute(STATE_ICONS) == null) {
 			setupIcons(state);
 		}
-		
+		if (state.getAttribute(ADMIN_SITE_TYPES) == null) {
+			List<String> adminSiteTypes = Collections.emptyList();
+			if (ServerConfigurationService.getStrings("adminSiteType") != null) {
+				adminSiteTypes = new ArrayList<String>(Arrays
+						.asList(ServerConfigurationService
+								.getStrings("adminSiteType")));
+			}
+			state.setAttribute(ADMIN_SITE_TYPES, adminSiteTypes);
+		}
+
 		if (ServerConfigurationService.getStrings("site.type.titleNotEditable") != null) {
 			state.setAttribute(TITLE_NOT_EDITABLE_SITE_TYPE, new ArrayList(Arrays
 					.asList(ServerConfigurationService
@@ -1195,6 +1262,8 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_TYPE_SELECTED);
 		state.removeAttribute(STATE_SITE_SETUP_QUESTION_ANSWER);					
 		state.removeAttribute(STATE_SITE_SETUP_QUESTION_NEXT_TEMPLATE);
+		state.removeAttribute(STATE_ADMIN_REALM);
+		state.removeAttribute(STATE_ADMIN_REALM_FROM_USER);
 		// lti tools
 		state.removeAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST);
 		state.removeAttribute(STATE_LTITOOL_SELECTED_LIST);
@@ -1670,6 +1739,8 @@ public class SiteAction extends PagedResourceActionII {
 				allowAddSite = true;
 			} else if (SiteService.allowAddProjectSite()) {
 				allowAddSite = true;
+			} else if (SiteService.allowAddManagedSite()) {
+				allowAddSite = true;
 			}
 			
 			context.put("allowAddSite",allowAddSite);
@@ -1726,9 +1797,50 @@ public class SiteAction extends PagedResourceActionII {
 			
 			// template site
 			setTemplateListForContext(context, state);
-			
+			if ((Boolean)state.getAttribute(STATE_ADMIN_REALM_FROM_USER)) {
+				context.put("back", "64");
+			}
+
+			// WL-2186 in some cases the hierarchy helper will have already defined the title, so let's not show it here.
+			String siteTitle = (String) state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE);
+			context.put("titleAlreadyDefined", siteTitle != null && !siteTitle.isEmpty());
+
 			return (String) getContext(data).get("template") + TEMPLATE[1];
-	case 4:
+		case 2:
+			// This needs fixing as case 2 isn't supported in the current version of SiteAction, it's been merged with case 13.
+			if (state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE) != null) {
+				context.put("titleEditableSiteType", Boolean.FALSE);
+				siteInfo.title = (String)state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE);
+			} else {
+				context.put("titleEditableSiteType", siteTitleEditable(state, siteInfo.site_type));
+			}
+			context.put(FORM_TITLE, siteInfo.title);
+
+			context.put(FORM_SHORT_DESCRIPTION, siteInfo.short_description);
+			context.put(FORM_DESCRIPTION, siteInfo.description);
+
+			// defalt the site contact person to the site creator
+			if (siteInfo.site_contact_name.equals(NULL_STRING)
+					&& siteInfo.site_contact_email.equals(NULL_STRING)) {
+				User user = UserDirectoryService.getCurrentUser();
+				siteInfo.site_contact_name = user.getDisplayName();
+				siteInfo.site_contact_email = user.getEmail();
+			}
+			context.put("form_site_contact_name", siteInfo.site_contact_name);
+			context.put("form_site_contact_email", siteInfo.site_contact_email);
+
+			// those manual inputs
+			context.put("form_requiredFields", sectionFieldProvider
+					.getRequiredFields());
+			context.put("fieldValues", state
+					.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
+			
+			if ((Boolean)state.getAttribute(STATE_ADMIN_REALM_FROM_USER)) {
+				context.put("back", "64");
+			}
+
+			return (String) getContext(data).get("template") + TEMPLATE[2];
+		case 4:
 			/*
 			 * buildContextForTemplate chef_site-editToolGroups.vm
 			 * 
@@ -1921,6 +2033,8 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("additionalAccess", getAdditionRoles(siteInfo));
 
 			// bjones86 - SAK-24423 - add joinable site settings to context
+			context.put("adminSite", getAdminReferenceName((String)state.getAttribute(STATE_ADMIN_REALM)));
+
 			JoinableSiteSettings.addJoinableSiteSettingsToNewSiteConfirmContext( context, siteInfo );
 
 			context.put("importSiteTools", state
@@ -1997,9 +2111,11 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("siteTitle", site.getTitle());
 				context.put("siteDescription", site.getDescription());
 				context.put("siteId", site.getId());
+				context.put("siteShortDescription", site.getShortDescription());
 				if (unJoinableSiteTypes != null && !unJoinableSiteTypes.contains(siteType))
 				{
-					context.put("siteJoinable", Boolean.valueOf(site.isJoinable()));
+					boolean isAnon = UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurrentUser());
+					context.put("siteJoinable", site.isJoinable() && !(isAnon));
 					context.put("allowUnjoin", SiteService.allowUnjoinSite(site.getId()));
 				}
 
@@ -2029,6 +2145,13 @@ public class SiteAction extends PagedResourceActionII {
 						.allowUpdateSiteMembership(siteId);
 				context.put("allowUpdateSiteMembership", Boolean
 						.valueOf(allowUpdateSiteMembership));
+				
+				boolean allowAddProvidedGroups = allowUpdateSiteMembership && notSecureOrAdmin(site.getReference());
+				context.put("allowAddProvidedGroups", allowAddProvidedGroups);
+
+				// Check if this site has an admin realm (site)
+				String adminRealm = DevolvedSakaiSecurity.getAdminRealm(site.getReference());
+				context.put("adminSiteTitle", getAdminReferenceName(adminRealm));
 
 				context.put("additionalAccess", getAdditionRoles(site));
 
@@ -2050,6 +2173,10 @@ public class SiteAction extends PagedResourceActionII {
 					if (!isMyWorkspace) {
 						b.add(new MenuEntry(rb.getString("java.editsite"),
 								"doMenu_edit_site_info"));
+						if (DevolvedSakaiSecurity.canSetAdminRealm(site.getReference()) && notSecureOrAdmin(site.getReference())) {
+							b.add(new  MenuEntry(rb.getString("java.changeadmin"),
+									"doMenu_change_site_admin"));
+						}
 					}
 					b.add(new MenuEntry(rb.getString("java.edittools"),
 							"doMenu_edit_site_tools"));
@@ -2130,21 +2257,18 @@ public class SiteAction extends PagedResourceActionII {
 				if (allowUpdateSite) 
 				{
 					if (!isMyWorkspace) {
-						List<String> providedSiteTypes = siteTypeProvider.getTypes();
-						boolean isProvidedType = false;
-						if (siteType != null
-								&& providedSiteTypes.contains(siteType)) {
-							isProvidedType = true;
-						}
-						if (!isProvidedType) {
-							// hide site access for provided site types
+
+						boolean isRestrictedSite = isRestrictedSite(state,siteType);
+						if (!isRestrictedSite) {
+							// hide site access for GRADTOOLS
 							// type of sites
 							b.add(new MenuEntry(
 									rb.getString("java.siteaccess"),
 									"doMenu_edit_site_access"));
 							
 							// hide site duplicate and import
-							if (SiteService.allowAddSite(null) && ServerConfigurationService.getBoolean("site.setup.allowDuplicateSite", true))
+							// for GRADTOOLS type of sites
+							if ((SiteService.allowAddSite(null) || SiteService.allowAddManagedSite()) && ServerConfigurationService.getBoolean("site.setup.allowDuplicateSite", true))
 							{
 								b.add(new MenuEntry(rb.getString("java.duplicate"),
 										"doMenu_siteInfo_duplicate"));
@@ -2291,6 +2415,8 @@ public class SiteAction extends PagedResourceActionII {
 							.getProperty(Site.PROP_SITE_TERM));
 				} else {
 					context.put("isCourseSite", Boolean.FALSE);
+					// Show groups in there.
+					prepareGroupsIntoContext(state, context, site);
 				}
 				
 				Collection<Group> groups = null;
@@ -2476,6 +2602,10 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_site-siteInfo-editInfo.vm
 			 * 
 			 */
+			Object fromAdmin = state.getAttribute(STATE_ADMIN_REALM_FROM_USER);
+			if (fromAdmin != null && (Boolean)(fromAdmin)) {
+				context.put("back", "64");
+			}
 			if (site != null) {
 				// revising a existing site's tool
 				context.put("existingSite", Boolean.TRUE);
@@ -2501,7 +2631,10 @@ public class SiteAction extends PagedResourceActionII {
 				context.put(FORM_SITE_URL_BASE, getSiteBaseUrl());
 				context.put(FORM_SITE_ALIAS, siteInfo.getFirstAlias());
 			}
-			
+			if (state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE) != null)
+			{
+				siteInfo.title = (String)state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE);
+			}
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			context.put("type", siteType);
 			context.put("siteTitleEditable", Boolean.valueOf(siteTitleEditable(state, siteType)));
@@ -2916,6 +3049,18 @@ public class SiteAction extends PagedResourceActionII {
 					.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST));
 
 			context.put("homeToolId", TOOL_ID_HOME);
+			String rssUrl = ServerConfigurationService.getString("news.picker.url");
+			// Only enabled if we have a news picker url.
+			if (rssUrl != null) 
+			{
+				HttpServletRequest req = data.getRequest();
+				String headHtml = (String) req.getAttribute("sakai.html.head");
+				headHtml = headHtml==null?"":headHtml;
+				ProxyService proxyService = (ProxyService)ComponentManager.get(ProxyService.class.getName());
+				String proxyUrl = proxyService.getProxyURL(rssUrl) + "&filter=rssMedia(80,80)";
+				headHtml += SiteActionUtils.getPodcastPicker(proxyUrl);
+				req.setAttribute("sakai.html.head", headHtml);
+			}
 			
 			context.put("maxToolTitleLength", MAX_TOOL_TITLE_LENGTH);
 			
@@ -3559,6 +3704,19 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_siteInfo-importMtrlMaster.vm
 			 * 
 			 */
+			// want to allow a larger file upload size than system default, but within ceiling defined in properties:
+			String ceiling = ServerConfigurationService.getString("content.upload.ceiling");
+			long ceilingMb = 60;
+			
+			if (!ceiling.equals(""))
+			{
+				ceilingMb = Long.valueOf(ceiling);
+			} 
+			
+			context.put("uploadmax", ceilingMb);
+			context.put("sitediclachoosefile", 
+					rb.getFormattedMessage("sitedicla.choose_file", new Object[]{ceilingMb}));
+
 			return (String) getContext(data).get("template") + TEMPLATE[45];
 
 		case 46:
@@ -3723,7 +3881,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put( CONTEXT_FILTER_TERMS, ServerConfigurationService.getBoolean( SAK_PROP_FILTER_TERMS, Boolean.FALSE ) );
 			
 			return (String) getContext(data).get("template") + TEMPLATE[53];
-		}
+		} 	
 		case 54:
 			/*
 			 * build context for chef_site-questions.vm
@@ -3745,7 +3903,7 @@ public class SiteAction extends PagedResourceActionII {
 			// only show those sites with same site type
 			putImportSitesInfoIntoContext(context, site, state, true);
 			return (String) getContext(data).get("template") + TEMPLATE[61];
-		
+
 		case 62:
 			/*
 			 * build context for chef_site-uploadArchive.vm
@@ -3756,12 +3914,99 @@ public class SiteAction extends PagedResourceActionII {
 
 			//now go to uploadArchive template
 			return (String) getContext(data).get("template") + TEMPLATE[62];
+		case 63:
+			/*
+			 * build context for chef_site-changeAdmin.vm
+			 */
+			context.put("site", site);
+			String adminSiteRef = DevolvedSakaiSecurity.getAdminRealm(site.getReference());
+			context.put("adminSiteRef", adminSiteRef);
+			context.put("adminSiteName", getAdminReferenceName(adminSiteRef));
+
+			boolean canRemoveAdmin = DevolvedSakaiSecurity.canRemoveAdminRealm(site.getReference());
+			List adminSites = new ArrayList();
+			if (canRemoveAdmin) {
+				adminSites.add(new AdminRealm("unmanged", getAdminReferenceName(null)));
+			}
+			List<Entity> adminRealms = DevolvedSakaiSecurity.getAvailableAdminRealms(site.getReference());
+			Collections.sort(adminRealms, devolvedAdminComparator);
+			for (Entity adminRealm : adminRealms) {
+				adminSites.add(new AdminRealm(adminRealm.getReference(), getAdminReferenceName(adminRealm.getReference())));
+			}
+
+
+			context.put("adminSites", adminSites);
+			context.put("hasAvailableSites", adminSites.size() != 0);
+			context.put("canRemoveAdmin", canRemoveAdmin);
+
+			return (String) getContext(data).get("template") + TEMPLATE[63];
+
+		case 64: // Used to choose an admin realm during site creation. 
+		case 65: // Used when selecting the admin site when duplicating
+			/*
+			 * build context for chef_site-selectAdmin.vm
+			 */
+			Boolean unmanaged = SiteService.allowAddSite(null);
+
+			List<Entity> possibleAdminSites = DevolvedSakaiSecurity.getAvailableAdminRealms(null);
+			Collections.sort(possibleAdminSites, devolvedAdminComparator);
+
+			context.put("adminSites", possibleAdminSites);
+			context.put("adminSite", state.getAttribute(STATE_ADMIN_REALM));
+			context.put("allowUnmanaged", unmanaged);
+			context.put("canSelect", unmanaged || possibleAdminSites.size() > 0);
+			context.put("template", Integer.toString(index));
+			
+			return (String)getContext(data).get("template") + TEMPLATE[index];
 		}
 			
 		// should never be reached
 		return (String) getContext(data).get("template") + TEMPLATE[0];
 	}
 	
+
+	/**
+	 * Is this site not secure or is the user an admin user.
+	 * This is useful for deciding if to disable functionality. 
+	 * @param reference A reference to ths site.
+	 * @return <code>true</code> if the user is an admin or the site is not secure.
+	 */
+	private boolean notSecureOrAdmin(String reference) {
+		return (SecurityService.isSuperUser() || !twoFactorAuthentication.isTwoFactorRequired(reference));
+	}
+
+
+	/**
+	 * Some site don't get the full set of options in Site Info.
+	 * @param state The session state.
+	 * @param siteType The type of the site, eg project, course.
+	 * @return <code>true</code> is the site is a restricted one.
+	 */
+	private boolean isRestrictedSite(SessionState state, String siteType) {
+		Site site = getStateSite(state);
+		List<String> providedSiteTypes = siteTypeProvider.getTypes();
+		boolean isRestrictedSite = false;
+		if (siteType != null && providedSiteTypes.contains(siteType)) {
+			isRestrictedSite = true;
+		}
+		List adminSiteTypes = (List) state.getAttribute(ADMIN_SITE_TYPES);
+		if (siteType != null && adminSiteTypes.contains(siteType) && !SecurityService.isSuperUser()) {
+			isRestrictedSite = true;
+		} else if (site != null && !notSecureOrAdmin(site.getReference())) {
+			isRestrictedSite = true;
+		}
+		return isRestrictedSite;
+	}
+
+	/**
+	 * Just check if two factor authentication is required for this site.
+	 * @param site
+	 * @return
+	 */
+	private boolean isTwoFactorRequired(Site site) {
+		return twoFactorAuthentication.isTwoFactorRequired(site.getReference());
+	}
+
 	private void addAccess(Context context, Map<String, AdditionalRole> access) {
 		boolean disableAdditional = access.size() == 0;
 		context.put("disableAdditional", disableAdditional);
@@ -4127,7 +4372,6 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		return rv;
 	}
-
 	/**
 	 * whether the PageOrderHelper is allowed to be shown in this site type
 	 * @param siteType
@@ -4256,7 +4500,109 @@ public class SiteAction extends PagedResourceActionII {
 		}
 	}
 
+	public String buildUserListPanelContext(VelocityPortlet portlet,
+			Context context, RunData data, SessionState state)
+	{
+		
+		Site site = getStateSite(state);
+		String siteId = site.getId();
+		String sortedAsc = "";
+		boolean allowUpdateSite = SiteService.allowUpdateSite(siteId);
+		
+		context.put("tlang", rb);
+		context.put("allowUpdate", Boolean.valueOf(allowUpdateSite));
+		context.put("siteTitle", site.getTitle());
+		context.put("currentSortedBy", state.getAttribute(SORTED_BY));
+		
+		if (allowUpdateSite ) {
+			Collection participantsCollection = getParticipantList(state);
+			sortedAsc = (String) state.getAttribute(SORTED_ASC);
+			if (sortedAsc == null) {
+				sortedAsc = Boolean.TRUE.toString();
+				state.setAttribute(SORTED_ASC, sortedAsc);
+			}
+			if (sortedAsc != null)
+				context.put("currentSortAsc", sortedAsc);
+			context.put("participantListSize", participantsCollection.size());
+			context.put("participantList", prepPage(state));
+		}
+		
+		return (String)getContext(data).get("template") + TEMPLATE[64];
+	}
+
 	/**
+	 * Launch the Page Order Helper Tool -- for ordering, adding and customizing
+	 * pages
+	 * 
+	 * @see case 12
+	 *  Adds details of the groups used for the members of the site.
+	 * @param state
+	 * @param context
+	 * @param site
+	 */
+	private void prepareGroupsIntoContext(SessionState state, Context context,
+			Site site) {
+
+		List providerIds = getProviderCourseList(site.getProviderGroupId());
+		if ( groupProvider instanceof DisplayGroupProvider ) {
+			DisplayGroupProvider displayGroupProvider = (DisplayGroupProvider)groupProvider;
+			List<Map> groups = new ArrayList<Map>(providerIds.size());
+			for (String providerId: (List<String>)providerIds) {
+				String displayName = displayGroupProvider.getGroupName(providerId);
+				if (displayName == null) {
+					M_log.debug("Ignoring unnamed providerId: "+ providerId);
+				} else {
+					String suspendedGroupProviderId = displayGroupProvider.getSuspendedGroupProviderId(providerId, providerIds);// get the suspended group if it exists
+					Map<String, String> group = new HashMap<String, String>();
+					group.put("id", providerId + (suspendedGroupProviderId.isEmpty() ? suspendedGroupProviderId : "," + suspendedGroupProviderId));
+					group.put("name", displayName);
+					groups.add(group);
+				}
+			}
+			context.put("providedGroups", groups);
+		}
+	}
+	
+	public void doRemoveGroup(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+			.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		String[] removeGroupIds = data.getParameters().getString("groupId").split(",");
+		
+		String siteId = (String) state
+				.getAttribute(STATE_SITE_INSTANCE_ID);
+		String realmId = SiteService.siteReference(siteId);
+		try {
+			AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
+
+			List<String> providerCourseList = (List<String>)getProviderCourseList(StringUtil
+					.trimToNull(realm.getProviderGroupId()));
+			for (String removeGroupId : removeGroupIds) {
+				if (providerCourseList.remove(removeGroupId)) {
+					String displayName = removeGroupId;
+					if (groupProvider instanceof DisplayGroupProvider) {
+						String betterName = ((DisplayGroupProvider)groupProvider).getGroupName(removeGroupId);
+						if (betterName != null && betterName.length() > 0) {
+							displayName = betterName;
+						}
+					}
+					realm.setProviderGroupId(groupProvider.packId(providerCourseList.toArray(new String[]{})));
+					authzGroupService.save(realm);
+					addAlert(state, rb.getFormattedMessage("java.extgrpremove", new Object[]{displayName}));
+				}
+			}
+		} catch (GroupNotDefinedException gnde) {
+			M_log.warn("Failed to find realm for site: "+ siteId);
+			addAlert(state, rb.getString("java.extgrpauthz"));
+		} catch (AuthzPermissionException ape) {
+			addAlert(state,rb.getString("java.extgrpnoperm") );
+		}
+	}
+
+	/**
+	 * Launch the Page Order Helper Tool -- for ordering, adding and customizing
+	 * pages
+	 * 
+	 * @see case 12
 	 * 
 	 */
 	public void doPageOrderHelper(RunData data) {
@@ -4275,6 +4621,19 @@ public class SiteAction extends PagedResourceActionII {
 		startHelper(data.getRequest(), "sakai-site-pageorder-helper");
 	}
 	
+	public void doExternalGroupsHelper(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// pass in the siteId of the site to be ordered (so it can configure
+		// sites other then the current site)
+		SessionManager.getCurrentToolSession().setAttribute(
+				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
+
+		// launch the helper
+		startHelper(data.getRequest(), "external.groups");
+	}
+
 	/**
 	 * Launch the participant Helper Tool -- for adding participant
 	 * 
@@ -4365,6 +4724,8 @@ public class SiteAction extends PagedResourceActionII {
 	{
 		String helperId = ServerConfigurationService.getString(helperName, defaultHelperId);
 		
+		String siteType = (String)state.getAttribute(STATE_SITE_TYPE);
+		
 		// if the state variable regarding the helper is not set yet, set it with the configured helper id
 		if (state.getAttribute(stateHelperString) == null)
 		{
@@ -4402,6 +4763,8 @@ public class SiteAction extends PagedResourceActionII {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
+		// removed upload file size checks; size check is done in RequestFilter, no need to repeat here.
+
 		List allzipList = new Vector();
 		List finalzipList = new Vector();
 		List directcopyList = new Vector();
@@ -4411,22 +4774,7 @@ public class SiteAction extends PagedResourceActionII {
 		String fileName = null;
 		fileFromUpload = data.getParameters().getFileItem("file");
 
-		String max_file_size_mb = ServerConfigurationService.getString(
-				"content.upload.max", "1");
-		long max_bytes = 1024 * 1024;
-		try {
-			max_bytes = Long.parseLong(max_file_size_mb) * 1024 * 1024;
-		} catch (Exception e) {
-			// if unable to parse an integer from the value
-			// in the properties file, use 1 MB as a default
-			max_file_size_mb = "1";
-			max_bytes = 1024 * 1024;
-			M_log.error(this + ".doUpload_Mtrl_Frm_File: wrong setting of content.upload.max = " + max_file_size_mb, e);
-		}
-		if (fileFromUpload == null) {
-			// "The user submitted a file to upload but it was too big!"
-			addAlert(state, rb.getFormattedMessage("importFile.size", new Object[]{max_file_size_mb}));
-		} else if (fileFromUpload.getFileName() == null
+		if (fileFromUpload.getFileName() == null
 				|| fileFromUpload.getFileName().length() == 0) {
 			addAlert(state, rb.getString("importFile.choosefile"));
 		} else {
@@ -4466,10 +4814,7 @@ public class SiteAction extends PagedResourceActionII {
 				IOUtils.closeQuietly(fileInputStream);
 			}
 
-			if (fileSize >= max_bytes) {
-				addAlert(state, rb.getFormattedMessage("importFile.size", new Object[]{max_file_size_mb}));
-			}
-			else if (fileSize > 0) {
+			if (fileSize > 0) {
 
 				if (fileInput != null && importService.isValidArchive(fileInput)) {
 					ImportDataSource importDataSource = importService
@@ -4492,6 +4837,7 @@ public class SiteAction extends PagedResourceActionII {
 							}
 						}
 					}
+					
 					// set Attributes
 					state.setAttribute(ALL_ZIP_IMPORT_SITES, allzipList);
 					state.setAttribute(FINAL_ZIP_IMPORT_SITES, finalzipList);
@@ -5217,27 +5563,87 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	/**
-	 * doNew_site is called when the Site list tool bar New... button is clicked
+	 * 	doNew_site is called when the Site list tool bar New... button is clicked
 	 * 
 	 */
 	public void doNew_site(RunData data) throws Exception {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
 
 		// start clean
 		cleanState(state);
 
-		if (state.getAttribute(STATE_INITIALIZED) == null) {
-			state.setAttribute(STATE_OVERRIDE_TEMPLATE_INDEX, "1");
+		List siteTypes = (List) state.getAttribute(STATE_SITE_TYPES);
+		if (siteTypes != null)
+		{
+			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
+		}
+		if (canChooseAdminSite(data, state)) {
+			state.setAttribute(STATE_TEMPLATE_INDEX, "65");
 		} else {
+			doSite_selectAdmin(state, params);
+		}
+
+		if (state.getAttribute(STATE_INITIALIZED) == null) {
+			state.setAttribute(STATE_OVERRIDE_TEMPLATE_INDEX, state.getAttribute(STATE_TEMPLATE_INDEX));
+		}
+	}
+	
+	private boolean canChooseAdminSite(RunData data, SessionState state) {
+		List<Entity> adminSites = DevolvedSakaiSecurity.getAvailableAdminRealms(null);
+		boolean canChoose = true;
+		if (adminSites.size() == 1 && !SiteService.allowAddSite(null)) {
+			String adminRealm = adminSites.get(0).getReference();
+			state.setAttribute(STATE_ADMIN_REALM, adminRealm);
+			canChoose = false;
+		} else if (adminSites.size() == 0 && SiteService.allowAddSite(null)) {
+			state.setAttribute(STATE_ADMIN_REALM, "unmanaged");
+			canChoose = false;
+		}
+		state.setAttribute(STATE_ADMIN_REALM_FROM_USER, canChoose);
+		return canChoose;
+	}
+
+	public void doSite_selectAdmin(SessionState state, ParameterParser params) {
+		
+		String adminSite = params.getString("adminSite");
+		
+		if (adminSite != null && adminSite.length() > 0) {
+			state.setAttribute(STATE_ADMIN_REALM, adminSite);
+		}
+		if (state.getAttribute(STATE_ADMIN_REALM) != null) {
+			
 			List siteTypes = (List) state.getAttribute(STATE_SITE_TYPES);
-			if (siteTypes != null) 
-			{
-				state.setAttribute(STATE_TEMPLATE_INDEX, "1");
-			} 
+			if (siteTypes != null) {
+				if (siteTypes.size() == 1) {
+					String siteType = (String) siteTypes.get(0);
+					if (!SiteTypeUtil.isCourseSite(siteType)) {
+						// if only one site type is allowed and the type isn't
+						// course type
+						// skip the select site type step
+						setNewSiteType(state, siteType);
+						state.setAttribute(STATE_TEMPLATE_INDEX, "13");
+					} else {
+						state.setAttribute(STATE_TEMPLATE_INDEX, "1");
+					}
+				} else {
+					state.setAttribute(STATE_TEMPLATE_INDEX, "1");
+				}
+			}
+		} else {
+			// Error Message
+			addAlert(state, rb.getString("java.noadminsite"));
 		}
 
 	} // doNew_site
+	
+	public void doMenu_change_site_admin(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+		.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		state.setAttribute(STATE_TEMPLATE_INDEX, "63");
+	}
 
 	/**
 	 * doMenu_site_delete is called when the Site list tool bar Delete button is
@@ -6820,16 +7226,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					    M_log.error(this + "doFinish: unable to reload site " + site.getId() + " after updating roster.");
 					}
 				}
-				// We don't want the new site to automatically be a template
-				site.getPropertiesEdit().removeProperty("template");
-				
 				// publish the site or not based on the template choice
 				site.setPublished(state.getAttribute(STATE_TEMPLATE_PUBLISH) != null?true:false);
 				
 				// Update the icons URL.
 				String newSiteIconUrl = transferSiteResource(templateSite.getId(), site.getId(), site.getIconUrl());
 				site.setIconUrl(newSiteIconUrl);
-				
+
 				userNotificationProvider.notifyTemplateUse(templateSite, UserDirectoryService.getCurrentUser(), site);	
 			}
 				
@@ -7544,6 +7947,14 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			state.removeAttribute(STATE_TERM_SELECTED);
 			removeAddClassContext(state);
 			state.setAttribute(STATE_TEMPLATE_INDEX, "43");
+		} else if ( currentIndex.equals("64")) {
+			state.removeAttribute(STATE_ADMIN_REALM);
+			state.removeAttribute(STATE_ADMIN_REALM_FROM_USER);
+			doCancel_create(data);
+		} else if ( currentIndex.equals("29")) {
+			state.removeAttribute(STATE_ADMIN_REALM);
+			state.removeAttribute(STATE_ADMIN_REALM_FROM_USER);
+			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 		}
 		// if all fails to match
 		else if (isTemplateVisited(state, "12")) {
@@ -8004,8 +8415,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	public void doMenu_siteInfo_duplicate(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-		if (state.getAttribute(STATE_MESSAGE) == null) {
+		
+		if (canChooseAdminSite(data, state)) {
+			// Need to reuse the same template...
+			state.setAttribute(STATE_TEMPLATE_INDEX, "65");
+		} else if (state.getAttribute(STATE_MESSAGE) == null) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "29");
 		}
 
@@ -8210,10 +8624,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			// None of this helps other users who may try to reload an aliased site 
 			// URL that no longer resolves.
 			if ( updateSiteRefAliases ) {
-				sendParentRedirect((HttpServletResponse) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE),
-					getDefaultSiteUrl(ToolManager.getCurrentPlacement().getContext()) + "/" +
-					SiteService.PAGE_SUBTYPE + "/" + 
-					((ToolConfiguration) ToolManager.getCurrentPlacement()).getPageId());
+				sendParentRedirect((HttpServletResponse) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE), getCurrentSiteUrl());
 			} else {
 				scheduleTopRefresh();
 			}
@@ -8223,15 +8634,21 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 
 	/**
-	 * Check to see whether the site's title is editable or not
-	 * @param state
-	 * @param site_type
-	 * @return
+	 * Check to see whether the site's title is editable or not.
+	 * @param state The current state.
+	 * @param site_type The tyep of the current site.
+	 * @return Returns <code>true</code>
+	 * @param site_type The type of the current site.
+	 * @return Returns <code>true</code> if we're creating a site as a helper and already have site or if we're
+     * not creating a new site and the site type isn't in the non editable type list.
 	 */
 	private boolean siteTitleEditable(SessionState state, String site_type) {
-		return site_type != null 
-				&& ((state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE) != null 
-					&& !((List) state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE)).contains(site_type)));
+		boolean newSite = getStateSite(state) == null;
+		boolean editableSiteType = site_type != null
+				&& ((state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE) != null
+				&& !((List) state.getAttribute(TITLE_NOT_EDITABLE_SITE_TYPE)).contains(site_type)));
+		boolean hasHelperTitle = state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE) != null;
+		return !(hasHelperTitle) && (newSite || editableSiteType);
 	}
 	
 	/**
@@ -8313,31 +8730,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if (state.getAttribute(STATE_PAGESIZE_SITEINFO) == null) {
 			state.setAttribute(STATE_PAGESIZE_SITEINFO, new Hashtable());
 		}
-
-		if (SITE_MODE_SITESETUP.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "0");
-			
-			// need to watch out for the config question.xml existence.
-			// read the file and put it to backup folder.
-			if (SiteSetupQuestionFileParser.isConfigurationXmlAvailable())
-			{
-				SiteSetupQuestionFileParser.updateConfig();
-			}
-		} else if (SITE_MODE_HELPER.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
-		} else if (SITE_MODE_SITEINFO.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))){
-
-			String siteId = ToolManager.getCurrentPlacement().getContext();
-			getReviseSite(state, siteId);
-			Hashtable h = (Hashtable) state
-					.getAttribute(STATE_PAGESIZE_SITEINFO);
-			if (!h.containsKey(siteId)) {
-				// update
-				h.put(siteId, Integer.valueOf(200));
-				state.setAttribute(STATE_PAGESIZE_SITEINFO, h);
-				state.setAttribute(STATE_PAGESIZE, Integer.valueOf(200));
-			}
-		}
 		if (state.getAttribute(STATE_SITE_TYPES) == null) {
 			PortletConfig config = portlet.getPortletConfig();
 
@@ -8365,6 +8757,36 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 			}
 		}
+
+		if (SITE_MODE_SITESETUP.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))) {
+			state.setAttribute(STATE_TEMPLATE_INDEX, "0");
+			// need to watch out for the config question.xml existence.
+			// read the file and put it to backup folder.
+			if (SiteSetupQuestionFileParser.isConfigurationXmlAvailable())
+			{
+				SiteSetupQuestionFileParser.updateConfig();
+			}
+		} else if (SITE_MODE_HELPER.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))) {
+			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
+			if (canChooseAdminSite(data, state)) {
+				state.setAttribute(STATE_TEMPLATE_INDEX, "63");
+			} else {
+				doSite_selectAdmin(state, data.getParameters());
+			}
+		} else if (SITE_MODE_SITEINFO.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))){
+
+			String siteId = ToolManager.getCurrentPlacement().getContext();
+			getReviseSite(state, siteId);
+			Hashtable h = (Hashtable) state
+					.getAttribute(STATE_PAGESIZE_SITEINFO);
+			if (!h.containsKey(siteId)) {
+				// update
+				h.put(siteId, Integer.valueOf(200));
+				state.setAttribute(STATE_PAGESIZE_SITEINFO, h);
+				state.setAttribute(STATE_PAGESIZE, Integer.valueOf(200));
+			}
+		}
+
 		
 		// show UI for adding non-official participant(s) or not
 		// if nonOfficialAccount variable is set to be false inside sakai.properties file, do not show the UI section for adding them.
@@ -9228,7 +9650,56 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		} // else just leave joinability alone
 		
 	}
+
+	public void doUpdate_site_admin(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+		.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		Site sEdit = getStateSite(state);
+		ParameterParser params = data.getParameters();
+		String adminSite = params.getString("adminSiteRealm");
+		boolean removeAdminSite = "unmanaged".equals(adminSite);
+		String oldAdminSite = DevolvedSakaiSecurity.getAdminRealm(sEdit.getReference());
+		// Check that it's changed.
+		if ((adminSite != null && adminSite.equals(oldAdminSite))
+				|| (adminSite == null && removeAdminSite)) {
+			addAlert(state, rb.getString("java.changeadminsame"));
+			return;
+		}
+
+		Reference newRef = EntityManager.newReference(adminSite);
+		try {
+			if (removeAdminSite) {
+				DevolvedSakaiSecurity.removeAdminRealm(sEdit.getReference());
+				addAlert(state, rb.getFormattedMessage("java.changeadminremoved", null));
+			} else {
+				DevolvedSakaiSecurity.setAdminRealm(sEdit.getReference(), adminSite);
+				if (oldAdminSite != null) {
+					addAlert(state, rb.getFormattedMessage("java.changeadminupdate",
+							new Object[]{getAdminReferenceName(oldAdminSite), getAdminReferenceName(adminSite)}));
+				} else {
+					addAlert(state, rb.getFormattedMessage("java.changeadminset", new Object[]{getAdminReferenceName(adminSite)}));
+				}
+			}
+		} catch (PermissionException pe) {
+			addAlert(state, rb.getString("java.changeadminperm"));
+			M_log.warn(this + "  PermissionException " + sEdit.getTitle());
+		}
+		state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+	}
 	
+	private String getAdminReferenceName(String refString) {
+		if (refString == null || refString.length() == 0) {
+			return rb.getString("java.adminsitenone");
+		}
+		Reference ref = EntityManager.newReference(refString);
+		Entity entity = ref.getEntity();
+		if (entity instanceof Site) {
+			Site site = (Site)entity;
+			return site.getTitle();
+		}
+		return ref.getReference();
+	}
+
 	/**
 	 * /* Actions for vm templates under the "chef_site" root. This method is
 	 * called by doContinue. Each template has a hidden field with the value of
@@ -9590,8 +10061,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							// SAK-20797
 							long oldSiteQuota = this.getSiteSpecificQuota(oldSiteId);
 							
+							String adminRealm = (String)state.getAttribute(STATE_ADMIN_REALM);
+							if ("unmanaged".equals(adminRealm))
+							{
+								adminRealm = null;
+							}
 							Site site = SiteService.addSite(newSiteId,
-									getStateSite(state));
+									getStateSite(state), adminRealm);
 							
 							// An event for starting the "duplicate site" action
 							EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_START, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
@@ -9604,6 +10080,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 							// set title
 							site.setTitle(title);
+							// Update the description and copy and related content.
+							ContentCopyContext context = contentCopy.createCopyContext(oldSiteId, newSiteId, true);
+							String nDescription = contentCopy.convertContent(context, site.getDescription(), "text/html", null);
+							site.setDescription(nDescription);
+							contentCopy.copyReferences(context);
 							
 							// SAK-20797 alter quota if required
 							boolean	duplicateQuota = params.getString("dupequota") != null ? params.getBoolean("dupequota") : false;
@@ -9614,6 +10095,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 									try {
 										String collId = m_contentHostingService
 												.getSiteCollection(site.getId());
+
 
 										ContentCollectionEdit col = m_contentHostingService.editCollection(collId);
 
@@ -9665,12 +10147,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 								try 
 								{
 									AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realm);
-									if (SiteTypeUtil.isCourseSite(siteType)) 
-									{
-										// also remove the provider id attribute if any
-										realmEdit.setProviderGroupId(null);
-									}
-									
+									// also remove the provider id attribute if any
+									realmEdit.setProviderGroupId(null);
 									// add current user as the maintainer
 									realmEdit.addMember(UserDirectoryService.getCurrentUser().getId(), site.getMaintainRole(), true, false);
 									
@@ -9682,7 +10160,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 									addAlert(state, this + rb.getString("java.notaccess"));
 									M_log.error(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.notaccess"), e);
 								}
-							
 							} catch (IdUnusedException e) {
 								M_log.warn(this + " actionForTemplate chef_siteinfo-duplicate:: IdUnusedException when saving " + newSiteId);
 							} catch (PermissionException e) {
@@ -9924,6 +10401,26 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 			}
 			break;
+		case 63:
+			if (forward) {
+				doSite_selectAdmin(state, params);
+			}
+			break;
+		case 65:
+			if (forward) {
+				String adminSite = params.getString("adminSite");
+
+				if (adminSite != null && adminSite.length() > 0) {
+					state.setAttribute(STATE_ADMIN_REALM, adminSite);
+				}
+				if (state.getAttribute(STATE_ADMIN_REALM) != null) {
+					state.setAttribute(STATE_TEMPLATE_INDEX, "1");
+				} else {
+					// Error Message
+					addAlert(state, rb.getString("java.noadminsite"));
+				}
+			}
+			break;
 		}
 
 	}// actionFor Template
@@ -10010,64 +10507,78 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 * @return the new migrated resource url
 	 */
 	private String transferSiteResource(String oSiteId, String nSiteId, String siteAttribute) {
+
+		SecurityService.pushAdvisor(SECURITY_ADVISOR_ALLOW_ALL);
 		String rv = "";
-		
-		String access = ServerConfigurationService.getAccessUrl();
-		if (siteAttribute!= null && siteAttribute.indexOf(oSiteId) != -1 && access != null)
-		{
-			Reference ref = null;
-			try
+
+		try {
+
+			String access = ServerConfigurationService.getAccessUrl();
+			if (siteAttribute!= null && siteAttribute.indexOf(oSiteId) != -1 && access != null)
 			{
-				URI accessUrl = new URI(access);
-				URI url = new URI(siteAttribute);
-				String path = url.getPath();
-				String accessPath = accessUrl.getPath();
-				
-				// stripe out the access url, get the relative form of "url"
-				String contentRef = path.replaceAll(accessPath, "");
-				
-				ref = EntityManager.newReference(contentRef);
-				
-				ContentResource resource = m_contentHostingService.getResource(ref.getId());
-				// the new resource
-				ContentResource nResource = null;
-				String nResourceId = resource.getId().replaceAll(oSiteId, nSiteId);
+				Reference ref = null;
 				try
 				{
-					nResource = m_contentHostingService.getResource(nResourceId);
-				}
-				catch (Exception n2Exception)
-				{
-					M_log.warn(this + ":transferSiteResource: cannot find resource with id=" + nResource + " copying it from the original resource " + n2Exception.getMessage());
-					// copy the resource then
+					URI accessUrl = new URI(access);
+					URI url = new URI(siteAttribute);
+					String path = url.getPath();
+					String accessPath = accessUrl.getPath();
+
+					// stripe out the access url, get the relative form of "url"
+					String contentRef = path.replaceAll(accessPath, "");
+
+					ref = EntityManager.newReference(contentRef);
+
+					ContentResource resource = m_contentHostingService.getResource(ref.getId());
+					// the new resource
+					ContentResource nResource = null;
+					String oResourceId = resource.getId();
+					String nResourceId = oResourceId.replaceAll(oSiteId, nSiteId);
 					try
 					{
-						nResourceId = m_contentHostingService.copy(resource.getId(), nResourceId);
 						nResource = m_contentHostingService.getResource(nResourceId);
 					}
-					catch (Exception n3Exception)
+					catch (Exception n2Exception)
 					{
-						M_log.warn(this + ":transferSiteResource: something happened copying the resource with id="+ resource.getId() + " " + n3Exception.getMessage());
+						// copy the resource then
+						try
+						{
+							ContentCopyContext copyContext = contentCopy.createCopyContext(oSiteId, nSiteId, true);
+							copyContext.addResource(oResourceId);
+							contentCopy.copyReferences(copyContext);
+							String copyResourceId = copyContext.getCopyResults().get(oResourceId);
+							if (copyResourceId != null) {
+								rv = m_contentHostingService.getUrl(copyResourceId);
+							}
+						}
+						catch (Exception n3Exception)
+						{
+							M_log.warn(this + ":transferSiteResource: cannot find resource with id=" + nResource + " copying it from the original resource " + n2Exception.getMessage());
+						}
 					}
+					// fallback to empty if something went wrong
+					if (rv == null) {
+						rv = "";
+					}
+
 				}
-				
-				// get the new resource url
-				rv = nResource != null?nResource.getUrl(false):"";
-				
+				catch (URISyntaxException use)
+				{
+					M_log.warn("Couldn't update site resource: "+ siteAttribute + " "+ use.getMessage());
+				}
+				catch (Exception refException)
+				{
+					M_log.warn(this + ":transferSiteResource: cannot find resource with ref=" + ref.getReference() + " " + refException.getMessage());
+				}
 			}
-			catch (URISyntaxException use)
-			{
-				M_log.warn("Couldn't update site resource: "+ siteAttribute + " "+ use.getMessage());
-			}
-			catch (Exception refException)
-			{
-				M_log.warn(this + ":transferSiteResource: cannot find resource with ref=" + ref.getReference() + " " + refException.getMessage());
-			}
+
+		} finally {
+			SecurityService.getInstance().popAdvisor(SECURITY_ADVISOR_ALLOW_ALL);
 		}
 		
 		return rv;
 	}
-	
+
 	/**
 	 * copy tool content from old site
 	 * @param oSiteId source (old) site id
@@ -10078,93 +10589,82 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		String nSiteId = site.getId();
 
 		// import tool content
-		if (bypassSecurity)
-		{
+		if (bypassSecurity) {
 			// importing from template, bypass the permission checking:
 			// temporarily allow the user to read and write from assignments (asn.revise permission)
-			SecurityService.pushAdvisor(new SecurityAdvisor()
-			{
-				public SecurityAdvice isAllowed(String userId, String function, String reference)
-				{
-					return SecurityAdvice.ALLOWED;
-				}
-			});
+			SecurityService.pushAdvisor(SECURITY_ADVISOR_ALLOW_ALL);
 		}
-				
-		List pageList = site.getPages();
-		Set<String> toolsCopied = new HashSet<String>();
-		
-		Map transversalMap = new HashMap();
+		try {
+			List<SitePage> pageList = site.getPages();
+			Set<String> toolsCopied = new HashSet<String>();
 
-		if (!((pageList == null) || (pageList.size() == 0))) {
-			for (ListIterator i = pageList
-					.listIterator(); i.hasNext();) {
-				SitePage page = (SitePage) i.next();
+			Map transversalMap = new HashMap();
 
-				List pageToolList = page.getTools();
-				if (!(pageToolList == null || pageToolList.size() == 0))
-				{
-					
-					Tool tool = ((ToolConfiguration) pageToolList.get(0)).getTool();
-					String toolId = tool != null?tool.getId():"";
-					if (toolId.equalsIgnoreCase("sakai.resources")) {
-						// handle
-						// resource
-						// tool
-						// specially
-						Map<String,String> entityMap = transferCopyEntities(
-								toolId,
-								m_contentHostingService
-										.getSiteCollection(oSiteId),
-								m_contentHostingService
-										.getSiteCollection(nSiteId));
-						if(entityMap != null){							 
-							transversalMap.putAll(entityMap);
-						}
-					} else if (toolId.equalsIgnoreCase(SITE_INFORMATION_TOOL)) {
-						// handle Home tool specially, need to update the site infomration display url if needed
-						String newSiteInfoUrl = transferSiteResource(oSiteId, nSiteId, site.getInfoUrl());
-						site.setInfoUrl(newSiteInfoUrl);
-					}
-					else {
-						// other
-						// tools
-						// SAK-19686 - added if statement and toolsCopied.add
-						if (!toolsCopied.contains(toolId)) {
-							Map<String,String> entityMap = transferCopyEntities(toolId,
-										oSiteId, nSiteId);
-							if(entityMap != null){							 
+			if (!((pageList == null) || (pageList.size() == 0))) {
+				for (ListIterator i = pageList .listIterator(); i.hasNext();) {
+					SitePage page = (SitePage) i.next();
+
+					List pageToolList = page.getTools();
+					if (!(pageToolList == null || pageToolList.size() == 0)) {
+
+						Tool tool = ((ToolConfiguration) pageToolList.get(0)).getTool();
+						String toolId = tool != null ? tool.getId() : "";
+						if (toolId.equalsIgnoreCase("sakai.resources")) {
+							// handle
+							// resource
+							// tool
+							// specially
+							Map<String, String> entityMap = transferCopyEntities(
+									toolId,
+									m_contentHostingService
+											.getSiteCollection(oSiteId),
+									m_contentHostingService
+											.getSiteCollection(nSiteId));
+							if (entityMap != null) {
 								transversalMap.putAll(entityMap);
 							}
-							toolsCopied.add(toolId);
+						} else if (toolId.equalsIgnoreCase(SITE_INFORMATION_TOOL)) {
+							// handle Home tool specially, need to update the site infomration display url if needed
+							String newSiteInfoUrl = transferSiteResource(oSiteId, nSiteId, site.getInfoUrl());
+							site.setInfoUrl(newSiteInfoUrl);
+						} else {
+							// other
+							// tools
+							// SAK-19686 - added if statement and toolsCopied.add
+							if (!toolsCopied.contains(toolId)) {
+								Map<String, String> entityMap = transferCopyEntities(toolId,
+										oSiteId, nSiteId);
+								if (entityMap != null) {
+									transversalMap.putAll(entityMap);
+								}
+								toolsCopied.add(toolId);
+							}
 						}
 					}
 				}
-			}
-			
-			//update entity references
-			toolsCopied = new HashSet<String>();
-			for (ListIterator i = pageList
-					.listIterator(); i.hasNext();) {
-				SitePage page = (SitePage) i.next();
 
-				List pageToolList = page.getTools();
-				if (!(pageToolList == null || pageToolList.size() == 0))
-				{					
-					Tool tool = ((ToolConfiguration) pageToolList.get(0)).getTool();
-					String toolId = tool != null?tool.getId():"";
-					
-					updateEntityReferences(toolId, nSiteId, transversalMap, site);
+				//update entity references
+				toolsCopied = new HashSet<String>();
+				for (SitePage page: pageList)
+				{
+					List pageToolList = page.getTools();
+					if (!(pageToolList == null || pageToolList.size() == 0))
+					{
+						Tool tool = ((ToolConfiguration) pageToolList.get(0)).getTool();
+						String toolId = tool != null?tool.getId():"";
+
+						updateEntityReferences(toolId, nSiteId, transversalMap, site);
+					}
 				}
 			}
-		}
-		
-		if (bypassSecurity)
-		{
-			SecurityService.popAdvisor();
+		} finally {
+			if (bypassSecurity) {
+				SecurityService.getInstance().popAdvisor(SECURITY_ADVISOR_ALLOW_ALL);
+			}
 		}
 
 	}
+
 	/**
 	 * get user answers to setup questions
 	 * @param params
@@ -10644,7 +11144,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if (params.getString("description") != null) {
 			StringBuilder alertMsg = new StringBuilder();
 			String description = params.getString("description");
-			siteInfo.description = FormattedText.processFormattedText(description, alertMsg);
+			siteInfo.description =  description; //FormattedText.processFormattedText(description, alertMsg);
 		}
 		if (params.getString("short_description") != null) {
 			siteInfo.short_description = params.getString("short_description");
@@ -11988,6 +12488,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			siteInfo.site_id = id;
 		}
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
+		String adminSite = (String)state.getAttribute(STATE_ADMIN_REALM);
+		if ("unmanaged".equals(adminSite)) {
+			adminSite = null;
+		}
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
 				Site site = null;
@@ -11995,11 +12499,15 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				// if create based on template,
 				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
 				if (templateSite != null) {
-					site = SiteService.addSite(id, templateSite);
+					site = SiteService.addSite(id, templateSite, adminSite);
+					// We don't want the new site to automatically be a template and we want to do this as soon
+					// as possible after creation so if a problem occurs the resulting site isn't still a
+					// template.
+					site.getProperties().removeProperty("template");
 					// set site type
 					site.setType(SiteTypeUtil.getTargetSiteType(templateSite.getType()));
 				} else {
-					site = SiteService.addSite(id, siteInfo.site_type);
+					site = SiteService.addSite(id, siteInfo.site_type, adminSite);
 				}
 				
 				// add current user as the maintainer
@@ -12743,7 +13251,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						} else {
 							if (!Validator.checkEmailLocal(emailId)) {
 								addAlert(state, rb.getString("java.theemail"));
-							} else if (!aliasService.allowSetAlias(emailId, channelReference )) {
+							} else if ( siteId != null && !aliasService.allowSetAlias(emailId, channelReference )) {
 								addAlert(state, rb.getString("java.addalias"));
 							} else {
 								// check to see whether the alias has been used by
@@ -14382,6 +14890,29 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 
 	} // CourseObject constructor
+	
+	public class AdminRealm {
+		
+		final String reference;
+		
+		final String name;
+		
+		public AdminRealm(String reference, String name) {
+			this.reference = reference;
+			this.name = name;
+		}
+
+		public String getReference() {
+			return reference;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		
+		
+	}
 
 	/**
 	 * this object is used for displaying purposes in chef_site-newSiteCourse.vm
@@ -15140,6 +15671,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	private void cleanStateHelper(SessionState state) {
 		state.removeAttribute(STATE_SITE_MODE);
 		state.removeAttribute(STATE_TEMPLATE_INDEX);
+		state.removeAttribute(STATE_VISITED_TEMPLATES);
 		state.removeAttribute(STATE_INITIALIZED);
 	}
 	
@@ -15226,6 +15758,34 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 		return true;
 	}
+
+	/**
+	 * getProviderCourseList a course site/realm id in one of three formats, for
+	 * a single section, for multiple sections of the same course, or for a
+	 * cross-listing having multiple courses. getProviderCourseList parses a
+	 * realm id into year, term, campus_code, catalog_nbr, section components.
+	 * 
+	 * @param id
+	 *            is a String representation of the course realm id (external
+	 *            id).
+	 */
+	private List getProviderCourseList(String id) {
+		Vector rv = new Vector();
+		if (id == null || id == NULL_STRING) {
+			return rv;
+		}
+		// Break Provider Id into course id parts
+		String[] courseIds = groupProvider.unpackId(id);
+		
+		// Iterate through course ids
+		for (int i=0; i<courseIds.length; i++) {
+			String courseId = (String) courseIds[i];
+
+			rv.add(courseId);
+		}
+		return rv;
+
+	} // getProviderCourseList
 	
 	private void putPrintParticipantLinkIntoContext(Context context, RunData data, Site site) {
 		// the status servlet reqest url
@@ -15327,7 +15887,15 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 			}
 			siteInfo.site_type = templateSite.getType();
-			siteInfo.title = StringUtils.trimToNull(params.getString("siteTitleField"));
+
+			// WL-2186 if there was already a site title defined (saved in the state) then the text field won't be shown again.
+			String stateTitle = (String) state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE);
+			if (stateTitle != null && !stateTitle.isEmpty()) {
+				siteInfo.title = stateTitle;
+			} else {
+				siteInfo.title = StringUtils.trimToNull(params.getString("siteTitleField"));
+			}
+
 			siteInfo.term = StringUtils.trimToNull(params.getString("selectTermTemplate"));
 			siteInfo.iconUrl = templateSite.getIconUrl();
 			
@@ -15459,7 +16027,49 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	    org.sakaiproject.component.api.ServerConfigurationService scs = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get(org.sakaiproject.component.api.ServerConfigurationService.class);
 	    return scs.getLocaleFromString(localeString);
 	}
-	
+
+	/**
+	 * Handle the eventSubmit_doJoin command to have the user join this site.
+	 */
+	public void doJoin(RunData data) {
+		
+		final SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		final ParameterParser params = data.getParameters();
+		
+		final String id = params.get("itemReference");
+		String siteTitle = null;
+		
+		if (id != null)	{
+			try	{
+				// join the site
+				siteTitle = SiteService.getSite(id).getTitle();
+				SiteService.join(id);
+				String msg = rb.getString("sitinfimp.youhave2") + " " + siteTitle;
+				addAlert(state, msg);
+				
+			} catch (IdUnusedException e) {
+				Log.warn("chef", this + ".doJoin(): " + e);
+				
+			} catch (PermissionException e)	{
+				Log.warn("chef", this + ".doJoin(): " + e);
+				
+			} catch (InUseException e) {
+				addAlert(state, siteTitle + " "
+						+ rb.getString("sitinfimp.sitebeing") + " ");
+			}
+		}
+
+		String redirectUrl = ServerConfigurationService.getPortalUrl();;
+		//Check if user has access to the site even when they unjoin it, could be beacuse site is public or because of their role.
+		if(id != null && SiteService.allowAccessSite(id)){
+			redirectUrl = getCurrentSiteUrl();
+		}
+		sendParentRedirect((HttpServletResponse) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE), redirectUrl);
+
+	} // doJoin
+
+
 	/**
 	 * Handle the eventSubmit_doUnjoin command to have the user un-join this site.
 	 */
@@ -15471,10 +16081,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 		final String id = params.get("itemReference");
 		String siteTitle = null;
-		
+		Site site = null;
 		if (id != null)	{
 			try	{
-				siteTitle = SiteService.getSite(id).getTitle();
+				site = SiteService.getSite(id);
+				siteTitle = site.getTitle();
 				SiteService.unjoin(id);
 				String msg = rb.getString("sitinfimp.youhave") + " " + siteTitle;
 				addAlert(state, msg);
@@ -15792,6 +16403,17 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		tool.setTitle(ToolManager.getTool(toolId).getTitle());
 		
 		return site;
+	}
+
+	/**
+	 * Get the current Site Url
+	 * @return returns the String url for the current site
+	 */
+	private String getCurrentSiteUrl(){
+		return getDefaultSiteUrl(ToolManager.getCurrentPlacement().getContext()) + "/" +
+				SiteService.PAGE_SUBTYPE + "/" +
+				((ToolConfiguration) ToolManager.getCurrentPlacement()).getPageId();
+
 	}
 	
 	/**
