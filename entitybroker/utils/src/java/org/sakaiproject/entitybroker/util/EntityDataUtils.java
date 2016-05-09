@@ -71,7 +71,6 @@ public class EntityDataUtils {
 			add(ResourceProperties.PROP_CONTENT_TYPE);
 			add(ResourceProperties.PROP_CONTENT_PRIORITY);
 			add(ResourceProperties.PROP_CONTENT_LENGTH);
-			add(ResourceProperties.PROP_HAS_CUSTOM_SORT);
 			add(ResourceProperties.PROP_IS_COLLECTION);
 		}
 	});
