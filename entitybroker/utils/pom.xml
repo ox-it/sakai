@@ -47,6 +47,10 @@
         <!-- Sakai dependency is for the reloadable proxy also -->
         <!-- Sakai K1 -->
 <!-- -->
+		<dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>

@@ -70,6 +70,11 @@
             <version>1.9.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.2</version>
+		</dependency>
 
         <!-- Sakai K1 dependencies -->
 <!-- -->
