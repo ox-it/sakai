@@ -17,6 +17,11 @@
         <version>11-SNAPSHOT</version><!--entitybroker.version-->
     </parent>
     <dependencies>
+    	<dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        
         <!-- internal dependencies -->
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
