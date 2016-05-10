@@ -25,14 +25,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.*;
 
+import com.novell.ldap.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.PoolableObjectFactory;
-
-import com.novell.ldap.LDAPConnection;
-import com.novell.ldap.LDAPConstraints;
-import com.novell.ldap.LDAPException;
-import com.novell.ldap.LDAPTLSSocketFactory;
 
 /**
  * An object factory for managing <code>PooledLDAPConnection<code>s
@@ -63,6 +59,7 @@ public class PooledLDAPConnectionFactory implements PoolableObjectFactory {
 
 	/** standard set of LDAP constraints */
 	private LDAPConstraints standardConstraints;
+
 
 	private LdapConnectionLivenessValidator livenessValidator;
 
@@ -105,7 +102,18 @@ public class PooledLDAPConnectionFactory implements PoolableObjectFactory {
     }
     
     protected PooledLDAPConnection newConnection() {
-    	return new PooledLDAPConnection();
+		LDAPSocketFactory socketFactory;
+		if (connectionManager.getConfig().isSecureConnection()) {
+			socketFactory = connectionManager.getConfig().getSecureSocketFactory();
+		} else {
+			socketFactory = connectionManager.getConfig().getSocketFactory();
+		}
+
+		if (socketFactory == null) {
+			return new PooledLDAPConnection();
+		} else {
+			return new PooledLDAPConnection(socketFactory);
+		}
     }
 
     /**
