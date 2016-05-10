@@ -23,7 +23,7 @@
 
 <beans>
 	<!-- Import the xml out of the impl -->
-    <import resource="classpath:/course-signup-beans.xml"/>
     <import resource="classpath:/sakai-beans.xml"/>
+    <import resource="classpath:/course-signup-beans.xml"/>
 </beans>
 

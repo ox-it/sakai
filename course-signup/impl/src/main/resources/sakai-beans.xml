@@ -48,7 +48,7 @@
 
 	<bean id="uk.ac.ox.oucs.vle.DaisyPopulatorJobWrapper"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
-		singleton="true" init-method="init">
+		init-method="init">
 		<property name="beanId" value="uk.ac.ox.oucs.vle.DaisyPopulatorJob" />
 		<property name="jobName" value="SES Import Daisy Courses" />
 		<property name="schedulerManager"
@@ -78,7 +78,7 @@
 
 	<bean id="uk.ac.ox.oucs.vle.OxcapPopulatorJobWrapper"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
-		singleton="true" init-method="init">
+		init-method="init">
 		<property name="beanId" value="uk.ac.ox.oucs.vle.OxcapPopulatorJob" />
 		<property name="jobName" value="SES Import Oxcap Courses" />
 		<property name="schedulerManager"
@@ -108,7 +108,7 @@
 
 	<bean id="uk.ac.ox.oucs.vle.ModuleJobWrapper"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-		singleton="true" init-method="init">
+		init-method="init">
 		<property name="beanId" value="uk.ac.ox.oucs.vle.ModuleJob" />
 		<property name="jobName" value="Module Signup (SES) Overnight Jobs" />
 		<property name="schedulerManager"
@@ -117,7 +117,7 @@
 	
 	<bean id="uk.ac.ox.oucs.vle.OucsDeptJobWrapper"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-		singleton="true" init-method="init">
+		init-method="init">
 		<property name="beanId" value="uk.ac.ox.oucs.vle.OucsDeptJob" />
 		<property name="jobName" value="Generate the OUCS Department data" />
 		<property name="schedulerManager"
@@ -126,7 +126,7 @@
 	
 	<bean id="uk.ac.ox.oucs.vle.SearchJobWrapper"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-		singleton="true" init-method="init">
+		init-method="init">
 		<property name="beanId" value="uk.ac.ox.oucs.vle.SearchDataJob" />
 		<property name="jobName" value="Refresh the SES Search Data" />
 		<property name="schedulerManager"

@@ -38,9 +38,11 @@
 package uk.ac.ox.oucs.vle;
 
 import org.junit.Test;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
+@Transactional
 public class TestPopulatorWrapper extends OnSampleData {
 
 	public static final Date START2011 = SampleDataLoader.newCalendar(2011, 1, 1).getTime();

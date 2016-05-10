@@ -20,33 +20,31 @@
 package uk.ac.ox.oucs.vle;
 
 import org.hibernate.SessionFactory;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static uk.ac.ox.oucs.vle.CourseSignupService.*;
+import static uk.ac.ox.oucs.vle.CourseSignupService.Range;
+import static uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
-public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"/course-dao.xml", "/test-with-h2.xml"})
+@Transactional
+public class TestCourseDAO extends Assert {
 
+	@Autowired
 	private CourseDAOImpl courseDao;
+	@Autowired
 	private SessionFactory sessionFactory;
 
-	public void onSetUp() throws Exception {
-		super.onSetUp();
-		courseDao = (CourseDAOImpl) getApplicationContext().getBean("uk.ac.ox.oucs.vle.CourseDAO");
-		sessionFactory = (SessionFactory) getApplicationContext().getBean("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory");
-	}
-
-	public void onTearDown() throws Exception {
-		super.onTearDown();
-	}
-
-
-	protected String[] getConfigPaths() {
-		return new String[]{"/course-dao.xml", "/test-with-h2.xml"};
-	}
-
+	@Test
 	public void testUpdatingAdministrators() {
 		CourseGroupDAO dao;
 		dao = courseDao.newCourseGroup("id", "Title", "Department", "Subunit");
@@ -87,6 +85,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 	 * This came about through WL-2645.
 	 */
 
+	@Test
 	public void testDeletingComponent() {
 		// Create a dummp group and add the component.
 		CourseGroupDAO newCourseGroup = courseDao.newCourseGroup("id", "Title", "Department", "Subunit");
@@ -121,6 +120,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		}
 	}
 
+	@Test
 	public void testSharedComponent() {
 
 		// First course group.
@@ -155,6 +155,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		assertEquals(2, daoC.getGroups().size());
 	}
 
+	@Test
     public void testComponentFilter() {
         CourseGroupDAO group = courseDao.newCourseGroup("id1", "Title", "Department", "Subunit");
         courseDao.save(group);
@@ -194,6 +195,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
     }
 
 
+	@Test
 	public void testSharedComponentDeleteGroup() {
 
 		// First course group.
@@ -244,6 +246,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		assertEquals(1, daoC.getGroups().size());
 	}
 
+	@Test
 	public void testSharedComponentDeleteComponent() {
 
 		// First course group.
@@ -309,6 +312,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		assertNull(daoD);
 	}
 
+	@Test
 	public void testCourseCategory() {
 
 		CourseCategoryDAO cat1 = new CourseCategoryDAO(CourseGroup.CategoryType.RM, "C1", "Category 1");
@@ -363,6 +367,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 
 	}
 
+	@Test
 	public void testCourseComponentSession() {
 
 		SimpleDateFormat format = new SimpleDateFormat("EEEE dd MMMM yyyy, HH:mm:ss");
@@ -424,6 +429,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 
 	private final Date END_MIC_2010 = createDate(2010, 12, 4);
 
+	@Test
 	public void testAvailableCourses() {
 		// Create the course group
 		CourseGroupDAO group1 = courseDao.newCourseGroup("course-1", "title", "dept", "subunit");
@@ -455,6 +461,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		assertEquals(2, course.getComponents().size());
 	}
 
+	@Test
 	public void testCoursesInDept() {
 		CourseGroupDAO wrongDept = courseDao.newCourseGroup("wrong-dept", "Wrong Department", "4B03", null);
 		wrongDept.setVisibility("PB");
@@ -487,6 +494,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		assertEquals(1, groups.size());
 	}
 
+	@Test
 	public void testFindCourseGroupById() {
 		// This test was to try and reproduce problems I was having with the findCourseGroupById getting confused
 		// between the column aliases in the SQL and the aliases in the result set. I couldn't reproduce the error
@@ -509,6 +517,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 		assertNotNull(courseDao.findCourseComponents("groupId", Range.ALL, new Date()));
 	}
 
+	@Test
 	public void testCountSignups() {
 
 		// Create some dates
@@ -559,6 +568,7 @@ public class TestCourseDAO extends AbstractTransactionalSpringContextTests {
 
 	}
 
+	@Test
 	public void testFindComponentSignups() {
 		CourseGroupDAO groupA = courseDao.newCourseGroup("groupA", "Title Group A", "dept", "subunit");
 		courseDao.save(groupA);

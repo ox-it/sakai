@@ -19,47 +19,44 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.runner.RunWith;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ox.oucs.vle.proxy.SakaiProxyTest;
 
-import java.util.*;
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations={"/sample-data.xml", "/course-signup-beans.xml", "/test-with-h2.xml"})
+public abstract class OnSampleData extends Assert {
 
-@RunWith(JUnit4ClassRunner.class)
-public abstract class OnSampleData extends AbstractTransactionalSpringContextTests {
-
-	private static final Log log = LogFactory.getLog(OnSampleData.class);
-
+	@Autowired
 	protected SessionFactory factory;
+	@Qualifier("uk.ac.ox.oucs.vle.CourseSignupService")
+	@Autowired
 	protected CourseSignupService service;
+	@Autowired
 	protected SakaiProxyTest proxy;
+	@Autowired
 	protected CourseDAOImpl dao;
+	@Autowired
 	protected SettableNowService now;
 
 
 	// pass through to the junit 3 calls, which are not annotated
 	@Before
 	final public void callSetup() throws Exception {
-		super.setUp();
 		now.setNow(SampleDataLoader.addWeeks(SampleDataLoader.newCalendar(2010, 10, 10), -2));
 	}
 
 	@After
 	public void callTearDown() throws Exception {
-		super.tearDown();
 	}
 
-	protected String[] getConfigPaths() {
-		return new String[]{"/sample-data.xml", "/course-signup-beans.xml", "/test-with-h2.xml"};
-	}
-	
 	public void setFactory(SessionFactory factory) {
 		this.factory = factory;
 	}

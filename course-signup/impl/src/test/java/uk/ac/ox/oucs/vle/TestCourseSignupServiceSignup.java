@@ -26,9 +26,14 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ox.oucs.vle.CourseSignupService.Status;
 
 
+@Transactional
 public class TestCourseSignupServiceSignup extends OnSampleData {
 
 	@Before

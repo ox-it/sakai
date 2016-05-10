@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -52,9 +53,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.sakaiproject.api.app.scheduler.JobDetailWrapper;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.api.app.scheduler.TriggerWrapper;
@@ -83,28 +86,25 @@ public class SchedulerTool extends HttpServlet {
 
 		List<JobDetailWrapper> jobDetailWrapperList = new ArrayList<JobDetailWrapper>();
 
-		try {
-			String[] jobNames = scheduler.getJobNames(Scheduler.DEFAULT_GROUP);
-
-			for (int i = 0; i < jobNames.length; i++) {
+		try
+		{
+			Set<JobKey> jobs = scheduler.getJobKeys(GroupMatcher.groupEquals(Scheduler.DEFAULT_GROUP));
+			jobDetailWrapperList = new ArrayList<>();
+			for (JobKey key : jobs) {
 				JobDetailWrapper jobDetailWrapper = new JobDetailWrapperImpl();
-				jobDetailWrapper.setJobDetail(scheduler.getJobDetail(
-						jobNames[i], Scheduler.DEFAULT_GROUP));
-				Trigger[] triggerArr = scheduler.getTriggersOfJob(jobNames[i],
-						Scheduler.DEFAULT_GROUP);
-				List<TriggerWrapper> triggerWrapperList = new ArrayList<TriggerWrapper>();
-				TriggerWrapper tw;
+				jobDetailWrapper.setJobDetail(scheduler.getJobDetail(key));
+				List<? extends Trigger> triggers = scheduler.getTriggersOfJob(key);
 
-				for (int j = 0; j < triggerArr.length; j++) {
-					tw = new TriggerWrapperImpl();
-					tw.setTrigger(triggerArr[j]);
+				List<TriggerWrapper> triggerWrapperList = new ArrayList<TriggerWrapper>();
+				for (Trigger trigger : triggers) {
+					TriggerWrapper tw = new TriggerWrapperImpl();
+					tw.setTrigger(trigger);
 					triggerWrapperList.add(tw);
 				}
 
 				jobDetailWrapper.setTriggerWrapperList(triggerWrapperList);
 				jobDetailWrapperList.add(jobDetailWrapper);
 			}
-
 		} catch (SchedulerException e) {
 			LOG.error("scheduler error while getting job detail");
 		}
@@ -125,14 +125,12 @@ public class SchedulerTool extends HttpServlet {
 			JobDetailWrapper selectedJobDetailWrapper = null;
 
 			for (JobDetailWrapper jobDetailWrapper : jobDetailWrapperList) {
-				if (jobDetailWrapper.getJobDetail().getName().equals(jobName)) {
+				if (jobDetailWrapper.getJobDetail().getKey().getName().equals(jobName)) {
 					selectedJobDetailWrapper = jobDetailWrapper;
 				}
 			}
 
-			scheduler.triggerJob(selectedJobDetailWrapper.getJobDetail()
-					.getName(), selectedJobDetailWrapper.getJobDetail()
-					.getGroup());
+			scheduler.triggerJob(selectedJobDetailWrapper.getJobDetail().getKey());
 
 			return "success";
 

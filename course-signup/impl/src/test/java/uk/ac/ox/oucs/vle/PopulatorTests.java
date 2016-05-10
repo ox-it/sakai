@@ -19,38 +19,28 @@
  */
 package uk.ac.ox.oucs.vle;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.hibernate.SessionFactory;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-public class PopulatorTests extends AbstractTransactionalSpringContextTests {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations={"/course-dao.xml", "/test-with-h2.xml", "/course-signup-beans.xml"})
+public class PopulatorTests {
 
+	@Autowired
 	private CourseDAOImpl courseDao;
+	@Autowired
 	private SessionFactory sessionFactory;
+	@Qualifier("uk.ac.ox.oucs.vle.DaisyPopulatorWrapper")
+	@Autowired
 	private PopulatorWrapper populator;
 	
 	private String prefix = new String("test.populator");
 
-	public void onSetUp() throws Exception {
-		super.onSetUp();
-		courseDao = (CourseDAOImpl) getApplicationContext().getBean("uk.ac.ox.oucs.vle.CourseDAO");
-		sessionFactory = (SessionFactory) getApplicationContext().getBean("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory");
-		populator = (PopulatorWrapper) getApplicationContext().getBean("uk.ac.ox.oucs.vle.OxcapPopulatorWrapper");
-	}
-	
-	public void onTearDown() throws Exception {
-		super.onTearDown();
-	} 
 
-
-	protected String[] getConfigPaths() {
-		//return new String[]{"/components.xml", "/test-components.xml"};
-//		return new String[]{"/course-signup-beans.xml", "/sakai-beans.xml"};
-		return new String[]{"/course-dao.xml", "/test-with-h2.xml", "/course-signup-beans.xml"};
-	}
-	
 	public void testPopulator() {
 		
 //		Map<String, String> contextMap = new HashMap<String, String>();
