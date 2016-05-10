@@ -125,6 +125,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
+                <module>course-signup</module>
                 <module>external-groups</module>
             </modules>
         </profile>
