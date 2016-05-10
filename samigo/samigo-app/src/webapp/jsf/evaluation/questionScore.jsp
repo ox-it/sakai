@@ -82,7 +82,7 @@ function hiddenLinkOnClick(){
 </script>
 
 <!-- content... -->
-<div class="portletBody container">
+<div class="portletBody container-fluid">
 <h:form id="editTotalResults">
   <h:inputHidden id="publishedId" value="#{questionScores.publishedId}" />
   <h:inputHidden id="itemId" value="#{questionScores.itemId}" />
@@ -121,7 +121,7 @@ function hiddenLinkOnClick(){
       <h:outputText value="#{commonMessages.total_scores}" />
     </h:commandLink>
 
-    <h:outputText value="</span><li role='menuitem'><span>" escape="false"/>
+    <h:outputText value="</span><li role='menuitem'><span class='current'>" escape="false"/>
   
     <h:outputText value="#{evaluationMessages.q_view}" />
 

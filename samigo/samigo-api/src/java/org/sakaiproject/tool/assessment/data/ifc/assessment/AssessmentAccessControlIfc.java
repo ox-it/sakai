@@ -108,6 +108,10 @@ public interface AssessmentAccessControlIfc
 
   Integer getLateHandling();
 
+  void setInstructorNotification(Integer instructorNotification);
+
+  Integer getInstructorNotification();
+
   void setTimedAssessment(Integer timedAssessment);
 
   Date getStartDate();
@@ -153,10 +157,6 @@ public interface AssessmentAccessControlIfc
   String getReleaseTo();
 
   void setReleaseTo(String releaseTo);
-
-  String getUsername();
-
-  void setUsername(String username);
 
   String getPassword();
 

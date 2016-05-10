@@ -1,7 +1,6 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -21,6 +21,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -68,7 +69,6 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 
 			categoryNamesToAssignments.get(categoryName).add(assignment);
 		}
-		Collections.sort(categoryNames);
 
 		add(new ListView<String>("categoriesList", categoryNames) {
 			private static final long serialVersionUID = 1L;
@@ -77,27 +77,25 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 			protected void populateItem(final ListItem<String> categoryItem) {
 				final String categoryName = categoryItem.getModelObject();
 
+				WebMarkupContainer categoryFilter = new WebMarkupContainer("categoryFilter");
+				if (!ToggleGradeItemsToolbarPanel.this.categoriesEnabled) {
+					categoryFilter.add(new AttributeAppender("class", " hide"));
+					categoryItem.add(new AttributeAppender("class", " gb-no-categories"));
+				}
+				categoryItem.add(categoryFilter);
+
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
 
 				GradebookUiSettings settings = gradebookPage.getUiSettings();
-				if (settings == null) {
-					settings = new GradebookUiSettings();
-					gradebookPage.setUiSettings(settings);
-				}
 
-				if (settings.getCategoryColor(categoryName) == null) {
-					settings.setCategoryColor(categoryName, gradebookPage.generateRandomRGBColorString());
-					gradebookPage.setUiSettings(settings);
-				}
-
-				Label categoryLabel = new Label("category", categoryName);
+				final Label categoryLabel = new Label("category", categoryName);
 				categoryLabel.add(new AttributeModifier("data-category-color", settings.getCategoryColor(categoryName)));
-				categoryItem.add(categoryLabel);
+				categoryFilter.add(categoryLabel);
 
 				final CheckBox categoryCheckbox = new CheckBox("categoryCheckbox");
 				categoryCheckbox.add(new AttributeModifier("value", categoryName));
 				categoryCheckbox.add(new AttributeModifier("checked", "checked"));
-				categoryItem.add(categoryCheckbox);
+				categoryFilter.add(categoryCheckbox);
 
 				categoryItem.add(new ListView<Assignment>("assignmentsForCategory", categoryNamesToAssignments.get(categoryName)) {
 					private static final long serialVersionUID = 1L;
@@ -112,7 +110,7 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 							gradebookPage.setUiSettings(settings);
 						}
 
-						assignmentItem.add(new Label("assignmentTitle", assignment.getName()));
+						assignmentItem.add(new Label("assignmentTitle", FormatHelper.abbreviateMiddle(assignment.getName())));
 
 						final CheckBox assignmentCheckbox = new AjaxCheckBox("assignmentCheckbox",
 								Model.of(Boolean.valueOf(settings.isAssignmentVisible(assignment.getId())))) {

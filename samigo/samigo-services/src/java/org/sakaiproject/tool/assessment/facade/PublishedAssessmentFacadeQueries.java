@@ -270,7 +270,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				a.getSubmissionsAllowed(), a.getSubmissionsSaved(), a
 						.getAssessmentFormat(), a.getBookMarkingItem(), a
 						.getTimeLimit(), a.getTimedAssessment(), a
-						.getRetryAllowed(), a.getLateHandling(), a
+						.getRetryAllowed(), a.getLateHandling(), a.getInstructorNotification(), a
 						.getStartDate(), a.getDueDate(), a.getScoreDate(), a
 						.getFeedbackDate());
 		publishedAccessControl.setRetractDate(a.getRetractDate());
@@ -280,7 +280,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		publishedAccessControl.setDisplayScoreDuringAssessments(a.getDisplayScoreDuringAssessments());
 		publishedAccessControl.setSubmissionMessage(a.getSubmissionMessage());
 		publishedAccessControl.setReleaseTo(a.getReleaseTo());
-		publishedAccessControl.setUsername(a.getUsername());
 		publishedAccessControl.setPassword(a.getPassword());
 		publishedAccessControl.setFinalPageUrl(a.getFinalPageUrl());
 		publishedAccessControl.setUnlimitedSubmissions(a
@@ -2204,7 +2203,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				+ " a.assessmentGradingId, p.publishedAssessmentId, p.title, a.agentId,"
 				+ " a.submittedDate, a.isLate,"
 				+ " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore,"
-				+ " a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
+				+ " '', a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
 				+ " a.timeElapsed) "
 				+ " from AssessmentGradingData a, PublishedAssessmentData p, AuthorizationData az"
 				+ " where a.publishedAssessmentId = p.publishedAssessmentId"

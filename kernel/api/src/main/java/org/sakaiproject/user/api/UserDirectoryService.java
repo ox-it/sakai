@@ -183,7 +183,7 @@ public interface UserDirectoryService extends EntityProducer
 	 * Gets the UserEdit object from storage inorder to update the user Eid()
 	 *
 	 * @param eId  The user id.
-	 * @param newEmail the Id with which userId will be updated   
+	 * @param newEmail the Id with which userId will be updated
 	 * @return UserEdit object
 	 */
 	public boolean updateUserId(String eId,String newEmail);

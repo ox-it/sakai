@@ -60,7 +60,11 @@ public class GradebookNgApplication extends WebApplication {
 			}
 		});
 
-		// to put this app into deployment mode, see web.xml
+		// cleanup the HTML
+		getMarkupSettings().setStripWicketTags(true);
+		getMarkupSettings().setStripComments(true);
+		getMarkupSettings().setCompressWhitespace(true);
+
 	}
 
 	/**

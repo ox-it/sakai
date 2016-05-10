@@ -127,7 +127,7 @@
   <!-- 1 POINTS -->
   <div class="tier2">
    <div class="shorttext"> <h:outputLabel value="#{authorMessages.answer_point_value}" />
-    <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" onchange="toPoint(this.id);">
+    <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" styleClass="ConvertPoint">
 <f:validateDoubleRange minimum="0.00"/>
 </h:inputText>
 <br/><h:message for="answerptr" styleClass="validate"/>
@@ -237,7 +237,7 @@
   <h:outputText value="#{authorMessages.correct_answer_opti}" />
   <f:verbatim><br/></f:verbatim>
   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" >
-     <f:validateLength maximum="4000"/>
+     <f:validateLength maximum="60000"/>
    </samigo:wysiwyg>
  </h:panelGrid>
 
@@ -247,7 +247,7 @@
   <h:outputText value="#{authorMessages.incorrect_answer_op}"/>
   <f:verbatim><br/></f:verbatim>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" >
-     <f:validateLength maximum="4000"/>
+     <f:validateLength maximum="60000"/>
    </samigo:wysiwyg>
  </h:panelGrid>
 

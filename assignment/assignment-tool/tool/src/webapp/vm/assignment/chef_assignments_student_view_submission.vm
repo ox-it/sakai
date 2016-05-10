@@ -39,7 +39,7 @@ function handleReportsTriangleDisclosure(btn)
 		btn.src = "#imageLink("sakai/collapse.gif")";
 		btn.alt = "$tlang.getString('review.report.collapse')";
 		reportsDiv.style.display="block";
-		resizeFrame();
+		ASN.resizeFrame();
 	}
 	reportsExpanded = !reportsExpanded;
 }
@@ -871,7 +871,8 @@ function handleReportsTriangleDisclosure(btn)
 							</table>
 				 		</div>
 					#end
-				#elseif ($submissionType == 5)
+				</div>
+			#elseif ($submissionType == 5)
 					## attachments > 1, but the assignment type is single uploaded file only
 
 					<div class="assignmentAttachBox">
@@ -895,7 +896,7 @@ function handleReportsTriangleDisclosure(btn)
 						#end
 					#end
 
-					<div class="assignmentAttachRadio assignmentAttachmentHighlight spinnerBesideContainer">
+					<div class="assignmentAttachRadio assignmentAttachmentHighlight">
 						<input type="radio" name="attachmentSelection" value="newAttachment" onclick="ASN.highlightSelectedAttachment(); ASN.enableSubmitUnlessNoFile(true);" checked />
 						<span>
 							#set($attachment = $newSingleUploadedFile)
@@ -960,8 +961,7 @@ function handleReportsTriangleDisclosure(btn)
 					</div>
 				#end
 			#end
-			</div>
-				
+
 				#if ($returned && $!timeReturned && ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted) || !$!timeSubmitted))
 					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						#if ($submissionType==2)
@@ -1075,22 +1075,22 @@ function handleReportsTriangleDisclosure(btn)
 				#if ($!assignment.getContent().HonorPledge!=1)
 					<p class="checkbox highlightPanel">
 						<label for="$name_submission_honor_pledge_yes">
+							#if (!$!canSubmit)
+								## for submitted submission not yet returned; or returned but resubmitted submission; or after the close time
+								#if ($value_submission_honor_pledge_yes.equals("false"))
+									<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" disabled="disabled" />
+								#else
+									<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" disabled="disabled" checked="checked" />
+								#end
+							#else
+								#if ($value_submission_honor_pledge_yes.equals("false"))
+									<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" />
+								#else
+									<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" checked="checked" />
+								#end
+							#end
 							$honor_pledge_text
 						</label>
-						#if (!$!canSubmit)
-							## for submitted submission not yet returned; or returned but resubmitted submission; or after the close time
-							#if ($value_submission_honor_pledge_yes.equals("false"))
-								<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" disabled="disabled" />
-							#else
-								<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" disabled="disabled" checked="checked" />
-							#end
-						#else
-							#if ($value_submission_honor_pledge_yes.equals("false"))
-								<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" />
-							#else
-								<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" checked="checked" />
-							#end					
-						#end
 						<br />
 						$tlang.getString("gen.youmus")
 					</p>
@@ -1098,9 +1098,9 @@ function handleReportsTriangleDisclosure(btn)
 				<div id="submitPanel"
 					#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)
 					 class="act">
-						<input type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.don")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN_SVS.confirmDiscardOrSubmit(); return false;" />
+						<input type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.don")" onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 					#else
-					 class="act messageInformation">
+					 class="act">
 								#if ($submitted && $!timeSubmitted)
 									#set($name=$tlang.getString("resubmit"))
 								#else
@@ -1123,7 +1123,7 @@ function handleReportsTriangleDisclosure(btn)
 								<input class="disableme" type="submit" accesskey="x" onClick="SPNR.disableControlsAndSpin( this, null ); window.close();" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")" />
 							#else
 								<input class="disableme" type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.can")"
-									onclick="SPNR.disableControlsAndSpin( this, null ); ASN_SVS.confirmDiscardOrSubmit(); return false;" />
+									onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 							#end
 
                             #if ($submitted && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments)
@@ -1138,7 +1138,7 @@ function handleReportsTriangleDisclosure(btn)
 			<div id="confirmationDialogue" class="act messageInformation" style="display:none;">
 				$tlang.getString("gen.can.discard")
 				<input class="disableme" type="button" name="yes" accesskey="y" id="yes" value="$tlang.getString("gen.yes")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'cancel', null, null );" />
-				<input class="active" type="button" name="no" accesskey="n" id="no" value="$tlang.getString("gen.no")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN_SVS.undoCancel();" />
+				<input class="active" type="button" name="no" accesskey="n" id="no" value="$tlang.getString("gen.no")" onclick="ASN_SVS.undoCancel();" />
 			</div>
 		#else
 				#if ($submission.getGradeReleased() && $!submission.FeedbackText && ($submission.FeedbackText.length()>0))
@@ -1268,8 +1268,7 @@ function handleReportsTriangleDisclosure(btn)
 			<input type="submit" accesskey="x" onClick="SPNR.disableControlsAndSpin( this, null ); window.close();" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")" class="disableme"/>
 		#else
 			<p class="act">
-				<input type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.don")"
-					onclick="SPNR.disableControlsAndSpin( this, null ); ASN_SVS.confirmDiscardOrSubmit(); return false;" />
+				<input type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.don")" onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 			</p>
 		#end
 		#end

@@ -229,6 +229,7 @@ function setupEditable(msgs, iframId){
 	$(".bodyInput").editable({
 		name: "body",
 		type: 'textarea',
+		title: msgs.syllabus_content,
 		emptytext: msgs.clickToAddBody,
 		onblur: "ignore",
 		display: function(value, sourceData) {
@@ -517,6 +518,9 @@ function doAddItemButtonClick( msgs, published )
 	}
 	else
 	{
+		// Fetch the content from the new wysiwyg
+		$("#newContentTextAreaWysiwyg").val($('#newContentDiv').find('iframe').contents().find('body').html()).change();
+
 		// ID doesn't exist since we're adding a new one
 		var id = "0";
 		params = 
@@ -524,8 +528,8 @@ function doAddItemButtonClick( msgs, published )
 			"add" : true,
 			"title": title,
 			"siteId": $("#siteId").val(),
-			"published": published
-		
+			"published": published,
+			"content": $("#newContentTextAreaWysiwyg").val()
 		};
 
 		postAjax( id, params, msgs );
@@ -543,9 +547,9 @@ function showConfirmAdd(msgs, mainframeId){
 				"<h6>" + msgs.syllabus_content + "</h6><div class='bodyInput' id='newContentDiv'><textarea cols='120' id='newContentTextAreaWysiwyg'/></div>")
 		.dialog({
 			position: {
-				my: 'center top',
-				at: 'center top',
-				of: $(this.top.document)
+				my: 'center',
+				at: 'center',
+				of: window
 			},
 			modal: true,
 			title: msgs.addItemTitle,

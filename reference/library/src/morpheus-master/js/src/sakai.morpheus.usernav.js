@@ -1,4 +1,14 @@
 /**
+ * ESC handler to dismiss user nav
+ */
+
+function userNavEscHandler(e){
+  if (e.keyCode === 27) { // esc keycode
+    toggleUserNav(e);
+  }
+}
+
+/**
  * Toggle user nav in header: 
  */
 
@@ -9,12 +19,17 @@ function toggleUserNav(event){
   if (!$PBJQ('.Mrphs-userNav__subnav').hasClass('is-hidden')) {
     // Add an invisible overlay to allow clicks to close the dropdown
 
-    var overlay = $('<div class="user-dropdown-overlay" />');
-    overlay.on('click', function () { $(event.target).trigger('click'); });
+    var overlay = $PBJQ('<div class="user-dropdown-overlay" />');
+    overlay.on('click', function (e) {toggleUserNav(e)});
 
-    $('body').prepend(overlay);
+    $PBJQ('body').prepend(overlay);
+
+    // ESC key also closes it
+    $PBJQ(document).on('keyup',userNavEscHandler);
+
   } else {
-    $('.user-dropdown-overlay').remove();
+    $PBJQ('.user-dropdown-overlay').remove();
+    $PBJQ(document).off('keyup',userNavEscHandler);    
   }
 }
 

@@ -563,7 +563,7 @@ utils.endDialog = function(ev, dialogTarget){
         $(frame).height(clientH);
     }
 
-    $("#" + dialogTarget).dialog('option', 'position', [100, ev.pageY + 10]);
+    $("#" + dialogTarget).dialog('option', 'position', {my: "center", at: "center", of: window });
     $("#" + dialogTarget).dialog("open");
 
 };
@@ -789,7 +789,7 @@ var setupCategTools = function(){
 
         	// selectedTools with disable checkboxes don't have the red [X] remove link
         	if ($(this).prop('disabled') !== true) {
-        		removeLink = '<a href="#" class=\"removeTool ' + toolInstance + '\">x</a>';
+        		removeLink = '<a href="#" class=\"removeTool icon-sakai-delete' + toolInstance + '\"></a>';
         	}
                         
     		var selId = normalizedId($(this).attr('id'));
@@ -799,7 +799,7 @@ var setupCategTools = function(){
             var mathJaxCheckBox = buildMathJaxCheckBox(this);
             var safeLabelText = $('<p></p>').text($(this).next('label').text()).html();
             var newListItem = '<li id=\"' + thisToolId
-                    + '\"><span class=\"selectedToolTitle icon-' + iconId + '\">' + safeLabelText + "</span>"
+                    + '\"><span class=\"selectedToolTitle \"><i class="icon-' + iconId + '"></i>' + safeLabelText + "</span>"
                     + mathJaxCheckBox + "<span>" + removeLink + '</span></li>';
             $('#toolSelectionList ul').append(newListItem);
             

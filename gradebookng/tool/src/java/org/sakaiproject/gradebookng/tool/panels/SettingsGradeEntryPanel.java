@@ -22,10 +22,12 @@ public class SettingsGradeEntryPanel extends Panel {
 	protected GradebookNgBusinessService businessService;
 
 	IModel<GbSettings> model;
+	private boolean expanded;
 
-	public SettingsGradeEntryPanel(final String id, final IModel<GbSettings> model) {
+	public SettingsGradeEntryPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
 		this.model = model;
+		this.expanded = expanded;
 	}
 
 	@Override
@@ -38,22 +40,31 @@ public class SettingsGradeEntryPanel extends Panel {
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsGradeEntryPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
+				SettingsGradeEntryPanel.this.expanded = true;
 			}
 		});
 		settingsGradeEntryPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsGradeEntryPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
+				SettingsGradeEntryPanel.this.expanded = false;
 			}
 		});
+		if (this.expanded) {
+			settingsGradeEntryPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
+		}
 		add(settingsGradeEntryPanel);
 
 		// points/percentage entry
 		final RadioGroup<Integer> gradeEntry = new RadioGroup<>("gradeEntry",
 				new PropertyModel<Integer>(this.model, "gradebookInformation.gradeType"));
 		gradeEntry.add(new Radio<>("points", new Model<>(1)));
-		gradeEntry.add(new Radio<>("percentages", new Model<>(2)));
+		// gradeEntry.add(new Radio<>("percentages", new Model<>(2)));
 		settingsGradeEntryPanel.add(gradeEntry);
 
+	}
+
+	public boolean isExpanded() {
+		return this.expanded;
 	}
 }

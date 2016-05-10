@@ -772,8 +772,8 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String WEB_CONTENT_TOOL_SOURCE_CONFIG_VALUE = "http://";
 
 	/** the news tool **/
-	private final static String NEWS_TOOL_ID = "sakai.news";
-	private final static String NEWS_TOOL_CHANNEL_CONFIG = "channel-url";
+	private final static String NEWS_TOOL_ID = "sakai.simple.rss";
+	private final static String NEWS_TOOL_CHANNEL_CONFIG = "javax.portlet-feed_url";
 	private final static String NEWS_TOOL_CHANNEL_CONFIG_VALUE = "http://sakaiproject.org/feed";
 	
    	private final static String LESSONS_TOOL_ID = "sakai.lessonbuildertool";
@@ -8046,9 +8046,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 		else
 		{
-			Set categories = new HashSet();
-			categories.add((String) state.getAttribute(STATE_SITE_TYPE));
-			Set toolRegistrationList = ToolManager.findTools(categories, null);
+			Set toolRegistrationList = ToolManager.findTools(Collections.singleton(state.getAttribute(STATE_SITE_TYPE)), null);
 			String rv = null;
 			if (toolRegistrationList != null)
 			{

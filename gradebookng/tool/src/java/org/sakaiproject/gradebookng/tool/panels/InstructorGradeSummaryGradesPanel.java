@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -16,17 +17,21 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.component.GbCourseGradeLabel;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 public class InstructorGradeSummaryGradesPanel extends Panel {
@@ -62,9 +67,11 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 		this.categories = this.businessService.getGradebookCategories();
 
 		// get configured category type
+		// TODO this can be fetched from the Gradebook instead
 		this.configuredCategoryType = this.businessService.getGradebookCategoryType();
 
 		// setup
+		final GradebookPage gradebookPage = (GradebookPage) getPage();
 		final List<String> categoryNames = new ArrayList<String>();
 		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<String, List<Assignment>>();
 
@@ -84,6 +91,10 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 
 		final boolean[] categoryScoreHidden = { false };
 
+		WebMarkupContainer toggleActions = new WebMarkupContainer("toggleActions");
+		toggleActions.setVisible(configuredCategoryType != GbCategoryType.NO_CATEGORY);
+		add(toggleActions);
+
 		add(new ListView<String>("categoriesList", categoryNames) {
 			private static final long serialVersionUID = 1L;
 
@@ -93,7 +104,10 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 
 				final List<Assignment> categoryAssignments = categoryNamesToAssignments.get(categoryName);
 
-				categoryItem.add(new Label("category", categoryName));
+				WebMarkupContainer categoryRow = new WebMarkupContainer("categoryRow");
+				categoryRow.setVisible(configuredCategoryType != GbCategoryType.NO_CATEGORY);
+				categoryItem.add(categoryRow);
+				categoryRow.add(new Label("category", categoryName));
 
 				CategoryDefinition categoryDefinition = null;
 				for (final CategoryDefinition aCategoryDefinition : InstructorGradeSummaryGradesPanel.this.categories) {
@@ -110,18 +124,18 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 					if (score != null) {
 						grade = FormatHelper.formatDoubleAsPercentage(score);
 					}
-					categoryItem.add(new Label("categoryGrade", grade));
+					categoryRow.add(new Label("categoryGrade", grade));
 
 					String weight = "";
 					if (categoryDefinition.getWeight() == null) {
-						categoryItem.add(new Label("categoryWeight", ""));
+						categoryRow.add(new Label("categoryWeight", ""));
 					} else {
 						weight = FormatHelper.formatDoubleAsPercentage(categoryDefinition.getWeight() * 100);
-						categoryItem.add(new Label("categoryWeight", weight));
+						categoryRow.add(new Label("categoryWeight", weight));
 					}
 				} else {
-					categoryItem.add(new Label("categoryGrade", ""));
-					categoryItem.add(new Label("categoryWeight", ""));
+					categoryRow.add(new Label("categoryGrade", ""));
+					categoryRow.add(new Label("categoryWeight", ""));
 				}
 
 				categoryItem.add(new ListView<Assignment>("assignmentsForCategory", categoryAssignments) {
@@ -130,6 +144,10 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 					@Override
 					protected void populateItem(final ListItem<Assignment> assignmentItem) {
 						final Assignment assignment = assignmentItem.getModelObject();
+
+						if (InstructorGradeSummaryGradesPanel.this.configuredCategoryType == GbCategoryType.NO_CATEGORY) {
+							assignmentItem.add(new AttributeAppender("class", " gb-no-categories"));
+						}
 
 						final GbGradeInfo gradeInfo = InstructorGradeSummaryGradesPanel.this.gradeInfo.getGrades().get(assignment.getId());
 
@@ -146,7 +164,6 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 						final Label title = new Label("title", assignment.getName());
 						assignmentItem.add(title);
 
-						final GradebookPage gradebookPage = (GradebookPage) getPage();
 						final WebMarkupContainer flags = new WebMarkupContainer("flags");
 						flags.add(gradebookPage.buildFlagWithPopover("isExtraCredit", getString("label.gradeitem.extracredit"))
 								.setVisible(assignment.getExtraCredit()));
@@ -184,14 +201,21 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 		});
 
 		// course grade
+		// GbCourseGradeLabel takes care of all permissions, settings and formatting, we just give it the data
 		final Gradebook gradebook = this.businessService.getGradebook();
+		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
 
-		final String currentUserUuid = this.businessService.getCurrentUser().getId();
-		if (!this.businessService.isCourseGradeVisible(currentUserUuid)) {
-			add(new Label("courseGrade", new ResourceModel("label.coursegrade.nopermission")));
-		} else {
-			add(new Label("courseGrade", this.gradeInfo.getCourseGrade()));
-		}
+		final GradebookUiSettings settings = gradebookPage.getUiSettings();
+
+		final Map<String, Object> courseGradeModelData = new HashMap<>();
+		courseGradeModelData.put("currentUserUuid", userId);
+		courseGradeModelData.put("currentUserRole", GbRole.INSTRUCTOR);
+		courseGradeModelData.put("courseGrade", courseGrade);
+		courseGradeModelData.put("gradebook", gradebook);
+		courseGradeModelData.put("showPoints", settings.getShowPoints());
+		courseGradeModelData.put("showOverride", true);
+		add(new GbCourseGradeLabel("courseGrade", Model.ofMap(courseGradeModelData)));
+
 		add(new Label("courseGradeNotReleasedFlag", "*") {
 			@Override
 			public boolean isVisible() {

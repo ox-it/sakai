@@ -16,7 +16,7 @@
 
     <property name="parentId" type="long" column="PARENTID" not-null="false" />
     <property name="title" type="string" length="255" column="TITLE" not-null="false" />
-    <property name="description" type="string" length="4000" column="DESCRIPTION" not-null="false" />
+    <property name="description" type="materialized_clob" column="DESCRIPTION" not-null="false" />
     <property name="comments" type="string" length="4000" column="COMMENTS" not-null="false" />
     <property name="typeId" type="long" column="TYPEID" not-null="false" />
     <property name="instructorNotification" type="integer" column="INSTRUCTORNOTIFICATION" not-null="false" />
@@ -97,6 +97,7 @@
     <property name="timedAssessment" type="integer" column="TIMEDASSESSMENT" not-null="false" />
     <property name="retryAllowed" type="integer" column="RETRYALLOWED" not-null="false" />
     <property name="lateHandling" type="integer" column="LATEHANDLING" not-null="false" />
+    <property name="instructorNotification" type="integer" column="INSTRUCTORNOTIFICATION" not-null="false" />
     <property name="startDate" type="timestamp" column="STARTDATE" not-null="false" />
     <property name="dueDate" type="timestamp" column="DUEDATE" not-null="false" />
     <property name="scoreDate" type="timestamp" column="SCOREDATE" not-null="false" />
@@ -108,7 +109,6 @@
     <property name="displayScoreDuringAssessments" type="integer" column="DISPLAYSCORE" not-null="false" />
     <property name="submissionMessage" type="string" length="4000" column="SUBMISSIONMESSAGE" not-null="false" />
     <property name="releaseTo" type="string" length="255" column="RELEASETO" not-null="false" />
-    <property name="username" type="string" length="255" column="USERNAME" not-null="false" />
     <property name="password" type="string" length="255" column="PASSWORD" not-null="false" />
     <property name="finalPageUrl" type="string" length="1023" column="FINALPAGEURL" not-null="false" />
     <property name="markForReview" type="integer" column="MARKFORREVIEW" not-null="false" />
@@ -222,7 +222,7 @@
     <property name="duration" type="integer" column="DURATION" not-null="false" />
     <property name="sequence" type="integer" column="SEQUENCE" not-null="false" />
     <property name="title" type="string" length="255" column="TITLE" not-null="false" />
-    <property name="description" type="string" length="4000" column="DESCRIPTION" not-null="false" />
+    <property name="description" type="materialized_clob" column="DESCRIPTION" not-null="false" />
     <property name="typeId" type="long" column="TYPEID" not-null="false" />
     <property name="status" type="integer" column="STATUS" not-null="true" />
     <property name="createdBy" type="string" length="255" column="CREATEDBY" not-null="true" />

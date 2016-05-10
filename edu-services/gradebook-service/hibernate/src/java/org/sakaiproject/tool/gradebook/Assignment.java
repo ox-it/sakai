@@ -64,6 +64,7 @@ public class Assignment extends GradableObject {
     public static Comparator releasedComparator;
     public static Comparator countedComparator;
     public static Comparator gradeEditorComparator;
+    public static Comparator categoryComparator;
 
     private Double pointsPossible;
     private Date dueDate;
@@ -228,6 +229,72 @@ public class Assignment extends GradableObject {
             @Override
             public String toString() {
                 return "Assignment.gradeEditorComparator";
+            }
+        };
+
+        categoryComparator = new Comparator() {
+            public int compare(Object o1, Object o2) {
+                if(log.isDebugEnabled()) log.debug("Comparing assignment + " + o1 + " to " + o2 + " by category ordering");
+                Assignment one = (Assignment)o1;
+                Assignment two = (Assignment)o2;
+
+                // if categories are null
+                if (one.getCategory() == null && two.getCategory() == null) {
+                    // sort by assignment sort order
+                    if (one.getSortOrder() == null && two.getSortOrder() == null) {
+                        // if no sortOrder, then sort based on id
+                        return one.getId().compareTo(two.getId());
+                    } else if (one.getSortOrder() == null) {
+                        return 1;
+                    } else if (two.getSortOrder() == null) {
+                        return -1;
+                    } else {
+                        return one.getSortOrder().compareTo(two.getSortOrder());
+                    }
+                } else if (one.getCategory() == null) {
+                    return 1;
+                } else if (two.getCategory() == null) {
+                    return -1;
+                }
+
+                // if in the same category, sort by their categorized sort order
+                if (one.getCategory().equals(two.getCategory())) {
+                    // handles null orders by putting them at the end of the list
+                    if (one.getCategorizedSortOrder() == null) {
+                        return 1;
+                    } else if (two.getCategorizedSortOrder() == null) {
+                        return -1;
+                    }
+                    return Integer.compare(one.getCategorizedSortOrder(), two.getCategorizedSortOrder());
+
+                // otherwise, sort by their category order
+                } else {
+                    // check if category has a order (not required)
+                    if (one.getCategory().getCategoryOrder() == null && two.getCategory().getCategoryOrder() == null) {
+                        // both orders are null.. so order by A-Z
+                        if (one.getCategory().getName() == null && two.getCategory().getName() == null) {
+                            // both names are null so order by id
+                            return one.getCategory().getId().compareTo(two.getCategory().getId());
+                        } else if (one.getCategory().getName() == null) {
+                            return 1;
+                        } else if (two.getCategory().getName() == null) {
+                            return -1;
+                        } else {
+                            return one.getCategory().getName().compareTo(two.getCategory().getName());
+                        }
+                    } else if (one.getCategory().getCategoryOrder() == null) {
+                        return 1;
+                    } else if (two.getCategory().getCategoryOrder() == null) {
+                        return -1;
+                    } else {
+                        return one.getCategory().getCategoryOrder().compareTo(two.getCategory().getCategoryOrder());
+                    }
+                }
+            }
+
+            @Override
+            public String toString() {
+                return "Assignment.categoryComparator";
             }
         };
     }
@@ -594,15 +661,24 @@ public class Assignment extends GradableObject {
 		 * Convenience method for checking if the grade for the assignment should be included in calculations.
 		 * This is different from just the {@link #isCounted()} method for an assignment.  This method does a more thorough check
 		 * using other values, such as if removed, isExtraCredit, ungraded, etc in addition to the assignment's notCounted property.
+		 * Now also considers category type. If categories are configured (setting 2 or 3), uncategorised items are not counted.
 		 * @return true if grades for this assignment should be included in various calculations.
 		 */
 		public boolean isIncludedInCalculations() {
 			boolean isIncludedInCalculations = false;
-			boolean extraCredit = isExtraCredit()!=null && isExtraCredit();
-    		if (!removed && !ungraded && !notCounted && (extraCredit || (pointsPossible != null && pointsPossible>0)))
-    		{
+			int categoryType = this.gradebook.getCategory_type();
+			
+    		if (!removed &&
+    			!ungraded &&
+    			!notCounted &&
+    			(extraCredit || (pointsPossible != null && pointsPossible > 0))) {
     			isIncludedInCalculations = true;
     		}
+    		
+    		if (categoryType != 1 && this.category == null) {
+    			isIncludedInCalculations = false;
+    		}
+    		
 			return isIncludedInCalculations;
 		}
 

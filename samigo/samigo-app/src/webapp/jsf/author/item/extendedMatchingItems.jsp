@@ -107,7 +107,7 @@
 							onkeypress="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=point#point','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" >
 						<h:outputText  value=" (#{authorMessages.emi_whats_this})"/>
 					</h:outputLink>
-					<h:inputText id="answerptr" disabled="true"  
+					<h:inputText id="answerptr" label="#{authorMessages.pt}" disabled="true"
 						value="#{itemauthor.currentItem.itemScore}" required="true"
 						size="6" >
 						<f:validateDoubleRange minimum="0" />
@@ -495,7 +495,7 @@
 								<f:verbatim>
 									<br />
 								</f:verbatim>
-								<h:inputText id="itemScore" value="#{answer.score}" onchange="toPoint(this.id);"
+								<h:inputText id="itemScore" value="#{answer.score}" styleClass="ConvertPoint"
 									style="" size="4" maxlength="4" >
 									<f:validateDoubleRange minimum="0.00"/>
 								</h:inputText>

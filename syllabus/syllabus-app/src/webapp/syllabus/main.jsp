@@ -3,6 +3,8 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/syllabus" prefix="syllabus" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <% response.setContentType("text/html; charset=UTF-8"); %>
 <f:view>
 
@@ -50,6 +52,7 @@
 				syllabus_content: $("#messages #syllabus_content").html(),
 				clickToAddTitle: $("#messages #clickToAddTitle").html(),
 				startdatetitle: $("#messages #startdatetitle").html(),
+				enddatetitle: $("#messages #enddatetitle").html(),
 				clickToAddStartDate: $("#messages #clickToAddStartDate").html(),
 				clickToAddEndDate: $("#messages #clickToAddEndDate").html(),
 				clickToAddBody: $("#messages #clickToAddBody").html(),
@@ -119,8 +122,9 @@
 	<h:form id="syllabus">
 		<%--gsilver: would be best if used all sakai tags, or none, 2 blocks
 		following just gets tries to get around the mix --%>		
-		<syllabus:syllabus_ifnot test="#{SyllabusTool.editAble}">
-			<f:verbatim><ul class="navIntraTool actionToolbar">
+		<f:verbatim><ul class="navIntraTool actionToolbar"></f:verbatim>
+				<c:if test="${SyllabusTool.addItem}">
+				<f:verbatim>
 				<li class="firstToolBarItem">
 					<span>
 							<a href="javascript:void(0)" onclick="showConfirmAddHelper();">
@@ -128,7 +132,10 @@
 							</a>
 							<input type="hidden" id="siteId" value="</f:verbatim><h:outputText value="#{SyllabusTool.siteId}"/><f:verbatim>">
 					</span>
-				</li>
+				</li></f:verbatim>
+				</c:if>
+				<c:if test="${SyllabusTool.bulkAddItem}">
+				<f:verbatim>
 				<li>
 					<span>
 					</f:verbatim>
@@ -138,6 +145,10 @@
 					<f:verbatim>
 					</span>
 				</li>
+				</f:verbatim>
+				</c:if>
+				<c:if test="${SyllabusTool.bulkEdit}">
+				<f:verbatim>
 				<li>
 					<span>
 					</f:verbatim>
@@ -147,6 +158,10 @@
 					<f:verbatim>
 					</span>
 				</li>
+				</f:verbatim>
+				</c:if>
+				<c:if test="${SyllabusTool.redirect}">
+				<f:verbatim>
 				<li>
 					<span>
 					</f:verbatim>
@@ -156,6 +171,9 @@
 					<f:verbatim>
 					</span>
 				</li>
+				</f:verbatim>
+				</c:if>
+				<f:verbatim>
 				<li>
 					<span>
 							<a href="javascript:void(0)" id="expandLink" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
@@ -181,43 +199,7 @@
 					<f:verbatim>
 					</span>
 				</li>
-			</ul></f:verbatim>			
-		
-		</syllabus:syllabus_ifnot>
-
-		<syllabus:syllabus_if test="#{SyllabusTool.editAble}" >
-
-			<f:verbatim>
-				<ul class="navIntraTool actionToolbar">
-					<li class="firstToolBarItem">
-						<span>
-								<a href="javascript:void(0)" id="expandLink" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
-									<img src="/library/image/silk/arrow_out.png"/>&nbsp;&nbsp;
-									</f:verbatim>
-										<h:outputText value="#{msgs.expandAll}"/>
-									<f:verbatim>
-								</a>
-								<a href="javascript:void(0)" id="collapseLink" style="display:none" onclick="collapseAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
-									<img src="/library/image/silk/arrow_in.png"/>&nbsp;&nbsp;
-									</f:verbatim>
-										<h:outputText value="#{msgs.collapseAll}"/>
-									<f:verbatim>
-								</a>
-						</span>
-					</li>
-					<li>
-						<span>
-							</f:verbatim>
-								<h:outputLink id="printIcon" value="javascript:printFriendly('#{SyllabusTool.printFriendlyUrl}');">
-									<h:outputText value="#{msgs.printView}"/>
-								</h:outputLink>
-							<f:verbatim>
-						</span>
-					</li>
-				</ul>
-			</f:verbatim>			
-				
-			</syllabus:syllabus_if>
+				</ul></f:verbatim>
 			<syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 					<f:verbatim>
 						<div>
@@ -367,6 +349,7 @@
                 <span id="syllabus_content"></f:verbatim><h:outputText value="#{msgs.syllabus_content}"/><f:verbatim></span>
 				<span id="clickToAddTitle"></f:verbatim><h:outputText value="#{msgs.clickToAddTitle}"/><f:verbatim></span>
 				<span id="startdatetitle"></f:verbatim><h:outputText value="#{msgs.startdatetitle}"/><f:verbatim></span>
+				<span id="enddatetitle"></f:verbatim><h:outputText value="#{msgs.enddatetitle}"/><f:verbatim></span>
 				<span id="clickToAddStartDate"></f:verbatim><h:outputText value="#{msgs.clickToAddStartDate}"/><f:verbatim></span>
 				<span id="clickToAddEndDate"></f:verbatim><h:outputText value="#{msgs.clickToAddEndDate}"/><f:verbatim></span>
 				<span id="clickToAddBody"></f:verbatim><h:outputText value="#{msgs.clickToAddBody}"/><f:verbatim></span>

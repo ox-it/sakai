@@ -2,10 +2,10 @@
 -- ---------------------------
 -- Add the titles from all existing news tools
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY (site_id, tool_id, name, value)
-	SELECT site_id, tool_id, 'javax.portlet:portlet_title', title FROM SAKAI_SITE_TOOL WHERE registration = 'sakai.news';
+	SELECT site_id, tool_id, 'javax.portlet-portlet_title', title FROM SAKAI_SITE_TOOL WHERE registration = 'sakai.news';
 
 -- Setup all instances with the URL
-UPDATE SAKAI_SITE_TOOL_PROPERTY SET name = 'javax.portlet:feed_url' WHERE name = 'channel-url';
+UPDATE SAKAI_SITE_TOOL_PROPERTY SET name = 'javax.portlet-feed_url' WHERE name = 'channel-url';
 
 -- Finally, convert all news tools to the new portlet (must run last)
 UPDATE SAKAI_SITE_TOOL SET registration = 'sakai.simple.rss' WHERE registration = 'sakai.news';
@@ -831,3 +831,57 @@ CREATE TABLE SAKAI_CONFIG_ITEM (
 CREATE INDEX SCI_NODE_IDX ON SAKAI_CONFIG_ITEM (NODE ASC);
 CREATE INDEX SCI_NAME_IDX ON SAKAI_CONFIG_ITEM (NAME ASC);
 
+-- SAK-30032 Create table to handle Peer Review attachments --
+CREATE TABLE ASN_PEER_ASSESSMENT_ATTACH_T (
+ID int NOT NULL AUTO_INCREMENT,
+SUBMISSION_ID varchar(255) NOT NULL, 
+ASSESSOR_USER_ID varchar(255) NOT NULL,
+RESOURCE_ID varchar(255) NOT NULL, 
+PRIMARY KEY(ID)
+);
+create index PEER_ASSESSOR_I on ASN_PEER_ASSESSMENT_ATTACH_T (SUBMISSION_ID, ASSESSOR_USER_ID);
+-- END SAK-30032
+
+-- KNL-1424 Add Message Bundle Manager to admin workspace
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1575', '!admin', 'Message Bundle Manager', '0', 21, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1575', '!admin-1575', '!admin', 'sakai.message.bundle.manager', 1, 'Message Bundle Manager', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1575', 'sitePage.customTitle', 'true');
+-- END KNL-1424
+
+--SAM-2709 Submission Email Notifications Hidden Inappropriately--
+ALTER TABLE SAM_ASSESSACCESSCONTROL_T ADD COLUMN INSTRUCTORNOTIFICATION integer;
+ALTER TABLE SAM_PUBLISHEDACCESSCONTROL_T ADD COLUMN INSTRUCTORNOTIFICATION integer;
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+    VALUES(NULL, 1, 'instructorNotification_isInstructorEditable', 'true') ;
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(NULL, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Formative Assessment'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(NULL, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Quiz'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(NULL, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Problem Set'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(NULL, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Survey'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(NULL, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Test'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(NULL, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Timed Test'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+--END SAM-2709

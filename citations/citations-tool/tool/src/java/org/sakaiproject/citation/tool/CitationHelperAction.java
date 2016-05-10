@@ -2405,7 +2405,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			} catch (ServerOverloadException e) {
 				logger.warn("ServerOverloadException geting props in buildNewResourcePanelContext() " + e);
 			}
-			
 			context.put(CITATION_ACTION, UPDATE_RESOURCE);
 		}
 		if(contentProperties == null) {
@@ -2512,8 +2511,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			context.put( "collectionSize", new Integer( citationCollection.size() ) );
 
 			// export URLs
-			String exportUrlSel = citationCollection.getUrl(CitationService.REF_TYPE_EXPORT_RIS_SEL);
-			String exportUrlAll = citationCollection.getUrl(CitationService.REF_TYPE_EXPORT_RIS_ALL);
+			String exportParams =  "?resourceDisplayName=" + resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME) + "&resourceId=" + resourceId;
+			String exportUrlSel = citationCollection.getUrl(CitationService.REF_TYPE_EXPORT_RIS_SEL) + exportParams;
+			String exportUrlAll = citationCollection.getUrl(CitationService.REF_TYPE_EXPORT_RIS_ALL) + exportParams;
 			context.put("exportUrlSel", exportUrlSel);
 			context.put("exportUrlAll", exportUrlAll);
 
@@ -4022,7 +4022,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 						ContentResource resource = contentService.getResource(resourceId);
 						ResourceProperties props = resource.getProperties();
 						String displayName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-						citation = citationService.addCitation("unknown");
+						//As this citation will always have resource url so it should be of type 'electronic' not 'unknown'
+						citation = citationService.addCitation("electronic");
 						citation.setDisplayName(displayName);
 						citation.setCitationProperty("resourceId", resourceId);
 						String urlId = citation.addCustomUrl(resource.getUrl(), resource.getUrl());
@@ -4161,13 +4162,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		else
 		{
 			String citationId = (String) state.getAttribute(CitationHelper.CITATION_EDIT_ID);
-			int location = params.getInt("location");
+			Integer location = (Integer) state.getAttribute("location");
 			Citation citation;
 			if(citationId != null)
 			{
 				try {
 					// if it's a unnested citation
-					if (location == 0) {
+					if (location==null || location == 0) {
 						String citationCollectionId = (String) state.getAttribute("citation.citation_collection_id");
 						collection = getCitationService().getUnnestedCitationCollection(citationCollectionId);
 					}
@@ -4175,17 +4176,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				}
 				catch (IdUnusedException e){
 					citation = (Citation)state.getAttribute(CitationHelper.CITATION_EDIT_ITEM);
+					collection.add(citation);
 				}
 				String schemaId = params.getString("type");
 				Schema schema = getCitationService().getSchema(schemaId);
 				citation.setSchema(schema);
 				updateCitationFromParams(citation, params);
-				if(!collection.contains(citation)){
-					collection.add(citation);
-				}
+				collection.saveCitation(citation);
 			}
 			// add citation to current collection
-			if (location==0){
+			if (location==null || location==0){
 				getCitationService().save(collection);
 			}
  		}

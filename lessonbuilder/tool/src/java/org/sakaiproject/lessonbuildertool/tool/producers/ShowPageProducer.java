@@ -209,9 +209,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
     // mp4 means it plays with the flash player if HTML5 doesn't work.
     // flv is also played with the flash player, but it doesn't get a backup <OBJECT> inside the player
     // Strobe claims to handle MOV files as well, but I feel safer passing them to quicktime, though that requires Quicktime installation
-        private static final String DEFAULT_MP4_TYPES = "video/mp4,video/m4v,audio/mpeg,audio/mp3";
+        private static final String DEFAULT_MP4_TYPES = "video/mp4,video/m4v,audio/mpeg,audio/mp3,video/x-m4v";
         private static String[] mp4Types = null;
-        private static final String DEFAULT_HTML5_TYPES = "video/mp4,video/m4v,video/webm,video/ogg,audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/webm,audio/ogg,audio/mp4,audio/aac,audio/mp3";
+        private static final String DEFAULT_HTML5_TYPES = "video/mp4,video/m4v,video/webm,video/ogg,audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/webm,audio/ogg,audio/mp4,audio/aac,audio/mp3,video/x-m4v";
     // jw can also handle audio: audio/mp4,audio/mpeg,audio/ogg
         private static String[] html5Types = null;
     // almost ISO. Full ISO isn't available until Java 7. this uses -0400 where ISO uses -04:00
@@ -462,10 +462,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// however this test is consistent with CKeditor's check.
 		// that desireable, since if CKeditor is going to use a bare
 		// text block, we want to handle it as noEditor
-		String userAgent = httpServletRequest.getHeader("User-Agent");
-		if (userAgent == null)
-		    userAgent = "";
-		boolean noEditor = userAgent.toLowerCase().indexOf("mobile") >= 0;
+		//   Update, Apr 7, 2016: CKeditor now works except for very old
+		// browser versions. from my reading of the code, it works except
+		// for IE < 7, Firefox < 5, Safari < 5.1. Sakai itself isn't supported
+		// for those versions, so I'm not going to bother to test.
+		//String userAgent = httpServletRequest.getHeader("User-Agent");
+		//if (userAgent == null)
+		//    userAgent = "";
+		//boolean noEditor = userAgent.toLowerCase().indexOf("mobile") >= 0;
+		boolean noEditor = false;
 
 		// set up locale
 		Locale M_locale = null;
@@ -1152,6 +1157,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				    UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
 				    tableRow.decorate(new UIFreeAttributeDecorator("class", "break" + i.getFormat()));
+				    if (canEditPage) {
+					// usual case is this is a break
+					if (i.getType() == SimplePageItem.BREAK)
+					    UIOutput.make(tableRow, "itemid", String.valueOf(i.getId()));
+					else {
+					    // page doesn't start with a break. have to use pageid
+					    UIOutput.make(tableRow, "itemid", "p" + currentPage.getPageId());
+					}
+				    }
 
 				    first = false;
 				    if (i.getType() == SimplePageItem.BREAK)
@@ -1213,7 +1227,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				tableRow.decorate(new UIFreeAttributeDecorator("class", itemClassName));
 
-
 				if (canEditPage)
 				    UIOutput.make(tableRow, "itemid", String.valueOf(i.getId()));
 
@@ -1265,13 +1278,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    UIOutput itemicon = UIOutput.make(linkdiv,"item-icon");
 					    switch (i.getType()) {
 					    case SimplePageItem.FORUM:
-						itemicon.decorate(new UIStyleDecorator("fa-comments"));
+						itemicon.decorate(new UIStyleDecorator("icon-sakai-forums"));
 						break;
 					    case SimplePageItem.ASSIGNMENT:
-						itemicon.decorate(new UIStyleDecorator("fa-tasks"));
+						itemicon.decorate(new UIStyleDecorator("icon-sakai-assignment-grades"));
 						break;
 					    case SimplePageItem.ASSESSMENT:
-						itemicon.decorate(new UIStyleDecorator("fa-puzzle-piece"));
+						itemicon.decorate(new UIStyleDecorator("icon-sakai-samigo"));
 						break;
 					    case SimplePageItem.BLTI:
 						itemicon.decorate(new UIStyleDecorator("fa-globe"));
@@ -1759,16 +1772,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    }
 
 						    // if width is blank or 100% scale the height
-						    if (width != null && height != null && !height.number.equals("")) {
-							    if (width.number.equals("") && width.unit.equals("") || width.number.equals("100") && width.unit.equals("%")) {
-
-								    int h = Integer.parseInt(height.number);
-								    if (h > 0) {
-									    width.number = Integer.toString((int) Math.round(h * 1.641025641));
-									    width.unit = height.unit;
-								    }
-							    }
-						    }
 
 						    // <object style="height: 390px; width: 640px"><param
 						    // name="movie"
@@ -1897,10 +1900,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 boolean isAudio = mimeType.startsWith("audio/");
                                 UIComponent h5video = UIOutput.make(tableRow, (isAudio? "h5audio" : "h5video"));
                                 UIComponent h5source = UIOutput.make(tableRow, (isAudio? "h5asource" : "h5source"));
-                                if (lengthOk(height) && height.getOld().indexOf("%") < 0)
-                                h5video.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
-                                if (lengthOk(width) && width.getOld().indexOf("%") < 0)
-                                h5video.decorate(new UIFreeAttributeDecorator("width", width.getOld()));
+				// HTML5 spec says % isn't legal in width, so have to use style
+                                if (lengthOk(height))
+                                h5video.decorate(new UIFreeAttributeDecorator("style", "width: " + height.getNew()));
+                                if (lengthOk(width))
+                                h5video.decorate(new UIFreeAttributeDecorator("style", "width: " + width.getNew()));
                                 h5source.decorate(new UIFreeAttributeDecorator("src", movieUrl)).
                                 decorate(new UIFreeAttributeDecorator("type", mimeType));
 				String caption = i.getAttribute("captionfile");
@@ -2166,7 +2170,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								gp.pageItemId = pageItem.getId();
 								gp.siteId = simplePageBean.getCurrentSiteId();
 								
-								UIInternalLink.make(tableRow, "gradingPaneLink", messageLocator.getMessage("simplepage.show-grading-pane-comments"), gp)
+								UIInternalLink.make(tableRow, "gradingPaneLink", gp)
 								    .decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.show-grading-pane-comments")));
 							}
 
@@ -2589,7 +2593,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								gp.pageItemId = pageItem.getId();
 								gp.studentContentItem = true;
 							
-								UIInternalLink.make(tableRow, "studentGradingPaneLink", messageLocator.getMessage("simplepage.show-grading-pane-content"), gp)
+								UIInternalLink.make(tableRow, "studentGradingPaneLink", gp)
 								    .decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.show-grading-pane-content")));
 							}
 							
@@ -2808,7 +2812,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							gp.pageId = currentPage.getPageId();
 							gp.pageItemId = pageItem.getId();
 						
-							UIInternalLink.make(tableRow, "questionGradingPaneLink", messageLocator.getMessage("simplepage.show-grading-pane"), gp)
+							UIInternalLink.make(tableRow, "questionGradingPaneLink", gp)
 							    .decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.show-grading-pane")));
 						}
 						

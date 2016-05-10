@@ -15,12 +15,12 @@
 	
 	<!-- dropdown -->
 	<div class="btn-group" wicket:id="menu">
-		<a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-label="Show dropdown menu">
+		<a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:coursegrade.header.menulabel">
 			<span class="caret"></span>
 		</a>
 		<ul class="dropdown-menu dropdown-menu-right" role="menu">
 			<li><a wicket:id="setUngraded" href="#" role="menuitem"><wicket:message key="coursegrade.option.setungraded" /></a></li>
-			<li><a wicket:id="updateCourseGradeDisplay" href="#" role="menuitem"><wicket:message key="coursegrade.option.updatecoursegradedisplay" /></a></li>
+			<li><a wicket:id="showHidePoints" href="#" role="menuitem" aria-controls="gradebookGradesTable"><span wicket:id="showHidePointsLabel">Show/hide points</span></a></li>
 		</ul>
 	</div>
 

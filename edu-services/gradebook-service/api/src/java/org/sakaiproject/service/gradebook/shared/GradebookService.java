@@ -413,6 +413,21 @@ public interface GradebookService {
 	public List<Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid);
 	
 	/**
+	 *
+	 * @param gradebookUid
+	 * @return list of gb items that the current user is authorized to view
+	 * sorted by the provided SortType.
+	 * If user has gradeAll permission, returns all gb items.
+	 * If user has gradeSection perm with no grader permissions,
+	 * returns all gb items.
+	 * If user has gradeSection with grader perms, returns only the items that
+	 * the current user is authorized to view or grade.
+	 * If user does not have grading privileges but does have viewOwnGrades perm,
+	 * will return all released gb items.
+	 */
+	public List<Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid, SortType sortBy);
+
+	/**
 	 * 
 	 * @param gradebookUid
 	 * @param assignmentId
@@ -787,9 +802,18 @@ public interface GradebookService {
      * 
      * @param gradebookUid
      * @param userUuid uuid of the user
-     * @return The CourseGrade for the student
+     * @return The {@link CourseGrade} for the student
      */
 	CourseGrade getCourseGradeForStudent(String gradebookUid, String userUuid);
+	
+	 /**
+     * Get the course grade for a list of students
+     * 
+     * @param gradebookUid
+     * @param userUuids uuids of the users
+     * @return a Map of {@link CourseGrade} for the students. Key is the student uuid.
+     */
+	Map<String,CourseGrade> getCourseGradeForStudents(String gradebookUid, List<String> userUuids);
 	
 	/**
 	 * Get a list of CourseSections that the current user has access to in the given gradebook.
@@ -830,4 +854,13 @@ public interface GradebookService {
 	 * @param grade			the new course grade
 	 */
 	void updateCourseGradeForStudent(String gradebookUid, String studentUuid, String grade);
+
+	/**
+	 * Updates the categorized order of an assignment
+	 * @param gradebookUid 	uuid of the gradebook
+	 * @param categoryId	id of the category
+	 * @param assignmentId	id of the assignment
+	 * @param order	new position of the assignment
+	 */
+	void updateAssignmentCategorizedOrder(final String gradebookUid, final Long categoryId, final Long assignmentId, Integer order);
 }

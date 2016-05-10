@@ -349,7 +349,7 @@
 		<input type="hidden" name="continue" value="0" />
 		<div class="act">
 			<input
-				type="button"
+				type="submit"
 				class="active"
 				#if (($!isCourseSite && $!manualAddNumber) || $!selectedRequestedCourse )
 					#set($name = "$tlang.getString('newsc.reqsite')")
@@ -364,7 +364,7 @@
 			/>
 			<input
 				class="disableme" 
-				type="button" 
+				type="submit" 
 				name="back" 
 				id="back" 
 				accesskey="b"
@@ -373,7 +373,7 @@
 			/>
 			<input
 				class="disableme" 
-				type="button" 
+				type="submit" 
 				name="cancel" 
 				id="cancel" 
 				accesskey="x"

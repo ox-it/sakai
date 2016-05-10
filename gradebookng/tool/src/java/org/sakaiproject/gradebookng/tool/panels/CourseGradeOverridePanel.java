@@ -1,10 +1,12 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -16,12 +18,15 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbUser;
-import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.component.GbCourseGradeLabel;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
+import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  * Panel for the course grade override window
@@ -49,11 +54,18 @@ public class CourseGradeOverridePanel extends Panel {
 		// unpack model
 		final String studentUuid = (String) getDefaultModelObject();
 
-		// get user
-		final GbUser user = this.businessService.getUser(studentUuid);
-
-		// get the current course grade for the student
+		// get the rest of the data we need
+		// TODO some of this could be passed in through the model if it was a map...
+		final GbUser studentUser = this.businessService.getUser(studentUuid);
+		final String currentUserUuid = this.businessService.getCurrentUser().getId();
+		final GbRole currentUserRole = this.businessService.getUserRole();
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);
+		final Gradebook gradebook = this.businessService.getGradebook();
+
+		// heading
+		CourseGradeOverridePanel.this.window.setTitle(
+				(new StringResourceModel("heading.coursegrade", null,
+						new Object[] { studentUser.getDisplayName(), studentUser.getDisplayId() })).getString());
 
 		// form model
 		// we are only dealing with the 'entered grade' so we use this directly
@@ -62,11 +74,23 @@ public class CourseGradeOverridePanel extends Panel {
 		// form
 		final Form<String> form = new Form<String>("form", formModel);
 
-		form.add(new Label("studentName", user.getDisplayName()));
-		form.add(new Label("studentEid", user.getDisplayId()));
-		// form.add(new Label("points", "not yet implemented"));
-		form.add(new Label("calculated", formatCalculatedGrade(courseGrade)));
-		form.add(new TextField<String>("overrideGrade", formModel));
+		form.add(new Label("studentName", studentUser.getDisplayName()));
+		form.add(new Label("studentEid", studentUser.getDisplayId()));
+		form.add(new Label("points", formatPoints(courseGrade, gradebook)));
+
+		// setup a map of data for the course grade label
+		final Map<String, Object> modelData = new HashMap<>();
+		modelData.put("currentUserUuid", currentUserUuid);
+		modelData.put("currentUserRole", currentUserRole);
+		modelData.put("courseGrade", courseGrade);
+		modelData.put("gradebook", gradebook);
+		modelData.put("showPoints", false);
+		modelData.put("showOverride", false);
+		form.add(new GbCourseGradeLabel("calculated", Model.ofMap(modelData)));
+
+		final TextField<String> overrideField = new TextField<>("overrideGrade", formModel);
+		overrideField.setOutputMarkupId(true);
+		form.add(overrideField);
 
 		final AjaxButton submit = new AjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
@@ -118,41 +142,60 @@ public class CourseGradeOverridePanel extends Panel {
 		cancel.setDefaultFormProcessing(false);
 		form.add(cancel);
 
+		// revert link
+		final AjaxSubmitLink revertLink = new AjaxSubmitLink("revertOverride", form) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onSubmit(final AjaxRequestTarget target, final Form<?> f) {
+				final boolean success = CourseGradeOverridePanel.this.businessService.updateCourseGrade(studentUuid, null);
+				if (success) {
+					getSession().info(getString("message.addcoursegradeoverride.success"));
+					setResponsePage(getPage().getPageClass());
+				} else {
+					error(new ResourceModel("message.addcoursegradeoverride.error").getObject());
+					target.addChildren(form, FeedbackPanel.class);
+				}
+			}
+
+			@Override
+			public boolean isVisible() {
+				return StringUtils.isNotBlank(formModel.getObject());
+			}
+		};
+		revertLink.setDefaultFormProcessing(false);
+		form.add(revertLink);
+
 		add(form);
-
-		// heading
-		add(new Label("heading",
-				new StringResourceModel("heading.coursegrade", null, new Object[] { user.getDisplayName(), user.getDisplayId() })));
-
 	}
 
 	/**
-	 * Format the course grade for display
+	 * Helper to format the points display
 	 *
-	 * @param courseGrade
-	 * @return
+	 * @param courseGrade the {@link CourseGrade}
+	 * @param gradebook the {@link Gradebook} which has the settings
+	 * @return fully formatted string ready for display
 	 */
-	private String formatCalculatedGrade(final CourseGrade courseGrade) {
+	private String formatPoints(final CourseGrade courseGrade, final Gradebook gradebook) {
 
-		final String mappedGrade = courseGrade.getMappedGrade();
-		final String calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
+		// only display points if not weighted category type
+		final GbCategoryType categoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
+		if (categoryType != GbCategoryType.WEIGHTED_CATEGORY) {
 
-		String rval;
+			final Double pointsEarned = courseGrade.getPointsEarned();
+			final Double totalPointsPossible = courseGrade.getTotalPointsPossible();
 
-		if (StringUtils.isBlank(mappedGrade) && StringUtils.isBlank(calculatedGrade)) {
-			rval = getString("coursegrade.override.calculated.format.none");
-		} else if (StringUtils.isBlank(mappedGrade)) {
-			rval = new StringResourceModel("coursegrade.override.calculated.format.one", null,
-					new Object[] { calculatedGrade }).getString();
-		} else if (StringUtils.isBlank(calculatedGrade)) {
-			rval = new StringResourceModel("coursegrade.override.calculated.format.one", null,
-					new Object[] { mappedGrade }).getString();
+			if (gradebook.isCoursePointsDisplayed()) {
+				return new StringResourceModel("coursegrade.display.points-first", null,
+						new Object[] { pointsEarned, totalPointsPossible }).getString();
+			} else {
+				return new StringResourceModel("coursegrade.display.points-second", null,
+						new Object[] { pointsEarned, totalPointsPossible }).getString();
+			}
 		} else {
-			rval = new StringResourceModel("coursegrade.override.calculated.format.both", null,
-					new Object[] { mappedGrade, calculatedGrade }).getString();
+			return getString("coursegrade.display.points-none");
 		}
 
-		return rval;
 	}
 
 }

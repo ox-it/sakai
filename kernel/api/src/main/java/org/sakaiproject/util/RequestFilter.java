@@ -386,8 +386,8 @@ public class RequestFilter implements Filter
 			//    as well so folks can log in on this node.
 			// 2) any GET URL's from contentPaths (POST's any other methods not
 			//    allowed.
-			String requestURI = req.getRequestURI();
 			if (useContentHostingDomain) {
+				String requestURI = req.getRequestURI();
 				if(req.getQueryString() != null) requestURI += "?" + req.getQueryString();
 				if (startsWithAny(requestURI, contentPaths) && "GET".equalsIgnoreCase(req.getMethod())) {
 					if  (!req.getServerName().equals(chsDomain) && !(startsWithAny(requestURI, contentExceptions))) {
@@ -403,10 +403,6 @@ public class RequestFilter implements Filter
 						return;
 					}
 				}
-			} else if (startsWithAny(requestURI, contentPaths) && "GET".equalsIgnoreCase(req.getMethod()) && !(startsWithAny(requestURI, contentExceptions))) {
-			    // everything except same origin
-			    resp.addHeader("Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
-			    resp.addHeader("X-Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
 			}
 
 			// check on file uploads and character encoding BEFORE checking if

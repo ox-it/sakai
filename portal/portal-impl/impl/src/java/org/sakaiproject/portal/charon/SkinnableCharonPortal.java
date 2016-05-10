@@ -514,7 +514,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		if (site != null)
 		{
 			// SAK-29138
-			title = title + ":" + siteHelper.getUserSpecificSiteTitle( site );
+			title = title + ":" + siteHelper.getUserSpecificSiteTitle( site, false );
 			if (placement != null) title = title + " : " + placement.getTitle();
 		}
 
@@ -1858,7 +1858,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				// since we are doing logout, cancel top.login
 				topLogin = false;
 				
-				logoutWarningMessage = rloader.getString("sit_logout_warn");
+				logoutWarningMessage = ServerConfigurationService.getBoolean("portal.logout.confirmation",false)?rloader.getString("sit_logout_warn"):"";
 			}
 			rcontext.put("userIsLoggedIn", session.getUserId() != null);
 			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));

@@ -7,15 +7,15 @@
 <div id="gradeItemsToolbarItemPanel" role="menu">
   <a href="javascript:void(0)" id="hideAllGradeItems" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemhideall">Hide All</span></a>
   <a href="javascript:void(0)" id="showAllGradeItems" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemshowall">Show All</span></a>
-  <div wicket:id="categoriesList" class="gradebook-item-filter-group">
-    <div class="gradebook-item-category-filter">
+  <div wicket:id="categoriesList" class="gb-item-filter-group">
+    <div wicket:id="categoryFilter" class="gb-item-category-filter">
       <label tabindex="0" role="menuitem">
         <span wicket:id="category"></span>
-        <span class="gradebook-item-category-filter-signal"></span>
+        <span class="gb-item-category-filter-signal"></span>
         <input wicket:id="categoryCheckbox" type="checkbox">
       </label>
       <div class="btn-group">
-        <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" aria-popup="true" aria-label="Show dropdown menu">
+        <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:label.toolbar.categorygroup.menulabel">
           <span class="caret"></span>
         </a>
         <ul class="dropdown-menu dropdown-menu-right" role="menu">
@@ -25,14 +25,14 @@
         </ul>
       </div>
     </div>
-    <div wicket:id="assignmentsForCategory" class="gradebook-item-filter">
+    <div wicket:id="assignmentsForCategory" class="gb-item-filter">
       <label tabindex="0" role="menuitem">
         <span wicket:id="assignmentTitle"></span>
-        <span class="gradebook-item-category-filter-signal"></span>
+        <span class="gb-item-category-filter-signal"></span>
         <input wicket:id="assignmentCheckbox" type="checkbox">
       </label>
       <div class="btn-group">
-        <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" aria-popup="true" aria-label="Open dropdown menu">
+        <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:label.toolbar.gradeitem.menulabel">
           <span class="caret"></span>
         </a>
         <ul class="dropdown-menu dropdown-menu-right" role="menu">
@@ -42,14 +42,14 @@
         </ul>
       </div>
     </div>
-    <div wicket:id="categoryScore" class="gradebook-item-category-score-filter">
+    <div wicket:id="categoryScore" class="gb-item-category-score-filter">
       <label tabindex="0" role="menuitem">
           <span wicket:id="categoryScoreLabel"></span>
-          <span class="gradebook-item-category-filter-signal"></span>
+          <span class="gb-item-category-filter-signal"></span>
           <input wicket:id="categoryScoreCheckbox" type="checkbox">
       </label>
       <div class="btn-group">
-          <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" aria-popup="true" aria-label="Show dropdown menu">
+          <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:label.toolbar.categoryaverage.menulabel">
               <span class="caret"></span>
           </a>
           <ul class="dropdown-menu dropdown-menu-right" role="menu">

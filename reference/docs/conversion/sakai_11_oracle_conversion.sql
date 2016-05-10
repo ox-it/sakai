@@ -2,10 +2,10 @@
 -- ---------------------------
 -- Add the titles from all existing news tools
 INSERT INTO sakai_site_tool_property (site_id, tool_id, name, value)
-	SELECT site_id, tool_id, 'javax.portlet:portlet_title', title FROM sakai_site_tool WHERE registration = 'sakai.news';
+	SELECT site_id, tool_id, 'javax.portlet-portlet_title', title FROM sakai_site_tool WHERE registration = 'sakai.news';
 
 -- Setup all instances with the URL
-UPDATE sakai_site_tool_property SET name = 'javax.portlet:feed_url' WHERE name = 'channel-url';
+UPDATE sakai_site_tool_property SET name = 'javax.portlet-feed_url' WHERE name = 'channel-url';
 
 -- Finally, convert all news tools to the new portlet (must run last)
 UPDATE sakai_site_tool SET registration = 'sakai.simple.rss' WHERE registration = 'sakai.news';
@@ -318,7 +318,7 @@ ALTER TABLE CM_ENROLLMENT_T ADD DROP_DATE DATE;
 -- SAK-29422 Incorporate NYU's "public announcement system"
 
 CREATE TABLE pasystem_popup_screens (
-  uuid char(255) PRIMARY KEY ,
+  uuid varchar2(255) PRIMARY KEY ,
   descriptor varchar2(255),
   start_time NUMBER,
   end_time NUMBER,
@@ -330,13 +330,13 @@ CREATE INDEX popup_screen_start_time on pasystem_popup_screens (start_time);
 CREATE INDEX popup_screen_end_time on pasystem_popup_screens (end_time);
 
 CREATE TABLE pasystem_popup_content (
-  uuid char(255),
+  uuid varchar2(255),
   template_content CLOB,
   CONSTRAINT popup_content_uuid_fk FOREIGN KEY (uuid) REFERENCES pasystem_popup_screens(uuid)
 );
 
 CREATE TABLE pasystem_popup_assign (
-  uuid char(255),
+  uuid varchar2(255),
   user_eid varchar2(255) DEFAULT NULL,
   CONSTRAINT popup_assign_uuid_fk FOREIGN KEY (uuid) REFERENCES pasystem_popup_screens(uuid)
 );
@@ -344,7 +344,7 @@ CREATE TABLE pasystem_popup_assign (
 CREATE INDEX popup_assign_lower_user_eid on pasystem_popup_assign (lower(user_eid));
 
 CREATE TABLE pasystem_popup_dismissed (
-  uuid char(255),
+  uuid varchar2(255),
   user_eid varchar2(255) DEFAULT NULL,
   state varchar2(50) DEFAULT NULL,
   dismiss_time NUMBER,
@@ -356,7 +356,7 @@ CREATE INDEX popup_dismissed_lower_user_eid on pasystem_popup_dismissed (lower(u
 CREATE INDEX popup_dismissed_state on pasystem_popup_dismissed (state);
 
 CREATE TABLE pasystem_banner_alert
-( uuid CHAR(255) NOT NULL PRIMARY KEY,
+( uuid VARCHAR2(255) NOT NULL PRIMARY KEY,
   message VARCHAR2(4000) NOT NULL,
   hosts VARCHAR2(512),
   active NUMBER(1,0) DEFAULT 0 NOT NULL,
@@ -376,7 +376,7 @@ INSERT (function_key, function_name)
 VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, t.function_name);
 
 CREATE TABLE pasystem_banner_dismissed (
-  uuid char(255),
+  uuid varchar2(255),
   user_eid varchar2(255) DEFAULT NULL,
   state varchar2(50) DEFAULT NULL,
   dismiss_time NUMBER,
@@ -539,16 +539,16 @@ alter table qrtz_fired_triggers drop column is_stateful;
 --
 -- add new 'sched_name' column to all tables
 --
-alter table qrtz_blob_triggers add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_calendars add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_cron_triggers add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_fired_triggers add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_job_details add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_locks add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_paused_trigger_grps add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_scheduler_state add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_simple_triggers add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
-alter table qrtz_triggers add sched_name varchar(120) DEFAULT 'TestScheduler' not null;
+alter table qrtz_blob_triggers add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_calendars add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_cron_triggers add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_fired_triggers add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_job_details add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_locks add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_paused_trigger_grps add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_scheduler_state add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_simple_triggers add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
+alter table qrtz_triggers add sched_name varchar(120) DEFAULT 'QuartzScheduler' not null;
 -- 
 -- add new 'sched_time' column to all tables
 --
@@ -908,3 +908,62 @@ CREATE SEQUENCE SAKAI_CFG_ITEM_S;
 --END;
 --/
 
+-- SAK-30032 Create table to handle Peer Review attachments --
+CREATE TABLE ASN_PEER_ASSESSMENT_ATTACH_T (
+ID NUMBER(19,0) NOT NULL,
+SUBMISSION_ID varchar2(255) NOT NULL, 
+ASSESSOR_USER_ID varchar2(255) NOT NULL, 
+RESOURCE_ID varchar2(255) NOT NULL, 
+PRIMARY KEY(ID)
+);
+CREATE SEQUENCE ASN_PEER_ATTACH_S START WITH 1 INCREMENT BY 1 nomaxvalue;
+create index PEER_ASSESSOR_I on ASN_PEER_ASSESSMENT_ATTACH_T (SUBMISSION_ID, ASSESSOR_USER_ID);
+-- END SAK-30032
+
+-- KNL-1424 Add Message Bundle Manager to admin workspace
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1575', '!admin', 'Message Bundle Manager', '0', 21, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1575', '!admin-1575', '!admin', 'sakai.message.bundle.manager', 1, 'Message Bundle Manager', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1575', 'sitePage.customTitle', 'true');
+-- END KNL-1424
+
+--SAM-2709 Submission Email Notifications Hidden Inappropriately--
+ALTER TABLE SAM_ASSESSACCESSCONTROL_T ADD INSTRUCTORNOTIFICATION integer;
+ALTER TABLE SAM_PUBLISHEDACCESSCONTROL_T ADD INSTRUCTORNOTIFICATION integer;
+
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'instructorNotification_isInstructorEditable', 'true') ;
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Formative Assessment'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Quiz'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Problem Set'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Survey'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Test'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+ 
+ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+     VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Timed Test'
+      AND TYPEID='142' AND ISTEMPLATE=1),
+       'instructorNotification_isInstructorEditable', 'true');
+--END SAM-2709
+
+-- SAK-29442 Sequence LB_PEER_EVAL_RESULT_S Missing
+CREATE SEQUENCE LB_PEER_EVAL_RESULT_S;
+-- END SAK-29442

@@ -1,7 +1,10 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -21,6 +24,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
@@ -38,8 +42,10 @@ import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
+import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 
 public class SettingsCategoryPanel extends Panel {
 
@@ -53,15 +59,21 @@ public class SettingsCategoryPanel extends Panel {
 	boolean isDropHighest = false;
 	boolean isDropLowest = false;
 	boolean isKeepHighest = false;
+	boolean expanded = false;
 
-	public SettingsCategoryPanel(final String id, final IModel<GbSettings> model) {
+	Radio<Integer> categoriesAndWeighting;
+
+	public SettingsCategoryPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
 		this.model = model;
+		this.expanded = expanded;
 	}
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
+
+		final SettingsPage settingsPage = (SettingsPage) getPage();
 
 		// get categories, passed in
 		final List<CategoryDefinition> categories = this.model.getObject().getGradebookInformation().getCategories();
@@ -95,6 +107,7 @@ public class SettingsCategoryPanel extends Panel {
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
+				SettingsCategoryPanel.this.expanded = true;
 			}
 		});
 		settingsCategoriesPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
@@ -103,16 +116,26 @@ public class SettingsCategoryPanel extends Panel {
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
+				SettingsCategoryPanel.this.expanded = false;
 			}
 		});
+		if (this.expanded) {
+			settingsCategoriesPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
+		}
 		add(settingsCategoriesPanel);
 
-		// category types
+		// category types (note categoriesAndWeighting treated differently due to inter panel updates)
 		final RadioGroup<Integer> categoryType = new RadioGroup<>("categoryType",
 				new PropertyModel<Integer>(this.model, "gradebookInformation.categoryType"));
-		categoryType.add(new Radio<>("none", new Model<>(GbCategoryType.NO_CATEGORY.getValue())));
-		categoryType.add(new Radio<>("categoriesOnly", new Model<>(GbCategoryType.ONLY_CATEGORY.getValue())));
-		categoryType.add(new Radio<>("categoriesAndWeighting", new Model<>(GbCategoryType.WEIGHTED_CATEGORY.getValue())));
+		final Radio<Integer> none = new Radio<>("none", new Model<>(GbCategoryType.NO_CATEGORY.getValue()));
+		final Radio<Integer> categoriesOnly = new Radio<>("categoriesOnly", new Model<>(GbCategoryType.ONLY_CATEGORY.getValue()));
+		this.categoriesAndWeighting = new Radio<>("categoriesAndWeighting",
+				new Model<>(GbCategoryType.WEIGHTED_CATEGORY.getValue()));
+
+		categoryType.add(none);
+		categoryType.add(categoriesOnly);
+		categoryType.add(this.categoriesAndWeighting);
+
 		categoryType.setRequired(true);
 		settingsCategoriesPanel.add(categoryType);
 
@@ -122,10 +145,10 @@ public class SettingsCategoryPanel extends Panel {
 
 			@Override
 			public boolean isVisible() {
-				// don't show if 'no categories'
-				final GbCategoryType type = GbCategoryType
-						.valueOf(SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategoryType());
-				return (type != GbCategoryType.NO_CATEGORY);
+				// don't show if 'no categories' OR if course points is set
+				final GradebookInformation settings = SettingsCategoryPanel.this.model.getObject().getGradebookInformation();
+				return (GbCategoryType.valueOf(settings.getCategoryType()) != GbCategoryType.NO_CATEGORY
+						|| settings.isCoursePointsDisplayed());
 			}
 
 		};
@@ -233,6 +256,18 @@ public class SettingsCategoryPanel extends Panel {
 					SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 				}
 
+				// if categories and weighting, disable course grade points
+				final AjaxCheckBox points = settingsPage.getSettingsGradeReleasePanel().getPointsCheckBox();
+				if (type == GbCategoryType.WEIGHTED_CATEGORY) {
+					points.setEnabled(false);
+				} else {
+					points.setEnabled(true);
+				}
+				target.add(points);
+
+				// reinitialize any custom behaviour
+				target.appendJavaScript("sakai.gradebookng.settings.categories = new GradebookCategorySettings($('#settingsCategories'));");
+
 				target.add(categoriesWrap);
 			}
 		});
@@ -248,9 +283,15 @@ public class SettingsCategoryPanel extends Panel {
 
 		// categories list
 		final ListView<CategoryDefinition> categoriesView = new ListView<CategoryDefinition>("categoriesView",
-				SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories()) {
+				this.model.getObject().getGradebookInformation().getCategories()) {
 
 			private static final long serialVersionUID = 1L;
+
+			/*
+			 * @Override public final List<CategoryDefinition> getList() { List<CategoryDefinition> categories = super.getList();
+			 *
+			 * Collections.sort(categories, businessService.getCategoryOrderComparator()); return categories; }
+			 */
 
 			@Override
 			protected void populateItem(final ListItem<CategoryDefinition> item) {
@@ -369,6 +410,12 @@ public class SettingsCategoryPanel extends Panel {
 						final CategoryDefinition current = item.getModelObject();
 
 						SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories().remove(current);
+						int categoryIndex = 0;
+						for (final CategoryDefinition category : SettingsCategoryPanel.this.model.getObject().getGradebookInformation()
+								.getCategories()) {
+							category.setCategoryOrder(Integer.valueOf(categoryIndex));
+							categoryIndex++;
+						}
 
 						// indicate to the listview that its model has changed and to rerender correctly
 						lv.modelChanged();
@@ -378,10 +425,27 @@ public class SettingsCategoryPanel extends Panel {
 
 						// update running total
 						updateRunningTotal(target, runningTotal, runningTotalMessage);
+
+						// reinitialize any custom behaviour
+						target.appendJavaScript(
+								"sakai.gradebookng.settings.categories = new GradebookCategorySettings($('#settingsCategories'));");
 					}
 				};
 				remove.setDefaultFormProcessing(false);
 				item.add(remove);
+
+				final HiddenField<Integer> categoryOrderField = new HiddenField<Integer>("categoryOrder",
+						new PropertyModel<Integer>(category, "categoryOrder"));
+				/*
+				 * categoryOrderField.add(new AjaxFormComponentUpdatingBehavior("orderupdate.sakai") { private static final long
+				 * serialVersionUID = 1L;
+				 *
+				 * @Override protected void onUpdate(final AjaxRequestTarget target) { Integer categoryOrder =
+				 * categoryOrderField.getValue();
+				 *
+				 * } });
+				 */
+				item.add(categoryOrderField);
 			}
 
 			@Override
@@ -421,6 +485,11 @@ public class SettingsCategoryPanel extends Panel {
 				// add a new empty category to the model
 				SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 				target.add(categoriesWrap);
+
+				// reinitialize any custom behaviour
+				target.appendJavaScript("sakai.gradebookng.settings.categories = new GradebookCategorySettings($('#settingsCategories'));");
+				// focus the new category input
+				target.appendJavaScript("sakai.gradebookng.settings.categories.focusLastRow();");
 			}
 		};
 		addCategory.setDefaultFormProcessing(false);
@@ -438,6 +507,9 @@ public class SettingsCategoryPanel extends Panel {
 		cd.setExtraCredit(false);
 		cd.setWeight(new Double(0));
 		cd.setAssignmentList(Collections.<Assignment> emptyList());
+
+		final GbSettings settings = this.model.getObject();
+		cd.setCategoryOrder(settings.getGradebookInformation().getCategories().size());
 		return cd;
 	}
 
@@ -459,25 +531,29 @@ public class SettingsCategoryPanel extends Panel {
 		@Override
 		public Double convertToObject(final String value, final Locale locale) throws ConversionException {
 
-			// want this truncated to four decimal places, or less
-			final NumberFormat df = NumberFormat.getInstance();
-			df.setMinimumFractionDigits(0);
-			df.setMaximumFractionDigits(4);
-			df.setRoundingMode(RoundingMode.HALF_UP);
-
 			// convert
 			Double d;
 			try {
 				d = Double.valueOf(value) / 100;
 			} catch (final NumberFormatException e) {
-				throw new ConversionException(e);
+				throw new ConversionException(e).setResourceKey("settingspage.update.failure.categoryweightnumber");
 			}
 
-			// to string for the rounding/truncation
+			// want this truncated to four decimal places, or less
+			// format, then parse back into a double
+			final DecimalFormat df = new DecimalFormat();
+			df.setMinimumFractionDigits(0);
+			df.setMaximumFractionDigits(4);
+			df.setRoundingMode(RoundingMode.HALF_UP);
+
 			final String s = df.format(d);
 
-			// back to double
-			return Double.valueOf(s);
+			try {
+				return df.parse(s).doubleValue();
+			} catch (final ParseException e) {
+				throw new ConversionException(e).setResourceKey("settingspage.update.failure.categoryweightnumber");
+			}
+
 		}
 
 		/**
@@ -511,22 +587,28 @@ public class SettingsCategoryPanel extends Panel {
 	 */
 	private void updateRunningTotal(final Component runningTotal, final Component runningTotalMessage) {
 
-		final List<CategoryDefinition> categories = SettingsCategoryPanel.this.model.getObject().getGradebookInformation().getCategories();
+		final List<CategoryDefinition> categories = this.model.getObject().getGradebookInformation().getCategories();
 
-		Double total = new Double(0);
+		BigDecimal total = BigDecimal.ZERO;
 		for (final CategoryDefinition categoryDefinition : categories) {
 
-			Double weight = categoryDefinition.getWeight();
+			Double catWeight = categoryDefinition.getWeight();
+			if (catWeight == null) {
+				catWeight = 0D;
+			}
+
+			BigDecimal weight = BigDecimal.valueOf(catWeight);
 			if (weight == null) {
-				weight = new Double(0);
+				weight = BigDecimal.ZERO;
 			}
 
 			if (!categoryDefinition.isExtraCredit()) {
-				total += weight;
+				total = total.add(weight);
 			}
 		}
 
-		if (total.equals(new Double(1))) {
+		// if comparison passes, we have '1' as the value
+		if (total.compareTo(BigDecimal.ONE) == 0) {
 			runningTotal.add(new AttributeModifier("class", "text-success"));
 			runningTotalMessage.setVisible(false);
 		} else {
@@ -534,7 +616,7 @@ public class SettingsCategoryPanel extends Panel {
 			runningTotalMessage.setVisible(true);
 		}
 
-		runningTotal.setDefaultModel(Model.of(FormatHelper.formatDoubleAsPercentage(total * 100)));
+		runningTotal.setDefaultModel(Model.of(FormatHelper.formatDoubleAsPercentage(total.doubleValue() * 100)));
 	}
 
 	/**
@@ -549,5 +631,14 @@ public class SettingsCategoryPanel extends Panel {
 		updateRunningTotal(runningTotal, runningTotalMessage);
 		target.add(runningTotal);
 		target.add(runningTotalMessage);
+	}
+
+	public boolean isExpanded() {
+		return this.expanded;
+	}
+
+	// to enable inter panel comms
+	Radio<Integer> getCategoriesAndWeightingRadio() {
+		return this.categoriesAndWeighting;
 	}
 }

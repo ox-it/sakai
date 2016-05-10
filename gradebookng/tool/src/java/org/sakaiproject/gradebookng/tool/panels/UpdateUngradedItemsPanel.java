@@ -1,26 +1,39 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.sakaiproject.service.gradebook.shared.GraderPermission;
+import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 
 /**
  *
@@ -55,6 +68,8 @@ public class UpdateUngradedItemsPanel extends Panel {
 		// unpack model
 		final Long assignmentId = this.model.getObject();
 
+		final Assignment assignment = this.businessService.getAssignment(assignmentId);
+
 		// form model
 		final GradeOverride override = new GradeOverride();
 		override.setGrade(String.valueOf(DEFAULT_GRADE));
@@ -76,12 +91,13 @@ public class UpdateUngradedItemsPanel extends Panel {
 
 				try {
 					final Double overrideValue = Double.valueOf(override.getGrade());
+					final GbGroup group = override.getGroup();
 
 					if (overrideValue > assignment.getPoints()) {
 						target.addChildren(form, FeedbackPanel.class);
 					}
 
-					final boolean success = UpdateUngradedItemsPanel.this.businessService.updateUngradedItems(assignmentId, overrideValue);
+					final boolean success = UpdateUngradedItemsPanel.this.businessService.updateUngradedItems(assignmentId, overrideValue, group);
 
 					if (success) {
 						UpdateUngradedItemsPanel.this.window.close(target);
@@ -115,15 +131,92 @@ public class UpdateUngradedItemsPanel extends Panel {
 
 		form.add(new TextField<Double>("grade").setRequired(true));
 
+		form.add(new Label("points", assignment.getPoints()));
+
+		final WebMarkupContainer hiddenGradePoints = new WebMarkupContainer("gradePoints");
+		hiddenGradePoints.add(new AttributeModifier("value", assignment.getPoints()));
+		form.add(hiddenGradePoints);
+
+		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
+		groups.add(0, new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL));
+
+		if (this.businessService.getUserRole() == GbRole.TA) {
+			boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
+			List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(
+				this.businessService.getCurrentUser().getId());
+
+			List<String> gradableGroupIds = new ArrayList<>();
+			boolean canGradeAllGroups = false;
+
+			for (PermissionDefinition permission : permissions) {
+				if (permission.getFunction().equals(GraderPermission.GRADE.toString())) {
+					if (categoriesEnabled && permission.getCategoryId() != null) {
+						if (permission.getCategoryId().equals(assignment.getCategoryId())) {
+							if (permission.getGroupReference() == null) {
+								canGradeAllGroups = true;
+								break;
+							} else {
+								gradableGroupIds.add(permission.getGroupReference());
+							}
+						}
+					} else if (!categoriesEnabled && permission.getCategoryId() == null
+						&& permission.getGroupReference() == null) {
+						canGradeAllGroups = true;
+						break;
+					} else {
+						gradableGroupIds.add(permission.getGroupReference());
+					}
+				}
+			}
+			if (!canGradeAllGroups) {
+				// remove the ones that the user can't view
+				final Iterator<GbGroup> iter = groups.iterator();
+				while (iter.hasNext()) {
+					final GbGroup group = iter.next();
+					if (!gradableGroupIds.contains(group.getReference())) {
+						iter.remove();
+					}
+				}
+			}
+		}
+
+		final GradebookUiSettings settings = ((GradebookPage) getPage()).getUiSettings();
+
+		final DropDownChoice<GbGroup> groupAndSectionFilter = new DropDownChoice<GbGroup>(
+			"group",
+			new PropertyModel<GbGroup>(override, "group"),
+			groups,
+			new ChoiceRenderer<GbGroup>() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public Object getDisplayValue(final GbGroup g) {
+					return g.getTitle();
+				}
+
+				@Override
+				public String getIdValue(final GbGroup g, final int index) {
+					return g.getId();
+				}
+			});
+
+		groupAndSectionFilter.setNullValid(false);
+		if (!groups.isEmpty()) {
+			groupAndSectionFilter.setModelObject(
+				(settings.getGroupFilter() != null) ? settings.getGroupFilter() : groups.get(0));
+		}
+		form.add(groupAndSectionFilter);
+
 		add(form);
 
 		// feedback panel
 		form.add(new GbFeedbackPanel("updateGradeFeedback"));
 
-		final Assignment assignment = this.businessService.getAssignment(assignmentId);
-		final WebMarkupContainer hiddenGradePoints = new WebMarkupContainer("gradePoints");
-		hiddenGradePoints.add(new AttributeModifier("value", assignment.getPoints()));
-		form.add(hiddenGradePoints);
+		// confirmation dialog
+		add(new Label("confirmationMessage",
+			new StringResourceModel(
+				"label.updateungradeditems.confirmation.general", null,
+				new Object[]{"${score}", "${group}"})).setEscapeModelStrings(false));
 	}
 
 	/**
@@ -137,6 +230,9 @@ public class UpdateUngradedItemsPanel extends Panel {
 		@Setter
 		private String grade;
 
+		@Getter
+		@Setter
+		private GbGroup group;
 	}
 
 }

@@ -9,7 +9,7 @@
 		</h4>
 	</div>
 	<div class="listNav">
-		<div class="instruction">
+		<div >
 			$tlang.getString("sitegen.siteinfolist.view") $topMsgPos - $btmMsgPos $tlang.getString("sitegen.siteinfolist.of") $allMsgNumber $tlang.getString("sitegen.siteinfolist.items")
 			<div id="pagerSpinner" class="allocatedSpinPlaceholder"></div>
 		</div>
@@ -119,7 +119,7 @@
 	
 </script>
 
-<div class ="portletBody specialLink">
+<div class ="portletBody specialLink container-fluid">
 	#if($menu)#toolbar($menu)#end
 	#if ($alertMessage)
 		<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
@@ -174,7 +174,7 @@
 	<h3>
 		$validator.escapeHtml($!siteTitle) 
 	</h3>
-	<table cellpadding="0" border="0" cellspacing="0" class="itemSummary" summary="$tlang.getString("sitegen.siteinfolist.summary")">
+	<table cellpadding="0" border="0" cellspacing="0" class="listHier" id="summary" summary="$tlang.getString("sitegen.siteinfolist.summary")">
 		#if ($!isCourseSite)
 			<tr> 
 				<th>
@@ -444,31 +444,35 @@
 				<span  style="padding-left:1.5em">#if ($!viewRoster) $tlang.getString("sinfo.list.groups")#else $tlang.getString("sinfo.list.groups.student") #end</span>
 			</h4>		
 			<div class="toggledContent">
-			<ul class="defList" style="list-style: none;" id="accordion">
+			<ul class="defList groups-site" id="accordion">
 				#foreach ($g in $!groups)
 					#set ($gdesc = "")
-					<li style="margin: 1em 0 1em 0">
-						<span style="width: 80%;">
-							<span id ="group$g.Id">$validator.escapeHtml($g.Title)</span>
-							#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id))
-								<span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
-							#end
-							#if ($g.Description)
-								<br/>
-								<span class="instruction">
-									$validator.escapeHtml($g.Description)
+					<li>	
+						<div class="row">
+							<div class="col-lg-10 col-sm-10 col-xs-12">
+								<span id ="group$g.Id">$validator.escapeHtml($g.Title)</span>
+								#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id))
+									<span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
+								#end
+								#if ($g.Description)
+									<br/>
+									<span class="instruction">
+										$validator.escapeHtml($g.Description)
+									</span>
+								#end					
+							</div>
+							#if ($!unjoinableGroups.contains($g.Id))
+							<div class="col-lg-2 col-sm-2 col-xs-12">
+								<span>
+									<form name="anotherpageForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
+										<input type="hidden" name="group-ref" value="$g.reference" />
+										<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+										<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $validator.escapeHtml($g.Title)" onclick="SPNR.disableControlsAndSpin( this, null );" />
+									</form>
 								</span>
-							#end					
-						</span>
-						#if ($!unjoinableGroups.contains($g.Id))
-							<span style="float: right">
-								<form name="anotherpageForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
-									<input type="hidden" name="group-ref" value="$g.reference" />
-									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-									<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $validator.escapeHtml($g.Title)" onclick="SPNR.disableControlsAndSpin( this, null );" />
-								</form>
-							</span>
-						#end
+							</div>
+							#end
+						</div>
 					</li>
 				#end
 			</ul>
@@ -582,7 +586,7 @@
 			#pagingPanel($pagesizeFormName)
 		#end
 		## download link for print out participant list
-		<a href="$printParticipantUrl" title="$!tlang.getString('print')">$!tlang.getString('print')</a>
+		<a href="$printParticipantUrl" title="$!tlang.getString('print')">$!tlang.getString('print')</a><i class="icon-sakai-pdf"></i>
 		<hr />
 		<form name="participantForm" id="participantForm" action="#toolForm("SiteAction")" method="post">
 			<table class ="listHier lines nolines"  cellpadding="0" cellspacing="0" border="0" summary ="$tlang.getString("sitegen.siteinfolist.partlist.summary")" id="siteMembers">
@@ -795,7 +799,7 @@
 			#set($pagesizeFormName="pagesizeFormBottom")
 			#pagingPanel($pagesizeFormName)
 		#end
-		<div class="instruction" style="padding-left: 0.3em;"><em>$tlang.getString("sitegen.siteinfolist.lastupdated") $realmModifiedTime</em></span></div>
+		<div style="padding-left: 0.3em;"><em>$tlang.getString("sitegen.siteinfolist.lastupdated") $realmModifiedTime</em></span></div>
 		#chef_flashnotif()
 		
 		<h4>$tlang.getString("sitegen.siteinfolist.roledes")</h4>
@@ -804,7 +808,7 @@
 					<dt>
 						$role.Id
 					</dt>
-					<dd class="instruction indnt3">
+					<dd class="indnt3">
 							#set($description = "")
 							#if ($role.Description)
 								#set($description = $role.Description)
