@@ -142,4 +142,14 @@ public class LdapConfigurationTest implements LdapConnectionManagerConfig {
 		this.secureSocketFactory = secureSocketFactory;
 	}
 
+	@Override
+	public LDAPSocketFactory getSocketFactory() {
+		return null;
+	}
+
+	@Override
+	public void setSocketFactory(LDAPSocketFactory socketFactory) {
+
+	}
+
 }

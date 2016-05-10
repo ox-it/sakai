@@ -119,6 +119,11 @@ public class MockUserDirectoryServices implements UserDirectoryService {
 		return null;
 	}
 
+	@Override
+	public boolean checkDuplicatedEmail(User user) {
+		return false;
+	}
+
 	public User getUser(String arg0) throws UserNotDefinedException {
 		// TODO Auto-generated method stub
 		return null;

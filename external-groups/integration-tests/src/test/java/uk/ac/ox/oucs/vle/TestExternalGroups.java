@@ -7,31 +7,38 @@ import com.novell.ldap.LDAPException;
 import edu.amc.sakai.user.LdapConnectionManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.user.api.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.mockito.Mockito.*;
 import static uk.ac.ox.oucs.vle.ExternalGroupManagerImpl.*;
 
-public class TestExternalGroups extends AbstractDependencyInjectionSpringContextTests {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations={"classpath:/test.xml"})
+public class TestExternalGroups extends Assert {
 
 	private Log log = LogFactory.getLog(TestExternalGroups.class);
 
 	private ExternalGroupManagerImpl groupManager;
 	private LdapConnectionManager ldapConnectionManager;
 
-	@Override
-	protected String[] getConfigLocations() {
-		return new String[]{"classpath:/test.xml"};
-	}
-	
-	protected void onSetUp() {
+	@Autowired
+	protected ApplicationContext applicationContext;
+
+	@Before
+	public void onSetUp() {
 		groupManager = applicationContext.getBean(ExternalGroupManagerImpl.class);
 		ldapConnectionManager = applicationContext.getBean(LdapConnectionManager.class);
 
@@ -65,13 +72,15 @@ public class TestExternalGroups extends AbstractDependencyInjectionSpringContext
 
 		groupManager.init();
 	}
-	
+
+	@Test
 	public void testSearch() throws Exception {
 		List<ExternalGroup> groups = groupManager.search(new String[]{"IT", "Services"});
 		assertTrue("Expected to find the IT Services group.", groups.size() > 0);
 		log.debug("Search returned: "+ groups.size());
 	}
-	
+
+	@Test
 	public void testFindById() throws Exception {
 		ExternalGroup group = groupManager.findExternalGroup("oakUnitCode=itserv,ou=units,dc=oak,dc=ox,dc=ac,dc=uk");
 		assertNotNull(group);
@@ -86,6 +95,7 @@ public class TestExternalGroups extends AbstractDependencyInjectionSpringContext
 		log.debug("Members found: "+ count);
 	}
 
+	@Test
 	public void testBrowseCourseDepartments() throws Exception {
 		List<ExternalGroupNode> groups = groupManager.findNodes(COURSES);
 		assertFalse(groups.isEmpty());
@@ -94,6 +104,7 @@ public class TestExternalGroups extends AbstractDependencyInjectionSpringContext
 		log.debug("Groups size: "+ groups.size());
 	}
 
+	@Test
 	public void testBrowseCourseDepartmentsWithTimeout() throws Exception {
 		LdapConnectionManager bean = applicationContext.getBean(LdapConnectionManager.class);
 		LdapConnectionManager spyConnectionManager = spy(bean);
@@ -112,6 +123,7 @@ public class TestExternalGroups extends AbstractDependencyInjectionSpringContext
 		log.debug("Groups size: "+ groups.size());
 	}
 
+	@Test
 	public void testWalkTree() throws Exception {
 		// Takes about 3 minutes
 		Queue<ExternalGroupNode> queue = new ArrayDeque<>();
