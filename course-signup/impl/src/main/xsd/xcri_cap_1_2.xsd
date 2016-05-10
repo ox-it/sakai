@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+	xmlns="http://xcri.org/profiles/1.2/catalog" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:mlo="http://purl.org/net/mlo" 
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:dcterms="http://purl.org/dc/terms/"
+	targetNamespace="http://xcri.org/profiles/1.2/catalog" elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd" />
+	<xs:import schemaLocation="mlo_xcri_profile.xsd" namespace="http://purl.org/net/mlo" />
+	<xs:import schemaLocation="dcterms.xsd" namespace="http://purl.org/dc/terms/" />
+	<xs:import namespace="http://purl.org/dc/elements/1.1/" schemaLocation="dc.xsd" />
+	<xs:include schemaLocation="types.xsd" />
+		
+	<xs:annotation>
+		<xs:documentation xml:lang="en">See
+			http://www.xcri.org/wiki/index.php/XCRI_CAP_1.2
+		</xs:documentation>
+	</xs:annotation>
+
+	<xs:complexType name="commonElements">
+		<xs:sequence>
+			<xs:element ref="mlo:hasPart" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element ref="dc:contributor" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element ref="dc:date" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element ref="dc:description" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element ref="dc:identifier" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="image" type="imageDType" minOccurs="0" maxOccurs="1" />
+			<xs:element ref="dc:subject" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element ref="dc:title" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element ref="dc:type" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element ref="mlo:url" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="commonAndCommonDescriptiveElements">
+		<xs:complexContent>
+			<xs:extension base="commonElements">
+				<xs:sequence>
+					<xs:element name="abstract" minOccurs="0" maxOccurs="unbounded" type="descriptionDType" />
+					<xs:element name="applicationProcedure" minOccurs="0" maxOccurs="unbounded" type="descriptionDType" />
+					<xs:element ref="mlo:assessment" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element name="learningOutcome" minOccurs="0" maxOccurs="unbounded" type="descriptionDType" />
+					<xs:element ref="mlo:objective" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="mlo:prerequisite" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element name="regulations" minOccurs="0" maxOccurs="unbounded" type="descriptionDType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="imageDType" mixed="false">
+		<xs:attribute name="src" type="xs:anyURI" use="required" />
+		<xs:attribute name="title" type="xs:string" use="optional" />
+		<xs:attribute name="alt" type="xs:string" use="optional" />
+	</xs:complexType>
+
+	<xs:element name="catalog">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="commonElements">
+					<xs:sequence>
+						<xs:element ref="provider" minOccurs="0" maxOccurs="unbounded" />
+					</xs:sequence>
+					<xs:attribute name="generated" type="xs:dateTime" use="required" />
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+
+	<xs:complexType name="providerDType">
+		<xs:complexContent>
+			<xs:extension base="commonElements">
+				<xs:sequence>
+					<xs:element ref="course" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="mlo:location" minOccurs="0" maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="provider" type="providerDType"/>
+	
+	<xs:complexType name="venueDType">
+		<xs:sequence>
+			<xs:element ref="provider" minOccurs="1" maxOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="courseDType">
+		<xs:complexContent>
+			<xs:extension base="commonAndCommonDescriptiveElements">
+				<xs:sequence>
+					<xs:element ref="mlo:level" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="mlo:qualification" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="mlo:credit" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="presentation" minOccurs="0" maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="course" type="courseDType"/>
+
+	<xs:complexType name="presentationDType">
+		<xs:complexContent>
+			<xs:extension base="commonAndCommonDescriptiveElements">
+				<xs:sequence>
+					<xs:element ref="mlo:start" minOccurs="0"/>
+					<xs:element name="end" type="temporalDType" minOccurs="0" />
+					<xs:element ref="mlo:duration" minOccurs="0" />
+					<xs:element name="applyFrom" type="temporalDType" minOccurs="0" />
+					<xs:element name="applyUntil" type="temporalDType" minOccurs="0" />
+					<xs:element name="applyTo" type="xs:string" minOccurs="0" maxOccurs="1" />
+					<xs:element ref="mlo:engagement" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element name="studyMode" minOccurs="0" type="vocabularyDType" />
+					<xs:element name="attendanceMode" minOccurs="0" type="vocabularyDType" />
+					<xs:element name="attendancePattern" minOccurs="0" type="vocabularyDType" />
+					<xs:element ref="mlo:languageOfInstruction" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element name="languageOfAssessment" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="mlo:places" minOccurs="0" />
+					<xs:element ref="mlo:cost" minOccurs="0" />
+					<xs:element name="age" minOccurs="0" />
+					<xs:element name="venue" type="venueDType" minOccurs="0" maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="presentation" type="presentationDType"/>
+
+	<!-- Elements used to extend mlo:qualification -->
+	<xs:element name="abbr" type="xs:string"/>
+	<xs:element name="accreditedBy" type="xs:string"/>
+	<xs:element name="awardedBy" type="xs:string"/>
+
+</xs:schema>
