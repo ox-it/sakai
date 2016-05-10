@@ -120,6 +120,15 @@
             </modules>
         </profile>
         <profile>
+            <id>oxford</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>external-groups</module>
+            </modules>
+        </profile>
+        <profile>
             <id>experimental</id>
             <modules>
                 <module>master</module>
