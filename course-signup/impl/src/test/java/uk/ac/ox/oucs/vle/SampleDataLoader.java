@@ -21,6 +21,7 @@ package uk.ac.ox.oucs.vle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -46,6 +47,7 @@ public class SampleDataLoader {
 	}
 
 
+	@Transactional
 	public void init() throws Exception {
 		log.info("Starting sample data load.");
 

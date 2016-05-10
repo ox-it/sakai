@@ -21,10 +21,7 @@ package uk.ac.ox.oucs.vle.proxy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
+import org.quartz.*;
 import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -97,11 +94,13 @@ public class AutoImport implements ApplicationContextAware {
 					if (null != param) {
 						triggerData.put("xcri.oxcap.populator.name", param);
 					}
-					
-					JobDetail jobDetail = new JobDetail(job.getJobType(), null, job.getJobClass());
-					jobDetail.setJobDataMap(jobData);
+
+					JobBuilder builder = JobBuilder.newJob(job.getJobClass())
+							.withIdentity(job.getJobType(), null)
+                            .setJobData(jobData);
+					JobDetail jobDetail = builder.build();
 					scheduler.addJob(jobDetail, true);
-					scheduler.triggerJobWithVolatileTrigger(job.getJobType(), null, triggerData);
+					scheduler.triggerJob(jobDetail.getKey());
 					log.info("Triggered job: "+ job.getJobType());
 				} catch (SchedulerException se) {
 					log.warn("Failed to run job: "+ startup, se);

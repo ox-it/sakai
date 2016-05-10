@@ -24,7 +24,7 @@
 <beans>
 
 	<bean name="uk.ac.ox.oucs.vle.CourseSignupService"
-		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean" singleton="true">
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="target">
 			<bean class="uk.ac.ox.oucs.vle.CourseSignupServiceImpl">
 				<property name="dao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
@@ -173,7 +173,7 @@
 		</property>
 	</bean>
 	<bean id="uk.ac.ox.oucs.vle.email.EmailSendingService"
-		  class="uk.ac.ox.oucs.vle.email.EmailSendingService" singleton="true" init-method="init">
+		  class="uk.ac.ox.oucs.vle.email.EmailSendingService" init-method="init">
 		<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy"/>
 		<property name="placementDAO" ref="uk.ac.ox.oucs.vle.UserPlacementDAO"/>
 		<property name="rules">
