@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="external.groups" title="External Groups"
+		description="Sakai helper for adding external groups to a site.">
+		  <category name="sakai.helper" /> 
+<!--		<category name="project"/>-->
+	
+	</tool>
+</registration>
