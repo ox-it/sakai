@@ -400,4 +400,26 @@
          <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
       </property>
    </bean>
+   
+   <!-- Cleaning up old sessions -->
+   <bean id="org.sakaiproject.component.app.scheduler.jobs.SessionCleanupJob"
+   		class="org.sakaiproject.component.app.scheduler.jobs.SessionCleanupJob">
+   		<property name="usageSessionService">
+   			<ref bean="org.sakaiproject.event.api.UsageSessionService"/>
+   		</property>
+   	</bean>
+   	
+   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.SessionCleanupJob"
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+      init-method="init">
+      <property name="beanId">
+         <value>org.sakaiproject.component.app.scheduler.jobs.SessionCleanupJob</value>
+      </property>
+      <property name="jobName">
+         <value>Cleanout old sessions data.</value>
+      </property>
+      <property name="schedulerManager">
+         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+   </bean>
 </beans>
