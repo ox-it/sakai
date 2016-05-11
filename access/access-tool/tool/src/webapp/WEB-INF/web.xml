@@ -29,14 +29,9 @@
          </init-param>
     </filter>
 
+
     <!-- OAuth Filters -->
     <filter>
-        <filter-name>sakai.threadset</filter-name>
-        <servlet-name>sakai.access</servlet-name>
-        <dispatcher>REQUEST</dispatcher>
-    </filter-mapping>
-
-    <filter-mapping>
         <filter-name>oauth.pre</filter-name>
         <filter-class>org.sakaiproject.oauth.filter.OAuthPreFilter</filter-class>
     </filter>
@@ -44,6 +39,12 @@
         <filter-name>oauth.post</filter-name>
         <filter-class>org.sakaiproject.oauth.filter.OAuthPostFilter</filter-class>
     </filter>
+    
+    <filter-mapping>
+        <filter-name>sakai.threadset</filter-name>
+        <servlet-name>sakai.access</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
 
     <filter-mapping>
         <filter-name>oauth.pre</filter-name>
