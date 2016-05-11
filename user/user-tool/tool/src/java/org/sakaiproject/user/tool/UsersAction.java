@@ -88,6 +88,7 @@ import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.portal.util.PortalUtils;
+import org.sakaiproject.util.Validator;
 
 import au.com.bytecode.opencsv.CSVReader;
 import java.text.MessageFormat;
@@ -1338,7 +1339,12 @@ public class UsersAction extends PagedResourceActionII
 				addAlert(state, rb.getString("useact.invemail"));	
 				return false;
 		}
-		
+		if(ServerConfigurationService.getBoolean("edituser.validate.emailDomain",true) && !Validator.isAllowedLocalEmailDomain(email)) {
+			addAlert(state, rb.getFormattedMessage("useedi.emailbaddomain",new String[]{ServerConfigurationService.getString("invalidNonOfficialAccountString")
+					 ,ServerConfigurationService.getString("localUserAccount",rb.getString("official.user.name"))}));
+			return false;
+		}
+
 		// get the user
 		UserEdit user = (UserEdit) state.getAttribute("user");
 		//if user has not changed the email then skip the 'email exists' verification. Also, skip it when user is admin
