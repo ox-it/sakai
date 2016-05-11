@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+   <!-- list the backing beans here -->
+
+   <!-- list the producer beans here -->
+   <bean class="org.sakaiproject.authz.devolved.devolvedadmintool.tool.producers.SiteListProducer">
+      <property name="devolvedSakaiSecurity" ref="org.sakaiproject.authz.api.DevolvedSakaiSecurity"/>
+      <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+      <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+      <property name="siteComparator">
+          <bean class="org.sakaiproject.authz.devolved.devolvedadmintool.tool.producers.SiteTitleSorter"/>
+      </property>
+   </bean>
+
+</beans>
