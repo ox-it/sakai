@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  #%L
+  Course Signup Hibernate
+  %%
+  Copyright (C) 2010 - 2013 University of Oxford
+  %%
+  Licensed under the Educational Community License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+              http://opensource.org/licenses/ecl2
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  #L%
+  -->
+
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+	<typedef name="SignupStatus" class="uk.ac.ox.oucs.vle.GenericEnumUserType">
+		<param name="enumClass">uk.ac.ox.oucs.vle.CourseSignupService$Status</param>
+	</typedef>
+
+	<class name="uk.ac.ox.oucs.vle.CourseDepartmentDAO" table="course_department">
+		<!-- create the primary key id -->
+		<id name="code" type="string">
+			<column name="code" length="32"/>
+		</id>
+		<property name="name" type="string" length="256" />
+		<property name="approve" type="boolean"/>
+		<set name="approvers" inverse="false" lazy="true" table="course_department_approver">
+			<key column="department" not-null="true"/>
+			<element column="approver" type="string" length="64" />
+		</set>
+	</class>
+	
+	<class name="uk.ac.ox.oucs.vle.CourseSubunitDAO" table="course_subunit">
+		<!-- create the primary key id -->
+		<id name="subunitCode" type="string">
+			<column name="subunitCode" length="32"/>
+		</id>
+		<property name="subunitName" type="string" length="256" />
+		<property name="departmentCode" type="string" length="32"/>
+	</class>
+	
+	<class name="uk.ac.ox.oucs.vle.CourseOucsDepartmentDAO" table="course_oucs_department">
+		<!-- create the primary key id -->
+		<id name="cardCode" type="string">
+			<column name="cardCode" length="6"/>
+		</id>
+		<property name="oucsCode" type="string" length="32" />
+		<property name="nickName" type="string" length="256" />
+		<property name="fullName" type="string" length="256" />
+		<property name="f4Char" type="string" length="4" />
+		<property name="mailer" type="string" length="32" />
+		<property name="t2Char" type="string" length="2" />
+	</class>
+	
+		<class name="uk.ac.ox.oucs.vle.CourseUserPlacementDAO" table="course_user_placement">
+		<!-- create the primary key id -->
+		<id name="userId" type="string">
+			<column name="userId" length="64"/>
+		</id>
+		<property name="placementId" type="string" length="256" />
+	</class>
+	
+	<class name="uk.ac.ox.oucs.vle.CourseCategoryDAO" table="course_category" mutable="false">
+		<!-- create the primary key id -->
+		<id name="categoryId" type="string" length="32">
+			<column name="categoryId" />
+			<generator class="assigned"/>
+		</id>
+		<property name="categoryType" type="string" length="6" />
+		<property name="categoryName" type="string" length="256" />
+		<!-- There isn't a way in hibernate to have it perform an insert and ignore an error if it fails
+		     so look in the DAO to see that we effectively fallback to SQL for inserting new values.
+		  -->
+	</class>
+	
+	<class name="uk.ac.ox.oucs.vle.CourseSignupDAO" table="course_signup">
+		<!-- create the primary key id -->
+		<id name="id" type="string">
+			<column name="id" />
+			<generator class="uuid" />
+		</id>
+		<property name="userId" type="string" length="99" not-null="true"
+			index="course_signup_user_idx" />
+		<property name="status" type="SignupStatus" index="course_signup_user_idx"/>
+		<property name="created" type="timestamp" />
+		<property name="amended" type="timestamp" />
+		<property name="message" type="string" length="4000"/>
+		<set name="components" lazy="true" table="course_component_signup"
+			inverse="true">
+			<key column="signup" />
+			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO"
+				column="courseComponentMuid" />
+		</set>
+		<property name="supervisorId" type="string" length="99" index="course_signup_supervisor_idx" />
+		<property name="department" type="string" length="32" />
+		<many-to-one name="group" column="courseGroupMuid" class="uk.ac.ox.oucs.vle.CourseGroupDAO"/>
+	</class>
+	
+	<class name="uk.ac.ox.oucs.vle.CourseComponentSessionDAO" table="course_component_session">
+		<id name="id" type="int">
+			<column name="id" />
+			<generator class="identity"/>
+		</id>
+		<property name="courseComponentMuid" type="int" insert="false" update="false"/>
+		<property name="sessionId" type="string" length="255" />
+		<property name="sessionStart" type="timestamp" />
+		<property name="sessionStartText" type="string" length="255"/>
+		<property name="sessionEnd" type="timestamp" />
+		<property name="sessionEndText" type="string" length="255"/>
+		<!-- Can be null if there is no location specified. -->
+		<property name="location" type="string" length="4000"/>
+	</class>
+	
+	<class name="uk.ac.ox.oucs.vle.CourseComponentDAO" table="course_component">
+		<!-- create the primary key id -->
+		<id name="muid" type="int">
+			<column name="muid" />
+			<generator class="identity"/>
+		</id>
+		<!-- We want to be sure the taken column isn't out of sync -->
+		<version name="version" column="version"/>
+		<property name="presentationId" type="string" length="255" unique="true"
+			index="course_component_presentationId_idx" />
+		<property name="title" type="string" length="256" />
+		<property name="termcode" type="string" length="30"
+			index="course_component_term_idx" />
+		<property name="opens" type="timestamp" />
+		<property name="opensText" type="string" length="255"/>
+		<property name="closes" type="timestamp" />
+		<property name="closesText" type="string" length="255"/>
+		<property name="starts" type="timestamp" />
+		<property name="startsText" type="string" length="255"/>
+		<property name="ends" type="timestamp" />
+		<property name="endsText" type="string" length="255"/>
+		<property name="created" type="timestamp" />
+		<property name="baseDate" type="timestamp" />
+		<property name="bookable" type="boolean" not-null="true" />
+		<property name="deleted" type="boolean" not-null="true" />
+		<property name="size" type="int" />
+		<property name="taken" type="int" />
+		<property name="componentId" type="string" length="30" /><!-- 
+			The set (teaching_component) this component is from. -->
+		<property name="teacher" type="string" length="64" index="course_component_teacher_idx" />
+		<property name="teacherName" type="string" length="255"/>
+		<property name="teacherEmail" type="string" length="255"/>
+		<property name="attendanceMode" type="string" length="16"/>
+		<property name="attendanceModeText" type="string" length="255"/>
+		<property name="attendancePattern" type="string" length="16"/>
+		<property name="attendancePatternText" type="string" length="255"/>
+		<property name="teachingDetails" type="text"/>
+		<property name="sessions" type="string" length="4000"/>
+		<property name="location" type="string" length="4000"/>
+		<property name="applyTo" type="string" length="255"/>
+		<property name="memberApplyTo" type="string" length="255"/>
+		<property name="source" type="string" length="32" index="course_component_source_idx" />
+
+		<set name="signups" lazy="true" table="course_component_signup">
+			<key column="courseComponentMuid" not-null="true" />
+			<many-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"
+				column="signup" />
+		</set>
+		
+		<set name="groups" table="course_group_component" lazy="true" >
+			<key column="courseComponentMuid" />
+			<many-to-many class="uk.ac.ox.oucs.vle.CourseGroupDAO"
+				column="courseGroupMuid" />
+		</set>
+		
+		<set name="componentSessions" lazy="true" table="course_component_session" cascade="all-delete-orphan" >
+			<key column="courseComponentMuid" not-null="true"/>
+			<one-to-many class="uk.ac.ox.oucs.vle.CourseComponentSessionDAO"/>
+		</set>
+	</class>
+
+	<!-- A set of courses that can be taken. -->
+	<class name="uk.ac.ox.oucs.vle.CourseGroupDAO" table="course_group">
+		<!-- create the primary key id -->
+		<id name="muid" type="int">
+			<column name="muid" />
+			<generator class="identity"/>
+		</id>
+		<property name="courseId" type="string" length="255" />
+		<property name="title" type="string" length="255" />
+		<property name="dept" type="string" length="32"
+			index="course_group_dept_idx" />
+		<property name="departmentName" type="string" length="255"/>
+		
+		<property name="subunit" type="string" length="16"
+			index="course_group_subunit_idx" />
+		<property name="subunitName" type="string" length="255"/>
+		<property name="description" type="text"/>
+		<property name="prerequisite" type="text"/>
+		<property name="supervisorApproval" type="boolean"/>
+		<property name="administratorApproval" type="boolean"/>
+		<property name="hideGroup" type="boolean"/>
+		<property name="deleted" type="boolean"/>
+		<property name="contactEmail" type="string" length="255"/>
+		<property name="visibility" type="string" length="16"/>
+		<property name="regulations" type="string" length="255"/>
+		<property name="source" type="string" length="32" index="course_group_source_idx"/>
+		
+		<set name="components" lazy="true" table="course_group_component" fetch="join" inverse="true" >
+			<key column="courseGroupMuid" />
+			<many-to-many class="uk.ac.ox.oucs.vle.CourseComponentDAO" column="courseComponentMuid" />
+		</set>
+		<set name="administrators" cascade="delete" inverse="false" lazy="true" table="course_group_administrator">
+			<key column="courseGroupMuid" not-null="true"/>
+			<element column="administrator" type="string" length="64" />
+		</set>
+		<set name="superusers" cascade="delete" inverse="false" lazy="true" table="course_group_superuser">
+			<key column="courseGroupMuid" not-null="true"/>
+			<element column="superuser" type="string" length="64" />
+		</set>
+		<set name="otherDepartments" cascade="delete" inverse="false" lazy="true" table="course_group_otherDepartment">
+			<key column="courseGroupMuid" not-null="true"/>
+			<element column="otherDepartment" type="string" length="32" />
+		</set>
+		<set name="signups" inverse="true">
+			<key column="courseGroupMuid" not-null="true"/>
+			<one-to-many class="uk.ac.ox.oucs.vle.CourseSignupDAO"/>
+		</set>
+		<!-- Oneway set and other end isn't mutable -->
+		<!-- The fetch has to be done in a select as otherwise hibernate fails to get values out of the resultset.
+		     This wasn't easy to debug to for now simply force a select fot loading the categories.
+		     -->
+		<set name="categories" lazy="true" table="course_group_category" fetch="select">
+			<key column="courseGroupMuid" not-null="true" />
+			<many-to-many class="uk.ac.ox.oucs.vle.CourseCategoryDAO" column="categoryId"/>
+		</set>
+	</class>
+
+</hibernate-mapping>

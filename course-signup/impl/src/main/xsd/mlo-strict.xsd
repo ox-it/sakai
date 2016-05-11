@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="http://purl.org/net/mlo" xmlns:xml="http://www.w3.org/XML/1998/namespace"
+	xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://purl.org/net/mlo" elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace"
+		schemaLocation="http://www.w3.org/2001/xml.xsd" />
+	<xs:import schemaLocation="dcterms.xsd" namespace="http://purl.org/dc/terms/" />
+	<xs:import namespace="http://purl.org/dc/elements/1.1/"
+		schemaLocation="dc.xsd" />
+
+	<xs:annotation>
+		<xs:documentation xml:lang="en">
+			This schema implements the MLO information model using a
+			strictly-conforming XML binding.
+			Conforming bindings should define their own top-level classes with extensions.
+		</xs:documentation>
+	</xs:annotation>
+
+
+	<!-- ranges -->
+	<xs:complexType name="Resource">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">
+				This type permits either inclusion of sub-elements (resources)
+				or literal text content
+    	</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent mixed="true">
+			<xs:restriction base="xs:anyType">
+				<xs:sequence>
+					<xs:any processContents="strict" minOccurs="0" maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="Association">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">
+				This type permits either inclusion of sub-elements (resources)
+				or the use of a literal URI to associate the containing
+				resource with a target.
+				Text is allowed because mixed="true"
+    	</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent mixed="true">
+			<xs:restriction base="xs:anyType">
+				<xs:sequence>
+					<xs:any namespace="mlo" processContents="strict" minOccurs="0"
+						maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+
+
+	<!-- classes -->
+	<xs:complexType name="LearningOpportunityObject"
+		abstract="true">
+		<xs:sequence>
+			<xs:any namespace="http://purl.org/dc/elements/1.1/"
+				minOccurs="0" maxOccurs="unbounded" processContents="lax" />
+			<xs:element ref="url" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element ref="hasPart" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="LearningOpportunityProvider">
+		<xs:complexContent>
+			<xs:extension base="LearningOpportunityObject">
+				<xs:sequence>
+					<xs:element ref="location" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="offers" minOccurs="0" maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="LearningOpportunitySpecification">
+		<xs:complexContent>
+			<xs:extension base="LearningOpportunityObject">
+				<xs:sequence>
+					<xs:element ref="qualification" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="credit" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="level" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="specifies" minOccurs="0" maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="LearningOpportunityInstance">
+		<xs:complexContent>
+			<xs:extension base="LearningOpportunityObject">
+				<xs:sequence>
+					<xs:element ref="location" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="start" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="duration" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="cost" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="languageOfInstruction" minOccurs="0"
+						maxOccurs="unbounded" />
+					<xs:element ref="prerequisite" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="places" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="engagement" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="objective" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="offeredAt" minOccurs="0" maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="learningOpportunityProvider" type="LearningOpportunityProvider" />
+	<xs:element name="learningOpportunitySpecification" type="LearningOpportunitySpecification" />
+	<xs:element name="learningOpportunityInstance" type="LearningOpportunityInstance" />
+
+	<!--associations -->
+
+	<xs:element name="offeredAt" type="Association" />
+	<xs:element name="offers" type="Association" />
+	<xs:element name="specifies" type="Association" />
+	<xs:element name="hasPart" type="Association" />
+	<xs:element name="isPartOf" type="Association" />
+
+	<!--properties -->
+
+	<xs:element name="url" type="dc:SimpleLiteral" />
+	<xs:element name="location" type="locationDType" />
+	<xs:element name="qualification" type="qualificationDType" />
+	<xs:element name="credit" type="creditDType" />
+	<xs:element name="languageOfInstruction" type="dc:SimpleLiteral" />
+	<xs:element name="level" type="dc:SimpleLiteral" />
+	<xs:element name="start" type="startDType" />
+	<xs:element name="duration" type="durationDType" />
+	<xs:element name="cost" type="dc:SimpleLiteral" />
+	<xs:element name="prerequisite" type="prerequisiteDType" />
+	<xs:element name="places" type="Resource" />
+	<xs:element name="engagement" type="dc:SimpleLiteral" />
+	<xs:element name="objective" type="objectiveDType" />
+	<xs:element name="assessment" type="assessmentDType" />
+
+	<!-- Base types for extension -->
+	<xs:complexType name="qualificationDType"></xs:complexType>
+	<xs:complexType name="creditDType"></xs:complexType>
+	<xs:complexType name="startDType"></xs:complexType>
+	<xs:complexType name="durationDType"></xs:complexType>
+	<xs:complexType name="prerequisiteDType"></xs:complexType>
+	<xs:complexType name="assessmentDType"></xs:complexType>
+	<xs:complexType name="objectiveDType"></xs:complexType>
+	<xs:complexType name="locationDType"></xs:complexType>
+</xs:schema>
