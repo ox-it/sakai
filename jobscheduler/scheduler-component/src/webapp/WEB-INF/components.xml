@@ -379,4 +379,47 @@
         <property name="userDirectoryService"      ><ref bean="org.sakaiproject.user.api.UserDirectoryService"              /></property>
     </bean>
    
+   <!-- Cleaning up old events -->
+   <bean id="org.sakaiproject.component.app.scheduler.jobs.EventCleanupJob"
+   		class="org.sakaiproject.component.app.scheduler.jobs.EventCleanupJob">
+   		<property name="eventTrackingService">
+   			<ref bean="org.sakaiproject.event.api.EventTrackingService"/>
+   		</property>
+   	</bean>
+   	
+   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.EventCleanupJob"
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+      init-method="init">
+      <property name="beanId">
+         <value>org.sakaiproject.component.app.scheduler.jobs.EventCleanupJob</value>
+      </property>
+      <property name="jobName">
+         <value>Cleanout old events data.</value>
+      </property>
+      <property name="schedulerManager">
+         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+   </bean>
+   
+   <!-- Cleaning up old sessions -->
+   <bean id="org.sakaiproject.component.app.scheduler.jobs.SessionCleanupJob"
+   		class="org.sakaiproject.component.app.scheduler.jobs.SessionCleanupJob">
+   		<property name="usageSessionService">
+   			<ref bean="org.sakaiproject.event.api.UsageSessionService"/>
+   		</property>
+   	</bean>
+   	
+   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.SessionCleanupJob"
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+      init-method="init">
+      <property name="beanId">
+         <value>org.sakaiproject.component.app.scheduler.jobs.SessionCleanupJob</value>
+      </property>
+      <property name="jobName">
+         <value>Cleanout old sessions data.</value>
+      </property>
+      <property name="schedulerManager">
+         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+   </bean>
 </beans>
