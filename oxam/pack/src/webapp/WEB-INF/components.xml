@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+    
+
+    <import resource="classpath:/oxam-beans.xml"/>
+    <import resource="classpath:/sakai-beans.xml"/>
+
+
+	<!-- Cache: ttl=1 hour -->
+<!--     <bean id="pom.cache" -->
+<!--         class="org.springframework.cache.ehcache.EhCacheFactoryBean"> -->
+<!--         <property name="cacheManager"> -->
+<!--             <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/> -->
+<!--         </property> -->
+<!--         <property name="cacheName"> -->
+<!--             <value>pom.cache</value> -->
+<!--         </property> -->
+<!--         <property name="maxElementsInMemory" value="1000" /> -->
+<!--         <property name="diskPersistent" value="false" /> -->
+<!--         <property name="eternal" value="false" /> -->
+<!--         <property name="timeToLive" value="3600" /> -->
+<!--         <property name="timeToIdle" value="3600" /> -->
+<!--     </bean> -->
+
+</beans>
