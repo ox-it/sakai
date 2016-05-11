@@ -127,6 +127,7 @@
             <modules>
                 <module>course-signup</module>
                 <module>external-groups</module>
+                <module>oxam</module>
             </modules>
         </profile>
         <profile>
