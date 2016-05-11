@@ -771,8 +771,16 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 
  	public class RoleNameLookup {
 
- 		public String getName(String roleId) {
- 			return authzGroupService.getRoleName(roleId);
- 		}
- 	}
+		public String getName(String roleId)
+		{
+			if (roleId != null) 
+			{
+				return authzGroupService.getRoleName(roleId);
+			}
+			else
+			{
+				return "";
+			}
+		}
+	}
 }
