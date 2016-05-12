@@ -4509,7 +4509,7 @@ public abstract class BaseCitationService implements CitationService
 	public String getEntityUrl(Reference ref)
 	{
 
-		return null;
+		return ref.getEntity().getUrl();
 	}
 
 	/*
