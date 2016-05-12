@@ -169,7 +169,7 @@
     padding-left: 8px;
 }
 
-#feedback-content-problem h3 {
+#feedback-content-problem h3, #feedback-no-panels h3 {
     background: url('/library/image/silk/page_white_error.png') no-repeat scroll left top transparent;
     padding-left: 20px;
 }
@@ -292,6 +292,12 @@
 
 .clear {
     clear: both;
+}
+#feedback-no-panels ul {
+	padding-left:10px;
+}
+#feedback-no-panels {
+	width:240px;
 }
 #feedback-no-panels ul {
 	padding-left:10px;
