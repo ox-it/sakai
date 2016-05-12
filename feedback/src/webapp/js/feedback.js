@@ -315,8 +315,13 @@
 
 
     feedback.displayInfo = function (siteUpdater) {
-        if (siteUpdater!=null && siteUpdater!=''){
+		if (siteUpdater!=null && siteUpdater!=''){
             $('#feedback-info-message-wrapper span').html('An email with the information you entered has been sent to ' + siteUpdater);
+
+            $('#feedback-info-message-wrapper a').click(function (e) {
+                $('#feedback-info-message-wrapper').hide();
+            });
+
             $('#feedback-info-message-wrapper').show();
             feedback.fitFrame();
         }
