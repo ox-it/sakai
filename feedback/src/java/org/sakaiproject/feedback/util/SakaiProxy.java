@@ -281,6 +281,12 @@ public class SakaiProxy {
         }
 
 
+
+        if (feedbackType.equals(Constants.CONTENT)) {
+            formattedBody = formattedBody + rb.getString("email_body_template_note");
+        }
+
+
         if (logger.isDebugEnabled()) {
             logger.debug("fromName: " + fromName);
             logger.debug("fromAddress: " + fromAddress);
