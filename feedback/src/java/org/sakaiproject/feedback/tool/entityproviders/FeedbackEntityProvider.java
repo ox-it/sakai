@@ -50,6 +50,7 @@ import org.sakaiproject.util.RequestFilter;
 import net.tanesha.recaptcha.ReCaptcha;
 import net.tanesha.recaptcha.ReCaptchaFactory;
 import net.tanesha.recaptcha.ReCaptchaResponse;
+import org.sakaiproject.util.ResourceLoader;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
