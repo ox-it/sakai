@@ -58,6 +58,7 @@
                                                     showHelpPanel : feedback.showHelpPanel,
                                                     showTechnicalPanel : feedback.showTechnicalPanel,
                                                     showSuggestionsPanel : feedback.showSuggestionsPanel,
+                                                    technicalToAddress : feedback.technicalToAddress}, 'feedback-content');
                                                     enableTechnical : feedback.enableTechnical}, 'feedback-content');
 
             $(document).ready(function () {

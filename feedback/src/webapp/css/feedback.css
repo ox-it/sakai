@@ -293,6 +293,28 @@
 .clear {
     clear: both;
 }
+
+.feedback-error-message-panel-wrapper{
+	display:block;
+	width:170px;
+	padding:0px;
+	text-align: center;
+	margin-top: 10px;
+}
+
+.feedback-error-message-panel-wrapper > div {
+	padding: 2px;
+	display: inline-block;
+	border: 1px red solid;
+	border-radius: 1em 1em 1em 1em;
+	color: red;
+}
+
+
+#feedback-ask-help span, #feedback-tech-problem span, #feedback-improvement span {
+	background: url('/library/image/silk/exclamation.png') no-repeat scroll left top transparent;
+	padding-left: 20px;
+}
 #feedback-no-panels ul {
 	padding-left:10px;
 }
