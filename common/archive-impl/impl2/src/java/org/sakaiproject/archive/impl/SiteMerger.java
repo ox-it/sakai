@@ -507,6 +507,7 @@ public class SiteMerger {
 			source = parentEl.getAttribute("system");
 		}
 
+		// Valid roles in this site.
 		List roles = new Vector();
 		//List maintainUsers = new Vector();
 		//List accessUsers = new Vector();
@@ -541,7 +542,8 @@ public class SiteMerger {
 				//SWG Getting rid of WT part above, this was previously the else branch labeled "for both CT classic and Sakai CTools"
 				// check is this roleId is a qualified one
 				if (!checkSystemRole(source, roleId, filterSakaiRoles, filteredSakaiRoles)) continue;
-					
+				if (!checkValidRole(roles, roleId)) continue;
+
 				NodeList children2 = element2.getChildNodes();
 				final int length2 = children2.getLength();
 				for(int i2 = 0; i2 < length2; i2++)
@@ -553,9 +555,11 @@ public class SiteMerger {
 
 					String userId = element3.getAttribute("userId");	
 					// this user has a qualified role, his/her resource will be imported
-					usersListAllowImport.add(userId);
+					//UsersListAllowImport.add(userId);
+					realm.addMember(userId, roleId, true, false);
 				}
 			} // for
+			m_authzGroupService.save(realm);
 		}
 		catch(Exception err)
 		{
@@ -704,6 +708,20 @@ public class SiteMerger {
 				return true;
 			}
 		}	
+		return false;
+	}
+
+	/**
+	 * Checks if the role is valid for this site.
+	 * @param roles The roles in the site.
+	 * @param roleId The role ID.
+	 */
+	protected boolean checkValidRole(Collection<Role> roles, String roleId) {
+		for(Role role: roles) {
+			if (role.getId().equals(roleId)) {
+				return true;
+			}
+		}
 		return false;
 	}
 }
