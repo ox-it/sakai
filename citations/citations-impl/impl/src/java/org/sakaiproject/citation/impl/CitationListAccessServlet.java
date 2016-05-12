@@ -556,9 +556,15 @@ public class CitationListAccessServlet implements HttpAccess
 				}
 			} else {
 				// We only want to show the open url if no custom urls have been specified.
+				String soloLink = null;
 				if (citation.getCitationProperty("otherIds") instanceof Vector) {
-					out.println("\t\t\t\t<a href=\"" + ((Vector) citation.getCitationProperty("otherIds")).get(0) + "\" target=\"_blank\">"
-							+ "Find it" + " on SOLO" + "</a>");
+					soloLink = (String) ((Vector) citation.getCitationProperty("otherIds")).get(0);
+					}
+				else if (citation.getCitationProperty("otherIds") instanceof String) {
+					soloLink = (String) citation.getCitationProperty("otherIds");
+				}
+				if (soloLink!=null) {
+					out.println("\t\t\t\t<a href=\"" + soloLink + "\" target=\"_blank\">" + "Find it" + " on SOLO" + "</a>");
 				}
 			}
 			if( citation.hasCustomUrls() || citation.getCitationProperty("otherIds") instanceof Vector){
