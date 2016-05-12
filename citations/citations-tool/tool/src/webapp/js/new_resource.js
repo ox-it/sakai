@@ -400,7 +400,7 @@ citations_new_resource.watchForUpdates = function(timestamp) {
 
 citations_new_resource.init = function() {
 	var DEFAULT_DIALOG_HEIGHT = 610;
-	var DEFAULT_DIALOG_WIDTH = 850;
+	var DEFAULT_DIALOG_WIDTH = 1250;
 	var setFrameHeight = function() {
 		var body_height = $('body').innerHeight() - 100;
 	    if(body_height < DEFAULT_DIALOG_HEIGHT) {
