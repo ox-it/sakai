@@ -134,29 +134,14 @@ public class ResourcesHandler implements HandlesImportable {
 //				}
 				title = fileName;
 				resourceProps.put(ResourceProperties.PROP_DESCRIPTION, description);
+				resourceProps.put(ResourceProperties.PROP_CONTENT_PRIORITY, Integer.toString(((FileResource)thing).getSequenceNum()));
 
-				
-				if (title.toLowerCase().endsWith(".zip")) {
-					
-					//create a folder with the name of the zip, minus the .zip
-					String container = title.substring(0, title.length() - 4);
-					resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, container);
-
-					//get the full path to the current folder
-					String path = id.substring(0, id.length() - title.length());
-
-					addContentCollection(path + container, resourceProps);
-		  			addAllResources(contents, path + container, notifyOption);
-						
-				}
-				else {
-					if(m_log.isDebugEnabled()) {
+				if(m_log.isDebugEnabled()) {
 						m_log.debug("import ResourcesHandler about to add file entitled '" + title + "'");
-					}
-					resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
-					addContentResource(id, contentType, contents, resourceProps, notifyOption);
-				}				
-	  			
+				}
+				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
+				addContentResource(id, contentType, contents, resourceProps, notifyOption);
+
 			} else if ("sakai-web-link".equals(thing.getTypeName())) {
 				title = ((WebLink)thing).getTitle();
 				description = ((WebLink)thing).getDescription();
@@ -219,6 +204,7 @@ public class ResourcesHandler implements HandlesImportable {
 				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
 	  			resourceProps.put(ResourceProperties.PROP_DESCRIPTION, description);
 	  			resourceProps.put(ResourceProperties.PROP_COPYRIGHT, COPYRIGHT);
+				resourceProps.put(ResourceProperties.PROP_CONTENT_PRIORITY, Integer.toString(((Folder)thing).getSequenceNum()));
 	  			/*
 	  			 * Added title to the end of the path. Otherwise, we're setting the props on the 
 	  			 * containing folder rather than the folder itself.
