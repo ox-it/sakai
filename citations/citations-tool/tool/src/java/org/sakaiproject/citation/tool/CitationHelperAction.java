@@ -2679,6 +2679,41 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			contentProperties = new HashMap<String,Object>();
 		}
 		context.put("contentProperties", contentProperties);
+
+
+		BufferedReader streamReader = null;
+		try
+		{
+			ContentResource cr = contentService.getResource(MANAGING_LIBRARIES_JSON);
+			streamReader = new BufferedReader(new InputStreamReader(cr.streamContent(), "UTF-8"));
+			StringBuilder responseStrBuilder = new StringBuilder();
+
+			String inputStr;
+			while ((inputStr = streamReader.readLine()) != null){
+				responseStrBuilder.append(inputStr);
+			}
+			JSONObject jsonObject = JSONObject.fromObject(responseStrBuilder.toString());
+			JSONArray managingLibraries = jsonObject.getJSONArray("managingLibraries");
+			context.put("managingLibraries", managingLibraries);
+		} catch(JSONException e) {
+			logger.warn("JSONException reading managingLibraries.json for collection id: " + citationCollectionId);
+		} catch (UnsupportedEncodingException e) {
+			logger.debug("UnsupportedEncodingException reading managingLibraries.json for collection id: " + citationCollectionId, e);
+		} catch (IOException e) {
+			logger.debug("IOException reading managingLibraries.json for collection id: " + citationCollectionId, e);
+		} catch (SakaiException e) {
+			logger.debug("SakaiException reading managingLibraries.json for collection id: " + citationCollectionId, e);
+		} finally {
+			try {
+				if (streamReader!= null) {
+					streamReader.close();
+				}
+			}
+			catch(IOException ex){
+				logger.error("Problem occurred. Cannot close reader : " + ex.getMessage());
+			}
+		}
+
 		int collectionSize = 0;
 		CitationCollection citationCollection = getCitationCollection(state, true);
 
