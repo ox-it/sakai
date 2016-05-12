@@ -30,6 +30,7 @@ import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.citation.api.Citation;
@@ -322,11 +323,14 @@ public class CitationListAccessServlet implements HttpAccess
 					+ "</title>\n"
 					+ "<link href=\"/library/skin/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
 					+ "<link href=\"/library/skin/default/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
+				    + "<link href=\"/library/font-awesome/font-awesome-4.4.0/css/font-awesome.min.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
 					+ "<link href=\"/sakai-citations-tool/css/citations.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
 					+ "<script type=\"text/javascript\" src=\"/library/webjars/jquery/1.11.3/jquery.min.js\"></script>\n"
 					+ "<script type=\"text/javascript\" src=\"/sakai-citations-tool/js/citationscript.js\"></script>\n"
 					+ "<script type=\"text/javascript\" src=\"/sakai-citations-tool/js/view_nested_citations.js\"></script>\n"
 					+ "<script type=\"text/javascript\" src=\"/sakai-citations-tool/js/jquery.googlebooks.thumbnails.js\"></script>\n"
+				    + "<script type=\"text/javascript\" src=\"/library/juice/juice.js\"></script>\n"
+				    + "<script type=\"text/javascript\" src=\"/library/juice/juice-weblearn.js\"></script>\n"
     				+ "</head>\n<body>" );
 
     		List<Citation> citations = collection.getCitations();
@@ -521,6 +525,14 @@ public class CitationListAccessServlet implements HttpAccess
 			}
 			if( citation.hasCustomUrls() )
 			{
+				try {
+					String urlId = (String) citation.getCustomUrlIds().get(0);
+					out.println("\t\t\t\t<div class=\"e-avail\"><a href=\"" + Validator.escapeHtml(citation.getCustomUrl( urlId )) + "\" target=\"_blank\">"
+					+ rb.getString( "e.avail.link.view" ) + "</a></div>");
+					} catch (IdUnusedException e) {
+					// no need to blow up the page if we can't find the e-availability url for one citation on it
+					}
+				out.println("\t\t\t\t |");
 				List<String> customUrlIds = citation.getCustomUrlIds();
 				for( String urlId : customUrlIds )
 				{
@@ -528,26 +540,41 @@ public class CitationListAccessServlet implements HttpAccess
 							(citation.hasPreferredUrl() && (!citation.getPreferredUrlId().equals(urlId))))
 					{
 						String urlLabel = null;
+						//need to check customUrl inorder to display correct label as for non-electronic citation customUrl can be empty string
 						try {
 							urlLabel = ( citation.getCustomUrlLabel( urlId ) == null ||
 									citation.getCustomUrlLabel( urlId ).trim().equals("") ) ? rb.getString( "nullUrlLabel.view" ) : Validator.escapeHtml(citation.getCustomUrlLabel(urlId));
-						} catch (IdUnusedException e) {
+						}
+						catch (IdUnusedException e) {
 							e.printStackTrace();
 						}
+						if (StringUtils.isNotBlank(citation.getCustomUrl(urlId))) {
 
-						try {
-							out.println("\t\t\t\t<a href=\"" + Validator.escapeHtml(citation.getCustomUrl( urlId )) + "\" target=\"_blank\">" + urlLabel + "</a>");
-						} catch (IdUnusedException e) {
-							e.printStackTrace();
+							try {
+								out.println("\t\t\t\t<a href=\"" + Validator.escapeHtml(citation.getCustomUrl( urlId )) + "\" target=\"_blank\">" + urlLabel + "</a>");
+							} catch (IdUnusedException e) {
+								String urlLabel = (StringUtils.isNotBlank(citation.getCustomUrlLabel(urlId))) ? rb.getString("nullUrlLabel.view") : Validator.escapeHtml(citation.getCustomUrlLabel(urlId));
+								out.println("\t\t\t\t<a href=\"" + Validator.escapeHtml(citation.getCustomUrl(urlId)) + "\" target=\"_blank\">" + urlLabel + "</a>");
+								out.println("\t\t\t\t |");
+							}
 						}
-						out.println("\t\t\t\t |");
+						catch (IdUnusedException e){
+						e.printStackTrace();
+					}
+					}
 					}
 				}
 			} else {
 				// We only want to show the open url if no custom urls have been specified.
+				String soloLink = null;
 				if (citation.getCitationProperty("otherIds") instanceof Vector) {
-					out.println("\t\t\t\t<a href=\"" + ((Vector) citation.getCitationProperty("otherIds")).get(0) + "\" target=\"_blank\">"
-							+ "Find it" + " on SOLO" + "</a>");
+					soloLink = (String) ((Vector) citation.getCitationProperty("otherIds")).get(0);
+					}
+				else if (citation.getCitationProperty("otherIds") instanceof String) {
+					soloLink = (String) citation.getCitationProperty("otherIds");
+				}
+				if (soloLink!=null) {
+					out.println("\t\t\t\t<a href=\"" + soloLink + "\" target=\"_blank\">" + "Find it" + " on SOLO" + "</a>");
 				}
 			}
 			if( citation.hasCustomUrls() || citation.getCitationProperty("otherIds") instanceof Vector){

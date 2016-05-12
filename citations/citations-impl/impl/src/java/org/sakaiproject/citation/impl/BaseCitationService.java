@@ -44,6 +44,7 @@ import org.sakaiproject.citation.api.*;
 import org.sakaiproject.citation.api.Schema.Field;
 import org.sakaiproject.citation.impl.openurl.ContextObject;
 import org.sakaiproject.citation.impl.openurl.OpenURLServiceImpl;
+import org.sakaiproject.citation.impl.soloapi.SoloApiServiceImpl;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentEntity;
@@ -1246,8 +1247,6 @@ public abstract class BaseCitationService implements CitationService
 				String openUrlParams = m_openURLService.toURL(co);
 				openUrl.append(openUrlParams);
 			}
-
-			// genre needs some further work... TODO
 
 			return openUrl.toString();
 		}
@@ -3207,7 +3206,6 @@ public abstract class BaseCitationService implements CitationService
 			{
 				this.m_order = new TreeSet<String>(this.m_comparator);
 			}
-			this.m_order.clear();
 			Iterator it = other.m_citations.keySet().iterator();
 			while(it.hasNext())
 			{
@@ -4155,6 +4153,9 @@ public abstract class BaseCitationService implements CitationService
 	/** Dependency: OpenURLServiceImpl */
 	protected OpenURLServiceImpl m_openURLService;
 
+	/** Depenedency: SoloApiServiceimpl */
+	protected SoloApiServiceImpl m_soloApiService = null;
+
 	protected String m_defaultSchema;
 
 	/** A Storage object for persistent storage. */
@@ -4511,7 +4512,7 @@ public abstract class BaseCitationService implements CitationService
 	public String getEntityUrl(Reference ref)
 	{
 
-		return null;
+		return ref.getEntity().getUrl();
 	}
 
 	/*
@@ -4796,7 +4797,7 @@ public abstract class BaseCitationService implements CitationService
 	    		CitationService.CITATION_LIST_ID,
 	    		false );
 
-	    BaseServiceLevelAction makeSitePageAction = new BaseServiceLevelAction(ResourceToolAction.MAKE_SITE_PAGE,
+	    BaseServiceLevelAction sitePageAction = new BaseServiceLevelAction(ResourceToolAction.MAKE_SITE_PAGE,
 	    		ResourceToolAction.ActionType.MAKE_SITE_PAGE,
 	    		CitationService.CITATION_LIST_ID,
 	    		true );
@@ -4811,11 +4812,12 @@ public abstract class BaseCitationService implements CitationService
 	    typedef.addAction(new CitationListDuplicateAction());
 	    typedef.addAction(revisePropsAction);
 	    typedef.addAction(moveAction);
+	    typedef.addAction(sitePageAction);
 	    typedef.setEnabledByDefault(m_configService.isCitationsEnabledByDefault());
 	    typedef.setIconLocation("sakai/citationlist.gif");
 	    typedef.setHasRightsDialog(false);
 
-	    registry.register(typedef);
+	    registry.register(typedef, new CitationContentChangeHandler());
     }
 
 	/**
@@ -5613,6 +5615,11 @@ public abstract class BaseCitationService implements CitationService
 		m_contentHostingService = service;
 	}
 
+	public void setSoloApiService(SoloApiServiceImpl service)
+	{
+		m_soloApiService = service;
+	}
+
 	/**
 	 * Dependency: EntityManager.
 	 *
@@ -5703,7 +5710,7 @@ public abstract class BaseCitationService implements CitationService
 	/**
      * @param reference
      */
-    private void copyCitationCollection(Reference reference)
+    public void copyCitationCollection(Reference reference)
     {
         ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
 		try
@@ -5753,6 +5760,14 @@ public abstract class BaseCitationService implements CitationService
         return citation;
     }
 
+	public Citation addSoloApiCitation(HttpServletRequest request) {
+		org.sakaiproject.citation.impl.soloapi.ContextObject co = m_soloApiService.parse(request);
+		Citation citation = null;
+		if (co != null) {
+			citation = m_soloApiService.convert(co);
+		}
+		return citation;
+	}
 
 
 } // BaseCitationService

@@ -599,7 +599,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    */
 
   /**
-   * Get a named value from the site-specific XML configuration file
+   * Get a named value from the XML configuration file.
    * @param parameter Configuration parameter to lookup
    * @return Parameter value (null if none [or error])
    */
@@ -647,7 +647,8 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   }
 
   /**
-   * Load and initialize the site-specific OSID configuration code
+   * Load and initialize the OSID configuration.
+   * Despite the name of the method, this is the global configuration, not specific to a Sakai site.
    * @return The initialized, site-specific OSID configuration
    *         object (null on error)
    */
@@ -744,6 +745,9 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       saveParameter(document, parameterMap, "sakai-serverkey");
 
       saveParameter(document, parameterMap, "searchable-databases");
+
+      saveParameter(document, parameterMap, "external-search-enabled");
+      saveParameter(document, parameterMap, "external-search-url");
 
       saveParameter(document, parameterMap, "config-id");               // obsolete?
       saveParameter(document, parameterMap, "database-xml");            // obsolete?

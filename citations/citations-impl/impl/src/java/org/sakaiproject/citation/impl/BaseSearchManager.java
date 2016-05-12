@@ -1856,7 +1856,7 @@ public class BaseSearchManager implements SearchManager, Observer
 
 	//public static final String SERVLET_NAME = "savecite";
 	public static final String SERVLET_NAME = "sakai-citations-servlet";
-	public static final String WINDOW_PREFIX = "WebLearn Solo - ";
+	public static final String WINDOW_PREFIX = "WebLearn-";
 
 	// Our types (defined in setupTypes())
 	protected static BasicType categoryAssetType;
@@ -2614,6 +2614,7 @@ public class BaseSearchManager implements SearchManager, Observer
 							"?" +
 							SAKAI_SESSION +
 							"=nada&", "UTF-8" )
+					+ "&sciui=2" // This is to use the old UI as importing isn't supported in the new UI.
 					+ "&linkurl_id="
 					+ java.net.URLEncoder.encode( m_configService.getSiteConfigSakaiServerKey(), "UTF-8" ) );
 		}

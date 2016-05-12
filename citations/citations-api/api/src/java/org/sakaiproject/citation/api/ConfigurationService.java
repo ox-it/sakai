@@ -29,7 +29,7 @@ import java.util.Map;
 import org.sakaiproject.citation.util.api.OsidConfigurationException;
 
 /**
- * Repository OSID configuration
+ * Repository OSID configuration.
  */
 public interface ConfigurationService
 {
@@ -288,5 +288,4 @@ public interface ConfigurationService
    * @return the number of seconds between requests.
    */
   public String getSecondsBetweenSaveciteRefreshes();
-
 }
