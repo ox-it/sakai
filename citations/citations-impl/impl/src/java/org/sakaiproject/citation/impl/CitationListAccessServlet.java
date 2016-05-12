@@ -30,6 +30,7 @@ import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.citation.api.Citation;
@@ -539,19 +540,28 @@ public class CitationListAccessServlet implements HttpAccess
 							(citation.hasPreferredUrl() && (!citation.getPreferredUrlId().equals(urlId))))
 					{
 						String urlLabel = null;
+						//need to check customUrl inorder to display correct label as for non-electronic citation customUrl can be empty string
 						try {
 							urlLabel = ( citation.getCustomUrlLabel( urlId ) == null ||
 									citation.getCustomUrlLabel( urlId ).trim().equals("") ) ? rb.getString( "nullUrlLabel.view" ) : Validator.escapeHtml(citation.getCustomUrlLabel(urlId));
-						} catch (IdUnusedException e) {
+						}
+						catch (IdUnusedException e) {
 							e.printStackTrace();
 						}
+						if (StringUtils.isNotBlank(citation.getCustomUrl(urlId))) {
 
-						try {
-							out.println("\t\t\t\t<a href=\"" + Validator.escapeHtml(citation.getCustomUrl( urlId )) + "\" target=\"_blank\">" + urlLabel + "</a>");
-						} catch (IdUnusedException e) {
-							e.printStackTrace();
+							try {
+								out.println("\t\t\t\t<a href=\"" + Validator.escapeHtml(citation.getCustomUrl( urlId )) + "\" target=\"_blank\">" + urlLabel + "</a>");
+							} catch (IdUnusedException e) {
+								String urlLabel = (StringUtils.isNotBlank(citation.getCustomUrlLabel(urlId))) ? rb.getString("nullUrlLabel.view") : Validator.escapeHtml(citation.getCustomUrlLabel(urlId));
+								out.println("\t\t\t\t<a href=\"" + Validator.escapeHtml(citation.getCustomUrl(urlId)) + "\" target=\"_blank\">" + urlLabel + "</a>");
+								out.println("\t\t\t\t |");
+							}
 						}
-						out.println("\t\t\t\t |");
+						catch (IdUnusedException e){
+						e.printStackTrace();
+					}
+					}
 					}
 				}
 			} else {
