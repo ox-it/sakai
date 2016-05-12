@@ -4796,7 +4796,7 @@ public abstract class BaseCitationService implements CitationService
 	    		CitationService.CITATION_LIST_ID,
 	    		false );
 
-	    BaseServiceLevelAction makeSitePageAction = new BaseServiceLevelAction(ResourceToolAction.MAKE_SITE_PAGE,
+	    BaseServiceLevelAction sitePageAction = new BaseServiceLevelAction(ResourceToolAction.MAKE_SITE_PAGE,
 	    		ResourceToolAction.ActionType.MAKE_SITE_PAGE,
 	    		CitationService.CITATION_LIST_ID,
 	    		true );
@@ -4811,6 +4811,7 @@ public abstract class BaseCitationService implements CitationService
 	    typedef.addAction(new CitationListDuplicateAction());
 	    typedef.addAction(revisePropsAction);
 	    typedef.addAction(moveAction);
+	    typedef.addAction(sitePageAction);
 	    typedef.setEnabledByDefault(m_configService.isCitationsEnabledByDefault());
 	    typedef.setIconLocation("sakai/citationlist.gif");
 	    typedef.setHasRightsDialog(false);
