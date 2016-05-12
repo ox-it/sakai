@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springkernel.org/dtd/spring-beans.dtd">
+
+<!-- This creates enough of a citations service so that the solo api service can be tested. -->
+<beans>
+	<bean id="org.sakaiproject.citation.api.CitationService"
+		class="org.sakaiproject.citation.impl.MockCitationServiceImpl"
+		init-method="init">
+	</bean>
+
+    <bean id="org.sakaiproject.citation.api.SoloApiServiceImpl"
+          class="org.sakaiproject.citation.impl.soloapi.SoloApiServiceImpl"
+          init-method="init" singleton="true">
+        <property name="converters">
+            <list>
+                <bean class="org.sakaiproject.citation.impl.soloapi.BookConverter">
+                    <property name="citationService"
+                              ref="org.sakaiproject.citation.api.CitationService" />
+                </bean>
+                <bean class="org.sakaiproject.citation.impl.soloapi.JournalConverter">
+                    <property name="citationService"
+                              ref="org.sakaiproject.citation.api.CitationService" />
+                </bean>
+                <!-- Should always be last in the list -->
+                <bean class="org.sakaiproject.citation.impl.soloapi.GenericConverter">
+                    <property name="citationService"
+                              ref="org.sakaiproject.citation.api.CitationService" />
+                </bean>
+            </list>
+        </property>
+        <property name="serverConfigurationService">
+            <ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.component.api.ServerConfigurationService"
+          class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg>
+            <value type="java.lang.Class">org.sakaiproject.component.api.ServerConfigurationService</value>
+        </constructor-arg>
+    </bean>
+
+</beans>

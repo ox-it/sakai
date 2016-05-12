@@ -44,6 +44,7 @@ import org.sakaiproject.citation.api.*;
 import org.sakaiproject.citation.api.Schema.Field;
 import org.sakaiproject.citation.impl.openurl.ContextObject;
 import org.sakaiproject.citation.impl.openurl.OpenURLServiceImpl;
+import org.sakaiproject.citation.impl.soloapi.SoloApiServiceImpl;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentEntity;
@@ -4152,6 +4153,9 @@ public abstract class BaseCitationService implements CitationService
 	/** Dependency: OpenURLServiceImpl */
 	protected OpenURLServiceImpl m_openURLService;
 
+	/** Depenedency: SoloApiServiceimpl */
+	protected SoloApiServiceImpl m_soloApiService = null;
+
 	protected String m_defaultSchema;
 
 	/** A Storage object for persistent storage. */
@@ -5611,6 +5615,11 @@ public abstract class BaseCitationService implements CitationService
 		m_contentHostingService = service;
 	}
 
+	public void setSoloApiService(SoloApiServiceImpl service)
+	{
+		m_soloApiService = service;
+	}
+
 	/**
 	 * Dependency: EntityManager.
 	 *
@@ -5751,6 +5760,14 @@ public abstract class BaseCitationService implements CitationService
         return citation;
     }
 
+	public Citation addSoloApiCitation(HttpServletRequest request) {
+		org.sakaiproject.citation.impl.soloapi.ContextObject co = m_soloApiService.parse(request);
+		Citation citation = null;
+		if (co != null) {
+			citation = m_soloApiService.convert(co);
+		}
+		return citation;
+	}
 
 
 } // BaseCitationService

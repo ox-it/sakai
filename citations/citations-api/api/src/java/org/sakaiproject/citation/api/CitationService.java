@@ -242,5 +242,13 @@ public interface CitationService extends EntityProducer
 	 * @param citationCollectionId
 	 */
 	public CitationCollection getUnnestedCitationCollection(String citationCollectionId);
+	/**
+	 * Attempt to find a Citation from a request.
+	 * This basically uses the Solo API to look for details of a citation in the request.
+	 * @param req The servlet request.
+	 * @return The returned citation which been saved or added to a citation collection,
+	 * if no citation is found in the request then <code>null</code> is returned.
+	 */
+	public Citation addSoloApiCitation(HttpServletRequest req);
 }	// interface CitationService
 
