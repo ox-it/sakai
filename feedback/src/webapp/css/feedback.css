@@ -142,6 +142,55 @@
 #feedback-max-attachments-label {
     color: red;
     font-weight: bold;
+}
+
+.feedback-box {
+    background: linear-gradient(center top , #FDFDFD, #F7F7F7) repeat scroll 0% 0% transparent;
+    background: -moz-linear-gradient(center top , #FDFDFD, #F7F7F7) repeat scroll 0% 0% transparent;
+    border: 1px solid #DFE2E4;
+    border-bottom-width: 3px;
+    -moz-border-top-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    border-image: none;
+    border-radius: 5px;
+    display: block;
+    float: left;
+    list-style: none outside none;
+    margin: 2px;
+    height: 22em;
+    padding: 2px 10px;
+    width: 200px;
+}
+
+.feedback-box ul.list  {
+    margin-left: 8px;
+    padding-left: 8px;
+}
+
+#feedback-content-problem h3 {
+    background: url('/library/image/silk/page_white_error.png') no-repeat scroll left top transparent;
+    padding-left: 20px;
+}
+
+#feedback-ask-help h3 {
+    background: url('/library/image/silk/user_comment.png') no-repeat scroll left top transparent;
+    padding-left: 20px;
+}
+
+#feedback-tech-problem h3 {
+    background: url('/library/image/silk/bug.png') no-repeat scroll left top transparent;
+    padding-left: 20px;
+}
+
+#feedback-improvement h3 {
+    background: url('/library/image/silk/lightbulb.png') no-repeat scroll left top transparent;
+    padding-left: 20px;
+}
+
+.clear {
+    clear: both;
     clear:left;
 }
 

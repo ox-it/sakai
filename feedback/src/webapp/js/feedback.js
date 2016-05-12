@@ -52,6 +52,7 @@
             feedback.utils.renderTemplate(HOME, { featureSuggestionUrl: feedback.featureSuggestionUrl,
                                                     supplementaryInfo: feedback.supplementaryInfo,
                                                     helpPagesUrl: feedback.helpPagesUrl,
+                                                    helpdeskUrl: feedback.helpdeskUrl,
                                                     helpPagesTarget: feedback.helpPagesTarget,
                                                     loggedIn: loggedIn, showContentPanel : feedback.showContentPanel,
                                                     showHelpPanel : feedback.showHelpPanel,
