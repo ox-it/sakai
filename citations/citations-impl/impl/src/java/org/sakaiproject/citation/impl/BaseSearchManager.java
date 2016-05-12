@@ -1856,7 +1856,7 @@ public class BaseSearchManager implements SearchManager, Observer
 
 	//public static final String SERVLET_NAME = "savecite";
 	public static final String SERVLET_NAME = "sakai-citations-servlet";
-	public static final String WINDOW_PREFIX = "WebLearn Solo - ";
+	public static final String WINDOW_PREFIX = "WebLearn-";
 
 	// Our types (defined in setupTypes())
 	protected static BasicType categoryAssetType;
