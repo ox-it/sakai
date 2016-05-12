@@ -52,11 +52,13 @@
             feedback.utils.renderTemplate(HOME, { featureSuggestionUrl: feedback.featureSuggestionUrl,
                                                     supplementaryInfo: feedback.supplementaryInfo,
                                                     helpPagesUrl: feedback.helpPagesUrl,
+                                                    helpdeskUrl: feedback.helpdeskUrl,
                                                     helpPagesTarget: feedback.helpPagesTarget,
                                                     loggedIn: loggedIn, showContentPanel : feedback.showContentPanel,
                                                     showHelpPanel : feedback.showHelpPanel,
                                                     showTechnicalPanel : feedback.showTechnicalPanel,
                                                     showSuggestionsPanel : feedback.showSuggestionsPanel,
+                                                    technicalToAddress : feedback.technicalToAddress}, 'feedback-content');
                                                     enableTechnical : feedback.enableTechnical}, 'feedback-content');
 
             $(document).ready(function () {
@@ -72,7 +74,7 @@
                 if (feedback.enableTechnical) {
                     $('#feedback-technical-item').show().css('display', 'inline');
                     $('#feedback-report-technical-wrapper').show();
-                    $('#feedback-report-technical-link').click(function (e) {
+                    $('#feedback-report-technical-link, #feedback-report-helpdesk-link').click(function (e) {
                         feedback.switchState(TECHNICAL, REPORTTECHNICAL);
                     });
                     $('#feedback-report-helpdesk-link').click(function (e) {
@@ -243,12 +245,12 @@
                 for (var i=0,j=formArray.length;i<j;i++) {
                     var el = formArray[i];
                     if (el.name === 'title') {
-                        if (el.value.length < 1) {
+                        if (el.value.length < 2 || el.value.length > 40) {
                             feedback.displayError(BAD_TITLE);
                             return false;
                         }
                     } else if (el.name === 'description') {
-                        if (el.value.length < 1) {
+                        if (el.value.length < 2) {
                             feedback.displayError(BAD_DESCRIPTION);
                             return false;
                         }
@@ -314,8 +316,13 @@
 
 
     feedback.displayInfo = function (siteUpdater) {
-        if (siteUpdater!=null && siteUpdater!=''){
+		if (siteUpdater!=null && siteUpdater!=''){
             $('#feedback-info-message-wrapper span').html('An email with the information you entered has been sent to ' + siteUpdater);
+
+            $('#feedback-info-message-wrapper a').click(function (e) {
+                $('#feedback-info-message-wrapper').hide();
+            });
+
             $('#feedback-info-message-wrapper').show();
             feedback.fitFrame();
         }

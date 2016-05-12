@@ -141,6 +141,7 @@ public class FeedbackTool extends HttpServlet {
         setStringAttribute(request, "helpPagesTarget", sakaiProxy.getConfigString("feedback.helpPagesTarget", "_blank"));
         setStringAttribute(request, "supplementaryInfo", sakaiProxy.getConfigString("feedback.supplementaryInfo", ""));
         request.setAttribute("maxAttachmentsMB", sakaiProxy.getAttachmentLimit());
+        request.setAttribute("technicalToAddress", sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null));
         setStringAttribute(request, "technicalToAddress", sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null));
         request.setAttribute("showContentPanel", sakaiProxy.getConfigBoolean(Constants.SHOW_CONTENT_PANEL, true));
         request.setAttribute("showHelpPanel", sakaiProxy.getConfigBoolean(Constants.SHOW_HELP_PANEL, true));
@@ -199,7 +200,7 @@ public class FeedbackTool extends HttpServlet {
 	}
 
     private void addRecipients(Site site, Map<String, String> emailRecipients, Map<String, String> siteUpdaters, String serviceName) {
-        String siteContact = site.getProperties().getProperty(Site.PROP_SITE_CONTACT_NAME);
+        String siteContact = StringEscapeUtils.escapeJavaScript(site.getProperties().getProperty(Site.PROP_SITE_CONTACT_NAME));
         String siteEmail = site.getProperties().getProperty(Site.PROP_SITE_CONTACT_EMAIL);
         if (siteEmail!=null && !siteEmail.isEmpty()){
             emailRecipients.put(siteEmail, siteContact + " (site contact)");
