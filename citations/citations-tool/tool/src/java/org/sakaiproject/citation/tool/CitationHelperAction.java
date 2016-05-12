@@ -1137,6 +1137,185 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		return results;
 	}
 
+	protected Map<String, Object> updateIntroduction(ParameterParser params, SessionState state) {
+		Map<String, Object> results = new HashMap<String, Object>();
+		String message = null;
+		String resourceUuid = params.getString("resourceUuid");
+		try {
+			String resourceId = this.getContentService().resolveUuid(resourceUuid);
+			String introduction = params.get("addSectionHTML");
+			introduction = getFormattedText().processFormattedText(introduction, new StringBuilder(), true, true);
+			introduction = introduction.replaceAll("'", "&apos;");
+			getContentService().addProperty(resourceId, CitationService.PROP_INTRODUCTION, introduction);
+			message = rb.getString("resource.updated");
+			state.setAttribute(STATE_CITATION_COLLECTION, null);
+		} catch (SakaiException e) {
+			logger.warn("SakaiException in updateIntroduction() for resource UUID: " + resourceUuid, e);
+		}
+		if(message != null && ! message.trim().equals("")) {
+			results.put("message", message);
+		}
+		return results;
+	}
+
+	protected Map<String, Object> removeSection(ParameterParser params, SessionState state) {
+		String message;
+		Map<String, Object> results = new HashMap<String, Object>();
+		try {
+			int locationId = params.getInt("locationId");
+			CitationCollection collection = getCitationCollection(state, false);
+			getCitationService().removeLocation(collection.getId(), locationId);
+			message = rb.getString("resource.updated");
+			results.put("sectionToRemove", "#sectionInlineEditor" + locationId);
+		}
+		catch (Exception e){
+			message = e.getMessage();
+			logger.warn("Exception in removeSection() " + e);
+		}
+		if(message != null && ! message.trim().equals("")) {
+			results.put("message", message);
+		}
+		return results;
+	}
+
+	protected Map<String, Object> addSection(ParameterParser params, SessionState state) {
+		String message;
+		Map<String, Object> results = new HashMap<String, Object>();
+		try {
+			int locationId = params.getInt("locationId");
+			CitationCollectionOrder.SectionType sectionType = CitationCollectionOrder.SectionType.valueOf(params.getString("sectionType"));
+			CitationCollection collection = getCitationCollection(state, false);
+
+			CitationCollectionOrder citationCollectionOrder = new CitationCollectionOrder(collection.getId(), locationId, sectionType, rb.getString("nested.section.title.text"));
+			getCitationService().saveSection(citationCollectionOrder);
+			message = rb.getString("resource.updated");
+		}
+		catch (Exception e){
+			message = e.getMessage();
+			logger.warn("Exception in addSection() " + e);
+		}
+		if(message != null && ! message.trim().equals("")) {
+			results.put("message", message);
+		}
+		return results;
+	}
+
+	protected Map<String, Object> addSubSection(ParameterParser params, SessionState state) {
+		String message;
+		Map<String, Object> results = new HashMap<String, Object>();
+
+		try {
+			int locationId = params.getInt("locationId");
+			String addSectionHTML = params.getString("addSectionHTML");
+			CitationCollectionOrder.SectionType sectionType = CitationCollectionOrder.SectionType.valueOf(params.getString("sectionType"));
+			CitationCollection collection = getCitationCollection(state, false);
+
+			CitationCollectionOrder citationCollectionOrder = new CitationCollectionOrder(collection.getId(), locationId, sectionType, addSectionHTML);
+			getCitationService().saveSubsection(citationCollectionOrder);
+			message = rb.getString("resource.updated");
+		}
+		catch (Exception e){
+			message = e.getMessage();
+			logger.warn("Exception in addSubSection() " + e);
+		}
+
+		if(message != null && ! message.trim().equals("")) {
+			results.put("message", message);
+		}
+		return results;
+	}
+
+	protected Map<String, Object> dragAndDrop(ParameterParser params, SessionState state) {
+
+		String message = null;
+		Map<String, Object> results = new HashMap<String, Object>();
+		ObjectMapper mapper = new ObjectMapper();
+		List<CitationCollectionOrder> citationCollectionOrders;
+
+		try {
+			String citationCollectionId = params.getString("citationCollectionId");
+			String nestedCitations = params.getString("data");
+			if (nestedCitations!=null){
+
+				// Java has a bug where it throws a stackoverflow error when pattern matching very long strings
+				// http://bugs.java.com/view_bug.do?bug_id=5050507
+				// For very big lists, we just split the string
+				if (nestedCitations.length()>20000){
+					String[] parts = nestedCitations.split("\"sectiontype\"");
+					nestedCitations = "";
+					for (String part : parts) {
+						part = part.replaceAll("\\s+(?=([^\"]*\"[^\"]*\")*[^\"]*$)", "") + "\"sectiontype\"";  // replace whitespace (except between quotation marks) so can strip extra JSON arrays //  (it would be much better just to find a way of parsing the JSON without this string manipulation)
+						nestedCitations = nestedCitations + part;
+					}
+				}
+				else {
+					nestedCitations = nestedCitations.replaceAll("\\s+(?=([^\"]*\"[^\"]*\")*[^\"]*$)", "");
+				}
+
+				nestedCitations = nestedCitations.replaceAll("\'", "&apos;"); // escape single quotes so they can be used in attributes
+
+				// remove extra parentheses in json
+				// needed because of the extra ol's for accordion effect
+				nestedCitations = nestedCitations
+						.replaceAll(",\"children\":\\[\\[\\]\\]", "")
+						.replaceAll(",\"children\":\\[\\[\\],\\[\\]\\]", "")
+						.replaceAll(",\\{\"children\":\\[\\[\\]\\]\\}", "")
+						.replaceAll(",\"children\":\\[\\[\\],", ",\"children\":[")
+						.replaceAll(",\"children\":\\[\\[", ",\"children\":[")
+						.replaceAll(",\\{\"children\":\\[\\[", ",{\"children\":[")
+						.replaceAll("\\{\"children\":\\[\\[", "{\"children\":[")
+						.replaceAll("\\}\\],\\[\\{\"section", "},{\"section")
+						.replaceAll("\\}\\]\\]", "}]")
+						.replaceAll("\\}\\],\\[\\]\\]", "}]")
+						.replaceAll("\\}\\],\\[\\{", "},{");
+
+				citationCollectionOrders = mapper.readValue(nestedCitations,
+						TypeFactory.collectionType(List.class, CitationCollectionOrder.class));
+				if (getCitationValidator().isValid(citationCollectionOrders)){
+					getCitationService().save(citationCollectionOrders, citationCollectionId);
+					message = rb.getString("resource.updated");
+					state.setAttribute(STATE_CITATION_COLLECTION, null);
+				}
+				else {
+					message = rb.getString("invalid nested collection") + "for collection id " + citationCollectionId;
+				}
+			}
+		}
+		catch (Exception e){
+			message = e.getMessage();
+			logger.warn("Exception in dragandDrop() " + e);
+		}
+		if(message != null && ! message.trim().equals("")) {
+			results.put("message", message);
+		}
+		return results;
+	}
+
+	protected Map<String, Object> updateSection(ParameterParser params, SessionState state) {
+		String message;
+		Map<String, Object> results = new HashMap<String, Object>();
+		try {
+			String addSectionHTML = params.getString("addSectionHTML");
+			int locationId = params.getInt("locationId");
+			String cleanAddSectionHTML = getFormattedText().processFormattedText(addSectionHTML, new StringBuilder(), true, true);
+			cleanAddSectionHTML = cleanAddSectionHTML.replaceAll("'", "&apos;"); // escape single quotes so they can be used in attributes
+
+			CitationCollectionOrder.SectionType sectionType = CitationCollectionOrder.SectionType.valueOf(params.getString("sectionType"));
+			CitationCollection collection = getCitationCollection(state, false);
+			CitationCollectionOrder citationCollectionOrder = new CitationCollectionOrder(collection.getId(), locationId, sectionType, cleanAddSectionHTML);
+			getCitationService().updateSection(citationCollectionOrder);
+			message = rb.getString("resource.updated");
+		}
+		catch (Exception e){
+			message = e.getMessage();
+			logger.warn("Exception in updateSection() " + e);
+		}
+		if(message != null && ! message.trim().equals("")) {
+			results.put("message", message);
+		}
+		return results;
+	}
+
 	protected Map<String, Object> removeSection(ParameterParser params, SessionState state) {
 		String message;
 		Map<String, Object> results = new HashMap<String, Object>();
@@ -1380,6 +1559,78 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			results.put("displayName", displayName);
 		}
 		
+	}
+
+	protected void captureCourseName(ParameterParser params, SessionState state,
+									  ContentResourceEdit edit, Map<String, Object> results) {
+		String courseName = params.getString("courseName");
+		String oldCourseName = edit.getProperties().getProperty(PROP_COURSE_NAME);
+		if(oldCourseName == null || ! oldCourseName.equals(courseName)) {
+			ResourcePropertiesEdit props = edit.getPropertiesEdit();
+			props.removeProperty(PROP_COURSE_NAME);
+			props.addProperty(PROP_COURSE_NAME, courseName);
+			results.put("courseName", courseName);
+		}
+	}
+
+	protected void captureDepartment(ParameterParser params, SessionState state,
+									 ContentResourceEdit edit, Map<String, Object> results) {
+		String department = params.getString("department");
+		String oldDepartment = edit.getProperties().getProperty(PROP_DEPARTMENT);
+		if(oldDepartment == null || ! oldDepartment.equals(department)) {
+			ResourcePropertiesEdit props = edit.getPropertiesEdit();
+			props.removeProperty(PROP_DEPARTMENT);
+			props.addProperty(PROP_DEPARTMENT, department);
+			results.put("department", department);
+		}
+	}
+
+	protected void captureCoreOptionalPaper(ParameterParser params, SessionState state,
+									 ContentResourceEdit edit, Map<String, Object> results) {
+		String paper = params.getString("paper");
+		String oldPaper = edit.getProperties().getProperty(PROP_CORE_OPTIONAL_PAPER);
+		if(oldPaper == null || ! oldPaper.equals(paper)) {
+			ResourcePropertiesEdit props = edit.getPropertiesEdit();
+			props.removeProperty(PROP_CORE_OPTIONAL_PAPER);
+			props.addProperty(PROP_CORE_OPTIONAL_PAPER, paper);
+			results.put("paper", paper);
+		}
+	}
+
+	protected void captureAcademicYear(ParameterParser params, SessionState state,
+									 ContentResourceEdit edit, Map<String, Object> results) {
+		String year = params.getString("year");
+		String oldYear = edit.getProperties().getProperty(PROP_ACADEMIC_YEAR);
+		if(oldYear == null || ! oldYear.equals(year)) {
+			ResourcePropertiesEdit props = edit.getPropertiesEdit();
+			props.removeProperty(PROP_ACADEMIC_YEAR);
+			props.addProperty(PROP_ACADEMIC_YEAR, year);
+			results.put("year", year);
+		}
+	}
+
+	protected void captureTerm(ParameterParser params, SessionState state,
+									 ContentResourceEdit edit, Map<String, Object> results) {
+		String term = params.getString("term");
+		String oldTerm = edit.getProperties().getProperty(PROP_TERM);
+		if(oldTerm == null || ! oldTerm.equals(term)) {
+			ResourcePropertiesEdit props = edit.getPropertiesEdit();
+			props.removeProperty(PROP_TERM);
+			props.addProperty(PROP_TERM, term);
+			results.put("term", term);
+		}
+	}
+
+	protected void captureManagingLibrary(ParameterParser params, SessionState state,
+										  ContentResourceEdit edit, Map<String, Object> results) {
+		String managingLibrary = params.getString("managingLibrary");
+		String oldManagingLibrary = edit.getProperties().getProperty(PROP_MANAGING_LIBRARY);
+		if(oldManagingLibrary == null || ! oldManagingLibrary.equals(managingLibrary)) {
+			ResourcePropertiesEdit props = edit.getPropertiesEdit();
+			props.removeProperty(PROP_MANAGING_LIBRARY);
+			props.addProperty(PROP_MANAGING_LIBRARY, managingLibrary);
+			results.put("managingLibrary", managingLibrary);
+		}
 	}
 
 	/**
@@ -2401,8 +2652,14 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			ResourceProperties props = resource.getProperties();
 			contentProperties = this.getProperties(resource, state);
 			context.put("resourceTitle", props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+			context.put("resourceCourseName", props.getProperty(PROP_COURSE_NAME));
+			context.put("resourceDepartment", props.getProperty(PROP_DEPARTMENT));
+			context.put("resourceCoreOptionalPaper", props.getProperty(PROP_CORE_OPTIONAL_PAPER));
+			context.put("resourceAcademicYear", props.getProperty(PROP_ACADEMIC_YEAR));
+			context.put("resourceTerm", props.getProperty(PROP_TERM));
+			context.put("resourceManagingLibrary", props.getProperty(PROP_MANAGING_LIBRARY));
 			context.put("resourceDescription", props.getProperty(ResourceProperties.PROP_DESCRIPTION));
-			context.put("resourceIntroduction", (props.getProperty(CitationService.PROP_INTRODUCTION) == null ? props.getProperty(ResourceProperties.PROP_DESCRIPTION) : props.getProperty(CitationService.PROP_INTRODUCTION)));
+			context.put("resourceIntroduction", props.getProperty(CitationService.PROP_INTRODUCTION));
 			context.put("officialInstBackColour", scs.getString("official.institution.background.colour"));
 			context.put("officialInstTextColour", scs.getString("official.institution.text.colour"));
 			//resourceUuid = this.getContentService().getUuid(resourceId);
