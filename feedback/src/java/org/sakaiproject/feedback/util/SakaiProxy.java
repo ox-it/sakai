@@ -25,6 +25,7 @@ import java.util.*;
 import java.text.MessageFormat;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -157,7 +158,7 @@ public class SakaiProxy {
             for (User user : users) {
                 String email = user.getEmail();
                 if (email != null && email.length() > 0) {
-                    map.put(user.getId(), user.getDisplayName());
+                    map.put(user.getId(), StringEscapeUtils.escapeJavaScript(user.getDisplayName()));
                 }
             }
             return map;
