@@ -327,6 +327,8 @@ public class CitationListAccessServlet implements HttpAccess
 					+ "<script type=\"text/javascript\" src=\"/sakai-citations-tool/js/citationscript.js\"></script>\n"
 					+ "<script type=\"text/javascript\" src=\"/sakai-citations-tool/js/view_nested_citations.js\"></script>\n"
 					+ "<script type=\"text/javascript\" src=\"/sakai-citations-tool/js/jquery.googlebooks.thumbnails.js\"></script>\n"
+				    + "<script type=\"text/javascript\" src=\"/library/juice/juice.js\"></script>\n"
+				    + "<script type=\"text/javascript\" src=\"/library/juice/juice-weblearn.js\"></script>\n"
     				+ "</head>\n<body>" );
 
     		List<Citation> citations = collection.getCitations();
