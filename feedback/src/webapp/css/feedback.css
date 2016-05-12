@@ -236,6 +236,11 @@
     padding: 0 !important;
 }
 
+#feedback-toolbar {
+    border-bottom: none;
+    padding: 0 !important;
+}
+
 .clear {
     clear: both;
 }
