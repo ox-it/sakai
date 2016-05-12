@@ -532,7 +532,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	}
 
 	protected static final String PARAM_FORM_NAME = "FORM_NAME";
-
 	protected static final String STATE_RESOURCES_ADD = CitationHelper.CITATION_PREFIX + "resources_add";
 	protected static final String STATE_CURRENT_DATABASES = CitationHelper.CITATION_PREFIX + "current_databases";
 	protected static final String STATE_CANCEL_PAGE = CitationHelper.CITATION_PREFIX + "cancel_page";
@@ -676,7 +675,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			}
 			return;
 		}
-
 		super.toolModeDispatch(methodBase, methodExt, req, res);
 	}
 	
@@ -706,7 +704,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			} else {
 				// throw something
 			}
-	
 			return;
 		}
 		super.doGet(req, res);
@@ -943,9 +940,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				String resourceId = this.getContentService().resolveUuid(resourceUuid);
 				ContentResourceEdit edit = getContentService().editResource(resourceId);
 				this.captureDisplayName(params, state, edit, results);
-				this.captureDescription(params, state, edit, results);
-				this.captureAccess(params, state, edit, results);
-				this.captureAvailability(params, edit, results);
+				this.captureCourseName(params, state, edit, results);
+				this.captureDepartment(params, state, edit, results);
+				this.captureCoreOptionalPaper(params, state, edit, results);
+				this.captureAcademicYear(params, state, edit, results);
+				this.captureTerm(params, state, edit, results);
+				this.captureManagingLibrary(params, state, edit, results);
 				getContentService().commitResource(edit, priority);
 				message = "Resource updated";
 				state.setAttribute(STATE_CITATION_COLLECTION, null);
@@ -1766,6 +1766,17 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if( getConfigurationService().librarySearchEnabled() )
 		{
 			context.put( "searchLibrary", Boolean.TRUE );
+		}
+
+		if (getConfigurationService().isExternalSerarchEnabled())
+		{
+			// External Library Search
+			context.put("externalSearch", Boolean.TRUE);
+			context.put("externalSearchUrl", getConfigurationService().getExternalSearchUrl());
+
+			String windowName = getSearchManager().getExternalSearchWindowName(contentService.getUuid(resourceId));
+			context.put("externalSearchWindowName", windowName);
+
 		}
 
 		// form name

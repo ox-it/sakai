@@ -1247,8 +1247,6 @@ public abstract class BaseCitationService implements CitationService
 				openUrl.append(openUrlParams);
 			}
 
-			// genre needs some further work... TODO
-
 			return openUrl.toString();
 		}
 		
