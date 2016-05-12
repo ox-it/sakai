@@ -34,6 +34,8 @@ public interface ManifestResource {
 	
 	String getId(Node resourceNode);
 	
+	String getHref(Node resourceNode);
+
 	Document getDescriptor(Node resourceNode);
 	
 	boolean isFolder(Document descriptor);

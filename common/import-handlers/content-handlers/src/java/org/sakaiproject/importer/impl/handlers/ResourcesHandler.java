@@ -134,6 +134,7 @@ public class ResourcesHandler implements HandlesImportable {
 //				}
 				title = fileName;
 				resourceProps.put(ResourceProperties.PROP_DESCRIPTION, description);
+				resourceProps.put(ResourceProperties.PROP_CONTENT_PRIORITY, Integer.toString(((FileResource)thing).getSequenceNum()));
 
 				
 				if (title.toLowerCase().endsWith(".zip")) {

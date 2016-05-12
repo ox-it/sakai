@@ -11,7 +11,11 @@
 	<bean id="org.sakaiproject.importer.api.ImportFileParser-CommonCartridge"
 			class="org.sakaiproject.importer.impl.LBCommonCartridgeFileParser">
 	</bean>
-	
+
+	<bean id="org.sakaiproject.importer.api.ImportFileParser-ContentPackaging"
+			class="org.sakaiproject.importer.impl.ContentPackagingFileParser">
+	</bean>
+
 	<bean id="org.sakaiproject.importer.api.ImportFileParser-Bb6"
 	      class="org.sakaiproject.importer.impl.Blackboard6FileParser"> 
 	</bean> 
@@ -55,6 +59,7 @@
 			<list>
 				<ref bean="org.sakaiproject.importer.api.ImportFileParser-Sakai"/>
 				<ref bean="org.sakaiproject.importer.api.ImportFileParser-CommonCartridge"/>
+				<ref bean="org.sakaiproject.importer.api.ImportFileParser-ContentPackaging"/>
 				<ref bean="org.sakaiproject.importer.api.ImportFileParser-Bb6"/>
 				<ref bean="org.sakaiproject.importer.api.ImportFileParser-Bb55"/>
 			</list>

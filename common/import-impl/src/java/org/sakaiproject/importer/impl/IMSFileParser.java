@@ -69,6 +69,7 @@ public abstract class IMSFileParser extends ZipFileParser {
             builderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
             builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            builderFactory.setNamespaceAware(true);
             DocumentBuilder docBuilder = builderFactory.newDocumentBuilder();
             this.archiveManifest = (Document) docBuilder.parse(fis);
         } catch (FileNotFoundException e) {
@@ -300,6 +301,10 @@ public abstract class IMSFileParser extends ZipFileParser {
 
 		public String getDependency(Node node) {
 			return XPathHelper.getNodeValue("./dependency/@identifierref", node);
+		}
+
+		public String getHref(Node resourceNode) {
+			return XPathHelper.getNodeValue("./@href", resourceNode);
 		}
 	}
 	
