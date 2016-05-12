@@ -56,6 +56,13 @@ var reportError = function(msg){
 };
 
 /*
+ * Show error in pop up
+ */
+var popUpError = function(msg){
+	alert(msg);
+};
+
+/*
  * There has been an error
  */
 var reportInvalidity = function(msg){
