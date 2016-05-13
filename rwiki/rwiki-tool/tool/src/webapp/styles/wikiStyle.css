@@ -799,22 +799,25 @@ h6 {
 }
 /* special formatting of a wiki table */
 .listHier { width:auto !important; }
-.wiki-table { empty-cells: show; width: 100%; max-width: 100% }
+.wiki-table { 
+	empty-cells: show;
+	max-width: 100%;
+	margin-left: 2em;
+	border: thin;
+	border-style: solid;
+}
 .wiki-table td {
-	border-top: 1px solid #5b5b5b;
 	padding: 4px 4px 4px 4px
 }
 .wiki-table th {
-	border-top: 1px solid #5b5b5b;
 	text-align: left;
 	padding: 4px 4px 4px 4px;
 	color: inherit;
 	font-weight: bold;
 	/* background-color: #DDEEFF; */
-	background: #eee;
 	color: inherit
 }
-.wiki-table .table-odd { }
+.wiki-table .table-odd { background: #eeeeee; }
 .wiki-table .table-even { }
 /************************************************/
 /* list formatting                              */
