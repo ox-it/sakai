@@ -226,7 +226,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		allSites.addAll(mySites);
 		allSites.addAll(moreSites);
 		// get Sections
-		Map<String, List> termsToSites = new HashMap<String, List>();
+		Map<String, List<Site>> termsToSites = new HashMap<String, List<Site>>();
 		Map<String, List> tabsMoreTerms = new TreeMap<String, List>();
 		for (int i = 0; i < allSites.size(); i++)
 		{
@@ -261,19 +261,18 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 				term = rb.getString("moresite_other");
 			}
 
-			List<Site> currentList = new ArrayList();
-			if (termsToSites.containsKey(term))
+			List<Site> currentList = termsToSites.get(term);
+			if (currentList == null)
 			{
-				currentList = termsToSites.get(term);
-				termsToSites.remove(term);
+				currentList = new ArrayList<Site>();
+				termsToSites.put(term, currentList);
 			}
 			currentList.add(site);
-			termsToSites.put(term, currentList);
 
 			}
 
 		// now loop through each section and convert the Lists to maps
-		for (Map.Entry<String, List> entry : termsToSites.entrySet())
+		for (Map.Entry<String, List<Site>> entry : termsToSites.entrySet())
 		{
 			List<Site> currentList = entry.getValue();
 			List<Map> temp = siteHelper.convertSitesToMaps(request, currentList, prefix,
@@ -327,14 +326,11 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 			}
 		}
 
-		Iterator i = tabsMoreTerms.keySet().iterator();
-		while (i.hasNext())
+		for (String term: tabsMoreTerms.keySet())
 		{
-			String term = (String) i.next();
 			if (!tabsMoreSortedTermList.contains(term))
 			{
 				tabsMoreSortedTermList.add(term);
-
 			}
 		}
 
