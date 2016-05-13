@@ -134,6 +134,9 @@ public interface PortalSiteHelper
 
 	public String getSiteEffectiveId(Site site);
 	
+	/**
+	 * This is only needed by the hierarchy handler and can go after better refactoring.
+	 */
 	public List<Map> convertSitesToMaps(HttpServletRequest req, List mySites,
 			String prefix, String currentSiteId, String myWorkspaceSiteId,
 			boolean includeSummary, boolean expandSite, boolean resetTools,
@@ -141,14 +144,10 @@ public interface PortalSiteHelper
 
 	public SitePage lookupAliasToPage(String alias, Site site);
 
-	/**
-	 * This is only needed by the hierarchy handler and can go after better refactoring.
-	 * Find an alias for a page.
-	 * @param siteId
-	 * @param page
-	 * @return <code>null</code> if no alias was found, otherwise the short alias for the page.
-	 */
-	public String lookupPageToAlias(String siteId, SitePage page);
+	public String lookupPageToAlias(String siteid, SitePage page);
+	
+	public String getSiteAlias(String siteId);
+
 
 	/**
 	 * Check if the site is joinable by the supplied user and the user isn't currently a member
