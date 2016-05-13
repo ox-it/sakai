@@ -48,11 +48,12 @@ public class LoginHandler extends BasePortalHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length == 2) && (parts[1].equals(LoginHandler.URL_FRAGMENT)))
+		if ((parts.length == 2) && (parts[1].equals(URL_FRAGMENT)))
 		{
+			String returnPath = req.getParameter("returnPath");
 			try
 			{
-				portal.doLogin(req, res, session, "", false);
+				portal.doLogin(req, res, session, (returnPath == null)?"":returnPath, false);
 				return END;
 			}
 			catch (Exception ex)
