@@ -166,4 +166,12 @@ public interface PortalSiteHelper
 	 * @throws IdUnusedException If the siteId doesn't exist and there isn't an alias for this.
 	 */
 	Site getSite(String siteId) throws IdUnusedException;
+
+	/**
+	 * Checks whether a site is published
+	 * @param siteId the id of the site
+	 * @return true if the site is published, false otherwise
+	 */
+	public boolean isSitePublished(String siteId);
+
 }
