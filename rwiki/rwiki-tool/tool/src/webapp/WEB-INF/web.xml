@@ -112,23 +112,13 @@
 		</init-param>
 		<init-param>
 			<param-name>headerScriptSource</param-name>
-			<param-value></param-value>
-			<!-- 
-			-->
-			<!-- Uncomment this if you want jsmath
+			<!-- Using jsMath. -->
 			<param-value>/library/jsMath/jsMath.js</param-value>
-			-->
 		</init-param>
 		<init-param>
-			
 			<param-name>footerScript</param-name>
-			<!--
-			-->
-			<param-value> </param-value>
-			<!-- Uncomment this if you want jsmath
+			<!-- Using jsMath. -->
 			<param-value>if (typeof(jsMath) == "undefined" ) { alert("Maths support has been enabled, \nbut I cant find the jsMath javascript library.\n Please check web.xml "); } else { if  (jsMath.Process) { jsMath.Process(); }}</param-value>
-			-->
-			
 		</init-param>
 	
 		<load-on-startup>100</load-on-startup>

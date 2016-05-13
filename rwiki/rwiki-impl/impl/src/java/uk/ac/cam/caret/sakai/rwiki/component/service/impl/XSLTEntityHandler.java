@@ -55,6 +55,7 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -232,7 +233,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 
 		try
 		{
-			String skin = ServerConfigurationService.getString("skin.default"); //$NON-NLS-1$
+			String skin = CSSUtils.adjustCssSkinFolder(null);
 			String skinRepo = ServerConfigurationService.getString("skin.repo"); //$NON-NLS-1$
 			request.setAttribute("sakai.skin.repo", skinRepo); //$NON-NLS-1$
 			request.setAttribute("sakai.skin", skin); //$NON-NLS-1$
