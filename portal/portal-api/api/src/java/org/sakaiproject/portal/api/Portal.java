@@ -48,6 +48,8 @@ public interface Portal
 
 	/** How to route a login request. */
 	enum LoginRoute {
+		/** Two Factor Authentication for the login. */
+		TWOFACTOR,
 		/** Send through the container for the login. */
 		CONTAINER,
 		/** Get Sakai to prompt for a username/password. */
