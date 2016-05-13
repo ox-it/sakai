@@ -901,8 +901,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		return parts;
 	}
 
+	
 	public void doLogin(HttpServletRequest req, HttpServletResponse res, Session session,
 			String returnPath, boolean skipContainer) throws ToolException
+	{
+		doLogin(req, res, session, returnPath, skipContainer?LoginRoute.SAKAI:LoginRoute.CONTAINER);
+	}
+
+	public void doLogin(HttpServletRequest req, HttpServletResponse res, Session session,
+			String returnPath, LoginRoute route) throws ToolException
 	{
 		try
 		{
@@ -934,14 +941,17 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
+ 
+		String context = req.getContextPath() + req.getServletPath() + "/relogin"; 
+		String loginPath = "";
+		if (forceContainer || LoginRoute.CONTAINER.equals(route)) {
+			loginPath = "/relogin";
+		} else if (LoginRoute.SAKAI.equals(route)) {
+			loginPath = "/xlogin";
+		} else {
+			loginPath = "/login";
+        }
 
-		// to skip container auth for this one, forcing things to be handled
-		// internaly, set the "extreme" login path
-
-		String loginPath = (!forceContainer  && skipContainer ? "/xlogin" : "/relogin");
-		
-		String context = req.getContextPath() + req.getServletPath() + loginPath;
-		
 		tool.help(req, res, context, loginPath);
 	}
 
@@ -1226,7 +1236,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// punt
 			if (session.getUserId() == null)
 			{
+				doLogin(req, res, session, URLUtils.getSafePathInfo(req) + "?sakai.site="
+						+ res.encodeURL(siteId), false);
 				doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
+				doLogin(req, res, session, URLUtils.getSafePathInfo(req) + "?sakai.site="
+						+ res.encodeURL(siteId), Portal.LoginRoute.NONE);
 				return null;
 			}
 			return placementId; // cannot resolve placement

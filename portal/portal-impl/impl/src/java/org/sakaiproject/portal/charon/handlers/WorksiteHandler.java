@@ -129,7 +129,7 @@ public class WorksiteHandler extends PageHandler
 			// if not logged in, give them a chance
 			if (session.getUserId() == null)
 			{
-				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
+				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), Portal.LoginRoute.NONE);
 			}
 			else
 			{
