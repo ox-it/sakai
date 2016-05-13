@@ -1389,5 +1389,18 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return SiteService.getInstance().lookupSiteAlias(siteId);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isSitePublished(String siteId) {
+		boolean siteIsPublished = false;
+		try {
+			Site site = SiteService.getSite(siteId);
+			siteIsPublished = site.isPublished();
+		} catch (IdUnusedException e) {
+			// not a site after all
+		}
+		return siteIsPublished;
+	}
 
 }
