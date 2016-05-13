@@ -38,6 +38,7 @@ import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -210,6 +211,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			UIBranchContainer resultRow = UIBranchContainer.make(tofill,"answer-row:",cv.getoptionId().toString());
 			
 			String optionText = cv.getOptionText();
+			UIVerbatim.make(resultRow,"answer-option",optionText);
 			if (cv.getDeleted()) {
 				optionText += messageLocator.getMessage("deleted_option_tag_html");
 			}
@@ -233,6 +235,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			//we use the same number formatter which adds a % to the end of the data, remove that as well.
 			chartTextData.put(cv.getoptionId(), StringUtils.removeStart(optionText, "&nbsp;"));
 			chartValueData.put(cv.getoptionId(), StringUtils.removeEnd(nf.format(percent), "%"));
+
 
 			LOG.debug("result is "+ percent);
 			UIOutput.make(resultRow,"answer-percVotes", nf.format(percent));
