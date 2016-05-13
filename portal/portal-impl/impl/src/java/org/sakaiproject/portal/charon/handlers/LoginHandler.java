@@ -24,6 +24,7 @@ package org.sakaiproject.portal.charon.handlers;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.tool.api.Session;
 
@@ -53,7 +54,7 @@ public class LoginHandler extends BasePortalHandler
 			String returnPath = req.getParameter("returnPath");
 			try
 			{
-				portal.doLogin(req, res, session, (returnPath == null)?"":returnPath, false);
+				portal.doLogin(req, res, session, (returnPath == null)?"":returnPath, Portal.LoginRoute.CONTAINER);
 				return END;
 			}
 			catch (Exception ex)

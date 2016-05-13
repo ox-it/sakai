@@ -358,7 +358,7 @@ public class SiteHandler extends WorksiteHandler
 				ss.setRequest(req);
 				ss.setToolContextPath(toolContextPath);
 				portalService.setStoredState(ss);
-				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
+				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), Portal.LoginRoute.NONE);
 			}
 			else
 			{
