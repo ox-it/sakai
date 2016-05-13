@@ -114,7 +114,21 @@ public class WikiAccessServlet extends HttpServlet
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
 		setSession(req);
-		dispatch(req, res);
+
+		// process any login that might be present
+		basicAuth.doLogin(req);
+
+		// catch the login helper requests
+		String option = req.getPathInfo();
+		String[] parts = option.split("/");
+		if ((parts.length == 2) && ((parts[1].equals("login"))))
+		{
+			doLogin(req, res, null);
+		}
+		else
+		{
+			dispatch(req, res);
+		}
 	}
 	
 	
