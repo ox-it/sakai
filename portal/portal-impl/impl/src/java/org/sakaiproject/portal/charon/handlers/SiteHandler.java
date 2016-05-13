@@ -870,15 +870,14 @@ public class SiteHandler extends WorksiteHandler
 				{
 					tabDisplayLabel = 1;
 				}
+				rcontext.put("tabDisplayLabel", tabDisplayLabel);
+
+				SiteView siteView = portal.getSiteHelper().getSitesView(
+						SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
+				siteView.setPrefix(prefix);
+				siteView.setToolContextPath(null);
+				rcontext.put("tabsSites", siteView.getRenderContextObject());
 			}
-			
-			rcontext.put("tabDisplayLabel", tabDisplayLabel);
-			
-			SiteView siteView = portal.getSiteHelper().getSitesView(
-					SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
-			siteView.setPrefix(prefix);
-			siteView.setToolContextPath(null);
-			rcontext.put("tabsSites", siteView.getRenderContextObject());
 
 			String cssClass = (siteType != null) ? "siteNavWrap " + siteType
 					: "siteNavWrap";
