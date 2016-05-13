@@ -47,18 +47,26 @@ public class XLoginHandler extends BasePortalHandler
 	public int doPost(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		return doGet(parts, req, res, session);
+		return handleLogin(parts, req, res, session, false);
 	}
-
+	
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-		if ((parts.length == 2) && ((parts[1].equals(XLoginHandler.URL_FRAGMENT))))
+		return handleLogin(parts, req, res, session, true);
+	}
+
+	protected int handleLogin(String[] parts, HttpServletRequest req,
+			HttpServletResponse res, Session session, boolean requirePath)
+			throws PortalHandlerException {
+		
+		if ((parts.length == 2) && ((parts[1].equals(URL_FRAGMENT))))
 		{
+			String returnPath = req.getParameter("returnPath");
 			try
 			{
-				portal.doLogin(req, res, session, null, true);
+				portal.doLogin(req, res, session, (returnPath==null && requirePath)?"":returnPath, true);
 				return END;
 			}
 			catch (Exception ex)
