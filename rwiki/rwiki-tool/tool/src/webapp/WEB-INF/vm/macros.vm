@@ -17,6 +17,8 @@
   	#if (${request.getAttribute("headerScriptSource")}) 
   		<script  type="text/javascript" src="${request.getAttribute("headerScriptSource")}"> <!-- don't reduce this! --></script>
   	#end
+  	<!-- Note: the snippet above adds jsMath, this hides the 'no local fonts' warning message. -->
+  	<STYLE> #jsMath_Warning {display: none} </STYLE>
 <script type="text/javascript" >
 var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toString().replace('-','x')}";
 </script>  
