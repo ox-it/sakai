@@ -17,8 +17,10 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.PortalHandlerException;
+import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 
 public class RoleSwitchHandler extends BasePortalHandler
@@ -99,7 +101,10 @@ public class RoleSwitchHandler extends BasePortalHandler
 
 			try
 			{
-				String siteUrl = req.getContextPath() + "/site/" + parts[2] + "/";
+				ThreadLocalManager.set("sakai:portal:hierarchy", Boolean.TRUE);
+
+				String siteUrl = req.getContextPath() + "/hierarchy/"
+						+ portal.getSiteHelper().getSiteEffectiveId(activeSite);
 				String queryString = req.getQueryString();
 				if (StringUtils.isNotBlank(queryString))
 				{
