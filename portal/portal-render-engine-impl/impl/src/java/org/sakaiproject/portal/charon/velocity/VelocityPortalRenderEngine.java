@@ -236,6 +236,9 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		{
 			vengine.getTemplate("/vm/" + skin + "/macros.vm");
 		}
+		// Allows debugging
+		vc.put("context", vc);
+		
 		vengine.mergeTemplate("/vm/" + skin + "/" + template + ".vm",
 				((VelocityPortalRenderContext) rcontext).getVelocityContext(), out);
 

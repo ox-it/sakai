@@ -21,6 +21,7 @@
 
 package org.sakaiproject.portal.api;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +31,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.SiteView.View;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 
@@ -95,7 +97,12 @@ public interface PortalSiteHelper
                         SitePage page, String toolContextPath, String portalPrefix, boolean doPages,
                         boolean resetTools, boolean includeSummary);
 
-	Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
+	Map<String, Object> pageToMap(HttpServletRequest req, Site site, boolean includeSummary, SitePage p,
+										 List<ToolConfiguration> pTools, ToolConfiguration firstTool, String source,
+										 boolean current, String pagerefUrl);
+
+
+		Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
 			String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
 			boolean expandSite, boolean resetTools, boolean doPages,
 			String toolContextPath, boolean loggedIn);
@@ -123,7 +130,19 @@ public interface PortalSiteHelper
 	 */
 	SiteView getSitesView(View view, HttpServletRequest req, Session session, String siteId);
 
+	public List getPermittedPagesInOrder(Site site);
+
+	public String getSiteEffectiveId(Site site);
+	
+	public List<Map> convertSitesToMaps(HttpServletRequest req, List mySites,
+			String prefix, String currentSiteId, String myWorkspaceSiteId,
+			boolean includeSummary, boolean expandSite, boolean resetTools,
+			boolean doPages, String toolContextPath, boolean loggedIn);
+
+	public SitePage lookupAliasToPage(String alias, Site site);
+
 	/**
+	 * This is only needed by the hierarchy handler and can go after better refactoring.
 	 * Find an alias for a page.
 	 * @param siteId
 	 * @param page

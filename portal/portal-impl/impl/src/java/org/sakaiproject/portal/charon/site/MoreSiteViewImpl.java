@@ -364,8 +364,16 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		SitePanesArrangement sitesByPane = arrangeSitesIntoPanes(tabsMoreTerms);
 		renderContextMap.put("tabsMoreTermsLeftPane", sitesByPane.sitesInLeftPane);
 		renderContextMap.put("tabsMoreTermsRightPane", sitesByPane.sitesInRightPane);
-
 		renderContextMap.put("tabsMoreSortedTermList", tabsMoreSortedTermList);
+
+		if (myWorkspaceSite != null)
+		{
+			renderContextMap.put("myWorksite", siteHelper.convertSiteToMap(request,
+					myWorkspaceSite, prefix, currentSiteId, myWorkspaceSiteId, false,
+					false, "true".equals(serverConfigurationService
+							.getString(Portal.CONFIG_AUTO_RESET)), false, null,
+					loggedIn));
+		}
 
 	}
 
