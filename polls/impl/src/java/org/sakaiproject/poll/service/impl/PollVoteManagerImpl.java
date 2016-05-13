@@ -166,7 +166,7 @@ public class PollVoteManagerImpl implements PollVoteManager {
 		if (poll == null) {
 			throw new IllegalArgumentException("Invalid poll id ("+pollId+") when checking user can vote");
 		}
-		if (externalLogic.isUserAdmin(userId)) {
+		if (poll.getIsPublic() || externalLogic.isUserAdmin(userId)) {
 			allowed = true;
 		} else {
 			String siteRef = "/site/" + poll.getSiteId();

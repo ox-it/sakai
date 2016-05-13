@@ -270,25 +270,22 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     }
 
     public Poll getPollById(Long pollId, boolean includeOptions) throws SecurityException {
-    	
-    	
-    	Search search = new Search();
+        Search search = new Search();
         search.addRestriction(new Restriction("pollId", pollId));
         Poll poll = dao.findOneBySearch(Poll.class, search);
-        if (poll != null) {
-            if (includeOptions) {
-                List<Option> optionList = getOptionsForPoll(poll);
-                poll.setOptions(optionList);
-            }
-        }
-        
-         if (poll == null)
-        	 return null;
-      //user needs at least site visit to read a poll
-    	if (!externalLogic.isAllowedInLocation("site.visit", externalLogic.getSiteRefFromId(poll.getSiteId()), externalLogic.getCurrentuserReference()) && !externalLogic.isUserAdmin()) {
-    		throw new SecurityException("user:" + externalLogic.getCurrentuserReference() + " can't read poll " + pollId);
-    	}
-        
+        if (poll == null)
+            return null;
+
+        if (includeOptions)
+            poll.setOptions(getOptionsForPoll(poll));
+
+        //user needs at least site visit to read a private poll
+        String pollSite = externalLogic.getSiteRefFromId(poll.getSiteId());
+        boolean canVisitSite = externalLogic.isAllowedInLocation("site.visit", pollSite, externalLogic.getCurrentuserReference());
+        boolean userAdmin = externalLogic.isUserAdmin();
+        if (!poll.getIsPublic() && !canVisitSite && !userAdmin)
+            throw new SecurityException("user:" + externalLogic.getCurrentuserReference() + " can't read poll " + pollId);
+
         return poll;
     }
 
