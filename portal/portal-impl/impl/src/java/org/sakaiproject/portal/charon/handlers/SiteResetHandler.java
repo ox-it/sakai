@@ -24,6 +24,7 @@ package org.sakaiproject.portal.charon.handlers;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.Validator;
@@ -61,6 +62,9 @@ public class SiteResetHandler extends BasePortalHandler
 				{
 					siteUrl = siteUrl + "?" + queryString;
 				}
+				// Forget about the last page.
+				String siteId = parts[2];
+				session.removeAttribute(Portal.ATTR_SITE_PAGE + siteId);
 				portalService.setResetState("true");
 				res.sendRedirect(siteUrl);
 				return RESET_DONE;
