@@ -184,9 +184,8 @@ public class ToolUtils
 		if ( pageAlias == null ) pageAlias = page.getId();
 
 		// The normal URL
-		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
-				+ Web.escapeUrl(effectiveSiteId) + "/page/");
-		pageUrl = pageUrl + Web.escapeUrl(pageAlias);
+
+		String pageUrl = Web.returnUrl(req, join("/", portalPrefix, Web.escapeUrl(effectiveSiteId), "page", Web.escapeUrl(pageAlias)));
 
 		List<ToolConfiguration> pTools = page.getTools();
 		Iterator<ToolConfiguration> toolz = pTools.iterator();
@@ -302,6 +301,35 @@ public class ToolUtils
 		if (toolProps == null) return false;
 		String portletContext = toolProps.getProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH);
 		return (portletContext != null);
+	}
+
+	/**
+	 * This builds a URL ready to be encoded but prevents double slashes from getting encoded into
+	 * final URL. We have a problem with building URLs because we have empty site IDs and site IDs
+	 * with slashes in them (in the hierarchy world).
+	 * @param join The string to join the parts with.
+	 * @param parts The parts of the URL to be joined together.
+	 * @return The build string.
+	 */
+	public static String join (String join, String... parts) {
+		StringBuilder build = new StringBuilder();
+		for (String part: parts) {
+			if (part.length() == 0) {
+				continue;
+			}
+			boolean trailing = build.length() > join.length() &&
+					build.substring(build.length()-join.length()).equals(join);
+			boolean starting = part.startsWith(join);
+			if (!(trailing)) {
+				build.append(join);
+			}
+			if (starting) {
+				build.append(part.substring(join.length()));
+			} else {
+				build.append(part);
+			}
+		}
+		return build.toString();
 	}
 
 	/**

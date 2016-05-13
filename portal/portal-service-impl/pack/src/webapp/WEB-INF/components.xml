@@ -19,7 +19,7 @@
        <property name="activeToolManager" ><ref bean="org.sakaiproject.tool.api.ActiveToolManager" /></property>
     </bean>
     
-    <bean id="org.sakaiproject.portal.api.SiteNeighbourhoodService"
+    <bean id="org.sakaiproject.portal.service.SiteNeighbourhoodServiceImpl"
           class="org.sakaiproject.portal.service.SiteNeighbourhoodServiceImpl"
           init-method="init"
           destroy-method="destroy" >

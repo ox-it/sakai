@@ -31,7 +31,6 @@ import org.sakaiproject.tool.api.Session;
 /**
  * The SiteNeighbourhoodService provides a list of sites in the neighbourhood of the current context.
  * This might be all sites, or it might be just the children, siblings and drect parents of a site.
- * It is returned as a flat list.
  * @author ieb
  *
  */
