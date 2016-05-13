@@ -211,7 +211,6 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			UIBranchContainer resultRow = UIBranchContainer.make(tofill,"answer-row:",cv.getoptionId().toString());
 			
 			String optionText = cv.getOptionText();
-			UIVerbatim.make(resultRow,"answer-option",optionText);
 			if (cv.getDeleted()) {
 				optionText += messageLocator.getMessage("deleted_option_tag_html");
 			}
