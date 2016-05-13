@@ -884,6 +884,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	 */
 	public Site getMyWorkspace(Session session)
 	{
+		String userId = session.getUserId();
+		if (userId == null)
+		{
+			return null;
+		}
 		String siteId = SiteService.getUserSiteId(session.getUserId());
 
 		// Make sure we can visit
