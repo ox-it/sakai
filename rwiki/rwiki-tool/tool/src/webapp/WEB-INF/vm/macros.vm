@@ -19,6 +19,7 @@
   	#end
   	<!-- Note: the snippet above adds jsMath, this hides the 'no local fonts' warning message. -->
   	<STYLE> #jsMath_Warning {display: none} </STYLE>
+  	<STYLE> #jsMath_PrintWarning {display: none} </STYLE>
 <script type="text/javascript" >
 var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toString().replace('-','x')}";
 </script>  
