@@ -305,8 +305,7 @@ public class WikiAccessServlet extends HttpServlet
 		if (path != null)
 		{
 			// where to go after
-			String returnPath  = Web.returnUrl(req, Validator.escapeUrl(path));
-			session.setAttribute(Tool.HELPER_DONE_URL, returnPath );
+			session.setAttribute(Tool.HELPER_DONE_URL, makeReturnURL(path, req));
 		}
 
 		// check that we have a return path set; might have been done earlier
@@ -319,6 +318,23 @@ public class WikiAccessServlet extends HttpServlet
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
 		String context = req.getContextPath() + req.getServletPath() + "/login";
 		tool.help(req, res, context, "/login");
+	}
+
+	/**
+	 * Creates a URL to return to once login is complete, taken from AccessServlet
+	 * @param path  the path to the content being accessed
+	 * @param req   the current servlet request
+	 * @return      the URL to return to, <code>null</code> if not available
+	 */
+	protected String makeReturnURL(String path, HttpServletRequest req) {
+		String returnUrl = null;
+		if (path != null && req != null) {
+			returnUrl = Web.returnUrl(req, Validator.escapeUrl(path));
+			if (req.getQueryString() != null) {
+				returnUrl += "?" + req.getQueryString();
+			}
+		}
+		return returnUrl;
 	}
 
 	protected void sendError(HttpServletResponse res, int code)
