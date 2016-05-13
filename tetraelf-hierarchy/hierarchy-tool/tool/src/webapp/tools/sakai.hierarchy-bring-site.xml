@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.hierarchy-bring-site"
+			title="Bring Site"
+		description="Bring a site.">
+			
+		<category name="hierarchy" />
+		<configuration name="functions.require" value="portal.hierarchy.modify"/>
+		
+
+	</tool>
+
+</registration>
