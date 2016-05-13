@@ -597,6 +597,26 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String PROP_USE_RELEASE_DATE = "useReleaseDate";
 	protected static final String PROP_USE_RETRACT_DATE = "useRetractDate";
 
+	/** Property for the course name. [String] */
+	static final String PROP_COURSE_NAME = "DAV:coursename";
+
+	/** Property for the department name. [String] */
+	static final String PROP_DEPARTMENT = "DAV:department";
+
+	/** Property for the core / optional paper. [String] */
+	static final String PROP_CORE_OPTIONAL_PAPER = "DAV:paper";
+
+	/** Property for the academic year. [String] */
+	static final String PROP_ACADEMIC_YEAR = "DAV:academicyear";
+
+	/** Property for the term. [String] */
+	static final String PROP_TERM = "DAV:term";
+
+	/** Property for the managing library. [String] */
+	static final String PROP_MANAGING_LIBRARY = "CITATIONS:managinglibrary";
+
+	public static final String MANAGING_LIBRARIES_JSON = "/group/citationsAdmin/managingLibraries/managingLibraries.json";
+
 	public static final String CITATION_ACTION = "citation_action";
 	public static final String UPDATE_RESOURCE = "update_resource";
 	public static final String ADD_SECTION = "add_section";
@@ -1130,185 +1150,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			state.setAttribute(STATE_CITATION_COLLECTION, null);
 		} catch (SakaiException e) {
 			logger.warn("SakaiException in updateIntroduction() for resource UUID: " + resourceUuid, e);
-		}
-		if(message != null && ! message.trim().equals("")) {
-			results.put("message", message);
-		}
-		return results;
-	}
-
-	protected Map<String, Object> updateIntroduction(ParameterParser params, SessionState state) {
-		Map<String, Object> results = new HashMap<String, Object>();
-		String message = null;
-		String resourceUuid = params.getString("resourceUuid");
-		try {
-			String resourceId = this.getContentService().resolveUuid(resourceUuid);
-			String introduction = params.get("addSectionHTML");
-			introduction = getFormattedText().processFormattedText(introduction, new StringBuilder(), true, true);
-			introduction = introduction.replaceAll("'", "&apos;");
-			getContentService().addProperty(resourceId, CitationService.PROP_INTRODUCTION, introduction);
-			message = rb.getString("resource.updated");
-			state.setAttribute(STATE_CITATION_COLLECTION, null);
-		} catch (SakaiException e) {
-			logger.warn("SakaiException in updateIntroduction() for resource UUID: " + resourceUuid, e);
-		}
-		if(message != null && ! message.trim().equals("")) {
-			results.put("message", message);
-		}
-		return results;
-	}
-
-	protected Map<String, Object> removeSection(ParameterParser params, SessionState state) {
-		String message;
-		Map<String, Object> results = new HashMap<String, Object>();
-		try {
-			int locationId = params.getInt("locationId");
-			CitationCollection collection = getCitationCollection(state, false);
-			getCitationService().removeLocation(collection.getId(), locationId);
-			message = rb.getString("resource.updated");
-			results.put("sectionToRemove", "#sectionInlineEditor" + locationId);
-		}
-		catch (Exception e){
-			message = e.getMessage();
-			logger.warn("Exception in removeSection() " + e);
-		}
-		if(message != null && ! message.trim().equals("")) {
-			results.put("message", message);
-		}
-		return results;
-	}
-
-	protected Map<String, Object> addSection(ParameterParser params, SessionState state) {
-		String message;
-		Map<String, Object> results = new HashMap<String, Object>();
-		try {
-			int locationId = params.getInt("locationId");
-			CitationCollectionOrder.SectionType sectionType = CitationCollectionOrder.SectionType.valueOf(params.getString("sectionType"));
-			CitationCollection collection = getCitationCollection(state, false);
-
-			CitationCollectionOrder citationCollectionOrder = new CitationCollectionOrder(collection.getId(), locationId, sectionType, rb.getString("nested.section.title.text"));
-			getCitationService().saveSection(citationCollectionOrder);
-			message = rb.getString("resource.updated");
-		}
-		catch (Exception e){
-			message = e.getMessage();
-			logger.warn("Exception in addSection() " + e);
-		}
-		if(message != null && ! message.trim().equals("")) {
-			results.put("message", message);
-		}
-		return results;
-	}
-
-	protected Map<String, Object> addSubSection(ParameterParser params, SessionState state) {
-		String message;
-		Map<String, Object> results = new HashMap<String, Object>();
-
-		try {
-			int locationId = params.getInt("locationId");
-			String addSectionHTML = params.getString("addSectionHTML");
-			CitationCollectionOrder.SectionType sectionType = CitationCollectionOrder.SectionType.valueOf(params.getString("sectionType"));
-			CitationCollection collection = getCitationCollection(state, false);
-
-			CitationCollectionOrder citationCollectionOrder = new CitationCollectionOrder(collection.getId(), locationId, sectionType, addSectionHTML);
-			getCitationService().saveSubsection(citationCollectionOrder);
-			message = rb.getString("resource.updated");
-		}
-		catch (Exception e){
-			message = e.getMessage();
-			logger.warn("Exception in addSubSection() " + e);
-		}
-
-		if(message != null && ! message.trim().equals("")) {
-			results.put("message", message);
-		}
-		return results;
-	}
-
-	protected Map<String, Object> dragAndDrop(ParameterParser params, SessionState state) {
-
-		String message = null;
-		Map<String, Object> results = new HashMap<String, Object>();
-		ObjectMapper mapper = new ObjectMapper();
-		List<CitationCollectionOrder> citationCollectionOrders;
-
-		try {
-			String citationCollectionId = params.getString("citationCollectionId");
-			String nestedCitations = params.getString("data");
-			if (nestedCitations!=null){
-
-				// Java has a bug where it throws a stackoverflow error when pattern matching very long strings
-				// http://bugs.java.com/view_bug.do?bug_id=5050507
-				// For very big lists, we just split the string
-				if (nestedCitations.length()>20000){
-					String[] parts = nestedCitations.split("\"sectiontype\"");
-					nestedCitations = "";
-					for (String part : parts) {
-						part = part.replaceAll("\\s+(?=([^\"]*\"[^\"]*\")*[^\"]*$)", "") + "\"sectiontype\"";  // replace whitespace (except between quotation marks) so can strip extra JSON arrays //  (it would be much better just to find a way of parsing the JSON without this string manipulation)
-						nestedCitations = nestedCitations + part;
-					}
-				}
-				else {
-					nestedCitations = nestedCitations.replaceAll("\\s+(?=([^\"]*\"[^\"]*\")*[^\"]*$)", "");
-				}
-
-				nestedCitations = nestedCitations.replaceAll("\'", "&apos;"); // escape single quotes so they can be used in attributes
-
-				// remove extra parentheses in json
-				// needed because of the extra ol's for accordion effect
-				nestedCitations = nestedCitations
-						.replaceAll(",\"children\":\\[\\[\\]\\]", "")
-						.replaceAll(",\"children\":\\[\\[\\],\\[\\]\\]", "")
-						.replaceAll(",\\{\"children\":\\[\\[\\]\\]\\}", "")
-						.replaceAll(",\"children\":\\[\\[\\],", ",\"children\":[")
-						.replaceAll(",\"children\":\\[\\[", ",\"children\":[")
-						.replaceAll(",\\{\"children\":\\[\\[", ",{\"children\":[")
-						.replaceAll("\\{\"children\":\\[\\[", "{\"children\":[")
-						.replaceAll("\\}\\],\\[\\{\"section", "},{\"section")
-						.replaceAll("\\}\\]\\]", "}]")
-						.replaceAll("\\}\\],\\[\\]\\]", "}]")
-						.replaceAll("\\}\\],\\[\\{", "},{");
-
-				citationCollectionOrders = mapper.readValue(nestedCitations,
-						TypeFactory.collectionType(List.class, CitationCollectionOrder.class));
-				if (getCitationValidator().isValid(citationCollectionOrders)){
-					getCitationService().save(citationCollectionOrders, citationCollectionId);
-					message = rb.getString("resource.updated");
-					state.setAttribute(STATE_CITATION_COLLECTION, null);
-				}
-				else {
-					message = rb.getString("invalid nested collection") + "for collection id " + citationCollectionId;
-				}
-			}
-		}
-		catch (Exception e){
-			message = e.getMessage();
-			logger.warn("Exception in dragandDrop() " + e);
-		}
-		if(message != null && ! message.trim().equals("")) {
-			results.put("message", message);
-		}
-		return results;
-	}
-
-	protected Map<String, Object> updateSection(ParameterParser params, SessionState state) {
-		String message;
-		Map<String, Object> results = new HashMap<String, Object>();
-		try {
-			String addSectionHTML = params.getString("addSectionHTML");
-			int locationId = params.getInt("locationId");
-			String cleanAddSectionHTML = getFormattedText().processFormattedText(addSectionHTML, new StringBuilder(), true, true);
-			cleanAddSectionHTML = cleanAddSectionHTML.replaceAll("'", "&apos;"); // escape single quotes so they can be used in attributes
-
-			CitationCollectionOrder.SectionType sectionType = CitationCollectionOrder.SectionType.valueOf(params.getString("sectionType"));
-			CitationCollection collection = getCitationCollection(state, false);
-			CitationCollectionOrder citationCollectionOrder = new CitationCollectionOrder(collection.getId(), locationId, sectionType, cleanAddSectionHTML);
-			getCitationService().updateSection(citationCollectionOrder);
-			message = rb.getString("resource.updated");
-		}
-		catch (Exception e){
-			message = e.getMessage();
-			logger.warn("Exception in updateSection() " + e);
 		}
 		if(message != null && ! message.trim().equals("")) {
 			results.put("message", message);

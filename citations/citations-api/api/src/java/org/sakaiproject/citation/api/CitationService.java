@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.osid.repository.Asset;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 
 import org.sakaiproject.citation.api.Citation;
