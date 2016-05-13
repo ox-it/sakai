@@ -1,5 +1,9 @@
 <div id="loginLinksImage" class="Mrphs-loginUser" role="menu" tabindex="999">
 
+    #if (${loginHasTwoFactor})
+        <span id="hasTwoFactor" title="${rloader.has_two_factor}"></span>
+    #end
+
     #if (${loginHasImage1})
 
         <p role="menuitem" class="Mrphs-loginUser__menuitem">
