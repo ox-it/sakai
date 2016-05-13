@@ -25,6 +25,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -227,6 +229,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private boolean sakaiTutorialEnabled = true;
 	
 	private String handlerPrefix;
+
+	private List<Map>relatedLinks;
 
 	private PageFilter pageFilter = new PageFilter() {
 
@@ -1795,6 +1799,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String image2 = null;
 			String logoutWarningMessage = "";
 
+			// The related links
+			List relatedLinks = null;
+
 			// for showing user display name and id next to logout (SAK-10492)
 			String loginUserDispName = null;
 			String loginUserDispId = null;
@@ -1882,9 +1889,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 				// since we are doing logout, cancel top.login
 				topLogin = false;
-				
+
 				logoutWarningMessage = ServerConfigurationService.getBoolean("portal.logout.confirmation",false)?rloader.getString("sit_logout_warn"):"";
+				relatedLinks = this.relatedLinks;
 			}
+
 			rcontext.put("userIsLoggedIn", session.getUserId() != null);
 			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("logoutWarningMessage", logoutWarningMessage);
@@ -1945,6 +1954,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("loginUserDispId", loginUserDispId);
 			}
 			rcontext.put("displayUserloginInfo", displayUserloginInfo && loginUserDispId != null);
+			rcontext.put("relatedLinks", relatedLinks);
 		}
 	}
 
@@ -2002,6 +2012,51 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		gatewaySiteUrl = ServerConfigurationService.getString("gatewaySiteUrl", null);
 		
 		sakaiTutorialEnabled = ServerConfigurationService.getBoolean("portal.use.tutorial", true);
+
+		// Load the related links.
+		List<String> linkUrls = Arrays.asList(emptyNotNull(ServerConfigurationService.getStrings("related.link.url")));
+		List<String> linkTitles = Arrays.asList(emptyNotNull(ServerConfigurationService.getStrings("related.link.title")));
+		List<String> linkNames = Arrays.asList(emptyNotNull(ServerConfigurationService.getStrings("related.link.name")));
+		
+		List<Map> relatedLinks = new ArrayList<Map>(linkUrls.size());
+		for (int i = 0; i < linkUrls.size(); i++)
+		{
+			String url = linkUrls.get(i);
+			String title = linkTitles.get(i);
+			String name = linkNames.get(i);
+			if (url != null)
+			{
+				Map<String,String> linkDetails = new HashMap<String,String>();
+				linkDetails.put("url", url);
+				if (name != null)
+				{
+					linkDetails.put("name", name);
+					if (title != null)
+					{
+						linkDetails.put("title", title);
+					}
+					else
+					{
+						linkDetails.put("title", name);
+					}
+				}
+				else
+				{
+					if (title != null)
+					{
+						linkDetails.put("name", title);
+						linkDetails.put("title", title);
+					}
+					else
+					{
+						linkDetails.put("name", url);
+						linkDetails.put("title", url);
+					}
+				}
+				relatedLinks.add(Collections.unmodifiableMap(linkDetails));
+			}
+		}
+		this.relatedLinks = Collections.unmodifiableList(relatedLinks);
 
 		basicAuth = new BasicAuth();
 		basicAuth.init();
@@ -2168,6 +2223,21 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		StackTraceElement se = e.getStackTrace()[1];
 		M_log.info("Log marker " + se.getMethodName() + ":" + se.getFileName() + ":"
 				+ se.getLineNumber());
+	}
+	
+	/**
+	 * If the passed array is <code>null</code> return an empty array.
+	 */
+	private String[] emptyNotNull(String[] array)
+	{
+		if (array == null)
+		{
+			return new String[0];
+		}
+		else
+		{
+			return array;
+		}
 	}
 
 	/**
