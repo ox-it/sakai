@@ -798,6 +798,7 @@ h6 {
 	border: 1px solid #5B5B5B
 }
 /* special formatting of a wiki table */
+.listHier { width:auto !important; }
 .wiki-table { empty-cells: show; width: 100%; max-width: 100% }
 .wiki-table td {
 	border-top: 1px solid #5b5b5b;
