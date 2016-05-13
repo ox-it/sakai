@@ -13,6 +13,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.sitemanage.api.PasswordGenerator;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 
@@ -59,13 +60,18 @@ public class FormHandler {
 	public void setSecurityService(SecurityService ss) {
 		securityService = ss;
 	}
+	
 
 	private ValidationLogic validationLogic;	
 	public void setValidationLogic(ValidationLogic validationLogic) {
 		this.validationLogic = validationLogic;
 	}
-
-
+	
+	private PasswordGenerator passwordGenerator;
+	public void setPasswordGenerator(PasswordGenerator passwordGenerator) {
+	    this.passwordGenerator = passwordGenerator;
+	}
+	
 	private static Log m_log  = LogFactory.getLog(FormHandler.class);
 
 	public String processAction() {
@@ -198,10 +204,6 @@ public class FormHandler {
 
 	//borrowed from siteaction
 	private String getRandPass() {
-		// set password to a random positive number
-		Random generator = new Random(System.currentTimeMillis());
-		Integer num = Integer.valueOf(generator.nextInt(Integer.MAX_VALUE));
-		if (num.intValue() < 0) num = Integer.valueOf(num.intValue() *-1);
-		return num.toString();
+		return passwordGenerator.generate();
 	}
 }
