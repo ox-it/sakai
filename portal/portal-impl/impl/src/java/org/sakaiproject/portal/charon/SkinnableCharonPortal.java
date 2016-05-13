@@ -993,6 +993,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		skin = getSkin(skin);
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
+		String localCSS = ServerConfigurationService.getString("local.css", null);
 
 		rcontext.put("pageSkinRepo", skinRepo);
 		rcontext.put("pageSkin", skin);
@@ -1029,6 +1030,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("googleTagManagerContainerId", googleTagManagerContainerId);
 		}
 
+		rcontext.put("localCSS", localCSS);
+		
 		Session s = SessionManager.getCurrentSession();
 		rcontext.put("loggedIn", Boolean.valueOf(s.getUserId() != null));
 		rcontext.put("userId", s.getUserId());
