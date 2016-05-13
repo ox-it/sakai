@@ -1,6 +1,10 @@
 ## Header that shows institution and/or banner logos
 
 <header role="banner" class="Mrphs-headerLogo">
-    <span class="Mrphs-headerLogo--institution"></span>
-    <span class="Mrphs-headerLogo--banner"></span>
+    #if(${logoLink})<a href="${logoLink}">#end
+    <span class="Mrphs-headerLogo--institution" #if(${logoTitle})title="${logoTitle}"#end></span>
+    #if(${logoLink})</a>#end
+    #if (${bannerLink})<a href="${bannerLink}">#end
+    <span class="Mrphs-headerLogo--banner" #if(${bannerTitle})title="${bannerTitle}"#end></span>
+    #if (${bannerLink})</a>#end
 </header>
