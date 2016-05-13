@@ -354,7 +354,7 @@ public class SiteHandler extends WorksiteHandler
 			// if not logged in, give them a chance
 			if (userId == null)
 			{
-				StoredState ss = portalService.newStoredState("directtool", "tool");
+				StoredState ss = portalService.newStoredState("directtool", "hierarchytool");
 				ss.setRequest(req);
 				ss.setToolContextPath(toolContextPath);
 				portalService.setStoredState(ss);
