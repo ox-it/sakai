@@ -41,7 +41,7 @@ $(document).ready(function() {
 		    		//$("#dialog-mox-url").attr("href", data); //need it to be linked? if so, change to an <a> tag and uncomment this
 		    		
 		    		//also set img tag for QR code
-		    		var imgUrl = "http://chart.apis.google.com/chart?chs=250x250&cht=qr&chl=" + data;
+		    		var imgUrl = "https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=" + data;
 		    		$('#dialog-qr-code').attr("src", imgUrl);
 		    		
 		    		//and show the dialog
