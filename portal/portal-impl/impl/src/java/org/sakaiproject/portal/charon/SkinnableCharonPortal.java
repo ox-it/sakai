@@ -1549,7 +1549,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		StringBuilder portalPageUrl = new StringBuilder();
 		
 		portalPageUrl.append("/site/");
-		portalPageUrl.append(p.getSiteId());
+		portalPageUrl.append(getSiteHelper().getSiteAlias(p.getSiteId()));
 		portalPageUrl.append("/page/");
 		portalPageUrl.append(page);
 
