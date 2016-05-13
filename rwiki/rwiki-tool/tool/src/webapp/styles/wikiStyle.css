@@ -719,12 +719,24 @@ h6 {
 	padding: 2px;
 	margin: 14px 0px 4px 0px
 }
-.heading-1, .heading-h1 { font-size: 150% }
-.heading-h2 { font-size: 140% }
-.heading-1-1, .heading-h3 { font-size: 130% }
-.heading-h4 { font-size: 120% }
-.heading-1-1-1, .heading-h5 { font-size: 110% }
-.heading-h6 { font-size: 105% }
+.heading-1, .heading-h1 { 
+	font-size: 150%;
+	width: auto; }
+.heading-h2 { 
+	font-size: 140%;
+	width: auto; }
+.heading-1-1, .heading-h3 { 
+	font-size: 130%;
+	width: auto; }
+.heading-h4 { 
+	font-size: 120%;
+	width: auto; }
+.heading-1-1-1, .heading-h5 { 
+	font-size: 110%;
+	width: auto; }
+.heading-h6 { 
+	font-size: 105%;
+	width: auto; }
 .quote {
 	font-style: italic;
 	color: inherit;
