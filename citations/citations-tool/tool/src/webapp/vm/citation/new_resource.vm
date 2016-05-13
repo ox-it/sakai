@@ -107,6 +107,18 @@
 			#end
 		#end
 		
+		#if ($externalSearch )
+			<li>
+			  <span class="searchTargetLink">
+				<a name="ExternalSearch" id="ExternalSearch"  title="$tlang.getString("action.external.search")" href="#"/>
+					$tlang.getString("action.external.search")
+				</a>
+				<span class="searchUrl" style="display:none;">$externalSearchUrl</span>
+				<span class="popupTitle" style="display:none;">$tlang.getString("action.external.search")</span>
+				<span class="popupName" style="display:none;">$externalSearchWindowName</span>
+			  </span>
+			</li>
+		#end
 		#if( $searchLibrary )
 		  <li>
 			  <span class="searchTargetLink">

@@ -77,6 +77,19 @@ doubleDeep = true;
 				#end
 			#end
 			
+			#if ($externalSearch )
+			  <tr valign="middle">
+			    <td align="center">
+			      <div class="act">
+				    <input type="button" name="ExternalSearch" id="ExternalSearch"
+				      value="$tlang.getString("action.external.search")"
+				      onclick="var openedWin = openWindow('$externalSearchUrl','_blank','scrollbars=yes,toolbar=yes,resizable=yes,height=610,width=1200'); openedWin.name='$externalSearchWindowName';"/>
+			      </div>
+			    </td>
+			    <td>$tlang.getString("description.external.search")</td>
+			  </tr>
+			#end
+
 			#if( $searchLibrary )
 			  <tr valign="middle">
 			    <td align="center">
