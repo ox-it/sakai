@@ -16,7 +16,7 @@
 		<property name="userDirectoryService"
             ref="org.sakaiproject.user.api.UserDirectoryService"/>
 	</bean>
-	
+
 	<bean
 		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
 		class="org.sakaiproject.poll.tool.entityproviders.PollEntityProvider">
