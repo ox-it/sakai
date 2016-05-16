@@ -1040,6 +1040,8 @@ public class SiteHandler extends WorksiteHandler
 				allowAddSite = true;
 			} else if (SiteService.allowAddProjectSite()) {
 				allowAddSite = true;
+			} else if (SiteService.allowAddManagedSite()) {
+				allowAddSite = true;
 			}
 
 			rcontext.put("allowAddSite",allowAddSite);
