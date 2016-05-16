@@ -2052,6 +2052,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		List<String> linkUrls = Arrays.asList(emptyNotNull(ServerConfigurationService.getStrings("related.link.url")));
 		List<String> linkTitles = Arrays.asList(emptyNotNull(ServerConfigurationService.getStrings("related.link.title")));
 		List<String> linkNames = Arrays.asList(emptyNotNull(ServerConfigurationService.getStrings("related.link.name")));
+		List<String> linkIcons = Arrays.asList(emptyNotNull(ServerConfigurationService.getStrings("related.link.icon")));
 		
 		List<Map> relatedLinks = new ArrayList<Map>(linkUrls.size());
 		for (int i = 0; i < linkUrls.size(); i++)
@@ -2059,6 +2060,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String url = linkUrls.get(i);
 			String title = linkTitles.get(i);
 			String name = linkNames.get(i);
+			String icon = linkIcons.get(i);
 			if (url != null)
 			{
 				Map<String,String> linkDetails = new HashMap<String,String>();
@@ -2088,6 +2090,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 						linkDetails.put("title", url);
 					}
 				}
+				if(icon != null)
+				{
+					linkDetails.put("icon",icon);
+				}
+
 				relatedLinks.add(Collections.unmodifiableMap(linkDetails));
 			}
 		}
