@@ -88,6 +88,8 @@ public abstract class BasePortalHandler implements PortalHandler
 	 */
 	public void deregister(Portal portal)
 	{
+		// The portal is typically in a web-app and we want to allow the portal to get garbage collected so handlers
+		// shouldn't hold onto references to the portal as they may be registered in foreign web-apps.
 		this.portal = null;
 	}
 

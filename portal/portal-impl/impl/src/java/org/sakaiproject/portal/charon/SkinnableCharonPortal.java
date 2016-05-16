@@ -2087,17 +2087,22 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// warning messages will appear, but the end state will be the same.
 		portalService.addPortal(this);
 
+		// We create second instances of these two handlers as they are used internally for error handling
+		// and otherwise if another handler claims the URLs they get de-registered and then the
+		// error handling stops working.
 		worksiteHandler = new WorksiteHandler();
+		worksiteHandler.register(this, portalService, getServletContext());
 		siteHandler = new SiteHandler();
+		siteHandler.register(this, portalService, getServletContext());
 
-		addHandler(siteHandler);
+		addHandler(new SiteHandler());
 		addHandler(new SiteResetHandler());
 
 		addHandler(new ToolHandler());
 		addHandler(new ToolResetHandler());
 		addHandler(new PageResetHandler());
 		addHandler(new PageHandler());
-		addHandler(worksiteHandler);
+		addHandler(new WorksiteHandler());
 		addHandler(new WorksiteResetHandler());
 		addHandler(new RssHandler());
 		addHandler(new AtomHandler());
