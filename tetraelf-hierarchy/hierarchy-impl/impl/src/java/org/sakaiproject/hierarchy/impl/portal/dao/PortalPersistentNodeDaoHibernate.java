@@ -1,16 +1,14 @@
 package org.sakaiproject.hierarchy.impl.portal.dao;
 
 
-import java.util.Date;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.HibernateException;
-import org.hibernate.SQLQuery;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
+import org.hibernate.*;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import java.util.Date;
+import java.util.List;
 
 public class PortalPersistentNodeDaoHibernate extends HibernateDaoSupport implements PortalPersistentNodeDao {
 	
@@ -53,7 +51,7 @@ public class PortalPersistentNodeDaoHibernate extends HibernateDaoSupport implem
 
 	@Override
 	public PortalPersistentNode findById(String id) {
-		return (PortalPersistentNode)getHibernateTemplate().get(PortalPersistentNode.class, id);
+		return getHibernateTemplate().get(PortalPersistentNode.class, id);
 	}
 
 	@Override
@@ -74,13 +72,13 @@ public class PortalPersistentNodeDaoHibernate extends HibernateDaoSupport implem
 	}
 
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<PortalPersistentNode> findBySiteId(String siteId) {
-		return getHibernateTemplate()
-				.find(
-						"from org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNode as node where node.siteId = ?",
-						siteId);
+		return getHibernateTemplate().execute((HibernateCallback<List<PortalPersistentNode>>) session -> {
+			Query query = session.createQuery("from org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNode as node where node.siteId = ?");
+			query.setParameter(0, siteId);
+			return query.list();
+		});
 	}
 
 	@Override
@@ -95,7 +93,7 @@ public class PortalPersistentNodeDaoHibernate extends HibernateDaoSupport implem
 
 	private Object justFirst(List<?> list) {
 		if (list != null && list.size() > 0) {
-			return list.get(0);			
+			return list.get(0);
 		}
 		return null;
 	}

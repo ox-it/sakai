@@ -137,7 +137,7 @@ public class VelocityView extends AbstractTemplateView {
 			String className = toolAttributes.getProperty(attributeName);
 			Class toolClass = null;
 			try {
-				toolClass = ClassUtils.forName(className);
+				toolClass = ClassUtils.forName(className, getClass().getClassLoader());
 			}
 			catch (ClassNotFoundException ex) {
 				throw new IllegalArgumentException(
