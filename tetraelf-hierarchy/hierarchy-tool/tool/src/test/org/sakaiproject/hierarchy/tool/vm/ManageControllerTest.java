@@ -1,18 +1,5 @@
 package org.sakaiproject.hierarchy.tool.vm;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
-import static org.sakaiproject.hierarchy.tool.vm.UnitTestUtilities.assertContains;
-
-import java.io.IOException;
-import java.util.Arrays;
-
-import javax.servlet.ServletException;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,13 +25,21 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.ExpectedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
-import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.servlet.DispatcherServlet;
+
+import javax.servlet.ServletException;
+import java.io.IOException;
+import java.util.Arrays;
+
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
+import static org.sakaiproject.hierarchy.tool.vm.UnitTestUtilities.assertContains;
 
 /**
  * This basically tests that the tool is working correctly without running it in

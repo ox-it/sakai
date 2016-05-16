@@ -83,6 +83,21 @@ public class AdoptedSitePage implements SitePage {
 		return original.getTitleCustom();
 	}
 
+	@Override
+	public boolean isHomePage() {
+		return original.isHomePage();
+	}
+
+	@Override
+	public boolean getHomeToolsTitleCustom(String toolId) {
+		return original.getHomeToolsTitleCustom(toolId);
+	}
+
+	@Override
+	public void setHomeToolsTitleCustom(String toolId) {
+		original.setHomeToolsTitleCustom(toolId);
+	}
+
 	public ToolConfiguration getTool(String id) {
 		ToolConfiguration toolConfig = original.getTool(id);
 		return (toolConfig == null)?null:new AdoptedToolConfiguration(this, toolConfig);

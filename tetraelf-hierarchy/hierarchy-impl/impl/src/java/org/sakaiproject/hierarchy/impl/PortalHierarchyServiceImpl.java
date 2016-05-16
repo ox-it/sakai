@@ -19,7 +19,6 @@ import org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNode;
 import org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNodeDao;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.DerivedCache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -61,20 +60,20 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 	// Cache hold node ID to PortalPersistentNode. This is the main cache for the hierarchy service which is used
 	// whenever any details about a node are looked up. Invalidation is done on events.
-	private Cache idToNodeCache;
+	private Cache<String, PortalPersistentNode> idToNodeCache;
 	// Cache holding path to node ID. Eg /dept/history/year1 to 12345. This is a derived cache from the idToNodeCache
 	// and does it's invalidation using that cache.
-	private Cache pathToIdCache;
+	private Cache<String, String> pathToIdCache;
 	
 	// This cache holds the site ID to default node ID. It has null values when the site isn't in the hierarchy.
 	// Cache invalidation is done when new nodes are created or updates to existing nodes happen. This at the 
 	// moment is done through DB lookups from events.
-	private Cache siteToNodeCache;
+	private Cache<String, String> siteToNodeCache;
 
 
 	// These two caches map node ID to collections of other node IDs. They are invalidated through events.
-	private Cache idChildrenCache;
-	private Cache idParentsCache;
+	private Cache<String, Collection<String>> idChildrenCache;
+	private Cache<String, Collection<String>> idParentsCache;
 
 	/**
 	 * The ID of the portal hierarchy in the hierarchy service. 
@@ -146,8 +145,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 	public PortalNode getNode(String portalPath) {
 		String lookup = (portalPath==null || portalPath.isEmpty())?"/":portalPath;
-		PortalNode portalNode = null;
-		String nodeId = (String) pathToIdCache.get(lookup);
+		PortalNode portalNode;
+		String nodeId = pathToIdCache.get(lookup);
 		if (nodeId != null) {
 			portalNode = getNodeById(nodeId);
 			if(portalNode == null) {
@@ -162,6 +161,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 			if (portalPersistentNode != null) {
 				// This might already be cached.
 				idToNodeCache.put(toRef(portalPersistentNode.getId()), portalPersistentNode);
+				pathToIdCache.put(portalPath, portalPersistentNode.getId());
 				// We don't need to put it in the pathToIdCache as it will get the data through
 				// being a derrived cache.
 			}
@@ -170,7 +170,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		return portalNode;
 	}
 
-	protected PortalNode populatePortalNode(PortalPersistentNode portalPersistentNode) {
+	private PortalNode populatePortalNode(PortalPersistentNode portalPersistentNode) {
 		PortalNodeImpl portalNode = null;
 
 		if (portalPersistentNode != null) {
@@ -221,7 +221,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	}
 
 	public PortalNode getNodeById(String id) {
-		PortalPersistentNode node = (PortalPersistentNode) idToNodeCache.get(toRef(id));
+		PortalPersistentNode node = idToNodeCache.get(toRef(id));
 		if (node == null) {
 			node = dao.findById(id);
 			if (node != null) {
@@ -233,17 +233,17 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 	@SuppressWarnings("unchecked")
 	public List<PortalNode> getNodeChildren(String id) {
-		Collection<String> nodeIds = (Collection<String>) idChildrenCache.get(toRef(id));
+		Collection<String> nodeIds = idChildrenCache.get(toRef(id));
 		if (nodeIds == null) {
 			Set<HierarchyNode> nodes = hierarchyService.getChildNodes(id, true);
-			nodeIds = new ArrayList<String>(nodes.size());
+			nodeIds = new ArrayList<>(nodes.size());
 			for(HierarchyNode node : nodes) {
 				nodeIds.add(node.id);
 			}
 			idChildrenCache.put(toRef(id), Collections.unmodifiableCollection(nodeIds));
 		}
 		
-		List<PortalNode> portalNodes = new ArrayList<PortalNode>(nodeIds.size());
+		List<PortalNode> portalNodes = new ArrayList(nodeIds.size());
 		for (String nodeId : nodeIds) {
 			PortalNode portalNode = getNodeById(nodeId);
 			if (portalNode != null) {
@@ -258,7 +258,7 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		List<String> parentIds = (List<String>) idParentsCache.get(toRef(nodeId));
 		if (parentIds == null) {
 			Set<HierarchyNode> nodes = hierarchyService.getParentNodes(nodeId, false);
-			parentIds = new ArrayList<String>(nodes.size());
+			parentIds = new ArrayList<>(nodes.size());
 
 			for (HierarchyNode node : nodes) {
 				// Find the root.
@@ -288,13 +288,11 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 			idParentsCache.put(toRef(nodeId), parentIds);
 		}
 
-		List<PortalNodeSite> portalNodes = convertParentNodes(parentIds);
-
-		return portalNodes;
+		return convertParentNodes(parentIds);
 	}
 
 	private List<PortalNodeSite> convertParentNodes(List<String> nodeIds) {
-		List<PortalNodeSite> portalNodes = new ArrayList<PortalNodeSite>(nodeIds.size());
+		List<PortalNodeSite> portalNodes = new ArrayList<>(nodeIds.size());
 		for (String nodeId: nodeIds) {
 			PortalNode populatePortalNode = getNodeById(nodeId);
 			// We can only have site nodes as parent nodes, so this check should
@@ -306,8 +304,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		return portalNodes;
 	}
 
-	protected List<PortalNode> populatePortalNodes(List<PortalPersistentNode> nodes) {
-		List<PortalNode> portalNodes = new ArrayList<PortalNode>(nodes.size());
+	private List<PortalNode> populatePortalNodes(List<PortalPersistentNode> nodes) {
+		List<PortalNode> portalNodes = new ArrayList<>(nodes.size());
 		for (PortalPersistentNode node : nodes) {
 			portalNodes.add(populatePortalNode(node));
 		}
@@ -363,9 +361,9 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		return (PortalNodeSite) newNode(parentId, childName, siteId, managementSiteId, null, null, false, false);
 	}
 
-	public PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId, String redirectUrl, String title, boolean appendPath, boolean hidden) throws PermissionException {
+	PortalNode newNode(String parentId, String childName, String siteId, String managementSiteId, String redirectUrl, String title, boolean appendPath, boolean hidden) throws PermissionException {
 
-		if (!( siteId == null ^ redirectUrl == null)) {
+		if ((siteId == null) == (redirectUrl == null)) {
 			throw new IllegalArgumentException("You must specify either a siteId or a redirectUrl");
 		}
 
@@ -475,7 +473,6 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 	private static ThreadLocal<MessageDigest> digest = new ThreadLocal<MessageDigest>();
 	private static Comparator<PortalPersistentNode> oldest = new OldestFirstComparator();
-;
 
 	/**
 	 * Create a hash of the path.
@@ -604,8 +601,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		siteToNodeCache = memoryService.newCache(getClass().getName()+"#siteToNodeCache");
 		
 		// This is to invalidate the portalPath to node ID pathToIdCache.
-		idToNodeCache.attachDerivedCache(new DerivedPathCache(pathToIdCache));
-		
+		//idToNodeCache.attachDerivedCache(new DerivedPathCache(pathToIdCache));
+
 		// This is to invalidate the siteToNodeCache.
 		eventTrackingService.addObserver(new SiteToNodeObserver(siteToNodeCache, dao));
 	}
@@ -774,38 +771,4 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 		}
 	}
 
-	/**
-	 * This updates a Path to ID cache when a cache containing
-	 * PortalPersistantNodes is changed.
-	 */
-	public static class DerivedPathCache implements DerivedCache {
-		// The class is static so it can be tested without containing instance.
-		private Cache pathToIdCache;
-
-		public DerivedPathCache(Cache pathToIdCache) {
-			this.pathToIdCache = pathToIdCache;
-		}
-
-		@Override
-		public void notifyCachePut(Object key, Object payload) {
-			if (payload instanceof PortalPersistentNode) {
-				PortalPersistentNode node = (PortalPersistentNode)payload;
-				pathToIdCache.put(node.getPath(), node.getId());
-			}
-		}
-
-		@Override
-		public void notifyCacheClear() {
-			pathToIdCache.clear();
-		}
-
-		@Override
-		public void notifyCacheRemove(Object key, Object payload) {
-			if (payload instanceof PortalPersistentNode) {
-				PortalPersistentNode node = (PortalPersistentNode)payload;
-				pathToIdCache.remove(node.getPath());
-			}
-		}
-
-	}
 }

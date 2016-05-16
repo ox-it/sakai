@@ -5,8 +5,7 @@
 <beans>
 
 	<bean id="org.sakaiproject.portal.api.SiteNeighbourhoodService"
-		class="org.sakaiproject.portal.impl.HierarchySiteNeighbourhoodService"
-		singleton="true">
+		class="org.sakaiproject.portal.impl.HierarchySiteNeighbourhoodService" >
 		<property name="proxy">
 			<ref bean="org.sakaiproject.portal.service.SiteNeighbourhoodServiceImpl" />
 		</property>
@@ -17,8 +16,7 @@
 	</bean>
 	
 	<bean id="org.sakaiproject.portal.impl.HierarchySiteAliasProvider"
-		class="org.sakaiproject.portal.impl.HierarchySiteAliasProvider"
-		singleton="true">
+		class="org.sakaiproject.portal.impl.HierarchySiteAliasProvider">
 		<property name="portalHierarchyService">
 			<ref bean="org.sakaiproject.hierarchy.api.PortalHierarchyService"/>
 		</property>
