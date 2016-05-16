@@ -159,6 +159,9 @@ public class AliasingSiteAdvisor implements Observer
 	 */
 	private String resolvePageName(Site site, SitePage page, String title)
 	{
+		if (title == null) {
+			return null;
+		}
 		String alias = title.toLowerCase();
 		alias = alias.replaceAll("[^a-z,0-9,_ ]", ""); // Replace everything but good characters
 		alias = alias.replaceAll(" ", "_"); // Translate spaces to underscores

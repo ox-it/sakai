@@ -21,6 +21,7 @@
 
 package org.sakaiproject.portal.api;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +31,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.SiteView.View;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 
@@ -95,7 +97,12 @@ public interface PortalSiteHelper
                         SitePage page, String toolContextPath, String portalPrefix, boolean doPages,
                         boolean resetTools, boolean includeSummary);
 
-	Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
+	Map<String, Object> pageToMap(HttpServletRequest req, Site site, boolean includeSummary, SitePage p,
+										 List<ToolConfiguration> pTools, ToolConfiguration firstTool, String source,
+										 boolean current, String pagerefUrl);
+
+
+		Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
 			String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
 			boolean expandSite, boolean resetTools, boolean doPages,
 			String toolContextPath, boolean loggedIn);
@@ -123,13 +130,24 @@ public interface PortalSiteHelper
 	 */
 	SiteView getSitesView(View view, HttpServletRequest req, Session session, String siteId);
 
+	public List getPermittedPagesInOrder(Site site);
+
+	public String getSiteEffectiveId(Site site);
+	
 	/**
-	 * Find an alias for a page.
-	 * @param siteId
-	 * @param page
-	 * @return <code>null</code> if no alias was found, otherwise the short alias for the page.
+	 * This is only needed by the hierarchy handler and can go after better refactoring.
 	 */
-	public String lookupPageToAlias(String siteId, SitePage page);
+	public List<Map> convertSitesToMaps(HttpServletRequest req, List mySites,
+			String prefix, String currentSiteId, String myWorkspaceSiteId,
+			boolean includeSummary, boolean expandSite, boolean resetTools,
+			boolean doPages, String toolContextPath, boolean loggedIn);
+
+	public SitePage lookupAliasToPage(String alias, Site site);
+
+	public String lookupPageToAlias(String siteid, SitePage page);
+	
+	public String getSiteAlias(String siteId);
+
 
 	/**
 	 * Check if the site is joinable by the supplied user and the user isn't currently a member
@@ -148,4 +166,12 @@ public interface PortalSiteHelper
 	 * @throws IdUnusedException If the siteId doesn't exist and there isn't an alias for this.
 	 */
 	Site getSite(String siteId) throws IdUnusedException;
+
+	/**
+	 * Checks whether a site is published
+	 * @param siteId the id of the site
+	 * @return true if the site is published, false otherwise
+	 */
+	public boolean isSitePublished(String siteId);
+
 }

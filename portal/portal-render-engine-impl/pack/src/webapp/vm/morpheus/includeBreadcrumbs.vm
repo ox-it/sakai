@@ -1,0 +1,28 @@
+<!-- START from includeBreadcrumbs.vm -->
+#if ($parents && $parents.size() > 0)
+<ul id="siteHierarchy">
+    #set ($tabCountBread= 0)
+
+    ## Add each of the parent sites
+    #foreach ( $site in $parents )
+        <li #if(${site.isCurrentSite}) class="selectedTab" #end>
+            #if ($tabCountBread > 0)
+                <span class="breadSeparator">${rloader.bread_separator}</span>
+            #end
+            <a href="${site.siteUrl}" title="${site.shortDescription}"><span>${site.siteTitle}</span></a>
+            #set ($tabCountBread= $tabCountBread + 1)
+        </li>
+    #end
+    ## Now add the current site.
+    #foreach ( $site in $tabsSites.tabsSites )
+        #if (${site.isCurrentSite} && !${site.isMyWorkspace})
+            #if ($tabCountBread > 0)
+                <span class="breadSeparator">${rloader.bread_separator}</span>
+            #end
+            <li class="current-site"><a href="${site.siteUrl}"><span>${site.siteTitle}</span></a></li>
+        #end
+    #end
+</ul>
+#end
+<!-- END from includeBreadcrumbs.vm -->
+

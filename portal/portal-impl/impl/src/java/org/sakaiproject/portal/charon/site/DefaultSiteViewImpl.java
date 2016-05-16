@@ -179,7 +179,7 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		boolean displayActive = serverConfigurationService.getBoolean("portal.always.display.active_sites",false);
 		//If we don't always want to display it anyway, check to see if we need to display it
 		if (!displayActive) {
-				displayActive=Boolean.valueOf(moreSites.size() > 0);
+				displayActive=Boolean.valueOf(moreSites.size() > 0 || session.getUserId() != null);
 		}
 
 		renderContextMap.put("tabsMoreSitesShow", displayActive);

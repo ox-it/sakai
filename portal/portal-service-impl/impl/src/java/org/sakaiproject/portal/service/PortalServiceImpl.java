@@ -387,9 +387,15 @@ public class PortalServiceImpl implements PortalService
 		PortalHandler ph = handlerMap.get(urlFragment);
 		if (ph != null)
 		{
-			handler.deregister(portal);
-			log.warn("Handler Present on  " + urlFragment + " will replace " + ph
-					+ " with " + handler);
+			if (ph.getPriority() > handler.getPriority()) {
+				log.info("Handler on "+ urlFragment + " will not be replaced with "+ handler +
+				" as it's priority is lower.");
+				return;
+			} else {
+				ph.deregister(portal);
+				log.warn("Handler Present on  " + urlFragment + " will replace " + ph
+						+ " with " + handler);
+			}
 		}
 		handler.register(portal, this, portal.getServletContext());
 		handlerMap.put(urlFragment, handler);
@@ -405,8 +411,15 @@ public class PortalServiceImpl implements PortalService
 		if (portal == null)
 		{
 			Map<String, PortalHandler> handlerMap = getHandlerMap(portalContext, true);
-			handlerMap.put(handler.getUrlFragment(), handler);
-			log.debug("Registered handler ("+ handler+ ") for portal ("+portalContext+ ") that doesn't yet exist.");
+			PortalHandler existingHandler = handlerMap.get(handler.getUrlFragment());
+			if (existingHandler != null && existingHandler.getPriority() > handler.getPriority()) {
+				log.debug("Handler on "+ handler.getUrlFragment() + " will not be replaced with "+ handler +
+						" as it's priority is lower.");
+			}
+			else {
+				handlerMap.put(handler.getUrlFragment(), handler);
+				log.debug("Registered handler (" + handler + ") for portal (" + portalContext + ") that doesn't yet exist.");
+			}
 		}
 		else
 		{
