@@ -67,6 +67,8 @@ public abstract class BasePortalHandler implements PortalHandler
 
 	private String urlFragment;
 
+	private int priority = 0;
+
 	protected ServletContext servletContext;
 
 	public abstract int doGet(String[] parts, HttpServletRequest req,
@@ -139,7 +141,23 @@ public abstract class BasePortalHandler implements PortalHandler
 	{
 		this.urlFragment = urlFragment;
 	}
-	
+
+	/**
+	 * @return The priority of this handler.
+	 */
+	@Override
+	public int getPriority()
+	{
+		return priority;
+	}
+
+	/**
+	 * @param priority the priority of this handler.
+	 */
+	public void setPriority(int priority)
+	{
+		this.priority = priority;
+	}
 	/**
 	 * *
 	 * 
