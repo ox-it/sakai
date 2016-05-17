@@ -84,6 +84,7 @@
                 <module>message</module>
                 <module>msgcntr</module>
                 <module>oauth</module>
+                <module>oxford-url-shortener</module>
                 <module>pasystem</module>
                 <module>podcasts</module>
                 <module>polls</module>
