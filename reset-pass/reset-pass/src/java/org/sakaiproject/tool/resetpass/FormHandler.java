@@ -13,7 +13,6 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.sitemanage.api.PasswordGenerator;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 
@@ -65,11 +64,6 @@ public class FormHandler {
 	private ValidationLogic validationLogic;	
 	public void setValidationLogic(ValidationLogic validationLogic) {
 		this.validationLogic = validationLogic;
-	}
-	
-	private PasswordGenerator passwordGenerator;
-	public void setPasswordGenerator(PasswordGenerator passwordGenerator) {
-	    this.passwordGenerator = passwordGenerator;
 	}
 	
 	private static Log m_log  = LogFactory.getLog(FormHandler.class);
@@ -152,8 +146,6 @@ public class FormHandler {
 			securityService.pushAdvisor(sa);
 
 			UserEdit userE = userDirectoryService.editUser(userBean.getUser().getId().trim());
-			String pass = getRandPass();
-			userE.setPassword(pass);
 			userDirectoryService.commitEdit(userE);
 
 			//securityService.popAdvisor(sa);
@@ -168,7 +160,6 @@ public class FormHandler {
 
 			buff.append(messageLocator.getMessage("mailBody1",new Object[]{productionSiteName, serverConfigurationService.getPortalUrl()})+ "\n\n");
 			buff.append(messageLocator.getMessage("mailBody2",new Object[]{userE.getEid()})+ "\n");
-			buff.append(messageLocator.getMessage("mailBody3",new Object[]{pass})+ "\n\n");
 
 			if (serverConfigurationService.getString("mail.support", null) != null )
 				buff.append(messageLocator.getMessage("mailBody4",new Object[]{serverConfigurationService.getString("mail.support")}) + "\n\n");
@@ -202,8 +193,4 @@ public class FormHandler {
 		return "Success";
 	}
 
-	//borrowed from siteaction
-	private String getRandPass() {
-		return passwordGenerator.generate();
-	}
 }
