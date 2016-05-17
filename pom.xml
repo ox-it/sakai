@@ -32,18 +32,18 @@
     </description>
     <url>http://bugs.sakaiproject.org/confluence/display/EVALSYS/Home</url>
     <packaging>pom</packaging>
-    <version>10-SNAPSHOT</version><!--eval.version-->
+    <version>11-SNAPSHOT</version><!--eval.version-->
     <inceptionYear>2005</inceptionYear>
     
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>10-SNAPSHOT</version>
+        <version>11-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
     <properties>
-        <hierarchy.version>10-SNAPSHOT</hierarchy.version>
+        <hierarchy.version>11-SNAPSHOT</hierarchy.version>
         <evalsys.pom.basedir>${project.basedir}</evalsys.pom.basedir>
         <evalsys.project.name>${project.name}</evalsys.project.name>
         <evalsys.project.year>${project.inceptionYear}</evalsys.project.year>
@@ -51,79 +51,81 @@
 
     <profiles>
         <profile>
-            <id>full</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>api</module>
-                <module>impl</module>
-                <module>pack</module>
-                <module>tool</module>
-            </modules>
-        </profile>
-        <profile>
             <id>tool</id>
+            <activation>
+                <property><name>tool</name></property>
+            </activation>
             <modules>
                 <module>tool</module>
             </modules>
         </profile>
         <profile>
             <id>api</id>
+            <activation>
+                <property><name>api</name></property>
+            </activation>
             <modules>
                 <module>api</module>
             </modules>
         </profile>
         <profile>
             <id>ddl</id>
+            <activation>
+                <property><name>ddl</name></property>
+            </activation>
             <modules>
                 <module>impl/src/ddl</module>
             </modules>
         </profile>
         <profile>
-            <id>sakai2.5</id>
-            <modules>
-                <module>api</module>
-                <module>impl</module>
-                <module>pack</module>
-                <module>tool</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>sakai2.6</id>
-            <modules>
-                <module>api</module>
-                <module>impl</module>
-                <module>pack</module>
-                <module>tool</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>sakai2.7</id>
-            <activation>
-                <property><name>sakai2.7</name></property>
-            </activation>
-            <modules>
-                <module>api</module>
-                <module>impl</module>
-                <module>pack</module>
-                <module>tool</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>sakai2.8</id>
-            <activation>
-                <property><name>sakai2.8</name></property>
-            </activation>
-            <modules>
-                <module>api</module>
-                <module>impl</module>
-                <module>pack</module>
-                <module>tool</module>
-            </modules>
-        </profile>
-	    <profile>
           <id>sakai-10</id>
+          <activation>
+            <activeByDefault>false</activeByDefault>
+            <property><name>sakai-10</name></property>
+          </activation>
+            <modules>
+                <module>api</module>
+                <module>impl</module>
+                <module>pack</module>
+                <module>tool</module>
+            </modules>
+          
+          <!-- Spring & Hibernate -->
+          <dependencies>
+            <dependency>
+              <groupId>org.hibernate</groupId>
+              <artifactId>hibernate-core</artifactId>
+            </dependency>
+            <!-- needed by hibernate unit tests -->
+            <dependency>
+              <groupId>org.hibernate</groupId>
+              <artifactId>hibernate-ehcache</artifactId>
+            </dependency>
+            <dependency>
+              <groupId>org.springframework</groupId>
+              <artifactId>spring-core</artifactId>
+            </dependency>
+            <dependency>
+              <groupId>org.springframework</groupId>
+              <artifactId>spring-beans</artifactId>
+            </dependency>
+            <dependency>
+              <groupId>org.springframework</groupId>
+              <artifactId>spring-orm</artifactId>
+            </dependency>
+            <dependency>
+              <groupId>org.springframework</groupId>
+              <artifactId>spring-context</artifactId>
+            </dependency>
+            <dependency>
+              <groupId>org.quartz-scheduler</groupId>
+              <artifactId>quartz</artifactId>
+              <version>${sakai.quartz.version}</version>
+            </dependency>
+          </dependencies>
+        </profile>
+        <profile>
+          <id>sakai-11</id>
           <activation>
             <activeByDefault>true</activeByDefault>
             <property><name>sakai-10</name></property>
@@ -162,7 +164,6 @@
               <groupId>org.springframework</groupId>
               <artifactId>spring-context</artifactId>
             </dependency>
-            <!-- Needed for Quartz -->
             <dependency>
               <groupId>org.quartz-scheduler</groupId>
               <artifactId>quartz</artifactId>
@@ -170,6 +171,7 @@
             </dependency>
           </dependencies>
         </profile>
+
     </profiles>
 
     <!-- handles the management of all related dependencies -->
@@ -204,10 +206,15 @@
                 <version>${hierarchy.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.genericdao</groupId>
                 <artifactId>generic-dao</artifactId>
-                <version>${generic-dao.version}</version>
+                <version>${sakai.genericdao.version}</version>
             </dependency>
+            <dependency>
+              	<groupId>com.mobilvox.ossi.mojo</groupId>
+               	<artifactId>maven-js-plugin</artifactId>
+               	<version>1.3</version>
+        	</dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -216,16 +223,16 @@
         <developer>
             <id>aaronz@vt.edu</id>
             <name>Aaron Zeckoski</name>
-            <email>aaron@caret.cam.ac.uk</email>
-            <url>http://confluence.sakaiproject.org/confluence/display/~aaronz</url>
-            <organization>CARET</organization>
-            <organizationUrl>http://www.caret.cam.ac.uk/</organizationUrl>
+            <email>azeckoski@unicon.net</email>
+            <url>http://tinyurl.com/azprofile</url>
+            <organization>UNICON</organization>
+            <organizationUrl>http://unicon.net/</organizationUrl>
             <roles>
                 <role>Project Manager</role>
                 <role>Architect</role>
                 <role>Developer</role>
             </roles>
-            <timezone>0</timezone>
+            <timezone>-5</timezone>
         </developer>
     </developers>
 
@@ -258,5 +265,67 @@
         </developerConnection>
         <url>https://source.sakaiproject.org/viewsvn/evaluation/?root=contrib</url>
     </scm>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!--plugin>
+                    <groupId>com.mycila.maven-license-plugin</groupId>
+                    <artifactId>maven-license-plugin</artifactId>
+                    <version>1.9.0</version>
+                    <configuration>
+                        <header>${evalsys.pom.basedir}/LICENSE_HEADER</header>
+                        <strictCheck>true</strictCheck>
+                        <failIfMissing>true</failIfMissing>
+                        <properties>
+                            <name>${evalsys.project.name}</name>
+                            <year>${evalsys.project.year}</year>
+                            <holder>Sakai Foundation</holder>
+                        </properties>
+                        <excludes>
+                            <exclude>target/**</exclude>
+                            <exclude>m2-target/**</exclude>
+                            <exclude>bin/**</exclude>
+                            <exclude>src/ddl/**</exclude>
+                            <exclude>.idea/**</exclude>
+                            <exclude>**/*.properties</exclude>
+                            <exclude>**/*.txt</exclude>
+                            <exclude>**/js/facebox/**</exclude>
+                            <exclude>**/js/fluid/**</exclude>
+                            <exclude>**/js/jquery/**</exclude>
+                            <exclude>**/js/ui.*</exclude>
+                            <exclude>**/js/yahoo*</exclude>
+                            <exclude>**/css/jquery/**</exclude>
+                            <exclude>**/css/scss/**</exclude>
+                            <exclude>LICENSE*</exclude>
+                            <exclude>**/README</exclude>
+                            <exclude>.recommenders/**</exclude>
+                        </excludes>
+                        <mapping>
+                            <tag>DYNASCRIPT_STYLE</tag>
+                        </mapping>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>check-headers</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin-->
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <!-- Used to replace the headers of files with proper licenses - http://code.google.com/p/maven-license-plugin - 
+                    Run mvn license:format to fix up licenses on all files in the project -->
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

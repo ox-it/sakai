@@ -6,7 +6,7 @@
     <parent>
         <artifactId>evaluation</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>10-SNAPSHOT</version>
+        <version>11-SNAPSHOT</version>
         <!--eval.version-->
     </parent>
     <name>Sakai Evaluation Impl</name>
@@ -16,197 +16,13 @@
         <name>Sakai Project</name>
         <url>http://www.sakaiproject.org/</url>
     </organization>
-    <inceptionYear>2006</inceptionYear>
     <!-- the logic should be deployed as a jar and included in the pack, not to shared -->
     <packaging>jar</packaging>
+    <properties>
+        <evalsys.pom.basedir>${project.parent.basedir}</evalsys.pom.basedir>
+    </properties>
 
     <profiles>
-        <profile>
-            <id>sakai2.5</id>
-            <dependencies>
-                <!-- Sakai util -->
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-util</artifactId>
-                    <version>${sakai.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-authz-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-component-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-component</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-content-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-email-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-entity-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-site-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-tool-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-user-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-util-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-scheduler-api</artifactId>
-                    <version>${sakai.version}</version>
-                </dependency>
-                <!-- Spring and Hibernate dependencies. -->
-                <dependency>
-                  <groupId>org.springframework</groupId>
-                  <artifactId>spring</artifactId>
-                </dependency>
-                <dependency>
-                  <groupId>org.hibernate</groupId>
-                  <artifactId>hibernate</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>sakai2.6</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.sakaiproject.kernel</groupId>
-                    <artifactId>sakai-kernel-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject.kernel</groupId>
-                    <artifactId>sakai-kernel-util</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject.kernel</groupId>
-                    <artifactId>sakai-component-manager</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject</groupId>
-                    <artifactId>sakai-scheduler-api</artifactId>
-                    <version>${sakai.version}</version>
-                </dependency>
-                <!-- Spring and Hibernate dependencies. -->
-                <dependency>
-                  <groupId>org.springframework</groupId>
-                  <artifactId>spring</artifactId>
-                </dependency>
-                <dependency>
-                  <groupId>org.hibernate</groupId>
-                  <artifactId>hibernate</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>sakai2.7</id>
-			<activation> 
-				<property><name>sakai2.7</name></property>
-			</activation>
-            <dependencies>
-                <dependency>
-                    <groupId>org.sakaiproject.kernel</groupId>
-                    <artifactId>sakai-kernel-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject.kernel</groupId>
-                    <artifactId>sakai-kernel-util</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject.kernel</groupId>
-                    <artifactId>sakai-component-manager</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject.scheduler</groupId>
-                    <artifactId>scheduler-api</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>sakai2.8</id>
-			<activation> 
-				<property><name>sakai2.8</name></property>
-			</activation>
-            <dependencies>
-                <dependency>
-                    <groupId>org.sakaiproject.kernel</groupId>
-                    <artifactId>sakai-kernel-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject.kernel</groupId>
-                    <artifactId>sakai-kernel-util</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject.kernel</groupId>
-                    <artifactId>sakai-component-manager</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject.scheduler</groupId>
-                    <artifactId>scheduler-api</artifactId>
-                </dependency>
-                <!-- Spring and Hibernate dependencies. -->
-                <dependency>
-                  <groupId>org.springframework</groupId>
-                  <artifactId>spring</artifactId>
-                </dependency>
-                <dependency>
-                  <groupId>org.hibernate</groupId>
-                  <artifactId>hibernate</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>sakai2.9</id>
-			<activation> 
-				<property><name>sakai2.9</name></property>
-			</activation>
-            <dependencies>
-                <dependency>
-                    <groupId>org.sakaiproject.kernel</groupId>
-                    <artifactId>sakai-kernel-api</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject.kernel</groupId>
-                    <artifactId>sakai-kernel-util</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject.kernel</groupId>
-                    <artifactId>sakai-component-manager</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject.scheduler</groupId>
-                    <artifactId>scheduler-api</artifactId>
-                </dependency>
-                <!-- Spring and Hibernate dependencies. -->
-                <dependency>
-                  <groupId>org.springframework</groupId>
-                  <artifactId>spring</artifactId>
-                </dependency>
-                <dependency>
-                  <groupId>org.hibernate</groupId>
-                  <artifactId>hibernate</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
         <profile>
             <id>sakai-10</id>
 			<activation> 
@@ -269,7 +85,7 @@
 
         <!-- generic DAO -->
         <dependency>
-            <groupId>org.sakaiproject</groupId>
+            <groupId>org.sakaiproject.genericdao</groupId>
             <artifactId>generic-dao</artifactId>
         </dependency>
 
@@ -284,7 +100,6 @@
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
-            <version>1.3.1</version>
         </dependency>
 
         <!-- JDOM dependencies -->
@@ -292,12 +107,6 @@
             <groupId>jdom</groupId>
             <artifactId>jdom</artifactId>
             <version>1.0</version>
-        </dependency>
-
-        <!-- Quartz dependencies -->
-        <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz</artifactId>
         </dependency>
 
         <!-- processing text templates -->
@@ -335,14 +144,19 @@
             <version>2.0.6</version>
             <scope>test</scope>
         </dependency>
+        -->
  
         <dependency>
-            <groupId>hsqldb</groupId>
+            <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <version>1.8.0.7</version>
             <scope>test</scope>
         </dependency>
-
+		
+		<dependency>
+			<groupId>org.javassist</groupId>
+			<artifactId>javassist</artifactId>
+		</dependency>
+<!--
         <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
@@ -418,17 +232,12 @@
         <testSourceDirectory>src/test</testSourceDirectory>
         <testResources>
             <testResource>
-                <directory>${basedir}/../pack/src/webapp/WEB-INF</directory>
-                <includes>
-                    <include>spring-hibernate.xml</include>
-                    <include>logic-support.xml</include>
-                </includes>
-            </testResource>
-            <testResource>
                 <directory>${basedir}/src/test</directory>
                 <includes>
                     <include>hibernate-test.xml</include>
                     <include>hibernate.properties</include>
+                    <include>spring-hibernate.xml</include>
+                    <include>logic-support.xml</include>
                 </includes>
             </testResource>
         </testResources>

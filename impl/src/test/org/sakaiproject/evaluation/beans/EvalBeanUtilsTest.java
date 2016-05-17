@@ -14,6 +14,9 @@
 
 package org.sakaiproject.evaluation.beans;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.evaluation.logic.BaseTestEvalLogic;
 import org.sakaiproject.evaluation.logic.EvalSettings;
 
@@ -28,7 +31,8 @@ public class EvalBeanUtilsTest extends BaseTestEvalLogic {
    protected EvalSettings settings;
 
    // run this before each test starts
-   protected void onSetUpBeforeTransaction() throws Exception {
+   @Before
+   public void onSetUpBeforeTransaction() throws Exception {
       super.onSetUpBeforeTransaction();
 
       // load up any other needed spring beans
@@ -50,6 +54,7 @@ public class EvalBeanUtilsTest extends BaseTestEvalLogic {
    /**
     * Test method for {@link org.sakaiproject.evaluation.beans.EvalBeanUtils#getResponsesNeededToViewForResponseRate(int, int)}.
     */
+   @Test
    public void testGetResponsesNeededToViewForResponseRate() {
       int systemResponseRate = (Integer) settings.get(EvalSettings.RESPONSES_REQUIRED_TO_VIEW_RESULTS);
       int responsesCount = 0;
@@ -57,36 +62,37 @@ public class EvalBeanUtilsTest extends BaseTestEvalLogic {
 
       responsesCount = systemResponseRate + 2;
       enrollmentsCount = 10;
-      assertTrue( evalBeanUtils.getResponsesNeededToViewForResponseRate(responsesCount, enrollmentsCount) == 0 );
+      Assert.assertTrue( evalBeanUtils.getResponsesNeededToViewForResponseRate(responsesCount, enrollmentsCount) == 0 );
 
       responsesCount = systemResponseRate - 2;
       enrollmentsCount = 10;
-      assertTrue( evalBeanUtils.getResponsesNeededToViewForResponseRate(responsesCount, enrollmentsCount) > 0 );
+      Assert.assertTrue( evalBeanUtils.getResponsesNeededToViewForResponseRate(responsesCount, enrollmentsCount) > 0 );
 
       responsesCount = systemResponseRate - 2;
       enrollmentsCount = responsesCount;
-      assertTrue( evalBeanUtils.getResponsesNeededToViewForResponseRate(responsesCount, enrollmentsCount) == 0 );
+      Assert.assertTrue( evalBeanUtils.getResponsesNeededToViewForResponseRate(responsesCount, enrollmentsCount) == 0 );
 
       responsesCount = systemResponseRate + 2;
       enrollmentsCount = 0;
-      assertTrue( evalBeanUtils.getResponsesNeededToViewForResponseRate(responsesCount, enrollmentsCount) == 0 );
+      Assert.assertTrue( evalBeanUtils.getResponsesNeededToViewForResponseRate(responsesCount, enrollmentsCount) == 0 );
 
       responsesCount = systemResponseRate - 2;
       enrollmentsCount = 0;
-      assertTrue( evalBeanUtils.getResponsesNeededToViewForResponseRate(responsesCount, enrollmentsCount) == 0 );
+      Assert.assertTrue( evalBeanUtils.getResponsesNeededToViewForResponseRate(responsesCount, enrollmentsCount) == 0 );
 
    }
 
    /**
     * Test method for {@link org.sakaiproject.evaluation.beans.EvalBeanUtils#checkUserPermission(java.lang.String, java.lang.String)}.
     */
+   @Test
    public void testCheckUserPermission() {
 
-      assertTrue( evalBeanUtils.checkUserPermission("admin", "aaronz") );
+      Assert.assertTrue( evalBeanUtils.checkUserPermission("admin", "aaronz") );
 
-      assertTrue( evalBeanUtils.checkUserPermission("aaronz", "aaronz") );
+      Assert.assertTrue( evalBeanUtils.checkUserPermission("aaronz", "aaronz") );
 
-      assertFalse( evalBeanUtils.checkUserPermission("aaronz", "not-aaronz") );
+      Assert.assertFalse( evalBeanUtils.checkUserPermission("aaronz", "not-aaronz") );
 
    }
 
