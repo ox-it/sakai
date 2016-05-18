@@ -9618,7 +9618,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String uiService = ServerConfigurationService.getString("ui.service", "Sakai");
 			String[] args = new String[]{contentReviewService.getServiceName(), uiService, e.toString()};
             state.setAttribute("alertMessage", rb.getFormattedMessage("content_review.error.createAssignment", args));
-	        String technicalEmail = ServerConfigurationService.getString("feedback.technicalAddress", null);
+	        String technicalEmail = ServerConfigurationService.getString("mail.support", null);
 	        String alertMessage = rb.getFormattedMessage("content_review.error.createAssignment", new Object[]{technicalEmail});
 	        state.setAttribute("alertMessage", alertMessage);
         }
