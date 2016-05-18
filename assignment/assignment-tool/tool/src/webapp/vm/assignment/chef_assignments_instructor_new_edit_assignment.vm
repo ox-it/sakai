@@ -583,7 +583,7 @@
 					#if ($content_review_note)
 						$content_review_note
 					#end
-					$tlang.getString("review.submit.papers.repository")
+                    <span class="reqStar">*</span>$tlang.getString("review.submit.papers.repository")
 					<br/>
 
 					<div class="radio">
