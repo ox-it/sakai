@@ -1006,6 +1006,9 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("reviewServiceTitle", reviewServiceTitle);
 			context.put("reviewServiceUse", reviewServiceUse);
 			context.put("reviewIndicator", rb.getFormattedMessage("review.contentReviewIndicator", new Object[]{reviewServiceName}));
+			String content_review_note = rb.getFormattedMessage("content_review.note",new Object[]{rb.getFormattedMessage("content_review.filetypes")});
+			context.put("contentReviewNote",content_review_note);
+			context.put("content_review.filetypes",rb.getFormattedMessage("content_review.filetypes"));
 			context.put("reviewSwitchNe1", reviewServiceNonElectronic1);
 			context.put("reviewSwitchNe2", reviewServiceNonElectronic2);
 		}
@@ -6828,6 +6831,9 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			m_securityService.pushAdvisor(sa);
 			ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, toolName, contentType, contentStream, inlineProps);
+			if(!contentReviewService.isAcceptableContent(attachment)) {
+				addAlert(state, rb.getFormattedMessage("turnitin.notprocess.warning"));
+					}
 			// TODO: need to put this file in some kind of list to improve performance with web service impls of content-review service
 			String contentUserId = isOnBehalfOfStudent ? student.getId() : currentUser.getId();
 			contentReviewService.queueContent(contentUserId, siteId, edit.getAssignment().getReference(), Arrays.asList(attachment));
