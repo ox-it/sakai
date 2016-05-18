@@ -12605,7 +12605,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS, 1);
 
 		state.setAttribute(NEW_ASSIGNMENT_SECTION, "001");
-		state.setAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE, Integer.valueOf(Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION));
+		state.setAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE, Integer.valueOf(Assignment.SINGLE_ATTACHMENT_SUBMISSION));
 		state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, Integer.valueOf(Assignment.UNGRADED_GRADE_TYPE));
 		state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, "");
 		state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, "");
