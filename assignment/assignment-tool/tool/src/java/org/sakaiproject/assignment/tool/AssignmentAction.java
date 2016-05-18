@@ -12577,6 +12577,13 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(ALLOW_RESUBMIT_CLOSEMIN, Integer.valueOf(0));
 		state.setAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, Integer.valueOf(1));
 
+		// Close date is shifted forward by one day after the due day
+		t.setTime(t.getTime() + 24 * 60 * 60 * 1000);
+		tB = t.breakdownLocal();
+		month = tB.getMonth();
+		day = tB.getDay();
+		year = tB.getYear();
+
 		// enable the close date by default
 		state.setAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE, Boolean.valueOf(true));
 		// set the close time to be 5:00 pm, same as the due time by default
@@ -12603,6 +12610,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL, Boolean.TRUE.toString());
 		state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS, Boolean.TRUE.toString());
 		state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS, 1);
+
 
 		state.setAttribute(NEW_ASSIGNMENT_SECTION, "001");
 		state.setAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE, Integer.valueOf(Assignment.SINGLE_ATTACHMENT_SUBMISSION));
