@@ -11443,6 +11443,10 @@ public class AssignmentAction extends PagedResourceActionII
 			saveSubmitInputs(state, params);
 			
 			// Restrict file picker configuration if using content-review (Turnitin):
+			{
+				state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, "true");
+			}
+			// Single attachments if using Turnitin:
 			String assignmentRef = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 			try
 			{
