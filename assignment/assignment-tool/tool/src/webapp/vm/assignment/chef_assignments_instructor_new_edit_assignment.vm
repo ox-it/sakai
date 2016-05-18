@@ -1275,7 +1275,6 @@
 
 	<div class="col-sm-12 row table-reponsive">
 		<table class="table table-striped" id="extraNodeLinkList">
-			<caption style="border-bottom:1px solid #ccc;text-align:left; margin-top:1em;padding-bottom:.3em">$tlang.getString("supplement")</caption>
 			<tr>
 				<td>
 					$tlang.getString("modelAnswer")
