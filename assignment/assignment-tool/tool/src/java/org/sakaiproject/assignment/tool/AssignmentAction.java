@@ -12544,6 +12544,8 @@ public class AssignmentAction extends PagedResourceActionII
 		int month = tB.getMonth();
 		int day = tB.getDay();
 		int year = tB.getYear();
+		int hour = tB.getHour();
+		int minute = tB.getMin();
 
 		// set the visible time to be 12:00 PM
                 if (Boolean.valueOf(ServerConfigurationService.getBoolean("assignment.visible.date.enabled", false))) {                
@@ -12555,12 +12557,14 @@ public class AssignmentAction extends PagedResourceActionII
                     state.setAttribute(NEW_ASSIGNMENT_VISIBLETOGGLE, false);
                 }
                 
-		// set the open time to be 12:00 PM
+		// set the open time to current time
 		state.setAttribute(NEW_ASSIGNMENT_OPENMONTH, Integer.valueOf(month));
 		state.setAttribute(NEW_ASSIGNMENT_OPENDAY, Integer.valueOf(day));
 		state.setAttribute(NEW_ASSIGNMENT_OPENYEAR, Integer.valueOf(year));
 		state.setAttribute(NEW_ASSIGNMENT_OPENHOUR, Integer.valueOf(12));
 		state.setAttribute(NEW_ASSIGNMENT_OPENMIN, Integer.valueOf(0));
+		state.setAttribute(NEW_ASSIGNMENT_OPENHOUR, hour);
+		state.setAttribute(NEW_ASSIGNMENT_OPENMIN, minute);
 		
 		// set the all purpose item release time
 		state.setAttribute(ALLPURPOSE_RELEASE_MONTH, Integer.valueOf(month));
