@@ -5579,8 +5579,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								} else {
 									latenessStatus = rb.getString("grades.lateness.ontime");
 								}
-								// Work out if submission is late.
-								String latenessStatus = whenSubmissionMade(s);
 
 								String fullAnonId = s.getAnonymousSubmissionId();
 								String anonTitle = rb.getString("grading.anonymous.title");
