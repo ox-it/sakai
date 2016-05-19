@@ -74,6 +74,8 @@
 <!-- CONFIRM? -->
         <!-- CHANGED: from >localhost< -->
         <servername>[HOST]</servername>
+        <!-- Added as sakai doesn't support getting this from config. -->
+        <servername>beta.weblearn.ox.ac.uk</servername>
         <servername>myhost.james</servername>
       </servernames>
 
