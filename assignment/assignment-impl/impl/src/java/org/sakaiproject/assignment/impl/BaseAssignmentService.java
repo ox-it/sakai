@@ -42,6 +42,8 @@ import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentCopy;
+import org.sakaiproject.content.api.ContentCopyContext;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.util.ZipContentUtil;
@@ -160,7 +162,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public void setContentReviewService(ContentReviewService contentReviewService) {
 		this.contentReviewService = contentReviewService;
 	}
-	
+
+	protected ContentCopy contentCopy;
+	public void setContentCopy(ContentCopy contentCopy) {
+	this.contentCopy = contentCopy;
+	}
 	private AssignmentPeerAssessmentService assignmentPeerAssessmentService = null;
 	public void setAssignmentPeerAssessmentService(AssignmentPeerAssessmentService assignmentPeerAssessmentService){
 		this.assignmentPeerAssessmentService = assignmentPeerAssessmentService;
@@ -5563,6 +5569,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									submittersString = submittersString + "(" + submitters[i].getId() + ")";
 								}
 								submittersString = escapeInvalidCharsEntry(submittersString);
+								Time dueTime = s.getAssignment().getDueTime();
+								Time submittedTime = s.getTimeSubmitted();
+								String latenessStatus;
+								if (submittedTime == null) {
+									latenessStatus = "";
+								} else if(dueTime != null && submittedTime.after(dueTime)) {
+									latenessStatus = rb.getString("grades.lateness.late");
+								} else {
+									latenessStatus = rb.getString("grades.lateness.ontime");
+								}
 								// Work out if submission is late.
 								String latenessStatus = whenSubmissionMade(s);
 
@@ -6751,6 +6767,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		Map<String, String> transversalMap = new HashMap<String, String>();
 		// import Assignment objects
 		Iterator oAssignments = getAssignmentsForContext(fromContext);
+		ContentCopyContext context = contentCopy.createCopyContext(fromContext, toContext, true);
 		while (oAssignments.hasNext())
 		{
 			Assignment oAssignment = (Assignment) oAssignments.next();
@@ -6806,6 +6823,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								instructions = instructions.replaceAll(fromContext, toContext);
 							}
 							nContent.setInstructions(instructions);
+							// Update references to resources.
+							String newInstructions = contentCopy.convertContent(context, oContent.getInstructions(), "text/html", null);
+							nContent.setInstructions(newInstructions);
 							nContent.setMaxGradePoint(oContent.getMaxGradePoint());
 							nContent.setFactor(oContent.getFactor());
 							nContent.setReleaseGrades(oContent.releaseGrades());
@@ -6954,7 +6974,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				} // if-else
 			} // if
 		} // for
+		contentCopy.copyReferences(context);
 		return transversalMap;
+		// Copy the files in resources
 	} // importResources
 
 	/**
@@ -10332,33 +10354,38 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				tempString = StringUtils.trimToNull(tempString);
 			} 
 		}
+
+		@Override
+		public String toString() {
+			return getClass().getName() + " ID: "+ getId();
+		}
 		
 		// return the variables
 		// Get new values from review service if defaults
 		public int getReviewScore() {
 			// Code to get updated score if default
-			M_log.debug(this + " getReviewScore for submission " + this.getId() + " and review service is: " + (this.getAssignment().getContent().getAllowReviewService()));
+			M_log.debug(this + " getReviewScore for submission " + getId() + " and review service is: " + (this.getAssignment().getContent().getAllowReviewService()));
 			if (!this.getAssignment().getContent().getAllowReviewService()) {
-				M_log.debug(this + " getReviewScore Content review is not enabled for this assignment");
+				M_log.debug(toString() + " getReviewScore Content review is not enabled for this assignment");
 				return -2;
 			}
 
 			if (m_submittedAttachments.isEmpty()) {
-				M_log.debug(this + " getReviewScore No attachments submitted.");
+				M_log.debug(toString() + " getReviewScore No attachments submitted.");
 				return -2;
 			}
 			else
 			{
 				//we may have already retrived this one
 				if (m_reviewScore != null && m_reviewScore > -1) {
-					M_log.debug("returning stored value of " + m_reviewScore);
+					M_log.debug(toString() + " returning stored value of " + m_reviewScore);
 					return m_reviewScore.intValue();
 				}
 
 				ContentResource cr = getFirstAcceptableAttachement();
 				if (cr == null )
 				{
-					M_log.debug(this + " getReviewScore No suitable attachments found in list");
+					M_log.debug(getId() + " getReviewScore No suitable attachments found in list");
 					return -2;
 				}
 
@@ -10402,7 +10429,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					
 				}
 				catch (Exception e) {
-					M_log.warn(this + " getReviewScore " + e.getMessage());
+					M_log.warn(toString() + " getReviewScore" + e.getMessage());
 					return -1;
 				}
 					
@@ -10495,7 +10522,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		public String getReviewReport() {
 //			 Code to get updated report if default
 			if (m_submittedAttachments.isEmpty()) { 
-				M_log.debug(this.getId() + " getReviewReport No attachments submitted."); 
+				M_log.debug(toString() + " getReviewReport No attachments submitted.");
 				return "Error";
 			}
 			else
@@ -10504,7 +10531,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					ContentResource cr = getFirstAcceptableAttachement();
 					if (cr == null )
 					{
-						M_log.debug(this + " getReviewReport No suitable attachments found in list");
+						M_log.debug(toString() + " getReviewReport No suitable attachments found in list");
 						return "error";
 					}
 					
