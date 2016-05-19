@@ -1006,6 +1006,9 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("reviewServiceTitle", reviewServiceTitle);
 			context.put("reviewServiceUse", reviewServiceUse);
 			context.put("reviewIndicator", rb.getFormattedMessage("review.contentReviewIndicator", new Object[]{reviewServiceName}));
+			String content_review_note = rb.getFormattedMessage("content_review.note",new Object[]{rb.getFormattedMessage("content_review.filetypes")});
+			context.put("contentReviewNote",content_review_note);
+			context.put("content_review.filetypes",rb.getFormattedMessage("content_review.filetypes"));
 			context.put("reviewSwitchNe1", reviewServiceNonElectronic1);
 			context.put("reviewSwitchNe2", reviewServiceNonElectronic2);
 		}
@@ -2605,14 +2608,14 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("value_AllowStudentView", state.getAttribute(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW) == null ? Boolean.toString(defaultAllowStudentView) : state.getAttribute(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW));
 		
 		List<String> subOptions = getSubmissionRepositoryOptions();
-		String submitRadio = ServerConfigurationService.getString("turnitin.repository.setting.value",null) == null ? NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_NONE : ServerConfigurationService.getString("turnitin.repository.setting.value");
+		String submitRadio = ServerConfigurationService.getString("turnitin.repository.setting.value", "");
 		if(state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO) != null && subOptions.contains(state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO)))
 			submitRadio = state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO).toString();		
 		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO", submitRadio);
 		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT", subOptions);
 		
 		List<String> reportGenOptions = getReportGenOptions();
-		String reportRadio = ServerConfigurationService.getString("turnitin.report_gen_speed.setting.value", null) == null ? NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY : ServerConfigurationService.getString("turnitin.report_gen_speed.setting.value");
+		String reportRadio = ServerConfigurationService.getString("turnitin.report_gen_speed.setting.value", NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY);
 		if(state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO) != null && reportGenOptions.contains(state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO)))
 			reportRadio = state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO).toString();	
 		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO", reportRadio);
@@ -6828,6 +6831,9 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			m_securityService.pushAdvisor(sa);
 			ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, toolName, contentType, contentStream, inlineProps);
+			if(!contentReviewService.isAcceptableContent(attachment)) {
+				addAlert(state, rb.getFormattedMessage("turnitin.notprocess.warning"));
+					}
 			// TODO: need to put this file in some kind of list to improve performance with web service impls of content-review service
 			String contentUserId = isOnBehalfOfStudent ? student.getId() : currentUser.getId();
 			contentReviewService.queueContent(contentUserId, siteId, edit.getAssignment().getReference(), Arrays.asList(attachment));
@@ -7313,8 +7319,13 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		//set submit options
 		r = params.getString(NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO);
-		if(r == null || (!NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_STANDARD.equals(r) && !NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_INSITUTION.equals(r)))
-			r = NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_NONE;
+		if (r == null && Boolean.TRUE.toString().equals(state.getAttribute(NEW_ASSIGNMENT_USE_REVIEW_SERVICE))) {
+			addAlert(state, rb.getString("review.submit.papers.repository.notset"));
+		} else {
+			if(!NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_STANDARD.equals(r) && !NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_INSITUTION.equals(r)) {
+				r = NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_NONE;
+			}
+		}
 		state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO, r);
 		//set originality report options
 		r = params.getString(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO);
@@ -9613,6 +9624,9 @@ public class AssignmentAction extends PagedResourceActionII
 			String uiService = ServerConfigurationService.getString("ui.service", "Sakai");
 			String[] args = new String[]{contentReviewService.getServiceName(), uiService, e.toString()};
             state.setAttribute("alertMessage", rb.getFormattedMessage("content_review.error.createAssignment", args));
+	        String technicalEmail = ServerConfigurationService.getString("mail.support", null);
+	        String alertMessage = rb.getFormattedMessage("content_review.error.createAssignment", new Object[]{technicalEmail});
+	        state.setAttribute("alertMessage", alertMessage);
         }
 		return false;
     }
@@ -11443,6 +11457,10 @@ public class AssignmentAction extends PagedResourceActionII
 			saveSubmitInputs(state, params);
 			
 			// Restrict file picker configuration if using content-review (Turnitin):
+			{
+				state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, "true");
+			}
+			// Single attachments if using Turnitin:
 			String assignmentRef = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 			try
 			{
@@ -12526,6 +12544,8 @@ public class AssignmentAction extends PagedResourceActionII
 		int month = tB.getMonth();
 		int day = tB.getDay();
 		int year = tB.getYear();
+		int hour = tB.getHour();
+		int minute = tB.getMin();
 
 		// set the visible time to be 12:00 PM
                 if (Boolean.valueOf(ServerConfigurationService.getBoolean("assignment.visible.date.enabled", false))) {                
@@ -12537,12 +12557,14 @@ public class AssignmentAction extends PagedResourceActionII
                     state.setAttribute(NEW_ASSIGNMENT_VISIBLETOGGLE, false);
                 }
                 
-		// set the open time to be 12:00 PM
+		// set the open time to current time
 		state.setAttribute(NEW_ASSIGNMENT_OPENMONTH, Integer.valueOf(month));
 		state.setAttribute(NEW_ASSIGNMENT_OPENDAY, Integer.valueOf(day));
 		state.setAttribute(NEW_ASSIGNMENT_OPENYEAR, Integer.valueOf(year));
 		state.setAttribute(NEW_ASSIGNMENT_OPENHOUR, Integer.valueOf(12));
 		state.setAttribute(NEW_ASSIGNMENT_OPENMIN, Integer.valueOf(0));
+		state.setAttribute(NEW_ASSIGNMENT_OPENHOUR, hour);
+		state.setAttribute(NEW_ASSIGNMENT_OPENMIN, minute);
 		
 		// set the all purpose item release time
 		state.setAttribute(ALLPURPOSE_RELEASE_MONTH, Integer.valueOf(month));
@@ -12573,6 +12595,13 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(ALLOW_RESUBMIT_CLOSEMIN, Integer.valueOf(0));
 		state.setAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, Integer.valueOf(1));
 
+		// Close date is shifted forward by one day after the due day
+		t.setTime(t.getTime() + 24 * 60 * 60 * 1000);
+		tB = t.breakdownLocal();
+		month = tB.getMonth();
+		day = tB.getDay();
+		year = tB.getYear();
+
 		// enable the close date by default
 		state.setAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE, Boolean.valueOf(true));
 		// set the close time to be 5:00 pm, same as the due time by default
@@ -12600,8 +12629,9 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS, Boolean.TRUE.toString());
 		state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS, 1);
 
+
 		state.setAttribute(NEW_ASSIGNMENT_SECTION, "001");
-		state.setAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE, Integer.valueOf(Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION));
+		state.setAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE, Integer.valueOf(Assignment.SINGLE_ATTACHMENT_SUBMISSION));
 		state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, Integer.valueOf(Assignment.UNGRADED_GRADE_TYPE));
 		state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, "");
 		state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, "");
@@ -12628,6 +12658,8 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(NEW_ASSIGNMENT_FOCUS, NEW_ASSIGNMENT_TITLE);
 
 		state.removeAttribute(NEW_ASSIGNMENT_DESCRIPTION_EMPTY);
+
+		state.removeAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO);
 
 		// reset the global navigaion alert flag
 		if (state.getAttribute(ALERT_GLOBAL_NAVIGATION) != null)
@@ -12666,7 +12698,7 @@ public class AssignmentAction extends PagedResourceActionII
 		// SAK-17606
 		state.removeAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
 
-	} // resetNewAssignment
+	} // initializeAssignment
 	
 	/**
 	 * reset the attributes for assignment

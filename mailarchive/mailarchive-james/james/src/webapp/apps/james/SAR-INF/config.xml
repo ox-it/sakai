@@ -74,6 +74,8 @@
 <!-- CONFIRM? -->
         <!-- CHANGED: from >localhost< -->
         <servername>[HOST]</servername>
+        <!-- Added as sakai doesn't support getting this from config. -->
+        <servername>beta.weblearn.ox.ac.uk</servername>
         <servername>myhost.james</servername>
       </servernames>
 
@@ -621,10 +623,8 @@ Regards, Postmaster XXX.YYY
             <!-- multiple gateway elements, each of which may also have a port -->
             <!-- e.g., mygateway:2525 -->
             <!-- the gatewayPort element is used as a default -->
-            <!--
-            <gateway> otherserver.mydomain.com </gateway>
+            <gateway>localhost</gateway>
             <gatewayPort>25</gatewayPort>
-            -->
             <!-- If the gateway requires smtp authentication the following directives -->
             <!-- (gatewayusername/gatewayPassword) can be used. -->
             <!--
