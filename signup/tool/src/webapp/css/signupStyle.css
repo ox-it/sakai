@@ -1,7 +1,9 @@
 @media print  {
-.portletBody .navIntraTool, .portletBody #attendanceList thead, .noPrint, .portletBodyPrint input{
-    display:none !important;
-}    
+	.portletBody .navIntraTool, .portletBody #attendanceList thead, .noPrint, .portletBodyPrint input{
+	    display:none !important;
+	}
+}
+
 h4{
     width :100% !important
 }
