@@ -230,8 +230,8 @@
                     	<h:outputLabel value="#{msgs.event_signup_begins}" styleClass="titleText" for="signupBegins"/>
                     </h:panelGroup>
                     <h:panelGroup styleClass="signupBDeadline" id="signup_beginDeadline_2">
-						<h:inputText id="signupBegins" value="#{NewSignupMeetingBean.signupBegins}" size="2" required="true" onkeyup="sakai.updateSignupBeginsExact();">
-							<f:validateLongRange minimum="0" maximum="99999"/>
+						<h:inputText id="signupBegins" value="#{NewSignupMeetingBean.signupBegins}" size="4" required="true" onkeyup="sakai.updateSignupBeginsExact();">
+							<f:validateLongRange minimum="0" maximum="9999"/>
 						</h:inputText>
 						<h:selectOneMenu id="signupBeginsType" value="#{NewSignupMeetingBean.signupBeginsType}" onchange="isSignUpBeginStartNow(value); sakai.updateSignupBeginsExact();" style="padding-left:5px; margin-right:5px">
 							<f:selectItem itemValue="minutes" itemLabel="#{msgs.label_minutes}"/>
@@ -252,8 +252,8 @@
                     	<h:outputLabel value="#{msgs.event_signup_deadline2}" styleClass="titleText" for="signupDeadline"/>
                    	</h:panelGroup>
                     <h:panelGroup styleClass="signupBDeadline" id="signup_beginDeadline_4">
-                        <h:inputText id="signupDeadline" value="#{NewSignupMeetingBean.deadlineTime}" size="2" required="true" onkeyup="sakai.updateSignupEndsExact();">
-                            <f:validateLongRange minimum="0" maximum="99999"/>
+                        <h:inputText id="signupDeadline" value="#{NewSignupMeetingBean.deadlineTime}" size="4" required="true" onkeyup="sakai.updateSignupEndsExact();">
+                            <f:validateLongRange minimum="0" maximum="9999"/>
                         </h:inputText>
                         <h:selectOneMenu id="signupDeadlineType" value="#{NewSignupMeetingBean.deadlineTimeType}" onchange="sakai.updateSignupEndsExact();" style="padding-left:5px; margin-right:5px">
                             <f:selectItem itemValue="minutes" itemLabel="#{msgs.label_minutes}"/>

@@ -257,8 +257,8 @@
 								<h:outputText value="#{msgs.event_signup_start}" escape="false"/>
 							</h:panelGroup>
 							<h:panelGroup styleClass="signupBDeadline" id="signup_beginDeadline_2">
-								<h:inputText id="signupBegins" value="#{EditMeetingSignupMBean.signupBegins}" size="3" required="true" onkeyup="sakai.updateSignupBeginsExact();">
-									<f:validateLongRange minimum="0" maximum="99999"/>
+								<h:inputText id="signupBegins" value="#{EditMeetingSignupMBean.signupBegins}" size="4" required="true" onkeyup="sakai.updateSignupBeginsExact();">
+									<f:validateLongRange minimum="0" maximum="9999"/>
 								</h:inputText>
 								<h:selectOneMenu id="signupBeginsType" value="#{EditMeetingSignupMBean.signupBeginsType}" onchange="isSignUpBeginStartNow(value); sakai.updateSignupBeginsExact();">
 									<f:selectItem itemValue="minutes" itemLabel="#{msgs.label_minutes}"/>
@@ -279,8 +279,8 @@
 								<h:outputText value="#{msgs.event_signup_deadline}" escape="false"/>
 							</h:panelGroup>
 							<h:panelGroup styleClass="signupBDeadline" id="signup_beginDeadline_4">
-								<h:inputText id="signupDeadline" value="#{EditMeetingSignupMBean.deadlineTime}" size="3" required="true" onkeyup="sakai.updateSignupEndsExact();">
-									<f:validateLongRange minimum="0" maximum="99999"/>
+								<h:inputText id="signupDeadline" value="#{EditMeetingSignupMBean.deadlineTime}" size="4" required="true" onkeyup="sakai.updateSignupEndsExact();">
+									<f:validateLongRange minimum="0" maximum="9999"/>
 								</h:inputText>
 								<h:selectOneMenu id="signupDeadlineType" value="#{EditMeetingSignupMBean.deadlineTimeType}" onchange="sakai.updateSignupEndsExact();">
 									<f:selectItem itemValue="minutes" itemLabel="#{msgs.label_minutes}"/>
