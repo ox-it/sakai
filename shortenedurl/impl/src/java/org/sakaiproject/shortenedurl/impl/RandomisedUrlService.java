@@ -412,7 +412,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
   	 * 
   	 * @param rawUrl the URL to encode.
   	 */
-  	private String encodeUrl(String rawUrl) {
+    protected String encodeUrl(String rawUrl) {
   		if (StringUtils.isBlank(rawUrl)) {
   			return null;
   		}
