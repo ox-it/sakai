@@ -414,7 +414,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 			throw new SignupUserActionException(MessageFormat.format(Utilities.rb.getString("exception.multiple.displayIds"), ids));
 		}
 		
-		String replacerUserId = getUserIdForEidOrEmail(userEidOrEmail);
+		String replacerUserId = getUserIdForDisplayIdOrEidOrEmail(userEidOrEmail);
 		SignupUser replSignUser = getSakaiFacade().getSignupUser(getMeetingWrapper().getMeeting(), replacerUserId);
 		if(replSignUser ==null){
 			throw new SignupUserActionException(MessageFormat.format(Utilities.rb.getString("user.has.no.permission.attend"), new Object[] {userEidOrEmail}));
@@ -633,7 +633,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 			return ORGANIZER_MEETING_PAGE_URL;
 		}
 
-		String newUserId = getUserIdForEidOrEmail(newAttendeeEidOrEmail.trim());
+		String newUserId = getUserIdForDisplayIdOrEidOrEmail(newAttendeeEidOrEmail.trim());
 		if(StringUtils.isBlank(newUserId)){
 			Utilities.addErrorMessage(Utilities.rb.getString("exception.no.such.user") + newAttendeeEidOrEmail);
 			return ORGANIZER_MEETING_PAGE_URL;
@@ -768,7 +768,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 			return ORGANIZER_MEETING_PAGE_URL;
 		}
 		
-		String waiterUserId = getUserIdForEidOrEmail(newWaiterEidOrEmail.trim());
+		String waiterUserId = getUserIdForDisplayIdOrEidOrEmail(newWaiterEidOrEmail.trim());
 		if(StringUtils.isBlank(waiterUserId)){
 			Utilities.addErrorMessage(Utilities.rb.getString("exception.no.such.user") + newWaiterEidOrEmail);
 			return ORGANIZER_MEETING_PAGE_URL;

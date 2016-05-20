@@ -2133,7 +2133,20 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		
 		return null;
 	}
-	
+
+
+	/**
+	 * Gets the userId for a user, given a displayId or an Eid or an email.
+	 * We check for users with the values in this order.
+	 *
+	 * @param value  the string to lookup
+	 * @return       the userId or <code>null</code> if User cannot be found
+	 */
+	public String getUserIdForDisplayIdOrEidOrEmail(String value) {
+		User user = sakaiFacade.getUserByDisplayId(value);
+		return (user == null) ? getUserIdForEidOrEmail(value) : user.getId();
+	}
+
 	/**
 	 * Get the eids assocaited with an email address, ie there may be two or more users with the same email address. 
 	 * We need to be able to handle this in the UI.
