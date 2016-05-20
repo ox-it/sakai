@@ -4431,7 +4431,7 @@ $(function(){
         //initial value, can be `new Date()`    
         value: null,                       
         minYear: 1970,
-        maxYear: 2015,
+        maxYear: 2025,
         yearDescending: true,
         minuteStep: 5,
         secondStep: 1,
