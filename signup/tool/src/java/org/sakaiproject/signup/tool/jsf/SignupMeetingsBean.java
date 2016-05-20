@@ -85,7 +85,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 
 	protected SignupSorter signupSorter = new SignupSorter();
 
-	protected Boolean showAllRecurMeetings = null;
+	protected Boolean showAllRecurMeetings = new Boolean(true);
 
 	protected boolean enableExpandOption = false;
 
