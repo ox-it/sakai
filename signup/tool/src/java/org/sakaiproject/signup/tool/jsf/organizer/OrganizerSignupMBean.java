@@ -407,10 +407,11 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 			userEidOrEmail = (String) replacedAttendeeEidOrEmail.getValue();
 		}
 		
-		//check if there are multiple email addresses associated with input
-		List<String> associatedEids = getEidsForEmail(userEidOrEmail.trim());
-		if(associatedEids.size() > 1) {
-			throw new SignupUserActionException(MessageFormat.format(Utilities.rb.getString("exception.multiple.eids"), new Object[] {userEidOrEmail, StringUtils.join(associatedEids, ", ")}));
+		// check if there are many users associated with the input email address
+		List<String> associatedDisplayIds = getEidsForEmail(userEidOrEmail.trim());
+		if(associatedDisplayIds.size() > 1) {
+			Object[] ids = {userEidOrEmail, StringUtils.join(associatedDisplayIds, ", ")};
+			throw new SignupUserActionException(MessageFormat.format(Utilities.rb.getString("exception.multiple.displayIds"), ids));
 		}
 		
 		String replacerUserId = getUserIdForEidOrEmail(userEidOrEmail);
@@ -623,11 +624,12 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		if (StringUtils.isBlank(newAttendeeEidOrEmail)) {
 			return ORGANIZER_MEETING_PAGE_URL;
 		}
-		
-		//check if there are multiple email addresses associated with input
-		List<String> associatedEids = getEidsForEmail(newAttendeeEidOrEmail.trim());
-		if(associatedEids.size() > 1) {
-			Utilities.addErrorMessage(MessageFormat.format(Utilities.rb.getString("exception.multiple.eids"), new Object[] {newAttendeeEidOrEmail, StringUtils.join(associatedEids, ", ")}));
+
+		// check if there are many users associated with the input email address
+		List<String> associatedDisplayIds = getDisplayIdsForEmail(newAttendeeEidOrEmail.trim());
+		if(associatedDisplayIds.size() > 1) {
+			Object[] ids = {newAttendeeEidOrEmail, StringUtils.join(associatedDisplayIds, ", ")};
+			Utilities.addErrorMessage(MessageFormat.format(Utilities.rb.getString("exception.multiple.displayIds"), ids));
 			return ORGANIZER_MEETING_PAGE_URL;
 		}
 
@@ -757,11 +759,12 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		if (StringUtils.isBlank(newWaiterEidOrEmail)) {
 			return ORGANIZER_MEETING_PAGE_URL;
 		}
-		
-		//check if there are multiple email addresses associated with input
-		List<String> associatedEids = getEidsForEmail(newWaiterEidOrEmail.trim());
-		if(associatedEids.size() > 1) {
-			Utilities.addErrorMessage(MessageFormat.format(Utilities.rb.getString("exception.multiple.eids"), new Object[] {newWaiterEidOrEmail, StringUtils.join(associatedEids, ", ")}));
+
+		// check if there are many users associated with the input email address
+		List<String> associatedDisplayIds = getEidsForEmail(newWaiterEidOrEmail.trim());
+		if(associatedDisplayIds.size() > 1) {
+			Object[] ids = {newWaiterEidOrEmail, StringUtils.join(associatedDisplayIds, ", ")};
+			Utilities.addErrorMessage(MessageFormat.format(Utilities.rb.getString("exception.multiple.displayIds"), ids));
 			return ORGANIZER_MEETING_PAGE_URL;
 		}
 		

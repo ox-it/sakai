@@ -652,7 +652,25 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		
 		return eids;
 	}
-	
+
+	/**
+	 * Get the display ids associated with an email address since there may be many users with an email address. 
+	 * We prefer to use this in the UI over the enterprise ID because it is more meaningful.
+	 *
+	 * @param email  The email address.
+	 * @return       A list of display id strings.
+	 */
+	public List<String> getDisplayIdsForEmail(String email) {
+		List<User> users = sakaiFacade.getUsersByEmail(email);
+		List<String> displayIds = new ArrayList<String>();
+
+		for (User user : users) {
+			displayIds.add(user.getDisplayId());
+		}
+
+		return displayIds;
+	}
+
 	// Generate a group title based on the input given
 	public String generateGroupTitle(String meetingTitle, SignupTimeslot timeslot) {
 		
