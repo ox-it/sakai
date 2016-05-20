@@ -66,6 +66,9 @@
 		<property name="contentHostingService">
 			<ref bean="org.sakaiproject.content.api.ContentHostingService" />
 		</property>
+		<property name="contentCopy">
+			<ref bean="org.sakaiproject.content.api.ContentCopy"/>
+		</property>
 		<property name="siteService">
 			<ref bean="org.sakaiproject.site.api.SiteService" />
 		</property>
