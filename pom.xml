@@ -60,7 +60,6 @@
                 <module>content</module>
                 <module>content-review</module>
                 <module>courier</module>
-                <module>current-load</module>
                 <module>dashboard</module>
                 <module>dav</module>
                 <module>delegatedaccess</module>
@@ -85,7 +84,6 @@
                 <module>message</module>
                 <module>msgcntr</module>
                 <module>oauth</module>
-                <module>oxford-url-shortener</module>
                 <module>pasystem</module>
                 <module>podcasts</module>
                 <module>polls</module>
@@ -128,8 +126,11 @@
             </activation>
             <modules>
                 <module>course-signup</module>
+                <module>current-load</module>
                 <module>external-groups</module>
                 <module>oxam</module>
+                <module>oxford-url-shortener</module>
+                <module>sirlouie</module>
             </modules>
         </profile>
         <profile>
