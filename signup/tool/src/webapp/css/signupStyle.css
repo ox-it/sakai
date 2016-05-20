@@ -1,7 +1,9 @@
 @media print  {
-.portletBody .navIntraTool, .portletBody #attendanceList thead, .noPrint, .portletBodyPrint input{
-    display:none !important;
-}    
+	.portletBody .navIntraTool, .portletBody #attendanceList thead, .noPrint, .portletBodyPrint input{
+	    display:none !important;
+	}
+}
+
 h4{
     width :100% !important
 }
@@ -9,7 +11,6 @@ h4{
     font-weight:bold !important;    
     background:#ccc !important
 }
-}    
 table.signupTable {
 	text-align: left;
 	margin-top: 20px;
@@ -536,4 +537,11 @@ table.emailTable td.valueColumn {
 .cke_contents {
 		height: 160px !important;
 		width:700px !important;
+}
+table.signupTable td.mobileCol{	
+	text-align:center;
+}
+
+.mobile-info-link img {
+	height: 50px;
 }
