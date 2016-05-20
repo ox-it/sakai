@@ -18,6 +18,7 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>authz-base</artifactId>
       <version>11-SNAPSHOT</version>
+      <relativePath>../../pom.xml</relativePath>
    </parent>
 
    <dependencies>
