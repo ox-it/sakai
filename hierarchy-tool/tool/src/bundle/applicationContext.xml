@@ -68,6 +68,9 @@
 		</property>
 	</bean>
 
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" class="org.sakaiproject.hierarchy.tool.entityproviders.HierarchyEntityProviderImpl">
+		<property name="portalHierarchyService" ref="org.sakaiproject.hierarchy.api.PortalHierarchyService" />
+	</bean>
 	<bean id="titleMaxLength" factory-bean="org.sakaiproject.component.api.ServerConfigurationService" factory-method="getInt">
 		<constructor-arg value="site.title.maxlength" />
 		<constructor-arg value="20" />

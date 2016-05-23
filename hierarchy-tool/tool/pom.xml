@@ -31,6 +31,18 @@
 			<artifactId>sakai-hierarchy-api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.sakaiproject.entitybroker</groupId>
+			<artifactId>entitybroker-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.entitybroker</groupId>
+			<artifactId>entitybroker-utils</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.sakaiproject.sitemanage</groupId>
 			<artifactId>sakai-site-manage-api</artifactId>
 			<version>${sakai.version}</version>
