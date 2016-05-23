@@ -144,7 +144,7 @@
 		</li>
 	#end ## End for each key 
 
-            #if ( $subSites && $showSubsitesAsFlyout )
+            #if ( $subSites.children && $showSubsitesAsFlyout )
 
                 <li class="Mrphs-toolsNav__menuitem--subsite">
                     <a id="toggleSubsitesLink" class="Mrphs-toolsNav__menuitem--link" href="javascript:;" title="${rloader.subsitesTitle}" aria-haspopup="true">
@@ -181,17 +181,17 @@
         </ul>
     </nav>
 
-    #if ( $subSites )
+    #if ( $subSites.children )
 
         <nav id="subSites" #if ($showSubsitesAsFlyout) class="is-hidden"#end>
                 <ul role="menu">
 
-                    #foreach ( $site in $subSites )
+                    #foreach ( $site in $subSites.children )
 
                         <li>
-                            <a class="Mrphs-toolsNav__menuitem--link" href="${site.siteUrl}" title="${rloader.subsite} ${site.fullTitle}" role="menuitem">
-                                <span class="Mrphs-toolsNav__menuitem--icon ${sitePages.subsiteClass}"></span>
-                                <span class="Mrphs-toolsNav__menuitem--title">${rloader.subsite} ${site.siteTitle}</span>
+                            <a class="Mrphs-toolsNav__menuitem--link" href="${site.url}" title="${rloader.subsite} ${site.title}" role="menuitem">
+                                <span class="Mrphs-toolsNav__menuitem--icon ${sitePages.class}"></span>
+                                <span class="Mrphs-toolsNav__menuitem--title">${rloader.subsite} ${site.titleTruncated}</span>
                             </a>
                         </li>
 

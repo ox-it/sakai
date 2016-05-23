@@ -29,13 +29,13 @@ import java.util.regex.Matcher;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Cookie;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.TwoFactorAuthentication;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -121,6 +121,7 @@ public class SiteHandler extends WorksiteHandler
 	// SAK-27774 - We are going inline default but a few tools need a crutch 
 	// This is Sakai 11 only so please do not back-port or merge this default value
 	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.rsf.evaluation";
+	private TwoFactorAuthentication twoFactorAuthentication;
 
 	public SiteHandler()
 	{
@@ -128,6 +129,7 @@ public class SiteHandler extends WorksiteHandler
 		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
 		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
 		devolvedSakaiSecurity = (DevolvedSakaiSecurity) ComponentManager.get(DevolvedSakaiSecurity.class);
+		twoFactorAuthentication = ComponentManager.get(TwoFactorAuthentication.class);
 	}
 
 	@Override
@@ -182,7 +184,7 @@ public class SiteHandler extends WorksiteHandler
 		// 0 1 2 3 4
 		if ((siteId != null) && (parts.length == 5) && (parts[3].equals("tool-reset")))
 		{
-			toolId = parts[4];
+			// TODO Should keep good URL
 			String toolUrl = req.getContextPath() + "/site/" + siteId + "/tool"
 					+ Web.makePath(parts, 4, parts.length);
 			String queryString = Validator.generateQueryString(req);
@@ -202,7 +204,7 @@ public class SiteHandler extends WorksiteHandler
 		if ((siteId != null) && (parts.length == 5) && (parts[3].equals("page-reset")))
 		{
 			pageId = parts[4];
-			Site site = null;
+			Site site;
 			try
 			{
 				Set<SecurityAdvisor> advisors = (Set<SecurityAdvisor>)session.getAttribute("sitevisit.security.advisor");
@@ -242,8 +244,7 @@ public class SiteHandler extends WorksiteHandler
 			String queryString = Validator.generateQueryString(req);
 			if (queryString != null)
 			{
-				pageUrl = pageUrl + "?" + queryString;
-				if ( hasJSR168 ) pageUrl = pageUrl + "&sakai.state.reset=true";
+				pageUrl = pageUrl + "?" + queryString; if ( hasJSR168 ) pageUrl = pageUrl + "&sakai.state.reset=true";
 			} else {
 				if ( hasJSR168 ) pageUrl = pageUrl + "?sakai.state.reset=true";
 			}
@@ -291,7 +292,7 @@ public class SiteHandler extends WorksiteHandler
 			else
 			{
 				// TODO Should maybe switch to portal.getSiteHelper().getMyWorkspace()
-				AllSitesViewImpl allSites = (AllSitesViewImpl)portal.getSiteHelper().getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId);
+				AllSitesViewImpl allSites = (AllSitesViewImpl)portal.getSiteHelper().getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId, null);
 				List<Map> sites = (List<Map>)allSites.getRenderContextObject();
 				if (sites.size() > 0) {
 					siteId = (String)sites.get(0).get("siteId");
@@ -323,15 +324,23 @@ public class SiteHandler extends WorksiteHandler
 					//session.removeAttribute("sitevisit.security.advisor");
 				}
 			}
+			// Save the original site ID.
+			ThreadLocalManager.set("portal.original.siteId", siteId);
 			// This should understand aliases as well as IDs
 			site = portal.getSiteHelper().getSiteVisit(siteId);
-			
+
 			// SAK-20509 remap the siteId from the Site object we now have, since it may have originally been an alias, but has since been translated.
 			siteId = site.getId();
 			
 		}
 		catch (IdUnusedException e)
 		{
+			// Check if this should be redirecting somewhere else
+			String redirect = portal.getSiteHelper().getRedirect(siteId);
+			if (redirect != null) {
+				res.sendRedirect(redirect);
+				return;
+			};
 		}
 		catch (PermissionException e)
 		{
@@ -349,13 +358,23 @@ public class SiteHandler extends WorksiteHandler
 		if (site == null)
 		{				
 			// if not logged in, give them a chance
+			try {
+				// Map to actual siteId if exists.
+				siteId = portal.getSiteHelper().getSite(siteId).getId();
+			} catch (IdUnusedException e) {
+				// ignore.
+			}
 			if (userId == null)
 			{
-				StoredState ss = portalService.newStoredState("directtool", "hierarchytool");
+				StoredState ss = portalService.newStoredState("directtool", "tool");
 				ss.setRequest(req);
 				ss.setToolContextPath(toolContextPath);
 				portalService.setStoredState(ss);
 				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), Portal.LoginRoute.NONE);
+			}
+			else if (twoFactorAuthentication.isTwoFactorRequired("/site/"+siteId)
+					&& !twoFactorAuthentication.hasTwoFactor()) {
+				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), Portal.LoginRoute.TWOFACTOR);
 			}
 			else
 			{
@@ -396,7 +415,7 @@ public class SiteHandler extends WorksiteHandler
 
 		// Find the pageId looking backwards through the toolId
 		if(site != null && pageId == null && toolId != null ) {
-			SitePage p = (SitePage) ToolUtils.getPageForTool(site, toolId);
+			SitePage p = ToolUtils.getPageForTool(portal.getSiteHelper().getPermittedPagesInOrder(site), toolId);
 			if ( p != null ) pageId = p.getId();
 		}
 
@@ -425,6 +444,7 @@ public class SiteHandler extends WorksiteHandler
 		if (page != null)
 		{
 			// store the last page visited
+			// TODO Make this configurable
 			session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
 			title += " : " + page.getTitle();
 		}
@@ -433,7 +453,7 @@ public class SiteHandler extends WorksiteHandler
 		boolean trinity = ServerConfigurationService.getBoolean(ToolUtils.PORTAL_INLINE_EXPERIMENTAL, ToolUtils.PORTAL_INLINE_EXPERIMENTAL_DEFAULT);
 		if (trinity && toolId == null) {
 			String pagerefUrl = ToolUtils.getPageUrl(req, site, page, getUrlFragment(),
-				false, null, null);
+				false, portal.getSiteHelper().getSiteEffectiveId(site), null);
 			// http://localhost:8080/portal/site/963b28b/tool/0996adf
 			String[] pieces = pagerefUrl.split("/");
 			if ( pieces.length > 6 && "tool".equals(pieces[6]) ) {
@@ -528,12 +548,12 @@ public class SiteHandler extends WorksiteHandler
 			log.debug("BufferedResponse success");
 			rcontext.put("bufferedResponse", Boolean.TRUE);
 			Map<String,String> bufferMap = (Map<String,String>) BC;
-			rcontext.put("responseHead", (String) bufferMap.get("responseHead"));
-			rcontext.put("responseBody", (String) bufferMap.get("responseBody"));
+			rcontext.put("responseHead", bufferMap.get("responseHead"));
+			rcontext.put("responseBody", bufferMap.get("responseBody"));
 		}
 
 		rcontext.put("siteId", siteId);
-		boolean showShortDescription = Boolean.valueOf(ServerConfigurationService.getBoolean("portal.title.shortdescription.show", false));
+		boolean showShortDescription = ServerConfigurationService.getBoolean("portal.title.shortdescription.show", false);
 
 		if (showShortDescription) {
 			rcontext.put("shortDescription", Web.escapeHtml(site.getShortDescription()));
@@ -680,6 +700,7 @@ public class SiteHandler extends WorksiteHandler
 			}
 			catch (Exception any)
 			{
+				log.warn("Error getting tabs/logo", any);
 			}
 		}
 	}
@@ -1011,7 +1032,7 @@ public class SiteHandler extends WorksiteHandler
 				rcontext.put("tabDisplayLabel", tabDisplayLabel);
 
 				SiteView siteView = portal.getSiteHelper().getSitesView(
-						SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
+						SiteView.View.DHTML_MORE_VIEW, req, session, siteId, null);
 				siteView.setPrefix(prefix);
 				siteView.setToolContextPath(null);
 				rcontext.put("tabsSites", siteView.getRenderContextObject());
@@ -1210,7 +1231,7 @@ public class SiteHandler extends WorksiteHandler
 		if (bodyEnd > bodyStart && bodyStart > headEnd && headEnd > headStart
 				&& headStart > 1)
 		{
-			Map m = new HashMap<String,String> ();
+			Map<String, String> m = new HashMap<String,String> ();
 			String headString = responseStr.substring(headStart + 1, headEnd);
 			
 			// SAK-29908 

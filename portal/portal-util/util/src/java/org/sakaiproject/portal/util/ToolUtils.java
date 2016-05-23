@@ -32,7 +32,6 @@ import org.sakaiproject.util.Web;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
@@ -244,10 +243,9 @@ public class ToolUtils
 	 *		The placement / tool ID
 	 * @return The page if found otherwise null.
 	 */
-	public static SitePage getPageForTool(Site site, String toolId)
+	public static SitePage getPageForTool(List<SitePage> pages, String toolId)
 	{
-		if ( site == null || toolId == null ) return null;
-		List pages = site.getOrderedPages();
+		if ( pages == null || toolId == null ) return null;
 		for (Iterator i = pages.iterator(); i.hasNext();)
 		{
 			SitePage p = (SitePage) i.next();
@@ -280,7 +278,7 @@ public class ToolUtils
 	public static String getPageUrlForTool(HttpServletRequest req, Site site, ToolConfiguration pageTool)
 	{
 		if ( req == null ) req = getRequestFromThreadLocal();
-		SitePage thePage = getPageForTool(site, pageTool.getId());
+		SitePage thePage = pageTool.getContainingPage();
 		if ( thePage == null ) return null;
 		return getPageUrl(req, site, thePage);
 	}

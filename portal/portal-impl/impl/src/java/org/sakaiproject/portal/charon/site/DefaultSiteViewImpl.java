@@ -35,6 +35,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -62,12 +63,12 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 	 * @param serverConfigurationService
 	 * @param preferencesService
 	 */
-	public DefaultSiteViewImpl(PortalSiteHelperImpl siteHelper,  SiteNeighbourhoodService siteNeighbourhoodService, HttpServletRequest request,
-			Session session, String currentSiteId, SiteService siteService,
-			ServerConfigurationService serverConfigurationService,
-			PreferencesService preferencesService)
+	public DefaultSiteViewImpl(PortalSiteHelper siteHelper, SiteNeighbourhoodService siteNeighbourhoodService, HttpServletRequest request,
+							   Session session, String currentSiteId, SiteService siteService,
+							   ServerConfigurationService serverConfigurationService,
+							   PreferencesService preferencesService)
 	{
-		super(siteHelper, siteNeighbourhoodService, request, session, currentSiteId, siteService,
+		super(siteHelper, siteNeighbourhoodService, request, session, currentSiteId, null, siteService,
 				serverConfigurationService, preferencesService);
 	}
 

@@ -102,10 +102,12 @@ public interface PortalSiteHelper
 										 boolean current, String pagerefUrl);
 
 
-		Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
-			String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
-			boolean expandSite, boolean resetTools, boolean doPages,
-			String toolContextPath, boolean loggedIn);
+	String getUserSpecificSiteTitle(Site site, boolean truncated, boolean escaped);
+
+	Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
+						 String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
+						 boolean expandSite, boolean resetTools, boolean doPages,
+						 String toolContextPath, boolean loggedIn);
 
 	/**
 	 * SAK-29138 - Get the site or section title for the current user for the current site.
@@ -128,7 +130,7 @@ public interface PortalSiteHelper
 	 * @param siteId
 	 * @return
 	 */
-	SiteView getSitesView(View view, HttpServletRequest req, Session session, String siteId);
+	SiteView getSitesView(View view, HttpServletRequest req, Session session, String siteId, String nodeId);
 
 	public List getPermittedPagesInOrder(Site site);
 
@@ -174,4 +176,10 @@ public interface PortalSiteHelper
 	 */
 	public boolean isSitePublished(String siteId);
 
+	/**
+	 * Checks if a siteId should be redirected somewhere else.
+	 * @param siteId The siteId that came from the URL.
+	 * @return Optionally the URL to redirect to otherwise <code>null</code>.
+     */
+	String getRedirect(String siteId);
 }

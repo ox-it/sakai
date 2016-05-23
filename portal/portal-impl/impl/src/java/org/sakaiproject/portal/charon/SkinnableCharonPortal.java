@@ -48,7 +48,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.TwoFactorAuthentication;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -98,6 +97,7 @@ import org.sakaiproject.portal.charon.handlers.PageResetHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteResetHandler;
 import org.sakaiproject.portal.charon.handlers.XLoginHandler;
+import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
 import org.sakaiproject.portal.util.ErrorReporter;
@@ -135,7 +135,6 @@ import org.sakaiproject.util.Web;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.sakaiproject.portal.api.PortalService;
-import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 
 
 /**
@@ -236,19 +235,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private List<Map>relatedLinks;
 
-	private PageFilter pageFilter = new PageFilter() {
-
-		public List filter(List newPages, Site site)
-		{
-			return newPages;
-		}
-
-		public List<Map> filterPlacements(List<Map> l, Site site)
-		{
-			return l;
-		}
-
-	};
+	// Just here for old API
+	private PageFilter pageFilter;
 
 	// define string that identifies this as the logged in users' my workspace
 	private String myWorkspaceSiteId = "~";
@@ -445,7 +433,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			if ( ! "true".equals(showSub) ) return;
 		}
 
-		SiteView siteView = siteHelper.getSitesView(SiteView.View.SUB_SITES_VIEW,req, session, siteId);
+		String nodeId = (String)ThreadLocalManager.get("portal.original.siteId");
+
+		SiteView siteView = siteHelper.getSitesView(SiteView.View.SUB_SITES_VIEW,req, session, siteId, nodeId);
 		if ( siteView.isEmpty() ) return;
 
 		siteView.setPrefix(prefix);
@@ -554,7 +544,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		if (site != null)
 		{
-			SiteView siteView = siteHelper.getSitesView(SiteView.View.CURRENT_SITE_VIEW, req, session, siteId );
+			SiteView siteView = siteHelper.getSitesView(SiteView.View.CURRENT_SITE_VIEW, req, session, siteId, null);
 			siteView.setPrefix(prefix);
 			siteView.setResetTools(resetTools);
 			siteView.setToolContextPath(toolContextPath);
@@ -569,7 +559,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		//		includeSummary, expandSite, resetTools, doPages, toolContextPath,
 		//		loggedIn);
 
-		SiteView siteView = siteHelper.getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId );
+		SiteView siteView = siteHelper.getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId, null);
 		siteView.setPrefix(prefix);
 		siteView.setResetTools(resetTools);
 		siteView.setToolContextPath(toolContextPath);
@@ -2031,13 +2021,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		boolean findPageAliases = ServerConfigurationService.getBoolean("portal.use.page.aliases", false);
 
-		siteHelper = new PortalSiteHelperImpl(this, findPageAliases);
-		
+
 		twoFactorAuthentication = (TwoFactorAuthentication)ComponentManager.get(TwoFactorAuthentication.class);
+
+		pageFilter = ComponentManager.get(PageFilter.class);
 		
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		chatHelper = org.sakaiproject.portal.api.cover.PortalChatPermittedHelper.getInstance();
+
+		siteHelper = new PortalSiteHelperImpl(this, findPageAliases);
 		M_log.info("init()");
 
 		forceContainer = ServerConfigurationService.getBoolean("login.use.xlogin.to.relogin", true);

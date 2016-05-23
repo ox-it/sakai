@@ -44,6 +44,11 @@ import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.portal.api.*;
+import org.sakaiproject.portal.charon.site.AllSitesViewImpl;
+import org.sakaiproject.portal.charon.site.CurrentSiteViewImpl;
+import org.sakaiproject.portal.charon.site.MoreSiteViewImpl;
+import org.sakaiproject.portal.charon.site.SubSiteViewImpl;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.entity.api.Entity;
@@ -55,10 +60,6 @@ import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.portal.api.PageFilter;
-import org.sakaiproject.portal.api.Portal;
-import org.sakaiproject.portal.api.PortalSiteHelper;
-import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.SiteView.View;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -81,6 +82,10 @@ import org.sakaiproject.portal.charon.PortalStringUtil;
 import org.sakaiproject.util.FormattedText;
 
 /**
+ * This class exists so that portal handlers don't have to get services directly but instead can use
+ * this class which gets all the services and has a reference to the portal. We should create a factory
+ * which creates the PortalSiteHelper from the portal rather than having the ComponentManager calls.
+ *
  * @author ieb
  * @since Sakai 2.4
  * @version $Rev$
@@ -101,24 +106,30 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
 
-	private Portal portal;
-
 	private AliasService aliasService;
-	
+
+	public void setAliasService(AliasService aliasService) {
+		this.aliasService = aliasService;
+	}
+
+	private PageFilter pageFilter;
+
+	public void setPageFilter(PageFilter pageFilter) {
+		this.pageFilter = pageFilter;
+	}
+
+	private SiteNeighbourhoodService siteNeighbourhoodService;
+
+	public void setSiteNeighbourhoodService(SiteNeighbourhoodService siteNeighbourhoodService) {
+		this.siteNeighbourhoodService = siteNeighbourhoodService;
+	}
+
 	private boolean lookForPageAliases;
 
 	// 2.3 back port
 	// private final String PROP_PARENT_ID = "sakai:parent-id";
 
 	private ToolManager toolManager;
-
-	public ToolManager getToolManager() {
-		//To work around injection for test case
-		if (toolManager==null) {
-			toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
-		}
-		return toolManager;
-	}
 
 	public void setToolManager(ToolManager toolManager) {
 		this.toolManager = toolManager;
@@ -129,9 +140,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	 */
 	public PortalSiteHelperImpl(Portal portal, boolean lookForPageAliases)
 	{
-		this.portal = portal;
 		this.lookForPageAliases = lookForPageAliases;
 		aliasService = ComponentManager.get(AliasService.class);
+		toolManager = ComponentManager.get(ToolManager.class);
+		siteNeighbourhoodService = portal.getSiteNeighbourhoodService();
+		pageFilter = portal.getPageFilter();
 	}
 
 	/* (non-Javadoc)
@@ -218,28 +231,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return gatewaySites;
 	}
 
-
-	/*
-	 * Get All Sites which indicate the current site as their parent
-	 */
-
-	// TODO: Move into SiteStructureProvider
-	/**
-	 * @see org.sakaiproject.portal.api.PortalSiteHelper#getSubSites(org.sakaiproject.site.api.Site)
-	 */
-	public List<Site> getSubSites(Site site)
-	{
-		if (site == null) return null;
-		Map<String, String> propMap = new HashMap<String, String>();
-		propMap.put(PROP_PARENT_ID, site.getId());
-
-		// This should not call getUserSites(boolean) because the property is variable, while the call is cacheable otherwise
-		List<Site> mySites = SiteService.getSites(
-				org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null,
-				propMap, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
-		return mySites;
-	}
-
 	public List<Map> getSitesInContext(String context, String userId)
 	{
 
@@ -272,17 +263,17 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		List favorites = Collections.emptyList();
 
 		if ( session != null )
-                { 
-                        Preferences prefs = PreferencesService.getPreferences(session.getUserId());
-                        ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
+				{
+						Preferences prefs = PreferencesService.getPreferences(session.getUserId());
+						ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
 
-                        List propList = props.getPropertyList("order");
-                        if (propList != null)
-                        {
-                                computeDepth = false; 
-                                favorites = propList;
-                        }
-                }
+						List propList = props.getPropertyList("order");
+						if (propList != null)
+						{
+								computeDepth = false;
+								favorites = propList;
+						}
+				}
 
 		// Determine the depths of the child sites if needed
 		for (Iterator i = mySites.iterator(); i.hasNext();)
@@ -347,7 +338,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return getUserSpecificSiteTitle( site, true, escaped );
 	}
 
-	public String getUserSpecificSiteTitle( Site site, boolean truncated, boolean escaped )
+	@Override
+	public String getUserSpecificSiteTitle(Site site, boolean truncated, boolean escaped)
 	{
 		String retVal = SiteService.getUserSpecificSiteTitle( site, UserDirectoryService.getCurrentUser().getId() );
 		if( truncated )
@@ -365,6 +357,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	/**
 	 * Explode a site into a map suitable for use in the map
+	 * @param prefix The handler used for displaying a site, typically "site" or "site-reset".
 	 * 
 	 * @see org.sakaiproject.portal.api.PortalSiteHelper#convertSiteToMap(javax.servlet.http.HttpServletRequest,
 	 *      org.sakaiproject.site.api.Site, java.lang.String, java.lang.String,
@@ -407,11 +400,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			m.put("shortDescription", Web.escapeHtml(shortDesc_trimmed));
 		}
 
-		String siteUrl = Web.serverUrl(req)
+		String siteUrlPrefix = Web.serverUrl(req)
 				+ ServerConfigurationService.getString("portalPath") + "/";
-		if (prefix != null) siteUrl = siteUrl + prefix + "/";
+		if (prefix != null) siteUrlPrefix = siteUrlPrefix + prefix + "/";
 		// siteUrl = siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s));
-		m.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(s)));
+		m.put("siteUrl", siteUrlPrefix + Web.escapeUrl(getSiteEffectiveId(s)));
 		m.put("siteType", s.getType());
 		m.put("siteId", s.getId());
 
@@ -434,8 +427,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				for (int i = 0; i < pwd.size() - 1; i++)
 				{
 					Site site = pwd.get(i);
-					// System.out.println("PWD["+i+"]="+site.getId()+"
-					// "+site.getTitle());
 					Map<String, Object> pm = new HashMap<>();
 					String siteTitleTruncatedBreadCrumb = getUserSpecificSiteTitle( site, true, true );
 					String siteTitleNotTruncatedBreadCrumb = getUserSpecificSiteTitle( site, false, true );
@@ -443,7 +434,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					pm.put("siteTitleNotTruncated", siteTitleNotTruncatedBreadCrumb );
 					pm.put("siteTitle", siteTitleTruncatedBreadCrumb );
 					pm.put("fullTitle", siteTitleNotTruncatedBreadCrumb );
-					pm.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(site)));
+					pm.put("siteUrl", siteUrlPrefix + Web.escapeUrl(getSiteEffectiveId(site)));
 
 					l.add(pm);
 					isChild = true;
@@ -698,11 +689,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			}
 
 		}
-		PageFilter pageFilter = portal.getPageFilter();
-		if (pageFilter != null)
-		{
-			l = pageFilter.filterPlacements(l, site);
-		}
 
 		if ( addMoreToolsUrl != null ) {
 			theMap.put("pageNavAddMoreToolsUrl", addMoreToolsUrl);
@@ -720,7 +706,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		theMap.put("pageNavShowHelp", Boolean.valueOf(showHelp));
 		theMap.put("pageNavHelpUrl", helpUrl);
 		theMap.put("helpMenuClass", "icon-sakai-help");
-		theMap.put("subsiteClass", "icon-sakai-subsite");
 
 		// theMap.put("pageNavSitContentshead",
 		// Web.escapeHtml(rb.getString("sit_contentshead")));
@@ -774,7 +759,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	/**
 	 * Collapse a string to only allow characters that can be in variables
-         */
+		 */
 	public String collapseToVariable(String inp)
 	{
 		if ( inp == null ) return null;
@@ -921,7 +906,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	{
 		if (site == null) return false;
 
-		Placement ppp = getToolManager().getCurrentPlacement();
+		Placement ppp = toolManager.getCurrentPlacement();
 		if (ppp != null && site.getId().equals(ppp.getContext()))
 		{
 			return true;
@@ -935,7 +920,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		ThreadLocalManager.set(CURRENT_PLACEMENT, placement);
 
 		// Debugging
-		ppp = getToolManager().getCurrentPlacement();
+		ppp = toolManager.getCurrentPlacement();
 		if (ppp == null)
 		{
 			System.out.println("WARNING portal-temporary placement not set - null");
@@ -1067,7 +1052,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 		else
 		{
-			String displayId = portal.getSiteNeighbourhoodService().lookupSiteAlias(site.getReference(), null);
+			String displayId = siteNeighbourhoodService.lookupSiteAlias(site.getReference(), null);
 			if (displayId != null)
 			{
 				if (displayId.startsWith("/"))
@@ -1120,9 +1105,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			}
 			else
 			{
-				String reference = portal.getSiteNeighbourhoodService().parseSiteAlias(siteId);
-				if (reference != null)
-				{
+				String reference = siteNeighbourhoodService.parseSiteAlias(siteId);
+				if (reference != null) {
 					Reference ref = EntityManager.getInstance().newReference(reference);
 					try {
 						return SiteService.getSiteVisit(ref.getId());
@@ -1146,39 +1130,38 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	 * @param site
 	 * @return
 	 */
-	public List getPermittedPagesInOrder(Site site)
+	public List<SitePage> getPermittedPagesInOrder(Site site)
 	{
 		// Get all of the pages
-		List pages = site.getOrderedPages();
- 		boolean siteUpdate = SecurityService.unlock("site.upd", site.getReference());
+		List<SitePage> pages = site.getOrderedPages();
+		boolean siteUpdate = SecurityService.unlock("site.upd", site.getReference());
 
-		List newPages = new ArrayList();
+		List<SitePage> newPages = new ArrayList<>();
+		newPages.addAll(pages);
+		if (pageFilter != null)
+		{
+			newPages = pageFilter.filter(newPages, site);
+		}
 
-		for (Iterator i = pages.iterator(); i.hasNext();)
+		for (Iterator<SitePage> i = newPages.iterator(); i.hasNext();)
 		{
 			// check if current user has permission to see page
-			SitePage p = (SitePage) i.next();
+			SitePage p = i.next();
 			List pTools = p.getTools();
-			Iterator iPt = pTools.iterator();
+			Iterator<ToolConfiguration> iPt = pTools.iterator();
 
 			boolean allowPage = false;
 			while (iPt.hasNext())
 			{
-				ToolConfiguration placement = (ToolConfiguration) iPt.next();
+				ToolConfiguration placement = iPt.next();
 
 				boolean thisTool = allowTool(site, placement);
 				boolean unHidden = siteUpdate || ! isHidden(placement);
 				if (thisTool && unHidden) allowPage = true;
 			}
-			if (allowPage) newPages.add(p);
+			if (!allowPage) i.remove();
 		}
 
-		PageFilter pageFilter = portal.getPageFilter();
-
-		if (pageFilter != null)
-		{
-			newPages = pageFilter.filter(newPages, site);
-		}
 		return newPages;
 	}
 
@@ -1193,15 +1176,16 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	public SitePage lookupSitePage(String pageId, Site site)
 	{
 		// Make sure we have some permitted pages
-		List pages = getPermittedPagesInOrder(site);
+		List<SitePage> pages = getPermittedPagesInOrder(site);
 		if (pages.isEmpty()) return null;
-		SitePage page = site.getPage(pageId);
+		// Look in the permitted pages.
+		SitePage page = pages.stream().filter(p -> p.getId().equals(pageId)).findFirst().orElse(null);
 		if (page == null)
 		{
 			page = lookupAliasToPage(pageId, site);
 			if (page == null)
 			{
-				page = (SitePage) pages.get(0);
+				page = pages.get(0);
 				return page;
 			}
 		}
@@ -1308,7 +1292,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	
 	public boolean allowTool(Site site, Placement placement)
 	{
-		return getToolManager().allowTool(site, placement);
+		return toolManager.allowTool(site, placement);
 	}
 
 	/**
@@ -1317,7 +1301,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	 */
 	public boolean isHidden(Placement placement)
 	{
-		return getToolManager().isHidden(placement);
+		return toolManager.isHidden(placement);
 	}
 	/*
 	 * (non-Javadoc)
@@ -1327,24 +1311,24 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	 *      org.sakaiproject.tool.api.Session, java.lang.String)
 	 */
 	public SiteView getSitesView(View view, HttpServletRequest request, Session session,
-			String siteId)
+			String siteId, String nodeId)
 	{
 		switch (view)
 		{
 			case CURRENT_SITE_VIEW:
-				return new CurrentSiteViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
+				return new CurrentSiteViewImpl(this, siteNeighbourhoodService, request, session, siteId, SiteService
 						.getInstance(), ServerConfigurationService.getInstance(),
 						PreferencesService.getInstance());
 			case ALL_SITES_VIEW:
-				return new AllSitesViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
+				return new AllSitesViewImpl(this, siteNeighbourhoodService, request, session, siteId, SiteService
 						.getInstance(), ServerConfigurationService.getInstance(),
 						PreferencesService.getInstance());
 			case DHTML_MORE_VIEW:
-				return new MoreSiteViewImpl(this,portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
+				return new MoreSiteViewImpl(this,siteNeighbourhoodService, request, session, siteId, SiteService
 						.getInstance(), ServerConfigurationService.getInstance(),
 						PreferencesService.getInstance());
 			case SUB_SITES_VIEW:
-				return new SubSiteViewImpl(this, portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
+				return new SubSiteViewImpl(this, siteNeighbourhoodService, request, session, siteId, nodeId, SiteService
 						.getInstance(), ServerConfigurationService.getInstance(),
 						PreferencesService.getInstance());
 		}
@@ -1368,11 +1352,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			return site;
 		} catch (IdUnusedException e) {
 			// Attempt to lookup by alias.
-			String reference = portal.getSiteNeighbourhoodService().parseSiteAlias(siteId);
+			String reference = siteNeighbourhoodService.parseSiteAlias(siteId);
 			if (reference != null)
 			{
 				Reference ref = EntityManager.getInstance().newReference(reference);
-				try 
+				try
 				{
 					site = SiteService.getInstance().getSite(ref.getId());
 					return site;
@@ -1401,6 +1385,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			// not a site after all
 		}
 		return siteIsPublished;
+	}
+
+	@Override
+	public String getRedirect(String siteId) {
+		return siteNeighbourhoodService.getRedirect(siteId);
 	}
 
 }

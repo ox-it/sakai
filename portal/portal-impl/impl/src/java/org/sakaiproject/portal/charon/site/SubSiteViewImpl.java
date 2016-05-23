@@ -21,18 +21,22 @@
 
 package org.sakaiproject.portal.charon.site;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.portal.api.Neighbour;
+import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.util.Web;
 
 /**
  * @author ieb
@@ -40,6 +44,10 @@ import org.sakaiproject.user.api.PreferencesService;
  */
 public class SubSiteViewImpl extends AbstractSiteViewImpl
 {
+
+	private final List<Neighbour> neighbours;
+	// The parent sites.
+	private List<Site> pSites;
 
 	/**
 	 * @param siteHelper
@@ -50,45 +58,71 @@ public class SubSiteViewImpl extends AbstractSiteViewImpl
 	 * @param serverConfigurationService
 	 * @param preferencesService
 	 */
-	public SubSiteViewImpl(PortalSiteHelperImpl siteHelper, SiteNeighbourhoodService siteNeighbourhoodService,HttpServletRequest request,
-			Session session, String currentSiteId, SiteService siteService,
-			ServerConfigurationService serverConfigurationService,
-			PreferencesService preferencesService)
+	public SubSiteViewImpl(PortalSiteHelper siteHelper, SiteNeighbourhoodService siteNeighbourhoodService, HttpServletRequest request,
+						   Session session, String currentSiteId, String nodeId, SiteService siteService,
+						   ServerConfigurationService serverConfigurationService,
+						   PreferencesService preferencesService)
 	{
-		super(siteHelper, siteNeighbourhoodService, request, session, currentSiteId, siteService,
+		super(siteHelper, siteNeighbourhoodService, request, session, currentSiteId, nodeId, siteService,
 				serverConfigurationService, preferencesService);
+		neighbours = siteNeighbourhoodService.getNeighboursAtNode(request, session, nodeId, false);
+		pSites = siteNeighbourhoodService.getParentsAtNode(request, session, nodeId, false);
 	}
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.portal.api.SiteView#getRenderContextObject()
 	 */
 	public Object getRenderContextObject()
 	{
-		// Subsites should be a list of sites, with this site as their parent.
-		if ( currentSiteId == null || currentSiteId.trim().length() == 0 ) {
-			return null;
+		Map object = new HashMap();
+
+		if (!neighbours.isEmpty()) {
+			List children = neighbours.stream().map(
+					neighbour -> neighbour.getSite().map(site -> convertSite(site, request))
+							.orElse(neighbour.getRedirect().map(redirect -> convertRedirect(redirect, request))
+									.orElse(new HashMap()))
+			).collect(Collectors.toList());
+			object.put("children", children);
 		}
-		List<Site> csites = new ArrayList<Site>();
-		for ( Site s : mySites) {
-			ResourceProperties rp = s.getProperties();
-			String ourParent = rp.getProperty(SiteService.PROP_PARENT_ID);
-			if ( currentSiteId.equals(ourParent) ) {
-				csites.add(s);
-			}
+
+		List p = pSites.stream().map(parent -> convertSite(parent, request)).collect(Collectors.toList());
+		if (!p.isEmpty()) {
+			object.put("parents", p);
 		}
-		if ( csites.size() == 0 ) {
-			return null;
-		}
-		
-		List l = siteHelper.convertSitesToMaps(request, csites, prefix, currentSiteId, 
-				/* myWorkspaceSiteId */ null,
-				/* includeSummary */ false, 
-				/* expandSite */ false, 
-				resetTools , 
-				/* doPages */ false, 
-				toolContextPath,
-				loggedIn);
-		return l;
+		return object;
 	}
 
+	@Override
+	public boolean isEmpty() {
+		return (neighbours == null || neighbours.isEmpty())
+				&& (pSites == null || pSites.isEmpty());
+	}
+
+	private Map convertSite(Site site, HttpServletRequest req) {
+		Map map = new HashMap();
+		// SAK-29138
+		String siteTitleTruncated = siteHelper.getUserSpecificSiteTitle( site, true, true );
+		String siteTitleNotTruncated = siteHelper.getUserSpecificSiteTitle( site, false, true );
+		map.put( "titleTruncated", siteTitleTruncated );
+		map.put( "title", siteTitleNotTruncated );
+
+		String siteUrlPrefix = Web.serverUrl(req)
+				+ org.sakaiproject.component.cover.ServerConfigurationService.getString("portalPath") + "/";
+		if (prefix != null) siteUrlPrefix = siteUrlPrefix + prefix + "/";
+		map.put("url", siteUrlPrefix + siteHelper.getSiteEffectiveId(site));
+		map.put("class", "icon-sakai-subsite");
+		return map;
+	}
+
+	private Map convertRedirect(Neighbour.Redirect redirect, HttpServletRequest request) {
+		Map map = new HashMap();
+		map.put("title", redirect.getTitle());
+		map.put("titleTruncated", redirect.getTitle());
+		String siteUrlPrefix = Web.serverUrl(request)
+				+ org.sakaiproject.component.cover.ServerConfigurationService.getString("portalPath") + "/";
+		if (prefix != null) siteUrlPrefix = siteUrlPrefix + prefix + "/";
+		map.put("url", siteUrlPrefix + (redirect.getId() ));
+		map.put("class", "icon-sakai-subsite"); // TODO Different icon for redirects.
+		return map;
+	}
 
 }

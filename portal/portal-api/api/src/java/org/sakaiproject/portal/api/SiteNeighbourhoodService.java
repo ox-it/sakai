@@ -44,7 +44,18 @@ public interface SiteNeighbourhoodService
 	 * @param includeMyWorksite
 	 * @return
 	 */
-	List<Site> getSitesAtNode(HttpServletRequest request, Session session, boolean includeMyWorksite);
+	List<Site> getSitesAtNode(HttpServletRequest request, Session session, String nodeId, boolean includeMyWorksite);
+
+	/**
+	 * Get a list of neighbours at the current node. This is needed so that more than just sites can be returned.
+	 * In most cases it will be mainly sites.
+     */
+	List<Neighbour> getNeighboursAtNode(HttpServletRequest request, Session session, String nodeId, boolean includeMyWorksite);
+
+	/**
+	 * Get a list of parents at the current node.
+     */
+	List<Site> getParentsAtNode(HttpServletRequest request, Session session, String nodeId, boolean includeMyWorksite);
 	
 	/**
 	 * Convert an ID that is normally displayed in the URL into something more readable.
@@ -52,7 +63,7 @@ public interface SiteNeighbourhoodService
 	 * @param content The context that this site is presented in.
 	 * @return 
 	 */
-	String lookupSiteAlias(String siteId, String content);
+	String lookupSiteAlias(String reference, String context);
 	
 	
 	/**
@@ -62,4 +73,10 @@ public interface SiteNeighbourhoodService
 	 */
 	String parseSiteAlias(String alias);
 
+	/**
+	 * Looks up a redirect for a site ID contained in a URL.
+	 * @param siteId The string found in the URL that wasn't a site ID.
+	 * @return A URL to redirect to or <code>null</code> if none is found.
+     */
+	String getRedirect(String siteId);
 }
