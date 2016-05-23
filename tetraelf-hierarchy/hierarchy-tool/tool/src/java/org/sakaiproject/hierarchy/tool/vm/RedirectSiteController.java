@@ -68,6 +68,7 @@ public class RedirectSiteController {
 	@ModelAttribute
 	public void referenceData(HttpServletRequest request, Model model) {
 		model.addAllAttributes(velocityControllerUtils.referenceData(request));
+		model.addAttribute("separator", PortalHierarchyService.SEPARATOR);
 		populateModelRedirect(model, request);
 	}
 	@ModelAttribute("redirect-add")
@@ -125,7 +126,8 @@ public class RedirectSiteController {
 			return "addRedirect";
 		}
 		try {
-			String parentId = portalHierarchyService.getCurrentPortalNode().getId();
+			PortalNodeSite parentNode = portalHierarchyService.getCurrentPortalNode();
+			String parentId = parentNode.getId();
 			String url = redirect.getUrl();
 			String serverUrl = serverConfigurationService.getServerUrl();
 			// Make the URL relative if we can.
@@ -137,7 +139,8 @@ public class RedirectSiteController {
 			}
 			portalHierarchyService.newRedirectNode(parentId, redirect.getName(), url,
 					redirect.getTitle(), redirect.isAppendPath(), redirect.isHidden());
-			return "refresh";
+			model.put("siteUrl", parentNode.getSite().getUrl());
+			return "redirect";
 		} catch (IllegalArgumentException iae) {
 			result.rejectValue("name", "error.name.exists");
 		} catch (PermissionException e) {
@@ -148,26 +151,28 @@ public class RedirectSiteController {
 	
 	@RequestMapping(value = "/redirect/delete", method = RequestMethod.POST)
 	public ModelAndView deleteRedirect(@ModelAttribute("redirect-remove") DeleteRedirectCommand command,
-								 BindingResult errors, Model model) {
+								 BindingResult errors, ModelMap model) {
 		new DeleteRedirectCommandValidator().validate(command, errors);
 		if (errors.hasErrors()) {
-			return new ModelAndView("addRedirect", model.asMap());
+			return new ModelAndView("addRedirect", model);
 		}
 		try {
 			portalHierarchyService.deleteNode(command.getId());
-			return new ModelAndView("refresh", model.asMap());
+			PortalNodeSite node = portalHierarchyService.getCurrentPortalNode();
+			model.put("siteUrl", node.getSite().getUrl());
+			return new ModelAndView("redirect", model);
 		} catch (IllegalStateException e) {
 			throw new RuntimeException("Redirects should never have children so shouldn't see this exception.", e);
 		} catch (PermissionException e) {
 			errors.rejectValue("id", "error.no.permission");
 		}
-		return new ModelAndView("addRedirect", model.asMap());
+		return new ModelAndView("addRedirect", model);
 	}
 	
 	@RequestMapping(value = "/cancel", method = RequestMethod.POST)
 	public String doCancelAction(ModelMap model) throws Exception {
-		PortalNode node = portalHierarchyService.getCurrentPortalNode();
-		model.put("siteUrl", serverConfigurationService.getPortalUrl() + "/hierarchy" + node.getPath());
+		PortalNodeSite node = portalHierarchyService.getCurrentPortalNode();
+		model.put("siteUrl", node.getSite().getUrl());
 		return "redirect";
 	}
 

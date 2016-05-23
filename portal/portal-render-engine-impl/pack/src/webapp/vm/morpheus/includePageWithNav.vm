@@ -5,11 +5,11 @@
 
     <nav class="Mrphs-siteHierarchy">
 
-        #if ( $portalBreadCrumbs or $portalPwd ) 
+        #if ( $portalBreadCrumbs or $subSites.parents )
 
                 #set ($tabTotal = 0)
 
-                #foreach ( $pwd in $portalPwd )
+                #foreach ( $pwd in $subSites.parents )
 
                     #set ($tabTotal = $tabTotal + 1)
 
@@ -17,19 +17,19 @@
                 
                 #foreach ( $crumb in $portalBreadCrumbs )
 
-                    #set ($tabTotal = $tabTotal + 1)
+                    ite
 
                 #end ## END of FOREACH ( $crumb in $portalBreadCrumbs )
                
                 #set ($tabCountBread = 0)
                 
                 <div class="Mrphs-hierarchy--parent-sites">
-                    #foreach ( $pwd in $portalPwd )
+                    #foreach ( $pwd in $subSites.parents )
 
                         #set ($tabCountBread = $tabCountBread + 1)
                         <span class="Mrphs-hierarchy-item Mrphs-hierarchy--portalPwd Mrphs-hierarchy--$tabCountBread">
-                            <a href="${pwd.siteUrl}" title="${pwd.fullTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">
-                            #if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.siteTitle}#end
+                            <a href="${pwd.url}" title="${pwd.title}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">
+                            #if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.title}#end
                             </span></a>
                         </span>
                         <span class="Mrphs-hierarchy--separator-$tabCountBread Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span>

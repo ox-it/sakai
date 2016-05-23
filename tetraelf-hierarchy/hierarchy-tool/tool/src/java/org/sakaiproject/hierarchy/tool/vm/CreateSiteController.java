@@ -80,12 +80,15 @@ public class CreateSiteController extends AbstractCommandController {
 		}
 
 		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
-		String sitePath = null;
 		try {
 			PortalNodeSite node = hs.getCurrentPortalNode();
-			PortalNode newNode = hs.newSiteNode(node.getId(), command.getName(), command.getSiteId(), node
+			PortalNodeSite newNode = hs.newSiteNode(node.getId(), command.getName(), command.getSiteId(), node
 					.getManagementSite().getId());
-			sitePath = newNode.getPath();
+			SessionManager.getCurrentToolSession().clearAttributes();
+			Map model = new VelocityControllerUtils(ServerConfigurationService.getInstance()).referenceData(request);
+			model.put("siteUrl", newNode.getSite().getUrl());
+
+			return new ModelAndView(successView, model);
 		} catch (Exception e) {
 			errors.reject("error.add.hierarchy", new Object[] { e.getMessage() },
 					"Failed to create node in hierarchy: {0}");
@@ -93,11 +96,6 @@ public class CreateSiteController extends AbstractCommandController {
 		}
 		// This is a hack as something in the tool session breaks the tool the
 		// second time you create a site
-		SessionManager.getCurrentToolSession().clearAttributes();
-		Map model = new VelocityControllerUtils(ServerConfigurationService.getInstance()).referenceData(request);
-		model.put("siteUrl", ServerConfigurationService.getPortalUrl() + "/hierarchy" + sitePath);
-
-		return new ModelAndView(successView, model);
 
 	}
 

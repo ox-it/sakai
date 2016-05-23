@@ -39,7 +39,7 @@ import java.util.*;
  */
 public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
-	private static Log log = LogFactory.getLog(PortalHierarchyServiceImpl.class);
+    private static Log log = LogFactory.getLog(PortalHierarchyServiceImpl.class);
 	
 	// Used for a threadlocal storage of the current node.
 	private static final String CURRENT_NODE = PortalHierarchyServiceImpl.class.getName()+ "#current";
@@ -135,12 +135,20 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	}
 
 	public String getCurrentPortalPath() {
-		PortalNode node = getCurrentPortalNode();
-		return (node==null)?null:node.getPath();
+		String path = (String) threadLocalManager.get("portal.original.siteId");
+		return path;
 	}
 
 	public PortalNodeSite getCurrentPortalNode() {
-		return (PortalNodeSite)threadLocalManager.get(CURRENT_NODE);
+		return (PortalNodeSite) getNodeByUrl(getCurrentPortalPath());
+	}
+
+	public PortalNode getNodeByUrl(String urlPath) {
+		String portalPath = urlPath;
+		if (portalPath != null) {
+			portalPath = portalPath.replace(SEPARATOR, "/");
+		}
+		return getNode(portalPath);
 	}
 
 	public PortalNode getNode(String portalPath) {
@@ -605,8 +613,19 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 
 		// This is to invalidate the siteToNodeCache.
 		eventTrackingService.addObserver(new SiteToNodeObserver(siteToNodeCache, dao));
-	}
+		eventTrackingService.addObserver((o, arg) -> {
+			if (arg instanceof Event) {
+				Event event = (Event) arg;
+				if (event.getResource().startsWith(PREFIX) && event.getModify()) {
+					String resource = event.getResource();
+					idToNodeCache.remove(resource);
+					idChildrenCache.remove(resource);
+					idParentsCache.remove(resource);
+				}
+			}
 
+        });
+	}
 	private void initDefaultContent() {
 		HierarchyNode root = hierarchyService.getRootNode(hierarchyId);
 
@@ -753,7 +772,8 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 				// Our site to node ID pathToIdCache is a summary of multiple obj so needs to
 				// be invalidated in this way.
 				// The problem is that all the nodes do a DB lookup on the modified node.
-				if (EVENT_MODIFY.equals(event.getEvent()) || EVENT_NEW.equals(event.getEvent())) {
+				if (event.getResource().startsWith(PREFIX) &&
+						EVENT_MODIFY.equals(event.getEvent()) || EVENT_NEW.equals(event.getEvent())) {
 					String id = fromRef(event.getResource());
 					PortalPersistentNode node = dao.findById(id);
 					if (node != null) {

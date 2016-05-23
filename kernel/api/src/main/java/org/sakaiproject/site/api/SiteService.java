@@ -41,7 +41,7 @@ import org.w3c.dom.Element;
  * SiteService manages Sites.
  * </p>
  */
-public interface SiteService extends EntityProducer
+public interface SiteService extends EntityProducer<Site>
 {
 	/** The type string for this application: should not change over time as it may be stored in various parts of persistent entities. */
 	static final String APPLICATION_ID = "sakai:site";

@@ -54,7 +54,7 @@
    <label>#springMessage("site.url")</label>
   </th>
   <td>
-   ${siteUrl}/#springFormInput("command.name" "")
+   ${siteUrl}${separator}#springFormInput("command.name" "")
    #springShowErrors("" "")
   </td>
  </tr>

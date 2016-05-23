@@ -2471,12 +2471,12 @@ public abstract class BaseSiteService implements SiteService, Observer
 	/**
 	 * {@inheritDoc}
 	 */
-	public Entity getEntity(Reference ref)
+	public Site getEntity(Reference ref)
 	{
 		// double check that it's mine
 		if (!APPLICATION_ID.equals(ref.getType())) return null;
 		
-		Entity rv = null;
+		Site rv = null;
 
 		try
 		{

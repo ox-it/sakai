@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
 
@@ -44,7 +45,15 @@ public interface SiteNeighbourhoodService
 	 * @param includeMyWorksite
 	 * @return
 	 */
-	List<Site> getSitesAtNode(HttpServletRequest request, Session session, boolean includeMyWorksite);
+	List<Site> getSitesAtNode(HttpServletRequest request, Session session, String nodeId, boolean includeMyWorksite);
+
+	/**
+	 * Get a list of neighbours at the current node. This is needed so that more than just sites can be returned.
+	 * In most cases it will be mainly sites.
+     */
+	List<Neighbour> getNeighboursAtNode(HttpServletRequest request, Session session, String nodeId, boolean includeMyWorksite);
+
+	List<Site> getParentsAtNode(HttpServletRequest request, Session session, String nodeId, boolean includeMyWorksite);
 	
 	/**
 	 * Convert an ID that is normally displayed in the URL into something more readable.
@@ -52,14 +61,21 @@ public interface SiteNeighbourhoodService
 	 * @param content The context that this site is presented in.
 	 * @return 
 	 */
-	String lookupSiteAlias(String siteId, String content);
+	String lookupSiteAlias(String reference, String context);
 	
 	
 	/**
 	 * Attempt to convert an alias back into a site reference.
 	 * @param alias
 	 * @return <code>null</code> if we couldn't find an reference that this maps to.
+	 * TODO Shouldn't throw permission exception
 	 */
-	String parseSiteAlias(String alias);
+	Site parseSiteAlias(String alias) throws PermissionException;
 
+	/**
+	 * Looks up a redirect for a site ID contained in a URL.
+	 * @param siteId The string found in the URL that wasn't a site ID.
+	 * @return A URL to redirect to or <code>null</code> if none is found.
+     */
+	String getRedirect(String siteId);
 }

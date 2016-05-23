@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -37,11 +38,11 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.portal.api.PortalService;
-import org.sakaiproject.portal.api.SiteNeighbourhoodService;
+import org.sakaiproject.portal.api.*;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -50,6 +51,7 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.Web;
 
 /**
  * @author ieb
@@ -60,6 +62,8 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 	private static final String SITE_ALIAS = "/sitealias/";
 
 	private static final Log log = LogFactory.getLog(SiteNeighbourhoodServiceImpl.class);
+
+	private EntityManager entityManager;
 
 	private SiteService siteService;
 
@@ -72,7 +76,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 	private AliasService aliasService;
 
 	private ThreadLocalManager threadLocalManager;
-	
+
 	/** Should all site aliases have a prefix */
 	private boolean useAliasPrefix = false;
 	
@@ -94,10 +98,40 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 	 * @see org.sakaiproject.portal.api.SiteNeighbourhoodService#getSitesAtNode(javax.servlet.http.HttpServletRequest,
 	 *      org.sakaiproject.tool.api.Session, boolean)
 	 */
-	public List<Site> getSitesAtNode(HttpServletRequest request, Session session,
-			boolean includeMyWorkspace)
+	public List<Site> getSitesAtNode(HttpServletRequest request, Session session, String nodeId,
+											  boolean includeMyWorkspace)
 	{
-		return getAllSites(request, session, includeMyWorkspace);
+		List<Site> sites = getAllSites(request, session, includeMyWorkspace);
+        // Subsites should be a list of sites, with this site as their parent.
+        if ( nodeId != null && nodeId.trim().length() != 0 ) {
+			List<Site> csites = new ArrayList<>();
+			for ( Site s : sites) {
+				ResourceProperties rp = s.getProperties();
+				String ourParent = rp.getProperty(SiteService.PROP_PARENT_ID);
+				if ( nodeId.equals(ourParent) ) {
+					csites.add(s);
+				}
+			}
+			if ( csites.size() == 0 ) {
+				return null;
+			}
+			return csites;
+		}
+		return sites;
+	}
+
+	@Override
+	public List<Neighbour> getNeighboursAtNode(HttpServletRequest request, Session session, String nodeId, boolean includeMyWorksite) {
+        String siteUrlPrefix = Web.serverUrl(request)
+        + org.sakaiproject.component.cover.ServerConfigurationService.getString("portalPath") + "/" + "site";
+		return getSitesAtNode(request, session, nodeId, includeMyWorksite)
+				.stream().map((site) -> new SiteNeighbour(site))
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<Site> getParentsAtNode(HttpServletRequest request, Session session, String nodeId, boolean includeMyWorksite) {
+		return null;
 	}
 
 	/**
@@ -536,6 +570,10 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		this.threadLocalManager = threadLocalManager;
 	}
 
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
+
 	public String lookupSiteAlias(String id, String context)
 	{
 		// TODO Constant extraction
@@ -590,7 +628,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		return null;
 	}
 
-	public String parseSiteAlias(String alias)
+	public Site parseSiteAlias(String alias)
 	{
 		if (alias == null)
 		{
@@ -602,7 +640,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		try
 		{
 			String reference = aliasService.getTarget(id);
-			return reference;
+			return (Site)entityManager.newReference(reference).getEntity();
 		}
 		catch (IdUnusedException e)
 		{
@@ -611,6 +649,12 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 				log.debug("No alias found for "+ id);
 			}
 		}
+		return null;
+	}
+
+	@Override
+	public String getRedirect(String siteId) {
+		// TODO could use aliases in the future
 		return null;
 	}
 

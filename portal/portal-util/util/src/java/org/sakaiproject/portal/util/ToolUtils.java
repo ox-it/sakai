@@ -32,7 +32,6 @@ import org.sakaiproject.util.Web;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;

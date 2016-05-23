@@ -24,8 +24,6 @@ package org.sakaiproject.portal.charon.site;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -41,13 +39,13 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 
 import org.sakaiproject.util.ResourceLoader;
@@ -77,12 +75,12 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 	 * @param serverConfigurationService
 	 * @param preferencesService
 	 */
-	public MoreSiteViewImpl(PortalSiteHelperImpl siteHelper,  SiteNeighbourhoodService siteNeighbourhoodService, HttpServletRequest request,
-			Session session, String currentSiteId, SiteService siteService,
-			ServerConfigurationService serverConfigurationService,
-			PreferencesService preferencesService)
+	public MoreSiteViewImpl(PortalSiteHelper siteHelper, SiteNeighbourhoodService siteNeighbourhoodService, HttpServletRequest request,
+							Session session, String currentSiteId, SiteService siteService,
+							ServerConfigurationService serverConfigurationService,
+							PreferencesService preferencesService)
 	{
-		super(siteHelper, siteNeighbourhoodService, request, session, currentSiteId, siteService,
+		super(siteHelper, siteNeighbourhoodService, request, session, currentSiteId, null, siteService,
 				serverConfigurationService, preferencesService);
 	}
 

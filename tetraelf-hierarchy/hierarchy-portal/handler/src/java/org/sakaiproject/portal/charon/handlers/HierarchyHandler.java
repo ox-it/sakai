@@ -64,10 +64,6 @@ public class HierarchyHandler extends SiteHandler {
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
-
-		// Set a threadlocal so lower levels can know we are using the hierarchy handler (eg aliases).
-		ThreadLocalManager.set("sakai:portal:hierarchy", Boolean.TRUE);
-
 		// If we are specified (/portal/hierarchy)
 		if ( (parts.length >= 2) && parts[1].equals(getUrlFragment()))
 		{
@@ -101,6 +97,9 @@ public class HierarchyHandler extends SiteHandler {
 			throws PortalHandlerException {
 		try
 		{
+			// Set a threadlocal so lower levels can know we are using the hierarchy handler (eg aliases).
+			ThreadLocalManager.set("sakai:portal:hierarchy", Boolean.TRUE);
+
 			// This is so that when the site service builds URLs it uses hierarchy.
 			session.setAttribute("sakai-controlling-portal", getUrlFragment());
 			PortalNode node = null;
@@ -255,123 +254,13 @@ public class HierarchyHandler extends SiteHandler {
 			return;
 		}
 
-		if (!node.canView())
-		{
-			doPermissionDenied(req, res, session, site, toolContextPath);
-			return;
+		// Redirect to the standard site handler
+		String url = "/site/"+ node.getUrlPath();
+		if (pageId != null) {
+			url += "/page/"+pageId;
 		}
-		try
-		{
-			hierarchySite = siteService.getSite("!hierarchy");
-		}
-		catch (IdUnusedException e)
-		{
-			log.warn("Hierarchy site not found.");
-		}
-
-		if (hierarchySite != null)
-		{
-			// Do permission checks against the current site rather than the hierarchy site.
-			// This isn't a good way of doing this and should change later.
-			final Site otherSite = hierarchySite;
-			securityService.pushAdvisor(new SecurityAdvisor(){
-
-				public SecurityAdvice isAllowed(String userId, String function,
-						String reference) {
-					if (reference.equals(otherSite.getReference()) && !site.getReference().equals(otherSite.getReference())) {
-						// Use the security service so it picks up from the templates.
-						boolean allowed = securityService.unlock(userId, function, site.getReference());
-						return (allowed)?SecurityAdvice.ALLOWED:SecurityAdvice.NOT_ALLOWED;
-					}
-					return SecurityAdvice.PASS;
-				}
-
-			});
-		}
-
-		// find the page, or use the first page if pageId not found
-
-		SitePage page = lookupSitePage(pageId, site);
-		if (page == null && pageId != null && node != null)
-		{
-			// Look in the hierarchy site.
-			page = lookupSitePage(pageId, hierarchySite);
-			if (page != null)
-			{
-				// Fix up the skin.
-				page = new AdoptedSitePage(node, page);
-			}
-
-		}
-
-		if (page == null)
-		{
-			List pages =  portal.getSiteHelper().getPermittedPagesInOrder(site);
-			if (!pages.isEmpty())
-			{
-				page = (SitePage) pages.get(0);
-			}
-		}
-		if (page == null)
-		{
-			portal.doError(req, res, session, Portal.ERROR_SITE);
-			return;
-		}
-
-		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : "
-				+ site.getTitle() + " : " + page.getTitle();
-
-		// start the response
-		String siteType = portal.calcSiteType(site.getId());
-		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
-				.getSkin(), req);
-
-		// Include normal site nav details.
-		includeSiteNav(rcontext, req, session, site.getId());
-
-		String prefix = getUrlFragment();
-		String siteUrl = node.getPath();
-
-		rcontext.put("siteId", site.getId());
-
-		if (siteUrl.endsWith("/"))
-		{
-			siteUrl = siteUrl.substring(0, siteUrl.length()-1);
-		}
-
-
-
-		if (hierarchySite != null)
-		{
-
-			includeHierarchyNav(rcontext, req, session, site, page, toolContextPath, prefix, siteUrl, hierarchySite, node);
-		}
-
-		includeSiteBanner(rcontext, site);
-
-		includeWorksite(rcontext, res, req, session, site, page, toolContextPath, prefix);
-
-		portal.includeBottom(rcontext);
-
-		// end the response
-		portal.sendResponse(rcontext, res, "site", null);
-		StoredState ss = portalService.getStoredState();
-		if (ss != null && toolContextPath.equals(ss.getToolContextPath()))
-		{
-			// This request is the destination of the request
-			portalService.setStoredState(null);
-		}
-		try
-		{
-			boolean presenceEvents = ServerConfigurationService.getBoolean("presence.events.log", true);
-			if (presenceEvents)
-				PresenceService.setPresence(site.getId() + "-presence");
-		}
-		catch(Exception e)
-		{
-			log.info("Failed to set presence: "+ e.getMessage());
-		}
+		// Redirect them to the standard site handler
+		res.sendRedirect(Web.returnUrl(req, url));
 	}
 
 	private void doPermissionDenied(HttpServletRequest req,

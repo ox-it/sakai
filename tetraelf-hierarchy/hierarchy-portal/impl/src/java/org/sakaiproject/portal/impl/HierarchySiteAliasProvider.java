@@ -2,7 +2,13 @@ package org.sakaiproject.portal.impl;
 
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.site.api.SiteAliasProvider;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class HierarchySiteAliasProvider implements SiteAliasProvider {
 
@@ -14,13 +20,22 @@ public class HierarchySiteAliasProvider implements SiteAliasProvider {
 	}
 
 	public String lookupAlias(String siteId) {
+		PortalNodeSite currentPortalNode = portalHierarchyService.getCurrentPortalNode();
+		List<PortalNodeSite> closeNodes = new ArrayList<>();
+		closeNodes.addAll(portalHierarchyService.getNodesFromRoot(currentPortalNode.getId()));
+		portalHierarchyService.getNodeChildren(currentPortalNode.getId()).stream()
+				.filter(node -> node instanceof PortalNodeSite)
+				.map(portalNode -> (PortalNodeSite)portalNode)
+				.forEachOrdered(closeNodes::add);
+		for (PortalNodeSite node : closeNodes) {
+			if (node.getSite().getId().equals(siteId)) {
+				return node.getUrlPath();
+			}
+		}
 		PortalNode defaultNode = portalHierarchyService.getDefaultNode(siteId);
 		if (defaultNode != null) {
-			String path = defaultNode.getPath();
-			// Trim the leading slash
-			if (path != null && path.length() > 0) {
-				return path.substring(1);
-			}
+			String path = defaultNode.getUrlPath();
+			return path;
 		}
 		return null;
 	}

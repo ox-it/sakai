@@ -69,7 +69,7 @@ public class DeleteSiteController {
 		PortalNode node = portalHierarchyService.getCurrentPortalNode();
 		DeleteSiteCommand command = (DeleteSiteCommand) object;
 		List<PortalNodeSite> nodes = portalHierarchyService.getNodesFromRoot(node.getId());
-		String parentPath = nodes.get(nodes.size() - 1).getPath();
+		String parentUrl = nodes.get(nodes.size() - 1).getSite().getUrl();
 		try {
 			portalHierarchyService.deleteNode(node.getId());
 			// Do we want to remove the site?
@@ -77,7 +77,7 @@ public class DeleteSiteController {
 				siteService.removeSite(((PortalNodeSite) node).getSite());
 			}
 
-			model.put("siteUrl", serverConfigurationService.getPortalUrl() + "/hierarchy" + parentPath);
+			model.put("siteUrl", parentUrl);
 
 			return "redirect";
 		} catch (IllegalStateException ise) {
@@ -90,8 +90,8 @@ public class DeleteSiteController {
 	//Adding cancel feature into the Remove Site screen
 	@RequestMapping(value = "/cancel/remove", method = RequestMethod.POST)
 	public String doCancelAction(ModelMap model) throws Exception {
-		PortalNode node = portalHierarchyService.getCurrentPortalNode();
-		model.put("siteUrl", serverConfigurationService.getPortalUrl() + "/hierarchy" + node.getPath());
+		PortalNodeSite node = portalHierarchyService.getCurrentPortalNode();
+		model.put("siteUrl", node.getSite().getUrl());
 		return "redirect";
 	}
 

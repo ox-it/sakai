@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.site.api.Site;
@@ -39,7 +40,7 @@ import org.sakaiproject.user.api.PreferencesService;
 public class CurrentSiteViewImpl implements SiteView
 {
 
-	protected PortalSiteHelperImpl siteHelper;
+	protected PortalSiteHelper siteHelper;
 
 	protected HttpServletRequest request;
 
@@ -67,7 +68,7 @@ public class CurrentSiteViewImpl implements SiteView
 
 	private boolean expandSite;
 
-	public CurrentSiteViewImpl(PortalSiteHelperImpl siteHelper,
+	public CurrentSiteViewImpl(PortalSiteHelper siteHelper,
 			SiteNeighbourhoodService siteNeighbourhoodService,
 			HttpServletRequest request, Session session, String currentSiteId,
 			SiteService siteService,

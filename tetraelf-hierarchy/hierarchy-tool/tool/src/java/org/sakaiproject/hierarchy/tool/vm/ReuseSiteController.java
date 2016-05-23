@@ -73,8 +73,8 @@ public class ReuseSiteController extends SimpleFormController {
 		if(action != null && action.equals("Cancel")){
 			Map model = new VelocityControllerUtils(ServerConfigurationService.getInstance()).referenceData(request);
 			PortalHierarchyService portalHierarchyService = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
-			PortalNode node = portalHierarchyService.getCurrentPortalNode();
-			model.put("siteUrl", ServerConfigurationService.getPortalUrl() + "/hierarchy" + node.getPath());
+			PortalNodeSite node = portalHierarchyService.getCurrentPortalNode();
+			model.put("siteUrl", node.getSite().getUrl());
 			return new ModelAndView(getSuccessView(), model);
 		}
 		return super.handleRequestInternal(request, response);
@@ -95,14 +95,12 @@ public class ReuseSiteController extends SimpleFormController {
 			}
 		}
 
-		String sitePath = null;
 		Map model = errors.getModel();
 		try {
 			PortalNodeSite node = hs.getCurrentPortalNode();
-			PortalNode newNode = hs.newSiteNode(node.getId(), command.getName(), command.getSiteId(), node
+			PortalNodeSite newNode = hs.newSiteNode(node.getId(), command.getName(), command.getSiteId(), node
 					.getManagementSite().getId());
-			sitePath = newNode.getPath();
-			model.put("siteUrl", ServerConfigurationService.getPortalUrl() + "/hierarchy" + sitePath);
+			model.put("siteUrl", newNode.getSite().getUrl());
 			model.putAll(new VelocityControllerUtils(ServerConfigurationService.getInstance()).referenceData(request));
 		} catch (Exception hse) {
 			errors.reject("error.add.hierarchy");
@@ -125,12 +123,12 @@ public class ReuseSiteController extends SimpleFormController {
 		Map data = new VelocityControllerUtils(ServerConfigurationService.getInstance()).referenceData(request);
 
 		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
-		PortalNode currentNode = hs.getCurrentPortalNode();
-		String sitePath = currentNode.getPath();
-		data.put("siteUrl", ServerConfigurationService.getPortalUrl() + "/hierarchy" + sitePath);
+		PortalNodeSite currentNode = hs.getCurrentPortalNode();
+		data.put("siteUrl", currentNode.getSite().getUrl());
 
 		data.put("titleMaxLength", getTitleMaxLength());
 		data.put("mode", "reuse");
+		data.put("separator", PortalHierarchyService.SEPARATOR);
 		return data;
 	}
 

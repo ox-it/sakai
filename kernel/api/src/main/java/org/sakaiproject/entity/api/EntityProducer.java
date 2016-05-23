@@ -35,7 +35,7 @@ import org.w3c.dom.Element;
  * Services which implement EntityProducer declare themselves as producers of Sakai entities.
  * </p>
  */
-public interface EntityProducer
+public interface EntityProducer<T extends Entity>
 {
 	/**
 	 * @return a short string identifying the resources kept here, good for a file name or label.
@@ -125,7 +125,7 @@ public interface EntityProducer
 	 *        The entity reference.
 	 * @return The Entity, or null if not found.
 	 */
-	Entity getEntity(Reference ref);
+	T getEntity(Reference ref);
 
 	/**
 	 * Access a URL for the referenced entity - the entity will belong to the service.

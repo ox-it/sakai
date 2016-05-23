@@ -28,7 +28,7 @@ import java.util.Collection;
  * Reference holds an immutable(?) reference to a Sakai entity.
  * </p>
  */
-public interface Reference
+public interface Reference<T extends Entity>
 {
 	/**
 	 * Add the AuthzGroup(s) for context as a site.
@@ -83,7 +83,7 @@ public interface Reference
 	 * 
 	 * @return The Entity object that this references.
 	 */
-	Entity getEntity();
+	T getEntity();
 
 	/**
 	 * Access the primary id.
@@ -174,5 +174,5 @@ public interface Reference
 	 * 
 	 * @return The EntityProducer responsible for the referenced entity, or null if there is none.
 	 */
-	EntityProducer getEntityProducer();
+	EntityProducer<T> getEntityProducer();
 }

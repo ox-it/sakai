@@ -25,6 +25,13 @@ public interface PortalNode {
 	 * @return A String path.
 	 */
 	public String getPath();
+
+	/**
+	 * The pull path to this node encoded for URL use
+	 * @see org.sakaiproject.hierarchy.api.PortalHierarchyService#getNodeByUrl(String)
+	 * @return A path encoded for use in URLs.
+     */
+	public String getUrlPath();
 	
 	/**
 	 * The title of this node that is displayed to the end user.

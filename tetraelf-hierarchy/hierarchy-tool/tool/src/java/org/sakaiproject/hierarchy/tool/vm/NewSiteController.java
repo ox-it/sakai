@@ -12,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.tool.api.Tool;
 import org.springframework.validation.BindException;
@@ -100,14 +101,9 @@ public class NewSiteController extends SimpleFormController {
 		referenceData.put("mode", "new");
 
 		PortalHierarchyService hs = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
-		PortalNode currentNode = hs.getCurrentPortalNode();
-		String sitePath = currentNode.getPath();
-		// The root of the hierarchy is just "/" all other nodes don't end with
-		// a /
-		if (sitePath.endsWith("/")) {
-			sitePath = sitePath.substring(0, sitePath.length() - 1);
-		}
-		referenceData.put("siteUrl", ServerConfigurationService.getPortalUrl() + "/hierarchy" + sitePath);
+		PortalNodeSite currentNode = hs.getCurrentPortalNode();
+		referenceData.put("siteUrl", currentNode.getSite().getUrl());
+		referenceData.put("separator", PortalHierarchyService.SEPARATOR);
 		return referenceData;
 	}
 
@@ -119,8 +115,8 @@ public class NewSiteController extends SimpleFormController {
 		if(action != null && action.equals("Cancel")){
 			Map model = new VelocityControllerUtils(ServerConfigurationService.getInstance()).referenceData(request);
 			PortalHierarchyService portalHierarchyService = org.sakaiproject.hierarchy.cover.PortalHierarchyService.getInstance();
-			PortalNode node = portalHierarchyService.getCurrentPortalNode();
-			model.put("siteUrl", ServerConfigurationService.getPortalUrl() + "/hierarchy" + node.getPath());
+			PortalNodeSite node = portalHierarchyService.getCurrentPortalNode();
+			model.put("siteUrl", node.getSite().getUrl());
 			return new ModelAndView(getCancelledView(), model);
 		}
 		return super.handleRequestInternal(request, response);
