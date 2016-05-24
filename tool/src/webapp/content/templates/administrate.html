@@ -1,13 +1,38 @@
+<!--
+
+    Copyright 2005 Sakai Foundation Licensed under the
+    Educational Community License, Version 2.0 (the "License"); you may
+    not use this file except in compliance with the License. You may
+    obtain a copy of the License at
+
+    http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an "AS IS"
+    BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+    or implied. See the License for the specific language governing
+    permissions and limitations under the License.
+
+-->
 <!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title rsf:id="administrate-title">Administrate</title>
+    <!-- standard on all pages -->
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
     <link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
-    <script type="text/javascript" rsf:id="scr=portal-matter" language="JavaScript" src="/library/js/headscripts.js"></script>
+    <script src="/library/js/headscripts.js" rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript"></script>
+    <!-- end standard on all pages -->
+
+    <script src="../js/jquery/jquery-1.4.4.min.js" type="text/javascript"></script>
+    <script src="../js/jquery/jquery-ui-1.8.all.min.js" type="text/javascript"></script>
+    <script src="../js/eval.administrate.js" type="text/javascript"></script>
+
+    <link href="../css/jquery/jquery-ui-1.8.all.css" type="text/css" rel="stylesheet" media="all" />
     <link href="../css/evaluation_base.css" type="text/css" rel="stylesheet" media="all" />
+    <link rsf:id="local_css_include" href="local_css_file.css" type="text/css" rel="stylesheet" media="all" />
 </head>
 <body>
 <div class="portletBody">
@@ -21,22 +46,22 @@
 			<a rsf:id="summary-link" href="summary.html">Summary</a>
 		</li>
 		<li style="float:left" class="lastCrumb" rsf:id="administrate-title">Administrate</li>
-		<li style="float:right" class=" lastCrumb addItem">
+		<li style="float:right" class="lastCrumb addItem">
 			<a rsf:id="test-evalgroupprovider-toplink" href="admin_test_evalgroup_provider.html"  class="goToList">Test EvalGroupProvider</a>
 		</li>
-		<li style="float:right" class=" lastCrumb">
+		<li style="float:right" class="lastCrumb">
 			<a rsf:id="control-email-toplink" href="control_email.html" class="goToList">Control Email</a>
 		</li>
-		<li style="float:right" class=" lastCrumb">
+		<li style="float:right" class="lastCrumb">
 			<a rsf:id="control-import-toplink" href="control_import.html" class="goToList">Control Importing</a>
 		</li>
-		<li style="float:right" class=" lastCrumb">
+		<li style="float:right" class="lastCrumb">
 			<a rsf:id="control-hierarchy-toplink" href="control_hierarchy.html" class="goToList">Control Hierarchy</a>
 		</li>
-		<li style="float:right" class=" lastCrumb">
+		<li style="float:right" class="lastCrumb">
 			<a rsf:id="control-reporting-toplink" href="control_reporting.html" class="goToList">Control Reporting</a>
 		</li>
-		<li style="float:right" class=" lastCrumb">
+		<li style="float:right" class="lastCrumb">
 			<!-- string added to bundle as administrate.top.control.search -->
 			<a rsf:id="control-administrate-search"  href="administrate_search.html" class="goToList">Search</a>
 		</li>
@@ -55,7 +80,7 @@
     </ul>
 </p>
             
-<form  rsf:id="basic-form" method="post">
+<form rsf:id="basic-form" class="administrate-form" method="post">
 
     <h3 rsf:id="system-settings-header">System Settings</h3>
     <p class="instruction" rsf:id="system-settings-instructions">
@@ -302,6 +327,8 @@
         <span rsf:id="msg=administrate.reset.cache">This will force the configuration cache to clear immediately, use this if you have changed the config settings and they appear to be out of sync, the cache should automatically reset once per hour</span>
     </form>
 </fieldset>
+
+<div rsf:id="app_version_revision" style="font-style: italic; font-size: 0.8em">Version: 1.0</div>
 
 </div>
 </body>

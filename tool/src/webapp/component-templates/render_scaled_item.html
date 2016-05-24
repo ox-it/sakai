@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+    Copyright 2005 Sakai Foundation Licensed under the
+    Educational Community License, Version 2.0 (the "License"); you may
+    not use this file except in compliance with the License. You may
+    obtain a copy of the License at
+
+    http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an "AS IS"
+    BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+    or implied. See the License for the specific language governing
+    permissions and limitations under the License.
+
+-->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml">
 	<head>
@@ -8,21 +24,22 @@
 	<body>
 
 		<!-- html template for the scaled item renderer -AZ -->
-		<div rsf:id="render-scaled-item:">
-			<div rsf:id="compactDisplay:" style="clear:both;height:100%;overflow:hidden;vertical-align:top">
+		<div rsf:id="render-scaled-item:" class="item scale">
+			<div rsf:id="compactDisplay:" class="compact">
 				<!-- Compact DISPLAY -->
 				<div style="float:left;padding:.3em 0;">
                      <span class="validFailGlyph">*</span><span class="compulsoryGlyph">*</span>
                      <span rsf:id="itemNum" class="label">#</span><span class="label">.&nbsp;</span>
                      <span rsf:id="itemText" style="display:inline" class="label">Item text for compact items goes here</span>
 				</div>
-				<table border="0" cellspacing="0" cellpadding="0" width="10%" style="float:right;" class="itemScalePanel" >
+				<div class="content">
+				<table border="0" cellspacing="0" cellpadding="0" width="10%" class="itemScalePanel" >
 					<tr>
 						<td rsf:id="showNA:" style="white-space:nowrap" class="itemScalePanelNACell scaleItemLabel">
 							<input type="radio" name="choices" rsf:id="na-input" id="na-input" class="scaleItemLabelNA" /><label rsf:id="na-desc" class="" for="na-input">N/A</label>
 						</td>
 						<td width="5%" nowrap="nowrap"  rsf:id="compactStartContainer:" class="compactDisplayStartGeneric">
-							<span  rsf:id="compactDisplayStart">compactDisplayStart</span>
+							<span  rsf:id="compactDisplayStart" class="compactDisplayStart">compactDisplayStart</span>
 						</td>
 						<td width="89%" nowrap="nowrap"  rsf:id="compactRadioContainer:" class="idealScale" style="height:27px;overflow:hidden;">
 							<div rsf:id="dummyRadio"/>
@@ -50,16 +67,17 @@
 
 						</td>
 						<td width="5%" nowrap="nowrap" rsf:id="compactEndContainer:" class="compactDisplayEndGeneric">
-							<span rsf:id="compactDisplayEnd">compactDisplayEnd</span>
+							<span rsf:id="compactDisplayEnd" class="compactDisplayEnd">compactDisplayEnd</span>
 						</td>
 					</tr>
 				</table>
 					<div class="itemDoneCheck" style="float:right;height:2.2em;background-position:.25em .5em">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
-			</div>
+				</div> <!-- end content -->
+			</div> <!-- end compact -->
 
 			<div rsf:id="fullType:">
 				<!-- Full, Full Colored, Vertical DISPLAY -->
-					<p>
+					<p style="padding-right:100px;">
 						<span class="validFailGlyph">*</span><span class="compulsoryGlyph">*</span> <span rsf:id="itemNum" class="label">#</span><span class="label">.&nbsp;</span>
 						<span rsf:id="itemText" style="display:inline" class="label">Full or vertical display text here</span>
 					</p>
@@ -257,7 +275,7 @@
 										<span class="itemDoneCheck">&nbsp;&nbsp;&nbsp;&nbsp;</span>
 										<label class="blockItemLabelNA"><span class="blockChoice"></span><input rsf:id="na-input" type="radio" name="block1" id="choiceNA"  /></label>
 									</td>
-									<td  align="left" nowrap="nowrap" style="height:27px;overflow:hidden;" class="last exclude choiceGroup">
+									<td  align="right" nowrap="nowrap" style="height:27px;overflow:hidden;" class="last exclude choiceGroup">
 										<div rsf:id="dummyRadio" />
 										<div rsf:id="coloredChoicesBranch:" style="width:100%;position:relative;">
 											<div style="width:100%;display:block;position:absolute;z-index:5;">

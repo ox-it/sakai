@@ -1,3 +1,17 @@
+/*
+ * Copyright 2005 Sakai Foundation Licensed under the
+ * Educational Community License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS"
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
 // Eval Template Modify JS for re-ordering
 // @author lovemore.nalube@uct.ac.za
 
@@ -26,13 +40,17 @@ var evalTemplateOrder = (function(){
 
     saveTopLevelTemplateOrdering = function(){
         var order = [];
-        $("#itemList > div").not('.ui-sortable-helper').each(function(){
-            order.push($(this).find('input[name=template-item-id]:hidden').val());
-        });
-        var params = {
-            orderedIds : order.toString()
-        };
-        evalTemplateData.item.saveOrder(evalTemplateUtils.pages.eb_save_order, params);
+        var $items = $("#itemList > div").not('.ui-sortable-helper');
+        if ($items.length > 0) {
+            // only run this when there are items to sort
+            $items.each(function(){
+                order.push($(this).find('input[name=template-item-id]:hidden').val());
+            });
+            var params = {
+                orderedIds : order.toString()
+            };
+            evalTemplateData.item.saveOrder(evalTemplateUtils.pages.eb_save_order, params);
+        }
     },
 
     initSaveGroupOrderControls = function(anyGroupedItemObject){
@@ -98,19 +116,24 @@ var evalTemplateOrder = (function(){
 
     //Internal functions
     privateInitDropDownForRow = function(_this){
-        var oldPosition =  _this.options[_this.selectedIndex].value,
+        log.debug("Selected Index %s",_this.selectedIndex);
+        log.debug(_this.options);
+        if (_this.selectedIndex == -1)
+            return;
+
+        var oldPosition =  parseInt(_this.options[_this.selectedIndex].value);
         that = $(_this);
         //First unbind onChange event
         that.unbind("change");
         that.bind("change", function(){
-            var newPosition = this.options[this.selectedIndex].value -1,
+            var newPosition = parseInt(this.options[this.selectedIndex].value) -1,
             diff = newPosition - oldPosition,
             moveUp = newPosition < oldPosition,
             allRows = $("#itemList > div.itemRow").not('.ui-sortable-helper'),
             thisRow = $(this).parents("div.itemRow"),
             clone = evalTemplateUtils.vars.isIE ? thisRow.clone(false) : thisRow.clone(true);
             clone.hide();
-            log.info("Moving row %i from %i to position: %i", thisRow.find("input[name*=item-select-selection-fossil]").val(), oldPosition, newPosition + 1);
+            log.info("Moving row %s from %i to position: %i", thisRow.find("input[name*=item-select-selection-fossil]").val(), oldPosition, newPosition + 1);
             thisRow.fadeOut(0, function(){
                 if ( moveUp ){
                     if( (diff === 2 || diff === -2) && newPosition !== 0 ){      //if row to move to is immediatley above this row
@@ -124,6 +147,7 @@ var evalTemplateOrder = (function(){
                     clone.insertAfter(allRows.eq(newPosition));
                 }
 
+                thisRow.remove();
                 clone.fadeIn(0, function(){
                             evalTemplateSort.updateLabelling(false);
                             initDropDowns();
@@ -137,7 +161,6 @@ var evalTemplateOrder = (function(){
                             }
                         })
                         .effect("highlight", "normal");
-                thisRow.remove();
             });
         });
     };

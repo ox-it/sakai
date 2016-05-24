@@ -1,3 +1,18 @@
+/*
+ * Copyright 2005 Sakai Foundation Licensed under the
+ * Educational Community License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS"
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 // Eval Template Modify JS for onload functions
 // @author lovemore.nalube@uct.ac.za
 
@@ -199,8 +214,8 @@ var evalTemplateLoaderEvents = (function($) {
                 description = "",
                  o = {
                     beforeSubmit: function() {
-                        title = $('#basic-form input[@name=title]').val();
-                        description = $('#basic-form textarea[@name=description]').val();
+                        title = $('#basic-form input[name=title]').val();
+                        description = $('#basic-form textarea[name=description]').val();
                         if (!title) {
                             alert( evalTemplateUtils.messageLocator("general.blank.required.field.user.message",
                                     evalTemplateUtils.messageLocator('modifytemplatetitledesc.title.header').toLowerCase())); //TODO: Make unobtrusive
@@ -226,24 +241,24 @@ var evalTemplateLoaderEvents = (function($) {
             $.facebox.setHeader(evalTemplateUtils.pages.choose_expert_page);
             $('a[rel*=facebox]').facebox();
         },
+        //modify expert item view
+        modify_expert_item: function(){
+            $.facebox.setHeader(evalTemplateUtils.pages.modify_expert_item_page);
+            $('a[rel*=facebox]').facebox();
+        },
+        //preview expert item view
+        preview_expert_item: function(){
+            $.facebox.setHeader(evalTemplateUtils.pages.preview_expert_item_page);
+            $('a[rel*=facebox]').facebox();
+        },        
+        //remove_expert_item view
+        remove_expert_item: function(){
+            $.facebox.setHeader(evalTemplateUtils.pages.remove_expert_item_page);
+            $('a[rel*=facebox]').facebox();
+        },
         preview_item: function(){
-            if ($('.blockItemGroup').length > 0){
-                evalsys.instrumentBlockItem();
-            }
-            if ($('.steppedItemGroup').length > 0){
-                evalsys.instrumentSteppedItem();
-            }
-            if ($('.mult-choice-ans').length > 0){
-                evalsys.instrumentMCMAItem();
-            }
-            if ($('.itemListEval').length > 0) {
-                evalsys.instrumentScaleItem();
-            }
-            if ($('.fullDisplayHorizontal').length > 0) {
-                evalsys.instrumentDisplayHorizontal();
-            }
+            evalsys.instrumentItems("#item_container");
             $.facebox.setHeader(evalTemplateUtils.pages.preview_item_page);
-            $("div.JSevalComment").evalComment();   //Bind comment boxes toggle link action
         },
         bindDeleteIcons : bindDeleteIcons,
         unBindDeleteIcons : unBindDeleteIcons,
@@ -316,7 +331,7 @@ var evalTemplateLoaderEvents = (function($) {
                 if (checkBoxes_CHECKED.length > 0 && destinationForm) {
                     var idList = [];
                     // look for checkboxes which have IDs of the form "block-12-11" and keep track of the ones that are checked.
-                    for (var a in checkBoxes_CHECKED_array) {
+                    for (var a=0;a<checkBoxes_CHECKED_array.length;a++) {
                         var target = $(checkBoxes_CHECKED_array[a]),
                             targetId = target.attr('id'),
                             scaleId = targetId.substr(targetId.lastIndexOf('-')+1);

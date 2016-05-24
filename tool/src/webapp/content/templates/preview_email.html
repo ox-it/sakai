@@ -1,14 +1,32 @@
+<!--
+
+    Copyright 2005 Sakai Foundation Licensed under the
+    Educational Community License, Version 2.0 (the "License"); you may
+    not use this file except in compliance with the License. You may
+    obtain a copy of the License at
+
+    http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an "AS IS"
+    BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+    or implied. See the License for the specific language governing
+    permissions and limitations under the License.
+
+-->
 <!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml">
-
 <head>
 	<title rsf:id="msg=previewemail.page.title">Preview Email</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
-	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
-	<script type="text/javascript" rsf:id="scr=portal-matter" language="JavaScript" src="/library/js/headscripts.js"></script>
-	<link href="../css/evaluation_base.css" type="text/css" rel="stylesheet" media="all" />
+    <!-- standard on all pages -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+    <link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+    <script src="/library/js/headscripts.js" rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript"></script>
+    <!-- end standard on all pages -->
+    <link href="../css/evaluation_base.css" type="text/css" rel="stylesheet" media="all" />
+    <link rsf:id="local_css_include" href="local_css_file.css" type="text/css" rel="stylesheet" media="all" />
 </head>
 
 <body>
@@ -23,14 +41,6 @@
 			Please note when sending the email the bracketed values will be substituted with actual values.
 		</p>
 		<div style="width:70%">
-              <div>
-                  <span rsf:id="msg=modifyemail.template.subject">Subject:</span>
-                  <span rsf:id="emailSubject">The message subject</span>
-              </div>
-			  <div class="highlightPanel"  style="background:#eee">
-                  <div rsf:id="emailMessage">The email message would go here</div>
-              </div>
-              
               <div rsf:id="email_templates_fieldhints" class="highlightPanel" style="background:#eee;">
 ${EvalTitle} - the title of this evaluation <br/>
 ${EvalStartDate} - the start date of this evaluation <br/>
@@ -44,6 +54,13 @@ ${URLtoViewResults} - the direct URL to view results for this evaluation <br/>
 ${URLtoSystem} - the main URL to the system this is running in <br/>
 ${URLtoAddItems} - the direct URL to add items to an evaluation <br/>
 ${URLtoOptOut} - the direct URL for evaluators to opt in to use this evaluation
+              </div>
+              <div>
+                  <span rsf:id="msg=modifyemail.template.subject">Subject:</span>
+                  <span rsf:id="emailSubject">The message subject</span>
+              </div>
+			  <div class="highlightPanel"  style="background:#eee">
+                  <div rsf:id="emailMessage">The email message would go here</div>
               </div>
 		</div>	
 		<p class="act">
