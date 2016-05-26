@@ -1058,7 +1058,7 @@ public class AnnouncementAction extends PagedResourceActionII
 							}
 							else if (view.equals(VIEW_MODE_PUBLIC))
 							{
-								messages = getMessagesPublic(site, channel, null, true, state, portlet);
+								messages = getMessagesPublic(site, channel, null, true, state, portlet, isChannelPublic(channelId));
 							}
 						}
 						else
@@ -1739,7 +1739,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	 * @throws PermissionException
 	 */
 	private List getMessagesPublic(Site site, AnnouncementChannel defaultChannel, Filter filter, boolean ascending,
-			AnnouncementActionState state, VelocityPortlet portlet) throws PermissionException
+	                               AnnouncementActionState state, VelocityPortlet portlet, boolean isChannelPublic) throws PermissionException
 	{
 		List messageList = getMessages(defaultChannel, filter, ascending, state, portlet);
 		List rv = new Vector();
@@ -1748,7 +1748,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			AnnouncementMessage aMessage = (AnnouncementMessage) messageList.get(i);
 			String pubview = aMessage.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW);
-			if (pubview != null && Boolean.valueOf(pubview).booleanValue())
+			if (isChannelPublic || (pubview != null && Boolean.valueOf(pubview).booleanValue()))
 			{
 				// public announcements
 				rv.add(aMessage);
