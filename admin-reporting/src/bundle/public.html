@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+    <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+    <title>List of Local WebLearn Coordinators</title>
+</head>
+<body style="padding: 10px;">
+
+<h1>List of Local WebLearn Coordinators</h1>
+
+<p>This list is automatically generated each night. It is created by extracting each participant of an Administration
+    site who has the '{{role}}' role. </p>
+
+<h2>Index</h2>
+{{#divisions}}
+  <h2>{{name}}</h2>
+  <ul>
+    {{#sites}}<li><a href="#{{id}}">{{title}}</a></li>{{/sites}}
+  </ul>
+{{/divisions}}
+
+{{#divisions}}
+    <h2 id="{{id}}">{{name}}</h2>
+    {{#sites}}
+        <h3 id="{{id}}">{{title}}</h3>
+        <ul>
+        {{#users}}
+            <li>{{name}}</li>
+        {{/users}}
+        </ul>
+    {{/sites}}
+{{/divisions}}
+</body>
+</html>
