@@ -514,7 +514,8 @@ public class SakaiBLTIUtil {
 				setProperty(props,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
 				setProperty(props,"ext_sakai_eid",user.getEid());
 				// Only send the display ID if it's different to the EID.
-				if (!user.getEid().equals(user.getDisplayId())) {
+				// the anonymous user has a null EID.
+				if (user.getEid() != null && !user.getEid().equals(user.getDisplayId())) {
 					setProperty(props,BasicLTIConstants.EXT_SAKAI_PROVIDER_DISPLAYID,user.getDisplayId());
 				}
 			}
