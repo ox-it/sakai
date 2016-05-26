@@ -345,7 +345,7 @@ public class SakaiBLTIUtil {
 		int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
 
 		User user = UserDirectoryService.getCurrentUser();
-		if ( user != null )
+		if ( user != null && !UserDirectoryService.getAnonymousUser().equals(user))
 		{
 			setProperty(ltiProps,BasicLTIConstants.USER_ID,user.getId());
 			setProperty(lti2subst,LTI2Vars.USER_ID,user.getId());
