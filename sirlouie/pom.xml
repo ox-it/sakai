@@ -36,6 +36,23 @@
 					<warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<webXml>${basedir}\src\main\webapp\WEB-INF\web.xml</webXml>
+				</configuration>
+			</plugin>
+			<plugin>
+				<inherited>true</inherited>
+				<groupId>org.sakaiproject.maven.plugins</groupId>
+				<artifactId>sakai</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<deployDirectory>${master.directory}/../docker/sakai/tomcat</deployDirectory>
+					<warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
+				</configuration>
+			</plugin>
 		</plugins>
 
 		<resources>
@@ -46,6 +63,8 @@
 				</includes>
 			</resource>
 		</resources>
+		<!-- java source -->
+		<sourceDirectory>${basedir}/src/main/java</sourceDirectory>
 	</build>
 
 	<repositories>
