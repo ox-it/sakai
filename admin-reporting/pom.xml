@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sakaiproject</groupId>
 		<artifactId>master</artifactId>
-		<version>10-SNAPSHOT</version>
+		<version>11-SNAPSHOT</version>
 		<relativePath>../master</relativePath>
 	</parent>
   <groupId>uk.ac.ox.it.vle</groupId>
