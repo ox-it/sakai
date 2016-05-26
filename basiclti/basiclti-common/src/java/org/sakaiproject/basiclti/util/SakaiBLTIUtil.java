@@ -274,7 +274,7 @@ public class SakaiBLTIUtil {
 			String newsecret = SimpleEncryption.decrypt(encryptionKey, orig);
 			return newsecret;
 		} catch (RuntimeException re) {
-			dPrint("Exception when decrypting secret - this is normal if the secret is unencrypted");
+			M_log.warn("Falling back to using plain secret, failed to decrypt encrypted secret: "+ re.getMessage());
 			return orig;
 		}
 	}
