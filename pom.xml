@@ -125,6 +125,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
+                <module>admin-reporting</module>
                 <module>course-signup</module>
                 <module>current-load</module>
                 <module>external-groups</module>
