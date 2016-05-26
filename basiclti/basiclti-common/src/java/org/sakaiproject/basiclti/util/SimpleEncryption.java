@@ -74,6 +74,9 @@ public class SimpleEncryption {
 	
 		if ( parts.length == 4 && CIPHER.equals(parts[3]) ) {
 			// Things are where they should be.
+		} else if ( parts.length == 3 ) {
+			// We encrypted stuff before the cipher was tagged on.
+			// This is a local change.
 		} else {
 			throw new RuntimeException("Corrupt encrypted source. Can't split source.");
 		}
@@ -96,11 +99,21 @@ public class SimpleEncryption {
 	private static SecretKey generateSecret(char[] password, byte[] salt)
 			throws NoSuchAlgorithmException, InvalidKeySpecException {
 		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-		// 128 bit keys don't cause problems with the export restrictions in the JVM
-		// 258 bit keys only work when the JCE unlimited strength policy is installed.
-		KeySpec spec = new PBEKeySpec(password, salt, 8, 128);
+		int keyLength = getKeyLength();
+		KeySpec spec = new PBEKeySpec(password, salt, 8, keyLength);
 		SecretKey tmp = factory.generateSecret(spec);
 		SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
 		return secret;
+	}
+
+	public static int getKeyLength() {
+		try {
+			// 128 bit keys don't cause problems with the export restrictions in the JVM
+			// 256 bit keys only work when the JCE unlimited strength policy is installed.
+			int keyLength = (Cipher.getMaxAllowedKeyLength("AES") == Integer.MAX_VALUE) ? 256 : 128;
+			return keyLength;
+		} catch ( NoSuchAlgorithmException nsae) {
+			throw new RuntimeException(nsae);
+		}
 	}
 }
