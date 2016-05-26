@@ -928,6 +928,18 @@ public class SakaiBLTIUtil {
 		LTI2Util.substituteCustom(custom, lti2subst);
 		M_log.debug("after custom="+custom);
 
+		//TODO check if TII activated?
+		//substitute resources params
+		if(custom.getProperty(BasicLTIConstants.RESOURCE_LINK_ID) != null){
+			M_log.debug("we have custom link id " + custom.getProperty(BasicLTIConstants.RESOURCE_LINK_ID));
+			setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_ID,custom.getProperty(BasicLTIConstants.RESOURCE_LINK_ID));
+			//title only overriden if stored? description not necessary?
+			if(custom.getProperty(BasicLTIConstants.RESOURCE_LINK_TITLE) != null){
+				M_log.debug("and we have custom link title " + custom.getProperty(BasicLTIConstants.RESOURCE_LINK_TITLE));
+				setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_TITLE,custom.getProperty(BasicLTIConstants.RESOURCE_LINK_TITLE));
+			}
+		}
+
 		// Place the custom values into the launch
 		LTI2Util.addCustomToLaunch(ltiProps, custom, isLTI1);
 

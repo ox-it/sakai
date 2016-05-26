@@ -140,6 +140,15 @@ public interface LTIService {
 	public Object insertToolContent(String id, String toolId, Properties reqProps, String siteId);
 
 	/**
+	 * insert lti tii tool content from assignments tool
+	 * @param id
+	 * @param toolId
+	 * @param reqProps
+	 * @return
+	 */
+	public Object insertTIIToolContent(String id, String toolId, Properties reqProps);
+	
+	/**
 	 * create an instance of lti tool within site
 	 * @param id
 	 * @param title
