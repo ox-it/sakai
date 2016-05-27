@@ -360,7 +360,7 @@
 									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$validator.escapeHtml($group.title)" value="$group.Id" />
 								#end
 							</td>
-							<td headers="groupname${DOT}$i" style="padding-bottom:0;" class="checkbox">
+							<td headers="groupname${DOT}$i" style="padding-bottom:0; word-break: break-all;" class="checkbox">
 								<label for="access_groups_${group.Id}${DOT}$i">
 									$validator.escapeHtml($group.title)
 								</label>	
