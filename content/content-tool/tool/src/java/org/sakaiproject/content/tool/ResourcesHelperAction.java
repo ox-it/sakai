@@ -734,6 +734,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
+		
+		context.put("additionalInstructions", ServerConfigurationService.getString("upload.additional.instructions", null));
 
 		return CREATE_UPLOADS_TEMPLATE;
 	}
