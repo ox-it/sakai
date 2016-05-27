@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>master</artifactId>
+		<version>10-SNAPSHOT</version>
+		<relativePath>../master/pom.xml</relativePath>
+	</parent>
+	<groupId>uk.ac.ox.oucs</groupId>
+	<artifactId>content-sync-base</artifactId>
+	<packaging>pom</packaging>
+	<name>Content Synchronisation Base</name>
+	<version>1.0-SNAPSHOT</version>
+
+	<modules>
+		<module>hbm</module>
+		<module>impl</module>
+		<module>pack</module>
+	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+		<!-- Set the paths back to standard maven pattern -->
+		<sourceDirectory>${basedir}/src/main/java</sourceDirectory>
+		<resources>
+			<resource><directory>${basedir}/src/main/resources</directory></resource>
+		</resources>
+		<testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
+		<testResources>
+			<testResource><directory>${basedir}/src/test/resources</directory></testResource>
+		</testResources>
+	</build>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- Sakai services -->
+			<dependency>
+				<groupId>org.sakaiproject.msgcntr</groupId>
+				<artifactId>messageforums-component-impl</artifactId>
+				<version>${sakai.version}</version>
+			</dependency>
+
+			<!-- Internal project -->
+			<dependency>
+				<groupId>uk.ac.ox.oucs</groupId>
+				<artifactId>content-sync-hbm</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>uk.ac.ox.oucs</groupId>
+				<artifactId>content-sync-impl</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+</project>
