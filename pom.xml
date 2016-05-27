@@ -133,6 +133,7 @@
                 <module>oxam</module>
                 <module>oxford-url-shortener</module>
                 <module>sirlouie</module>
+                <module>termdates</module>
             </modules>
         </profile>
         <profile>
