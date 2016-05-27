@@ -14,14 +14,17 @@
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
 
-    <bean
-        parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
-        class="org.sakaiproject.content.entityproviders.ContentEntityProvider">
-        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
-        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
-        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-    </bean>
+    <!-- This has been disabled as we have a provider from 2.8 which we need to keep working and we don't
+         have time to merge the two providers. Later on we should merge this provider with the one
+         in entitybroker/core-providers -->
+    <!--<bean-->
+        <!--parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"-->
+        <!--class="org.sakaiproject.content.entityproviders.ContentEntityProvider">-->
+        <!--<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>-->
+        <!--<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>-->
+        <!--<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>-->
+        <!--<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>-->
+        <!--<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>-->
+    <!--</bean>-->
     
 </beans>
