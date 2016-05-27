@@ -706,8 +706,7 @@ public class BaseExternalCalendarSubscriptionService implements
 		}
 		catch (PermissionException e)
 		{
-			// This will never be called (for now)
-			e.printStackTrace();
+			m_log.error("Permission exception", e);
 		}
 		catch (MalformedURLException e)
 		{
@@ -731,7 +730,7 @@ public class BaseExternalCalendarSubscriptionService implements
 				try {
 					stream.close();
 				} catch (IOException e) {
-					// Ignore
+					m_log.error("Error while closing stream", e);
 				}
 			}
 		}
