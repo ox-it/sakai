@@ -9,6 +9,10 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.sakaiproject.content.metadata.model.MetadataConverter;
+import org.sakaiproject.content.metadata.model.MetadataRenderer;
+import org.sakaiproject.content.metadata.model.MetadataType;
+import org.sakaiproject.content.metadata.model.MetadataValidator;
 
 /**
  * @author Colin Hebert
