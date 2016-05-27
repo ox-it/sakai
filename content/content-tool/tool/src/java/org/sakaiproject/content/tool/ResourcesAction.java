@@ -432,10 +432,6 @@ public class ResourcesAction
 	public static final String SYS = "sys.";
 	public static final String REQUEST = "request.";
 	
-	public static final List<ActionType> ACTIONS_ON_FOLDERS = new ArrayList<ActionType>();
-	public static final List<ActionType> ACTIONS_ON_MULTIPLE_ITEMS = new ArrayList<ActionType>();
-	public static final List<ActionType> ACTIONS_ON_RESOURCES = new ArrayList<ActionType>();
-	
 	public static final List<ActionType> CONTENT_DELETE_ACTIONS = new ArrayList<ActionType>();
 	public static final List<ActionType> CONTENT_MODIFY_ACTIONS = new ArrayList<ActionType>();
 	public static final List<ActionType> CONTENT_NEW_ACTIONS = new ArrayList<ActionType>();
@@ -875,31 +871,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		SITE_UPDATE_ACTIONS.add(ActionType.REVISE_PERMISSIONS);
 		SITE_UPDATE_ACTIONS.add(ActionType.MAKE_SITE_PAGE);
 
-		ACTIONS_ON_FOLDERS.add(ActionType.VIEW_METADATA);
-		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_METADATA);
-		ACTIONS_ON_FOLDERS.add(ActionType.DUPLICATE);
-		ACTIONS_ON_FOLDERS.add(ActionType.COPY);
-		ACTIONS_ON_FOLDERS.add(ActionType.MOVE);
-		ACTIONS_ON_FOLDERS.add(ActionType.DELETE);
-		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_ORDER);
-		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_PERMISSIONS);
-		// ACTIONS_ON_FOLDERS.add(ActionType.PASTE_MOVED);
-
-		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_CONTENT);
-		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_METADATA);
-		ACTIONS_ON_RESOURCES.add(ActionType.REVISE_METADATA);
-		ACTIONS_ON_RESOURCES.add(ActionType.REVISE_CONTENT);
-		ACTIONS_ON_RESOURCES.add(ActionType.REPLACE_CONTENT);
-		ACTIONS_ON_RESOURCES.add(ActionType.DUPLICATE);
-		ACTIONS_ON_RESOURCES.add(ActionType.COPY);
-		ACTIONS_ON_RESOURCES.add(ActionType.MOVE);
-		ACTIONS_ON_RESOURCES.add(ActionType.DELETE);
-		ACTIONS_ON_RESOURCES.add(ActionType.PRINT_FILE);
-
-		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.COPY);
-		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.MOVE);
-		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.DELETE);
-		
 		CREATION_ACTIONS.add(ActionType.NEW_UPLOAD);
 		CREATION_ACTIONS.add(ActionType.NEW_FOLDER);
 		CREATION_ACTIONS.add(ActionType.NEW_URLS);
