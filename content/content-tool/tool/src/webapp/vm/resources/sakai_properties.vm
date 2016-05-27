@@ -340,10 +340,10 @@
 					<th id="selected${DOT}$i" style="width:2em;padding-left:.4em">
  						<input type="checkbox" id="selectall${DOT}$i" name="selectall${DOT}$i" title="$tlang.getString("group.select.title")" />
 					</th>
-					<th id="groupname${DOT}$i">
+					<th id="groupname${DOT}$i" width="100">
 						$tlang.getString("edit.group1")
 					</th>
-					<th id ="groupdescription${DOT}$i">
+					<th id ="groupdescription${DOT}$i" width="400">
 						$tlang.getString("edit.group2")
 					</th>
 				</tr>
@@ -365,7 +365,7 @@
 									$validator.escapeHtml($group.title)
 								</label>	
 							</td>
-							<td headers="groupdescription${DOT}$i" width="100%"> ##mozilla does not resize table children dynamically , so set here
+							<td headers="groupdescription${DOT}$i"> ##mozilla does not resize table children dynamically , so set here
 								#set($description = "")
 								#if($group.description)
 									#set($description = $group.Description)
