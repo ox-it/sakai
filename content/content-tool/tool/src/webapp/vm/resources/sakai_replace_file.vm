@@ -29,7 +29,7 @@
 					<label>$tlang.getString("label.name")</label>
 				</td>
 				<td style="width:180px;padding-left:0" id="itemName">
-					$validator.escapeHtml($item.name)
+					$item.originalFileName
 				</td>
 			</tr>
 			<tr> 

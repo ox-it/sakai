@@ -4493,6 +4493,17 @@ public class ListItem
 		// This is used when asking if the styles of the service should be used.
 		return ServerConfigurationService.getString("ui.service", "Sakai");
 	}
-	
+
+	/**
+	 *Parse the id of the file returns the original file name
+ 	 */
+	public String getOriginalFileName() {
+		String idArray[] = this.id.split("/");
+		String originalFileName = "";
+		if(idArray != null && idArray.length>0) {
+			originalFileName = idArray[idArray.length-1];
+		}
+		return originalFileName;
+	}
 }
 
