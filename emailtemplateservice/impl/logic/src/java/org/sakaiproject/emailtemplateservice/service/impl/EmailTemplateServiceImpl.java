@@ -443,7 +443,7 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 				List<String> additionalHeaders = new ArrayList<String>();
 		additionalHeaders.add("Content-Type: text/html; charset=UTF-8");
 		//sending email to new email address for user who has updated the email
-				emailService.send(fromEmail, toEmail, rt.getRenderedSubject(), body, toEmail, fromEmail, additionalHeaders );
+			emailService.send(fromEmail, toEmail, rt.getRenderedSubject(), rt.getRenderedHtmlMessage(), toEmail, fromEmail, additionalHeaders );
 		}
 		else{
 		emailService.sendToUsers(toAddress, headers, body);
