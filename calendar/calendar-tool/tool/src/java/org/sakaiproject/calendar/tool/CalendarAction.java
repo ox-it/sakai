@@ -1728,11 +1728,6 @@ extends VelocityPortletStateAction
 		public void doSubscriptions(RunData runData, Context context,
 				CalendarActionState state, SessionState sstate)
 		{
-			doOptions(runData, context);
-
-			// if we didn't end up in options mode, bail out
-			if (!MODE_OPTIONS.equals(sstate.getAttribute(STATE_MODE))) return;
-
 			// Disable the observer
 			enableObserver(sstate, false);
 
