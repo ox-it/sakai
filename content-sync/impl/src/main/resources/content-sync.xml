@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <bean id="hibernateInterceptor" 
+    		class="org.springframework.orm.hibernate3.HibernateInterceptor">
+        <property name="sessionFactory" 
+        		ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    </bean>
+    
+	<bean id="uk.ac.ox.oucs.vle.contentsync.hibernate.AdditionalHibernateMappings"
+		  class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+			<list>
+				<value>/uk/ac/ox/oucs/vle/contentsync/ContentSync.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean name="uk.ac.ox.oucs.vle.contentsync.ContentSyncDAO"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref
+				bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="target">
+			<bean class="uk.ac.ox.oucs.vle.contentsync.ContentSyncDAOImpl"
+				init-method="init">
+				<property name="sessionFactory">
+					<ref
+						bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+				</property>
+				<property name="serverConfigurationService">
+					<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
+				</property>
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+		<property name="preInterceptors">
+			<list>
+				<ref bean="hibernateInterceptor" />
+			</list>
+		</property>
+		<property name="postInterceptors">
+			<list>
+				<ref bean="hibernateInterceptor" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="uk.ac.ox.oucs.vle.contentsync.ContentSyncService"
+			class="uk.ac.ox.oucs.vle.contentsync.ContentSyncService" >
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
+
+    <bean id="uk.ac.ox.oucs.vle.contentsync.ContentSyncTracker"
+          class="uk.ac.ox.oucs.vle.contentsync.ContentSyncTracker"
+          init-method="init" destroy-method="destroy" lazy-init="false" singleton="true">
+        <property name="entityManager">
+            <ref bean="org.sakaiproject.entity.api.EntityManager"/>
+        </property>
+        <property name="contentSyncDao" 
+        	ref="uk.ac.ox.oucs.vle.contentsync.ContentSyncDAO" />
+        <!-- Push service is disabled as it isn't currently needed and slows things down.
+		<property name="pushService">
+            <ref bean="uk.ac.ox.oucs.vle.contentsync.ContentSyncPushService" />
+		</property>
+		   -->
+		<property name="eventTrackingService">
+			<ref bean="org.sakaiproject.event.api.EventTrackingService"/>
+		</property>
+		<property name="contentSyncService">
+			<ref bean="uk.ac.ox.oucs.vle.contentsync.ContentSyncService"/>
+		</property>
+		
+    </bean>
+    
+    <bean id="uk.ac.ox.oucs.vle.contentsync.ContentSyncEntityProvider" 
+    	  class="uk.ac.ox.oucs.vle.contentsync.ContentSyncEntityProviderImpl">
+    	<property name="contentSyncDao" 
+    			ref="uk.ac.ox.oucs.vle.contentsync.ContentSyncDAO" />
+    	<property name="contentHostingService" 
+    			ref="org.sakaiproject.content.api.ContentHostingService"/>
+    	<property name="forumManager" 
+    			ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+    	<property name="uiPermissionsManager"
+    			ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
+    	<property name="serverConfigurationService">
+            <ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
+        </property>
+        <property name="contentSyncService">
+            <ref bean="uk.ac.ox.oucs.vle.contentsync.ContentSyncService"/>
+        </property>
+    	<!--  
+    	<property name="uiPermissionsManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
+        </property>
+        -->
+    </bean>
+    
+    <bean name="uk.ac.ox.oucs.vle.contentsync.ContentSyncPushService" 
+		  class="uk.ac.ox.oucs.vle.contentsync.ContentSyncPushServiceImpl">
+        <property name="serverConfigurationService">
+            <ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
+		</property>
+		<property name="contentSyncSessionBean">
+			<ref bean="uk.ac.ox.oucs.vle.contentsync.ContentSyncSessionBean" />
+		</property>
+	</bean>
+	
+	<bean id="uk.ac.ox.oucs.vle.contentsync.ContentSyncSessionBean" 
+			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="uk.ac.ox.oucs.vle.contentsync.ContentSyncSessionBeanImpl">
+                <property name="forumManager" 
+    				ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+            </bean>            
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+        <property name="preInterceptors">
+        	<list><ref bean="hibernateInterceptor"/></list>
+        </property>
+        <property name="postInterceptors">
+        	<list><ref bean="hibernateInterceptor"/></list>
+        </property>
+    </bean>
+	
+</beans>
