@@ -22,6 +22,9 @@
         <p>$tlang.getString("label.dragDescription")</p>
         <p>$instr_dnd_uploads</p>
     </div>
+	    #if($instr_uploads)
+            <p>$instr_uploads</p>
+        #end
     #if ($additionalInstructions)
         <p class="instruction">
             $additionalInstructions
