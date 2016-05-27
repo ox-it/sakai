@@ -220,6 +220,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 	/** The sort ascending or decending */
 	private static final String STATE_SORT_ASC = PREFIX + "sort_asc";
+	/** Existing action pipe ResourceToolActionPipe stored in the toolSession*/
+	private static final String SAVED_ACTION_PIPE = PREFIX + "saved_action_pipe";
 
 	private static final String TEMPLATE_ATTACH = "content/sakai_filepicker_attach";
 	private static final String TEMPLATE_SELECT = "content/sakai_filepicker_select";
@@ -271,6 +273,12 @@ public class FilePickerAction extends PagedResourceHelperAction
 			else if(pipe.isActionCompleted())
 			{
 				finishAction(state, toolSession, pipe);
+				//To check if the session has any saved ResourceToolAction.ACTION_PIPE
+				ResourceToolActionPipe savedActionPipe = (ResourceToolActionPipe) toolSession.getAttribute(SAVED_ACTION_PIPE);
+				if(savedActionPipe != null){
+					//Set back the previously saved pipe into the toolSession
+					toolSession.setAttribute(ResourceToolAction.ACTION_PIPE, savedActionPipe);
+				}
 			}
 			toolSession.removeAttribute(ResourceToolAction.DONE);
 		}
@@ -2301,6 +2309,11 @@ public class FilePickerAction extends PagedResourceHelperAction
 			pipe.setContentEntity(entity);
 			pipe.setHelperId(iAction.getHelperId());
 			
+			//If toolSession has any ResourceToolAction.ACTION_PIPE , store it in session before it gets overwritten
+			ResourceToolActionPipe savedActionPipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+			if(savedActionPipe != null){
+				toolSession.setAttribute(SAVED_ACTION_PIPE, savedActionPipe);
+			}
 			toolSession.setAttribute(ResourceToolAction.ACTION_PIPE, pipe);
 
 			ResourceProperties props = entity.getProperties();
