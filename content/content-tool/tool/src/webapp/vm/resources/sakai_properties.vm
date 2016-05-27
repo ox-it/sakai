@@ -628,6 +628,7 @@
 							<option value="auto" #if($item.htmlFilter == "auto")selected="yes"#end>$tlang.getString("props.automatic")</option>
 							#if ($showQuirks)
 							<option value="yes" #if($item.htmlFilter == "yes")selected="yes"#end>$tlang.getString("props.always")</option>
+							<option value="standards" #if($item.htmlFilter == "standards")selected="yes"#end>$tlang.getString("props.standards")</option>
 							#end
 							<option value="no" #if($item.htmlFilter == "no")selected="yes"#end>$tlang.getString("props.never")</option>
 						</select>
