@@ -340,10 +340,10 @@
 					<th id="selected${DOT}$i" style="width:2em;padding-left:.4em">
  						<input type="checkbox" id="selectall${DOT}$i" name="selectall${DOT}$i" title="$tlang.getString("group.select.title")" />
 					</th>
-					<th id="groupname${DOT}$i">
+					<th id="groupname${DOT}$i" width="100">
 						$tlang.getString("edit.group1")
 					</th>
-					<th id ="groupdescription${DOT}$i">
+					<th id ="groupdescription${DOT}$i" width="400">
 						$tlang.getString("edit.group2")
 					</th>
 				</tr>
@@ -360,12 +360,12 @@
 									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$validator.escapeHtml($group.title)" value="$group.Id" />
 								#end
 							</td>
-							<td headers="groupname${DOT}$i" style="padding-bottom:0;" class="checkbox">
+							<td headers="groupname${DOT}$i" style="padding-bottom:0; word-break: break-all;" class="checkbox">
 								<label for="access_groups_${group.Id}${DOT}$i">
 									$validator.escapeHtml($group.title)
 								</label>	
 							</td>
-							<td headers="groupdescription${DOT}$i" width="100%"> ##mozilla does not resize table children dynamically , so set here
+							<td headers="groupdescription${DOT}$i"> ##mozilla does not resize table children dynamically , so set here
 								#set($description = "")
 								#if($group.description)
 									#set($description = $group.Description)
@@ -589,7 +589,7 @@
 						</span>
 						#end
 					</div>
-					<textarea class="form-control" id="fileURLHolder" rows="3" cols="50" style="overflow:auto">$model.accessUrl</textarea>						
+					<textarea class="form-control" id="fileURLHolder" rows="3" cols="50" style="overflow:auto" readonly="true">$model.accessUrl</textarea>
 				</td>
 			</tr>
 			#if(! $item.isCollection())
@@ -628,6 +628,7 @@
 							<option value="auto" #if($item.htmlFilter == "auto")selected="yes"#end>$tlang.getString("props.automatic")</option>
 							#if ($showQuirks)
 							<option value="yes" #if($item.htmlFilter == "yes")selected="yes"#end>$tlang.getString("props.always")</option>
+							<option value="standards" #if($item.htmlFilter == "standards")selected="yes"#end>$tlang.getString("props.standards")</option>
 							#end
 							<option value="no" #if($item.htmlFilter == "no")selected="yes"#end>$tlang.getString("props.never")</option>
 						</select>

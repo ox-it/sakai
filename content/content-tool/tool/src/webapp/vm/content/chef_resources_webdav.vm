@@ -90,8 +90,6 @@ ${server_url}${dav_user}$user_id
 ${server_url}${dav_group_user}$site_id
 #elseif("$!dropboxMode" == "true")
 ${server_url}${dav_group_user}$site_id/$user_id
-#elseif("${site_alias}" != "")
-${server_url}${dav_group}${site_alias}
 #else
 ${server_url}${dav_group}$site_id
 #end

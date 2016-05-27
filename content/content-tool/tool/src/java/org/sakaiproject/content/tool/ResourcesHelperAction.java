@@ -150,7 +150,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 	/** state attribute for the maximum size for file upload */
 	static final String STATE_FILE_UPLOAD_MAX_SIZE = PREFIX + "file_upload_max_size";
-	
+
 	/** The user copyright string */
 	private static final String	STATE_MY_COPYRIGHT = PREFIX + "mycopyright";
 	
@@ -278,46 +278,50 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(pipe == null)
 		{
-			String attributes = "ResourcesHelperAction.buildMainPanelContext() SAK-8449 dump of state.attributes:\n";
-			List<String> attrNames = state.getAttributeNames();
-			for(String attrName : attrNames)
+			if (logger.isDebugEnabled())
 			{
-				Object val = state.getAttribute(attrName);
-				if(val instanceof Collection)
+				String attributes = "ResourcesHelperAction.buildMainPanelContext() SAK-8449 dump of state.attributes:\n";
+				List<String> attrNames = state.getAttributeNames();
+				for(String attrName : attrNames)
 				{
-					int i = 0;
-					for(Object obj : (Collection) val)
+					Object val = state.getAttribute(attrName);
+					if(val instanceof Collection)
 					{
-						attributes += "\t" + attrName + "[" + i + "] ==> " + obj + "\n";
-						i++;
+						int i = 0;
+						for(Object obj : (Collection) val)
+						{
+							attributes += "\t" + attrName + "[" + i + "] ==> " + obj + "\n";
+							i++;
+						}
+					}
+					else
+					{
+						attributes += "\t" + attrName + " ==> " + val + "\n";
 					}
 				}
-				else
+				attributes += "ResourcesHelperAction.buildMainPanelContext() SAK-8449 dump of toolSession.attributes:\n";
+				Enumeration toolNames = toolSession.getAttributeNames();
+				while(toolNames.hasMoreElements())
 				{
-					attributes += "\t" + attrName + " ==> " + val + "\n";
-				}
-			}
-			attributes += "ResourcesHelperAction.buildMainPanelContext() SAK-8449 dump of toolSession.attributes:\n";
-			Enumeration toolNames = toolSession.getAttributeNames();
-			while(toolNames.hasMoreElements())
-			{
-				String name = (String) toolNames.nextElement();
-				Object val = toolSession.getAttribute(name);
-				if(val instanceof Collection)
-				{
-					int i = 0;
-					for(Object obj : (Collection) val)
+					String name = (String) toolNames.nextElement();
+					Object val = toolSession.getAttribute(name);
+					if(val instanceof Collection)
 					{
-						attributes += "\t" + name + "[" + i + "] ==> " + obj + "\n";
-						i++;
+						int i = 0;
+						for(Object obj : (Collection) val)
+						{
+							attributes += "\t" + name + "[" + i + "] ==> " + obj + "\n";
+							i++;
+						}
+					}
+					else
+					{
+						attributes += "\t" + name + " ==> " + val + "\n";
 					}
 				}
-				else
-				{
-					attributes += "\t" + name + " ==> " + val + "\n";
-				}
+
+				logger.debug(attributes, new Throwable());
 			}
-			logger.debug(attributes, new Throwable());
             return ERROR_PAGE_TEMPLATE;
 		}
 		if(pipe.isActionCompleted())
@@ -649,7 +653,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			max_file_size_mb = "20";
 		}
 		context.put("uploadMaxSize", max_file_size_mb);
-		
+
+		String uploadWarning = rb.getFormattedMessage("label.overwrite.warning",new String[]{rb.getFormattedMessage("label.version")});
+		context.put("label_overwrite_warning",uploadWarning);
+
 		String uploadMax = ServerConfigurationService.getString(ResourcesConstants.SAK_PROP_MAX_UPLOAD_FILE_SIZE);
 		String instr_uploads = rb.getFormattedMessage("instr.uploads", new String[]{ uploadMax });
 		context.put("instr_uploads", instr_uploads);
@@ -730,6 +737,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
+		
+		context.put("additionalInstructions", ServerConfigurationService.getString("upload.additional.instructions", null));
 
 		return CREATE_UPLOADS_TEMPLATE;
 	}
@@ -1243,6 +1252,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			}
 			else
 			{
+				url = url.trim();
 				try
 				 {
 					 url = ResourcesAction.validateURL(url);
@@ -2025,6 +2035,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 		String uploadFileName=null;
 		String collectionName=null;
+		String resourceId = null;
+		String overwrite = request.getParameter("overwrite");
 		
 		String resourceGroup = toolSession.getAttribute("resources.request.create_wizard_collection_id").toString();
 
@@ -2074,8 +2086,25 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 				if (collection!=null)
 				{
-					logger.debug("Adding resource "+uploadFileName+" in collection "+collection.getId());
-					resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension),5);
+					//get the resourceId by using collectionName and uploadFileName
+					resourceId = collectionName +"/"+ uploadFileName;
+					try{
+						//check if resource in collection exists
+						ContentHostingService.getResource(resourceId);
+						//if user has chosen to overwrite existing resource save the new copy
+						if(overwrite != null && overwrite.equals("true")){
+							resource = ContentHostingService.editResource(resourceId);
+						}
+						//if no overwrite then create a new resource in the collection
+						else{
+							resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension),5);
+						}
+					}
+					//if this is a new resource add to the collection.
+					catch(IdUnusedException idUnusedException) {
+						logger.debug("Adding resource "+uploadFileName+" in collection "+collection.getId());
+						resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension),5);
+					}
 				}
 				else
 				{
@@ -2084,9 +2113,25 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					//So I disable this method call, though it can be enabled again if desired.
 					
 					//String resourceName = getUniqueFileName(uploadFileName, resourceGroup);
+					resourceId = resourceGroup + uploadFileName;
+					try{
+						//check if resource exists
+						ContentHostingService.getResource(resourceId);
+						//if it does and overwrite is true save the latest copy
+						if(overwrite != null && overwrite.equals("true")){
+							resource = ContentHostingService.editResource(resourceId);
+						}
+						// if no overwrite then simply create a new resource
+						else{
+							resource = ContentHostingService.addResource(resourceGroup, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension),5);
+						}
+					}
+					// if new resource then save
+					catch(IdUnusedException idUnusedException) {
+						logger.debug("Adding resource "+uploadFileName+" in current folder ("+resourceGroup+")");
+						resource = ContentHostingService.addResource(resourceGroup, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension),5);
+					}
 					
-					logger.debug("Adding resource "+uploadFileName+" in current folder ("+resourceGroup+")");
-					resource = ContentHostingService.addResource(resourceGroup, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension),5);
 				}
 
 				if (resource != null)
