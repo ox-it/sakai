@@ -278,46 +278,50 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(pipe == null)
 		{
-			String attributes = "ResourcesHelperAction.buildMainPanelContext() SAK-8449 dump of state.attributes:\n";
-			List<String> attrNames = state.getAttributeNames();
-			for(String attrName : attrNames)
+			if (logger.isDebugEnabled())
 			{
-				Object val = state.getAttribute(attrName);
-				if(val instanceof Collection)
+				String attributes = "ResourcesHelperAction.buildMainPanelContext() SAK-8449 dump of state.attributes:\n";
+				List<String> attrNames = state.getAttributeNames();
+				for(String attrName : attrNames)
 				{
-					int i = 0;
-					for(Object obj : (Collection) val)
+					Object val = state.getAttribute(attrName);
+					if(val instanceof Collection)
 					{
-						attributes += "\t" + attrName + "[" + i + "] ==> " + obj + "\n";
-						i++;
+						int i = 0;
+						for(Object obj : (Collection) val)
+						{
+							attributes += "\t" + attrName + "[" + i + "] ==> " + obj + "\n";
+							i++;
+						}
+					}
+					else
+					{
+						attributes += "\t" + attrName + " ==> " + val + "\n";
 					}
 				}
-				else
+				attributes += "ResourcesHelperAction.buildMainPanelContext() SAK-8449 dump of toolSession.attributes:\n";
+				Enumeration toolNames = toolSession.getAttributeNames();
+				while(toolNames.hasMoreElements())
 				{
-					attributes += "\t" + attrName + " ==> " + val + "\n";
-				}
-			}
-			attributes += "ResourcesHelperAction.buildMainPanelContext() SAK-8449 dump of toolSession.attributes:\n";
-			Enumeration toolNames = toolSession.getAttributeNames();
-			while(toolNames.hasMoreElements())
-			{
-				String name = (String) toolNames.nextElement();
-				Object val = toolSession.getAttribute(name);
-				if(val instanceof Collection)
-				{
-					int i = 0;
-					for(Object obj : (Collection) val)
+					String name = (String) toolNames.nextElement();
+					Object val = toolSession.getAttribute(name);
+					if(val instanceof Collection)
 					{
-						attributes += "\t" + name + "[" + i + "] ==> " + obj + "\n";
-						i++;
+						int i = 0;
+						for(Object obj : (Collection) val)
+						{
+							attributes += "\t" + name + "[" + i + "] ==> " + obj + "\n";
+							i++;
+						}
+					}
+					else
+					{
+						attributes += "\t" + name + " ==> " + val + "\n";
 					}
 				}
-				else
-				{
-					attributes += "\t" + name + " ==> " + val + "\n";
-				}
+
+				logger.debug(attributes, new Throwable());
 			}
-			logger.debug(attributes, new Throwable());
             return ERROR_PAGE_TEMPLATE;
 		}
 		if(pipe.isActionCompleted())
