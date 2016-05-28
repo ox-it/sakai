@@ -7291,7 +7291,7 @@ public class DiscussionForumTool
   	sBuffer.append("var nonEditingAuthor = 'Nonediting Author';\n");
   	sBuffer.append("var reviewer = 'Reviewer';\n");
   	sBuffer.append("var none = 'None';\n");
-  	sBuffer.append("var contributor = 'Contributor';\n");  	
+  	sBuffer.append("var contributor = 'Participant';\n");  	
   	sBuffer.append("var custom = 'Custom';\n");
   	sBuffer.append("var all = 'All';\n");
   	sBuffer.append("var own = 'Own';\n");  	  	
@@ -7328,7 +7328,7 @@ public class DiscussionForumTool
   	               "  else if (noneVal)\n" +
   	               "    return 'None';\n" +
   	               "  else if (contributorVal)\n" +
-  	               "    return 'Contributor';\n" +
+  	               "    return 'Participant';\n" +
   	               "  else return 'Custom';\n" +
   	               "}\n"
   	);

@@ -19,7 +19,7 @@ INSERT INTO CMN_TYPE_T VALUES (NULL, 0, '00000000-0000-0000-3333-000000000000', 
 -- contributor type    
 INSERT INTO CMN_TYPE_T VALUES (NULL, 0, '00000000-0000-0000-4444-000000000000', 'admin', 
   SYSDATE, 'admin', SYSDATE, 'org.sakaiproject.component.app.messageforums', 'sakai_messageforums',
-  'Contributor Permission Level', 'Contributor Permission Level', 'Contributor Permission Level');  
+  'Participant Permission Level', 'Participant Permission Level', 'Participant Permission Level');  
   
 -- reviewer type  
 INSERT INTO CMN_TYPE_T VALUES (NULL, 0, '00000000-0000-0000-5555-000000000000', 'admin', 
@@ -55,7 +55,7 @@ INSERT INTO MFR_PERMISSION_LEVEL_T VALUES (
 -- contributor permission level
 INSERT INTO MFR_PERMISSION_LEVEL_T VALUES (
   NULL, 0, '00000000-0000-0000-0000-444444444444', SYSDATE, 'admin',  SYSDATE, 'admin',
-  'Contributor', '00000000-0000-0000-4444-000000000000', 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0);
+  'Participant', '00000000-0000-0000-4444-000000000000', 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0);
 
 -- reviewer permission level
 INSERT INTO MFR_PERMISSION_LEVEL_T VALUES (
