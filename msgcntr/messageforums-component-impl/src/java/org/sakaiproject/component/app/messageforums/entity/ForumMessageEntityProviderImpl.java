@@ -41,6 +41,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -218,93 +219,80 @@ private RequestStorage requestStorage;
 	  // here though... if you're feeling jumpy feel free.
   }
 
-  public void setForumManager(DiscussionForumManager forumManager) {
-	  this.forumManager = forumManager;
-  }
+  	/**
+  	 * 
+  	 */
+    public String createEntity(EntityReference ref, Object entity,
+                               Map<String, Object> params) {
 
-  public String createEntity(EntityReference ref, Object entity,
-		  Map<String, Object> params) {
-	  
-  		String userId = UserDirectoryService.getCurrentUser().getId();
-  		if (userId == null || "".equals(userId)){
-  			throw new SecurityException("Could not create entity, permission denied: " + ref);
-  		}
-	 
-  		Long messageId = null;
-        
-      	if (entity.getClass().isAssignableFrom(DecoratedMessage.class)) {
-          // if they instead pass in the DecoratedMessage object
-      		DecoratedMessage dMessage = (DecoratedMessage) entity;
-      		if (messageId == null && dMessage.getMessageId() != null) {
-      			messageId = dMessage.getMessageId();
-      		}
-            
-      		Message replyToMessage = forumManager.getMessageById(dMessage.getReplyTo());
-      		DiscussionTopic topic = forumManager.getTopicById(dMessage.getTopicId());
-      		
-      		
-      		if (!forumManager.canUserPostMessage(topic.getId(), "createEntity")) {
-      			throw new SecurityException("Could not create entity, permission denied: " + ref);
-      		}
-      		try {
-      			// We only handle discussion messages :-(
-      		    Message aMsg = messageManager.createDiscussionMessage();
-      		    DiscussionForum forum = (DiscussionForum)topic.getBaseForum();
-      		    
-      		    if (aMsg != null) {
-      		    	StringBuilder alertMsg = new StringBuilder();
-      		    	aMsg.setTitle(FormattedText.processFormattedText(dMessage.getTitle(), alertMsg));
-      		    	String body = (forum.getMarkupFree())?
-      		    			messageParsingService.parse(dMessage.getBody()):
-      		    			FormattedText.processFormattedText(dMessage.getBody(), alertMsg);
-      		    	aMsg.setBody(body);
-      		      
-      		    	if (userId!=null) {
-      		    		aMsg.setAuthor(getUserNameOrEid());
-      		    		aMsg.setModifiedBy(getUserNameOrEid());
-      		    	} else if (userId==null && this.forumManager.getAnonRole()==true) {
-      		    		aMsg.setAuthor(".anon");
-      		    		aMsg.setModifiedBy(".anon");
-      		    	}
-      		      
-      		    	aMsg.setDraft(Boolean.FALSE);
-      		    	aMsg.setDeleted(Boolean.FALSE);
-	  // TODO Auto-generated method stub
-	  return null;
-  }
+      String userId = UserDirectoryService.getCurrentUser().getId();
+      if (userId == null || "".equals(userId)){
+        throw new SecurityException("Could not create entity, permission denied: " + ref);
+      }
 
-      		    	// if the topic is moderated, we want to leave approval null.
-      		    	// if the topic is not moderated, all msgs are approved
-      		    	// if the author has moderator perm, the msg is automatically approved\
-      		      
-      		    	if (!(topic.getModerated().booleanValue() && 
-      		    			uiPermissionsManager.isModeratePostings(topic, forum))) {
-      		    		aMsg.setApproved(Boolean.TRUE);
-      		    	}
-      		    	
-      		    	aMsg.setTopic(topic);
-      		    	aMsg.setInReplyTo(replyToMessage);
-      		    	
-      		    	forumManager.saveMessage(aMsg);
-      		    	messageId = aMsg.getId();
-      		    }
-      		 
-          	} catch (Exception e) {
-              	throw new SecurityException("Could not create Forum Message, permission denied: " + ref, e);
-          	}         
-      	} else {
-      		throw new IllegalArgumentException("Invalid entity for creation, must be Message or DecoratedMessage object");
-      	}
-      	
-      	if (null == messageId) {
-      		return null;
-      	}
-      	return messageId.toString();
-  	}
-  public Object getSampleEntity() {
-	  // TODO Auto-generated method stub
-	  return null;
-  }
+      Long messageId = null;
+
+      if (entity.getClass().isAssignableFrom(DecoratedMessage.class)) {
+        // if they instead pass in the DecoratedMessage object
+        DecoratedMessage dMessage = (DecoratedMessage) entity;
+        if (messageId == null && dMessage.getMessageId() != null) {
+          messageId = dMessage.getMessageId();
+        }
+
+        Message replyToMessage = forumManager.getMessageById(dMessage.getReplyTo());
+        DiscussionTopic topic = forumManager.getTopicById(dMessage.getTopicId());
+
+
+        if (!forumManager.canUserPostMessage(topic.getId(), "createEntity")) {
+          throw new SecurityException("Could not create entity, permission denied: " + ref);
+        }
+        // We only handle discussion messages :-(
+        Message aMsg = messageManager.createDiscussionMessage();
+        DiscussionForum forum = (DiscussionForum)topic.getBaseForum();
+
+        if (aMsg != null) {
+          StringBuilder alertMsg = new StringBuilder();
+          aMsg.setTitle(FormattedText.processFormattedText(dMessage.getTitle(), alertMsg));
+          String body = (forum.getMarkupFree())?
+                  messageParsingService.parse(dMessage.getBody()):
+                  FormattedText.processFormattedText(dMessage.getBody(), alertMsg);
+          aMsg.setBody(body);
+
+          if (userId!=null) {
+            aMsg.setAuthor(getUserNameOrEid());
+            aMsg.setModifiedBy(getUserNameOrEid());
+          } else if (userId==null && this.forumManager.getAnonRole()==true) {
+            aMsg.setAuthor(".anon");
+            aMsg.setModifiedBy(".anon");
+          }
+
+          aMsg.setDraft(Boolean.FALSE);
+          aMsg.setDeleted(Boolean.FALSE);
+
+          // if the topic is moderated, we want to leave approval null.
+          // if the topic is not moderated, all msgs are approved
+          // if the author has moderator perm, the msg is automatically approved\
+
+          if (!(topic.getModerated().booleanValue() &&
+                  uiPermissionsManager.isModeratePostings(topic, forum))) {
+            aMsg.setApproved(Boolean.TRUE);
+          }
+
+          aMsg.setTopic(topic);
+          aMsg.setInReplyTo(replyToMessage);
+
+          forumManager.saveMessage(aMsg);
+          messageId = aMsg.getId();
+        }
+      } else {
+        throw new IllegalArgumentException("Invalid entity for creation, must be Message or DecoratedMessage object");
+      }
+
+      if (null == messageId) {
+        return null;
+      }
+      return messageId.toString();
+    }
 
   public void updateEntity(EntityReference ref, Object entity,
 		  Map<String, Object> params) {
