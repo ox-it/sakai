@@ -29,7 +29,7 @@ public interface PermissionLevelManager {
     public static final String PERMISSION_LEVEL_NAME_OWNER = "Owner";
     public static final String PERMISSION_LEVEL_NAME_AUTHOR = "Author";
     public static final String PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR = "Nonediting Author";
-    public static final String PERMISSION_LEVEL_NAME_CONTRIBUTOR = "Contributor";
+    public static final String PERMISSION_LEVEL_NAME_CONTRIBUTOR = "Participant";
     public static final String PERMISSION_LEVEL_NAME_REVIEWER = "Reviewer"; 
     public static final String PERMISSION_LEVEL_NAME_NONE = "None";
     public static final String PERMISSION_LEVEL_NAME_CUSTOM = "Custom";

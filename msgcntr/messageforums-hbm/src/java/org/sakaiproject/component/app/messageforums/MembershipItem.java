@@ -26,7 +26,9 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.user.api.User;
 
  /**
-   * Recipient Item for storing different types of recipients user/group/role
+   * Recipient Item for storing different types of recipients user/group/role.
+   * This allows you to model a message going to a group, everyone with a role,
+   * everyone in the site or just a user.
    *
    */
  public class MembershipItem implements Comparable
