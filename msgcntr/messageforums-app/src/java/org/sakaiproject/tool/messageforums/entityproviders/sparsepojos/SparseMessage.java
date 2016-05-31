@@ -61,6 +61,9 @@ public class SparseMessage{
 	
 	@Getter
 	private boolean isDeleted;
+
+	@Getter @Setter
+	private String modifiedBy;
 	 
 	public SparseMessage(Message fatMessage, Boolean readStatus, boolean addAttachments, String serverUrl) {
 		
@@ -91,6 +94,7 @@ public class SparseMessage{
 				attachments.add(new SparseAttachment(fatAttachment.getAttachmentName(),url));
 			}
 		}
+		this.modifiedBy = fatMessage.getModifiedBy();
 	}
 	
 	public SparseMessage(SparseMessage that) {
