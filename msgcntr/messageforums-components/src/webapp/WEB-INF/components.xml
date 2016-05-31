@@ -66,6 +66,11 @@
 		     		<ref bean="org.sakaiproject.db.api.SqlService"/>
 		    </property>        
     </bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.MessageParsingService" 
+        class="org.sakaiproject.component.app.messageforums.MessageParsingServiceImpl" >
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+    </bean>
      
     <bean id="org.sakaiproject.api.app.messageforums.DummyDataHelperApi" class="org.sakaiproject.component.app.messageforums.DummyDataHelper">
         <property name="typeMgr">
@@ -280,6 +285,9 @@
 		        <property name="contentHostingService">
         		    <ref bean="org.sakaiproject.content.api.ContentHostingService"/>
 		        </property>
+		        <property name="messageParsingService">
+        		    <ref bean="org.sakaiproject.api.app.messageforums.MessageParsingService"/>
+        		</property>
             </bean>            
         </property>
          <property name="transactionAttributes">
@@ -488,7 +496,8 @@
     </bean>
 
     <bean id="org.sakaiproject.api.app.messageforums.ForumMessageEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumMessageEntityProviderImpl">
-		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+		<property name="forumManager" 
+			ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
 		<property name="privateMessageManager">
           <ref bean="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"/>
       	</property>
@@ -497,6 +506,12 @@
         </property>
         <property name="messageManager">
             <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+        </property>
+        <property name="serverConfigurationService">
+            <ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
+        </property>
+        <property name="messageParsingService">
+        	<ref bean="org.sakaiproject.api.app.messageforums.MessageParsingService"/>
         </property>
     </bean>
 
@@ -715,4 +730,60 @@
             </props>
         </property>
     </bean>
+
+
+	<!-- Register the bean so the job can load it out of the spring context -->
+	<bean
+			id="org.sakaiproject.component.app.messageforums.jobs.UpdateMarkupFreeContent"
+			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref
+					bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="target">
+			<bean
+					class="org.sakaiproject.component.app.messageforums.jobs.UpdateMarkupFreeContent">
+				<property name="messageForumsMessageManager"
+				          ref="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager" />
+				<property name="messageParsingService"
+				          ref="org.sakaiproject.api.app.messageforums.MessageParsingService" />
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+		<property name="preInterceptors">
+			<list>
+				<ref bean="hibernateInterceptor" />
+			</list>
+		</property>
+		<property name="postInterceptors">
+			<list>
+				<ref bean="hibernateInterceptor" />
+			</list>
+		</property>
+	</bean>
+	+
+	<bean
+			class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
+			singleton="true" init-method="init">
+		<property name="beanId"
+		          value="org.sakaiproject.component.app.messageforums.jobs.UpdateMarkupFreeContent" />
+		<property name="jobName" value="Update Markup Free Forum Posts" />
+		<property name="schedulerManager"
+		          ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+		<property name="resourceBundleBase"
+		          value="org.sakaiproject.component.app.messageforums.jobs.UpdateMarkupFreeContent" />
+		<property name="configurableJobProperties">
+			<set>
+				<bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+					<property name="descriptionResourceKey" value="site.id.decription" />
+					<property name="labelResourceKey" value="site.id" />
+					<property name="required" value="true"/>
+				</bean>
+			</set>
+		</property>
+	</bean>
 </beans>

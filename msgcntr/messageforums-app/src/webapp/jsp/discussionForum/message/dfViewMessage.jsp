@@ -131,8 +131,8 @@
 					</h:commandLink>
 				</p>
 				<mf:htmlShowArea value="#{ForumTool.selectedTopic.topic.extendedDescription}" 
-					rendered="#{ForumTool.selectedTopic.readFullDesciption}" 
-					hideBorder="true"/>
+					             rendered="#{ForumTool.selectedTopic.readFullDesciption}" 
+					             hideBorder="true"/>
 			</div>
 			<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
 			<f:subview id="wordCountView" rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
