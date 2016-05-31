@@ -92,7 +92,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  */
-public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
+public abstract class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     DiscussionForumManager {
   private static final String MC_DEFAULT = "mc.default.";
   private static final Log LOG = LogFactory
@@ -142,6 +142,11 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   {
     return forumManager.searchTopicMessages(topicId, searchText);
   }
+
+	/**
+	 * @return the UIPermissionsManager collaborator.
+	 */
+	protected abstract UIPermissionsManager uiPermissionsManager();
 
   public Topic getTopicByIdWithAttachments(Long topicId)
   {
@@ -2550,6 +2555,55 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 	public boolean isSiteHasAnonymousTopics(final String contextId)
 	{
 		return forumManager.isSiteHasAnonymousTopics(contextId);
+	}
+
+	public boolean canUserPostMessage(Long topicId, String methodCalled) {
+
+		DiscussionTopic dTopic = getTopicById(topicId);
+		if (dTopic == null) {
+			LOG.debug("selectedTopic is null in " + methodCalled);
+			return false;
+		}
+
+		DiscussionForum dForum = (DiscussionForum)dTopic.getBaseForum();
+		if (dForum == null) {
+			LOG.debug("selectedForum is null in " + methodCalled);
+			return false;
+		}
+
+		if (!getIsNewResponse(dTopic, dForum) &&
+				!getIsNewResponseToResponse(dTopic, dForum)) {
+			throw new SecurityException(
+					"Insufficient privileages for user to post to topic: " + dTopic.getTitle());
+
+		} else if(dTopic.getLocked()) {
+			throw new SecurityException(
+					"Could not create entity : Topic is locked: " + dTopic.getTitle());
+
+		} else if(dForum.getLocked()) {
+			throw new SecurityException(
+					"Could not create entity : Forum is locked: " + dTopic.getTitle());
+		}
+
+		return true;
+	}
+
+	/**
+	 * @return
+	 */
+	private boolean getIsNewResponse(DiscussionTopic topic, DiscussionForum forum) {
+		Area area = forum.getArea();
+		String contextId = area.getContextId();
+		return uiPermissionsManager().isNewResponse(topic, forum, contextId);
+	}
+
+	/**
+	 * @return
+	 */
+	private boolean getIsNewResponseToResponse(DiscussionTopic topic, DiscussionForum forum) {
+		Area area = forum.getArea();
+		String contextId = area.getContextId();
+		return uiPermissionsManager().isNewResponseToResponse(topic, forum, contextId);
 	}
 
 	public MemoryService getMemoryService() {

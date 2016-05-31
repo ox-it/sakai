@@ -605,4 +605,7 @@ public interface DiscussionForumManager
 
   /** returns true if getAnonymousTopicsInSite() is not empty */
   public boolean isSiteHasAnonymousTopics(final String contextId);
+
+	public boolean canUserPostMessage(Long topicId, String methodCalled);
+
 }

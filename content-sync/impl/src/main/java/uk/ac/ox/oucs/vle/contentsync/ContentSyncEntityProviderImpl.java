@@ -21,8 +21,9 @@ import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.app.messageforums.entity.DecoratedMessage;
+import org.sakaiproject.component.app.messageforums.entity.ForumMessageEntityProviderImpl.DecoratedMessage;
 import org.sakaiproject.api.app.messageforums.entity.DecoratedTopicInfo;
+import org.sakaiproject.component.app.messageforums.entity.ForumMessageEntityProviderImpl;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.EntityPermissionException;
@@ -47,6 +48,8 @@ import org.sakaiproject.entitybroker.util.model.EntityContent;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.user.cover.UserDirectoryService;
+
+import static org.sakaiproject.component.app.messageforums.entity.ForumMessageEntityProviderImpl.*;
 
 public class ContentSyncEntityProviderImpl 
 	implements EntityProvider, AutoRegisterEntityProvider, PropertyProvideable, 
@@ -339,12 +342,11 @@ public class ContentSyncEntityProviderImpl
 	
 	/**
 	 * 
-	 * @param message
 	 * @return
 	 */
-	private DecoratedMessage getMessageEntity(Reference reference, String userId) {
-		
-		DecoratedMessage dMessage = null;
+	private ForumMessageEntityProviderImpl.DecoratedMessage getMessageEntity(Reference reference, String userId) {
+
+		ForumMessageEntityProviderImpl.DecoratedMessage dMessage = null;
 		
 		Message message = forumManager.getMessageById(getMessageId(reference.getId()));
 		if (null == message) {
@@ -369,13 +371,13 @@ public class ContentSyncEntityProviderImpl
 			if(readStatus == null)
 				readStatus = Boolean.FALSE;
 
-			dMessage = new DecoratedMessage(
-							message.getId(), message.getTopic().getId(), message.getTitle(),
-							message.getBody(), "" + message.getModified().getTime(),
-							attachments, Collections.EMPTY_LIST, 
-							message.getAuthor(), getProfileImageURL(message.getAuthorId()),
-							message.getInReplyTo() == null ? null : message.getInReplyTo().getId(),
-									"" + message.getCreated().getTime(), readStatus.booleanValue(), "", "");
+			dMessage = new ForumMessageEntityProviderImpl().new DecoratedMessage(
+					message.getId(), message.getTopic().getId(), message.getTitle(),
+					message.getBody(), "" + message.getModified().getTime(),
+					attachments, Collections.EMPTY_LIST,
+					message.getAuthor(), getProfileImageURL(message.getAuthorId()),
+					message.getInReplyTo() == null ? null : message.getInReplyTo().getId(),
+					"" + message.getCreated().getTime(), readStatus.booleanValue(), "", "");
 		}
 		
 		return dMessage;

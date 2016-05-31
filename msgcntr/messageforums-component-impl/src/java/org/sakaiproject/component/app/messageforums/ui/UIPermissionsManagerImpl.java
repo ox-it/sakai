@@ -266,7 +266,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       LOG.debug("isNewTopic(DiscussionForum " + forum + ")");
     }
-    if (isSuperUser(contextId))
+    if (isSuperUser(getContextId()))
     {
       return true;
     }
@@ -296,7 +296,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
    */
   public boolean isNewResponse(DiscussionTopic topic, DiscussionForum forum)
   {
-	  return isNewResponse(topic, forum, getCurrentUserId(), getContextId());
+	  return isNewResponse(topic, forum, getCurrentUserId(getContextId()), getContextId());
   }
   
   public boolean isNewResponse(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId){
@@ -342,10 +342,89 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   public boolean isNewResponseToResponse(DiscussionTopic topic,
       DiscussionForum forum)
   {
-	return isNewResponseToResponse(topic, forum, getCurrentUserId(), getContextId());
+	return isNewResponseToResponse(topic, forum, getCurrentUserId(getContextId()), getContextId());
   }
-  
-  public boolean isNewResponseToResponse(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId)
+
+	@Override
+	public boolean isNewResponse(DiscussionTopic topic, DiscussionForum forum, String contextId) {
+		if (LOG.isDebugEnabled())
+		{
+			LOG.debug("isNewResponseToResponse(DiscussionTopic " + topic
+					+ " , DiscussionForum" + forum + ") ");
+		}
+
+		try
+		{
+			if (checkBaseConditions(topic, forum, getCurrentUserId(contextId), contextId))
+			{
+				return true;
+			}
+			Iterator iter = getTopicItemsByUser(topic, getCurrentUserId(contextId), contextId);
+			while (iter.hasNext())
+			{
+				DBMembershipItem item = (DBMembershipItem) iter.next();
+				if (item.getPermissionLevel().getNewResponseToResponse().booleanValue()
+						&& forum.getDraft().equals(Boolean.FALSE)
+						&& forum.getLocked().equals(Boolean.FALSE)
+						&& topic.getDraft().equals(Boolean.FALSE)
+						&& topic.getLocked().equals(Boolean.FALSE))
+				{
+					return true;
+				}
+			}
+
+		}
+		catch (Exception e)
+		{
+			LOG.error(e.getMessage(), e);
+			return false;
+		}
+		return false;
+	}
+
+	/**
+	 * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isNewResponseToResponse(org.sakaiproject.api.app.messageforums.DiscussionTopic,
+	 *      org.sakaiproject.api.app.messageforums.DiscussionForum)
+	 */
+	public boolean isNewResponseToResponse(DiscussionTopic topic, DiscussionForum forum, String contextId)
+	{
+		if (LOG.isDebugEnabled())
+		{
+			LOG.debug("isNewResponseToResponse(DiscussionTopic " + topic
+					+ " , DiscussionForum" + forum + ") ");
+		}
+
+		try
+		{
+			if (checkBaseConditions(topic, forum, getCurrentUserId(contextId), contextId))
+			{
+				return true;
+			}
+			Iterator iter = getTopicItemsByUser(topic, getCurrentUserId(contextId), contextId);
+			while (iter.hasNext())
+			{
+				DBMembershipItem item = (DBMembershipItem) iter.next();
+				if (item.getPermissionLevel().getNewResponseToResponse().booleanValue()
+						&& forum.getDraft().equals(Boolean.FALSE)
+						&& forum.getLocked().equals(Boolean.FALSE)
+						&& topic.getDraft().equals(Boolean.FALSE)
+						&& topic.getLocked().equals(Boolean.FALSE))
+				{
+					return true;
+				}
+			}
+
+		}
+		catch (Exception e)
+		{
+			LOG.error(e.getMessage(), e);
+			return false;
+		}
+		return false;
+	}
+
+
+	public boolean isNewResponseToResponse(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId)
 		  {
     if (LOG.isDebugEnabled())
     {
@@ -386,8 +465,11 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isMovePostings(org.sakaiproject.api.app.messageforums.DiscussionTopic,
    *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
-  public boolean isMovePostings(DiscussionTopic topic, DiscussionForum forum)
-  {
+  public boolean isMovePostings(DiscussionTopic topic, DiscussionForum forum) {
+		return isNewResponseToResponse(topic, forum, getContextId());
+  }
+
+   public boolean isMovePostings(DiscussionTopic topic, DiscussionForum forum, String contextId) {
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isMovePostings(DiscussionTopic " + topic
@@ -396,11 +478,11 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     try
     {
-      if (checkBaseConditions(topic, forum, getCurrentUserId(contextId), contextId))
+      if (checkBaseConditions(topic, forum, getCurrentUserId(getContextId()), getContextId()))
       {
         return true;
       }
-      Iterator iter = getTopicItemsByUser(topic, getCurrentUserId(contextId), contextId);
+      Iterator iter = getTopicItemsByUser(topic, getCurrentUserId(getContextId()), getContextId());
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -425,28 +507,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
   }
 
-		try {
-			if (checkBaseConditions(topic, forum, getCurrentUserId(contextId), contextId)) {
-				return true;
-			}
-			Iterator iter = getTopicItemsByUser(topic, getCurrentUserId(contextId), contextId);
-			while (iter.hasNext()) {
-				DBMembershipItem item = (DBMembershipItem) iter.next();
-				if (item.getPermissionLevel().getMovePosting().booleanValue()
-						&& forum.getDraft().equals(Boolean.FALSE)
-						&& forum.getLocked().equals(Boolean.FALSE)
-						&& topic.getDraft().equals(Boolean.FALSE)
-						&& topic.getLocked().equals(Boolean.FALSE)) {
-					return true;
-				}
-			}
-		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
-			return false;
-		}
-		return false;
-	}
-
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isChangeSettings(org.sakaiproject.api.app.messageforums.DiscussionTopic,
    *      org.sakaiproject.api.app.messageforums.DiscussionForum)
@@ -467,7 +527,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       return true;
     }
-    if (securityService.unlock(userId, SiteService.SECURE_UPDATE_SITE, getContextSiteId())){
+	  String siteId = forumManager.getContextForForumById(forum.getId());
+	  if (securityService.unlock(userId, SiteService.SECURE_UPDATE_SITE, getContextSiteId())){
     	return true;
     }
     try
@@ -623,7 +684,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
    */
   public boolean isReviseAny(DiscussionTopic topic, DiscussionForum forum)
   {
-	  return isReviseAny(topic, forum, getCurrentUserId(), getContextId());
+	  return isReviseAny(topic, forum, getCurrentUserId(getContextId()), getContextId());
   }
   
   public boolean isReviseAny(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId){
@@ -676,7 +737,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
    */
   public boolean isReviseOwn(DiscussionTopic topic, DiscussionForum forum)
   {
-	  return isReviseOwn(topic, forum, getCurrentUserId(), getContextId());	  
+	  return isReviseOwn(topic, forum, getCurrentUserId(getContextId()), getContextId());
   }
   
   public boolean isReviseOwn(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId){
@@ -734,7 +795,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
    */
   public boolean isDeleteAny(DiscussionTopic topic, DiscussionForum forum)
   {
-	return isDeleteAny(topic, forum, getCurrentUserId(), getContextId());
+	return isDeleteAny(topic, forum, getCurrentUserId(getContextId()), getContextId());
   }
   
   public boolean isDeleteAny(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId){
@@ -791,7 +852,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
    */
   public boolean isDeleteOwn(DiscussionTopic topic, DiscussionForum forum)
   {
-	  return isDeleteOwn(topic, forum, getCurrentUserId(), getContextId());
+	  return isDeleteOwn(topic, forum, getCurrentUserId(getContextId()), getContextId());
   }
   
   public boolean isDeleteOwn(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId){
@@ -907,7 +968,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   }
   
   /**   
-   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isModerate(org.sakaiproject.api.app.messageforums.DiscussionTopic,
+   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#(org.sakaiproject.api.app.messageforums.DiscussionTopic,
    *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
   public boolean isModeratePostings(DiscussionTopic topic, DiscussionForum forum){
@@ -966,7 +1027,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
   public boolean isIdentifyAnonAuthors(Topic topic)
   {
-    String currentUserId = getCurrentUserId();
+    String currentUserId = getCurrentUserId(getContextId());
     if (isSuperUser(currentUserId))
     {
       return true;
@@ -1060,7 +1121,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     try
     {
     	Site site = SiteService.getSite(siteId);
-  	  Collection groups = getGroupsWithMember(site, getCurrentUserId());
+  	  Collection groups = getGroupsWithMember(site, getCurrentUserId(getContextId()));
       
       for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
       {
@@ -1118,8 +1179,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       	Collection groups = null;
       	try
       	{
-	        Site currentSite = SiteService.getSite(siteId);
-	        groups = currentSite.getGroupsWithMember(getCurrentUserId(siteId));
+	        Site currentSite = SiteService.getSite(getContextId());
+	        groups = currentSite.getGroupsWithMember(getCurrentUserId(getContextId()));
       	}
         catch(IdUnusedException iue)
         {
@@ -1194,7 +1255,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 				thisForumItemSet.add((DBMembershipItem)thisItem);
 			}
 		}
-		if(thisForumItemSet.size()==0&&getAnonRole("/site/"+contextId)==true&&".anon".equals(forum.getCreatedBy())&&forum.getTopicsSet()==null){
+		if(thisForumItemSet.size()==0&&getAnonRole("/site/"+getContextId())==true&&".anon".equals(forum.getCreatedBy())&&forum.getTopicsSet()==null){
 			Set newForumMembershipset=forum.getMembershipItemSet();
 	        Iterator iterNewForum = newForumMembershipset.iterator();
 	        while (iterNewForum.hasNext())
@@ -1208,7 +1269,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 		}
     
 		DBMembershipItem item = forumManager.getDBMember(
-				thisForumItemSet, getCurrentUserRole(contextId), DBMembershipItem.TYPE_ROLE, "/site/"+contextId);
+				thisForumItemSet, getCurrentUserRole(getContextId()), DBMembershipItem.TYPE_ROLE, "/site/"+getContextId());
 //    DBMembershipItem item = forumManager.getDBMember(membershipItems, getCurrentUserRole(),
 //        DBMembershipItem.TYPE_ROLE);
     
@@ -1222,8 +1283,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       	Collection groups = null;
       	try
       	{
-	        Site currentSite = SiteService.getSite(contextId);
-	        groups = currentSite.getGroupsWithMember(getCurrentUserId(contextId));
+	        Site currentSite = SiteService.getSite(getContextId());
+	        groups = currentSite.getGroupsWithMember(getCurrentUserId(getContextId()));
       	}
         catch(IdUnusedException iue)
         {
@@ -1590,7 +1651,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     try
     {
       Site site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
-      Collection groups = getGroupsWithMember(site, getCurrentUserId());
+      Collection groups = getGroupsWithMember(site, getCurrentUserId(getContextId()));
       for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
       {
         Group currentGroup = (Group) groupIterator.next();

@@ -72,8 +72,10 @@ public interface UIPermissionsManager
    * @return
    */
   public boolean isNewResponseToResponse(DiscussionTopic topic, DiscussionForum forum);
-  
-  /**
+	public boolean isNewResponse(DiscussionTopic topic, DiscussionForum forum, String contextId);
+	public boolean isNewResponseToResponse(DiscussionTopic topic, DiscussionForum forum, String contextId);
+
+	/**
    * 
    * @param topic
    * @param forum

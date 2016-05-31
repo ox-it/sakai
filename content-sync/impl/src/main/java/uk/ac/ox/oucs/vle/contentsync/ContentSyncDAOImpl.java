@@ -55,7 +55,7 @@ public class ContentSyncDAOImpl extends HibernateDaoSupport implements ContentSy
 	 */
 	@SuppressWarnings("unchecked")
 	public List<ContentSyncTableDAO> findResourceTrackers(final String context, final Date time) {
-		return getHibernateTemplate().executeFind(new HibernateCallback() {
+		return (List<ContentSyncTableDAO>) getHibernateTemplate().executeFind(new HibernateCallback() {
 			public Object doInHibernate(Session session) {
 				Query query = session.createSQLQuery(
 						"select * " +

@@ -114,4 +114,14 @@ public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForu
 		this.autoMarkThreadsRead = autoMarkThreadsRead;
 	}
 
+	@Override
+	public boolean getMarkupFree() {
+		return false;
+	}
+
+	@Override
+	public void setMarkupFree(boolean markupFree) {
+
+	}
+
 }
