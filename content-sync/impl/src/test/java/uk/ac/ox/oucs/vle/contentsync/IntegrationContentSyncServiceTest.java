@@ -7,6 +7,10 @@ import static org.mockito.Mockito.when;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.EntityManager;
@@ -14,57 +18,41 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * This test checks the bean wiring.
  * @author buckett
  *
  */
-public class IntegrationContentSyncServiceTest extends AbstractTransactionalSpringContextTests {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations={"classpath:/db-hibernate.xml", "classpath:/content-sync.xml", "classpath:/content-sync-support.xml"})
+@Transactional
+public class IntegrationContentSyncServiceTest extends Assert {
 
+	@Autowired
+	@Qualifier("uk.ac.ox.oucs.vle.contentsync.ContentSyncDAO")
 	private ContentSyncDAO contentSyncDAO;
-	
+
+	@Autowired
 	private ContentSyncTracker contentSyncTracker;
-	
+
+	@Autowired
 	private SiteService siteService;
-	
+
+	@Autowired
 	private EntityManager entityManager;
-	
+
+	@Autowired
 	private ServerConfigurationService serverConfigurationService;
 
-	public void setContentSyncDAO(ContentSyncDAO contentSyncDAO) {
-		this.contentSyncDAO = contentSyncDAO;
-	}
-
-	public void setContentSyncTracker(ContentSyncTracker contentSyncTracker) {
-		this.contentSyncTracker = contentSyncTracker;
-	}
-	
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
-
-	public void setEntityManager(EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
-
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
-
-	protected String[] getConfigLocations() {
-		return new String[] {
-				"classpath:/db-hibernate.xml",
-				"classpath:/content-sync.xml",
-				"classpath:/content-sync-support.xml"
-		};
-	}
-	
+	@Before
 	public void onSetUp() throws Exception {
 		contentSyncTracker.destroy();
-		super.onSetUp();
 		when(serverConfigurationService.getBoolean(eq(ContentSyncService.CONTENT_SYNC_ENABLED), anyBoolean())).thenReturn(true);
 		// The original init happened before we mocked out the config.
 		contentSyncTracker.init();
@@ -73,6 +61,7 @@ public class IntegrationContentSyncServiceTest extends AbstractTransactionalSpri
 	/**
 	 * This is to test that our transactions are working correctly.
 	 */
+	@Test
 	public void testInsertAndRetrieve() {
 		// We put an entry in.
 		createTestDAO();
@@ -83,6 +72,7 @@ public class IntegrationContentSyncServiceTest extends AbstractTransactionalSpri
 		assertNotNull(found.get(0).getId());
 	}
 
+	@Test
 	public void testQueue() throws Exception {
 		// Mock the site interactions
 		Site site = mock(Site.class);
@@ -122,6 +112,5 @@ public class IntegrationContentSyncServiceTest extends AbstractTransactionalSpri
 		entry.setTimeStamp(new Date());
 		contentSyncDAO.save(entry);
 	}
-	
+
 }
-	

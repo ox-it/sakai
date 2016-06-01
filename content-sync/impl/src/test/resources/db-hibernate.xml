@@ -170,13 +170,7 @@
 					true 1, false 0, yes 'Y', no 'N'
 				</prop>
 				<prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
-				<prop key="hibernate.cache.use_query_cache">true</prop>
 			</props>
-		</property>
-		<property name="cacheProvider">
-			<bean class="org.sakaiproject.springframework.orm.hibernate.SakaiCacheProvider">
-				<property name="defaultCache" ref="org.sakaiproject.springframework.orm.hibernate.L2Cache"/>
-			</bean>
 		</property>
 		<!--
 		This s 
@@ -189,17 +183,6 @@
 		</property>
 
 	</bean>
-
-    <bean id="org.sakaiproject.springframework.orm.hibernate.VendorHbmTransformer" class="org.sakaiproject.springframework.orm.hibernate.impl.VendorHbmTransformerImpl">
-        <property name="vendorTransforms">
-            <map>
-                <entry>
-                    <key><value>db2</value></key>
-                    <value>org/sakaiproject/springframework/orm/hibernate/dialect/db2/db2.xsl</value>
-                </entry>
-            </map>
-        </property>
-    </bean>
 
     <!--  The "Global" Hibernate Session Factory -->
 	<bean
@@ -217,17 +200,4 @@
 		</property>
           <property name="dataSource" ref="javax.sql.LazyDataSource" />
 	</bean>
-	
-	<bean id="org.sakaiproject.springframework.orm.hibernate.L2Cache" 
-  			class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-  			<!-- 
-  		<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
-  		 -->
-    	<property name="cacheName"><value>org.sakaiproject.springframework.orm.hibernate.L2Cache</value></property>
-    	<property name="maxElementsInMemory" ><value>100000</value></property>
-    	<property name="diskPersistent" ><value>false</value></property>
-    	<property name="eternal" ><value>false</value></property>
-    	<property name="timeToLive" ><value>300</value></property>
-    	<property name="timeToIdle" ><value>600</value></property>
-  	</bean>
 </beans>

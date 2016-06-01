@@ -62,7 +62,7 @@
 
     <bean id="uk.ac.ox.oucs.vle.contentsync.ContentSyncTracker"
           class="uk.ac.ox.oucs.vle.contentsync.ContentSyncTracker"
-          init-method="init" destroy-method="destroy" lazy-init="false" singleton="true">
+          init-method="init" destroy-method="destroy" lazy-init="false">
         <property name="entityManager">
             <ref bean="org.sakaiproject.entity.api.EntityManager"/>
         </property>
