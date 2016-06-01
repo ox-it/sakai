@@ -35,7 +35,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestExecutionListeners({DirtiesContextTestExecutionListener.class, AutowiringTestExecutionListener.class})
-@ContextConfiguration(locations = { "classpath:test-resources.xml", "classpath:applicationContext.xml" }, loader = MockWebApplicationContextLoader.class)
+@ContextConfiguration(locations = { "classpath:test-resources.xml", "classpath:webapp.xml" }, loader = MockWebApplicationContextLoader.class)
 @MockWebApplication(name = "sakai.hierarchy-delete-site", webapp = "src/webapp")
 @Configurable(autowire = Autowire.BY_TYPE)
 @DirtiesContext
