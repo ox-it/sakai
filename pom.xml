@@ -134,6 +134,7 @@
                 <module>oxford-url-shortener</module>
                 <module>sirlouie</module>
                 <module>termdates</module>
+                <module>tetraelf-hierarchy</module>
             </modules>
         </profile>
         <profile>
