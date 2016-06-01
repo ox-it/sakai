@@ -8767,7 +8767,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		} else if (SITE_MODE_HELPER.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
 			if (canChooseAdminSite(data, state)) {
-				state.setAttribute(STATE_TEMPLATE_INDEX, "63");
+				state.setAttribute(STATE_TEMPLATE_INDEX, "65");
 			} else {
 				doSite_selectAdmin(state, data.getParameters());
 			}
