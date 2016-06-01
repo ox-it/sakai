@@ -69,7 +69,7 @@ public class HierarchyToolHandler extends ToolHandler {
 					PortalNodeSite siteNode = (PortalNodeSite)node;
 					portalHierarchyService.setCurrentPortalNode(siteNode);
 					skin = siteNode.getSite().getSkin();
-					siteTool = new AdoptedToolConfiguration(new AdoptedSitePage(siteNode, siteTool.getContainingPage()), siteTool);
+//					siteTool = new AdoptedToolConfiguration(new AdoptedSitePage(siteNode, siteTool.getContainingPage()), siteTool);
 				} else {
 					log.info("Node not found: "+ parts[1]);
 				}

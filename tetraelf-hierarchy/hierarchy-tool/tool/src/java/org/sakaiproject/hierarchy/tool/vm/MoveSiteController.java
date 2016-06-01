@@ -91,8 +91,8 @@ public class MoveSiteController {
 
 	@RequestMapping(value = "/cancel/move", method = RequestMethod.POST)
 	public ModelAndView displayHome(Model model) {
-		PortalNode node = portalHierarchyService.getCurrentPortalNode();
-		model.addAttribute("siteUrl", serverConfigurationService.getPortalUrl() + "/hierarchy" + node.getPath());
+		PortalNodeSite node = portalHierarchyService.getCurrentPortalNode();
+		model.addAttribute("siteUrl", node.getSite().getUrl());
 		return new ModelAndView("redirect", populateModelCut(model).asMap());
 	}
 	
@@ -113,7 +113,7 @@ public class MoveSiteController {
 			return new ModelAndView("cut", populateModelCut(model).asMap());			
 		}
 		session.removeAttribute(MoveSiteController.CUT_ID);
-		model.addAttribute("siteUrl", serverConfigurationService.getPortalUrl() + "/hierarchy" + node.getPath());
+		model.addAttribute("siteUrl", portalHierarchyService.getCurrentPortalNode().getSite().getUrl());
 		return new ModelAndView("redirect", model.asMap());
 	}
 			

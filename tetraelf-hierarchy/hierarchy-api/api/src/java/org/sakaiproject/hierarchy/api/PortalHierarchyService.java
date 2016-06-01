@@ -10,6 +10,11 @@ import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 public interface PortalHierarchyService {
 
 	/**
+	 * This is the separator used in URLs
+	 */
+	String SEPARATOR = ":";
+
+	/**
 	 * The event generated when a new node is created.
 	 */
 	String EVENT_NEW = "portal_hierarchy.new";
@@ -67,6 +72,14 @@ public interface PortalHierarchyService {
 	 * @return The found node or null if it couldn't be found.
 	 */
 	PortalNode getNode(String portalPath);
+
+	/**
+	 * We currently don't use a portal path in a URL due to parsing issues, instead we have a special encoding.
+	 * This looks up a PortalNode by the special encoding.
+	 * @param url The path encoded for a URL. This should not be URL encoded.
+	 * @return The found node or null if couldn't be found.
+     */
+	PortalNode getNodeByUrl(String urlPath);
 
 	PortalNode getNodeById(String id);
 	

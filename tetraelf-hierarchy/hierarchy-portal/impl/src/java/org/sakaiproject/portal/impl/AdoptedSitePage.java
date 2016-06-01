@@ -1,4 +1,4 @@
-package org.sakaiproject.portal.charon.handlers;
+package org.sakaiproject.portal.impl;
 
 import java.util.AbstractCollection;
 import java.util.AbstractList;
@@ -31,10 +31,10 @@ public class AdoptedSitePage implements SitePage {
 	private static final long serialVersionUID = 1L;
 	
 	private SitePage original;
-	PortalNodeSite node;
+	Site newParent;
 
-	public AdoptedSitePage(PortalNodeSite node, SitePage original) {
-		this.node = node;
+	public AdoptedSitePage(Site newParent, SitePage original) {
+		this.newParent = newParent;
 		this.original = original;
 	}
 
@@ -72,7 +72,7 @@ public class AdoptedSitePage implements SitePage {
 	}
 
 	public String getSkin() {
-		return node.getSite().getSkin();
+		return newParent.getSkin();
 	}
 
 	public String getTitle() {

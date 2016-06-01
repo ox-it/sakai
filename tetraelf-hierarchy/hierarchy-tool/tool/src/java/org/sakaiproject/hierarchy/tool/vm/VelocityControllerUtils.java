@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
+import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
 import org.sakaiproject.site.api.Site;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -62,7 +63,9 @@ public class VelocityControllerUtils {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("nodePath", node.getPath());
 		map.put("nodeId", node.getId());
-		map.put("nodeUrl", serverConfigurationService.getPortalUrl() + "/hierarchy" + node.getPath());
+		if (node instanceof PortalNodeSite) {
+			map.put("nodeUrl", ((PortalNodeSite) node).getSite().getUrl());
+		}
 		return map;
 	}
 	public StringBuilder buildUrl(HttpServletRequest request, String pathInfo) {

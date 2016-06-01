@@ -25,6 +25,11 @@ public abstract class PortalNodeImpl implements PortalNode {
 		return path;
 	}
 
+	@Override
+	public String getUrlPath() {
+		return getPath().replace("/", PortalHierarchyServiceImpl.SEPARATOR);
+	}
+
 	public void setId(String id) {
 		this.id = id;
 	}

@@ -28,7 +28,7 @@
     <div style="width: 950px;">
         <p><label  for="name" title="#springMessage("show.name.title")">#springMessage("show.name")</label>
         #set ($placeholder = "#springMessage('show.name.placeholder')" )
-        <code>${current.nodeUrl}/</code> #springFormInput("redirect-add.name" "id='name' placeholder='${placeholder}'")</p>
+        <code>${current.nodeUrl}${separator}</code> #springFormInput("redirect-add.name" "id='name' placeholder='${placeholder}'")</p>
         <p>#springShowErrors("" "alertMessageInline")</p>
         <p class="instruction">#springMessage("show.title.info")</p>
         <label for="title" title="#springMessage("show.title.title")">#springMessage("show.title")</label>

@@ -22,4 +22,8 @@
 		</property>
 	</bean>
 
+	<bean id="org.sakaiproject.portal.api.PageFilter" class="org.sakaiproject.portal.impl.HierarchyPageFilter">
+		<property name="portalHierarchyService" ref="org.sakaiproject.hierarchy.api.PortalHierarchyService"/>
+	</bean>
+
 </beans>

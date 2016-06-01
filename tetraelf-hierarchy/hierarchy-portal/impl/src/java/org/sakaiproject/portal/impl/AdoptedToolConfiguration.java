@@ -1,4 +1,4 @@
-package org.sakaiproject.portal.charon.handlers;
+package org.sakaiproject.portal.impl;
 
 import java.util.Properties;
 
@@ -41,7 +41,7 @@ public class AdoptedToolConfiguration implements ToolConfiguration {
 	}
 
 	public String getSiteId() {
-		return sitePage.node.getSite().getId();
+		return sitePage.newParent.getId();
 	}
 
 	public String getSkin() {
@@ -73,7 +73,7 @@ public class AdoptedToolConfiguration implements ToolConfiguration {
 	}
 
 	public String getId() {
-		return original.getId()+ ":"+ sitePage.node.getId();
+		return original.getId();
 	}
 
 	public Properties getPlacementConfig() {
