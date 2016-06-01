@@ -7,15 +7,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendaring.api.*;
 import org.sakaiproject.calendaring.mocks.MockCalendarEventEdit;
 import org.sakaiproject.calendaring.mocks.MockSakaiProxy;
-import org.sakaiproject.calendaring.mocks.MockTimeService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -58,7 +57,7 @@ public class CalendarWithMethodTest {
     public void setupData() {
         users = new ArrayList<User>();
         for(int i=0;i<5;i++) {
-            org.sakaiproject.mock.domain.User u = new org.sakaiproject.mock.domain.User(null, "user"+i, "user"+i, "user"+i, "user"+i+"@email.com", "User", String.valueOf(i), null, null, null, null, null,null,null,null,null,null);
+            User u = Mockito.mock(User.class);
             users.add(u);
         }
     }
@@ -154,10 +153,13 @@ public class CalendarWithMethodTest {
         edit.setId(UUID.randomUUID().toString());
         edit.setCreator(creatorId);
 
-        TimeService timeService = new MockTimeService();
-        Time start = timeService.newTime(START_TIME);
-        Time end = timeService.newTime(END_TIME);
-        TimeRange timeRange = timeService.newTimeRange(start, end, true, false);
+        Time start = Mockito.mock(Time.class);
+        Mockito.when(start.getTime()).thenReturn(START_TIME);
+        Time end = Mockito.mock(Time.class);
+        Mockito.when(end.getTime()).thenReturn(END_TIME);
+        TimeRange timeRange = Mockito.mock(TimeRange.class);
+        when(timeRange.firstTime()).thenReturn(start);
+        when(timeRange.lastTime()).thenReturn(end);
 
         edit.setRange(timeRange);
 
