@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.site.api.Site;
@@ -42,7 +43,7 @@ import org.sakaiproject.user.api.PreferencesService;
 public abstract class AbstractSiteViewImpl implements SiteView
 {
 
-	protected PortalSiteHelperImpl siteHelper;
+	protected PortalSiteHelper siteHelper;
 
 	protected HttpServletRequest request;
 
@@ -78,9 +79,11 @@ public abstract class AbstractSiteViewImpl implements SiteView
 
 	protected boolean expandSite = false;
 
-	public AbstractSiteViewImpl(PortalSiteHelperImpl siteHelper, SiteNeighbourhoodService siteNeighbourhoodService, 
-			HttpServletRequest request, Session session, String currentSiteId, SiteService siteService,
-			ServerConfigurationService serverConfigurationService, PreferencesService preferencesService)
+	protected Site myWorkspaceSite;
+
+	public AbstractSiteViewImpl(PortalSiteHelper siteHelper, SiteNeighbourhoodService siteNeighbourhoodService,
+								HttpServletRequest request, Session session, String currentSiteId, String nodeId, SiteService siteService,
+								ServerConfigurationService serverConfigurationService, PreferencesService preferencesService)
 	{
 		this.siteHelper = siteHelper;
 		this.request = request;
@@ -90,14 +93,11 @@ public abstract class AbstractSiteViewImpl implements SiteView
 		this.preferencesService = preferencesService;
 		this.serverConfigurationService = serverConfigurationService;
 		
-		
-		
-                boolean showMyWorkspace = serverConfigurationService.getBoolean("myworkspace.show",true);
-                mySites = siteNeighbourhoodService.getSitesAtNode(request, session, showMyWorkspace);
-		
-		
+		boolean showMyWorkspace = serverConfigurationService.getBoolean("myworkspace.show",true);
+		mySites = siteNeighbourhoodService.getSitesAtNode(request, session, nodeId, showMyWorkspace);
+
 		loggedIn = session.getUserId() != null;
-		Site myWorkspaceSite = siteHelper.getMyWorkspace(session);
+		myWorkspaceSite = siteHelper.getMyWorkspace(session);
 		if (myWorkspaceSite != null)
 		{
 			myWorkspaceSiteId = myWorkspaceSite.getId();

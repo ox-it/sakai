@@ -10,10 +10,9 @@
 
 var dhtml_more_tabs = function() {
 	// first time through set up the DOM
-	$PBJQ('#selectNav').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectNav in the DOM
-	$PBJQ('#selectNav').css('top',$PBJQ('#linkNav').height() - 3);       // set its top position
-
-	var width = $PBJQ('#linkNav').width()*0.75;
+	$PBJQ('#selectNav').appendTo('.personalSites').addClass('dhtml_more_tabs'); // move the selectNav in the DOM
+	$PBJQ('#selectNav').css('top',$PBJQ('.personalSites').height() - 3);       // set its top position
+	$PBJQ('#selectNav').width(jQuery('.siteNav').width()*0.75);           // set its width to fix an IE6 bug
 	if (width < 400) width = 400;
 	$PBJQ('div#selectNav').width(width);          // set its width to fix an IE6 bug
 	$PBJQ('#selectNav').css('z-index',9899);      // explicitely set the z-index

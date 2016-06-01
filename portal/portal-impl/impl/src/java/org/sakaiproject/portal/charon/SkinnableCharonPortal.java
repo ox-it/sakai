@@ -22,9 +22,12 @@ package org.sakaiproject.portal.charon;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,8 +48,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.TwoFactorAuthentication;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -94,6 +97,7 @@ import org.sakaiproject.portal.charon.handlers.PageResetHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteResetHandler;
 import org.sakaiproject.portal.charon.handlers.XLoginHandler;
+import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
 import org.sakaiproject.portal.util.ErrorReporter;
@@ -131,7 +135,6 @@ import org.sakaiproject.util.Web;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.sakaiproject.portal.api.PortalService;
-import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 
 
 /**
@@ -200,6 +203,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
     private static final boolean MATHJAX_ENABLED_AT_SYSTEM_LEVEL = ServerConfigurationService.getBoolean(MATHJAX_ENABLED_SAKAI_PROP, false) && !MATHJAX_SRC_PATH.trim().isEmpty();
     
 	private PortalSiteHelper siteHelper = null;
+	
+	private TwoFactorAuthentication twoFactorAuthentication;
 
 
 	// private HashMap<String, PortalHandler> handlerMap = new HashMap<String,
@@ -228,19 +233,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	
 	private String handlerPrefix;
 
-	private PageFilter pageFilter = new PageFilter() {
+	private List<Map>relatedLinks;
 
-		public List filter(List newPages, Site site)
-		{
-			return newPages;
-		}
-
-		public List<Map> filterPlacements(List<Map> l, Site site)
-		{
-			return l;
-		}
-
-	};
+	// Just here for old API
+	private PageFilter pageFilter;
 
 	// define string that identifies this as the logged in users' my workspace
 	private String myWorkspaceSiteId = "~";
@@ -437,7 +433,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			if ( ! "true".equals(showSub) ) return;
 		}
 
-		SiteView siteView = siteHelper.getSitesView(SiteView.View.SUB_SITES_VIEW,req, session, siteId);
+		String nodeId = (String)ThreadLocalManager.get("portal.original.siteId");
+
+		SiteView siteView = siteHelper.getSitesView(SiteView.View.SUB_SITES_VIEW,req, session, siteId, nodeId);
 		if ( siteView.isEmpty() ) return;
 
 		siteView.setPrefix(prefix);
@@ -546,7 +544,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		if (site != null)
 		{
-			SiteView siteView = siteHelper.getSitesView(SiteView.View.CURRENT_SITE_VIEW, req, session, siteId );
+			SiteView siteView = siteHelper.getSitesView(SiteView.View.CURRENT_SITE_VIEW, req, session, siteId, null);
 			siteView.setPrefix(prefix);
 			siteView.setResetTools(resetTools);
 			siteView.setToolContextPath(toolContextPath);
@@ -561,7 +559,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		//		includeSummary, expandSite, resetTools, doPages, toolContextPath,
 		//		loggedIn);
 
-		SiteView siteView = siteHelper.getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId );
+		SiteView siteView = siteHelper.getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId, null);
 		siteView.setPrefix(prefix);
 		siteView.setResetTools(resetTools);
 		siteView.setToolContextPath(toolContextPath);
@@ -648,7 +646,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		boolean showResetButton = !"false".equals(placement.getConfig().getProperty(
 				Portal.TOOLCONFIG_SHOW_RESET_BUTTON));
 
-		String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/", "/tool-reset/");
+		String toolUrlPrefix = ServerConfigurationService.getToolUrl();
+		String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, toolUrlPrefix, toolUrlPrefix + "-reset");
 		M_log.debug("includeTool resetActionUrl="+resetActionUrl);
 
 		// SAK-20462 - Pass through the sakai_action parameter
@@ -900,8 +899,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		return parts;
 	}
 
+	
 	public void doLogin(HttpServletRequest req, HttpServletResponse res, Session session,
 			String returnPath, boolean skipContainer) throws ToolException
+	{
+		doLogin(req, res, session, returnPath, skipContainer?LoginRoute.SAKAI:LoginRoute.CONTAINER);
+	}
+
+	public void doLogin(HttpServletRequest req, HttpServletResponse res, Session session,
+			String returnPath, LoginRoute route) throws ToolException
 	{
 		try
 		{
@@ -932,15 +938,26 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			session.setAttribute(Tool.HELPER_DONE_URL, returnUrl);
 		}
 
-		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
+		ActiveTool tool = null;
+		String context = req.getContextPath() + req.getServletPath() + "/relogin"; 
+		String loginPath = "";
+		if (forceContainer || LoginRoute.CONTAINER.equals(route)) {
+			tool = ActiveToolManager.getActiveTool("sakai.login");
+			loginPath = "/relogin";
+			
+		} else if (LoginRoute.SAKAI.equals(route)) {
+			tool = ActiveToolManager.getActiveTool("sakai.login");
+			loginPath = "/xlogin";
+			
+		} else if (LoginRoute.TWOFACTOR.equals(route)) {
+			tool = ActiveToolManager.getActiveTool("sakai.twofactor");
+			loginPath = "/2flogin";
+			
+		} else {
+			tool = ActiveToolManager.getActiveTool("sakai.login");
+			loginPath = "/login";
+        }
 
-		// to skip container auth for this one, forcing things to be handled
-		// internaly, set the "extreme" login path
-
-		String loginPath = (!forceContainer  && skipContainer ? "/xlogin" : "/relogin");
-		
-		String context = req.getContextPath() + req.getServletPath() + loginPath;
-		
 		tool.help(req, res, context, loginPath);
 	}
 
@@ -992,6 +1009,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		skin = getSkin(skin);
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
+		String localCSS = ServerConfigurationService.getString("local.css", null);
 
 		rcontext.put("pageSkinRepo", skinRepo);
 		rcontext.put("pageSkin", skin);
@@ -1028,6 +1046,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("googleTagManagerContainerId", googleTagManagerContainerId);
 		}
 
+		rcontext.put("localCSS", localCSS);
+		
 		Session s = SessionManager.getCurrentSession();
 		rcontext.put("loggedIn", Boolean.valueOf(s.getUserId() != null));
 		rcontext.put("userId", s.getUserId());
@@ -1222,7 +1242,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// punt
 			if (session.getUserId() == null)
 			{
+				doLogin(req, res, session, URLUtils.getSafePathInfo(req) + "?sakai.site="
+						+ res.encodeURL(siteId), false);
 				doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
+				doLogin(req, res, session, URLUtils.getSafePathInfo(req) + "?sakai.site="
+						+ res.encodeURL(siteId), Portal.LoginRoute.NONE);
 				return null;
 			}
 			return placementId; // cannot resolve placement
@@ -1328,6 +1352,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		headJs.append("sakai.locale.userLanguage = '" + rloader.getLocale().getLanguage() + "';\n");
 		headJs.append("sakai.locale.userLocale = '" + rloader.getLocale().toString() + "';\n");
 		headJs.append("sakai.editor.collectionId = '" + portalService.getBrowserCollectionId(placement) + "';\n");
+		if (placement!=null && placement.getToolId()!=null){
+			headJs.append("sakai.editor.placementToolId = '" + placement.getToolId() + "';\n");
+		}
 		headJs.append("sakai.editor.enableResourceSearch = " + EditorConfiguration.enableResourceSearch() + ";\n");
 		headJs.append("sakai.editor.editors.ckeditor.browser = '"+ EditorConfiguration.getCKEditorFileBrowser()+ "';\n");
 		headJs.append("</script>\n");
@@ -1527,7 +1554,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		StringBuilder portalPageUrl = new StringBuilder();
 		
 		portalPageUrl.append("/site/");
-		portalPageUrl.append(p.getSiteId());
+		portalPageUrl.append(getSiteHelper().getSiteAlias(p.getSiteId()));
 		portalPageUrl.append("/page/");
 		portalPageUrl.append(page);
 
@@ -1769,18 +1796,24 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// for the main login/out link
 			String logInOutUrl = Web.serverUrl(req);
 			String message = null;
+			String loginTitle = null;
 			String image1 = null;
 
 			// for a possible second link
 			String logInOutUrl2 = null;
 			String message2 = null;
 			String image2 = null;
+			String loginTitle2 = null;
 			String logoutWarningMessage = "";
+
+			// The related links
+			List relatedLinks = null;
 
 			// for showing user display name and id next to logout (SAK-10492)
 			String loginUserDispName = null;
 			String loginUserDispId = null;
 			String loginUserFirstName = null;
+			boolean loginHasTwoFactor = false;
 			boolean displayUserloginInfo = ServerConfigurationService.
 			getBoolean("display.userlogin.info", true);
 
@@ -1789,7 +1822,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// of a login link, but ignore it if container.login is set
 			boolean topLogin = ServerConfigurationService.getBoolean("top.login", true);
 			boolean containerLogin = ServerConfigurationService.getBoolean("container.login", false);
+			// Should we keep the path after Login?
+			boolean keepPath = ServerConfigurationService.getBoolean("login.keep.path", false);
+			// Must encode or we expose an XSS
+			String returnPath = (keepPath)?"?returnPath="+  URLEncoder.encode(req.getPathInfo()):"";
+			
 			if (containerLogin) topLogin = false;
+			
+
 
 			// if not logged in they get login
 			if (session.getUserId() == null)
@@ -1805,10 +1845,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					.trimToNull(ServerConfigurationService.getString("login.url"));
 					if (overrideLoginUrl != null) logInOutUrl = overrideLoginUrl;
 
-					// check for a login text override
+					logInOutUrl = logInOutUrl + returnPath;
+					
+					// check for a login text/title override
 					message = StringUtils.trimToNull(ServerConfigurationService
 							.getString("login.text"));
 					if (message == null) message = rloader.getString("log.login");
+					loginTitle = StringUtils.trimToNull(ServerConfigurationService
+							.getString("login.text.title"));
+					if (loginTitle == null) loginTitle = message;
 
 					// check for an image for the login
 					image1 = StringUtils.trimToNull(ServerConfigurationService
@@ -1818,14 +1863,17 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					if (Boolean.TRUE.toString().equalsIgnoreCase(
 							ServerConfigurationService.getString("xlogin.enabled")))
 					{
-						// get the text and image as configured
+						// get the text title and image as configured
 						message2 = StringUtils.trimToNull(ServerConfigurationService
 								.getString("xlogin.text"));
 						if (message2 == null) message2 = rloader.getString("log.xlogin");
+						loginTitle2 = StringUtils.trimToNull(ServerConfigurationService
+								.getString("xlogin.text.title"));
+						if (loginTitle2 == null) loginTitle2 = message2;
+
 						image2 = StringUtils.trimToNull(ServerConfigurationService
 								.getString("xlogin.icon"));
-						logInOutUrl2 = ServerConfigurationService.getString("portalPath")
-						+ "/xlogin";
+						logInOutUrl2 = ServerConfigurationService.getString("portalPath") + "/xlogin" + returnPath;
 						
 					}
 				}
@@ -1844,12 +1892,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					loginUserDispId = Validator.escapeHtml(thisUser.getDisplayId());
 					loginUserDispName = Validator.escapeHtml(thisUser.getDisplayName());
 					loginUserFirstName = Validator.escapeHtml(thisUser.getFirstName());
+					loginHasTwoFactor = twoFactorAuthentication.hasTwoFactor();
 				}
 
 				// check for a logout text override
 				message = StringUtils.trimToNull(ServerConfigurationService
 						.getString("logout.text"));
 				if (message == null) message = rloader.getString("sit_log");
+				loginTitle = StringUtils.trimToNull(ServerConfigurationService
+						.getString("logout.text.title"));
+				if (loginTitle == null) loginTitle = rloader.getString("sit_log_title");
 
 				// check for an image for the logout
 				image1 = StringUtils.trimToNull(ServerConfigurationService
@@ -1857,9 +1909,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 				// since we are doing logout, cancel top.login
 				topLogin = false;
-				
+
 				logoutWarningMessage = ServerConfigurationService.getBoolean("portal.logout.confirmation",false)?rloader.getString("sit_logout_warn"):"";
+				relatedLinks = this.relatedLinks;
 			}
+
 			rcontext.put("userIsLoggedIn", session.getUserId() != null);
 			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("logoutWarningMessage", logoutWarningMessage);
@@ -1874,12 +1928,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 				rcontext.put("loginLogInOutUrl", logInOutUrl);
 				rcontext.put("loginMessage", message);
+				rcontext.put("loginTitle", loginTitle);
 				rcontext.put("loginImage1", image1);
 				rcontext.put("loginHasImage1", Boolean.valueOf(image1 != null));
 				rcontext.put("loginLogInOutUrl2", logInOutUrl2);
 				rcontext.put("loginHasLogInOutUrl2", Boolean
 						.valueOf(logInOutUrl2 != null));
 				rcontext.put("loginMessage2", message2);
+				rcontext.put("loginTitle2", loginTitle2);
 				rcontext.put("loginImage2", image2);
 				rcontext.put("loginHasImage2", Boolean.valueOf(image2 != null));
 				// put out the links version
@@ -1908,10 +1964,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("loginWording", loginWording);
 				rcontext.put("eidPlaceholder", eidPlaceholder);
 				rcontext.put("pwPlaceholder", pwPlaceholder);
-
-				// setup for the redirect after login
-				session.setAttribute(Tool.HELPER_DONE_URL, ServerConfigurationService
-						.getPortalUrl());
+				if (keepPath) {
+					rcontext.put("returnPath", URLEncoder.encode(req.getPathInfo()));
+				}
 			}
 
 			if (displayUserloginInfo)
@@ -1919,8 +1974,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("loginUserDispName", loginUserDispName);
 				rcontext.put("loginUserFirstName", loginUserFirstName);
 				rcontext.put("loginUserDispId", loginUserDispId);
+				rcontext.put("loginHasTwoFactor", loginHasTwoFactor);
 			}
 			rcontext.put("displayUserloginInfo", displayUserloginInfo && loginUserDispId != null);
+			rcontext.put("relatedLinks", relatedLinks);
 		}
 	}
 
@@ -1964,11 +2021,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		boolean findPageAliases = ServerConfigurationService.getBoolean("portal.use.page.aliases", false);
 
-		siteHelper = new PortalSiteHelperImpl(this, findPageAliases);
 
+		twoFactorAuthentication = (TwoFactorAuthentication)ComponentManager.get(TwoFactorAuthentication.class);
+
+		pageFilter = ComponentManager.get(PageFilter.class);
+		
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		chatHelper = org.sakaiproject.portal.api.cover.PortalChatPermittedHelper.getInstance();
+
+		siteHelper = new PortalSiteHelperImpl(this, findPageAliases);
 		M_log.info("init()");
 
 		forceContainer = ServerConfigurationService.getBoolean("login.use.xlogin.to.relogin", true);
@@ -1978,6 +2040,58 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		gatewaySiteUrl = ServerConfigurationService.getString("gatewaySiteUrl", null);
 		
 		sakaiTutorialEnabled = ServerConfigurationService.getBoolean("portal.use.tutorial", true);
+
+		// Load the related links.
+		List<String> linkUrls = Arrays.asList(emptyNotNull(ServerConfigurationService.getStrings("related.link.url")));
+		List<String> linkTitles = Arrays.asList(emptyNotNull(ServerConfigurationService.getStrings("related.link.title")));
+		List<String> linkNames = Arrays.asList(emptyNotNull(ServerConfigurationService.getStrings("related.link.name")));
+		List<String> linkIcons = Arrays.asList(emptyNotNull(ServerConfigurationService.getStrings("related.link.icon")));
+		
+		List<Map> relatedLinks = new ArrayList<Map>(linkUrls.size());
+		for (int i = 0; i < linkUrls.size(); i++)
+		{
+			String url = linkUrls.get(i);
+			String title = linkTitles.get(i);
+			String name = linkNames.get(i);
+			String icon = linkIcons.get(i);
+			if (url != null)
+			{
+				Map<String,String> linkDetails = new HashMap<String,String>();
+				linkDetails.put("url", url);
+				if (name != null)
+				{
+					linkDetails.put("name", name);
+					if (title != null)
+					{
+						linkDetails.put("title", title);
+					}
+					else
+					{
+						linkDetails.put("title", name);
+					}
+				}
+				else
+				{
+					if (title != null)
+					{
+						linkDetails.put("name", title);
+						linkDetails.put("title", title);
+					}
+					else
+					{
+						linkDetails.put("name", url);
+						linkDetails.put("title", url);
+					}
+				}
+				if(icon != null)
+				{
+					linkDetails.put("icon",icon);
+				}
+
+				relatedLinks.add(Collections.unmodifiableMap(linkDetails));
+			}
+		}
+		this.relatedLinks = Collections.unmodifiableList(relatedLinks);
 
 		basicAuth = new BasicAuth();
 		basicAuth.init();
@@ -1990,17 +2104,22 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// warning messages will appear, but the end state will be the same.
 		portalService.addPortal(this);
 
+		// We create second instances of these two handlers as they are used internally for error handling
+		// and otherwise if another handler claims the URLs they get de-registered and then the
+		// error handling stops working.
 		worksiteHandler = new WorksiteHandler();
+		worksiteHandler.register(this, portalService, getServletContext());
 		siteHandler = new SiteHandler();
+		siteHandler.register(this, portalService, getServletContext());
 
-		addHandler(siteHandler);
+		addHandler(new SiteHandler());
 		addHandler(new SiteResetHandler());
 
 		addHandler(new ToolHandler());
 		addHandler(new ToolResetHandler());
 		addHandler(new PageResetHandler());
 		addHandler(new PageHandler());
-		addHandler(worksiteHandler);
+		addHandler(new WorksiteHandler());
 		addHandler(new WorksiteResetHandler());
 		addHandler(new RssHandler());
 		addHandler(new AtomHandler());
@@ -2144,6 +2263,21 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		StackTraceElement se = e.getStackTrace()[1];
 		M_log.info("Log marker " + se.getMethodName() + ":" + se.getFileName() + ":"
 				+ se.getLineNumber());
+	}
+	
+	/**
+	 * If the passed array is <code>null</code> return an empty array.
+	 */
+	private String[] emptyNotNull(String[] array)
+	{
+		if (array == null)
+		{
+			return new String[0];
+		}
+		else
+		{
+			return array;
+		}
 	}
 
 	/**

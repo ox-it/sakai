@@ -67,6 +67,8 @@ public abstract class BasePortalHandler implements PortalHandler
 
 	private String urlFragment;
 
+	private int priority = 0;
+
 	protected ServletContext servletContext;
 
 	public abstract int doGet(String[] parts, HttpServletRequest req,
@@ -88,6 +90,8 @@ public abstract class BasePortalHandler implements PortalHandler
 	 */
 	public void deregister(Portal portal)
 	{
+		// The portal is typically in a web-app and we want to allow the portal to get garbage collected so handlers
+		// shouldn't hold onto references to the portal as they may be registered in foreign web-apps.
 		this.portal = null;
 	}
 
@@ -137,7 +141,23 @@ public abstract class BasePortalHandler implements PortalHandler
 	{
 		this.urlFragment = urlFragment;
 	}
-	
+
+	/**
+	 * @return The priority of this handler.
+	 */
+	@Override
+	public int getPriority()
+	{
+		return priority;
+	}
+
+	/**
+	 * @param priority the priority of this handler.
+	 */
+	public void setPriority(int priority)
+	{
+		this.priority = priority;
+	}
 	/**
 	 * *
 	 * 

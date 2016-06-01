@@ -144,7 +144,7 @@
 		</li>
 	#end ## End for each key 
 
-            #if ( $subSites && $showSubsitesAsFlyout )
+            #if ( $subSites.children && $showSubsitesAsFlyout )
 
                 <li class="Mrphs-toolsNav__menuitem--subsite">
                     <a id="toggleSubsitesLink" class="Mrphs-toolsNav__menuitem--link" href="javascript:;" title="${rloader.subsitesTitle}" aria-haspopup="true">
@@ -181,17 +181,17 @@
         </ul>
     </nav>
 
-    #if ( $subSites )
+    #if ( $subSites.children )
 
         <nav id="subSites" #if ($showSubsitesAsFlyout) class="is-hidden"#end>
                 <ul role="menu">
 
-                    #foreach ( $site in $subSites )
+                    #foreach ( $site in $subSites.children )
 
                         <li>
-                            <a class="Mrphs-toolsNav__menuitem--link" href="${site.siteUrl}" title="${rloader.subsite} ${site.fullTitle}" role="menuitem">
-                                <span class="Mrphs-toolsNav__menuitem--icon ${sitePages.subsiteClass}"></span>
-                                <span class="Mrphs-toolsNav__menuitem--title">${rloader.subsite} ${site.siteTitle}</span>
+                            <a class="Mrphs-toolsNav__menuitem--link" href="${site.url}" title="${rloader.subsite} ${site.title}" role="menuitem">
+                                <span class="Mrphs-toolsNav__menuitem--icon ${sitePages.class}"></span>
+                                <span class="Mrphs-toolsNav__menuitem--title">${rloader.subsite} ${site.titleTruncated}</span>
                             </a>
                         </li>
 
@@ -204,4 +204,44 @@
 
 </div>
 
-<!-- END VM includePageNav.vm -->
+					<ul>
+			<!-- Add subsite lists --> 
+			#foreach ( $site in $children ) 
+						<li>
+							<a class="toolMenuLink #if(!${site.isPublished})unpublished#end" href="${site.siteUrl}" title="${site.siteUrl}">
+							<span class="toolMenuIcon ${site.iconClass}"> </span>
+							<span class="menuTitle">${site.siteTitle}</span>
+							</a>
+						</li>
+			#end
+						</ul>
+				<a id="tohierarchypages" class="skip" name="tohierarchypages"></a>
+				<h1 class="skip">${rloader.sit_hierarchypageshead}</h1>
+				<div id="toolMenu" class="toolMenu hierarchyPages">
+					<ul>
+					<!-- Hierarchy Pages -->
+					#foreach( $page in $hierarchyPages )
+						#if (${page.current})
+							<li class="selectedTool">
+								<span class="toolMenuLink toolMenu" >${page.pageTitle}</span>
+							</li>
+						#else
+							#if (${page.ispopup})
+								<li>
+									<a class="toolMenuLink" href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+										<span class="toolMenuIcon ${page.menuClass}"></span>
+										<span class="menuTitle">${page.pageTitle}</span>
+									</a>
+								</li>
+							#else
+								<li>
+									<a class="toolMenuLink" href="${page.pageRefUrl}" >
+										<span class="toolMenuIcon $page.menuClass"></span>
+										<span class="menuTitle">${page.pageTitle}</span>
+									</a>
+								</li>
+							#end
+						#end
+						#end
+					</ul>
+				</div>

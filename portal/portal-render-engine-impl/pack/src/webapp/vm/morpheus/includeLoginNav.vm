@@ -3,6 +3,13 @@
 <nav id="mastLogin" class="Mrphs-loginNav">
 
     #if (!${loginTopLogin})
+        <div id="relatedLinks">
+            <ul>
+                #foreach($relatedLink in $relatedLinks)
+                    <li><a href="$relatedLink.url" title="$relatedLink.title" target="_new">$relatedLink.name</a></li>
+                #end
+            </ul>
+        </div>
 
         #if (${userIsLoggedIn})
             <div class="Mrphs-sitesNav__menuitem view-all-sites-btn">

@@ -1,0 +1,13 @@
+<!-- START from includeSiteBanner.vm -->
+<div id="siteBanner" style="#if (${banner.backgroundColour})background-color: ${banner.backgroundColour}; #end
+					 #if (${banner.backgroundImage})background-image: url('${banner.backgroundImage}'); #end">
+	<a href="${banner.imageLink}">
+		<img src="${banner.imageSource}" />
+	</a>
+	<h1 #if(${banner.fontColour}) style="color: ${banner.fontColour};" #end>
+		${banner.message}
+	</h1>
+</div>
+<div class="clear"></div>
+<!-- END from includeSiteBanner.vm -->
+

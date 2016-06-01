@@ -51,9 +51,9 @@ import org.sakaiproject.portal.util.URLUtils;
  */
 public class WorksiteHandler extends PageHandler
 {
-	private static final String INCLUDE_WORKSITE = "include-worksite";
+	protected static final String INCLUDE_WORKSITE = "include-worksite";
 
-	private static final String INCLUDE_PAGE_NAV = "include-page-nav";
+	protected static final String INCLUDE_PAGE_NAV = "include-page-nav";
 
 	private static final String URL_FRAGMENT = "worksite";
 	
@@ -129,7 +129,7 @@ public class WorksiteHandler extends PageHandler
 			// if not logged in, give them a chance
 			if (session.getUserId() == null)
 			{
-				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
+				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), Portal.LoginRoute.NONE);
 			}
 			else
 			{

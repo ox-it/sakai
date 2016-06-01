@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 
 /**
  * @author ieb
@@ -38,7 +39,7 @@ public interface PageFilter
 	 * @param site
 	 * @return
 	 */
-	List filter(List newPages, Site site);
+	List<SitePage> filter(List<SitePage> newPages, Site site);
 
 	/**
 	 * Filter the list of placements, potentially making them hierachical if required

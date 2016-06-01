@@ -22,29 +22,28 @@
 package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Enumeration;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Cookie;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.TwoFactorAuthentication;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
+
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -56,21 +55,16 @@ import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.charon.site.AllSitesViewImpl;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.*;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.ResourceLoader;
@@ -98,7 +92,9 @@ public class SiteHandler extends WorksiteHandler
 	private static final String URL_FRAGMENT = "site";
 
 	private static ResourceLoader rb = new ResourceLoader("sitenav");
-	
+
+	private DevolvedSakaiSecurity devolvedSakaiSecurity;
+
 	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
 	// This can be replaced by the users myworkspace.
 	private String mutableSitename ="-";
@@ -125,12 +121,15 @@ public class SiteHandler extends WorksiteHandler
 	// SAK-27774 - We are going inline default but a few tools need a crutch 
 	// This is Sakai 11 only so please do not back-port or merge this default value
 	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.rsf.evaluation";
+	private TwoFactorAuthentication twoFactorAuthentication;
 
 	public SiteHandler()
 	{
 		setUrlFragment(SiteHandler.URL_FRAGMENT);
 		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
 		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
+		devolvedSakaiSecurity = (DevolvedSakaiSecurity) ComponentManager.get(DevolvedSakaiSecurity.class);
+		twoFactorAuthentication = ComponentManager.get(TwoFactorAuthentication.class);
 	}
 
 	@Override
@@ -185,7 +184,7 @@ public class SiteHandler extends WorksiteHandler
 		// 0 1 2 3 4
 		if ((siteId != null) && (parts.length == 5) && (parts[3].equals("tool-reset")))
 		{
-			toolId = parts[4];
+			// TODO Should keep good URL
 			String toolUrl = req.getContextPath() + "/site/" + siteId + "/tool"
 					+ Web.makePath(parts, 4, parts.length);
 			String queryString = Validator.generateQueryString(req);
@@ -205,7 +204,7 @@ public class SiteHandler extends WorksiteHandler
 		if ((siteId != null) && (parts.length == 5) && (parts[3].equals("page-reset")))
 		{
 			pageId = parts[4];
-			Site site = null;
+			Site site;
 			try
 			{
 				Set<SecurityAdvisor> advisors = (Set<SecurityAdvisor>)session.getAttribute("sitevisit.security.advisor");
@@ -245,8 +244,7 @@ public class SiteHandler extends WorksiteHandler
 			String queryString = Validator.generateQueryString(req);
 			if (queryString != null)
 			{
-				pageUrl = pageUrl + "?" + queryString;
-				if ( hasJSR168 ) pageUrl = pageUrl + "&sakai.state.reset=true";
+				pageUrl = pageUrl + "?" + queryString; if ( hasJSR168 ) pageUrl = pageUrl + "&sakai.state.reset=true";
 			} else {
 				if ( hasJSR168 ) pageUrl = pageUrl + "?sakai.state.reset=true";
 			}
@@ -294,7 +292,7 @@ public class SiteHandler extends WorksiteHandler
 			else
 			{
 				// TODO Should maybe switch to portal.getSiteHelper().getMyWorkspace()
-				AllSitesViewImpl allSites = (AllSitesViewImpl)portal.getSiteHelper().getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId);
+				AllSitesViewImpl allSites = (AllSitesViewImpl)portal.getSiteHelper().getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId, null);
 				List<Map> sites = (List<Map>)allSites.getRenderContextObject();
 				if (sites.size() > 0) {
 					siteId = (String)sites.get(0).get("siteId");
@@ -326,15 +324,23 @@ public class SiteHandler extends WorksiteHandler
 					//session.removeAttribute("sitevisit.security.advisor");
 				}
 			}
+			// Save the original site ID.
+			ThreadLocalManager.set("portal.original.siteId", siteId);
 			// This should understand aliases as well as IDs
 			site = portal.getSiteHelper().getSiteVisit(siteId);
-			
+
 			// SAK-20509 remap the siteId from the Site object we now have, since it may have originally been an alias, but has since been translated.
 			siteId = site.getId();
 			
 		}
 		catch (IdUnusedException e)
 		{
+			// Check if this should be redirecting somewhere else
+			String redirect = portal.getSiteHelper().getRedirect(siteId);
+			if (redirect != null) {
+				res.sendRedirect(redirect);
+				return;
+			};
 		}
 		catch (PermissionException e)
 		{
@@ -352,13 +358,23 @@ public class SiteHandler extends WorksiteHandler
 		if (site == null)
 		{				
 			// if not logged in, give them a chance
+			try {
+				// Map to actual siteId if exists.
+				siteId = portal.getSiteHelper().getSite(siteId).getId();
+			} catch (IdUnusedException e) {
+				// ignore.
+			}
 			if (userId == null)
 			{
 				StoredState ss = portalService.newStoredState("directtool", "tool");
 				ss.setRequest(req);
 				ss.setToolContextPath(toolContextPath);
 				portalService.setStoredState(ss);
-				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
+				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), Portal.LoginRoute.NONE);
+			}
+			else if (twoFactorAuthentication.isTwoFactorRequired("/site/"+siteId)
+					&& !twoFactorAuthentication.hasTwoFactor()) {
+				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), Portal.LoginRoute.TWOFACTOR);
 			}
 			else
 			{
@@ -399,7 +415,7 @@ public class SiteHandler extends WorksiteHandler
 
 		// Find the pageId looking backwards through the toolId
 		if(site != null && pageId == null && toolId != null ) {
-			SitePage p = (SitePage) ToolUtils.getPageForTool(site, toolId);
+			SitePage p = ToolUtils.getPageForTool(portal.getSiteHelper().getPermittedPagesInOrder(site), toolId);
 			if ( p != null ) pageId = p.getId();
 		}
 
@@ -428,6 +444,7 @@ public class SiteHandler extends WorksiteHandler
 		if (page != null)
 		{
 			// store the last page visited
+			// TODO Make this configurable
 			session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
 			title += " : " + page.getTitle();
 		}
@@ -436,7 +453,7 @@ public class SiteHandler extends WorksiteHandler
 		boolean trinity = ServerConfigurationService.getBoolean(ToolUtils.PORTAL_INLINE_EXPERIMENTAL, ToolUtils.PORTAL_INLINE_EXPERIMENTAL_DEFAULT);
 		if (trinity && toolId == null) {
 			String pagerefUrl = ToolUtils.getPageUrl(req, site, page, getUrlFragment(),
-				false, null, null);
+				false, portal.getSiteHelper().getSiteEffectiveId(site), null);
 			// http://localhost:8080/portal/site/963b28b/tool/0996adf
 			String[] pieces = pagerefUrl.split("/");
 			if ( pieces.length > 6 && "tool".equals(pieces[6]) ) {
@@ -531,12 +548,12 @@ public class SiteHandler extends WorksiteHandler
 			log.debug("BufferedResponse success");
 			rcontext.put("bufferedResponse", Boolean.TRUE);
 			Map<String,String> bufferMap = (Map<String,String>) BC;
-			rcontext.put("responseHead", (String) bufferMap.get("responseHead"));
-			rcontext.put("responseBody", (String) bufferMap.get("responseBody"));
+			rcontext.put("responseHead", bufferMap.get("responseHead"));
+			rcontext.put("responseBody", bufferMap.get("responseBody"));
 		}
 
 		rcontext.put("siteId", siteId);
-		boolean showShortDescription = Boolean.valueOf(ServerConfigurationService.getBoolean("portal.title.shortdescription.show", false));
+		boolean showShortDescription = ServerConfigurationService.getBoolean("portal.title.shortdescription.show", false);
 
 		if (showShortDescription) {
 			rcontext.put("shortDescription", Web.escapeHtml(site.getShortDescription()));
@@ -553,6 +570,8 @@ public class SiteHandler extends WorksiteHandler
 		addLocale(rcontext, site, session.getUserId());
 		
 		includeSiteNav(rcontext, req, session, siteId);
+
+		includeSiteBanner(rcontext, site);
 
 		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
 					getUrlFragment());
@@ -647,7 +666,6 @@ public class SiteHandler extends WorksiteHandler
 			boolean loggedIn = session.getUserId() != null;
 			boolean topLogin = ServerConfigurationService.getBoolean("top.login", true);
 
-
 			String accessibilityURL = ServerConfigurationService
 					.getString("accessibility.url");
 			rcontext.put("siteNavHasAccessibilityURL", Boolean
@@ -682,6 +700,7 @@ public class SiteHandler extends WorksiteHandler
 			}
 			catch (Exception any)
 			{
+				log.warn("Error getting tabs/logo", any);
 			}
 		}
 	}
@@ -700,6 +719,15 @@ public class SiteHandler extends WorksiteHandler
 			String cssClass = (siteType != null) ? siteType : "undeterminedSiteType";
 			rcontext.put("logoSiteType", siteType);
 			rcontext.put("logoSiteClass", cssClass);
+
+			String bannerLink = ServerConfigurationService.getString("banner.link", null);
+			String bannerTitle = ServerConfigurationService.getString("banner.title", null);
+			String logoLink = ServerConfigurationService.getString("logo.link", null);
+			String logoTitle = ServerConfigurationService.getString("logo.title", null);
+			rcontext.put("bannerLink", bannerLink);
+			rcontext.put("bannerTitle", bannerTitle);
+			rcontext.put("logoLink", logoLink);
+			rcontext.put("logoTitle", logoTitle);
 			portal.includeLogin(rcontext, req, session);
 		}
 	}
@@ -741,6 +769,138 @@ public class SiteHandler extends WorksiteHandler
 		return skin;
 	}
 
+	public void includeSiteBanner(PortalRenderContext rcontext, Site site) {
+		BannerContextPreparer contextPreparer = new BannerContextPreparer(site);
+		Map<String, String> context = contextPreparer.prepare();
+		rcontext.put("banner", context);
+	}
+
+	/**
+	 * Encapsulates the logic involved in preparing the banner for a site.
+	 */
+	private class BannerContextPreparer
+	{
+
+		private static final String MESSAGE = "message";
+		private static final String IMAGE_SOURCE = "imageSource";
+		private static final String IMAGE_LINK = "imageLink";
+		private static final String BACKGROUND_COLOUR = "backgroundColour";
+		private static final String BACKGROUND_IMAGE = "backgroundImage";
+		private static final String FONT_COLOUR = "fontColour";
+
+		private static final String DEFAULT_PREFIX = "banner.default.";
+		private static final String SITE_PREFIX = "banner.";
+		private static final String OVERRIDE_PREFIX = "banner.override.";
+
+		private Site site;
+
+		public BannerContextPreparer(Site site)
+		{
+			this.site = site;
+		}
+
+		/**
+		 * Collect each parameter for the site banner with the following precedence:
+		 *
+		 *   1. use the value defined in the site's properties;
+		 *   2. if not defined use the "banner overrides" value in the admin site properties;
+		 *   3. if still not defined use the site title and values defined in the server properties.
+		 *
+		 * @return a set of parameters for the banner
+		 */
+		public Map<String, String> prepare()
+		{
+
+			final Map<String, String> context = new LinkedHashMap<String, String>();
+
+			mergeContexts(context, getDefaultBannerProperties());
+			mergeContexts(context, getPropertiesOverridenByAdminSite());
+			mergeContexts(context, getSiteBannerProperties());
+
+			return context;
+		}
+
+		/** Similar to Map.putall but ignores empty values */
+		private void mergeContexts(Map<String, String> source, Map<String, String> target)
+		{
+			for (Map.Entry<String, String> entry : target.entrySet())
+			{
+				if(entry.getValue() != null && !entry.getValue().isEmpty())
+				{
+					source.put(entry.getKey(), entry.getValue());
+				}
+			}
+		}
+
+		private Map<String, String> getDefaultBannerProperties()
+		{
+			final Map<String, String> context = new LinkedHashMap<String, String>();
+
+			context.put("message", site.getTitle());
+			context.put(IMAGE_SOURCE,      ServerConfigurationService.getString(DEFAULT_PREFIX + IMAGE_SOURCE));
+			context.put(IMAGE_LINK,        ServerConfigurationService.getString(DEFAULT_PREFIX + IMAGE_LINK));
+			context.put(BACKGROUND_COLOUR, ServerConfigurationService.getString(DEFAULT_PREFIX + BACKGROUND_COLOUR));
+			context.put(BACKGROUND_IMAGE,  ServerConfigurationService.getString(DEFAULT_PREFIX + BACKGROUND_IMAGE));
+			context.put(FONT_COLOUR,       ServerConfigurationService.getString(DEFAULT_PREFIX + FONT_COLOUR));
+
+			return context;
+		}
+
+		private Map<String, String> getSiteBannerProperties()
+		{
+			final Map<String, String> context = new LinkedHashMap<String, String>();
+			final ResourceProperties siteProperties = site.getProperties();
+
+			context.put(MESSAGE,           siteProperties.getProperty(SITE_PREFIX + MESSAGE));
+			context.put(IMAGE_SOURCE,      siteProperties.getProperty(SITE_PREFIX + IMAGE_SOURCE));
+			context.put(IMAGE_LINK,        siteProperties.getProperty(SITE_PREFIX + IMAGE_LINK));
+			context.put(BACKGROUND_COLOUR, siteProperties.getProperty(SITE_PREFIX + BACKGROUND_COLOUR));
+			context.put(BACKGROUND_IMAGE,  siteProperties.getProperty(SITE_PREFIX + BACKGROUND_IMAGE));
+			context.put(FONT_COLOUR,       siteProperties.getProperty(SITE_PREFIX + FONT_COLOUR));
+
+			return context;
+		}
+
+		private Map<String, String> getPropertiesOverridenByAdminSite()
+		{
+			final Map<String, String> context = new LinkedHashMap<String, String>();
+
+			ResourceProperties adminSiteProperties = adminSitePropertiesFor();
+
+			if (adminSiteProperties != null) {
+				context.put(MESSAGE,           adminSiteProperties.getProperty(OVERRIDE_PREFIX + MESSAGE));
+				context.put(IMAGE_SOURCE,      adminSiteProperties.getProperty(OVERRIDE_PREFIX + IMAGE_SOURCE));
+				context.put(IMAGE_LINK,        adminSiteProperties.getProperty(OVERRIDE_PREFIX + IMAGE_LINK));
+				context.put(BACKGROUND_COLOUR, adminSiteProperties.getProperty(OVERRIDE_PREFIX + BACKGROUND_COLOUR));
+				context.put(BACKGROUND_IMAGE,  adminSiteProperties.getProperty(OVERRIDE_PREFIX + BACKGROUND_IMAGE));
+				context.put(FONT_COLOUR,       adminSiteProperties.getProperty(OVERRIDE_PREFIX + FONT_COLOUR));
+			}
+
+			return context;
+		}
+
+		private ResourceProperties adminSitePropertiesFor()
+		{
+			final String adminRealm = devolvedSakaiSecurity.getAdminRealm(site.getReference());
+
+			if(adminRealm == null)
+			{
+				return null;
+			}
+
+			final Entity adminEntity = EntityManager.newReference(adminRealm).getEntity();
+
+			if(adminEntity == null)
+			{
+				return null;
+			}
+
+			return adminEntity.getProperties();
+		}
+
+	}
+
+
 	public void includeTabs(PortalRenderContext rcontext, HttpServletRequest req,
 			Session session, String siteId, String prefix, boolean addLogout)
 			throws IOException
@@ -761,12 +921,15 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			boolean loggedIn = session.getUserId() != null;
-			
+
+			// Role swap doesn't work for unpublished sites so don't present the option.
+			boolean siteIsPublished = portal.getSiteHelper().isSitePublished(siteId);
+
 			// Check to see if we display a link in the UI for swapping the view
 			boolean roleswapcheck = false; // This variable will tell the UI if we will display any role swapping component; false by default
 			String roleswitchvalue = SecurityService.getUserEffectiveRole(SiteService.siteReference(siteId)); // checks the session for a role swap value
 			boolean roleswitchstate = false; // This variable determines if the site is in the switched state or not; false by default
-			boolean allowroleswap = SiteService.allowRoleSwap(siteId) && !SecurityService.isSuperUser();
+			boolean allowroleswap = SiteService.allowRoleSwap(siteId) && !SecurityService.isSuperUser() && siteIsPublished;
 			
 			// check for the site.roleswap permission
 			if (allowroleswap || roleswitchvalue != null)
@@ -866,31 +1029,17 @@ public class SiteHandler extends WorksiteHandler
 				{
 					tabDisplayLabel = 1;
 				}
+				rcontext.put("tabDisplayLabel", tabDisplayLabel);
+
+				SiteView siteView = portal.getSiteHelper().getSitesView(
+						SiteView.View.DHTML_MORE_VIEW, req, session, siteId, null);
+				siteView.setPrefix(prefix);
+				siteView.setToolContextPath(null);
+				rcontext.put("tabsSites", siteView.getRenderContextObject());
 			}
-			
-			rcontext.put("tabDisplayLabel", tabDisplayLabel);
-			
-			SiteView siteView = portal.getSiteHelper().getSitesView(
-					SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
-			siteView.setPrefix(prefix);
-			siteView.setToolContextPath(null);
-			rcontext.put("tabsSites", siteView.getRenderContextObject());
 
 			String cssClass = (siteType != null) ? "siteNavWrap " + siteType
 					: "siteNavWrap";
-
-			rcontext.put("tabsCssClass", cssClass);
-
-			rcontext.put("tabsAddLogout", Boolean.valueOf(addLogout));
-			if (addLogout)
-			{
-				String logoutUrl = Web.serverUrl(req)
-						+ ServerConfigurationService.getString("portalPath")
-						+ "/logout_gallery";
-				rcontext.put("tabsLogoutUrl", logoutUrl);
-				// rcontext.put("tabsSitLog",
-				// Web.escapeHtml(rb.getString("sit_log")));
-			}
 
 			rcontext.put("tabsCssClass", cssClass);
 
@@ -911,6 +1060,8 @@ public class SiteHandler extends WorksiteHandler
 			} else if (SiteService.allowAddPortfolioSite()) {
 				allowAddSite = true;
 			} else if (SiteService.allowAddProjectSite()) {
+				allowAddSite = true;
+			} else if (SiteService.allowAddManagedSite()) {
 				allowAddSite = true;
 			}
 
@@ -1080,7 +1231,7 @@ public class SiteHandler extends WorksiteHandler
 		if (bodyEnd > bodyStart && bodyStart > headEnd && headEnd > headStart
 				&& headStart > 1)
 		{
-			Map m = new HashMap<String,String> ();
+			Map<String, String> m = new HashMap<String,String> ();
 			String headString = responseStr.substring(headStart + 1, headEnd);
 			
 			// SAK-29908 
