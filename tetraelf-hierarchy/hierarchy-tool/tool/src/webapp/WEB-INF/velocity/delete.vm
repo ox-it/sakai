@@ -1,0 +1,57 @@
+#chef_start()
+#chef_portletContainer()
+#chef_portletContent()
+
+
+#if ($canDelete)
+	#if ($hasChildren)
+	<div class="alertMessage">
+		#springMessage("delete.multiple")
+	</div>
+	<p class="instruction">
+		#springMessage("delete.multiple.intro")
+	</p>
+	#else
+	<p class="instruction">
+		#springMessage("delete.intro")
+	</p>
+	#end
+	<p class="instruction">
+		#springMessage("delete.site.intro")
+	</p>
+	<p class="instruction">
+    	#springMessage("delete.site.introadd")
+    </p>
+	<form method="POST" action="${rootUrl}/remove/site">
+	#if (!$hasChildren)
+	<p class="instructions">
+		<label for="deleteSite">#springMessage("delete.site")</label>
+		#springBind("command.deleteSite")
+		<input type="checkbox" id="${status.expression}" name="${status.expression}">
+		<br/>
+	</p>
+	#end
+	<input type="submit" value="#springMessage("delete.button")"/>
+	</form>
+	<br/>
+	<form method="POST" action="${rootUrl}/cancel/remove">
+		<input type="submit" value="#springMessage("button.cancel")"/>
+       </form>
+	<br/>
+#else
+	<div class="alertMessage">
+	#springMessage("delete.cannot")
+	</div>
+	<p>
+	#if ($hasChildren)
+		#springMessage("delete.cannot.children")
+	#else
+		#springMessage("delete.cannot.unknown")
+	#end
+	</p>
+#end
+
+
+#chef_portletContentEnd()
+#chef_portletContainerEnd()
+#chef_end()

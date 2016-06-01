@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org.sakaiproject.portal.api.SiteNeighbourhoodService"
+		class="org.sakaiproject.portal.impl.HierarchySiteNeighbourhoodService" >
+		<property name="proxy">
+			<ref bean="org.sakaiproject.portal.service.SiteNeighbourhoodServiceImpl" />
+		</property>
+		<property name="portalHierarchyService">
+			<ref
+				bean="org.sakaiproject.hierarchy.api.PortalHierarchyService" />
+		</property>
+	</bean>
+	
+	<bean id="org.sakaiproject.portal.impl.HierarchySiteAliasProvider"
+		class="org.sakaiproject.portal.impl.HierarchySiteAliasProvider">
+		<property name="portalHierarchyService">
+			<ref bean="org.sakaiproject.hierarchy.api.PortalHierarchyService"/>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.portal.api.PageFilter" class="org.sakaiproject.portal.impl.HierarchyPageFilter">
+		<property name="portalHierarchyService" ref="org.sakaiproject.hierarchy.api.PortalHierarchyService"/>
+	</bean>
+
+</beans>

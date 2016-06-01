@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.hierarchy-delete-site"
+			title="Remove Site"
+		description="Remove a site.">
+			
+		<category name="hierarchy" />
+		<configuration name="functions.require" value="portal.hierarchy.delete"/>
+		
+
+	</tool>
+
+</registration>
