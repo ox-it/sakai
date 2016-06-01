@@ -1,0 +1,17 @@
+#chef_start()
+#chef_portletContainer()
+#chef_portletContent()
+
+<h3>#springMessage("bring.title")</h3>
+<p class="instruction">
+#springMessage("bring.intro")
+</p>
+<form method="POST">
+<p class="act">
+<input type="submit" class="active" value="#springMessage("bring.select")"/>
+</p>
+</form>
+
+#chef_portletContentEnd()
+#chef_portletContainerEnd()
+#chef_end()
