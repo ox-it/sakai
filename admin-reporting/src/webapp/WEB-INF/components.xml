@@ -38,7 +38,7 @@
 
 	<bean id="uk.ac.ox.it.vle.AdminSitesReport.StatsUpdateJobBeanWrapper"
 		  class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-		  singleton="true" init-method="init">
+		  init-method="init">
 		<property name="jobName" value="Admin Sites Report Generation" />
 		<property name="beanId" value="uk.ac.ox.it.vle.AdminSitesReport" />
 		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
