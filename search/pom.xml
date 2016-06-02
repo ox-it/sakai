@@ -18,7 +18,7 @@
     <module>search-test</module>
     <module>search-util</module>
     <module>search-tool/tool</module>
-    <module>elasticsearch</module>
+    <module>solr</module>
   </modules>
 
 
