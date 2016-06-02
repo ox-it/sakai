@@ -8,14 +8,12 @@
 	<!-- shortened url service config -->
 	<bean id="org.sakaiproject.oxford.shortenedurl.api.OxfordShortenedUrlService"
     	class="org.sakaiproject.oxford.shortenedurl.impl.OxfordShortenedUrlServiceImpl"
-    	singleton="true"
     	init-method="init">
 	</bean>
 	
 	<!-- chart generator config -->
 	<bean id="org.sakaiproject.oxford.shortenedurl.api.ChartGenerator"
     	class="org.sakaiproject.oxford.shortenedurl.impl.ChartGeneratorImpl"
-    	singleton="true"
     	init-method="init">
 	</bean>
 	
