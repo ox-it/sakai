@@ -23,6 +23,7 @@ app:
    SAKAI_USER: root
   links:
    - db
+   - solr
   ports:
    - "8080:8080"
    - "127.0.0.1:8000:8000"
@@ -41,3 +42,8 @@ web:
     service: web
   links:
    - app
+
+solr:
+  extends:
+    file: common.yml
+    service: solr
