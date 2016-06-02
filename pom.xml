@@ -133,6 +133,7 @@
                 <module>oxam</module>
                 <module>oxford-url-shortener</module>
                 <module>sirlouie</module>
+                <module>simple-signup-entityprovider</module>
                 <module>termdates</module>
                 <module>tetraelf-hierarchy</module>
             </modules>
