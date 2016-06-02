@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
+       default-lazy-init="true">
+    <bean id="org.sakaiproject.search.solr.SolrSearchService"
+          class="org.sakaiproject.search.solr.SolrSearchService" init-method="init">
+        <property name="triggerFunctions">
+            <list/>
+        </property>
+        <property name="notificationService" ref="org.sakaiproject.event.api.NotificationService"/>
+        <property name="searchIndexBuilder" ref="org.sakaiproject.search.solr.SolrSearchIndexBuilder"/>
+        <property name="solrServer" ref="solrLookupServer"/>
+        <property name="searchItemFilter">
+            <bean class="org.sakaiproject.search.response.filter.SecuritySearchFilter">
+                <property name="contentProducerFactory" ref="org.sakaiproject.search.producer.ContentProducerFactory"/>
+            </bean>
+        </property>
+        <property name="contentProducerFactory" ref="org.sakaiproject.search.producer.ContentProducerFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.search.solr.SolrSearchIndexBuilder"
+          class="org.sakaiproject.search.solr.SolrSearchIndexBuilder">
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="solrTools" ref="solrTools"/>
+        <property name="searchToolRequired" value="${search.tool.required}"/>
+        <property name="ignoreUserSites" value="${search.usersites.ignored}"/>
+        <property name="contentProducerFactory" ref="org.sakaiproject.search.producer.ContentProducerFactory"/>
+        <property name="indexQueueing" ref="org.sakaiproject.search.queueing.IndexQueueing"/>
+    </bean>
+    <bean id="org.sakaiproject.search.solr.indexing.SolrSplitterProcesses"
+          class="org.sakaiproject.search.solr.indexing.SolrSplitterProcesses">
+        <property name="actualTaskHandler" ref="org.sakaiproject.search.solr.indexing.SolrTaskHandler"/>
+        <property name="indexQueueing" ref="org.sakaiproject.search.queueing.IndexQueueing"/>
+        <property name="solrTools" ref="solrTools"/>
+    </bean>
+
+    <bean id="org.sakaiproject.search.solr.indexing.SolrTaskHandler"
+          class="org.sakaiproject.search.solr.indexing.SolrTaskHandler">
+        <property name="solrServer" ref="solrIndexingServer"/>
+        <property name="solrTools" ref="solrTools"/>
+        <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+    </bean>
+
+    <bean id="solrTools" class="org.sakaiproject.search.solr.indexing.SolrTools" init-method="init">
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+        <property name="solrServer" ref="solrIndexingServer"/>
+        <property name="contentProducerFactory" ref="org.sakaiproject.search.producer.ContentProducerFactory"/>
+    </bean>
+
+    <bean id="solrLookupServer" factory-bean="solrServerFactory" factory-method="createLookup"
+            destroy-method="shutdown"/>
+    <bean id="solrIndexingServer" factory-bean="solrServerFactory" factory-method="createIndexing"
+            destroy-method="shutdown"/>
+
+    <!-- We need a factory so when running in embedded mode we can return the same instance but when connecting
+         over HTTP we can have a solr server with low timeouts for searching and one with high timeouts for
+         indexing. -->
+
+    <bean id="solrServerFactory" class="org.sakaiproject.search.solr.util.SolrServerFactory" init-method="init">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
+</beans>

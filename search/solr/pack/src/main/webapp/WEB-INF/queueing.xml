@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd"
+       default-lazy-init="true">
+    <bean id="org.sakaiproject.search.queueing.WaitingTaskRunner"
+          class="org.sakaiproject.search.queueing.WaitingTaskRunner"
+          abstract="true">
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="taskHandler" ref="org.sakaiproject.search.indexing.TaskHandler"/>
+        <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+    </bean>
+
+    <bean id="org.sakaiproject.search.queueing.IndexQueueingImpl"
+          class="org.sakaiproject.search.queueing.IndexQueueingImpl"
+          destroy-method="destroy" parent="org.sakaiproject.search.queueing.WaitingTaskRunner">
+        <property name="indexingExecutor" ref="indexingExecutor"/>
+        <property name="taskSplittingExecutor" ref="splittingExecutor"/>
+    </bean>
+
+    <bean id="org.sakaiproject.search.queueing.AmqpQueueing" class="org.sakaiproject.search.queueing.AmqpQueueing"
+          destroy-method="destroy">
+        <property name="connectionFactory" ref="amqpConnectionFactory"/>
+        <property name="queueName" value="sakai.search.indexing.queue"/>
+    </bean>
+
+    <!-- Set lazy-init to false to have an always initialised client listening for the AMQP server -->
+    <bean id="amqpRunner" class="org.sakaiproject.search.queueing.AmqpRunner" lazy-init="true" init-method="init"
+          destroy-method="destroy" parent="org.sakaiproject.search.queueing.WaitingTaskRunner">
+        <property name="queueName" value="hello.world.queue"/>
+        <property name="connectionFactory" ref="amqpConnectionFactory"/>
+        <property name="executor" ref="indexingExecutor"/>
+        <property name="indexQueueing" ref="org.sakaiproject.search.queueing.AmqpQueueing"/>
+    </bean>
+
+    <bean id="amqpConnectionFactory" class="com.rabbitmq.client.ConnectionFactory">
+        <property name="host" value="${search.amqp.server}"/>
+        <property name="username" value="${search.amqp.server.username}"/>
+        <property name="password" value="${search.amqp.server.password}"/>
+    </bean>
+
+    <!-- Executors responsible for handling indexation requests -->
+    <bean id="indexingExecutor" class="java.util.concurrent.ThreadPoolExecutor"
+          destroy-method="shutdownNow">
+        <constructor-arg index="0" value="5"/>
+        <constructor-arg index="1" value="8"/>
+        <constructor-arg index="2" value="60"/>
+        <constructor-arg index="3">
+            <util:constant static-field="java.util.concurrent.TimeUnit.SECONDS"/>
+        </constructor-arg>
+        <constructor-arg index="4">
+            <bean class="java.util.concurrent.LinkedBlockingQueue">
+                <constructor-arg index="0" value="1000000"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+    <bean id="splittingExecutor" class="java.util.concurrent.ThreadPoolExecutor"
+          destroy-method="shutdownNow">
+        <constructor-arg index="0" value="5"/>
+        <constructor-arg index="1" value="8"/>
+        <constructor-arg index="2" value="60"/>
+        <constructor-arg index="3">
+            <util:constant static-field="java.util.concurrent.TimeUnit.SECONDS"/>
+        </constructor-arg>
+        <constructor-arg index="4">
+            <bean class="java.util.concurrent.LinkedBlockingQueue">
+                <constructor-arg index="0" value="100000"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+</beans>
