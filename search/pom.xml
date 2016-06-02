@@ -16,9 +16,6 @@
   <modules>
     <module>search-api/api</module>
     <module>search-test</module>
-    <module>search-impl/impl</module>
-    <module>search-impl/pack</module>
-    <module>search-model</module>
     <module>search-util</module>
     <module>search-tool/tool</module>
     <module>elasticsearch</module>
@@ -30,12 +27,6 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>search-model</artifactId>
-        <version>${project.version}</version>
-        <type>jar</type>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>search-impl</artifactId>
         <version>${project.version}</version>
         <type>jar</type>
       </dependency>
