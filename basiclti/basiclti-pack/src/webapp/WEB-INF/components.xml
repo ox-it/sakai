@@ -78,7 +78,7 @@
 
 	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.LTIReportingJob"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
-		singleton="true" init-method="init">
+		init-method="init">
 		  <property name="beanId">
 		          <value>org.sakaiproject.lti.impl.LTIReportingJob</value>
 		  </property>
