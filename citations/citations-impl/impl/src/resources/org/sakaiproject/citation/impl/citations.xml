@@ -95,7 +95,7 @@
 
 	<bean id="org.sakaiproject.citation.api.SoloApiServiceImpl"
 	      class="org.sakaiproject.citation.impl.soloapi.SoloApiServiceImpl"
-	      init-method="init" singleton="true">
+	      init-method="init">
 		<property name="converters">
 			<list>
 				<bean class="org.sakaiproject.citation.impl.soloapi.BookConverter">
