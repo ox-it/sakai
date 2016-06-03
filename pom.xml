@@ -130,6 +130,7 @@
                 <module>course-signup</module>
                 <module>current-load</module>
                 <module>external-groups</module>
+                <module>evaluations</module>
                 <module>oxam</module>
                 <module>oxford-url-shortener</module>
                 <module>sirlouie</module>
