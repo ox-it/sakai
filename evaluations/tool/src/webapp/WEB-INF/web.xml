@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<!--
+
+    Copyright 2005 Sakai Foundation Licensed under the
+    Educational Community License, Version 2.0 (the "License"); you may
+    not use this file except in compliance with the License. You may
+    obtain a copy of the License at
+
+    http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an "AS IS"
+    BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+    or implied. See the License for the specific language governing
+    permissions and limitations under the License.
+
+-->
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee  http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4">
+    
+  <display-name>sakai-evaluation</display-name> 
+  <description>Sakai Evaluation</description> 
+      
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:conf/rsf-config.xml, 
+    classpath:conf/blank-applicationContext.xml, 
+    classpath:conf/sakai-applicationContext.xml, 
+    classpath:conf/components-applicationContext.xml,
+    classpath:conf/sakaiComponents-applicationContext.xml,
+    classpath:conf/sakai-entitybroker-applicationContext.xml,
+    /WEB-INF/applicationContext.xml</param-value>
+  </context-param>
+
+  <context-param>
+        <param-name>resourceurlbase</param-name>
+        <param-value>/sakai-evaluation-tool/</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>requestContextConfigLocation</param-name>
+    <param-value>classpath:conf/rsf-requestscope-config.xml, 
+    classpath:conf/blank-requestContext.xml, 
+    classpath:conf/sakai-requestContext.xml, 
+    classpath:conf/components-requestContext.xml,
+    classpath:conf/sakaiComponents-requestContext.xml,
+    classpath:conf/sakai-entitybroker-requestContext.xml,
+    /WEB-INF/requestContext.xml</param-value>
+  </context-param>
+
+  <filter>
+      <filter-name>sakai.request</filter-name>
+      <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+      <init-param>
+        <param-name>upload.enabled</param-name>
+        <param-value>false</param-value>
+      </init-param>
+  </filter>
+
+  <filter-mapping>
+      <filter-name>sakai.request</filter-name>
+      <servlet-name>sakai.rsf.evaluation</servlet-name>
+      <dispatcher>REQUEST</dispatcher>
+      <dispatcher>FORWARD</dispatcher>
+      <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
+  
+  <filter>
+      <filter-name>MyServletFilter</filter-name>
+      <filter-class>org.sakaiproject.evaluation.tool.utils.EvalServletFilter</filter-class>
+   </filter>
+
+   <!-- Define filter mappings for the defined filters -->
+   <filter-mapping>
+      <filter-name>MyServletFilter</filter-name>
+      <servlet-name>sakai.rsf.evaluation</servlet-name>
+      <dispatcher>REQUEST</dispatcher>
+      <dispatcher>FORWARD</dispatcher>
+      <dispatcher>INCLUDE</dispatcher>
+   </filter-mapping>
+  
+      
+  <listener>
+    <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+  </listener>
+
+  <listener>
+    <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
+  </listener>
+  
+  <servlet>
+    <servlet-name>sakai.rsf.evaluation</servlet-name>
+    <servlet-class>org.sakaiproject.rsf.servlet.ReasonableSakaiServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>sakai.rsf.evaluation</servlet-name>
+    <url-pattern>/faces/*</url-pattern>
+  </servlet-mapping>  
+ 
+</web-app>
