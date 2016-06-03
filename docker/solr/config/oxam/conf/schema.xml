@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schema name="oxam" version="1.5">
+    <types>
+        <fieldType name="string" class="solr.StrField" sortMissingLast="true" />
+        <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" positionIncrementGap="0"/>
+        <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
+        <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+            <analyzer type="index">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+            </analyzer>
+            <analyzer type="query">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+            </analyzer>
+        </fieldType>
+    </types>
+
+    <fields>
+        <field name="_version_" type="long" indexed="true" stored="true"/>
+        <field name="id" type="string" indexed="true" stored="true" required="true"/>
+        <field name="exam_title" type="text_general" indexed="true" stored="true" required="true"/>
+        <field name="exam_code" type="string" indexed="true" stored="true" required="true"/>
+        <field name="paper_title" type="text_general" indexed="true" stored="true" required="true"/>
+        <field name="paper_code" type="string" indexed="true" stored="true" required="true"/>
+        <field name="paper_file" type="string" indexed="false" stored="true"/>
+        <field name="sort_year" type="float" indexed="true" stored="false" required="true"/>
+        <field name="academic_year" type="string" indexed="true" stored="true" required="true"/>
+        <field name="term" type="string" indexed="true" stored="true" required="true"/>
+
+        <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
+    </fields>
+
+    <uniqueKey>id</uniqueKey>
+    <defaultSearchField>text</defaultSearchField>
+    <solrQueryParser defaultOperator="AND"/>
+    <copyField source="exam_title" dest="text"/>
+    <copyField source="exam_code" dest="text"/>
+    <copyField source="paper_title" dest="text"/>
+    <copyField source="paper_code" dest="text"/>
+    <copyField source="academic_year" dest="text"/>
+    <copyField source="term" dest="text"/>
+</schema>
