@@ -345,6 +345,8 @@
         </property>
         <property name="target">
             <bean class="org.sakaiproject.component.app.messageforums.ui.DiscussionForumManagerImpl" init-method="init">
+                <lookup-method name="uiPermissionsManager"
+                               bean="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" />
                 <property name="sessionFactory">
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
@@ -765,10 +767,10 @@
 			</list>
 		</property>
 	</bean>
-	+
+
 	<bean
 			class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
-			singleton="true" init-method="init">
+			 init-method="init">
 		<property name="beanId"
 		          value="org.sakaiproject.component.app.messageforums.jobs.UpdateMarkupFreeContent" />
 		<property name="jobName" value="Update Markup Free Forum Posts" />

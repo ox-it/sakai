@@ -106,6 +106,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
     private IdManager idManager;                      
 
+    private MessageParsingService messageParsingService;
+
     private MessageForumsTypeManager typeManager;
 
     private SessionManager sessionManager;
@@ -145,6 +147,14 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
     public IdManager getIdManager() {
         return idManager;
+    }
+
+    public MessageParsingService getMessageParsingService() {
+        return messageParsingService;
+    }
+
+    public void setMessageParsingService(MessageParsingService messageParsingService) {
+        this.messageParsingService = messageParsingService;
     }
 
     public SessionManager getSessionManager() {
@@ -2173,5 +2183,5 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 		return (List) getHibernateTemplate().execute(hcb);        
 
 	}
-	   
+
 }

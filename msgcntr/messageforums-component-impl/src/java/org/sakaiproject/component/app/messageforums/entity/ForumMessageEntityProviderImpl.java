@@ -86,12 +86,12 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
   	/**
   	 * 
   	 */
-	private ServerConfigurationService serverConfigurationService;
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
+	/** Dependency: ServerConfigurationService. */
+	protected org.sakaiproject.component.api.ServerConfigurationService serverConfigurationService = null;
+	public void setServerConfigurationService(org.sakaiproject.component.api.ServerConfigurationService service) {
+		serverConfigurationService = service;
 	}
-	
+
   	/**
   	 * 
   	 */
