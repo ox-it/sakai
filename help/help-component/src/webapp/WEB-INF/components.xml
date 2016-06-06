@@ -131,5 +131,8 @@
 	</bean>
 	<bean id="org.sakaiproject.api.app.help.TutorialEntityProvider"
             class="org.sakaiproject.component.app.help.TutorialEntityProviderImpl">
+		<property name="serverConfigurationService">
+			<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+		</property>
         </bean>
 </beans>

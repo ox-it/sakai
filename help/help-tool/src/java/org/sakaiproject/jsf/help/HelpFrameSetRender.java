@@ -112,7 +112,7 @@ public class HelpFrameSetRender extends Renderer
     writer.write("<FRAME src=\"" + searchToolUrl + "\" name=\"search\">");
     writer.write("<FRAME src=\"" + tocToolUrl + "\" name=\"toc\">");
     writer.write("</FRAMESET>\n");
-    
+
     Application app = context.getApplication();
     ValueBinding binding = app.createValueBinding("#{Components['org.sakaiproject.api.app.help.HelpManager']}");
     HelpManager manager  = (HelpManager) binding.getValue(context);    

@@ -19,13 +19,20 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.util.ResourceLoader;
 
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoRegisterEntityProvider, RESTful{
 
+	public static final String SITE_NAME = "site.name";
+	public static final String SAKAI = "Sakai";
 	protected final Log log = LogFactory.getLog(getClass());
 	private ResourceLoader msgs = new ResourceLoader("TutorialMessages");
+	private ServerConfigurationService serverConfigurationService;
 	private static PropertiesConfiguration tutorialProps;
-	
+
 	private void initConfig() {
 		
 		URL url = getClass().getClassLoader().getResource("Tutorial.config"); 
@@ -123,6 +130,10 @@ public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoR
 	@Override
 	public String[] getHandledInputFormats() {
 		return new String[] { Formats.HTML, Formats.XML, Formats.JSON };
+	}
+
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
 	}
 
 }
