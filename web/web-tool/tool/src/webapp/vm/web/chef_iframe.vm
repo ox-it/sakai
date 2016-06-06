@@ -7,6 +7,13 @@
 	</ul>
 #end
 
+#if($has_mixed_content)
+	<div class="messageConfirmation">
+		<p>$tlang.getString("gen.mixed_content")</p>
+		<p><a href="$validator.escapeHtml($url)" target="_top">$tlang.getString("gen.mixed_content.link")</a></p>
+	</div>
+#end
+
 #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 
 	#if($TargetPageUrl)
