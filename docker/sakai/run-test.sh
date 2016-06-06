@@ -45,6 +45,7 @@ app:
   command: /opt/tomcat/bin/catalina.sh run
   links:
    - db
+   - solr
 
 db:
   extends:
@@ -57,4 +58,9 @@ web:
     service: web
   links:
    - app
+
+solr:
+  extends:
+    file: common.yml
+    service: solr
 EOF
