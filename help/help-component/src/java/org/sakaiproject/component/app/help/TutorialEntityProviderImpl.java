@@ -30,7 +30,7 @@ public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoR
 	public static final String SAKAI = "Sakai";
 	protected final Log log = LogFactory.getLog(getClass());
 	private ResourceLoader msgs = new ResourceLoader("TutorialMessages");
-	private ServerConfigurationService serverConfigurationService;
+	private org.sakaiproject.component.api.ServerConfigurationService serverConfigurationService;
 	private static PropertiesConfiguration tutorialProps;
 
 	private void initConfig() {
@@ -132,8 +132,12 @@ public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoR
 		return new String[] { Formats.HTML, Formats.XML, Formats.JSON };
 	}
 
-	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+
+	public void setServerConfigurationService(org.sakaiproject.component.api.ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
 	}
 
+	public org.sakaiproject.component.api.ServerConfigurationService getServerConfigurationService() {
+		return serverConfigurationService;
+	}
 }
