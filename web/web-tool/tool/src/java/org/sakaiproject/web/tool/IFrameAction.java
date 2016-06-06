@@ -99,6 +99,9 @@ public class IFrameAction extends VelocityPortletPaneledAction
 
 	/** The height, in state, config and context. */
 	protected final static String HEIGHT = "height";
+	
+	/** The resize state, config and context. */
+	protected final static String RESIZE = "resize";
 
 	/** The custom height from user input * */
 	protected final static String CUSTOM_HEIGHT = "customNumberField";
@@ -311,6 +314,8 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		// set the height
 		state.setAttribute(HEIGHT, config.getProperty(HEIGHT, "600px"));
 		
+		// set the resize
+		state.setAttribute(RESIZE, Boolean.valueOf(config.getProperty(RESIZE, "false")));
 		
 		state.setAttribute(ANNOTATED_TEXT, config.getProperty(ANNOTATED_TEXT, ""));
 		
@@ -759,7 +764,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		String url = (String) state.getAttribute(URL);
 		String special = (String) state.getAttribute(SPECIAL);
 		context.put(URL, url);
-		context.put(HEIGHT, state.getAttribute(HEIGHT));
+		context.put(RESIZE, state.getAttribute(RESIZE));
 		if(url != null && url.startsWith("http:") && ServerConfigurationService.getServerUrl().startsWith("https:")){
 			context.put("popup", true);
 		}
@@ -920,6 +925,10 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		}
 		context.put(HEIGHT, height);
 
+		if((Boolean)state.getAttribute(RESIZE)) {
+			context.put(RESIZE, Boolean.TRUE);
+		}
+
 		context.put(TITLE, state.getAttribute(TITLE));
 		context.put("tlang", rb);
 
@@ -1072,6 +1081,10 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			state.setAttribute(HEIGHT, height);
 			placement.getPlacementConfig().setProperty(HEIGHT, height);
 		}
+		
+		boolean resize = data.getParameters().getBoolean(RESIZE);
+		state.setAttribute(RESIZE, resize);
+		placement.getPlacementConfig().setProperty(RESIZE, Boolean.toString(resize));
 		
 
 		// title

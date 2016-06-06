@@ -35,7 +35,12 @@
 			</select>
 		</p>			
 
-		<div class="longtext indnt1">
+		<p class="shorttext indnt1">
+			<label for="resize">$tlang.getString("gen.resize")</label>
+			<input id="resize" name="resize" type="checkbox" value="true" #if($resize)checked="checked"#end>
+		</p>
+
+		<p class="shorttext indnt1">
 			<label for="description">$tlang.getString("gen.description")</label>
 			<br />
 			<table border="0" cellpadding="0" cellspacing="0" >
