@@ -98,13 +98,23 @@ public class HelpFrameSetRender extends Renderer
     EventTrackingService.post(EventTrackingService.newEvent("help.access", helpParameter, false));
 
     helpWindowTitle = ServerConfigurationService.getString("ui.service", "Sakai") + " " + component.getAttributes().get("helpWindowTitle");
+
+	String extraHelp = ServerConfigurationService.getString("help.extra.url");
+	boolean hasExtraHelp = extraHelp != null && extraHelp.trim().length() > 1;
     
     writer.write("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\" \"http://www.w3.org/TR/html4/frameset.dtd\">\n");
     writer.write("<html><head><title>" + helpWindowTitle + "</title></head>\n");
+	if (hasExtraHelp) {
+		writer.write("<FRAMESET rows=\"40,*\">");
+		writer.write("<FRAME src=\""+ extraHelp + "\">");
+	}
     writer.write("<FRAMESET cols=\"20%, 80%\"><FRAMESET rows=\"150, 450\">");
     writer.write("<FRAME src=\"" + searchToolUrl + "\" name=\"search\">");
     writer.write("<FRAME src=\"" + tocToolUrl + "\" name=\"toc\">");
     writer.write("</FRAMESET>\n");
+	if (hasExtraHelp) {
+		writer.write("</FRAMESET>");
+	}
     
     Application app = context.getApplication();
     ValueBinding binding = app.createValueBinding("#{Components['org.sakaiproject.api.app.help.HelpManager']}");
