@@ -2,6 +2,68 @@
 
 <script type="text/javascript">
 	focus_path = [ "title" ];
+
+	var urlInput;
+
+	urlStartsWithHttp = function() {
+		if(urlInput && urlInput.value) {
+			return urlInput.value.match(/^http:/);
+		} else {
+			return false;
+		}
+	}
+
+	checkPopupIfProtocolIsHttp = function() {
+		var popupCheckbox = window.self.document.getElementById('opentrue');
+		var popupHidden = window.self.document.getElementById('opentrueHidden');
+		var popupMessage = window.self.document.getElementById('popupDisabledMessage');
+
+		if(popupCheckbox && popupHidden && popupDisabledMessage) {
+			if(urlStartsWithHttp()) {
+				popupCheckbox.checked  = true;
+				popupCheckbox.disabled = true;
+
+				// now popupCheckbox can't be submitted so we make a hidden variable
+				popupCheckbox.name   = "popupDisabled";
+				popupHidden.disabled = false;
+				popupHidden.name     = "popup";
+
+				popupMessage.style.display = 'inline';
+
+			} else {
+
+				popupCheckbox.disabled = false;
+				popupCheckbox.name     = "popup"
+				popupHidden.disabled   = true;
+				popupHidden.name       = "popupHidden";
+
+				popupMessage.style.display = 'none';
+			}
+		}
+	}
+
+	// In the absence of jQuery, add an event listener
+	// duplicated in headscripts.js (reference/library)
+	function addEvent(element, event, fn) {
+			if (element.addEventListener) {
+				element.addEventListener(event, fn, false);
+			} else if (element.attachEvent) {
+				// IE 8
+				element.attachEvent('on' + event, fn);
+			}
+	}
+
+	addEvent(window.self, 'load', function() {
+		urlInput = window.self.document.getElementById('source');
+		checkPopupIfProtocolIsHttp();
+		if (urlInput) {
+			addEvent(urlInput, 'change', checkPopupIfProtocolIsHttp);
+			addEvent(urlInput, 'keyup', checkPopupIfProtocolIsHttp);
+			addEvent(urlInput, 'input', checkPopupIfProtocolIsHttp); // IE
+			addEvent(urlInput, 'paste', checkPopupIfProtocolIsHttp); // Others
+		}
+	});
+
 </script>
 
 <div class="portletBody">
@@ -65,9 +127,11 @@
 #end
 
 	#if ($showPopup)
-		<p class ="checkbox labelindnt">
+		<p class="checkbox labelindnt">
 				<input type="checkbox" value="true" name="popup" id="opentrue" #if ($popup) checked="checked" #end  class="indnt1" />
-				<label for="opentrue">$tlang.getString("gen.info.pop")</label>
+				<!-- hidden to force a submission when the checkbox is disabled -->
+				<input type="hidden" name="popupHidden" id="opentrueHidden" value="true" disabled="true" />
+				<label for="opentrue">$tlang.getString("gen.info.pop") <span style="display: none; font-style: italic;" id="popupDisabledMessage">$tlang.getString("gen.info.pop.msg")</span></label>
 		</p>
 	#end
 
