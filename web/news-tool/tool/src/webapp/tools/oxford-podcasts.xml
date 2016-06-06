@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="oxford-podcasts"
+			title="Oxford Podcasts"
+			description="Display items from the Oxford Podcast Collection in this site.">
+
+		<configuration name="channel-url" value="" />
+
+		<category name="course" />
+		<category name="project" />
+
+		<configuration name="functions.require" /> 
+		
+		<!-- Allow multiple instances of this tool within one site -->
+		<configuration name="allowMultipleInstances" value="true" />
+
+	</tool>
+
+</registration>

@@ -422,10 +422,13 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 							    for (ToolConfiguration config: toolConfs) {
 								if (config.getToolId().equals(TOOL_ID)) {
 								    SitePage p = config.getContainingPage();
+								    //Checking if the 'source' property of fromSite and toSite are same or not by replacing respective siteIds with a constant.
+								    String fromContentUrl = (contentUrl != null) ? contentUrl.replace(fromContext, WEB_CONTENT_URL_PROP) : "";
+								    String toWebContentUrl = config.getPlacementConfig().getProperty(WEB_CONTENT_URL_PROP);
+								    String toContentUrl = (toWebContentUrl != null) ? toWebContentUrl.replace(toContext, WEB_CONTENT_URL_PROP): "";
 								    if (pageTitle != null &&
 									pageTitle.equals(p.getTitle()) &&
-									contentUrl != null &&
-									contentUrl.equals(config.getPlacementConfig().getProperty(WEB_CONTENT_URL_PROP))) {
+									fromContentUrl.equals(toContentUrl)) {
 									skip = true;
 									break;
 								    }

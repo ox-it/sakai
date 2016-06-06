@@ -178,6 +178,11 @@ public class PortletIFrame extends GenericPortlet {
     protected static final String MACRO_USER_ROLE           = "${USER_ROLE}";
 
     private static final String MACRO_CLASS_SITE_PROP = "SITE_PROP:";
+
+	/**
+	 * Config property: Should the site description be inlined? (default: true)
+	 */
+	private static final String IFRAME_SITE_INLINE = "iframe.site.inline";
    
     private static final String IFRAME_ALLOWED_MACROS_PROPERTY = "iframe.allowed.macros";
 
@@ -310,7 +315,7 @@ public class PortletIFrame extends GenericPortlet {
             String special = getSpecial(config);
 
 			// Handle the situation where we are displaying the worksite information
-			if ( SPECIAL_WORKSITE.equals(special) ) {
+			if ( SPECIAL_WORKSITE.equals(special) && ServerConfigurationService.getBoolean(IFRAME_SITE_INLINE, true)  ) {
 				try
 				{
 					// If the site does not have an info url, we show description or title
@@ -598,6 +603,11 @@ public class PortletIFrame extends GenericPortlet {
                                             if(infoUrl.startsWith("/") && !infoUrl.contains("://")){
                                                 infoUrl = ServerConfigurationService.getServerUrl() + infoUrl;
                                             }
+						    //Check if infoUrl is relative? and prepend the server url
+						    String serverUrl = ServerConfigurationService.getServerUrl();
+						    if(infoUrl.startsWith("/") && infoUrl.indexOf("://") == -1){
+						        infoUrl = serverUrl + infoUrl;
+						    }
 						    context.put("info_url", FormattedText.escapeHtmlFormattedTextarea(infoUrl));
 					    }
 
@@ -872,13 +882,19 @@ public class PortletIFrame extends GenericPortlet {
             if (SPECIAL_WORKSITE.equals(special))
             {
                 //Check info-url for null and empty
-                if(StringUtils.isNotBlank(infoUrl)){
-                    // If the site info url has server url then make it a relative link.
-                    String serverName = new URL(ServerConfigurationService.getServerUrl()).getHost();
-                    // if the supplied url starts with protocol//serverName:port/
-                    Pattern serverUrlPattern = Pattern.compile(String.format("^(https?:)?//%s:?\\d*/", serverName));
-                    infoUrl = serverUrlPattern.matcher(infoUrl).replaceFirst("/");
-                }
+	            //Check info-url for null and empty
+	            if(infoUrl != null && !infoUrl.equals("")) {
+		            // If the site info url has server url then make it a relative link.
+		            Collection<String> serverNames = new ArrayList<String>();
+		            //get the server name
+		            serverNames.add(new URL(ServerConfigurationService.getServerUrl()).getHost());
+		            serverNames.addAll(ServerConfigurationService.getInstance().getServerNameAliases());
+		            for (String serverName : serverNames) {
+			            // if the supplied url starts with protocol//serverName:port/
+			            Pattern serverUrlPattern = Pattern.compile(String.format("^(https?:)?//%s:?\\d*/", serverName));
+			            infoUrl = serverUrlPattern.matcher(infoUrl).replaceFirst("/");
+		            }
+	            }
                 String description = StringUtils.trimToNull(request.getParameter("description"));
                 //Need to save this processed
                 description = FormattedText.processFormattedText(description,new StringBuilder());
