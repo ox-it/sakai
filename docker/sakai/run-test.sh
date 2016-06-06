@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Fail on any error
+set -e
+
 # Only attempt login if we have the credentials.
 if [ ! -z "$DOCKER_EMAIL_USER" ]; then
 	# Need both email and username
