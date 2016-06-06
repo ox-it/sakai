@@ -112,9 +112,6 @@ public class HelpFrameSetRender extends Renderer
     writer.write("<FRAME src=\"" + searchToolUrl + "\" name=\"search\">");
     writer.write("<FRAME src=\"" + tocToolUrl + "\" name=\"toc\">");
     writer.write("</FRAMESET>\n");
-	if (hasExtraHelp) {
-		writer.write("</FRAMESET>");
-	}
     
     Application app = context.getApplication();
     ValueBinding binding = app.createValueBinding("#{Components['org.sakaiproject.api.app.help.HelpManager']}");
@@ -130,6 +127,10 @@ public class HelpFrameSetRender extends Renderer
     }
     else {
       writer.write("<FRAME src=\"content.hlp?docId=" + manager.getWelcomePage() + "\" name=\"content\">");             
+    }
+    
+    if (hasExtraHelp) {
+        writer.write("</FRAMESET>");
     }
                                         
     writer.write("</FRAMESET></html>\n");
