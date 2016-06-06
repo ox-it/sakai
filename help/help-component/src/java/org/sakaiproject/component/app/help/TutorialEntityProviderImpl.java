@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoRegisterEntityProvider, RESTful{
 
-	public static final String SITE_NAME = "site.name";
+	public static final String SITE_NAME = "ui.service";
 	public static final String SAKAI = "Sakai";
 	protected final Log log = LogFactory.getLog(getClass());
 	private ResourceLoader msgs = new ResourceLoader("TutorialMessages");
