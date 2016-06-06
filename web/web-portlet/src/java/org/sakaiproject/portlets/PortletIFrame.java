@@ -178,6 +178,11 @@ public class PortletIFrame extends GenericPortlet {
     protected static final String MACRO_USER_ROLE           = "${USER_ROLE}";
 
     private static final String MACRO_CLASS_SITE_PROP = "SITE_PROP:";
+
+	/**
+	 * Config property: Should the site description be inlined? (default: true)
+	 */
+	private static final String IFRAME_SITE_INLINE = "iframe.site.inline";
    
     private static final String IFRAME_ALLOWED_MACROS_PROPERTY = "iframe.allowed.macros";
 
@@ -310,7 +315,7 @@ public class PortletIFrame extends GenericPortlet {
             String special = getSpecial(config);
 
 			// Handle the situation where we are displaying the worksite information
-			if ( SPECIAL_WORKSITE.equals(special) ) {
+			if ( SPECIAL_WORKSITE.equals(special) && ServerConfigurationService.getBoolean(IFRAME_SITE_INLINE, true)  ) {
 				try
 				{
 					// If the site does not have an info url, we show description or title
