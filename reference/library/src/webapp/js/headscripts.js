@@ -781,6 +781,20 @@ function rewriteWebLearnHref(link) {
     }
 }
 
+// Sets the target property to '_blank' so that insecure content is opened in a new window
+function addTargetBlank(link) {
+    if(link.href && link.href.match(/^http:/)) {
+        if(link.target == '' || link.target.match(/_self|_parent/)) {
+            link.target = '_blank';
+        }
+    }
+}
+
+// the function to call when oxitems has finished loading
+function oxitemsCallback() {
+    fixLinksForMixedContent();
+}
+
 function supports_history_api() {
 	return !!(window.history && history.pushState);
 }
