@@ -57,7 +57,8 @@ body.portalBody {
 }
 
 #toolMenuWrap .unpublished {
-    color: #888;
+    color: #bbb;
+    font-style: italic;
 }
 
 .menuTitle {
