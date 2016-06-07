@@ -56,6 +56,10 @@ body.portalBody {
     margin-top: 1em;
 }
 
+#toolMenuWrap .unpublished {
+    color: #888;
+}
+
 .menuTitle {
     margin: 5px 25px 5px 0;
     display:block;
