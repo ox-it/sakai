@@ -1035,6 +1035,15 @@ tr.selectedFound td {
     width: 60px;
     margin-top: 10px;
 }
+a.loginButton {
+    border: 1px solid #dedede;
+    border-radius: 4px;
+    padding: 8px;
+    text-decoration: none;
+}
+a.loginButton:hover {
+    background-color: #eee;
+}
 /* ===[ Make a list based css menu ]=== */
 ul.makeMenu, ul.makeMenu ul {
     width: auto;
