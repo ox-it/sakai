@@ -1708,13 +1708,7 @@ a#toggleToolMenu {
 /*when the tool menu is shoved away a class of .sakaiMinimizePageNavigation gets added to parent block, here we style the selected tool link so that when 
 everything except the tool icon is gone it is still distincts as the current tool (also hover treatment for tools and subsites)*/
 .sakaiMinimizePageNavigation #toolMenu li.selectedTool a, .sakaiMinimizePageNavigation #toolMenu li a:hover, .sakaiMinimizePageNavigation #subSites li a:hover,.sakaiMinimizePageNavigation #toolMenu li a:focus, .sakaiMinimizePageNavigation #subSites li a:focus {
-    background: #9cd1e8;
-    background: -moz-linear-gradient(top, #9cd1e8 0%, #7bc1e1 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#9cd1e8), color-stop(100%,#7bc1e1));
-    background: -webkit-linear-gradient(top, #9cd1e8 0%,#7bc1e1 100%);
-    background: -o-linear-gradient(top, #9cd1e8 0%,#7bc1e1 100%);
-    background: -ms-linear-gradient(top, #9cd1e8 0%,#7bc1e1 100%);
-    background: linear-gradient(top, #9cd1e8 0%,#7bc1e1 100%);
+    background: #e4e4e4;
 }
 .sakaiMinimizePageNavigation #togglebar {
     padding-left: 0em;
