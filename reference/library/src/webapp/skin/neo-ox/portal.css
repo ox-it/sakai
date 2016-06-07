@@ -637,8 +637,7 @@ ul.otherSitesCategorList {
  *  ul.otherSitesCategorList. This last one will appear once per each category
  */
 ul#otherSiteList li, ul.otherSitesCategorList li {
-    background: #002147;
-    font-weight: bold;
+    background: #fff;
     position: relative;
     border-radius: 5px;
     -moz-border-radius: 5px;
@@ -654,9 +653,12 @@ ul#otherSiteList li a, ul.otherSitesCategorList li a {
     display: block;
     padding: 8px;
     text-decoration: none;
-    color: #fff;
+    color: #000;
     white-space: nowrap;
 }
+ul#otherSiteList li a:hover, ul.otherSitesCategorList li a:hover {
+     font-weight: bold;
+ }
 ul#otherSiteList li a:focus span, ul.otherSitesCategorList li a:focus span {
     outline: 1px dotted #fff;
 }
