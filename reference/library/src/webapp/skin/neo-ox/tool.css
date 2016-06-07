@@ -998,6 +998,10 @@ tr.selectedFound td {
     background: url(images/x-login-logo.png) no-repeat;
     background-position: 40px 20px;
 }
+.join td.logo{
+	width: 9em;
+	background:#fff url('images/x-login-logo.png') top left no-repeat
+}
 .login td.logo p.logo-text {
     font-size: 2.4em;
     margin: 1.2em 0 1em 4.2em;
