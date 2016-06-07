@@ -130,8 +130,8 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 
     public void destroy()
     {
-	assessmentCache.destroy();
-	assessmentCache = null;
+		memoryService.destroyCache("org.sakaiproject.lessonbuildertool.service.MnemeEntity.cache");
+        assessmentCache = null;
 
 	log.info("destroy()");
     }
@@ -180,7 +180,7 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 
 	if (ret != null) {
 	    // cache it if we find it, even if not acceptable
-	    assessmentCache.put(id, ret, DEFAULT_EXPIRATION);
+	    assessmentCache.put(id, ret);
 
 	    // don't check for published. Faculty may temporarily unpublish
 	    // to edit. We don't want it to disappear from students
