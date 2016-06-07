@@ -80,6 +80,9 @@ var oConnector = new Object() ;
 // Changed by joshua.ryan@asu.edu so that the browser can start in other places then '/'
 oConnector.CurrentFolder = GetUrlParam( 'CurrentFolder' ) ;
 
+// In the absence of an obvious source of config we control whether to show tests and quizzes here
+oConnector.ShowTestsAndQuizzes = false;
+
 var sConnUrl = GetUrlParam( 'Connector' ) ;
 
 // Gecko has some problems when using relative URLs (not starting with slash).

@@ -503,7 +503,7 @@ function GetResourcesAssignsTestsTopicsCallBack( fckXml )
         AddResourceRows(oHtml, fckXml, folderInitNodes, fileInitNodes, 'Connector/Folders/Folder', sCurrentFolderUrl) ;
         oHtml.Append( '<\/div><\/td><\/tr><tr><td colspan="4">&nbsp;<\/td><\/tr>' ) ;
 
-	if (oConnector.ShowAllTypes) {
+	if (oConnector.ShowAllTypes && oConnector.ShowTestsAndQuizzes) {
 
 	        // Add the Assessments.
 	        oNodes = fckXml.SelectNodes( 'Connector/Assessments/Assessment' ) ;
