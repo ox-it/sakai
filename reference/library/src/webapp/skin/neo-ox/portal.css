@@ -1809,19 +1809,19 @@ a.qtipLinkButton:hover {
 div.qtip-titlebar{
     border-bottom-width: 0 !important;
     color: #fff !important;
-    background: #009DCE !important;
-    background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%) !important;
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5)) !important;
-    background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%) !important;
-    background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%) !important;
-    background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%) !important;
-    background: linear-gradient(top, #009DCE 0%,#007EA5 100%) !important;
-    border-bottom: 1px solid #007194 !important;	
+    background: #002147 !important;
+    font-size: 1.2em;
+    font-weight: normal;
+    padding: 0.6em 1.2em;
 }
 
 .qtip{
     font-size: inherit !important;
     line-height: inherit !important;
+}
+
+.qtip-content {
+    padding: 1em !important;
 }
 
 .qtipClose{
@@ -1831,6 +1831,15 @@ div.qtip-titlebar{
     top: 5px;
     border: none !important;
     background: none !important;
+}
+
+.qtip-tipped {
+    font-family: 'PT Sans', 'Helvetica Neue', Arial, Helvetica, sans-serif !important;
+    border: 2px solid #002147 !important;
+}
+
+.qtip-tipped .qtip-icon {
+    margin: 6px 3px;
 }
 
 /* warning displayed when js is disabled */
