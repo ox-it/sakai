@@ -219,7 +219,7 @@ guests, for example */
     text-align: center;
     text-decoration: none;
     background: #202020;
-    border: 1px solid #2a2a2a;
+    border: 1px solid #7C7C7C;
 }
 #headerMin #loginLink1, #headerMin #loginLink2 {
     margin-top: -2px;
@@ -427,7 +427,7 @@ ul.topnav li.nav-menu:hover, ul.topnav li.more-tab:hover {
 /* current site control rendering */
  ul.topnav li.nav-selected {
     background: #202020;
-    border: 1px solid #2a2a2a;
+    border: 1px solid #7C7C7C;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
     border-radius: 3px;
