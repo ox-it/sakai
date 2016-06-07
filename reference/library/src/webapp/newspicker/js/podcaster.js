@@ -386,9 +386,17 @@ function PodcastPickerInit(o) {
     */
     $.ajax({
         url: OPTIONS.rssFile, 
-        dataType: 'xml',
+        dataType: ($.browser.msie) ? 'text' : 'xml', // IE is not happy about parsing some xml
         success: function(data) {
             st = getTime();
+
+            // we get IE to parse the xml explicitly in the callback instead
+            if ($.browser.msie) {
+                var xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+                xmlDoc.loadXML(data);
+                data = xmlDoc;
+            }
+
             $xmlData = $(data);  // store xml - DO NOT REMOVE OR SAFARI COMPLAINS
             
             // some browsers don't drop the namespace.
