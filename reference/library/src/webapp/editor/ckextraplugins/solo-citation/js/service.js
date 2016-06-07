@@ -12,12 +12,12 @@ var SOLOSearchService = function(params) {
   // fills in default settings for search query parameters
   var prepareQueryParams = function(settings) {
     var query = $.extend({
-      count: '5',
+      count: '10'
     }, settings);
 
     query = $.extend(query, params);
 
-    query.count = query.count || 5;
+    query.count = query.count || 10;
     delete query.form; // form was added in ItemSearch 0.1.2 (not needed in ajax call)
 
     return query;
@@ -31,14 +31,23 @@ var SOLOSearchService = function(params) {
       description: result.description,
       meta: result
     });
-  }
+  };
+
+  var resetTokensIfNewSearchTerm = function(currentSearchTerm, searchTerm){
+      if (currentSearchTerm != searchTerm){
+          $.fn.itemSearch.currentPage = 1;
+      }
+      $.fn.itemSearch.currentSearchTerm = searchTerm;
+  };
 
   // takes search term (string) and returns array of objects representing the
   // search results from SOLO
   this.performQuery = function(searchTerm) {
     var results = [];
-    var params = prepareQueryParams({title: searchTerm});
-    var ajaxUrl = url;
+      resetTokensIfNewSearchTerm($.fn.itemSearch.currentSearchTerm, searchTerm);
+      var params = prepareQueryParams({title: searchTerm});
+      params.start = ($.fn.itemSearch.currentPage-1) * params.count;
+      var ajaxUrl = url;
 
     if (params.id) {
       ajaxUrl = 'https://api.m.ox.ac.uk/library/item:' + params.id + '/';

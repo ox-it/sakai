@@ -8,6 +8,7 @@ var pathCommon = (path + '~').replace('solo-citation/~', 'common/');
 var pathCommonWl = (path + '~').replace('solo-citation/~', 'common-wl/');
 
 // load css and javascript files
+CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(pathCommon + 'css/dialog.css'));
 CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(path + 'css/dialog.css'));
 
 CKEDITOR.scriptLoader.load(pathCommon + 'js/itemsearch.js');
@@ -58,6 +59,7 @@ CKEDITOR.dialog.add('soloCitationDialog', function(editor) {
 
                 if (id) {
                   soloSearchResultId.trigger('submitItemSearchForm');
+                  soloSearchResultId.val(null);
                 }
               });
             },
@@ -87,6 +89,10 @@ CKEDITOR.dialog.add('soloCitationDialog', function(editor) {
       } else {
         this.insertMode = true;
       }
+      $('#soloCitationDialog .cke_dialog').css('top', '20px');
+
+      // http://ckeditor.com/forums/CKEditor-3.x/IFrame-Dialog-Disabling-ok-and-false-buttons-doesnt-work
+      document.getElementById(this.getButton('ok').domId).style.display='none';
     },
 
     onOk: function() {

@@ -8,10 +8,6 @@
   margin: 5px 5px 15px 0;
   white-space: normal !important;
 }
-#soloSearchIframe {
-  width: 100%;
-  height: 220px;
-}
 #soloSearchForm .searchquery {
   line-height: 30px;
 }
@@ -40,6 +36,7 @@
 /* search results */
 #soloSearchResults * {
   white-space: normal !important;
+	cursor: pointer;
 }
 
 #soloSearchResults .pagination {
@@ -60,7 +57,7 @@
   display: block;
   border: 1px solid #CCC;
   margin: 2px;
-  padding: 3px 5px;
+  padding: 6px 10px;
 }
 
 #soloSearchResults .result {
