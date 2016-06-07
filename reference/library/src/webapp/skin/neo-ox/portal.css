@@ -158,8 +158,8 @@ in this skin is rendered via ul.topnav, which a anon user does not see)*/
     background-repeat: no-repeat;
     background-position: 8px 4px;
     float: left;
-    width: 100px;
-    height: 50px;
+    width: 140px;
+    height: 40px;
 }
 /* another container wrapping branding images - portal outputs one /library/skin/<skin name>/images/banner_inst.gif
 that can be used or hidden,can also use a background: url(images/<image name>.<ext>) in this block,or both superimposing them  */
@@ -175,7 +175,7 @@ that can be used or hidden,can also use a background: url(images/<image name>.<e
 */
 #mastLogin {
     float: right;
-    padding: 17px 10px 10px;
+    padding: 12px 8px 8px;
 }
 /* #mastLogin #loginForm is the form for login - contains children #eid #pw #submit as well as labels for these inputs*/
 #loginForm {
@@ -404,9 +404,9 @@ ul.topnav li.nav-menu:hover, ul.topnav li.more-tab:hover {
 /* site submenu trigger */
 ul.topnav li span.drop {
     width: 17px;
-    margin-top: 3px;
-    margin-right: 7px;
-    height: 29px;
+    margin-top: 1px;
+    margin-right: 3px;
+    height: 25px;
     float: left;
     background: url(images/subnav_btn.png) no-repeat center -3px;
 }
@@ -457,7 +457,7 @@ ul.topnav li ul.subnav li:hover, ul.topnav li ul.subnav li a:focus,
 }
 /* link to site */
 ul.topnav li a {
-    padding: 8px 7px 8px 8px;
+    padding: 6px 5px 6px 6px;
     font-size: 13px;
     color: #fff;
     text-decoration: none;

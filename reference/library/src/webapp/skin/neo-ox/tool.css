@@ -988,9 +988,9 @@ tr.selectedFound td {
     color: #111
 }
 .login td.logo {
-    width: 175px;
+    width: 330px;
     background: #fff url(images/x-login-logo.png) no-repeat;
-    background-position: 20px 0;
+    background-position: 30px 30px;
     border-width: 1px 0 1px 1px;
     border-style: solid;
     border-color: #ccc;
