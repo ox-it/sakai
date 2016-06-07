@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>Sakai CKEditor Config Entity Provider</name>
+    <groupId>org.sakaiproject.ckeditor-config</groupId>
+    <artifactId>ckeditor-config-entity-provider</artifactId>
+    <version>10-SNAPSHOT</version>
+    <packaging>war</packaging>
+    
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>reference-base</artifactId>
+        <version>10-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <organization>
+        <name>University of Oxford</name>
+        <url>http://www.ox.ax.uk</url>
+    </organization>
+    <inceptionYear>2005</inceptionYear>
+
+    <developers>
+        <developer>
+            <name>Ben Holmes</name>
+            <email>bdvholmes@gmail.com</email>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>https://jira.oucs.ox.ac.uk/</url>
+    </issueManagement>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <scm>
+        <connection>scm:git:git://github.com/ox-it/wl-reference.git</connection>
+        <developerConnection>scm:git:git://github.com/ox-it/wl-reference.git</developerConnection>
+        <url>https://github.com/ox-it/wl-reference</url>
+    </scm>
+
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-api</artifactId>
+        </dependency>        
+        <dependency>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
