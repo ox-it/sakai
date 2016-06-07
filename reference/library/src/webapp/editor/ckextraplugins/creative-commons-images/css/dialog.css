@@ -14,12 +14,6 @@
   white-space: normal !important;
 }
 
-#creativeCommonsImageSearchIframe {
-  height: 50px !important;
-  width: 100% !important;
-  position: relative;
-}
-
 #creativeCommonsImageSearchForm form {
   margin: 0 auto;
   width: 400px;
@@ -91,7 +85,8 @@
   white-space: normal !important;
 }
 
-#creativeCommonsImageSearchResults .pagination {
+#creativeCommonsImage
+SearchResults .pagination {
   overflow: hidden;
   padding: 1px;
 }
@@ -99,16 +94,6 @@
   max-height: 350px;
   overflow-y: auto;
   margin: 3px 0 3px 0;
-}
-#creativeCommonsImageSearchResults .page {
-
-}
-#creativeCommonsImageSearchResults .pageNum {
-  float: left;
-  display: block;
-  border: 1px solid #CCC;
-  margin: 2px;
-  padding: 3px 5px;
 }
 
 #creativeCommonsImageSearchResults li {

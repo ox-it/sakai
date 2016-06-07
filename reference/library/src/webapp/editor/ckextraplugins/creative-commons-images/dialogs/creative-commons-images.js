@@ -7,6 +7,7 @@ var path = h.path;
 var pathCommon = (path + '~').replace('creative-commons-images/~', 'common/');
 
 // load css and javascript files
+CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(pathCommon+ 'css/dialog.css'));
 CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(path + 'css/dialog.css'));
 
 CKEDITOR.scriptLoader.load(pathCommon + 'js/itemsearch.js');
@@ -57,9 +58,13 @@ CKEDITOR.dialog.add('creativeCommonsImagesDialog', function(editor) {
               var src = this.getValue();
               if (src) {
                   element.setAttribute('src', src);
+                  element.setAttribute('data-cke-saved-src', src);
+                  element.setAttribute('title', 'Credit: ' + src);
               }
-              else if (!this.insertMode)
+              else if (!this.insertMode){
                   element.removeAttribute('src');
+                  element.removeAttribute('title');
+              }
             }
           },
           {

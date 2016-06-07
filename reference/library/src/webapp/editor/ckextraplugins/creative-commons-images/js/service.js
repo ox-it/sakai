@@ -14,7 +14,7 @@ var CreativeCommonsImageSearchService = function(params) {
     var query = $.extend({
       'sort': 'relevance',
       'license': 1,
-      'per_page': 20,
+      'per_page': 25
     }, settings);
 
     // check if we are searching via text or tags
@@ -44,16 +44,26 @@ var CreativeCommonsImageSearchService = function(params) {
           square: getImgLink(result, '_q'),
       }
     });
-  }
+  };
+
+  var resetTokensIfNewSearchTerm = function(currentSearchTerm, searchTerm){
+      if (currentSearchTerm != searchTerm){
+          $.fn.itemSearch.currentPage = 1;
+      }
+      $.fn.itemSearch.currentSearchTerm = searchTerm;
+  };
 
   // takes search term (string) and returns array of objects representing the
   // search results from YouTube
   this.performQuery = function(searchTerm) {
     var results = [];
+    resetTokensIfNewSearchTerm($.fn.itemSearch.currentSearchTerm, searchTerm);
+    var currentPage = $.fn.itemSearch.currentPage;
     var params = prepareQueryParams({
       text: searchTerm,
       tags: searchTerm,
       format: 'json',
+      page : currentPage,
       nojsoncallback: 1
     });
 
