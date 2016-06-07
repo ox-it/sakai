@@ -384,19 +384,22 @@ function PodcastPickerInit(o) {
             bootLoader('PickerTemplate'); 
         } // if (st = 'success')
     });
-    
+
+    // Detect if we have ActiveXObject support (IE), feature detection, not browser.
+    var hasActiveX = (typeof ActiveXObject != "undefined");
 
     /*
         Grab the RSS file and pre-process it
     */
     $.ajax({
         url: OPTIONS.rssFile, 
-        dataType: ($.browser.msie) ? 'text' : 'xml', // IE is not happy about parsing some xml
+        dataType: (hasActiveX) ? 'text' : 'xml', // IE is not happy about parsing some xml
         success: function(data) {
             st = getTime();
 
             // we get IE to parse the xml explicitly in the callback instead
-            if ($.browser.msie) {
+            // This is only *needed* for IE8.
+            if (hasActiveX) {
                 var xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
                 xmlDoc.loadXML(data);
                 data = xmlDoc;
