@@ -291,7 +291,7 @@ function PodcastPickerInit(o) {
             });
              
             // rig up select button
-            Picker.find(OPTIONS['selectElement']).live('click', function(e) {
+            Picker.on('click', OPTIONS['selectElement'], function(e) {
                 podcast = $(this).closest('.podcast').data('data');
                 handleSelect.apply(TriggerElement, [podcast]);
                 Picker.jqmHide();
@@ -330,7 +330,7 @@ function PodcastPickerInit(o) {
             /* 7. Rig up Filter + Icons */
             $('#podcast_type_filter_all').attr('checked', true);
             $('#podcast_type_filter_box').buttonset();
-            $('#podcast_type_filter_box input').live('click', function(e) {
+            $('#podcast_type_filter_box input').on('click', function(e) {
                 Type_Filter = $('#podcast_type_filter_box input:checked').val();
                 DisplayContainer.trigger('update');
             });
