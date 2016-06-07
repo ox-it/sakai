@@ -754,9 +754,11 @@ function forceLinksInNewWindow() {
 function rewriteVideoEmbeds() {
     var embeds = document.getElementsByTagName('embed');
     for(var i = 0; i < embeds.length; i) {
-        var embed = embeds[i]
+        var embed = embeds[i];
         if(embed.src && embed.src.match("^http://youtube.com|^http://www.youtube.com|^http://player.vimeo.com")) {
-            embed.src = embed.src.replace('http://', '//');
+            var clone = embed.cloneNode();
+            clone.src = clone.src.replace('http://', '//');
+            embed.parentNode.replaceChild(clone, embed);
         }
     }
 
