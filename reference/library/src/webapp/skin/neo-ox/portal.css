@@ -89,11 +89,8 @@ body.portalBody {
 /* wrapper for footer blocks  */
 #footer {
     clear: both;
-    background: #444;
     padding: 10px;
     text-align: center;
-    background: #f3f3f3;
-    border: 1px solid #ddd;
     width: 90%;
     margin: 0 auto 50px auto;
     -moz-border-radius: 8px;
@@ -1076,12 +1073,12 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 /* the links displayed inside the wrapper above  */
 /* a second wrapper - server info,build,etc  */
-#footerInfo {
-    display: none
-}
 #footerInfo img {
     margin-top: .5em;
     margin-bottom: .5em;
+}
+#footerInfo a:link, #footerInfo a:hover {
+    text-decoration: none;
 }
 .serviceInfo {
     font-size:.9em;
