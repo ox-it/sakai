@@ -1,3 +1,5 @@
+// These functions look for metadata in the page and add it to the juice metadata.
+
 function sakaich_metadef() {
 	var isbns = new(Array);
 	var primo_ids = new(Array);
@@ -10,15 +12,16 @@ function sakaich_metadef() {
 		var bid_id = (bib_item["rft_id"] instanceof Array)?bib_item["rft_id"]:[bib_item["rft_id"]];
 		// This assumes that Primo IDs contain a specific string
 		// Not a brilliant way of doing this
+		var primo_id = "";
 		for(var i in bid_id) {
+			// This only deals with one ID per item.
 			if (bid_id[i] && bid_id[i].search(/primo_library/) > 0) {
-				primo_ids.push(bid_id[i]);
+				primo_id = bid_id[i];
+				break;
 			}
 		}
-		if (primo_ids.length == 0) {
-			// Add an empty ID for those without a Primo ID
-			primo_ids.push("");
-		}
+		// Array must be the same size as number of items so push something.
+		primo_ids.push(primo_id);
 	})
 	juice.setMeta("image_isbns",isbns);
 	juice.setMeta("primo_ids",primo_ids);
