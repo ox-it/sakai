@@ -730,11 +730,14 @@ function addEvent(element, event, fn) {
 // This event is added to every page; we could be more selective about where it is included.
 function forceLinksInNewWindow() {
     addEvent(window, 'load', function(event){
+
+        rewriteYouTubeEmbeds();
+
         if (window.top != window.self) {
             // I am in an iframe
-            links = window.self.document.getElementsByTagName('a');
+            var links = window.self.document.getElementsByTagName('a');
             for(var i = 0; i < links.length; ++i) {
-                link = links[i];
+                var link = links[i];
                 rewriteWebLearnHref(link);
                 if(link.href && link.href.match(/^http:/)) {
                     if(link.target == '' || link.target.match(/_self|_parent/)) {
@@ -744,6 +747,27 @@ function forceLinksInNewWindow() {
             }
         }
     });
+}
+
+// rewrites embedded youtube content to be protocol agnostic, called from forceLinksInNewWindow(),
+// this could have its own entry in sakai.properties.
+function rewriteYouTubeEmbeds() {
+    var embeds = document.getElementsByTagName('embed');
+    for(var i = 0; i < embeds.length; i) {
+        var embed = embeds[i]
+        if(embed.src && embed.src.match("^http://youtube.com|^http://www.youtube.com")) {
+            embed.src = embed.src.replace('http://', '//');
+        }
+    }
+
+    var iframes = document.getElementsByTagName('iframe');
+    for(var i = 0; i < iframes.length; ++i) {
+        var iframe = iframes[i]
+        if(iframe.src && iframe.src.match("^http://youtube.com|^http://www.youtube.com")) {
+            iframe.src = iframe.src.replace('http://', '//');
+        }
+    }
+
 }
 
 // rewrites old weblearn links to the new address, called from forceLinksInNewWindow(),
