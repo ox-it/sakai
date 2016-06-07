@@ -3,7 +3,7 @@
  */
 /* SECTION 1 GENERIC SELECTORS */
 body {
-    font-family: Arial,sans-serif;
+    font-family: 'PT Sans', Arial,sans-serif;
     font-size: 80%;
 }
 /* stub in tool_base.css - skinned here */
@@ -69,7 +69,7 @@ tr.selectedMove a:link, tr.selectedMove a:visited {
     text-decoration: none !important;
 }
 .listNav div.instruction, .searchNav div.instruction {
-    font-family: 'Helvetica Neue', Arial, sans-serif
+    font-family: 'PT Sans', 'Helvetica Neue', Arial, sans-serif
 }
 /* links associated with an item in alist */
 /* see links below announcement title in ann list */
@@ -427,7 +427,7 @@ tr#selectedReorder td.arrowHere {
 /* see: assignment */
 .discTria {
     background-color: #ddd;
-    font-family: 'Helvetica Neue', Arial,sans-serif;
+    font-family: 'PT Sans', 'Helvetica Neue', Arial,sans-serif;
 }
 /* SECTION 6 HIERARCHY */
 /* headers are used in many places for structuring things semantically - these are the plain headers - below there are others contextually defined */
@@ -435,7 +435,7 @@ h2, h6 {
     color: #555;
     padding: 0;
     font-weight: bold;
-    font-family: 'Helvetica Neue', Arial,sans-serif;
+    font-family: 'PT Sans', 'Helvetica Neue', Arial,sans-serif;
     margin: 1em 0;
     background-color: transparent !important;
 }
@@ -452,7 +452,7 @@ h3, h4, h5 {
     color: #555;
     padding: 0;
     font-weight: bold;
-    font-family: 'Helvetica Neue', Arial,sans-serif;
+    font-family: 'PT Sans', 'Helvetica Neue', Arial,sans-serif;
     margin: 1em 0 0 0;
     background-color: transparent !important;
 }
@@ -465,13 +465,13 @@ see: resources, any legacy list */
     color: #000;
     font-size: 1em;
     background: none;
-    font-family: 'Helvetica Neue', Arial,sans-serif !important;
+    font-family: 'PT Sans', 'Helvetica Neue', Arial,sans-serif !important;
 }
 /* SECTION 7 INPUTS */
 /* see: create any item */
 label {
     color: #000;
-    font-family: 'Helvetica Neue', Arial,sans-serif;
+    font-family: 'PT Sans', 'Helvetica Neue', Arial,sans-serif;
     margin-top: .3em;
 }
 /* a required marker for a shorttext label/input pair */
@@ -497,7 +497,7 @@ label {
 textarea {
     padding: .1em .3em;
     border: 1px solid #bbb;
-    font-family: 'Helvetica Neue', Arial,sans-serif;
+    font-family: 'PT Sans', 'Helvetica Neue', Arial,sans-serif;
     font-size: 100%;
 }
 textarea:focus {
@@ -541,7 +541,7 @@ textarea.cke_source:focus {
 }
 .navIntraTool {
     margin: 0 !important;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'PT Sans', 'Helvetica Neue', Arial, sans-serif;
     font-size: 80%;
     text-align: left;
     background: #f9f9f9;
@@ -686,7 +686,7 @@ ul.navIntraTool>li>span.separator, .navIntraTool>li>span:empty, span.navSeparato
 }
 .navIntraTool #searchField {
     border: 1px solid #ccc !important;
-    font-family: 'Helvetica Neue', Arial,sans-serif;
+    font-family: 'PT Sans', 'Helvetica Neue', Arial,sans-serif;
     font-size: 1em;
     padding: 3px 4px !important;
 }
@@ -754,7 +754,7 @@ visibility gets toggled */
 #submitnotif {
     background: #fff url(images/warn-a.gif) .3em .3em no-repeat;
     border: 1px solid #b11;
-    font-family: 'Helvetica Neue', Arial,sans-serif;
+    font-family: 'PT Sans', 'Helvetica Neue', Arial,sans-serif;
     clear: none;
     color: #b11;
     font-size: small;
@@ -989,28 +989,45 @@ tr.selectedFound td {
 }
 .login td.logo {
     width: 330px;
-    background: #fff url(images/x-login-logo.png) no-repeat;
-    background-position: 30px 30px;
-    border-width: 1px 0 1px 1px;
-    border-style: solid;
-    border-color: #ccc;
+    background: url(images/x-login-logo.png) no-repeat;
+    background-position: 40px 20px;
 }
+.login td.logo p.logo-text {
+    font-size: 2.4em;
+    margin: 1.2em 0 1em 4.2em;
+}
+
 .login td.form {
 
 }
 .login th {
-    background: #eeeeee;
-    background: -moz-linear-gradient(top, #f3f3f3 0%, #e7e7e7 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f3f3f3), color-stop(100%,#e7e7e7));
-    background: -webkit-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
-    background: -o-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
-    background: -ms-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
-    background: linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
-    border: 1px solid #ccc;
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 1.5em;
+    padding-left: 0.6em;
+    font-weight: normal;
 }
 .login {
-    border: 1px solid #ccc;
-    border-collapse: collapse;
+    border: 1px solid #dedede;
+    border-radius: 4px;
+    padding: 8px;
+}
+.login td.form table {
+    width: 100%;
+}
+.login td.form td.label {
+    width: 100%;
+}
+.login td.form input#eid, .login td.form input#pw {
+    width: 200px;
+    height: 20px;
+    font-size: 0.9em;
+}
+.login td.form input.loginsubmit {
+    color: #000 !important;
+    width: 60px;
+    margin-top: 10px;
 }
 /* ===[ Make a list based css menu ]=== */
 ul.makeMenu, ul.makeMenu ul {
