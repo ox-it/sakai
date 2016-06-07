@@ -69,6 +69,10 @@ p#toggle{text-align: right;margin:0 0 1em 0;font-weight:bold}
 
 /*file listings*/
 
+.directoryIndex ul li.inactive a {
+	color: #999;
+}
+
 .directoryIndex ul li.file a{
 	padding:6px;
 	padding-left:21px;
