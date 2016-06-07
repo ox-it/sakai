@@ -1,4 +1,4 @@
-(function(){
+(function($){
 $.fn.twitterTimeline = function() {
   var getPropertiesFromElement = function($element) {
     var properties = {};

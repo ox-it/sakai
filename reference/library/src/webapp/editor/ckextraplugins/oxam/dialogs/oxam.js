@@ -2,13 +2,15 @@
 // get absolute plugin path
 var h = CKEDITOR.plugins.get('oxam');
 var path = h.path;
-var pathCommon = (path + '~').replace('oxam/~', 'common/');
+var pathCommon   = (path + '~').replace('oxam/~', 'common/');
+var pathCommonWl = (path + '~').replace('oxam/~', 'common-wl/');
 
 // load css and javascript files
 CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(path + 'css/dialog.css'));
 CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(path + 'css/results.css'));
 
 CKEDITOR.scriptLoader.load(pathCommon + 'js/embed-assets-in-editor.js');
+CKEDITOR.scriptLoader.load(pathCommonWl + 'js/embed-jquery-assets-in-editor.js');
 CKEDITOR.scriptLoader.load(path + 'js/oxam-embed.js');
 CKEDITOR.scriptLoader.load(path + 'js/get-oxam-data.js');
 CKEDITOR.scriptLoader.load(path + 'js/get-html.js');
@@ -133,7 +135,17 @@ CKEDITOR.dialog.add('oxamDialog', function(editor) {
       var oxamNode = (!this.fakeImage)? new CKEDITOR.dom.element('div') : this.oxamNode;
       oxamNode.setAttribute('data-oxam-embed', 'true');
 
+      // commit the content to the node
       this.commitContent(oxamNode);
+
+      // embed assets into the node
+      embedAssetsInCKEditorNode({
+        node: oxamNode,
+        js: [path + 'js/oxam-embed.js'],
+        css: [path + 'css/results.css']
+      });
+
+      // create fake image instance
       var newFakeImage = editor.createFakeElement(oxamNode, 'cke_oxam', 'div', false);
 
       if (this.fakeImage) {
@@ -143,17 +155,8 @@ CKEDITOR.dialog.add('oxamDialog', function(editor) {
         editor.insertElement(newFakeImage);
       }
 
-      // embed the assets
-      embedAssetsInCKEditor({
-        editor: editor,
-        id: 'ckeditor-oxam-assets',
-        scripts: [
-          path + 'js/oxam-embed.js',
-        ],
-        stylesheets: [
-          path + 'css/results.css',
-        ],
-      });
+      // embed jQuery
+      embedjQueryAssetsInEditor(editor, pathCommon);
     }
   };
 });

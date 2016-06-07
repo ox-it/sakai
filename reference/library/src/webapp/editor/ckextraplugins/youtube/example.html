@@ -10,7 +10,7 @@
   <body>
     <h1 class="samples">CKEditor YouTube Search Plugin Example</h1>
     <p>
-      <input onclick="createEditor('editor', [ { id: 'youtube', dir: getCurrentDirectory() } ]);" type="button" value="Create Editor">
+      <input onclick="createEditor('editor', [ { id: 'youtube', dir: getCurrentDirectory() }, { id: 'jquery', dir: getCurrentDirectory().replace('youtube/', 'jquery/') } ]);" type="button" value="Create Editor">
       <input onclick="removeEditor();" type="button" value="Remove Editor">
     </p>
     <div id="editor">

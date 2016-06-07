@@ -11,6 +11,7 @@ CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(pathCommonWl + 'css/file-tree
 
 CKEDITOR.scriptLoader.load(pathCommon + 'js/get-plugin-dialog-html.js');
 CKEDITOR.scriptLoader.load(pathCommon + 'js/embed-assets-in-editor.js');
+CKEDITOR.scriptLoader.load(pathCommonWl + 'js/embed-jquery-assets-in-editor.js');
 CKEDITOR.scriptLoader.load(pathCommonWl + 'js/file-tree.js');
 CKEDITOR.scriptLoader.load(pathCommonWl + 'js/folder-listing.js');
 CKEDITOR.scriptLoader.load(pathCommonWl + 'js/get-user-data.js');
@@ -190,7 +191,17 @@ CKEDITOR.dialog.add('imageGalleryDialog', function(editor) {
       var node = (!this.fakeImage)? new CKEDITOR.dom.element('div') : this.node;
       node.setAttribute('data-image-gallery', 'true');
 
+      // commit the content to the node
       this.commitContent(node);
+
+      // embed assets into the node
+      embedAssetsInCKEditorNode({
+        node: node,
+        js: [path + 'lib/colorbox/colorbox.js', path + 'js/image-gallery.js'],
+        css: [path + 'lib/colorbox/colorbox.css', path + 'css/image-gallery.css']
+      });
+
+      // create fake image instance
       var newFakeImage = editor.createFakeElement(node, 'cke_image_gallery', 'div', false);
 
       if (this.fakeImage) {
@@ -200,19 +211,8 @@ CKEDITOR.dialog.add('imageGalleryDialog', function(editor) {
         editor.insertElement(newFakeImage);
       }
 
-      // embed the assets
-      embedAssetsInCKEditor({
-        editor: editor,
-        id: 'ckeditor-image-gallery-assets',
-        scripts: [
-          path + 'lib/colorbox/colorbox.js',
-          path + 'js/image-gallery.js',
-        ],
-        stylesheets: [
-          path + 'lib/colorbox/colorbox.css',
-          path + 'css/image-gallery.css',
-        ],
-      });
+      // embed jQuery
+      embedjQueryAssetsInEditor(editor, pathCommon);
     }
   }
 });

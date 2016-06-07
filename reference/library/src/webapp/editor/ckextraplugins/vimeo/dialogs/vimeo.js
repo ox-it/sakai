@@ -10,17 +10,17 @@ var pathCommon = (path + '~').replace('vimeo/~', 'common/');
 CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(path + 'css/dialog.css'));
 
 CKEDITOR.scriptLoader.load(pathCommon + 'js/itemsearch.js');
-CKEDITOR.scriptLoader.load(pathCommon + 'js/embed-assets-in-editor.js');
 CKEDITOR.scriptLoader.load(path + 'js/service.js');
 CKEDITOR.scriptLoader.load(path + 'js/result.js');
 CKEDITOR.scriptLoader.load(path + 'js/bind-itemsearch-to-container.js');
 CKEDITOR.scriptLoader.load(path + 'js/display-vimeo-search-page.js');
+CKEDITOR.scriptLoader.load(path + 'js/embed-vimeo-iframe.js');
 
 CKEDITOR.dialog.add('vimeoDialog', function(editor) {
   return {
     title:     'Vimeo Video Search',
     minWidth:  500,
-    minHeight: 200,
+    minHeight: 150,
     resizable: CKEDITOR.DIALOG_RESIZE_NONE,
 
     contents: [
@@ -95,10 +95,17 @@ CKEDITOR.dialog.add('vimeoDialog', function(editor) {
     },
 
     onOk: function() {
+      // create node to store the information
       var vimeoNode = (!this.fakeImage)? new CKEDITOR.dom.element('div') : this.vimeoNode;
       vimeoNode.setAttribute('data-vimeo-embed', 'true');
 
+      // commit the content to the div
       this.commitContent(vimeoNode);
+
+      // embed the iframe contents into the div
+      embedVimeoIframe(vimeoNode);
+
+      // create fake image for the editor
       var newFakeImage = editor.createFakeElement(vimeoNode, 'cke_vimeo', 'div', false);
 
       if (this.fakeImage) {
@@ -107,18 +114,6 @@ CKEDITOR.dialog.add('vimeoDialog', function(editor) {
       } else {
         editor.insertElement(newFakeImage);
       }
-
-      // embed the assets
-      embedAssetsInCKEditor({
-        editor: editor,
-        id: 'ckeditor-vimeo-assets',
-        scripts: [
-          path + 'js/vimeo-embed.js',
-        ],
-        stylesheets: [
-          path + 'css/vimeo-embed.css',
-        ],
-      });
     }
   };
 });

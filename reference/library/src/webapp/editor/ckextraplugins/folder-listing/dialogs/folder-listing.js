@@ -11,6 +11,7 @@ CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(pathCommonWl + 'css/file-tree
 
 CKEDITOR.scriptLoader.load(pathCommon + 'js/get-plugin-dialog-html.js');
 CKEDITOR.scriptLoader.load(pathCommon + 'js/embed-assets-in-editor.js');
+CKEDITOR.scriptLoader.load(pathCommonWl + 'js/embed-jquery-assets-in-editor.js');
 CKEDITOR.scriptLoader.load(pathCommonWl + 'js/file-tree.js');
 CKEDITOR.scriptLoader.load(pathCommonWl + 'js/folder-listing.js');
 CKEDITOR.scriptLoader.load(pathCommonWl + 'js/get-user-data.js');
@@ -180,7 +181,17 @@ CKEDITOR.dialog.add('folderListingDialog', function(editor) {
       var node = (!this.fakeImage)? new CKEDITOR.dom.element('div') : this.node;
       node.setAttribute('data-folder-listing', 'true');
 
+      // commit the content to the node
       this.commitContent(node);
+
+      // embed assets into the node
+      embedAssetsInCKEditorNode({
+        node: node,
+        js: [pathCommonWl + 'js/file-tree.js', pathCommonWl + 'js/folder-listing.js'],
+        css: [pathCommonWl + 'css/file-tree.css']
+      });
+
+      // create fake image instance
       var newFakeImage = editor.createFakeElement(node, 'cke_folder_listing', 'div', false);
 
       if (this.fakeImage) {
@@ -190,18 +201,8 @@ CKEDITOR.dialog.add('folderListingDialog', function(editor) {
         editor.insertElement(newFakeImage);
       }
 
-      // embed the assets
-      embedAssetsInCKEditor({
-        editor: editor,
-        id: 'ckeditor-folder-listing-assets',
-        scripts: [
-          pathCommonWl + 'js/file-tree.js',
-          pathCommonWl + 'js/folder-listing.js',
-        ],
-        stylesheets: [
-          pathCommonWl + 'css/file-tree.css',
-        ],
-      });
+      // embed jQuery
+      embedjQueryAssetsInEditor(editor, pathCommon);
     }
   }
 });

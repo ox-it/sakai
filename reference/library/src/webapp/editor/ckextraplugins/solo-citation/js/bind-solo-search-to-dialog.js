@@ -8,6 +8,7 @@ var BindSoloSearchToDialog = function(path) {
     bindToContainer();
     pushFormIntoIframe();
     closeDialogOnResultClick();
+    fixFrameForChrome();
   };
 
   // initial binding
@@ -64,5 +65,17 @@ var BindSoloSearchToDialog = function(path) {
     ckOk.click();
   };
 
+  // the iframe in chrome is empty
+  // but the contents still appear before the frame
+  // so we need to hide the frame in chrome
+  var fixFrameForChrome = function() {
+    var browser = navigator.userAgent;
+
+    if (browser.indexOf("Chrome") > -1) {
+      $('#soloSearchIframe').hide();
+    }
+  }
+
+  // run initialization
   init();
 };

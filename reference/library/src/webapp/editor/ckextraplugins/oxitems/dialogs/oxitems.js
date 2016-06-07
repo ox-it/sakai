@@ -3,14 +3,16 @@
 var h = CKEDITOR.plugins.get('oxitems');
 var path = h.path;
 var pathCommon   = (path + '~').replace('oxitems/~', 'common/');
+var pathCommonWl = (path + '~').replace('oxitems/~', 'common-wl/');
 
 // load css and javascript files
 CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(path + 'css/dialog.css'));
 CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(path + 'lib/chosen/chosen.css'));
-CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl('https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css'));
+CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(pathCommon + 'css/jquery-ui.css'));
 
 CKEDITOR.scriptLoader.load(pathCommon + 'js/embed-assets-in-editor.js');
-CKEDITOR.scriptLoader.load('https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js');
+CKEDITOR.scriptLoader.load(pathCommonWl + 'js/embed-jquery-assets-in-editor.js');
+CKEDITOR.scriptLoader.load(pathCommon + 'js/jquery-ui.min.js');
 CKEDITOR.scriptLoader.load(path + 'lib/chosen/chosen.js');
 CKEDITOR.scriptLoader.load(path + 'js/commit-setup-select-multiple-methods.js');
 CKEDITOR.scriptLoader.load(path + 'js/bind-oxitems-autocomplete.js');
@@ -248,7 +250,16 @@ CKEDITOR.dialog.add('oxItemsDialog', function(editor) {
       var node = (!this.fakeImage)? new CKEDITOR.dom.element('div') : this.node;
       node.setAttribute('data-oxitem', 'true');
 
+      // commit the content to the node
       this.commitContent(node);
+
+      // embed assets into the node
+      embedAssetsInCKEditorNode({
+        node: node,
+        js: [path + 'js/oxitems.js']
+      });
+
+      // create fake image instance
       var newFakeImage = editor.createFakeElement(node, 'cke_oxitem', 'div', false);
 
       if (this.fakeImage) {
@@ -258,14 +269,8 @@ CKEDITOR.dialog.add('oxItemsDialog', function(editor) {
         editor.insertElement(newFakeImage);
       }
 
-      // embed the assets
-      embedAssetsInCKEditor({
-        editor: editor,
-        id: 'ckeditor-oxitems-assets',
-        scripts: [
-          path + 'js/oxitems.js',
-        ],
-      });
+      // embed jQuery
+      embedjQueryAssetsInEditor(editor, pathCommon);
     }
   };
 });

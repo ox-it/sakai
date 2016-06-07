@@ -10,9 +10,10 @@ var pathCommonWl = (path + '~').replace('oxpoints/~', 'common-wl/');
 // load css and javascript files
 CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(path + 'css/dialog.css'));
 CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(path + 'css/oxpoints.css'));
-CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl('https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css'));
+CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(pathCommon + 'css/jquery-ui.css'));
 
 CKEDITOR.scriptLoader.load(pathCommon + 'js/embed-assets-in-editor.js');
+CKEDITOR.scriptLoader.load(pathCommonWl + 'js/embed-jquery-assets-in-editor.js');
 CKEDITOR.scriptLoader.load('https://static.data.ox.ac.uk/lib/jquery-ui/jquery-ui.min.js');
 CKEDITOR.scriptLoader.load(pathCommonWl + 'js/oxpoints-autocomplete.js');
 CKEDITOR.scriptLoader.load(path + 'js/get-dialog-html.js');
@@ -185,7 +186,17 @@ CKEDITOR.dialog.add('oxpointsDialog', function(editor) {
       var node = (!this.fakeImage)? new CKEDITOR.dom.element('div') : this.node;
       node.setAttribute('data-oxpoint', 'true');
 
+      // commit the content to the node
       this.commitContent(node);
+
+      // embed assets into the node
+      embedAssetsInCKEditorNode({
+        node: node,
+        js: [path + 'js/init-oxpoint-map.js', 'http://maps.google.com/maps/api/js?sensor=false&callback=initOxPointMap'],
+        css: [path + 'css/oxpoints.css']
+      });
+
+      // create fake image instance
       var newFakeImage = editor.createFakeElement(node, 'cke_oxpoint', 'div', false);
 
       if (this.fakeImage) {
@@ -195,19 +206,8 @@ CKEDITOR.dialog.add('oxpointsDialog', function(editor) {
         editor.insertElement(newFakeImage);
       }
 
-      // embed the assets
-      embedAssetsInCKEditor({
-        editor: editor,
-        id: 'ckeditor-oxpoints-assets',
-        scripts: [
-          'http://maps.google.com/maps/api/js?sensor=false',
-          path + 'js/gomap.js',
-          path + 'js/oxpoint-map.js',
-        ],
-        stylesheets: [
-          path + 'css/oxpoints.css',
-        ]
-      });
+      // embed jQuery
+      embedjQueryAssetsInEditor(editor, pathCommon);
     }
   }
 });

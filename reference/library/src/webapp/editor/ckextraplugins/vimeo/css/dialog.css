@@ -13,8 +13,8 @@
   white-space: normal !important;
 }
 #vimeoDialog iframe {
-  height: 40px;
-  width: 500px;
+  height: 60px;
+  width: 520px;
 }
 
 #vimeoSearchForm .item-search-form {

@@ -10,18 +10,18 @@ var pathCommon = (path + '~').replace('youtube/~', 'common/');
 CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(path + 'css/dialog.css'));
 
 CKEDITOR.scriptLoader.load(pathCommon + 'js/itemsearch.js');
-CKEDITOR.scriptLoader.load(pathCommon + 'js/embed-assets-in-editor.js');
 CKEDITOR.scriptLoader.load(path + 'js/service.js');
 CKEDITOR.scriptLoader.load(path + 'js/key.js');
 CKEDITOR.scriptLoader.load(path + 'js/result.js');
 CKEDITOR.scriptLoader.load(path + 'js/bind-itemsearch-to-container.js');
 CKEDITOR.scriptLoader.load(path + 'js/display-youtube-search-page.js');
+CKEDITOR.scriptLoader.load(path + 'js/embed-youtube-iframe.js');
 
 CKEDITOR.dialog.add('youtubeDialog', function(editor) {
   return {
     title:     'YouTube Video Search',
     minWidth:  500,
-    minHeight: 200,
+    minHeight: 150,
     resizable: CKEDITOR.DIALOG_RESIZE_NONE,
 
     contents: [
@@ -95,10 +95,17 @@ CKEDITOR.dialog.add('youtubeDialog', function(editor) {
     },
 
     onOk: function() {
+      // create node to store the information
       var youTubeNode = (!this.fakeImage)? new CKEDITOR.dom.element('div') : this.youTubeNode;
       youTubeNode.setAttribute('data-youtube-embed', 'true');
 
+      // commit the content to the div
       this.commitContent(youTubeNode);
+
+      // embed the iframe contents into the div
+      embedYouTubeIframe(youTubeNode);
+
+      // create fake image for the editor
       var newFakeImage = editor.createFakeElement(youTubeNode, 'cke_youtube', 'div', false);
 
       if (this.fakeImage) {
@@ -107,18 +114,6 @@ CKEDITOR.dialog.add('youtubeDialog', function(editor) {
       } else {
         editor.insertElement(newFakeImage);
       }
-
-      // embed the youtube-embed assets
-      embedAssetsInCKEditor({
-        editor: editor,
-        id: 'ckeditor-youtube-assets',
-        scripts: [
-          path + 'js/youtube-embed.js',
-        ],
-        stylesheets: [
-          path + 'css/youtube-embed.css',
-        ],
-      });
     }
   };
 });

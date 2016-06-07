@@ -4,6 +4,7 @@ var BindYouTubeSearchToContainer = function(container, searchResults, result) {
     bindToContainer();
     pushFormIntoIframe();
     closeDialogOnResultClick();
+    fixFrameForChrome();
   };
 
   // initial binding
@@ -16,6 +17,7 @@ var BindYouTubeSearchToContainer = function(container, searchResults, result) {
       pagination: false,
     });
 
+    // add css classes
     container.find('input').addClass('searchQuery cke_dialog_ui_input_text')
                           .attr('placeholder', 'Search here...');
     container.find('a').addClass('searchButton cke_dialog_ui_button cke_dialog_ui_button_ok')
@@ -35,9 +37,6 @@ var BindYouTubeSearchToContainer = function(container, searchResults, result) {
       contents.find('head').append($('head script, head link').clone());
       contents.find('body').html(container);
       contents.find('body').css({ padding: 0, width: '100%' });
-
-      // fix iframe height
-      iframe.height(contents.find('body').outerHeight() + 20);
     });
   };
 
@@ -55,5 +54,17 @@ var BindYouTubeSearchToContainer = function(container, searchResults, result) {
     ckOk.click();
   };
 
+  // the iframe in chrome is empty
+  // but the contents still appear before the frame
+  // so we need to hide the frame in chrome
+  var fixFrameForChrome = function() {
+    var browser = navigator.userAgent;
+
+    if (browser.indexOf("Chrome") > -1) {
+      $('#youTubeSearchIframe').hide();
+    }
+  }
+
+  // run initialization
   init();
 };

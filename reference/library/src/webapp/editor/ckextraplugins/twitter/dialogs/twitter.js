@@ -10,7 +10,7 @@ CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(path + 'css/dialog.css'));
 var pathCommon = (path + '~').replace('twitter/~', 'common/');
 
 CKEDITOR.scriptLoader.load(path + 'js/get-dialog-html.js');
-CKEDITOR.scriptLoader.load(pathCommon + 'js/embed-assets-in-editor.js');
+CKEDITOR.scriptLoader.load(path + 'js/embed-twitter-timeline-iframe.js');
 
 // remove '#' from strings
 var validateHashTagForUrl = function(string) {
@@ -187,10 +187,17 @@ CKEDITOR.dialog.add('twitterDialog', function(editor) {
     },
 
     onOk: function() {
+      // create node to store the information
       var node = (!this.fakeImage)? new CKEDITOR.dom.element('div') : this.node;
       node.setAttribute('data-twitter-timeline', 'true');
 
+      // commit the content to the div
       this.commitContent(node);
+
+      // embed the iframe contents into the div
+      embedTwitterTimelineIframe(node);
+
+      // create fake image for the editor
       var newFakeImage = editor.createFakeElement(node, 'cke_twitter_timeline', 'div', false);
 
       if (this.fakeImage) {
@@ -199,15 +206,6 @@ CKEDITOR.dialog.add('twitterDialog', function(editor) {
       } else {
         editor.insertElement(newFakeImage);
       }
-
-      // embed the assets
-      embedAssetsInCKEditor({
-        editor: editor,
-        id: 'ckeditor-twitter-assets',
-        scripts: [
-          path + 'js/embed-timeline.js',
-        ],
-      });
     }
   }
 });

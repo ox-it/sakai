@@ -3,7 +3,7 @@ var BindResearcherTrainingPreviewToDialog = function($dialog, dialog, previewAtt
   $dialog.on('click', "[id*='cke_preview_']", function() {
 
     var previewWindow = $('.rttpreview');
-    var div = $('<div class="courses-widget-container-preview"/>');
+    var div = $('<div class="courses-widget-container-preview courses-widget-container"/>');
     var dateSuffix = 'T00:00:00';
 
     // get data from the fields
@@ -47,14 +47,21 @@ var BindResearcherTrainingPreviewToDialog = function($dialog, dialog, previewAtt
       var table = previewWindow.find('.courses-widget-container-preview');
 
       // bind functionality to the container
-      table.oxfordCoursesWidget({
-        dataTablesConfig: {
-          fnInitComplete: function(settings, json) {
-            // add CKEditor classes for uniform styling
-            table.find('input').addClass('cke_dialog_ui_input_text');
-            table.find('select').addClass('cke_dialog_ui_input_select');
-          },
+      table.each(function() {
+        var $this = $(this);
+        if (typeof(this.isWidget) !== "undefined" && this.isWidget) {
+          this.isWidget = false; // ensures the widget will be built
         }
+
+        $this.oxfordCoursesWidget({
+          dataTablesConfig: {
+            fnInitComplete: function(settings, json) {
+              // add CKEditor classes for uniform styling
+              table.find('input').addClass('cke_dialog_ui_input_text');
+              table.find('select').addClass('cke_dialog_ui_input_select');
+            },
+          }
+        });
       });
 
       // add classes for easier styling of the table

@@ -1,6 +1,6 @@
 (function() {
 /* methods */
-var jQueryPrefix = CKEDITOR.basePath + '../../js/lib/';
+var jQueryPrefix = 'https://code.jquery.com/';
 
 var getEditorDataJQuery = function(editor) {
   return $('<div>').append(editor.getData());

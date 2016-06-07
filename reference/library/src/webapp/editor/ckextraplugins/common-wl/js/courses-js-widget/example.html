@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <script src="lib/jQuery/jquery.min.js"></script>
+  <script src="oxford-courses-widget.js"></script>
+  <title>Oxford Courses Widget</title>
+</head>
+<body>
+  <div class="courses-widget-container"
+    data-title="Courses from Careers Services" 
+    data-displayColumns="start title description"
+    data-startingAfter=""
+    data-providedBy="http://oxpoints.oucs.ox.ac.uk/id/23233545">
+  </div>
+  <div class="test"
+    data-title="Courses from Careers Services (2)"
+    data-displayColumns="start title description"
+    data-startingAfter=""
+    data-providedBy="http://oxpoints.oucs.ox.ac.uk/id/23233545">
+  </div>
+  </body>
+  <script>
+    $(document).ready(function() {
+      $('.test').oxfordCoursesWidget();
+      var dynamicWidget = $('<div></div>')//.addClass('courses-widget-container')
+                                      .attr({
+                                        'data-title' : 'Courses from Careers Services (3)',
+                                        'data-displayColumns' : 'start title description',
+                                        'data-startingAfter' : '',
+                                        'data-providedBy' : 'http://oxpoints.oucs.ox.ac.uk/id/23233545'
+                                      })
+                                      .oxfordCoursesWidget({
+                                        dataTablesConfig: {
+                                          fnInitComplete: function(settings, json) {
+                                            alert('init');
+                                          },
+                                          fnInfoCallback : function(oSettings, iStart, iEnd, iMax, iTotal, sPre) {
+                                            alert('change');
+                                          }
+                                        }
+                                      });
+      console.log(dynamicWidget);
+      $('body').append(dynamicWidget);
+    });
+  </script>
+</html>
+

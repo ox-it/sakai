@@ -32,6 +32,7 @@ $.fn.folderListing = function(options) {
 
     for (i in json[0]['resourceChildren']) {
       var file = json[0]['resourceChildren'][i];
+        if (i!='contains') {
 
       var li = $('<li/>');
       var a = $('<a/>').attr('href', '#');
@@ -95,7 +96,7 @@ $.fn.folderListing = function(options) {
 
       li.append(a);
       html.append(li);
-    }
+    }}
 
     $div
       // show/hide copyright notices

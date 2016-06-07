@@ -9,20 +9,21 @@ var pathCommonWl = (path + '~').replace('researcher-training-tool/~', 'common-wl
 
 // load css and javascript files
 CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(path + 'css/dialog.css'));
-CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl('https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css'));
+CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(pathCommon + 'css/jquery-ui.css'));
 
 // fix for $.browser being undefined in jQuery 1.9+ for datepicker
 if (!$.browser) {
-  CKEDITOR.scriptLoader.load('https://code.jquery.com/jquery-migrate-1.2.1.js');
+  CKEDITOR.scriptLoader.load(pathCommon + 'js/jquery-migrate-1.2.1.js');
 }
 
 // fix in case the ui library hasn't loaded yet
 if (!$.fn.autocomplete) {
-  CKEDITOR.scriptLoader.load('https://code.jquery.com/ui/1.8.22/jquery-ui.js');
+  CKEDITOR.scriptLoader.load(pathCommon + 'js/jquery-ui.min.js');
 }
 
 CKEDITOR.scriptLoader.load(pathCommon + 'js/embed-assets-in-editor.js');
-CKEDITOR.scriptLoader.load('https://rawgit.com/lokothodida/courses-js-widget/dev/oxford-courses-widget.js');
+CKEDITOR.scriptLoader.load(pathCommonWl + 'js/embed-jquery-assets-in-editor.js');
+CKEDITOR.scriptLoader.load(pathCommonWl + '/js/courses-js-widget/oxford-courses-widget.js');
 CKEDITOR.scriptLoader.load(pathCommonWl + 'js/oxpoints-autocomplete.js');
 CKEDITOR.scriptLoader.load(path + 'js/skills.js');
 CKEDITOR.scriptLoader.load(path + 'js/select-multiple-values.js');
@@ -294,24 +295,6 @@ CKEDITOR.dialog.add('researcherTrainingToolDialog', function(editor) {
             ]
           }
         ]
-      },
-      {
-        // preview
-        id: 'preview',
-        label: 'Preview',
-        elements: [
-          {
-            type: 'html',
-            id: 'preview',
-            html: '<div class="rttpreview"></div>',
-            onShow: function() {
-              // get the dialog so we can access the element values
-              var dialog = this.getDialog();
-
-              BindResearcherTrainingPreviewToDialog($('#researcherTrainingToolDialog'), dialog, previewAttributes);
-            },
-          }
-        ]
       }
     ],
 
@@ -325,7 +308,7 @@ CKEDITOR.dialog.add('researcherTrainingToolDialog', function(editor) {
 
       // load datepicker dependencies
       if (!$.browser) {
-        CKEDITOR.scriptLoader.load('https://code.jquery.com/jquery-migrate-1.2.1.js', function() {
+        CKEDITOR.scriptLoader.load(pathCommon + 'js/jquery-migrate-1.2.1.js', function() {
           bindDatePickerToFields();
         });
       } else {
@@ -350,8 +333,18 @@ CKEDITOR.dialog.add('researcherTrainingToolDialog', function(editor) {
     onOk: function() {
       var node = (!this.fakeImage)? new CKEDITOR.dom.element('div') : this.node;
       node.setAttribute('data-researcher-training-tool', 'true');
+      node.setAttribute('class', 'courses-widget-container');
 
+      // commit the content to the node
       this.commitContent(node);
+
+      // embed assets into the node
+      embedAssetsInCKEditorNode({
+        node: node,
+        js: [pathCommonWl + '/js/courses-js-widget/oxford-courses-widget.js'],
+      });
+
+      // create fake image instance
       var newFakeImage = editor.createFakeElement(node, 'cke_researcher_training_tool', 'div', false);
 
       if (this.fakeImage) {
@@ -361,14 +354,8 @@ CKEDITOR.dialog.add('researcherTrainingToolDialog', function(editor) {
         editor.insertElement(newFakeImage);
       }
 
-      // embed the assets
-      embedAssetsInCKEditor({
-        editor: editor,
-        id: 'ckeditor-researcher-training-tool-assets',
-        scripts: [
-          path + 'lib/courses-js-widget/oxford-courses-widget.js',
-        ],
-      });
+      // embed jQuery
+      embedjQueryAssetsInEditor(editor, pathCommon);
     }
   }
 });
