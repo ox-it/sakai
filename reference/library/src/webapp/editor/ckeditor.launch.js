@@ -252,6 +252,17 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
           }
 
       });
+
+    /*
+     * WL-2923
+     *   sometimes the frame height is calculated before the editor has loaded
+     *   so lets additionally recalculate the frame height once CK is good to go.
+     */
+    CKEDITOR.on('instanceReady', function(event) {
+        if(setMainFrameHeightNow) {
+            setMainFrameHeightNow(window.name);
+        }
+    });
 }
 
 sakai.editor.launch = sakai.editor.editors.ckeditor.launch;
