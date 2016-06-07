@@ -1710,6 +1710,9 @@ everything except the tool icon is gone it is still distincts as the current too
 .sakaiMinimizePageNavigation #toolMenu li.selectedTool a, .sakaiMinimizePageNavigation #toolMenu li a:hover, .sakaiMinimizePageNavigation #subSites li a:hover,.sakaiMinimizePageNavigation #toolMenu li a:focus, .sakaiMinimizePageNavigation #subSites li a:focus {
     background: #e4e4e4;
 }
+.sakaiMinimizePageNavigation h1 {
+    display: none;
+}
 .sakaiMinimizePageNavigation #togglebar {
     padding-left: 0em;
     margin-top: 0em;
