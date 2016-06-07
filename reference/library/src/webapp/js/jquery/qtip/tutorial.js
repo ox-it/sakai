@@ -98,7 +98,7 @@ function showTutorialPage(url, opts){
 											}, 10000);
 										}
 									},
-                                    visible : function() {  $('.qtip-title').attr('tabindex','-1').focus(); },
+                                    visible : function() {  $('.qtip-content .qtipLinkButton').attr('tabindex','-1').focus(); },
 									render: function() {
                                            var api = this;
                                             $(window).bind('keydown', function(e) {
