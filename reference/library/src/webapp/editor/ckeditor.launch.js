@@ -160,7 +160,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             '/',
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
-            ['Maximize', 'ShowBlocks']
+            ['Maximize', 'ShowBlocks'],
+            ['About']
         ],
         toolbar: 'Full',
         resize_dir: 'both',
