@@ -812,6 +812,10 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 */
 }
 
+#siteHTMLInclude {
+    margin: 10px;
+}
+
 #siteBanner {
     float: left;
     clear: left;
