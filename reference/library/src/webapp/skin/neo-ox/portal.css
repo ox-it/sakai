@@ -2097,3 +2097,73 @@ html > body .ui-pnotify {
   line-height: 17px;
   min-height: 17px;
 }
+/* Cookie Notice */
+#cookie-notice {
+	background: none repeat scroll 0 0 #002147;
+	color: white;
+	margin: 0;
+	overflow: hidden;
+	padding: 3px 0 0;
+	text-align: left;
+	width: 100%;
+	bottom: 0;
+	font-family: "PT Sans","Helvetica Neue",Arial,Helvetica,sans-serif;
+	position: fixed;
+	z-index: 9000;
+}
+#cookie-notice #cookie-notice-close {
+	background-color: #be0f34;
+	border: medium none;
+	border-radius: 3px;
+	color: #fff;
+	cursor: pointer;
+	display: inline-block;
+	font-family: "PT Sans","Helvetica Neue",Arial,Helvetica,sans-serif;
+	font-size: 1em;
+	font-weight: 400;
+	margin: 0.5em 0.5em 0.5em 0;
+	padding: 0.8em 1.2em;
+	text-decoration: none;
+	text-transform: uppercase;
+	transition: background 0.3s ease-out 0s;
+}
+#cookie-notice #cookie-notice-close:hover {
+	background-color: #8f0b27;
+	transition: background 0.3s ease-out 0s;
+}
+#cookie-notice #cookie-notice-close:active {
+	background-color: #770921;
+	transition: background 0.3s ease-out 0s;
+}
+#cookie-notice #cookie-notice-close:focus {
+	background-color: #8f0b27;
+	transition: background 0.3s ease-out 0s;
+}
+#cookie-notice .cookie-notice-content {
+	margin: auto;
+	padding: 5px 0;
+	position: relative;
+	width: 65%;
+}
+#cookie-notice .cookie-notice-text {
+	margin-right: 105px;
+	position: relative;
+}
+#cookie-notice .cookie-notice-text a {
+	color: white;
+	font-weight: bold;
+	text-decoration: underline;
+}
+#cookie-notice a:hover {
+	text-decoration: none;
+}
+#cookie-notice-close {
+	position: absolute;
+	right: 0;
+	top: 5px;
+}
+#cookie-notice-close:hover {
+	background: none repeat scroll 0 0 #22ec92;
+	cursor: pointer;
+	text-decoration: none;
+}
