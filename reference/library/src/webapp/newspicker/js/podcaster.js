@@ -258,17 +258,22 @@ function PodcastPickerInit(o) {
                     .find('.faculty').text(podcast.faculty_label).end()
                     .find('.description').html(description).end()
                 ;
-                
+
+                // This is a hack because feeds without thumbnails currently have a URL starting with
+                // null, this should be fixed on the server in the long run.
+                var has_thumbnail = podcast.thumbnail_url && podcast.thumbnail_url.length > 0
+                    && podcast.thumbnail_url.indexOf("null") != 0;
+
                 // If generic thumbnails are used then don't even attempt to load the originals.
                 // Otherwise IE starts complaining about mixed content.
-                if (OPTIONS['genericThumbnails']) {
+                if (OPTIONS['genericThumbnails'] || !(has_thumbnail)) {
                     podcastEl
                         .find('.thumbnail').hide().end()
                         .find('.genericPlaceHolder').addClass(podcast.type + ' GenericType thumbnail').end()
                     ;
                     
                 } else {
-                	podcastEl.find('.thumbnail').attr('src', podcast.thumbnail_url).end()
+                    podcastEl.find('.thumbnail').attr('src', podcast.thumbnail_url).end()
                 }
                 
                 // add data
