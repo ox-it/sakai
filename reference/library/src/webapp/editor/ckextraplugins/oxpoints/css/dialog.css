@@ -1,0 +1,43 @@
+/* search form */
+#oxPointsDialog h2 {
+  font-size: 120%;
+  font-weight: bold;
+  white-space: normal !important;
+}
+#oxPointsDialog p {
+  margin: 5px 5px 15px 0;
+  white-space: normal !important;
+}
+#oxPointsDialog .oxpoint {
+  display: none;
+}
+
+#oxPointsDialog .location input {
+  font-size: 130%;
+  padding: 9px;
+  height: 36px;
+  width: 350px;
+  line-height: 36px;
+  box-sizing: border-box;
+}
+
+/* autocomplete search results */
+ul.oxpoints-autocomplete.ui-autocomplete {
+  width: 350px;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+ul.oxpoints-autocomplete.ui-autocomplete .ui-menu-item {
+  margin: 0;
+  padding: 2px;
+}
+ul.oxpoints-autocomplete.ui-autocomplete .ui-menu-item a {
+  display: block;
+  padding: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+ul.oxpoints-autocomplete.ui-autocomplete .ui-menu-item a:hover {
+  padding: 3px;
+}

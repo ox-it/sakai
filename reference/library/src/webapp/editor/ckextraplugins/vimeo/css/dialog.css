@@ -1,0 +1,130 @@
+/* main dialog */
+#vimeoDialog {
+}
+
+/* heading, description and search form (input/button) */
+#vimeoDialog h2 {
+  font-size: 120%;
+  font-weight: bold;
+  white-space: normal !important;
+}
+#vimeoDialog p {
+  margin: 5px 5px 15px 0;
+  white-space: normal !important;
+}
+#vimeoDialog iframe {
+  height: 40px;
+  width: 500px;
+}
+
+#vimeoSearchForm .item-search-form {
+  position: relative;
+  height: 40px;
+  width: 500px;
+  overflow: hidden;
+}
+#vimeoSearchForm .item-search-query {
+  width: 468px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: none;
+  position: absolute;
+  top: 0; left: 0;
+  line-height: 30px;
+  box-sizing: border-box;
+  padding: 0 0 0 5px !important;
+}
+#vimeoSearchForm .item-search-query, .item-search-button {
+  box-sizing: border-box;
+  font-size: 130%;
+  padding: 1px;
+  margin: 0;
+  height: 30px;
+}
+#vimeoSearchForm .item-search-button {
+  width: 32px;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  position: absolute;
+  top: 0; right: 0;
+  padding: 0;
+  line-height: 21px;
+  overflow: hidden;
+  text-align: center;
+}
+#vimeoSearchForm .item-search-button:focus,
+#vimeoSearchForm .item-search-button:active {
+  padding: 0 !important;
+  margin: 0;
+}
+#vimeoSearchForm .item-search-button .icon {
+  height: 100%;
+  width: 100%;
+  display: block;
+  background: url('../icons/search.png') no-repeat 5px 3px;
+}
+
+/* search results */
+#vimeoSearchResults {
+  margin-top: 0px;
+  list-style-type: none;
+  max-width: 500px;
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+#vimeoSearchResults .result {
+  display: block;
+  border: 1px solid #e0dfde;
+  border-radius: 5px;
+  padding: 8px;
+  margin: 14px;
+  background: #fff;
+  box-shadow: 1px 1px 3px #e0dfde;
+  transition: background 0.5s, border 0.5s, box-shadow 0.5s;
+  overflow: hidden;
+}
+#vimeoSearchResults .result, #vimeoSearchResults .result * {
+  cursor: pointer !important;
+  white-space: normal !important;
+}
+#vimeoSearchResults .result:hover {
+  background: #F5F5F5;
+  border-color: #D9D9D9;
+  box-shadow: 1px 1px 3px #D9D9D9;
+}
+#vimeoSearchResults img {
+  float: left;
+  margin: 0 5px 5px 0;
+  max-width: 100px;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 1px 1px 0px #4A4A4A;
+  overflow: hidden;
+}
+#vimeoSearchResults .result h2 {
+  font-weight: bold;
+  font-size: 130%;
+  word-wrap: break-word !important;
+  color: #55830C;
+  margin-left: 110px;
+  transition: color 0.5s;
+}
+#vimeoSearchResults .result:hover h2 {
+  color: #8FC716;
+}
+#vimeoSearchResults .result p {
+  font-size: 90%;
+  font-style: italic;
+  word-wrap: break-word !important;
+  color: #636363;
+  margin-left: 110px;
+}
+#vimeoSearchResults .noresults,
+#vimeoSearchResults .badrequest {
+  display: block;
+  text-align: center;
+  padding: 6px;
+  word-wrap: break-word !important;
+}
+

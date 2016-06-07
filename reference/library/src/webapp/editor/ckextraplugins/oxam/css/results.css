@@ -1,0 +1,69 @@
+/* Basic css for OXAM results */
+[data-oxam-embed] {
+}
+[data-oxam-embed].success {
+}
+[data-oxam-embed].error {
+  font-size: 120%;
+  font-weight: bold;
+  padding: 4px;
+  color: #ce3737;
+  background: #ffe8e8;
+  border: 1px solid #ce3737;
+  border-radius: 3px;
+}
+
+[data-oxam-embed] .exams {
+  list-style-type: none;
+  margin: 0 0 5px;
+  padding: 0;
+}
+
+[data-oxam-embed] .exam {
+  list-style-type: none;
+  margin: 3px;
+  padding: 3px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+[data-oxam-embed] .exam a {
+  color: #898989;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 120%;
+}
+[data-oxam-embed] .exam a:hover {
+  color: #ccc;
+}
+
+[data-oxam-embed] .showing {
+  font-style: italic;
+}
+
+[data-oxam-embed] .pagination a,
+[data-oxam-embed] .showing a {
+  color: #fff;
+  text-decoration: none;
+}
+[data-oxam-embed] .page,
+[data-oxam-embed] .goto {
+  padding: 4px;
+  margin: 0 0 0 3px;
+  background: #898989;
+  color: #FFF;
+  border-radius: 3px;
+}
+[data-oxam-embed] .page:hover,
+[data-oxam-embed] .goto:hover {
+  background: #ccc;
+}
+[data-oxam-embed] .current {
+  font-weight: bold;
+}
+
+[data-oxam-embed] .goto {
+  margin: 0 3px 0 7px;
+}
+[data-oxam-embed] .goto:hover {
+  background: #ccc;
+}

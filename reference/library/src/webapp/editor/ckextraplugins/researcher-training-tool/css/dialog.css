@@ -1,0 +1,95 @@
+/* fix height for select-multiple fields */
+#researcherTrainingToolDialog .select_multiple {
+  height: auto !important;
+}
+#researcherTrainingToolDialog .cke_dialog_ui_input_select,
+#researcherTrainingToolDialog select {
+  width: 100%;
+}
+#researcherTrainingToolDialog .provided_by input {
+  font-size: 130%;
+  padding: 9px;
+  height: 36px;
+  width: 100%;
+  line-height: 36px;
+  box-sizing: border-box;
+}
+
+/* results in 'Provided By' auto-complete field */
+ul.researcher-training-tool-autocomplete.ui-autocomplete {
+  width: 350px;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+ul.researcher-training-tool-autocomplete.ui-autocomplete .ui-menu-item {
+  margin: 0;
+  padding: 2px;
+}
+ul.researcher-training-tool-autocomplete.ui-autocomplete .ui-menu-item a {
+  display: block;
+  padding: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+ul.researcher-training-tool-autocomplete.ui-autocomplete .ui-menu-item a:hover {
+  padding: 3px;
+}
+
+/* preview window table */
+#researcherTrainingToolDialog h2 {
+  font-size: 120%;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+#researcherTrainingToolDialog .courses-widget-container-preview {
+  width: 100%;
+  max-height: 350px;
+  overflow: auto;
+  padding: 5px;
+  box-sizing: border-box;
+}
+#researcherTrainingToolDialog .courses-widget-container-preview * {
+  white-space: normal !important;
+}
+#researcherTrainingToolDialog .dataTables_filter {
+  float: left;
+  width: 70%;
+  margin: 0 0 10px 0;
+  text-align: left;
+}
+#researcherTrainingToolDialog .dataTables_filter input {
+  width: 70%;
+}
+#researcherTrainingToolDialog .dataTables_length {
+  float: right;
+  text-align: left;
+  width: 30%;
+  margin: 0 0 10px 0;
+}
+#researcherTrainingToolDialog .odd {
+  background: #fff;
+}
+#researcherTrainingToolDialog .even {
+  background: #ededed;
+}
+#researcherTrainingToolDialog .dataTables_wrapper,
+#researcherTrainingToolDialog .dataTables_length,
+#researcherTrainingToolDialog .dataTables_info {
+  display: block;
+}
+#researcherTrainingToolDialog .course-results-table thead * {
+  color: #fff;
+}
+#researcherTrainingToolDialog .dataTables_paginate {
+  height: 24px;
+  line-height: 24px;
+  overflow: hidden;
+}
+#researcherTrainingToolDialog .dataTables_paginate a {
+  box-sizing: border-box;
+  height: 20px;
+  line-height: 20px;
+  padding: 0 5px 0 5px;
+  font-weight: bold;
+}

@@ -1,0 +1,29 @@
+<script src="https://rss.oucs.ox.ac.uk/oxitems/output_newsfeed.js"></script>
+<script>
+  // split GET query into array
+  var paramsArray = location.search.slice(1).split('&');
+  var params = {};
+
+  // parse each element of the array into keys and values
+  for (param in paramsArray) {
+    var tmp = paramsArray[param].split('=');
+    var key = tmp[0];
+    var value = tmp[1];
+    params[key] = value || null;
+  }
+
+  // get the output using the keys from the newly build params object
+  output_newsfeed(
+    params.channel_name,
+    params.all_string,
+    params.channel_format,
+    params.dt_format,
+    params.dd_format,
+    params.sort_values,
+    params.encoding,
+    params.template_url,
+    params.startdate_range,
+    params.empty_newsfeed_url,
+    params.callback
+  );
+</script>

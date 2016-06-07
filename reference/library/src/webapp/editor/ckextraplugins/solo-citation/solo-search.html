@@ -1,0 +1,50 @@
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>Solo Search Form Test</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="js/itemsearch.js"></script>
+    <script src="js/service.js"></script>
+    <script src="js/result.js"></script>
+    <script src="js/solo-citation.js"></script>
+    <link rel="stylesheet" href="css/solo-citation.css">
+  </head>
+  <body>
+    <script>
+      $(document).ready(function() {
+        var result = new SOLOSearchResult('');
+
+        $('#SOLOSearchForm').itemSearch({
+          service: SOLOSearchService,
+          resultsContainer: $('#SOLOSearchResults'),
+          displayResult: result.display,
+          registerElements: [
+            $('<input name="author" placeholder="author"/ >'),
+            $('<input name="isbn" placeholder="isbn"/ >'),
+            $('<input name="count" placeholder="# of results to display"value="10" / >')
+          ]
+        });
+
+        var citationsContainer = $('.citationsContainer');
+
+        $('[data-solo-citation]').soloCitation({
+          citationsContainer: citationsContainer.length? citationsContainer : false,
+        });
+      });
+    </script>
+    <h2>Search SOLO</h2>
+    <p>Refine your search using the elements below.</p>
+    Here is some content, then a citation
+    <div data-id="010000555" data-solo-citation="true">&nbsp;</div>
+    <div data-id="010008631" data-solo-citation="true">&nbsp;</div>
+    <div data-id="010000555" data-solo-citation="true">&nbsp;</div>
+    <div data-id="010010784" data-solo-citation="true">&nbsp;</div>
+
+    <input type="hidden" id="searchResultId"/>
+    <div id="SOLOSearchForm"/>
+    <div id="SOLOSearchResults"/>
+
+    <h2>Citations</h2>
+    <div class="citationsContainer"></div>
+  </body>
+</html>

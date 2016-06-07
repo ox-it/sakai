@@ -1,0 +1,146 @@
+/* search form */
+#creativeCommonsImageDialog {
+  width: 460px;
+  padding: 0px 20px 0px 20px;
+}
+
+#creativeCommonsImagesDialog h2 {
+  font-size: 120%;
+  font-weight: bold;
+  white-space: normal !important;
+}
+#creativeCommonsImagesDialog p {
+  margin: 5px 5px 15px 0;
+  white-space: normal !important;
+}
+
+#creativeCommonsImageSearchIframe {
+  height: 50px !important;
+  width: 100% !important;
+  position: relative;
+}
+
+#creativeCommonsImageSearchForm form {
+  margin: 0 auto;
+  width: 400px;
+  height: 50px;
+  position: relative;
+}
+#creativeCommonsImageSearchForm .searchQuery {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 130%;
+  padding: 5px;
+  height: 36px;
+  width: 241px;
+  line-height: 36px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+#creativeCommonsImageSearchForm select {
+  width: 100px;
+  position: absolute;
+  top: 0px;
+  right: 60px;
+  border-right: medium none;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  font-size: 130%;
+  height: 36px;
+  line-height: 36px;
+}
+#creativeCommonsImageSearchForm .searchButton {
+  width: 60px;
+  box-sizing: border-box;rch
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  position: absolute;
+  top: 0; right: 0;
+  padding: 6px;
+  font-weight: bold;
+  padding: 0;
+  height: 36px;
+  line-height: 36px;
+}
+#creativeCommonsImageSearchForm .searchButton:focus,
+#creativeCommonsImageSearchForm .searchButton:active {
+  padding: 0px !important;
+}
+
+#queryselect {
+  overflow: hidden;
+}
+#creativeCommonsImageSearchForm select {
+  box-shadow: none;
+  background: transparent;
+  background-image: none;
+  -webkit-appearance: none;
+}
+#creativeCommonsImageSearchForm select:focus {
+  outline: none;
+}
+
+/* search results */
+
+#creativeCommonsImageSearchResults {
+}
+
+
+#creativeCommonsImageSearchResults * {
+  white-space: normal !important;
+}
+
+#creativeCommonsImageSearchResults .pagination {
+  overflow: hidden;
+  padding: 1px;
+}
+#creativeCommonsImageSearchResults .pages {
+  max-height: 350px;
+  overflow-y: auto;
+  margin: 3px 0 3px 0;
+}
+#creativeCommonsImageSearchResults .page {
+
+}
+#creativeCommonsImageSearchResults .pageNum {
+  float: left;
+  display: block;
+  border: 1px solid #CCC;
+  margin: 2px;
+  padding: 3px 5px;
+}
+
+#creativeCommonsImageSearchResults li {
+  text-align: center;
+  list-style: none;
+  margin: 3px;
+  padding: 0;
+  width: 100px;
+  float: left;
+  padding: 5px;
+  border: 1px solid #ccc;
+}
+#creativeCommonsImageSearchResults img {
+  max-width: 100px;
+  max-height: 100px;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+}
+#creativeCommonsImageSearchResults .sizes {
+  display: block;
+  text-align: center;
+  padding: 5px;
+}
+#creativeCommonsImageSearchResults .sizes a {
+  padding: 3px;
+  cursor: pointer;
+}
+#creativeCommonsImageSearchResults .sizes a:hover {
+  color: #ccc;
+}
+#creativeCommonsImageSearchResults .square {
+  font-family: FontAwesome;
+}

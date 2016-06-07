@@ -1,0 +1,9 @@
+img.cke_solo_citation {
+  background: #fff;
+  background-image: url('../icons/placeholder.png');
+  background-position: center center;
+  background-repeat: no-repeat;
+  border: 1px solid #a9a9a9;
+  width: 80px;
+  height: 80px;
+}

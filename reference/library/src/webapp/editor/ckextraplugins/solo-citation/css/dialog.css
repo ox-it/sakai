@@ -1,0 +1,78 @@
+/* search form */
+#soloCitationDialog h2 {
+  font-size: 120%;
+  font-weight: bold;
+  white-space: normal !important;
+}
+#soloCitationDialog p {
+  margin: 5px 5px 15px 0;
+  white-space: normal !important;
+}
+#soloSearchIframe {
+  width: 100%;
+  height: 200px;
+}
+#soloSearchForm .searchquery {
+  line-height: 30px;
+}
+#soloSearchForm input {
+  display: block;
+  margin: 0 0 3px 0 !important;
+}
+#soloSearchForm .searchquery, .searchbutton {
+  font-size: 130%;
+  height: 30px;
+}
+#soloSearchForm .searchbutton {
+  width: 100%;
+  height: 40px;
+  line-height: 31px;
+  box-sizing: border-box;
+}
+#soloSearchForm .searchbutton:focus, .searchbutton:active {
+
+}
+
+/* search results */
+#soloSearchResults * {
+  white-space: normal !important;
+}
+
+#soloSearchResults .pagination {
+  overflow: hidden;
+  padding: 1px;
+}
+#soloSearchResults .pages {
+  max-height: 350px;
+  width: 350px;
+  overflow-y: auto;
+  margin: 3px 0 3px 0;
+}
+#soloSearchResults .page {
+
+}
+#soloSearchResults .pageNum {
+  float: left;
+  display: block;
+  border: 1px solid #CCC;
+  margin: 2px;
+  padding: 3px 5px;
+}
+
+#soloSearchResults .result {
+  list-style-type: none;
+  margin: 3px;
+  padding: 5px;
+  border: 1px solid #ccc;
+}
+#soloSearchResults .result p {
+  margin: 0 0 3px 0;
+}
+#soloSearchResults .result b {
+  font-weight: bold;
+  width: 100px;
+}
+#soloSearchResults .result .title a {
+  font-weight: bold;
+  font-size: 13px;
+}

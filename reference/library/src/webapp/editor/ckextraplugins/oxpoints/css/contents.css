@@ -1,0 +1,9 @@
+img.cke_oxpoint {
+  background: #fff;
+  background-image: url('../icons/placeholder.png'); /* icon from http://simpleicon.com/map-marker-8.html */
+  background-position: center center;
+  background-repeat: no-repeat;
+  border: 1px solid #a9a9a9;
+  width: 80px;
+  height: 80px;
+}

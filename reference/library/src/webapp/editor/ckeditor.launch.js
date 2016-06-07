@@ -264,6 +264,14 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             setMainFrameHeightNow(window.name);
         }
     });
+  }
+
+  // finally, ajax call to blocked plugin list
+  getJSON('/direct/ckeditor-config/listBlockedPlugins.json', function(data) {
+    loadCKConfig(data);   // json successfully called
+  }, function(status) {
+    loadCKConfig(false);  // error calling json
+  });
 }
 
 sakai.editor.launch = sakai.editor.editors.ckeditor.launch;

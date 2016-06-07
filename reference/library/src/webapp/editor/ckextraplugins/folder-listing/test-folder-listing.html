@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://rawgit.com/ox-it/wl-ck-plugins/folder-listing/lib/ckeditor/ckeditor.js"></script>
+    <script src="https://rawgit.com/ox-it/wl-ck-plugins/folder-listing/folder-listing/js/file-tree.js"></script>
+    <script src="js/folder-listing.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/file-tree.css"/>
+    <title>Folder Listing Test</title>
+  </head>
+  <body>
+    <script>
+      $(document).ready(function() {
+        $('.listing').folderListing();
+      });
+    </script>
+    <h1>Folder Listing Example</h1>
+
+    <h2>My Workspace</h2>
+    <div class="listing" id="workspace" data-files="true" data-description="true" data-copyright="true" data-folder-listing data-directory="/user/113869" data-multifolder="true">
+    </div>
+
+    <h2>Philosophy Faculty Resources</h2>
+    <div class="listing" id="phil" data-folder-listing data-directory="/group/f1c7be40-421b-474f-8b51-d85b781e399d" data-multifolder="false">
+    </div>
+
+    <h2>Philosophy Faculty Resources/Michaelmas Term 2013</h2>
+    <div class="listing" id="m2013" data-folder-listing data-directory="/group/f1c7be40-421b-474f-8b51-d85b781e399d/Michaelmas Term 2013" data-multifolder="false">
+    </div>
+
+    <h2>Philosophy Faculty Resources/Michaelmas Term 2013/General Philosophy</h2>
+    <div class="listing" id="gphil" data-folder-listing data-directory="/group/f1c7be40-421b-474f-8b51-d85b781e399d/Michaelmas Term 2013/General Philosophy" data-multifolder="true">
+    </div>
+  </body>
+</html>

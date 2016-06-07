@@ -1,0 +1,28 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CKEditor YouTube Search Plugin Example</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="../lib/ckeditor/ckeditor.js"></script>
+    <script src="../lib/ckeditor/create-remove-editor.js"></script>
+    <link rel="stylesheet" href="../lib/ckeditor/samples/sample.css">
+  </head>
+  <body>
+    <h1 class="samples">CKEditor YouTube Search Plugin Example</h1>
+    <p>
+      <input onclick="createEditor('editor', [ { id: 'youtube', dir: getCurrentDirectory() } ]);" type="button" value="Create Editor">
+      <input onclick="removeEditor();" type="button" value="Remove Editor">
+    </p>
+    <div id="editor">
+    </div>
+    <div id="contents" style="display: none">
+      <p>Edited Contents:</p>
+      <div id="editorcontents"></div>
+    </div>
+    <div id="footer">
+      <hr>
+      <p> CKEditor - The text editor for the Internet - <a class="samples" href="http://ckeditor.com/">http://ckeditor.com</a></p>
+      <p id="copy">All rights reserved. File adapted from ajax.html example from CKEditor site.</p>
+    </div>
+  </body>
+</html>

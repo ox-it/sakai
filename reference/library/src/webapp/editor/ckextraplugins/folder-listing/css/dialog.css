@@ -1,0 +1,22 @@
+#folderListingDialog h2 {
+  font-size: 120%;
+  font-weight: bold;
+  white-space: normal !important;
+}
+#folderListingDialog p {
+  margin: 5px 5px 15px 0;
+  white-space: normal !important;
+}
+#folderListingDialog .cke_dialog_ui_input_select {
+  width: 100%;
+}
+
+#folderListingDialog label {
+  white-space: normal !important;
+}
+
+#folderListingDialog .folder_listing_preview {
+  max-width: 350px;
+  max-height: 200px;
+  overflow-y: auto;
+}
