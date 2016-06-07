@@ -717,6 +717,34 @@ function browserSafeDocHeight() {
 	return Math.max(winHeight,docHeight); 
 }
 
+// In the absence of jQuery, add an event listener
+function addEvent(element, event, fn) {
+    if (element.addEventListener) {
+        element.addEventListener(event, fn, false);
+    } else if (element.attachEvent) {
+        // IE 8
+        element.attachEvent('on' + event, fn);
+    }
+}
+// Fix for mixed content blocked in Firefox and IE
+// This event is added to every page; we could be more selective about where it is included.
+function forceLinksInNewWindow() {
+    addEvent(window, 'load', function(event){
+        if (window.top != window.self) {
+            // I am in an iframe
+            links = window.self.document.getElementsByTagName('a');
+            for(var i = 0; i < links.length; ++i) {
+                link = links[i]
+                if(link.href && link.href.match(/^http:/)) {
+                    if(link.target == '' || link.target.match(/_self|_parent/)) {
+                        link.target = '_blank';
+                    }
+                }
+            }
+        }
+    });
+}
+
 function supports_history_api() {
 	return !!(window.history && history.pushState);
 }
