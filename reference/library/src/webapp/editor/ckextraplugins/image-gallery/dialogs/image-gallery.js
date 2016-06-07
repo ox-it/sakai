@@ -65,8 +65,6 @@ CKEDITOR.dialog.add('imageGalleryDialog', function(editor) {
                 var directory = field.getValue();
                 var preview = $('#imageGalleryDialog .folder_listing_preview');
 
-                dialog.setValueOf('settings', 'directory', '');
-
                 bindFolderListingToPreview(preview, dialog, directory, false, path);
               });
             },
@@ -95,7 +93,7 @@ CKEDITOR.dialog.add('imageGalleryDialog', function(editor) {
           {
             type: 'text',
             id: 'directory',
-            label: 'Active directory',
+            label: 'Folder containing images',
             setup: function(element) {
               var dirPath = getDirectoryFromPath(element.getAttribute('data-directory'));
               this.setValue(dirPath);
@@ -108,9 +106,21 @@ CKEDITOR.dialog.add('imageGalleryDialog', function(editor) {
             }
           },
           {
+              type: 'text',
+              id: 'description',
+              label: 'Description',
+              className: 'hide',
+              setup: function(element) {
+                  this.setValue(element.getAttribute('data-description'));
+              },
+              commit: function(element) {
+                  element.setAttribute('data-description', this.getValue());
+              }
+          },
+          {
             type: 'text',
             id: 'rel',
-            label: 'Gallery ID',
+            label: 'Slideshow ID (optional)',
             className: 'rel',
             onLoad: function() {
               $('#imageGalleryDialog .rel input').attr('placeholder', 'Short identifier for images in this gallery');
@@ -151,7 +161,7 @@ CKEDITOR.dialog.add('imageGalleryDialog', function(editor) {
               {
                 type: 'text',
                 id: 'slideshow-speed',
-                label: 'Slideshow Speed (ms)',
+                label: 'Slideshow Speed (secs)',
                 className: 'slideshowSpeed',
                 onLoad: function() {
                   $('#imageGalleryDialog .slideshowSpeed input').attr('placeholder', '0 to disable slideshow');
@@ -185,6 +195,7 @@ CKEDITOR.dialog.add('imageGalleryDialog', function(editor) {
       } else {
         this.insertMode = true;
       }
+      $('.available_sites select').trigger('change');
     },
 
     onOk: function() {

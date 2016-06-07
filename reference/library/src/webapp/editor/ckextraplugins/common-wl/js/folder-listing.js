@@ -53,11 +53,12 @@ $.fn.folderListing = function(options) {
       }
 
       // adding the description
-      if ($div.data('description') && file['description']) {
+      if (file['description']) {
         var description = $('<div/>').addClass('description').html(file['description']).hide();
         var descriptionIcon = $('<span/>').addClass('description');
 
-        a.find('.icons').append(descriptionIcon);
+        a.attr('id', file['description']).find('.icons').append(descriptionIcon);
+
         li.find('.tooltips').append(description);
       }
 

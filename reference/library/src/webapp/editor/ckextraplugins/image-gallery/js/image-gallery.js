@@ -37,6 +37,7 @@ $.fn.wlImageGallery = function(options) {
 
   var getSettingsFromContainer = function(i, $container) {
     var slideshowSpeed = $container.data('slideshowspeed') || settings.slideshowSpeed;
+    if (slideshowSpeed!=null && slideshowSpeed>0) slideshowSpeed = slideshowSpeed*1000;
     var slideshow = (slideshowSpeed && slideshowSpeed > 0) || settings.slideshow;
     var maxHeight = $container.data('maxheight') || settings.maxHeight;
     var maxWidth = $container.data('maxwidth') || settings.maxWidth;
@@ -129,6 +130,7 @@ $.fn.wlImageGallery = function(options) {
   return this.each(function(i, container) {
     var $this = $(container);
 
+    $this.prepend('<div style="text-align: center;"><p><b>' + $this.data('description') + '</b></p><p><i>Click on an image to start a slide show<i></p></div>');
     displayGallery(i, $this, $this.data('directory'));
   });
 };

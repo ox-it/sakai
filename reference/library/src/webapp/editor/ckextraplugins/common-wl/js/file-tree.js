@@ -128,7 +128,7 @@ $.fn.fileTree = function(options) {
           $parent.removeClass('expanded').addClass('collapsed');
         }
 
-        settings.onFolderEvent($this.attr('rel'));
+        settings.onFolderEvent($this);
       } else {
         settings.onFileEvent($this.attr('rel'));
       }

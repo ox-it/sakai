@@ -23,3 +23,7 @@
   max-height: 200px;
   overflow: auto;
 }
+
+#imageGalleryDialog .hide {
+	display: none;
+}

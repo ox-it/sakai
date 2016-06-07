@@ -7,9 +7,12 @@ var bindFolderListingToPreview = function($preview, dialog, fullPath, openToFold
       onFileEvent: function(file) {
         window.open(file);
       },
-      onFolderEvent: function(folder) {
+      onFolderEvent: function(folderCollectionId) {
+        var folder = folderCollectionId.attr('rel');
         var directory = getDirectoryFromPath(folder);
         dialog.setValueOf('settings', 'directory', directory);
+        var description = folderCollectionId.attr('id');
+        dialog.setValueOf('settings', 'description', description);
       },
     });
 };
