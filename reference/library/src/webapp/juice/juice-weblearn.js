@@ -43,6 +43,20 @@ function runExtensions(){
 			 */
 			
 			new daiaAvailability(juice,insert_avail,"availability","primo_ids",availServer,"print","jsonp",1,expandIcon,collapseIcon);
+
+			// Add direct links to Solo based on the primoIds.
+			var ids = juice.getMetaValues("primo_ids");
+			var soloInsert = new JuiceInsert('<span class="solo"></span>', "span.Z3988","before");
+					
+			for(var i=0; i < ids.length; i++){
+				// check there is a valid id to use
+				soloInsert.show(i);
+				if (ids[i] != "undefined" && ids[i].length >0) {
+					var url = decodeURIComponent(ids[i]);
+					var inserted = soloInsert.getInsertObject(i);
+					inserted.append('<a target="_new" href="'+ url+ '">Solo</a>');
+				}
+			}
 		}
 		if(juice.hasMeta("coins")) {
 			// ****************	
