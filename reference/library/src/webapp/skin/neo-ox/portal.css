@@ -1227,7 +1227,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     background-position: -558px -504px;
 }
 .icon-sakai-subsite {
-    background-position: -288px -108px;
+    background: url(images/subsite.png);
 }
 .icon-sakai-iframe-service {
     background-position: -162px -252px;
