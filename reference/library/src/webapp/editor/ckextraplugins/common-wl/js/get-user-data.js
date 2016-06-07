@@ -1,28 +1,11 @@
-// methods for getting the user data
-var getCurrentUserData = function() {
-  var data = {};
-
-  $.ajax({
-    url: '/direct/user/current.json',
-    dataType: 'json',
-    async: false,
-    success: function(json) {
-      data = json;
-    }
-  });
-
-  return data;
-};
-
+// methods for getting the current site data
 var getAvailableSites = function() {
-  var sites = [['Select a site', '']];
+    var sites = [];
+    var groupPath = '/group/';
+    var forwardSlash = '/';
+    var currentSiteId = sakai.editor.collectionId.replace(groupPath, '').replace(forwardSlash,'');
 
-  // my workspace
-  if (currentUser.eid) {
-    sites.push(['My Workspace', '/user/' + currentUser.id + '/']);
-  }
-
-  // all other sites
+    // all other sites
   $.ajax({
     url: '/direct/site.json',
     dataType: 'json',
@@ -32,12 +15,12 @@ var getAvailableSites = function() {
 
       for (i in data) {
         var site = data[i];
-        sites.push([site.title, '/group/' + site.entityId + '/']);
+        if (site.id==currentSiteId){
+            sites.push([site.title, groupPath + site.entityId + forwardSlash]);
+        }
       }
     }
   });
 
   return sites;
 };
-
-var currentUser = getCurrentUserData();

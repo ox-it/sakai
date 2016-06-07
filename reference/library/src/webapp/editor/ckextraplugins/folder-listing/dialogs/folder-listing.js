@@ -175,6 +175,8 @@ CKEDITOR.dialog.add('folderListingDialog', function(editor) {
       } else {
         this.insertMode = true;
       }
+      $('.available_sites select').trigger('change');
+
     },
 
     onOk: function() {

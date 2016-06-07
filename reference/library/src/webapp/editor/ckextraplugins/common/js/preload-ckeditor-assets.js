@@ -11,19 +11,27 @@
     var stylesheets = $('.ckeditorPluginAsset.stylesheet');
 
     /** functions */
-    // push scripts into the head
+    // push unique scripts into the head
+    var uniqueSrcs = [];
     var loadScripts = function($container, $scripts) {
       $scripts.each(function(i) {
         var src = $(this).attr('data-src');
-        $container.append($('<script>').attr({'type' : 'text/javascript', 'src' : src}));
+        if ($.inArray(src, uniqueSrcs) === -1){
+            uniqueSrcs.push(src);
+            $container.append($('<script>').attr({'type' : 'text/javascript', 'src' : src}));
+        }
       });
     };
 
-    // push css into the head
-    var loadStyleSheets = function($container, $stylesheets) {
+    // push unique css into the head
+      var uniqueHrefs= [];
+      var loadStyleSheets = function($container, $stylesheets) {
       $stylesheets.each(function(i) {
         var href = $(this).attr('data-href');
-        $container.append($('<link>').attr({'type' : 'text/css', 'rel' : 'stylesheet', 'href' : href}));
+        if ($.inArray(href, uniqueHrefs) === -1) {
+            uniqueHrefs.push(href);
+            $container.append($('<link>').attr({'type': 'text/css', 'rel': 'stylesheet', 'href': href}));
+        }
       });
     };
 
