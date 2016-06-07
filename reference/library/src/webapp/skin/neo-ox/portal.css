@@ -797,6 +797,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 /* the current tool */
 #toolMenu li.selectedTool a {
     color: #155FB5 !important;
+    background:none repeat scroll 0 0 #fff;
     cursor: default;
 }
 /* eliminate the normal hover effect when it is current tool */
