@@ -443,13 +443,19 @@ function PodcastPickerInit(o) {
     function main() {  
         $('#podcast_sort_by-' + OPTIONS['defaultSortField']).trigger('refresh');
         $('#podcast_search_box').trigger('search');
-        
+
+        // Define a function as we use it twice.
+        var scrollStop = function(e) {
+            if (_LoadNext_) chunkLoadPodcasts();
+            _LoadNext_ = false;
+            _MouseDown_ = false;
+        };
+
         // rig up scroll event
         ScrollContainer.scroll(function(e) {
             // scroll condition (note the -100 which loads stuff slightly earlier)
             if (ScrollContainer.scrollTop() >= DisplayContainer.height() - ScrollContainer.height() - 100) {
-                // allow on-mouse-up loading - strangely, this only works on firefox
-                if ($.browser.mozilla && _MouseDown_) {
+                if (_MouseDown_) {
                     _LoadNext_ = true;
                     LoadingElement.show();
                 } else chunkLoadPodcasts();
@@ -458,13 +464,13 @@ function PodcastPickerInit(o) {
         
         ScrollContainer.mousedown(function(e) {
             _MouseDown_ = true;
+            // This is a hack for IE which doesn't generate a mouseup event. We attach a mousemove handler which doesn't
+            // get fired while the scrollbar is moving, but then when the scrollbar is released it does and so loads
+            // the next set of data.
+            $(window).one('mousemove', scrollStop);
         });
         
-        ScrollContainer.mouseup(function(e) {
-            if (_LoadNext_) chunkLoadPodcasts();
-            _LoadNext_ = false;
-            _MouseDown_ = false;
-        });
+        ScrollContainer.mouseup(scrollStop);
         
         // call ready callback on a 'control object', a proxy to control the podcast picker
         OPTIONS['onReady']({
