@@ -327,6 +327,52 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
     text-decoration: none;
     color: #fff;
 }
+
+/* set up a mad dialogue box to advise people what preview site is all about */
+#switchRoleDialogue {
+    display: none;
+}
+
+#switchRoleDialogue .mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 9000;
+    background-color: #2d2d2d;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+#switchRoleDialogue .box {
+    position: fixed;
+    width: 40em;
+    z-index: 9999;
+    padding: 20px;
+    background-color: #fff;
+}
+
+#switchRoleDialogue .box p.img {
+    text-align: center;
+    margin: 2em;
+}
+
+#switchRoleDialogue .box p.img img {
+    width: 30em;
+    border: 5px solid #eee;
+}
+
+#switchRoleDialogue a.button {
+    text-decoration: none;
+    padding: 6px;
+    border-radius: 4px;
+    border: solid 1px #eee;
+    float: right;
+    margin: 0 2px;
+}
+
+#switchRoleDialogue a.button:hover {
+    background-color: #eee;
+}
+
 /* PART 3 - SITE NAVIGATION - children of #siteNavWrapper
 /* outer wrapper for the site navigation blocks and login and user menu for logged in users - it will also have a class with a value equiv to the site type, so any of 
  * the childen can be styled depending on the site type (course, project, etc). */
