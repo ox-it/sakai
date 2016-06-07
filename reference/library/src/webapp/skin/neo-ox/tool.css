@@ -1184,9 +1184,6 @@ ul.makeMenu li.menuClose a:hover {
     margin: 2px 0 0 2px;
     font-size: 1.3em;
 }
-#show-pages {
-    margin-top: -5px
-}
 /* ===[ New alerts ]=== */
 .validationEmbedded, .validation, .alertMessage {
     background: white url(../../image/silk/exclamation.png) 4px 4px no-repeat !important
