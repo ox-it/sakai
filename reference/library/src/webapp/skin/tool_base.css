@@ -539,7 +539,6 @@ input.upload{
 /*SECTION 9 MISC*/
 /*all purpose clearing action when nature of prec or following items floating nature is in doubt*/
 .clear {
-	margin: 1em 0;
 	clear: both;
 }
 
