@@ -690,6 +690,12 @@ ul.navIntraTool>li>span.separator, .navIntraTool>li>span:empty, span.navSeparato
     font-size: 1em;
     padding: 3px 4px !important;
 }
+
+/* Keep items from being swallowed from the left hand side */
+.portletBody {
+	margin-left: 4px;
+}
+
 #rwiki_container>.portletBody>form>.navIntraTool>li {
     display: inline !important
 }
