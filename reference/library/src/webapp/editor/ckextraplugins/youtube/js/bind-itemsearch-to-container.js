@@ -14,7 +14,7 @@ var BindYouTubeSearchToContainer = function(container, searchResults, result) {
       service: YouTubeSearchService,
       resultsContainer: searchResults,
       displayResult: result.display,
-      pagination: false,
+      pagination: 1
     });
 
     // add css classes

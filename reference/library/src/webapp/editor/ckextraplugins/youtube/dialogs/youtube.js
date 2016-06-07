@@ -92,6 +92,8 @@ CKEDITOR.dialog.add('youtubeDialog', function(editor) {
       } else {
         this.insertMode = true;
       }
+      // http://ckeditor.com/forums/CKEditor-3.x/IFrame-Dialog-Disabling-ok-and-false-buttons-doesnt-work
+      document.getElementById(this.getButton('ok').domId).style.display='none';
     },
 
     onOk: function() {

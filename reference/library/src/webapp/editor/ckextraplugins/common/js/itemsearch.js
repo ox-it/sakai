@@ -78,7 +78,22 @@ $.fn.itemSearch = function(options) {
 
     return html;
   };
-  
+
+  var appendBackButton = function(nav, currentPage, iFrameId){
+      nav.append($('<a/>').html('<span class="pageSpan">« Back</span>').attr({'id' : iFrameId, 'class': 'pageNum', 'href': '#', 'data-page': currentPage-1}));
+  };
+
+  var appendPageButtons = function(i, currentPage, pagesContainer, nav){
+      if (i == currentPage){
+          nav.append($('<a/>').html('<span class="pageSpan">' + i + '</span>').attr({'id' : iFrameId, 'class': 'pageNum currentPageNum', 'href': '#', 'data-page': i}));
+          pagesContainer.append($('<div/>').attr({'class': 'page', 'data-page': i}));
+      }
+      else {
+          nav.append($('<a/>').html('<span class="pageSpan">' + i + '</span>').attr({'id' : iFrameId, 'class': 'pageNum pageSpan', 'href': '#', 'data-page': i}));
+          pagesContainer.append($('<div/>').attr({'class': 'page', 'data-page': i}));
+      }
+  };
+
   var buildPaginatedResults = function(resultsHtml) {
     var results = $(resultsHtml);
         results = results.filter(function(result) {
@@ -91,28 +106,39 @@ $.fn.itemSearch = function(options) {
     var pagesContainer = $('<div/>').addClass('pages');
 
     // build page numbers and containers
-    for (i = 1; i <= pages; i++) {
-      nav.append($('<a/>').html(i).attr({'class': 'pageNum', 'href': '#', 'data-page': i}));
-      pagesContainer.append($('<div/>').attr({'class': 'page', 'data-page': i}));
-    };
 
+    var currentPage = $.fn.itemSearch.currentPage;
+    if (currentPage >= 1 && currentPage  <=4){
+      if (currentPage  > 1){
+          appendBackButton(nav, currentPage );
+      }
+      for (i = 1; i <= 7; i++) {
+          appendPageButtons(i, currentPage , pagesContainer, nav);
+      }
+    }
+    else {
+        appendBackButton(nav, currentPage, iFrameId );
+        for (i = currentPage-3; i <= currentPage +3; i++) {
+            appendPageButtons(i, currentPage , pagesContainer, nav);
+        }
+    }
+
+    nav.append($('<a/>').html('<span class="pageSpan">Next »</span>').attr({'id': iFrameId, 'class': 'pageNum ' + iFrameId, 'href': '#', 'data-page': currentPage +1}));
     container.append(pagesContainer);
 
     // now move results into the correct containers
     for (i = 0; i < results.length; i++) {
-      var page = Math.ceil((i+1) / settings.pagination);
-      container.find('.page[data-page="' + page + '"]').append(results[i]);
+      container.find('.page[data-page="' + currentPage + '"]').append(results[i]);
     }
 
-    $(document).on('click', '.pageNum', function() {
-      // find closest results container
+    $(document).off('click', '.pageNum').on('click', '.pageNum', function() {
+      // click search button with current page
       var $this = $(this);
-      var localContainer = $this.closest('.paginated-results');
       var page = $this.data('page');
 
-      localContainer.find('.page').hide();
-      localContainer.find('.page[data-page="' + page + '"]').show();
-
+      $.fn.itemSearch.currentPage = page;
+      var searchButton = $('#' + this.id).contents().find('a');
+      searchButton.click();
       return false;
     });
 
@@ -122,7 +148,7 @@ $.fn.itemSearch = function(options) {
 
     // show the first page
     container.find('.page').hide();
-    container.find('.page[data-page="1"]').show();
+    container.find('.page[data-page="' + $.fn.itemSearch.currentPage + '"]').show();
 
     return $('<div/>').append(container).html();
   };

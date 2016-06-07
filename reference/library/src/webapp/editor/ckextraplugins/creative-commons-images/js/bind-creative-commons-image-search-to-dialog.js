@@ -40,7 +40,7 @@ var BindCreativeCommonsImageSearchToDialog = function(path, dialog) {
   // now initialize iframe which will isolate the search field (so we can submit
   // the form without closing the dialog)
   var pushFormIntoIframe = function() {
-    var iframe = $('<iframe src="about:blank"></iframe>').attr('id', 'creativeCommonsImageSearchIframe');
+    var iframe = $('<iframe src="about:blank"></iframe>').attr({ id:"creativeCommonsImageSearchIframe", style:"height: 50px; width: 100%;" });
     container.after(iframe);
 
     iframe.load(function() {

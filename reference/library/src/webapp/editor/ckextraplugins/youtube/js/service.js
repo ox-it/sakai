@@ -29,8 +29,9 @@ var YouTubeSearchService = function(options) {
       key: key,
       part: 'snippet',
       order: 'relevance',
-      maxResults: '5',
-      type: 'video',
+      pageToken : settings.pageToken,
+      maxResults: '25',
+      type: 'video'
     }, settings)
   }
 
@@ -50,6 +51,31 @@ var YouTubeSearchService = function(options) {
     });
   }
 
+  var resetTokensIfNewSearchTerm = function(currentSearchTerm, searchTerm){
+      if (currentSearchTerm != searchTerm){
+          $.fn.itemSearch.pageTokens = new Array();
+          $.fn.itemSearch.currentPage = 1;
+          $.fn.itemSearch.pageTokens[1] = '';
+      }
+      $.fn.itemSearch.currentSearchTerm = searchTerm;
+  };
+
+  var setNextPageToken = function(url, searchTerm, pageTokens, i){
+      if (pageTokens[i+1]==null) {
+          $.ajax({
+              url: url,
+              data: prepareQueryParams({q: searchTerm, pageToken: pageTokens[i]}),
+              dataType: 'json',
+              async: false,
+              success: function (json) {
+                  if (json.items.length > 0) {
+                      pageTokens[i + 1] = json.nextPageToken;
+                  }
+              }
+          });
+      }
+  };
+
   // takes search term (string) and returns array of objects representing the
   // search results from YouTube
   this.performQuery = function(searchTerm) {
@@ -57,18 +83,36 @@ var YouTubeSearchService = function(options) {
       throw 'NoYouTubeApiKeySpecified';
     }
 
+    resetTokensIfNewSearchTerm($.fn.itemSearch.currentSearchTerm, searchTerm);
+    var pageTokens = $.fn.itemSearch.pageTokens;
+    var currentPage = $.fn.itemSearch.currentPage;
     var results = [];
 
     $.ajax({
       url: url,
-      data: prepareQueryParams({q: searchTerm}),
+      data: prepareQueryParams({q: searchTerm, pageToken: pageTokens[currentPage]}),
       dataType: 'json',
       async: false,
       success: function(json) {
         if (json.items.length > 0) {
-          // go through each result, formatting them for VideoSearch
-          $.each(json.items, function(key, item) {
-            formatResult(item, results);
+            pageTokens[currentPage+1] = json.nextPageToken;
+
+            // if they've clicked on page 1, then get the tokens for the pages up to 7
+            if (currentPage == 1) {
+                for (var i = 2; i <= 6; i++) {
+                    setNextPageToken(url, searchTerm, pageTokens, i);
+                }
+            }
+            // if they've clicked on page 5 or above, get the tokens for the previous 3 pages and the next 3 pages
+            else if (currentPage >= 5){
+                for (var i = currentPage-3; i <= currentPage+2; i++) {
+                    setNextPageToken(url, searchTerm, pageTokens, i);
+                }
+            }
+
+            // go through each result, formatting them for VideoSearch
+            $.each(json.items, function(key, item) {
+                formatResult(item, results);
           });
         }
       }
