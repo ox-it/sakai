@@ -146,7 +146,7 @@ $.fn.oxamEmbed = function(options) {
     }
 
     showing.addClass('showing');
-    showing.html('<span>' + showing.html() + '</span>');
+    showing.html('<br/><br/><span>' + showing.html() + '</span>');
     showing.append($('<div/>').append(goToOxam).html());
 
     return $html;
