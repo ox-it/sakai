@@ -542,7 +542,7 @@ li.more-tab a span {
     padding: 0 0 15px 0;
     position: absolute;
     right: 4px;
-    top: 0;
+    top: 34px;
     vertical-align: middle;
     width: 80%;
     z-index: 9999;
@@ -630,7 +630,7 @@ ul#otherSiteList {
     max-height: 315px;
     overflow: auto;
 }
-ul.otherSitesCategorList {
+ul.otherSitesCategorList, ul.otherQuickLinksCategorList {
     float:none;
     clear: both;
     height:100%;
@@ -641,7 +641,7 @@ ul.otherSitesCategorList {
  * is a lot of commonalities they are both mixed up here. The flat view container is ul#otherSiteList and the categorized one is
  *  ul.otherSitesCategorList. This last one will appear once per each category
  */
-ul#otherSiteList li, ul.otherSitesCategorList li {
+ul#otherSiteList li, ul.otherSitesCategorList li, ul.otherQuickLinksCategorList li {
     background: #fff;
     position: relative;
     border-radius: 5px;
@@ -654,20 +654,57 @@ ul#otherSiteList li, ul.otherSitesCategorList li {
     float: left;
     display: block;
 }
-ul#otherSiteList li a, ul.otherSitesCategorList li a {
+/* container for tray that opens when "Quick Links" is activated */
+#selectQuickLinks {
+    background: #f3f3f3;
+    border-width: 0;
+    border: 1px solid #888;
+    color: #000;
+    left: 69%;
+    line-height: 1.5em;
+    padding: 0 15px 15px 0;
+    position: absolute;
+    right: 4px;
+    top: 34px;
+    vertical-align: middle;
+    width: 14em;
+    z-index: 9999;
+    border-radius: 0px 0px 5px 5px;
+    -moz-border-radius: 0px 0px 5px 5px;
+    -webkit-border-radius: 0px 0px 5px 5px;
+    box-shadow: 0 0 10px #555;
+    -moz-box-shadow: 0 0 10px #555;
+    -webkit-box-shadow: 0 0 10px #555;
+}
+ul.otherQuickLinksCategorList li {
+    width: 12em;
+    line-height: 1.2em;
+}
+ul.otherQuickLinksCategorList {
+    float:right;
+}
+#quickLinksIcon {
+    width: 16px;
+    right: auto;
+    top: 2px;
+}
+.quickLinksText {
+    margin-left: 30px;
+}
+ul#otherSiteList li a, ul.otherSitesCategorList li a, ul.otherQuickLinksCategorList li a {
     display: block;
     padding: 8px;
     text-decoration: none;
     color: #000;
     white-space: nowrap;
 }
-ul#otherSiteList li a:hover, ul.otherSitesCategorList li a:hover {
+ul#otherSiteList li a:hover, ul.otherSitesCategorList li a:hover, ul.otherQuickLinksCategorList li a:hover {
      font-weight: bold;
  }
-ul#otherSiteList li a:focus span, ul.otherSitesCategorList li a:focus span {
+ul#otherSiteList li a:focus span, ul.otherSitesCategorList li a:focus span, ul.otherQuickLinksCategorList li a:focus span {
     outline: 1px dotted #fff;
 }
-ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
+ul#otherSiteList li a span, ul.otherSitesCategorList li a span, ul.otherQuickLinksCategorList li a span {
     width: 14em;
     display: block;
     overflow: hidden;
