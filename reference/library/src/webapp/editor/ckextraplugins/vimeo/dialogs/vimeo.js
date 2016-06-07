@@ -7,6 +7,7 @@ var path = h.path;
 var pathCommon = (path + '~').replace('vimeo/~', 'common/');
 
 // load css and javascript files
+CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(pathCommon + 'css/dialog.css'));
 CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(path + 'css/dialog.css'));
 
 CKEDITOR.scriptLoader.load(pathCommon + 'js/itemsearch.js');
@@ -92,6 +93,8 @@ CKEDITOR.dialog.add('vimeoDialog', function(editor) {
       } else {
         this.insertMode = true;
       }
+        // http://ckeditor.com/forums/CKEditor-3.x/IFrame-Dialog-Disabling-ok-and-false-buttons-doesnt-work
+        document.getElementById(this.getButton('ok').domId).style.display='none';
     },
 
     onOk: function() {

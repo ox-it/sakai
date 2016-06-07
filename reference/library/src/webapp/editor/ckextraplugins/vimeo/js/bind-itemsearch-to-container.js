@@ -13,7 +13,7 @@ var BindVimeoSearchToContainer = function(container, searchResults, result) {
       service: VimeoSearchService,
       resultsContainer: searchResults,
       displayResult: result.display,
-      pagination: false,
+      pagination: 1
     });
 
     container.find('input').addClass('searchQuery cke_dialog_ui_input_text')

@@ -7,6 +7,7 @@ var path = h.path;
 var pathCommon = (path + '~').replace('youtube/~', 'common/');
 
 // load css and javascript files
+CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(pathCommon + 'css/dialog.css'));
 CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(path + 'css/dialog.css'));
 
 CKEDITOR.scriptLoader.load(pathCommon + 'js/itemsearch.js');

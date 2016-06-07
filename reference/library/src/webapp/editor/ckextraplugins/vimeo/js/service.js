@@ -35,17 +35,26 @@ var VimeoSearchService = function(options) {
         more: result
       }
     });
-  }
+  };
+
+  var resetTokensIfNewSearchTerm = function(currentSearchTerm, searchTerm){
+      if (currentSearchTerm != searchTerm){
+          $.fn.itemSearch.currentPage = 1;
+      }
+      $.fn.itemSearch.currentSearchTerm = searchTerm;
+  };
 
   // takes search term (string) and returns array of objects representing the
   // search results from Vimeo
   this.performQuery = function(searchTerm) {
 
-    var results = [];
+      resetTokensIfNewSearchTerm($.fn.itemSearch.currentSearchTerm, searchTerm);
+      var currentPage = $.fn.itemSearch.currentPage;
+      var results = [];
 
     $.ajax({
       url: url,
-      data: { 'tool_id': 'vimeo', query: searchTerm },
+      data: { 'tool_id': 'vimeo', query: searchTerm, page : currentPage },
       type: 'POST',
       dataType: 'json',
       async: false,
