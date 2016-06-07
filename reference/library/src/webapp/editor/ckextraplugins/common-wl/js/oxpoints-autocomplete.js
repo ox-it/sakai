@@ -93,10 +93,16 @@ $.fn.oxPointsAutoComplete = function(options) {
           var $this = $(this);
 
           // for jQuery < 1.9
-          $this.data('autocomplete').menu.element.addClass(options.classes);
+          var auto = $this.data('autocomplete');
+          if (auto!=null){
+              auto.menu.element.addClass(options.classes);
+          }
 
           // for jQuery >= 1.9
-          $this.data('uiAutocomplete').menu.element.addClass(options.classes);
+            var uiAuto = $this.data('uiAutocomplete');
+            if (uiAuto!=null) {
+                uiAuto.menu.element.addClass(options.classes);
+            }
         }
       },
       select: function(event, ui) {

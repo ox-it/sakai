@@ -9,6 +9,7 @@ var pathCommonWl = (path + '~').replace('researcher-training-tool/~', 'common-wl
 
 // load css and javascript files
 CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(path + 'css/dialog.css'));
+CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(pathCommon + 'css/dialog.css'));
 CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(pathCommon + 'css/jquery-ui.css'));
 
 // fix for $.browser being undefined in jQuery 1.9+ for datepicker
@@ -67,13 +68,15 @@ CKEDITOR.dialog.add('researcherTrainingToolDialog', function(editor) {
                 classes: 'researcher-training-tool-autocomplete',
                 select: function(event, ui) {
                   input.attr('data-uri', ui.item.uri);
+                  input.data('uri', ui.item.uri);
                   input.attr('data-name', input.val());
                 }
               });
             },
             setup: function(element) {
               var uri = element.getAttribute('data-providedBy');
-              this.setValue(uri);
+              var name = element.getAttribute('data-providedByName');
+              this.setValue(name);
               $('#researcherTrainingToolDialog .oxpoint_autocomplete input').attr('data-uri', uri);
             },
             commit: function(element) {
@@ -85,56 +88,18 @@ CKEDITOR.dialog.add('researcherTrainingToolDialog', function(editor) {
               else
                 value = this.getValue();
 
-              if (value)
+              if (value){
                 element.setAttribute('data-providedBy', value);
-              else if (!this.insertMode)
+                  var providedByName = $('#researcherTrainingToolDialog .oxpoint_autocomplete input').val();
+                  element.setAttribute('data-providedByName', providedByName);
+              }
+              else if (!this.insertMode) {
                 element.removeAttribute('data-providedBy');
+                  element.removeAttribute('data-providedByName');
             }
-          },
-          {
-            type: 'hbox',
-            widths: ['50%', '50%'],
-            children: [
-              {
-                type: 'text',
-                id: 'starting-after',
-                label: 'Starting After',
-                className: 'cke_datepicker',
-                setup: function(element) {
-                  // parse date from the full string (everything prior to the T)
-                  var date = getCourseDate(element.getAttribute('data-startingAfter'));
-                  this.setValue(date);
-                },
-                commit: function(element) {
-                  var date = this.getValue();
-
-                  if (date)
-                    element.setAttribute('data-startingAfter', date + 'T00:00:00');
-                  else if (!this.insertMode)
-                    element.setAttribute('data-startingAfter', '')
                 }
               },
               {
-                type: 'text',
-                id: 'starting-before',
-                label: 'Starting Before',
-                className: 'cke_datepicker',
-                setup: function(element) {
-                  var date = getCourseDate(element.getAttribute('data-startingBefore'));
-                  this.setValue(date);
-                },
-                commit: function(element) {
-                  var date = this.getValue();
-
-                  if (date)
-                    element.setAttribute('data-startingBefore', date + 'T00:00:00');
-                  else if (!this.insertMode)
-                    element.removeAttribute('data-startingBefore');
-                }
-              }
-            ]
-          },
-          {
             type: 'hbox',
             widths: ['40%', '40%', '20%'],
             children: [
@@ -242,7 +207,7 @@ CKEDITOR.dialog.add('researcherTrainingToolDialog', function(editor) {
                 type: 'select',
                 id: 'display-columns',
                 label: 'Columns to display',
-                className: 'select_multiple',
+                className: 'select_multiple select_display_columns',
                 multiple: true,
                 items: [
                   ['Start', 'start'],
@@ -327,6 +292,9 @@ CKEDITOR.dialog.add('researcherTrainingToolDialog', function(editor) {
         this.setupContent(this.node);
       } else {
         this.insertMode = true;
+        $('#researcherTrainingToolDialog .select_display_columns select option[value="start"]').attr("selected", true);
+        $('#researcherTrainingToolDialog .select_display_columns select option[value="title"]').attr("selected", true);
+        $('#researcherTrainingToolDialog .select_display_columns select option[value="provider"]').attr("selected", true);
       }
     },
 
@@ -334,6 +302,15 @@ CKEDITOR.dialog.add('researcherTrainingToolDialog', function(editor) {
       var node = (!this.fakeImage)? new CKEDITOR.dom.element('div') : this.node;
       node.setAttribute('data-researcher-training-tool', 'true');
       node.setAttribute('class', 'courses-widget-container');
+
+      var currentDate = new Date();
+      var day = currentDate.getDate();
+      if (day.toString().length==1) day = '0' + day;
+      var month = currentDate.getMonth() + 1;
+      if (month.toString().length==1) month = '0' + month;
+      var year = currentDate.getFullYear();
+      var date = year + "-" + month + "-" + day;
+      node.setAttribute('data-startingAfter', date + 'T00:00:00');
 
       // commit the content to the node
       this.commitContent(node);
