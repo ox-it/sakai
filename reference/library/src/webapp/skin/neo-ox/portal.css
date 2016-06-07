@@ -215,7 +215,7 @@ guests, for example */
     margin: 0 5px;
 }
 /* main rendering for all links and the submit button */
-#loginLink1, #loginLink2, form#loginForm input#submit {
+#loginLink1, #loginLink2, form#loginForm input#submit, #roleSwitchAnchor {
     display: block;
     border-radius: 5px;
     padding: 4px 6px;
@@ -315,18 +315,17 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
 /* #mastLogin can also contain controls to toggle in/out of different roles #roleSwitch is the container for: a selct menu, links */
 #roleSwitch {
     float: left;
-    padding: 0 5px;
+    padding: 5px 0;
 }
 #roleSwitch select {
     font-size: 0.9em;
 }
 #roleSwitch a#roleSwitchAnchor:hover {
-    text-decoration: underline;
+    background-color: #000;
 }
 #roleSwitch label, #roleSwitch a#roleSwitchAnchor {
     text-decoration: none;
     color: #fff;
-    padding: 0 5px;
 }
 /* PART 3 - SITE NAVIGATION - children of #siteNavWrapper
 /* outer wrapper for the site navigation blocks and login and user menu for logged in users - it will also have a class with a value equiv to the site type, so any of 
