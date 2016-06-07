@@ -1669,7 +1669,7 @@ div#privacy_overlay {
     width: 1px !important; 
     overflow: hidden !important;
     top: 0px !important;
-    left: 0px; 
+    left: -999px;
     padding: 0px 0px 0px 0px !important;
 } 
 
