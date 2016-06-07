@@ -1273,6 +1273,12 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 .icon-sakai-subsite {
     background: url(images/subsite.png);
 }
+.icon-sakai-redirect-external{
+    background-position: -576px -270px;
+}
+.icon-sakai-redirect-internal{
+    background-position: -468px -270px;
+}
 .icon-sakai-iframe-service {
     background-position: -162px -252px;
 }
