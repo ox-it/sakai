@@ -108,7 +108,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             "attemptAllowed" : Number.MAX_VALUE,
             "attemptsRemaining": Number.MAX_VALUE
         },
-        skin: 'moono',
+        skin: 'moonocolor',
         defaultLanguage: 'en',
         allowedContent: true, // http://docs.ckeditor.com/#!/guide/dev_advanced_content_filter-section-3
         language: language + (country ? '-' + country.toLowerCase() : ''),
