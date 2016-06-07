@@ -5,7 +5,8 @@ $(document).ready(function(){
 		if (currentWindow && currentWindow.parent && currentWindow.name != "") {
 			var frame = currentWindow.parent.document.getElementById(currentWindow.name);
 			if (frame) {
-				var clientH = currentWindow.document.body.clientHeight + 10;
+				// The fudge of 40 pixel is from the original in headscripts.js
+				var clientH = currentWindow.document.body.clientHeight + 40;
 				$(frame).height(clientH);
 				// This is because the web content tool puts an iframe inside an iframe
 				// So we recurse up through them.
