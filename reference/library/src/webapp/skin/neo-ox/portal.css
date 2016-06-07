@@ -969,12 +969,12 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     padding-right: 1em
 }
 #col1of2 {
-    width: 49%;
+    width: 66%;
     float: left;
     margin: 0;
 }
 #col2of2 {
-    width: 49%;
+    width: 32%;
     float: right;
 }
 .portletTitle {
