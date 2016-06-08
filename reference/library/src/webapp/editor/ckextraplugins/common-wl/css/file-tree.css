@@ -95,6 +95,9 @@ ul.jqueryFileTree a:hover {
 .jqueryFileTree li.active  {
   background-color: #ffeca3;
 }
+.jqueryFileTree li.inactive, .jqueryFileTree li.inactive > span  {
+  opacity: 0.5 !important;
+}
 
 /* File Extensions*/
 .jqueryFileTree li.ext_3gp  {

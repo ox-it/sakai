@@ -95,7 +95,7 @@ CKEDITOR.dialog.add('folderListingDialog', function(editor) {
           {
             type: 'text',
             id: 'directory',
-            label: 'Active directory',
+            label: 'Active folder',
             setup: function(element) {
               var path = getDirectoryFromPath(element.getAttribute('data-directory'));
               this.setValue(path);

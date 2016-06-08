@@ -27,7 +27,7 @@ CKEDITOR.plugins.add('folder-listing', {
     if (editor.contextMenu) {
       editor.addMenuGroup('folderListingGroup');
       editor.addMenuItem('folderListingItem', {
-        label: 'Change directory',
+        label: 'Change folder',
         icon: this.path + 'icons/folder-listing.png',
         command: 'folder-listing',
         group: 'folderListingGroup'

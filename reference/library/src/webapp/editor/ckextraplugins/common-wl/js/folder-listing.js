@@ -75,7 +75,11 @@ $.fn.folderListing = function(options) {
         a.attr('rel', file.url);
       } else {
         // folder
-        li.addClass('directory collapsed');
+        if (!file.hidden) {
+            li.addClass('directory collapsed');
+        } else {
+            li.addClass('directory collapsed inactive');
+        }
 
         // show the number of files
         if ($div.data('files')) {
