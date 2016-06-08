@@ -1188,6 +1188,30 @@ ul.makeMenu li.menuClose a:hover {
 .validationEmbedded, .validation, .alertMessage {
     background: white url(../../image/silk/exclamation.png) 4px 4px no-repeat !important
 }
+
+#flashNotif  a.flashNotifClose {
+    text-decoration: none;
+    font-size:120%;
+    position:absolute;
+    top:5px;
+    right:5px;
+}
+
+#flashNotif {
+    position:absolute;
+    top:25px;
+    left:30%;
+    right:30%;
+    padding:15px;
+    border:1px solid #ccc;
+    background: #ffe;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    box-shadow:2px 2px 2px #cccccc;
+    vertical-align:middle;
+}
+
 .information {
     background-image: url(../../image/silk/information.png)
 }
