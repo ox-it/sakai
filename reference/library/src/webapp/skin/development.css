@@ -1,0 +1,7 @@
+/* Local CSS for staging server */
+body {
+	background-image:url('/library/skin/images/development.png');
+	background-repeat:repeat;
+	background-position: 0px 0px;
+	background-color: white;
+}

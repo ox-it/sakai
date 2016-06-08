@@ -1,0 +1,18 @@
+/* image gallery */
+[data-image-gallery] {
+  overflow: hidden;
+  margin: 3px;
+}
+[data-image-gallery] > div {
+  overflow: hidden;
+}
+[data-image-gallery] .thumbnail {
+  display: block;
+  float: left;
+  margin: 3px;
+  padding: 3px;
+  background-size: 100% auto;
+  height: 100px;
+  width: 100px;
+  border: 1px solid #ccc;
+}

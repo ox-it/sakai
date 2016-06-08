@@ -1,0 +1,27 @@
+/* main dialog */
+#oxamDialog {
+}
+#oxamDialog * {
+  white-space: normal !important;
+}
+#oxamDialog > table {
+  width: 500px;
+}
+
+/* search tab */
+#oxamDialog .cke_dialog_ui_input_select {
+  width: 100%;
+}
+#oxamDialog optgroup {
+  font-weight: bold !important;
+}
+
+/* preview window */
+#oxamDialog [data-oxam-embed] {
+  margin-bottom: 5px;
+}
+#oxamDialog .exams {
+  max-height: 300px;
+  overflow: auto;
+  margin-bottom: 3px;
+}

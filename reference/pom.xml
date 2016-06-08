@@ -12,6 +12,7 @@
   <artifactId>reference-base</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>library</module>
+	  <module>ckeditor-config</module>
+	  <module>library</module>
   </modules>
 </project>

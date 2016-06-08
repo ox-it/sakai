@@ -717,6 +717,76 @@ function browserSafeDocHeight() {
 	return Math.max(winHeight,docHeight); 
 }
 
+// Fix for mixed content blocked in Firefox and IE
+// This event is added to every page; we could be more selective about where it is included.
+function forceLinksInNewWindow() {
+    addEvent(window, 'load', function(event){
+
+        rewriteYouTubeEmbeds();
+
+        if (window.top != window.self) {
+            // I am in an iframe
+            var links = window.self.document.getElementsByTagName('a');
+            for(var i = 0; i < links.length; ++i) {
+                var link = links[i];
+                rewriteWebLearnHref(link);
+                if(link.href && link.href.match(/^http:/)) {
+                    if(link.target == '' || link.target.match(/_self|_parent/)) {
+                        link.target = '_blank';
+                    }
+                }
+            }
+        }
+    });
+}
+
+// rewrites embedded youtube content to be protocol agnostic, called from forceLinksInNewWindow(),
+// this could have its own entry in sakai.properties.
+function rewriteVideoEmbeds() {
+    var embeds = document.getElementsByTagName('embed');
+    for(var i = 0; i < embeds.length; i) {
+        var embed = embeds[i];
+        if(embed.src && embed.src.match("^http://youtube.com|^http://www.youtube.com|^http://player.vimeo.com")) {
+            var clone = embed.cloneNode();
+            clone.src = clone.src.replace('http://', '//');
+            embed.parentNode.replaceChild(clone, embed);
+        }
+    }
+    var iframes = document.getElementsByTagName('iframe');
+    for(var i = 0; i < iframes.length; ++i) {
+        var iframe = iframes[i]
+        if(iframe.src && iframe.src.match("^http://youtube.com|^http://www.youtube.com|^http://player.vimeo.com")) {
+            iframe.src = iframe.src.replace('http://', '//');
+        }
+    }
+
+}
+
+// rewrites old weblearn links to the new address, called from forceLinksInNewWindow(),
+// this could have its own entry in sakai.properties.
+function rewriteWebLearnHref(link) {
+    if(link.href) {
+        if(link.href.match("^http://weblearn.ox.ac.uk|^http://beta.weblearn.ox.ac.uk")) {
+            link.href = link.href.replace("http://weblearn.ox.ac.uk", "https://weblearn.ox.ac.uk");
+            link.href = link.href.replace("http://beta.weblearn.ox.ac.uk", "https://weblearn.ox.ac.uk");
+        }
+    }
+}
+
+// Sets the target property to '_blank' so that insecure content is opened in a new window
+function addTargetBlank(link) {
+    if(link.href && link.href.match(/^http:/)) {
+        if(link.target == '' || link.target.match(/_self|_parent/)) {
+            link.target = '_blank';
+        }
+    }
+}
+
+// the function to call when oxitems has finished loading
+function oxitemsCallback() {
+    fixLinksForMixedContent();
+}
+
 function supports_history_api() {
 	return !!(window.history && history.pushState);
 }

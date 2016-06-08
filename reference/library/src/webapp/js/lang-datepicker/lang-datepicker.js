@@ -2326,7 +2326,6 @@ Za.fn=Ia.prototype;var Xd=bb(1,"add"),Yd=bb(-1,"subtract");a.defaultFormat="YYYY
 		/**
 		* Sets the date, both on init and datetimepicker selection.
 		* Handles many conditions do to the variety of tool implimentations 
-		* 
 		* @param {object} d JavaScript Date object
 		*/
 		var setHiddenFields = function (d) {
@@ -2361,6 +2360,43 @@ Za.fn=Ia.prototype;var Xd=bb(1,"add"),Yd=bb(-1,"subtract");a.defaultFormat="YYYY
 			}
 		}
 
+		/**
+		* Get the date, from hidden fields.
+		* Handles many conditions do to the variety of tool implimentations
+		*/
+		var getHiddenFields = function () {
+			var o = options;
+			var date = {month:'',day:'',year:'',hour:'',minute:'',ampm:''};
+			// If we have hidden fields, set them.
+			if(o.ashidden !== undefined) {
+				jQuery.each(o.ashidden, function(i, h) {
+					switch(i) {
+						case "month":
+						  date.month = jQuery('#' + h).val();
+						  break;
+						case "day":
+						  date.day = jQuery('#' + h).val();
+						  break;
+						case "year":
+						  date.year = jQuery('#' + h).val();
+						  break;
+						case "hour":
+						  date.hour = jQuery('#' + h).val();
+						  break;
+						case "minute":
+						  date.minute = jQuery('#' + h).val();
+						  break;
+						case "ampm":
+						  date.ampm = (o.ampm)?jQuery('#' + h).val():'';
+						  break;
+						case "iso8601":
+						  date.iso = jQuery('#' + h).val();
+						  break;
+					}
+				});
+			}
+			return date.iso?date.iso:(date.year+' '+date.month+' '+date.day+' '+date.hour+':'+date.minute+' '+date.ampm).trim();
+		}
 		/**
 		 * Initiallizes the base date for the picker.
 		 * This gets the date that should be displayed to the user.

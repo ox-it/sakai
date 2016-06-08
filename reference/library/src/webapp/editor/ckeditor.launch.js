@@ -108,7 +108,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             "attemptAllowed" : Number.MAX_VALUE,
             "attemptsRemaining": Number.MAX_VALUE
         },
-        skin: 'moono',
+        skin: 'moonocolor',
         defaultLanguage: 'en',
         allowedContent: true, // http://docs.ckeditor.com/#!/guide/dev_advanced_content_filter-section-3
         language: language + (country ? '-' + country.toLowerCase() : ''),
@@ -130,6 +130,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         // menu. In some cases (Firefox and Safari, at least), this supplies corrections, suggestions, etc.
         disableNativeSpellChecker: false,
         browserContextMenuOnCtrl: true,
+        // WL-2917 This is to prevent CKEditor wrapping <link/> tags in <p> tags, although it's not valid HTML
+        // lots of places put <link/> tags to style their HTML fragments and under FCKEditor it worked fine.
+        // A better way to fix it would be to allow resources to create full HTML pages.
+        autoParagraph: false,
 
         toolbar_Basic:
         [
@@ -137,6 +141,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         ],
         toolbar_Full:
         [
+            ['About'],
             ['Source','-','Templates'],
             // Uncomment the next line and comment the following to enable the default spell checker.
             // Note that it uses spellchecker.net, displays ads and sends content to remote servers without additional setup.
@@ -248,6 +253,25 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
           }
 
       });
+
+    /*
+     * WL-2923
+     *   sometimes the frame height is calculated before the editor has loaded
+     *   so lets additionally recalculate the frame height once CK is good to go.
+     */
+    CKEDITOR.on('instanceReady', function(event) {
+        if(setMainFrameHeightNow) {
+            setMainFrameHeightNow(window.name);
+        }
+    });
+  }
+
+  // finally, ajax call to blocked plugin list
+  getJSON('/direct/ckeditor-config/listBlockedPlugins.json', function(data) {
+    loadCKConfig(data);   // json successfully called
+  }, function(status) {
+    loadCKConfig(false);  // error calling json
+  });
 }
 
 sakai.editor.launch = sakai.editor.editors.ckeditor.launch;
