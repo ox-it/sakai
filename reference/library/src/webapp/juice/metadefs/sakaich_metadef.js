@@ -11,21 +11,41 @@ function sakaich_metadef() {
         coins.push(coin);
         bib_item = z3988_parse(coin);
         isbns.push(unescape(bib_item["rft.isbn"]));
-        bib_id = bib_item["rft_id"];
+        bib_ids = bib_item["rft_ids"];
         // This assumes that Primo IDs contain a specific string
         // Not a brilliant way of doing this
-        // We need to ensure one and only one id per item (think about an array of rft_id, filter for primo_library, pick first entry if multiple match)
-        for (var j=0; j<bib_id.length; j++) {
-            if (bib_id[j] && bib_id[j].search(/primo_library/) > 0) {
-                primo_ids.push(bib_id[j]);
-                if (bib_id[j].search(/oxfaleph/) > 0) {
-                    aleph_ids.push(bib_id[j].match(aleph_id_re)[0]);
+        // We need to ensure one and only one Primo & Aleph id per item - this uses first one found of each
+        if(bib_ids && bib_ids.length>0) {
+            for(var i = 0; i < bib_ids.length; i++) {
+                var numAleph_ids = 0;
+                var numPrimo_ids = 0;
+                if (bib_ids[i].search(/primo_library/) > 0) {
+                    if(numPrimo_ids==0){
+                        primo_ids.push(bib_ids[i]);
+                        numPrimo_ids++;
+                    }
+                    if (bib_ids[i].search(/oxfaleph/) > 0) {
+                        if(numAleph_ids==0){
+                            aleph_ids.push(bib_ids[i].match(aleph_id_re)[0]);
+                            numAleph_ids++;
+                        }
+
+                    }
+                    break;
                 }
-            } else {
-                // Add an empty ID for those without a Primo ID
+            }
+            if (numAleph_ids==0){
+                aleph_ids.push("");
+            }
+            if (numPrimo_ids==0){
                 primo_ids.push("");
             }
+        } else {
+            // Add an empty ID for those without a Primo ID
+            aleph_ids.push("");
+            primo_ids.push("");
         }
+
 
     })
     $jq('input[type="hidden"]').each(function() {
@@ -42,25 +62,22 @@ function sakaich_metadef() {
 }
 
 function z3988_parse(coin) {
-    var openurl_elements = coin.split('&');
-    var bib_item = {};
+    var openurl_elements = new(Array);
+    var key_value = new(Array);
+    openurl_elements = coin.split('&');
+    var bib_item = new Object;
+    var rft_ids = new(Array);
     for(i=0;i<openurl_elements.length;i++) {
-        var key_value = openurl_elements[i].split('=');
-        var key = key_value[0];
-        var value = key_value[1];
-        if (bib_item[key]) {
-            if (bib_item[key] instanceof Array) {
-                bib_item[key].push(value);
-            } else {
-                bib_item[key] = [bib_item[key], value];
-            }
+        key_value = openurl_elements[i].split('=');
+        //handle possibility of repeated rft_id - put into an array here?
+        if(key_value[0]=="rft_id") {
+            rft_ids.push(key_value[1]);
         } else {
-            bib_item[key] = value;
+            bib_item[key_value[0]] = key_value[1];
         }
     }
-
+    bib_item["rft_ids"] = rft_ids;
     return bib_item;
-
 }
 
 /**

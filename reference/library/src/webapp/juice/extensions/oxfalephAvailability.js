@@ -21,7 +21,7 @@
 //
 //No notes
 //
-//***************************
+//*************************** 
 
 function oxfalephAvailability(ju,insert, targetDiv, availIDs, availServer){
     // Initialise extension
@@ -67,6 +67,7 @@ oxfalephAvailability.prototype.getoxfaleph = function(oxfalephId){
     var url = this.avail_url;
     var id = this.div_id;
     var oxfaleph_div = null;
+    var libWeb = libraryWebsites();
     try {
         $jq.getJSON(url + '&callback=?', function(data) {
             if(data){
@@ -78,32 +79,32 @@ oxfalephAvailability.prototype.getoxfaleph = function(oxfalephId){
                     var holding_html_open = '';
                     var holding_html_content = '';
                     var holding_html_close = '';
-                    holding_html_open = '' +'<div class="availabilityHeader" style="color:#002147">' +
-                        '<div style="clear:both;"><div class="availabilityTitle" style="margin-top:10px; margin-bottom:5px; float:left;"><strong>Availability</strong></div>'+
-                        '<div class="availabilityNav" style="float:right;">';
+                    holding_html_open = '' +'<div class="availabilityHeader">' +
+                        ''+
+                        '<div class="availabilityNav" style="float:left;"><a href="#" onclick="hideAll(\''+oxfalephId+'\')">Hide Availability</a>';
                     if(juice.hasMeta("pref_libs")) {
-                        holding_html_open += '</div>';
+                        holding_html_open += ' / <a href="#" onclick="showPreferred(\''+oxfalephId+'\')">Show preferred Libraries</a></div>';
                     }
-                    holding_html_open += '</div>' +
-                        '</div></div><!-- end of availabilityHeader div -->' +
-                        '<div class="availabilityTable"><table class="oxfaleph_summary daia_summary" cellspacing="0" width="100%" id="'+oxfalephId+'"><thead><tr><th>Library' +
-                        '<img alt="Show more libraries" src="/library/image/sakai/expand.gif" ' +
-                        'onclick="toggleAvailability(\''+oxfalephId+'\',\'/library/image/sakai/expand.gif?panel=Main\',\'/library/image/sakai/collapse.gif?panel=Main\');">' +
-                        '<span id="toggleAvailability">(click arrow to show more availability)</span>' +
-                        '</th><th>Shelfmark</th><th>Description</th><th>Lending Status</th><th>Availability</th><th>Library info</th>' +
-                        '</tr></thead><tbody class="' + oxfalephId + ' collapsed" style="display:none;">';
+                    holding_html_open += ' / <a href="#" onclick="showAll(\''+oxfalephId+'\')">Show Availability</a></div>' +
+                        '</div><!-- end of availabilityHeader div -->' +
+                        '<div style="clear:both;"></div>' +
+                        '<div class="availabilityTable collapsed" id="'+oxfalephId+ '" style="display: none" >' +
+                        '<div class="availabilityTitle" style="margin-top:10px; margin-bottom:5px; color:#002147"><strong>Availability</strong></div>' +
+                        '<table class="oxfaleph_summary daia_summary" cellspacing="0" width="100%"><thead><tr><th>Library' +
+                        '</th><th>Shelfmark</th><th>Description</th><th>Lending Status</th><th>Availability</th><th>Library website</th>' +
+                        '</tr></thead><tbody  >';
                     holding_html_close += '</tbody></table></div><!-- end availabilityTable div -->';
-
-
-                    var mapHTML ='(map coming soon)';
-
                     $jq.each(data.document[0].item, function(index, oxfaleph_doc) {
+                            var library_info = '';
+                            if(libWeb[oxfaleph_doc.libcode]) {
+                                library_info = '<a href="'+libWeb[oxfaleph_doc.libcode]+'"><i class="fa fa-info-circle"></i></a>';
+                            }
                             holdings_html += '<tr class="'+oxfaleph_doc.libcode+' collapsed'+'"><td>'+oxfaleph_doc.libname+'</td>'+
                                 '<td>'+oxfaleph_doc.itemshelf+'</td>'+
                                 '<td>'+oxfaleph_doc.itemdesc+'</td>'+
                                 '<td>'+oxfaleph_doc.itemtype+'</td>'+
                                 '<td>'+oxfaleph_doc.availableitems+' / '+oxfaleph_doc.totalitems+'</td>'+
-                                '<td>'+mapHTML+'</td></tr>'; //need to get URL into this row
+                                '<td>'+library_info+'</td></tr>';
                         }
                     );
                 }
@@ -155,4 +156,9 @@ function showPreferred(id) {
     for	(i = 0; i < libs.length; i++) {
         $jq('#' + id + ' > tbody > tr.'+libs[i]).removeClass('collapsed').fadeIn('fast');
     }
+}
+
+function libraryWebsites() {
+    var libWeb = {"ANNCL":"http://www.st-annes.ox.ac.uk/about/library","ANTCL":"http://www.sant.ox.ac.uk/current-members/college-library","ANTRE":"http://www.sant.ox.ac.uk/research-centres/russian-and-eurasian-studies-centre","ASCCL":"https://www.asc.ox.ac.uk/library","ASHDL":"http://www.bodleian.ox.ac.uk/sackler","BALDL":"http://www.prm.ox.ac.uk/balfour.html","BLFCL":"http://www.bfriars.ox.ac.uk/general/library/","BLLCL":"https://www.balliol.ox.ac.uk/about-balliol/library","BNCCL":"http://www.bnc.ox.ac.uk/","BODBL":"http://www.bodleian.ox.ac.uk/bodley","BOLBL":"http://www.bodleian.ox.ac.uk/","CCLBL":"http://www.bodleian.ox.ac.uk/ccl","CEDBL":"http://www.bodleian.ox.ac.uk/conted","CSLBL":"http://www.bodleian.ox.ac.uk/ccl","EDUBL":"http://www.bodleian.ox.ac.uk/education","EFLBL":"http://www.bodleian.ox.ac.uk/english","HCLBL":"http://www.bodleian.ox.ac.uk/medicine","HCLKC":"http://www.bodleian.ox.ac.uk/medicine","HEBBL":"http://www.ochjs.ac.uk/mullerlibrary/","HFLBL":"http://www.bodleian.ox.ac.uk/history","INDBL":"http://www.bodleian.ox.ac.uk/","LACBL":"http://www.bodleian.ox.ac.uk/lac","LAWBL":"http://www.bodleian.ox.ac.uk/law","MTHBL":"https://www.maths.ox.ac.uk/members/library","OILBL":"http://www.bodleian.ox.ac.uk/oil","PTFBL":"http://www.bodleian.ox.ac.uk/ptfl","RHOBL":"http://www.bodleian.ox.ac.uk/","RSLBL":"http://www.bodleian.ox.ac.uk/science","SACBL":"http://www.bodleian.ox.ac.uk/sackler","SBSBL":"http://www.bodleian.ox.ac.uk/business","SCABL":"http://www.bodleian.ox.ac.uk/anthropology","SSLBL":"http://www.bodleian.ox.ac.uk/ssl","STFBL":"http://www.bodleian.ox.ac.uk/subjects-and-libraries/subjects/staff","TASBL":"http://www.bodleian.ox.ac.uk/taylor","TAYBL":"http://www.bodleian.ox.ac.uk/taylor","THEBL":"http://www.bodleian.ox.ac.uk/ptfl","VHLBL":"http://www.bodleian.ox.ac.uk/vhl","WELBL":"http://www.bodleian.ox.ac.uk/wellcome","ZOOBL":"http://www.bodleian.ox.ac.uk/science/resources/alexander-library","ARABL":"http://www.bodleian.ox.ac.uk/using/disability/aracu","BODCA":"http://www.bodleian.ox.ac.uk/","BODEA":"http://www.bodleian.ox.ac.uk/","BODFA":"http://www.bodleian.ox.ac.uk/","BODHA":"http://www.bodleian.ox.ac.uk/","BODSA":"http://www.bodleian.ox.ac.uk/","BODXA":"http://www.bodleian.ox.ac.uk/","GOOGL":"http://www.bodleian.ox.ac.uk/","SYSBL":"http://www.bodleian.ox.ac.uk/bdlss","BODTS":"http://www.bodleian.ox.ac.uk/","EFLCD":"http://www.bodleian.ox.ac.uk/english","HCLCD":"http://www.bodleian.ox.ac.uk/medicine","HCLCK":"http://www.bodleian.ox.ac.uk/medicine","HEBCD":"http://www.ochjs.ac.uk/mullerlibrary/","HFLCD":"http://www.bodleian.ox.ac.uk/history","OILCD":"http://www.bodleian.ox.ac.uk/oil","PTFCD":"http://www.bodleian.ox.ac.uk/ptfl","RSLCD":"http://www.bodleian.ox.ac.uk/science","TASCD":"http://www.bodleian.ox.ac.uk/taylor","TAYCD":"http://www.bodleian.ox.ac.uk/taylor","CAMCL":"http://www.campion.ox.ac.uk/","CARDL":"http://www.careers.ox.ac.uk/","CATCL":"https://www.stcatz.ox.ac.uk/Library","CCCCL":"http://www.ccc.ox.ac.uk/Library-and-Archives/","CHCCL":"http://www.chch.ox.ac.uk/","CMSNU":"http://www.ocms.ac.uk/content/index.php?q=ocms/facilities/library","COMDL":"http://intranet.cs.ox.ac.uk/library/","COSNU":"https://www.oxfordshire.gov.uk/cms/public-site/oxfordshire-history-centre","DOMDL":"http://www.materials.ox.ac.uk/local/library.html","EARDL":"http://www.bodleian.ox.ac.uk/subjects-and-libraries/libraries?id=51","ENGDL":"http://www.eng.ox.ac.uk/","EXECL":"http://www.exeter.ox.ac.uk/college/library","GRFNU":"http://www.bodleian.ox.ac.uk/subjects-and-libraries/libraries?id=122","GTCCL":"http://www.gtc.ox.ac.uk/college-life/library-and-information-services/library.html","HEBNU":"http://www.ochjs.ac.uk/mullerlibrary/","HERCL":"http://www.hertford.ox.ac.uk/my-hertford/library","HINNU":"http://www.ochs.org.uk/library","HMCCL":"http://www.hmc.ox.ac.uk/pages/default.asp?id=20","HSCDL":"http://www.bodleian.ox.ac.uk/subjects-and-libraries/subjects/human_sciences","HUGCL":"http://www.st-hughs.ox.ac.uk/life-here/library/","ICLNU":"http://www.clpic.ox.ac.uk/library/","IESNU":"http://www.oxfordenergy.org/about/library/","ISLNU":"http://www.oxcis.ac.uk/library.html","JESCL":"http://libguides.bodleian.ox.ac.uk/jesus","KEBCL":"http://www.keble.ox.ac.uk/about/library","KELCL":"http://www.kellogg.ox.ac.uk/study/kellogg-college-library/","LANDL":"http://www.lang.ox.ac.uk/library/index.html","LCRCL":"http://www.linacre.ox.ac.uk/facilities/library","LINCL":"http://www.lincoln.ox.ac.uk/Library","LMHCL":"http://www.lmh.ox.ac.uk/About-LMH/Library-%281%29.aspx","MAGCH":"http://www.magd.ox.ac.uk/libraries-and-archives/","MAGCL":"http://www.magd.ox.ac.uk/libraries-and-archives/","MAGCD":"http://www.magd.ox.ac.uk/libraries-and-archives/","MATDL":"https://www.maths.ox.ac.uk/members/library","MECDL":"http://www.sant.ox.ac.uk/research-centres/middle-east-centre/middle-east-centre-mec-library","MERCL":"http://www.merton.ox.ac.uk/library-and-archives","MFONU":"http://www.mfo.ac.uk/en/library","MHSDL":"http://www.mhs.ox.ac.uk/collections/library/","MNSCL":"http://www.mansfield.ox.ac.uk/prospective/library.html","NEWCL":"http://www.new.ox.ac.uk/library-and-archives","NUFCL":"http://www.nuffield.ox.ac.uk/Resources/Library/Pages/Library-home.aspx","OIIDL":"http://www.oii.ox.ac.uk/about/library/","OLIDL":"http://www.learning.ox.ac.uk/resources/library/","ORLCL":"http://www.oriel.ox.ac.uk/about/library","OUMDL":"http://www.oum.ox.ac.uk/collect/library.htm","OUSNU":"http://www.oxford-union.org/library","PEMCL":"http://www.pmb.ox.ac.uk/students/library-archives","PHLNU":"http://www.puseyhouse.org.uk/library.html","QUECL":"http://www.queens.ox.ac.uk/library/","REGCL":"http://www.rpc.ox.ac.uk/main-library/","RUSDL":"http://www.rsa.ox.ac.uk/about/library","SEHCL":"http://www.seh.ox.ac.uk/about-college/library","SOMCL":"http://www.some.ox.ac.uk/library-it/","SPCCL":"http://www.spc.ox.ac.uk/college-life/library","STADL":"http://www.stats.ox.ac.uk/about_us/library","STBCL":"http://www.st-benets.ox.ac.uk/library-regulations-borrowing","STJCL":"http://www.sjc.ox.ac.uk/385/Library-and-archives.html","STXCL":"http://www.stx.ox.ac.uk/about-st-cross/library","SYSSL":"http://www.bodleian.ox.ac.uk/bdlss","CEUHL":"http://www.ceu.ox.ac.uk/","OPTHL":"http://www.ndcn.ox.ac.uk/divisions/nlo","TRICL":"http://www.trinity.ox.ac.uk/library/","UNVCL":"http://www.univ.ox.ac.uk/content/libraries-and-archives","WADCL":"http://www.wadham.ox.ac.uk/about-wadham/library","WOLCL":"https://www.wolfson.ox.ac.uk/library","WORCL":"http://www.worc.ox.ac.uk/visiting/library"};
+    return libWeb;
 }
