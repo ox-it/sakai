@@ -37,18 +37,19 @@ var VimeoSearchService = function(options) {
     });
   };
 
-  var resetTokensIfNewSearchTerm = function(currentSearchTerm, searchTerm){
-      if (currentSearchTerm != searchTerm){
+  var resetTokensIfNewSearchTermOrWidget = function(currentSearchTerm, searchTerm, thisUrl, lastUrl){
+      if (currentSearchTerm != searchTerm || thisUrl != lastUrl){
           $.fn.itemSearch.currentPage = 1;
       }
       $.fn.itemSearch.currentSearchTerm = searchTerm;
+      $.fn.itemSearch.lastUrl = url;
   };
 
   // takes search term (string) and returns array of objects representing the
   // search results from Vimeo
   this.performQuery = function(searchTerm) {
 
-      resetTokensIfNewSearchTerm($.fn.itemSearch.currentSearchTerm, searchTerm);
+      resetTokensIfNewSearchTermOrWidget($.fn.itemSearch.currentSearchTerm, searchTerm, url, $.fn.itemSearch.lastUrl);
       var currentPage = $.fn.itemSearch.currentPage;
       var results = [];
 
