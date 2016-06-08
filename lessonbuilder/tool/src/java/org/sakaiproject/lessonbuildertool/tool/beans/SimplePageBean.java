@@ -144,6 +144,7 @@ public class SimplePageBean {
 	public static final String LESSONBUILDER_PATH = "lessonbuilder.path";
 	public static final String LESSONBUILDER_BACKPATH = "lessonbuilder.backpath";
 	public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
+	public static String FORUMS_TOOL_ID = "sakai.forums";
 	public static final String ANNOUNCEMENTS_TOOL_ID = "sakai.announcements";
 	public static final String TWITTER_WIDGET_ID = "lessonbuilder.twitter.widget.id";
 	public static final String TWITTER_WIDGET_DEFAULT_HEIGHT = "300";
@@ -280,6 +281,9 @@ public class SimplePageBean {
 	public String rubricRow;
 	private HashMap<Integer, String> rubricRows = null;
 	
+	//variables used for forum-summary setting
+	private String forumSummaryHeight;
+	private String forumSummaryDropDown;
 	private Date peerEvalDueDate;
 	private Date peerEvalOpenDate;
 	private boolean peerEvalAllowSelfGrade;
@@ -897,6 +901,14 @@ public class SimplePageBean {
 
 	public void setWebsite(boolean isWebsite) {
 	    this.isWebsite = isWebsite;
+	}
+
+	public void setForumSummaryHeight(String forumSummaryHeight) {
+		this.forumSummaryHeight = forumSummaryHeight;
+	}
+
+	public void setForumSummaryDropDown(String forumSummaryDropDown) {
+		this.forumSummaryDropDown = forumSummaryDropDown;
 	}
 
 	public void setCaption(boolean isCaption) {
@@ -8033,6 +8045,40 @@ public class SimplePageBean {
 			setItemGroups(item, selectedGroups);
 			update(item);
 		}else{
+			status = "cancel";
+		}
+		return status;
+	}
+
+
+	/**
+	 * To add latest conversations in a div on Lessons Page
+	 */
+	public String addForumSummary(){
+		if (!itemOk(itemId))
+			return "permission-failed";
+		if (!checkCsrf())
+			return "permission-failed";
+		String status = "success";
+		String divHeight = "height:" + forumSummaryHeight +"px;";
+		//saving numberOfconversations, used later on edit screen.
+		String html = "<div align=\"left\" style='"+divHeight+"' class=\"forum-summary-div\"><input type=\"hidden\" id=\"numberOfConversations\" value='"+forumSummaryDropDown+"'></div>";
+		if (canEditPage()) {
+			SimplePageItem item;
+			// itemid -1 means we're adding a new item to the page,
+			// specified itemid means we're updating an existing one
+			if (itemId != null && itemId != -1) {
+				item = findItem(itemId);
+			} else {
+				item = appendItem("", "", SimplePageItem.FORUM_SUMMARY);
+			}
+			item.setHtml(html);
+			//setting forum height variable value in the attribute
+			item.setAttribute("height", forumSummaryHeight);
+			item.setPrerequisite(this.prerequisite);
+			setItemGroups(item, selectedGroups);
+			update(item);
+		} else {
 			status = "cancel";
 		}
 		return status;

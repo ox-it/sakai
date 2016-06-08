@@ -1183,8 +1183,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				boolean listItem = !(i.getType() == SimplePageItem.TEXT || i.getType() == SimplePageItem.MULTIMEDIA
 						|| i.getType() == SimplePageItem.COMMENTS || i.getType() == SimplePageItem.STUDENT_CONTENT
 						|| i.getType() == SimplePageItem.QUESTION || i.getType() == SimplePageItem.PEEREVAL
-						|| i.getType() == SimplePageItem.BREAK || i.getType() == SimplePageItem.TWITTER)
-						|| i.getType() == SimplePageItem.ANNOUNCEMENTS;
+						|| i.getType() == SimplePageItem.BREAK || i.getType() == SimplePageItem.TWITTER
+						|| i.getType() == SimplePageItem.ANNOUNCEMENTS || i.getType() == SimplePageItem.FORUM_SUMMARY);
 				// (i.getType() == SimplePageItem.PAGE &&
 				// "button".equals(i.getFormat())))
 
@@ -1215,6 +1215,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.QUESTION: itemClassName = "question"; break;
 				case SimplePageItem.BLTI: itemClassName = "bltiType"; break;
 				case SimplePageItem.PEEREVAL: itemClassName = "peereval"; break;
+				case SimplePageItem.FORUM_SUMMARY: itemClassName = "forumSummary"; break;
 				case SimplePageItem.ANNOUNCEMENTS: itemClassName = "announcementsType"; break;
 				case SimplePageItem.TWITTER: itemClassName = "twitter"; break;
 				}
@@ -2878,6 +2879,34 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "questionShowPoll", String.valueOf(i.getAttribute("questionShowPoll")));
 						}
 					}
+				} else if(i.getType() == SimplePageItem.FORUM_SUMMARY){
+					UIOutput.make(tableRow, "forumSummarySpan");
+					if (canSeeAll) {
+							String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+							String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+							if (itemGroupTitles != null) {
+									itemGroupTitles = "[" + itemGroupTitles + "]";
+								}
+							UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
+						}
+					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
+						UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
+						//get widget height from the item attribute
+						String height = i.getAttribute("height") != null ? i.getAttribute("height") : "" ;
+						UIOutput.make(tableRow, "forum-summary-id", String.valueOf(i.getId()));
+						UIOutput.make(tableRow, "forum-summary-widget-height", height);
+						//setting forums-messages url to get all recent messages for the site
+						UIOutput.make(tableRow, "forum-summary-site-url", myUrl() + "/direct/forums/messages/" + simplePageBean.getCurrentSiteId());
+						//setting this variable to redirect user to the particular message in the forums tool
+						UIOutput.make(tableRow, "forum-summary-view-url", myUrl() + "/portal/directtool/" + simplePageBean.getCurrentTool(simplePageBean.FORUMS_TOOL_ID));
+					}else {
+						UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
+						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+					}
+					if (canEditPage) {
+						UIOutput.make(tableRow, "forum-summary-td");
+						UILink.make(tableRow, "edit-forum-summary", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.forum-summary")));
+					}
 				} else if(i.getType() == SimplePageItem.TWITTER) {
 					UIOutput.make(tableRow, "twitterSpan");
 					if (canSeeAll) {
@@ -3064,6 +3093,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createQuestionDialog(tofill, currentPage);
 		createDeleteItemDialog(tofill, currentPage);
 		createColumnDialog(tofill, currentPage);
+		createForumSummaryDialog(tofill, currentPage);
 		createAnnouncementsDialog(tofill, currentPage);
 		createTwitterDialog(tofill, currentPage);
 	}
@@ -3547,6 +3577,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIOutput.make(tofill, "quiz-li");
 		    createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz-descrip", currentPage, "simplepage.quiz");
 
+		    //Adding 'Embed forum conversations' component
+		    UIOutput.make(tofill, "forum-summary-li");
+		    UILink forumSummaryLink = UIInternalLink.makeURL(tofill, "forum-summary-link", "#");
+
 		    UIOutput.make(tofill, "forum-li");
 		    createToolBarLink(ForumPickerProducer.VIEW_ID, tofill, "add-forum", "simplepage.forum-descrip", currentPage, "simplepage.forum.tooltip");
 
@@ -3786,6 +3820,29 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "edit-item-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 	}
 
+	//Create a latest forum conversations dialog where user can enter other settings for the forum summary div
+	private void createForumSummaryDialog(UIContainer tofill, SimplePage currentPage) {
+		UIOutput.make(tofill, "add-forum-summary-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.forumSummaryLinkText")));
+		UIForm form = UIForm.make(tofill, "add-forum-summary-form");
+		makeCsrf(form, "csrf22");
+		//check if site has forum tool added?if not then display info and return
+		if (simplePageBean.getCurrentTool(simplePageBean.FORUMS_TOOL_ID) == null) {
+			UIOutput.make(tofill, "forum-summary-error-div");
+			UIOutput.make(tofill, "forum-summary-error-span", messageLocator.getMessage("simplepage.no_forum_tools"));
+			UICommand.make(form, "forum-summary-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+			return;
+		}
+		UIInput.make(form, "forumSummaryEditId", "#{simplePageBean.itemId}");
+		UIInput.make(form, "forum-summary-height", "#{simplePageBean.forumSummaryHeight}");
+		UIOutput.make(form, "forum-summary-height-label", messageLocator.getMessage("simplepage.forum-summary.height_label"));
+		String[] options = {"5", "10", "15", "20", "30", "50"};
+		String[] labels = {"5", "10", "15", "20", "30", "50"};
+		UIOutput.make(form, "forumNumberDropdownLabel", messageLocator.getMessage("simplepage.forum-number-dropdown-label"));
+		UISelect.make(form, "forumNumberDropdown", options, labels, "#{simplePageBean.forumSummaryDropDown}", "5");
+		UICommand.make(form, "forum-summary-add-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addForumSummary}");
+		UICommand.make(form, "forum-summary-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+		UICommand.make(form, "delete-forum-summary-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
+	}
 	//Get the twitter widget hashtag and other settings from the user.
 	private void createTwitterDialog(UIContainer tofill, SimplePage currentPage) {
 		UIOutput.make(tofill, "add-twitter-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.twitter")));
