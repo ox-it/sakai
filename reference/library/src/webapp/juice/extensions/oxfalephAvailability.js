@@ -80,11 +80,11 @@ oxfalephAvailability.prototype.getoxfaleph = function(oxfalephId){
                     var holding_html_close = '';
                     holding_html_open = '' +'<div class="availabilityHeader" style="color:#002147">' +
                         '<div style="clear:both;"><div class="availabilityTitle" style="margin-top:10px; margin-bottom:5px; float:left;"><strong>Availability</strong></div>'+
-                        '<div class="availabilityNav" style="float:right;"><a href="#" onclick="hideAll(\''+oxfalephId+'\')">Hide all Libraries</a>';
+                        '<div class="availabilityNav" style="float:right;">';
                     if(juice.hasMeta("pref_libs")) {
-                        holding_html_open += ' / <a href="#" onclick="showPreferred(\''+oxfalephId+'\')">Show preferred Libraries</a></div>';
+                        holding_html_open += '</div>';
                     }
-                    holding_html_open += ' / <a href="#" onclick="showAll(\''+oxfalephId+'\')">Show all Libraries</a></div>' +
+                    holding_html_open += '</div>' +
                         '</div></div><!-- end of availabilityHeader div -->' +
                         '<div class="availabilityTable"><table class="oxfaleph_summary daia_summary" cellspacing="0" width="100%" id="'+oxfalephId+'"><thead><tr><th>Library' +
                         '<img alt="Show more libraries" src="/library/image/sakai/expand.gif" ' +
