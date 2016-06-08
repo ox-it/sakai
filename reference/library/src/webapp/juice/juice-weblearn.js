@@ -1,114 +1,65 @@
 jQuery(document).ready(function () {
-	// Assumes that the page calling this file is in a directory also containing the juice folder
-	// Can be moved to whereever you want, just correct the paths
-	juice.setDebug(false);
+    // Assumes that the page calling this file is in a directory also containing the juice folder
+    // Can be moved to whereever you want, just correct the paths
+    juice.setDebug(false);
 	juice.loadJs("/library/juice/metadefs/sakaich_metadef.js");
-	juice.loadJs("/library/juice/extensions/extendedbyJuice.js");	
+	juice.loadJs("/library/juice/extensions/extendedbyJuice.js");
 	juice.loadJs("/library/juice/extensions/daiaAvailability.js");
-	juice.loadCss("/library/juice/panels/juiceDefault.css");	
-	juice.onAllLoaded(runExtensions);
+    juice.loadJs("/library/juice/extensions/oxfalephAvailability.js");
+//    juice.loadJs("/library/juice/extensions/oxfelectronicAvailability.js");
+    juice.loadCss("/library/juice/panels/juiceDefault.css");
+    juice.onAllLoaded(runExtensions);
 });
 
 function runExtensions(){
-	var expandIcon = "/library/image/sakai/expand.gif?panel=Main";
-	var collapseIcon = "/library/image/sakai/collapse.gif?panel=Main";
-	sakaich_metadef();
-	if(juice.hasMeta()){
-		if(juice.hasMeta("primo_ids")){
-			
-			// ****************	
-			// Get Print Availability
-			// ****************
-			
-			var availServer = "/library-availability/library"; // DAIA server for print availability
-			var availabilityDiv = '<div id="availability" class="itemAction"></div>';
-			var insert_avail = new JuiceInsert(availabilityDiv,"div.availabilityHeader","after");
-			
-			// call daiaAvailability
-			/*
-			 * Constructor arguments:
-			 * arg: ju - instance of juice
-			 * arg: insert - JuiceInsert to use
-			 * arg: targetDiv - id of element to place image in
-			 * arg: availIDs - Juice Meta element containing array of IDs for DAIA requests
-			 * arg: availServer - url of availability server
-			 * arg: availType - set to 'online' to treat all availability as online, otherwise will treat DAIA response generically
-			 * arg: format - format to return DAIA results [json only format currently supported]
-			 * arg: noLines - number of availability lines to display unhidden. 
-			 *                Remaining lines will be hidden and 'show' button added.
-			 *                Any 'open access' availability will be shown whatever this value
-			 *                Ignored when availType == 'online'
-			 * arg: toggleExpand - URL of image to be used for the toggleAvailability 'expand' function where some results are hidden. Not used when availType == 'online'
-			 * arg: toggleCollapse - URL of image to be used for the toggleAvailability 'collapse' function where some results are hidden. Not used when availType == 'online'
-			 */
-			
-			new daiaAvailability(juice,insert_avail,"availability","primo_ids",availServer,"print","jsonp",1,expandIcon,collapseIcon);
+    sakaich_metadef();
+    if(juice.hasMeta()){
+        if(juice.hasMeta("aleph_ids")){
 
-			// Add direct links to Solo based on the primoIds.
-			var ids = juice.getMetaValues("primo_ids");
-			var soloInsert = new JuiceInsert('<span class="solo"></span>', "span.Z3988","before");
-					
-			for(var i=0; i < ids.length; i++){
-				// check there is a valid id to use
-				soloInsert.show(i);
-				if (ids[i] != "undefined" && ids[i].length >0) {
-					var url = decodeURIComponent(ids[i]);
-					var inserted = soloInsert.getInsertObject(i);
-					inserted.append('<a target="_new" href="'+ url+ '">Solo</a>');
-				}
-			}
-		}
-		if(juice.hasMeta("coins")) {
-			// ****************	
-			// Get Electronic Availability
-			// ****************
+            // ****************
+            // Get Print Availability
+            // ****************
 
-			// Create new Juice Meta that contains OpenURLs rather than just COINS 
-			// This is so we can use a proper http URI for DAIA request
+            // Do this via new availability service...
 
-			var base_url = "http://oxfordsfx-direct.hosted.exlibrisgroup.com/oxford?";
-			openurls = new(Array);
-			var coins = juice.getMetaValues("coins");
-			for (var i = 0; i < coins.length; i++){
-				openurls.push(base_url + coins[i]);
-			};
-			juice.setMeta("openurls",openurls);
+            var availServer = "/library-availability/library"; // New Aleph availability server address
+            var availabilityDiv = '<div class="availability"></div>';
+            var availabilityHeadDiv = 'div.availabilityHeader';
+            var insert_avail = new JuiceInsert(availabilityDiv,availabilityHeadDiv,"replace");
 
-			var eavailServer = "/library-availability/eias"; // DAIA server for electronic availability
-			var eavailabilityDiv = '<div id="e-availability"></div>';
-			var insert_eavail = new JuiceInsert(eavailabilityDiv,"span.Z3988","after");
-			
-			// call daiaAvailability
-			/*
-			 * Constructor arguments:
-			 * arg: ju - instance of juice
-			 * arg: insert - JuiceInsert to use
-			 * arg: targetDiv - id of element to place image in
-			 * arg: availIDs - Juice Meta element containing array of IDs for DAIA requests
-			 * arg: availServer - url of availability server
-			 * arg: availType - set to 'online' to treat all availability as online, otherwise will treat DAIA response generically
-			 * arg: format - format to return DAIA results [json only format currently supported]
-			 * arg: noLines - number of availability lines to display unhidden. 
-			 *                Remaining lines will be hidden and 'show' button added.
-			 *                Any 'open access' availability will be shown whatever this value
-			 *                Ignored when availType == 'online'
-			 * arg: toggleExpand - URL of image to be used for the toggleAvailability 'expand' function where some results are hidden. Not used when availType == 'online'
-			 * arg: toggleCollapse - URL of image to be used for the toggleAvailability 'collapse' function where some results are hidden. Not used when availType == 'online'
-			 */
-			
-			new daiaAvailability(juice,insert_eavail,"online-availability","openurls",eavailServer,"online","jsonp",0,expandIcon,collapseIcon);
-		}
+            // call oxfalephAvailability
+            /*
+             * Constructor arguments:
+             * arg: ju - instance of juice
+             * arg: insert - JuiceInsert to use
+             * arg: targetDiv - id of element to place image in
+             * arg: availIDs - Juice Meta element containing array of IDs
+             * arg: availServer - url of availability server
+             * arg: numberOfLines - number of availability lines to display unhidden.
+             */
+            new oxfalephAvailability(juice,insert_avail,"availability","aleph_ids",availServer,"print","jsonp");
+        }
 
-		// ****************	
-		// Put footer in
-		// ****************
+        if(juice.hasMeta("coins")) {
+            // ****************
+            // Get Electronic Availability
+            // ****************
+            var eavailServer = "https://weblearn.ox.ac.uk/library-availability/library"; // DAIA server for electronic availability
+            var eavailabilityDiv = '<div id="e-availability"></div>';
+            var baseURL = "http://oxfordsfx-direct.hosted.exlibrisgroup.com/oxford?";
+            var insert_eavail = new JuiceInsert(eavailabilityDiv,"span.Z3988","after");
+        }
 
-		doCreatedBy();
-		
-		
-	}
+        // ****************
+        // Put footer in
+        // ****************
+
+        doCreatedBy();
+
+
+    }
 }
 
 function doCreatedBy(){
-	new extendedbyJuice(juice);
+    new extendedbyJuice(juice);
 } 
