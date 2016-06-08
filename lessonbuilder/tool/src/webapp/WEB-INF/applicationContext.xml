@@ -155,11 +155,14 @@ simplePageBean.peerEvalDueDate,
 simplePageBean.peerEvalOpenDate,
 simplePageBean.peerEvalAllowSelfGrade,
 simplePageBean.folderPickerSubmit,
+simplePageBean.announcementsHeight,
+simplePageBean.announcementsDropdown,
+simplePageBean.addAnnouncements,
 simplePageBean.twitterDropDown,
 simplePageBean.twitterUsername,
 simplePageBean.twitterWidgetHeight,
 simplePageBean.addTwitterTimeline,
-simplePageBean.folderPath,
+simplePageBean.folderPath
 </value>
 </property>
    </bean>

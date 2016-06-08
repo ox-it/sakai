@@ -563,6 +563,34 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     float:none;height:100%;overflow:hidden;margin:1em 0
 }
 
+.announcements-div{
+ border: 1px solid #ccc;
+ float: left;
+ margin: 30px 10px 30px 0;
+ overflow-y: scroll;
+ text-align: left;
+ background-color: #fff;
+ width: 550px;
+ }
+.announcementsHeaderDiv{
+position: relative;
+width: 100.0%;
+max-height: 240.0px;
+vertical-align: top;
+overflow: hidden;
+background-color: #eee;
+}
+.announcementSummaryHeader{
+font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+border-bottom:1px solid #ccc;
+padding: 10px 0px 10px 15px;
+font-size: 1.2em;
+letter-spacing: normal
+}
+.itemDiv {
+padding: 10px 15px 0 15px
+}
+
 .twitter-div{
     overflow-y: auto;
     float: left;margin:
@@ -571,6 +599,17 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 }
 .edit-twitter-div{
     float:left;
+}
+
+
+.itemTitle {
+    font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+    color: #666;
+}
+
+.itemDate {
+    font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+    font-size: 12px;
 }
 
 .layoutReorderer-module-content {

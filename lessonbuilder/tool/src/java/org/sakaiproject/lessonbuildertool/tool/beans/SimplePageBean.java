@@ -144,6 +144,7 @@ public class SimplePageBean {
 	public static final String LESSONBUILDER_PATH = "lessonbuilder.path";
 	public static final String LESSONBUILDER_BACKPATH = "lessonbuilder.backpath";
 	public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
+	public static final String ANNOUNCEMENTS_TOOL_ID = "sakai.announcements";
 	public static final String TWITTER_WIDGET_ID = "lessonbuilder.twitter.widget.id";
 
 	private static String PAGE = "simplepage.page";
@@ -282,6 +283,9 @@ public class SimplePageBean {
 	private Date peerEvalOpenDate;
 	private boolean peerEvalAllowSelfGrade;
 	private String folderPath;
+	//variables used for announcements widget
+	private String announcementsHeight;
+	private String announcementsDropdown;
 	//variables used for twitter setting used in the widget
 	private String twitterDropDown;
 	private String twitterUsername;
@@ -896,6 +900,12 @@ public class SimplePageBean {
 
 	public void setCaption(boolean isCaption) {
 	    this.isCaption = isCaption;
+	}
+	public void setAnnouncementsHeight(String announcementsHeight) {
+		this.announcementsHeight = announcementsHeight;
+	}
+	public void setAnnouncementsDropdown(String announcementsDropdown) {
+		this.announcementsDropdown = announcementsDropdown;
 	}
 	public void setTwitterDropDown(String twitterDropDown) {
 		this.twitterDropDown = twitterDropDown;
@@ -3528,7 +3538,8 @@ public class SimplePageBean {
 	   case SimplePageItem.STUDENT_CONTENT:
 	       return setLBItemGroups(i, groups);
 	   case SimplePageItem.BREAK:
-	       return null;  // better not actually happen
+	       return null;  // b
+		   // etter not actually happen
 	   }
 	   if (lessonEntity != null) {
 	       // need a list to sort it.
@@ -7975,6 +7986,39 @@ public class SimplePageBean {
 			update(item);
 
 		} else {
+			status = "cancel";
+		}
+		return status;
+	}
+	/**
+	 * To add latest announcements in a div in Lessons page
+	 * @return status
+	 */
+	public String addAnnouncements(){
+		if (!itemOk(itemId))
+			return "permission-failed";
+		if (!checkCsrf())
+			return "permission-failed";
+		String status = "success";
+		String divHeight = "height:" + announcementsHeight +"px;";
+		//saving numberOfAnnouncements and height , used later in edit screen.
+		String html = "<div align=\"left\" style='"+divHeight+"' class=\"announcements-div\"><input type=\"hidden\" id=\"numberOfAnnouncements\" value='"+announcementsDropdown+"'/></div>";
+		if (canEditPage()) {
+			SimplePageItem item;
+			if (itemId != null && itemId != -1) {
+				//existing item, need to update
+				item = findItem(itemId);
+			}else{
+				//new item ,add it
+				item = appendItem("", "", SimplePageItem.ANNOUNCEMENTS);
+			}
+			item.setHtml(html);
+			//setting height in the item attribute
+			item.setAttribute("height", announcementsHeight);
+			item.setPrerequisite(this.prerequisite);
+			setItemGroups(item, selectedGroups);
+			update(item);
+		}else{
 			status = "cancel";
 		}
 		return status;

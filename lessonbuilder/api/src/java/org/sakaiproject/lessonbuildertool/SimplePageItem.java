@@ -48,6 +48,8 @@ public interface SimplePageItem {
     public static final int PEEREVAL = 13;
     public static final int BREAK = 14;
     public static final int TWITTER = 15;
+    //new SimplePageItem type added to display latest announcements in Lessons
+    public static final int ANNOUNCEMENTS = 16;
 
     // sakaiId used for an item copied from another site with no real content
 	public static final String DUMMY = "/dummy";
