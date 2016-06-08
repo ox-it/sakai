@@ -53,7 +53,9 @@ body.portalBody {
 .icon-oxford-talks{
     background-image: url(/library/skin/neo-ox/images/oxford-talks.png) !important;
 }
-
+.icon-lynda-logo{
+    background-image: url(/library/skin/neo-ox/images/lynda-logo.png) !important;
+}
 .icon-researcher-training{
     background-image: url(/library/skin/neo-ox/images/researcher-training-tool.png) !important;
 }
