@@ -71,6 +71,11 @@ var blankRubricTemplate, blankRubricRow;
 $(document).ready(function() {
 	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
 
+	//to reload the twitter div in order to change the font of twitter text
+	window.setTimeout(function(){
+		$(".twitter-timeline").contents().find("*").css("font-size","13px");
+	}, 1000);
+
 
 	//Only number allowed for announcements height
 	$("#announcements-height").keypress(function (e) {

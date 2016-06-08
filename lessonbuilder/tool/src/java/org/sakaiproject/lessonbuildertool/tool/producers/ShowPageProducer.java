@@ -2890,33 +2890,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
 						UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
-						//Setting default values for the twitter variables
-						String tweetLimit = "5";
-						String height = "";
-						String username = "";
-						//Check if the html is neither empty nor null
-						if(StringUtils.isNotBlank(i.getHtml())){
-							//check if the html contains the variables which we expect to extract
-							if(i.getHtml().contains("data-tweet-limit") && i.getHtml().contains("data-screen-name")
-									&& i.getHtml().contains("height") ){
-								//Extract tweet number variable from the html
-								String[] stringArray = i.getHtml().split("data-tweet-limit=");
-								//check if array is not empty and has 2 elements
-								if(stringArray.length > 1){
-									//splitting the remaining text using space as delimiter
-									String[] twitterVariables = stringArray[1].split("\\s+");
-									//checking if this array has 4 elements after the split
-									if(twitterVariables.length > 3){
-										tweetLimit = twitterVariables[0];
-										height = twitterVariables[2].split("=").length > 1 ? twitterVariables[2].split("=")[1] : "";
-										String[] usernameArray = twitterVariables[3].split(">");
-										if(usernameArray.length > 0){
-											username = usernameArray[0].split("=").length > 1 ? usernameArray[0].split("=")[1] : "";
-										}
-									}
-								}
-							}
-						}
+						//Getting variables from attributes of this  twitter page item
+						String tweetLimit = i.getAttribute("numberOfTweets") != null ? i.getAttribute("numberOfTweets") : "5";
+						String height = i.getAttribute("height") != null ? i.getAttribute("height") : "" ;
+						String username = i.getAttribute("username") != null ? i.getAttribute("username") : "";
+
 						UIOutput.make(tableRow, "username", username);
 						UIOutput.make(tableRow, "tweetLimit", tweetLimit);
 						UIOutput.make(tableRow, "twitter-height", height);
