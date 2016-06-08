@@ -33,6 +33,30 @@ var basePath = "/library/editor/ckextraplugins/";
 // The config object allows for name-based config options to be passed.
 // The w and h parameters should be removed as soon as their uses can be migrated.
 sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
+    // function for getting json
+    // credit to Mathias Bynens (https://mathiasbynens.be/notes/xhr-responsetype-json)
+    var getJSON = function(url, successHandler, errorHandler, completeHandler) {
+        var xhr = typeof XMLHttpRequest != 'undefined'
+            ? new XMLHttpRequest()
+            : new ActiveXObject('Microsoft.XMLHTTP');
+        xhr.open('get', url, true);
+        xhr.onreadystatechange = function() {
+            var status;
+            var data;
+            // https://xhr.spec.whatwg.org/#dom-xmlhttprequest-readystate
+            if (xhr.readyState == 4) { // `DONE`
+                status = xhr.status;
+                if (status == 200) {
+                    data = JSON.parse(xhr.responseText);
+                    successHandler && successHandler(data);
+                } else {
+                    errorHandler && errorHandler(status);
+                }
+            }
+        };
+        xhr.send();
+    };
+
     //http://www.quirksmode.org/js/findpos.html
     function findPos(obj) {
         var curleft = curtop = 0;
@@ -264,14 +288,13 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             setMainFrameHeightNow(window.name);
         }
     });
-  }
 
-  // finally, ajax call to blocked plugin list
-  getJSON('/direct/ckeditor-config/listBlockedPlugins.json', function(data) {
-    loadCKConfig(data);   // json successfully called
-  }, function(status) {
-    loadCKConfig(false);  // error calling json
-  });
+    // finally, ajax call to blocked plugin list
+    getJSON('/direct/ckeditor-config/listBlockedPlugins.json', function(data) {
+        loadCKConfig(data);   // json successfully called
+    }, function(status) {
+        loadCKConfig(false);  // error calling json
+    });
 }
 
 sakai.editor.launch = sakai.editor.editors.ckeditor.launch;
