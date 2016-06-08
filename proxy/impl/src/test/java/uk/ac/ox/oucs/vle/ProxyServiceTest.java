@@ -3,8 +3,9 @@ package uk.ac.ox.oucs.vle;
 import java.util.Random;
 
 import junit.framework.TestCase;
+import org.junit.Assert;
 
-public class ProxyServiceTest extends TestCase {
+public class ProxyServiceTest extends Assert {
 
 	private ProxyServiceImpl proxyService;
 	

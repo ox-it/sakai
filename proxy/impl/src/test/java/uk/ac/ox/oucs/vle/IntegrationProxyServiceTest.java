@@ -3,33 +3,33 @@ package uk.ac.ox.oucs.vle;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * Just test that we've got everything wired up correctly.
  * @author buckett
  *
  */
-public class IntegrationProxyServiceTest extends AbstractDependencyInjectionSpringContextTests {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations={"classpath:proxy.xml"})
+public class IntegrationProxyServiceTest extends Assert {
 
+	@Autowired
 	private ProxyService proxyService;
 	
-	public void setProxyService(ProxyService proxyService) {
-		this.proxyService = proxyService;
-	}
-
-	protected String[] getConfigLocations() {
-		return new String[] {
-				"classpath:proxy.xml"
-		};
-	}
-	
+	@Test
 	public void testRepeatbleSignature() {
 		String signature1 = proxyService.getSignature("http://news.bbc.co.uk/");
 		String signature2 = proxyService.getSignature("http://news.bbc.co.uk/");
 		assertEquals(signature1, signature2);
 	}
-	
+
+	@Test
 	public void testRoundTrip() {
 		String url = proxyService.getProxyURL("http://news.bbc.co.uk/");
 		assertNotNull(url);
